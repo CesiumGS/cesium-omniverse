@@ -1,11 +1,14 @@
 #pragma once
 
-#undef OPAQUE
-
 #include "Georeference.h"
 #include "RenderResourcesPreparer.h"
 
 #include "cesium/omniverse/CesiumOmniverse.h"
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma push_macro("OPAQUE")
+#undef OPAQUE
+#endif
 
 #include <Cesium3DTilesSelection/Tileset.h>
 

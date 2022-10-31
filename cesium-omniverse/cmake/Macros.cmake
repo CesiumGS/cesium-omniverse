@@ -222,9 +222,16 @@ $<$<CONFIG:MinSizeRel>:${CMAKE_MINSIZEREL_POSTFIX}>")
     # See https://stackoverflow.com/questions/45516209/cmake-how-to-use-interface-include-directories-with-externalproject
     file(MAKE_DIRECTORY ${PROJECT_INCLUDE_DIR})
 
+    set(EXTERN_CXX_FLAGS "")
+
     if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
         # Build with old C++ ABI. See top-level CMakeLists.txt for explanation.
-        set(EXTERN_CXX_FLAGS "-D_GLIBCXX_USE_CXX11_ABI=0")
+        set(EXTERN_CXX_FLAGS ${EXTERN_CXX_FLAGS} "-D_GLIBCXX_USE_CXX11_ABI=0")
+    endif()
+
+    if(MSVC)
+        # See https://learn.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-1-c4530?view=msvc-170
+        set(EXTERN_CXX_FLAGS ${EXTERN_CXX_FLAGS} "/EHsc")
     endif()
 
     # Prepend options with -D

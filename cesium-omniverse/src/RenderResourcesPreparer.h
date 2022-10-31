@@ -1,10 +1,7 @@
 #pragma once
 
-#undef OPAQUE
-
 #include <Cesium3DTilesSelection/IPrepareRendererResources.h>
 #include <CesiumGeometry/AxisTransforms.h>
-
 
 #ifdef CESIUM_OMNI_GCC
 #define _GLIBCXX_PERMIT_BACKWARD_HASH

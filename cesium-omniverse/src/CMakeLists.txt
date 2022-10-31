@@ -63,6 +63,7 @@ setup_lib(
         uriparser
         webpdecoder
         cpr::cpr
+        stb::stb
         ZLIB::ZLIB
         boost_python37
         python37
@@ -111,6 +112,7 @@ setup_python_module(
         "${PYTHON_BINDINGS_CPP}"
     LIBRARIES
         CesiumOmniverse
+        pybind11::pybind11
     CXX_FLAGS
         ${CESIUM_OMNI_CXX_FLAGS}
     CXX_FLAGS_DEBUG
