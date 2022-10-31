@@ -1,0 +1,50 @@
+[
+    {
+        "name": "cesium-native",
+        "license": [
+            "Apache-2.0"
+        ],
+        "version": "0.15.0",
+        "url": "https://github.com/CesiumGS/cesium-native"
+    },
+    {
+        "name": "cpr",
+        "license": [
+            "MIT"
+        ],
+        "version": "1.9.0",
+        "url": "https://docs.libcpr.org/"
+    },
+    {
+        "name": "libcurl",
+        "license": [
+            "curl"
+        ],
+        "version": "7.80.0",
+        "url": "https://curl.se"
+    },
+    {
+        "name": "openssl",
+        "license": [
+            "OpenSSL"
+        ],
+        "version": "1.1.1q",
+        "url": "https://github.com/openssl/openssl"
+    },
+    {
+        "name": "pybind11",
+        "license": [
+            "BSD-3-Clause"
+        ],
+        "version": "2.10.0",
+        "url": "https://github.com/pybind/pybind11"
+    },
+    {
+        "name": "zlib",
+        "license": [
+            "Zlib"
+        ],
+        "version": "1.2.13",
+        "url": "https://zlib.net"
+    }
+]

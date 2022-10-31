@@ -1,0 +1,49 @@
+{
+  "folders": [
+    {
+      "path": ".."
+    }
+  ],
+  "settings": {
+    "files.associations": {
+      "*.kit": "toml"
+    },
+    "editor.rulers": [
+      120
+    ],
+    // Python modules search paths:
+    "python.analysis.extraPaths": [
+      "${workspaceFolder}/exts/cesium.omniverse",
+      "${workspaceFolder}/app/kit/extscore/omni.kit.pip_archive/pip_prebundle",
+      "${workspaceFolder}/app/kit/plugins/bindings-python"
+    ],
+    // Python & Pylance Setup
+    "python.languageServer": "Pylance",
+    "python.defaultInterpreterPath": "${workspaceFolder}/app/kit/python/bin/python3",
+    // We use "black" as a formatter:
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+      "--line-length",
+      "120"
+    ],
+    // Use flake8 for linting
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": true,
+    "python.linting.flake8Args": [
+      "--max-line-length=120"
+    ],
+    // Ignore submodules in git sidebar
+    "git.detectSubmodules": false,
+    "git.ignoreSubmodules": true
+  },
+  "extensions": {
+    "recommendations": [
+      "ms-python.python",
+      "ms-python.vscode-pylance",
+      "tamasfe.even-better-toml",
+      "editorconfig.editorconfig"
+    ],
+    "unwantedRecommendations": []
+  }
+}

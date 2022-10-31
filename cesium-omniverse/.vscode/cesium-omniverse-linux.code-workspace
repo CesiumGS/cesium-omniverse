@@ -1,0 +1,39 @@
+{
+  "folders": [
+    {
+      "path": ".."
+    }
+  ],
+  "settings": {
+    // This prevents system headers that don't have a .h file extension from
+    // being added to the file associations object.
+    // See https://github.com/microsoft/vscode-cpptools/issues/5537
+    "C_Cpp.autoAddFileAssociations": false,
+    // Disable C/C++ extension IntelliSense since it conflicts with clangd
+    // and has trouble finding third party libraries
+    "C_Cpp.intelliSenseEngine": "disabled",
+    // Ignore submodules in git sidebar
+    "git.detectSubmodules": false,
+    "git.ignoreSubmodules": true,
+    "[yaml]": {
+      "editor.defaultFormatter": "redhat.vscode-yaml",
+      "editor.tabSize": 2,
+      "editor.insertSpaces": true
+    },
+    "yaml.format.singleQuote": true
+  },
+  "extensions": {
+    "recommendations": [
+      "llvm-vs-code-extensions.vscode-clangd",
+      "ms-python.python",
+      "ms-python.vscode-pylance",
+      "ms-vscode.cpptools",
+      "vadimcn.vscode-lldb",
+      "twxs.cmake",
+      "editorconfig.editorconfig",
+      "cheshirekow.cmake-format",
+      "redhat.vscode-yaml"
+    ],
+    "unwantedRecommendations": []
+  }
+}

@@ -1,0 +1,45 @@
+[package]
+version = "0.0.0"
+category = "simulation"
+feature = false
+app = false
+title = "Cesium for Omniverse"
+description = "High-accuracy full-scale WGS84 globe for Omniverse"
+authors = "Cesium GS Inc."
+repository = "https://github.com/CesiumGS/cesium-omniverse"
+keywords = [
+    "cesium",
+    "omniverse",
+    "geospatial",
+    "3D Tiles",
+    "glTF",
+    "globe",
+    "earth",
+    "simulation",
+]
+
+# Paths are relative to the extension folder
+changelog = "CHANGES.md"
+readme = "README.md"
+preview_image = "images/preview.jpg"
+icon = "images/icon.png"
+
+# Which extensions this extension depends on
+[dependencies]
+"omni.usd" = {}
+"omni.usd.libs" = {}
+"omni.kit.uiapp" = {}
+"omni.kit.viewport.utility" = {}
+
+# Main python module this extension provides, it will be publicly available as "import cesium.omniverse"
+[[python.module]]
+name = "cesium.omniverse"
+
+# Hot reload watcher
+[fswatcher.patterns]
+include = ["*.toml", "*.py", "*.pyd"]
+exclude = []
+
+[fswatcher.paths]
+include = ["*"]
+exclude = ["*/__pycache__*", "*/.git*"]

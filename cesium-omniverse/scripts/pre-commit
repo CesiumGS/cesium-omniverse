@@ -1,0 +1,12 @@
+#!/usr/bin/env python3
+import platform
+from utils import utils
+
+if __name__ == '__main__':
+    project_root = utils.get_project_root()
+    cmake_build_directory = utils.get_cmake_build_directory(project_root)
+    print("Using CMake build directory: {}".format(cmake_build_directory))
+    utils.run_cmake_target(cmake_build_directory, "clang-format-check-staged")
+
+    if platform.system() != "Windows":
+        utils.run_cmake_target(cmake_build_directory, "clang-tidy-staged")
