@@ -1,0 +1,190 @@
+{
+    "version": "2.0.0",
+    "inputs": [
+        {
+            "id": "build-type",
+            "type": "pickString",
+            "description": "Build Type",
+            "default": "Debug",
+            "options": [
+                "Debug",
+                "Release",
+                "RelWithDebInfo",
+                "MinSizeRel"
+            ]
+        },
+        {
+            "id": "compiler",
+            "type": "pickString",
+            "description": "Compiler",
+            "default": "default",
+            "options": [
+                "default",
+                "clang-14",
+                "gcc-9"
+            ]
+        }
+    ],
+    "tasks": [
+        {
+            "label": "Configure",
+            "type": "shell",
+            "group": "build",
+            "problemMatcher": "$gcc",
+            "windows": {
+                "problemMatcher": "$msCompile"
+            },
+            "command": "python3 scripts/vscode_build.py configure ${input:build-type} ${input:compiler}"
+        },
+        {
+            "label": "Build (advanced)",
+            "type": "shell",
+            "group": "build",
+            "problemMatcher": "$gcc",
+            "windows": {
+                "problemMatcher": "$msCompile"
+            },
+            "command": "python3 scripts/vscode_build.py build ${input:build-type} ${input:compiler}"
+        },
+        {
+            "label": "Build (verbose)",
+            "type": "shell",
+            "group": "build",
+            "problemMatcher": "$gcc",
+            "windows": {
+                "problemMatcher": "$msCompile"
+            },
+            "command": "python3 scripts/vscode_build.py build ${input:build-type} ${input:compiler} --verbose --no-parallel"
+        },
+        {
+            "label": "Build (debug)",
+            "type": "shell",
+            "group": "build",
+            "problemMatcher": "$gcc",
+            "windows": {
+                "problemMatcher": "$msCompile"
+            },
+            "command": "python3 scripts/vscode_build.py build Debug default",
+        },
+        {
+            "label": "Build (release)",
+            "type": "shell",
+            "group": "build",
+            "problemMatcher": "$gcc",
+            "windows": {
+                "problemMatcher": "$msCompile"
+            },
+            "command": "python3 scripts/vscode_build.py build Release default"
+        },
+        {
+            "label": "Build Only (debug)",
+            "type": "shell",
+            "group": "build",
+            "problemMatcher": "$gcc",
+            "windows": {
+                "problemMatcher": "$msCompile"
+            },
+            "command": "python3 scripts/vscode_build.py build Debug default --build-only",
+        },
+        {
+            "label": "Build Only (release)",
+            "type": "shell",
+            "group": "build",
+            "problemMatcher": "$gcc",
+            "windows": {
+                "problemMatcher": "$msCompile"
+            },
+            "command": "python3 scripts/vscode_build.py build Release default --build-only"
+        },
+        {
+            "label": "Clean",
+            "type": "shell",
+            "group": "build",
+            "problemMatcher": "$gcc",
+            "windows": {
+                "problemMatcher": "$msCompile"
+            },
+            "command": "python3 scripts/vscode_build.py clean ${input:build-type} ${input:compiler}"
+        },
+        {
+            "label": "Test",
+            "type": "shell",
+            "group": "build",
+            "problemMatcher": "$gcc",
+            "windows": {
+                "problemMatcher": "$msCompile"
+            },
+            "command": "python3 scripts/vscode_build.py test ${input:build-type} ${input:compiler}"
+        },
+        {
+            "label": "Coverage",
+            "type": "shell",
+            "group": "build",
+            "problemMatcher": "$gcc",
+            "windows": {
+                "problemMatcher": "$msCompile"
+            },
+            "command": "python3 scripts/vscode_build.py coverage Debug ${input:compiler}",
+        },
+        {
+            "label": "Documentation",
+            "type": "shell",
+            "group": "build",
+            "problemMatcher": "$gcc",
+            "windows": {
+                "problemMatcher": "$msCompile"
+            },
+            "command": "python3 scripts/vscode_build.py documentation ${input:build-type} ${input:compiler}"
+        },
+        {
+            "label": "Install",
+            "type": "shell",
+            "group": "build",
+            "problemMatcher": "$gcc",
+            "windows": {
+                "problemMatcher": "$msCompile"
+            },
+            "command": "python3 scripts/vscode_build.py install ${input:build-type} ${input:compiler}"
+        },
+        {
+            "label": "Format",
+            "type": "shell",
+            "group": "build",
+            "problemMatcher": "$gcc",
+            "windows": {
+                "problemMatcher": "$msCompile"
+            },
+            "command": "python3 scripts/vscode_build.py format ${input:build-type} ${input:compiler}"
+        },
+        {
+            "label": "Lint",
+            "type": "shell",
+            "group": "build",
+            "problemMatcher": "$gcc",
+            "windows": {
+                "problemMatcher": "$msCompile"
+            },
+            "command": "python3 scripts/vscode_build.py lint ${input:build-type} ${input:compiler}"
+        },
+        {
+            "label": "Lint Fix",
+            "type": "shell",
+            "group": "build",
+            "problemMatcher": "$gcc",
+            "windows": {
+                "problemMatcher": "$msCompile"
+            },
+            "command": "python3 scripts/vscode_build.py lint-fix ${input:build-type} ${input:compiler}"
+        },
+        {
+            "label": "Dependency Graph",
+            "type": "shell",
+            "group": "build",
+            "problemMatcher": "$gcc",
+            "windows": {
+                "problemMatcher": "$msCompile"
+            },
+            "command": "python3 scripts/vscode_build.py dependency-graph ${input:build-type} ${input:compiler}"
+        }
+    ]
+}
