@@ -248,7 +248,7 @@ $<$<CONFIG:MinSizeRel>:${CMAKE_MINSIZEREL_POSTFIX}>")
         SOURCE_DIR "${_PROJECT_EXTERN_DIRECTORY}/${_PROJECT_NAME}"
         PREFIX ${_PROJECT_NAME}
         BUILD_ALWAYS
-            0 # Set this to 1 to always trigger the external project build step. Needed when modifying cesium-native.
+            1 # Set this to 0 to always skip the external project build step. Be sure to reset to 1 when modifying cesium-native as it's needed there.
         LIST_SEPARATOR | # Use the alternate list separator
         CMAKE_ARGS -DBUILD_SHARED_LIBS=OFF
                    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
