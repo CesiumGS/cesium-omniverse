@@ -1,4 +1,3 @@
-#undef OPAQUE
 #include "OmniTileset.h"
 
 #include "HttpAssetAccessor.h"
@@ -7,6 +6,12 @@
 
 #include <Cesium3DTilesSelection/registerAllTileContentTypes.h>
 #include <CesiumGeometry/AxisTransforms.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma push_macro("OPAQUE")
+#undef OPAQUE
+#endif
+
 #include <CesiumGltf/Material.h>
 #include <glm/glm.hpp>
 

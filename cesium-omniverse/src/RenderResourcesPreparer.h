@@ -1,10 +1,7 @@
 #pragma once
 
-#undef OPAQUE
-
 #include <Cesium3DTilesSelection/IPrepareRendererResources.h>
 #include <CesiumGeometry/AxisTransforms.h>
-
 
 #ifdef CESIUM_OMNI_GCC
 #define _GLIBCXX_PERMIT_BACKWARD_HASH
@@ -59,8 +56,9 @@ class RenderResourcesPreparer : public Cesium3DTilesSelection::IPrepareRendererR
 
     void setVisible(void* tileRenderResources, bool enable);
 
-    void* prepareInLoadThread(
-        const CesiumGltf::Model& model,
+    CesiumAsync::Future<Cesium3DTilesSelection::TileLoadResultAndRenderResources> prepareInLoadThread(
+        const CesiumAsync::AsyncSystem& asyncSystem,
+        Cesium3DTilesSelection::TileLoadResult&& tileLoadResult,
         const glm::dmat4& transform,
         const std::any& rendererOptions) override;
 
@@ -68,11 +66,10 @@ class RenderResourcesPreparer : public Cesium3DTilesSelection::IPrepareRendererR
 
     void free(Cesium3DTilesSelection::Tile& tile, void* pLoadThreadResult, void* pMainThreadResult) noexcept override;
 
-    void* prepareRasterInLoadThread(const CesiumGltf::ImageCesium& image, const std::any& rendererOptions) override;
+    void* prepareRasterInLoadThread(CesiumGltf::ImageCesium& image, const std::any& rendererOptions) override;
 
-    void* prepareRasterInMainThread(
-        const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
-        void* pLoadThreadResult) override;
+    void*
+    prepareRasterInMainThread(Cesium3DTilesSelection::RasterOverlayTile& rasterTile, void* pLoadThreadResult) override;
 
     void freeRaster(
         const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,

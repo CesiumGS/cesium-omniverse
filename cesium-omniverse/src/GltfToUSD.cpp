@@ -1,7 +1,12 @@
 #include "GltfToUSD.h"
 
 #include "InMemoryAssetResolver.h"
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma push_macro("OPAQUE")
 #undef OPAQUE
+#endif
+
 #include <CesiumGltf/AccessorView.h>
 #include <CesiumGltf/Model.h>
 #include <CesiumGltfReader/GltfReader.h>
@@ -15,6 +20,9 @@
 #include <pxr/usd/usdShade/material.h>
 #include <pxr/usd/usdShade/materialBindingAPI.h>
 #include <spdlog/fmt/fmt.h>
+
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image_write.h>
 
 #include <cstddef>
 #include <fstream>
@@ -232,6 +240,23 @@ pxr::VtArray<pxr::GfVec3f> getPrimitiveNormals(
     return normalsUsd;
 }
 
+std::vector<std::byte> writeImageToBmp(const CesiumGltf::Image& img) {
+    std::vector<std::byte> writeData;
+    stbi_write_bmp_to_func(
+        [](void* context, void* data, int size) {
+            auto& write = *reinterpret_cast<std::vector<std::byte>*>(context);
+            std::byte* bdata = reinterpret_cast<std::byte*>(data);
+            write.insert(write.end(), bdata, bdata + size);
+        },
+        &writeData,
+        img.cesium.width,
+        img.cesium.height,
+        img.cesium.channels,
+        img.cesium.pixelData.data());
+
+    return writeData;
+}
+
 pxr::SdfAssetPath convertTextureToUSD(
     const pxr::SdfPath& parentPath,
     const CesiumGltf::Model& model,
@@ -240,7 +265,7 @@ pxr::SdfAssetPath convertTextureToUSD(
     std::string texturePath = fmt::format("{}/texture_{}.bmp", parentPath.GetString(), textureIdx);
 
     const CesiumGltf::Image& img = model.images[texture.source];
-    auto inMemoryAsset = std::make_shared<pxr::InMemoryAsset>(CesiumGltfReader::GltfReader::writeImageToBmp(img));
+    auto inMemoryAsset = std::make_shared<pxr::InMemoryAsset>(writeImageToBmp(img));
     auto& ctx = pxr::InMemoryAssetContext::instance();
     ctx.assets.insert({texturePath, std::move(inMemoryAsset)});
 

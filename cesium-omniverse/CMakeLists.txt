@@ -362,6 +362,7 @@ find_package(Threads) # System threading library
 find_package(cpr)
 find_package(doctest)
 find_package(pybind11)
+find_package(stb)
 find_package(ZLIB)
 
 # Third party dependencies not handled by conan

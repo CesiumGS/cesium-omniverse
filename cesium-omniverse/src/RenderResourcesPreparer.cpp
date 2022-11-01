@@ -50,20 +50,28 @@ void RenderResourcesPreparer::setVisible(void* renderResources, bool enable) {
     }
 }
 
-void* RenderResourcesPreparer::prepareInLoadThread(
-    const CesiumGltf::Model& model,
+CesiumAsync::Future<Cesium3DTilesSelection::TileLoadResultAndRenderResources>
+RenderResourcesPreparer::prepareInLoadThread(
+    const CesiumAsync::AsyncSystem& asyncSystem,
+    Cesium3DTilesSelection::TileLoadResult&& tileLoadResult,
     const glm::dmat4& transform,
     const std::any& rendererOptions) {
+    CesiumGltf::Model* pModel = std::get_if<CesiumGltf::Model>(&tileLoadResult.contentKind);
+    if (!pModel)
+        return asyncSystem.createResolvedFuture(
+            Cesium3DTilesSelection::TileLoadResultAndRenderResources{std::move(tileLoadResult), nullptr});
+
     pxr::SdfLayerRefPtr anonLayer = pxr::SdfLayer::CreateAnonymous(".usda");
     pxr::UsdStageRefPtr anonStage = pxr::UsdStage::Open(anonLayer);
     auto prim = GltfToUSD::convertToUSD(
         anonStage,
         tilesetPath.AppendChild(pxr::TfToken(fmt::format("tile_{}", ++tileID))),
-        model,
+        *pModel,
         transform * CesiumGeometry::AxisTransforms::Y_UP_TO_Z_UP);
     prim.SetActive(false);
 
-    return new TileWorkerRenderResources{std::move(anonLayer), prim.GetPath(), false};
+    return asyncSystem.createResolvedFuture(Cesium3DTilesSelection::TileLoadResultAndRenderResources{
+        std::move(tileLoadResult), new TileWorkerRenderResources{std::move(anonLayer), prim.GetPath(), false}});
 }
 
 void* RenderResourcesPreparer::prepareInMainThread(Cesium3DTilesSelection::Tile& tile, void* pLoadThreadResult) {
@@ -93,13 +101,13 @@ void RenderResourcesPreparer::free(
 }
 
 void* RenderResourcesPreparer::prepareRasterInLoadThread(
-    const CesiumGltf::ImageCesium& image,
+    CesiumGltf::ImageCesium& image,
     const std::any& rendererOptions) {
     return nullptr;
 }
 
 void* RenderResourcesPreparer::prepareRasterInMainThread(
-    const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
+    Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
     void* pLoadThreadResult) {
     return nullptr;
 }

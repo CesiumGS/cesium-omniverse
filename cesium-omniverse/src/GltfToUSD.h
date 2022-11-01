@@ -1,6 +1,9 @@
 #pragma once
 
+#ifdef CESIUM_OMNI_MSVC
+#pragma push_macro("OPAQUE")
 #undef OPAQUE
+#endif
 
 #include <CesiumGltf/Model.h>
 #include <glm/glm.hpp>
