@@ -26,3 +26,5 @@ trace.csv
 
 # CI puts Conan in the project directory
 .conan
+
+.idea
