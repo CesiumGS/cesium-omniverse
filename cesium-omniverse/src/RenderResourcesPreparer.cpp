@@ -9,9 +9,10 @@
 
 #include <atomic>
 
-namespace pxr {
-TF_DEFINE_PRIVATE_TOKENS(_tileTokens, (visibility)(invisible)(visible));
-}
+// TODO: Determine if this is actually needed for anything.
+// namespace pxr {
+// TF_DEFINE_PRIVATE_TOKENS(_tileTokens, (visibility)(invisible)(visible));
+// }
 
 namespace Cesium {
 static std::atomic<std::uint64_t> tileID;
