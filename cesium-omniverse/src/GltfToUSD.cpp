@@ -67,7 +67,7 @@ pxr::VtArray<int> createIndices(
         pxr::VtArray<int> indices;
         indices.resize(static_cast<std::size_t>(indicesAccessorView.size()));
         for (std::int64_t i = 0; i < indicesAccessorView.size(); ++i) {
-            indices[static_cast<std::size_t>(i)] = static_cast<std::uint32_t>(indicesAccessorView[i]);
+            indices[static_cast<std::size_t>(i)] = static_cast<const int>(indicesAccessorView[i]);
         }
 
         return indices;
@@ -82,13 +82,13 @@ pxr::VtArray<int> createIndices(
         indices.reserve(static_cast<std::size_t>(indicesAccessorView.size() - 2) * 3);
         for (std::int64_t i = 0; i < indicesAccessorView.size() - 2; ++i) {
             if (i % 2) {
-                indices.push_back(static_cast<std::uint32_t>(indicesAccessorView[i]));
-                indices.push_back(static_cast<std::uint32_t>(indicesAccessorView[i + 2]));
-                indices.push_back(static_cast<std::uint32_t>(indicesAccessorView[i + 1]));
+                indices.push_back(static_cast<const int>(indicesAccessorView[i]));
+                indices.push_back(static_cast<const int>(indicesAccessorView[i + 2]));
+                indices.push_back(static_cast<const int>(indicesAccessorView[i + 1]));
             } else {
-                indices.push_back(static_cast<std::uint32_t>(indicesAccessorView[i]));
-                indices.push_back(static_cast<std::uint32_t>(indicesAccessorView[i + 1]));
-                indices.push_back(static_cast<std::uint32_t>(indicesAccessorView[i + 2]));
+                indices.push_back(static_cast<const int>(indicesAccessorView[i]));
+                indices.push_back(static_cast<const int>(indicesAccessorView[i + 1]));
+                indices.push_back(static_cast<const int>(indicesAccessorView[i + 2]));
             }
         }
 
@@ -103,9 +103,9 @@ pxr::VtArray<int> createIndices(
         pxr::VtArray<int> indices;
         indices.reserve(static_cast<std::size_t>(indicesAccessorView.size() - 2) * 3);
         for (std::int64_t i = 0; i < indicesAccessorView.size() - 2; ++i) {
-            indices.push_back(static_cast<std::uint32_t>(indicesAccessorView[0]));
-            indices.push_back(static_cast<std::uint32_t>(indicesAccessorView[i + 1]));
-            indices.push_back(static_cast<std::uint32_t>(indicesAccessorView[i + 2]));
+            indices.push_back(static_cast<const int>(indicesAccessorView[0]));
+            indices.push_back(static_cast<const int>(indicesAccessorView[i + 1]));
+            indices.push_back(static_cast<const int>(indicesAccessorView[i + 2]));
         }
 
         return indices;
@@ -137,7 +137,7 @@ pxr::VtArray<pxr::GfVec2f> getPrimitiveUVs(
     usdUVs.reserve(static_cast<size_t>(uvs.size()));
     for (int64_t i = 0; i < uvs.size(); ++i) {
         const glm::vec2& vert = uvs[i];
-        usdUVs.push_back(pxr::GfVec2f(vert.x, 1.0 - vert.y));
+        usdUVs.push_back(pxr::GfVec2f(vert.x, 1.0f - vert.y));
     }
 
     return usdUVs;
@@ -222,15 +222,19 @@ pxr::VtArray<pxr::GfVec3f> getPrimitiveNormals(
     // generate normals
     pxr::VtArray<pxr::GfVec3f> normalsUsd(positions.size(), pxr::GfVec3f(0.0f));
     for (std::size_t i = 0; i < indices.size(); i += 3) {
-        const pxr::GfVec3f& p0 = positions[indices[i]];
-        const pxr::GfVec3f& p1 = positions[indices[i + 1]];
-        const pxr::GfVec3f& p2 = positions[indices[i + 2]];
+        auto pos0 = static_cast<unsigned long>(indices[i]);
+        auto pos1 = static_cast<unsigned long>(indices[i + 1]);
+        auto pos2 = static_cast<unsigned long>(indices[i + 2]);
+
+        const pxr::GfVec3f& p0 = positions[pos0];
+        const pxr::GfVec3f& p1 = positions[pos1];
+        const pxr::GfVec3f& p2 = positions[pos2];
         pxr::GfVec3f n = pxr::GfCross(p1 - p0, p2 - p0);
         n.Normalize();
 
-        normalsUsd[indices[i]] += n;
-        normalsUsd[indices[i + 1]] += n;
-        normalsUsd[indices[i + 2]] += n;
+        normalsUsd[pos0] += n;
+        normalsUsd[pos1] += n;
+        normalsUsd[pos2] += n;
     }
 
     for (auto& n : normalsUsd) {
@@ -264,7 +268,8 @@ pxr::SdfAssetPath convertTextureToUSD(
     int32_t textureIdx) {
     std::string texturePath = fmt::format("{}/texture_{}.bmp", parentPath.GetString(), textureIdx);
 
-    const CesiumGltf::Image& img = model.images[texture.source];
+    auto textureSource = static_cast<unsigned long>(texture.source);
+    const CesiumGltf::Image& img = model.images[textureSource];
     auto inMemoryAsset = std::make_shared<pxr::InMemoryAsset>(writeImageToBmp(img));
     auto& ctx = pxr::InMemoryAssetContext::instance();
     ctx.assets.insert({texturePath, std::move(inMemoryAsset)});
@@ -276,7 +281,6 @@ pxr::UsdShadeMaterial convertMaterialToUSD(
     pxr::UsdStageRefPtr& stage,
     const pxr::SdfPath& parentPath,
     const std::vector<pxr::SdfAssetPath>& usdTexturePaths,
-    const CesiumGltf::Model& model,
     const CesiumGltf::Material& material,
     int32_t materialIdx) {
     std::string materialName = fmt::format("material_{}", materialIdx);
@@ -294,7 +298,7 @@ pxr::UsdShadeMaterial convertMaterialToUSD(
 
     std::vector<pxr::UsdShadeShader> stReaders(2);
     std::vector<pxr::UsdShadeInput> stInputs(2);
-    for (int i = 0; i < 2; ++i) {
+    for (unsigned int i = 0; i < 2; ++i) {
         stReaders[i] =
             pxr::UsdShadeShader::Define(stage, materialPath.AppendChild(pxr::TfToken(fmt::format("stReader_{}", i))));
         stReaders[i].CreateIdAttr(pxr::VtValue(pxr::_tokens->PrimStShaderId));
@@ -306,8 +310,10 @@ pxr::UsdShadeMaterial convertMaterialToUSD(
     }
 
     if (pbrMetallicRoughness->baseColorTexture) {
-        const pxr::SdfAssetPath& texturePath = usdTexturePaths[pbrMetallicRoughness->baseColorTexture->index];
-        const pxr::UsdShadeShader& stReader = stReaders[pbrMetallicRoughness->baseColorTexture->texCoord];
+        auto textureIndex = static_cast<unsigned long>(pbrMetallicRoughness->baseColorTexture->index);
+        const pxr::SdfAssetPath& texturePath = usdTexturePaths[textureIndex];
+        auto texCoord = static_cast<unsigned long>(pbrMetallicRoughness->baseColorTexture->texCoord);
+        const pxr::UsdShadeShader& stReader = stReaders[texCoord];
 
         pxr::UsdShadeShader diffuseTextureSampler =
             pxr::UsdShadeShader::Define(stage, materialPath.AppendChild(pxr::TfToken("DiffuseTexture")));
@@ -321,9 +327,9 @@ pxr::UsdShadeMaterial convertMaterialToUSD(
     } else {
         pbrShader.CreateInput(pxr::_tokens->diffuseColor, pxr::SdfValueTypeNames->Vector3f)
             .Set(pxr::GfVec3f(
-                pbrMetallicRoughness->baseColorFactor[0],
-                pbrMetallicRoughness->baseColorFactor[1],
-                pbrMetallicRoughness->baseColorFactor[2]));
+                static_cast<float>(pbrMetallicRoughness->baseColorFactor[0]),
+                static_cast<float>(pbrMetallicRoughness->baseColorFactor[1]),
+                static_cast<float>(pbrMetallicRoughness->baseColorFactor[2])));
     }
 
     materialUsd.CreateSurfaceOutput().ConnectToSource(pbrShader.ConnectableAPI(), pxr::_tokens->surface);
@@ -372,7 +378,8 @@ void convertMeshToUSD(
 
             if (primitive.material >= 0) {
                 pxr::UsdShadeMaterialBindingAPI usdMaterialBinding(meshUsd);
-                usdMaterialBinding.Bind(materials[primitive.material]);
+                auto material = static_cast<unsigned long>(primitive.material);
+                usdMaterialBinding.Bind(materials[material]);
             }
         }
     }
@@ -388,7 +395,8 @@ void convertNodeToUSD(
     std::string nodeName = fmt::format("node_{}", nodeIdx);
     pxr::SdfPath nodePath = parentPath.AppendChild(pxr::TfToken(nodeName));
     for (std::int32_t child : node.children) {
-        if (child >= 0 && child < model.nodes.size()) {
+        auto nodeSize = static_cast<int32_t>(model.nodes.size());
+        if (child >= 0 && child < nodeSize) {
             convertNodeToUSD(stage, nodePath, model, model.nodes[static_cast<std::size_t>(child)], child, materials);
         }
     }
@@ -435,7 +443,8 @@ void convertNodeToUSD(
 
     xform.AddTransformOp().Set(currentTransform);
 
-    if (node.mesh >= 0 && node.mesh < model.meshes.size()) {
+    auto meshSize = static_cast<int32_t>(model.meshes.size());
+    if (node.mesh >= 0 && node.mesh < meshSize) {
         convertMeshToUSD(stage, nodePath, model, model.meshes[static_cast<size_t>(node.mesh)], materials);
     }
 }
@@ -458,7 +467,7 @@ pxr::UsdPrim GltfToUSD::convertToUSD(
     materialUSDs.reserve(model.materials.size());
     for (std::size_t i = 0; i < model.materials.size(); ++i) {
         materialUSDs.emplace_back(
-            convertMaterialToUSD(stage, modelPath, textureUSDPaths, model, model.materials[i], int32_t(i)));
+            convertMaterialToUSD(stage, modelPath, textureUSDPaths, model.materials[i], int32_t(i)));
     }
 
     pxr::UsdGeomXform xform = pxr::UsdGeomXform::Define(stage, modelPath);
@@ -488,7 +497,7 @@ pxr::UsdPrim GltfToUSD::convertToUSD(
     int32_t sceneIdx = model.scene;
     if (sceneIdx >= 0 && sceneIdx < static_cast<int32_t>(model.scenes.size())) {
         const CesiumGltf::Scene& scene = model.scenes[size_t(sceneIdx)];
-        for (int64_t node : scene.nodes) {
+        for (int32_t node : scene.nodes) {
             if (node >= 0 && model.nodes.size()) {
                 convertNodeToUSD(stage, modelPath, model, model.nodes[size_t(node)], node, materialUSDs);
             }

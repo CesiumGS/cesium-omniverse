@@ -11,6 +11,8 @@
 #include <pxr/usd/usd/stage.h>
 #include <pxr/usd/usdGeom/xform.h>
 
+#include "UtilMacros.h"
+
 namespace Cesium {
 struct TileWorkerRenderResources {
     pxr::SdfLayerRefPtr layer;

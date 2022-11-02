@@ -3,6 +3,7 @@
 #include <pxr/usd/ar/asset.h>
 #include <pxr/usd/ar/packageResolver.h>
 #include <tbb/concurrent_hash_map.h>
+#include "UtilMacros.h"
 
 #include <vector>
 

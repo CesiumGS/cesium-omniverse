@@ -195,22 +195,21 @@ endif()
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
     set(CESIUM_OMNI_CXX_FLAGS
         ${CESIUM_OMNI_CXX_FLAGS}
-        # TODO: temporarily disable warnings
-        # -Werror
-        # -Wall
-        # -Wextra
-        # -Wpedantic
-        # -Wparentheses
-        # -Wreturn-type
-        # -Wmissing-braces
-        # -Wunknown-pragmas
-        # -Wshadow
-        # -Wunused
-        # -Wuninitialized
-        # -Wconversion
-        # -Wno-missing-field-initializers
-        # -fstrict-aliasing
-        # -fstrict-enums
+        -Werror
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Wparentheses
+        -Wreturn-type
+        -Wmissing-braces
+        -Wunknown-pragmas
+        -Wshadow
+        -Wunused
+        -Wuninitialized
+        -Wconversion
+        -Wno-missing-field-initializers
+        -fstrict-aliasing
+        -fstrict-enums
     )
 
     if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")

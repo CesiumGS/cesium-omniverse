@@ -123,6 +123,7 @@ void OmniTileset::shutdown() {
 
 void OmniTileset::initOriginShiftHandler() {
     originShiftHandler.set_callback([this](const glm::dmat4& relToAbsWorld, const glm::dmat4& absToRelWorld) {
+        UNUSED(relToAbsWorld)
         this->renderResourcesPreparer->setTransform(absToRelWorld);
     });
 

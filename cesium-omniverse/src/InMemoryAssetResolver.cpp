@@ -48,11 +48,13 @@ InMemoryAssetResolver::InMemoryAssetResolver() {}
 InMemoryAssetResolver::~InMemoryAssetResolver() noexcept = default;
 
 std::string InMemoryAssetResolver::Resolve(const std::string& packagePath, const std::string& path) {
+    UNUSED(packagePath)
     return path;
 }
 
 std::shared_ptr<ArAsset>
 InMemoryAssetResolver::OpenAsset(const std::string& packagePath, const std::string& resolvedPath) {
+    UNUSED(packagePath)
     auto& ctx = InMemoryAssetContext::instance();
 
     {
@@ -66,8 +68,12 @@ InMemoryAssetResolver::OpenAsset(const std::string& packagePath, const std::stri
     return nullptr;
 }
 
-void InMemoryAssetResolver::BeginCacheScope(VtValue* cacheScopeData) {}
+void InMemoryAssetResolver::BeginCacheScope(VtValue* cacheScopeData) {
+    UNUSED(cacheScopeData)
+}
 
-void InMemoryAssetResolver::EndCacheScope(VtValue* cacheScopeData) {}
+void InMemoryAssetResolver::EndCacheScope(VtValue* cacheScopeData) {
+    UNUSED(cacheScopeData)
+}
 
 PXR_NAMESPACE_CLOSE_SCOPE
