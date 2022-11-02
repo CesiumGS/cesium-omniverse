@@ -268,7 +268,7 @@ $<$<CONFIG:MinSizeRel>:${CMAKE_MINSIZEREL_POSTFIX}>")
 
     if(NOT DEFINED _LIBRARIES)
         # Header only
-        add_library(${_PROJECT_NAME} INTERFACE)
+        add_library(${_PROJECT_NAME} INTERFACE IMPORTED GLOBAL)
         target_include_directories(${_PROJECT_NAME} INTERFACE "${PROJECT_INCLUDE_DIR}")
     else()
         foreach(lib IN LISTS _LIBRARIES)
