@@ -56,8 +56,7 @@ RenderResourcesPreparer::prepareInLoadThread(
     const CesiumAsync::AsyncSystem& asyncSystem,
     Cesium3DTilesSelection::TileLoadResult&& tileLoadResult,
     const glm::dmat4& transform,
-    const std::any& rendererOptions) {
-    UNUSED(rendererOptions)
+    [[maybe_unused]] const std::any& rendererOptions) {
     CesiumGltf::Model* pModel = std::get_if<CesiumGltf::Model>(&tileLoadResult.contentKind);
     if (!pModel)
         return asyncSystem.createResolvedFuture(
@@ -76,9 +75,9 @@ RenderResourcesPreparer::prepareInLoadThread(
         std::move(tileLoadResult), new TileWorkerRenderResources{std::move(anonLayer), prim.GetPath(), false}});
 }
 
-
-void* RenderResourcesPreparer::prepareInMainThread(Cesium3DTilesSelection::Tile& tile, void* pLoadThreadResult) {
-    UNUSED(tile)
+void* RenderResourcesPreparer::prepareInMainThread(
+    [[maybe_unused]] Cesium3DTilesSelection::Tile& tile,
+    void* pLoadThreadResult) {
     if (pLoadThreadResult) {
         std::unique_ptr<TileWorkerRenderResources> workerRenderResources{
             reinterpret_cast<TileWorkerRenderResources*>(pLoadThreadResult)};
@@ -90,10 +89,9 @@ void* RenderResourcesPreparer::prepareInMainThread(Cesium3DTilesSelection::Tile&
 }
 
 void RenderResourcesPreparer::free(
-    Cesium3DTilesSelection::Tile& tile,
+    [[maybe_unused]] Cesium3DTilesSelection::Tile& tile,
     void* pLoadThreadResult,
     void* pMainThreadResult) noexcept {
-    UNUSED(tile)
     if (pLoadThreadResult) {
         delete reinterpret_cast<TileWorkerRenderResources*>(pLoadThreadResult);
     }
@@ -106,53 +104,33 @@ void RenderResourcesPreparer::free(
 }
 
 void* RenderResourcesPreparer::prepareRasterInLoadThread(
-    CesiumGltf::ImageCesium& image,
-    const std::any& rendererOptions) {
-    UNUSED(image)
-    UNUSED(rendererOptions)
+    [[maybe_unused]] CesiumGltf::ImageCesium& image,
+    [[maybe_unused]] const std::any& rendererOptions) {
     return nullptr;
 }
 
 void* RenderResourcesPreparer::prepareRasterInMainThread(
-    Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
-    void* pLoadThreadResult) {
-    UNUSED(rasterTile)
-    UNUSED(pLoadThreadResult)
+    [[maybe_unused]] Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
+    [[maybe_unused]] void* pLoadThreadResult) {
     return nullptr;
 }
 
 void RenderResourcesPreparer::freeRaster(
-    const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
-    void* pLoadThreadResult,
-    void* pMainThreadResult) noexcept {
-    UNUSED(rasterTile)
-    UNUSED(pLoadThreadResult)
-    UNUSED(pMainThreadResult)
-}
+    [[maybe_unused]] const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
+    [[maybe_unused]] void* pLoadThreadResult,
+    [[maybe_unused]] void* pMainThreadResult) noexcept {}
 
 void RenderResourcesPreparer::attachRasterInMainThread(
-    const Cesium3DTilesSelection::Tile& tile,
-    int32_t overlayTextureCoordinateID,
-    const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
-    void* pMainThreadRendererResources,
-    const glm::dvec2& translation,
-    const glm::dvec2& scale) {
-    UNUSED(tile)
-    UNUSED(overlayTextureCoordinateID)
-    UNUSED(rasterTile)
-    UNUSED(pMainThreadRendererResources)
-    UNUSED(translation)
-    UNUSED(scale)
-}
+    [[maybe_unused]] const Cesium3DTilesSelection::Tile& tile,
+    [[maybe_unused]] int32_t overlayTextureCoordinateID,
+    [[maybe_unused]] const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
+    [[maybe_unused]] void* pMainThreadRendererResources,
+    [[maybe_unused]] const glm::dvec2& translation,
+    [[maybe_unused]] const glm::dvec2& scale) {}
 
 void RenderResourcesPreparer::detachRasterInMainThread(
-    const Cesium3DTilesSelection::Tile& tile,
-    int32_t overlayTextureCoordinateID,
-    const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
-    void* pMainThreadRendererResources) noexcept {
-    UNUSED(tile)
-    UNUSED(overlayTextureCoordinateID)
-    UNUSED(rasterTile)
-    UNUSED(pMainThreadRendererResources)
-}
+    [[maybe_unused]] const Cesium3DTilesSelection::Tile& tile,
+    [[maybe_unused]] int32_t overlayTextureCoordinateID,
+    [[maybe_unused]] const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
+    [[maybe_unused]] void* pMainThreadRendererResources) noexcept {}
 } // namespace Cesium

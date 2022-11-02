@@ -18,8 +18,6 @@
 
 #include <pxr/usd/usd/stage.h>
 
-#include "UtilMacros.h"
-
 #include <memory>
 #include <vector>
 
