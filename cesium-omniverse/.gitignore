@@ -27,4 +27,9 @@ trace.csv
 # CI puts Conan in the project directory
 .conan
 
+# Clion Config
 .idea
+
+# Visual Studio Cache/Options
+.vs
+
