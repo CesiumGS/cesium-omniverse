@@ -33,11 +33,17 @@
 
 #include <pybind11/pybind11.h>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
-#pragma GCC diagnostic ignored "-Wunused-parameter"
+#ifdef CESIUM_OMNI_GCC
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+    #pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+
 #include <boost/python.hpp>
-#pragma GCC diagnostic pop
+
+#ifdef CESIUM_OMNI_GCC
+    #pragma GCC diagnostic pop
+#endif
 
 namespace pyboost11
 {
