@@ -1,0 +1,19 @@
+{
+  "Plugins": [
+    {
+      "Info": {
+        "Types": {
+          "InMemoryAssetResolver": {
+            "bases": ["ArPackageResolver"],
+            "extensions": ["cesium"]
+          }
+        }
+      },
+      "LibraryPath": "./CesiumOmniversePythonBindings.cp37-win_amd64.pyd",
+      "ResourcePath": ".",
+      "Root": ".",
+      "Name": "CesiumAssetResolver",
+      "Type": "library"
+    }
+  ]
+}

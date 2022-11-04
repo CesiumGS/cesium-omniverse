@@ -413,3 +413,49 @@ endforeach()
 
 # Hide CONAN_CMD_PATH from CMake GUI
 mark_as_advanced(CONAN_CMD_PATH)
+
+# Generator expression for the folder where binaries are created. Only known at build time.
+# cmake-format: off
+if(MSVC AND NOT "${CMAKE_GENERATOR}" MATCHES "Ninja")
+    set(OUTPUT_BINDIR_CONFIG "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}/$<CONFIG>")
+    set(OUTPUT_LIBDIR_CONFIG "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}/$<CONFIG>")
+else()
+    set(OUTPUT_BINDIR_CONFIG "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
+    set(OUTPUT_LIBDIR_CONFIG "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
+endif()
+# cmake-format: on
+
+# Create a file mem.cesium for InMemoryAssetResolver
+add_custom_target(create-mem-cesium ALL DEPENDS "${OUTPUT_BINDIR_CONFIG}/mem.cesium")
+add_custom_command(
+    OUTPUT "${OUTPUT_BINDIR_CONFIG}/mem.cesium"
+    COMMAND ${CMAKE_COMMAND} -E touch "${OUTPUT_BINDIR_CONFIG}/mem.cesium"
+    COMMAND ${CMAKE_COMMAND} -E touch "${OUTPUT_LIBDIR_CONFIG}/mem.cesium")
+
+install(
+    FILES "${OUTPUT_BINDIR_CONFIG}/mem.cesium"
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    COMPONENT install)
+
+install(
+    FILES "${OUTPUT_BINDIR_CONFIG}/mem.cesium"
+    DESTINATION .
+    COMPONENT kit)
+
+# Copy plugInfo.json into each build folder
+add_custom_target(copy-plug-info ALL DEPENDS "${OUTPUT_BINDIR_CONFIG}/plugInfo.json")
+add_custom_command(
+    OUTPUT "${OUTPUT_BINDIR_CONFIG}/plugInfo.json"
+    COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_SOURCE_DIR}/plugInfo.json" "${OUTPUT_BINDIR_CONFIG}/plugInfo.json"
+    COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_SOURCE_DIR}/plugInfo.json" "${OUTPUT_LIBDIR_CONFIG}/plugInfo.json"
+    DEPENDS "${PROJECT_SOURCE_DIR}/plugInfo.json")
+
+install(
+    FILES "${OUTPUT_BINDIR_CONFIG}/plugInfo.json"
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    COMPONENT install)
+
+install(
+    FILES "${OUTPUT_BINDIR_CONFIG}/plugInfo.json"
+    DESTINATION .
+    COMPONENT kit)

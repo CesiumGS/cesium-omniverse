@@ -19,9 +19,9 @@ PYBOOST11_TYPE_CASTER(pxr::UsdStageRefPtr, _("StageRefPtr"));
 void startup() {
     Cesium::OmniTileset::init();
 
-    // Brisbane coordinate
+    // Cape Canaveral
     Cesium::Georeference::instance().setOrigin(CesiumGeospatial::Ellipsoid::WGS84.cartographicToCartesian(
-        CesiumGeospatial::Cartographic(glm::radians(153.0260), glm::radians(-27.4705), 500.0)));
+        CesiumGeospatial::Cartographic(glm::radians(-80.53), glm::radians(28.46), -30.0)));
 }
 
 void shutdown() {
