@@ -137,7 +137,7 @@ pxr::VtArray<pxr::GfVec2f> getPrimitiveUVs(
     usdUVs.reserve(static_cast<size_t>(uvs.size()));
     for (int64_t i = 0; i < uvs.size(); ++i) {
         const glm::vec2& vert = uvs[i];
-        usdUVs.push_back(pxr::GfVec2f(vert.x, 1.0 - vert.y));
+        usdUVs.push_back(pxr::GfVec2f(vert.x, 1.0f - vert.y));
     }
 
     return usdUVs;
@@ -276,7 +276,6 @@ pxr::UsdShadeMaterial convertMaterialToUSD(
     pxr::UsdStageRefPtr& stage,
     const pxr::SdfPath& parentPath,
     const std::vector<pxr::SdfAssetPath>& usdTexturePaths,
-    const CesiumGltf::Model& model,
     const CesiumGltf::Material& material,
     int32_t materialIdx) {
     std::string materialName = fmt::format("material_{}", materialIdx);
@@ -321,9 +320,9 @@ pxr::UsdShadeMaterial convertMaterialToUSD(
     } else {
         pbrShader.CreateInput(pxr::_tokens->diffuseColor, pxr::SdfValueTypeNames->Vector3f)
             .Set(pxr::GfVec3f(
-                pbrMetallicRoughness->baseColorFactor[0],
-                pbrMetallicRoughness->baseColorFactor[1],
-                pbrMetallicRoughness->baseColorFactor[2]));
+                static_cast<float>(pbrMetallicRoughness->baseColorFactor[0]),
+                static_cast<float>(pbrMetallicRoughness->baseColorFactor[1]),
+                static_cast<float>(pbrMetallicRoughness->baseColorFactor[2])));
     }
 
     materialUsd.CreateSurfaceOutput().ConnectToSource(pbrShader.ConnectableAPI(), pxr::_tokens->surface);
@@ -458,7 +457,7 @@ pxr::UsdPrim GltfToUSD::convertToUSD(
     materialUSDs.reserve(model.materials.size());
     for (std::size_t i = 0; i < model.materials.size(); ++i) {
         materialUSDs.emplace_back(
-            convertMaterialToUSD(stage, modelPath, textureUSDPaths, model, model.materials[i], int32_t(i)));
+            convertMaterialToUSD(stage, modelPath, textureUSDPaths, model.materials[i], int32_t(i)));
     }
 
     pxr::UsdGeomXform xform = pxr::UsdGeomXform::Define(stage, modelPath);
@@ -488,7 +487,7 @@ pxr::UsdPrim GltfToUSD::convertToUSD(
     int32_t sceneIdx = model.scene;
     if (sceneIdx >= 0 && sceneIdx < static_cast<int32_t>(model.scenes.size())) {
         const CesiumGltf::Scene& scene = model.scenes[size_t(sceneIdx)];
-        for (int64_t node : scene.nodes) {
+        for (int32_t node : scene.nodes) {
             if (node >= 0 && model.nodes.size()) {
                 convertNodeToUSD(stage, modelPath, model, model.nodes[size_t(node)], node, materialUSDs);
             }
