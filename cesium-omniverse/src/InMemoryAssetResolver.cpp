@@ -5,7 +5,7 @@
 
 PXR_NAMESPACE_OPEN_SCOPE
 
-AR_DEFINE_PACKAGE_RESOLVER(InMemoryAssetResolver, ArPackageResolver);
+AR_DEFINE_PACKAGE_RESOLVER(InMemoryAssetResolver, ArPackageResolver)
 
 InMemoryAssetContext& InMemoryAssetContext::instance() {
     static InMemoryAssetContext ctx;

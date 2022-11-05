@@ -10,10 +10,7 @@
       "name": "Win32",
       "includePath": [
         "${workspaceFolder}/**",
-        "${env:UserProfile}/.conan/**",
-        "${env:LocalAppData}/ov/pkg/connectsample-200.0.0/_build/target-deps/python/include",
-        "${env:LocalAppData}/ov/pkg/connectsample-200.0.0/_build/target-deps/omni_client_library/include",
-        "${env:LocalAppData}/ov/pkg/connectsample-200.0.0/_build/target-deps/usd/release/include"
+        "${env:UserProfile}/.conan/**"
       ],
       "defines": [
         "CESIUM_OMNI_WINDOWS",

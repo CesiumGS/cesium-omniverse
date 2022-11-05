@@ -69,11 +69,6 @@ See [Linux](#linux) or [Windows](#windows) for step-by-step installation instruc
   ```sh
   exec bash
   ```
-- Install Nvidia Omniverse: https://www.nvidia.com/en-us/omniverse/download/.
-  - Use the default install location.
-- Install Connect Sample 200.0.0 (this exact version)
-  - Go to the install location (e.g. `/home/user/.local/share/ov/pkg/connectsample-200.0.0`) and run `build.sh`. This will install Nvidia's USD fork and other dependencies we build against. See https://github.com/CesiumGS/cesium-omniverse/issues/7.
-
 
 ### Windows
 
@@ -129,10 +124,6 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
   ```sh
   refreshenv
   ```
-- Install Nvidia Omniverse: https://www.nvidia.com/en-us/omniverse/download/.
-  - Use the default install location.
-- Install Connect Sample 200.0.0 (this exact version)
-  - Go to the install location (e.g. `C:\Users\username\AppData\Local\ov\pkg\connectsample-200.0.0`) and run `build.bat`. This will install Nvidia's USD fork and other dependencies we build against. See https://github.com/CesiumGS/cesium-omniverse/issues/7.
 
 <!-- omit in toc -->
 #### Install with Chocolatey
@@ -175,10 +166,6 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
   ```sh
   refreshenv
   ```
-- Install Nvidia Omniverse: https://www.nvidia.com/en-us/omniverse/download/.
-  - Use the default install location.
-- Install Connect Sample 200.0.0 (this exact version)
-  - Go to the install location (e.g. `C:\Users\username\AppData\Local\ov\pkg\connectsample-200.0.0`) and run `build.bat`. This will install Nvidia's USD fork and other dependencies we build against. See https://github.com/CesiumGS/cesium-omniverse/issues/7.
 
 ## Clone the repository
 
