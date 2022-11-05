@@ -22,7 +22,7 @@
 #include <vector>
 
 namespace Cesium {
-class CESIUM_OMNI_EXPORT_CLASS OmniTileset {
+class CESIUM_OMNI_EXPORT_CPP_CLASS OmniTileset {
   public:
     OmniTileset(const pxr::UsdStageRefPtr& stage, const std::string& url);
 

@@ -1,0 +1,23 @@
+{
+  "Plugins": [
+    {
+      "Info": {
+        "Types": {
+          "InMemoryAssetResolver": {
+            "bases": [
+              "ArPackageResolver"
+            ],
+            "extensions": [
+              "cesium"
+            ]
+          }
+        }
+      },
+      "LibraryPath": "@PLUG_INFO_LIBRARY_PATH@",
+      "ResourcePath": "resources",
+      "Root": "..",
+      "Name": "InMemoryAssetResolver",
+      "Type": "library"
+    }
+  ]
+}

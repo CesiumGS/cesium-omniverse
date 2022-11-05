@@ -58,7 +58,7 @@ option(CESIUM_OMNI_ENABLE_LINTERS "Enable clang-format for code formatting and c
 cmake_dependent_option(
     CESIUM_OMNI_ENABLE_COVERAGE
     "Code coverage for checking the thoroughness of unit tests - only available if CESIUM_OMNI_ENABLE_TESTS is ON"
-    ON
+    OFF
     CESIUM_OMNI_ENABLE_TESTS
     OFF)
 cmake_dependent_option(
@@ -142,6 +142,11 @@ set(CMAKE_LINK_WHAT_YOU_USE ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
+# Build shared libraries by default
+if(NOT DEFINED BUILD_SHARED_LIBS)
+    set(BUILD_SHARED_LIBS ON)
+endif()
+
 # defines CMAKE_INSTALL_LIBDIR, CMAKE_INSTALL_BINDIR, and CMAKE_INSTALL_INCLUDEDIR for OS-dependent build locations.
 # See https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html
 include(GNUInstallDirs)
@@ -152,13 +157,6 @@ include(AddConanDependencies)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
-
-set(CMAKE_DEBUG_POSTFIX
-    "d"
-    CACHE FILEPATH "Postfix for Debug binaries")
-set(CMAKE_RELWITHDEBINFO_POSTFIX
-    "rd"
-    CACHE FILEPATH "Postfix for RelWithDebInfo binaries")
 
 # compiler / preprocessor / linker options passed later to targets in cmake/Macros.cmake
 # Debug options are only applied if using the Debug configuration
@@ -329,10 +327,6 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQ
     set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} _GLIBCXX_USE_CXX11_ABI=0)
 endif()
 
-if(BUILD_SHARED_LIBS)
-    set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} CESIUM_OMNI_SHARED)
-endif()
-
 set(CESIUM_OMNI_CXX_FLAGS
     ${CESIUM_OMNI_CXX_FLAGS}
     CACHE STRING "Compiler flags to use." FORCE)
@@ -414,48 +408,126 @@ endforeach()
 # Hide CONAN_CMD_PATH from CMake GUI
 mark_as_advanced(CONAN_CMD_PATH)
 
-# Generator expression for the folder where binaries are created. Only known at build time.
-# cmake-format: off
-if(MSVC AND NOT "${CMAKE_GENERATOR}" MATCHES "Ninja")
-    set(OUTPUT_BINDIR_CONFIG "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}/$<CONFIG>")
-    set(OUTPUT_LIBDIR_CONFIG "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}/$<CONFIG>")
-else()
-    set(OUTPUT_BINDIR_CONFIG "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
-    set(OUTPUT_LIBDIR_CONFIG "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
-endif()
-# cmake-format: on
+# Configure plugInfo.json
+set(PLUG_INFO_LIBRARY_FILE_NAME "${CMAKE_SHARED_LIBRARY_PREFIX}InMemoryAssetResolver${CMAKE_SHARED_LIBRARY_SUFFIX}")
 
-# Create a file mem.cesium for InMemoryAssetResolver
-add_custom_target(create-mem-cesium ALL DEPENDS "${OUTPUT_BINDIR_CONFIG}/mem.cesium")
-add_custom_command(
-    OUTPUT "${OUTPUT_BINDIR_CONFIG}/mem.cesium"
-    COMMAND ${CMAKE_COMMAND} -E touch "${OUTPUT_BINDIR_CONFIG}/mem.cesium"
-    COMMAND ${CMAKE_COMMAND} -E touch "${OUTPUT_LIBDIR_CONFIG}/mem.cesium")
+set(PLUG_INFO_LIBRARY_PATH_BUILD "../../${PLUG_INFO_LIBRARY_FILE_NAME}")
+set(PLUG_INFO_LIBRARY_PATH_INSTALL "../../lib/${PLUG_INFO_LIBRARY_FILE_NAME}")
+set(PLUG_INFO_LIBRARY_PATH_KIT "../../bin/${PLUG_INFO_LIBRARY_FILE_NAME}")
+
+set(PLUG_INFO_LIBRARY_PATH ${PLUG_INFO_LIBRARY_PATH_BUILD})
+configure_file("${PROJECT_SOURCE_DIR}/src/plugInfo.json.in" "${PROJECT_BINARY_DIR}/plugInfo.json.build")
+set(PLUG_INFO_LIBRARY_PATH ${PLUG_INFO_LIBRARY_PATH_INSTALL})
+configure_file("${PROJECT_SOURCE_DIR}/src/plugInfo.json.in" "${PROJECT_BINARY_DIR}/plugInfo.json.install")
+set(PLUG_INFO_LIBRARY_PATH ${PLUG_INFO_LIBRARY_PATH_KIT})
+configure_file("${PROJECT_SOURCE_DIR}/src/plugInfo.json.in" "${PROJECT_BINARY_DIR}/plugInfo.json.kit")
+
+# Create mem.cesium
+file(TOUCH "${PROJECT_BINARY_DIR}/mem.cesium")
+
+set(KIT_EXTENSION_BIN_PATH "${PROJECT_SOURCE_DIR}/../cesium-kit-exts/exts/cesium.omniverse/bin")
+set(KIT_EXTENSION_BINDINGS_PATH
+    "${PROJECT_SOURCE_DIR}/../cesium-kit-exts/exts/cesium.omniverse/cesium/omniverse/bindings")
+set(KIT_EXTENSION_PLUGINS_PATH "${PROJECT_SOURCE_DIR}/../cesium-kit-exts/exts/cesium.omniverse/plugins")
+
+set(INSTALL_SEARCH_PATHS $<TARGET_FILE_DIR:python37>)
+set(INSTALL_PRE_EXCLUDE_REGEXES "api-ms-*" "ext-ms-*")
+set(INSTALL_POST_EXCLUDE_REGEXES "system32" "^\/lib")
 
 install(
-    FILES "${OUTPUT_BINDIR_CONFIG}/mem.cesium"
+    TARGETS InMemoryAssetResolver
+            RUNTIME_DEPENDENCIES
+            DIRECTORIES
+            ${INSTALL_SEARCH_PATHS}
+            PRE_EXCLUDE_REGEXES
+            ${INSTALL_PRE_EXCLUDE_REGEXES}
+            POST_EXCLUDE_REGEXES
+            ${INSTALL_POST_EXCLUDE_REGEXES}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT install
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT install
+    RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT install)
+
+install(
+    TARGETS InMemoryAssetResolver
+    ARCHIVE DESTINATION ${KIT_EXTENSION_BIN_PATH}
+            COMPONENT kit
+            EXCLUDE_FROM_ALL
+    LIBRARY DESTINATION ${KIT_EXTENSION_BIN_PATH}
+            COMPONENT kit
+            EXCLUDE_FROM_ALL
+    RUNTIME DESTINATION ${KIT_EXTENSION_BIN_PATH}
+            COMPONENT kit
+            EXCLUDE_FROM_ALL)
+
+# TODO: this is also installing the .lib. How to avoid that?
+install(
+    TARGETS CesiumOmniverse
+            RUNTIME_DEPENDENCIES
+            DIRECTORIES
+            ${INSTALL_SEARCH_PATHS}
+            PRE_EXCLUDE_REGEXES
+            ${INSTALL_PRE_EXCLUDE_REGEXES}
+            POST_EXCLUDE_REGEXES
+            ${INSTALL_POST_EXCLUDE_REGEXES}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT install
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT install
+    RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT install)
+
+install(
+    TARGETS CesiumOmniverse
+    ARCHIVE DESTINATION ${KIT_EXTENSION_BIN_PATH}
+            COMPONENT kit
+            EXCLUDE_FROM_ALL
+    LIBRARY DESTINATION ${KIT_EXTENSION_BIN_PATH}
+            COMPONENT kit
+            EXCLUDE_FROM_ALL
+    RUNTIME DESTINATION ${KIT_EXTENSION_BIN_PATH}
+            COMPONENT kit
+            EXCLUDE_FROM_ALL)
+
+install(
+    TARGETS CesiumOmniversePythonBindings
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT install
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT install
+    RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT install)
+
+install(
+    TARGETS CesiumOmniversePythonBindings
+    ARCHIVE DESTINATION ${KIT_EXTENSION_BINDINGS_PATH}
+            COMPONENT kit
+            EXCLUDE_FROM_ALL
+    LIBRARY DESTINATION ${KIT_EXTENSION_BINDINGS_PATH}
+            COMPONENT kit
+            EXCLUDE_FROM_ALL
+    RUNTIME DESTINATION ${KIT_EXTENSION_BINDINGS_PATH}
+            COMPONENT kit
+            EXCLUDE_FROM_ALL)
+
+install(
+    DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    COMPONENT install)
+
+install(
+    FILES "${PROJECT_BINARY_DIR}/mem.cesium"
     DESTINATION ${CMAKE_INSTALL_LIBDIR}
     COMPONENT install)
 
 install(
-    FILES "${OUTPUT_BINDIR_CONFIG}/mem.cesium"
-    DESTINATION .
-    COMPONENT kit)
-
-# Copy plugInfo.json into each build folder
-add_custom_target(copy-plug-info ALL DEPENDS "${OUTPUT_BINDIR_CONFIG}/plugInfo.json")
-add_custom_command(
-    OUTPUT "${OUTPUT_BINDIR_CONFIG}/plugInfo.json"
-    COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_SOURCE_DIR}/plugInfo.json" "${OUTPUT_BINDIR_CONFIG}/plugInfo.json"
-    COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_SOURCE_DIR}/plugInfo.json" "${OUTPUT_LIBDIR_CONFIG}/plugInfo.json"
-    DEPENDS "${PROJECT_SOURCE_DIR}/plugInfo.json")
+    FILES "${PROJECT_BINARY_DIR}/mem.cesium"
+    DESTINATION ${KIT_EXTENSION_BIN_PATH}
+    COMPONENT kit
+    EXCLUDE_FROM_ALL)
 
 install(
-    FILES "${OUTPUT_BINDIR_CONFIG}/plugInfo.json"
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    FILES "${PROJECT_BINARY_DIR}/plugInfo.json.install"
+    DESTINATION "plugins/InMemoryAssetResolver/resources/"
+    RENAME "plugInfo.json"
     COMPONENT install)
 
 install(
-    FILES "${OUTPUT_BINDIR_CONFIG}/plugInfo.json"
-    DESTINATION .
-    COMPONENT kit)
+    FILES "${PROJECT_BINARY_DIR}/plugInfo.json.kit"
+    DESTINATION "${KIT_EXTENSION_PLUGINS_PATH}/InMemoryAssetResolver/resources/"
+    RENAME "plugInfo.json"
+    COMPONENT kit
+    EXCLUDE_FROM_ALL)

@@ -1,7 +1,6 @@
 #include "InMemoryAssetResolver.h"
 
 #include <pxr/usd/ar/definePackageResolver.h>
-#include <spdlog/spdlog.h>
 
 PXR_NAMESPACE_OPEN_SCOPE
 

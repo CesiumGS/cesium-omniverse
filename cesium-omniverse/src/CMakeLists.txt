@@ -1,8 +1,24 @@
 include(Macros)
 
 glob_files(SOURCES "${CMAKE_CURRENT_LIST_DIR}/*.cpp")
+
+# TODO: maybe PythonBindings and InMemoryAssetResolver should be separate sub-folders since they are conceptually different targets
 set(PYTHON_BINDINGS_CPP "${CMAKE_CURRENT_LIST_DIR}/PythonBindings.cpp")
-list(REMOVE_ITEM SOURCES ${PYTHON_BINDINGS_CPP})
+set(IN_MEMORY_ASSET_RESOLVER_CPP "${CMAKE_CURRENT_LIST_DIR}/InMemoryAssetResolver.cpp")
+list(
+    REMOVE_ITEM
+    SOURCES
+    ${PYTHON_BINDINGS_CPP}
+    ${IN_MEMORY_ASSET_RESOLVER_CPP})
+
+set(IN_MEMORY_ASSET_RESOLVER_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} CESIUM_OMNI_EXPORTS)
+set(CESIUM_OMNIVERSE_LIB_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} CESIUM_OMNI_EXPORTS)
+set(CESIUM_OMNIVERSE_PYTHON_BINDINGS_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES})
+
+if(NOT BUILD_SHARED_LIBS)
+    set(CESIUM_OMNIVERSE_LIB_CXX_DEFINES ${CESIUM_OMNIVERSE_LIB_CXX_DEFINES} CESIUM_OMNI_STATIC)
+    set(CESIUM_OMNIVERSE_PYTHON_BINDINGS_CXX_DEFINES ${CESIUM_OMNIVERSE_PYTHON_BINDINGS_CXX_DEFINES} CESIUM_OMNI_STATIC)
+endif()
 
 # On Linux you may see a warning like:
 #
@@ -40,12 +56,40 @@ list(REMOVE_ITEM SOURCES ${PYTHON_BINDINGS_CPP})
 # cmake-format: off
 setup_lib(
     TARGET_NAME
+        InMemoryAssetResolver
+    TYPE
+        SHARED # InMemoryAssetResolver needs to be built as a SHARED library always
+    SOURCES
+        "${IN_MEMORY_ASSET_RESOLVER_CPP}"
+    INCLUDE_DIRS
+        "${PROJECT_SOURCE_DIR}/include"
+    LIBRARIES
+        ar
+        arch
+        usd
+        tbb
+        tf
+    CXX_FLAGS
+        ${CESIUM_OMNI_CXX_FLAGS}
+    CXX_FLAGS_DEBUG
+        ${CESIUM_OMNI_CXX_FLAGS_DEBUG}
+    CXX_DEFINES
+        ${IN_MEMORY_ASSET_RESOLVER_CXX_DEFINES}
+    CXX_DEFINES_DEBUG
+        ${CESIUM_OMNI_CXX_DEFINES_DEBUG}
+)
+# cmake-format: on
+
+# cmake-format: off
+setup_lib(
+    TARGET_NAME
         CesiumOmniverse
     SOURCES
         ${SOURCES}
     INCLUDE_DIRS
         "${PROJECT_SOURCE_DIR}/include"
     LIBRARIES
+        InMemoryAssetResolver
         Cesium3DTilesSelection
         CesiumAsync
         CesiumGeometry
@@ -93,14 +137,9 @@ setup_lib(
     CXX_FLAGS_DEBUG
         ${CESIUM_OMNI_CXX_FLAGS_DEBUG}
     CXX_DEFINES
-        ${CESIUM_OMNI_CXX_DEFINES}
-        CESIUM_OMNI_EXPORTS
+        ${CESIUM_OMNIVERSE_LIB_CXX_DEFINES}
     CXX_DEFINES_DEBUG
         ${CESIUM_OMNI_CXX_DEFINES_DEBUG}
-    INSTALL_COMPONENTS
-        install
-    INSTALL_SEARCH_PATHS
-        $<TARGET_FILE_DIR:python37>
 )
 # cmake-format: on
 
@@ -118,12 +157,17 @@ setup_python_module(
     CXX_FLAGS_DEBUG
         ${CESIUM_OMNI_CXX_FLAGS_DEBUG}
     CXX_DEFINES
-        ${CESIUM_OMNI_CXX_DEFINES}
+        ${CESIUM_OMNIVERSE_PYTHON_BINDINGS_CXX_DEFINES}
     CXX_DEFINES_DEBUG
         ${CESIUM_OMNI_CXX_DEFINES_DEBUG}
-    INSTALL_COMPONENTS
-        kit
-    INSTALL_SEARCH_PATHS
-        $<TARGET_FILE_DIR:python37>
 )
 # cmake-format: on
+
+# Copy plugInfo.json and mem.cesium into each build folder
+add_custom_command(
+    TARGET InMemoryAssetResolver
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_BINARY_DIR}/plugInfo.json.build"
+            "$<TARGET_FILE_DIR:InMemoryAssetResolver>/plugins/InMemoryAssetResolver/resources/plugInfo.json"
+    COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_BINARY_DIR}/mem.cesium"
+            "$<TARGET_FILE_DIR:InMemoryAssetResolver>/mem.cesium")

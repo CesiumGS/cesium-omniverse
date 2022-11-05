@@ -1,4 +1,4 @@
-from .bindings.cesium.omniverse import CesiumOmniversePythonBindings as CesiumOmniverse
+from .bindings import CesiumOmniversePythonBindings as CesiumOmniverse
 
 import omni.ui as ui
 from pxr import Gf, Sdf

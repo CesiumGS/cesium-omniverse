@@ -5,11 +5,19 @@ function(setup_lib)
     cmake_parse_arguments(
         ""
         ""
-        "TARGET_NAME"
-        "SOURCES;INCLUDE_DIRS;PRIVATE_INCLUDE_DIRS;LIBRARIES;DEPENDENCIES;CXX_FLAGS;CXX_FLAGS_DEBUG;CXX_DEFINES;CXX_DEFINES_DEBUG;INSTALL_COMPONENTS;INSTALL_SEARCH_PATHS"
+        "TARGET_NAME;TYPE"
+        "SOURCES;INCLUDE_DIRS;PRIVATE_INCLUDE_DIRS;LIBRARIES;DEPENDENCIES;CXX_FLAGS;CXX_FLAGS_DEBUG;CXX_DEFINES;CXX_DEFINES_DEBUG"
         ${ARGN})
 
-    add_library(${_TARGET_NAME})
+    if(_TYPE)
+        set(TYPE ${_TYPE})
+    elseif(BUILD_SHARED_LIBS)
+        set(TYPE SHARED)
+    else()
+        set(TYPE STATIC)
+    endif()
+
+    add_library(${_TARGET_NAME} ${TYPE})
 
     if(_DEPENDENCIES)
         add_dependencies(${_TARGET_NAME} ${_DEPENDENCIES})
@@ -32,35 +40,13 @@ function(setup_lib)
     # Note that third party libraries in the public API will need to be installed.
     target_link_libraries(${_TARGET_NAME} PUBLIC ${_LIBRARIES})
 
-    if(WIN32 AND BUILD_SHARED_LIBS)
+    if(WIN32 AND ${TYPE} STREQUAL "SHARED")
         add_custom_command(
             TARGET ${_TARGET_NAME}
             POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${_TARGET_NAME}> $<TARGET_FILE_DIR:${_TARGET_NAME}>
             COMMAND_EXPAND_LISTS)
     endif()
-
-    foreach(COMPONENT IN LISTS _INSTALL_COMPONENTS)
-        install(
-            TARGETS ${_TARGET_NAME}
-                    RUNTIME_DEPENDENCIES
-                    DIRECTORIES
-                    ${_INSTALL_SEARCH_PATHS}
-                    PRE_EXCLUDE_REGEXES
-                    "api-ms-*"
-                    "ext-ms-*"
-                    POST_EXCLUDE_REGEXES
-                    "system32"
-                    "^\/lib"
-            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${COMPONENT}
-            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${COMPONENT}
-            RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${COMPONENT})
-
-        install(
-            DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
-            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-            COMPONENT ${COMPONENT})
-    endforeach()
 
 endfunction(setup_lib)
 
@@ -70,7 +56,7 @@ function(setup_python_module)
         ""
         ""
         "TARGET_NAME"
-        "SOURCES;LIBRARIES;DEPENDENCIES;CXX_FLAGS;CXX_FLAGS_DEBUG;CXX_DEFINES;CXX_DEFINES_DEBUG;INSTALL_COMPONENTS;INSTALL_SEARCH_PATHS"
+        "SOURCES;LIBRARIES;DEPENDENCIES;CXX_FLAGS;CXX_FLAGS_DEBUG;CXX_DEFINES;CXX_DEFINES_DEBUG"
         ${ARGN})
 
     pybind11_add_module(${_TARGET_NAME} MODULE)
@@ -102,30 +88,6 @@ function(setup_python_module)
             COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${_TARGET_NAME}> $<TARGET_FILE_DIR:${_TARGET_NAME}>
             COMMAND_EXPAND_LISTS)
     endif()
-
-    foreach(COMPONENT IN LISTS _INSTALL_COMPONENTS)
-        install(
-            TARGETS ${_TARGET_NAME}
-                    # TODO: for some reason this isn't installing libCesiumOmniverse.so or its dependencies on Linux
-                    RUNTIME_DEPENDENCIES
-                    DIRECTORIES
-                    ${_INSTALL_SEARCH_PATHS}
-                    PRE_EXCLUDE_REGEXES
-                    "api-ms-*"
-                    "ext-ms-*"
-                    POST_EXCLUDE_REGEXES
-                    "system32"
-                    "^\/lib"
-            ARCHIVE DESTINATION .
-                    COMPONENT ${COMPONENT}
-                    EXCLUDE_FROM_ALL
-            LIBRARY DESTINATION .
-                    COMPONENT ${COMPONENT}
-                    EXCLUDE_FROM_ALL
-            RUNTIME DESTINATION .
-                    COMPONENT ${COMPONENT}
-                    EXCLUDE_FROM_ALL)
-    endforeach()
 
 endfunction(setup_python_module)
 
@@ -196,6 +158,11 @@ function(add_external_project)
 
     include(ExternalProject) # built-in CMake include for ExternalProject_Add
 
+    set(CMAKE_DEBUG_POSTFIX "d")
+    set(CMAKE_DEBUG_POSTFIX "")
+    set(CMAKE_RELWITHDEBINFO_POSTFIX "rd")
+    set(CMAKE_MINSIZEREL_POSTFIX "mr")
+
     # Expands to ${CMAKE_DEBUG_POSTFIX} at configuration time (usually 'd' or '')
     set(BUILD_TIME_DEBUG_POSTFIX
         "\
@@ -248,7 +215,7 @@ $<$<CONFIG:MinSizeRel>:${CMAKE_MINSIZEREL_POSTFIX}>")
         SOURCE_DIR "${_PROJECT_EXTERN_DIRECTORY}/${_PROJECT_NAME}"
         PREFIX ${_PROJECT_NAME}
         BUILD_ALWAYS
-            1 # Set this to 0 to always skip the external project build step. Be sure to reset to 1 when modifying cesium-native as it's needed there.
+            0 # Set this to 0 to always skip the external project build step. Be sure to reset to 1 when modifying cesium-native as it's needed there.
         LIST_SEPARATOR | # Use the alternate list separator
         CMAKE_ARGS -DBUILD_SHARED_LIBS=OFF
                    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
@@ -268,7 +235,11 @@ $<$<CONFIG:MinSizeRel>:${CMAKE_MINSIZEREL_POSTFIX}>")
 
     if(NOT DEFINED _LIBRARIES)
         # Header only
-        add_library(${_PROJECT_NAME} INTERFACE IMPORTED GLOBAL)
+        add_library(
+            ${_PROJECT_NAME}
+            INTERFACE
+            IMPORTED
+            GLOBAL)
         target_include_directories(${_PROJECT_NAME} INTERFACE "${PROJECT_INCLUDE_DIR}")
     else()
         foreach(lib IN LISTS _LIBRARIES)
