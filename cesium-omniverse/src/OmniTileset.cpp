@@ -122,9 +122,10 @@ void OmniTileset::shutdown() {
 }
 
 void OmniTileset::initOriginShiftHandler() {
-    originShiftHandler.set_callback([this](const glm::dmat4& relToAbsWorld, const glm::dmat4& absToRelWorld) {
-        this->renderResourcesPreparer->setTransform(absToRelWorld);
-    });
+    originShiftHandler.set_callback(
+        [this]([[maybe_unused]] const glm::dmat4& relToAbsWorld, const glm::dmat4& absToRelWorld) {
+            this->renderResourcesPreparer->setTransform(absToRelWorld);
+        });
 
     originShiftHandler.connect(Georeference::instance().originChangeEvent);
     this->renderResourcesPreparer->setTransform(Georeference::instance().absToRelWorld);

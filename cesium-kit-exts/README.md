@@ -5,7 +5,6 @@
 - Install Nvidia Omniverse: https://www.nvidia.com/en-us/omniverse/download/.
   - Use the default install location.
 - Install Omniverse Code
-- Install Connect Sample 200.0.0 (this exact version) and run `built.bat` (Windows) or `build.sh` (Linux) in the installation directory.
 - Build the C++ library and install the Python bindings. For more detailed instructions see [Cesium for Omniverse](../cesium-omniverse/README.md).
     ```sh
     # Configure

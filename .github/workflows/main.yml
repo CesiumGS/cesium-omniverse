@@ -1,0 +1,136 @@
+name: CI
+
+on: [push]
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    env:
+      working-directory: ./cesium-omniverse
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {
+              name: 'Windows - MSVC',
+              artifact: 'windows-msvc.tar.xz',
+              os: windows-2022,
+              cc: 'cl',
+              cxx: 'cl',
+              build-type: 'Release',
+              generator: 'Visual Studio 17 2022',
+              coverage: 'false',
+            }
+          - {
+              name: 'Ubuntu - GCC',
+              artifact: 'linux-gcc.tar.xz',
+              os: ubuntu-22.04,
+              cc: 'gcc-9',
+              cxx: 'g++-9',
+              build-type: 'Release',
+              generator: 'Unix Makefiles',
+              coverage: 'false',
+            }
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      # Tell Conan to look for or create its build folder (.conan) in the repository's root directory
+      # This is partly done to make the directory easily accessible to Docker builds
+      - name: Conan Set build directory (Unix)
+        if: runner.os == 'Linux'
+        run: echo "CONAN_USER_HOME=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+
+      # Disable short paths so that all packages are built in the same .conan directory
+      # This is safe to do since long paths are enabled on Windows Server 2022 in GitHub Actions
+      # See https://docs.conan.io/en/latest/reference/env_vars.html#conan-user-home-short
+      # See https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file#maximum-path-length-limitation
+      # See https://github.com/actions/runner-images/issues/1052#issuecomment-644212560
+      - name: Conan Set build directory (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          echo "CONAN_USER_HOME=$env:GITHUB_WORKSPACE" >> $env:GITHUB_ENV
+          echo "CONAN_USER_HOME_SHORT=None" >> $env:GITHUB_ENV
+
+      # The -v{num} is a cache key buster because we were starting to use the same cache keys from previous tests
+      # Unfortunately github actions doesn't let you delete old caches so we have to work around it like this
+      - name: Conan Check cache
+        id: conan-cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.CONAN_USER_HOME }}/.conan
+          key: conan-${{ matrix.config.name }}-${{ hashFiles('cmake/AddConanDependencies.cmake') }}-v1
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt update
+          sudo apt install -y doxygen clang-tidy-14 gcovr
+          sudo pip3 install conan
+
+      # Could not figure out how to add Chocolatey libraries to the PATH automatically with refreshenv, so
+      # hardcoding their locations instead. Followed these instructions for adding to the PATH on PowerShell:
+      # https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#environment-files
+      # Note that this is only a problem on CI, not with local builds
+      - name: Install Windows dependencies
+        if: runner.os == 'Windows'
+        run: |
+          choco install -y conan
+          echo "C:/Program Files/conan/conan" >> $env:GITHUB_PATH
+
+      # Support parallelization on Windows
+      - name: Set MSVC build parallelization
+        if: runner.os == 'Windows'
+        run: echo "UseMultiToolTask=true" >> $env:GITHUB_ENV
+
+      # Note: CMAKE_BUILD_TYPE is only used by Linux. It is ignored for Windows.
+      # Note: CMAKE_CONFIGURATION_TYPES is used by Windows to generate a single configuration for Release since we don't need Debug, RelWithDebugInfo, and MinSizeRel on CI. It is ignored for Linux.
+      - name: Configure
+        run: cmake -B build -D CMAKE_C_COMPILER=${{ matrix.config.cc }} -D CMAKE_CXX_COMPILER=${{ matrix.config.cxx }} -D CMAKE_BUILD_TYPE=${{ matrix.config.build-type }} -D CMAKE_CONFIGURATION_TYPES=${{ matrix.config.build-type }} -G "${{ matrix.config.generator }}"
+        working-directory: ${{env.working-directory}}
+
+      # Note: GitHub Actions only has 2 cores
+      - name: Build (Unix)
+        if: runner.os == 'Linux'
+        run: cmake --build build --parallel 2
+        working-directory: ${{env.working-directory}}
+
+      # Note: Parallelization is handled by UseMultiToolTask environment variable set above
+      - name: Build (Windows)
+        if: runner.os == 'Windows'
+        run: cmake --build build --config ${{ matrix.config.build-type }}
+        working-directory: ${{env.working-directory}}
+
+      - name: Check Formatting
+        run: cmake --build build --target clang-format-check-all --config ${{ matrix.config.build-type }}
+        working-directory: ${{env.working-directory}}
+
+      - name: Tests
+        run: cd build && ctest --output-on-failure
+        working-directory: ${{env.working-directory}}
+
+      - name: Coverage
+        if: matrix.config.coverage == 'true'
+        run: cmake --build build --target generate-coverage --config ${{ matrix.config.build-type }}
+        working-directory: ${{env.working-directory}}
+
+      - name: Documentation
+        # Currently disabled for Windows because `choco install doxygen.install` is flaky
+        if: runner.os == 'Linux'
+        run: cmake --build build --target generate-documentation --config ${{ matrix.config.build-type }}
+        working-directory: ${{env.working-directory}}
+
+      - name: Install (Default)
+        run: cmake --install build --config ${{ matrix.config.build-type }} --prefix install-default --component install
+        working-directory: ${{env.working-directory}}
+
+      - name: Install (Kit)
+        run: cmake --install build --config ${{ matrix.config.build-type }} --prefix install-kit --component kit
+        working-directory: ${{env.working-directory}}

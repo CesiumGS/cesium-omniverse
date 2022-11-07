@@ -29,12 +29,21 @@ add_external_project(
 )
 # cmake-format: on
 
-# See https://github.com/PatrickPalmer/Omniverse-Connect-cmake
-find_package(OmniverseConnectSample REQUIRED)
+if(UNIX)
+    execute_process(COMMAND bash "${PROJECT_SOURCE_DIR}/extern/nvidia/prebuild.sh" RESULT_VARIABLE exit_code)
+elseif(WIN32)
+    execute_process(COMMAND cmd /C "${PROJECT_SOURCE_DIR}/extern/nvidia/prebuild.bat" RESULT_VARIABLE exit_code)
+endif()
 
-set(OMNIVERSE_CLIENT_ROOT ${OmniverseConnectSample_DIR}/_build/target-deps/omni_client_library)
-set(NVIDIA_USD_ROOT ${OmniverseConnectSample_DIR}/_build/target-deps/usd)
-set(PYTHON_ROOT ${OmniverseConnectSample_DIR}/_build/target-deps/python)
+# cmake-format: off
+if(exit_code AND NOT exit_code EQUAL 0)
+    message(FATAL_ERROR "Gathering Nvidia libraries failed")
+endif()
+# cmake-format: on
+
+set(NVIDIA_BUILD_DIR "${PROJECT_SOURCE_DIR}/extern/nvidia/_build")
+set(NVIDIA_USD_ROOT "${NVIDIA_BUILD_DIR}/target-deps/usd")
+set(PYTHON_ROOT "${NVIDIA_BUILD_DIR}/target-deps/python")
 
 set(NVIDIA_USD_LIBRARIES
     ar
@@ -87,13 +96,13 @@ endif()
 # cmake-format: off
 add_prebuilt_project(
     RELEASE_INCLUDE_DIR
-        ${NVIDIA_USD_ROOT}/release/include
+        "${NVIDIA_USD_ROOT}/release/include"
     DEBUG_INCLUDE_DIR
-        ${NVIDIA_USD_ROOT}/debug/include
+        "${NVIDIA_USD_ROOT}/debug/include"
     RELEASE_LIBRARY_DIR
-        ${NVIDIA_USD_ROOT}/release/lib
+        "${NVIDIA_USD_ROOT}/release/lib"
     DEBUG_LIBRARY_DIR
-        ${NVIDIA_USD_ROOT}/debug/lib
+        "${NVIDIA_USD_ROOT}/debug/lib"
     RELEASE_LIBRARIES
         ${NVIDIA_USD_RELEASE_LIBRARIES}
     DEBUG_LIBRARIES
@@ -107,13 +116,13 @@ add_prebuilt_project(
 if (NOT WIN32)
   add_prebuilt_project(
       RELEASE_INCLUDE_DIR
-          ${PYTHON_ROOT}/include/python3.7m
+          "${PYTHON_ROOT}/include/python3.7m"
       DEBUG_INCLUDE_DIR
-          ${PYTHON_ROOT}/include/python3.7m
+          "${PYTHON_ROOT}/include/python3.7m"
       RELEASE_LIBRARY_DIR
-          ${PYTHON_ROOT}/lib
+          "${PYTHON_ROOT}/lib"
       DEBUG_LIBRARY_DIR
-          ${PYTHON_ROOT}/lib
+          "${PYTHON_ROOT}/lib"
       RELEASE_LIBRARIES
           python3.7m
       DEBUG_LIBRARIES

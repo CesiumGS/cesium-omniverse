@@ -1,5 +1,8 @@
 # Build folders
-build*
+build*/
+
+# Nvidia build folder
+extern/nvidia/_build
 
 # Python cache
 __pycache__
@@ -27,4 +30,9 @@ trace.csv
 # CI puts Conan in the project directory
 .conan
 
+# Clion Config
 .idea
+
+# Visual Studio Cache/Options
+.vs
+

@@ -81,14 +81,6 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
         CACHE STRING "Type of build: Debug Release MinSizeRel RelWithDebInfo." FORCE)
 endif()
 
-# Use the same Python version as Omniverse (Python 3.7)
-find_package(OmniverseConnectSample REQUIRED)
-set(Python3_ROOT_DIR "${OmniverseConnectSample_DIR}/_build/target-deps/python")
-find_package(
-    Python3
-    COMPONENTS Interpreter Development
-    REQUIRED)
-
 # Generate compile_commands.json file for use by language servers such as clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -175,9 +167,8 @@ set(CESIUM_OMNI_CXX_DEFINES_DEBUG ${CESIUM_OMNI_CXX_DEFINES_DEBUG} CESIUM_OMNI_D
 if(MSVC)
     set(CESIUM_OMNI_CXX_FLAGS
         ${CESIUM_OMNI_CXX_FLAGS}
-        # TODO: temporarily disable warnings
-        #/W4 # enable all warnings
-        #/WX # error on warnings
+        /W4 # enable all warnings
+        /WX # error on warnings
         /Zc:__cplusplus # make __cplusplus defined correctly
     )
     set(CESIUM_OMNI_CXX_DEFINES
@@ -193,23 +184,21 @@ endif()
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
     set(CESIUM_OMNI_CXX_FLAGS
         ${CESIUM_OMNI_CXX_FLAGS}
-        # TODO: temporarily disable warnings
-        # -Werror
-        # -Wall
-        # -Wextra
-        # -Wpedantic
-        # -Wparentheses
-        # -Wreturn-type
-        # -Wmissing-braces
-        # -Wunknown-pragmas
-        # -Wshadow
-        # -Wunused
-        # -Wuninitialized
-        # -Wconversion
-        # -Wno-missing-field-initializers
-        # -fstrict-aliasing
-        # -fstrict-enums
-    )
+        -Werror
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Wparentheses
+        -Wreturn-type
+        -Wmissing-braces
+        -Wunknown-pragmas
+        -Wshadow
+        -Wunused
+        -Wuninitialized
+        -Wconversion
+        -Wno-missing-field-initializers
+        -fstrict-aliasing
+        -fstrict-enums)
 
     if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
         set(CESIUM_OMNI_CXX_FLAGS ${CESIUM_OMNI_CXX_FLAGS} -Wno-gnu-anonymous-struct)
@@ -346,9 +335,20 @@ set(CESIUM_OMNI_LINKER_FLAGS_DEBUG
     ${CESIUM_OMNI_LINKER_FLAGS_DEBUG}
     CACHE STRING "Linker flags to use in debug mode." FORCE)
 
+# Third party dependencies not handled by conan
+add_subdirectory(extern)
+
 # Tell CMake to search for packages with the correct build type (i.e. Release or Debug) as generated
 # by ConfigureConan.cmake with the cmake_find_package_multi generator
 set(CMAKE_FIND_PACKAGE_PREFER_CONFIG TRUE)
+
+# Use the same Python version as Omniverse (Python 3.7)
+# This needs to be called after add_subdirectory(extern) and before find_package(pybind11)
+set(Python3_ROOT_DIR "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/python")
+find_package(
+    Python3
+    COMPONENTS Interpreter Development
+    REQUIRED)
 
 find_package(Threads) # System threading library
 
@@ -358,9 +358,6 @@ find_package(doctest)
 find_package(pybind11)
 find_package(stb)
 find_package(ZLIB)
-
-# Third party dependencies not handled by conan
-add_subdirectory(extern)
 
 # So that the installed libraries can find shared libraries in the same directory
 set(CMAKE_INSTALL_RPATH $ORIGIN)
