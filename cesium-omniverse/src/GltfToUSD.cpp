@@ -446,7 +446,7 @@ void convertNodeToUSD(
     xform.AddTransformOp().Set(currentTransform);
 
     auto meshIndex = static_cast<std::size_t>(node.mesh);
-    if (meshIndex >= 0 && meshIndex < model.meshes.size()) {
+    if (meshIndex < model.meshes.size()) {
         convertMeshToUSD(stage, nodePath, model, model.meshes[meshIndex], materials);
     }
 }

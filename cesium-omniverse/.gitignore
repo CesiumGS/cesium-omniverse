@@ -1,5 +1,8 @@
 # Build folders
-build*
+build*/
+
+# Nvidia build folder
+extern/nvidia/_build
 
 # Python cache
 __pycache__

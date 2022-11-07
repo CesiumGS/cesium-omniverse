@@ -7,14 +7,14 @@ list(REMOVE_ITEM SOURCES ${PYTHON_BINDINGS_CPP})
 # On Linux you may see a warning like:
 #
 # Warning: Unused direct dependencies:
-#         /home/$USER/.local/share/ov/pkg/connectsample-200.0.0/_build/target-deps/usd/release/lib/libarch.so
-#         /home/$USER/.local/share/ov/pkg/connectsample-200.0.0/_build/target-deps/usd/release/lib/libjs.so
-#         /home/$USER/.local/share/ov/pkg/connectsample-200.0.0/_build/target-deps/usd/release/lib/libkind.so
-#         /home/$USER/.local/share/ov/pkg/connectsample-200.0.0/_build/target-deps/usd/release/lib/libndr.so
-#         /home/$USER/.local/share/ov/pkg/connectsample-200.0.0/_build/target-deps/usd/release/lib/libpcp.so
-#         /home/$USER/.local/share/ov/pkg/connectsample-200.0.0/_build/target-deps/usd/release/lib/libplug.so
-#         /home/$USER/.local/share/ov/pkg/connectsample-200.0.0/_build/target-deps/usd/release/lib/libsdr.so
-#         /home/$USER/.local/share/ov/pkg/connectsample-200.0.0/_build/target-deps/usd/release/lib/libtrace.so
+#         cesium-omniverse/extern/nvidia/_build/target-deps/usd/release/lib/libarch.so
+#         cesium-omniverse/extern/nvidia/_build/target-deps/usd/release/lib/libjs.so
+#         cesium-omniverse/extern/nvidia/_build/target-deps/usd/release/lib/libkind.so
+#         cesium-omniverse/extern/nvidia/_build/target-deps/usd/release/lib/libndr.so
+#         cesium-omniverse/extern/nvidia/_build/target-deps/usd/release/lib/libpcp.so
+#         cesium-omniverse/extern/nvidia/_build/target-deps/usd/release/lib/libplug.so
+#         cesium-omniverse/extern/nvidia/_build/target-deps/usd/release/lib/libsdr.so
+#         cesium-omniverse/extern/nvidia/_build/target-deps/usd/release/lib/libtrace.so
 #
 # This is because some USD libraries are referenced by other USD libraries but are not direct depenencies of
 # Cesium Omniverse. The reason we include them in the list below is because on Windows this allows them to be
@@ -25,7 +25,7 @@ list(REMOVE_ITEM SOURCES ${PYTHON_BINDINGS_CPP})
 #
 # CMake Warning at build/src/cmake_install.cmake:115 (file):
 #   Dependency libpython3.7m.so.1.0 found in search directory:
-#     /home/slilley/.local/share/ov/pkg/connectsample-200.0.0/_build/target-deps/python/lib
+#     cesium-omniverse/extern/nvidia/_build/target-deps/python/lib
 #
 #   See file(GET_RUNTIME_DEPENDENCIES) documentation for more information.
 # Call Stack (most recent call first):
