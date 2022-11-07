@@ -159,7 +159,7 @@ function(add_external_project)
     include(ExternalProject) # built-in CMake include for ExternalProject_Add
 
     set(CMAKE_DEBUG_POSTFIX "d")
-    set(CMAKE_DEBUG_POSTFIX "")
+    set(CMAKE_RELEASE_POSTFIX "")
     set(CMAKE_RELWITHDEBINFO_POSTFIX "rd")
     set(CMAKE_MINSIZEREL_POSTFIX "mr")
 
