@@ -1,6 +1,6 @@
-#include "RenderResourcesPreparer.h"
+#include "cesium/omniverse/RenderResourcesPreparer.h"
 
-#include "GltfToUSD.h"
+#include "cesium/omniverse/GltfToUSD.h"
 
 #include <Cesium3DTilesSelection/Tile.h>
 #include <Cesium3DTilesSelection/TileID.h>

@@ -167,8 +167,8 @@ set(CESIUM_OMNI_CXX_DEFINES_DEBUG ${CESIUM_OMNI_CXX_DEFINES_DEBUG} CESIUM_OMNI_D
 if(MSVC)
     set(CESIUM_OMNI_CXX_FLAGS
         ${CESIUM_OMNI_CXX_FLAGS}
-        /W4 # enable all warnings
-        /WX # error on warnings
+        # /W4 # enable all warnings
+        # /WX # error on warnings
         /Zc:__cplusplus # make __cplusplus defined correctly
     )
     set(CESIUM_OMNI_CXX_DEFINES
@@ -413,11 +413,11 @@ set(PLUG_INFO_LIBRARY_PATH_INSTALL "../../lib/${PLUG_INFO_LIBRARY_FILE_NAME}")
 set(PLUG_INFO_LIBRARY_PATH_KIT "../../bin/${PLUG_INFO_LIBRARY_FILE_NAME}")
 
 set(PLUG_INFO_LIBRARY_PATH ${PLUG_INFO_LIBRARY_PATH_BUILD})
-configure_file("${PROJECT_SOURCE_DIR}/src/plugInfo.json.in" "${PROJECT_BINARY_DIR}/plugInfo.json.build")
+configure_file("${PROJECT_SOURCE_DIR}/src/plugins/InMemoryAssetResolver/plugInfo.json.in" "${PROJECT_BINARY_DIR}/plugInfo.json.build")
 set(PLUG_INFO_LIBRARY_PATH ${PLUG_INFO_LIBRARY_PATH_INSTALL})
-configure_file("${PROJECT_SOURCE_DIR}/src/plugInfo.json.in" "${PROJECT_BINARY_DIR}/plugInfo.json.install")
+configure_file("${PROJECT_SOURCE_DIR}/src/plugins/InMemoryAssetResolver/plugInfo.json.in" "${PROJECT_BINARY_DIR}/plugInfo.json.install")
 set(PLUG_INFO_LIBRARY_PATH ${PLUG_INFO_LIBRARY_PATH_KIT})
-configure_file("${PROJECT_SOURCE_DIR}/src/plugInfo.json.in" "${PROJECT_BINARY_DIR}/plugInfo.json.kit")
+configure_file("${PROJECT_SOURCE_DIR}/src/plugins/InMemoryAssetResolver/plugInfo.json.in" "${PROJECT_BINARY_DIR}/plugInfo.json.kit")
 
 # Create mem.cesium
 file(TOUCH "${PROJECT_BINARY_DIR}/mem.cesium")
@@ -484,6 +484,13 @@ install(
 
 install(
     TARGETS CesiumOmniversePythonBindings
+            RUNTIME_DEPENDENCIES
+            DIRECTORIES
+            ${INSTALL_SEARCH_PATHS}
+            PRE_EXCLUDE_REGEXES
+            ${INSTALL_PRE_EXCLUDE_REGEXES}
+            POST_EXCLUDE_REGEXES
+            ${INSTALL_POST_EXCLUDE_REGEXES}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT install
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT install
     RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT install)

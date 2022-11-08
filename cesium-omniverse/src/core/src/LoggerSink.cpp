@@ -1,4 +1,4 @@
-#include "LoggerSink.h"
+#include "cesium/omniverse/LoggerSink.h"
 
 #include <pxr/base/tf/callContext.h>
 #include <pxr/base/tf/diagnostic.h>

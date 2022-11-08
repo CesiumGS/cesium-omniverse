@@ -1,4 +1,4 @@
-#include "Georeference.h"
+#include "cesium/omniverse/Georeference.h"
 
 #include <CesiumGeometry/AxisTransforms.h>
 #include <CesiumGeospatial/Transforms.h>

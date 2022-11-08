@@ -1,0 +1,68 @@
+include(Macros)
+
+glob_files(SOURCES "${CMAKE_CURRENT_LIST_DIR}/src/*.cpp")
+
+# cmake-format: off
+setup_lib(
+    TARGET_NAME
+        CesiumOmniverseCore
+    TYPE
+        STATIC
+    SOURCES
+        ${SOURCES}
+    INCLUDE_DIRS
+        "${CMAKE_CURRENT_LIST_DIR}/include"
+    LIBRARIES
+        InMemoryAssetResolver
+        Cesium3DTilesSelection
+        CesiumAsync
+        CesiumGeometry
+        CesiumGeospatial
+        CesiumGltf
+        CesiumGltfReader
+        CesiumJsonReader
+        CesiumUtility
+        async++
+        draco
+        ktx_read
+        modp_b64
+        s2geometry
+        spdlog
+        uriparser
+        webpdecoder
+        cpr::cpr
+        stb::stb
+        ZLIB::ZLIB
+        boost_python37
+        python37
+        tbb
+        ar
+        arch
+        gf
+        js
+        kind
+        ndr
+        pcp
+        plug
+        sdf
+        sdr
+        tf
+        trace
+        usd
+        usdGeom
+        usdShade
+        usdUtils
+        vt
+        work
+    DEPENDENCIES
+        cesium-native-external
+    CXX_FLAGS
+        ${CESIUM_OMNI_CXX_FLAGS}
+    CXX_FLAGS_DEBUG
+        ${CESIUM_OMNI_CXX_FLAGS_DEBUG}
+    CXX_DEFINES
+        ${CESIUM_OMNI_CXX_DEFINES}
+    CXX_DEFINES_DEBUG
+        ${CESIUM_OMNI_CXX_DEFINES_DEBUG}
+)
+# cmake-format: on

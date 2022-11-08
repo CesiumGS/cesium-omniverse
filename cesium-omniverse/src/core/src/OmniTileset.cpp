@@ -1,8 +1,8 @@
-#include "OmniTileset.h"
+#include "cesium/omniverse/OmniTileset.h"
 
-#include "HttpAssetAccessor.h"
-#include "LoggerSink.h"
-#include "TaskProcessor.h"
+#include "cesium/omniverse/HttpAssetAccessor.h"
+#include "cesium/omniverse/LoggerSink.h"
+#include "cesium/omniverse/TaskProcessor.h"
 
 #include <Cesium3DTilesSelection/registerAllTileContentTypes.h>
 #include <CesiumGeometry/AxisTransforms.h>

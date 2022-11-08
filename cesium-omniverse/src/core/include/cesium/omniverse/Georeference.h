@@ -2,14 +2,12 @@
 
 #include "Event.h"
 
-#include "cesium/omniverse/CesiumOmniverse.h"
-
 #include <glm/glm.hpp>
 
 namespace Cesium {
 using OriginShiftHandler = event_handler<const glm::dmat4&, const glm::dmat4&>;
 
-class CESIUM_OMNI_EXPORT_CPP_CLASS Georeference {
+class Georeference {
   public:
     static Georeference& instance();
 

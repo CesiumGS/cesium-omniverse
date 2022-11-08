@@ -1,4 +1,4 @@
-#include "HttpAssetAccessor.h"
+#include "cesium/omniverse/HttpAssetAccessor.h"
 
 #include <zlib.h>
 

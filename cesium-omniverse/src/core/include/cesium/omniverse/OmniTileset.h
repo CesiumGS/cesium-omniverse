@@ -3,8 +3,6 @@
 #include "Georeference.h"
 #include "RenderResourcesPreparer.h"
 
-#include "cesium/omniverse/CesiumOmniverse.h"
-
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
 #undef OPAQUE
@@ -22,7 +20,7 @@
 #include <vector>
 
 namespace Cesium {
-class CESIUM_OMNI_EXPORT_CPP_CLASS OmniTileset {
+class OmniTileset {
   public:
     OmniTileset(const pxr::UsdStageRefPtr& stage, const std::string& url);
 

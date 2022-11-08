@@ -1,7 +1,7 @@
-#include "GltfToUSD.h"
+#include "cesium/omniverse/GltfToUSD.h"
 
-#include "Globals.h"
-#include "InMemoryAssetResolver.h"
+#include "cesium/omniverse/Globals.h"
+#include "cesium/omniverse/InMemoryAssetResolver.h"
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")

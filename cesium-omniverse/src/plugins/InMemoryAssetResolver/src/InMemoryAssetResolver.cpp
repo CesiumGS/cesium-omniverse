@@ -1,4 +1,4 @@
-#include "InMemoryAssetResolver.h"
+#include "cesium/omniverse/InMemoryAssetResolver.h"
 
 #include <pxr/usd/ar/definePackageResolver.h>
 
