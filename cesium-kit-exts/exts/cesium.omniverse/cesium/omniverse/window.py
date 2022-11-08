@@ -5,6 +5,7 @@ from pxr import Gf, Sdf
 import omni.usd
 from omni.kit.viewport.utility import get_active_viewport_camera_path, get_active_viewport
 import omni.kit.app as omni_app
+import carb.settings as omni_settings
 
 
 class CesiumOmniverseWindow(ui.Window):
@@ -60,6 +61,7 @@ class CesiumOmniverseWindow(ui.Window):
 
         def create_update_frame():
             app = omni_app.get_app()
+            omni_settings.get_settings().set("/rtx/hydra/TBNFrameMode", 1)
             self._subscription_handle = app.get_update_event_stream().create_subscription_to_pop(
                 on_update_frame, name="cesium_update_frame"
             )
