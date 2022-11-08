@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Georeference.h"
-#include "RenderResourcesPreparer.h"
+#include "cesium/omniverse/Georeference.h"
+#include "cesium/omniverse/RenderResourcesPreparer.h"
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")

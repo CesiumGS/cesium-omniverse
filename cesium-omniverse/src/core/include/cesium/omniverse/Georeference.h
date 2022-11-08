@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Event.h"
+#include "cesium/omniverse/Event.h"
 
 #include <glm/glm.hpp>
 
