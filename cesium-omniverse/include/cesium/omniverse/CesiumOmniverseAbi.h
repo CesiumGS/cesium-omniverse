@@ -15,8 +15,6 @@
 #    define CESIUM_OMNI_ABI
 #endif
 
-#define CESIUM_OMNI_SINGLE_ARG(...) __VA_ARGS__
-
 #ifdef CESIUM_OMNI_EXPORTS
 #    if defined(CESIUM_OMNI_STATIC)
 #        define CESIUM_OMNI_EXPORT_CPP

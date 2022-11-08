@@ -23,6 +23,8 @@ setup_lib(
     TARGET_NAME
         CesiumOmniverseCore
     TYPE
+        # CesiumOmniverseCore needs to be built as a STATIC library always so that it can be tested.
+        # Otherwise if it was built as a shared library we would have to add dllexport attributes to almost everything.
         STATIC
     SOURCES
         ${SOURCES}

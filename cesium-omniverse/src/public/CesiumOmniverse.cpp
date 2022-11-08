@@ -11,10 +11,6 @@ int currentId = 0;
 std::unordered_map<int, std::unique_ptr<OmniTileset>> tilesets;
 } // namespace
 
-int getNumber() noexcept {
-    return 2;
-}
-
 void initialize() noexcept {
     OmniTileset::init();
 }

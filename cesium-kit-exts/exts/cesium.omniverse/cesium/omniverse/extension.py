@@ -1,7 +1,6 @@
 from .window import CesiumOmniverseWindow
 from functools import partial
 import asyncio
-import os
 import omni.ext
 import omni.kit.ui
 import omni.ui as ui

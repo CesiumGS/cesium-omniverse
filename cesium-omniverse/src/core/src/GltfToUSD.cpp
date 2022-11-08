@@ -1,6 +1,5 @@
 #include "cesium/omniverse/GltfToUSD.h"
 
-#include "cesium/omniverse/Globals.h"
 #include "cesium/omniverse/InMemoryAssetResolver.h"
 
 #ifdef CESIUM_OMNI_MSVC
@@ -275,7 +274,7 @@ pxr::SdfAssetPath convertTextureToUSD(
     auto& ctx = pxr::InMemoryAssetContext::instance();
     ctx.assets.insert({texturePath, std::move(inMemoryAsset)});
 
-    return pxr::SdfAssetPath(fmt::format("C:/Users/slilley/Documents/mem.cesium[{}]", texturePath));
+    return pxr::SdfAssetPath(fmt::format("C:/Users/Cesium/Documents/mem.cesium[{}]", texturePath));
 }
 
 pxr::UsdShadeMaterial convertMaterialToUSD(

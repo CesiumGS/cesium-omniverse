@@ -16,12 +16,6 @@
 namespace Cesium {
 
 /**
- * @brief Gets a number. For testing purposes.
- */
-CESIUM_OMNI_EXPORT_C_FUNCTION(int)
-getNumber() CESIUM_OMNI_NOEXCEPT;
-
-/**
  * @brief Call this before any tilesets are created.
  */
 CESIUM_OMNI_EXPORT_C_FUNCTION(void)
