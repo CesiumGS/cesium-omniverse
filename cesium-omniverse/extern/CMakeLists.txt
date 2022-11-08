@@ -26,6 +26,7 @@ add_external_project(
         CESIUM_COVERAGE_ENABLED=OFF
     PROJECT_EXTERN_DIRECTORY
         "${PROJECT_SOURCE_DIR}/extern"
+    EXPECTED_DEBUG_POSTFIX "d"
 )
 # cmake-format: on
 
