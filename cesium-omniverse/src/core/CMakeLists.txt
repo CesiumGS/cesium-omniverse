@@ -1,3 +1,19 @@
+# On Linux you may see a warning like:
+#
+# Warning: Unused direct dependencies:
+#         cesium-omniverse/extern/nvidia/_build/target-deps/usd/release/lib/libarch.so
+#         cesium-omniverse/extern/nvidia/_build/target-deps/usd/release/lib/libjs.so
+#         cesium-omniverse/extern/nvidia/_build/target-deps/usd/release/lib/libkind.so
+#         cesium-omniverse/extern/nvidia/_build/target-deps/usd/release/lib/libndr.so
+#         cesium-omniverse/extern/nvidia/_build/target-deps/usd/release/lib/libpcp.so
+#         cesium-omniverse/extern/nvidia/_build/target-deps/usd/release/lib/libplug.so
+#         cesium-omniverse/extern/nvidia/_build/target-deps/usd/release/lib/libsdr.so
+#         cesium-omniverse/extern/nvidia/_build/target-deps/usd/release/lib/libtrace.so
+#
+# This is because some USD libraries are referenced by other USD libraries but are not direct depenencies of
+# Cesium Omniverse. The reason we include them in the list below is because on Windows this allows them to be
+# copied to the bin folder when TARGET_RUNTIME_DLLS is used.
+
 include(Macros)
 
 glob_files(SOURCES "${CMAKE_CURRENT_LIST_DIR}/src/*.cpp")

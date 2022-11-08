@@ -10,6 +10,7 @@ namespace Cesium {
 #include <windows.h>
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
+    (void)lpvReserved;
     switch (fdwReason) {
         case DLL_PROCESS_ATTACH:
             TCHAR s[MAX_PATH + 1];

@@ -167,8 +167,8 @@ set(CESIUM_OMNI_CXX_DEFINES_DEBUG ${CESIUM_OMNI_CXX_DEFINES_DEBUG} CESIUM_OMNI_D
 if(MSVC)
     set(CESIUM_OMNI_CXX_FLAGS
         ${CESIUM_OMNI_CXX_FLAGS}
-        # /W4 # enable all warnings
-        # /WX # error on warnings
+        /W4 # enable all warnings
+        /WX # error on warnings
         /Zc:__cplusplus # make __cplusplus defined correctly
     )
     set(CESIUM_OMNI_CXX_DEFINES
@@ -413,11 +413,14 @@ set(PLUG_INFO_LIBRARY_PATH_INSTALL "../../lib/${PLUG_INFO_LIBRARY_FILE_NAME}")
 set(PLUG_INFO_LIBRARY_PATH_KIT "../../bin/${PLUG_INFO_LIBRARY_FILE_NAME}")
 
 set(PLUG_INFO_LIBRARY_PATH ${PLUG_INFO_LIBRARY_PATH_BUILD})
-configure_file("${PROJECT_SOURCE_DIR}/src/plugins/InMemoryAssetResolver/plugInfo.json.in" "${PROJECT_BINARY_DIR}/plugInfo.json.build")
+configure_file("${PROJECT_SOURCE_DIR}/src/plugins/InMemoryAssetResolver/plugInfo.json.in"
+               "${PROJECT_BINARY_DIR}/plugInfo.json.build")
 set(PLUG_INFO_LIBRARY_PATH ${PLUG_INFO_LIBRARY_PATH_INSTALL})
-configure_file("${PROJECT_SOURCE_DIR}/src/plugins/InMemoryAssetResolver/plugInfo.json.in" "${PROJECT_BINARY_DIR}/plugInfo.json.install")
+configure_file("${PROJECT_SOURCE_DIR}/src/plugins/InMemoryAssetResolver/plugInfo.json.in"
+               "${PROJECT_BINARY_DIR}/plugInfo.json.install")
 set(PLUG_INFO_LIBRARY_PATH ${PLUG_INFO_LIBRARY_PATH_KIT})
-configure_file("${PROJECT_SOURCE_DIR}/src/plugins/InMemoryAssetResolver/plugInfo.json.in" "${PROJECT_BINARY_DIR}/plugInfo.json.kit")
+configure_file("${PROJECT_SOURCE_DIR}/src/plugins/InMemoryAssetResolver/plugInfo.json.in"
+               "${PROJECT_BINARY_DIR}/plugInfo.json.kit")
 
 # Create mem.cesium
 file(TOUCH "${PROJECT_BINARY_DIR}/mem.cesium")
@@ -426,6 +429,22 @@ set(KIT_EXTENSION_BIN_PATH "${PROJECT_SOURCE_DIR}/../cesium-kit-exts/exts/cesium
 set(KIT_EXTENSION_BINDINGS_PATH
     "${PROJECT_SOURCE_DIR}/../cesium-kit-exts/exts/cesium.omniverse/cesium/omniverse/bindings")
 set(KIT_EXTENSION_PLUGINS_PATH "${PROJECT_SOURCE_DIR}/../cesium-kit-exts/exts/cesium.omniverse/plugins")
+
+# You may see warnings like:
+#
+# CMake Warning at build/src/cmake_install.cmake:115 (file):
+#   Dependency libpython3.7m.so.1.0 found in search directory:
+#     cesium-omniverse/extern/nvidia/_build/target-deps/python/lib
+#
+#   See file(GET_RUNTIME_DEPENDENCIES) documentation for more information.
+# Call Stack (most recent call first):
+#   build/cmake_install.cmake:52 (include)
+#
+# This is because the USD libraries .so rpath points to a non-existent python path
+# E.g. `readelf -d libusd.so` will show `$ORIGIN/../../../_dependencies/python3/lib`
+# This path doesn't exist, so in order to find python we need to explicility add it
+# to the search path. Unfortunately CMake will print a warning when python .so is
+# found this way.
 
 set(INSTALL_SEARCH_PATHS $<TARGET_FILE_DIR:python37>)
 set(INSTALL_PRE_EXCLUDE_REGEXES "api-ms-*" "ext-ms-*")

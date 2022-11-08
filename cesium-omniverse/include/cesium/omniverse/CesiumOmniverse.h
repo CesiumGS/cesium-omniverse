@@ -9,6 +9,8 @@
 #include <cstdint>
 #include <string>
 
+namespace Cesium {
+
 /**
  * @brief Gets a number. For testing purposes.
  */
@@ -19,13 +21,13 @@ getNumber() CESIUM_OMNI_NOEXCEPT;
  * @brief Call this before any tilesets are created.
  */
 CESIUM_OMNI_EXPORT_C_FUNCTION(void)
-startup() CESIUM_OMNI_NOEXCEPT;
+initialize() CESIUM_OMNI_NOEXCEPT;
 
 /**
  * @brief Call this to free resources on program exist.
  */
 CESIUM_OMNI_EXPORT_C_FUNCTION(void)
-shutdown() CESIUM_OMNI_NOEXCEPT;
+finalize() CESIUM_OMNI_NOEXCEPT;
 
 /**
  * @brief Adds a tileset from url.
@@ -74,9 +76,13 @@ updateFrame(
     double height) CESIUM_OMNI_NOEXCEPT;
 
 /**
- * @brief Sets the georeference origin.
+ * @brief Sets the georeference origin based on the WGS84 ellipsoid.
  *
- * @param origin The georeference origin.
+ * @param longitude The longitude in degrees
+ * @param latitude The latitude in degrees
+ * @param height The height in meters
  */
-CESIUM_OMNI_EXPORT_CPP_FUNCTION(void)
-setGeoreferenceOrigin(const pxr::GfVec3d& origin) CESIUM_OMNI_NOEXCEPT;
+CESIUM_OMNI_EXPORT_C_FUNCTION(void)
+setGeoreferenceOrigin(double longitude, double latitude, double height) CESIUM_OMNI_NOEXCEPT;
+
+} // namespace Cesium

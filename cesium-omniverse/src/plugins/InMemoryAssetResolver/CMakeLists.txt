@@ -2,7 +2,7 @@ include(Macros)
 
 glob_files(SOURCES "${CMAKE_CURRENT_LIST_DIR}/src/*.cpp")
 
-set(IN_MEMORY_ASSET_RESOLVER_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} CESIUM_OMNI_EXPORTS)
+set(IN_MEMORY_ASSET_RESOLVER_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} AR_EXPORTS)
 
 # cmake-format: off
 setup_lib(
@@ -13,7 +13,6 @@ setup_lib(
         SHARED
     INCLUDE_DIRS
         "${CMAKE_CURRENT_LIST_DIR}/include"
-        "${PROJECT_SOURCE_DIR}/include"
     SOURCES
         ${SOURCES}
     LIBRARIES

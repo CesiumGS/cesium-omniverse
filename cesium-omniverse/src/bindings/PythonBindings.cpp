@@ -17,14 +17,18 @@ PYBOOST11_TYPE_CASTER(pxr::UsdStageRefPtr, _("StageRefPtr"));
 } // end namespace detail
 } // end namespace pybind11
 
+namespace Cesium {
+
 PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
     m.doc() = "pybind11 cesium plugin"; // optional module docstring
 
-    m.def("startup", &startup);
-    m.def("shutdown", &shutdown);
+    m.def("initialize", &initialize);
+    m.def("finalize", &finalize);
     m.def("addTilesetUrl", &addTilesetUrl);
     m.def("addTilesetIon", &addTilesetIon);
     m.def("removeTileset", &removeTileset);
     m.def("updateFrame", &updateFrame);
     m.def("setGeoreferenceOrigin", &setGeoreferenceOrigin);
 }
+
+} // namespace Cesium

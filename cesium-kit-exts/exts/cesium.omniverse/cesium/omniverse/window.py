@@ -15,7 +15,7 @@ class CesiumOmniverseWindow(ui.Window):
         self.frame.set_build_fn(self._build_fn)
 
         print("[cesium.omniverse] CesiumOmniverse startup")
-        CesiumOmniverse.startup()
+        CesiumOmniverse.initialize()
         self._tilesets = []
 
     def destroy(self):
@@ -23,7 +23,7 @@ class CesiumOmniverseWindow(ui.Window):
         super().destroy()
 
         print("[cesium.omniverse] CesiumOmniverse shutdown")
-        CesiumOmniverse.shutdown()
+        CesiumOmniverse.finalize()
 
     def _build_fn(self):
         def remove_sphere():
@@ -54,8 +54,12 @@ class CesiumOmniverseWindow(ui.Window):
         def on_update_frame(e):
             viewport = get_active_viewport()
             for tileset in self._tilesets:
-                tileset.updateFrame(
-                    viewport.view, viewport.projection, float(viewport.resolution[0]), float(viewport.resolution[1])
+                CesiumOmniverse.updateFrame(
+                    tileset,
+                    viewport.view,
+                    viewport.projection,
+                    float(viewport.resolution[0]),
+                    float(viewport.resolution[1]),
                 )
 
         def create_update_frame():
@@ -70,7 +74,7 @@ class CesiumOmniverseWindow(ui.Window):
         def create_tileset():
             stage = omni.usd.get_context().get_stage()
             self._tilesets.append(
-                CesiumOmniverse.OmniTileset(
+                CesiumOmniverse.addTilesetIon(
                     stage,
                     1387142,
                     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyMjRhYzI0Yi1kNWEwLTQ4ZWYtYjdmZC1hY2JmYWIzYmFiMGUiLCJpZCI6NDQsImlhdCI6MTY2NzQ4OTg0N30.du0tvWptgLWsvM1Gnbv3Zw_pDAOILg1Wr6s2sgK-qlM",

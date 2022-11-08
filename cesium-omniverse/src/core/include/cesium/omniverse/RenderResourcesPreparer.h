@@ -1,5 +1,10 @@
 #pragma once
 
+#ifdef CESIUM_OMNI_MSVC
+#pragma push_macro("OPAQUE")
+#undef OPAQUE
+#endif
+
 #include <Cesium3DTilesSelection/IPrepareRendererResources.h>
 #include <CesiumGeometry/AxisTransforms.h>
 
