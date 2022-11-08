@@ -16,6 +16,10 @@ class CesiumOmniverseWindow(ui.Window):
 
         print("[cesium.omniverse] CesiumOmniverse startup")
         CesiumOmniverse.initialize()
+
+        # Cape Canaveral
+        CesiumOmniverse.setGeoreferenceOrigin(-80.53, 28.46, -30.0)
+
         self._tilesets = []
 
     def destroy(self):
