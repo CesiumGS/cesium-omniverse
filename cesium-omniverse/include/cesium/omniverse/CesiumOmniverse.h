@@ -35,7 +35,7 @@ finalize() CESIUM_OMNI_NOEXCEPT;
  * @returns The tileset id. Returns -1 on error.
  */
 CESIUM_OMNI_EXPORT_CPP_FUNCTION(int)
-addTilesetUrl(const pxr::UsdStageRefPtr& stage, const std::string& url) CESIUM_OMNI_NOEXCEPT;
+addTilesetUrl(const pxr::UsdStageRefPtr& stage, const char* url) CESIUM_OMNI_NOEXCEPT;
 
 /**
  * @brief Adds a tileset from ion.
@@ -46,7 +46,7 @@ addTilesetUrl(const pxr::UsdStageRefPtr& stage, const std::string& url) CESIUM_O
  * @returns The tileset id. Returns -1 on error.
  */
 CESIUM_OMNI_EXPORT_CPP_FUNCTION(int)
-addTilesetIon(const pxr::UsdStageRefPtr& stage, int64_t ionId, const std::string& ionToken) CESIUM_OMNI_NOEXCEPT;
+addTilesetIon(const pxr::UsdStageRefPtr& stage, int64_t ionId, const char* ionToken) CESIUM_OMNI_NOEXCEPT;
 
 /**
  * @brief Removes a tileset from the scene.

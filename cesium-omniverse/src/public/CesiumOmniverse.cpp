@@ -19,13 +19,13 @@ void finalize() noexcept {
     OmniTileset::shutdown();
 }
 
-int addTilesetUrl(const pxr::UsdStageRefPtr& stage, const std::string& url) noexcept {
+int addTilesetUrl(const pxr::UsdStageRefPtr& stage, const char* url) noexcept {
     const int tilesetId = currentId++;
     tilesets.insert({tilesetId, std::make_unique<OmniTileset>(stage, url)});
     return tilesetId;
 }
 
-int addTilesetIon(const pxr::UsdStageRefPtr& stage, int64_t ionId, const std::string& ionToken) noexcept {
+int addTilesetIon(const pxr::UsdStageRefPtr& stage, int64_t ionId, const char* ionToken) noexcept {
     const int tilesetId = currentId++;
     tilesets.insert({tilesetId, std::make_unique<OmniTileset>(stage, ionId, ionToken)});
     return tilesetId;
