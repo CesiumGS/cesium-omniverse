@@ -58,7 +58,7 @@ option(CESIUM_OMNI_ENABLE_LINTERS "Enable clang-format for code formatting and c
 cmake_dependent_option(
     CESIUM_OMNI_ENABLE_COVERAGE
     "Code coverage for checking the thoroughness of unit tests - only available if CESIUM_OMNI_ENABLE_TESTS is ON"
-    OFF
+    ON
     CESIUM_OMNI_ENABLE_TESTS
     OFF)
 cmake_dependent_option(
