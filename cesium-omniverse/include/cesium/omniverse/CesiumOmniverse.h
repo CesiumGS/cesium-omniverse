@@ -6,8 +6,6 @@
 #define _GLIBCXX_PERMIT_BACKWARD_HASH
 #endif
 
-#include <pxr/base/gf/matrix4d.h>
-#include <pxr/base/gf/vec3d.h>
 #include <pxr/usd/usd/stage.h>
 
 #include <cstdint>
@@ -60,18 +58,14 @@ removeTileset(int tileset) CESIUM_OMNI_NOEXCEPT;
  * @brief Updates the tileset this frame.
  *
  * @param tileset The tileset id. If there's no tileset with this id nothing happens.
- * @param viewMatrix The view matrix
- * @param projMatrix The projection matrix
+ * @param viewMatrix The view matrix corresponding to the values in a GfMatrix4d.
+ * @param projMatrix The projection matrix corresponding to the values in a GfMatrix4d.
  * @param width The screen width
  * @param height The screen height
  */
-CESIUM_OMNI_EXPORT_CPP_FUNCTION(void)
-updateFrame(
-    int tileset,
-    const pxr::GfMatrix4d& viewMatrix,
-    const pxr::GfMatrix4d& projMatrix,
-    double width,
-    double height) CESIUM_OMNI_NOEXCEPT;
+CESIUM_OMNI_EXPORT_C_FUNCTION(void)
+updateFrame(int tileset, const double* viewMatrix, const double* projMatrix, double width, double height)
+    CESIUM_OMNI_NOEXCEPT;
 
 /**
  * @brief Sets the georeference origin based on the WGS84 ellipsoid.
