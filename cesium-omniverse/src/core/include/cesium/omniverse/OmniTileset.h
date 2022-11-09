@@ -9,11 +9,6 @@
 #endif
 
 #include <Cesium3DTilesSelection/Tileset.h>
-
-#ifdef CESIUM_OMNI_GCC
-#define _GLIBCXX_PERMIT_BACKWARD_HASH
-#endif
-
 #include <pxr/usd/usd/stage.h>
 
 #include <memory>

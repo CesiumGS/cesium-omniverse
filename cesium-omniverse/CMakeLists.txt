@@ -308,6 +308,11 @@ set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} SPDLOG_COMPILED_LIB)
 # Add this for cesium-native (TODO: should this go in src/CMakeLists?)
 set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} LIBASYNC_STATIC)
 
+# Needed to include USD headers without errors
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} _GLIBCXX_PERMIT_BACKWARD_HASH)
+endif()
+
 # USD is compiled with the old C++ ABI so we need to compile our own code and external libraries
 # with the old ABI. Only relevant for libraries that have std::string or std::list in their
 # public interface, which includes cesium-native and cpr.
