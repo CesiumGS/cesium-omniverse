@@ -2,9 +2,13 @@
 
 #include "CesiumOmniverseAbi.h"
 
-#include <pxr/usd/usd/stage.h>
+#include <pxr/usd/usd/common.h>
 
 #include <cstdint>
+
+PXR_NAMESPACE_OPEN_SCOPE
+class GfMatrix4d;
+PXR_NAMESPACE_CLOSE_SCOPE
 
 namespace Cesium {
 
@@ -53,14 +57,18 @@ removeTileset(int tileset) CESIUM_OMNI_NOEXCEPT;
  * @brief Updates the tileset this frame.
  *
  * @param tileset The tileset id. If there's no tileset with this id nothing happens.
- * @param viewMatrix The view matrix corresponding to the values in a GfMatrix4d.
- * @param projMatrix The projection matrix corresponding to the values in a GfMatrix4d.
+ * @param viewMatrix The view matrix.
+ * @param projMatrix The projection matrix.
  * @param width The screen width
  * @param height The screen height
  */
 CESIUM_OMNI_EXPORT_C_FUNCTION(void)
-updateFrame(int tileset, const double* viewMatrix, const double* projMatrix, double width, double height)
-    CESIUM_OMNI_NOEXCEPT;
+updateFrame(
+    int tileset,
+    const pxr::GfMatrix4d* viewMatrix,
+    const pxr::GfMatrix4d* projMatrix,
+    double width,
+    double height) CESIUM_OMNI_NOEXCEPT;
 
 /**
  * @brief Sets the georeference origin based on the WGS84 ellipsoid.

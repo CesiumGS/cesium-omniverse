@@ -33,7 +33,7 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
            const pxr::GfMatrix4d& viewMatrix,
            const pxr::GfMatrix4d& projMatrix,
            double height,
-           double width) { updateFrame(tileset, viewMatrix.data(), projMatrix.data(), height, width); });
+           double width) { updateFrame(tileset, &viewMatrix, &projMatrix, height, width); });
     m.def("setGeoreferenceOrigin", &setGeoreferenceOrigin);
 }
 
