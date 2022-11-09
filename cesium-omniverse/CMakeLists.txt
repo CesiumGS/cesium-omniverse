@@ -134,6 +134,11 @@ set(CMAKE_LINK_WHAT_YOU_USE ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
+# Build shared libraries by default
+if(NOT DEFINED BUILD_SHARED_LIBS)
+    set(BUILD_SHARED_LIBS ON)
+endif()
+
 # defines CMAKE_INSTALL_LIBDIR, CMAKE_INSTALL_BINDIR, and CMAKE_INSTALL_INCLUDEDIR for OS-dependent build locations.
 # See https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html
 include(GNUInstallDirs)
@@ -144,13 +149,6 @@ include(AddConanDependencies)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
-
-set(CMAKE_DEBUG_POSTFIX
-    "d"
-    CACHE FILEPATH "Postfix for Debug binaries")
-set(CMAKE_RELWITHDEBINFO_POSTFIX
-    "rd"
-    CACHE FILEPATH "Postfix for RelWithDebInfo binaries")
 
 # compiler / preprocessor / linker options passed later to targets in cmake/Macros.cmake
 # Debug options are only applied if using the Debug configuration
@@ -310,16 +308,17 @@ set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} SPDLOG_COMPILED_LIB)
 # Add this for cesium-native (TODO: should this go in src/CMakeLists?)
 set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} LIBASYNC_STATIC)
 
+# Needed to include USD headers without errors
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} _GLIBCXX_PERMIT_BACKWARD_HASH)
+endif()
+
 # USD is compiled with the old C++ ABI so we need to compile our own code and external libraries
 # with the old ABI. Only relevant for libraries that have std::string or std::list in their
 # public interface, which includes cesium-native and cpr.
 # See https://gcc.gnu.org/onlinedocs/libstdc++/manual/using_dual_abi.html
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} _GLIBCXX_USE_CXX11_ABI=0)
-endif()
-
-if(BUILD_SHARED_LIBS)
-    set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} CESIUM_OMNI_SHARED)
 endif()
 
 set(CESIUM_OMNI_CXX_FLAGS
@@ -410,3 +409,153 @@ endforeach()
 
 # Hide CONAN_CMD_PATH from CMake GUI
 mark_as_advanced(CONAN_CMD_PATH)
+
+# Configure plugInfo.json
+set(PLUG_INFO_LIBRARY_FILE_NAME "${CMAKE_SHARED_LIBRARY_PREFIX}InMemoryAssetResolver${CMAKE_SHARED_LIBRARY_SUFFIX}")
+
+set(PLUG_INFO_LIBRARY_PATH_BUILD "../../${PLUG_INFO_LIBRARY_FILE_NAME}")
+set(PLUG_INFO_LIBRARY_PATH_INSTALL "../../lib/${PLUG_INFO_LIBRARY_FILE_NAME}")
+set(PLUG_INFO_LIBRARY_PATH_KIT "../../bin/${PLUG_INFO_LIBRARY_FILE_NAME}")
+
+set(PLUG_INFO_LIBRARY_PATH ${PLUG_INFO_LIBRARY_PATH_BUILD})
+configure_file("${PROJECT_SOURCE_DIR}/src/plugins/InMemoryAssetResolver/plugInfo.json.in"
+               "${PROJECT_BINARY_DIR}/plugInfo.json.build")
+set(PLUG_INFO_LIBRARY_PATH ${PLUG_INFO_LIBRARY_PATH_INSTALL})
+configure_file("${PROJECT_SOURCE_DIR}/src/plugins/InMemoryAssetResolver/plugInfo.json.in"
+               "${PROJECT_BINARY_DIR}/plugInfo.json.install")
+set(PLUG_INFO_LIBRARY_PATH ${PLUG_INFO_LIBRARY_PATH_KIT})
+configure_file("${PROJECT_SOURCE_DIR}/src/plugins/InMemoryAssetResolver/plugInfo.json.in"
+               "${PROJECT_BINARY_DIR}/plugInfo.json.kit")
+
+# Create mem.cesium
+file(TOUCH "${PROJECT_BINARY_DIR}/mem.cesium")
+
+set(KIT_EXTENSION_BIN_PATH "${PROJECT_SOURCE_DIR}/../cesium-kit-exts/exts/cesium.omniverse/bin")
+set(KIT_EXTENSION_BINDINGS_PATH
+    "${PROJECT_SOURCE_DIR}/../cesium-kit-exts/exts/cesium.omniverse/cesium/omniverse/bindings")
+set(KIT_EXTENSION_PLUGINS_PATH "${PROJECT_SOURCE_DIR}/../cesium-kit-exts/exts/cesium.omniverse/plugins")
+
+# You may see warnings like:
+#
+# CMake Warning at build/src/cmake_install.cmake:115 (file):
+#   Dependency libpython3.7m.so.1.0 found in search directory:
+#     cesium-omniverse/extern/nvidia/_build/target-deps/python/lib
+#
+#   See file(GET_RUNTIME_DEPENDENCIES) documentation for more information.
+# Call Stack (most recent call first):
+#   build/cmake_install.cmake:52 (include)
+#
+# This is because the USD libraries .so rpath points to a non-existent python path
+# E.g. `readelf -d libusd.so` will show `$ORIGIN/../../../_dependencies/python3/lib`
+# This path doesn't exist, so in order to find python we need to explicility add it
+# to the search path. Unfortunately CMake will print a warning when python .so is
+# found this way.
+
+set(INSTALL_SEARCH_PATHS $<TARGET_FILE_DIR:python37>)
+set(INSTALL_PRE_EXCLUDE_REGEXES "api-ms-*" "ext-ms-*")
+set(INSTALL_POST_EXCLUDE_REGEXES "system32" "^\/lib")
+
+install(
+    TARGETS InMemoryAssetResolver
+            RUNTIME_DEPENDENCIES
+            DIRECTORIES
+            ${INSTALL_SEARCH_PATHS}
+            PRE_EXCLUDE_REGEXES
+            ${INSTALL_PRE_EXCLUDE_REGEXES}
+            POST_EXCLUDE_REGEXES
+            ${INSTALL_POST_EXCLUDE_REGEXES}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT install
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT install
+    RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT install)
+
+install(
+    TARGETS InMemoryAssetResolver
+    ARCHIVE DESTINATION ${KIT_EXTENSION_BIN_PATH}
+            COMPONENT kit
+            EXCLUDE_FROM_ALL
+    LIBRARY DESTINATION ${KIT_EXTENSION_BIN_PATH}
+            COMPONENT kit
+            EXCLUDE_FROM_ALL
+    RUNTIME DESTINATION ${KIT_EXTENSION_BIN_PATH}
+            COMPONENT kit
+            EXCLUDE_FROM_ALL)
+
+# TODO: this is also installing the .lib. How to avoid that?
+install(
+    TARGETS CesiumOmniverse
+            RUNTIME_DEPENDENCIES
+            DIRECTORIES
+            ${INSTALL_SEARCH_PATHS}
+            PRE_EXCLUDE_REGEXES
+            ${INSTALL_PRE_EXCLUDE_REGEXES}
+            POST_EXCLUDE_REGEXES
+            ${INSTALL_POST_EXCLUDE_REGEXES}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT install
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT install
+    RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT install)
+
+install(
+    TARGETS CesiumOmniverse
+    ARCHIVE DESTINATION ${KIT_EXTENSION_BIN_PATH}
+            COMPONENT kit
+            EXCLUDE_FROM_ALL
+    LIBRARY DESTINATION ${KIT_EXTENSION_BIN_PATH}
+            COMPONENT kit
+            EXCLUDE_FROM_ALL
+    RUNTIME DESTINATION ${KIT_EXTENSION_BIN_PATH}
+            COMPONENT kit
+            EXCLUDE_FROM_ALL)
+
+install(
+    TARGETS CesiumOmniversePythonBindings
+            RUNTIME_DEPENDENCIES
+            DIRECTORIES
+            ${INSTALL_SEARCH_PATHS}
+            PRE_EXCLUDE_REGEXES
+            ${INSTALL_PRE_EXCLUDE_REGEXES}
+            POST_EXCLUDE_REGEXES
+            ${INSTALL_POST_EXCLUDE_REGEXES}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT install
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT install
+    RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT install)
+
+install(
+    TARGETS CesiumOmniversePythonBindings
+    ARCHIVE DESTINATION ${KIT_EXTENSION_BINDINGS_PATH}
+            COMPONENT kit
+            EXCLUDE_FROM_ALL
+    LIBRARY DESTINATION ${KIT_EXTENSION_BINDINGS_PATH}
+            COMPONENT kit
+            EXCLUDE_FROM_ALL
+    RUNTIME DESTINATION ${KIT_EXTENSION_BINDINGS_PATH}
+            COMPONENT kit
+            EXCLUDE_FROM_ALL)
+
+install(
+    DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    COMPONENT install)
+
+install(
+    FILES "${PROJECT_BINARY_DIR}/mem.cesium"
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    COMPONENT install)
+
+install(
+    FILES "${PROJECT_BINARY_DIR}/mem.cesium"
+    DESTINATION ${KIT_EXTENSION_BIN_PATH}
+    COMPONENT kit
+    EXCLUDE_FROM_ALL)
+
+install(
+    FILES "${PROJECT_BINARY_DIR}/plugInfo.json.install"
+    DESTINATION "plugins/InMemoryAssetResolver/resources/"
+    RENAME "plugInfo.json"
+    COMPONENT install)
+
+install(
+    FILES "${PROJECT_BINARY_DIR}/plugInfo.json.kit"
+    DESTINATION "${KIT_EXTENSION_PLUGINS_PATH}/InMemoryAssetResolver/resources/"
+    RENAME "plugInfo.json"
+    COMPONENT kit
+    EXCLUDE_FROM_ALL)

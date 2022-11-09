@@ -16,7 +16,7 @@ class InMemoryAssetContext {
 
     InMemoryAssetContext(InMemoryAssetContext&&) noexcept = delete;
 
-    static InMemoryAssetContext& instance();
+    AR_API static InMemoryAssetContext& instance();
 
     tbb::concurrent_hash_map<std::string, std::shared_ptr<ArAsset>> assets;
 
@@ -26,15 +26,15 @@ class InMemoryAssetContext {
 
 class InMemoryAsset : public ArAsset {
   public:
-    InMemoryAsset(const std::vector<std::byte>& buffer);
+    AR_API InMemoryAsset(const std::vector<std::byte>& buffer);
 
-    size_t GetSize() override;
+    AR_API size_t GetSize() override;
 
-    std::shared_ptr<const char> GetBuffer() override;
+    AR_API std::shared_ptr<const char> GetBuffer() override;
 
-    size_t Read(void* buffer, size_t count, size_t offset) override;
+    AR_API size_t Read(void* buffer, size_t count, size_t offset) override;
 
-    std::pair<ArchFile*, size_t> GetFileUnsafe() override;
+    AR_API std::pair<ArchFile*, size_t> GetFileUnsafe() override;
 
   private:
     std::shared_ptr<char> _buffer;
@@ -47,13 +47,13 @@ class InMemoryAssetResolver : public ArPackageResolver {
 
     ~InMemoryAssetResolver() noexcept;
 
-    std::string Resolve(const std::string& packagePath, const std::string& path) override;
+    AR_API std::string Resolve(const std::string& packagePath, const std::string& path) override;
 
-    std::shared_ptr<ArAsset> OpenAsset(const std::string& packagePath, const std::string& resolvedPath) override;
+    AR_API std::shared_ptr<ArAsset> OpenAsset(const std::string& packagePath, const std::string& resolvedPath) override;
 
-    void BeginCacheScope(VtValue* cacheScopeData) override;
+    AR_API void BeginCacheScope(VtValue* cacheScopeData) override;
 
-    void EndCacheScope(VtValue* cacheScopeData) override;
+    AR_API void EndCacheScope(VtValue* cacheScopeData) override;
 };
 
 PXR_NAMESPACE_CLOSE_SCOPE

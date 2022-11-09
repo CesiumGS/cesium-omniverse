@@ -65,7 +65,7 @@ def c_compiler_to_cpp_compiler(compiler_name: str):
 
 
 def get_cmake_configure_command(args: Args):
-    cmd = ['cmake', '-B', args.build_folder, '-D', "BUILD_SHARED_LIBS=ON"]
+    cmd = ['cmake', '-B', args.build_folder]
 
     # Release is the default build type, so no need to pass CMAKE_BUILD_TYPE
     if args.build_type != "Release":

@@ -1,9 +1,7 @@
 #pragma once
 
-#include "Georeference.h"
-#include "RenderResourcesPreparer.h"
-
-#include "cesium/omniverse/CesiumOmniverse.h"
+#include "cesium/omniverse/Georeference.h"
+#include "cesium/omniverse/RenderResourcesPreparer.h"
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
@@ -11,18 +9,13 @@
 #endif
 
 #include <Cesium3DTilesSelection/Tileset.h>
-
-#ifdef CESIUM_OMNI_GCC
-#define _GLIBCXX_PERMIT_BACKWARD_HASH
-#endif
-
 #include <pxr/usd/usd/stage.h>
 
 #include <memory>
 #include <vector>
 
 namespace Cesium {
-class CESIUM_OMNI_EXPORT_CLASS OmniTileset {
+class OmniTileset {
   public:
     OmniTileset(const pxr::UsdStageRefPtr& stage, const std::string& url);
 

@@ -12,7 +12,7 @@
     # Build
     cmake --build build --config Release
     # Install Python bindings
-    cmake --install build --config Release --prefix ../cesium-kit-exts/exts/cesium.omniverse/cesium/omniverse/bindings/cesium/omniverse/ --component kit
+    cmake --install build --config Release --component kit
     ```
 - Open the VS Code workspace for your OS and install the recommended extensions. Make sure to open the workspace instead of opening the `cesium-kit-exts` folder directly, otherwise IntelliSense my not work properly.
   - [cesium-omniverse-linux.code-workspace](./.vscode/cesium-omniverse-linux.code-workspace)
@@ -25,7 +25,7 @@
     #Linux
     link_app.sh --app code
     ```
-- Launch Omniverse Code. Add `exts` to the extension search paths so it can find our extensions. Then look for "cesium.omniverse" in the extension manager and enable it. Click the auto-load checkbox to load our extension on startup.
+- Launch Omniverse Code. Add `exts` to the extension search paths so it can find our extensions. Then look for "cesium.omniverse" in the extension manager and enable it. Click the auto-load checkbox to load our extension on startup. This is also required to register our InMemoryAssetResolver USD plugin.
 
 Extension Search Paths | Enable Extension
 --|--

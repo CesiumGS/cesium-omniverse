@@ -2,29 +2,29 @@ include(Macros)
 
 glob_files(SOURCES "${CMAKE_CURRENT_LIST_DIR}/*.cpp")
 
+set(CESIUM_OMNIVERSE_LIB_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} CESIUM_OMNI_EXPORTS)
+
+if(NOT BUILD_SHARED_LIBS)
+    set(CESIUM_OMNIVERSE_LIB_CXX_DEFINES ${CESIUM_OMNIVERSE_LIB_CXX_DEFINES} CESIUM_OMNI_STATIC)
+endif()
+
 # cmake-format: off
-setup_app(
+setup_lib(
     TARGET_NAME
-        tests
+        CesiumOmniverse
     SOURCES
         ${SOURCES}
+    INCLUDE_DIRS
+        "${PROJECT_SOURCE_DIR}/include"
     LIBRARIES
         CesiumOmniverseCore
-        doctest::doctest
     CXX_FLAGS
         ${CESIUM_OMNI_CXX_FLAGS}
     CXX_FLAGS_DEBUG
         ${CESIUM_OMNI_CXX_FLAGS_DEBUG}
     CXX_DEFINES
-        ${CESIUM_OMNI_CXX_DEFINES}
+        ${CESIUM_OMNIVERSE_LIB_CXX_DEFINES}
     CXX_DEFINES_DEBUG
         ${CESIUM_OMNI_CXX_DEFINES_DEBUG}
-    LINKER_FLAGS
-        ${CESIUM_OMNI_LINKER_FLAGS}
-    LINKER_FLAGS_DEBUG
-        ${CESIUM_OMNI_LINKER_FLAGS_DEBUG}
 )
 # cmake-format: on
-
-# Discover tests for CTest (a.k.a make test)
-doctest_discover_tests(tests ADD_LABELS 1)

@@ -5,11 +5,19 @@ function(setup_lib)
     cmake_parse_arguments(
         ""
         ""
-        "TARGET_NAME"
-        "SOURCES;INCLUDE_DIRS;PRIVATE_INCLUDE_DIRS;LIBRARIES;DEPENDENCIES;CXX_FLAGS;CXX_FLAGS_DEBUG;CXX_DEFINES;CXX_DEFINES_DEBUG;INSTALL_COMPONENTS;INSTALL_SEARCH_PATHS"
+        "TARGET_NAME;TYPE"
+        "SOURCES;INCLUDE_DIRS;PRIVATE_INCLUDE_DIRS;LIBRARIES;DEPENDENCIES;CXX_FLAGS;CXX_FLAGS_DEBUG;CXX_DEFINES;CXX_DEFINES_DEBUG"
         ${ARGN})
 
-    add_library(${_TARGET_NAME})
+    if(_TYPE)
+        set(TYPE ${_TYPE})
+    elseif(BUILD_SHARED_LIBS)
+        set(TYPE SHARED)
+    else()
+        set(TYPE STATIC)
+    endif()
+
+    add_library(${_TARGET_NAME} ${TYPE})
 
     if(_DEPENDENCIES)
         add_dependencies(${_TARGET_NAME} ${_DEPENDENCIES})
@@ -32,35 +40,13 @@ function(setup_lib)
     # Note that third party libraries in the public API will need to be installed.
     target_link_libraries(${_TARGET_NAME} PUBLIC ${_LIBRARIES})
 
-    if(WIN32 AND BUILD_SHARED_LIBS)
+    if(WIN32 AND ${TYPE} STREQUAL "SHARED")
         add_custom_command(
             TARGET ${_TARGET_NAME}
             POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${_TARGET_NAME}> $<TARGET_FILE_DIR:${_TARGET_NAME}>
             COMMAND_EXPAND_LISTS)
     endif()
-
-    foreach(COMPONENT IN LISTS _INSTALL_COMPONENTS)
-        install(
-            TARGETS ${_TARGET_NAME}
-                    RUNTIME_DEPENDENCIES
-                    DIRECTORIES
-                    ${_INSTALL_SEARCH_PATHS}
-                    PRE_EXCLUDE_REGEXES
-                    "api-ms-*"
-                    "ext-ms-*"
-                    POST_EXCLUDE_REGEXES
-                    "system32"
-                    "^\/lib"
-            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${COMPONENT}
-            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${COMPONENT}
-            RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${COMPONENT})
-
-        install(
-            DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
-            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-            COMPONENT ${COMPONENT})
-    endforeach()
 
 endfunction(setup_lib)
 
@@ -70,7 +56,7 @@ function(setup_python_module)
         ""
         ""
         "TARGET_NAME"
-        "SOURCES;LIBRARIES;DEPENDENCIES;CXX_FLAGS;CXX_FLAGS_DEBUG;CXX_DEFINES;CXX_DEFINES_DEBUG;INSTALL_COMPONENTS;INSTALL_SEARCH_PATHS"
+        "SOURCES;LIBRARIES;DEPENDENCIES;CXX_FLAGS;CXX_FLAGS_DEBUG;CXX_DEFINES;CXX_DEFINES_DEBUG"
         ${ARGN})
 
     pybind11_add_module(${_TARGET_NAME} MODULE)
@@ -102,30 +88,6 @@ function(setup_python_module)
             COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${_TARGET_NAME}> $<TARGET_FILE_DIR:${_TARGET_NAME}>
             COMMAND_EXPAND_LISTS)
     endif()
-
-    foreach(COMPONENT IN LISTS _INSTALL_COMPONENTS)
-        install(
-            TARGETS ${_TARGET_NAME}
-                    # TODO: for some reason this isn't installing libCesiumOmniverse.so or its dependencies on Linux
-                    RUNTIME_DEPENDENCIES
-                    DIRECTORIES
-                    ${_INSTALL_SEARCH_PATHS}
-                    PRE_EXCLUDE_REGEXES
-                    "api-ms-*"
-                    "ext-ms-*"
-                    POST_EXCLUDE_REGEXES
-                    "system32"
-                    "^\/lib"
-            ARCHIVE DESTINATION .
-                    COMPONENT ${COMPONENT}
-                    EXCLUDE_FROM_ALL
-            LIBRARY DESTINATION .
-                    COMPONENT ${COMPONENT}
-                    EXCLUDE_FROM_ALL
-            RUNTIME DESTINATION .
-                    COMPONENT ${COMPONENT}
-                    EXCLUDE_FROM_ALL)
-    endforeach()
 
 endfunction(setup_python_module)
 
@@ -190,19 +152,19 @@ function(add_external_project)
     cmake_parse_arguments(
         ""
         ""
-        "PROJECT_NAME;PROJECT_EXTERN_DIRECTORY"
+        "PROJECT_NAME;PROJECT_EXTERN_DIRECTORY;EXPECTED_DEBUG_POSTFIX;EXPECTED_RELEASE_POSTFIX;EXPECTED_RELWITHDEBINFO_POSTFIX;EXPECTED_MINSIZEREL_POSTFIX"
         "LIBRARIES;OPTIONS"
         ${ARGN})
 
     include(ExternalProject) # built-in CMake include for ExternalProject_Add
 
-    # Expands to ${CMAKE_DEBUG_POSTFIX} at configuration time (usually 'd' or '')
-    set(BUILD_TIME_DEBUG_POSTFIX
+    # Expands to ${_EXPECTED_<CONFIG>_POSTFIX} at configuration time (usually 'd' or '')
+    set(BUILD_TIME_POSTFIX
         "\
-$<$<CONFIG:Debug>:${CMAKE_DEBUG_POSTFIX}>\
-$<$<CONFIG:Release>:${CMAKE_RELEASE_POSTFIX}>\
-$<$<CONFIG:RelWithDebInfo>:${CMAKE_RELWITHDEBINFO_POSTFIX}>\
-$<$<CONFIG:MinSizeRel>:${CMAKE_MINSIZEREL_POSTFIX}>")
+$<$<CONFIG:Debug>:${_EXPECTED_DEBUG_POSTFIX}>\
+$<$<CONFIG:Release>:${_EXPECTED_RELEASE_POSTFIX}>\
+$<$<CONFIG:RelWithDebInfo>:${_EXPECTED_RELWITHDEBINFO_POSTFIX}>\
+$<$<CONFIG:MinSizeRel>:${_EXPECTED_MINSIZEREL_POSTFIX}>")
 
     set(LIBRARY_OUTPUT_PATHS "")
 
@@ -211,7 +173,7 @@ $<$<CONFIG:MinSizeRel>:${CMAKE_MINSIZEREL_POSTFIX}>")
             list(
                 APPEND
                 LIBRARY_OUTPUT_PATHS
-                "${PROJECT_BINARY_DIR}/${_PROJECT_NAME}/${CMAKE_INSTALL_LIBDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}${lib}${BUILD_TIME_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}"
+                "${PROJECT_BINARY_DIR}/${_PROJECT_NAME}/${CMAKE_INSTALL_LIBDIR}/$<CONFIG>/${CMAKE_STATIC_LIBRARY_PREFIX}${lib}${BUILD_TIME_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}"
             )
         endforeach()
     endif()
@@ -257,10 +219,8 @@ $<$<CONFIG:MinSizeRel>:${CMAKE_MINSIZEREL_POSTFIX}>")
                    -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
                    -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
                    -DCMAKE_INSTALL_PREFIX=${PROJECT_BINARY_DIR}/${_PROJECT_NAME}
-                   -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
+                   -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}/$<CONFIG>
                    -DCMAKE_INSTALL_INCLUDEDIR=${CMAKE_INSTALL_INCLUDEDIR}
-                   -DCMAKE_DEBUG_POSTFIX=${CMAKE_DEBUG_POSTFIX}
-                   -DCMAKE_RELWITHDEBINFO_POSTFIX=${CMAKE_RELWITHDEBINFO_POSTFIX}
                    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
                    -DCMAKE_CXX_FLAGS=${EXTERN_CXX_FLAGS}
                    ${_OPTIONS}
@@ -268,7 +228,11 @@ $<$<CONFIG:MinSizeRel>:${CMAKE_MINSIZEREL_POSTFIX}>")
 
     if(NOT DEFINED _LIBRARIES)
         # Header only
-        add_library(${_PROJECT_NAME} INTERFACE IMPORTED GLOBAL)
+        add_library(
+            ${_PROJECT_NAME}
+            INTERFACE
+            IMPORTED
+            GLOBAL)
         target_include_directories(${_PROJECT_NAME} INTERFACE "${PROJECT_INCLUDE_DIR}")
     else()
         foreach(lib IN LISTS _LIBRARIES)
@@ -282,13 +246,13 @@ $<$<CONFIG:MinSizeRel>:${CMAKE_MINSIZEREL_POSTFIX}>")
                 ${lib}
                 PROPERTIES
                     IMPORTED_LOCATION_DEBUG
-                    "${PROJECT_BINARY_DIR}/${_PROJECT_NAME}/${CMAKE_INSTALL_LIBDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}${lib}${CMAKE_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}"
+                    "${PROJECT_BINARY_DIR}/${_PROJECT_NAME}/${CMAKE_INSTALL_LIBDIR}/Debug/${CMAKE_STATIC_LIBRARY_PREFIX}${lib}${_EXPECTED_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}"
                     IMPORTED_LOCATION_RELEASE
-                    "${PROJECT_BINARY_DIR}/${_PROJECT_NAME}/${CMAKE_INSTALL_LIBDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}${lib}${CMAKE_RELEASE_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}"
+                    "${PROJECT_BINARY_DIR}/${_PROJECT_NAME}/${CMAKE_INSTALL_LIBDIR}/Release/${CMAKE_STATIC_LIBRARY_PREFIX}${lib}${_EXPECTED_RELEASE_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}"
                     IMPORTED_LOCATION_RELWITHDEBINFO
-                    "${PROJECT_BINARY_DIR}/${_PROJECT_NAME}/${CMAKE_INSTALL_LIBDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}${lib}${CMAKE_RELWITHDEBINFO_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}"
+                    "${PROJECT_BINARY_DIR}/${_PROJECT_NAME}/${CMAKE_INSTALL_LIBDIR}/RelWithDebInfo/${CMAKE_STATIC_LIBRARY_PREFIX}${lib}${_EXPECTED_RELWITHDEBINFO_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}"
                     IMPORTED_LOCATION_MINSIZEREL
-                    "${PROJECT_BINARY_DIR}/${_PROJECT_NAME}/${CMAKE_INSTALL_LIBDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}${lib}${CMAKE_MINSIZEREL_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}"
+                    "${PROJECT_BINARY_DIR}/${_PROJECT_NAME}/${CMAKE_INSTALL_LIBDIR}/MinSizeRel/${CMAKE_STATIC_LIBRARY_PREFIX}${lib}${_EXPECTED_MINSIZEREL_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}"
             )
         endforeach()
     endif()

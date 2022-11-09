@@ -16,25 +16,23 @@
 #endif
 
 #ifdef CESIUM_OMNI_EXPORTS
-#    if !defined(CESIUM_OMNI_SHARED)
+#    if defined(CESIUM_OMNI_STATIC)
 #        define CESIUM_OMNI_EXPORT_CPP
 #    elif defined(_WIN32)
 #        define CESIUM_OMNI_EXPORT_CPP __declspec(dllexport)
 #    elif defined(__linux__)
 #        define CESIUM_OMNI_EXPORT_CPP __attribute__((visibility("default")))
 #    endif
-#    define CESIUM_OMNI_EXPORT(ReturnType) CESIUM_OMNI_EXPORT_C CESIUM_OMNI_EXPORT_CPP ReturnType CESIUM_OMNI_ABI
-#    define CESIUM_OMNI_EXPORT_CLASS CESIUM_OMNI_EXPORT_CPP
+#    define CESIUM_OMNI_EXPORT_C_FUNCTION(ReturnType) CESIUM_OMNI_EXPORT_C CESIUM_OMNI_EXPORT_CPP ReturnType CESIUM_OMNI_ABI
 #else
-#    if !defined(CESIUM_OMNI_SHARED)
+#    if defined(CESIUM_OMNI_STATIC)
 #        define CESIUM_OMNI_EXPORT_CPP
 #    elif defined(_WIN32)
 #        define CESIUM_OMNI_EXPORT_CPP __declspec(dllimport)
 #    else
 #        define CESIUM_OMNI_EXPORT_CPP
 #    endif
-#    define CESIUM_OMNI_EXPORT(ReturnType) CESIUM_OMNI_EXPORT_C CESIUM_OMNI_EXPORT_CPP ReturnType CESIUM_OMNI_ABI
-#    define CESIUM_OMNI_EXPORT_CLASS CESIUM_OMNI_EXPORT_CPP
+#    define CESIUM_OMNI_EXPORT_C_FUNCTION(ReturnType) CESIUM_OMNI_EXPORT_C CESIUM_OMNI_EXPORT_CPP ReturnType CESIUM_OMNI_ABI
 #endif
 
 #ifdef __cplusplus

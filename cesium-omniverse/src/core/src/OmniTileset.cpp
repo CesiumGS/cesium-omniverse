@@ -1,17 +1,16 @@
-#include "OmniTileset.h"
+#include "cesium/omniverse/OmniTileset.h"
 
-#include "HttpAssetAccessor.h"
-#include "LoggerSink.h"
-#include "TaskProcessor.h"
-
-#include <Cesium3DTilesSelection/registerAllTileContentTypes.h>
-#include <CesiumGeometry/AxisTransforms.h>
+#include "cesium/omniverse/HttpAssetAccessor.h"
+#include "cesium/omniverse/LoggerSink.h"
+#include "cesium/omniverse/TaskProcessor.h"
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
 #undef OPAQUE
 #endif
 
+#include <Cesium3DTilesSelection/registerAllTileContentTypes.h>
+#include <CesiumGeometry/AxisTransforms.h>
 #include <CesiumGltf/Material.h>
 #include <glm/glm.hpp>
 

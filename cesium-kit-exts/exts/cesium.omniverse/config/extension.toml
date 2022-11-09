@@ -19,14 +19,13 @@ keywords = [
 ]
 
 # Paths are relative to the extension folder
-changelog = "CHANGES.md"
-readme = "README.md"
-preview_image = "images/preview.jpg"
-icon = "images/icon.png"
+changelog = "doc/CHANGES.md"
+readme = "doc/README.md"
+preview_image = "doc/images/preview.jpg"
+icon = "doc/images/icon.png"
 
 # Which extensions this extension depends on
 [dependencies]
-"omni.usd" = {}
 "omni.usd.libs" = {}
 "omni.kit.uiapp" = {}
 "omni.kit.viewport.utility" = {}
@@ -35,11 +34,8 @@ icon = "images/icon.png"
 [[python.module]]
 name = "cesium.omniverse"
 
-# Hot reload watcher
-[fswatcher.patterns]
-include = ["*.toml", "*.py", "*.pyd"]
-exclude = []
+[[native.library]]
+path = "bin/${lib_prefix}InMemoryAssetResolver${lib_ext}"
 
-[fswatcher.paths]
-include = ["*"]
-exclude = ["*/__pycache__*", "*/.git*"]
+[[native.library]]
+path = "bin/${lib_prefix}CesiumOmniverse${lib_ext}"
