@@ -27,13 +27,7 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
     m.def("addTilesetUrl", &addTilesetUrl);
     m.def("addTilesetIon", &addTilesetIon);
     m.def("removeTileset", &removeTileset);
-    m.def(
-        "updateFrame",
-        [](int tileset,
-           const pxr::GfMatrix4d& viewMatrix,
-           const pxr::GfMatrix4d& projMatrix,
-           double height,
-           double width) { updateFrame(tileset, &viewMatrix, &projMatrix, height, width); });
+    m.def("updateFrame", &updateFrame);
     m.def("setGeoreferenceOrigin", &setGeoreferenceOrigin);
 }
 
