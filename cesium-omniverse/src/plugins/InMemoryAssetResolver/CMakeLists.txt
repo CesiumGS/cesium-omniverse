@@ -2,6 +2,15 @@ include(Macros)
 
 glob_files(SOURCES "${CMAKE_CURRENT_LIST_DIR}/src/*.cpp")
 
+set(IN_MEMORY_ASSET_RESOLVER_CXX_FLAGS ${CESIUM_OMNI_CXX_FLAGS})
+
+if(MSVC)
+    # Disable whole program optimization and unreferenced function removal
+    # Without these flags InMemoryAssetResolver won't work in Release mode
+    # Related issue: https://github.com/PixarAnimationStudios/USD/issues/1095
+    set(IN_MEMORY_ASSET_RESOLVER_CXX_FLAGS ${IN_MEMORY_ASSET_RESOLVER_CXX_FLAGS} /GL- /Zc:inline-)
+endif()
+
 set(IN_MEMORY_ASSET_RESOLVER_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} AR_EXPORTS)
 
 # cmake-format: off
@@ -22,7 +31,7 @@ setup_lib(
         tbb
         tf
     CXX_FLAGS
-        ${CESIUM_OMNI_CXX_FLAGS}
+        ${IN_MEMORY_ASSET_RESOLVER_CXX_FLAGS}
     CXX_FLAGS_DEBUG
         ${CESIUM_OMNI_CXX_FLAGS_DEBUG}
     CXX_DEFINES
