@@ -28,6 +28,7 @@
 #include <fstream>
 #include <numeric>
 #include <vector>
+#include <stdlib.h>
 
 static std::string errorMessage;
 
@@ -261,6 +262,16 @@ std::vector<std::byte> writeImageToBmp(const CesiumGltf::Image& img) {
     return writeData;
 }
 
+std::string makeAssetPath(std::string &texturePath) {
+    auto basePath = std::getenv("CESIUM_MEM_LOCATION");
+    if (basePath == nullptr) {
+        spdlog::default_logger()->warn("CESIUM_MEM_LOCATION variable not set, defaulting to mem.cesium in the working path.");
+        return fmt::format("mem.cesium[{}]", texturePath);
+    }
+
+    return fmt::format("{}/mem.cesium[{}]", basePath, texturePath);
+}
+
 pxr::SdfAssetPath convertTextureToUSD(
     const pxr::SdfPath& parentPath,
     const CesiumGltf::Model& model,
@@ -274,7 +285,7 @@ pxr::SdfAssetPath convertTextureToUSD(
     auto& ctx = pxr::InMemoryAssetContext::instance();
     ctx.assets.insert({texturePath, std::move(inMemoryAsset)});
 
-    return pxr::SdfAssetPath(fmt::format("C:/Users/Cesium/Documents/mem.cesium[{}]", texturePath));
+    return pxr::SdfAssetPath(makeAssetPath(texturePath));
 }
 
 pxr::UsdShadeMaterial convertMaterialToUSD(

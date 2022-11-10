@@ -1,1 +1,1 @@
- cmake --install build-relwithdebinfo --config RelWithDebInfo --component kit
+ cmake --install build-r --config RelWithDebInfo --component kit
