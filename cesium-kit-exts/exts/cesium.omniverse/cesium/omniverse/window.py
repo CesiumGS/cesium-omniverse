@@ -5,6 +5,7 @@ from pxr import Gf, Sdf
 import omni.usd
 from omni.kit.viewport.utility import get_active_viewport_camera_path, get_active_viewport
 import omni.kit.app as omni_app
+import omni.kit.commands as omni_commands
 import carb.settings as omni_settings
 
 
@@ -14,6 +15,16 @@ class CesiumOmniverseWindow(ui.Window):
 
         # Set the function that is called to build widgets when the window is visible
         self.frame.set_build_fn(self._build_fn)
+
+        # Set the Far Plane to a very high number.
+        stage = omni.usd.get_context().get_stage()
+        camera_prim = stage.GetPrimAtPath(
+            get_active_viewport_camera_path())
+        omni_commands.execute("ChangeProperty",
+                              prop_path=Sdf.Path(
+                                  "/OmniverseKit_Persp.clippingRange"),
+                              value=Gf.Vec2f(1.0, 100000000.0),
+                              prev=camera_prim.GetAttribute("clippingRange").Get())
 
         print("[cesium.omniverse] CesiumOmniverse startup")
         CesiumOmniverse.initialize()
