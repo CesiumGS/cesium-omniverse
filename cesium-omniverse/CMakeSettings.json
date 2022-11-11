@@ -17,7 +17,7 @@
       "generator": "Visual Studio 17 2022 Win64",
       "configurationType": "RelWithDebInfo",
       "inheritEnvironments": [ "msvc_x64_x64" ],
-      "buildRoot": "${projectDir}\\build-relwithdebinfo",
+      "buildRoot": "${projectDir}\\build-r",
       "installRoot": "${projectDir}\\install-debug",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
