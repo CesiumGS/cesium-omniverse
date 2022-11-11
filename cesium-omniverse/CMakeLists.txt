@@ -29,6 +29,12 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Find Python for Conan and scripts
+find_package(
+    Python3
+    COMPONENTS Interpreter
+    REQUIRED)
+
 if(MSVC)
     # CMake automatically choses /MD for Release, RelWithDebInfo, MinSizeRel and /MDd for Debug
     # Explicitly set the C/CXX flags for conan
@@ -347,20 +353,11 @@ add_subdirectory(extern)
 # by ConfigureConan.cmake with the cmake_find_package_multi generator
 set(CMAKE_FIND_PACKAGE_PREFER_CONFIG TRUE)
 
-# Use the same Python version as Omniverse (Python 3.7)
-# This needs to be called after add_subdirectory(extern) and before find_package(pybind11)
-set(Python3_ROOT_DIR "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/python")
-find_package(
-    Python3
-    COMPONENTS Interpreter Development
-    REQUIRED)
-
 find_package(Threads) # System threading library
 
 # Conan libraries
 find_package(cpr)
 find_package(doctest)
-find_package(pybind11)
 find_package(stb)
 find_package(ZLIB)
 

@@ -262,10 +262,11 @@ std::vector<std::byte> writeImageToBmp(const CesiumGltf::Image& img) {
     return writeData;
 }
 
-std::string makeAssetPath(std::string &texturePath) {
+std::string makeAssetPath(const std::string& texturePath) {
     auto basePath = std::getenv("CESIUM_MEM_LOCATION");
     if (basePath == nullptr) {
-        spdlog::default_logger()->warn("CESIUM_MEM_LOCATION variable not set, defaulting to mem.cesium in the working path.");
+        spdlog::default_logger()->warn(
+            "CESIUM_MEM_LOCATION variable not set, defaulting to mem.cesium in the working path.");
         return fmt::format("mem.cesium[{}]", texturePath);
     }
 
