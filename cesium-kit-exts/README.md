@@ -2,40 +2,57 @@
 
 ## Prerequisites
 
-- Install Nvidia Omniverse: https://www.nvidia.com/en-us/omniverse/download/.
-  - Use the default install location.
+- Install Nvidia Omniverse: https://www.nvidia.com/en-us/omniverse/download/
 - Install Omniverse Code
-- Build the C++ library and install the Python bindings. For more detailed instructions see [Cesium for Omniverse](../cesium-omniverse/README.md).
+- Go to the [`cesium-omniverse`](../cesium-omniverse/) directory and build the C++ project
+
     ```sh
-    # Configure
+    # Windows
     cmake -B build
-    # Build
     cmake --build build --config Release
-    # Install Python bindings
     cmake --install build --config Release --component kit
     ```
-- Open the VS Code workspace for your OS and install the recommended extensions. Make sure to open the workspace instead of opening the `cesium-kit-exts` folder directly, otherwise IntelliSense my not work properly.
-  - [cesium-omniverse-linux.code-workspace](./.vscode/cesium-omniverse-linux.code-workspace)
-  - [cesium-omniverse-windows.code-workspace](./.vscode/cesium-omniverse-windows.code-workspace)
+    ```sh
+    # Linux
+    cmake -B build -D CMAKE_BUILD_TYPE=Release
+    cmake --build build
+    cmake --install build --component kit
+    ```
+
+- Add the following system environment variables so that Omniverse finds our `InMemoryAssetResolver` plugin (change `path/to/` to the actual path on your system)
+
+  Environment Variable|Value
+  --|--
+  `CESIUM_MEM_LOCATION`|`path/to/cesium-omniverse/cesium-kit-exts/exts/cesium.omniverse/bin`
+  `PXR_PLUGINPATH_NAME`|`path/to/cesium-omniverse/cesium-kit-exts/exts/cesium.omniverse/plugins/InMemoryAssetResolver/resources`
+
+  On Windows it should look something like:
+
+![Environment Variables](./images/environment-variables.png)
+
+  > **Important:** After setting the environment variables you need to close out of Omniverse Launcher and Omniverse Code (make sure Omniverse Launcher is closed in the system tray as well). This ensures that the enviroment variables are picked up when you relaunch Omniverse Code.
+
+- Launch Omniverse Code. Add `exts` to the extension search paths so it can find our extensions. Then look for "cesium.omniverse" in the extension manager and enable it. Click the auto-load checkbox to load our extension on startup.
+  Extension Search Paths | Enable Extension
+  --|--
+  ![Extension Search Paths](./images/extension-search-paths.png)|![Enable Extension](./images/enable-extension.png)
+
+- You should see a UI window appear. Click `Create Tileset` and then `Update Frame`
+
+  ![Plugin](./images/plugin.png)
+
+
+## VS Code development
+
 - Run `link_app`. This will create a folder called `app` that is a symlink to the Omniverse Code installation folder. This allows VS Code Python IntelliSense to find the Omniverse Python libraries and select the same Python interpreter as Omniverse Code.
     ```sh
     # Windows
     link_app.bat --app code
-
-    #Linux
+    ```
+    ```sh
+    # Linux
     link_app.sh --app code
     ```
-- Launch Omniverse Code. Add `exts` to the extension search paths so it can find our extensions. Then look for "cesium.omniverse" in the extension manager and enable it. Click the auto-load checkbox to load our extension on startup. This is also required to register our InMemoryAssetResolver USD plugin.
-
-Extension Search Paths | Enable Extension
---|--
-![Extension Search Paths](./images/extension-search-paths.png)|![Enable Extension](./images/enable-extension.png)
-
-- Alternatively, Omniverse Code can be launched from the command line with our extension enabled.
-    ```sh
-    # Windows
-    app/omni.code.bat --ext-folder exts --enable cesium.omniverse
-
-    # Linux
-    app/omni.code.sh --ext-folder exts --enable cesium.omniverse
-    ```
+- Open the VS Code workspace for your OS and install the recommended extensions. Make sure to open the workspace instead of opening the `cesium-kit-exts` folder directly, otherwise IntelliSense my not work properly.
+  - [cesium-omniverse-linux.code-workspace](./.vscode/cesium-omniverse-linux.code-workspace)
+  - [cesium-omniverse-windows.code-workspace](./.vscode/cesium-omniverse-windows.code-workspace)
