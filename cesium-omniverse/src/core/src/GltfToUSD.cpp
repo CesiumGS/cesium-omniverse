@@ -25,10 +25,10 @@
 #include <stb_image_write.h>
 
 #include <cstddef>
+#include <cstdlib>
 #include <fstream>
 #include <numeric>
 #include <vector>
-#include <stdlib.h>
 
 static std::string errorMessage;
 
