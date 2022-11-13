@@ -14,6 +14,8 @@
 #include <pxr/base/gf/matrix4d.h>
 #include <pxr/base/gf/quatd.h>
 #include <pxr/base/gf/vec3d.h>
+#include <pxr/base/plug/plugin.h>
+#include <pxr/base/plug/registry.h>
 #include <pxr/usd/sdf/types.h>
 #include <pxr/usd/usdGeom/mesh.h>
 #include <pxr/usd/usdGeom/xform.h>
@@ -470,6 +472,13 @@ pxr::UsdPrim GltfToUSD::convertToUSD(
     const CesiumGltf::Model& model,
     const glm::dmat4& matrix) {
     spdlog::default_logger()->info("convert to USD: {}", modelPath.GetString());
+
+    auto plugin = pxr::PlugRegistry::GetInstance().GetPluginWithName("InMemoryAssetResolver");
+    spdlog::default_logger()->info("Plugins: {}", plugin != nullptr);
+    if (plugin) {
+        spdlog::default_logger()->info("Path: {}", plugin->GetPath());
+        spdlog::default_logger()->info("IsLoaded: {}", plugin->IsLoaded());
+    }
 
     std::vector<pxr::SdfAssetPath> textureUSDPaths;
     textureUSDPaths.reserve(model.textures.size());

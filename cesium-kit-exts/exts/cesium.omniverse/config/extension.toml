@@ -1,3 +1,9 @@
+[core]
+reloadable = false
+# Load after omni.usd.libs (-1000) and before omni.usd (0)
+# See https://docs.omniverse.nvidia.com/py/kit/docs/guide/usd_schema.html
+order = -100
+
 [package]
 version = "0.0.0"
 category = "simulation"
