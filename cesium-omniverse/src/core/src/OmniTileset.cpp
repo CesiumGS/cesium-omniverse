@@ -67,6 +67,9 @@ void OmniTileset::updateFrame(
         glm::dvec3 cameraPosition{
             relToAbs * glm::dvec4(omniCameraPosition[0], omniCameraPosition[1], omniCameraPosition[2], 1.0)};
 
+        cameraUp = glm::normalize(cameraUp);
+        cameraFwd = glm::normalize(cameraFwd);
+
         double aspect = width / height;
         double verticalFov = 2.0 * glm::atan(1.0 / projMatrix[1][1]);
         double horizontalFov = 2.0 * glm::atan(glm::tan(verticalFov * 0.5) * aspect);
