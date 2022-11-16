@@ -1,5 +1,6 @@
 #include "cesium/omniverse/OmniTileset.h"
 
+#include "cesium/omniverse/GltfToUSD.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/TaskProcessor.h"
@@ -106,7 +107,9 @@ void OmniTileset::updateFrame(
     }
 }
 
-void OmniTileset::init() {
+void OmniTileset::init(const std::filesystem::path& cesiumMemLocation) {
+    GltfToUSD::CesiumMemLocation = cesiumMemLocation;
+
     auto logger = spdlog::default_logger();
     logger->sinks().clear();
     logger->sinks().push_back(std::make_shared<LoggerSink>());

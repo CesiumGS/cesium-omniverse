@@ -9,10 +9,12 @@
 #include <glm/glm.hpp>
 #include <pxr/usd/usd/prim.h>
 
+#include <filesystem>
 #include <string>
 
 namespace Cesium {
 struct GltfToUSD {
+    static std::filesystem::path CesiumMemLocation;
     static pxr::UsdPrim convertToUSD(
         pxr::UsdStageRefPtr& stage,
         const pxr::SdfPath& modelPath,

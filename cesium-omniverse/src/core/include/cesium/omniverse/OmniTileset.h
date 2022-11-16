@@ -11,6 +11,7 @@
 #include <Cesium3DTilesSelection/Tileset.h>
 #include <pxr/usd/usd/stage.h>
 
+#include <filesystem>
 #include <memory>
 #include <vector>
 
@@ -23,7 +24,7 @@ class OmniTileset {
 
     void updateFrame(const pxr::GfMatrix4d& viewMatrix, const pxr::GfMatrix4d& projMatrix, double width, double height);
 
-    static void init();
+    static void init(const std::filesystem::path& cesiumMemLocation);
 
     static void shutdown();
 

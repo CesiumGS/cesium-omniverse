@@ -11,8 +11,8 @@ int currentId = 0;
 std::unordered_map<int, std::unique_ptr<OmniTileset>> tilesets;
 } // namespace
 
-void initialize() noexcept {
-    OmniTileset::init();
+void initialize(const char* cesiumMemLocation) noexcept {
+    OmniTileset::init(cesiumMemLocation);
 }
 
 void finalize() noexcept {
