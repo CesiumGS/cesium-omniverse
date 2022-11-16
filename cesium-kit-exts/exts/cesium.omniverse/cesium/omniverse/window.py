@@ -7,7 +7,9 @@ from omni.kit.viewport.utility import get_active_viewport_camera_path, get_activ
 import omni.kit.app as omni_app
 import omni.kit.commands as omni_commands
 import carb.settings as omni_settings
+import os
 
+cesium_mem_location = os.path.join(os.path.dirname(__file__), "../../bin")
 
 class CesiumOmniverseWindow(ui.Window):
     def __init__(self, title: str, **kwargs):
@@ -27,7 +29,7 @@ class CesiumOmniverseWindow(ui.Window):
                               prev=camera_prim.GetAttribute("clippingRange").Get())
 
         print("[cesium.omniverse] CesiumOmniverse startup")
-        CesiumOmniverse.initialize()
+        CesiumOmniverse.initialize(cesium_mem_location)
 
         # Cape Canaveral
         CesiumOmniverse.setGeoreferenceOrigin(-80.53, 28.46, -30.0)

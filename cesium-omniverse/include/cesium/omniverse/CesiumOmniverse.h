@@ -17,7 +17,7 @@ namespace Cesium {
  * @brief Call this before any tilesets are created.
  */
 CESIUM_OMNI_EXPORT_C_FUNCTION(void)
-initialize() CESIUM_OMNI_NOEXCEPT;
+initialize(const char* cesiumMemLocation) CESIUM_OMNI_NOEXCEPT;
 
 /**
  * @brief Call this to free resources on program exist.

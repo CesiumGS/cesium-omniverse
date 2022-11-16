@@ -263,14 +263,7 @@ std::vector<std::byte> writeImageToBmp(const CesiumGltf::Image& img) {
 }
 
 std::string makeAssetPath(const std::string& texturePath) {
-    auto basePath = std::getenv("CESIUM_MEM_LOCATION");
-    if (basePath == nullptr) {
-        spdlog::default_logger()->warn(
-            "CESIUM_MEM_LOCATION variable not set, defaulting to mem.cesium in the working path.");
-        return fmt::format("mem.cesium[{}]", texturePath);
-    }
-
-    return fmt::format("{}/mem.cesium[{}]", basePath, texturePath);
+    return fmt::format("{}/mem.cesium[{}]", GltfToUSD::CesiumMemLocation.generic_string(), texturePath);
 }
 
 pxr::SdfAssetPath convertTextureToUSD(
@@ -463,6 +456,8 @@ void convertNodeToUSD(
     }
 }
 } // namespace
+
+std::filesystem::path GltfToUSD::CesiumMemLocation{};
 
 pxr::UsdPrim GltfToUSD::convertToUSD(
     pxr::UsdStageRefPtr& stage,
