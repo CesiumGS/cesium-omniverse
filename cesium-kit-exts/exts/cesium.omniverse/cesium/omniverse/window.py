@@ -7,9 +7,12 @@ from omni.kit.viewport.utility import get_active_viewport_camera_path, get_activ
 import omni.kit.app as omni_app
 import omni.kit.commands as omni_commands
 import carb.settings as omni_settings
+from carb.events._events import ISubscription
 
 
 class CesiumOmniverseWindow(ui.Window):
+    _subscription_handle: ISubscription = None
+
     def __init__(self, title: str, **kwargs):
         super().__init__(title, **kwargs)
 
@@ -89,6 +92,9 @@ class CesiumOmniverseWindow(ui.Window):
             self._subscription_handle = None
 
         def create_tileset():
+            if self._subscription_handle is not None:
+                self._subscription_handle = None
+
             stage = omni.usd.get_context().get_stage()
             self._tilesets.append(
                 CesiumOmniverse.addTilesetIon(
