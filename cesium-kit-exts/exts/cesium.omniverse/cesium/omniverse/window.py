@@ -8,10 +8,13 @@ import omni.kit.app as omni_app
 import omni.kit.commands as omni_commands
 import carb.settings as omni_settings
 import os
+from carb.events._events import ISubscription
 
 cesium_mem_location = os.path.join(os.path.dirname(__file__), "../../bin")
 
 class CesiumOmniverseWindow(ui.Window):
+    _subscription_handle: ISubscription = None
+
     def __init__(self, title: str, **kwargs):
         super().__init__(title, **kwargs)
 
@@ -83,6 +86,7 @@ class CesiumOmniverseWindow(ui.Window):
         def create_update_frame():
             app = omni_app.get_app()
             omni_settings.get_settings().set("/rtx/hydra/TBNFrameMode", 1)
+            omni_settings.get_settings().set("/rtx/materialDb/syncLoads", True)
             self._subscription_handle = app.get_update_event_stream().create_subscription_to_pop(
                 on_update_frame, name="cesium_update_frame"
             )
@@ -91,6 +95,9 @@ class CesiumOmniverseWindow(ui.Window):
             self._subscription_handle = None
 
         def create_tileset():
+            if self._subscription_handle is not None:
+                self._subscription_handle = None
+
             stage = omni.usd.get_context().get_stage()
             self._tilesets.append(
                 CesiumOmniverse.addTilesetIon(

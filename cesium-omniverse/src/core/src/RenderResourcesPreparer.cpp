@@ -20,7 +20,14 @@ static std::atomic<std::uint64_t> tileID;
 RenderResourcesPreparer::RenderResourcesPreparer(const pxr::UsdStageRefPtr& stage_, const pxr::SdfPath& tilesetPath_)
     : stage{stage_}
     , tilesetPath{tilesetPath_} {
-    auto xform = pxr::UsdGeomXform::Define(stage, tilesetPath_);
+    auto xform = pxr::UsdGeomXform::Get(stage, tilesetPath_);
+    if (xform) {
+        auto prim = xform.GetPrim();
+        stage->RemovePrim(prim.GetPath());
+    }
+
+    xform = pxr::UsdGeomXform::Define(stage, tilesetPath_);
+
     const glm::dmat4& z_to_y = CesiumGeometry::AxisTransforms::Z_UP_TO_Y_UP;
     pxr::GfMatrix4d currentTransform{
         z_to_y[0][0],
