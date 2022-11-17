@@ -46,6 +46,7 @@ setup_lib(
         modp_b64
         s2geometry
         spdlog
+        tinyxml2
         uriparser
         webpdecoder
         cpr::cpr

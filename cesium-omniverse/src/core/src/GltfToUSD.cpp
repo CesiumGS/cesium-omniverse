@@ -32,16 +32,42 @@
 
 static std::string errorMessage;
 
+// clang-format off
 namespace pxr {
 TF_DEFINE_PRIVATE_TOKENS(
     _tokens,
 
     // Tokens used for USD Preview Surface
-    (vertex)(diffuseColor)(roughness)(metallic)(normal)(file)(result)(varname)(rgb)(RAW)(sRGB)(surface)(st)(st_0)(st_1)(UsdPreviewSurface)((
-        stPrimvarName,
-        "frame:stPrimvarName"))((UsdShaderId, "UsdPreviewSurface"))((PrimStShaderId, "UsdPrimvarReader_float2"))(
-        UsdUVTexture));
+    // Notes below copied from helloWorld.cpp in Connect Sample 200.0.0
+    //
+    // Private tokens for building up SdfPaths. We recommend
+    // constructing SdfPaths via tokens, as there is a performance
+    // cost to constructing them directly via strings (effectively,
+    // a table lookup per path element). Similarly, any API which
+    // takes a token as input should use a predefined token
+    // rather than one created on the fly from a string.
+    (vertex)
+    (diffuseColor)
+    (roughness)
+    (metallic)
+    (normal)
+    (file)
+    (result)
+    (varname)
+    (rgb)
+    (RAW)
+    (sRGB)
+    (surface)
+    (st)
+    (st_0)
+    (st_1)
+    (UsdPreviewSurface)
+    ((stPrimvarName, "frame:stPrimvarName"))
+    ((UsdShaderId, "UsdPreviewSurface"))
+    ((PrimStShaderId, "UsdPrimvarReader_float2"))
+    (UsdUVTexture));
 }
+// clang-format on
 
 namespace Cesium {
 
@@ -115,21 +141,32 @@ pxr::VtArray<int> createIndices(
     return {};
 }
 
-pxr::VtArray<pxr::GfVec2f> getPrimitiveUVs(
+CesiumGltf::AccessorView<glm::vec2> getUVsAccessorView(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
+    const std::string& semantic,
     std::int32_t textureCoordId) {
-    auto uvAttribute = primitive.attributes.find(fmt::format("TEXCOORD_{}", textureCoordId));
+    auto uvAttribute = primitive.attributes.find(fmt::format("{}_{}", semantic, textureCoordId));
     if (uvAttribute == primitive.attributes.end()) {
-        return {};
+        return CesiumGltf::AccessorView<glm::vec2>();
     }
 
     auto uvAccessor = model.getSafe<CesiumGltf::Accessor>(&model.accessors, uvAttribute->second);
     if (!uvAccessor) {
-        return {};
+        return CesiumGltf::AccessorView<glm::vec2>();
     }
 
-    auto uvs = CesiumGltf::AccessorView<glm::vec2>(model, *uvAccessor);
+    return CesiumGltf::AccessorView<glm::vec2>(model, *uvAccessor);
+}
+
+pxr::VtArray<pxr::GfVec2f> getUVs(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive,
+    const std::string& semantic,
+    std::int32_t textureCoordId,
+    bool flipUVs) {
+
+    auto uvs = getUVsAccessorView(model, primitive, semantic, textureCoordId);
     if (uvs.status() != CesiumGltf::AccessorViewStatus::Valid) {
         return {};
     }
@@ -137,11 +174,43 @@ pxr::VtArray<pxr::GfVec2f> getPrimitiveUVs(
     pxr::VtArray<pxr::GfVec2f> usdUVs;
     usdUVs.reserve(static_cast<std::size_t>(uvs.size()));
     for (int64_t i = 0; i < uvs.size(); ++i) {
-        const glm::vec2& vert = uvs[i];
-        usdUVs.push_back(pxr::GfVec2f(vert.x, 1.0f - vert.y));
+        glm::vec2 vert = uvs[i];
+
+        if (flipUVs) {
+            vert.y = 1.0f - vert.y;
+        }
+
+        usdUVs.push_back(pxr::GfVec2f(vert.x, vert.y));
     }
 
     return usdUVs;
+}
+
+pxr::VtArray<pxr::GfVec2f> getPrimitiveUVs(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive,
+    std::int32_t textureCoordId) {
+    return getUVs(model, primitive, "TEXCOORD", textureCoordId, true);
+}
+
+pxr::VtArray<pxr::GfVec2f> getRasterOverlayUVs(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive,
+    std::int32_t rasterOverlayId) {
+    return getUVs(model, primitive, "_CESIUMOVERLAY", rasterOverlayId, false);
+}
+
+bool hasRasterOverlayUVs(const CesiumGltf::Model& model, std::int32_t rasterOverlayId) {
+    for (const auto& mesh : model.meshes) {
+        for (const auto& primitive : mesh.primitives) {
+            const auto uvs = getUVsAccessorView(model, primitive, "_CESIUMOVERLAY", rasterOverlayId);
+            if (uvs.status() == CesiumGltf::AccessorViewStatus::Valid) {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 pxr::VtArray<pxr::GfVec3f>
@@ -245,23 +314,6 @@ pxr::VtArray<pxr::GfVec3f> getPrimitiveNormals(
     return normalsUsd;
 }
 
-std::vector<std::byte> writeImageToBmp(const CesiumGltf::Image& img) {
-    std::vector<std::byte> writeData;
-    stbi_write_bmp_to_func(
-        [](void* context, void* data, int size) {
-            auto& write = *reinterpret_cast<std::vector<std::byte>*>(context);
-            std::byte* bdata = reinterpret_cast<std::byte*>(data);
-            write.insert(write.end(), bdata, bdata + size);
-        },
-        &writeData,
-        img.cesium.width,
-        img.cesium.height,
-        img.cesium.channels,
-        img.cesium.pixelData.data());
-
-    return writeData;
-}
-
 std::string makeAssetPath(const std::string& texturePath) {
     return fmt::format("{}/mem.cesium[{}]", GltfToUSD::CesiumMemLocation.generic_string(), texturePath);
 }
@@ -275,7 +327,7 @@ pxr::SdfAssetPath convertTextureToUSD(
 
     auto textureSource = static_cast<std::size_t>(texture.source);
     const CesiumGltf::Image& img = model.images[textureSource];
-    auto inMemoryAsset = std::make_shared<pxr::InMemoryAsset>(writeImageToBmp(img));
+    auto inMemoryAsset = std::make_shared<pxr::InMemoryAsset>(GltfToUSD::writeImageToBmp(img.cesium));
     auto& ctx = pxr::InMemoryAssetContext::instance();
     ctx.assets.insert({texturePath, std::move(inMemoryAsset)});
 
@@ -286,6 +338,8 @@ pxr::UsdShadeMaterial convertMaterialToUSD(
     pxr::UsdStageRefPtr& stage,
     const pxr::SdfPath& parentPath,
     const std::vector<pxr::SdfAssetPath>& usdTexturePaths,
+    const bool hasRasterOverlay,
+    const pxr::SdfAssetPath& rasterOverlayPath,
     const CesiumGltf::Material& material,
     int32_t materialIdx) {
     std::string materialName = fmt::format("material_{}", materialIdx);
@@ -314,22 +368,27 @@ pxr::UsdShadeMaterial convertMaterialToUSD(
         stReaders[i].CreateInput(pxr::_tokens->varname, pxr::SdfValueTypeNames->Token).ConnectToSource(stInputs[i]);
     }
 
-    if (pbrMetallicRoughness->baseColorTexture) {
+    const auto setupDiffuseTexture =
+        [&stage, &materialPath, &pbrShader, &stReaders](const pxr::SdfAssetPath& texturePath, const size_t texcoord) {
+            const pxr::UsdShadeShader& stReader = stReaders[texcoord];
+            pxr::UsdShadeShader diffuseTextureSampler =
+                pxr::UsdShadeShader::Define(stage, materialPath.AppendChild(pxr::TfToken("DiffuseTexture")));
+            diffuseTextureSampler.CreateIdAttr(pxr::VtValue(pxr::_tokens->UsdUVTexture));
+            diffuseTextureSampler.CreateInput(pxr::_tokens->file, pxr::SdfValueTypeNames->Asset).Set(texturePath);
+            diffuseTextureSampler.CreateInput(pxr::_tokens->st, pxr::SdfValueTypeNames->Float2)
+                .ConnectToSource(stReader.ConnectableAPI(), pxr::_tokens->result);
+            diffuseTextureSampler.CreateOutput(pxr::_tokens->rgb, pxr::SdfValueTypeNames->Float3);
+            pbrShader.CreateInput(pxr::_tokens->diffuseColor, pxr::SdfValueTypeNames->Vector3f)
+                .ConnectToSource(diffuseTextureSampler.ConnectableAPI(), pxr::_tokens->rgb);
+        };
+
+    if (hasRasterOverlay) {
+        setupDiffuseTexture(rasterOverlayPath, 0);
+    } else if (pbrMetallicRoughness->baseColorTexture) {
         auto baseColorIndex = static_cast<std::size_t>(pbrMetallicRoughness->baseColorTexture->index);
         const pxr::SdfAssetPath& texturePath = usdTexturePaths[baseColorIndex];
-
         auto baseColorTexCoord = static_cast<std::size_t>(pbrMetallicRoughness->baseColorTexture->texCoord);
-        const pxr::UsdShadeShader& stReader = stReaders[baseColorTexCoord];
-
-        pxr::UsdShadeShader diffuseTextureSampler =
-            pxr::UsdShadeShader::Define(stage, materialPath.AppendChild(pxr::TfToken("DiffuseTexture")));
-        diffuseTextureSampler.CreateIdAttr(pxr::VtValue(pxr::_tokens->UsdUVTexture));
-        diffuseTextureSampler.CreateInput(pxr::_tokens->file, pxr::SdfValueTypeNames->Asset).Set(texturePath);
-        diffuseTextureSampler.CreateInput(pxr::_tokens->st, pxr::SdfValueTypeNames->Float2)
-            .ConnectToSource(stReader.ConnectableAPI(), pxr::_tokens->result);
-        diffuseTextureSampler.CreateOutput(pxr::_tokens->rgb, pxr::SdfValueTypeNames->Float3);
-        pbrShader.CreateInput(pxr::_tokens->diffuseColor, pxr::SdfValueTypeNames->Vector3f)
-            .ConnectToSource(diffuseTextureSampler.ConnectableAPI(), pxr::_tokens->rgb);
+        setupDiffuseTexture(texturePath, baseColorTexCoord);
     } else {
         pbrShader.CreateInput(pxr::_tokens->diffuseColor, pxr::SdfValueTypeNames->Vector3f)
             .Set(pxr::GfVec3f(
@@ -356,6 +415,7 @@ void convertMeshToUSD(
         pxr::VtArray<pxr::GfVec3f> normals = getPrimitiveNormals(model, primitive, positions, indices);
         pxr::VtArray<pxr::GfVec2f> st0 = getPrimitiveUVs(model, primitive, 0);
         pxr::VtArray<pxr::GfVec2f> st1 = getPrimitiveUVs(model, primitive, 1);
+        pxr::VtArray<pxr::GfVec2f> rasterOverlaySt0 = getRasterOverlayUVs(model, primitive, 0);
         pxr::VtArray<int> faceVertexCounts(indices.size() / 3, 3);
 
         if (positions.empty() || indices.empty() || normals.empty()) {
@@ -370,7 +430,11 @@ void convertMeshToUSD(
             meshUsd.CreateNormalsAttr(pxr::VtValue::Take(normals));
             meshUsd.CreateFaceVertexIndicesAttr(pxr::VtValue::Take(indices));
             meshUsd.CreateDoubleSidedAttr().Set(true);
-            if (!st0.empty()) {
+            if (!rasterOverlaySt0.empty()) {
+                auto primVar = meshUsd.CreatePrimvar(pxr::_tokens->st_0, pxr::SdfValueTypeNames->TexCoord2fArray);
+                primVar.SetInterpolation(pxr::_tokens->vertex);
+                primVar.Set(rasterOverlaySt0);
+            } else if (!st0.empty()) {
                 auto primVar = meshUsd.CreatePrimvar(pxr::_tokens->st_0, pxr::SdfValueTypeNames->TexCoord2fArray);
                 primVar.SetInterpolation(pxr::_tokens->vertex);
                 primVar.Set(st0);
@@ -455,9 +519,38 @@ void convertNodeToUSD(
         convertMeshToUSD(stage, nodePath, model, model.meshes[meshIndex], materials);
     }
 }
+
+std::string getRasterOverlayTexturePath(const pxr::SdfPath& parentPath) {
+    return fmt::format("{}/raster.bmp", parentPath.GetString());
+}
+
 } // namespace
 
 std::filesystem::path GltfToUSD::CesiumMemLocation{};
+
+std::vector<std::byte> GltfToUSD::writeImageToBmp(const CesiumGltf::ImageCesium& img) {
+    std::vector<std::byte> writeData;
+    stbi_write_bmp_to_func(
+        [](void* context, void* data, int size) {
+            auto& write = *reinterpret_cast<std::vector<std::byte>*>(context);
+            std::byte* bdata = reinterpret_cast<std::byte*>(data);
+            write.insert(write.end(), bdata, bdata + size);
+        },
+        &writeData,
+        img.width,
+        img.height,
+        img.channels,
+        img.pixelData.data());
+
+    return writeData;
+}
+
+void GltfToUSD::insertRasterOverlayTexture(const pxr::SdfPath& parentPath, std::vector<std::byte>&& image) {
+    std::string texturePath = getRasterOverlayTexturePath(parentPath);
+    auto inMemoryAsset = std::make_shared<pxr::InMemoryAsset>(std::move(image));
+    auto& ctx = pxr::InMemoryAssetContext::instance();
+    ctx.assets.insert({texturePath, std::move(inMemoryAsset)});
+}
 
 pxr::UsdPrim GltfToUSD::convertToUSD(
     pxr::UsdStageRefPtr& stage,
@@ -472,11 +565,20 @@ pxr::UsdPrim GltfToUSD::convertToUSD(
         textureUSDPaths.emplace_back(convertTextureToUSD(modelPath, model, model.textures[i], int32_t(i)));
     }
 
+    const auto hasRasterOverlay = hasRasterOverlayUVs(model, 0);
+    const auto rasterOverlayTexturePath = pxr::SdfAssetPath(makeAssetPath(getRasterOverlayTexturePath(modelPath)));
+
     std::vector<pxr::UsdShadeMaterial> materialUSDs;
     materialUSDs.reserve(model.materials.size());
     for (std::size_t i = 0; i < model.materials.size(); ++i) {
-        materialUSDs.emplace_back(
-            convertMaterialToUSD(stage, modelPath, textureUSDPaths, model.materials[i], int32_t(i)));
+        materialUSDs.emplace_back(convertMaterialToUSD(
+            stage,
+            modelPath,
+            textureUSDPaths,
+            hasRasterOverlay,
+            rasterOverlayTexturePath,
+            model.materials[i],
+            int32_t(i)));
     }
 
     pxr::UsdGeomXform xform = pxr::UsdGeomXform::Define(stage, modelPath);

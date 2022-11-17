@@ -32,6 +32,8 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
     });
     m.def("removeTileset", &removeTileset);
 
+    m.def("addIonRasterOverlay", &addIonRasterOverlay);
+
     m.def(
         "updateFrame",
         [](int tileset,

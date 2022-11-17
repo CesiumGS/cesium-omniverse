@@ -35,6 +35,13 @@ void removeTileset(int tileset) noexcept {
     tilesets.erase(tileset);
 }
 
+void addIonRasterOverlay(int tileset, const char* name, int64_t ionId, const char* ionToken) noexcept {
+    const auto iter = tilesets.find(tileset);
+    if (iter != tilesets.end()) {
+        iter->second->addIonRasterOverlay(name, ionId, ionToken);
+    }
+}
+
 void updateFrame(
     int tileset,
     const pxr::GfMatrix4d* viewMatrix,

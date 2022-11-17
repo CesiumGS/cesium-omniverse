@@ -8,6 +8,7 @@
 #undef OPAQUE
 #endif
 
+#include <Cesium3DTilesSelection/IonRasterOverlay.h>
 #include <Cesium3DTilesSelection/Tileset.h>
 #include <pxr/usd/usd/stage.h>
 
@@ -24,6 +25,8 @@ class OmniTileset {
 
     void updateFrame(const pxr::GfMatrix4d& viewMatrix, const pxr::GfMatrix4d& projMatrix, double width, double height);
 
+    void addIonRasterOverlay(const std::string& name, int64_t ionId, const std::string& ionToken);
+
     static void init(const std::filesystem::path& cesiumMemLocation);
 
     static void shutdown();
@@ -35,5 +38,6 @@ class OmniTileset {
     std::shared_ptr<RenderResourcesPreparer> renderResourcesPreparer;
     std::unique_ptr<Cesium3DTilesSelection::Tileset> tileset;
     OriginShiftHandler originShiftHandler;
+    CesiumUtility::IntrusivePointer<Cesium3DTilesSelection::IonRasterOverlay> rasterOverlay;
 };
 } // namespace Cesium

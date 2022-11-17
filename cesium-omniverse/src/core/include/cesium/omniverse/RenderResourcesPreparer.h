@@ -23,6 +23,10 @@ struct TileRenderResources {
     bool enable;
 };
 
+struct RasterRenderResources {
+    std::vector<std::byte> image;
+};
+
 class RenderResourcesPreparer : public Cesium3DTilesSelection::IPrepareRendererResources {
   public:
     RenderResourcesPreparer(const pxr::UsdStageRefPtr& stage, const pxr::SdfPath& tilesetPath);

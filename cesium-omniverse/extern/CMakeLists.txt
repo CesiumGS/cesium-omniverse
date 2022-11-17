@@ -19,6 +19,7 @@ add_external_project(
         modp_b64
         s2geometry
         spdlog
+        tinyxml2
         uriparser
         webpdecoder
     OPTIONS
