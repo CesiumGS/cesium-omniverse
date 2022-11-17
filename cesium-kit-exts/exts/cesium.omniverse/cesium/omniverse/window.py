@@ -28,7 +28,7 @@ class CesiumOmniverseWindow(ui.Window):
         omni_commands.execute(
             "ChangeProperty",
             prop_path=Sdf.Path("/OmniverseKit_Persp.clippingRange"),
-            value=Gf.Vec2f(1.0, 100000000.0),
+            value=Gf.Vec2f(1.0, 10000000000.0),
             prev=camera_prim.GetAttribute("clippingRange").Get(),
         )
 
