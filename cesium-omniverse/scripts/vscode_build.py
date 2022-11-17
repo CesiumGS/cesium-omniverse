@@ -103,6 +103,17 @@ def get_cmake_build_command(args: Args, target: str):
     return cmd
 
 
+def get_cmake_install_kit_command(args: Args):
+    cmd = ["cmake", "--install", args.build_folder]
+
+    if is_windows():
+        cmd.extend(("--config", args.build_type))
+
+    cmd.extend(("--component", "kit"))
+
+    return cmd
+
+
 def configure(args: Args):
     configure_cmd = get_cmake_configure_command(args)
     process(configure_cmd)
@@ -110,12 +121,14 @@ def configure(args: Args):
 
 def build(args: Args):
     build_cmd = get_cmake_build_command(args, None)
+    install_kit_cmd = get_cmake_install_kit_command(args)
 
     if not args.build_only:
         configure_cmd = get_cmake_configure_command(args)
         process(configure_cmd)
 
     process(build_cmd)
+    process(install_kit_cmd)
 
 
 def test(args: Args):
