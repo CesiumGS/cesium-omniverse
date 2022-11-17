@@ -111,8 +111,8 @@ void OmniTileset::updateFrame(
 void OmniTileset::addIonRasterOverlay(const std::string& name, int64_t ionId, const std::string& ionToken) {
     Cesium3DTilesSelection::RasterOverlayOptions options;
     options.loadErrorCallback = [](const Cesium3DTilesSelection::RasterOverlayLoadFailureDetails& error) {
-        spdlog::default_logger()->info("Raster overlay failed");
-        spdlog::default_logger()->info(error.message);
+        spdlog::default_logger()->error("Raster overlay failed");
+        spdlog::default_logger()->error(error.message);
     };
 
     rasterOverlay = new Cesium3DTilesSelection::IonRasterOverlay(name, ionId, ionToken, options);
