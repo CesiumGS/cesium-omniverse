@@ -425,9 +425,11 @@ void convertMeshToUSD(
         std::string meshName = fmt::format("mesh_primitive_{}", i);
         pxr::UsdGeomMesh meshUsd = pxr::UsdGeomMesh::Define(stage, parentPath.AppendChild(pxr::TfToken(meshName)));
         if (meshUsd) {
+            meshUsd.CreateSubdivisionSchemeAttr().Set(pxr::UsdGeomTokens->none);
             meshUsd.CreateFaceVertexCountsAttr(pxr::VtValue::Take(faceVertexCounts));
             meshUsd.CreatePointsAttr(pxr::VtValue::Take(positions));
             meshUsd.CreateNormalsAttr(pxr::VtValue::Take(normals));
+            meshUsd.SetNormalsInterpolation(pxr::UsdGeomTokens->constant);
             meshUsd.CreateFaceVertexIndicesAttr(pxr::VtValue::Take(indices));
             meshUsd.CreateDoubleSidedAttr().Set(true);
             if (!rasterOverlaySt0.empty()) {
