@@ -95,24 +95,45 @@ if(WIN32)
     set(NVIDIA_USD_DEBUG_LIBRARIES ${NVIDIA_USD_DEBUG_LIBRARIES} python37)
 endif()
 
-# cmake-format: off
-add_prebuilt_project(
-    RELEASE_INCLUDE_DIR
-        "${NVIDIA_USD_ROOT}/release/include"
-    DEBUG_INCLUDE_DIR
-        "${NVIDIA_USD_ROOT}/debug/include"
-    RELEASE_LIBRARY_DIR
-        "${NVIDIA_USD_ROOT}/release/lib"
-    DEBUG_LIBRARY_DIR
-        "${NVIDIA_USD_ROOT}/debug/lib"
-    RELEASE_LIBRARIES
-        ${NVIDIA_USD_RELEASE_LIBRARIES}
-    DEBUG_LIBRARIES
-        ${NVIDIA_USD_DEBUG_LIBRARIES}
-    TARGET_NAMES
-        ${NVIDIA_USD_TARGET_NAMES}
-)
-# cmake-format: on
+if(${USE_NVIDIA_RELEASE_LIBRARIES})
+    # cmake-format: off
+    add_prebuilt_project(
+        RELEASE_INCLUDE_DIR
+            "${NVIDIA_USD_ROOT}/release/include"
+        DEBUG_INCLUDE_DIR
+            "${NVIDIA_USD_ROOT}/release/include"
+        RELEASE_LIBRARY_DIR
+            "${NVIDIA_USD_ROOT}/release/lib"
+        DEBUG_LIBRARY_DIR
+            "${NVIDIA_USD_ROOT}/release/lib"
+        RELEASE_LIBRARIES
+            ${NVIDIA_USD_RELEASE_LIBRARIES}
+        DEBUG_LIBRARIES
+            ${NVIDIA_USD_RELEASE_LIBRARIES}
+        TARGET_NAMES
+            ${NVIDIA_USD_TARGET_NAMES}
+    )
+    # cmake-format: on
+else()
+    # cmake-format: off
+    add_prebuilt_project(
+        RELEASE_INCLUDE_DIR
+            "${NVIDIA_USD_ROOT}/release/include"
+        DEBUG_INCLUDE_DIR
+            "${NVIDIA_USD_ROOT}/debug/include"
+        RELEASE_LIBRARY_DIR
+            "${NVIDIA_USD_ROOT}/release/lib"
+        DEBUG_LIBRARY_DIR
+            "${NVIDIA_USD_ROOT}/debug/lib"
+        RELEASE_LIBRARIES
+            ${NVIDIA_USD_RELEASE_LIBRARIES}
+        DEBUG_LIBRARIES
+            ${NVIDIA_USD_DEBUG_LIBRARIES}
+        TARGET_NAMES
+            ${NVIDIA_USD_TARGET_NAMES}
+    )
+    # cmake-format: on
+endif()
 
 # cmake-format: off
 if (NOT WIN32)

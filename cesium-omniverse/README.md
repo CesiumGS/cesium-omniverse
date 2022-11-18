@@ -479,6 +479,18 @@ Each workspace contains recommended extensions and settings for VSCode developme
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Omniverse Code",
+      "preLaunchTask": "Build (debug)",
+      "program": "${workspaceFolder}/../cesium-kit-exts/app/kit/kit.exe",
+      "args": [
+        "${workspaceFolder}/../cesium-kit-exts/app/apps/omni.code.kit"
+      ],
+      "cwd": "${workspaceFolder}",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "console": "integratedTerminal"
+    },
+    {
       "name": "Test",
       "preLaunchTask": "Build (debug)",
       "program": "${workspaceFolder}/build/bin/Debug/tests",
