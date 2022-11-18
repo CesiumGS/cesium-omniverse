@@ -15,6 +15,8 @@ namespace Cesium {
 
 /**
  * @brief Call this before any tilesets are created.
+ *
+ * @param cesiumMemLocation The folder containing mem.cesium
  */
 CESIUM_OMNI_EXPORT_C_FUNCTION(void)
 initialize(const char* cesiumMemLocation) CESIUM_OMNI_NOEXCEPT;
@@ -53,6 +55,17 @@ addTilesetIon(const pxr::UsdStageRefPtr* stage, int64_t ionId, const char* ionTo
  */
 CESIUM_OMNI_EXPORT_C_FUNCTION(void)
 removeTileset(int tileset) CESIUM_OMNI_NOEXCEPT;
+
+/**
+ * @brief Adds a raster overlay from ion.
+ *
+ * @param tileset The tileset id
+ * @param name The user-given name of this overlay layer
+ * @param ionId The asset ID
+ * @param ionToken The access token
+ */
+CESIUM_OMNI_EXPORT_C_FUNCTION(void)
+addIonRasterOverlay(int tileset, const char* name, int64_t ionId, const char* ionToken) CESIUM_OMNI_NOEXCEPT;
 
 /**
  * @brief Updates the tileset this frame.

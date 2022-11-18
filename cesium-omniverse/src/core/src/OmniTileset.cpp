@@ -10,6 +10,7 @@
 #undef OPAQUE
 #endif
 
+#include <Cesium3DTilesSelection/IonRasterOverlay.h>
 #include <Cesium3DTilesSelection/registerAllTileContentTypes.h>
 #include <CesiumGeometry/AxisTransforms.h>
 #include <CesiumGltf/Material.h>
@@ -78,7 +79,7 @@ void OmniTileset::updateFrame(
         auto viewState = Cesium3DTilesSelection::ViewState::create(
             cameraPosition, cameraFwd, cameraUp, glm::dvec2(width, height), horizontalFov, verticalFov);
         viewStates.emplace_back(viewState);
-        tileset->getOptions().enableFrustumCulling = true;
+        tileset->getOptions().enableFrustumCulling = false;
         tileset->getOptions().forbidHoles = true;
         tileset->getOptions().maximumSimultaneousTileLoads = 10;
         tileset->getOptions().loadingDescendantLimit = 10;
@@ -105,6 +106,17 @@ void OmniTileset::updateFrame(
             }
         }
     }
+}
+
+void OmniTileset::addIonRasterOverlay(const std::string& name, int64_t ionId, const std::string& ionToken) {
+    Cesium3DTilesSelection::RasterOverlayOptions options;
+    options.loadErrorCallback = [](const Cesium3DTilesSelection::RasterOverlayLoadFailureDetails& error) {
+        spdlog::default_logger()->error("Raster overlay failed");
+        spdlog::default_logger()->error(error.message);
+    };
+
+    rasterOverlay = new Cesium3DTilesSelection::IonRasterOverlay(name, ionId, ionToken, options);
+    tileset->getOverlays().add(rasterOverlay);
 }
 
 void OmniTileset::init(const std::filesystem::path& cesiumMemLocation) {

@@ -12,6 +12,7 @@ from carb.events._events import ISubscription
 
 cesium_mem_location = os.path.join(os.path.dirname(__file__), "../../bin")
 
+
 class CesiumOmniverseWindow(ui.Window):
     _subscription_handle: ISubscription = None
 
@@ -23,13 +24,13 @@ class CesiumOmniverseWindow(ui.Window):
 
         # Set the Far Plane to a very high number.
         stage = omni.usd.get_context().get_stage()
-        camera_prim = stage.GetPrimAtPath(
-            get_active_viewport_camera_path())
-        omni_commands.execute("ChangeProperty",
-                              prop_path=Sdf.Path(
-                                  "/OmniverseKit_Persp.clippingRange"),
-                              value=Gf.Vec2f(1.0, 100000000.0),
-                              prev=camera_prim.GetAttribute("clippingRange").Get())
+        camera_prim = stage.GetPrimAtPath(get_active_viewport_camera_path())
+        omni_commands.execute(
+            "ChangeProperty",
+            prop_path=Sdf.Path("/OmniverseKit_Persp.clippingRange"),
+            value=Gf.Vec2f(1.0, 10000000000.0),
+            prev=camera_prim.GetAttribute("clippingRange").Get(),
+        )
 
         print("[cesium.omniverse] CesiumOmniverse startup")
         CesiumOmniverse.initialize(cesium_mem_location)
@@ -94,11 +95,9 @@ class CesiumOmniverseWindow(ui.Window):
         def stop_update_frame():
             self._subscription_handle = None
 
-        def create_tileset():
-            if self._subscription_handle is not None:
-                self._subscription_handle = None
-
+        def add_maxar_3d_surface_model():
             stage = omni.usd.get_context().get_stage()
+
             self._tilesets.append(
                 CesiumOmniverse.addTilesetIon(
                     stage,
@@ -106,6 +105,31 @@ class CesiumOmniverseWindow(ui.Window):
                     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyMjRhYzI0Yi1kNWEwLTQ4ZWYtYjdmZC1hY2JmYWIzYmFiMGUiLCJpZCI6NDQsImlhdCI6MTY2NzQ4OTg0N30.du0tvWptgLWsvM1Gnbv3Zw_pDAOILg1Wr6s2sgK-qlM",
                 )
             )
+
+        def add_cesium_world_terrain():
+            stage = omni.usd.get_context().get_stage()
+
+            tileset_id = CesiumOmniverse.addTilesetIon(
+                stage,
+                1,
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyMjRhYzI0Yi1kNWEwLTQ4ZWYtYjdmZC1hY2JmYWIzYmFiMGUiLCJpZCI6NDQsImlhdCI6MTY2NzQ4OTg0N30.du0tvWptgLWsvM1Gnbv3Zw_pDAOILg1Wr6s2sgK-qlM",
+            )
+
+            self._tilesets.append(tileset_id)
+
+            CesiumOmniverse.addIonRasterOverlay(
+                tileset_id,
+                "Layer",
+                3954,
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyMjRhYzI0Yi1kNWEwLTQ4ZWYtYjdmZC1hY2JmYWIzYmFiMGUiLCJpZCI6NDQsImlhdCI6MTY2NzQ4OTg0N30.du0tvWptgLWsvM1Gnbv3Zw_pDAOILg1Wr6s2sgK-qlM",
+            )
+
+        def create_tileset():
+            if self._subscription_handle is not None:
+                self._subscription_handle = None
+
+            add_cesium_world_terrain()
+            # add_maxar_3d_surface_model()
 
         with ui.VStack():
             ui.Button("Create Sphere", clicked_fn=lambda: create_sphere())

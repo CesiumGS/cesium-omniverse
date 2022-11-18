@@ -5,6 +5,7 @@
 #include <Cesium3DTilesSelection/Tile.h>
 #include <Cesium3DTilesSelection/TileID.h>
 #include <pxr/usd/usd/attribute.h>
+#include <pxr/usd/usdGeom/mesh.h>
 #include <pxr/usd/usdUtils/stitch.h>
 
 #include <atomic>
@@ -96,6 +97,10 @@ RenderResourcesPreparer::prepareInLoadThread(
         return asyncSystem.createResolvedFuture(
             Cesium3DTilesSelection::TileLoadResultAndRenderResources{std::move(tileLoadResult), nullptr});
 
+    // It is not possible for multiple threads to simulatenously write to the same stage, but it is safe for different
+    // threads to write simultaneously to different stages, which is why we write to an anonymous stage in the load
+    // thread and merge with the main stage in the main thread. See
+    // https://graphics.pixar.com/usd/release/api/_usd__page__multi_threading.html
     pxr::SdfLayerRefPtr anonLayer = pxr::SdfLayer::CreateAnonymous(".usda");
     pxr::UsdStageRefPtr anonStage = pxr::UsdStage::Open(anonLayer);
     auto prim = GltfToUSD::convertToUSD(
@@ -138,29 +143,64 @@ void RenderResourcesPreparer::free(
 }
 
 void* RenderResourcesPreparer::prepareRasterInLoadThread(
-    [[maybe_unused]] CesiumGltf::ImageCesium& image,
+    CesiumGltf::ImageCesium& image,
     [[maybe_unused]] const std::any& rendererOptions) {
-    return nullptr;
+    // We don't have access to the tile path so the best we can do is convert the image to a BMP and insert it into the
+    // memory asset cache later
+    return new RasterRenderResources{GltfToUSD::writeImageToBmp(image)};
 }
 
 void* RenderResourcesPreparer::prepareRasterInMainThread(
     [[maybe_unused]] Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
-    [[maybe_unused]] void* pLoadThreadResult) {
+    void* pLoadThreadResult) {
+    if (pLoadThreadResult) {
+        // We don't have access to the tile path here either so simply pass along the result of
+        // prepareRasterInLoadThread
+        return pLoadThreadResult;
+    }
+
     return nullptr;
 }
 
 void RenderResourcesPreparer::freeRaster(
     [[maybe_unused]] const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
-    [[maybe_unused]] void* pLoadThreadResult,
-    [[maybe_unused]] void* pMainThreadResult) noexcept {}
+    void* pLoadThreadResult,
+    void* pMainThreadResult) noexcept {
+    if (pLoadThreadResult) {
+        delete reinterpret_cast<RasterRenderResources*>(pLoadThreadResult);
+    }
+
+    if (pMainThreadResult) {
+        delete reinterpret_cast<RasterRenderResources*>(pMainThreadResult);
+    }
+}
 
 void RenderResourcesPreparer::attachRasterInMainThread(
-    [[maybe_unused]] const Cesium3DTilesSelection::Tile& tile,
+    const Cesium3DTilesSelection::Tile& tile,
     [[maybe_unused]] int32_t overlayTextureCoordinateID,
     [[maybe_unused]] const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
-    [[maybe_unused]] void* pMainThreadRendererResources,
+    void* pMainThreadRendererResources,
     [[maybe_unused]] const glm::dvec2& translation,
-    [[maybe_unused]] const glm::dvec2& scale) {}
+    [[maybe_unused]] const glm::dvec2& scale) {
+    auto& content = tile.getContent();
+    auto pRenderContent = content.getRenderContent();
+    if (!pRenderContent) {
+        return;
+    }
+
+    auto pTileRenderResources = reinterpret_cast<TileRenderResources*>(pRenderContent->getRenderResources());
+    if (!pTileRenderResources) {
+        return;
+    }
+
+    auto pRasterRenderResources = reinterpret_cast<RasterRenderResources*>(pMainThreadRendererResources);
+    if (!pRasterRenderResources) {
+        return;
+    }
+
+    const auto modelPath = pTileRenderResources->prim.GetPath();
+    GltfToUSD::insertRasterOverlayTexture(modelPath, std::move(pRasterRenderResources->image));
+}
 
 void RenderResourcesPreparer::detachRasterInMainThread(
     [[maybe_unused]] const Cesium3DTilesSelection::Tile& tile,
