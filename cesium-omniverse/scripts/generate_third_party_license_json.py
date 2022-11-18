@@ -56,6 +56,7 @@ def main(argv: List[str]):
 
     with open(third_party_json_path, 'w', newline='\n') as json_file:
         json.dump(third_party_json, json_file, indent=4)
+        json_file.write('\n')
 
 
 def parse_args(argv: List[str]):
