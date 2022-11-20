@@ -40,6 +40,10 @@ function(setup_lib)
     # Note that third party libraries in the public API will need to be installed.
     target_link_libraries(${_TARGET_NAME} PUBLIC ${_LIBRARIES})
 
+    if(CESIUM_OMNI_ENABLE_COVERAGE AND NOT WIN32)
+        target_link_libraries(${_TARGET_NAME} PUBLIC gcov)
+    endif()
+
     if(WIN32 AND ${TYPE} STREQUAL "SHARED")
         add_custom_command(
             TARGET ${_TARGET_NAME}
@@ -74,6 +78,10 @@ function(setup_python_module)
     target_compile_definitions(${_TARGET_NAME} PRIVATE ${_CXX_DEFINES} "$<$<CONFIG:DEBUG>:${_CXX_DEFINES_DEBUG}>")
 
     target_link_libraries(${_TARGET_NAME} PRIVATE ${_LIBRARIES})
+
+    if(CESIUM_OMNI_ENABLE_COVERAGE AND NOT WIN32)
+        target_link_libraries(${_TARGET_NAME} PRIVATE gcov)
+    endif()
 
     # Pybind11 module name needs to match the file name so remove any prefix / suffix
     set_target_properties(${_TARGET_NAME} PROPERTIES DEBUG_POSTFIX "")

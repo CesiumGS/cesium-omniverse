@@ -85,12 +85,7 @@ else()
     message(FATAL_ERROR "Unsupported compiler: ${CMAKE_CXX_COMPILER_ID}, cannot generate coverage.")
 endif()
 
-# Normalize paths so they don't end with a trailing slash.
-file(TO_CMAKE_PATH "${PROJECT_BUILD_DIRECTORY}" PROJECT_BUILD_DIRECTORY_NORMALIZED)
-file(TO_CMAKE_PATH "${PROJECT_ROOT_DIRECTORY}" PROJECT_ROOT_DIRECTORY_NORMALIZED)
-file(TO_CMAKE_PATH "${OUTPUT_DIRECTORY}" OUTPUT_DIRECTORY_NORMALIZED)
-
-file(GLOB_RECURSE GCDA_FILES "${PROJECT_BUILD_DIRECTORY_NORMALIZED}/*.gcda")
+file(GLOB_RECURSE GCDA_FILES "${PROJECT_BUILD_DIRECTORY}/*.gcda")
 list(LENGTH GCDA_FILES GCDA_FILES_LENGTH)
 
 if(GCDA_FILES_LENGTH GREATER 0)
@@ -101,12 +96,12 @@ if(GCDA_FILES_LENGTH GREATER 0)
     endforeach()
 endif()
 
-execute_process(COMMAND ctest WORKING_DIRECTORY "${PROJECT_BUILD_DIRECTORY_NORMALIZED}")
+execute_process(COMMAND ctest WORKING_DIRECTORY "${PROJECT_BUILD_DIRECTORY}")
 
-message("Removing and recreating ${PROJECT_BUILD_DIRECTORY_NORMALIZED}/coverage")
+message("Removing and recreating ${PROJECT_BUILD_DIRECTORY}/coverage")
 
-file(REMOVE_RECURSE "${OUTPUT_DIRECTORY_NORMALIZED}")
-file(MAKE_DIRECTORY "${OUTPUT_DIRECTORY_NORMALIZED}")
+file(REMOVE_RECURSE "${OUTPUT_DIRECTORY}")
+file(MAKE_DIRECTORY "${OUTPUT_DIRECTORY}")
 
 set(CMD
     ${GCOVR_EXECUTABLE}
@@ -114,10 +109,12 @@ set(CMD
     --delete # delete GCDA files after processing
     --txt # print text output
     --html-details # generate HTML report with annotated source code
-    ${OUTPUT_DIRECTORY_NORMALIZED}/index.html
-    --filter
-    ${PROJECT_SOURCE_DIRECTORIES})
+    "${OUTPUT_DIRECTORY}/index.html")
+
+foreach(DIR IN LISTS PROJECT_SOURCE_DIRECTORIES)
+    set(CMD ${CMD} "--filter=${DIR}")
+endforeach()
 
 message("Generating HTML coverage with command: ${CMD}")
 
-execute_process(COMMAND ${CMD} WORKING_DIRECTORY "${PROJECT_ROOT_DIRECTORY_NORMALIZED}")
+execute_process(COMMAND ${CMD} WORKING_DIRECTORY "${PROJECT_ROOT_DIRECTORY}")
