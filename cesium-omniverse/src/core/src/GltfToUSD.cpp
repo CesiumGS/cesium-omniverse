@@ -380,8 +380,10 @@ pxr::UsdShadeMaterial convertMaterialToUSD(
             diffuseTextureSampler.CreateInput(pxr::_tokens->file, pxr::SdfValueTypeNames->Asset).Set(texturePath);
             diffuseTextureSampler.CreateInput(pxr::_tokens->st, pxr::SdfValueTypeNames->Float2)
                 .ConnectToSource(stReader.ConnectableAPI(), pxr::_tokens->result);
-            diffuseTextureSampler.CreateInput(pxr::_tokens->wrapS, pxr::SdfValueTypeNames->Token).Set(pxr::_tokens->clamp);
-            diffuseTextureSampler.CreateInput(pxr::_tokens->wrapT, pxr::SdfValueTypeNames->Token).Set(pxr::_tokens->clamp);
+            diffuseTextureSampler.CreateInput(pxr::_tokens->wrapS, pxr::SdfValueTypeNames->Token)
+                .Set(pxr::_tokens->clamp);
+            diffuseTextureSampler.CreateInput(pxr::_tokens->wrapT, pxr::SdfValueTypeNames->Token)
+                .Set(pxr::_tokens->clamp);
             diffuseTextureSampler.CreateOutput(pxr::_tokens->rgb, pxr::SdfValueTypeNames->Float3);
             pbrShader.CreateInput(pxr::_tokens->diffuseColor, pxr::SdfValueTypeNames->Vector3f)
                 .ConnectToSource(diffuseTextureSampler.ConnectableAPI(), pxr::_tokens->rgb);
@@ -434,7 +436,7 @@ void convertMeshToUSD(
             meshUsd.CreateFaceVertexCountsAttr(pxr::VtValue::Take(faceVertexCounts));
             meshUsd.CreatePointsAttr(pxr::VtValue::Take(positions));
             meshUsd.CreateNormalsAttr(pxr::VtValue::Take(normals));
-            meshUsd.SetNormalsInterpolation(pxr::UsdGeomTokens->constant);
+            meshUsd.SetNormalsInterpolation(pxr::UsdGeomTokens->vertex);
             meshUsd.CreateFaceVertexIndicesAttr(pxr::VtValue::Take(indices));
             meshUsd.CreateDoubleSidedAttr().Set(true);
             if (!rasterOverlaySt0.empty()) {
