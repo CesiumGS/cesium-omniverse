@@ -61,6 +61,9 @@ TF_DEFINE_PRIVATE_TOKENS(
     (st)
     (st_0)
     (st_1)
+    (wrapS)
+    (wrapT)
+    (clamp)
     (UsdPreviewSurface)
     ((stPrimvarName, "frame:stPrimvarName"))
     ((UsdShaderId, "UsdPreviewSurface"))
@@ -377,6 +380,8 @@ pxr::UsdShadeMaterial convertMaterialToUSD(
             diffuseTextureSampler.CreateInput(pxr::_tokens->file, pxr::SdfValueTypeNames->Asset).Set(texturePath);
             diffuseTextureSampler.CreateInput(pxr::_tokens->st, pxr::SdfValueTypeNames->Float2)
                 .ConnectToSource(stReader.ConnectableAPI(), pxr::_tokens->result);
+            diffuseTextureSampler.CreateInput(pxr::_tokens->wrapS, pxr::SdfValueTypeNames->Token).Set(pxr::_tokens->clamp);
+            diffuseTextureSampler.CreateInput(pxr::_tokens->wrapT, pxr::SdfValueTypeNames->Token).Set(pxr::_tokens->clamp);
             diffuseTextureSampler.CreateOutput(pxr::_tokens->rgb, pxr::SdfValueTypeNames->Float3);
             pbrShader.CreateInput(pxr::_tokens->diffuseColor, pxr::SdfValueTypeNames->Vector3f)
                 .ConnectToSource(diffuseTextureSampler.ConnectableAPI(), pxr::_tokens->rgb);
