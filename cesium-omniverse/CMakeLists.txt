@@ -39,14 +39,16 @@ find_package(
 set(USE_NVIDIA_RELEASE_LIBRARIES TRUE)
 
 if(MSVC)
-    if (${USE_NVIDIA_RELEASE_LIBRARIES})
+    if(${USE_NVIDIA_RELEASE_LIBRARIES})
         set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
         set(MSVC_RUNTIME_FLAG_DEBUG "/MD")
         set(MSVC_RUNTIME_FLAG_RELEASE "/MD")
 
         # Disable run-time error checks. Otherwise boost will error with the message "Using the /RTC option without specifying a debug runtime will lead to linker errors"
-        STRING (REGEX REPLACE "/RTC1" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
-        STRING (REGEX REPLACE "/RTC1" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+        # cmake-format: off
+        STRING(REGEX REPLACE "/RTC1" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
+        STRING(REGEX REPLACE "/RTC1" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+        # cmake-format: on
     else()
         set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
         set(MSVC_RUNTIME_FLAG_DEBUG "/MDd")
@@ -271,17 +273,31 @@ if(CESIUM_OMNI_ENABLE_COVERAGE)
         set(CESIUM_OMNI_LINKER_FLAGS_DEBUG ${CESIUM_OMNI_LINKER_FLAGS_DEBUG} --coverage)
     endif()
 
+    # COVERAGE_SOURCE_DIRECTORIES must be passed exactly like this
+    # If you:
+    # - Don't escape the semicolon list delimiters
+    # - Don't use the VERBATIM option with add_custom_target
+    # Then CMake will swap your semicolons with whitespaces, ruining
+    # the list when it's forwarded to the generate-coverage script and
+    # causing only the first directory in your list to actually be used
+    # for filters.
+
+    # cmake-format: off
+    list(JOIN COVERAGE_SOURCE_DIRECTORIES "\;" COVERAGE_SOURCE_DIRECTORIES_FORMATTED)
+    # cmake-format: on
+
     # We always define the `generate-coverage` target, even if it would fail at runtime
     # due to missing tools / incompatible compilers.
     add_custom_target(
         generate-coverage
         COMMAND
             ${CMAKE_COMMAND} -DCMAKE_CXX_COMPILER_ID=${CMAKE_CXX_COMPILER_ID}
-            -DCMAKE_CXX_COMPILER_VERSION=${CMAKE_CXX_COMPILER_VERSION} -DPROJECT_ROOT_DIRECTORY="${PROJECT_SOURCE_DIR}"
-            -DPROJECT_BUILD_DIRECTORY="${PROJECT_BINARY_DIR}"
-            -DPROJECT_SOURCE_DIRECTORIES=${COVERAGE_SOURCE_DIRECTORIES}
-            -DOUTPUT_DIRECTORY="${PROJECT_BINARY_DIR}/coverage/" -P "${PROJECT_SOURCE_DIR}/cmake/GenerateCoverage.cmake"
-        DEPENDS $<TARGET_FILE:tests>)
+            -DCMAKE_CXX_COMPILER_VERSION=${CMAKE_CXX_COMPILER_VERSION} -DPROJECT_ROOT_DIRECTORY=${PROJECT_SOURCE_DIR}
+            -DPROJECT_BUILD_DIRECTORY=${PROJECT_BINARY_DIR}
+            -DPROJECT_SOURCE_DIRECTORIES=${COVERAGE_SOURCE_DIRECTORIES_FORMATTED}
+            -DOUTPUT_DIRECTORY=${PROJECT_BINARY_DIR}/coverage -P ${PROJECT_SOURCE_DIR}/cmake/GenerateCoverage.cmake
+        DEPENDS $<TARGET_FILE:tests>
+        VERBATIM)
 endif()
 
 # System preprocessor definitions
@@ -322,7 +338,7 @@ set(CESIUM_OMNI_CXX_DEFINES
 set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} BOOST_ALL_DYN_LINK)
 
 # TBB is a dependency of USD
-if (NOT ${USE_NVIDIA_RELEASE_LIBRARIES})
+if(NOT ${USE_NVIDIA_RELEASE_LIBRARIES})
     set(CESIUM_OMNI_CXX_DEFINES_DEBUG ${CESIUM_OMNI_CXX_DEFINES_DEBUG} TBB_USE_DEBUG)
 endif()
 

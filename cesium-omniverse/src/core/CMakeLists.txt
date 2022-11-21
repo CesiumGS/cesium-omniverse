@@ -34,8 +34,8 @@ setup_lib(
         InMemoryAssetResolver
         Cesium3DTilesSelection
         CesiumAsync
-        CesiumGeometry
         CesiumGeospatial
+        CesiumGeometry
         CesiumGltf
         CesiumGltfReader
         CesiumJsonReader

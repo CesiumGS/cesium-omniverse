@@ -7,8 +7,8 @@ add_external_project(
     LIBRARIES
         Cesium3DTilesSelection
         CesiumAsync
-        CesiumGeometry
         CesiumGeospatial
+        CesiumGeometry
         CesiumGltf
         CesiumGltfReader
         CesiumJsonReader
