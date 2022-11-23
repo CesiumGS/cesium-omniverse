@@ -4,4 +4,4 @@
 
 ## General Omniverse Tips
 
-- [Omniverse Connector & Live Sync for SketchUp](./connectors/sketchup_connector.md)
+- [Omniverse Connector & Live Sync for SketchUp](./connectors/sketchup_connector.adoc)
