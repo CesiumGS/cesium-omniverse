@@ -61,6 +61,9 @@ TF_DEFINE_PRIVATE_TOKENS(
     (st)
     (st_0)
     (st_1)
+    (wrapS)
+    (wrapT)
+    (clamp)
     (UsdPreviewSurface)
     ((stPrimvarName, "frame:stPrimvarName"))
     ((UsdShaderId, "UsdPreviewSurface"))
@@ -368,19 +371,21 @@ pxr::UsdShadeMaterial convertMaterialToUSD(
         stReaders[i].CreateInput(pxr::_tokens->varname, pxr::SdfValueTypeNames->Token).ConnectToSource(stInputs[i]);
     }
 
-    const auto setupDiffuseTexture =
-        [&stage, &materialPath, &pbrShader, &stReaders](const pxr::SdfAssetPath& texturePath, const size_t texcoord) {
-            const pxr::UsdShadeShader& stReader = stReaders[texcoord];
-            pxr::UsdShadeShader diffuseTextureSampler =
-                pxr::UsdShadeShader::Define(stage, materialPath.AppendChild(pxr::TfToken("DiffuseTexture")));
-            diffuseTextureSampler.CreateIdAttr(pxr::VtValue(pxr::_tokens->UsdUVTexture));
-            diffuseTextureSampler.CreateInput(pxr::_tokens->file, pxr::SdfValueTypeNames->Asset).Set(texturePath);
-            diffuseTextureSampler.CreateInput(pxr::_tokens->st, pxr::SdfValueTypeNames->Float2)
-                .ConnectToSource(stReader.ConnectableAPI(), pxr::_tokens->result);
-            diffuseTextureSampler.CreateOutput(pxr::_tokens->rgb, pxr::SdfValueTypeNames->Float3);
-            pbrShader.CreateInput(pxr::_tokens->diffuseColor, pxr::SdfValueTypeNames->Vector3f)
-                .ConnectToSource(diffuseTextureSampler.ConnectableAPI(), pxr::_tokens->rgb);
-        };
+    const auto setupDiffuseTexture = [&stage, &materialPath, &pbrShader, &stReaders](
+                                         const pxr::SdfAssetPath& texturePath, const size_t texcoord) {
+        const pxr::UsdShadeShader& stReader = stReaders[texcoord];
+        pxr::UsdShadeShader diffuseTextureSampler =
+            pxr::UsdShadeShader::Define(stage, materialPath.AppendChild(pxr::TfToken("DiffuseTexture")));
+        diffuseTextureSampler.CreateIdAttr(pxr::VtValue(pxr::_tokens->UsdUVTexture));
+        diffuseTextureSampler.CreateInput(pxr::_tokens->file, pxr::SdfValueTypeNames->Asset).Set(texturePath);
+        diffuseTextureSampler.CreateInput(pxr::_tokens->st, pxr::SdfValueTypeNames->Float2)
+            .ConnectToSource(stReader.ConnectableAPI(), pxr::_tokens->result);
+        diffuseTextureSampler.CreateInput(pxr::_tokens->wrapS, pxr::SdfValueTypeNames->Token).Set(pxr::_tokens->clamp);
+        diffuseTextureSampler.CreateInput(pxr::_tokens->wrapT, pxr::SdfValueTypeNames->Token).Set(pxr::_tokens->clamp);
+        diffuseTextureSampler.CreateOutput(pxr::_tokens->rgb, pxr::SdfValueTypeNames->Float3);
+        pbrShader.CreateInput(pxr::_tokens->diffuseColor, pxr::SdfValueTypeNames->Vector3f)
+            .ConnectToSource(diffuseTextureSampler.ConnectableAPI(), pxr::_tokens->rgb);
+    };
 
     if (hasRasterOverlay) {
         setupDiffuseTexture(rasterOverlayPath, 0);
@@ -425,9 +430,11 @@ void convertMeshToUSD(
         std::string meshName = fmt::format("mesh_primitive_{}", i);
         pxr::UsdGeomMesh meshUsd = pxr::UsdGeomMesh::Define(stage, parentPath.AppendChild(pxr::TfToken(meshName)));
         if (meshUsd) {
+            meshUsd.CreateSubdivisionSchemeAttr().Set(pxr::UsdGeomTokens->none);
             meshUsd.CreateFaceVertexCountsAttr(pxr::VtValue::Take(faceVertexCounts));
             meshUsd.CreatePointsAttr(pxr::VtValue::Take(positions));
             meshUsd.CreateNormalsAttr(pxr::VtValue::Take(normals));
+            meshUsd.SetNormalsInterpolation(pxr::UsdGeomTokens->vertex);
             meshUsd.CreateFaceVertexIndicesAttr(pxr::VtValue::Take(indices));
             meshUsd.CreateDoubleSidedAttr().Set(true);
             if (!rasterOverlaySt0.empty()) {
