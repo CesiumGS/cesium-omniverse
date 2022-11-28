@@ -21,7 +21,7 @@ def run_command():
     if not repoman.api.has_options_arg(options, 'platform_target'):
         options.platform_target = 'linux-x86_64'
 
-    deps_target = [repo_folders["target_deps_xml"], "deps/usd-deps.packman.xml"]
+    deps_target = [repo_folders["target_deps_xml"]]
     repo_root = repo_folders["root"]
 
     # Dependencies will be fetched from the "deps" folder files
