@@ -2,32 +2,12 @@
   <dependency name="python" linkPath="../_build/target-deps/python">
     <package name="python" version="3.7.13+nv1-${platform}"/>
   </dependency>
-
-  <dependency name="lua" linkPath="../_build/target-deps/lua">
-    <package name="lua" version="5.3.4-9882100-${platform}" />
+  <dependency name="nv_usd_py37_release" linkPath="../_build/target-deps/usd/release">
+    <package name="nv-usd" version="20.08.nv.1.2.2496.ecf7aef9-win64_py37_release-main" platforms="windows-x86_64"/>
+    <package name="nv-usd" version="20.08.nv.1.2.2496.ecf7aef9-linux64_py37-centos_release-main" platforms="linux-x86_64"/>
   </dependency>
-
-  <dependency name="usd_ext_physics_release" linkPath="../_build/target-deps/usd_ext_physics/release">
-    <package name="usd_ext_physics" version="20.08.2791.90355301-win64_py37_release-physics-develop" platforms="windows-x86_64"/>
-    <package name="usd_ext_physics" version="20.08.3300.90355301-linux-x86_64_py37_release-physics-develop" platforms="linux-x86_64"/>
-    <package name="usd_ext_physics" version="20.08.3297.90355301-linux-aarch64_py37_release-physics-develop" platforms="linux-aarch64"/>
+  <dependency name="nv_usd_py37_debug" linkPath="../_build/target-deps/usd/debug">
+    <package name="nv-usd" version="20.08.nv.1.2.2496.ecf7aef9-win64_py37_debug-main" platforms="windows-x86_64"/>
+    <package name="nv-usd" version="20.08.nv.1.2.2496.ecf7aef9-linux64_py37-centos_debug-main" platforms="linux-x86_64"/>
   </dependency>
-  <dependency name="usd_ext_physics_debug" linkPath="../_build/target-deps/usd_ext_physics/debug">
-    <package name="usd_ext_physics" version="20.08.2815.90355301-win64_py37_debug-physics-develop" platforms="windows-x86_64"/>
-    <package name="usd_ext_physics" version="20.08.3303.90355301-linux-x86_64_py37_debug-physics-develop" platforms="linux-x86_64"/>
-   	<package name="usd_ext_physics" version="20.08.3300.90355301-linux-aarch64_py37_debug-physics-develop" platforms="linux-aarch64"/>
-  </dependency>
-
-  <dependency name="omni_usd_resolver" linkPath="../_build/target-deps/omni_usd_resolver">
-    <package name="omni_usd_resolver.nv-20_08.py37.${platform}" version="1.9.0" />
-  </dependency>
-
-  <dependency name="nlohmann-json" linkPath="../_build/target-deps/nlohmann-json">
-    <package name="nlohmann-json" version="3.7.3-3fff8cd2-repackaged"/>
-  </dependency>
-
-  <dependency name="tinytoml" linkPath="../_build/target-deps/tinytoml">
-    <package name="tinytoml" version="nv-master-2-e55461ce"/>
-  </dependency>
-
 </project>
