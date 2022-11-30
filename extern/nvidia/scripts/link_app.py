@@ -79,5 +79,5 @@ if __name__ == "__main__":
         print(f"Provided path doesn't exist: {path}")
     else:
         SCRIPT_ROOT = os.path.dirname(os.path.realpath(__file__))
-        create_link(f"{SCRIPT_ROOT}/../../app", path)
+        create_link(f"{SCRIPT_ROOT}/../app", path)
         print("Success!")

@@ -10,8 +10,6 @@ jobs:
   build:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
-    env:
-      working-directory: ./cesium-omniverse
     strategy:
       fail-fast: false
       matrix:
@@ -94,43 +92,34 @@ jobs:
       # Note: CMAKE_CONFIGURATION_TYPES is used by Windows to generate a single configuration for Release since we don't need Debug, RelWithDebugInfo, and MinSizeRel on CI. It is ignored for Linux.
       - name: Configure
         run: cmake -B build -D CMAKE_C_COMPILER=${{ matrix.config.cc }} -D CMAKE_CXX_COMPILER=${{ matrix.config.cxx }} -D CMAKE_BUILD_TYPE=${{ matrix.config.build-type }} -D CMAKE_CONFIGURATION_TYPES=${{ matrix.config.build-type }} -G "${{ matrix.config.generator }}"
-        working-directory: ${{env.working-directory}}
 
       # Note: GitHub Actions only has 2 cores
       - name: Build (Unix)
         if: runner.os == 'Linux'
         run: cmake --build build --parallel 2
-        working-directory: ${{env.working-directory}}
 
       # Note: Parallelization is handled by UseMultiToolTask environment variable set above
       - name: Build (Windows)
         if: runner.os == 'Windows'
         run: cmake --build build --config ${{ matrix.config.build-type }}
-        working-directory: ${{env.working-directory}}
 
       - name: Check Formatting
         run: cmake --build build --target clang-format-check-all --config ${{ matrix.config.build-type }}
-        working-directory: ${{env.working-directory}}
 
       - name: Tests
         run: cd build && ctest --output-on-failure
-        working-directory: ${{env.working-directory}}
 
       - name: Coverage
         if: matrix.config.coverage == 'true'
         run: cmake --build build --target generate-coverage --config ${{ matrix.config.build-type }}
-        working-directory: ${{env.working-directory}}
 
       - name: Documentation
         # Currently disabled for Windows because `choco install doxygen.install` is flaky
         if: runner.os == 'Linux'
         run: cmake --build build --target generate-documentation --config ${{ matrix.config.build-type }}
-        working-directory: ${{env.working-directory}}
 
       - name: Install (Default)
         run: cmake --install build --config ${{ matrix.config.build-type }} --prefix install-default --component install
-        working-directory: ${{env.working-directory}}
 
       - name: Install (Kit)
         run: cmake --install build --config ${{ matrix.config.build-type }} --prefix install-kit --component kit
-        working-directory: ${{env.working-directory}}

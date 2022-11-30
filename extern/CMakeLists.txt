@@ -43,6 +43,15 @@ if(exit_code AND NOT exit_code EQUAL 0)
 endif()
 # cmake-format: on
 
+if(UNIX)
+    execute_process(COMMAND bash "${PROJECT_SOURCE_DIR}/extern/nvidia/link_app.sh")
+elseif(WIN32)
+    execute_process(COMMAND cmd /C "${PROJECT_SOURCE_DIR}/extern/nvidia/link_app.bat")
+endif()
+
+# Don't check for errors from the previous command because we can still proceed with the build
+# without creating a symlink to Omniverse Code
+
 set(NVIDIA_BUILD_DIR "${PROJECT_SOURCE_DIR}/extern/nvidia/_build")
 set(NVIDIA_USD_ROOT "${NVIDIA_BUILD_DIR}/target-deps/usd")
 set(PYTHON_ROOT "${NVIDIA_BUILD_DIR}/target-deps/python")
