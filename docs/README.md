@@ -2,6 +2,8 @@
 
 ## Usage
 
+- [Building](./building/building.md)
+
 ## General Omniverse Tips
 
 - [Omniverse Connector & Live Sync for SketchUp](./connectors/sketchup_connector.adoc)

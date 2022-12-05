@@ -20,7 +20,35 @@
       "editor.tabSize": 2,
       "editor.insertSpaces": true
     },
-    "yaml.format.singleQuote": true
+    "yaml.format.singleQuote": true,
+    "files.associations": {
+      "*.kit": "toml"
+    },
+    "editor.rulers": [
+      120
+    ],
+    // Python modules search paths:
+    "python.analysis.extraPaths": [
+      "${workspaceFolder}/exts/cesium.omniverse",
+      "${workspaceFolder}/extern/nvidia/app/kit/extscore/omni.kit.pip_archive/pip_prebundle",
+      "${workspaceFolder}/extern/nvidia/app/kit/plugins/bindings-python"
+    ],
+    // Python & Pylance Setup
+    "python.languageServer": "Pylance",
+    "python.defaultInterpreterPath": "${workspaceFolder}/extern/nvidia/app/kit/python/bin/python3",
+    // Use black for formatting
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+      "--line-length",
+      "120"
+    ],
+    // Use flake8 for linting
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": true,
+    "python.linting.flake8Args": [
+      "--max-line-length=120"
+    ]
   },
   "extensions": {
     "recommendations": [
@@ -32,7 +60,8 @@
       "twxs.cmake",
       "editorconfig.editorconfig",
       "cheshirekow.cmake-format",
-      "redhat.vscode-yaml"
+      "redhat.vscode-yaml",
+      "tamasfe.even-better-toml"
     ],
     "unwantedRecommendations": []
   }
