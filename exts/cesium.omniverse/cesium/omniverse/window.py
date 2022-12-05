@@ -8,16 +8,20 @@ import omni.kit.app as omni_app
 import omni.kit.commands as omni_commands
 import carb.settings as omni_settings
 import os
-from carb.events._events import ISubscription
+import logging
+from carb.events._events import ISubscription, IEvent
 
 cesium_mem_location = os.path.join(os.path.dirname(__file__), "../../bin")
 
 
 class CesiumOmniverseWindow(ui.Window):
     _subscription_handle: ISubscription = None
+    _logger: logging.Logger = None
 
     def __init__(self, title: str, **kwargs):
         super().__init__(title, **kwargs)
+
+        self._logger = logging.getLogger(__name__)
 
         # Set the function that is called to build widgets when the window is visible
         self.frame.set_build_fn(self._build_fn)
@@ -32,7 +36,14 @@ class CesiumOmniverseWindow(ui.Window):
             prev=camera_prim.GetAttribute("clippingRange").Get(),
         )
 
-        print("[cesium.omniverse] CesiumOmniverse startup")
+        # TODO: Remove this after I figure out the crash. -Adam
+        # def on_stage_event(e: IEvent):
+        #    if e.type==int(omni.usd.StageEventType.OPENED):
+        #        self._logger.info("[cesium.omniverse] Stage opened")
+        #
+        # omni.usd.get_context().get_stage_event_stream().create_subscription_to_pop(on_stage_event, name="Testing")
+
+        self._logger.info("[cesium.omniverse] CesiumOmniverse startup")
         CesiumOmniverse.initialize(cesium_mem_location)
 
         # Cape Canaveral
@@ -40,11 +51,16 @@ class CesiumOmniverseWindow(ui.Window):
 
         self._tilesets = []
 
+    def destroy_subscription(self):
+        self._subscription_handle.unsubscribe()
+        self._subscription_handle = None
+
     def destroy(self):
         # It will destroy all the children
+        self.destroy_subscription()
         super().destroy()
 
-        print("[cesium.omniverse] CesiumOmniverse shutdown")
+        self._logger.info("[cesium.omniverse] CesiumOmniverse shutdown")
         CesiumOmniverse.finalize()
 
     def _build_fn(self):
@@ -93,7 +109,7 @@ class CesiumOmniverseWindow(ui.Window):
             )
 
         def stop_update_frame():
-            self._subscription_handle = None
+            self.destroy_subscription()
 
         def add_maxar_3d_surface_model():
             stage = omni.usd.get_context().get_stage()
@@ -126,7 +142,7 @@ class CesiumOmniverseWindow(ui.Window):
 
         def create_tileset():
             if self._subscription_handle is not None:
-                self._subscription_handle = None
+                self.destroy_subscription()
 
             add_cesium_world_terrain()
             # add_maxar_3d_surface_model()
