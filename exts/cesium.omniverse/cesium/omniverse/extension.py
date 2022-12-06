@@ -1,9 +1,16 @@
+from .bindings import CesiumOmniversePythonBindings as CesiumOmniverse
 from .window import CesiumOmniverseWindow
-from functools import partial
 import asyncio
+from functools import partial
+import logging
 import omni.ext
 import omni.kit.ui
 import omni.ui as ui
+import omni.usd
+import os
+from typing import Optional
+
+cesium_mem_location = os.path.join(os.path.dirname(__file__), "../../bin")
 
 
 class CesiumOmniverseWindowExtension(omni.ext.IExt):
@@ -11,7 +18,13 @@ class CesiumOmniverseWindowExtension(omni.ext.IExt):
     WINDOW_NAME = "Cesium for Omniverse"
     MENU_PATH = f"Window/{WINDOW_NAME}"
 
-    _window: CesiumOmniverseWindow = None
+    _window: Optional[CesiumOmniverseWindow] = None
+    _logger: logging.Logger
+
+    def __init__(self) -> None:
+        super().__init__()
+
+        self._logger = logging.getLogger(__name__)
 
     def on_startup(self):
         # The ability to show up the window if the system requires it. We use it in QuickLayout.
@@ -24,6 +37,9 @@ class CesiumOmniverseWindowExtension(omni.ext.IExt):
                 CesiumOmniverseWindowExtension.MENU_PATH, self.show_window, toggle=True, value=True
             )
 
+        self._logger.info("CesiumOmniverse startup")
+        CesiumOmniverse.initialize(cesium_mem_location)
+
         # Show the window. It will call `self.show_window`
         ui.Workspace.show_window(CesiumOmniverseWindowExtension.WINDOW_NAME)
 
@@ -35,6 +51,9 @@ class CesiumOmniverseWindowExtension(omni.ext.IExt):
 
         # Deregister the function that shows the window from omni.ui
         ui.Workspace.set_show_window_fn(CesiumOmniverseWindowExtension.WINDOW_NAME, None)
+
+        self._logger.info("CesiumOmniverse shutdown")
+        CesiumOmniverse.finalize()
 
     def _set_menu(self, value):
         # Set the menu to create this window on and off
