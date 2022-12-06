@@ -479,11 +479,11 @@ Each workspace contains recommended extensions and settings for VSCode developme
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Omniverse Code",
+      "name": "Kit App",
       "preLaunchTask": "Build (debug)",
       "program": "${workspaceFolder}/extern/nvidia/app/kit/kit.exe",
       "args": [
-        "${workspaceFolder}/extern/nvidia/app/apps/omni.code.kit"
+        "${workspaceFolder}/apps/cesium.omniverse.app.kit"
       ],
       "cwd": "${workspaceFolder}",
       "type": "cppvsdbg",

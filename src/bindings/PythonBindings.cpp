@@ -5,7 +5,6 @@
 #include <pxr/base/gf/matrix4d.h>
 #include <pxr/base/gf/vec4d.h>
 #include <pxr/usd/usd/stage.h>
-#include <pybind11/pybind11.h>
 
 namespace pybind11 {
 namespace detail {

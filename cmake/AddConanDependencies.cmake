@@ -10,7 +10,6 @@ configure_conan(
     REQUIRES
         cpr/1.9.0
         doctest/2.4.9
-        pybind11/2.10.0
         stb/cci.20210910
         zlib/1.2.13
 )

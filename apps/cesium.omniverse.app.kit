@@ -1,0 +1,16 @@
+[package]
+title = "Cesium For Omniverse Testing App"
+version = "0.0.0"
+app = true
+
+[dependencies]
+# Include basic configuration (that brings most of basic extensions)
+"omni.app.dev" = {}
+"cesium.omniverse" = {}
+
+[settings]
+app.asyncRendering = false
+app.useFabricSceneDelegate = true
+
+[settings.app.exts]
+folders.'++' = ["${app}/../exts"] # Make extensions from this repo available.

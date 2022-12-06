@@ -25,7 +25,7 @@ endif()
 set(ENV{CONAN_REVISIONS_ENABLED} "1")
 
 # cxx version
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -482,7 +482,7 @@ set(KIT_EXTENSION_PLUGINS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse/plug
 # to the search path. Unfortunately CMake will print a warning when python .so is
 # found this way.
 
-set(INSTALL_SEARCH_PATHS $<TARGET_FILE_DIR:python37>)
+set(INSTALL_SEARCH_PATHS $<TARGET_FILE_DIR:python37> $<TARGET_FILE_DIR:usd> $<TARGET_FILE_DIR:carb>)
 set(INSTALL_PRE_EXCLUDE_REGEXES "api-ms-*" "ext-ms-*")
 set(INSTALL_POST_EXCLUDE_REGEXES "system32" "^\/lib")
 
