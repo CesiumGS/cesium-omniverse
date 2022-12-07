@@ -375,7 +375,7 @@ pxr::UsdShadeMaterial convertMaterialToUSD(
                                          const pxr::SdfAssetPath& texturePath, const size_t texcoord) {
         const pxr::UsdShadeShader& stReader = stReaders[texcoord];
         pxr::UsdShadeShader diffuseTextureSampler =
-            pxr::UsdShadeShader::Define(stage, materialPath.AppendChild(pxr::TfToken("DiffuseTexture")));
+            pxr::UsdShadeShader::Define(stage, materialPath.AppendChild(pxr::TfToken("OmniPBR")));
         diffuseTextureSampler.CreateIdAttr(pxr::VtValue(pxr::_tokens->UsdUVTexture));
         diffuseTextureSampler.CreateInput(pxr::_tokens->file, pxr::SdfValueTypeNames->Asset).Set(texturePath);
         diffuseTextureSampler.CreateInput(pxr::_tokens->st, pxr::SdfValueTypeNames->Float2)
