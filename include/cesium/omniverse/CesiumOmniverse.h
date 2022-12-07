@@ -3,7 +3,6 @@
 #include "CesiumOmniverseAbi.h"
 
 #include <pxr/pxr.h>
-#include <pxr/usd/usd/common.h>
 
 #include <cstdint>
 
@@ -30,23 +29,23 @@ finalize() CESIUM_OMNI_NOEXCEPT;
 /**
  * @brief Adds a tileset from url.
  *
- * @param stage The USD stage
+ * @param stage The USD stage id
  * @param url The tileset url
  * @returns The tileset id. Returns -1 on error.
  */
 CESIUM_OMNI_EXPORT_C_FUNCTION(int)
-addTilesetUrl(const pxr::UsdStageRefPtr* stage, const char* url) CESIUM_OMNI_NOEXCEPT;
+addTilesetUrl(long stageId, const char* url) CESIUM_OMNI_NOEXCEPT;
 
 /**
  * @brief Adds a tileset from ion.
  *
- * @param stage The USD stage
+ * @param stage The USD stage id
  * @param ionId The ion asset id
  * @param ionToken The ion access token
  * @returns The tileset id. Returns -1 on error.
  */
 CESIUM_OMNI_EXPORT_C_FUNCTION(int)
-addTilesetIon(const pxr::UsdStageRefPtr* stage, int64_t ionId, const char* ionToken) CESIUM_OMNI_NOEXCEPT;
+addTilesetIon(long stageId, int64_t ionId, const char* ionToken) CESIUM_OMNI_NOEXCEPT;
 
 /**
  * @brief Removes a tileset from the scene.
