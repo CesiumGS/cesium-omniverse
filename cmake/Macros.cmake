@@ -63,7 +63,7 @@ function(setup_python_module)
         "SOURCES;LIBRARIES;DEPENDENCIES;CXX_FLAGS;CXX_FLAGS_DEBUG;CXX_DEFINES;CXX_DEFINES_DEBUG"
         ${ARGN})
 
-    pybind11_add_module(${_TARGET_NAME} MODULE)
+    add_library(${_TARGET_NAME} MODULE)
 
     if(_DEPENDENCIES)
         add_dependencies(${_TARGET_NAME} ${_DEPENDENCIES})
@@ -88,6 +88,20 @@ function(setup_python_module)
     set_target_properties(${_TARGET_NAME} PROPERTIES RELEASE_POSTFIX "")
     set_target_properties(${_TARGET_NAME} PROPERTIES RELWITHDEBINFO_POSTFIX "")
     set_target_properties(${_TARGET_NAME} PROPERTIES MINSIZEREL_POSTFIX "")
+
+    # Equivalent to pybind11_extension()
+    set_target_properties(${_TARGET_NAME} PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}")
+    set_target_properties(${_TARGET_NAME} PROPERTIES SUFFIX "${PYTHON_MODULE_EXTENSION}")
+
+    # Equivalent to pybind11::opt_size
+    if(MSVC)
+        set(OPT_SIZE /Os)
+    else()
+        set(OPT_SIZE -Os)
+    endif()
+
+    target_compile_options(${_TARGET_NAME} PRIVATE $<$<CONFIG:Release>:${OPT_SIZE}> $<$<CONFIG:MinSizeRel>:${OPT_SIZE}>
+                                                   $<$<CONFIG:RelWithDebInfo>:${OPT_SIZE}>)
 
     if(WIN32)
         add_custom_command(
@@ -271,7 +285,7 @@ function(add_prebuilt_project)
     cmake_parse_arguments(
         ""
         ""
-        "RELEASE_INCLUDE_DIR;DEBUG_INCLUDE_DIR;RELEASE_LIBRARY_DIR;DEBUG_LIBRARY_DIR"
+        "RELEASE_INCLUDE_DIR;DEBUG_INCLUDE_DIR;RELEASE_LIBRARY_DIR;RELEASE_DLL_DIR;DEBUG_LIBRARY_DIR;DEBUG_DLL_DIR"
         "RELEASE_LIBRARIES;DEBUG_LIBRARIES;TARGET_NAMES"
         ${ARGN})
 
@@ -310,10 +324,14 @@ $<$<CONFIG:MinSizeRel>:${_RELEASE_INCLUDE_DIR}>")
                 PATHS ${_DEBUG_LIBRARY_DIR}
                 NO_DEFAULT_PATH NO_CACHE)
 
-            # cmake-format: off
-            string(REGEX REPLACE "[.]lib$" ".dll" ${TARGET_NAME}_LIBRARY_RELEASE ${${TARGET_NAME}_IMPLIB_RELEASE})
-            string(REGEX REPLACE "[.]lib$" ".dll" ${TARGET_NAME}_LIBRARY_DEBUG ${${TARGET_NAME}_IMPLIB_DEBUG})
-            # cmake-format: on
+            if(_RELEASE_DLL_DIR AND _DEBUG_DLL_DIR)
+                set(${TARGET_NAME}_LIBRARY_RELEASE "${_RELEASE_DLL_DIR}/${RELEASE_NAME}.dll")
+                set(${TARGET_NAME}_LIBRARY_DEBUG "${_DEBUG_DLL_DIR}/${DEBUG_NAME}.dll")
+            else()
+                set(${TARGET_NAME}_LIBRARY_RELEASE "${_RELEASE_LIBRARY_DIR}/${RELEASE_NAME}.dll")
+                set(${TARGET_NAME}_LIBRARY_DEBUG "${_DEBUG_LIBRARY_DIR}/${DEBUG_NAME}.dll")
+            endif()
+
         else()
             find_library(
                 ${TARGET_NAME}_LIBRARY_RELEASE
@@ -346,4 +364,21 @@ $<$<CONFIG:MinSizeRel>:${_RELEASE_INCLUDE_DIR}>")
                        IMPORTED_LOCATION_RELWITHDEBINFO "${${TARGET_NAME}_LIBRARY_RELEASE}"
                        IMPORTED_LOCATION_MINSIZEREL "${${TARGET_NAME}_LIBRARY_RELEASE}")
     endforeach()
+endfunction()
+
+function(add_prebuilt_project_header_only)
+    cmake_parse_arguments(
+        ""
+        ""
+        "INCLUDE_DIR;TARGET_NAME"
+        ""
+        ${ARGN})
+
+    add_library(
+        ${_TARGET_NAME}
+        INTERFACE
+        IMPORTED
+        GLOBAL)
+    target_include_directories(${_TARGET_NAME} INTERFACE "${_INCLUDE_DIR}")
+
 endfunction()

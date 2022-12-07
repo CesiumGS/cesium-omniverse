@@ -52,9 +52,7 @@ setup_lib(
         cpr::cpr
         stb::stb
         ZLIB::ZLIB
-        boost_python37
-        python37
-        tbb
+        usdrt
         ar
         arch
         gf
@@ -69,10 +67,19 @@ setup_lib(
         trace
         usd
         usdGeom
+        usdLux
         usdShade
+        usdUI
         usdUtils
+        usdVol
         vt
         work
+        boost_python37
+        tbb
+        carb
+        cuda
+        pybind11
+        python37
     DEPENDENCIES
         cesium-native-external
     CXX_FLAGS
