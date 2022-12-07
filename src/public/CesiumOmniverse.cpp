@@ -2,6 +2,9 @@
 
 #include "cesium/omniverse/OmniTileset.h"
 
+#include <pxr/usd/usd/stageCache.h>
+#include <pxr/usd/usdUtils/stageCache.h>
+
 #include <unordered_map>
 
 namespace Cesium {
@@ -19,15 +22,17 @@ void finalize() noexcept {
     OmniTileset::shutdown();
 }
 
-int addTilesetUrl(const pxr::UsdStageRefPtr* stage, const char* url) noexcept {
+int addTilesetUrl(long stageId, const char* url) noexcept {
     const int tilesetId = currentId++;
-    tilesets.insert({tilesetId, std::make_unique<OmniTileset>(*stage, url)});
+    const auto& stage = pxr::UsdUtilsStageCache::Get().Find(pxr::UsdStageCache::Id::FromLongInt(stageId));
+    tilesets.insert({tilesetId, std::make_unique<OmniTileset>(stage, url)});
     return tilesetId;
 }
 
-int addTilesetIon(const pxr::UsdStageRefPtr* stage, int64_t ionId, const char* ionToken) noexcept {
+int addTilesetIon(long stageId, int64_t ionId, const char* ionToken) noexcept {
     const int tilesetId = currentId++;
-    tilesets.insert({tilesetId, std::make_unique<OmniTileset>(*stage, ionId, ionToken)});
+    const auto& stage = pxr::UsdUtilsStageCache::Get().Find(pxr::UsdStageCache::Id::FromLongInt(stageId));
+    tilesets.insert({tilesetId, std::make_unique<OmniTileset>(stage, ionId, ionToken)});
     return tilesetId;
 }
 

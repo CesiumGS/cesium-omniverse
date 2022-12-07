@@ -97,11 +97,11 @@ class CesiumOmniverseWindow(ui.Window):
             # Cape Canaveral
             CesiumOmniverse.setGeoreferenceOrigin(-80.53, 28.46, -30.0)
 
-            stage = omni.usd.get_context().get_stage()
+            stage_id = omni.usd.get_context().get_stage_id()
 
             self._tilesets.append(
                 CesiumOmniverse.addTilesetIon(
-                    stage,
+                    stage_id,
                     1387142,
                     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyMjRhYzI0Yi1kNWEwLTQ4ZWYtYjdmZC1hY2JmYWIzYmFiMGUiLCJpZCI6NDQsImlhdCI6MTY2NzQ4OTg0N30.du0tvWptgLWsvM1Gnbv3Zw_pDAOILg1Wr6s2sgK-qlM",
                 )
@@ -113,10 +113,10 @@ class CesiumOmniverseWindow(ui.Window):
             # Cesium HQ
             CesiumOmniverse.setGeoreferenceOrigin(-75.1564977, 39.9501464, 150.0)
 
-            stage = omni.usd.get_context().get_stage()
+            stage_id = omni.usd.get_context().get_stage_id()
 
             tileset_id = CesiumOmniverse.addTilesetIon(
-                stage,
+                stage_id,
                 1,
                 "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyMjRhYzI0Yi1kNWEwLTQ4ZWYtYjdmZC1hY2JmYWIzYmFiMGUiLCJpZCI6NDQsImlhdCI6MTY2NzQ4OTg0N30.du0tvWptgLWsvM1Gnbv3Zw_pDAOILg1Wr6s2sgK-qlM",
             )
@@ -136,10 +136,10 @@ class CesiumOmniverseWindow(ui.Window):
             # Cesium HQ
             CesiumOmniverse.setGeoreferenceOrigin(-75.1564977, 39.9501464, 150.0)
 
-            stage = omni.usd.get_context().get_stage()
+            stage_id = omni.usd.get_context().get_stage_id()
 
             tileset_id = CesiumOmniverse.addTilesetIon(
-                stage,
+                stage_id,
                 1,
                 "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyMjRhYzI0Yi1kNWEwLTQ4ZWYtYjdmZC1hY2JmYWIzYmFiMGUiLCJpZCI6NDQsImlhdCI6MTY2NzQ4OTg0N30.du0tvWptgLWsvM1Gnbv3Zw_pDAOILg1Wr6s2sgK-qlM",
             )
