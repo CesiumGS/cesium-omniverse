@@ -4,7 +4,7 @@
 #include <CesiumGeospatial/Transforms.h>
 #include <glm/gtc/matrix_transform.hpp>
 
-namespace Cesium {
+namespace cesium::omniverse {
 Georeference& Georeference::instance() {
     static Georeference georef;
     return georef;
@@ -17,4 +17,4 @@ void Georeference::setOrigin(const glm::dvec3& origin) {
     absToRelWorld = glm::inverse(relToAbsWorld);
     originChangeEvent.invoke(relToAbsWorld, absToRelWorld);
 }
-} // namespace Cesium
+} // namespace cesium::omniverse

@@ -270,13 +270,6 @@ cmake -B build -D CMAKE_C_COMPILER=cl -D CMAKE_CXX_COMPILER=cl -D CMAKE_CONFIGUR
 cmake --build build --config Release --parallel 8
 ```
 
-Shared libraries are built by default. To build static libraries run:
-
-```sh
-cmake -B build -D BUILD_SHARED_LIBS=OFF
-cmake --build build
-```
-
 ### CMake Options
 
 The following CMake options are available for configuring the project.

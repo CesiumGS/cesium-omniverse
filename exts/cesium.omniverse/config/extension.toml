@@ -43,5 +43,5 @@ name = "cesium.omniverse"
 [[native.library]]
 path = "bin/${lib_prefix}InMemoryAssetResolver${lib_ext}"
 
-[[native.library]]
-path = "bin/${lib_prefix}CesiumOmniverse${lib_ext}"
+[[native.plugin]]
+path = "bin/cesium.omniverse.plugin"

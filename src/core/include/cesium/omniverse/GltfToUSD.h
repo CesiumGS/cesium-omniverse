@@ -12,7 +12,7 @@
 #include <filesystem>
 #include <string>
 
-namespace Cesium {
+namespace cesium::omniverse {
 struct GltfToUSD {
     static std::filesystem::path CesiumMemLocation;
     static pxr::UsdPrim convertToUSD(
@@ -24,4 +24,4 @@ struct GltfToUSD {
     static std::vector<std::byte> writeImageToBmp(const CesiumGltf::ImageCesium& img);
     static void insertRasterOverlayTexture(const pxr::SdfPath& parentPath, std::vector<std::byte>&& image);
 };
-} // namespace Cesium
+} // namespace cesium::omniverse

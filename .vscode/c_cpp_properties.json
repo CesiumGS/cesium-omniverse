@@ -18,8 +18,6 @@
         "CESIUM_OMNI_GCC",
         "CESIUM_OMNI_ENABLE_SANITIZERS",
         "CESIUM_OMNI_VERSION",
-        "CESIUM_OMNI_EXPORTS",
-        "CESIUM_OMNI_STATIC",
         "NOMINMAX"
       ],
       "cStandard": "c17",

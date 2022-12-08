@@ -2,7 +2,7 @@
 
 #include <zlib.h>
 
-namespace Cesium {
+namespace cesium::omniverse {
 namespace {
 std::string decodeGzip(std::string& content) {
     z_stream zs; // z_stream is zlib's control structure
@@ -112,4 +112,4 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> HttpAssetAccess
 }
 
 void HttpAssetAccessor::tick() noexcept {}
-} // namespace Cesium
+} // namespace cesium::omniverse

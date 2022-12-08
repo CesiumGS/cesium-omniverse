@@ -5,7 +5,7 @@
 #include <type_traits>
 #include <vector>
 
-namespace Cesium {
+namespace cesium::omniverse {
 template <class TYPE> using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<TYPE>>;
 
 template <class... ARGS> class event_handler;
@@ -228,4 +228,4 @@ template <class... ARGS> event<ARGS...>* event_handler<ARGS...>::connected_event
 template <class... ARGS> template <class FUNCTION> void event_handler<ARGS...>::set_callback(FUNCTION&& func) {
     _callback = std::forward<FUNCTION>(func);
 }
-} // namespace Cesium
+} // namespace cesium::omniverse

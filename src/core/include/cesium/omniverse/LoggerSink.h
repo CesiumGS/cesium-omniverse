@@ -7,7 +7,7 @@
 #include <mutex>
 #include <string>
 
-namespace Cesium {
+namespace cesium::omniverse {
 class LoggerSink : public spdlog::sinks::base_sink<spdlog::details::null_mutex> {
   protected:
     void sink_it_(const spdlog::details::log_msg& msg) override;
@@ -19,4 +19,4 @@ class LoggerSink : public spdlog::sinks::base_sink<spdlog::details::null_mutex> 
 
     std::mutex _formatMutex;
 };
-} // namespace Cesium
+} // namespace cesium::omniverse

@@ -3,7 +3,7 @@
 #include <CesiumAsync/ITaskProcessor.h>
 #include <pxr/base/work/dispatcher.h>
 
-namespace Cesium {
+namespace cesium::omniverse {
 class TaskProcessor : public CesiumAsync::ITaskProcessor {
   public:
     void startTask(std::function<void()> f) override;
@@ -11,4 +11,4 @@ class TaskProcessor : public CesiumAsync::ITaskProcessor {
   private:
     pxr::WorkDispatcher _dispatcher;
 };
-} // namespace Cesium
+} // namespace cesium::omniverse
