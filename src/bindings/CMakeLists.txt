@@ -10,6 +10,9 @@ endif()
 
 # cmake-format: off
 setup_python_module(
+    PYTHON_DIR
+        # Use the same Python version as Omniverse (Python 3.7)
+        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/python"
     TARGET_NAME
         CesiumOmniversePythonBindings
     SOURCES

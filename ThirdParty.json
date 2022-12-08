@@ -32,6 +32,14 @@
         "url": "https://github.com/openssl/openssl"
     },
     {
+        "name": "pybind11",
+        "license": [
+            "BSD-3-Clause"
+        ],
+        "version": "2.10.0",
+        "url": "https://github.com/pybind/pybind11"
+    },
+    {
         "name": "stb",
         "license": [
             "Unlicense",

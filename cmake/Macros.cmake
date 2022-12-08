@@ -59,7 +59,7 @@ function(setup_python_module)
     cmake_parse_arguments(
         ""
         ""
-        "TARGET_NAME"
+        "TARGET_NAME;PYTHON_DIR"
         "SOURCES;LIBRARIES;DEPENDENCIES;CXX_FLAGS;CXX_FLAGS_DEBUG;CXX_DEFINES;CXX_DEFINES_DEBUG"
         ${ARGN})
 
@@ -89,19 +89,38 @@ function(setup_python_module)
     set_target_properties(${_TARGET_NAME} PROPERTIES RELWITHDEBINFO_POSTFIX "")
     set_target_properties(${_TARGET_NAME} PROPERTIES MINSIZEREL_POSTFIX "")
 
-    # Equivalent to pybind11_extension()
-    set_target_properties(${_TARGET_NAME} PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}")
-    set_target_properties(${_TARGET_NAME} PROPERTIES SUFFIX "${PYTHON_MODULE_EXTENSION}")
+    if(_PYTHON_DIR)
+        # Using a specific version of Python
+        # Since we called find_package already in the root CMakeLists we have
+        # to unset some variables. These are the variables that pybind11 cares about.
+        unset(Python3_EXECUTABLE)
+        unset(Python3_INTERPRETER_ID)
+        unset(Python3_VERSION)
+        unset(Python3_INCLUDE_DIRS)
 
-    # Equivalent to pybind11::opt_size
-    if(MSVC)
-        set(OPT_SIZE /Os)
-    else()
-        set(OPT_SIZE -Os)
+        set(Python3_ROOT_DIR "${_PYTHON_DIR}")
+        find_package(
+            Python3
+            COMPONENTS Interpreter Development
+            REQUIRED)
     endif()
 
-    target_compile_options(${_TARGET_NAME} PRIVATE $<$<CONFIG:Release>:${OPT_SIZE}> $<$<CONFIG:MinSizeRel>:${OPT_SIZE}>
-                                                   $<$<CONFIG:RelWithDebInfo>:${OPT_SIZE}>)
+    # We only use pybind11 from conan for its cmake helpers
+    # Note that we don't link pybind11::headers, pybind11::module, or pybind11::embed
+    # The code below is a simplified version of pybind11_add_module: https://github.com/pybind/pybind11/blob/master/tools/pybind11NewTools.cmake#L174
+    find_package(pybind11)
+
+    pybind11_extension(${_TARGET_NAME})
+
+    if(NOT DEFINED CMAKE_INTERPROCEDURAL_OPTIMIZATION)
+        target_link_libraries(${_TARGET_NAME} PRIVATE pybind11::lto)
+    endif()
+
+    if(MSVC)
+        target_link_libraries(${_TARGET_NAME} PRIVATE pybind11::windows_extras)
+    endif()
+
+    target_link_libraries(${_TARGET_NAME} PRIVATE pybind11::opt_size)
 
     if(WIN32)
         add_custom_command(
