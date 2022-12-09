@@ -407,6 +407,59 @@ pxr::UsdShadeMaterial convertMaterialToUSD(
     return materialUsd;
 }
 
+pxr::UsdShadeMaterial convertMaterialToUSD_OmniPBR(
+    pxr::UsdStageRefPtr& stage,
+    const pxr::SdfPath& parentPath,
+    const std::vector<pxr::SdfAssetPath>& usdTexturePaths,
+    const bool hasRasterOverlay,
+    const pxr::SdfAssetPath& rasterOverlayPath,
+    [[maybe_unused]]const CesiumGltf::Material& material,
+    int32_t materialIdx) {
+    std::string materialName = fmt::format("material_{}", materialIdx);
+    pxr::SdfPath materialPath = parentPath.AppendChild(pxr::TfToken(materialName));
+    pxr::UsdShadeMaterial materialUsd = pxr::UsdShadeMaterial::Define(stage, materialPath);
+
+    const auto& pbrMetallicRoughness = material.pbrMetallicRoughness;
+    pxr::UsdShadeShader pbrShader = pxr::UsdShadeShader::Define(stage, materialPath.AppendChild(pxr::TfToken("OmniPBR")));
+    pbrShader.SetSourceAsset(pxr::SdfAssetPath("OmniPBR.mdl"), pxr::TfToken("mdl"));
+    pbrShader.SetSourceAssetSubIdentifier(pxr::TfToken("OmniPBR"), pxr::TfToken("mdl"));
+    pbrShader.CreateIdAttr(pxr::VtValue(pxr::TfToken("OmniPBR")));
+
+    const auto setupDiffuseTexture = [&stage, &materialPath, &pbrShader](const pxr::SdfAssetPath& texturePath, [[maybe_unused]]const size_t texCoord) {
+        auto input = pbrShader.CreateInput(pxr::TfToken("diffuse_texture"), pxr::SdfValueTypeNames->Asset);
+        input.Set(texturePath);
+
+        auto attr = input.GetAttr();
+        attr.SetColorSpace(pxr::TfToken("sRGB"));
+        attr.SetDisplayGroup(std::string("Albedo"));
+        attr.SetDisplayName(std::string("Albedo Map"));
+
+        // TODO: Figure out if this is needed.
+        attr.SetCustomDataByKey(pxr::TfToken("default"), pxr::VtValue(pxr::SdfAssetPath("")));
+    };
+
+    if (hasRasterOverlay) {
+        setupDiffuseTexture(rasterOverlayPath, 0);
+    } else if (pbrMetallicRoughness->baseColorTexture) {
+        auto baseColorIndex = static_cast<std::size_t>(pbrMetallicRoughness->baseColorTexture->index);
+        const pxr::SdfAssetPath& texturePath = usdTexturePaths[baseColorIndex];
+        auto baseColorTexCoord = static_cast<std::size_t>(pbrMetallicRoughness->baseColorTexture->texCoord);
+        setupDiffuseTexture(texturePath, baseColorTexCoord);
+    } else {
+        pbrShader.CreateInput(pxr::TfToken("diffuse_color_constant"), pxr::SdfValueTypeNames->Vector3f)
+            .Set(pxr::GfVec3f(
+                static_cast<float>(pbrMetallicRoughness->baseColorFactor[0]),
+                static_cast<float>(pbrMetallicRoughness->baseColorFactor[1]),
+                static_cast<float>(pbrMetallicRoughness->baseColorFactor[2])));
+    }
+
+    materialUsd.CreateSurfaceOutput(pxr::TfToken("mdl")).ConnectToSource(pbrShader.ConnectableAPI(), pxr::TfToken("out"));
+    materialUsd.CreateDisplacementOutput(pxr::TfToken("mdl")).ConnectToSource(pbrShader.ConnectableAPI(), pxr::TfToken("out"));
+    materialUsd.CreateVolumeOutput(pxr::TfToken("mdl")).ConnectToSource(pbrShader.ConnectableAPI(), pxr::TfToken("out"));
+
+    return materialUsd;
+}
+
 void convertMeshToUSD(
     pxr::UsdStageRefPtr& stage,
     const pxr::SdfPath& parentPath,
@@ -577,8 +630,18 @@ pxr::UsdPrim GltfToUSD::convertToUSD(
 
     std::vector<pxr::UsdShadeMaterial> materialUSDs;
     materialUSDs.reserve(model.materials.size());
+    // for (std::size_t i = 0; i < model.materials.size(); ++i) {
+    //     materialUSDs.emplace_back(convertMaterialToUSD(
+    //         stage,
+    //         modelPath,
+    //         textureUSDPaths,
+    //         hasRasterOverlay,
+    //         rasterOverlayTexturePath,
+    //         model.materials[i],
+    //         int32_t(i)));
+    // }
     for (std::size_t i = 0; i < model.materials.size(); ++i) {
-        materialUSDs.emplace_back(convertMaterialToUSD(
+        materialUSDs.emplace_back(convertMaterialToUSD_OmniPBR(
             stage,
             modelPath,
             textureUSDPaths,
