@@ -77,7 +77,7 @@ setup_lib(
         boost_python37
         tbb
         carb
-        cuda
+        cudart
         pybind11
         python37
     DEPENDENCIES
