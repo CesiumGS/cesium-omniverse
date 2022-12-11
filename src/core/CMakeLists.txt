@@ -52,7 +52,6 @@ setup_lib(
         cpr::cpr
         stb::stb
         ZLIB::ZLIB
-        usdrt
         ar
         arch
         gf

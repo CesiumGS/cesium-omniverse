@@ -31,8 +31,7 @@ icon = "doc/images/icon.png"
 
 # Which extensions this extension depends on
 [dependencies]
-# usdrt.scenegraph depends on omni.usd.libs
-"usdrt.scenegraph" = {}
+"omni.usd.libs" = {}
 "omni.kit.uiapp" = {}
 "omni.kit.viewport.utility" = {}
 
