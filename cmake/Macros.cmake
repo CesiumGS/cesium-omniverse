@@ -305,18 +305,38 @@ function(add_prebuilt_project)
         ""
         ""
         "RELEASE_INCLUDE_DIR;DEBUG_INCLUDE_DIR;RELEASE_LIBRARY_DIR;RELEASE_DLL_DIR;DEBUG_LIBRARY_DIR;DEBUG_DLL_DIR"
-        "RELEASE_LIBRARIES;DEBUG_LIBRARIES;TARGET_NAMES"
+        "RELEASE_LIBRARIES;RELEASE_DLL_LIBRARIES;DEBUG_LIBRARIES;DEBUG_DLL_LIBRARIES;TARGET_NAMES"
         ${ARGN})
+
+    if(NOT DEFINED _RELEASE_DLL_LIBRARIES)
+        set(_RELEASE_DLL_LIBRARIES ${_RELEASE_LIBRARIES})
+    endif()
+
+    if(NOT DEFINED _DEBUG_DLL_LIBRARIES)
+        set(_DEBUG_DLL_LIBRARIES ${_DEBUG_LIBRARIES})
+    endif()
+
+    if(NOT DEFINED _RELEASE_DLL_DIR)
+        set(_RELEASE_DLL_DIR ${_RELEASE_LIBRARY_DIR})
+    endif()
+
+    if(NOT DEFINED _DEBUG_DLL_DIR)
+        set(_DEBUG_DLL_DIR ${_DEBUG_LIBRARY_DIR})
+    endif()
 
     foreach(
         lib IN
         ZIP_LISTS
         _TARGET_NAMES
         _RELEASE_LIBRARIES
-        _DEBUG_LIBRARIES)
+        _RELEASE_DLL_LIBRARIES
+        _DEBUG_LIBRARIES
+        _DEBUG_DLL_LIBRARIES)
         set(TARGET_NAME ${lib_0})
         set(RELEASE_NAME ${lib_1})
-        set(DEBUG_NAME ${lib_2})
+        set(RELEASE_DLL_NAME ${lib_2})
+        set(DEBUG_NAME ${lib_3})
+        set(DEBUG_DLL_NAME ${lib_4})
         add_library(
             ${TARGET_NAME}
             SHARED
@@ -343,14 +363,8 @@ $<$<CONFIG:MinSizeRel>:${_RELEASE_INCLUDE_DIR}>")
                 PATHS ${_DEBUG_LIBRARY_DIR}
                 NO_DEFAULT_PATH NO_CACHE)
 
-            if(_RELEASE_DLL_DIR AND _DEBUG_DLL_DIR)
-                set(${TARGET_NAME}_LIBRARY_RELEASE "${_RELEASE_DLL_DIR}/${RELEASE_NAME}.dll")
-                set(${TARGET_NAME}_LIBRARY_DEBUG "${_DEBUG_DLL_DIR}/${DEBUG_NAME}.dll")
-            else()
-                set(${TARGET_NAME}_LIBRARY_RELEASE "${_RELEASE_LIBRARY_DIR}/${RELEASE_NAME}.dll")
-                set(${TARGET_NAME}_LIBRARY_DEBUG "${_DEBUG_LIBRARY_DIR}/${DEBUG_NAME}.dll")
-            endif()
-
+            set(${TARGET_NAME}_LIBRARY_RELEASE "${_RELEASE_DLL_DIR}/${RELEASE_DLL_NAME}.dll")
+            set(${TARGET_NAME}_LIBRARY_DEBUG "${_DEBUG_DLL_DIR}/${DEBUG_DLL_NAME}.dll")
         else()
             find_library(
                 ${TARGET_NAME}_LIBRARY_RELEASE

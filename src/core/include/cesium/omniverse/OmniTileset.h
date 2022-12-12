@@ -16,7 +16,7 @@
 #include <memory>
 #include <vector>
 
-namespace Cesium {
+namespace cesium::omniverse {
 class OmniTileset {
   public:
     OmniTileset(const pxr::UsdStageRefPtr& stage, const std::string& url);
@@ -40,4 +40,4 @@ class OmniTileset {
     OriginShiftHandler originShiftHandler;
     CesiumUtility::IntrusivePointer<Cesium3DTilesSelection::IonRasterOverlay> rasterOverlay;
 };
-} // namespace Cesium
+} // namespace cesium::omniverse

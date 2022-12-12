@@ -1,4 +1,4 @@
-from .bindings import CesiumOmniversePythonBindings as CesiumOmniverse
+from .bindings.CesiumOmniversePythonBindings import *
 from .window import CesiumOmniverseWindow
 import asyncio
 from functools import partial
@@ -11,6 +11,13 @@ import os
 from typing import Optional
 
 cesium_mem_location = os.path.join(os.path.dirname(__file__), "../../bin")
+
+# Global public interface object.
+_cesium_omniverse_interface: ICesiumOmniverseInterface = None
+
+# Public API.
+def get_cesium_omniverse_interface() -> ICesiumOmniverseInterface:
+    return _cesium_omniverse_interface
 
 
 class CesiumOmniverseWindowExtension(omni.ext.IExt):
@@ -38,7 +45,11 @@ class CesiumOmniverseWindowExtension(omni.ext.IExt):
             )
 
         self._logger.info("CesiumOmniverse startup")
-        CesiumOmniverse.initialize(cesium_mem_location)
+
+        # Acquire the Cesium Omniverse interface.
+        global _cesium_omniverse_interface
+        _cesium_omniverse_interface = acquire_cesium_omniverse_interface()
+        _cesium_omniverse_interface.initialize(cesium_mem_location)
 
         # Show the window. It will call `self.show_window`
         ui.Workspace.show_window(CesiumOmniverseWindowExtension.WINDOW_NAME)
@@ -53,7 +64,12 @@ class CesiumOmniverseWindowExtension(omni.ext.IExt):
         ui.Workspace.set_show_window_fn(CesiumOmniverseWindowExtension.WINDOW_NAME, None)
 
         self._logger.info("CesiumOmniverse shutdown")
-        CesiumOmniverse.finalize()
+
+        # Release the Cesium Omniverse interface.
+        global _cesium_omniverse_interface
+        _cesium_omniverse_interface.finalize()
+        release_cesium_omniverse_interface(_cesium_omniverse_interface)
+        _cesium_omniverse_interface = None
 
     def _set_menu(self, value):
         # Set the menu to create this window on and off
@@ -77,7 +93,9 @@ class CesiumOmniverseWindowExtension(omni.ext.IExt):
 
     def show_window(self, menu, value):
         if value:
-            self._window = CesiumOmniverseWindow(CesiumOmniverseWindowExtension.WINDOW_NAME, width=300, height=365)
+            self._window = CesiumOmniverseWindow(
+                _cesium_omniverse_interface, CesiumOmniverseWindowExtension.WINDOW_NAME, width=300, height=365
+            )
             self._window.set_visibility_changed_fn(self._visiblity_changed_fn)
         elif self._window is not None:
             self._window.visible = False

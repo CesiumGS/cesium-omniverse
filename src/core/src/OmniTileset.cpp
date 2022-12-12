@@ -16,7 +16,7 @@
 #include <CesiumGltf/Material.h>
 #include <glm/glm.hpp>
 
-namespace Cesium {
+namespace cesium::omniverse {
 static std::shared_ptr<TaskProcessor> taskProcessor;
 static std::shared_ptr<HttpAssetAccessor> httpAssetAccessor;
 static std::shared_ptr<Cesium3DTilesSelection::CreditSystem> creditSystem;
@@ -147,4 +147,4 @@ void OmniTileset::initOriginShiftHandler() {
     originShiftHandler.connect(Georeference::instance().originChangeEvent);
     this->renderResourcesPreparer->setTransform(Georeference::instance().absToRelWorld);
 }
-} // namespace Cesium
+} // namespace cesium::omniverse

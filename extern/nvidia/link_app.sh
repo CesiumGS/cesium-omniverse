@@ -3,6 +3,5 @@
 set -e
 
 SCRIPT_DIR=$(dirname ${BASH_SOURCE})
-cd "$SCRIPT_DIR"
 
-exec "tools/packman/python.sh" scripts/link_app.py $@
+source "$SCRIPT_DIR/tools/packman/python.sh" "$SCRIPT_DIR/scripts/link_app.py" ${ARGS_ARRAY_FLATTENED[@]} || exit $?

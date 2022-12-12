@@ -158,11 +158,6 @@ set(CMAKE_LINK_WHAT_YOU_USE ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
-# Build shared libraries by default
-if(NOT DEFINED BUILD_SHARED_LIBS)
-    set(BUILD_SHARED_LIBS ON)
-endif()
-
 # defines CMAKE_INSTALL_LIBDIR, CMAKE_INSTALL_BINDIR, and CMAKE_INSTALL_INCLUDEDIR for OS-dependent build locations.
 # See https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html
 include(GNUInstallDirs)
@@ -513,7 +508,7 @@ install(
 
 # TODO: this is also installing the .lib. How to avoid that?
 install(
-    TARGETS CesiumOmniverse
+    TARGETS cesium.omniverse.plugin
             RUNTIME_DEPENDENCIES
             DIRECTORIES
             ${INSTALL_SEARCH_PATHS}
@@ -526,7 +521,7 @@ install(
     RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT install)
 
 install(
-    TARGETS CesiumOmniverse
+    TARGETS cesium.omniverse.plugin
     ARCHIVE DESTINATION ${KIT_EXTENSION_BIN_PATH}
             COMPONENT kit
             EXCLUDE_FROM_ALL
