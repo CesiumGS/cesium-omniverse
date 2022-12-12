@@ -13,7 +13,7 @@ from typing import Optional
 cesium_mem_location = os.path.join(os.path.dirname(__file__), "../../bin")
 
 # Global public interface object.
-_cesium_omniverse_interface = None
+_cesium_omniverse_interface: ICesiumOmniverseInterface = None
 
 # Public API.
 def get_cesium_omniverse_interface() -> ICesiumOmniverseInterface:

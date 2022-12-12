@@ -73,7 +73,7 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
 } // namespace cesium::omniverse
 
 const struct carb::PluginImplDesc pluginImplDesc =
-    {"cesium.omniverse.plugin", "Cesium Omniverse Carbonite Plugin.", "Cesium", carb::PluginHotReload::eEnabled, "dev"};
+    {"cesium.omniverse.plugin", "Cesium Omniverse Carbonite Plugin.", "Cesium", carb::PluginHotReload::eDisabled, "dev"};
 
 CARB_PLUGIN_IMPL(pluginImplDesc, cesium::omniverse::CesiumOmniversePlugin)
 
