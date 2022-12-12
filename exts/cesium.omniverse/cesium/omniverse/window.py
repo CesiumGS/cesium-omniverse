@@ -81,7 +81,6 @@ class CesiumOmniverseWindow(ui.Window):
 
             app = omni_app.get_app()
             omni_settings.get_settings().set("/rtx/hydra/TBNFrameMode", 1)
-            omni_settings.get_settings().set("/rtx/materialDb/syncLoads", True)
             self._subscription_handle = app.get_update_event_stream().create_subscription_to_pop(
                 on_update_frame, name="cesium_update_frame"
             )

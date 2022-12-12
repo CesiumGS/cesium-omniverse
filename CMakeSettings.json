@@ -10,7 +10,14 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
-      "cmakeExecutable": "C:\\Program Files\\CMake\\bin\\cmake.exe"
+      "cmakeExecutable": "C:\\Program Files\\CMake\\bin\\cmake.exe",
+      "variables": [
+        {
+          "name": "CESIUM_OMNI_ENABLE_OMNIPBR",
+          "value": "True",
+          "type": "BOOL"
+        }
+      ]
     },
     {
       "name": "x64-RelWithDebInfo",

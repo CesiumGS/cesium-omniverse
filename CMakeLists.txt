@@ -77,6 +77,7 @@ option(CESIUM_OMNI_ENABLE_TESTS "Unit tests" ON)
 option(CESIUM_OMNI_ENABLE_DOCUMENTATION "Generate HTML documentation with Doxygen" ON)
 option(CESIUM_OMNI_ENABLE_SANITIZERS "Check for undefined behavior at runtime" OFF)
 option(CESIUM_OMNI_ENABLE_LINTERS "Enable clang-format for code formatting and clang-tidy for static code analysis" ON)
+option(CESIUM_OMNI_ENABLE_OMNIPBR "Use OmniPBR for Materials" ON)
 
 # Coverage can only be enabled if tests are also enabled
 cmake_dependent_option(
@@ -359,6 +360,10 @@ endif()
 # See https://gcc.gnu.org/onlinedocs/libstdc++/manual/using_dual_abi.html
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} _GLIBCXX_USE_CXX11_ABI=0)
+endif()
+
+if(CESIUM_OMNI_ENABLE_OMNIPBR)
+    set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} CESIUM_OMNI_USE_OMNIPBR)
 endif()
 
 set(CESIUM_OMNI_CXX_FLAGS
