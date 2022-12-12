@@ -234,11 +234,50 @@ add_prebuilt_project_header_only(
 )
 # cmake-format: on
 
-# cmake-format: off
-add_prebuilt_project_header_only(
-    INCLUDE_DIR
-        "${CUDA_ROOT}"
-    TARGET_NAME
-        cuda
-)
-# cmake-format: on
+if(WIN32)
+    # cmake-format: off
+    add_prebuilt_project(
+        RELEASE_INCLUDE_DIR
+            "${CUDA_ROOT}"
+        DEBUG_INCLUDE_DIR
+            "${CUDA_ROOT}"
+        RELEASE_LIBRARY_DIR
+            "${CUDA_ROOT}/cuda/lib/x64"
+        RELEASE_DLL_DIR
+            "${CUDA_ROOT}/cuda/bin"
+        DEBUG_LIBRARY_DIR
+            "${CUDA_ROOT}/cuda/lib/x64"
+        DEBUG_DLL_DIR
+            "${CUDA_ROOT}/cuda/bin"
+        RELEASE_LIBRARIES
+            cudart
+        DEBUG_LIBRARIES
+            cudart
+        RELEASE_DLL_LIBRARIES
+            cudart64_110
+        DEBUG_DLL_LIBRARIES
+            cudart64_110
+        TARGET_NAMES
+            cudart
+    )
+    # cmake-format: on
+else()
+    # cmake-format: off
+    add_prebuilt_project(
+        RELEASE_INCLUDE_DIR
+            "${CUDA_ROOT}"
+        DEBUG_INCLUDE_DIR
+            "${CUDA_ROOT}"
+        RELEASE_LIBRARY_DIR
+            "${CUDA_ROOT}/cuda/lib64"
+        DEBUG_LIBRARY_DIR
+            "${CUDA_ROOT}/cuda/lib64"
+        RELEASE_LIBRARIES
+            cudart
+        DEBUG_LIBRARIES
+            cudart
+        TARGET_NAMES
+            cudart
+    )
+    # cmake-format: on
+endif()

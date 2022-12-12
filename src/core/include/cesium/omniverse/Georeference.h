@@ -4,7 +4,7 @@
 
 #include <glm/glm.hpp>
 
-namespace Cesium {
+namespace cesium::omniverse {
 using OriginShiftHandler = event_handler<const glm::dmat4&, const glm::dmat4&>;
 
 class Georeference {
@@ -17,4 +17,4 @@ class Georeference {
     glm::dmat4 absToRelWorld{1.0};
     glm::dmat4 relToAbsWorld{1.0};
 };
-} // namespace Cesium
+} // namespace cesium::omniverse

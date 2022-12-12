@@ -15,7 +15,7 @@
 // TF_DEFINE_PRIVATE_TOKENS(_tileTokens, (visibility)(invisible)(visible));
 // }
 
-namespace Cesium {
+namespace cesium::omniverse {
 static std::atomic<std::uint64_t> tileID;
 
 RenderResourcesPreparer::RenderResourcesPreparer(const pxr::UsdStageRefPtr& stage_, const pxr::SdfPath& tilesetPath_)
@@ -207,4 +207,4 @@ void RenderResourcesPreparer::detachRasterInMainThread(
     [[maybe_unused]] int32_t overlayTextureCoordinateID,
     [[maybe_unused]] const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
     [[maybe_unused]] void* pMainThreadRendererResources) noexcept {}
-} // namespace Cesium
+} // namespace cesium::omniverse

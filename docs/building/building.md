@@ -29,7 +29,7 @@
 See [Linux](#linux) or [Windows](#windows) for step-by-step installation instructions
 
 - Linux (Ubuntu 22.04+ or equivalent) or Windows
-- Clang 12+, GCC 9 (higher versions do not work with USD), or Visual Studio 2022+
+- Clang 14+, GCC 9+, or Visual Studio 2022+
 - Python 3.7+ - For Conan and scripts
 - CMake 3.24+ - Build system generator
 - Make - Build system (Linux only)
@@ -270,13 +270,6 @@ cmake -B build -D CMAKE_C_COMPILER=cl -D CMAKE_CXX_COMPILER=cl -D CMAKE_CONFIGUR
 cmake --build build --config Release --parallel 8
 ```
 
-Shared libraries are built by default. To build static libraries run:
-
-```sh
-cmake -B build -D BUILD_SHARED_LIBS=OFF
-cmake --build build
-```
-
 ### CMake Options
 
 The following CMake options are available for configuring the project.
@@ -443,6 +436,28 @@ Each workspace contains recommended extensions and settings for VSCode developme
 {
   "version": "0.2.0",
   "configurations": [
+    {
+      "name": "Kit App",
+      "preLaunchTask": "Build (debug)",
+      "program": "${workspaceFolder}/extern/nvidia/app/kit/kit",
+      "args": [
+        "${workspaceFolder}/apps/cesium.omniverse.app.kit"
+      ],
+      "cwd": "${workspaceFolder}",
+      "type": "lldb",
+      "request": "launch",
+      "console": "integratedTerminal",
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        },
+        {
+          "text": "set print elements 0"
+        }
+      ]
+    },
     {
       "name": "Test",
       "preLaunchTask": "Build (debug)",

@@ -11,7 +11,7 @@
 #include <pxr/usd/usd/prim.h>
 #include <pxr/usd/usdGeom/xform.h>
 
-namespace Cesium {
+namespace cesium::omniverse {
 struct TileWorkerRenderResources {
     pxr::SdfLayerRefPtr layer;
     pxr::SdfPath primPath;
@@ -73,4 +73,4 @@ class RenderResourcesPreparer : public Cesium3DTilesSelection::IPrepareRendererR
     pxr::UsdStageRefPtr stage;
     pxr::SdfPath tilesetPath;
 };
-} // namespace Cesium
+} // namespace cesium::omniverse

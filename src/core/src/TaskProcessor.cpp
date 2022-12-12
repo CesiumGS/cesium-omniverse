@@ -2,8 +2,8 @@
 
 #include <spdlog/spdlog.h>
 
-namespace Cesium {
+namespace cesium::omniverse {
 void TaskProcessor::startTask(std::function<void()> f) {
     _dispatcher.Run(f);
 }
-} // namespace Cesium
+} // namespace cesium::omniverse

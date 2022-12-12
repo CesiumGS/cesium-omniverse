@@ -84,7 +84,7 @@ TF_DEFINE_PRIVATE_TOKENS(
 }
 // clang-format on
 
-namespace Cesium {
+namespace cesium::omniverse {
 
 namespace {
 bool isIdentityMatrix(const std::vector<double>& matrix) {
@@ -752,4 +752,4 @@ pxr::UsdPrim GltfToUSD::convertToUSD(
 
     return xform.GetPrim();
 }
-} // namespace Cesium
+} // namespace cesium::omniverse

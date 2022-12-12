@@ -5,7 +5,7 @@
 
 using namespace pxr;
 
-namespace Cesium {
+namespace cesium::omniverse {
 void LoggerSink::sink_it_([[maybe_unused]] const spdlog::details::log_msg& msg) {
     TF_STATUS(formatMessage(msg));
 }
@@ -22,4 +22,4 @@ std::string LoggerSink::formatMessage(const spdlog::details::log_msg& msg) {
     formatter_->format(msg, formatted);
     return fmt::to_string(formatted);
 }
-} // namespace Cesium
+} // namespace cesium::omniverse

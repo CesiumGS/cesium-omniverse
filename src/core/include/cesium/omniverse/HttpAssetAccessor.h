@@ -5,7 +5,7 @@
 #include <CesiumAsync/IAssetResponse.h>
 #include <cpr/cpr.h>
 
-namespace Cesium {
+namespace cesium::omniverse {
 class HttpAssetResponse : public CesiumAsync::IAssetResponse {
   public:
     HttpAssetResponse(cpr::Response&& response)
@@ -96,4 +96,4 @@ class HttpAssetAccessor : public CesiumAsync::IAssetAccessor {
 
     std::shared_ptr<cpr::Interceptor> _interceptor;
 };
-} // namespace Cesium
+} // namespace cesium::omniverse
