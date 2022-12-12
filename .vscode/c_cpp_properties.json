@@ -17,6 +17,7 @@
         "CESIUM_OMNI_MSVC",
         "CESIUM_OMNI_GCC",
         "CESIUM_OMNI_ENABLE_SANITIZERS",
+        "CESIUM_OMNI_ENABLE_OMNIPBR",
         "CESIUM_OMNI_VERSION",
         "NOMINMAX"
       ],
