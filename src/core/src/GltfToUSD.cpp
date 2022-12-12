@@ -370,7 +370,7 @@ pxr::UsdShadeMaterial convertMaterialToUSD_OmniPBR(
     const std::vector<pxr::SdfAssetPath>& usdTexturePaths,
     const bool hasRasterOverlay,
     const pxr::SdfAssetPath& rasterOverlayPath,
-    [[maybe_unused]]const CesiumGltf::Material& material,
+    [[maybe_unused]] const CesiumGltf::Material& material,
     int32_t materialIdx) {
     const std::string materialName = fmt::format("material_{}", materialIdx);
     pxr::SdfPath materialPath = parentPath.AppendChild(pxr::TfToken(materialName));
@@ -378,11 +378,7 @@ pxr::UsdShadeMaterial convertMaterialToUSD_OmniPBR(
 
     const auto& pbrMetallicRoughness = material.pbrMetallicRoughness;
     auto pbrShader = defineMdlShader_OmniPBR(
-        stage,
-        materialPath,
-        pxr::_tokens->OmniPBR,
-        pxr::SdfAssetPath("OmniPBR.mdl"),
-        pxr::_tokens->OmniPBR);
+        stage, materialPath, pxr::_tokens->OmniPBR, pxr::SdfAssetPath("OmniPBR.mdl"), pxr::_tokens->OmniPBR);
 
     const auto setupDiffuseTexture = [&stage, &materialPath, &pbrShader](const pxr::SdfAssetPath& texturePath) {
         const auto nvidiaSupportDefinitions = pxr::SdfAssetPath("nvidia/support_definitions.mdl");
@@ -395,30 +391,31 @@ pxr::UsdShadeMaterial convertMaterialToUSD_OmniPBR(
             nvidiaSupportDefinitions,
             pxr::_tokens->texture_coordinate_2d);
 
-        const auto iTexCoordInput = textureCoordinates2dShader.CreateInput(pxr::_tokens->i, pxr::SdfValueTypeNames->Int);
+        const auto iTexCoordInput =
+            textureCoordinates2dShader.CreateInput(pxr::_tokens->i, pxr::SdfValueTypeNames->Int);
         iTexCoordInput.Set(0);
         textureCoordinates2dShader.CreateOutput(pxr::_tokens->out, pxr::SdfValueTypeNames->Float2);
 
         // Set up lookup_color shader.
         auto lookupColorShader = defineMdlShader_OmniPBR(
-            stage,
-            materialPath,
-            pxr::_tokens->lookup_color,
-            nvidiaSupportDefinitions,
-            pxr::_tokens->lookup_color);
+            stage, materialPath, pxr::_tokens->lookup_color, nvidiaSupportDefinitions, pxr::_tokens->lookup_color);
 
-        const auto lookupColorTexInput = lookupColorShader.CreateInput(pxr::_tokens->tex, pxr::SdfValueTypeNames->Asset);
+        const auto lookupColorTexInput =
+            lookupColorShader.CreateInput(pxr::_tokens->tex, pxr::SdfValueTypeNames->Asset);
         lookupColorTexInput.Set(texturePath);
         lookupColorShader.CreateOutput(pxr::_tokens->out, pxr::SdfValueTypeNames->Color3f);
 
-        const auto lookupColorCoordInput = lookupColorShader.CreateInput(pxr::_tokens->coord, pxr::SdfValueTypeNames->Float2);
+        const auto lookupColorCoordInput =
+            lookupColorShader.CreateInput(pxr::_tokens->coord, pxr::SdfValueTypeNames->Float2);
         lookupColorCoordInput.ConnectToSource(textureCoordinates2dShader.GetOutput(pxr::_tokens->out));
 
-        // Set uv wrapping to clamp. 0 = clamp. See https://github.com/NVIDIA/MDL-SDK/blob/master/src/mdl/compiler/stdmodule/tex.mdl#L36
+        // Set uv wrapping to clamp. 0 = clamp. See
+        // https://github.com/NVIDIA/MDL-SDK/blob/master/src/mdl/compiler/stdmodule/tex.mdl#L36
         lookupColorShader.CreateInput(pxr::_tokens->wrap_u, pxr::SdfValueTypeNames->Int).Set(0);
         lookupColorShader.CreateInput(pxr::_tokens->wrap_v, pxr::SdfValueTypeNames->Int).Set(0);
 
-        const auto pbrShaderDiffuseColorInput = pbrShader.CreateInput(pxr::_tokens->diffuse_color_constant, pxr::SdfValueTypeNames->Color3f);
+        const auto pbrShaderDiffuseColorInput =
+            pbrShader.CreateInput(pxr::_tokens->diffuse_color_constant, pxr::SdfValueTypeNames->Color3f);
         pbrShaderDiffuseColorInput.ConnectToSource(lookupColorShader.GetOutput(pxr::_tokens->out));
     };
 
@@ -437,7 +434,8 @@ pxr::UsdShadeMaterial convertMaterialToUSD_OmniPBR(
     }
 
     materialUsd.CreateSurfaceOutput(pxr::_tokens->mdl).ConnectToSource(pbrShader.ConnectableAPI(), pxr::_tokens->out);
-    materialUsd.CreateDisplacementOutput(pxr::_tokens->mdl).ConnectToSource(pbrShader.ConnectableAPI(), pxr::_tokens->out);
+    materialUsd.CreateDisplacementOutput(pxr::_tokens->mdl)
+        .ConnectToSource(pbrShader.ConnectableAPI(), pxr::_tokens->out);
     materialUsd.CreateVolumeOutput(pxr::_tokens->mdl).ConnectToSource(pbrShader.ConnectableAPI(), pxr::_tokens->out);
 
     return materialUsd;
@@ -554,7 +552,7 @@ void convertMeshToUSD(
                 primVar.SetInterpolation(pxr::_tokens->vertex);
                 primVar.Set(st0);
             }
-            
+
             if (!st1.empty()) {
                 auto primVar = meshUsd.CreatePrimvar(pxr::_tokens->st_1, pxr::SdfValueTypeNames->TexCoord2fArray);
                 primVar.SetInterpolation(pxr::_tokens->vertex);
