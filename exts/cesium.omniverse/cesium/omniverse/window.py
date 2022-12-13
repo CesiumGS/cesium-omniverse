@@ -39,8 +39,9 @@ class CesiumOmniverseWindow(ui.Window):
     def destroy_subscription(self):
         """Unsubscribes from the subscription handler for frame updates."""
 
-        self._subscription_handle.unsubscribe()
-        self._subscription_handle = None
+        if self._subscription_handle is not None:
+            self._subscription_handle.unsubscribe()
+            self._subscription_handle = None
 
     def destroy(self):
         # It will destroy all the children
@@ -161,8 +162,7 @@ class CesiumOmniverseWindow(ui.Window):
                 tileset (Tileset): The desired tileset specified using the Tileset enumeration.
             """
 
-            if self._subscription_handle is not None:
-                self.destroy_subscription()
+            self.destroy_subscription()
 
             self.update_far_plane()
 
