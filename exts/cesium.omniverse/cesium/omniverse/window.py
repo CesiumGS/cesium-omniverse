@@ -162,8 +162,7 @@ class CesiumOmniverseWindow(ui.Window):
                 tileset (Tileset): The desired tileset specified using the Tileset enumeration.
             """
 
-            if self._subscription_handle is not None:
-                self.destroy_subscription()
+            self.destroy_subscription()
 
             self.update_far_plane()
 
