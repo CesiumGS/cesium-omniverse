@@ -13,13 +13,13 @@
     # Windows
     cmake -B build
     cmake --build build --config Release
-    cmake --install build --config Release --component kit
+    cmake --install build --config Release
     ```
     ```sh
     # Linux
     cmake -B build -D CMAKE_BUILD_TYPE=Release
     cmake --build build
-    cmake --install build --component kit
+    cmake --install build
     ```
 
 ## Running
