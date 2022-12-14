@@ -101,7 +101,7 @@ function(setup_python_module)
         set(Python3_ROOT_DIR "${_PYTHON_DIR}")
         find_package(
             Python3
-            COMPONENTS Interpreter Development
+            COMPONENTS Interpreter
             REQUIRED)
     endif()
 
@@ -254,6 +254,7 @@ $<$<CONFIG:MinSizeRel>:${_EXPECTED_MINSIZEREL_POSTFIX}>")
             1 # Set this to 0 to always skip the external project build step. Be sure to reset to 1 when modifying cesium-native as it's needed there.
         LIST_SEPARATOR | # Use the alternate list separator
         CMAKE_ARGS -DBUILD_SHARED_LIBS=OFF
+                   -DCMAKE_GENERATOR=${CMAKE_GENERATOR}
                    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                    -DCMAKE_CONFIGURATION_TYPES=${CMAKE_CONFIGURATION_TYPES_ALT_SEP}
                    -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}

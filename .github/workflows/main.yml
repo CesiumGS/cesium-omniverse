@@ -21,7 +21,7 @@ jobs:
               cc: 'cl',
               cxx: 'cl',
               build-type: 'Release',
-              generator: 'Visual Studio 17 2022',
+              generator: 'Ninja Multi-Config',
               coverage: 'false',
             }
           - {
@@ -39,6 +39,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
+      - uses: ilammy/msvc-dev-cmd@v1
 
       # Tell Conan to look for or create its build folder (.conan) in the repository's root directory
       # This is partly done to make the directory easily accessible to Docker builds
@@ -83,25 +84,14 @@ jobs:
           choco install -y conan
           echo "C:/Program Files/conan/conan" >> $env:GITHUB_PATH
 
-      # Support parallelization on Windows
-      - name: Set MSVC build parallelization
-        if: runner.os == 'Windows'
-        run: echo "UseMultiToolTask=true" >> $env:GITHUB_ENV
-
       # Note: CMAKE_BUILD_TYPE is only used by Linux. It is ignored for Windows.
       # Note: CMAKE_CONFIGURATION_TYPES is used by Windows to generate a single configuration for Release since we don't need Debug, RelWithDebugInfo, and MinSizeRel on CI. It is ignored for Linux.
       - name: Configure
         run: cmake -B build -D CMAKE_C_COMPILER=${{ matrix.config.cc }} -D CMAKE_CXX_COMPILER=${{ matrix.config.cxx }} -D CMAKE_BUILD_TYPE=${{ matrix.config.build-type }} -D CMAKE_CONFIGURATION_TYPES=${{ matrix.config.build-type }} -G "${{ matrix.config.generator }}"
 
       # Note: GitHub Actions only has 2 cores
-      - name: Build (Unix)
-        if: runner.os == 'Linux'
-        run: cmake --build build --parallel 2
-
-      # Note: Parallelization is handled by UseMultiToolTask environment variable set above
-      - name: Build (Windows)
-        if: runner.os == 'Windows'
-        run: cmake --build build --config ${{ matrix.config.build-type }}
+      - name: Build
+        run: cmake --build build --config ${{ matrix.config.build-type }} --parallel 2
 
       - name: Check Formatting
         run: cmake --build build --target clang-format-check-all --config ${{ matrix.config.build-type }}

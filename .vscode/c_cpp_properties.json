@@ -1,28 +1,10 @@
 // This file configures IntelliSense for the VSCode C/C++ extension
-// Note that the VSCode C/C++ extension does not currently support clang-tidy: https://github.com/microsoft/vscode-cpptools/issues/2908
 // This file is ignored when using the VSCode clangd extension, which is recommended for Linux and macOS
 {
   "configurations": [
     {
-      // MSVC doesn't output compile_commands.json so we try to provide the right compiler settings here.
-      // Note that defines aren't set and won't show up in IntelliSense because they change depending on the build
-      // configuration (Debug or Release)
       "name": "Win32",
-      "includePath": [
-        "${workspaceFolder}/**",
-        "${env:UserProfile}/.conan/**"
-      ],
-      "defines": [
-        "CESIUM_OMNI_WINDOWS",
-        "CESIUM_OMNI_MSVC",
-        "CESIUM_OMNI_GCC",
-        "CESIUM_OMNI_ENABLE_SANITIZERS",
-        "CESIUM_OMNI_ENABLE_OMNIPBR",
-        "CESIUM_OMNI_VERSION",
-        "NOMINMAX"
-      ],
-      "cStandard": "c17",
-      "cppStandard": "c++17"
+      "compileCommands": "${workspaceFolder}/compile_commands.json"
     },
     {
       "name": "Linux",
