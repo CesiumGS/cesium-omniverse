@@ -266,7 +266,7 @@ Note that Windows (MSVC) is a multi-configuration generator meaning all four bui
 Ninja is also supported as an alternative to the MSVC generator. To build with Ninja locally open `x64 Native Tools Command Prompt for VS 2022` and run:
 
 ```
-cmake -B build -D CMAKE_C_COMPILER=cl -D CMAKE_CXX_COMPILER=cl -G Ninja
+cmake -B build -D CMAKE_C_COMPILER=cl -D CMAKE_CXX_COMPILER=cl -G "Ninja Multi-Config"
 cmake --build build --config Release --parallel 8
 ```
 
