@@ -118,8 +118,8 @@ jobs:
         if: runner.os == 'Linux'
         run: cmake --build build --target generate-documentation --config ${{ matrix.config.build-type }}
 
-      - name: Install (Default)
-        run: cmake --install build --config ${{ matrix.config.build-type }} --prefix install-default --component install
+      - name: Install (Default/Kit)
+        run: cmake --install build --config ${{ matrix.config.build-type }} --prefix install-default
 
-      - name: Install (Kit)
-        run: cmake --install build --config ${{ matrix.config.build-type }} --prefix install-kit --component kit
+      - name: Install (Library)
+        run: cmake --install build --config ${{ matrix.config.build-type }} --prefix install-library --component library

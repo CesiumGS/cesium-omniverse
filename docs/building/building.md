@@ -334,11 +334,20 @@ Once finished, documentation will be located at `build/docs/html/index.html`.
 
 ## Installing
 
-To install `CesiumOmniverse` onto the local system run:
+To install `CesiumOmniverse` into the Omniverse Kit extension run:
 
 ```sh
 cmake -B build
 cmake --build build --target install
+```
+
+This will install the libraries to `exts/cesium.omniverse/bin`.
+
+To install `CesiumOmniverse` onto the local system run:
+
+```sh
+cmake -B build
+cmake --build build --target install --component library
 ```
 
 By default executables will be installed to `/usr/local/bin`, libraries will be installed to `/usr/local/lib`, and includes will be installed to `/usr/local/include`.
@@ -347,7 +356,7 @@ To choose a custom install directory set `CMAKE_INSTALL_PREFIX`:
 
 ```sh
 cmake -B build -D CMAKE_INSTALL_PREFIX=$HOME/Desktop/CesiumOmniverse
-cmake --build build --target install
+cmake --build build --target install --component library
 ```
 
 ## Sanitizers
