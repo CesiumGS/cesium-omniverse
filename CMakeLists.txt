@@ -462,8 +462,7 @@ configure_file("${PROJECT_SOURCE_DIR}/src/plugins/InMemoryAssetResolver/plugInfo
 file(TOUCH "${PROJECT_BINARY_DIR}/mem.cesium")
 
 set(KIT_EXTENSION_BIN_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse/bin")
-set(KIT_EXTENSION_BINDINGS_PATH
-    "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse/cesium/omniverse/bindings")
+set(KIT_EXTENSION_BINDINGS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse/cesium/omniverse/bindings")
 set(KIT_EXTENSION_PLUGINS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse/plugins")
 
 # You may see warnings like:

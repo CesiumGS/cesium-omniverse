@@ -263,10 +263,10 @@ cmake --build build --config RelWithDebInfo
 
 Note that Windows (MSVC) is a multi-configuration generator meaning all four build configurations are created during the configure step and the specific configuration is chosen during the build step. If using Visual Studio there will be a dropdown to select the build configuration.
 
-Ninja is also supported as an alternative to the MSVC generator. To build with Ninja locally open `Developer Command Prompt for VS 2022` and run:
+Ninja is also supported as an alternative to the MSVC generator. To build with Ninja locally open `x64 Native Tools Command Prompt for VS 2022` and run:
 
 ```
-cmake -B build -D CMAKE_C_COMPILER=cl -D CMAKE_CXX_COMPILER=cl -D CMAKE_CONFIGURATION_TYPES=Release -G Ninja
+cmake -B build -D CMAKE_C_COMPILER=cl -D CMAKE_CXX_COMPILER=cl -G Ninja
 cmake --build build --config Release --parallel 8
 ```
 
@@ -495,7 +495,7 @@ Each workspace contains recommended extensions and settings for VSCode developme
   "configurations": [
     {
       "name": "Kit App",
-      "preLaunchTask": "Build (debug)",
+      "preLaunchTask": "Build Only (debug)",
       "program": "${workspaceFolder}/extern/nvidia/app/kit/kit.exe",
       "args": [
         "${workspaceFolder}/apps/cesium.omniverse.app.kit"
@@ -503,16 +503,18 @@ Each workspace contains recommended extensions and settings for VSCode developme
       "cwd": "${workspaceFolder}",
       "type": "cppvsdbg",
       "request": "launch",
-      "console": "integratedTerminal"
+      "console": "internalConsole",
+      "internalConsoleOptions": "openOnSessionStart"
     },
     {
       "name": "Test",
-      "preLaunchTask": "Build (debug)",
+      "preLaunchTask": "Build Only (debug)",
       "program": "${workspaceFolder}/build/bin/Debug/tests",
       "cwd": "${workspaceFolder}",
       "type": "cppvsdbg",
       "request": "launch",
-      "console": "integratedTerminal"
+      "console": "internalConsole",
+      "internalConsoleOptions": "openOnSessionStart"
     }
   ]
 }
