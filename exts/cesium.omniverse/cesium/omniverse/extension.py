@@ -10,7 +10,7 @@ import omni.usd
 import os
 from typing import Optional
 
-cesium_mem_location = os.path.join(os.path.dirname(__file__), "../../bin")
+cesium_extension_location = os.path.join(os.path.dirname(__file__), "../../")
 
 # Global public interface object.
 _cesium_omniverse_interface: ICesiumOmniverseInterface = None
@@ -49,7 +49,7 @@ class CesiumOmniverseWindowExtension(omni.ext.IExt):
         # Acquire the Cesium Omniverse interface.
         global _cesium_omniverse_interface
         _cesium_omniverse_interface = acquire_cesium_omniverse_interface()
-        _cesium_omniverse_interface.initialize(cesium_mem_location)
+        _cesium_omniverse_interface.initialize(cesium_extension_location)
 
         # Show the window. It will call `self.show_window`
         ui.Workspace.show_window(CesiumOmniverseWindowExtension.WINDOW_NAME)

@@ -5,6 +5,8 @@
 #include <CesiumAsync/IAssetResponse.h>
 #include <cpr/cpr.h>
 
+#include <filesystem>
+
 namespace cesium::omniverse {
 class HttpAssetResponse : public CesiumAsync::IAssetResponse {
   public:
@@ -78,6 +80,8 @@ class HttpAssetRequest : public CesiumAsync::IAssetRequest {
 
 class HttpAssetAccessor : public CesiumAsync::IAssetAccessor {
   public:
+    static std::filesystem::path CertificatePath;
+
     HttpAssetAccessor();
 
     CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>>
