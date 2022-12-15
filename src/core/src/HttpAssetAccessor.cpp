@@ -47,8 +47,10 @@ std::string decodeGzip(std::string& content) {
 struct GZipDecompressInterceptor : public cpr::Interceptor {
   public:
     cpr::Response intercept(cpr::Session& session) override {
+#ifdef CESIUM_OMNI_UNIX
         auto certPath = fmt::format("{}/cacert.pem", HttpAssetAccessor::CertificatePath.generic_string());
         curl_easy_setopt(session.GetCurlHolder()->handle, CURLOPT_CAINFO, certPath.c_str());
+#endif
         curl_easy_setopt(session.GetCurlHolder()->handle, CURLOPT_ACCEPT_ENCODING, nullptr);
 
         CURLcode curl_error = curl_easy_perform(session.GetCurlHolder()->handle);

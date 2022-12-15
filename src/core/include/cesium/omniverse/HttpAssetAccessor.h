@@ -80,7 +80,9 @@ class HttpAssetRequest : public CesiumAsync::IAssetRequest {
 
 class HttpAssetAccessor : public CesiumAsync::IAssetAccessor {
   public:
+#ifdef CESIUM_OMNI_UNIX
     static std::filesystem::path CertificatePath;
+#endif
 
     HttpAssetAccessor();
 
