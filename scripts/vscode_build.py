@@ -6,6 +6,7 @@ import multiprocessing
 import os
 import platform
 import shutil
+
 try:
     import pty
 except:
@@ -16,7 +17,7 @@ from typing import List, NamedTuple
 
 
 def is_windows():
-    return platform.system() == 'Windows'
+    return platform.system() == "Windows"
 
 
 def is_linux():
@@ -32,10 +33,9 @@ def process(cmd: List[str]):
         if result != 0:
             sys.exit(result)
     else:
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT, text=True)
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
         for line in p.stdout:
-            print(line, end='')
+            print(line, end="")
         p.communicate()
         if p.returncode != 0:
             raise subprocess.CalledProcessError(p.returncode, p.args)
@@ -65,11 +65,15 @@ def c_compiler_to_cpp_compiler(compiler_name: str):
 
 
 def get_cmake_configure_command(args: Args):
-    cmd = ['cmake', '-B', args.build_folder]
+    cmd = ["cmake", "-B", args.build_folder]
 
     # Release is the default build type, so no need to pass CMAKE_BUILD_TYPE
     if args.build_type != "Release":
         cmd.extend(("-D", "CMAKE_BUILD_TYPE={}".format(args.build_type)))
+
+    if is_windows():
+        cmd.extend(("-G", "Ninja Multi-Config", "-D", "CMAKE_C_COMPILER=cl", "-D", "CMAKE_CXX_COMPILER=cl"))
+        return cmd
 
     if args.compiler_name == "default":
         return cmd
@@ -206,8 +210,7 @@ def dependency_graph(args: Args):
     configure_cmd = get_cmake_configure_command(args)
     conan_packages_path = os.path.join(args.build_folder, "Conan_Packages")
     dependency_html = os.path.join(args.build_folder, "dependency_graph.html")
-    dependency_cmd = ["conan", "info", args.build_folder,
-                      "-if", conan_packages_path, "--graph", dependency_html]
+    dependency_cmd = ["conan", "info", args.build_folder, "-if", conan_packages_path, "--graph", dependency_html]
 
     process(configure_cmd)
     process(dependency_cmd)
@@ -249,8 +252,7 @@ def main(av: List[str]):
     verbose = True if len(av) >= 4 and av[3] == "--verbose" else False
     parallel = False if len(av) >= 5 and av[4] == "--no-parallel" else True
     build_only = True if len(av) >= 4 and av[3] == "--build-only" else False
-    args = Args(task, build_folder, build_type,
-                compiler_name, verbose, parallel, build_only)
+    args = Args(task, build_folder, build_type, compiler_name, verbose, parallel, build_only)
 
     if task == "configure":
         configure(args)
@@ -276,7 +278,7 @@ def main(av: List[str]):
         dependency_graph(args)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         main(sys.argv[1:])
     except Exception as e:

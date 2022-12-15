@@ -130,7 +130,7 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
 
 - Install [Chocolatey](https://docs.chocolatey.org/en-us/choco/setup) and then install dependencies
   ```sh
-  choco install -y visualstudio2022professional visualstudio2022-workload-nativedesktop python cmake ninja git conan doxygen.install --installargs 'ADD_CMAKE_TO_PATH=System'
+  choco install -y visualstudio2022professional visualstudio2022-workload-nativedesktop python cmake ninja git conan doxygen.install vswhere --installargs 'ADD_CMAKE_TO_PATH=System'
   ```
   ```sh
   choco install -y llvm --version=14.0.6
@@ -544,7 +544,6 @@ Each workspace contains recommended extensions and settings for VSCode developme
 - Test - runs unit tests
 - Coverage - generates a coverage report and opens a web browser showing the results
 - Documentation - generates documentation and opens a web browser showing the results
-- Install - installs the project to the default system location
 - Format - formats the code with clang-format
 - Lint - runs clang-tidy
 - Lint Fix - runs clang-tidy and fixes issues
