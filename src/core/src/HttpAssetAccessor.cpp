@@ -47,15 +47,30 @@ std::string decodeGzip(std::string& content) {
 struct GZipDecompressInterceptor : public cpr::Interceptor {
   public:
     cpr::Response intercept(cpr::Session& session) override {
+#ifdef CESIUM_OMNI_UNIX
+        auto certPath = fmt::format("{}/cacert.pem", HttpAssetAccessor::CertificatePath.generic_string());
+        curl_easy_setopt(session.GetCurlHolder()->handle, CURLOPT_CAINFO, certPath.c_str());
+#endif
         curl_easy_setopt(session.GetCurlHolder()->handle, CURLOPT_ACCEPT_ENCODING, nullptr);
 
         CURLcode curl_error = curl_easy_perform(session.GetCurlHolder()->handle);
+
+        if (curl_error == CURLE_PEER_FAILED_VERIFICATION) {
+            long verifyResult;
+            curl_easy_getinfo(session.GetCurlHolder()->handle, CURLINFO_SSL_VERIFYRESULT, &verifyResult);
+            spdlog::warn(fmt::format("SSL PEER VERIFICATION FAILED: {}", verifyResult));
+        }
+
         auto response = session.Complete(curl_error);
         response.text = decodeGzip(response.text);
         return response;
     }
 };
 } // namespace
+
+#ifdef CESIUM_OMNI_UNIX
+std::filesystem::path HttpAssetAccessor::CertificatePath{};
+#endif
 
 HttpAssetAccessor::HttpAssetAccessor() {
     _interceptor = std::make_shared<GZipDecompressInterceptor>();

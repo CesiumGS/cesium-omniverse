@@ -119,8 +119,11 @@ void OmniTileset::addIonRasterOverlay(const std::string& name, int64_t ionId, co
     tileset->getOverlays().add(rasterOverlay);
 }
 
-void OmniTileset::init(const std::filesystem::path& cesiumMemLocation) {
-    GltfToUSD::CesiumMemLocation = cesiumMemLocation;
+void OmniTileset::init(const std::filesystem::path& cesiumExtensionLocation) {
+    GltfToUSD::CesiumMemLocation = cesiumExtensionLocation / "bin";
+#ifdef CESIUM_OMNI_UNIX
+    HttpAssetAccessor::CertificatePath = cesiumExtensionLocation / "certs";
+#endif
 
     auto logger = spdlog::default_logger();
     logger->sinks().clear();

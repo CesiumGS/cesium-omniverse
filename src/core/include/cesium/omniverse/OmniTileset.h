@@ -27,7 +27,7 @@ class OmniTileset {
 
     void addIonRasterOverlay(const std::string& name, int64_t ionId, const std::string& ionToken);
 
-    static void init(const std::filesystem::path& cesiumMemLocation);
+    static void init(const std::filesystem::path& cesiumExtensionLocation);
 
     static void shutdown();
 
