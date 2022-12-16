@@ -68,7 +68,9 @@ struct GZipDecompressInterceptor : public cpr::Interceptor {
 };
 } // namespace
 
+#ifdef CESIUM_OMNI_UNIX
 std::filesystem::path HttpAssetAccessor::CertificatePath{};
+#endif
 
 HttpAssetAccessor::HttpAssetAccessor() {
     _interceptor = std::make_shared<GZipDecompressInterceptor>();
