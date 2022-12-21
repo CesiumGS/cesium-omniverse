@@ -54,6 +54,7 @@ class CesiumOmniverseWindowExtension(omni.ext.IExt):
         # Show the window. It will call `self.show_window`
         ui.Workspace.show_window(CesiumOmniverseWindowExtension.WINDOW_NAME)
 
+
     def on_shutdown(self):
         self._menu = None
         if self._window is not None:
@@ -84,6 +85,12 @@ class CesiumOmniverseWindowExtension(omni.ext.IExt):
             self._window.destroy()
             self._window = None
 
+    async def _dock_window_async(self):
+        # Wait one frame
+        await omni.kit.app.get_app().next_update_async()
+        if self._window is not None:
+            self._window.dock_in_window("Content", ui.DockPosition.LEFT, 0.25)
+
     def _visiblity_changed_fn(self, visible):
         # Called when the user pressed "X"
         self._set_menu(visible)
@@ -97,5 +104,6 @@ class CesiumOmniverseWindowExtension(omni.ext.IExt):
                 _cesium_omniverse_interface, CesiumOmniverseWindowExtension.WINDOW_NAME, width=300, height=365
             )
             self._window.set_visibility_changed_fn(self._visiblity_changed_fn)
+            asyncio.ensure_future(self._dock_window_async())
         elif self._window is not None:
             self._window.visible = False
