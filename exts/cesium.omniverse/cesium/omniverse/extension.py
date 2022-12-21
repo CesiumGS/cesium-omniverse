@@ -31,17 +31,21 @@ class CesiumOmniverseWindowExtension(omni.ext.IExt):
     def __init__(self) -> None:
         super().__init__()
 
+        self._menu = None
         self._logger = logging.getLogger(__name__)
 
     def on_startup(self):
         # The ability to show up the window if the system requires it. We use it in QuickLayout.
         ui.Workspace.set_show_window_fn(CesiumOmniverseWindowExtension.WINDOW_NAME, partial(self.show_window, None))
 
+        # TODO: Once we have a solution for the docking issue, we can reenable this.
+        show_on_startup = False
+
         # Put the new menu
         editor_menu = omni.kit.ui.get_editor_menu()
         if editor_menu:
             self._menu = editor_menu.add_item(
-                CesiumOmniverseWindowExtension.MENU_PATH, self.show_window, toggle=True, value=True
+                CesiumOmniverseWindowExtension.MENU_PATH, self.show_window, toggle=True, value=show_on_startup
             )
 
         self._logger.info("CesiumOmniverse startup")
@@ -52,8 +56,8 @@ class CesiumOmniverseWindowExtension(omni.ext.IExt):
         _cesium_omniverse_interface.initialize(cesium_extension_location)
 
         # Show the window. It will call `self.show_window`
-        ui.Workspace.show_window(CesiumOmniverseWindowExtension.WINDOW_NAME)
-
+        if show_on_startup:
+            ui.Workspace.show_window(CesiumOmniverseWindowExtension.WINDOW_NAME)
 
     def on_shutdown(self):
         self._menu = None
