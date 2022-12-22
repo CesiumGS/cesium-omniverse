@@ -31,17 +31,21 @@ class CesiumOmniverseWindowExtension(omni.ext.IExt):
     def __init__(self) -> None:
         super().__init__()
 
+        self._menu = None
         self._logger = logging.getLogger(__name__)
 
     def on_startup(self):
         # The ability to show up the window if the system requires it. We use it in QuickLayout.
         ui.Workspace.set_show_window_fn(CesiumOmniverseWindowExtension.WINDOW_NAME, partial(self.show_window, None))
 
+        # TODO: Once we have a solution for the docking issue, we can reenable this.
+        show_on_startup = False
+
         # Put the new menu
         editor_menu = omni.kit.ui.get_editor_menu()
         if editor_menu:
             self._menu = editor_menu.add_item(
-                CesiumOmniverseWindowExtension.MENU_PATH, self.show_window, toggle=True, value=True
+                CesiumOmniverseWindowExtension.MENU_PATH, self.show_window, toggle=True, value=show_on_startup
             )
 
         self._logger.info("CesiumOmniverse startup")
@@ -52,7 +56,8 @@ class CesiumOmniverseWindowExtension(omni.ext.IExt):
         _cesium_omniverse_interface.initialize(cesium_extension_location)
 
         # Show the window. It will call `self.show_window`
-        ui.Workspace.show_window(CesiumOmniverseWindowExtension.WINDOW_NAME)
+        if show_on_startup:
+            ui.Workspace.show_window(CesiumOmniverseWindowExtension.WINDOW_NAME)
 
     def on_shutdown(self):
         self._menu = None
@@ -84,6 +89,12 @@ class CesiumOmniverseWindowExtension(omni.ext.IExt):
             self._window.destroy()
             self._window = None
 
+    async def _dock_window_async(self):
+        # Wait one frame
+        await omni.kit.app.get_app().next_update_async()
+        if self._window is not None:
+            self._window.dock_in_window("Content", ui.DockPosition.LEFT, 0.25)
+
     def _visiblity_changed_fn(self, visible):
         # Called when the user pressed "X"
         self._set_menu(visible)
@@ -97,5 +108,6 @@ class CesiumOmniverseWindowExtension(omni.ext.IExt):
                 _cesium_omniverse_interface, CesiumOmniverseWindowExtension.WINDOW_NAME, width=300, height=365
             )
             self._window.set_visibility_changed_fn(self._visiblity_changed_fn)
+            asyncio.ensure_future(self._dock_window_async())
         elif self._window is not None:
             self._window.visible = False
