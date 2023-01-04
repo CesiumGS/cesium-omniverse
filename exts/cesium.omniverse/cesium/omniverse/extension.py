@@ -1,5 +1,6 @@
 from .bindings.CesiumOmniversePythonBindings import *
 from .window import CesiumOmniverseWindow
+from .utils import wait_n_frames
 import asyncio
 from functools import partial
 import logging
@@ -22,7 +23,7 @@ def get_cesium_omniverse_interface() -> ICesiumOmniverseInterface:
 
 class CesiumOmniverseWindowExtension(omni.ext.IExt):
 
-    WINDOW_NAME = "Cesium for Omniverse"
+    WINDOW_NAME = "Cesium"
     MENU_PATH = f"Window/{WINDOW_NAME}"
 
     _window: Optional[CesiumOmniverseWindow] = None
@@ -38,8 +39,7 @@ class CesiumOmniverseWindowExtension(omni.ext.IExt):
         # The ability to show up the window if the system requires it. We use it in QuickLayout.
         ui.Workspace.set_show_window_fn(CesiumOmniverseWindowExtension.WINDOW_NAME, partial(self.show_window, None))
 
-        # TODO: Once we have a solution for the docking issue, we can reenable this.
-        show_on_startup = False
+        show_on_startup = True
 
         # Put the new menu
         editor_menu = omni.kit.ui.get_editor_menu()
@@ -84,16 +84,18 @@ class CesiumOmniverseWindowExtension(omni.ext.IExt):
 
     async def _destroy_window_async(self):
         # Wait one frame, this is due to the one frame defer in Window::_moveToMainOSWindow()
-        await omni.kit.app.get_app().next_update_async()
+        await wait_n_frames(1)
         if self._window is not None:
             self._window.destroy()
             self._window = None
 
     async def _dock_window_async(self):
-        # Wait one frame
-        await omni.kit.app.get_app().next_update_async()
+        # Wait five frame
+        await wait_n_frames(5)
         if self._window is not None:
-            self._window.dock_in_window("Content", ui.DockPosition.LEFT, 0.25)
+            stage_window = ui.Workspace.get_window("Stage")
+            self._window.dock_in(stage_window, ui.DockPosition.SAME, 1)
+            self._window.focus()
 
     def _visiblity_changed_fn(self, visible):
         # Called when the user pressed "X"
