@@ -396,6 +396,10 @@ pxr::UsdShadeMaterial convertMaterialToUSD_OmniPBR(
         iTexCoordInput.Set(0);
         textureCoordinates2dShader.CreateOutput(pxr::_tokens->out, pxr::SdfValueTypeNames->Float2);
 
+        // Set up add & divide nodes for translation & scale.
+//        auto translationShader = defineMdlShader_OmniPBR(
+//            stage, materialPath, pxr::TfToken("add"), nvidiaSupportDefinitions, pxr::TfToken("add"));
+
         // Set up lookup_color shader.
         auto lookupColorShader = defineMdlShader_OmniPBR(
             stage, materialPath, pxr::_tokens->lookup_color, nvidiaSupportDefinitions, pxr::_tokens->lookup_color);
@@ -658,8 +662,12 @@ std::vector<std::byte> GltfToUSD::writeImageToBmp(const CesiumGltf::ImageCesium&
     return writeData;
 }
 
-void GltfToUSD::insertRasterOverlayTexture(const pxr::SdfPath& parentPath, std::vector<std::byte>&& image) {
-    std::string texturePath = getRasterOverlayTexturePath(parentPath);
+void GltfToUSD::insertRasterOverlayTexture(
+    const pxr::UsdPrim& parent,
+    std::vector<std::byte>&& image,
+    [[maybe_unused]] const glm::dvec2& translation,
+    [[maybe_unused]] const glm::dvec2& scale) {
+    std::string texturePath = getRasterOverlayTexturePath(parent.GetPath());
     auto inMemoryAsset = std::make_shared<pxr::InMemoryAsset>(std::move(image));
     auto& ctx = pxr::InMemoryAssetContext::instance();
     ctx.assets.insert({texturePath, std::move(inMemoryAsset)});

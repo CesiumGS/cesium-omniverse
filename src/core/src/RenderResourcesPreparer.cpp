@@ -180,8 +180,8 @@ void RenderResourcesPreparer::attachRasterInMainThread(
     [[maybe_unused]] int32_t overlayTextureCoordinateID,
     [[maybe_unused]] const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
     void* pMainThreadRendererResources,
-    [[maybe_unused]] const glm::dvec2& translation,
-    [[maybe_unused]] const glm::dvec2& scale) {
+    const glm::dvec2& translation,
+    const glm::dvec2& scale) {
     auto& content = tile.getContent();
     auto pRenderContent = content.getRenderContent();
     if (!pRenderContent) {
@@ -198,8 +198,8 @@ void RenderResourcesPreparer::attachRasterInMainThread(
         return;
     }
 
-    const auto modelPath = pTileRenderResources->prim.GetPath();
-    GltfToUSD::insertRasterOverlayTexture(modelPath, std::move(pRasterRenderResources->image));
+    GltfToUSD::insertRasterOverlayTexture(
+        pTileRenderResources->prim, std::move(pRasterRenderResources->image), translation, scale);
 }
 
 void RenderResourcesPreparer::detachRasterInMainThread(
