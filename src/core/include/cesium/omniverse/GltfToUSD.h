@@ -27,5 +27,7 @@ struct GltfToUSD {
         std::vector<std::byte>&& image,
         const glm::dvec2& translation,
         const glm::dvec2& scale);
+
+    static void removeRasterOverlayTexture(const pxr::UsdPrim& parent);
 };
 } // namespace cesium::omniverse

@@ -212,8 +212,21 @@ void RenderResourcesPreparer::attachRasterInMainThread(
 }
 
 void RenderResourcesPreparer::detachRasterInMainThread(
-    [[maybe_unused]] const Cesium3DTilesSelection::Tile& tile,
+    const Cesium3DTilesSelection::Tile& tile,
     [[maybe_unused]] int32_t overlayTextureCoordinateID,
     [[maybe_unused]] const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
-    [[maybe_unused]] void* pMainThreadRendererResources) noexcept {}
+    [[maybe_unused]] void* pMainThreadRendererResources) noexcept {
+    auto& content = tile.getContent();
+    auto pRenderContent = content.getRenderContent();
+    if (!pRenderContent) {
+        return;
+    }
+
+    auto pTileRenderResources = reinterpret_cast<TileRenderResources*>(pRenderContent->getRenderResources());
+    if (!pTileRenderResources) {
+        return;
+    }
+
+    GltfToUSD::removeRasterOverlayTexture(pTileRenderResources->prim);
+}
 } // namespace cesium::omniverse

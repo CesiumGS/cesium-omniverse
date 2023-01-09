@@ -475,6 +475,9 @@ pxr::UsdShadeMaterial convertMaterialToUSD_OmniPBR(
         const auto pbrShaderDiffuseColorInput =
             pbrShader.CreateInput(pxr::_tokens->diffuse_color_constant, pxr::SdfValueTypeNames->Color3f);
         pbrShaderDiffuseColorInput.ConnectToSource(lookupColorShader.GetOutput(pxr::_tokens->out));
+
+        // TODO: Eventually we need to actually take the material values from Cesium Native and apply them.
+        pbrShader.CreateInput(pxr::TfToken("reflection_roughness_constant"), pxr::SdfValueTypeNames->Float).Set(0.1f);
     };
 
     if (hasRasterOverlay) {
@@ -744,6 +747,13 @@ void GltfToUSD::insertRasterOverlayTexture(
     auto inMemoryAsset = std::make_shared<pxr::InMemoryAsset>(std::move(image));
     auto& ctx = pxr::InMemoryAssetContext::instance();
     ctx.assets.insert({texturePath, std::move(inMemoryAsset)});
+}
+
+void GltfToUSD::removeRasterOverlayTexture(const pxr::UsdPrim& parent) {
+    std::string texturePath = getRasterOverlayTexturePath(parent.GetPath());
+
+    auto& ctx = pxr::InMemoryAssetContext::instance();
+    ctx.assets.erase(texturePath);
 }
 
 pxr::UsdPrim GltfToUSD::convertToUSD(
