@@ -18,6 +18,14 @@
 namespace cesium::omniverse {
 static std::atomic<std::uint64_t> tileID;
 
+static void setActiveOnAllDescendantMeshes(pxr::UsdPrim prim, bool isActive) {
+    for (const auto& descendant : prim.GetAllDescendants()) {
+        if (descendant.IsA<pxr::UsdGeomMesh>()) {
+            descendant.SetActive(isActive);
+        }
+    }
+}
+
 RenderResourcesPreparer::RenderResourcesPreparer(const pxr::UsdStageRefPtr& stage_, const pxr::SdfPath& tilesetPath_)
     : stage{stage_}
     , tilesetPath{tilesetPath_} {
@@ -79,7 +87,8 @@ void RenderResourcesPreparer::setVisible(void* renderResources, bool enable) {
         TileRenderResources* tileRenderResources = reinterpret_cast<TileRenderResources*>(renderResources);
         if (enable != tileRenderResources->enable) {
             if (tileRenderResources->prim) {
-                tileRenderResources->prim.SetActive(enable);
+                setActiveOnAllDescendantMeshes(tileRenderResources->prim, enable);
+
                 tileRenderResources->enable = enable;
             }
         }
@@ -108,7 +117,7 @@ RenderResourcesPreparer::prepareInLoadThread(
         tilesetPath.AppendChild(pxr::TfToken(fmt::format("tile_{}", ++tileID))),
         *pModel,
         transform * CesiumGeometry::AxisTransforms::Y_UP_TO_Z_UP);
-    prim.SetActive(false);
+    setActiveOnAllDescendantMeshes(prim, false);
 
     return asyncSystem.createResolvedFuture(Cesium3DTilesSelection::TileLoadResultAndRenderResources{
         std::move(tileLoadResult), new TileWorkerRenderResources{std::move(anonLayer), prim.GetPath(), false}});
