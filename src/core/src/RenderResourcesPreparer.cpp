@@ -18,6 +18,14 @@
 namespace cesium::omniverse {
 static std::atomic<std::uint64_t> tileID;
 
+static void setActiveOnAllDescendantMeshes(pxr::UsdPrim prim, bool isActive) {
+    for (const auto& descendant : prim.GetAllDescendants()) {
+        if (descendant.IsA<pxr::UsdGeomMesh>()) {
+            descendant.SetActive(isActive);
+        }
+    }
+}
+
 RenderResourcesPreparer::RenderResourcesPreparer(const pxr::UsdStageRefPtr& stage_, const pxr::SdfPath& tilesetPath_)
     : stage{stage_}
     , tilesetPath{tilesetPath_} {
@@ -79,7 +87,8 @@ void RenderResourcesPreparer::setVisible(void* renderResources, bool enable) {
         TileRenderResources* tileRenderResources = reinterpret_cast<TileRenderResources*>(renderResources);
         if (enable != tileRenderResources->enable) {
             if (tileRenderResources->prim) {
-                tileRenderResources->prim.SetActive(enable);
+                setActiveOnAllDescendantMeshes(tileRenderResources->prim, enable);
+
                 tileRenderResources->enable = enable;
             }
         }
@@ -108,7 +117,7 @@ RenderResourcesPreparer::prepareInLoadThread(
         tilesetPath.AppendChild(pxr::TfToken(fmt::format("tile_{}", ++tileID))),
         *pModel,
         transform * CesiumGeometry::AxisTransforms::Y_UP_TO_Z_UP);
-    prim.SetActive(false);
+    setActiveOnAllDescendantMeshes(prim, false);
 
     return asyncSystem.createResolvedFuture(Cesium3DTilesSelection::TileLoadResultAndRenderResources{
         std::move(tileLoadResult), new TileWorkerRenderResources{std::move(anonLayer), prim.GetPath(), false}});
@@ -180,8 +189,8 @@ void RenderResourcesPreparer::attachRasterInMainThread(
     [[maybe_unused]] int32_t overlayTextureCoordinateID,
     [[maybe_unused]] const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
     void* pMainThreadRendererResources,
-    [[maybe_unused]] const glm::dvec2& translation,
-    [[maybe_unused]] const glm::dvec2& scale) {
+    const glm::dvec2& translation,
+    const glm::dvec2& scale) {
     auto& content = tile.getContent();
     auto pRenderContent = content.getRenderContent();
     if (!pRenderContent) {
@@ -198,13 +207,26 @@ void RenderResourcesPreparer::attachRasterInMainThread(
         return;
     }
 
-    const auto modelPath = pTileRenderResources->prim.GetPath();
-    GltfToUSD::insertRasterOverlayTexture(modelPath, std::move(pRasterRenderResources->image));
+    GltfToUSD::insertRasterOverlayTexture(
+        pTileRenderResources->prim, std::move(pRasterRenderResources->image), translation, scale);
 }
 
 void RenderResourcesPreparer::detachRasterInMainThread(
-    [[maybe_unused]] const Cesium3DTilesSelection::Tile& tile,
+    const Cesium3DTilesSelection::Tile& tile,
     [[maybe_unused]] int32_t overlayTextureCoordinateID,
     [[maybe_unused]] const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
-    [[maybe_unused]] void* pMainThreadRendererResources) noexcept {}
+    [[maybe_unused]] void* pMainThreadRendererResources) noexcept {
+    auto& content = tile.getContent();
+    auto pRenderContent = content.getRenderContent();
+    if (!pRenderContent) {
+        return;
+    }
+
+    auto pTileRenderResources = reinterpret_cast<TileRenderResources*>(pRenderContent->getRenderResources());
+    if (!pTileRenderResources) {
+        return;
+    }
+
+    GltfToUSD::removeRasterOverlayTexture(pTileRenderResources->prim);
+}
 } // namespace cesium::omniverse

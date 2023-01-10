@@ -22,6 +22,12 @@ struct GltfToUSD {
         const glm::dmat4& transform);
 
     static std::vector<std::byte> writeImageToBmp(const CesiumGltf::ImageCesium& img);
-    static void insertRasterOverlayTexture(const pxr::SdfPath& parentPath, std::vector<std::byte>&& image);
+    static void insertRasterOverlayTexture(
+        const pxr::UsdPrim& parent,
+        std::vector<std::byte>&& image,
+        const glm::dvec2& translation,
+        const glm::dvec2& scale);
+
+    static void removeRasterOverlayTexture(const pxr::UsdPrim& parent);
 };
 } // namespace cesium::omniverse
