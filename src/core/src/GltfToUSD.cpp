@@ -34,6 +34,9 @@
 
 static std::string errorMessage;
 
+static const char* SCALE_PRIMVAR_ID = "overlayScale";
+static const char* TRANSLATION_PRIMVAR_ID = "overlayTranslation";
+
 // clang-format off
 namespace pxr {
 TF_DEFINE_PRIVATE_TOKENS(
@@ -48,42 +51,56 @@ TF_DEFINE_PRIVATE_TOKENS(
     // a table lookup per path element). Similarly, any API which
     // takes a token as input should use a predefined token
     // rather than one created on the fly from a string.
-    (vertex)
+    (a)
+    (add)
+    ((add_subidentifier, "add(float2,float2)"))
+    (b)
+    (clamp)
+    (coord)
+    (data_lookup_uniform_float2)
+    (default_value)
+    (diffuse_color_constant)
     (diffuseColor)
-    (roughness)
-    (metallic)
-    (normal)
     (file)
-    (result)
-    (varname)
-    (rgb)
+    (i)
+    (lookup_color)
+    ((matDefault, "default"))
+    (mdl)
+    (metallic)
+    (multiply)
+    ((multiply_subidentifier, "multiply(float2,float2)"))
+    (name)
+    (normal)
+    (OmniPBR)
+    (out)
+    ((PrimStShaderId, "UsdPrimvarReader_float2"))
     (RAW)
+    (reflection_roughness_constant)
+    (result)
+    (rgb)
+    (roughness)
+    ((scale_primvar, SCALE_PRIMVAR_ID))
+    (scale_primvar_reader)
     (sRGB)
-    (surface)
     (st)
     (st0)
     (st_0)
     (st_1)
+    ((stPrimvarName, "frame:stPrimvarName"))
+    (surface)
+    (tex)
+    (texture_coordinate_2d)
+    ((translation_primvar, TRANSLATION_PRIMVAR_ID))
+    (translation_primvar_reader)
+    (UsdPreviewSurface)
+    ((UsdShaderId, "UsdPreviewSurface"))
+    (UsdUVTexture)
+    (varname)
+    (vertex)
     (wrapS)
     (wrapT)
-    (clamp)
-    ((matDefault, "default"))
-    (mdl)
-    (OmniPBR)
-    (diffuse_color_constant)
-    (lookup_color)
-    (texture_coordinate_2d)
     (wrap_u)
-    (wrap_v)
-    (i)
-    (tex)
-    (coord)
-    (out)
-    (UsdPreviewSurface)
-    ((stPrimvarName, "frame:stPrimvarName"))
-    ((UsdShaderId, "UsdPreviewSurface"))
-    ((PrimStShaderId, "UsdPrimvarReader_float2"))
-    (UsdUVTexture));
+    (wrap_v));
 }
 // clang-format on
 
@@ -404,13 +421,13 @@ pxr::UsdShadeMaterial convertMaterialToUSD_OmniPBR(
         auto scalePrimvarReaderShader = defineMdlShader_OmniPBR(
             stage,
             materialPath,
-            pxr::TfToken("scale_primvar_reader"),
+            pxr::_tokens->scale_primvar_reader,
             nvidiaSupportDefinitions,
-            pxr::TfToken("data_lookup_uniform_float2"));
+            pxr::_tokens->data_lookup_uniform_float2);
 
-        scalePrimvarReaderShader.CreateInput(pxr::TfToken("default_value"), pxr::SdfValueTypeNames->Float2)
+        scalePrimvarReaderShader.CreateInput(pxr::_tokens->default_value, pxr::SdfValueTypeNames->Float2)
             .Set(pxr::GfVec2f(1.0f, 1.0f));
-        scalePrimvarReaderShader.CreateInput(pxr::TfToken("name"), pxr::SdfValueTypeNames->String).Set("Scale");
+        scalePrimvarReaderShader.CreateInput(pxr::_tokens->name, pxr::SdfValueTypeNames->String).Set(SCALE_PRIMVAR_ID);
 
         const auto scalePrimvarReaderOutput =
             scalePrimvarReaderShader.CreateOutput(pxr::_tokens->out, pxr::SdfValueTypeNames->Float2);
@@ -418,13 +435,13 @@ pxr::UsdShadeMaterial convertMaterialToUSD_OmniPBR(
         auto scaleShader = defineMdlShader_OmniPBR(
             stage,
             materialPath,
-            pxr::TfToken("multiply"),
+            pxr::_tokens->multiply,
             nvidiaSupportDefinitions,
-            pxr::TfToken("multiply(float2,float2)"));
+            pxr::_tokens->multiply_subidentifier);
 
-        const auto scaleAInput = scaleShader.CreateInput(pxr::TfToken("a"), pxr::SdfValueTypeNames->Float2);
+        const auto scaleAInput = scaleShader.CreateInput(pxr::_tokens->a, pxr::SdfValueTypeNames->Float2);
         scaleAInput.ConnectToSource(textureCoordinates2dOutput);
-        const auto scaleBInput = scaleShader.CreateInput(pxr::TfToken("b"), pxr::SdfValueTypeNames->Float2);
+        const auto scaleBInput = scaleShader.CreateInput(pxr::_tokens->b, pxr::SdfValueTypeNames->Float2);
         scaleBInput.ConnectToSource(scalePrimvarReaderOutput);
 
         const auto scaleOutput = scaleShader.CreateOutput(pxr::_tokens->out, pxr::SdfValueTypeNames->Float2);
@@ -432,23 +449,23 @@ pxr::UsdShadeMaterial convertMaterialToUSD_OmniPBR(
         auto translationPrimvarReader = defineMdlShader_OmniPBR(
             stage,
             materialPath,
-            pxr::TfToken("translation_primvar_reader"),
+            pxr::_tokens->translation_primvar_reader,
             nvidiaSupportDefinitions,
-            pxr::TfToken("data_lookup_uniform_float2"));
+            pxr::_tokens->data_lookup_uniform_float2);
 
-        translationPrimvarReader.CreateInput(pxr::TfToken("default_value"), pxr::SdfValueTypeNames->Float2)
+        translationPrimvarReader.CreateInput(pxr::_tokens->default_value, pxr::SdfValueTypeNames->Float2)
             .Set(pxr::GfVec2f(0.0f, 0.0f));
-        translationPrimvarReader.CreateInput(pxr::TfToken("name"), pxr::SdfValueTypeNames->String).Set("Translation");
+        translationPrimvarReader.CreateInput(pxr::_tokens->name, pxr::SdfValueTypeNames->String).Set(TRANSLATION_PRIMVAR_ID);
 
         const auto translatePrimvarReaderOutput =
             translationPrimvarReader.CreateOutput(pxr::_tokens->out, pxr::SdfValueTypeNames->Float2);
 
         auto translationShader = defineMdlShader_OmniPBR(
-            stage, materialPath, pxr::TfToken("add"), nvidiaSupportDefinitions, pxr::TfToken("add(float2,float2)"));
+            stage, materialPath, pxr::_tokens->add, nvidiaSupportDefinitions, pxr::_tokens->add_subidentifier);
 
-        const auto translationAInput = translationShader.CreateInput(pxr::TfToken("a"), pxr::SdfValueTypeNames->Float2);
+        const auto translationAInput = translationShader.CreateInput(pxr::_tokens->a, pxr::SdfValueTypeNames->Float2);
         translationAInput.ConnectToSource(scaleOutput);
-        const auto translationBInput = translationShader.CreateInput(pxr::TfToken("b"), pxr::SdfValueTypeNames->Float2);
+        const auto translationBInput = translationShader.CreateInput(pxr::_tokens->b, pxr::SdfValueTypeNames->Float2);
         translationBInput.ConnectToSource(translatePrimvarReaderOutput);
 
         const auto translationOutput =
@@ -477,7 +494,7 @@ pxr::UsdShadeMaterial convertMaterialToUSD_OmniPBR(
         pbrShaderDiffuseColorInput.ConnectToSource(lookupColorShader.GetOutput(pxr::_tokens->out));
 
         // TODO: Eventually we need to actually take the material values from Cesium Native and apply them.
-        pbrShader.CreateInput(pxr::TfToken("reflection_roughness_constant"), pxr::SdfValueTypeNames->Float).Set(0.1f);
+        pbrShader.CreateInput(pxr::_tokens->reflection_roughness_constant, pxr::SdfValueTypeNames->Float).Set(0.1f);
     };
 
     if (hasRasterOverlay) {
@@ -726,21 +743,17 @@ void GltfToUSD::insertRasterOverlayTexture(
     const glm::dvec2& scale) {
     std::string texturePath = getRasterOverlayTexturePath(parent.GetPath());
 
-    if (parent.IsActive()) {
-        for (const auto& prim : parent.GetAllDescendants()) {
-            spdlog::default_logger()->warn("Translation/Scale applied to {}", prim.GetName().GetString());
+    for (const auto& prim : parent.GetAllDescendants()) {
+        if (prim.IsA<pxr::UsdGeomMesh>()) {
+            const auto mesh = static_cast<pxr::UsdGeomMesh>(prim);
 
-            if (prim.IsA<pxr::UsdGeomMesh>()) {
-                const auto mesh = static_cast<pxr::UsdGeomMesh>(prim);
+            auto const scalePrimvar = mesh.CreatePrimvar(pxr::_tokens->scale_primvar, pxr::SdfValueTypeNames->Float2);
+            scalePrimvar.Set(pxr::GfVec2f(static_cast<float>(scale.x), static_cast<float>(scale.y)));
 
-                auto const translationPrimvar =
-                    mesh.CreatePrimvar(pxr::TfToken("Translation"), pxr::SdfValueTypeNames->Float2);
-                translationPrimvar.Set(
-                    pxr::GfVec2f(static_cast<float>(translation.x), static_cast<float>(translation.y)));
-
-                auto const scalePrimvar = mesh.CreatePrimvar(pxr::TfToken("Scale"), pxr::SdfValueTypeNames->Float2);
-                scalePrimvar.Set(pxr::GfVec2f(static_cast<float>(scale.x), static_cast<float>(scale.y)));
-            }
+            auto const translationPrimvar =
+                mesh.CreatePrimvar(pxr::_tokens->translation_primvar, pxr::SdfValueTypeNames->Float2);
+            translationPrimvar.Set(
+                pxr::GfVec2f(static_cast<float>(translation.x), static_cast<float>(translation.y)));
         }
     }
 
