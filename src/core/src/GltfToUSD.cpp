@@ -455,7 +455,8 @@ pxr::UsdShadeMaterial convertMaterialToUSD_OmniPBR(
 
         translationPrimvarReader.CreateInput(pxr::_tokens->default_value, pxr::SdfValueTypeNames->Float2)
             .Set(pxr::GfVec2f(0.0f, 0.0f));
-        translationPrimvarReader.CreateInput(pxr::_tokens->name, pxr::SdfValueTypeNames->String).Set(TRANSLATION_PRIMVAR_ID);
+        translationPrimvarReader.CreateInput(pxr::_tokens->name, pxr::SdfValueTypeNames->String)
+            .Set(TRANSLATION_PRIMVAR_ID);
 
         const auto translatePrimvarReaderOutput =
             translationPrimvarReader.CreateOutput(pxr::_tokens->out, pxr::SdfValueTypeNames->Float2);
@@ -752,8 +753,7 @@ void GltfToUSD::insertRasterOverlayTexture(
 
             auto const translationPrimvar =
                 mesh.CreatePrimvar(pxr::_tokens->translation_primvar, pxr::SdfValueTypeNames->Float2);
-            translationPrimvar.Set(
-                pxr::GfVec2f(static_cast<float>(translation.x), static_cast<float>(translation.y)));
+            translationPrimvar.Set(pxr::GfVec2f(static_cast<float>(translation.x), static_cast<float>(translation.y)));
         }
     }
 
