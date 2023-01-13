@@ -441,7 +441,7 @@ endforeach()
 # Hide CONAN_CMD_PATH from CMake GUI
 mark_as_advanced(CONAN_CMD_PATH)
 
-# Configure plugInfo.json
+# Configure plugInfo.json for InMemoryAssetResolver
 set(PLUG_INFO_LIBRARY_FILE_NAME "${CMAKE_SHARED_LIBRARY_PREFIX}InMemoryAssetResolver${CMAKE_SHARED_LIBRARY_SUFFIX}")
 
 set(PLUG_INFO_LIBRARY_PATH_BUILD "../../${PLUG_INFO_LIBRARY_FILE_NAME}")
@@ -450,13 +450,38 @@ set(PLUG_INFO_LIBRARY_PATH_KIT "../../bin/${PLUG_INFO_LIBRARY_FILE_NAME}")
 
 set(PLUG_INFO_LIBRARY_PATH ${PLUG_INFO_LIBRARY_PATH_BUILD})
 configure_file("${PROJECT_SOURCE_DIR}/src/plugins/InMemoryAssetResolver/plugInfo.json.in"
-               "${PROJECT_BINARY_DIR}/plugInfo.json.build")
+               "${PROJECT_BINARY_DIR}/inMemoryAssetResolver.plugInfo.json.build")
 set(PLUG_INFO_LIBRARY_PATH ${PLUG_INFO_LIBRARY_PATH_INSTALL})
 configure_file("${PROJECT_SOURCE_DIR}/src/plugins/InMemoryAssetResolver/plugInfo.json.in"
-               "${PROJECT_BINARY_DIR}/plugInfo.json.install")
+               "${PROJECT_BINARY_DIR}/inMemoryAssetResolver.plugInfo.json.install")
 set(PLUG_INFO_LIBRARY_PATH ${PLUG_INFO_LIBRARY_PATH_KIT})
 configure_file("${PROJECT_SOURCE_DIR}/src/plugins/InMemoryAssetResolver/plugInfo.json.in"
-               "${PROJECT_BINARY_DIR}/plugInfo.json.kit")
+               "${PROJECT_BINARY_DIR}/inMemoryAssetResolver.plugInfo.json.kit")
+
+# Configure plugInfo.json for CesiumUsdSchemas
+set(PLUG_INFO_LIBRARY_FILE_NAME "${CMAKE_SHARED_LIBRARY_PREFIX}CesiumUsdSchemas${CMAKE_SHARED_LIBRARY_SUFFIX}")
+
+set(PLUG_INFO_LIBRARY_PATH_BUILD "../../${PLUG_INFO_LIBRARY_FILE_NAME}")
+set(PLUG_INFO_LIBRARY_PATH_INSTALL "../../lib/${PLUG_INFO_LIBRARY_FILE_NAME}")
+set(PLUG_INFO_LIBRARY_PATH_KIT "../../bin/${PLUG_INFO_LIBRARY_FILE_NAME}")
+
+set(PLUG_INFO_LIBRARY_PATH ${PLUG_INFO_LIBRARY_PATH_BUILD})
+configure_file("${PROJECT_SOURCE_DIR}/src/plugins/CesiumUsdSchemas/plugInfo.json.in"
+               "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.plugInfo.json.build")
+set(PLUG_INFO_LIBRARY_PATH ${PLUG_INFO_LIBRARY_PATH_INSTALL})
+configure_file("${PROJECT_SOURCE_DIR}/src/plugins/CesiumUsdSchemas/plugInfo.json.in"
+               "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.plugInfo.json.install")
+set(PLUG_INFO_LIBRARY_PATH ${PLUG_INFO_LIBRARY_PATH_KIT})
+configure_file("${PROJECT_SOURCE_DIR}/src/plugins/CesiumUsdSchemas/plugInfo.json.in"
+               "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.plugInfo.json.kit")
+
+# Configure generatedSchema.usda for CesiumUsdSchemas
+configure_file("${PROJECT_SOURCE_DIR}/src/plugins/CesiumUsdSchemas/generatedSchema.usda.in"
+               "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.generatedSchema.usda.build")
+configure_file("${PROJECT_SOURCE_DIR}/src/plugins/CesiumUsdSchemas/generatedSchema.usda.in"
+               "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.generatedSchema.usda.install")
+configure_file("${PROJECT_SOURCE_DIR}/src/plugins/CesiumUsdSchemas/generatedSchema.usda.in"
+               "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.generatedSchema.usda.kit")
 
 # Create mem.cesium
 file(TOUCH "${PROJECT_BINARY_DIR}/mem.cesium")
@@ -496,6 +521,28 @@ install(
 
 install(
     TARGETS InMemoryAssetResolver
+            RUNTIME_DEPENDENCIES
+            DIRECTORIES
+            ${INSTALL_SEARCH_PATHS}
+            PRE_EXCLUDE_REGEXES
+            ${INSTALL_PRE_EXCLUDE_REGEXES}
+            POST_EXCLUDE_REGEXES
+            ${INSTALL_POST_EXCLUDE_REGEXES}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT library EXCLUDE_FROM_ALL
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT library EXCLUDE_FROM_ALL
+    RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT library EXCLUDE_FROM_ALL)
+
+install(
+    TARGETS CesiumUsdSchemas
+    ARCHIVE DESTINATION ${KIT_EXTENSION_BIN_PATH}
+            COMPONENT install
+    LIBRARY DESTINATION ${KIT_EXTENSION_BIN_PATH}
+            COMPONENT install
+    RUNTIME DESTINATION ${KIT_EXTENSION_BIN_PATH}
+            COMPONENT install)
+
+install(
+    TARGETS CesiumUsdSchemas
             RUNTIME_DEPENDENCIES
             DIRECTORIES
             ${INSTALL_SEARCH_PATHS}
@@ -568,13 +615,38 @@ install(
     COMPONENT library EXCLUDE_FROM_ALL)
 
 install(
-    FILES "${PROJECT_BINARY_DIR}/plugInfo.json.kit"
+    FILES "${PROJECT_BINARY_DIR}/inMemoryAssetResolver.plugInfo.json.kit"
     DESTINATION "${KIT_EXTENSION_PLUGINS_PATH}/InMemoryAssetResolver/resources/"
     RENAME "plugInfo.json"
     COMPONENT install)
 
 install(
-    FILES "${PROJECT_BINARY_DIR}/plugInfo.json.install"
+    FILES "${PROJECT_BINARY_DIR}/inMemoryAssetResolver.plugInfo.json.install"
     DESTINATION "plugins/InMemoryAssetResolver/resources/"
     RENAME "plugInfo.json"
+    COMPONENT library EXCLUDE_FROM_ALL)
+
+install(
+    FILES "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.plugInfo.json.kit"
+    DESTINATION "${KIT_EXTENSION_PLUGINS_PATH}/CesiumUsdSchemas/resources/"
+    RENAME "plugInfo.json"
+    COMPONENT install)
+
+install(
+    FILES "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.plugInfo.json.install"
+    DESTINATION "plugins/CesiumUsdSchemas/resources/"
+    RENAME "plugInfo.json"
+    COMPONENT library EXCLUDE_FROM_ALL)
+
+
+install(
+    FILES "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.generatedSchema.usda.kit"
+    DESTINATION "${KIT_EXTENSION_PLUGINS_PATH}/CesiumUsdSchemas/resources/"
+    RENAME "generatedSchema.usda"
+    COMPONENT install)
+
+install(
+    FILES "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.generatedSchema.usda.install"
+    DESTINATION "plugins/CesiumUsdSchemas/resources/"
+    RENAME "generatedSchema.usda"
     COMPONENT library EXCLUDE_FROM_ALL)

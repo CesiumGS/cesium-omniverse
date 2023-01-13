@@ -1,0 +1,36 @@
+#usda 1.0
+(
+    """ This file describes an example schema for code generation using
+        usdGenSchema.
+    """
+    subLayers = [
+        @usd/schema.usda@
+    ]
+)
+
+over "GLOBAL" (
+    customData = {
+        string libraryName       = "cesium"
+        string libraryPath       = "./"
+        string libraryPrefix     = "Cesium"
+    }
+) {
+}
+
+class "CesiumGeoreference" (
+    doc = """Represents a Cesium Georeference location."""
+    inherits = </Typed>
+    customData = {
+        string className = "Georeference"
+    }
+) {
+    double latitude = 0.0 (
+        doc = "A double representing the latitude in decimal degrees. Has a fallback value of 0.0."
+    )
+    double longitude = 0.0 (
+        doc = "A double representing the longitude in decimal degrees. Has a fallback value of 0.0."
+    )
+    double height = 0.0 (
+        doc = "A double representing the height in meters. Has a fallback value of 0.0."
+    )
+}

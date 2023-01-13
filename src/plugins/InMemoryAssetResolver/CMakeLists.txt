@@ -45,7 +45,7 @@ setup_lib(
 add_custom_command(
     TARGET InMemoryAssetResolver
     POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_BINARY_DIR}/plugInfo.json.build"
+    COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_BINARY_DIR}/inMemoryAssetResolver.plugInfo.json.build"
             "$<TARGET_FILE_DIR:InMemoryAssetResolver>/plugins/InMemoryAssetResolver/resources/plugInfo.json"
     COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_BINARY_DIR}/mem.cesium"
             "$<TARGET_FILE_DIR:InMemoryAssetResolver>/mem.cesium")

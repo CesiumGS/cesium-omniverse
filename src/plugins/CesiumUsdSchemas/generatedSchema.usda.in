@@ -1,0 +1,20 @@
+#usda 1.0
+(
+    "WARNING: THIS FILE IS GENERATED.  DO NOT EDIT."
+)
+
+class "CesiumGeoreference" (
+    doc = "Represents a Cesium Georeference location."
+)
+{
+    double height = 0 (
+        doc = "A double representing the height in meters. Has a fallback value of 0.0."
+    )
+    double latitude = 0 (
+        doc = "A double representing the latitude in decimal degrees. Has a fallback value of 0.0."
+    )
+    double longitude = 0 (
+        doc = "A double representing the longitude in decimal degrees. Has a fallback value of 0.0."
+    )
+}
+
