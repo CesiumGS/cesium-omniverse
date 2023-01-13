@@ -8,7 +8,7 @@ setup_lib(
         CesiumUsdSchemas
     TYPE
         SHARED
-    INCLUDE
+    INCLUDE_DIRS
         "${CMAKE_CURRENT_LIST_DIR}/include"
     SOURCES
         ${SOURCES}

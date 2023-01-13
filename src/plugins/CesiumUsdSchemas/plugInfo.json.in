@@ -15,9 +15,9 @@
                 }
             }, 
             "LibraryPath": "@PLUG_INFO_LIBRARY_PATH@", 
-            "Name": "cesium", 
-            "ResourcePath": "@PLUG_INFO_RESOURCE_PATH@", 
-            "Root": "@PLUG_INFO_ROOT@", 
+            "Name": "CesiumUsdSchemas",
+            "ResourcePath": "resources",
+            "Root": "..",
             "Type": "library"
         }
     ]
