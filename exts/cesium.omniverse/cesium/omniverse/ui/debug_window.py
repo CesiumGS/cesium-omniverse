@@ -1,4 +1,4 @@
-from .bindings.CesiumOmniversePythonBindings import *
+from ..bindings.CesiumOmniversePythonBindings import *
 from carb.events._events import ISubscription
 import carb.settings as omni_settings
 from enum import Enum

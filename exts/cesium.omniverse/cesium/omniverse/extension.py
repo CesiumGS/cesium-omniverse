@@ -1,5 +1,5 @@
 from .bindings.CesiumOmniversePythonBindings import *
-from .window import CesiumOmniverseDebugWindow
+from .ui.debug_window import CesiumOmniverseDebugWindow
 from .utils import wait_n_frames
 import asyncio
 from functools import partial
@@ -15,6 +15,7 @@ cesium_extension_location = os.path.join(os.path.dirname(__file__), "../../")
 
 # Global public interface object.
 _cesium_omniverse_interface: ICesiumOmniverseInterface = None
+
 
 # Public API.
 def get_cesium_omniverse_interface() -> ICesiumOmniverseInterface:
