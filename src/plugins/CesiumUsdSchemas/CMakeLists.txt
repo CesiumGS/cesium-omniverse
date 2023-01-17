@@ -28,27 +28,10 @@ setup_lib(
     SOURCES
         ${SOURCES}
     LIBRARIES
-        ar
         arch
-        gf
-        js
-        kind
-        ndr
-        pcp
-        plug
         sdf
-        sdr
         tf
-        trace
         usd
-        usdGeom
-        usdLux
-        usdShade
-        usdUI
-        usdUtils
-        usdVol
-        vt
-        work
         tbb
         boost_python37
         python37
