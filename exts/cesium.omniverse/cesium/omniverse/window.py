@@ -19,7 +19,7 @@ class Tileset(Enum):
     CAPE_CANAVERAL = 2
 
 
-class CesiumOmniverseWindow(ui.Window):
+class CesiumOmniverseDebugWindow(ui.Window):
 
     _subscription_handle: ISubscription = None
     _logger: logging.Logger
