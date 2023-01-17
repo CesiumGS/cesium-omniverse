@@ -1,4 +1,4 @@
-#include "../include/cesium/omniverse/georeference.h"
+#include "../include/cesium/omniverse/CesiumGeoreference.h"
 
 #include "pxr/usd/sdf/assetPath.h"
 #include "pxr/usd/sdf/types.h"
@@ -12,7 +12,7 @@ TF_REGISTRY_FUNCTION(TfType)
 {
     TfType::Define<CesiumGeoreference,
         TfType::Bases< UsdTyped > >();
-    
+
 }
 
 /* virtual */
@@ -46,7 +46,7 @@ CesiumGeoreference::_GetStaticTfType()
 }
 
 /* static */
-bool 
+bool
 CesiumGeoreference::_IsTypedSchema()
 {
     static bool isTyped = _GetStaticTfType().IsA<UsdTyped>();

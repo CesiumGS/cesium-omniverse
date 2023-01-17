@@ -1,7 +1,7 @@
 #ifndef CESIUM_GENERATED_GEOREFERENCE_H
 #define CESIUM_GENERATED_GEOREFERENCE_H
 
-/// \file cesium/georeference.h
+/// \file cesium/CesiumGeoreference.h
 
 #include "pxr/base/gf/matrix4d.h"
 #include "pxr/base/gf/vec3d.h"
@@ -100,7 +100,7 @@ private:
 
 public:
     // --------------------------------------------------------------------- //
-    // LATITUDE 
+    // LATITUDE
     // --------------------------------------------------------------------- //
     /// A double representing the latitude in decimal degrees. Has a fallback value of 0.0.
     ///
@@ -112,7 +112,7 @@ public:
     CESIUM_API
     UsdAttribute GetLatitudeAttr() const;
 
-    /// See GetLatitudeAttr(), and also 
+    /// See GetLatitudeAttr(), and also
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
@@ -122,7 +122,7 @@ public:
 
 public:
     // --------------------------------------------------------------------- //
-    // LONGITUDE 
+    // LONGITUDE
     // --------------------------------------------------------------------- //
     /// A double representing the longitude in decimal degrees. Has a fallback value of 0.0.
     ///
@@ -134,7 +134,7 @@ public:
     CESIUM_API
     UsdAttribute GetLongitudeAttr() const;
 
-    /// See GetLongitudeAttr(), and also 
+    /// See GetLongitudeAttr(), and also
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
@@ -144,7 +144,7 @@ public:
 
 public:
     // --------------------------------------------------------------------- //
-    // HEIGHT 
+    // HEIGHT
     // --------------------------------------------------------------------- //
     /// A double representing the height in meters. Has a fallback value of 0.0.
     ///
@@ -156,7 +156,7 @@ public:
     CESIUM_API
     UsdAttribute GetHeightAttr() const;
 
-    /// See GetHeightAttr(), and also 
+    /// See GetHeightAttr(), and also
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
@@ -166,11 +166,11 @@ public:
 
 public:
     // ===================================================================== //
-    // Feel free to add custom code below this line, it will be preserved by 
-    // the code generator. 
+    // Feel free to add custom code below this line, it will be preserved by
+    // the code generator.
     //
-    // Just remember to: 
-    //  - Close the class declaration with }; 
+    // Just remember to:
+    //  - Close the class declaration with };
     //  - Close the namespace with PXR_NAMESPACE_CLOSE_SCOPE
     //  - Close the include guard with #endif
     // ===================================================================== //

@@ -4,7 +4,7 @@
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/TaskProcessor.h"
-#include "cesium/omniverse/georeference.h"
+#include "cesium/omniverse/CesiumGeoreference.h"
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
@@ -42,7 +42,7 @@ OmniTileset::OmniTileset(const pxr::UsdStageRefPtr& stage, const std::string& ur
 
 OmniTileset::OmniTileset(const pxr::UsdStageRefPtr& stage, int64_t ionID, const std::string& ionToken) {
     pxr::UsdPrim georeferencePrim = stage->GetPrimAtPath(pxr::SdfPath("/Georeference"));
-//    pxr::CesiumGeoreference georeference(georeferencePrim);
+    pxr::CesiumGeoreference georeference(georeferencePrim);
 
     pxr::SdfPath tilesetPath =
         stage->GetPseudoRoot().GetPath().AppendChild(pxr::TfToken(fmt::format("tileset_ion_{}", ionID)));

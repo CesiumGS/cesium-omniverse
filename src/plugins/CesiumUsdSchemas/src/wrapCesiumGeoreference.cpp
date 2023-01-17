@@ -10,7 +10,7 @@
 
 #include <string>
 
-#include "../include/cesium/omniverse/georeference.h"
+#include "../include/cesium/omniverse/CesiumGeoreference.h"
 
 using namespace boost::python;
 
@@ -24,21 +24,21 @@ namespace {
 // fwd decl.
 WRAP_CUSTOM;
 
-        
+
 static UsdAttribute
 _CreateLatitudeAttr(CesiumGeoreference &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateLatitudeAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
 }
-        
+
 static UsdAttribute
 _CreateLongitudeAttr(CesiumGeoreference &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateLongitudeAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
 }
-        
+
 static UsdAttribute
 _CreateHeightAttr(CesiumGeoreference &self,
                                       object defaultVal, bool writeSparsely) {
@@ -84,21 +84,21 @@ void wrapCesiumGeoreference()
 
         .def(!self)
 
-        
+
         .def("GetLatitudeAttr",
              &This::GetLatitudeAttr)
         .def("CreateLatitudeAttr",
              &_CreateLatitudeAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
-        
+
         .def("GetLongitudeAttr",
              &This::GetLongitudeAttr)
         .def("CreateLongitudeAttr",
              &_CreateLongitudeAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
-        
+
         .def("GetHeightAttr",
              &This::GetHeightAttr)
         .def("CreateHeightAttr",
@@ -113,7 +113,7 @@ void wrapCesiumGeoreference()
 }
 
 // ===================================================================== //
-// Feel free to add custom code below this line, it will be preserved by 
+// Feel free to add custom code below this line, it will be preserved by
 // the code generator.  The entry point for your custom code should look
 // minimally like the following:
 //
@@ -124,7 +124,7 @@ void wrapCesiumGeoreference()
 // }
 //
 // Of course any other ancillary or support code may be provided.
-// 
+//
 // Just remember to wrap code in the appropriate delimiters:
 // 'namespace {', '}'.
 //
