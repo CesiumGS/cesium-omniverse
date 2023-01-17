@@ -21,6 +21,9 @@ class Tileset(Enum):
 
 class CesiumOmniverseDebugWindow(ui.Window):
 
+    WINDOW_NAME = "Cesium Debugging"
+    MENU_PATH = f"Window/Cesium/{WINDOW_NAME}"
+
     _subscription_handle: ISubscription = None
     _logger: logging.Logger
     _cesium_omniverse_interface: ICesiumOmniverseInterface = None
