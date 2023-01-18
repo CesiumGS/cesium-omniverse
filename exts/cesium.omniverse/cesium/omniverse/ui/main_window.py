@@ -10,7 +10,7 @@ class CesiumOmniverseMainWindow(ui.Window):
     """
 
     WINDOW_NAME = "Cesium"
-    MENU_PATH = f"/Window/Cesium/{WINDOW_NAME}"
+    MENU_PATH = f"Window/Cesium/{WINDOW_NAME}"
 
     def __init__(self, cesium_omniverse_interface: ICesiumOmniverseInterface, **kwargs):
         super().__init__(CesiumOmniverseMainWindow.WINDOW_NAME, **kwargs)
