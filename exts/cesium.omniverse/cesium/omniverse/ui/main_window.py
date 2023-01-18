@@ -1,7 +1,10 @@
 from ..bindings import ICesiumOmniverseInterface
 import logging
 import omni.ui as ui
+from pathlib import Path
 from typing import Optional
+
+ICON_PATH = Path(__file__).parent.parent.parent.parent.absolute().joinpath(f"icons")
 
 
 class CesiumOmniverseMainWindow(ui.Window):
@@ -35,13 +38,36 @@ class CesiumOmniverseMainWindow(ui.Window):
         """Builds all UI components."""
 
         with ui.VStack():
-            with ui.HStack():
-                self._add_button = ui.Button("Add", clicked_fn=self._add_button_clicked, enabled=False)
-                self._upload_button = ui.Button("Upload", clicked_fn=self._upload_button_clicked, enabled=False)
-                self._token_button = ui.Button("Token", clicked_fn=self._token_button_clicked)
-                self._learn_button = ui.Button("Learn", clicked_fn=self._learn_button_clicked)
-                self._help_button = ui.Button("Help", clicked_fn=self._help_button_clicked)
-                self._sign_out_button = ui.Button("Sign Out", clicked_fn=self._sign_out_button_clicked, enabled=False)
+            button_style = {
+                "Button": {
+                    "padding": 10.0,
+                    "stack_direction": ui.Direction.TOP_TO_BOTTOM
+                },
+                "Button.Image": {
+                    "alignment": ui.Alignment.CENTER,
+                },
+                "Button.Label": {
+                    "alignment": ui.Alignment.CENTER
+                }
+            }
+
+            with ui.HStack(height=ui.Length(15, ui.UnitType.PERCENT)):
+                self._add_button = ui.Button("Add", image_url=f"{ICON_PATH}/FontAwesome/plus-solid.png",
+                                             style=button_style, clicked_fn=self._add_button_clicked, enabled=False)
+                self._upload_button = ui.Button("Upload",
+                                                image_url=f"{ICON_PATH}/FontAwesome/cloud-upload-alt-solid.png",
+                                                style=button_style, clicked_fn=self._upload_button_clicked,
+                                                enabled=False)
+                self._token_button = ui.Button("Token", image_url=f"{ICON_PATH}/FontAwesome/key-solid.png",
+                                               style=button_style, clicked_fn=self._token_button_clicked)
+                self._learn_button = ui.Button("Learn", image_url=f"{ICON_PATH}/FontAwesome/book-reader-solid.png",
+                                               style=button_style, clicked_fn=self._learn_button_clicked)
+                self._help_button = ui.Button("Help", image_url=f"{ICON_PATH}/FontAwesome/hands-helping-solid.png",
+                                              style=button_style, clicked_fn=self._help_button_clicked)
+                self._sign_out_button = ui.Button("Sign Out",
+                                                  image_url=f"{ICON_PATH}/FontAwesome/sign-out-alt-solid.png",
+                                                  style=button_style, clicked_fn=self._sign_out_button_clicked,
+                                                  enabled=False)
             ui.Label("TODO: The rest of this window.")
 
     def _add_button_clicked(self) -> None:
