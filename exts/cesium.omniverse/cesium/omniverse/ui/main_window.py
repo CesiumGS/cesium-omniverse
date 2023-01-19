@@ -2,8 +2,13 @@ from ..bindings import ICesiumOmniverseInterface
 import logging
 import omni.kit.app as app
 import omni.ui as ui
+import webbrowser
 from pathlib import Path
 from typing import Optional
+
+HELP_URL = "https://community.cesium.com/"
+LEARN_URL = "https://cesium.com/learn/"
+UPLOAD_URL = "https://ion.cesium.com/addasset"
 
 
 class CesiumOmniverseMainWindow(ui.Window):
@@ -84,9 +89,7 @@ class CesiumOmniverseMainWindow(ui.Window):
         if not self._upload_button or not self._upload_button.enabled:
             return
 
-        # TODO: Implement CesiumMainWindow._upload_button_clicked(self)
-
-        pass
+        webbrowser.open(UPLOAD_URL)
 
     def _token_button_clicked(self) -> None:
         if not self._token_button:
@@ -100,17 +103,13 @@ class CesiumOmniverseMainWindow(ui.Window):
         if not self._learn_button:
             return
 
-        # TODO: Implement CesiumMainWindow._learn_button_clicked(self)
-
-        pass
+        webbrowser.open(LEARN_URL)
 
     def _help_button_clicked(self) -> None:
         if not self._help_button:
             return
 
-        # TODO: Implement CesiumMainWindow._help_button_clicked(self)
-
-        pass
+        webbrowser.open(HELP_URL)
 
     def _sign_out_button_clicked(self) -> None:
         if not self._sign_out_button or not self._upload_button.enabled:
