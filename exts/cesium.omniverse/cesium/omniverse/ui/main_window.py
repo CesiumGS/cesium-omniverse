@@ -67,9 +67,11 @@ class CesiumOmniverseMainWindow(ui.Window):
                                                 enabled=False)
                 self._token_button = ui.Button("Token", image_url=f"{self._icon_path}/FontAwesome/key-solid.png",
                                                style=button_style, clicked_fn=self._token_button_clicked)
-                self._learn_button = ui.Button("Learn", image_url=f"{self._icon_path}/FontAwesome/book-reader-solid.png",
+                self._learn_button = ui.Button("Learn",
+                                               image_url=f"{self._icon_path}/FontAwesome/book-reader-solid.png",
                                                style=button_style, clicked_fn=self._learn_button_clicked)
-                self._help_button = ui.Button("Help", image_url=f"{self._icon_path}/FontAwesome/hands-helping-solid.png",
+                self._help_button = ui.Button("Help",
+                                              image_url=f"{self._icon_path}/FontAwesome/hands-helping-solid.png",
                                               style=button_style, clicked_fn=self._help_button_clicked)
                 self._sign_out_button = ui.Button("Sign Out",
                                                   image_url=f"{self._icon_path}/FontAwesome/sign-out-alt-solid.png",
