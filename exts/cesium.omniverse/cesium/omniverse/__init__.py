@@ -1,5 +1,6 @@
 import os
-
+from .extension import *
+from .utils import *
 from pxr import Plug
 
 pluginsRoot = os.path.join(os.path.dirname(__file__), "../../plugins")
@@ -11,6 +12,3 @@ if plugin:
     plugin.Load()
 else:
     print("Cannot find plugin")
-
-
-from .extension import *
