@@ -17,14 +17,12 @@ using namespace boost::python;
 PXR_NAMESPACE_USING_DIRECTIVE
 
 namespace {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 #define WRAP_CUSTOM                                                     \
-    template <class Cls> static void _CustomWrapCode(Cls &_class)
+    template <class Cls> static void _CustomWrapCode([[maybe_unused]] Cls &_class)
 
 // fwd decl.
 WRAP_CUSTOM;
-#pragma GCC diagnostic pop
 
 
 static UsdAttribute
