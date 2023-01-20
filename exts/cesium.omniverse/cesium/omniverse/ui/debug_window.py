@@ -1,4 +1,3 @@
-from .bindings.CesiumOmniversePythonBindings import *
 from carb.events._events import ISubscription
 import carb.settings as omni_settings
 from enum import Enum
@@ -9,6 +8,7 @@ from omni.kit.viewport.utility import get_active_viewport, get_active_viewport_c
 import omni.kit.app as omni_app
 import omni.kit.commands as omni_commands
 from pxr import Gf, Sdf
+from ..bindings import ICesiumOmniverseInterface
 
 
 class Tileset(Enum):
@@ -19,7 +19,10 @@ class Tileset(Enum):
     CAPE_CANAVERAL = 2
 
 
-class CesiumOmniverseWindow(ui.Window):
+class CesiumOmniverseDebugWindow(ui.Window):
+
+    WINDOW_NAME = "Cesium Debugging"
+    MENU_PATH = f"Window/Cesium/{WINDOW_NAME}"
 
     _subscription_handle: ISubscription = None
     _logger: logging.Logger
