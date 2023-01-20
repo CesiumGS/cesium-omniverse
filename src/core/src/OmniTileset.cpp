@@ -1,10 +1,10 @@
 #include "cesium/omniverse/OmniTileset.h"
 
+#include "cesium/omniverse/CesiumGeoreference.h"
 #include "cesium/omniverse/GltfToUSD.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/TaskProcessor.h"
-#include "cesium/omniverse/CesiumGeoreference.h"
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
