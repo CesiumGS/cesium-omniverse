@@ -17,20 +17,29 @@ over "GLOBAL" (
 ) {
 }
 
-class "CesiumGeoreference" (
-    doc = """Represents a Cesium Georeference location."""
+class "CesiumData" (
+    doc = """Stores stage level data for Cesium for Omniverse/USD."""
     inherits = </Typed>
     customData = {
-        string className = "Georeference"
+        string className = "Data"
     }
 ) {
-    double latitude = 0.0 (
-        doc = "A double representing the latitude in decimal degrees. Has a fallback value of 0.0."
+    string ionToken = "" (
+        doc = "A string representing an API token for Cesium ion."
     )
-    double longitude = 0.0 (
-        doc = "A double representing the longitude in decimal degrees. Has a fallback value of 0.0."
+}
+
+class "TilesetAPI" (
+    doc = """Adds Cesium specific data to a prim for representing a tileset."""
+    inherits = </APISchemaBase>
+    customData = {
+        string className = "TilesetAPI"
+    }
+) {
+    string assetId = "" (
+        doc = "A string representing a Cesium ion asset ID."
     )
-    double height = 0.0 (
-        doc = "A double representing the height in meters. Has a fallback value of 0.0."
+    string assetUrl = "" (
+        doc = "A string representing an asset URL."
     )
 }

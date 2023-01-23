@@ -1,6 +1,4 @@
 #include "cesium/omniverse/OmniTileset.h"
-
-#include "cesium/omniverse/CesiumGeoreference.h"
 #include "cesium/omniverse/GltfToUSD.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
@@ -11,6 +9,7 @@
 #undef OPAQUE
 #endif
 
+#include <CesiumUsdSchemas/data.h>
 #include <Cesium3DTilesSelection/IonRasterOverlay.h>
 #include <Cesium3DTilesSelection/registerAllTileContentTypes.h>
 #include <CesiumGeometry/AxisTransforms.h>
@@ -41,8 +40,8 @@ OmniTileset::OmniTileset(const pxr::UsdStageRefPtr& stage, const std::string& ur
 }
 
 OmniTileset::OmniTileset(const pxr::UsdStageRefPtr& stage, int64_t ionID, const std::string& ionToken) {
-    pxr::UsdPrim georeferencePrim = stage->GetPrimAtPath(pxr::SdfPath("/Georeference"));
-    pxr::CesiumGeoreference georeference(georeferencePrim);
+    pxr::UsdPrim cesiumDataPrim = stage->DefinePrim(pxr::SdfPath("/Cesium"));
+    pxr::CesiumData cesiumData(cesiumDataPrim);
 
     pxr::SdfPath tilesetPath =
         stage->GetPseudoRoot().GetPath().AppendChild(pxr::TfToken(fmt::format("tileset_ion_{}", ionID)));

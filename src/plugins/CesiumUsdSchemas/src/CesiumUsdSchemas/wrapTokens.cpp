@@ -1,7 +1,6 @@
 // GENERATED FILE.  DO NOT EDIT.
 #include <boost/python/class.hpp>
-
-#include "../include/cesium/omniverse/tokens.h"
+#include ".//tokens.h"
 
 PXR_NAMESPACE_USING_DIRECTIVE
 
@@ -42,7 +41,7 @@ void wrapCesiumTokens()
 {
     boost::python::class_<CesiumTokensType, boost::noncopyable>
         cls("Tokens", boost::python::no_init);
-    _AddToken(cls, "height", CesiumTokens->height);
-    _AddToken(cls, "latitude", CesiumTokens->latitude);
-    _AddToken(cls, "longitude", CesiumTokens->longitude);
+    _AddToken(cls, "assetId", CesiumTokens->assetId);
+    _AddToken(cls, "assetUrl", CesiumTokens->assetUrl);
+    _AddToken(cls, "ionToken", CesiumTokens->ionToken);
 }

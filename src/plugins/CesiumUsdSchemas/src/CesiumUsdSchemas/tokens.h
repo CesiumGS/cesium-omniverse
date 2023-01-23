@@ -10,13 +10,11 @@
 // 
 // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
+#include "pxr/pxr.h"
+#include ".//api.h"
 #include "pxr/base/tf/staticData.h"
 #include "pxr/base/tf/token.h"
-#include "pxr/pxr.h"
-
 #include <vector>
-
-#include "./api.h"
 
 PXR_NAMESPACE_OPEN_SCOPE
 
@@ -37,22 +35,22 @@ PXR_NAMESPACE_OPEN_SCOPE
 /// Use CesiumTokens like so:
 ///
 /// \code
-///     gprim.GetMyTokenValuedAttr().Set(CesiumTokens->height);
+///     gprim.GetMyTokenValuedAttr().Set(CesiumTokens->assetId);
 /// \endcode
 struct CesiumTokensType {
     CESIUM_API CesiumTokensType();
-    /// \brief "height"
+    /// \brief "assetId"
     /// 
-    /// CesiumGeoreference
-    const TfToken height;
-    /// \brief "latitude"
+    /// CesiumTilesetAPI
+    const TfToken assetId;
+    /// \brief "assetUrl"
     /// 
-    /// CesiumGeoreference
-    const TfToken latitude;
-    /// \brief "longitude"
+    /// CesiumTilesetAPI
+    const TfToken assetUrl;
+    /// \brief "ionToken"
     /// 
-    /// CesiumGeoreference
-    const TfToken longitude;
+    /// CesiumData
+    const TfToken ionToken;
     /// A vector of all of the tokens listed above.
     const std::vector<TfToken> allTokens;
 };

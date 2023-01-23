@@ -1,16 +1,17 @@
+#include ".//tilesetAPI.h"
+#include "pxr/usd/usd/schemaBase.h"
+
+#include "pxr/usd/sdf/primSpec.h"
+
+#include "pxr/usd/usd/pyConversions.h"
 #include "pxr/base/tf/pyContainerConversions.h"
 #include "pxr/base/tf/pyResultConversions.h"
 #include "pxr/base/tf/pyUtils.h"
 #include "pxr/base/tf/wrapTypeHelpers.h"
-#include "pxr/usd/sdf/primSpec.h"
-#include "pxr/usd/usd/pyConversions.h"
-#include "pxr/usd/usd/schemaBase.h"
 
 #include <boost/python.hpp>
 
 #include <string>
-
-#include "../include/cesium/omniverse/CesiumGeoreference.h"
 
 using namespace boost::python;
 
@@ -19,50 +20,43 @@ PXR_NAMESPACE_USING_DIRECTIVE
 namespace {
 
 #define WRAP_CUSTOM                                                     \
-    template <class Cls> static void _CustomWrapCode([[maybe_unused]] Cls &_class)
+    template <class Cls> static void _CustomWrapCode(Cls &_class)
 
 // fwd decl.
 WRAP_CUSTOM;
 
-
+        
 static UsdAttribute
-_CreateLatitudeAttr(CesiumGeoreference &self,
+_CreateAssetIdAttr(CesiumTilesetAPI &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateLatitudeAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
+    return self.CreateAssetIdAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
-
+        
 static UsdAttribute
-_CreateLongitudeAttr(CesiumGeoreference &self,
+_CreateAssetUrlAttr(CesiumTilesetAPI &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateLongitudeAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
-}
-
-static UsdAttribute
-_CreateHeightAttr(CesiumGeoreference &self,
-                                      object defaultVal, bool writeSparsely) {
-    return self.CreateHeightAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
+    return self.CreateAssetUrlAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
 
 static std::string
-_Repr(const CesiumGeoreference &self)
+_Repr(const CesiumTilesetAPI &self)
 {
     std::string primRepr = TfPyRepr(self.GetPrim());
     return TfStringPrintf(
-        "Cesium.Georeference(%s)",
+        "Cesium.TilesetAPI(%s)",
         primRepr.c_str());
 }
 
 } // anonymous namespace
 
-void wrapCesiumGeoreference()
+void wrapCesiumTilesetAPI()
 {
-    typedef CesiumGeoreference This;
+    typedef CesiumTilesetAPI This;
 
-    class_<This, bases<UsdTyped> >
-        cls("Georeference");
+    class_<This, bases<UsdAPISchemaBase> >
+        cls("TilesetAPI");
 
     cls
         .def(init<UsdPrim>(arg("prim")))
@@ -71,6 +65,9 @@ void wrapCesiumGeoreference()
 
         .def("Get", &This::Get, (arg("stage"), arg("path")))
         .staticmethod("Get")
+
+        .def("Apply", &This::Apply, (arg("prim")))
+        .staticmethod("Apply")
 
         .def("GetSchemaAttributeNames",
              &This::GetSchemaAttributeNames,
@@ -84,25 +81,18 @@ void wrapCesiumGeoreference()
 
         .def(!self)
 
-
-        .def("GetLatitudeAttr",
-             &This::GetLatitudeAttr)
-        .def("CreateLatitudeAttr",
-             &_CreateLatitudeAttr,
+        
+        .def("GetAssetIdAttr",
+             &This::GetAssetIdAttr)
+        .def("CreateAssetIdAttr",
+             &_CreateAssetIdAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
-
-        .def("GetLongitudeAttr",
-             &This::GetLongitudeAttr)
-        .def("CreateLongitudeAttr",
-             &_CreateLongitudeAttr,
-             (arg("defaultValue")=object(),
-              arg("writeSparsely")=false))
-
-        .def("GetHeightAttr",
-             &This::GetHeightAttr)
-        .def("CreateHeightAttr",
-             &_CreateHeightAttr,
+        
+        .def("GetAssetUrlAttr",
+             &This::GetAssetUrlAttr)
+        .def("CreateAssetUrlAttr",
+             &_CreateAssetUrlAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 
@@ -113,7 +103,7 @@ void wrapCesiumGeoreference()
 }
 
 // ===================================================================== //
-// Feel free to add custom code below this line, it will be preserved by
+// Feel free to add custom code below this line, it will be preserved by 
 // the code generator.  The entry point for your custom code should look
 // minimally like the following:
 //
@@ -124,7 +114,7 @@ void wrapCesiumGeoreference()
 // }
 //
 // Of course any other ancillary or support code may be provided.
-//
+// 
 // Just remember to wrap code in the appropriate delimiters:
 // 'namespace {', '}'.
 //
