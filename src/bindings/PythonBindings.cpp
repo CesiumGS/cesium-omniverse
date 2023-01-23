@@ -28,6 +28,7 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         m, "ICesiumOmniverseInterface", "acquire_cesium_omniverse_interface", "release_cesium_omniverse_interface")
         .def("initialize", &ICesiumOmniverseInterface::initialize)
         .def("finalize", &ICesiumOmniverseInterface::finalize)
+        .def("addCesiumData", &ICesiumOmniverseInterface::addCesiumData)
         .def("addTilesetUrl", &ICesiumOmniverseInterface::addTilesetUrl)
         .def("addTilesetIon", &ICesiumOmniverseInterface::addTilesetIon)
         .def("removeTileset", &ICesiumOmniverseInterface::removeTileset)

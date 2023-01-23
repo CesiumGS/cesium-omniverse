@@ -2,6 +2,8 @@
 
 #include "cesium/omniverse/CesiumOmniverse.h"
 
+#include "CesiumUsdSchemas/data.h"
+
 #include "cesium/omniverse/OmniTileset.h"
 
 #include <carb/PluginUtils.h>
@@ -25,6 +27,17 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
 
     void finalize() noexcept {
         OmniTileset::shutdown();
+    }
+
+    void addCesiumData(long stageId, const char* ionToken) noexcept override {
+        const auto& stage = pxr::UsdUtilsStageCache::Get().Find(pxr::UsdStageCache::Id::FromLongInt(stageId));
+        pxr::UsdPrim cesiumDataPrim = stage->DefinePrim(pxr::SdfPath("/Cesium"));
+        pxr::CesiumData cesiumData(cesiumDataPrim);
+        auto ionTokenAttr = cesiumData.CreateIonTokenAttr(pxr::VtValue(""));
+
+        if (strlen(ionToken) != 0) {
+            ionTokenAttr.Set(ionToken);
+        }
     }
 
     int addTilesetUrl(long stageId, const char* url) noexcept override {

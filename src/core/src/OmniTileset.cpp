@@ -40,9 +40,6 @@ OmniTileset::OmniTileset(const pxr::UsdStageRefPtr& stage, const std::string& ur
 }
 
 OmniTileset::OmniTileset(const pxr::UsdStageRefPtr& stage, int64_t ionID, const std::string& ionToken) {
-    pxr::UsdPrim cesiumDataPrim = stage->DefinePrim(pxr::SdfPath("/Cesium"));
-    pxr::CesiumData cesiumData(cesiumDataPrim);
-
     pxr::SdfPath tilesetPath =
         stage->GetPseudoRoot().GetPath().AppendChild(pxr::TfToken(fmt::format("tileset_ion_{}", ionID)));
     renderResourcesPreparer = std::make_shared<RenderResourcesPreparer>(stage, tilesetPath);

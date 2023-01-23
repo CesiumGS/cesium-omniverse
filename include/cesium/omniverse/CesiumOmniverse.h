@@ -28,6 +28,14 @@ class ICesiumOmniverseInterface {
     virtual void finalize() noexcept = 0;
 
     /**
+     * @brief Adds a Cesium Data prim.
+     *
+     * @param stageId The USD stage id
+     * @param ionToken The Stage level ionToken
+     */
+    virtual void addCesiumData(long stageId, const char* ionToken) noexcept = 0;
+
+    /**
      * @brief Adds a tileset from url.
      *
      * @param stageId The USD stage id
@@ -37,11 +45,10 @@ class ICesiumOmniverseInterface {
     virtual int addTilesetUrl(long stageId, const char* url) noexcept = 0;
 
     /**
-     * @brief Adds a tileset from ion.
+     * @brief Adds a tileset from ion using the Stage level ion token.
      *
      * @param stageId The USD stage id
      * @param ionId The ion asset id
-     * @param ionToken The ion access token
      * @returns The tileset id. Returns -1 on error.
      */
     virtual int addTilesetIon(long stageId, int64_t ionId, const char* ionToken) noexcept = 0;
@@ -59,7 +66,6 @@ class ICesiumOmniverseInterface {
      * @param tileset The tileset id
      * @param name The user-given name of this overlay layer
      * @param ionId The asset ID
-     * @param ionToken The access token
      */
     virtual void addIonRasterOverlay(int tileset, const char* name, int64_t ionId, const char* ionToken) noexcept = 0;
 
