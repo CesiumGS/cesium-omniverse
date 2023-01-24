@@ -1,5 +1,7 @@
 #/bin/bash
 
+# You need to install the jinja2 package for Python for this to work.
+
 PROJECT_ROOT=`dirname -- "$( readlink -f -- "$0"; )"`
 SCHEMA_INPUT_PATH="$PROJECT_ROOT/exts/cesium.omniverse/schemas/cesium_schemas.usda"
 SCHEMA_OUTPUT_PATH="$PROJECT_ROOT/src/plugins/CesiumUsdSchemas/src/CesiumUsdSchemas"
