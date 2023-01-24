@@ -1,4 +1,5 @@
 #include "cesium/omniverse/OmniTileset.h"
+
 #include "cesium/omniverse/GltfToUSD.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
@@ -9,11 +10,11 @@
 #undef OPAQUE
 #endif
 
-#include <CesiumUsdSchemas/data.h>
 #include <Cesium3DTilesSelection/IonRasterOverlay.h>
 #include <Cesium3DTilesSelection/registerAllTileContentTypes.h>
 #include <CesiumGeometry/AxisTransforms.h>
 #include <CesiumGltf/Material.h>
+#include <CesiumUsdSchemas/data.h>
 #include <glm/glm.hpp>
 
 namespace cesium::omniverse {
