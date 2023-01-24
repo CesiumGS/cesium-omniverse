@@ -49,6 +49,7 @@ class ICesiumOmniverseInterface {
      *
      * @param stageId The USD stage id
      * @param ionId The ion asset id
+     * @param ionToken The access token
      * @returns The tileset id. Returns -1 on error.
      */
     virtual int addTilesetIon(long stageId, int64_t ionId, const char* ionToken) noexcept = 0;
@@ -66,6 +67,7 @@ class ICesiumOmniverseInterface {
      * @param tileset The tileset id
      * @param name The user-given name of this overlay layer
      * @param ionId The asset ID
+     * @param ionToken The access token
      */
     virtual void addIonRasterOverlay(int tileset, const char* name, int64_t ionId, const char* ionToken) noexcept = 0;
 
