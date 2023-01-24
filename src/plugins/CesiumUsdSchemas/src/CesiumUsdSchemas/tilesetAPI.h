@@ -57,13 +57,11 @@ public:
     }
 
     /// Destructor.
-    CESIUM_API
     virtual ~CesiumTilesetAPI();
 
     /// Return a vector of names of all pre-declared attributes for this schema
     /// class and all its ancestor classes.  Does not include attributes that
     /// may be authored by custom/extended methods of the schemas involved.
-    CESIUM_API
     static const TfTokenVector &
     GetSchemaAttributeNames(bool includeInherited=true);
 
@@ -76,7 +74,6 @@ public:
     /// CesiumTilesetAPI(stage->GetPrimAtPath(path));
     /// \endcode
     ///
-    CESIUM_API
     static CesiumTilesetAPI
     Get(const UsdStagePtr &stage, const SdfPath &path);
 
@@ -95,7 +92,6 @@ public:
     /// \sa UsdPrim::ApplyAPI()
     /// \sa UsdPrim::RemoveAPI()
     ///
-    CESIUM_API
     static CesiumTilesetAPI 
     Apply(const UsdPrim &prim);
 
@@ -103,19 +99,16 @@ protected:
     /// Returns the type of schema this class belongs to.
     ///
     /// \sa UsdSchemaType
-    CESIUM_API
     UsdSchemaType _GetSchemaType() const override;
 
 private:
     // needs to invoke _GetStaticTfType.
     friend class UsdSchemaRegistry;
-    CESIUM_API
     static const TfType &_GetStaticTfType();
 
     static bool _IsTypedSchema();
 
     // override SchemaBase virtuals.
-    CESIUM_API
     const TfType &_GetTfType() const override;
 
 public:
@@ -129,7 +122,6 @@ public:
     /// | Declaration | `string assetId = ""` |
     /// | C++ Type | std::string |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
-    CESIUM_API
     UsdAttribute GetAssetIdAttr() const;
 
     /// See GetAssetIdAttr(), and also 
@@ -137,7 +129,6 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    CESIUM_API
     UsdAttribute CreateAssetIdAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -151,7 +142,6 @@ public:
     /// | Declaration | `string assetUrl = ""` |
     /// | C++ Type | std::string |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
-    CESIUM_API
     UsdAttribute GetAssetUrlAttr() const;
 
     /// See GetAssetUrlAttr(), and also 
@@ -159,7 +149,6 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    CESIUM_API
     UsdAttribute CreateAssetUrlAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
