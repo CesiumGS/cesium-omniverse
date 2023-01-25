@@ -5,6 +5,7 @@ add_external_project(
     PROJECT_NAME
         cesium-native
     LIBRARIES
+        CesiumIonClient
         Cesium3DTilesSelection
         CesiumAsync
         CesiumGeospatial

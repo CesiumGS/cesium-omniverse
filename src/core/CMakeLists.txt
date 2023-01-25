@@ -33,6 +33,7 @@ setup_lib(
     LIBRARIES
         InMemoryAssetResolver
         CesiumUsdSchemas
+        CesiumIonClient
         Cesium3DTilesSelection
         CesiumAsync
         CesiumGeospatial
