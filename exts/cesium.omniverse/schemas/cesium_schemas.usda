@@ -1,0 +1,45 @@
+#usda 1.0
+(
+    """ This file describes an example schema for code generation using
+        usdGenSchema.
+    """
+    subLayers = [
+        @usd/schema.usda@
+    ]
+)
+
+over "GLOBAL" (
+    customData = {
+        string libraryName       = "cesium"
+        string libraryPath       = "./"
+        string libraryPrefix     = "Cesium"
+    }
+) {
+}
+
+class "CesiumData" (
+    doc = """Stores stage level data for Cesium for Omniverse/USD."""
+    inherits = </Typed>
+    customData = {
+        string className = "Data"
+    }
+) {
+    string ionToken = "" (
+        doc = "A string representing an API token for Cesium ion."
+    )
+}
+
+class "TilesetAPI" (
+    doc = """Adds Cesium specific data to a prim for representing a tileset."""
+    inherits = </APISchemaBase>
+    customData = {
+        string className = "TilesetAPI"
+    }
+) {
+    string assetId = "" (
+        doc = "A string representing a Cesium ion asset ID."
+    )
+    string assetUrl = "" (
+        doc = "A string representing an asset URL."
+    )
+}

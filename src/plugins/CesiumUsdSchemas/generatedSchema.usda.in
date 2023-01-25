@@ -1,0 +1,31 @@
+#usda 1.0
+(
+    "WARNING: THIS FILE IS GENERATED.  DO NOT EDIT."
+    customLayerData = {
+        string[] appliedAPISchemas = ["TilesetAPI"]
+        dictionary multipleApplyAPISchemas = {
+        }
+    }
+)
+
+class "CesiumData" (
+    doc = "Stores stage level data for Cesium for Omniverse/USD."
+)
+{
+    string ionToken = "" (
+        doc = "A string representing an API token for Cesium ion."
+    )
+}
+
+class "TilesetAPI" (
+    doc = "Adds Cesium specific data to a prim for representing a tileset."
+)
+{
+    string assetId = "" (
+        doc = "A string representing a Cesium ion asset ID."
+    )
+    string assetUrl = "" (
+        doc = "A string representing an asset URL."
+    )
+}
+

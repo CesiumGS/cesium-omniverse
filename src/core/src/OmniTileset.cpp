@@ -14,6 +14,7 @@
 #include <Cesium3DTilesSelection/registerAllTileContentTypes.h>
 #include <CesiumGeometry/AxisTransforms.h>
 #include <CesiumGltf/Material.h>
+#include <CesiumUsdSchemas/data.h>
 #include <glm/glm.hpp>
 
 namespace cesium::omniverse {

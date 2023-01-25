@@ -6,7 +6,7 @@ set(IN_MEMORY_ASSET_RESOLVER_CXX_FLAGS ${CESIUM_OMNI_CXX_FLAGS})
 
 if(MSVC)
     # Disable whole program optimization and unreferenced function removal
-    # Without these flags InMemoryAssetResolver won't work in Release mode
+    # Without these flags USD plugins won't work in Release mode
     # Related issue: https://github.com/PixarAnimationStudios/USD/issues/1095
     set(IN_MEMORY_ASSET_RESOLVER_CXX_FLAGS ${IN_MEMORY_ASSET_RESOLVER_CXX_FLAGS} /GL- /Zc:inline-)
 endif()
@@ -45,7 +45,7 @@ setup_lib(
 add_custom_command(
     TARGET InMemoryAssetResolver
     POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_BINARY_DIR}/plugInfo.json.build"
+    COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_BINARY_DIR}/inMemoryAssetResolver.plugInfo.json.build"
             "$<TARGET_FILE_DIR:InMemoryAssetResolver>/plugins/InMemoryAssetResolver/resources/plugInfo.json"
     COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_BINARY_DIR}/mem.cesium"
             "$<TARGET_FILE_DIR:InMemoryAssetResolver>/mem.cesium")
