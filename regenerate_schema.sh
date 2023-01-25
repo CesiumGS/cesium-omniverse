@@ -1,15 +1,18 @@
 #/bin/bash
 
-# You need to install the jinja2 package for Python for this to work.
-
 PROJECT_ROOT=`dirname -- "$( readlink -f -- "$0"; )"`
 SCHEMA_INPUT_PATH="$PROJECT_ROOT/exts/cesium.omniverse/schemas/cesium_schemas.usda"
 SCHEMA_OUTPUT_PATH="$PROJECT_ROOT/src/plugins/CesiumUsdSchemas/src/CesiumUsdSchemas"
 NVIDIA_USD_BINS="$PROJECT_ROOT/extern/nvidia/_build/target-deps/usd/release/bin"
+NVIDIA_PYTHON_BINS="$PROJECT_ROOT/extern/nvidia/_build/target-deps/python/bin"
+NVIDIA_PYTHON_EXECUTABLE="$NVIDIA_PYTHON_BINS/python3"
+NVIDIA_PYTHON_LIBS="$PROJECT_ROOT/extern/nvidia/_build/target-deps/python/lib"
 NVIDIA_USD_PYTHON_LIBS="$PROJECT_ROOT/extern/nvidia/_build/target-deps/usd/release/lib/python"
 
-export PYTHONPATH="$PYTHONPATH:$NVIDIA_USD_PYTHON_LIBS"
-export PATH="$PATH:$NVIDIA_USD_BINS"
+export PYTHONPATH="$NVIDIA_USD_PYTHON_LIBS:$PYTHONPATH"
+export PATH="$NVIDIA_USD_BINS:$NVIDIA_PYTHON_LIBS:$NVIDIA_PYTHON_BINS:$NVIDIA_USD_PYTHON_LIBS:$PATH"
+
+$NVIDIA_PYTHON_EXECUTABLE -m pip install jinja2
 
 # Clear out the old files.
 rm $SCHEMA_OUTPUT_PATH/*
