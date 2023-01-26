@@ -4,7 +4,6 @@
 #include <CesiumAsync/IAssetAccessor.h>
 #include <CesiumAsync/SharedFuture.h>
 #include <CesiumIonClient/Connection.h>
-
 #include <carb/settings/SettingsUtils.h>
 
 #include <memory>
@@ -82,28 +81,28 @@ class CesiumIonSession {
     bool refreshTokensIfNeeded();
 
     /**
-   * Finds the details of the specified token in the user's account.
-   *
-   * If this session is not connected, returns std::nullopt.
-   *
-   * Even if the list of tokens is already loaded, this method does a new query
-   * in order get the most up-to-date information about the token.
-   *
-   * @param token The token.
-   * @return The details of the token, or an error response if the token does
-   * not exist in the signed-in user account.
+     * Finds the details of the specified token in the user's account.
+     *
+     * If this session is not connected, returns std::nullopt.
+     *
+     * Even if the list of tokens is already loaded, this method does a new query
+     * in order get the most up-to-date information about the token.
+     *
+     * @param token The token.
+     * @return The details of the token, or an error response if the token does
+     * not exist in the signed-in user account.
      */
     CesiumAsync::Future<CesiumIonClient::Response<CesiumIonClient::Token>> findToken(const std::string& token) const;
 
     /**
-   * Gets the project default token.
-   *
-   * If the project default token exists in the signed-in user's account, full
-   * token details will be included. Otherwise, only the token value itself
-   * (i.e. the `token` property`) will be included, and it may or may not be
-   * valid. In the latter case, the `id` property will be an empty string.
-   *
-   * @return A future that resolves to the project default token.
+     * Gets the project default token.
+     *
+     * If the project default token exists in the signed-in user's account, full
+     * token details will be included. Otherwise, only the token value itself
+     * (i.e. the `token` property`) will be included, and it may or may not be
+     * valid. In the latter case, the `id` property will be an empty string.
+     *
+     * @return A future that resolves to the project default token.
      */
     CesiumAsync::SharedFuture<CesiumIonClient::Token> getProjectDefaultTokenDetails();
 
