@@ -23,4 +23,7 @@
     <package name="cuda" version="11.3.0_465.89-46d75baa-windows-x86_64" platforms="windows-x86_64"/>
     <package name="cuda" version="11.3.0_465.19.02-8923463f-linux-x86_64" platforms="linux-x86_64"/>
   </dependency>
+  <dependency name="kit_sdk" linkPath="../_build/target-deps/kit-sdk/">
+    <package name="kit-sdk" version="104.1+release.387.3b4671f3.tc.${platform}.release"/>
+  </dependency>
 </project>

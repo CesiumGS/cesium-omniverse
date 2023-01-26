@@ -1,6 +1,7 @@
-// Copyright 2020-2021 CesiumGS, Inc. and Contributors
+// Copyright 2023 CesiumGS, Inc. and Contributors
 
 #include "cesium/omniverse/CesiumIonSession.h"
+#include "cesium/omniverse/SettingsWrapper.h"
 
 using namespace CesiumAsync;
 using namespace CesiumIonClient;
@@ -53,16 +54,13 @@ void CesiumIonSession::connect() {
             command.append(" ");
             command.append(url);
 
-            system(command.c_str());
+            [[maybe_unused]] const auto status = system(command.c_str());
         })
         .thenInMainThread([this](CesiumIonClient::Connection&& connection) {
             this->_isConnecting = false;
             this->_connection = std::move(connection);
 
-            // How to get the access token.
-            // this->_connection.value().getAccessToken().c_str()
-
-            // TODO: Save the access token to settings.
+            setAccessToken(this->_connection.value().getAccessToken());
 
             // TODO: broadcast that the connection is updated.
         })
@@ -79,8 +77,7 @@ void CesiumIonSession::resume() {
         return;
     }
 
-    // TODO: Get userAccessToken from settings storage.
-    std::string userAccessToken = "";
+    std::string userAccessToken = getAccessToken();
     if (userAccessToken.empty()) {
         // No existing session to resume.
         return;
@@ -112,7 +109,7 @@ void CesiumIonSession::disconnect() {
     this->_assets.reset();
     this->_tokens.reset();
 
-    // TODO: Clear out the user access token from settings storage.
+    setAccessToken("");
 
     // TODO: Broadcast connection updated.
     // TODO: Broadcast profile updated.
@@ -265,15 +262,12 @@ namespace {
 
 Token tokenFromSettings() {
     Token result;
-    // TODO: Get the token from settings.
-    //    result.token = TCHAR_TO_UTF8(
-    //        *GetDefault<UCesiumRuntimeSettings>()->DefaultIonAccessToken);
+    result.token = getDefaultAccessToken();
     return result;
 }
 
 Future<Token> getTokenFuture(const CesiumIonSession& session) {
-    // TODO: Get the default ion access token from settings.
-    std::string defaultIonAccessToken = "";
+    std::string defaultIonAccessToken = getDefaultAccessToken();
 
     if (!defaultIonAccessToken.empty()) {
         return session.getConnection()
@@ -302,8 +296,7 @@ Future<Token> getTokenFuture(const CesiumIonSession& session) {
 
 SharedFuture<Token> CesiumIonSession::getProjectDefaultTokenDetails() {
     if (this->_projectDefaultTokenDetailsFuture) {
-        // TODO: Get the default ion access token from settings.
-        std::string defaultIonAccessToken = "";
+        std::string defaultIonAccessToken = getDefaultAccessToken();
 
         // If the future is resolved but its token doesn't match the designated
         // default token, do the request again because the user probably specified a

@@ -79,6 +79,7 @@ setup_lib(
         tbb
         carb
         cudart
+        omni_kit_app
         pybind11
         python37
     DEPENDENCIES

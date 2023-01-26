@@ -5,6 +5,8 @@
 #include <CesiumAsync/SharedFuture.h>
 #include <CesiumIonClient/Connection.h>
 
+#include <carb/settings/SettingsUtils.h>
+
 #include <memory>
 #include <optional>
 #include <vector>
