@@ -12,7 +12,7 @@ namespace cesium::omniverse {
 [[maybe_unused]] static std::string getAccessToken() {
     auto settings = carb::getCachedInterface<carb::settings::ISettings>();
     auto key = std::string(PERSISTENT_SETTINGS_PREFIX).append(ACCESS_TOKEN_PATH).c_str();
-    return { settings->getStringBuffer(key) };
+    return {settings->getStringBuffer(key)};
 }
 
 [[maybe_unused]] static void setAccessToken(const std::string& accessToken) {
@@ -24,7 +24,7 @@ namespace cesium::omniverse {
 [[maybe_unused]] static std::string getDefaultAccessToken() {
     auto settings = carb::getCachedInterface<carb::settings::ISettings>();
     auto key = std::string(PERSISTENT_SETTINGS_PREFIX).append(DEFAULT_ACCESS_TOKEN_PATH).c_str();
-    return { settings->getStringBuffer(key) };
+    return {settings->getStringBuffer(key)};
 }
 
 } // namespace cesium::omniverse

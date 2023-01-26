@@ -1,6 +1,7 @@
 // Copyright 2023 CesiumGS, Inc. and Contributors
 
 #include "cesium/omniverse/CesiumIonSession.h"
+
 #include "cesium/omniverse/SettingsWrapper.h"
 
 using namespace CesiumAsync;
