@@ -44,8 +44,8 @@ void CesiumIonSession::connect() {
         this->_asyncSystem,
         this->_pAssetAccessor,
         "Cesium for Omniverse",
-        190,
-        "/cesium-for-Omniverse/oauth2/callback",
+        413,
+        "/cesium-for-omniverse/oauth2/callback",
         {"assets:list", "assets:read", "profile:read", "tokens:read", "tokens:write", "geocode"},
         [this](const std::string& url) {
             this->_authorizeUrl = url;
