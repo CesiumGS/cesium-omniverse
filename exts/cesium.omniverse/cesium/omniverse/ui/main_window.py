@@ -5,6 +5,8 @@ import omni.ui as ui
 import webbrowser
 from pathlib import Path
 from typing import Optional
+from .sign_in_widget import CesiumOmniverseSignInWidget
+from .styles import CesiumOmniverseUiStyles
 
 HELP_URL = "https://community.cesium.com/"
 LEARN_URL = "https://cesium.com/learn/"
@@ -26,7 +28,7 @@ class CesiumOmniverseMainWindow(ui.Window):
 
         self._cesium_omniverse_interface = cesium_omniverse_interface
         self._logger = logging.getLogger(__name__)
-        self._icon_path = Path(manager.get_extension_path(ext_id)).joinpath("icons")
+        self._icon_path = Path(manager.get_extension_path(ext_id)).joinpath("images")
 
         # Buttons aren't created until the build function is called.
         self._add_button: Optional[ui.Button] = None
@@ -35,6 +37,7 @@ class CesiumOmniverseMainWindow(ui.Window):
         self._learn_button: Optional[ui.Button] = None
         self._help_button: Optional[ui.Button] = None
         self._sign_out_button: Optional[ui.Button] = None
+        self._sign_in_widget: Optional[CesiumOmniverseSignInWidget] = None
 
         self.frame.set_build_fn(self._build_fn)
 
@@ -44,19 +47,8 @@ class CesiumOmniverseMainWindow(ui.Window):
     def _build_fn(self):
         """Builds all UI components."""
 
-        with ui.VStack():
-            button_style = {
-                "Button": {
-                    "padding": 10.0,
-                    "stack_direction": ui.Direction.TOP_TO_BOTTOM
-                },
-                "Button.Image": {
-                    "alignment": ui.Alignment.CENTER,
-                },
-                "Button.Label": {
-                    "alignment": ui.Alignment.CENTER_BOTTOM
-                }
-            }
+        with ui.VStack(spacing=20):
+            button_style = CesiumOmniverseUiStyles.top_bar_button_style
 
             with ui.HStack(height=ui.Length(80, ui.UnitType.PIXEL)):
                 self._add_button = ui.Button("Add", image_url=f"{self._icon_path}/FontAwesome/plus-solid.png",
@@ -77,7 +69,7 @@ class CesiumOmniverseMainWindow(ui.Window):
                                                   image_url=f"{self._icon_path}/FontAwesome/sign-out-alt-solid.png",
                                                   style=button_style, clicked_fn=self._sign_out_button_clicked,
                                                   enabled=False)
-            ui.Label("TODO: The rest of this window.")
+            self._sign_in_widget = CesiumOmniverseSignInWidget(visible=True)
 
     def _add_button_clicked(self) -> None:
         if not self._add_button or not self._add_button.enabled:
