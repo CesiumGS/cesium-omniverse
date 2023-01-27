@@ -55,7 +55,7 @@ class CesiumOmniverseSignInWidget(ui.Frame):
                         with ui.HStack():
                             self._url_string_field = ui.StringField(read_only=True)
                             self._url_string_field.model.set_value("https://www.cesium.com")
-                            ui.Button("Copy to Clipboard")
+                            ui.Button("Copy to Clipboard", clicked_fn=self._copy_to_clipboard_clicked)
                 ui.Spacer(height=10)
 
     def _connect_button_clicked(self) -> None:
@@ -73,5 +73,5 @@ class CesiumOmniverseSignInWidget(ui.Frame):
         pass
 
     def _copy_to_clipboard_clicked(self) -> None:
-        if self._url_string_field:
-            clipboard.copy(self._url_string_field.model.get_value_as_string())
+        if self._url_string_field is not None:
+            clipboard.copy("foobar")
