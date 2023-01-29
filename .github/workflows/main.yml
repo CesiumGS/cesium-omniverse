@@ -18,8 +18,8 @@ jobs:
               name: 'Windows - MSVC',
               artifact: 'windows-msvc.tar.xz',
               os: ["self-hosted","windows","x64","vs2022"],
-              cc: 'cl.exe',
-              cxx: 'cl.exe',
+              cc: 'cl',
+              cxx: 'cl',
               build-type: 'Release',
               generator: 'Ninja Multi-Config',
               coverage: 'false',
@@ -87,7 +87,9 @@ jobs:
       # Note: CMAKE_BUILD_TYPE is only used by Linux. It is ignored for Windows.
       # Note: CMAKE_CONFIGURATION_TYPES is used by Windows to generate a single configuration for Release since we don't need Debug, RelWithDebugInfo, and MinSizeRel on CI. It is ignored for Linux.
       - name: Configure
-        run: cmake -B build -D CMAKE_C_COMPILER=${{ matrix.config.cc }} -D CMAKE_CXX_COMPILER=${{ matrix.config.cxx }} -D CMAKE_BUILD_TYPE=${{ matrix.config.build-type }} -D CMAKE_CONFIGURATION_TYPES=${{ matrix.config.build-type }} -G "${{ matrix.config.generator }}"
+        run: |
+          echo $env:PATH
+          cmake -B build -D CMAKE_C_COMPILER=${{ matrix.config.cc }} -D CMAKE_CXX_COMPILER=${{ matrix.config.cxx }} -D CMAKE_BUILD_TYPE=${{ matrix.config.build-type }} -D CMAKE_CONFIGURATION_TYPES=${{ matrix.config.build-type }} -G "${{ matrix.config.generator }}"
 
       # Note: GitHub Actions only has 2 cores
       - name: Build
