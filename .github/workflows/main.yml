@@ -55,9 +55,7 @@ jobs:
       - name: Conan Set build directory (Windows)
         if: runner.os == 'Windows'
         run: |
-          $env:GITHUB_WORKSPACE="d:\"
-          echo "GITHUB_WORKSPACE=$env:GITHUB_WORKSPACE" >> $env:GITHUB_ENV
-          echo "CONAN_USER_HOME=$env:GITHUB_WORKSPACE" >> $env:GITHUB_ENV
+          echo "CONAN_USER_HOME=d:\" >> $env:GITHUB_ENV
           echo "CONAN_USER_HOME_SHORT=None" >> $env:GITHUB_ENV
 
       # The -v{num} is a cache key buster because we were starting to use the same cache keys from previous tests
