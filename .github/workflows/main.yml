@@ -45,7 +45,6 @@ jobs:
       # This is partly done to make the directory easily accessible to Docker builds
       - name: Conan Set build directory (Unix)
         if: runner.os == 'Linux'
-        shell: pwsh
         run: echo "CONAN_USER_HOME=$GITHUB_WORKSPACE" >> $GITHUB_ENV
 
       # Disable short paths so that all packages are built in the same .conan directory
@@ -55,7 +54,6 @@ jobs:
       # See https://github.com/actions/runner-images/issues/1052#issuecomment-644212560
       - name: Conan Set build directory (Windows)
         if: runner.os == 'Windows'
-        shell: pwsh
         run: |
           echo "CONAN_USER_HOME=$env:GITHUB_WORKSPACE" >> $env:GITHUB_ENV
           echo "CONAN_USER_HOME_SHORT=None" >> $env:GITHUB_ENV
@@ -71,7 +69,6 @@ jobs:
 
       - name: Install Linux dependencies
         if: runner.os == 'Linux'
-        shell: pwsh
         run: |
           sudo apt update
           sudo apt install -y doxygen clang-tidy-14 gcovr
@@ -83,7 +80,6 @@ jobs:
       # Note that this is only a problem on CI, not with local builds
       - name: Install Windows dependencies
         if: runner.os == 'Windows'
-        shell: pwsh
         run: |
           choco install -y conan
           echo "C:/Program Files/conan/conan" >> $env:GITHUB_PATH
@@ -91,39 +87,29 @@ jobs:
       # Note: CMAKE_BUILD_TYPE is only used by Linux. It is ignored for Windows.
       # Note: CMAKE_CONFIGURATION_TYPES is used by Windows to generate a single configuration for Release since we don't need Debug, RelWithDebugInfo, and MinSizeRel on CI. It is ignored for Linux.
       - name: Configure
-        shell: pwsh
-        run: |
-          echo $env:PATH
-          cmake -B build -D CMAKE_C_COMPILER=${{ matrix.config.cc }} -D CMAKE_CXX_COMPILER=${{ matrix.config.cxx }} -D CMAKE_BUILD_TYPE=${{ matrix.config.build-type }} -D CMAKE_CONFIGURATION_TYPES=${{ matrix.config.build-type }} -G "${{ matrix.config.generator }}"
+        run: cmake -B build -D CMAKE_C_COMPILER=${{ matrix.config.cc }} -D CMAKE_CXX_COMPILER=${{ matrix.config.cxx }} -D CMAKE_BUILD_TYPE=${{ matrix.config.build-type }} -D CMAKE_CONFIGURATION_TYPES=${{ matrix.config.build-type }} -G "${{ matrix.config.generator }}"
 
       # Note: GitHub Actions only has 2 cores
       - name: Build
-        shell: pwsh
         run: cmake --build build --config ${{ matrix.config.build-type }} --parallel 2
 
       - name: Check Formatting
-        shell: pwsh
         run: cmake --build build --target clang-format-check-all --config ${{ matrix.config.build-type }}
 
       - name: Tests
-        shell: pwsh
         run: cd build && ctest --output-on-failure
 
       - name: Coverage
         if: matrix.config.coverage == 'true'
-        shell: pwsh
         run: cmake --build build --target generate-coverage --config ${{ matrix.config.build-type }}
 
       - name: Documentation
         # Currently disabled for Windows because `choco install doxygen.install` is flaky
         if: runner.os == 'Linux'
-        shell: pwsh
         run: cmake --build build --target generate-documentation --config ${{ matrix.config.build-type }}
 
       - name: Install (Default/Kit)
-        shell: pwsh
         run: cmake --install build --config ${{ matrix.config.build-type }} --prefix install-default
 
       - name: Install (Library)
-        shell: pwsh
         run: cmake --install build --config ${{ matrix.config.build-type }} --prefix install-library --component library
