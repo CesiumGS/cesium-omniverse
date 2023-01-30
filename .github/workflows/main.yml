@@ -17,7 +17,7 @@ jobs:
           - {
               name: 'Windows - MSVC',
               artifact: 'windows-msvc.tar.xz',
-              os: windows-2022,
+              os: ["self-hosted","windows","x64","vs2022"],
               cc: 'cl',
               cxx: 'cl',
               build-type: 'Release',
