@@ -17,7 +17,7 @@ jobs:
           - {
               name: 'Windows - MSVC',
               artifact: 'windows-msvc.tar.xz',
-              os: ["self-hosted","windows","x64","vs2022"],
+              os: ['self-hosted', 'windows', 'x64', 'vs2022'],
               cc: 'cl',
               cxx: 'cl',
               build-type: 'Release',
@@ -36,10 +36,12 @@ jobs:
             }
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: recursive
       - uses: ilammy/msvc-dev-cmd@v1
+      - uses: SimenB/github-actions-cpu-cores@v1
+        id: cpu-cores
 
       # Tell Conan to look for or create its build folder (.conan) in the repository's root directory
       # This is partly done to make the directory easily accessible to Docker builds
@@ -62,7 +64,7 @@ jobs:
       # Unfortunately github actions doesn't let you delete old caches so we have to work around it like this
       - name: Conan Check cache
         id: conan-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ env.CONAN_USER_HOME }}/.conan
           key: conan-${{ matrix.config.name }}-${{ hashFiles('cmake/AddConanDependencies.cmake') }}-v1
@@ -89,9 +91,8 @@ jobs:
       - name: Configure
         run: cmake -B build -D CMAKE_C_COMPILER=${{ matrix.config.cc }} -D CMAKE_CXX_COMPILER=${{ matrix.config.cxx }} -D CMAKE_BUILD_TYPE=${{ matrix.config.build-type }} -D CMAKE_CONFIGURATION_TYPES=${{ matrix.config.build-type }} -G "${{ matrix.config.generator }}"
 
-      # Note: GitHub Actions only has 2 cores
       - name: Build
-        run: cmake --build build --config ${{ matrix.config.build-type }} --parallel 2
+        run: cmake --build build --config ${{ matrix.config.build-type }} --parallel ${{ steps.cpu-cores.outputs.count }}
 
       - name: Check Formatting
         run: cmake --build build --target clang-format-check-all --config ${{ matrix.config.build-type }}
