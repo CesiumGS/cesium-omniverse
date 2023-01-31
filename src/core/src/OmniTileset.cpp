@@ -153,6 +153,14 @@ void OmniTileset::connectToIon() {
     session->connect();
 }
 
+void OmniTileset::onUiUpdate() {
+    if (session == nullptr) {
+        return;
+    }
+
+    session->tick();
+}
+
 std::optional<CesiumIonClient::Connection> OmniTileset::getConnection() {
     if (session == nullptr) {
         return std::nullopt;

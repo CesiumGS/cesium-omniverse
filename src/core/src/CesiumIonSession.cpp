@@ -120,6 +120,10 @@ void CesiumIonSession::disconnect() {
     // TODO: Broadcast tokens updated.
 }
 
+void CesiumIonSession::tick() {
+    this->_asyncSystem.dispatchMainThreadTasks();
+}
+
 void CesiumIonSession::refreshProfile() {
     if (!this->_connection || this->_isLoadingProfile) {
         this->_loadProfileQueued = true;

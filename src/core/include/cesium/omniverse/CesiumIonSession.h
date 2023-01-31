@@ -63,6 +63,8 @@ class CesiumIonSession {
     void resume();
     void disconnect();
 
+    void tick();
+
     void refreshProfile();
     void refreshAssets();
     void refreshTokens();

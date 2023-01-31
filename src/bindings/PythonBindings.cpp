@@ -36,5 +36,6 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("updateFrame", &ICesiumOmniverseInterface::updateFrame)
         .def("setGeoreferenceOrigin", &ICesiumOmniverseInterface::setGeoreferenceOrigin)
         .def("connect_to_ion", &ICesiumOmniverseInterface::connectToIon)
+        .def("on_ui_update", &ICesiumOmniverseInterface::onUiUpdate)
         .def("get_connection", &ICesiumOmniverseInterface::getConnection);
 }

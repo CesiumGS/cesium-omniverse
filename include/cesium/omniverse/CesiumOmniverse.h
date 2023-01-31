@@ -100,6 +100,8 @@ class ICesiumOmniverseInterface {
 
     virtual void connectToIon() noexcept = 0;
 
+    virtual void onUiUpdate() noexcept = 0;
+
     virtual std::optional<CesiumIonClient::Connection> getConnection() noexcept = 0;
 };
 

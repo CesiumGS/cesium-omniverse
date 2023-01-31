@@ -5,7 +5,7 @@ import omni.kit.app as app
 import omni.ui as ui
 import webbrowser
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 from .sign_in_widget import CesiumOmniverseSignInWidget
 from .styles import CesiumOmniverseUiStyles
 
@@ -40,20 +40,33 @@ class CesiumOmniverseMainWindow(ui.Window):
         self._sign_out_button: Optional[ui.Button] = None
         self._sign_in_widget: Optional[CesiumOmniverseSignInWidget] = None
 
+        self._subscriptions: List[carb.events.ISubscription] = []
         self._setup_subscriptions()
 
         self.frame.set_build_fn(self._build_fn)
 
     def destroy(self) -> None:
+        for subscription in self._subscriptions:
+            subscription.unsubscribe()
+
         super().destroy()
 
     def _setup_subscriptions(self):
+        update_stream = app.get_app().get_update_event_stream()
         bus = app.get_app().get_message_bus_event_stream()
 
-        connection_updated_event = carb.events.type_from_string("cesium.omniverse.CONNECTION_UPDATED")
-        bus.create_subscription_to_pop_by_type(connection_updated_event, self._on_connection_updated)
+        self._subscriptions.append(
+            update_stream.create_subscription_to_pop(self._on_update_frame, name="on_update_frame"))
 
-    def _on_connection_updated(self):
+        connection_updated_event = carb.events.type_from_string("cesium.omniverse.CONNECTION_UPDATED")
+        self._subscriptions.append(
+            bus.create_subscription_to_pop_by_type(connection_updated_event, self._on_connection_updated,
+                                                   name="connection_updated"))
+
+    def _on_update_frame(self, _e: carb.events.IEvent):
+        self._cesium_omniverse_interface.on_ui_update()
+
+    def _on_connection_updated(self, _e: carb.events.IEvent):
         if self._sign_in_widget is None:
             return
 
