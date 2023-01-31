@@ -27,4 +27,4 @@ namespace cesium::omniverse::Settings {
     return {settings->getStringBuffer(key)};
 }
 
-} // namespace cesium::omniverse
+} // namespace cesium::omniverse::Settings
