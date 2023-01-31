@@ -1,7 +1,7 @@
 #pragma once
 
-#include <omni/kit/IApp.h>
 #include <carb/events/IEvents.h>
+#include <omni/kit/IApp.h>
 
 const char* ASSETS_UPDATED_EVENT_KEY = "cesium.omniverse.ASSETS_UPDATED";
 const char* CONNECTION_UPDATED_EVENT_KEY = "cesium.omniverse.CONNECTION_UPDATED";
@@ -24,6 +24,7 @@ class Broadcast {
     static void tokensUpdated() {
         sendMessageToBus(TOKENS_UPDATED_EVENT_KEY);
     }
+
   private:
     static void sendMessageToBus(const char* eventKey) {
         auto eventType = carb::events::typeFromString(eventKey);
@@ -32,6 +33,5 @@ class Broadcast {
         bus->push(eventType);
     }
 };
-
 
 } // namespace cesium::omniverse
