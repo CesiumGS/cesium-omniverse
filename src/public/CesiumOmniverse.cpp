@@ -91,8 +91,8 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         OmniTileset::onUiUpdate();
     };
 
-    std::optional<CesiumIonClient::Connection> getConnection() noexcept override {
-        return OmniTileset::getConnection();
+    std::optional<CesiumIonSession> getSession() noexcept override {
+        return OmniTileset::getSession();
     }
 };
 

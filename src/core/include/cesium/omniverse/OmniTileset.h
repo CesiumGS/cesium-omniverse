@@ -35,7 +35,7 @@ class OmniTileset {
 
     static void onUiUpdate();
 
-    static std::optional<CesiumIonClient::Connection> getConnection();
+    static std::optional<CesiumIonSession> getSession();
 
     static void shutdown();
 

@@ -161,12 +161,12 @@ void OmniTileset::onUiUpdate() {
     session->tick();
 }
 
-std::optional<CesiumIonClient::Connection> OmniTileset::getConnection() {
+std::optional<CesiumIonSession> OmniTileset::getSession() {
     if (session == nullptr) {
         return std::nullopt;
     }
 
-    return session->getConnection();
+    return std::optional<CesiumIonSession>{*session};
 }
 
 void OmniTileset::initOriginShiftHandler() {

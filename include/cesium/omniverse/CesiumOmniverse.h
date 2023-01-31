@@ -1,5 +1,7 @@
 #pragma once
 
+#include "cesium/omniverse/CesiumIonSession.h"
+
 #include <CesiumIonClient/Connection.h>
 #include <carb/Interface.h>
 #include <pxr/pxr.h>
@@ -102,7 +104,7 @@ class ICesiumOmniverseInterface {
 
     virtual void onUiUpdate() noexcept = 0;
 
-    virtual std::optional<CesiumIonClient::Connection> getConnection() noexcept = 0;
+    virtual std::optional<CesiumIonSession> getSession() noexcept = 0;
 };
 
 } // namespace cesium::omniverse

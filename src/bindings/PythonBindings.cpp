@@ -7,6 +7,8 @@
 // Needs to go after carb
 #include "pyboost11.h"
 
+#include "cesium/omniverse/CesiumIonSession.h"
+
 namespace pybind11 {
 namespace detail {
 
@@ -37,5 +39,24 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("setGeoreferenceOrigin", &ICesiumOmniverseInterface::setGeoreferenceOrigin)
         .def("connect_to_ion", &ICesiumOmniverseInterface::connectToIon)
         .def("on_ui_update", &ICesiumOmniverseInterface::onUiUpdate)
-        .def("get_connection", &ICesiumOmniverseInterface::getConnection);
+        .def("get_session", &ICesiumOmniverseInterface::getSession);
+
+    py::class_<CesiumIonSession>(m, "CesiumIonSession")
+        .def("is_connected", &CesiumIonSession::isConnected)
+        .def("is_connecting", &CesiumIonSession::isConnecting)
+        .def("is_resuming", &CesiumIonSession::isResuming)
+        .def("is_profile_loaded", &CesiumIonSession::isProfileLoaded)
+        .def("is_loading_profile", &CesiumIonSession::isLoadingProfile)
+        .def("is_asset_list_loaded", &CesiumIonSession::isAssetListLoaded)
+        .def("is_loading_asset_list", &CesiumIonSession::isLoadingAssetList)
+        .def("is_token_list_loaded", &CesiumIonSession::isTokenListLoaded)
+        .def("is_loading_token_list", &CesiumIonSession::isLoadingTokenList)
+        .def("get_connection", &CesiumIonSession::getConnection)
+        .def("get_profile", &CesiumIonSession::getProfile)
+        .def("get_assets", &CesiumIonSession::getAssets)
+        .def("get_tokens", &CesiumIonSession::getTokens);
+
+    py::class_<CesiumIonClient::Connection>(m, "Connection")
+        .def("get_api_url", &CesiumIonClient::Connection::getApiUrl)
+        .def("get_access_token", &CesiumIonClient::Connection::getAccessToken);
 }

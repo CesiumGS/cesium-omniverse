@@ -1,4 +1,4 @@
-from ..bindings import ICesiumOmniverseInterface
+from ..bindings import ICesiumOmniverseInterface, CesiumIonSession
 import logging
 import carb.events
 import omni.kit.app as app
@@ -66,14 +66,17 @@ class CesiumOmniverseMainWindow(ui.Window):
     def _on_update_frame(self, _e: carb.events.IEvent):
         self._cesium_omniverse_interface.on_ui_update()
 
-    def _on_connection_updated(self, _e: carb.events.IEvent):
-        if self._sign_in_widget is None:
-            return
+        session: CesiumIonSession = self._cesium_omniverse_interface.get_session()
 
-        connection = self._cesium_omniverse_interface.get_connection()
-        import pprint
-        self._logger.info("connection updated")
-        self._logger.info(pprint.pformat(connection))
+        if session is not None and self._sign_in_widget is not None:
+            is_connected = session.is_connected()  # Since this goes across the pybind barrier, just grab it once.
+            self._sign_in_widget.visible = not is_connected
+            self._add_button.enabled = is_connected
+            self._upload_button.enabled = is_connected
+            self._sign_out_button.enabled = is_connected
+
+    def _on_connection_updated(self, _e: carb.events.IEvent):
+        pass
 
     def _build_fn(self):
         """Builds all UI components."""
