@@ -136,6 +136,7 @@ void OmniTileset::init(const std::filesystem::path& cesiumExtensionLocation) {
     creditSystem = std::make_shared<Cesium3DTilesSelection::CreditSystem>();
     CesiumAsync::AsyncSystem asyncSystem{taskProcessor};
     session = std::make_shared<CesiumIonSession>(asyncSystem, httpAssetAccessor);
+    session->resume();
     Cesium3DTilesSelection::registerAllTileContentTypes();
 }
 

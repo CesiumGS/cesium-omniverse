@@ -129,7 +129,7 @@ class CesiumOmniverseMainWindow(ui.Window):
                                                   image_url=f"{self._icon_path}/FontAwesome/sign-out-alt-solid.png",
                                                   style=button_style, clicked_fn=self._sign_out_button_clicked,
                                                   enabled=False)
-            self._sign_in_widget = CesiumOmniverseSignInWidget(self._cesium_omniverse_interface, visible=True)
+            self._sign_in_widget = CesiumOmniverseSignInWidget(self._cesium_omniverse_interface, visible=False)
 
     def _add_button_clicked(self) -> None:
         if not self._add_button or not self._add_button.enabled:
