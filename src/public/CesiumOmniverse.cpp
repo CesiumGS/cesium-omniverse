@@ -91,7 +91,7 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         OmniTileset::onUiUpdate();
     };
 
-    std::optional<CesiumIonSession> getSession() noexcept override {
+    std::optional<std::shared_ptr<CesiumIonSession>> getSession() noexcept override {
         return OmniTileset::getSession();
     }
 };

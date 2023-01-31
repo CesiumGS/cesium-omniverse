@@ -41,7 +41,7 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("on_ui_update", &ICesiumOmniverseInterface::onUiUpdate)
         .def("get_session", &ICesiumOmniverseInterface::getSession);
 
-    py::class_<CesiumIonSession>(m, "CesiumIonSession")
+    py::class_<CesiumIonSession, std::shared_ptr<CesiumIonSession>>(m, "CesiumIonSession")
         .def("is_connected", &CesiumIonSession::isConnected)
         .def("is_connecting", &CesiumIonSession::isConnecting)
         .def("is_resuming", &CesiumIonSession::isResuming)
@@ -54,7 +54,8 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("get_connection", &CesiumIonSession::getConnection)
         .def("get_profile", &CesiumIonSession::getProfile)
         .def("get_assets", &CesiumIonSession::getAssets)
-        .def("get_tokens", &CesiumIonSession::getTokens);
+        .def("get_tokens", &CesiumIonSession::getTokens)
+        .def("disconnect", &CesiumIonSession::disconnect);
 
     py::class_<CesiumIonClient::Connection>(m, "Connection")
         .def("get_api_url", &CesiumIonClient::Connection::getApiUrl)

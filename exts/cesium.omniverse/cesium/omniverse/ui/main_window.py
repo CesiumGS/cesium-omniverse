@@ -169,6 +169,6 @@ class CesiumOmniverseMainWindow(ui.Window):
         if not self._sign_out_button or not self._upload_button.enabled:
             return
 
-        # TODO: Implement CesiumMainWindow._sign_out_button_clicked(self)
-
-        pass
+        session = self._cesium_omniverse_interface.get_session()
+        if session is not None:
+            session.disconnect()

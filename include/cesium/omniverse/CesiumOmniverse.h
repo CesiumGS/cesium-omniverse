@@ -104,7 +104,7 @@ class ICesiumOmniverseInterface {
 
     virtual void onUiUpdate() noexcept = 0;
 
-    virtual std::optional<CesiumIonSession> getSession() noexcept = 0;
+    virtual std::optional<std::shared_ptr<CesiumIonSession>> getSession() noexcept = 0;
 };
 
 } // namespace cesium::omniverse

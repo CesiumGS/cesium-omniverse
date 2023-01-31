@@ -35,7 +35,7 @@ class OmniTileset {
 
     static void onUiUpdate();
 
-    static std::optional<CesiumIonSession> getSession();
+    static std::optional<std::shared_ptr<CesiumIonSession>> getSession();
 
     static void shutdown();
 
