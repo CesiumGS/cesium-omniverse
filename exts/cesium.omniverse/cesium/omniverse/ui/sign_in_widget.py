@@ -1,9 +1,10 @@
 import logging
+import carb.events
 import omni.kit.app as app
 import omni.ui as ui
 import omni.kit.clipboard as clipboard
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 from ..bindings import ICesiumOmniverseInterface
 from .styles import CesiumOmniverseUiStyles
 
@@ -20,7 +21,25 @@ class CesiumOmniverseSignInWidget(ui.Frame):
         self._waiting_message_frame: Optional[ui.Frame] = None
         self._url_string_model: Optional[ui.StringField] = None
 
+        self._subscriptions: List[carb.events.ISubscription] = []
+        self._setup_subscriptions()
+
         super().__init__(build_fn=self._build_ui, **kwargs)
+
+    def destroy(self):
+        for subscription in self._subscriptions:
+            subscription.unsubscribe()
+
+    def _setup_subscriptions(self):
+        update_stream = app.get_app().get_update_event_stream()
+        self._subscriptions.append(
+            update_stream.create_subscription_to_pop(self._on_update_frame, name="on_update_frame"))
+
+    def _on_update_frame(self, _e: carb.events.IEvent):
+        session = self._cesium_omniverse_interface.get_session()
+        if session is not None:
+            self._logger.info(f"Connecting: {session.is_connecting()}")
+            self._waiting_message_frame.visible = session.is_connecting()
 
     def _build_ui(self):
         with self:
@@ -61,13 +80,7 @@ class CesiumOmniverseSignInWidget(ui.Frame):
                 ui.Spacer(height=10)
 
     def _connect_button_clicked(self) -> None:
-        # TODO: Actually handle updating the message frame to show once we have the URL.
-        self._handle_show_waiting_message_frame()
-
         self._cesium_omniverse_interface.connect_to_ion()
-
-    def _handle_show_waiting_message_frame(self) -> None:
-        self._waiting_message_frame.visible = True
 
     def _open_web_browser_again_clicked(self) -> None:
         pass
