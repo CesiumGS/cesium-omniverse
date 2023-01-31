@@ -115,9 +115,9 @@ void CesiumIonSession::disconnect() {
     Settings::setAccessToken("");
 
     Broadcast::connectionUpdated();
-    // TODO: Broadcast profile updated.
-    // TODO: Broadcast assets updated.
-    // TODO: Broadcast tokens updated.
+    Broadcast::profileUpdated();
+    Broadcast::assetsUpdated();
+    Broadcast::tokensUpdated();
 }
 
 void CesiumIonSession::tick() {
@@ -137,13 +137,13 @@ void CesiumIonSession::refreshProfile() {
         .thenInMainThread([this](Response<Profile>&& profile) {
             this->_isLoadingProfile = false;
             this->_profile = std::move(profile.value);
-            // TODO: Broadcast profile updated.
+            Broadcast::profileUpdated();
             this->refreshProfileIfNeeded();
         })
         .catchInMainThread([this]([[maybe_unused]] std::exception&& e) {
             this->_isLoadingProfile = false;
             this->_profile = std::nullopt;
-            // TODO: Broadcast profile updated.
+            Broadcast::profileUpdated();
             this->refreshProfileIfNeeded();
         });
 }
@@ -160,13 +160,13 @@ void CesiumIonSession::refreshAssets() {
         .thenInMainThread([this](Response<Assets>&& assets) {
             this->_isLoadingAssets = false;
             this->_assets = std::move(assets.value);
-            // TODO: Broadcast assets updated.
+            Broadcast::assetsUpdated();
             this->refreshAssetsIfNeeded();
         })
         .catchInMainThread([this]([[maybe_unused]] std::exception&& e) {
             this->_isLoadingAssets = false;
             this->_assets = std::nullopt;
-            // TODO: Broadcast assets updated.
+            Broadcast::assetsUpdated();
             this->refreshAssetsIfNeeded();
         });
 }
@@ -183,13 +183,13 @@ void CesiumIonSession::refreshTokens() {
         .thenInMainThread([this](Response<TokenList>&& tokens) {
             this->_isLoadingTokens = false;
             this->_tokens = tokens.value ? std::make_optional(std::move(tokens.value->items)) : std::nullopt;
-            // TODO: Broadcast tokens updated.
+            Broadcast::tokensUpdated();
             this->refreshTokensIfNeeded();
         })
         .catchInMainThread([this]([[maybe_unused]] std::exception&& e) {
             this->_isLoadingTokens = false;
             this->_tokens = std::nullopt;
-            // TODO: Broadcast tokens updated.
+            Broadcast::tokensUpdated();
             this->refreshTokensIfNeeded();
         });
 }

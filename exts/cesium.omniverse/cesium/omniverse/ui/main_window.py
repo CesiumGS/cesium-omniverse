@@ -58,10 +58,27 @@ class CesiumOmniverseMainWindow(ui.Window):
         self._subscriptions.append(
             update_stream.create_subscription_to_pop(self._on_update_frame, name="on_update_frame"))
 
+        assets_updated_event = carb.events.type_from_string("cesium.omniverse.ASSETS_UPDATED")
+        self._subscriptions.append(
+            bus.create_subscription_to_pop_by_type(assets_updated_event, self._on_assets_updated, name="assets_updated")
+        )
+
         connection_updated_event = carb.events.type_from_string("cesium.omniverse.CONNECTION_UPDATED")
         self._subscriptions.append(
             bus.create_subscription_to_pop_by_type(connection_updated_event, self._on_connection_updated,
-                                                   name="connection_updated"))
+                                                   name="connection_updated")
+        )
+
+        profile_updated_event = carb.events.type_from_string("cesium.omniverse.PROFILE_UPDATED")
+        self._subscriptions.append(
+            bus.create_subscription_to_pop_by_type(profile_updated_event, self._on_profile_updated,
+                                                   name="profile_updated")
+        )
+
+        tokens_updated_event = carb.events.type_from_string("cesium.omniverse.TOKENS_UPDATED")
+        self._subscriptions.append(
+            bus.create_subscription_to_pop_by_type(tokens_updated_event, self._on_tokens_updated, name="tokens_updated")
+        )
 
     def _on_update_frame(self, _e: carb.events.IEvent):
         self._cesium_omniverse_interface.on_ui_update()
@@ -75,7 +92,16 @@ class CesiumOmniverseMainWindow(ui.Window):
             self._upload_button.enabled = is_connected
             self._sign_out_button.enabled = is_connected
 
+    def _on_assets_updated(self, _e: carb.events.IEvent):
+        pass
+
     def _on_connection_updated(self, _e: carb.events.IEvent):
+        pass
+
+    def _on_profile_updated(self, _e: carb.events.IEvent):
+        pass
+
+    def _on_tokens_updated(self, _e: carb.events.IEvent):
         pass
 
     def _build_fn(self):
