@@ -1,9 +1,11 @@
 #pragma once
 
+#include <CesiumIonClient/Connection.h>
 #include <carb/Interface.h>
 #include <pxr/pxr.h>
 
 #include <cstdint>
+#include <optional>
 
 PXR_NAMESPACE_OPEN_SCOPE
 class GfMatrix4d;
@@ -95,6 +97,10 @@ class ICesiumOmniverseInterface {
      * @param height The height in meters
      */
     virtual void setGeoreferenceOrigin(double longitude, double latitude, double height) noexcept = 0;
+
+    virtual void connectToIon() noexcept = 0;
+
+    virtual std::optional<CesiumIonClient::Connection> getConnection() noexcept = 0;
 };
 
 } // namespace cesium::omniverse

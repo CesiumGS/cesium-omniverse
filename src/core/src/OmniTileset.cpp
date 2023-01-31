@@ -21,6 +21,7 @@ namespace cesium::omniverse {
 static std::shared_ptr<TaskProcessor> taskProcessor;
 static std::shared_ptr<HttpAssetAccessor> httpAssetAccessor;
 static std::shared_ptr<Cesium3DTilesSelection::CreditSystem> creditSystem;
+static std::shared_ptr<CesiumIonSession> session;
 static uint64_t i = 0;
 
 static uint64_t getID() {
@@ -133,6 +134,8 @@ void OmniTileset::init(const std::filesystem::path& cesiumExtensionLocation) {
     taskProcessor = std::make_shared<TaskProcessor>();
     httpAssetAccessor = std::make_shared<HttpAssetAccessor>();
     creditSystem = std::make_shared<Cesium3DTilesSelection::CreditSystem>();
+    CesiumAsync::AsyncSystem asyncSystem{taskProcessor};
+    session = std::make_shared<CesiumIonSession>(asyncSystem, httpAssetAccessor);
     Cesium3DTilesSelection::registerAllTileContentTypes();
 }
 
@@ -140,6 +143,22 @@ void OmniTileset::shutdown() {
     taskProcessor.reset();
     httpAssetAccessor.reset();
     creditSystem.reset();
+}
+
+void OmniTileset::connectToIon() {
+    if (session == nullptr) {
+        return;
+    }
+
+    session->connect();
+}
+
+std::optional<CesiumIonClient::Connection> OmniTileset::getConnection() {
+    if (session == nullptr) {
+        return std::nullopt;
+    }
+
+    return session->getConnection();
 }
 
 void OmniTileset::initOriginShiftHandler() {

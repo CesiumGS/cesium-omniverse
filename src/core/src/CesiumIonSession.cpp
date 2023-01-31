@@ -3,6 +3,7 @@
 #include "cesium/omniverse/CesiumIonSession.h"
 
 #include "cesium/omniverse/SettingsWrapper.h"
+#include "cesium/omniverse/Broadcast.h"
 
 using namespace CesiumAsync;
 using namespace CesiumIonClient;
@@ -52,8 +53,9 @@ void CesiumIonSession::connect() {
             this->_authorizeUrl = url;
 
             std::string command(browserCommandBase);
-            command.append(" ");
+            command.append(" \"");
             command.append(url);
+            command.append("\"");
 
             [[maybe_unused]] const auto status = system(command.c_str());
         })
@@ -61,15 +63,15 @@ void CesiumIonSession::connect() {
             this->_isConnecting = false;
             this->_connection = std::move(connection);
 
-            setAccessToken(this->_connection.value().getAccessToken());
+            Settings::setAccessToken(this->_connection.value().getAccessToken());
 
-            // TODO: broadcast that the connection is updated.
+            Broadcast::connectionUpdated();
         })
         .catchInMainThread([this]([[maybe_unused]] std::exception&& e) {
             this->_isConnecting = false;
             this->_connection = std::nullopt;
 
-            // TODO: Broadcast that the connection is updated.
+            Broadcast::connectionUpdated();
         });
 }
 
@@ -78,7 +80,7 @@ void CesiumIonSession::resume() {
         return;
     }
 
-    std::string userAccessToken = getAccessToken();
+    std::string userAccessToken = Settings::getAccessToken();
     if (userAccessToken.empty()) {
         // No existing session to resume.
         return;
@@ -96,7 +98,7 @@ void CesiumIonSession::resume() {
                 this->_connection.reset();
             }
             this->_isResuming = false;
-            // TODO: Broadcast connection updated.
+            Broadcast::connectionUpdated();
         })
         .catchInMainThread([this]([[maybe_unused]] std::exception&& e) {
             this->_isResuming = false;
@@ -110,9 +112,9 @@ void CesiumIonSession::disconnect() {
     this->_assets.reset();
     this->_tokens.reset();
 
-    setAccessToken("");
+    Settings::setAccessToken("");
 
-    // TODO: Broadcast connection updated.
+    Broadcast::connectionUpdated();
     // TODO: Broadcast profile updated.
     // TODO: Broadcast assets updated.
     // TODO: Broadcast tokens updated.
@@ -263,12 +265,12 @@ namespace {
 
 Token tokenFromSettings() {
     Token result;
-    result.token = getDefaultAccessToken();
+    result.token = Settings::getDefaultAccessToken();
     return result;
 }
 
 Future<Token> getTokenFuture(const CesiumIonSession& session) {
-    std::string defaultIonAccessToken = getDefaultAccessToken();
+    std::string defaultIonAccessToken = Settings::getDefaultAccessToken();
 
     if (!defaultIonAccessToken.empty()) {
         return session.getConnection()
@@ -297,7 +299,7 @@ Future<Token> getTokenFuture(const CesiumIonSession& session) {
 
 SharedFuture<Token> CesiumIonSession::getProjectDefaultTokenDetails() {
     if (this->_projectDefaultTokenDetailsFuture) {
-        std::string defaultIonAccessToken = getDefaultAccessToken();
+        std::string defaultIonAccessToken = Settings::getDefaultAccessToken();
 
         // If the future is resolved but its token doesn't match the designated
         // default token, do the request again because the user probably specified a

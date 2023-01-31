@@ -43,6 +43,7 @@ setup_lib(
         CesiumJsonReader
         CesiumUtility
         async++
+        csprng
         draco
         ktx_read
         modp_b64

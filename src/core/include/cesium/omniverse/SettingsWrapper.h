@@ -7,7 +7,7 @@ const char* PERSISTENT_SETTINGS_PREFIX = "/persistent";
 const char* ACCESS_TOKEN_PATH = "/exts/cesium.omniverse/accessToken";
 const char* DEFAULT_ACCESS_TOKEN_PATH = "/exts/cesium.omniverse/defaultAccessToken";
 
-namespace cesium::omniverse {
+namespace cesium::omniverse::Settings {
 
 [[maybe_unused]] static std::string getAccessToken() {
     auto settings = carb::getCachedInterface<carb::settings::ISettings>();

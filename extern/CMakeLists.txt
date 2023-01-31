@@ -15,6 +15,7 @@ add_external_project(
         CesiumJsonReader
         CesiumUtility
         async++
+        csprng
         draco
         ktx_read
         modp_b64

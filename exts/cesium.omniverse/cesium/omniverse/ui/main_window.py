@@ -1,5 +1,6 @@
 from ..bindings import ICesiumOmniverseInterface
 import logging
+import carb.events
 import omni.kit.app as app
 import omni.ui as ui
 import webbrowser
@@ -39,10 +40,27 @@ class CesiumOmniverseMainWindow(ui.Window):
         self._sign_out_button: Optional[ui.Button] = None
         self._sign_in_widget: Optional[CesiumOmniverseSignInWidget] = None
 
+        self._setup_subscriptions()
+
         self.frame.set_build_fn(self._build_fn)
 
     def destroy(self) -> None:
         super().destroy()
+
+    def _setup_subscriptions(self):
+        bus = app.get_app().get_message_bus_event_stream()
+
+        connection_updated_event = carb.events.type_from_string("cesium.omniverse.CONNECTION_UPDATED")
+        bus.create_subscription_to_pop_by_type(connection_updated_event, self._on_connection_updated)
+
+    def _on_connection_updated(self):
+        if self._sign_in_widget is None:
+            return
+
+        connection = self._cesium_omniverse_interface.get_connection()
+        import pprint
+        self._logger.info("connection updated")
+        self._logger.info(pprint.pformat(connection))
 
     def _build_fn(self):
         """Builds all UI components."""
@@ -69,7 +87,7 @@ class CesiumOmniverseMainWindow(ui.Window):
                                                   image_url=f"{self._icon_path}/FontAwesome/sign-out-alt-solid.png",
                                                   style=button_style, clicked_fn=self._sign_out_button_clicked,
                                                   enabled=False)
-            self._sign_in_widget = CesiumOmniverseSignInWidget(visible=True)
+            self._sign_in_widget = CesiumOmniverseSignInWidget(self._cesium_omniverse_interface, visible=True)
 
     def _add_button_clicked(self) -> None:
         if not self._add_button or not self._add_button.enabled:

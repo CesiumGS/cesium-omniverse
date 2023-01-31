@@ -4,15 +4,17 @@ import omni.ui as ui
 import omni.kit.clipboard as clipboard
 from pathlib import Path
 from typing import Optional
+from ..bindings import ICesiumOmniverseInterface
 from .styles import CesiumOmniverseUiStyles
 
 
 class CesiumOmniverseSignInWidget(ui.Frame):
-    def __init__(self, **kwargs):
+    def __init__(self, cesium_omniverse_interface: ICesiumOmniverseInterface, **kwargs):
         manager = app.get_app().get_extension_manager()
         ext_id = manager.get_extension_id_by_module("cesium.omniverse")
         self._logger = logging.getLogger(__name__)
         self._images_path = Path(manager.get_extension_path(ext_id)).joinpath("images")
+        self._cesium_omniverse_interface = cesium_omniverse_interface
 
         self._connect_button: Optional[ui.Button] = None
         self._waiting_message_frame: Optional[ui.Frame] = None
@@ -62,9 +64,7 @@ class CesiumOmniverseSignInWidget(ui.Frame):
         # TODO: Actually handle updating the message frame to show once we have the URL.
         self._handle_show_waiting_message_frame()
 
-        # TODO: Call cpp code to start sign-in process.
-
-        pass
+        self._cesium_omniverse_interface.connect_to_ion()
 
     def _handle_show_waiting_message_frame(self) -> None:
         self._waiting_message_frame.visible = True
