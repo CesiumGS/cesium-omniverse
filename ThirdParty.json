@@ -20,7 +20,7 @@
         "license": [
             "curl"
         ],
-        "version": "7.80.0",
+        "version": "7.86.0",
         "url": "https://curl.se"
     },
     {
@@ -36,7 +36,7 @@
         "license": [
             "BSD-3-Clause"
         ],
-        "version": "2.10.0",
+        "version": "2.10.1",
         "url": "https://github.com/pybind/pybind11"
     },
     {
@@ -45,7 +45,7 @@
             "Unlicense",
             "MIT"
         ],
-        "version": "cci.20210910",
+        "version": "cci.20220909",
         "url": "https://github.com/nothings/stb"
     },
     {
