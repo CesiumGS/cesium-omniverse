@@ -75,6 +75,21 @@ macro(configure_conan)
         file(WRITE "${CONAN_SETTINGS_FILE}" "${new_settings_text}")
     endif()
 
+    # Add "revisions_enabled = 1" to ~/.conan/conan.conf
+    # This is needed in order for the Dependency Graph build target to work
+    set(CONAN_CONF_FILE "${CONAN_DIRECTORY}/conan.conf")
+    set(ADD_REVISIONS_ENABLED "[general]\nrevisions_enabled = 1")
+    file(READ "${CONAN_CONF_FILE}" conf_text)
+    string(FIND ${conf_text} "${ADD_REVISIONS_ENABLED}" position)
+    if(position EQUAL "-1")
+        string(
+            REPLACE "[general]"
+                    ${ADD_REVISIONS_ENABLED}
+                    new_conf_text
+                    ${conf_text})
+        file(WRITE "${CONAN_CONF_FILE}" "${new_conf_text}")
+    endif()
+
     conan_cmake_configure(
         REQUIRES
         ${_REQUIRES}
