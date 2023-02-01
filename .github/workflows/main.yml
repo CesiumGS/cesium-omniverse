@@ -83,7 +83,7 @@ jobs:
       - name: Install Windows dependencies
         if: runner.os == 'Windows'
         run: |
-          choco install -y conan
+          choco install -y conan --version 1.57.0
           echo "C:/Program Files/conan/conan" >> $env:GITHUB_PATH
 
       # Note: CMAKE_BUILD_TYPE is only used by Linux. It is ignored for Windows.
