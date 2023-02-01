@@ -447,7 +447,7 @@ Each workspace contains recommended extensions and settings for VSCode developme
   "configurations": [
     {
       "name": "Kit App",
-      "preLaunchTask": "Build (debug)",
+      "preLaunchTask": "Build Only (debug)",
       "program": "${workspaceFolder}/extern/nvidia/app/kit/kit",
       "args": [
         "${workspaceFolder}/apps/cesium.omniverse.app.kit"
@@ -455,7 +455,31 @@ Each workspace contains recommended extensions and settings for VSCode developme
       "cwd": "${workspaceFolder}",
       "type": "lldb",
       "request": "launch",
-      "console": "integratedTerminal",
+      "console": "internalConsole",
+      "internalConsoleOptions": "openOnSessionStart",
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        },
+        {
+          "text": "set print elements 0"
+        }
+      ]
+    },
+    {
+      "name": "Code",
+      "preLaunchTask": "Build Only (debug)",
+      "program": "${workspaceFolder}/extern/nvidia/app/kit/kit",
+      "args": [
+        "${workspaceFolder}/extern/nvidia/app/apps/omni.code.kit"
+      ],
+      "cwd": "${workspaceFolder}",
+      "type": "lldb",
+      "request": "launch",
+      "console": "internalConsole",
+      "internalConsoleOptions": "openOnSessionStart",
       "MIMode": "gdb",
       "setupCommands": [
         {
@@ -469,7 +493,7 @@ Each workspace contains recommended extensions and settings for VSCode developme
     },
     {
       "name": "Test",
-      "preLaunchTask": "Build (debug)",
+      "preLaunchTask": "Build Only (debug)",
       "program": "${workspaceFolder}/build-debug/bin/tests",
       "env": {
         // Disable LSAN when debugging since it doesn't work with GDB and prints harmless but annoying warning messages
@@ -479,7 +503,8 @@ Each workspace contains recommended extensions and settings for VSCode developme
       "cwd": "${workspaceFolder}",
       "type": "lldb",
       "request": "launch",
-      "console": "integratedTerminal",
+      "console": "internalConsole",
+      "internalConsoleOptions": "openOnSessionStart",
       "MIMode": "gdb",
       "setupCommands": [
         {
@@ -508,6 +533,19 @@ Each workspace contains recommended extensions and settings for VSCode developme
       "program": "${workspaceFolder}/extern/nvidia/app/kit/kit.exe",
       "args": [
         "${workspaceFolder}/apps/cesium.omniverse.app.kit"
+      ],
+      "cwd": "${workspaceFolder}",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "console": "internalConsole",
+      "internalConsoleOptions": "openOnSessionStart"
+    },
+    {
+      "name": "Code",
+      "preLaunchTask": "Build Only (debug)",
+      "program": "${workspaceFolder}/extern/nvidia/app/kit/kit.exe",
+      "args": [
+        "${workspaceFolder}/extern/nvidia/app/apps/omni.code.kit"
       ],
       "cwd": "${workspaceFolder}",
       "type": "cppvsdbg",
