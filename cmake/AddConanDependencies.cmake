@@ -3,16 +3,25 @@
 
 include(ConfigureConan)
 
+set(REQUIRES
+    "cpr/1.9.0@#168b3dcd0f24fc690873881d11ac1e66"
+    "doctest/2.4.9@#ea6440e3cd544c9a25bf3a96bcf16f48"
+    "openssl/1.1.1s@#c6838ae653d103956aec228f7642c45a"
+    "pybind11/2.10.1@#561736204506dad955276aaab438aab4"
+    "stb/cci.20220909@#1c47474f095ef8cd9e4959558525b827"
+    "zlib/1.2.13@#13c96f538b52e1600c40b88994de240f"
+    "libcurl/7.86.0@#88506b3234d553b90af1ceefc3dd1652"
+    "nasm/2.15.05@#5627ba08c9983f8b077dd0f581bc3e98")
+
+if(WIN32)
+    set(REQUIRES ${REQUIRES} "strawberryperl/5.32.1.1@#8f83d05a60363a422f9033e52d106b47")
+endif()
+
 # cmake-format: off
 configure_conan(
     PROJECT_BUILD_DIRECTORY
         "${PROJECT_BINARY_DIR}"
     REQUIRES
-        cpr/1.9.0
-        doctest/2.4.9
-        openssl/1.1.1s
-        pybind11/2.10.0
-        stb/cci.20210910
-        zlib/1.2.13
+        ${REQUIRES}
 )
 # cmake-format: on
