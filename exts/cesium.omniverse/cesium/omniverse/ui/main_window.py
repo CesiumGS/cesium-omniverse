@@ -7,6 +7,7 @@ import webbrowser
 from pathlib import Path
 from typing import List, Optional
 from .sign_in_widget import CesiumOmniverseSignInWidget
+from .profile_widget import CesiumOmniverseProfileWidget
 from .styles import CesiumOmniverseUiStyles
 
 HELP_URL = "https://community.cesium.com/"
@@ -39,6 +40,7 @@ class CesiumOmniverseMainWindow(ui.Window):
         self._help_button: Optional[ui.Button] = None
         self._sign_out_button: Optional[ui.Button] = None
         self._sign_in_widget: Optional[CesiumOmniverseSignInWidget] = None
+        self._profile_widget: Optional[CesiumOmniverseProfileWidget] = None
 
         self._subscriptions: List[carb.events.ISubscription] = []
         self._setup_subscriptions()
@@ -51,6 +53,9 @@ class CesiumOmniverseMainWindow(ui.Window):
 
         if self._sign_in_widget:
             self._sign_in_widget.destroy()
+
+        if self._profile_widget:
+            self._profile_widget.destroy()
 
         super().destroy()
 
@@ -133,6 +138,8 @@ class CesiumOmniverseMainWindow(ui.Window):
                                                   style=button_style, clicked_fn=self._sign_out_button_clicked,
                                                   enabled=False)
             self._sign_in_widget = CesiumOmniverseSignInWidget(self._cesium_omniverse_interface, visible=False)
+            ui.Spacer()
+            self._profile_widget = CesiumOmniverseProfileWidget(self._cesium_omniverse_interface, height=20)
 
     def _add_button_clicked(self) -> None:
         if not self._add_button or not self._add_button.enabled:
