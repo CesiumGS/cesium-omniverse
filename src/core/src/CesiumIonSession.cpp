@@ -103,6 +103,7 @@ void CesiumIonSession::resume() {
         .catchInMainThread([this]([[maybe_unused]] std::exception&& e) {
             this->_isResuming = false;
             this->_connection.reset();
+            Broadcast::connectionUpdated();
         });
 }
 

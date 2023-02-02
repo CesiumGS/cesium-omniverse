@@ -166,7 +166,7 @@ class CesiumOmniverseMainWindow(ui.Window):
         webbrowser.open(HELP_URL)
 
     def _sign_out_button_clicked(self) -> None:
-        if not self._sign_out_button or not self._upload_button.enabled:
+        if not self._sign_out_button or not self._sign_out_button.enabled:
             return
 
         session = self._cesium_omniverse_interface.get_session()
