@@ -40,8 +40,7 @@ class CesiumOmniverseSignInWidget(ui.Frame):
             return
 
         session = self._cesium_omniverse_interface.get_session()
-        if session is not None:
-            self._logger.info(f"Connecting: {session.is_connecting()}")
+        if session is not None and self._waiting_message_frame is not None:
             self._waiting_message_frame.visible = session.is_connecting()
 
     def _build_ui(self):
