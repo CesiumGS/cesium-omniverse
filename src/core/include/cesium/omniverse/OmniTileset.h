@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CesiumIonSession.h"
+
 #include "cesium/omniverse/Georeference.h"
 #include "cesium/omniverse/RenderResourcesPreparer.h"
 
@@ -28,6 +30,12 @@ class OmniTileset {
     void addIonRasterOverlay(const std::string& name, int64_t ionId, const std::string& ionToken);
 
     static void init(const std::filesystem::path& cesiumExtensionLocation);
+
+    static void connectToIon();
+
+    static void onUiUpdate();
+
+    static std::optional<std::shared_ptr<CesiumIonSession>> getSession();
 
     static void shutdown();
 

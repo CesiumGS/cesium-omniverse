@@ -4,6 +4,7 @@
 
 #include "CesiumUsdSchemas/data.h"
 
+#include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/OmniTileset.h"
 
 #include <carb/PluginUtils.h>
@@ -80,6 +81,18 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
     void setGeoreferenceOrigin(double longitude, double latitude, double height) noexcept override {
         Georeference::instance().setOrigin(CesiumGeospatial::Ellipsoid::WGS84.cartographicToCartesian(
             CesiumGeospatial::Cartographic(glm::radians(longitude), glm::radians(latitude), height)));
+    }
+
+    void connectToIon() noexcept override {
+        OmniTileset::connectToIon();
+    }
+
+    void onUiUpdate() noexcept override {
+        OmniTileset::onUiUpdate();
+    };
+
+    std::optional<std::shared_ptr<CesiumIonSession>> getSession() noexcept override {
+        return OmniTileset::getSession();
     }
 };
 

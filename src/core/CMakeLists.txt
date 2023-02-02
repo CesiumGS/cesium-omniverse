@@ -33,6 +33,7 @@ setup_lib(
     LIBRARIES
         InMemoryAssetResolver
         CesiumUsdSchemas
+        CesiumIonClient
         Cesium3DTilesSelection
         CesiumAsync
         CesiumGeospatial
@@ -42,6 +43,7 @@ setup_lib(
         CesiumJsonReader
         CesiumUtility
         async++
+        csprng
         draco
         ktx_read
         modp_b64
@@ -78,6 +80,7 @@ setup_lib(
         tbb
         carb
         cudart
+        omni_kit_app
         pybind11
         python37
     DEPENDENCIES

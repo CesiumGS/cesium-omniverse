@@ -24,6 +24,14 @@
         "url": "https://curl.se"
     },
     {
+        "name": "nasm",
+        "license": [
+            "BSD-2-Clause"
+        ],
+        "version": "2.15.05",
+        "url": "http://www.nasm.us"
+    },
+    {
         "name": "openssl",
         "license": [
             "OpenSSL"

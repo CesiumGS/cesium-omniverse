@@ -5,6 +5,7 @@ add_external_project(
     PROJECT_NAME
         cesium-native
     LIBRARIES
+        CesiumIonClient
         Cesium3DTilesSelection
         CesiumAsync
         CesiumGeospatial
@@ -14,6 +15,7 @@ add_external_project(
         CesiumJsonReader
         CesiumUtility
         async++
+        csprng
         draco
         ktx_read
         modp_b64
@@ -73,6 +75,7 @@ set(NVIDIA_USD_ROOT "${NVIDIA_BUILD_DIR}/target-deps/usd")
 set(PYTHON_ROOT "${NVIDIA_BUILD_DIR}/target-deps/python")
 set(USDRT_ROOT "${NVIDIA_BUILD_DIR}/target-deps/usdrt")
 set(CARB_ROOT "${NVIDIA_BUILD_DIR}/target-deps/carb_sdk_plugins")
+set(KIT_SDK_ROOT "${NVIDIA_BUILD_DIR}/target-deps/kit-sdk")
 set(PYBIND11_ROOT "${NVIDIA_BUILD_DIR}/target-deps/pybind11")
 set(CUDA_ROOT "${NVIDIA_BUILD_DIR}/target-deps/cuda")
 
@@ -222,6 +225,25 @@ add_prebuilt_project(
         carb
     TARGET_NAMES
         carb
+)
+# cmake-format: on
+
+# cmake-format: off
+add_prebuilt_project(
+    RELEASE_INCLUDE_DIR
+        "${KIT_SDK_ROOT}/dev/include"
+    DEBUG_INCLUDE_DIR
+        "${KIT_SDK_ROOT}/dev/include"
+    RELEASE_LIBRARY_DIR
+        "${KIT_SDK_ROOT}/kernel/plugins"
+    DEBUG_LIBRARY_DIR
+        "${KIT_SDK_ROOT}/kernel/plugins"
+    RELEASE_LIBRARIES
+        omni.kit.app.plugin
+    DEBUG_LIBRARIES
+        omni.kit.app.plugin
+    TARGET_NAMES
+        omni_kit_app
 )
 # cmake-format: on
 
