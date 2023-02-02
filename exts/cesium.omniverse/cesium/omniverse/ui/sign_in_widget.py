@@ -31,14 +31,14 @@ class CesiumOmniverseSignInWidget(ui.Frame):
             subscription.unsubscribe()
 
     def _setup_subscriptions(self):
-        if not self.visible:
-            return
-
         update_stream = app.get_app().get_update_event_stream()
         self._subscriptions.append(
             update_stream.create_subscription_to_pop(self._on_update_frame, name="on_update_frame"))
 
     def _on_update_frame(self, _e: carb.events.IEvent):
+        if not self.visible:
+            return
+
         session = self._cesium_omniverse_interface.get_session()
         if session is not None:
             self._logger.info(f"Connecting: {session.is_connecting()}")
