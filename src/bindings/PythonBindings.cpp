@@ -51,6 +51,7 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("is_loading_asset_list", &CesiumIonSession::isLoadingAssetList)
         .def("is_token_list_loaded", &CesiumIonSession::isTokenListLoaded)
         .def("is_loading_token_list", &CesiumIonSession::isLoadingTokenList)
+        .def("get_authorize_url", &CesiumIonSession::getAuthorizeUrl)
         .def("get_connection", &CesiumIonSession::getConnection)
         .def("get_profile", &CesiumIonSession::getProfile)
         .def("get_assets", &CesiumIonSession::getAssets)

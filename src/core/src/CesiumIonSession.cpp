@@ -50,14 +50,8 @@ void CesiumIonSession::connect() {
         "/cesium-for-omniverse/oauth2/callback",
         {"assets:list", "assets:read", "profile:read", "tokens:read", "tokens:write", "geocode"},
         [this](const std::string& url) {
+            // NOTE: We open the browser in the Python code. Check in the sign in widget's on_update_frame function.
             this->_authorizeUrl = url;
-
-            std::string command(browserCommandBase);
-            command.append(" \"");
-            command.append(url);
-            command.append("\"");
-
-            [[maybe_unused]] const auto status = system(command.c_str());
         })
         .thenInMainThread([this](CesiumIonClient::Connection&& connection) {
             this->_isConnecting = false;

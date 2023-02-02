@@ -3,6 +3,7 @@ import carb.events
 import omni.kit.app as app
 import omni.ui as ui
 import omni.kit.clipboard as clipboard
+import webbrowser
 from pathlib import Path
 from typing import List, Optional
 from ..bindings import ICesiumOmniverseInterface
@@ -19,7 +20,7 @@ class CesiumOmniverseSignInWidget(ui.Frame):
 
         self._connect_button: Optional[ui.Button] = None
         self._waiting_message_frame: Optional[ui.Frame] = None
-        self._url_string_model: Optional[ui.StringField] = None
+        self._authorize_url_field: Optional[ui.StringField] = None
 
         self._subscriptions: List[carb.events.ISubscription] = []
         self._setup_subscriptions()
@@ -40,9 +41,15 @@ class CesiumOmniverseSignInWidget(ui.Frame):
             return
 
         session = self._cesium_omniverse_interface.get_session()
-        if session is not None:
-            self._logger.info(f"Connecting: {session.is_connecting()}")
+        if session is not None and self._waiting_message_frame is not None:
             self._waiting_message_frame.visible = session.is_connecting()
+
+            if session.is_connecting():
+                authorize_url = session.get_authorize_url()
+
+                if self._authorize_url_field.model.get_value_as_string() != authorize_url:
+                    self._authorize_url_field.model.set_value(authorize_url)
+                    webbrowser.open(authorize_url)
 
     def _build_ui(self):
         with self:
@@ -77,8 +84,8 @@ class CesiumOmniverseSignInWidget(ui.Frame):
                         ui.Button("Open web browser again", clicked_fn=self._open_web_browser_again_clicked)
                         ui.Label("Or copy the URL below into your web browser.")
                         with ui.HStack():
-                            self._url_string_field = ui.StringField(read_only=True)
-                            self._url_string_field.model.set_value("https://www.cesium.com")
+                            self._authorize_url_field = ui.StringField(read_only=True)
+                            self._authorize_url_field.model.set_value("https://cesium.com")
                             ui.Button("Copy to Clipboard", clicked_fn=self._copy_to_clipboard_clicked)
                 ui.Spacer(height=10)
 
@@ -86,8 +93,8 @@ class CesiumOmniverseSignInWidget(ui.Frame):
         self._cesium_omniverse_interface.connect_to_ion()
 
     def _open_web_browser_again_clicked(self) -> None:
-        pass
+        webbrowser.open(self._authorize_url_field.model.get_value_as_string())
 
     def _copy_to_clipboard_clicked(self) -> None:
-        if self._url_string_field is not None:
-            clipboard.copy(self._url_string_field.model.get_value_as_string())
+        if self._authorize_url_field is not None:
+            clipboard.copy(self._authorize_url_field.model.get_value_as_string())

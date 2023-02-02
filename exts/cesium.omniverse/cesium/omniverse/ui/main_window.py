@@ -49,6 +49,9 @@ class CesiumOmniverseMainWindow(ui.Window):
         for subscription in self._subscriptions:
             subscription.unsubscribe()
 
+        if self._sign_in_widget:
+            self._sign_in_widget.destroy()
+
         super().destroy()
 
     def _setup_subscriptions(self):
