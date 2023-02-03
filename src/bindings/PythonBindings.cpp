@@ -56,6 +56,7 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("get_profile", &CesiumIonSession::getProfile)
         .def("get_assets", &CesiumIonSession::getAssets)
         .def("get_tokens", &CesiumIonSession::getTokens)
+        .def("refresh_tokens", &CesiumIonSession::refreshTokens)
         .def("disconnect", &CesiumIonSession::disconnect)
         .def("refresh_profile", &CesiumIonSession::refreshProfile);
 
@@ -66,4 +67,10 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
     py::class_<CesiumIonClient::Profile>(m, "Profile")
         .def_readonly("id", &CesiumIonClient::Profile::id)
         .def_readonly("username", &CesiumIonClient::Profile::username);
+
+    py::class_<CesiumIonClient::Token>(m, "Token")
+        .def_readonly("id", &CesiumIonClient::Token::id)
+        .def_readonly("name", &CesiumIonClient::Token::name)
+        .def_readonly("token", &CesiumIonClient::Token::token)
+        .def_readonly("is_default", &CesiumIonClient::Token::isDefault);
 }
