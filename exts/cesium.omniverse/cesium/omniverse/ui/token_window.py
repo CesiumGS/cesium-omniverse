@@ -102,6 +102,9 @@ class CesiumOmniverseTokenWindow(ui.Window):
 
         self.frame.set_build_fn(self._build_fn)
 
+    def __del__(self):
+        self.destroy()
+
     def destroy(self):
         for subscription in self._subscriptions:
             subscription.unsubscribe()
@@ -130,6 +133,22 @@ class CesiumOmniverseTokenWindow(ui.Window):
             self._reload_next_frame = True
 
     def _select_button_clicked(self):
+        if self._selected_option is TokenOptionEnum.CREATE_NEW:
+            self._create_token()
+        elif self._selected_option is TokenOptionEnum.USE_EXISTING:
+            self._use_existing_token()
+        elif self._selected_option is TokenOptionEnum.SPECIFY_TOKEN:
+            self._specify_token()
+
+        self.visible = False
+
+    def _create_token(self):
+        pass
+
+    def _use_existing_token(self):
+        pass
+
+    def _specify_token(self):
         pass
 
     def _radio_button_changed(self, model, selected: TokenOptionEnum):

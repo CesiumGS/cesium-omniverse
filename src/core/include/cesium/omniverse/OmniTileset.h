@@ -13,6 +13,10 @@
 #include <Cesium3DTilesSelection/IonRasterOverlay.h>
 #include <Cesium3DTilesSelection/Tileset.h>
 #include <pxr/usd/usd/stage.h>
+#include <pxr/usd/usd/stageCache.h>
+#include <pxr/usd/usdUtils/stageCache.h>
+#include <omni/usd/UsdContextIncludes.h>
+#include <omni/usd/UsdContext.h>
 
 #include <filesystem>
 #include <memory>
@@ -32,6 +36,10 @@ class OmniTileset {
     static void init(const std::filesystem::path& cesiumExtensionLocation);
 
     static void connectToIon();
+
+    static void addCesiumDataIfNotExists(const CesiumIonClient::Token& token);
+
+    static void specifyToken(const std::string& token);
 
     static void onUiUpdate();
 

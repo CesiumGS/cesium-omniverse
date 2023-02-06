@@ -4,6 +4,7 @@
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/TaskProcessor.h"
+#include "cesium/omniverse/Broadcast.h"
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
@@ -146,12 +147,54 @@ void OmniTileset::shutdown() {
     creditSystem.reset();
 }
 
+/**
+ * Adds the Cesium prim to the stage if it doesn't already exist and sets the default project token to the set value.
+ * If you want to set the default project token to something else, use this function.
+ *
+ * @param token The default project token in string form.
+ */
+void OmniTileset::addCesiumDataIfNotExists(const CesiumIonClient::Token& token) {
+    const auto& stage = omni::usd::UsdContext::getContext("")->getStage();
+
+    pxr::SdfPath sdfPath = pxr::SdfPath("/Cesium");
+    pxr::UsdPrim cesiumDataPrim = stage->GetPrimAtPath(sdfPath);
+    if (!cesiumDataPrim.IsValid()) {
+        cesiumDataPrim = stage->DefinePrim(sdfPath);
+    }
+
+    pxr::CesiumData cesiumData(cesiumDataPrim);
+    auto ionTokenAttr = cesiumData.GetIonTokenAttr();
+
+    if (!ionTokenAttr.IsValid()) {
+        ionTokenAttr = cesiumData.CreateIonTokenAttr(pxr::VtValue(""));
+    }
+
+    if (!token.token.empty()) {
+        ionTokenAttr.Set(token.token.c_str());
+    }
+}
+
 void OmniTileset::connectToIon() {
     if (session == nullptr) {
         return;
     }
 
     session->connect();
+}
+
+void OmniTileset::specifyToken(const std::string& token) {
+    session->findToken(token).thenInMainThread(
+        [token](CesiumIonClient::Response<CesiumIonClient::Token>&& response) {
+            if (response.value) {
+                addCesiumDataIfNotExists(response.value.value());
+            } else {
+                CesiumIonClient::Token t;
+                t.token = token;
+                addCesiumDataIfNotExists(t);
+            }
+        });
+
+        Broadcast::specifyTokenComplete();
 }
 
 void OmniTileset::onUiUpdate() {
