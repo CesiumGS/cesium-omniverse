@@ -47,10 +47,14 @@ struct CesiumTokensType {
     /// 
     /// CesiumTilesetAPI
     const TfToken assetUrl;
-    /// \brief "ionToken"
+    /// \brief "defaultProjectToken"
     /// 
     /// CesiumData
-    const TfToken ionToken;
+    const TfToken defaultProjectToken;
+    /// \brief "defaultProjectTokenId"
+    /// 
+    /// CesiumData
+    const TfToken defaultProjectTokenId;
     /// A vector of all of the tokens listed above.
     const std::vector<TfToken> allTokens;
 };

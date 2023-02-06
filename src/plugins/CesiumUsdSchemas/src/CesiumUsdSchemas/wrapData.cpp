@@ -27,9 +27,16 @@ WRAP_CUSTOM;
 
         
 static UsdAttribute
-_CreateIonTokenAttr(CesiumData &self,
+_CreateDefaultProjectTokenIdAttr(CesiumData &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateIonTokenAttr(
+    return self.CreateDefaultProjectTokenIdAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateDefaultProjectTokenAttr(CesiumData &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateDefaultProjectTokenAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
 
@@ -72,10 +79,17 @@ void wrapCesiumData()
         .def(!self)
 
         
-        .def("GetIonTokenAttr",
-             &This::GetIonTokenAttr)
-        .def("CreateIonTokenAttr",
-             &_CreateIonTokenAttr,
+        .def("GetDefaultProjectTokenIdAttr",
+             &This::GetDefaultProjectTokenIdAttr)
+        .def("CreateDefaultProjectTokenIdAttr",
+             &_CreateDefaultProjectTokenIdAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetDefaultProjectTokenAttr",
+             &This::GetDefaultProjectTokenAttr)
+        .def("CreateDefaultProjectTokenAttr",
+             &_CreateDefaultProjectTokenAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 
