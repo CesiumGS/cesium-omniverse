@@ -34,10 +34,12 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         const auto& stage = pxr::UsdUtilsStageCache::Get().Find(pxr::UsdStageCache::Id::FromLongInt(stageId));
         pxr::UsdPrim cesiumDataPrim = stage->DefinePrim(pxr::SdfPath("/Cesium"));
         pxr::CesiumData cesiumData(cesiumDataPrim);
-        auto ionTokenAttr = cesiumData.CreateIonTokenAttr(pxr::VtValue(""));
+        auto defaultTokenId = cesiumData.CreateDefaultProjectTokenIdAttr(pxr::VtValue(""));
+        auto defaultToken = cesiumData.CreateDefaultProjectTokenAttr(pxr::VtValue(""));
 
         if (strlen(ionToken) != 0) {
-            ionTokenAttr.Set(ionToken);
+            defaultTokenId.Set("");
+            defaultToken.Set(ionToken);
         }
     }
 

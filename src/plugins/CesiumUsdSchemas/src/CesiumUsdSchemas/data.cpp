@@ -61,15 +61,32 @@ CesiumData::_GetTfType() const
 }
 
 UsdAttribute
-CesiumData::GetIonTokenAttr() const
+CesiumData::GetDefaultProjectTokenIdAttr() const
 {
-    return GetPrim().GetAttribute(CesiumTokens->ionToken);
+    return GetPrim().GetAttribute(CesiumTokens->defaultProjectTokenId);
 }
 
 UsdAttribute
-CesiumData::CreateIonTokenAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumData::CreateDefaultProjectTokenIdAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
-    return UsdSchemaBase::_CreateAttr(CesiumTokens->ionToken,
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->defaultProjectTokenId,
+                       SdfValueTypeNames->String,
+                       /* custom = */ false,
+                       SdfVariabilityVarying,
+                       defaultValue,
+                       writeSparsely);
+}
+
+UsdAttribute
+CesiumData::GetDefaultProjectTokenAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->defaultProjectToken);
+}
+
+UsdAttribute
+CesiumData::CreateDefaultProjectTokenAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->defaultProjectToken,
                        SdfValueTypeNames->String,
                        /* custom = */ false,
                        SdfVariabilityVarying,
@@ -94,7 +111,8 @@ const TfTokenVector&
 CesiumData::GetSchemaAttributeNames(bool includeInherited)
 {
     static TfTokenVector localNames = {
-        CesiumTokens->ionToken,
+        CesiumTokens->defaultProjectTokenId,
+        CesiumTokens->defaultProjectToken,
     };
     static TfTokenVector allNames =
         _ConcatenateAttributeNames(

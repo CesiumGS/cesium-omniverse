@@ -12,8 +12,11 @@ class "CesiumData" (
     doc = "Stores stage level data for Cesium for Omniverse/USD."
 )
 {
-    string ionToken = "" (
-        doc = "A string representing an API token for Cesium ion."
+    string defaultProjectToken = "" (
+        doc = "A string representing a token for accessing Cesium ion tilesets."
+    )
+    string defaultProjectTokenId = "" (
+        doc = "A string representing the token ID for accessing Cesium ion tilesets."
     )
 }
 

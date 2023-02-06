@@ -43,5 +43,6 @@ void wrapCesiumTokens()
         cls("Tokens", boost::python::no_init);
     _AddToken(cls, "assetId", CesiumTokens->assetId);
     _AddToken(cls, "assetUrl", CesiumTokens->assetUrl);
-    _AddToken(cls, "ionToken", CesiumTokens->ionToken);
+    _AddToken(cls, "defaultProjectToken", CesiumTokens->defaultProjectToken);
+    _AddToken(cls, "defaultProjectTokenId", CesiumTokens->defaultProjectTokenId);
 }
