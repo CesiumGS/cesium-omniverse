@@ -6,6 +6,7 @@ import omni.ui as ui
 import webbrowser
 from pathlib import Path
 from typing import List, Optional
+from .quick_add_widget import CesiumOmniverseQuickAddWidget
 from .sign_in_widget import CesiumOmniverseSignInWidget
 from .profile_widget import CesiumOmniverseProfileWidget
 from .styles import CesiumOmniverseUiStyles
@@ -39,6 +40,7 @@ class CesiumOmniverseMainWindow(ui.Window):
         self._learn_button: Optional[ui.Button] = None
         self._help_button: Optional[ui.Button] = None
         self._sign_out_button: Optional[ui.Button] = None
+        self._quick_add_widget: Optional[CesiumOmniverseQuickAddWidget] = None
         self._sign_in_widget: Optional[CesiumOmniverseSignInWidget] = None
         self._profile_widget: Optional[CesiumOmniverseProfileWidget] = None
 
@@ -137,6 +139,7 @@ class CesiumOmniverseMainWindow(ui.Window):
                                                   image_url=f"{self._icon_path}/FontAwesome/sign-out-alt-solid.png",
                                                   style=button_style, clicked_fn=self._sign_out_button_clicked,
                                                   enabled=False)
+            self._quick_add_widget = CesiumOmniverseQuickAddWidget(self._cesium_omniverse_interface)
             self._sign_in_widget = CesiumOmniverseSignInWidget(self._cesium_omniverse_interface, visible=False)
             ui.Spacer()
             self._profile_widget = CesiumOmniverseProfileWidget(self._cesium_omniverse_interface, height=20)

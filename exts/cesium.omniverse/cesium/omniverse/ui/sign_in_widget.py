@@ -30,6 +30,7 @@ class CesiumOmniverseSignInWidget(ui.Frame):
     def destroy(self):
         for subscription in self._subscriptions:
             subscription.unsubscribe()
+        self._subscriptions.clear()
 
     def _setup_subscriptions(self):
         update_stream = app.get_app().get_update_event_stream()
