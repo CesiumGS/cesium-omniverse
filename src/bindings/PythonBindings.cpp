@@ -36,6 +36,7 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("removeTileset", &ICesiumOmniverseInterface::removeTileset)
         .def("addIonRasterOverlay", &ICesiumOmniverseInterface::addIonRasterOverlay)
         .def("updateFrame", &ICesiumOmniverseInterface::updateFrame)
+        .def("update_stage", &ICesiumOmniverseInterface::updateStage)
         .def("setGeoreferenceOrigin", &ICesiumOmniverseInterface::setGeoreferenceOrigin)
         .def("connect_to_ion", &ICesiumOmniverseInterface::connectToIon)
         .def("on_ui_update", &ICesiumOmniverseInterface::onUiUpdate)

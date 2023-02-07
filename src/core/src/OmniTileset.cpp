@@ -22,16 +22,17 @@ static std::shared_ptr<TaskProcessor> taskProcessor;
 static std::shared_ptr<HttpAssetAccessor> httpAssetAccessor;
 static std::shared_ptr<Cesium3DTilesSelection::CreditSystem> creditSystem;
 static std::shared_ptr<CesiumIonSession> session;
+static pxr::UsdStageRefPtr usdStage;
 static uint64_t i = 0;
 
 static uint64_t getID() {
     return i++;
 }
 
-OmniTileset::OmniTileset(const pxr::UsdStageRefPtr& stage, const std::string& url) {
+OmniTileset::OmniTileset(const std::string& url) {
     pxr::SdfPath tilesetPath =
-        stage->GetPseudoRoot().GetPath().AppendChild(pxr::TfToken(fmt::format("tileset_{}", getID())));
-    renderResourcesPreparer = std::make_shared<RenderResourcesPreparer>(stage, tilesetPath);
+        usdStage->GetPseudoRoot().GetPath().AppendChild(pxr::TfToken(fmt::format("tileset_{}", getID())));
+    renderResourcesPreparer = std::make_shared<RenderResourcesPreparer>(usdStage, tilesetPath);
     CesiumAsync::AsyncSystem asyncSystem{taskProcessor};
     Cesium3DTilesSelection::TilesetExternals externals{
         httpAssetAccessor, renderResourcesPreparer, asyncSystem, creditSystem};
@@ -41,10 +42,10 @@ OmniTileset::OmniTileset(const pxr::UsdStageRefPtr& stage, const std::string& ur
     tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(externals, url);
 }
 
-OmniTileset::OmniTileset(const pxr::UsdStageRefPtr& stage, int64_t ionID, const std::string& ionToken) {
+OmniTileset::OmniTileset(int64_t ionID, const std::string& ionToken) {
     pxr::SdfPath tilesetPath =
-        stage->GetPseudoRoot().GetPath().AppendChild(pxr::TfToken(fmt::format("tileset_ion_{}", ionID)));
-    renderResourcesPreparer = std::make_shared<RenderResourcesPreparer>(stage, tilesetPath);
+        usdStage->GetPseudoRoot().GetPath().AppendChild(pxr::TfToken(fmt::format("tileset_ion_{}", ionID)));
+    renderResourcesPreparer = std::make_shared<RenderResourcesPreparer>(usdStage, tilesetPath);
     CesiumAsync::AsyncSystem asyncSystem{taskProcessor};
     Cesium3DTilesSelection::TilesetExternals externals{
         httpAssetAccessor, renderResourcesPreparer, asyncSystem, creditSystem};
@@ -138,6 +139,14 @@ void OmniTileset::init(const std::filesystem::path& cesiumExtensionLocation) {
     session = std::make_shared<CesiumIonSession>(asyncSystem, httpAssetAccessor);
     session->resume();
     Cesium3DTilesSelection::registerAllTileContentTypes();
+}
+
+[[maybe_unused]] pxr::UsdStageRefPtr& OmniTileset::getStage() {
+    return usdStage;
+}
+
+void OmniTileset::setStage(const pxr::UsdStageRefPtr& stage) {
+    usdStage = stage;
 }
 
 void OmniTileset::shutdown() {
