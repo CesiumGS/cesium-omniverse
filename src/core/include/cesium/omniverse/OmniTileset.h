@@ -25,15 +25,19 @@
 namespace cesium::omniverse {
 class OmniTileset {
   public:
-    OmniTileset(const pxr::UsdStageRefPtr& stage, const std::string& url);
+    OmniTileset(const std::string& url);
 
-    OmniTileset(const pxr::UsdStageRefPtr& stage, int64_t ionID, const std::string& ionToken);
+    OmniTileset(int64_t ionID, const std::string& ionToken);
 
     void updateFrame(const pxr::GfMatrix4d& viewMatrix, const pxr::GfMatrix4d& projMatrix, double width, double height);
 
     void addIonRasterOverlay(const std::string& name, int64_t ionId, const std::string& ionToken);
 
     static void init(const std::filesystem::path& cesiumExtensionLocation);
+
+    static pxr::UsdStageRefPtr& getStage();
+
+    static void setStage(const pxr::UsdStageRefPtr& stage);
 
     static void connectToIon();
 
