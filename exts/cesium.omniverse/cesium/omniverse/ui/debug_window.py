@@ -180,12 +180,12 @@ class CesiumOmniverseDebugWindow(ui.Window):
             stage_id = omni.usd.get_context().get_stage_id()
             stage = omni.usd.get_context().get_stage()
             cesium_prim = stage.GetPrimAtPath("/Cesium")
-            ion_token = cesium_prim.GetAttribute("ionToken").Get()
+            default_project_token = cesium_prim.GetAttribute("defaultProjectToken").Get()
 
             tileset_id = self._cesium_omniverse_interface.addTilesetIon(
                 stage_id,
                 1,
-                ion_token,
+                default_project_token,
             )
 
             self._tilesets.append(tileset_id)
@@ -194,7 +194,7 @@ class CesiumOmniverseDebugWindow(ui.Window):
                 tileset_id,
                 "Layer",
                 2,
-                ion_token,
+                default_project_token,
             )
 
         def add_bing_maps_terrain_using_stage_token():

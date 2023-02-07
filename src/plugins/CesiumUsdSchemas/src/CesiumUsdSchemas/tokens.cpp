@@ -5,11 +5,13 @@ PXR_NAMESPACE_OPEN_SCOPE
 CesiumTokensType::CesiumTokensType() :
     assetId("assetId", TfToken::Immortal),
     assetUrl("assetUrl", TfToken::Immortal),
-    ionToken("ionToken", TfToken::Immortal),
+    defaultProjectToken("defaultProjectToken", TfToken::Immortal),
+    defaultProjectTokenId("defaultProjectTokenId", TfToken::Immortal),
     allTokens({
         assetId,
         assetUrl,
-        ionToken
+        defaultProjectToken,
+        defaultProjectTokenId
     })
 {
 }
