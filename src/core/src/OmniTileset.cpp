@@ -153,6 +153,8 @@ void OmniTileset::shutdown() {
     taskProcessor.reset();
     httpAssetAccessor.reset();
     creditSystem.reset();
+    session.reset();
+    usdStage.Reset();
 }
 
 void OmniTileset::connectToIon() {

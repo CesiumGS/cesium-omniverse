@@ -100,6 +100,9 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         ui.Workspace.set_show_window_fn(CesiumOmniverseAssetWindow.WINDOW_NAME, None)
         ui.Workspace.set_show_window_fn(CesiumOmniverseDebugWindow.WINDOW_NAME, None)
 
+        if self._on_stage_subscription is not None:
+            self._on_stage_subscription.unsubscribe()
+
         self._logger.info("CesiumOmniverse shutdown")
 
         # Release the Cesium Omniverse interface.
