@@ -11,7 +11,7 @@ set(REQUIRES
     "stb/cci.20220909@#1c47474f095ef8cd9e4959558525b827"
     "zlib/1.2.13@#13c96f538b52e1600c40b88994de240f"
     "libcurl/7.86.0@#88506b3234d553b90af1ceefc3dd1652"
-    "nasm/2.15.05@#5627ba08c9983f8b077dd0f581bc3e98")
+    "nasm/2.15.05@#799d63b1672a337584b09635b0f22fc1")
 
 if(WIN32)
     set(REQUIRES ${REQUIRES} "strawberryperl/5.32.1.1@#8f83d05a60363a422f9033e52d106b47")
