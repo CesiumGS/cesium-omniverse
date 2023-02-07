@@ -163,14 +163,17 @@ void OmniTileset::addCesiumDataIfNotExists(const CesiumIonClient::Token& token) 
     }
 
     pxr::CesiumData cesiumData(cesiumDataPrim);
-    auto ionTokenAttr = cesiumData.GetIonTokenAttr();
+    auto projectDefaultToken = cesiumData.GetDefaultProjectTokenAttr();
+    auto projectDefaultTokenId = cesiumData.GetDefaultProjectTokenIdAttr();
 
-    if (!ionTokenAttr.IsValid()) {
-        ionTokenAttr = cesiumData.CreateIonTokenAttr(pxr::VtValue(""));
+    if (!projectDefaultToken.IsValid()) {
+        projectDefaultToken = cesiumData.CreateDefaultProjectTokenAttr(pxr::VtValue(""));
+        projectDefaultTokenId = cesiumData.CreateDefaultProjectTokenIdAttr(pxr::VtValue(""));
     }
 
     if (!token.token.empty()) {
-        ionTokenAttr.Set(token.token.c_str());
+        projectDefaultToken.Set(token.token.c_str());
+        projectDefaultTokenId.Set(token.id.c_str());
     }
 }
 
