@@ -203,8 +203,9 @@ void OmniTileset::createToken(const std::string& name) {
     auto connection = session->getConnection();
 
     if (!connection.has_value()) {
-        lastSetTokenResult =
-            SetDefaultTokenResult{SetDefaultTokenResultCode::NOT_CONNECTED_TO_ION, "Not connected to ion."};
+        lastSetTokenResult = SetDefaultTokenResult{
+            SetDefaultTokenResultCode::NOT_CONNECTED_TO_ION,
+            SetDefaultTokenResultMessages::NOT_CONNECTED_TO_ION_MESSAGE};
         return;
     }
 
@@ -213,11 +214,15 @@ void OmniTileset::createToken(const std::string& name) {
             if (response.value) {
                 addCesiumDataIfNotExists(response.value.value());
 
-                lastSetTokenResult = SetDefaultTokenResult{SetDefaultTokenResultCode::OK, "OK"};
+                lastSetTokenResult =
+                    SetDefaultTokenResult{SetDefaultTokenResultCode::OK, SetDefaultTokenResultMessages::OK_MESSAGE};
             } else {
                 lastSetTokenResult = SetDefaultTokenResult{
                     SetDefaultTokenResultCode::CREATE_FAILED,
-                    fmt::format("Create failed: {1} ({2})", response.errorMessage, response.errorCode)};
+                    fmt::format(
+                        SetDefaultTokenResultMessages::CREATE_FAILED_MESSAGE_BASE,
+                        response.errorMessage,
+                        response.errorCode)};
             }
 
             Broadcast::setDefaultTokenComplete();
@@ -228,12 +233,14 @@ void OmniTileset::selectToken(const CesiumIonClient::Token& token) {
     auto connection = session->getConnection();
 
     if (!connection.has_value()) {
-        lastSetTokenResult =
-            SetDefaultTokenResult{SetDefaultTokenResultCode::NOT_CONNECTED_TO_ION, "Not connected to ion."};
+        lastSetTokenResult = SetDefaultTokenResult{
+            SetDefaultTokenResultCode::NOT_CONNECTED_TO_ION,
+            SetDefaultTokenResultMessages::NOT_CONNECTED_TO_ION_MESSAGE};
     } else {
         addCesiumDataIfNotExists(token);
 
-        lastSetTokenResult = SetDefaultTokenResult{SetDefaultTokenResultCode::OK, "OK"};
+        lastSetTokenResult =
+            SetDefaultTokenResult{SetDefaultTokenResultCode::OK, SetDefaultTokenResultMessages::OK_MESSAGE};
     }
 
     Broadcast::setDefaultTokenComplete();
@@ -249,7 +256,8 @@ void OmniTileset::specifyToken(const std::string& token) {
             addCesiumDataIfNotExists(t);
         }
         // We assume the user knows what they're doing if they specify a token not on their account.
-        lastSetTokenResult = SetDefaultTokenResult{SetDefaultTokenResultCode::OK, "OK"};
+        lastSetTokenResult =
+            SetDefaultTokenResult{SetDefaultTokenResultCode::OK, SetDefaultTokenResultMessages::OK_MESSAGE};
 
         Broadcast::setDefaultTokenComplete();
     });
