@@ -15,7 +15,7 @@ inline const char* NOT_SET_IN_SESSION_MESSAGE = "Default token has not been set 
 inline const char* OK_MESSAGE = "OK";
 inline const char* NOT_CONNECTED_TO_ION_MESSAGE = "Not connected to ion.";
 inline const char* CREATE_FAILED_MESSAGE_BASE = "Create failed: {1} ({2})";
-}
+} // namespace SetDefaultTokenResultMessages
 
 /**
  * Stores information about the last action to set the default token. A code and a relevant user
