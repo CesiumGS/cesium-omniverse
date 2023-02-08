@@ -1,6 +1,8 @@
 #pragma once
 
 #include "cesium/omniverse/CesiumIonSession.h"
+#include "cesium/omniverse/OmniTileset.h"
+#include "cesium/omniverse/SetDefaultTokenResult.h"
 
 #include <CesiumIonClient/Connection.h>
 #include <carb/Interface.h>
@@ -32,12 +34,11 @@ class ICesiumOmniverseInterface {
     virtual void finalize() noexcept = 0;
 
     /**
-     * @brief Adds a Cesium Data prim.
+     * @brief Adds a Cesium data prim if it does not exist. Always sets the data prim to the specified token.
      *
-     * @param stageId The USD stage id
-     * @param ionToken The Stage level ionToken
+     * @param token The project default token.
      */
-    virtual void addCesiumData(long stageId, const char* ionToken) noexcept = 0;
+    virtual void addCesiumDataIfNotExists(const char* token) noexcept = 0;
 
     /**
      * @brief Adds a tileset from url.
@@ -106,6 +107,34 @@ class ICesiumOmniverseInterface {
     virtual void setGeoreferenceOrigin(double longitude, double latitude, double height) noexcept = 0;
 
     virtual void connectToIon() noexcept = 0;
+
+    /**
+     * @brief Gets the last result with code and message of setting the default token.
+     *
+     * @return A struct with a code and message. 0 is successful.
+     */
+    virtual SetDefaultTokenResult getSetDefaultTokenResult() noexcept = 0;
+
+    /**
+     * @brief Creates a new token using the specified name.
+     *
+     * @param name The name for the new token.
+     */
+    virtual void createToken(const char* name) noexcept = 0;
+
+    /**
+     * @brief Selects an existing token associated with the logged in account.
+     *
+     * @param id The ID of the selected token.
+     */
+    virtual void selectToken(const char* id, const char* token) noexcept = 0;
+
+    /**
+     * @brief Used for the specify token action by the set project default token window.
+     *
+     * @param token The desired token.
+     */
+    virtual void specifyToken(const char* token) noexcept = 0;
 
     virtual void onUiUpdate() noexcept = 0;
 
