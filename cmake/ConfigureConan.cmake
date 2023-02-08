@@ -128,7 +128,8 @@ macro(configure_conan)
             REMOTE
             conancenter
             SETTINGS
-            ${settings})
+            ${settings}
+            UPDATE)
     endforeach()
 
     # Hide CONAN_CMD from the CMake GUI

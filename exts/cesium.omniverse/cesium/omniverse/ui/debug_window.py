@@ -115,7 +115,6 @@ class CesiumOmniverseDebugWindow(ui.Window):
 
             self._tilesets.append(
                 self._cesium_omniverse_interface.addTilesetIon(
-                    stage_id,
                     1387142,
                     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyMjRhYzI0Yi1kNWEwLTQ4ZWYtYjdmZC1hY2JmYWIzYmFiMGUiLCJpZCI6NDQsImlhdCI6MTY2NzQ4OTg0N30.du0tvWptgLWsvM1Gnbv3Zw_pDAOILg1Wr6s2sgK-qlM",
                 )
@@ -132,7 +131,6 @@ class CesiumOmniverseDebugWindow(ui.Window):
             self._cesium_omniverse_interface.addCesiumData(stage_id, "")
 
             tileset_id = self._cesium_omniverse_interface.addTilesetIon(
-                stage_id,
                 1,
                 "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyMjRhYzI0Yi1kNWEwLTQ4ZWYtYjdmZC1hY2JmYWIzYmFiMGUiLCJpZCI6NDQsImlhdCI6MTY2NzQ4OTg0N30.du0tvWptgLWsvM1Gnbv3Zw_pDAOILg1Wr6s2sgK-qlM",
             )
@@ -157,7 +155,6 @@ class CesiumOmniverseDebugWindow(ui.Window):
             self._cesium_omniverse_interface.addCesiumData(stage_id, "")
 
             tileset_id = self._cesium_omniverse_interface.addTilesetIon(
-                stage_id,
                 1,
                 "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyMjRhYzI0Yi1kNWEwLTQ4ZWYtYjdmZC1hY2JmYWIzYmFiMGUiLCJpZCI6NDQsImlhdCI6MTY2NzQ4OTg0N30.du0tvWptgLWsvM1Gnbv3Zw_pDAOILg1Wr6s2sgK-qlM",
             )
@@ -177,13 +174,11 @@ class CesiumOmniverseDebugWindow(ui.Window):
             # Cesium HQ
             self._cesium_omniverse_interface.setGeoreferenceOrigin(-75.1564977, 39.9501464, 150.0)
 
-            stage_id = omni.usd.get_context().get_stage_id()
             stage = omni.usd.get_context().get_stage()
             cesium_prim = stage.GetPrimAtPath("/Cesium")
             default_project_token = cesium_prim.GetAttribute("defaultProjectToken").Get()
 
             tileset_id = self._cesium_omniverse_interface.addTilesetIon(
-                stage_id,
                 1,
                 default_project_token,
             )

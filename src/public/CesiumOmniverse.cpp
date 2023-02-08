@@ -43,17 +43,15 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         }
     }
 
-    int addTilesetUrl(long stageId, const char* url) noexcept override {
+    int addTilesetUrl(const char* url) noexcept override {
         const int tilesetId = currentId++;
-        const auto& stage = pxr::UsdUtilsStageCache::Get().Find(pxr::UsdStageCache::Id::FromLongInt(stageId));
-        tilesets.insert({tilesetId, std::make_unique<OmniTileset>(stage, url)});
+        tilesets.insert({tilesetId, std::make_unique<OmniTileset>(url)});
         return tilesetId;
     }
 
-    int addTilesetIon(long stageId, int64_t ionId, const char* ionToken) noexcept override {
+    int addTilesetIon(int64_t ionId, const char* ionToken) noexcept override {
         const int tilesetId = currentId++;
-        const auto& stage = pxr::UsdUtilsStageCache::Get().Find(pxr::UsdStageCache::Id::FromLongInt(stageId));
-        tilesets.insert({tilesetId, std::make_unique<OmniTileset>(stage, ionId, ionToken)});
+        tilesets.insert({tilesetId, std::make_unique<OmniTileset>(ionId, ionToken)});
         return tilesetId;
     }
 
@@ -78,6 +76,11 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         if (iter != tilesets.end()) {
             iter->second->updateFrame(viewMatrix, projMatrix, width, height);
         }
+    }
+
+    void updateStage(long stageId) noexcept override {
+        const auto& stage = pxr::UsdUtilsStageCache::Get().Find(pxr::UsdStageCache::Id::FromLongInt(stageId));
+        OmniTileset::setStage(stage);
     }
 
     void setGeoreferenceOrigin(double longitude, double latitude, double height) noexcept override {

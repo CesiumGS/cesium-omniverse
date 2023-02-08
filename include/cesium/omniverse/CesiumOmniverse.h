@@ -42,21 +42,19 @@ class ICesiumOmniverseInterface {
     /**
      * @brief Adds a tileset from url.
      *
-     * @param stageId The USD stage id
      * @param url The tileset url
      * @returns The tileset id. Returns -1 on error.
      */
-    virtual int addTilesetUrl(long stageId, const char* url) noexcept = 0;
+    virtual int addTilesetUrl(const char* url) noexcept = 0;
 
     /**
      * @brief Adds a tileset from ion using the Stage level ion token.
      *
-     * @param stageId The USD stage id
      * @param ionId The ion asset id
      * @param ionToken The access token
      * @returns The tileset id. Returns -1 on error.
      */
-    virtual int addTilesetIon(long stageId, int64_t ionId, const char* ionToken) noexcept = 0;
+    virtual int addTilesetIon(int64_t ionId, const char* ionToken) noexcept = 0;
 
     /**
      * @brief Removes a tileset from the scene.
@@ -90,6 +88,13 @@ class ICesiumOmniverseInterface {
         const pxr::GfMatrix4d& projMatrix,
         double width,
         double height) noexcept = 0;
+
+    /**
+     * @brief Updates the reference to the USD stage for the C++ layer.
+     *
+     * @param stageId The id of the current stage.
+     */
+    virtual void updateStage(long stageId) noexcept = 0;
 
     /**
      * @brief Sets the georeference origin based on the WGS84 ellipsoid.
