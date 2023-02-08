@@ -212,6 +212,8 @@ void OmniTileset::createToken(const std::string& name) {
         .thenInMainThread([](CesiumIonClient::Response<CesiumIonClient::Token>&& response) {
             if (response.value) {
                 addCesiumDataIfNotExists(response.value.value());
+
+                lastSetTokenResult = SetDefaultTokenResult{SetDefaultTokenResultCode::OK, "OK"};
             } else {
                 lastSetTokenResult = SetDefaultTokenResult{
                     SetDefaultTokenResultCode::CREATE_FAILED,
@@ -228,10 +230,11 @@ void OmniTileset::selectToken(const CesiumIonClient::Token& token) {
     if (!connection.has_value()) {
         lastSetTokenResult =
             SetDefaultTokenResult{SetDefaultTokenResultCode::NOT_CONNECTED_TO_ION, "Not connected to ion."};
-        return;
-    }
+    } else {
+        addCesiumDataIfNotExists(token);
 
-    addCesiumDataIfNotExists(token);
+        lastSetTokenResult = SetDefaultTokenResult{SetDefaultTokenResultCode::OK, "OK"};
+    }
 
     Broadcast::setDefaultTokenComplete();
 }
