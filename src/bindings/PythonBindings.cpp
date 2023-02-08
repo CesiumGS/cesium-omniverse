@@ -30,7 +30,7 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         m, "ICesiumOmniverseInterface", "acquire_cesium_omniverse_interface", "release_cesium_omniverse_interface")
         .def("initialize", &ICesiumOmniverseInterface::initialize)
         .def("finalize", &ICesiumOmniverseInterface::finalize)
-        .def("addCesiumData", &ICesiumOmniverseInterface::addCesiumData)
+        .def("addCesiumDataIfNotExists", &ICesiumOmniverseInterface::addCesiumDataIfNotExists)
         .def("addTilesetUrl", &ICesiumOmniverseInterface::addTilesetUrl)
         .def("addTilesetIon", &ICesiumOmniverseInterface::addTilesetIon)
         .def("removeTileset", &ICesiumOmniverseInterface::removeTileset)
@@ -39,6 +39,10 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("update_stage", &ICesiumOmniverseInterface::updateStage)
         .def("setGeoreferenceOrigin", &ICesiumOmniverseInterface::setGeoreferenceOrigin)
         .def("connect_to_ion", &ICesiumOmniverseInterface::connectToIon)
+        .def("get_set_default_token_result", &ICesiumOmniverseInterface::getSetDefaultTokenResult)
+        .def("create_token", &ICesiumOmniverseInterface::createToken)
+        .def("select_token", &ICesiumOmniverseInterface::selectToken)
+        .def("specify_token", &ICesiumOmniverseInterface::specifyToken)
         .def("on_ui_update", &ICesiumOmniverseInterface::onUiUpdate)
         .def("get_session", &ICesiumOmniverseInterface::getSession);
 
@@ -60,6 +64,10 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("refresh_tokens", &CesiumIonSession::refreshTokens)
         .def("disconnect", &CesiumIonSession::disconnect)
         .def("refresh_profile", &CesiumIonSession::refreshProfile);
+
+    py::class_<SetDefaultTokenResult>(m, "SetDefaultTokenResult")
+        .def_readonly("code", &SetDefaultTokenResult::code)
+        .def_readonly("message", &SetDefaultTokenResult::message);
 
     py::class_<CesiumIonClient::Connection>(m, "Connection")
         .def("get_api_url", &CesiumIonClient::Connection::getApiUrl)

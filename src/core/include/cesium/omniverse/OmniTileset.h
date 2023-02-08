@@ -4,6 +4,7 @@
 
 #include "cesium/omniverse/Georeference.h"
 #include "cesium/omniverse/RenderResourcesPreparer.h"
+#include "cesium/omniverse/SetDefaultTokenResult.h"
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
@@ -15,8 +16,6 @@
 #include <pxr/usd/usd/stage.h>
 #include <pxr/usd/usd/stageCache.h>
 #include <pxr/usd/usdUtils/stageCache.h>
-#include <omni/usd/UsdContextIncludes.h>
-#include <omni/usd/UsdContext.h>
 
 #include <filesystem>
 #include <memory>
@@ -42,6 +41,12 @@ class OmniTileset {
     static void connectToIon();
 
     static void addCesiumDataIfNotExists(const CesiumIonClient::Token& token);
+
+    static SetDefaultTokenResult getSetDefaultTokenResult();
+
+    static void createToken(const std::string& name);
+
+    static void selectToken(const CesiumIonClient::Token& token);
 
     static void specifyToken(const std::string& token);
 

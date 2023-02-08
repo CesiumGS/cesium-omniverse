@@ -37,6 +37,9 @@ class UseExistingComboItem(ui.AbstractItem):
         self.name = ui.SimpleStringModel(token.name)
         self.token = ui.SimpleStringModel(token.token)
 
+    def __str__(self):
+        return f"{self.id.get_value_as_string()}:{self.name.get_value_as_string()}:{self.token.get_value_as_string()}"
+
 
 class UseExistingComboModel(ui.AbstractItemModel):
     def __init__(self, item_list):
@@ -64,6 +67,12 @@ class UseExistingComboModel(ui.AbstractItemModel):
         if item is None:
             return self._current_index
         return item.name
+
+    def get_current_selection(self):
+        if len(self._items) < 1:
+            return None
+
+        return self._items[self._current_index.get_value_as_int()]
 
 
 class CesiumOmniverseTokenWindow(ui.Window):
@@ -97,10 +106,13 @@ class CesiumOmniverseTokenWindow(ui.Window):
         self._specify_token_field_model = ui.SimpleStringModel()
         self._reload_next_frame = False
 
+        # _handle_select_result is different from most subscriptions. We delete it when we are done, so it is separate
+        #   from the subscriptions array.
+        self._handle_select_result_sub: Optional[carb.events.ISubscription] = None
         self._subscriptions: List[carb.events.ISubscription] = []
         self._setup_subscriptions()
 
-        self.frame.set_build_fn(self._build_fn)
+        self.frame.set_build_fn(self._build_ui)
 
     def __del__(self):
         self.destroy()
@@ -108,6 +120,11 @@ class CesiumOmniverseTokenWindow(ui.Window):
     def destroy(self):
         for subscription in self._subscriptions:
             subscription.unsubscribe()
+        self._subscriptions.clear()
+
+        if self._handle_select_result_sub is not None:
+            self._handle_select_result_sub.unsubscribe()
+            self._handle_select_result_sub = None
 
         super().destroy()
 
@@ -133,6 +150,13 @@ class CesiumOmniverseTokenWindow(ui.Window):
             self._reload_next_frame = True
 
     def _select_button_clicked(self):
+        bus = app.get_app().get_message_bus_event_stream()
+        completed_event = carb.events.type_from_string("cesium.omniverse.SET_DEFAULT_PROJECT_TOKEN_COMPLETE")
+        self._handle_select_result_sub = \
+            bus.create_subscription_to_pop_by_type(completed_event,
+                                                   self._handle_select_result,
+                                                   name="cesium.omniverse.HANDLE_SELECT_TOKEN_RESULT")
+
         if self._selected_option is TokenOptionEnum.CREATE_NEW:
             self._create_token()
         elif self._selected_option is TokenOptionEnum.USE_EXISTING:
@@ -140,16 +164,29 @@ class CesiumOmniverseTokenWindow(ui.Window):
         elif self._selected_option is TokenOptionEnum.SPECIFY_TOKEN:
             self._specify_token()
 
+    def _handle_select_result(self, _e: carb.events.IEvent):
+        # TODO: Check for errors.
+
         self.visible = False
 
     def _create_token(self):
-        pass
+        name = self._create_new_field_model.get_value_as_string().strip()
+
+        if name != "":
+            self._cesium_omniverse_interface.create_token(name)
 
     def _use_existing_token(self):
-        pass
+        token = self._use_existing_combo_model.get_current_selection()
+
+        if token is not None:
+            self._cesium_omniverse_interface.select_token(token.id.get_value_as_string(),
+                                                          token.token.get_value_as_string())
 
     def _specify_token(self):
-        pass
+        token = self._specify_token_field_model.get_value_as_string().strip()
+
+        if token != "":
+            self._cesium_omniverse_interface.specify_token(token)
 
     def _radio_button_changed(self, model, selected: TokenOptionEnum):
         if not model.get_value_as_bool():
@@ -198,7 +235,7 @@ class CesiumOmniverseTokenWindow(ui.Window):
                     ui.Label(field_label_text, width=FIELD_LABEL_WIDTH)
                     ui.StringField(string_field_model)
 
-    def _build_fn(self):
+    def _build_ui(self):
         with ui.VStack(spacing=10):
             ui.Label(SELECT_TOKEN_TEXT, word_wrap=True)
             self._build_field(CREATE_NEW_LABEL_TEXT, CREATE_NEW_FIELD_LABEL_TEXT, self._create_new_radio_button_model,
