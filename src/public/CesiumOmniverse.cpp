@@ -30,17 +30,10 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         OmniTileset::shutdown();
     }
 
-    void addCesiumData(long stageId, const char* ionToken) noexcept override {
-        const auto& stage = pxr::UsdUtilsStageCache::Get().Find(pxr::UsdStageCache::Id::FromLongInt(stageId));
-        pxr::UsdPrim cesiumDataPrim = stage->DefinePrim(pxr::SdfPath("/Cesium"));
-        pxr::CesiumData cesiumData(cesiumDataPrim);
-        auto defaultTokenId = cesiumData.CreateDefaultProjectTokenIdAttr(pxr::VtValue(""));
-        auto defaultToken = cesiumData.CreateDefaultProjectTokenAttr(pxr::VtValue(""));
-
-        if (strlen(ionToken) != 0) {
-            defaultTokenId.Set("");
-            defaultToken.Set(ionToken);
-        }
+    void addCesiumDataIfNotExists(const char* token) noexcept override {
+        CesiumIonClient::Token t;
+        t.token = token;
+        OmniTileset::addCesiumDataIfNotExists(t);
     }
 
     int addTilesetUrl(const char* url) noexcept override {
@@ -90,6 +83,23 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
 
     void connectToIon() noexcept override {
         OmniTileset::connectToIon();
+    }
+
+    SetDefaultTokenResult getSetDefaultTokenResult() noexcept override {
+        return OmniTileset::getSetDefaultTokenResult();
+    }
+
+    void createToken(const char* name) noexcept override {
+        OmniTileset::createToken(name);
+    }
+
+    void selectToken(const char* id, const char* token) noexcept override {
+        CesiumIonClient::Token t{id, "", token};
+        OmniTileset::selectToken(t);
+    }
+
+    void specifyToken(const char* token) noexcept override {
+        OmniTileset::specifyToken(token);
     }
 
     void onUiUpdate() noexcept override {

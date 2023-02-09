@@ -1,5 +1,6 @@
 #include "cesium/omniverse/OmniTileset.h"
 
+#include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/GltfToUSD.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
@@ -23,6 +24,7 @@ static std::shared_ptr<HttpAssetAccessor> httpAssetAccessor;
 static std::shared_ptr<Cesium3DTilesSelection::CreditSystem> creditSystem;
 static std::shared_ptr<CesiumIonSession> session;
 static pxr::UsdStageRefPtr usdStage;
+static SetDefaultTokenResult lastSetTokenResult;
 static uint64_t i = 0;
 
 static uint64_t getID() {
@@ -157,12 +159,108 @@ void OmniTileset::shutdown() {
     usdStage.Reset();
 }
 
+/**
+ * Adds the Cesium prim to the stage if it doesn't already exist and sets the default project token to the set value.
+ * If you want to set the default project token to something else, use this function.
+ *
+ * @param token The default project token in string form.
+ */
+void OmniTileset::addCesiumDataIfNotExists(const CesiumIonClient::Token& token) {
+    pxr::SdfPath sdfPath = pxr::SdfPath("/Cesium");
+    pxr::UsdPrim cesiumDataPrim = usdStage->GetPrimAtPath(sdfPath);
+    if (!cesiumDataPrim.IsValid()) {
+        cesiumDataPrim = usdStage->DefinePrim(sdfPath);
+    }
+
+    pxr::CesiumData cesiumData(cesiumDataPrim);
+    auto projectDefaultToken = cesiumData.GetDefaultProjectTokenAttr();
+    auto projectDefaultTokenId = cesiumData.GetDefaultProjectTokenIdAttr();
+
+    if (!projectDefaultToken.IsValid()) {
+        projectDefaultToken = cesiumData.CreateDefaultProjectTokenAttr(pxr::VtValue(""));
+        projectDefaultTokenId = cesiumData.CreateDefaultProjectTokenIdAttr(pxr::VtValue(""));
+    }
+
+    if (!token.token.empty()) {
+        projectDefaultToken.Set(token.token.c_str());
+        projectDefaultTokenId.Set(token.id.c_str());
+    }
+}
+
 void OmniTileset::connectToIon() {
     if (session == nullptr) {
         return;
     }
 
     session->connect();
+}
+
+SetDefaultTokenResult OmniTileset::getSetDefaultTokenResult() {
+    return lastSetTokenResult;
+}
+
+void OmniTileset::createToken(const std::string& name) {
+    auto connection = session->getConnection();
+
+    if (!connection.has_value()) {
+        lastSetTokenResult = SetDefaultTokenResult{
+            SetDefaultTokenResultCode::NOT_CONNECTED_TO_ION,
+            SetDefaultTokenResultMessages::NOT_CONNECTED_TO_ION_MESSAGE};
+        return;
+    }
+
+    connection->createToken(name, {"assets:read"}, std::vector<int64_t>{1}, std::nullopt)
+        .thenInMainThread([](CesiumIonClient::Response<CesiumIonClient::Token>&& response) {
+            if (response.value) {
+                addCesiumDataIfNotExists(response.value.value());
+
+                lastSetTokenResult =
+                    SetDefaultTokenResult{SetDefaultTokenResultCode::OK, SetDefaultTokenResultMessages::OK_MESSAGE};
+            } else {
+                lastSetTokenResult = SetDefaultTokenResult{
+                    SetDefaultTokenResultCode::CREATE_FAILED,
+                    fmt::format(
+                        SetDefaultTokenResultMessages::CREATE_FAILED_MESSAGE_BASE,
+                        response.errorMessage,
+                        response.errorCode)};
+            }
+
+            Broadcast::setDefaultTokenComplete();
+        });
+}
+
+void OmniTileset::selectToken(const CesiumIonClient::Token& token) {
+    auto connection = session->getConnection();
+
+    if (!connection.has_value()) {
+        lastSetTokenResult = SetDefaultTokenResult{
+            SetDefaultTokenResultCode::NOT_CONNECTED_TO_ION,
+            SetDefaultTokenResultMessages::NOT_CONNECTED_TO_ION_MESSAGE};
+    } else {
+        addCesiumDataIfNotExists(token);
+
+        lastSetTokenResult =
+            SetDefaultTokenResult{SetDefaultTokenResultCode::OK, SetDefaultTokenResultMessages::OK_MESSAGE};
+    }
+
+    Broadcast::setDefaultTokenComplete();
+}
+
+void OmniTileset::specifyToken(const std::string& token) {
+    session->findToken(token).thenInMainThread([token](CesiumIonClient::Response<CesiumIonClient::Token>&& response) {
+        if (response.value) {
+            addCesiumDataIfNotExists(response.value.value());
+        } else {
+            CesiumIonClient::Token t;
+            t.token = token;
+            addCesiumDataIfNotExists(t);
+        }
+        // We assume the user knows what they're doing if they specify a token not on their account.
+        lastSetTokenResult =
+            SetDefaultTokenResult{SetDefaultTokenResultCode::OK, SetDefaultTokenResultMessages::OK_MESSAGE};
+
+        Broadcast::setDefaultTokenComplete();
+    });
 }
 
 void OmniTileset::onUiUpdate() {

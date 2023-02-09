@@ -9,6 +9,7 @@ from typing import List, Optional
 from .quick_add_widget import CesiumOmniverseQuickAddWidget
 from .sign_in_widget import CesiumOmniverseSignInWidget
 from .profile_widget import CesiumOmniverseProfileWidget
+from .token_window import CesiumOmniverseTokenWindow
 from .styles import CesiumOmniverseUiStyles
 
 HELP_URL = "https://community.cesium.com/"
@@ -162,9 +163,8 @@ class CesiumOmniverseMainWindow(ui.Window):
         if not self._token_button:
             return
 
-        # TODO: Implement CesiumMainWindow._token_button_clicked(self)
-
-        pass
+        self._cesium_omniverse_interface.get_session().refresh_tokens()
+        CesiumOmniverseTokenWindow(self._cesium_omniverse_interface)
 
     def _learn_button_clicked(self) -> None:
         if not self._learn_button:

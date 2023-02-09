@@ -2,6 +2,7 @@ from .styles import CesiumOmniverseUiStyles
 from .quick_add_widget import CesiumOmniverseQuickAddWidget
 from .sign_in_widget import CesiumOmniverseSignInWidget
 from .profile_widget import CesiumOmniverseProfileWidget
+from .token_window import CesiumOmniverseTokenWindow
 from .main_window import CesiumOmniverseMainWindow
 from .asset_window import CesiumOmniverseAssetWindow
 from .debug_window import CesiumOmniverseDebugWindow

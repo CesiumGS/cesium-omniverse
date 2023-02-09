@@ -23,7 +23,7 @@ class CesiumOmniverseUiStyles:
         },
         "Button.Label": {
             "color": cl("#FFF"),
-            "font_size": 24,
+            "font_size": 22,
         },
         "Button:hovered": {
             "background_color": cl("#3C81A2"),
