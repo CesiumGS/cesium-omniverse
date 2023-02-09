@@ -49,13 +49,38 @@ class ICesiumOmniverseInterface {
     virtual int addTilesetUrl(const char* url) noexcept = 0;
 
     /**
+     * @brief Adds a tileset from ion using the stage default token.
+     *
+     * @param name The user-given name of this tileset.
+     * @param ionId The ion asset ID for the tileset.
+     * @returns The tileset id. Returns -1 on error.
+     */
+    virtual int addTilesetIon(const char* name, int64_t ionId) noexcept = 0;
+
+    /**
      * @brief Adds a tileset from ion using the Stage level ion token.
      *
+     * @param name The user-given name of this tileset.
      * @param ionId The ion asset id
      * @param ionToken The access token
      * @returns The tileset id. Returns -1 on error.
      */
-    virtual int addTilesetIon(int64_t ionId, const char* ionToken) noexcept = 0;
+    virtual int addTilesetIon(const char* name, int64_t ionId, const char* ionToken) noexcept = 0;
+
+    /**
+     * @brief Adds a tileset and a raster overlay to the stage.
+     *
+     * @param tilesetName The user-given name of this tileset.
+     * @param tilesetIonId The ion asset ID for the tileset.
+     * @param rasterOverlayName The user-given name of this overlay layer.
+     * @param rasterOverlayIonId The ion asset ID for the raster overlay.
+     * @returns The tileset id. Returns -1 on error.
+     */
+    virtual int addTilesetAndRasterOverlay(
+        const char* tilesetName,
+        int64_t tilesetIonId,
+        const char* rasterOverlayName,
+        int64_t rasterOverlayIonId) noexcept = 0;
 
     /**
      * @brief Removes a tileset from the scene.
@@ -72,19 +97,27 @@ class ICesiumOmniverseInterface {
      * @param ionId The asset ID
      * @param ionToken The access token
      */
+    virtual void addIonRasterOverlay(int tileset, const char* name, int64_t ionId) noexcept = 0;
+
+    /**
+     * @brief Adds a raster overlay from ion.
+     *
+     * @param tileset The tileset id
+     * @param name The user-given name of this overlay layer
+     * @param ionId The asset ID
+     * @param ionToken The access token
+     */
     virtual void addIonRasterOverlay(int tileset, const char* name, int64_t ionId, const char* ionToken) noexcept = 0;
 
     /**
      * @brief Updates the tileset this frame.
      *
-     * @param tileset The tileset id. If there's no tileset with this id nothing happens.
      * @param viewMatrix The view matrix.
      * @param projMatrix The projection matrix.
      * @param width The screen width
      * @param height The screen height
      */
     virtual void updateFrame(
-        int tileset,
         const pxr::GfMatrix4d& viewMatrix,
         const pxr::GfMatrix4d& projMatrix,
         double width,
@@ -114,6 +147,13 @@ class ICesiumOmniverseInterface {
      * @return A struct with a code and message. 0 is successful.
      */
     virtual SetDefaultTokenResult getSetDefaultTokenResult() noexcept = 0;
+
+    /**
+     * @brief Boolean to check if the default token is set.
+     *
+     * @return True if default token is set.
+     */
+    virtual bool isDefaultTokenSet() noexcept = 0;
 
     /**
      * @brief Creates a new token using the specified name.

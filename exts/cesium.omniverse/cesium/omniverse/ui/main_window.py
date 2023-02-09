@@ -91,6 +91,12 @@ class CesiumOmniverseMainWindow(ui.Window):
             bus.create_subscription_to_pop_by_type(tokens_updated_event, self._on_tokens_updated, name="tokens_updated")
         )
 
+        show_token_window_event = carb.events.type_from_string("cesium.omniverse.SHOW_TOKEN_WINDOW")
+        self._subscriptions.append(
+            bus.create_subscription_to_pop_by_type(show_token_window_event, self._on_show_token_window,
+                                                   name="cesium.omniverse.SHOW_TOKEN_WINDOW")
+        )
+
     def _on_update_frame(self, _e: carb.events.IEvent):
         self._cesium_omniverse_interface.on_ui_update()
 
@@ -114,6 +120,9 @@ class CesiumOmniverseMainWindow(ui.Window):
 
     def _on_tokens_updated(self, _e: carb.events.IEvent):
         pass
+
+    def _on_show_token_window(self, _e: carb.events.IEvent):
+        self._show_token_window()
 
     def _build_fn(self):
         """Builds all UI components."""
@@ -163,8 +172,7 @@ class CesiumOmniverseMainWindow(ui.Window):
         if not self._token_button:
             return
 
-        self._cesium_omniverse_interface.get_session().refresh_tokens()
-        CesiumOmniverseTokenWindow(self._cesium_omniverse_interface)
+        self._show_token_window()
 
     def _learn_button_clicked(self) -> None:
         if not self._learn_button:
@@ -185,3 +193,7 @@ class CesiumOmniverseMainWindow(ui.Window):
         session = self._cesium_omniverse_interface.get_session()
         if session is not None:
             session.disconnect()
+
+    def _show_token_window(self):
+        self._cesium_omniverse_interface.get_session().refresh_tokens()
+        CesiumOmniverseTokenWindow(self._cesium_omniverse_interface)

@@ -7,8 +7,11 @@ import asyncio
 from functools import partial
 import logging
 import carb.events
+import carb.settings as omni_settings
 import omni.ext
+import omni.kit.app as omni_app
 import omni.kit.ui
+from omni.kit.viewport.utility import get_active_viewport
 import omni.ui as ui
 import omni.usd
 import os
@@ -46,6 +49,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._debug_window: Optional[CesiumOmniverseDebugWindow] = None
         self._cesium_omniverse_interface: Optional[ICesiumOmniverseInterface] = None
         self._on_stage_subscription: Optional[carb.events.ISubscription] = None
+        self._on_update_subscription: Optional[carb.events.ISubscription] = None
         self._logger: logging.Logger = logging.getLogger(__name__)
         self._menu = None
 
@@ -67,6 +71,11 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._cesium_omniverse_interface = acquire_cesium_omniverse_interface()
         self._cesium_omniverse_interface.initialize(cesium_extension_location)
 
+        omni_settings.get_settings().set("/rtx/hydra/TBNFrameMode", 1)
+        # Disabling Texture Streaming is a workaround for issues with Kit 104.1. We should remove this as soon as
+        #   the issue is fixed.
+        omni_settings.get_settings().set("/rtx-transient/resourcemanager/enableTextureStreaming", False)
+
         # Show the window. It will call `self.show_window`
         if show_on_startup:
             ui.Workspace.show_window(CesiumOmniverseMainWindow.WINDOW_NAME)
@@ -78,6 +87,10 @@ class CesiumOmniverseExtension(omni.ext.IExt):
 
         self._on_stage_subscription = usd_context.get_stage_event_stream().create_subscription_to_pop(
             self._on_stage_event, name="cesium.omniverse.ON_STAGE_EVENT"
+        )
+
+        self._on_update_subscription = omni_app.get_app().get_update_event_stream().create_subscription_to_pop(
+            self._on_update_frame, name="cesium.omniverse.extension.ON_UPDATE_FRAME"
         )
 
     def on_shutdown(self):
@@ -102,6 +115,11 @@ class CesiumOmniverseExtension(omni.ext.IExt):
 
         if self._on_stage_subscription is not None:
             self._on_stage_subscription.unsubscribe()
+            self._on_stage_subscription = None
+
+        if self._on_update_subscription is not None:
+            self._on_update_subscription.unsubscribe()
+            self._on_update_subscription = None
 
         self._logger.info("CesiumOmniverse shutdown")
 
@@ -109,6 +127,18 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._cesium_omniverse_interface.finalize()
         release_cesium_omniverse_interface(self._cesium_omniverse_interface)
         self._cesium_omniverse_interface = None
+
+    def _on_update_frame(self, _):
+        if omni.usd.get_context().get_stage_state() != omni.usd.StageState.OPENED:
+            return
+
+        viewport = get_active_viewport()
+        self._cesium_omniverse_interface.update_frame(
+            viewport.view,
+            viewport.projection,
+            float(viewport.resolution[0]),
+            float(viewport.resolution[1])
+        )
 
     def _on_stage_event(self, event):
         if self._cesium_omniverse_interface is None:

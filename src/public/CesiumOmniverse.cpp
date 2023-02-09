@@ -42,14 +42,52 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         return tilesetId;
     }
 
-    int addTilesetIon(int64_t ionId, const char* ionToken) noexcept override {
+    int addTilesetIon(const char *name, int64_t ionId) noexcept override {
+        auto token = OmniTileset::getDefaultToken();
+        if (!token.has_value()) {
+            return -1;
+        }
+
+        return addTilesetIon(name, ionId, token->token.c_str());
+    }
+
+    int addTilesetIon([[maybe_unused]]const char* name, int64_t ionId, const char* ionToken) noexcept override {
         const int tilesetId = currentId++;
         tilesets.insert({tilesetId, std::make_unique<OmniTileset>(ionId, ionToken)});
         return tilesetId;
     }
 
+    int addTilesetAndRasterOverlay(
+        const char* tilesetName,
+        int64_t tilesetIonId,
+        const char* rasterOverlayName,
+        int64_t rasterOverlayIonId) noexcept override {
+        if (!OmniTileset::getSession().has_value()) {
+            return -1;
+        }
+
+        auto token = OmniTileset::getDefaultToken();
+        if (!token.has_value()) {
+            return -1;
+        }
+
+        auto id = addTilesetIon(tilesetName, tilesetIonId, token->token.c_str());
+        addIonRasterOverlay(id, rasterOverlayName, rasterOverlayIonId, token->token.c_str());
+
+        return id;
+    }
+
     void removeTileset(int tileset) noexcept override {
         tilesets.erase(tileset);
+    }
+
+    void addIonRasterOverlay(int tileset, const char* name, int64_t ionId) noexcept override {
+        auto token = OmniTileset::getDefaultToken();
+        if (!token.has_value()) {
+            return;
+        }
+
+        addIonRasterOverlay(tileset, name, ionId, token->token.c_str());
     }
 
     void addIonRasterOverlay(int tileset, const char* name, int64_t ionId, const char* ionToken) noexcept override {
@@ -60,14 +98,12 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
     }
 
     void updateFrame(
-        int tileset,
         const pxr::GfMatrix4d& viewMatrix,
         const pxr::GfMatrix4d& projMatrix,
         double width,
         double height) noexcept override {
-        const auto iter = tilesets.find(tileset);
-        if (iter != tilesets.end()) {
-            iter->second->updateFrame(viewMatrix, projMatrix, width, height);
+        for (const auto& tileset : tilesets) {
+            tileset.second->updateFrame(viewMatrix, projMatrix, width, height);
         }
     }
 
@@ -87,6 +123,12 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
 
     SetDefaultTokenResult getSetDefaultTokenResult() noexcept override {
         return OmniTileset::getSetDefaultTokenResult();
+    }
+
+    bool isDefaultTokenSet() noexcept override {
+        auto token = OmniTileset::getDefaultToken();
+
+        return token.has_value();
     }
 
     void createToken(const char* name) noexcept override {
