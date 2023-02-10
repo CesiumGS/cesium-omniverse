@@ -140,6 +140,10 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         OmniTileset::specifyToken(token);
     }
 
+    void updateTokenDetails(int resultEventId) noexcept override {
+
+    }
+
     void onUiUpdate() noexcept override {
         OmniTileset::onUiUpdate();
     };

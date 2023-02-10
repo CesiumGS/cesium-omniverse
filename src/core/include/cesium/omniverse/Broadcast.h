@@ -29,13 +29,17 @@ class Broadcast {
     static void setDefaultTokenComplete() {
         sendMessageToBus(SET_DEFAULT_PROJECT_TOKEN_COMPLETE_KEY);
     }
-
-  private:
     static void sendMessageToBus(const char* eventKey) {
         auto eventType = carb::events::typeFromString(eventKey);
         auto app = carb::getCachedInterface<omni::kit::IApp>();
         auto bus = app->getMessageBusEventStream();
         bus->push(eventType);
+    }
+    template <typename... ValuesT> static void sendMessageToBusWithPayload(const char* eventKey, ValuesT&&... payload) {
+        auto eventType = carb::events::typeFromString(eventKey);
+        auto app = carb::getCachedInterface<omni::kit::IApp>();
+        auto bus = app->getMessageBusEventStream();
+        bus->push(eventType, payload...);
     }
 };
 
