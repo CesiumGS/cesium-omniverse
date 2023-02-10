@@ -34,6 +34,8 @@ class OmniTileset {
 
     static void init(const std::filesystem::path& cesiumExtensionLocation);
 
+    static std::optional<CesiumIonClient::Token> getDefaultToken();
+
     static pxr::UsdStageRefPtr& getStage();
 
     static void setStage(const pxr::UsdStageRefPtr& stage);

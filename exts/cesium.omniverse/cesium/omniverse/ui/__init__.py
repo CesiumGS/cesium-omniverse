@@ -1,4 +1,5 @@
 from .styles import CesiumOmniverseUiStyles
+from .quick_add_widget import CesiumOmniverseQuickAddWidget
 from .sign_in_widget import CesiumOmniverseSignInWidget
 from .profile_widget import CesiumOmniverseProfileWidget
 from .token_window import CesiumOmniverseTokenWindow

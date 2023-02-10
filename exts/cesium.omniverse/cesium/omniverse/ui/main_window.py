@@ -6,6 +6,7 @@ import omni.ui as ui
 import webbrowser
 from pathlib import Path
 from typing import List, Optional
+from .quick_add_widget import CesiumOmniverseQuickAddWidget
 from .sign_in_widget import CesiumOmniverseSignInWidget
 from .profile_widget import CesiumOmniverseProfileWidget
 from .token_window import CesiumOmniverseTokenWindow
@@ -40,6 +41,7 @@ class CesiumOmniverseMainWindow(ui.Window):
         self._learn_button: Optional[ui.Button] = None
         self._help_button: Optional[ui.Button] = None
         self._sign_out_button: Optional[ui.Button] = None
+        self._quick_add_widget: Optional[CesiumOmniverseQuickAddWidget] = None
         self._sign_in_widget: Optional[CesiumOmniverseSignInWidget] = None
         self._profile_widget: Optional[CesiumOmniverseProfileWidget] = None
 
@@ -89,6 +91,12 @@ class CesiumOmniverseMainWindow(ui.Window):
             bus.create_subscription_to_pop_by_type(tokens_updated_event, self._on_tokens_updated, name="tokens_updated")
         )
 
+        show_token_window_event = carb.events.type_from_string("cesium.omniverse.SHOW_TOKEN_WINDOW")
+        self._subscriptions.append(
+            bus.create_subscription_to_pop_by_type(show_token_window_event, self._on_show_token_window,
+                                                   name="cesium.omniverse.SHOW_TOKEN_WINDOW")
+        )
+
     def _on_update_frame(self, _e: carb.events.IEvent):
         self._cesium_omniverse_interface.on_ui_update()
 
@@ -112,6 +120,9 @@ class CesiumOmniverseMainWindow(ui.Window):
 
     def _on_tokens_updated(self, _e: carb.events.IEvent):
         pass
+
+    def _on_show_token_window(self, _e: carb.events.IEvent):
+        self._show_token_window()
 
     def _build_fn(self):
         """Builds all UI components."""
@@ -138,6 +149,7 @@ class CesiumOmniverseMainWindow(ui.Window):
                                                   image_url=f"{self._icon_path}/FontAwesome/sign-out-alt-solid.png",
                                                   style=button_style, clicked_fn=self._sign_out_button_clicked,
                                                   enabled=False)
+            self._quick_add_widget = CesiumOmniverseQuickAddWidget(self._cesium_omniverse_interface)
             self._sign_in_widget = CesiumOmniverseSignInWidget(self._cesium_omniverse_interface, visible=False)
             ui.Spacer()
             self._profile_widget = CesiumOmniverseProfileWidget(self._cesium_omniverse_interface, height=20)
@@ -160,8 +172,7 @@ class CesiumOmniverseMainWindow(ui.Window):
         if not self._token_button:
             return
 
-        self._cesium_omniverse_interface.get_session().refresh_tokens()
-        CesiumOmniverseTokenWindow(self._cesium_omniverse_interface)
+        self._show_token_window()
 
     def _learn_button_clicked(self) -> None:
         if not self._learn_button:
@@ -182,3 +193,7 @@ class CesiumOmniverseMainWindow(ui.Window):
         session = self._cesium_omniverse_interface.get_session()
         if session is not None:
             session.disconnect()
+
+    def _show_token_window(self):
+        self._cesium_omniverse_interface.get_session().refresh_tokens()
+        CesiumOmniverseTokenWindow(self._cesium_omniverse_interface)

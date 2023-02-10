@@ -143,6 +143,22 @@ void OmniTileset::init(const std::filesystem::path& cesiumExtensionLocation) {
     Cesium3DTilesSelection::registerAllTileContentTypes();
 }
 
+std::optional<CesiumIonClient::Token> OmniTileset::getDefaultToken() {
+    pxr::UsdPrim cesiumDataPrim = usdStage->GetPrimAtPath(pxr::SdfPath("/Cesium"));
+
+    if (!cesiumDataPrim.IsValid()) {
+        return {};
+    }
+
+    pxr::CesiumData cesiumData(cesiumDataPrim);
+    std::string projectDefaultToken;
+    cesiumData.GetDefaultProjectTokenAttr().Get(&projectDefaultToken);
+    std::string projectDefaultTokenId;
+    cesiumData.GetDefaultProjectTokenIdAttr().Get(&projectDefaultTokenId);
+
+    return CesiumIonClient::Token{projectDefaultTokenId, "", projectDefaultToken};
+}
+
 [[maybe_unused]] pxr::UsdStageRefPtr& OmniTileset::getStage() {
     return usdStage;
 }

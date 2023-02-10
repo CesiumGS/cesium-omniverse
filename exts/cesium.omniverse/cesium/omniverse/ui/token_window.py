@@ -188,6 +188,10 @@ class CesiumOmniverseTokenWindow(ui.Window):
         if result.code != 0:
             self._logger.warning(f"Error when trying to set token: {result.message}")
 
+        bus = app.get_app().get_message_bus_event_stream()
+        success_event = carb.events.type_from_string("cesium.omniverse.SET_DEFAULT_TOKEN_SUCCESS")
+        bus.push(success_event)
+
         self.visible = False
         self.destroy()
 

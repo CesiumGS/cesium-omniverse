@@ -6,6 +6,16 @@ class CesiumOmniverseUiStyles:
         "font_size": 18,
     }
 
+    quick_add_section_label = {
+        "font_size": 24,
+    }
+
+    quick_add_button = {
+        "Button.Label": {
+            "font_size": 20
+        }
+    }
+
     blue_button_style = {
         "Button": {
             "background_color": cl("#4BA1CA"),
