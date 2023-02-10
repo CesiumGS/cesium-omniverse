@@ -1,4 +1,4 @@
-#include ".//tilesetAPI.h"
+#include ".//rasterOverlayAPI.h"
 #include "pxr/usd/usd/schemaBase.h"
 
 #include "pxr/usd/sdf/primSpec.h"
@@ -27,57 +27,50 @@ WRAP_CUSTOM;
 
         
 static UsdAttribute
-_CreateCesiumTilesetIdAttr(CesiumTilesetAPI &self,
+_CreateCesiumRasterOverlayIdAttr(CesiumRasterOverlayAPI &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateCesiumTilesetIdAttr(
+    return self.CreateCesiumRasterOverlayIdAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
-_CreateCesiumTilesetUrlAttr(CesiumTilesetAPI &self,
-                                      object defaultVal, bool writeSparsely) {
-    return self.CreateCesiumTilesetUrlAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
-}
-        
-static UsdAttribute
-_CreateCesiumNameAttr(CesiumTilesetAPI &self,
+_CreateCesiumNameAttr(CesiumRasterOverlayAPI &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateCesiumNameAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
-_CreateCesiumIonTokenIdAttr(CesiumTilesetAPI &self,
+_CreateCesiumIonTokenIdAttr(CesiumRasterOverlayAPI &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateCesiumIonTokenIdAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
-_CreateCesiumIonTokenAttr(CesiumTilesetAPI &self,
+_CreateCesiumIonTokenAttr(CesiumRasterOverlayAPI &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateCesiumIonTokenAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
 
 static std::string
-_Repr(const CesiumTilesetAPI &self)
+_Repr(const CesiumRasterOverlayAPI &self)
 {
     std::string primRepr = TfPyRepr(self.GetPrim());
     return TfStringPrintf(
-        "Cesium.TilesetAPI(%s)",
+        "Cesium.RasterOverlayAPI(%s)",
         primRepr.c_str());
 }
 
 } // anonymous namespace
 
-void wrapCesiumTilesetAPI()
+void wrapCesiumRasterOverlayAPI()
 {
-    typedef CesiumTilesetAPI This;
+    typedef CesiumRasterOverlayAPI This;
 
     class_<This, bases<UsdAPISchemaBase> >
-        cls("TilesetAPI");
+        cls("RasterOverlayAPI");
 
     cls
         .def(init<UsdPrim>(arg("prim")))
@@ -103,17 +96,10 @@ void wrapCesiumTilesetAPI()
         .def(!self)
 
         
-        .def("GetCesiumTilesetIdAttr",
-             &This::GetCesiumTilesetIdAttr)
-        .def("CreateCesiumTilesetIdAttr",
-             &_CreateCesiumTilesetIdAttr,
-             (arg("defaultValue")=object(),
-              arg("writeSparsely")=false))
-        
-        .def("GetCesiumTilesetUrlAttr",
-             &This::GetCesiumTilesetUrlAttr)
-        .def("CreateCesiumTilesetUrlAttr",
-             &_CreateCesiumTilesetUrlAttr,
+        .def("GetCesiumRasterOverlayIdAttr",
+             &This::GetCesiumRasterOverlayIdAttr)
+        .def("CreateCesiumRasterOverlayIdAttr",
+             &_CreateCesiumRasterOverlayIdAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         

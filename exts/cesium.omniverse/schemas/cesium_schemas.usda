@@ -47,10 +47,55 @@ class "TilesetAPI" (
         string className = "TilesetAPI"
     }
 ) {
-    string cesium:assetId = "" (
-        doc = "A string representing a Cesium ion asset ID."
+    string cesium:tilesetId = "" (
+        displayName = "Tileset ID"
+        doc = "A string representing a Cesium ion asset ID. Blank if using URL."
     )
-    string cesium:assetUrl = "" (
-        doc = "A string representing an asset URL."
+    string cesium:tilesetUrl = "" (
+        displayName = "Tileset Url"
+        doc = "A string representing an asset URL. Blank if is an ion asset."
+    )
+
+    string cesium:name = "" (
+        displayName = "Tileset name"
+        doc = "A string representing a user-defined name for the asset."
+    )
+
+    string cesium:ionTokenId = "" (
+        displayName = "ion Token id"
+        doc = "A string representing the token ID for accessing this Cesium ion tileset. Overrides the default project token."
+    )
+
+    string cesium:ionToken = "" (
+        displayName = "ion Token"
+        doc = "A string representing the token for accessing this Cesium ion tileset. Overrides the default project token."
+    )
+}
+
+class "RasterOverlayAPI" (
+    doc = """Adds Cesium specific data to a prim for representing a raster overlay. Should be a child of a tileset."""
+    inherits = </APISchemaBase>
+    customData = {
+        string className = "RasterOverlayAPI"
+    }
+) {
+    string cesium:rasterOverlayId = "" (
+        displayName = "Raster Overlay ID"
+        doc = "A string representing a Cesium ion imagery ID."
+    )
+
+    string cesium:name = "" (
+        displayName = "Raster Overlay name"
+        doc = "A string representing a user-defined name for the raster overlay."
+    )
+
+    string cesium:ionTokenId = "" (
+        displayName = "ion Token id"
+        doc = "A string representing the token ID for accessing this Cesium ion tileset. Overrides the default project token."
+    )
+
+    string cesium:ionToken = "" (
+        displayName = "ion Token"
+        doc = "A string representing the token for accessing this Cesium ion tileset. Overrides the default project token."
     )
 }
