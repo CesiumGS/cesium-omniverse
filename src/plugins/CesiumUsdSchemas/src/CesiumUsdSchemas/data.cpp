@@ -61,15 +61,15 @@ CesiumData::_GetTfType() const
 }
 
 UsdAttribute
-CesiumData::GetDefaultProjectTokenIdAttr() const
+CesiumData::GetCesiumDefaultProjectTokenIdAttr() const
 {
-    return GetPrim().GetAttribute(CesiumTokens->defaultProjectTokenId);
+    return GetPrim().GetAttribute(CesiumTokens->cesiumDefaultProjectTokenId);
 }
 
 UsdAttribute
-CesiumData::CreateDefaultProjectTokenIdAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumData::CreateCesiumDefaultProjectTokenIdAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
-    return UsdSchemaBase::_CreateAttr(CesiumTokens->defaultProjectTokenId,
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumDefaultProjectTokenId,
                        SdfValueTypeNames->String,
                        /* custom = */ false,
                        SdfVariabilityVarying,
@@ -78,16 +78,33 @@ CesiumData::CreateDefaultProjectTokenIdAttr(VtValue const &defaultValue, bool wr
 }
 
 UsdAttribute
-CesiumData::GetDefaultProjectTokenAttr() const
+CesiumData::GetCesiumDefaultProjectTokenAttr() const
 {
-    return GetPrim().GetAttribute(CesiumTokens->defaultProjectToken);
+    return GetPrim().GetAttribute(CesiumTokens->cesiumDefaultProjectToken);
 }
 
 UsdAttribute
-CesiumData::CreateDefaultProjectTokenAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumData::CreateCesiumDefaultProjectTokenAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
-    return UsdSchemaBase::_CreateAttr(CesiumTokens->defaultProjectToken,
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumDefaultProjectToken,
                        SdfValueTypeNames->String,
+                       /* custom = */ false,
+                       SdfVariabilityVarying,
+                       defaultValue,
+                       writeSparsely);
+}
+
+UsdAttribute
+CesiumData::GetCesiumGeoreferenceOriginAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumGeoreferenceOrigin);
+}
+
+UsdAttribute
+CesiumData::CreateCesiumGeoreferenceOriginAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumGeoreferenceOrigin,
+                       SdfValueTypeNames->Double3,
                        /* custom = */ false,
                        SdfVariabilityVarying,
                        defaultValue,
@@ -111,8 +128,9 @@ const TfTokenVector&
 CesiumData::GetSchemaAttributeNames(bool includeInherited)
 {
     static TfTokenVector localNames = {
-        CesiumTokens->defaultProjectTokenId,
-        CesiumTokens->defaultProjectToken,
+        CesiumTokens->cesiumDefaultProjectTokenId,
+        CesiumTokens->cesiumDefaultProjectToken,
+        CesiumTokens->cesiumGeoreferenceOrigin,
     };
     static TfTokenVector allNames =
         _ConcatenateAttributeNames(

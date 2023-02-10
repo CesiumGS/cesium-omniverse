@@ -41,8 +41,9 @@ void wrapCesiumTokens()
 {
     boost::python::class_<CesiumTokensType, boost::noncopyable>
         cls("Tokens", boost::python::no_init);
-    _AddToken(cls, "assetId", CesiumTokens->assetId);
-    _AddToken(cls, "assetUrl", CesiumTokens->assetUrl);
-    _AddToken(cls, "defaultProjectToken", CesiumTokens->defaultProjectToken);
-    _AddToken(cls, "defaultProjectTokenId", CesiumTokens->defaultProjectTokenId);
+    _AddToken(cls, "cesiumAssetId", CesiumTokens->cesiumAssetId);
+    _AddToken(cls, "cesiumAssetUrl", CesiumTokens->cesiumAssetUrl);
+    _AddToken(cls, "cesiumDefaultProjectToken", CesiumTokens->cesiumDefaultProjectToken);
+    _AddToken(cls, "cesiumDefaultProjectTokenId", CesiumTokens->cesiumDefaultProjectTokenId);
+    _AddToken(cls, "cesiumGeoreferenceOrigin", CesiumTokens->cesiumGeoreferenceOrigin);
 }

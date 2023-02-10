@@ -12,11 +12,17 @@ class "CesiumData" (
     doc = "Stores stage level data for Cesium for Omniverse/USD."
 )
 {
-    string defaultProjectToken = "" (
+    string cesium:defaultProjectToken = "" (
+        displayName = "Default Project ion Token"
         doc = "A string representing a token for accessing Cesium ion tilesets."
     )
-    string defaultProjectTokenId = "" (
+    string cesium:defaultProjectTokenId = "" (
+        displayName = "Default Project ion Token ID"
         doc = "A string representing the token ID for accessing Cesium ion tilesets."
+    )
+    double3 cesium:georeferenceOrigin = (0, 0, 0) (
+        displayName = "Georeference Origin Point"
+        doc = "Specifies a Georeference origin point for Cesium in Longitude, Latitude, and Height"
     )
 }
 
@@ -24,10 +30,10 @@ class "TilesetAPI" (
     doc = "Adds Cesium specific data to a prim for representing a tileset."
 )
 {
-    string assetId = "" (
+    string cesium:assetId = "" (
         doc = "A string representing a Cesium ion asset ID."
     )
-    string assetUrl = "" (
+    string cesium:assetUrl = "" (
         doc = "A string representing an asset URL."
     )
 }

@@ -3,15 +3,17 @@
 PXR_NAMESPACE_OPEN_SCOPE
 
 CesiumTokensType::CesiumTokensType() :
-    assetId("assetId", TfToken::Immortal),
-    assetUrl("assetUrl", TfToken::Immortal),
-    defaultProjectToken("defaultProjectToken", TfToken::Immortal),
-    defaultProjectTokenId("defaultProjectTokenId", TfToken::Immortal),
+    cesiumAssetId("cesium:assetId", TfToken::Immortal),
+    cesiumAssetUrl("cesium:assetUrl", TfToken::Immortal),
+    cesiumDefaultProjectToken("cesium:defaultProjectToken", TfToken::Immortal),
+    cesiumDefaultProjectTokenId("cesium:defaultProjectTokenId", TfToken::Immortal),
+    cesiumGeoreferenceOrigin("cesium:georeferenceOrigin", TfToken::Immortal),
     allTokens({
-        assetId,
-        assetUrl,
-        defaultProjectToken,
-        defaultProjectTokenId
+        cesiumAssetId,
+        cesiumAssetUrl,
+        cesiumDefaultProjectToken,
+        cesiumDefaultProjectTokenId,
+        cesiumGeoreferenceOrigin
     })
 {
 }

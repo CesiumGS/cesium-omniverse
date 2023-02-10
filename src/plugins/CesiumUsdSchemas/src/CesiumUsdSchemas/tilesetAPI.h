@@ -113,43 +113,43 @@ private:
 
 public:
     // --------------------------------------------------------------------- //
-    // ASSETID 
+    // CESIUMASSETID 
     // --------------------------------------------------------------------- //
     /// A string representing a Cesium ion asset ID.
     ///
     /// | ||
     /// | -- | -- |
-    /// | Declaration | `string assetId = ""` |
+    /// | Declaration | `string cesium:assetId = ""` |
     /// | C++ Type | std::string |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
-    UsdAttribute GetAssetIdAttr() const;
+    UsdAttribute GetCesiumAssetIdAttr() const;
 
-    /// See GetAssetIdAttr(), and also 
+    /// See GetCesiumAssetIdAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    UsdAttribute CreateAssetIdAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+    UsdAttribute CreateCesiumAssetIdAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // --------------------------------------------------------------------- //
-    // ASSETURL 
+    // CESIUMASSETURL 
     // --------------------------------------------------------------------- //
     /// A string representing an asset URL.
     ///
     /// | ||
     /// | -- | -- |
-    /// | Declaration | `string assetUrl = ""` |
+    /// | Declaration | `string cesium:assetUrl = ""` |
     /// | C++ Type | std::string |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
-    UsdAttribute GetAssetUrlAttr() const;
+    UsdAttribute GetCesiumAssetUrlAttr() const;
 
-    /// See GetAssetUrlAttr(), and also 
+    /// See GetCesiumAssetUrlAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    UsdAttribute CreateAssetUrlAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+    UsdAttribute CreateCesiumAssetUrlAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // ===================================================================== //
