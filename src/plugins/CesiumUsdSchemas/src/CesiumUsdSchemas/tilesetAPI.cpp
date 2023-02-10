@@ -77,15 +77,15 @@ CesiumTilesetAPI::_GetTfType() const
 }
 
 UsdAttribute
-CesiumTilesetAPI::GetAssetIdAttr() const
+CesiumTilesetAPI::GetCesiumAssetIdAttr() const
 {
-    return GetPrim().GetAttribute(CesiumTokens->assetId);
+    return GetPrim().GetAttribute(CesiumTokens->cesiumAssetId);
 }
 
 UsdAttribute
-CesiumTilesetAPI::CreateAssetIdAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumTilesetAPI::CreateCesiumAssetIdAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
-    return UsdSchemaBase::_CreateAttr(CesiumTokens->assetId,
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumAssetId,
                        SdfValueTypeNames->String,
                        /* custom = */ false,
                        SdfVariabilityVarying,
@@ -94,15 +94,15 @@ CesiumTilesetAPI::CreateAssetIdAttr(VtValue const &defaultValue, bool writeSpars
 }
 
 UsdAttribute
-CesiumTilesetAPI::GetAssetUrlAttr() const
+CesiumTilesetAPI::GetCesiumAssetUrlAttr() const
 {
-    return GetPrim().GetAttribute(CesiumTokens->assetUrl);
+    return GetPrim().GetAttribute(CesiumTokens->cesiumAssetUrl);
 }
 
 UsdAttribute
-CesiumTilesetAPI::CreateAssetUrlAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumTilesetAPI::CreateCesiumAssetUrlAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
-    return UsdSchemaBase::_CreateAttr(CesiumTokens->assetUrl,
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumAssetUrl,
                        SdfValueTypeNames->String,
                        /* custom = */ false,
                        SdfVariabilityVarying,
@@ -127,8 +127,8 @@ const TfTokenVector&
 CesiumTilesetAPI::GetSchemaAttributeNames(bool includeInherited)
 {
     static TfTokenVector localNames = {
-        CesiumTokens->assetId,
-        CesiumTokens->assetUrl,
+        CesiumTokens->cesiumAssetId,
+        CesiumTokens->cesiumAssetUrl,
     };
     static TfTokenVector allNames =
         _ConcatenateAttributeNames(

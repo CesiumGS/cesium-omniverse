@@ -35,26 +35,30 @@ PXR_NAMESPACE_OPEN_SCOPE
 /// Use CesiumTokens like so:
 ///
 /// \code
-///     gprim.GetMyTokenValuedAttr().Set(CesiumTokens->assetId);
+///     gprim.GetMyTokenValuedAttr().Set(CesiumTokens->cesiumAssetId);
 /// \endcode
 struct CesiumTokensType {
     CESIUM_API CesiumTokensType();
-    /// \brief "assetId"
+    /// \brief "cesium:assetId"
     /// 
     /// CesiumTilesetAPI
-    const TfToken assetId;
-    /// \brief "assetUrl"
+    const TfToken cesiumAssetId;
+    /// \brief "cesium:assetUrl"
     /// 
     /// CesiumTilesetAPI
-    const TfToken assetUrl;
-    /// \brief "defaultProjectToken"
+    const TfToken cesiumAssetUrl;
+    /// \brief "cesium:defaultProjectToken"
     /// 
     /// CesiumData
-    const TfToken defaultProjectToken;
-    /// \brief "defaultProjectTokenId"
+    const TfToken cesiumDefaultProjectToken;
+    /// \brief "cesium:defaultProjectTokenId"
     /// 
     /// CesiumData
-    const TfToken defaultProjectTokenId;
+    const TfToken cesiumDefaultProjectTokenId;
+    /// \brief "cesium:georeferenceOrigin"
+    /// 
+    /// CesiumData
+    const TfToken cesiumGeoreferenceOrigin;
     /// A vector of all of the tokens listed above.
     const std::vector<TfToken> allTokens;
 };

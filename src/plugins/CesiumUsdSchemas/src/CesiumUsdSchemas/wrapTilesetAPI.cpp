@@ -27,16 +27,16 @@ WRAP_CUSTOM;
 
         
 static UsdAttribute
-_CreateAssetIdAttr(CesiumTilesetAPI &self,
+_CreateCesiumAssetIdAttr(CesiumTilesetAPI &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateAssetIdAttr(
+    return self.CreateCesiumAssetIdAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
-_CreateAssetUrlAttr(CesiumTilesetAPI &self,
+_CreateCesiumAssetUrlAttr(CesiumTilesetAPI &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateAssetUrlAttr(
+    return self.CreateCesiumAssetUrlAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
 
@@ -82,17 +82,17 @@ void wrapCesiumTilesetAPI()
         .def(!self)
 
         
-        .def("GetAssetIdAttr",
-             &This::GetAssetIdAttr)
-        .def("CreateAssetIdAttr",
-             &_CreateAssetIdAttr,
+        .def("GetCesiumAssetIdAttr",
+             &This::GetCesiumAssetIdAttr)
+        .def("CreateCesiumAssetIdAttr",
+             &_CreateCesiumAssetIdAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetAssetUrlAttr",
-             &This::GetAssetUrlAttr)
-        .def("CreateAssetUrlAttr",
-             &_CreateAssetUrlAttr,
+        .def("GetCesiumAssetUrlAttr",
+             &This::GetCesiumAssetUrlAttr)
+        .def("CreateCesiumAssetUrlAttr",
+             &_CreateCesiumAssetUrlAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 
