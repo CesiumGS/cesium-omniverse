@@ -62,10 +62,6 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         int64_t tilesetIonId,
         const char* rasterOverlayName,
         int64_t rasterOverlayIonId) noexcept override {
-        if (!OmniTileset::getSession().has_value()) {
-            return -1;
-        }
-
         auto token = OmniTileset::getDefaultToken();
         if (!token.has_value()) {
             return -1;
