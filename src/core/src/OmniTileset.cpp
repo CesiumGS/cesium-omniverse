@@ -152,9 +152,9 @@ std::optional<CesiumIonClient::Token> OmniTileset::getDefaultToken() {
 
     pxr::CesiumData cesiumData(cesiumDataPrim);
     std::string projectDefaultToken;
-    cesiumData.GetDefaultProjectTokenAttr().Get(&projectDefaultToken);
+    cesiumData.GetCesiumDefaultProjectTokenAttr().Get(&projectDefaultToken);
     std::string projectDefaultTokenId;
-    cesiumData.GetDefaultProjectTokenIdAttr().Get(&projectDefaultTokenId);
+    cesiumData.GetCesiumDefaultProjectTokenIdAttr().Get(&projectDefaultTokenId);
 
     return CesiumIonClient::Token{projectDefaultTokenId, "", projectDefaultToken};
 }
