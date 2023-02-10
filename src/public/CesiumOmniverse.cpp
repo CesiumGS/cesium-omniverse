@@ -42,7 +42,7 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         return tilesetId;
     }
 
-    int addTilesetIon(const char *name, int64_t ionId) noexcept override {
+    int addTilesetIon(const char* name, int64_t ionId) noexcept override {
         auto token = OmniTileset::getDefaultToken();
         if (!token.has_value()) {
             return -1;
@@ -51,7 +51,7 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         return addTilesetIon(name, ionId, token->token.c_str());
     }
 
-    int addTilesetIon([[maybe_unused]]const char* name, int64_t ionId, const char* ionToken) noexcept override {
+    int addTilesetIon([[maybe_unused]] const char* name, int64_t ionId, const char* ionToken) noexcept override {
         const int tilesetId = currentId++;
         tilesets.insert({tilesetId, std::make_unique<OmniTileset>(ionId, ionToken)});
         return tilesetId;
