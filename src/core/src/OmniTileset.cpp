@@ -152,9 +152,9 @@ std::optional<CesiumIonClient::Token> OmniTileset::getDefaultToken() {
 
     pxr::CesiumData cesiumData(cesiumDataPrim);
     std::string projectDefaultToken;
-    cesiumData.GetCesiumDefaultProjectTokenAttr().Get(&projectDefaultToken);
+    cesiumData.GetDefaultProjectTokenAttr().Get(&projectDefaultToken);
     std::string projectDefaultTokenId;
-    cesiumData.GetCesiumDefaultProjectTokenIdAttr().Get(&projectDefaultTokenId);
+    cesiumData.GetDefaultProjectTokenIdAttr().Get(&projectDefaultTokenId);
 
     return CesiumIonClient::Token{projectDefaultTokenId, "", projectDefaultToken};
 }
@@ -189,12 +189,12 @@ void OmniTileset::addCesiumDataIfNotExists(const CesiumIonClient::Token& token) 
     }
 
     pxr::CesiumData cesiumData(cesiumDataPrim);
-    auto projectDefaultToken = cesiumData.GetCesiumDefaultProjectTokenAttr();
-    auto projectDefaultTokenId = cesiumData.GetCesiumDefaultProjectTokenIdAttr();
+    auto projectDefaultToken = cesiumData.GetDefaultProjectTokenAttr();
+    auto projectDefaultTokenId = cesiumData.GetDefaultProjectTokenIdAttr();
 
     if (!projectDefaultToken.IsValid()) {
-        projectDefaultToken = cesiumData.CreateCesiumDefaultProjectTokenAttr(pxr::VtValue(""));
-        projectDefaultTokenId = cesiumData.CreateCesiumDefaultProjectTokenIdAttr(pxr::VtValue(""));
+        projectDefaultToken = cesiumData.CreateDefaultProjectTokenAttr(pxr::VtValue(""));
+        projectDefaultTokenId = cesiumData.CreateDefaultProjectTokenIdAttr(pxr::VtValue(""));
     }
 
     if (!token.token.empty()) {
