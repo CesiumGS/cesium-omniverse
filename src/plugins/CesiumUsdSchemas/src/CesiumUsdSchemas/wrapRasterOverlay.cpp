@@ -1,4 +1,4 @@
-#include ".//rasterOverlayAPI.h"
+#include ".//rasterOverlay.h"
 #include "pxr/usd/usd/schemaBase.h"
 
 #include "pxr/usd/sdf/primSpec.h"
@@ -27,43 +27,43 @@ WRAP_CUSTOM;
 
         
 static UsdAttribute
-_CreateRasterOverlayIdAttr(CesiumRasterOverlayAPI &self,
+_CreateRasterOverlayIdAttr(CesiumRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateRasterOverlayIdAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int64), writeSparsely);
 }
         
 static UsdAttribute
-_CreateNameAttr(CesiumRasterOverlayAPI &self,
+_CreateNameAttr(CesiumRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateNameAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
-_CreateIonTokenAttr(CesiumRasterOverlayAPI &self,
+_CreateIonTokenAttr(CesiumRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateIonTokenAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
 
 static std::string
-_Repr(const CesiumRasterOverlayAPI &self)
+_Repr(const CesiumRasterOverlay &self)
 {
     std::string primRepr = TfPyRepr(self.GetPrim());
     return TfStringPrintf(
-        "Cesium.RasterOverlayAPI(%s)",
+        "Cesium.RasterOverlay(%s)",
         primRepr.c_str());
 }
 
 } // anonymous namespace
 
-void wrapCesiumRasterOverlayAPI()
+void wrapCesiumRasterOverlay()
 {
-    typedef CesiumRasterOverlayAPI This;
+    typedef CesiumRasterOverlay This;
 
-    class_<This, bases<UsdAPISchemaBase> >
-        cls("RasterOverlayAPI");
+    class_<This, bases<UsdTyped> >
+        cls("RasterOverlay");
 
     cls
         .def(init<UsdPrim>(arg("prim")))
@@ -72,9 +72,6 @@ void wrapCesiumRasterOverlayAPI()
 
         .def("Get", &This::Get, (arg("stage"), arg("path")))
         .staticmethod("Get")
-
-        .def("Apply", &This::Apply, (arg("prim")))
-        .staticmethod("Apply")
 
         .def("GetSchemaAttributeNames",
              &This::GetSchemaAttributeNames,

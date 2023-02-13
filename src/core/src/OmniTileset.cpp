@@ -18,6 +18,8 @@
 #include <CesiumUsdSchemas/data.h>
 #include <glm/glm.hpp>
 
+#include <algorithm>
+
 namespace cesium::omniverse {
 static std::shared_ptr<TaskProcessor> taskProcessor;
 static std::shared_ptr<HttpAssetAccessor> httpAssetAccessor;
@@ -126,7 +128,27 @@ void OmniTileset::addIonRasterOverlay(const std::string& name, int64_t ionId, co
         spdlog::default_logger()->error(error.message);
     };
 
-    rasterOverlay = new Cesium3DTilesSelection::IonRasterOverlay(name, ionId, ionToken, options);
+    auto tilesetPrim = std::find_if(
+        usdStage->GetPseudoRoot().GetChildren().begin(),
+        usdStage->GetPseudoRoot().GetChildren().end(),
+        [](const pxr::UsdPrim& p) { return p.HasAPI<pxr::CesiumTilesetAPI>(); });
+
+    // We have to do this check because std::find_if always returns the last element if it finds nothing.
+    if (!tilesetPrim->HasAPI<pxr::CesiumTilesetAPI>()) {
+        return;
+    }
+
+    // The SdfPath cannot have spaces, so we convert them to underscore.
+    auto safeName = name;
+    std::replace(safeName.begin(), safeName.end(), ' ', '_');
+
+    auto rasterOverlayPrimPath = tilesetPrim->GetPath().AppendChild(pxr::TfToken(safeName));
+    auto rasterOverlayPrim = usdStage->DefinePrim(rasterOverlayPrimPath);
+    pxr::CesiumRasterOverlay rasterOverlayData(rasterOverlayPrim);
+    rasterOverlayData.CreateNameAttr().Set<std::string>(safeName);
+    rasterOverlayData.CreateRasterOverlayIdAttr().Set<int64_t>(ionId);
+
+    rasterOverlay = new Cesium3DTilesSelection::IonRasterOverlay(safeName, ionId, ionToken, options);
     tileset->getOverlays().add(rasterOverlay);
 }
 
@@ -153,10 +175,10 @@ pxr::CesiumTilesetAPI OmniTileset::applyTilesetApiToPath(const pxr::SdfPath& pat
     auto prim = usdStage->GetPrimAtPath(path);
     auto tilesetApi = pxr::CesiumTilesetAPI::Apply(prim);
 
-    tilesetApi.CreateTilesetUrlAttr(pxr::VtValue(""));
-    tilesetApi.CreateTilesetIdAttr(pxr::VtValue(""));
-    tilesetApi.CreateNameAttr(pxr::VtValue(""));
-    tilesetApi.CreateIonTokenAttr(pxr::VtValue(""));
+    tilesetApi.CreateTilesetUrlAttr();
+    tilesetApi.CreateTilesetIdAttr();
+    tilesetApi.CreateNameAttr();
+    tilesetApi.CreateIonTokenAttr();
 
     return tilesetApi;
 }

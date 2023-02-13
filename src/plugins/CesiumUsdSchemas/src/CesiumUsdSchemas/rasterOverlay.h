@@ -1,11 +1,11 @@
-#ifndef CESIUM_GENERATED_RASTEROVERLAYAPI_H
-#define CESIUM_GENERATED_RASTEROVERLAYAPI_H
+#ifndef CESIUM_GENERATED_RASTEROVERLAY_H
+#define CESIUM_GENERATED_RASTEROVERLAY_H
 
-/// \file cesium/rasterOverlayAPI.h
+/// \file cesium/rasterOverlay.h
 
 #include "pxr/pxr.h"
 #include ".//api.h"
-#include "pxr/usd/usd/apiSchemaBase.h"
+#include "pxr/usd/usd/typed.h"
 #include "pxr/usd/usd/prim.h"
 #include "pxr/usd/usd/stage.h"
 #include ".//tokens.h"
@@ -24,40 +24,40 @@ PXR_NAMESPACE_OPEN_SCOPE
 class SdfAssetPath;
 
 // -------------------------------------------------------------------------- //
-// RASTEROVERLAYAPI                                                           //
+// RASTEROVERLAY                                                              //
 // -------------------------------------------------------------------------- //
 
-/// \class CesiumRasterOverlayAPI
+/// \class CesiumRasterOverlay
 ///
-/// Adds Cesium specific data to a prim for representing a raster overlay. Should be a child of a tileset.
+/// Adds a prim for representing a raster overlay. Should be a child of a tileset.
 ///
-class CESIUM_API CesiumRasterOverlayAPI : public UsdAPISchemaBase
+class CESIUM_API CesiumRasterOverlay : public UsdTyped
 {
 public:
     /// Compile time constant representing what kind of schema this class is.
     ///
     /// \sa UsdSchemaType
-    static const UsdSchemaType schemaType = UsdSchemaType::SingleApplyAPI;
+    static const UsdSchemaType schemaType = UsdSchemaType::AbstractTyped;
 
-    /// Construct a CesiumRasterOverlayAPI on UsdPrim \p prim .
-    /// Equivalent to CesiumRasterOverlayAPI::Get(prim.GetStage(), prim.GetPath())
+    /// Construct a CesiumRasterOverlay on UsdPrim \p prim .
+    /// Equivalent to CesiumRasterOverlay::Get(prim.GetStage(), prim.GetPath())
     /// for a \em valid \p prim, but will not immediately throw an error for
     /// an invalid \p prim
-    explicit CesiumRasterOverlayAPI(const UsdPrim& prim=UsdPrim())
-        : UsdAPISchemaBase(prim)
+    explicit CesiumRasterOverlay(const UsdPrim& prim=UsdPrim())
+        : UsdTyped(prim)
     {
     }
 
-    /// Construct a CesiumRasterOverlayAPI on the prim held by \p schemaObj .
-    /// Should be preferred over CesiumRasterOverlayAPI(schemaObj.GetPrim()),
+    /// Construct a CesiumRasterOverlay on the prim held by \p schemaObj .
+    /// Should be preferred over CesiumRasterOverlay(schemaObj.GetPrim()),
     /// as it preserves SchemaBase state.
-    explicit CesiumRasterOverlayAPI(const UsdSchemaBase& schemaObj)
-        : UsdAPISchemaBase(schemaObj)
+    explicit CesiumRasterOverlay(const UsdSchemaBase& schemaObj)
+        : UsdTyped(schemaObj)
     {
     }
 
     /// Destructor.
-    virtual ~CesiumRasterOverlayAPI();
+    virtual ~CesiumRasterOverlay();
 
     /// Return a vector of names of all pre-declared attributes for this schema
     /// class and all its ancestor classes.  Does not include attributes that
@@ -65,36 +65,18 @@ public:
     static const TfTokenVector &
     GetSchemaAttributeNames(bool includeInherited=true);
 
-    /// Return a CesiumRasterOverlayAPI holding the prim adhering to this
+    /// Return a CesiumRasterOverlay holding the prim adhering to this
     /// schema at \p path on \p stage.  If no prim exists at \p path on
     /// \p stage, or if the prim at that path does not adhere to this schema,
     /// return an invalid schema object.  This is shorthand for the following:
     ///
     /// \code
-    /// CesiumRasterOverlayAPI(stage->GetPrimAtPath(path));
+    /// CesiumRasterOverlay(stage->GetPrimAtPath(path));
     /// \endcode
     ///
-    static CesiumRasterOverlayAPI
+    static CesiumRasterOverlay
     Get(const UsdStagePtr &stage, const SdfPath &path);
 
-
-    /// Applies this <b>single-apply</b> API schema to the given \p prim.
-    /// This information is stored by adding "RasterOverlayAPI" to the 
-    /// token-valued, listOp metadata \em apiSchemas on the prim.
-    /// 
-    /// \return A valid CesiumRasterOverlayAPI object is returned upon success. 
-    /// An invalid (or empty) CesiumRasterOverlayAPI object is returned upon 
-    /// failure. See \ref UsdPrim::ApplyAPI() for conditions 
-    /// resulting in failure. 
-    /// 
-    /// \sa UsdPrim::GetAppliedSchemas()
-    /// \sa UsdPrim::HasAPI()
-    /// \sa UsdPrim::ApplyAPI()
-    /// \sa UsdPrim::RemoveAPI()
-    ///
-
-    static CesiumRasterOverlayAPI 
-    Apply(const UsdPrim &prim);
 
 protected:
     /// Returns the type of schema this class belongs to.
@@ -105,7 +87,6 @@ protected:
 private:
     // needs to invoke _GetStaticTfType.
     friend class UsdSchemaRegistry;
-
     static const TfType &_GetStaticTfType();
 
     static bool _IsTypedSchema();
@@ -121,9 +102,9 @@ public:
     ///
     /// | ||
     /// | -- | -- |
-    /// | Declaration | `string cesium:rasterOverlayId = ""` |
-    /// | C++ Type | std::string |
-    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
+    /// | Declaration | `int64 cesium:rasterOverlayId = 0` |
+    /// | C++ Type | int64_t |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Int64 |
     UsdAttribute GetRasterOverlayIdAttr() const;
 
     /// See GetRasterOverlayIdAttr(), and also 

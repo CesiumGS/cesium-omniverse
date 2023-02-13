@@ -2,7 +2,7 @@
 (
     "WARNING: THIS FILE IS GENERATED.  DO NOT EDIT."
     customLayerData = {
-        string[] appliedAPISchemas = ["TilesetAPI", "RasterOverlayAPI"]
+        string[] appliedAPISchemas = ["TilesetAPI"]
         dictionary multipleApplyAPISchemas = {
         }
     }
@@ -48,8 +48,8 @@ class "TilesetAPI" (
     )
 }
 
-class "RasterOverlayAPI" (
-    doc = "Adds Cesium specific data to a prim for representing a raster overlay. Should be a child of a tileset."
+class "RasterOverlay" (
+    doc = "Adds a prim for representing a raster overlay. Should be a child of a tileset."
 )
 {
     string cesium:ionToken = "" (
@@ -60,7 +60,7 @@ class "RasterOverlayAPI" (
         displayName = "Raster Overlay name"
         doc = "A string representing a user-defined name for the raster overlay."
     )
-    string cesium:rasterOverlayId = "" (
+    int64 cesium:rasterOverlayId = 0 (
         displayName = "Raster Overlay ID"
         doc = "A string representing a Cesium ion imagery ID."
     )

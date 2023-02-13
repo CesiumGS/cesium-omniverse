@@ -53,15 +53,15 @@ struct CesiumTokensType {
     const TfToken cesiumGeoreferenceOrigin;
     /// \brief "cesium:ionToken"
     /// 
-    /// CesiumRasterOverlayAPI, CesiumTilesetAPI
+    /// CesiumRasterOverlay, CesiumTilesetAPI
     const TfToken cesiumIonToken;
     /// \brief "cesium:name"
     /// 
-    /// CesiumRasterOverlayAPI, CesiumTilesetAPI
+    /// CesiumRasterOverlay, CesiumTilesetAPI
     const TfToken cesiumName;
     /// \brief "cesium:rasterOverlayId"
     /// 
-    /// CesiumRasterOverlayAPI
+    /// CesiumRasterOverlay
     const TfToken cesiumRasterOverlayId;
     /// \brief "cesium:tilesetId"
     /// 
