@@ -17,7 +17,7 @@ over "GLOBAL" (
 ) {
 }
 
-class "CesiumData" (
+class CesiumData "CesiumData" (
     doc = """Stores stage level data for Cesium for Omniverse/USD."""
     inherits = </Typed>
     customData = {

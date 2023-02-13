@@ -13,6 +13,12 @@ TF_REGISTRY_FUNCTION(TfType)
     TfType::Define<CesiumData,
         TfType::Bases< UsdTyped > >();
     
+    // Register the usd prim typename as an alias under UsdSchemaBase. This
+    // enables one to call
+    // TfType::Find<UsdSchemaBase>().FindDerivedByName("CesiumData")
+    // to find TfType<CesiumData>, which is how IsA queries are
+    // answered.
+    TfType::AddAlias<UsdSchemaBase, CesiumData>("CesiumData");
 }
 
 /* virtual */
@@ -31,6 +37,19 @@ CesiumData::Get(const UsdStagePtr &stage, const SdfPath &path)
     return CesiumData(stage->GetPrimAtPath(path));
 }
 
+/* static */
+CesiumData
+CesiumData::Define(
+    const UsdStagePtr &stage, const SdfPath &path)
+{
+    static TfToken usdPrimTypeName("CesiumData");
+    if (!stage) {
+        TF_CODING_ERROR("Invalid stage");
+        return CesiumData();
+    }
+    return CesiumData(
+        stage->DefinePrim(path, usdPrimTypeName));
+}
 
 /* virtual */
 UsdSchemaType CesiumData::_GetSchemaType() const {

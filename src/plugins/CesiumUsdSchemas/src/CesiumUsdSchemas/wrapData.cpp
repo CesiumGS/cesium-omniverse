@@ -73,6 +73,9 @@ void wrapCesiumData()
         .def("Get", &This::Get, (arg("stage"), arg("path")))
         .staticmethod("Get")
 
+        .def("Define", &This::Define, (arg("stage"), arg("path")))
+        .staticmethod("Define")
+
         .def("GetSchemaAttributeNames",
              &This::GetSchemaAttributeNames,
              arg("includeInherited")=true,
