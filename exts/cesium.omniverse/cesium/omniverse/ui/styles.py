@@ -7,12 +7,12 @@ class CesiumOmniverseUiStyles:
     }
 
     quick_add_section_label = {
-        "font_size": 24,
+        "font_size": 20,
     }
 
     quick_add_button = {
         "Button.Label": {
-            "font_size": 20
+            "font_size": 16
         }
     }
 
@@ -23,7 +23,7 @@ class CesiumOmniverseUiStyles:
         },
         "Button.Label": {
             "color": cl("#FFF"),
-            "font_size": 22,
+            "font_size": 16,
         },
         "Button:hovered": {
             "background_color": cl("#3C81A2"),
