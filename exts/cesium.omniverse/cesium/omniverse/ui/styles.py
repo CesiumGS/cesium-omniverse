@@ -3,11 +3,12 @@ from omni.ui import Alignment, color as cl, Direction
 
 class CesiumOmniverseUiStyles:
     intro_label_style = {
-        "font_size": 18,
+        "font_size": 16,
     }
 
     quick_add_section_label = {
         "font_size": 20,
+        "margin": 5,
     }
 
     quick_add_button = {

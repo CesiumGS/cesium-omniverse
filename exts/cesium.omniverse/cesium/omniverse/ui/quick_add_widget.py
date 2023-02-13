@@ -128,14 +128,14 @@ class CesiumOmniverseQuickAddWidget(ui.Frame):
     def _build_ui(self):
         with self:
             with ui.VStack(spacing=10):
-                with ui.VStack(spacing=10):
+                with ui.VStack(spacing=5):
                     ui.Label("Quick Add Basic Assets", style=CesiumOmniverseUiStyles.quick_add_section_label,
                              height=LABEL_HEIGHT)
                     ui.Button("Blank 3D Tiles Tileset", style=CesiumOmniverseUiStyles.quick_add_button,
                               clicked_fn=self._add_blank_button_clicked, height=BUTTON_HEIGHT)
                 self._ion_quick_add_frame = ui.Frame(visible=False, height=0)
                 with self._ion_quick_add_frame:
-                    with ui.VStack(spacing=10):
+                    with ui.VStack(spacing=5):
                         ui.Label("Quick Add Cesium ion Assets", style=CesiumOmniverseUiStyles.quick_add_section_label,
                                  height=LABEL_HEIGHT)
                         ui.Button("Cesium World Terrain + Bing Maps Aerial imagery",
