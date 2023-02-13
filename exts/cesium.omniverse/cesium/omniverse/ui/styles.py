@@ -19,7 +19,7 @@ class CesiumOmniverseUiStyles:
     blue_button_style = {
         "Button": {
             "background_color": cl("#4BA1CA"),
-            "padding": 20,
+            "padding": 12,
         },
         "Button.Label": {
             "color": cl("#FFF"),
