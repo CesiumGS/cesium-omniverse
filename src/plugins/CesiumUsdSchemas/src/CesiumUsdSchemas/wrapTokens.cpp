@@ -45,7 +45,6 @@ void wrapCesiumTokens()
     _AddToken(cls, "cesiumDefaultProjectTokenId", CesiumTokens->cesiumDefaultProjectTokenId);
     _AddToken(cls, "cesiumGeoreferenceOrigin", CesiumTokens->cesiumGeoreferenceOrigin);
     _AddToken(cls, "cesiumIonToken", CesiumTokens->cesiumIonToken);
-    _AddToken(cls, "cesiumIonTokenId", CesiumTokens->cesiumIonTokenId);
     _AddToken(cls, "cesiumName", CesiumTokens->cesiumName);
     _AddToken(cls, "cesiumRasterOverlayId", CesiumTokens->cesiumRasterOverlayId);
     _AddToken(cls, "cesiumTilesetId", CesiumTokens->cesiumTilesetId);

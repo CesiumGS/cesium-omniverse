@@ -111,23 +111,6 @@ CesiumRasterOverlayAPI::CreateNameAttr(VtValue const &defaultValue, bool writeSp
 }
 
 UsdAttribute
-CesiumRasterOverlayAPI::GetIonTokenIdAttr() const
-{
-    return GetPrim().GetAttribute(CesiumTokens->cesiumIonTokenId);
-}
-
-UsdAttribute
-CesiumRasterOverlayAPI::CreateIonTokenIdAttr(VtValue const &defaultValue, bool writeSparsely) const
-{
-    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumIonTokenId,
-                       SdfValueTypeNames->String,
-                       /* custom = */ false,
-                       SdfVariabilityVarying,
-                       defaultValue,
-                       writeSparsely);
-}
-
-UsdAttribute
 CesiumRasterOverlayAPI::GetIonTokenAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumIonToken);
@@ -163,7 +146,6 @@ CesiumRasterOverlayAPI::GetSchemaAttributeNames(bool includeInherited)
     static TfTokenVector localNames = {
         CesiumTokens->cesiumRasterOverlayId,
         CesiumTokens->cesiumName,
-        CesiumTokens->cesiumIonTokenId,
         CesiumTokens->cesiumIonToken,
     };
     static TfTokenVector allNames =

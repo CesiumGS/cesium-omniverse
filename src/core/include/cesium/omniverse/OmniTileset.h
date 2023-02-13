@@ -13,6 +13,8 @@
 
 #include <Cesium3DTilesSelection/IonRasterOverlay.h>
 #include <Cesium3DTilesSelection/Tileset.h>
+#include <CesiumUsdSchemas/rasterOverlayAPI.h>
+#include <CesiumUsdSchemas/tilesetAPI.h>
 #include <pxr/usd/usd/stage.h>
 #include <pxr/usd/usd/stageCache.h>
 #include <pxr/usd/usdUtils/stageCache.h>
@@ -33,6 +35,10 @@ class OmniTileset {
     void addIonRasterOverlay(const std::string& name, int64_t ionId, const std::string& ionToken);
 
     static void init(const std::filesystem::path& cesiumExtensionLocation);
+
+    static pxr::CesiumTilesetAPI applyTilesetApiToPath(const pxr::SdfPath& path);
+
+    static pxr::CesiumRasterOverlayAPI applyRasterOverlayApiToPath(const pxr::SdfPath& path);
 
     static std::optional<CesiumIonClient::Token> getDefaultToken();
 

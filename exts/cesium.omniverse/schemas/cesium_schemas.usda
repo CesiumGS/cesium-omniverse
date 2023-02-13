@@ -17,7 +17,7 @@ over "GLOBAL" (
 ) {
 }
 
-class CesiumData "CesiumData" (
+class CesiumDataPrim "CesiumDataPrim" (
     doc = """Stores stage level data for Cesium for Omniverse/USD."""
     inherits = </Typed>
     customData = {
@@ -57,7 +57,7 @@ class "TilesetAPI" (
         token apiSchemaType = "singleApply"
     }
 ) {
-    string cesium:tilesetId = "" (
+    int64 cesium:tilesetId = 0 (
         customData = {
             string apiName = "tilesetId"
         }
@@ -78,14 +78,6 @@ class "TilesetAPI" (
         }
         displayName = "Tileset name"
         doc = "A string representing a user-defined name for the asset."
-    )
-
-    string cesium:ionTokenId = "" (
-        customData = {
-            string apiName = "ionTokenId"
-        }
-        displayName = "ion Token id"
-        doc = "A string representing the token ID for accessing this Cesium ion tileset. Overrides the default project token."
     )
 
     string cesium:ionToken = "" (
@@ -121,19 +113,11 @@ class "RasterOverlayAPI" (
         doc = "A string representing a user-defined name for the raster overlay."
     )
 
-    string cesium:ionTokenId = "" (
-        customData = {
-            string apiName = "ionTokenId"
-        }
-        displayName = "ion Token id"
-        doc = "A string representing the token ID for accessing this Cesium ion tileset. Overrides the default project token."
-    )
-
     string cesium:ionToken = "" (
         customData = {
             string apiName = "ionToken"
         }
         displayName = "ion Token"
-        doc = "A string representing the token for accessing this Cesium ion tileset. Overrides the default project token."
+        doc = "A string representing the token for accessing this Cesium ion imagery. Overrides the default project token."
     )
 }

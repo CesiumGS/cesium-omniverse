@@ -30,7 +30,7 @@ static UsdAttribute
 _CreateTilesetIdAttr(CesiumTilesetAPI &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateTilesetIdAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int64), writeSparsely);
 }
         
 static UsdAttribute
@@ -44,13 +44,6 @@ static UsdAttribute
 _CreateNameAttr(CesiumTilesetAPI &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateNameAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
-}
-        
-static UsdAttribute
-_CreateIonTokenIdAttr(CesiumTilesetAPI &self,
-                                      object defaultVal, bool writeSparsely) {
-    return self.CreateIonTokenIdAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
@@ -121,13 +114,6 @@ void wrapCesiumTilesetAPI()
              &This::GetNameAttr)
         .def("CreateNameAttr",
              &_CreateNameAttr,
-             (arg("defaultValue")=object(),
-              arg("writeSparsely")=false))
-        
-        .def("GetIonTokenIdAttr",
-             &This::GetIonTokenIdAttr)
-        .def("CreateIonTokenIdAttr",
-             &_CreateIonTokenIdAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         

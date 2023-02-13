@@ -41,13 +41,6 @@ _CreateNameAttr(CesiumRasterOverlayAPI &self,
 }
         
 static UsdAttribute
-_CreateIonTokenIdAttr(CesiumRasterOverlayAPI &self,
-                                      object defaultVal, bool writeSparsely) {
-    return self.CreateIonTokenIdAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
-}
-        
-static UsdAttribute
 _CreateIonTokenAttr(CesiumRasterOverlayAPI &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateIonTokenAttr(
@@ -107,13 +100,6 @@ void wrapCesiumRasterOverlayAPI()
              &This::GetNameAttr)
         .def("CreateNameAttr",
              &_CreateNameAttr,
-             (arg("defaultValue")=object(),
-              arg("writeSparsely")=false))
-        
-        .def("GetIonTokenIdAttr",
-             &This::GetIonTokenIdAttr)
-        .def("CreateIonTokenIdAttr",
-             &_CreateIonTokenIdAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         

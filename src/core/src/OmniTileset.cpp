@@ -39,6 +39,9 @@ OmniTileset::OmniTileset(const std::string& url) {
     Cesium3DTilesSelection::TilesetExternals externals{
         httpAssetAccessor, renderResourcesPreparer, asyncSystem, creditSystem};
 
+    auto tilesetApi = OmniTileset::applyTilesetApiToPath(tilesetPath);
+    tilesetApi.GetTilesetUrlAttr().Set<std::string>(url);
+
     initOriginShiftHandler();
 
     tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(externals, url);
@@ -51,6 +54,9 @@ OmniTileset::OmniTileset(int64_t ionID, const std::string& ionToken) {
     CesiumAsync::AsyncSystem asyncSystem{taskProcessor};
     Cesium3DTilesSelection::TilesetExternals externals{
         httpAssetAccessor, renderResourcesPreparer, asyncSystem, creditSystem};
+
+    auto tilesetApi = OmniTileset::applyTilesetApiToPath(tilesetPath);
+    tilesetApi.GetTilesetIdAttr().Set<int64_t>(ionID);
 
     initOriginShiftHandler();
 
@@ -141,6 +147,18 @@ void OmniTileset::init(const std::filesystem::path& cesiumExtensionLocation) {
     session = std::make_shared<CesiumIonSession>(asyncSystem, httpAssetAccessor);
     session->resume();
     Cesium3DTilesSelection::registerAllTileContentTypes();
+}
+
+pxr::CesiumTilesetAPI OmniTileset::applyTilesetApiToPath(const pxr::SdfPath& path) {
+    auto prim = usdStage->GetPrimAtPath(path);
+    auto tilesetApi = pxr::CesiumTilesetAPI::Apply(prim);
+
+    tilesetApi.CreateTilesetUrlAttr(pxr::VtValue(""));
+    tilesetApi.CreateTilesetIdAttr(pxr::VtValue(""));
+    tilesetApi.CreateNameAttr(pxr::VtValue(""));
+    tilesetApi.CreateIonTokenAttr(pxr::VtValue(""));
+
+    return tilesetApi;
 }
 
 std::optional<CesiumIonClient::Token> OmniTileset::getDefaultToken() {
