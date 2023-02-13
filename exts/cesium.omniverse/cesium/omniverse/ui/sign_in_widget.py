@@ -55,8 +55,9 @@ class CesiumOmniverseSignInWidget(ui.Frame):
     def _build_ui(self):
         with self:
             with ui.VStack(alignment=ui.Alignment.CENTER_TOP, spacing=ui.Length(20, ui.UnitType.PIXEL)):
+                ui.Spacer(height=0)
                 ui.Image(f"{self._images_path}/placeholder_logo.png", alignment=ui.Alignment.CENTER,
-                         fill_policy=ui.FillPolicy.PRESERVE_ASPECT_FIT, height=ui.Length(25, ui.UnitType.PERCENT))
+                         fill_policy=ui.FillPolicy.PRESERVE_ASPECT_FIT, height=140)
                 with ui.HStack(height=0):
                     ui.Spacer()
                     ui.Label(
