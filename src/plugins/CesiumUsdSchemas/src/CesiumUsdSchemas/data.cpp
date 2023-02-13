@@ -61,13 +61,13 @@ CesiumData::_GetTfType() const
 }
 
 UsdAttribute
-CesiumData::GetCesiumDefaultProjectTokenIdAttr() const
+CesiumData::GetDefaultProjectTokenIdAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumDefaultProjectTokenId);
 }
 
 UsdAttribute
-CesiumData::CreateCesiumDefaultProjectTokenIdAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumData::CreateDefaultProjectTokenIdAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumDefaultProjectTokenId,
                        SdfValueTypeNames->String,
@@ -78,13 +78,13 @@ CesiumData::CreateCesiumDefaultProjectTokenIdAttr(VtValue const &defaultValue, b
 }
 
 UsdAttribute
-CesiumData::GetCesiumDefaultProjectTokenAttr() const
+CesiumData::GetDefaultProjectTokenAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumDefaultProjectToken);
 }
 
 UsdAttribute
-CesiumData::CreateCesiumDefaultProjectTokenAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumData::CreateDefaultProjectTokenAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumDefaultProjectToken,
                        SdfValueTypeNames->String,
@@ -95,13 +95,13 @@ CesiumData::CreateCesiumDefaultProjectTokenAttr(VtValue const &defaultValue, boo
 }
 
 UsdAttribute
-CesiumData::GetCesiumGeoreferenceOriginAttr() const
+CesiumData::GetGeoreferenceOriginAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumGeoreferenceOrigin);
 }
 
 UsdAttribute
-CesiumData::CreateCesiumGeoreferenceOriginAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumData::CreateGeoreferenceOriginAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumGeoreferenceOrigin,
                        SdfValueTypeNames->Double3,

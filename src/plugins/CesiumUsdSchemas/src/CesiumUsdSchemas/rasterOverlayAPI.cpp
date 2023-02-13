@@ -77,13 +77,13 @@ CesiumRasterOverlayAPI::_GetTfType() const
 }
 
 UsdAttribute
-CesiumRasterOverlayAPI::GetCesiumRasterOverlayIdAttr() const
+CesiumRasterOverlayAPI::GetRasterOverlayIdAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumRasterOverlayId);
 }
 
 UsdAttribute
-CesiumRasterOverlayAPI::CreateCesiumRasterOverlayIdAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumRasterOverlayAPI::CreateRasterOverlayIdAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumRasterOverlayId,
                        SdfValueTypeNames->String,
@@ -94,13 +94,13 @@ CesiumRasterOverlayAPI::CreateCesiumRasterOverlayIdAttr(VtValue const &defaultVa
 }
 
 UsdAttribute
-CesiumRasterOverlayAPI::GetCesiumNameAttr() const
+CesiumRasterOverlayAPI::GetNameAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumName);
 }
 
 UsdAttribute
-CesiumRasterOverlayAPI::CreateCesiumNameAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumRasterOverlayAPI::CreateNameAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumName,
                        SdfValueTypeNames->String,
@@ -111,13 +111,13 @@ CesiumRasterOverlayAPI::CreateCesiumNameAttr(VtValue const &defaultValue, bool w
 }
 
 UsdAttribute
-CesiumRasterOverlayAPI::GetCesiumIonTokenIdAttr() const
+CesiumRasterOverlayAPI::GetIonTokenIdAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumIonTokenId);
 }
 
 UsdAttribute
-CesiumRasterOverlayAPI::CreateCesiumIonTokenIdAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumRasterOverlayAPI::CreateIonTokenIdAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumIonTokenId,
                        SdfValueTypeNames->String,
@@ -128,13 +128,13 @@ CesiumRasterOverlayAPI::CreateCesiumIonTokenIdAttr(VtValue const &defaultValue, 
 }
 
 UsdAttribute
-CesiumRasterOverlayAPI::GetCesiumIonTokenAttr() const
+CesiumRasterOverlayAPI::GetIonTokenAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumIonToken);
 }
 
 UsdAttribute
-CesiumRasterOverlayAPI::CreateCesiumIonTokenAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumRasterOverlayAPI::CreateIonTokenAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumIonToken,
                        SdfValueTypeNames->String,

@@ -27,37 +27,37 @@ WRAP_CUSTOM;
 
         
 static UsdAttribute
-_CreateCesiumTilesetIdAttr(CesiumTilesetAPI &self,
+_CreateTilesetIdAttr(CesiumTilesetAPI &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateCesiumTilesetIdAttr(
+    return self.CreateTilesetIdAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
-_CreateCesiumTilesetUrlAttr(CesiumTilesetAPI &self,
+_CreateTilesetUrlAttr(CesiumTilesetAPI &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateCesiumTilesetUrlAttr(
+    return self.CreateTilesetUrlAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
-_CreateCesiumNameAttr(CesiumTilesetAPI &self,
+_CreateNameAttr(CesiumTilesetAPI &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateCesiumNameAttr(
+    return self.CreateNameAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
-_CreateCesiumIonTokenIdAttr(CesiumTilesetAPI &self,
+_CreateIonTokenIdAttr(CesiumTilesetAPI &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateCesiumIonTokenIdAttr(
+    return self.CreateIonTokenIdAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
-_CreateCesiumIonTokenAttr(CesiumTilesetAPI &self,
+_CreateIonTokenAttr(CesiumTilesetAPI &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateCesiumIonTokenAttr(
+    return self.CreateIonTokenAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
 
@@ -103,38 +103,38 @@ void wrapCesiumTilesetAPI()
         .def(!self)
 
         
-        .def("GetCesiumTilesetIdAttr",
-             &This::GetCesiumTilesetIdAttr)
-        .def("CreateCesiumTilesetIdAttr",
-             &_CreateCesiumTilesetIdAttr,
+        .def("GetTilesetIdAttr",
+             &This::GetTilesetIdAttr)
+        .def("CreateTilesetIdAttr",
+             &_CreateTilesetIdAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetCesiumTilesetUrlAttr",
-             &This::GetCesiumTilesetUrlAttr)
-        .def("CreateCesiumTilesetUrlAttr",
-             &_CreateCesiumTilesetUrlAttr,
+        .def("GetTilesetUrlAttr",
+             &This::GetTilesetUrlAttr)
+        .def("CreateTilesetUrlAttr",
+             &_CreateTilesetUrlAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetCesiumNameAttr",
-             &This::GetCesiumNameAttr)
-        .def("CreateCesiumNameAttr",
-             &_CreateCesiumNameAttr,
+        .def("GetNameAttr",
+             &This::GetNameAttr)
+        .def("CreateNameAttr",
+             &_CreateNameAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetCesiumIonTokenIdAttr",
-             &This::GetCesiumIonTokenIdAttr)
-        .def("CreateCesiumIonTokenIdAttr",
-             &_CreateCesiumIonTokenIdAttr,
+        .def("GetIonTokenIdAttr",
+             &This::GetIonTokenIdAttr)
+        .def("CreateIonTokenIdAttr",
+             &_CreateIonTokenIdAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetCesiumIonTokenAttr",
-             &This::GetCesiumIonTokenAttr)
-        .def("CreateCesiumIonTokenAttr",
-             &_CreateCesiumIonTokenAttr,
+        .def("GetIonTokenAttr",
+             &This::GetIonTokenAttr)
+        .def("CreateIonTokenAttr",
+             &_CreateIonTokenAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 

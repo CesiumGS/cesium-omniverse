@@ -25,16 +25,25 @@ class "CesiumData" (
     }
 ) {
     string cesium:defaultProjectTokenId = "" (
+        customData = {
+            string apiName = "defaultProjectTokenId"
+        }
         displayName = "Default Project ion Token ID"
         doc = "A string representing the token ID for accessing Cesium ion tilesets."
     )
 
     string cesium:defaultProjectToken = "" (
+        customData = {
+            string apiName = "defaultProjectToken"
+        }
         displayName = "Default Project ion Token"
         doc = "A string representing a token for accessing Cesium ion tilesets."
     )
 
     double3 cesium:georeferenceOrigin = (0, 0, 0) (
+        customData = {
+            string apiName = "georeferenceOrigin"
+        }
         displayName = "Georeference Origin Point"
         doc = "Specifies a Georeference origin point for Cesium in Longitude, Latitude, and Height"
     )
@@ -45,28 +54,44 @@ class "TilesetAPI" (
     inherits = </APISchemaBase>
     customData = {
         string className = "TilesetAPI"
+        token apiSchemaType = "singleApply"
     }
 ) {
     string cesium:tilesetId = "" (
+        customData = {
+            string apiName = "tilesetId"
+        }
         displayName = "Tileset ID"
         doc = "A string representing a Cesium ion asset ID. Blank if using URL."
     )
     string cesium:tilesetUrl = "" (
+        customData = {
+            string apiName = "tilesetUrl"
+        }
         displayName = "Tileset Url"
         doc = "A string representing an asset URL. Blank if is an ion asset."
     )
 
     string cesium:name = "" (
+        customData = {
+            string apiName = "name"
+        }
         displayName = "Tileset name"
         doc = "A string representing a user-defined name for the asset."
     )
 
     string cesium:ionTokenId = "" (
+        customData = {
+            string apiName = "ionTokenId"
+        }
         displayName = "ion Token id"
         doc = "A string representing the token ID for accessing this Cesium ion tileset. Overrides the default project token."
     )
 
     string cesium:ionToken = "" (
+        customData = {
+            string apiName = "ionToken"
+        }
         displayName = "ion Token"
         doc = "A string representing the token for accessing this Cesium ion tileset. Overrides the default project token."
     )
@@ -77,24 +102,37 @@ class "RasterOverlayAPI" (
     inherits = </APISchemaBase>
     customData = {
         string className = "RasterOverlayAPI"
+        token apiSchemaType = "singleApply"
     }
 ) {
     string cesium:rasterOverlayId = "" (
+        customData = {
+            string apiName = "rasterOverlayId"
+        }
         displayName = "Raster Overlay ID"
         doc = "A string representing a Cesium ion imagery ID."
     )
 
     string cesium:name = "" (
+        customData = {
+            string apiName = "name"
+        }
         displayName = "Raster Overlay name"
         doc = "A string representing a user-defined name for the raster overlay."
     )
 
     string cesium:ionTokenId = "" (
+        customData = {
+            string apiName = "ionTokenId"
+        }
         displayName = "ion Token id"
         doc = "A string representing the token ID for accessing this Cesium ion tileset. Overrides the default project token."
     )
 
     string cesium:ionToken = "" (
+        customData = {
+            string apiName = "ionToken"
+        }
         displayName = "ion Token"
         doc = "A string representing the token for accessing this Cesium ion tileset. Overrides the default project token."
     )

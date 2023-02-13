@@ -77,13 +77,13 @@ CesiumTilesetAPI::_GetTfType() const
 }
 
 UsdAttribute
-CesiumTilesetAPI::GetCesiumTilesetIdAttr() const
+CesiumTilesetAPI::GetTilesetIdAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumTilesetId);
 }
 
 UsdAttribute
-CesiumTilesetAPI::CreateCesiumTilesetIdAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumTilesetAPI::CreateTilesetIdAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumTilesetId,
                        SdfValueTypeNames->String,
@@ -94,13 +94,13 @@ CesiumTilesetAPI::CreateCesiumTilesetIdAttr(VtValue const &defaultValue, bool wr
 }
 
 UsdAttribute
-CesiumTilesetAPI::GetCesiumTilesetUrlAttr() const
+CesiumTilesetAPI::GetTilesetUrlAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumTilesetUrl);
 }
 
 UsdAttribute
-CesiumTilesetAPI::CreateCesiumTilesetUrlAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumTilesetAPI::CreateTilesetUrlAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumTilesetUrl,
                        SdfValueTypeNames->String,
@@ -111,13 +111,13 @@ CesiumTilesetAPI::CreateCesiumTilesetUrlAttr(VtValue const &defaultValue, bool w
 }
 
 UsdAttribute
-CesiumTilesetAPI::GetCesiumNameAttr() const
+CesiumTilesetAPI::GetNameAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumName);
 }
 
 UsdAttribute
-CesiumTilesetAPI::CreateCesiumNameAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumTilesetAPI::CreateNameAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumName,
                        SdfValueTypeNames->String,
@@ -128,13 +128,13 @@ CesiumTilesetAPI::CreateCesiumNameAttr(VtValue const &defaultValue, bool writeSp
 }
 
 UsdAttribute
-CesiumTilesetAPI::GetCesiumIonTokenIdAttr() const
+CesiumTilesetAPI::GetIonTokenIdAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumIonTokenId);
 }
 
 UsdAttribute
-CesiumTilesetAPI::CreateCesiumIonTokenIdAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumTilesetAPI::CreateIonTokenIdAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumIonTokenId,
                        SdfValueTypeNames->String,
@@ -145,13 +145,13 @@ CesiumTilesetAPI::CreateCesiumIonTokenIdAttr(VtValue const &defaultValue, bool w
 }
 
 UsdAttribute
-CesiumTilesetAPI::GetCesiumIonTokenAttr() const
+CesiumTilesetAPI::GetIonTokenAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumIonToken);
 }
 
 UsdAttribute
-CesiumTilesetAPI::CreateCesiumIonTokenAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumTilesetAPI::CreateIonTokenAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumIonToken,
                        SdfValueTypeNames->String,

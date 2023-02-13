@@ -27,23 +27,23 @@ WRAP_CUSTOM;
 
         
 static UsdAttribute
-_CreateCesiumDefaultProjectTokenIdAttr(CesiumData &self,
+_CreateDefaultProjectTokenIdAttr(CesiumData &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateCesiumDefaultProjectTokenIdAttr(
+    return self.CreateDefaultProjectTokenIdAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
-_CreateCesiumDefaultProjectTokenAttr(CesiumData &self,
+_CreateDefaultProjectTokenAttr(CesiumData &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateCesiumDefaultProjectTokenAttr(
+    return self.CreateDefaultProjectTokenAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
-_CreateCesiumGeoreferenceOriginAttr(CesiumData &self,
+_CreateGeoreferenceOriginAttr(CesiumData &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateCesiumGeoreferenceOriginAttr(
+    return self.CreateGeoreferenceOriginAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double3), writeSparsely);
 }
 
@@ -86,24 +86,24 @@ void wrapCesiumData()
         .def(!self)
 
         
-        .def("GetCesiumDefaultProjectTokenIdAttr",
-             &This::GetCesiumDefaultProjectTokenIdAttr)
-        .def("CreateCesiumDefaultProjectTokenIdAttr",
-             &_CreateCesiumDefaultProjectTokenIdAttr,
+        .def("GetDefaultProjectTokenIdAttr",
+             &This::GetDefaultProjectTokenIdAttr)
+        .def("CreateDefaultProjectTokenIdAttr",
+             &_CreateDefaultProjectTokenIdAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetCesiumDefaultProjectTokenAttr",
-             &This::GetCesiumDefaultProjectTokenAttr)
-        .def("CreateCesiumDefaultProjectTokenAttr",
-             &_CreateCesiumDefaultProjectTokenAttr,
+        .def("GetDefaultProjectTokenAttr",
+             &This::GetDefaultProjectTokenAttr)
+        .def("CreateDefaultProjectTokenAttr",
+             &_CreateDefaultProjectTokenAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetCesiumGeoreferenceOriginAttr",
-             &This::GetCesiumGeoreferenceOriginAttr)
-        .def("CreateCesiumGeoreferenceOriginAttr",
-             &_CreateCesiumGeoreferenceOriginAttr,
+        .def("GetGeoreferenceOriginAttr",
+             &This::GetGeoreferenceOriginAttr)
+        .def("CreateGeoreferenceOriginAttr",
+             &_CreateGeoreferenceOriginAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 

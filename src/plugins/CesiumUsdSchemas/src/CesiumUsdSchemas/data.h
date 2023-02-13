@@ -105,18 +105,18 @@ public:
     /// | Declaration | `string cesium:defaultProjectTokenId = ""` |
     /// | C++ Type | std::string |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
-    UsdAttribute GetCesiumDefaultProjectTokenIdAttr() const;
+    UsdAttribute GetDefaultProjectTokenIdAttr() const;
 
-    /// See GetCesiumDefaultProjectTokenIdAttr(), and also 
+    /// See GetDefaultProjectTokenIdAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    UsdAttribute CreateCesiumDefaultProjectTokenIdAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+    UsdAttribute CreateDefaultProjectTokenIdAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // --------------------------------------------------------------------- //
-    // CESIUMDEFAULTPROJECTTOKEN 
+    // DEFAULTPROJECTTOKEN 
     // --------------------------------------------------------------------- //
     /// A string representing a token for accessing Cesium ion tilesets.
     ///
@@ -125,18 +125,18 @@ public:
     /// | Declaration | `string cesium:defaultProjectToken = ""` |
     /// | C++ Type | std::string |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
-    UsdAttribute GetCesiumDefaultProjectTokenAttr() const;
+    UsdAttribute GetDefaultProjectTokenAttr() const;
 
-    /// See GetCesiumDefaultProjectTokenAttr(), and also 
+    /// See GetDefaultProjectTokenAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    UsdAttribute CreateCesiumDefaultProjectTokenAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+    UsdAttribute CreateDefaultProjectTokenAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // --------------------------------------------------------------------- //
-    // CESIUMGEOREFERENCEORIGIN 
+    // GEOREFERENCEORIGIN 
     // --------------------------------------------------------------------- //
     /// Specifies a Georeference origin point for Cesium in Longitude, Latitude, and Height
     ///
@@ -145,14 +145,14 @@ public:
     /// | Declaration | `double3 cesium:georeferenceOrigin = (0, 0, 0)` |
     /// | C++ Type | GfVec3d |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double3 |
-    UsdAttribute GetCesiumGeoreferenceOriginAttr() const;
+    UsdAttribute GetGeoreferenceOriginAttr() const;
 
-    /// See GetCesiumGeoreferenceOriginAttr(), and also 
+    /// See GetGeoreferenceOriginAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    UsdAttribute CreateCesiumGeoreferenceOriginAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+    UsdAttribute CreateGeoreferenceOriginAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // ===================================================================== //

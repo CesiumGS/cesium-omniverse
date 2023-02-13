@@ -124,18 +124,18 @@ public:
     /// | Declaration | `string cesium:rasterOverlayId = ""` |
     /// | C++ Type | std::string |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
-    UsdAttribute GetCesiumRasterOverlayIdAttr() const;
+    UsdAttribute GetRasterOverlayIdAttr() const;
 
-    /// See GetCesiumRasterOverlayIdAttr(), and also 
+    /// See GetRasterOverlayIdAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    UsdAttribute CreateCesiumRasterOverlayIdAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+    UsdAttribute CreateRasterOverlayIdAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // --------------------------------------------------------------------- //
-    // CESIUMNAME 
+    // NAME 
     // --------------------------------------------------------------------- //
     /// A string representing a user-defined name for the raster overlay.
     ///
@@ -144,18 +144,18 @@ public:
     /// | Declaration | `string cesium:name = ""` |
     /// | C++ Type | std::string |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
-    UsdAttribute GetCesiumNameAttr() const;
+    UsdAttribute GetNameAttr() const;
 
-    /// See GetCesiumNameAttr(), and also 
+    /// See GetNameAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    UsdAttribute CreateCesiumNameAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+    UsdAttribute CreateNameAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // --------------------------------------------------------------------- //
-    // CESIUMIONTOKENID 
+    // IONTOKENID 
     // --------------------------------------------------------------------- //
     /// A string representing the token ID for accessing this Cesium ion tileset. Overrides the default project token.
     ///
@@ -164,18 +164,18 @@ public:
     /// | Declaration | `string cesium:ionTokenId = ""` |
     /// | C++ Type | std::string |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
-    UsdAttribute GetCesiumIonTokenIdAttr() const;
+    UsdAttribute GetIonTokenIdAttr() const;
 
-    /// See GetCesiumIonTokenIdAttr(), and also 
+    /// See GetIonTokenIdAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    UsdAttribute CreateCesiumIonTokenIdAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+    UsdAttribute CreateIonTokenIdAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // --------------------------------------------------------------------- //
-    // CESIUMIONTOKEN 
+    // IONTOKEN 
     // --------------------------------------------------------------------- //
     /// A string representing the token for accessing this Cesium ion tileset. Overrides the default project token.
     ///
@@ -184,14 +184,14 @@ public:
     /// | Declaration | `string cesium:ionToken = ""` |
     /// | C++ Type | std::string |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
-    UsdAttribute GetCesiumIonTokenAttr() const;
+    UsdAttribute GetIonTokenAttr() const;
 
-    /// See GetCesiumIonTokenAttr(), and also 
+    /// See GetIonTokenAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    UsdAttribute CreateCesiumIonTokenAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+    UsdAttribute CreateIonTokenAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // ===================================================================== //

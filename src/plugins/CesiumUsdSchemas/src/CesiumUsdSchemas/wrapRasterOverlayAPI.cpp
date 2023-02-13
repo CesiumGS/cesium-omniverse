@@ -27,30 +27,30 @@ WRAP_CUSTOM;
 
         
 static UsdAttribute
-_CreateCesiumRasterOverlayIdAttr(CesiumRasterOverlayAPI &self,
+_CreateRasterOverlayIdAttr(CesiumRasterOverlayAPI &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateCesiumRasterOverlayIdAttr(
+    return self.CreateRasterOverlayIdAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
-_CreateCesiumNameAttr(CesiumRasterOverlayAPI &self,
+_CreateNameAttr(CesiumRasterOverlayAPI &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateCesiumNameAttr(
+    return self.CreateNameAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
-_CreateCesiumIonTokenIdAttr(CesiumRasterOverlayAPI &self,
+_CreateIonTokenIdAttr(CesiumRasterOverlayAPI &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateCesiumIonTokenIdAttr(
+    return self.CreateIonTokenIdAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
-_CreateCesiumIonTokenAttr(CesiumRasterOverlayAPI &self,
+_CreateIonTokenAttr(CesiumRasterOverlayAPI &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateCesiumIonTokenAttr(
+    return self.CreateIonTokenAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
 
@@ -96,31 +96,31 @@ void wrapCesiumRasterOverlayAPI()
         .def(!self)
 
         
-        .def("GetCesiumRasterOverlayIdAttr",
-             &This::GetCesiumRasterOverlayIdAttr)
-        .def("CreateCesiumRasterOverlayIdAttr",
-             &_CreateCesiumRasterOverlayIdAttr,
+        .def("GetRasterOverlayIdAttr",
+             &This::GetRasterOverlayIdAttr)
+        .def("CreateRasterOverlayIdAttr",
+             &_CreateRasterOverlayIdAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetCesiumNameAttr",
-             &This::GetCesiumNameAttr)
-        .def("CreateCesiumNameAttr",
-             &_CreateCesiumNameAttr,
+        .def("GetNameAttr",
+             &This::GetNameAttr)
+        .def("CreateNameAttr",
+             &_CreateNameAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetCesiumIonTokenIdAttr",
-             &This::GetCesiumIonTokenIdAttr)
-        .def("CreateCesiumIonTokenIdAttr",
-             &_CreateCesiumIonTokenIdAttr,
+        .def("GetIonTokenIdAttr",
+             &This::GetIonTokenIdAttr)
+        .def("CreateIonTokenIdAttr",
+             &_CreateIonTokenIdAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetCesiumIonTokenAttr",
-             &This::GetCesiumIonTokenAttr)
-        .def("CreateCesiumIonTokenAttr",
-             &_CreateCesiumIonTokenAttr,
+        .def("GetIonTokenAttr",
+             &This::GetIonTokenAttr)
+        .def("CreateIonTokenAttr",
+             &_CreateIonTokenAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 
