@@ -127,7 +127,7 @@ class CesiumOmniverseMainWindow(ui.Window):
     def _build_fn(self):
         """Builds all UI components."""
 
-        with ui.VStack(spacing=20):
+        with ui.VStack(spacing=0):
             button_style = CesiumOmniverseUiStyles.top_bar_button_style
 
             with ui.HStack(height=ui.Length(80, ui.UnitType.PIXEL)):
