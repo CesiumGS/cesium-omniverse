@@ -70,5 +70,6 @@ class OmniTileset {
     std::unique_ptr<Cesium3DTilesSelection::Tileset> tileset;
     OriginShiftHandler originShiftHandler;
     CesiumUtility::IntrusivePointer<Cesium3DTilesSelection::IonRasterOverlay> rasterOverlay;
+    pxr::SdfPath tilesetPath;
 };
 } // namespace cesium::omniverse

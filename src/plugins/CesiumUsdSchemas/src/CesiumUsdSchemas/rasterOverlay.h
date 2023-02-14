@@ -116,26 +116,6 @@ public:
 
 public:
     // --------------------------------------------------------------------- //
-    // NAME 
-    // --------------------------------------------------------------------- //
-    /// A string representing a user-defined name for the raster overlay.
-    ///
-    /// | ||
-    /// | -- | -- |
-    /// | Declaration | `string cesium:name = ""` |
-    /// | C++ Type | std::string |
-    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
-    UsdAttribute GetNameAttr() const;
-
-    /// See GetNameAttr(), and also 
-    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
-    /// If specified, author \p defaultValue as the attribute's default,
-    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
-    /// the default for \p writeSparsely is \c false.
-    UsdAttribute CreateNameAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
-
-public:
-    // --------------------------------------------------------------------- //
     // IONTOKEN 
     // --------------------------------------------------------------------- //
     /// A string representing the token for accessing this Cesium ion imagery. Overrides the default project token.

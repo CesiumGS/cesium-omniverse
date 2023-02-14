@@ -34,8 +34,7 @@ static uint64_t getID() {
 }
 
 OmniTileset::OmniTileset(const std::string& url) {
-    pxr::SdfPath tilesetPath =
-        usdStage->GetPseudoRoot().GetPath().AppendChild(pxr::TfToken(fmt::format("tileset_{}", getID())));
+    tilesetPath = usdStage->GetPseudoRoot().GetPath().AppendChild(pxr::TfToken(fmt::format("tileset_{}", getID())));
     renderResourcesPreparer = std::make_shared<RenderResourcesPreparer>(usdStage, tilesetPath);
     CesiumAsync::AsyncSystem asyncSystem{taskProcessor};
     Cesium3DTilesSelection::TilesetExternals externals{
@@ -50,8 +49,7 @@ OmniTileset::OmniTileset(const std::string& url) {
 }
 
 OmniTileset::OmniTileset(int64_t ionID, const std::string& ionToken) {
-    pxr::SdfPath tilesetPath =
-        usdStage->GetPseudoRoot().GetPath().AppendChild(pxr::TfToken(fmt::format("tileset_ion_{}", ionID)));
+    tilesetPath = usdStage->GetPseudoRoot().GetPath().AppendChild(pxr::TfToken(fmt::format("tileset_ion_{}", ionID)));
     renderResourcesPreparer = std::make_shared<RenderResourcesPreparer>(usdStage, tilesetPath);
     CesiumAsync::AsyncSystem asyncSystem{taskProcessor};
     Cesium3DTilesSelection::TilesetExternals externals{
@@ -128,25 +126,15 @@ void OmniTileset::addIonRasterOverlay(const std::string& name, int64_t ionId, co
         spdlog::default_logger()->error(error.message);
     };
 
-    auto tilesetPrim = std::find_if(
-        usdStage->GetPseudoRoot().GetChildren().begin(),
-        usdStage->GetPseudoRoot().GetChildren().end(),
-        [](const pxr::UsdPrim& p) { return p.HasAPI<pxr::CesiumTilesetAPI>(); });
-
-    // We have to do this check because std::find_if always returns the last element if it finds nothing.
-    if (!tilesetPrim->HasAPI<pxr::CesiumTilesetAPI>()) {
-        return;
-    }
-
-    // The SdfPath cannot have spaces, so we convert them to underscore.
+    // The SdfPath cannot have spaces, so we convert spaces in name to underscore.
     auto safeName = name;
     std::replace(safeName.begin(), safeName.end(), ' ', '_');
 
-    auto rasterOverlayPrimPath = tilesetPrim->GetPath().AppendChild(pxr::TfToken(safeName));
-    auto rasterOverlayPrim = usdStage->DefinePrim(rasterOverlayPrimPath);
-    pxr::CesiumRasterOverlay rasterOverlayData(rasterOverlayPrim);
-    rasterOverlayData.CreateNameAttr().Set<std::string>(safeName);
-    rasterOverlayData.CreateRasterOverlayIdAttr().Set<int64_t>(ionId);
+    auto path = tilesetPath.AppendChild(pxr::TfToken(safeName));
+    auto prim = usdStage->DefinePrim(path);
+    pxr::CesiumRasterOverlay overlayData(prim);
+    overlayData.CreateRasterOverlayIdAttr().Set<int64_t>(ionId);
+    overlayData.CreateIonTokenAttr();
 
     rasterOverlay = new Cesium3DTilesSelection::IonRasterOverlay(safeName, ionId, ionToken, options);
     tileset->getOverlays().add(rasterOverlay);
@@ -177,7 +165,6 @@ pxr::CesiumTilesetAPI OmniTileset::applyTilesetApiToPath(const pxr::SdfPath& pat
 
     tilesetApi.CreateTilesetUrlAttr();
     tilesetApi.CreateTilesetIdAttr();
-    tilesetApi.CreateNameAttr();
     tilesetApi.CreateIonTokenAttr();
 
     return tilesetApi;

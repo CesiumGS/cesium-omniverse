@@ -34,10 +34,6 @@ class "TilesetAPI" (
         displayName = "ion Token"
         doc = "A string representing the token for accessing this Cesium ion tileset. Overrides the default project token."
     )
-    string cesium:name = "" (
-        displayName = "Tileset name"
-        doc = "A string representing a user-defined name for the asset."
-    )
     int64 cesium:tilesetId = 0 (
         displayName = "Tileset ID"
         doc = "A string representing a Cesium ion asset ID. Blank if using URL."
@@ -55,10 +51,6 @@ class "RasterOverlay" (
     string cesium:ionToken = "" (
         displayName = "ion Token"
         doc = "A string representing the token for accessing this Cesium ion imagery. Overrides the default project token."
-    )
-    string cesium:name = "" (
-        displayName = "Raster Overlay name"
-        doc = "A string representing a user-defined name for the raster overlay."
     )
     int64 cesium:rasterOverlayId = 0 (
         displayName = "Raster Overlay ID"

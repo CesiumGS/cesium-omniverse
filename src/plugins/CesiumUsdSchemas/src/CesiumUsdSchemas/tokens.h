@@ -55,10 +55,6 @@ struct CesiumTokensType {
     /// 
     /// CesiumRasterOverlay, CesiumTilesetAPI
     const TfToken cesiumIonToken;
-    /// \brief "cesium:name"
-    /// 
-    /// CesiumRasterOverlay, CesiumTilesetAPI
-    const TfToken cesiumName;
     /// \brief "cesium:rasterOverlayId"
     /// 
     /// CesiumRasterOverlay

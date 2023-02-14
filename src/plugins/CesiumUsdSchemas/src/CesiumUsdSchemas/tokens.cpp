@@ -7,7 +7,6 @@ CesiumTokensType::CesiumTokensType() :
     cesiumDefaultProjectTokenId("cesium:defaultProjectTokenId", TfToken::Immortal),
     cesiumGeoreferenceOrigin("cesium:georeferenceOrigin", TfToken::Immortal),
     cesiumIonToken("cesium:ionToken", TfToken::Immortal),
-    cesiumName("cesium:name", TfToken::Immortal),
     cesiumRasterOverlayId("cesium:rasterOverlayId", TfToken::Immortal),
     cesiumTilesetId("cesium:tilesetId", TfToken::Immortal),
     cesiumTilesetUrl("cesium:tilesetUrl", TfToken::Immortal),
@@ -16,7 +15,6 @@ CesiumTokensType::CesiumTokensType() :
         cesiumDefaultProjectTokenId,
         cesiumGeoreferenceOrigin,
         cesiumIonToken,
-        cesiumName,
         cesiumRasterOverlayId,
         cesiumTilesetId,
         cesiumTilesetUrl

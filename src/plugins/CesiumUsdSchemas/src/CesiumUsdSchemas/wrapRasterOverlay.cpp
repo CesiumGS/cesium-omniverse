@@ -34,13 +34,6 @@ _CreateRasterOverlayIdAttr(CesiumRasterOverlay &self,
 }
         
 static UsdAttribute
-_CreateNameAttr(CesiumRasterOverlay &self,
-                                      object defaultVal, bool writeSparsely) {
-    return self.CreateNameAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
-}
-        
-static UsdAttribute
 _CreateIonTokenAttr(CesiumRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateIonTokenAttr(
@@ -90,13 +83,6 @@ void wrapCesiumRasterOverlay()
              &This::GetRasterOverlayIdAttr)
         .def("CreateRasterOverlayIdAttr",
              &_CreateRasterOverlayIdAttr,
-             (arg("defaultValue")=object(),
-              arg("writeSparsely")=false))
-        
-        .def("GetNameAttr",
-             &This::GetNameAttr)
-        .def("CreateNameAttr",
-             &_CreateNameAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         

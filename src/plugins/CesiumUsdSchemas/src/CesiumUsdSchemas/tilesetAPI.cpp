@@ -111,23 +111,6 @@ CesiumTilesetAPI::CreateTilesetUrlAttr(VtValue const &defaultValue, bool writeSp
 }
 
 UsdAttribute
-CesiumTilesetAPI::GetNameAttr() const
-{
-    return GetPrim().GetAttribute(CesiumTokens->cesiumName);
-}
-
-UsdAttribute
-CesiumTilesetAPI::CreateNameAttr(VtValue const &defaultValue, bool writeSparsely) const
-{
-    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumName,
-                       SdfValueTypeNames->String,
-                       /* custom = */ false,
-                       SdfVariabilityVarying,
-                       defaultValue,
-                       writeSparsely);
-}
-
-UsdAttribute
 CesiumTilesetAPI::GetIonTokenAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumIonToken);
@@ -163,7 +146,6 @@ CesiumTilesetAPI::GetSchemaAttributeNames(bool includeInherited)
     static TfTokenVector localNames = {
         CesiumTokens->cesiumTilesetId,
         CesiumTokens->cesiumTilesetUrl,
-        CesiumTokens->cesiumName,
         CesiumTokens->cesiumIonToken,
     };
     static TfTokenVector allNames =
