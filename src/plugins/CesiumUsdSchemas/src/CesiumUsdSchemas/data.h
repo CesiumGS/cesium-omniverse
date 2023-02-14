@@ -24,7 +24,7 @@ PXR_NAMESPACE_OPEN_SCOPE
 class SdfAssetPath;
 
 // -------------------------------------------------------------------------- //
-// CESIUMDATA                                                                 //
+// CESIUMDATAPRIM                                                             //
 // -------------------------------------------------------------------------- //
 
 /// \class CesiumData
@@ -37,7 +37,7 @@ public:
     /// Compile time constant representing what kind of schema this class is.
     ///
     /// \sa UsdSchemaType
-    static const UsdSchemaType schemaType = UsdSchemaType::AbstractTyped;
+    static const UsdSchemaType schemaType = UsdSchemaType::ConcreteTyped;
 
     /// Construct a CesiumData on UsdPrim \p prim .
     /// Equivalent to CesiumData::Get(prim.GetStage(), prim.GetPath())
@@ -77,6 +77,30 @@ public:
     static CesiumData
     Get(const UsdStagePtr &stage, const SdfPath &path);
 
+    /// Attempt to ensure a \a UsdPrim adhering to this schema at \p path
+    /// is defined (according to UsdPrim::IsDefined()) on this stage.
+    ///
+    /// If a prim adhering to this schema at \p path is already defined on this
+    /// stage, return that prim.  Otherwise author an \a SdfPrimSpec with
+    /// \a specifier == \a SdfSpecifierDef and this schema's prim type name for
+    /// the prim at \p path at the current EditTarget.  Author \a SdfPrimSpec s
+    /// with \p specifier == \a SdfSpecifierDef and empty typeName at the
+    /// current EditTarget for any nonexistent, or existing but not \a Defined
+    /// ancestors.
+    ///
+    /// The given \a path must be an absolute prim path that does not contain
+    /// any variant selections.
+    ///
+    /// If it is impossible to author any of the necessary PrimSpecs, (for
+    /// example, in case \a path cannot map to the current UsdEditTarget's
+    /// namespace) issue an error and return an invalid \a UsdPrim.
+    ///
+    /// Note that this method may return a defined prim whose typeName does not
+    /// specify this schema class, in case a stronger typeName opinion overrides
+    /// the opinion at the current EditTarget.
+    ///
+    static CesiumData
+    Define(const UsdStagePtr &stage, const SdfPath &path);
 
 protected:
     /// Returns the type of schema this class belongs to.
@@ -96,7 +120,7 @@ private:
 
 public:
     // --------------------------------------------------------------------- //
-    // CESIUMDEFAULTPROJECTTOKENID 
+    // DEFAULTPROJECTTOKENID 
     // --------------------------------------------------------------------- //
     /// A string representing the token ID for accessing Cesium ion tilesets.
     ///
@@ -105,18 +129,18 @@ public:
     /// | Declaration | `string cesium:defaultProjectTokenId = ""` |
     /// | C++ Type | std::string |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
-    UsdAttribute GetCesiumDefaultProjectTokenIdAttr() const;
+    UsdAttribute GetDefaultProjectTokenIdAttr() const;
 
-    /// See GetCesiumDefaultProjectTokenIdAttr(), and also 
+    /// See GetDefaultProjectTokenIdAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    UsdAttribute CreateCesiumDefaultProjectTokenIdAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+    UsdAttribute CreateDefaultProjectTokenIdAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // --------------------------------------------------------------------- //
-    // CESIUMDEFAULTPROJECTTOKEN 
+    // DEFAULTPROJECTTOKEN 
     // --------------------------------------------------------------------- //
     /// A string representing a token for accessing Cesium ion tilesets.
     ///
@@ -125,18 +149,18 @@ public:
     /// | Declaration | `string cesium:defaultProjectToken = ""` |
     /// | C++ Type | std::string |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
-    UsdAttribute GetCesiumDefaultProjectTokenAttr() const;
+    UsdAttribute GetDefaultProjectTokenAttr() const;
 
-    /// See GetCesiumDefaultProjectTokenAttr(), and also 
+    /// See GetDefaultProjectTokenAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    UsdAttribute CreateCesiumDefaultProjectTokenAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+    UsdAttribute CreateDefaultProjectTokenAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // --------------------------------------------------------------------- //
-    // CESIUMGEOREFERENCEORIGIN 
+    // GEOREFERENCEORIGIN 
     // --------------------------------------------------------------------- //
     /// Specifies a Georeference origin point for Cesium in Longitude, Latitude, and Height
     ///
@@ -145,14 +169,14 @@ public:
     /// | Declaration | `double3 cesium:georeferenceOrigin = (0, 0, 0)` |
     /// | C++ Type | GfVec3d |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double3 |
-    UsdAttribute GetCesiumGeoreferenceOriginAttr() const;
+    UsdAttribute GetGeoreferenceOriginAttr() const;
 
-    /// See GetCesiumGeoreferenceOriginAttr(), and also 
+    /// See GetGeoreferenceOriginAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    UsdAttribute CreateCesiumGeoreferenceOriginAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+    UsdAttribute CreateGeoreferenceOriginAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // ===================================================================== //

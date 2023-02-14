@@ -1,11 +1,11 @@
-#ifndef CESIUM_GENERATED_TILESETAPI_H
-#define CESIUM_GENERATED_TILESETAPI_H
+#ifndef CESIUM_GENERATED_RASTEROVERLAY_H
+#define CESIUM_GENERATED_RASTEROVERLAY_H
 
-/// \file cesium/tilesetAPI.h
+/// \file cesium/rasterOverlay.h
 
 #include "pxr/pxr.h"
 #include ".//api.h"
-#include "pxr/usd/usd/apiSchemaBase.h"
+#include "pxr/usd/usd/typed.h"
 #include "pxr/usd/usd/prim.h"
 #include "pxr/usd/usd/stage.h"
 #include ".//tokens.h"
@@ -24,40 +24,40 @@ PXR_NAMESPACE_OPEN_SCOPE
 class SdfAssetPath;
 
 // -------------------------------------------------------------------------- //
-// TILESETAPI                                                                 //
+// RASTEROVERLAY                                                              //
 // -------------------------------------------------------------------------- //
 
-/// \class CesiumTilesetAPI
+/// \class CesiumRasterOverlay
 ///
-/// Adds Cesium specific data to a prim for representing a tileset.
+/// Adds a prim for representing a raster overlay. Should be a child of a tileset.
 ///
-class CESIUM_API CesiumTilesetAPI : public UsdAPISchemaBase
+class CESIUM_API CesiumRasterOverlay : public UsdTyped
 {
 public:
     /// Compile time constant representing what kind of schema this class is.
     ///
     /// \sa UsdSchemaType
-    static const UsdSchemaType schemaType = UsdSchemaType::SingleApplyAPI;
+    static const UsdSchemaType schemaType = UsdSchemaType::AbstractTyped;
 
-    /// Construct a CesiumTilesetAPI on UsdPrim \p prim .
-    /// Equivalent to CesiumTilesetAPI::Get(prim.GetStage(), prim.GetPath())
+    /// Construct a CesiumRasterOverlay on UsdPrim \p prim .
+    /// Equivalent to CesiumRasterOverlay::Get(prim.GetStage(), prim.GetPath())
     /// for a \em valid \p prim, but will not immediately throw an error for
     /// an invalid \p prim
-    explicit CesiumTilesetAPI(const UsdPrim& prim=UsdPrim())
-        : UsdAPISchemaBase(prim)
+    explicit CesiumRasterOverlay(const UsdPrim& prim=UsdPrim())
+        : UsdTyped(prim)
     {
     }
 
-    /// Construct a CesiumTilesetAPI on the prim held by \p schemaObj .
-    /// Should be preferred over CesiumTilesetAPI(schemaObj.GetPrim()),
+    /// Construct a CesiumRasterOverlay on the prim held by \p schemaObj .
+    /// Should be preferred over CesiumRasterOverlay(schemaObj.GetPrim()),
     /// as it preserves SchemaBase state.
-    explicit CesiumTilesetAPI(const UsdSchemaBase& schemaObj)
-        : UsdAPISchemaBase(schemaObj)
+    explicit CesiumRasterOverlay(const UsdSchemaBase& schemaObj)
+        : UsdTyped(schemaObj)
     {
     }
 
     /// Destructor.
-    virtual ~CesiumTilesetAPI();
+    virtual ~CesiumRasterOverlay();
 
     /// Return a vector of names of all pre-declared attributes for this schema
     /// class and all its ancestor classes.  Does not include attributes that
@@ -65,35 +65,18 @@ public:
     static const TfTokenVector &
     GetSchemaAttributeNames(bool includeInherited=true);
 
-    /// Return a CesiumTilesetAPI holding the prim adhering to this
+    /// Return a CesiumRasterOverlay holding the prim adhering to this
     /// schema at \p path on \p stage.  If no prim exists at \p path on
     /// \p stage, or if the prim at that path does not adhere to this schema,
     /// return an invalid schema object.  This is shorthand for the following:
     ///
     /// \code
-    /// CesiumTilesetAPI(stage->GetPrimAtPath(path));
+    /// CesiumRasterOverlay(stage->GetPrimAtPath(path));
     /// \endcode
     ///
-    static CesiumTilesetAPI
+    static CesiumRasterOverlay
     Get(const UsdStagePtr &stage, const SdfPath &path);
 
-
-    /// Applies this <b>single-apply</b> API schema to the given \p prim.
-    /// This information is stored by adding "TilesetAPI" to the 
-    /// token-valued, listOp metadata \em apiSchemas on the prim.
-    /// 
-    /// \return A valid CesiumTilesetAPI object is returned upon success. 
-    /// An invalid (or empty) CesiumTilesetAPI object is returned upon 
-    /// failure. See \ref UsdPrim::ApplyAPI() for conditions 
-    /// resulting in failure. 
-    /// 
-    /// \sa UsdPrim::GetAppliedSchemas()
-    /// \sa UsdPrim::HasAPI()
-    /// \sa UsdPrim::ApplyAPI()
-    /// \sa UsdPrim::RemoveAPI()
-    ///
-    static CesiumTilesetAPI 
-    Apply(const UsdPrim &prim);
 
 protected:
     /// Returns the type of schema this class belongs to.
@@ -113,49 +96,29 @@ private:
 
 public:
     // --------------------------------------------------------------------- //
-    // TILESETID 
+    // RASTEROVERLAYID 
     // --------------------------------------------------------------------- //
-    /// A string representing a Cesium ion asset ID. Blank if using URL.
+    /// A string representing a Cesium ion imagery ID.
     ///
     /// | ||
     /// | -- | -- |
-    /// | Declaration | `int64 cesium:tilesetId = 0` |
+    /// | Declaration | `int64 cesium:rasterOverlayId = 0` |
     /// | C++ Type | int64_t |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Int64 |
-    UsdAttribute GetTilesetIdAttr() const;
+    UsdAttribute GetRasterOverlayIdAttr() const;
 
-    /// See GetTilesetIdAttr(), and also 
+    /// See GetRasterOverlayIdAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    UsdAttribute CreateTilesetIdAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
-
-public:
-    // --------------------------------------------------------------------- //
-    // TILESETURL 
-    // --------------------------------------------------------------------- //
-    /// A string representing an asset URL. Blank if is an ion asset.
-    ///
-    /// | ||
-    /// | -- | -- |
-    /// | Declaration | `string cesium:tilesetUrl = ""` |
-    /// | C++ Type | std::string |
-    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
-    UsdAttribute GetTilesetUrlAttr() const;
-
-    /// See GetTilesetUrlAttr(), and also 
-    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
-    /// If specified, author \p defaultValue as the attribute's default,
-    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
-    /// the default for \p writeSparsely is \c false.
-    UsdAttribute CreateTilesetUrlAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+    UsdAttribute CreateRasterOverlayIdAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // --------------------------------------------------------------------- //
     // IONTOKEN 
     // --------------------------------------------------------------------- //
-    /// A string representing the token for accessing this Cesium ion tileset. Overrides the default project token.
+    /// A string representing the token for accessing this Cesium ion imagery. Overrides the default project token.
     ///
     /// | ||
     /// | -- | -- |

@@ -8,7 +8,7 @@
     }
 )
 
-class "CesiumData" (
+class CesiumDataPrim "CesiumDataPrim" (
     doc = "Stores stage level data for Cesium for Omniverse/USD."
 )
 {
@@ -30,11 +30,31 @@ class "TilesetAPI" (
     doc = "Adds Cesium specific data to a prim for representing a tileset."
 )
 {
-    string cesium:assetId = "" (
-        doc = "A string representing a Cesium ion asset ID."
+    string cesium:ionToken = "" (
+        displayName = "ion Token"
+        doc = "A string representing the token for accessing this Cesium ion tileset. Overrides the default project token."
     )
-    string cesium:assetUrl = "" (
-        doc = "A string representing an asset URL."
+    int64 cesium:tilesetId = 0 (
+        displayName = "Tileset ID"
+        doc = "A string representing a Cesium ion asset ID. Blank if using URL."
+    )
+    string cesium:tilesetUrl = "" (
+        displayName = "Tileset Url"
+        doc = "A string representing an asset URL. Blank if is an ion asset."
+    )
+}
+
+class "RasterOverlay" (
+    doc = "Adds a prim for representing a raster overlay. Should be a child of a tileset."
+)
+{
+    string cesium:ionToken = "" (
+        displayName = "ion Token"
+        doc = "A string representing the token for accessing this Cesium ion imagery. Overrides the default project token."
+    )
+    int64 cesium:rasterOverlayId = 0 (
+        displayName = "Raster Overlay ID"
+        doc = "A string representing a Cesium ion imagery ID."
     )
 }
 

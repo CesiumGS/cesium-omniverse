@@ -3,27 +3,28 @@ from omni.ui import Alignment, color as cl, Direction
 
 class CesiumOmniverseUiStyles:
     intro_label_style = {
-        "font_size": 18,
+        "font_size": 16,
     }
 
     quick_add_section_label = {
-        "font_size": 24,
+        "font_size": 20,
+        "margin": 5,
     }
 
     quick_add_button = {
         "Button.Label": {
-            "font_size": 20
+            "font_size": 16
         }
     }
 
     blue_button_style = {
         "Button": {
             "background_color": cl("#4BA1CA"),
-            "padding": 20,
+            "padding": 12,
         },
         "Button.Label": {
             "color": cl("#FFF"),
-            "font_size": 22,
+            "font_size": 16,
         },
         "Button:hovered": {
             "background_color": cl("#3C81A2"),

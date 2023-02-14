@@ -13,6 +13,12 @@ TF_REGISTRY_FUNCTION(TfType)
     TfType::Define<CesiumData,
         TfType::Bases< UsdTyped > >();
     
+    // Register the usd prim typename as an alias under UsdSchemaBase. This
+    // enables one to call
+    // TfType::Find<UsdSchemaBase>().FindDerivedByName("CesiumDataPrim")
+    // to find TfType<CesiumData>, which is how IsA queries are
+    // answered.
+    TfType::AddAlias<UsdSchemaBase, CesiumData>("CesiumDataPrim");
 }
 
 /* virtual */
@@ -31,6 +37,19 @@ CesiumData::Get(const UsdStagePtr &stage, const SdfPath &path)
     return CesiumData(stage->GetPrimAtPath(path));
 }
 
+/* static */
+CesiumData
+CesiumData::Define(
+    const UsdStagePtr &stage, const SdfPath &path)
+{
+    static TfToken usdPrimTypeName("CesiumDataPrim");
+    if (!stage) {
+        TF_CODING_ERROR("Invalid stage");
+        return CesiumData();
+    }
+    return CesiumData(
+        stage->DefinePrim(path, usdPrimTypeName));
+}
 
 /* virtual */
 UsdSchemaType CesiumData::_GetSchemaType() const {
@@ -61,13 +80,13 @@ CesiumData::_GetTfType() const
 }
 
 UsdAttribute
-CesiumData::GetCesiumDefaultProjectTokenIdAttr() const
+CesiumData::GetDefaultProjectTokenIdAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumDefaultProjectTokenId);
 }
 
 UsdAttribute
-CesiumData::CreateCesiumDefaultProjectTokenIdAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumData::CreateDefaultProjectTokenIdAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumDefaultProjectTokenId,
                        SdfValueTypeNames->String,
@@ -78,13 +97,13 @@ CesiumData::CreateCesiumDefaultProjectTokenIdAttr(VtValue const &defaultValue, b
 }
 
 UsdAttribute
-CesiumData::GetCesiumDefaultProjectTokenAttr() const
+CesiumData::GetDefaultProjectTokenAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumDefaultProjectToken);
 }
 
 UsdAttribute
-CesiumData::CreateCesiumDefaultProjectTokenAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumData::CreateDefaultProjectTokenAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumDefaultProjectToken,
                        SdfValueTypeNames->String,
@@ -95,13 +114,13 @@ CesiumData::CreateCesiumDefaultProjectTokenAttr(VtValue const &defaultValue, boo
 }
 
 UsdAttribute
-CesiumData::GetCesiumGeoreferenceOriginAttr() const
+CesiumData::GetGeoreferenceOriginAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumGeoreferenceOrigin);
 }
 
 UsdAttribute
-CesiumData::CreateCesiumGeoreferenceOriginAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumData::CreateGeoreferenceOriginAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumGeoreferenceOrigin,
                        SdfValueTypeNames->Double3,

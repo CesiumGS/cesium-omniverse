@@ -1,7 +1,6 @@
-#include ".//tilesetAPI.h"
+#include ".//rasterOverlay.h"
 #include "pxr/usd/usd/schemaRegistry.h"
 #include "pxr/usd/usd/typed.h"
-#include "pxr/usd/usd/tokens.h"
 
 #include "pxr/usd/sdf/types.h"
 #include "pxr/usd/sdf/assetPath.h"
@@ -11,59 +10,44 @@ PXR_NAMESPACE_OPEN_SCOPE
 // Register the schema with the TfType system.
 TF_REGISTRY_FUNCTION(TfType)
 {
-    TfType::Define<CesiumTilesetAPI,
-        TfType::Bases< UsdAPISchemaBase > >();
+    TfType::Define<CesiumRasterOverlay,
+        TfType::Bases< UsdTyped > >();
     
 }
 
-TF_DEFINE_PRIVATE_TOKENS(
-    _schemaTokens,
-    (TilesetAPI)
-);
-
 /* virtual */
-CesiumTilesetAPI::~CesiumTilesetAPI()
+CesiumRasterOverlay::~CesiumRasterOverlay()
 {
 }
 
 /* static */
-CesiumTilesetAPI
-CesiumTilesetAPI::Get(const UsdStagePtr &stage, const SdfPath &path)
+CesiumRasterOverlay
+CesiumRasterOverlay::Get(const UsdStagePtr &stage, const SdfPath &path)
 {
     if (!stage) {
         TF_CODING_ERROR("Invalid stage");
-        return CesiumTilesetAPI();
+        return CesiumRasterOverlay();
     }
-    return CesiumTilesetAPI(stage->GetPrimAtPath(path));
+    return CesiumRasterOverlay(stage->GetPrimAtPath(path));
 }
 
 
 /* virtual */
-UsdSchemaType CesiumTilesetAPI::_GetSchemaType() const {
-    return CesiumTilesetAPI::schemaType;
-}
-
-/* static */
-CesiumTilesetAPI
-CesiumTilesetAPI::Apply(const UsdPrim &prim)
-{
-    if (prim.ApplyAPI<CesiumTilesetAPI>()) {
-        return CesiumTilesetAPI(prim);
-    }
-    return CesiumTilesetAPI();
+UsdSchemaType CesiumRasterOverlay::_GetSchemaType() const {
+    return CesiumRasterOverlay::schemaType;
 }
 
 /* static */
 const TfType &
-CesiumTilesetAPI::_GetStaticTfType()
+CesiumRasterOverlay::_GetStaticTfType()
 {
-    static TfType tfType = TfType::Find<CesiumTilesetAPI>();
+    static TfType tfType = TfType::Find<CesiumRasterOverlay>();
     return tfType;
 }
 
 /* static */
 bool 
-CesiumTilesetAPI::_IsTypedSchema()
+CesiumRasterOverlay::_IsTypedSchema()
 {
     static bool isTyped = _GetStaticTfType().IsA<UsdTyped>();
     return isTyped;
@@ -71,21 +55,21 @@ CesiumTilesetAPI::_IsTypedSchema()
 
 /* virtual */
 const TfType &
-CesiumTilesetAPI::_GetTfType() const
+CesiumRasterOverlay::_GetTfType() const
 {
     return _GetStaticTfType();
 }
 
 UsdAttribute
-CesiumTilesetAPI::GetTilesetIdAttr() const
+CesiumRasterOverlay::GetRasterOverlayIdAttr() const
 {
-    return GetPrim().GetAttribute(CesiumTokens->cesiumTilesetId);
+    return GetPrim().GetAttribute(CesiumTokens->cesiumRasterOverlayId);
 }
 
 UsdAttribute
-CesiumTilesetAPI::CreateTilesetIdAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumRasterOverlay::CreateRasterOverlayIdAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
-    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumTilesetId,
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumRasterOverlayId,
                        SdfValueTypeNames->Int64,
                        /* custom = */ false,
                        SdfVariabilityVarying,
@@ -94,30 +78,13 @@ CesiumTilesetAPI::CreateTilesetIdAttr(VtValue const &defaultValue, bool writeSpa
 }
 
 UsdAttribute
-CesiumTilesetAPI::GetTilesetUrlAttr() const
-{
-    return GetPrim().GetAttribute(CesiumTokens->cesiumTilesetUrl);
-}
-
-UsdAttribute
-CesiumTilesetAPI::CreateTilesetUrlAttr(VtValue const &defaultValue, bool writeSparsely) const
-{
-    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumTilesetUrl,
-                       SdfValueTypeNames->String,
-                       /* custom = */ false,
-                       SdfVariabilityVarying,
-                       defaultValue,
-                       writeSparsely);
-}
-
-UsdAttribute
-CesiumTilesetAPI::GetIonTokenAttr() const
+CesiumRasterOverlay::GetIonTokenAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumIonToken);
 }
 
 UsdAttribute
-CesiumTilesetAPI::CreateIonTokenAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumRasterOverlay::CreateIonTokenAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumIonToken,
                        SdfValueTypeNames->String,
@@ -141,16 +108,15 @@ _ConcatenateAttributeNames(const TfTokenVector& left,const TfTokenVector& right)
 
 /*static*/
 const TfTokenVector&
-CesiumTilesetAPI::GetSchemaAttributeNames(bool includeInherited)
+CesiumRasterOverlay::GetSchemaAttributeNames(bool includeInherited)
 {
     static TfTokenVector localNames = {
-        CesiumTokens->cesiumTilesetId,
-        CesiumTokens->cesiumTilesetUrl,
+        CesiumTokens->cesiumRasterOverlayId,
         CesiumTokens->cesiumIonToken,
     };
     static TfTokenVector allNames =
         _ConcatenateAttributeNames(
-            UsdAPISchemaBase::GetSchemaAttributeNames(true),
+            UsdTyped::GetSchemaAttributeNames(true),
             localNames);
 
     if (includeInherited)
