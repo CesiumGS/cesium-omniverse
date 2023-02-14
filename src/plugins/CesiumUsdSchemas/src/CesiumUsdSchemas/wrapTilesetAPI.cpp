@@ -27,16 +27,23 @@ WRAP_CUSTOM;
 
         
 static UsdAttribute
-_CreateCesiumAssetIdAttr(CesiumTilesetAPI &self,
+_CreateTilesetIdAttr(CesiumTilesetAPI &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateCesiumAssetIdAttr(
+    return self.CreateTilesetIdAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int64), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateTilesetUrlAttr(CesiumTilesetAPI &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateTilesetUrlAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
-_CreateCesiumAssetUrlAttr(CesiumTilesetAPI &self,
+_CreateIonTokenAttr(CesiumTilesetAPI &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateCesiumAssetUrlAttr(
+    return self.CreateIonTokenAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
 
@@ -82,17 +89,24 @@ void wrapCesiumTilesetAPI()
         .def(!self)
 
         
-        .def("GetCesiumAssetIdAttr",
-             &This::GetCesiumAssetIdAttr)
-        .def("CreateCesiumAssetIdAttr",
-             &_CreateCesiumAssetIdAttr,
+        .def("GetTilesetIdAttr",
+             &This::GetTilesetIdAttr)
+        .def("CreateTilesetIdAttr",
+             &_CreateTilesetIdAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetCesiumAssetUrlAttr",
-             &This::GetCesiumAssetUrlAttr)
-        .def("CreateCesiumAssetUrlAttr",
-             &_CreateCesiumAssetUrlAttr,
+        .def("GetTilesetUrlAttr",
+             &This::GetTilesetUrlAttr)
+        .def("CreateTilesetUrlAttr",
+             &_CreateTilesetUrlAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetIonTokenAttr",
+             &This::GetIonTokenAttr)
+        .def("CreateIonTokenAttr",
+             &_CreateIonTokenAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 

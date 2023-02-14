@@ -18,6 +18,8 @@
 #include <CesiumUsdSchemas/data.h>
 #include <glm/glm.hpp>
 
+#include <algorithm>
+
 namespace cesium::omniverse {
 static std::shared_ptr<TaskProcessor> taskProcessor;
 static std::shared_ptr<HttpAssetAccessor> httpAssetAccessor;
@@ -32,12 +34,14 @@ static uint64_t getID() {
 }
 
 OmniTileset::OmniTileset(const std::string& url) {
-    pxr::SdfPath tilesetPath =
-        usdStage->GetPseudoRoot().GetPath().AppendChild(pxr::TfToken(fmt::format("tileset_{}", getID())));
+    tilesetPath = usdStage->GetPseudoRoot().GetPath().AppendChild(pxr::TfToken(fmt::format("tileset_{}", getID())));
     renderResourcesPreparer = std::make_shared<RenderResourcesPreparer>(usdStage, tilesetPath);
     CesiumAsync::AsyncSystem asyncSystem{taskProcessor};
     Cesium3DTilesSelection::TilesetExternals externals{
         httpAssetAccessor, renderResourcesPreparer, asyncSystem, creditSystem};
+
+    auto tilesetApi = OmniTileset::applyTilesetApiToPath(tilesetPath);
+    tilesetApi.GetTilesetUrlAttr().Set<std::string>(url);
 
     initOriginShiftHandler();
 
@@ -45,12 +49,14 @@ OmniTileset::OmniTileset(const std::string& url) {
 }
 
 OmniTileset::OmniTileset(int64_t ionID, const std::string& ionToken) {
-    pxr::SdfPath tilesetPath =
-        usdStage->GetPseudoRoot().GetPath().AppendChild(pxr::TfToken(fmt::format("tileset_ion_{}", ionID)));
+    tilesetPath = usdStage->GetPseudoRoot().GetPath().AppendChild(pxr::TfToken(fmt::format("tileset_ion_{}", ionID)));
     renderResourcesPreparer = std::make_shared<RenderResourcesPreparer>(usdStage, tilesetPath);
     CesiumAsync::AsyncSystem asyncSystem{taskProcessor};
     Cesium3DTilesSelection::TilesetExternals externals{
         httpAssetAccessor, renderResourcesPreparer, asyncSystem, creditSystem};
+
+    auto tilesetApi = OmniTileset::applyTilesetApiToPath(tilesetPath);
+    tilesetApi.GetTilesetIdAttr().Set<int64_t>(ionID);
 
     initOriginShiftHandler();
 
@@ -120,7 +126,17 @@ void OmniTileset::addIonRasterOverlay(const std::string& name, int64_t ionId, co
         spdlog::default_logger()->error(error.message);
     };
 
-    rasterOverlay = new Cesium3DTilesSelection::IonRasterOverlay(name, ionId, ionToken, options);
+    // The SdfPath cannot have spaces, so we convert spaces in name to underscore.
+    auto safeName = name;
+    std::replace(safeName.begin(), safeName.end(), ' ', '_');
+
+    auto path = tilesetPath.AppendChild(pxr::TfToken(safeName));
+    auto prim = usdStage->DefinePrim(path);
+    pxr::CesiumRasterOverlay overlayData(prim);
+    overlayData.CreateRasterOverlayIdAttr().Set<int64_t>(ionId);
+    overlayData.CreateIonTokenAttr();
+
+    rasterOverlay = new Cesium3DTilesSelection::IonRasterOverlay(safeName, ionId, ionToken, options);
     tileset->getOverlays().add(rasterOverlay);
 }
 
@@ -143,6 +159,17 @@ void OmniTileset::init(const std::filesystem::path& cesiumExtensionLocation) {
     Cesium3DTilesSelection::registerAllTileContentTypes();
 }
 
+pxr::CesiumTilesetAPI OmniTileset::applyTilesetApiToPath(const pxr::SdfPath& path) {
+    auto prim = usdStage->GetPrimAtPath(path);
+    auto tilesetApi = pxr::CesiumTilesetAPI::Apply(prim);
+
+    tilesetApi.CreateTilesetUrlAttr();
+    tilesetApi.CreateTilesetIdAttr();
+    tilesetApi.CreateIonTokenAttr();
+
+    return tilesetApi;
+}
+
 std::optional<CesiumIonClient::Token> OmniTileset::getDefaultToken() {
     pxr::UsdPrim cesiumDataPrim = usdStage->GetPrimAtPath(pxr::SdfPath("/Cesium"));
 
@@ -152,9 +179,9 @@ std::optional<CesiumIonClient::Token> OmniTileset::getDefaultToken() {
 
     pxr::CesiumData cesiumData(cesiumDataPrim);
     std::string projectDefaultToken;
-    cesiumData.GetCesiumDefaultProjectTokenAttr().Get(&projectDefaultToken);
+    cesiumData.GetDefaultProjectTokenAttr().Get(&projectDefaultToken);
     std::string projectDefaultTokenId;
-    cesiumData.GetCesiumDefaultProjectTokenIdAttr().Get(&projectDefaultTokenId);
+    cesiumData.GetDefaultProjectTokenIdAttr().Get(&projectDefaultTokenId);
 
     return CesiumIonClient::Token{projectDefaultTokenId, "", projectDefaultToken};
 }
@@ -189,12 +216,12 @@ void OmniTileset::addCesiumDataIfNotExists(const CesiumIonClient::Token& token) 
     }
 
     pxr::CesiumData cesiumData(cesiumDataPrim);
-    auto projectDefaultToken = cesiumData.GetCesiumDefaultProjectTokenAttr();
-    auto projectDefaultTokenId = cesiumData.GetCesiumDefaultProjectTokenIdAttr();
+    auto projectDefaultToken = cesiumData.GetDefaultProjectTokenAttr();
+    auto projectDefaultTokenId = cesiumData.GetDefaultProjectTokenIdAttr();
 
     if (!projectDefaultToken.IsValid()) {
-        projectDefaultToken = cesiumData.CreateCesiumDefaultProjectTokenAttr(pxr::VtValue(""));
-        projectDefaultTokenId = cesiumData.CreateCesiumDefaultProjectTokenIdAttr(pxr::VtValue(""));
+        projectDefaultToken = cesiumData.CreateDefaultProjectTokenAttr(pxr::VtValue(""));
+        projectDefaultTokenId = cesiumData.CreateDefaultProjectTokenIdAttr(pxr::VtValue(""));
     }
 
     if (!token.token.empty()) {

@@ -1,4 +1,4 @@
-#include ".//data.h"
+#include ".//rasterOverlay.h"
 #include "pxr/usd/usd/schemaBase.h"
 
 #include "pxr/usd/sdf/primSpec.h"
@@ -27,43 +27,36 @@ WRAP_CUSTOM;
 
         
 static UsdAttribute
-_CreateDefaultProjectTokenIdAttr(CesiumData &self,
+_CreateRasterOverlayIdAttr(CesiumRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateDefaultProjectTokenIdAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+    return self.CreateRasterOverlayIdAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int64), writeSparsely);
 }
         
 static UsdAttribute
-_CreateDefaultProjectTokenAttr(CesiumData &self,
+_CreateIonTokenAttr(CesiumRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateDefaultProjectTokenAttr(
+    return self.CreateIonTokenAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
-}
-        
-static UsdAttribute
-_CreateGeoreferenceOriginAttr(CesiumData &self,
-                                      object defaultVal, bool writeSparsely) {
-    return self.CreateGeoreferenceOriginAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double3), writeSparsely);
 }
 
 static std::string
-_Repr(const CesiumData &self)
+_Repr(const CesiumRasterOverlay &self)
 {
     std::string primRepr = TfPyRepr(self.GetPrim());
     return TfStringPrintf(
-        "Cesium.Data(%s)",
+        "Cesium.RasterOverlay(%s)",
         primRepr.c_str());
 }
 
 } // anonymous namespace
 
-void wrapCesiumData()
+void wrapCesiumRasterOverlay()
 {
-    typedef CesiumData This;
+    typedef CesiumRasterOverlay This;
 
     class_<This, bases<UsdTyped> >
-        cls("Data");
+        cls("RasterOverlay");
 
     cls
         .def(init<UsdPrim>(arg("prim")))
@@ -72,9 +65,6 @@ void wrapCesiumData()
 
         .def("Get", &This::Get, (arg("stage"), arg("path")))
         .staticmethod("Get")
-
-        .def("Define", &This::Define, (arg("stage"), arg("path")))
-        .staticmethod("Define")
 
         .def("GetSchemaAttributeNames",
              &This::GetSchemaAttributeNames,
@@ -89,24 +79,17 @@ void wrapCesiumData()
         .def(!self)
 
         
-        .def("GetDefaultProjectTokenIdAttr",
-             &This::GetDefaultProjectTokenIdAttr)
-        .def("CreateDefaultProjectTokenIdAttr",
-             &_CreateDefaultProjectTokenIdAttr,
+        .def("GetRasterOverlayIdAttr",
+             &This::GetRasterOverlayIdAttr)
+        .def("CreateRasterOverlayIdAttr",
+             &_CreateRasterOverlayIdAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetDefaultProjectTokenAttr",
-             &This::GetDefaultProjectTokenAttr)
-        .def("CreateDefaultProjectTokenAttr",
-             &_CreateDefaultProjectTokenAttr,
-             (arg("defaultValue")=object(),
-              arg("writeSparsely")=false))
-        
-        .def("GetGeoreferenceOriginAttr",
-             &This::GetGeoreferenceOriginAttr)
-        .def("CreateGeoreferenceOriginAttr",
-             &_CreateGeoreferenceOriginAttr,
+        .def("GetIonTokenAttr",
+             &This::GetIonTokenAttr)
+        .def("CreateIonTokenAttr",
+             &_CreateIonTokenAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 
