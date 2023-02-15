@@ -135,7 +135,7 @@ void OmniTileset::addIonRasterOverlay(const std::string& name, int64_t ionId, co
     auto path = tilesetPath.AppendChild(pxr::TfToken(safeName));
     auto prim = usdStage->DefinePrim(path);
 
-    // In the event that there is an issue with the prim,
+    // In the event that there is an issue with the prim, it will be invalid. This prevents a segfault.
     if (!prim.IsValid()) {
         // This is usually due to a bad sdfPath. Could be an invalid character.
         spdlog::default_logger()->error("Raster Overlay control prim definition failed.");

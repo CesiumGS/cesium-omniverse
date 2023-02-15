@@ -83,6 +83,11 @@ class ICesiumOmniverseInterface {
         const char* rasterOverlayName,
         int64_t rasterOverlayIonId) noexcept = 0;
 
+    /**
+     * @brief Gets all the tileset ids and their paths. Primarily for usage on the python end.
+     *
+     * @return The tileset IDs and their sdf paths, as a vector of pairs.
+     */
     virtual std::vector<std::pair<int64_t, const char*>> getAllTilesetIdsAndPaths() noexcept = 0;
 
     /**
