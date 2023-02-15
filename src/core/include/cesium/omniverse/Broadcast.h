@@ -8,6 +8,7 @@ inline const char* ASSETS_UPDATED_EVENT_KEY = "cesium.omniverse.ASSETS_UPDATED";
 inline const char* CONNECTION_UPDATED_EVENT_KEY = "cesium.omniverse.CONNECTION_UPDATED";
 inline const char* PROFILE_UPDATED_EVENT_KEY = "cesium.omniverse.PROFILE_UPDATED";
 inline const char* TOKENS_UPDATED_EVENT_KEY = "cesium.omniverse.TOKENS_UPDATED";
+inline const char* SHOW_TROUBLESHOOTER_EVENT_KEY = "cesium.omniverse.SHOW_TROUBLESHOOTER";
 inline const char* SET_DEFAULT_PROJECT_TOKEN_COMPLETE_KEY = "cesium.omniverse.SET_DEFAULT_PROJECT_TOKEN_COMPLETE";
 
 namespace cesium::omniverse {
@@ -26,6 +27,13 @@ class Broadcast {
     static void tokensUpdated() {
         sendMessageToBus(TOKENS_UPDATED_EVENT_KEY);
     }
+    static void showTroubleshooter(int64_t tilesetId, int64_t rasterOverlayId, const std::string& message) {
+        sendMessageToBusWithPayload(
+            SHOW_TROUBLESHOOTER_EVENT_KEY,
+            std::make_pair("tilesetId", tilesetId),
+            std::make_pair("rasterOverlayId", rasterOverlayId),
+            std::make_pair("message", message.c_str()));
+    }
     static void setDefaultTokenComplete() {
         sendMessageToBus(SET_DEFAULT_PROJECT_TOKEN_COMPLETE_KEY);
     }
@@ -42,7 +50,8 @@ class Broadcast {
         auto eventType = carb::events::typeFromString(eventKey);
         sendMessageToBusWithPayload(eventType, payload...);
     }
-    template <typename... ValuesT> static void sendMessageToBusWithPayload(carb::events::EventType eventType, ValuesT&&... payload) {
+    template <typename... ValuesT>
+    static void sendMessageToBusWithPayload(carb::events::EventType eventType, ValuesT&&... payload) {
         auto app = carb::getCachedInterface<omni::kit::IApp>();
         auto bus = app->getMessageBusEventStream();
         bus->push(eventType, payload...);

@@ -121,9 +121,10 @@ void OmniTileset::updateFrame(
 
 void OmniTileset::addIonRasterOverlay(const std::string& name, int64_t ionId, const std::string& ionToken) {
     Cesium3DTilesSelection::RasterOverlayOptions options;
-    options.loadErrorCallback = [](const Cesium3DTilesSelection::RasterOverlayLoadFailureDetails& error) {
+    options.loadErrorCallback = [this, ionId](const Cesium3DTilesSelection::RasterOverlayLoadFailureDetails& error) {
         spdlog::default_logger()->error("Raster overlay failed");
         spdlog::default_logger()->error(error.message);
+        Broadcast::showTroubleshooter(getIonAssetId(), ionId, error.message);
     };
 
     // The SdfPath cannot have spaces or dashes, so we convert spaces in name to underscore. We need a safer way for

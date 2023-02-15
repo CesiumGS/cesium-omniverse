@@ -56,7 +56,7 @@ class ICesiumOmniverseInterface {
      * @param ionId The ion asset ID for the tileset.
      * @returns The tileset id. Returns -1 on error.
      */
-    virtual int addTilesetIon(const char* name, int64_t ionId) noexcept = 0;
+    virtual int64_t addTilesetIon(const char* name, int64_t ionId) noexcept = 0;
 
     /**
      * @brief Adds a tileset from ion using the Stage level ion token.
@@ -66,7 +66,7 @@ class ICesiumOmniverseInterface {
      * @param ionToken The access token
      * @returns The tileset id. Returns -1 on error.
      */
-    virtual int addTilesetIon(const char* name, int64_t ionId, const char* ionToken) noexcept = 0;
+    virtual int64_t addTilesetIon(const char* name, int64_t ionId, const char* ionToken) noexcept = 0;
 
     /**
      * @brief Adds a tileset and a raster overlay to the stage.
@@ -77,7 +77,7 @@ class ICesiumOmniverseInterface {
      * @param rasterOverlayIonId The ion asset ID for the raster overlay.
      * @returns The tileset id. Returns -1 on error.
      */
-    virtual int addTilesetAndRasterOverlay(
+    virtual int64_t addTilesetAndRasterOverlay(
         const char* tilesetName,
         int64_t tilesetIonId,
         const char* rasterOverlayName,
@@ -105,7 +105,7 @@ class ICesiumOmniverseInterface {
      * @param ionId The asset ID
      * @param ionToken The access token
      */
-    virtual void addIonRasterOverlay(int tileset, const char* name, int64_t ionId) noexcept = 0;
+    virtual void addIonRasterOverlay(int64_t tileset, const char* name, int64_t ionId) noexcept = 0;
 
     /**
      * @brief Adds a raster overlay from ion.
@@ -115,7 +115,8 @@ class ICesiumOmniverseInterface {
      * @param ionId The asset ID
      * @param ionToken The access token
      */
-    virtual void addIonRasterOverlay(int tileset, const char* name, int64_t ionId, const char* ionToken) noexcept = 0;
+    virtual void
+    addIonRasterOverlay(int64_t tileset, const char* name, int64_t ionId, const char* ionToken) noexcept = 0;
 
     /**
      * @brief Updates the tileset this frame.
@@ -188,7 +189,14 @@ class ICesiumOmniverseInterface {
 
     virtual std::optional<AssetTroubleshootingDetails> getAssetTroubleshootingDetails() noexcept = 0;
 
-    virtual void updateTroubleshootingDetails(int tilesetId, uint64_t tokenEventId, uint64_t assetEventId) noexcept = 0;
+    virtual void
+    updateTroubleshootingDetails(int64_t tilesetId, uint64_t tokenEventId, uint64_t assetEventId) noexcept = 0;
+
+    virtual void updateTroubleshootingDetails(
+        int64_t tilesetId,
+        int64_t rasterOverlayId,
+        uint64_t tokenEventId,
+        uint64_t assetEventId) noexcept = 0;
 
     virtual void onUiUpdate() noexcept = 0;
 

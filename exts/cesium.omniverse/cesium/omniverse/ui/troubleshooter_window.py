@@ -12,11 +12,16 @@ from .styles import CesiumOmniverseUiStyles
 class CesiumTroubleshooterWindow(ui.Window):
     WINDOW_NAME = "Token Troubleshooting"
 
-    def __init__(self, cesium_omniverse_interface: ICesiumOmniverseInterface, tileset_id: int, **kwargs):
+    def __init__(self, cesium_omniverse_interface: ICesiumOmniverseInterface, tileset_id: int, raster_overlay_id: int,
+                 message: str, **kwargs):
         super().__init__(CesiumTroubleshooterWindow.WINDOW_NAME, **kwargs)
 
         self._cesium_omniverse_interface = cesium_omniverse_interface
         self._logger = logging.getLogger(__name__)
+
+        self._tileset_id = tileset_id
+        self._raster_overlay_id = raster_overlay_id
+        self._message = message
 
         self.height = 400
         self.width = 600
@@ -35,7 +40,8 @@ class CesiumTroubleshooterWindow(ui.Window):
         self._subscriptions: List[carb.events.ISubscription] = []
         self._setup_subscriptions()
 
-        self._cesium_omniverse_interface.update_troubleshooting_details(tileset_id, self._token_details_event_type,
+        self._cesium_omniverse_interface.update_troubleshooting_details(tileset_id, raster_overlay_id,
+                                                                        self._token_details_event_type,
                                                                         self._asset_details_event_type)
 
         self.frame.set_build_fn(self._build_ui)
@@ -84,7 +90,8 @@ class CesiumTroubleshooterWindow(ui.Window):
         webbrowser.open("https://ion.cesium.com")
 
     def _build_ui(self):
-        with ui.VStack():
+        with ui.VStack(spacing=10):
+            ui.Label(self._message)
             with ui.HStack(spacing=5):
                 with ui.VStack(spacing=5):
                     ui.Label("Stage Default Access Token", height=16,
@@ -103,6 +110,7 @@ class CesiumTroubleshooterWindow(ui.Window):
                     with ui.HStack(height=16, spacing=10):
                         self._asset_on_account_widget = CesiumPassFailWidget()
                         ui.Label("Asset ID exists in your user account")
+            ui.Spacer()
             ui.Button("Open Cesium ion on the Web", alignment=ui.Alignment.CENTER, height=36,
                       style=CesiumOmniverseUiStyles.blue_button_style,
                       clicked_fn=self._on_open_ion_button_clicked)

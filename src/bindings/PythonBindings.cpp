@@ -38,7 +38,7 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("remove_tileset", &ICesiumOmniverseInterface::removeTileset)
         .def(
             "add_ion_raster_overlay",
-            py::overload_cast<int, const char*, int64_t>(&ICesiumOmniverseInterface::addIonRasterOverlay))
+            py::overload_cast<int64_t, const char*, int64_t>(&ICesiumOmniverseInterface::addIonRasterOverlay))
         .def("update_frame", &ICesiumOmniverseInterface::updateFrame)
         .def("update_stage", &ICesiumOmniverseInterface::updateStage)
         .def("set_georeference_origin", &ICesiumOmniverseInterface::setGeoreferenceOrigin)
@@ -53,7 +53,13 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("get_all_tileset_ids_and_paths", &ICesiumOmniverseInterface::getAllTilesetIdsAndPaths)
         .def("get_token_troubleshooting_details", &ICesiumOmniverseInterface::getTokenTroubleshootingDetails)
         .def("get_asset_troubleshooting_details", &ICesiumOmniverseInterface::getAssetTroubleshootingDetails)
-        .def("update_troubleshooting_details", &ICesiumOmniverseInterface::updateTroubleshootingDetails);
+        .def(
+            "update_troubleshooting_details",
+            py::overload_cast<int64_t, uint64_t, uint64_t>(&ICesiumOmniverseInterface::updateTroubleshootingDetails))
+        .def(
+            "update_troubleshooting_details",
+            py::overload_cast<int64_t, int64_t, uint64_t, uint64_t>(
+                &ICesiumOmniverseInterface::updateTroubleshootingDetails));
 
     py::class_<CesiumIonSession, std::shared_ptr<CesiumIonSession>>(m, "CesiumIonSession")
         .def("is_connected", &CesiumIonSession::isConnected)

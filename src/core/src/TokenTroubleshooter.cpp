@@ -8,7 +8,10 @@ TokenTroubleshooter::TokenTroubleshooter(const std::shared_ptr<OmniTileset>& ass
     this->tileset = asset;
 }
 
-void TokenTroubleshooter::updateTokenTroubleshootingDetails(uint64_t eventId, TokenTroubleshootingDetails& details) {
+void TokenTroubleshooter::updateTokenTroubleshootingDetails(
+    int64_t assetId,
+    uint64_t eventId,
+    TokenTroubleshootingDetails& details) {
     auto session = OmniTileset::getSession();
     if (!session.has_value()) {
         // TODO: Signal an error.
@@ -18,12 +21,6 @@ void TokenTroubleshooter::updateTokenTroubleshootingDetails(uint64_t eventId, To
     auto token = tileset->getTilesetToken();
     if (!token.has_value()) {
         // TODO: Figure out what we are supposed to do in this case. Error?
-        return;
-    }
-
-    auto assetId = tileset->getIonAssetId();
-    if (assetId < 1) {
-        Broadcast::sendMessageToBus(eventId);
         return;
     }
 
@@ -64,15 +61,12 @@ void TokenTroubleshooter::updateTokenTroubleshootingDetails(uint64_t eventId, To
                 Broadcast::sendMessageToBus(eventId);
             });
 }
-void TokenTroubleshooter::updateAssetTroubleshootingDetails(uint64_t eventId, AssetTroubleshootingDetails& details) {
+void TokenTroubleshooter::updateAssetTroubleshootingDetails(
+    int64_t assetId,
+    uint64_t eventId,
+    AssetTroubleshootingDetails& details) {
     auto session = OmniTileset::getSession();
     if (!session.has_value()) {
-        return;
-    }
-
-    auto assetId = tileset->getIonAssetId();
-    if (assetId < 1) {
-        Broadcast::sendMessageToBus(eventId);
         return;
     }
 

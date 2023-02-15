@@ -17,7 +17,7 @@ namespace cesium::omniverse {
 
 namespace {
 int currentId = 0;
-std::unordered_map<int, std::shared_ptr<OmniTileset>> tilesets;
+std::unordered_map<int64_t, std::shared_ptr<OmniTileset>> tilesets;
 std::optional<TokenTroubleshootingDetails> tokenTroubleshootingDetails = std::nullopt;
 std::optional<AssetTroubleshootingDetails> assetTroubleshootingDetails = std::nullopt;
 } // namespace
@@ -44,7 +44,7 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         return tilesetId;
     }
 
-    int addTilesetIon(const char* name, int64_t ionId) noexcept override {
+    int64_t addTilesetIon(const char* name, int64_t ionId) noexcept override {
         auto token = OmniTileset::getDefaultToken();
         if (!token.has_value()) {
             return -1;
@@ -53,13 +53,12 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         return addTilesetIon(name, ionId, token->token.c_str());
     }
 
-    int addTilesetIon([[maybe_unused]] const char* name, int64_t ionId, const char* ionToken) noexcept override {
-        const int tilesetId = currentId++;
-        tilesets.insert({tilesetId, std::make_unique<OmniTileset>(ionId, ionToken)});
-        return tilesetId;
+    int64_t addTilesetIon([[maybe_unused]] const char* name, int64_t ionId, const char* ionToken) noexcept override {
+        tilesets.insert({ionId, std::make_unique<OmniTileset>(ionId, ionToken)});
+        return ionId;
     }
 
-    int addTilesetAndRasterOverlay(
+    int64_t addTilesetAndRasterOverlay(
         const char* tilesetName,
         int64_t tilesetIonId,
         const char* rasterOverlayName,
@@ -93,7 +92,7 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         tilesets.erase(tileset);
     }
 
-    void addIonRasterOverlay(int tileset, const char* name, int64_t ionId) noexcept override {
+    void addIonRasterOverlay(int64_t tileset, const char* name, int64_t ionId) noexcept override {
         auto token = OmniTileset::getDefaultToken();
         if (!token.has_value()) {
             return;
@@ -102,7 +101,7 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         addIonRasterOverlay(tileset, name, ionId, token->token.c_str());
     }
 
-    void addIonRasterOverlay(int tileset, const char* name, int64_t ionId, const char* ionToken) noexcept override {
+    void addIonRasterOverlay(int64_t tileset, const char* name, int64_t ionId, const char* ionToken) noexcept override {
         const auto iter = tilesets.find(tileset);
         if (iter != tilesets.end()) {
             iter->second->addIonRasterOverlay(name, ionId, ionToken);
@@ -164,7 +163,8 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         return assetTroubleshootingDetails;
     }
 
-    void updateTroubleshootingDetails(int tilesetId, uint64_t tokenEventId, uint64_t assetEventId) noexcept override {
+    void
+    updateTroubleshootingDetails(int64_t tilesetId, uint64_t tokenEventId, uint64_t assetEventId) noexcept override {
         auto tileset = tilesets.find(tilesetId);
 
         if (tileset == tilesets.end()) {
@@ -175,8 +175,29 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         assetTroubleshootingDetails = AssetTroubleshootingDetails();
 
         TokenTroubleshooter troubleshooter(tileset->second);
-        troubleshooter.updateTokenTroubleshootingDetails(tokenEventId, tokenTroubleshootingDetails.value());
-        troubleshooter.updateAssetTroubleshootingDetails(assetEventId, assetTroubleshootingDetails.value());
+        troubleshooter.updateTokenTroubleshootingDetails(tilesetId, tokenEventId, tokenTroubleshootingDetails.value());
+        troubleshooter.updateAssetTroubleshootingDetails(tilesetId, assetEventId, assetTroubleshootingDetails.value());
+    }
+
+    void updateTroubleshootingDetails(
+        int64_t tilesetId,
+        int64_t rasterOverlayId,
+        uint64_t tokenEventId,
+        uint64_t assetEventId) noexcept override {
+        auto tileset = tilesets.find(tilesetId);
+
+        if (tileset == tilesets.end()) {
+            return;
+        }
+
+        tokenTroubleshootingDetails = TokenTroubleshootingDetails();
+        assetTroubleshootingDetails = AssetTroubleshootingDetails();
+
+        TokenTroubleshooter troubleshooter(tileset->second);
+        troubleshooter.updateTokenTroubleshootingDetails(
+            rasterOverlayId, tokenEventId, tokenTroubleshootingDetails.value());
+        troubleshooter.updateAssetTroubleshootingDetails(
+            rasterOverlayId, assetEventId, assetTroubleshootingDetails.value());
     }
 
     void onUiUpdate() noexcept override {

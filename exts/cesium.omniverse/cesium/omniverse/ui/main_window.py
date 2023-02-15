@@ -10,6 +10,7 @@ from .quick_add_widget import CesiumOmniverseQuickAddWidget
 from .sign_in_widget import CesiumOmniverseSignInWidget
 from .profile_widget import CesiumOmniverseProfileWidget
 from .token_window import CesiumOmniverseTokenWindow
+from .troubleshooter_window import CesiumTroubleshooterWindow
 from .styles import CesiumOmniverseUiStyles
 
 HELP_URL = "https://community.cesium.com/"
@@ -97,6 +98,12 @@ class CesiumOmniverseMainWindow(ui.Window):
                                                    name="cesium.omniverse.SHOW_TOKEN_WINDOW")
         )
 
+        show_troubleshooter_event = carb.events.type_from_string("cesium.omniverse.SHOW_TROUBLESHOOTER")
+        self._subscriptions.append(
+            bus.create_subscription_to_pop_by_type(show_troubleshooter_event, self._on_show_troubleshooter_window,
+                                                   name="cesium.omniverse.SHOW_TROUBLESHOOTER")
+        )
+
     def _on_update_frame(self, _e: carb.events.IEvent):
         self._cesium_omniverse_interface.on_ui_update()
 
@@ -123,6 +130,13 @@ class CesiumOmniverseMainWindow(ui.Window):
 
     def _on_show_token_window(self, _e: carb.events.IEvent):
         self._show_token_window()
+
+    def _on_show_troubleshooter_window(self, _e: carb.events.IEvent):
+        tileset_id = _e.payload["tilesetId"]
+        raster_overlay_id = _e.payload["rasterOverlayId"]
+        message = _e.payload["message"]
+
+        CesiumTroubleshooterWindow(self._cesium_omniverse_interface, tileset_id, raster_overlay_id, message)
 
     def _build_fn(self):
         """Builds all UI components."""
