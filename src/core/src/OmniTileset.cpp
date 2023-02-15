@@ -126,18 +126,52 @@ void OmniTileset::addIonRasterOverlay(const std::string& name, int64_t ionId, co
         spdlog::default_logger()->error(error.message);
     };
 
-    // The SdfPath cannot have spaces, so we convert spaces in name to underscore.
+    // The SdfPath cannot have spaces or dashes, so we convert spaces in name to underscore. We need a safer way for
+    // testing this.
     auto safeName = name;
     std::replace(safeName.begin(), safeName.end(), ' ', '_');
+    std::replace(safeName.begin(), safeName.end(), '-', '_');
 
     auto path = tilesetPath.AppendChild(pxr::TfToken(safeName));
     auto prim = usdStage->DefinePrim(path);
+
+    // In the event that there is an issue with the prim,
+    if (!prim.IsValid()) {
+        // This is usually due to a bad sdfPath. Could be an invalid character.
+        spdlog::default_logger()->error("Raster Overlay control prim definition failed.");
+        return;
+    }
+
     pxr::CesiumRasterOverlay overlayData(prim);
     overlayData.CreateRasterOverlayIdAttr().Set<int64_t>(ionId);
     overlayData.CreateIonTokenAttr();
 
     rasterOverlay = new Cesium3DTilesSelection::IonRasterOverlay(safeName, ionId, ionToken, options);
     tileset->getOverlays().add(rasterOverlay);
+}
+
+int64_t OmniTileset::getIonAssetId() {
+    auto prim = usdStage->GetPrimAtPath(tilesetPath);
+
+    if (!prim.IsValid() || !prim.HasAPI<pxr::CesiumTilesetAPI>()) {
+        return 0;
+    }
+
+    auto tilesetApi = pxr::CesiumTilesetAPI::Apply(prim);
+
+    int64_t assetIdAttr;
+    tilesetApi.GetTilesetIdAttr().Get<int64_t>(&assetIdAttr);
+
+    return assetIdAttr;
+}
+
+pxr::SdfPath OmniTileset::getPath() {
+    return tilesetPath;
+}
+
+std::optional<CesiumIonClient::Token> OmniTileset::getTilesetToken() {
+    // TODO: Implement actually using the override tokens.
+    return OmniTileset::getDefaultToken();
 }
 
 void OmniTileset::init(const std::filesystem::path& cesiumExtensionLocation) {

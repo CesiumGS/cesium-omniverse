@@ -17,7 +17,9 @@ namespace cesium::omniverse {
 
 namespace {
 int currentId = 0;
-std::unordered_map<int, std::unique_ptr<OmniTileset>> tilesets;
+std::unordered_map<int, std::shared_ptr<OmniTileset>> tilesets;
+std::optional<TokenTroubleshootingDetails> tokenTroubleshootingDetails = std::nullopt;
+std::optional<AssetTroubleshootingDetails> assetTroubleshootingDetails = std::nullopt;
 } // namespace
 
 class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
@@ -71,6 +73,20 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         addIonRasterOverlay(id, rasterOverlayName, rasterOverlayIonId, token->token.c_str());
 
         return id;
+    }
+
+    std::vector<std::pair<int64_t, const char*>> getAllTilesetIdsAndPaths() noexcept override {
+        if (tilesets.empty()) {
+            return {};
+        }
+
+        std::vector<std::pair<int64_t, const char*>> result(tilesets.size());
+        for (const auto& item : tilesets) {
+            auto path = item.second->getPath();
+            result.emplace_back(item.first, path.GetString().c_str());
+        }
+
+        return result;
     }
 
     void removeTileset(int tileset) noexcept override {
@@ -140,13 +156,32 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         OmniTileset::specifyToken(token);
     }
 
-    void updateTokenDetails(int resultEventId) noexcept override {
+    std::optional<TokenTroubleshootingDetails> getTokenTroubleshootingDetails() noexcept override {
+        return tokenTroubleshootingDetails;
+    }
 
+    std::optional<AssetTroubleshootingDetails> getAssetTroubleshootingDetails() noexcept override {
+        return assetTroubleshootingDetails;
+    }
+
+    void updateTroubleshootingDetails(int tilesetId, uint64_t tokenEventId, uint64_t assetEventId) noexcept override {
+        auto tileset = tilesets.find(tilesetId);
+
+        if (tileset == tilesets.end()) {
+            return;
+        }
+
+        tokenTroubleshootingDetails = TokenTroubleshootingDetails();
+        assetTroubleshootingDetails = AssetTroubleshootingDetails();
+
+        TokenTroubleshooter troubleshooter(tileset->second);
+        troubleshooter.updateTokenTroubleshootingDetails(tokenEventId, tokenTroubleshootingDetails.value());
+        troubleshooter.updateAssetTroubleshootingDetails(assetEventId, assetTroubleshootingDetails.value());
     }
 
     void onUiUpdate() noexcept override {
         OmniTileset::onUiUpdate();
-    };
+    }
 
     std::optional<std::shared_ptr<CesiumIonSession>> getSession() noexcept override {
         return OmniTileset::getSession();

@@ -1,10 +1,28 @@
 #pragma once
 
 #include "CesiumIonSession.h"
+#include "OmniTileset.h"
 
 namespace cesium::omniverse {
+struct TokenTroubleshootingDetails {
+    CesiumIonClient::Token token;
+    bool isValid{false};
+    bool allowsAccessToAsset{false};
+    bool associatedWithUserAccount{false};
+};
+
+struct AssetTroubleshootingDetails {
+    int64_t assetId;
+    bool assetExistsInUserAccount{false};
+};
+
 class TokenTroubleshooter {
-    TokenTroubleshooter(Cesium3DTileset asset) void updateTokenTroubleshootingDetails(int tokenEventId);
-    void updateAssetTroubleshootingDetails(int assetEventId);
+  public:
+    TokenTroubleshooter(const std::shared_ptr<OmniTileset>& asset);
+    void updateTokenTroubleshootingDetails(uint64_t eventId, TokenTroubleshootingDetails& details);
+    void updateAssetTroubleshootingDetails(uint64_t eventId, AssetTroubleshootingDetails& details);
+
+  private:
+    std::shared_ptr<OmniTileset> tileset;
 };
 } // namespace cesium::omniverse

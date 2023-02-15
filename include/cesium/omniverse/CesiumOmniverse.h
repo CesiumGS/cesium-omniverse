@@ -3,6 +3,7 @@
 #include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/SetDefaultTokenResult.h"
+#include "cesium/omniverse/TokenTroubleshooter.h"
 
 #include <CesiumIonClient/Connection.h>
 #include <carb/Interface.h>
@@ -81,6 +82,8 @@ class ICesiumOmniverseInterface {
         int64_t tilesetIonId,
         const char* rasterOverlayName,
         int64_t rasterOverlayIonId) noexcept = 0;
+
+    virtual std::vector<std::pair<int64_t, const char*>> getAllTilesetIdsAndPaths() noexcept = 0;
 
     /**
      * @brief Removes a tileset from the scene.
@@ -175,6 +178,12 @@ class ICesiumOmniverseInterface {
      * @param token The desired token.
      */
     virtual void specifyToken(const char* token) noexcept = 0;
+
+    virtual std::optional<TokenTroubleshootingDetails> getTokenTroubleshootingDetails() noexcept = 0;
+
+    virtual std::optional<AssetTroubleshootingDetails> getAssetTroubleshootingDetails() noexcept = 0;
+
+    virtual void updateTroubleshootingDetails(int tilesetId, uint64_t tokenEventId, uint64_t assetEventId) noexcept = 0;
 
     virtual void onUiUpdate() noexcept = 0;
 

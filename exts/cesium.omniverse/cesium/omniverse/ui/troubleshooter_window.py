@@ -2,17 +2,17 @@ import logging
 import carb.events
 import omni.kit.app as app
 import omni.ui as ui
-import omni.usd
 import webbrowser
 from typing import List, Optional
-from ..bindings import ICesiumOmniverseInterface, Token
+from ..bindings import ICesiumOmniverseInterface
+from .pass_fail_widget import CesiumPassFailWidget
 from .styles import CesiumOmniverseUiStyles
 
 
 class CesiumTroubleshooterWindow(ui.Window):
     WINDOW_NAME = "Token Troubleshooting"
 
-    def __init__(self, cesium_omniverse_interface: ICesiumOmniverseInterface, **kwargs):
+    def __init__(self, cesium_omniverse_interface: ICesiumOmniverseInterface, tileset_id: int, **kwargs):
         super().__init__(CesiumTroubleshooterWindow.WINDOW_NAME, **kwargs)
 
         self._cesium_omniverse_interface = cesium_omniverse_interface
@@ -24,11 +24,19 @@ class CesiumTroubleshooterWindow(ui.Window):
         self.padding_x = 12
         self.padding_y = 12
 
+        self._token_details_event_type = carb.events.type_from_string("cesium.omniverse.TOKEN_DETAILS_READY")
+        self._asset_details_event_type = carb.events.type_from_string("cesium.omniverse.ASSET_DETAILS_READY")
+
+        self._valid_token_widget: Optional[CesiumPassFailWidget] = None
+        self._token_has_access_widget: Optional[CesiumPassFailWidget] = None
+        self._token_associated_to_account_widget: Optional[CesiumPassFailWidget] = None
+        self._asset_on_account_widget: Optional[CesiumPassFailWidget] = None
+
         self._subscriptions: List[carb.events.ISubscription] = []
         self._setup_subscriptions()
 
-        self._token_details_event_type = carb.events.type_from_string("cesium.omniverse.TOKEN_DETAILS_READY")
-        self._asset_details_event_type = carb.events.type_from_string("cesium.omniverse.ASSET_DETAILS_READY")
+        self._cesium_omniverse_interface.update_troubleshooting_details(tileset_id, self._token_details_event_type,
+                                                                        self._asset_details_event_type)
 
         self.frame.set_build_fn(self._build_ui)
 
@@ -54,24 +62,47 @@ class CesiumTroubleshooterWindow(ui.Window):
         )
 
     def _on_token_details_ready(self, _e: carb.events.IEvent):
-        pass
+        token_details = self._cesium_omniverse_interface.get_token_troubleshooting_details()
+
+        if self._valid_token_widget is not None:
+            self._valid_token_widget.passed = token_details.is_valid
+
+        if self._token_has_access_widget is not None:
+            self._token_has_access_widget.passed = token_details.allows_access_to_asset
+
+        if self._token_associated_to_account_widget is not None:
+            self._token_associated_to_account_widget.passed = token_details.associated_with_user_account
 
     def _on_asset_details_ready(self, _e: carb.events.IEvent):
-        pass
+        asset_details = self._cesium_omniverse_interface.get_asset_troubleshooting_details()
 
-    def _on_open_ion_button_clicked(self):
+        if self._asset_on_account_widget is not None:
+            self._asset_on_account_widget.passed = asset_details.asset_exists_in_user_account
+
+    @staticmethod
+    def _on_open_ion_button_clicked():
         webbrowser.open("https://ion.cesium.com")
 
     def _build_ui(self):
-        with ui.HStack():
-            with ui.VStack():
-                ui.Label("Stage Default Access Token")
-                # TODO: Is Valid Token Check
-                # TODO: Allows Access to this asset Check
-                # TODO: Is associated to your account check
-            with ui.VStack():
-                ui.Label("Asset")
-                # TODO: Asset ID exists in your user account check
+        with ui.VStack():
+            with ui.HStack(spacing=5):
+                with ui.VStack(spacing=5):
+                    ui.Label("Stage Default Access Token", height=16,
+                             style=CesiumOmniverseUiStyles.troubleshooter_header_style)
+                    with ui.HStack(height=16, spacing=10):
+                        self._valid_token_widget = CesiumPassFailWidget()
+                        ui.Label("Is a valid Cesium ion Token")
+                    with ui.HStack(height=16, spacing=10):
+                        self._token_has_access_widget = CesiumPassFailWidget()
+                        ui.Label("Allows access to this asset")
+                    with ui.HStack(height=16, spacing=10):
+                        self._token_associated_to_account_widget = CesiumPassFailWidget()
+                        ui.Label("Is associated with your user account")
+                with ui.VStack():
+                    ui.Label("Asset", height=16, style=CesiumOmniverseUiStyles.troubleshooter_header_style)
+                    with ui.HStack(height=16, spacing=10):
+                        self._asset_on_account_widget = CesiumPassFailWidget()
+                        ui.Label("Asset ID exists in your user account")
             ui.Button("Open Cesium ion on the Web", alignment=ui.Alignment.CENTER, height=36,
                       style=CesiumOmniverseUiStyles.blue_button_style,
                       clicked_fn=self._on_open_ion_button_clicked)

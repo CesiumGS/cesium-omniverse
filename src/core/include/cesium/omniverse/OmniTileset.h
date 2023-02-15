@@ -34,6 +34,17 @@ class OmniTileset {
 
     void addIonRasterOverlay(const std::string& name, int64_t ionId, const std::string& ionToken);
 
+    /**
+     * @brief Gets the ion Asset ID for the tileset off of the prim.
+     *
+     * @return The ion Asset ID.
+     */
+    int64_t getIonAssetId();
+
+    pxr::SdfPath getPath();
+
+    std::optional<CesiumIonClient::Token> getTilesetToken();
+
     static void init(const std::filesystem::path& cesiumExtensionLocation);
 
     static pxr::CesiumTilesetAPI applyTilesetApiToPath(const pxr::SdfPath& path);
