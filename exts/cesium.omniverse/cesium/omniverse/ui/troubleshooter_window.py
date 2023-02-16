@@ -40,9 +40,13 @@ class CesiumTroubleshooterWindow(ui.Window):
         self._subscriptions: List[carb.events.ISubscription] = []
         self._setup_subscriptions()
 
-        self._cesium_omniverse_interface.update_troubleshooting_details(tileset_id, raster_overlay_id,
-                                                                        self._token_details_event_type,
-                                                                        self._asset_details_event_type)
+        if raster_overlay_id > 0:
+            self._cesium_omniverse_interface.update_troubleshooting_details(tileset_id, raster_overlay_id,
+                                                                            self._token_details_event_type,
+                                                                            self._asset_details_event_type)
+        else:
+            self._cesium_omniverse_interface.update_troubleshooting_details(tileset_id, self._token_details_event_type,
+                                                                            self._asset_details_event_type)
 
         self.frame.set_build_fn(self._build_ui)
 

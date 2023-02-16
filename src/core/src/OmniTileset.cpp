@@ -60,7 +60,26 @@ OmniTileset::OmniTileset(int64_t ionID, const std::string& ionToken) {
 
     initOriginShiftHandler();
 
-    tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(externals, ionID, ionToken);
+    Cesium3DTilesSelection::TilesetOptions options;
+
+    options.enableFrustumCulling = false;
+    options.forbidHoles = true;
+    options.maximumSimultaneousTileLoads = 10;
+    options.loadingDescendantLimit = 10;
+
+    options.loadErrorCallback = [ionID](const Cesium3DTilesSelection::TilesetLoadFailureDetails& error) {
+        // Check for a 401 connecting to Cesium ion, which means the token is invalid
+        // (or perhaps the asset ID is). Also check for a 404, because ion returns 404
+        // when the token is valid but not authorized for the asset.
+        if (error.type == Cesium3DTilesSelection::TilesetLoadType::CesiumIon &&
+            (error.statusCode == 401 || error.statusCode == 404)) {
+            Broadcast::showTroubleshooter(ionID, 0, error.message);
+        }
+
+        spdlog::default_logger()->error(error.message);
+    };
+
+    tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(externals, ionID, ionToken, options);
 }
 
 void OmniTileset::updateFrame(
