@@ -51,8 +51,11 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("on_ui_update", &ICesiumOmniverseInterface::onUiUpdate)
         .def("get_session", &ICesiumOmniverseInterface::getSession)
         .def("get_all_tileset_ids_and_paths", &ICesiumOmniverseInterface::getAllTilesetIdsAndPaths)
-        .def("get_token_troubleshooting_details", &ICesiumOmniverseInterface::getTokenTroubleshootingDetails)
         .def("get_asset_troubleshooting_details", &ICesiumOmniverseInterface::getAssetTroubleshootingDetails)
+        .def("get_asset_token_troubleshooting_details", &ICesiumOmniverseInterface::getAssetTokenTroubleshootingDetails)
+        .def(
+            "get_default_token_troubleshooting_details",
+            &ICesiumOmniverseInterface::getDefaultTokenTroubleshootingDetails)
         .def(
             "update_troubleshooting_details",
             py::overload_cast<int64_t, uint64_t, uint64_t>(&ICesiumOmniverseInterface::updateTroubleshootingDetails))

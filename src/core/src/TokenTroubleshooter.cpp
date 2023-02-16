@@ -10,6 +10,7 @@ TokenTroubleshooter::TokenTroubleshooter(const std::shared_ptr<OmniTileset>& ass
 
 void TokenTroubleshooter::updateTokenTroubleshootingDetails(
     int64_t assetId,
+    std::string& token,
     uint64_t eventId,
     TokenTroubleshootingDetails& details) {
     auto session = OmniTileset::getSession();
@@ -18,14 +19,8 @@ void TokenTroubleshooter::updateTokenTroubleshootingDetails(
         return;
     }
 
-    auto token = tileset->getTilesetToken();
-    if (!token.has_value()) {
-        // TODO: Figure out what we are supposed to do in this case. Error?
-        return;
-    }
-
     auto connection = std::make_shared<CesiumIonClient::Connection>(
-        session.value()->getAsyncSystem(), session.value()->getAssetAccessor(), token->token);
+        session.value()->getAsyncSystem(), session.value()->getAssetAccessor(), token);
 
     connection->me()
         .thenInMainThread(

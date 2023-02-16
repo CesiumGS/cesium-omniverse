@@ -185,9 +185,11 @@ class ICesiumOmniverseInterface {
      */
     virtual void specifyToken(const char* token) noexcept = 0;
 
-    virtual std::optional<TokenTroubleshootingDetails> getTokenTroubleshootingDetails() noexcept = 0;
-
     virtual std::optional<AssetTroubleshootingDetails> getAssetTroubleshootingDetails() noexcept = 0;
+
+    virtual std::optional<TokenTroubleshootingDetails> getAssetTokenTroubleshootingDetails() noexcept = 0;
+
+    virtual std::optional<TokenTroubleshootingDetails> getDefaultTokenTroubleshootingDetails() noexcept = 0;
 
     virtual void
     updateTroubleshootingDetails(int64_t tilesetId, uint64_t tokenEventId, uint64_t assetEventId) noexcept = 0;

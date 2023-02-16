@@ -19,7 +19,11 @@ struct AssetTroubleshootingDetails {
 class TokenTroubleshooter {
   public:
     TokenTroubleshooter(const std::shared_ptr<OmniTileset>& asset);
-    void updateTokenTroubleshootingDetails(int64_t assetId, uint64_t eventId, TokenTroubleshootingDetails& details);
+    void updateTokenTroubleshootingDetails(
+        int64_t assetId,
+        std::string& token,
+        uint64_t eventId,
+        TokenTroubleshootingDetails& details);
     void updateAssetTroubleshootingDetails(int64_t assetId, uint64_t eventId, AssetTroubleshootingDetails& details);
 
   private:

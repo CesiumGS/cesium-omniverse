@@ -32,9 +32,9 @@ class CesiumTroubleshooterWindow(ui.Window):
         self._token_details_event_type = carb.events.type_from_string("cesium.omniverse.TOKEN_DETAILS_READY")
         self._asset_details_event_type = carb.events.type_from_string("cesium.omniverse.ASSET_DETAILS_READY")
 
-        self._valid_token_widget: Optional[CesiumPassFailWidget] = None
-        self._token_has_access_widget: Optional[CesiumPassFailWidget] = None
-        self._token_associated_to_account_widget: Optional[CesiumPassFailWidget] = None
+        self._valid_default_token_widget: Optional[CesiumPassFailWidget] = None
+        self._default_token_has_access_widget: Optional[CesiumPassFailWidget] = None
+        self._default_token_associated_to_account_widget: Optional[CesiumPassFailWidget] = None
         self._asset_on_account_widget: Optional[CesiumPassFailWidget] = None
 
         self._subscriptions: List[carb.events.ISubscription] = []
@@ -72,16 +72,16 @@ class CesiumTroubleshooterWindow(ui.Window):
         )
 
     def _on_token_details_ready(self, _e: carb.events.IEvent):
-        token_details = self._cesium_omniverse_interface.get_token_troubleshooting_details()
+        default_token_details = self._cesium_omniverse_interface.get_default_token_troubleshooting_details()
 
-        if self._valid_token_widget is not None:
-            self._valid_token_widget.passed = token_details.is_valid
+        if self._valid_default_token_widget is not None:
+            self._valid_default_token_widget.passed = default_token_details.is_valid
 
-        if self._token_has_access_widget is not None:
-            self._token_has_access_widget.passed = token_details.allows_access_to_asset
+        if self._default_token_has_access_widget is not None:
+            self._default_token_has_access_widget.passed = default_token_details.allows_access_to_asset
 
-        if self._token_associated_to_account_widget is not None:
-            self._token_associated_to_account_widget.passed = token_details.associated_with_user_account
+        if self._default_token_associated_to_account_widget is not None:
+            self._default_token_associated_to_account_widget.passed = default_token_details.associated_with_user_account
 
     def _on_asset_details_ready(self, _e: carb.events.IEvent):
         asset_details = self._cesium_omniverse_interface.get_asset_troubleshooting_details()
@@ -100,13 +100,13 @@ class CesiumTroubleshooterWindow(ui.Window):
                 ui.Label("Tileset Access Token", height=16,
                          style=CesiumOmniverseUiStyles.troubleshooter_header_style)
                 with ui.HStack(height=16, spacing=10):
-                    self._valid_token_widget = CesiumPassFailWidget()
+                    self._valid_default_token_widget = CesiumPassFailWidget()
                     ui.Label("Is a valid Cesium ion Token")
                 with ui.HStack(height=16, spacing=10):
-                    self._token_has_access_widget = CesiumPassFailWidget()
+                    self._default_token_has_access_widget = CesiumPassFailWidget()
                     ui.Label("Allows access to this asset")
                 with ui.HStack(height=16, spacing=10):
-                    self._token_associated_to_account_widget = CesiumPassFailWidget()
+                    self._default_token_associated_to_account_widget = CesiumPassFailWidget()
                     ui.Label("Is associated with your user account")
             with ui.VStack(spacing=5):
                 ui.Label("Asset", height=16, style=CesiumOmniverseUiStyles.troubleshooter_header_style)

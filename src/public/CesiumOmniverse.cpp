@@ -18,8 +18,9 @@ namespace cesium::omniverse {
 namespace {
 int currentId = 0;
 std::unordered_map<int64_t, std::shared_ptr<OmniTileset>> tilesets;
-std::optional<TokenTroubleshootingDetails> tokenTroubleshootingDetails = std::nullopt;
 std::optional<AssetTroubleshootingDetails> assetTroubleshootingDetails = std::nullopt;
+std::optional<TokenTroubleshootingDetails> assetTokenTroubleshootingDetails = std::nullopt;
+std::optional<TokenTroubleshootingDetails> defaultTokenTroubleshootingDetails = std::nullopt;
 } // namespace
 
 class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
@@ -155,12 +156,16 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         OmniTileset::specifyToken(token);
     }
 
-    std::optional<TokenTroubleshootingDetails> getTokenTroubleshootingDetails() noexcept override {
-        return tokenTroubleshootingDetails;
-    }
-
     std::optional<AssetTroubleshootingDetails> getAssetTroubleshootingDetails() noexcept override {
         return assetTroubleshootingDetails;
+    }
+
+    std::optional<TokenTroubleshootingDetails> getAssetTokenTroubleshootingDetails() noexcept override {
+        return assetTokenTroubleshootingDetails;
+    }
+
+    std::optional<TokenTroubleshootingDetails> getDefaultTokenTroubleshootingDetails() noexcept override {
+        return defaultTokenTroubleshootingDetails;
     }
 
     void
@@ -171,12 +176,20 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
             return;
         }
 
-        tokenTroubleshootingDetails = TokenTroubleshootingDetails();
-        assetTroubleshootingDetails = AssetTroubleshootingDetails();
-
         TokenTroubleshooter troubleshooter(tileset->second);
-        troubleshooter.updateTokenTroubleshootingDetails(tilesetId, tokenEventId, tokenTroubleshootingDetails.value());
+
+        assetTroubleshootingDetails = AssetTroubleshootingDetails();
         troubleshooter.updateAssetTroubleshootingDetails(tilesetId, assetEventId, assetTroubleshootingDetails.value());
+
+        defaultTokenTroubleshootingDetails = TokenTroubleshootingDetails();
+
+        if (isDefaultTokenSet()) {
+            auto token = tileset->second->getDefaultToken().value().token;
+            troubleshooter.updateTokenTroubleshootingDetails(
+                tilesetId, token, tokenEventId, defaultTokenTroubleshootingDetails.value());
+        }
+
+        // TODO: Implement grabbing data for the tileset token.
     }
 
     void updateTroubleshootingDetails(
@@ -190,14 +203,21 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
             return;
         }
 
-        tokenTroubleshootingDetails = TokenTroubleshootingDetails();
-        assetTroubleshootingDetails = AssetTroubleshootingDetails();
-
         TokenTroubleshooter troubleshooter(tileset->second);
-        troubleshooter.updateTokenTroubleshootingDetails(
-            rasterOverlayId, tokenEventId, tokenTroubleshootingDetails.value());
+
+        assetTroubleshootingDetails = AssetTroubleshootingDetails();
         troubleshooter.updateAssetTroubleshootingDetails(
             rasterOverlayId, assetEventId, assetTroubleshootingDetails.value());
+
+        defaultTokenTroubleshootingDetails = TokenTroubleshootingDetails();
+
+        if (isDefaultTokenSet()) {
+            auto token = tileset->second->getDefaultToken().value().token;
+            troubleshooter.updateTokenTroubleshootingDetails(
+                rasterOverlayId, token, tokenEventId, defaultTokenTroubleshootingDetails.value());
+        }
+
+        // TODO: Implement grabbing data for the raster overlay token.
     }
 
     void onUiUpdate() noexcept override {
