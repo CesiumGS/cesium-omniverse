@@ -95,25 +95,24 @@ class CesiumTroubleshooterWindow(ui.Window):
 
     def _build_ui(self):
         with ui.VStack(spacing=10):
-            ui.Label(self._message)
-            with ui.HStack(spacing=5):
-                with ui.VStack(spacing=5):
-                    ui.Label("Stage Default Access Token", height=16,
-                             style=CesiumOmniverseUiStyles.troubleshooter_header_style)
-                    with ui.HStack(height=16, spacing=10):
-                        self._valid_token_widget = CesiumPassFailWidget()
-                        ui.Label("Is a valid Cesium ion Token")
-                    with ui.HStack(height=16, spacing=10):
-                        self._token_has_access_widget = CesiumPassFailWidget()
-                        ui.Label("Allows access to this asset")
-                    with ui.HStack(height=16, spacing=10):
-                        self._token_associated_to_account_widget = CesiumPassFailWidget()
-                        ui.Label("Is associated with your user account")
-                with ui.VStack():
-                    ui.Label("Asset", height=16, style=CesiumOmniverseUiStyles.troubleshooter_header_style)
-                    with ui.HStack(height=16, spacing=10):
-                        self._asset_on_account_widget = CesiumPassFailWidget()
-                        ui.Label("Asset ID exists in your user account")
+            ui.Label(self._message, height=54, word_wrap=True)
+            with ui.VStack(spacing=5):
+                ui.Label("Tileset Access Token", height=16,
+                         style=CesiumOmniverseUiStyles.troubleshooter_header_style)
+                with ui.HStack(height=16, spacing=10):
+                    self._valid_token_widget = CesiumPassFailWidget()
+                    ui.Label("Is a valid Cesium ion Token")
+                with ui.HStack(height=16, spacing=10):
+                    self._token_has_access_widget = CesiumPassFailWidget()
+                    ui.Label("Allows access to this asset")
+                with ui.HStack(height=16, spacing=10):
+                    self._token_associated_to_account_widget = CesiumPassFailWidget()
+                    ui.Label("Is associated with your user account")
+            with ui.VStack(spacing=5):
+                ui.Label("Asset", height=16, style=CesiumOmniverseUiStyles.troubleshooter_header_style)
+                with ui.HStack(height=16, spacing=10):
+                    self._asset_on_account_widget = CesiumPassFailWidget()
+                    ui.Label("Asset ID exists in your user account")
             ui.Spacer()
             ui.Button("Open Cesium ion on the Web", alignment=ui.Alignment.CENTER, height=36,
                       style=CesiumOmniverseUiStyles.blue_button_style,
