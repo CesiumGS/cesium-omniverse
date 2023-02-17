@@ -2,6 +2,10 @@ import logging
 import carb.events
 import omni.kit.app as app
 import omni.ui as ui
+import omni.usd
+import omni.kit.commands as omni_commands
+from omni.kit.viewport.utility import get_active_viewport_camera_path
+from pxr import Gf, Sdf
 from typing import List, Optional
 from ..bindings import ICesiumOmniverseInterface
 from .styles import CesiumOmniverseUiStyles
@@ -75,6 +79,17 @@ class CesiumOmniverseQuickAddWidget(ui.Frame):
 
         self._adding_assets = False
 
+    def _extend_camera_far_plane(self):
+        # Set the Far Plane to a very high number so the globe is visible on zoom extents
+        stage = omni.usd.get_context().get_stage()
+        camera_prim = stage.GetPrimAtPath(
+            get_active_viewport_camera_path())
+        omni_commands.execute("ChangeProperty",
+                              prop_path=Sdf.Path(
+                                  "/OmniverseKit_Persp.clippingRange"),
+                              value=Gf.Vec2f(1.0, 10000000000.0),
+                              prev=camera_prim.GetAttribute("clippingRange").Get())
+
     def _add_blank_button_clicked(self):
         pass
 
@@ -106,6 +121,9 @@ class CesiumOmniverseQuickAddWidget(ui.Frame):
             bus.push(show_token_window_event)
             self._assets_to_add_after_token_set.append(asset_to_add)
             return
+
+        # TODO: It may be better to prompt the user before brute forcing a change to their camera settings.
+        self._extend_camera_far_plane()
 
         # TODO: Probably need a check here for bypassing setting the georeference if it is already set.
         self._cesium_omniverse_interface.set_georeference_origin(DEFAULT_GEOREFERENCE_LONGITUDE,
