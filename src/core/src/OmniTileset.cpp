@@ -142,7 +142,8 @@ void OmniTileset::updateFrame(
 
 void OmniTileset::addIonRasterOverlay(const std::string& name, int64_t ionId, const std::string& ionToken) {
     Cesium3DTilesSelection::RasterOverlayOptions options;
-    options.loadErrorCallback = [this, ionId, name](const Cesium3DTilesSelection::RasterOverlayLoadFailureDetails& error) {
+    options.loadErrorCallback = [this, ionId, name](
+                                    const Cesium3DTilesSelection::RasterOverlayLoadFailureDetails& error) {
         // Check for a 401 connecting to Cesium ion, which means the token is invalid
         // (or perhaps the asset ID is). Also check for a 404, because ion returns 404
         // when the token is valid but not authorized for the asset.
