@@ -8,6 +8,7 @@
 #include "pyboost11.h"
 
 #include "cesium/omniverse/CesiumIonSession.h"
+#include "cesium/omniverse/TokenTroubleshooter.h"
 
 namespace pybind11 {
 namespace detail {
@@ -34,10 +35,10 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("addTilesetUrl", &ICesiumOmniverseInterface::addTilesetUrl)
         .def("add_tileset_ion", py::overload_cast<const char*, int64_t>(&ICesiumOmniverseInterface::addTilesetIon))
         .def("add_tileset_and_raster_overlay", &ICesiumOmniverseInterface::addTilesetAndRasterOverlay)
-        .def("removeTileset", &ICesiumOmniverseInterface::removeTileset)
+        .def("remove_tileset", &ICesiumOmniverseInterface::removeTileset)
         .def(
             "add_ion_raster_overlay",
-            py::overload_cast<int, const char*, int64_t>(&ICesiumOmniverseInterface::addIonRasterOverlay))
+            py::overload_cast<int64_t, const char*, int64_t>(&ICesiumOmniverseInterface::addIonRasterOverlay))
         .def("update_frame", &ICesiumOmniverseInterface::updateFrame)
         .def("update_stage", &ICesiumOmniverseInterface::updateStage)
         .def("set_georeference_origin", &ICesiumOmniverseInterface::setGeoreferenceOrigin)
@@ -48,7 +49,20 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("select_token", &ICesiumOmniverseInterface::selectToken)
         .def("specify_token", &ICesiumOmniverseInterface::specifyToken)
         .def("on_ui_update", &ICesiumOmniverseInterface::onUiUpdate)
-        .def("get_session", &ICesiumOmniverseInterface::getSession);
+        .def("get_session", &ICesiumOmniverseInterface::getSession)
+        .def("get_all_tileset_ids_and_paths", &ICesiumOmniverseInterface::getAllTilesetIdsAndPaths)
+        .def("get_asset_troubleshooting_details", &ICesiumOmniverseInterface::getAssetTroubleshootingDetails)
+        .def("get_asset_token_troubleshooting_details", &ICesiumOmniverseInterface::getAssetTokenTroubleshootingDetails)
+        .def(
+            "get_default_token_troubleshooting_details",
+            &ICesiumOmniverseInterface::getDefaultTokenTroubleshootingDetails)
+        .def(
+            "update_troubleshooting_details",
+            py::overload_cast<int64_t, uint64_t, uint64_t>(&ICesiumOmniverseInterface::updateTroubleshootingDetails))
+        .def(
+            "update_troubleshooting_details",
+            py::overload_cast<int64_t, int64_t, uint64_t, uint64_t>(
+                &ICesiumOmniverseInterface::updateTroubleshootingDetails));
 
     py::class_<CesiumIonSession, std::shared_ptr<CesiumIonSession>>(m, "CesiumIonSession")
         .def("is_connected", &CesiumIonSession::isConnected)
@@ -86,4 +100,14 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def_readonly("name", &CesiumIonClient::Token::name)
         .def_readonly("token", &CesiumIonClient::Token::token)
         .def_readonly("is_default", &CesiumIonClient::Token::isDefault);
+
+    py::class_<TokenTroubleshootingDetails>(m, "TokenTroubleshootingDetails")
+        .def_readonly("token", &TokenTroubleshootingDetails::token)
+        .def_readonly("is_valid", &TokenTroubleshootingDetails::isValid)
+        .def_readonly("allows_access_to_asset", &TokenTroubleshootingDetails::allowsAccessToAsset)
+        .def_readonly("associated_with_user_account", &TokenTroubleshootingDetails::associatedWithUserAccount);
+
+    py::class_<AssetTroubleshootingDetails>(m, "AssetTroubleshootingDetails")
+        .def_readonly("asset_id", &AssetTroubleshootingDetails::assetId)
+        .def_readonly("asset_exists_in_user_account", &AssetTroubleshootingDetails::assetExistsInUserAccount);
 }

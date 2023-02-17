@@ -6,6 +6,10 @@ class CesiumOmniverseUiStyles:
         "font_size": 16,
     }
 
+    troubleshooter_header_style = {
+        "font_size": 18,
+    }
+
     quick_add_section_label = {
         "font_size": 20,
         "margin": 5,

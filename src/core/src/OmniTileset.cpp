@@ -49,7 +49,9 @@ OmniTileset::OmniTileset(const std::string& url) {
 }
 
 OmniTileset::OmniTileset(int64_t ionID, const std::string& ionToken) {
-    tilesetPath = usdStage->GetPseudoRoot().GetPath().AppendChild(pxr::TfToken(fmt::format("tileset_ion_{}", ionID)));
+    // Name actually needs to be something that we pass into this eventually.
+    const std::string name = fmt::format("tileset_ion_{}", ionID);
+    tilesetPath = usdStage->GetPseudoRoot().GetPath().AppendChild(pxr::TfToken(name));
     renderResourcesPreparer = std::make_shared<RenderResourcesPreparer>(usdStage, tilesetPath);
     CesiumAsync::AsyncSystem asyncSystem{taskProcessor};
     Cesium3DTilesSelection::TilesetExternals externals{
@@ -60,7 +62,26 @@ OmniTileset::OmniTileset(int64_t ionID, const std::string& ionToken) {
 
     initOriginShiftHandler();
 
-    tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(externals, ionID, ionToken);
+    Cesium3DTilesSelection::TilesetOptions options;
+
+    options.enableFrustumCulling = false;
+    options.forbidHoles = true;
+    options.maximumSimultaneousTileLoads = 10;
+    options.loadingDescendantLimit = 10;
+
+    options.loadErrorCallback = [ionID, name](const Cesium3DTilesSelection::TilesetLoadFailureDetails& error) {
+        // Check for a 401 connecting to Cesium ion, which means the token is invalid
+        // (or perhaps the asset ID is). Also check for a 404, because ion returns 404
+        // when the token is valid but not authorized for the asset.
+        if (error.type == Cesium3DTilesSelection::TilesetLoadType::CesiumIon &&
+            (error.statusCode == 401 || error.statusCode == 404)) {
+            Broadcast::showTroubleshooter(ionID, name, 0, "", error.message);
+        }
+
+        spdlog::default_logger()->error(error.message);
+    };
+
+    tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(externals, ionID, ionToken, options);
 }
 
 void OmniTileset::updateFrame(
@@ -121,23 +142,77 @@ void OmniTileset::updateFrame(
 
 void OmniTileset::addIonRasterOverlay(const std::string& name, int64_t ionId, const std::string& ionToken) {
     Cesium3DTilesSelection::RasterOverlayOptions options;
-    options.loadErrorCallback = [](const Cesium3DTilesSelection::RasterOverlayLoadFailureDetails& error) {
-        spdlog::default_logger()->error("Raster overlay failed");
+    options.loadErrorCallback = [this, ionId, name](
+                                    const Cesium3DTilesSelection::RasterOverlayLoadFailureDetails& error) {
+        // Check for a 401 connecting to Cesium ion, which means the token is invalid
+        // (or perhaps the asset ID is). Also check for a 404, because ion returns 404
+        // when the token is valid but not authorized for the asset.
+        auto statusCode = error.pRequest && error.pRequest->response() ? error.pRequest->response()->statusCode() : 0;
+
+        if (error.type == Cesium3DTilesSelection::RasterOverlayLoadType::CesiumIon &&
+            (statusCode == 401 || statusCode == 404)) {
+            Broadcast::showTroubleshooter(getIonAssetId(), getName(), ionId, name, error.message);
+        }
+
         spdlog::default_logger()->error(error.message);
     };
 
-    // The SdfPath cannot have spaces, so we convert spaces in name to underscore.
+    // The SdfPath cannot have spaces or dashes, so we convert spaces in name to underscore. We need a safer way for
+    // testing this.
     auto safeName = name;
     std::replace(safeName.begin(), safeName.end(), ' ', '_');
+    std::replace(safeName.begin(), safeName.end(), '-', '_');
 
     auto path = tilesetPath.AppendChild(pxr::TfToken(safeName));
     auto prim = usdStage->DefinePrim(path);
+
+    // In the event that there is an issue with the prim, it will be invalid. This prevents a segfault.
+    if (!prim.IsValid()) {
+        // This is usually due to a bad sdfPath. Could be an invalid character.
+        spdlog::default_logger()->error("Raster Overlay control prim definition failed.");
+        return;
+    }
+
     pxr::CesiumRasterOverlay overlayData(prim);
     overlayData.CreateRasterOverlayIdAttr().Set<int64_t>(ionId);
     overlayData.CreateIonTokenAttr();
 
     rasterOverlay = new Cesium3DTilesSelection::IonRasterOverlay(safeName, ionId, ionToken, options);
     tileset->getOverlays().add(rasterOverlay);
+}
+
+std::string OmniTileset::getName() {
+    auto prim = usdStage->GetPrimAtPath(tilesetPath);
+
+    if (!prim.IsValid()) {
+        return {};
+    }
+
+    return prim.GetName().GetString();
+}
+
+int64_t OmniTileset::getIonAssetId() {
+    auto prim = usdStage->GetPrimAtPath(tilesetPath);
+
+    if (!prim.IsValid() || !prim.HasAPI<pxr::CesiumTilesetAPI>()) {
+        return 0;
+    }
+
+    auto tilesetApi = pxr::CesiumTilesetAPI::Apply(prim);
+
+    int64_t assetIdAttr;
+    tilesetApi.GetTilesetIdAttr().Get<int64_t>(&assetIdAttr);
+
+    return assetIdAttr;
+}
+
+pxr::SdfPath OmniTileset::getPath() {
+    return tilesetPath;
+}
+
+std::optional<CesiumIonClient::Token> OmniTileset::getTilesetToken() {
+    // TODO: Implement actually using the override tokens.
+    return OmniTileset::getDefaultToken();
 }
 
 void OmniTileset::init(const std::filesystem::path& cesiumExtensionLocation) {

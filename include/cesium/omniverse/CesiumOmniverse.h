@@ -3,6 +3,7 @@
 #include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/SetDefaultTokenResult.h"
+#include "cesium/omniverse/TokenTroubleshooter.h"
 
 #include <CesiumIonClient/Connection.h>
 #include <carb/Interface.h>
@@ -55,7 +56,7 @@ class ICesiumOmniverseInterface {
      * @param ionId The ion asset ID for the tileset.
      * @returns The tileset id. Returns -1 on error.
      */
-    virtual int addTilesetIon(const char* name, int64_t ionId) noexcept = 0;
+    virtual int64_t addTilesetIon(const char* name, int64_t ionId) noexcept = 0;
 
     /**
      * @brief Adds a tileset from ion using the Stage level ion token.
@@ -65,7 +66,7 @@ class ICesiumOmniverseInterface {
      * @param ionToken The access token
      * @returns The tileset id. Returns -1 on error.
      */
-    virtual int addTilesetIon(const char* name, int64_t ionId, const char* ionToken) noexcept = 0;
+    virtual int64_t addTilesetIon(const char* name, int64_t ionId, const char* ionToken) noexcept = 0;
 
     /**
      * @brief Adds a tileset and a raster overlay to the stage.
@@ -76,11 +77,18 @@ class ICesiumOmniverseInterface {
      * @param rasterOverlayIonId The ion asset ID for the raster overlay.
      * @returns The tileset id. Returns -1 on error.
      */
-    virtual int addTilesetAndRasterOverlay(
+    virtual int64_t addTilesetAndRasterOverlay(
         const char* tilesetName,
         int64_t tilesetIonId,
         const char* rasterOverlayName,
         int64_t rasterOverlayIonId) noexcept = 0;
+
+    /**
+     * @brief Gets all the tileset ids and their paths. Primarily for usage on the python end.
+     *
+     * @return The tileset IDs and their sdf paths, as a vector of pairs.
+     */
+    virtual std::vector<std::pair<int64_t, const char*>> getAllTilesetIdsAndPaths() noexcept = 0;
 
     /**
      * @brief Removes a tileset from the scene.
@@ -97,7 +105,7 @@ class ICesiumOmniverseInterface {
      * @param ionId The asset ID
      * @param ionToken The access token
      */
-    virtual void addIonRasterOverlay(int tileset, const char* name, int64_t ionId) noexcept = 0;
+    virtual void addIonRasterOverlay(int64_t tileset, const char* name, int64_t ionId) noexcept = 0;
 
     /**
      * @brief Adds a raster overlay from ion.
@@ -107,7 +115,8 @@ class ICesiumOmniverseInterface {
      * @param ionId The asset ID
      * @param ionToken The access token
      */
-    virtual void addIonRasterOverlay(int tileset, const char* name, int64_t ionId, const char* ionToken) noexcept = 0;
+    virtual void
+    addIonRasterOverlay(int64_t tileset, const char* name, int64_t ionId, const char* ionToken) noexcept = 0;
 
     /**
      * @brief Updates the tileset this frame.
@@ -175,6 +184,21 @@ class ICesiumOmniverseInterface {
      * @param token The desired token.
      */
     virtual void specifyToken(const char* token) noexcept = 0;
+
+    virtual std::optional<AssetTroubleshootingDetails> getAssetTroubleshootingDetails() noexcept = 0;
+
+    virtual std::optional<TokenTroubleshootingDetails> getAssetTokenTroubleshootingDetails() noexcept = 0;
+
+    virtual std::optional<TokenTroubleshootingDetails> getDefaultTokenTroubleshootingDetails() noexcept = 0;
+
+    virtual void
+    updateTroubleshootingDetails(int64_t tilesetId, uint64_t tokenEventId, uint64_t assetEventId) noexcept = 0;
+
+    virtual void updateTroubleshootingDetails(
+        int64_t tilesetId,
+        int64_t rasterOverlayId,
+        uint64_t tokenEventId,
+        uint64_t assetEventId) noexcept = 0;
 
     virtual void onUiUpdate() noexcept = 0;
 

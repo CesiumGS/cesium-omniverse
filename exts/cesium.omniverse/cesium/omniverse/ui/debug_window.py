@@ -3,6 +3,7 @@ import logging
 import omni.ui as ui
 from typing import Optional
 from ..bindings import ICesiumOmniverseInterface
+from .troubleshooter_window import CesiumTroubleshooterWindow
 
 
 class Tileset(Enum):
@@ -109,9 +110,20 @@ class CesiumOmniverseDebugWindow(ui.Window):
             else:  # Terrain is Cesium World Terrain
                 add_cesium_world_terrain()
 
+        def remove_all_tilesets():
+            tilesets = self._cesium_omniverse_interface.get_all_tileset_ids_and_paths()
+
+            for (tilesetId, _) in tilesets:
+                self._cesium_omniverse_interface.remove_tileset(tilesetId)
+
+        def open_troubleshooting_window():
+            CesiumTroubleshooterWindow(self._cesium_omniverse_interface, "Testing", 1, 0, "Testing")
+
         with ui.VStack():
             ui.Button(
                 "Create Cesium World Terrain Tileset", clicked_fn=lambda: create_tileset(Tileset.CESIUM_WORLD_TERRAIN)
             )
             ui.Button("Create Bing Maps Tileset", clicked_fn=lambda: create_tileset(Tileset.BING_MAPS))
             ui.Button("Create Cape Canaveral Tileset", clicked_fn=lambda: create_tileset(Tileset.CAPE_CANAVERAL))
+            ui.Button("Remove all Tilesets", clicked_fn=lambda: remove_all_tilesets())
+            ui.Button("Open Troubleshooter", clicked_fn=lambda: open_troubleshooting_window())
