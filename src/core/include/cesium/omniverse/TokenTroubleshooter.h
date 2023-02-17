@@ -1,7 +1,7 @@
 #pragma once
 
-#include "CesiumIonSession.h"
-#include "OmniTileset.h"
+#include "cesium/omniverse/CesiumIonSession.h"
+#include "cesium/omniverse/OmniTileset.h"
 
 namespace cesium::omniverse {
 struct TokenTroubleshootingDetails {
