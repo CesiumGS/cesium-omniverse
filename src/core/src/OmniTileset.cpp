@@ -142,12 +142,19 @@ void OmniTileset::updateFrame(
 
 void OmniTileset::addIonRasterOverlay(const std::string& name, int64_t ionId, const std::string& ionToken) {
     Cesium3DTilesSelection::RasterOverlayOptions options;
-    options.loadErrorCallback =
-        [this, ionId, name](const Cesium3DTilesSelection::RasterOverlayLoadFailureDetails& error) {
-            spdlog::default_logger()->error("Raster overlay failed");
-            spdlog::default_logger()->error(error.message);
+    options.loadErrorCallback = [this, ionId, name](const Cesium3DTilesSelection::RasterOverlayLoadFailureDetails& error) {
+        // Check for a 401 connecting to Cesium ion, which means the token is invalid
+        // (or perhaps the asset ID is). Also check for a 404, because ion returns 404
+        // when the token is valid but not authorized for the asset.
+        auto statusCode = error.pRequest && error.pRequest->response() ? error.pRequest->response()->statusCode() : 0;
+
+        if (error.type == Cesium3DTilesSelection::RasterOverlayLoadType::CesiumIon &&
+            (statusCode == 401 || statusCode == 404)) {
             Broadcast::showTroubleshooter(getIonAssetId(), getName(), ionId, name, error.message);
-        };
+        }
+
+        spdlog::default_logger()->error(error.message);
+    };
 
     // The SdfPath cannot have spaces or dashes, so we convert spaces in name to underscore. We need a safer way for
     // testing this.

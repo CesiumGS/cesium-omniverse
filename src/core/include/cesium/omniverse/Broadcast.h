@@ -55,13 +55,13 @@ class Broadcast {
     }
     template <typename... ValuesT> static void sendMessageToBusWithPayload(const char* eventKey, ValuesT&&... payload) {
         auto eventType = carb::events::typeFromString(eventKey);
-        sendMessageToBusWithPayload(eventType, payload...);
+        sendMessageToBusWithPayload(eventType, std::forward<ValuesT>(payload)...);
     }
     template <typename... ValuesT>
     static void sendMessageToBusWithPayload(carb::events::EventType eventType, ValuesT&&... payload) {
         auto app = carb::getCachedInterface<omni::kit::IApp>();
         auto bus = app->getMessageBusEventStream();
-        bus->push(eventType, payload...);
+        bus->push(eventType, std::forward<ValuesT>(payload)...);
     }
 };
 
