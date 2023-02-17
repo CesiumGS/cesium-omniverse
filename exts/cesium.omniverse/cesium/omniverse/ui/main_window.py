@@ -136,7 +136,9 @@ class CesiumOmniverseMainWindow(ui.Window):
         raster_overlay_id = _e.payload["rasterOverlayId"]
         message = _e.payload["message"]
 
-        CesiumTroubleshooterWindow(self._cesium_omniverse_interface, tileset_id, raster_overlay_id, message)
+        name = _e.payload["rasterOverlayName"] if _e.payload["rasterOverlayName"] else _e.payload["tilesetName"]
+
+        CesiumTroubleshooterWindow(self._cesium_omniverse_interface, name, tileset_id, raster_overlay_id, message)
 
     def _build_fn(self):
         """Builds all UI components."""

@@ -10,11 +10,14 @@ from .styles import CesiumOmniverseUiStyles
 
 
 class CesiumTroubleshooterWindow(ui.Window):
-    WINDOW_NAME = "Token Troubleshooting"
+    WINDOW_BASE_NAME = "Token Troubleshooting"
 
-    def __init__(self, cesium_omniverse_interface: ICesiumOmniverseInterface, tileset_id: int, raster_overlay_id: int,
+    def __init__(self, cesium_omniverse_interface: ICesiumOmniverseInterface, name: str, tileset_id: int,
+                 raster_overlay_id: int,
                  message: str, **kwargs):
-        super().__init__(CesiumTroubleshooterWindow.WINDOW_NAME, **kwargs)
+        window_name = f"{CesiumTroubleshooterWindow.WINDOW_BASE_NAME} - {name}"
+
+        super().__init__(window_name, **kwargs)
 
         self._cesium_omniverse_interface = cesium_omniverse_interface
         self._logger = logging.getLogger(__name__)

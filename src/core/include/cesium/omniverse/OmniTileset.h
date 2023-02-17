@@ -35,6 +35,13 @@ class OmniTileset {
     void addIonRasterOverlay(const std::string& name, int64_t ionId, const std::string& ionToken);
 
     /**
+     * @brief Gets the name for the tileset from the stage.
+     *
+     * @return The name of the tileset.
+     */
+    std::string getName();
+
+    /**
      * @brief Gets the ion Asset ID for the tileset off of the prim.
      *
      * @return The ion Asset ID.

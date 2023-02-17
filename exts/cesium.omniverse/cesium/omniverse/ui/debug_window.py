@@ -117,7 +117,7 @@ class CesiumOmniverseDebugWindow(ui.Window):
                 self._cesium_omniverse_interface.remove_tileset(tilesetId)
 
         def open_troubleshooting_window():
-            CesiumTroubleshooterWindow(self._cesium_omniverse_interface, 1, 0, "Testing")
+            CesiumTroubleshooterWindow(self._cesium_omniverse_interface, "Testing", 1, 0, "Testing")
 
         with ui.VStack():
             ui.Button(
