@@ -4,6 +4,21 @@ import carb.events
 import omni.kit.app as app
 import omni.ui as ui
 from typing import List
+from datetime import datetime
+
+
+class DateModel(ui.AbstractValueModel):
+    """Takes an RFC 3339 formatted timestamp and produces a date value."""
+
+    def __init__(self, value: str):
+        super().__init__()
+        self._value = datetime.strptime(value[0:19], "%Y-%m-%dT%H:%M:%S")
+
+    def get_value_as_string(self) -> str:
+        if self._value is None:
+            return ""
+
+        return self._value.strftime("%Y-%m-%d")
 
 
 class IonAssetItem(ui.AbstractItem):
@@ -16,7 +31,7 @@ class IonAssetItem(ui.AbstractItem):
         self.description = ui.SimpleStringModel(description)
         self.attribution = ui.SimpleStringModel(attribution)
         self.type = ui.SimpleStringModel(asset_type)
-        self.dateAdded = ui.SimpleStringModel(date_added)
+        self.dateAdded = DateModel(date_added)
 
     def __repr__(self):
         return f"{self.name.as_string} (ID: {self.id.as_int})"
@@ -57,8 +72,7 @@ class IonAssets(ui.AbstractItemModel):
 class IonAssetDelegate(ui.AbstractItemDelegate):
 
     def build_header(self, column_id: int = 0) -> None:
-        stack = ui.ZStack(height=20)
-        with stack:
+        with ui.ZStack(height=20):
             if column_id == 0:
                 ui.Label("Name")
             elif column_id == 1:
@@ -69,11 +83,14 @@ class IonAssetDelegate(ui.AbstractItemDelegate):
     def build_branch(self, model: ui.AbstractItemModel, item: ui.AbstractItem = None, column_id: int = 0,
                      level: int = 0,
                      expanded: bool = False) -> None:
+        # We don't use this because we don't have a hierarchy, but we need to at least stub it out.
         pass
 
-    def build_widget(self, model: IonAssets, item: IonAssetItem = None, index: int = 0, level: int = 0,
+    def build_widget(self, model: IonAssets, item: IonAssetItem = None, column_id: int = 0, level: int = 0,
                      expanded: bool = False) -> None:
-        pass
+        with ui.ZStack(height=20):
+            value_model = model.get_item_value_model(item, column_id)
+            ui.Label(value_model.as_string)
 
 
 class CesiumOmniverseAssetWindow(ui.Window):
@@ -94,8 +111,11 @@ class CesiumOmniverseAssetWindow(ui.Window):
         self._assets_delegate = IonAssetDelegate()
 
         self._subscriptions: List[carb.events.ISubscription] = []
+        self._setup_subscriptions()
 
         self.frame.set_build_fn(self._build_fn)
+
+        self._refresh_list()
 
     def destroy(self):
         for subscription in self._subscriptions:
@@ -114,10 +134,28 @@ class CesiumOmniverseAssetWindow(ui.Window):
         )
 
     def _refresh_list(self):
-        pass
+        session = self._cesium_omniverse_interface.get_session()
 
-    def _on_assets_updated(self):
-        pass
+        if session is not None:
+            self._logger.info("Cesium ion Assets refreshing.")
+            session.refresh_assets()
+
+    def _on_assets_updated(self, _e: carb.events.IEvent):
+        session = self._cesium_omniverse_interface.get_session()
+
+        if session is not None:
+            self._logger.info("Cesium ion Assets refreshed.")
+            self._assets.replace_items(
+                [
+                    IonAssetItem(
+                        item.asset_id,
+                        item.name,
+                        item.description,
+                        item.attribution,
+                        item.asset_type,
+                        item.date_added) for item in session.get_assets().items
+                ]
+            )
 
     def _build_fn(self):
         """Builds all UI components."""

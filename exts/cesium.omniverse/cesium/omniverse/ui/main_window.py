@@ -117,16 +117,16 @@ class CesiumOmniverseMainWindow(ui.Window):
             self._sign_out_button.enabled = is_connected
 
     def _on_assets_updated(self, _e: carb.events.IEvent):
-        pass
+        self._logger.info("Received ion Assets updated event.")
 
     def _on_connection_updated(self, _e: carb.events.IEvent):
-        pass
+        self._logger.info("Received ion Connection updated event.")
 
     def _on_profile_updated(self, _e: carb.events.IEvent):
-        pass
+        self._logger.info("Received ion Profile updated event.")
 
     def _on_tokens_updated(self, _e: carb.events.IEvent):
-        pass
+        self._logger.info("Received ion Tokens updated event.")
 
     def _on_show_token_window(self, _e: carb.events.IEvent):
         self._show_token_window()

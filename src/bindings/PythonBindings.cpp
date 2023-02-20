@@ -80,21 +80,26 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("get_assets", &CesiumIonSession::getAssets)
         .def("get_tokens", &CesiumIonSession::getTokens)
         .def("refresh_tokens", &CesiumIonSession::refreshTokens)
-        .def("disconnect", &CesiumIonSession::disconnect)
-        .def("refresh_profile", &CesiumIonSession::refreshProfile);
+        .def("refresh_profile", &CesiumIonSession::refreshProfile)
+        .def("refresh_assets", &CesiumIonSession::refreshAssets)
+        .def("disconnect", &CesiumIonSession::disconnect);
 
     py::class_<SetDefaultTokenResult>(m, "SetDefaultTokenResult")
         .def_readonly("code", &SetDefaultTokenResult::code)
         .def_readonly("message", &SetDefaultTokenResult::message);
 
+    py::class_<CesiumIonClient::Assets>(m, "Assets")
+        .def_readonly("link", &CesiumIonClient::Assets::link)
+        .def_readonly("items", &CesiumIonClient::Assets::items);
+
     py::class_<CesiumIonClient::Asset>(m, "Asset")
-        .def_readonly("id", &CesiumIonClient::Asset::id)
+        .def_readonly("asset_id", &CesiumIonClient::Asset::id)
         .def_readonly("name", &CesiumIonClient::Asset::name)
         .def_readonly("description", &CesiumIonClient::Asset::description)
         .def_readonly("attribution", &CesiumIonClient::Asset::attribution)
-        .def_readonly("type", &CesiumIonClient::Asset::type)
+        .def_readonly("asset_type", &CesiumIonClient::Asset::type)
         .def_readonly("bytes", &CesiumIonClient::Asset::bytes)
-        .def_readonly("dateAdded", &CesiumIonClient::Asset::dateAdded)
+        .def_readonly("date_added", &CesiumIonClient::Asset::dateAdded)
         .def_readonly("status", &CesiumIonClient::Asset::status)
         .def_readonly("percentComplete", &CesiumIonClient::Asset::percentComplete);
 
