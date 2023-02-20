@@ -120,6 +120,8 @@ class CesiumOmniverseAssetWindow(ui.Window):
 
         self._refresh_list()
 
+        self.focus()
+
     def destroy(self):
         for subscription in self._subscriptions:
             subscription.unsubscribe()

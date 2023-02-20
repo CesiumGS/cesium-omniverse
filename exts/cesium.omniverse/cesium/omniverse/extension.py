@@ -49,6 +49,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._debug_window: Optional[CesiumOmniverseDebugWindow] = None
         self._on_stage_subscription: Optional[carb.events.ISubscription] = None
         self._on_update_subscription: Optional[carb.events.ISubscription] = None
+        self._show_asset_window_subscription: Optional[carb.events.ISubscription] = None
         self._logger: logging.Logger = logging.getLogger(__name__)
         self._menu = None
 
@@ -93,6 +94,11 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             self._on_update_frame, name="cesium.omniverse.extension.ON_UPDATE_FRAME"
         )
 
+        bus = omni_app.get_app().get_message_bus_event_stream()
+        show_asset_window_event = carb.events.type_from_string("cesium.omniverse.SHOW_ASSET_WINDOW")
+        self._show_asset_window_subscription = bus.create_subscription_to_pop_by_type(show_asset_window_event,
+                                                                                      self._on_show_asset_window_event)
+
     def on_shutdown(self):
         self._menu = None
 
@@ -121,6 +127,10 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             self._on_update_subscription.unsubscribe()
             self._on_update_subscription = None
 
+        if self._show_asset_window_subscription is not None:
+            self._show_asset_window_subscription.unsubscribe()
+            self._show_asset_window_subscription = None
+
         self._logger.info("CesiumOmniverse shutdown")
 
         # Release the Cesium Omniverse interface.
@@ -147,6 +157,9 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             _cesium_omniverse_interface.update_stage(omni.usd.get_context().get_stage_id())
         elif event.type == int(omni.usd.StageEventType.CLOSED):
             _cesium_omniverse_interface.update_stage(0)
+
+    def _on_show_asset_window_event(self, _):
+        self.do_show_assets_window()
 
     def _add_to_menu(self, path, callback: Callable[[bool], None], show_on_startup):
         editor_menu = omni.kit.ui.get_editor_menu()
@@ -193,18 +206,25 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         elif self._main_window is not None:
             self._main_window.visible = False
 
+    def do_show_assets_window(self):
+        if self._asset_window:
+            self._asset_window.focus()
+            return
+
+        self._asset_window = CesiumOmniverseAssetWindow(
+            _cesium_omniverse_interface, width=700, height=300
+        )
+        self._asset_window.set_visibility_changed_fn(
+            partial(self._visibility_changed_fn, CesiumOmniverseAssetWindow.MENU_PATH))
+        asyncio.ensure_future(self._dock_window_async(self._asset_window, "Content"))
+
     def show_assets_window(self, _menu, value):
         if _cesium_omniverse_interface is None:
             logging.error("Cesium Omniverse Interface is not set.")
             return
 
         if value:
-            self._asset_window = CesiumOmniverseAssetWindow(
-                _cesium_omniverse_interface, width=700, height=300
-            )
-            self._asset_window.set_visibility_changed_fn(
-                partial(self._visibility_changed_fn, CesiumOmniverseAssetWindow.MENU_PATH))
-            asyncio.ensure_future(self._dock_window_async(self._asset_window, "Content"))
+            self.do_show_assets_window()
         elif self._asset_window is not None:
             self._asset_window.visible = False
 
