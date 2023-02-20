@@ -1,10 +1,11 @@
-from ..bindings import ICesiumOmniverseInterface
 import logging
 import carb.events
 import omni.kit.app as app
 import omni.ui as ui
-from typing import List
+from typing import List, Optional
 from datetime import datetime
+from ..bindings import ICesiumOmniverseInterface
+from .styles import CesiumOmniverseUiStyles
 
 
 class DateModel(ui.AbstractValueModel):
@@ -110,6 +111,8 @@ class CesiumOmniverseAssetWindow(ui.Window):
         self._assets = IonAssets()
         self._assets_delegate = IonAssetDelegate()
 
+        self._refresh_button: Optional[ui.Button] = None
+
         self._subscriptions: List[carb.events.ISubscription] = []
         self._setup_subscriptions()
 
@@ -157,12 +160,24 @@ class CesiumOmniverseAssetWindow(ui.Window):
                 ]
             )
 
+    def _refresh_button_clicked(self):
+        self._refresh_list()
+
     def _build_fn(self):
         """Builds all UI components."""
 
-        with ui.VStack():
-            # TODO: Top bar with refresh button.
-            with ui.ScrollingFrame(style_type_name_override="TreeView",
-                                   style={"Field": {"background_color": 0xFF000000}}):
-                ui.TreeView(self._assets, delegate=self._assets_delegate, root_visible=False, header_visible=True,
-                            style={"TreeView.Item": {"margin": 4}})
+        with ui.VStack(spacing=5):
+            with ui.HStack(height=30):
+                self._refresh_button = ui.Button("Refresh", alignment=ui.Alignment.CENTER, width=80,
+                                                 style=CesiumOmniverseUiStyles.blue_button_style,
+                                                 clicked_fn=self._refresh_button_clicked)
+                ui.Spacer()
+            with ui.HStack(spacing=5):
+                with ui.ScrollingFrame(style_type_name_override="TreeView",
+                                       style={"Field": {"background_color": 0xFF000000}},
+                                       width=ui.Length(2, ui.UnitType.FRACTION)):
+                    ui.TreeView(self._assets, delegate=self._assets_delegate, root_visible=False, header_visible=True,
+                                style={"TreeView.Item": {"margin": 4}})
+                with ui.ScrollingFrame(width=ui.Length(1, ui.UnitType.FRACTION)):
+                    with ui.VStack():
+                        ui.Label("TODO: Selection Frame")
