@@ -15,7 +15,8 @@ class CesiumOmniverseSignInWidget(ui.Frame):
         manager = app.get_app().get_extension_manager()
         ext_id = manager.get_extension_id_by_module("cesium.omniverse")
         self._logger = logging.getLogger(__name__)
-        self._images_path = Path(manager.get_extension_path(ext_id)).joinpath("images")
+        self._images_path = Path(
+            manager.get_extension_path(ext_id)).joinpath("images")
         self._cesium_omniverse_interface = cesium_omniverse_interface
 
         self._connect_button: Optional[ui.Button] = None
@@ -74,21 +75,28 @@ class CesiumOmniverseSignInWidget(ui.Frame):
                     ui.Spacer()
                     self._connect_button = ui.Button("Connect to Cesium ion",
                                                      alignment=ui.Alignment.CENTER,
-                                                     height=ui.Length(36, ui.UnitType.PIXEL),
-                                                     width=ui.Length(180, ui.UnitType.PIXEL),
+                                                     height=ui.Length(
+                                                         36, ui.UnitType.PIXEL),
+                                                     width=ui.Length(
+                                                         180, ui.UnitType.PIXEL),
                                                      style=CesiumOmniverseUiStyles.blue_button_style,
                                                      clicked_fn=self._connect_button_clicked)
                     ui.Spacer()
                 self._waiting_message_frame = ui.Frame(visible=False, height=0)
                 with self._waiting_message_frame:
                     with ui.VStack(spacing=10):
-                        ui.Label("Waiting for you to sign into Cesium ion with your web browser...")
-                        ui.Button("Open web browser again", clicked_fn=self._open_web_browser_again_clicked)
+                        ui.Label(
+                            "Waiting for you to sign into Cesium ion with your web browser...")
+                        ui.Button("Open web browser again",
+                                  clicked_fn=self._open_web_browser_again_clicked)
                         ui.Label("Or copy the URL below into your web browser.")
                         with ui.HStack():
-                            self._authorize_url_field = ui.StringField(read_only=True)
-                            self._authorize_url_field.model.set_value("https://cesium.com")
-                            ui.Button("Copy to Clipboard", clicked_fn=self._copy_to_clipboard_clicked)
+                            self._authorize_url_field = ui.StringField(
+                                read_only=True)
+                            self._authorize_url_field.model.set_value(
+                                "https://cesium.com")
+                            ui.Button("Copy to Clipboard",
+                                      clicked_fn=self._copy_to_clipboard_clicked)
                 ui.Spacer(height=10)
 
     def _connect_button_clicked(self) -> None:
@@ -99,4 +107,5 @@ class CesiumOmniverseSignInWidget(ui.Frame):
 
     def _copy_to_clipboard_clicked(self) -> None:
         if self._authorize_url_field is not None:
-            clipboard.copy(self._authorize_url_field.model.get_value_as_string())
+            clipboard.copy(
+                self._authorize_url_field.model.get_value_as_string())

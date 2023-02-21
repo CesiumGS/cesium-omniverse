@@ -32,8 +32,10 @@ class CesiumTroubleshooterWindow(ui.Window):
         self.padding_x = 12
         self.padding_y = 12
 
-        self._token_details_event_type = carb.events.type_from_string("cesium.omniverse.TOKEN_DETAILS_READY")
-        self._asset_details_event_type = carb.events.type_from_string("cesium.omniverse.ASSET_DETAILS_READY")
+        self._token_details_event_type = carb.events.type_from_string(
+            "cesium.omniverse.TOKEN_DETAILS_READY")
+        self._asset_details_event_type = carb.events.type_from_string(
+            "cesium.omniverse.ASSET_DETAILS_READY")
 
         self._valid_default_token_widget: Optional[CesiumPassFailWidget] = None
         self._default_token_has_access_widget: Optional[CesiumPassFailWidget] = None
@@ -112,7 +114,8 @@ class CesiumTroubleshooterWindow(ui.Window):
                     self._default_token_associated_to_account_widget = CesiumPassFailWidget()
                     ui.Label("Is associated with your user account")
             with ui.VStack(spacing=5):
-                ui.Label("Asset", height=16, style=CesiumOmniverseUiStyles.troubleshooter_header_style)
+                ui.Label(
+                    "Asset", height=16, style=CesiumOmniverseUiStyles.troubleshooter_header_style)
                 with ui.HStack(height=16, spacing=10):
                     self._asset_on_account_widget = CesiumPassFailWidget()
                     ui.Label("Asset ID exists in your user account")

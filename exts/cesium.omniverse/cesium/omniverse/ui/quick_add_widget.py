@@ -45,13 +45,16 @@ class CesiumOmniverseQuickAddWidget(ui.Frame):
     def _setup_subscriptions(self):
         update_stream = app.get_app().get_update_event_stream()
         self._subscriptions.append(
-            update_stream.create_subscription_to_pop(self._on_update_frame, name="on_update_frame")
+            update_stream.create_subscription_to_pop(
+                self._on_update_frame, name="on_update_frame")
         )
 
         bus = app.get_app().get_message_bus_event_stream()
-        token_set_event = carb.events.type_from_string("cesium.omniverse.SET_DEFAULT_TOKEN_SUCCESS")
+        token_set_event = carb.events.type_from_string(
+            "cesium.omniverse.SET_DEFAULT_TOKEN_SUCCESS")
         self._subscriptions.append(
-            bus.create_subscription_to_pop_by_type(token_set_event, self._on_token_set)
+            bus.create_subscription_to_pop_by_type(
+                token_set_event, self._on_token_set)
         )
 
     def _on_update_frame(self, _: carb.events.IEvent):
@@ -79,16 +82,20 @@ class CesiumOmniverseQuickAddWidget(ui.Frame):
         pass
 
     def _cwt_bing_maps_button_clicked(self):
-        self._add_ion_assets(AssetToAdd("Cesium World Terrain", 1, "Bing Maps Aerial imagery", 2))
+        self._add_ion_assets(AssetToAdd(
+            "Cesium World Terrain", 1, "Bing Maps Aerial imagery", 2))
 
     def _cwt_bing_maps_labels_button_clicked(self):
-        self._add_ion_assets(AssetToAdd("Cesium World Terrain", 1, "Bing Maps Aerial with Labels imagery", 3))
+        self._add_ion_assets(AssetToAdd(
+            "Cesium World Terrain", 1, "Bing Maps Aerial with Labels imagery", 3))
 
     def _cwt_bing_maps_roads_button_clicked(self):
-        self._add_ion_assets(AssetToAdd("Cesium World Terrain", 1, "Bing Maps Road imagery", 4))
+        self._add_ion_assets(AssetToAdd(
+            "Cesium World Terrain", 1, "Bing Maps Road imagery", 4))
 
     def _cwt_sentinel_button_clicked(self):
-        self._add_ion_assets(AssetToAdd("Cesium World Terrain", 1, "Sentinel-2 imagery", 3954))
+        self._add_ion_assets(AssetToAdd(
+            "Cesium World Terrain", 1, "Sentinel-2 imagery", 3954))
 
     def _cesium_osm_buildings_clicked(self):
         self._add_ion_assets(AssetToAdd("Cesium OSM Buildings", 96188))
@@ -102,7 +109,8 @@ class CesiumOmniverseQuickAddWidget(ui.Frame):
 
         if not self._cesium_omniverse_interface.is_default_token_set():
             bus = app.get_app().get_message_bus_event_stream()
-            show_token_window_event = carb.events.type_from_string("cesium.omniverse.SHOW_TOKEN_WINDOW")
+            show_token_window_event = carb.events.type_from_string(
+                "cesium.omniverse.SHOW_TOKEN_WINDOW")
             bus.push(show_token_window_event)
             self._assets_to_add_after_token_set.append(asset_to_add)
             return
@@ -123,7 +131,8 @@ class CesiumOmniverseQuickAddWidget(ui.Frame):
 
         if tileset_id == -1:
             # TODO: Open token troubleshooter.
-            self._logger.warning("Error adding tileset and raster overlay to stage")
+            self._logger.warning(
+                "Error adding tileset and raster overlay to stage")
 
     def _build_ui(self):
         with self:

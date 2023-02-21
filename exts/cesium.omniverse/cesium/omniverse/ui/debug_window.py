@@ -43,7 +43,8 @@ class CesiumOmniverseDebugWindow(ui.Window):
             """Adds the Maxar data of Cape Canaveral to the stage."""
 
             # Cape Canaveral
-            self._cesium_omniverse_interface.set_georeference_origin(-80.53, 28.46, -30.0)
+            self._cesium_omniverse_interface.set_georeference_origin(
+                -80.53, 28.46, -30.0)
 
             self._cesium_omniverse_interface.addCesiumDataIfNotExists("")
 
@@ -58,7 +59,8 @@ class CesiumOmniverseDebugWindow(ui.Window):
             """Adds the standard Cesium World Terrain to the stage."""
 
             # Cesium HQ
-            self._cesium_omniverse_interface.set_georeference_origin(-75.1564977, 39.9501464, 150.0)
+            self._cesium_omniverse_interface.set_georeference_origin(
+                -75.1564977, 39.9501464, 150.0)
 
             self._cesium_omniverse_interface.addCesiumDataIfNotExists("")
 
@@ -79,7 +81,8 @@ class CesiumOmniverseDebugWindow(ui.Window):
             """Adds the Bing Maps & Cesium Terrain to the stage."""
 
             # Cesium HQ
-            self._cesium_omniverse_interface.set_georeference_origin(-75.1564977, 39.9501464, 150.0)
+            self._cesium_omniverse_interface.set_georeference_origin(
+                -75.1564977, 39.9501464, 150.0)
 
             self._cesium_omniverse_interface.addCesiumDataIfNotExists("")
 
@@ -117,13 +120,18 @@ class CesiumOmniverseDebugWindow(ui.Window):
                 self._cesium_omniverse_interface.remove_tileset(tilesetId)
 
         def open_troubleshooting_window():
-            CesiumTroubleshooterWindow(self._cesium_omniverse_interface, "Testing", 1, 0, "Testing")
+            CesiumTroubleshooterWindow(
+                self._cesium_omniverse_interface, "Testing", 1, 0, "Testing")
 
         with ui.VStack():
             ui.Button(
                 "Create Cesium World Terrain Tileset", clicked_fn=lambda: create_tileset(Tileset.CESIUM_WORLD_TERRAIN)
             )
-            ui.Button("Create Bing Maps Tileset", clicked_fn=lambda: create_tileset(Tileset.BING_MAPS))
-            ui.Button("Create Cape Canaveral Tileset", clicked_fn=lambda: create_tileset(Tileset.CAPE_CANAVERAL))
-            ui.Button("Remove all Tilesets", clicked_fn=lambda: remove_all_tilesets())
-            ui.Button("Open Troubleshooter", clicked_fn=lambda: open_troubleshooting_window())
+            ui.Button("Create Bing Maps Tileset",
+                      clicked_fn=lambda: create_tileset(Tileset.BING_MAPS))
+            ui.Button("Create Cape Canaveral Tileset",
+                      clicked_fn=lambda: create_tileset(Tileset.CAPE_CANAVERAL))
+            ui.Button("Remove all Tilesets",
+                      clicked_fn=lambda: remove_all_tilesets())
+            ui.Button("Open Troubleshooter",
+                      clicked_fn=lambda: open_troubleshooting_window())
