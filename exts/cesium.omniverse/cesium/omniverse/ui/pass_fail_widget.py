@@ -11,7 +11,8 @@ class CesiumPassFailWidget(ui.Frame):
 
         manager = app.get_app().get_extension_manager()
         ext_id = manager.get_extension_id_by_module("cesium.omniverse")
-        self._icon_path = Path(manager.get_extension_path(ext_id)).joinpath("images")
+        self._icon_path = Path(
+            manager.get_extension_path(ext_id)).joinpath("images")
 
         self._subscriptions: List[carb.Subscription] = []
         self._setup_subscriptions()
@@ -32,7 +33,8 @@ class CesiumPassFailWidget(ui.Frame):
         self._passed_model.set_value(value)
 
     def _setup_subscriptions(self):
-        self._subscriptions.append(self._passed_model.subscribe_value_changed_fn(lambda _e: self.rebuild()))
+        self._subscriptions.append(
+            self._passed_model.subscribe_value_changed_fn(lambda _e: self.rebuild()))
 
     def _build_ui(self):
         with self:

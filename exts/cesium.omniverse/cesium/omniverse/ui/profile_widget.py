@@ -63,4 +63,5 @@ class CesiumOmniverseProfileWidget(ui.Frame):
 
     def _build_ui(self):
         with self:
-            ui.Button(self._message, clicked_fn=self._on_profile_button_clicked, enabled=self._button_enabled)
+            ui.Button(self._message, clicked_fn=self._on_profile_button_clicked,
+                      enabled=self._button_enabled)

@@ -55,14 +55,20 @@ class CesiumAssetDetailsWidget(ui.ScrollingFrame):
             if self._should_be_visible():
                 with ui.VStack(spacing=20):
                     with ui.VStack(spacing=5):
-                        ui.Label(self._name, style=CesiumOmniverseUiStyles.asset_detail_name_label, height=0)
-                        ui.Label(f"(ID: {self._id})", style=CesiumOmniverseUiStyles.asset_detail_id_label, height=0)
+                        ui.Label(
+                            self._name, style=CesiumOmniverseUiStyles.asset_detail_name_label, height=0)
+                        ui.Label(
+                            f"(ID: {self._id})", style=CesiumOmniverseUiStyles.asset_detail_id_label, height=0)
                     # TODO: Add to stage buttons.
                     with ui.VStack(spacing=5):
-                        ui.Label("Description", style=CesiumOmniverseUiStyles.asset_detail_header_label, height=0)
-                        ui.Label(self._description, word_wrap=True, alignment=ui.Alignment.TOP, height=0)
+                        ui.Label(
+                            "Description", style=CesiumOmniverseUiStyles.asset_detail_header_label, height=0)
+                        ui.Label(self._description, word_wrap=True,
+                                 alignment=ui.Alignment.TOP, height=0)
                     with ui.VStack(spacing=5):
-                        ui.Label("Attribution", style=CesiumOmniverseUiStyles.asset_detail_header_label, height=0)
-                        ui.Label(self._attribution, word_wrap=True, alignment=ui.Alignment.TOP, height=0)
+                        ui.Label(
+                            "Attribution", style=CesiumOmniverseUiStyles.asset_detail_header_label, height=0)
+                        ui.Label(self._attribution, word_wrap=True,
+                                 alignment=ui.Alignment.TOP, height=0)
             else:
                 ui.Spacer()

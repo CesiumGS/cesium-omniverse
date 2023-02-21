@@ -55,15 +55,21 @@ class CesiumOmniverseExtension(omni.ext.IExt):
 
     def on_startup(self):
         # The ability to show up the window if the system requires it. We use it in QuickLayout.
-        ui.Workspace.set_show_window_fn(CesiumOmniverseMainWindow.WINDOW_NAME, partial(self.show_main_window, None))
-        ui.Workspace.set_show_window_fn(CesiumOmniverseAssetWindow.WINDOW_NAME, partial(self.show_assets_window, None))
-        ui.Workspace.set_show_window_fn(CesiumOmniverseDebugWindow.WINDOW_NAME, partial(self.show_debug_window, None))
+        ui.Workspace.set_show_window_fn(
+            CesiumOmniverseMainWindow.WINDOW_NAME, partial(self.show_main_window, None))
+        ui.Workspace.set_show_window_fn(
+            CesiumOmniverseAssetWindow.WINDOW_NAME, partial(self.show_assets_window, None))
+        ui.Workspace.set_show_window_fn(
+            CesiumOmniverseDebugWindow.WINDOW_NAME, partial(self.show_debug_window, None))
 
         show_on_startup = True
 
-        self._add_to_menu(CesiumOmniverseMainWindow.MENU_PATH, self.show_main_window, show_on_startup)
-        self._add_to_menu(CesiumOmniverseAssetWindow.MENU_PATH, self.show_assets_window, False)
-        self._add_to_menu(CesiumOmniverseDebugWindow.MENU_PATH, self.show_debug_window, False)
+        self._add_to_menu(CesiumOmniverseMainWindow.MENU_PATH,
+                          self.show_main_window, show_on_startup)
+        self._add_to_menu(CesiumOmniverseAssetWindow.MENU_PATH,
+                          self.show_assets_window, False)
+        self._add_to_menu(CesiumOmniverseDebugWindow.MENU_PATH,
+                          self.show_debug_window, False)
 
         self._logger.info("CesiumOmniverse startup")
 
@@ -75,7 +81,8 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         omni_settings.get_settings().set("/rtx/hydra/TBNFrameMode", 1)
         # Disabling Texture Streaming is a workaround for issues with Kit 104.1. We should remove this as soon as
         #   the issue is fixed.
-        omni_settings.get_settings().set("/rtx-transient/resourcemanager/enableTextureStreaming", False)
+        omni_settings.get_settings().set(
+            "/rtx-transient/resourcemanager/enableTextureStreaming", False)
 
         # Show the window. It will call `self.show_window`
         if show_on_startup:
@@ -84,7 +91,8 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         # Subscribe to stage event stream
         usd_context = omni.usd.get_context()
         if usd_context.get_stage_state() == omni.usd.StageState.OPENED:
-            _cesium_omniverse_interface.update_stage(usd_context.get_stage_id())
+            _cesium_omniverse_interface.update_stage(
+                usd_context.get_stage_id())
 
         self._on_stage_subscription = usd_context.get_stage_event_stream().create_subscription_to_pop(
             self._on_stage_event, name="cesium.omniverse.ON_STAGE_EVENT"
@@ -95,7 +103,8 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         )
 
         bus = omni_app.get_app().get_message_bus_event_stream()
-        show_asset_window_event = carb.events.type_from_string("cesium.omniverse.SHOW_ASSET_WINDOW")
+        show_asset_window_event = carb.events.type_from_string(
+            "cesium.omniverse.SHOW_ASSET_WINDOW")
         self._show_asset_window_subscription = bus.create_subscription_to_pop_by_type(show_asset_window_event,
                                                                                       self._on_show_asset_window_event)
 
@@ -115,9 +124,12 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             self._debug_window = None
 
         # Deregister the function that shows the window from omni.ui
-        ui.Workspace.set_show_window_fn(CesiumOmniverseMainWindow.WINDOW_NAME, None)
-        ui.Workspace.set_show_window_fn(CesiumOmniverseAssetWindow.WINDOW_NAME, None)
-        ui.Workspace.set_show_window_fn(CesiumOmniverseDebugWindow.WINDOW_NAME, None)
+        ui.Workspace.set_show_window_fn(
+            CesiumOmniverseMainWindow.WINDOW_NAME, None)
+        ui.Workspace.set_show_window_fn(
+            CesiumOmniverseAssetWindow.WINDOW_NAME, None)
+        ui.Workspace.set_show_window_fn(
+            CesiumOmniverseDebugWindow.WINDOW_NAME, None)
 
         if self._on_stage_subscription is not None:
             self._on_stage_subscription.unsubscribe()
@@ -154,7 +166,8 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             return
 
         if event.type == int(omni.usd.StageEventType.OPENED):
-            _cesium_omniverse_interface.update_stage(omni.usd.get_context().get_stage_id())
+            _cesium_omniverse_interface.update_stage(
+                omni.usd.get_context().get_stage_id())
         elif event.type == int(omni.usd.StageEventType.CLOSED):
             _cesium_omniverse_interface.update_stage(0)
 
@@ -165,7 +178,8 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         editor_menu = omni.kit.ui.get_editor_menu()
 
         if editor_menu:
-            self._menu = editor_menu.add_item(path, callback, toggle=True, value=show_on_startup)
+            self._menu = editor_menu.add_item(
+                path, callback, toggle=True, value=show_on_startup)
 
     async def _destroy_window_async(self, path):
         # Wait one frame, this is due to the one frame defer in Window::_moveToMainOSWindow()
@@ -216,7 +230,8 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         )
         self._asset_window.set_visibility_changed_fn(
             partial(self._visibility_changed_fn, CesiumOmniverseAssetWindow.MENU_PATH))
-        asyncio.ensure_future(self._dock_window_async(self._asset_window, "Content"))
+        asyncio.ensure_future(self._dock_window_async(
+            self._asset_window, "Content"))
 
     def show_assets_window(self, _menu, value):
         if _cesium_omniverse_interface is None:
