@@ -11,6 +11,7 @@ from .sign_in_widget import CesiumOmniverseSignInWidget
 from .profile_widget import CesiumOmniverseProfileWidget
 from .token_window import CesiumOmniverseTokenWindow
 from .troubleshooter_window import CesiumTroubleshooterWindow
+from .asset_window import CesiumOmniverseAssetWindow
 from .styles import CesiumOmniverseUiStyles
 
 HELP_URL = "https://community.cesium.com/"
@@ -45,6 +46,8 @@ class CesiumOmniverseMainWindow(ui.Window):
         self._quick_add_widget: Optional[CesiumOmniverseQuickAddWidget] = None
         self._sign_in_widget: Optional[CesiumOmniverseSignInWidget] = None
         self._profile_widget: Optional[CesiumOmniverseProfileWidget] = None
+        self._troubleshooter_window: Optional[CesiumTroubleshooterWindow] = None
+        self._asset_window: Optional[CesiumOmniverseAssetWindow] = None
 
         self._subscriptions: List[carb.events.ISubscription] = []
         self._setup_subscriptions()
@@ -55,13 +58,26 @@ class CesiumOmniverseMainWindow(ui.Window):
         for subscription in self._subscriptions:
             subscription.unsubscribe()
 
-        if self._sign_in_widget:
+        if self._sign_in_widget is not None:
             self._sign_in_widget.destroy()
+            self._sign_in_widget = None
 
-        if self._profile_widget:
+        if self._profile_widget is not None:
             self._profile_widget.destroy()
+            self._profile_widget = None
+
+        if self._quick_add_widget is not None:
+            self._quick_add_widget.destroy()
+            self._quick_add_widget = None
+
+        if self._troubleshooter_window is not None:
+            self._troubleshooter_window.destroy()
+            self._troubleshooter_window = None
 
         super().destroy()
+
+    def __del__(self):
+        self.destroy()
 
     def _setup_subscriptions(self):
         update_stream = app.get_app().get_update_event_stream()
@@ -117,16 +133,16 @@ class CesiumOmniverseMainWindow(ui.Window):
             self._sign_out_button.enabled = is_connected
 
     def _on_assets_updated(self, _e: carb.events.IEvent):
-        pass
+        self._logger.info("Received ion Assets updated event.")
 
     def _on_connection_updated(self, _e: carb.events.IEvent):
-        pass
+        self._logger.info("Received ion Connection updated event.")
 
     def _on_profile_updated(self, _e: carb.events.IEvent):
-        pass
+        self._logger.info("Received ion Profile updated event.")
 
     def _on_tokens_updated(self, _e: carb.events.IEvent):
-        pass
+        self._logger.info("Received ion Tokens updated event.")
 
     def _on_show_token_window(self, _e: carb.events.IEvent):
         self._show_token_window()
@@ -138,7 +154,12 @@ class CesiumOmniverseMainWindow(ui.Window):
 
         name = _e.payload["rasterOverlayName"] if _e.payload["rasterOverlayName"] else _e.payload["tilesetName"]
 
-        CesiumTroubleshooterWindow(self._cesium_omniverse_interface, name, tileset_id, raster_overlay_id, message)
+        if self._troubleshooter_window:
+            self._troubleshooter_window.destroy()
+            self._troubleshooter_window = None
+
+        self._troubleshooter_window = CesiumTroubleshooterWindow(self._cesium_omniverse_interface, name, tileset_id,
+                                                                 raster_overlay_id, message)
 
     def _build_fn(self):
         """Builds all UI components."""
@@ -174,9 +195,8 @@ class CesiumOmniverseMainWindow(ui.Window):
         if not self._add_button or not self._add_button.enabled:
             return
 
-        # TODO: Implement CesiumMainWindow._add_button_clicked(self)
-
-        pass
+        show_asset_window_event = carb.events.type_from_string("cesium.omniverse.SHOW_ASSET_WINDOW")
+        app.get_app().get_message_bus_event_stream().push(show_asset_window_event)
 
     def _upload_button_clicked(self) -> None:
         if not self._upload_button or not self._upload_button.enabled:
