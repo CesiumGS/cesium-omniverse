@@ -50,3 +50,26 @@ class CesiumOmniverseUiStyles:
             "alignment": Alignment.CENTER_BOTTOM
         }
     }
+
+    asset_detail_frame = {
+        "ScrollingFrame": {
+            "background_color": cl("#1F2123"),
+            "padding": 10
+        }
+    }
+
+    asset_detail_name_label = {
+        "font_size": 22
+    }
+
+    asset_detail_header_label = {
+        "font_size": 18
+    }
+
+    asset_detail_id_label = {
+        "font_size": 14
+    }
+
+    asset_detail_content_label = {
+        "font_size": 16
+    }

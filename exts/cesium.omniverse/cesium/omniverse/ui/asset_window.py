@@ -1,9 +1,10 @@
 import logging
-from typing import List, Optional
+from typing import cast, List, Optional
 
 import carb.events
 import omni.kit.app as app
 import omni.ui as ui
+from .asset_details_widget import CesiumAssetDetailsWidget
 from .models import IonAssets, IonAssetItem, IonAssetDelegate
 from .styles import CesiumOmniverseUiStyles
 from ..bindings import ICesiumOmniverseInterface
@@ -28,6 +29,7 @@ class CesiumOmniverseAssetWindow(ui.Window):
 
         self._refresh_button: Optional[ui.Button] = None
         self._asset_tree_view: Optional[ui.TreeView] = None
+        self._asset_details_widget: Optional[CesiumAssetDetailsWidget] = None
 
         self._subscriptions: List[carb.events.ISubscription] = []
         self._setup_subscriptions()
@@ -49,6 +51,10 @@ class CesiumOmniverseAssetWindow(ui.Window):
         if self._asset_tree_view is not None:
             self._asset_tree_view.destroy()
             self._asset_tree_view = None
+
+        if self._asset_details_widget is not None:
+            self._asset_details_widget.destroy()
+            self._asset_details_widget = None
 
         for subscription in self._subscriptions:
             subscription.unsubscribe()
@@ -91,9 +97,14 @@ class CesiumOmniverseAssetWindow(ui.Window):
 
     def _refresh_button_clicked(self):
         self._refresh_list()
+        self._selection_changed([])
 
-    def _selection_changed(self, items: List[IonAssetItem]):
-        pass
+    def _selection_changed(self, items: List[ui.AbstractItem]):
+        if len(items) > 0:
+            item = cast(IonAssetItem, items.pop())
+        else:
+            item = None
+        self._asset_details_widget.update_selection(item)
 
     def _build_fn(self):
         """Builds all UI components."""
@@ -113,6 +124,4 @@ class CesiumOmniverseAssetWindow(ui.Window):
                                                         header_visible=True,
                                                         style={"TreeView.Item": {"margin": 4}})
                     self._asset_tree_view.set_selection_changed_fn(self._selection_changed)
-                with ui.ScrollingFrame(width=ui.Length(1, ui.UnitType.FRACTION)):
-                    with ui.VStack():
-                        ui.Label("TODO: Selection Frame")
+                self._asset_details_widget = CesiumAssetDetailsWidget(width=ui.Length(1, ui.UnitType.FRACTION))
