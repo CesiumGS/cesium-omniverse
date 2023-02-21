@@ -1,11 +1,12 @@
 import logging
+from typing import List, Optional
+
 import carb.events
 import omni.kit.app as app
 import omni.ui as ui
-from typing import List, Optional
-from ..bindings import ICesiumOmniverseInterface
 from .models import IonAssets, IonAssetItem, IonAssetDelegate
 from .styles import CesiumOmniverseUiStyles
+from ..bindings import ICesiumOmniverseInterface
 
 
 class CesiumOmniverseAssetWindow(ui.Window):
@@ -37,12 +38,17 @@ class CesiumOmniverseAssetWindow(ui.Window):
 
         self.focus()
 
-    def destroy(self):
-        self._refresh_button.destroy()
-        self._refresh_button = None
+    def __del__(self):
+        self.destroy()
 
-        self._asset_tree_view.destroy()
-        self._asset_tree_view = None
+    def destroy(self):
+        if self._refresh_button is not None:
+            self._refresh_button.destroy()
+            self._refresh_button = None
+
+        if self._asset_tree_view is not None:
+            self._asset_tree_view.destroy()
+            self._asset_tree_view = None
 
         for subscription in self._subscriptions:
             subscription.unsubscribe()
