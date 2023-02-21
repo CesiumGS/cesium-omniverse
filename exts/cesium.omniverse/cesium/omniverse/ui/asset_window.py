@@ -41,8 +41,10 @@ class IonAssetItem(ui.AbstractItem):
 class IonAssets(ui.AbstractItemModel):
     """Represents a list of ion assets for the asset window."""
 
-    def __init__(self, items: List[IonAssetItem] = []):
+    def __init__(self, items=None):
         super().__init__()
+        if items is None:
+            items = []
         self._items: List[IonAssetItem] = items
 
     def replace_items(self, items: List[IonAssetItem]):
