@@ -86,7 +86,7 @@ class CesiumOmniverseAssetWindow(ui.Window):
     def _refresh_button_clicked(self):
         self._refresh_list()
 
-    def _selection_changed(self, item: IonAssetItem):
+    def _selection_changed(self, items: List[IonAssetItem]):
         pass
 
     def _build_fn(self):
