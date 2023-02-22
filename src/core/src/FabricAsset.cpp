@@ -10,7 +10,7 @@ FabricAsset::FabricAsset(const pxr::SdfAssetPath& assetPath)
 
 bool FabricAsset::isEmpty() const {
     const std::byte* const bytes = reinterpret_cast<const std::byte*>(this);
-    for (auto i = 0; i < sizeof(FabricAsset); i++) {
+    for (size_t i = 0; i < sizeof(FabricAsset); i++) {
         if (bytes[i] != std::byte(0)) {
             return false;
         }
@@ -20,7 +20,7 @@ bool FabricAsset::isEmpty() const {
 
 bool FabricAsset::isPaddingEmpty() const {
     const auto* const bytes = reinterpret_cast<const std::byte*>(&_padding);
-    for (auto i = 0; i < sizeof(_padding); i++) {
+    for (size_t i = 0; i < sizeof(_padding); i++) {
         if (bytes[i] != std::byte(0)) {
             return false;
         }

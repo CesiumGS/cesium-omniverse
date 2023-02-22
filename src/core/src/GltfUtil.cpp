@@ -20,62 +20,6 @@ namespace cesium::omniverse::GltfUtil {
 
 namespace {
 
-glm::dmat4 unpackMatrix(const std::vector<double>& values) {
-    return glm::dmat4(
-        values[0],
-        values[1],
-        values[2],
-        values[3],
-        values[4],
-        values[5],
-        values[6],
-        values[7],
-        values[8],
-        values[9],
-        values[10],
-        values[11],
-        values[12],
-        values[13],
-        values[14],
-        values[15]);
-}
-
-glm::dvec3 unpackVec3(const std::vector<double>& values) {
-    return glm::dvec3(values[0], values[1], values[2]);
-}
-
-glm::dquat unpackQuat(const std::vector<double>& values) {
-    return glm::dquat(values[0], values[1], values[2], values[3]);
-}
-
-glm::dmat4 getNodeMatrix(const CesiumGltf::Node& node) {
-    glm::dmat4 nodeMatrix(1.0);
-
-    if (node.matrix.size() == 16) {
-        nodeMatrix = unpackMatrix(node.matrix);
-    } else {
-        glm::dmat4 translation(1.0);
-        glm::dmat4 rotation(1.0);
-        glm::dmat4 scale(1.0);
-
-        if (node.scale.size() == 3) {
-            scale = glm::scale(scale, unpackVec3(node.scale));
-        }
-
-        if (node.rotation.size() == 4) {
-            rotation = glm::toMat4(unpackQuat(node.rotation));
-        }
-
-        if (node.translation.size() == 3) {
-            translation = glm::translate(translation, unpackVec3(node.translation));
-        }
-
-        nodeMatrix = translation * rotation * scale;
-    }
-
-    return nodeMatrix;
-}
-
 template <typename IndexType>
 pxr::VtArray<int> createIndices(
     const CesiumGltf::MeshPrimitive& primitive,
@@ -277,7 +221,7 @@ pxr::VtArray<pxr::GfVec3f> getPrimitiveNormals(
     // Generate smooth normals
     pxr::VtArray<pxr::GfVec3f> normalsUsd(positions.size(), pxr::GfVec3f(0.0f));
 
-    for (auto i = 0; i < indices.size(); i += 3) {
+    for (size_t i = 0; i < indices.size(); i += 3) {
         auto idx0 = indices[i];
         auto idx1 = indices[i + 1];
         auto idx2 = indices[i + 2];
@@ -327,7 +271,7 @@ std::optional<uint64_t> getBaseColorTextureIndex(const CesiumGltf::Model& model,
     const auto& pbrMetallicRoughness = material.pbrMetallicRoughness;
     if (pbrMetallicRoughness.has_value() && pbrMetallicRoughness->baseColorTexture.has_value()) {
         const auto index = pbrMetallicRoughness->baseColorTexture->index;
-        if (index >= 0 && index < model.textures.size()) {
+        if (index >= 0 && static_cast<size_t>(index) < model.textures.size()) {
             return static_cast<uint64_t>(index);
         }
     }

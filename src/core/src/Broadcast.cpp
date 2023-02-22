@@ -8,16 +8,16 @@ const char* TOKENS_UPDATED_EVENT_KEY = "cesium.omniverse.TOKENS_UPDATED";
 const char* SHOW_TROUBLESHOOTER_EVENT_KEY = "cesium.omniverse.SHOW_TROUBLESHOOTER";
 const char* SET_DEFAULT_PROJECT_TOKEN_COMPLETE_KEY = "cesium.omniverse.SET_DEFAULT_PROJECT_TOKEN_COMPLETE";
 
-template <typename... ValuesT> void sendMessageToBusWithPayload(const char* eventKey, ValuesT&&... payload) {
-    auto eventType = carb::events::typeFromString(eventKey);
-    sendMessageToBusWithPayload(eventType, std::forward<ValuesT>(payload)...);
-}
-
 template <typename... ValuesT>
 void sendMessageToBusWithPayload(carb::events::EventType eventType, ValuesT&&... payload) {
     auto app = carb::getCachedInterface<omni::kit::IApp>();
     auto bus = app->getMessageBusEventStream();
     bus->push(eventType, std::forward<ValuesT>(payload)...);
+}
+
+template <typename... ValuesT> void sendMessageToBusWithPayload(const char* eventKey, ValuesT&&... payload) {
+    auto eventType = carb::events::typeFromString(eventKey);
+    sendMessageToBusWithPayload(eventType, std::forward<ValuesT>(payload)...);
 }
 
 } // namespace

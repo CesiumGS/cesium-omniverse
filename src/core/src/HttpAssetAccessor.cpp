@@ -50,7 +50,7 @@ struct GZipDecompressInterceptor : public cpr::Interceptor {
   public:
     cpr::Response intercept(cpr::Session& session) override {
 #ifdef CESIUM_OMNI_UNIX
-        auto certPath = fmt::format("{}/cacert.pem", Context::instance().getCertificatePath());
+        auto certPath = fmt::format("{}/cacert.pem", Context::instance().getCertificatePath().generic_string());
         curl_easy_setopt(session.GetCurlHolder()->handle, CURLOPT_CAINFO, certPath.c_str());
 #endif
         curl_easy_setopt(session.GetCurlHolder()->handle, CURLOPT_ACCEPT_ENCODING, nullptr);
@@ -98,7 +98,8 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> HttpAssetAccess
     const std::string& url,
     const std::vector<THeader>& headers,
     const gsl::span<const std::byte>& contentPayload) {
-    return asyncSystem.createFuture<std::shared_ptr<CesiumAsync::IAssetRequest>>([&verb,
+    return asyncSystem.createFuture<std::shared_ptr<CesiumAsync::IAssetRequest>>([this,
+                                                                                  &verb,
                                                                                   &url,
                                                                                   &headers,
                                                                                   &contentPayload](

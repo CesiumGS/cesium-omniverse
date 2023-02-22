@@ -129,10 +129,10 @@ class Context {
     std::vector<Cesium3DTilesSelection::ViewState> _viewStates;
 };
 
-#define CESIUM_LOG_VERBOSE(message, ...) Context::instance().getLogger()->verbose(message, __VA_ARGS__);
-#define CESIUM_LOG_INFO(message, ...) Context::instance().getLogger()->info(message, __VA_ARGS__);
-#define CESIUM_LOG_WARN(message, ...) Context::instance().getLogger()->warn(message, __VA_ARGS__);
-#define CESIUM_LOG_ERROR(message, ...) Context::instance().getLogger()->error(message, __VA_ARGS__);
-#define CESIUM_LOG_FATAL(message, ...) Context::instance().getLogger()->fatal(message, __VA_ARGS__);
+#define CESIUM_LOG_VERBOSE(...) Context::instance().getLogger()->verbose(__VA_ARGS__)
+#define CESIUM_LOG_INFO(...) Context::instance().getLogger()->info(__VA_ARGS__)
+#define CESIUM_LOG_WARN(...) Context::instance().getLogger()->warn(__VA_ARGS__)
+#define CESIUM_LOG_ERROR(...) Context::instance().getLogger()->error(__VA_ARGS__)
+#define CESIUM_LOG_FATAL(...) Context::instance().getLogger()->fatal(__VA_ARGS__)
 
 } // namespace cesium::omniverse

@@ -1,5 +1,3 @@
-#pragma once
-
 #include "cesium/omniverse/UsdUtil.h"
 
 #include "cesium/omniverse/Context.h"
@@ -109,11 +107,11 @@ pxr::GfMatrix4d glmToUsdMatrix(const glm::dmat4& matrix) {
 }
 
 Decomposed glmToUsdMatrixDecomposed(const glm::dmat4& matrix) {
-    glm::dvec3 scale;
-    glm::dquat rotation;
-    glm::dvec3 translation;
-    glm::dvec3 skew;
-    glm::dvec4 perspective;
+    glm::dvec3 scale{};
+    glm::dquat rotation{};
+    glm::dvec3 translation{};
+    glm::dvec3 skew{};
+    glm::dvec4 perspective{};
 
     [[maybe_unused]] const auto decomposable = glm::decompose(matrix, scale, rotation, translation, skew, perspective);
     assert(decomposable);

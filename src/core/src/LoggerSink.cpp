@@ -25,6 +25,9 @@ LoggerSink::LoggerSink(omni::log::Level logLevel)
             set_level(spdlog::level::critical);
             break;
         }
+        default: {
+            break;
+        }
     }
 }
 
@@ -57,6 +60,9 @@ void LoggerSink::sink_it_([[maybe_unused]] const spdlog::details::log_msg& msg) 
         case omni::log::Level::eFatal: {
             const std::string message = formatMessage(msg);
             OMNI_LOG_FATAL("%s", message.c_str());
+            break;
+        }
+        default: {
             break;
         }
     }

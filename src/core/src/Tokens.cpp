@@ -1,6 +1,6 @@
 #include "cesium/omniverse/Tokens.h"
 
-#include <carb/flatcache/FlatCacheUsd.h>
+#include <carb/flatcache/FlatCacheUSD.h>
 #include <pxr/base/tf/staticTokens.h>
 
 // clang-format off

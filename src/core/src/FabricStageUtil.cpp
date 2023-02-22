@@ -9,7 +9,7 @@
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <Cesium3DTilesSelection/GltfUtilities.h>
-#include <carb/flatcache/FlatCacheUsd.h>
+#include <carb/flatcache/FlatCacheUSD.h>
 #include <pxr/base/gf/range3d.h>
 #include <pxr/base/gf/vec2f.h>
 #include <pxr/base/gf/vec3f.h>
@@ -65,7 +65,7 @@ AssetPath getTextureAssetPath(const CesiumGltf::Model& model, int64_t tilesetId,
         // Texture asset paths need to be uniquely identifiable in order for Omniverse texture caching to function correctly.
         // If the tile url doesn't exist (which is unlikely), fall back to the tile name. Just be aware that the tile name
         // is not guaranteed to be the same across app invocations and caching may break.
-        CESIUM_LOG_WARN("Could not get tile url. Texture caching may not function correctly.")
+        CESIUM_LOG_WARN("Could not get tile url. Texture caching may not function correctly.");
         texturePrefix = getTileNameUnique(tilesetId, tileId);
     }
 
@@ -716,7 +716,8 @@ void addPrimitive(
 
     int materialId = -1;
 
-    if (!disableMaterials() && primitive.material >= 0 && primitive.material < materialPaths.size()) {
+    if (!disableMaterials() && primitive.material >= 0 &&
+        static_cast<size_t>(primitive.material) < materialPaths.size()) {
         materialId = primitive.material;
     }
 
@@ -881,7 +882,7 @@ void deletePrimsFabric(const std::vector<pxr::SdfPath>& primsToDelete) {
     sip.setArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims, deletedPrimsSize + primsToDelete.size());
     auto deletedPrimsFabric = sip.getArrayAttributeWr<uint64_t>(changeTrackingPath, FabricTokens::_deletedPrims);
 
-    for (auto i = 0; i < primsToDelete.size(); i++) {
+    for (size_t i = 0; i < primsToDelete.size(); i++) {
         deletedPrimsFabric[deletedPrimsSize + i] = carb::flatcache::asInt(primsToDelete[i]).path;
     }
 }
@@ -901,7 +902,7 @@ void deletePrimsFabric(const std::vector<uint64_t>& primsToDelete) {
     sip.setArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims, deletedPrimsSize + primsToDelete.size());
     auto deletedPrimsFabric = sip.getArrayAttributeWr<uint64_t>(changeTrackingPath, FabricTokens::_deletedPrims);
 
-    for (auto i = 0; i < primsToDelete.size(); i++) {
+    for (size_t i = 0; i < primsToDelete.size(); i++) {
         deletedPrimsFabric[deletedPrimsSize + i] = primsToDelete[i];
     }
 }
@@ -925,7 +926,7 @@ AddTileResults addTile(
     if (!disableMaterials()) {
         textureAssetPaths.reserve(model.textures.size());
         textureAssetNames.reserve(model.textures.size());
-        for (auto i = 0; i < model.textures.size(); ++i) {
+        for (size_t i = 0; i < model.textures.size(); ++i) {
             const auto textureAssetPath = getTextureAssetPath(model, tilesetId, tileId, i);
             textureAssetPaths.push_back(textureAssetPath.assetPath);
             textureAssetNames.push_back(textureAssetPath.assetName);
@@ -934,7 +935,7 @@ AddTileResults addTile(
 
         materialPaths.reserve(model.materials.size());
 
-        for (auto i = 0; i < model.materials.size(); i++) {
+        for (size_t i = 0; i < model.materials.size(); i++) {
             const auto materialPath = getMaterialPath(tilesetId, tileId, i);
             const auto materialPrimPaths =
                 addMaterial(tilesetId, tileId, materialPath, textureAssetPaths, model, model.materials[i]);
@@ -1007,7 +1008,7 @@ AddTileResults addTileWithRasterOverlay(
 
         materialPaths.reserve(model.materials.size());
 
-        for (auto i = 0; i < model.materials.size(); i++) {
+        for (size_t i = 0; i < model.materials.size(); i++) {
             const auto materialPath = getMaterialPath(tilesetId, tileId, i);
             const auto materialPrimPaths = addMaterialRasterOverlay(
                 tilesetId,
@@ -1096,12 +1097,12 @@ void removeTileset(int64_t tilesetId) {
 
     std::vector<uint64_t> primsToDelete;
 
-    for (auto bucketId = 0; bucketId < buckets.bucketCount(); bucketId++) {
+    for (size_t bucketId = 0; bucketId < buckets.bucketCount(); bucketId++) {
         const auto tilesetIdFabric =
             sip.getAttributeArrayRd<int64_t>(buckets, bucketId, FabricTokens::_cesium_tilesetId);
         const auto primPaths = sip.getPathArray(buckets, bucketId);
 
-        for (auto i = 0; i < tilesetIdFabric.size(); i++) {
+        for (size_t i = 0; i < tilesetIdFabric.size(); i++) {
             if (tilesetIdFabric[i] == tilesetId) {
                 primsToDelete.push_back(carb::flatcache::PathC(primPaths[i]).path);
             }
@@ -1123,7 +1124,7 @@ void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform
         {carb::flatcache::AttrNameAndType(
             FabricTypes::_cesium_localToEcefTransform, FabricTokens::_cesium_localToEcefTransform)});
 
-    for (auto bucketId = 0; bucketId < buckets.bucketCount(); bucketId++) {
+    for (size_t bucketId = 0; bucketId < buckets.bucketCount(); bucketId++) {
         // clang-format off
         auto tilesetIdFabric = sip.getAttributeArrayRd<int64_t>(buckets, bucketId, FabricTokens::_cesium_tilesetId);
         auto localToEcefTransformFabric = sip.getAttributeArrayRd<pxr::GfMatrix4d>(buckets, bucketId, FabricTokens::_cesium_localToEcefTransform);
@@ -1132,7 +1133,7 @@ void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform
         auto worldScaleFabric = sip.getAttributeArrayWr<pxr::GfVec3f>(buckets, bucketId, FabricTokens::_worldScale);
         // clang-format on
 
-        for (auto i = 0; i < tilesetIdFabric.size(); i++) {
+        for (size_t i = 0; i < tilesetIdFabric.size(); i++) {
             if (tilesetIdFabric[i] == tilesetId) {
                 const auto localToEcefTransform = UsdUtil::usdToGlmMatrix(localToEcefTransformFabric[i]);
                 const auto localToUsdTransform = ecefToUsdTransform * localToEcefTransform;

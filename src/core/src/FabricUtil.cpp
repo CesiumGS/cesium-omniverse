@@ -45,7 +45,7 @@ class BoolWrapper {
 };
 
 std::ostream& operator<<(std::ostream& os, const BoolWrapper& boolWrapper) {
-    os << boolWrapper.value ? "true" : "false";
+    os << (boolWrapper.value ? "true" : "false");
     return os;
 }
 
@@ -78,12 +78,12 @@ std::string printAttributeValue(const T* values, uint64_t elementCount, uint64_t
         stream << "[";
     }
 
-    for (auto i = 0; i < elementCount; i++) {
+    for (uint64_t i = 0; i < elementCount; i++) {
         if (componentCount > 1) {
             stream << "[";
         }
 
-        for (auto j = 0; j < componentCount; j++) {
+        for (uint64_t j = 0; j < componentCount; j++) {
             stream << values[i * componentCount + j];
             if (j < componentCount - 1) {
                 stream << ",";
@@ -467,7 +467,7 @@ std::string printFabricStage() {
     // This returns ALL the buckets
     const auto& buckets = stageInProgress.findPrims({});
 
-    for (auto bucketId = 0; bucketId < buckets.bucketCount(); bucketId++) {
+    for (size_t bucketId = 0; bucketId < buckets.bucketCount(); bucketId++) {
         const auto& attributes = stageInProgress.getAttributeNamesAndTypes(buckets, bucketId);
         const auto& primPaths = stageInProgress.getPathArray(buckets, bucketId);
 
