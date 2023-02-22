@@ -20,4 +20,3 @@ if plugin:
     plugin.Load()
 else:
     print("Cannot find plugin")
-

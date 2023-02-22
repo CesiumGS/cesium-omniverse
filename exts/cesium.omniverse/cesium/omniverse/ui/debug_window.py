@@ -26,11 +26,10 @@ class CesiumOmniverseDebugWindow(ui.Window):
 
         self._logger = logging.getLogger(__name__)
         self._cesium_omniverse_interface = cesium_omniverse_interface
+        _cesium_message_field: ui.SimpleStringModel = None
 
         # Set the function that is called to build widgets when the window is visible
         self.frame.set_build_fn(self._build_fn)
-
-        self._tilesets = []
 
     def destroy(self):
         # It will destroy all the children
@@ -46,13 +45,11 @@ class CesiumOmniverseDebugWindow(ui.Window):
             self._cesium_omniverse_interface.set_georeference_origin(
                 -80.53, 28.46, -30.0)
 
-            self._cesium_omniverse_interface.addCesiumDataIfNotExists("")
+            self._cesium_omniverse_interface.add_cesium_data_if_not_exists("")
 
-            self._tilesets.append(
-                self._cesium_omniverse_interface.add_tileset_ion(
-                    "Cape Canaveral",
-                    1387142,
-                )
+            self._cesium_omniverse_interface.add_tileset_ion(
+                "Cape Canaveral",
+                1387142,
             )
 
         def add_cesium_world_terrain():
@@ -62,14 +59,12 @@ class CesiumOmniverseDebugWindow(ui.Window):
             self._cesium_omniverse_interface.set_georeference_origin(
                 -75.1564977, 39.9501464, 150.0)
 
-            self._cesium_omniverse_interface.addCesiumDataIfNotExists("")
+            self._cesium_omniverse_interface.add_cesium_data_if_not_exists("")
 
             tileset_id = self._cesium_omniverse_interface.add_tileset_ion(
                 "Cesium World Terrain",
                 1,
             )
-
-            self._tilesets.append(tileset_id)
 
             self._cesium_omniverse_interface.add_ion_raster_overlay(
                 tileset_id,
@@ -84,14 +79,12 @@ class CesiumOmniverseDebugWindow(ui.Window):
             self._cesium_omniverse_interface.set_georeference_origin(
                 -75.1564977, 39.9501464, 150.0)
 
-            self._cesium_omniverse_interface.addCesiumDataIfNotExists("")
+            self._cesium_omniverse_interface.add_cesium_data_if_not_exists("")
 
             tileset_id = self._cesium_omniverse_interface.add_tileset_ion(
                 "Bing Maps",
                 1,
             )
-
-            self._tilesets.append(tileset_id)
 
             self._cesium_omniverse_interface.add_ion_raster_overlay(
                 tileset_id,
@@ -116,8 +109,14 @@ class CesiumOmniverseDebugWindow(ui.Window):
         def remove_all_tilesets():
             tilesets = self._cesium_omniverse_interface.get_all_tileset_ids_and_paths()
 
-            for (tilesetId, _) in tilesets:
-                self._cesium_omniverse_interface.remove_tileset(tilesetId)
+            for (tileset_id, _) in tilesets:
+                self._cesium_omniverse_interface.remove_tileset(tileset_id)
+
+        def reset_all_tilesets():
+            tilesets = self._cesium_omniverse_interface.get_all_tileset_ids_and_paths()
+
+            for (tileset_id, _) in tilesets:
+                self._cesium_omniverse_interface.reset_tileset(tileset_id)
 
         def open_troubleshooting_window():
             CesiumTroubleshooterWindow(
@@ -133,5 +132,13 @@ class CesiumOmniverseDebugWindow(ui.Window):
                       clicked_fn=lambda: create_tileset(Tileset.CAPE_CANAVERAL))
             ui.Button("Remove all Tilesets",
                       clicked_fn=lambda: remove_all_tilesets())
+            ui.Button("Reset all Tilesets",
+                      clicked_fn=lambda: reset_all_tilesets())
             ui.Button("Open Troubleshooter",
                       clicked_fn=lambda: open_troubleshooting_window())
+            ui.Button("Print Fabric stage",
+                      clicked_fn=lambda: print_fabric_stage())
+            with ui.VStack():
+                self._cesium_message_field = ui.SimpleStringModel("")
+                ui.StringField(self._cesium_message_field,
+                               multiline=True, read_only=True)

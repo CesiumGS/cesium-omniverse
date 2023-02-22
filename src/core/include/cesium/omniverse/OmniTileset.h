@@ -1,93 +1,60 @@
 #pragma once
 
-#include "CesiumIonSession.h"
+#include <CesiumIonClient/Token.h>
+#include <glm/glm.hpp>
+#include <pxr/usd/sdf/path.h>
 
-#include "cesium/omniverse/Georeference.h"
-#include "cesium/omniverse/RenderResourcesPreparer.h"
-#include "cesium/omniverse/SetDefaultTokenResult.h"
-
-#ifdef CESIUM_OMNI_MSVC
-#pragma push_macro("OPAQUE")
-#undef OPAQUE
-#endif
-
-#include <Cesium3DTilesSelection/IonRasterOverlay.h>
-#include <Cesium3DTilesSelection/Tileset.h>
-#include <CesiumUsdSchemas/rasterOverlay.h>
-#include <CesiumUsdSchemas/tilesetAPI.h>
-#include <pxr/usd/usd/stage.h>
-#include <pxr/usd/usd/stageCache.h>
-#include <pxr/usd/usdUtils/stageCache.h>
-
-#include <filesystem>
+#include <atomic>
 #include <memory>
+#include <string>
 #include <vector>
 
+namespace Cesium3DTilesSelection {
+struct ImageCesium;
+class Tileset;
+class ViewState;
+class ViewUpdateResult;
+} // namespace Cesium3DTilesSelection
+
+namespace CesiumGltf {
+struct ImageCesium;
+struct Model;
+} // namespace CesiumGltf
+
 namespace cesium::omniverse {
+class FabricPrepareRenderResources;
+
 class OmniTileset {
   public:
-    OmniTileset(const std::string& url);
+    OmniTileset(int64_t tilesetId, const pxr::SdfPath& tilesetPath);
+    ~OmniTileset();
 
-    OmniTileset(int64_t ionID, const std::string& ionToken);
+    pxr::SdfPath getPath() const;
+    std::string getName() const;
+    int64_t getId() const;
+    std::string getUrl() const;
+    int64_t getIonAssetId() const;
+    std::optional<CesiumIonClient::Token> getIonToken() const;
+    int64_t getNextTileId() const;
 
-    void updateFrame(const pxr::GfMatrix4d& viewMatrix, const pxr::GfMatrix4d& projMatrix, double width, double height);
-
-    void addIonRasterOverlay(const std::string& name, int64_t ionId, const std::string& ionToken);
-
-    /**
-     * @brief Gets the name for the tileset from the stage.
-     *
-     * @return The name of the tileset.
-     */
-    std::string getName();
-
-    /**
-     * @brief Gets the ion Asset ID for the tileset off of the prim.
-     *
-     * @return The ion Asset ID.
-     */
-    int64_t getIonAssetId();
-
-    pxr::SdfPath getPath();
-
-    std::optional<CesiumIonClient::Token> getTilesetToken();
-
-    static void init(const std::filesystem::path& cesiumExtensionLocation);
-
-    static pxr::CesiumTilesetAPI applyTilesetApiToPath(const pxr::SdfPath& path);
-
-    static std::optional<CesiumIonClient::Token> getDefaultToken();
-
-    static pxr::UsdStageRefPtr& getStage();
-
-    static void setStage(const pxr::UsdStageRefPtr& stage);
-
-    static void connectToIon();
-
-    static void addCesiumDataIfNotExists(const CesiumIonClient::Token& token);
-
-    static SetDefaultTokenResult getSetDefaultTokenResult();
-
-    static void createToken(const std::string& name);
-
-    static void selectToken(const CesiumIonClient::Token& token);
-
-    static void specifyToken(const std::string& token);
-
-    static void onUiUpdate();
-
-    static std::optional<std::shared_ptr<CesiumIonSession>> getSession();
-
-    static void shutdown();
+    void reload();
+    void addIonRasterOverlay(const pxr::SdfPath& rasterOverlayPath);
+    void onUpdateFrame(const std::vector<Cesium3DTilesSelection::ViewState>& viewStates);
 
   private:
-    void initOriginShiftHandler();
+    void updateTransform();
+    void updateView(const std::vector<Cesium3DTilesSelection::ViewState>& viewStates);
 
-    std::vector<Cesium3DTilesSelection::ViewState> viewStates;
-    std::shared_ptr<RenderResourcesPreparer> renderResourcesPreparer;
-    std::unique_ptr<Cesium3DTilesSelection::Tileset> tileset;
-    OriginShiftHandler originShiftHandler;
-    CesiumUtility::IntrusivePointer<Cesium3DTilesSelection::IonRasterOverlay> rasterOverlay;
-    pxr::SdfPath tilesetPath;
+    // TODO: store this on the prim
+    const bool _suspendUpdate = false;
+
+    std::unique_ptr<Cesium3DTilesSelection::Tileset> _tileset;
+    std::shared_ptr<FabricPrepareRenderResources> _renderResourcesPreparer;
+    const Cesium3DTilesSelection::ViewUpdateResult* _pViewUpdateResult;
+
+    pxr::SdfPath _tilesetPath;
+    int64_t _tilesetId;
+    mutable std::atomic<int64_t> _tileId{};
+    glm::dmat4 _ecefToUsdTransform;
 };
 } // namespace cesium::omniverse

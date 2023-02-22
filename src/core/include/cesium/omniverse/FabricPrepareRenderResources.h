@@ -6,34 +6,24 @@
 #endif
 
 #include <Cesium3DTilesSelection/IPrepareRendererResources.h>
-#include <CesiumGeometry/AxisTransforms.h>
-#include <pxr/usd/usd/common.h>
-#include <pxr/usd/usd/prim.h>
-#include <pxr/usd/usdGeom/xform.h>
+#include <pxr/usd/sdf/path.h>
 
 namespace cesium::omniverse {
-struct TileWorkerRenderResources {
-    pxr::SdfLayerRefPtr layer;
-    pxr::SdfPath primPath;
-    bool enable;
-};
+
+class OmniTileset;
 
 struct TileRenderResources {
-    pxr::UsdPrim prim;
-    bool enable;
+    int64_t tileId;
+    glm::dmat4 tileTransform;
+    std::vector<pxr::SdfPath> geomPaths;
+    std::vector<pxr::SdfPath> allPrimPaths;
+    std::vector<std::string> textureAssetNames;
 };
 
-struct RasterRenderResources {
-    std::vector<std::byte> image;
-};
-
-class RenderResourcesPreparer : public Cesium3DTilesSelection::IPrepareRendererResources {
+class FabricPrepareRenderResources : public Cesium3DTilesSelection::IPrepareRendererResources {
   public:
-    RenderResourcesPreparer(const pxr::UsdStageRefPtr& stage, const pxr::SdfPath& tilesetPath);
-
-    void setTransform(const glm::dmat4& absToRelWorld);
-
-    void setVisible(void* tileRenderResources, bool enable);
+    FabricPrepareRenderResources(const OmniTileset& tileset);
+    ~FabricPrepareRenderResources();
 
     CesiumAsync::Future<Cesium3DTilesSelection::TileLoadResultAndRenderResources> prepareInLoadThread(
         const CesiumAsync::AsyncSystem& asyncSystem,
@@ -69,8 +59,7 @@ class RenderResourcesPreparer : public Cesium3DTilesSelection::IPrepareRendererR
         const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
         void* pMainThreadRendererResources) noexcept override;
 
-    pxr::UsdAttribute tilesetTransform;
-    pxr::UsdStageRefPtr stage;
-    pxr::SdfPath tilesetPath;
+  private:
+    const OmniTileset& _tileset;
 };
 } // namespace cesium::omniverse

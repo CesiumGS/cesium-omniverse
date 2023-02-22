@@ -1,22 +1,22 @@
 #pragma once
 
-#include "cesium/omniverse/CesiumIonSession.h"
-#include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/SetDefaultTokenResult.h"
 #include "cesium/omniverse/TokenTroubleshooter.h"
 
-#include <CesiumIonClient/Connection.h>
 #include <carb/Interface.h>
 #include <pxr/pxr.h>
 
 #include <cstdint>
 #include <optional>
+#include <vector>
 
 PXR_NAMESPACE_OPEN_SCOPE
 class GfMatrix4d;
 PXR_NAMESPACE_CLOSE_SCOPE
 
 namespace cesium::omniverse {
+
+class CesiumIonSession;
 
 class ICesiumOmniverseInterface {
   public:
@@ -27,12 +27,12 @@ class ICesiumOmniverseInterface {
      *
      * @param cesiumMemLocation The folder containing mem.cesium
      */
-    virtual void initialize(const char* cesiumMemLocation) noexcept = 0;
+    virtual void onStartup(const char* cesiumMemLocation) noexcept = 0;
 
     /**
      * @brief Call this to free resources on program exist.
      */
-    virtual void finalize() noexcept = 0;
+    virtual void onShutdown() noexcept = 0;
 
     /**
      * @brief Adds a Cesium data prim if it does not exist. Always sets the data prim to the specified token.
@@ -47,7 +47,7 @@ class ICesiumOmniverseInterface {
      * @param url The tileset url
      * @returns The tileset id. Returns -1 on error.
      */
-    virtual int addTilesetUrl(const char* url) noexcept = 0;
+    virtual int64_t addTilesetUrl(const char* url) noexcept = 0;
 
     /**
      * @brief Adds a tileset from ion using the stage default token.
@@ -67,6 +67,26 @@ class ICesiumOmniverseInterface {
      * @returns The tileset id. Returns -1 on error.
      */
     virtual int64_t addTilesetIon(const char* name, int64_t ionId, const char* ionToken) noexcept = 0;
+
+    /**
+     * @brief Adds a raster overlay from ion.
+     *
+     * @param tilesetId The tileset id
+     * @param name The user-given name of this overlay layer
+     * @param ionId The asset ID
+     */
+    virtual void addIonRasterOverlay(int64_t tilesetId, const char* name, int64_t ionId) noexcept = 0;
+
+    /**
+     * @brief Adds a raster overlay from ion.
+     *
+     * @param tileset The tileset id
+     * @param name The user-given name of this overlay layer
+     * @param ionId The asset ID
+     * @param ionToken The access token
+     */
+    virtual void
+    addIonRasterOverlay(int64_t tilesetId, const char* name, int64_t ionId, const char* ionToken) noexcept = 0;
 
     /**
      * @brief Adds a tileset and a raster overlay to the stage.
@@ -93,51 +113,42 @@ class ICesiumOmniverseInterface {
     /**
      * @brief Removes a tileset from the scene.
      *
-     * @param tileset The tileset id. If there's no tileset with this id nothing happens.
+     * @param tilesetId The tileset id. If there's no tileset with this id nothing happens.
      */
-    virtual void removeTileset(int tileset) noexcept = 0;
+    virtual void removeTileset(int64_t tilesetId) noexcept = 0;
 
     /**
-     * @brief Adds a raster overlay from ion.
+     * @brief Reloads a tileset.
      *
-     * @param tileset The tileset id
-     * @param name The user-given name of this overlay layer
-     * @param ionId The asset ID
-     * @param ionToken The access token
+     * @param tilesetId The tileset id
      */
-    virtual void addIonRasterOverlay(int64_t tileset, const char* name, int64_t ionId) noexcept = 0;
+    virtual void reloadTileset(int64_t tilesetId) noexcept = 0;
 
     /**
-     * @brief Adds a raster overlay from ion.
+     * @brief Updates all tilesets this frame.
      *
-     * @param tileset The tileset id
-     * @param name The user-given name of this overlay layer
-     * @param ionId The asset ID
-     * @param ionToken The access token
-     */
-    virtual void
-    addIonRasterOverlay(int64_t tileset, const char* name, int64_t ionId, const char* ionToken) noexcept = 0;
-
-    /**
-     * @brief Updates the tileset this frame.
-     *
-     * @param viewMatrix The view matrix.
-     * @param projMatrix The projection matrix.
+     * @param viewMatrix The view matrix
+     * @param projMatrix The projection matrix
      * @param width The screen width
      * @param height The screen height
      */
-    virtual void updateFrame(
+    virtual void onUpdateFrame(
         const pxr::GfMatrix4d& viewMatrix,
         const pxr::GfMatrix4d& projMatrix,
         double width,
         double height) noexcept = 0;
 
     /**
+     * @brief Updates the UI.
+     */
+    virtual void onUpdateUi() noexcept = 0;
+
+    /**
      * @brief Updates the reference to the USD stage for the C++ layer.
      *
      * @param stageId The id of the current stage.
      */
-    virtual void updateStage(long stageId) noexcept = 0;
+    virtual void onStageChange(long stageId) noexcept = 0;
 
     /**
      * @brief Sets the georeference origin based on the WGS84 ellipsoid.
@@ -149,6 +160,8 @@ class ICesiumOmniverseInterface {
     virtual void setGeoreferenceOrigin(double longitude, double latitude, double height) noexcept = 0;
 
     virtual void connectToIon() noexcept = 0;
+
+    virtual std::optional<std::shared_ptr<CesiumIonSession>> getSession() noexcept = 0;
 
     /**
      * @brief Gets the last result with code and message of setting the default token.
@@ -200,9 +213,12 @@ class ICesiumOmniverseInterface {
         uint64_t tokenEventId,
         uint64_t assetEventId) noexcept = 0;
 
-    virtual void onUiUpdate() noexcept = 0;
-
-    virtual std::optional<std::shared_ptr<CesiumIonSession>> getSession() noexcept = 0;
+    /**
+     * @brief For debugging only. Print the Fabric stage.
+     *
+     * @returns A string representation of the Fabric stage.
+     */
+    virtual std::string printFabricStage() noexcept = 0;
 };
 
 } // namespace cesium::omniverse

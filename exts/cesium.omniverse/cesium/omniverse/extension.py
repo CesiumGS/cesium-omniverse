@@ -21,10 +21,10 @@ cesium_extension_location = os.path.join(os.path.dirname(__file__), "../../")
 
 
 class CesiumOmniverseExtension(omni.ext.IExt):
-
     @staticmethod
-    async def _dock_window_async(window: Optional[ui.Window], target: str = "Stage",
-                                 position: ui.DockPosition = ui.DockPosition.SAME):
+    async def _dock_window_async(
+        window: Optional[ui.Window], target: str = "Stage", position: ui.DockPosition = ui.DockPosition.SAME
+    ):
         if window is None:
             return
 
@@ -76,7 +76,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         # Acquire the Cesium Omniverse interface.
         global _cesium_omniverse_interface
         _cesium_omniverse_interface = acquire_cesium_omniverse_interface()
-        _cesium_omniverse_interface.initialize(cesium_extension_location)
+        _cesium_omniverse_interface.on_startup(cesium_extension_location)
 
         omni_settings.get_settings().set("/rtx/hydra/TBNFrameMode", 1)
         # Disabling Texture Streaming is a workaround for issues with Kit 104.1. We should remove this as soon as
@@ -91,15 +91,17 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         # Subscribe to stage event stream
         usd_context = omni.usd.get_context()
         if usd_context.get_stage_state() == omni.usd.StageState.OPENED:
-            _cesium_omniverse_interface.update_stage(
+            _cesium_omniverse_interface.on_stage_change(
                 usd_context.get_stage_id())
 
         self._on_stage_subscription = usd_context.get_stage_event_stream().create_subscription_to_pop(
             self._on_stage_event, name="cesium.omniverse.ON_STAGE_EVENT"
         )
 
-        self._on_update_subscription = omni_app.get_app().get_update_event_stream().create_subscription_to_pop(
-            self._on_update_frame, name="cesium.omniverse.extension.ON_UPDATE_FRAME"
+        self._on_update_subscription = (
+            omni_app.get_app()
+            .get_update_event_stream()
+            .create_subscription_to_pop(self._on_update_frame, name="cesium.omniverse.extension.ON_UPDATE_FRAME")
         )
 
         bus = omni_app.get_app().get_message_bus_event_stream()
@@ -146,7 +148,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._logger.info("CesiumOmniverse shutdown")
 
         # Release the Cesium Omniverse interface.
-        _cesium_omniverse_interface.finalize()
+        _cesium_omniverse_interface.on_shut_down()
         release_cesium_omniverse_interface(_cesium_omniverse_interface)
 
     def _on_update_frame(self, _):
@@ -154,11 +156,9 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             return
 
         viewport = get_active_viewport()
-        _cesium_omniverse_interface.update_frame(
-            viewport.view,
-            viewport.projection,
-            float(viewport.resolution[0]),
-            float(viewport.resolution[1])
+        _cesium_omniverse_interface.on_update_frame(
+            viewport.view, viewport.projection, float(
+                viewport.resolution[0]), float(viewport.resolution[1])
         )
 
     def _on_stage_event(self, event):
@@ -166,10 +166,10 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             return
 
         if event.type == int(omni.usd.StageEventType.OPENED):
-            _cesium_omniverse_interface.update_stage(
+            _cesium_omniverse_interface.on_stage_change(
                 omni.usd.get_context().get_stage_id())
         elif event.type == int(omni.usd.StageEventType.CLOSED):
-            _cesium_omniverse_interface.update_stage(0)
+            _cesium_omniverse_interface.on_stage_change(0)
 
     def _on_show_asset_window_event(self, _):
         self.do_show_assets_window()
@@ -212,10 +212,11 @@ class CesiumOmniverseExtension(omni.ext.IExt):
 
         if value:
             self._main_window = CesiumOmniverseMainWindow(
-                _cesium_omniverse_interface, width=300, height=400
-            )
+                _cesium_omniverse_interface, width=300, height=400)
             self._main_window.set_visibility_changed_fn(
-                partial(self._visibility_changed_fn, CesiumOmniverseMainWindow.MENU_PATH))
+                partial(self._visibility_changed_fn,
+                        CesiumOmniverseMainWindow.MENU_PATH)
+            )
             asyncio.ensure_future(self._dock_window_async(self._main_window))
         elif self._main_window is not None:
             self._main_window.visible = False
@@ -253,7 +254,9 @@ class CesiumOmniverseExtension(omni.ext.IExt):
                 _cesium_omniverse_interface, CesiumOmniverseDebugWindow.WINDOW_NAME, width=300, height=365
             )
             self._debug_window.set_visibility_changed_fn(
-                partial(self._visibility_changed_fn, CesiumOmniverseDebugWindow.MENU_PATH))
+                partial(self._visibility_changed_fn,
+                        CesiumOmniverseDebugWindow.MENU_PATH)
+            )
             asyncio.ensure_future(self._dock_window_async(self._debug_window))
         elif self._debug_window is not None:
             self._debug_window.visible = False

@@ -22,6 +22,7 @@
       "*.kit": "toml"
     },
     "editor.rulers": [
+      80,
       120
     ],
     // Python modules search paths:
@@ -420,22 +421,12 @@
       "${workspaceFolder}/extern/nvidia/app/kit/exts/omni.videoencoding",
       "${workspaceFolder}/extern/nvidia/app/kit/exts/omni.volume"
     ],
-    // Python & Pylance Setup
     "python.languageServer": "Pylance",
-    "python.defaultInterpreterPath": "${workspaceFolder}/extern/nvidia/app/kit/python/python.exe",
-    // Use black for formatting
-    "python.formatting.provider": "black",
-    "python.formatting.blackArgs": [
-      "--line-length",
-      "120"
-    ],
-    // Use flake8 for linting
+    "python.formatting.provider": "autopep8",
+    "python.analysis.typeCheckingMode": "basic",
     "python.linting.enabled": true,
     "python.linting.pylintEnabled": false,
-    "python.linting.flake8Enabled": true,
-    "python.linting.flake8Args": [
-      "--max-line-length=120"
-    ]
+    "python.linting.flake8Enabled": true
   },
   "extensions": {
     "recommendations": [

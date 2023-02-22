@@ -27,20 +27,19 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
 
     m.doc() = "pybind11 cesium.omniverse bindings";
 
+    // clang-format off
     carb::defineInterfaceClass<ICesiumOmniverseInterface>(
         m, "ICesiumOmniverseInterface", "acquire_cesium_omniverse_interface", "release_cesium_omniverse_interface")
-        .def("initialize", &ICesiumOmniverseInterface::initialize)
-        .def("finalize", &ICesiumOmniverseInterface::finalize)
-        .def("addCesiumDataIfNotExists", &ICesiumOmniverseInterface::addCesiumDataIfNotExists)
-        .def("addTilesetUrl", &ICesiumOmniverseInterface::addTilesetUrl)
+        .def("on_startup", &ICesiumOmniverseInterface::onStartup)
+        .def("on_shutdown", &ICesiumOmniverseInterface::onShutdown)
+        .def("add_cesium_data_if_not_exists", &ICesiumOmniverseInterface::addCesiumDataIfNotExists)
+        .def("add_tileset_url", &ICesiumOmniverseInterface::addTilesetUrl)
         .def("add_tileset_ion", py::overload_cast<const char*, int64_t>(&ICesiumOmniverseInterface::addTilesetIon))
         .def("add_tileset_and_raster_overlay", &ICesiumOmniverseInterface::addTilesetAndRasterOverlay)
         .def("remove_tileset", &ICesiumOmniverseInterface::removeTileset)
-        .def(
-            "add_ion_raster_overlay",
-            py::overload_cast<int64_t, const char*, int64_t>(&ICesiumOmniverseInterface::addIonRasterOverlay))
-        .def("update_frame", &ICesiumOmniverseInterface::updateFrame)
-        .def("update_stage", &ICesiumOmniverseInterface::updateStage)
+        .def("add_ion_raster_overlay", py::overload_cast<int64_t, const char*, int64_t>(&ICesiumOmniverseInterface::addIonRasterOverlay))
+        .def("on_update_frame", &ICesiumOmniverseInterface::onUpdateFrame)
+        .def("on_stage_change", &ICesiumOmniverseInterface::onStageChange)
         .def("set_georeference_origin", &ICesiumOmniverseInterface::setGeoreferenceOrigin)
         .def("connect_to_ion", &ICesiumOmniverseInterface::connectToIon)
         .def("get_set_default_token_result", &ICesiumOmniverseInterface::getSetDefaultTokenResult)
@@ -48,21 +47,17 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("create_token", &ICesiumOmniverseInterface::createToken)
         .def("select_token", &ICesiumOmniverseInterface::selectToken)
         .def("specify_token", &ICesiumOmniverseInterface::specifyToken)
-        .def("on_ui_update", &ICesiumOmniverseInterface::onUiUpdate)
+        .def("on_update_ui", &ICesiumOmniverseInterface::onUpdateUi)
         .def("get_session", &ICesiumOmniverseInterface::getSession)
         .def("get_all_tileset_ids_and_paths", &ICesiumOmniverseInterface::getAllTilesetIdsAndPaths)
         .def("get_asset_troubleshooting_details", &ICesiumOmniverseInterface::getAssetTroubleshootingDetails)
         .def("get_asset_token_troubleshooting_details", &ICesiumOmniverseInterface::getAssetTokenTroubleshootingDetails)
-        .def(
-            "get_default_token_troubleshooting_details",
-            &ICesiumOmniverseInterface::getDefaultTokenTroubleshootingDetails)
-        .def(
-            "update_troubleshooting_details",
-            py::overload_cast<int64_t, uint64_t, uint64_t>(&ICesiumOmniverseInterface::updateTroubleshootingDetails))
-        .def(
-            "update_troubleshooting_details",
-            py::overload_cast<int64_t, int64_t, uint64_t, uint64_t>(
-                &ICesiumOmniverseInterface::updateTroubleshootingDetails));
+        .def("get_default_token_troubleshooting_details", &ICesiumOmniverseInterface::getDefaultTokenTroubleshootingDetails)
+        .def("update_troubleshooting_details", py::overload_cast<int64_t, uint64_t, uint64_t>(&ICesiumOmniverseInterface::updateTroubleshootingDetails))
+        .def("update_troubleshooting_details", py::overload_cast<int64_t, int64_t, uint64_t, uint64_t>(&ICesiumOmniverseInterface::updateTroubleshootingDetails))
+        .def("reload_tileset", &ICesiumOmniverseInterface::reloadTileset)
+        .def("print_fabric_stage", &ICesiumOmniverseInterface::printFabricStage);
+    // clang-format on
 
     py::class_<CesiumIonSession, std::shared_ptr<CesiumIonSession>>(m, "CesiumIonSession")
         .def("is_connected", &CesiumIonSession::isConnected)

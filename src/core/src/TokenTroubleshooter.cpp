@@ -1,19 +1,18 @@
 #include "cesium/omniverse/TokenTroubleshooter.h"
 
 #include "cesium/omniverse/Broadcast.h"
-#include "cesium/omniverse/OmniTileset.h"
+#include "cesium/omniverse/CesiumIonSession.h"
+#include "cesium/omniverse/Context.h"
+
+#include <CesiumIonClient/Connection.h>
 
 namespace cesium::omniverse {
-TokenTroubleshooter::TokenTroubleshooter(const std::shared_ptr<OmniTileset>& asset) {
-    this->tileset = asset;
-}
-
 void TokenTroubleshooter::updateTokenTroubleshootingDetails(
     int64_t assetId,
-    std::string& token,
+    const std::string& token,
     uint64_t eventId,
     TokenTroubleshootingDetails& details) {
-    auto session = OmniTileset::getSession();
+    auto session = Context::instance().getSession();
     if (!session.has_value()) {
         // TODO: Signal an error.
         return;
@@ -31,7 +30,7 @@ void TokenTroubleshooter::updateTokenTroubleshootingDetails(
         .thenInMainThread([connection, &details](CesiumIonClient::Response<CesiumIonClient::Asset>&& asset) {
             details.allowsAccessToAsset = asset.value.has_value();
 
-            auto ionSession = OmniTileset::getSession().value();
+            auto ionSession = Context::instance().getSession().value();
             ionSession->resume();
             const std::optional<CesiumIonClient::Connection>& userConnection = ionSession->getConnection();
             if (!userConnection) {
@@ -60,7 +59,7 @@ void TokenTroubleshooter::updateAssetTroubleshootingDetails(
     int64_t assetId,
     uint64_t eventId,
     AssetTroubleshootingDetails& details) {
-    auto session = OmniTileset::getSession();
+    auto session = Context::instance().getSession();
     if (!session.has_value()) {
         return;
     }
