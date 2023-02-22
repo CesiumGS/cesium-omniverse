@@ -51,14 +51,10 @@ pxr::UsdStageRefPtr getUsdStage() {
     return pxr::UsdUtilsStageCache::Get().Find(pxr::UsdStageCache::Id::FromLongInt(stageId));
 }
 
-usdrt::UsdStageRefPtr getUsdrtStage() {
-    const auto stageId = Context::instance().getStageId();
-    return usdrt::UsdStage::Attach(carb::flatcache::UsdStageId{static_cast<uint64_t>(stageId)});
-}
-
 carb::flatcache::StageInProgress getFabricStageInProgress() {
-    const auto stage = getUsdrtStage();
-    const auto stageInProgressId = stage->GetStageInProgressId();
+    const auto stageId = Context::instance().getStageId();
+    const auto iStageInProgress = carb::getCachedInterface<carb::flatcache::IStageInProgress>();
+    const auto stageInProgressId = iStageInProgress->get(carb::flatcache::UsdStageId{static_cast<uint64_t>(stageId)});
     return carb::flatcache::StageInProgress(stageInProgressId);
 }
 

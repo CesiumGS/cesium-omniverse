@@ -8,7 +8,6 @@
 #include <pxr/base/gf/vec3f.h>
 #include <pxr/usd/sdf/path.h>
 #include <pxr/usd/usd/common.h>
-#include <usdrt/scenegraph/usd/usd/stage.h>
 
 namespace CesiumGeospatial {
 class Cartographic;
@@ -23,7 +22,6 @@ struct Decomposed {
 };
 
 pxr::UsdStageRefPtr getUsdStage();
-usdrt::UsdStageRefPtr getUsdrtStage();
 carb::flatcache::StageInProgress getFabricStageInProgress();
 glm::dmat4 usdToGlmMatrix(const pxr::GfMatrix4d& matrix);
 pxr::GfMatrix4d glmToUsdMatrix(const glm::dmat4& matrix);

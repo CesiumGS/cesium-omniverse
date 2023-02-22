@@ -197,13 +197,13 @@ add_prebuilt_project(
     DEBUG_INCLUDE_DIR
         "${USDRT_ROOT}/include"
     RELEASE_LIBRARY_DIR
-        "${USDRT_ROOT}/_build/${NVIDIA_PLATFORM_NAME}/${NVIDIA_RELEASE_FOLDER_NAME}"
+        "${USDRT_ROOT}/_build/${NVIDIA_PLATFORM_NAME}/${NVIDIA_RELEASE_FOLDER_NAME}/usdrt_only"
     DEBUG_LIBRARY_DIR
-        "${USDRT_ROOT}/_build/${NVIDIA_PLATFORM_NAME}/${NVIDIA_DEBUG_FOLDER_NAME}"
+        "${USDRT_ROOT}/_build/${NVIDIA_PLATFORM_NAME}/${NVIDIA_DEBUG_FOLDER_NAME}/usdrt_only"
     RELEASE_LIBRARIES
-        usdrt.scenegraph.plugin
+        carb.flatcache.plugin
     DEBUG_LIBRARIES
-        usdrt.scenegraph.plugin
+        carb.flatcache.plugin
     TARGET_NAMES
         usdrt
 )
