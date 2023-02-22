@@ -115,7 +115,7 @@ Decomposed glmToUsdMatrixDecomposed(const glm::dmat4& matrix) {
     glm::dvec3 skew;
     glm::dvec4 perspective;
 
-    const auto decomposable = glm::decompose(matrix, scale, rotation, translation, skew, perspective);
+    [[maybe_unused]] const auto decomposable = glm::decompose(matrix, scale, rotation, translation, skew, perspective);
     assert(decomposable);
 
     const glm::fquat rotationF32(rotation);
