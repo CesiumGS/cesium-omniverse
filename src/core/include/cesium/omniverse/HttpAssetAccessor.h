@@ -80,7 +80,7 @@ class HttpAssetRequest : public CesiumAsync::IAssetRequest {
 
 class HttpAssetAccessor : public CesiumAsync::IAssetAccessor {
   public:
-    HttpAssetAccessor();
+    HttpAssetAccessor(const std::filesystem::path& certificatePath);
 
     CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>>
     get(const CesiumAsync::AsyncSystem& asyncSystem,
@@ -96,6 +96,7 @@ class HttpAssetAccessor : public CesiumAsync::IAssetAccessor {
 
     void tick() noexcept override;
 
+  private:
     std::shared_ptr<cpr::Interceptor> _interceptor;
 };
 } // namespace cesium::omniverse

@@ -126,8 +126,15 @@ Context& Context::instance() {
 
 Context::Context(int64_t contextId, const std::filesystem::path& cesiumExtensionLocation)
     : _contextId(contextId) {
+
+    _tilesetId = 0;
+
+    _cesiumExtensionLocation = cesiumExtensionLocation;
+    _memCesiumPath = cesiumExtensionLocation / "bin" / "mem.cesium";
+    _certificatePath = cesiumExtensionLocation / "certs" / "cacert.pem";
+
     _taskProcessor = std::make_shared<TaskProcessor>();
-    _httpAssetAccessor = std::make_shared<HttpAssetAccessor>();
+    _httpAssetAccessor = std::make_shared<HttpAssetAccessor>(_certificatePath);
     _creditSystem = std::make_shared<Cesium3DTilesSelection::CreditSystem>();
 
     _logger = std::make_shared<spdlog::logger>(
@@ -139,12 +146,6 @@ Context::Context(int64_t contextId, const std::filesystem::path& cesiumExtension
             std::make_shared<LoggerSink>(omni::log::Level::eError),
             std::make_shared<LoggerSink>(omni::log::Level::eFatal),
         });
-
-    _tilesetId = 0;
-
-    _cesiumExtensionLocation = cesiumExtensionLocation;
-    _memCesiumPath = cesiumExtensionLocation / "bin" / "mem.cesium";
-    _certificatePath = cesiumExtensionLocation / "certs";
 
     CesiumAsync::AsyncSystem asyncSystem{_taskProcessor};
     _session = std::make_shared<CesiumIonSession>(asyncSystem, _httpAssetAccessor);

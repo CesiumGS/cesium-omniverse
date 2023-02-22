@@ -48,10 +48,12 @@ std::string decodeGzip(std::string& content) {
 
 struct GZipDecompressInterceptor : public cpr::Interceptor {
   public:
+    GZipDecompressInterceptor(const std::filesystem::path& certificatePath)
+        : _certificatePath(certificatePath.generic_string()) {}
+
     cpr::Response intercept(cpr::Session& session) override {
 #ifdef CESIUM_OMNI_UNIX
-        auto certPath = fmt::format("{}/cacert.pem", Context::instance().getCertificatePath().generic_string());
-        curl_easy_setopt(session.GetCurlHolder()->handle, CURLOPT_CAINFO, certPath.c_str());
+        curl_easy_setopt(session.GetCurlHolder()->handle, CURLOPT_CAINFO, _certificatePath.c_str());
 #endif
         curl_easy_setopt(session.GetCurlHolder()->handle, CURLOPT_ACCEPT_ENCODING, nullptr);
 
@@ -67,29 +69,32 @@ struct GZipDecompressInterceptor : public cpr::Interceptor {
         response.text = decodeGzip(response.text);
         return response;
     }
+
+  private:
+    std::string _certificatePath;
 };
 } // namespace
 
-HttpAssetAccessor::HttpAssetAccessor() {
-    _interceptor = std::make_shared<GZipDecompressInterceptor>();
+HttpAssetAccessor::HttpAssetAccessor(const std::filesystem::path& certificatePath) {
+    _interceptor = std::make_shared<GZipDecompressInterceptor>(certificatePath);
 }
 
 CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> HttpAssetAccessor::get(
     const CesiumAsync::AsyncSystem& asyncSystem,
     const std::string& url,
     const std::vector<THeader>& headers) {
-    return asyncSystem.createFuture<std::shared_ptr<CesiumAsync::IAssetRequest>>(
-        [this, &url, &headers](const auto& promise) {
-            cpr::Header cprHeaders{headers.begin(), headers.end()};
-            std::shared_ptr<cpr::Session> session = std::make_shared<cpr::Session>();
-            session->AddInterceptor(_interceptor);
-            session->SetHeader(cprHeaders);
-            session->SetUrl(cpr::Url(url));
-            session->GetCallback([promise, url, headers](cpr::Response&& response) mutable {
-                promise.resolve(
-                    std::make_shared<HttpAssetRequest>("GET", std::move(url), std::move(headers), std::move(response)));
-            });
-        });
+    auto promise = asyncSystem.createPromise<std::shared_ptr<CesiumAsync::IAssetRequest>>();
+    cpr::Header cprHeaders{headers.begin(), headers.end()};
+    std::shared_ptr<cpr::Session> session = std::make_shared<cpr::Session>();
+    session->AddInterceptor(_interceptor);
+    session->SetHeader(cprHeaders);
+    session->SetUrl(cpr::Url(url));
+    session->GetCallback([promise, url, headers](cpr::Response&& response) mutable {
+        promise.resolve(
+            std::make_shared<HttpAssetRequest>("GET", std::move(url), std::move(headers), std::move(response)));
+    });
+
+    return promise.getFuture();
 }
 
 CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> HttpAssetAccessor::request(
@@ -98,32 +103,32 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> HttpAssetAccess
     const std::string& url,
     const std::vector<THeader>& headers,
     const gsl::span<const std::byte>& contentPayload) {
-    return asyncSystem.createFuture<std::shared_ptr<CesiumAsync::IAssetRequest>>([this,
-                                                                                  &verb,
-                                                                                  &url,
-                                                                                  &headers,
-                                                                                  &contentPayload](
-                                                                                     const auto& promise) {
-        cpr::Header cprHeaders{headers.begin(), headers.end()};
-        std::shared_ptr<cpr::Session> session = std::make_shared<cpr::Session>();
-        session->SetHeader(cprHeaders);
-        session->SetUrl(cpr::Url(url));
+    auto promise = asyncSystem.createPromise<std::shared_ptr<CesiumAsync::IAssetRequest>>();
+    cpr::Header cprHeaders{headers.begin(), headers.end()};
+    std::shared_ptr<cpr::Session> session = std::make_shared<cpr::Session>();
+    session->SetHeader(cprHeaders);
+    session->SetUrl(cpr::Url(url));
 #ifdef CESIUM_OMNI_UNIX
-        session->AddInterceptor(_interceptor);
+    session->AddInterceptor(_interceptor);
 #endif
-        if (verb == "GET") {
-            session->GetCallback([promise, url, headers](cpr::Response&& response) mutable {
-                promise.resolve(std::make_shared<HttpAssetRequest>("GET", url, headers, std::move(response)));
-            });
-        } else if (verb == "POST") {
-            session->SetBody(cpr::Body{reinterpret_cast<const char*>(contentPayload.data()), contentPayload.size()});
-            session->PostCallback([promise, url, headers](cpr::Response&& response) mutable {
-                promise.resolve(std::make_shared<HttpAssetRequest>("POST", url, headers, std::move(response)));
-            });
-        }
+    if (verb == "GET") {
+        session->GetCallback([promise, url, headers](cpr::Response&& response) mutable {
+            promise.resolve(
+                std::make_shared<HttpAssetRequest>("GET", std::move(url), std::move(headers), std::move(response)));
+        });
 
-        promise.resolve(nullptr);
-    });
+        return promise.getFuture();
+    } else if (verb == "POST") {
+        session->SetBody(cpr::Body{reinterpret_cast<const char*>(contentPayload.data()), contentPayload.size()});
+        session->PostCallback([promise, url, headers](cpr::Response&& response) mutable {
+            promise.resolve(
+                std::make_shared<HttpAssetRequest>("POST", std::move(url), std::move(headers), std::move(response)));
+        });
+
+        return promise.getFuture();
+    }
+
+    return asyncSystem.createResolvedFuture<std::shared_ptr<CesiumAsync::IAssetRequest>>(nullptr);
 }
 
 void HttpAssetAccessor::tick() noexcept {}
