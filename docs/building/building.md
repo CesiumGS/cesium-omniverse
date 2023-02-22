@@ -47,7 +47,7 @@ See [Linux](#linux) or [Windows](#windows) for step-by-step installation instruc
   ```
 - Install Conan with pip because Conan is not in Ubuntu's package manager
   ```sh
-  sudo pip3 install conan
+  sudo pip3 install conan==1.58.0
   ```
 - Install `cmake-format`
   ```sh
@@ -107,8 +107,10 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
   ```sh
   pip3 install colorama
   ```
-- Install Conan: https://conan.io/downloads.html
-  - Use defaults
+- Install Conan
+  ```sh
+  pip3 install conan==1.58.0
+  ```
 - Install Doxygen: https://www.doxygen.nl/download.html
   - After installation, add the install location to your `PATH`. Open PowerShell as administrator and enter:
     ```sh
@@ -132,10 +134,13 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
 
 - Install [Chocolatey](https://docs.chocolatey.org/en-us/choco/setup) and then install dependencies
   ```sh
-  choco install -y visualstudio2022professional visualstudio2022-workload-nativedesktop python cmake ninja git conan doxygen.install vswhere --installargs 'ADD_CMAKE_TO_PATH=System'
+  choco install -y visualstudio2022professional visualstudio2022-workload-nativedesktop python cmake ninja git doxygen.install vswhere --installargs 'ADD_CMAKE_TO_PATH=System'
   ```
   ```sh
   choco install -y llvm --version=14.0.6
+  ```
+  ```sh
+  choco install -y conan --version 1.58.0
   ```
   > **Note:** If you see a warning like `Chocolatey detected you are not running from an elevated command shell`, reopen Command Prompt as administrator
 - Create a symbolic link called `python3.exe` that points to the actual `python` (version 3.x) executable. This is necessary for some of the scripts to run correctly when `#!/usr/bin/env python3` is at the top of the file.
