@@ -107,7 +107,7 @@ pxr::VtArray<pxr::GfVec2f> getUVs(
     }
 
     pxr::VtArray<pxr::GfVec2f> usdUVs;
-    usdUVs.reserve(uvsView.size());
+    usdUVs.reserve(static_cast<size_t>(uvsView.size()));
 
     for (auto i = 0; i < uvsView.size(); ++i) {
         auto uv = uvsView[i];
@@ -142,7 +142,7 @@ getPrimitivePositions(const CesiumGltf::Model& model, const CesiumGltf::MeshPrim
     }
 
     pxr::VtArray<pxr::GfVec3f> usdPositions;
-    usdPositions.reserve(positionView.size());
+    usdPositions.reserve(static_cast<size_t>(positionView.size()));
 
     for (auto i = 0; i < positionView.size(); i++) {
         const auto& position = positionView[i];
@@ -209,7 +209,7 @@ pxr::VtArray<pxr::GfVec3f> getPrimitiveNormals(
         const auto normalsView = CesiumGltf::AccessorView<glm::fvec3>(model, normalAttribute->second);
         if (normalsView.status() == CesiumGltf::AccessorViewStatus::Valid) {
             pxr::VtArray<pxr::GfVec3f> normalsUsd;
-            normalsUsd.reserve(normalsView.size());
+            normalsUsd.reserve(static_cast<size_t>(normalsView.size()));
             for (auto i = 0; i < normalsView.size(); ++i) {
                 const auto& normal = normalsView[i];
                 normalsUsd.push_back(pxr::GfVec3f(normal.x, normal.y, normal.z));
@@ -222,9 +222,9 @@ pxr::VtArray<pxr::GfVec3f> getPrimitiveNormals(
     pxr::VtArray<pxr::GfVec3f> normalsUsd(positions.size(), pxr::GfVec3f(0.0f));
 
     for (size_t i = 0; i < indices.size(); i += 3) {
-        auto idx0 = indices[i];
-        auto idx1 = indices[i + 1];
-        auto idx2 = indices[i + 2];
+        auto idx0 = static_cast<size_t>(indices[i]);
+        auto idx1 = static_cast<size_t>(indices[i + 1]);
+        auto idx2 = static_cast<size_t>(indices[i + 2]);
 
         const auto& p0 = positions[idx0];
         const auto& p1 = positions[idx1];
@@ -284,7 +284,7 @@ bool getDoubleSided(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimit
         return false;
     }
 
-    const auto& material = model.materials[primitive.material];
+    const auto& material = model.materials[static_cast<size_t>(primitive.material)];
     return material.doubleSided;
 }
 

@@ -819,7 +819,7 @@ void addPrimitive(
 
     if (hasMaterial) {
         auto materialIdFabric = sip.getAttributeWr<uint64_t>(geomPathFabric, FabricTokens::materialId);
-        *materialIdFabric = carb::flatcache::asInt(materialPaths[materialId]).path;
+        *materialIdFabric = carb::flatcache::asInt(materialPaths[static_cast<size_t>(materialId)]).path;
         displayColorFabric[0] = MATERIAL_LOADING_COLOR;
     } else {
         displayColorFabric[0] = DEFAULT_COLOR;
@@ -936,7 +936,7 @@ AddTileResults addTile(
         materialPaths.reserve(model.materials.size());
 
         for (size_t i = 0; i < model.materials.size(); i++) {
-            const auto materialPath = getMaterialPath(tilesetId, tileId, i);
+            auto materialPath = getMaterialPath(tilesetId, tileId, i);
             const auto materialPrimPaths =
                 addMaterial(tilesetId, tileId, materialPath, textureAssetPaths, model, model.materials[i]);
 
@@ -960,7 +960,7 @@ AddTileResults addTile(
             [[maybe_unused]] const CesiumGltf::Mesh& mesh,
             const CesiumGltf::MeshPrimitive& primitive,
             const glm::dmat4& transform) {
-            const auto geomPath = getGeomPath(tilesetId, tileId, primitiveId++);
+            auto geomPath = getGeomPath(tilesetId, tileId, primitiveId++);
             addPrimitive(
                 tilesetId,
                 tileId,
@@ -1009,7 +1009,7 @@ AddTileResults addTileWithRasterOverlay(
         materialPaths.reserve(model.materials.size());
 
         for (size_t i = 0; i < model.materials.size(); i++) {
-            const auto materialPath = getMaterialPath(tilesetId, tileId, i);
+            auto materialPath = getMaterialPath(tilesetId, tileId, i);
             const auto materialPrimPaths = addMaterialRasterOverlay(
                 tilesetId,
                 tileId,
@@ -1045,7 +1045,7 @@ AddTileResults addTileWithRasterOverlay(
             [[maybe_unused]] const CesiumGltf::Mesh& mesh,
             const CesiumGltf::MeshPrimitive& primitive,
             const glm::dmat4& transform) {
-            const auto geomPath = getGeomPath(tilesetId, tileId, primitiveId++);
+            auto geomPath = getGeomPath(tilesetId, tileId, primitiveId++);
             addPrimitive(
                 tilesetId,
                 tileId,

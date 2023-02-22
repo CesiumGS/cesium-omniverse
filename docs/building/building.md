@@ -59,6 +59,8 @@ See [Linux](#linux) or [Windows](#windows) for step-by-step installation instruc
   ```
 - Add symlinks the clang-14 tools so that the correct version is chosen when running `clang-format`, `clang-tidy`, etc
   ```sh
+  sudo ln -s /usr/bin/clang-14 /usr/bin/clang
+  sudo ln -s /usr/bin/clang++-14 /usr/bin/clang++
   sudo ln -s /usr/bin/clang-format-14 /usr/bin/clang-format
   sudo ln -s /usr/bin/clang-tidy-14 /usr/bin/clang-tidy
   sudo ln -s /usr/bin/run-clang-tidy-14 /usr/bin/run-clang-tidy
