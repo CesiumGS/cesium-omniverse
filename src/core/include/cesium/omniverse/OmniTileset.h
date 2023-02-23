@@ -31,10 +31,11 @@ class OmniTileset {
 
     pxr::SdfPath getPath() const;
     std::string getName() const;
-    int64_t getId() const;
     std::string getUrl() const;
     int64_t getIonAssetId() const;
     std::optional<CesiumIonClient::Token> getIonToken() const;
+
+    int64_t getId() const;
     int64_t getNextTileId() const;
 
     void reload();

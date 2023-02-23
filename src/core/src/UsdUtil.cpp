@@ -197,4 +197,69 @@ computeEcefToUsdTransformForPrim(const CesiumGeospatial::Cartographic& origin, c
     return primEcefToUsdTransform;
 }
 
+pxr::CesiumData defineCesiumData(const pxr::SdfPath& path) {
+    auto stage = getUsdStage();
+    auto cesiumData = pxr::CesiumData::Define(stage, path);
+
+    // TODO: is pxr::VtValue("") needed?
+    cesiumData.CreateDefaultProjectTokenAttr();
+    cesiumData.CreateDefaultProjectTokenIdAttr();
+    cesiumData.CreateGeoreferenceOriginAttr();
+
+    return cesiumData;
+}
+
+pxr::CesiumTilesetAPI defineCesiumTilesetAPI(const pxr::SdfPath& path) {
+    auto stage = getUsdStage();
+    auto xform = pxr::UsdGeomXform::Define(stage, path);
+    assert(xform.GetPrim().IsValid());
+
+    auto tilesetApi = pxr::CesiumTilesetAPI::Apply(xform.GetPrim());
+    assert(tilesetApi.GetPrim().IsValid());
+
+    tilesetApi.CreateTilesetUrlAttr();
+    tilesetApi.CreateTilesetIdAttr();
+    tilesetApi.CreateIonTokenAttr();
+
+    return tilesetApi;
+}
+
+pxr::CesiumRasterOverlay defineCesiumRasterOverlay(const pxr::SdfPath& path) {
+    auto stage = getUsdStage();
+    auto rasterOverlay = pxr::CesiumRasterOverlay::Define(stage, path);
+    assert(rasterOverlay.GetPrim().IsValid());
+
+    rasterOverlay.CreateIonTokenAttr();
+    rasterOverlay.CreateRasterOverlayIdAttr();
+
+    return rasterOverlay;
+}
+
+pxr::CesiumData getCesiumData(const pxr::SdfPath& path) {
+    auto stage = getUsdStage();
+    auto cesiumData = pxr::CesiumData::Get(stage, path);
+    assert(cesiumData.GetPrim().IsValid());
+    return cesiumData;
+}
+
+pxr::CesiumTilesetAPI getCesiumTilesetAPI(const pxr::SdfPath& path) {
+    auto stage = getUsdStage();
+    auto tileset = pxr::CesiumTilesetAPI::Get(stage, path);
+    assert(tileset.GetPrim().IsValid());
+    return tileset;
+}
+
+pxr::CesiumRasterOverlay getCesiumRasterOverlay(const pxr::SdfPath& path) {
+    auto stage = UsdUtil::getUsdStage();
+    auto rasterOverlay = pxr::CesiumRasterOverlay::Get(stage, path);
+    assert(rasterOverlay.GetPrim().IsValid());
+    return rasterOverlay;
+}
+
+bool primExists(const pxr::SdfPath& path) {
+    auto stage = getUsdStage();
+    auto prim = stage->GetPrimAtPath(path);
+    return prim.IsValid();
+}
+
 } // namespace cesium::omniverse::UsdUtil

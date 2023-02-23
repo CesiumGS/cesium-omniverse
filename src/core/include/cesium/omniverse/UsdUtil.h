@@ -1,5 +1,8 @@
 #pragma once
 
+#include <CesiumUsdSchemas/data.h>
+#include <CesiumUsdSchemas/rasterOverlay.h>
+#include <CesiumUsdSchemas/tilesetAPI.h>
 #include <carb/flatcache/StageWithHistory.h>
 #include <glm/glm.hpp>
 #include <pxr/base/gf/matrix4d.h>
@@ -36,5 +39,15 @@ std::string getSafeName(const std::string& name);
 glm::dmat4 computeUsdToEcefTransform(const CesiumGeospatial::Cartographic& origin);
 glm::dmat4 computeEcefToUsdTransform(const CesiumGeospatial::Cartographic& origin);
 glm::dmat4 computeEcefToUsdTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath);
+
+pxr::CesiumData defineCesiumData(const pxr::SdfPath& path);
+pxr::CesiumTilesetAPI defineCesiumTilesetAPI(const pxr::SdfPath& path);
+pxr::CesiumRasterOverlay defineCesiumRasterOverlay(const pxr::SdfPath& path);
+
+pxr::CesiumData getCesiumData(const pxr::SdfPath& path);
+pxr::CesiumTilesetAPI getCesiumTilesetAPI(const pxr::SdfPath& path);
+pxr::CesiumRasterOverlay getCesiumRasterOverlay(const pxr::SdfPath& path);
+
+bool primExists(const pxr::SdfPath& path);
 
 }; // namespace cesium::omniverse::UsdUtil

@@ -15,19 +15,12 @@ pxr::SdfPath OmniIonRasterOverlay::getPath() const {
 }
 
 std::string OmniIonRasterOverlay::getName() const {
-    auto stage = UsdUtil::getUsdStage();
-    auto prim = stage->GetPrimAtPath(_path);
-    assert(prim.IsValid());
-
-    return prim.GetName().GetString();
+    auto rasterOverlay = UsdUtil::getCesiumRasterOverlay(_path);
+    return rasterOverlay.GetPrim().GetName().GetString();
 }
 
 int64_t OmniIonRasterOverlay::getIonAssetId() const {
-    auto stage = UsdUtil::getUsdStage();
-    auto prim = stage->GetPrimAtPath(_path);
-    assert(prim.IsValid());
-
-    pxr::CesiumRasterOverlay rasterOverlay(prim);
+    auto rasterOverlay = UsdUtil::getCesiumRasterOverlay(_path);
 
     int64_t assetId;
     rasterOverlay.GetRasterOverlayIdAttr().Get<int64_t>(&assetId);
@@ -36,7 +29,18 @@ int64_t OmniIonRasterOverlay::getIonAssetId() const {
 }
 
 std::optional<CesiumIonClient::Token> OmniIonRasterOverlay::getIonToken() const {
-    // TODO: Implement actually using the override tokens.
-    return Context::instance().getDefaultToken();
+    auto rasterOverlay = UsdUtil::getCesiumRasterOverlay(_path);
+
+    std::string ionToken;
+    rasterOverlay.GetIonTokenAttr().Get<std::string>(&ionToken);
+
+    if (ionToken.empty()) {
+        return Context::instance().getDefaultToken();
+    }
+
+    CesiumIonClient::Token t;
+    t.token = ionToken;
+
+    return t;
 }
 } // namespace cesium::omniverse

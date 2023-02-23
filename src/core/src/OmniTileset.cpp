@@ -39,48 +39,46 @@ pxr::SdfPath OmniTileset::getPath() const {
 }
 
 std::string OmniTileset::getName() const {
-    auto stage = UsdUtil::getUsdStage();
-    auto prim = stage->GetPrimAtPath(_tilesetPath);
-    assert(prim.IsValid());
-
-    return prim.GetName().GetString();
-}
-
-int64_t OmniTileset::getId() const {
-    return _tilesetId;
+    auto tileset = UsdUtil::getCesiumTilesetAPI(_tilesetPath);
+    return tileset.GetPrim().GetName().GetString();
 }
 
 std::string OmniTileset::getUrl() const {
-    auto stage = UsdUtil::getUsdStage();
-    auto prim = stage->GetPrimAtPath(_tilesetPath);
-    assert(prim.IsValid());
-    assert(prim.HasAPI<pxr::CesiumTilesetAPI>());
-
-    auto tilesetApi = pxr::CesiumTilesetAPI::Apply(prim);
+    auto tileset = UsdUtil::getCesiumTilesetAPI(_tilesetPath);
 
     std::string url;
-    tilesetApi.GetTilesetUrlAttr().Get<std::string>(&url);
+    tileset.GetTilesetUrlAttr().Get<std::string>(&url);
 
     return url;
 }
 
 int64_t OmniTileset::getIonAssetId() const {
-    auto stage = UsdUtil::getUsdStage();
-    auto prim = stage->GetPrimAtPath(_tilesetPath);
-    assert(prim.IsValid());
-    assert(prim.HasAPI<pxr::CesiumTilesetAPI>());
-
-    auto tilesetApi = pxr::CesiumTilesetAPI::Apply(prim);
+    auto tileset = UsdUtil::getCesiumTilesetAPI(_tilesetPath);
 
     int64_t assetId;
-    tilesetApi.GetTilesetIdAttr().Get<int64_t>(&assetId);
+    tileset.GetTilesetIdAttr().Get<int64_t>(&assetId);
 
     return assetId;
 }
 
 std::optional<CesiumIonClient::Token> OmniTileset::getIonToken() const {
-    // TODO: Implement actually using the override tokens.
-    return Context::instance().getDefaultToken();
+    auto tilesetApi = UsdUtil::getCesiumTilesetAPI(_tilesetPath);
+
+    std::string ionToken;
+    tilesetApi.GetIonTokenAttr().Get<std::string>(&ionToken);
+
+    if (ionToken.empty()) {
+        return Context::instance().getDefaultToken();
+    }
+
+    CesiumIonClient::Token t;
+    t.token = ionToken;
+
+    return t;
+}
+
+int64_t OmniTileset::getId() const {
+    return _tilesetId;
 }
 
 int64_t OmniTileset::getNextTileId() const {

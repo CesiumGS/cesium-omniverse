@@ -9,6 +9,11 @@
 #include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
+#ifdef CESIUM_OMNI_MSVC
+#pragma push_macro("OPAQUE")
+#undef OPAQUE
+#endif
+
 #include <Cesium3DTilesSelection/GltfUtilities.h>
 #include <carb/flatcache/FlatCacheUSD.h>
 #include <pxr/base/gf/range3d.h>

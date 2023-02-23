@@ -46,29 +46,6 @@ void removeTileset(std::vector<std::unique_ptr<OmniTileset>>& tilesets, int64_t 
     tilesets.erase(removedIter, tilesets.end());
 }
 
-pxr::CesiumTilesetAPI applyTilesetApiToPath(const pxr::SdfPath& path) {
-    auto stage = UsdUtil::getUsdStage();
-    auto prim = stage->GetPrimAtPath(path);
-    auto tilesetApi = pxr::CesiumTilesetAPI::Apply(prim);
-
-    tilesetApi.CreateTilesetUrlAttr();
-    tilesetApi.CreateTilesetIdAttr();
-    tilesetApi.CreateIonTokenAttr();
-
-    return tilesetApi;
-}
-
-pxr::CesiumRasterOverlay applyRasterOverlayToPath(const pxr::SdfPath& path) {
-    auto stage = UsdUtil::getUsdStage();
-    auto prim = stage->GetPrimAtPath(path);
-    pxr::CesiumRasterOverlay rasterOverlay(prim);
-
-    rasterOverlay.CreateIonTokenAttr();
-    rasterOverlay.CreateRasterOverlayIdAttr();
-
-    return rasterOverlay;
-}
-
 Cesium3DTilesSelection::ViewState computeViewState(
     const CesiumGeospatial::Cartographic& origin,
     const glm::dmat4& viewMatrix,
@@ -176,24 +153,14 @@ std::shared_ptr<spdlog::logger> Context::getLogger() {
 }
 
 void Context::addCesiumDataIfNotExists(const CesiumIonClient::Token& token) {
-    auto stage = UsdUtil::getUsdStage();
-    pxr::UsdPrim cesiumDataPrim = stage->GetPrimAtPath(CesiumDataPath);
-    if (!cesiumDataPrim.IsValid()) {
-        cesiumDataPrim = stage->DefinePrim(CesiumDataPath);
-    }
-
-    pxr::CesiumData cesiumData(cesiumDataPrim);
-    auto projectDefaultToken = cesiumData.GetDefaultProjectTokenAttr();
-    auto projectDefaultTokenId = cesiumData.GetDefaultProjectTokenIdAttr();
-
-    if (!projectDefaultToken.IsValid()) {
-        projectDefaultToken = cesiumData.CreateDefaultProjectTokenAttr(pxr::VtValue(""));
-        projectDefaultTokenId = cesiumData.CreateDefaultProjectTokenIdAttr(pxr::VtValue(""));
+    if (!UsdUtil::primExists(CesiumDataPath)) {
+        UsdUtil::defineCesiumData(CesiumDataPath);
     }
 
     if (!token.token.empty()) {
-        projectDefaultToken.Set(token.token.c_str());
-        projectDefaultTokenId.Set(token.id.c_str());
+        auto cesiumDataUsd = UsdUtil::getCesiumData(CesiumDataPath);
+        cesiumDataUsd.GetDefaultProjectTokenAttr().Set<std::string>(token.token);
+        cesiumDataUsd.GetDefaultProjectTokenIdAttr().Set<std::string>(token.id);
     }
 }
 
@@ -202,11 +169,9 @@ int64_t Context::addTilesetUrl(const std::string& url) {
     const auto tilesetId = _tilesetId++;
     const auto tilesetName = fmt::format("tileset_{}", tilesetId);
     const auto tilesetPath = UsdUtil::getPathUnique(UsdUtil::getRootPath(), tilesetName);
-    const auto stage = UsdUtil::getUsdStage();
-    pxr::UsdGeomXform::Define(stage, tilesetPath);
+    const auto tilesetUsd = UsdUtil::defineCesiumTilesetAPI(tilesetPath);
 
-    auto tilesetApi = applyTilesetApiToPath(tilesetPath);
-    tilesetApi.GetTilesetUrlAttr().Set<std::string>(url);
+    tilesetUsd.GetTilesetUrlAttr().Set<std::string>(url);
 
     _tilesets.emplace_back(std::make_unique<OmniTileset>(tilesetId, tilesetPath));
     return tilesetId;
@@ -217,12 +182,10 @@ int64_t Context::addTilesetIon([[maybe_unused]] const std::string& name, int64_t
     const auto tilesetId = _tilesetId++;
     const auto tilesetName = fmt::format("tileset_ion_{}", ionId);
     const auto tilesetPath = UsdUtil::getPathUnique(UsdUtil::getRootPath(), tilesetName);
-    const auto stage = UsdUtil::getUsdStage();
-    pxr::UsdGeomXform::Define(stage, tilesetPath);
+    const auto tilesetUsd = UsdUtil::defineCesiumTilesetAPI(tilesetPath);
 
-    auto tilesetApi = applyTilesetApiToPath(tilesetPath);
-    tilesetApi.GetTilesetIdAttr().Set<int64_t>(ionId);
-    tilesetApi.GetIonTokenAttr().Set<std::string>(ionToken);
+    tilesetUsd.GetTilesetIdAttr().Set<int64_t>(ionId);
+    tilesetUsd.GetIonTokenAttr().Set<std::string>(ionToken);
 
     _tilesets.emplace_back(std::make_unique<OmniTileset>(tilesetId, tilesetPath));
     return tilesetId;
@@ -242,17 +205,10 @@ void Context::addIonRasterOverlay(
     const auto stage = UsdUtil::getUsdStage();
     const auto safeName = UsdUtil::getSafeName(name);
     auto path = UsdUtil::getPathUnique(tileset->getPath(), safeName);
-    auto prim = stage->DefinePrim(path);
+    auto rasterOverlayUsd = UsdUtil::defineCesiumRasterOverlay(path);
 
-    // In the event that there is an issue with the prim, it will be invalid. This prevents a segfault.
-    if (!prim.IsValid()) {
-        CESIUM_LOG_ERROR("Raster Overlay control prim definition failed.");
-        return;
-    }
-
-    auto rasterOverlay = applyRasterOverlayToPath(path);
-    rasterOverlay.GetRasterOverlayIdAttr().Set<int64_t>(ionId);
-    rasterOverlay.GetIonTokenAttr().Set<std::string>(ionToken);
+    rasterOverlayUsd.GetRasterOverlayIdAttr().Set<int64_t>(ionId);
+    rasterOverlayUsd.GetIonTokenAttr().Set<std::string>(ionToken);
 
     tileset->addIonRasterOverlay(path);
 }
