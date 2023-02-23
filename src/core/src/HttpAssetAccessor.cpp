@@ -1,6 +1,6 @@
 #include "cesium/omniverse/HttpAssetAccessor.h"
 
-#include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/LoggerSink.h"
 
 #include <zlib.h>
 

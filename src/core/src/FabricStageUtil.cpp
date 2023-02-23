@@ -5,6 +5,7 @@
 #include "cesium/omniverse/FabricAttributesBuilder.h"
 #include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/InMemoryAssetResolver.h"
+#include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 

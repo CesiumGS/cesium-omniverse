@@ -5,6 +5,7 @@
 #include "cesium/omniverse/FabricPrepareRenderResources.h"
 #include "cesium/omniverse/FabricStageUtil.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
+#include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/OmniIonRasterOverlay.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/UsdUtil.h"
