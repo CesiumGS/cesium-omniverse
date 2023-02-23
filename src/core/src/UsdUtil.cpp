@@ -201,7 +201,6 @@ pxr::CesiumData defineCesiumData(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto cesiumData = pxr::CesiumData::Define(stage, path);
 
-    // TODO: is pxr::VtValue("") needed?
     cesiumData.CreateDefaultProjectTokenAttr();
     cesiumData.CreateDefaultProjectTokenIdAttr();
     cesiumData.CreateGeoreferenceOriginAttr();

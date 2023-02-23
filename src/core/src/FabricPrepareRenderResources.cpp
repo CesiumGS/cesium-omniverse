@@ -183,9 +183,9 @@ void FabricPrepareRenderResources::detachRasterInMainThread(
     [[maybe_unused]] int32_t overlayTextureCoordinateID,
     [[maybe_unused]] const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
     [[maybe_unused]] void* pMainThreadRendererResources) noexcept {
-        // Nothing to do here.
-        // Due to Kit 104.2 material limitations, a tile can only ever have one raster attached.
-        // If we remove the raster overlay from the tileset we need to reload the whole tileset.
-    }
+    // Nothing to do here.
+    // Due to Kit 104.2 material limitations, a tile can only ever have one raster attached.
+    // If we remove the raster overlay from the tileset we need to reload the whole tileset.
+}
 
 } // namespace cesium::omniverse
