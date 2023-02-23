@@ -11,7 +11,6 @@
 #include <pxr/usd/usd/timeCode.h>
 #include <pxr/usd/usdGeom/metrics.h>
 #include <pxr/usd/usdGeom/xform.h>
-#include <pxr/usd/usdUtils/stageCache.h>
 #include <spdlog/fmt/fmt.h>
 
 #include <regex>
@@ -47,15 +46,11 @@ glm::dmat4 getUnitConversionTransform() {
 } // namespace
 
 pxr::UsdStageRefPtr getUsdStage() {
-    const auto stageId = Context::instance().getStageId();
-    return pxr::UsdUtilsStageCache::Get().Find(pxr::UsdStageCache::Id::FromLongInt(stageId));
+    return Context::instance().getStage();
 }
 
 carb::flatcache::StageInProgress getFabricStageInProgress() {
-    const auto stageId = Context::instance().getStageId();
-    const auto iStageInProgress = carb::getCachedInterface<carb::flatcache::IStageInProgress>();
-    const auto stageInProgressId = iStageInProgress->get(carb::flatcache::UsdStageId{static_cast<uint64_t>(stageId)});
-    return carb::flatcache::StageInProgress(stageInProgressId);
+    return Context::instance().getFabricStageInProgress();
 }
 
 glm::dmat4 usdToGlmMatrix(const pxr::GfMatrix4d& matrix) {

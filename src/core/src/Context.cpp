@@ -23,6 +23,7 @@
 #include <glm/gtc/matrix_access.hpp>
 #include <pxr/usd/sdf/path.h>
 #include <pxr/usd/usdGeom/xform.h>
+#include <pxr/usd/usdUtils/stageCache.h>
 
 namespace cesium::omniverse {
 
@@ -305,12 +306,22 @@ void Context::onUpdateUi() {
     _session->tick();
 }
 
-long Context::getStageId() const {
-    return _stageId;
+pxr::UsdStageRefPtr Context::getStage() const {
+    return _stage;
+}
+
+carb::flatcache::StageInProgress Context::getFabricStageInProgress() const {
+    assert(_fabricStageInProgress.has_value());
+    return _fabricStageInProgress.value();
 }
 
 void Context::setStageId(long stageId) {
-    _stageId = stageId;
+    const auto stage = pxr::UsdUtilsStageCache::Get().Find(pxr::UsdStageCache::Id::FromLongInt(stageId));
+    _stage = stage;
+
+    const auto iStageInProgress = carb::getCachedInterface<carb::flatcache::IStageInProgress>();
+    const auto stageInProgressId = iStageInProgress->get(carb::flatcache::UsdStageId{static_cast<uint64_t>(stageId)});
+    _fabricStageInProgress = carb::flatcache::StageInProgress(stageInProgressId);
 }
 
 int64_t Context::getContextId() const {

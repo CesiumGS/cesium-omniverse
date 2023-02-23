@@ -4,7 +4,9 @@
 #include "cesium/omniverse/TokenTroubleshooter.h"
 
 #include <CesiumGeospatial/Cartographic.h>
+#include <carb/flatcache/StageWithHistory.h>
 #include <glm/glm.hpp>
+#include <pxr/usd/usd/common.h>
 #include <spdlog/logger.h>
 
 #include <atomic>
@@ -66,7 +68,8 @@ class Context {
     void onUpdateFrame(const glm::dmat4& viewMatrix, const glm::dmat4& projMatrix, double width, double height);
     void onUpdateUi();
 
-    long getStageId() const;
+    pxr::UsdStageRefPtr getStage() const;
+    carb::flatcache::StageInProgress getFabricStageInProgress() const;
     void setStageId(long stageId);
 
     int64_t getContextId() const;
@@ -112,7 +115,9 @@ class Context {
     std::optional<TokenTroubleshootingDetails> _assetTokenTroubleshootingDetails = std::nullopt;
     std::optional<TokenTroubleshootingDetails> _defaultTokenTroubleshootingDetails = std::nullopt;
 
-    long _stageId{0};
+    pxr::UsdStageRefPtr _stage;
+    std::optional<carb::flatcache::StageInProgress> _fabricStageInProgress;
+
     int64_t _contextId;
 
     std::vector<std::unique_ptr<OmniTileset>> _tilesets;
