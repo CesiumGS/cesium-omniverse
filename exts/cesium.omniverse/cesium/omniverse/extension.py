@@ -148,7 +148,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._logger.info("CesiumOmniverse shutdown")
 
         # Release the Cesium Omniverse interface.
-        _cesium_omniverse_interface.on_shut_down()
+        _cesium_omniverse_interface.on_shutdown()
         release_cesium_omniverse_interface(_cesium_omniverse_interface)
 
     def _on_update_frame(self, _):

@@ -129,9 +129,9 @@ Context::Context(int64_t contextId, const std::filesystem::path& cesiumExtension
 
     _tilesetId = 0;
 
-    _cesiumExtensionLocation = cesiumExtensionLocation;
-    _memCesiumPath = cesiumExtensionLocation / "bin" / "mem.cesium";
-    _certificatePath = cesiumExtensionLocation / "certs" / "cacert.pem";
+    _cesiumExtensionLocation = cesiumExtensionLocation.lexically_normal();
+    _memCesiumPath = _cesiumExtensionLocation / "bin" / "mem.cesium";
+    _certificatePath = _cesiumExtensionLocation / "certs" / "cacert.pem";
 
     _taskProcessor = std::make_shared<TaskProcessor>();
     _httpAssetAccessor = std::make_shared<HttpAssetAccessor>(_certificatePath);

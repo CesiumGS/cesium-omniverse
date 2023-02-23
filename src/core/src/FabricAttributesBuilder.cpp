@@ -9,6 +9,11 @@ void FabricAttributesBuilder::addAttribute(const carb::flatcache::Type& type, co
 }
 
 void FabricAttributesBuilder::createAttributes(const carb::flatcache::Path& path) {
+    // Somewhat annoyingly, stageInProgress.createAttributes takes an std::array instead of a gsl::span. This is fine if
+    // you know exactly which set of attributes to create at compile time but we don't. For example, not all prims will
+    // have UV coordinates or materials. This class allows attributes to be added dynamically up to a hardcoded maximum
+    // count (MAX_ATTRIBUTES) and avoids heap allocations. The downside is that we need this ugly if/else chain below.
+
     auto stageInProgress = UsdUtil::getFabricStageInProgress();
 
     // clang-format off

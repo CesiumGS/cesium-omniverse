@@ -127,7 +127,9 @@ void FabricPrepareRenderResources::freeRaster(
     [[maybe_unused]] const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
     [[maybe_unused]] void* pLoadThreadResult,
     [[maybe_unused]] void* pMainThreadResult) noexcept {
-    // The raster gets freed when the prim is freed. Since only a single raster is ever attached to a prim there's nothing to do here.
+    // Nothing to do here.
+    // Due to Kit 104.2 material limitations, a tile can only ever have one raster attached.
+    // The texture will get freed when the prim is freed.
 }
 
 void FabricPrepareRenderResources::attachRasterInMainThread(
@@ -149,7 +151,9 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
     }
 
     if (pTileRenderResources->geomPaths.size() > 0) {
-        // Already created the tile with a lower-res raster overlay.
+        // Already created the tile with a lower-res raster.
+        // Due to Kit 104.2 material limitations, we can't update the texture or assign a new material to the prim.
+        // We are stuck with the low res raster.
         return;
     }
 
@@ -178,6 +182,10 @@ void FabricPrepareRenderResources::detachRasterInMainThread(
     [[maybe_unused]] const Cesium3DTilesSelection::Tile& tile,
     [[maybe_unused]] int32_t overlayTextureCoordinateID,
     [[maybe_unused]] const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
-    [[maybe_unused]] void* pMainThreadRendererResources) noexcept {}
+    [[maybe_unused]] void* pMainThreadRendererResources) noexcept {
+        // Nothing to do here.
+        // Due to Kit 104.2 material limitations, a tile can only ever have one raster attached.
+        // If we remove the raster overlay from the tileset we need to reload the whole tileset.
+    }
 
 } // namespace cesium::omniverse

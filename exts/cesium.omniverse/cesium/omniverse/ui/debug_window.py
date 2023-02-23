@@ -26,7 +26,7 @@ class CesiumOmniverseDebugWindow(ui.Window):
 
         self._logger = logging.getLogger(__name__)
         self._cesium_omniverse_interface = cesium_omniverse_interface
-        _cesium_message_field: ui.SimpleStringModel = None
+        self._cesium_message_field: Optional[ui.SimpleStringModel] = None
 
         # Set the function that is called to build widgets when the window is visible
         self.frame.set_build_fn(self._build_fn)
@@ -107,16 +107,26 @@ class CesiumOmniverseDebugWindow(ui.Window):
                 add_cesium_world_terrain()
 
         def remove_all_tilesets():
+            """Removes all tilesets from the stage."""
+
             tilesets = self._cesium_omniverse_interface.get_all_tileset_ids_and_paths()
 
             for (tileset_id, _) in tilesets:
                 self._cesium_omniverse_interface.remove_tileset(tileset_id)
 
-        def reset_all_tilesets():
+        def reload_all_tilesets():
+            """Reloads all tilesets."""
+
             tilesets = self._cesium_omniverse_interface.get_all_tileset_ids_and_paths()
 
             for (tileset_id, _) in tilesets:
-                self._cesium_omniverse_interface.reset_tileset(tileset_id)
+                self._cesium_omniverse_interface.reload_tileset(tileset_id)
+
+        def print_fabric_stage():
+            """Prints the contents of the Fabric stage to a text field."""
+
+            fabric_stage = self._cesium_omniverse_interface.print_fabric_stage()
+            self._cesium_message_field.set_value(fabric_stage)
 
         def open_troubleshooting_window():
             CesiumTroubleshooterWindow(
@@ -132,8 +142,8 @@ class CesiumOmniverseDebugWindow(ui.Window):
                       clicked_fn=lambda: create_tileset(Tileset.CAPE_CANAVERAL))
             ui.Button("Remove all Tilesets",
                       clicked_fn=lambda: remove_all_tilesets())
-            ui.Button("Reset all Tilesets",
-                      clicked_fn=lambda: reset_all_tilesets())
+            ui.Button("Reload all Tilesets",
+                      clicked_fn=lambda: reload_all_tilesets())
             ui.Button("Open Troubleshooter",
                       clicked_fn=lambda: open_troubleshooting_window())
             ui.Button("Print Fabric stage",
