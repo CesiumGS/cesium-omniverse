@@ -13,6 +13,12 @@ TF_REGISTRY_FUNCTION(TfType)
     TfType::Define<CesiumRasterOverlay,
         TfType::Bases< UsdTyped > >();
     
+    // Register the usd prim typename as an alias under UsdSchemaBase. This
+    // enables one to call
+    // TfType::Find<UsdSchemaBase>().FindDerivedByName("RasterOverlay")
+    // to find TfType<CesiumRasterOverlay>, which is how IsA queries are
+    // answered.
+    TfType::AddAlias<UsdSchemaBase, CesiumRasterOverlay>("RasterOverlay");
 }
 
 /* virtual */
@@ -31,6 +37,19 @@ CesiumRasterOverlay::Get(const UsdStagePtr &stage, const SdfPath &path)
     return CesiumRasterOverlay(stage->GetPrimAtPath(path));
 }
 
+/* static */
+CesiumRasterOverlay
+CesiumRasterOverlay::Define(
+    const UsdStagePtr &stage, const SdfPath &path)
+{
+    static TfToken usdPrimTypeName("RasterOverlay");
+    if (!stage) {
+        TF_CODING_ERROR("Invalid stage");
+        return CesiumRasterOverlay();
+    }
+    return CesiumRasterOverlay(
+        stage->DefinePrim(path, usdPrimTypeName));
+}
 
 /* virtual */
 UsdSchemaType CesiumRasterOverlay::_GetSchemaType() const {
