@@ -36,12 +36,7 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
     }
 
     int64_t addTilesetIon(const char* name, int64_t ionId) noexcept override {
-        const auto token = Context::instance().getDefaultToken();
-        if (!token.has_value()) {
-            return -1;
-        }
-
-        return addTilesetIon(name, ionId, token->token.c_str());
+        return addTilesetIon(name, ionId, "");
     }
 
     int64_t addTilesetIon(const char* name, int64_t ionId, const char* ionToken) noexcept override {
@@ -49,12 +44,7 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
     }
 
     void addIonRasterOverlay(int64_t tilesetId, const char* name, int64_t ionId) noexcept override {
-        const auto token = Context::instance().getDefaultToken();
-        if (!token.has_value()) {
-            return;
-        }
-
-        addIonRasterOverlay(tilesetId, name, ionId, token->token.c_str());
+        addIonRasterOverlay(tilesetId, name, ionId, "");
     }
 
     void
@@ -67,13 +57,8 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         int64_t tilesetIonId,
         const char* rasterOverlayName,
         int64_t rasterOverlayIonId) noexcept override {
-        const auto token = Context::instance().getDefaultToken();
-        if (!token.has_value()) {
-            return -1;
-        }
-
-        const auto tilesetId = addTilesetIon(tilesetName, tilesetIonId, token->token.c_str());
-        addIonRasterOverlay(tilesetId, rasterOverlayName, rasterOverlayIonId, token->token.c_str());
+        const auto tilesetId = addTilesetIon(tilesetName, tilesetIonId, "");
+        addIonRasterOverlay(tilesetId, rasterOverlayName, rasterOverlayIonId, "");
 
         return tilesetId;
     }
