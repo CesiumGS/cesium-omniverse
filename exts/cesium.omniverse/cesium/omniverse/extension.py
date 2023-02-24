@@ -209,6 +209,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
 
         for imagery in self._imagery_to_add_after_token_set:
             self._add_imagery_to_tileset(imagery)
+        self._imagery_to_add_after_token_set.clear()
 
         self._adding_assets = False
 
