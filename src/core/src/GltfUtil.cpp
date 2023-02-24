@@ -267,6 +267,24 @@ pxr::GfVec3f getBaseColorFactor(const CesiumGltf::Material& material) {
     return baseColorFactor;
 }
 
+float getMetallicFactor(const CesiumGltf::Material& material) {
+    const auto& pbrMetallicRoughness = material.pbrMetallicRoughness;
+    if (pbrMetallicRoughness.has_value()) {
+        return static_cast<float>(pbrMetallicRoughness->metallicFactor);
+    }
+
+    return 0.0f;
+}
+
+float getRoughnessFactor(const CesiumGltf::Material& material) {
+    const auto& pbrMetallicRoughness = material.pbrMetallicRoughness;
+    if (pbrMetallicRoughness.has_value()) {
+        return static_cast<float>(pbrMetallicRoughness->roughnessFactor);
+    }
+
+    return 1.0f;
+}
+
 std::optional<uint64_t> getBaseColorTextureIndex(const CesiumGltf::Model& model, const CesiumGltf::Material& material) {
     const auto& pbrMetallicRoughness = material.pbrMetallicRoughness;
     if (pbrMetallicRoughness.has_value() && pbrMetallicRoughness->baseColorTexture.has_value()) {

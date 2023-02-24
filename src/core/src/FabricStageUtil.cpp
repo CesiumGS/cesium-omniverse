@@ -111,12 +111,15 @@ std::vector<pxr::SdfPath> addMaterial(
     const std::vector<pxr::SdfAssetPath>& textureAssetPaths,
     const CesiumGltf::Model& model,
     const CesiumGltf::Material& material) {
+    auto sip = UsdUtil::getFabricStageInProgress();
 
     const auto baseColorTextureIndex = GltfUtil::getBaseColorTextureIndex(model, material);
     const auto baseColorFactor = GltfUtil::getBaseColorFactor(material);
-    const auto hasDiffuseTexture = baseColorTextureIndex.has_value();
+    const auto metallicFactor = GltfUtil::getMetallicFactor(material);
+    const auto roughnessFactor = GltfUtil::getRoughnessFactor(material);
+    const auto specularFactor = 0.0f;
 
-    auto sip = UsdUtil::getFabricStageInProgress();
+    const auto hasDiffuseTexture = baseColorTextureIndex.has_value();
 
     const auto shaderPath = materialPath.AppendChild(UsdTokens::Shader);
     const auto displacementPath = materialPath.AppendChild(UsdTokens::displacement);
@@ -233,6 +236,9 @@ std::vector<pxr::SdfPath> addMaterial(
         attributes.addAttribute(FabricTypes::_paramColorSpace, FabricTokens::_paramColorSpace);
         attributes.addAttribute(FabricTypes::_parameters, FabricTokens::_parameters);
         attributes.addAttribute(FabricTypes::diffuse_color_constant, FabricTokens::diffuse_color_constant);
+        attributes.addAttribute(FabricTypes::metallic_constant, FabricTokens::metallic_constant);
+        attributes.addAttribute(FabricTypes::reflection_roughness_constant, FabricTokens::reflection_roughness_constant);
+        attributes.addAttribute(FabricTypes::specular_level, FabricTokens::specular_level);
         attributes.addAttribute(FabricTypes::Shader, FabricTokens::Shader);
         attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
         attributes.addAttribute(FabricTypes::_cesium_tileId, FabricTokens::_cesium_tileId);
@@ -245,9 +251,12 @@ std::vector<pxr::SdfPath> addMaterial(
         attributes.createAttributes(shaderPathFabric);
 
         const size_t paramColorSpaceSize = hasDiffuseTexture ? 2 : 0;
-        const size_t parametersCount = hasDiffuseTexture ? 2 : 1;
+        const size_t parametersCount = hasDiffuseTexture ? 5 : 4;
         const size_t parametersIndexDiffuseColorConstant = 0;
-        const size_t parametersIndexDiffuseTexture = 1;
+        const size_t parametersIndexMetallicConstant = 1;
+        const size_t parametersIndexReflectionRoughnessConstant = 2;
+        const size_t parametersIndexSpecularLevel = 3;
+        const size_t parametersIndexDiffuseTexture = 4;
 
         sip.setArrayAttributeSize(shaderPathFabric, FabricTokens::_paramColorSpace, paramColorSpaceSize);
         sip.setArrayAttributeSize(shaderPathFabric, FabricTokens::_parameters, parametersCount);
@@ -257,6 +266,9 @@ std::vector<pxr::SdfPath> addMaterial(
         auto infoSourceAssetSubIdentifierFabric = sip.getAttributeWr<carb::flatcache::Token>(shaderPathFabric, FabricTokens::info_sourceAsset_subIdentifier);
         auto parametersFabric = sip.getArrayAttributeWr<carb::flatcache::Token>(shaderPathFabric, FabricTokens::_parameters);
         auto diffuseColorConstantFabric = sip.getAttributeWr<pxr::GfVec3f>(shaderPathFabric, FabricTokens::diffuse_color_constant);
+        auto metallicConstantFabric = sip.getAttributeWr<float>(shaderPathFabric, FabricTokens::metallic_constant);
+        auto reflectionRoughnessConstantFabric = sip.getAttributeWr<float>(shaderPathFabric, FabricTokens::reflection_roughness_constant);
+        auto specularLevelFabric = sip.getAttributeWr<float>(shaderPathFabric, FabricTokens::specular_level);
         auto tilesetIdFabric = sip.getAttributeWr<int64_t>(shaderPathFabric, FabricTokens::_cesium_tilesetId);
         auto tileIdFabric = sip.getAttributeWr<int64_t>(shaderPathFabric, FabricTokens::_cesium_tileId);
         // clang-format on
@@ -264,6 +276,14 @@ std::vector<pxr::SdfPath> addMaterial(
         *infoIdFabric = FabricTokens::OmniPBR_mdl;
         *infoSourceAssetSubIdentifierFabric = FabricTokens::OmniPBR;
         parametersFabric[parametersIndexDiffuseColorConstant] = FabricTokens::diffuse_color_constant;
+        parametersFabric[parametersIndexMetallicConstant] = FabricTokens::metallic_constant;
+        parametersFabric[parametersIndexReflectionRoughnessConstant] = FabricTokens::reflection_roughness_constant;
+        parametersFabric[parametersIndexSpecularLevel] = FabricTokens::specular_level;
+
+        *metallicConstantFabric = metallicFactor;
+        *reflectionRoughnessConstantFabric = roughnessFactor;
+        *specularLevelFabric = specularFactor;
+
         *tilesetIdFabric = tilesetId;
         *tileIdFabric = tileId;
 
@@ -297,9 +317,14 @@ std::vector<pxr::SdfPath> addMaterialRasterOverlay(
     int64_t tileId,
     const pxr::SdfPath& materialPath,
     const pxr::SdfAssetPath& textureAssetPath,
+    const CesiumGltf::Material& material,
     const glm::dvec2& uvTranslation,
     const glm::dvec2& uvScale) {
     auto sip = UsdUtil::getFabricStageInProgress();
+
+    const auto metallicFactor = GltfUtil::getMetallicFactor(material);
+    const auto roughnessFactor = GltfUtil::getRoughnessFactor(material);
+    const auto specularFactor = 0.0f;
 
     const auto shaderPath = materialPath.AppendChild(UsdTokens::Shader);
     const auto displacementPath = materialPath.AppendChild(UsdTokens::displacement);
@@ -482,6 +507,9 @@ std::vector<pxr::SdfPath> addMaterialRasterOverlay(
 
         // clang-format off
         attributes.addAttribute(FabricTypes::albedo_add, FabricTokens::albedo_add);
+        attributes.addAttribute(FabricTypes::metallic_constant, FabricTokens::metallic_constant);
+        attributes.addAttribute(FabricTypes::reflection_roughness_constant, FabricTokens::reflection_roughness_constant);
+        attributes.addAttribute(FabricTypes::specular_level, FabricTokens::specular_level);
         attributes.addAttribute(FabricTypes::info_id, FabricTokens::info_id);
         attributes.addAttribute(FabricTypes::info_sourceAsset_subIdentifier, FabricTokens::info_sourceAsset_subIdentifier);
         attributes.addAttribute(FabricTypes::_paramColorSpace, FabricTokens::_paramColorSpace);
@@ -494,10 +522,13 @@ std::vector<pxr::SdfPath> addMaterialRasterOverlay(
         attributes.createAttributes(shaderPathFabric);
 
         sip.setArrayAttributeSize(shaderPathFabric, FabricTokens::_paramColorSpace, 0);
-        sip.setArrayAttributeSize(shaderPathFabric, FabricTokens::_parameters, 1);
+        sip.setArrayAttributeSize(shaderPathFabric, FabricTokens::_parameters, 4);
 
         // clang-format off
         auto albedoAddFabric = sip.getAttributeWr<float>(shaderPathFabric, FabricTokens::albedo_add);
+        auto metallicConstantFabric = sip.getAttributeWr<float>(shaderPathFabric, FabricTokens::metallic_constant);
+        auto reflectionRoughnessConstantFabric = sip.getAttributeWr<float>(shaderPathFabric, FabricTokens::reflection_roughness_constant);
+        auto specularLevelFabric = sip.getAttributeWr<float>(shaderPathFabric, FabricTokens::specular_level);
         auto infoIdFabric = sip.getAttributeWr<carb::flatcache::Token>(shaderPathFabric, FabricTokens::info_id);
         auto infoSourceAssetSubIdentifierFabric = sip.getAttributeWr<carb::flatcache::Token>(shaderPathFabric, FabricTokens::info_sourceAsset_subIdentifier);
         auto parametersFabric = sip.getArrayAttributeWr<carb::flatcache::Token>(shaderPathFabric, FabricTokens::_parameters);
@@ -506,9 +537,15 @@ std::vector<pxr::SdfPath> addMaterialRasterOverlay(
         // clang-format on
 
         *albedoAddFabric = 0.0f;
+        *metallicConstantFabric = metallicFactor;
+        *reflectionRoughnessConstantFabric = roughnessFactor;
+        *specularLevelFabric = specularFactor;
         *infoIdFabric = FabricTokens::OmniPBR_mdl;
         *infoSourceAssetSubIdentifierFabric = FabricTokens::OmniPBR;
         parametersFabric[0] = FabricTokens::albedo_add;
+        parametersFabric[1] = FabricTokens::metallic_constant;
+        parametersFabric[2] = FabricTokens::reflection_roughness_constant;
+        parametersFabric[3] = FabricTokens::specular_level;
         *tilesetIdFabric = tilesetId;
         *tileIdFabric = tileId;
     }
@@ -1023,6 +1060,7 @@ AddTileResults addTileWithRasterOverlay(
                 tileId,
                 materialPath,
                 rasterOverlayAssetPath.assetPath,
+                model.materials[i],
                 rasterOverlayUvTranslation,
                 rasterOverlayUvScale);
 

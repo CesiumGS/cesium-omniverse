@@ -37,6 +37,8 @@ getPrimitiveUVs(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive&
 pxr::VtArray<int> getPrimitiveFaceVertexCounts(const pxr::VtArray<int>& indices);
 
 pxr::GfVec3f getBaseColorFactor(const CesiumGltf::Material& material);
+float getMetallicFactor(const CesiumGltf::Material& material);
+float getRoughnessFactor(const CesiumGltf::Material& material);
 
 std::optional<uint64_t> getBaseColorTextureIndex(const CesiumGltf::Model& model, const CesiumGltf::Material& material);
 
