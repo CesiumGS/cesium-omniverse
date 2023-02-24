@@ -26,6 +26,7 @@ struct Decomposed {
 
 pxr::UsdStageRefPtr getUsdStage();
 carb::flatcache::StageInProgress getFabricStageInProgress();
+bool hasStage();
 glm::dmat4 usdToGlmMatrix(const pxr::GfMatrix4d& matrix);
 pxr::GfMatrix4d glmToUsdMatrix(const glm::dmat4& matrix);
 Decomposed glmToUsdMatrixDecomposed(const glm::dmat4& matrix);

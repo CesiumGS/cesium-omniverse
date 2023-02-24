@@ -38,16 +38,16 @@ class Context {
   public:
     static void onStartup(const std::filesystem::path& cesiumExtensionLocation);
     static void onShutdown();
-    static void onStageChange(long stageId);
     static Context& instance();
 
-    Context(int64_t contextId, const std::filesystem::path& cesiumExtensionLocation);
+    Context() = default;
     ~Context() = default;
     Context(const Context&) = delete;
     Context(Context&&) = delete;
     Context& operator=(const Context&) = delete;
     Context& operator=(Context&&) = delete;
 
+    void initialize(int64_t contextId, const std::filesystem::path& cesiumExtensionLocation);
     void destroy();
 
     std::shared_ptr<TaskProcessor> getTaskProcessor();
@@ -70,6 +70,8 @@ class Context {
 
     pxr::UsdStageRefPtr getStage() const;
     carb::flatcache::StageInProgress getFabricStageInProgress() const;
+    long getStageId() const;
+
     void setStageId(long stageId);
 
     int64_t getContextId() const;
@@ -117,6 +119,7 @@ class Context {
 
     pxr::UsdStageRefPtr _stage;
     std::optional<carb::flatcache::StageInProgress> _fabricStageInProgress;
+    long _stageId{0};
 
     int64_t _contextId;
 

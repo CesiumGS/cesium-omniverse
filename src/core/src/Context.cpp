@@ -78,33 +78,32 @@ std::unique_ptr<Context> context;
 void Context::onStartup(const std::filesystem::path& cesiumExtensionLocation) {
     static int64_t contextId = 0;
 
-    if (context) {
-        context->destroy();
-    }
-    context = std::make_unique<Context>(contextId++, cesiumExtensionLocation);
+    // Shut down the current context (if it exists)
+    onShutdown();
+
+    // Create a new context
+    context = std::make_unique<Context>();
+
+    // Initialize the context. This needs to happen after the global variable is set
+    // since code inside initialize may call Context::instance.
+    context->initialize(contextId++, cesiumExtensionLocation);
 }
 
 void Context::onShutdown() {
     if (context) {
+        // Destroy the context. This needs to happen before the global variable is
+        // reset since code inside destroy may call Context::instance.
         context->destroy();
+        context.reset();
     }
-    context.reset();
-}
-
-void Context::onStageChange(long stageId) {
-    // This works for now because all it does is destroy the tilesets but we
-    // need a more robust approach for stage changes
-    context->destroy();
-    context->setStageId(stageId);
 }
 
 Context& Context::instance() {
     return *context.get();
 }
 
-Context::Context(int64_t contextId, const std::filesystem::path& cesiumExtensionLocation)
-    : _contextId(contextId) {
-
+void Context::initialize(int64_t contextId, const std::filesystem::path& cesiumExtensionLocation) {
+    _contextId = contextId;
     _tilesetId = 0;
 
     _cesiumExtensionLocation = cesiumExtensionLocation.lexically_normal();
@@ -271,13 +270,41 @@ carb::flatcache::StageInProgress Context::getFabricStageInProgress() const {
     return _fabricStageInProgress.value();
 }
 
-void Context::setStageId(long stageId) {
-    const auto stage = pxr::UsdUtilsStageCache::Get().Find(pxr::UsdStageCache::Id::FromLongInt(stageId));
-    _stage = stage;
+long Context::getStageId() const {
+    return _stageId;
+}
 
-    const auto iStageInProgress = carb::getCachedInterface<carb::flatcache::IStageInProgress>();
-    const auto stageInProgressId = iStageInProgress->get(carb::flatcache::UsdStageId{static_cast<uint64_t>(stageId)});
-    _fabricStageInProgress = carb::flatcache::StageInProgress(stageInProgressId);
+void Context::setStageId(long stageId) {
+    const auto oldStage = _stageId;
+    const auto newStage = stageId;
+
+    if (oldStage == newStage) {
+        // No change
+        return;
+    }
+
+    if (oldStage > 0) {
+        // Remove references to the old stage
+        _stage.Reset();
+        _fabricStageInProgress.reset();
+        _stageId = 0;
+
+        // Now it's safe to clear anything that else that references the stage
+        _tilesets.clear();
+    }
+
+    if (newStage > 0) {
+        // Set the USD stage
+        _stage = pxr::UsdUtilsStageCache::Get().Find(pxr::UsdStageCache::Id::FromLongInt(stageId));
+
+        // Set the Fabric stage
+        const auto iStageInProgress = carb::getCachedInterface<carb::flatcache::IStageInProgress>();
+        const auto stageInProgressId =
+            iStageInProgress->get(carb::flatcache::UsdStageId{static_cast<uint64_t>(stageId)});
+        _fabricStageInProgress = carb::flatcache::StageInProgress(stageInProgressId);
+    }
+
+    _stageId = stageId;
 }
 
 int64_t Context::getContextId() const {

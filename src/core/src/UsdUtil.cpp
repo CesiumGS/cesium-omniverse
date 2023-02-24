@@ -53,6 +53,10 @@ carb::flatcache::StageInProgress getFabricStageInProgress() {
     return Context::instance().getFabricStageInProgress();
 }
 
+bool hasStage() {
+    return Context::instance().getStageId() != 0;
+}
+
 glm::dmat4 usdToGlmMatrix(const pxr::GfMatrix4d& matrix) {
     // Row-major to column-major
     return glm::dmat4{

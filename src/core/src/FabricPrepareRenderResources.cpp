@@ -25,7 +25,9 @@ FabricPrepareRenderResources::FabricPrepareRenderResources(const OmniTileset& ti
     : _tileset(tileset) {}
 
 FabricPrepareRenderResources::~FabricPrepareRenderResources() {
-    FabricStageUtil::removeTileset(_tileset.getId());
+    if (UsdUtil::hasStage()) {
+        FabricStageUtil::removeTileset(_tileset.getId());
+    }
 }
 
 CesiumAsync::Future<Cesium3DTilesSelection::TileLoadResultAndRenderResources>
@@ -106,7 +108,11 @@ void FabricPrepareRenderResources::free(
 
     if (pMainThreadResult) {
         const auto pTileRenderResources = reinterpret_cast<TileRenderResources*>(pMainThreadResult);
-        FabricStageUtil::removeTile(pTileRenderResources->allPrimPaths, pTileRenderResources->textureAssetNames);
+
+        if (UsdUtil::hasStage()) {
+            FabricStageUtil::removeTile(pTileRenderResources->allPrimPaths, pTileRenderResources->textureAssetNames);
+        }
+
         delete pTileRenderResources;
     }
 }

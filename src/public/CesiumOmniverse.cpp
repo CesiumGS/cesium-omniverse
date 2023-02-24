@@ -90,7 +90,7 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
     }
 
     void onStageChange(long stageId) noexcept override {
-        Context::onStageChange(stageId);
+        Context::instance().setStageId(stageId);
     }
 
     void setGeoreferenceOrigin(double longitude, double latitude, double height) noexcept override {
