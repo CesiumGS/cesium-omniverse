@@ -127,14 +127,9 @@ void OmniTileset::reload() {
             std::make_unique<Cesium3DTilesSelection::Tileset>(externals, ionAssetId, ionToken.value().token, options);
     }
 
-    // Find the children raster overlay prims and call addIonRasterOverlay for each
-    auto stage = UsdUtil::getUsdStage();
-    auto prim = stage->GetPrimAtPath(_tilesetPath);
-
-    for (const auto& childPrim : prim.GetChildren()) {
-        if (childPrim.IsA<pxr::CesiumRasterOverlay>()) {
-            addIonRasterOverlay(childPrim.GetPath());
-        }
+    // Add raster overlays
+    for (const auto& rasterOverlayPath : UsdUtil::getChildRasterOverlayPaths(_tilesetPath)) {
+        addIonRasterOverlay(rasterOverlayPath);
     }
 }
 

@@ -336,18 +336,15 @@ std::optional<std::shared_ptr<CesiumIonSession>> Context::getSession() {
 }
 
 std::optional<CesiumIonClient::Token> Context::getDefaultToken() const {
-    auto stage = UsdUtil::getUsdStage();
-    auto cesiumDataPrim = stage->GetPrimAtPath(CesiumDataPath);
-
-    if (!cesiumDataPrim.IsValid()) {
+    if (!UsdUtil::primExists(CesiumDataPath)) {
         return std::nullopt;
     }
 
-    const pxr::CesiumData cesiumData(cesiumDataPrim);
+    const auto cesiumDataUsd = UsdUtil::getCesiumData(CesiumDataPath);
     std::string projectDefaultToken;
-    cesiumData.GetDefaultProjectTokenAttr().Get(&projectDefaultToken);
+    cesiumDataUsd.GetDefaultProjectTokenAttr().Get(&projectDefaultToken);
     std::string projectDefaultTokenId;
-    cesiumData.GetDefaultProjectTokenIdAttr().Get(&projectDefaultTokenId);
+    cesiumDataUsd.GetDefaultProjectTokenIdAttr().Get(&projectDefaultTokenId);
 
     return CesiumIonClient::Token{projectDefaultTokenId, "", projectDefaultToken};
 }

@@ -285,6 +285,22 @@ pxr::CesiumRasterOverlay getCesiumRasterOverlay(const pxr::SdfPath& path) {
     return rasterOverlay;
 }
 
+std::vector<pxr::SdfPath> getChildRasterOverlayPaths(const pxr::SdfPath& path) {
+    // Find the children raster overlay prims and call addIonRasterOverlay for each
+    auto stage = UsdUtil::getUsdStage();
+    auto prim = stage->GetPrimAtPath(path);
+
+    std::vector<pxr::SdfPath> result;
+
+    for (const auto& childPrim : prim.GetChildren()) {
+        if (childPrim.IsA<pxr::CesiumRasterOverlay>()) {
+            result.emplace_back(childPrim.GetPath());
+        }
+    }
+
+    return result;
+}
+
 bool primExists(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto prim = stage->GetPrimAtPath(path);

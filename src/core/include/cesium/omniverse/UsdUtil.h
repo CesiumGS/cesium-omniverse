@@ -51,6 +51,7 @@ pxr::CesiumRasterOverlay defineCesiumRasterOverlay(const pxr::SdfPath& path);
 pxr::CesiumData getCesiumData(const pxr::SdfPath& path);
 pxr::CesiumTilesetAPI getCesiumTilesetAPI(const pxr::SdfPath& path);
 pxr::CesiumRasterOverlay getCesiumRasterOverlay(const pxr::SdfPath& path);
+std::vector<pxr::SdfPath> getChildRasterOverlayPaths(const pxr::SdfPath& path);
 
 bool primExists(const pxr::SdfPath& path);
 
