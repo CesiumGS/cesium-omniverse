@@ -38,7 +38,6 @@ class AssetRegistry {
     std::optional<std::shared_ptr<OmniTileset>> getTileset(int64_t assetId);
     std::optional<std::shared_ptr<OmniTileset>> getTileset(const std::string& path);
     std::optional<int64_t> getTilesetId(const std::string& path);
-    std::optional<int64_t> getFirstTilesetId();
     std::vector<std::shared_ptr<OmniTileset>> getAllTilesets();
     std::vector<std::pair<int64_t, const char*>> getAllTilesetIdsAndPaths();
     [[maybe_unused]] std::vector<int64_t> getAllTilesetIds();
