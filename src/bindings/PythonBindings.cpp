@@ -50,6 +50,7 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("specify_token", &ICesiumOmniverseInterface::specifyToken)
         .def("on_update_ui", &ICesiumOmniverseInterface::onUpdateUi)
         .def("get_session", &ICesiumOmniverseInterface::getSession)
+        .def("get_tileset_id_by_path", &ICesiumOmniverseInterface::getTilesetIdByPath)
         .def("get_all_tileset_ids_and_paths", &ICesiumOmniverseInterface::getAllTilesetIdsAndPaths)
         .def("get_asset_troubleshooting_details", &ICesiumOmniverseInterface::getAssetTroubleshootingDetails)
         .def("get_asset_token_troubleshooting_details", &ICesiumOmniverseInterface::getAssetTokenTroubleshootingDetails)

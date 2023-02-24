@@ -2,6 +2,7 @@
 
 #include "cesium/omniverse/CesiumOmniverse.h"
 
+#include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/FabricUtil.h"
@@ -63,8 +64,12 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         return tilesetId;
     }
 
+    std::optional<int64_t> getTilesetIdByPath(const char* path) noexcept override {
+        return AssetRegistry::getInstance().getTilesetId(path);
+    }
+
     std::vector<std::pair<int64_t, const char*>> getAllTilesetIdsAndPaths() noexcept override {
-        return Context::instance().getAllTilesetIdsAndPaths();
+        return AssetRegistry::getInstance().getAllTilesetIdsAndPaths();
     }
 
     void removeTileset(int64_t tilesetId) noexcept override {

@@ -105,6 +105,14 @@ class ICesiumOmniverseInterface {
         int64_t rasterOverlayIonId) noexcept = 0;
 
     /**
+     * @brief Gets the tileset ID by the path. This is useful for the asset window when adding raster overlays.
+     *
+     * @param path The path of the tileset.
+     * @return The tileset's ID.
+     */
+    virtual std::optional<int64_t> getTilesetIdByPath(const char* path) noexcept = 0;
+
+    /**
      * @brief Gets all the tileset ids and their paths. Primarily for usage on the python end.
      *
      * @return The tileset IDs and their sdf paths, as a vector of pairs.

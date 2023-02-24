@@ -1,5 +1,6 @@
 #include "cesium/omniverse/Context.h"
 
+#include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
@@ -28,23 +29,6 @@
 namespace cesium::omniverse {
 
 namespace {
-OmniTileset* findTileset(const std::vector<std::unique_ptr<OmniTileset>>& tilesets, int64_t tilesetId) {
-    auto iter = std::find_if(
-        tilesets.begin(), tilesets.end(), [&tilesetId](const auto& tileset) { return tileset->getId() == tilesetId; });
-
-    if (iter != tilesets.end()) {
-        return iter->get();
-    }
-
-    return nullptr;
-}
-
-void removeTileset(std::vector<std::unique_ptr<OmniTileset>>& tilesets, int64_t tilesetId) {
-    auto removedIter = std::remove_if(
-        tilesets.begin(), tilesets.end(), [&tilesetId](const auto& tileset) { return tileset->getId() == tilesetId; });
-
-    tilesets.erase(removedIter, tilesets.end());
-}
 
 Cesium3DTilesSelection::ViewState computeViewState(
     const CesiumGeospatial::Cartographic& origin,
@@ -132,7 +116,7 @@ void Context::initialize(int64_t contextId, const std::filesystem::path& cesiumE
 }
 
 void Context::destroy() {
-    _tilesets.clear();
+    AssetRegistry::getInstance().clear();
 }
 
 std::shared_ptr<TaskProcessor> Context::getTaskProcessor() {
@@ -172,7 +156,7 @@ int64_t Context::addTilesetUrl(const std::string& url) {
 
     tilesetUsd.GetTilesetUrlAttr().Set<std::string>(url);
 
-    _tilesets.emplace_back(std::make_unique<OmniTileset>(tilesetId, tilesetPath));
+    AssetRegistry::getInstance().addTileset(tilesetId, tilesetPath);
     return tilesetId;
 }
 
@@ -186,7 +170,7 @@ int64_t Context::addTilesetIon([[maybe_unused]] const std::string& name, int64_t
     tilesetUsd.GetTilesetIdAttr().Set<int64_t>(ionId);
     tilesetUsd.GetIonTokenAttr().Set<std::string>(ionToken);
 
-    _tilesets.emplace_back(std::make_unique<OmniTileset>(tilesetId, tilesetPath));
+    AssetRegistry::getInstance().addTileset(tilesetId, tilesetPath);
     return tilesetId;
 }
 
@@ -195,52 +179,47 @@ void Context::addIonRasterOverlay(
     const std::string& name,
     int64_t ionId,
     const std::string& ionToken) {
-    const auto tileset = findTileset(_tilesets, tilesetId);
+    const auto tileset = AssetRegistry::getInstance().getTileset(tilesetId);
 
-    if (!tileset) {
+    if (!tileset.has_value()) {
         return;
     }
 
     const auto stage = UsdUtil::getUsdStage();
     const auto safeName = UsdUtil::getSafeName(name);
-    auto path = UsdUtil::getPathUnique(tileset->getPath(), safeName);
+    auto path = UsdUtil::getPathUnique(tileset.value()->getPath(), safeName);
     auto rasterOverlayUsd = UsdUtil::defineCesiumRasterOverlay(path);
 
     rasterOverlayUsd.GetRasterOverlayIdAttr().Set<int64_t>(ionId);
     rasterOverlayUsd.GetIonTokenAttr().Set<std::string>(ionToken);
 
-    tileset->addIonRasterOverlay(path);
-}
+    tileset.value()->addIonRasterOverlay(path);
 
-std::vector<std::pair<int64_t, const char*>> Context::getAllTilesetIdsAndPaths() const {
-    std::vector<std::pair<int64_t, const char*>> result;
-    result.reserve(_tilesets.size());
-
-    for (const auto& tileset : _tilesets) {
-        result.emplace_back(tileset->getId(), tileset->getPath().GetText());
-    }
-
-    return result;
+    AssetRegistry::getInstance().addRasterOverlay(ionId, path, tilesetId);
 }
 
 void Context::removeTileset(int64_t tilesetId) {
-    const auto tileset = findTileset(_tilesets, tilesetId);
+    auto& assetRegistry = AssetRegistry::getInstance();
+    const auto tileset = assetRegistry.getTileset(tilesetId);
 
-    if (!tileset) {
+    if (!tileset.has_value()) {
         return;
     }
 
     const auto stage = UsdUtil::getUsdStage();
-    stage->RemovePrim(tileset->getPath());
+    bool removed = stage->RemovePrim(tileset.value()->getPath());
 
-    ::cesium::omniverse::removeTileset(_tilesets, tilesetId);
+    if (removed) {
+        assetRegistry.removeAsset(tilesetId);
+        assetRegistry.removeAssetByParent(tilesetId);
+    }
 }
 
 void Context::reloadTileset(int64_t tilesetId) {
-    const auto tileset = findTileset(_tilesets, tilesetId);
+    const auto tileset = AssetRegistry::getInstance().getTileset(tilesetId);
 
-    if (tileset) {
-        tileset->reload();
+    if (tileset.has_value()) {
+        tileset.value()->reload();
     }
 }
 
@@ -248,7 +227,8 @@ void Context::onUpdateFrame(const glm::dmat4& viewMatrix, const glm::dmat4& proj
     _viewStates.clear();
     _viewStates.emplace_back(computeViewState(_georeferenceOrigin, viewMatrix, projMatrix, width, height));
 
-    for (const auto& tileset : _tilesets) {
+    auto tilesets = AssetRegistry::getInstance().getAllTilesets();
+    for (const auto& tileset : tilesets) {
         tileset->onUpdateFrame(_viewStates);
     }
 }
@@ -290,7 +270,7 @@ void Context::setStageId(long stageId) {
         _stageId = 0;
 
         // Now it's safe to clear anything that else that references the stage
-        _tilesets.clear();
+        AssetRegistry::getInstance().clear();
     }
 
     if (newStage > 0) {
@@ -430,9 +410,9 @@ std::optional<TokenTroubleshootingDetails> Context::getDefaultTokenTroubleshooti
     return _defaultTokenTroubleshootingDetails;
 }
 void Context::updateTroubleshootingDetails(int64_t tilesetId, uint64_t tokenEventId, uint64_t assetEventId) {
-    const auto tileset = findTileset(_tilesets, tilesetId);
+    const auto tileset = AssetRegistry::getInstance().getTileset(tilesetId);
 
-    if (!tileset) {
+    if (!tileset.has_value()) {
         return;
     }
 
@@ -456,9 +436,9 @@ void Context::updateTroubleshootingDetails(
     int64_t rasterOverlayId,
     uint64_t tokenEventId,
     uint64_t assetEventId) {
-    const auto tileset = findTileset(_tilesets, tilesetId);
+    const auto tileset = AssetRegistry::getInstance().getTileset(tilesetId);
 
-    if (!tileset) {
+    if (!tileset.has_value()) {
         return;
     }
 

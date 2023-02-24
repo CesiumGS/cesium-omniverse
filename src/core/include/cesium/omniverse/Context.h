@@ -60,8 +60,6 @@ class Context {
     int64_t addTilesetIon(const std::string& name, int64_t ionId, const std::string& ionToken);
     void addIonRasterOverlay(int64_t tilesetId, const std::string& name, int64_t ionId, const std::string& ionToken);
 
-    std::vector<std::pair<int64_t, const char*>> getAllTilesetIdsAndPaths() const;
-
     void removeTileset(int64_t tilesetId);
     void reloadTileset(int64_t tilesetId);
 
@@ -123,7 +121,6 @@ class Context {
 
     int64_t _contextId;
 
-    std::vector<std::unique_ptr<OmniTileset>> _tilesets;
     std::atomic<int64_t> _tilesetId{};
 
     std::filesystem::path _cesiumExtensionLocation;
