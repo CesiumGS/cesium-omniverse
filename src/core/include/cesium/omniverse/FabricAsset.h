@@ -23,6 +23,7 @@ class FabricAsset {
     const char* getAssetPath() const;
     const char* getResolvedPath() const;
 
+  private:
     pxr::TfToken _assetPath;
     pxr::TfToken _resolvedPath;
 #ifdef CESIUM_OMNI_WINDOWS
