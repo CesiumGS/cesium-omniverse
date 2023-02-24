@@ -122,6 +122,9 @@ void OmniTileset::reload() {
 
     if (!url.empty()) {
         _tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(externals, url, options);
+    } else if (!ionToken.has_value()) {
+        // This happens when adding a blank tileset.
+        _tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(externals, 0, "", options);
     } else {
         _tileset =
             std::make_unique<Cesium3DTilesSelection::Tileset>(externals, ionAssetId, ionToken.value().token, options);
