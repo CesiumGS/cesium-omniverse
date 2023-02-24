@@ -207,6 +207,9 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             self._add_ion_assets(asset)
         self._assets_to_add_after_token_set.clear()
 
+        for imagery in self._imagery_to_add_after_token_set:
+            self._add_imagery_to_tileset(imagery)
+
         self._adding_assets = False
 
     def _on_add_ion_asset_event(self, event: carb.events.IEvent):

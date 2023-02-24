@@ -4,8 +4,8 @@ import carb.events
 
 
 class ImageryToAdd:
-    def __init__(self, tileset_ion_id: int, imagery_ion_id: int, imagery_name: str):
-        self.tileset_ion_id = tileset_ion_id
+    def __init__(self, tileset_id: int, imagery_ion_id: int, imagery_name: str):
+        self.tileset_ion_id = tileset_id
         self.imagery_ion_id = imagery_ion_id
         self.imagery_name = imagery_name
 

@@ -65,8 +65,7 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
     }
 
     std::optional<int64_t> getTilesetIdByPath(const char* path) noexcept override {
-        std::string tilesetPath{path};
-        return AssetRegistry::getInstance().getTilesetId(tilesetPath);
+        return AssetRegistry::getInstance().getTilesetId(path);
     }
 
     std::vector<std::pair<int64_t, const char*>> getAllTilesetIdsAndPaths() noexcept override {

@@ -227,7 +227,8 @@ void Context::onUpdateFrame(const glm::dmat4& viewMatrix, const glm::dmat4& proj
     _viewStates.clear();
     _viewStates.emplace_back(computeViewState(_georeferenceOrigin, viewMatrix, projMatrix, width, height));
 
-    for (const auto& tileset : AssetRegistry::getInstance().getAllTilesets()) {
+    auto tilesets = AssetRegistry::getInstance().getAllTilesets();
+    for (const auto& tileset : tilesets) {
         tileset->onUpdateFrame(_viewStates);
     }
 }
@@ -411,7 +412,7 @@ std::optional<TokenTroubleshootingDetails> Context::getDefaultTokenTroubleshooti
 void Context::updateTroubleshootingDetails(int64_t tilesetId, uint64_t tokenEventId, uint64_t assetEventId) {
     const auto tileset = AssetRegistry::getInstance().getTileset(tilesetId);
 
-    if (!tileset) {
+    if (!tileset.has_value()) {
         return;
     }
 
@@ -437,7 +438,7 @@ void Context::updateTroubleshootingDetails(
     uint64_t assetEventId) {
     const auto tileset = AssetRegistry::getInstance().getTileset(tilesetId);
 
-    if (!tileset) {
+    if (!tileset.has_value()) {
         return;
     }
 

@@ -1,10 +1,12 @@
 #pragma once
 
-#include "OmniTileset.h"
+#include "pxr/usd/sdf/path.h"
 
-#include <forward_list>
+#include <list>
 
 namespace cesium::omniverse {
+
+class OmniTileset;
 
 enum AssetType {
     TILESET = 0,
@@ -34,8 +36,8 @@ class AssetRegistry {
 
     void addTileset(int64_t id, const pxr::SdfPath& path);
     std::optional<std::shared_ptr<OmniTileset>> getTileset(int64_t assetId);
-    std::optional<std::shared_ptr<OmniTileset>> getTileset(std::string& path);
-    std::optional<int64_t> getTilesetId(std::string& path);
+    std::optional<std::shared_ptr<OmniTileset>> getTileset(const std::string& path);
+    std::optional<int64_t> getTilesetId(const std::string& path);
     std::vector<std::shared_ptr<OmniTileset>> getAllTilesets();
     std::vector<std::pair<int64_t, const char*>> getAllTilesetIdsAndPaths();
     [[maybe_unused]] std::vector<int64_t> getAllTilesetIds();

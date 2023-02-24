@@ -121,7 +121,6 @@ class Context {
 
     int64_t _contextId;
 
-    // std::vector<std::unique_ptr<OmniTileset>> _tilesets;
     std::atomic<int64_t> _tilesetId{};
 
     std::filesystem::path _cesiumExtensionLocation;

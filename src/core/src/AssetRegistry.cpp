@@ -1,5 +1,7 @@
 #include "cesium/omniverse/AssetRegistry.h"
 
+#include "cesium/omniverse/OmniTileset.h"
+
 namespace cesium::omniverse {
 
 void AssetRegistry::addTileset(int64_t id, const pxr::SdfPath& path) {
@@ -22,7 +24,7 @@ std::optional<std::shared_ptr<OmniTileset>> AssetRegistry::getTileset(int64_t as
     return std::nullopt;
 }
 
-std::optional<std::shared_ptr<OmniTileset>> AssetRegistry::getTileset(std::string& path) {
+std::optional<std::shared_ptr<OmniTileset>> AssetRegistry::getTileset(const std::string& path) {
     for (const auto& item : items) {
         if (item.path == path && item.type == AssetType::TILESET) {
             if (!item.tileset.has_value()) {
@@ -36,7 +38,7 @@ std::optional<std::shared_ptr<OmniTileset>> AssetRegistry::getTileset(std::strin
     return std::nullopt;
 }
 
-std::optional<int64_t> AssetRegistry::getTilesetId(std::string& path) {
+std::optional<int64_t> AssetRegistry::getTilesetId(const std::string& path) {
     auto tileset = getTileset(path);
 
     if (!tileset.has_value()) {
