@@ -202,7 +202,7 @@ int64_t Context::addTilesetIon([[maybe_unused]] const std::string& name, int64_t
 
     tilesetUsd.GetTilesetIdAttr().Set<int64_t>(ionId);
     tilesetUsd.GetIonTokenAttr().Set<std::string>(ionToken);
-    
+
     AssetRegistry::getInstance().addTileset(tilesetId, tilesetPath);
     return tilesetId;
 }
