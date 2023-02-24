@@ -712,11 +712,11 @@ void addPrimitive(
     const auto normals = GltfUtil::getPrimitiveNormals(model, primitive, positions, indices);
     const auto st0 = GltfUtil::getPrimitiveUVs(model, primitive, 0);
     const auto rasterOverlaySt = GltfUtil::getRasterOverlayUVs(model, primitive, rasterOverlaySetIndex);
-    const auto worldExtent = GltfUtil::getPrimitiveExtent(model, primitive);
+    const auto localExtent = GltfUtil::getPrimitiveExtent(model, primitive);
     const auto faceVertexCounts = GltfUtil::getPrimitiveFaceVertexCounts(indices);
     const auto doubleSided = GltfUtil::getDoubleSided(model, primitive);
 
-    if (positions.empty() || indices.empty() || normals.empty() || !worldExtent.has_value()) {
+    if (positions.empty() || indices.empty() || normals.empty() || !localExtent.has_value()) {
         return;
     }
 
@@ -735,6 +735,7 @@ void addPrimitive(
     const auto localToEcefTransform = gltfToEcefTransform * nodeTransform;
     const auto localToUsdTransform = ecefToUsdTransform * localToEcefTransform;
     const auto [worldPosition, worldOrientation, worldScale] = UsdUtil::glmToUsdMatrixDecomposed(localToUsdTransform);
+    const auto worldExtent = UsdUtil::computeWorldExtent(localExtent.value(), localToUsdTransform);
 
     sip.createPrim(geomPathFabric);
 
@@ -742,6 +743,7 @@ void addPrimitive(
     attributes.addAttribute(FabricTypes::faceVertexCounts, FabricTokens::faceVertexCounts);
     attributes.addAttribute(FabricTypes::faceVertexIndices, FabricTokens::faceVertexIndices);
     attributes.addAttribute(FabricTypes::points, FabricTokens::points);
+    attributes.addAttribute(FabricTypes::_localExtent, FabricTokens::_localExtent);
     attributes.addAttribute(FabricTypes::_worldExtent, FabricTokens::_worldExtent);
     attributes.addAttribute(FabricTypes::_worldVisibility, FabricTokens::_worldVisibility);
     attributes.addAttribute(FabricTypes::primvars, FabricTokens::primvars);
@@ -785,6 +787,7 @@ void addPrimitive(
     auto faceVertexCountsFabric = sip.getArrayAttributeWr<int>(geomPathFabric, FabricTokens::faceVertexCounts);
     auto faceVertexIndicesFabric = sip.getArrayAttributeWr<int>(geomPathFabric, FabricTokens::faceVertexIndices);
     auto pointsFabric = sip.getArrayAttributeWr<pxr::GfVec3f>(geomPathFabric, FabricTokens::points);
+    auto localExtentFabric = sip.getAttributeWr<pxr::GfRange3d>(geomPathFabric, FabricTokens::_localExtent);
     auto worldExtentFabric = sip.getAttributeWr<pxr::GfRange3d>(geomPathFabric, FabricTokens::_worldExtent);
     auto worldVisibilityFabric = sip.getAttributeWr<bool>(geomPathFabric, FabricTokens::_worldVisibility);
     auto primvarsFabric = sip.getArrayAttributeWr<carb::flatcache::Token>(geomPathFabric, FabricTokens::primvars);
@@ -819,9 +822,8 @@ void addPrimitive(
     *localToEcefTransformFabric = UsdUtil::glmToUsdMatrix(localToEcefTransform);
     *doubleSidedFabric = doubleSided;
     *subdivisionSchemeFabric = FabricTokens::none;
-
-    worldExtentFabric->SetMin(worldExtent.value().GetMin());
-    worldExtentFabric->SetMax(worldExtent.value().GetMax());
+    *localExtentFabric = localExtent.value();
+    *worldExtentFabric = worldExtent;
 
     if (hasMaterial) {
         auto materialIdFabric = sip.getAttributeWr<uint64_t>(geomPathFabric, FabricTokens::materialId);
@@ -1134,19 +1136,27 @@ void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform
         // clang-format off
         auto tilesetIdFabric = sip.getAttributeArrayRd<int64_t>(buckets, bucketId, FabricTokens::_cesium_tilesetId);
         auto localToEcefTransformFabric = sip.getAttributeArrayRd<pxr::GfMatrix4d>(buckets, bucketId, FabricTokens::_cesium_localToEcefTransform);
+        auto localExtentFabric = sip.getAttributeArrayRd<pxr::GfRange3d>(buckets, bucketId, FabricTokens::_localExtent);
+
         auto worldPositionFabric = sip.getAttributeArrayWr<pxr::GfVec3d>(buckets, bucketId, FabricTokens::_worldPosition);
         auto worldOrientationFabric = sip.getAttributeArrayWr<pxr::GfQuatf>(buckets, bucketId, FabricTokens::_worldOrientation);
         auto worldScaleFabric = sip.getAttributeArrayWr<pxr::GfVec3f>(buckets, bucketId, FabricTokens::_worldScale);
+        auto worldExtentFabric = sip.getAttributeArrayWr<pxr::GfRange3d>(buckets, bucketId, FabricTokens::_worldExtent);
         // clang-format on
 
         for (size_t i = 0; i < tilesetIdFabric.size(); i++) {
             if (tilesetIdFabric[i] == tilesetId) {
                 const auto localToEcefTransform = UsdUtil::usdToGlmMatrix(localToEcefTransformFabric[i]);
                 const auto localToUsdTransform = ecefToUsdTransform * localToEcefTransform;
-                const auto [position, orientation, scale] = UsdUtil::glmToUsdMatrixDecomposed(localToUsdTransform);
-                worldPositionFabric[i] = position;
-                worldOrientationFabric[i] = orientation;
-                worldScaleFabric[i] = scale;
+                const auto localExtent = localExtentFabric[i];
+                const auto [worldPosition, worldOrientation, worldScale] =
+                    UsdUtil::glmToUsdMatrixDecomposed(localToUsdTransform);
+                const auto worldExtent = UsdUtil::computeWorldExtent(localExtent, localToUsdTransform);
+
+                worldPositionFabric[i] = worldPosition;
+                worldOrientationFabric[i] = worldOrientation;
+                worldScaleFabric[i] = worldScale;
+                worldExtentFabric[i] = worldExtent;
             }
         }
     }

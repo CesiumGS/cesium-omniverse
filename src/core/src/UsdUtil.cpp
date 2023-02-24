@@ -57,6 +57,10 @@ bool hasStage() {
     return Context::instance().getStageId() != 0;
 }
 
+glm::dvec3 usdToGlmVector(const pxr::GfVec3d& vector) {
+    return glm::dvec3(vector[0], vector[1], vector[2]);
+}
+
 glm::dmat4 usdToGlmMatrix(const pxr::GfMatrix4d& matrix) {
     // Row-major to column-major
     return glm::dmat4{
@@ -77,6 +81,10 @@ glm::dmat4 usdToGlmMatrix(const pxr::GfMatrix4d& matrix) {
         matrix[2][3],
         matrix[3][3],
     };
+}
+
+pxr::GfVec3d glmToUsdVector(const glm::dvec3& vector) {
+    return pxr::GfVec3d(vector.x, vector.y, vector.z);
 }
 
 pxr::GfMatrix4d glmToUsdMatrix(const glm::dmat4& matrix) {
@@ -199,6 +207,24 @@ computeEcefToUsdTransformForPrim(const CesiumGeospatial::Cartographic& origin, c
     const auto primUsdWorldTransform = computeUsdWorldTransform(primPath);
     const auto primEcefToUsdTransform = primUsdWorldTransform * ecefToUsdTransform;
     return primEcefToUsdTransform;
+}
+
+pxr::GfRange3d computeWorldExtent(const pxr::GfRange3d& localExtent, const glm::dmat4& localToUsdTransform) {
+    const auto min = std::numeric_limits<double>::lowest();
+    const auto max = std::numeric_limits<double>::max();
+
+    glm::dvec3 worldMin(max);
+    glm::dvec3 worldMax(min);
+
+    for (int i = 0; i < 8; i++) {
+        const auto localPosition = usdToGlmVector(localExtent.GetCorner(i));
+        const auto worldPosition = glm::dvec3(localToUsdTransform * glm::dvec4(localPosition, 1.0));
+
+        worldMin = glm::min(worldMin, worldPosition);
+        worldMax = glm::max(worldMax, worldPosition);
+    }
+
+    return pxr::GfRange3d(glmToUsdVector(worldMin), glmToUsdVector(worldMax));
 }
 
 pxr::CesiumData defineCesiumData(const pxr::SdfPath& path) {
