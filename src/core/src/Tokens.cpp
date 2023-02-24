@@ -26,6 +26,7 @@ TF_DEFINE_PRIVATE_TOKENS(
     (materialId)
     (MaterialNetwork)
     (Mesh)
+    (metallic_constant)
     (multiply)
     (none)
     (OmniPBR)
@@ -33,7 +34,9 @@ TF_DEFINE_PRIVATE_TOKENS(
     (points)
     (primvarInterpolations)
     (primvars)
+    (reflection_roughness_constant)
     (Shader)
+    (specular_level)
     (subdivisionScheme)
     (surface)
     (tex)
@@ -95,6 +98,7 @@ const carb::flatcache::TokenC Material = carb::flatcache::asInt(pxr::UsdTokens->
 const carb::flatcache::TokenC materialId = carb::flatcache::asInt(pxr::UsdTokens->materialId);
 const carb::flatcache::TokenC MaterialNetwork = carb::flatcache::asInt(pxr::UsdTokens->MaterialNetwork);
 const carb::flatcache::TokenC Mesh = carb::flatcache::asInt(pxr::UsdTokens->Mesh);
+const carb::flatcache::TokenC metallic_constant = carb::flatcache::asInt(pxr::UsdTokens->metallic_constant);
 const carb::flatcache::TokenC multiply = carb::flatcache::asInt(pxr::UsdTokens->multiply);
 const carb::flatcache::TokenC multiply_float2_float2 = carb::flatcache::asInt(pxr::UsdTokens->multiply_float2_float2);
 const carb::flatcache::TokenC none = carb::flatcache::asInt(pxr::UsdTokens->none);
@@ -108,7 +112,9 @@ const carb::flatcache::TokenC primvars = carb::flatcache::asInt(pxr::UsdTokens->
 const carb::flatcache::TokenC primvars_displayColor = carb::flatcache::asInt(pxr::UsdTokens->primvars_displayColor);
 const carb::flatcache::TokenC primvars_normals = carb::flatcache::asInt(pxr::UsdTokens->primvars_normals);
 const carb::flatcache::TokenC primvars_st = carb::flatcache::asInt(pxr::UsdTokens->primvars_st);
+const carb::flatcache::TokenC reflection_roughness_constant = carb::flatcache::asInt(pxr::UsdTokens->reflection_roughness_constant);
 const carb::flatcache::TokenC Shader = carb::flatcache::asInt(pxr::UsdTokens->Shader);
+const carb::flatcache::TokenC specular_level = carb::flatcache::asInt(pxr::UsdTokens->specular_level);
 const carb::flatcache::TokenC subdivisionScheme = carb::flatcache::asInt(pxr::UsdTokens->subdivisionScheme);
 const carb::flatcache::TokenC surface = carb::flatcache::asInt(pxr::UsdTokens->surface);
 const carb::flatcache::TokenC tex = carb::flatcache::asInt(pxr::UsdTokens->tex);
@@ -160,6 +166,7 @@ const pxr::TfToken& Material = pxr::UsdTokens->Material;
 const pxr::TfToken& materialId = pxr::UsdTokens->materialId;
 const pxr::TfToken& MaterialNetwork = pxr::UsdTokens->MaterialNetwork;
 const pxr::TfToken& Mesh = pxr::UsdTokens->Mesh;
+const pxr::TfToken& metallic_constant = pxr::UsdTokens->metallic_constant;
 const pxr::TfToken& multiply = pxr::UsdTokens->multiply;
 const pxr::TfToken& multiply_float2_float2 = pxr::UsdTokens->multiply_float2_float2;
 const pxr::TfToken& none = pxr::UsdTokens->none;
@@ -173,7 +180,9 @@ const pxr::TfToken& primvars = pxr::UsdTokens->primvars;
 const pxr::TfToken& primvars_displayColor = pxr::UsdTokens->primvars_displayColor;
 const pxr::TfToken& primvars_normals = pxr::UsdTokens->primvars_normals;
 const pxr::TfToken& primvars_st = pxr::UsdTokens->primvars_st;
+const pxr::TfToken& reflection_roughness_constant = pxr::UsdTokens->reflection_roughness_constant;
 const pxr::TfToken& Shader = pxr::UsdTokens->Shader;
+const pxr::TfToken& specular_level = pxr::UsdTokens->specular_level;
 const pxr::TfToken& subdivisionScheme = pxr::UsdTokens->subdivisionScheme;
 const pxr::TfToken& surface = pxr::UsdTokens->surface;
 const pxr::TfToken& tex = pxr::UsdTokens->tex;

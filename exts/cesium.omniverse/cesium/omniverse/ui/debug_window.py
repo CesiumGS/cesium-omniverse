@@ -50,6 +50,7 @@ class CesiumOmniverseDebugWindow(ui.Window):
             self._cesium_omniverse_interface.add_tileset_ion(
                 "Cape Canaveral",
                 1387142,
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyMjRhYzI0Yi1kNWEwLTQ4ZWYtYjdmZC1hY2JmYWIzYmFiMGUiLCJpZCI6NDQsImlhdCI6MTY2NzQ4OTg0N30.du0tvWptgLWsvM1Gnbv3Zw_pDAOILg1Wr6s2sgK-qlM"
             )
 
         def add_cesium_world_terrain():

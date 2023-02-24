@@ -111,12 +111,15 @@ std::vector<pxr::SdfPath> addMaterial(
     const std::vector<pxr::SdfAssetPath>& textureAssetPaths,
     const CesiumGltf::Model& model,
     const CesiumGltf::Material& material) {
+    auto sip = UsdUtil::getFabricStageInProgress();
 
     const auto baseColorTextureIndex = GltfUtil::getBaseColorTextureIndex(model, material);
     const auto baseColorFactor = GltfUtil::getBaseColorFactor(material);
-    const auto hasDiffuseTexture = baseColorTextureIndex.has_value();
+    const auto metallicFactor = GltfUtil::getMetallicFactor(material);
+    const auto roughnessFactor = GltfUtil::getRoughnessFactor(material);
+    const auto specularFactor = 0.0f;
 
-    auto sip = UsdUtil::getFabricStageInProgress();
+    const auto hasDiffuseTexture = baseColorTextureIndex.has_value();
 
     const auto shaderPath = materialPath.AppendChild(UsdTokens::Shader);
     const auto displacementPath = materialPath.AppendChild(UsdTokens::displacement);
@@ -233,6 +236,9 @@ std::vector<pxr::SdfPath> addMaterial(
         attributes.addAttribute(FabricTypes::_paramColorSpace, FabricTokens::_paramColorSpace);
         attributes.addAttribute(FabricTypes::_parameters, FabricTokens::_parameters);
         attributes.addAttribute(FabricTypes::diffuse_color_constant, FabricTokens::diffuse_color_constant);
+        attributes.addAttribute(FabricTypes::metallic_constant, FabricTokens::metallic_constant);
+        attributes.addAttribute(FabricTypes::reflection_roughness_constant, FabricTokens::reflection_roughness_constant);
+        attributes.addAttribute(FabricTypes::specular_level, FabricTokens::specular_level);
         attributes.addAttribute(FabricTypes::Shader, FabricTokens::Shader);
         attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
         attributes.addAttribute(FabricTypes::_cesium_tileId, FabricTokens::_cesium_tileId);
@@ -245,9 +251,12 @@ std::vector<pxr::SdfPath> addMaterial(
         attributes.createAttributes(shaderPathFabric);
 
         const size_t paramColorSpaceSize = hasDiffuseTexture ? 2 : 0;
-        const size_t parametersCount = hasDiffuseTexture ? 2 : 1;
+        const size_t parametersCount = hasDiffuseTexture ? 5 : 4;
         const size_t parametersIndexDiffuseColorConstant = 0;
-        const size_t parametersIndexDiffuseTexture = 1;
+        const size_t parametersIndexMetallicConstant = 1;
+        const size_t parametersIndexReflectionRoughnessConstant = 2;
+        const size_t parametersIndexSpecularLevel = 3;
+        const size_t parametersIndexDiffuseTexture = 4;
 
         sip.setArrayAttributeSize(shaderPathFabric, FabricTokens::_paramColorSpace, paramColorSpaceSize);
         sip.setArrayAttributeSize(shaderPathFabric, FabricTokens::_parameters, parametersCount);
@@ -257,6 +266,9 @@ std::vector<pxr::SdfPath> addMaterial(
         auto infoSourceAssetSubIdentifierFabric = sip.getAttributeWr<carb::flatcache::Token>(shaderPathFabric, FabricTokens::info_sourceAsset_subIdentifier);
         auto parametersFabric = sip.getArrayAttributeWr<carb::flatcache::Token>(shaderPathFabric, FabricTokens::_parameters);
         auto diffuseColorConstantFabric = sip.getAttributeWr<pxr::GfVec3f>(shaderPathFabric, FabricTokens::diffuse_color_constant);
+        auto metallicConstantFabric = sip.getAttributeWr<float>(shaderPathFabric, FabricTokens::metallic_constant);
+        auto reflectionRoughnessConstantFabric = sip.getAttributeWr<float>(shaderPathFabric, FabricTokens::reflection_roughness_constant);
+        auto specularLevelFabric = sip.getAttributeWr<float>(shaderPathFabric, FabricTokens::specular_level);
         auto tilesetIdFabric = sip.getAttributeWr<int64_t>(shaderPathFabric, FabricTokens::_cesium_tilesetId);
         auto tileIdFabric = sip.getAttributeWr<int64_t>(shaderPathFabric, FabricTokens::_cesium_tileId);
         // clang-format on
@@ -264,6 +276,14 @@ std::vector<pxr::SdfPath> addMaterial(
         *infoIdFabric = FabricTokens::OmniPBR_mdl;
         *infoSourceAssetSubIdentifierFabric = FabricTokens::OmniPBR;
         parametersFabric[parametersIndexDiffuseColorConstant] = FabricTokens::diffuse_color_constant;
+        parametersFabric[parametersIndexMetallicConstant] = FabricTokens::metallic_constant;
+        parametersFabric[parametersIndexReflectionRoughnessConstant] = FabricTokens::reflection_roughness_constant;
+        parametersFabric[parametersIndexSpecularLevel] = FabricTokens::specular_level;
+
+        *metallicConstantFabric = metallicFactor;
+        *reflectionRoughnessConstantFabric = roughnessFactor;
+        *specularLevelFabric = specularFactor;
+
         *tilesetIdFabric = tilesetId;
         *tileIdFabric = tileId;
 
@@ -297,9 +317,14 @@ std::vector<pxr::SdfPath> addMaterialRasterOverlay(
     int64_t tileId,
     const pxr::SdfPath& materialPath,
     const pxr::SdfAssetPath& textureAssetPath,
+    const CesiumGltf::Material& material,
     const glm::dvec2& uvTranslation,
     const glm::dvec2& uvScale) {
     auto sip = UsdUtil::getFabricStageInProgress();
+
+    const auto metallicFactor = GltfUtil::getMetallicFactor(material);
+    const auto roughnessFactor = GltfUtil::getRoughnessFactor(material);
+    const auto specularFactor = 0.0f;
 
     const auto shaderPath = materialPath.AppendChild(UsdTokens::Shader);
     const auto displacementPath = materialPath.AppendChild(UsdTokens::displacement);
@@ -482,6 +507,9 @@ std::vector<pxr::SdfPath> addMaterialRasterOverlay(
 
         // clang-format off
         attributes.addAttribute(FabricTypes::albedo_add, FabricTokens::albedo_add);
+        attributes.addAttribute(FabricTypes::metallic_constant, FabricTokens::metallic_constant);
+        attributes.addAttribute(FabricTypes::reflection_roughness_constant, FabricTokens::reflection_roughness_constant);
+        attributes.addAttribute(FabricTypes::specular_level, FabricTokens::specular_level);
         attributes.addAttribute(FabricTypes::info_id, FabricTokens::info_id);
         attributes.addAttribute(FabricTypes::info_sourceAsset_subIdentifier, FabricTokens::info_sourceAsset_subIdentifier);
         attributes.addAttribute(FabricTypes::_paramColorSpace, FabricTokens::_paramColorSpace);
@@ -494,10 +522,13 @@ std::vector<pxr::SdfPath> addMaterialRasterOverlay(
         attributes.createAttributes(shaderPathFabric);
 
         sip.setArrayAttributeSize(shaderPathFabric, FabricTokens::_paramColorSpace, 0);
-        sip.setArrayAttributeSize(shaderPathFabric, FabricTokens::_parameters, 1);
+        sip.setArrayAttributeSize(shaderPathFabric, FabricTokens::_parameters, 4);
 
         // clang-format off
         auto albedoAddFabric = sip.getAttributeWr<float>(shaderPathFabric, FabricTokens::albedo_add);
+        auto metallicConstantFabric = sip.getAttributeWr<float>(shaderPathFabric, FabricTokens::metallic_constant);
+        auto reflectionRoughnessConstantFabric = sip.getAttributeWr<float>(shaderPathFabric, FabricTokens::reflection_roughness_constant);
+        auto specularLevelFabric = sip.getAttributeWr<float>(shaderPathFabric, FabricTokens::specular_level);
         auto infoIdFabric = sip.getAttributeWr<carb::flatcache::Token>(shaderPathFabric, FabricTokens::info_id);
         auto infoSourceAssetSubIdentifierFabric = sip.getAttributeWr<carb::flatcache::Token>(shaderPathFabric, FabricTokens::info_sourceAsset_subIdentifier);
         auto parametersFabric = sip.getArrayAttributeWr<carb::flatcache::Token>(shaderPathFabric, FabricTokens::_parameters);
@@ -506,9 +537,15 @@ std::vector<pxr::SdfPath> addMaterialRasterOverlay(
         // clang-format on
 
         *albedoAddFabric = 0.0f;
+        *metallicConstantFabric = metallicFactor;
+        *reflectionRoughnessConstantFabric = roughnessFactor;
+        *specularLevelFabric = specularFactor;
         *infoIdFabric = FabricTokens::OmniPBR_mdl;
         *infoSourceAssetSubIdentifierFabric = FabricTokens::OmniPBR;
         parametersFabric[0] = FabricTokens::albedo_add;
+        parametersFabric[1] = FabricTokens::metallic_constant;
+        parametersFabric[2] = FabricTokens::reflection_roughness_constant;
+        parametersFabric[3] = FabricTokens::specular_level;
         *tilesetIdFabric = tilesetId;
         *tileIdFabric = tileId;
     }
@@ -712,11 +749,11 @@ void addPrimitive(
     const auto normals = GltfUtil::getPrimitiveNormals(model, primitive, positions, indices);
     const auto st0 = GltfUtil::getPrimitiveUVs(model, primitive, 0);
     const auto rasterOverlaySt = GltfUtil::getRasterOverlayUVs(model, primitive, rasterOverlaySetIndex);
-    const auto worldExtent = GltfUtil::getPrimitiveExtent(model, primitive);
+    const auto localExtent = GltfUtil::getPrimitiveExtent(model, primitive);
     const auto faceVertexCounts = GltfUtil::getPrimitiveFaceVertexCounts(indices);
     const auto doubleSided = GltfUtil::getDoubleSided(model, primitive);
 
-    if (positions.empty() || indices.empty() || normals.empty() || !worldExtent.has_value()) {
+    if (positions.empty() || indices.empty() || normals.empty() || !localExtent.has_value()) {
         return;
     }
 
@@ -735,6 +772,7 @@ void addPrimitive(
     const auto localToEcefTransform = gltfToEcefTransform * nodeTransform;
     const auto localToUsdTransform = ecefToUsdTransform * localToEcefTransform;
     const auto [worldPosition, worldOrientation, worldScale] = UsdUtil::glmToUsdMatrixDecomposed(localToUsdTransform);
+    const auto worldExtent = UsdUtil::computeWorldExtent(localExtent.value(), localToUsdTransform);
 
     sip.createPrim(geomPathFabric);
 
@@ -742,6 +780,7 @@ void addPrimitive(
     attributes.addAttribute(FabricTypes::faceVertexCounts, FabricTokens::faceVertexCounts);
     attributes.addAttribute(FabricTypes::faceVertexIndices, FabricTokens::faceVertexIndices);
     attributes.addAttribute(FabricTypes::points, FabricTokens::points);
+    attributes.addAttribute(FabricTypes::_localExtent, FabricTokens::_localExtent);
     attributes.addAttribute(FabricTypes::_worldExtent, FabricTokens::_worldExtent);
     attributes.addAttribute(FabricTypes::_worldVisibility, FabricTokens::_worldVisibility);
     attributes.addAttribute(FabricTypes::primvars, FabricTokens::primvars);
@@ -785,6 +824,7 @@ void addPrimitive(
     auto faceVertexCountsFabric = sip.getArrayAttributeWr<int>(geomPathFabric, FabricTokens::faceVertexCounts);
     auto faceVertexIndicesFabric = sip.getArrayAttributeWr<int>(geomPathFabric, FabricTokens::faceVertexIndices);
     auto pointsFabric = sip.getArrayAttributeWr<pxr::GfVec3f>(geomPathFabric, FabricTokens::points);
+    auto localExtentFabric = sip.getAttributeWr<pxr::GfRange3d>(geomPathFabric, FabricTokens::_localExtent);
     auto worldExtentFabric = sip.getAttributeWr<pxr::GfRange3d>(geomPathFabric, FabricTokens::_worldExtent);
     auto worldVisibilityFabric = sip.getAttributeWr<bool>(geomPathFabric, FabricTokens::_worldVisibility);
     auto primvarsFabric = sip.getArrayAttributeWr<carb::flatcache::Token>(geomPathFabric, FabricTokens::primvars);
@@ -819,9 +859,8 @@ void addPrimitive(
     *localToEcefTransformFabric = UsdUtil::glmToUsdMatrix(localToEcefTransform);
     *doubleSidedFabric = doubleSided;
     *subdivisionSchemeFabric = FabricTokens::none;
-
-    worldExtentFabric->SetMin(worldExtent.value().GetMin());
-    worldExtentFabric->SetMax(worldExtent.value().GetMax());
+    *localExtentFabric = localExtent.value();
+    *worldExtentFabric = worldExtent;
 
     if (hasMaterial) {
         auto materialIdFabric = sip.getAttributeWr<uint64_t>(geomPathFabric, FabricTokens::materialId);
@@ -1021,6 +1060,7 @@ AddTileResults addTileWithRasterOverlay(
                 tileId,
                 materialPath,
                 rasterOverlayAssetPath.assetPath,
+                model.materials[i],
                 rasterOverlayUvTranslation,
                 rasterOverlayUvScale);
 
@@ -1134,19 +1174,27 @@ void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform
         // clang-format off
         auto tilesetIdFabric = sip.getAttributeArrayRd<int64_t>(buckets, bucketId, FabricTokens::_cesium_tilesetId);
         auto localToEcefTransformFabric = sip.getAttributeArrayRd<pxr::GfMatrix4d>(buckets, bucketId, FabricTokens::_cesium_localToEcefTransform);
+        auto localExtentFabric = sip.getAttributeArrayRd<pxr::GfRange3d>(buckets, bucketId, FabricTokens::_localExtent);
+
         auto worldPositionFabric = sip.getAttributeArrayWr<pxr::GfVec3d>(buckets, bucketId, FabricTokens::_worldPosition);
         auto worldOrientationFabric = sip.getAttributeArrayWr<pxr::GfQuatf>(buckets, bucketId, FabricTokens::_worldOrientation);
         auto worldScaleFabric = sip.getAttributeArrayWr<pxr::GfVec3f>(buckets, bucketId, FabricTokens::_worldScale);
+        auto worldExtentFabric = sip.getAttributeArrayWr<pxr::GfRange3d>(buckets, bucketId, FabricTokens::_worldExtent);
         // clang-format on
 
         for (size_t i = 0; i < tilesetIdFabric.size(); i++) {
             if (tilesetIdFabric[i] == tilesetId) {
                 const auto localToEcefTransform = UsdUtil::usdToGlmMatrix(localToEcefTransformFabric[i]);
                 const auto localToUsdTransform = ecefToUsdTransform * localToEcefTransform;
-                const auto [position, orientation, scale] = UsdUtil::glmToUsdMatrixDecomposed(localToUsdTransform);
-                worldPositionFabric[i] = position;
-                worldOrientationFabric[i] = orientation;
-                worldScaleFabric[i] = scale;
+                const auto localExtent = localExtentFabric[i];
+                const auto [worldPosition, worldOrientation, worldScale] =
+                    UsdUtil::glmToUsdMatrixDecomposed(localToUsdTransform);
+                const auto worldExtent = UsdUtil::computeWorldExtent(localExtent, localToUsdTransform);
+
+                worldPositionFabric[i] = worldPosition;
+                worldOrientationFabric[i] = worldOrientation;
+                worldScaleFabric[i] = worldScale;
+                worldExtentFabric[i] = worldExtent;
             }
         }
     }

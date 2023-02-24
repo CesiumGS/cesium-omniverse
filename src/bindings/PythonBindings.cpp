@@ -35,6 +35,7 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("add_cesium_data_if_not_exists", &ICesiumOmniverseInterface::addCesiumDataIfNotExists)
         .def("add_tileset_url", &ICesiumOmniverseInterface::addTilesetUrl)
         .def("add_tileset_ion", py::overload_cast<const char*, int64_t>(&ICesiumOmniverseInterface::addTilesetIon))
+        .def("add_tileset_ion", py::overload_cast<const char*, int64_t, const char*>(&ICesiumOmniverseInterface::addTilesetIon))
         .def("add_tileset_and_raster_overlay", &ICesiumOmniverseInterface::addTilesetAndRasterOverlay)
         .def("remove_tileset", &ICesiumOmniverseInterface::removeTileset)
         .def("add_ion_raster_overlay", py::overload_cast<int64_t, const char*, int64_t>(&ICesiumOmniverseInterface::addIonRasterOverlay))
