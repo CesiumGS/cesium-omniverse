@@ -59,6 +59,11 @@ class CesiumAssetDetailsWidget(ui.ScrollingFrame):
     def _should_be_visible(self):
         return self._name != "" or self._id != 0 or self._description != "" or self._attribution != ""
 
+    def _add_overlay_with_tileset(self):
+        asset_to_add = AssetToAdd("Cesium World Terrain", 1, self._name, self._id)
+        add_asset_event = carb.events.type_from_string("cesium.omniverse.ADD_ION_ASSET")
+        app.get_app().get_message_bus_event_stream().push(add_asset_event, 0, asset_to_add.to_dict())
+
     def _add_tileset_button_clicked(self):
         asset_to_add = AssetToAdd(self._name, self._id)
         add_asset_event = carb.events.type_from_string("cesium.omniverse.ADD_ION_ASSET")
@@ -67,21 +72,34 @@ class CesiumAssetDetailsWidget(ui.ScrollingFrame):
     def _add_imagery_button_clicked(self):
         context = usd.get_context()
         selection = context.get_selection().get_selected_prim_paths()
+        tileset_id = 0
 
+        valid_tileset = True
         if len(selection) > 0:
             tileset_id = self._cesium_omniverse_interface.get_tileset_id_by_path(selection[0])
 
             if tileset_id is None:
                 # A tileset wasn't the selection.
-                tileset_id = 0
+                valid_tileset = False
         else:
             # Nothing was selected.
-            tileset_id = 0
+            valid_tileset = False
+
+        if not valid_tileset:
+            all_tilesets = self._cesium_omniverse_interface.get_all_tileset_ids_and_paths()
+
+            if len(all_tilesets) > 0:
+                tileset_id = all_tilesets[0]
+            else:
+                self._add_overlay_with_tileset()
+                return
 
         imagery_to_add = ImageryToAdd(tileset_id, self._id, self._name)
 
         add_imagery_event = carb.events.type_from_string("cesium.omniverse.ADD_IMAGERY")
         app.get_app().get_message_bus_event_stream().push(add_imagery_event, 0, imagery_to_add.to_dict())
+
+
 
     def _build_fn(self):
         with self:
