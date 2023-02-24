@@ -81,7 +81,7 @@ class "TilesetAPI" (
     )
 }
 
-class "RasterOverlay" (
+class RasterOverlay "RasterOverlay" (
     doc = """Adds a prim for representing a raster overlay. Should be a child of a tileset."""
     inherits = </Typed>
     customData = {

@@ -84,8 +84,8 @@ class CesiumOmniverseMainWindow(ui.Window):
         update_stream = app.get_app().get_update_event_stream()
         bus = app.get_app().get_message_bus_event_stream()
 
-        self._subscriptions.append(
-            update_stream.create_subscription_to_pop(self._on_update_frame, name="on_update_frame"))
+        self._subscriptions.append(update_stream.create_subscription_to_pop(
+            self._on_update_frame, name="on_update_frame"))
 
         assets_updated_event = carb.events.type_from_string(
             "cesium.omniverse.ASSETS_UPDATED")
@@ -97,15 +97,17 @@ class CesiumOmniverseMainWindow(ui.Window):
         connection_updated_event = carb.events.type_from_string(
             "cesium.omniverse.CONNECTION_UPDATED")
         self._subscriptions.append(
-            bus.create_subscription_to_pop_by_type(connection_updated_event, self._on_connection_updated,
-                                                   name="connection_updated")
+            bus.create_subscription_to_pop_by_type(
+                connection_updated_event, self._on_connection_updated, name="connection_updated"
+            )
         )
 
         profile_updated_event = carb.events.type_from_string(
             "cesium.omniverse.PROFILE_UPDATED")
         self._subscriptions.append(
-            bus.create_subscription_to_pop_by_type(profile_updated_event, self._on_profile_updated,
-                                                   name="profile_updated")
+            bus.create_subscription_to_pop_by_type(
+                profile_updated_event, self._on_profile_updated, name="profile_updated"
+            )
         )
 
         tokens_updated_event = carb.events.type_from_string(
@@ -118,19 +120,23 @@ class CesiumOmniverseMainWindow(ui.Window):
         show_token_window_event = carb.events.type_from_string(
             "cesium.omniverse.SHOW_TOKEN_WINDOW")
         self._subscriptions.append(
-            bus.create_subscription_to_pop_by_type(show_token_window_event, self._on_show_token_window,
-                                                   name="cesium.omniverse.SHOW_TOKEN_WINDOW")
+            bus.create_subscription_to_pop_by_type(
+                show_token_window_event, self._on_show_token_window, name="cesium.omniverse.SHOW_TOKEN_WINDOW"
+            )
         )
 
         show_troubleshooter_event = carb.events.type_from_string(
             "cesium.omniverse.SHOW_TROUBLESHOOTER")
         self._subscriptions.append(
-            bus.create_subscription_to_pop_by_type(show_troubleshooter_event, self._on_show_troubleshooter_window,
-                                                   name="cesium.omniverse.SHOW_TROUBLESHOOTER")
+            bus.create_subscription_to_pop_by_type(
+                show_troubleshooter_event,
+                self._on_show_troubleshooter_window,
+                name="cesium.omniverse.SHOW_TROUBLESHOOTER",
+            )
         )
 
     def _on_update_frame(self, _e: carb.events.IEvent):
-        self._cesium_omniverse_interface.on_ui_update()
+        self._cesium_omniverse_interface.on_update_ui()
 
         session: CesiumIonSession = self._cesium_omniverse_interface.get_session()
 

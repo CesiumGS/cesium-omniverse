@@ -1,13 +1,71 @@
 #include "cesium/omniverse/LoggerSink.h"
 
-#include <pxr/base/tf/callContext.h>
-#include <pxr/base/tf/diagnostic.h>
-
-using namespace pxr;
-
 namespace cesium::omniverse {
+
+LoggerSink::LoggerSink(omni::log::Level logLevel)
+    : _logLevel(logLevel) {
+    switch (logLevel) {
+        case omni::log::Level::eVerbose: {
+            set_level(spdlog::level::trace);
+            break;
+        }
+        case omni::log::Level::eInfo: {
+            set_level(spdlog::level::info);
+            break;
+        }
+        case omni::log::Level::eWarn: {
+            set_level(spdlog::level::warn);
+            break;
+        }
+        case omni::log::Level::eError: {
+            set_level(spdlog::level::err);
+            break;
+        }
+        case omni::log::Level::eFatal: {
+            set_level(spdlog::level::critical);
+            break;
+        }
+        default: {
+            break;
+        }
+    }
+}
+
 void LoggerSink::sink_it_([[maybe_unused]] const spdlog::details::log_msg& msg) {
-    TF_STATUS(formatMessage(msg));
+    // The reason we don't need to provide a log channel as the first argument to each of these OMNI_LOG_ functions is
+    // because CARB_PLUGIN_IMPL calls CARB_GLOBALS_EX which calls OMNI_GLOBALS_ADD_DEFAULT_CHANNEL and sets the channel
+    // name to our plugin name: cesium.omniverse.plugin
+
+    switch (_logLevel) {
+        case omni::log::Level::eVerbose: {
+            const std::string message = formatMessage(msg);
+            OMNI_LOG_VERBOSE("%s", message.c_str());
+            break;
+        }
+        case omni::log::Level::eInfo: {
+            const std::string message = formatMessage(msg);
+            OMNI_LOG_INFO("%s", message.c_str());
+            break;
+        }
+        case omni::log::Level::eWarn: {
+            const std::string message = formatMessage(msg);
+            OMNI_LOG_WARN("%s", message.c_str());
+            break;
+        }
+        case omni::log::Level::eError: {
+            const std::string message = formatMessage(msg);
+            OMNI_LOG_ERROR("%s", message.c_str());
+            break;
+        }
+        case omni::log::Level::eFatal: {
+            const std::string message = formatMessage(msg);
+            OMNI_LOG_FATAL("%s", message.c_str());
+            break;
+        }
+        default: {
+            break;
+        }
+    }
 }
 
 void LoggerSink::flush_() {}

@@ -1,5 +1,7 @@
 #include "cesium/omniverse/HttpAssetAccessor.h"
 
+#include "cesium/omniverse/LoggerSink.h"
+
 #include <zlib.h>
 
 namespace cesium::omniverse {
@@ -46,10 +48,12 @@ std::string decodeGzip(std::string& content) {
 
 struct GZipDecompressInterceptor : public cpr::Interceptor {
   public:
+    GZipDecompressInterceptor(const std::filesystem::path& certificatePath)
+        : _certificatePath(certificatePath.generic_string()) {}
+
     cpr::Response intercept(cpr::Session& session) override {
 #ifdef CESIUM_OMNI_UNIX
-        auto certPath = fmt::format("{}/cacert.pem", HttpAssetAccessor::CertificatePath.generic_string());
-        curl_easy_setopt(session.GetCurlHolder()->handle, CURLOPT_CAINFO, certPath.c_str());
+        curl_easy_setopt(session.GetCurlHolder()->handle, CURLOPT_CAINFO, _certificatePath.c_str());
 #endif
         curl_easy_setopt(session.GetCurlHolder()->handle, CURLOPT_ACCEPT_ENCODING, nullptr);
 
@@ -58,22 +62,21 @@ struct GZipDecompressInterceptor : public cpr::Interceptor {
         if (curl_error == CURLE_PEER_FAILED_VERIFICATION) {
             long verifyResult;
             curl_easy_getinfo(session.GetCurlHolder()->handle, CURLINFO_SSL_VERIFYRESULT, &verifyResult);
-            spdlog::warn(fmt::format("SSL PEER VERIFICATION FAILED: {}", verifyResult));
+            CESIUM_LOG_WARN("SSL PEER VERIFICATION FAILED: {}", verifyResult);
         }
 
         auto response = session.Complete(curl_error);
         response.text = decodeGzip(response.text);
         return response;
     }
+
+  private:
+    std::string _certificatePath;
 };
 } // namespace
 
-#ifdef CESIUM_OMNI_UNIX
-std::filesystem::path HttpAssetAccessor::CertificatePath{};
-#endif
-
-HttpAssetAccessor::HttpAssetAccessor() {
-    _interceptor = std::make_shared<GZipDecompressInterceptor>();
+HttpAssetAccessor::HttpAssetAccessor(const std::filesystem::path& certificatePath) {
+    _interceptor = std::make_shared<GZipDecompressInterceptor>(certificatePath);
 }
 
 CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> HttpAssetAccessor::get(
@@ -87,8 +90,8 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> HttpAssetAccess
     session->SetHeader(cprHeaders);
     session->SetUrl(cpr::Url(url));
     session->GetCallback([promise, url, headers](cpr::Response&& response) mutable {
-        spdlog::info("size {}", response.text.size());
-        promise.resolve(std::make_shared<HttpAssetRequest>("GET", std::move(url), headers, std::move(response)));
+        promise.resolve(
+            std::make_shared<HttpAssetRequest>("GET", std::move(url), std::move(headers), std::move(response)));
     });
 
     return promise.getFuture();
@@ -110,14 +113,16 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> HttpAssetAccess
 #endif
     if (verb == "GET") {
         session->GetCallback([promise, url, headers](cpr::Response&& response) mutable {
-            promise.resolve(std::make_shared<HttpAssetRequest>("GET", url, headers, std::move(response)));
+            promise.resolve(
+                std::make_shared<HttpAssetRequest>("GET", std::move(url), std::move(headers), std::move(response)));
         });
 
         return promise.getFuture();
     } else if (verb == "POST") {
         session->SetBody(cpr::Body{reinterpret_cast<const char*>(contentPayload.data()), contentPayload.size()});
         session->PostCallback([promise, url, headers](cpr::Response&& response) mutable {
-            promise.resolve(std::make_shared<HttpAssetRequest>("POST", url, headers, std::move(response)));
+            promise.resolve(
+                std::make_shared<HttpAssetRequest>("POST", std::move(url), std::move(headers), std::move(response)));
         });
 
         return promise.getFuture();

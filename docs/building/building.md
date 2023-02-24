@@ -59,6 +59,8 @@ See [Linux](#linux) or [Windows](#windows) for step-by-step installation instruc
   ```
 - Add symlinks the clang-14 tools so that the correct version is chosen when running `clang-format`, `clang-tidy`, etc
   ```sh
+  sudo ln -s /usr/bin/clang-14 /usr/bin/clang
+  sudo ln -s /usr/bin/clang++-14 /usr/bin/clang++
   sudo ln -s /usr/bin/clang-format-14 /usr/bin/clang-format
   sudo ln -s /usr/bin/clang-tidy-14 /usr/bin/clang-tidy
   sudo ln -s /usr/bin/run-clang-tidy-14 /usr/bin/run-clang-tidy
@@ -453,7 +455,7 @@ Each workspace contains recommended extensions and settings for VSCode developme
     {
       "name": "Kit App",
       "preLaunchTask": "Build Only (debug)",
-      "program": "${workspaceFolder}/extern/nvidia/app/kit/kit",
+      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit",
       "args": [
         "${workspaceFolder}/apps/cesium.omniverse.app.kit"
       ],
@@ -476,7 +478,7 @@ Each workspace contains recommended extensions and settings for VSCode developme
     {
       "name": "Code",
       "preLaunchTask": "Build Only (debug)",
-      "program": "${workspaceFolder}/extern/nvidia/app/kit/kit",
+      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit",
       "args": [
         "${workspaceFolder}/extern/nvidia/app/apps/omni.code.kit"
       ],
@@ -535,7 +537,7 @@ Each workspace contains recommended extensions and settings for VSCode developme
     {
       "name": "Kit App",
       "preLaunchTask": "Build Only (debug)",
-      "program": "${workspaceFolder}/extern/nvidia/app/kit/kit.exe",
+      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit.exe",
       "args": [
         "${workspaceFolder}/apps/cesium.omniverse.app.kit"
       ],
@@ -548,7 +550,7 @@ Each workspace contains recommended extensions and settings for VSCode developme
     {
       "name": "Code",
       "preLaunchTask": "Build Only (debug)",
-      "program": "${workspaceFolder}/extern/nvidia/app/kit/kit.exe",
+      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit.exe",
       "args": [
         "${workspaceFolder}/extern/nvidia/app/apps/omni.code.kit"
       ],
