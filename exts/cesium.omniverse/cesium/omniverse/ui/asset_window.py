@@ -127,5 +127,5 @@ class CesiumOmniverseAssetWindow(ui.Window):
                                                         style={"TreeView.Item": {"margin": 4}})
                     self._asset_tree_view.set_selection_changed_fn(
                         self._selection_changed)
-                self._asset_details_widget = CesiumAssetDetailsWidget(
-                    width=ui.Length(1, ui.UnitType.FRACTION))
+                self._asset_details_widget = CesiumAssetDetailsWidget(self._cesium_omniverse_interface,
+                                                                      width=ui.Length(1, ui.UnitType.FRACTION))

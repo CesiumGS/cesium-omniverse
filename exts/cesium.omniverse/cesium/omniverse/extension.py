@@ -3,6 +3,7 @@ from .utils.utils import wait_n_frames
 from .ui.asset_window import CesiumOmniverseAssetWindow
 from .ui.debug_window import CesiumOmniverseDebugWindow
 from .ui.main_window import CesiumOmniverseMainWindow
+from .models import AssetToAdd, ImageryToAdd
 import asyncio
 from functools import partial
 import logging
@@ -15,15 +16,18 @@ from omni.kit.viewport.utility import get_active_viewport
 import omni.ui as ui
 import omni.usd
 import os
-from typing import Optional, Callable
+from typing import List, Optional, Callable
 
 cesium_extension_location = os.path.join(os.path.dirname(__file__), "../../")
+DEFAULT_GEOREFERENCE_LATITUDE = 39.9501464
+DEFAULT_GEOREFERENCE_LONGITUDE = -75.1564977
+DEFAULT_GEOREFERENCE_HEIGHT = 150.0
 
 
 class CesiumOmniverseExtension(omni.ext.IExt):
     @staticmethod
     async def _dock_window_async(
-        window: Optional[ui.Window], target: str = "Stage", position: ui.DockPosition = ui.DockPosition.SAME
+            window: Optional[ui.Window], target: str = "Stage", position: ui.DockPosition = ui.DockPosition.SAME
     ):
         if window is None:
             return
@@ -50,6 +54,12 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._on_stage_subscription: Optional[carb.events.ISubscription] = None
         self._on_update_subscription: Optional[carb.events.ISubscription] = None
         self._show_asset_window_subscription: Optional[carb.events.ISubscription] = None
+        self._token_set_subscription: Optional[carb.events.ISubscription] = None
+        self._add_ion_asset_subscription: Optional[carb.events.ISubscription] = None
+        self._add_imagery_subscription: Optional[carb.events.ISubscription] = None
+        self._assets_to_add_after_token_set: List[AssetToAdd] = []
+        self._imagery_to_add_after_token_set: List[ImageryToAdd] = []
+        self._adding_assets = False
         self._logger: logging.Logger = logging.getLogger(__name__)
         self._menu = None
 
@@ -105,10 +115,23 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         )
 
         bus = omni_app.get_app().get_message_bus_event_stream()
-        show_asset_window_event = carb.events.type_from_string(
-            "cesium.omniverse.SHOW_ASSET_WINDOW")
-        self._show_asset_window_subscription = bus.create_subscription_to_pop_by_type(show_asset_window_event,
-                                                                                      self._on_show_asset_window_event)
+        show_asset_window_event = carb.events.type_from_string("cesium.omniverse.SHOW_ASSET_WINDOW")
+        self._show_asset_window_subscription = bus.create_subscription_to_pop_by_type(
+            show_asset_window_event,
+            self._on_show_asset_window_event)
+
+        token_set_event = carb.events.type_from_string("cesium.omniverse.SET_DEFAULT_TOKEN_SUCCESS")
+        self._token_set_subscription = bus.create_subscription_to_pop_by_type(
+            token_set_event,
+            self._on_token_set)
+
+        add_ion_asset_event = carb.events.type_from_string("cesium.omniverse.ADD_ION_ASSET")
+        self._add_ion_asset_subscription = bus.create_subscription_to_pop_by_type(add_ion_asset_event,
+                                                                                  self._on_add_ion_asset_event)
+
+        add_imagery_event = carb.events.type_from_string("cesium.omniverse.ADD_IMAGERY")
+        self._add_imagery_subscription = bus.create_subscription_to_pop_by_type(add_imagery_event,
+                                                                                self._on_add_imagery_to_tileset)
 
     def on_shutdown(self):
         self._menu = None
@@ -174,7 +197,93 @@ class CesiumOmniverseExtension(omni.ext.IExt):
     def _on_show_asset_window_event(self, _):
         self.do_show_assets_window()
 
-    def _add_to_menu(self, path, callback: Callable[[bool], None], show_on_startup):
+    def _on_token_set(self, _: carb.events.IEvent):
+        if self._adding_assets:
+            return
+
+        self._adding_assets = True
+
+        for asset in self._assets_to_add_after_token_set:
+            self._add_ion_assets(asset)
+        self._assets_to_add_after_token_set.clear()
+
+        self._adding_assets = False
+
+    def _on_add_ion_asset_event(self, event: carb.events.IEvent):
+        asset_to_add = AssetToAdd.from_event(event)
+
+        if asset_to_add is None:
+            self._logger.warning("Insufficient information to add asset.")
+            return
+
+        self._add_ion_assets(asset_to_add)
+
+    def _add_ion_assets(self, asset_to_add: AssetToAdd):
+        session = _cesium_omniverse_interface.get_session()
+
+        if not session.is_connected():
+            self._logger.warning("Must be logged in to add ion asset.")
+            return
+
+        if not _cesium_omniverse_interface.is_default_token_set():
+            bus = omni_app.get_app().get_message_bus_event_stream()
+            show_token_window_event = carb.events.type_from_string(
+                "cesium.omniverse.SHOW_TOKEN_WINDOW")
+            bus.push(show_token_window_event)
+            self._assets_to_add_after_token_set.append(asset_to_add)
+            return
+
+        # TODO: Probably need a check here for bypassing setting the georeference if it is already set.
+        _cesium_omniverse_interface.set_georeference_origin(
+            DEFAULT_GEOREFERENCE_LONGITUDE,
+            DEFAULT_GEOREFERENCE_LATITUDE,
+            DEFAULT_GEOREFERENCE_HEIGHT)
+
+        if asset_to_add.imagery_name is not None and asset_to_add.imagery_ion_id is not None:
+            tileset_id = _cesium_omniverse_interface.add_tileset_and_raster_overlay(
+                asset_to_add.tileset_name,
+                asset_to_add.tileset_ion_id,
+                asset_to_add.imagery_name,
+                asset_to_add.imagery_ion_id)
+        else:
+            tileset_id = _cesium_omniverse_interface.add_tileset_ion(
+                asset_to_add.tileset_name,
+                asset_to_add.tileset_ion_id)
+
+        if tileset_id == -1:
+            # TODO: Open token troubleshooter.
+            self._logger.warning(
+                "Error adding tileset and raster overlay to stage")
+
+    def _on_add_imagery_to_tileset(self, event: carb.events.IEvent):
+        imagery_to_add = ImageryToAdd.from_event(event)
+
+        if imagery_to_add is None:
+            self._logger.warning("Insufficient information to add imagery.")
+
+        self._add_imagery_to_tileset(imagery_to_add)
+
+    def _add_imagery_to_tileset(self, imagery_to_add: ImageryToAdd):
+        session = _cesium_omniverse_interface.get_session()
+
+        if not session.is_connected():
+            self._logger.warning("Must be logged in to add ion asset.")
+            return
+
+        if not _cesium_omniverse_interface.is_default_token_set():
+            bus = omni_app.get_app().get_message_bus_event_stream()
+            show_token_window_event = carb.events.type_from_string(
+                "cesium.omniverse.SHOW_TOKEN_WINDOW")
+            bus.push(show_token_window_event)
+            self._imagery_to_add_after_token_set.append(imagery_to_add)
+            return
+
+        _cesium_omniverse_interface.add_ion_raster_overlay(imagery_to_add.tileset_ion_id, imagery_to_add.imagery_name,
+                                                           imagery_to_add.imagery_ion_id)
+        _cesium_omniverse_interface.reload_tileset(imagery_to_add.tileset_ion_id)
+
+    def _add_to_menu(self, path, callback: Callable[[bool], None],
+                     show_on_startup):
         editor_menu = omni.kit.ui.get_editor_menu()
 
         if editor_menu:
@@ -230,7 +339,8 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             _cesium_omniverse_interface, width=700, height=300
         )
         self._asset_window.set_visibility_changed_fn(
-            partial(self._visibility_changed_fn, CesiumOmniverseAssetWindow.MENU_PATH))
+            partial(self._visibility_changed_fn,
+                    CesiumOmniverseAssetWindow.MENU_PATH))
         asyncio.ensure_future(self._dock_window_async(
             self._asset_window, "Content"))
 
@@ -251,7 +361,8 @@ class CesiumOmniverseExtension(omni.ext.IExt):
 
         if value:
             self._debug_window = CesiumOmniverseDebugWindow(
-                _cesium_omniverse_interface, CesiumOmniverseDebugWindow.WINDOW_NAME, width=300, height=365
+                _cesium_omniverse_interface,
+                CesiumOmniverseDebugWindow.WINDOW_NAME, width=300, height=365
             )
             self._debug_window.set_visibility_changed_fn(
                 partial(self._visibility_changed_fn,
