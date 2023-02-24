@@ -29,39 +29,6 @@
 namespace cesium::omniverse {
 
 namespace {
-OmniTileset* findTileset(const std::vector<std::unique_ptr<OmniTileset>>& tilesets, int64_t tilesetId) {
-    auto iter = std::find_if(
-        tilesets.begin(), tilesets.end(), [&tilesetId](const auto& tileset) { return tileset->getId() == tilesetId; });
-
-    if (iter != tilesets.end()) {
-        return iter->get();
-    }
-
-    return nullptr;
-}
-
-pxr::CesiumTilesetAPI applyTilesetApiToPath(const pxr::SdfPath& path) {
-    auto stage = UsdUtil::getUsdStage();
-    auto prim = stage->GetPrimAtPath(path);
-    auto tilesetApi = pxr::CesiumTilesetAPI::Apply(prim);
-
-    tilesetApi.CreateTilesetUrlAttr();
-    tilesetApi.CreateTilesetIdAttr();
-    tilesetApi.CreateIonTokenAttr();
-
-    return tilesetApi;
-}
-
-pxr::CesiumRasterOverlay applyRasterOverlayToPath(const pxr::SdfPath& path) {
-    auto stage = UsdUtil::getUsdStage();
-    auto prim = stage->GetPrimAtPath(path);
-    pxr::CesiumRasterOverlay rasterOverlay(prim);
-
-    rasterOverlay.CreateIonTokenAttr();
-    rasterOverlay.CreateRasterOverlayIdAttr();
-
-    return rasterOverlay;
-}
 
 Cesium3DTilesSelection::ViewState computeViewState(
     const CesiumGeospatial::Cartographic& origin,
