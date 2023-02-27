@@ -243,10 +243,10 @@ void Context::processUsdNotifications() {
     std::set<std::shared_ptr<OmniTileset>> tilesetsToReload;
 
     for (const auto& changedProperty : changedProperties) {
-        const auto& [path, token, type] = changedProperty;
+        const auto& [path, name, type] = changedProperty;
 
         if (type == ChangedPrimType::CESIUM_DATA) {
-            if (token == pxr::CesiumTokens->cesiumDefaultProjectToken) {
+            if (name == pxr::CesiumTokens->cesiumDefaultProjectToken) {
                 // Any tilesets that use the default token are reloaded when it changes
                 const auto tilesets = AssetRegistry::getInstance().getAllTilesets();
                 for (const auto& tileset : tilesets) {
@@ -261,16 +261,16 @@ void Context::processUsdNotifications() {
             // Reload the tileset. No need to update the asset registry because tileset assets do not store the asset id.
             const auto tileset = AssetRegistry::getInstance().getTileset(path.GetString());
             if (tileset.has_value()) {
-                if (token == pxr::CesiumTokens->cesiumTilesetId) {
+                if (name == pxr::CesiumTokens->cesiumTilesetId) {
                     tilesetsToReload.emplace(tileset.value());
-                } else if (token == pxr::CesiumTokens->cesiumIonToken) {
+                } else if (name == pxr::CesiumTokens->cesiumIonToken) {
                     tilesetsToReload.emplace(tileset.value());
                 }
             }
         } else if (type == ChangedPrimType::CESIUM_RASTER_OVERLAY) {
             const auto tileset = AssetRegistry::getInstance().getTilesetFromRasterOverlay(path.GetString());
             if (tileset.has_value()) {
-                if (token == pxr::CesiumTokens->cesiumRasterOverlayId) {
+                if (name == pxr::CesiumTokens->cesiumRasterOverlayId) {
                     // Update the asset registry because the asset id changed
                     OmniIonRasterOverlay ionRasterOverlay(path);
                     const auto assetId = ionRasterOverlay.getIonAssetId();
@@ -278,7 +278,7 @@ void Context::processUsdNotifications() {
 
                     // Reload the tileset that this raster overlay is attached to
                     tilesetsToReload.emplace(tileset.value());
-                } else if (token == pxr::CesiumTokens->cesiumIonToken) {
+                } else if (name == pxr::CesiumTokens->cesiumIonToken) {
                     // Reload the tileset that this raster overlay is attached to
                     tilesetsToReload.emplace(tileset.value());
                 }

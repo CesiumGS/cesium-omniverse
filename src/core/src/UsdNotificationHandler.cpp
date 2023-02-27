@@ -59,11 +59,11 @@ void UsdNotificationHandler::onObjectsChanged(const pxr::UsdNotice::ObjectsChang
 
     const auto& changedProperties = objectsChanged.GetChangedInfoOnlyPaths();
     for (const auto& propertyPath : changedProperties) {
-        const auto& token = propertyPath.GetNameToken();
+        const auto& name = propertyPath.GetNameToken();
         const auto& primPath = propertyPath.GetPrimPath();
         const auto& type = getType(primPath);
         if (type != ChangedPrimType::OTHER) {
-            _changedProperties.emplace_back(ChangedProperty{primPath, token, type});
+            _changedProperties.emplace_back(ChangedProperty{primPath, name, type});
             CESIUM_LOG_INFO("Changed property: {}", propertyPath.GetText());
         }
     }

@@ -13,7 +13,7 @@ enum class ChangedPrimType {
 
 struct ChangedProperty {
     pxr::SdfPath path;
-    pxr::TfToken token;
+    pxr::TfToken name;
     ChangedPrimType type;
 };
 
