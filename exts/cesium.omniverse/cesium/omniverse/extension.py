@@ -12,6 +12,7 @@ import carb.settings as omni_settings
 import omni.ext
 import omni.kit.app as omni_app
 import omni.kit.ui
+import omni.kit.pipapi
 from omni.kit.viewport.utility import get_active_viewport
 import omni.ui as ui
 import omni.usd
@@ -22,6 +23,9 @@ cesium_extension_location = os.path.join(os.path.dirname(__file__), "../../")
 DEFAULT_GEOREFERENCE_LATITUDE = 39.9501464
 DEFAULT_GEOREFERENCE_LONGITUDE = -75.1564977
 DEFAULT_GEOREFERENCE_HEIGHT = 150.0
+
+# This installs lxml which is needed for credit display.
+omni.kit.pipapi.install("lxml==4.9.2")
 
 
 class CesiumOmniverseExtension(omni.ext.IExt):

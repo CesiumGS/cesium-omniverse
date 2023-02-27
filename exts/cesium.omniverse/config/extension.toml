@@ -33,6 +33,7 @@ icon = "doc/images/icon.png"
 [dependencies]
 "usdrt.scenegraph" = {}
 "omni.usd.libs" = {}
+"omni.kit.pipapi" = {}
 "omni.kit.uiapp" = {}
 "omni.kit.viewport.utility" = {}
 
