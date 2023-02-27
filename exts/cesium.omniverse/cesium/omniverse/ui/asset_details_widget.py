@@ -62,12 +62,12 @@ class CesiumAssetDetailsWidget(ui.ScrollingFrame):
     def _add_overlay_with_tileset(self):
         asset_to_add = AssetToAdd("Cesium World Terrain", 1, self._name, self._id)
         add_asset_event = carb.events.type_from_string("cesium.omniverse.ADD_ION_ASSET")
-        app.get_app().get_message_bus_event_stream().push(add_asset_event, 0, asset_to_add.to_dict())
+        app.get_app().get_message_bus_event_stream().push(add_asset_event, payload=asset_to_add.to_dict())
 
     def _add_tileset_button_clicked(self):
         asset_to_add = AssetToAdd(self._name, self._id)
         add_asset_event = carb.events.type_from_string("cesium.omniverse.ADD_ION_ASSET")
-        app.get_app().get_message_bus_event_stream().push(add_asset_event, 0, asset_to_add.to_dict())
+        app.get_app().get_message_bus_event_stream().push(add_asset_event, payload=asset_to_add.to_dict())
 
     def _add_imagery_button_clicked(self):
         context = usd.get_context()
@@ -97,7 +97,7 @@ class CesiumAssetDetailsWidget(ui.ScrollingFrame):
         imagery_to_add = ImageryToAdd(tileset_id, self._id, self._name)
 
         add_imagery_event = carb.events.type_from_string("cesium.omniverse.ADD_IMAGERY")
-        app.get_app().get_message_bus_event_stream().push(add_imagery_event, 0, imagery_to_add.to_dict())
+        app.get_app().get_message_bus_event_stream().push(add_imagery_event, payload=imagery_to_add.to_dict())
 
 
 

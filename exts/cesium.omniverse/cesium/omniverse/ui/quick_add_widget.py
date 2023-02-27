@@ -68,7 +68,7 @@ class CesiumOmniverseQuickAddWidget(ui.Frame):
 
     def _add_ion_assets(self, asset_to_add: AssetToAdd):
         add_asset_event = carb.events.type_from_string("cesium.omniverse.ADD_ION_ASSET")
-        app.get_app().get_message_bus_event_stream().push(add_asset_event, 0, asset_to_add.to_dict())
+        app.get_app().get_message_bus_event_stream().push(add_asset_event, payload=asset_to_add.to_dict())
 
     def _build_ui(self):
         with self:
