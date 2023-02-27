@@ -53,6 +53,10 @@ pxr::CesiumTilesetAPI getCesiumTilesetAPI(const pxr::SdfPath& path);
 pxr::CesiumRasterOverlay getCesiumRasterOverlay(const pxr::SdfPath& path);
 std::vector<pxr::SdfPath> getChildRasterOverlayPaths(const pxr::SdfPath& path);
 
+bool isCesiumData(const pxr::SdfPath& path);
+bool isCesiumTilesetAPI(const pxr::SdfPath& path);
+bool isCesiumRasterOverlay(const pxr::SdfPath& path);
+
 bool primExists(const pxr::SdfPath& path);
 
 }; // namespace cesium::omniverse::UsdUtil
