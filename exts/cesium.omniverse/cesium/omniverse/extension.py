@@ -56,6 +56,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._show_asset_window_subscription: Optional[carb.events.ISubscription] = None
         self._token_set_subscription: Optional[carb.events.ISubscription] = None
         self._add_ion_asset_subscription: Optional[carb.events.ISubscription] = None
+        self._add_blank_asset_subscription: Optional[carb.events.ISubscription] = None
         self._add_imagery_subscription: Optional[carb.events.ISubscription] = None
         self._assets_to_add_after_token_set: List[AssetToAdd] = []
         self._imagery_to_add_after_token_set: List[ImageryToAdd] = []
@@ -129,6 +130,10 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._add_ion_asset_subscription = bus.create_subscription_to_pop_by_type(add_ion_asset_event,
                                                                                   self._on_add_ion_asset_event)
 
+        add_blank_asset_event = carb.events.type_from_string("cesium.omniverse.ADD_BLANK_ASSET")
+        self._add_blank_asset_subscription = bus.create_subscription_to_pop_by_type(add_blank_asset_event,
+                                                                                    self._on_add_blank_asset_event)
+
         add_imagery_event = carb.events.type_from_string("cesium.omniverse.ADD_IMAGERY")
         self._add_imagery_subscription = bus.create_subscription_to_pop_by_type(add_imagery_event,
                                                                                 self._on_add_imagery_to_tileset)
@@ -163,6 +168,22 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         if self._on_update_subscription is not None:
             self._on_update_subscription.unsubscribe()
             self._on_update_subscription = None
+
+        if self._token_set_subscription is not None:
+            self._token_set_subscription.unsubscribe()
+            self._token_set_subscription = None
+
+        if self._add_ion_asset_subscription is not None:
+            self._add_ion_asset_subscription.unsubscribe()
+            self._add_ion_asset_subscription = None
+
+        if self._add_blank_asset_subscription is not None:
+            self._add_blank_asset_subscription.unsubscribe()
+            self._add_blank_asset_subscription = None
+
+        if self._add_imagery_subscription is not None:
+            self._add_imagery_subscription.unsubscribe()
+            self._add_imagery_subscription = None
 
         if self._show_asset_window_subscription is not None:
             self._show_asset_window_subscription.unsubscribe()
@@ -216,26 +237,32 @@ class CesiumOmniverseExtension(omni.ext.IExt):
     def _on_add_ion_asset_event(self, event: carb.events.IEvent):
         asset_to_add = AssetToAdd.from_event(event)
 
+        self._add_ion_assets(asset_to_add)
+
+    def _on_add_blank_asset_event(self, event: carb.events.IEvent):
+        asset_to_add = AssetToAdd.from_event(event)
+
+        self._add_ion_assets(asset_to_add, skip_ion_checks=True)
+
+    def _add_ion_assets(self, asset_to_add: Optional[AssetToAdd], skip_ion_checks=False):
         if asset_to_add is None:
             self._logger.warning("Insufficient information to add asset.")
             return
 
-        self._add_ion_assets(asset_to_add)
+        if not skip_ion_checks:
+            session = _cesium_omniverse_interface.get_session()
 
-    def _add_ion_assets(self, asset_to_add: AssetToAdd):
-        session = _cesium_omniverse_interface.get_session()
+            if not session.is_connected():
+                self._logger.warning("Must be logged in to add ion asset.")
+                return
 
-        if not session.is_connected():
-            self._logger.warning("Must be logged in to add ion asset.")
-            return
-
-        if not _cesium_omniverse_interface.is_default_token_set():
-            bus = omni_app.get_app().get_message_bus_event_stream()
-            show_token_window_event = carb.events.type_from_string(
-                "cesium.omniverse.SHOW_TOKEN_WINDOW")
-            bus.push(show_token_window_event)
-            self._assets_to_add_after_token_set.append(asset_to_add)
-            return
+            if not _cesium_omniverse_interface.is_default_token_set():
+                bus = omni_app.get_app().get_message_bus_event_stream()
+                show_token_window_event = carb.events.type_from_string(
+                    "cesium.omniverse.SHOW_TOKEN_WINDOW")
+                bus.push(show_token_window_event)
+                self._assets_to_add_after_token_set.append(asset_to_add)
+                return
 
         # TODO: Probably need a check here for bypassing setting the georeference if it is already set.
         _cesium_omniverse_interface.set_georeference_origin(

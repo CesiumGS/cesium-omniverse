@@ -44,8 +44,11 @@ class CesiumOmniverseQuickAddWidget(ui.Frame):
         if session is not None:
             self._ion_quick_add_frame.visible = session.is_connected()
 
-    def _add_blank_button_clicked(self):
-        pass
+    @staticmethod
+    def _add_blank_button_clicked():
+        asset_to_add = AssetToAdd("Cesium Tileset", 0)
+        add_blank_asset_event = carb.events.type_from_string("cesium.omniverse.ADD_BLANK_ASSET")
+        app.get_app().get_message_bus_event_stream().push(add_blank_asset_event, payload=asset_to_add.to_dict())
 
     def _cwt_bing_maps_button_clicked(self):
         self._add_ion_assets(AssetToAdd(
@@ -66,9 +69,10 @@ class CesiumOmniverseQuickAddWidget(ui.Frame):
     def _cesium_osm_buildings_clicked(self):
         self._add_ion_assets(AssetToAdd("Cesium OSM Buildings", 96188))
 
-    def _add_ion_assets(self, asset_to_add: AssetToAdd):
+    @staticmethod
+    def _add_ion_assets(asset_to_add: AssetToAdd):
         add_asset_event = carb.events.type_from_string("cesium.omniverse.ADD_ION_ASSET")
-        app.get_app().get_message_bus_event_stream().push(add_asset_event, 0, asset_to_add.to_dict())
+        app.get_app().get_message_bus_event_stream().push(add_asset_event, payload=asset_to_add.to_dict())
 
     def _build_ui(self):
         with self:
