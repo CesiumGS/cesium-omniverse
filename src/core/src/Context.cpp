@@ -5,6 +5,7 @@
 #include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
+#include "cesium/omniverse/OmniIonRasterOverlay.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/UsdUtil.h"
@@ -21,6 +22,7 @@
 #include <CesiumUsdSchemas/data.h>
 #include <CesiumUsdSchemas/rasterOverlay.h>
 #include <CesiumUsdSchemas/tilesetAPI.h>
+#include <CesiumUsdSchemas/tokens.h>
 #include <glm/gtc/matrix_access.hpp>
 #include <pxr/usd/sdf/path.h>
 #include <pxr/usd/usdGeom/xform.h>
@@ -224,12 +226,68 @@ void Context::reloadTileset(int64_t tilesetId) {
 }
 
 void Context::onUpdateFrame(const glm::dmat4& viewMatrix, const glm::dmat4& projMatrix, double width, double height) {
+    processUsdNotifications();
+
     _viewStates.clear();
     _viewStates.emplace_back(computeViewState(_georeferenceOrigin, viewMatrix, projMatrix, width, height));
 
     auto tilesets = AssetRegistry::getInstance().getAllTilesets();
     for (const auto& tileset : tilesets) {
         tileset->onUpdateFrame(_viewStates);
+    }
+}
+
+void Context::processUsdNotifications() {
+    const auto changedProperties = _usdNotificationHandler.popChangedProperties();
+
+    std::set<std::shared_ptr<OmniTileset>> tilesetsToReload;
+
+    for (const auto& changedProperty : changedProperties) {
+        const auto& [path, token, type] = changedProperty;
+
+        if (type == ChangedPrimType::CESIUM_DATA) {
+            if (token == pxr::CesiumTokens->cesiumDefaultProjectToken) {
+                // Any tilesets that use the default token are reloaded when it changes
+                const auto tilesets = AssetRegistry::getInstance().getAllTilesets();
+                for (const auto& tileset : tilesets) {
+                    const auto tilesetToken = tileset->getIonToken();
+                    const auto defaultToken = Context::instance().getDefaultToken();
+                    if (!tilesetToken.has_value() || tilesetToken.value().token == defaultToken.value().token) {
+                        tilesetsToReload.emplace(tileset);
+                    }
+                }
+            }
+        } else if (type == ChangedPrimType::CESIUM_TILESET) {
+            // Reload the tileset. No need to update the asset registry because tileset assets do not store the asset id.
+            const auto tileset = AssetRegistry::getInstance().getTileset(path.GetString());
+            if (tileset.has_value()) {
+                if (token == pxr::CesiumTokens->cesiumTilesetId) {
+                    tilesetsToReload.emplace(tileset.value());
+                } else if (token == pxr::CesiumTokens->cesiumIonToken) {
+                    tilesetsToReload.emplace(tileset.value());
+                }
+            }
+        } else if (type == ChangedPrimType::CESIUM_RASTER_OVERLAY) {
+            const auto tileset = AssetRegistry::getInstance().getTilesetFromRasterOverlay(path.GetString());
+            if (tileset.has_value()) {
+                if (token == pxr::CesiumTokens->cesiumRasterOverlayId) {
+                    // Update the asset registry because the asset id changed
+                    OmniIonRasterOverlay ionRasterOverlay(path);
+                    const auto assetId = ionRasterOverlay.getIonAssetId();
+                    AssetRegistry::getInstance().setRasterOverlayAssetId(path, assetId);
+
+                    // Reload the tileset that this raster overlay is attached to
+                    tilesetsToReload.emplace(tileset.value());
+                } else if (token == pxr::CesiumTokens->cesiumIonToken) {
+                    // Reload the tileset that this raster overlay is attached to
+                    tilesetsToReload.emplace(tileset.value());
+                }
+            }
+        }
+    }
+
+    for (const auto& tileset : tilesetsToReload) {
+        tileset->reload();
     }
 }
 
@@ -269,7 +327,7 @@ void Context::setStageId(long stageId) {
         _fabricStageInProgress.reset();
         _stageId = 0;
 
-        // Now it's safe to clear anything that else that references the stage
+        // Now it's safe to clear anything else that references the stage
         AssetRegistry::getInstance().clear();
     }
 

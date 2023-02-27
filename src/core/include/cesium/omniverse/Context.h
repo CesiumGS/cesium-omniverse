@@ -2,6 +2,7 @@
 
 #include "cesium/omniverse/SetDefaultTokenResult.h"
 #include "cesium/omniverse/TokenTroubleshooter.h"
+#include "cesium/omniverse/UsdNotificationHandler.h"
 
 #include <CesiumGeospatial/Cartographic.h>
 #include <carb/flatcache/StageWithHistory.h>
@@ -103,6 +104,8 @@ class Context {
     bool getDebugDisableMaterials() const;
 
   private:
+    void processUsdNotifications();
+
     std::shared_ptr<TaskProcessor> _taskProcessor;
     std::shared_ptr<HttpAssetAccessor> _httpAssetAccessor;
     std::shared_ptr<Cesium3DTilesSelection::CreditSystem> _creditSystem;
@@ -118,6 +121,7 @@ class Context {
     pxr::UsdStageRefPtr _stage;
     std::optional<carb::flatcache::StageInProgress> _fabricStageInProgress;
     long _stageId{0};
+    UsdNotificationHandler _usdNotificationHandler;
 
     int64_t _contextId;
 

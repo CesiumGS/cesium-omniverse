@@ -39,10 +39,12 @@ class AssetRegistry {
     std::optional<std::shared_ptr<OmniTileset>> getTileset(const std::string& path);
     std::optional<int64_t> getTilesetId(const std::string& path);
     std::vector<std::shared_ptr<OmniTileset>> getAllTilesets();
+    std::optional<std::shared_ptr<OmniTileset>> getTilesetFromRasterOverlay(const std::string& path);
     std::vector<std::pair<int64_t, const char*>> getAllTilesetIdsAndPaths();
     [[maybe_unused]] std::vector<int64_t> getAllTilesetIds();
 
     void addRasterOverlay(int64_t assetId, const pxr::SdfPath& path, int64_t parentId);
+    void setRasterOverlayAssetId(const pxr::SdfPath& path, int64_t assetId);
     [[maybe_unused]] std::vector<int64_t> getAllRasterOverlayIds();
     [[maybe_unused]] std::vector<int64_t> getAllRasterOverlayIdsForTileset(int64_t parentId);
 
