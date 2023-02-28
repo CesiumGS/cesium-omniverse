@@ -7,15 +7,9 @@ import webbrowser
 from pathlib import Path
 from io import BytesIO
 from PIL import Image
-from base64 import b64decode
 from typing import List, Optional
 from ..bindings import ICesiumOmniverseInterface
 from .styles import CesiumOmniverseUiStyles
-
-# This installs lxml and base64 which are needed for credit display.
-omni.kit.pipapi.install("lxml==4.9.2")
-
-from lxml import etree
 
 
 class CesiumOmniverseCreditsWindow(ui.Window):
@@ -38,7 +32,7 @@ class CesiumOmniverseCreditsWindow(ui.Window):
         self.padding_x = 12
         self.padding_y = 12
 
-        self._credits: List[str] = self._cesium_omniverse_interface.get_html_for_all_credits()
+        self._credits: List[(str, bool)] = self._cesium_omniverse_interface.get_credits()
 
         self.frame.set_build_fn(self._build_ui)
 
@@ -73,7 +67,6 @@ class CesiumOmniverseCreditsWindow(ui.Window):
                 if image.mode is not "RGBA":
                     image = image.convert("RGBA")
                 pixels = list(image.getdata())
-                self._logger.warning(f"{link}{pixels}")
                 provider = ui.ByteImageProvider()
                 provider.set_bytes_data(pixels, [image.size[0], image.size[1]])
                 ui.ImageWithProvider(provider, width=image.size[0], height=image.size[1],
@@ -104,17 +97,28 @@ class CesiumOmniverseCreditsWindow(ui.Window):
         with ui.VStack(spacing=5):
             ui.Label("Data Provided By:", height=0, style=CesiumOmniverseUiStyles.attribution_header_style)
 
-            parser = etree.HTMLParser()
-            for credit in self._credits:
-                if credit is "":
-                    continue
+            try:
+                # This installs lxml and base64 which are needed for credit display.
+                omni.kit.pipapi.install("lxml==4.9.2")
+                from lxml import etree
 
-                if credit[0] is "<":
-                    try:
-                        doc = etree.fromstring(credit, parser)
-                        self._parse_element(doc)
+                parser = etree.HTMLParser()
+                for credit, _ in self._credits:
+                    if credit is "":
                         continue
-                    except etree.XMLSyntaxError as err:
-                        self._logger.info(err)
 
-                ui.Label(credit, height=0, word_wrap=True)
+                    if credit[0] is "<":
+                        try:
+                            doc = etree.fromstring(credit, parser)
+                            self._parse_element(doc)
+                            continue
+                        except etree.XMLSyntaxError as err:
+                            self._logger.info(err)
+
+                    ui.Label(credit, height=0, word_wrap=True)
+            except ImportError as e:
+                self._logger.error(e)
+                self._logger.warning("Performing credits fallback.")
+
+                for credit, _ in self._credits:
+                    ui.Label(credit, height=0, word_wrap=True)

@@ -161,12 +161,12 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         return FabricUtil::printFabricStage();
     }
 
-    bool shouldShowCreditsOnScreen() noexcept override {
-        return Context::instance().shouldShowCreditsOnScreen();
+    bool creditsAvailable() noexcept override {
+        return Context::instance().creditsAvailable();
     }
 
-    std::vector<std::string> getHtmlForAllCredits() noexcept override {
-        return Context::instance().getHtmlForAllCredits();
+    std::vector<std::pair<std::string, bool>> getCredits() noexcept override {
+        return Context::instance().getCredits();
     }
 };
 } // namespace cesium::omniverse

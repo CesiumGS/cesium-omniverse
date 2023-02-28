@@ -102,8 +102,8 @@ class Context {
     std::filesystem::path getCertificatePath() const;
     bool getDebugDisableMaterials() const;
 
-    bool shouldShowCreditsOnScreen() const;
-    std::vector<std::string> getHtmlForAllCredits() const;
+    bool creditsAvailable() const;
+    std::vector<std::pair<std::string, bool>> getCredits() const;
 
   private:
     std::shared_ptr<TaskProcessor> _taskProcessor;

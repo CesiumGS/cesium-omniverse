@@ -475,26 +475,21 @@ bool Context::getDebugDisableMaterials() const {
     return _debugDisableMaterials;
 }
 
-bool Context::shouldShowCreditsOnScreen() const {
+bool Context::creditsAvailable() const {
     auto credits = _creditSystem->getCreditsToShowThisFrame();
 
-    for (const auto& item : credits) {
-        if (_creditSystem->shouldBeShownOnScreen(item)) {
-            return true;
-        }
-    }
-
-    return false;
+    return credits.size() > 0;
 }
 
-std::vector<std::string> Context::getHtmlForAllCredits() const {
+std::vector<std::pair<std::string, bool>> Context::getCredits() const {
     auto credits = _creditSystem->getCreditsToShowThisFrame();
 
-    std::vector<std::string> result;
+    std::vector<std::pair<std::string, bool>> result;
     result.reserve(credits.size());
 
     for (const auto& item : credits) {
-        result.emplace_back(_creditSystem->getHtml(item));
+        auto showOnScreen = _creditSystem->shouldBeShownOnScreen(item);
+        result.emplace_back(_creditSystem->getHtml(item), showOnScreen);
     }
 
     return result;

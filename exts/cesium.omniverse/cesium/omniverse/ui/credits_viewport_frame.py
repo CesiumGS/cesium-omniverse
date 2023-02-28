@@ -46,14 +46,14 @@ class CesiumCreditsViewportFrame:
         if self._data_attribution_button is None:
             return
 
-        should_show_credits = self._cesium_omniverse_interface.should_show_credits_on_screen()
+        credits_available = self._cesium_omniverse_interface.credits_available()
 
-        if should_show_credits != self._data_attribution_button.visible:
-            if should_show_credits:
+        if credits_available != self._data_attribution_button.visible:
+            if credits_available:
                 self._logger.info("Show Data Attribution")
             else:
                 self._logger.info("Hide Data Attribution")
-            self._data_attribution_button.visible = should_show_credits
+            self._data_attribution_button.visible = credits_available
 
     def _on_data_attribution_button_clicked(self):
         self._credits_window = CesiumOmniverseCreditsWindow(self._cesium_omniverse_interface)

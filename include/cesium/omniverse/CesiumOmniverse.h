@@ -229,8 +229,8 @@ class ICesiumOmniverseInterface {
      */
     virtual std::string printFabricStage() noexcept = 0;
 
-    virtual bool shouldShowCreditsOnScreen() noexcept = 0;
-    virtual std::vector<std::string> getHtmlForAllCredits() noexcept = 0;
+    virtual bool creditsAvailable() noexcept = 0;
+    virtual std::vector<std::pair<std::string, bool>> getCredits() noexcept = 0;
 };
 
 } // namespace cesium::omniverse
