@@ -24,7 +24,7 @@ PXR_NAMESPACE_OPEN_SCOPE
 class SdfAssetPath;
 
 // -------------------------------------------------------------------------- //
-// RASTEROVERLAY                                                              //
+// CESIUMRASTEROVERLAYPRIM                                                    //
 // -------------------------------------------------------------------------- //
 
 /// \class CesiumRasterOverlay
@@ -120,51 +120,51 @@ private:
 
 public:
     // --------------------------------------------------------------------- //
-    // RASTEROVERLAYID 
+    // IONASSETID
     // --------------------------------------------------------------------- //
-    /// A string representing a Cesium ion imagery ID.
+    /// The ID of the Cesium ion asset to use.
     ///
     /// | ||
     /// | -- | -- |
-    /// | Declaration | `int64 cesium:rasterOverlayId = 0` |
+    /// | Declaration | `int64 cesium:ionAssetId = 0` |
     /// | C++ Type | int64_t |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Int64 |
-    UsdAttribute GetRasterOverlayIdAttr() const;
+    UsdAttribute GetIonAssetIdAttr() const;
 
-    /// See GetRasterOverlayIdAttr(), and also 
+    /// See GetIonAssetIdAttr(), and also
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    UsdAttribute CreateRasterOverlayIdAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+    UsdAttribute CreateIonAssetIdAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // --------------------------------------------------------------------- //
-    // IONTOKEN 
+    // IONACCESSTOKEN
     // --------------------------------------------------------------------- //
-    /// A string representing the token for accessing this Cesium ion imagery. Overrides the default project token.
+    /// The access token to use to access the Cesium ion resource. Overrides the default project token. Blank if using URL.
     ///
     /// | ||
     /// | -- | -- |
-    /// | Declaration | `string cesium:ionToken = ""` |
+    /// | Declaration | `string cesium:ionAccessToken = ""` |
     /// | C++ Type | std::string |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
-    UsdAttribute GetIonTokenAttr() const;
+    UsdAttribute GetIonAccessTokenAttr() const;
 
-    /// See GetIonTokenAttr(), and also 
+    /// See GetIonAccessTokenAttr(), and also
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    UsdAttribute CreateIonTokenAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+    UsdAttribute CreateIonAccessTokenAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // ===================================================================== //
-    // Feel free to add custom code below this line, it will be preserved by 
-    // the code generator. 
+    // Feel free to add custom code below this line, it will be preserved by
+    // the code generator.
     //
-    // Just remember to: 
-    //  - Close the class declaration with }; 
+    // Just remember to:
+    //  - Close the class declaration with };
     //  - Close the namespace with PXR_NAMESPACE_CLOSE_SCOPE
     //  - Close the include guard with #endif
     // ===================================================================== //

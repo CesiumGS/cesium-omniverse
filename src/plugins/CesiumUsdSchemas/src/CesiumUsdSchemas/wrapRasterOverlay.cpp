@@ -27,16 +27,16 @@ WRAP_CUSTOM;
 
         
 static UsdAttribute
-_CreateRasterOverlayIdAttr(CesiumRasterOverlay &self,
+_CreateIonAssetIdAttr(CesiumRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateRasterOverlayIdAttr(
+    return self.CreateIonAssetIdAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int64), writeSparsely);
 }
         
 static UsdAttribute
-_CreateIonTokenAttr(CesiumRasterOverlay &self,
+_CreateIonAccessTokenAttr(CesiumRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateIonTokenAttr(
+    return self.CreateIonAccessTokenAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
 
@@ -82,17 +82,17 @@ void wrapCesiumRasterOverlay()
         .def(!self)
 
         
-        .def("GetRasterOverlayIdAttr",
-             &This::GetRasterOverlayIdAttr)
-        .def("CreateRasterOverlayIdAttr",
-             &_CreateRasterOverlayIdAttr,
+        .def("GetIonAssetIdAttr",
+             &This::GetIonAssetIdAttr)
+        .def("CreateIonAssetIdAttr",
+             &_CreateIonAssetIdAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetIonTokenAttr",
-             &This::GetIonTokenAttr)
-        .def("CreateIonTokenAttr",
-             &_CreateIonTokenAttr,
+        .def("GetIonAccessTokenAttr",
+             &This::GetIonAccessTokenAttr)
+        .def("CreateIonAccessTokenAttr",
+             &_CreateIonAccessTokenAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 

@@ -80,15 +80,15 @@ CesiumData::_GetTfType() const
 }
 
 UsdAttribute
-CesiumData::GetDefaultProjectTokenIdAttr() const
+CesiumData::GetDefaultProjectIonAccessTokenAttr() const
 {
-    return GetPrim().GetAttribute(CesiumTokens->cesiumDefaultProjectTokenId);
+    return GetPrim().GetAttribute(CesiumTokens->cesiumDefaultProjectIonAccessToken);
 }
 
 UsdAttribute
-CesiumData::CreateDefaultProjectTokenIdAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumData::CreateDefaultProjectIonAccessTokenAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
-    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumDefaultProjectTokenId,
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumDefaultProjectIonAccessToken,
                        SdfValueTypeNames->String,
                        /* custom = */ false,
                        SdfVariabilityVarying,
@@ -97,15 +97,15 @@ CesiumData::CreateDefaultProjectTokenIdAttr(VtValue const &defaultValue, bool wr
 }
 
 UsdAttribute
-CesiumData::GetDefaultProjectTokenAttr() const
+CesiumData::GetDefaultProjectIonAccessTokenIdAttr() const
 {
-    return GetPrim().GetAttribute(CesiumTokens->cesiumDefaultProjectToken);
+    return GetPrim().GetAttribute(CesiumTokens->cesiumDefaultProjectIonAccessTokenId);
 }
 
 UsdAttribute
-CesiumData::CreateDefaultProjectTokenAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumData::CreateDefaultProjectIonAccessTokenIdAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
-    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumDefaultProjectToken,
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumDefaultProjectIonAccessTokenId,
                        SdfValueTypeNames->String,
                        /* custom = */ false,
                        SdfVariabilityVarying,
@@ -147,8 +147,8 @@ const TfTokenVector&
 CesiumData::GetSchemaAttributeNames(bool includeInherited)
 {
     static TfTokenVector localNames = {
-        CesiumTokens->cesiumDefaultProjectTokenId,
-        CesiumTokens->cesiumDefaultProjectToken,
+        CesiumTokens->cesiumDefaultProjectIonAccessToken,
+        CesiumTokens->cesiumDefaultProjectIonAccessTokenId,
         CesiumTokens->cesiumGeoreferenceOrigin,
     };
     static TfTokenVector allNames =

@@ -35,38 +35,82 @@ PXR_NAMESPACE_OPEN_SCOPE
 /// Use CesiumTokens like so:
 ///
 /// \code
-///     gprim.GetMyTokenValuedAttr().Set(CesiumTokens->cesiumDefaultProjectToken);
+///     gprim.GetMyTokenValuedAttr().Set(CesiumTokens->cesiumCulledScreenSpaceError);
 /// \endcode
 struct CesiumTokensType {
     CESIUM_API CesiumTokensType();
-    /// \brief "cesium:defaultProjectToken"
+    /// \brief "cesium:culledScreenSpaceError"
+    /// 
+    /// CesiumTileset
+    const TfToken cesiumCulledScreenSpaceError;
+    /// \brief "cesium:defaultProjectIonAccessToken"
     /// 
     /// CesiumData
-    const TfToken cesiumDefaultProjectToken;
-    /// \brief "cesium:defaultProjectTokenId"
+    const TfToken cesiumDefaultProjectIonAccessToken;
+    /// \brief "cesium:defaultProjectIonAccessTokenId"
     /// 
     /// CesiumData
-    const TfToken cesiumDefaultProjectTokenId;
+    const TfToken cesiumDefaultProjectIonAccessTokenId;
+    /// \brief "cesium:enableFogCulling"
+    /// 
+    /// CesiumTileset
+    const TfToken cesiumEnableFogCulling;
+    /// \brief "cesium:enableFrustumCulling"
+    /// 
+    /// CesiumTileset
+    const TfToken cesiumEnableFrustumCulling;
+    /// \brief "cesium:enforceCulledScreenSpaceError"
+    /// 
+    /// CesiumTileset
+    const TfToken cesiumEnforceCulledScreenSpaceError;
+    /// \brief "cesium:forbidHoles"
+    /// 
+    /// CesiumTileset
+    const TfToken cesiumForbidHoles;
     /// \brief "cesium:georeferenceOrigin"
     /// 
     /// CesiumData
     const TfToken cesiumGeoreferenceOrigin;
-    /// \brief "cesium:ionToken"
+    /// \brief "cesium:ionAccessToken"
     /// 
-    /// CesiumRasterOverlay, CesiumTilesetAPI
-    const TfToken cesiumIonToken;
-    /// \brief "cesium:rasterOverlayId"
+    /// CesiumRasterOverlay, CesiumTileset
+    const TfToken cesiumIonAccessToken;
+    /// \brief "cesium:ionAssetId"
     /// 
-    /// CesiumRasterOverlay
-    const TfToken cesiumRasterOverlayId;
-    /// \brief "cesium:tilesetId"
+    /// CesiumRasterOverlay, CesiumTileset
+    const TfToken cesiumIonAssetId;
+    /// \brief "cesium:loadingDescendantLimit"
     /// 
-    /// CesiumTilesetAPI
-    const TfToken cesiumTilesetId;
-    /// \brief "cesium:tilesetUrl"
+    /// CesiumTileset
+    const TfToken cesiumLoadingDescendantLimit;
+    /// \brief "cesium:maximumCachedBytes"
     /// 
-    /// CesiumTilesetAPI
-    const TfToken cesiumTilesetUrl;
+    /// CesiumTileset
+    const TfToken cesiumMaximumCachedBytes;
+    /// \brief "cesium:maximumScreenSpaceError"
+    /// 
+    /// CesiumTileset
+    const TfToken cesiumMaximumScreenSpaceError;
+    /// \brief "cesium:maximumSimultaneousTileLoads"
+    /// 
+    /// CesiumTileset
+    const TfToken cesiumMaximumSimultaneousTileLoads;
+    /// \brief "cesium:preloadAncestors"
+    /// 
+    /// CesiumTileset
+    const TfToken cesiumPreloadAncestors;
+    /// \brief "cesium:preloadSiblings"
+    /// 
+    /// CesiumTileset
+    const TfToken cesiumPreloadSiblings;
+    /// \brief "cesium:suspendUpdate"
+    /// 
+    /// CesiumTileset
+    const TfToken cesiumSuspendUpdate;
+    /// \brief "cesium:url"
+    /// 
+    /// CesiumTileset
+    const TfToken cesiumUrl;
     /// A vector of all of the tokens listed above.
     const std::vector<TfToken> allTokens;
 };

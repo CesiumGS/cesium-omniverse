@@ -33,7 +33,19 @@ class OmniTileset {
     std::string getName() const;
     std::string getUrl() const;
     int64_t getIonAssetId() const;
-    std::optional<CesiumIonClient::Token> getIonToken() const;
+    std::optional<CesiumIonClient::Token> getIonAccessToken() const;
+    float getMaximumScreenSpaceError() const;
+    bool getPreloadAncestors() const;
+    bool getPreloadSiblings() const;
+    bool getForbidHoles() const;
+    uint32_t getMaximumSimultaneousTileLoads() const;
+    uint64_t getMaximumCachedBytes() const;
+    uint32_t getLoadingDescendantLimit() const;
+    bool getEnableFrustumCulling() const;
+    bool getEnableFogCulling() const;
+    bool getEnforceCulledScreenSpaceError() const;
+    float getCulledScreenSpaceError() const;
+    bool getSuspendUpdate() const;
 
     int64_t getId() const;
     int64_t getNextTileId() const;
@@ -45,9 +57,6 @@ class OmniTileset {
   private:
     void updateTransform();
     void updateView(const std::vector<Cesium3DTilesSelection::ViewState>& viewStates);
-
-    // TODO: store this on the prim
-    const bool _suspendUpdate = false;
 
     std::unique_ptr<Cesium3DTilesSelection::Tileset> _tileset;
     std::shared_ptr<FabricPrepareRenderResources> _renderResourcesPreparer;
