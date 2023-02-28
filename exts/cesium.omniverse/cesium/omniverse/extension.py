@@ -25,9 +25,6 @@ DEFAULT_GEOREFERENCE_LATITUDE = 39.9501464
 DEFAULT_GEOREFERENCE_LONGITUDE = -75.1564977
 DEFAULT_GEOREFERENCE_HEIGHT = 150.0
 
-# This installs lxml which is needed for credit display.
-omni.kit.pipapi.install("lxml==4.9.2")
-
 
 class CesiumOmniverseExtension(omni.ext.IExt):
     @staticmethod
@@ -69,6 +66,12 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._adding_assets = False
         self._logger: logging.Logger = logging.getLogger(__name__)
         self._menu = None
+
+        try:
+            # This installs lxml which is needed for credit display.
+            omni.kit.pipapi.install("lxml==4.9.2")
+        except Exception as e:
+            self._logger.error(e)
 
     def on_startup(self):
         # The ability to show up the window if the system requires it. We use it in QuickLayout.
