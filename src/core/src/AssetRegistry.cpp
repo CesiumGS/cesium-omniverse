@@ -1,7 +1,6 @@
 #include "cesium/omniverse/AssetRegistry.h"
 
 #include "cesium/omniverse/OmniIonRasterOverlay.h"
-
 #include "cesium/omniverse/OmniTileset.h"
 
 namespace cesium::omniverse {

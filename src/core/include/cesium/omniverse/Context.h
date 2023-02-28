@@ -91,11 +91,8 @@ class Context {
     std::optional<AssetTroubleshootingDetails> getAssetTroubleshootingDetails();
     std::optional<TokenTroubleshootingDetails> getAssetTokenTroubleshootingDetails();
     std::optional<TokenTroubleshootingDetails> getDefaultTokenTroubleshootingDetails();
-    void updateTroubleshootingDetails(
-        int64_t tilesetId,
-        int64_t tilesetIonId,
-        uint64_t tokenEventId,
-        uint64_t assetEventId);
+    void
+    updateTroubleshootingDetails(int64_t tilesetId, int64_t tilesetIonId, uint64_t tokenEventId, uint64_t assetEventId);
     void updateTroubleshootingDetails(
         int64_t tilesetId,
         [[maybe_unused]] int64_t tilesetIonId,
