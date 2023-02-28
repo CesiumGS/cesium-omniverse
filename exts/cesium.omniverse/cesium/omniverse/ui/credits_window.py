@@ -2,6 +2,7 @@ import logging
 import omni.kit.app as app
 import omni.ui as ui
 import omni.kit.pipapi
+import urllib.request
 import webbrowser
 from pathlib import Path
 from io import BytesIO
@@ -51,7 +52,6 @@ class CesiumOmniverseCreditsWindow(ui.Window):
 
     def _parse_element(self, element, link: Optional[str] = None):
         tag = element.tag
-        self._logger.warning(tag)
         if tag == "html" or tag == "body":
             for child in element.iterchildren():
                 self._parse_element(child, link)
@@ -66,30 +66,21 @@ class CesiumOmniverseCreditsWindow(ui.Window):
                 self._parse_element(child, link)
         elif tag == "img":
             src = element.attrib["src"]
-            if "base64" in src:
-                # Base64 encoded
-                _, encoded = src.split("base64,", 1)
-                img_data = BytesIO(b64decode(encoded))
-
-                try:
-                    with img_data as i:
-                        image = Image.open(i)
-                        provider = ui.ByteImageProvider()
-                        provider.set_bytes_data(list(image.getdata()))
-                        ui.ImageWithProvider(provider, width=200, height=60,
-                                             fill_policy=ui.IwpFillPolicy.IWP_PRESERVE_ASPECT_FIT)
-                except Exception as e:
-                    self._logger.warning(f"Failed to parse: {element.attrib['src']}")
-                    self._logger.error(e)
-            elif "ion-credit.png" in src:
-                ui.Button("", image_url=f"{self._images_path}/ion-credit.png", width=200, height=60,
-                          fill_policy=ui.FillPolicy.PRESERVE_ASPECT_FIT)
-
-                # Return early because we don't want to do a second link.
-                return
-            else:
-                # Traditional URL, skip for now
-                pass
+            try:
+                data = urllib.request.urlopen(src).read()
+                img_data = BytesIO(data)
+                image = Image.open(img_data)
+                if image.mode is not "RGBA":
+                    image = image.convert("RGBA")
+                pixels = list(image.getdata())
+                self._logger.warning(f"{link}{pixels}")
+                provider = ui.ByteImageProvider()
+                provider.set_bytes_data(pixels, [image.size[0], image.size[1]])
+                ui.ImageWithProvider(provider, width=image.size[0], height=image.size[1],
+                                     fill_policy=ui.IwpFillPolicy.IWP_PRESERVE_ASPECT_FIT)
+            except Exception as e:
+                self._logger.warning(f"Failed to load image from url: {src}")
+                self._logger.error(e)
 
             if link is not None:
                 link_title = element.attrib["alt"] if "alt" in element.attrib else link
