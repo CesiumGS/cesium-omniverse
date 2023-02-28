@@ -300,6 +300,7 @@ pxr::CesiumRasterOverlay getCesiumRasterOverlay(const pxr::SdfPath& path) {
 std::vector<pxr::SdfPath> getChildRasterOverlayPaths(const pxr::SdfPath& path) {
     auto stage = UsdUtil::getUsdStage();
     auto prim = stage->GetPrimAtPath(path);
+    assert(prim.IsValid());
 
     std::vector<pxr::SdfPath> result;
 

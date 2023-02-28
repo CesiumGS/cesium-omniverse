@@ -10,6 +10,8 @@
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/UsdUtil.h"
 
+#include <CesiumGeospatial/Cartographic.h>
+
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
 #undef OPAQUE
@@ -282,6 +284,12 @@ void Context::processUsdNotifications() {
                         tilesetsToReload.emplace(tileset);
                     }
                 }
+            } else if (name == pxr::CesiumTokens->cesiumGeoreferenceOrigin) {
+                const auto cesiumData = UsdUtil::getCesiumData(path);
+                pxr::GfVec3d georeferenceOrigin;
+                cesiumData.GetGeoreferenceOriginAttr().Get<pxr::GfVec3d>(&georeferenceOrigin);
+                setGeoreferenceOrigin(CesiumGeospatial::Cartographic{
+                    glm::radians(georeferenceOrigin[0]), glm::radians(georeferenceOrigin[1]), georeferenceOrigin[2]});
             }
         } else if (type == ChangedPrimType::CESIUM_TILESET) {
             // Reload the tileset. No need to update the asset registry because tileset assets do not store the asset id.
