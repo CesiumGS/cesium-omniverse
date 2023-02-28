@@ -233,7 +233,9 @@ pxr::CesiumData defineCesiumData(const pxr::SdfPath& path) {
 
     cesiumData.CreateDefaultProjectIonAccessTokenAttr();
     cesiumData.CreateDefaultProjectIonAccessTokenIdAttr();
-    cesiumData.CreateGeoreferenceOriginAttr();
+    cesiumData.CreateGeoreferenceOriginLongitudeAttr();
+    cesiumData.CreateGeoreferenceOriginLatitudeAttr();
+    cesiumData.CreateGeoreferenceOriginHeightAttr();
 
     return cesiumData;
 }

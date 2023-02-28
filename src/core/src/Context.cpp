@@ -282,12 +282,20 @@ void Context::processUsdNotifications() {
                         tilesetsToReload.emplace(tileset);
                     }
                 }
-            } else if (name == pxr::CesiumTokens->cesiumGeoreferenceOrigin) {
+            } else if (
+                name == pxr::CesiumTokens->cesiumGeoreferenceOriginLongitude ||
+                name == pxr::CesiumTokens->cesiumGeoreferenceOriginLatitude ||
+                name == pxr::CesiumTokens->cesiumGeoreferenceOriginHeight) {
                 const auto cesiumData = UsdUtil::getCesiumData(path);
-                pxr::GfVec3d georeferenceOrigin;
-                cesiumData.GetGeoreferenceOriginAttr().Get<pxr::GfVec3d>(&georeferenceOrigin);
-                setGeoreferenceOrigin(CesiumGeospatial::Cartographic{
-                    glm::radians(georeferenceOrigin[0]), glm::radians(georeferenceOrigin[1]), georeferenceOrigin[2]});
+                double longitude;
+                double latitude;
+                double height;
+                cesiumData.GetGeoreferenceOriginLongitudeAttr().Get<double>(&longitude);
+                cesiumData.GetGeoreferenceOriginLatitudeAttr().Get<double>(&latitude);
+                cesiumData.GetGeoreferenceOriginHeightAttr().Get<double>(&height);
+
+                setGeoreferenceOrigin(
+                    CesiumGeospatial::Cartographic{glm::radians(longitude), glm::radians(latitude), height});
             }
         } else if (type == ChangedPrimType::CESIUM_TILESET) {
             // Reload the tileset. No need to update the asset registry because tileset assets do not store the asset id.
