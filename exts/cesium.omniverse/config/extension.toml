@@ -37,6 +37,8 @@ icon = "doc/images/icon.png"
 "omni.kit.pipapi" = {}
 "omni.kit.uiapp" = {}
 "omni.kit.viewport.utility" = {}
+"omni.example.ui" = {}
+"omni.kit.documentation.ui.style" = {}
 
 # Main python module this extension provides, it will be publicly available as "import cesium.omniverse"
 [[python.module]]

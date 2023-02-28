@@ -10,7 +10,8 @@ void connectionUpdated();
 void profileUpdated();
 void tokensUpdated();
 void showTroubleshooter(
-    int64_t tilesetId,
+    int64_t tilesetAssetId,
+    int64_t tilesetIonId,
     const std::string& tilesetName,
     int64_t rasterOverlayId,
     const std::string& rasterOverlayName,

@@ -56,8 +56,8 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("get_asset_troubleshooting_details", &ICesiumOmniverseInterface::getAssetTroubleshootingDetails)
         .def("get_asset_token_troubleshooting_details", &ICesiumOmniverseInterface::getAssetTokenTroubleshootingDetails)
         .def("get_default_token_troubleshooting_details", &ICesiumOmniverseInterface::getDefaultTokenTroubleshootingDetails)
-        .def("update_troubleshooting_details", py::overload_cast<int64_t, uint64_t, uint64_t>(&ICesiumOmniverseInterface::updateTroubleshootingDetails))
         .def("update_troubleshooting_details", py::overload_cast<int64_t, int64_t, uint64_t, uint64_t>(&ICesiumOmniverseInterface::updateTroubleshootingDetails))
+        .def("update_troubleshooting_details", py::overload_cast<int64_t, int64_t, int64_t, uint64_t, uint64_t>(&ICesiumOmniverseInterface::updateTroubleshootingDetails))
         .def("reload_tileset", &ICesiumOmniverseInterface::reloadTileset)
         .def("print_fabric_stage", &ICesiumOmniverseInterface::printFabricStage)
         .def("credits_available", &ICesiumOmniverseInterface::creditsAvailable)
@@ -121,7 +121,8 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def_readonly("token", &TokenTroubleshootingDetails::token)
         .def_readonly("is_valid", &TokenTroubleshootingDetails::isValid)
         .def_readonly("allows_access_to_asset", &TokenTroubleshootingDetails::allowsAccessToAsset)
-        .def_readonly("associated_with_user_account", &TokenTroubleshootingDetails::associatedWithUserAccount);
+        .def_readonly("associated_with_user_account", &TokenTroubleshootingDetails::associatedWithUserAccount)
+        .def_readonly("show_details", &TokenTroubleshootingDetails::showDetails);
 
     py::class_<AssetTroubleshootingDetails>(m, "AssetTroubleshootingDetails")
         .def_readonly("asset_id", &AssetTroubleshootingDetails::assetId)

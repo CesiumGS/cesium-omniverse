@@ -18,6 +18,8 @@ void TokenTroubleshooter::updateTokenTroubleshootingDetails(
         return;
     }
 
+    details.showDetails = true;
+
     auto connection = std::make_shared<CesiumIonClient::Connection>(
         session.value()->getAsyncSystem(), session.value()->getAssetAccessor(), token);
 

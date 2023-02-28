@@ -7,6 +7,7 @@
 namespace cesium::omniverse {
 
 class OmniTileset;
+class OmniIonRasterOverlay;
 
 enum AssetType {
     TILESET = 0,
@@ -45,6 +46,7 @@ class AssetRegistry {
 
     void addRasterOverlay(int64_t assetId, const pxr::SdfPath& path, int64_t parentId);
     void setRasterOverlayAssetId(const pxr::SdfPath& path, int64_t assetId);
+    std::optional<OmniIonRasterOverlay> getRasterOverlay(int64_t assetId);
     [[maybe_unused]] std::vector<int64_t> getAllRasterOverlayIds();
     [[maybe_unused]] std::vector<int64_t> getAllRasterOverlayIdsForTileset(int64_t parentId);
 

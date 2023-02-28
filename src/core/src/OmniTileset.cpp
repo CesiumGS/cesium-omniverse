@@ -205,6 +205,7 @@ void OmniTileset::reload() {
         context.getLogger()};
 
     const auto url = getUrl();
+    const auto tilesetId = getId();
     const auto ionAssetId = getIonAssetId();
     const auto ionToken = getIonAccessToken();
     const auto name = getName();
@@ -223,17 +224,18 @@ void OmniTileset::reload() {
     options.enforceCulledScreenSpaceError = getEnforceCulledScreenSpaceError();
     options.culledScreenSpaceError = getCulledScreenSpaceError();
 
-    options.loadErrorCallback = [ionAssetId, name](const Cesium3DTilesSelection::TilesetLoadFailureDetails& error) {
-        // Check for a 401 connecting to Cesium ion, which means the token is invalid
-        // (or perhaps the asset ID is). Also check for a 404, because ion returns 404
-        // when the token is valid but not authorized for the asset.
-        if (error.type == Cesium3DTilesSelection::TilesetLoadType::CesiumIon &&
-            (error.statusCode == 401 || error.statusCode == 404)) {
-            Broadcast::showTroubleshooter(ionAssetId, name, 0, "", error.message);
-        }
+    options.loadErrorCallback =
+        [tilesetId, ionAssetId, name](const Cesium3DTilesSelection::TilesetLoadFailureDetails& error) {
+            // Check for a 401 connecting to Cesium ion, which means the token is invalid
+            // (or perhaps the asset ID is). Also check for a 404, because ion returns 404
+            // when the token is valid but not authorized for the asset.
+            if (error.type == Cesium3DTilesSelection::TilesetLoadType::CesiumIon &&
+                (error.statusCode == 401 || error.statusCode == 404)) {
+                Broadcast::showTroubleshooter(tilesetId, ionAssetId, name, 0, "", error.message);
+            }
 
-        CESIUM_LOG_ERROR(error.message);
-    };
+            CESIUM_LOG_ERROR(error.message);
+        };
 
     _pViewUpdateResult = nullptr;
 
@@ -259,11 +261,12 @@ void OmniTileset::addIonRasterOverlay(const pxr::SdfPath& rasterOverlayPath) {
     const auto rasterOverlayIonToken = rasterOverlay.getIonAccessToken();
     const auto rasterOverlayName = rasterOverlay.getName();
 
+    const auto tilesetId = getId();
     const auto tilesetIonAssetId = getIonAssetId();
     const auto tilesetName = getName();
 
     Cesium3DTilesSelection::RasterOverlayOptions options;
-    options.loadErrorCallback = [tilesetIonAssetId, tilesetName, rasterOverlayIonAssetId, rasterOverlayName](
+    options.loadErrorCallback = [tilesetId, tilesetIonAssetId, tilesetName, rasterOverlayIonAssetId, rasterOverlayName](
                                     const Cesium3DTilesSelection::RasterOverlayLoadFailureDetails& error) {
         // Check for a 401 connecting to Cesium ion, which means the token is invalid
         // (or perhaps the asset ID is). Also check for a 404, because ion returns 404
@@ -273,7 +276,7 @@ void OmniTileset::addIonRasterOverlay(const pxr::SdfPath& rasterOverlayPath) {
         if (error.type == Cesium3DTilesSelection::RasterOverlayLoadType::CesiumIon &&
             (statusCode == 401 || statusCode == 404)) {
             Broadcast::showTroubleshooter(
-                tilesetIonAssetId, tilesetName, rasterOverlayIonAssetId, rasterOverlayName, error.message);
+                tilesetId, tilesetIonAssetId, tilesetName, rasterOverlayIonAssetId, rasterOverlayName, error.message);
         }
 
         CESIUM_LOG_ERROR(error.message);
