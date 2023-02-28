@@ -228,6 +228,9 @@ class ICesiumOmniverseInterface {
      * @returns A string representation of the Fabric stage.
      */
     virtual std::string printFabricStage() noexcept = 0;
+
+    virtual bool shouldShowCreditsOnScreen() noexcept = 0;
+    virtual std::vector<std::string> getHtmlForAllCredits() noexcept = 0;
 };
 
 } // namespace cesium::omniverse

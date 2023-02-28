@@ -1,4 +1,5 @@
 #include "cesium/omniverse/CesiumOmniverse.h"
+#include <Cesium3DTilesSelection/CreditSystem.h>
 
 #include <carb/BindingsPythonUtils.h>
 #include <pxr/base/gf/matrix4d.h>
@@ -58,7 +59,9 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("update_troubleshooting_details", py::overload_cast<int64_t, uint64_t, uint64_t>(&ICesiumOmniverseInterface::updateTroubleshootingDetails))
         .def("update_troubleshooting_details", py::overload_cast<int64_t, int64_t, uint64_t, uint64_t>(&ICesiumOmniverseInterface::updateTroubleshootingDetails))
         .def("reload_tileset", &ICesiumOmniverseInterface::reloadTileset)
-        .def("print_fabric_stage", &ICesiumOmniverseInterface::printFabricStage);
+        .def("print_fabric_stage", &ICesiumOmniverseInterface::printFabricStage)
+        .def("should_show_credits_on_screen", &ICesiumOmniverseInterface::shouldShowCreditsOnScreen)
+        .def("get_html_for_all_credits", &ICesiumOmniverseInterface::getHtmlForAllCredits);
     // clang-format on
 
     py::class_<CesiumIonSession, std::shared_ptr<CesiumIonSession>>(m, "CesiumIonSession")
