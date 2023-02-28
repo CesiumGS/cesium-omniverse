@@ -89,7 +89,7 @@ class CesiumAssetDetailsWidget(ui.ScrollingFrame):
             all_tilesets = self._cesium_omniverse_interface.get_all_tileset_ids_and_paths()
 
             if len(all_tilesets) > 0:
-                tileset_id = all_tilesets[0]
+                tileset_id = all_tilesets[0][0]
             else:
                 self._add_overlay_with_tileset()
                 return
