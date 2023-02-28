@@ -116,7 +116,7 @@ class CesiumOmniverseCreditsWindow(ui.Window):
                             self._logger.info(err)
 
                     ui.Label(credit, height=0, word_wrap=True)
-            except ImportError as e:
+            except Exception as e:
                 self._logger.error(e)
                 self._logger.warning("Performing credits fallback.")
 
