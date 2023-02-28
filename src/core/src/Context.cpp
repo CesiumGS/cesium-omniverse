@@ -531,7 +531,7 @@ void Context::updateTroubleshootingDetails(
 
     _assetTokenTroubleshootingDetails = TokenTroubleshootingDetails();
 
-    auto tilesetIonToken = tileset.value()->getIonToken();
+    auto tilesetIonToken = tileset.value()->getIonAccessToken();
     if (tilesetIonToken.has_value()) {
         troubleshooter.updateTokenTroubleshootingDetails(
             tilesetIonId, tilesetIonToken.value().token, tokenEventId, _assetTokenTroubleshootingDetails.value());
@@ -570,7 +570,7 @@ void Context::updateTroubleshootingDetails(
 
     _assetTokenTroubleshootingDetails = TokenTroubleshootingDetails();
 
-    auto rasterOverlayToken = rasterOverlay.value().getIonToken();
+    auto rasterOverlayToken = rasterOverlay.value().getIonAccessToken();
     if (rasterOverlayToken.has_value()) {
         troubleshooter.updateTokenTroubleshootingDetails(
             rasterOverlayId, rasterOverlayToken.value().token, tokenEventId, _assetTokenTroubleshootingDetails.value());
