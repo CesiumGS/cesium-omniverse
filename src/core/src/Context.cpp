@@ -533,4 +533,24 @@ bool Context::getDebugDisableMaterials() const {
     return _debugDisableMaterials;
 }
 
+bool Context::creditsAvailable() const {
+    auto credits = _creditSystem->getCreditsToShowThisFrame();
+
+    return credits.size() > 0;
+}
+
+std::vector<std::pair<std::string, bool>> Context::getCredits() const {
+    auto credits = _creditSystem->getCreditsToShowThisFrame();
+
+    std::vector<std::pair<std::string, bool>> result;
+    result.reserve(credits.size());
+
+    for (const auto& item : credits) {
+        auto showOnScreen = _creditSystem->shouldBeShownOnScreen(item);
+        result.emplace_back(_creditSystem->getHtml(item), showOnScreen);
+    }
+
+    return result;
+}
+
 } // namespace cesium::omniverse

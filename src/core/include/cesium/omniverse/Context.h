@@ -103,6 +103,9 @@ class Context {
     std::filesystem::path getCertificatePath() const;
     bool getDebugDisableMaterials() const;
 
+    bool creditsAvailable() const;
+    std::vector<std::pair<std::string, bool>> getCredits() const;
+
   private:
     void processUsdNotifications();
 

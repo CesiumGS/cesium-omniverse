@@ -3,6 +3,7 @@ from .utils.utils import wait_n_frames
 from .ui.asset_window import CesiumOmniverseAssetWindow
 from .ui.debug_window import CesiumOmniverseDebugWindow
 from .ui.main_window import CesiumOmniverseMainWindow
+from .ui.credits_viewport_frame import CesiumCreditsViewportFrame
 from .models import AssetToAdd, ImageryToAdd
 import asyncio
 from functools import partial
@@ -12,6 +13,7 @@ import carb.settings as omni_settings
 import omni.ext
 import omni.kit.app as omni_app
 import omni.kit.ui
+import omni.kit.pipapi
 from omni.kit.viewport.utility import get_active_viewport
 import omni.ui as ui
 import omni.usd
@@ -51,6 +53,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._main_window: Optional[CesiumOmniverseMainWindow] = None
         self._asset_window: Optional[CesiumOmniverseAssetWindow] = None
         self._debug_window: Optional[CesiumOmniverseDebugWindow] = None
+        self._credits_viewport_frame: Optional[CesiumCreditsViewportFrame] = None
         self._on_stage_subscription: Optional[carb.events.ISubscription] = None
         self._on_update_subscription: Optional[carb.events.ISubscription] = None
         self._show_asset_window_subscription: Optional[carb.events.ISubscription] = None
@@ -63,6 +66,12 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._adding_assets = False
         self._logger: logging.Logger = logging.getLogger(__name__)
         self._menu = None
+
+        try:
+            # This installs lxml which is needed for credit display.
+            omni.kit.pipapi.install("lxml==4.9.2")
+        except Exception as e:
+            self._logger.error(e)
 
     def on_startup(self):
         # The ability to show up the window if the system requires it. We use it in QuickLayout.
@@ -98,6 +107,8 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         # Show the window. It will call `self.show_window`
         if show_on_startup:
             ui.Workspace.show_window(CesiumOmniverseMainWindow.WINDOW_NAME)
+
+        self._credits_viewport_frame = CesiumCreditsViewportFrame(_cesium_omniverse_interface)
 
         # Subscribe to stage event stream
         usd_context = omni.usd.get_context()
@@ -152,6 +163,10 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         if self._debug_window is not None:
             self._debug_window.destroy()
             self._debug_window = None
+
+        if self._credits_viewport_frame is not None:
+            self._credits_viewport_frame.destroy()
+            self._credits_viewport_frame = None
 
         # Deregister the function that shows the window from omni.ui
         ui.Workspace.set_show_window_fn(
