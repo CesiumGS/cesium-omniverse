@@ -39,33 +39,33 @@ pxr::SdfPath OmniTileset::getPath() const {
 }
 
 std::string OmniTileset::getName() const {
-    auto tileset = UsdUtil::getCesiumTilesetAPI(_tilesetPath);
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
     return tileset.GetPrim().GetName().GetString();
 }
 
 std::string OmniTileset::getUrl() const {
-    auto tileset = UsdUtil::getCesiumTilesetAPI(_tilesetPath);
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     std::string url;
-    tileset.GetTilesetUrlAttr().Get<std::string>(&url);
+    tileset.GetUrlAttr().Get<std::string>(&url);
 
     return url;
 }
 
 int64_t OmniTileset::getIonAssetId() const {
-    auto tileset = UsdUtil::getCesiumTilesetAPI(_tilesetPath);
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     int64_t assetId;
-    tileset.GetTilesetIdAttr().Get<int64_t>(&assetId);
+    tileset.GetIonAssetIdAttr().Get<int64_t>(&assetId);
 
     return assetId;
 }
 
-std::optional<CesiumIonClient::Token> OmniTileset::getIonToken() const {
-    auto tilesetApi = UsdUtil::getCesiumTilesetAPI(_tilesetPath);
+std::optional<CesiumIonClient::Token> OmniTileset::getIonAccessToken() const {
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     std::string ionToken;
-    tilesetApi.GetIonTokenAttr().Get<std::string>(&ionToken);
+    tileset.GetIonAccessTokenAttr().Get<std::string>(&ionToken);
 
     if (ionToken.empty()) {
         return Context::instance().getDefaultToken();
@@ -75,6 +75,114 @@ std::optional<CesiumIonClient::Token> OmniTileset::getIonToken() const {
     t.token = ionToken;
 
     return t;
+}
+
+float OmniTileset::getMaximumScreenSpaceError() const {
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+
+    float maximumScreenSpaceError;
+    tileset.GetMaximumScreenSpaceErrorAttr().Get<float>(&maximumScreenSpaceError);
+
+    return maximumScreenSpaceError;
+}
+
+bool OmniTileset::getPreloadAncestors() const {
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+
+    bool preloadAncestors;
+    tileset.GetPreloadAncestorsAttr().Get<bool>(&preloadAncestors);
+
+    return preloadAncestors;
+}
+
+bool OmniTileset::getPreloadSiblings() const {
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+
+    bool preloadSiblings;
+    tileset.GetPreloadSiblingsAttr().Get<bool>(&preloadSiblings);
+
+    return preloadSiblings;
+}
+
+bool OmniTileset::getForbidHoles() const {
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+
+    bool forbidHoles;
+    tileset.GetForbidHolesAttr().Get<bool>(&forbidHoles);
+
+    return forbidHoles;
+}
+
+uint32_t OmniTileset::getMaximumSimultaneousTileLoads() const {
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+
+    uint32_t maximumSimultaneousTileLoads;
+    tileset.GetMaximumSimultaneousTileLoadsAttr().Get<uint32_t>(&maximumSimultaneousTileLoads);
+
+    return maximumSimultaneousTileLoads;
+}
+
+uint64_t OmniTileset::getMaximumCachedBytes() const {
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+
+    uint64_t maximumCachedBytes;
+    tileset.GetMaximumCachedBytesAttr().Get<uint64_t>(&maximumCachedBytes);
+
+    return maximumCachedBytes;
+}
+
+uint32_t OmniTileset::getLoadingDescendantLimit() const {
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+
+    uint32_t loadingDescendantLimit;
+    tileset.GetLoadingDescendantLimitAttr().Get<uint32_t>(&loadingDescendantLimit);
+
+    return loadingDescendantLimit;
+}
+
+bool OmniTileset::getEnableFrustumCulling() const {
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+
+    bool enableFrustumCulling;
+    tileset.GetEnableFrustumCullingAttr().Get<bool>(&enableFrustumCulling);
+
+    return enableFrustumCulling;
+}
+
+bool OmniTileset::getEnableFogCulling() const {
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+
+    bool enableFogCulling;
+    tileset.GetEnableFogCullingAttr().Get<bool>(&enableFogCulling);
+
+    return enableFogCulling;
+}
+
+bool OmniTileset::getEnforceCulledScreenSpaceError() const {
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+
+    bool enforceCulledScreenSpaceError;
+    tileset.GetEnforceCulledScreenSpaceErrorAttr().Get<bool>(&enforceCulledScreenSpaceError);
+
+    return enforceCulledScreenSpaceError;
+}
+
+float OmniTileset::getCulledScreenSpaceError() const {
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+
+    float culledScreenSpaceError;
+    tileset.GetCulledScreenSpaceErrorAttr().Get<float>(&culledScreenSpaceError);
+
+    return culledScreenSpaceError;
+}
+
+bool OmniTileset::getSuspendUpdate() const {
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+
+    bool suspendUpdate;
+    tileset.GetSuspendUpdateAttr().Get<bool>(&suspendUpdate);
+
+    return suspendUpdate;
 }
 
 int64_t OmniTileset::getId() const {
@@ -98,13 +206,22 @@ void OmniTileset::reload() {
 
     const auto url = getUrl();
     const auto ionAssetId = getIonAssetId();
-    const auto ionToken = getIonToken();
+    const auto ionToken = getIonAccessToken();
     const auto name = getName();
 
     Cesium3DTilesSelection::TilesetOptions options;
-    options.forbidHoles = true;
-    options.maximumSimultaneousTileLoads = 10;
-    options.loadingDescendantLimit = 10;
+
+    options.maximumScreenSpaceError = static_cast<double>(getMaximumScreenSpaceError());
+    options.preloadAncestors = getPreloadAncestors();
+    options.preloadSiblings = getPreloadSiblings();
+    options.forbidHoles = getForbidHoles();
+    options.maximumSimultaneousTileLoads = getMaximumSimultaneousTileLoads();
+    options.maximumCachedBytes = static_cast<int64_t>(getMaximumCachedBytes());
+    options.loadingDescendantLimit = getLoadingDescendantLimit();
+    options.enableFrustumCulling = getEnableFrustumCulling();
+    options.enableFogCulling = getEnableFogCulling();
+    options.enforceCulledScreenSpaceError = getEnforceCulledScreenSpaceError();
+    options.culledScreenSpaceError = getCulledScreenSpaceError();
 
     options.loadErrorCallback = [ionAssetId, name](const Cesium3DTilesSelection::TilesetLoadFailureDetails& error) {
         // Check for a 401 connecting to Cesium ion, which means the token is invalid
@@ -139,7 +256,7 @@ void OmniTileset::reload() {
 void OmniTileset::addIonRasterOverlay(const pxr::SdfPath& rasterOverlayPath) {
     const OmniIonRasterOverlay rasterOverlay(rasterOverlayPath);
     const auto rasterOverlayIonAssetId = rasterOverlay.getIonAssetId();
-    const auto rasterOverlayIonToken = rasterOverlay.getIonToken();
+    const auto rasterOverlayIonToken = rasterOverlay.getIonAccessToken();
     const auto rasterOverlayName = rasterOverlay.getName();
 
     const auto tilesetIonAssetId = getIonAssetId();
@@ -199,7 +316,7 @@ void OmniTileset::updateTransform() {
 void OmniTileset::updateView(const std::vector<Cesium3DTilesSelection::ViewState>& viewStates) {
     // TODO: should we be requesting tiles if the tileset is invisible? What do Unreal/Unity do?
 
-    if (!_suspendUpdate) {
+    if (!getSuspendUpdate()) {
         // Go ahead and select some tiles
         _pViewUpdateResult = &_tileset->updateView(viewStates);
     }

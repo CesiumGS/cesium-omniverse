@@ -120,47 +120,47 @@ private:
 
 public:
     // --------------------------------------------------------------------- //
-    // DEFAULTPROJECTTOKENID 
+    // DEFAULTPROJECTIONACCESSTOKEN
     // --------------------------------------------------------------------- //
-    /// A string representing the token ID for accessing Cesium ion tilesets.
+    /// A string representing the token for accessing Cesium ion assets.
     ///
     /// | ||
     /// | -- | -- |
-    /// | Declaration | `string cesium:defaultProjectTokenId = ""` |
+    /// | Declaration | `string cesium:defaultProjectIonAccessToken = ""` |
     /// | C++ Type | std::string |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
-    UsdAttribute GetDefaultProjectTokenIdAttr() const;
+    UsdAttribute GetDefaultProjectIonAccessTokenAttr() const;
 
-    /// See GetDefaultProjectTokenIdAttr(), and also 
+    /// See GetDefaultProjectIonAccessTokenAttr(), and also
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    UsdAttribute CreateDefaultProjectTokenIdAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+    UsdAttribute CreateDefaultProjectIonAccessTokenAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // --------------------------------------------------------------------- //
-    // DEFAULTPROJECTTOKEN 
+    // DEFAULTPROJECTIONACCESSTOKENID
     // --------------------------------------------------------------------- //
-    /// A string representing a token for accessing Cesium ion tilesets.
+    /// A string representing the token ID for accessing Cesium ion assets.
     ///
     /// | ||
     /// | -- | -- |
-    /// | Declaration | `string cesium:defaultProjectToken = ""` |
+    /// | Declaration | `string cesium:defaultProjectIonAccessTokenId = ""` |
     /// | C++ Type | std::string |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
-    UsdAttribute GetDefaultProjectTokenAttr() const;
+    UsdAttribute GetDefaultProjectIonAccessTokenIdAttr() const;
 
-    /// See GetDefaultProjectTokenAttr(), and also 
+    /// See GetDefaultProjectIonAccessTokenIdAttr(), and also
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    UsdAttribute CreateDefaultProjectTokenAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+    UsdAttribute CreateDefaultProjectIonAccessTokenIdAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // --------------------------------------------------------------------- //
-    // GEOREFERENCEORIGIN 
+    // GEOREFERENCEORIGIN
     // --------------------------------------------------------------------- //
     /// Specifies a Georeference origin point for Cesium in Longitude, Latitude, and Height
     ///
@@ -171,7 +171,7 @@ public:
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double3 |
     UsdAttribute GetGeoreferenceOriginAttr() const;
 
-    /// See GetGeoreferenceOriginAttr(), and also 
+    /// See GetGeoreferenceOriginAttr(), and also
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
@@ -180,11 +180,11 @@ public:
 
 public:
     // ===================================================================== //
-    // Feel free to add custom code below this line, it will be preserved by 
-    // the code generator. 
+    // Feel free to add custom code below this line, it will be preserved by
+    // the code generator.
     //
-    // Just remember to: 
-    //  - Close the class declaration with }; 
+    // Just remember to:
+    //  - Close the class declaration with };
     //  - Close the namespace with PXR_NAMESPACE_CLOSE_SCOPE
     //  - Close the include guard with #endif
     // ===================================================================== //

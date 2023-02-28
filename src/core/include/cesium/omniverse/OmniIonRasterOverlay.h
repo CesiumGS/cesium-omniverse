@@ -11,7 +11,7 @@ class OmniIonRasterOverlay {
     pxr::SdfPath getPath() const;
     std::string getName() const;
     int64_t getIonAssetId() const;
-    std::optional<CesiumIonClient::Token> getIonToken() const;
+    std::optional<CesiumIonClient::Token> getIonAccessToken() const;
 
   private:
     pxr::SdfPath _path;

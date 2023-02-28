@@ -9,7 +9,7 @@ namespace {
 ChangedPrimType getType(const pxr::SdfPath& path) {
     if (UsdUtil::isCesiumData(path)) {
         return ChangedPrimType::CESIUM_DATA;
-    } else if (UsdUtil::isCesiumTilesetAPI(path)) {
+    } else if (UsdUtil::isCesiumTileset(path)) {
         return ChangedPrimType::CESIUM_TILESET;
     } else if (UsdUtil::isCesiumRasterOverlay(path)) {
         return ChangedPrimType::CESIUM_RASTER_OVERLAY;

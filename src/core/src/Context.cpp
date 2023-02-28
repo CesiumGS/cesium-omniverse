@@ -144,8 +144,8 @@ void Context::addCesiumDataIfNotExists(const CesiumIonClient::Token& token) {
 
     if (!token.token.empty()) {
         auto cesiumDataUsd = UsdUtil::getCesiumData(CesiumDataPath);
-        cesiumDataUsd.GetDefaultProjectTokenAttr().Set<std::string>(token.token);
-        cesiumDataUsd.GetDefaultProjectTokenIdAttr().Set<std::string>(token.id);
+        cesiumDataUsd.GetDefaultProjectIonAccessTokenAttr().Set<std::string>(token.token);
+        cesiumDataUsd.GetDefaultProjectIonAccessTokenIdAttr().Set<std::string>(token.id);
     }
 }
 
@@ -154,9 +154,22 @@ int64_t Context::addTilesetUrl(const std::string& url) {
     const auto tilesetId = _tilesetId++;
     const auto tilesetName = fmt::format("tileset_{}", tilesetId);
     const auto tilesetPath = UsdUtil::getPathUnique(UsdUtil::getRootPath(), tilesetName);
-    const auto tilesetUsd = UsdUtil::defineCesiumTilesetAPI(tilesetPath);
+    const auto tilesetUsd = UsdUtil::defineCesiumTileset(tilesetPath);
 
-    tilesetUsd.GetTilesetUrlAttr().Set<std::string>(url);
+    tilesetUsd.GetUrlAttr().Set<std::string>(url);
+
+    tilesetUsd.GetMaximumScreenSpaceErrorAttr().Set<float>(16.0f);
+    tilesetUsd.GetPreloadAncestorsAttr().Set<bool>(true);
+    tilesetUsd.GetPreloadSiblingsAttr().Set<bool>(true);
+    tilesetUsd.GetForbidHolesAttr().Set<bool>(false);
+    tilesetUsd.GetMaximumSimultaneousTileLoadsAttr().Set<uint32_t>(20);
+    tilesetUsd.GetMaximumCachedBytesAttr().Set<uint64_t>(536870912);
+    tilesetUsd.GetLoadingDescendantLimitAttr().Set<uint32_t>(20);
+    tilesetUsd.GetEnableFrustumCullingAttr().Set<bool>(true);
+    tilesetUsd.GetEnableFogCullingAttr().Set<bool>(true);
+    tilesetUsd.GetEnforceCulledScreenSpaceErrorAttr().Set<bool>(true);
+    tilesetUsd.GetCulledScreenSpaceErrorAttr().Set<float>(64.0f);
+    tilesetUsd.GetSuspendUpdateAttr().Set<bool>(false);
 
     AssetRegistry::getInstance().addTileset(tilesetId, tilesetPath);
     return tilesetId;
@@ -167,10 +180,23 @@ int64_t Context::addTilesetIon([[maybe_unused]] const std::string& name, int64_t
     const auto tilesetId = _tilesetId++;
     const auto tilesetName = fmt::format("tileset_ion_{}", ionId);
     const auto tilesetPath = UsdUtil::getPathUnique(UsdUtil::getRootPath(), tilesetName);
-    const auto tilesetUsd = UsdUtil::defineCesiumTilesetAPI(tilesetPath);
+    const auto tilesetUsd = UsdUtil::defineCesiumTileset(tilesetPath);
 
-    tilesetUsd.GetTilesetIdAttr().Set<int64_t>(ionId);
-    tilesetUsd.GetIonTokenAttr().Set<std::string>(ionToken);
+    tilesetUsd.GetIonAssetIdAttr().Set<int64_t>(ionId);
+    tilesetUsd.GetIonAccessTokenAttr().Set<std::string>(ionToken);
+
+    tilesetUsd.GetMaximumScreenSpaceErrorAttr().Set<float>(16.0f);
+    tilesetUsd.GetPreloadAncestorsAttr().Set<bool>(true);
+    tilesetUsd.GetPreloadSiblingsAttr().Set<bool>(true);
+    tilesetUsd.GetForbidHolesAttr().Set<bool>(false);
+    tilesetUsd.GetMaximumSimultaneousTileLoadsAttr().Set<uint32_t>(20);
+    tilesetUsd.GetMaximumCachedBytesAttr().Set<uint64_t>(536870912);
+    tilesetUsd.GetLoadingDescendantLimitAttr().Set<uint32_t>(20);
+    tilesetUsd.GetEnableFrustumCullingAttr().Set<bool>(true);
+    tilesetUsd.GetEnableFogCullingAttr().Set<bool>(true);
+    tilesetUsd.GetEnforceCulledScreenSpaceErrorAttr().Set<bool>(true);
+    tilesetUsd.GetCulledScreenSpaceErrorAttr().Set<float>(64.0f);
+    tilesetUsd.GetSuspendUpdateAttr().Set<bool>(false);
 
     AssetRegistry::getInstance().addTileset(tilesetId, tilesetPath);
     return tilesetId;
@@ -192,8 +218,8 @@ void Context::addIonRasterOverlay(
     auto path = UsdUtil::getPathUnique(tileset.value()->getPath(), safeName);
     auto rasterOverlayUsd = UsdUtil::defineCesiumRasterOverlay(path);
 
-    rasterOverlayUsd.GetRasterOverlayIdAttr().Set<int64_t>(ionId);
-    rasterOverlayUsd.GetIonTokenAttr().Set<std::string>(ionToken);
+    rasterOverlayUsd.GetIonAssetIdAttr().Set<int64_t>(ionId);
+    rasterOverlayUsd.GetIonAccessTokenAttr().Set<std::string>(ionToken);
 
     tileset.value()->addIonRasterOverlay(path);
 
@@ -246,11 +272,11 @@ void Context::processUsdNotifications() {
         const auto& [path, name, type] = changedProperty;
 
         if (type == ChangedPrimType::CESIUM_DATA) {
-            if (name == pxr::CesiumTokens->cesiumDefaultProjectToken) {
+            if (name == pxr::CesiumTokens->cesiumDefaultProjectIonAccessToken) {
                 // Any tilesets that use the default token are reloaded when it changes
                 const auto tilesets = AssetRegistry::getInstance().getAllTilesets();
                 for (const auto& tileset : tilesets) {
-                    const auto tilesetToken = tileset->getIonToken();
+                    const auto tilesetToken = tileset->getIonAccessToken();
                     const auto defaultToken = Context::instance().getDefaultToken();
                     if (!tilesetToken.has_value() || tilesetToken.value().token == defaultToken.value().token) {
                         tilesetsToReload.emplace(tileset);
@@ -261,16 +287,28 @@ void Context::processUsdNotifications() {
             // Reload the tileset. No need to update the asset registry because tileset assets do not store the asset id.
             const auto tileset = AssetRegistry::getInstance().getTileset(path.GetString());
             if (tileset.has_value()) {
-                if (name == pxr::CesiumTokens->cesiumTilesetId) {
-                    tilesetsToReload.emplace(tileset.value());
-                } else if (name == pxr::CesiumTokens->cesiumIonToken) {
+                // clang-format off
+                if (name == pxr::CesiumTokens->cesiumIonAssetId ||
+                    name == pxr::CesiumTokens->cesiumIonAccessToken ||
+                    name == pxr::CesiumTokens->cesiumMaximumScreenSpaceError ||
+                    name == pxr::CesiumTokens->cesiumPreloadAncestors ||
+                    name == pxr::CesiumTokens->cesiumPreloadSiblings ||
+                    name == pxr::CesiumTokens->cesiumForbidHoles ||
+                    name == pxr::CesiumTokens->cesiumMaximumSimultaneousTileLoads ||
+                    name == pxr::CesiumTokens->cesiumMaximumCachedBytes ||
+                    name == pxr::CesiumTokens->cesiumLoadingDescendantLimit ||
+                    name == pxr::CesiumTokens->cesiumEnableFrustumCulling ||
+                    name == pxr::CesiumTokens->cesiumEnableFogCulling ||
+                    name == pxr::CesiumTokens->cesiumEnforceCulledScreenSpaceError ||
+                    name == pxr::CesiumTokens->cesiumCulledScreenSpaceError) {
                     tilesetsToReload.emplace(tileset.value());
                 }
+                // clang-format on
             }
         } else if (type == ChangedPrimType::CESIUM_RASTER_OVERLAY) {
             const auto tileset = AssetRegistry::getInstance().getTilesetFromRasterOverlay(path.GetString());
             if (tileset.has_value()) {
-                if (name == pxr::CesiumTokens->cesiumRasterOverlayId) {
+                if (name == pxr::CesiumTokens->cesiumIonAssetId) {
                     // Update the asset registry because the asset id changed
                     OmniIonRasterOverlay ionRasterOverlay(path);
                     const auto assetId = ionRasterOverlay.getIonAssetId();
@@ -278,7 +316,7 @@ void Context::processUsdNotifications() {
 
                     // Reload the tileset that this raster overlay is attached to
                     tilesetsToReload.emplace(tileset.value());
-                } else if (name == pxr::CesiumTokens->cesiumIonToken) {
+                } else if (name == pxr::CesiumTokens->cesiumIonAccessToken) {
                     // Reload the tileset that this raster overlay is attached to
                     tilesetsToReload.emplace(tileset.value());
                 }
@@ -380,9 +418,9 @@ std::optional<CesiumIonClient::Token> Context::getDefaultToken() const {
 
     const auto cesiumDataUsd = UsdUtil::getCesiumData(CesiumDataPath);
     std::string projectDefaultToken;
-    cesiumDataUsd.GetDefaultProjectTokenAttr().Get(&projectDefaultToken);
+    cesiumDataUsd.GetDefaultProjectIonAccessTokenAttr().Get(&projectDefaultToken);
     std::string projectDefaultTokenId;
-    cesiumDataUsd.GetDefaultProjectTokenIdAttr().Get(&projectDefaultTokenId);
+    cesiumDataUsd.GetDefaultProjectIonAccessTokenIdAttr().Get(&projectDefaultTokenId);
 
     return CesiumIonClient::Token{projectDefaultTokenId, "", projectDefaultToken};
 }

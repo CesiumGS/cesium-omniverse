@@ -27,24 +27,108 @@ WRAP_CUSTOM;
 
         
 static UsdAttribute
-_CreateTilesetIdAttr(CesiumTilesetAPI &self,
+_CreateUrlAttr(CesiumTilesetAPI &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateTilesetIdAttr(
+    return self.CreateUrlAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateIonAssetIdAttr(CesiumTilesetAPI &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateIonAssetIdAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int64), writeSparsely);
 }
         
 static UsdAttribute
-_CreateTilesetUrlAttr(CesiumTilesetAPI &self,
+_CreateIonAccessTokenAttr(CesiumTilesetAPI &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateTilesetUrlAttr(
+    return self.CreateIonAccessTokenAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
-_CreateIonTokenAttr(CesiumTilesetAPI &self,
+_CreateMaximumScreenSpaceErrorAttr(CesiumTilesetAPI &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateIonTokenAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+    return self.CreateMaximumScreenSpaceErrorAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Float), writeSparsely);
+}
+        
+static UsdAttribute
+_CreatePreloadAncestorsAttr(CesiumTilesetAPI &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreatePreloadAncestorsAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+}
+        
+static UsdAttribute
+_CreatePreloadSiblingsAttr(CesiumTilesetAPI &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreatePreloadSiblingsAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateForbidHolesAttr(CesiumTilesetAPI &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateForbidHolesAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateMaximumSimultaneousTileLoadsAttr(CesiumTilesetAPI &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateMaximumSimultaneousTileLoadsAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->UInt), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateMaximumCachedBytesAttr(CesiumTilesetAPI &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateMaximumCachedBytesAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->UInt64), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateLoadingDescendantLimitAttr(CesiumTilesetAPI &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateLoadingDescendantLimitAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->UInt), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateEnableFrustumCullingAttr(CesiumTilesetAPI &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateEnableFrustumCullingAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateEnableFogCullingAttr(CesiumTilesetAPI &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateEnableFogCullingAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateEnforceCulledScreenSpaceErrorAttr(CesiumTilesetAPI &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateEnforceCulledScreenSpaceErrorAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateCulledScreenSpaceErrorAttr(CesiumTilesetAPI &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateCulledScreenSpaceErrorAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Float), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateSuspendUpdateAttr(CesiumTilesetAPI &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateSuspendUpdateAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
 
 static std::string
@@ -89,24 +173,108 @@ void wrapCesiumTilesetAPI()
         .def(!self)
 
         
-        .def("GetTilesetIdAttr",
-             &This::GetTilesetIdAttr)
-        .def("CreateTilesetIdAttr",
-             &_CreateTilesetIdAttr,
+        .def("GetUrlAttr",
+             &This::GetUrlAttr)
+        .def("CreateUrlAttr",
+             &_CreateUrlAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetTilesetUrlAttr",
-             &This::GetTilesetUrlAttr)
-        .def("CreateTilesetUrlAttr",
-             &_CreateTilesetUrlAttr,
+        .def("GetIonAssetIdAttr",
+             &This::GetIonAssetIdAttr)
+        .def("CreateIonAssetIdAttr",
+             &_CreateIonAssetIdAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetIonTokenAttr",
-             &This::GetIonTokenAttr)
-        .def("CreateIonTokenAttr",
-             &_CreateIonTokenAttr,
+        .def("GetIonAccessTokenAttr",
+             &This::GetIonAccessTokenAttr)
+        .def("CreateIonAccessTokenAttr",
+             &_CreateIonAccessTokenAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetMaximumScreenSpaceErrorAttr",
+             &This::GetMaximumScreenSpaceErrorAttr)
+        .def("CreateMaximumScreenSpaceErrorAttr",
+             &_CreateMaximumScreenSpaceErrorAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetPreloadAncestorsAttr",
+             &This::GetPreloadAncestorsAttr)
+        .def("CreatePreloadAncestorsAttr",
+             &_CreatePreloadAncestorsAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetPreloadSiblingsAttr",
+             &This::GetPreloadSiblingsAttr)
+        .def("CreatePreloadSiblingsAttr",
+             &_CreatePreloadSiblingsAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetForbidHolesAttr",
+             &This::GetForbidHolesAttr)
+        .def("CreateForbidHolesAttr",
+             &_CreateForbidHolesAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetMaximumSimultaneousTileLoadsAttr",
+             &This::GetMaximumSimultaneousTileLoadsAttr)
+        .def("CreateMaximumSimultaneousTileLoadsAttr",
+             &_CreateMaximumSimultaneousTileLoadsAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetMaximumCachedBytesAttr",
+             &This::GetMaximumCachedBytesAttr)
+        .def("CreateMaximumCachedBytesAttr",
+             &_CreateMaximumCachedBytesAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetLoadingDescendantLimitAttr",
+             &This::GetLoadingDescendantLimitAttr)
+        .def("CreateLoadingDescendantLimitAttr",
+             &_CreateLoadingDescendantLimitAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetEnableFrustumCullingAttr",
+             &This::GetEnableFrustumCullingAttr)
+        .def("CreateEnableFrustumCullingAttr",
+             &_CreateEnableFrustumCullingAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetEnableFogCullingAttr",
+             &This::GetEnableFogCullingAttr)
+        .def("CreateEnableFogCullingAttr",
+             &_CreateEnableFogCullingAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetEnforceCulledScreenSpaceErrorAttr",
+             &This::GetEnforceCulledScreenSpaceErrorAttr)
+        .def("CreateEnforceCulledScreenSpaceErrorAttr",
+             &_CreateEnforceCulledScreenSpaceErrorAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetCulledScreenSpaceErrorAttr",
+             &This::GetCulledScreenSpaceErrorAttr)
+        .def("CreateCulledScreenSpaceErrorAttr",
+             &_CreateCulledScreenSpaceErrorAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetSuspendUpdateAttr",
+             &This::GetSuspendUpdateAttr)
+        .def("CreateSuspendUpdateAttr",
+             &_CreateSuspendUpdateAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 

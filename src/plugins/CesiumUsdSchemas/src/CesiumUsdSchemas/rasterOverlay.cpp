@@ -15,10 +15,10 @@ TF_REGISTRY_FUNCTION(TfType)
     
     // Register the usd prim typename as an alias under UsdSchemaBase. This
     // enables one to call
-    // TfType::Find<UsdSchemaBase>().FindDerivedByName("RasterOverlay")
+    // TfType::Find<UsdSchemaBase>().FindDerivedByName("CesiumRasterOverlayPrim")
     // to find TfType<CesiumRasterOverlay>, which is how IsA queries are
     // answered.
-    TfType::AddAlias<UsdSchemaBase, CesiumRasterOverlay>("RasterOverlay");
+    TfType::AddAlias<UsdSchemaBase, CesiumRasterOverlay>("CesiumRasterOverlayPrim");
 }
 
 /* virtual */
@@ -42,7 +42,7 @@ CesiumRasterOverlay
 CesiumRasterOverlay::Define(
     const UsdStagePtr &stage, const SdfPath &path)
 {
-    static TfToken usdPrimTypeName("RasterOverlay");
+    static TfToken usdPrimTypeName("CesiumRasterOverlayPrim");
     if (!stage) {
         TF_CODING_ERROR("Invalid stage");
         return CesiumRasterOverlay();
@@ -80,15 +80,15 @@ CesiumRasterOverlay::_GetTfType() const
 }
 
 UsdAttribute
-CesiumRasterOverlay::GetRasterOverlayIdAttr() const
+CesiumRasterOverlay::GetIonAssetIdAttr() const
 {
-    return GetPrim().GetAttribute(CesiumTokens->cesiumRasterOverlayId);
+    return GetPrim().GetAttribute(CesiumTokens->cesiumIonAssetId);
 }
 
 UsdAttribute
-CesiumRasterOverlay::CreateRasterOverlayIdAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumRasterOverlay::CreateIonAssetIdAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
-    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumRasterOverlayId,
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumIonAssetId,
                        SdfValueTypeNames->Int64,
                        /* custom = */ false,
                        SdfVariabilityVarying,
@@ -97,15 +97,15 @@ CesiumRasterOverlay::CreateRasterOverlayIdAttr(VtValue const &defaultValue, bool
 }
 
 UsdAttribute
-CesiumRasterOverlay::GetIonTokenAttr() const
+CesiumRasterOverlay::GetIonAccessTokenAttr() const
 {
-    return GetPrim().GetAttribute(CesiumTokens->cesiumIonToken);
+    return GetPrim().GetAttribute(CesiumTokens->cesiumIonAccessToken);
 }
 
 UsdAttribute
-CesiumRasterOverlay::CreateIonTokenAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumRasterOverlay::CreateIonAccessTokenAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
-    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumIonToken,
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumIonAccessToken,
                        SdfValueTypeNames->String,
                        /* custom = */ false,
                        SdfVariabilityVarying,
@@ -130,8 +130,8 @@ const TfTokenVector&
 CesiumRasterOverlay::GetSchemaAttributeNames(bool includeInherited)
 {
     static TfTokenVector localNames = {
-        CesiumTokens->cesiumRasterOverlayId,
-        CesiumTokens->cesiumIonToken,
+        CesiumTokens->cesiumIonAssetId,
+        CesiumTokens->cesiumIonAccessToken,
     };
     static TfTokenVector allNames =
         _ConcatenateAttributeNames(

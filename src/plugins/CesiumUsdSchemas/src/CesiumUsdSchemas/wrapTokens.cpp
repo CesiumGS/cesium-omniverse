@@ -41,11 +41,22 @@ void wrapCesiumTokens()
 {
     boost::python::class_<CesiumTokensType, boost::noncopyable>
         cls("Tokens", boost::python::no_init);
-    _AddToken(cls, "cesiumDefaultProjectToken", CesiumTokens->cesiumDefaultProjectToken);
-    _AddToken(cls, "cesiumDefaultProjectTokenId", CesiumTokens->cesiumDefaultProjectTokenId);
+    _AddToken(cls, "cesiumCulledScreenSpaceError", CesiumTokens->cesiumCulledScreenSpaceError);
+    _AddToken(cls, "cesiumDefaultProjectIonAccessToken", CesiumTokens->cesiumDefaultProjectIonAccessToken);
+    _AddToken(cls, "cesiumDefaultProjectIonAccessTokenId", CesiumTokens->cesiumDefaultProjectIonAccessTokenId);
+    _AddToken(cls, "cesiumEnableFogCulling", CesiumTokens->cesiumEnableFogCulling);
+    _AddToken(cls, "cesiumEnableFrustumCulling", CesiumTokens->cesiumEnableFrustumCulling);
+    _AddToken(cls, "cesiumEnforceCulledScreenSpaceError", CesiumTokens->cesiumEnforceCulledScreenSpaceError);
+    _AddToken(cls, "cesiumForbidHoles", CesiumTokens->cesiumForbidHoles);
     _AddToken(cls, "cesiumGeoreferenceOrigin", CesiumTokens->cesiumGeoreferenceOrigin);
-    _AddToken(cls, "cesiumIonToken", CesiumTokens->cesiumIonToken);
-    _AddToken(cls, "cesiumRasterOverlayId", CesiumTokens->cesiumRasterOverlayId);
-    _AddToken(cls, "cesiumTilesetId", CesiumTokens->cesiumTilesetId);
-    _AddToken(cls, "cesiumTilesetUrl", CesiumTokens->cesiumTilesetUrl);
+    _AddToken(cls, "cesiumIonAccessToken", CesiumTokens->cesiumIonAccessToken);
+    _AddToken(cls, "cesiumIonAssetId", CesiumTokens->cesiumIonAssetId);
+    _AddToken(cls, "cesiumLoadingDescendantLimit", CesiumTokens->cesiumLoadingDescendantLimit);
+    _AddToken(cls, "cesiumMaximumCachedBytes", CesiumTokens->cesiumMaximumCachedBytes);
+    _AddToken(cls, "cesiumMaximumScreenSpaceError", CesiumTokens->cesiumMaximumScreenSpaceError);
+    _AddToken(cls, "cesiumMaximumSimultaneousTileLoads", CesiumTokens->cesiumMaximumSimultaneousTileLoads);
+    _AddToken(cls, "cesiumPreloadAncestors", CesiumTokens->cesiumPreloadAncestors);
+    _AddToken(cls, "cesiumPreloadSiblings", CesiumTokens->cesiumPreloadSiblings);
+    _AddToken(cls, "cesiumSuspendUpdate", CesiumTokens->cesiumSuspendUpdate);
+    _AddToken(cls, "cesiumUrl", CesiumTokens->cesiumUrl);
 }
