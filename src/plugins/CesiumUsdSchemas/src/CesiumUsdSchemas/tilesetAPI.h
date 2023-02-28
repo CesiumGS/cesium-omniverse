@@ -1,7 +1,7 @@
-#ifndef CESIUM_GENERATED_TILESET_H
-#define CESIUM_GENERATED_TILESET_H
+#ifndef CESIUM_GENERATED_TILESETAPI_H
+#define CESIUM_GENERATED_TILESETAPI_H
 
-/// \file cesium/tileset.h
+/// \file cesium/tilesetAPI.h
 
 #include "pxr/pxr.h"
 #include ".//api.h"
@@ -24,14 +24,14 @@ PXR_NAMESPACE_OPEN_SCOPE
 class SdfAssetPath;
 
 // -------------------------------------------------------------------------- //
-// CESIUMTILESETAPI                                                           //
+// CESIUMTILESETSCHEMAAPI                                                     //
 // -------------------------------------------------------------------------- //
 
-/// \class CesiumTileset
+/// \class CesiumTilesetAPI
 ///
 /// Adds Cesium specific data to a prim for representing a tileset.
 ///
-class CESIUM_API CesiumTileset : public UsdAPISchemaBase
+class CESIUM_API CesiumTilesetAPI : public UsdAPISchemaBase
 {
 public:
     /// Compile time constant representing what kind of schema this class is.
@@ -39,25 +39,25 @@ public:
     /// \sa UsdSchemaType
     static const UsdSchemaType schemaType = UsdSchemaType::SingleApplyAPI;
 
-    /// Construct a CesiumTileset on UsdPrim \p prim .
-    /// Equivalent to CesiumTileset::Get(prim.GetStage(), prim.GetPath())
+    /// Construct a CesiumTilesetAPI on UsdPrim \p prim .
+    /// Equivalent to CesiumTilesetAPI::Get(prim.GetStage(), prim.GetPath())
     /// for a \em valid \p prim, but will not immediately throw an error for
     /// an invalid \p prim
-    explicit CesiumTileset(const UsdPrim& prim=UsdPrim())
+    explicit CesiumTilesetAPI(const UsdPrim& prim=UsdPrim())
         : UsdAPISchemaBase(prim)
     {
     }
 
-    /// Construct a CesiumTileset on the prim held by \p schemaObj .
-    /// Should be preferred over CesiumTileset(schemaObj.GetPrim()),
+    /// Construct a CesiumTilesetAPI on the prim held by \p schemaObj .
+    /// Should be preferred over CesiumTilesetAPI(schemaObj.GetPrim()),
     /// as it preserves SchemaBase state.
-    explicit CesiumTileset(const UsdSchemaBase& schemaObj)
+    explicit CesiumTilesetAPI(const UsdSchemaBase& schemaObj)
         : UsdAPISchemaBase(schemaObj)
     {
     }
 
     /// Destructor.
-    virtual ~CesiumTileset();
+    virtual ~CesiumTilesetAPI();
 
     /// Return a vector of names of all pre-declared attributes for this schema
     /// class and all its ancestor classes.  Does not include attributes that
@@ -65,25 +65,25 @@ public:
     static const TfTokenVector &
     GetSchemaAttributeNames(bool includeInherited=true);
 
-    /// Return a CesiumTileset holding the prim adhering to this
+    /// Return a CesiumTilesetAPI holding the prim adhering to this
     /// schema at \p path on \p stage.  If no prim exists at \p path on
     /// \p stage, or if the prim at that path does not adhere to this schema,
     /// return an invalid schema object.  This is shorthand for the following:
     ///
     /// \code
-    /// CesiumTileset(stage->GetPrimAtPath(path));
+    /// CesiumTilesetAPI(stage->GetPrimAtPath(path));
     /// \endcode
     ///
-    static CesiumTileset
+    static CesiumTilesetAPI
     Get(const UsdStagePtr &stage, const SdfPath &path);
 
 
     /// Applies this <b>single-apply</b> API schema to the given \p prim.
-    /// This information is stored by adding "CesiumTilesetAPI" to the
+    /// This information is stored by adding "CesiumTilesetSchemaAPI" to the
     /// token-valued, listOp metadata \em apiSchemas on the prim.
     ///
-    /// \return A valid CesiumTileset object is returned upon success.
-    /// An invalid (or empty) CesiumTileset object is returned upon
+    /// \return A valid CesiumTilesetAPI object is returned upon success.
+    /// An invalid (or empty) CesiumTilesetAPI object is returned upon
     /// failure. See \ref UsdPrim::ApplyAPI() for conditions
     /// resulting in failure.
     ///
@@ -92,7 +92,7 @@ public:
     /// \sa UsdPrim::ApplyAPI()
     /// \sa UsdPrim::RemoveAPI()
     ///
-    static CesiumTileset
+    static CesiumTilesetAPI
     Apply(const UsdPrim &prim);
 
 protected:

@@ -21,7 +21,7 @@
 #include <Cesium3DTilesSelection/registerAllTileContentTypes.h>
 #include <CesiumUsdSchemas/data.h>
 #include <CesiumUsdSchemas/rasterOverlay.h>
-#include <CesiumUsdSchemas/tileset.h>
+#include <CesiumUsdSchemas/tilesetAPI.h>
 #include <CesiumUsdSchemas/tokens.h>
 #include <glm/gtc/matrix_access.hpp>
 #include <pxr/usd/sdf/path.h>

@@ -41,7 +41,7 @@ struct CesiumTokensType {
     CESIUM_API CesiumTokensType();
     /// \brief "cesium:culledScreenSpaceError"
     /// 
-    /// CesiumTileset
+    /// CesiumTilesetAPI
     const TfToken cesiumCulledScreenSpaceError;
     /// \brief "cesium:defaultProjectIonAccessToken"
     /// 
@@ -53,19 +53,19 @@ struct CesiumTokensType {
     const TfToken cesiumDefaultProjectIonAccessTokenId;
     /// \brief "cesium:enableFogCulling"
     /// 
-    /// CesiumTileset
+    /// CesiumTilesetAPI
     const TfToken cesiumEnableFogCulling;
     /// \brief "cesium:enableFrustumCulling"
     /// 
-    /// CesiumTileset
+    /// CesiumTilesetAPI
     const TfToken cesiumEnableFrustumCulling;
     /// \brief "cesium:enforceCulledScreenSpaceError"
     /// 
-    /// CesiumTileset
+    /// CesiumTilesetAPI
     const TfToken cesiumEnforceCulledScreenSpaceError;
     /// \brief "cesium:forbidHoles"
     /// 
-    /// CesiumTileset
+    /// CesiumTilesetAPI
     const TfToken cesiumForbidHoles;
     /// \brief "cesium:georeferenceOrigin"
     /// 
@@ -73,43 +73,43 @@ struct CesiumTokensType {
     const TfToken cesiumGeoreferenceOrigin;
     /// \brief "cesium:ionAccessToken"
     /// 
-    /// CesiumRasterOverlay, CesiumTileset
+    /// CesiumRasterOverlay, CesiumTilesetAPI
     const TfToken cesiumIonAccessToken;
     /// \brief "cesium:ionAssetId"
     /// 
-    /// CesiumRasterOverlay, CesiumTileset
+    /// CesiumRasterOverlay, CesiumTilesetAPI
     const TfToken cesiumIonAssetId;
     /// \brief "cesium:loadingDescendantLimit"
     /// 
-    /// CesiumTileset
+    /// CesiumTilesetAPI
     const TfToken cesiumLoadingDescendantLimit;
     /// \brief "cesium:maximumCachedBytes"
     /// 
-    /// CesiumTileset
+    /// CesiumTilesetAPI
     const TfToken cesiumMaximumCachedBytes;
     /// \brief "cesium:maximumScreenSpaceError"
     /// 
-    /// CesiumTileset
+    /// CesiumTilesetAPI
     const TfToken cesiumMaximumScreenSpaceError;
     /// \brief "cesium:maximumSimultaneousTileLoads"
     /// 
-    /// CesiumTileset
+    /// CesiumTilesetAPI
     const TfToken cesiumMaximumSimultaneousTileLoads;
     /// \brief "cesium:preloadAncestors"
     /// 
-    /// CesiumTileset
+    /// CesiumTilesetAPI
     const TfToken cesiumPreloadAncestors;
     /// \brief "cesium:preloadSiblings"
     /// 
-    /// CesiumTileset
+    /// CesiumTilesetAPI
     const TfToken cesiumPreloadSiblings;
     /// \brief "cesium:suspendUpdate"
     /// 
-    /// CesiumTileset
+    /// CesiumTilesetAPI
     const TfToken cesiumSuspendUpdate;
     /// \brief "cesium:url"
     /// 
-    /// CesiumTileset
+    /// CesiumTilesetAPI
     const TfToken cesiumUrl;
     /// A vector of all of the tokens listed above.
     const std::vector<TfToken> allTokens;

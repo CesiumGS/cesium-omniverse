@@ -238,12 +238,12 @@ pxr::CesiumData defineCesiumData(const pxr::SdfPath& path) {
     return cesiumData;
 }
 
-pxr::CesiumTileset defineCesiumTileset(const pxr::SdfPath& path) {
+pxr::CesiumTilesetAPI defineCesiumTileset(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto xform = pxr::UsdGeomXform::Define(stage, path);
     assert(xform.GetPrim().IsValid());
 
-    auto tileset = pxr::CesiumTileset::Apply(xform.GetPrim());
+    auto tileset = pxr::CesiumTilesetAPI::Apply(xform.GetPrim());
     assert(tileset.GetPrim().IsValid());
 
     tileset.CreateUrlAttr();
@@ -283,9 +283,9 @@ pxr::CesiumData getCesiumData(const pxr::SdfPath& path) {
     return cesiumData;
 }
 
-pxr::CesiumTileset getCesiumTileset(const pxr::SdfPath& path) {
+pxr::CesiumTilesetAPI getCesiumTileset(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
-    auto tileset = pxr::CesiumTileset::Get(stage, path);
+    auto tileset = pxr::CesiumTilesetAPI::Get(stage, path);
     assert(tileset.GetPrim().IsValid());
     return tileset;
 }
@@ -329,7 +329,7 @@ bool isCesiumTileset(const pxr::SdfPath& path) {
         return false;
     }
 
-    return prim.HasAPI<pxr::CesiumTileset>();
+    return prim.HasAPI<pxr::CesiumTilesetAPI>();
 }
 
 bool isCesiumRasterOverlay(const pxr::SdfPath& path) {

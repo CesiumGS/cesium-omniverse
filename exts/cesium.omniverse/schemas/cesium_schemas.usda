@@ -49,11 +49,11 @@ class CesiumDataPrim "CesiumDataPrim" (
     )
 }
 
-class "CesiumTilesetAPI" (
+class "CesiumTilesetSchemaAPI" (
     doc = """Adds Cesium specific data to a prim for representing a tileset."""
     inherits = </APISchemaBase>
     customData = {
-        string className = "Tileset"
+        string className = "TilesetAPI"
         token apiSchemaType = "singleApply"
     }
 ) {

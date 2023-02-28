@@ -2,7 +2,7 @@
 (
     "WARNING: THIS FILE IS GENERATED.  DO NOT EDIT."
     customLayerData = {
-        string[] appliedAPISchemas = ["CesiumTilesetAPI"]
+        string[] appliedAPISchemas = ["CesiumTilesetSchemaAPI"]
         dictionary multipleApplyAPISchemas = {
         }
     }
@@ -26,7 +26,7 @@ class CesiumDataPrim "CesiumDataPrim" (
     )
 }
 
-class "CesiumTilesetAPI" (
+class "CesiumTilesetSchemaAPI" (
     doc = "Adds Cesium specific data to a prim for representing a tileset."
 )
 {

@@ -1,4 +1,4 @@
-#include ".//tileset.h"
+#include ".//tilesetAPI.h"
 #include "pxr/usd/usd/schemaRegistry.h"
 #include "pxr/usd/usd/typed.h"
 #include "pxr/usd/usd/tokens.h"
@@ -11,59 +11,59 @@ PXR_NAMESPACE_OPEN_SCOPE
 // Register the schema with the TfType system.
 TF_REGISTRY_FUNCTION(TfType)
 {
-    TfType::Define<CesiumTileset,
+    TfType::Define<CesiumTilesetAPI,
         TfType::Bases< UsdAPISchemaBase > >();
     
 }
 
 TF_DEFINE_PRIVATE_TOKENS(
     _schemaTokens,
-    (CesiumTilesetAPI)
+    (CesiumTilesetSchemaAPI)
 );
 
 /* virtual */
-CesiumTileset::~CesiumTileset()
+CesiumTilesetAPI::~CesiumTilesetAPI()
 {
 }
 
 /* static */
-CesiumTileset
-CesiumTileset::Get(const UsdStagePtr &stage, const SdfPath &path)
+CesiumTilesetAPI
+CesiumTilesetAPI::Get(const UsdStagePtr &stage, const SdfPath &path)
 {
     if (!stage) {
         TF_CODING_ERROR("Invalid stage");
-        return CesiumTileset();
+        return CesiumTilesetAPI();
     }
-    return CesiumTileset(stage->GetPrimAtPath(path));
+    return CesiumTilesetAPI(stage->GetPrimAtPath(path));
 }
 
 
 /* virtual */
-UsdSchemaType CesiumTileset::_GetSchemaType() const {
-    return CesiumTileset::schemaType;
+UsdSchemaType CesiumTilesetAPI::_GetSchemaType() const {
+    return CesiumTilesetAPI::schemaType;
 }
 
 /* static */
-CesiumTileset
-CesiumTileset::Apply(const UsdPrim &prim)
+CesiumTilesetAPI
+CesiumTilesetAPI::Apply(const UsdPrim &prim)
 {
-    if (prim.ApplyAPI<CesiumTileset>()) {
-        return CesiumTileset(prim);
+    if (prim.ApplyAPI<CesiumTilesetAPI>()) {
+        return CesiumTilesetAPI(prim);
     }
-    return CesiumTileset();
+    return CesiumTilesetAPI();
 }
 
 /* static */
 const TfType &
-CesiumTileset::_GetStaticTfType()
+CesiumTilesetAPI::_GetStaticTfType()
 {
-    static TfType tfType = TfType::Find<CesiumTileset>();
+    static TfType tfType = TfType::Find<CesiumTilesetAPI>();
     return tfType;
 }
 
 /* static */
 bool 
-CesiumTileset::_IsTypedSchema()
+CesiumTilesetAPI::_IsTypedSchema()
 {
     static bool isTyped = _GetStaticTfType().IsA<UsdTyped>();
     return isTyped;
@@ -71,19 +71,19 @@ CesiumTileset::_IsTypedSchema()
 
 /* virtual */
 const TfType &
-CesiumTileset::_GetTfType() const
+CesiumTilesetAPI::_GetTfType() const
 {
     return _GetStaticTfType();
 }
 
 UsdAttribute
-CesiumTileset::GetUrlAttr() const
+CesiumTilesetAPI::GetUrlAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumUrl);
 }
 
 UsdAttribute
-CesiumTileset::CreateUrlAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumTilesetAPI::CreateUrlAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumUrl,
                        SdfValueTypeNames->String,
@@ -94,13 +94,13 @@ CesiumTileset::CreateUrlAttr(VtValue const &defaultValue, bool writeSparsely) co
 }
 
 UsdAttribute
-CesiumTileset::GetIonAssetIdAttr() const
+CesiumTilesetAPI::GetIonAssetIdAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumIonAssetId);
 }
 
 UsdAttribute
-CesiumTileset::CreateIonAssetIdAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumTilesetAPI::CreateIonAssetIdAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumIonAssetId,
                        SdfValueTypeNames->Int64,
@@ -111,13 +111,13 @@ CesiumTileset::CreateIonAssetIdAttr(VtValue const &defaultValue, bool writeSpars
 }
 
 UsdAttribute
-CesiumTileset::GetIonAccessTokenAttr() const
+CesiumTilesetAPI::GetIonAccessTokenAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumIonAccessToken);
 }
 
 UsdAttribute
-CesiumTileset::CreateIonAccessTokenAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumTilesetAPI::CreateIonAccessTokenAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumIonAccessToken,
                        SdfValueTypeNames->String,
@@ -128,13 +128,13 @@ CesiumTileset::CreateIonAccessTokenAttr(VtValue const &defaultValue, bool writeS
 }
 
 UsdAttribute
-CesiumTileset::GetMaximumScreenSpaceErrorAttr() const
+CesiumTilesetAPI::GetMaximumScreenSpaceErrorAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumMaximumScreenSpaceError);
 }
 
 UsdAttribute
-CesiumTileset::CreateMaximumScreenSpaceErrorAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumTilesetAPI::CreateMaximumScreenSpaceErrorAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumMaximumScreenSpaceError,
                        SdfValueTypeNames->Float,
@@ -145,13 +145,13 @@ CesiumTileset::CreateMaximumScreenSpaceErrorAttr(VtValue const &defaultValue, bo
 }
 
 UsdAttribute
-CesiumTileset::GetPreloadAncestorsAttr() const
+CesiumTilesetAPI::GetPreloadAncestorsAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumPreloadAncestors);
 }
 
 UsdAttribute
-CesiumTileset::CreatePreloadAncestorsAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumTilesetAPI::CreatePreloadAncestorsAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumPreloadAncestors,
                        SdfValueTypeNames->Bool,
@@ -162,13 +162,13 @@ CesiumTileset::CreatePreloadAncestorsAttr(VtValue const &defaultValue, bool writ
 }
 
 UsdAttribute
-CesiumTileset::GetPreloadSiblingsAttr() const
+CesiumTilesetAPI::GetPreloadSiblingsAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumPreloadSiblings);
 }
 
 UsdAttribute
-CesiumTileset::CreatePreloadSiblingsAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumTilesetAPI::CreatePreloadSiblingsAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumPreloadSiblings,
                        SdfValueTypeNames->Bool,
@@ -179,13 +179,13 @@ CesiumTileset::CreatePreloadSiblingsAttr(VtValue const &defaultValue, bool write
 }
 
 UsdAttribute
-CesiumTileset::GetForbidHolesAttr() const
+CesiumTilesetAPI::GetForbidHolesAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumForbidHoles);
 }
 
 UsdAttribute
-CesiumTileset::CreateForbidHolesAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumTilesetAPI::CreateForbidHolesAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumForbidHoles,
                        SdfValueTypeNames->Bool,
@@ -196,13 +196,13 @@ CesiumTileset::CreateForbidHolesAttr(VtValue const &defaultValue, bool writeSpar
 }
 
 UsdAttribute
-CesiumTileset::GetMaximumSimultaneousTileLoadsAttr() const
+CesiumTilesetAPI::GetMaximumSimultaneousTileLoadsAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumMaximumSimultaneousTileLoads);
 }
 
 UsdAttribute
-CesiumTileset::CreateMaximumSimultaneousTileLoadsAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumTilesetAPI::CreateMaximumSimultaneousTileLoadsAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumMaximumSimultaneousTileLoads,
                        SdfValueTypeNames->UInt,
@@ -213,13 +213,13 @@ CesiumTileset::CreateMaximumSimultaneousTileLoadsAttr(VtValue const &defaultValu
 }
 
 UsdAttribute
-CesiumTileset::GetMaximumCachedBytesAttr() const
+CesiumTilesetAPI::GetMaximumCachedBytesAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumMaximumCachedBytes);
 }
 
 UsdAttribute
-CesiumTileset::CreateMaximumCachedBytesAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumTilesetAPI::CreateMaximumCachedBytesAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumMaximumCachedBytes,
                        SdfValueTypeNames->UInt64,
@@ -230,13 +230,13 @@ CesiumTileset::CreateMaximumCachedBytesAttr(VtValue const &defaultValue, bool wr
 }
 
 UsdAttribute
-CesiumTileset::GetLoadingDescendantLimitAttr() const
+CesiumTilesetAPI::GetLoadingDescendantLimitAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumLoadingDescendantLimit);
 }
 
 UsdAttribute
-CesiumTileset::CreateLoadingDescendantLimitAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumTilesetAPI::CreateLoadingDescendantLimitAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumLoadingDescendantLimit,
                        SdfValueTypeNames->UInt,
@@ -247,13 +247,13 @@ CesiumTileset::CreateLoadingDescendantLimitAttr(VtValue const &defaultValue, boo
 }
 
 UsdAttribute
-CesiumTileset::GetEnableFrustumCullingAttr() const
+CesiumTilesetAPI::GetEnableFrustumCullingAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumEnableFrustumCulling);
 }
 
 UsdAttribute
-CesiumTileset::CreateEnableFrustumCullingAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumTilesetAPI::CreateEnableFrustumCullingAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumEnableFrustumCulling,
                        SdfValueTypeNames->Bool,
@@ -264,13 +264,13 @@ CesiumTileset::CreateEnableFrustumCullingAttr(VtValue const &defaultValue, bool 
 }
 
 UsdAttribute
-CesiumTileset::GetEnableFogCullingAttr() const
+CesiumTilesetAPI::GetEnableFogCullingAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumEnableFogCulling);
 }
 
 UsdAttribute
-CesiumTileset::CreateEnableFogCullingAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumTilesetAPI::CreateEnableFogCullingAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumEnableFogCulling,
                        SdfValueTypeNames->Bool,
@@ -281,13 +281,13 @@ CesiumTileset::CreateEnableFogCullingAttr(VtValue const &defaultValue, bool writ
 }
 
 UsdAttribute
-CesiumTileset::GetEnforceCulledScreenSpaceErrorAttr() const
+CesiumTilesetAPI::GetEnforceCulledScreenSpaceErrorAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumEnforceCulledScreenSpaceError);
 }
 
 UsdAttribute
-CesiumTileset::CreateEnforceCulledScreenSpaceErrorAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumTilesetAPI::CreateEnforceCulledScreenSpaceErrorAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumEnforceCulledScreenSpaceError,
                        SdfValueTypeNames->Bool,
@@ -298,13 +298,13 @@ CesiumTileset::CreateEnforceCulledScreenSpaceErrorAttr(VtValue const &defaultVal
 }
 
 UsdAttribute
-CesiumTileset::GetCulledScreenSpaceErrorAttr() const
+CesiumTilesetAPI::GetCulledScreenSpaceErrorAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumCulledScreenSpaceError);
 }
 
 UsdAttribute
-CesiumTileset::CreateCulledScreenSpaceErrorAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumTilesetAPI::CreateCulledScreenSpaceErrorAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumCulledScreenSpaceError,
                        SdfValueTypeNames->Float,
@@ -315,13 +315,13 @@ CesiumTileset::CreateCulledScreenSpaceErrorAttr(VtValue const &defaultValue, boo
 }
 
 UsdAttribute
-CesiumTileset::GetSuspendUpdateAttr() const
+CesiumTilesetAPI::GetSuspendUpdateAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumSuspendUpdate);
 }
 
 UsdAttribute
-CesiumTileset::CreateSuspendUpdateAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumTilesetAPI::CreateSuspendUpdateAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumSuspendUpdate,
                        SdfValueTypeNames->Bool,
@@ -345,7 +345,7 @@ _ConcatenateAttributeNames(const TfTokenVector& left,const TfTokenVector& right)
 
 /*static*/
 const TfTokenVector&
-CesiumTileset::GetSchemaAttributeNames(bool includeInherited)
+CesiumTilesetAPI::GetSchemaAttributeNames(bool includeInherited)
 {
     static TfTokenVector localNames = {
         CesiumTokens->cesiumUrl,
