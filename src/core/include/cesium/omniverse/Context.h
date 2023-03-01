@@ -75,7 +75,7 @@ class Context {
 
     int64_t getContextId() const;
 
-    const CesiumGeospatial::Cartographic& getGeoreferenceOrigin() const;
+    const CesiumGeospatial::Cartographic getGeoreferenceOrigin() const;
     void setGeoreferenceOrigin(const CesiumGeospatial::Cartographic& origin);
 
     void connectToIon();
@@ -135,8 +135,6 @@ class Context {
     std::filesystem::path _cesiumExtensionLocation;
     std::filesystem::path _memCesiumPath;
     std::filesystem::path _certificatePath;
-
-    CesiumGeospatial::Cartographic _georeferenceOrigin{0.0, 0.0, 0.0};
 
     bool _debugDisableMaterials{false};
 

@@ -305,7 +305,7 @@ void OmniTileset::updateTransform() {
     // about changes to the current prim and not its ancestor prims. Also Tf::Notice may notify us in a thread other
     // than the main thread and we would have to be careful to synchronize updates to Fabric in the main thread.
 
-    const auto& georeferenceOrigin = Context::instance().getGeoreferenceOrigin();
+    const auto georeferenceOrigin = Context::instance().getGeoreferenceOrigin();
     const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdTransformForPrim(georeferenceOrigin, _tilesetPath);
 
     // Check for transform changes and update prims accordingly

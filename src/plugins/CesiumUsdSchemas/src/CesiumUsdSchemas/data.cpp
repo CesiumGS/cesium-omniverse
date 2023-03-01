@@ -114,16 +114,50 @@ CesiumData::CreateDefaultProjectIonAccessTokenIdAttr(VtValue const &defaultValue
 }
 
 UsdAttribute
-CesiumData::GetGeoreferenceOriginAttr() const
+CesiumData::GetGeoreferenceOriginLongitudeAttr() const
 {
-    return GetPrim().GetAttribute(CesiumTokens->cesiumGeoreferenceOrigin);
+    return GetPrim().GetAttribute(CesiumTokens->cesiumGeoreferenceOriginLongitude);
 }
 
 UsdAttribute
-CesiumData::CreateGeoreferenceOriginAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumData::CreateGeoreferenceOriginLongitudeAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
-    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumGeoreferenceOrigin,
-                       SdfValueTypeNames->Double3,
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumGeoreferenceOriginLongitude,
+                       SdfValueTypeNames->Double,
+                       /* custom = */ false,
+                       SdfVariabilityVarying,
+                       defaultValue,
+                       writeSparsely);
+}
+
+UsdAttribute
+CesiumData::GetGeoreferenceOriginLatitudeAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumGeoreferenceOriginLatitude);
+}
+
+UsdAttribute
+CesiumData::CreateGeoreferenceOriginLatitudeAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumGeoreferenceOriginLatitude,
+                       SdfValueTypeNames->Double,
+                       /* custom = */ false,
+                       SdfVariabilityVarying,
+                       defaultValue,
+                       writeSparsely);
+}
+
+UsdAttribute
+CesiumData::GetGeoreferenceOriginHeightAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumGeoreferenceOriginHeight);
+}
+
+UsdAttribute
+CesiumData::CreateGeoreferenceOriginHeightAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumGeoreferenceOriginHeight,
+                       SdfValueTypeNames->Double,
                        /* custom = */ false,
                        SdfVariabilityVarying,
                        defaultValue,
@@ -149,7 +183,9 @@ CesiumData::GetSchemaAttributeNames(bool includeInherited)
     static TfTokenVector localNames = {
         CesiumTokens->cesiumDefaultProjectIonAccessToken,
         CesiumTokens->cesiumDefaultProjectIonAccessTokenId,
-        CesiumTokens->cesiumGeoreferenceOrigin,
+        CesiumTokens->cesiumGeoreferenceOriginLongitude,
+        CesiumTokens->cesiumGeoreferenceOriginLatitude,
+        CesiumTokens->cesiumGeoreferenceOriginHeight,
     };
     static TfTokenVector allNames =
         _ConcatenateAttributeNames(

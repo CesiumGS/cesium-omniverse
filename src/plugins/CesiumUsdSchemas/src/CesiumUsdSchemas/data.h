@@ -160,23 +160,63 @@ public:
 
 public:
     // --------------------------------------------------------------------- //
-    // GEOREFERENCEORIGIN
+    // GEOREFERENCEORIGINLONGITUDE
     // --------------------------------------------------------------------- //
-    /// Specifies a Georeference origin point for Cesium in Longitude, Latitude, and Height
+    /// The longitude of the origin in degrees, in the range [-180, 180].
     ///
     /// | ||
     /// | -- | -- |
-    /// | Declaration | `double3 cesium:georeferenceOrigin = (0, 0, 0)` |
-    /// | C++ Type | GfVec3d |
-    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double3 |
-    UsdAttribute GetGeoreferenceOriginAttr() const;
+    /// | Declaration | `double cesium:georeferenceOrigin:longitude = -105.25737` |
+    /// | C++ Type | double |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double |
+    UsdAttribute GetGeoreferenceOriginLongitudeAttr() const;
 
-    /// See GetGeoreferenceOriginAttr(), and also
+    /// See GetGeoreferenceOriginLongitudeAttr(), and also
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    UsdAttribute CreateGeoreferenceOriginAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+    UsdAttribute CreateGeoreferenceOriginLongitudeAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
+    // GEOREFERENCEORIGINLATITUDE
+    // --------------------------------------------------------------------- //
+    /// The latitude of the origin in degrees, in the range [-90, 90].
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `double cesium:georeferenceOrigin:latitude = 39.736401` |
+    /// | C++ Type | double |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double |
+    UsdAttribute GetGeoreferenceOriginLatitudeAttr() const;
+
+    /// See GetGeoreferenceOriginLatitudeAttr(), and also
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    UsdAttribute CreateGeoreferenceOriginLatitudeAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
+    // GEOREFERENCEORIGINHEIGHT
+    // --------------------------------------------------------------------- //
+    /// The height of the origin in meters above the WGS84 ellipsoid. Do not confuse this with a geoid height or height above mean sea level, which can be tens of meters higher or lower depending on where in the world the origin is located.
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `double cesium:georeferenceOrigin:height = 2250` |
+    /// | C++ Type | double |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double |
+    UsdAttribute GetGeoreferenceOriginHeightAttr() const;
+
+    /// See GetGeoreferenceOriginHeightAttr(), and also
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    UsdAttribute CreateGeoreferenceOriginHeightAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // ===================================================================== //

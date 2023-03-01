@@ -142,8 +142,12 @@ void Context::addCesiumDataIfNotExists(const CesiumIonClient::Token& token) {
         UsdUtil::defineCesiumData(CesiumDataPath);
     }
 
+    auto cesiumDataUsd = UsdUtil::getCesiumData(CesiumDataPath);
+    cesiumDataUsd.GetGeoreferenceOriginLongitudeAttr().Set<double>(-105.25737);
+    cesiumDataUsd.GetGeoreferenceOriginLatitudeAttr().Set<double>(39.736401);
+    cesiumDataUsd.GetGeoreferenceOriginHeightAttr().Set<double>(2250.0);
+
     if (!token.token.empty()) {
-        auto cesiumDataUsd = UsdUtil::getCesiumData(CesiumDataPath);
         cesiumDataUsd.GetDefaultProjectIonAccessTokenAttr().Set<std::string>(token.token);
         cesiumDataUsd.GetDefaultProjectIonAccessTokenIdAttr().Set<std::string>(token.id);
     }
@@ -254,8 +258,10 @@ void Context::reloadTileset(int64_t tilesetId) {
 void Context::onUpdateFrame(const glm::dmat4& viewMatrix, const glm::dmat4& projMatrix, double width, double height) {
     processUsdNotifications();
 
+    const auto georeferenceOrigin = getGeoreferenceOrigin();
+
     _viewStates.clear();
-    _viewStates.emplace_back(computeViewState(_georeferenceOrigin, viewMatrix, projMatrix, width, height));
+    _viewStates.emplace_back(computeViewState(georeferenceOrigin, viewMatrix, projMatrix, width, height));
 
     auto tilesets = AssetRegistry::getInstance().getAllTilesets();
     for (const auto& tileset : tilesets) {
@@ -378,6 +384,10 @@ void Context::setStageId(long stageId) {
         const auto stageInProgressId =
             iStageInProgress->get(carb::flatcache::UsdStageId{static_cast<uint64_t>(stageId)});
         _fabricStageInProgress = carb::flatcache::StageInProgress(stageInProgressId);
+
+        // Add the CesiumData prim so that we can set the georeference origin and other top-level properties
+        // without waiting for an ion session to start
+        addCesiumDataIfNotExists({});
     }
 
     _stageId = stageId;
@@ -387,12 +397,25 @@ int64_t Context::getContextId() const {
     return _contextId;
 }
 
-const CesiumGeospatial::Cartographic& Context::getGeoreferenceOrigin() const {
-    return _georeferenceOrigin;
+const CesiumGeospatial::Cartographic Context::getGeoreferenceOrigin() const {
+    const auto cesiumData = UsdUtil::getCesiumData(CesiumDataPath);
+
+    double longitude;
+    double latitude;
+    double height;
+    cesiumData.GetGeoreferenceOriginLongitudeAttr().Get<double>(&longitude);
+    cesiumData.GetGeoreferenceOriginLatitudeAttr().Get<double>(&latitude);
+    cesiumData.GetGeoreferenceOriginHeightAttr().Get<double>(&height);
+
+    return CesiumGeospatial::Cartographic(glm::radians(longitude), glm::radians(latitude), height);
 }
 
 void Context::setGeoreferenceOrigin(const CesiumGeospatial::Cartographic& origin) {
-    _georeferenceOrigin = origin;
+    const auto cesiumData = UsdUtil::getCesiumData(CesiumDataPath);
+
+    cesiumData.GetGeoreferenceOriginLongitudeAttr().Set<double>(glm::degrees(origin.longitude));
+    cesiumData.GetGeoreferenceOriginLatitudeAttr().Set<double>(glm::degrees(origin.latitude));
+    cesiumData.GetGeoreferenceOriginHeightAttr().Set<double>(origin.height);
 }
 
 void Context::connectToIon() {
@@ -421,6 +444,10 @@ std::optional<CesiumIonClient::Token> Context::getDefaultToken() const {
     cesiumDataUsd.GetDefaultProjectIonAccessTokenAttr().Get(&projectDefaultToken);
     std::string projectDefaultTokenId;
     cesiumDataUsd.GetDefaultProjectIonAccessTokenIdAttr().Get(&projectDefaultTokenId);
+
+    if (projectDefaultToken.empty()) {
+        return std::nullopt;
+    }
 
     return CesiumIonClient::Token{projectDefaultTokenId, "", projectDefaultToken};
 }

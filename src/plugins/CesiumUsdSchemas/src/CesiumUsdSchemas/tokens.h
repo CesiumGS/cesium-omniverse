@@ -67,10 +67,18 @@ struct CesiumTokensType {
     /// 
     /// CesiumTilesetAPI
     const TfToken cesiumForbidHoles;
-    /// \brief "cesium:georeferenceOrigin"
+    /// \brief "cesium:georeferenceOrigin:height"
     /// 
     /// CesiumData
-    const TfToken cesiumGeoreferenceOrigin;
+    const TfToken cesiumGeoreferenceOriginHeight;
+    /// \brief "cesium:georeferenceOrigin:latitude"
+    /// 
+    /// CesiumData
+    const TfToken cesiumGeoreferenceOriginLatitude;
+    /// \brief "cesium:georeferenceOrigin:longitude"
+    /// 
+    /// CesiumData
+    const TfToken cesiumGeoreferenceOriginLongitude;
     /// \brief "cesium:ionAccessToken"
     /// 
     /// CesiumRasterOverlay, CesiumTilesetAPI

@@ -41,10 +41,24 @@ _CreateDefaultProjectIonAccessTokenIdAttr(CesiumData &self,
 }
         
 static UsdAttribute
-_CreateGeoreferenceOriginAttr(CesiumData &self,
+_CreateGeoreferenceOriginLongitudeAttr(CesiumData &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateGeoreferenceOriginAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double3), writeSparsely);
+    return self.CreateGeoreferenceOriginLongitudeAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateGeoreferenceOriginLatitudeAttr(CesiumData &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateGeoreferenceOriginLatitudeAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateGeoreferenceOriginHeightAttr(CesiumData &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateGeoreferenceOriginHeightAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
 }
 
 static std::string
@@ -103,10 +117,24 @@ void wrapCesiumData()
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetGeoreferenceOriginAttr",
-             &This::GetGeoreferenceOriginAttr)
-        .def("CreateGeoreferenceOriginAttr",
-             &_CreateGeoreferenceOriginAttr,
+        .def("GetGeoreferenceOriginLongitudeAttr",
+             &This::GetGeoreferenceOriginLongitudeAttr)
+        .def("CreateGeoreferenceOriginLongitudeAttr",
+             &_CreateGeoreferenceOriginLongitudeAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetGeoreferenceOriginLatitudeAttr",
+             &This::GetGeoreferenceOriginLatitudeAttr)
+        .def("CreateGeoreferenceOriginLatitudeAttr",
+             &_CreateGeoreferenceOriginLatitudeAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetGeoreferenceOriginHeightAttr",
+             &This::GetGeoreferenceOriginHeightAttr)
+        .def("CreateGeoreferenceOriginHeightAttr",
+             &_CreateGeoreferenceOriginHeightAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 

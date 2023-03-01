@@ -233,7 +233,9 @@ pxr::CesiumData defineCesiumData(const pxr::SdfPath& path) {
 
     cesiumData.CreateDefaultProjectIonAccessTokenAttr();
     cesiumData.CreateDefaultProjectIonAccessTokenIdAttr();
-    cesiumData.CreateGeoreferenceOriginAttr();
+    cesiumData.CreateGeoreferenceOriginLongitudeAttr();
+    cesiumData.CreateGeoreferenceOriginLatitudeAttr();
+    cesiumData.CreateGeoreferenceOriginHeightAttr();
 
     return cesiumData;
 }
@@ -300,6 +302,7 @@ pxr::CesiumRasterOverlay getCesiumRasterOverlay(const pxr::SdfPath& path) {
 std::vector<pxr::SdfPath> getChildRasterOverlayPaths(const pxr::SdfPath& path) {
     auto stage = UsdUtil::getUsdStage();
     auto prim = stage->GetPrimAtPath(path);
+    assert(prim.IsValid());
 
     std::vector<pxr::SdfPath> result;
 

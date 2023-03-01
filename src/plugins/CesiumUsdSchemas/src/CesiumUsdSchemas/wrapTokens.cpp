@@ -48,7 +48,9 @@ void wrapCesiumTokens()
     _AddToken(cls, "cesiumEnableFrustumCulling", CesiumTokens->cesiumEnableFrustumCulling);
     _AddToken(cls, "cesiumEnforceCulledScreenSpaceError", CesiumTokens->cesiumEnforceCulledScreenSpaceError);
     _AddToken(cls, "cesiumForbidHoles", CesiumTokens->cesiumForbidHoles);
-    _AddToken(cls, "cesiumGeoreferenceOrigin", CesiumTokens->cesiumGeoreferenceOrigin);
+    _AddToken(cls, "cesiumGeoreferenceOriginHeight", CesiumTokens->cesiumGeoreferenceOriginHeight);
+    _AddToken(cls, "cesiumGeoreferenceOriginLatitude", CesiumTokens->cesiumGeoreferenceOriginLatitude);
+    _AddToken(cls, "cesiumGeoreferenceOriginLongitude", CesiumTokens->cesiumGeoreferenceOriginLongitude);
     _AddToken(cls, "cesiumIonAccessToken", CesiumTokens->cesiumIonAccessToken);
     _AddToken(cls, "cesiumIonAssetId", CesiumTokens->cesiumIonAssetId);
     _AddToken(cls, "cesiumLoadingDescendantLimit", CesiumTokens->cesiumLoadingDescendantLimit);
