@@ -505,7 +505,11 @@ std::optional<TokenTroubleshootingDetails> Context::getAssetTokenTroubleshooting
 std::optional<TokenTroubleshootingDetails> Context::getDefaultTokenTroubleshootingDetails() {
     return _defaultTokenTroubleshootingDetails;
 }
-void Context::updateTroubleshootingDetails(int64_t tilesetId, uint64_t tokenEventId, uint64_t assetEventId) {
+void Context::updateTroubleshootingDetails(
+    int64_t tilesetId,
+    int64_t tilesetIonId,
+    uint64_t tokenEventId,
+    uint64_t assetEventId) {
     const auto tileset = AssetRegistry::getInstance().getTileset(tilesetId);
 
     if (!tileset.has_value()) {
@@ -515,26 +519,38 @@ void Context::updateTroubleshootingDetails(int64_t tilesetId, uint64_t tokenEven
     TokenTroubleshooter troubleshooter;
 
     _assetTroubleshootingDetails = AssetTroubleshootingDetails();
-    troubleshooter.updateAssetTroubleshootingDetails(tilesetId, assetEventId, _assetTroubleshootingDetails.value());
+    troubleshooter.updateAssetTroubleshootingDetails(tilesetIonId, assetEventId, _assetTroubleshootingDetails.value());
 
     _defaultTokenTroubleshootingDetails = TokenTroubleshootingDetails();
 
     if (isDefaultTokenSet()) {
-        auto token = getDefaultToken().value().token;
+        auto defaultIonToken = getDefaultToken().value().token;
         troubleshooter.updateTokenTroubleshootingDetails(
-            tilesetId, token, tokenEventId, _defaultTokenTroubleshootingDetails.value());
+            tilesetIonId, defaultIonToken, tokenEventId, _defaultTokenTroubleshootingDetails.value());
     }
 
-    // TODO: Implement grabbing data for the tileset token.
+    _assetTokenTroubleshootingDetails = TokenTroubleshootingDetails();
+
+    auto tilesetIonToken = tileset.value()->getIonAccessToken();
+    if (tilesetIonToken.has_value()) {
+        troubleshooter.updateTokenTroubleshootingDetails(
+            tilesetIonId, tilesetIonToken.value().token, tokenEventId, _assetTokenTroubleshootingDetails.value());
+    }
 }
 void Context::updateTroubleshootingDetails(
     int64_t tilesetId,
+    [[maybe_unused]] int64_t tilesetIonId,
     int64_t rasterOverlayId,
     uint64_t tokenEventId,
     uint64_t assetEventId) {
-    const auto tileset = AssetRegistry::getInstance().getTileset(tilesetId);
-
+    auto& registry = AssetRegistry::getInstance();
+    const auto tileset = registry.getTileset(tilesetId);
     if (!tileset.has_value()) {
+        return;
+    }
+
+    const auto rasterOverlay = registry.getRasterOverlay(rasterOverlayId);
+    if (!rasterOverlay.has_value()) {
         return;
     }
 
@@ -552,7 +568,13 @@ void Context::updateTroubleshootingDetails(
             rasterOverlayId, token, tokenEventId, _defaultTokenTroubleshootingDetails.value());
     }
 
-    // TODO: Implement grabbing data for the raster overlay token.
+    _assetTokenTroubleshootingDetails = TokenTroubleshootingDetails();
+
+    auto rasterOverlayToken = rasterOverlay.value().getIonAccessToken();
+    if (rasterOverlayToken.has_value()) {
+        troubleshooter.updateTokenTroubleshootingDetails(
+            rasterOverlayId, rasterOverlayToken.value().token, tokenEventId, _assetTokenTroubleshootingDetails.value());
+    }
 }
 
 std::filesystem::path Context::getCesiumExtensionLocation() const {

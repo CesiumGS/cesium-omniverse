@@ -39,14 +39,16 @@ void tokensUpdated() {
 }
 
 void showTroubleshooter(
-    int64_t tilesetId,
+    int64_t tilesetAssetId,
+    int64_t tilesetIonId,
     const std::string& tilesetName,
     int64_t rasterOverlayId,
     const std::string& rasterOverlayName,
     const std::string& message) {
     sendMessageToBusWithPayload(
         SHOW_TROUBLESHOOTER_EVENT_KEY,
-        std::make_pair("tilesetId", tilesetId),
+        std::make_pair("tilesetAssetId", tilesetAssetId),
+        std::make_pair("tilesetIonId", tilesetIonId),
         std::make_pair("tilesetName", tilesetName.c_str()),
         std::make_pair("rasterOverlayId", rasterOverlayId),
         std::make_pair("rasterOverlayName", rasterOverlayName.c_str()),

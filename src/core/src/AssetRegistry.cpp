@@ -1,5 +1,6 @@
 #include "cesium/omniverse/AssetRegistry.h"
 
+#include "cesium/omniverse/OmniIonRasterOverlay.h"
 #include "cesium/omniverse/OmniTileset.h"
 
 namespace cesium::omniverse {
@@ -103,6 +104,16 @@ void AssetRegistry::setRasterOverlayAssetId(const pxr::SdfPath& path, int64_t as
             return;
         }
     }
+}
+
+std::optional<OmniIonRasterOverlay> AssetRegistry::getRasterOverlay(int64_t assetId) {
+    for (const auto& item : items) {
+        if (item.type == AssetType::IMAGERY && item.assetId == assetId) {
+            return OmniIonRasterOverlay(pxr::SdfPath(item.path));
+        }
+    }
+
+    return std::nullopt;
 }
 
 [[maybe_unused]] std::vector<int64_t> AssetRegistry::getAllRasterOverlayIds() {

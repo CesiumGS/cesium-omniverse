@@ -8,6 +8,7 @@ struct TokenTroubleshootingDetails {
     bool isValid{false};
     bool allowsAccessToAsset{false};
     bool associatedWithUserAccount{false};
+    bool showDetails{false};
 };
 
 struct AssetTroubleshootingDetails {

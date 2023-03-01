@@ -144,17 +144,22 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         return Context::instance().getDefaultTokenTroubleshootingDetails();
     }
 
-    void
-    updateTroubleshootingDetails(int64_t tilesetId, uint64_t tokenEventId, uint64_t assetEventId) noexcept override {
-        return Context::instance().updateTroubleshootingDetails(tilesetId, tokenEventId, assetEventId);
+    void updateTroubleshootingDetails(
+        int64_t tilesetId,
+        int64_t tilesetIonId,
+        uint64_t tokenEventId,
+        uint64_t assetEventId) noexcept override {
+        return Context::instance().updateTroubleshootingDetails(tilesetId, tilesetIonId, tokenEventId, assetEventId);
     }
 
     void updateTroubleshootingDetails(
         int64_t tilesetId,
+        int64_t tilesetIonId,
         int64_t rasterOverlayId,
         uint64_t tokenEventId,
         uint64_t assetEventId) noexcept override {
-        return Context::instance().updateTroubleshootingDetails(tilesetId, rasterOverlayId, tokenEventId, assetEventId);
+        return Context::instance().updateTroubleshootingDetails(
+            tilesetId, tilesetIonId, rasterOverlayId, tokenEventId, assetEventId);
     }
 
     std::string printFabricStage() noexcept override {
