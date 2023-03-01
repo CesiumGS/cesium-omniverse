@@ -121,11 +121,10 @@ class CesiumOmniverseTokenWindow(ui.Window):
         if cesium_prim.IsValid():
             current_token = cesium_prim.GetAttribute(
                 "cesium:defaultProjectToken").Get()
-            if not current_token:
-                self._specify_token_field_model = ui.SimpleStringModel()
+            if current_token is not None:
+                self._specify_token_field_model = ui.SimpleStringModel(current_token)
             else:
-                self._specify_token_field_model = ui.SimpleStringModel(
-                    current_token)
+                self._specify_token_field_model = ui.SimpleStringModel()
         else:
             self._specify_token_field_model = ui.SimpleStringModel()
 
