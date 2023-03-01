@@ -19,9 +19,6 @@ import os
 from typing import List, Optional, Callable
 
 cesium_extension_location = os.path.join(os.path.dirname(__file__), "../../")
-DEFAULT_GEOREFERENCE_LATITUDE = 39.9501464
-DEFAULT_GEOREFERENCE_LONGITUDE = -75.1564977
-DEFAULT_GEOREFERENCE_HEIGHT = 150.0
 
 
 class CesiumOmniverseExtension(omni.ext.IExt):
@@ -263,12 +260,6 @@ class CesiumOmniverseExtension(omni.ext.IExt):
                 bus.push(show_token_window_event)
                 self._assets_to_add_after_token_set.append(asset_to_add)
                 return
-
-        # TODO: Probably need a check here for bypassing setting the georeference if it is already set.
-        _cesium_omniverse_interface.set_georeference_origin(
-            DEFAULT_GEOREFERENCE_LONGITUDE,
-            DEFAULT_GEOREFERENCE_LATITUDE,
-            DEFAULT_GEOREFERENCE_HEIGHT)
 
         if asset_to_add.imagery_name is not None and asset_to_add.imagery_ion_id is not None:
             tileset_id = _cesium_omniverse_interface.add_tileset_and_raster_overlay(

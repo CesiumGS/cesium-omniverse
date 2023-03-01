@@ -45,8 +45,6 @@ class CesiumOmniverseDebugWindow(ui.Window):
             self._cesium_omniverse_interface.set_georeference_origin(
                 -80.53, 28.46, -30.0)
 
-            self._cesium_omniverse_interface.add_cesium_data_if_not_exists("")
-
             self._cesium_omniverse_interface.add_tileset_ion(
                 "Cape Canaveral",
                 1387142,
@@ -59,8 +57,6 @@ class CesiumOmniverseDebugWindow(ui.Window):
             # Cesium HQ
             self._cesium_omniverse_interface.set_georeference_origin(
                 -75.1564977, 39.9501464, 150.0)
-
-            self._cesium_omniverse_interface.add_cesium_data_if_not_exists("")
 
             tileset_id = self._cesium_omniverse_interface.add_tileset_ion(
                 "Cesium World Terrain",
@@ -79,8 +75,6 @@ class CesiumOmniverseDebugWindow(ui.Window):
             # Cesium HQ
             self._cesium_omniverse_interface.set_georeference_origin(
                 -75.1564977, 39.9501464, 150.0)
-
-            self._cesium_omniverse_interface.add_cesium_data_if_not_exists("")
 
             tileset_id = self._cesium_omniverse_interface.add_tileset_ion(
                 "Bing Maps",

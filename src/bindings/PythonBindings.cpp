@@ -32,7 +32,6 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         m, "ICesiumOmniverseInterface", "acquire_cesium_omniverse_interface", "release_cesium_omniverse_interface")
         .def("on_startup", &ICesiumOmniverseInterface::onStartup)
         .def("on_shutdown", &ICesiumOmniverseInterface::onShutdown)
-        .def("add_cesium_data_if_not_exists", &ICesiumOmniverseInterface::addCesiumDataIfNotExists)
         .def("add_tileset_url", &ICesiumOmniverseInterface::addTilesetUrl)
         .def("add_tileset_ion", py::overload_cast<const char*, int64_t>(&ICesiumOmniverseInterface::addTilesetIon))
         .def("add_tileset_ion", py::overload_cast<const char*, int64_t, const char*>(&ICesiumOmniverseInterface::addTilesetIon))
