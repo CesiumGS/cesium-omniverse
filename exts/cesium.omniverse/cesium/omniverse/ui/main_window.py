@@ -14,8 +14,8 @@ from .troubleshooter_window import CesiumTroubleshooterWindow
 from .asset_window import CesiumOmniverseAssetWindow
 from .styles import CesiumOmniverseUiStyles
 
-HELP_URL = "https://community.cesium.com/"
-LEARN_URL = "https://cesium.com/learn/"
+HELP_URL = "https://community.cesium.com/c/cesium-for-omniverse"
+LEARN_URL = "https://cesium.com/learn/omniverse/"
 UPLOAD_URL = "https://ion.cesium.com/addasset"
 
 
