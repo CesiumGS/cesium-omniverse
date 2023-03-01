@@ -669,35 +669,21 @@ Linux packages are built in the CentOS 7 Docker container. CentOS 7 is the [mini
 
 It's recommended to build CentOS 7 packages in a separate clone of cesium-omniverse since the Docker container will overwrite files in the `extern/nvidia/_build` and `exts` folders.
 
-* Delete the `build-package` directory if it exists
-* Run the follow commands:
+Run the following shell script from the root cesium-omniverse directory:
 
 ```sh
-# Enter the docker container
-docker build --tag cesiumgs/cesium-omniverse:centos7 -f docker/CentOS7.Dockerfile .
-docker run --rm --interactive --tty --volume $PWD:/var/app cesiumgs/cesium-omniverse:centos7
-```
-
-```sh
-# Inside the container
-cmake -B build-package -D CMAKE_BUILD_TYPE=Release CESIUM_OMNI_ENABLE_TESTS=OFF -D CESIUM_OMNI_ENABLE_DOCUMENTATION=OFF -D CESIUM_OMNI_ENABLE_SANITIZERS=OFF -D CESIUM_OMNI_ENABLE_LINTERS=OFF
-cmake --build build-package --parallel 8
-cmake --build build-package --target install
-cmake --build build-package --target package
+./scripts/build_package_centos7.sh
 ```
 
 The resulting `.zip` file will be written to the `build-package` directory (e.g. `cesium-omniverse-Linux-0.0.0.zip`)
 
 ### Build Windows Package
 
-* Delete the `build-package` directory if it exists
-* Run the follow commands:
+Run the following batch script from the root cesium-omniverse directory:
 
 ```sh
-cmake -B build-package -D CMAKE_BUILD_TYPE=Release CESIUM_OMNI_ENABLE_TESTS=OFF -D CESIUM_OMNI_ENABLE_DOCUMENTATION=OFF -D CESIUM_OMNI_ENABLE_SANITIZERS=OFF -D CESIUM_OMNI_ENABLE_LINTERS=OFF
-cmake --build build --config Release
-cmake --build build --target install --config Release
-cmake --build build --target package --config Release
+./scripts/build_package_windows.bat
+
 ```
 
 The resulting `.zip` file will be written to the `build-package` directory (e.g. `cesium-omniverse-Windows-0.0.0.zip`)
