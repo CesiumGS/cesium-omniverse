@@ -1,0 +1,18 @@
+# Ignore everything
+*
+
+# Allow files and directories
+!/cmake
+!/extern
+!/scripts
+!/include
+!/src
+!/tests
+!/CMakeLists.txt
+!/ThirdParty.extra.json
+!/ThirdParty.json
+!/exts
+
+# Ignore in nested directories
+**/.DS_Store
+**/__pycache__
