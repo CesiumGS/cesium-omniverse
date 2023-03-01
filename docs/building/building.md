@@ -683,7 +683,6 @@ Run the following batch script from the root cesium-omniverse directory:
 
 ```sh
 ./scripts/build_package_windows.bat
-
 ```
 
 The resulting `.zip` file will be written to the `build-package` directory (e.g. `cesium-omniverse-Windows-0.0.0.zip`)
