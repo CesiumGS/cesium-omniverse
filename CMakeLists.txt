@@ -7,7 +7,7 @@ cmake_policy(SET CMP0132 NEW)
 # Both CXX and C need to be given otherwise Conan may ignore the CMAKE_C_COMPILER flag
 project(
     CesiumOmniverse
-    VERSION 0.0.0
+    VERSION 0.1.0
     DESCRIPTION "Cesium for Omniverse"
     LANGUAGES CXX C)
 
