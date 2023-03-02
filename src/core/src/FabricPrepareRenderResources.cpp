@@ -153,8 +153,8 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
     if (pTileRenderResources->geomPaths.size() > 0) {
         // Already created the tile with a lower-res raster.
         // Due to Kit 104.2 material limitations, we can't update the texture or assign a new material to the prim.
-        // We are stuck with the low res raster.
-        return;
+        // But we can delete the existing prim and create a new prim.
+        FabricStageUtil::removeTile(pTileRenderResources->allPrimPaths, pTileRenderResources->textureAssetNames);
     }
 
     const auto ecefToUsdTransform =

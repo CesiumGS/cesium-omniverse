@@ -7,10 +7,13 @@
 #include <vector>
 
 PXR_NAMESPACE_OPEN_SCOPE
+
+class InMemoryAsset;
+
 class InMemoryAssetContext {
   public:
-    using accessor = tbb::concurrent_hash_map<std::string, std::shared_ptr<ArAsset>>::accessor;
-    using const_accessor = tbb::concurrent_hash_map<std::string, std::shared_ptr<ArAsset>>::const_accessor;
+    using Accessor = tbb::concurrent_hash_map<std::string, std::shared_ptr<InMemoryAsset>>::accessor;
+    using ConstAccessor = tbb::concurrent_hash_map<std::string, std::shared_ptr<InMemoryAsset>>::const_accessor;
 
     InMemoryAssetContext(const InMemoryAssetContext&) = delete;
 
@@ -18,9 +21,13 @@ class InMemoryAssetContext {
 
     AR_API static InMemoryAssetContext& instance();
 
-    tbb::concurrent_hash_map<std::string, std::shared_ptr<ArAsset>> assets;
+    AR_API void add(const std::string& name, std::vector<std::byte>&& buffer);
+    AR_API void remove(const std::string& name);
+    AR_API std::shared_ptr<InMemoryAsset> find(const std::string& name) const;
 
   private:
+    tbb::concurrent_hash_map<std::string, std::shared_ptr<InMemoryAsset>> _assets;
+
     InMemoryAssetContext() = default;
 };
 
@@ -38,7 +45,10 @@ class InMemoryAsset : public ArAsset {
 
   private:
     std::shared_ptr<char> _buffer;
-    std::size_t _bufferSize;
+    size_t _bufferSize;
+    size_t _referenceCount;
+
+    friend InMemoryAssetContext;
 };
 
 class InMemoryAssetResolver : public ArPackageResolver {

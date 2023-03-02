@@ -902,14 +902,13 @@ std::vector<std::byte> convertImageToBmp(const CesiumGltf::ImageCesium& image) {
 }
 
 void addTexture(const std::string& assetName, const CesiumGltf::ImageCesium& image) {
-    auto inMemoryAsset = std::make_shared<pxr::InMemoryAsset>(convertImageToBmp(image));
     auto& ctx = pxr::InMemoryAssetContext::instance();
-    ctx.assets.insert({assetName, std::move(inMemoryAsset)});
+    ctx.add(assetName, convertImageToBmp(image));
 }
 
 void removeTexture(const std::string& assetName) {
     auto& ctx = pxr::InMemoryAssetContext::instance();
-    ctx.assets.erase(assetName);
+    ctx.remove(assetName);
 }
 
 void deletePrimsFabric(const std::vector<pxr::SdfPath>& primsToDelete) {
