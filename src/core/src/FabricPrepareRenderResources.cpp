@@ -13,7 +13,6 @@ namespace cesium::omniverse {
 
 namespace {
 struct TileLoadThreadResult {
-    int64_t tileId;
     glm::dmat4 tileTransform;
     std::vector<pxr::SdfPath> geomPaths;
     std::vector<pxr::SdfPath> allPrimPaths;
@@ -45,20 +44,17 @@ FabricPrepareRenderResources::prepareInLoadThread(
     return asyncSystem.runInMainThread([this, asyncSystem, transform, tileLoadResult = std::move(tileLoadResult)]() {
         const auto pModel = std::get_if<CesiumGltf::Model>(&tileLoadResult.contentKind);
 
-        const auto tileId = _tileset.getNextTileId();
-
         // If there are no raster overlays add the tile right away
         if (!tileLoadResult.rasterOverlayDetails.has_value()) {
             const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdTransformForPrim(
                 Context::instance().getGeoreferenceOrigin(), _tileset.getPath());
 
-            const auto addTileResults =
-                FabricStageUtil::addTile(_tileset.getId(), tileId, ecefToUsdTransform, transform, *pModel);
+            const auto addTileResults = FabricStageUtil::addTile(
+                _tileset.getId(), _tileset.getNextTileId(), ecefToUsdTransform, transform, *pModel);
 
             return asyncSystem.createResolvedFuture(Cesium3DTilesSelection::TileLoadResultAndRenderResources{
                 std::move(tileLoadResult),
                 new TileLoadThreadResult{
-                    tileId,
                     transform,
                     std::move(addTileResults.geomPaths),
                     std::move(addTileResults.allPrimPaths),
@@ -70,7 +66,6 @@ FabricPrepareRenderResources::prepareInLoadThread(
         return asyncSystem.createResolvedFuture(Cesium3DTilesSelection::TileLoadResultAndRenderResources{
             std::move(tileLoadResult),
             new TileLoadThreadResult{
-                tileId,
                 transform,
                 {},
                 {},
@@ -86,7 +81,6 @@ void* FabricPrepareRenderResources::prepareInMainThread(
         std::unique_ptr<TileLoadThreadResult> pTileLoadThreadResult{
             reinterpret_cast<TileLoadThreadResult*>(pLoadThreadResult)};
         return new TileRenderResources{
-            pTileLoadThreadResult->tileId,
             pTileLoadThreadResult->tileTransform,
             std::move(pTileLoadThreadResult->geomPaths),
             std::move(pTileLoadThreadResult->allPrimPaths),
@@ -168,7 +162,7 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
 
     const auto addTileResults = FabricStageUtil::addTileWithRasterOverlay(
         _tileset.getId(),
-        pTileRenderResources->tileId,
+        _tileset.getNextTileId(),
         ecefToUsdTransform,
         pTileRenderResources->tileTransform,
         tile.getContent().getRenderContent()->getModel(),

@@ -88,8 +88,8 @@ AssetPath getRasterOverlayAssetPath(const std::string& name, const CesiumGeometr
     // Include both the name of the raster overlay and the region it covers. Since multiple raster overlay tiles may be
     // associated with a single geometry tile (e.g. Web Mercator imagery draped on WGS84 terrain) we don't have a single
     // url that we can use.
-    const auto assetName = fmt::format(
-        "{}_{}_{}_{}_{}", name, rectangle.minimumX, rectangle.minimumY, rectangle.maximumX, rectangle.maximumY);
+    const auto assetName = UsdUtil::getSafeName(fmt::format(
+        "{}_{}_{}_{}_{}", name, rectangle.minimumX, rectangle.minimumY, rectangle.maximumX, rectangle.maximumY));
 
     return getAssetPath(assetName, "bmp");
 }
@@ -1041,14 +1041,12 @@ AddTileResults addTileWithRasterOverlay(
     gltfToEcefTransform = Cesium3DTilesSelection::GltfUtilities::applyGltfUpAxisTransform(model, gltfToEcefTransform);
 
     std::vector<std::string> textureAssetNames;
-    std::vector<pxr::SdfAssetPath> textureAssetPaths;
     std::vector<pxr::SdfPath> materialPaths;
     std::vector<pxr::SdfPath> allPrimPaths;
 
     if (!disableMaterials()) {
         const auto rasterOverlayAssetPath = getRasterOverlayAssetPath(rasterOverlayName, rasterOverlayRectangle);
         addTexture(rasterOverlayAssetPath.assetName, rasterOverlayImage);
-        textureAssetPaths.push_back(rasterOverlayAssetPath.assetPath);
         textureAssetNames.push_back(rasterOverlayAssetPath.assetName);
 
         materialPaths.reserve(model.materials.size());
