@@ -88,8 +88,8 @@ AssetPath getRasterOverlayAssetPath(const std::string& name, const CesiumGeometr
     // Include both the name of the raster overlay and the region it covers. Since multiple raster overlay tiles may be
     // associated with a single geometry tile (e.g. Web Mercator imagery draped on WGS84 terrain) we don't have a single
     // url that we can use.
-    const auto assetName = fmt::format(
-        "{}_{}_{}_{}_{}", name, rectangle.minimumX, rectangle.minimumY, rectangle.maximumX, rectangle.maximumY);
+    const auto assetName = UsdUtil::getSafeName(fmt::format(
+        "{}_{}_{}_{}_{}", name, rectangle.minimumX, rectangle.minimumY, rectangle.maximumX, rectangle.maximumY));
 
     return getAssetPath(assetName, "bmp");
 }
@@ -902,14 +902,13 @@ std::vector<std::byte> convertImageToBmp(const CesiumGltf::ImageCesium& image) {
 }
 
 void addTexture(const std::string& assetName, const CesiumGltf::ImageCesium& image) {
-    auto inMemoryAsset = std::make_shared<pxr::InMemoryAsset>(convertImageToBmp(image));
     auto& ctx = pxr::InMemoryAssetContext::instance();
-    ctx.assets.insert({assetName, std::move(inMemoryAsset)});
+    ctx.add(assetName, convertImageToBmp(image));
 }
 
 void removeTexture(const std::string& assetName) {
     auto& ctx = pxr::InMemoryAssetContext::instance();
-    ctx.assets.erase(assetName);
+    ctx.remove(assetName);
 }
 
 void deletePrimsFabric(const std::vector<pxr::SdfPath>& primsToDelete) {
@@ -1041,14 +1040,12 @@ AddTileResults addTileWithRasterOverlay(
     gltfToEcefTransform = Cesium3DTilesSelection::GltfUtilities::applyGltfUpAxisTransform(model, gltfToEcefTransform);
 
     std::vector<std::string> textureAssetNames;
-    std::vector<pxr::SdfAssetPath> textureAssetPaths;
     std::vector<pxr::SdfPath> materialPaths;
     std::vector<pxr::SdfPath> allPrimPaths;
 
     if (!disableMaterials()) {
         const auto rasterOverlayAssetPath = getRasterOverlayAssetPath(rasterOverlayName, rasterOverlayRectangle);
         addTexture(rasterOverlayAssetPath.assetName, rasterOverlayImage);
-        textureAssetPaths.push_back(rasterOverlayAssetPath.assetPath);
         textureAssetNames.push_back(rasterOverlayAssetPath.assetName);
 
         materialPaths.reserve(model.materials.size());

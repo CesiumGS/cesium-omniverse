@@ -13,7 +13,6 @@ namespace cesium::omniverse {
 class OmniTileset;
 
 struct TileRenderResources {
-    int64_t tileId;
     glm::dmat4 tileTransform;
     std::vector<pxr::SdfPath> geomPaths;
     std::vector<pxr::SdfPath> allPrimPaths;

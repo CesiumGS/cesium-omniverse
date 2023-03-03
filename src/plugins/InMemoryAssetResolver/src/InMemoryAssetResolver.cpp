@@ -11,9 +11,42 @@ InMemoryAssetContext& InMemoryAssetContext::instance() {
     return ctx;
 }
 
+void InMemoryAssetContext::add(const std::string& name, std::vector<std::byte>&& buffer) {
+    InMemoryAssetContext::Accessor accessor;
+    auto found = _assets.find(accessor, name);
+    if (found) {
+        accessor->second->_referenceCount++;
+    } else {
+        _assets.insert({name, std::make_shared<InMemoryAsset>(std::move(buffer))});
+    }
+}
+
+void InMemoryAssetContext::remove(const std::string& name) {
+    InMemoryAssetContext::Accessor accessor;
+    auto found = _assets.find(accessor, name);
+    if (found) {
+        auto& referenceCount = accessor->second->_referenceCount;
+        referenceCount--;
+        if (referenceCount == 0) {
+            _assets.erase(name);
+        }
+    }
+}
+
+std::shared_ptr<InMemoryAsset> InMemoryAssetContext::find(const std::string& name) const {
+    InMemoryAssetContext::Accessor accessor;
+    auto found = _assets.find(accessor, name);
+    if (found) {
+        return accessor->second;
+    }
+
+    return nullptr;
+}
+
 InMemoryAsset::InMemoryAsset(const std::vector<std::byte>& buffer)
     : _buffer{reinterpret_cast<char*>(std::malloc(buffer.size())), [](char* data) { std::free(data); }}
-    , _bufferSize{buffer.size()} {
+    , _bufferSize{buffer.size()}
+    , _referenceCount(1) {
     std::memcpy(_buffer.get(), buffer.data(), buffer.size());
 }
 
@@ -52,17 +85,8 @@ std::string InMemoryAssetResolver::Resolve([[maybe_unused]] const std::string& p
 
 std::shared_ptr<ArAsset>
 InMemoryAssetResolver::OpenAsset([[maybe_unused]] const std::string& packagePath, const std::string& resolvedPath) {
-    auto& ctx = InMemoryAssetContext::instance();
-
-    {
-        InMemoryAssetContext::const_accessor const_accessor;
-        auto found = ctx.assets.find(const_accessor, resolvedPath);
-        if (found) {
-            return const_accessor->second;
-        }
-    }
-
-    return nullptr;
+    const auto& ctx = InMemoryAssetContext::instance();
+    return ctx.find(resolvedPath);
 }
 
 void InMemoryAssetResolver::BeginCacheScope([[maybe_unused]] VtValue* cacheScopeData) {}
