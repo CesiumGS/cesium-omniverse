@@ -346,10 +346,7 @@ void Context::processPrimRemoved(const ChangedPrim& changedProperty) {
         auto tileset = AssetRegistry::getInstance().getTilesetFromRasterOverlay(changedProperty.path.GetString());
 
         if (tileset.has_value()) {
-            auto ionId = AssetRegistry::getInstance().getRasterOverlayIdByPath(changedProperty.path);
-            if (ionId.has_value()) {
-                tileset.value()->removeIonRasterOverlay(ionId.value());
-            }
+            tileset.value()->reload();
         }
     }
 }
