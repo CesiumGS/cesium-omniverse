@@ -239,7 +239,11 @@ void Context::removeTileset(int64_t tilesetId) {
     }
 
     const auto stage = UsdUtil::getUsdStage();
-    bool removed = stage->RemovePrim(tileset.value()->getPath());
+    bool removed = !UsdUtil::primExists(tileset.value()->getPath());
+
+    if (!removed) {
+        removed = stage->RemovePrim(tileset.value()->getPath());
+    }
 
     if (removed) {
         assetRegistry.removeAsset(tilesetId);
@@ -269,31 +273,28 @@ void Context::onUpdateFrame(const glm::dmat4& viewMatrix, const glm::dmat4& proj
     }
 }
 
-void Context::processUsdNotifications() {
-    const auto changedProperties = _usdNotificationHandler.popChangedProperties();
+void Context::processPropertyChanged(const ChangedPrim& changedProperty) {
+    const auto& [path, name, primType, changeType] = changedProperty;
 
     std::set<std::shared_ptr<OmniTileset>> tilesetsToReload;
 
-    for (const auto& changedProperty : changedProperties) {
-        const auto& [path, name, type] = changedProperty;
-
-        if (type == ChangedPrimType::CESIUM_DATA) {
-            if (name == pxr::CesiumTokens->cesiumDefaultProjectIonAccessToken) {
-                // Any tilesets that use the default token are reloaded when it changes
-                const auto tilesets = AssetRegistry::getInstance().getAllTilesets();
-                for (const auto& tileset : tilesets) {
-                    const auto tilesetToken = tileset->getIonAccessToken();
-                    const auto defaultToken = Context::instance().getDefaultToken();
-                    if (!tilesetToken.has_value() || tilesetToken.value().token == defaultToken.value().token) {
-                        tilesetsToReload.emplace(tileset);
-                    }
+    if (primType == ChangedPrimType::CESIUM_DATA) {
+        if (name == pxr::CesiumTokens->cesiumDefaultProjectIonAccessToken) {
+            // Any tilesets that use the default token are reloaded when it changes
+            const auto tilesets = AssetRegistry::getInstance().getAllTilesets();
+            for (const auto& tileset : tilesets) {
+                const auto tilesetToken = tileset->getIonAccessToken();
+                const auto defaultToken = Context::instance().getDefaultToken();
+                if (!tilesetToken.has_value() || tilesetToken.value().token == defaultToken.value().token) {
+                    tilesetsToReload.emplace(tileset);
                 }
             }
-        } else if (type == ChangedPrimType::CESIUM_TILESET) {
-            // Reload the tileset. No need to update the asset registry because tileset assets do not store the asset id.
-            const auto tileset = AssetRegistry::getInstance().getTileset(path.GetString());
-            if (tileset.has_value()) {
-                // clang-format off
+        }
+    } else if (primType == ChangedPrimType::CESIUM_TILESET) {
+        // Reload the tileset. No need to update the asset registry because tileset assets do not store the asset id.
+        const auto tileset = AssetRegistry::getInstance().getTileset(path.GetString());
+        if (tileset.has_value()) {
+            // clang-format off
                 if (name == pxr::CesiumTokens->cesiumIonAssetId ||
                     name == pxr::CesiumTokens->cesiumIonAccessToken ||
                     name == pxr::CesiumTokens->cesiumMaximumScreenSpaceError ||
@@ -309,29 +310,61 @@ void Context::processUsdNotifications() {
                     name == pxr::CesiumTokens->cesiumCulledScreenSpaceError) {
                     tilesetsToReload.emplace(tileset.value());
                 }
-                // clang-format on
-            }
-        } else if (type == ChangedPrimType::CESIUM_RASTER_OVERLAY) {
-            const auto tileset = AssetRegistry::getInstance().getTilesetFromRasterOverlay(path.GetString());
-            if (tileset.has_value()) {
-                if (name == pxr::CesiumTokens->cesiumIonAssetId) {
-                    // Update the asset registry because the asset id changed
-                    OmniIonRasterOverlay ionRasterOverlay(path);
-                    const auto assetId = ionRasterOverlay.getIonAssetId();
-                    AssetRegistry::getInstance().setRasterOverlayAssetId(path, assetId);
+            // clang-format on
+        }
+    } else if (primType == ChangedPrimType::CESIUM_RASTER_OVERLAY) {
+        const auto tileset = AssetRegistry::getInstance().getTilesetFromRasterOverlay(path.GetString());
+        if (tileset.has_value()) {
+            if (name == pxr::CesiumTokens->cesiumIonAssetId) {
+                // Update the asset registry because the asset id changed
+                OmniIonRasterOverlay ionRasterOverlay(path);
+                const auto assetId = ionRasterOverlay.getIonAssetId();
+                AssetRegistry::getInstance().setRasterOverlayAssetId(path, assetId);
 
-                    // Reload the tileset that this raster overlay is attached to
-                    tilesetsToReload.emplace(tileset.value());
-                } else if (name == pxr::CesiumTokens->cesiumIonAccessToken) {
-                    // Reload the tileset that this raster overlay is attached to
-                    tilesetsToReload.emplace(tileset.value());
-                }
+                // Reload the tileset that this raster overlay is attached to
+                tilesetsToReload.emplace(tileset.value());
+            } else if (name == pxr::CesiumTokens->cesiumIonAccessToken) {
+                // Reload the tileset that this raster overlay is attached to
+                tilesetsToReload.emplace(tileset.value());
             }
         }
     }
 
     for (const auto& tileset : tilesetsToReload) {
         tileset->reload();
+    }
+}
+
+void Context::processPrimRemoved(const ChangedPrim& changedProperty) {
+    if (changedProperty.primType == ChangedPrimType::CESIUM_TILESET) {
+        auto tilesetId = AssetRegistry::getInstance().getTilesetId(changedProperty.path.GetString());
+
+        if (tilesetId.has_value()) {
+            removeTileset(tilesetId.value());
+        }
+    } else if (changedProperty.primType == ChangedPrimType::CESIUM_RASTER_OVERLAY) {
+        auto tileset = AssetRegistry::getInstance().getTilesetFromRasterOverlay(changedProperty.path.GetString());
+
+        if (tileset.has_value()) {
+            tileset.value()->reload();
+        }
+    }
+}
+
+void Context::processUsdNotifications() {
+    const auto changedPrims = _usdNotificationHandler.popChangedPrims();
+
+    for (const auto& change : changedPrims) {
+        switch (change.changeType) {
+            case ChangeType::PROPERTY_CHANGED:
+                processPropertyChanged(change);
+                break;
+            case ChangeType::PRIM_REMOVED:
+                processPrimRemoved(change);
+                break;
+            default:
+                break;
+        }
     }
 }
 

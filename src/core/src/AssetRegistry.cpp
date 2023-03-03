@@ -93,6 +93,17 @@ std::vector<std::pair<int64_t, const char*>> AssetRegistry::getAllTilesetIdsAndP
     return getAssetIdsByType(AssetType::TILESET);
 }
 
+std::optional<const AssetRegistryItem> AssetRegistry::getItemByPath(const pxr::SdfPath& path) {
+    const auto& strPath = path.GetString();
+    for (const auto& item : items) {
+        if (item.path == strPath) {
+            return item;
+        }
+    }
+
+    return std::nullopt;
+}
+
 void AssetRegistry::addRasterOverlay(int64_t assetId, const pxr::SdfPath& path, int64_t parentId) {
     items.insert(items.end(), AssetRegistryItem{assetId, AssetType::IMAGERY, std::nullopt, path.GetString(), parentId});
 }
@@ -110,6 +121,16 @@ std::optional<OmniIonRasterOverlay> AssetRegistry::getRasterOverlay(int64_t asse
     for (const auto& item : items) {
         if (item.type == AssetType::IMAGERY && item.assetId == assetId) {
             return OmniIonRasterOverlay(pxr::SdfPath(item.path));
+        }
+    }
+
+    return std::nullopt;
+}
+
+std::optional<int64_t> AssetRegistry::getRasterOverlayIdByPath(const pxr::SdfPath& path) {
+    for (const auto& item : items) {
+        if (item.type == AssetType::IMAGERY && item.path == path.GetString()) {
+            return item.assetId;
         }
     }
 
