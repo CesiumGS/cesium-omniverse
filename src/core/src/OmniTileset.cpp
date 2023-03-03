@@ -291,6 +291,8 @@ void OmniTileset::addIonRasterOverlay(const pxr::SdfPath& rasterOverlayPath) {
 
 void OmniTileset::onUpdateFrame(const std::vector<Cesium3DTilesSelection::ViewState>& viewStates) {
     if (!UsdUtil::primExists(_tilesetPath)) {
+        // TfNotice can be slow, and sometimes we get a frame or two before we actually get a chance to react on it.
+        //   This guard prevents us from crashing if the prim no longer exists.
         return;
     }
 

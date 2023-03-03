@@ -358,7 +358,7 @@ void Context::processUsdNotifications() {
         switch (change.changeType) {
             case ChangeType::PROPERTY_CHANGED:
                 processPropertyChanged(change);
-                continue;
+                break;
             case ChangeType::PRIM_REMOVED:
                 processPrimRemoved(change);
                 break;

@@ -69,8 +69,6 @@ void UsdNotificationHandler::onObjectsChanged(const pxr::UsdNotice::ObjectsChang
 
     const auto& resyncedPaths = objectsChanged.GetResyncedPaths();
     for (auto& path : resyncedPaths) {
-        // TODO: implement prim add, removal, deletion
-
         auto type = getType(path);
         if (UsdUtil::isCesiumTileset(path)) {
             // TODO: implement prim add
