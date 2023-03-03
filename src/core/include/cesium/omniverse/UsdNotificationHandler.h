@@ -4,6 +4,8 @@
 
 namespace cesium::omniverse {
 
+class AssetRegistry;
+
 enum class ChangedPrimType {
     CESIUM_TILESET,
     CESIUM_RASTER_OVERLAY,
@@ -11,10 +13,13 @@ enum class ChangedPrimType {
     OTHER,
 };
 
-struct ChangedProperty {
+enum class ChangeType { PROPERTY_CHANGED, PRIM_ADDED [[maybe_unused]], PRIM_MOVED [[maybe_unused]], PRIM_REMOVED };
+
+struct ChangedPrim {
     pxr::SdfPath path;
     pxr::TfToken name;
-    ChangedPrimType type;
+    ChangedPrimType primType;
+    ChangeType changeType;
 };
 
 class UsdNotificationHandler : public pxr::TfWeakBase {
@@ -22,13 +27,13 @@ class UsdNotificationHandler : public pxr::TfWeakBase {
     UsdNotificationHandler();
     ~UsdNotificationHandler();
 
-    std::vector<ChangedProperty> popChangedProperties();
+    std::vector<ChangedPrim> popChangedPrims();
 
   private:
     void onObjectsChanged(const pxr::UsdNotice::ObjectsChanged& objectsChanged);
 
     pxr::TfNotice::Key _noticeListenerKey;
-    std::vector<ChangedProperty> _changedProperties;
+    std::vector<ChangedPrim> _changedProperties;
 };
 
 } // namespace cesium::omniverse

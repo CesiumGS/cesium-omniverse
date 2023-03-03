@@ -287,9 +287,25 @@ void OmniTileset::addIonRasterOverlay(const pxr::SdfPath& rasterOverlayPath) {
     const auto rasterOverlayNative = new Cesium3DTilesSelection::IonRasterOverlay(
         uniqueName, rasterOverlayIonAssetId, rasterOverlayIonToken.value().token, options);
     _tileset->getOverlays().add(rasterOverlayNative);
-};
+}
+
+void OmniTileset::removeIonRasterOverlay(const int64_t ionAssetId) {
+    for (const auto& item : _tileset->getOverlays()) {
+        const auto uniqueName = fmt::format("raster_overlay_ion_{}", ionAssetId);
+        if (item->getName() == uniqueName) {
+            _tileset->getOverlays().remove(item);
+            return;
+        }
+    }
+
+    reload();
+}
 
 void OmniTileset::onUpdateFrame(const std::vector<Cesium3DTilesSelection::ViewState>& viewStates) {
+    if (!UsdUtil::primExists(_tilesetPath)) {
+        return;
+    }
+
     updateTransform();
     updateView(viewStates);
 }

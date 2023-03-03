@@ -109,6 +109,8 @@ class Context {
     std::vector<std::pair<std::string, bool>> getCredits() const;
 
   private:
+    void processPropertyChanged(const ChangedPrim& changedProperty);
+    void processPrimRemoved(const ChangedPrim& changedProperty);
     void processUsdNotifications();
 
     std::shared_ptr<TaskProcessor> _taskProcessor;

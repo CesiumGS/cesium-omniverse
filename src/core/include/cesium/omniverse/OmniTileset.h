@@ -52,6 +52,7 @@ class OmniTileset {
 
     void reload();
     void addIonRasterOverlay(const pxr::SdfPath& rasterOverlayPath);
+    void removeIonRasterOverlay(const int64_t ionAssetId);
     void onUpdateFrame(const std::vector<Cesium3DTilesSelection::ViewState>& viewStates);
 
   private:
