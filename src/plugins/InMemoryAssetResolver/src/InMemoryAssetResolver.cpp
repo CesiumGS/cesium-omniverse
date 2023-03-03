@@ -22,14 +22,23 @@ void InMemoryAssetContext::add(const std::string& name, std::vector<std::byte>&&
 }
 
 void InMemoryAssetContext::remove(const std::string& name) {
-    InMemoryAssetContext::Accessor accessor;
-    auto found = _assets.find(accessor, name);
-    if (found) {
-        auto& referenceCount = accessor->second->_referenceCount;
-        referenceCount--;
-        if (referenceCount == 0) {
-            _assets.erase(name);
+    bool removeItem = false;
+
+    {
+        // Make sure the accessor goes out of scope and the item is unlocked before removing the item
+        InMemoryAssetContext::Accessor accessor;
+        auto found = _assets.find(accessor, name);
+        if (found) {
+            auto& referenceCount = accessor->second->_referenceCount;
+            referenceCount--;
+            if (referenceCount == 0) {
+                removeItem = true;
+            }
         }
+    }
+
+    if (removeItem) {
+        _assets.erase(name);
     }
 }
 
