@@ -1,9 +1,11 @@
-from enum import Enum
 import logging
-import omni.ui as ui
+from enum import Enum
 from typing import Optional
-from ..bindings import ICesiumOmniverseInterface
+
+import omni.ui as ui
+
 from .troubleshooter_window import CesiumTroubleshooterWindow
+from ..bindings import ICesiumOmniverseInterface
 
 
 class Tileset(Enum):
@@ -42,21 +44,19 @@ class CesiumOmniverseDebugWindow(ui.Window):
             """Adds the Maxar data of Cape Canaveral to the stage."""
 
             # Cape Canaveral
-            self._cesium_omniverse_interface.set_georeference_origin(
-                -80.53, 28.46, -30.0)
+            self._cesium_omniverse_interface.set_georeference_origin(-80.53, 28.46, -30.0)
 
             self._cesium_omniverse_interface.add_tileset_ion(
                 "Cape Canaveral",
                 1387142,
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyMjRhYzI0Yi1kNWEwLTQ4ZWYtYjdmZC1hY2JmYWIzYmFiMGUiLCJpZCI6NDQsImlhdCI6MTY2NzQ4OTg0N30.du0tvWptgLWsvM1Gnbv3Zw_pDAOILg1Wr6s2sgK-qlM"
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyMjRhYzI0Yi1kNWEwLTQ4ZWYtYjdmZC1hY2JmYWIzYmFiMGUiLCJpZCI6NDQsImlhdCI6MTY2NzQ4OTg0N30.du0tvWptgLWsvM1Gnbv3Zw_pDAOILg1Wr6s2sgK-qlM",  # noqa: E501
             )
 
         def add_cesium_world_terrain():
             """Adds the standard Cesium World Terrain to the stage."""
 
             # Cesium HQ
-            self._cesium_omniverse_interface.set_georeference_origin(
-                -75.1564977, 39.9501464, 150.0)
+            self._cesium_omniverse_interface.set_georeference_origin(-75.1564977, 39.9501464, 150.0)
 
             tileset_id = self._cesium_omniverse_interface.add_tileset_ion(
                 "Cesium World Terrain",
@@ -73,8 +73,7 @@ class CesiumOmniverseDebugWindow(ui.Window):
             """Adds the Bing Maps & Cesium Terrain to the stage."""
 
             # Cesium HQ
-            self._cesium_omniverse_interface.set_georeference_origin(
-                -75.1564977, 39.9501464, 150.0)
+            self._cesium_omniverse_interface.set_georeference_origin(-75.1564977, 39.9501464, 150.0)
 
             tileset_id = self._cesium_omniverse_interface.add_tileset_ion(
                 "Bing Maps",
@@ -106,7 +105,7 @@ class CesiumOmniverseDebugWindow(ui.Window):
 
             tilesets = self._cesium_omniverse_interface.get_all_tileset_ids_and_paths()
 
-            for (tileset_id, _) in tilesets:
+            for tileset_id, _ in tilesets:
                 self._cesium_omniverse_interface.remove_tileset(tileset_id)
 
         def reload_all_tilesets():
@@ -114,7 +113,7 @@ class CesiumOmniverseDebugWindow(ui.Window):
 
             tilesets = self._cesium_omniverse_interface.get_all_tileset_ids_and_paths()
 
-            for (tileset_id, _) in tilesets:
+            for tileset_id, _ in tilesets:
                 self._cesium_omniverse_interface.reload_tileset(tileset_id)
 
         def print_fabric_stage():
@@ -124,26 +123,18 @@ class CesiumOmniverseDebugWindow(ui.Window):
             self._cesium_message_field.set_value(fabric_stage)
 
         def open_troubleshooting_window():
-            CesiumTroubleshooterWindow(
-                self._cesium_omniverse_interface, "Testing", 1, 0, "Testing")
+            CesiumTroubleshooterWindow(self._cesium_omniverse_interface, "Testing", 1, 0, "Testing")
 
         with ui.VStack():
             ui.Button(
                 "Create Cesium World Terrain Tileset", clicked_fn=lambda: create_tileset(Tileset.CESIUM_WORLD_TERRAIN)
             )
-            ui.Button("Create Bing Maps Tileset",
-                      clicked_fn=lambda: create_tileset(Tileset.BING_MAPS))
-            ui.Button("Create Cape Canaveral Tileset",
-                      clicked_fn=lambda: create_tileset(Tileset.CAPE_CANAVERAL))
-            ui.Button("Remove all Tilesets",
-                      clicked_fn=lambda: remove_all_tilesets())
-            ui.Button("Reload all Tilesets",
-                      clicked_fn=lambda: reload_all_tilesets())
-            ui.Button("Open Troubleshooter",
-                      clicked_fn=lambda: open_troubleshooting_window())
-            ui.Button("Print Fabric stage",
-                      clicked_fn=lambda: print_fabric_stage())
+            ui.Button("Create Bing Maps Tileset", clicked_fn=lambda: create_tileset(Tileset.BING_MAPS))
+            ui.Button("Create Cape Canaveral Tileset", clicked_fn=lambda: create_tileset(Tileset.CAPE_CANAVERAL))
+            ui.Button("Remove all Tilesets", clicked_fn=lambda: remove_all_tilesets())
+            ui.Button("Reload all Tilesets", clicked_fn=lambda: reload_all_tilesets())
+            ui.Button("Open Troubleshooter", clicked_fn=lambda: open_troubleshooting_window())
+            ui.Button("Print Fabric stage", clicked_fn=lambda: print_fabric_stage())
             with ui.VStack():
                 self._cesium_message_field = ui.SimpleStringModel("")
-                ui.StringField(self._cesium_message_field,
-                               multiline=True, read_only=True)
+                ui.StringField(self._cesium_message_field, multiline=True, read_only=True)

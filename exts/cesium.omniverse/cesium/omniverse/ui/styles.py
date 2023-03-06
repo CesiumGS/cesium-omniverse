@@ -19,11 +19,7 @@ class CesiumOmniverseUiStyles:
         "margin": 5,
     }
 
-    quick_add_button = {
-        "Button.Label": {
-            "font_size": 16
-        }
-    }
+    quick_add_button = {"Button.Label": {"font_size": 16}}
 
     blue_button_style = {
         "Button": {
@@ -37,43 +33,23 @@ class CesiumOmniverseUiStyles:
         "Button:hovered": {
             "background_color": cl("#3C81A2"),
         },
-        "Button:pressed": {
-            "background_color": cl("#2D6179")
-        }
+        "Button:pressed": {"background_color": cl("#2D6179")},
     }
 
     top_bar_button_style = {
-        "Button": {
-            "padding": 10.0,
-            "stack_direction": Direction.TOP_TO_BOTTOM
-        },
+        "Button": {"padding": 10.0, "stack_direction": Direction.TOP_TO_BOTTOM},
         "Button.Image": {
             "alignment": Alignment.CENTER,
         },
-        "Button.Label": {
-            "alignment": Alignment.CENTER_BOTTOM
-        }
+        "Button.Label": {"alignment": Alignment.CENTER_BOTTOM},
     }
 
-    asset_detail_frame = {
-        "ScrollingFrame": {
-            "background_color": cl("#1F2123"),
-            "padding": 10
-        }
-    }
+    asset_detail_frame = {"ScrollingFrame": {"background_color": cl("#1F2123"), "padding": 10}}
 
-    asset_detail_name_label = {
-        "font_size": 22
-    }
+    asset_detail_name_label = {"font_size": 22}
 
-    asset_detail_header_label = {
-        "font_size": 18
-    }
+    asset_detail_header_label = {"font_size": 18}
 
-    asset_detail_id_label = {
-        "font_size": 14
-    }
+    asset_detail_id_label = {"font_size": 14}
 
-    asset_detail_content_label = {
-        "font_size": 16
-    }
+    asset_detail_content_label = {"font_size": 16}

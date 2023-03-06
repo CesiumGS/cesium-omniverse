@@ -34,8 +34,7 @@ class CesiumOmniverseMainWindow(ui.Window):
 
         self._cesium_omniverse_interface = cesium_omniverse_interface
         self._logger = logging.getLogger(__name__)
-        self._icon_path = Path(
-            manager.get_extension_path(ext_id)).joinpath("images")
+        self._icon_path = Path(manager.get_extension_path(ext_id)).joinpath("images")
 
         # Buttons aren't created until the build function is called.
         self._add_button: Optional[ui.Button] = None
@@ -84,49 +83,46 @@ class CesiumOmniverseMainWindow(ui.Window):
         update_stream = app.get_app().get_update_event_stream()
         bus = app.get_app().get_message_bus_event_stream()
 
-        self._subscriptions.append(update_stream.create_subscription_to_pop(
-            self._on_update_frame, name="on_update_frame"))
-
-        assets_updated_event = carb.events.type_from_string(
-            "cesium.omniverse.ASSETS_UPDATED")
         self._subscriptions.append(
-            bus.create_subscription_to_pop_by_type(
-                assets_updated_event, self._on_assets_updated, name="assets_updated")
+            update_stream.create_subscription_to_pop(self._on_update_frame, name="on_update_frame")
         )
 
-        connection_updated_event = carb.events.type_from_string(
-            "cesium.omniverse.CONNECTION_UPDATED")
+        assets_updated_event = carb.events.type_from_string("cesium.omniverse.ASSETS_UPDATED")
+        self._subscriptions.append(
+            bus.create_subscription_to_pop_by_type(
+                assets_updated_event, self._on_assets_updated, name="assets_updated"
+            )
+        )
+
+        connection_updated_event = carb.events.type_from_string("cesium.omniverse.CONNECTION_UPDATED")
         self._subscriptions.append(
             bus.create_subscription_to_pop_by_type(
                 connection_updated_event, self._on_connection_updated, name="connection_updated"
             )
         )
 
-        profile_updated_event = carb.events.type_from_string(
-            "cesium.omniverse.PROFILE_UPDATED")
+        profile_updated_event = carb.events.type_from_string("cesium.omniverse.PROFILE_UPDATED")
         self._subscriptions.append(
             bus.create_subscription_to_pop_by_type(
                 profile_updated_event, self._on_profile_updated, name="profile_updated"
             )
         )
 
-        tokens_updated_event = carb.events.type_from_string(
-            "cesium.omniverse.TOKENS_UPDATED")
+        tokens_updated_event = carb.events.type_from_string("cesium.omniverse.TOKENS_UPDATED")
         self._subscriptions.append(
             bus.create_subscription_to_pop_by_type(
-                tokens_updated_event, self._on_tokens_updated, name="tokens_updated")
+                tokens_updated_event, self._on_tokens_updated, name="tokens_updated"
+            )
         )
 
-        show_token_window_event = carb.events.type_from_string(
-            "cesium.omniverse.SHOW_TOKEN_WINDOW")
+        show_token_window_event = carb.events.type_from_string("cesium.omniverse.SHOW_TOKEN_WINDOW")
         self._subscriptions.append(
             bus.create_subscription_to_pop_by_type(
                 show_token_window_event, self._on_show_token_window, name="cesium.omniverse.SHOW_TOKEN_WINDOW"
             )
         )
 
-        show_troubleshooter_event = carb.events.type_from_string(
-            "cesium.omniverse.SHOW_TROUBLESHOOTER")
+        show_troubleshooter_event = carb.events.type_from_string("cesium.omniverse.SHOW_TROUBLESHOOTER")
         self._subscriptions.append(
             bus.create_subscription_to_pop_by_type(
                 show_troubleshooter_event,
@@ -175,8 +171,9 @@ class CesiumOmniverseMainWindow(ui.Window):
             self._troubleshooter_window.destroy()
             self._troubleshooter_window = None
 
-        self._troubleshooter_window = CesiumTroubleshooterWindow(self._cesium_omniverse_interface, name, tileset_id,
-                                                                 tileset_ion_id, raster_overlay_id, message)
+        self._troubleshooter_window = CesiumTroubleshooterWindow(
+            self._cesium_omniverse_interface, name, tileset_id, tileset_ion_id, raster_overlay_id, message
+        )
 
     def _build_fn(self):
         """Builds all UI components."""
@@ -185,38 +182,55 @@ class CesiumOmniverseMainWindow(ui.Window):
             button_style = CesiumOmniverseUiStyles.top_bar_button_style
 
             with ui.HStack(height=ui.Length(80, ui.UnitType.PIXEL)):
-                self._add_button = ui.Button("Add", image_url=f"{self._icon_path}/FontAwesome/plus-solid.png",
-                                             style=button_style, clicked_fn=self._add_button_clicked, enabled=False)
-                self._upload_button = ui.Button("Upload",
-                                                image_url=f"{self._icon_path}/FontAwesome/cloud-upload-alt-solid.png",
-                                                style=button_style, clicked_fn=self._upload_button_clicked,
-                                                enabled=False)
-                self._token_button = ui.Button("Token", image_url=f"{self._icon_path}/FontAwesome/key-solid.png",
-                                               style=button_style, clicked_fn=self._token_button_clicked)
-                self._learn_button = ui.Button("Learn",
-                                               image_url=f"{self._icon_path}/FontAwesome/book-reader-solid.png",
-                                               style=button_style, clicked_fn=self._learn_button_clicked)
-                self._help_button = ui.Button("Help",
-                                              image_url=f"{self._icon_path}/FontAwesome/hands-helping-solid.png",
-                                              style=button_style, clicked_fn=self._help_button_clicked)
-                self._sign_out_button = ui.Button("Sign Out",
-                                                  image_url=f"{self._icon_path}/FontAwesome/sign-out-alt-solid.png",
-                                                  style=button_style, clicked_fn=self._sign_out_button_clicked,
-                                                  enabled=False)
-            self._quick_add_widget = CesiumOmniverseQuickAddWidget(
-                self._cesium_omniverse_interface)
-            self._sign_in_widget = CesiumOmniverseSignInWidget(
-                self._cesium_omniverse_interface, visible=False)
+                self._add_button = ui.Button(
+                    "Add",
+                    image_url=f"{self._icon_path}/FontAwesome/plus-solid.png",
+                    style=button_style,
+                    clicked_fn=self._add_button_clicked,
+                    enabled=False,
+                )
+                self._upload_button = ui.Button(
+                    "Upload",
+                    image_url=f"{self._icon_path}/FontAwesome/cloud-upload-alt-solid.png",
+                    style=button_style,
+                    clicked_fn=self._upload_button_clicked,
+                    enabled=False,
+                )
+                self._token_button = ui.Button(
+                    "Token",
+                    image_url=f"{self._icon_path}/FontAwesome/key-solid.png",
+                    style=button_style,
+                    clicked_fn=self._token_button_clicked,
+                )
+                self._learn_button = ui.Button(
+                    "Learn",
+                    image_url=f"{self._icon_path}/FontAwesome/book-reader-solid.png",
+                    style=button_style,
+                    clicked_fn=self._learn_button_clicked,
+                )
+                self._help_button = ui.Button(
+                    "Help",
+                    image_url=f"{self._icon_path}/FontAwesome/hands-helping-solid.png",
+                    style=button_style,
+                    clicked_fn=self._help_button_clicked,
+                )
+                self._sign_out_button = ui.Button(
+                    "Sign Out",
+                    image_url=f"{self._icon_path}/FontAwesome/sign-out-alt-solid.png",
+                    style=button_style,
+                    clicked_fn=self._sign_out_button_clicked,
+                    enabled=False,
+                )
+            self._quick_add_widget = CesiumOmniverseQuickAddWidget(self._cesium_omniverse_interface)
+            self._sign_in_widget = CesiumOmniverseSignInWidget(self._cesium_omniverse_interface, visible=False)
             ui.Spacer()
-            self._profile_widget = CesiumOmniverseProfileWidget(
-                self._cesium_omniverse_interface, height=20)
+            self._profile_widget = CesiumOmniverseProfileWidget(self._cesium_omniverse_interface, height=20)
 
     def _add_button_clicked(self) -> None:
         if not self._add_button or not self._add_button.enabled:
             return
 
-        show_asset_window_event = carb.events.type_from_string(
-            "cesium.omniverse.SHOW_ASSET_WINDOW")
+        show_asset_window_event = carb.events.type_from_string("cesium.omniverse.SHOW_ASSET_WINDOW")
         app.get_app().get_message_bus_event_stream().push(show_asset_window_event)
 
     def _upload_button_clicked(self) -> None:

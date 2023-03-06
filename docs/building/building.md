@@ -54,9 +54,9 @@ See [Linux](#linux) or [Windows](#windows) for step-by-step installation instruc
   ```sh
   sudo pip3 install cmake-format
   ```
-- Install `autopep8`
+- Install `black` and `flake8`
   ```sh
-  sudo pip3 install autopep8
+  pip3 install black==23.1.0 flake8==6.0.0
   ```
 - Add symlinks the clang-14 tools so that the correct version is chosen when running `clang-format`, `clang-tidy`, etc
   ```sh
@@ -100,9 +100,9 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
   ```sh
   pip3 install cmake-format
   ```
-- Install `autopep8`
+- Install `black` and `flake8`
   ```sh
-  pip3 install autopep8
+  pip3 install black==23.1.0 flake8==6.0.0
   ```
 - Install `colorama` to enable color diff support
   ```sh

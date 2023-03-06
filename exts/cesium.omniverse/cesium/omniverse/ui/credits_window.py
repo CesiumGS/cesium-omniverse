@@ -23,8 +23,7 @@ class CesiumOmniverseCreditsWindow(ui.Window):
 
         self._cesium_omniverse_interface = cesium_omniverse_interface
         self._logger = logging.getLogger(__name__)
-        self._images_path = Path(
-            manager.get_extension_path(ext_id)).joinpath("images")
+        self._images_path = Path(manager.get_extension_path(ext_id)).joinpath("images")
 
         self.height = 500
         self.width = 400
@@ -54,7 +53,7 @@ class CesiumOmniverseCreditsWindow(ui.Window):
             link = element.attrib["href"]
             text = "".join(element.itertext())
 
-            if text is not "":
+            if text != "":
                 ui.Button(text, height=0, width=0, clicked_fn=lambda: webbrowser.open(link))
             for child in element.iterchildren():
                 self._parse_element(child, link)
@@ -64,13 +63,17 @@ class CesiumOmniverseCreditsWindow(ui.Window):
                 data = urllib.request.urlopen(src).read()
                 img_data = BytesIO(data)
                 image = Image.open(img_data)
-                if image.mode is not "RGBA":
+                if image.mode != "RGBA":
                     image = image.convert("RGBA")
                 pixels = list(image.getdata())
                 provider = ui.ByteImageProvider()
                 provider.set_bytes_data(pixels, [image.size[0], image.size[1]])
-                ui.ImageWithProvider(provider, width=image.size[0], height=image.size[1],
-                                     fill_policy=ui.IwpFillPolicy.IWP_PRESERVE_ASPECT_FIT)
+                ui.ImageWithProvider(
+                    provider,
+                    width=image.size[0],
+                    height=image.size[1],
+                    fill_policy=ui.IwpFillPolicy.IWP_PRESERVE_ASPECT_FIT,
+                )
             except Exception as e:
                 self._logger.warning(f"Failed to load image from url: {src}")
                 self._logger.error(e)
@@ -104,10 +107,10 @@ class CesiumOmniverseCreditsWindow(ui.Window):
 
                 parser = etree.HTMLParser()
                 for credit, _ in self._credits:
-                    if credit is "":
+                    if credit == "":
                         continue
 
-                    if credit[0] is "<":
+                    if credit[0] == "<":
                         try:
                             doc = etree.fromstring(credit, parser)
                             self._parse_element(doc)

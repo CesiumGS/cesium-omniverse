@@ -1,0 +1,4 @@
+[tool.black]
+line-length = 118
+target-version = ['py37']
+include = '^/exts/cesium\.omniverse/cesium/.*\.pyi?$'
