@@ -36,13 +36,6 @@ class ICesiumOmniverseInterface {
     virtual void onShutdown() noexcept = 0;
 
     /**
-     * @brief Adds a Cesium data prim if it does not exist. Always sets the data prim to the specified token.
-     *
-     * @param token The project default token.
-     */
-    virtual void addCesiumDataIfNotExists(const char* token) noexcept = 0;
-
-    /**
      * @brief Adds a tileset from url.
      *
      * @param url The tileset url

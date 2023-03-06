@@ -26,12 +26,6 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         Context::onShutdown();
     }
 
-    void addCesiumDataIfNotExists(const char* token) noexcept override {
-        CesiumIonClient::Token t;
-        t.token = token;
-        Context::instance().addCesiumDataIfNotExists(t);
-    }
-
     int64_t addTilesetUrl(const char* url) noexcept override {
         return Context::instance().addTilesetUrl(url);
     }

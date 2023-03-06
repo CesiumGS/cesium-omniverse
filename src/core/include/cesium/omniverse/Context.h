@@ -56,7 +56,7 @@ class Context {
     std::shared_ptr<Cesium3DTilesSelection::CreditSystem> getCreditSystem();
     std::shared_ptr<spdlog::logger> getLogger();
 
-    void addCesiumDataIfNotExists(const CesiumIonClient::Token& token);
+    void setProjectDefaultToken(const CesiumIonClient::Token& token);
     int64_t addTilesetUrl(const std::string& url);
     int64_t addTilesetIon(const std::string& name, int64_t ionId, const std::string& ionToken);
     void addIonRasterOverlay(int64_t tilesetId, const std::string& name, int64_t ionId, const std::string& ionToken);

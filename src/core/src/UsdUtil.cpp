@@ -278,11 +278,16 @@ pxr::CesiumRasterOverlay defineCesiumRasterOverlay(const pxr::SdfPath& path) {
     return rasterOverlay;
 }
 
-pxr::CesiumData getCesiumData(const pxr::SdfPath& path) {
-    auto stage = getUsdStage();
-    auto cesiumData = pxr::CesiumData::Get(stage, path);
-    assert(cesiumData.GetPrim().IsValid());
-    return cesiumData;
+pxr::CesiumData getOrCreateCesiumData() {
+    static const auto CesiumDataPath = pxr::SdfPath("/Cesium");
+
+    if (isCesiumData(CesiumDataPath)) {
+        auto stage = getUsdStage();
+        auto cesiumData = pxr::CesiumData::Get(stage, CesiumDataPath);
+        return cesiumData;
+    }
+
+    return defineCesiumData(CesiumDataPath);
 }
 
 pxr::CesiumTilesetAPI getCesiumTileset(const pxr::SdfPath& path) {

@@ -55,8 +55,6 @@ Cesium3DTilesSelection::ViewState computeViewState(
         cameraPosition, cameraFwd, cameraUp, glm::dvec2(width, height), horizontalFov, verticalFov);
 }
 
-const pxr::SdfPath CesiumDataPath{"/Cesium"};
-
 std::unique_ptr<Context> context;
 
 } // namespace
@@ -137,17 +135,15 @@ std::shared_ptr<spdlog::logger> Context::getLogger() {
     return _logger;
 }
 
-void Context::addCesiumDataIfNotExists(const CesiumIonClient::Token& token) {
-    if (!UsdUtil::primExists(CesiumDataPath)) {
-        UsdUtil::defineCesiumData(CesiumDataPath);
+void Context::setProjectDefaultToken(const CesiumIonClient::Token& token) {
+    if (token.token.empty()) {
+        return;
     }
 
-    auto cesiumDataUsd = UsdUtil::getCesiumData(CesiumDataPath);
+    const auto cesiumDataUsd = UsdUtil::getOrCreateCesiumData();
 
-    if (!token.token.empty()) {
-        cesiumDataUsd.GetDefaultProjectIonAccessTokenAttr().Set<std::string>(token.token);
-        cesiumDataUsd.GetDefaultProjectIonAccessTokenIdAttr().Set<std::string>(token.id);
-    }
+    cesiumDataUsd.GetDefaultProjectIonAccessTokenAttr().Set<std::string>(token.token);
+    cesiumDataUsd.GetDefaultProjectIonAccessTokenIdAttr().Set<std::string>(token.id);
 }
 
 int64_t Context::addTilesetUrl(const std::string& url) {
@@ -391,7 +387,8 @@ void Context::setStageId(long stageId) {
 
         // Add the CesiumData prim so that we can set the georeference origin and other top-level properties
         // without waiting for an ion session to start
-        addCesiumDataIfNotExists({});
+        // TODO: does this clear the stage's previous georeference values?
+        UsdUtil::getOrCreateCesiumData();
     }
 
     _stageId = stageId;
@@ -402,7 +399,7 @@ int64_t Context::getContextId() const {
 }
 
 const CesiumGeospatial::Cartographic Context::getGeoreferenceOrigin() const {
-    const auto cesiumData = UsdUtil::getCesiumData(CesiumDataPath);
+    const auto cesiumData = UsdUtil::getOrCreateCesiumData();
 
     double longitude;
     double latitude;
@@ -415,7 +412,7 @@ const CesiumGeospatial::Cartographic Context::getGeoreferenceOrigin() const {
 }
 
 void Context::setGeoreferenceOrigin(const CesiumGeospatial::Cartographic& origin) {
-    const auto cesiumData = UsdUtil::getCesiumData(CesiumDataPath);
+    const auto cesiumData = UsdUtil::getOrCreateCesiumData();
 
     cesiumData.GetGeoreferenceOriginLongitudeAttr().Set<double>(glm::degrees(origin.longitude));
     cesiumData.GetGeoreferenceOriginLatitudeAttr().Set<double>(glm::degrees(origin.latitude));
@@ -439,14 +436,12 @@ std::optional<std::shared_ptr<CesiumIonSession>> Context::getSession() {
 }
 
 std::optional<CesiumIonClient::Token> Context::getDefaultToken() const {
-    if (!UsdUtil::primExists(CesiumDataPath)) {
-        return std::nullopt;
-    }
+    const auto cesiumDataUsd = UsdUtil::getOrCreateCesiumData();
 
-    const auto cesiumDataUsd = UsdUtil::getCesiumData(CesiumDataPath);
     std::string projectDefaultToken;
-    cesiumDataUsd.GetDefaultProjectIonAccessTokenAttr().Get(&projectDefaultToken);
     std::string projectDefaultTokenId;
+
+    cesiumDataUsd.GetDefaultProjectIonAccessTokenAttr().Get(&projectDefaultToken);
     cesiumDataUsd.GetDefaultProjectIonAccessTokenIdAttr().Get(&projectDefaultTokenId);
 
     if (projectDefaultToken.empty()) {
@@ -477,7 +472,7 @@ void Context::createToken(const std::string& name) {
     connection->createToken(name, {"assets:read"}, std::vector<int64_t>{1}, std::nullopt)
         .thenInMainThread([this](CesiumIonClient::Response<CesiumIonClient::Token>&& response) {
             if (response.value) {
-                addCesiumDataIfNotExists(response.value.value());
+                setProjectDefaultToken(response.value.value());
 
                 _lastSetTokenResult =
                     SetDefaultTokenResult{SetDefaultTokenResultCode::OK, SetDefaultTokenResultMessages::OK_MESSAGE};
@@ -501,7 +496,7 @@ void Context::selectToken(const CesiumIonClient::Token& token) {
             SetDefaultTokenResultCode::NOT_CONNECTED_TO_ION,
             SetDefaultTokenResultMessages::NOT_CONNECTED_TO_ION_MESSAGE};
     } else {
-        addCesiumDataIfNotExists(token);
+        setProjectDefaultToken(token);
 
         _lastSetTokenResult =
             SetDefaultTokenResult{SetDefaultTokenResultCode::OK, SetDefaultTokenResultMessages::OK_MESSAGE};
@@ -513,11 +508,11 @@ void Context::specifyToken(const std::string& token) {
     _session->findToken(token).thenInMainThread(
         [this, token](CesiumIonClient::Response<CesiumIonClient::Token>&& response) {
             if (response.value) {
-                addCesiumDataIfNotExists(response.value.value());
+                setProjectDefaultToken(response.value.value());
             } else {
                 CesiumIonClient::Token t;
                 t.token = token;
-                addCesiumDataIfNotExists(t);
+                setProjectDefaultToken(t);
             }
             // We assume the user knows what they're doing if they specify a token not on their account.
             _lastSetTokenResult =

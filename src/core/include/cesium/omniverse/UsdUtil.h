@@ -48,7 +48,7 @@ pxr::CesiumData defineCesiumData(const pxr::SdfPath& path);
 pxr::CesiumTilesetAPI defineCesiumTileset(const pxr::SdfPath& path);
 pxr::CesiumRasterOverlay defineCesiumRasterOverlay(const pxr::SdfPath& path);
 
-pxr::CesiumData getCesiumData(const pxr::SdfPath& path);
+pxr::CesiumData getOrCreateCesiumData();
 pxr::CesiumTilesetAPI getCesiumTileset(const pxr::SdfPath& path);
 pxr::CesiumRasterOverlay getCesiumRasterOverlay(const pxr::SdfPath& path);
 std::vector<pxr::SdfPath> getChildRasterOverlayPaths(const pxr::SdfPath& path);
