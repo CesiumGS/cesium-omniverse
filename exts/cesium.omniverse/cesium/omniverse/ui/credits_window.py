@@ -53,7 +53,7 @@ class CesiumOmniverseCreditsWindow(ui.Window):
             link = element.attrib["href"]
             text = "".join(element.itertext())
 
-            if text is not "":
+            if text != "":
                 ui.Button(text, height=0, width=0, clicked_fn=lambda: webbrowser.open(link))
             for child in element.iterchildren():
                 self._parse_element(child, link)
@@ -63,7 +63,7 @@ class CesiumOmniverseCreditsWindow(ui.Window):
                 data = urllib.request.urlopen(src).read()
                 img_data = BytesIO(data)
                 image = Image.open(img_data)
-                if image.mode is not "RGBA":
+                if image.mode != "RGBA":
                     image = image.convert("RGBA")
                 pixels = list(image.getdata())
                 provider = ui.ByteImageProvider()
@@ -107,10 +107,10 @@ class CesiumOmniverseCreditsWindow(ui.Window):
 
                 parser = etree.HTMLParser()
                 for credit, _ in self._credits:
-                    if credit is "":
+                    if credit == "":
                         continue
 
-                    if credit[0] is "<":
+                    if credit[0] == "<":
                         try:
                             doc = etree.fromstring(credit, parser)
                             self._parse_element(doc)

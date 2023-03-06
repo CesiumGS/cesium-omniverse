@@ -1,9 +1,11 @@
-from enum import Enum
 import logging
-import omni.ui as ui
+from enum import Enum
 from typing import Optional
-from ..bindings import ICesiumOmniverseInterface
+
+import omni.ui as ui
+
 from .troubleshooter_window import CesiumTroubleshooterWindow
+from ..bindings import ICesiumOmniverseInterface
 
 
 class Tileset(Enum):
@@ -47,7 +49,7 @@ class CesiumOmniverseDebugWindow(ui.Window):
             self._cesium_omniverse_interface.add_tileset_ion(
                 "Cape Canaveral",
                 1387142,
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyMjRhYzI0Yi1kNWEwLTQ4ZWYtYjdmZC1hY2JmYWIzYmFiMGUiLCJpZCI6NDQsImlhdCI6MTY2NzQ4OTg0N30.du0tvWptgLWsvM1Gnbv3Zw_pDAOILg1Wr6s2sgK-qlM",
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyMjRhYzI0Yi1kNWEwLTQ4ZWYtYjdmZC1hY2JmYWIzYmFiMGUiLCJpZCI6NDQsImlhdCI6MTY2NzQ4OTg0N30.du0tvWptgLWsvM1Gnbv3Zw_pDAOILg1Wr6s2sgK-qlM",  # noqa: E501
             )
 
         def add_cesium_world_terrain():

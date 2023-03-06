@@ -1,4 +1,4 @@
-from .bindings import *
+from .bindings import acquire_cesium_omniverse_interface, release_cesium_omniverse_interface
 from .utils.utils import wait_n_frames
 from .ui.asset_window import CesiumOmniverseAssetWindow
 from .ui.debug_window import CesiumOmniverseDebugWindow

@@ -1,9 +1,7 @@
-import os
-from .extension import *
-from .utils import *
+from . import extension
 from pxr import Plug
 
-pluginsRoot = os.path.join(os.path.dirname(__file__), "../../plugins")
+pluginsRoot = extension.os.path.join(extension.os.path.dirname(__file__), "../../plugins")
 inMemoryAssetResolverPath = pluginsRoot + "/InMemoryAssetResolver/resources"
 cesiumUsdSchemasPath = pluginsRoot + "/CesiumUsdSchemas/resources"
 
