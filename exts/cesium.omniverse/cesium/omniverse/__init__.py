@@ -1,4 +1,6 @@
-from . import extension
+import os  # noqa: F401
+from .extension import *  # noqa: F401 F403 F405
+from .utils import *  # noqa: F401 F403 F405
 from pxr import Plug
 
 pluginsRoot = extension.os.path.join(extension.os.path.dirname(__file__), "../../plugins")
