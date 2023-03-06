@@ -73,7 +73,9 @@ class CesiumOmniverseExtension(omni.ext.IExt):
     def on_startup(self):
         # The ability to show up the window if the system requires it. We use it in QuickLayout.
         ui.Workspace.set_show_window_fn(CesiumOmniverseMainWindow.WINDOW_NAME, partial(self.show_main_window, None))
-        ui.Workspace.set_show_window_fn(CesiumOmniverseAssetWindow.WINDOW_NAME, partial(self.show_assets_window, None))
+        ui.Workspace.set_show_window_fn(
+            CesiumOmniverseAssetWindow.WINDOW_NAME, partial(self.show_assets_window, None)
+        )
         ui.Workspace.set_show_window_fn(CesiumOmniverseDebugWindow.WINDOW_NAME, partial(self.show_debug_window, None))
 
         show_on_startup = True

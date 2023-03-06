@@ -7,7 +7,9 @@ from .date_model import DateModel
 class IonAssetItem(ui.AbstractItem):
     """Represents an ion Asset."""
 
-    def __init__(self, asset_id: int, name: str, description: str, attribution: str, asset_type: str, date_added: str):
+    def __init__(
+        self, asset_id: int, name: str, description: str, attribution: str, asset_type: str, date_added: str
+    ):
         super().__init__()
         self.id = ui.SimpleIntModel(asset_id)
         self.name = ui.SimpleStringModel(name)

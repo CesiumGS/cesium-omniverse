@@ -89,7 +89,9 @@ class CesiumOmniverseMainWindow(ui.Window):
 
         assets_updated_event = carb.events.type_from_string("cesium.omniverse.ASSETS_UPDATED")
         self._subscriptions.append(
-            bus.create_subscription_to_pop_by_type(assets_updated_event, self._on_assets_updated, name="assets_updated")
+            bus.create_subscription_to_pop_by_type(
+                assets_updated_event, self._on_assets_updated, name="assets_updated"
+            )
         )
 
         connection_updated_event = carb.events.type_from_string("cesium.omniverse.CONNECTION_UPDATED")
@@ -108,7 +110,9 @@ class CesiumOmniverseMainWindow(ui.Window):
 
         tokens_updated_event = carb.events.type_from_string("cesium.omniverse.TOKENS_UPDATED")
         self._subscriptions.append(
-            bus.create_subscription_to_pop_by_type(tokens_updated_event, self._on_tokens_updated, name="tokens_updated")
+            bus.create_subscription_to_pop_by_type(
+                tokens_updated_event, self._on_tokens_updated, name="tokens_updated"
+            )
         )
 
         show_token_window_event = carb.events.type_from_string("cesium.omniverse.SHOW_TOKEN_WINDOW")

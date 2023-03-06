@@ -119,7 +119,9 @@ class CesiumTroubleshooterWindow(ui.Window):
             self._default_token_has_access_widget.passed = default_token_details.allows_access_to_asset
 
         if self._default_token_associated_to_account_widget is not None:
-            self._default_token_associated_to_account_widget.passed = default_token_details.associated_with_user_account
+            self._default_token_associated_to_account_widget.passed = (
+                default_token_details.associated_with_user_account
+            )
 
         asset_token_details = self._cesium_omniverse_interface.get_asset_token_troubleshooting_details()
 
