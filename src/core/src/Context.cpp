@@ -143,9 +143,6 @@ void Context::addCesiumDataIfNotExists(const CesiumIonClient::Token& token) {
     }
 
     auto cesiumDataUsd = UsdUtil::getCesiumData(CesiumDataPath);
-    cesiumDataUsd.GetGeoreferenceOriginLongitudeAttr().Set<double>(-105.25737);
-    cesiumDataUsd.GetGeoreferenceOriginLatitudeAttr().Set<double>(39.736401);
-    cesiumDataUsd.GetGeoreferenceOriginHeightAttr().Set<double>(2250.0);
 
     if (!token.token.empty()) {
         cesiumDataUsd.GetDefaultProjectIonAccessTokenAttr().Set<std::string>(token.token);
@@ -162,19 +159,6 @@ int64_t Context::addTilesetUrl(const std::string& url) {
 
     tilesetUsd.GetUrlAttr().Set<std::string>(url);
 
-    tilesetUsd.GetMaximumScreenSpaceErrorAttr().Set<float>(16.0f);
-    tilesetUsd.GetPreloadAncestorsAttr().Set<bool>(true);
-    tilesetUsd.GetPreloadSiblingsAttr().Set<bool>(true);
-    tilesetUsd.GetForbidHolesAttr().Set<bool>(false);
-    tilesetUsd.GetMaximumSimultaneousTileLoadsAttr().Set<uint32_t>(20);
-    tilesetUsd.GetMaximumCachedBytesAttr().Set<uint64_t>(536870912);
-    tilesetUsd.GetLoadingDescendantLimitAttr().Set<uint32_t>(20);
-    tilesetUsd.GetEnableFrustumCullingAttr().Set<bool>(true);
-    tilesetUsd.GetEnableFogCullingAttr().Set<bool>(true);
-    tilesetUsd.GetEnforceCulledScreenSpaceErrorAttr().Set<bool>(true);
-    tilesetUsd.GetCulledScreenSpaceErrorAttr().Set<float>(64.0f);
-    tilesetUsd.GetSuspendUpdateAttr().Set<bool>(false);
-
     AssetRegistry::getInstance().addTileset(tilesetId, tilesetPath);
     return tilesetId;
 }
@@ -188,19 +172,6 @@ int64_t Context::addTilesetIon([[maybe_unused]] const std::string& name, int64_t
 
     tilesetUsd.GetIonAssetIdAttr().Set<int64_t>(ionId);
     tilesetUsd.GetIonAccessTokenAttr().Set<std::string>(ionToken);
-
-    tilesetUsd.GetMaximumScreenSpaceErrorAttr().Set<float>(16.0f);
-    tilesetUsd.GetPreloadAncestorsAttr().Set<bool>(true);
-    tilesetUsd.GetPreloadSiblingsAttr().Set<bool>(true);
-    tilesetUsd.GetForbidHolesAttr().Set<bool>(false);
-    tilesetUsd.GetMaximumSimultaneousTileLoadsAttr().Set<uint32_t>(20);
-    tilesetUsd.GetMaximumCachedBytesAttr().Set<uint64_t>(536870912);
-    tilesetUsd.GetLoadingDescendantLimitAttr().Set<uint32_t>(20);
-    tilesetUsd.GetEnableFrustumCullingAttr().Set<bool>(true);
-    tilesetUsd.GetEnableFogCullingAttr().Set<bool>(true);
-    tilesetUsd.GetEnforceCulledScreenSpaceErrorAttr().Set<bool>(true);
-    tilesetUsd.GetCulledScreenSpaceErrorAttr().Set<float>(64.0f);
-    tilesetUsd.GetSuspendUpdateAttr().Set<bool>(false);
 
     AssetRegistry::getInstance().addTileset(tilesetId, tilesetPath);
     return tilesetId;

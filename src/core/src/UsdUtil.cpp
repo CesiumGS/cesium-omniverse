@@ -233,9 +233,9 @@ pxr::CesiumData defineCesiumData(const pxr::SdfPath& path) {
 
     cesiumData.CreateDefaultProjectIonAccessTokenAttr();
     cesiumData.CreateDefaultProjectIonAccessTokenIdAttr();
-    cesiumData.CreateGeoreferenceOriginLongitudeAttr();
-    cesiumData.CreateGeoreferenceOriginLatitudeAttr();
-    cesiumData.CreateGeoreferenceOriginHeightAttr();
+    cesiumData.CreateGeoreferenceOriginLongitudeAttr(pxr::VtValue(-105.25737));
+    cesiumData.CreateGeoreferenceOriginLatitudeAttr(pxr::VtValue(39.736401));
+    cesiumData.CreateGeoreferenceOriginHeightAttr(pxr::VtValue(2250.0));
 
     return cesiumData;
 }
@@ -251,18 +251,18 @@ pxr::CesiumTilesetAPI defineCesiumTileset(const pxr::SdfPath& path) {
     tileset.CreateUrlAttr();
     tileset.CreateIonAssetIdAttr();
     tileset.CreateIonAccessTokenAttr();
-    tileset.CreateMaximumScreenSpaceErrorAttr();
-    tileset.CreatePreloadAncestorsAttr();
-    tileset.CreatePreloadSiblingsAttr();
-    tileset.CreateForbidHolesAttr();
-    tileset.CreateMaximumSimultaneousTileLoadsAttr();
-    tileset.CreateMaximumCachedBytesAttr();
-    tileset.CreateLoadingDescendantLimitAttr();
-    tileset.CreateEnableFrustumCullingAttr();
-    tileset.CreateEnableFogCullingAttr();
-    tileset.CreateEnforceCulledScreenSpaceErrorAttr();
-    tileset.CreateCulledScreenSpaceErrorAttr();
-    tileset.CreateSuspendUpdateAttr();
+    tileset.CreateMaximumScreenSpaceErrorAttr(pxr::VtValue(16.0f));
+    tileset.CreatePreloadAncestorsAttr(pxr::VtValue(true));
+    tileset.CreatePreloadSiblingsAttr(pxr::VtValue(true));
+    tileset.CreateForbidHolesAttr(pxr::VtValue(false));
+    tileset.CreateMaximumSimultaneousTileLoadsAttr(pxr::VtValue(uint32_t(20)));
+    tileset.CreateMaximumCachedBytesAttr(pxr::VtValue(uint64_t(536870912)));
+    tileset.CreateLoadingDescendantLimitAttr(pxr::VtValue(uint32_t(20)));
+    tileset.CreateEnableFrustumCullingAttr(pxr::VtValue(true));
+    tileset.CreateEnableFogCullingAttr(pxr::VtValue(true));
+    tileset.CreateEnforceCulledScreenSpaceErrorAttr(pxr::VtValue(true));
+    tileset.CreateCulledScreenSpaceErrorAttr(pxr::VtValue(64.0f));
+    tileset.CreateSuspendUpdateAttr(pxr::VtValue(false));
 
     return tileset;
 }
