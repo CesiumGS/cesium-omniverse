@@ -12,8 +12,16 @@ from .styles import CesiumOmniverseUiStyles
 class CesiumTroubleshooterWindow(ui.Window):
     WINDOW_BASE_NAME = "Token Troubleshooting"
 
-    def __init__(self, cesium_omniverse_interface: ICesiumOmniverseInterface, name: str, tileset_asset_id: int,
-                 tileset_ion_id: int, raster_overlay_id: int, message: str, **kwargs):
+    def __init__(
+        self,
+        cesium_omniverse_interface: ICesiumOmniverseInterface,
+        name: str,
+        tileset_asset_id: int,
+        tileset_ion_id: int,
+        raster_overlay_id: int,
+        message: str,
+        **kwargs,
+    ):
         window_name = f"{CesiumTroubleshooterWindow.WINDOW_BASE_NAME} - {name}"
 
         super().__init__(window_name, **kwargs)
@@ -27,8 +35,10 @@ class CesiumTroubleshooterWindow(ui.Window):
         self._raster_overlay_id = raster_overlay_id
 
         ion_id = raster_overlay_id if raster_overlay_id > 0 else tileset_ion_id
-        self._message = f"{name} tried to access Cesium ion for asset id {ion_id}, but it didn't work, probably " + \
-                        "due to a problem with the access token. This panel will help you fix it!"
+        self._message = (
+            f"{name} tried to access Cesium ion for asset id {ion_id}, but it didn't work, probably "
+            + "due to a problem with the access token. This panel will help you fix it!"
+        )
 
         self.height = 400
         self.width = 700
@@ -36,10 +46,8 @@ class CesiumTroubleshooterWindow(ui.Window):
         self.padding_x = 12
         self.padding_y = 12
 
-        self._token_details_event_type = carb.events.type_from_string(
-            "cesium.omniverse.TOKEN_DETAILS_READY")
-        self._asset_details_event_type = carb.events.type_from_string(
-            "cesium.omniverse.ASSET_DETAILS_READY")
+        self._token_details_event_type = carb.events.type_from_string("cesium.omniverse.TOKEN_DETAILS_READY")
+        self._asset_details_event_type = carb.events.type_from_string("cesium.omniverse.ASSET_DETAILS_READY")
 
         self._default_token_stack: Optional[ui.VStack] = None
         self._default_token_is_valid_widget: Optional[CesiumPassFailWidget] = None
@@ -55,14 +63,17 @@ class CesiumTroubleshooterWindow(ui.Window):
         self._setup_subscriptions()
 
         if raster_overlay_id > 0:
-            self._cesium_omniverse_interface.update_troubleshooting_details(tileset_asset_id, tileset_ion_id,
-                                                                            raster_overlay_id,
-                                                                            self._token_details_event_type,
-                                                                            self._asset_details_event_type)
+            self._cesium_omniverse_interface.update_troubleshooting_details(
+                tileset_asset_id,
+                tileset_ion_id,
+                raster_overlay_id,
+                self._token_details_event_type,
+                self._asset_details_event_type,
+            )
         else:
-            self._cesium_omniverse_interface.update_troubleshooting_details(tileset_asset_id, tileset_ion_id,
-                                                                            self._token_details_event_type,
-                                                                            self._asset_details_event_type)
+            self._cesium_omniverse_interface.update_troubleshooting_details(
+                tileset_asset_id, tileset_ion_id, self._token_details_event_type, self._asset_details_event_type
+            )
 
         self.frame.set_build_fn(self._build_ui)
 
@@ -78,13 +89,19 @@ class CesiumTroubleshooterWindow(ui.Window):
         bus = app.get_app().get_message_bus_event_stream()
 
         self._subscriptions.append(
-            bus.create_subscription_to_pop_by_type(self._token_details_event_type, self._on_token_details_ready,
-                                                   name="cesium.omniverse.TOKEN_DETAILS_READY")
+            bus.create_subscription_to_pop_by_type(
+                self._token_details_event_type,
+                self._on_token_details_ready,
+                name="cesium.omniverse.TOKEN_DETAILS_READY",
+            )
         )
 
         self._subscriptions.append(
-            bus.create_subscription_to_pop_by_type(self._asset_details_event_type, self._on_asset_details_ready,
-                                                   name="cesium.omniverse.ASSET_DETAILS_READY")
+            bus.create_subscription_to_pop_by_type(
+                self._asset_details_event_type,
+                self._on_asset_details_ready,
+                name="cesium.omniverse.ASSET_DETAILS_READY",
+            )
         )
 
     def _on_token_details_ready(self, _e: carb.events.IEvent):
@@ -134,8 +151,11 @@ class CesiumTroubleshooterWindow(ui.Window):
             with ui.VGrid(spacing=10, column_count=2):
                 self._asset_token_stack = ui.VStack(spacing=5, visible=False)
                 with self._asset_token_stack:
-                    ui.Label(f"{self._name}'s Access Token", height=16,
-                             style=CesiumOmniverseUiStyles.troubleshooter_header_style)
+                    ui.Label(
+                        f"{self._name}'s Access Token",
+                        height=16,
+                        style=CesiumOmniverseUiStyles.troubleshooter_header_style,
+                    )
                     with ui.HStack(height=16, spacing=10):
                         self._asset_token_is_valid_widget = CesiumPassFailWidget()
                         ui.Label("Is a valid Cesium ion Token")
@@ -147,8 +167,11 @@ class CesiumTroubleshooterWindow(ui.Window):
                         ui.Label("Is associated with your user account")
                 self._default_token_stack = ui.VStack(spacing=5, visible=False)
                 with self._default_token_stack:
-                    ui.Label("Project Default Access Token", height=16,
-                             style=CesiumOmniverseUiStyles.troubleshooter_header_style)
+                    ui.Label(
+                        "Project Default Access Token",
+                        height=16,
+                        style=CesiumOmniverseUiStyles.troubleshooter_header_style,
+                    )
                     with ui.HStack(height=16, spacing=10):
                         self._default_token_is_valid_widget = CesiumPassFailWidget()
                         ui.Label("Is a valid Cesium ion Token")
@@ -159,12 +182,15 @@ class CesiumTroubleshooterWindow(ui.Window):
                         self._default_token_associated_to_account_widget = CesiumPassFailWidget()
                         ui.Label("Is associated with your user account")
                 with ui.VStack(spacing=5):
-                    ui.Label(
-                        "Asset", height=16, style=CesiumOmniverseUiStyles.troubleshooter_header_style)
+                    ui.Label("Asset", height=16, style=CesiumOmniverseUiStyles.troubleshooter_header_style)
                     with ui.HStack(height=16, spacing=10):
                         self._asset_on_account_widget = CesiumPassFailWidget()
                         ui.Label("Asset ID exists in your user account")
             ui.Spacer()
-            ui.Button("Open Cesium ion on the Web", alignment=ui.Alignment.CENTER, height=36,
-                      style=CesiumOmniverseUiStyles.blue_button_style,
-                      clicked_fn=self._on_open_ion_button_clicked)
+            ui.Button(
+                "Open Cesium ion on the Web",
+                alignment=ui.Alignment.CENTER,
+                height=36,
+                style=CesiumOmniverseUiStyles.blue_button_style,
+                clicked_fn=self._on_open_ion_button_clicked,
+            )

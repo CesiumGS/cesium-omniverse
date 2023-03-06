@@ -55,7 +55,6 @@ class IonAssets(ui.AbstractItemModel):
 
 
 class IonAssetDelegate(ui.AbstractItemDelegate):
-
     def build_header(self, column_id: int = 0) -> None:
         with ui.ZStack(height=20):
             if column_id == 0:
@@ -65,14 +64,20 @@ class IonAssetDelegate(ui.AbstractItemDelegate):
             else:
                 ui.Label("Date Added")
 
-    def build_branch(self, model: ui.AbstractItemModel, item: ui.AbstractItem = None, column_id: int = 0,
-                     level: int = 0,
-                     expanded: bool = False) -> None:
+    def build_branch(
+        self,
+        model: ui.AbstractItemModel,
+        item: ui.AbstractItem = None,
+        column_id: int = 0,
+        level: int = 0,
+        expanded: bool = False,
+    ) -> None:
         # We don't use this because we don't have a hierarchy, but we need to at least stub it out.
         pass
 
-    def build_widget(self, model: IonAssets, item: IonAssetItem = None, column_id: int = 0, level: int = 0,
-                     expanded: bool = False) -> None:
+    def build_widget(
+        self, model: IonAssets, item: IonAssetItem = None, column_id: int = 0, level: int = 0, expanded: bool = False
+    ) -> None:
         with ui.ZStack(height=20):
             value_model = model.get_item_value_model(item, column_id)
             ui.Label(value_model.as_string)

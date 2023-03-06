@@ -8,8 +8,10 @@ from typing import List, Optional
 from ..bindings import ICesiumOmniverseInterface, Token
 from .styles import CesiumOmniverseUiStyles
 
-SELECT_TOKEN_TEXT = "Cesium for Omniverse embeds a Cesium ion token in your stage in order to allow it " \
-                    "to access the assets you add. Select the Cesium ion token to use."
+SELECT_TOKEN_TEXT = (
+    "Cesium for Omniverse embeds a Cesium ion token in your stage in order to allow it "
+    "to access the assets you add. Select the Cesium ion token to use."
+)
 CREATE_NEW_LABEL_TEXT = "Create a new token"
 USE_EXISTING_LABEL_TEXT = "Use an existing token"
 SPECIFY_TOKEN_LABEL_TEXT = "Specify a token"
@@ -47,8 +49,7 @@ class UseExistingComboModel(ui.AbstractItemModel):
         super().__init__()
         self._logger = logging.getLogger(__name__)
         self._current_index = ui.SimpleIntModel(0)
-        self._current_index.add_value_changed_fn(
-            lambda index_model: self._item_changed(None))
+        self._current_index.add_value_changed_fn(lambda index_model: self._item_changed(None))
 
         self._items = [UseExistingComboItem(text) for text in item_list]
 
@@ -100,17 +101,18 @@ class CesiumOmniverseTokenWindow(ui.Window):
         else:
             self._selected_option = TokenOptionEnum.SPECIFY_TOKEN
 
-        self._create_new_radio_button_model = ui.SimpleBoolModel(
-            self._is_connected)
+        self._create_new_radio_button_model = ui.SimpleBoolModel(self._is_connected)
         self._create_new_radio_button_model.add_value_changed_fn(
-            lambda m: self._radio_button_changed(m, TokenOptionEnum.CREATE_NEW))
+            lambda m: self._radio_button_changed(m, TokenOptionEnum.CREATE_NEW)
+        )
         self._use_existing_radio_button_model = ui.SimpleBoolModel(False)
         self._use_existing_radio_button_model.add_value_changed_fn(
-            lambda m: self._radio_button_changed(m, TokenOptionEnum.USE_EXISTING))
-        self._specify_token_radio_button_model = ui.SimpleBoolModel(
-            not self._is_connected)
+            lambda m: self._radio_button_changed(m, TokenOptionEnum.USE_EXISTING)
+        )
+        self._specify_token_radio_button_model = ui.SimpleBoolModel(not self._is_connected)
         self._specify_token_radio_button_model.add_value_changed_fn(
-            lambda m: self._radio_button_changed(m, TokenOptionEnum.SPECIFY_TOKEN))
+            lambda m: self._radio_button_changed(m, TokenOptionEnum.SPECIFY_TOKEN)
+        )
         self._use_existing_combo_box: Optional[ui.ComboBox] = None
         self._create_new_field_model = ui.SimpleStringModel()
         self._use_existing_combo_model = UseExistingComboModel([])
@@ -119,8 +121,7 @@ class CesiumOmniverseTokenWindow(ui.Window):
         cesium_prim = stage.GetPrimAtPath("/Cesium")
 
         if cesium_prim.IsValid():
-            current_token = cesium_prim.GetAttribute(
-                "cesium:defaultProjectToken").Get()
+            current_token = cesium_prim.GetAttribute("cesium:defaultProjectToken").Get()
             self._specify_token_field_model = ui.SimpleStringModel(current_token if current_token is not None else "")
         else:
             self._specify_token_field_model = ui.SimpleStringModel()
@@ -153,8 +154,7 @@ class CesiumOmniverseTokenWindow(ui.Window):
         update_stream = app.get_app().get_update_event_stream()
 
         self._subscriptions.append(
-            update_stream.create_subscription_to_pop(
-                self._on_update_frame, name="on_update_frame")
+            update_stream.create_subscription_to_pop(self._on_update_frame, name="on_update_frame")
         )
 
     def _on_update_frame(self, _e: carb.events.IEvent):
@@ -173,12 +173,10 @@ class CesiumOmniverseTokenWindow(ui.Window):
 
     def _select_button_clicked(self):
         bus = app.get_app().get_message_bus_event_stream()
-        completed_event = carb.events.type_from_string(
-            "cesium.omniverse.SET_DEFAULT_PROJECT_TOKEN_COMPLETE")
-        self._handle_select_result_sub = \
-            bus.create_subscription_to_pop_by_type(completed_event,
-                                                   self._handle_select_result,
-                                                   name="cesium.omniverse.HANDLE_SELECT_TOKEN_RESULT")
+        completed_event = carb.events.type_from_string("cesium.omniverse.SET_DEFAULT_PROJECT_TOKEN_COMPLETE")
+        self._handle_select_result_sub = bus.create_subscription_to_pop_by_type(
+            completed_event, self._handle_select_result, name="cesium.omniverse.HANDLE_SELECT_TOKEN_RESULT"
+        )
 
         if self._selected_option is TokenOptionEnum.CREATE_NEW:
             self._create_token()
@@ -192,12 +190,10 @@ class CesiumOmniverseTokenWindow(ui.Window):
         result = self._cesium_omniverse_interface.get_set_default_token_result()
 
         if result.code != 0:
-            self._logger.warning(
-                f"Error when trying to set token: {result.message}")
+            self._logger.warning(f"Error when trying to set token: {result.message}")
 
         bus = app.get_app().get_message_bus_event_stream()
-        success_event = carb.events.type_from_string(
-            "cesium.omniverse.SET_DEFAULT_TOKEN_SUCCESS")
+        success_event = carb.events.type_from_string("cesium.omniverse.SET_DEFAULT_TOKEN_SUCCESS")
         bus.push(success_event)
 
         self.visible = False
@@ -213,8 +209,9 @@ class CesiumOmniverseTokenWindow(ui.Window):
         token = self._use_existing_combo_model.get_current_selection()
 
         if token is not None:
-            self._cesium_omniverse_interface.select_token(token.id.get_value_as_string(),
-                                                          token.token.get_value_as_string())
+            self._cesium_omniverse_interface.select_token(
+                token.id.get_value_as_string(), token.token.get_value_as_string()
+            )
 
     def _specify_token(self):
         token = self._specify_token_field_model.get_value_as_string().strip()
@@ -248,9 +245,11 @@ class CesiumOmniverseTokenWindow(ui.Window):
         has us using checkboxes to make a radio button rather than a proper radio button.
         """
 
-        if not self._create_new_radio_button_model.get_value_as_bool() and \
-                not self._use_existing_radio_button_model.get_value_as_bool() \
-                and not self._specify_token_radio_button_model.get_value_as_bool():
+        if (
+            not self._create_new_radio_button_model.get_value_as_bool()
+            and not self._use_existing_radio_button_model.get_value_as_bool()
+            and not self._specify_token_radio_button_model.get_value_as_bool()
+        ):
             if selected is TokenOptionEnum.CREATE_NEW:
                 self._create_new_radio_button_model.set_value(True)
             elif selected is TokenOptionEnum.USE_EXISTING:
@@ -259,8 +258,13 @@ class CesiumOmniverseTokenWindow(ui.Window):
                 self._specify_token_radio_button_model.set_value(True)
 
     @staticmethod
-    def _build_field(label_text: str, field_label_text: str, checkbox_model: ui.SimpleBoolModel,
-                     string_field_model: ui.SimpleStringModel, visible=True):
+    def _build_field(
+        label_text: str,
+        field_label_text: str,
+        checkbox_model: ui.SimpleBoolModel,
+        string_field_model: ui.SimpleStringModel,
+        visible=True,
+    ):
         with ui.HStack(spacing=OUTER_SPACING, visible=visible):
             ui.CheckBox(checkbox_model, width=CHECKBOX_WIDTH)
             with ui.VStack(height=INNER_HEIGHT, spacing=FIELD_SPACING):
@@ -272,20 +276,30 @@ class CesiumOmniverseTokenWindow(ui.Window):
     def _build_ui(self):
         with ui.VStack(spacing=10):
             ui.Label(SELECT_TOKEN_TEXT, height=40, word_wrap=True)
-            self._build_field(CREATE_NEW_LABEL_TEXT, CREATE_NEW_FIELD_LABEL_TEXT,
-                              self._create_new_radio_button_model,
-                              self._create_new_field_model, self._is_connected)
+            self._build_field(
+                CREATE_NEW_LABEL_TEXT,
+                CREATE_NEW_FIELD_LABEL_TEXT,
+                self._create_new_radio_button_model,
+                self._create_new_field_model,
+                self._is_connected,
+            )
             with ui.HStack(spacing=OUTER_SPACING, visible=self._is_connected):
-                ui.CheckBox(self._use_existing_radio_button_model,
-                            width=CHECKBOX_WIDTH)
+                ui.CheckBox(self._use_existing_radio_button_model, width=CHECKBOX_WIDTH)
                 with ui.VStack(height=20, spacing=FIELD_SPACING):
                     ui.Label(USE_EXISTING_LABEL_TEXT)
                     with ui.HStack():
-                        ui.Label(USE_EXISTING_FIELD_LABEL_TEXT,
-                                 width=FIELD_LABEL_WIDTH)
-                        self._use_existing_combo_box = ui.ComboBox(
-                            self._use_existing_combo_model)
-            self._build_field(SPECIFY_TOKEN_LABEL_TEXT, SPECIFY_TOKEN_FIELD_LABEL_TEXT,
-                              self._specify_token_radio_button_model, self._specify_token_field_model)
-            ui.Button(SELECT_BUTTON_TEXT, alignment=ui.Alignment.CENTER, height=36,
-                      style=CesiumOmniverseUiStyles.blue_button_style, clicked_fn=self._select_button_clicked)
+                        ui.Label(USE_EXISTING_FIELD_LABEL_TEXT, width=FIELD_LABEL_WIDTH)
+                        self._use_existing_combo_box = ui.ComboBox(self._use_existing_combo_model)
+            self._build_field(
+                SPECIFY_TOKEN_LABEL_TEXT,
+                SPECIFY_TOKEN_FIELD_LABEL_TEXT,
+                self._specify_token_radio_button_model,
+                self._specify_token_field_model,
+            )
+            ui.Button(
+                SELECT_BUTTON_TEXT,
+                alignment=ui.Alignment.CENTER,
+                height=36,
+                style=CesiumOmniverseUiStyles.blue_button_style,
+                clicked_fn=self._select_button_clicked,
+            )

@@ -39,8 +39,11 @@ class CesiumCreditsViewportFrame:
 
     def _setup_subscriptions(self):
         update_stream = app.get_app().get_update_event_stream()
-        self._subscriptions.append(update_stream.create_subscription_to_pop(self._on_update_frame,
-                                                                            name="cesium.omniverse.viewport.ON_UPDATE_FRAME"))
+        self._subscriptions.append(
+            update_stream.create_subscription_to_pop(
+                self._on_update_frame, name="cesium.omniverse.viewport.ON_UPDATE_FRAME"
+            )
+        )
 
     def _on_update_frame(self, _e: carb.events.IEvent):
         if self._data_attribution_button is None:
@@ -64,6 +67,10 @@ class CesiumCreditsViewportFrame:
                 ui.Spacer()
                 with ui.HStack(height=0):
                     ui.Spacer()
-                    self._data_attribution_button = ui.Button("Data Attribution", visible=False, width=0,
-                                                              height=0,
-                                                              clicked_fn=self._on_data_attribution_button_clicked)
+                    self._data_attribution_button = ui.Button(
+                        "Data Attribution",
+                        visible=False,
+                        width=0,
+                        height=0,
+                        clicked_fn=self._on_data_attribution_button_clicked,
+                    )

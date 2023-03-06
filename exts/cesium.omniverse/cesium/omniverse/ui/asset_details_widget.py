@@ -10,8 +10,9 @@ from .styles import CesiumOmniverseUiStyles
 
 
 class CesiumAssetDetailsWidget(ui.ScrollingFrame):
-    def __init__(self, cesium_omniverse_interface: ICesiumOmniverseInterface, asset: Optional[IonAssetItem] = None,
-                 **kwargs):
+    def __init__(
+        self, cesium_omniverse_interface: ICesiumOmniverseInterface, asset: Optional[IonAssetItem] = None, **kwargs
+    ):
         super().__init__(**kwargs)
 
         self._cesium_omniverse_interface = cesium_omniverse_interface
@@ -99,40 +100,40 @@ class CesiumAssetDetailsWidget(ui.ScrollingFrame):
         add_imagery_event = carb.events.type_from_string("cesium.omniverse.ADD_IMAGERY")
         app.get_app().get_message_bus_event_stream().push(add_imagery_event, payload=imagery_to_add.to_dict())
 
-
-
     def _build_fn(self):
         with self:
             if self._should_be_visible():
                 with ui.VStack(spacing=20):
                     with ui.VStack(spacing=5):
-                        ui.Label(
-                            self._name, style=CesiumOmniverseUiStyles.asset_detail_name_label, height=0)
-                        ui.Label(
-                            f"(ID: {self._id})", style=CesiumOmniverseUiStyles.asset_detail_id_label, height=0)
+                        ui.Label(self._name, style=CesiumOmniverseUiStyles.asset_detail_name_label, height=0)
+                        ui.Label(f"(ID: {self._id})", style=CesiumOmniverseUiStyles.asset_detail_id_label, height=0)
                     with ui.HStack(spacing=0, height=0):
                         ui.Spacer(height=0)
                         if self._asset_type == "3DTILES" or self._asset_type == "TERRAIN":
-                            ui.Button("Add to Stage", width=0, height=0,
-                                      style=CesiumOmniverseUiStyles.blue_button_style,
-                                      clicked_fn=self._add_tileset_button_clicked)
+                            ui.Button(
+                                "Add to Stage",
+                                width=0,
+                                height=0,
+                                style=CesiumOmniverseUiStyles.blue_button_style,
+                                clicked_fn=self._add_tileset_button_clicked,
+                            )
                         elif self._asset_type == "IMAGERY":
-                            ui.Button("Use as Terrain Tileset Base Layer", width=0, height=0,
-                                      style=CesiumOmniverseUiStyles.blue_button_style,
-                                      clicked_fn=self._add_imagery_button_clicked)
+                            ui.Button(
+                                "Use as Terrain Tileset Base Layer",
+                                width=0,
+                                height=0,
+                                style=CesiumOmniverseUiStyles.blue_button_style,
+                                clicked_fn=self._add_imagery_button_clicked,
+                            )
                         else:
                             # Skipping adding a button for things we cannot add for now.
                             pass
                         ui.Spacer(height=0)
                     with ui.VStack(spacing=5):
-                        ui.Label(
-                            "Description", style=CesiumOmniverseUiStyles.asset_detail_header_label, height=0)
-                        ui.Label(self._description, word_wrap=True,
-                                 alignment=ui.Alignment.TOP, height=0)
+                        ui.Label("Description", style=CesiumOmniverseUiStyles.asset_detail_header_label, height=0)
+                        ui.Label(self._description, word_wrap=True, alignment=ui.Alignment.TOP, height=0)
                     with ui.VStack(spacing=5):
-                        ui.Label(
-                            "Attribution", style=CesiumOmniverseUiStyles.asset_detail_header_label, height=0)
-                        ui.Label(self._attribution, word_wrap=True,
-                                 alignment=ui.Alignment.TOP, height=0)
+                        ui.Label("Attribution", style=CesiumOmniverseUiStyles.asset_detail_header_label, height=0)
+                        ui.Label(self._attribution, word_wrap=True, alignment=ui.Alignment.TOP, height=0)
             else:
                 ui.Spacer()

@@ -32,7 +32,8 @@ class CesiumOmniverseProfileWidget(ui.Frame):
     def _setup_subscriptions(self):
         update_stream = app.get_app().get_update_event_stream()
         self._subscriptions.append(
-            update_stream.create_subscription_to_pop(self._on_update_frame, name="on_update_frame"))
+            update_stream.create_subscription_to_pop(self._on_update_frame, name="on_update_frame")
+        )
 
     def _on_update_frame(self, _e: carb.events.IEvent):
         session = self._cesium_omniverse_interface.get_session()
@@ -63,5 +64,4 @@ class CesiumOmniverseProfileWidget(ui.Frame):
 
     def _build_ui(self):
         with self:
-            ui.Button(self._message, clicked_fn=self._on_profile_button_clicked,
-                      enabled=self._button_enabled)
+            ui.Button(self._message, clicked_fn=self._on_profile_button_clicked, enabled=self._button_enabled)

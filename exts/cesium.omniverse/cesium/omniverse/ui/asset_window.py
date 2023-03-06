@@ -65,11 +65,11 @@ class CesiumOmniverseAssetWindow(ui.Window):
     def _setup_subscriptions(self):
         bus = app.get_app().get_message_bus_event_stream()
 
-        assets_updated_event = carb.events.type_from_string(
-            "cesium.omniverse.ASSETS_UPDATED")
+        assets_updated_event = carb.events.type_from_string("cesium.omniverse.ASSETS_UPDATED")
         self._subscriptions.append(
-            bus.create_subscription_to_pop_by_type(assets_updated_event, self._on_assets_updated,
-                                                   name="cesium.omniverse.asset_window.assets_updated")
+            bus.create_subscription_to_pop_by_type(
+                assets_updated_event, self._on_assets_updated, name="cesium.omniverse.asset_window.assets_updated"
+            )
         )
 
     def _refresh_list(self):
@@ -87,12 +87,9 @@ class CesiumOmniverseAssetWindow(ui.Window):
             self._assets.replace_items(
                 [
                     IonAssetItem(
-                        item.asset_id,
-                        item.name,
-                        item.description,
-                        item.attribution,
-                        item.asset_type,
-                        item.date_added) for item in session.get_assets().items
+                        item.asset_id, item.name, item.description, item.attribution, item.asset_type, item.date_added
+                    )
+                    for item in session.get_assets().items
                 ]
             )
 
@@ -112,20 +109,28 @@ class CesiumOmniverseAssetWindow(ui.Window):
 
         with ui.VStack(spacing=5):
             with ui.HStack(height=30):
-                self._refresh_button = ui.Button("Refresh", alignment=ui.Alignment.CENTER, width=80,
-                                                 style=CesiumOmniverseUiStyles.blue_button_style,
-                                                 clicked_fn=self._refresh_button_clicked)
+                self._refresh_button = ui.Button(
+                    "Refresh",
+                    alignment=ui.Alignment.CENTER,
+                    width=80,
+                    style=CesiumOmniverseUiStyles.blue_button_style,
+                    clicked_fn=self._refresh_button_clicked,
+                )
                 ui.Spacer()
             with ui.HStack(spacing=5):
-                with ui.ScrollingFrame(style_type_name_override="TreeView",
-                                       style={
-                                           "Field": {"background_color": 0xFF000000}},
-                                       width=ui.Length(2, ui.UnitType.FRACTION)):
-                    self._asset_tree_view = ui.TreeView(self._assets, delegate=self._assets_delegate,
-                                                        root_visible=False,
-                                                        header_visible=True,
-                                                        style={"TreeView.Item": {"margin": 4}})
-                    self._asset_tree_view.set_selection_changed_fn(
-                        self._selection_changed)
-                self._asset_details_widget = CesiumAssetDetailsWidget(self._cesium_omniverse_interface,
-                                                                      width=ui.Length(1, ui.UnitType.FRACTION))
+                with ui.ScrollingFrame(
+                    style_type_name_override="TreeView",
+                    style={"Field": {"background_color": 0xFF000000}},
+                    width=ui.Length(2, ui.UnitType.FRACTION),
+                ):
+                    self._asset_tree_view = ui.TreeView(
+                        self._assets,
+                        delegate=self._assets_delegate,
+                        root_visible=False,
+                        header_visible=True,
+                        style={"TreeView.Item": {"margin": 4}},
+                    )
+                    self._asset_tree_view.set_selection_changed_fn(self._selection_changed)
+                self._asset_details_widget = CesiumAssetDetailsWidget(
+                    self._cesium_omniverse_interface, width=ui.Length(1, ui.UnitType.FRACTION)
+                )

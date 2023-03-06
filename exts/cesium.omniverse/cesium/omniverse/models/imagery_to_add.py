@@ -13,7 +13,7 @@ class ImageryToAdd:
         return {
             "tileset_ion_id": self.tileset_ion_id,
             "imagery_ion_id": self.imagery_ion_id,
-            "imagery_name": self.imagery_name
+            "imagery_name": self.imagery_name,
         }
 
     @staticmethod
@@ -21,6 +21,6 @@ class ImageryToAdd:
         if event.payload is None or len(event.payload) == 0:
             return None
 
-        return ImageryToAdd(event.payload["tileset_ion_id"],
-                            event.payload["imagery_ion_id"],
-                            event.payload["imagery_name"])
+        return ImageryToAdd(
+            event.payload["tileset_ion_id"], event.payload["imagery_ion_id"], event.payload["imagery_name"]
+        )
