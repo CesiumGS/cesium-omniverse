@@ -151,7 +151,7 @@ public:
   // IONACCESSTOKEN
   // --------------------------------------------------------------------- //
   /// The access token to use to access the Cesium ion resource. Overrides the
-  /// default project token. Blank if using URL.
+  /// default token. Blank if using URL.
   ///
   /// | ||
   /// | -- | -- |

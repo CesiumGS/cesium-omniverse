@@ -4,8 +4,8 @@ PXR_NAMESPACE_OPEN_SCOPE
 
 CesiumTokensType::CesiumTokensType() :
     cesiumCulledScreenSpaceError("cesium:culledScreenSpaceError", TfToken::Immortal),
-    cesiumDefaultProjectIonAccessToken("cesium:defaultProjectIonAccessToken", TfToken::Immortal),
-    cesiumDefaultProjectIonAccessTokenId("cesium:defaultProjectIonAccessTokenId", TfToken::Immortal),
+    cesiumDefaultIonAccessToken("cesium:defaultIonAccessToken", TfToken::Immortal),
+    cesiumDefaultIonAccessTokenId("cesium:defaultIonAccessTokenId", TfToken::Immortal),
     cesiumEnableFogCulling("cesium:enableFogCulling", TfToken::Immortal),
     cesiumEnableFrustumCulling("cesium:enableFrustumCulling", TfToken::Immortal),
     cesiumEnforceCulledScreenSpaceError("cesium:enforceCulledScreenSpaceError", TfToken::Immortal),
@@ -25,8 +25,8 @@ CesiumTokensType::CesiumTokensType() :
     cesiumUrl("cesium:url", TfToken::Immortal),
     allTokens({
         cesiumCulledScreenSpaceError,
-        cesiumDefaultProjectIonAccessToken,
-        cesiumDefaultProjectIonAccessTokenId,
+        cesiumDefaultIonAccessToken,
+        cesiumDefaultIonAccessTokenId,
         cesiumEnableFogCulling,
         cesiumEnableFrustumCulling,
         cesiumEnforceCulledScreenSpaceError,

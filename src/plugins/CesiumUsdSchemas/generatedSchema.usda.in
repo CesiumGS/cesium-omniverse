@@ -12,12 +12,12 @@ class CesiumDataPrim "CesiumDataPrim" (
     doc = "Stores stage level data for Cesium for Omniverse/USD."
 )
 {
-    string cesium:defaultProjectIonAccessToken = "" (
-        displayName = "Default Project ion Access Token"
+    string cesium:defaultIonAccessToken = "" (
+        displayName = "Default ion Access Token"
         doc = "A string representing the token for accessing Cesium ion assets."
     )
-    string cesium:defaultProjectIonAccessTokenId = "" (
-        displayName = "Default Project ion Access Token ID"
+    string cesium:defaultIonAccessTokenId = "" (
+        displayName = "Default ion Access Token ID"
         doc = "A string representing the token ID for accessing Cesium ion assets."
     )
     double cesium:georeferenceOrigin:height = 2250 (
@@ -60,7 +60,7 @@ class "CesiumTilesetSchemaAPI" (
     )
     string cesium:ionAccessToken = "" (
         displayName = "ion Access Token"
-        doc = "The access token to use to access the Cesium ion resource. Overrides the default project token. Blank if using URL."
+        doc = "The access token to use to access the Cesium ion resource. Overrides the default token. Blank if using URL."
     )
     int64 cesium:ionAssetId = 0 (
         displayName = "ion Asset ID"
@@ -106,7 +106,7 @@ class CesiumImageryPrim "CesiumImageryPrim" (
 {
     string cesium:ionAccessToken = "" (
         displayName = "ion Access Token"
-        doc = "The access token to use to access the Cesium ion resource. Overrides the default project token. Blank if using URL."
+        doc = "The access token to use to access the Cesium ion resource. Overrides the default token. Blank if using URL."
     )
     int64 cesium:ionAssetId = 0 (
         displayName = "ion Asset ID"

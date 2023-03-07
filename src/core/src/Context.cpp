@@ -142,8 +142,8 @@ void Context::setProjectDefaultToken(const CesiumIonClient::Token& token) {
 
     const auto cesiumDataUsd = UsdUtil::getOrCreateCesiumData();
 
-    cesiumDataUsd.GetDefaultProjectIonAccessTokenAttr().Set<std::string>(token.token);
-    cesiumDataUsd.GetDefaultProjectIonAccessTokenIdAttr().Set<std::string>(token.id);
+    cesiumDataUsd.GetDefaultIonAccessTokenAttr().Set<std::string>(token.token);
+    cesiumDataUsd.GetDefaultIonAccessTokenIdAttr().Set<std::string>(token.id);
 }
 
 pxr::SdfPath Context::addTilesetUrl(const std::string& name, const std::string& url) {
@@ -244,7 +244,7 @@ void Context::processPropertyChanged(const ChangedPrim& changedProperty) {
     std::set<std::shared_ptr<OmniTileset>> tilesetsToReload;
 
     if (primType == ChangedPrimType::CESIUM_DATA) {
-        if (name == pxr::CesiumTokens->cesiumDefaultProjectIonAccessToken) {
+        if (name == pxr::CesiumTokens->cesiumDefaultIonAccessToken) {
             // Any tilesets that use the default token are reloaded when it changes
             const auto& tilesets = AssetRegistry::getInstance().getAllTilesets();
             for (const auto& tileset : tilesets) {
@@ -425,8 +425,8 @@ std::optional<CesiumIonClient::Token> Context::getDefaultToken() const {
     std::string projectDefaultToken;
     std::string projectDefaultTokenId;
 
-    cesiumDataUsd.GetDefaultProjectIonAccessTokenAttr().Get(&projectDefaultToken);
-    cesiumDataUsd.GetDefaultProjectIonAccessTokenIdAttr().Get(&projectDefaultTokenId);
+    cesiumDataUsd.GetDefaultIonAccessTokenAttr().Get(&projectDefaultToken);
+    cesiumDataUsd.GetDefaultIonAccessTokenIdAttr().Get(&projectDefaultTokenId);
 
     if (projectDefaultToken.empty()) {
         return std::nullopt;

@@ -80,15 +80,15 @@ CesiumData::_GetTfType() const
 }
 
 UsdAttribute
-CesiumData::GetDefaultProjectIonAccessTokenAttr() const
+CesiumData::GetDefaultIonAccessTokenAttr() const
 {
-    return GetPrim().GetAttribute(CesiumTokens->cesiumDefaultProjectIonAccessToken);
+    return GetPrim().GetAttribute(CesiumTokens->cesiumDefaultIonAccessToken);
 }
 
 UsdAttribute
-CesiumData::CreateDefaultProjectIonAccessTokenAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumData::CreateDefaultIonAccessTokenAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
-    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumDefaultProjectIonAccessToken,
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumDefaultIonAccessToken,
                        SdfValueTypeNames->String,
                        /* custom = */ false,
                        SdfVariabilityVarying,
@@ -97,15 +97,15 @@ CesiumData::CreateDefaultProjectIonAccessTokenAttr(VtValue const &defaultValue, 
 }
 
 UsdAttribute
-CesiumData::GetDefaultProjectIonAccessTokenIdAttr() const
+CesiumData::GetDefaultIonAccessTokenIdAttr() const
 {
-    return GetPrim().GetAttribute(CesiumTokens->cesiumDefaultProjectIonAccessTokenId);
+    return GetPrim().GetAttribute(CesiumTokens->cesiumDefaultIonAccessTokenId);
 }
 
 UsdAttribute
-CesiumData::CreateDefaultProjectIonAccessTokenIdAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumData::CreateDefaultIonAccessTokenIdAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
-    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumDefaultProjectIonAccessTokenId,
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumDefaultIonAccessTokenId,
                        SdfValueTypeNames->String,
                        /* custom = */ false,
                        SdfVariabilityVarying,
@@ -181,8 +181,8 @@ const TfTokenVector&
 CesiumData::GetSchemaAttributeNames(bool includeInherited)
 {
     static TfTokenVector localNames = {
-        CesiumTokens->cesiumDefaultProjectIonAccessToken,
-        CesiumTokens->cesiumDefaultProjectIonAccessTokenId,
+        CesiumTokens->cesiumDefaultIonAccessToken,
+        CesiumTokens->cesiumDefaultIonAccessTokenId,
         CesiumTokens->cesiumGeoreferenceOriginLongitude,
         CesiumTokens->cesiumGeoreferenceOriginLatitude,
         CesiumTokens->cesiumGeoreferenceOriginHeight,

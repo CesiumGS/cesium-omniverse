@@ -43,14 +43,14 @@ struct CesiumTokensType {
     /// 
     /// CesiumTilesetAPI
     const TfToken cesiumCulledScreenSpaceError;
-    /// \brief "cesium:defaultProjectIonAccessToken"
+    /// \brief "cesium:defaultIonAccessToken"
     /// 
     /// CesiumData
-    const TfToken cesiumDefaultProjectIonAccessToken;
-    /// \brief "cesium:defaultProjectIonAccessTokenId"
+    const TfToken cesiumDefaultIonAccessToken;
+    /// \brief "cesium:defaultIonAccessTokenId"
     /// 
     /// CesiumData
-    const TfToken cesiumDefaultProjectIonAccessTokenId;
+    const TfToken cesiumDefaultIonAccessTokenId;
     /// \brief "cesium:enableFogCulling"
     /// 
     /// CesiumTilesetAPI

@@ -111,47 +111,47 @@ private:
 
 public:
   // --------------------------------------------------------------------- //
-  // DEFAULTPROJECTIONACCESSTOKEN
+  // DEFAULTIONACCESSTOKEN
   // --------------------------------------------------------------------- //
   /// A string representing the token for accessing Cesium ion assets.
   ///
   /// | ||
   /// | -- | -- |
-  /// | Declaration | `string cesium:defaultProjectIonAccessToken = ""` |
+  /// | Declaration | `string cesium:defaultIonAccessToken = ""` |
   /// | C++ Type | std::string |
   /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
-  UsdAttribute GetDefaultProjectIonAccessTokenAttr() const;
+  UsdAttribute GetDefaultIonAccessTokenAttr() const;
 
-  /// See GetDefaultProjectIonAccessTokenAttr(), and also
+  /// See GetDefaultIonAccessTokenAttr(), and also
   /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
   /// If specified, author \p defaultValue as the attribute's default,
   /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
   /// the default for \p writeSparsely is \c false.
-  UsdAttribute CreateDefaultProjectIonAccessTokenAttr(
-      VtValue const &defaultValue = VtValue(),
-      bool writeSparsely = false) const;
+  UsdAttribute
+  CreateDefaultIonAccessTokenAttr(VtValue const &defaultValue = VtValue(),
+                                  bool writeSparsely = false) const;
 
 public:
   // --------------------------------------------------------------------- //
-  // DEFAULTPROJECTIONACCESSTOKENID
+  // DEFAULTIONACCESSTOKENID
   // --------------------------------------------------------------------- //
   /// A string representing the token ID for accessing Cesium ion assets.
   ///
   /// | ||
   /// | -- | -- |
-  /// | Declaration | `string cesium:defaultProjectIonAccessTokenId = ""` |
+  /// | Declaration | `string cesium:defaultIonAccessTokenId = ""` |
   /// | C++ Type | std::string |
   /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
-  UsdAttribute GetDefaultProjectIonAccessTokenIdAttr() const;
+  UsdAttribute GetDefaultIonAccessTokenIdAttr() const;
 
-  /// See GetDefaultProjectIonAccessTokenIdAttr(), and also
+  /// See GetDefaultIonAccessTokenIdAttr(), and also
   /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
   /// If specified, author \p defaultValue as the attribute's default,
   /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
   /// the default for \p writeSparsely is \c false.
-  UsdAttribute CreateDefaultProjectIonAccessTokenIdAttr(
-      VtValue const &defaultValue = VtValue(),
-      bool writeSparsely = false) const;
+  UsdAttribute
+  CreateDefaultIonAccessTokenIdAttr(VtValue const &defaultValue = VtValue(),
+                                    bool writeSparsely = false) const;
 
 public:
   // --------------------------------------------------------------------- //
