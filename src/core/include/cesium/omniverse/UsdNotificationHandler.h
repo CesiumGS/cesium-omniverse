@@ -13,11 +13,15 @@ enum class ChangedPrimType {
     OTHER,
 };
 
-enum class ChangeType { PROPERTY_CHANGED, PRIM_ADDED [[maybe_unused]], PRIM_MOVED [[maybe_unused]], PRIM_REMOVED };
+enum class ChangeType {
+    PROPERTY_CHANGED,
+    PRIM_ADDED,
+    PRIM_REMOVED,
+};
 
 struct ChangedPrim {
     pxr::SdfPath path;
-    pxr::TfToken name;
+    pxr::TfToken propertyName;
     ChangedPrimType primType;
     ChangeType changeType;
 };
@@ -31,9 +35,12 @@ class UsdNotificationHandler : public pxr::TfWeakBase {
 
   private:
     void onObjectsChanged(const pxr::UsdNotice::ObjectsChanged& objectsChanged);
+    void onPrimAdded(const pxr::SdfPath& path);
+    void onPrimRemoved(const pxr::SdfPath& path);
+    void onPropertyChanged(const pxr::SdfPath& path);
 
     pxr::TfNotice::Key _noticeListenerKey;
-    std::vector<ChangedPrim> _changedProperties;
+    std::vector<ChangedPrim> _changedPrims;
 };
 
 } // namespace cesium::omniverse

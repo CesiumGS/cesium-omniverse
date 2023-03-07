@@ -37,6 +37,10 @@ const std::list<std::shared_ptr<OmniTileset>>& AssetRegistry::getAllTilesets() c
     return _tilesets;
 }
 
+const std::list<std::shared_ptr<OmniImagery>>& AssetRegistry::getAllImageries() const {
+    return _imageries;
+}
+
 std::vector<pxr::SdfPath> AssetRegistry::getAllTilesetPaths() const {
     std::vector<pxr::SdfPath> result;
     result.reserve(_tilesets.size());
@@ -50,6 +54,10 @@ std::vector<pxr::SdfPath> AssetRegistry::getAllTilesetPaths() const {
 
 void AssetRegistry::addImagery(const pxr::SdfPath& path) {
     _imageries.insert(_imageries.end(), std::make_shared<OmniImagery>(path));
+}
+
+void AssetRegistry::removeImagery(const pxr::SdfPath& path) {
+    _imageries.remove_if([path](const auto& imagery) { return imagery->getPath() == path; });
 }
 
 std::optional<std::shared_ptr<OmniImagery>> AssetRegistry::getImageryByPath(const pxr::SdfPath& path) const {

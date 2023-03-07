@@ -25,6 +25,7 @@
 #include <CesiumUsdSchemas/tokens.h>
 #include <glm/gtc/matrix_access.hpp>
 #include <pxr/usd/sdf/path.h>
+#include <pxr/usd/usd/primRange.h>
 #include <pxr/usd/usdGeom/xform.h>
 #include <pxr/usd/usdUtils/stageCache.h>
 
@@ -153,7 +154,6 @@ pxr::SdfPath Context::addTilesetUrl(const std::string& name, const std::string& 
 
     tilesetUsd.GetUrlAttr().Set<std::string>(url);
 
-    AssetRegistry::getInstance().addTileset(tilesetPath);
     return tilesetPath;
 }
 
@@ -165,7 +165,6 @@ pxr::SdfPath Context::addTilesetIon(const std::string& name, int64_t ionAssetId,
     tilesetUsd.GetIonAssetIdAttr().Set<int64_t>(ionAssetId);
     tilesetUsd.GetIonAccessTokenAttr().Set<std::string>(ionAccessToken);
 
-    AssetRegistry::getInstance().addTileset(tilesetPath);
     return tilesetPath;
 }
 
@@ -174,51 +173,55 @@ pxr::SdfPath Context::addImageryIon(
     const std::string& name,
     int64_t ionAssetId,
     const std::string& ionAccessToken) {
-    const auto tileset = AssetRegistry::getInstance().getTilesetByPath(tilesetPath);
-
-    if (!tileset.has_value()) {
-        return pxr::SdfPath();
-    }
-
-    const auto stage = UsdUtil::getUsdStage();
-    const auto safeName = UsdUtil::getSafeName(name);
-    auto path = UsdUtil::getPathUnique(tileset.value()->getPath(), safeName);
-    auto imageryUsd = UsdUtil::defineCesiumImagery(path);
+    const auto imageryName = UsdUtil::getSafeName(name);
+    const auto imageryPath = UsdUtil::getPathUnique(tilesetPath, imageryName);
+    const auto imageryUsd = UsdUtil::defineCesiumImagery(imageryPath);
 
     imageryUsd.GetIonAssetIdAttr().Set<int64_t>(ionAssetId);
     imageryUsd.GetIonAccessTokenAttr().Set<std::string>(ionAccessToken);
 
-    tileset.value()->addImageryIon(path);
-
-    AssetRegistry::getInstance().addImagery(path);
-    return path;
+    return imageryPath;
 }
 
 void Context::removeTileset(const pxr::SdfPath& tilesetPath) {
-    auto& assetRegistry = AssetRegistry::getInstance();
-    const auto tileset = assetRegistry.getTilesetByPath(tilesetPath);
+    const auto tileset = AssetRegistry::getInstance().getTilesetByPath(tilesetPath);
 
     if (!tileset.has_value()) {
         return;
     }
 
     const auto stage = UsdUtil::getUsdStage();
-    bool removed = !UsdUtil::primExists(tileset.value()->getPath());
-
-    if (!removed) {
-        removed = stage->RemovePrim(tileset.value()->getPath());
-    }
-
-    if (removed) {
-        assetRegistry.removeTileset(tilesetPath);
-    }
+    stage->RemovePrim(tilesetPath);
 }
 
 void Context::reloadTileset(const pxr::SdfPath& tilesetPath) {
     const auto tileset = AssetRegistry::getInstance().getTilesetByPath(tilesetPath);
 
-    if (tileset.has_value()) {
-        tileset.value()->reload();
+    if (!tileset.has_value()) {
+        return;
+    }
+
+    tileset.value()->reload();
+}
+
+void Context::reloadStage() {
+    // Ensure that the CesiumData prim exists so that we can set the georeference
+    // and other top-level properties without waiting for an ion session to start
+    UsdUtil::getOrCreateCesiumData();
+
+    // Clear the asset registry
+    AssetRegistry::getInstance().clear();
+
+    // Repopulate the asset registry. We need to do this manually because USD doesn't notify us about
+    // resynced paths when the stage is loaded.
+    const auto stage = UsdUtil::getUsdStage();
+    for (const auto& prim : stage->Traverse()) {
+        const auto& path = prim.GetPath();
+        if (UsdUtil::isCesiumTileset(path)) {
+            AssetRegistry::getInstance().addTileset(path);
+        } else if (UsdUtil::isCesiumImagery(path)) {
+            AssetRegistry::getInstance().addImagery(path);
+        }
     }
 }
 
@@ -236,14 +239,14 @@ void Context::onUpdateFrame(const glm::dmat4& viewMatrix, const glm::dmat4& proj
     }
 }
 
-void Context::processPropertyChanged(const ChangedPrim& changedProperty) {
-    const auto& [path, name, primType, changeType] = changedProperty;
+void Context::processPropertyChanged(const ChangedPrim& changedPrim) {
+    const auto& [path, name, primType, changeType] = changedPrim;
 
     std::set<std::shared_ptr<OmniTileset>> tilesetsToReload;
 
     if (primType == ChangedPrimType::CESIUM_DATA) {
         if (name == pxr::CesiumTokens->cesiumDefaultIonAccessToken) {
-            // Any tilesets that use the default token are reloaded when it changes
+            // Reload tilesets that use the project default token
             const auto& tilesets = AssetRegistry::getInstance().getAllTilesets();
             for (const auto& tileset : tilesets) {
                 const auto tilesetToken = tileset->getIonAccessToken();
@@ -254,25 +257,25 @@ void Context::processPropertyChanged(const ChangedPrim& changedProperty) {
             }
         }
     } else if (primType == ChangedPrimType::CESIUM_TILESET) {
-        // Reload the tileset. No need to update the asset registry because tileset assets do not store the asset id.
+        // Reload the tileset
         const auto tileset = AssetRegistry::getInstance().getTilesetByPath(path);
         if (tileset.has_value()) {
             // clang-format off
-                if (name == pxr::CesiumTokens->cesiumIonAssetId ||
-                    name == pxr::CesiumTokens->cesiumIonAccessToken ||
-                    name == pxr::CesiumTokens->cesiumMaximumScreenSpaceError ||
-                    name == pxr::CesiumTokens->cesiumPreloadAncestors ||
-                    name == pxr::CesiumTokens->cesiumPreloadSiblings ||
-                    name == pxr::CesiumTokens->cesiumForbidHoles ||
-                    name == pxr::CesiumTokens->cesiumMaximumSimultaneousTileLoads ||
-                    name == pxr::CesiumTokens->cesiumMaximumCachedBytes ||
-                    name == pxr::CesiumTokens->cesiumLoadingDescendantLimit ||
-                    name == pxr::CesiumTokens->cesiumEnableFrustumCulling ||
-                    name == pxr::CesiumTokens->cesiumEnableFogCulling ||
-                    name == pxr::CesiumTokens->cesiumEnforceCulledScreenSpaceError ||
-                    name == pxr::CesiumTokens->cesiumCulledScreenSpaceError) {
-                    tilesetsToReload.emplace(tileset.value());
-                }
+            if (name == pxr::CesiumTokens->cesiumIonAssetId ||
+                name == pxr::CesiumTokens->cesiumIonAccessToken ||
+                name == pxr::CesiumTokens->cesiumMaximumScreenSpaceError ||
+                name == pxr::CesiumTokens->cesiumPreloadAncestors ||
+                name == pxr::CesiumTokens->cesiumPreloadSiblings ||
+                name == pxr::CesiumTokens->cesiumForbidHoles ||
+                name == pxr::CesiumTokens->cesiumMaximumSimultaneousTileLoads ||
+                name == pxr::CesiumTokens->cesiumMaximumCachedBytes ||
+                name == pxr::CesiumTokens->cesiumLoadingDescendantLimit ||
+                name == pxr::CesiumTokens->cesiumEnableFrustumCulling ||
+                name == pxr::CesiumTokens->cesiumEnableFogCulling ||
+                name == pxr::CesiumTokens->cesiumEnforceCulledScreenSpaceError ||
+                name == pxr::CesiumTokens->cesiumCulledScreenSpaceError) {
+                tilesetsToReload.emplace(tileset.value());
+            }
             // clang-format on
         }
     } else if (primType == ChangedPrimType::CESIUM_IMAGERY) {
@@ -280,7 +283,7 @@ void Context::processPropertyChanged(const ChangedPrim& changedProperty) {
         const auto tileset = AssetRegistry::getInstance().getTilesetByPath(tilesetPath);
         if (tileset.has_value()) {
             if (name == pxr::CesiumTokens->cesiumIonAssetId || name == pxr::CesiumTokens->cesiumIonAccessToken) {
-                // Reload the tileset that this imagery is attached to
+                // Reload the tileset that the imagery is attached to
                 tilesetsToReload.emplace(tileset.value());
             }
         }
@@ -291,11 +294,30 @@ void Context::processPropertyChanged(const ChangedPrim& changedProperty) {
     }
 }
 
-void Context::processPrimRemoved(const ChangedPrim& changedProperty) {
-    if (changedProperty.primType == ChangedPrimType::CESIUM_TILESET) {
-        removeTileset(changedProperty.path);
-    } else if (changedProperty.primType == ChangedPrimType::CESIUM_IMAGERY) {
-        const auto tilesetPath = changedProperty.path.GetParentPath();
+void Context::processPrimRemoved(const ChangedPrim& changedPrim) {
+    if (changedPrim.primType == ChangedPrimType::CESIUM_TILESET) {
+        // Remove the tileset from the asset registry
+        const auto tilesetPath = changedPrim.path;
+        AssetRegistry::getInstance().removeTileset(tilesetPath);
+    } else if (changedPrim.primType == ChangedPrimType::CESIUM_IMAGERY) {
+        // Remove the imagery from the asset registry and reload the tileset that the imagery was attached to
+        const auto imageryPath = changedPrim.path;
+        const auto tilesetPath = changedPrim.path.GetParentPath();
+        AssetRegistry::getInstance().removeImagery(imageryPath);
+        reloadTileset(tilesetPath);
+    }
+}
+
+void Context::processPrimAdded(const ChangedPrim& changedPrim) {
+    if (changedPrim.primType == ChangedPrimType::CESIUM_TILESET) {
+        // Add the tileset to the asset registry
+        const auto tilesetPath = changedPrim.path;
+        AssetRegistry::getInstance().addTileset(tilesetPath);
+    } else if (changedPrim.primType == ChangedPrimType::CESIUM_IMAGERY) {
+        // Add the imagery to the asset registry and reload the tileset that the imagery is attached to
+        const auto imageryPath = changedPrim.path;
+        const auto tilesetPath = changedPrim.path.GetParentPath();
+        AssetRegistry::getInstance().addImagery(imageryPath);
         reloadTileset(tilesetPath);
     }
 }
@@ -310,6 +332,9 @@ void Context::processUsdNotifications() {
                 break;
             case ChangeType::PRIM_REMOVED:
                 processPrimRemoved(change);
+                break;
+            case ChangeType::PRIM_ADDED:
+                processPrimAdded(change);
                 break;
             default:
                 break;
@@ -367,10 +392,8 @@ void Context::setStageId(long stageId) {
             iStageInProgress->get(carb::flatcache::UsdStageId{static_cast<uint64_t>(stageId)});
         _fabricStageInProgress = carb::flatcache::StageInProgress(stageInProgressId);
 
-        // Add the CesiumData prim so that we can set the georeference origin and other top-level properties
-        // without waiting for an ion session to start
-        // TODO: does this clear the stage's previous georeference values?
-        UsdUtil::getOrCreateCesiumData();
+        // Repopulate the asset registry
+        reloadStage();
     }
 
     _stageId = stageId;

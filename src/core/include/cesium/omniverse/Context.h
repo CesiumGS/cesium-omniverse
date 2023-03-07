@@ -67,6 +67,7 @@ class Context {
 
     void removeTileset(const pxr::SdfPath& tilesetPath);
     void reloadTileset(const pxr::SdfPath& tilesetPath);
+    void reloadStage();
 
     void onUpdateFrame(const glm::dmat4& viewMatrix, const glm::dmat4& projMatrix, double width, double height);
     void onUpdateUi();
@@ -118,8 +119,9 @@ class Context {
     std::vector<std::pair<std::string, bool>> getCredits() const;
 
   private:
-    void processPropertyChanged(const ChangedPrim& changedProperty);
-    void processPrimRemoved(const ChangedPrim& changedProperty);
+    void processPropertyChanged(const ChangedPrim& changedPrim);
+    void processPrimRemoved(const ChangedPrim& changedPrim);
+    void processPrimAdded(const ChangedPrim& changedPrim);
     void processUsdNotifications();
 
     std::shared_ptr<TaskProcessor> _taskProcessor;
