@@ -25,7 +25,7 @@ FabricPrepareRenderResources::FabricPrepareRenderResources(const OmniTileset& ti
 
 FabricPrepareRenderResources::~FabricPrepareRenderResources() {
     if (UsdUtil::hasStage()) {
-        FabricStageUtil::removeTileset(_tileset.getId());
+        FabricStageUtil::removeTileset(_tileset.getTilesetId());
     }
 }
 
@@ -50,7 +50,7 @@ FabricPrepareRenderResources::prepareInLoadThread(
                 Context::instance().getGeoreferenceOrigin(), _tileset.getPath());
 
             const auto addTileResults = FabricStageUtil::addTile(
-                _tileset.getId(), _tileset.getNextTileId(), ecefToUsdTransform, transform, *pModel);
+                _tileset.getTilesetId(), Context::instance().getNextTileId(), ecefToUsdTransform, transform, *pModel);
 
             return asyncSystem.createResolvedFuture(Cesium3DTilesSelection::TileLoadResultAndRenderResources{
                 std::move(tileLoadResult),
@@ -161,8 +161,8 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
         UsdUtil::computeEcefToUsdTransformForPrim(Context::instance().getGeoreferenceOrigin(), _tileset.getPath());
 
     const auto addTileResults = FabricStageUtil::addTileWithImagery(
-        _tileset.getId(),
-        _tileset.getNextTileId(),
+        _tileset.getTilesetId(),
+        Context::instance().getNextTileId(),
         ecefToUsdTransform,
         pTileRenderResources->tileTransform,
         tile.getContent().getRenderContent()->getModel(),

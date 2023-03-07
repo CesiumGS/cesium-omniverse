@@ -78,6 +78,8 @@ class Context {
     void setStageId(long stageId);
 
     int64_t getContextId() const;
+    int64_t getNextTilesetId() const;
+    int64_t getNextTileId() const;
 
     const CesiumGeospatial::Cartographic getGeoreferenceOrigin() const;
     void setGeoreferenceOrigin(const CesiumGeospatial::Cartographic& origin);
@@ -139,7 +141,8 @@ class Context {
 
     int64_t _contextId;
 
-    std::atomic<int64_t> _tilesetId{};
+    mutable std::atomic<int64_t> _tilesetId{};
+    mutable std::atomic<int64_t> _tileId{};
 
     std::filesystem::path _cesiumExtensionLocation;
     std::filesystem::path _memCesiumPath;

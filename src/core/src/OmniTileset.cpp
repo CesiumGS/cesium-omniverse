@@ -26,9 +26,9 @@
 
 namespace cesium::omniverse {
 
-OmniTileset::OmniTileset(const pxr::SdfPath& tilesetPath, int64_t tilesetId)
+OmniTileset::OmniTileset(const pxr::SdfPath& tilesetPath)
     : _tilesetPath(tilesetPath)
-    , _tilesetId(tilesetId) {
+    , _tilesetId(Context::instance().getNextTilesetId()) {
     reload();
 }
 
@@ -185,12 +185,8 @@ bool OmniTileset::getSuspendUpdate() const {
     return suspendUpdate;
 }
 
-int64_t OmniTileset::getId() const {
+int64_t OmniTileset::getTilesetId() const {
     return _tilesetId;
-}
-
-int64_t OmniTileset::getNextTileId() const {
-    return _tileId++;
 }
 
 void OmniTileset::reload() {

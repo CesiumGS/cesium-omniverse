@@ -28,7 +28,7 @@ class AssetRegistry {
     AssetRegistry& operator=(const AssetRegistry&) = delete;
     AssetRegistry& operator=(AssetRegistry) = delete;
 
-    void addTileset(const pxr::SdfPath& path, int64_t id);
+    void addTileset(const pxr::SdfPath& path);
     void removeTileset(const pxr::SdfPath& path);
     std::optional<std::shared_ptr<OmniTileset>> getTilesetByPath(const pxr::SdfPath& path) const;
     std::optional<std::shared_ptr<OmniTileset>> getTilesetByIonAssetId(int64_t ionAssetId) const;

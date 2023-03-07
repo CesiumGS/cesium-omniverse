@@ -147,19 +147,17 @@ void Context::setProjectDefaultToken(const CesiumIonClient::Token& token) {
 }
 
 pxr::SdfPath Context::addTilesetUrl(const std::string& name, const std::string& url) {
-    const auto tilesetId = _tilesetId++;
     const auto tilesetName = UsdUtil::getSafeName(name);
     const auto tilesetPath = UsdUtil::getPathUnique(UsdUtil::getRootPath(), tilesetName);
     const auto tilesetUsd = UsdUtil::defineCesiumTileset(tilesetPath);
 
     tilesetUsd.GetUrlAttr().Set<std::string>(url);
 
-    AssetRegistry::getInstance().addTileset(tilesetPath, tilesetId);
+    AssetRegistry::getInstance().addTileset(tilesetPath);
     return tilesetPath;
 }
 
 pxr::SdfPath Context::addTilesetIon(const std::string& name, int64_t ionAssetId, const std::string& ionAccessToken) {
-    const auto tilesetId = _tilesetId++;
     const auto tilesetName = UsdUtil::getSafeName(name);
     const auto tilesetPath = UsdUtil::getPathUnique(UsdUtil::getRootPath(), tilesetName);
     const auto tilesetUsd = UsdUtil::defineCesiumTileset(tilesetPath);
@@ -167,7 +165,7 @@ pxr::SdfPath Context::addTilesetIon(const std::string& name, int64_t ionAssetId,
     tilesetUsd.GetIonAssetIdAttr().Set<int64_t>(ionAssetId);
     tilesetUsd.GetIonAccessTokenAttr().Set<std::string>(ionAccessToken);
 
-    AssetRegistry::getInstance().addTileset(tilesetPath, tilesetId);
+    AssetRegistry::getInstance().addTileset(tilesetPath);
     return tilesetPath;
 }
 
@@ -380,6 +378,14 @@ void Context::setStageId(long stageId) {
 
 int64_t Context::getContextId() const {
     return _contextId;
+}
+
+int64_t Context::getNextTilesetId() const {
+    return _tilesetId++;
+}
+
+int64_t Context::getNextTileId() const {
+    return _tileId++;
 }
 
 const CesiumGeospatial::Cartographic Context::getGeoreferenceOrigin() const {
@@ -611,13 +617,13 @@ bool Context::getDebugDisableMaterials() const {
 }
 
 bool Context::creditsAvailable() const {
-    auto credits = _creditSystem->getCreditsToShowThisFrame();
+    const auto& credits = _creditSystem->getCreditsToShowThisFrame();
 
     return credits.size() > 0;
 }
 
 std::vector<std::pair<std::string, bool>> Context::getCredits() const {
-    auto credits = _creditSystem->getCreditsToShowThisFrame();
+    const auto& credits = _creditSystem->getCreditsToShowThisFrame();
 
     std::vector<std::pair<std::string, bool>> result;
     result.reserve(credits.size());

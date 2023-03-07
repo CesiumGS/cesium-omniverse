@@ -5,8 +5,8 @@
 
 namespace cesium::omniverse {
 
-void AssetRegistry::addTileset(const pxr::SdfPath& path, int64_t id) {
-    _tilesets.insert(_tilesets.end(), std::make_shared<OmniTileset>(path, id));
+void AssetRegistry::addTileset(const pxr::SdfPath& path) {
+    _tilesets.insert(_tilesets.end(), std::make_shared<OmniTileset>(path));
 }
 
 void AssetRegistry::removeTileset(const pxr::SdfPath& path) {
