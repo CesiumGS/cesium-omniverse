@@ -38,25 +38,25 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         return Context::instance().addTilesetIon(name, ionAssetId, ionAccessToken).GetString();
     }
 
-    std::string addIonRasterOverlay(const char* tilesetPath, const char* name, int64_t ionAssetId) noexcept override {
-        return addIonRasterOverlay(tilesetPath, name, ionAssetId, "");
+    std::string addImageryIon(const char* tilesetPath, const char* name, int64_t ionAssetId) noexcept override {
+        return addImageryIon(tilesetPath, name, ionAssetId, "");
     }
 
-    std::string addIonRasterOverlay(
-        const char* tilesetPath,
-        const char* name,
-        int64_t ionAssetId,
-        const char* ionAccessToken) noexcept override {
-        return Context::instance().addIonRasterOverlay(pxr::SdfPath(tilesetPath), name, ionAssetId, ionAccessToken).GetString();
+    std::string
+    addImageryIon(const char* tilesetPath, const char* name, int64_t ionAssetId, const char* ionAccessToken) noexcept
+        override {
+        return Context::instance()
+            .addImageryIon(pxr::SdfPath(tilesetPath), name, ionAssetId, ionAccessToken)
+            .GetString();
     }
 
-    std::string addTilesetAndRasterOverlay(
+    std::string addTilesetAndImagery(
         const char* tilesetName,
         int64_t tilesetIonAssetId,
-        const char* rasterOverlayName,
-        int64_t rasterOverlayIonAssetId) noexcept override {
+        const char* imageryName,
+        int64_t imageryIonAssetId) noexcept override {
         const auto tilesetPath = addTilesetIon(tilesetName, tilesetIonAssetId, "");
-        addIonRasterOverlay(tilesetPath.c_str(), rasterOverlayName, rasterOverlayIonAssetId, "");
+        addImageryIon(tilesetPath.c_str(), imageryName, imageryIonAssetId, "");
 
         return tilesetPath;
     }
@@ -161,11 +161,11 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
     void updateTroubleshootingDetails(
         const char* tilesetPath,
         int64_t tilesetIonAssetId,
-        int64_t rasterOverlayIonAssetId,
+        int64_t imageryIonAssetId,
         uint64_t tokenEventId,
         uint64_t assetEventId) noexcept override {
         return Context::instance().updateTroubleshootingDetails(
-            pxr::SdfPath(tilesetPath), tilesetIonAssetId, rasterOverlayIonAssetId, tokenEventId, assetEventId);
+            pxr::SdfPath(tilesetPath), tilesetIonAssetId, imageryIonAssetId, tokenEventId, assetEventId);
     }
 
     std::string printFabricStage() noexcept override {

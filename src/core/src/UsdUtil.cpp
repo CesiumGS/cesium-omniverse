@@ -267,15 +267,15 @@ pxr::CesiumTilesetAPI defineCesiumTileset(const pxr::SdfPath& path) {
     return tileset;
 }
 
-pxr::CesiumRasterOverlay defineCesiumRasterOverlay(const pxr::SdfPath& path) {
+pxr::CesiumImagery defineCesiumImagery(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
-    auto rasterOverlay = pxr::CesiumRasterOverlay::Define(stage, path);
-    assert(rasterOverlay.GetPrim().IsValid());
+    auto imagery = pxr::CesiumImagery::Define(stage, path);
+    assert(imagery.GetPrim().IsValid());
 
-    rasterOverlay.CreateIonAssetIdAttr();
-    rasterOverlay.CreateIonAccessTokenAttr();
+    imagery.CreateIonAssetIdAttr();
+    imagery.CreateIonAccessTokenAttr();
 
-    return rasterOverlay;
+    return imagery;
 }
 
 pxr::CesiumData getOrCreateCesiumData() {
@@ -297,22 +297,22 @@ pxr::CesiumTilesetAPI getCesiumTileset(const pxr::SdfPath& path) {
     return tileset;
 }
 
-pxr::CesiumRasterOverlay getCesiumRasterOverlay(const pxr::SdfPath& path) {
+pxr::CesiumImagery getCesiumImagery(const pxr::SdfPath& path) {
     auto stage = UsdUtil::getUsdStage();
-    auto rasterOverlay = pxr::CesiumRasterOverlay::Get(stage, path);
-    assert(rasterOverlay.GetPrim().IsValid());
-    return rasterOverlay;
+    auto imagery = pxr::CesiumImagery::Get(stage, path);
+    assert(imagery.GetPrim().IsValid());
+    return imagery;
 }
 
-std::vector<pxr::CesiumRasterOverlay> getChildCesiumRasterOverlays(const pxr::SdfPath& path) {
+std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& path) {
     auto stage = UsdUtil::getUsdStage();
     auto prim = stage->GetPrimAtPath(path);
     assert(prim.IsValid());
 
-    std::vector<pxr::CesiumRasterOverlay> result;
+    std::vector<pxr::CesiumImagery> result;
 
     for (const auto& childPrim : prim.GetChildren()) {
-        if (childPrim.IsA<pxr::CesiumRasterOverlay>()) {
+        if (childPrim.IsA<pxr::CesiumImagery>()) {
             result.emplace_back(childPrim);
         }
     }
@@ -349,14 +349,14 @@ bool isCesiumTileset(const pxr::SdfPath& path) {
     return prim.HasAPI<pxr::CesiumTilesetAPI>();
 }
 
-bool isCesiumRasterOverlay(const pxr::SdfPath& path) {
+bool isCesiumImagery(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto prim = stage->GetPrimAtPath(path);
     if (!prim.IsValid()) {
         return false;
     }
 
-    return prim.IsA<pxr::CesiumRasterOverlay>();
+    return prim.IsA<pxr::CesiumImagery>();
 }
 
 bool primExists(const pxr::SdfPath& path) {

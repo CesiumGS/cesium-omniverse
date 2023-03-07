@@ -14,8 +14,8 @@ void showTroubleshooter(
     const pxr::SdfPath& tilesetPath,
     int64_t tilesetIonAssetId,
     const std::string& tilesetName,
-    int64_t rasterOverlayIonAssetId,
-    const std::string& rasterOverlayName,
+    int64_t imageryIonAssetId,
+    const std::string& imageryName,
     const std::string& message);
 void setDefaultTokenComplete();
 void sendMessageToBus(carb::events::EventType eventType);

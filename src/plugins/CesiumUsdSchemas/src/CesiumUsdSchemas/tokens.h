@@ -81,11 +81,11 @@ struct CesiumTokensType {
     const TfToken cesiumGeoreferenceOriginLongitude;
     /// \brief "cesium:ionAccessToken"
     /// 
-    /// CesiumRasterOverlay, CesiumTilesetAPI
+    /// CesiumImagery, CesiumTilesetAPI
     const TfToken cesiumIonAccessToken;
     /// \brief "cesium:ionAssetId"
     /// 
-    /// CesiumRasterOverlay, CesiumTilesetAPI
+    /// CesiumImagery, CesiumTilesetAPI
     const TfToken cesiumIonAssetId;
     /// \brief "cesium:loadingDescendantLimit"
     /// 

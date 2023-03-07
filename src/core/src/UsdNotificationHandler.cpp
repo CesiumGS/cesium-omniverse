@@ -13,8 +13,8 @@ ChangedPrimType getType(const pxr::SdfPath& path) {
             return ChangedPrimType::CESIUM_DATA;
         } else if (UsdUtil::isCesiumTileset(path)) {
             return ChangedPrimType::CESIUM_TILESET;
-        } else if (UsdUtil::isCesiumRasterOverlay(path)) {
-            return ChangedPrimType::CESIUM_RASTER_OVERLAY;
+        } else if (UsdUtil::isCesiumImagery(path)) {
+            return ChangedPrimType::CESIUM_IMAGERY;
         }
     } else {
         const auto assetType = AssetRegistry::getInstance().getAssetType(path);
@@ -22,8 +22,8 @@ ChangedPrimType getType(const pxr::SdfPath& path) {
         switch (assetType) {
             case AssetType::TILESET:
                 return ChangedPrimType::CESIUM_TILESET;
-            case AssetType::RASTER_OVERLAY:
-                return ChangedPrimType::CESIUM_RASTER_OVERLAY;
+            case AssetType::IMAGERY:
+                return ChangedPrimType::CESIUM_IMAGERY;
             case AssetType::OTHER:
                 break;
             default:

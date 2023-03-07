@@ -1,6 +1,6 @@
 #include "cesium/omniverse/AssetRegistry.h"
 
-#include "cesium/omniverse/OmniIonRasterOverlay.h"
+#include "cesium/omniverse/OmniImagery.h"
 #include "cesium/omniverse/OmniTileset.h"
 
 namespace cesium::omniverse {
@@ -48,26 +48,24 @@ std::vector<pxr::SdfPath> AssetRegistry::getAllTilesetPaths() const {
     return result;
 }
 
-void AssetRegistry::addRasterOverlay(const pxr::SdfPath& path) {
-    _rasterOverlays.insert(_rasterOverlays.end(), std::make_shared<OmniIonRasterOverlay>(path));
+void AssetRegistry::addImagery(const pxr::SdfPath& path) {
+    _imageries.insert(_imageries.end(), std::make_shared<OmniImagery>(path));
 }
 
-std::optional<std::shared_ptr<OmniIonRasterOverlay>>
-AssetRegistry::getRasterOverlayByPath(const pxr::SdfPath& path) const {
-    for (const auto& rasterOverlay : _rasterOverlays) {
-        if (rasterOverlay->getPath() == path) {
-            return std::make_optional(rasterOverlay);
+std::optional<std::shared_ptr<OmniImagery>> AssetRegistry::getImageryByPath(const pxr::SdfPath& path) const {
+    for (const auto& imagery : _imageries) {
+        if (imagery->getPath() == path) {
+            return std::make_optional(imagery);
         }
     }
 
     return std::nullopt;
 }
 
-std::optional<std::shared_ptr<OmniIonRasterOverlay>>
-AssetRegistry::getRasterOverlayByIonAssetId(int64_t ionAssetId) const {
-    for (const auto& rasterOverlay : _rasterOverlays) {
-        if (rasterOverlay->getIonAssetId() == ionAssetId) {
-            return std::make_optional(rasterOverlay);
+std::optional<std::shared_ptr<OmniImagery>> AssetRegistry::getImageryByIonAssetId(int64_t ionAssetId) const {
+    for (const auto& imagery : _imageries) {
+        if (imagery->getIonAssetId() == ionAssetId) {
+            return std::make_optional(imagery);
         }
     }
 
@@ -77,8 +75,8 @@ AssetRegistry::getRasterOverlayByIonAssetId(int64_t ionAssetId) const {
 AssetType AssetRegistry::getAssetType(const pxr::SdfPath& path) const {
     if (getTilesetByPath(path).has_value()) {
         return AssetType::TILESET;
-    } else if (getRasterOverlayByPath(path).has_value()) {
-        return AssetType::RASTER_OVERLAY;
+    } else if (getImageryByPath(path).has_value()) {
+        return AssetType::IMAGERY;
     }
 
     return AssetType::OTHER;
@@ -86,7 +84,7 @@ AssetType AssetRegistry::getAssetType(const pxr::SdfPath& path) const {
 
 void AssetRegistry::clear() {
     _tilesets.clear();
-    _rasterOverlays.clear();
+    _imageries.clear();
 }
 
 } // namespace cesium::omniverse

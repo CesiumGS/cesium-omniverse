@@ -8,7 +8,7 @@ class AssetRegistry;
 
 enum class ChangedPrimType {
     CESIUM_TILESET,
-    CESIUM_RASTER_OVERLAY,
+    CESIUM_IMAGERY,
     CESIUM_DATA,
     OTHER,
 };

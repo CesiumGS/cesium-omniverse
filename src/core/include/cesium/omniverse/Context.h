@@ -59,7 +59,7 @@ class Context {
     void setProjectDefaultToken(const CesiumIonClient::Token& token);
     pxr::SdfPath addTilesetUrl(const std::string& name, const std::string& url);
     pxr::SdfPath addTilesetIon(const std::string& name, int64_t ionAssetId, const std::string& ionAccessToken);
-    pxr::SdfPath addIonRasterOverlay(
+    pxr::SdfPath addImageryIon(
         const pxr::SdfPath& tilesetPath,
         const std::string& name,
         int64_t ionAssetId,
@@ -103,7 +103,7 @@ class Context {
     void updateTroubleshootingDetails(
         const pxr::SdfPath& tilesetPath,
         [[maybe_unused]] int64_t tilesetIonAssetId,
-        int64_t rasterOverlayIonAssetId,
+        int64_t imageryIonAssetId,
         uint64_t tokenEventId,
         uint64_t assetEventId);
 

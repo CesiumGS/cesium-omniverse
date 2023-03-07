@@ -63,7 +63,7 @@ class CesiumOmniverseDebugWindow(ui.Window):
                 1,
             )
 
-            self._cesium_omniverse_interface.add_ion_raster_overlay(
+            self._cesium_omniverse_interface.add_ion_imagery(
                 tileset_path,
                 "Layer",
                 3954,
@@ -80,7 +80,7 @@ class CesiumOmniverseDebugWindow(ui.Window):
                 1,
             )
 
-            self._cesium_omniverse_interface.add_ion_raster_overlay(
+            self._cesium_omniverse_interface.add_ion_imagery(
                 tileset_path,
                 "Layer",
                 2,

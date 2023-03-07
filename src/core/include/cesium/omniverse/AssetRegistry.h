@@ -7,11 +7,11 @@
 namespace cesium::omniverse {
 
 class OmniTileset;
-class OmniIonRasterOverlay;
+class OmniImagery;
 
 enum AssetType {
     TILESET = 0,
-    RASTER_OVERLAY,
+    IMAGERY,
     OTHER,
 };
 
@@ -35,9 +35,9 @@ class AssetRegistry {
     const std::list<std::shared_ptr<OmniTileset>>& getAllTilesets() const;
     std::vector<pxr::SdfPath> getAllTilesetPaths() const;
 
-    void addRasterOverlay(const pxr::SdfPath& path);
-    std::optional<std::shared_ptr<OmniIonRasterOverlay>> getRasterOverlayByPath(const pxr::SdfPath& path) const;
-    std::optional<std::shared_ptr<OmniIonRasterOverlay>> getRasterOverlayByIonAssetId(int64_t ionAssetId) const;
+    void addImagery(const pxr::SdfPath& path);
+    std::optional<std::shared_ptr<OmniImagery>> getImageryByPath(const pxr::SdfPath& path) const;
+    std::optional<std::shared_ptr<OmniImagery>> getImageryByIonAssetId(int64_t ionAssetId) const;
 
     AssetType getAssetType(const pxr::SdfPath& path) const;
 
@@ -49,7 +49,7 @@ class AssetRegistry {
 
   private:
     std::list<std::shared_ptr<OmniTileset>> _tilesets{};
-    std::list<std::shared_ptr<OmniIonRasterOverlay>> _rasterOverlays{};
+    std::list<std::shared_ptr<OmniImagery>> _imageries{};
 };
 
 } // namespace cesium::omniverse

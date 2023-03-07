@@ -6,7 +6,7 @@
 #include "cesium/omniverse/FabricStageUtil.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
-#include "cesium/omniverse/OmniIonRasterOverlay.h"
+#include "cesium/omniverse/OmniImagery.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/UsdUtil.h"
 
@@ -19,7 +19,7 @@
 #include <Cesium3DTilesSelection/Tileset.h>
 #include <Cesium3DTilesSelection/ViewState.h>
 #include <Cesium3DTilesSelection/ViewUpdateResult.h>
-#include <CesiumUsdSchemas/rasterOverlay.h>
+#include <CesiumUsdSchemas/imagery.h>
 #include <CesiumUsdSchemas/tilesetAPI.h>
 #include <pxr/usd/usd/prim.h>
 #include <pxr/usd/usd/stage.h>
@@ -249,28 +249,24 @@ void OmniTileset::reload() {
             externals, ionAssetId, ionAccessToken.value().token, options);
     }
 
-    // Add raster overlays
-    for (const auto& rasterOverlay : UsdUtil::getChildCesiumRasterOverlays(_tilesetPath)) {
-        addIonRasterOverlay(rasterOverlay.GetPath());
+    // Add imagery
+    for (const auto& imagery : UsdUtil::getChildCesiumImageryPrims(_tilesetPath)) {
+        addImageryIon(imagery.GetPath());
     }
 }
 
-void OmniTileset::addIonRasterOverlay(const pxr::SdfPath& rasterOverlayPath) {
-    const OmniIonRasterOverlay rasterOverlay(rasterOverlayPath);
-    const auto rasterOverlayIonAssetId = rasterOverlay.getIonAssetId();
-    const auto rasterOverlayIonAccessToken = rasterOverlay.getIonAccessToken();
-    const auto rasterOverlayName = rasterOverlay.getName();
+void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
+    const OmniImagery imagery(imageryPath);
+    const auto imageryIonAssetId = imagery.getIonAssetId();
+    const auto imageryIonAccessToken = imagery.getIonAccessToken();
+    const auto imageryName = imagery.getName();
 
     const auto tilesetPath = getPath();
     const auto tilesetIonAssetId = getIonAssetId();
     const auto tilesetName = getName();
 
     Cesium3DTilesSelection::RasterOverlayOptions options;
-    options.loadErrorCallback = [tilesetPath,
-                                 tilesetIonAssetId,
-                                 tilesetName,
-                                 rasterOverlayIonAssetId,
-                                 rasterOverlayName](
+    options.loadErrorCallback = [tilesetPath, tilesetIonAssetId, tilesetName, imageryIonAssetId, imageryName](
                                     const Cesium3DTilesSelection::RasterOverlayLoadFailureDetails& error) {
         // Check for a 401 connecting to Cesium ion, which means the token is invalid
         // (or perhaps the asset ID is). Also check for a 404, because ion returns 404
@@ -280,17 +276,17 @@ void OmniTileset::addIonRasterOverlay(const pxr::SdfPath& rasterOverlayPath) {
         if (error.type == Cesium3DTilesSelection::RasterOverlayLoadType::CesiumIon &&
             (statusCode == 401 || statusCode == 404)) {
             Broadcast::showTroubleshooter(
-                tilesetPath, tilesetIonAssetId, tilesetName, rasterOverlayIonAssetId, rasterOverlayName, error.message);
+                tilesetPath, tilesetIonAssetId, tilesetName, imageryIonAssetId, imageryName, error.message);
         }
 
         CESIUM_LOG_ERROR(error.message);
     };
 
-    // The name passed to IonRasterOverlay needs to uniquely identify this raster overlay otherwise texture caching may break
-    const auto uniqueName = fmt::format("raster_overlay_ion_{}", rasterOverlayIonAssetId);
-    const auto rasterOverlayNative = new Cesium3DTilesSelection::IonRasterOverlay(
-        uniqueName, rasterOverlayIonAssetId, rasterOverlayIonAccessToken.value().token, options);
-    _tileset->getOverlays().add(rasterOverlayNative);
+    // The name passed to IonRasterOverlay needs to uniquely identify this imagery otherwise texture caching may break
+    const auto uniqueName = fmt::format("imagery_ion_{}", imageryIonAssetId);
+    const auto ionRasterOverlay = new Cesium3DTilesSelection::IonRasterOverlay(
+        uniqueName, imageryIonAssetId, imageryIonAccessToken.value().token, options);
+    _tileset->getOverlays().add(ionRasterOverlay);
 }
 
 void OmniTileset::onUpdateFrame(const std::vector<Cesium3DTilesSelection::ViewState>& viewStates) {

@@ -5,7 +5,7 @@
 #include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
-#include "cesium/omniverse/OmniIonRasterOverlay.h"
+#include "cesium/omniverse/OmniImagery.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/UsdUtil.h"
@@ -20,7 +20,7 @@
 #include <Cesium3DTilesSelection/ViewState.h>
 #include <Cesium3DTilesSelection/registerAllTileContentTypes.h>
 #include <CesiumUsdSchemas/data.h>
-#include <CesiumUsdSchemas/rasterOverlay.h>
+#include <CesiumUsdSchemas/imagery.h>
 #include <CesiumUsdSchemas/tilesetAPI.h>
 #include <CesiumUsdSchemas/tokens.h>
 #include <glm/gtc/matrix_access.hpp>
@@ -171,7 +171,7 @@ pxr::SdfPath Context::addTilesetIon(const std::string& name, int64_t ionAssetId,
     return tilesetPath;
 }
 
-pxr::SdfPath Context::addIonRasterOverlay(
+pxr::SdfPath Context::addImageryIon(
     const pxr::SdfPath& tilesetPath,
     const std::string& name,
     int64_t ionAssetId,
@@ -185,14 +185,14 @@ pxr::SdfPath Context::addIonRasterOverlay(
     const auto stage = UsdUtil::getUsdStage();
     const auto safeName = UsdUtil::getSafeName(name);
     auto path = UsdUtil::getPathUnique(tileset.value()->getPath(), safeName);
-    auto rasterOverlayUsd = UsdUtil::defineCesiumRasterOverlay(path);
+    auto imageryUsd = UsdUtil::defineCesiumImagery(path);
 
-    rasterOverlayUsd.GetIonAssetIdAttr().Set<int64_t>(ionAssetId);
-    rasterOverlayUsd.GetIonAccessTokenAttr().Set<std::string>(ionAccessToken);
+    imageryUsd.GetIonAssetIdAttr().Set<int64_t>(ionAssetId);
+    imageryUsd.GetIonAccessTokenAttr().Set<std::string>(ionAccessToken);
 
-    tileset.value()->addIonRasterOverlay(path);
+    tileset.value()->addImageryIon(path);
 
-    AssetRegistry::getInstance().addRasterOverlay(path);
+    AssetRegistry::getInstance().addImagery(path);
     return path;
 }
 
@@ -277,12 +277,12 @@ void Context::processPropertyChanged(const ChangedPrim& changedProperty) {
                 }
             // clang-format on
         }
-    } else if (primType == ChangedPrimType::CESIUM_RASTER_OVERLAY) {
+    } else if (primType == ChangedPrimType::CESIUM_IMAGERY) {
         const auto tilesetPath = path.GetParentPath();
         const auto tileset = AssetRegistry::getInstance().getTilesetByPath(tilesetPath);
         if (tileset.has_value()) {
             if (name == pxr::CesiumTokens->cesiumIonAssetId || name == pxr::CesiumTokens->cesiumIonAccessToken) {
-                // Reload the tileset that this raster overlay is attached to
+                // Reload the tileset that this imagery is attached to
                 tilesetsToReload.emplace(tileset.value());
             }
         }
@@ -296,7 +296,7 @@ void Context::processPropertyChanged(const ChangedPrim& changedProperty) {
 void Context::processPrimRemoved(const ChangedPrim& changedProperty) {
     if (changedProperty.primType == ChangedPrimType::CESIUM_TILESET) {
         removeTileset(changedProperty.path);
-    } else if (changedProperty.primType == ChangedPrimType::CESIUM_RASTER_OVERLAY) {
+    } else if (changedProperty.primType == ChangedPrimType::CESIUM_IMAGERY) {
         const auto tilesetPath = changedProperty.path.GetParentPath();
         reloadTileset(tilesetPath);
     }
@@ -554,7 +554,7 @@ void Context::updateTroubleshootingDetails(
 void Context::updateTroubleshootingDetails(
     const pxr::SdfPath& tilesetPath,
     [[maybe_unused]] int64_t tilesetIonAssetId,
-    int64_t rasterOverlayIonAssetId,
+    int64_t imageryIonAssetId,
     uint64_t tokenEventId,
     uint64_t assetEventId) {
     auto& registry = AssetRegistry::getInstance();
@@ -563,8 +563,8 @@ void Context::updateTroubleshootingDetails(
         return;
     }
 
-    const auto rasterOverlay = registry.getRasterOverlayByIonAssetId(rasterOverlayIonAssetId);
-    if (!rasterOverlay.has_value()) {
+    const auto imagery = registry.getImageryByIonAssetId(imageryIonAssetId);
+    if (!imagery.has_value()) {
         return;
     }
 
@@ -572,23 +572,23 @@ void Context::updateTroubleshootingDetails(
 
     _assetTroubleshootingDetails = AssetTroubleshootingDetails();
     troubleshooter.updateAssetTroubleshootingDetails(
-        rasterOverlayIonAssetId, assetEventId, _assetTroubleshootingDetails.value());
+        imageryIonAssetId, assetEventId, _assetTroubleshootingDetails.value());
 
     _defaultTokenTroubleshootingDetails = TokenTroubleshootingDetails();
 
     if (isDefaultTokenSet()) {
         auto token = getDefaultToken().value().token;
         troubleshooter.updateTokenTroubleshootingDetails(
-            rasterOverlayIonAssetId, token, tokenEventId, _defaultTokenTroubleshootingDetails.value());
+            imageryIonAssetId, token, tokenEventId, _defaultTokenTroubleshootingDetails.value());
     }
 
     _assetTokenTroubleshootingDetails = TokenTroubleshootingDetails();
 
-    auto rasterOverlayToken = rasterOverlay.value()->getIonAccessToken();
-    if (rasterOverlayToken.has_value()) {
+    auto imageryIonAccessToken = imagery.value()->getIonAccessToken();
+    if (imageryIonAccessToken.has_value()) {
         troubleshooter.updateTokenTroubleshootingDetails(
-            rasterOverlayIonAssetId,
-            rasterOverlayToken.value().token,
+            imageryIonAssetId,
+            imageryIonAccessToken.value().token,
             tokenEventId,
             _assetTokenTroubleshootingDetails.value());
     }

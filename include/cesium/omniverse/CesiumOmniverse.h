@@ -64,44 +64,44 @@ class ICesiumOmniverseInterface {
     virtual std::string addTilesetIon(const char* name, int64_t ionAssetId, const char* ionAccessToken) noexcept = 0;
 
     /**
-     * @brief Adds a raster overlay from ion.
+     * @brief Adds imagery from ion.
      *
-     * @param tilesetPath The sdf path of the tileset that the raster overlay will be attached to.
-     * @param name The user-given name of this raster overlay.
+     * @param tilesetPath The sdf path of the tileset that the imagery will be attached to.
+     * @param name The user-given name of this imagery.
      * @param ionAssetId The ion asset ID.
-     * @returns The raster overlay sdf path.
+     * @returns The imagery sdf path.
      */
-    virtual std::string addIonRasterOverlay(const char* tilesetPath, const char* name, int64_t ionAssetId) noexcept = 0;
+    virtual std::string addImageryIon(const char* tilesetPath, const char* name, int64_t ionAssetId) noexcept = 0;
 
     /**
-     * @brief Adds a raster overlay from ion.
+     * @brief Adds imagery from ion.
      *
-     * @param tilesetPath The sdf path of the tileset that the raster overlay will be attached to.
-     * @param name The user-given name of this raster overlay.
+     * @param tilesetPath The sdf path of the tileset that the imagery will be attached to.
+     * @param name The user-given name of this imagery.
      * @param ionAssetId The ion asset ID.
      * @param ionAccessToken The ion access token.
-     * @returns The raster overlay sdf path.
+     * @returns The imagery sdf path.
      */
-    virtual std::string addIonRasterOverlay(
+    virtual std::string addImageryIon(
         const char* tilesetPath,
         const char* name,
         int64_t ionAssetId,
         const char* ionAccessToken) noexcept = 0;
 
     /**
-     * @brief Adds a tileset and a raster overlay from ion.
+     * @brief Adds a tileset and imagery from ion.
      *
      * @param tilesetName The user-given name of this tileset.
      * @param tilesetIonAssetId The ion asset ID for the tileset.
-     * @param rasterOverlayName The user-given name of this raster overlay.
-     * @param rasterOverlayIonAssetId The ion asset ID for the raster overlay.
+     * @param imageryName The user-given name of this imagery.
+     * @param imageryIonAssetId The ion asset ID for the imagery.
      * @returns The tileset sdf path.
      */
-    virtual std::string addTilesetAndRasterOverlay(
+    virtual std::string addTilesetAndImagery(
         const char* tilesetName,
         int64_t tilesetIonAssetId,
-        const char* rasterOverlayName,
-        int64_t rasterOverlayIonAssetId) noexcept = 0;
+        const char* imageryName,
+        int64_t imageryIonAssetId) noexcept = 0;
 
     /**
      * @brief Gets all the tileset paths on the stage.
@@ -227,7 +227,7 @@ class ICesiumOmniverseInterface {
     virtual void updateTroubleshootingDetails(
         const char* tilesetPath,
         int64_t tilesetIonAssetId,
-        int64_t rasterOverlayIonAssetId,
+        int64_t imageryIonAssetId,
         uint64_t tokenEventId,
         uint64_t assetEventId) noexcept = 0;
 
