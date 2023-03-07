@@ -26,7 +26,7 @@ class FabricPrepareRenderResources;
 
 class OmniTileset {
   public:
-    OmniTileset(int64_t tilesetId, const pxr::SdfPath& tilesetPath);
+    OmniTileset(const pxr::SdfPath& tilesetPath, int64_t tilesetId);
     ~OmniTileset();
 
     pxr::SdfPath getPath() const;

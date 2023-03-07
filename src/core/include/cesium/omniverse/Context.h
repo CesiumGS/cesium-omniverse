@@ -57,12 +57,16 @@ class Context {
     std::shared_ptr<spdlog::logger> getLogger();
 
     void setProjectDefaultToken(const CesiumIonClient::Token& token);
-    int64_t addTilesetUrl(const std::string& url);
-    int64_t addTilesetIon(const std::string& name, int64_t ionId, const std::string& ionToken);
-    void addIonRasterOverlay(int64_t tilesetId, const std::string& name, int64_t ionId, const std::string& ionToken);
+    pxr::SdfPath addTilesetUrl(const std::string& name, const std::string& url);
+    pxr::SdfPath addTilesetIon(const std::string& name, int64_t ionAssetId, const std::string& ionAccessToken);
+    pxr::SdfPath addIonRasterOverlay(
+        const pxr::SdfPath& tilesetPath,
+        const std::string& name,
+        int64_t ionAssetId,
+        const std::string& ionAccessToken);
 
-    void removeTileset(int64_t tilesetId);
-    void reloadTileset(int64_t tilesetId);
+    void removeTileset(const pxr::SdfPath& tilesetPath);
+    void reloadTileset(const pxr::SdfPath& tilesetPath);
 
     void onUpdateFrame(const glm::dmat4& viewMatrix, const glm::dmat4& projMatrix, double width, double height);
     void onUpdateUi();
@@ -91,12 +95,15 @@ class Context {
     std::optional<AssetTroubleshootingDetails> getAssetTroubleshootingDetails();
     std::optional<TokenTroubleshootingDetails> getAssetTokenTroubleshootingDetails();
     std::optional<TokenTroubleshootingDetails> getDefaultTokenTroubleshootingDetails();
-    void
-    updateTroubleshootingDetails(int64_t tilesetId, int64_t tilesetIonId, uint64_t tokenEventId, uint64_t assetEventId);
     void updateTroubleshootingDetails(
-        int64_t tilesetId,
-        [[maybe_unused]] int64_t tilesetIonId,
-        int64_t rasterOverlayId,
+        const pxr::SdfPath& tilesetPath,
+        int64_t tilesetIonAssetId,
+        uint64_t tokenEventId,
+        uint64_t assetEventId);
+    void updateTroubleshootingDetails(
+        const pxr::SdfPath& tilesetPath,
+        [[maybe_unused]] int64_t tilesetIonAssetId,
+        int64_t rasterOverlayIonAssetId,
         uint64_t tokenEventId,
         uint64_t assetEventId);
 

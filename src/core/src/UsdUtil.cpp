@@ -304,20 +304,29 @@ pxr::CesiumRasterOverlay getCesiumRasterOverlay(const pxr::SdfPath& path) {
     return rasterOverlay;
 }
 
-std::vector<pxr::SdfPath> getChildRasterOverlayPaths(const pxr::SdfPath& path) {
+std::vector<pxr::CesiumRasterOverlay> getChildCesiumRasterOverlays(const pxr::SdfPath& path) {
     auto stage = UsdUtil::getUsdStage();
     auto prim = stage->GetPrimAtPath(path);
     assert(prim.IsValid());
 
-    std::vector<pxr::SdfPath> result;
+    std::vector<pxr::CesiumRasterOverlay> result;
 
     for (const auto& childPrim : prim.GetChildren()) {
         if (childPrim.IsA<pxr::CesiumRasterOverlay>()) {
-            result.emplace_back(childPrim.GetPath());
+            result.emplace_back(childPrim);
         }
     }
 
     return result;
+}
+
+pxr::CesiumTilesetAPI getParentCesiumTileset(const pxr::SdfPath& path) {
+    auto stage = UsdUtil::getUsdStage();
+    auto prim = stage->GetPrimAtPath(path);
+    assert(prim.IsValid());
+
+    auto parentPath = prim.GetParent().GetPath();
+    return getCesiumTileset(parentPath);
 }
 
 bool isCesiumData(const pxr::SdfPath& path) {

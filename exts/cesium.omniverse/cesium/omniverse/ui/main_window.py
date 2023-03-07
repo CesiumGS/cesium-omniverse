@@ -160,9 +160,9 @@ class CesiumOmniverseMainWindow(ui.Window):
         self._show_token_window()
 
     def _on_show_troubleshooter_window(self, _e: carb.events.IEvent):
-        tileset_id = _e.payload["tilesetAssetId"]
-        tileset_ion_id = _e.payload["tilesetIonId"]
-        raster_overlay_id = _e.payload["rasterOverlayId"]
+        tileset_path = _e.payload["tilesetPath"]
+        tileset_ion_asset_id = _e.payload["tilesetIonAssetId"]
+        raster_overlay_ion_asset_id = _e.payload["rasterOverlayIonAssetId"]
         message = _e.payload["message"]
 
         name = _e.payload["rasterOverlayName"] if _e.payload["rasterOverlayName"] else _e.payload["tilesetName"]
@@ -172,7 +172,12 @@ class CesiumOmniverseMainWindow(ui.Window):
             self._troubleshooter_window = None
 
         self._troubleshooter_window = CesiumTroubleshooterWindow(
-            self._cesium_omniverse_interface, name, tileset_id, tileset_ion_id, raster_overlay_id, message
+            self._cesium_omniverse_interface,
+            name,
+            tileset_path,
+            tileset_ion_asset_id,
+            raster_overlay_ion_asset_id,
+            message,
         )
 
     def _build_fn(self):

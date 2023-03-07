@@ -5,181 +5,88 @@
 
 namespace cesium::omniverse {
 
-void AssetRegistry::addTileset(int64_t id, const pxr::SdfPath& path) {
-    std::string sPath{path.GetString().c_str()};
-    auto item = AssetRegistryItem{id, AssetType::TILESET, std::make_shared<OmniTileset>(id, path), sPath, std::nullopt};
-    items.insert(items.end(), item);
+void AssetRegistry::addTileset(const pxr::SdfPath& path, int64_t id) {
+    _tilesets.insert(_tilesets.end(), std::make_shared<OmniTileset>(path, id));
 }
 
-std::optional<std::shared_ptr<OmniTileset>> AssetRegistry::getTileset(int64_t assetId) {
-    for (const auto& item : items) {
-        if (item.assetId == assetId && item.type == AssetType::TILESET) {
-            if (!item.tileset.has_value()) {
-                return std::nullopt;
-            }
+void AssetRegistry::removeTileset(const pxr::SdfPath& path) {
+    _tilesets.remove_if([path](const auto& tileset) { return tileset->getPath() == path; });
+}
 
-            return item.tileset.value();
+std::optional<std::shared_ptr<OmniTileset>> AssetRegistry::getTilesetByPath(const pxr::SdfPath& path) const {
+    for (const auto& tileset : _tilesets) {
+        if (tileset->getPath() == path) {
+            return tileset;
         }
     }
 
     return std::nullopt;
 }
 
-std::optional<std::shared_ptr<OmniTileset>> AssetRegistry::getTileset(const std::string& path) {
-    for (const auto& item : items) {
-        if (item.path == path && item.type == AssetType::TILESET) {
-            if (!item.tileset.has_value()) {
-                return std::nullopt;
-            }
-
-            return item.tileset.value();
+std::optional<std::shared_ptr<OmniTileset>> AssetRegistry::getTilesetByIonAssetId(int64_t ionAssetId) const {
+    for (const auto& tileset : _tilesets) {
+        if (tileset->getIonAssetId() == ionAssetId) {
+            return std::make_optional(tileset);
         }
     }
 
     return std::nullopt;
 }
 
-std::optional<std::shared_ptr<OmniTileset>> AssetRegistry::getTilesetFromRasterOverlay(const std::string& path) {
-    for (const auto& item : items) {
-        if (item.path == path && item.type == AssetType::IMAGERY) {
-            const auto& tilesetId = item.parentId.value();
-            return getTileset(tilesetId);
-        }
-    }
-
-    return std::nullopt;
+const std::list<std::shared_ptr<OmniTileset>>& AssetRegistry::getAllTilesets() const {
+    return _tilesets;
 }
 
-std::optional<int64_t> AssetRegistry::getTilesetId(const std::string& path) {
-    auto tileset = getTileset(path);
+std::vector<pxr::SdfPath> AssetRegistry::getAllTilesetPaths() const {
+    std::vector<pxr::SdfPath> result;
+    result.reserve(_tilesets.size());
 
-    if (!tileset.has_value()) {
-        return std::nullopt;
-    }
-
-    return tileset.value()->getId();
-}
-
-std::vector<std::shared_ptr<OmniTileset>> AssetRegistry::getAllTilesets() {
-    auto tilesets = std::vector<std::shared_ptr<OmniTileset>>();
-    tilesets.reserve(size());
-
-    for (const auto& item : items) {
-        if (item.type == AssetType::TILESET && item.tileset.has_value()) {
-            tilesets.emplace_back(item.tileset.value());
-        }
-    }
-
-    return tilesets;
-}
-
-/**
- * @brief Gets all the tileset IDs and their paths. This is primarily for passing up to the python layer where we do not necessarily want to expose the tileset.
- *
- * @return A vector containing a pair with the assetId and path in that order.
- */
-std::vector<std::pair<int64_t, const char*>> AssetRegistry::getAllTilesetIdsAndPaths() {
-    std::vector<std::pair<int64_t, const char*>> result;
-    result.reserve(size());
-
-    for (const auto& item : items) {
-        result.emplace_back(item.assetId, item.path.c_str());
+    for (const auto& tileset : _tilesets) {
+        result.emplace_back(tileset->getPath());
     }
 
     return result;
 }
 
-[[maybe_unused]] std::vector<int64_t> AssetRegistry::getAllTilesetIds() {
-    return getAssetIdsByType(AssetType::TILESET);
+void AssetRegistry::addRasterOverlay(const pxr::SdfPath& path) {
+    _rasterOverlays.insert(_rasterOverlays.end(), std::make_shared<OmniIonRasterOverlay>(path));
 }
 
-std::optional<const AssetRegistryItem> AssetRegistry::getItemByPath(const pxr::SdfPath& path) {
-    const auto& strPath = path.GetString();
-    for (const auto& item : items) {
-        if (item.path == strPath) {
-            return item;
+std::optional<std::shared_ptr<OmniIonRasterOverlay>>
+AssetRegistry::getRasterOverlayByPath(const pxr::SdfPath& path) const {
+    for (const auto& rasterOverlay : _rasterOverlays) {
+        if (rasterOverlay->getPath() == path) {
+            return std::make_optional(rasterOverlay);
         }
     }
 
     return std::nullopt;
 }
 
-void AssetRegistry::addRasterOverlay(int64_t assetId, const pxr::SdfPath& path, int64_t parentId) {
-    items.insert(items.end(), AssetRegistryItem{assetId, AssetType::IMAGERY, std::nullopt, path.GetString(), parentId});
-}
-
-void AssetRegistry::setRasterOverlayAssetId(const pxr::SdfPath& path, int64_t assetId) {
-    for (auto& item : items) {
-        if (item.path == path.GetString()) {
-            item.assetId = assetId;
-            return;
-        }
-    }
-}
-
-std::optional<OmniIonRasterOverlay> AssetRegistry::getRasterOverlay(int64_t assetId) {
-    for (const auto& item : items) {
-        if (item.type == AssetType::IMAGERY && item.assetId == assetId) {
-            return OmniIonRasterOverlay(pxr::SdfPath(item.path));
+std::optional<std::shared_ptr<OmniIonRasterOverlay>>
+AssetRegistry::getRasterOverlayByIonAssetId(int64_t ionAssetId) const {
+    for (const auto& rasterOverlay : _rasterOverlays) {
+        if (rasterOverlay->getIonAssetId() == ionAssetId) {
+            return std::make_optional(rasterOverlay);
         }
     }
 
     return std::nullopt;
 }
 
-std::optional<int64_t> AssetRegistry::getRasterOverlayIdByPath(const pxr::SdfPath& path) {
-    for (const auto& item : items) {
-        if (item.type == AssetType::IMAGERY && item.path == path.GetString()) {
-            return item.assetId;
-        }
+AssetType AssetRegistry::getAssetType(const pxr::SdfPath& path) const {
+    if (getTilesetByPath(path).has_value()) {
+        return AssetType::TILESET;
+    } else if (getRasterOverlayByPath(path).has_value()) {
+        return AssetType::RASTER_OVERLAY;
     }
 
-    return std::nullopt;
-}
-
-[[maybe_unused]] std::vector<int64_t> AssetRegistry::getAllRasterOverlayIds() {
-    return getAssetIdsByType(AssetType::IMAGERY);
-}
-
-[[maybe_unused]] std::vector<int64_t> AssetRegistry::getAllRasterOverlayIdsForTileset(int64_t parentId) {
-    std::vector<int64_t> result;
-    result.reserve(size());
-
-    for (const auto& item : items) {
-        if (item.type == AssetType::IMAGERY && item.parentId == parentId) {
-            result.emplace_back(item.assetId);
-        }
-    }
-
-    return result;
+    return AssetType::OTHER;
 }
 
 void AssetRegistry::clear() {
-    items.clear();
-}
-
-void AssetRegistry::removeAsset(int64_t assetId) {
-    items.remove_if([assetId](AssetRegistryItem& item) { return item.assetId == assetId; });
-}
-
-void AssetRegistry::removeAssetByParent(int64_t parentId) {
-    items.remove_if([parentId](AssetRegistryItem& item) { return item.parentId == parentId; });
-}
-
-uint64_t AssetRegistry::size() {
-    return items.size();
-}
-
-std::vector<int64_t> AssetRegistry::getAssetIdsByType(AssetType type) {
-    auto result = std::vector<int64_t>();
-
-    for (const auto& item : items) {
-        if (item.type == type) {
-            result.emplace_back(item.assetId);
-        }
-    }
-
-    return result;
+    _tilesets.clear();
+    _rasterOverlays.clear();
 }
 
 } // namespace cesium::omniverse

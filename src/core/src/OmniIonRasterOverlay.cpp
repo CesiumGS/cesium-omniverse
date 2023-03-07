@@ -22,24 +22,24 @@ std::string OmniIonRasterOverlay::getName() const {
 int64_t OmniIonRasterOverlay::getIonAssetId() const {
     auto rasterOverlay = UsdUtil::getCesiumRasterOverlay(_path);
 
-    int64_t assetId;
-    rasterOverlay.GetIonAssetIdAttr().Get<int64_t>(&assetId);
+    int64_t ionAssetId;
+    rasterOverlay.GetIonAssetIdAttr().Get<int64_t>(&ionAssetId);
 
-    return assetId;
+    return ionAssetId;
 }
 
 std::optional<CesiumIonClient::Token> OmniIonRasterOverlay::getIonAccessToken() const {
     auto rasterOverlay = UsdUtil::getCesiumRasterOverlay(_path);
 
-    std::string ionToken;
-    rasterOverlay.GetIonAccessTokenAttr().Get<std::string>(&ionToken);
+    std::string ionAccessToken;
+    rasterOverlay.GetIonAccessTokenAttr().Get<std::string>(&ionAccessToken);
 
-    if (ionToken.empty()) {
+    if (ionAccessToken.empty()) {
         return Context::instance().getDefaultToken();
     }
 
     CesiumIonClient::Token t;
-    t.token = ionToken;
+    t.token = ionAccessToken;
 
     return t;
 }

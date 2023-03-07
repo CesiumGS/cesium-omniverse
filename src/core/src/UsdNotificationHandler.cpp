@@ -17,17 +17,17 @@ ChangedPrimType getType(const pxr::SdfPath& path) {
             return ChangedPrimType::CESIUM_RASTER_OVERLAY;
         }
     } else {
-        auto item = AssetRegistry::getInstance().getItemByPath(path);
+        const auto assetType = AssetRegistry::getInstance().getAssetType(path);
 
-        if (item.has_value()) {
-            switch (item.value().type) {
-                case AssetType::TILESET:
-                    return ChangedPrimType::CESIUM_TILESET;
-                case AssetType::IMAGERY:
-                    return ChangedPrimType::CESIUM_RASTER_OVERLAY;
-                default:
-                    break;
-            }
+        switch (assetType) {
+            case AssetType::TILESET:
+                return ChangedPrimType::CESIUM_TILESET;
+            case AssetType::RASTER_OVERLAY:
+                return ChangedPrimType::CESIUM_RASTER_OVERLAY;
+            case AssetType::OTHER:
+                break;
+            default:
+                break;
         }
     }
 

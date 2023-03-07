@@ -8,7 +8,7 @@
 
 namespace cesium::omniverse {
 void TokenTroubleshooter::updateTokenTroubleshootingDetails(
-    int64_t assetId,
+    int64_t ionAssetId,
     const std::string& token,
     uint64_t eventId,
     TokenTroubleshootingDetails& details) {
@@ -25,9 +25,9 @@ void TokenTroubleshooter::updateTokenTroubleshootingDetails(
 
     connection->me()
         .thenInMainThread(
-            [assetId, connection, &details](CesiumIonClient::Response<CesiumIonClient::Profile>&& profile) {
+            [ionAssetId, connection, &details](CesiumIonClient::Response<CesiumIonClient::Profile>&& profile) {
                 details.isValid = profile.value.has_value();
-                return connection->asset(assetId);
+                return connection->asset(ionAssetId);
             })
         .thenInMainThread([connection, &details](CesiumIonClient::Response<CesiumIonClient::Asset>&& asset) {
             details.allowsAccessToAsset = asset.value.has_value();
@@ -58,7 +58,7 @@ void TokenTroubleshooter::updateTokenTroubleshootingDetails(
             });
 }
 void TokenTroubleshooter::updateAssetTroubleshootingDetails(
-    int64_t assetId,
+    int64_t ionAssetId,
     uint64_t eventId,
     AssetTroubleshootingDetails& details) {
     auto session = Context::instance().getSession();
@@ -66,7 +66,7 @@ void TokenTroubleshooter::updateAssetTroubleshootingDetails(
         return;
     }
 
-    session.value()->getConnection()->asset(assetId).thenInMainThread(
+    session.value()->getConnection()->asset(ionAssetId).thenInMainThread(
         [eventId, &details](CesiumIonClient::Response<CesiumIonClient::Asset>&& asset) {
             details.assetExistsInUserAccount = asset.value.has_value();
 

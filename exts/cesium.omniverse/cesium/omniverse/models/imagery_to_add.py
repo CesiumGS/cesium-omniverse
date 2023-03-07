@@ -4,15 +4,15 @@ import carb.events
 
 
 class ImageryToAdd:
-    def __init__(self, tileset_id: int, imagery_ion_id: int, imagery_name: str):
-        self.tileset_ion_id = tileset_id
-        self.imagery_ion_id = imagery_ion_id
+    def __init__(self, tileset_path: str, imagery_ion_asset_id: int, imagery_name: str):
+        self.tileset_path = tileset_path
+        self.imagery_ion_asset_id = imagery_ion_asset_id
         self.imagery_name = imagery_name
 
     def to_dict(self) -> dict:
         return {
-            "tileset_ion_id": self.tileset_ion_id,
-            "imagery_ion_id": self.imagery_ion_id,
+            "tileset_path": self.tileset_path,
+            "imagery_ion_asset_id": self.imagery_ion_asset_id,
             "imagery_name": self.imagery_name,
         }
 
@@ -22,5 +22,5 @@ class ImageryToAdd:
             return None
 
         return ImageryToAdd(
-            event.payload["tileset_ion_id"], event.payload["imagery_ion_id"], event.payload["imagery_name"]
+            event.payload["tileset_path"], event.payload["imagery_ion_asset_id"], event.payload["imagery_name"]
         )
