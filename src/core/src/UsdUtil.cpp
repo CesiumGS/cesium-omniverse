@@ -320,15 +320,6 @@ std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& p
     return result;
 }
 
-pxr::CesiumTilesetAPI getParentCesiumTileset(const pxr::SdfPath& path) {
-    auto stage = UsdUtil::getUsdStage();
-    auto prim = stage->GetPrimAtPath(path);
-    assert(prim.IsValid());
-
-    auto parentPath = prim.GetParent().GetPath();
-    return getCesiumTileset(parentPath);
-}
-
 bool isCesiumData(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto prim = stage->GetPrimAtPath(path);
