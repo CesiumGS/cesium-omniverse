@@ -27,6 +27,9 @@
 
 ## Prerequisites
 
+- Install Nvidia Omniverse: https://www.nvidia.com/en-us/omniverse/download/
+- Install Omniverse Code 2022.3.0 (or later)
+
 See [Linux](#linux) or [Windows](#windows) for step-by-step installation instructions
 
 - Linux (Ubuntu 22.04+ or equivalent) or Windows
