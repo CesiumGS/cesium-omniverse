@@ -111,6 +111,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumData
     const TfToken cesiumProjectDefaultIonAccessTokenId;
+    /// \brief "cesium:smoothNormals"
+    /// 
+    /// CesiumTilesetAPI
+    const TfToken cesiumSmoothNormals;
     /// \brief "cesium:suspendUpdate"
     /// 
     /// CesiumTilesetAPI

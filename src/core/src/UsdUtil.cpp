@@ -263,6 +263,7 @@ pxr::CesiumTilesetAPI defineCesiumTileset(const pxr::SdfPath& path) {
     tileset.CreateEnforceCulledScreenSpaceErrorAttr(pxr::VtValue(true));
     tileset.CreateCulledScreenSpaceErrorAttr(pxr::VtValue(64.0f));
     tileset.CreateSuspendUpdateAttr(pxr::VtValue(false));
+    tileset.CreateSmoothNormalsAttr(pxr::VtValue(false));
 
     return tileset;
 }

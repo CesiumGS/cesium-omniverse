@@ -739,21 +739,22 @@ void addPrimitive(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     const std::vector<pxr::SdfPath>& materialPaths,
-    uint64_t imageryUvSetIndex) {
+    uint64_t imageryUvSetIndex,
+    bool smoothNormals) {
 
     auto sip = UsdUtil::getFabricStageInProgress();
     const auto geomPathFabric = carb::flatcache::Path(carb::flatcache::asInt(geomPath));
 
     const auto positions = GltfUtil::getPrimitivePositions(model, primitive);
     const auto indices = GltfUtil::getPrimitiveIndices(model, primitive, positions);
-    const auto normals = GltfUtil::getPrimitiveNormals(model, primitive, positions, indices);
+    const auto normals = GltfUtil::getPrimitiveNormals(model, primitive, positions, indices, smoothNormals);
     const auto st0 = GltfUtil::getPrimitiveUVs(model, primitive, 0);
     const auto imagerySt = GltfUtil::getImageryUVs(model, primitive, imageryUvSetIndex);
     const auto localExtent = GltfUtil::getPrimitiveExtent(model, primitive);
     const auto faceVertexCounts = GltfUtil::getPrimitiveFaceVertexCounts(indices);
     const auto doubleSided = GltfUtil::getDoubleSided(model, primitive);
 
-    if (positions.empty() || indices.empty() || normals.empty() || !localExtent.has_value()) {
+    if (positions.empty() || indices.empty() || !localExtent.has_value()) {
         return;
     }
 
@@ -768,6 +769,7 @@ void addPrimitive(
     const auto hasPrimitiveSt = !st0.empty();
     const auto hasImagerySt = !imagerySt.empty();
     const auto hasSt = hasPrimitiveSt || hasImagerySt;
+    const auto hasNormals = !normals.empty();
 
     const auto localToEcefTransform = gltfToEcefTransform * nodeTransform;
     const auto localToUsdTransform = ecefToUsdTransform * localToEcefTransform;
@@ -786,7 +788,6 @@ void addPrimitive(
     attributes.addAttribute(FabricTypes::primvars, FabricTokens::primvars);
     attributes.addAttribute(FabricTypes::primvarInterpolations, FabricTokens::primvarInterpolations);
     attributes.addAttribute(FabricTypes::primvars_displayColor, FabricTokens::primvars_displayColor);
-    attributes.addAttribute(FabricTypes::primvars_normals, FabricTokens::primvars_normals);
     attributes.addAttribute(FabricTypes::Mesh, FabricTokens::Mesh);
     attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
     attributes.addAttribute(FabricTypes::_cesium_tileId, FabricTokens::_cesium_tileId);
@@ -805,12 +806,25 @@ void addPrimitive(
         attributes.addAttribute(FabricTypes::primvars_st, FabricTokens::primvars_st);
     }
 
+    if (hasNormals) {
+        attributes.addAttribute(FabricTypes::primvars_normals, FabricTokens::primvars_normals);
+    }
+
     attributes.createAttributes(geomPathFabric);
 
-    const size_t primvarsCount = hasSt ? 3 : 2;
-    const size_t primvarIndexDisplayColor = 0;
-    const size_t primvarIndexNormal = 1;
-    const size_t primvarIndexSt = 2;
+    size_t primvarsCount = 0;
+    size_t primvarIndexSt = 0;
+    size_t primvarIndexNormal = 0;
+
+    const size_t primvarIndexDisplayColor = primvarsCount++;
+
+    if (hasSt) {
+        primvarIndexSt = primvarsCount++;
+    }
+
+    if (hasNormals) {
+        primvarIndexNormal = primvarsCount++;
+    }
 
     sip.setArrayAttributeSize(geomPathFabric, FabricTokens::faceVertexCounts, faceVertexCounts.size());
     sip.setArrayAttributeSize(geomPathFabric, FabricTokens::faceVertexIndices, indices.size());
@@ -818,7 +832,6 @@ void addPrimitive(
     sip.setArrayAttributeSize(geomPathFabric, FabricTokens::primvars, primvarsCount);
     sip.setArrayAttributeSize(geomPathFabric, FabricTokens::primvarInterpolations, primvarsCount);
     sip.setArrayAttributeSize(geomPathFabric, FabricTokens::primvars_displayColor, 1);
-    sip.setArrayAttributeSize(geomPathFabric, FabricTokens::primvars_normals, normals.size());
 
     // clang-format off
     auto faceVertexCountsFabric = sip.getArrayAttributeWr<int>(geomPathFabric, FabricTokens::faceVertexCounts);
@@ -830,7 +843,6 @@ void addPrimitive(
     auto primvarsFabric = sip.getArrayAttributeWr<carb::flatcache::Token>(geomPathFabric, FabricTokens::primvars);
     auto primvarInterpolationsFabric = sip.getArrayAttributeWr<carb::flatcache::Token>(geomPathFabric, FabricTokens::primvarInterpolations);
     auto displayColorFabric = sip.getArrayAttributeWr<pxr::GfVec3f>(geomPathFabric, FabricTokens::primvars_displayColor);
-    auto normalsFabric = sip.getArrayAttributeWr<pxr::GfVec3f>(geomPathFabric, FabricTokens::primvars_normals);
     auto tilesetIdFabric = sip.getAttributeWr<int64_t>(geomPathFabric, FabricTokens::_cesium_tilesetId);
     auto tileIdFabric = sip.getAttributeWr<int64_t>(geomPathFabric, FabricTokens::_cesium_tileId);
     auto localToEcefTransformFabric = sip.getAttributeWr<pxr::GfMatrix4d>(geomPathFabric, FabricTokens::_cesium_localToEcefTransform);
@@ -844,13 +856,10 @@ void addPrimitive(
     std::copy(faceVertexCounts.begin(), faceVertexCounts.end(), faceVertexCountsFabric.begin());
     std::copy(indices.begin(), indices.end(), faceVertexIndicesFabric.begin());
     std::copy(positions.begin(), positions.end(), pointsFabric.begin());
-    std::copy(normals.begin(), normals.end(), normalsFabric.begin());
 
     *worldVisibilityFabric = false;
     primvarsFabric[primvarIndexDisplayColor] = FabricTokens::primvars_displayColor;
     primvarInterpolationsFabric[primvarIndexDisplayColor] = FabricTokens::constant;
-    primvarsFabric[primvarIndexNormal] = FabricTokens::primvars_normals;
-    primvarInterpolationsFabric[primvarIndexNormal] = FabricTokens::vertex;
     *tilesetIdFabric = tilesetId;
     *tileIdFabric = tileId;
     *worldPositionFabric = worldPosition;
@@ -881,6 +890,17 @@ void addPrimitive(
 
         primvarsFabric[primvarIndexSt] = FabricTokens::primvars_st;
         primvarInterpolationsFabric[primvarIndexSt] = FabricTokens::vertex;
+    }
+
+    if (hasNormals) {
+        sip.setArrayAttributeSize(geomPathFabric, FabricTokens::primvars_normals, normals.size());
+
+        auto normalsFabric = sip.getArrayAttributeWr<pxr::GfVec3f>(geomPathFabric, FabricTokens::primvars_normals);
+
+        std::copy(normals.begin(), normals.end(), normalsFabric.begin());
+
+        primvarsFabric[primvarIndexNormal] = FabricTokens::primvars_normals;
+        primvarInterpolationsFabric[primvarIndexNormal] = FabricTokens::vertex;
     }
 }
 
@@ -958,7 +978,8 @@ AddTileResults addTile(
     int64_t tileId,
     const glm::dmat4& ecefToUsdTransform,
     const glm::dmat4& tileTransform,
-    const CesiumGltf::Model& model) {
+    const CesiumGltf::Model& model,
+    bool smoothNormals) {
     auto gltfToEcefTransform = Cesium3DTilesSelection::GltfUtilities::applyRtcCenter(model, tileTransform);
     gltfToEcefTransform = Cesium3DTilesSelection::GltfUtilities::applyGltfUpAxisTransform(model, gltfToEcefTransform);
 
@@ -998,7 +1019,14 @@ AddTileResults addTile(
 
     model.forEachPrimitiveInScene(
         -1,
-        [tilesetId, tileId, &primitiveId, &ecefToUsdTransform, &gltfToEcefTransform, &materialPaths, &geomPaths](
+        [tilesetId,
+         tileId,
+         &primitiveId,
+         &ecefToUsdTransform,
+         &gltfToEcefTransform,
+         &materialPaths,
+         &geomPaths,
+         smoothNormals](
             const CesiumGltf::Model& gltf,
             [[maybe_unused]] const CesiumGltf::Node& node,
             [[maybe_unused]] const CesiumGltf::Mesh& mesh,
@@ -1015,7 +1043,8 @@ AddTileResults addTile(
                 gltf,
                 primitive,
                 materialPaths,
-                0);
+                0,
+                smoothNormals);
             geomPaths.emplace_back(std::move(geomPath));
         });
 
@@ -1030,6 +1059,7 @@ AddTileResults addTileWithImagery(
     const glm::dmat4& ecefToUsdTransform,
     const glm::dmat4& tileTransform,
     const CesiumGltf::Model& model,
+    bool smoothNormals,
     const CesiumGltf::ImageCesium& image,
     const std::string& imageryName,
     const CesiumGeometry::Rectangle& imageryRectangle,
@@ -1082,7 +1112,8 @@ AddTileResults addTileWithImagery(
          &gltfToEcefTransform,
          &materialPaths,
          &geomPaths,
-         imageryUvSetIndex](
+         imageryUvSetIndex,
+         smoothNormals](
             const CesiumGltf::Model& gltf,
             [[maybe_unused]] const CesiumGltf::Node& node,
             [[maybe_unused]] const CesiumGltf::Mesh& mesh,
@@ -1099,7 +1130,8 @@ AddTileResults addTileWithImagery(
                 gltf,
                 primitive,
                 materialPaths,
-                imageryUvSetIndex);
+                imageryUvSetIndex,
+                smoothNormals);
             geomPaths.emplace_back(std::move(geomPath));
         });
 

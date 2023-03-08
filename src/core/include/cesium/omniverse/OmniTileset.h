@@ -46,6 +46,7 @@ class OmniTileset {
     bool getEnforceCulledScreenSpaceError() const;
     float getCulledScreenSpaceError() const;
     bool getSuspendUpdate() const;
+    bool getSmoothNormals() const;
 
     int64_t getTilesetId() const;
 

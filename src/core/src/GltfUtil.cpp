@@ -203,7 +203,8 @@ pxr::VtArray<pxr::GfVec3f> getPrimitiveNormals(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     const pxr::VtArray<pxr::GfVec3f>& positions,
-    const pxr::VtArray<int>& indices) {
+    const pxr::VtArray<int>& indices,
+    bool smoothNormals) {
     auto normalAttribute = primitive.attributes.find("NORMAL");
     if (normalAttribute != primitive.attributes.end()) {
         const auto normalsView = CesiumGltf::AccessorView<glm::fvec3>(model, normalAttribute->second);
@@ -218,30 +219,34 @@ pxr::VtArray<pxr::GfVec3f> getPrimitiveNormals(
         }
     }
 
-    // Generate smooth normals
-    pxr::VtArray<pxr::GfVec3f> normalsUsd(positions.size(), pxr::GfVec3f(0.0f));
+    if (smoothNormals) {
+        pxr::VtArray<pxr::GfVec3f> normalsUsd(positions.size(), pxr::GfVec3f(0.0f));
 
-    for (size_t i = 0; i < indices.size(); i += 3) {
-        auto idx0 = static_cast<size_t>(indices[i]);
-        auto idx1 = static_cast<size_t>(indices[i + 1]);
-        auto idx2 = static_cast<size_t>(indices[i + 2]);
+        for (size_t i = 0; i < indices.size(); i += 3) {
+            auto idx0 = static_cast<size_t>(indices[i]);
+            auto idx1 = static_cast<size_t>(indices[i + 1]);
+            auto idx2 = static_cast<size_t>(indices[i + 2]);
 
-        const auto& p0 = positions[idx0];
-        const auto& p1 = positions[idx1];
-        const auto& p2 = positions[idx2];
-        auto n = pxr::GfCross(p1 - p0, p2 - p0);
-        n.Normalize();
+            const auto& p0 = positions[idx0];
+            const auto& p1 = positions[idx1];
+            const auto& p2 = positions[idx2];
+            auto n = pxr::GfCross(p1 - p0, p2 - p0);
+            n.Normalize();
 
-        normalsUsd[idx0] += n;
-        normalsUsd[idx1] += n;
-        normalsUsd[idx2] += n;
+            normalsUsd[idx0] += n;
+            normalsUsd[idx1] += n;
+            normalsUsd[idx2] += n;
+        }
+
+        for (auto& n : normalsUsd) {
+            n.Normalize();
+        }
+
+        return normalsUsd;
     }
 
-    for (auto& n : normalsUsd) {
-        n.Normalize();
-    }
-
-    return normalsUsd;
+    // Otherwise if normals are missing and smoothNormals is false Omniverse will generate flat normals for us automatically
+    return {};
 }
 
 pxr::VtArray<pxr::GfVec2f>
