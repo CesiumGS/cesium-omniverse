@@ -55,7 +55,7 @@ void AssetRegistry::addImagery(const pxr::SdfPath& path) {
 std::optional<std::shared_ptr<OmniImagery>> AssetRegistry::getImageryByPath(const pxr::SdfPath& path) const {
     for (const auto& imagery : _imageries) {
         if (imagery->getPath() == path) {
-            return std::make_optional(imagery);
+            return imagery;
         }
     }
 
@@ -65,7 +65,7 @@ std::optional<std::shared_ptr<OmniImagery>> AssetRegistry::getImageryByPath(cons
 std::optional<std::shared_ptr<OmniImagery>> AssetRegistry::getImageryByIonAssetId(int64_t ionAssetId) const {
     for (const auto& imagery : _imageries) {
         if (imagery->getIonAssetId() == ionAssetId) {
-            return std::make_optional(imagery);
+            return imagery;
         }
     }
 
@@ -75,7 +75,9 @@ std::optional<std::shared_ptr<OmniImagery>> AssetRegistry::getImageryByIonAssetI
 AssetType AssetRegistry::getAssetType(const pxr::SdfPath& path) const {
     if (getTilesetByPath(path).has_value()) {
         return AssetType::TILESET;
-    } else if (getImageryByPath(path).has_value()) {
+    }
+
+    if (getImageryByPath(path).has_value()) {
         return AssetType::IMAGERY;
     }
 

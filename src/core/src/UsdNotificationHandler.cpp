@@ -24,8 +24,6 @@ ChangedPrimType getType(const pxr::SdfPath& path) {
                 return ChangedPrimType::CESIUM_TILESET;
             case AssetType::IMAGERY:
                 return ChangedPrimType::CESIUM_IMAGERY;
-            case AssetType::OTHER:
-                break;
             default:
                 break;
         }

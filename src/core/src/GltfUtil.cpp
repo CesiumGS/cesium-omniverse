@@ -245,7 +245,7 @@ pxr::VtArray<pxr::GfVec3f> getPrimitiveNormals(
 }
 
 pxr::VtArray<pxr::GfVec2f>
-getPrimitiveUvs(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex) {
+getPrimitiveUVs(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex) {
     return getUVs(model, primitive, "TEXCOORD", setIndex, true);
 }
 
@@ -307,7 +307,7 @@ bool getDoubleSided(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimit
 }
 
 pxr::VtArray<pxr::GfVec2f>
-getImageryUvs(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex) {
+getImageryUVs(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex) {
     return getUVs(model, primitive, "_CESIUMOVERLAY", setIndex, false);
 }
 

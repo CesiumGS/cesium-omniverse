@@ -231,8 +231,8 @@ pxr::CesiumData defineCesiumData(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto cesiumData = pxr::CesiumData::Define(stage, path);
 
-    cesiumData.CreateDefaultIonAccessTokenAttr();
-    cesiumData.CreateDefaultIonAccessTokenIdAttr();
+    cesiumData.CreateProjectDefaultIonAccessTokenAttr();
+    cesiumData.CreateProjectDefaultIonAccessTokenIdAttr();
     cesiumData.CreateGeoreferenceOriginLongitudeAttr(pxr::VtValue(-105.25737));
     cesiumData.CreateGeoreferenceOriginLatitudeAttr(pxr::VtValue(39.736401));
     cesiumData.CreateGeoreferenceOriginHeightAttr(pxr::VtValue(2250.0));

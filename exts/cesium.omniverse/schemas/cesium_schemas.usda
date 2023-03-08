@@ -24,19 +24,19 @@ class CesiumDataPrim "CesiumDataPrim" (
         string className = "Data"
     }
 ) {
-    string cesium:defaultIonAccessToken = "" (
+    string cesium:projectDefaultIonAccessToken = "" (
         customData = {
-            string apiName = "defaultIonAccessToken"
+            string apiName = "projectDefaultIonAccessToken"
         }
-        displayName = "Default ion Access Token"
+        displayName = "Project default ion Access Token"
         doc = "A string representing the token for accessing Cesium ion assets."
     )
 
-    string cesium:defaultIonAccessTokenId = "" (
+    string cesium:projectDefaultIonAccessTokenId = "" (
         customData = {
-            string apiName = "defaultIonAccessTokenId"
+            string apiName = "projectDefaultIonAccessTokenId"
         }
-        displayName = "Default ion Access Token ID"
+        displayName = "Project default ion Access Token ID"
         doc = "A string representing the token ID for accessing Cesium ion assets."
     )
 

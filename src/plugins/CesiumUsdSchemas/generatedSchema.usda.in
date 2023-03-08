@@ -12,14 +12,6 @@ class CesiumDataPrim "CesiumDataPrim" (
     doc = "Stores stage level data for Cesium for Omniverse/USD."
 )
 {
-    string cesium:defaultIonAccessToken = "" (
-        displayName = "Default ion Access Token"
-        doc = "A string representing the token for accessing Cesium ion assets."
-    )
-    string cesium:defaultIonAccessTokenId = "" (
-        displayName = "Default ion Access Token ID"
-        doc = "A string representing the token ID for accessing Cesium ion assets."
-    )
     double cesium:georeferenceOrigin:height = 2250 (
         displayName = "Georeference Origin Height"
         doc = "The height of the origin in meters above the WGS84 ellipsoid. Do not confuse this with a geoid height or height above mean sea level, which can be tens of meters higher or lower depending on where in the world the origin is located."
@@ -31,6 +23,14 @@ class CesiumDataPrim "CesiumDataPrim" (
     double cesium:georeferenceOrigin:longitude = -105.25737 (
         displayName = "Georeference Origin Longitude"
         doc = "The longitude of the origin in degrees, in the range [-180, 180]."
+    )
+    string cesium:projectDefaultIonAccessToken = "" (
+        displayName = "Project default ion Access Token"
+        doc = "A string representing the token for accessing Cesium ion assets."
+    )
+    string cesium:projectDefaultIonAccessTokenId = "" (
+        displayName = "Project default ion Access Token ID"
+        doc = "A string representing the token ID for accessing Cesium ion assets."
     )
 }
 

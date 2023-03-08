@@ -43,14 +43,6 @@ struct CesiumTokensType {
     /// 
     /// CesiumTilesetAPI
     const TfToken cesiumCulledScreenSpaceError;
-    /// \brief "cesium:defaultIonAccessToken"
-    /// 
-    /// CesiumData
-    const TfToken cesiumDefaultIonAccessToken;
-    /// \brief "cesium:defaultIonAccessTokenId"
-    /// 
-    /// CesiumData
-    const TfToken cesiumDefaultIonAccessTokenId;
     /// \brief "cesium:enableFogCulling"
     /// 
     /// CesiumTilesetAPI
@@ -111,6 +103,14 @@ struct CesiumTokensType {
     /// 
     /// CesiumTilesetAPI
     const TfToken cesiumPreloadSiblings;
+    /// \brief "cesium:projectDefaultIonAccessToken"
+    /// 
+    /// CesiumData
+    const TfToken cesiumProjectDefaultIonAccessToken;
+    /// \brief "cesium:projectDefaultIonAccessTokenId"
+    /// 
+    /// CesiumData
+    const TfToken cesiumProjectDefaultIonAccessTokenId;
     /// \brief "cesium:suspendUpdate"
     /// 
     /// CesiumTilesetAPI
