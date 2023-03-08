@@ -261,7 +261,8 @@ void Context::processPropertyChanged(const ChangedPrim& changedPrim) {
         const auto tileset = AssetRegistry::getInstance().getTilesetByPath(path);
         if (tileset.has_value()) {
             // clang-format off
-            if (name == pxr::CesiumTokens->cesiumIonAssetId ||
+            if (name == pxr::CesiumTokens->cesiumUrl ||
+                name == pxr::CesiumTokens->cesiumIonAssetId ||
                 name == pxr::CesiumTokens->cesiumIonAccessToken ||
                 name == pxr::CesiumTokens->cesiumMaximumScreenSpaceError ||
                 name == pxr::CesiumTokens->cesiumPreloadAncestors ||
