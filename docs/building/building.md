@@ -32,7 +32,7 @@ See [Linux](#linux) or [Windows](#windows) for step-by-step installation instruc
 - Linux (Ubuntu 22.04+ or equivalent) or Windows
 - Clang 14+, GCC 9+, or Visual Studio 2022+
 - Python 3.7+ - For Conan and scripts
-- CMake 3.24+ - Build system generator
+- CMake 3.22+ - Build system generator
 - Make - Build system (Linux only)
 - Conan - Third party C++ library management
 - gcovr - Code coverage (Linux only)
@@ -121,10 +121,6 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
   ```sh
   New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
   ```
-- Enable MSVC build parallelization. Open PowerShell as administartor and enter:
-  ```sh
-  [Environment]::SetEnvironmentVariable("UseMultiToolTask", "true", "Machine")
-  ```
 - Then refresh PowerShell so that newly added dependencies are available in the path.
   ```sh
   refreshenv
@@ -165,10 +161,6 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
 - Enable Long Paths. This ensures that all Conan libraries are installed correctly. Open PowerShell as administrator and enter:
   ```sh
   New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
-  ```
-- Enable MSVC build parallelization. Open PowerShell as administartor and enter:
-  ```sh
-  [Environment]::SetEnvironmentVariable("UseMultiToolTask", "true", "Machine")
   ```
 - Then refresh PowerShell so that newly added dependencies are available in the path.
   ```sh
@@ -241,8 +233,6 @@ For faster builds, use the `--parallel` option
 cmake -B build
 cmake --build build --parallel 8
 ```
-
-> **Note:** This option does not work for MSVC builds (see https://gitlab.kitware.com/cmake/cmake/-/issues/20564). Do not use the `--parallel` option since it will override the `UseMultiToolTask` environment variable and revert back to single-threaded compilation.
 
 To use a specific C/C++ compiler, set `CMAKE_CXX_COMPILER` and `CMAKE_C_COMPILER`
 

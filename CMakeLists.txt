@@ -1,4 +1,10 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.22)
+
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.24.0")
+    # Tell CMake not to set CC and CXX flags. We'll do this ourselves
+    # https://cmake.org/cmake/help/latest/policy/CMP0132.html
+    cmake_policy(SET CMP0132 NEW)
+endif()
 
 # Tell CMake not to set CC and CXX flags. We'll do this ourselves
 # https://cmake.org/cmake/help/latest/policy/CMP0132.html
