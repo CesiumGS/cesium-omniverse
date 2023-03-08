@@ -42,8 +42,6 @@ void wrapCesiumTokens()
     boost::python::class_<CesiumTokensType, boost::noncopyable>
         cls("Tokens", boost::python::no_init);
     _AddToken(cls, "cesiumCulledScreenSpaceError", CesiumTokens->cesiumCulledScreenSpaceError);
-    _AddToken(cls, "cesiumDefaultIonAccessToken", CesiumTokens->cesiumDefaultIonAccessToken);
-    _AddToken(cls, "cesiumDefaultIonAccessTokenId", CesiumTokens->cesiumDefaultIonAccessTokenId);
     _AddToken(cls, "cesiumEnableFogCulling", CesiumTokens->cesiumEnableFogCulling);
     _AddToken(cls, "cesiumEnableFrustumCulling", CesiumTokens->cesiumEnableFrustumCulling);
     _AddToken(cls, "cesiumEnforceCulledScreenSpaceError", CesiumTokens->cesiumEnforceCulledScreenSpaceError);
@@ -59,6 +57,8 @@ void wrapCesiumTokens()
     _AddToken(cls, "cesiumMaximumSimultaneousTileLoads", CesiumTokens->cesiumMaximumSimultaneousTileLoads);
     _AddToken(cls, "cesiumPreloadAncestors", CesiumTokens->cesiumPreloadAncestors);
     _AddToken(cls, "cesiumPreloadSiblings", CesiumTokens->cesiumPreloadSiblings);
+    _AddToken(cls, "cesiumProjectDefaultIonAccessToken", CesiumTokens->cesiumProjectDefaultIonAccessToken);
+    _AddToken(cls, "cesiumProjectDefaultIonAccessTokenId", CesiumTokens->cesiumProjectDefaultIonAccessTokenId);
     _AddToken(cls, "cesiumSuspendUpdate", CesiumTokens->cesiumSuspendUpdate);
     _AddToken(cls, "cesiumUrl", CesiumTokens->cesiumUrl);
 }

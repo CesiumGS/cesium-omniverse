@@ -747,8 +747,8 @@ void addPrimitive(
     const auto positions = GltfUtil::getPrimitivePositions(model, primitive);
     const auto indices = GltfUtil::getPrimitiveIndices(model, primitive, positions);
     const auto normals = GltfUtil::getPrimitiveNormals(model, primitive, positions, indices);
-    const auto st0 = GltfUtil::getPrimitiveUvs(model, primitive, 0);
-    const auto imagerySt = GltfUtil::getImageryUvs(model, primitive, imageryUvSetIndex);
+    const auto st0 = GltfUtil::getPrimitiveUVs(model, primitive, 0);
+    const auto imagerySt = GltfUtil::getImageryUVs(model, primitive, imageryUvSetIndex);
     const auto localExtent = GltfUtil::getPrimitiveExtent(model, primitive);
     const auto faceVertexCounts = GltfUtil::getPrimitiveFaceVertexCounts(indices);
     const auto doubleSided = GltfUtil::getDoubleSided(model, primitive);

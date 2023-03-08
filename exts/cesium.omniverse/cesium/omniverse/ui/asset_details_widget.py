@@ -73,7 +73,7 @@ class CesiumAssetDetailsWidget(ui.ScrollingFrame):
     def _add_imagery_button_clicked(self):
         context = usd.get_context()
         selection = context.get_selection().get_selected_prim_paths()
-        tileset_path = None
+        tileset_path: Optional[str] = None
 
         if len(selection) > 0 and self._cesium_omniverse_interface.is_tileset(selection[0]):
             tileset_path = selection[0]

@@ -27,16 +27,16 @@ WRAP_CUSTOM;
 
         
 static UsdAttribute
-_CreateDefaultIonAccessTokenAttr(CesiumData &self,
+_CreateProjectDefaultIonAccessTokenAttr(CesiumData &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateDefaultIonAccessTokenAttr(
+    return self.CreateProjectDefaultIonAccessTokenAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
-_CreateDefaultIonAccessTokenIdAttr(CesiumData &self,
+_CreateProjectDefaultIonAccessTokenIdAttr(CesiumData &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateDefaultIonAccessTokenIdAttr(
+    return self.CreateProjectDefaultIonAccessTokenIdAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
@@ -103,17 +103,17 @@ void wrapCesiumData()
         .def(!self)
 
         
-        .def("GetDefaultIonAccessTokenAttr",
-             &This::GetDefaultIonAccessTokenAttr)
-        .def("CreateDefaultIonAccessTokenAttr",
-             &_CreateDefaultIonAccessTokenAttr,
+        .def("GetProjectDefaultIonAccessTokenAttr",
+             &This::GetProjectDefaultIonAccessTokenAttr)
+        .def("CreateProjectDefaultIonAccessTokenAttr",
+             &_CreateProjectDefaultIonAccessTokenAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetDefaultIonAccessTokenIdAttr",
-             &This::GetDefaultIonAccessTokenIdAttr)
-        .def("CreateDefaultIonAccessTokenIdAttr",
-             &_CreateDefaultIonAccessTokenIdAttr,
+        .def("GetProjectDefaultIonAccessTokenIdAttr",
+             &This::GetProjectDefaultIonAccessTokenIdAttr)
+        .def("CreateProjectDefaultIonAccessTokenIdAttr",
+             &_CreateProjectDefaultIonAccessTokenIdAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
