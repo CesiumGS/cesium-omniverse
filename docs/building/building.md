@@ -10,7 +10,6 @@
   - [Windows](#windows-1)
   - [Docker](#docker)
   - [Advanced build options](#advanced-build-options)
-  - [CMake Options](#cmake-options)
 - [Unit Tests](#unit-tests)
 - [Coverage](#coverage)
 - [Documentation](#documentation)
@@ -284,27 +283,6 @@ Ninja is also supported as an alternative to the MSVC generator. To build with N
 ```
 cmake -B build -D CMAKE_C_COMPILER=cl -D CMAKE_CXX_COMPILER=cl -G "Ninja Multi-Config"
 cmake --build build --config Release --parallel 8
-```
-
-### CMake Options
-
-The following CMake options are available for configuring the project.
-
-| Option                            | Description                                                                                                 | Default |
-| --------------------------------- | ----------------------------------------------------------------------------------------------------------- | ------- |
-| `CESIUM_OMNI_ENABLE_TESTS`             | Unit tests                                                                                                  | `ON`    |
-| `CESIUM_OMNI_ENABLE_COVERAGE`          | Code coverage for checking the thoroughness of unit tests - only available if `CESIUM_OMNI_ENABLE_TESTS` is `ON` | `ON`    |
-| `CESIUM_OMNI_ENABLE_DOCUMENTATION`     | Generate HTML documentation with Doxygen                                                                    | `ON`    |
-| `CESIUM_OMNI_ENABLE_SANITIZERS`        | Check for undefined behavior at runtime                                                                     | `OFF`   |
-| `CESIUM_OMNI_ENABLE_LINTERS`           | Enable `clang-format` for code formatting and `clang-tidy` for static code analysis                         | `ON`    |
-| `CESIUM_OMNI_ENABLE_LINTERS_ON_BUILD`  | Check linting during the build - only available if `CESIUM_OMNI_ENABLE_LINTERS` is `ON`                          | `OFF`   |
-| `CESIUM_OMNI_ENABLE_LINTERS_ON_COMMIT` | Check formatting and linting before committing code - only available if `CESIUM_OMNI_ENABLE_LINTERS` is `ON`     | `OFF`   |
-
-For example, to disable unit tests, run
-
-```sh
-cmake -B build -D CESIUM_OMNI_ENABLE_TESTS=OFF
-cmake --build build
 ```
 
 ## Unit Tests

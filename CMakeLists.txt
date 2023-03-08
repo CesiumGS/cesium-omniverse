@@ -6,10 +6,6 @@ if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.24.0")
     cmake_policy(SET CMP0132 NEW)
 endif()
 
-# Tell CMake not to set CC and CXX flags. We'll do this ourselves
-# https://cmake.org/cmake/help/latest/policy/CMP0132.html
-cmake_policy(SET CMP0132 NEW)
-
 # Both CXX and C need to be given otherwise Conan may ignore the CMAKE_C_COMPILER flag
 project(
     CesiumOmniverse
