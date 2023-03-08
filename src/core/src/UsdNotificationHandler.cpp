@@ -109,14 +109,14 @@ void UsdNotificationHandler::onPrimAdded(const pxr::SdfPath& primPath) {
     if (type != ChangedPrimType::OTHER) {
         _changedPrims.emplace_back(ChangedPrim{primPath, pxr::TfToken(), type, ChangeType::PRIM_ADDED});
         CESIUM_LOG_INFO("Added prim: {}", primPath.GetText());
+    }
 
-        // USD only notifies us about the top-most prim. Traverse over descendant prims and add those as well.
-        // This comes up when a tileset with imagery is moved or renamed.
-        const auto stage = UsdUtil::getUsdStage();
-        const auto prim = stage->GetPrimAtPath(primPath);
-        for (const auto& descendant : prim.GetAllDescendants()) {
-            onPrimAdded(descendant.GetPath());
-        }
+    // USD only notifies us about the top-most prim. Traverse over descendant prims and add those as well.
+    // This comes up when a tileset with imagery is moved or renamed.
+    const auto stage = UsdUtil::getUsdStage();
+    const auto prim = stage->GetPrimAtPath(primPath);
+    for (const auto& child : prim.GetAllChildren()) {
+        onPrimAdded(child.GetPath());
     }
 }
 
