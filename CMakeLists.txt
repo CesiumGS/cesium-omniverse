@@ -23,7 +23,7 @@ set(ENV{CXX} ${CMAKE_CXX_COMPILER})
 
 # Ensure that all packages are built in the same .conan directory
 # Windows Long Paths must be enabled. See instructions in README.
-if(MSVC)
+if(WIN32)
     set(ENV{CONAN_USER_HOME_SHORT} "None")
 endif()
 

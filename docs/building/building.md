@@ -199,8 +199,8 @@ Binaries will be written to `build/bin`. Shared libraries and static libraries w
 
 ```sh
 cmake -B build
-cmake --build build --config Release
-cmake --build build --config Debug
+cmake --build build --config Release --parallel 8
+cmake --build build --config Debug --parallel 8
 ```
 
 Binaries and shared libraries will be written to `build/bin/Release`. Static libraries and python modules will be written to `build/lib/Release`.
