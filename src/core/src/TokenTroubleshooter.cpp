@@ -66,8 +66,10 @@ void TokenTroubleshooter::updateAssetTroubleshootingDetails(
         return;
     }
 
-    session.value()->getConnection()->asset(ionAssetId).thenInMainThread(
-        [eventId, &details](CesiumIonClient::Response<CesiumIonClient::Asset>&& asset) {
+    session.value()
+        ->getConnection()
+        ->asset(ionAssetId)
+        .thenInMainThread([eventId, &details](CesiumIonClient::Response<CesiumIonClient::Asset>&& asset) {
             details.assetExistsInUserAccount = asset.value.has_value();
 
             Broadcast::sendMessageToBus(eventId);
