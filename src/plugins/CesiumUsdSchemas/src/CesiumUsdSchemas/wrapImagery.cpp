@@ -1,4 +1,4 @@
-#include ".//rasterOverlay.h"
+#include ".//imagery.h"
 #include "pxr/usd/usd/schemaBase.h"
 
 #include "pxr/usd/sdf/primSpec.h"
@@ -27,36 +27,36 @@ WRAP_CUSTOM;
 
         
 static UsdAttribute
-_CreateIonAssetIdAttr(CesiumRasterOverlay &self,
+_CreateIonAssetIdAttr(CesiumImagery &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateIonAssetIdAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int64), writeSparsely);
 }
         
 static UsdAttribute
-_CreateIonAccessTokenAttr(CesiumRasterOverlay &self,
+_CreateIonAccessTokenAttr(CesiumImagery &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateIonAccessTokenAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
 
 static std::string
-_Repr(const CesiumRasterOverlay &self)
+_Repr(const CesiumImagery &self)
 {
     std::string primRepr = TfPyRepr(self.GetPrim());
     return TfStringPrintf(
-        "Cesium.RasterOverlay(%s)",
+        "Cesium.Imagery(%s)",
         primRepr.c_str());
 }
 
 } // anonymous namespace
 
-void wrapCesiumRasterOverlay()
+void wrapCesiumImagery()
 {
-    typedef CesiumRasterOverlay This;
+    typedef CesiumImagery This;
 
     class_<This, bases<UsdTyped> >
-        cls("RasterOverlay");
+        cls("Imagery");
 
     cls
         .def(init<UsdPrim>(arg("prim")))

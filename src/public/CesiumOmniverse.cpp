@@ -26,58 +26,63 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         Context::onShutdown();
     }
 
-    void addCesiumDataIfNotExists(const char* token) noexcept override {
-        CesiumIonClient::Token t;
-        t.token = token;
-        Context::instance().addCesiumDataIfNotExists(t);
+    std::string addTilesetUrl(const char* name, const char* url) noexcept override {
+        return Context::instance().addTilesetUrl(name, url).GetString();
     }
 
-    int64_t addTilesetUrl(const char* url) noexcept override {
-        return Context::instance().addTilesetUrl(url);
+    std::string addTilesetIon(const char* name, int64_t ionAssetId) noexcept override {
+        return addTilesetIon(name, ionAssetId, "");
     }
 
-    int64_t addTilesetIon(const char* name, int64_t ionId) noexcept override {
-        return addTilesetIon(name, ionId, "");
+    std::string addTilesetIon(const char* name, int64_t ionAssetId, const char* ionAccessToken) noexcept override {
+        return Context::instance().addTilesetIon(name, ionAssetId, ionAccessToken).GetString();
     }
 
-    int64_t addTilesetIon(const char* name, int64_t ionId, const char* ionToken) noexcept override {
-        return Context::instance().addTilesetIon(name, ionId, ionToken);
+    std::string addImageryIon(const char* tilesetPath, const char* name, int64_t ionAssetId) noexcept override {
+        return addImageryIon(tilesetPath, name, ionAssetId, "");
     }
 
-    void addIonRasterOverlay(int64_t tilesetId, const char* name, int64_t ionId) noexcept override {
-        addIonRasterOverlay(tilesetId, name, ionId, "");
+    std::string
+    addImageryIon(const char* tilesetPath, const char* name, int64_t ionAssetId, const char* ionAccessToken) noexcept
+        override {
+        return Context::instance()
+            .addImageryIon(pxr::SdfPath(tilesetPath), name, ionAssetId, ionAccessToken)
+            .GetString();
     }
 
-    void
-    addIonRasterOverlay(int64_t tilesetId, const char* name, int64_t ionId, const char* ionToken) noexcept override {
-        Context::instance().addIonRasterOverlay(tilesetId, name, ionId, ionToken);
-    }
-
-    int64_t addTilesetAndRasterOverlay(
+    std::string addTilesetAndImagery(
         const char* tilesetName,
-        int64_t tilesetIonId,
-        const char* rasterOverlayName,
-        int64_t rasterOverlayIonId) noexcept override {
-        const auto tilesetId = addTilesetIon(tilesetName, tilesetIonId, "");
-        addIonRasterOverlay(tilesetId, rasterOverlayName, rasterOverlayIonId, "");
+        int64_t tilesetIonAssetId,
+        const char* imageryName,
+        int64_t imageryIonAssetId) noexcept override {
+        const auto tilesetPath = addTilesetIon(tilesetName, tilesetIonAssetId, "");
+        addImageryIon(tilesetPath.c_str(), imageryName, imageryIonAssetId, "");
 
-        return tilesetId;
+        return tilesetPath;
+    }
+    std::vector<std::string> getAllTilesetPaths() noexcept override {
+        const auto paths = AssetRegistry::getInstance().getAllTilesetPaths();
+
+        std::vector<std::string> result;
+        result.reserve(paths.size());
+
+        for (const auto& path : paths) {
+            result.emplace_back(path.GetString());
+        }
+
+        return result;
     }
 
-    std::optional<int64_t> getTilesetIdByPath(const char* path) noexcept override {
-        return AssetRegistry::getInstance().getTilesetId(path);
+    bool isTileset(const char* path) noexcept override {
+        return AssetRegistry::getInstance().getAssetType(pxr::SdfPath(path)) == AssetType::TILESET;
     }
 
-    std::vector<std::pair<int64_t, const char*>> getAllTilesetIdsAndPaths() noexcept override {
-        return AssetRegistry::getInstance().getAllTilesetIdsAndPaths();
+    void removeTileset(const char* tilesetPath) noexcept override {
+        Context::instance().removeTileset(pxr::SdfPath(tilesetPath));
     }
 
-    void removeTileset(int64_t tilesetId) noexcept override {
-        Context::instance().removeTileset(tilesetId);
-    }
-
-    void reloadTileset(int64_t tilesetId) noexcept override {
-        Context::instance().reloadTileset(tilesetId);
+    void reloadTileset(const char* tilesetPath) noexcept override {
+        Context::instance().reloadTileset(pxr::SdfPath(tilesetPath));
     }
 
     void onUpdateFrame(
@@ -145,21 +150,22 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
     }
 
     void updateTroubleshootingDetails(
-        int64_t tilesetId,
-        int64_t tilesetIonId,
-        uint64_t tokenEventId,
-        uint64_t assetEventId) noexcept override {
-        return Context::instance().updateTroubleshootingDetails(tilesetId, tilesetIonId, tokenEventId, assetEventId);
-    }
-
-    void updateTroubleshootingDetails(
-        int64_t tilesetId,
-        int64_t tilesetIonId,
-        int64_t rasterOverlayId,
+        const char* tilesetPath,
+        int64_t tilesetIonAssetId,
         uint64_t tokenEventId,
         uint64_t assetEventId) noexcept override {
         return Context::instance().updateTroubleshootingDetails(
-            tilesetId, tilesetIonId, rasterOverlayId, tokenEventId, assetEventId);
+            pxr::SdfPath(tilesetPath), tilesetIonAssetId, tokenEventId, assetEventId);
+    }
+
+    void updateTroubleshootingDetails(
+        const char* tilesetPath,
+        int64_t tilesetIonAssetId,
+        int64_t imageryIonAssetId,
+        uint64_t tokenEventId,
+        uint64_t assetEventId) noexcept override {
+        return Context::instance().updateTroubleshootingDetails(
+            pxr::SdfPath(tilesetPath), tilesetIonAssetId, imageryIonAssetId, tokenEventId, assetEventId);
     }
 
     std::string printFabricStage() noexcept override {

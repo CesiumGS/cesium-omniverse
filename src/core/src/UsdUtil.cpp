@@ -231,11 +231,11 @@ pxr::CesiumData defineCesiumData(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto cesiumData = pxr::CesiumData::Define(stage, path);
 
-    cesiumData.CreateDefaultProjectIonAccessTokenAttr();
-    cesiumData.CreateDefaultProjectIonAccessTokenIdAttr();
-    cesiumData.CreateGeoreferenceOriginLongitudeAttr();
-    cesiumData.CreateGeoreferenceOriginLatitudeAttr();
-    cesiumData.CreateGeoreferenceOriginHeightAttr();
+    cesiumData.CreateProjectDefaultIonAccessTokenAttr();
+    cesiumData.CreateProjectDefaultIonAccessTokenIdAttr();
+    cesiumData.CreateGeoreferenceOriginLongitudeAttr(pxr::VtValue(-105.25737));
+    cesiumData.CreateGeoreferenceOriginLatitudeAttr(pxr::VtValue(39.736401));
+    cesiumData.CreateGeoreferenceOriginHeightAttr(pxr::VtValue(2250.0));
 
     return cesiumData;
 }
@@ -251,38 +251,43 @@ pxr::CesiumTilesetAPI defineCesiumTileset(const pxr::SdfPath& path) {
     tileset.CreateUrlAttr();
     tileset.CreateIonAssetIdAttr();
     tileset.CreateIonAccessTokenAttr();
-    tileset.CreateMaximumScreenSpaceErrorAttr();
-    tileset.CreatePreloadAncestorsAttr();
-    tileset.CreatePreloadSiblingsAttr();
-    tileset.CreateForbidHolesAttr();
-    tileset.CreateMaximumSimultaneousTileLoadsAttr();
-    tileset.CreateMaximumCachedBytesAttr();
-    tileset.CreateLoadingDescendantLimitAttr();
-    tileset.CreateEnableFrustumCullingAttr();
-    tileset.CreateEnableFogCullingAttr();
-    tileset.CreateEnforceCulledScreenSpaceErrorAttr();
-    tileset.CreateCulledScreenSpaceErrorAttr();
-    tileset.CreateSuspendUpdateAttr();
+    tileset.CreateMaximumScreenSpaceErrorAttr(pxr::VtValue(16.0f));
+    tileset.CreatePreloadAncestorsAttr(pxr::VtValue(true));
+    tileset.CreatePreloadSiblingsAttr(pxr::VtValue(true));
+    tileset.CreateForbidHolesAttr(pxr::VtValue(false));
+    tileset.CreateMaximumSimultaneousTileLoadsAttr(pxr::VtValue(uint32_t(20)));
+    tileset.CreateMaximumCachedBytesAttr(pxr::VtValue(uint64_t(536870912)));
+    tileset.CreateLoadingDescendantLimitAttr(pxr::VtValue(uint32_t(20)));
+    tileset.CreateEnableFrustumCullingAttr(pxr::VtValue(true));
+    tileset.CreateEnableFogCullingAttr(pxr::VtValue(true));
+    tileset.CreateEnforceCulledScreenSpaceErrorAttr(pxr::VtValue(true));
+    tileset.CreateCulledScreenSpaceErrorAttr(pxr::VtValue(64.0f));
+    tileset.CreateSuspendUpdateAttr(pxr::VtValue(false));
 
     return tileset;
 }
 
-pxr::CesiumRasterOverlay defineCesiumRasterOverlay(const pxr::SdfPath& path) {
+pxr::CesiumImagery defineCesiumImagery(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
-    auto rasterOverlay = pxr::CesiumRasterOverlay::Define(stage, path);
-    assert(rasterOverlay.GetPrim().IsValid());
+    auto imagery = pxr::CesiumImagery::Define(stage, path);
+    assert(imagery.GetPrim().IsValid());
 
-    rasterOverlay.CreateIonAssetIdAttr();
-    rasterOverlay.CreateIonAccessTokenAttr();
+    imagery.CreateIonAssetIdAttr();
+    imagery.CreateIonAccessTokenAttr();
 
-    return rasterOverlay;
+    return imagery;
 }
 
-pxr::CesiumData getCesiumData(const pxr::SdfPath& path) {
-    auto stage = getUsdStage();
-    auto cesiumData = pxr::CesiumData::Get(stage, path);
-    assert(cesiumData.GetPrim().IsValid());
-    return cesiumData;
+pxr::CesiumData getOrCreateCesiumData() {
+    static const auto CesiumDataPath = pxr::SdfPath("/Cesium");
+
+    if (isCesiumData(CesiumDataPath)) {
+        auto stage = getUsdStage();
+        auto cesiumData = pxr::CesiumData::Get(stage, CesiumDataPath);
+        return cesiumData;
+    }
+
+    return defineCesiumData(CesiumDataPath);
 }
 
 pxr::CesiumTilesetAPI getCesiumTileset(const pxr::SdfPath& path) {
@@ -292,27 +297,36 @@ pxr::CesiumTilesetAPI getCesiumTileset(const pxr::SdfPath& path) {
     return tileset;
 }
 
-pxr::CesiumRasterOverlay getCesiumRasterOverlay(const pxr::SdfPath& path) {
+pxr::CesiumImagery getCesiumImagery(const pxr::SdfPath& path) {
     auto stage = UsdUtil::getUsdStage();
-    auto rasterOverlay = pxr::CesiumRasterOverlay::Get(stage, path);
-    assert(rasterOverlay.GetPrim().IsValid());
-    return rasterOverlay;
+    auto imagery = pxr::CesiumImagery::Get(stage, path);
+    assert(imagery.GetPrim().IsValid());
+    return imagery;
 }
 
-std::vector<pxr::SdfPath> getChildRasterOverlayPaths(const pxr::SdfPath& path) {
+std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& path) {
     auto stage = UsdUtil::getUsdStage();
     auto prim = stage->GetPrimAtPath(path);
     assert(prim.IsValid());
 
-    std::vector<pxr::SdfPath> result;
+    std::vector<pxr::CesiumImagery> result;
 
     for (const auto& childPrim : prim.GetChildren()) {
-        if (childPrim.IsA<pxr::CesiumRasterOverlay>()) {
-            result.emplace_back(childPrim.GetPath());
+        if (childPrim.IsA<pxr::CesiumImagery>()) {
+            result.emplace_back(childPrim);
         }
     }
 
     return result;
+}
+
+pxr::CesiumTilesetAPI getParentCesiumTileset(const pxr::SdfPath& path) {
+    auto stage = UsdUtil::getUsdStage();
+    auto prim = stage->GetPrimAtPath(path);
+    assert(prim.IsValid());
+
+    auto parentPath = prim.GetParent().GetPath();
+    return getCesiumTileset(parentPath);
 }
 
 bool isCesiumData(const pxr::SdfPath& path) {
@@ -335,14 +349,14 @@ bool isCesiumTileset(const pxr::SdfPath& path) {
     return prim.HasAPI<pxr::CesiumTilesetAPI>();
 }
 
-bool isCesiumRasterOverlay(const pxr::SdfPath& path) {
+bool isCesiumImagery(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto prim = stage->GetPrimAtPath(path);
     if (!prim.IsValid()) {
         return false;
     }
 
-    return prim.IsA<pxr::CesiumRasterOverlay>();
+    return prim.IsA<pxr::CesiumImagery>();
 }
 
 bool primExists(const pxr::SdfPath& path) {

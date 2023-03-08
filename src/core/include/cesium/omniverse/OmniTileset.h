@@ -26,7 +26,7 @@ class FabricPrepareRenderResources;
 
 class OmniTileset {
   public:
-    OmniTileset(int64_t tilesetId, const pxr::SdfPath& tilesetPath);
+    OmniTileset(const pxr::SdfPath& tilesetPath);
     ~OmniTileset();
 
     pxr::SdfPath getPath() const;
@@ -47,11 +47,10 @@ class OmniTileset {
     float getCulledScreenSpaceError() const;
     bool getSuspendUpdate() const;
 
-    int64_t getId() const;
-    int64_t getNextTileId() const;
+    int64_t getTilesetId() const;
 
     void reload();
-    void addIonRasterOverlay(const pxr::SdfPath& rasterOverlayPath);
+    void addImageryIon(const pxr::SdfPath& imageryPath);
     void onUpdateFrame(const std::vector<Cesium3DTilesSelection::ViewState>& viewStates);
 
   private:
@@ -64,7 +63,6 @@ class OmniTileset {
 
     pxr::SdfPath _tilesetPath;
     int64_t _tilesetId;
-    mutable std::atomic<int64_t> _tileId{};
     glm::dmat4 _ecefToUsdTransform;
 };
 } // namespace cesium::omniverse

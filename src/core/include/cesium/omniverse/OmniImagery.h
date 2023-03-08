@@ -4,9 +4,9 @@
 #include <pxr/usd/sdf/path.h>
 
 namespace cesium::omniverse {
-class OmniIonRasterOverlay {
+class OmniImagery {
   public:
-    OmniIonRasterOverlay(const pxr::SdfPath& path);
+    OmniImagery(const pxr::SdfPath& path);
 
     pxr::SdfPath getPath() const;
     std::string getName() const;

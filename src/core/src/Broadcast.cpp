@@ -39,19 +39,19 @@ void tokensUpdated() {
 }
 
 void showTroubleshooter(
-    int64_t tilesetAssetId,
-    int64_t tilesetIonId,
+    const pxr::SdfPath& tilesetPath,
+    int64_t tilesetIonAssetId,
     const std::string& tilesetName,
-    int64_t rasterOverlayId,
-    const std::string& rasterOverlayName,
+    int64_t imageryIonAssetId,
+    const std::string& imageryName,
     const std::string& message) {
     sendMessageToBusWithPayload(
         SHOW_TROUBLESHOOTER_EVENT_KEY,
-        std::make_pair("tilesetAssetId", tilesetAssetId),
-        std::make_pair("tilesetIonId", tilesetIonId),
+        std::make_pair("tilesetPath", tilesetPath.GetText()),
+        std::make_pair("tilesetIonAssetId", tilesetIonAssetId),
         std::make_pair("tilesetName", tilesetName.c_str()),
-        std::make_pair("rasterOverlayId", rasterOverlayId),
-        std::make_pair("rasterOverlayName", rasterOverlayName.c_str()),
+        std::make_pair("imageryIonAssetId", imageryIonAssetId),
+        std::make_pair("imageryName", imageryName.c_str()),
         std::make_pair("message", message.c_str()));
 }
 

@@ -307,7 +307,7 @@ bool getDoubleSided(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimit
 }
 
 pxr::VtArray<pxr::GfVec2f>
-getRasterOverlayUVs(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex) {
+getImageryUVs(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex) {
     return getUVs(model, primitive, "_CESIUMOVERLAY", setIndex, false);
 }
 

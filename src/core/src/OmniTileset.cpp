@@ -6,7 +6,7 @@
 #include "cesium/omniverse/FabricStageUtil.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
-#include "cesium/omniverse/OmniIonRasterOverlay.h"
+#include "cesium/omniverse/OmniImagery.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/UsdUtil.h"
 
@@ -19,16 +19,16 @@
 #include <Cesium3DTilesSelection/Tileset.h>
 #include <Cesium3DTilesSelection/ViewState.h>
 #include <Cesium3DTilesSelection/ViewUpdateResult.h>
-#include <CesiumUsdSchemas/rasterOverlay.h>
+#include <CesiumUsdSchemas/imagery.h>
 #include <CesiumUsdSchemas/tilesetAPI.h>
 #include <pxr/usd/usd/prim.h>
 #include <pxr/usd/usd/stage.h>
 
 namespace cesium::omniverse {
 
-OmniTileset::OmniTileset(int64_t tilesetId, const pxr::SdfPath& tilesetPath)
+OmniTileset::OmniTileset(const pxr::SdfPath& tilesetPath)
     : _tilesetPath(tilesetPath)
-    , _tilesetId(tilesetId) {
+    , _tilesetId(Context::instance().getNextTilesetId()) {
     reload();
 }
 
@@ -55,24 +55,24 @@ std::string OmniTileset::getUrl() const {
 int64_t OmniTileset::getIonAssetId() const {
     auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
-    int64_t assetId;
-    tileset.GetIonAssetIdAttr().Get<int64_t>(&assetId);
+    int64_t ionAssetId;
+    tileset.GetIonAssetIdAttr().Get<int64_t>(&ionAssetId);
 
-    return assetId;
+    return ionAssetId;
 }
 
 std::optional<CesiumIonClient::Token> OmniTileset::getIonAccessToken() const {
     auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
-    std::string ionToken;
-    tileset.GetIonAccessTokenAttr().Get<std::string>(&ionToken);
+    std::string ionAccessToken;
+    tileset.GetIonAccessTokenAttr().Get<std::string>(&ionAccessToken);
 
-    if (ionToken.empty()) {
+    if (ionAccessToken.empty()) {
         return Context::instance().getDefaultToken();
     }
 
     CesiumIonClient::Token t;
-    t.token = ionToken;
+    t.token = ionAccessToken;
 
     return t;
 }
@@ -185,12 +185,8 @@ bool OmniTileset::getSuspendUpdate() const {
     return suspendUpdate;
 }
 
-int64_t OmniTileset::getId() const {
+int64_t OmniTileset::getTilesetId() const {
     return _tilesetId;
-}
-
-int64_t OmniTileset::getNextTileId() const {
-    return _tileId++;
 }
 
 void OmniTileset::reload() {
@@ -205,9 +201,9 @@ void OmniTileset::reload() {
         context.getLogger()};
 
     const auto url = getUrl();
-    const auto tilesetId = getId();
+    const auto tilesetPath = getPath();
     const auto ionAssetId = getIonAssetId();
-    const auto ionToken = getIonAccessToken();
+    const auto ionAccessToken = getIonAccessToken();
     const auto name = getName();
 
     Cesium3DTilesSelection::TilesetOptions options;
@@ -225,13 +221,13 @@ void OmniTileset::reload() {
     options.culledScreenSpaceError = getCulledScreenSpaceError();
 
     options.loadErrorCallback =
-        [tilesetId, ionAssetId, name](const Cesium3DTilesSelection::TilesetLoadFailureDetails& error) {
+        [tilesetPath, ionAssetId, name](const Cesium3DTilesSelection::TilesetLoadFailureDetails& error) {
             // Check for a 401 connecting to Cesium ion, which means the token is invalid
             // (or perhaps the asset ID is). Also check for a 404, because ion returns 404
             // when the token is valid but not authorized for the asset.
             if (error.type == Cesium3DTilesSelection::TilesetLoadType::CesiumIon &&
                 (error.statusCode == 401 || error.statusCode == 404)) {
-                Broadcast::showTroubleshooter(tilesetId, ionAssetId, name, 0, "", error.message);
+                Broadcast::showTroubleshooter(tilesetPath, ionAssetId, name, 0, "", error.message);
             }
 
             CESIUM_LOG_ERROR(error.message);
@@ -241,32 +237,32 @@ void OmniTileset::reload() {
 
     if (!url.empty()) {
         _tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(externals, url, options);
-    } else if (!ionToken.has_value()) {
+    } else if (!ionAccessToken.has_value()) {
         // This happens when adding a blank tileset.
         _tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(externals, 0, "", options);
     } else {
-        _tileset =
-            std::make_unique<Cesium3DTilesSelection::Tileset>(externals, ionAssetId, ionToken.value().token, options);
+        _tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(
+            externals, ionAssetId, ionAccessToken.value().token, options);
     }
 
-    // Add raster overlays
-    for (const auto& rasterOverlayPath : UsdUtil::getChildRasterOverlayPaths(_tilesetPath)) {
-        addIonRasterOverlay(rasterOverlayPath);
+    // Add imagery
+    for (const auto& imagery : UsdUtil::getChildCesiumImageryPrims(_tilesetPath)) {
+        addImageryIon(imagery.GetPath());
     }
 }
 
-void OmniTileset::addIonRasterOverlay(const pxr::SdfPath& rasterOverlayPath) {
-    const OmniIonRasterOverlay rasterOverlay(rasterOverlayPath);
-    const auto rasterOverlayIonAssetId = rasterOverlay.getIonAssetId();
-    const auto rasterOverlayIonToken = rasterOverlay.getIonAccessToken();
-    const auto rasterOverlayName = rasterOverlay.getName();
+void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
+    const OmniImagery imagery(imageryPath);
+    const auto imageryIonAssetId = imagery.getIonAssetId();
+    const auto imageryIonAccessToken = imagery.getIonAccessToken();
+    const auto imageryName = imagery.getName();
 
-    const auto tilesetId = getId();
+    const auto tilesetPath = getPath();
     const auto tilesetIonAssetId = getIonAssetId();
     const auto tilesetName = getName();
 
     Cesium3DTilesSelection::RasterOverlayOptions options;
-    options.loadErrorCallback = [tilesetId, tilesetIonAssetId, tilesetName, rasterOverlayIonAssetId, rasterOverlayName](
+    options.loadErrorCallback = [tilesetPath, tilesetIonAssetId, tilesetName, imageryIonAssetId, imageryName](
                                     const Cesium3DTilesSelection::RasterOverlayLoadFailureDetails& error) {
         // Check for a 401 connecting to Cesium ion, which means the token is invalid
         // (or perhaps the asset ID is). Also check for a 404, because ion returns 404
@@ -276,17 +272,17 @@ void OmniTileset::addIonRasterOverlay(const pxr::SdfPath& rasterOverlayPath) {
         if (error.type == Cesium3DTilesSelection::RasterOverlayLoadType::CesiumIon &&
             (statusCode == 401 || statusCode == 404)) {
             Broadcast::showTroubleshooter(
-                tilesetId, tilesetIonAssetId, tilesetName, rasterOverlayIonAssetId, rasterOverlayName, error.message);
+                tilesetPath, tilesetIonAssetId, tilesetName, imageryIonAssetId, imageryName, error.message);
         }
 
         CESIUM_LOG_ERROR(error.message);
     };
 
-    // The name passed to IonRasterOverlay needs to uniquely identify this raster overlay otherwise texture caching may break
-    const auto uniqueName = fmt::format("raster_overlay_ion_{}", rasterOverlayIonAssetId);
-    const auto rasterOverlayNative = new Cesium3DTilesSelection::IonRasterOverlay(
-        uniqueName, rasterOverlayIonAssetId, rasterOverlayIonToken.value().token, options);
-    _tileset->getOverlays().add(rasterOverlayNative);
+    // The name passed to IonRasterOverlay needs to uniquely identify this imagery otherwise texture caching may break
+    const auto uniqueName = fmt::format("imagery_ion_{}", imageryIonAssetId);
+    const auto ionRasterOverlay = new Cesium3DTilesSelection::IonRasterOverlay(
+        uniqueName, imageryIonAssetId, imageryIonAccessToken.value().token, options);
+    _tileset->getOverlays().add(ionRasterOverlay);
 }
 
 void OmniTileset::onUpdateFrame(const std::vector<Cesium3DTilesSelection::ViewState>& viewStates) {

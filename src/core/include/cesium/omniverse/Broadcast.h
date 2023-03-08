@@ -2,6 +2,7 @@
 
 #include <carb/events/IEvents.h>
 #include <omni/kit/IApp.h>
+#include <pxr/usd/sdf/path.h>
 
 namespace cesium::omniverse::Broadcast {
 
@@ -10,11 +11,11 @@ void connectionUpdated();
 void profileUpdated();
 void tokensUpdated();
 void showTroubleshooter(
-    int64_t tilesetAssetId,
-    int64_t tilesetIonId,
+    const pxr::SdfPath& tilesetPath,
+    int64_t tilesetIonAssetId,
     const std::string& tilesetName,
-    int64_t rasterOverlayId,
-    const std::string& rasterOverlayName,
+    int64_t imageryIonAssetId,
+    const std::string& imageryName,
     const std::string& message);
 void setDefaultTokenComplete();
 void sendMessageToBus(carb::events::EventType eventType);

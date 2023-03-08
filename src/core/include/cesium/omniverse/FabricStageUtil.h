@@ -29,18 +29,18 @@ AddTileResults addTile(
     const glm::dmat4& tileTransform,
     const CesiumGltf::Model& model);
 
-AddTileResults addTileWithRasterOverlay(
+AddTileResults addTileWithImagery(
     int64_t tilesetId,
     int64_t tileId,
     const glm::dmat4& ecefToUsdTransform,
     const glm::dmat4& tileTransform,
     const CesiumGltf::Model& model,
-    const CesiumGltf::ImageCesium& rasterOverlayImage,
-    const std::string& rasterOverlayName,
-    const CesiumGeometry::Rectangle& rasterOverlayRectangle,
-    const glm::dvec2& rasterOverlayUvTranslation,
-    const glm::dvec2& rasterOverlayUvScale,
-    uint64_t rasterOverlayUvSetIndex);
+    const CesiumGltf::ImageCesium& image,
+    const std::string& imageryName,
+    const CesiumGeometry::Rectangle& imageryRectangle,
+    const glm::dvec2& imageryUvTranslation,
+    const glm::dvec2& imageryUvScale,
+    uint64_t imageryUvSetIndex);
 
 void removeTile(const std::vector<pxr::SdfPath>& allPrimPaths, const std::vector<std::string>& textureAssetNames);
 void setTileVisibility(const std::vector<pxr::SdfPath>& geomPaths, bool visible);

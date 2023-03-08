@@ -24,122 +24,121 @@ class ICesiumOmniverseInterface {
     CARB_PLUGIN_INTERFACE("cesium::omniverse::ICesiumOmniverseInterface", 0, 0);
 
     /**
-     * @brief Call this before any tilesets are created.
+     * @brief Call this on extension startup.
      *
-     * @param cesiumMemLocation The folder containing mem.cesium
+     * @param cesiumExtensionLocation Path to the Cesium Omniverse extension location.
      */
-    virtual void onStartup(const char* cesiumMemLocation) noexcept = 0;
+    virtual void onStartup(const char* cesiumExtensionLocation) noexcept = 0;
 
     /**
-     * @brief Call this to free resources on program exist.
+     * @brief Call this on extension shutdown.
      */
     virtual void onShutdown() noexcept = 0;
 
     /**
-     * @brief Adds a Cesium data prim if it does not exist. Always sets the data prim to the specified token.
-     *
-     * @param token The project default token.
-     */
-    virtual void addCesiumDataIfNotExists(const char* token) noexcept = 0;
-
-    /**
      * @brief Adds a tileset from url.
      *
-     * @param url The tileset url
-     * @returns The tileset id. Returns -1 on error.
+     * @param name The user-given name of this tileset.
+     * @param url The tileset url.
+     * @returns The tileset sdf path.
      */
-    virtual int64_t addTilesetUrl(const char* url) noexcept = 0;
+    virtual std::string addTilesetUrl(const char* name, const char* url) noexcept = 0;
 
     /**
-     * @brief Adds a tileset from ion using the stage default token.
+     * @brief Adds a tileset from ion using the project default ion access token.
      *
      * @param name The user-given name of this tileset.
-     * @param ionId The ion asset ID for the tileset.
-     * @returns The tileset id. Returns -1 on error.
+     * @param ionAssetId The ion asset ID.
+     * @returns The tileset sdf path.
      */
-    virtual int64_t addTilesetIon(const char* name, int64_t ionId) noexcept = 0;
+    virtual std::string addTilesetIon(const char* name, int64_t ionAssetId) noexcept = 0;
 
     /**
-     * @brief Adds a tileset from ion using the Stage level ion token.
+     * @brief Adds a tileset from ion using the given ion access token.
      *
      * @param name The user-given name of this tileset.
-     * @param ionId The ion asset id
-     * @param ionToken The access token
-     * @returns The tileset id. Returns -1 on error.
+     * @param ionAssetId The ion asset ID.
+     * @param ionAccessToken The ion access token.
+     * @returns The tileset sdf path.
      */
-    virtual int64_t addTilesetIon(const char* name, int64_t ionId, const char* ionToken) noexcept = 0;
+    virtual std::string addTilesetIon(const char* name, int64_t ionAssetId, const char* ionAccessToken) noexcept = 0;
 
     /**
-     * @brief Adds a raster overlay from ion.
+     * @brief Adds imagery from ion.
      *
-     * @param tilesetId The tileset id
-     * @param name The user-given name of this overlay layer
-     * @param ionId The asset ID
+     * @param tilesetPath The sdf path of the tileset that the imagery will be attached to.
+     * @param name The user-given name of this imagery.
+     * @param ionAssetId The ion asset ID.
+     * @returns The imagery sdf path.
      */
-    virtual void addIonRasterOverlay(int64_t tilesetId, const char* name, int64_t ionId) noexcept = 0;
+    virtual std::string addImageryIon(const char* tilesetPath, const char* name, int64_t ionAssetId) noexcept = 0;
 
     /**
-     * @brief Adds a raster overlay from ion.
+     * @brief Adds imagery from ion.
      *
-     * @param tileset The tileset id
-     * @param name The user-given name of this overlay layer
-     * @param ionId The asset ID
-     * @param ionToken The access token
+     * @param tilesetPath The sdf path of the tileset that the imagery will be attached to.
+     * @param name The user-given name of this imagery.
+     * @param ionAssetId The ion asset ID.
+     * @param ionAccessToken The ion access token.
+     * @returns The imagery sdf path.
      */
-    virtual void
-    addIonRasterOverlay(int64_t tilesetId, const char* name, int64_t ionId, const char* ionToken) noexcept = 0;
+    virtual std::string addImageryIon(
+        const char* tilesetPath,
+        const char* name,
+        int64_t ionAssetId,
+        const char* ionAccessToken) noexcept = 0;
 
     /**
-     * @brief Adds a tileset and a raster overlay to the stage.
+     * @brief Adds a tileset and imagery from ion.
      *
      * @param tilesetName The user-given name of this tileset.
-     * @param tilesetIonId The ion asset ID for the tileset.
-     * @param rasterOverlayName The user-given name of this overlay layer.
-     * @param rasterOverlayIonId The ion asset ID for the raster overlay.
-     * @returns The tileset id. Returns -1 on error.
+     * @param tilesetIonAssetId The ion asset ID for the tileset.
+     * @param imageryName The user-given name of this imagery.
+     * @param imageryIonAssetId The ion asset ID for the imagery.
+     * @returns The tileset sdf path.
      */
-    virtual int64_t addTilesetAndRasterOverlay(
+    virtual std::string addTilesetAndImagery(
         const char* tilesetName,
-        int64_t tilesetIonId,
-        const char* rasterOverlayName,
-        int64_t rasterOverlayIonId) noexcept = 0;
+        int64_t tilesetIonAssetId,
+        const char* imageryName,
+        int64_t imageryIonAssetId) noexcept = 0;
 
     /**
-     * @brief Gets the tileset ID by the path. This is useful for the asset window when adding raster overlays.
+     * @brief Gets all the tileset paths on the stage.
      *
-     * @param path The path of the tileset.
-     * @return The tileset's ID.
+     * @return The tileset sdf paths.
      */
-    virtual std::optional<int64_t> getTilesetIdByPath(const char* path) noexcept = 0;
+    virtual std::vector<std::string> getAllTilesetPaths() noexcept = 0;
 
     /**
-     * @brief Gets all the tileset ids and their paths. Primarily for usage on the python end.
+     * @brief Returns true if the given path corresponds to a CesiumTileset prim, otherwise returns false.
      *
-     * @return The tileset IDs and their sdf paths, as a vector of pairs.
+     * @param path The sdf path.
+     * @return Returns true if the given path corresponds to a CesiumTileset prim, otherwise returns false.
      */
-    virtual std::vector<std::pair<int64_t, const char*>> getAllTilesetIdsAndPaths() noexcept = 0;
+    virtual bool isTileset(const char* path) noexcept = 0;
 
     /**
-     * @brief Removes a tileset from the scene.
+     * @brief Removes a tileset from the stage.
      *
-     * @param tilesetId The tileset id. If there's no tileset with this id nothing happens.
+     * @param tilesetPath The tileset sdf path. If there's no tileset with this path nothing happens.
      */
-    virtual void removeTileset(int64_t tilesetId) noexcept = 0;
+    virtual void removeTileset(const char* tilesetPath) noexcept = 0;
 
     /**
      * @brief Reloads a tileset.
      *
-     * @param tilesetId The tileset id
+     * @param tilesetPath The tileset sdf path. If there's no tileset with this path nothing happens.
      */
-    virtual void reloadTileset(int64_t tilesetId) noexcept = 0;
+    virtual void reloadTileset(const char* tilesetPath) noexcept = 0;
 
     /**
      * @brief Updates all tilesets this frame.
      *
-     * @param viewMatrix The view matrix
-     * @param projMatrix The projection matrix
-     * @param width The screen width
-     * @param height The screen height
+     * @param viewMatrix The view matrix.
+     * @param projMatrix The projection matrix.
+     * @param width The screen width.
+     * @param height The screen height.
      */
     virtual void onUpdateFrame(
         const pxr::GfMatrix4d& viewMatrix,
@@ -162,14 +161,20 @@ class ICesiumOmniverseInterface {
     /**
      * @brief Sets the georeference origin based on the WGS84 ellipsoid.
      *
-     * @param longitude The longitude in degrees
-     * @param latitude The latitude in degrees
-     * @param height The height in meters
+     * @param longitude The longitude in degrees.
+     * @param latitude The latitude in degrees.
+     * @param height The height in meters.
      */
     virtual void setGeoreferenceOrigin(double longitude, double latitude, double height) noexcept = 0;
 
+    /**
+     * @brief Connects to Cesium ion.
+     */
     virtual void connectToIon() noexcept = 0;
 
+    /**
+     * @brief Gets the Cesium ion session.
+     */
     virtual std::optional<std::shared_ptr<CesiumIonSession>> getSession() noexcept = 0;
 
     /**
@@ -182,7 +187,7 @@ class ICesiumOmniverseInterface {
     /**
      * @brief Boolean to check if the default token is set.
      *
-     * @return True if default token is set.
+     * @return True if the default token is set.
      */
     virtual bool isDefaultTokenSet() noexcept = 0;
 
@@ -214,20 +219,20 @@ class ICesiumOmniverseInterface {
     virtual std::optional<TokenTroubleshootingDetails> getDefaultTokenTroubleshootingDetails() noexcept = 0;
 
     virtual void updateTroubleshootingDetails(
-        int64_t tilesetId,
-        int64_t tilesetIonId,
+        const char* tilesetPath,
+        int64_t tilesetIonAssetId,
         uint64_t tokenEventId,
         uint64_t assetEventId) noexcept = 0;
 
     virtual void updateTroubleshootingDetails(
-        int64_t tilesetId,
-        int64_t tilesetIonId,
-        int64_t rasterOverlayId,
+        const char* tilesetPath,
+        int64_t tilesetIonAssetId,
+        int64_t imageryIonAssetId,
         uint64_t tokenEventId,
         uint64_t assetEventId) noexcept = 0;
 
     /**
-     * @brief For debugging only. Print the Fabric stage.
+     * @brief Prints the Fabric stage. For debugging only.
      *
      * @returns A string representation of the Fabric stage.
      */

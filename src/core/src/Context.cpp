@@ -5,7 +5,7 @@
 #include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
-#include "cesium/omniverse/OmniIonRasterOverlay.h"
+#include "cesium/omniverse/OmniImagery.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/UsdUtil.h"
@@ -20,7 +20,7 @@
 #include <Cesium3DTilesSelection/ViewState.h>
 #include <Cesium3DTilesSelection/registerAllTileContentTypes.h>
 #include <CesiumUsdSchemas/data.h>
-#include <CesiumUsdSchemas/rasterOverlay.h>
+#include <CesiumUsdSchemas/imagery.h>
 #include <CesiumUsdSchemas/tilesetAPI.h>
 #include <CesiumUsdSchemas/tokens.h>
 #include <glm/gtc/matrix_access.hpp>
@@ -54,8 +54,6 @@ Cesium3DTilesSelection::ViewState computeViewState(
     return Cesium3DTilesSelection::ViewState::create(
         cameraPosition, cameraFwd, cameraUp, glm::dvec2(width, height), horizontalFov, verticalFov);
 }
-
-const pxr::SdfPath CesiumDataPath{"/Cesium"};
 
 std::unique_ptr<Context> context;
 
@@ -137,102 +135,68 @@ std::shared_ptr<spdlog::logger> Context::getLogger() {
     return _logger;
 }
 
-void Context::addCesiumDataIfNotExists(const CesiumIonClient::Token& token) {
-    if (!UsdUtil::primExists(CesiumDataPath)) {
-        UsdUtil::defineCesiumData(CesiumDataPath);
+void Context::setProjectDefaultToken(const CesiumIonClient::Token& token) {
+    if (token.token.empty()) {
+        return;
     }
 
-    auto cesiumDataUsd = UsdUtil::getCesiumData(CesiumDataPath);
-    cesiumDataUsd.GetGeoreferenceOriginLongitudeAttr().Set<double>(-105.25737);
-    cesiumDataUsd.GetGeoreferenceOriginLatitudeAttr().Set<double>(39.736401);
-    cesiumDataUsd.GetGeoreferenceOriginHeightAttr().Set<double>(2250.0);
+    const auto cesiumDataUsd = UsdUtil::getOrCreateCesiumData();
 
-    if (!token.token.empty()) {
-        cesiumDataUsd.GetDefaultProjectIonAccessTokenAttr().Set<std::string>(token.token);
-        cesiumDataUsd.GetDefaultProjectIonAccessTokenIdAttr().Set<std::string>(token.id);
-    }
+    cesiumDataUsd.GetProjectDefaultIonAccessTokenAttr().Set<std::string>(token.token);
+    cesiumDataUsd.GetProjectDefaultIonAccessTokenIdAttr().Set<std::string>(token.id);
 }
 
-int64_t Context::addTilesetUrl(const std::string& url) {
-    // Name actually needs to be something that we pass into this eventually.
-    const auto tilesetId = _tilesetId++;
-    const auto tilesetName = fmt::format("tileset_{}", tilesetId);
+pxr::SdfPath Context::addTilesetUrl(const std::string& name, const std::string& url) {
+    const auto tilesetName = UsdUtil::getSafeName(name);
     const auto tilesetPath = UsdUtil::getPathUnique(UsdUtil::getRootPath(), tilesetName);
     const auto tilesetUsd = UsdUtil::defineCesiumTileset(tilesetPath);
 
     tilesetUsd.GetUrlAttr().Set<std::string>(url);
 
-    tilesetUsd.GetMaximumScreenSpaceErrorAttr().Set<float>(16.0f);
-    tilesetUsd.GetPreloadAncestorsAttr().Set<bool>(true);
-    tilesetUsd.GetPreloadSiblingsAttr().Set<bool>(true);
-    tilesetUsd.GetForbidHolesAttr().Set<bool>(false);
-    tilesetUsd.GetMaximumSimultaneousTileLoadsAttr().Set<uint32_t>(20);
-    tilesetUsd.GetMaximumCachedBytesAttr().Set<uint64_t>(536870912);
-    tilesetUsd.GetLoadingDescendantLimitAttr().Set<uint32_t>(20);
-    tilesetUsd.GetEnableFrustumCullingAttr().Set<bool>(true);
-    tilesetUsd.GetEnableFogCullingAttr().Set<bool>(true);
-    tilesetUsd.GetEnforceCulledScreenSpaceErrorAttr().Set<bool>(true);
-    tilesetUsd.GetCulledScreenSpaceErrorAttr().Set<float>(64.0f);
-    tilesetUsd.GetSuspendUpdateAttr().Set<bool>(false);
-
-    AssetRegistry::getInstance().addTileset(tilesetId, tilesetPath);
-    return tilesetId;
+    AssetRegistry::getInstance().addTileset(tilesetPath);
+    return tilesetPath;
 }
 
-int64_t Context::addTilesetIon([[maybe_unused]] const std::string& name, int64_t ionId, const std::string& ionToken) {
-    // Name actually needs to be something that we pass into this eventually.
-    const auto tilesetId = _tilesetId++;
-    const auto tilesetName = fmt::format("tileset_ion_{}", ionId);
+pxr::SdfPath Context::addTilesetIon(const std::string& name, int64_t ionAssetId, const std::string& ionAccessToken) {
+    const auto tilesetName = UsdUtil::getSafeName(name);
     const auto tilesetPath = UsdUtil::getPathUnique(UsdUtil::getRootPath(), tilesetName);
     const auto tilesetUsd = UsdUtil::defineCesiumTileset(tilesetPath);
 
-    tilesetUsd.GetIonAssetIdAttr().Set<int64_t>(ionId);
-    tilesetUsd.GetIonAccessTokenAttr().Set<std::string>(ionToken);
+    tilesetUsd.GetIonAssetIdAttr().Set<int64_t>(ionAssetId);
+    tilesetUsd.GetIonAccessTokenAttr().Set<std::string>(ionAccessToken);
 
-    tilesetUsd.GetMaximumScreenSpaceErrorAttr().Set<float>(16.0f);
-    tilesetUsd.GetPreloadAncestorsAttr().Set<bool>(true);
-    tilesetUsd.GetPreloadSiblingsAttr().Set<bool>(true);
-    tilesetUsd.GetForbidHolesAttr().Set<bool>(false);
-    tilesetUsd.GetMaximumSimultaneousTileLoadsAttr().Set<uint32_t>(20);
-    tilesetUsd.GetMaximumCachedBytesAttr().Set<uint64_t>(536870912);
-    tilesetUsd.GetLoadingDescendantLimitAttr().Set<uint32_t>(20);
-    tilesetUsd.GetEnableFrustumCullingAttr().Set<bool>(true);
-    tilesetUsd.GetEnableFogCullingAttr().Set<bool>(true);
-    tilesetUsd.GetEnforceCulledScreenSpaceErrorAttr().Set<bool>(true);
-    tilesetUsd.GetCulledScreenSpaceErrorAttr().Set<float>(64.0f);
-    tilesetUsd.GetSuspendUpdateAttr().Set<bool>(false);
-
-    AssetRegistry::getInstance().addTileset(tilesetId, tilesetPath);
-    return tilesetId;
+    AssetRegistry::getInstance().addTileset(tilesetPath);
+    return tilesetPath;
 }
 
-void Context::addIonRasterOverlay(
-    int64_t tilesetId,
+pxr::SdfPath Context::addImageryIon(
+    const pxr::SdfPath& tilesetPath,
     const std::string& name,
-    int64_t ionId,
-    const std::string& ionToken) {
-    const auto tileset = AssetRegistry::getInstance().getTileset(tilesetId);
+    int64_t ionAssetId,
+    const std::string& ionAccessToken) {
+    const auto tileset = AssetRegistry::getInstance().getTilesetByPath(tilesetPath);
 
     if (!tileset.has_value()) {
-        return;
+        return pxr::SdfPath();
     }
 
     const auto stage = UsdUtil::getUsdStage();
     const auto safeName = UsdUtil::getSafeName(name);
     auto path = UsdUtil::getPathUnique(tileset.value()->getPath(), safeName);
-    auto rasterOverlayUsd = UsdUtil::defineCesiumRasterOverlay(path);
+    auto imageryUsd = UsdUtil::defineCesiumImagery(path);
 
-    rasterOverlayUsd.GetIonAssetIdAttr().Set<int64_t>(ionId);
-    rasterOverlayUsd.GetIonAccessTokenAttr().Set<std::string>(ionToken);
+    imageryUsd.GetIonAssetIdAttr().Set<int64_t>(ionAssetId);
+    imageryUsd.GetIonAccessTokenAttr().Set<std::string>(ionAccessToken);
 
-    tileset.value()->addIonRasterOverlay(path);
+    tileset.value()->addImageryIon(path);
 
-    AssetRegistry::getInstance().addRasterOverlay(ionId, path, tilesetId);
+    AssetRegistry::getInstance().addImagery(path);
+    return path;
 }
 
-void Context::removeTileset(int64_t tilesetId) {
+void Context::removeTileset(const pxr::SdfPath& tilesetPath) {
     auto& assetRegistry = AssetRegistry::getInstance();
-    const auto tileset = assetRegistry.getTileset(tilesetId);
+    const auto tileset = assetRegistry.getTilesetByPath(tilesetPath);
 
     if (!tileset.has_value()) {
         return;
@@ -246,13 +210,12 @@ void Context::removeTileset(int64_t tilesetId) {
     }
 
     if (removed) {
-        assetRegistry.removeAsset(tilesetId);
-        assetRegistry.removeAssetByParent(tilesetId);
+        assetRegistry.removeTileset(tilesetPath);
     }
 }
 
-void Context::reloadTileset(int64_t tilesetId) {
-    const auto tileset = AssetRegistry::getInstance().getTileset(tilesetId);
+void Context::reloadTileset(const pxr::SdfPath& tilesetPath) {
+    const auto tileset = AssetRegistry::getInstance().getTilesetByPath(tilesetPath);
 
     if (tileset.has_value()) {
         tileset.value()->reload();
@@ -267,7 +230,7 @@ void Context::onUpdateFrame(const glm::dmat4& viewMatrix, const glm::dmat4& proj
     _viewStates.clear();
     _viewStates.emplace_back(computeViewState(georeferenceOrigin, viewMatrix, projMatrix, width, height));
 
-    auto tilesets = AssetRegistry::getInstance().getAllTilesets();
+    const auto& tilesets = AssetRegistry::getInstance().getAllTilesets();
     for (const auto& tileset : tilesets) {
         tileset->onUpdateFrame(_viewStates);
     }
@@ -279,9 +242,9 @@ void Context::processPropertyChanged(const ChangedPrim& changedProperty) {
     std::set<std::shared_ptr<OmniTileset>> tilesetsToReload;
 
     if (primType == ChangedPrimType::CESIUM_DATA) {
-        if (name == pxr::CesiumTokens->cesiumDefaultProjectIonAccessToken) {
-            // Any tilesets that use the default token are reloaded when it changes
-            const auto tilesets = AssetRegistry::getInstance().getAllTilesets();
+        if (name == pxr::CesiumTokens->cesiumProjectDefaultIonAccessToken) {
+            // Reload tilesets that use the project default token
+            const auto& tilesets = AssetRegistry::getInstance().getAllTilesets();
             for (const auto& tileset : tilesets) {
                 const auto tilesetToken = tileset->getIonAccessToken();
                 const auto defaultToken = Context::instance().getDefaultToken();
@@ -292,7 +255,7 @@ void Context::processPropertyChanged(const ChangedPrim& changedProperty) {
         }
     } else if (primType == ChangedPrimType::CESIUM_TILESET) {
         // Reload the tileset. No need to update the asset registry because tileset assets do not store the asset id.
-        const auto tileset = AssetRegistry::getInstance().getTileset(path.GetString());
+        const auto tileset = AssetRegistry::getInstance().getTilesetByPath(path);
         if (tileset.has_value()) {
             // clang-format off
                 if (name == pxr::CesiumTokens->cesiumIonAssetId ||
@@ -312,19 +275,12 @@ void Context::processPropertyChanged(const ChangedPrim& changedProperty) {
                 }
             // clang-format on
         }
-    } else if (primType == ChangedPrimType::CESIUM_RASTER_OVERLAY) {
-        const auto tileset = AssetRegistry::getInstance().getTilesetFromRasterOverlay(path.GetString());
+    } else if (primType == ChangedPrimType::CESIUM_IMAGERY) {
+        const auto tilesetPath = path.GetParentPath();
+        const auto tileset = AssetRegistry::getInstance().getTilesetByPath(tilesetPath);
         if (tileset.has_value()) {
-            if (name == pxr::CesiumTokens->cesiumIonAssetId) {
-                // Update the asset registry because the asset id changed
-                OmniIonRasterOverlay ionRasterOverlay(path);
-                const auto assetId = ionRasterOverlay.getIonAssetId();
-                AssetRegistry::getInstance().setRasterOverlayAssetId(path, assetId);
-
-                // Reload the tileset that this raster overlay is attached to
-                tilesetsToReload.emplace(tileset.value());
-            } else if (name == pxr::CesiumTokens->cesiumIonAccessToken) {
-                // Reload the tileset that this raster overlay is attached to
+            if (name == pxr::CesiumTokens->cesiumIonAssetId || name == pxr::CesiumTokens->cesiumIonAccessToken) {
+                // Reload the tileset that this imagery is attached to
                 tilesetsToReload.emplace(tileset.value());
             }
         }
@@ -337,17 +293,10 @@ void Context::processPropertyChanged(const ChangedPrim& changedProperty) {
 
 void Context::processPrimRemoved(const ChangedPrim& changedProperty) {
     if (changedProperty.primType == ChangedPrimType::CESIUM_TILESET) {
-        auto tilesetId = AssetRegistry::getInstance().getTilesetId(changedProperty.path.GetString());
-
-        if (tilesetId.has_value()) {
-            removeTileset(tilesetId.value());
-        }
-    } else if (changedProperty.primType == ChangedPrimType::CESIUM_RASTER_OVERLAY) {
-        auto tileset = AssetRegistry::getInstance().getTilesetFromRasterOverlay(changedProperty.path.GetString());
-
-        if (tileset.has_value()) {
-            tileset.value()->reload();
-        }
+        removeTileset(changedProperty.path);
+    } else if (changedProperty.primType == ChangedPrimType::CESIUM_IMAGERY) {
+        const auto tilesetPath = changedProperty.path.GetParentPath();
+        reloadTileset(tilesetPath);
     }
 }
 
@@ -420,7 +369,8 @@ void Context::setStageId(long stageId) {
 
         // Add the CesiumData prim so that we can set the georeference origin and other top-level properties
         // without waiting for an ion session to start
-        addCesiumDataIfNotExists({});
+        // TODO: does this clear the stage's previous georeference values?
+        UsdUtil::getOrCreateCesiumData();
     }
 
     _stageId = stageId;
@@ -430,8 +380,16 @@ int64_t Context::getContextId() const {
     return _contextId;
 }
 
+int64_t Context::getNextTilesetId() const {
+    return _tilesetId++;
+}
+
+int64_t Context::getNextTileId() const {
+    return _tileId++;
+}
+
 const CesiumGeospatial::Cartographic Context::getGeoreferenceOrigin() const {
-    const auto cesiumData = UsdUtil::getCesiumData(CesiumDataPath);
+    const auto cesiumData = UsdUtil::getOrCreateCesiumData();
 
     double longitude;
     double latitude;
@@ -444,7 +402,7 @@ const CesiumGeospatial::Cartographic Context::getGeoreferenceOrigin() const {
 }
 
 void Context::setGeoreferenceOrigin(const CesiumGeospatial::Cartographic& origin) {
-    const auto cesiumData = UsdUtil::getCesiumData(CesiumDataPath);
+    const auto cesiumData = UsdUtil::getOrCreateCesiumData();
 
     cesiumData.GetGeoreferenceOriginLongitudeAttr().Set<double>(glm::degrees(origin.longitude));
     cesiumData.GetGeoreferenceOriginLatitudeAttr().Set<double>(glm::degrees(origin.latitude));
@@ -468,15 +426,13 @@ std::optional<std::shared_ptr<CesiumIonSession>> Context::getSession() {
 }
 
 std::optional<CesiumIonClient::Token> Context::getDefaultToken() const {
-    if (!UsdUtil::primExists(CesiumDataPath)) {
-        return std::nullopt;
-    }
+    const auto cesiumDataUsd = UsdUtil::getOrCreateCesiumData();
 
-    const auto cesiumDataUsd = UsdUtil::getCesiumData(CesiumDataPath);
     std::string projectDefaultToken;
-    cesiumDataUsd.GetDefaultProjectIonAccessTokenAttr().Get(&projectDefaultToken);
     std::string projectDefaultTokenId;
-    cesiumDataUsd.GetDefaultProjectIonAccessTokenIdAttr().Get(&projectDefaultTokenId);
+
+    cesiumDataUsd.GetProjectDefaultIonAccessTokenAttr().Get(&projectDefaultToken);
+    cesiumDataUsd.GetProjectDefaultIonAccessTokenIdAttr().Get(&projectDefaultTokenId);
 
     if (projectDefaultToken.empty()) {
         return std::nullopt;
@@ -506,7 +462,7 @@ void Context::createToken(const std::string& name) {
     connection->createToken(name, {"assets:read"}, std::vector<int64_t>{1}, std::nullopt)
         .thenInMainThread([this](CesiumIonClient::Response<CesiumIonClient::Token>&& response) {
             if (response.value) {
-                addCesiumDataIfNotExists(response.value.value());
+                setProjectDefaultToken(response.value.value());
 
                 _lastSetTokenResult =
                     SetDefaultTokenResult{SetDefaultTokenResultCode::OK, SetDefaultTokenResultMessages::OK_MESSAGE};
@@ -530,7 +486,7 @@ void Context::selectToken(const CesiumIonClient::Token& token) {
             SetDefaultTokenResultCode::NOT_CONNECTED_TO_ION,
             SetDefaultTokenResultMessages::NOT_CONNECTED_TO_ION_MESSAGE};
     } else {
-        addCesiumDataIfNotExists(token);
+        setProjectDefaultToken(token);
 
         _lastSetTokenResult =
             SetDefaultTokenResult{SetDefaultTokenResultCode::OK, SetDefaultTokenResultMessages::OK_MESSAGE};
@@ -542,11 +498,11 @@ void Context::specifyToken(const std::string& token) {
     _session->findToken(token).thenInMainThread(
         [this, token](CesiumIonClient::Response<CesiumIonClient::Token>&& response) {
             if (response.value) {
-                addCesiumDataIfNotExists(response.value.value());
+                setProjectDefaultToken(response.value.value());
             } else {
                 CesiumIonClient::Token t;
                 t.token = token;
-                addCesiumDataIfNotExists(t);
+                setProjectDefaultToken(t);
             }
             // We assume the user knows what they're doing if they specify a token not on their account.
             _lastSetTokenResult =
@@ -566,51 +522,13 @@ std::optional<TokenTroubleshootingDetails> Context::getDefaultTokenTroubleshooti
     return _defaultTokenTroubleshootingDetails;
 }
 void Context::updateTroubleshootingDetails(
-    int64_t tilesetId,
-    int64_t tilesetIonId,
+    const pxr::SdfPath& tilesetPath,
+    int64_t tilesetIonAssetId,
     uint64_t tokenEventId,
     uint64_t assetEventId) {
-    const auto tileset = AssetRegistry::getInstance().getTileset(tilesetId);
+    const auto tileset = AssetRegistry::getInstance().getTilesetByPath(tilesetPath);
 
     if (!tileset.has_value()) {
-        return;
-    }
-
-    TokenTroubleshooter troubleshooter;
-
-    _assetTroubleshootingDetails = AssetTroubleshootingDetails();
-    troubleshooter.updateAssetTroubleshootingDetails(tilesetIonId, assetEventId, _assetTroubleshootingDetails.value());
-
-    _defaultTokenTroubleshootingDetails = TokenTroubleshootingDetails();
-
-    if (isDefaultTokenSet()) {
-        auto defaultIonToken = getDefaultToken().value().token;
-        troubleshooter.updateTokenTroubleshootingDetails(
-            tilesetIonId, defaultIonToken, tokenEventId, _defaultTokenTroubleshootingDetails.value());
-    }
-
-    _assetTokenTroubleshootingDetails = TokenTroubleshootingDetails();
-
-    auto tilesetIonToken = tileset.value()->getIonAccessToken();
-    if (tilesetIonToken.has_value()) {
-        troubleshooter.updateTokenTroubleshootingDetails(
-            tilesetIonId, tilesetIonToken.value().token, tokenEventId, _assetTokenTroubleshootingDetails.value());
-    }
-}
-void Context::updateTroubleshootingDetails(
-    int64_t tilesetId,
-    [[maybe_unused]] int64_t tilesetIonId,
-    int64_t rasterOverlayId,
-    uint64_t tokenEventId,
-    uint64_t assetEventId) {
-    auto& registry = AssetRegistry::getInstance();
-    const auto tileset = registry.getTileset(tilesetId);
-    if (!tileset.has_value()) {
-        return;
-    }
-
-    const auto rasterOverlay = registry.getRasterOverlay(rasterOverlayId);
-    if (!rasterOverlay.has_value()) {
         return;
     }
 
@@ -618,22 +536,67 @@ void Context::updateTroubleshootingDetails(
 
     _assetTroubleshootingDetails = AssetTroubleshootingDetails();
     troubleshooter.updateAssetTroubleshootingDetails(
-        rasterOverlayId, assetEventId, _assetTroubleshootingDetails.value());
+        tilesetIonAssetId, assetEventId, _assetTroubleshootingDetails.value());
+
+    _defaultTokenTroubleshootingDetails = TokenTroubleshootingDetails();
+
+    if (isDefaultTokenSet()) {
+        auto defaultToken = getDefaultToken().value().token;
+        troubleshooter.updateTokenTroubleshootingDetails(
+            tilesetIonAssetId, defaultToken, tokenEventId, _defaultTokenTroubleshootingDetails.value());
+    }
+
+    _assetTokenTroubleshootingDetails = TokenTroubleshootingDetails();
+
+    auto tilesetIonAccessToken = tileset.value()->getIonAccessToken();
+    if (tilesetIonAccessToken.has_value()) {
+        troubleshooter.updateTokenTroubleshootingDetails(
+            tilesetIonAssetId,
+            tilesetIonAccessToken.value().token,
+            tokenEventId,
+            _assetTokenTroubleshootingDetails.value());
+    }
+}
+void Context::updateTroubleshootingDetails(
+    const pxr::SdfPath& tilesetPath,
+    [[maybe_unused]] int64_t tilesetIonAssetId,
+    int64_t imageryIonAssetId,
+    uint64_t tokenEventId,
+    uint64_t assetEventId) {
+    auto& registry = AssetRegistry::getInstance();
+    const auto tileset = registry.getTilesetByPath(tilesetPath);
+    if (!tileset.has_value()) {
+        return;
+    }
+
+    const auto imagery = registry.getImageryByIonAssetId(imageryIonAssetId);
+    if (!imagery.has_value()) {
+        return;
+    }
+
+    TokenTroubleshooter troubleshooter;
+
+    _assetTroubleshootingDetails = AssetTroubleshootingDetails();
+    troubleshooter.updateAssetTroubleshootingDetails(
+        imageryIonAssetId, assetEventId, _assetTroubleshootingDetails.value());
 
     _defaultTokenTroubleshootingDetails = TokenTroubleshootingDetails();
 
     if (isDefaultTokenSet()) {
         auto token = getDefaultToken().value().token;
         troubleshooter.updateTokenTroubleshootingDetails(
-            rasterOverlayId, token, tokenEventId, _defaultTokenTroubleshootingDetails.value());
+            imageryIonAssetId, token, tokenEventId, _defaultTokenTroubleshootingDetails.value());
     }
 
     _assetTokenTroubleshootingDetails = TokenTroubleshootingDetails();
 
-    auto rasterOverlayToken = rasterOverlay.value().getIonAccessToken();
-    if (rasterOverlayToken.has_value()) {
+    auto imageryIonAccessToken = imagery.value()->getIonAccessToken();
+    if (imageryIonAccessToken.has_value()) {
         troubleshooter.updateTokenTroubleshootingDetails(
-            rasterOverlayId, rasterOverlayToken.value().token, tokenEventId, _assetTokenTroubleshootingDetails.value());
+            imageryIonAssetId,
+            imageryIonAccessToken.value().token,
+            tokenEventId,
+            _assetTokenTroubleshootingDetails.value());
     }
 }
 
@@ -654,13 +617,13 @@ bool Context::getDebugDisableMaterials() const {
 }
 
 bool Context::creditsAvailable() const {
-    auto credits = _creditSystem->getCreditsToShowThisFrame();
+    const auto& credits = _creditSystem->getCreditsToShowThisFrame();
 
     return credits.size() > 0;
 }
 
 std::vector<std::pair<std::string, bool>> Context::getCredits() const {
-    auto credits = _creditSystem->getCreditsToShowThisFrame();
+    const auto& credits = _creditSystem->getCreditsToShowThisFrame();
 
     std::vector<std::pair<std::string, bool>> result;
     result.reserve(credits.size());

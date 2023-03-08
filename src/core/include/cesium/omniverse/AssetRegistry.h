@@ -7,19 +7,12 @@
 namespace cesium::omniverse {
 
 class OmniTileset;
-class OmniIonRasterOverlay;
+class OmniImagery;
 
 enum AssetType {
     TILESET = 0,
     IMAGERY,
-};
-
-struct AssetRegistryItem {
-    int64_t assetId;
-    AssetType type;
-    std::optional<std::shared_ptr<OmniTileset>> tileset;
-    std::string path;
-    std::optional<int64_t> parentId;
+    OTHER,
 };
 
 class AssetRegistry {
@@ -35,39 +28,28 @@ class AssetRegistry {
     AssetRegistry& operator=(const AssetRegistry&) = delete;
     AssetRegistry& operator=(AssetRegistry) = delete;
 
-    void addTileset(int64_t id, const pxr::SdfPath& path);
-    std::optional<std::shared_ptr<OmniTileset>> getTileset(int64_t assetId);
-    std::optional<std::shared_ptr<OmniTileset>> getTileset(const std::string& path);
-    std::optional<int64_t> getTilesetId(const std::string& path);
-    std::vector<std::shared_ptr<OmniTileset>> getAllTilesets();
-    std::optional<std::shared_ptr<OmniTileset>> getTilesetFromRasterOverlay(const std::string& path);
-    std::vector<std::pair<int64_t, const char*>> getAllTilesetIdsAndPaths();
-    [[maybe_unused]] std::vector<int64_t> getAllTilesetIds();
+    void addTileset(const pxr::SdfPath& path);
+    void removeTileset(const pxr::SdfPath& path);
+    std::optional<std::shared_ptr<OmniTileset>> getTilesetByPath(const pxr::SdfPath& path) const;
+    std::optional<std::shared_ptr<OmniTileset>> getTilesetByIonAssetId(int64_t ionAssetId) const;
+    const std::list<std::shared_ptr<OmniTileset>>& getAllTilesets() const;
+    std::vector<pxr::SdfPath> getAllTilesetPaths() const;
 
-    std::optional<const AssetRegistryItem> getItemByPath(const pxr::SdfPath& path);
+    void addImagery(const pxr::SdfPath& path);
+    std::optional<std::shared_ptr<OmniImagery>> getImageryByPath(const pxr::SdfPath& path) const;
+    std::optional<std::shared_ptr<OmniImagery>> getImageryByIonAssetId(int64_t ionAssetId) const;
 
-    void addRasterOverlay(int64_t assetId, const pxr::SdfPath& path, int64_t parentId);
-    void setRasterOverlayAssetId(const pxr::SdfPath& path, int64_t assetId);
-    std::optional<OmniIonRasterOverlay> getRasterOverlay(int64_t assetId);
-    std::optional<int64_t> getRasterOverlayIdByPath(const pxr::SdfPath& path);
-    [[maybe_unused]] std::vector<int64_t> getAllRasterOverlayIds();
-    [[maybe_unused]] std::vector<int64_t> getAllRasterOverlayIdsForTileset(int64_t parentId);
+    AssetType getAssetType(const pxr::SdfPath& path) const;
 
     void clear();
-
-    void removeAsset(int64_t assetId);
-    void removeAssetByParent(int64_t parentId);
-
-    uint64_t size();
 
   protected:
     AssetRegistry() = default;
     ~AssetRegistry() = default;
 
   private:
-    std::list<AssetRegistryItem> items{};
-
-    std::vector<int64_t> getAssetIdsByType(AssetType type);
+    std::list<std::shared_ptr<OmniTileset>> _tilesets{};
+    std::list<std::shared_ptr<OmniImagery>> _imageries{};
 };
 
 } // namespace cesium::omniverse

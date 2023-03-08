@@ -13,21 +13,19 @@ ChangedPrimType getType(const pxr::SdfPath& path) {
             return ChangedPrimType::CESIUM_DATA;
         } else if (UsdUtil::isCesiumTileset(path)) {
             return ChangedPrimType::CESIUM_TILESET;
-        } else if (UsdUtil::isCesiumRasterOverlay(path)) {
-            return ChangedPrimType::CESIUM_RASTER_OVERLAY;
+        } else if (UsdUtil::isCesiumImagery(path)) {
+            return ChangedPrimType::CESIUM_IMAGERY;
         }
     } else {
-        auto item = AssetRegistry::getInstance().getItemByPath(path);
+        const auto assetType = AssetRegistry::getInstance().getAssetType(path);
 
-        if (item.has_value()) {
-            switch (item.value().type) {
-                case AssetType::TILESET:
-                    return ChangedPrimType::CESIUM_TILESET;
-                case AssetType::IMAGERY:
-                    return ChangedPrimType::CESIUM_RASTER_OVERLAY;
-                default:
-                    break;
-            }
+        switch (assetType) {
+            case AssetType::TILESET:
+                return ChangedPrimType::CESIUM_TILESET;
+            case AssetType::IMAGERY:
+                return ChangedPrimType::CESIUM_IMAGERY;
+            default:
+                break;
         }
     }
 

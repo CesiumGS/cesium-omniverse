@@ -16,9 +16,9 @@ class CesiumTroubleshooterWindow(ui.Window):
         self,
         cesium_omniverse_interface: ICesiumOmniverseInterface,
         name: str,
-        tileset_asset_id: int,
-        tileset_ion_id: int,
-        raster_overlay_id: int,
+        tileset_path: str,
+        tileset_ion_asset_id: int,
+        imagery_ion_asset_id: int,
         message: str,
         **kwargs,
     ):
@@ -30,11 +30,11 @@ class CesiumTroubleshooterWindow(ui.Window):
         self._logger = logging.getLogger(__name__)
 
         self._name = name
-        self._tileset_asset_id = tileset_asset_id
-        self._tileset_ion_id = tileset_ion_id
-        self._raster_overlay_id = raster_overlay_id
+        self._tileset_path = tileset_path
+        self._tileset_ion_asset_id = tileset_ion_asset_id
+        self._imagery_ion_asset_id = imagery_ion_asset_id
 
-        ion_id = raster_overlay_id if raster_overlay_id > 0 else tileset_ion_id
+        ion_id = imagery_ion_asset_id if imagery_ion_asset_id > 0 else tileset_ion_asset_id
         self._message = (
             f"{name} tried to access Cesium ion for asset id {ion_id}, but it didn't work, probably "
             + "due to a problem with the access token. This panel will help you fix it!"
@@ -62,17 +62,17 @@ class CesiumTroubleshooterWindow(ui.Window):
         self._subscriptions: List[carb.events.ISubscription] = []
         self._setup_subscriptions()
 
-        if raster_overlay_id > 0:
+        if imagery_ion_asset_id > 0:
             self._cesium_omniverse_interface.update_troubleshooting_details(
-                tileset_asset_id,
-                tileset_ion_id,
-                raster_overlay_id,
+                tileset_path,
+                tileset_ion_asset_id,
+                imagery_ion_asset_id,
                 self._token_details_event_type,
                 self._asset_details_event_type,
             )
         else:
             self._cesium_omniverse_interface.update_troubleshooting_details(
-                tileset_asset_id, tileset_ion_id, self._token_details_event_type, self._asset_details_event_type
+                tileset_path, tileset_ion_asset_id, self._token_details_event_type, self._asset_details_event_type
             )
 
         self.frame.set_build_fn(self._build_ui)

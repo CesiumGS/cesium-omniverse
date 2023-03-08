@@ -73,29 +73,21 @@ class CesiumAssetDetailsWidget(ui.ScrollingFrame):
     def _add_imagery_button_clicked(self):
         context = usd.get_context()
         selection = context.get_selection().get_selected_prim_paths()
-        tileset_id = 0
+        tileset_path: Optional[str] = None
 
-        valid_tileset = True
-        if len(selection) > 0:
-            tileset_id = self._cesium_omniverse_interface.get_tileset_id_by_path(selection[0])
+        if len(selection) > 0 and self._cesium_omniverse_interface.is_tileset(selection[0]):
+            tileset_path = selection[0]
 
-            if tileset_id is None:
-                # A tileset wasn't the selection.
-                valid_tileset = False
-        else:
-            # Nothing was selected.
-            valid_tileset = False
+        if tileset_path is not None:
+            all_tileset_paths = self._cesium_omniverse_interface.get_all_tileset_paths()
 
-        if not valid_tileset:
-            all_tilesets = self._cesium_omniverse_interface.get_all_tileset_ids_and_paths()
-
-            if len(all_tilesets) > 0:
-                tileset_id = all_tilesets[0][0]
+            if len(all_tileset_paths) > 0:
+                tileset_path = all_tileset_paths[0]
             else:
                 self._add_overlay_with_tileset()
                 return
 
-        imagery_to_add = ImageryToAdd(tileset_id, self._id, self._name)
+        imagery_to_add = ImageryToAdd(tileset_path, self._id, self._name)
 
         add_imagery_event = carb.events.type_from_string("cesium.omniverse.ADD_IMAGERY")
         app.get_app().get_message_bus_event_stream().push(add_imagery_event, payload=imagery_to_add.to_dict())

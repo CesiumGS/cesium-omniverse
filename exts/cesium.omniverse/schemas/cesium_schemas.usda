@@ -24,19 +24,19 @@ class CesiumDataPrim "CesiumDataPrim" (
         string className = "Data"
     }
 ) {
-    string cesium:defaultProjectIonAccessToken = "" (
+    string cesium:projectDefaultIonAccessToken = "" (
         customData = {
-            string apiName = "defaultProjectIonAccessToken"
+            string apiName = "projectDefaultIonAccessToken"
         }
-        displayName = "Default Project ion Access Token"
+        displayName = "Project default ion Access Token"
         doc = "A string representing the token for accessing Cesium ion assets."
     )
 
-    string cesium:defaultProjectIonAccessTokenId = "" (
+    string cesium:projectDefaultIonAccessTokenId = "" (
         customData = {
-            string apiName = "defaultProjectIonAccessTokenId"
+            string apiName = "projectDefaultIonAccessTokenId"
         }
-        displayName = "Default Project ion Access Token ID"
+        displayName = "Project default ion Access Token ID"
         doc = "A string representing the token ID for accessing Cesium ion assets."
     )
 
@@ -94,7 +94,7 @@ class "CesiumTilesetSchemaAPI" (
             string apiName = "ionAccessToken"
         }
         displayName = "ion Access Token"
-        doc = "The access token to use to access the Cesium ion resource. Overrides the default project token. Blank if using URL."
+        doc = "The access token to use to access the Cesium ion resource. Overrides the default token. Blank if using URL."
     )
 
     float cesium:maximumScreenSpaceError = 16 (
@@ -194,11 +194,11 @@ class "CesiumTilesetSchemaAPI" (
     )
 }
 
-class CesiumRasterOverlayPrim "CesiumRasterOverlayPrim" (
-    doc = """Adds a prim for representing a raster overlay. Should be a child of a tileset."""
+class CesiumImageryPrim "CesiumImageryPrim" (
+    doc = """Adds a prim for representing an imagery layer. Should be a child of a tileset."""
     inherits = </Typed>
     customData = {
-        string className = "RasterOverlay"
+        string className = "Imagery"
     }
 ) {
     int64 cesium:ionAssetId = 0 (
@@ -214,6 +214,6 @@ class CesiumRasterOverlayPrim "CesiumRasterOverlayPrim" (
             string apiName = "ionAccessToken"
         }
         displayName = "ion Access Token"
-        doc = "The access token to use to access the Cesium ion resource. Overrides the default project token. Blank if using URL."
+        doc = "The access token to use to access the Cesium ion resource. Overrides the default token. Blank if using URL."
     )
 }

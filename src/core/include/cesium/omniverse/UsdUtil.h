@@ -1,7 +1,7 @@
 #pragma once
 
 #include <CesiumUsdSchemas/data.h>
-#include <CesiumUsdSchemas/rasterOverlay.h>
+#include <CesiumUsdSchemas/imagery.h>
 #include <CesiumUsdSchemas/tilesetAPI.h>
 #include <carb/flatcache/StageWithHistory.h>
 #include <glm/glm.hpp>
@@ -46,16 +46,17 @@ pxr::GfRange3d computeWorldExtent(const pxr::GfRange3d& localExtent, const glm::
 
 pxr::CesiumData defineCesiumData(const pxr::SdfPath& path);
 pxr::CesiumTilesetAPI defineCesiumTileset(const pxr::SdfPath& path);
-pxr::CesiumRasterOverlay defineCesiumRasterOverlay(const pxr::SdfPath& path);
+pxr::CesiumImagery defineCesiumImagery(const pxr::SdfPath& path);
 
-pxr::CesiumData getCesiumData(const pxr::SdfPath& path);
+pxr::CesiumData getOrCreateCesiumData();
 pxr::CesiumTilesetAPI getCesiumTileset(const pxr::SdfPath& path);
-pxr::CesiumRasterOverlay getCesiumRasterOverlay(const pxr::SdfPath& path);
-std::vector<pxr::SdfPath> getChildRasterOverlayPaths(const pxr::SdfPath& path);
+pxr::CesiumImagery getCesiumImagery(const pxr::SdfPath& path);
+std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& path);
+pxr::CesiumTilesetAPI getParentCesiumTileset(const pxr::SdfPath& path);
 
 bool isCesiumData(const pxr::SdfPath& path);
 bool isCesiumTileset(const pxr::SdfPath& path);
-bool isCesiumRasterOverlay(const pxr::SdfPath& path);
+bool isCesiumImagery(const pxr::SdfPath& path);
 
 bool primExists(const pxr::SdfPath& path);
 

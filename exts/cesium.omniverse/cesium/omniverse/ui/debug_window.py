@@ -58,13 +58,13 @@ class CesiumOmniverseDebugWindow(ui.Window):
             # Cesium HQ
             self._cesium_omniverse_interface.set_georeference_origin(-75.1564977, 39.9501464, 150.0)
 
-            tileset_id = self._cesium_omniverse_interface.add_tileset_ion(
+            tileset_path = self._cesium_omniverse_interface.add_tileset_ion(
                 "Cesium World Terrain",
                 1,
             )
 
-            self._cesium_omniverse_interface.add_ion_raster_overlay(
-                tileset_id,
+            self._cesium_omniverse_interface.add_ion_imagery(
+                tileset_path,
                 "Layer",
                 3954,
             )
@@ -75,13 +75,13 @@ class CesiumOmniverseDebugWindow(ui.Window):
             # Cesium HQ
             self._cesium_omniverse_interface.set_georeference_origin(-75.1564977, 39.9501464, 150.0)
 
-            tileset_id = self._cesium_omniverse_interface.add_tileset_ion(
+            tileset_path = self._cesium_omniverse_interface.add_tileset_ion(
                 "Bing Maps",
                 1,
             )
 
-            self._cesium_omniverse_interface.add_ion_raster_overlay(
-                tileset_id,
+            self._cesium_omniverse_interface.add_ion_imagery(
+                tileset_path,
                 "Layer",
                 2,
             )
@@ -103,18 +103,18 @@ class CesiumOmniverseDebugWindow(ui.Window):
         def remove_all_tilesets():
             """Removes all tilesets from the stage."""
 
-            tilesets = self._cesium_omniverse_interface.get_all_tileset_ids_and_paths()
+            tileset_paths = self._cesium_omniverse_interface.get_all_tileset_paths()
 
-            for tileset_id, _ in tilesets:
-                self._cesium_omniverse_interface.remove_tileset(tileset_id)
+            for tileset_path in tileset_paths:
+                self._cesium_omniverse_interface.remove_tileset(tileset_path)
 
         def reload_all_tilesets():
             """Reloads all tilesets."""
 
-            tilesets = self._cesium_omniverse_interface.get_all_tileset_ids_and_paths()
+            tileset_paths = self._cesium_omniverse_interface.get_all_tileset_paths()
 
-            for tileset_id, _ in tilesets:
-                self._cesium_omniverse_interface.reload_tileset(tileset_id)
+            for tileset_path in tileset_paths:
+                self._cesium_omniverse_interface.reload_tileset(tileset_path)
 
         def print_fabric_stage():
             """Prints the contents of the Fabric stage to a text field."""

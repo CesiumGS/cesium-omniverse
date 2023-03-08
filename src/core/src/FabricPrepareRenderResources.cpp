@@ -25,7 +25,7 @@ FabricPrepareRenderResources::FabricPrepareRenderResources(const OmniTileset& ti
 
 FabricPrepareRenderResources::~FabricPrepareRenderResources() {
     if (UsdUtil::hasStage()) {
-        FabricStageUtil::removeTileset(_tileset.getId());
+        FabricStageUtil::removeTileset(_tileset.getTilesetId());
     }
 }
 
@@ -44,13 +44,13 @@ FabricPrepareRenderResources::prepareInLoadThread(
     return asyncSystem.runInMainThread([this, asyncSystem, transform, tileLoadResult = std::move(tileLoadResult)]() {
         const auto pModel = std::get_if<CesiumGltf::Model>(&tileLoadResult.contentKind);
 
-        // If there are no raster overlays add the tile right away
+        // If there are no imagery layers attached to the tile add the tile right away
         if (!tileLoadResult.rasterOverlayDetails.has_value()) {
             const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdTransformForPrim(
                 Context::instance().getGeoreferenceOrigin(), _tileset.getPath());
 
             const auto addTileResults = FabricStageUtil::addTile(
-                _tileset.getId(), _tileset.getNextTileId(), ecefToUsdTransform, transform, *pModel);
+                _tileset.getTilesetId(), Context::instance().getNextTileId(), ecefToUsdTransform, transform, *pModel);
 
             return asyncSystem.createResolvedFuture(Cesium3DTilesSelection::TileLoadResultAndRenderResources{
                 std::move(tileLoadResult),
@@ -62,7 +62,7 @@ FabricPrepareRenderResources::prepareInLoadThread(
                 }});
         }
 
-        // Otherwise add the tile + raster overlay later
+        // Otherwise add the tile + imagery later
         return asyncSystem.createResolvedFuture(Cesium3DTilesSelection::TileLoadResultAndRenderResources{
             std::move(tileLoadResult),
             new TileLoadThreadResult{
@@ -128,7 +128,7 @@ void FabricPrepareRenderResources::freeRaster(
     [[maybe_unused]] void* pLoadThreadResult,
     [[maybe_unused]] void* pMainThreadResult) noexcept {
     // Nothing to do here.
-    // Due to Kit 104.2 material limitations, a tile can only ever have one raster attached.
+    // Due to Kit 104.2 material limitations, a tile can only ever have one imagery attached.
     // The texture will get freed when the prim is freed.
 }
 
@@ -151,7 +151,7 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
     }
 
     if (pTileRenderResources->geomPaths.size() > 0) {
-        // Already created the tile with a lower-res raster.
+        // Already created the tile with lower-res imagery.
         // Due to Kit 104.2 material limitations, we can't update the texture or assign a new material to the prim.
         // But we can delete the existing prim and create a new prim.
         FabricStageUtil::removeTile(pTileRenderResources->allPrimPaths, pTileRenderResources->textureAssetNames);
@@ -160,9 +160,9 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
     const auto ecefToUsdTransform =
         UsdUtil::computeEcefToUsdTransformForPrim(Context::instance().getGeoreferenceOrigin(), _tileset.getPath());
 
-    const auto addTileResults = FabricStageUtil::addTileWithRasterOverlay(
-        _tileset.getId(),
-        _tileset.getNextTileId(),
+    const auto addTileResults = FabricStageUtil::addTileWithImagery(
+        _tileset.getTilesetId(),
+        Context::instance().getNextTileId(),
         ecefToUsdTransform,
         pTileRenderResources->tileTransform,
         tile.getContent().getRenderContent()->getModel(),
@@ -184,8 +184,8 @@ void FabricPrepareRenderResources::detachRasterInMainThread(
     [[maybe_unused]] const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
     [[maybe_unused]] void* pMainThreadRendererResources) noexcept {
     // Nothing to do here.
-    // Due to Kit 104.2 material limitations, a tile can only ever have one raster attached.
-    // If we remove the raster overlay from the tileset we need to reload the whole tileset.
+    // Due to Kit 104.2 material limitations, a tile can only ever have one imagery attached.
+    // If we remove the imagery from the tileset we need to reload the whole tileset.
 }
 
 } // namespace cesium::omniverse
