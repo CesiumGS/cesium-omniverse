@@ -201,7 +201,7 @@ function(setup_usd_python_lib)
         add_custom_command(
             TARGET ${_PREFIXED_TARGET_NAME}
             POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${_TARGET_NAME}> $<TARGET_FILE_DIR:${_TARGET_NAME}>
+            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${_PREFIXED_TARGET_NAME}> $<TARGET_FILE_DIR:${_PREFIXED_TARGET_NAME}>
             COMMAND_EXPAND_LISTS)
     endif()
 
