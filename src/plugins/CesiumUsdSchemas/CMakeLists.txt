@@ -1,6 +1,20 @@
 include(Macros)
 
-glob_files(SOURCES "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/*.cpp")
+set(SOURCES
+        "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/data.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/imagery.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/tilesetAPI.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/tokens.cpp"
+        )
+
+set(PY_BINDING_SOURCES
+        "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/module.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/moduleDeps.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapData.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapImagery.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapTilesetAPI.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapTokens.cpp"
+        )
 
 set(CESIUM_USD_SCHEMAS_CXX_FLAGS ${CESIUM_OMNI_CXX_FLAGS})
 
@@ -29,6 +43,39 @@ setup_lib(
     SOURCES
         ${SOURCES}
     LIBRARIES
+        arch
+        sdf
+        tf
+        usd
+        tbb
+        boost_python37
+        python37
+    CXX_FLAGS
+        ${CESIUM_USD_SCHEMAS_CXX_FLAGS}
+    CXX_FLAGS_DEBUG
+        ${CESIUM_OMNI_CXX_FLAGS_DEBUG}
+    CXX_DEFINES
+        ${CESIUM_USD_SCHEMAS_CXX_DEFINES}
+    CXX_DEFINES_DEBUG
+        ${CESIUM_OMNI_CXX_DEFINES_DEBUG}
+)
+# cmake-format: on
+
+# cmake-format: off
+setup_usd_python_lib(
+    PYTHON_DIR
+        # Use the same Python version as Omniverse (Python 3.7)
+        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/python"
+    TARGET_NAME
+        cesiumUsdSchemas
+    PYTHON_MODULE_NAME
+        CesiumUsdSchemas
+    TYPE
+        SHARED
+    SOURCES
+        ${PY_BINDING_SOURCES}
+    LIBRARIES
+        CesiumUsdSchemas
         arch
         sdf
         tf

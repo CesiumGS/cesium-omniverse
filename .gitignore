@@ -42,6 +42,8 @@ trace.csv
 # Installed python bindings
 exts/cesium.omniverse/cesium/omniverse/bindings/CesiumOmniversePythonBindings.cpython-37m-x86_64-linux-gnu.so
 exts/cesium.omniverse/cesium/omniverse/bindings/CesiumOmniversePythonBindings.cp37-win_amd64.pyd
+exts/cesium.omniverse/cesium/omniverse/bindings/CesiumUsdSchemas/_cesiumUsdSchemas.so
+exts/cesium.omniverse/cesium/omniverse/bindings/CesiumUsdSchemas/_cesiumUsdSchemas.pyd
 
 # Installed libraries
 exts/cesium.omniverse/bin/
