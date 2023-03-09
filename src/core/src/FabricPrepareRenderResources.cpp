@@ -50,7 +50,12 @@ FabricPrepareRenderResources::prepareInLoadThread(
                 Context::instance().getGeoreferenceOrigin(), _tileset.getPath());
 
             const auto addTileResults = FabricStageUtil::addTile(
-                _tileset.getTilesetId(), Context::instance().getNextTileId(), ecefToUsdTransform, transform, *pModel);
+                _tileset.getTilesetId(),
+                Context::instance().getNextTileId(),
+                ecefToUsdTransform,
+                transform,
+                *pModel,
+                _tileset.getSmoothNormals());
 
             return asyncSystem.createResolvedFuture(Cesium3DTilesSelection::TileLoadResultAndRenderResources{
                 std::move(tileLoadResult),
@@ -166,6 +171,7 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
         ecefToUsdTransform,
         pTileRenderResources->tileTransform,
         tile.getContent().getRenderContent()->getModel(),
+        _tileset.getSmoothNormals(),
         rasterTile.getImage(),
         rasterTile.getOverlay().getName(),
         rasterTile.getRectangle(),

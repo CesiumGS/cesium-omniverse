@@ -27,7 +27,8 @@ AddTileResults addTile(
     int64_t tileId,
     const glm::dmat4& ecefToUsdTransform,
     const glm::dmat4& tileTransform,
-    const CesiumGltf::Model& model);
+    const CesiumGltf::Model& model,
+    bool smoothNormals);
 
 AddTileResults addTileWithImagery(
     int64_t tilesetId,
@@ -35,6 +36,7 @@ AddTileResults addTileWithImagery(
     const glm::dmat4& ecefToUsdTransform,
     const glm::dmat4& tileTransform,
     const CesiumGltf::Model& model,
+    bool smoothNormals,
     const CesiumGltf::ImageCesium& image,
     const std::string& imageryName,
     const CesiumGeometry::Rectangle& imageryRectangle,

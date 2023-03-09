@@ -21,6 +21,7 @@ CesiumTokensType::CesiumTokensType() :
     cesiumPreloadSiblings("cesium:preloadSiblings", TfToken::Immortal),
     cesiumProjectDefaultIonAccessToken("cesium:projectDefaultIonAccessToken", TfToken::Immortal),
     cesiumProjectDefaultIonAccessTokenId("cesium:projectDefaultIonAccessTokenId", TfToken::Immortal),
+    cesiumSmoothNormals("cesium:smoothNormals", TfToken::Immortal),
     cesiumSuspendUpdate("cesium:suspendUpdate", TfToken::Immortal),
     cesiumUrl("cesium:url", TfToken::Immortal),
     allTokens({
@@ -42,6 +43,7 @@ CesiumTokensType::CesiumTokensType() :
         cesiumPreloadSiblings,
         cesiumProjectDefaultIonAccessToken,
         cesiumProjectDefaultIonAccessTokenId,
+        cesiumSmoothNormals,
         cesiumSuspendUpdate,
         cesiumUrl
     })

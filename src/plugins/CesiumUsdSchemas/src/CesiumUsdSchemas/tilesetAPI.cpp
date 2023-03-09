@@ -331,6 +331,23 @@ CesiumTilesetAPI::CreateSuspendUpdateAttr(VtValue const &defaultValue, bool writ
                        writeSparsely);
 }
 
+UsdAttribute
+CesiumTilesetAPI::GetSmoothNormalsAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumSmoothNormals);
+}
+
+UsdAttribute
+CesiumTilesetAPI::CreateSmoothNormalsAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumSmoothNormals,
+                       SdfValueTypeNames->Bool,
+                       /* custom = */ false,
+                       SdfVariabilityVarying,
+                       defaultValue,
+                       writeSparsely);
+}
+
 namespace {
 static inline TfTokenVector
 _ConcatenateAttributeNames(const TfTokenVector& left,const TfTokenVector& right)
@@ -363,6 +380,7 @@ CesiumTilesetAPI::GetSchemaAttributeNames(bool includeInherited)
         CesiumTokens->cesiumEnforceCulledScreenSpaceError,
         CesiumTokens->cesiumCulledScreenSpaceError,
         CesiumTokens->cesiumSuspendUpdate,
+        CesiumTokens->cesiumSmoothNormals,
     };
     static TfTokenVector allNames =
         _ConcatenateAttributeNames(

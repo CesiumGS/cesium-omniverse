@@ -274,7 +274,8 @@ void Context::processPropertyChanged(const ChangedPrim& changedPrim) {
                 name == pxr::CesiumTokens->cesiumEnableFrustumCulling ||
                 name == pxr::CesiumTokens->cesiumEnableFogCulling ||
                 name == pxr::CesiumTokens->cesiumEnforceCulledScreenSpaceError ||
-                name == pxr::CesiumTokens->cesiumCulledScreenSpaceError) {
+                name == pxr::CesiumTokens->cesiumCulledScreenSpaceError ||
+                name == pxr::CesiumTokens->cesiumSmoothNormals) {
                 tilesetsToReload.emplace(tileset.value());
             }
             // clang-format on

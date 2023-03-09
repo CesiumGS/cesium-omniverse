@@ -192,6 +192,14 @@ class "CesiumTilesetSchemaAPI" (
         displayName = "Suspend Update"
         doc = "Pauses level-of-detail and culling updates of this tileset."
     )
+
+    bool cesium:smoothNormals = false (
+        customData = {
+            string apiName = "smoothNormals"
+        }
+        displayName = "Smooth Normals"
+        doc = "Generate smooth normals instead of flat normals when normals are missing."
+    )
 }
 
 class CesiumImageryPrim "CesiumImageryPrim" (
