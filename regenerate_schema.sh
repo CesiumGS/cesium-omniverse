@@ -14,8 +14,17 @@ export PATH="$NVIDIA_USD_BINS:$NVIDIA_PYTHON_LIBS:$NVIDIA_PYTHON_BINS:$NVIDIA_US
 
 $NVIDIA_PYTHON_EXECUTABLE -m pip install jinja2
 
+# XXX: This doesn't work right. Not sure what is wrong.
+# Temporarily move module.cpp and moduleDeps.cpp out of the folder.
+mv "$SCHEMA_OUTPUT_PATH/module.cpp" "$PROJECT_ROOT/module.cpp"
+mv "$SCHEMA_OUTPUT_PATH/moduleDeps.cpp" "$PROJECT_ROOT/moduleDeps.cpp"
+
 # Clear out the old files.
 rm $SCHEMA_OUTPUT_PATH/*
+
+# Move module.cpp and moduleDeps.cpp back.
+mv "$PROJECT_ROOT/module.cpp" "$SCHEMA_OUTPUT_PATH/module.cpp"
+mv "$PROJECT_ROOT/moduleDeps.cpp" "$SCHEMA_OUTPUT_PATH/moduleDeps.cpp"
 
 # Generate the new files.
 usdGenSchema $SCHEMA_INPUT_PATH $SCHEMA_OUTPUT_PATH
