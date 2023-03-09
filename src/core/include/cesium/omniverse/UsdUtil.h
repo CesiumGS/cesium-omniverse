@@ -52,7 +52,6 @@ pxr::CesiumData getOrCreateCesiumData();
 pxr::CesiumTilesetAPI getCesiumTileset(const pxr::SdfPath& path);
 pxr::CesiumImagery getCesiumImagery(const pxr::SdfPath& path);
 std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& path);
-pxr::CesiumTilesetAPI getParentCesiumTileset(const pxr::SdfPath& path);
 
 bool isCesiumData(const pxr::SdfPath& path);
 bool isCesiumTileset(const pxr::SdfPath& path);

@@ -36,8 +36,10 @@ class AssetRegistry {
     std::vector<pxr::SdfPath> getAllTilesetPaths() const;
 
     void addImagery(const pxr::SdfPath& path);
+    void removeImagery(const pxr::SdfPath& path);
     std::optional<std::shared_ptr<OmniImagery>> getImageryByPath(const pxr::SdfPath& path) const;
     std::optional<std::shared_ptr<OmniImagery>> getImageryByIonAssetId(int64_t ionAssetId) const;
+    const std::list<std::shared_ptr<OmniImagery>>& getAllImageries() const;
 
     AssetType getAssetType(const pxr::SdfPath& path) const;
 
