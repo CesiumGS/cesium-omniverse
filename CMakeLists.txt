@@ -631,8 +631,7 @@ install(
             EXCLUDE_FROM_ALL
     RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
             COMPONENT library
-            EXCLUDE_FROM_ALL
-)
+            EXCLUDE_FROM_ALL)
 
 install(
     FILES "${PROJECT_BINARY_DIR}/mem.cesium"
