@@ -5,6 +5,7 @@ from .ui.debug_window import CesiumOmniverseDebugWindow
 from .ui.main_window import CesiumOmniverseMainWindow
 from .ui.credits_viewport_frame import CesiumCreditsViewportFrame
 from .models import AssetToAdd, ImageryToAdd
+from .ui import CesiumAttributesWidgetController
 import asyncio
 from functools import partial
 import logging
@@ -61,6 +62,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._assets_to_add_after_token_set: List[AssetToAdd] = []
         self._imagery_to_add_after_token_set: List[ImageryToAdd] = []
         self._adding_assets = False
+        self._attributes_widget_controller: Optional[CesiumAttributesWidgetController] = None
         self._logger: logging.Logger = logging.getLogger(__name__)
         self._menu = None
 
@@ -141,6 +143,8 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             add_imagery_event, self._on_add_imagery_to_tileset
         )
 
+        self._attributes_widget_controller = CesiumAttributesWidgetController(_cesium_omniverse_interface)
+
     def on_shutdown(self):
         self._menu = None
 
@@ -192,6 +196,10 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         if self._show_asset_window_subscription is not None:
             self._show_asset_window_subscription.unsubscribe()
             self._show_asset_window_subscription = None
+
+        if self._attributes_widget_controller is not None:
+            self._attributes_widget_controller.destroy()
+            self._attributes_widget_controller = None
 
         self._logger.info("CesiumOmniverse shutdown")
 
