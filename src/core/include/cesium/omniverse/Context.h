@@ -17,7 +17,6 @@
 
 namespace Cesium3DTilesSelection {
 class CreditSystem;
-class ViewState;
 } // namespace Cesium3DTilesSelection
 
 namespace CesiumGeospatial {
@@ -151,8 +150,6 @@ class Context {
     std::filesystem::path _certificatePath;
 
     bool _debugDisableMaterials{false};
-
-    std::vector<Cesium3DTilesSelection::ViewState> _viewStates;
 };
 
 } // namespace cesium::omniverse

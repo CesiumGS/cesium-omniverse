@@ -5,6 +5,7 @@
 #include <CesiumGeometry/AxisTransforms.h>
 #include <CesiumGeospatial/Cartographic.h>
 #include <CesiumGeospatial/Transforms.h>
+#include <glm/gtc/matrix_access.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <pxr/usd/usd/prim.h>
 #include <pxr/usd/usd/stage.h>
@@ -207,6 +208,35 @@ computeEcefToUsdTransformForPrim(const CesiumGeospatial::Cartographic& origin, c
     const auto primUsdWorldTransform = computeUsdWorldTransform(primPath);
     const auto primEcefToUsdTransform = primUsdWorldTransform * ecefToUsdTransform;
     return primEcefToUsdTransform;
+}
+
+glm::dmat4
+computeUsdToEcefTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath) {
+    return glm::inverse(computeEcefToUsdTransformForPrim(origin, primPath));
+}
+
+Cesium3DTilesSelection::ViewState computeViewState(
+    const CesiumGeospatial::Cartographic& origin,
+    const pxr::SdfPath& primPath,
+    const glm::dmat4& viewMatrix,
+    const glm::dmat4& projMatrix,
+    double width,
+    double height) {
+    const auto usdToEcef = UsdUtil::computeUsdToEcefTransformForPrim(origin, primPath);
+    const auto inverseView = glm::inverse(viewMatrix);
+    const auto omniCameraUp = glm::dvec3(viewMatrix[1]);
+    const auto omniCameraFwd = glm::dvec3(-viewMatrix[2]);
+    const auto omniCameraPosition = glm::dvec3(glm::row(inverseView, 3));
+    const auto cameraUp = glm::normalize(glm::dvec3(usdToEcef * glm::dvec4(omniCameraUp, 0.0)));
+    const auto cameraFwd = glm::normalize(glm::dvec3(usdToEcef * glm::dvec4(omniCameraFwd, 0.0)));
+    const auto cameraPosition = glm::dvec3(usdToEcef * glm::dvec4(omniCameraPosition, 1.0));
+
+    const auto aspect = width / height;
+    const auto verticalFov = 2.0 * glm::atan(1.0 / projMatrix[1][1]);
+    const auto horizontalFov = 2.0 * glm::atan(glm::tan(verticalFov * 0.5) * aspect);
+
+    return Cesium3DTilesSelection::ViewState::create(
+        cameraPosition, cameraFwd, cameraUp, glm::dvec2(width, height), horizontalFov, verticalFov);
 }
 
 pxr::GfRange3d computeWorldExtent(const pxr::GfRange3d& localExtent, const glm::dmat4& localToUsdTransform) {
