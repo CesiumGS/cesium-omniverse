@@ -44,6 +44,7 @@ exts/cesium.omniverse/cesium/omniverse/bindings/CesiumOmniversePythonBindings.cp
 exts/cesium.omniverse/cesium/omniverse/bindings/CesiumOmniversePythonBindings.cp37-win_amd64.pyd
 exts/cesium.omniverse/cesium/omniverse/bindings/CesiumUsdSchemas/_cesiumUsdSchemas.so
 exts/cesium.omniverse/cesium/omniverse/bindings/CesiumUsdSchemas/_cesiumUsdSchemas.pyd
+exts/cesium.omniverse/cesium/omniverse/bindings/CesiumUsdSchemas/_cesiumUsdSchemas.lib
 
 # Installed libraries
 exts/cesium.omniverse/bin/
