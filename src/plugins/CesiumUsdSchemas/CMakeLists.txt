@@ -77,13 +77,6 @@ setup_usd_python_lib(
         ${PY_BINDING_SOURCES}
     LIBRARIES
         CesiumUsdSchemas
-        arch
-        sdf
-        tf
-        usd
-        tbb
-        boost_python37
-        python37
     CXX_FLAGS
         ${CESIUM_USD_SCHEMAS_CXX_FLAGS}
     CXX_FLAGS_DEBUG

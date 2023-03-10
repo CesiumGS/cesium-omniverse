@@ -178,9 +178,6 @@ function(setup_usd_python_lib)
 
     set_target_properties(${_PREFIXED_TARGET_NAME} PROPERTIES PREFIX "")
 
-    # In order for Boost Python's PyInit stuff to work correctly, we can't hide internal symbols.
-    set_target_properties(${_PREFIXED_TARGET_NAME} PROPERTIES CXX_VISIBILITY_PRESET default)
-
     if(_PYTHON_DIR)
         # Using a specific version of Python
         # Since we called find_package already in the root CMakeLists we have
