@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Cesium3DTilesSelection/ViewState.h>
 #include <CesiumUsdSchemas/data.h>
 #include <CesiumUsdSchemas/imagery.h>
 #include <CesiumUsdSchemas/tilesetAPI.h>
@@ -42,6 +43,14 @@ std::string getSafeName(const std::string& name);
 glm::dmat4 computeUsdToEcefTransform(const CesiumGeospatial::Cartographic& origin);
 glm::dmat4 computeEcefToUsdTransform(const CesiumGeospatial::Cartographic& origin);
 glm::dmat4 computeEcefToUsdTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath);
+glm::dmat4 computeUsdToEcefTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath);
+Cesium3DTilesSelection::ViewState computeViewState(
+    const CesiumGeospatial::Cartographic& origin,
+    const pxr::SdfPath& primPath,
+    const glm::dmat4& viewMatrix,
+    const glm::dmat4& projMatrix,
+    double width,
+    double height);
 pxr::GfRange3d computeWorldExtent(const pxr::GfRange3d& localExtent, const glm::dmat4& localToUsdTransform);
 
 pxr::CesiumData defineCesiumData(const pxr::SdfPath& path);

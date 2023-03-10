@@ -52,11 +52,11 @@ class OmniTileset {
 
     void reload();
     void addImageryIon(const pxr::SdfPath& imageryPath);
-    void onUpdateFrame(const std::vector<Cesium3DTilesSelection::ViewState>& viewStates);
+    void onUpdateFrame(const glm::dmat4& viewMatrix, const glm::dmat4& projMatrix, double width, double height);
 
   private:
     void updateTransform();
-    void updateView(const std::vector<Cesium3DTilesSelection::ViewState>& viewStates);
+    void updateView(const glm::dmat4& viewMatrix, const glm::dmat4& projMatrix, double width, double height);
 
     std::unique_ptr<Cesium3DTilesSelection::Tileset> _tileset;
     std::shared_ptr<FabricPrepareRenderResources> _renderResourcesPreparer;
@@ -65,5 +65,6 @@ class OmniTileset {
     pxr::SdfPath _tilesetPath;
     int64_t _tilesetId;
     glm::dmat4 _ecefToUsdTransform;
+    std::vector<Cesium3DTilesSelection::ViewState> _viewStates;
 };
 } // namespace cesium::omniverse

@@ -17,13 +17,11 @@
 
 #include <Cesium3DTilesSelection/CreditSystem.h>
 #include <Cesium3DTilesSelection/Tileset.h>
-#include <Cesium3DTilesSelection/ViewState.h>
 #include <Cesium3DTilesSelection/registerAllTileContentTypes.h>
 #include <CesiumUsdSchemas/data.h>
 #include <CesiumUsdSchemas/imagery.h>
 #include <CesiumUsdSchemas/tilesetAPI.h>
 #include <CesiumUsdSchemas/tokens.h>
-#include <glm/gtc/matrix_access.hpp>
 #include <pxr/usd/sdf/path.h>
 #include <pxr/usd/usd/primRange.h>
 #include <pxr/usd/usdGeom/xform.h>
@@ -32,29 +30,6 @@
 namespace cesium::omniverse {
 
 namespace {
-
-Cesium3DTilesSelection::ViewState computeViewState(
-    const CesiumGeospatial::Cartographic& origin,
-    const glm::dmat4& viewMatrix,
-    const glm::dmat4& projMatrix,
-    double width,
-    double height) {
-    const auto usdToEcef = UsdUtil::computeUsdToEcefTransform(origin);
-    const auto inverseView = glm::inverse(viewMatrix);
-    const auto omniCameraUp = glm::dvec3(viewMatrix[1]);
-    const auto omniCameraFwd = glm::dvec3(-viewMatrix[2]);
-    const auto omniCameraPosition = glm::dvec3(glm::row(inverseView, 3));
-    const auto cameraUp = glm::normalize(glm::dvec3(usdToEcef * glm::dvec4(omniCameraUp, 0.0)));
-    const auto cameraFwd = glm::normalize(glm::dvec3(usdToEcef * glm::dvec4(omniCameraFwd, 0.0)));
-    const auto cameraPosition = glm::dvec3(usdToEcef * glm::dvec4(omniCameraPosition, 1.0));
-
-    const auto aspect = width / height;
-    const auto verticalFov = 2.0 * glm::atan(1.0 / projMatrix[1][1]);
-    const auto horizontalFov = 2.0 * glm::atan(glm::tan(verticalFov * 0.5) * aspect);
-
-    return Cesium3DTilesSelection::ViewState::create(
-        cameraPosition, cameraFwd, cameraUp, glm::dvec2(width, height), horizontalFov, verticalFov);
-}
 
 std::unique_ptr<Context> context;
 
@@ -228,14 +203,9 @@ void Context::reloadStage() {
 void Context::onUpdateFrame(const glm::dmat4& viewMatrix, const glm::dmat4& projMatrix, double width, double height) {
     processUsdNotifications();
 
-    const auto georeferenceOrigin = getGeoreferenceOrigin();
-
-    _viewStates.clear();
-    _viewStates.emplace_back(computeViewState(georeferenceOrigin, viewMatrix, projMatrix, width, height));
-
     const auto& tilesets = AssetRegistry::getInstance().getAllTilesets();
     for (const auto& tileset : tilesets) {
-        tileset->onUpdateFrame(_viewStates);
+        tileset->onUpdateFrame(viewMatrix, projMatrix, width, height);
     }
 }
 

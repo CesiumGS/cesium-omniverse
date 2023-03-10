@@ -294,7 +294,11 @@ void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
     _tileset->getOverlays().add(ionRasterOverlay);
 }
 
-void OmniTileset::onUpdateFrame(const std::vector<Cesium3DTilesSelection::ViewState>& viewStates) {
+void OmniTileset::onUpdateFrame(
+    const glm::dmat4& viewMatrix,
+    const glm::dmat4& projMatrix,
+    double width,
+    double height) {
     if (!UsdUtil::primExists(_tilesetPath)) {
         // TfNotice can be slow, and sometimes we get a frame or two before we actually get a chance to react on it.
         //   This guard prevents us from crashing if the prim no longer exists.
@@ -302,7 +306,7 @@ void OmniTileset::onUpdateFrame(const std::vector<Cesium3DTilesSelection::ViewSt
     }
 
     updateTransform();
-    updateView(viewStates);
+    updateView(viewMatrix, projMatrix, width, height);
 }
 
 void OmniTileset::updateTransform() {
@@ -322,17 +326,20 @@ void OmniTileset::updateTransform() {
     // Check for transform changes and update prims accordingly
     if (ecefToUsdTransform != _ecefToUsdTransform) {
         _ecefToUsdTransform = ecefToUsdTransform;
-        // TODO: set tileset transform on the cesium-native tileset object
         FabricStageUtil::setTilesetTransform(_tilesetId, ecefToUsdTransform);
     }
 }
 
-void OmniTileset::updateView(const std::vector<Cesium3DTilesSelection::ViewState>& viewStates) {
-    // TODO: should we be requesting tiles if the tileset is invisible? What do Unreal/Unity do?
-
+void OmniTileset::updateView(const glm::dmat4& viewMatrix, const glm::dmat4& projMatrix, double width, double height) {
     if (!getSuspendUpdate()) {
         // Go ahead and select some tiles
-        _pViewUpdateResult = &_tileset->updateView(viewStates);
+        const auto& georeferenceOrigin = Context::instance().getGeoreferenceOrigin();
+
+        _viewStates.clear();
+        _viewStates.emplace_back(
+            UsdUtil::computeViewState(georeferenceOrigin, _tilesetPath, viewMatrix, projMatrix, width, height));
+
+        _pViewUpdateResult = &_tileset->updateView(_viewStates);
     }
 
     if (!_pViewUpdateResult) {
