@@ -161,7 +161,7 @@ function(setup_usd_python_lib)
             PRIVATE
             MFB_PACKAGE_NAME=${_TARGET_NAME}
             MFB_ALT_PACKAGE_NAME=${_TARGET_NAME}
-            MFB_PACKAGE_MODULE=cesiumUsdSchemas.${_PYTHON_MODULE_NAME}
+            MFB_PACKAGE_MODULE=${_TARGET_NAME}.${_PYTHON_MODULE_NAME}
             )
 
     target_link_libraries(${_PREFIXED_TARGET_NAME} PRIVATE ${_LIBRARIES})
