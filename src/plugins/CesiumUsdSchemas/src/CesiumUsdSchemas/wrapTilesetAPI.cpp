@@ -130,6 +130,13 @@ _CreateSuspendUpdateAttr(CesiumTilesetAPI &self,
     return self.CreateSuspendUpdateAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
+        
+static UsdAttribute
+_CreateSmoothNormalsAttr(CesiumTilesetAPI &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateSmoothNormalsAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+}
 
 static std::string
 _Repr(const CesiumTilesetAPI &self)
@@ -275,6 +282,13 @@ void wrapCesiumTilesetAPI()
              &This::GetSuspendUpdateAttr)
         .def("CreateSuspendUpdateAttr",
              &_CreateSuspendUpdateAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetSmoothNormalsAttr",
+             &This::GetSmoothNormalsAttr)
+        .def("CreateSmoothNormalsAttr",
+             &_CreateSmoothNormalsAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 

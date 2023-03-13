@@ -27,16 +27,16 @@ WRAP_CUSTOM;
 
         
 static UsdAttribute
-_CreateDefaultProjectIonAccessTokenAttr(CesiumData &self,
+_CreateProjectDefaultIonAccessTokenAttr(CesiumData &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateDefaultProjectIonAccessTokenAttr(
+    return self.CreateProjectDefaultIonAccessTokenAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
-_CreateDefaultProjectIonAccessTokenIdAttr(CesiumData &self,
+_CreateProjectDefaultIonAccessTokenIdAttr(CesiumData &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateDefaultProjectIonAccessTokenIdAttr(
+    return self.CreateProjectDefaultIonAccessTokenIdAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
@@ -103,17 +103,17 @@ void wrapCesiumData()
         .def(!self)
 
         
-        .def("GetDefaultProjectIonAccessTokenAttr",
-             &This::GetDefaultProjectIonAccessTokenAttr)
-        .def("CreateDefaultProjectIonAccessTokenAttr",
-             &_CreateDefaultProjectIonAccessTokenAttr,
+        .def("GetProjectDefaultIonAccessTokenAttr",
+             &This::GetProjectDefaultIonAccessTokenAttr)
+        .def("CreateProjectDefaultIonAccessTokenAttr",
+             &_CreateProjectDefaultIonAccessTokenAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetDefaultProjectIonAccessTokenIdAttr",
-             &This::GetDefaultProjectIonAccessTokenIdAttr)
-        .def("CreateDefaultProjectIonAccessTokenIdAttr",
-             &_CreateDefaultProjectIonAccessTokenIdAttr,
+        .def("GetProjectDefaultIonAccessTokenIdAttr",
+             &This::GetProjectDefaultIonAccessTokenIdAttr)
+        .def("CreateProjectDefaultIonAccessTokenIdAttr",
+             &_CreateProjectDefaultIonAccessTokenIdAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         

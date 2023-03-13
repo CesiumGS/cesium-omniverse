@@ -4,8 +4,6 @@ PXR_NAMESPACE_OPEN_SCOPE
 
 CesiumTokensType::CesiumTokensType() :
     cesiumCulledScreenSpaceError("cesium:culledScreenSpaceError", TfToken::Immortal),
-    cesiumDefaultProjectIonAccessToken("cesium:defaultProjectIonAccessToken", TfToken::Immortal),
-    cesiumDefaultProjectIonAccessTokenId("cesium:defaultProjectIonAccessTokenId", TfToken::Immortal),
     cesiumEnableFogCulling("cesium:enableFogCulling", TfToken::Immortal),
     cesiumEnableFrustumCulling("cesium:enableFrustumCulling", TfToken::Immortal),
     cesiumEnforceCulledScreenSpaceError("cesium:enforceCulledScreenSpaceError", TfToken::Immortal),
@@ -21,12 +19,13 @@ CesiumTokensType::CesiumTokensType() :
     cesiumMaximumSimultaneousTileLoads("cesium:maximumSimultaneousTileLoads", TfToken::Immortal),
     cesiumPreloadAncestors("cesium:preloadAncestors", TfToken::Immortal),
     cesiumPreloadSiblings("cesium:preloadSiblings", TfToken::Immortal),
+    cesiumProjectDefaultIonAccessToken("cesium:projectDefaultIonAccessToken", TfToken::Immortal),
+    cesiumProjectDefaultIonAccessTokenId("cesium:projectDefaultIonAccessTokenId", TfToken::Immortal),
+    cesiumSmoothNormals("cesium:smoothNormals", TfToken::Immortal),
     cesiumSuspendUpdate("cesium:suspendUpdate", TfToken::Immortal),
     cesiumUrl("cesium:url", TfToken::Immortal),
     allTokens({
         cesiumCulledScreenSpaceError,
-        cesiumDefaultProjectIonAccessToken,
-        cesiumDefaultProjectIonAccessTokenId,
         cesiumEnableFogCulling,
         cesiumEnableFrustumCulling,
         cesiumEnforceCulledScreenSpaceError,
@@ -42,6 +41,9 @@ CesiumTokensType::CesiumTokensType() :
         cesiumMaximumSimultaneousTileLoads,
         cesiumPreloadAncestors,
         cesiumPreloadSiblings,
+        cesiumProjectDefaultIonAccessToken,
+        cesiumProjectDefaultIonAccessTokenId,
+        cesiumSmoothNormals,
         cesiumSuspendUpdate,
         cesiumUrl
     })

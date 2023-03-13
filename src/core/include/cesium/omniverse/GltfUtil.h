@@ -29,7 +29,8 @@ pxr::VtArray<pxr::GfVec3f> getPrimitiveNormals(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     const pxr::VtArray<pxr::GfVec3f>& positions,
-    const pxr::VtArray<int>& indices);
+    const pxr::VtArray<int>& indices,
+    bool smoothNormals);
 
 pxr::VtArray<pxr::GfVec2f>
 getPrimitiveUVs(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);
@@ -45,7 +46,7 @@ std::optional<uint64_t> getBaseColorTextureIndex(const CesiumGltf::Model& model,
 bool getDoubleSided(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
 pxr::VtArray<pxr::GfVec2f>
-getRasterOverlayUVs(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);
+getImageryUVs(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);
 
 const CesiumGltf::ImageCesium& getImageCesium(const CesiumGltf::Model& model, const CesiumGltf::Texture& texture);
 

@@ -43,14 +43,6 @@ struct CesiumTokensType {
     /// 
     /// CesiumTilesetAPI
     const TfToken cesiumCulledScreenSpaceError;
-    /// \brief "cesium:defaultProjectIonAccessToken"
-    /// 
-    /// CesiumData
-    const TfToken cesiumDefaultProjectIonAccessToken;
-    /// \brief "cesium:defaultProjectIonAccessTokenId"
-    /// 
-    /// CesiumData
-    const TfToken cesiumDefaultProjectIonAccessTokenId;
     /// \brief "cesium:enableFogCulling"
     /// 
     /// CesiumTilesetAPI
@@ -81,11 +73,11 @@ struct CesiumTokensType {
     const TfToken cesiumGeoreferenceOriginLongitude;
     /// \brief "cesium:ionAccessToken"
     /// 
-    /// CesiumRasterOverlay, CesiumTilesetAPI
+    /// CesiumImagery, CesiumTilesetAPI
     const TfToken cesiumIonAccessToken;
     /// \brief "cesium:ionAssetId"
     /// 
-    /// CesiumRasterOverlay, CesiumTilesetAPI
+    /// CesiumImagery, CesiumTilesetAPI
     const TfToken cesiumIonAssetId;
     /// \brief "cesium:loadingDescendantLimit"
     /// 
@@ -111,6 +103,18 @@ struct CesiumTokensType {
     /// 
     /// CesiumTilesetAPI
     const TfToken cesiumPreloadSiblings;
+    /// \brief "cesium:projectDefaultIonAccessToken"
+    /// 
+    /// CesiumData
+    const TfToken cesiumProjectDefaultIonAccessToken;
+    /// \brief "cesium:projectDefaultIonAccessTokenId"
+    /// 
+    /// CesiumData
+    const TfToken cesiumProjectDefaultIonAccessTokenId;
+    /// \brief "cesium:smoothNormals"
+    /// 
+    /// CesiumTilesetAPI
+    const TfToken cesiumSmoothNormals;
     /// \brief "cesium:suspendUpdate"
     /// 
     /// CesiumTilesetAPI

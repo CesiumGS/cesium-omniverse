@@ -1,8 +1,10 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.22)
 
-# Tell CMake not to set CC and CXX flags. We'll do this ourselves
-# https://cmake.org/cmake/help/latest/policy/CMP0132.html
-cmake_policy(SET CMP0132 NEW)
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.24.0")
+    # Tell CMake not to set CC and CXX flags. We'll do this ourselves
+    # https://cmake.org/cmake/help/latest/policy/CMP0132.html
+    cmake_policy(SET CMP0132 NEW)
+endif()
 
 # Both CXX and C need to be given otherwise Conan may ignore the CMAKE_C_COMPILER flag
 project(
@@ -17,7 +19,7 @@ set(ENV{CXX} ${CMAKE_CXX_COMPILER})
 
 # Ensure that all packages are built in the same .conan directory
 # Windows Long Paths must be enabled. See instructions in README.
-if(MSVC)
+if(WIN32)
     set(ENV{CONAN_USER_HOME_SHORT} "None")
 endif()
 
@@ -77,7 +79,6 @@ option(CESIUM_OMNI_ENABLE_TESTS "Unit tests" ON)
 option(CESIUM_OMNI_ENABLE_DOCUMENTATION "Generate HTML documentation with Doxygen" ON)
 option(CESIUM_OMNI_ENABLE_SANITIZERS "Check for undefined behavior at runtime" OFF)
 option(CESIUM_OMNI_ENABLE_LINTERS "Enable clang-format for code formatting and clang-tidy for static code analysis" ON)
-option(CESIUM_OMNI_ENABLE_OMNIPBR "Use OmniPBR for Materials" ON)
 
 # Coverage can only be enabled if tests are also enabled
 cmake_dependent_option(
@@ -357,10 +358,6 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQ
     set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} _GLIBCXX_USE_CXX11_ABI=0)
 endif()
 
-if(CESIUM_OMNI_ENABLE_OMNIPBR)
-    set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} CESIUM_OMNI_USE_OMNIPBR)
-endif()
-
 set(CESIUM_OMNI_CXX_FLAGS
     ${CESIUM_OMNI_CXX_FLAGS}
     CACHE STRING "Compiler flags to use." FORCE)
@@ -594,6 +591,31 @@ install(
 
 install(
     TARGETS CesiumOmniversePythonBindings
+            RUNTIME_DEPENDENCIES
+            DIRECTORIES
+            ${INSTALL_SEARCH_PATHS}
+            PRE_EXCLUDE_REGEXES
+            ${INSTALL_PRE_EXCLUDE_REGEXES}
+            POST_EXCLUDE_REGEXES
+            ${INSTALL_POST_EXCLUDE_REGEXES}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            COMPONENT library
+            EXCLUDE_FROM_ALL
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            COMPONENT library
+            EXCLUDE_FROM_ALL
+    RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            COMPONENT library
+            EXCLUDE_FROM_ALL)
+
+install(
+    TARGETS _cesiumUsdSchemas
+    ARCHIVE DESTINATION "${KIT_EXTENSION_BINDINGS_PATH}/CesiumUsdSchemas" COMPONENT install
+    LIBRARY DESTINATION "${KIT_EXTENSION_BINDINGS_PATH}/CesiumUsdSchemas" COMPONENT install
+    RUNTIME DESTINATION "${KIT_EXTENSION_BINDINGS_PATH}/CesiumUsdSchemas" COMPONENT install)
+
+install(
+    TARGETS _cesiumUsdSchemas
             RUNTIME_DEPENDENCIES
             DIRECTORIES
             ${INSTALL_SEARCH_PATHS}

@@ -121,7 +121,7 @@ class CesiumOmniverseTokenWindow(ui.Window):
         cesium_prim = stage.GetPrimAtPath("/Cesium")
 
         if cesium_prim.IsValid():
-            current_token = cesium_prim.GetAttribute("cesium:defaultProjectToken").Get()
+            current_token = cesium_prim.GetAttribute("cesium:projectDefaultIonAccessToken").Get()
             self._specify_token_field_model = ui.SimpleStringModel(current_token if current_token is not None else "")
         else:
             self._specify_token_field_model = ui.SimpleStringModel()

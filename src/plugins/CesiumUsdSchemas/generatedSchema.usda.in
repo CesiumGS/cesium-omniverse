@@ -12,14 +12,6 @@ class CesiumDataPrim "CesiumDataPrim" (
     doc = "Stores stage level data for Cesium for Omniverse/USD."
 )
 {
-    string cesium:defaultProjectIonAccessToken = "" (
-        displayName = "Default Project ion Access Token"
-        doc = "A string representing the token for accessing Cesium ion assets."
-    )
-    string cesium:defaultProjectIonAccessTokenId = "" (
-        displayName = "Default Project ion Access Token ID"
-        doc = "A string representing the token ID for accessing Cesium ion assets."
-    )
     double cesium:georeferenceOrigin:height = 2250 (
         displayName = "Georeference Origin Height"
         doc = "The height of the origin in meters above the WGS84 ellipsoid. Do not confuse this with a geoid height or height above mean sea level, which can be tens of meters higher or lower depending on where in the world the origin is located."
@@ -31,6 +23,14 @@ class CesiumDataPrim "CesiumDataPrim" (
     double cesium:georeferenceOrigin:longitude = -105.25737 (
         displayName = "Georeference Origin Longitude"
         doc = "The longitude of the origin in degrees, in the range [-180, 180]."
+    )
+    string cesium:projectDefaultIonAccessToken = "" (
+        displayName = "Project default ion Access Token"
+        doc = "A string representing the token for accessing Cesium ion assets."
+    )
+    string cesium:projectDefaultIonAccessTokenId = "" (
+        displayName = "Project default ion Access Token ID"
+        doc = "A string representing the token ID for accessing Cesium ion assets."
     )
 }
 
@@ -60,7 +60,7 @@ class "CesiumTilesetSchemaAPI" (
     )
     string cesium:ionAccessToken = "" (
         displayName = "ion Access Token"
-        doc = "The access token to use to access the Cesium ion resource. Overrides the default project token. Blank if using URL."
+        doc = "The access token to use to access the Cesium ion resource. Overrides the default token. Blank if using URL."
     )
     int64 cesium:ionAssetId = 0 (
         displayName = "ion Asset ID"
@@ -90,6 +90,10 @@ class "CesiumTilesetSchemaAPI" (
         displayName = "Preload Siblings"
         doc = "Whether to preload sibling tiles. Setting this to true causes tiles with the same parent as a rendered tile to be loaded, even if they are culled. Setting this to true may provide a better panning experience at the cost of loading more tiles."
     )
+    bool cesium:smoothNormals = 0 (
+        displayName = "Smooth Normals"
+        doc = "Generate smooth normals instead of flat normals when normals are missing."
+    )
     bool cesium:suspendUpdate = 0 (
         displayName = "Suspend Update"
         doc = "Pauses level-of-detail and culling updates of this tileset."
@@ -100,13 +104,13 @@ class "CesiumTilesetSchemaAPI" (
     )
 }
 
-class CesiumRasterOverlayPrim "CesiumRasterOverlayPrim" (
-    doc = "Adds a prim for representing a raster overlay. Should be a child of a tileset."
+class CesiumImageryPrim "CesiumImageryPrim" (
+    doc = "Adds a prim for representing an imagery layer. Should be a child of a tileset."
 )
 {
     string cesium:ionAccessToken = "" (
         displayName = "ion Access Token"
-        doc = "The access token to use to access the Cesium ion resource. Overrides the default project token. Blank if using URL."
+        doc = "The access token to use to access the Cesium ion resource. Overrides the default token. Blank if using URL."
     )
     int64 cesium:ionAssetId = 0 (
         displayName = "ion Asset ID"

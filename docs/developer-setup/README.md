@@ -10,7 +10,6 @@
   - [Windows](#windows-1)
   - [Docker](#docker)
   - [Advanced build options](#advanced-build-options)
-  - [CMake Options](#cmake-options)
 - [Unit Tests](#unit-tests)
 - [Coverage](#coverage)
 - [Documentation](#documentation)
@@ -35,7 +34,7 @@ See [Linux](#linux) or [Windows](#windows) for step-by-step installation instruc
 - Linux (Ubuntu 22.04+ or equivalent) or Windows
 - Clang 14+, GCC 9+, or Visual Studio 2022+
 - Python 3.7+ - For Conan and scripts
-- CMake 3.24+ - Build system generator
+- CMake 3.22+ - Build system generator
 - Make - Build system (Linux only)
 - Conan - Third party C++ library management
 - gcovr - Code coverage (Linux only)
@@ -124,10 +123,6 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
   ```sh
   New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
   ```
-- Enable MSVC build parallelization. Open PowerShell as administartor and enter:
-  ```sh
-  [Environment]::SetEnvironmentVariable("UseMultiToolTask", "true", "Machine")
-  ```
 - Then refresh PowerShell so that newly added dependencies are available in the path.
   ```sh
   refreshenv
@@ -169,10 +164,6 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
   ```sh
   New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
   ```
-- Enable MSVC build parallelization. Open PowerShell as administartor and enter:
-  ```sh
-  [Environment]::SetEnvironmentVariable("UseMultiToolTask", "true", "Machine")
-  ```
 - Then refresh PowerShell so that newly added dependencies are available in the path.
   ```sh
   refreshenv
@@ -210,8 +201,8 @@ Binaries will be written to `build/bin`. Shared libraries and static libraries w
 
 ```sh
 cmake -B build
-cmake --build build --config Release
-cmake --build build --config Debug
+cmake --build build --config Release --parallel 8
+cmake --build build --config Debug --parallel 8
 ```
 
 Binaries and shared libraries will be written to `build/bin/Release`. Static libraries and python modules will be written to `build/lib/Release`.
@@ -244,8 +235,6 @@ For faster builds, use the `--parallel` option
 cmake -B build
 cmake --build build --parallel 8
 ```
-
-> **Note:** This option does not work for MSVC builds (see https://gitlab.kitware.com/cmake/cmake/-/issues/20564). Do not use the `--parallel` option since it will override the `UseMultiToolTask` environment variable and revert back to single-threaded compilation.
 
 To use a specific C/C++ compiler, set `CMAKE_CXX_COMPILER` and `CMAKE_C_COMPILER`
 
@@ -297,27 +286,6 @@ Ninja is also supported as an alternative to the MSVC generator. To build with N
 ```
 cmake -B build -D CMAKE_C_COMPILER=cl -D CMAKE_CXX_COMPILER=cl -G "Ninja Multi-Config"
 cmake --build build --config Release --parallel 8
-```
-
-### CMake Options
-
-The following CMake options are available for configuring the project.
-
-| Option                            | Description                                                                                                 | Default |
-| --------------------------------- | ----------------------------------------------------------------------------------------------------------- | ------- |
-| `CESIUM_OMNI_ENABLE_TESTS`             | Unit tests                                                                                                  | `ON`    |
-| `CESIUM_OMNI_ENABLE_COVERAGE`          | Code coverage for checking the thoroughness of unit tests - only available if `CESIUM_OMNI_ENABLE_TESTS` is `ON` | `ON`    |
-| `CESIUM_OMNI_ENABLE_DOCUMENTATION`     | Generate HTML documentation with Doxygen                                                                    | `ON`    |
-| `CESIUM_OMNI_ENABLE_SANITIZERS`        | Check for undefined behavior at runtime                                                                     | `OFF`   |
-| `CESIUM_OMNI_ENABLE_LINTERS`           | Enable `clang-format` for code formatting and `clang-tidy` for static code analysis                         | `ON`    |
-| `CESIUM_OMNI_ENABLE_LINTERS_ON_BUILD`  | Check linting during the build - only available if `CESIUM_OMNI_ENABLE_LINTERS` is `ON`                          | `OFF`   |
-| `CESIUM_OMNI_ENABLE_LINTERS_ON_COMMIT` | Check formatting and linting before committing code - only available if `CESIUM_OMNI_ENABLE_LINTERS` is `ON`     | `OFF`   |
-
-For example, to disable unit tests, run
-
-```sh
-cmake -B build -D CESIUM_OMNI_ENABLE_TESTS=OFF
-cmake --build build
 ```
 
 ## Unit Tests

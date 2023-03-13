@@ -26,7 +26,7 @@ class FabricPrepareRenderResources;
 
 class OmniTileset {
   public:
-    OmniTileset(int64_t tilesetId, const pxr::SdfPath& tilesetPath);
+    OmniTileset(const pxr::SdfPath& tilesetPath);
     ~OmniTileset();
 
     pxr::SdfPath getPath() const;
@@ -46,17 +46,17 @@ class OmniTileset {
     bool getEnforceCulledScreenSpaceError() const;
     float getCulledScreenSpaceError() const;
     bool getSuspendUpdate() const;
+    bool getSmoothNormals() const;
 
-    int64_t getId() const;
-    int64_t getNextTileId() const;
+    int64_t getTilesetId() const;
 
     void reload();
-    void addIonRasterOverlay(const pxr::SdfPath& rasterOverlayPath);
-    void onUpdateFrame(const std::vector<Cesium3DTilesSelection::ViewState>& viewStates);
+    void addImageryIon(const pxr::SdfPath& imageryPath);
+    void onUpdateFrame(const glm::dmat4& viewMatrix, const glm::dmat4& projMatrix, double width, double height);
 
   private:
     void updateTransform();
-    void updateView(const std::vector<Cesium3DTilesSelection::ViewState>& viewStates);
+    void updateView(const glm::dmat4& viewMatrix, const glm::dmat4& projMatrix, double width, double height);
 
     std::unique_ptr<Cesium3DTilesSelection::Tileset> _tileset;
     std::shared_ptr<FabricPrepareRenderResources> _renderResourcesPreparer;
@@ -64,7 +64,7 @@ class OmniTileset {
 
     pxr::SdfPath _tilesetPath;
     int64_t _tilesetId;
-    mutable std::atomic<int64_t> _tileId{};
     glm::dmat4 _ecefToUsdTransform;
+    std::vector<Cesium3DTilesSelection::ViewState> _viewStates;
 };
 } // namespace cesium::omniverse

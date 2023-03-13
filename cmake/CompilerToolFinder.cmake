@@ -43,5 +43,4 @@ function(get_compiler_tool_with_correct_version)
     set(${_RESULT_TOOL_PATH}
         "${search_path}"
         PARENT_SCOPE)
-
 endfunction()

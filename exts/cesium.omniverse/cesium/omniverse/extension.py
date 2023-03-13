@@ -5,6 +5,7 @@ from .ui.debug_window import CesiumOmniverseDebugWindow
 from .ui.main_window import CesiumOmniverseMainWindow
 from .ui.credits_viewport_frame import CesiumCreditsViewportFrame
 from .models import AssetToAdd, ImageryToAdd
+from .ui import CesiumAttributesWidgetController
 import asyncio
 from functools import partial
 import logging
@@ -61,6 +62,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._assets_to_add_after_token_set: List[AssetToAdd] = []
         self._imagery_to_add_after_token_set: List[ImageryToAdd] = []
         self._adding_assets = False
+        self._attributes_widget_controller: Optional[CesiumAttributesWidgetController] = None
         self._logger: logging.Logger = logging.getLogger(__name__)
         self._menu = None
 
@@ -193,6 +195,10 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             self._show_asset_window_subscription.unsubscribe()
             self._show_asset_window_subscription = None
 
+        if self._attributes_widget_controller is not None:
+            self._attributes_widget_controller.destroy()
+            self._attributes_widget_controller = None
+
         self._logger.info("CesiumOmniverse shutdown")
 
         # Release the Cesium Omniverse interface.
@@ -214,8 +220,11 @@ class CesiumOmniverseExtension(omni.ext.IExt):
 
         if event.type == int(omni.usd.StageEventType.OPENED):
             _cesium_omniverse_interface.on_stage_change(omni.usd.get_context().get_stage_id())
+            self._attributes_widget_controller = CesiumAttributesWidgetController(_cesium_omniverse_interface)
         elif event.type == int(omni.usd.StageEventType.CLOSED):
             _cesium_omniverse_interface.on_stage_change(0)
+            self._attributes_widget_controller.destroy()
+            self._attributes_widget_controller = None
 
     def _on_show_asset_window_event(self, _):
         self.do_show_assets_window()
@@ -265,21 +274,21 @@ class CesiumOmniverseExtension(omni.ext.IExt):
                 self._assets_to_add_after_token_set.append(asset_to_add)
                 return
 
-        if asset_to_add.imagery_name is not None and asset_to_add.imagery_ion_id is not None:
-            tileset_id = _cesium_omniverse_interface.add_tileset_and_raster_overlay(
+        if asset_to_add.imagery_name is not None and asset_to_add.imagery_ion_asset_id is not None:
+            tileset_path = _cesium_omniverse_interface.add_tileset_and_imagery(
                 asset_to_add.tileset_name,
-                asset_to_add.tileset_ion_id,
+                asset_to_add.tileset_ion_asset_id,
                 asset_to_add.imagery_name,
-                asset_to_add.imagery_ion_id,
+                asset_to_add.imagery_ion_asset_id,
             )
         else:
-            tileset_id = _cesium_omniverse_interface.add_tileset_ion(
-                asset_to_add.tileset_name, asset_to_add.tileset_ion_id
+            tileset_path = _cesium_omniverse_interface.add_tileset_ion(
+                asset_to_add.tileset_name, asset_to_add.tileset_ion_asset_id
             )
 
-        if tileset_id == -1:
+        if tileset_path != "":
             # TODO: Open token troubleshooter.
-            self._logger.warning("Error adding tileset and raster overlay to stage")
+            self._logger.warning("Error adding tileset and imagery to stage")
 
     def _on_add_imagery_to_tileset(self, event: carb.events.IEvent):
         imagery_to_add = ImageryToAdd.from_event(event)
@@ -303,10 +312,10 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             self._imagery_to_add_after_token_set.append(imagery_to_add)
             return
 
-        _cesium_omniverse_interface.add_ion_raster_overlay(
-            imagery_to_add.tileset_ion_id, imagery_to_add.imagery_name, imagery_to_add.imagery_ion_id
+        _cesium_omniverse_interface.add_ion_imagery(
+            imagery_to_add.tileset_path, imagery_to_add.imagery_name, imagery_to_add.imagery_ion_asset_id
         )
-        _cesium_omniverse_interface.reload_tileset(imagery_to_add.tileset_ion_id)
+        _cesium_omniverse_interface.reload_tileset(imagery_to_add.tileset_path)
 
     def _add_to_menu(self, path, callback: Callable[[bool], None], show_on_startup):
         editor_menu = omni.kit.ui.get_editor_menu()
