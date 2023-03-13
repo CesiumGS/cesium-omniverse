@@ -143,8 +143,6 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             add_imagery_event, self._on_add_imagery_to_tileset
         )
 
-        self._attributes_widget_controller = CesiumAttributesWidgetController(_cesium_omniverse_interface)
-
     def on_shutdown(self):
         self._menu = None
 
@@ -222,8 +220,11 @@ class CesiumOmniverseExtension(omni.ext.IExt):
 
         if event.type == int(omni.usd.StageEventType.OPENED):
             _cesium_omniverse_interface.on_stage_change(omni.usd.get_context().get_stage_id())
+            self._attributes_widget_controller = CesiumAttributesWidgetController(_cesium_omniverse_interface)
         elif event.type == int(omni.usd.StageEventType.CLOSED):
             _cesium_omniverse_interface.on_stage_change(0)
+            self._attributes_widget_controller.destroy()
+            self._attributes_widget_controller = None
 
     def _on_show_asset_window_event(self, _):
         self.do_show_assets_window()
