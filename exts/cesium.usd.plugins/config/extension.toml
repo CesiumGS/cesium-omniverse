@@ -8,8 +8,8 @@ version = "0.1.0"
 category = "simulation"
 feature = false
 app = false
-title = "Cesium for Omniverse"
-description = "High-accuracy full-scale WGS84 globe for Omniverse"
+title = "Cesium for Omniverse USD Plugins"
+description = "Supporting USD Plugins for Cesium for Omniverse"
 authors = "Cesium GS Inc."
 repository = "https://github.com/CesiumGS/cesium-omniverse"
 keywords = [
@@ -31,21 +31,15 @@ icon = "doc/images/icon.png"
 
 # Which extensions this extension depends on
 [dependencies]
-"cesium.usd.plugins" = {}
 "usdrt.scenegraph" = {}
-"omni.ui.scene" = {}
 "omni.usd.libs" = {}
-"omni.kit.pipapi" = {}
-"omni.kit.uiapp" = {}
-"omni.kit.viewport.utility" = {}
 
 # Main python module this extension provides, it will be publicly available as "import cesium.omniverse"
 [[python.module]]
-name = "cesium.omniverse"
+name = "cesium.usd.plugins"
 
-[[native.plugin]]
-path = "bin/cesium.omniverse.plugin"
+[[native.library]]
+path = "bin/${lib_prefix}InMemoryAssetResolver${lib_ext}"
 
-[settings]
-exts."cesium.omniverse".defaultAccessToken = ""
-persistent.exts."cesium.omniverse".userAccessToken = ""
+[[native.library]]
+path = "bin/${lib_prefix}CesiumUsdSchemas${lib_ext}"
