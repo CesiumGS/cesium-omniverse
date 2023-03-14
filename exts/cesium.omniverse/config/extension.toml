@@ -26,8 +26,8 @@ keywords = [
 # Paths are relative to the extension folder
 changelog = "doc/CHANGES.md"
 readme = "doc/README.md"
-preview_image = "doc/images/preview.jpg"
-icon = "doc/images/icon.png"
+preview_image = "doc/resources/preview.jpg"
+icon = "doc/resources/icon.png"
 
 # Which extensions this extension depends on
 [dependencies]
