@@ -60,11 +60,11 @@ class "CesiumTilesetSchemaAPI" (
     )
     string cesium:ionAccessToken = "" (
         displayName = "ion Access Token"
-        doc = "The access token to use to access the Cesium ion resource. Overrides the default token. Blank if using URL."
+        doc = "The access token to use to access the Cesium ion resource. Overrides the default token. Usually blank if using URL."
     )
     int64 cesium:ionAssetId = 0 (
         displayName = "ion Asset ID"
-        doc = "The ID of the Cesium ion asset to use. Blank if using URL."
+        doc = "The ID of the Cesium ion asset to use. Usually blank if using URL."
     )
     uint cesium:loadingDescendantLimit = 20 (
         displayName = "Loading Descendant Limit"
@@ -94,13 +94,18 @@ class "CesiumTilesetSchemaAPI" (
         displayName = "Smooth Normals"
         doc = "Generate smooth normals instead of flat normals when normals are missing."
     )
+    uniform token cesium:sourceType = "ion" (
+        allowedTokens = ["ion", "url"]
+        displayName = "Source Type"
+        doc = "Selects whether to use the Cesium ion Asset ID or the provided URL for this tileset."
+    )
     bool cesium:suspendUpdate = 0 (
         displayName = "Suspend Update"
         doc = "Pauses level-of-detail and culling updates of this tileset."
     )
     string cesium:url = "" (
         displayName = "URL"
-        doc = "The URL of this tileset's tileset.json file. Blank if this is an ion asset."
+        doc = "The URL of this tileset's tileset.json file. Usually blank if this is an ion asset."
     )
 }
 

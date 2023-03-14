@@ -22,8 +22,11 @@ CesiumTokensType::CesiumTokensType() :
     cesiumProjectDefaultIonAccessToken("cesium:projectDefaultIonAccessToken", TfToken::Immortal),
     cesiumProjectDefaultIonAccessTokenId("cesium:projectDefaultIonAccessTokenId", TfToken::Immortal),
     cesiumSmoothNormals("cesium:smoothNormals", TfToken::Immortal),
+    cesiumSourceType("cesium:sourceType", TfToken::Immortal),
     cesiumSuspendUpdate("cesium:suspendUpdate", TfToken::Immortal),
     cesiumUrl("cesium:url", TfToken::Immortal),
+    ion("ion", TfToken::Immortal),
+    url("url", TfToken::Immortal),
     allTokens({
         cesiumCulledScreenSpaceError,
         cesiumEnableFogCulling,
@@ -44,8 +47,11 @@ CesiumTokensType::CesiumTokensType() :
         cesiumProjectDefaultIonAccessToken,
         cesiumProjectDefaultIonAccessTokenId,
         cesiumSmoothNormals,
+        cesiumSourceType,
         cesiumSuspendUpdate,
-        cesiumUrl
+        cesiumUrl,
+        ion,
+        url
     })
 {
 }

@@ -21,6 +21,7 @@ class CesiumTilesetAttributesWidget(SchemaPropertiesWidget):
 
         with frame:
             with CustomLayoutGroup("Source"):
+                CustomLayoutProperty("cesium:sourceType")
                 CustomLayoutProperty("cesium:ionAssetId")
                 CustomLayoutProperty("cesium:ionAccessToken")
                 CustomLayoutProperty("cesium:url")

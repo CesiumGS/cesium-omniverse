@@ -27,6 +27,13 @@ WRAP_CUSTOM;
 
         
 static UsdAttribute
+_CreateSourceTypeAttr(CesiumTilesetAPI &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateSourceTypeAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Token), writeSparsely);
+}
+        
+static UsdAttribute
 _CreateUrlAttr(CesiumTilesetAPI &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateUrlAttr(
@@ -179,6 +186,13 @@ void wrapCesiumTilesetAPI()
 
         .def(!self)
 
+        
+        .def("GetSourceTypeAttr",
+             &This::GetSourceTypeAttr)
+        .def("CreateSourceTypeAttr",
+             &_CreateSourceTypeAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
         
         .def("GetUrlAttr",
              &This::GetUrlAttr)
