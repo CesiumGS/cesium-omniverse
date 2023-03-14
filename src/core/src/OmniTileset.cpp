@@ -43,6 +43,19 @@ std::string OmniTileset::getName() const {
     return tileset.GetPrim().GetName().GetString();
 }
 
+TilesetSourceType OmniTileset::getSourceType() const {
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+
+    pxr::TfToken sourceType;
+    tileset.GetSourceTypeAttr().Get<pxr::TfToken>(&sourceType);
+    
+    if (sourceType == pxr::CesiumTokens->url) {
+        return TilesetSourceType::URL;
+    }
+
+    return TilesetSourceType::ION;
+}
+
 std::string OmniTileset::getUrl() const {
     auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
@@ -244,7 +257,7 @@ void OmniTileset::reload() {
 
     _pViewUpdateResult = nullptr;
 
-    if (!url.empty()) {
+    if (getSourceType() == TilesetSourceType::URL) {
         _tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(externals, url, options);
     } else if (!ionAccessToken.has_value()) {
         // This happens when adding a blank tileset.
