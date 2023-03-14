@@ -5,6 +5,7 @@ from .ui.debug_window import CesiumOmniverseDebugWindow
 from .ui.main_window import CesiumOmniverseMainWindow
 from .ui.credits_viewport_frame import CesiumCreditsViewportFrame
 from .models import AssetToAdd, ImageryToAdd
+from .ui import CesiumAttributesWidgetController
 import asyncio
 from functools import partial
 import logging
@@ -61,6 +62,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._assets_to_add_after_token_set: List[AssetToAdd] = []
         self._imagery_to_add_after_token_set: List[ImageryToAdd] = []
         self._adding_assets = False
+        self._attributes_widget_controller: Optional[CesiumAttributesWidgetController] = None
         self._logger: logging.Logger = logging.getLogger(__name__)
         self._menu = None
 
@@ -193,6 +195,10 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             self._show_asset_window_subscription.unsubscribe()
             self._show_asset_window_subscription = None
 
+        if self._attributes_widget_controller is not None:
+            self._attributes_widget_controller.destroy()
+            self._attributes_widget_controller = None
+
         self._logger.info("CesiumOmniverse shutdown")
 
         # Release the Cesium Omniverse interface.
@@ -214,8 +220,11 @@ class CesiumOmniverseExtension(omni.ext.IExt):
 
         if event.type == int(omni.usd.StageEventType.OPENED):
             _cesium_omniverse_interface.on_stage_change(omni.usd.get_context().get_stage_id())
+            self._attributes_widget_controller = CesiumAttributesWidgetController(_cesium_omniverse_interface)
         elif event.type == int(omni.usd.StageEventType.CLOSED):
             _cesium_omniverse_interface.on_stage_change(0)
+            self._attributes_widget_controller.destroy()
+            self._attributes_widget_controller = None
 
     def _on_show_asset_window_event(self, _):
         self.do_show_assets_window()
