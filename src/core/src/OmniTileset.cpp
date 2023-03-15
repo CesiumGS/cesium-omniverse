@@ -48,7 +48,7 @@ TilesetSourceType OmniTileset::getSourceType() const {
 
     pxr::TfToken sourceType;
     tileset.GetSourceTypeAttr().Get<pxr::TfToken>(&sourceType);
-    
+
     if (sourceType == pxr::CesiumTokens->url) {
         return TilesetSourceType::URL;
     }
