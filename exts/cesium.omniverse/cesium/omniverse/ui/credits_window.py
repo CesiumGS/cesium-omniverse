@@ -39,8 +39,6 @@ class CesiumOmniverseCreditsWindow(ui.Window):
         self.destroy()
 
     def destroy(self):
-        pass
-
         super().destroy()
 
     def _parse_element(self, element, link: Optional[str] = None):

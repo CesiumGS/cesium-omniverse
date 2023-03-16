@@ -1,8 +1,13 @@
 import logging
 import carb.events
 import omni.kit.app as app
+import omni.kit.pipapi
 import omni.ui as ui
 from omni.kit.viewport.utility import get_active_viewport_window
+import urllib.request
+import webbrowser
+from io import BytesIO
+from PIL import Image
 from typing import List, Optional
 from ..bindings import ICesiumOmniverseInterface
 from .credits_window import CesiumOmniverseCreditsWindow
@@ -22,6 +27,8 @@ class CesiumCreditsViewportFrame:
 
         self._subscriptions: List[carb.events.ISubscription] = []
         self._setup_subscriptions()
+
+        self._credits: List[(str, bool)] = []
 
         self._build_fn()
 
@@ -58,6 +65,70 @@ class CesiumCreditsViewportFrame:
                 self._logger.info("Hide Data Attribution")
             self._data_attribution_button.visible = credits_available
 
+        if self._data_attribution_button.visible:
+            new_credits = self._cesium_omniverse_interface.get_credits()
+            if new_credits is not None and len(self._credits) != len(new_credits):
+                self._logger.warning("UPDATE CREDITS")
+                self._credits.clear()
+                self._credits.extend(new_credits)
+                self._build_fn()
+        else:
+            self._credits.clear()
+
+    def _parse_element(self, element, link: Optional[str] = None):
+        tag = element.tag
+        if tag == "html" or tag == "body":
+            for child in element.iterchildren():
+                self._parse_element(child, link)
+        elif tag == "a":
+            # TODO: We probably need to do some sanitization of the href.
+            link = element.attrib["href"]
+            text = "".join(element.itertext())
+
+            if text != "":
+                ui.Button(text, height=0, width=0, clicked_fn=lambda: webbrowser.open(link))
+            for child in element.iterchildren():
+                self._parse_element(child, link)
+        elif tag == "img":
+            src = element.attrib["src"]
+            try:
+                data = urllib.request.urlopen(src).read()
+                img_data = BytesIO(data)
+                image = Image.open(img_data)
+                if image.mode != "RGBA":
+                    image = image.convert("RGBA")
+                pixels = list(image.getdata())
+                provider = ui.ByteImageProvider()
+                provider.set_bytes_data(pixels, [image.size[0], image.size[1]])
+                self._logger.error("HERE")
+                ui.ImageWithProvider(
+                    provider,
+                    width=image.size[0],
+                    height=image.size[1],
+                    fill_policy=ui.IwpFillPolicy.IWP_PRESERVE_ASPECT_FIT,
+                )
+            except Exception as e:
+                self._logger.warning(f"Failed to load image from url: {src}")
+                self._logger.error(e)
+
+            if link is not None:
+                link_title = element.attrib["alt"] if "alt" in element.attrib else link
+                ui.Button(link_title, clicked_fn=lambda: webbrowser.open(link), height=0, width=0)
+        elif tag == "span" or tag == "div":
+            for child in element.iterchildren():
+                self._parse_element(child, link)
+
+            # Sometimes divs or spans have text.
+            text = "".join(element.itertext())
+            if text:
+                ui.Label(text, height=0, word_wrap=True)
+        else:
+            text = "".join(element.itertext())
+            if link is None:
+                ui.Label(text, height=0, word_wrap=True)
+            else:
+                ui.Button(text, clicked_fn=lambda: webbrowser.open(link), height=0, width=0)
+
     def _on_data_attribution_button_clicked(self):
         self._credits_window = CesiumOmniverseCreditsWindow(self._cesium_omniverse_interface)
 
@@ -67,6 +138,29 @@ class CesiumCreditsViewportFrame:
                 ui.Spacer()
                 with ui.HStack(height=0):
                     ui.Spacer()
+
+                    try:
+                        omni.kit.pipapi.install("lxml==4.9.2")
+                        from lxml import etree
+
+                        parser = etree.HTMLParser()
+                        for credit, showOnScreen in self._credits:
+                            if credit == "" or showOnScreen is False:
+                                continue
+
+                            if credit[0] == "<":
+                                try:
+                                    doc = etree.fromstring(credit, parser)
+                                    self._parse_element(doc)
+                                    continue
+                                except etree.XMLSyntaxError as err:
+                                    self._logger.info(err)
+
+                            ui.Label(credit, height=0, word_wrap=True)
+
+                    except Exception as e:
+                        self._logger.error(e)
+
                     self._data_attribution_button = ui.Button(
                         "Data Attribution",
                         visible=False,
