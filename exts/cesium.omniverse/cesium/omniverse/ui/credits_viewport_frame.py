@@ -4,13 +4,12 @@ import omni.kit.app as app
 import omni.kit.pipapi
 import omni.ui as ui
 from omni.kit.viewport.utility import get_active_viewport_window
-import urllib.request
 import webbrowser
-from io import BytesIO
-from PIL import Image
 from typing import List, Optional
+from .uri_image import CesiumUriImage
 from ..bindings import ICesiumOmniverseInterface
 from .credits_window import CesiumOmniverseCreditsWindow
+from .image_button import CesiumImageButton
 
 
 class CesiumCreditsViewportFrame:
@@ -68,12 +67,12 @@ class CesiumCreditsViewportFrame:
         if self._data_attribution_button.visible:
             new_credits = self._cesium_omniverse_interface.get_credits()
             if new_credits is not None and len(self._credits) != len(new_credits):
-                self._logger.warning("UPDATE CREDITS")
                 self._credits.clear()
                 self._credits.extend(new_credits)
                 self._build_fn()
         else:
             self._credits.clear()
+            self._build_fn()
 
     def _parse_element(self, element, link: Optional[str] = None):
         tag = element.tag
@@ -91,29 +90,11 @@ class CesiumCreditsViewportFrame:
                 self._parse_element(child, link)
         elif tag == "img":
             src = element.attrib["src"]
-            try:
-                data = urllib.request.urlopen(src).read()
-                img_data = BytesIO(data)
-                image = Image.open(img_data)
-                if image.mode != "RGBA":
-                    image = image.convert("RGBA")
-                pixels = list(image.getdata())
-                provider = ui.ByteImageProvider()
-                provider.set_bytes_data(pixels, [image.size[0], image.size[1]])
-                self._logger.error("HERE")
-                ui.ImageWithProvider(
-                    provider,
-                    width=image.size[0],
-                    height=image.size[1],
-                    fill_policy=ui.IwpFillPolicy.IWP_PRESERVE_ASPECT_FIT,
-                )
-            except Exception as e:
-                self._logger.warning(f"Failed to load image from url: {src}")
-                self._logger.error(e)
-
-            if link is not None:
-                link_title = element.attrib["alt"] if "alt" in element.attrib else link
-                ui.Button(link_title, clicked_fn=lambda: webbrowser.open(link), height=0, width=0)
+            if link is None:
+                self._logger.warning("image")
+                CesiumUriImage(src=src)
+            else:
+                CesiumImageButton(src=src, clicked_fn=lambda: webbrowser.open(link))
         elif tag == "span" or tag == "div":
             for child in element.iterchildren():
                 self._parse_element(child, link)

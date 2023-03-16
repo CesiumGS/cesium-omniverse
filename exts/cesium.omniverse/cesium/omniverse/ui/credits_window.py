@@ -2,12 +2,11 @@ import logging
 import omni.kit.app as app
 import omni.ui as ui
 import omni.kit.pipapi
-import urllib.request
 import webbrowser
 from pathlib import Path
-from io import BytesIO
-from PIL import Image
 from typing import List, Optional
+from .image_button import CesiumImageButton
+from .uri_image import CesiumUriImage
 from ..bindings import ICesiumOmniverseInterface
 from .styles import CesiumOmniverseUiStyles
 
@@ -57,28 +56,11 @@ class CesiumOmniverseCreditsWindow(ui.Window):
                 self._parse_element(child, link)
         elif tag == "img":
             src = element.attrib["src"]
-            try:
-                data = urllib.request.urlopen(src).read()
-                img_data = BytesIO(data)
-                image = Image.open(img_data)
-                if image.mode != "RGBA":
-                    image = image.convert("RGBA")
-                pixels = list(image.getdata())
-                provider = ui.ByteImageProvider()
-                provider.set_bytes_data(pixels, [image.size[0], image.size[1]])
-                ui.ImageWithProvider(
-                    provider,
-                    width=image.size[0],
-                    height=image.size[1],
-                    fill_policy=ui.IwpFillPolicy.IWP_PRESERVE_ASPECT_FIT,
-                )
-            except Exception as e:
-                self._logger.warning(f"Failed to load image from url: {src}")
-                self._logger.error(e)
-
-            if link is not None:
-                link_title = element.attrib["alt"] if "alt" in element.attrib else link
-                ui.Button(link_title, clicked_fn=lambda: webbrowser.open(link), height=0, width=0)
+            self._logger.warning(link)
+            if link is None:
+                CesiumUriImage(src=src)
+            else:
+                CesiumImageButton(src=src, clicked_fn=lambda: webbrowser.open(link))
         elif tag == "span" or tag == "div":
             for child in element.iterchildren():
                 self._parse_element(child, link)
