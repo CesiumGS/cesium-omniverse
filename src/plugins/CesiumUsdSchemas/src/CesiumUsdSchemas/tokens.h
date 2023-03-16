@@ -115,6 +115,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumTilesetAPI
     const TfToken cesiumSmoothNormals;
+    /// \brief "cesium:sourceType"
+    /// 
+    /// CesiumTilesetAPI
+    const TfToken cesiumSourceType;
     /// \brief "cesium:suspendUpdate"
     /// 
     /// CesiumTilesetAPI
@@ -123,6 +127,14 @@ struct CesiumTokensType {
     /// 
     /// CesiumTilesetAPI
     const TfToken cesiumUrl;
+    /// \brief "ion"
+    /// 
+    /// Possible value for CesiumTilesetAPI::GetCesiumSourceTypeAttr(), Default value for CesiumTilesetAPI::GetCesiumSourceTypeAttr()
+    const TfToken ion;
+    /// \brief "url"
+    /// 
+    /// Possible value for CesiumTilesetAPI::GetCesiumSourceTypeAttr()
+    const TfToken url;
     /// A vector of all of the tokens listed above.
     const std::vector<TfToken> allTokens;
 };

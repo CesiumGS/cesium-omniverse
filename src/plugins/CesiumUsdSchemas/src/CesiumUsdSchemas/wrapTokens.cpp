@@ -60,6 +60,9 @@ void wrapCesiumTokens()
     _AddToken(cls, "cesiumProjectDefaultIonAccessToken", CesiumTokens->cesiumProjectDefaultIonAccessToken);
     _AddToken(cls, "cesiumProjectDefaultIonAccessTokenId", CesiumTokens->cesiumProjectDefaultIonAccessTokenId);
     _AddToken(cls, "cesiumSmoothNormals", CesiumTokens->cesiumSmoothNormals);
+    _AddToken(cls, "cesiumSourceType", CesiumTokens->cesiumSourceType);
     _AddToken(cls, "cesiumSuspendUpdate", CesiumTokens->cesiumSuspendUpdate);
     _AddToken(cls, "cesiumUrl", CesiumTokens->cesiumUrl);
+    _AddToken(cls, "ion", CesiumTokens->ion);
+    _AddToken(cls, "url", CesiumTokens->url);
 }
