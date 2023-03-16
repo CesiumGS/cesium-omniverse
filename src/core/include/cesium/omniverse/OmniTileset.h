@@ -22,6 +22,8 @@ struct Model;
 } // namespace CesiumGltf
 
 namespace cesium::omniverse {
+enum TilesetSourceType { ION = 0, URL = 1 };
+
 class FabricPrepareRenderResources;
 
 class OmniTileset {
@@ -31,6 +33,7 @@ class OmniTileset {
 
     pxr::SdfPath getPath() const;
     std::string getName() const;
+    TilesetSourceType getSourceType() const;
     std::string getUrl() const;
     int64_t getIonAssetId() const;
     std::optional<CesiumIonClient::Token> getIonAccessToken() const;

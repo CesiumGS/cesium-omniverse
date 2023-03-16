@@ -73,12 +73,21 @@ class "CesiumTilesetSchemaAPI" (
         token apiSchemaType = "singleApply"
     }
 ) {
+    uniform token cesium:sourceType = "ion" (
+        customData = {
+            string apiName = "sourceType"
+        }
+        allowedTokens = ["ion", "url"]
+        displayName = "Source Type"
+        doc = "Selects whether to use the Cesium ion Asset ID or the provided URL for this tileset."
+    )
+
     string cesium:url = "" (
         customData = {
             string apiName = "url"
         }
         displayName = "URL"
-        doc = "The URL of this tileset's tileset.json file. Blank if this is an ion asset."
+        doc = "The URL of this tileset's tileset.json file. Usually blank if this is an ion asset."
     )
 
     int64 cesium:ionAssetId = 0 (
@@ -86,7 +95,7 @@ class "CesiumTilesetSchemaAPI" (
             string apiName = "ionAssetId"
         }
         displayName = "ion Asset ID"
-        doc = "The ID of the Cesium ion asset to use. Blank if using URL."
+        doc = "The ID of the Cesium ion asset to use. Usually blank if using URL."
     )
 
     string cesium:ionAccessToken = "" (
@@ -94,7 +103,7 @@ class "CesiumTilesetSchemaAPI" (
             string apiName = "ionAccessToken"
         }
         displayName = "ion Access Token"
-        doc = "The access token to use to access the Cesium ion resource. Overrides the default token. Blank if using URL."
+        doc = "The access token to use to access the Cesium ion resource. Overrides the default token. Usually blank if using URL."
     )
 
     float cesium:maximumScreenSpaceError = 16 (
