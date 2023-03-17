@@ -6,6 +6,8 @@ from typing import Optional, List, Tuple
 from .uri_image import CesiumUriImage
 from .image_button import CesiumImageButton
 
+_num_retries = 0
+
 
 class CesiumCreditsParser:
     """Takes in a credits array and outputs the elements necessary to show the credits.
@@ -50,6 +52,13 @@ class CesiumCreditsParser:
     def __init__(self, asset_credits: List[Tuple[str, bool]], should_show_on_screen: bool, perform_fallback=False):
         self._logger = logging.getLogger(__name__)
 
+        global _num_retries
+        if _num_retries > 10:
+            # Once we've attempted 10 times, we don't want to attempt again for the life of this session.
+            return
+
+        _num_retries = _num_retries + 1
+
         try:
             omni.kit.pipapi.install("lxml==4.9.2")
             from lxml import etree
@@ -70,7 +79,7 @@ class CesiumCreditsParser:
                 ui.Label(credit, height=0, word_wrap=True)
 
         except Exception as e:
-            self._logger.error(e)
+            self._logger.debug(e)
 
             if perform_fallback:
                 self._logger.warning("Performing credits fallback.")
