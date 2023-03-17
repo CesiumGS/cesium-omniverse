@@ -4,6 +4,7 @@ from .ui.asset_window import CesiumOmniverseAssetWindow
 from .ui.debug_window import CesiumOmniverseDebugWindow
 from .ui.main_window import CesiumOmniverseMainWindow
 from .ui.credits_viewport_frame import CesiumCreditsViewportFrame
+from .ui.fabric_modal import CesiumFabricModal
 from .models import AssetToAdd, ImageryToAdd
 from .ui import CesiumAttributesWidgetController
 import asyncio
@@ -221,6 +222,11 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         if event.type == int(omni.usd.StageEventType.OPENED):
             _cesium_omniverse_interface.on_stage_change(omni.usd.get_context().get_stage_id())
             self._attributes_widget_controller = CesiumAttributesWidgetController(_cesium_omniverse_interface)
+
+            # Show Fabric modal if Fabric is disabled.
+            fabric_enabled = omni_settings.get_settings().get_as_bool("/app/useFabricSceneDelegate")
+            if not fabric_enabled:
+                CesiumFabricModal()
         elif event.type == int(omni.usd.StageEventType.CLOSED):
             _cesium_omniverse_interface.on_stage_change(0)
             self._attributes_widget_controller.destroy()

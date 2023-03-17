@@ -7,3 +7,4 @@ from .main_window import CesiumOmniverseMainWindow  # noqa: F401
 from .asset_window import CesiumOmniverseAssetWindow  # noqa: F401
 from .debug_window import CesiumOmniverseDebugWindow  # noqa: F401
 from .attributes_widget_controller import CesiumAttributesWidgetController  # noqa: F401
+from .fabric_modal import CesiumFabricModal  # noqa: F401
