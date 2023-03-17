@@ -22,7 +22,7 @@ class CesiumCreditsParser:
             text = "".join(element.itertext())
 
             if text != "":
-                ui.Button(text, height=0, width=0, clicked_fn=lambda: webbrowser.open(link))
+                ui.Button(text, height=0, width=0, clicked_fn=lambda: webbrowser.open_new_tab(link))
             for child in element.iterchildren():
                 self._parse_element(child, link)
         elif tag == "img":
@@ -31,7 +31,7 @@ class CesiumCreditsParser:
                 self._logger.warning("image")
                 CesiumUriImage(src=src)
             else:
-                CesiumImageButton(src=src, padding=4, clicked_fn=lambda: webbrowser.open(link))
+                CesiumImageButton(src=src, padding=4, clicked_fn=lambda: webbrowser.open_new_tab(link))
         elif tag == "span" or tag == "div":
             for child in element.iterchildren():
                 self._parse_element(child, link)
@@ -45,7 +45,7 @@ class CesiumCreditsParser:
             if link is None:
                 ui.Label(text, height=0, word_wrap=True)
             else:
-                ui.Button(text, clicked_fn=lambda: webbrowser.open(link), height=0, width=0)
+                ui.Button(text, clicked_fn=lambda: webbrowser.open_new_tab(link), height=0, width=0)
 
     # There is a builtin name called credits, which is why this argument is called asset_credits.
     def __init__(self, asset_credits: List[Tuple[str, bool]], should_show_on_screen: bool, perform_fallback=False):
