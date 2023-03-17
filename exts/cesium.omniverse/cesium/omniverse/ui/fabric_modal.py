@@ -18,6 +18,7 @@ class CesiumFabricModal(ui.Window):
     def _on_yes_click(self):
         carb.settings.get_settings().set_bool("/app/useFabricSceneDelegate", True)
         carb.settings.get_settings().set_bool("/app/usdrt/scene_delegate/enableProxyCubes", False)
+        carb.settings.get_settings().set_bool("/app/usdrt/scene_delegate/geometryStreaming/enabled", False)
         omni.kit.window.file.new()
         self.visible = False
 
