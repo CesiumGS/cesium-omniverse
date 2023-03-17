@@ -28,7 +28,6 @@ class CesiumCreditsParser:
         elif tag == "img":
             src = element.attrib["src"]
             if link is None:
-                self._logger.warning("image")
                 CesiumUriImage(src=src)
             else:
                 CesiumImageButton(src=src, padding=4, clicked_fn=lambda: webbrowser.open_new_tab(link))
