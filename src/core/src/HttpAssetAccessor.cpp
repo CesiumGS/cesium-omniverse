@@ -73,6 +73,31 @@ struct GZipDecompressInterceptor : public cpr::Interceptor {
   private:
     std::string _certificatePath;
 };
+
+struct HeaderInterceptor : public cpr::Interceptor {
+  public:
+    HeaderInterceptor(const std::string& version, const std::string& project)
+        : _version(version)
+        , _project(project) {}
+
+    cpr::Response intercept(cpr::Session& session) override {
+        cpr::Header xCesiumHeaders = {};
+        xCesiumHeaders.insert(std::make_pair("X-Cesium-Client", "Cesium for Omniverse"));
+        xCesiumHeaders.insert(std::make_pair("X-Cesium-Client-Version", _version));
+
+        if (!_project.empty()) {
+            xCesiumHeaders.insert(std::make_pair("X-Cesium-Client-Project", _project));
+        }
+
+        xCesiumHeaders.insert(std::make_pair("X-Cesium-Client-Engine", "Cesium for Omniverse"));
+        xCesiumHeaders.insert(std::make_pair("X-Cesium-Client-Engine", "Cesium for Omniverse"));
+        return proceed(session);
+    }
+
+  private:
+    std::string _version;
+    std::string _project;
+};
 } // namespace
 
 HttpAssetAccessor::HttpAssetAccessor(const std::filesystem::path& certificatePath) {
