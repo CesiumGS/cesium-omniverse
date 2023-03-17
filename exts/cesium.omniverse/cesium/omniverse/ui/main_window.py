@@ -242,7 +242,7 @@ class CesiumOmniverseMainWindow(ui.Window):
         if not self._upload_button or not self._upload_button.enabled:
             return
 
-        webbrowser.open(UPLOAD_URL)
+        webbrowser.open_new_tab(UPLOAD_URL)
 
     def _token_button_clicked(self) -> None:
         if not self._token_button:
@@ -254,13 +254,13 @@ class CesiumOmniverseMainWindow(ui.Window):
         if not self._learn_button:
             return
 
-        webbrowser.open(LEARN_URL)
+        webbrowser.open_new_tab(LEARN_URL)
 
     def _help_button_clicked(self) -> None:
         if not self._help_button:
             return
 
-        webbrowser.open(HELP_URL)
+        webbrowser.open_new_tab(HELP_URL)
 
     def _sign_out_button_clicked(self) -> None:
         if not self._sign_out_button or not self._sign_out_button.enabled:

@@ -3,8 +3,9 @@ import carb.events
 import omni.kit.app as app
 import omni.ui as ui
 from omni.kit.viewport.utility import get_active_viewport_window
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from ..bindings import ICesiumOmniverseInterface
+from .credits_parser import CesiumCreditsParser
 from .credits_window import CesiumOmniverseCreditsWindow
 
 
@@ -22,6 +23,8 @@ class CesiumCreditsViewportFrame:
 
         self._subscriptions: List[carb.events.ISubscription] = []
         self._setup_subscriptions()
+
+        self._credits: List[Tuple[str, bool]] = []
 
         self._build_fn()
 
@@ -58,6 +61,16 @@ class CesiumCreditsViewportFrame:
                 self._logger.info("Hide Data Attribution")
             self._data_attribution_button.visible = credits_available
 
+        if self._data_attribution_button.visible:
+            new_credits = self._cesium_omniverse_interface.get_credits()
+            if new_credits is not None and len(self._credits) != len(new_credits):
+                self._credits.clear()
+                self._credits.extend(new_credits)
+                self._build_fn()
+        else:
+            self._credits.clear()
+            self._build_fn()
+
     def _on_data_attribution_button_clicked(self):
         self._credits_window = CesiumOmniverseCreditsWindow(self._cesium_omniverse_interface)
 
@@ -67,6 +80,9 @@ class CesiumCreditsViewportFrame:
                 ui.Spacer()
                 with ui.HStack(height=0):
                     ui.Spacer()
+
+                    CesiumCreditsParser(self._credits, should_show_on_screen=True)
+
                     self._data_attribution_button = ui.Button(
                         "Data Attribution",
                         visible=False,
