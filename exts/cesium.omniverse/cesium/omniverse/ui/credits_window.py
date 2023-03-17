@@ -1,12 +1,9 @@
 import logging
 import omni.kit.app as app
 import omni.ui as ui
-import omni.kit.pipapi
-import webbrowser
 from pathlib import Path
-from typing import List, Optional
-from .image_button import CesiumImageButton
-from .uri_image import CesiumUriImage
+from typing import List
+from .credits_parser import CesiumCreditsParser
 from ..bindings import ICesiumOmniverseInterface
 from .styles import CesiumOmniverseUiStyles
 
@@ -40,68 +37,8 @@ class CesiumOmniverseCreditsWindow(ui.Window):
     def destroy(self):
         super().destroy()
 
-    def _parse_element(self, element, link: Optional[str] = None):
-        tag = element.tag
-        if tag == "html" or tag == "body":
-            for child in element.iterchildren():
-                self._parse_element(child, link)
-        elif tag == "a":
-            # TODO: We probably need to do some sanitization of the href.
-            link = element.attrib["href"]
-            text = "".join(element.itertext())
-
-            if text != "":
-                ui.Button(text, height=0, width=0, clicked_fn=lambda: webbrowser.open(link))
-            for child in element.iterchildren():
-                self._parse_element(child, link)
-        elif tag == "img":
-            src = element.attrib["src"]
-            self._logger.warning(link)
-            if link is None:
-                CesiumUriImage(src=src)
-            else:
-                CesiumImageButton(src=src, clicked_fn=lambda: webbrowser.open(link))
-        elif tag == "span" or tag == "div":
-            for child in element.iterchildren():
-                self._parse_element(child, link)
-
-            # Sometimes divs or spans have text.
-            text = "".join(element.itertext())
-            if text:
-                ui.Label(text, height=0, word_wrap=True)
-        else:
-            text = "".join(element.itertext())
-            if link is None:
-                ui.Label(text, height=0, word_wrap=True)
-            else:
-                ui.Button(text, clicked_fn=lambda: webbrowser.open(link), height=0, width=0)
-
     def _build_ui(self):
         with ui.VStack(spacing=5):
             ui.Label("Data Provided By:", height=0, style=CesiumOmniverseUiStyles.attribution_header_style)
 
-            try:
-                # This installs lxml and base64 which are needed for credit display.
-                omni.kit.pipapi.install("lxml==4.9.2")
-                from lxml import etree
-
-                parser = etree.HTMLParser()
-                for credit, _ in self._credits:
-                    if credit == "":
-                        continue
-
-                    if credit[0] == "<":
-                        try:
-                            doc = etree.fromstring(credit, parser)
-                            self._parse_element(doc)
-                            continue
-                        except etree.XMLSyntaxError as err:
-                            self._logger.info(err)
-
-                    ui.Label(credit, height=0, word_wrap=True)
-            except Exception as e:
-                self._logger.error(e)
-                self._logger.warning("Performing credits fallback.")
-
-                for credit, _ in self._credits:
-                    ui.Label(credit, height=0, word_wrap=True)
+            CesiumCreditsParser(self._credits, should_show_on_screen=False, perform_fallback=True)
