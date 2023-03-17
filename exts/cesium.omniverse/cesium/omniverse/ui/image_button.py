@@ -7,7 +7,7 @@ import omni.ui as ui
 class CesiumImageButton:
     """A button with an image from a URL or base64 encoded string. Based off of Nvidia's ButtonWithProvider sample."""
 
-    def __init__(self, src: str, button_type=ui.Button, **kwargs):
+    def __init__(self, src: str, button_type=ui.Button, padding=0, **kwargs):
         style_type = kwargs.pop("style_type_name_override", self.__class__.__name__)
         name = kwargs.pop("name", "")
 
@@ -22,21 +22,31 @@ class CesiumImageButton:
             provider = ui.ByteImageProvider()
             provider.set_bytes_data(pixels, [image.size[0], image.size[1]])
 
+            # The styles here are very specific to this stuff so they shouldn't be included
+            # in the CesiumOmniverseUiStyles class.
+            self._button = button_type(
+                text=" ",  # Workaround Buttons without text do not expand vertically
+                style_type_name_override=style_type,
+                name=name,
+                width=image.size[0] + padding,
+                height=image.size[1] + padding,
+                style={
+                    "border_radius": 6,
+                    "background_color": ui.color.transparent,
+                    "color": ui.color.transparent,
+                    ":hovered": {"background_color": ui.color("#9E9E9E")},
+                },
+                **kwargs,
+            )
+
             self._image = ui.ImageWithProvider(
                 provider,
                 width=image.size[0],
                 height=image.size[1],
                 fill_policy=ui.IwpFillPolicy.IWP_PRESERVE_ASPECT_FIT,
+                style={"alignment": ui.Alignment.CENTER},
                 style_type_name_override=style_type,
                 name=name,
-            )
-
-            self._button = button_type(
-                text=" ",  # Workaround Buttons without text do not expand vertically
-                style_type_name_override=style_type,
-                name=name,
-                style={"background_color": ui.color.transparent, "color": ui.color.transparent},
-                **kwargs,
             )
 
     def get_image(self):
