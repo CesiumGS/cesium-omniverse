@@ -75,5 +75,5 @@ class CesiumCreditsParser:
 
             if perform_fallback:
                 self._logger.warning("Performing credits fallback.")
-                for credit, _ in self._credits:
+                for credit, _ in asset_credits:
                     ui.Label(credit, height=0, word_wrap=True)
