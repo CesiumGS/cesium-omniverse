@@ -229,8 +229,9 @@ class CesiumOmniverseExtension(omni.ext.IExt):
                 CesiumFabricModal()
         elif event.type == int(omni.usd.StageEventType.CLOSED):
             _cesium_omniverse_interface.on_stage_change(0)
-            self._attributes_widget_controller.destroy()
-            self._attributes_widget_controller = None
+            if self._attributes_widget_controller is not None:
+                self._attributes_widget_controller.destroy()
+                self._attributes_widget_controller = None
 
     def _on_show_asset_window_event(self, _):
         self.do_show_assets_window()
