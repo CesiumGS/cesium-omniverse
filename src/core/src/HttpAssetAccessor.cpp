@@ -81,13 +81,11 @@ cpr::Header createCprHeader(const std::vector<CesiumAsync::IAssetAccessor::THead
     const auto app = carb::getCachedInterface<omni::kit::IApp>();
     const auto& buildInfo = app->getBuildInfo();
     const auto platformInfo = app->getPlatformInfo();
-    const auto& appInfo = app->getAppInfo();
 
     cprHeader.insert(nativeHeaders.begin(), nativeHeaders.end());
     cprHeader.insert(std::make_pair("X-Cesium-Client", "Cesium for Omniverse"));
     cprHeader.insert(std::make_pair(
         "X-Cesium-Client-Version", fmt::format("v{} {}", CESIUM_OMNI_VERSION, CESIUM_OMNI_GIT_HASH_ABBREVIATED)));
-    cprHeader.insert(std::make_pair("X-Cesium-Client-Project", appInfo.name));
     cprHeader.insert(std::make_pair("X-Cesium-Client-Engine", fmt::format("Kit SDK {}", buildInfo.kitVersion)));
     cprHeader.insert(std::make_pair("X-Cesium-Client-OS", platformInfo.platform));
 
