@@ -1,5 +1,5 @@
 # Change Log
 
-### v0.1.0 - 2023-03-01
+### v0.1.0 - 2023-03-20
 
-The initial preview build of Cesium for Omniverse!
+- Split the Cesium USD plugins into a separate extension.
