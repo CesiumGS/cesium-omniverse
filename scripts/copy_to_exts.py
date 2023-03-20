@@ -1,5 +1,5 @@
 """
-This file is a post build step run by cmake that copies over the README.md, CHANGES.md, and related resources to
+This file is a post build step run by cmake that copies over the CHANGES.md and related resources to
 the exts/docs folder for packaging.
 """
 import os
@@ -73,16 +73,14 @@ def main() -> int:
     project_root = Path(__file__).parent.parent
     destination = project_root.joinpath("exts/cesium.omniverse/doc")
 
-    # This is separated out because we need it for finding resources.
-    readme_path = project_root.joinpath("README.md")
+    changes_path = project_root.joinpath("CHANGES.md")
 
     try:
         # Turning off formatting here for readability.
         # fmt: off
         paths_to_copy: List[PathPair] = [
-            PathPair(readme_path),
-            PathPair(project_root.joinpath("CHANGES.md")),
-            *find_resources(readme_path)
+            PathPair(changes_path),
+            *find_resources(changes_path)
         ]
         # fmt: on
 
