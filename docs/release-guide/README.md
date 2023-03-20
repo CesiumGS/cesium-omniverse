@@ -12,7 +12,7 @@ This is the process we follow when releasing a new version of Cesium for Omniver
 8. Tag the release, e.g., `git tag -a v0.0.0 -m "0.0.0 release"`.
 9. Push the tag to github: `git push origin v0.0.0`.
 10. Wait for the release tag CI build to complete.
-11. Create a new release on GitHub: https://github.com/CesiumGS/cesium-omniverse/releases/new. Copy the changelog into it. Follow the format used in previous releases. Upload the Linux and Windows packages. Anything less than version `1.0.0` should be set as a pre-release.
+11. Create a new release on GitHub: https://github.com/CesiumGS/cesium-omniverse/releases/new. Copy the changelog into it. Follow the format used in previous releases. Upload the Linux and Windows packages.
 
 ### Build Linux Package
 

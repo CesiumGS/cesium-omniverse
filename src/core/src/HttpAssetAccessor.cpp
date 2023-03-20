@@ -2,6 +2,7 @@
 
 #include "cesium/omniverse/LoggerSink.h"
 
+#include <omni/kit/IApp.h>
 #include <zlib.h>
 
 namespace cesium::omniverse {
@@ -73,6 +74,24 @@ struct GZipDecompressInterceptor : public cpr::Interceptor {
   private:
     std::string _certificatePath;
 };
+
+cpr::Header createCprHeader(const std::vector<CesiumAsync::IAssetAccessor::THeader>& nativeHeaders) {
+    cpr::Header cprHeader;
+
+    const auto app = carb::getCachedInterface<omni::kit::IApp>();
+    const auto& buildInfo = app->getBuildInfo();
+    const auto platformInfo = app->getPlatformInfo();
+
+    cprHeader.insert(nativeHeaders.begin(), nativeHeaders.end());
+    cprHeader.insert(std::make_pair("X-Cesium-Client", "Cesium for Omniverse"));
+    cprHeader.insert(std::make_pair(
+        "X-Cesium-Client-Version", fmt::format("v{} {}", CESIUM_OMNI_VERSION, CESIUM_OMNI_GIT_HASH_ABBREVIATED)));
+    cprHeader.insert(std::make_pair("X-Cesium-Client-Engine", fmt::format("Kit SDK {}", buildInfo.kitVersion)));
+    cprHeader.insert(std::make_pair("X-Cesium-Client-OS", platformInfo.platform));
+
+    return cprHeader;
+}
+
 } // namespace
 
 HttpAssetAccessor::HttpAssetAccessor(const std::filesystem::path& certificatePath) {
@@ -84,10 +103,10 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> HttpAssetAccess
     const std::string& url,
     const std::vector<THeader>& headers) {
     auto promise = asyncSystem.createPromise<std::shared_ptr<CesiumAsync::IAssetRequest>>();
-    cpr::Header cprHeaders{headers.begin(), headers.end()};
+    const auto cprHeader = createCprHeader(headers);
     std::shared_ptr<cpr::Session> session = std::make_shared<cpr::Session>();
     session->AddInterceptor(_interceptor);
-    session->SetHeader(cprHeaders);
+    session->SetHeader(cprHeader);
     session->SetUrl(cpr::Url(url));
     session->GetCallback([promise, url, headers](cpr::Response&& response) mutable {
         promise.resolve(
@@ -104,9 +123,9 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> HttpAssetAccess
     const std::vector<THeader>& headers,
     const gsl::span<const std::byte>& contentPayload) {
     auto promise = asyncSystem.createPromise<std::shared_ptr<CesiumAsync::IAssetRequest>>();
-    cpr::Header cprHeaders{headers.begin(), headers.end()};
+    const auto cprHeader = createCprHeader(headers);
     std::shared_ptr<cpr::Session> session = std::make_shared<cpr::Session>();
-    session->SetHeader(cprHeaders);
+    session->SetHeader(cprHeader);
     session->SetUrl(cpr::Url(url));
 #ifdef CESIUM_OMNI_UNIX
     session->AddInterceptor(_interceptor);

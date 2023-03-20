@@ -52,3 +52,10 @@ exts/cesium.usd.plugins/bin
 
 # Installed plugins
 exts/cesium.usd.plugins/plugins/
+
+# Extension Docs
+exts/cesium.omniverse/doc/README.md
+exts/cesium.omniverse/doc/CHANGES.md
+exts/cesium.omniverse/doc/resources/*
+!exts/cesium.omniverse/doc/resources/icon.png
+!exts/cesium.omniverse/doc/resources/preview.jpg

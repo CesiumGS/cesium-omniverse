@@ -9,7 +9,7 @@ endif()
 # Both CXX and C need to be given otherwise Conan may ignore the CMAKE_C_COMPILER flag
 project(
     CesiumOmniverse
-    VERSION 0.1.0
+    VERSION 0.2.0
     DESCRIPTION "Cesium for Omniverse"
     LANGUAGES CXX C)
 
@@ -181,6 +181,15 @@ set(CESIUM_OMNI_LINKER_FLAGS "")
 set(CESIUM_OMNI_LINKER_FLAGS_DEBUG "")
 
 set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} CESIUM_OMNI_VERSION="${PROJECT_VERSION}")
+
+# Add a define CESIUM_OMNI_GIT_HASH_ABBREVIATED
+execute_process(
+    COMMAND git describe --match=NeVeRmAtCh --always --abbrev=7
+    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+    OUTPUT_VARIABLE CESIUM_OMNI_GIT_HASH_ABBREVIATED
+    ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} CESIUM_OMNI_GIT_HASH_ABBREVIATED="${CESIUM_OMNI_GIT_HASH_ABBREVIATED}")
 
 # Add DEBUG definition to be able to #ifdef
 set(CESIUM_OMNI_CXX_DEFINES_DEBUG ${CESIUM_OMNI_CXX_DEFINES_DEBUG} CESIUM_OMNI_DEBUG)
@@ -424,6 +433,9 @@ endif()
 # Generate ThirdParty.json
 execute_process(COMMAND "${Python3_EXECUTABLE}" "${SCRIPTS_DIRECTORY}/generate_third_party_license_json.py" --build-dir
                         "${PROJECT_BINARY_DIR}" --project-dir "${PROJECT_SOURCE_DIR}" --skip "doctest,strawberryperl")
+
+# Copy docs and related resources to exts folder.
+execute_process(COMMAND "${Python3_EXECUTABLE}" "${SCRIPTS_DIRECTORY}/copy_to_exts.py")
 
 # When calling find_package with `CMAKE_FIND_PACKAGE_PREFER_CONFIG` it adds
 # a `<PACKAGE>_DIR` variable to the CMake cache, polluting the CMake GUI.
