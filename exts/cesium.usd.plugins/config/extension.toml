@@ -34,7 +34,7 @@ icon = "doc/images/icon.png"
 "usdrt.scenegraph" = {}
 "omni.usd.libs" = {}
 
-# Main python module this extension provides, it will be publicly available as "import cesium.omniverse"
+# Main python module this extension provides, it will be publicly available as "import cesium.usd.plugins"
 [[python.module]]
 name = "cesium.usd.plugins"
 
