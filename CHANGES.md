@@ -1,5 +1,12 @@
 # Change Log
 
+### v0.3.0 - 2023-03-20
+
+- Split the Cesium USD plugins into their own Kit extension.
+- Added on-screen credits.
+- Added modal dialog prompting the user to enable Fabric Scene Delegate.
+- General cleanup before public release.
+
 ### v0.2.0 - 2023-03-16
 
 - Fixed raster overlay refinement.

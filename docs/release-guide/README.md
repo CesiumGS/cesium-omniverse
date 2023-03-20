@@ -42,13 +42,13 @@ The resulting `.zip` file will be written to the `build-package` directory (e.g.
 
 After the package is built, verify that the extension loads in Omniverse Create:
 
-* Create an empty folder and unzip the package into it
-* Load Omniverse Create
-* Disable the existing Cesium for Omniverse extension and uncheck autoload
+* Open Omniverse Create
 * Remove the existing Cesium for Omniverse extension from the list of search paths
-* Add a new search path pointing to the unzipped package's `exts` folder
-  * E.g. `/home/user/Desktop/cesium-omniverse-Windows-v0.0.0/exts`
+* Close Omniverse Create
+* Unzip the package to `$USERHOME$/Documents/Kit/Shared/exts`
+* Open Omniverse Create
 * Enable Cesium for Omniverse and check autoload
 * Restart Omniverse Create
 * Verify that there aren't any console errors
-* Verify that you can load Cesium World Terrain and OSM buildings (make sure Fabric Scene Delegate is enabled)
+* Verify that you can load Cesium World Terrain and OSM buildings
+* Delete the extensions from `$USERHOME$/Documents/Kit/Shared/exts`
