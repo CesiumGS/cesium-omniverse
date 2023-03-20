@@ -58,7 +58,3 @@ exts/cesium.omniverse/doc/CHANGES.md
 exts/cesium.omniverse/doc/resources/*
 !exts/cesium.omniverse/doc/resources/icon.png
 !exts/cesium.omniverse/doc/resources/preview.jpg
-!exts/cesium.omniverse/doc/resources/Cesium_for_Omniverse_dark_color_white_bgnd.jpg
-!exts/cesium.omniverse/doc/resources/integration-ecosystem-diagram.png
-!exts/cesium.omniverse/doc/resources/integration-workflow_omniverse.png
-
