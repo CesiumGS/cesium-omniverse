@@ -57,8 +57,6 @@ class CesiumCreditsParser:
             # Once we've attempted 10 times, we don't want to attempt again for the life of this session.
             return
 
-        _num_retries = _num_retries + 1
-
         try:
             omni.kit.pipapi.install("lxml==4.9.2")
             from lxml import etree
@@ -80,6 +78,8 @@ class CesiumCreditsParser:
 
         except Exception as e:
             self._logger.debug(e)
+
+            _num_retries = _num_retries + 1
 
             if perform_fallback:
                 self._logger.warning("Performing credits fallback.")
