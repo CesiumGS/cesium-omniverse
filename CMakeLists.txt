@@ -704,7 +704,14 @@ install(
     EXCLUDE_FROM_ALL)
 
 install(
-    DIRECTORY "${PROJECT_SOURCE_DIR}/exts"
+    DIRECTORY "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse"
+    DESTINATION .
+    COMPONENT package
+    EXCLUDE_FROM_ALL
+    PATTERN "__pycache__" EXCLUDE)
+
+install(
+    DIRECTORY "${PROJECT_SOURCE_DIR}/exts/cesium.usd.plugins"
     DESTINATION .
     COMPONENT package
     EXCLUDE_FROM_ALL
