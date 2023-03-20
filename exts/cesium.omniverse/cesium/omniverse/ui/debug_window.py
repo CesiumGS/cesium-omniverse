@@ -1,7 +1,6 @@
 import logging
 from typing import Optional
 import omni.ui as ui
-from .troubleshooter_window import CesiumTroubleshooterWindow
 from ..bindings import ICesiumOmniverseInterface
 
 
@@ -51,13 +50,9 @@ class CesiumOmniverseDebugWindow(ui.Window):
             fabric_stage = self._cesium_omniverse_interface.print_fabric_stage()
             self._cesium_message_field.set_value(fabric_stage)
 
-        def open_troubleshooting_window():
-            CesiumTroubleshooterWindow(self._cesium_omniverse_interface, "Testing", 1, 0, "Testing")
-
         with ui.VStack():
             ui.Button("Remove all Tilesets", clicked_fn=lambda: remove_all_tilesets())
             ui.Button("Reload all Tilesets", clicked_fn=lambda: reload_all_tilesets())
-            ui.Button("Open Troubleshooter", clicked_fn=lambda: open_troubleshooting_window())
             ui.Button("Print Fabric stage", clicked_fn=lambda: print_fabric_stage())
             with ui.VStack():
                 self._cesium_message_field = ui.SimpleStringModel("")
