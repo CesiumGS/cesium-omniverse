@@ -35,14 +35,3 @@ Using Cesium ion helps support Cesium for Omniverse development. :heart:
 ### :computer: Developing Cesium for Omniverse
 
 See the [Developer Setup Guide](docs/developer-setup/README.md) to learn how to set up a development environment for Cesium for Omniverse, allowing you to compile it, customize it, and contribute to its development.
-
-## Running
-
-- Launch Omniverse Code. Add `exts` to the extension search paths so it can find our extensions. Then look for "cesium.omniverse" in the extension manager and enable it. Click the auto-load checkbox to load our extension on startup.
-  Extension Search Paths | Enable Extension
-  --|--
-  ![Extension Search Paths](./docs/resources/extension-search-paths.png)|![Enable Extension](./docs/resources/enable-extension.png)
-
-- You should see a UI window appear. Click `Create Tileset` and then `Update Frame`
-
-  ![Plugin](./docs/resources/plugin.png)
