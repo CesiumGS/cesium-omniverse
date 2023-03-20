@@ -1,4 +1,4 @@
-[![Cesium for Omniverse Logo](./docs/resources/Cesium_for_Omniverse_dark_color_white_bgnd.jpg)](https://cesium.com/)
+# [Cesium for Omniverse](https://cesium.com/)
 
 **NOTE: Once enabling this extension via "Autoload," you must restart Omniverse for it to load the necessary USD components.**
 
@@ -12,13 +12,9 @@ By combining a high-accuracy full-scale WGS84 globe, open APIs and open standard
 
 Cesium for Omniverse streams real-world 3D content such as high-resolution photogrammetry, terrain, imagery, and 3D buildings from [Cesium ion](https://cesium.com/cesium-ion) and other sources, available as optional commercial subscriptions. The extension includes Cesium ion integration for instant access to global high-resolution 3D content ready for runtime streaming. Cesium ion users can also leverage cloud-based 3D tiling pipelines to create end-to-end workflows to transform massive heterogenous content into semantically-rich 3D Tiles, ready for streaming to Omniverse.
 
-![Cesium for Ecosystem Diagram](./docs/resources/integration-ecosystem-diagram.png)
-
 Cesium for Omniverse supports cloud and private network content and services based on open standards and APIs. You are free to use any combination of supported content sources, standards, APIs with Cesium for Omniverse.
 
-![Cesium for Omniverse Architecture](./docs/resources/integration-workflow_omniverse.png)
-
-Using Cesium ion helps support Cesium for Omniverse development. :heart:
+Using Cesium ion helps support Cesium for Omniverse development.
 
 ### License
 
