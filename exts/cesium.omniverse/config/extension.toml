@@ -1,8 +1,3 @@
-[core]
-# Load after omni.usd.libs (-1000) and before omni.usd (0)
-# See https://docs.omniverse.nvidia.com/py/kit/docs/guide/usd_schema.html
-order = -100
-
 [package]
 version = "0.2.0"
 category = "simulation"
@@ -31,22 +26,18 @@ icon = "doc/resources/icon.png"
 
 # Which extensions this extension depends on
 [dependencies]
+"cesium.usd.plugins" = {}
 "usdrt.scenegraph" = {}
 "omni.ui.scene" = {}
 "omni.usd.libs" = {}
 "omni.kit.pipapi" = {}
 "omni.kit.uiapp" = {}
 "omni.kit.viewport.utility" = {}
+"omni.kit.property.usd" = {}
 
 # Main python module this extension provides, it will be publicly available as "import cesium.omniverse"
 [[python.module]]
 name = "cesium.omniverse"
-
-[[native.library]]
-path = "bin/${lib_prefix}InMemoryAssetResolver${lib_ext}"
-
-[[native.library]]
-path = "bin/${lib_prefix}CesiumUsdSchemas${lib_ext}"
 
 [[native.plugin]]
 path = "bin/cesium.omniverse.plugin"

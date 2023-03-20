@@ -3,7 +3,7 @@ from omni.kit.property.usd.custom_layout_helper import CustomLayoutFrame, Custom
 from omni.kit.property.usd.usd_property_widget import SchemaPropertiesWidget
 import omni.ui as ui
 from ...bindings import ICesiumOmniverseInterface
-from ...bindings.CesiumUsdSchemas import TilesetAPI as CesiumTilesetAPI
+from cesium.usd.plugins.CesiumUsdSchemas import TilesetAPI as CesiumTilesetAPI
 
 
 class CesiumTilesetAttributesWidget(SchemaPropertiesWidget):
