@@ -48,7 +48,7 @@ exts/cesium.usd.plugins/cesium/usd/plugins/CesiumUsdSchemas/_cesiumUsdSchemas.li
 
 # Installed libraries
 exts/cesium.omniverse/bin/
-exts/cesium.usd.plugins/bin
+exts/cesium.usd.plugins/bin/
 
 # Installed plugins
 exts/cesium.usd.plugins/plugins/
