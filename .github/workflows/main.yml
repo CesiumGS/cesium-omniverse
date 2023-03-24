@@ -21,6 +21,7 @@ jobs:
               cc: 'cl',
               cxx: 'cl',
               build-type: 'Release',
+              build-code: 'Windows',
               generator: 'Ninja Multi-Config',
               coverage: 'false',
             }
@@ -31,6 +32,7 @@ jobs:
               cc: 'gcc-11',
               cxx: 'g++-11',
               build-type: 'Release',
+              build-code: 'Ubuntu',
               generator: 'Unix Makefiles',
               coverage: 'false',
             }
@@ -105,7 +107,7 @@ jobs:
         run: cmake --build build --config ${{ matrix.config.build-type }} --parallel ${{ steps.cpu-cores.outputs.count }}
 
       - name: Tests
-        run: cd build && ctest --output-on-failure
+        run: ctest --test-dir build --output-on-failure
 
       - name: Coverage
         if: matrix.config.coverage == 'true'
@@ -117,7 +119,42 @@ jobs:
         run: cmake --build build --target generate-documentation --config ${{ matrix.config.build-type }}
 
       - name: Install (Default/Kit)
-        run: cmake --install build --config ${{ matrix.config.build-type }} --prefix install-default
+        run: cmake --install build --config ${{ matrix.config.build-type }}
 
       - name: Install (Library)
         run: cmake --install build --config ${{ matrix.config.build-type }} --prefix install-library --component library
+
+      - name: Package
+        run: cmake --build build --target package --config ${{ matrix.config.build-type }}
+
+      - name: Capture Git info (not Windows)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          echo "branch=${{ github.ref_name }}" >> $GITHUB_ENV
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "us_date=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+          echo "zip_name=$(find . -maxdepth 2 -type f -name "CesiumForOmniverse*.zip" -exec basename {} \;)" >> $GITHUB_ENV
+
+      - name: Capture Git info (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          echo "branch=${{ github.ref_name }}" >> $env:GITHUB_ENV
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $env:GITHUB_ENV
+          echo "us_date=$(Get-Date -Format "yyyy-MM-dd")" >> $env:GITHUB_ENV
+          echo "zip_name=$(Get-ChildItem -Path build/CesiumForOmniverse*.zip -Name)" >> $env:GITHUB_ENV
+
+      - name: Capture AWS secrets
+        uses: aws-actions/configure-aws-credentials@v2
+        env:
+          AWS_S3_USERNAME: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_S3_PASSWORD: ${{ secrets.AWS_SECRET_KEY_ID }}
+        with:
+          aws-access-key-id: ${{ env.AWS_S3_USERNAME }}
+          aws-secret-access-key: ${{ env.AWS_S3_PASSWORD }}
+          aws-region: us-east-1
+
+      - name: Upload to S3
+        run: |
+          aws s3 cp build/${{ env.zip_name }} s3://cesium-travis-builds/cesium-omniverse/${{ env.branch }}/${{ env.us_date }}/${{ env.sha_short }}/${{ matrix.config.build-code }}/
