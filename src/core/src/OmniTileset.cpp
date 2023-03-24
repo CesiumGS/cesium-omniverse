@@ -277,6 +277,12 @@ void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
     const OmniImagery imagery(imageryPath);
     const auto imageryIonAssetId = imagery.getIonAssetId();
     const auto imageryIonAccessToken = imagery.getIonAccessToken();
+
+    if (!imageryIonAccessToken.has_value()) {
+        // If we don't have an access token available there's no point in adding the imagery.
+        return;
+    }
+
     const auto imageryName = imagery.getName();
 
     const auto tilesetPath = getPath();
