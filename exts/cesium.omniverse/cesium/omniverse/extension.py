@@ -293,8 +293,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
                 asset_to_add.tileset_name, asset_to_add.tileset_ion_asset_id
             )
 
-        if tileset_path != "":
-            # TODO: Open token troubleshooter.
+        if tileset_path == "":
             self._logger.warning("Error adding tileset and imagery to stage")
 
     def _on_add_imagery_to_tileset(self, event: carb.events.IEvent):
