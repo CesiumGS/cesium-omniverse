@@ -83,6 +83,8 @@ class CesiumOmniverseAssetWindow(ui.Window):
         if session is not None:
             self._logger.info("Cesium ion Assets refreshing.")
             session.refresh_assets()
+            if self._search_field_widget is not None:
+                self._search_field_widget.search_value = ""
 
     def _on_assets_updated(self, _e: carb.events.IEvent):
         session = self._cesium_omniverse_interface.get_session()
