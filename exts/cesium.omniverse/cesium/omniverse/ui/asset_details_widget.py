@@ -97,8 +97,18 @@ class CesiumAssetDetailsWidget(ui.ScrollingFrame):
             if self._should_be_visible():
                 with ui.VStack(spacing=20):
                     with ui.VStack(spacing=5):
-                        ui.Label(self._name, style=CesiumOmniverseUiStyles.asset_detail_name_label, height=0)
-                        ui.Label(f"(ID: {self._id})", style=CesiumOmniverseUiStyles.asset_detail_id_label, height=0)
+                        ui.Label(
+                            self._name,
+                            style=CesiumOmniverseUiStyles.asset_detail_name_label,
+                            height=0,
+                            word_wrap=True,
+                        )
+                        ui.Label(
+                            f"(ID: {self._id})",
+                            style=CesiumOmniverseUiStyles.asset_detail_id_label,
+                            height=0,
+                            word_wrap=True,
+                        )
                     with ui.HStack(spacing=0, height=0):
                         ui.Spacer(height=0)
                         if self._asset_type == "3DTILES" or self._asset_type == "TERRAIN":
