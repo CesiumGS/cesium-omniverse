@@ -110,7 +110,10 @@ class CesiumOmniverseAssetWindow(ui.Window):
         self._asset_details_widget.update_selection(item)
 
     def _search_value_changed(self, _e):
-        pass
+        if self._search_field_widget is None:
+            return
+
+        self._assets.filter_items(self._search_field_widget.search_value)
 
     def _build_fn(self):
         """Builds all UI components."""
