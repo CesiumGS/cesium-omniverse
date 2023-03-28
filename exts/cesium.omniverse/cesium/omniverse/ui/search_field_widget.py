@@ -46,7 +46,7 @@ class CesiumSearchFieldWidget(ui.Frame):
 
     def _build_fn(self):
         with self:
-            with ui.ZStack():
+            with ui.ZStack(height=0):
                 ui.Rectangle(style={"background_color": cl("#1F2123"), "border_radius": 3})
                 with ui.HStack(alignment=ui.Alignment.CENTER):
                     image_size = self._font_size * 2
@@ -56,15 +56,23 @@ class CesiumSearchFieldWidget(ui.Frame):
                         height=image_size,
                         style={"margin": 4},
                     )
-                    ui.StringField(model=self._search_value, style={"font_size": self._font_size})
-                    self._clear_button = ui.Button(
-                        image_url="resources/icons/Close.png",
-                        width=0,
-                        height=0,
-                        image_width=self._font_size + 4,
-                        image_height=self._font_size + 4,
-                        style={"margin": 4, "background_color": cl("#1F2123")},
-                        clicked_fn=self._on_clear_click,
-                        opaque_for_mouse_events=True,
-                        visible=False,
-                    )
+                    with ui.VStack():
+                        ui.Spacer()
+                        ui.StringField(
+                            model=self._search_value, height=self._font_size, style={"font_size": self._font_size}
+                        )
+                        ui.Spacer()
+                    with ui.VStack(width=0):
+                        ui.Spacer()
+                        self._clear_button = ui.Button(
+                            image_url="resources/icons/Close.png",
+                            width=0,
+                            height=0,
+                            image_width=self._font_size,
+                            image_height=self._font_size,
+                            style={"margin": 4, "background_color": cl("#1F2123")},
+                            clicked_fn=self._on_clear_click,
+                            opaque_for_mouse_events=True,
+                            visible=False,
+                        )
+                        ui.Spacer()

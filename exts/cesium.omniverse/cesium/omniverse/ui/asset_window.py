@@ -130,7 +130,11 @@ class CesiumOmniverseAssetWindow(ui.Window):
                     clicked_fn=self._refresh_button_clicked,
                 )
                 ui.Spacer()
-                self._search_field_widget = CesiumSearchFieldWidget(self._search_value_changed, width=320, height=32)
+                with ui.VStack(width=0):
+                    ui.Spacer()
+                    self._search_field_widget = CesiumSearchFieldWidget(
+                        self._search_value_changed, width=320, height=32
+                    )
             with ui.HStack(spacing=5):
                 with ui.ScrollingFrame(
                     style_type_name_override="TreeView",
