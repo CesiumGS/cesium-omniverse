@@ -2,9 +2,9 @@
 
 #include "cesium/omniverse/Context.h"
 
-#include <CesiumGeometry/AxisTransforms.h>
+#include <CesiumGeometry/Transforms.h>
 #include <CesiumGeospatial/Cartographic.h>
-#include <CesiumGeospatial/Transforms.h>
+#include <CesiumGeospatial/GlobeTransforms.h>
 #include <glm/gtc/matrix_access.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <pxr/usd/usd/prim.h>
@@ -21,7 +21,7 @@ namespace cesium::omniverse::UsdUtil {
 namespace {
 glm::dmat4 getEastNorthUpToFixedFrame(const CesiumGeospatial::Cartographic& cartographic) {
     const auto cartesian = CesiumGeospatial::Ellipsoid::WGS84.cartographicToCartesian(cartographic);
-    const auto matrix = CesiumGeospatial::Transforms::eastNorthUpToFixedFrame(cartesian);
+    const auto matrix = CesiumGeospatial::GlobeTransforms::eastNorthUpToFixedFrame(cartesian);
     return matrix;
 }
 
@@ -32,7 +32,7 @@ glm::dmat4 getAxisConversionTransform() {
 
     // USD up axis can be either Y or Z
     if (upAxis == pxr::UsdGeomTokens->y) {
-        axisConversion = CesiumGeometry::AxisTransforms::Y_UP_TO_Z_UP;
+        axisConversion = CesiumGeometry::Transforms::Y_UP_TO_Z_UP;
     }
 
     return axisConversion;
