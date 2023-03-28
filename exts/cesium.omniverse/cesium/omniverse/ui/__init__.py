@@ -11,3 +11,4 @@ from .fabric_modal import CesiumFabricModal  # noqa: F401
 from .credits_window import CesiumOmniverseCreditsWindow  # noqa: F401
 from .credits_viewport_frame import CesiumCreditsViewportFrame  # noqa: F401
 from .credits_parser import CesiumCreditsParser  # noqa: F401
+from .search_field_widget import CesiumSearchFieldWidget  # noqa: F401

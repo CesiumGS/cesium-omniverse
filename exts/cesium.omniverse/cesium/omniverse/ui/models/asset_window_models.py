@@ -25,22 +25,37 @@ class IonAssetItem(ui.AbstractItem):
 class IonAssets(ui.AbstractItemModel):
     """Represents a list of ion assets for the asset window."""
 
-    def __init__(self, items=None):
+    def __init__(self, items=None, filter_value=""):
         super().__init__()
         if items is None:
             items = []
         self._items: List[IonAssetItem] = items
+        self._visible_items: List[IonAssetItem] = []
+        self._current_filter = filter_value
+        self.filter_items(filter_value)
 
     def replace_items(self, items: List[IonAssetItem]):
         self._items.clear()
         self._items.extend(items)
+        self.filter_items(self._current_filter)
+
+    def filter_items(self, filter_value: str):
+        self._current_filter = filter_value
+
+        if filter_value == "":
+            self._visible_items = self._items.copy()
+        else:
+            self._visible_items = [
+                item for item in self._items if filter_value.lower() in item.name.as_string.lower()
+            ]
+
         self._item_changed(None)
 
     def get_item_children(self, item: IonAssetItem = None) -> List[IonAssetItem]:
         if item is not None:
             return []
 
-        return self._items
+        return self._visible_items
 
     def get_item_value_model_count(self, item: IonAssetItem = None) -> int:
         """The number of columns"""
@@ -50,7 +65,7 @@ class IonAssets(ui.AbstractItemModel):
         """Returns the value model for the specific column."""
 
         if item is None:
-            item = self._items[0]
+            item = self._visible_items[0]
 
         # When we are finally on Python 3.10 with Omniverse, we should change this to a switch.
         return item.name if column_id == 0 else item.type if column_id == 1 else item.dateAdded

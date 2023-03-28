@@ -1,10 +1,10 @@
 import logging
 from typing import cast, List, Optional
-
 import carb.events
 import omni.kit.app as app
 import omni.ui as ui
 from .asset_details_widget import CesiumAssetDetailsWidget
+from .search_field_widget import CesiumSearchFieldWidget
 from .models import IonAssets, IonAssetItem, IonAssetDelegate
 from .styles import CesiumOmniverseUiStyles
 from ..bindings import ICesiumOmniverseInterface
@@ -30,6 +30,7 @@ class CesiumOmniverseAssetWindow(ui.Window):
         self._refresh_button: Optional[ui.Button] = None
         self._asset_tree_view: Optional[ui.TreeView] = None
         self._asset_details_widget: Optional[CesiumAssetDetailsWidget] = None
+        self._search_field_widget: Optional[CesiumSearchFieldWidget] = None
 
         self._subscriptions: List[carb.events.ISubscription] = []
         self._setup_subscriptions()
@@ -56,6 +57,10 @@ class CesiumOmniverseAssetWindow(ui.Window):
             self._asset_details_widget.destroy()
             self._asset_details_widget = None
 
+        if self._search_field_widget is not None:
+            self._search_field_widget.destroy()
+            self._search_field_widget = None
+
         for subscription in self._subscriptions:
             subscription.unsubscribe()
         self._subscriptions.clear()
@@ -78,6 +83,8 @@ class CesiumOmniverseAssetWindow(ui.Window):
         if session is not None:
             self._logger.info("Cesium ion Assets refreshing.")
             session.refresh_assets()
+            if self._search_field_widget is not None:
+                self._search_field_widget.search_value = ""
 
     def _on_assets_updated(self, _e: carb.events.IEvent):
         session = self._cesium_omniverse_interface.get_session()
@@ -104,6 +111,12 @@ class CesiumOmniverseAssetWindow(ui.Window):
             item = None
         self._asset_details_widget.update_selection(item)
 
+    def _search_value_changed(self, _e):
+        if self._search_field_widget is None:
+            return
+
+        self._assets.filter_items(self._search_field_widget.search_value)
+
     def _build_fn(self):
         """Builds all UI components."""
 
@@ -117,6 +130,11 @@ class CesiumOmniverseAssetWindow(ui.Window):
                     clicked_fn=self._refresh_button_clicked,
                 )
                 ui.Spacer()
+                with ui.VStack(width=0):
+                    ui.Spacer()
+                    self._search_field_widget = CesiumSearchFieldWidget(
+                        self._search_value_changed, width=320, height=32
+                    )
             with ui.HStack(spacing=5):
                 with ui.ScrollingFrame(
                     style_type_name_override="TreeView",
