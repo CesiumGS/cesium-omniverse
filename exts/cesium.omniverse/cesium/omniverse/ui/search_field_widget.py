@@ -6,12 +6,12 @@ from omni.ui import color as cl
 
 class CesiumSearchFieldWidget(ui.Frame):
     def __init__(
-        self, callback_fn: Callable[[ui.AbstractValueModel], None], default_value="", font_size=16, **kwargs
+        self, callback_fn: Callable[[ui.AbstractValueModel], None], default_value="", font_size=14, **kwargs
     ):
         self._callback_fn = callback_fn
         self._search_value = ui.SimpleStringModel(default_value)
         self._font_size = font_size
-        self._clear_button: Optional[ui.Button] = None
+        self._clear_button_stack: Optional[ui.Stack] = None
 
         self._subscriptions: List[carb.Subscription] = []
         self._setup_subscriptions()
@@ -42,7 +42,7 @@ class CesiumSearchFieldWidget(ui.Frame):
         self._set_clear_button_visibility()
 
     def _set_clear_button_visibility(self):
-        self._clear_button.visible = self._search_value.as_string != ""
+        self._clear_button_stack.visible = self._search_value.as_string != ""
 
     def _build_fn(self):
         with self:
@@ -62,9 +62,10 @@ class CesiumSearchFieldWidget(ui.Frame):
                             model=self._search_value, height=self._font_size, style={"font_size": self._font_size}
                         )
                         ui.Spacer()
-                    with ui.VStack(width=0):
+                    self._clear_button_stack = ui.VStack(width=0, visible=False)
+                    with self._clear_button_stack:
                         ui.Spacer()
-                        self._clear_button = ui.Button(
+                        ui.Button(
                             image_url="resources/icons/Close.png",
                             width=0,
                             height=0,
@@ -73,6 +74,5 @@ class CesiumSearchFieldWidget(ui.Frame):
                             style={"margin": 4, "background_color": cl("#1F2123")},
                             clicked_fn=self._on_clear_click,
                             opaque_for_mouse_events=True,
-                            visible=False,
                         )
                         ui.Spacer()
