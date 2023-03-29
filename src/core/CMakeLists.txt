@@ -82,6 +82,8 @@ setup_lib(
         carb
         cudart
         omni_kit_app
+        omni_ui
+        rtx_plugins
         pybind11
         python37
     DEPENDENCIES

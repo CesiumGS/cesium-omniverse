@@ -78,6 +78,7 @@ set(CARB_ROOT "${NVIDIA_BUILD_DIR}/target-deps/carb_sdk_plugins")
 set(KIT_SDK_ROOT "${NVIDIA_BUILD_DIR}/target-deps/kit-sdk")
 set(PYBIND11_ROOT "${NVIDIA_BUILD_DIR}/target-deps/pybind11")
 set(CUDA_ROOT "${NVIDIA_BUILD_DIR}/target-deps/cuda")
+set(RTX_PLUGINS_ROOT "${NVIDIA_BUILD_DIR}/target-deps/rtx_plugins")
 
 set(NVIDIA_USD_LIBRARIES
     ar
@@ -303,3 +304,32 @@ else()
     )
     # cmake-format: on
 endif()
+
+# cmake-format: off
+add_prebuilt_project(
+    RELEASE_INCLUDE_DIR
+        "${KIT_SDK_ROOT}/dev/include"
+    DEBUG_INCLUDE_DIR
+        "${KIT_SDK_ROOT}/dev/include"
+    RELEASE_LIBRARY_DIR
+        "${KIT_SDK_ROOT}/extscore/omni.ui/bin"
+    DEBUG_LIBRARY_DIR
+        "${KIT_SDK_ROOT}/extscore/omni.ui/bin"
+    RELEASE_LIBRARIES
+        omni.ui
+    DEBUG_LIBRARIES
+        omni.ui
+    TARGET_NAMES
+        omni_ui
+)
+# cmake-format: on
+
+# cmake-format: off
+# rtx_plugin headers are used by DynamicTextureProvider.h in omni.ui
+add_prebuilt_project_header_only(
+    INCLUDE_DIR
+        "${RTX_PLUGINS_ROOT}/include"
+    TARGET_NAME
+        rtx_plugins
+)
+# cmake-format: on
