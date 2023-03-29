@@ -18,6 +18,8 @@ include(Macros)
 
 glob_files(SOURCES "${CMAKE_CURRENT_LIST_DIR}/src/*.cpp")
 
+get_property(ADDITIONAL_LIBRARIES GLOBAL PROPERTY NVIDIA_ADDITIONAL_LIBRARIES_PROPERTY)
+
 # cmake-format: off
 setup_lib(
     TARGET_NAME
@@ -85,6 +87,8 @@ setup_lib(
         rtx_plugins
         pybind11
         python37
+    ADDITIONAL_LIBRARIES
+        "${ADDITIONAL_LIBRARIES}"
     DEPENDENCIES
         cesium-native-external
     CXX_FLAGS

@@ -6,7 +6,7 @@ function(setup_lib)
         ""
         ""
         "TARGET_NAME;TYPE"
-        "SOURCES;INCLUDE_DIRS;PRIVATE_INCLUDE_DIRS;LIBRARIES;DEPENDENCIES;CXX_FLAGS;CXX_FLAGS_DEBUG;CXX_DEFINES;CXX_DEFINES_DEBUG"
+        "SOURCES;INCLUDE_DIRS;PRIVATE_INCLUDE_DIRS;LIBRARIES;ADDITIONAL_LIBRARIES;DEPENDENCIES;CXX_FLAGS;CXX_FLAGS_DEBUG;CXX_DEFINES;CXX_DEFINES_DEBUG"
         ${ARGN})
 
     if(_TYPE)
@@ -49,6 +49,17 @@ function(setup_lib)
             TARGET ${_TARGET_NAME}
             POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${_TARGET_NAME}> $<TARGET_FILE_DIR:${_TARGET_NAME}>
+            COMMAND_EXPAND_LISTS)
+    endif()
+
+    if(WIN32 AND _ADDITIONAL_LIBRARIES)
+        # TARGET_RUNTIME_DLLS only works for IMPORTED targets. In some cases we can't create IMPORTED targets
+        # because there's no import library (.lib) just a shared library (.dll)
+        # We need to copy these to the build folder manually
+        add_custom_command(
+            TARGET ${_TARGET_NAME}
+            POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy ${_ADDITIONAL_LIBRARIES} $<TARGET_FILE_DIR:${_TARGET_NAME}>
             COMMAND_EXPAND_LISTS)
     endif()
 
@@ -155,14 +166,16 @@ function(setup_usd_python_lib)
 
     target_compile_options(${_PREFIXED_TARGET_NAME} PRIVATE ${_CXX_FLAGS} "$<$<CONFIG:DEBUG>:${_CXX_FLAGS_DEBUG}>")
 
-    target_compile_definitions(${_PREFIXED_TARGET_NAME} PRIVATE ${_CXX_DEFINES} "$<$<CONFIG:DEBUG>:${_CXX_DEFINES_DEBUG}>")
+    target_compile_definitions(${_PREFIXED_TARGET_NAME} PRIVATE ${_CXX_DEFINES}
+                                                                "$<$<CONFIG:DEBUG>:${_CXX_DEFINES_DEBUG}>")
 
+    # cmake-format: off
     target_compile_definitions(${_PREFIXED_TARGET_NAME}
-            PRIVATE
-            MFB_PACKAGE_NAME=${_TARGET_NAME}
-            MFB_ALT_PACKAGE_NAME=${_TARGET_NAME}
-            MFB_PACKAGE_MODULE=${_TARGET_NAME}.${_PYTHON_MODULE_NAME}
-            )
+        PRIVATE
+        MFB_PACKAGE_NAME=${_TARGET_NAME}
+        MFB_ALT_PACKAGE_NAME=${_TARGET_NAME}
+        MFB_PACKAGE_MODULE=${_TARGET_NAME}.${_PYTHON_MODULE_NAME})
+    # cmake-format: on
 
     target_link_libraries(${_PREFIXED_TARGET_NAME} PRIVATE ${_LIBRARIES})
 
@@ -198,7 +211,8 @@ function(setup_usd_python_lib)
         add_custom_command(
             TARGET ${_PREFIXED_TARGET_NAME}
             POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${_PREFIXED_TARGET_NAME}> $<TARGET_FILE_DIR:${_PREFIXED_TARGET_NAME}>
+            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${_PREFIXED_TARGET_NAME}>
+                    $<TARGET_FILE_DIR:${_PREFIXED_TARGET_NAME}>
             COMMAND_EXPAND_LISTS)
     endif()
 
