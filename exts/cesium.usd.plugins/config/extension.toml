@@ -39,7 +39,4 @@ icon = "doc/images/icon.png"
 name = "cesium.usd.plugins"
 
 [[native.library]]
-path = "bin/${lib_prefix}InMemoryAssetResolver${lib_ext}"
-
-[[native.library]]
 path = "bin/${lib_prefix}CesiumUsdSchemas${lib_ext}"

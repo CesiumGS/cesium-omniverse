@@ -31,7 +31,6 @@ setup_lib(
     INCLUDE_DIRS
         "${CMAKE_CURRENT_LIST_DIR}/include"
     LIBRARIES
-        InMemoryAssetResolver
         CesiumUsdSchemas
         CesiumIonClient
         Cesium3DTilesSelection

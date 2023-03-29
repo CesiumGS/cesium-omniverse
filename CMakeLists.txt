@@ -450,22 +450,9 @@ endforeach()
 # Hide CONAN_CMD_PATH from CMake GUI
 mark_as_advanced(CONAN_CMD_PATH)
 
-# Configure plugInfo.json for InMemoryAssetResolver
-set(PLUG_INFO_LIBRARY_FILE_NAME "${CMAKE_SHARED_LIBRARY_PREFIX}InMemoryAssetResolver${CMAKE_SHARED_LIBRARY_SUFFIX}")
-
 set(PLUG_INFO_LIBRARY_PATH_BUILD "../../${PLUG_INFO_LIBRARY_FILE_NAME}")
 set(PLUG_INFO_LIBRARY_PATH_INSTALL "../../lib/${PLUG_INFO_LIBRARY_FILE_NAME}")
 set(PLUG_INFO_LIBRARY_PATH_KIT "../../bin/${PLUG_INFO_LIBRARY_FILE_NAME}")
-
-set(PLUG_INFO_LIBRARY_PATH ${PLUG_INFO_LIBRARY_PATH_BUILD})
-configure_file("${PROJECT_SOURCE_DIR}/src/plugins/InMemoryAssetResolver/plugInfo.json.in"
-               "${PROJECT_BINARY_DIR}/inMemoryAssetResolver.plugInfo.json.build")
-set(PLUG_INFO_LIBRARY_PATH ${PLUG_INFO_LIBRARY_PATH_INSTALL})
-configure_file("${PROJECT_SOURCE_DIR}/src/plugins/InMemoryAssetResolver/plugInfo.json.in"
-               "${PROJECT_BINARY_DIR}/inMemoryAssetResolver.plugInfo.json.install")
-set(PLUG_INFO_LIBRARY_PATH ${PLUG_INFO_LIBRARY_PATH_KIT})
-configure_file("${PROJECT_SOURCE_DIR}/src/plugins/InMemoryAssetResolver/plugInfo.json.in"
-               "${PROJECT_BINARY_DIR}/inMemoryAssetResolver.plugInfo.json.kit")
 
 # Configure plugInfo.json for CesiumUsdSchemas
 set(PLUG_INFO_LIBRARY_FILE_NAME "${CMAKE_SHARED_LIBRARY_PREFIX}CesiumUsdSchemas${CMAKE_SHARED_LIBRARY_SUFFIX}")
@@ -492,9 +479,6 @@ configure_file("${PROJECT_SOURCE_DIR}/src/plugins/CesiumUsdSchemas/generatedSche
 configure_file("${PROJECT_SOURCE_DIR}/src/plugins/CesiumUsdSchemas/generatedSchema.usda.in"
                "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.generatedSchema.usda.kit")
 
-# Create mem.cesium
-file(TOUCH "${PROJECT_BINARY_DIR}/mem.cesium")
-
 set(KIT_EXTENSION_BIN_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse/bin")
 set(KIT_PLUGIN_EXTENSION_BIN_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.usd.plugins/bin")
 set(KIT_EXTENSION_BINDINGS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse/cesium/omniverse/bindings")
@@ -520,31 +504,6 @@ set(KIT_EXTENSION_PLUGINS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.usd.plugins/pl
 set(INSTALL_SEARCH_PATHS $<TARGET_FILE_DIR:python37> $<TARGET_FILE_DIR:usd> $<TARGET_FILE_DIR:carb>)
 set(INSTALL_PRE_EXCLUDE_REGEXES "api-ms-*" "ext-ms-*")
 set(INSTALL_POST_EXCLUDE_REGEXES "system32" "^\/lib")
-
-install(
-    TARGETS InMemoryAssetResolver
-    ARCHIVE DESTINATION ${KIT_PLUGIN_EXTENSION_BIN_PATH} COMPONENT install
-    LIBRARY DESTINATION ${KIT_PLUGIN_EXTENSION_BIN_PATH} COMPONENT install
-    RUNTIME DESTINATION ${KIT_PLUGIN_EXTENSION_BIN_PATH} COMPONENT install)
-
-install(
-    TARGETS InMemoryAssetResolver
-            RUNTIME_DEPENDENCIES
-            DIRECTORIES
-            ${INSTALL_SEARCH_PATHS}
-            PRE_EXCLUDE_REGEXES
-            ${INSTALL_PRE_EXCLUDE_REGEXES}
-            POST_EXCLUDE_REGEXES
-            ${INSTALL_POST_EXCLUDE_REGEXES}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT library
-            EXCLUDE_FROM_ALL
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT library
-            EXCLUDE_FROM_ALL
-    RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT library
-            EXCLUDE_FROM_ALL)
 
 install(
     TARGETS CesiumUsdSchemas
@@ -648,32 +607,8 @@ install(
             EXCLUDE_FROM_ALL)
 
 install(
-    FILES "${PROJECT_BINARY_DIR}/mem.cesium"
-    DESTINATION ${KIT_EXTENSION_BIN_PATH}
-    COMPONENT install)
-
-install(
     DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-    COMPONENT library
-    EXCLUDE_FROM_ALL)
-
-install(
-    FILES "${PROJECT_BINARY_DIR}/mem.cesium"
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    COMPONENT library
-    EXCLUDE_FROM_ALL)
-
-install(
-    FILES "${PROJECT_BINARY_DIR}/inMemoryAssetResolver.plugInfo.json.kit"
-    DESTINATION "${KIT_EXTENSION_PLUGINS_PATH}/InMemoryAssetResolver/resources/"
-    RENAME "plugInfo.json"
-    COMPONENT install)
-
-install(
-    FILES "${PROJECT_BINARY_DIR}/inMemoryAssetResolver.plugInfo.json.install"
-    DESTINATION "plugins/InMemoryAssetResolver/resources/"
-    RENAME "plugInfo.json"
     COMPONENT library
     EXCLUDE_FROM_ALL)
 
