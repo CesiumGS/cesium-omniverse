@@ -3,6 +3,7 @@ import carb.events
 import omni.kit.app as app
 import omni.ui as ui
 import omni.usd
+from pathlib import Path
 from enum import Enum
 from typing import List, Optional
 from ..bindings import ICesiumOmniverseInterface, Token
@@ -19,6 +20,7 @@ CREATE_NEW_FIELD_LABEL_TEXT = "Name"
 USE_EXISTING_FIELD_LABEL_TEXT = "Token"
 SPECIFY_TOKEN_FIELD_LABEL_TEXT = "Token"
 SELECT_BUTTON_TEXT = "Use as Project Default Token"
+DEFAULT_TOKEN_PLACEHOLDER_BASE = "{0} (Created by Cesium For Omniverse)"
 
 OUTER_SPACING = 10
 CHECKBOX_WIDTH = 20
@@ -114,10 +116,23 @@ class CesiumOmniverseTokenWindow(ui.Window):
             lambda m: self._radio_button_changed(m, TokenOptionEnum.SPECIFY_TOKEN)
         )
         self._use_existing_combo_box: Optional[ui.ComboBox] = None
-        self._create_new_field_model = ui.SimpleStringModel()
-        self._use_existing_combo_model = UseExistingComboModel([])
 
         stage = omni.usd.get_context().get_stage()
+        root_identifier = stage.GetRootLayer().identifier
+
+        # In the event that the stage has been saved and the root layer identifier is a file path then we want to
+        # grab just the final bit of that.
+        if not root_identifier.startswith("anon:"):
+            try:
+                root_identifier = Path(root_identifier).name
+            except NotImplementedError as e:
+                self._logger.warning(
+                    f"Unknown stage identifier type. Passed {root_identifier} to Path. Exception: {e}"
+                )
+
+        self._create_new_field_model = ui.SimpleStringModel(DEFAULT_TOKEN_PLACEHOLDER_BASE.format(root_identifier))
+        self._use_existing_combo_model = UseExistingComboModel([])
+
         cesium_prim = stage.GetPrimAtPath("/Cesium")
 
         if cesium_prim.IsValid():
