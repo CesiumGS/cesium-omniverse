@@ -948,26 +948,6 @@ void deletePrimsFabric(const std::vector<pxr::SdfPath>& primsToDelete) {
     }
 }
 
-void deletePrimsFabric(const std::vector<uint64_t>& primsToDelete) {
-    // Prims removed from Fabric need special handling for their removal to be reflected in the Hydra render index
-    // This workaround may not be needed in future Kit versions, but is needed as of Kit 104.2
-    auto sip = UsdUtil::getFabricStageInProgress();
-
-    const carb::flatcache::Path changeTrackingPath("/TempChangeTracking");
-
-    if (sip.getAttribute<uint64_t>(changeTrackingPath, FabricTokens::_deletedPrims) == nullptr) {
-        return;
-    }
-
-    const auto deletedPrimsSize = sip.getArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims);
-    sip.setArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims, deletedPrimsSize + primsToDelete.size());
-    auto deletedPrimsFabric = sip.getArrayAttributeWr<uint64_t>(changeTrackingPath, FabricTokens::_deletedPrims);
-
-    for (size_t i = 0; i < primsToDelete.size(); i++) {
-        deletedPrimsFabric[deletedPrimsSize + i] = primsToDelete[i];
-    }
-}
-
 } // namespace
 
 AddTileResults addTile(
