@@ -8,7 +8,7 @@ This is the process we follow when releasing a new version of Cesium for Omniver
 4. Verify that the Windows package loads in Omniverse Create (see instructions below).
 5. Update the project `VERSION` in [CMakeLists.txt](../../CMakeLists.txt).
 6. Update the extension `version` in [extension.toml](../../exts/cesium.omniverse/config/extension.toml). This should be the same version as above.
-7. Update [`CHANGES.md`](../../exts/cesium.omniverse/doc/CHANGES.md).
+7. Update [`CHANGES.md`](CHANGES.md).
 8. Commit the changes, e.g. `git commit -am "0.0.0 release"`.
 9. Tag the release, e.g. `git tag -a v0.0.0 -m "0.0.0 release"`.
 10. Push to main, e.g. `git push --atomic origin main v0.0.0`.
