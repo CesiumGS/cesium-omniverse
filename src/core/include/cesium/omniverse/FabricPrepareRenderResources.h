@@ -22,7 +22,7 @@ struct TileRenderResources {
 class FabricPrepareRenderResources : public Cesium3DTilesSelection::IPrepareRendererResources {
   public:
     FabricPrepareRenderResources(const OmniTileset& tileset);
-    ~FabricPrepareRenderResources();
+    ~FabricPrepareRenderResources() = default;
 
     CesiumAsync::Future<Cesium3DTilesSelection::TileLoadResultAndRenderResources> prepareInLoadThread(
         const CesiumAsync::AsyncSystem& asyncSystem,

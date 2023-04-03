@@ -1138,13 +1138,16 @@ AddTileResults addTileWithImagery(
 }
 
 void removeTile(const std::vector<pxr::SdfPath>& allPrimPaths, const std::vector<std::string>& textureAssetNames) {
-    auto sip = UsdUtil::getFabricStageInProgress();
+    if (UsdUtil::hasStage()) {
+        // Only delete prims if there's still a stage to delete them from
+        auto sip = UsdUtil::getFabricStageInProgress();
 
-    for (const auto& primPath : allPrimPaths) {
-        sip.destroyPrim(carb::flatcache::asInt(primPath));
+        for (const auto& primPath : allPrimPaths) {
+            sip.destroyPrim(carb::flatcache::asInt(primPath));
+        }
+
+        deletePrimsFabric(allPrimPaths);
     }
-
-    deletePrimsFabric(allPrimPaths);
 
     for (const auto& textureAssetName : textureAssetNames) {
         removeTexture(textureAssetName);
@@ -1159,33 +1162,6 @@ void setTileVisibility(const std::vector<pxr::SdfPath>& geomPaths, bool visible)
             sip.getAttributeWr<bool>(carb::flatcache::asInt(geomPath), FabricTokens::_worldVisibility);
         *worldVisibilityFabric = visible;
     }
-}
-
-void removeTileset(int64_t tilesetId) {
-    auto sip = UsdUtil::getFabricStageInProgress();
-
-    const auto buckets = sip.findPrims(
-        {carb::flatcache::AttrNameAndType(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId)});
-
-    std::vector<uint64_t> primsToDelete;
-
-    for (size_t bucketId = 0; bucketId < buckets.bucketCount(); bucketId++) {
-        const auto tilesetIdFabric =
-            sip.getAttributeArrayRd<int64_t>(buckets, bucketId, FabricTokens::_cesium_tilesetId);
-        const auto primPaths = sip.getPathArray(buckets, bucketId);
-
-        for (size_t i = 0; i < tilesetIdFabric.size(); i++) {
-            if (tilesetIdFabric[i] == tilesetId) {
-                primsToDelete.push_back(carb::flatcache::PathC(primPaths[i]).path);
-            }
-        }
-    }
-
-    for (const auto& primToDelete : primsToDelete) {
-        sip.destroyPrim(carb::flatcache::Path(carb::flatcache::PathC{primToDelete}));
-    }
-
-    deletePrimsFabric(primsToDelete);
 }
 
 void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform) {
