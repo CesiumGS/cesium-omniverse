@@ -23,7 +23,6 @@ struct TileLoadThreadResult {
 FabricPrepareRenderResources::FabricPrepareRenderResources(const OmniTileset& tileset)
     : _tileset(tileset) {}
 
-
 CesiumAsync::Future<Cesium3DTilesSelection::TileLoadResultAndRenderResources>
 FabricPrepareRenderResources::prepareInLoadThread(
     const CesiumAsync::AsyncSystem& asyncSystem,
