@@ -3,20 +3,22 @@
 This is the process we follow when releasing a new version of Cesium for Omniverse on GitHub.
 
 1. Make sure the latest commit in `main` is passing CI.
-2. Update the project `VERSION` in [CMakeLists.txt](../../CMakeLists.txt).
-3. Update the extension `version` in [extension.toml](../../exts/cesium.omniverse/config/extension.toml). This should be the same version as above.
-4. Update [`CHANGES.md`](../../exts/cesium.omniverse/doc/CHANGES.md).
-5. Build Linux package and verify that it loads in Omniverse Create (see instructions below).
-6. Build Windows package and verify that it loads in Omniverse Create (see instructions below).
-7. Commit and push the changes to `main`: `git commit -am "0.0.0 release"`, `git push origin main`
-8. Tag the release, e.g., `git tag -a v0.0.0 -m "0.0.0 release"`.
-9. Push the tag to github: `git push origin v0.0.0`.
-10. Wait for the release tag CI build to complete.
-11. Create a new release on GitHub: https://github.com/CesiumGS/cesium-omniverse/releases/new.
-    * Chose the new tag.
-    * Copy the changelog into the description. Follow the format used in previous releases.
-    * Upload the Linux and Windows packages.
-12. Proceed to [Releasing a new version of Cesium for Omniverse Samples](#releasing-a-new-version-of-cesium-for-omniverse-samples).
+2. Download the latest build from S3. In the AWS management console (old AWS account), go to the bucket [`cesium-travis-builds/cesium-omniverse/main`](https://s3.console.aws.amazon.com/s3/buckets/cesium-travis-builds?region=us-east-1&prefix=cesium-omniverse/main/&showversions=false), find the appropriate date and commit hash to download the CentOS and Windows zip files (e.g. `CesiumForOmniverse-Linux-xxxxxxx.zip` and `CesiumForOmniverse-Windows-xxxxxxx.zip` )
+3. Verify that the Linux package loads in Omniverse Create (see instructions below).
+4. Verify that the Windows package loads in Omniverse Create (see instructions below).
+5. Update the project `VERSION` in [CMakeLists.txt](../../CMakeLists.txt).
+6. Update the extension `version` in [extension.toml](../../exts/cesium.omniverse/config/extension.toml). This should be the same version as above.
+7. Update [`CHANGES.md`](CHANGES.md).
+8. Commit the changes, e.g. `git commit -am "0.0.0 release"`.
+9. Tag the release, e.g. `git tag -a v0.0.0 -m "0.0.0 release"`.
+10. Push to main, e.g. `git push --atomic origin main v0.0.0`.
+11. Wait for CI to pass.
+12. Download the release build from S3. In the AWS management console (old AWS account), go to the bucket [`cesium-travis-builds/cesium-omniverse/main`](https://s3.console.aws.amazon.com/s3/buckets/cesium-travis-builds?region=us-east-1&prefix=cesium-omniverse/main/&showversions=false), find the appropriate date and commit hash to download the CentOS and Windows builds zip files (e.g. `CesiumForOmniverse-Linux-vX.X.X.zip` and `CesiumForOmniverse-Windows-vX.X.X.zip`). Note that the git tag is appended to end of the file name instead of the git commit hash.
+13. Create a new release on GitHub: https://github.com/CesiumGS/cesium-omniverse/releases/new.
+  * Chose the new tag.
+  * Copy the changelog into the description. Follow the format used in previous releases.
+  * Upload the Linux and Windows release zip files.
+14. Proceed to [Releasing a new version of Cesium for Omniverse Samples](#releasing-a-new-version-of-cesium-for-omniverse-samples).
 
 # Releasing a new version of Cesium for Omniverse Samples
 
@@ -32,30 +34,6 @@ This is the process we follow when releasing a new version of Cesium for Omniver
 8. Create a new release on GitHub: https://github.com/CesiumGS/cesium-omniverse-samples/releases/new.
     * Choose the new tag.
     * Copy the changelog into the description. Follow the format used in previous releases.
-
-# Build Linux Package
-
-Linux packages are built in the CentOS 7 Docker container. CentOS 7 is the [minimum OS required by Omniverse](https://docs.omniverse.nvidia.com/app_view/common/technical-requirements.html#suggested-minimums-by-product) and uses glibc 2.18 which is compatible with nearly all modern Linux distributions.
-
-It's recommended to build CentOS 7 packages in a separate clone of cesium-omniverse since the Docker container will overwrite files in the `extern/nvidia/_build` and `exts` folders.
-
-Run the following shell script from the root cesium-omniverse directory:
-
-```sh
-./scripts/build_package_centos7.sh
-```
-
-The resulting `.zip` file will be written to the `build-package` directory (e.g. `cesium-omniverse-Linux-v0.0.0.zip`)
-
-# Build Windows Package
-
-Run the following batch script from the root cesium-omniverse directory:
-
-```sh
-./scripts/build_package_windows.bat
-```
-
-The resulting `.zip` file will be written to the `build-package` directory (e.g. `cesium-omniverse-Windows-v0.0.0.zip`)
 
 # Verify Package
 

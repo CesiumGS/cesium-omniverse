@@ -17,6 +17,9 @@
 - [Sanitizers](#sanitizers)
 - [Formatting](#formatting)
 - [Linting](#linting)
+- [Packaging](#packaging)
+  - [Build Linux Package (Local)](#build-linux-package-local)
+  - [Build Windows Package (Local)](#build-windows-package-local)
 - [VSCode](#vscode)
   - [Workspaces](#workspaces)
   - [Debugging](#debugging)
@@ -423,6 +426,32 @@ cmake --build build --target clang-tidy
 ```
 
 Note that these targets are not available on Windows currently.
+
+## Packaging
+
+### Build Linux Package (Local)
+
+Linux packages are built in the CentOS 7 Docker container. CentOS 7 is the [minimum OS required by Omniverse](https://docs.omniverse.nvidia.com/app_view/common/technical-requirements.html#suggested-minimums-by-product) and uses glibc 2.18 which is compatible with nearly all modern Linux distributions.
+
+It's recommended to build CentOS 7 packages in a separate clone of cesium-omniverse since the Docker container will overwrite files in the `extern/nvidia/_build` and `exts` folders.
+
+Run the following shell script from the root cesium-omniverse directory:
+
+```sh
+./scripts/build_package_centos7.sh
+```
+
+The resulting `.zip` file will be written to the `build-package` directory (e.g. `CesiumForOmniverse-Linux-v0.0.0.zip`)
+
+### Build Windows Package (Local)
+
+Run the following batch script from the root cesium-omniverse directory:
+
+```sh
+./scripts/build_package_windows.bat
+```
+
+The resulting `.zip` file will be written to the `build-package` directory (e.g. `CesiumForOmniverse-Windows-v0.0.0.zip`)
 
 ## VSCode
 

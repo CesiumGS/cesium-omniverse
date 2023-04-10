@@ -21,6 +21,7 @@ jobs:
               cc: 'cl',
               cxx: 'cl',
               build-type: 'Release',
+              build-code: 'Windows',
               generator: 'Ninja Multi-Config',
               coverage: 'false',
             }
@@ -31,6 +32,18 @@ jobs:
               cc: 'gcc-11',
               cxx: 'g++-11',
               build-type: 'Release',
+              build-code: 'Ubuntu',
+              generator: 'Unix Makefiles',
+              coverage: 'false',
+            }
+          - {
+              name: 'CentOS 7 - GCC',
+              artifact: 'linux-gcc.tar.xz',
+              os: ubuntu-22.04,
+              cc: 'gcc-11',
+              cxx: 'g++-11',
+              build-type: 'Release',
+              build-code: 'CentOS7',
               generator: 'Unix Makefiles',
               coverage: 'false',
             }
@@ -46,7 +59,7 @@ jobs:
       # Tell Conan to look for or create its build folder (.conan) in the repository's root directory
       # This is partly done to make the directory easily accessible to Docker builds
       - name: Conan Set build directory (Unix)
-        if: runner.os == 'Linux'
+        if: runner.os != 'Windows'
         run: echo "CONAN_USER_HOME=$GITHUB_WORKSPACE" >> $GITHUB_ENV
 
       # Disable short paths so that all packages are built in the same .conan directory
@@ -69,8 +82,30 @@ jobs:
           path: ${{ env.CONAN_USER_HOME }}/.conan
           key: conan-${{ matrix.config.name }}-${{ hashFiles('cmake/AddConanDependencies.cmake') }}-v2
 
+      # The -v{num} is a cache key buster to invalidate the Docker image cache
+      - name: Load Docker image cache
+        if: matrix.config.name == 'CentOS 7 - GCC'
+        uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+        with:
+          key: docker-layer-caching-v1-${{ github.workflow }}-{hash}
+          restore-keys: docker-layer-caching-v1-${{ github.workflow }}-
+
+      - name: CentOS Build with Docker
+        uses: ./.github/actions
+        if: matrix.config.name == 'CentOS 7 - GCC'
+        with:
+          build-type: ${{ matrix.config.build-type }}
+
+      # Change the ownership from root to user for all files created by Docker in
+      # the Conan build directory so that the files can be cached without permission
+      # denied errors
+      - name: CentOS Change Conan directory permissions
+        if: matrix.config.name == 'CentOS 7 - GCC'
+        run: sudo chown -R $USER:$USER $CONAN_USER_HOME/.conan
+
       - name: Install Linux dependencies
-        if: runner.os == 'Linux'
+        if: ${{ runner.os == 'Linux' && matrix.config.name != 'CentOS 7 - GCC' }}
         run: |
           sudo apt update
           sudo apt install -y doxygen clang-tidy-14 gcovr
@@ -84,28 +119,46 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           choco install -y conan --version 1.58.0
-          echo "C:/Program Files/conan/conan" >> $env:GITHUB_PATH
+          choco install -y llvm --version=14.0.6 --allow-downgrade
           pip3 install black==23.1.0 flake8==6.0.0
+          echo "C:/Program Files/conan/conan" >> $env:GITHUB_PATH
 
       # Note: CMAKE_BUILD_TYPE is only used by Linux. It is ignored for Windows.
       # Note: CMAKE_CONFIGURATION_TYPES is used by Windows to generate a single configuration for Release since we don't need Debug, RelWithDebugInfo, and MinSizeRel on CI. It is ignored for Linux.
       - name: Configure
-        run: cmake -B build -D CMAKE_C_COMPILER=${{ matrix.config.cc }} -D CMAKE_CXX_COMPILER=${{ matrix.config.cxx }} -D CMAKE_BUILD_TYPE=${{ matrix.config.build-type }} -D CMAKE_CONFIGURATION_TYPES=${{ matrix.config.build-type }} -G "${{ matrix.config.generator }}"
+        if: matrix.config.name != 'CentOS 7 - GCC'
+        run: cmake -B build -D CESIUM_OMNI_ENABLE_COVERAGE=${{ matrix.config.coverage}} -D CMAKE_C_COMPILER=${{ matrix.config.cc }} -D CMAKE_CXX_COMPILER=${{ matrix.config.cxx }} -D CMAKE_BUILD_TYPE=${{ matrix.config.build-type }} -D CMAKE_CONFIGURATION_TYPES=${{ matrix.config.build-type }} -G "${{ matrix.config.generator }}"
+
+      # Change the ownership from root to user for all files in the Conan cache so
+      # that DLLs can be used without permission denied errors
+      - name: Windows Change Conan directory permissions
+        if: runner.os == 'Windows'
+        run: |
+          $Path = "${{ env.CONAN_USER_HOME }}/.conan"
+          $Username = "$env:UserName"
+          $Acl = Get-Acl -Path $Path
+          $Ar = New-Object System.Security.AccessControl.FileSystemAccessRule($Username, 'FullControl', 'ContainerInherit,ObjectInherit', 'None', 'Allow')
+          $Acl.SetAccessRule($Ar)
 
       - name: Check C/C++ Formatting
+        if: matrix.config.name != 'CentOS 7 - GCC'
         run: cmake --build build --target clang-format-check-all --config ${{ matrix.config.build-type }}
 
       - name: Check Python Formatting
+        if: matrix.config.name != 'CentOS 7 - GCC'
         run: black --check --diff .
 
       - name: Check Python Linting
+        if: matrix.config.name != 'CentOS 7 - GCC'
         run: flake8
 
       - name: Build
+        if: matrix.config.name != 'CentOS 7 - GCC'
         run: cmake --build build --config ${{ matrix.config.build-type }} --parallel ${{ steps.cpu-cores.outputs.count }}
 
       - name: Tests
-        run: cd build && ctest --output-on-failure
+        if: matrix.config.name != 'CentOS 7 - GCC'
+        run: ctest --test-dir build --output-on-failure
 
       - name: Coverage
         if: matrix.config.coverage == 'true'
@@ -113,11 +166,50 @@ jobs:
 
       - name: Documentation
         # Currently disabled for Windows because `choco install doxygen.install` is flaky
-        if: runner.os == 'Linux'
+        if: ${{ matrix.config.name != 'CentOS 7 - GCC' && runner.os != 'Windows' }}
         run: cmake --build build --target generate-documentation --config ${{ matrix.config.build-type }}
 
       - name: Install (Default/Kit)
-        run: cmake --install build --config ${{ matrix.config.build-type }} --prefix install-default
+        if: matrix.config.name != 'CentOS 7 - GCC'
+        run: cmake --install build --config ${{ matrix.config.build-type }}
 
       - name: Install (Library)
+        if: matrix.config.name != 'CentOS 7 - GCC'
         run: cmake --install build --config ${{ matrix.config.build-type }} --prefix install-library --component library
+
+      - name: Package
+        if: matrix.config.name != 'CentOS 7 - GCC'
+        run: cmake --build build --target package --config ${{ matrix.config.build-type }}
+
+      - name: Capture Git info (not Windows)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          echo "branch=${{ github.ref_name }}" >> $GITHUB_ENV
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "us_date=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+          echo "zip_name=$(find . -maxdepth 2 -type f -name "CesiumForOmniverse*.zip" -exec basename {} \;)" >> $GITHUB_ENV
+
+      - name: Capture Git info (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          echo "branch=${{ github.ref_name }}" >> $env:GITHUB_ENV
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $env:GITHUB_ENV
+          echo "us_date=$(Get-Date -Format "yyyy-MM-dd")" >> $env:GITHUB_ENV
+          echo "zip_name=$(Get-ChildItem -Path build/CesiumForOmniverse*.zip -Name)" >> $env:GITHUB_ENV
+
+      - name: Capture AWS secrets
+        uses: aws-actions/configure-aws-credentials@v2
+        env:
+          AWS_S3_USERNAME: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_S3_PASSWORD: ${{ secrets.AWS_SECRET_KEY_ID }}
+        with:
+          aws-access-key-id: ${{ env.AWS_S3_USERNAME }}
+          aws-secret-access-key: ${{ env.AWS_S3_PASSWORD }}
+          aws-region: us-east-1
+
+      - name: Upload to S3
+        if: ${{ matrix.config.name == 'CentOS 7 - GCC' || runner.os == 'Windows' }}
+        run: |
+          aws s3 cp build/${{ env.zip_name }} s3://cesium-travis-builds/cesium-omniverse/${{ env.branch }}/${{ env.us_date }}/${{ env.sha_short }}/${{ matrix.config.build-code }}/

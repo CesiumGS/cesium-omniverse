@@ -1,5 +1,14 @@
 # Change Log
 
+### v0.4.0 - 2023-04-03
+
+- Fixed a crash when removing the last available access token for a tileset.
+- Added search field to the asset window.
+- Added placeholder token name in the create field of the token window.
+- No longer printing "Error adding tileset and imagery to stage" when adding a tileset.
+- Better handling of long names in the asset details panel.
+- Upgraded to cesium-native v0.22.1.
+
 ### v0.3.0 - 2023-03-20
 
 - Split the Cesium USD plugins into their own Kit extension.
