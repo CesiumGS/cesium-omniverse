@@ -350,5 +350,11 @@ else()
         # This is where freetype is located on Linux
         "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/kit-sdk/plugins")
 
+    set(NVIDIA_ADDITIONAL_LINK_DIRECTORIES
+        # This is where freetype is located on Linux
+        # Needed by imgui which doesn't set its rpath properly
+        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/kit-sdk/plugins")
+
     set_property(GLOBAL PROPERTY NVIDIA_ADDITIONAL_SEARCH_PATHS_PROPERTY "${NVIDIA_ADDITIONAL_SEARCH_PATHS}")
+    set_property(GLOBAL PROPERTY NVIDIA_ADDITIONAL_LINK_DIRECTORIES_PROPERTY "${NVIDIA_ADDITIONAL_LINK_DIRECTORIES}")
 endif()
