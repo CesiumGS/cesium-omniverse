@@ -19,5 +19,6 @@ class ExtensionTest(omni.kit.test.AsyncTestCase):
         self.assertIsNotNone(_window_ref)
 
     async def test_window_docked(self):
+        await ui_test.wait_n_updates(2)
         global _window_ref
         self.assertTrue(_window_ref.window.docked)
