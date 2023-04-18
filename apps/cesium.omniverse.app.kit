@@ -11,10 +11,12 @@ app = true
 #"omni.kit.documentation.ui.style" = {}
 
 [settings]
+app.window.title = "Cesium for Omniverse Test App"
 app.asyncRendering = false
 app.useFabricSceneDelegate = true
 app.usdrt.scene_delegate.enableProxyCubes = false
 app.usdrt.scene_delegate.geometryStreaming.enabled = false
+app.fastShutdown = true
 
 [settings.app.exts]
 folders.'++' = ["${app}/../exts"] # Make extensions from this repo available.

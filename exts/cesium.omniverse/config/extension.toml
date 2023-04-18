@@ -45,3 +45,18 @@ path = "bin/cesium.omniverse.plugin"
 [settings]
 exts."cesium.omniverse".defaultAccessToken = ""
 persistent.exts."cesium.omniverse".userAccessToken = ""
+
+[[test]]
+args = [
+    "--/renderer/enabled=pxr",
+    "--/renderer/active=pxr",
+    "--/app/window/dpiScaleOverride=1.0",
+    "--/app/window/scaleToMonitor=false",
+    "--/app/file/ignoreUnsavedOnExit=true",
+]
+dependencies = [
+    "omni.hydra.pxr",
+    "omni.kit.mainwindow",
+    "omni.kit.ui_test",
+    "omni.kit.test_suite.helpers",
+]
