@@ -52,6 +52,7 @@ setup_lib(
         tinyxml2
         uriparser
         webpdecoder
+        turbojpeg
         cpr::cpr
         stb::stb
         ZLIB::ZLIB
