@@ -3,4 +3,5 @@
 # testing submodules.
 from .extension_test import *  # noqa: F401 F403
 from ..models.tests import *  # noqa: F401 F403
+from ..ui.tests import *  # noqa: F401 F403
 from ..ui.models.tests import *  # noqa: F401 F403
