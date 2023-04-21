@@ -28,6 +28,8 @@ class PassFailWidgetTest(OmniUiTest):
             golden_img_dir=self._golden_image_dir, golden_img_name="test_pass_fail_widget_passed.png"
         )
 
+        widget.destroy()
+
     async def test_pass_fail_widget_failed(self):
         window = await self.create_test_window()
 
@@ -43,6 +45,8 @@ class PassFailWidgetTest(OmniUiTest):
         await self.finalize_test(
             golden_img_dir=self._golden_image_dir, golden_img_name="test_pass_fail_widget_failed.png"
         )
+
+        widget.destroy()
 
     async def test_pass_fail_widget_updated(self):
         window = await self.create_test_window()
@@ -65,3 +69,5 @@ class PassFailWidgetTest(OmniUiTest):
         await self.finalize_test(
             golden_img_dir=self._golden_image_dir, golden_img_name="test_pass_fail_widget_changed.png"
         )
+
+        widget.destroy()
