@@ -58,3 +58,6 @@ exts/cesium.omniverse/doc/CHANGES.md
 exts/cesium.omniverse/doc/resources/*
 !exts/cesium.omniverse/doc/resources/icon.png
 !exts/cesium.omniverse/doc/resources/preview.jpg
+
+# Test output
+_testoutput

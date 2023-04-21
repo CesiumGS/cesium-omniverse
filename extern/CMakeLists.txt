@@ -24,6 +24,7 @@ add_external_project(
         tinyxml2
         uriparser
         webpdecoder
+        turbojpeg
     OPTIONS
         CESIUM_TESTS_ENABLED=OFF
         CESIUM_COVERAGE_ENABLED=OFF

@@ -18,7 +18,10 @@ class CesiumPassFailWidget(ui.Frame):
 
         super().__init__(build_fn=self._build_ui, **kwargs)
 
-    def __destroy__(self):
+    def __del__(self):
+        self.destroy()
+
+    def destroy(self):
         for subscription in self._subscriptions:
             subscription.unsubscribe()
         self._subscriptions.clear()
