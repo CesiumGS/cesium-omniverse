@@ -60,3 +60,6 @@ dependencies = [
     "omni.kit.ui_test",
     "omni.kit.test_suite.helpers",
 ]
+pythonTests.include = ["cesium.omniverse.*"]
+pythonTests.exclude = []
+timeout = 180
