@@ -1,7 +1,7 @@
 import carb.events
 import omni.kit.app as app
 import omni.ui as ui
-from typing import List, Optional
+from typing import List
 from ..bindings import ICesiumOmniverseInterface
 
 NUMBER_OF_MATERIALS_LOADED_TEXT = "Number of materials loaded: {0}"
