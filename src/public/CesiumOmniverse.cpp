@@ -172,6 +172,10 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         return FabricUtil::printFabricStage();
     }
 
+    FabricStatistics getFabricStatistics() noexcept override {
+        return FabricUtil::getStatistics();
+    }
+
     bool creditsAvailable() noexcept override {
         return Context::instance().creditsAvailable();
     }

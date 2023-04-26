@@ -1,4 +1,7 @@
+#include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/CesiumOmniverse.h"
+#include "cesium/omniverse/FabricStatistics.h"
+#include "cesium/omniverse/TokenTroubleshooter.h"
 
 #include <Cesium3DTilesSelection/CreditSystem.h>
 #include <carb/BindingsPythonUtils.h>
@@ -7,9 +10,6 @@
 
 // Needs to go after carb
 #include "pyboost11.h"
-
-#include "cesium/omniverse/CesiumIonSession.h"
-#include "cesium/omniverse/TokenTroubleshooter.h"
 
 namespace pybind11 {
 namespace detail {
@@ -59,6 +59,7 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("update_troubleshooting_details", py::overload_cast<const char*, int64_t, uint64_t, uint64_t>(&ICesiumOmniverseInterface::updateTroubleshootingDetails))
         .def("update_troubleshooting_details", py::overload_cast<const char*, int64_t, int64_t, uint64_t, uint64_t>(&ICesiumOmniverseInterface::updateTroubleshootingDetails))
         .def("print_fabric_stage", &ICesiumOmniverseInterface::printFabricStage)
+        .def("get_fabric_statistics", &ICesiumOmniverseInterface::getFabricStatistics)
         .def("credits_available", &ICesiumOmniverseInterface::creditsAvailable)
         .def("get_credits", &ICesiumOmniverseInterface::getCredits);
     // clang-format on
@@ -126,4 +127,9 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
     py::class_<AssetTroubleshootingDetails>(m, "AssetTroubleshootingDetails")
         .def_readonly("asset_id", &AssetTroubleshootingDetails::assetId)
         .def_readonly("asset_exists_in_user_account", &AssetTroubleshootingDetails::assetExistsInUserAccount);
+
+    py::class_<FabricStatistics>(m, "FabricStatistics")
+        .def_readonly("number_of_materials_loaded", &FabricStatistics::numberOfMaterialsLoaded)
+        .def_readonly("number_of_geometries_loaded", &FabricStatistics::numberOfGeometriesLoaded)
+        .def_readonly("number_of_geometries_visible", &FabricStatistics::numberOfGeometriesVisible);
 }
