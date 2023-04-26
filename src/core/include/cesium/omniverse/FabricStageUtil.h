@@ -40,9 +40,9 @@ AddTileResults addTileWithImagery(
     const CesiumGltf::ImageCesium& image,
     const std::string& imageryName,
     const CesiumGeometry::Rectangle& imageryRectangle,
-    const glm::dvec2& imageryUvTranslation,
-    const glm::dvec2& imageryUvScale,
-    uint64_t imageryUvSetIndex);
+    const glm::dvec2& imageryTexcoordTranslation,
+    const glm::dvec2& imageryTexcoordScale,
+    uint64_t imageryTexcoordSetIndex);
 
 void removeTile(const std::vector<pxr::SdfPath>& allPrimPaths, const std::vector<std::string>& textureAssetNames);
 void setTileVisibility(const std::vector<pxr::SdfPath>& geomPaths, bool visible);
