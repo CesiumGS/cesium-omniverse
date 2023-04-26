@@ -483,6 +483,11 @@ Each workspace contains recommended extensions and settings for VSCode developme
       "args": [
         "${workspaceFolder}/apps/cesium.omniverse.app.kit"
       ],
+      "env": {
+        // Disable LSAN when debugging since it doesn't work with GDB and prints harmless but annoying warning messages
+        "ASAN_OPTIONS": "detect_leaks=0",
+        "UBSAN_OPTIONS": "print_stacktrace=1"
+      },
       "cwd": "${workspaceFolder}",
       "type": "lldb",
       "request": "launch",
@@ -506,6 +511,11 @@ Each workspace contains recommended extensions and settings for VSCode developme
       "args": [
         "${workspaceFolder}/extern/nvidia/app/apps/omni.code.kit"
       ],
+      "env": {
+        // Disable LSAN when debugging since it doesn't work with GDB and prints harmless but annoying warning messages
+        "ASAN_OPTIONS": "detect_leaks=0",
+        "UBSAN_OPTIONS": "print_stacktrace=1"
+      },
       "cwd": "${workspaceFolder}",
       "type": "lldb",
       "request": "launch",
@@ -546,6 +556,13 @@ Each workspace contains recommended extensions and settings for VSCode developme
           "text": "set print elements 0"
         }
       ]
+    },
+    {
+      "name": "Python Debugging (attach)",
+      "type": "python",
+      "request": "attach",
+      "port": 3000,
+      "host": "localhost"
     }
   ]
 }
@@ -593,6 +610,13 @@ Each workspace contains recommended extensions and settings for VSCode developme
       "request": "launch",
       "console": "internalConsole",
       "internalConsoleOptions": "openOnSessionStart"
+    },
+    {
+      "name": "Python Debugging (attach)",
+      "type": "python",
+      "request": "attach",
+      "port": 3000,
+      "host": "localhost"
     }
   ]
 }

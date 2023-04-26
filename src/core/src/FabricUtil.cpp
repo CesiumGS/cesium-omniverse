@@ -497,4 +497,35 @@ std::string printFabricStage() {
     return stream.str();
 }
 
+FabricStatistics getStatistics() {
+    FabricStatistics statistics;
+
+    auto sip = UsdUtil::getFabricStageInProgress();
+
+    const auto geometryBuckets = sip.findPrims(
+        {carb::flatcache::AttrNameAndType(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId)},
+        {carb::flatcache::AttrNameAndType(FabricTypes::Mesh, FabricTokens::Mesh)});
+
+    const auto materialBuckets = sip.findPrims(
+        {carb::flatcache::AttrNameAndType(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId)},
+        {carb::flatcache::AttrNameAndType(FabricTypes::Material, FabricTokens::Material)});
+
+    for (size_t bucketId = 0; bucketId < geometryBuckets.bucketCount(); bucketId++) {
+        auto paths = sip.getPathArray(geometryBuckets, bucketId);
+        statistics.numberOfGeometriesLoaded += paths.size();
+
+        auto worldVisibilityFabric =
+            sip.getAttributeArrayRd<bool>(geometryBuckets, bucketId, FabricTokens::_worldVisibility);
+        statistics.numberOfGeometriesVisible +=
+            std::count(worldVisibilityFabric.begin(), worldVisibilityFabric.end(), true);
+    }
+
+    for (size_t bucketId = 0; bucketId < materialBuckets.bucketCount(); bucketId++) {
+        auto paths = sip.getPathArray(materialBuckets, bucketId);
+        statistics.numberOfMaterialsLoaded += paths.size();
+    }
+
+    return statistics;
+}
+
 } // namespace cesium::omniverse::FabricUtil

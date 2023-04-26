@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cesium/omniverse/FabricStatistics.h"
 #include "cesium/omniverse/SetDefaultTokenResult.h"
 #include "cesium/omniverse/TokenTroubleshooter.h"
 
@@ -237,6 +238,13 @@ class ICesiumOmniverseInterface {
      * @returns A string representation of the Fabric stage.
      */
     virtual std::string printFabricStage() noexcept = 0;
+
+    /**
+     * @brief Get Fabric statistics. For debugging only.
+     *
+     * @returns Object containing Fabric statistics.
+     */
+    virtual FabricStatistics getFabricStatistics() noexcept = 0;
 
     virtual bool creditsAvailable() noexcept = 0;
     virtual std::vector<std::pair<std::string, bool>> getCredits() noexcept = 0;

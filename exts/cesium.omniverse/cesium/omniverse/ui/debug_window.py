@@ -1,6 +1,7 @@
 import logging
 from typing import Optional
 import omni.ui as ui
+from .statistics_widget import CesiumOmniverseStatisticsWidget
 from ..bindings import ICesiumOmniverseInterface
 
 
@@ -17,13 +18,21 @@ class CesiumOmniverseDebugWindow(ui.Window):
         self._logger = logging.getLogger(__name__)
         self._cesium_omniverse_interface = cesium_omniverse_interface
         self._cesium_message_field: Optional[ui.SimpleStringModel] = None
+        self._statistics_widget: Optional[CesiumOmniverseStatisticsWidget] = None
 
         # Set the function that is called to build widgets when the window is visible
         self.frame.set_build_fn(self._build_fn)
 
     def destroy(self):
+        if self._statistics_widget is not None:
+            self._statistics_widget.destroy()
+            self._statistics_widget = None
+
         # It will destroy all the children
         super().destroy()
+
+    def __del__(self):
+        self.destroy()
 
     def _build_fn(self):
         """Builds out the UI buttons and their handlers."""
@@ -57,3 +66,4 @@ class CesiumOmniverseDebugWindow(ui.Window):
             with ui.VStack():
                 self._cesium_message_field = ui.SimpleStringModel("")
                 ui.StringField(self._cesium_message_field, multiline=True, read_only=True)
+            self._statistics_widget = CesiumOmniverseStatisticsWidget(self._cesium_omniverse_interface)
