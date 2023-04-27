@@ -8,7 +8,7 @@ void FabricAttributesBuilder::addAttribute(const carb::flatcache::Type& type, co
     _attributes[_size++] = carb::flatcache::AttrNameAndType{type, name};
 }
 
-void FabricAttributesBuilder::createAttributes(const carb::flatcache::Path& path) {
+void FabricAttributesBuilder::createAttributes(const carb::flatcache::Path& path) const {
     // Somewhat annoyingly, stageInProgress.createAttributes takes an std::array instead of a gsl::span. This is fine if
     // you know exactly which set of attributes to create at compile time but we don't. For example, not all prims will
     // have UV coordinates or materials. This class allows attributes to be added dynamically up to a hardcoded maximum

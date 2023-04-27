@@ -171,8 +171,8 @@ const carb::flatcache::Type visibility(carb::flatcache::BaseDataType::eBool, 1, 
 const carb::flatcache::Type wrap_u(carb::flatcache::BaseDataType::eInt, 1, 0, carb::flatcache::AttributeRole::eNone);
 const carb::flatcache::Type wrap_v(carb::flatcache::BaseDataType::eInt, 1, 0, carb::flatcache::AttributeRole::eNone);
 const carb::flatcache::Type _cesium_localToEcefTransform(carb::flatcache::BaseDataType::eDouble, 16, 0, carb::flatcache::AttributeRole::eMatrix);
-const carb::flatcache::Type _cesium_tileId(carb::flatcache::BaseDataType::eUInt64, 1, 0, carb::flatcache::AttributeRole::eNone);
-const carb::flatcache::Type _cesium_tilesetId(carb::flatcache::BaseDataType::eUInt64, 1, 0, carb::flatcache::AttributeRole::eNone);
+const carb::flatcache::Type _cesium_tileId(carb::flatcache::BaseDataType::eInt64, 1, 0, carb::flatcache::AttributeRole::eNone);
+const carb::flatcache::Type _cesium_tilesetId(carb::flatcache::BaseDataType::eInt64, 1, 0, carb::flatcache::AttributeRole::eNone);
 const carb::flatcache::Type _localExtent(carb::flatcache::BaseDataType::eDouble, 6, 0, carb::flatcache::AttributeRole::eNone);
 const carb::flatcache::Type _localMatrix(carb::flatcache::BaseDataType::eDouble, 16, 0, carb::flatcache::AttributeRole::eMatrix);
 const carb::flatcache::Type _nodePaths(carb::flatcache::BaseDataType::eUInt64, 1, 1, carb::flatcache::AttributeRole::eNone);

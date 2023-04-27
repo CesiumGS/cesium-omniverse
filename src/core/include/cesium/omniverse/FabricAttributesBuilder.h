@@ -7,7 +7,7 @@ namespace cesium::omniverse {
 class FabricAttributesBuilder {
   public:
     void addAttribute(const carb::flatcache::Type& type, const carb::flatcache::TokenC& name);
-    void createAttributes(const carb::flatcache::Path& path);
+    void createAttributes(const carb::flatcache::Path& path) const;
 
   private:
     static const uint64_t MAX_ATTRIBUTES = 30;
