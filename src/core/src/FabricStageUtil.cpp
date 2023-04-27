@@ -314,8 +314,8 @@ std::vector<pxr::SdfPath> addMaterialImagery(
     const pxr::SdfPath& materialPath,
     const pxr::SdfAssetPath& textureAssetPath,
     const CesiumGltf::Material& material,
-    const glm::dvec2& uvTranslation,
-    const glm::dvec2& uvScale) {
+    const glm::dvec2& texcoordTranslation,
+    const glm::dvec2& texcoordScale) {
     auto sip = UsdUtil::getFabricStageInProgress();
 
     const auto metallicFactor = GltfUtil::getMetallicFactor(material);
@@ -614,7 +614,7 @@ std::vector<pxr::SdfPath> addMaterialImagery(
         auto tileIdFabric = sip.getAttributeWr<int64_t>(multiplyPathFabric, FabricTokens::_cesium_tileId);
         // clang-format on
 
-        *bFabric = pxr::GfVec2f(static_cast<float>(uvScale.x), static_cast<float>(uvScale.y));
+        *bFabric = pxr::GfVec2f(static_cast<float>(texcoordScale.x), static_cast<float>(texcoordScale.y));
         *infoIdFabric = FabricTokens::nvidia_support_definitions_mdl;
         *infoSourceAssetSubIdentifierFabric = FabricTokens::multiply_float2_float2;
         parametersFabric[0] = FabricTokens::b;
@@ -654,7 +654,7 @@ std::vector<pxr::SdfPath> addMaterialImagery(
         auto tileIdFabric = sip.getAttributeWr<int64_t>(addPathFabric, FabricTokens::_cesium_tileId);
         // clang-format on
 
-        *bFabric = pxr::GfVec2f(static_cast<float>(uvTranslation.x), static_cast<float>(uvTranslation.y));
+        *bFabric = pxr::GfVec2f(static_cast<float>(texcoordTranslation.x), static_cast<float>(texcoordTranslation.y));
         *infoIdFabric = FabricTokens::nvidia_support_definitions_mdl;
         *infoSourceAssetSubIdentifierFabric = FabricTokens::add_float2_float2;
         parametersFabric[0] = FabricTokens::b;
@@ -735,19 +735,20 @@ void addPrimitive(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     const std::vector<pxr::SdfPath>& materialPaths,
-    uint64_t imageryUvSetIndex,
+    uint64_t imageryTexcoordSetIndex,
     bool smoothNormals) {
 
     auto sip = UsdUtil::getFabricStageInProgress();
     const auto geomPathFabric = carb::flatcache::Path(carb::flatcache::asInt(geomPath));
 
-    const auto positions = GltfUtil::getPrimitivePositions(model, primitive);
-    const auto indices = GltfUtil::getPrimitiveIndices(model, primitive, positions);
-    const auto normals = GltfUtil::getPrimitiveNormals(model, primitive, positions, indices, smoothNormals);
-    const auto st0 = GltfUtil::getPrimitiveUVs(model, primitive, 0);
-    const auto imagerySt = GltfUtil::getImageryUVs(model, primitive, imageryUvSetIndex);
-    const auto localExtent = GltfUtil::getPrimitiveExtent(model, primitive);
-    const auto faceVertexCounts = GltfUtil::getPrimitiveFaceVertexCounts(indices);
+    const auto positions = GltfUtil::getPositions(model, primitive);
+    const auto indices = GltfUtil::getIndices(model, primitive, positions);
+    const auto normals = GltfUtil::getNormals(model, primitive, positions, indices, smoothNormals);
+    const auto st0 = GltfUtil::getTexcoords(model, primitive, 0, glm::fvec2(0.0, 0.0), glm::fvec2(1.0, 1.0));
+    const auto imagerySt = GltfUtil::getImageryTexcoords(
+        model, primitive, imageryTexcoordSetIndex, glm::fvec2(0.0, 0.0), glm::fvec2(1.0, 1.0));
+    const auto localExtent = GltfUtil::getExtent(model, primitive);
+    const auto faceVertexCounts = GltfUtil::getFaceVertexCounts(indices);
     const auto doubleSided = GltfUtil::getDoubleSided(model, primitive);
 
     if (positions.empty() || indices.empty() || !localExtent.has_value()) {
@@ -1040,9 +1041,9 @@ AddTileResults addTileWithImagery(
     const CesiumGltf::ImageCesium& image,
     const std::string& imageryName,
     const CesiumGeometry::Rectangle& imageryRectangle,
-    const glm::dvec2& imageryUvTranslation,
-    const glm::dvec2& imageryUvScale,
-    uint64_t imageryUvSetIndex) {
+    const glm::dvec2& imageryTexcoordTranslation,
+    const glm::dvec2& imageryTexcoordScale,
+    uint64_t imageryTexcoordSetIndex) {
     auto gltfToEcefTransform = Cesium3DTilesSelection::GltfUtilities::applyRtcCenter(model, tileTransform);
     gltfToEcefTransform = Cesium3DTilesSelection::GltfUtilities::applyGltfUpAxisTransform(model, gltfToEcefTransform);
 
@@ -1065,8 +1066,8 @@ AddTileResults addTileWithImagery(
                 materialPath,
                 imageryAssetPath.assetPath,
                 model.materials[i],
-                imageryUvTranslation,
-                imageryUvScale);
+                imageryTexcoordTranslation,
+                imageryTexcoordScale);
 
             materialPaths.emplace_back(std::move(materialPath));
             allPrimPaths.insert(
@@ -1089,7 +1090,7 @@ AddTileResults addTileWithImagery(
          &gltfToEcefTransform,
          &materialPaths,
          &geomPaths,
-         imageryUvSetIndex,
+         imageryTexcoordSetIndex,
          smoothNormals](
             const CesiumGltf::Model& gltf,
             [[maybe_unused]] const CesiumGltf::Node& node,
@@ -1107,7 +1108,7 @@ AddTileResults addTileWithImagery(
                 gltf,
                 primitive,
                 materialPaths,
-                imageryUvSetIndex,
+                imageryTexcoordSetIndex,
                 smoothNormals);
             geomPaths.emplace_back(std::move(geomPath));
         });
