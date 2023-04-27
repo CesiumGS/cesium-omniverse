@@ -95,9 +95,6 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         _cesium_omniverse_interface.on_startup(cesium_extension_location)
 
         omni_settings.get_settings().set("/rtx/hydra/TBNFrameMode", 1)
-        # Disabling Texture Streaming is a workaround for issues with Kit 104.1. We should remove this as soon as
-        #   the issue is fixed.
-        omni_settings.get_settings().set("/rtx-transient/resourcemanager/enableTextureStreaming", False)
 
         # Show the window. It will call `self.show_window`
         if show_on_startup:

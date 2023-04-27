@@ -67,7 +67,6 @@ void Context::initialize(int64_t contextId, const std::filesystem::path& cesiumE
     _tilesetId = 0;
 
     _cesiumExtensionLocation = cesiumExtensionLocation.lexically_normal();
-    _memCesiumPath = _cesiumExtensionLocation / "bin" / "mem.cesium";
     _certificatePath = _cesiumExtensionLocation / "certs" / "cacert.pem";
 
     _taskProcessor = std::make_shared<TaskProcessor>();
@@ -598,10 +597,6 @@ void Context::updateTroubleshootingDetails(
 
 std::filesystem::path Context::getCesiumExtensionLocation() const {
     return _cesiumExtensionLocation;
-}
-
-std::filesystem::path Context::getMemCesiumPath() const {
-    return _memCesiumPath;
 }
 
 std::filesystem::path Context::getCertificatePath() const {

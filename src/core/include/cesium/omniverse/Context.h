@@ -110,7 +110,6 @@ class Context {
         uint64_t assetEventId);
 
     std::filesystem::path getCesiumExtensionLocation() const;
-    std::filesystem::path getMemCesiumPath() const;
     std::filesystem::path getCertificatePath() const;
     bool getDebugDisableMaterials() const;
 
@@ -146,7 +145,6 @@ class Context {
     mutable std::atomic<int64_t> _tileId{};
 
     std::filesystem::path _cesiumExtensionLocation;
-    std::filesystem::path _memCesiumPath;
     std::filesystem::path _certificatePath;
 
     bool _debugDisableMaterials{false};

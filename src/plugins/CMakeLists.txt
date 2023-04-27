@@ -1,2 +1,1 @@
-add_subdirectory(InMemoryAssetResolver)
 add_subdirectory(CesiumUsdSchemas)

@@ -18,6 +18,9 @@ include(Macros)
 
 glob_files(SOURCES "${CMAKE_CURRENT_LIST_DIR}/src/*.cpp")
 
+get_property(ADDITIONAL_LIBRARIES GLOBAL PROPERTY NVIDIA_ADDITIONAL_LIBRARIES_PROPERTY)
+get_property(ADDITIONAL_LINK_DIRECTORIES GLOBAL PROPERTY NVIDIA_ADDITIONAL_LINK_DIRECTORIES_PROPERTY)
+
 # cmake-format: off
 setup_lib(
     TARGET_NAME
@@ -31,7 +34,6 @@ setup_lib(
     INCLUDE_DIRS
         "${CMAKE_CURRENT_LIST_DIR}/include"
     LIBRARIES
-        InMemoryAssetResolver
         CesiumUsdSchemas
         CesiumIonClient
         Cesium3DTilesSelection
@@ -83,8 +85,14 @@ setup_lib(
         carb
         cudart
         omni_kit_app
+        omni_ui
+        rtx_plugins
         pybind11
         python37
+    ADDITIONAL_LIBRARIES
+        "${ADDITIONAL_LIBRARIES}"
+    ADDITIONAL_LINK_DIRECTORIES
+        "${ADDITIONAL_LINK_DIRECTORIES}"
     DEPENDENCIES
         cesium-native-external
     CXX_FLAGS

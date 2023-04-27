@@ -1,10 +1,10 @@
 #include "cesium/omniverse/FabricStageUtil.h"
 
 #include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/DynamicTextureProviderCache.h"
 #include "cesium/omniverse/FabricAsset.h"
 #include "cesium/omniverse/FabricAttributesBuilder.h"
 #include "cesium/omniverse/GltfUtil.h"
-#include "cesium/omniverse/InMemoryAssetResolver.h"
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
@@ -16,6 +16,7 @@
 
 #include <Cesium3DTilesSelection/GltfUtilities.h>
 #include <carb/flatcache/FlatCacheUSD.h>
+#include <omni/ui/ImageProvider/DynamicTextureProvider.h>
 #include <pxr/base/gf/range3d.h>
 #include <pxr/base/gf/vec2f.h>
 #include <pxr/base/gf/vec3f.h>
@@ -48,16 +49,11 @@ struct AssetPath {
     pxr::SdfAssetPath assetPath;
 };
 
-AssetPath getAssetPath(const std::string& name, const std::string& extension) {
-    const auto assetName = fmt::format("{}.{}", name, extension);
+AssetPath getAssetPath(const std::string& name) {
+    const auto texturePath = fmt::format("{}{}", rtx::resourcemanager::kDynamicTexturePrefix, name);
+    const auto assetPath = pxr::SdfAssetPath(texturePath);
 
-    const auto memCesiumPath = Context::instance().getMemCesiumPath().generic_string();
-    const auto texturePath = fmt::format("{}[{}]", memCesiumPath, assetName);
-
-    // Set both the path and resolvedPath so that it works with FabricAsset
-    const auto assetPath = pxr::SdfAssetPath(texturePath, texturePath);
-
-    return AssetPath{assetName, assetPath};
+    return AssetPath{name, assetPath};
 }
 
 AssetPath getTextureAssetPath(const CesiumGltf::Model& model, int64_t tilesetId, int64_t tileId, uint64_t textureId) {
@@ -80,7 +76,7 @@ AssetPath getTextureAssetPath(const CesiumGltf::Model& model, int64_t tilesetId,
     texturePrefix = UsdUtil::getSafeName(texturePrefix);
 
     const auto textureName = fmt::format("{}_texture_{}", texturePrefix, textureId);
-    return getAssetPath(textureName, "bmp");
+    return getAssetPath(textureName);
 }
 
 AssetPath getImageryAssetPath(const std::string& name, const CesiumGeometry::Rectangle& rectangle) {
@@ -91,7 +87,7 @@ AssetPath getImageryAssetPath(const std::string& name, const CesiumGeometry::Rec
     const auto assetName = UsdUtil::getSafeName(fmt::format(
         "{}_{}_{}_{}_{}", name, rectangle.minimumX, rectangle.minimumY, rectangle.maximumX, rectangle.maximumY));
 
-    return getAssetPath(assetName, "bmp");
+    return getAssetPath(assetName);
 }
 
 pxr::SdfPath getGeomPath(int64_t tilesetId, int64_t tileId, uint64_t primitiveId) {
@@ -904,31 +900,32 @@ void addPrimitive(
     }
 }
 
-std::vector<std::byte> convertImageToBmp(const CesiumGltf::ImageCesium& image) {
-    std::vector<std::byte> writeData;
-    stbi_write_bmp_to_func(
-        [](void* context, void* data, int size) {
-            auto& write = *reinterpret_cast<std::vector<std::byte>*>(context);
-            const auto bdata = reinterpret_cast<std::byte*>(data);
-            write.insert(write.end(), bdata, bdata + size);
-        },
-        &writeData,
-        image.width,
-        image.height,
-        image.channels,
-        image.pixelData.data());
-
-    return writeData;
-}
-
 void addTexture(const std::string& assetName, const CesiumGltf::ImageCesium& image) {
-    auto& ctx = pxr::InMemoryAssetContext::instance();
-    ctx.add(assetName, convertImageToBmp(image));
+    auto& cache = DynamicTextureProviderCache::getInstance();
+    if (cache.contains(assetName)) {
+        cache.addReference(assetName);
+        return;
+    }
+
+    assert(image.channels == 4);
+    assert(image.bytesPerChannel == 1);
+    assert(image.mipPositions.size() == 0);
+    assert(image.compressedPixelFormat == CesiumGltf::GpuCompressedPixelFormat::NONE);
+
+    auto provider = std::make_unique<omni::ui::DynamicTextureProvider>(assetName);
+
+    provider->setBytesData(
+        reinterpret_cast<const uint8_t*>(image.pixelData.data()),
+        carb::Uint2{static_cast<uint32_t>(image.width), static_cast<uint32_t>(image.height)},
+        omni::ui::kAutoCalculateStride,
+        carb::Format::eRGBA8_SRGB);
+
+    cache.insert(assetName, std::move(provider));
 }
 
 void removeTexture(const std::string& assetName) {
-    auto& ctx = pxr::InMemoryAssetContext::instance();
-    ctx.remove(assetName);
+    auto& cache = DynamicTextureProviderCache::getInstance();
+    cache.removeReference(assetName);
 }
 
 void deletePrimsFabric(const std::vector<pxr::SdfPath>& primsToDelete) {
@@ -948,26 +945,6 @@ void deletePrimsFabric(const std::vector<pxr::SdfPath>& primsToDelete) {
 
     for (size_t i = 0; i < primsToDelete.size(); i++) {
         deletedPrimsFabric[deletedPrimsSize + i] = carb::flatcache::asInt(primsToDelete[i]).path;
-    }
-}
-
-void deletePrimsFabric(const std::vector<uint64_t>& primsToDelete) {
-    // Prims removed from Fabric need special handling for their removal to be reflected in the Hydra render index
-    // This workaround may not be needed in future Kit versions, but is needed as of Kit 104.2
-    auto sip = UsdUtil::getFabricStageInProgress();
-
-    const carb::flatcache::Path changeTrackingPath("/TempChangeTracking");
-
-    if (sip.getAttribute<uint64_t>(changeTrackingPath, FabricTokens::_deletedPrims) == nullptr) {
-        return;
-    }
-
-    const auto deletedPrimsSize = sip.getArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims);
-    sip.setArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims, deletedPrimsSize + primsToDelete.size());
-    auto deletedPrimsFabric = sip.getArrayAttributeWr<uint64_t>(changeTrackingPath, FabricTokens::_deletedPrims);
-
-    for (size_t i = 0; i < primsToDelete.size(); i++) {
-        deletedPrimsFabric[deletedPrimsSize + i] = primsToDelete[i];
     }
 }
 
@@ -1141,13 +1118,16 @@ AddTileResults addTileWithImagery(
 }
 
 void removeTile(const std::vector<pxr::SdfPath>& allPrimPaths, const std::vector<std::string>& textureAssetNames) {
-    auto sip = UsdUtil::getFabricStageInProgress();
+    if (UsdUtil::hasStage()) {
+        // Only delete prims if there's still a stage to delete them from
+        auto sip = UsdUtil::getFabricStageInProgress();
 
-    for (const auto& primPath : allPrimPaths) {
-        sip.destroyPrim(carb::flatcache::asInt(primPath));
+        for (const auto& primPath : allPrimPaths) {
+            sip.destroyPrim(carb::flatcache::asInt(primPath));
+        }
+
+        deletePrimsFabric(allPrimPaths);
     }
-
-    deletePrimsFabric(allPrimPaths);
 
     for (const auto& textureAssetName : textureAssetNames) {
         removeTexture(textureAssetName);
@@ -1162,33 +1142,6 @@ void setTileVisibility(const std::vector<pxr::SdfPath>& geomPaths, bool visible)
             sip.getAttributeWr<bool>(carb::flatcache::asInt(geomPath), FabricTokens::_worldVisibility);
         *worldVisibilityFabric = visible;
     }
-}
-
-void removeTileset(int64_t tilesetId) {
-    auto sip = UsdUtil::getFabricStageInProgress();
-
-    const auto buckets = sip.findPrims(
-        {carb::flatcache::AttrNameAndType(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId)});
-
-    std::vector<uint64_t> primsToDelete;
-
-    for (size_t bucketId = 0; bucketId < buckets.bucketCount(); bucketId++) {
-        const auto tilesetIdFabric =
-            sip.getAttributeArrayRd<int64_t>(buckets, bucketId, FabricTokens::_cesium_tilesetId);
-        const auto primPaths = sip.getPathArray(buckets, bucketId);
-
-        for (size_t i = 0; i < tilesetIdFabric.size(); i++) {
-            if (tilesetIdFabric[i] == tilesetId) {
-                primsToDelete.push_back(carb::flatcache::PathC(primPaths[i]).path);
-            }
-        }
-    }
-
-    for (const auto& primToDelete : primsToDelete) {
-        sip.destroyPrim(carb::flatcache::Path(carb::flatcache::PathC{primToDelete}));
-    }
-
-    deletePrimsFabric(primsToDelete);
 }
 
 void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform) {

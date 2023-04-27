@@ -79,6 +79,7 @@ set(CARB_ROOT "${NVIDIA_BUILD_DIR}/target-deps/carb_sdk_plugins")
 set(KIT_SDK_ROOT "${NVIDIA_BUILD_DIR}/target-deps/kit-sdk")
 set(PYBIND11_ROOT "${NVIDIA_BUILD_DIR}/target-deps/pybind11")
 set(CUDA_ROOT "${NVIDIA_BUILD_DIR}/target-deps/cuda")
+set(RTX_PLUGINS_ROOT "${NVIDIA_BUILD_DIR}/target-deps/rtx_plugins")
 
 set(NVIDIA_USD_LIBRARIES
     ar
@@ -303,4 +304,58 @@ else()
             cudart
     )
     # cmake-format: on
+endif()
+
+# cmake-format: off
+# omni.ui gives us access to DynamicTextureProvider.h
+add_prebuilt_project(
+    RELEASE_INCLUDE_DIR
+        "${KIT_SDK_ROOT}/dev/include"
+    DEBUG_INCLUDE_DIR
+        "${KIT_SDK_ROOT}/dev/include"
+    RELEASE_LIBRARY_DIR
+        "${KIT_SDK_ROOT}/extscore/omni.ui/bin"
+    DEBUG_LIBRARY_DIR
+        "${KIT_SDK_ROOT}/extscore/omni.ui/bin"
+    RELEASE_LIBRARIES
+        omni.ui
+    DEBUG_LIBRARIES
+        omni.ui
+    TARGET_NAMES
+        omni_ui
+)
+# cmake-format: on
+
+# cmake-format: off
+# DynamicTextureProvider.h includes IImaging.h which only exists in the rtx_plugin package
+add_prebuilt_project_header_only(
+    INCLUDE_DIR
+        "${RTX_PLUGINS_ROOT}/include"
+    TARGET_NAME
+        rtx_plugins
+)
+# cmake-format: on
+
+if(WIN32)
+    set(NVIDIA_ADDITIONAL_LIBRARIES
+        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/kit-sdk/extscore/omni.kit.renderer.imgui/bin/imgui.dll"
+        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/kit-sdk/extscore/omni.kit.renderer.imgui/bin/deps/freetype.dll"
+    )
+
+    set_property(GLOBAL PROPERTY NVIDIA_ADDITIONAL_LIBRARIES_PROPERTY "${NVIDIA_ADDITIONAL_LIBRARIES}")
+else()
+    set(NVIDIA_ADDITIONAL_SEARCH_PATHS
+        "$<TARGET_FILE_DIR:python37>"
+        "$<TARGET_FILE_DIR:usd>"
+        "$<TARGET_FILE_DIR:carb>"
+        # This is where freetype is located on Linux
+        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/kit-sdk/plugins")
+
+    set(NVIDIA_ADDITIONAL_LINK_DIRECTORIES
+        # This is where freetype is located on Linux
+        # Needed by imgui which doesn't set its rpath properly
+        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/kit-sdk/plugins")
+
+    set_property(GLOBAL PROPERTY NVIDIA_ADDITIONAL_SEARCH_PATHS_PROPERTY "${NVIDIA_ADDITIONAL_SEARCH_PATHS}")
+    set_property(GLOBAL PROPERTY NVIDIA_ADDITIONAL_LINK_DIRECTORIES_PROPERTY "${NVIDIA_ADDITIONAL_LINK_DIRECTORIES}")
 endif()

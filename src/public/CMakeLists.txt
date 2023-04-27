@@ -2,6 +2,8 @@ include(Macros)
 
 glob_files(SOURCES "${CMAKE_CURRENT_LIST_DIR}/*.cpp")
 
+get_property(ADDITIONAL_LIBRARIES GLOBAL PROPERTY NVIDIA_ADDITIONAL_LIBRARIES_PROPERTY)
+
 # cmake-format: off
 setup_lib(
     TARGET_NAME
@@ -15,6 +17,10 @@ setup_lib(
         "${PROJECT_SOURCE_DIR}/include"
     LIBRARIES
         CesiumOmniverseCore
+    ADDITIONAL_LIBRARIES
+        # Unfortunately we need this in both cesium.omniverse.plugin and CesiumOmniverseCore because we're bypassing
+        # CMake's built-in dependency system
+        "${ADDITIONAL_LIBRARIES}"
     CXX_FLAGS
         ${CESIUM_OMNI_CXX_FLAGS}
     CXX_FLAGS_DEBUG
