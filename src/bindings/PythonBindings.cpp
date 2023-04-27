@@ -2,6 +2,7 @@
 #include "cesium/omniverse/CesiumOmniverse.h"
 #include "cesium/omniverse/FabricStatistics.h"
 #include "cesium/omniverse/TokenTroubleshooter.h"
+#include "cesium/omniverse/Viewport.h"
 
 #include <Cesium3DTilesSelection/CreditSystem.h>
 #include <carb/BindingsPythonUtils.h>
@@ -132,4 +133,11 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def_readonly("number_of_materials_loaded", &FabricStatistics::numberOfMaterialsLoaded)
         .def_readonly("number_of_geometries_loaded", &FabricStatistics::numberOfGeometriesLoaded)
         .def_readonly("number_of_geometries_visible", &FabricStatistics::numberOfGeometriesVisible);
+
+    py::class_<Viewport>(m, "Viewport")
+        .def(py::init())
+        .def_readwrite("viewMatrix", &Viewport::viewMatrix)
+        .def_readwrite("projMatrix", &Viewport::projMatrix)
+        .def_readwrite("width", &Viewport::width)
+        .def_readwrite("height", &Viewport::height);
 }

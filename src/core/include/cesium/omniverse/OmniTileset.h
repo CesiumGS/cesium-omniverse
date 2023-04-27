@@ -25,6 +25,7 @@ namespace cesium::omniverse {
 enum TilesetSourceType { ION = 0, URL = 1 };
 
 class FabricPrepareRenderResources;
+struct Viewport;
 
 class OmniTileset {
   public:
@@ -55,11 +56,11 @@ class OmniTileset {
 
     void reload();
     void addImageryIon(const pxr::SdfPath& imageryPath);
-    void onUpdateFrame(const glm::dmat4& viewMatrix, const glm::dmat4& projMatrix, double width, double height);
+    void onUpdateFrame(const std::vector<Viewport>& viewports);
 
   private:
     void updateTransform();
-    void updateView(const glm::dmat4& viewMatrix, const glm::dmat4& projMatrix, double width, double height);
+    void updateView(const std::vector<Viewport>& viewports);
 
     std::unique_ptr<Cesium3DTilesSelection::Tileset> _tileset;
     std::shared_ptr<FabricPrepareRenderResources> _renderResourcesPreparer;

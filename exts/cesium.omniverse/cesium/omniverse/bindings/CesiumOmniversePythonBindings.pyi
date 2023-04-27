@@ -1,8 +1,16 @@
 __all__ = [
     "ICesiumOmniverseInterface",
     "CesiumIonSession",
+    "SetDefaultTokenResult",
+    "Assets",
+    "Asset",
     "Connection",
+    "Profile",
     "Token",
+    "TokenTroubleshootingDetails",
+    "AssetTroubleshootingDetails",
+    "FabricStatistics",
+    "Viewport",
     "acquire_cesium_omniverse_interface",
     "release_cesium_omniverse_interface",
 ]

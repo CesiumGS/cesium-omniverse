@@ -19,6 +19,7 @@ PXR_NAMESPACE_CLOSE_SCOPE
 namespace cesium::omniverse {
 
 class CesiumIonSession;
+struct Viewport;
 
 class ICesiumOmniverseInterface {
   public:
@@ -136,16 +137,9 @@ class ICesiumOmniverseInterface {
     /**
      * @brief Updates all tilesets this frame.
      *
-     * @param viewMatrix The view matrix.
-     * @param projMatrix The projection matrix.
-     * @param width The screen width.
-     * @param height The screen height.
+     * @param viewports A list of viewports.
      */
-    virtual void onUpdateFrame(
-        const pxr::GfMatrix4d& viewMatrix,
-        const pxr::GfMatrix4d& projMatrix,
-        double width,
-        double height) noexcept = 0;
+    virtual void onUpdateFrame(const std::vector<Viewport>& viewports) noexcept = 0;
 
     /**
      * @brief Updates the UI.

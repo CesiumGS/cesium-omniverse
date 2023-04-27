@@ -9,6 +9,7 @@
 #include "cesium/omniverse/OmniImagery.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/UsdUtil.h"
+#include "cesium/omniverse/Viewport.h"
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
@@ -313,11 +314,7 @@ void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
     _tileset->getOverlays().add(ionRasterOverlay);
 }
 
-void OmniTileset::onUpdateFrame(
-    const glm::dmat4& viewMatrix,
-    const glm::dmat4& projMatrix,
-    double width,
-    double height) {
+void OmniTileset::onUpdateFrame(const std::vector<Viewport>& viewports) {
     if (!UsdUtil::primExists(_tilesetPath)) {
         // TfNotice can be slow, and sometimes we get a frame or two before we actually get a chance to react on it.
         //   This guard prevents us from crashing if the prim no longer exists.
@@ -325,7 +322,7 @@ void OmniTileset::onUpdateFrame(
     }
 
     updateTransform();
-    updateView(viewMatrix, projMatrix, width, height);
+    updateView(viewports);
 }
 
 void OmniTileset::updateTransform() {
@@ -349,14 +346,15 @@ void OmniTileset::updateTransform() {
     }
 }
 
-void OmniTileset::updateView(const glm::dmat4& viewMatrix, const glm::dmat4& projMatrix, double width, double height) {
+void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
     if (!getSuspendUpdate()) {
         // Go ahead and select some tiles
         const auto& georeferenceOrigin = Context::instance().getGeoreferenceOrigin();
 
         _viewStates.clear();
-        _viewStates.emplace_back(
-            UsdUtil::computeViewState(georeferenceOrigin, _tilesetPath, viewMatrix, projMatrix, width, height));
+        for (const auto& viewport : viewports) {
+            _viewStates.emplace_back(UsdUtil::computeViewState(georeferenceOrigin, _tilesetPath, viewport));
+        }
 
         _pViewUpdateResult = &_tileset->updateView(_viewStates);
     }

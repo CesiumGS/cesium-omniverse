@@ -1,4 +1,4 @@
-from .bindings import acquire_cesium_omniverse_interface, release_cesium_omniverse_interface
+from .bindings import acquire_cesium_omniverse_interface, release_cesium_omniverse_interface, Viewport
 from .utils.utils import wait_n_frames
 from .ui.asset_window import CesiumOmniverseAssetWindow
 from .ui.debug_window import CesiumOmniverseDebugWindow
@@ -16,7 +16,7 @@ import omni.ext
 import omni.kit.app as omni_app
 import omni.kit.ui
 import omni.kit.pipapi
-from omni.kit.viewport.utility import get_active_viewport
+from omni.kit.viewport.window import get_viewport_window_instances
 import omni.ui as ui
 import omni.usd
 import os
@@ -210,10 +210,17 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         if omni.usd.get_context().get_stage_state() != omni.usd.StageState.OPENED:
             return
 
-        viewport = get_active_viewport()
-        _cesium_omniverse_interface.on_update_frame(
-            viewport.view, viewport.projection, float(viewport.resolution[0]), float(viewport.resolution[1])
-        )
+        viewports = []
+        for instance in get_viewport_window_instances():
+            viewport_api = instance.viewport_api
+            viewport = Viewport()
+            viewport.viewMatrix = viewport_api.view
+            viewport.projMatrix = viewport_api.projection
+            viewport.width = float(viewport_api.resolution[0])
+            viewport.height = float(viewport_api.resolution[1])
+            viewports.append(viewport)
+
+        _cesium_omniverse_interface.on_update_frame(viewports)
 
     def _on_stage_event(self, event):
         if _cesium_omniverse_interface is None:
