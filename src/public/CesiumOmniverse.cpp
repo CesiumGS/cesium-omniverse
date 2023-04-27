@@ -8,6 +8,7 @@
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/UsdUtil.h"
+#include "cesium/omniverse/Viewport.h"
 
 #include <CesiumGeospatial/Cartographic.h>
 #include <CesiumUsdSchemas/data.h>
@@ -85,14 +86,8 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         Context::instance().reloadTileset(pxr::SdfPath(tilesetPath));
     }
 
-    void onUpdateFrame(
-        const pxr::GfMatrix4d& viewMatrix,
-        const pxr::GfMatrix4d& projMatrix,
-        double width,
-        double height) noexcept override {
-        const auto viewMatrixGlm = UsdUtil::usdToGlmMatrix(viewMatrix);
-        const auto projMatrixGlm = UsdUtil::usdToGlmMatrix(projMatrix);
-        Context::instance().onUpdateFrame(viewMatrixGlm, projMatrixGlm, width, height);
+    void onUpdateFrame(const std::vector<Viewport>& viewports) noexcept override {
+        Context::instance().onUpdateFrame(viewports);
     }
 
     void onUpdateUi() noexcept override {

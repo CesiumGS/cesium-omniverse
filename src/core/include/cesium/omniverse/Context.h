@@ -33,6 +33,7 @@ class CesiumIonSession;
 class HttpAssetAccessor;
 class OmniTileset;
 class TaskProcessor;
+struct Viewport;
 
 class Context {
   public:
@@ -68,7 +69,7 @@ class Context {
     void reloadTileset(const pxr::SdfPath& tilesetPath);
     void reloadStage();
 
-    void onUpdateFrame(const glm::dmat4& viewMatrix, const glm::dmat4& projMatrix, double width, double height);
+    void onUpdateFrame(const std::vector<Viewport>& viewports);
     void onUpdateUi();
 
     pxr::UsdStageRefPtr getStage() const;

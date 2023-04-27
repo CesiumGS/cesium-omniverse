@@ -17,6 +17,10 @@ namespace CesiumGeospatial {
 class Cartographic;
 }
 
+namespace cesium::omniverse {
+struct Viewport;
+}
+
 namespace cesium::omniverse::UsdUtil {
 
 struct Decomposed {
@@ -44,13 +48,8 @@ glm::dmat4 computeUsdToEcefTransform(const CesiumGeospatial::Cartographic& origi
 glm::dmat4 computeEcefToUsdTransform(const CesiumGeospatial::Cartographic& origin);
 glm::dmat4 computeEcefToUsdTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath);
 glm::dmat4 computeUsdToEcefTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath);
-Cesium3DTilesSelection::ViewState computeViewState(
-    const CesiumGeospatial::Cartographic& origin,
-    const pxr::SdfPath& primPath,
-    const glm::dmat4& viewMatrix,
-    const glm::dmat4& projMatrix,
-    double width,
-    double height);
+Cesium3DTilesSelection::ViewState
+computeViewState(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath, const Viewport& viewport);
 pxr::GfRange3d computeWorldExtent(const pxr::GfRange3d& localExtent, const glm::dmat4& localToUsdTransform);
 
 pxr::CesiumData defineCesiumData(const pxr::SdfPath& path);

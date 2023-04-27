@@ -199,12 +199,12 @@ void Context::reloadStage() {
     }
 }
 
-void Context::onUpdateFrame(const glm::dmat4& viewMatrix, const glm::dmat4& projMatrix, double width, double height) {
+void Context::onUpdateFrame(const std::vector<Viewport>& viewports) {
     processUsdNotifications();
 
     const auto& tilesets = AssetRegistry::getInstance().getAllTilesets();
     for (const auto& tileset : tilesets) {
-        tileset->onUpdateFrame(viewMatrix, projMatrix, width, height);
+        tileset->onUpdateFrame(viewports);
     }
 }
 

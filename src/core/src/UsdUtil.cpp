@@ -1,6 +1,7 @@
 #include "cesium/omniverse/UsdUtil.h"
 
 #include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/Viewport.h"
 
 #include <CesiumGeometry/Transforms.h>
 #include <CesiumGeospatial/Cartographic.h>
@@ -215,13 +216,13 @@ computeUsdToEcefTransformForPrim(const CesiumGeospatial::Cartographic& origin, c
     return glm::inverse(computeEcefToUsdTransformForPrim(origin, primPath));
 }
 
-Cesium3DTilesSelection::ViewState computeViewState(
-    const CesiumGeospatial::Cartographic& origin,
-    const pxr::SdfPath& primPath,
-    const glm::dmat4& viewMatrix,
-    const glm::dmat4& projMatrix,
-    double width,
-    double height) {
+Cesium3DTilesSelection::ViewState
+computeViewState(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath, const Viewport& viewport) {
+    const auto viewMatrix = usdToGlmMatrix(viewport.viewMatrix);
+    const auto projMatrix = usdToGlmMatrix(viewport.projMatrix);
+    const auto width = viewport.width;
+    const auto height = viewport.height;
+
     const auto usdToEcef = UsdUtil::computeUsdToEcefTransformForPrim(origin, primPath);
     const auto inverseView = glm::inverse(viewMatrix);
     const auto omniCameraUp = glm::dvec3(viewMatrix[1]);
