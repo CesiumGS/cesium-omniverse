@@ -10,13 +10,12 @@
 
 namespace cesium::omniverse {
 
+class FabricMesh;
 class OmniTileset;
 
 struct TileRenderResources {
     glm::dmat4 tileTransform;
-    std::vector<pxr::SdfPath> geomPaths;
-    std::vector<pxr::SdfPath> allPrimPaths;
-    std::vector<std::string> textureAssetNames;
+    std::vector<std::shared_ptr<FabricMesh>> fabricMeshes;
 };
 
 class FabricPrepareRenderResources : public Cesium3DTilesSelection::IPrepareRendererResources {

@@ -1,10 +1,17 @@
 #include "cesium/omniverse/FabricPrepareRenderResources.h"
 
 #include "cesium/omniverse/Context.h"
-#include "cesium/omniverse/FabricStageUtil.h"
+#include "cesium/omniverse/FabricMesh.h"
+#include "cesium/omniverse/FabricMeshManager.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/UsdUtil.h"
 
+#ifdef CESIUM_OMNI_MSVC
+#pragma push_macro("OPAQUE")
+#undef OPAQUE
+#endif
+
+#include <Cesium3DTilesSelection/GltfUtilities.h>
 #include <Cesium3DTilesSelection/Tile.h>
 #include <Cesium3DTilesSelection/Tileset.h>
 #include <CesiumAsync/AsyncSystem.h>
@@ -14,10 +21,72 @@ namespace cesium::omniverse {
 namespace {
 struct TileLoadThreadResult {
     glm::dmat4 tileTransform;
-    std::vector<pxr::SdfPath> geomPaths;
-    std::vector<pxr::SdfPath> allPrimPaths;
-    std::vector<std::string> textureAssetNames;
+    std::vector<std::shared_ptr<FabricMesh>> fabricMeshes;
 };
+
+std::vector<std::shared_ptr<FabricMesh>> createFabricMeshes(
+    const OmniTileset& tileset,
+    const glm::dmat4& tileTransform,
+    const CesiumGltf::Model& model,
+    const CesiumGltf::ImageCesium* imagery,
+    const glm::dvec2& imageryTexcoordTranslation,
+    const glm::dvec2& imageryTexcoordScale,
+    uint64_t imageryTexcoordSetIndex) {
+
+    const auto tilesetId = tileset.getTilesetId();
+    const auto tileId = Context::instance().getNextTileId();
+
+    const auto smoothNormals = tileset.getSmoothNormals();
+
+    const auto ecefToUsdTransform =
+        UsdUtil::computeEcefToUsdTransformForPrim(Context::instance().getGeoreferenceOrigin(), tileset.getPath());
+
+    auto gltfToEcefTransform = Cesium3DTilesSelection::GltfUtilities::applyRtcCenter(model, tileTransform);
+    gltfToEcefTransform = Cesium3DTilesSelection::GltfUtilities::applyGltfUpAxisTransform(model, gltfToEcefTransform);
+
+    std::vector<std::shared_ptr<FabricMesh>> fabricMeshes;
+
+    model.forEachPrimitiveInScene(
+        -1,
+        [tilesetId,
+         tileId,
+         &ecefToUsdTransform,
+         &gltfToEcefTransform,
+         smoothNormals,
+         imagery,
+         &imageryTexcoordTranslation,
+         &imageryTexcoordScale,
+         imageryTexcoordSetIndex,
+         &fabricMeshes](
+            const CesiumGltf::Model& gltf,
+            [[maybe_unused]] const CesiumGltf::Node& node,
+            [[maybe_unused]] const CesiumGltf::Mesh& mesh,
+            const CesiumGltf::MeshPrimitive& primitive,
+            const glm::dmat4& transform) {
+            const auto fabricMesh = FabricMeshManager::getInstance().acquireMesh(
+                tilesetId,
+                tileId,
+                ecefToUsdTransform,
+                gltfToEcefTransform,
+                transform,
+                gltf,
+                primitive,
+                smoothNormals,
+                imagery,
+                imageryTexcoordTranslation,
+                imageryTexcoordScale,
+                imageryTexcoordSetIndex);
+            fabricMeshes.push_back(fabricMesh);
+        });
+
+    return fabricMeshes;
+}
+
+std::vector<std::shared_ptr<FabricMesh>>
+createFabricMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const CesiumGltf::Model& model) {
+    return createFabricMeshes(tileset, tileTransform, model, nullptr, glm::dvec2(), glm::dvec2(), 0);
+}
+
 } // namespace
 
 FabricPrepareRenderResources::FabricPrepareRenderResources(const OmniTileset& tileset)
@@ -40,25 +109,16 @@ FabricPrepareRenderResources::prepareInLoadThread(
 
         // If there are no imagery layers attached to the tile add the tile right away
         if (!tileLoadResult.rasterOverlayDetails.has_value()) {
-            const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdTransformForPrim(
-                Context::instance().getGeoreferenceOrigin(), _tileset.getPath());
 
-            const auto addTileResults = FabricStageUtil::addTile(
-                _tileset.getTilesetId(),
-                Context::instance().getNextTileId(),
-                ecefToUsdTransform,
-                transform,
-                *pModel,
-                _tileset.getSmoothNormals());
+            const auto fabricMeshes = createFabricMeshes(_tileset, transform, *pModel);
 
             return asyncSystem.createResolvedFuture(Cesium3DTilesSelection::TileLoadResultAndRenderResources{
                 std::move(tileLoadResult),
                 new TileLoadThreadResult{
                     transform,
-                    std::move(addTileResults.geomPaths),
-                    std::move(addTileResults.allPrimPaths),
-                    std::move(addTileResults.textureAssetNames),
-                }});
+                    std::move(fabricMeshes),
+                },
+            });
         }
 
         // Otherwise add the tile + imagery later
@@ -67,9 +127,8 @@ FabricPrepareRenderResources::prepareInLoadThread(
             new TileLoadThreadResult{
                 transform,
                 {},
-                {},
-                {},
-            }});
+            },
+        });
     });
 }
 
@@ -81,9 +140,7 @@ void* FabricPrepareRenderResources::prepareInMainThread(
             reinterpret_cast<TileLoadThreadResult*>(pLoadThreadResult)};
         return new TileRenderResources{
             pTileLoadThreadResult->tileTransform,
-            std::move(pTileLoadThreadResult->geomPaths),
-            std::move(pTileLoadThreadResult->allPrimPaths),
-            std::move(pTileLoadThreadResult->textureAssetNames),
+            std::move(pTileLoadThreadResult->fabricMeshes),
         };
     }
 
@@ -102,7 +159,9 @@ void FabricPrepareRenderResources::free(
     if (pMainThreadResult) {
         const auto pTileRenderResources = reinterpret_cast<TileRenderResources*>(pMainThreadResult);
 
-        FabricStageUtil::removeTile(pTileRenderResources->allPrimPaths, pTileRenderResources->textureAssetNames);
+        for (const auto& mesh : pTileRenderResources->fabricMeshes) {
+            FabricMeshManager::getInstance().releaseMesh(mesh);
+        }
 
         delete pTileRenderResources;
     }
@@ -147,33 +206,25 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
         return;
     }
 
-    if (pTileRenderResources->geomPaths.size() > 0) {
+    if (pTileRenderResources->fabricMeshes.size() > 0) {
         // Already created the tile with lower-res imagery.
         // Due to Kit 104.2 material limitations, we can't update the texture or assign a new material to the prim.
         // But we can delete the existing prim and create a new prim.
-        FabricStageUtil::removeTile(pTileRenderResources->allPrimPaths, pTileRenderResources->textureAssetNames);
+        for (const auto& mesh : pTileRenderResources->fabricMeshes) {
+            FabricMeshManager::getInstance().releaseMesh(mesh);
+        }
     }
 
-    const auto ecefToUsdTransform =
-        UsdUtil::computeEcefToUsdTransformForPrim(Context::instance().getGeoreferenceOrigin(), _tileset.getPath());
-
-    const auto addTileResults = FabricStageUtil::addTileWithImagery(
-        _tileset.getTilesetId(),
-        Context::instance().getNextTileId(),
-        ecefToUsdTransform,
+    const auto fabricMeshes = createFabricMeshes(
+        _tileset,
         pTileRenderResources->tileTransform,
         tile.getContent().getRenderContent()->getModel(),
-        _tileset.getSmoothNormals(),
-        rasterTile.getImage(),
-        rasterTile.getOverlay().getName(),
-        rasterTile.getRectangle(),
+        &rasterTile.getImage(),
         translation,
         scale,
         static_cast<uint64_t>(overlayTextureCoordinateID));
 
-    pTileRenderResources->geomPaths = addTileResults.geomPaths;
-    pTileRenderResources->allPrimPaths = addTileResults.allPrimPaths;
-    pTileRenderResources->textureAssetNames = addTileResults.textureAssetNames;
+    pTileRenderResources->fabricMeshes = fabricMeshes;
 }
 
 void FabricPrepareRenderResources::detachRasterInMainThread(

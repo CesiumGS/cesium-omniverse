@@ -67,6 +67,7 @@ class Context {
 
     void removeTileset(const pxr::SdfPath& tilesetPath);
     void reloadTileset(const pxr::SdfPath& tilesetPath);
+    void clearStage();
     void reloadStage();
 
     void onUpdateFrame(const std::vector<Viewport>& viewports);

@@ -528,4 +528,92 @@ FabricStatistics getStatistics() {
     return statistics;
 }
 
+namespace {
+void destroyPrimsSpan(gsl::span<const pxr::SdfPath> paths) {
+    // Only delete prims if there's still a stage to delete them from
+    if (!UsdUtil::hasStage()) {
+        return;
+    }
+
+    auto sip = UsdUtil::getFabricStageInProgress();
+
+    for (const auto& path : paths) {
+        sip.destroyPrim(carb::flatcache::asInt(path));
+    }
+
+    // Prims removed from Fabric need special handling for their removal to be reflected in the Hydra render index
+    // This workaround may not be needed in future Kit versions, but is needed as of Kit 104.2
+    const carb::flatcache::Path changeTrackingPath("/TempChangeTracking");
+
+    if (sip.getAttribute<uint64_t>(changeTrackingPath, FabricTokens::_deletedPrims) == nullptr) {
+        return;
+    }
+
+    const auto deletedPrimsSize = sip.getArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims);
+    sip.setArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims, deletedPrimsSize + paths.size());
+    auto deletedPrimsFabric = sip.getArrayAttributeWr<uint64_t>(changeTrackingPath, FabricTokens::_deletedPrims);
+
+    for (size_t i = 0; i < paths.size(); i++) {
+        deletedPrimsFabric[deletedPrimsSize + i] = carb::flatcache::asInt(paths[i]).path;
+    }
+}
+} // namespace
+
+void destroyPrim(const pxr::SdfPath& path) {
+    destroyPrimsSpan(gsl::span(&path, 1));
+}
+
+void destroyPrims(const std::vector<pxr::SdfPath>& paths) {
+    destroyPrimsSpan(gsl::span(paths));
+}
+
+void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform) {
+    auto sip = UsdUtil::getFabricStageInProgress();
+
+    const auto buckets = sip.findPrims(
+        {carb::flatcache::AttrNameAndType(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId)},
+        {carb::flatcache::AttrNameAndType(
+            FabricTypes::_cesium_localToEcefTransform, FabricTokens::_cesium_localToEcefTransform)});
+
+    for (size_t bucketId = 0; bucketId < buckets.bucketCount(); bucketId++) {
+        // clang-format off
+        auto tilesetIdFabric = sip.getAttributeArrayRd<int64_t>(buckets, bucketId, FabricTokens::_cesium_tilesetId);
+        auto localToEcefTransformFabric = sip.getAttributeArrayRd<pxr::GfMatrix4d>(buckets, bucketId, FabricTokens::_cesium_localToEcefTransform);
+        auto localExtentFabric = sip.getAttributeArrayRd<pxr::GfRange3d>(buckets, bucketId, FabricTokens::_localExtent);
+
+        auto worldPositionFabric = sip.getAttributeArrayWr<pxr::GfVec3d>(buckets, bucketId, FabricTokens::_worldPosition);
+        auto worldOrientationFabric = sip.getAttributeArrayWr<pxr::GfQuatf>(buckets, bucketId, FabricTokens::_worldOrientation);
+        auto worldScaleFabric = sip.getAttributeArrayWr<pxr::GfVec3f>(buckets, bucketId, FabricTokens::_worldScale);
+        auto worldExtentFabric = sip.getAttributeArrayWr<pxr::GfRange3d>(buckets, bucketId, FabricTokens::_worldExtent);
+        // clang-format on
+
+        for (size_t i = 0; i < tilesetIdFabric.size(); i++) {
+            if (tilesetIdFabric[i] == tilesetId) {
+                const auto localToEcefTransform = UsdUtil::usdToGlmMatrix(localToEcefTransformFabric[i]);
+                const auto localToUsdTransform = ecefToUsdTransform * localToEcefTransform;
+                const auto localExtent = localExtentFabric[i];
+                const auto [worldPosition, worldOrientation, worldScale] =
+                    UsdUtil::glmToUsdMatrixDecomposed(localToUsdTransform);
+                const auto worldExtent = UsdUtil::computeWorldExtent(localExtent, localToUsdTransform);
+
+                worldPositionFabric[i] = worldPosition;
+                worldOrientationFabric[i] = worldOrientation;
+                worldScaleFabric[i] = worldScale;
+                worldExtentFabric[i] = worldExtent;
+            }
+        }
+    }
+}
+
+void setTilesetIdAndTileId(const pxr::SdfPath& path, int64_t tilesetId, int64_t tileId) {
+    auto sip = UsdUtil::getFabricStageInProgress();
+
+    const auto pathFabric = carb::flatcache::Path(carb::flatcache::asInt(path));
+    auto tilesetIdFabric = sip.getAttributeWr<int64_t>(pathFabric, FabricTokens::_cesium_tilesetId);
+    auto tileIdFabric = sip.getAttributeWr<int64_t>(pathFabric, FabricTokens::_cesium_tileId);
+
+    *tilesetIdFabric = tilesetId;
+    *tileIdFabric = tileId;
+}
+
 } // namespace cesium::omniverse::FabricUtil
