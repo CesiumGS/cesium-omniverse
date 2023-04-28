@@ -209,6 +209,14 @@ class "CesiumTilesetSchemaAPI" (
         displayName = "Smooth Normals"
         doc = "Generate smooth normals instead of flat normals when normals are missing."
     )
+
+    bool cesium:showCreditsOnScreen = false (
+        customData = {
+            string apiName = "showCreditsOnScreen"
+        }
+        displayName = "Show Credits On Screen"
+        doc = "Whether or not to show this tileset's credits on screen."
+    )
 }
 
 class CesiumImageryPrim "CesiumImageryPrim" (

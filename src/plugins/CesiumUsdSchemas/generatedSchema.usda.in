@@ -90,6 +90,10 @@ class "CesiumTilesetSchemaAPI" (
         displayName = "Preload Siblings"
         doc = "Whether to preload sibling tiles. Setting this to true causes tiles with the same parent as a rendered tile to be loaded, even if they are culled. Setting this to true may provide a better panning experience at the cost of loading more tiles."
     )
+    bool cesium:showCreditsOnScreen = 0 (
+        displayName = "Show Credits On Screen"
+        doc = "Whether or not to show this tileset's credits on screen."
+    )
     bool cesium:smoothNormals = 0 (
         displayName = "Smooth Normals"
         doc = "Generate smooth normals instead of flat normals when normals are missing."

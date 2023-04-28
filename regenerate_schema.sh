@@ -1,7 +1,7 @@
 #/bin/bash
 
 PROJECT_ROOT=`dirname -- "$( readlink -f -- "$0"; )"`
-SCHEMA_INPUT_PATH="$PROJECT_ROOT/exts/cesium.omniverse/schemas/cesium_schemas.usda"
+SCHEMA_INPUT_PATH="$PROJECT_ROOT/exts/cesium.usd.plugins/schemas/cesium_schemas.usda"
 SCHEMA_OUTPUT_PATH="$PROJECT_ROOT/src/plugins/CesiumUsdSchemas/src/CesiumUsdSchemas"
 NVIDIA_USD_BINS="$PROJECT_ROOT/extern/nvidia/_build/target-deps/usd/release/bin"
 NVIDIA_PYTHON_BINS="$PROJECT_ROOT/extern/nvidia/_build/target-deps/python/bin"
