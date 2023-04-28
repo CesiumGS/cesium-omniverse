@@ -72,7 +72,7 @@ void FabricMeshManager::releaseMesh(std::shared_ptr<FabricMesh> mesh) {
 
 uint64_t FabricMeshManager::getNumberOfGeometriesInUse() const {
     uint64_t count = 0;
-    for (const auto geometryPool : _geometryPools) {
+    for (const auto& geometryPool : _geometryPools) {
         count += geometryPool->getNumberActive();
     }
     return count;
@@ -80,7 +80,7 @@ uint64_t FabricMeshManager::getNumberOfGeometriesInUse() const {
 
 uint64_t FabricMeshManager::getNumberOfMaterialsInUse() const {
     uint64_t count = 0;
-    for (const auto materialPool : _materialPools) {
+    for (const auto& materialPool : _materialPools) {
         count += materialPool->getNumberActive();
     }
     return count;
@@ -88,7 +88,7 @@ uint64_t FabricMeshManager::getNumberOfMaterialsInUse() const {
 
 uint64_t FabricMeshManager::getGeometryPoolCapacity() const {
     uint64_t count = 0;
-    for (const auto geometryPool : _geometryPools) {
+    for (const auto& geometryPool : _geometryPools) {
         count += geometryPool->getCapacity();
     }
     return count;
@@ -96,7 +96,7 @@ uint64_t FabricMeshManager::getGeometryPoolCapacity() const {
 
 uint64_t FabricMeshManager::getMaterialPoolCapacity() const {
     uint64_t count = 0;
-    for (const auto materialPool : _materialPools) {
+    for (const auto& materialPool : _materialPools) {
         count += materialPool->getCapacity();
     }
     return count;
@@ -174,7 +174,7 @@ void FabricMeshManager::releaseMaterial(std::shared_ptr<FabricMaterial> material
 
 std::shared_ptr<FabricGeometryPool>
 FabricMeshManager::getGeometryPool(const FabricGeometryDefinition& geometryDefinition) {
-    for (const auto geometryPool : _geometryPools) {
+    for (const auto& geometryPool : _geometryPools) {
         if (geometryDefinition == geometryPool->getGeometryDefinition()) {
             // Found a pool with the same geometry definition
             return geometryPool;
@@ -187,7 +187,7 @@ FabricMeshManager::getGeometryPool(const FabricGeometryDefinition& geometryDefin
 
 std::shared_ptr<FabricMaterialPool>
 FabricMeshManager::getMaterialPool(const FabricMaterialDefinition& materialDefinition) {
-    for (const auto materialPool : _materialPools) {
+    for (const auto& materialPool : _materialPools) {
         if (materialDefinition == materialPool->getMaterialDefinition()) {
             // Found a pool with the same material definition
             return materialPool;

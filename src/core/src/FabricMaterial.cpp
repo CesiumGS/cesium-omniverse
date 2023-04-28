@@ -23,8 +23,8 @@
 namespace cesium::omniverse {
 
 FabricMaterial::FabricMaterial(pxr::SdfPath path, const FabricMaterialDefinition& materialDefinition)
-    : _materialPath(path)
-    , _materialDefinition(materialDefinition) {
+    : _materialDefinition(materialDefinition)
+    , _materialPath(path) {
 
     initialize(path, materialDefinition);
 
@@ -240,7 +240,7 @@ void FabricMaterial::reset() {
 
     if (_baseColorTexture != nullptr) {
         // Clear the texture
-        const auto bytes = std::array<uint8_t, 4>{255, 255, 255, 255};
+        const auto bytes = std::array<uint8_t, 4>{{255, 255, 255, 255}};
         const auto size = carb::Uint2{1, 1};
         _baseColorTexture->setBytesData(bytes.data(), size, omni::ui::kAutoCalculateStride, carb::Format::eRGBA8_SRGB);
     }
@@ -348,5 +348,4 @@ void FabricMaterial::setTile(
     FabricUtil::setTilesetIdAndTileId(_displacementPath, tilesetId, tileId);
     FabricUtil::setTilesetIdAndTileId(_surfacePath, tilesetId, tileId);
 }
-
 }; // namespace cesium::omniverse
