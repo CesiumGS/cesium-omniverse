@@ -16,6 +16,7 @@ template <typename T> class ObjectPool {
         const auto percentActive = computePercentActive();
 
         if (percentActive > _doublingThreshold) {
+            // Capacity is initially 0, so make sure the new capacity is at least 1
             const auto newCapacity = std::max(_capacity * 2, uint64_t(1));
             setCapacity(newCapacity);
         }
@@ -45,14 +46,14 @@ template <typename T> class ObjectPool {
     }
 
     double computePercentActive() const {
-        const auto numberActive = getNumberActive();
-        const auto capacity = getCapacity();
+        const auto numberActive = static_cast<double>(getNumberActive());
+        const auto capacity = static_cast<double>(getCapacity());
 
         if (capacity == 0) {
             return 1.0;
         }
 
-        return static_cast<double>(numberActive) / static_cast<double>(capacity);
+        return numberActive / capacity;
     }
 
     void setCapacity(uint64_t capacity) {

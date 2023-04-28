@@ -176,8 +176,14 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
 
         attributes.createAttributes(shaderPathFabric);
 
-        const size_t paramColorSpaceSize = hasBaseColorTexture ? 2 : 0;
+        // _paramColorSpace is an array of pairs: [texture_parameter_token, color_space_enum], [texture_parameter_token, color_space_enum], ...
+        const size_t textureCount = hasBaseColorTexture ? 1 : 0;
+        const size_t paramColorSpaceSize = textureCount * 2;
+
+        // The number of material parameters
         const size_t parametersCount = hasBaseColorTexture ? 5 : 4;
+
+        // Material parameter indices
         const size_t parametersIndexDiffuseColorConstant = 0;
         const size_t parametersIndexMetallicConstant = 1;
         const size_t parametersIndexReflectionRoughnessConstant = 2;
