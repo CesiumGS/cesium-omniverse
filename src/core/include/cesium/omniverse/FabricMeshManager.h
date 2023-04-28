@@ -29,7 +29,7 @@ class FabricMeshManager {
         return instance;
     }
 
-    std::shared_ptr<FabricMesh> FabricMeshManager::acquireMesh(
+    std::shared_ptr<FabricMesh> acquireMesh(
         int64_t tilesetId,
         int64_t tileId,
         const glm::dmat4& ecefToUsdTransform,
