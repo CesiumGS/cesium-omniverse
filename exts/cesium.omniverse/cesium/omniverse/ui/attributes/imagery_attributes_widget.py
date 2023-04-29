@@ -17,6 +17,8 @@ class CesiumImageryAttributesWidget(SchemaPropertiesWidget):
         frame = CustomLayoutFrame(hide_extra=True)
 
         with frame:
+            with CustomLayoutGroup("Credit Display"):
+                CustomLayoutProperty("cesium:showCreditsOnScreen")
             with CustomLayoutGroup("Source"):
                 CustomLayoutProperty("cesium:ionAssetId")
                 CustomLayoutProperty("cesium:ionAccessToken")

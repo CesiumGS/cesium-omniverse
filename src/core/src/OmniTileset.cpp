@@ -302,6 +302,8 @@ void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
     const auto tilesetName = getName();
 
     Cesium3DTilesSelection::RasterOverlayOptions options;
+    options.showCreditsOnScreen = imagery.getShowCreditsOnScreen();
+
     options.loadErrorCallback = [tilesetPath, tilesetIonAssetId, tilesetName, imageryIonAssetId, imageryName](
                                     const Cesium3DTilesSelection::RasterOverlayLoadFailureDetails& error) {
         // Check for a 401 connecting to Cesium ion, which means the token is invalid

@@ -307,6 +307,7 @@ pxr::CesiumImagery defineCesiumImagery(const pxr::SdfPath& path) {
 
     imagery.CreateIonAssetIdAttr();
     imagery.CreateIonAccessTokenAttr();
+    imagery.CreateShowCreditsOnScreenAttr(pxr::VtValue(false));
 
     return imagery;
 }

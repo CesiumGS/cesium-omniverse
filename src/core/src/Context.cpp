@@ -261,10 +261,14 @@ void Context::processPropertyChanged(const ChangedPrim& changedPrim) {
         const auto tilesetPath = path.GetParentPath();
         const auto tileset = AssetRegistry::getInstance().getTilesetByPath(tilesetPath);
         if (tileset.has_value()) {
-            if (name == pxr::CesiumTokens->cesiumIonAssetId || name == pxr::CesiumTokens->cesiumIonAccessToken) {
+            // clang-format off
+            if (name == pxr::CesiumTokens->cesiumIonAssetId ||
+                name == pxr::CesiumTokens->cesiumIonAccessToken ||
+                name == pxr::CesiumTokens->cesiumShowCreditsOnScreen) {
                 // Reload the tileset that the imagery is attached to
                 tilesetsToReload.emplace(tileset.value());
             }
+            // clang-format on
         }
     }
 
