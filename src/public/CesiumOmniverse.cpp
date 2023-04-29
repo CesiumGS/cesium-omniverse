@@ -178,6 +178,10 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
     std::vector<std::pair<std::string, bool>> getCredits() noexcept override {
         return Context::instance().getCredits();
     }
+
+    void creditsStartNextFrame() noexcept override {
+        return Context::instance().creditsStartNextFrame();
+    }
 };
 } // namespace cesium::omniverse
 

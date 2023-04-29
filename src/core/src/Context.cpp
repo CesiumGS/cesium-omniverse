@@ -638,4 +638,8 @@ std::vector<std::pair<std::string, bool>> Context::getCredits() const {
     return result;
 }
 
+void Context::creditsStartNextFrame() {
+    _creditSystem->startNextFrame();
+}
+
 } // namespace cesium::omniverse

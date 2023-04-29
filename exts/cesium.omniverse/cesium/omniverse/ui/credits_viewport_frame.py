@@ -52,27 +52,29 @@ class CesiumCreditsViewportFrame:
         if self._data_attribution_button is None:
             return
 
-        credits_available = self._cesium_omniverse_interface.credits_available()
+        new_credits = self._cesium_omniverse_interface.get_credits()
 
-        if credits_available != self._data_attribution_button.visible:
-            if credits_available:
+        if new_credits != self._credits:
+            self._credits.clear()
+            self._credits.extend(new_credits)
+            self._build_fn()
+
+        _has_offscreen_credits = False
+        for _, show_on_screen in new_credits:
+            if not show_on_screen:
+                _has_offscreen_credits = True
+
+        if _has_offscreen_credits != self._data_attribution_button.visible:
+            if _has_offscreen_credits:
                 self._logger.info("Show Data Attribution")
             else:
                 self._logger.info("Hide Data Attribution")
-            self._data_attribution_button.visible = credits_available
+            self._data_attribution_button.visible = _has_offscreen_credits
 
-        if self._data_attribution_button.visible:
-            new_credits = self._cesium_omniverse_interface.get_credits()
-            if new_credits is not None and len(self._credits) != len(new_credits):
-                self._credits.clear()
-                self._credits.extend(new_credits)
-                self._build_fn()
-        else:
-            self._credits.clear()
-            self._build_fn()
+        self._cesium_omniverse_interface.credits_start_next_frame()
 
     def _on_data_attribution_button_clicked(self):
-        self._credits_window = CesiumOmniverseCreditsWindow(self._cesium_omniverse_interface)
+        self._credits_window = CesiumOmniverseCreditsWindow(self._cesium_omniverse_interface, self._credits)
 
     def _build_fn(self):
         with self._credits_viewport_frame:
