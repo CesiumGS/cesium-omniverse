@@ -241,4 +241,12 @@ class CesiumImageryPrim "CesiumImageryPrim" (
         displayName = "ion Access Token"
         doc = "The access token to use to access the Cesium ion resource. Overrides the default token. Blank if using URL."
     )
+
+    bool cesium:showCreditsOnScreen = false (
+        customData = {
+            string apiName = "showCreditsOnScreen"
+        }
+        displayName = "Show Credits On Screen"
+        doc = "Whether or not to show this imagery layer's credits on screen."
+    )
 }

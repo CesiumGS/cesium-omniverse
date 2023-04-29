@@ -125,5 +125,9 @@ class CesiumImageryPrim "CesiumImageryPrim" (
         displayName = "ion Asset ID"
         doc = "The ID of the Cesium ion asset to use."
     )
+    bool cesium:showCreditsOnScreen = 0 (
+        displayName = "Show Credits On Screen"
+        doc = "Whether or not to show this imagery layer's credits on screen."
+    )
 }
 

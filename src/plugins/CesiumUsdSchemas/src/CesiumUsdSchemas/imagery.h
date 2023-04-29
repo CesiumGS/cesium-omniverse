@@ -159,6 +159,26 @@ public:
     UsdAttribute CreateIonAccessTokenAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
+    // --------------------------------------------------------------------- //
+    // SHOWCREDITSONSCREEN
+    // --------------------------------------------------------------------- //
+    /// Whether or not to show this imagery layer's credits on screen.
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `bool cesium:showCreditsOnScreen = 0` |
+    /// | C++ Type | bool |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
+    UsdAttribute GetShowCreditsOnScreenAttr() const;
+
+    /// See GetShowCreditsOnScreenAttr(), and also
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    UsdAttribute CreateShowCreditsOnScreenAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
     // ===================================================================== //
     // Feel free to add custom code below this line, it will be preserved by
     // the code generator.

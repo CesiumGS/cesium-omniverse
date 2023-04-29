@@ -113,7 +113,7 @@ struct CesiumTokensType {
     const TfToken cesiumProjectDefaultIonAccessTokenId;
     /// \brief "cesium:showCreditsOnScreen"
     /// 
-    /// CesiumTilesetAPI
+    /// CesiumImagery, CesiumTilesetAPI
     const TfToken cesiumShowCreditsOnScreen;
     /// \brief "cesium:smoothNormals"
     /// 
