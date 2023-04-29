@@ -295,6 +295,7 @@ pxr::CesiumTilesetAPI defineCesiumTileset(const pxr::SdfPath& path) {
     tileset.CreateCulledScreenSpaceErrorAttr(pxr::VtValue(64.0f));
     tileset.CreateSuspendUpdateAttr(pxr::VtValue(false));
     tileset.CreateSmoothNormalsAttr(pxr::VtValue(false));
+    tileset.CreateShowCreditsOnScreenAttr(pxr::VtValue(false));
 
     return tileset;
 }
