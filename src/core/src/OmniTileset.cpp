@@ -2,8 +2,9 @@
 
 #include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/FabricMesh.h"
 #include "cesium/omniverse/FabricPrepareRenderResources.h"
-#include "cesium/omniverse/FabricStageUtil.h"
+#include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/OmniImagery.h"
@@ -342,7 +343,7 @@ void OmniTileset::updateTransform() {
     // Check for transform changes and update prims accordingly
     if (ecefToUsdTransform != _ecefToUsdTransform) {
         _ecefToUsdTransform = ecefToUsdTransform;
-        FabricStageUtil::setTilesetTransform(_tilesetId, ecefToUsdTransform);
+        FabricUtil::setTilesetTransform(_tilesetId, ecefToUsdTransform);
     }
 }
 
@@ -374,8 +375,9 @@ void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
                 const auto pRenderResources = pRenderContent->getRenderResources();
                 if (pRenderResources) {
                     const auto pTileRenderResources = reinterpret_cast<TileRenderResources*>(pRenderResources);
-                    const auto& geomPaths = pTileRenderResources->geomPaths;
-                    FabricStageUtil::setTileVisibility(geomPaths, false);
+                    for (const auto& fabricMesh : pTileRenderResources->fabricMeshes) {
+                        fabricMesh->setVisibility(false);
+                    }
                 }
             }
         }
@@ -389,8 +391,9 @@ void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
                 const auto pRenderResources = pRenderContent->getRenderResources();
                 if (pRenderResources) {
                     const auto pTileRenderResources = reinterpret_cast<TileRenderResources*>(pRenderResources);
-                    const auto& geomPaths = pTileRenderResources->geomPaths;
-                    FabricStageUtil::setTileVisibility(geomPaths, visible);
+                    for (const auto& fabricMesh : pTileRenderResources->fabricMeshes) {
+                        fabricMesh->setVisibility(visible);
+                    }
                 }
             }
         }

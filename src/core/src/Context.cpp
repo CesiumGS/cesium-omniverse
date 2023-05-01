@@ -3,6 +3,7 @@
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/CesiumIonSession.h"
+#include "cesium/omniverse/FabricMeshManager.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/OmniImagery.h"
@@ -91,7 +92,7 @@ void Context::initialize(int64_t contextId, const std::filesystem::path& cesiumE
 }
 
 void Context::destroy() {
-    AssetRegistry::getInstance().clear();
+    clearStage();
 }
 
 std::shared_ptr<TaskProcessor> Context::getTaskProcessor() {
@@ -178,13 +179,18 @@ void Context::reloadTileset(const pxr::SdfPath& tilesetPath) {
     tileset.value()->reload();
 }
 
+void Context::clearStage() {
+    // The order is important. Clear tilesets first so that FabricMeshes are released back into the pool. Then clear the pools.
+    AssetRegistry::getInstance().clear();
+    FabricMeshManager::getInstance().clear();
+}
+
 void Context::reloadStage() {
     // Ensure that the CesiumData prim exists so that we can set the georeference
     // and other top-level properties without waiting for an ion session to start
     UsdUtil::getOrCreateCesiumData();
 
-    // Clear the asset registry
-    AssetRegistry::getInstance().clear();
+    clearStage();
 
     // Repopulate the asset registry. We need to do this manually because USD doesn't notify us about
     // resynced paths when the stage is loaded.
@@ -351,7 +357,7 @@ void Context::setStageId(long stageId) {
         _stageId = 0;
 
         // Now it's safe to clear anything else that references the stage
-        AssetRegistry::getInstance().clear();
+        clearStage();
     }
 
     if (newStage > 0) {
