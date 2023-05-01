@@ -29,10 +29,11 @@ This is the process we follow when releasing a new version of Cesium for Omniver
 2. Replace the `cesium:projectDefaultIonAccessToken` property in each `.usda` file with the new access token.
 3. Verify that all the USD files load in Cesium for Omniverse.
 4. Update `CHANGES.md`.
-5. Commit and push the changes to `main`.
-6. Tag the release, e.g., `git tag -a v0.0.0 -m "0.0.0 release"`.
-7. Push the tag to github: `git push origin v0.0.0`.
-8. Create a new release on GitHub: https://github.com/CesiumGS/cesium-omniverse-samples/releases/new.
+5. Commit the changes, e.g. `git commit -am "0.0.0 release"`.
+6. Push the commit, e.g. `git push origin main`.
+7. Tag the release, e.g. `git tag -a v0.0.0 -m "0.0.0 release"`.
+8. Push the tag, e.g. `git push origin v0.0.0`.
+9. Create a new release on GitHub: https://github.com/CesiumGS/cesium-omniverse-samples/releases/new.
     * Choose the new tag.
     * Copy the changelog into the description. Follow the format used in previous releases.
 
