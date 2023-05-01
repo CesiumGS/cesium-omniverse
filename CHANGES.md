@@ -1,5 +1,15 @@
 # Change Log
 
+### v0.5.0 - 2023-05-01
+
+- Added material pool for better performance and to reduce texture/material loading artifacts.
+- Added support for multiple viewports.
+- Fixed red flashes when materials are loading.
+- Fixed cyan flashes when textures are loading.
+- Fixed adding imagery as base layer for existing tileset.
+- Fixed Fabric types for `tilesetId` and `tileId`.
+- Upgraded to cesium-native v0.23.0.
+
 ### v0.4.0 - 2023-04-03
 
 - Fixed a crash when removing the last available access token for a tileset.

@@ -10,15 +10,16 @@ This is the process we follow when releasing a new version of Cesium for Omniver
 6. Update the extension `version` in [extension.toml](../../exts/cesium.omniverse/config/extension.toml). This should be the same version as above.
 7. Update [`CHANGES.md`](CHANGES.md).
 8. Commit the changes, e.g. `git commit -am "0.0.0 release"`.
-9. Tag the release, e.g. `git tag -a v0.0.0 -m "0.0.0 release"`.
-10. Push to main, e.g. `git push --atomic origin main v0.0.0`.
-11. Wait for CI to pass.
-12. Download the release build from S3. In the AWS management console (old AWS account), go to the bucket [`cesium-travis-builds/cesium-omniverse/main`](https://s3.console.aws.amazon.com/s3/buckets/cesium-travis-builds?region=us-east-1&prefix=cesium-omniverse/main/&showversions=false), find the appropriate date and commit hash to download the CentOS and Windows builds zip files (e.g. `CesiumForOmniverse-Linux-vX.X.X.zip` and `CesiumForOmniverse-Windows-vX.X.X.zip`). Note that the git tag is appended to end of the file name instead of the git commit hash.
-13. Create a new release on GitHub: https://github.com/CesiumGS/cesium-omniverse/releases/new.
+9. Push the commit, e.g. `git push origin main`.
+10. Tag the release, e.g. `git tag -a v0.0.0 -m "0.0.0 release"`.
+11. Push the tag, e.g. `git push origin v0.0.0`.
+12. Wait for CI to pass.
+13. Download the release build from S3. In the AWS management console (old AWS account), go to the bucket [`cesium-travis-builds/cesium-omniverse/main`](https://s3.console.aws.amazon.com/s3/buckets/cesium-travis-builds?region=us-east-1&prefix=cesium-omniverse/main/&showversions=false), find the appropriate date and commit hash to download the CentOS and Windows builds zip files (e.g. `CesiumForOmniverse-Linux-vX.X.X.zip` and `CesiumForOmniverse-Windows-vX.X.X.zip`). Note that the git tag is appended to end of the file name instead of the git commit hash.
+14. Create a new release on GitHub: https://github.com/CesiumGS/cesium-omniverse/releases/new.
   * Chose the new tag.
   * Copy the changelog into the description. Follow the format used in previous releases.
   * Upload the Linux and Windows release zip files.
-14. Proceed to [Releasing a new version of Cesium for Omniverse Samples](#releasing-a-new-version-of-cesium-for-omniverse-samples).
+15. Proceed to [Releasing a new version of Cesium for Omniverse Samples](#releasing-a-new-version-of-cesium-for-omniverse-samples).
 
 # Releasing a new version of Cesium for Omniverse Samples
 
