@@ -44,4 +44,4 @@ class CesiumOmniverseCreditsWindow(ui.Window):
         with ui.VStack(spacing=5):
             ui.Label("Data Provided By:", height=0, style=CesiumOmniverseUiStyles.attribution_header_style)
 
-            CesiumCreditsParser(self._credits, should_show_on_screen=False, perform_fallback=True)
+            CesiumCreditsParser(self._credits, should_show_on_screen=False, perform_fallback=True, in_window=True)
