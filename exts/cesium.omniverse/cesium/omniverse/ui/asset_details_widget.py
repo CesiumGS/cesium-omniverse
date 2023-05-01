@@ -78,7 +78,7 @@ class CesiumAssetDetailsWidget(ui.ScrollingFrame):
         if len(selection) > 0 and self._cesium_omniverse_interface.is_tileset(selection[0]):
             tileset_path = selection[0]
 
-        if tileset_path is not None:
+        if tileset_path is None:
             all_tileset_paths = self._cesium_omniverse_interface.get_all_tileset_paths()
 
             if len(all_tileset_paths) > 0:
