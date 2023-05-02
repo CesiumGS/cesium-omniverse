@@ -18,7 +18,6 @@ class CesiumCreditsViewportFrame:
         viewport_window = get_active_viewport_window()
         self._credits_viewport_frame = viewport_window.get_frame("cesium.omniverse.viewport.ION_CREDITS")
 
-        self._has_offscreen_credits: bool = False
         self._credits_window: Optional[CesiumOmniverseCreditsWindow] = None
         self._data_attribution_button: Optional[ui.Button] = None
 
@@ -60,17 +59,17 @@ class CesiumCreditsViewportFrame:
             self._credits.extend(new_credits)
             self._build_fn()
 
-        self._has_offscreen_credits = False
+        has_offscreen_credits = False
         for _, show_on_screen in new_credits:
             if not show_on_screen:
-                self._has_offscreen_credits = True
+                has_offscreen_credits = True
 
-        if self._has_offscreen_credits != self._data_attribution_button.visible:
-            if self._has_offscreen_credits:
+        if has_offscreen_credits != self._data_attribution_button.visible:
+            if has_offscreen_credits:
                 self._logger.info("Show Data Attribution")
             else:
                 self._logger.info("Hide Data Attribution")
-            self._data_attribution_button.visible = self._has_offscreen_credits
+            self._data_attribution_button.visible = has_offscreen_credits
 
         self._cesium_omniverse_interface.credits_start_next_frame()
 
@@ -82,17 +81,18 @@ class CesiumCreditsViewportFrame:
             with ui.VStack():
                 ui.Spacer()
                 with ui.HStack(height=0):
-                    ui.Spacer()
-
-                    with ui.HStack(height=0, width=0, spacing=4):
+                    with ui.HStack(height=0, spacing=4):
                         CesiumCreditsParser(
-                            self._credits, should_show_on_screen=True, wrap_early=not self._has_offscreen_credits
+                            self._credits,
+                            should_show_on_screen=True,
+                            combine_labels=True,
+                            label_alignment=ui.Alignment.RIGHT,
                         )
 
-                    self._data_attribution_button = ui.Button(
-                        "Data Attribution",
-                        visible=False,
-                        width=0,
-                        height=0,
-                        clicked_fn=self._on_data_attribution_button_clicked,
-                    )
+                        self._data_attribution_button = ui.Button(
+                            "Data Attribution",
+                            visible=False,
+                            width=0,
+                            height=0,
+                            clicked_fn=self._on_data_attribution_button_clicked,
+                        )
