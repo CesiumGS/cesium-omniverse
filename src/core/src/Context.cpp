@@ -628,27 +628,11 @@ std::vector<std::pair<std::string, bool>> Context::getCredits() const {
     const auto& credits = _creditSystem->getCreditsToShowThisFrame();
 
     std::vector<std::pair<std::string, bool>> result;
-    result.reserve(credits.size() * 2);
-
-    bool firstOnScreen = true;
+    result.reserve(credits.size());
 
     for (const auto& item : credits) {
-        const auto showOnScreen = _creditSystem->shouldBeShownOnScreen(item);
-        const auto html = _creditSystem->getHtml(item);
-
-        if (html.empty()) {
-            continue;
-        }
-
-        if (showOnScreen && !firstOnScreen) {
-            result.emplace_back("-", showOnScreen);
-        }
-
-        if (showOnScreen) {
-            firstOnScreen = false;
-        }
-
-        result.emplace_back(html, showOnScreen);
+        auto showOnScreen = _creditSystem->shouldBeShownOnScreen(item);
+        result.emplace_back(_creditSystem->getHtml(item), showOnScreen);
     }
 
     return result;
