@@ -348,7 +348,9 @@ void OmniTileset::updateTransform() {
 }
 
 void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
-    if (!getSuspendUpdate()) {
+    const auto visible = UsdUtil::isPrimVisible(_tilesetPath);
+
+    if (visible && !getSuspendUpdate()) {
         // Go ahead and select some tiles
         const auto& georeferenceOrigin = Context::instance().getGeoreferenceOrigin();
 
@@ -364,8 +366,6 @@ void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
         // No tiles have ever been selected. Return early.
         return;
     }
-
-    const auto visible = UsdUtil::isPrimVisible(_tilesetPath);
 
     // Hide tiles that we no longer need
     for (const auto tile : _pViewUpdateResult->tilesFadingOut) {
