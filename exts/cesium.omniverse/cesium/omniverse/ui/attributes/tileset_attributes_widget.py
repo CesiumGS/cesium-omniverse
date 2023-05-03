@@ -26,6 +26,8 @@ class CesiumTilesetAttributesWidget(SchemaPropertiesWidget):
 
         with frame:
             ui.Button("Refresh Tileset", clicked_fn=self.on_refresh_button_clicked)
+            with CustomLayoutGroup("Credit Display"):
+                CustomLayoutProperty("cesium:showCreditsOnScreen")
             with CustomLayoutGroup("Source"):
                 CustomLayoutProperty("cesium:sourceType")
                 CustomLayoutProperty("cesium:ionAssetId")

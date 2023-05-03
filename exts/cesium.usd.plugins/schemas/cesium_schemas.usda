@@ -209,6 +209,14 @@ class "CesiumTilesetSchemaAPI" (
         displayName = "Smooth Normals"
         doc = "Generate smooth normals instead of flat normals when normals are missing."
     )
+
+    bool cesium:showCreditsOnScreen = false (
+        customData = {
+            string apiName = "showCreditsOnScreen"
+        }
+        displayName = "Show Credits On Screen"
+        doc = "Whether or not to show this tileset's credits on screen."
+    )
 }
 
 class CesiumImageryPrim "CesiumImageryPrim" (
@@ -232,5 +240,13 @@ class CesiumImageryPrim "CesiumImageryPrim" (
         }
         displayName = "ion Access Token"
         doc = "The access token to use to access the Cesium ion resource. Overrides the default token. Blank if using URL."
+    )
+
+    bool cesium:showCreditsOnScreen = false (
+        customData = {
+            string apiName = "showCreditsOnScreen"
+        }
+        displayName = "Show Credits On Screen"
+        doc = "Whether or not to show this imagery layer's credits on screen."
     )
 }

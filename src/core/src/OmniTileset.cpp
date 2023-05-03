@@ -209,6 +209,15 @@ bool OmniTileset::getSmoothNormals() const {
     return smoothNormals;
 }
 
+bool OmniTileset::getShowCreditsOnScreen() const {
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+
+    bool showCreditsOnScreen;
+    tileset.GetShowCreditsOnScreenAttr().Get<bool>(&showCreditsOnScreen);
+
+    return showCreditsOnScreen;
+}
+
 int64_t OmniTileset::getTilesetId() const {
     return _tilesetId;
 }
@@ -243,6 +252,7 @@ void OmniTileset::reload() {
     options.enableFogCulling = getEnableFogCulling();
     options.enforceCulledScreenSpaceError = getEnforceCulledScreenSpaceError();
     options.culledScreenSpaceError = getCulledScreenSpaceError();
+    options.showCreditsOnScreen = getShowCreditsOnScreen();
 
     options.loadErrorCallback =
         [tilesetPath, ionAssetId, name](const Cesium3DTilesSelection::TilesetLoadFailureDetails& error) {
@@ -292,6 +302,8 @@ void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
     const auto tilesetName = getName();
 
     Cesium3DTilesSelection::RasterOverlayOptions options;
+    options.showCreditsOnScreen = imagery.getShowCreditsOnScreen();
+
     options.loadErrorCallback = [tilesetPath, tilesetIonAssetId, tilesetName, imageryIonAssetId, imageryName](
                                     const Cesium3DTilesSelection::RasterOverlayLoadFailureDetails& error) {
         // Check for a 401 connecting to Cesium ion, which means the token is invalid

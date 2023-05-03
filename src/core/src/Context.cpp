@@ -251,7 +251,8 @@ void Context::processPropertyChanged(const ChangedPrim& changedPrim) {
                 name == pxr::CesiumTokens->cesiumEnableFogCulling ||
                 name == pxr::CesiumTokens->cesiumEnforceCulledScreenSpaceError ||
                 name == pxr::CesiumTokens->cesiumCulledScreenSpaceError ||
-                name == pxr::CesiumTokens->cesiumSmoothNormals) {
+                name == pxr::CesiumTokens->cesiumSmoothNormals ||
+                name == pxr::CesiumTokens->cesiumShowCreditsOnScreen) {
                 tilesetsToReload.emplace(tileset.value());
             }
             // clang-format on
@@ -260,10 +261,14 @@ void Context::processPropertyChanged(const ChangedPrim& changedPrim) {
         const auto tilesetPath = path.GetParentPath();
         const auto tileset = AssetRegistry::getInstance().getTilesetByPath(tilesetPath);
         if (tileset.has_value()) {
-            if (name == pxr::CesiumTokens->cesiumIonAssetId || name == pxr::CesiumTokens->cesiumIonAccessToken) {
+            // clang-format off
+            if (name == pxr::CesiumTokens->cesiumIonAssetId ||
+                name == pxr::CesiumTokens->cesiumIonAccessToken ||
+                name == pxr::CesiumTokens->cesiumShowCreditsOnScreen) {
                 // Reload the tileset that the imagery is attached to
                 tilesetsToReload.emplace(tileset.value());
             }
+            // clang-format on
         }
     }
 
@@ -631,6 +636,10 @@ std::vector<std::pair<std::string, bool>> Context::getCredits() const {
     }
 
     return result;
+}
+
+void Context::creditsStartNextFrame() {
+    _creditSystem->startNextFrame();
 }
 
 } // namespace cesium::omniverse

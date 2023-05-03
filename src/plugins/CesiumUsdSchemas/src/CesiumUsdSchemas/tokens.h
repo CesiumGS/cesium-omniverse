@@ -111,6 +111,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumData
     const TfToken cesiumProjectDefaultIonAccessTokenId;
+    /// \brief "cesium:showCreditsOnScreen"
+    /// 
+    /// CesiumImagery, CesiumTilesetAPI
+    const TfToken cesiumShowCreditsOnScreen;
     /// \brief "cesium:smoothNormals"
     /// 
     /// CesiumTilesetAPI

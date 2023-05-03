@@ -62,7 +62,8 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("print_fabric_stage", &ICesiumOmniverseInterface::printFabricStage)
         .def("get_fabric_statistics", &ICesiumOmniverseInterface::getFabricStatistics)
         .def("credits_available", &ICesiumOmniverseInterface::creditsAvailable)
-        .def("get_credits", &ICesiumOmniverseInterface::getCredits);
+        .def("get_credits", &ICesiumOmniverseInterface::getCredits)
+        .def("credits_start_next_frame", &ICesiumOmniverseInterface::creditsStartNextFrame);
     // clang-format on
 
     py::class_<CesiumIonSession, std::shared_ptr<CesiumIonSession>>(m, "CesiumIonSession")

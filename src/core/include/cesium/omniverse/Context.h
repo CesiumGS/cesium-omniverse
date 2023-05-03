@@ -117,6 +117,7 @@ class Context {
 
     bool creditsAvailable() const;
     std::vector<std::pair<std::string, bool>> getCredits() const;
+    void creditsStartNextFrame();
 
   private:
     void processPropertyChanged(const ChangedPrim& changedPrim);
