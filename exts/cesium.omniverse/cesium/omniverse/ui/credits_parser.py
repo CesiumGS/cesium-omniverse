@@ -4,7 +4,7 @@ import omni.ui as ui
 import webbrowser
 from dataclasses import dataclass
 from functools import partial
-from typing import Optional, List, Tuple, NamedTuple
+from typing import Optional, List, Tuple
 from .uri_image import CesiumUriImage
 from .image_button import CesiumImageButton
 
