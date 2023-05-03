@@ -106,8 +106,8 @@ class CesiumCreditsParser:
 
     def _build_ui_elements(self, parsed_credits: List[ParsedCredit], label_alignment: ui.Alignment):
         for parsed_credit in parsed_credits:
-            if parsed_credit.image_uri:
-                if parsed_credit.link:
+            if parsed_credit.image_uri is not None:
+                if parsed_credit.link is not None:
                     CesiumImageButton(
                         src=parsed_credit.image_uri,
                         padding=4,
@@ -115,8 +115,8 @@ class CesiumCreditsParser:
                     )
                 else:
                     CesiumUriImage(src=parsed_credit.image_uri)
-            elif parsed_credit.text:
-                if parsed_credit.link:
+            elif parsed_credit.text is not None:
+                if parsed_credit.link is not None:
                     ui.Button(
                         parsed_credit.text,
                         clicked_fn=partial(self._button_clicked, parsed_credit.link),
@@ -132,7 +132,7 @@ class CesiumCreditsParser:
             other_credits = []
 
             for credit in parsed_credits:
-                if credit.text and not credit.link:
+                if credit.text is not None and credit.link is None:
                     label_strings.append(credit.text)
                 else:
                     other_credits.append(credit)
