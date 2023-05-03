@@ -2,6 +2,8 @@ import logging
 import omni.kit.pipapi
 import omni.ui as ui
 import webbrowser
+from dataclasses import dataclass
+from functools import partial
 from typing import Optional, List, Tuple, NamedTuple
 from .uri_image import CesiumUriImage
 from .image_button import CesiumImageButton
@@ -9,7 +11,8 @@ from .image_button import CesiumImageButton
 _num_retries = 0
 
 
-class ParsedCredit(NamedTuple):
+@dataclass
+class ParsedCredit:
     text: Optional[str] = None
     image_uri: Optional[str] = None
     link: Optional[str] = None
@@ -97,6 +100,10 @@ class CesiumCreditsParser:
 
         return results
 
+    @staticmethod
+    def _button_clicked(link: str):
+        webbrowser.open_new_tab(link)
+
     def _build_ui_elements(self, parsed_credits: List[ParsedCredit], label_alignment: ui.Alignment):
         for parsed_credit in parsed_credits:
             if parsed_credit.image_uri:
@@ -104,7 +111,7 @@ class CesiumCreditsParser:
                     CesiumImageButton(
                         src=parsed_credit.image_uri,
                         padding=4,
-                        clicked_fn=lambda: webbrowser.open_new_tab(parsed_credit.link),
+                        clicked_fn=partial(self._button_clicked, parsed_credit.link),
                     )
                 else:
                     CesiumUriImage(src=parsed_credit.image_uri)
@@ -112,7 +119,7 @@ class CesiumCreditsParser:
                 if parsed_credit.link:
                     ui.Button(
                         parsed_credit.text,
-                        clicked_fn=lambda: webbrowser.open_new_tab(parsed_credit.link),
+                        clicked_fn=partial(self._button_clicked, parsed_credit.link),
                         height=0,
                         width=0,
                     )
