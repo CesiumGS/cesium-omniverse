@@ -22,13 +22,13 @@ class CesiumCreditsParser:
     """Takes in a credits array and outputs the elements necessary to show the credits.
     Should be embedded in a VStack or HStack."""
 
-    def _parse_element(self, element, results: List[ParsedCredit], link: Optional[str] = None):
-        # The in_window parameter is to fix an edge case bug that occurs in the "Data Attribution" window
-        # because width=None and width=0 are not equal in Omniverse UI land when dealing with label word wrapping.
+    def _parse_element(self, element, link: Optional[str] = None) -> List[ParsedCredit]:
+        results = []
+
         tag = element.tag
         if tag == "html" or tag == "body":
             for child in element.iterchildren():
-                self._parse_element(child, results, link)
+                results.extend(self._parse_element(child, link))
         elif tag == "a":
             # TODO: We probably need to do some sanitization of the href.
             link = element.attrib["href"]
@@ -37,7 +37,7 @@ class CesiumCreditsParser:
             if text != "":
                 results.append(ParsedCredit(text=text, link=link))
             for child in element.iterchildren():
-                self._parse_element(child, results, link)
+                results.extend(self._parse_element(child, link))
         elif tag == "img":
             src = element.attrib["src"]
             if link is None:
@@ -46,7 +46,7 @@ class CesiumCreditsParser:
                 results.append(ParsedCredit(image_uri=src, link=link))
         elif tag == "span" or tag == "div":
             for child in element.iterchildren():
-                self._parse_element(child, results, link)
+                results.extend(self._parse_element(child, link))
 
             # Sometimes divs or spans have text.
             text = "".join(element.itertext())
@@ -58,6 +58,8 @@ class CesiumCreditsParser:
                 results.append(ParsedCredit(text=text))
             else:
                 results.append(ParsedCredit(text=text, link=link))
+
+        return results
 
     def _parse_credits(
         self, asset_credits: List[Tuple[str, bool]], should_show_on_screen: bool, perform_fallback=False
@@ -81,7 +83,7 @@ class CesiumCreditsParser:
                 if credit[0] == "<":
                     try:
                         doc = etree.fromstring(credit, parser)
-                        self._parse_element(doc, results)
+                        results.extend(self._parse_element(doc))
                         continue
                     except etree.XMLSyntaxError as err:
                         self._logger.info(err)
