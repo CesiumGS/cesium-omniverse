@@ -131,10 +131,13 @@ class CesiumCreditsParser:
                     other_credits.append(credit)
 
             label_strings_combined = " - ".join(label_strings)
+
+            # Add the label even if the string is empty. The label will expand to fill the parent HStack
+            # which acts like a spacer that right-aligns the image and button elements. Eventually we
+            # should find a different solution here.
             ui.Label(label_strings_combined, height=0, word_wrap=True, alignment=label_alignment)
 
             self._build_ui_elements(other_credits, label_alignment)
-
         else:
             self._build_ui_elements(parsed_credits, label_alignment)
 

@@ -81,6 +81,9 @@ class CesiumCreditsViewportFrame:
             with ui.VStack():
                 ui.Spacer()
                 with ui.HStack(height=0):
+                    # Prevent credits from overlapping the axis display
+                    ui.Spacer(width=100)
+
                     with ui.HStack(height=0, spacing=4):
                         CesiumCreditsParser(
                             self._credits,
@@ -89,10 +92,10 @@ class CesiumCreditsViewportFrame:
                             label_alignment=ui.Alignment.RIGHT,
                         )
 
-                        self._data_attribution_button = ui.Button(
-                            "Data Attribution",
-                            visible=False,
-                            width=0,
-                            height=0,
-                            clicked_fn=self._on_data_attribution_button_clicked,
-                        )
+                    self._data_attribution_button = ui.Button(
+                        "Data Attribution",
+                        visible=False,
+                        width=0,
+                        height=0,
+                        clicked_fn=self._on_data_attribution_button_clicked,
+                    )
