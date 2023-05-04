@@ -1,5 +1,12 @@
 # Change Log
 
+### v0.6.0 - 2023-05-04
+
+- Added option to show credits on screen.
+- Fixed issue where tileset traversal was happening on hidden tilesets.
+- Fixed issue where tile render resources were not being released back into the Fabric mesh pool in certain cases.
+- Fixed regression where the texture wrap mode was no longer clamping to edge.
+
 ### v0.5.0 - 2023-05-01
 
 - Added material pool for better performance and to reduce texture/material loading artifacts.
