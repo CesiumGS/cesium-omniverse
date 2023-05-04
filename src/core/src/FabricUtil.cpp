@@ -500,6 +500,10 @@ std::string printFabricStage() {
 FabricStatistics getStatistics() {
     FabricStatistics statistics;
 
+    if (!UsdUtil::hasStage()) {
+        return statistics;
+    }
+
     auto sip = UsdUtil::getFabricStageInProgress();
 
     const auto geometryBuckets = sip.findPrims(
