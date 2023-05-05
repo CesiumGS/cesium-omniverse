@@ -36,8 +36,8 @@ class CESIUM_API CesiumImagery : public UsdTyped
 public:
     /// Compile time constant representing what kind of schema this class is.
     ///
-    /// \sa UsdSchemaType
-    static const UsdSchemaType schemaType = UsdSchemaType::ConcreteTyped;
+    /// \sa UsdSchemaKind
+    static const UsdSchemaKind schemaKind = UsdSchemaKind::ConcreteTyped;
 
     /// Construct a CesiumImagery on UsdPrim \p prim .
     /// Equivalent to CesiumImagery::Get(prim.GetStage(), prim.GetPath())
@@ -105,8 +105,8 @@ public:
 protected:
     /// Returns the type of schema this class belongs to.
     ///
-    /// \sa UsdSchemaType
-    UsdSchemaType _GetSchemaType() const override;
+    /// \sa UsdSchemaKind
+    UsdSchemaKind _GetSchemaKind() const override;
 
 private:
     // needs to invoke _GetStaticTfType.

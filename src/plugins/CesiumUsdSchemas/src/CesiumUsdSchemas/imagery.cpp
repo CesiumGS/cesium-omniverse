@@ -52,8 +52,8 @@ CesiumImagery::Define(
 }
 
 /* virtual */
-UsdSchemaType CesiumImagery::_GetSchemaType() const {
-    return CesiumImagery::schemaType;
+UsdSchemaKind CesiumImagery::_GetSchemaKind() const {
+    return CesiumImagery::schemaKind;
 }
 
 /* static */

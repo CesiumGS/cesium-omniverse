@@ -41,8 +41,8 @@ class CESIUM_API CesiumTilesetAPI : public UsdAPISchemaBase
 public:
     /// Compile time constant representing what kind of schema this class is.
     ///
-    /// \sa UsdSchemaType
-    static const UsdSchemaType schemaType = UsdSchemaType::SingleApplyAPI;
+    /// \sa UsdSchemaKind
+    static const UsdSchemaKind schemaKind = UsdSchemaKind::SingleApplyAPI;
 
     /// Construct a CesiumTilesetAPI on UsdPrim \p prim .
     /// Equivalent to CesiumTilesetAPI::Get(prim.GetStage(), prim.GetPath())
@@ -103,8 +103,8 @@ public:
 protected:
     /// Returns the type of schema this class belongs to.
     ///
-    /// \sa UsdSchemaType
-    UsdSchemaType _GetSchemaType() const override;
+    /// \sa UsdSchemaKind
+    UsdSchemaKind _GetSchemaKind() const override;
 
 private:
     // needs to invoke _GetStaticTfType.

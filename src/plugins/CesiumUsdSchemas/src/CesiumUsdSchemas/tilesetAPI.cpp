@@ -39,8 +39,8 @@ CesiumTilesetAPI::Get(const UsdStagePtr &stage, const SdfPath &path)
 
 
 /* virtual */
-UsdSchemaType CesiumTilesetAPI::_GetSchemaType() const {
-    return CesiumTilesetAPI::schemaType;
+UsdSchemaKind CesiumTilesetAPI::_GetSchemaKind() const {
+    return CesiumTilesetAPI::schemaKind;
 }
 
 /* static */
