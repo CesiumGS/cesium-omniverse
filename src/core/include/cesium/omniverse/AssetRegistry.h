@@ -1,8 +1,9 @@
 #pragma once
 
-#include "pxr/usd/sdf/path.h"
+#include <pxr/usd/sdf/path.h>
 
 #include <list>
+#include <optional>
 
 namespace cesium::omniverse {
 
