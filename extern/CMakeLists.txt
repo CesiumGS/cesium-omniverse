@@ -115,14 +115,14 @@ set(NVIDIA_USD_RELEASE_LIBRARIES ${NVIDIA_USD_RELEASE_LIBRARIES} tbb)
 set(NVIDIA_USD_DEBUG_LIBRARIES ${NVIDIA_USD_DEBUG_LIBRARIES} tbb_debug)
 
 # Add boost python
-set(NVIDIA_USD_TARGET_NAMES ${NVIDIA_USD_TARGET_NAMES} boost_python37)
+set(NVIDIA_USD_TARGET_NAMES ${NVIDIA_USD_TARGET_NAMES} boost_python310)
 
 if(WIN32)
-    set(NVIDIA_USD_RELEASE_LIBRARIES ${NVIDIA_USD_RELEASE_LIBRARIES} boost_python37-vc141-mt-x64-1_68)
-    set(NVIDIA_USD_DEBUG_LIBRARIES ${NVIDIA_USD_DEBUG_LIBRARIES} boost_python37-vc141-mt-gd-x64-1_68)
+    set(NVIDIA_USD_RELEASE_LIBRARIES ${NVIDIA_USD_RELEASE_LIBRARIES} boost_python310-vc142-mt-x64-1_76)
+    set(NVIDIA_USD_DEBUG_LIBRARIES ${NVIDIA_USD_DEBUG_LIBRARIES} boost_python310-vc142-mt-gd-x64-1_76)
 else()
-    set(NVIDIA_USD_RELEASE_LIBRARIES ${NVIDIA_USD_RELEASE_LIBRARIES} boost_python37)
-    set(NVIDIA_USD_DEBUG_LIBRARIES ${NVIDIA_USD_DEBUG_LIBRARIES} boost_python37)
+    set(NVIDIA_USD_RELEASE_LIBRARIES ${NVIDIA_USD_RELEASE_LIBRARIES} boost_python310)
+    set(NVIDIA_USD_DEBUG_LIBRARIES ${NVIDIA_USD_DEBUG_LIBRARIES} boost_python310)
 endif()
 
 if(${USE_NVIDIA_RELEASE_LIBRARIES})
@@ -164,30 +164,30 @@ if(WIN32)
         DEBUG_DLL_DIR
             "${PYTHON_ROOT}"
         RELEASE_LIBRARIES
-            python37
+            python310
         DEBUG_LIBRARIES
-            python37
+            python310
         TARGET_NAMES
-            python37
+            python310
     )
     # cmake-format: on
 else()
     # cmake-format: off
     add_prebuilt_project(
         RELEASE_INCLUDE_DIR
-            "${PYTHON_ROOT}/include/python3.7m"
+            "${PYTHON_ROOT}/include/python3.10m"
         DEBUG_INCLUDE_DIR
-            "${PYTHON_ROOT}/include/python3.7m"
+            "${PYTHON_ROOT}/include/python3.10m"
         RELEASE_LIBRARY_DIR
             "${PYTHON_ROOT}/lib"
         DEBUG_LIBRARY_DIR
             "${PYTHON_ROOT}/lib"
         RELEASE_LIBRARIES
-            python3.7m
+            python3.10m
         DEBUG_LIBRARIES
-            python3.7m
+            python3.10m
         TARGET_NAMES
-            python37
+            python310
     )
     # cmake-format: on
 endif()
@@ -345,7 +345,7 @@ if(WIN32)
     set_property(GLOBAL PROPERTY NVIDIA_ADDITIONAL_LIBRARIES_PROPERTY "${NVIDIA_ADDITIONAL_LIBRARIES}")
 else()
     set(NVIDIA_ADDITIONAL_SEARCH_PATHS
-        "$<TARGET_FILE_DIR:python37>"
+        "$<TARGET_FILE_DIR:python310>"
         "$<TARGET_FILE_DIR:usd>"
         "$<TARGET_FILE_DIR:carb>"
         # This is where freetype is located on Linux

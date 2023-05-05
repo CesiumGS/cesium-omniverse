@@ -48,8 +48,8 @@ setup_lib(
         tf
         usd
         tbb
-        boost_python37
-        python37
+        boost_python310
+        python310
     CXX_FLAGS
         ${CESIUM_USD_SCHEMAS_CXX_FLAGS}
     CXX_FLAGS_DEBUG
@@ -65,7 +65,7 @@ setup_lib(
 # cmake-format: off
 setup_usd_python_lib(
     PYTHON_DIR
-        # Use the same Python version as Omniverse (Python 3.7)
+        # Use the same Python version as Omniverse (Python 3.10)
         "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/python"
     TARGET_NAME
         cesiumUsdSchemas
