@@ -196,6 +196,7 @@ if(MSVC)
         /W4 # enable all warnings
         /WX # error on warnings
         /Zc:__cplusplus # make __cplusplus defined correctly
+        /wd4003 # TODO: Ignore macro warnings in Token.cpp
     )
     set(CESIUM_OMNI_CXX_DEFINES
         ${CESIUM_OMNI_CXX_DEFINES}

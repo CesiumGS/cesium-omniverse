@@ -203,9 +203,9 @@ add_prebuilt_project(
     DEBUG_LIBRARY_DIR
         "${USDRT_ROOT}/_build/${NVIDIA_PLATFORM_NAME}/${NVIDIA_DEBUG_FOLDER_NAME}/usdrt_only"
     RELEASE_LIBRARIES
-        carb.flatcache.plugin
+        omni.fabric.plugin
     DEBUG_LIBRARIES
-        carb.flatcache.plugin
+        omnni.fabric.plugin
     TARGET_NAMES
         usdrt
 )
@@ -338,8 +338,9 @@ add_prebuilt_project_header_only(
 
 if(WIN32)
     set(NVIDIA_ADDITIONAL_LIBRARIES
-        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/kit-sdk/extscore/omni.kit.renderer.imgui/bin/imgui.dll"
-        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/kit-sdk/extscore/omni.kit.renderer.imgui/bin/deps/freetype.dll"
+        # TODO: These need to be sourced from somewhere but they don't exist at the old path
+        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/usdrt/_build/windows-x86_64/release/imgui.dll"
+        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/usdrt/_build/windows-x86_64/release/freetype.dll"
     )
 
     set_property(GLOBAL PROPERTY NVIDIA_ADDITIONAL_LIBRARIES_PROPERTY "${NVIDIA_ADDITIONAL_LIBRARIES}")

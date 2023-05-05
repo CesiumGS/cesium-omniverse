@@ -4,7 +4,7 @@
 #include <CesiumUsdSchemas/data.h>
 #include <CesiumUsdSchemas/imagery.h>
 #include <CesiumUsdSchemas/tilesetAPI.h>
-#include <carb/flatcache/StageWithHistory.h>
+#include <omni/fabric/SimStageWithHistory.h>
 #include <glm/glm.hpp>
 #include <pxr/base/gf/matrix4d.h>
 #include <pxr/base/gf/quatf.h>
@@ -30,7 +30,7 @@ struct Decomposed {
 };
 
 pxr::UsdStageRefPtr getUsdStage();
-carb::flatcache::StageInProgress getFabricStageInProgress();
+omni::fabric::StageReaderWriter getFabricStageReaderWriter();
 bool hasStage();
 glm::dvec3 usdToGlmVector(const pxr::GfVec3d& vector);
 glm::dmat4 usdToGlmMatrix(const pxr::GfMatrix4d& matrix);

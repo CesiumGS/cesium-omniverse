@@ -1,6 +1,6 @@
 #include "cesium/omniverse/Tokens.h"
 
-#include <carb/flatcache/FlatCacheUSD.h>
+#include <omni/fabric/FabricUSD.h>
 #include <pxr/base/tf/staticTokens.h>
 
 // clang-format off
@@ -78,71 +78,71 @@ TF_DEFINE_PRIVATE_TOKENS(
 }
 
 namespace cesium::omniverse::FabricTokens {
-const carb::flatcache::TokenC a = carb::flatcache::asInt(pxr::UsdTokens->a);
-const carb::flatcache::TokenC add = carb::flatcache::asInt(pxr::UsdTokens->add);
-const carb::flatcache::TokenC add_float2_float2 = carb::flatcache::asInt(pxr::UsdTokens->add_float2_float2);
-const carb::flatcache::TokenC albedo_add = carb::flatcache::asInt(pxr::UsdTokens->albedo_add);
-const carb::flatcache::TokenC b = carb::flatcache::asInt(pxr::UsdTokens->b);
-const carb::flatcache::TokenC constant = carb::flatcache::asInt(pxr::UsdTokens->constant);
-const carb::flatcache::TokenC coord = carb::flatcache::asInt(pxr::UsdTokens->coord);
-const carb::flatcache::TokenC diffuse_color_constant = carb::flatcache::asInt(pxr::UsdTokens->diffuse_color_constant);
-const carb::flatcache::TokenC diffuse_texture = carb::flatcache::asInt(pxr::UsdTokens->diffuse_texture);
-const carb::flatcache::TokenC displacement = carb::flatcache::asInt(pxr::UsdTokens->displacement);
-const carb::flatcache::TokenC doubleSided = carb::flatcache::asInt(pxr::UsdTokens->doubleSided);
-const carb::flatcache::TokenC faceVertexCounts = carb::flatcache::asInt(pxr::UsdTokens->faceVertexCounts);
-const carb::flatcache::TokenC faceVertexIndices = carb::flatcache::asInt(pxr::UsdTokens->faceVertexIndices);
-const carb::flatcache::TokenC info_id = carb::flatcache::asInt(pxr::UsdTokens->info_id);
-const carb::flatcache::TokenC info_sourceAsset_subIdentifier = carb::flatcache::asInt(pxr::UsdTokens->info_sourceAsset_subIdentifier);
-const carb::flatcache::TokenC lookup_color = carb::flatcache::asInt(pxr::UsdTokens->lookup_color);
-const carb::flatcache::TokenC Material = carb::flatcache::asInt(pxr::UsdTokens->Material);
-const carb::flatcache::TokenC materialId = carb::flatcache::asInt(pxr::UsdTokens->materialId);
-const carb::flatcache::TokenC MaterialNetwork = carb::flatcache::asInt(pxr::UsdTokens->MaterialNetwork);
-const carb::flatcache::TokenC Mesh = carb::flatcache::asInt(pxr::UsdTokens->Mesh);
-const carb::flatcache::TokenC metallic_constant = carb::flatcache::asInt(pxr::UsdTokens->metallic_constant);
-const carb::flatcache::TokenC multiply = carb::flatcache::asInt(pxr::UsdTokens->multiply);
-const carb::flatcache::TokenC multiply_float2_float2 = carb::flatcache::asInt(pxr::UsdTokens->multiply_float2_float2);
-const carb::flatcache::TokenC none = carb::flatcache::asInt(pxr::UsdTokens->none);
-const carb::flatcache::TokenC nvidia_support_definitions_mdl = carb::flatcache::asInt(pxr::UsdTokens->nvidia_support_definitions_mdl);
-const carb::flatcache::TokenC OmniPBR = carb::flatcache::asInt(pxr::UsdTokens->OmniPBR);
-const carb::flatcache::TokenC OmniPBR_mdl = carb::flatcache::asInt(pxr::UsdTokens->OmniPBR_mdl);
-const carb::flatcache::TokenC out = carb::flatcache::asInt(pxr::UsdTokens->out);
-const carb::flatcache::TokenC points = carb::flatcache::asInt(pxr::UsdTokens->points);
-const carb::flatcache::TokenC primvarInterpolations = carb::flatcache::asInt(pxr::UsdTokens->primvarInterpolations);
-const carb::flatcache::TokenC primvars = carb::flatcache::asInt(pxr::UsdTokens->primvars);
-const carb::flatcache::TokenC primvars_displayColor = carb::flatcache::asInt(pxr::UsdTokens->primvars_displayColor);
-const carb::flatcache::TokenC primvars_normals = carb::flatcache::asInt(pxr::UsdTokens->primvars_normals);
-const carb::flatcache::TokenC primvars_st = carb::flatcache::asInt(pxr::UsdTokens->primvars_st);
-const carb::flatcache::TokenC reflection_roughness_constant = carb::flatcache::asInt(pxr::UsdTokens->reflection_roughness_constant);
-const carb::flatcache::TokenC Shader = carb::flatcache::asInt(pxr::UsdTokens->Shader);
-const carb::flatcache::TokenC specular_level = carb::flatcache::asInt(pxr::UsdTokens->specular_level);
-const carb::flatcache::TokenC subdivisionScheme = carb::flatcache::asInt(pxr::UsdTokens->subdivisionScheme);
-const carb::flatcache::TokenC surface = carb::flatcache::asInt(pxr::UsdTokens->surface);
-const carb::flatcache::TokenC tex = carb::flatcache::asInt(pxr::UsdTokens->tex);
-const carb::flatcache::TokenC texture_coordinate_2d = carb::flatcache::asInt(pxr::UsdTokens->texture_coordinate_2d);
-const carb::flatcache::TokenC vertex = carb::flatcache::asInt(pxr::UsdTokens->vertex);
-const carb::flatcache::TokenC visibility = carb::flatcache::asInt(pxr::UsdTokens->visibility);
-const carb::flatcache::TokenC wrap_u = carb::flatcache::asInt(pxr::UsdTokens->wrap_u);
-const carb::flatcache::TokenC wrap_v = carb::flatcache::asInt(pxr::UsdTokens->wrap_v);
-const carb::flatcache::TokenC _auto = carb::flatcache::asInt(pxr::UsdTokens->_auto);
-const carb::flatcache::TokenC _cesium_localToEcefTransform = carb::flatcache::asInt(pxr::UsdTokens->_cesium_localToEcefTransform);
-const carb::flatcache::TokenC _cesium_tileId = carb::flatcache::asInt(pxr::UsdTokens->_cesium_tileId);
-const carb::flatcache::TokenC _cesium_tilesetId = carb::flatcache::asInt(pxr::UsdTokens->_cesium_tilesetId);
-const carb::flatcache::TokenC _deletedPrims = carb::flatcache::asInt(pxr::UsdTokens->_deletedPrims);
-const carb::flatcache::TokenC _localExtent = carb::flatcache::asInt(pxr::UsdTokens->_localExtent);
-const carb::flatcache::TokenC _localMatrix = carb::flatcache::asInt(pxr::UsdTokens->_localMatrix);
-const carb::flatcache::TokenC _nodePaths = carb::flatcache::asInt(pxr::UsdTokens->_nodePaths);
-const carb::flatcache::TokenC _paramColorSpace = carb::flatcache::asInt(pxr::UsdTokens->_paramColorSpace);
-const carb::flatcache::TokenC _parameters = carb::flatcache::asInt(pxr::UsdTokens->_parameters);
-const carb::flatcache::TokenC _relationships_inputId = carb::flatcache::asInt(pxr::UsdTokens->_relationships_inputId);
-const carb::flatcache::TokenC _relationships_inputName = carb::flatcache::asInt(pxr::UsdTokens->_relationships_inputName);
-const carb::flatcache::TokenC _relationships_outputId = carb::flatcache::asInt(pxr::UsdTokens->_relationships_outputId);
-const carb::flatcache::TokenC _relationships_outputName = carb::flatcache::asInt(pxr::UsdTokens->_relationships_outputName);
-const carb::flatcache::TokenC _terminals = carb::flatcache::asInt(pxr::UsdTokens->_terminals);
-const carb::flatcache::TokenC _worldExtent = carb::flatcache::asInt(pxr::UsdTokens->_worldExtent);
-const carb::flatcache::TokenC _worldOrientation = carb::flatcache::asInt(pxr::UsdTokens->_worldOrientation);
-const carb::flatcache::TokenC _worldPosition = carb::flatcache::asInt(pxr::UsdTokens->_worldPosition);
-const carb::flatcache::TokenC _worldScale = carb::flatcache::asInt(pxr::UsdTokens->_worldScale);
-const carb::flatcache::TokenC _worldVisibility = carb::flatcache::asInt(pxr::UsdTokens->_worldVisibility);
+const omni::fabric::TokenC a = omni::fabric::asInt(pxr::UsdTokens->a);
+const omni::fabric::TokenC add = omni::fabric::asInt(pxr::UsdTokens->add);
+const omni::fabric::TokenC add_float2_float2 = omni::fabric::asInt(pxr::UsdTokens->add_float2_float2);
+const omni::fabric::TokenC albedo_add = omni::fabric::asInt(pxr::UsdTokens->albedo_add);
+const omni::fabric::TokenC b = omni::fabric::asInt(pxr::UsdTokens->b);
+const omni::fabric::TokenC constant = omni::fabric::asInt(pxr::UsdTokens->constant);
+const omni::fabric::TokenC coord = omni::fabric::asInt(pxr::UsdTokens->coord);
+const omni::fabric::TokenC diffuse_color_constant = omni::fabric::asInt(pxr::UsdTokens->diffuse_color_constant);
+const omni::fabric::TokenC diffuse_texture = omni::fabric::asInt(pxr::UsdTokens->diffuse_texture);
+const omni::fabric::TokenC displacement = omni::fabric::asInt(pxr::UsdTokens->displacement);
+const omni::fabric::TokenC doubleSided = omni::fabric::asInt(pxr::UsdTokens->doubleSided);
+const omni::fabric::TokenC faceVertexCounts = omni::fabric::asInt(pxr::UsdTokens->faceVertexCounts);
+const omni::fabric::TokenC faceVertexIndices = omni::fabric::asInt(pxr::UsdTokens->faceVertexIndices);
+const omni::fabric::TokenC info_id = omni::fabric::asInt(pxr::UsdTokens->info_id);
+const omni::fabric::TokenC info_sourceAsset_subIdentifier = omni::fabric::asInt(pxr::UsdTokens->info_sourceAsset_subIdentifier);
+const omni::fabric::TokenC lookup_color = omni::fabric::asInt(pxr::UsdTokens->lookup_color);
+const omni::fabric::TokenC Material = omni::fabric::asInt(pxr::UsdTokens->Material);
+const omni::fabric::TokenC materialId = omni::fabric::asInt(pxr::UsdTokens->materialId);
+const omni::fabric::TokenC MaterialNetwork = omni::fabric::asInt(pxr::UsdTokens->MaterialNetwork);
+const omni::fabric::TokenC Mesh = omni::fabric::asInt(pxr::UsdTokens->Mesh);
+const omni::fabric::TokenC metallic_constant = omni::fabric::asInt(pxr::UsdTokens->metallic_constant);
+const omni::fabric::TokenC multiply = omni::fabric::asInt(pxr::UsdTokens->multiply);
+const omni::fabric::TokenC multiply_float2_float2 = omni::fabric::asInt(pxr::UsdTokens->multiply_float2_float2);
+const omni::fabric::TokenC none = omni::fabric::asInt(pxr::UsdTokens->none);
+const omni::fabric::TokenC nvidia_support_definitions_mdl = omni::fabric::asInt(pxr::UsdTokens->nvidia_support_definitions_mdl);
+const omni::fabric::TokenC OmniPBR = omni::fabric::asInt(pxr::UsdTokens->OmniPBR);
+const omni::fabric::TokenC OmniPBR_mdl = omni::fabric::asInt(pxr::UsdTokens->OmniPBR_mdl);
+const omni::fabric::TokenC out = omni::fabric::asInt(pxr::UsdTokens->out);
+const omni::fabric::TokenC points = omni::fabric::asInt(pxr::UsdTokens->points);
+const omni::fabric::TokenC primvarInterpolations = omni::fabric::asInt(pxr::UsdTokens->primvarInterpolations);
+const omni::fabric::TokenC primvars = omni::fabric::asInt(pxr::UsdTokens->primvars);
+const omni::fabric::TokenC primvars_displayColor = omni::fabric::asInt(pxr::UsdTokens->primvars_displayColor);
+const omni::fabric::TokenC primvars_normals = omni::fabric::asInt(pxr::UsdTokens->primvars_normals);
+const omni::fabric::TokenC primvars_st = omni::fabric::asInt(pxr::UsdTokens->primvars_st);
+const omni::fabric::TokenC reflection_roughness_constant = omni::fabric::asInt(pxr::UsdTokens->reflection_roughness_constant);
+const omni::fabric::TokenC Shader = omni::fabric::asInt(pxr::UsdTokens->Shader);
+const omni::fabric::TokenC specular_level = omni::fabric::asInt(pxr::UsdTokens->specular_level);
+const omni::fabric::TokenC subdivisionScheme = omni::fabric::asInt(pxr::UsdTokens->subdivisionScheme);
+const omni::fabric::TokenC surface = omni::fabric::asInt(pxr::UsdTokens->surface);
+const omni::fabric::TokenC tex = omni::fabric::asInt(pxr::UsdTokens->tex);
+const omni::fabric::TokenC texture_coordinate_2d = omni::fabric::asInt(pxr::UsdTokens->texture_coordinate_2d);
+const omni::fabric::TokenC vertex = omni::fabric::asInt(pxr::UsdTokens->vertex);
+const omni::fabric::TokenC visibility = omni::fabric::asInt(pxr::UsdTokens->visibility);
+const omni::fabric::TokenC wrap_u = omni::fabric::asInt(pxr::UsdTokens->wrap_u);
+const omni::fabric::TokenC wrap_v = omni::fabric::asInt(pxr::UsdTokens->wrap_v);
+const omni::fabric::TokenC _auto = omni::fabric::asInt(pxr::UsdTokens->_auto);
+const omni::fabric::TokenC _cesium_localToEcefTransform = omni::fabric::asInt(pxr::UsdTokens->_cesium_localToEcefTransform);
+const omni::fabric::TokenC _cesium_tileId = omni::fabric::asInt(pxr::UsdTokens->_cesium_tileId);
+const omni::fabric::TokenC _cesium_tilesetId = omni::fabric::asInt(pxr::UsdTokens->_cesium_tilesetId);
+const omni::fabric::TokenC _deletedPrims = omni::fabric::asInt(pxr::UsdTokens->_deletedPrims);
+const omni::fabric::TokenC _localExtent = omni::fabric::asInt(pxr::UsdTokens->_localExtent);
+const omni::fabric::TokenC _localMatrix = omni::fabric::asInt(pxr::UsdTokens->_localMatrix);
+const omni::fabric::TokenC _nodePaths = omni::fabric::asInt(pxr::UsdTokens->_nodePaths);
+const omni::fabric::TokenC _paramColorSpace = omni::fabric::asInt(pxr::UsdTokens->_paramColorSpace);
+const omni::fabric::TokenC _parameters = omni::fabric::asInt(pxr::UsdTokens->_parameters);
+const omni::fabric::TokenC _relationships_inputId = omni::fabric::asInt(pxr::UsdTokens->_relationships_inputId);
+const omni::fabric::TokenC _relationships_inputName = omni::fabric::asInt(pxr::UsdTokens->_relationships_inputName);
+const omni::fabric::TokenC _relationships_outputId = omni::fabric::asInt(pxr::UsdTokens->_relationships_outputId);
+const omni::fabric::TokenC _relationships_outputName = omni::fabric::asInt(pxr::UsdTokens->_relationships_outputName);
+const omni::fabric::TokenC _terminals = omni::fabric::asInt(pxr::UsdTokens->_terminals);
+const omni::fabric::TokenC _worldExtent = omni::fabric::asInt(pxr::UsdTokens->_worldExtent);
+const omni::fabric::TokenC _worldOrientation = omni::fabric::asInt(pxr::UsdTokens->_worldOrientation);
+const omni::fabric::TokenC _worldPosition = omni::fabric::asInt(pxr::UsdTokens->_worldPosition);
+const omni::fabric::TokenC _worldScale = omni::fabric::asInt(pxr::UsdTokens->_worldScale);
+const omni::fabric::TokenC _worldVisibility = omni::fabric::asInt(pxr::UsdTokens->_worldVisibility);
 }
 
 namespace cesium::omniverse::UsdTokens {

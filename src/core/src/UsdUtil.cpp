@@ -51,8 +51,8 @@ pxr::UsdStageRefPtr getUsdStage() {
     return Context::instance().getStage();
 }
 
-carb::flatcache::StageInProgress getFabricStageInProgress() {
-    return Context::instance().getFabricStageInProgress();
+omni::fabric::StageReaderWriter getFabricStageReaderWriter() {
+    return Context::instance().getFabricStageReaderWriter();
 }
 
 bool hasStage() {

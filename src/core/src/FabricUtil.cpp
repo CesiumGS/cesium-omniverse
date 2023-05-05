@@ -4,7 +4,7 @@
 #include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
-#include <carb/flatcache/FlatCacheUSD.h>
+#include <omni/fabric/FabricUSD.h>
 #include <pxr/base/gf/matrix4d.h>
 #include <pxr/base/gf/quatf.h>
 #include <pxr/base/gf/range3d.h>
@@ -24,7 +24,7 @@ const char* const TYPE_NOT_SUPPORTED_STRING = "[Type Not Supported]";
 // Wraps the token type so that we can define a custom stream insertion operator
 class TokenWrapper {
   private:
-    carb::flatcache::Token token;
+    omni::fabric::Token token;
 
   public:
     friend std::ostream& operator<<(std::ostream& os, const TokenWrapper& tokenWrapper);
@@ -107,10 +107,10 @@ std::string printAttributeValue(const T* values, uint64_t elementCount, uint64_t
 }
 
 template <bool IsArray, typename BaseType, uint64_t ComponentCount>
-std::string printAttributeValue(const carb::flatcache::Path& primPath, const carb::flatcache::Token& attributeName) {
+std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::fabric::Token& attributeName) {
     using ElementType = std::array<BaseType, ComponentCount>;
 
-    auto stageInProgress = UsdUtil::getFabricStageInProgress();
+    auto stageInProgress = UsdUtil::getFabricStageReaderWriter();
 
     if constexpr (IsArray) {
         const auto values = stageInProgress.getArrayAttributeRd<ElementType>(primPath, attributeName);
@@ -133,8 +133,8 @@ std::string printAttributeValue(const carb::flatcache::Path& primPath, const car
 }
 
 std::string
-printAttributeValue(const carb::flatcache::Path& primPath, const carb::flatcache::AttrNameAndType& attribute) {
-    auto stageInProgress = UsdUtil::getFabricStageInProgress();
+printAttributeValue(const omni::fabric::Path& primPath, const omni::fabric::AttrNameAndType& attribute) {
+    auto stageInProgress = UsdUtil::getFabricStageReaderWriter();
 
     const auto attributeType = attribute.type;
     const auto baseType = attributeType.baseType;
@@ -147,7 +147,7 @@ printAttributeValue(const carb::flatcache::Path& primPath, const carb::flatcache
     // We can add more as needed.
     if (arrayDepth == 0) {
         switch (baseType) {
-            case carb::flatcache::BaseDataType::eAsset: {
+            case omni::fabric::BaseDataType::eAsset: {
                 switch (componentCount) {
                     case 1: {
                         return printAttributeValue<false, AssetWrapper, 1>(primPath, name);
@@ -158,7 +158,7 @@ printAttributeValue(const carb::flatcache::Path& primPath, const carb::flatcache
                 }
                 break;
             }
-            case carb::flatcache::BaseDataType::eToken: {
+            case omni::fabric::BaseDataType::eToken: {
                 switch (componentCount) {
                     case 1: {
                         return printAttributeValue<false, TokenWrapper, 1>(primPath, name);
@@ -169,7 +169,7 @@ printAttributeValue(const carb::flatcache::Path& primPath, const carb::flatcache
                 }
                 break;
             }
-            case carb::flatcache::BaseDataType::eBool: {
+            case omni::fabric::BaseDataType::eBool: {
                 switch (componentCount) {
                     case 1: {
                         return printAttributeValue<false, BoolWrapper, 1>(primPath, name);
@@ -180,7 +180,7 @@ printAttributeValue(const carb::flatcache::Path& primPath, const carb::flatcache
                 }
                 break;
             }
-            case carb::flatcache::BaseDataType::eUChar: {
+            case omni::fabric::BaseDataType::eUChar: {
                 switch (componentCount) {
                     case 1: {
                         return printAttributeValue<false, uint8_t, 1>(primPath, name);
@@ -191,7 +191,7 @@ printAttributeValue(const carb::flatcache::Path& primPath, const carb::flatcache
                 }
                 break;
             }
-            case carb::flatcache::BaseDataType::eInt: {
+            case omni::fabric::BaseDataType::eInt: {
                 switch (componentCount) {
                     case 1: {
                         return printAttributeValue<false, int32_t, 1>(primPath, name);
@@ -211,7 +211,7 @@ printAttributeValue(const carb::flatcache::Path& primPath, const carb::flatcache
                 }
                 break;
             }
-            case carb::flatcache::BaseDataType::eUInt: {
+            case omni::fabric::BaseDataType::eUInt: {
                 switch (componentCount) {
                     case 1: {
                         return printAttributeValue<false, uint32_t, 1>(primPath, name);
@@ -222,7 +222,7 @@ printAttributeValue(const carb::flatcache::Path& primPath, const carb::flatcache
                 }
                 break;
             }
-            case carb::flatcache::BaseDataType::eInt64: {
+            case omni::fabric::BaseDataType::eInt64: {
                 switch (componentCount) {
                     case 1: {
                         return printAttributeValue<false, int64_t, 1>(primPath, name);
@@ -233,7 +233,7 @@ printAttributeValue(const carb::flatcache::Path& primPath, const carb::flatcache
                 }
                 break;
             }
-            case carb::flatcache::BaseDataType::eUInt64: {
+            case omni::fabric::BaseDataType::eUInt64: {
                 switch (componentCount) {
                     case 1: {
                         return printAttributeValue<false, uint64_t, 1>(primPath, name);
@@ -244,7 +244,7 @@ printAttributeValue(const carb::flatcache::Path& primPath, const carb::flatcache
                 }
                 break;
             }
-            case carb::flatcache::BaseDataType::eFloat: {
+            case omni::fabric::BaseDataType::eFloat: {
                 switch (componentCount) {
                     case 1: {
                         return printAttributeValue<false, float, 1>(primPath, name);
@@ -264,7 +264,7 @@ printAttributeValue(const carb::flatcache::Path& primPath, const carb::flatcache
                 }
                 break;
             }
-            case carb::flatcache::BaseDataType::eDouble: {
+            case omni::fabric::BaseDataType::eDouble: {
                 switch (componentCount) {
                     case 1: {
                         return printAttributeValue<false, double, 1>(primPath, name);
@@ -299,7 +299,7 @@ printAttributeValue(const carb::flatcache::Path& primPath, const carb::flatcache
         }
     } else if (arrayDepth == 1) {
         switch (baseType) {
-            case carb::flatcache::BaseDataType::eAsset: {
+            case omni::fabric::BaseDataType::eAsset: {
                 switch (componentCount) {
                     case 1: {
                         return printAttributeValue<true, AssetWrapper, 1>(primPath, name);
@@ -310,7 +310,7 @@ printAttributeValue(const carb::flatcache::Path& primPath, const carb::flatcache
                 }
                 break;
             }
-            case carb::flatcache::BaseDataType::eToken: {
+            case omni::fabric::BaseDataType::eToken: {
                 switch (componentCount) {
                     case 1: {
                         return printAttributeValue<true, TokenWrapper, 1>(primPath, name);
@@ -321,7 +321,7 @@ printAttributeValue(const carb::flatcache::Path& primPath, const carb::flatcache
                 }
                 break;
             }
-            case carb::flatcache::BaseDataType::eBool: {
+            case omni::fabric::BaseDataType::eBool: {
                 switch (componentCount) {
                     case 1: {
                         return printAttributeValue<true, BoolWrapper, 1>(primPath, name);
@@ -332,7 +332,7 @@ printAttributeValue(const carb::flatcache::Path& primPath, const carb::flatcache
                 }
                 break;
             }
-            case carb::flatcache::BaseDataType::eUChar: {
+            case omni::fabric::BaseDataType::eUChar: {
                 switch (componentCount) {
                     case 1: {
                         return printAttributeValue<true, uint8_t, 1>(primPath, name);
@@ -343,7 +343,7 @@ printAttributeValue(const carb::flatcache::Path& primPath, const carb::flatcache
                 }
                 break;
             }
-            case carb::flatcache::BaseDataType::eInt: {
+            case omni::fabric::BaseDataType::eInt: {
                 switch (componentCount) {
                     case 1: {
                         return printAttributeValue<true, int32_t, 1>(primPath, name);
@@ -363,7 +363,7 @@ printAttributeValue(const carb::flatcache::Path& primPath, const carb::flatcache
                 }
                 break;
             }
-            case carb::flatcache::BaseDataType::eUInt: {
+            case omni::fabric::BaseDataType::eUInt: {
                 switch (componentCount) {
                     case 1: {
                         return printAttributeValue<true, uint32_t, 1>(primPath, name);
@@ -374,7 +374,7 @@ printAttributeValue(const carb::flatcache::Path& primPath, const carb::flatcache
                 }
                 break;
             }
-            case carb::flatcache::BaseDataType::eInt64: {
+            case omni::fabric::BaseDataType::eInt64: {
                 switch (componentCount) {
                     case 1: {
                         return printAttributeValue<true, int64_t, 1>(primPath, name);
@@ -385,7 +385,7 @@ printAttributeValue(const carb::flatcache::Path& primPath, const carb::flatcache
                 }
                 break;
             }
-            case carb::flatcache::BaseDataType::eUInt64: {
+            case omni::fabric::BaseDataType::eUInt64: {
                 switch (componentCount) {
                     case 1: {
                         return printAttributeValue<true, uint64_t, 1>(primPath, name);
@@ -396,7 +396,7 @@ printAttributeValue(const carb::flatcache::Path& primPath, const carb::flatcache
                 }
                 break;
             }
-            case carb::flatcache::BaseDataType::eFloat: {
+            case omni::fabric::BaseDataType::eFloat: {
                 switch (componentCount) {
                     case 1: {
                         return printAttributeValue<true, float, 1>(primPath, name);
@@ -416,7 +416,7 @@ printAttributeValue(const carb::flatcache::Path& primPath, const carb::flatcache
                 }
                 break;
             }
-            case carb::flatcache::BaseDataType::eDouble: {
+            case omni::fabric::BaseDataType::eDouble: {
                 switch (componentCount) {
                     case 1: {
                         return printAttributeValue<true, double, 1>(primPath, name);
@@ -459,7 +459,7 @@ printAttributeValue(const carb::flatcache::Path& primPath, const carb::flatcache
 std::string printFabricStage() {
     std::stringstream stream;
 
-    auto stageInProgress = UsdUtil::getFabricStageInProgress();
+    auto stageInProgress = UsdUtil::getFabricStageReaderWriter();
 
     // For extra debugging. This gets printed to the console.
     stageInProgress.printBucketNames();
@@ -473,7 +473,7 @@ std::string printFabricStage() {
 
         for (const auto& primPath : primPaths) {
             const auto primPathString = primPath.getText();
-            const auto primPathUint64 = carb::flatcache::PathC(primPath).path;
+            const auto primPathUint64 = omni::fabric::PathC(primPath).path;
 
             stream << fmt::format("Prim: {} ({})\n", primPathString, primPathUint64);
             stream << fmt::format("  Attributes:\n");
@@ -487,7 +487,7 @@ std::string printFabricStage() {
                 stream << fmt::format("    Attribute: {}\n", attributeName);
                 stream << fmt::format("      Type: {}\n", attributeType);
 
-                if (attributeBaseType != carb::flatcache::BaseDataType::eTag) {
+                if (attributeBaseType != omni::fabric::BaseDataType::eTag) {
                     stream << fmt::format("      Value: {}\n", attributeValue);
                 }
             }
@@ -504,15 +504,15 @@ FabricStatistics getStatistics() {
         return statistics;
     }
 
-    auto sip = UsdUtil::getFabricStageInProgress();
+    auto sip = UsdUtil::getFabricStageReaderWriter();
 
     const auto geometryBuckets = sip.findPrims(
-        {carb::flatcache::AttrNameAndType(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId)},
-        {carb::flatcache::AttrNameAndType(FabricTypes::Mesh, FabricTokens::Mesh)});
+        {omni::fabric::AttrNameAndType(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId)},
+        {omni::fabric::AttrNameAndType(FabricTypes::Mesh, FabricTokens::Mesh)});
 
     const auto materialBuckets = sip.findPrims(
-        {carb::flatcache::AttrNameAndType(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId)},
-        {carb::flatcache::AttrNameAndType(FabricTypes::Material, FabricTokens::Material)});
+        {omni::fabric::AttrNameAndType(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId)},
+        {omni::fabric::AttrNameAndType(FabricTypes::Material, FabricTokens::Material)});
 
     for (size_t bucketId = 0; bucketId < geometryBuckets.bucketCount(); bucketId++) {
         auto paths = sip.getPathArray(geometryBuckets, bucketId);
@@ -539,15 +539,15 @@ void destroyPrimsSpan(gsl::span<const pxr::SdfPath> paths) {
         return;
     }
 
-    auto sip = UsdUtil::getFabricStageInProgress();
+    auto sip = UsdUtil::getFabricStageReaderWriter();
 
     for (const auto& path : paths) {
-        sip.destroyPrim(carb::flatcache::asInt(path));
+        sip.destroyPrim(omni::fabric::asInt(path));
     }
 
     // Prims removed from Fabric need special handling for their removal to be reflected in the Hydra render index
     // This workaround may not be needed in future Kit versions, but is needed as of Kit 104.2
-    const carb::flatcache::Path changeTrackingPath("/TempChangeTracking");
+    const omni::fabric::Path changeTrackingPath("/TempChangeTracking");
 
     if (sip.getAttribute<uint64_t>(changeTrackingPath, FabricTokens::_deletedPrims) == nullptr) {
         return;
@@ -558,7 +558,7 @@ void destroyPrimsSpan(gsl::span<const pxr::SdfPath> paths) {
     auto deletedPrimsFabric = sip.getArrayAttributeWr<uint64_t>(changeTrackingPath, FabricTokens::_deletedPrims);
 
     for (size_t i = 0; i < paths.size(); i++) {
-        deletedPrimsFabric[deletedPrimsSize + i] = carb::flatcache::asInt(paths[i]).path;
+        deletedPrimsFabric[deletedPrimsSize + i] = omni::fabric::asInt(paths[i]).path;
     }
 }
 } // namespace
@@ -572,11 +572,11 @@ void destroyPrims(const std::vector<pxr::SdfPath>& paths) {
 }
 
 void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform) {
-    auto sip = UsdUtil::getFabricStageInProgress();
+    auto sip = UsdUtil::getFabricStageReaderWriter();
 
     const auto buckets = sip.findPrims(
-        {carb::flatcache::AttrNameAndType(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId)},
-        {carb::flatcache::AttrNameAndType(
+        {omni::fabric::AttrNameAndType(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId)},
+        {omni::fabric::AttrNameAndType(
             FabricTypes::_cesium_localToEcefTransform, FabricTokens::_cesium_localToEcefTransform)});
 
     for (size_t bucketId = 0; bucketId < buckets.bucketCount(); bucketId++) {
@@ -610,9 +610,9 @@ void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform
 }
 
 void setTilesetIdAndTileId(const pxr::SdfPath& path, int64_t tilesetId, int64_t tileId) {
-    auto sip = UsdUtil::getFabricStageInProgress();
+    auto sip = UsdUtil::getFabricStageReaderWriter();
 
-    const auto pathFabric = carb::flatcache::Path(carb::flatcache::asInt(path));
+    const auto pathFabric = omni::fabric::Path(omni::fabric::asInt(path));
     auto tilesetIdFabric = sip.getAttributeWr<int64_t>(pathFabric, FabricTokens::_cesium_tilesetId);
     auto tileIdFabric = sip.getAttributeWr<int64_t>(pathFabric, FabricTokens::_cesium_tileId);
 

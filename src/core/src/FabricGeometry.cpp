@@ -13,7 +13,7 @@
 #endif
 
 #include <CesiumGltf/Model.h>
-#include <carb/flatcache/FlatCacheUSD.h>
+#include <omni/fabric/FabricUSD.h>
 #include <pxr/base/gf/range3d.h>
 
 namespace cesium::omniverse {
@@ -47,10 +47,10 @@ void FabricGeometry::setActive(bool active) {
 }
 
 void FabricGeometry::setVisibility(bool visible) {
-    auto sip = UsdUtil::getFabricStageInProgress();
+    auto sip = UsdUtil::getFabricStageReaderWriter();
 
     auto worldVisibilityFabric =
-        sip.getAttributeWr<bool>(carb::flatcache::asInt(_path), FabricTokens::_worldVisibility);
+        sip.getAttributeWr<bool>(omni::fabric::asInt(_path), FabricTokens::_worldVisibility);
     *worldVisibilityFabric = visible;
 }
 
@@ -63,10 +63,10 @@ const FabricGeometryDefinition& FabricGeometry::getGeometryDefinition() const {
 }
 
 void FabricGeometry::assignMaterial(std::shared_ptr<FabricMaterial> material) {
-    auto sip = UsdUtil::getFabricStageInProgress();
-    const auto pathFabric = carb::flatcache::Path(carb::flatcache::asInt(_path));
+    auto sip = UsdUtil::getFabricStageReaderWriter();
+    const auto pathFabric = omni::fabric::Path(omni::fabric::asInt(_path));
     auto materialIdFabric = sip.getAttributeWr<uint64_t>(pathFabric, FabricTokens::materialId);
-    *materialIdFabric = carb::flatcache::asInt(material->getPath()).path;
+    *materialIdFabric = omni::fabric::asInt(material->getPath()).path;
 }
 
 void FabricGeometry::initialize() {
@@ -75,8 +75,8 @@ void FabricGeometry::initialize() {
     const auto hasNormals = _geometryDefinition.hasNormals();
     const auto doubleSided = _geometryDefinition.getDoubleSided();
 
-    auto sip = UsdUtil::getFabricStageInProgress();
-    const auto pathFabric = carb::flatcache::Path(carb::flatcache::asInt(_path));
+    auto sip = UsdUtil::getFabricStageReaderWriter();
+    const auto pathFabric = omni::fabric::Path(omni::fabric::asInt(_path));
 
     sip.createPrim(pathFabric);
 
@@ -116,7 +116,7 @@ void FabricGeometry::initialize() {
 
     // clang-format off
     auto doubleSidedFabric = sip.getAttributeWr<bool>(pathFabric, FabricTokens::doubleSided);
-    auto subdivisionSchemeFabric = sip.getAttributeWr<carb::flatcache::Token>(pathFabric, FabricTokens::subdivisionScheme);
+    auto subdivisionSchemeFabric = sip.getAttributeWr<omni::fabric::Token>(pathFabric, FabricTokens::subdivisionScheme);
     // clang-format on
 
     *subdivisionSchemeFabric = FabricTokens::none;
@@ -141,8 +141,8 @@ void FabricGeometry::initialize() {
     sip.setArrayAttributeSize(pathFabric, FabricTokens::primvarInterpolations, primvarsCount);
 
     // clang-format off
-    auto primvarsFabric = sip.getArrayAttributeWr<carb::flatcache::Token>(pathFabric, FabricTokens::primvars);
-    auto primvarInterpolationsFabric = sip.getArrayAttributeWr<carb::flatcache::Token>(pathFabric, FabricTokens::primvarInterpolations);
+    auto primvarsFabric = sip.getArrayAttributeWr<omni::fabric::Token>(pathFabric, FabricTokens::primvars);
+    auto primvarInterpolationsFabric = sip.getArrayAttributeWr<omni::fabric::Token>(pathFabric, FabricTokens::primvarInterpolations);
     // clang-format on
 
     primvarsFabric[primvarIndexDisplayColor] = FabricTokens::primvars_displayColor;
@@ -169,8 +169,8 @@ void FabricGeometry::reset() {
     const auto hasTexcoords = _geometryDefinition.hasTexcoords();
     const auto hasNormals = _geometryDefinition.hasNormals();
 
-    auto sip = UsdUtil::getFabricStageInProgress();
-    const auto pathFabric = carb::flatcache::Path(carb::flatcache::asInt(_path));
+    auto sip = UsdUtil::getFabricStageReaderWriter();
+    const auto pathFabric = omni::fabric::Path(omni::fabric::asInt(_path));
 
     auto localExtentFabric = sip.getAttributeWr<pxr::GfRange3d>(pathFabric, FabricTokens::_localExtent);
     auto worldExtentFabric = sip.getAttributeWr<pxr::GfRange3d>(pathFabric, FabricTokens::_worldExtent);
@@ -224,8 +224,8 @@ void FabricGeometry::setTile(
     const auto hasTexcoords = _geometryDefinition.hasTexcoords();
     const auto hasNormals = _geometryDefinition.hasNormals();
 
-    auto sip = UsdUtil::getFabricStageInProgress();
-    const auto pathFabric = carb::flatcache::Path(carb::flatcache::asInt(_path));
+    auto sip = UsdUtil::getFabricStageReaderWriter();
+    const auto pathFabric = omni::fabric::Path(omni::fabric::asInt(_path));
 
     const auto positions = GltfUtil::getPositions(model, primitive);
     const auto indices = GltfUtil::getIndices(model, primitive, positions);

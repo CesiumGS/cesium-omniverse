@@ -14,7 +14,7 @@
 #endif
 
 #include <CesiumGltf/Model.h>
-#include <carb/flatcache/FlatCacheUSD.h>
+#include <omni/fabric/FabricUSD.h>
 #include <omni/ui/ImageProvider/DynamicTextureProvider.h>
 #include <spdlog/fmt/fmt.h>
 
@@ -56,7 +56,7 @@ const FabricMaterialDefinition& FabricMaterial::getMaterialDefinition() const {
 void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinition& materialDefinition) {
     const auto hasBaseColorTexture = materialDefinition.hasBaseColorTexture();
 
-    auto sip = UsdUtil::getFabricStageInProgress();
+    auto sip = UsdUtil::getFabricStageReaderWriter();
 
     const auto materialPath = path;
     const auto shaderPath = materialPath.AppendChild(UsdTokens::Shader);
@@ -65,13 +65,13 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
     const auto lookupColorPath = materialPath.AppendChild(UsdTokens::lookup_color);
     const auto textureCoordinate2dPath = materialPath.AppendChild(UsdTokens::texture_coordinate_2d);
 
-    const auto shaderPathFabricUint64 = carb::flatcache::asInt(shaderPath).path;
-    const auto lookupColorPathFabricUint64 = carb::flatcache::asInt(lookupColorPath).path;
-    const auto textureCoordinate2dPathFabricUint64 = carb::flatcache::asInt(textureCoordinate2dPath).path;
+    const auto shaderPathFabricUint64 = omni::fabric::asInt(shaderPath).path;
+    const auto lookupColorPathFabricUint64 = omni::fabric::asInt(lookupColorPath).path;
+    const auto textureCoordinate2dPathFabricUint64 = omni::fabric::asInt(textureCoordinate2dPath).path;
 
     // Material
     {
-        const auto materialPathFabric = carb::flatcache::Path(carb::flatcache::asInt(materialPath));
+        const auto materialPathFabric = omni::fabric::Path(omni::fabric::asInt(materialPath));
         sip.createPrim(materialPathFabric);
 
         FabricAttributesBuilder attributes;
@@ -93,7 +93,7 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
 
     // Displacement
     {
-        const auto displacementPathFabric = carb::flatcache::Path(carb::flatcache::asInt(displacementPath));
+        const auto displacementPathFabric = omni::fabric::Path(omni::fabric::asInt(displacementPath));
         sip.createPrim(displacementPathFabric);
 
         FabricAttributesBuilder attributes;
@@ -131,8 +131,8 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         auto nodePathsFabric = sip.getArrayAttributeWr<uint64_t>(displacementPathFabric, FabricTokens::_nodePaths);
         auto relationshipsInputIdFabric = sip.getArrayAttributeWr<uint64_t>(displacementPathFabric, FabricTokens::_relationships_inputId);
         auto relationshipsOutputIdFabric = sip.getArrayAttributeWr<uint64_t>(displacementPathFabric, FabricTokens::_relationships_outputId);
-        auto relationshipsInputNameFabric = sip.getArrayAttributeWr<carb::flatcache::Token>(displacementPathFabric, FabricTokens::_relationships_inputName);
-        auto relationshipsOutputNameFabric = sip.getArrayAttributeWr<carb::flatcache::Token>(displacementPathFabric, FabricTokens::_relationships_outputName);
+        auto relationshipsInputNameFabric = sip.getArrayAttributeWr<omni::fabric::Token>(displacementPathFabric, FabricTokens::_relationships_inputName);
+        auto relationshipsOutputNameFabric = sip.getArrayAttributeWr<omni::fabric::Token>(displacementPathFabric, FabricTokens::_relationships_outputName);
         // clang-format on
 
         if (hasBaseColorTexture) {
@@ -154,7 +154,7 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
 
     // Surface
     {
-        const auto surfacePathFabric = carb::flatcache::Path(carb::flatcache::asInt(surfacePath));
+        const auto surfacePathFabric = omni::fabric::Path(omni::fabric::asInt(surfacePath));
         sip.createPrim(surfacePathFabric);
 
         FabricAttributesBuilder attributes;
@@ -192,8 +192,8 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         auto nodePathsFabric = sip.getArrayAttributeWr<uint64_t>(surfacePathFabric, FabricTokens::_nodePaths);
         auto relationshipsInputIdFabric = sip.getArrayAttributeWr<uint64_t>(surfacePathFabric, FabricTokens::_relationships_inputId);
         auto relationshipsOutputIdFabric = sip.getArrayAttributeWr<uint64_t>(surfacePathFabric, FabricTokens::_relationships_outputId);
-        auto relationshipsInputNameFabric = sip.getArrayAttributeWr<carb::flatcache::Token>(surfacePathFabric, FabricTokens::_relationships_inputName);
-        auto relationshipsOutputNameFabric = sip.getArrayAttributeWr<carb::flatcache::Token>(surfacePathFabric, FabricTokens::_relationships_outputName);
+        auto relationshipsInputNameFabric = sip.getArrayAttributeWr<omni::fabric::Token>(surfacePathFabric, FabricTokens::_relationships_inputName);
+        auto relationshipsOutputNameFabric = sip.getArrayAttributeWr<omni::fabric::Token>(surfacePathFabric, FabricTokens::_relationships_outputName);
         // clang-format on
 
         if (hasBaseColorTexture) {
@@ -215,7 +215,7 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
 
     // Shader
     {
-        const auto shaderPathFabric = carb::flatcache::Path(carb::flatcache::asInt(shaderPath));
+        const auto shaderPathFabric = omni::fabric::Path(omni::fabric::asInt(shaderPath));
         sip.createPrim(shaderPathFabric);
 
         FabricAttributesBuilder attributes;
@@ -240,9 +240,9 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         sip.setArrayAttributeSize(shaderPathFabric, FabricTokens::_parameters, 4);
 
         // clang-format off
-        auto infoIdFabric = sip.getAttributeWr<carb::flatcache::Token>(shaderPathFabric, FabricTokens::info_id);
-        auto infoSourceAssetSubIdentifierFabric = sip.getAttributeWr<carb::flatcache::Token>(shaderPathFabric, FabricTokens::info_sourceAsset_subIdentifier);
-        auto parametersFabric = sip.getArrayAttributeWr<carb::flatcache::Token>(shaderPathFabric, FabricTokens::_parameters);
+        auto infoIdFabric = sip.getAttributeWr<omni::fabric::Token>(shaderPathFabric, FabricTokens::info_id);
+        auto infoSourceAssetSubIdentifierFabric = sip.getAttributeWr<omni::fabric::Token>(shaderPathFabric, FabricTokens::info_sourceAsset_subIdentifier);
+        auto parametersFabric = sip.getArrayAttributeWr<omni::fabric::Token>(shaderPathFabric, FabricTokens::_parameters);
         auto specularLevelFabric = sip.getAttributeWr<float>(shaderPathFabric, FabricTokens::specular_level);
         // clang-format on
 
@@ -266,7 +266,7 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         // texture_coordinate_2d
         {
             const auto textureCoordinate2dPathFabric =
-                carb::flatcache::Path(carb::flatcache::asInt(textureCoordinate2dPath));
+                omni::fabric::Path(omni::fabric::asInt(textureCoordinate2dPath));
             sip.createPrim(textureCoordinate2dPathFabric);
 
             FabricAttributesBuilder attributes;
@@ -287,8 +287,8 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             sip.setArrayAttributeSize(textureCoordinate2dPathFabric, FabricTokens::_parameters, 0);
 
             // clang-format off
-            auto infoIdFabric = sip.getAttributeWr<carb::flatcache::Token>(textureCoordinate2dPathFabric, FabricTokens::info_id);
-            auto infoSourceAssetSubIdentifierFabric = sip.getAttributeWr<carb::flatcache::Token>(textureCoordinate2dPathFabric, FabricTokens::info_sourceAsset_subIdentifier);
+            auto infoIdFabric = sip.getAttributeWr<omni::fabric::Token>(textureCoordinate2dPathFabric, FabricTokens::info_id);
+            auto infoSourceAssetSubIdentifierFabric = sip.getAttributeWr<omni::fabric::Token>(textureCoordinate2dPathFabric, FabricTokens::info_sourceAsset_subIdentifier);
             // clang-format on
 
             *infoIdFabric = FabricTokens::nvidia_support_definitions_mdl;
@@ -297,7 +297,7 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
 
         // lookup_color
         {
-            const auto lookupColorPathFabric = carb::flatcache::Path(carb::flatcache::asInt(lookupColorPath));
+            const auto lookupColorPathFabric = omni::fabric::Path(omni::fabric::asInt(lookupColorPath));
             sip.createPrim(lookupColorPathFabric);
 
             FabricAttributesBuilder attributes;
@@ -325,10 +325,10 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             auto wrapUFabric = sip.getAttributeWr<int>(lookupColorPathFabric, FabricTokens::wrap_u);
             auto wrapVFabric = sip.getAttributeWr<int>(lookupColorPathFabric, FabricTokens::wrap_v);
             auto texFabric = sip.getAttributeWr<FabricAsset>(lookupColorPathFabric, FabricTokens::tex);
-            auto infoIdFabric = sip.getAttributeWr<carb::flatcache::Token>(lookupColorPathFabric, FabricTokens::info_id);
-            auto infoSourceAssetSubIdentifierFabric = sip.getAttributeWr<carb::flatcache::Token>(lookupColorPathFabric, FabricTokens::info_sourceAsset_subIdentifier);
-            auto paramColorSpaceFabric = sip.getArrayAttributeWr<carb::flatcache::Token>(lookupColorPathFabric, FabricTokens::_paramColorSpace);
-            auto parametersFabric = sip.getArrayAttributeWr<carb::flatcache::Token>(lookupColorPathFabric, FabricTokens::_parameters);
+            auto infoIdFabric = sip.getAttributeWr<omni::fabric::Token>(lookupColorPathFabric, FabricTokens::info_id);
+            auto infoSourceAssetSubIdentifierFabric = sip.getAttributeWr<omni::fabric::Token>(lookupColorPathFabric, FabricTokens::info_sourceAsset_subIdentifier);
+            auto paramColorSpaceFabric = sip.getArrayAttributeWr<omni::fabric::Token>(lookupColorPathFabric, FabricTokens::_paramColorSpace);
+            auto parametersFabric = sip.getArrayAttributeWr<omni::fabric::Token>(lookupColorPathFabric, FabricTokens::_parameters);
             // clang-format on
 
             *wrapUFabric = 0; // clamp to edge
@@ -357,7 +357,7 @@ void FabricMaterial::reset() {
         return;
     }
 
-    auto sip = UsdUtil::getFabricStageInProgress();
+    auto sip = UsdUtil::getFabricStageReaderWriter();
 
     if (_baseColorTexture != nullptr) {
         // Clear the texture
@@ -370,7 +370,7 @@ void FabricMaterial::reset() {
     const auto metallicFactor = GltfUtil::getDefaultMetallicFactor();
     const auto roughnessFactor = GltfUtil::getDefaultRoughnessFactor();
 
-    const auto shaderPathFabric = carb::flatcache::Path(carb::flatcache::asInt(_shaderPath));
+    const auto shaderPathFabric = omni::fabric::Path(omni::fabric::asInt(_shaderPath));
 
     // clang-format off
     auto diffuseColorConstantFabric = sip.getAttributeWr<pxr::GfVec3f>(shaderPathFabric, FabricTokens::diffuse_color_constant);
@@ -389,9 +389,9 @@ void FabricMaterial::reset() {
 }
 
 void FabricMaterial::setInitialValues(const FabricMaterialDefinition& materialDefinition) {
-    auto sip = UsdUtil::getFabricStageInProgress();
+    auto sip = UsdUtil::getFabricStageReaderWriter();
 
-    const auto shaderPathFabric = carb::flatcache::Path(carb::flatcache::asInt(_shaderPath));
+    const auto shaderPathFabric = omni::fabric::Path(omni::fabric::asInt(_shaderPath));
 
     // clang-format off
     auto diffuseColorConstantFabric = sip.getAttributeWr<pxr::GfVec3f>(shaderPathFabric, FabricTokens::diffuse_color_constant);
@@ -411,7 +411,7 @@ void FabricMaterial::setTile(
     const CesiumGltf::MeshPrimitive& primitive,
     const CesiumGltf::ImageCesium* imagery) {
 
-    auto sip = UsdUtil::getFabricStageInProgress();
+    auto sip = UsdUtil::getFabricStageReaderWriter();
 
     pxr::GfVec3f baseColorFactor;
     float metallicFactor;
@@ -452,7 +452,7 @@ void FabricMaterial::setTile(
             carb::Format::eRGBA8_SRGB);
     }
 
-    const auto shaderPathFabric = carb::flatcache::Path(carb::flatcache::asInt(_shaderPath));
+    const auto shaderPathFabric = omni::fabric::Path(omni::fabric::asInt(_shaderPath));
 
     // clang-format off
     auto diffuseColorConstantFabric = sip.getAttributeWr<pxr::GfVec3f>(shaderPathFabric, FabricTokens::diffuse_color_constant);
