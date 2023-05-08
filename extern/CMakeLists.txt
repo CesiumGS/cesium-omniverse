@@ -314,9 +314,9 @@ add_prebuilt_project(
     DEBUG_INCLUDE_DIR
         "${KIT_SDK_ROOT}/dev/include"
     RELEASE_LIBRARY_DIR
-        "${KIT_SDK_ROOT}/extscore/omni.ui/bin"
+        "${KIT_SDK_ROOT}/exts/omni.ui/bin"
     DEBUG_LIBRARY_DIR
-        "${KIT_SDK_ROOT}/extscore/omni.ui/bin"
+        "${KIT_SDK_ROOT}/exts/omni.ui/bin"
     RELEASE_LIBRARIES
         omni.ui
     DEBUG_LIBRARIES
