@@ -31,7 +31,7 @@
 
 #pragma once
 
-#include <pybind11/pybind11/pybind11.h>
+#include <pybind11/pybind11.h>
 
 #ifdef CESIUM_OMNI_GCC
     #pragma GCC diagnostic push
