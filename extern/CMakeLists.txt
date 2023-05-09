@@ -338,9 +338,8 @@ add_prebuilt_project_header_only(
 
 if(WIN32)
     set(NVIDIA_ADDITIONAL_LIBRARIES
-        # TODO: These need to be sourced from somewhere but they don't exist at the old path
-        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/usdrt/_build/windows-x86_64/release/imgui.dll"
-        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/usdrt/_build/windows-x86_64/release/freetype.dll"
+        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/kit-sdk/exts/omni.kit.renderer.imgui/bin/imgui.dll"
+        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/kit-sdk/exts/omni.kit.renderer.imgui/bin/deps/freetype.dll"
     )
 
     set_property(GLOBAL PROPERTY NVIDIA_ADDITIONAL_LIBRARIES_PROPERTY "${NVIDIA_ADDITIONAL_LIBRARIES}")

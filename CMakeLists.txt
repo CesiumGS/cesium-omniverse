@@ -132,6 +132,18 @@ endif()
 
 set(SCRIPTS_DIRECTORY "${PROJECT_SOURCE_DIR}/scripts")
 
+if(CESIUM_OMNI_ENABLE_LINTERS)
+    include(Linters)
+    setup_linters(
+        PROJECT_SCRIPTS_DIRECTORY
+        "${SCRIPTS_DIRECTORY}"
+        PROJECT_BUILD_DIRECTORY
+        "${PROJECT_BINARY_DIR}"
+        PROJECT_SOURCE_DIRECTORIES
+        ${LINT_SOURCE_DIRECTORIES}
+        ENABLE_LINTERS_ON_BUILD
+        ${CESIUM_OMNI_ENABLE_LINTERS_ON_BUILD})
+endif()
 
 include(InstallHooks)
 if(CESIUM_OMNI_ENABLE_LINTERS_ON_COMMIT)
@@ -196,7 +208,6 @@ if(MSVC)
         /W4 # enable all warnings
         /WX # error on warnings
         /Zc:__cplusplus # make __cplusplus defined correctly
-        /wd4003 # TODO: Ignore macro warnings in Token.cpp
     )
     set(CESIUM_OMNI_CXX_DEFINES
         ${CESIUM_OMNI_CXX_DEFINES}
