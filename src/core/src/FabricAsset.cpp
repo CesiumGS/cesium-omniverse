@@ -17,14 +17,6 @@ bool FabricAsset::isEmpty() const {
 }
 
 bool FabricAsset::isPaddingEmpty() const {
-#ifdef CESIUM_OMNI_WINDOWS
-    const auto* const bytes = reinterpret_cast<const std::byte*>(&_padding);
-    for (size_t i = 0; i < sizeof(_padding); i++) {
-        if (bytes[i] != std::byte(0)) {
-            return false;
-        }
-    }
-#endif
     return true;
 }
 

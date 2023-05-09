@@ -26,15 +26,7 @@ class FabricAsset {
   private:
     pxr::TfToken _assetPath;
     pxr::TfToken _resolvedPath;
-#ifdef CESIUM_OMNI_WINDOWS
-    std::array<std::byte, 48> _padding{};
-#endif
 };
 
-#ifdef CESIUM_OMNI_WINDOWS
-static_assert(sizeof(FabricAsset) == 64);
-#else
 static_assert(sizeof(FabricAsset) == 16);
-#endif
-
 } // namespace cesium::omniverse
