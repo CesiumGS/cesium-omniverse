@@ -1,7 +1,7 @@
 #ifndef CESIUM_API_H
 #define CESIUM_API_H
 
-#include <pxr/base/arch/export.h>
+#include "pxr/base/arch/export.h"
 
 #if defined(PXR_STATIC)
 #   define CESIUM_API

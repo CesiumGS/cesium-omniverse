@@ -39,8 +39,17 @@ CesiumTilesetAPI::Get(const UsdStagePtr &stage, const SdfPath &path)
 
 
 /* virtual */
-UsdSchemaKind CesiumTilesetAPI::_GetSchemaKind() const {
+UsdSchemaKind CesiumTilesetAPI::_GetSchemaKind() const
+{
     return CesiumTilesetAPI::schemaKind;
+}
+
+/* static */
+bool
+CesiumTilesetAPI::CanApply(
+    const UsdPrim &prim, std::string *whyNot)
+{
+    return prim.CanApplyAPI<CesiumTilesetAPI>(whyNot);
 }
 
 /* static */

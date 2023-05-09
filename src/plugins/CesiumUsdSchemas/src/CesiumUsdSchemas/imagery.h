@@ -3,21 +3,21 @@
 
 /// \file cesium/imagery.h
 
-#include <pxr/pxr.h>
+#include "pxr/pxr.h"
 #include ".//api.h"
-#include <pxr/usd/usd/typed.h>
-#include <pxr/usd/usd/prim.h>
-#include <pxr/usd/usd/stage.h>
+#include "pxr/usd/usd/typed.h"
+#include "pxr/usd/usd/prim.h"
+#include "pxr/usd/usd/stage.h"
 #include ".//tokens.h"
 
-#include <pxr/base/vt/value.h>
+#include "pxr/base/vt/value.h"
 
-#include <pxr/base/gf/vec3d.h>
-#include <pxr/base/gf/vec3f.h>
-#include <pxr/base/gf/matrix4d.h>
+#include "pxr/base/gf/vec3d.h"
+#include "pxr/base/gf/vec3f.h"
+#include "pxr/base/gf/matrix4d.h"
 
-#include <pxr/base/tf/token.h>
-#include <pxr/base/tf/type.h>
+#include "pxr/base/tf/token.h"
+#include "pxr/base/tf/type.h"
 
 PXR_NAMESPACE_OPEN_SCOPE
 
@@ -31,7 +31,7 @@ class SdfAssetPath;
 ///
 /// Adds a prim for representing an imagery layer. Should be a child of a tileset.
 ///
-class CESIUM_API CesiumImagery : public UsdTyped
+class CesiumImagery : public UsdTyped
 {
 public:
     /// Compile time constant representing what kind of schema this class is.
@@ -57,11 +57,13 @@ public:
     }
 
     /// Destructor.
+    CESIUM_API
     virtual ~CesiumImagery();
 
     /// Return a vector of names of all pre-declared attributes for this schema
     /// class and all its ancestor classes.  Does not include attributes that
     /// may be authored by custom/extended methods of the schemas involved.
+    CESIUM_API
     static const TfTokenVector &
     GetSchemaAttributeNames(bool includeInherited=true);
 
@@ -74,6 +76,7 @@ public:
     /// CesiumImagery(stage->GetPrimAtPath(path));
     /// \endcode
     ///
+    CESIUM_API
     static CesiumImagery
     Get(const UsdStagePtr &stage, const SdfPath &path);
 
@@ -99,28 +102,32 @@ public:
     /// specify this schema class, in case a stronger typeName opinion overrides
     /// the opinion at the current EditTarget.
     ///
+    CESIUM_API
     static CesiumImagery
     Define(const UsdStagePtr &stage, const SdfPath &path);
 
 protected:
-    /// Returns the type of schema this class belongs to.
+    /// Returns the kind of schema this class belongs to.
     ///
     /// \sa UsdSchemaKind
+    CESIUM_API
     UsdSchemaKind _GetSchemaKind() const override;
 
 private:
     // needs to invoke _GetStaticTfType.
     friend class UsdSchemaRegistry;
+    CESIUM_API
     static const TfType &_GetStaticTfType();
 
     static bool _IsTypedSchema();
 
     // override SchemaBase virtuals.
+    CESIUM_API
     const TfType &_GetTfType() const override;
 
 public:
     // --------------------------------------------------------------------- //
-    // IONASSETID
+    // IONASSETID 
     // --------------------------------------------------------------------- //
     /// The ID of the Cesium ion asset to use.
     ///
@@ -129,18 +136,20 @@ public:
     /// | Declaration | `int64 cesium:ionAssetId = 0` |
     /// | C++ Type | int64_t |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Int64 |
+    CESIUM_API
     UsdAttribute GetIonAssetIdAttr() const;
 
-    /// See GetIonAssetIdAttr(), and also
+    /// See GetIonAssetIdAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUM_API
     UsdAttribute CreateIonAssetIdAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // --------------------------------------------------------------------- //
-    // IONACCESSTOKEN
+    // IONACCESSTOKEN 
     // --------------------------------------------------------------------- //
     /// The access token to use to access the Cesium ion resource. Overrides the default token. Blank if using URL.
     ///
@@ -149,18 +158,20 @@ public:
     /// | Declaration | `string cesium:ionAccessToken = ""` |
     /// | C++ Type | std::string |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
+    CESIUM_API
     UsdAttribute GetIonAccessTokenAttr() const;
 
-    /// See GetIonAccessTokenAttr(), and also
+    /// See GetIonAccessTokenAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUM_API
     UsdAttribute CreateIonAccessTokenAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // --------------------------------------------------------------------- //
-    // SHOWCREDITSONSCREEN
+    // SHOWCREDITSONSCREEN 
     // --------------------------------------------------------------------- //
     /// Whether or not to show this imagery layer's credits on screen.
     ///
@@ -169,22 +180,24 @@ public:
     /// | Declaration | `bool cesium:showCreditsOnScreen = 0` |
     /// | C++ Type | bool |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
+    CESIUM_API
     UsdAttribute GetShowCreditsOnScreenAttr() const;
 
-    /// See GetShowCreditsOnScreenAttr(), and also
+    /// See GetShowCreditsOnScreenAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUM_API
     UsdAttribute CreateShowCreditsOnScreenAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // ===================================================================== //
-    // Feel free to add custom code below this line, it will be preserved by
-    // the code generator.
+    // Feel free to add custom code below this line, it will be preserved by 
+    // the code generator. 
     //
-    // Just remember to:
-    //  - Close the class declaration with };
+    // Just remember to: 
+    //  - Close the class declaration with }; 
     //  - Close the namespace with PXR_NAMESPACE_CLOSE_SCOPE
     //  - Close the include guard with #endif
     // ===================================================================== //

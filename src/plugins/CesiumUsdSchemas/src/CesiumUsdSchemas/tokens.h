@@ -10,10 +10,10 @@
 // 
 // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-#include <pxr/pxr.h>
+#include "pxr/pxr.h"
 #include ".//api.h"
-#include <pxr/base/tf/staticData.h>
-#include <pxr/base/tf/token.h>
+#include "pxr/base/tf/staticData.h"
+#include "pxr/base/tf/token.h"
 #include <vector>
 
 PXR_NAMESPACE_OPEN_SCOPE
@@ -133,11 +133,11 @@ struct CesiumTokensType {
     const TfToken cesiumUrl;
     /// \brief "ion"
     /// 
-    /// Possible value for CesiumTilesetAPI::GetCesiumSourceTypeAttr(), Default value for CesiumTilesetAPI::GetCesiumSourceTypeAttr()
+    /// Possible value for CesiumTilesetAPI::GetSourceTypeAttr(), Default value for CesiumTilesetAPI::GetSourceTypeAttr()
     const TfToken ion;
     /// \brief "url"
     /// 
-    /// Possible value for CesiumTilesetAPI::GetCesiumSourceTypeAttr()
+    /// Possible value for CesiumTilesetAPI::GetSourceTypeAttr()
     const TfToken url;
     /// A vector of all of the tokens listed above.
     const std::vector<TfToken> allTokens;
