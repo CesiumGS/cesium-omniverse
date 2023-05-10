@@ -31,7 +31,7 @@ class SdfAssetPath;
 ///
 /// Adds a prim for representing an imagery layer. Should be a child of a tileset.
 ///
-class CesiumImagery : public UsdTyped
+class CESIUM_API CesiumImagery : public UsdTyped
 {
 public:
     /// Compile time constant representing what kind of schema this class is.
@@ -43,7 +43,7 @@ public:
     /// Equivalent to CesiumImagery::Get(prim.GetStage(), prim.GetPath())
     /// for a \em valid \p prim, but will not immediately throw an error for
     /// an invalid \p prim
-    explicit CesiumImagery(const UsdPrim& prim=UsdPrim())
+    CESIUM_API explicit CesiumImagery(const UsdPrim& prim=UsdPrim())
         : UsdTyped(prim)
     {
     }
@@ -51,7 +51,7 @@ public:
     /// Construct a CesiumImagery on the prim held by \p schemaObj .
     /// Should be preferred over CesiumImagery(schemaObj.GetPrim()),
     /// as it preserves SchemaBase state.
-    explicit CesiumImagery(const UsdSchemaBase& schemaObj)
+    CESIUM_API explicit CesiumImagery(const UsdSchemaBase& schemaObj)
         : UsdTyped(schemaObj)
     {
     }

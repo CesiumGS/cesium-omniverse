@@ -31,7 +31,7 @@ class SdfAssetPath;
 ///
 /// Stores stage level data for Cesium for Omniverse/USD.
 ///
-class CesiumData : public UsdTyped
+class CESIUM_API CesiumData : public UsdTyped
 {
 public:
     /// Compile time constant representing what kind of schema this class is.
@@ -43,6 +43,7 @@ public:
     /// Equivalent to CesiumData::Get(prim.GetStage(), prim.GetPath())
     /// for a \em valid \p prim, but will not immediately throw an error for
     /// an invalid \p prim
+    CESIUM_API
     explicit CesiumData(const UsdPrim& prim=UsdPrim())
         : UsdTyped(prim)
     {
@@ -51,6 +52,7 @@ public:
     /// Construct a CesiumData on the prim held by \p schemaObj .
     /// Should be preferred over CesiumData(schemaObj.GetPrim()),
     /// as it preserves SchemaBase state.
+    CESIUM_API
     explicit CesiumData(const UsdSchemaBase& schemaObj)
         : UsdTyped(schemaObj)
     {

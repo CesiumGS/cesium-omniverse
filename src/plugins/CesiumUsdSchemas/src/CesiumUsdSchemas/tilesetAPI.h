@@ -36,7 +36,7 @@ class SdfAssetPath;
 /// So to set an attribute to the value "rightHanded", use CesiumTokens->rightHanded
 /// as the value.
 ///
-class CesiumTilesetAPI : public UsdAPISchemaBase
+class CESIUM_API CesiumTilesetAPI : public UsdAPISchemaBase
 {
 public:
     /// Compile time constant representing what kind of schema this class is.
@@ -48,6 +48,7 @@ public:
     /// Equivalent to CesiumTilesetAPI::Get(prim.GetStage(), prim.GetPath())
     /// for a \em valid \p prim, but will not immediately throw an error for
     /// an invalid \p prim
+    CESIUM_API
     explicit CesiumTilesetAPI(const UsdPrim& prim=UsdPrim())
         : UsdAPISchemaBase(prim)
     {
@@ -56,6 +57,7 @@ public:
     /// Construct a CesiumTilesetAPI on the prim held by \p schemaObj .
     /// Should be preferred over CesiumTilesetAPI(schemaObj.GetPrim()),
     /// as it preserves SchemaBase state.
+    CESIUM_API
     explicit CesiumTilesetAPI(const UsdSchemaBase& schemaObj)
         : UsdAPISchemaBase(schemaObj)
     {
