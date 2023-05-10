@@ -175,17 +175,17 @@ else()
     # cmake-format: off
     add_prebuilt_project(
         RELEASE_INCLUDE_DIR
-            "${PYTHON_ROOT}/include/python3.10m"
+            "${PYTHON_ROOT}/include/python3.10"
         DEBUG_INCLUDE_DIR
-            "${PYTHON_ROOT}/include/python3.10m"
+            "${PYTHON_ROOT}/include/python3.10"
         RELEASE_LIBRARY_DIR
             "${PYTHON_ROOT}/lib"
         DEBUG_LIBRARY_DIR
             "${PYTHON_ROOT}/lib"
         RELEASE_LIBRARIES
-            python3.10m
+            python3.10
         DEBUG_LIBRARIES
-            python3.10m
+            python3.10
         TARGET_NAMES
             python310
     )
