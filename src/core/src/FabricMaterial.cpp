@@ -224,7 +224,6 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         attributes.addAttribute(FabricTypes::info_id, FabricTokens::info_id);
         attributes.addAttribute(FabricTypes::info_sourceAsset_subIdentifier, FabricTokens::info_sourceAsset_subIdentifier);
         attributes.addAttribute(FabricTypes::_paramColorSpace, FabricTokens::_paramColorSpace);
-        attributes.addAttribute(FabricTypes::_parameters, FabricTokens::_parameters);
         attributes.addAttribute(FabricTypes::diffuse_color_constant, FabricTokens::diffuse_color_constant);
         attributes.addAttribute(FabricTypes::metallic_constant, FabricTokens::metallic_constant);
         attributes.addAttribute(FabricTypes::reflection_roughness_constant, FabricTokens::reflection_roughness_constant);
@@ -237,21 +236,14 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         attributes.createAttributes(shaderPathFabric);
 
         sip.setArrayAttributeSize(shaderPathFabric, FabricTokens::_paramColorSpace, 0);
-        sip.setArrayAttributeSize(shaderPathFabric, FabricTokens::_parameters, 4);
-
         // clang-format off
         auto infoIdFabric = sip.getAttributeWr<omni::fabric::Token>(shaderPathFabric, FabricTokens::info_id);
         auto infoSourceAssetSubIdentifierFabric = sip.getAttributeWr<omni::fabric::Token>(shaderPathFabric, FabricTokens::info_sourceAsset_subIdentifier);
-        auto parametersFabric = sip.getArrayAttributeWr<omni::fabric::Token>(shaderPathFabric, FabricTokens::_parameters);
         auto specularLevelFabric = sip.getAttributeWr<float>(shaderPathFabric, FabricTokens::specular_level);
         // clang-format on
 
         *infoIdFabric = FabricTokens::OmniPBR_mdl;
         *infoSourceAssetSubIdentifierFabric = FabricTokens::OmniPBR;
-        parametersFabric[0] = FabricTokens::diffuse_color_constant;
-        parametersFabric[1] = FabricTokens::metallic_constant;
-        parametersFabric[2] = FabricTokens::reflection_roughness_constant;
-        parametersFabric[3] = FabricTokens::specular_level;
         *specularLevelFabric = 0.0f;
     }
 
@@ -275,7 +267,6 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             attributes.addAttribute(FabricTypes::info_id, FabricTokens::info_id);
             attributes.addAttribute(FabricTypes::info_sourceAsset_subIdentifier, FabricTokens::info_sourceAsset_subIdentifier);
             attributes.addAttribute(FabricTypes::_paramColorSpace, FabricTokens::_paramColorSpace);
-            attributes.addAttribute(FabricTypes::_parameters, FabricTokens::_parameters);
             attributes.addAttribute(FabricTypes::Shader, FabricTokens::Shader);
             attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
             attributes.addAttribute(FabricTypes::_cesium_tileId, FabricTokens::_cesium_tileId);
@@ -284,7 +275,6 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             attributes.createAttributes(textureCoordinate2dPathFabric);
 
             sip.setArrayAttributeSize(textureCoordinate2dPathFabric, FabricTokens::_paramColorSpace, 0);
-            sip.setArrayAttributeSize(textureCoordinate2dPathFabric, FabricTokens::_parameters, 0);
 
             // clang-format off
             auto infoIdFabric = sip.getAttributeWr<omni::fabric::Token>(textureCoordinate2dPathFabric, FabricTokens::info_id);
@@ -309,7 +299,6 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             attributes.addAttribute(FabricTypes::info_id, FabricTokens::info_id);
             attributes.addAttribute(FabricTypes::info_sourceAsset_subIdentifier, FabricTokens::info_sourceAsset_subIdentifier);
             attributes.addAttribute(FabricTypes::_paramColorSpace, FabricTokens::_paramColorSpace);
-            attributes.addAttribute(FabricTypes::_parameters, FabricTokens::_parameters);
             attributes.addAttribute(FabricTypes::Shader, FabricTokens::Shader);
             attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
             attributes.addAttribute(FabricTypes::_cesium_tileId, FabricTokens::_cesium_tileId);
@@ -319,7 +308,6 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
 
             // _paramColorSpace is an array of pairs: [texture_parameter_token, color_space_enum], [texture_parameter_token, color_space_enum], ...
             sip.setArrayAttributeSize(lookupColorPathFabric, FabricTokens::_paramColorSpace, 2);
-            sip.setArrayAttributeSize(lookupColorPathFabric, FabricTokens::_parameters, 3);
 
             // clang-format off
             auto wrapUFabric = sip.getAttributeWr<int>(lookupColorPathFabric, FabricTokens::wrap_u);
@@ -328,7 +316,6 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             auto infoIdFabric = sip.getAttributeWr<omni::fabric::Token>(lookupColorPathFabric, FabricTokens::info_id);
             auto infoSourceAssetSubIdentifierFabric = sip.getAttributeWr<omni::fabric::Token>(lookupColorPathFabric, FabricTokens::info_sourceAsset_subIdentifier);
             auto paramColorSpaceFabric = sip.getArrayAttributeWr<omni::fabric::Token>(lookupColorPathFabric, FabricTokens::_paramColorSpace);
-            auto parametersFabric = sip.getArrayAttributeWr<omni::fabric::Token>(lookupColorPathFabric, FabricTokens::_parameters);
             // clang-format on
 
             *wrapUFabric = 0; // clamp to edge
@@ -338,9 +325,6 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             *infoSourceAssetSubIdentifierFabric = FabricTokens::lookup_color;
             paramColorSpaceFabric[0] = FabricTokens::tex;
             paramColorSpaceFabric[1] = FabricTokens::_auto;
-            parametersFabric[0] = FabricTokens::tex;
-            parametersFabric[1] = FabricTokens::wrap_u;
-            parametersFabric[2] = FabricTokens::wrap_v;
         }
     }
 

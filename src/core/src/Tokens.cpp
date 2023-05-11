@@ -200,7 +200,6 @@ const pxr::TfToken& _localExtent = pxr::UsdTokens->_localExtent;
 const pxr::TfToken& _localMatrix = pxr::UsdTokens->_localMatrix;
 const pxr::TfToken& _nodePaths = pxr::UsdTokens->_nodePaths;
 const pxr::TfToken& _paramColorSpace = pxr::UsdTokens->_paramColorSpace;
-const pxr::TfToken& _parameters = pxr::UsdTokens->_parameters;
 const pxr::TfToken& _relationships_inputId = pxr::UsdTokens->_relationships_inputId;
 const pxr::TfToken& _relationships_inputName = pxr::UsdTokens->_relationships_inputName;
 const pxr::TfToken& _relationships_outputId = pxr::UsdTokens->_relationships_outputId;
