@@ -23,8 +23,6 @@ TF_DEFINE_PRIVATE_TOKENS(
     (id)
     (lookup_color)
     (Material)
-    (materialId)
-    (MaterialNetwork)
     (Mesh)
     (multiply)
     (none)
@@ -80,6 +78,7 @@ TF_DEFINE_PRIVATE_TOKENS(
     ((tex, "inputs:tex"))
     ((wrap_u, "inputs:wrap_u"))
     ((wrap_v, "inputs:wrap_v"))
+    ((materialId, "material:binding"))
 );
 }
 
@@ -104,7 +103,6 @@ const omni::fabric::TokenC info_sourceAsset_subIdentifier = omni::fabric::asInt(
 const omni::fabric::TokenC lookup_color = omni::fabric::asInt(pxr::UsdTokens->lookup_color);
 const omni::fabric::TokenC Material = omni::fabric::asInt(pxr::UsdTokens->Material);
 const omni::fabric::TokenC materialId = omni::fabric::asInt(pxr::UsdTokens->materialId);
-const omni::fabric::TokenC MaterialNetwork = omni::fabric::asInt(pxr::UsdTokens->MaterialNetwork);
 const omni::fabric::TokenC Mesh = omni::fabric::asInt(pxr::UsdTokens->Mesh);
 const omni::fabric::TokenC metallic_constant = omni::fabric::asInt(pxr::UsdTokens->metallic_constant);
 const omni::fabric::TokenC multiply = omni::fabric::asInt(pxr::UsdTokens->multiply);
@@ -178,7 +176,6 @@ const pxr::TfToken& info_sourceAsset_subIdentifier = pxr::UsdTokens->info_source
 const pxr::TfToken& lookup_color = pxr::UsdTokens->lookup_color;
 const pxr::TfToken& Material = pxr::UsdTokens->Material;
 const pxr::TfToken& materialId = pxr::UsdTokens->materialId;
-const pxr::TfToken& MaterialNetwork = pxr::UsdTokens->MaterialNetwork;
 const pxr::TfToken& Mesh = pxr::UsdTokens->Mesh;
 const pxr::TfToken& metallic_constant = pxr::UsdTokens->metallic_constant;
 const pxr::TfToken& multiply = pxr::UsdTokens->multiply;
