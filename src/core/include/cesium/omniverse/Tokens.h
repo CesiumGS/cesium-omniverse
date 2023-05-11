@@ -166,7 +166,7 @@ const omni::fabric::Type id(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabr
 const omni::fabric::Type info_id(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type info_implementationSource(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type info_sourceAsset_subIdentifier(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
-const omni::fabric::Type info_mdl_sourceAsset(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type info_mdl_sourceAsset(omni::fabric::BaseDataType::eAsset, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type info_mdl_sourceAsset_subIdentifier(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type Material(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName);
 const omni::fabric::Type materialId(omni::fabric::BaseDataType::eUInt64, 1, 0, omni::fabric::AttributeRole::eNone);

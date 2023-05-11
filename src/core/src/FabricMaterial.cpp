@@ -187,12 +187,14 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         setShaderParams(shaderPathFabric);
 
         // clang-format off
-        auto infoMdlSourceAssetFabric = sip.getAttributeWr<omni::fabric::Token>(shaderPathFabric, FabricTokens::info_mdl_sourceAsset);
+        auto infoMdlSourceAssetSpan = isip->getAttributeWr(sip.getId(), shaderPathFabric, FabricTokens::tex);
+        auto* infoMdlSourceAsset = reinterpret_cast<omni::fabric::AssetPath*>(infoMdlSourceAssetSpan.ptr);
         auto infoMdlSourceAssetSubIdentifierFabric = sip.getAttributeWr<omni::fabric::Token>(shaderPathFabric, FabricTokens::info_mdl_sourceAsset_subIdentifier);
         auto specularLevelFabric = sip.getAttributeWr<float>(shaderPathFabric, FabricTokens::specular_level);
         // clang-format on
 
-        *infoMdlSourceAssetFabric = FabricTokens::OmniPBR_mdl;
+        infoMdlSourceAsset->assetPath = UsdTokens::OmniPBR_mdl;
+        infoMdlSourceAsset->resolvedPath = pxr::TfToken();
         *infoMdlSourceAssetSubIdentifierFabric = FabricTokens::OmniPBR;
         *specularLevelFabric = 0.0f;
     }
@@ -224,11 +226,13 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             setShaderParams(textureCoordinate2dPathFabric);
 
             // clang-format off
-            auto infoMdlSourceAssetFabric = sip.getAttributeWr<omni::fabric::Token>(textureCoordinate2dPathFabric, FabricTokens::info_mdl_sourceAsset);
+            auto infoMdlSourceAssetSpan = isip->getAttributeWr(sip.getId(), textureCoordinate2dPathFabric, FabricTokens::tex);
+            auto* infoMdlSourceAsset = reinterpret_cast<omni::fabric::AssetPath*>(infoMdlSourceAssetSpan.ptr);
             auto infoMdlSourceAssetSubIdentifierFabric = sip.getAttributeWr<omni::fabric::Token>(textureCoordinate2dPathFabric, FabricTokens::info_mdl_sourceAsset_subIdentifier);
             // clang-format on
 
-            *infoMdlSourceAssetFabric = FabricTokens::nvidia_support_definitions_mdl;
+            infoMdlSourceAsset->assetPath = UsdTokens::nvidia_support_definitions_mdl;
+            infoMdlSourceAsset->resolvedPath = pxr::TfToken();
             *infoMdlSourceAssetSubIdentifierFabric = FabricTokens::texture_coordinate_2d;
         }
 
@@ -259,7 +263,8 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             auto wrapVFabric = sip.getAttributeWr<int>(lookupColorPathFabric, FabricTokens::wrap_v);
             auto texFabricSpan = isip->getAttributeWr(sip.getId(), lookupColorPathFabric, FabricTokens::tex);
             auto* texFabric = reinterpret_cast<omni::fabric::AssetPath*>(texFabricSpan.ptr);
-            auto infoMdlSourceAssetFabric = sip.getAttributeWr<omni::fabric::Token>(lookupColorPathFabric, FabricTokens::info_mdl_sourceAsset);
+            auto infoMdlSourceAssetSpan = isip->getAttributeWr(sip.getId(), lookupColorPathFabric, FabricTokens::tex);
+            auto* infoMdlSourceAsset = reinterpret_cast<omni::fabric::AssetPath*>(infoMdlSourceAssetSpan.ptr);
             auto infoMdlSourceAssetSubIdentifierFabric = sip.getAttributeWr<omni::fabric::Token>(lookupColorPathFabric, FabricTokens::info_mdl_sourceAsset_subIdentifier);
             auto paramColorSpaceFabric = sip.getArrayAttributeWr<omni::fabric::Token>(lookupColorPathFabric, FabricTokens::_paramColorSpace);
             // clang-format on
@@ -268,7 +273,8 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             *wrapVFabric = 0; // clamp to edge
             texFabric->assetPath = pxr::TfToken(baseColorTexturePath.GetAssetPath());
             texFabric->resolvedPath = pxr::TfToken(baseColorTexturePath.GetResolvedPath());
-            *infoMdlSourceAssetFabric = FabricTokens::nvidia_support_definitions_mdl;
+            infoMdlSourceAsset->assetPath = UsdTokens::nvidia_support_definitions_mdl;
+            infoMdlSourceAsset->resolvedPath = pxr::TfToken();
             *infoMdlSourceAssetSubIdentifierFabric = FabricTokens::lookup_color;
             paramColorSpaceFabric[0] = FabricTokens::tex;
             paramColorSpaceFabric[1] = FabricTokens::_auto;
