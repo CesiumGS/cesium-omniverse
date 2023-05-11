@@ -310,8 +310,6 @@ void FabricMaterial::reset() {
 
     FabricUtil::setTilesetIdAndTileId(_materialPath, -1, -1);
     FabricUtil::setTilesetIdAndTileId(_shaderPath, -1, -1);
-    FabricUtil::setTilesetIdAndTileId(_displacementPath, -1, -1);
-    FabricUtil::setTilesetIdAndTileId(_surfacePath, -1, -1);
 }
 
 void FabricMaterial::setInitialValues(const FabricMaterialDefinition& materialDefinition) {
@@ -392,7 +390,5 @@ void FabricMaterial::setTile(
 
     FabricUtil::setTilesetIdAndTileId(_materialPath, tilesetId, tileId);
     FabricUtil::setTilesetIdAndTileId(_shaderPath, tilesetId, tileId);
-    FabricUtil::setTilesetIdAndTileId(_displacementPath, tilesetId, tileId);
-    FabricUtil::setTilesetIdAndTileId(_surfacePath, tilesetId, tileId);
 }
 }; // namespace cesium::omniverse
