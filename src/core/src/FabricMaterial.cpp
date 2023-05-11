@@ -76,19 +76,31 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
 
         FabricAttributesBuilder attributes;
 
-        attributes.addAttribute(FabricTypes::_terminals, FabricTokens::_terminals);
+        attributes.addAttribute(FabricTypes::_terminal_names, FabricTokens::_terminal_names);
+        attributes.addAttribute(FabricTypes::_terminal_sourceNames, FabricTokens::_terminal_sourceNames);
+        attributes.addAttribute(FabricTypes::_terminal_sourceIds, FabricTokens::_terminal_sourceIds);
         attributes.addAttribute(FabricTypes::Material, FabricTokens::Material);
         attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
         attributes.addAttribute(FabricTypes::_cesium_tileId, FabricTokens::_cesium_tileId);
 
         attributes.createAttributes(materialPathFabric);
 
-        sip.setArrayAttributeSize(materialPathFabric, FabricTokens::_terminals, 2);
+        sip.setArrayAttributeSize(materialPathFabric, FabricTokens::_terminal_names, 2);
+        sip.setArrayAttributeSize(materialPathFabric, FabricTokens::_terminal_sourceNames, 2);
+        sip.setArrayAttributeSize(materialPathFabric, FabricTokens::_terminal_sourceIds, 2);
 
-        auto terminalsFabric = sip.getArrayAttributeWr<uint64_t>(materialPathFabric, FabricTokens::_terminals);
+        auto terminalNamesFabric = sip.getArrayAttributeWr<omni::fabric::Token>(materialPathFabric, FabricTokens::_terminal_names);
+        auto terminalSourceNamesFabric =
+            sip.getArrayAttributeWr<omni::fabric::Token>(materialPathFabric, FabricTokens::_terminal_sourceNames);
+        auto terminalSourceIdsFabric =
+            sip.getArrayAttributeWr<int>(materialPathFabric, FabricTokens::_terminal_sourceIds);
 
-        terminalsFabric[0] = shaderPathFabricUint64;
-        terminalsFabric[1] = shaderPathFabricUint64;
+        terminalNamesFabric[0] = FabricTokens::outputs_surface;
+        terminalSourceNamesFabric[0] = FabricTokens::outputs_out;
+        terminalSourceIdsFabric[0] = 0;
+        terminalNamesFabric[1] = FabricTokens::outputs_displacement;
+        terminalSourceNamesFabric[1] = FabricTokens::outputs_out;
+        terminalSourceIdsFabric[1] = 0;
     }
 
     // Displacement
@@ -128,17 +140,17 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         // clang-format on
 
         if (hasBaseColorTexture) {
-            nodePathsFabric[0] = textureCoordinate2dPathFabricUint64;
+            nodePathsFabric[0] = shaderPathFabricUint64;
             nodePathsFabric[1] = lookupColorPathFabricUint64;
-            nodePathsFabric[2] = shaderPathFabricUint64;
+            nodePathsFabric[2] = textureCoordinate2dPathFabricUint64;
             // Indices into the nodePaths array above.
-            relationshipIdsFabric[0] = 0; // texture coordinate
+            relationshipIdsFabric[0] = 2; // texture coordinate
             relationshipNamesFabric[0] = FabricTokens::out;
             relationshipIdsFabric[1] = 1; // lookup color
             relationshipNamesFabric[1] = FabricTokens::coord;
             relationshipIdsFabric[2] = 1; // lookup color
             relationshipNamesFabric[2] = FabricTokens::out;
-            relationshipIdsFabric[3] = 2; // shader
+            relationshipIdsFabric[3] = 0; // shader
             relationshipNamesFabric[3] = FabricTokens::diffuse_color_constant;
         } else {
             nodePathsFabric[0] = shaderPathFabricUint64;
@@ -182,17 +194,17 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         // clang-format on
 
         if (hasBaseColorTexture) {
-            nodePathsFabric[0] = textureCoordinate2dPathFabricUint64;
+            nodePathsFabric[0] = shaderPathFabricUint64;
             nodePathsFabric[1] = lookupColorPathFabricUint64;
-            nodePathsFabric[2] = shaderPathFabricUint64;
+            nodePathsFabric[2] = textureCoordinate2dPathFabricUint64;
             // Indices into the nodePaths array above.
-            relationshipIdsFabric[0] = 0; // texture coordinate
+            relationshipIdsFabric[0] = 2; // texture coordinate
             relationshipNamesFabric[0] = FabricTokens::out;
             relationshipIdsFabric[1] = 1; // lookup color
             relationshipNamesFabric[1] = FabricTokens::coord;
             relationshipIdsFabric[2] = 1; // lookup color
             relationshipNamesFabric[2] = FabricTokens::out;
-            relationshipIdsFabric[3] = 2; // shader
+            relationshipIdsFabric[3] = 0; // shader
             relationshipNamesFabric[3] = FabricTokens::diffuse_color_constant;
         } else {
             nodePathsFabric[0] = shaderPathFabricUint64;

@@ -56,7 +56,9 @@ TF_DEFINE_PRIVATE_TOKENS(
     (_parameters)
     (_relationship_ids)
     (_relationship_names)
-    (_terminals)
+    (_terminal_names)
+    (_terminal_sourceNames)
+    (_terminal_sourceIds)
     (_worldExtent)
     (_worldOrientation)
     (_worldPosition)
@@ -68,6 +70,9 @@ TF_DEFINE_PRIVATE_TOKENS(
     ((multiply_float2_float2, "multiply(float2,float2)"))
     ((nvidia_support_definitions_mdl, "nvidia/support_definitions.mdl"))
     ((OmniPBR_mdl, "OmniPBR.mdl"))
+    ((outputs_displacement, "outputs:displacement"))
+    ((outputs_out, "outputs:out"))
+    ((outputs_surface, "outputs:surface"))
     ((primvars_displayColor, "primvars:displayColor"))
     ((primvars_normals, "primvars:normals"))
     ((primvars_st, "primvars:st"))
@@ -104,6 +109,9 @@ const omni::fabric::TokenC nvidia_support_definitions_mdl = omni::fabric::asInt(
 const omni::fabric::TokenC OmniPBR = omni::fabric::asInt(pxr::UsdTokens->OmniPBR);
 const omni::fabric::TokenC OmniPBR_mdl = omni::fabric::asInt(pxr::UsdTokens->OmniPBR_mdl);
 const omni::fabric::TokenC out = omni::fabric::asInt(pxr::UsdTokens->out);
+const omni::fabric::TokenC outputs_displacement = omni::fabric::asInt(pxr::UsdTokens->outputs_displacement);
+const omni::fabric::TokenC outputs_out = omni::fabric::asInt(pxr::UsdTokens->outputs_out);
+const omni::fabric::TokenC outputs_surface = omni::fabric::asInt(pxr::UsdTokens->outputs_surface);
 const omni::fabric::TokenC points = omni::fabric::asInt(pxr::UsdTokens->points);
 const omni::fabric::TokenC primvarInterpolations = omni::fabric::asInt(pxr::UsdTokens->primvarInterpolations);
 const omni::fabric::TokenC primvars = omni::fabric::asInt(pxr::UsdTokens->primvars);
@@ -133,7 +141,9 @@ const omni::fabric::TokenC _paramColorSpace = omni::fabric::asInt(pxr::UsdTokens
 const omni::fabric::TokenC _parameters = omni::fabric::asInt(pxr::UsdTokens->_parameters);
 const omni::fabric::TokenC _relationship_ids = omni::fabric::asInt(pxr::UsdTokens->_relationship_ids);
 const omni::fabric::TokenC _relationship_names = omni::fabric::asInt(pxr::UsdTokens->_relationship_names);
-const omni::fabric::TokenC _terminals = omni::fabric::asInt(pxr::UsdTokens->_terminals);
+const omni::fabric::TokenC _terminal_names = omni::fabric::asInt(pxr::UsdTokens->_terminal_names);
+const omni::fabric::TokenC _terminal_sourceNames = omni::fabric::asInt(pxr::UsdTokens->_terminal_sourceNames);
+const omni::fabric::TokenC _terminal_sourceIds = omni::fabric::asInt(pxr::UsdTokens->_terminal_sourceIds);
 const omni::fabric::TokenC _worldExtent = omni::fabric::asInt(pxr::UsdTokens->_worldExtent);
 const omni::fabric::TokenC _worldOrientation = omni::fabric::asInt(pxr::UsdTokens->_worldOrientation);
 const omni::fabric::TokenC _worldPosition = omni::fabric::asInt(pxr::UsdTokens->_worldPosition);
@@ -170,6 +180,9 @@ const pxr::TfToken& nvidia_support_definitions_mdl = pxr::UsdTokens->nvidia_supp
 const pxr::TfToken& OmniPBR = pxr::UsdTokens->OmniPBR;
 const pxr::TfToken& OmniPBR_mdl = pxr::UsdTokens->OmniPBR_mdl;
 const pxr::TfToken& out = pxr::UsdTokens->out;
+const pxr::TfToken& outputs_displacement = pxr::UsdTokens->outputs_displacement;
+const pxr::TfToken& outputs_out = pxr::UsdTokens->outputs_out;
+const pxr::TfToken& outputs_surface = pxr::UsdTokens->outputs_surface;
 const pxr::TfToken& points = pxr::UsdTokens->points;
 const pxr::TfToken& primvarInterpolations = pxr::UsdTokens->primvarInterpolations;
 const pxr::TfToken& primvars = pxr::UsdTokens->primvars;
@@ -198,7 +211,9 @@ const pxr::TfToken& _nodePaths = pxr::UsdTokens->_nodePaths;
 const pxr::TfToken& _paramColorSpace = pxr::UsdTokens->_paramColorSpace;
 const pxr::TfToken& _relationship_ids = pxr::UsdTokens->_relationship_ids;
 const pxr::TfToken& _relationship_names = pxr::UsdTokens->_relationship_names;
-const pxr::TfToken& _terminals = pxr::UsdTokens->_terminals;
+const pxr::TfToken& _terminal_names = pxr::UsdTokens->_terminal_names;
+const pxr::TfToken& _terminal_sourceNames = pxr::UsdTokens->_terminal_sourceNames;
+const pxr::TfToken& _terminal_sourceIds = pxr::UsdTokens->_terminal_sourceIds;
 const pxr::TfToken& _worldExtent = pxr::UsdTokens->_worldExtent;
 const pxr::TfToken& _worldOrientation = pxr::UsdTokens->_worldOrientation;
 const pxr::TfToken& _worldPosition = pxr::UsdTokens->_worldPosition;
