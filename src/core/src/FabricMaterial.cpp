@@ -143,16 +143,17 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
     auto addShaderParams = [](FabricAttributesBuilder& attributes) {
         attributes.addAttribute(FabricTypes::Shader, FabricTokens::Shader);
         attributes.addAttribute(FabricTypes::info_implementationSource, FabricTokens::info_implementationSource);
-        attributes.addAttribute(FabricTypes::info_id, FabricTokens::info_id);
         attributes.addAttribute(
-            FabricTypes::info_sourceAsset_subIdentifier, FabricTokens::info_sourceAsset_subIdentifier);
+            FabricTypes::info_mdl_sourceAsset, FabricTokens::info_mdl_sourceAsset);
+        attributes.addAttribute(
+            FabricTypes::info_mdl_sourceAsset_subIdentifier, FabricTokens::info_mdl_sourceAsset_subIdentifier);
         attributes.addAttribute(FabricTypes::_paramColorSpace, FabricTokens::_paramColorSpace);
         attributes.addAttribute(FabricTypes::_sdrMetadata, FabricTokens::_sdrMetadata);
     };
 
     auto setShaderParams = [&sip](const omni::fabric::Path& shaderPath, bool setColorSpaceEmpty = true) {
         *sip.getAttributeWr<omni::fabric::Token>(shaderPath, FabricTokens::info_implementationSource) =
-            FabricTokens::id;
+            FabricTokens::sourceAsset;
         // _sdrMetadata is used with the sdr registry calls.
         sip.setArrayAttributeSize(shaderPath, FabricTokens::_sdrMetadata, 0);
         if (setColorSpaceEmpty)
@@ -184,13 +185,13 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         setShaderParams(shaderPathFabric);
 
         // clang-format off
-        auto infoIdFabric = sip.getAttributeWr<omni::fabric::Token>(shaderPathFabric, FabricTokens::info_id);
-        auto infoSourceAssetSubIdentifierFabric = sip.getAttributeWr<omni::fabric::Token>(shaderPathFabric, FabricTokens::info_sourceAsset_subIdentifier);
+        auto infoMdlSourceAssetFabric = sip.getAttributeWr<omni::fabric::Token>(shaderPathFabric, FabricTokens::info_mdl_sourceAsset);
+        auto infoMdlSourceAssetSubIdentifierFabric = sip.getAttributeWr<omni::fabric::Token>(shaderPathFabric, FabricTokens::info_mdl_sourceAsset_subIdentifier);
         auto specularLevelFabric = sip.getAttributeWr<float>(shaderPathFabric, FabricTokens::specular_level);
         // clang-format on
 
-        *infoIdFabric = FabricTokens::OmniPBR_mdl;
-        *infoSourceAssetSubIdentifierFabric = FabricTokens::OmniPBR;
+        *infoMdlSourceAssetFabric = FabricTokens::OmniPBR_mdl;
+        *infoMdlSourceAssetSubIdentifierFabric = FabricTokens::OmniPBR;
         *specularLevelFabric = 0.0f;
     }
 
@@ -221,12 +222,12 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             setShaderParams(textureCoordinate2dPathFabric);
 
             // clang-format off
-            auto infoIdFabric = sip.getAttributeWr<omni::fabric::Token>(textureCoordinate2dPathFabric, FabricTokens::info_id);
-            auto infoSourceAssetSubIdentifierFabric = sip.getAttributeWr<omni::fabric::Token>(textureCoordinate2dPathFabric, FabricTokens::info_sourceAsset_subIdentifier);
+            auto infoMdlSourceAssetFabric = sip.getAttributeWr<omni::fabric::Token>(textureCoordinate2dPathFabric, FabricTokens::info_mdl_sourceAsset);
+            auto infoMdlSourceAssetSubIdentifierFabric = sip.getAttributeWr<omni::fabric::Token>(textureCoordinate2dPathFabric, FabricTokens::info_mdl_sourceAsset_subIdentifier);
             // clang-format on
 
-            *infoIdFabric = FabricTokens::nvidia_support_definitions_mdl;
-            *infoSourceAssetSubIdentifierFabric = FabricTokens::texture_coordinate_2d;
+            *infoMdlSourceAssetFabric = FabricTokens::nvidia_support_definitions_mdl;
+            *infoMdlSourceAssetSubIdentifierFabric = FabricTokens::texture_coordinate_2d;
         }
 
         // lookup_color
@@ -255,16 +256,16 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             auto wrapUFabric = sip.getAttributeWr<int>(lookupColorPathFabric, FabricTokens::wrap_u);
             auto wrapVFabric = sip.getAttributeWr<int>(lookupColorPathFabric, FabricTokens::wrap_v);
             auto texFabric = sip.getAttributeWr<FabricAsset>(lookupColorPathFabric, FabricTokens::tex);
-            auto infoIdFabric = sip.getAttributeWr<omni::fabric::Token>(lookupColorPathFabric, FabricTokens::info_id);
-            auto infoSourceAssetSubIdentifierFabric = sip.getAttributeWr<omni::fabric::Token>(lookupColorPathFabric, FabricTokens::info_sourceAsset_subIdentifier);
+            auto infoMdlSourceAssetFabric = sip.getAttributeWr<omni::fabric::Token>(lookupColorPathFabric, FabricTokens::info_mdl_sourceAsset);
+            auto infoMdlSourceAssetSubIdentifierFabric = sip.getAttributeWr<omni::fabric::Token>(lookupColorPathFabric, FabricTokens::info_mdl_sourceAsset_subIdentifier);
             auto paramColorSpaceFabric = sip.getArrayAttributeWr<omni::fabric::Token>(lookupColorPathFabric, FabricTokens::_paramColorSpace);
             // clang-format on
 
             *wrapUFabric = 0; // clamp to edge
             *wrapVFabric = 0; // clamp to edge
             *texFabric = FabricAsset(baseColorTexturePath);
-            *infoIdFabric = FabricTokens::nvidia_support_definitions_mdl;
-            *infoSourceAssetSubIdentifierFabric = FabricTokens::lookup_color;
+            *infoMdlSourceAssetFabric = FabricTokens::nvidia_support_definitions_mdl;
+            *infoMdlSourceAssetSubIdentifierFabric = FabricTokens::lookup_color;
             paramColorSpaceFabric[0] = FabricTokens::tex;
             paramColorSpaceFabric[1] = FabricTokens::_auto;
         }

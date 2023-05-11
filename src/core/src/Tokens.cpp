@@ -32,6 +32,7 @@ TF_DEFINE_PRIVATE_TOKENS(
     (primvarInterpolations)
     (primvars)
     (Shader)
+    (sourceAsset)
     (subdivisionScheme)
     (surface)
     (texture_coordinate_2d)
@@ -79,6 +80,8 @@ TF_DEFINE_PRIVATE_TOKENS(
     ((wrap_u, "inputs:wrap_u"))
     ((wrap_v, "inputs:wrap_v"))
     ((materialId, "material:binding"))
+    ((info_mdl_sourceAsset, "info:mdl:sourceAsset"))
+    ((info_mdl_sourceAsset_subIdentifier, "info:mdl:sourceAsset:subIdentifier"))
 );
 }
 
@@ -100,6 +103,8 @@ const omni::fabric::TokenC id = omni::fabric::asInt(pxr::UsdTokens->id);
 const omni::fabric::TokenC info_id = omni::fabric::asInt(pxr::UsdTokens->info_id);
 const omni::fabric::TokenC info_implementationSource = omni::fabric::asInt(pxr::UsdTokens->info_implementationSource);
 const omni::fabric::TokenC info_sourceAsset_subIdentifier = omni::fabric::asInt(pxr::UsdTokens->info_sourceAsset_subIdentifier);
+const omni::fabric::TokenC info_mdl_sourceAsset = omni::fabric::asInt(pxr::UsdTokens->info_mdl_sourceAsset);
+const omni::fabric::TokenC info_mdl_sourceAsset_subIdentifier = omni::fabric::asInt(pxr::UsdTokens->info_mdl_sourceAsset_subIdentifier);
 const omni::fabric::TokenC lookup_color = omni::fabric::asInt(pxr::UsdTokens->lookup_color);
 const omni::fabric::TokenC Material = omni::fabric::asInt(pxr::UsdTokens->Material);
 const omni::fabric::TokenC materialId = omni::fabric::asInt(pxr::UsdTokens->materialId);
@@ -123,6 +128,7 @@ const omni::fabric::TokenC primvars_normals = omni::fabric::asInt(pxr::UsdTokens
 const omni::fabric::TokenC primvars_st = omni::fabric::asInt(pxr::UsdTokens->primvars_st);
 const omni::fabric::TokenC reflection_roughness_constant = omni::fabric::asInt(pxr::UsdTokens->reflection_roughness_constant);
 const omni::fabric::TokenC Shader = omni::fabric::asInt(pxr::UsdTokens->Shader);
+const omni::fabric::TokenC sourceAsset = omni::fabric::asInt(pxr::UsdTokens->sourceAsset);
 const omni::fabric::TokenC specular_level = omni::fabric::asInt(pxr::UsdTokens->specular_level);
 const omni::fabric::TokenC subdivisionScheme = omni::fabric::asInt(pxr::UsdTokens->subdivisionScheme);
 const omni::fabric::TokenC surface = omni::fabric::asInt(pxr::UsdTokens->surface);
@@ -173,6 +179,8 @@ const pxr::TfToken& id = pxr::UsdTokens->id;
 const pxr::TfToken& info_id = pxr::UsdTokens->info_id;
 const pxr::TfToken& info_implementationSource = pxr::UsdTokens->info_implementationSource;
 const pxr::TfToken& info_sourceAsset_subIdentifier = pxr::UsdTokens->info_sourceAsset_subIdentifier;
+const pxr::TfToken& info_mdl_sourceAsset = pxr::UsdTokens->info_mdl_sourceAsset;
+const pxr::TfToken& info_mdl_sourceAsset_subIdentifier = pxr::UsdTokens->info_mdl_sourceAsset_subIdentifier;
 const pxr::TfToken& lookup_color = pxr::UsdTokens->lookup_color;
 const pxr::TfToken& Material = pxr::UsdTokens->Material;
 const pxr::TfToken& materialId = pxr::UsdTokens->materialId;
@@ -196,6 +204,7 @@ const pxr::TfToken& primvars_normals = pxr::UsdTokens->primvars_normals;
 const pxr::TfToken& primvars_st = pxr::UsdTokens->primvars_st;
 const pxr::TfToken& reflection_roughness_constant = pxr::UsdTokens->reflection_roughness_constant;
 const pxr::TfToken& Shader = pxr::UsdTokens->Shader;
+const pxr::TfToken& sourceAsset = pxr::UsdTokens->sourceAsset;
 const pxr::TfToken& specular_level = pxr::UsdTokens->specular_level;
 const pxr::TfToken& subdivisionScheme = pxr::UsdTokens->subdivisionScheme;
 const pxr::TfToken& surface = pxr::UsdTokens->surface;
