@@ -15,18 +15,17 @@ TF_DEFINE_PRIVATE_TOKENS(
     (b)
     (constant)
     (coord)
-    (diffuse_color_constant)
     (diffuse_texture)
     (displacement)
     (doubleSided)
     (faceVertexCounts)
     (faceVertexIndices)
+    (id)
     (lookup_color)
     (Material)
     (materialId)
     (MaterialNetwork)
     (Mesh)
-    (metallic_constant)
     (multiply)
     (none)
     (OmniPBR)
@@ -34,17 +33,12 @@ TF_DEFINE_PRIVATE_TOKENS(
     (points)
     (primvarInterpolations)
     (primvars)
-    (reflection_roughness_constant)
     (Shader)
-    (specular_level)
     (subdivisionScheme)
     (surface)
-    (tex)
     (texture_coordinate_2d)
     (vertex)
     (visibility)
-    (wrap_u)
-    (wrap_v)
     (_cesium_localToEcefTransform)
     (_cesium_tileId)
     (_cesium_tilesetId)
@@ -59,6 +53,7 @@ TF_DEFINE_PRIVATE_TOKENS(
     (_terminal_names)
     (_terminal_sourceNames)
     (_terminal_sourceIds)
+    (_sdrMetadata)
     (_worldExtent)
     (_worldOrientation)
     (_worldPosition)
@@ -67,6 +62,7 @@ TF_DEFINE_PRIVATE_TOKENS(
     ((add_float2_float2, "add(float2,float2)"))
     ((info_id, "info:id"))
     ((info_sourceAsset_subIdentifier, "info:sourceAsset:subIdentifier"))
+    ((info_implementationSource, "info:implementationSource"))
     ((multiply_float2_float2, "multiply(float2,float2)"))
     ((nvidia_support_definitions_mdl, "nvidia/support_definitions.mdl"))
     ((OmniPBR_mdl, "OmniPBR.mdl"))
@@ -77,6 +73,13 @@ TF_DEFINE_PRIVATE_TOKENS(
     ((primvars_normals, "primvars:normals"))
     ((primvars_st, "primvars:st"))
     ((_auto, "auto"))
+    ((diffuse_color_constant, "inputs:diffuse_color_constant"))
+    ((metallic_constant, "inputs:metallic_constant"))
+    ((reflection_roughness_constant, "inputs:reflection_roughness_constant"))
+    ((specular_level, "inputs:specular_level"))
+    ((tex, "inputs:tex"))
+    ((wrap_u, "inputs:wrap_u"))
+    ((wrap_v, "inputs:wrap_v"))
 );
 }
 
@@ -94,7 +97,9 @@ const omni::fabric::TokenC displacement = omni::fabric::asInt(pxr::UsdTokens->di
 const omni::fabric::TokenC doubleSided = omni::fabric::asInt(pxr::UsdTokens->doubleSided);
 const omni::fabric::TokenC faceVertexCounts = omni::fabric::asInt(pxr::UsdTokens->faceVertexCounts);
 const omni::fabric::TokenC faceVertexIndices = omni::fabric::asInt(pxr::UsdTokens->faceVertexIndices);
+const omni::fabric::TokenC id = omni::fabric::asInt(pxr::UsdTokens->id);
 const omni::fabric::TokenC info_id = omni::fabric::asInt(pxr::UsdTokens->info_id);
+const omni::fabric::TokenC info_implementationSource = omni::fabric::asInt(pxr::UsdTokens->info_implementationSource);
 const omni::fabric::TokenC info_sourceAsset_subIdentifier = omni::fabric::asInt(pxr::UsdTokens->info_sourceAsset_subIdentifier);
 const omni::fabric::TokenC lookup_color = omni::fabric::asInt(pxr::UsdTokens->lookup_color);
 const omni::fabric::TokenC Material = omni::fabric::asInt(pxr::UsdTokens->Material);
@@ -141,6 +146,7 @@ const omni::fabric::TokenC _paramColorSpace = omni::fabric::asInt(pxr::UsdTokens
 const omni::fabric::TokenC _parameters = omni::fabric::asInt(pxr::UsdTokens->_parameters);
 const omni::fabric::TokenC _relationship_ids = omni::fabric::asInt(pxr::UsdTokens->_relationship_ids);
 const omni::fabric::TokenC _relationship_names = omni::fabric::asInt(pxr::UsdTokens->_relationship_names);
+const omni::fabric::TokenC _sdrMetadata = omni::fabric::asInt(pxr::UsdTokens->_sdrMetadata);
 const omni::fabric::TokenC _terminal_names = omni::fabric::asInt(pxr::UsdTokens->_terminal_names);
 const omni::fabric::TokenC _terminal_sourceNames = omni::fabric::asInt(pxr::UsdTokens->_terminal_sourceNames);
 const omni::fabric::TokenC _terminal_sourceIds = omni::fabric::asInt(pxr::UsdTokens->_terminal_sourceIds);
@@ -165,7 +171,9 @@ const pxr::TfToken& displacement = pxr::UsdTokens->displacement;
 const pxr::TfToken& doubleSided = pxr::UsdTokens->doubleSided;
 const pxr::TfToken& faceVertexCounts = pxr::UsdTokens->faceVertexCounts;
 const pxr::TfToken& faceVertexIndices = pxr::UsdTokens->faceVertexIndices;
+const pxr::TfToken& id = pxr::UsdTokens->id;
 const pxr::TfToken& info_id = pxr::UsdTokens->info_id;
+const pxr::TfToken& info_implementationSource = pxr::UsdTokens->info_implementationSource;
 const pxr::TfToken& info_sourceAsset_subIdentifier = pxr::UsdTokens->info_sourceAsset_subIdentifier;
 const pxr::TfToken& lookup_color = pxr::UsdTokens->lookup_color;
 const pxr::TfToken& Material = pxr::UsdTokens->Material;
@@ -211,6 +219,7 @@ const pxr::TfToken& _nodePaths = pxr::UsdTokens->_nodePaths;
 const pxr::TfToken& _paramColorSpace = pxr::UsdTokens->_paramColorSpace;
 const pxr::TfToken& _relationship_ids = pxr::UsdTokens->_relationship_ids;
 const pxr::TfToken& _relationship_names = pxr::UsdTokens->_relationship_names;
+const pxr::TfToken& _sdrMetadata = pxr::UsdTokens->_sdrMetadata;
 const pxr::TfToken& _terminal_names = pxr::UsdTokens->_terminal_names;
 const pxr::TfToken& _terminal_sourceNames = pxr::UsdTokens->_terminal_sourceNames;
 const pxr::TfToken& _terminal_sourceIds = pxr::UsdTokens->_terminal_sourceIds;

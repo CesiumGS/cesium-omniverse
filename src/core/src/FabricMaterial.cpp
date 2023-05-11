@@ -139,6 +139,28 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         }
     }
 
+    auto addShaderParams = [](FabricAttributesBuilder& attributes) {
+        attributes.addAttribute(FabricTypes::Shader, FabricTokens::Shader);
+        attributes.addAttribute(FabricTypes::info_implementationSource, FabricTokens::info_implementationSource);
+        attributes.addAttribute(FabricTypes::info_id, FabricTokens::info_id);
+        attributes.addAttribute(
+            FabricTypes::info_sourceAsset_subIdentifier, FabricTokens::info_sourceAsset_subIdentifier);
+        attributes.addAttribute(FabricTypes::_paramColorSpace, FabricTokens::_paramColorSpace);
+        attributes.addAttribute(FabricTypes::_sdrMetadata, FabricTokens::_sdrMetadata);
+    };
+
+    auto setShaderParams = [&sip](const omni::fabric::Path& shaderPath, bool setColorSpaceEmpty = true) {
+        *sip.getAttributeWr<omni::fabric::Token>(shaderPath, FabricTokens::info_implementationSource) =
+            FabricTokens::id;
+        // _sdrMetadata is used with the sdr registry calls.
+        sip.setArrayAttributeSize(shaderPath, FabricTokens::_sdrMetadata, 0);
+        if (setColorSpaceEmpty)
+        {
+            // _paramColorSpace is an array of pairs: [texture_parameter_token, color_space_enum], [texture_parameter_token, color_space_enum], ...
+            sip.setArrayAttributeSize(shaderPath, FabricTokens::_paramColorSpace, 0);
+        }
+    };
+
     // Shader
     {
         const auto shaderPathFabric = omni::fabric::Path(omni::fabric::asInt(shaderPath));
@@ -147,21 +169,19 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         FabricAttributesBuilder attributes;
 
         // clang-format off
-        attributes.addAttribute(FabricTypes::info_id, FabricTokens::info_id);
-        attributes.addAttribute(FabricTypes::info_sourceAsset_subIdentifier, FabricTokens::info_sourceAsset_subIdentifier);
-        attributes.addAttribute(FabricTypes::_paramColorSpace, FabricTokens::_paramColorSpace);
+        addShaderParams(attributes);
         attributes.addAttribute(FabricTypes::diffuse_color_constant, FabricTokens::diffuse_color_constant);
         attributes.addAttribute(FabricTypes::metallic_constant, FabricTokens::metallic_constant);
         attributes.addAttribute(FabricTypes::reflection_roughness_constant, FabricTokens::reflection_roughness_constant);
         attributes.addAttribute(FabricTypes::specular_level, FabricTokens::specular_level);
-        attributes.addAttribute(FabricTypes::Shader, FabricTokens::Shader);
         attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
         attributes.addAttribute(FabricTypes::_cesium_tileId, FabricTokens::_cesium_tileId);
         // clang-format on
 
         attributes.createAttributes(shaderPathFabric);
 
-        sip.setArrayAttributeSize(shaderPathFabric, FabricTokens::_paramColorSpace, 0);
+        setShaderParams(shaderPathFabric);
+
         // clang-format off
         auto infoIdFabric = sip.getAttributeWr<omni::fabric::Token>(shaderPathFabric, FabricTokens::info_id);
         auto infoSourceAssetSubIdentifierFabric = sip.getAttributeWr<omni::fabric::Token>(shaderPathFabric, FabricTokens::info_sourceAsset_subIdentifier);
@@ -190,17 +210,14 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             FabricAttributesBuilder attributes;
 
             // clang-format off
-            attributes.addAttribute(FabricTypes::info_id, FabricTokens::info_id);
-            attributes.addAttribute(FabricTypes::info_sourceAsset_subIdentifier, FabricTokens::info_sourceAsset_subIdentifier);
-            attributes.addAttribute(FabricTypes::_paramColorSpace, FabricTokens::_paramColorSpace);
-            attributes.addAttribute(FabricTypes::Shader, FabricTokens::Shader);
+            addShaderParams(attributes);
             attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
             attributes.addAttribute(FabricTypes::_cesium_tileId, FabricTokens::_cesium_tileId);
             // clang-format on
 
             attributes.createAttributes(textureCoordinate2dPathFabric);
 
-            sip.setArrayAttributeSize(textureCoordinate2dPathFabric, FabricTokens::_paramColorSpace, 0);
+            setShaderParams(textureCoordinate2dPathFabric);
 
             // clang-format off
             auto infoIdFabric = sip.getAttributeWr<omni::fabric::Token>(textureCoordinate2dPathFabric, FabricTokens::info_id);
@@ -219,20 +236,18 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             FabricAttributesBuilder attributes;
 
             // clang-format off
+            addShaderParams(attributes);
             attributes.addAttribute(FabricTypes::wrap_u, FabricTokens::wrap_u);
             attributes.addAttribute(FabricTypes::wrap_v, FabricTokens::wrap_v);
             attributes.addAttribute(FabricTypes::tex, FabricTokens::tex);
-            attributes.addAttribute(FabricTypes::info_id, FabricTokens::info_id);
-            attributes.addAttribute(FabricTypes::info_sourceAsset_subIdentifier, FabricTokens::info_sourceAsset_subIdentifier);
-            attributes.addAttribute(FabricTypes::_paramColorSpace, FabricTokens::_paramColorSpace);
-            attributes.addAttribute(FabricTypes::Shader, FabricTokens::Shader);
             attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
             attributes.addAttribute(FabricTypes::_cesium_tileId, FabricTokens::_cesium_tileId);
             // clang-format on
 
             attributes.createAttributes(lookupColorPathFabric);
 
-            // _paramColorSpace is an array of pairs: [texture_parameter_token, color_space_enum], [texture_parameter_token, color_space_enum], ...
+            setShaderParams(lookupColorPathFabric, false);
+
             sip.setArrayAttributeSize(lookupColorPathFabric, FabricTokens::_paramColorSpace, 2);
 
             // clang-format off
