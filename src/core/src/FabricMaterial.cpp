@@ -99,10 +99,8 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         FabricAttributesBuilder attributes;
 
         attributes.addAttribute(FabricTypes::_nodePaths, FabricTokens::_nodePaths);
-        attributes.addAttribute(FabricTypes::_relationships_inputId, FabricTokens::_relationships_inputId);
-        attributes.addAttribute(FabricTypes::_relationships_outputId, FabricTokens::_relationships_outputId);
-        attributes.addAttribute(FabricTypes::_relationships_inputName, FabricTokens::_relationships_inputName);
-        attributes.addAttribute(FabricTypes::_relationships_outputName, FabricTokens::_relationships_outputName);
+        attributes.addAttribute(FabricTypes::_relationship_ids, FabricTokens::_relationship_ids);
+        attributes.addAttribute(FabricTypes::_relationship_names, FabricTokens::_relationship_names);
         attributes.addAttribute(FabricTypes::primvars, FabricTokens::primvars);
         attributes.addAttribute(FabricTypes::MaterialNetwork, FabricTokens::MaterialNetwork);
         attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
