@@ -54,10 +54,8 @@ TF_DEFINE_PRIVATE_TOKENS(
     (_nodePaths)
     (_paramColorSpace)
     (_parameters)
-    (_relationships_inputId)
-    (_relationships_inputName)
-    (_relationships_outputId)
-    (_relationships_outputName)
+    (_relationship_ids)
+    (_relationship_names)
     (_terminals)
     (_worldExtent)
     (_worldOrientation)
@@ -133,10 +131,8 @@ const omni::fabric::TokenC _localMatrix = omni::fabric::asInt(pxr::UsdTokens->_l
 const omni::fabric::TokenC _nodePaths = omni::fabric::asInt(pxr::UsdTokens->_nodePaths);
 const omni::fabric::TokenC _paramColorSpace = omni::fabric::asInt(pxr::UsdTokens->_paramColorSpace);
 const omni::fabric::TokenC _parameters = omni::fabric::asInt(pxr::UsdTokens->_parameters);
-const omni::fabric::TokenC _relationships_inputId = omni::fabric::asInt(pxr::UsdTokens->_relationships_inputId);
-const omni::fabric::TokenC _relationships_inputName = omni::fabric::asInt(pxr::UsdTokens->_relationships_inputName);
-const omni::fabric::TokenC _relationships_outputId = omni::fabric::asInt(pxr::UsdTokens->_relationships_outputId);
-const omni::fabric::TokenC _relationships_outputName = omni::fabric::asInt(pxr::UsdTokens->_relationships_outputName);
+const omni::fabric::TokenC _relationship_ids = omni::fabric::asInt(pxr::UsdTokens->_relationship_ids);
+const omni::fabric::TokenC _relationship_names = omni::fabric::asInt(pxr::UsdTokens->_relationship_names);
 const omni::fabric::TokenC _terminals = omni::fabric::asInt(pxr::UsdTokens->_terminals);
 const omni::fabric::TokenC _worldExtent = omni::fabric::asInt(pxr::UsdTokens->_worldExtent);
 const omni::fabric::TokenC _worldOrientation = omni::fabric::asInt(pxr::UsdTokens->_worldOrientation);
@@ -200,10 +196,8 @@ const pxr::TfToken& _localExtent = pxr::UsdTokens->_localExtent;
 const pxr::TfToken& _localMatrix = pxr::UsdTokens->_localMatrix;
 const pxr::TfToken& _nodePaths = pxr::UsdTokens->_nodePaths;
 const pxr::TfToken& _paramColorSpace = pxr::UsdTokens->_paramColorSpace;
-const pxr::TfToken& _relationships_inputId = pxr::UsdTokens->_relationships_inputId;
-const pxr::TfToken& _relationships_inputName = pxr::UsdTokens->_relationships_inputName;
-const pxr::TfToken& _relationships_outputId = pxr::UsdTokens->_relationships_outputId;
-const pxr::TfToken& _relationships_outputName = pxr::UsdTokens->_relationships_outputName;
+const pxr::TfToken& _relationship_ids = pxr::UsdTokens->_relationship_ids;
+const pxr::TfToken& _relationship_names = pxr::UsdTokens->_relationship_names;
 const pxr::TfToken& _terminals = pxr::UsdTokens->_terminals;
 const pxr::TfToken& _worldExtent = pxr::UsdTokens->_worldExtent;
 const pxr::TfToken& _worldOrientation = pxr::UsdTokens->_worldOrientation;
