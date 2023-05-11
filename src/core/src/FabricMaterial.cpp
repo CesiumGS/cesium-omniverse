@@ -65,9 +65,9 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
     const auto lookupColorPath = materialPath.AppendChild(UsdTokens::lookup_color);
     const auto textureCoordinate2dPath = materialPath.AppendChild(UsdTokens::texture_coordinate_2d);
 
-    const auto shaderPathFabricUint64 = omni::fabric::asInt(shaderPath).path;
-    const auto lookupColorPathFabricUint64 = omni::fabric::asInt(lookupColorPath).path;
-    const auto textureCoordinate2dPathFabricUint64 = omni::fabric::asInt(textureCoordinate2dPath).path;
+    const auto shaderPathFabricUint64 = omni::fabric::PathC(omni::fabric::asInt(shaderPath)).path;
+    const auto lookupColorPathFabricUint64 = omni::fabric::PathC(omni::fabric::asInt(lookupColorPath)).path;
+    const auto textureCoordinate2dPathFabricUint64 = omni::fabric::PathC(omni::fabric::asInt(textureCoordinate2dPath)).path;
 
     // Material
     {

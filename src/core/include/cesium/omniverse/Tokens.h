@@ -173,7 +173,7 @@ const omni::fabric::Type _cesium_tileId(omni::fabric::BaseDataType::eInt64, 1, 0
 const omni::fabric::Type _cesium_tilesetId(omni::fabric::BaseDataType::eInt64, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _localExtent(omni::fabric::BaseDataType::eDouble, 6, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _localMatrix(omni::fabric::BaseDataType::eDouble, 16, 0, omni::fabric::AttributeRole::eMatrix);
-const omni::fabric::Type _nodePaths(omni::fabric::BaseDataType::eUInt64, 1, 1, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type _nodePaths(omni::fabric::BaseDataType::eRelationship);
 const omni::fabric::Type _paramColorSpace(omni::fabric::BaseDataType::eToken, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _relationships_inputId(omni::fabric::BaseDataType::eUInt64, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _relationships_inputName(omni::fabric::BaseDataType::eToken, 1, 1, omni::fabric::AttributeRole::eNone);
