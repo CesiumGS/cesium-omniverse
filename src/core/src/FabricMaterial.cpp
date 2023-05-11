@@ -76,12 +76,13 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
 
         FabricAttributesBuilder attributes;
 
+        attributes.addAttribute(FabricTypes::Material, FabricTokens::Material);
+        attributes.addAttribute(FabricTypes::_nodePaths, FabricTokens::_nodePaths);
         attributes.addAttribute(FabricTypes::_terminal_names, FabricTokens::_terminal_names);
         attributes.addAttribute(FabricTypes::_terminal_sourceNames, FabricTokens::_terminal_sourceNames);
         attributes.addAttribute(FabricTypes::_terminal_sourceIds, FabricTokens::_terminal_sourceIds);
         attributes.addAttribute(FabricTypes::_relationship_ids, FabricTokens::_relationship_ids);
         attributes.addAttribute(FabricTypes::_relationship_names, FabricTokens::_relationship_names);
-        attributes.addAttribute(FabricTypes::Material, FabricTokens::Material);
         attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
         attributes.addAttribute(FabricTypes::_cesium_tileId, FabricTokens::_cesium_tileId);
 
