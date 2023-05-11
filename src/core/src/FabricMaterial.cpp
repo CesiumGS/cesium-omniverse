@@ -79,15 +79,28 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         attributes.addAttribute(FabricTypes::_terminal_names, FabricTokens::_terminal_names);
         attributes.addAttribute(FabricTypes::_terminal_sourceNames, FabricTokens::_terminal_sourceNames);
         attributes.addAttribute(FabricTypes::_terminal_sourceIds, FabricTokens::_terminal_sourceIds);
+        attributes.addAttribute(FabricTypes::_relationship_ids, FabricTokens::_relationship_ids);
+        attributes.addAttribute(FabricTypes::_relationship_names, FabricTokens::_relationship_names);
         attributes.addAttribute(FabricTypes::Material, FabricTokens::Material);
         attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
         attributes.addAttribute(FabricTypes::_cesium_tileId, FabricTokens::_cesium_tileId);
 
         attributes.createAttributes(materialPathFabric);
 
+        auto nodePathsCount = 1;
+        auto relationshipCount = 0;
+
+        if (hasBaseColorTexture) {
+            nodePathsCount = 3;
+            relationshipCount = 2;
+        }
+
         sip.setArrayAttributeSize(materialPathFabric, FabricTokens::_terminal_names, 2);
         sip.setArrayAttributeSize(materialPathFabric, FabricTokens::_terminal_sourceNames, 2);
         sip.setArrayAttributeSize(materialPathFabric, FabricTokens::_terminal_sourceIds, 2);
+        sip.setArrayAttributeSize(materialPathFabric, FabricTokens::_nodePaths, nodePathsCount);
+        sip.setArrayAttributeSize(materialPathFabric, FabricTokens::_relationship_ids, relationshipCount * 2);
+        sip.setArrayAttributeSize(materialPathFabric, FabricTokens::_relationship_names, relationshipCount * 2);
 
         auto terminalNamesFabric = sip.getArrayAttributeWr<omni::fabric::Token>(materialPathFabric, FabricTokens::_terminal_names);
         auto terminalSourceNamesFabric =
@@ -101,96 +114,11 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         terminalNamesFabric[1] = FabricTokens::outputs_displacement;
         terminalSourceNamesFabric[1] = FabricTokens::outputs_out;
         terminalSourceIdsFabric[1] = 0;
-    }
-
-    // Displacement
-    {
-        const auto displacementPathFabric = omni::fabric::Path(omni::fabric::asInt(displacementPath));
-        sip.createPrim(displacementPathFabric);
-
-        FabricAttributesBuilder attributes;
-
-        attributes.addAttribute(FabricTypes::_nodePaths, FabricTokens::_nodePaths);
-        attributes.addAttribute(FabricTypes::_relationship_ids, FabricTokens::_relationship_ids);
-        attributes.addAttribute(FabricTypes::_relationship_names, FabricTokens::_relationship_names);
-        attributes.addAttribute(FabricTypes::primvars, FabricTokens::primvars);
-        attributes.addAttribute(FabricTypes::MaterialNetwork, FabricTokens::MaterialNetwork);
-        attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
-        attributes.addAttribute(FabricTypes::_cesium_tileId, FabricTokens::_cesium_tileId);
-
-        attributes.createAttributes(displacementPathFabric);
-
-        auto nodePathsCount = 1;
-        auto relationshipCount = 0;
-
-        if (hasBaseColorTexture) {
-            nodePathsCount = 3;
-            relationshipCount = 2;
-        }
-
-        sip.setArrayAttributeSize(displacementPathFabric, FabricTokens::_nodePaths, nodePathsCount);
-        sip.setArrayAttributeSize(displacementPathFabric, FabricTokens::_relationship_ids, relationshipCount * 2);
-        sip.setArrayAttributeSize(displacementPathFabric, FabricTokens::_relationship_names, relationshipCount * 2);
-        sip.setArrayAttributeSize(displacementPathFabric, FabricTokens::primvars, 0);
 
         // clang-format off
-        auto nodePathsFabric = sip.getArrayAttributeWr<uint64_t>(displacementPathFabric, FabricTokens::_nodePaths);
-        auto relationshipIdsFabric = sip.getArrayAttributeWr<int>(displacementPathFabric, FabricTokens::_relationship_ids);
-        auto relationshipNamesFabric = sip.getArrayAttributeWr<omni::fabric::Token>(displacementPathFabric, FabricTokens::_relationship_names);
-        // clang-format on
-
-        if (hasBaseColorTexture) {
-            nodePathsFabric[0] = shaderPathFabricUint64;
-            nodePathsFabric[1] = lookupColorPathFabricUint64;
-            nodePathsFabric[2] = textureCoordinate2dPathFabricUint64;
-            // Indices into the nodePaths array above.
-            relationshipIdsFabric[0] = 2; // texture coordinate
-            relationshipNamesFabric[0] = FabricTokens::out;
-            relationshipIdsFabric[1] = 1; // lookup color
-            relationshipNamesFabric[1] = FabricTokens::coord;
-            relationshipIdsFabric[2] = 1; // lookup color
-            relationshipNamesFabric[2] = FabricTokens::out;
-            relationshipIdsFabric[3] = 0; // shader
-            relationshipNamesFabric[3] = FabricTokens::diffuse_color_constant;
-        } else {
-            nodePathsFabric[0] = shaderPathFabricUint64;
-        }
-    }
-
-    // Surface
-    {
-        const auto surfacePathFabric = omni::fabric::Path(omni::fabric::asInt(surfacePath));
-        sip.createPrim(surfacePathFabric);
-
-        FabricAttributesBuilder attributes;
-
-        attributes.addAttribute(FabricTypes::_nodePaths, FabricTokens::_nodePaths);
-        attributes.addAttribute(FabricTypes::_relationship_ids, FabricTokens::_relationship_ids);
-        attributes.addAttribute(FabricTypes::_relationship_names, FabricTokens::_relationship_names);
-        attributes.addAttribute(FabricTypes::primvars, FabricTokens::primvars);
-        attributes.addAttribute(FabricTypes::MaterialNetwork, FabricTokens::MaterialNetwork);
-        attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
-        attributes.addAttribute(FabricTypes::_cesium_tileId, FabricTokens::_cesium_tileId);
-
-        attributes.createAttributes(surfacePathFabric);
-
-        auto nodePathsCount = 1;
-        auto relationshipCount = 0;
-
-        if (hasBaseColorTexture) {
-            nodePathsCount = 3;
-            relationshipCount = 2;
-        }
-
-        sip.setArrayAttributeSize(surfacePathFabric, FabricTokens::_nodePaths, nodePathsCount);
-        sip.setArrayAttributeSize(surfacePathFabric, FabricTokens::_relationship_ids, relationshipCount * 2);
-        sip.setArrayAttributeSize(surfacePathFabric, FabricTokens::_relationship_names, relationshipCount * 2);
-        sip.setArrayAttributeSize(surfacePathFabric, FabricTokens::primvars, 0);
-
-        // clang-format off
-        auto nodePathsFabric = sip.getArrayAttributeWr<uint64_t>(surfacePathFabric, FabricTokens::_nodePaths);
-        auto relationshipIdsFabric = sip.getArrayAttributeWr<int>(surfacePathFabric, FabricTokens::_relationship_ids);
-        auto relationshipNamesFabric = sip.getArrayAttributeWr<omni::fabric::Token>(surfacePathFabric, FabricTokens::_relationship_names);
+        auto nodePathsFabric = sip.getArrayAttributeWr<uint64_t>(materialPathFabric, FabricTokens::_nodePaths);
+        auto relationshipIdsFabric = sip.getArrayAttributeWr<int>(materialPathFabric, FabricTokens::_relationship_ids);
+        auto relationshipNamesFabric = sip.getArrayAttributeWr<omni::fabric::Token>(materialPathFabric, FabricTokens::_relationship_names);
         // clang-format on
 
         if (hasBaseColorTexture) {
