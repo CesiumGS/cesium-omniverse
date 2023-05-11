@@ -15,6 +15,7 @@
 
 #include <CesiumGltf/Model.h>
 #include <omni/fabric/FabricUSD.h>
+#include <omni/fabric/IFabric.h>
 #include <omni/ui/ImageProvider/DynamicTextureProvider.h>
 #include <spdlog/fmt/fmt.h>
 
@@ -57,6 +58,7 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
     const auto hasBaseColorTexture = materialDefinition.hasBaseColorTexture();
 
     auto sip = UsdUtil::getFabricStageReaderWriter();
+    auto isip = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
 
     const auto materialPath = path;
     const auto shaderPath = materialPath.AppendChild(UsdTokens::Shader);
@@ -255,7 +257,8 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             // clang-format off
             auto wrapUFabric = sip.getAttributeWr<int>(lookupColorPathFabric, FabricTokens::wrap_u);
             auto wrapVFabric = sip.getAttributeWr<int>(lookupColorPathFabric, FabricTokens::wrap_v);
-            auto texFabric = sip.getAttributeWr<FabricAsset>(lookupColorPathFabric, FabricTokens::tex);
+            auto texFabricSpan = isip->getAttributeWr(sip.getId(), lookupColorPathFabric, FabricTokens::tex);
+            auto* texFabric = reinterpret_cast<omni::fabric::AssetPath*>(texFabricSpan.ptr);
             auto infoMdlSourceAssetFabric = sip.getAttributeWr<omni::fabric::Token>(lookupColorPathFabric, FabricTokens::info_mdl_sourceAsset);
             auto infoMdlSourceAssetSubIdentifierFabric = sip.getAttributeWr<omni::fabric::Token>(lookupColorPathFabric, FabricTokens::info_mdl_sourceAsset_subIdentifier);
             auto paramColorSpaceFabric = sip.getArrayAttributeWr<omni::fabric::Token>(lookupColorPathFabric, FabricTokens::_paramColorSpace);
@@ -263,7 +266,8 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
 
             *wrapUFabric = 0; // clamp to edge
             *wrapVFabric = 0; // clamp to edge
-            *texFabric = FabricAsset(baseColorTexturePath);
+            texFabric->assetPath = pxr::TfToken(baseColorTexturePath.GetAssetPath());
+            texFabric->resolvedPath = pxr::TfToken(baseColorTexturePath.GetResolvedPath());
             *infoMdlSourceAssetFabric = FabricTokens::nvidia_support_definitions_mdl;
             *infoMdlSourceAssetSubIdentifierFabric = FabricTokens::lookup_color;
             paramColorSpaceFabric[0] = FabricTokens::tex;
