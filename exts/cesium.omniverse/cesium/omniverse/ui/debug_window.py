@@ -17,7 +17,7 @@ class CesiumOmniverseDebugWindow(ui.Window):
 
         self._logger = logging.getLogger(__name__)
         self._cesium_omniverse_interface = cesium_omniverse_interface
-        self._cesium_message_field: Optional[ui.SimpleStringModel] = None
+        self._cesium_message_field: ui.SimpleStringModel = ui.SimpleStringModel("")
         self._statistics_widget: Optional[CesiumOmniverseStatisticsWidget] = None
 
         # Set the function that is called to build widgets when the window is visible
@@ -60,10 +60,8 @@ class CesiumOmniverseDebugWindow(ui.Window):
             self._cesium_message_field.set_value(fabric_stage)
 
         with ui.VStack():
-            ui.Button("Remove all Tilesets", clicked_fn=lambda: remove_all_tilesets())
-            ui.Button("Reload all Tilesets", clicked_fn=lambda: reload_all_tilesets())
-            ui.Button("Print Fabric stage", clicked_fn=lambda: print_fabric_stage())
-            with ui.VStack():
-                self._cesium_message_field = ui.SimpleStringModel("")
-                ui.StringField(self._cesium_message_field, multiline=True, read_only=True)
+            ui.Button("Remove all Tilesets", height=20, clicked_fn=lambda: remove_all_tilesets())
+            ui.Button("Reload all Tilesets", height=20, clicked_fn=lambda: reload_all_tilesets())
+            ui.Button("Print Fabric stage", height=20, clicked_fn=lambda: print_fabric_stage())
+            ui.StringField(self._cesium_message_field, height=100, multiline=True, read_only=True)
             self._statistics_widget = CesiumOmniverseStatisticsWidget(self._cesium_omniverse_interface)

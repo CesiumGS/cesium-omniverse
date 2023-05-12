@@ -9,6 +9,7 @@ __all__ = [
     "Token",
     "TokenTroubleshootingDetails",
     "AssetTroubleshootingDetails",
+    "RenderStatistics",
     "FabricStatistics",
     "Viewport",
     "acquire_cesium_omniverse_interface",

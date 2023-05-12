@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cesium/omniverse/FabricStatistics.h"
+#include "cesium/omniverse/RenderStatistics.h"
 
 #include <glm/glm.hpp>
 #include <pxr/usd/sdf/path.h>

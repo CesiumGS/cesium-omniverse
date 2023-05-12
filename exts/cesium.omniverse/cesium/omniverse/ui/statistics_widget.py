@@ -7,6 +7,9 @@ from ..bindings import ICesiumOmniverseInterface
 NUMBER_OF_MATERIALS_LOADED_TEXT = "Number of materials loaded: {0}"
 NUMBER_OF_GEOMETRIES_LOADED_TEXT = "Number of geometries loaded: {0}"
 NUMBER_OF_GEOMETRIES_VISIBLE_TEXT = "Number of geometries visible: {0}"
+NUMBER_OF_TRIANGLES_LOADED_TEXT = "Number of triangles loaded: {0}"
+NUMBER_OF_TRIANGLES_VISIBLE_TEXT = "Number of triangles visible: {0}"
+TILESET_CACHED_BYTES_TEXT = "Tileset cached bytes: {0}"
 
 
 class CesiumOmniverseStatisticsWidget(ui.Frame):
@@ -22,6 +25,9 @@ class CesiumOmniverseStatisticsWidget(ui.Frame):
         self._statistics_number_of_materials_loaded_field: ui.SimpleStringModel = ui.SimpleStringModel("")
         self._statistics_number_of_geometries_loaded_field: ui.SimpleStringModel = ui.SimpleStringModel("")
         self._statistics_number_of_geometries_visible_field: ui.SimpleStringModel = ui.SimpleStringModel("")
+        self._statistics_number_of_triangles_loaded_field: ui.SimpleStringModel = ui.SimpleStringModel("")
+        self._statistics_number_of_triangles_visible_field: ui.SimpleStringModel = ui.SimpleStringModel("")
+        self._statistics_tileset_cached_bytes_field: ui.SimpleStringModel = ui.SimpleStringModel("")
 
         self._subscriptions: List[carb.events.ISubscription] = []
         self._setup_subscriptions()
@@ -46,7 +52,8 @@ class CesiumOmniverseStatisticsWidget(ui.Frame):
         if not self.visible:
             return
 
-        fabric_statistics = self._cesium_omniverse_interface.get_fabric_statistics()
+        render_statistics = self._cesium_omniverse_interface.get_render_statistics()
+        fabric_statistics = render_statistics.fabric_statistics
         self._statistics_number_of_materials_loaded_field.set_value(
             NUMBER_OF_MATERIALS_LOADED_TEXT.format(fabric_statistics.number_of_materials_loaded)
         )
@@ -55,6 +62,15 @@ class CesiumOmniverseStatisticsWidget(ui.Frame):
         )
         self._statistics_number_of_geometries_visible_field.set_value(
             NUMBER_OF_GEOMETRIES_VISIBLE_TEXT.format(fabric_statistics.number_of_geometries_visible)
+        )
+        self._statistics_number_of_triangles_loaded_field.set_value(
+            NUMBER_OF_TRIANGLES_LOADED_TEXT.format(fabric_statistics.number_of_triangles_loaded)
+        )
+        self._statistics_number_of_triangles_visible_field.set_value(
+            NUMBER_OF_TRIANGLES_VISIBLE_TEXT.format(fabric_statistics.number_of_triangles_visible)
+        )
+        self._statistics_tileset_cached_bytes_field.set_value(
+            TILESET_CACHED_BYTES_TEXT.format(render_statistics.tileset_cached_bytes)
         )
 
     def _build_fn(self):
@@ -65,3 +81,6 @@ class CesiumOmniverseStatisticsWidget(ui.Frame):
             ui.StringField(self._statistics_number_of_materials_loaded_field, height=0, read_only=True)
             ui.StringField(self._statistics_number_of_geometries_loaded_field, height=0, read_only=True)
             ui.StringField(self._statistics_number_of_geometries_visible_field, height=0, read_only=True)
+            ui.StringField(self._statistics_number_of_triangles_loaded_field, height=0, read_only=True)
+            ui.StringField(self._statistics_number_of_triangles_visible_field, height=0, read_only=True)
+            ui.StringField(self._statistics_tileset_cached_bytes_field, height=0, read_only=True)

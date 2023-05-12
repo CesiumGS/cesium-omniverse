@@ -4,6 +4,7 @@
 #include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/FabricMeshManager.h"
+#include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/OmniImagery.h"
@@ -640,6 +641,18 @@ std::vector<std::pair<std::string, bool>> Context::getCredits() const {
 
 void Context::creditsStartNextFrame() {
     _creditSystem->startNextFrame();
+}
+
+RenderStatistics Context::getRenderStatistics() const {
+    RenderStatistics renderStatistics;
+    renderStatistics.fabricStatistics = FabricUtil::getStatistics();
+
+    const auto& tilesets = AssetRegistry::getInstance().getAllTilesets();
+    for (const auto& tileset : tilesets) {
+        renderStatistics.tilesetCachedBytes += tileset->getCachedBytes();
+    }
+
+    return renderStatistics;
 }
 
 } // namespace cesium::omniverse

@@ -222,6 +222,10 @@ int64_t OmniTileset::getTilesetId() const {
     return _tilesetId;
 }
 
+uint64_t OmniTileset::getCachedBytes() const {
+    return _tileset->getTotalDataBytes();
+}
+
 void OmniTileset::reload() {
     _renderResourcesPreparer = std::make_shared<FabricPrepareRenderResources>(*this);
     auto& context = Context::instance();

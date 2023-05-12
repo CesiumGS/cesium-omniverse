@@ -1,6 +1,6 @@
 #include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/CesiumOmniverse.h"
-#include "cesium/omniverse/FabricStatistics.h"
+#include "cesium/omniverse/RenderStatistics.h"
 #include "cesium/omniverse/TokenTroubleshooter.h"
 #include "cesium/omniverse/Viewport.h"
 
@@ -60,7 +60,7 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("update_troubleshooting_details", py::overload_cast<const char*, int64_t, uint64_t, uint64_t>(&ICesiumOmniverseInterface::updateTroubleshootingDetails))
         .def("update_troubleshooting_details", py::overload_cast<const char*, int64_t, int64_t, uint64_t, uint64_t>(&ICesiumOmniverseInterface::updateTroubleshootingDetails))
         .def("print_fabric_stage", &ICesiumOmniverseInterface::printFabricStage)
-        .def("get_fabric_statistics", &ICesiumOmniverseInterface::getFabricStatistics)
+        .def("get_render_statistics", &ICesiumOmniverseInterface::getRenderStatistics)
         .def("credits_available", &ICesiumOmniverseInterface::creditsAvailable)
         .def("get_credits", &ICesiumOmniverseInterface::getCredits)
         .def("credits_start_next_frame", &ICesiumOmniverseInterface::creditsStartNextFrame);
@@ -133,7 +133,13 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
     py::class_<FabricStatistics>(m, "FabricStatistics")
         .def_readonly("number_of_materials_loaded", &FabricStatistics::numberOfMaterialsLoaded)
         .def_readonly("number_of_geometries_loaded", &FabricStatistics::numberOfGeometriesLoaded)
-        .def_readonly("number_of_geometries_visible", &FabricStatistics::numberOfGeometriesVisible);
+        .def_readonly("number_of_geometries_visible", &FabricStatistics::numberOfGeometriesVisible)
+        .def_readonly("number_of_triangles_loaded", &FabricStatistics::numberOfTrianglesLoaded)
+        .def_readonly("number_of_triangles_visible", &FabricStatistics::numberOfTrianglesVisible);
+
+    py::class_<RenderStatistics>(m, "RenderStatistics")
+        .def_readonly("fabric_statistics", &RenderStatistics::fabricStatistics)
+        .def_readonly("tileset_cached_bytes", &RenderStatistics::tilesetCachedBytes);
 
     py::class_<Viewport>(m, "Viewport")
         .def(py::init())
