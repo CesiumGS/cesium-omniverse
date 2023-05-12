@@ -66,9 +66,12 @@ void FabricGeometry::assignMaterial(std::shared_ptr<FabricMaterial> material) {
     if (_geometryDefinition.hasMaterial())
     {
         auto sip = UsdUtil::getFabricStageReaderWriter();
-        const auto pathFabric = omni::fabric::Path(omni::fabric::asInt(_path));
-        auto materialIdFabric = sip.getArrayAttributeWr<uint64_t>(pathFabric, FabricTokens::materialId);
-        materialIdFabric[0] = omni::fabric::PathC(omni::fabric::asInt(material->getPath())).path;
+        auto materialIdFabric =
+            sip.getArrayAttributeWr<omni::fabric::Path>(omni::fabric::asInt(_path), FabricTokens::materialId);
+        if (materialIdFabric.size() == 1)
+        {
+            materialIdFabric[0] = omni::fabric::asInt(material->getPath());
+        }
     }
 }
 
