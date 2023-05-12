@@ -43,7 +43,6 @@ public:
     /// Equivalent to CesiumData::Get(prim.GetStage(), prim.GetPath())
     /// for a \em valid \p prim, but will not immediately throw an error for
     /// an invalid \p prim
-    CESIUM_API
     explicit CesiumData(const UsdPrim& prim=UsdPrim())
         : UsdTyped(prim)
     {
@@ -52,20 +51,17 @@ public:
     /// Construct a CesiumData on the prim held by \p schemaObj .
     /// Should be preferred over CesiumData(schemaObj.GetPrim()),
     /// as it preserves SchemaBase state.
-    CESIUM_API
     explicit CesiumData(const UsdSchemaBase& schemaObj)
         : UsdTyped(schemaObj)
     {
     }
 
     /// Destructor.
-    CESIUM_API
     virtual ~CesiumData();
 
     /// Return a vector of names of all pre-declared attributes for this schema
     /// class and all its ancestor classes.  Does not include attributes that
     /// may be authored by custom/extended methods of the schemas involved.
-    CESIUM_API
     static const TfTokenVector &
     GetSchemaAttributeNames(bool includeInherited=true);
 
@@ -78,7 +74,6 @@ public:
     /// CesiumData(stage->GetPrimAtPath(path));
     /// \endcode
     ///
-    CESIUM_API
     static CesiumData
     Get(const UsdStagePtr &stage, const SdfPath &path);
 
@@ -104,7 +99,6 @@ public:
     /// specify this schema class, in case a stronger typeName opinion overrides
     /// the opinion at the current EditTarget.
     ///
-    CESIUM_API
     static CesiumData
     Define(const UsdStagePtr &stage, const SdfPath &path);
 
@@ -112,19 +106,16 @@ protected:
     /// Returns the kind of schema this class belongs to.
     ///
     /// \sa UsdSchemaKind
-    CESIUM_API
     UsdSchemaKind _GetSchemaKind() const override;
 
 private:
     // needs to invoke _GetStaticTfType.
     friend class UsdSchemaRegistry;
-    CESIUM_API
     static const TfType &_GetStaticTfType();
 
     static bool _IsTypedSchema();
 
     // override SchemaBase virtuals.
-    CESIUM_API
     const TfType &_GetTfType() const override;
 
 public:
@@ -138,7 +129,6 @@ public:
     /// | Declaration | `string cesium:projectDefaultIonAccessToken = ""` |
     /// | C++ Type | std::string |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
-    CESIUM_API
     UsdAttribute GetProjectDefaultIonAccessTokenAttr() const;
 
     /// See GetProjectDefaultIonAccessTokenAttr(), and also 
@@ -146,7 +136,6 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    CESIUM_API
     UsdAttribute CreateProjectDefaultIonAccessTokenAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -160,7 +149,6 @@ public:
     /// | Declaration | `string cesium:projectDefaultIonAccessTokenId = ""` |
     /// | C++ Type | std::string |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
-    CESIUM_API
     UsdAttribute GetProjectDefaultIonAccessTokenIdAttr() const;
 
     /// See GetProjectDefaultIonAccessTokenIdAttr(), and also 
@@ -168,7 +156,6 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    CESIUM_API
     UsdAttribute CreateProjectDefaultIonAccessTokenIdAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -182,7 +169,6 @@ public:
     /// | Declaration | `double cesium:georeferenceOrigin:longitude = -105.25737` |
     /// | C++ Type | double |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double |
-    CESIUM_API
     UsdAttribute GetGeoreferenceOriginLongitudeAttr() const;
 
     /// See GetGeoreferenceOriginLongitudeAttr(), and also 
@@ -190,7 +176,6 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    CESIUM_API
     UsdAttribute CreateGeoreferenceOriginLongitudeAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -204,7 +189,6 @@ public:
     /// | Declaration | `double cesium:georeferenceOrigin:latitude = 39.736401` |
     /// | C++ Type | double |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double |
-    CESIUM_API
     UsdAttribute GetGeoreferenceOriginLatitudeAttr() const;
 
     /// See GetGeoreferenceOriginLatitudeAttr(), and also 
@@ -212,7 +196,6 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    CESIUM_API
     UsdAttribute CreateGeoreferenceOriginLatitudeAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -226,7 +209,6 @@ public:
     /// | Declaration | `double cesium:georeferenceOrigin:height = 2250` |
     /// | C++ Type | double |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double |
-    CESIUM_API
     UsdAttribute GetGeoreferenceOriginHeightAttr() const;
 
     /// See GetGeoreferenceOriginHeightAttr(), and also 
@@ -234,7 +216,6 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    CESIUM_API
     UsdAttribute CreateGeoreferenceOriginHeightAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
