@@ -155,15 +155,15 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         attributes.addAttribute(FabricTypes::_sdrMetadata, FabricTokens::_sdrMetadata);
     };
 
-    auto setShaderParams = [&sip](const omni::fabric::Path& shaderPath, bool setColorSpaceEmpty = true) {
-        *sip.getAttributeWr<omni::fabric::Token>(shaderPath, FabricTokens::info_implementationSource) =
+    auto setShaderParams = [&sip](const omni::fabric::Path& shaderPathArg, bool setColorSpaceEmpty = true) {
+        *sip.getAttributeWr<omni::fabric::Token>(shaderPathArg, FabricTokens::info_implementationSource) =
             FabricTokens::sourceAsset;
         // _sdrMetadata is used with the sdr registry calls.
-        sip.setArrayAttributeSize(shaderPath, FabricTokens::_sdrMetadata, 0);
+        sip.setArrayAttributeSize(shaderPathArg, FabricTokens::_sdrMetadata, 0);
         if (setColorSpaceEmpty)
         {
             // _paramColorSpace is an array of pairs: [texture_parameter_token, color_space_enum], [texture_parameter_token, color_space_enum], ...
-            sip.setArrayAttributeSize(shaderPath, FabricTokens::_paramColorSpace, 0);
+            sip.setArrayAttributeSize(shaderPathArg, FabricTokens::_paramColorSpace, 0);
         }
     };
 
