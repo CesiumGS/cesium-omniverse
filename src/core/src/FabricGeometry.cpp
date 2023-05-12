@@ -63,10 +63,13 @@ const FabricGeometryDefinition& FabricGeometry::getGeometryDefinition() const {
 }
 
 void FabricGeometry::assignMaterial(std::shared_ptr<FabricMaterial> material) {
-    auto sip = UsdUtil::getFabricStageReaderWriter();
-    const auto pathFabric = omni::fabric::Path(omni::fabric::asInt(_path));
-    auto materialIdFabric = sip.getArrayAttributeWr<uint64_t>(pathFabric, FabricTokens::materialId);
-    materialIdFabric[0] = omni::fabric::PathC(omni::fabric::asInt(material->getPath())).path;
+    if (_geometryDefinition.hasMaterial())
+    {
+        auto sip = UsdUtil::getFabricStageReaderWriter();
+        const auto pathFabric = omni::fabric::Path(omni::fabric::asInt(_path));
+        auto materialIdFabric = sip.getArrayAttributeWr<uint64_t>(pathFabric, FabricTokens::materialId);
+        materialIdFabric[0] = omni::fabric::PathC(omni::fabric::asInt(material->getPath())).path;
+    }
 }
 
 void FabricGeometry::initialize() {
@@ -100,9 +103,7 @@ void FabricGeometry::initialize() {
     attributes.addAttribute(FabricTypes::doubleSided, FabricTokens::doubleSided);
     attributes.addAttribute(FabricTypes::subdivisionScheme, FabricTokens::subdivisionScheme);
 
-    if (hasMaterial) {
-        attributes.addAttribute(FabricTypes::materialId, FabricTokens::materialId);
-    }
+    attributes.addAttribute(FabricTypes::materialId, FabricTokens::materialId);
 
     if (hasTexcoords) {
         attributes.addAttribute(FabricTypes::primvars_st, FabricTokens::primvars_st);
@@ -139,7 +140,7 @@ void FabricGeometry::initialize() {
 
     sip.setArrayAttributeSize(pathFabric, FabricTokens::primvars, primvarsCount);
     sip.setArrayAttributeSize(pathFabric, FabricTokens::primvarInterpolations, primvarsCount);
-    sip.setArrayAttributeSize(pathFabric, FabricTokens::materialId, 1);
+    sip.setArrayAttributeSize(pathFabric, FabricTokens::materialId, hasMaterial ? 1 : 0);
 
     // clang-format off
     auto primvarsFabric = sip.getArrayAttributeWr<omni::fabric::Token>(pathFabric, FabricTokens::primvars);
