@@ -84,7 +84,7 @@ setup_lib(
         tbb
         carb
         cudart
-        omni_kit_app
+        omni_kit
         omni_ui
         rtx_plugins
         pybind11

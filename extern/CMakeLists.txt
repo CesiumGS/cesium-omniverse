@@ -231,21 +231,11 @@ add_prebuilt_project(
 # cmake-format: on
 
 # cmake-format: off
-add_prebuilt_project(
-    RELEASE_INCLUDE_DIR
+add_prebuilt_project_header_only(
+    INCLUDE_DIR
         "${KIT_SDK_ROOT}/dev/include"
-    DEBUG_INCLUDE_DIR
-        "${KIT_SDK_ROOT}/dev/include"
-    RELEASE_LIBRARY_DIR
-        "${KIT_SDK_ROOT}/kernel/plugins"
-    DEBUG_LIBRARY_DIR
-        "${KIT_SDK_ROOT}/kernel/plugins"
-    RELEASE_LIBRARIES
-        omni.kit.app.plugin
-    DEBUG_LIBRARIES
-        omni.kit.app.plugin
-    TARGET_NAMES
-        omni_kit_app
+    TARGET_NAME
+        omni_kit
 )
 # cmake-format: on
 
