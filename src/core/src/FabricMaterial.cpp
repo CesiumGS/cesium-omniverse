@@ -93,8 +93,7 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         auto nodePathsCount = 1;
         auto relationshipCount = 0;
 
-        // TODO(jshrake): Temporarily disable the lookup node and set inputs:diffuse_texture directly on the MDL
-        if (false && hasBaseColorTexture) {
+        if (hasBaseColorTexture) {
             nodePathsCount = 3;
             relationshipCount = 2;
         }
@@ -125,8 +124,7 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         auto relationshipNamesFabric = sip.getArrayAttributeWr<omni::fabric::Token>(materialPathFabric, FabricTokens::_relationship_names);
         // clang-format on
 
-        // TODO(jshrake): Temporarily disable the lookup node and set inputs:diffuse_texture directly on the MDL
-        if (false && hasBaseColorTexture) {
+        if (hasBaseColorTexture) {
             nodePathsFabric[0] = shaderPathFabricUint64;
             nodePathsFabric[1] = lookupColorPathFabricUint64;
             nodePathsFabric[2] = textureCoordinate2dPathFabricUint64;
@@ -176,7 +174,6 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
 
         // clang-format off
         addShaderParams(attributes);
-        attributes.addAttribute(FabricTypes::diffuse_texture, FabricTokens::diffuse_texture);
         attributes.addAttribute(FabricTypes::diffuse_color_constant, FabricTokens::diffuse_color_constant);
         attributes.addAttribute(FabricTypes::metallic_constant, FabricTokens::metallic_constant);
         attributes.addAttribute(FabricTypes::reflection_roughness_constant, FabricTokens::reflection_roughness_constant);
@@ -200,23 +197,9 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         infoMdlSourceAsset->resolvedPath = pxr::TfToken();
         *infoMdlSourceAssetSubIdentifierFabric = FabricTokens::OmniPBR;
         *specularLevelFabric = 0.0f;
-
-        // TODO(jshrake): Temporarily disable the lookup node and set inputs:diffuse_texture directly on the MDL
-        if (hasBaseColorTexture) {
-            const auto baseColorTextureName =
-                fmt::format("{}_base_color_texture", UsdUtil::getSafeName(materialPath.GetString()));
-            const auto baseColorTexturePath =
-                pxr::SdfAssetPath(fmt::format("{}{}", rtx::resourcemanager::kDynamicTexturePrefix, baseColorTextureName));
-            auto texSpan = isip->getAttributeWr(sip.getId(), shaderPathFabric, FabricTokens::diffuse_texture);
-            auto* diffuseTextureFabric = reinterpret_cast<omni::fabric::AssetPath*>(texSpan.ptr);
-            diffuseTextureFabric->assetPath = pxr::TfToken(baseColorTexturePath.GetAssetPath());
-            diffuseTextureFabric->resolvedPath = pxr::TfToken(baseColorTexturePath.GetResolvedPath());
-            _baseColorTexture = std::make_unique<omni::ui::DynamicTextureProvider>(baseColorTextureName);
-        }
     }
 
-    // TODO(jshrake): Temporarily disable the lookup node and set inputs:diffuse_texture directly on the MDL
-    if (false && hasBaseColorTexture) {
+    if (hasBaseColorTexture) {
         // Create the base color texture
         const auto baseColorTextureName =
             fmt::format("{}_base_color_texture", UsdUtil::getSafeName(materialPath.GetString()));
