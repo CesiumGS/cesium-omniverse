@@ -31,7 +31,7 @@ class SdfAssetPath;
 ///
 /// Stores stage level data for Cesium for Omniverse/USD.
 ///
-class CesiumData : public UsdTyped
+class CESIUM_API CesiumData : public UsdTyped
 {
 public:
     /// Compile time constant representing what kind of schema this class is.

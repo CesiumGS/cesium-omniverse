@@ -31,7 +31,7 @@ class SdfAssetPath;
 ///
 /// Adds a prim for representing an imagery layer. Should be a child of a tileset.
 ///
-class CesiumImagery : public UsdTyped
+class CESIUM_API CesiumImagery : public UsdTyped
 {
 public:
     /// Compile time constant representing what kind of schema this class is.

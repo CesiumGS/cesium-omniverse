@@ -36,7 +36,7 @@ class SdfAssetPath;
 /// So to set an attribute to the value "rightHanded", use CesiumTokens->rightHanded
 /// as the value.
 ///
-class CesiumTilesetAPI : public UsdAPISchemaBase
+class CESIUM_API CesiumTilesetAPI : public UsdAPISchemaBase
 {
 public:
     /// Compile time constant representing what kind of schema this class is.
