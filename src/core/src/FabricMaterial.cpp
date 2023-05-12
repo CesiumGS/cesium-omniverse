@@ -187,7 +187,7 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         setShaderParams(shaderPathFabric);
 
         // clang-format off
-        auto infoMdlSourceAssetSpan = isip->getAttributeWr(sip.getId(), shaderPathFabric, FabricTokens::tex);
+        auto infoMdlSourceAssetSpan = isip->getAttributeWr(sip.getId(), shaderPathFabric, FabricTokens::info_mdl_sourceAsset);
         auto* infoMdlSourceAsset = reinterpret_cast<omni::fabric::AssetPath*>(infoMdlSourceAssetSpan.ptr);
         auto infoMdlSourceAssetSubIdentifierFabric = sip.getAttributeWr<omni::fabric::Token>(shaderPathFabric, FabricTokens::info_mdl_sourceAsset_subIdentifier);
         auto specularLevelFabric = sip.getAttributeWr<float>(shaderPathFabric, FabricTokens::specular_level);
@@ -226,7 +226,7 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             setShaderParams(textureCoordinate2dPathFabric);
 
             // clang-format off
-            auto infoMdlSourceAssetSpan = isip->getAttributeWr(sip.getId(), textureCoordinate2dPathFabric, FabricTokens::tex);
+            auto infoMdlSourceAssetSpan = isip->getAttributeWr(sip.getId(), textureCoordinate2dPathFabric, FabricTokens::info_mdl_sourceAsset);
             auto* infoMdlSourceAsset = reinterpret_cast<omni::fabric::AssetPath*>(infoMdlSourceAssetSpan.ptr);
             auto infoMdlSourceAssetSubIdentifierFabric = sip.getAttributeWr<omni::fabric::Token>(textureCoordinate2dPathFabric, FabricTokens::info_mdl_sourceAsset_subIdentifier);
             // clang-format on
