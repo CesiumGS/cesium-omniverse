@@ -129,14 +129,25 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             nodePathsFabric[1] = lookupColorPathFabricUint64;
             nodePathsFabric[2] = textureCoordinate2dPathFabricUint64;
             // Indices into the nodePaths array above.
-            relationshipIdsFabric[0] = 2; // texture coordinate
-            relationshipNamesFabric[0] = FabricTokens::out;
-            relationshipIdsFabric[1] = 1; // lookup color
-            relationshipNamesFabric[1] = FabricTokens::coord;
-            relationshipIdsFabric[2] = 1; // lookup color
-            relationshipNamesFabric[2] = FabricTokens::out;
-            relationshipIdsFabric[3] = 0; // shader
-            relationshipNamesFabric[3] = FabricTokens::diffuse_color_constant;
+            {
+                // out
+                relationshipIdsFabric[0] = 2; // texture coordinate
+                relationshipNamesFabric[0] = FabricTokens::out;
+
+                // in
+                relationshipIdsFabric[1] = 1; // lookup color
+                relationshipNamesFabric[1] = FabricTokens::coord;
+            }
+
+            {
+                // out
+                relationshipIdsFabric[2] = 1; // lookup color
+                relationshipNamesFabric[2] = FabricTokens::out;
+
+                // in
+                relationshipIdsFabric[3] = 0; // shader
+                relationshipNamesFabric[3] = FabricTokens::diffuse_color_constant;
+            }
         } else {
             nodePathsFabric[0] = shaderPathFabricUint64;
         }
@@ -245,9 +256,10 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
 
             // clang-format off
             addShaderParams(attributes);
+            attributes.addAttribute(FabricTypes::tex, FabricTokens::tex);
+            attributes.addAttribute(FabricTypes::coord, FabricTokens::coord);
             attributes.addAttribute(FabricTypes::wrap_u, FabricTokens::wrap_u);
             attributes.addAttribute(FabricTypes::wrap_v, FabricTokens::wrap_v);
-            attributes.addAttribute(FabricTypes::tex, FabricTokens::tex);
             attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
             attributes.addAttribute(FabricTypes::_cesium_tileId, FabricTokens::_cesium_tileId);
             // clang-format on
@@ -261,9 +273,10 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             // clang-format off
             auto wrapUFabric = sip.getAttributeWr<int>(lookupColorPathFabric, FabricTokens::wrap_u);
             auto wrapVFabric = sip.getAttributeWr<int>(lookupColorPathFabric, FabricTokens::wrap_v);
+            auto coordFabric = sip.getAttributeWr<pxr::GfVec2f>(lookupColorPathFabric, FabricTokens::coord);
             auto texFabricSpan = isip->getAttributeWr(sip.getId(), lookupColorPathFabric, FabricTokens::tex);
             auto* texFabric = reinterpret_cast<omni::fabric::AssetPath*>(texFabricSpan.ptr);
-            auto infoMdlSourceAssetSpan = isip->getAttributeWr(sip.getId(), lookupColorPathFabric, FabricTokens::tex);
+            auto infoMdlSourceAssetSpan = isip->getAttributeWr(sip.getId(), lookupColorPathFabric, FabricTokens::info_mdl_sourceAsset);
             auto* infoMdlSourceAsset = reinterpret_cast<omni::fabric::AssetPath*>(infoMdlSourceAssetSpan.ptr);
             auto infoMdlSourceAssetSubIdentifierFabric = sip.getAttributeWr<omni::fabric::Token>(lookupColorPathFabric, FabricTokens::info_mdl_sourceAsset_subIdentifier);
             auto paramColorSpaceFabric = sip.getArrayAttributeWr<omni::fabric::Token>(lookupColorPathFabric, FabricTokens::_paramColorSpace);
@@ -271,6 +284,7 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
 
             *wrapUFabric = 0; // clamp to edge
             *wrapVFabric = 0; // clamp to edge
+            *coordFabric = pxr::GfVec2f(0.0f);
             texFabric->assetPath = pxr::TfToken(baseColorTexturePath.GetAssetPath());
             texFabric->resolvedPath = pxr::TfToken(baseColorTexturePath.GetResolvedPath());
             infoMdlSourceAsset->assetPath = UsdTokens::nvidia_support_definitions_mdl;

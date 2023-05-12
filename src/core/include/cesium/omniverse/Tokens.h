@@ -157,6 +157,7 @@ extern const pxr::TfToken& _worldVisibility;
 namespace cesium::omniverse::FabricTypes {
 const omni::fabric::Type albedo_add(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type b(omni::fabric::BaseDataType::eFloat, 2, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type coord(omni::fabric::BaseDataType::eFloat, 2, 0, omni::fabric::AttributeRole::eTexCoord);
 const omni::fabric::Type diffuse_color_constant(omni::fabric::BaseDataType::eFloat, 3, 0, omni::fabric::AttributeRole::eColor);
 const omni::fabric::Type diffuse_texture(omni::fabric::BaseDataType::eAsset, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type doubleSided(omni::fabric::BaseDataType::eBool, 1, 0, omni::fabric::AttributeRole::eNone);
