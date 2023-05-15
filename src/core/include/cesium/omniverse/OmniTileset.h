@@ -54,6 +54,7 @@ class OmniTileset {
     bool getShowCreditsOnScreen() const;
 
     int64_t getTilesetId() const;
+    uint64_t getCachedBytes() const;
 
     void reload();
     void addImageryIon(const pxr::SdfPath& imageryPath);
