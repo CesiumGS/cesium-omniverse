@@ -144,6 +144,17 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
     // We can add more as needed.
     if (arrayDepth == 0) {
         switch (baseType) {
+            case omni::fabric::BaseDataType::eRelationship: {
+                switch (componentCount) {
+                    case 1: {
+                        return printAttributeValue<false, RelationshipWrapper, 1>(primPath, name);
+                    }
+                    default: {
+                        break;
+                    }
+                }
+                break;
+            }
             case omni::fabric::BaseDataType::eAsset: {
                 switch (componentCount) {
                     case 1: {
@@ -296,6 +307,17 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
         }
     } else if (arrayDepth == 1) {
         switch (baseType) {
+            case omni::fabric::BaseDataType::eRelationship: {
+                switch (componentCount) {
+                    case 1: {
+                        return printAttributeValue<true, int64_t, 1>(primPath, name);
+                    }
+                    default: {
+                        break;
+                    }
+                }
+                break;
+            }
             case omni::fabric::BaseDataType::eAsset: {
                 switch (componentCount) {
                     case 1: {
