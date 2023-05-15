@@ -53,21 +53,20 @@ class CesiumOmniverseStatisticsWidget(ui.Frame):
             return
 
         render_statistics = self._cesium_omniverse_interface.get_render_statistics()
-        fabric_statistics = render_statistics.fabric_statistics
         self._statistics_number_of_materials_loaded_field.set_value(
-            NUMBER_OF_MATERIALS_LOADED_TEXT.format(fabric_statistics.number_of_materials_loaded)
+            NUMBER_OF_MATERIALS_LOADED_TEXT.format(render_statistics.number_of_materials_loaded)
         )
         self._statistics_number_of_geometries_loaded_field.set_value(
-            NUMBER_OF_GEOMETRIES_LOADED_TEXT.format(fabric_statistics.number_of_geometries_loaded)
+            NUMBER_OF_GEOMETRIES_LOADED_TEXT.format(render_statistics.number_of_geometries_loaded)
         )
         self._statistics_number_of_geometries_visible_field.set_value(
-            NUMBER_OF_GEOMETRIES_VISIBLE_TEXT.format(fabric_statistics.number_of_geometries_visible)
+            NUMBER_OF_GEOMETRIES_VISIBLE_TEXT.format(render_statistics.number_of_geometries_visible)
         )
         self._statistics_number_of_triangles_loaded_field.set_value(
-            NUMBER_OF_TRIANGLES_LOADED_TEXT.format(fabric_statistics.number_of_triangles_loaded)
+            NUMBER_OF_TRIANGLES_LOADED_TEXT.format(render_statistics.number_of_triangles_loaded)
         )
         self._statistics_number_of_triangles_visible_field.set_value(
-            NUMBER_OF_TRIANGLES_VISIBLE_TEXT.format(fabric_statistics.number_of_triangles_visible)
+            NUMBER_OF_TRIANGLES_VISIBLE_TEXT.format(render_statistics.number_of_triangles_visible)
         )
         self._statistics_tileset_cached_bytes_field.set_value(
             TILESET_CACHED_BYTES_TEXT.format(render_statistics.tileset_cached_bytes)

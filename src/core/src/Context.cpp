@@ -645,7 +645,13 @@ void Context::creditsStartNextFrame() {
 
 RenderStatistics Context::getRenderStatistics() const {
     RenderStatistics renderStatistics;
-    renderStatistics.fabricStatistics = FabricUtil::getStatistics();
+
+    FabricStatistics fabricStatistics = FabricUtil::getStatistics();
+    renderStatistics.numberOfMaterialsLoaded = fabricStatistics.numberOfMaterialsLoaded;
+    renderStatistics.numberOfGeometriesLoaded = fabricStatistics.numberOfGeometriesLoaded;
+    renderStatistics.numberOfGeometriesVisible = fabricStatistics.numberOfGeometriesVisible;
+    renderStatistics.numberOfTrianglesLoaded = fabricStatistics.numberOfTrianglesLoaded;
+    renderStatistics.numberOfTrianglesVisible = fabricStatistics.numberOfTrianglesVisible;
 
     const auto& tilesets = AssetRegistry::getInstance().getAllTilesets();
     for (const auto& tileset : tilesets) {

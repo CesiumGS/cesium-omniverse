@@ -130,15 +130,12 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def_readonly("asset_id", &AssetTroubleshootingDetails::assetId)
         .def_readonly("asset_exists_in_user_account", &AssetTroubleshootingDetails::assetExistsInUserAccount);
 
-    py::class_<FabricStatistics>(m, "FabricStatistics")
-        .def_readonly("number_of_materials_loaded", &FabricStatistics::numberOfMaterialsLoaded)
-        .def_readonly("number_of_geometries_loaded", &FabricStatistics::numberOfGeometriesLoaded)
-        .def_readonly("number_of_geometries_visible", &FabricStatistics::numberOfGeometriesVisible)
-        .def_readonly("number_of_triangles_loaded", &FabricStatistics::numberOfTrianglesLoaded)
-        .def_readonly("number_of_triangles_visible", &FabricStatistics::numberOfTrianglesVisible);
-
     py::class_<RenderStatistics>(m, "RenderStatistics")
-        .def_readonly("fabric_statistics", &RenderStatistics::fabricStatistics)
+        .def_readonly("number_of_materials_loaded", &RenderStatistics::numberOfMaterialsLoaded)
+        .def_readonly("number_of_geometries_loaded", &RenderStatistics::numberOfGeometriesLoaded)
+        .def_readonly("number_of_geometries_visible", &RenderStatistics::numberOfGeometriesVisible)
+        .def_readonly("number_of_triangles_loaded", &RenderStatistics::numberOfTrianglesLoaded)
+        .def_readonly("number_of_triangles_visible", &RenderStatistics::numberOfTrianglesVisible)
         .def_readonly("tileset_cached_bytes", &RenderStatistics::tilesetCachedBytes);
 
     py::class_<Viewport>(m, "Viewport")
