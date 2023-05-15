@@ -503,28 +503,28 @@ FabricStatistics getStatistics() {
         return statistics;
     }
 
-    auto sip = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStageReaderWriter();
 
-    const auto geometryBuckets = sip.findPrims(
+    const auto geometryBuckets = srw.findPrims(
         {omni::fabric::AttrNameAndType(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId)},
         {omni::fabric::AttrNameAndType(FabricTypes::Mesh, FabricTokens::Mesh)});
 
-    const auto materialBuckets = sip.findPrims(
+    const auto materialBuckets = srw.findPrims(
         {omni::fabric::AttrNameAndType(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId)},
         {omni::fabric::AttrNameAndType(FabricTypes::Material, FabricTokens::Material)});
 
     for (size_t bucketId = 0; bucketId < geometryBuckets.bucketCount(); bucketId++) {
-        auto paths = sip.getPathArray(geometryBuckets, bucketId);
+        auto paths = srw.getPathArray(geometryBuckets, bucketId);
         statistics.numberOfGeometriesLoaded += paths.size();
 
         auto worldVisibilityFabric =
-            sip.getAttributeArrayRd<bool>(geometryBuckets, bucketId, FabricTokens::_worldVisibility);
+            srw.getAttributeArrayRd<bool>(geometryBuckets, bucketId, FabricTokens::_worldVisibility);
         statistics.numberOfGeometriesVisible +=
             std::count(worldVisibilityFabric.begin(), worldVisibilityFabric.end(), true);
     }
 
     for (size_t bucketId = 0; bucketId < materialBuckets.bucketCount(); bucketId++) {
-        auto paths = sip.getPathArray(materialBuckets, bucketId);
+        auto paths = srw.getPathArray(materialBuckets, bucketId);
         statistics.numberOfMaterialsLoaded += paths.size();
     }
 
@@ -538,23 +538,23 @@ void destroyPrimsSpan(gsl::span<const pxr::SdfPath> paths) {
         return;
     }
 
-    auto sip = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStageReaderWriter();
 
     for (const auto& path : paths) {
-        sip.destroyPrim(omni::fabric::asInt(path));
+        srw.destroyPrim(omni::fabric::asInt(path));
     }
 
     // Prims removed from Fabric need special handling for their removal to be reflected in the Hydra render index
     // This workaround may not be needed in future Kit versions, but is needed as of Kit 104.2
     const omni::fabric::Path changeTrackingPath("/TempChangeTracking");
 
-    if (sip.getAttribute<uint64_t>(changeTrackingPath, FabricTokens::_deletedPrims) == nullptr) {
+    if (srw.getAttribute<uint64_t>(changeTrackingPath, FabricTokens::_deletedPrims) == nullptr) {
         return;
     }
 
-    const auto deletedPrimsSize = sip.getArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims);
-    sip.setArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims, deletedPrimsSize + paths.size());
-    auto deletedPrimsFabric = sip.getArrayAttributeWr<uint64_t>(changeTrackingPath, FabricTokens::_deletedPrims);
+    const auto deletedPrimsSize = srw.getArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims);
+    srw.setArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims, deletedPrimsSize + paths.size());
+    auto deletedPrimsFabric = srw.getArrayAttributeWr<uint64_t>(changeTrackingPath, FabricTokens::_deletedPrims);
 
     for (size_t i = 0; i < paths.size(); i++) {
         deletedPrimsFabric[deletedPrimsSize + i] = omni::fabric::asInt(paths[i]).path;
@@ -571,23 +571,23 @@ void destroyPrims(const std::vector<pxr::SdfPath>& paths) {
 }
 
 void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform) {
-    auto sip = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStageReaderWriter();
 
-    const auto buckets = sip.findPrims(
+    const auto buckets = srw.findPrims(
         {omni::fabric::AttrNameAndType(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId)},
         {omni::fabric::AttrNameAndType(
             FabricTypes::_cesium_localToEcefTransform, FabricTokens::_cesium_localToEcefTransform)});
 
     for (size_t bucketId = 0; bucketId < buckets.bucketCount(); bucketId++) {
         // clang-format off
-        auto tilesetIdFabric = sip.getAttributeArrayRd<int64_t>(buckets, bucketId, FabricTokens::_cesium_tilesetId);
-        auto localToEcefTransformFabric = sip.getAttributeArrayRd<pxr::GfMatrix4d>(buckets, bucketId, FabricTokens::_cesium_localToEcefTransform);
-        auto localExtentFabric = sip.getAttributeArrayRd<pxr::GfRange3d>(buckets, bucketId, FabricTokens::_localExtent);
+        auto tilesetIdFabric = srw.getAttributeArrayRd<int64_t>(buckets, bucketId, FabricTokens::_cesium_tilesetId);
+        auto localToEcefTransformFabric = srw.getAttributeArrayRd<pxr::GfMatrix4d>(buckets, bucketId, FabricTokens::_cesium_localToEcefTransform);
+        auto localExtentFabric = srw.getAttributeArrayRd<pxr::GfRange3d>(buckets, bucketId, FabricTokens::_localExtent);
 
-        auto worldPositionFabric = sip.getAttributeArrayWr<pxr::GfVec3d>(buckets, bucketId, FabricTokens::_worldPosition);
-        auto worldOrientationFabric = sip.getAttributeArrayWr<pxr::GfQuatf>(buckets, bucketId, FabricTokens::_worldOrientation);
-        auto worldScaleFabric = sip.getAttributeArrayWr<pxr::GfVec3f>(buckets, bucketId, FabricTokens::_worldScale);
-        auto worldExtentFabric = sip.getAttributeArrayWr<pxr::GfRange3d>(buckets, bucketId, FabricTokens::_worldExtent);
+        auto worldPositionFabric = srw.getAttributeArrayWr<pxr::GfVec3d>(buckets, bucketId, FabricTokens::_worldPosition);
+        auto worldOrientationFabric = srw.getAttributeArrayWr<pxr::GfQuatf>(buckets, bucketId, FabricTokens::_worldOrientation);
+        auto worldScaleFabric = srw.getAttributeArrayWr<pxr::GfVec3f>(buckets, bucketId, FabricTokens::_worldScale);
+        auto worldExtentFabric = srw.getAttributeArrayWr<pxr::GfRange3d>(buckets, bucketId, FabricTokens::_worldExtent);
         // clang-format on
 
         for (size_t i = 0; i < tilesetIdFabric.size(); i++) {
@@ -609,11 +609,11 @@ void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform
 }
 
 void setTilesetIdAndTileId(const pxr::SdfPath& path, int64_t tilesetId, int64_t tileId) {
-    auto sip = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStageReaderWriter();
 
     const auto pathFabric = omni::fabric::Path(omni::fabric::asInt(path));
-    auto tilesetIdFabric = sip.getAttributeWr<int64_t>(pathFabric, FabricTokens::_cesium_tilesetId);
-    auto tileIdFabric = sip.getAttributeWr<int64_t>(pathFabric, FabricTokens::_cesium_tileId);
+    auto tilesetIdFabric = srw.getAttributeWr<int64_t>(pathFabric, FabricTokens::_cesium_tilesetId);
+    auto tileIdFabric = srw.getAttributeWr<int64_t>(pathFabric, FabricTokens::_cesium_tileId);
 
     *tilesetIdFabric = tilesetId;
     *tileIdFabric = tileId;
