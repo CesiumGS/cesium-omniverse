@@ -49,8 +49,7 @@ void FabricGeometry::setActive(bool active) {
 void FabricGeometry::setVisibility(bool visible) {
     auto sip = UsdUtil::getFabricStageReaderWriter();
 
-    auto worldVisibilityFabric =
-        sip.getAttributeWr<bool>(omni::fabric::asInt(_path), FabricTokens::_worldVisibility);
+    auto worldVisibilityFabric = sip.getAttributeWr<bool>(omni::fabric::asInt(_path), FabricTokens::_worldVisibility);
     *worldVisibilityFabric = visible;
 }
 
@@ -63,13 +62,11 @@ const FabricGeometryDefinition& FabricGeometry::getGeometryDefinition() const {
 }
 
 void FabricGeometry::assignMaterial(std::shared_ptr<FabricMaterial> material) {
-    if (_geometryDefinition.hasMaterial())
-    {
+    if (_geometryDefinition.hasMaterial()) {
         auto sip = UsdUtil::getFabricStageReaderWriter();
         auto materialIdFabric =
             sip.getArrayAttributeWr<omni::fabric::Path>(omni::fabric::asInt(_path), FabricTokens::materialId);
-        if (materialIdFabric.size() == 1)
-        {
+        if (materialIdFabric.size() == 1) {
             materialIdFabric[0] = omni::fabric::asInt(material->getPath());
         }
     }

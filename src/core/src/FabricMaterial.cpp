@@ -69,7 +69,8 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
 
     const auto shaderPathFabricUint64 = omni::fabric::PathC(omni::fabric::asInt(shaderPath)).path;
     const auto lookupColorPathFabricUint64 = omni::fabric::PathC(omni::fabric::asInt(lookupColorPath)).path;
-    const auto textureCoordinate2dPathFabricUint64 = omni::fabric::PathC(omni::fabric::asInt(textureCoordinate2dPath)).path;
+    const auto textureCoordinate2dPathFabricUint64 =
+        omni::fabric::PathC(omni::fabric::asInt(textureCoordinate2dPath)).path;
 
     // Material
     {
@@ -105,7 +106,8 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         sip.setArrayAttributeSize(materialPathFabric, FabricTokens::_relationship_ids, relationshipCount * 2);
         sip.setArrayAttributeSize(materialPathFabric, FabricTokens::_relationship_names, relationshipCount * 2);
 
-        auto terminalNamesFabric = sip.getArrayAttributeWr<omni::fabric::Token>(materialPathFabric, FabricTokens::_terminal_names);
+        auto terminalNamesFabric =
+            sip.getArrayAttributeWr<omni::fabric::Token>(materialPathFabric, FabricTokens::_terminal_names);
         auto terminalSourceNamesFabric =
             sip.getArrayAttributeWr<omni::fabric::Token>(materialPathFabric, FabricTokens::_terminal_sourceNames);
         auto terminalSourceIdsFabric =
@@ -156,8 +158,7 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
     auto addShaderParams = [](FabricAttributesBuilder& attributes) {
         attributes.addAttribute(FabricTypes::Shader, FabricTokens::Shader);
         attributes.addAttribute(FabricTypes::info_implementationSource, FabricTokens::info_implementationSource);
-        attributes.addAttribute(
-            FabricTypes::info_mdl_sourceAsset, FabricTokens::info_mdl_sourceAsset);
+        attributes.addAttribute(FabricTypes::info_mdl_sourceAsset, FabricTokens::info_mdl_sourceAsset);
         attributes.addAttribute(
             FabricTypes::info_mdl_sourceAsset_subIdentifier, FabricTokens::info_mdl_sourceAsset_subIdentifier);
         attributes.addAttribute(FabricTypes::_paramColorSpace, FabricTokens::_paramColorSpace);
@@ -169,8 +170,7 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             FabricTokens::sourceAsset;
         // _sdrMetadata is used with the sdr registry calls.
         sip.setArrayAttributeSize(shaderPathArg, FabricTokens::_sdrMetadata, 0);
-        if (setColorSpaceEmpty)
-        {
+        if (setColorSpaceEmpty) {
             // _paramColorSpace is an array of pairs: [texture_parameter_token, color_space_enum], [texture_parameter_token, color_space_enum], ...
             sip.setArrayAttributeSize(shaderPathArg, FabricTokens::_paramColorSpace, 0);
         }
@@ -220,8 +220,7 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
 
         // texture_coordinate_2d
         {
-            const auto textureCoordinate2dPathFabric =
-                omni::fabric::Path(omni::fabric::asInt(textureCoordinate2dPath));
+            const auto textureCoordinate2dPathFabric = omni::fabric::Path(omni::fabric::asInt(textureCoordinate2dPath));
             sip.createPrim(textureCoordinate2dPathFabric);
 
             FabricAttributesBuilder attributes;

@@ -5,8 +5,8 @@
 #include "cesium/omniverse/UsdNotificationHandler.h"
 
 #include <CesiumGeospatial/Cartographic.h>
-#include <omni/fabric/SimStageWithHistory.h>
 #include <glm/glm.hpp>
+#include <omni/fabric/SimStageWithHistory.h>
 #include <pxr/usd/usd/common.h>
 #include <spdlog/logger.h>
 

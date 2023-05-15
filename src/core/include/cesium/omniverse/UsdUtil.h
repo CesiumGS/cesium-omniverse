@@ -4,8 +4,8 @@
 #include <CesiumUsdSchemas/data.h>
 #include <CesiumUsdSchemas/imagery.h>
 #include <CesiumUsdSchemas/tilesetAPI.h>
-#include <omni/fabric/SimStageWithHistory.h>
 #include <glm/glm.hpp>
+#include <omni/fabric/SimStageWithHistory.h>
 #include <pxr/base/gf/matrix4d.h>
 #include <pxr/base/gf/quatf.h>
 #include <pxr/base/gf/vec3d.h>

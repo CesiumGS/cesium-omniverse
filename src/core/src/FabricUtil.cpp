@@ -132,8 +132,7 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
     }
 }
 
-std::string
-printAttributeValue(const omni::fabric::Path& primPath, const omni::fabric::AttrNameAndType& attribute) {
+std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::fabric::AttrNameAndType& attribute) {
     auto stageInProgress = UsdUtil::getFabricStageReaderWriter();
 
     const auto attributeType = attribute.type;
