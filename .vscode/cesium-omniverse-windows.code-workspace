@@ -28,6 +28,7 @@
     // Python modules search paths:
     "python.analysis.extraPaths": [
       "${workspaceFolder}/exts/cesium.omniverse",
+      "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kernel/py",
       "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/exts/carb.audio",
       "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/exts/carb.hsscclient",
       "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/exts/carb.windowing.plugins",
@@ -356,8 +357,7 @@
       "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/extsPhysics/omni.usd.schema.physx",
       "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/extsPhysics/omni.usdphysics-105.0.7-5.1",
       "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/extsPhysics/omni.usdphysics.tests-105.0.7-5.1",
-      "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/extsPhysics/omni.usdphysics.ui-105.0.7-5.1",
-      "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kernel/py",
+      "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/extsPhysics/omni.usdphysics.ui-105.0.7-5.1"
     ],
     "python.languageServer": "Pylance",
     "python.formatting.provider": "black",

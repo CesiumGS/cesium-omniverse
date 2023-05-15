@@ -499,7 +499,7 @@ set(KIT_EXTENSION_PLUGINS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.usd.plugins/pl
 # You may see warnings like:
 #
 # CMake Warning at build/src/cmake_install.cmake:115 (file):
-#   Dependency libpython3.7m.so.1.0 found in search directory:
+#   Dependency libpython3.10.so.1.0 found in search directory:
 #     cesium-omniverse/extern/nvidia/_build/target-deps/python/lib
 #
 #   See file(GET_RUNTIME_DEPENDENCIES) documentation for more information.
