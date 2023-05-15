@@ -16,10 +16,6 @@ bool FabricAsset::isEmpty() const {
     return true;
 }
 
-bool FabricAsset::isPaddingEmpty() const {
-    return true;
-}
-
 const char* FabricAsset::getAssetPath() const {
     assert(!isEmpty());
     return _assetPath.GetText();

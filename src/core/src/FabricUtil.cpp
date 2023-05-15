@@ -63,8 +63,6 @@ std::ostream& operator<<(std::ostream& os, const AssetWrapper& assetWrapper) {
         return os;
     }
 
-    assert(assetWrapper.asset.isPaddingEmpty());
-
     os << "Asset Path: " << assetWrapper.asset.getAssetPath()
        << ", Resolved Path: " << assetWrapper.asset.getResolvedPath();
     return os;

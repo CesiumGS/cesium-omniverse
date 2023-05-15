@@ -19,7 +19,6 @@ class FabricAsset {
     FabricAsset(const pxr::SdfAssetPath& assetPath);
 
     bool isEmpty() const;
-    bool isPaddingEmpty() const;
     const char* getAssetPath() const;
     const char* getResolvedPath() const;
 
