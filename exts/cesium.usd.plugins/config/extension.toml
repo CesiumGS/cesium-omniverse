@@ -31,7 +31,6 @@ icon = "doc/images/icon.png"
 
 # Which extensions this extension depends on
 [dependencies]
-"usdrt.scenegraph" = {}
 "omni.usd.libs" = {}
 
 # Main python module this extension provides, it will be publicly available as "import cesium.usd.plugins"

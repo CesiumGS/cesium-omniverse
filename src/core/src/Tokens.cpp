@@ -7,6 +7,12 @@
 namespace pxr {
 
 // Note: variable names should match the USD token names as closely as possible, with special characters converted to underscores
+
+#ifdef CESIUM_OMNI_MSVC
+__pragma(warning(push))
+__pragma(warning(disable: 4003))
+#endif
+
 TF_DEFINE_PRIVATE_TOKENS(
     UsdTokens,
     (a)
@@ -83,6 +89,11 @@ TF_DEFINE_PRIVATE_TOKENS(
     ((info_mdl_sourceAsset, "info:mdl:sourceAsset"))
     ((info_mdl_sourceAsset_subIdentifier, "info:mdl:sourceAsset:subIdentifier"))
 );
+
+#ifdef CESIUM_OMNI_MSVC
+__pragma(warning(pop))
+#endif
+
 }
 
 namespace cesium::omniverse::FabricTokens {

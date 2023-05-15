@@ -205,7 +205,7 @@ add_prebuilt_project(
     RELEASE_LIBRARIES
         omni.fabric.plugin
     DEBUG_LIBRARIES
-        omnni.fabric.plugin
+        omni.fabric.plugin
     TARGET_NAMES
         usdrt
 )

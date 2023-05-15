@@ -36,7 +36,7 @@ See [Linux](#linux) or [Windows](#windows) for step-by-step installation instruc
 
 - Linux (Ubuntu 22.04+ or equivalent) or Windows
 - Clang 14+, GCC 9+, or Visual Studio 2022+
-- Python 3.7+ - For Conan and scripts
+- Python 3.10+ - For Conan and scripts
 - CMake 3.22+ - Build system generator
 - Make - Build system (Linux only)
 - Conan - Third party C++ library management
