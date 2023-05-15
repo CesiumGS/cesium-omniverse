@@ -110,10 +110,10 @@ template <bool IsArray, typename BaseType, uint64_t ComponentCount>
 std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::fabric::Token& attributeName) {
     using ElementType = std::array<BaseType, ComponentCount>;
 
-    auto stageInProgress = UsdUtil::getFabricStageReaderWriter();
+    auto stageReaderWriter = UsdUtil::getFabricStageReaderWriter();
 
     if constexpr (IsArray) {
-        const auto values = stageInProgress.getArrayAttributeRd<ElementType>(primPath, attributeName);
+        const auto values = stageReaderWriter.getArrayAttributeRd<ElementType>(primPath, attributeName);
         const auto elementCount = values.size();
 
         if (elementCount == 0) {
@@ -122,7 +122,7 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
 
         return printAttributeValue<BaseType>(values.front().data(), elementCount, ComponentCount, true);
     } else {
-        const auto value = stageInProgress.getAttributeRd<ElementType>(primPath, attributeName);
+        const auto value = stageReaderWriter.getAttributeRd<ElementType>(primPath, attributeName);
 
         if (value == nullptr) {
             return NO_DATA_STRING;
@@ -133,7 +133,7 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
 }
 
 std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::fabric::AttrNameAndType& attribute) {
-    auto stageInProgress = UsdUtil::getFabricStageReaderWriter();
+    auto stageReaderWriter = UsdUtil::getFabricStageReaderWriter();
 
     const auto attributeType = attribute.type;
     const auto baseType = attributeType.baseType;
@@ -458,17 +458,17 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
 std::string printFabricStage() {
     std::stringstream stream;
 
-    auto stageInProgress = UsdUtil::getFabricStageReaderWriter();
+    auto stageReaderWriter = UsdUtil::getFabricStageReaderWriter();
 
     // For extra debugging. This gets printed to the console.
-    stageInProgress.printBucketNames();
+    stageReaderWriter.printBucketNames();
 
     // This returns ALL the buckets
-    const auto& buckets = stageInProgress.findPrims({});
+    const auto& buckets = stageReaderWriter.findPrims({});
 
     for (size_t bucketId = 0; bucketId < buckets.bucketCount(); bucketId++) {
-        const auto& attributes = stageInProgress.getAttributeNamesAndTypes(buckets, bucketId);
-        const auto& primPaths = stageInProgress.getPathArray(buckets, bucketId);
+        const auto& attributes = stageReaderWriter.getAttributeNamesAndTypes(buckets, bucketId);
+        const auto& primPaths = stageReaderWriter.getPathArray(buckets, bucketId);
 
         for (const auto& primPath : primPaths) {
             const auto primPathString = primPath.getText();

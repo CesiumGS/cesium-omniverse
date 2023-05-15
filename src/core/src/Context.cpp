@@ -371,9 +371,9 @@ void Context::setStageId(long stageId) {
 
         // Set the Fabric stage
         const auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
-        const auto stageInProgressId =
+        const auto stageReaderWriterId =
             iStageReaderWriter->get(omni::fabric::UsdStageId{static_cast<uint64_t>(stageId)});
-        _fabricStageReaderWriter = omni::fabric::StageReaderWriter(stageInProgressId);
+        _fabricStageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
 
         // Repopulate the asset registry
         reloadStage();
