@@ -27,7 +27,7 @@ extern const omni::fabric::TokenC info_mdl_sourceAsset_subIdentifier;
 extern const omni::fabric::TokenC info_sourceAsset_subIdentifier;
 extern const omni::fabric::TokenC lookup_color;
 extern const omni::fabric::TokenC Material;
-extern const omni::fabric::TokenC materialId;
+extern const omni::fabric::TokenC materialBinding;
 extern const omni::fabric::TokenC Mesh;
 extern const omni::fabric::TokenC metallic_constant;
 extern const omni::fabric::TokenC multiply;
@@ -102,7 +102,7 @@ extern const pxr::TfToken& info_mdl_sourceAsset_subIdentifier;
 extern const pxr::TfToken& info_sourceAsset_subIdentifier;
 extern const pxr::TfToken& lookup_color;
 extern const pxr::TfToken& Material;
-extern const pxr::TfToken& materialId;
+extern const pxr::TfToken& materialBinding;
 extern const pxr::TfToken& Mesh;
 extern const pxr::TfToken& metallic_constant;
 extern const pxr::TfToken& multiply;
@@ -156,6 +156,8 @@ extern const pxr::TfToken& _worldVisibility;
 }
 
 namespace cesium::omniverse::FabricTypes {
+
+// Due to legacy support the eRelationship type has been defined as a scalar value but is secretly an array
 const omni::fabric::Type albedo_add(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type b(omni::fabric::BaseDataType::eFloat, 2, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type coord(omni::fabric::BaseDataType::eFloat, 2, 0, omni::fabric::AttributeRole::eTexCoord);
@@ -171,7 +173,7 @@ const omni::fabric::Type info_mdl_sourceAsset(omni::fabric::BaseDataType::eAsset
 const omni::fabric::Type info_mdl_sourceAsset_subIdentifier(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type info_sourceAsset_subIdentifier(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type Material(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName);
-const omni::fabric::Type materialId(omni::fabric::BaseDataType::eRelationship);
+const omni::fabric::Type materialBinding(omni::fabric::BaseDataType::eRelationship, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type MaterialNetwork(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName);
 const omni::fabric::Type Mesh(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName);
 const omni::fabric::Type metallic_constant(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
@@ -194,7 +196,7 @@ const omni::fabric::Type _cesium_tileId(omni::fabric::BaseDataType::eInt64, 1, 0
 const omni::fabric::Type _cesium_tilesetId(omni::fabric::BaseDataType::eInt64, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _localExtent(omni::fabric::BaseDataType::eDouble, 6, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _localMatrix(omni::fabric::BaseDataType::eDouble, 16, 0, omni::fabric::AttributeRole::eMatrix);
-const omni::fabric::Type _nodePaths(omni::fabric::BaseDataType::eRelationship);
+const omni::fabric::Type _nodePaths(omni::fabric::BaseDataType::eRelationship, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _paramColorSpace(omni::fabric::BaseDataType::eToken, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _relationship_ids(omni::fabric::BaseDataType::eInt, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _relationship_names(omni::fabric::BaseDataType::eToken, 1, 1, omni::fabric::AttributeRole::eNone);

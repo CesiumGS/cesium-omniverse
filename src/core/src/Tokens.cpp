@@ -71,7 +71,7 @@ TF_DEFINE_PRIVATE_TOKENS(
     ((info_mdl_sourceAsset_subIdentifier, "info:mdl:sourceAsset:subIdentifier"))
     ((info_sourceAsset_subIdentifier, "info:sourceAsset:subIdentifier"))
     ((lookup_color, "lookup_color"))
-    ((materialId, "material:binding"))
+    ((materialBinding, "material:binding"))
     ((metallic_constant, "inputs:metallic_constant"))
     ((multiply_float2_float2, "multiply(float2,float2)"))
     ((nvidia_support_definitions_mdl, "nvidia/support_definitions.mdl"))
@@ -117,7 +117,7 @@ const omni::fabric::TokenC info_mdl_sourceAsset_subIdentifier = omni::fabric::as
 const omni::fabric::TokenC info_sourceAsset_subIdentifier = omni::fabric::asInt(pxr::UsdTokens->info_sourceAsset_subIdentifier);
 const omni::fabric::TokenC lookup_color = omni::fabric::asInt(pxr::UsdTokens->lookup_color);
 const omni::fabric::TokenC Material = omni::fabric::asInt(pxr::UsdTokens->Material);
-const omni::fabric::TokenC materialId = omni::fabric::asInt(pxr::UsdTokens->materialId);
+const omni::fabric::TokenC materialBinding = omni::fabric::asInt(pxr::UsdTokens->materialBinding);
 const omni::fabric::TokenC Mesh = omni::fabric::asInt(pxr::UsdTokens->Mesh);
 const omni::fabric::TokenC metallic_constant = omni::fabric::asInt(pxr::UsdTokens->metallic_constant);
 const omni::fabric::TokenC multiply = omni::fabric::asInt(pxr::UsdTokens->multiply);
@@ -192,7 +192,7 @@ const pxr::TfToken& info_mdl_sourceAsset_subIdentifier = pxr::UsdTokens->info_md
 const pxr::TfToken& info_sourceAsset_subIdentifier = pxr::UsdTokens->info_sourceAsset_subIdentifier;
 const pxr::TfToken& lookup_color = pxr::UsdTokens->lookup_color;
 const pxr::TfToken& Material = pxr::UsdTokens->Material;
-const pxr::TfToken& materialId = pxr::UsdTokens->materialId;
+const pxr::TfToken& materialBinding = pxr::UsdTokens->materialBinding;
 const pxr::TfToken& Mesh = pxr::UsdTokens->Mesh;
 const pxr::TfToken& metallic_constant = pxr::UsdTokens->metallic_constant;
 const pxr::TfToken& multiply = pxr::UsdTokens->multiply;

@@ -62,13 +62,15 @@ const FabricGeometryDefinition& FabricGeometry::getGeometryDefinition() const {
 }
 
 void FabricGeometry::assignMaterial(std::shared_ptr<FabricMaterial> material) {
-    if (_geometryDefinition.hasMaterial()) {
-        auto srw = UsdUtil::getFabricStageReaderWriter();
-        auto materialIdFabric =
-            srw.getArrayAttributeWr<omni::fabric::Path>(omni::fabric::asInt(_path), FabricTokens::materialId);
-        if (materialIdFabric.size() == 1) {
-            materialIdFabric[0] = omni::fabric::asInt(material->getPath());
-        }
+    if (!_geometryDefinition.hasMaterial()) {
+        return;
+    }
+
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto materialBindingFabric =
+        srw.getArrayAttributeWr<omni::fabric::Path>(omni::fabric::asInt(_path), FabricTokens::materialBinding);
+    if (materialBindingFabric.size() == 1) {
+        materialBindingFabric[0] = omni::fabric::Path(omni::fabric::asInt(material->getPath()));
     }
 }
 
@@ -102,8 +104,7 @@ void FabricGeometry::initialize() {
     attributes.addAttribute(FabricTypes::_worldScale, FabricTokens::_worldScale);
     attributes.addAttribute(FabricTypes::doubleSided, FabricTokens::doubleSided);
     attributes.addAttribute(FabricTypes::subdivisionScheme, FabricTokens::subdivisionScheme);
-
-    attributes.addAttribute(FabricTypes::materialId, FabricTokens::materialId);
+    attributes.addAttribute(FabricTypes::materialBinding, FabricTokens::materialBinding);
 
     if (hasTexcoords) {
         attributes.addAttribute(FabricTypes::primvars_st, FabricTokens::primvars_st);
@@ -140,7 +141,7 @@ void FabricGeometry::initialize() {
 
     srw.setArrayAttributeSize(pathFabric, FabricTokens::primvars, primvarsCount);
     srw.setArrayAttributeSize(pathFabric, FabricTokens::primvarInterpolations, primvarsCount);
-    srw.setArrayAttributeSize(pathFabric, FabricTokens::materialId, hasMaterial ? 1 : 0);
+    srw.setArrayAttributeSize(pathFabric, FabricTokens::materialBinding, hasMaterial ? 1 : 0);
 
     // clang-format off
     auto primvarsFabric = srw.getArrayAttributeWr<omni::fabric::Token>(pathFabric, FabricTokens::primvars);
