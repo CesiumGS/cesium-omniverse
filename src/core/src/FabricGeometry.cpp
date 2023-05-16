@@ -68,9 +68,9 @@ void FabricGeometry::assignMaterial(std::shared_ptr<FabricMaterial> material) {
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
     auto materialBindingFabric =
-        srw.getArrayAttributeWr<omni::fabric::Path>(omni::fabric::asInt(_path), FabricTokens::materialBinding);
+        srw.getArrayAttributeWr<uint64_t>(omni::fabric::asInt(_path), FabricTokens::materialBinding);
     if (materialBindingFabric.size() == 1) {
-        materialBindingFabric[0] = omni::fabric::Path(omni::fabric::asInt(material->getPath()));
+        materialBindingFabric[0] = omni::fabric::asInt(material->getPath()).path;
     }
 }
 

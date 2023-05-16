@@ -1,6 +1,5 @@
 #include "cesium/omniverse/FabricUtil.h"
 
-#include "cesium/omniverse/FabricAsset.h"
 #include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
@@ -51,20 +50,20 @@ std::ostream& operator<<(std::ostream& os, const BoolWrapper& boolWrapper) {
 
 class AssetWrapper {
   private:
-    FabricAsset asset;
+    omni::fabric::AssetPath asset;
 
   public:
     friend std::ostream& operator<<(std::ostream& os, const AssetWrapper& assetWrapper);
 };
 
 std::ostream& operator<<(std::ostream& os, const AssetWrapper& assetWrapper) {
-    if (assetWrapper.asset.isEmpty()) {
+    if (assetWrapper.asset.assetPath.IsEmpty()) {
         os << NO_DATA_STRING;
         return os;
     }
 
-    os << "Asset Path: " << assetWrapper.asset.getAssetPath()
-       << ", Resolved Path: " << assetWrapper.asset.getResolvedPath();
+    os << "Asset Path: " << assetWrapper.asset.assetPath.GetText()
+       << ", Resolved Path: " << assetWrapper.asset.resolvedPath.GetText();
     return os;
 }
 
@@ -294,7 +293,7 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
             case omni::fabric::BaseDataType::eRelationship: {
                 switch (componentCount) {
                     case 1: {
-                        return printAttributeValue<true, int64_t, 1>(primPath, name);
+                        return printAttributeValue<true, uint64_t, 1>(primPath, name);
                     }
                     default: {
                         break;

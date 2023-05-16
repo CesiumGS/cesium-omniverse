@@ -81,9 +81,10 @@ TF_DEFINE_PRIVATE_TOKENS(
     ((multiply_float2_float2, "multiply(float2,float2)"))
     ((nvidia_support_definitions_mdl, "nvidia/support_definitions.mdl"))
     ((OmniPBR_mdl, "OmniPBR.mdl"))
-    ((outputs_displacement, "outputs:displacement"))
+    ((outputs_mdl_displacement, "outputs:mdl:displacement"))
+    ((outputs_mdl_surface, "outputs:mdl:surface"))
+    ((outputs_mdl_volume, "outputs:mdl:volume"))
     ((outputs_out, "outputs:out"))
-    ((outputs_surface, "outputs:surface"))
     ((primvars_displayColor, "primvars:displayColor"))
     ((primvars_normals, "primvars:normals"))
     ((primvars_st, "primvars:st"))
@@ -132,9 +133,10 @@ const omni::fabric::TokenC nvidia_support_definitions_mdl = omni::fabric::asInt(
 const omni::fabric::TokenC OmniPBR = omni::fabric::asInt(pxr::UsdTokens->OmniPBR);
 const omni::fabric::TokenC OmniPBR_mdl = omni::fabric::asInt(pxr::UsdTokens->OmniPBR_mdl);
 const omni::fabric::TokenC out = omni::fabric::asInt(pxr::UsdTokens->out);
-const omni::fabric::TokenC outputs_displacement = omni::fabric::asInt(pxr::UsdTokens->outputs_displacement);
+const omni::fabric::TokenC outputs_mdl_displacement = omni::fabric::asInt(pxr::UsdTokens->outputs_mdl_displacement);
+const omni::fabric::TokenC outputs_mdl_surface = omni::fabric::asInt(pxr::UsdTokens->outputs_mdl_surface);
+const omni::fabric::TokenC outputs_mdl_volume = omni::fabric::asInt(pxr::UsdTokens->outputs_mdl_volume);
 const omni::fabric::TokenC outputs_out = omni::fabric::asInt(pxr::UsdTokens->outputs_out);
-const omni::fabric::TokenC outputs_surface = omni::fabric::asInt(pxr::UsdTokens->outputs_surface);
 const omni::fabric::TokenC points = omni::fabric::asInt(pxr::UsdTokens->points);
 const omni::fabric::TokenC primvarInterpolations = omni::fabric::asInt(pxr::UsdTokens->primvarInterpolations);
 const omni::fabric::TokenC primvars = omni::fabric::asInt(pxr::UsdTokens->primvars);
@@ -207,9 +209,10 @@ const pxr::TfToken& nvidia_support_definitions_mdl = pxr::UsdTokens->nvidia_supp
 const pxr::TfToken& OmniPBR = pxr::UsdTokens->OmniPBR;
 const pxr::TfToken& OmniPBR_mdl = pxr::UsdTokens->OmniPBR_mdl;
 const pxr::TfToken& out = pxr::UsdTokens->out;
-const pxr::TfToken& outputs_displacement = pxr::UsdTokens->outputs_displacement;
+const pxr::TfToken& outputs_mdl_displacement = pxr::UsdTokens->outputs_mdl_displacement;
+const pxr::TfToken& outputs_mdl_surface = pxr::UsdTokens->outputs_mdl_surface;
+const pxr::TfToken& outputs_mdl_volume = pxr::UsdTokens->outputs_mdl_volume;
 const pxr::TfToken& outputs_out = pxr::UsdTokens->outputs_out;
-const pxr::TfToken& outputs_surface = pxr::UsdTokens->outputs_surface;
 const pxr::TfToken& points = pxr::UsdTokens->points;
 const pxr::TfToken& primvarInterpolations = pxr::UsdTokens->primvarInterpolations;
 const pxr::TfToken& primvars = pxr::UsdTokens->primvars;
