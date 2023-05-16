@@ -528,8 +528,18 @@ FabricStatistics getStatistics() {
 
         auto worldVisibilityFabric =
             srw.getAttributeArrayRd<bool>(geometryBuckets, bucketId, FabricTokens::_worldVisibility);
-        statistics.numberOfGeometriesVisible +=
-            std::count(worldVisibilityFabric.begin(), worldVisibilityFabric.end(), true);
+        auto faceVertexCountsFabric =
+            srw.getArrayAttributeArrayRd<int>(geometryBuckets, bucketId, FabricTokens::faceVertexCounts);
+
+        for (size_t i = 0; i < paths.size(); i++) {
+            const auto triangleCount = faceVertexCountsFabric[i].size();
+            statistics.numberOfTrianglesLoaded += triangleCount;
+
+            if (worldVisibilityFabric[i]) {
+                statistics.numberOfGeometriesVisible++;
+                statistics.numberOfTrianglesVisible += triangleCount;
+            }
+        }
     }
 
     for (size_t bucketId = 0; bucketId < materialBuckets.bucketCount(); bucketId++) {

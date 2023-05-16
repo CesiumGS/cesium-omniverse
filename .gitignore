@@ -61,3 +61,6 @@ exts/cesium.omniverse/doc/resources/*
 
 # Test output
 _testoutput
+
+# Packman user files
+*.user

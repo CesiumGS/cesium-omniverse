@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cesium/omniverse/RenderStatistics.h"
 #include "cesium/omniverse/SetDefaultTokenResult.h"
 #include "cesium/omniverse/TokenTroubleshooter.h"
 #include "cesium/omniverse/UsdNotificationHandler.h"
@@ -118,6 +119,8 @@ class Context {
     bool creditsAvailable() const;
     std::vector<std::pair<std::string, bool>> getCredits() const;
     void creditsStartNextFrame();
+
+    RenderStatistics getRenderStatistics() const;
 
   private:
     void processPropertyChanged(const ChangedPrim& changedPrim);

@@ -1,5 +1,10 @@
 # Change Log
 
+### v0.6.1 - 2023-05-11
+
+- Added `premake5.lua` to `cesium.omniverse` and `cesium.usd.plugins` to better support Kit templates.
+- Fixed crash in the Cesium Debugging window when reloading a stage.
+
 ### v0.6.0 - 2023-05-04
 
 - Added option to show credits on screen.
