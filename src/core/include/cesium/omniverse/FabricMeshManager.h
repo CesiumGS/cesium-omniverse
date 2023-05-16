@@ -83,7 +83,7 @@ class FabricMeshManager {
     std::vector<std::shared_ptr<FabricGeometryPool>> _geometryPools;
     std::vector<std::shared_ptr<FabricMaterialPool>> _materialPools;
 
-    bool _debugDisableGeometryPool{true};
+    bool _debugDisableGeometryPool{false};
     bool _debugDisableMaterialPool{false};
 
     std::atomic<int64_t> _geometryId{0};
