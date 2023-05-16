@@ -42,8 +42,6 @@ class FabricMaterial {
 
     pxr::SdfPath _materialPath;
     pxr::SdfPath _shaderPath;
-    pxr::SdfPath _displacementPath;
-    pxr::SdfPath _surfacePath;
 
     std::unique_ptr<omni::ui::DynamicTextureProvider> _baseColorTexture;
 };

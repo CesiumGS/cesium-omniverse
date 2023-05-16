@@ -36,8 +36,6 @@ FabricMaterial::FabricMaterial(pxr::SdfPath path, const FabricMaterialDefinition
 FabricMaterial::~FabricMaterial() {
     FabricUtil::destroyPrim(_materialPath);
     FabricUtil::destroyPrim(_shaderPath);
-    FabricUtil::destroyPrim(_displacementPath);
-    FabricUtil::destroyPrim(_surfacePath);
 }
 
 void FabricMaterial::setActive(bool active) {
@@ -58,12 +56,10 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
     const auto hasBaseColorTexture = materialDefinition.hasBaseColorTexture();
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
-    auto isip = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+    auto isrw = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
 
     const auto materialPath = path;
     const auto shaderPath = materialPath.AppendChild(UsdTokens::Shader);
-    const auto displacementPath = materialPath.AppendChild(UsdTokens::displacement);
-    const auto surfacePath = materialPath.AppendChild(UsdTokens::surface);
     const auto lookupColorPath = materialPath.AppendChild(UsdTokens::lookup_color);
     const auto textureCoordinate2dPath = materialPath.AppendChild(UsdTokens::texture_coordinate_2d);
 
@@ -198,7 +194,7 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         setShaderParams(shaderPathFabric);
 
         // clang-format off
-        auto infoMdlSourceAssetSpan = isip->getAttributeWr(srw.getId(), shaderPathFabric, FabricTokens::info_mdl_sourceAsset);
+        auto infoMdlSourceAssetSpan = isrw->getAttributeWr(srw.getId(), shaderPathFabric, FabricTokens::info_mdl_sourceAsset);
         auto* infoMdlSourceAsset = reinterpret_cast<omni::fabric::AssetPath*>(infoMdlSourceAssetSpan.ptr);
         auto infoMdlSourceAssetSubIdentifierFabric = srw.getAttributeWr<omni::fabric::Token>(shaderPathFabric, FabricTokens::info_mdl_sourceAsset_subIdentifier);
         auto specularLevelFabric = srw.getAttributeWr<float>(shaderPathFabric, FabricTokens::specular_level);
@@ -236,7 +232,7 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             setShaderParams(textureCoordinate2dPathFabric);
 
             // clang-format off
-            auto infoMdlSourceAssetSpan = isip->getAttributeWr(srw.getId(), textureCoordinate2dPathFabric, FabricTokens::info_mdl_sourceAsset);
+            auto infoMdlSourceAssetSpan = isrw->getAttributeWr(srw.getId(), textureCoordinate2dPathFabric, FabricTokens::info_mdl_sourceAsset);
             auto* infoMdlSourceAsset = reinterpret_cast<omni::fabric::AssetPath*>(infoMdlSourceAssetSpan.ptr);
             auto infoMdlSourceAssetSubIdentifierFabric = srw.getAttributeWr<omni::fabric::Token>(textureCoordinate2dPathFabric, FabricTokens::info_mdl_sourceAsset_subIdentifier);
             // clang-format on
@@ -273,9 +269,9 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             auto wrapUFabric = srw.getAttributeWr<int>(lookupColorPathFabric, FabricTokens::wrap_u);
             auto wrapVFabric = srw.getAttributeWr<int>(lookupColorPathFabric, FabricTokens::wrap_v);
             auto coordFabric = srw.getAttributeWr<pxr::GfVec2f>(lookupColorPathFabric, FabricTokens::coord);
-            auto texFabricSpan = isip->getAttributeWr(srw.getId(), lookupColorPathFabric, FabricTokens::tex);
+            auto texFabricSpan = isrw->getAttributeWr(srw.getId(), lookupColorPathFabric, FabricTokens::tex);
             auto* texFabric = reinterpret_cast<omni::fabric::AssetPath*>(texFabricSpan.ptr);
-            auto infoMdlSourceAssetSpan = isip->getAttributeWr(srw.getId(), lookupColorPathFabric, FabricTokens::info_mdl_sourceAsset);
+            auto infoMdlSourceAssetSpan = isrw->getAttributeWr(srw.getId(), lookupColorPathFabric, FabricTokens::info_mdl_sourceAsset);
             auto* infoMdlSourceAsset = reinterpret_cast<omni::fabric::AssetPath*>(infoMdlSourceAssetSpan.ptr);
             auto infoMdlSourceAssetSubIdentifierFabric = srw.getAttributeWr<omni::fabric::Token>(lookupColorPathFabric, FabricTokens::info_mdl_sourceAsset_subIdentifier);
             auto paramColorSpaceFabric = srw.getArrayAttributeWr<omni::fabric::Token>(lookupColorPathFabric, FabricTokens::_paramColorSpace);
@@ -296,8 +292,6 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
 
     _materialPath = materialPath;
     _shaderPath = shaderPath;
-    _displacementPath = displacementPath;
-    _surfacePath = surfacePath;
 
     reset();
 }

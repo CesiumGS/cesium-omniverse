@@ -116,6 +116,8 @@ void FabricGeometry::initialize() {
 
     attributes.createAttributes(pathFabric);
 
+    srw.setArrayAttributeSize(pathFabric, FabricTokens::materialBinding, hasMaterial ? 1 : 0);
+
     // clang-format off
     auto doubleSidedFabric = srw.getAttributeWr<bool>(pathFabric, FabricTokens::doubleSided);
     auto subdivisionSchemeFabric = srw.getAttributeWr<omni::fabric::Token>(pathFabric, FabricTokens::subdivisionScheme);
@@ -141,7 +143,6 @@ void FabricGeometry::initialize() {
 
     srw.setArrayAttributeSize(pathFabric, FabricTokens::primvars, primvarsCount);
     srw.setArrayAttributeSize(pathFabric, FabricTokens::primvarInterpolations, primvarsCount);
-    srw.setArrayAttributeSize(pathFabric, FabricTokens::materialBinding, hasMaterial ? 1 : 0);
 
     // clang-format off
     auto primvarsFabric = srw.getArrayAttributeWr<omni::fabric::Token>(pathFabric, FabricTokens::primvars);
@@ -175,16 +176,17 @@ void FabricGeometry::reset() {
     auto srw = UsdUtil::getFabricStageReaderWriter();
     const auto pathFabric = omni::fabric::Path(omni::fabric::asInt(_path));
 
+    // clang-format off
     auto localExtentFabric = srw.getAttributeWr<pxr::GfRange3d>(pathFabric, FabricTokens::_localExtent);
     auto worldExtentFabric = srw.getAttributeWr<pxr::GfRange3d>(pathFabric, FabricTokens::_worldExtent);
     auto worldVisibilityFabric = srw.getAttributeWr<bool>(pathFabric, FabricTokens::_worldVisibility);
     auto tilesetIdFabric = srw.getAttributeWr<int64_t>(pathFabric, FabricTokens::_cesium_tilesetId);
     auto tileIdFabric = srw.getAttributeWr<int64_t>(pathFabric, FabricTokens::_cesium_tileId);
-    auto localToEcefTransformFabric =
-        srw.getAttributeWr<pxr::GfMatrix4d>(pathFabric, FabricTokens::_cesium_localToEcefTransform);
+    auto localToEcefTransformFabric = srw.getAttributeWr<pxr::GfMatrix4d>(pathFabric, FabricTokens::_cesium_localToEcefTransform);
     auto worldPositionFabric = srw.getAttributeWr<pxr::GfVec3d>(pathFabric, FabricTokens::_worldPosition);
     auto worldOrientationFabric = srw.getAttributeWr<pxr::GfQuatf>(pathFabric, FabricTokens::_worldOrientation);
     auto worldScaleFabric = srw.getAttributeWr<pxr::GfVec3f>(pathFabric, FabricTokens::_worldScale);
+    // clang-format on
 
     *localExtentFabric = DEFAULT_EXTENT;
     *worldExtentFabric = DEFAULT_EXTENT;

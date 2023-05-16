@@ -157,7 +157,7 @@ extern const pxr::TfToken& _worldVisibility;
 
 namespace cesium::omniverse::FabricTypes {
 
-// Due to legacy support the eRelationship type has been defined as a scalar value but is secretly an array
+// Due to legacy support the eRelationship type is defined as a scalar value but is secretly an array
 const omni::fabric::Type albedo_add(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type b(omni::fabric::BaseDataType::eFloat, 2, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type coord(omni::fabric::BaseDataType::eFloat, 2, 0, omni::fabric::AttributeRole::eTexCoord);

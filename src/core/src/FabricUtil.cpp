@@ -144,17 +144,6 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
     // We can add more as needed.
     if (arrayDepth == 0) {
         switch (baseType) {
-            case omni::fabric::BaseDataType::eRelationship: {
-                switch (componentCount) {
-                    case 1: {
-                        return printAttributeValue<false, RelationshipWrapper, 1>(primPath, name);
-                    }
-                    default: {
-                        break;
-                    }
-                }
-                break;
-            }
             case omni::fabric::BaseDataType::eAsset: {
                 switch (componentCount) {
                     case 1: {
@@ -301,12 +290,7 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
                 }
                 break;
             }
-            default: {
-                break;
-            }
-        }
-    } else if (arrayDepth == 1) {
-        switch (baseType) {
+            // Due to legacy support the eRelationship type is defined as a scalar value but is secretly an array
             case omni::fabric::BaseDataType::eRelationship: {
                 switch (componentCount) {
                     case 1: {
@@ -318,6 +302,12 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
                 }
                 break;
             }
+            default: {
+                break;
+            }
+        }
+    } else if (arrayDepth == 1) {
+        switch (baseType) {
             case omni::fabric::BaseDataType::eAsset: {
                 switch (componentCount) {
                     case 1: {
