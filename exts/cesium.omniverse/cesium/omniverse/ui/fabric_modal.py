@@ -19,7 +19,6 @@ class CesiumFabricModal(ui.Window):
         carb.settings.get_settings().set_bool("/app/useFabricSceneDelegate", True)
         carb.settings.get_settings().set_bool("/app/usdrt/scene_delegate/enableProxyCubes", False)
         carb.settings.get_settings().set_bool("/app/usdrt/scene_delegate/geometryStreaming/enabled", False)
-        carb.settings.get_settings().set_bool("/app/omnihydra/parallelHydraSprimSync", False)
         omni.kit.window.file.new()
         self.visible = False
 
