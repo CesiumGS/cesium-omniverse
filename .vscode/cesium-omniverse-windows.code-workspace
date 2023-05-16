@@ -30,6 +30,7 @@
       "${workspaceFolder}/exts/cesium.omniverse",
       "${workspaceFolder}/extern/nvidia/app/kit/extscore/omni.kit.pip_archive/pip_prebundle",
       "${workspaceFolder}/extern/nvidia/app/kit/plugins/bindings-python",
+      "${workspaceFolder}/extern/nvidia/app/kit/kernel/py",
       "${workspaceFolder}/extern/nvidia/app/extscache/kaolin_app.research.dataset_visualizer-1.0.0+cp37",
       "${workspaceFolder}/extern/nvidia/app/extscache/kaolin_app.research.training_visualizer-1.0.0+cp37",
       "${workspaceFolder}/extern/nvidia/app/extscache/kaolin_app.research.utils-1.0.0+cp37",
