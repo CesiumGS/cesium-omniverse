@@ -63,16 +63,21 @@ TF_DEFINE_PRIVATE_TOKENS(
     (_worldVisibility)
     ((_auto, "auto"))
     ((add_float2_float2, "add(float2,float2)"))
-    ((coord, "inputs:coord"))
-    ((diffuse_color_constant, "inputs:diffuse_color_constant"))
     ((info_id, "info:id"))
     ((info_implementationSource, "info:implementationSource"))
     ((info_mdl_sourceAsset, "info:mdl:sourceAsset"))
     ((info_mdl_sourceAsset_subIdentifier, "info:mdl:sourceAsset:subIdentifier"))
     ((info_sourceAsset_subIdentifier, "info:sourceAsset:subIdentifier"))
+    ((inputs_coord, "inputs:coord"))
+    ((inputs_diffuse_color_constant, "inputs:diffuse_color_constant"))
+    ((inputs_metallic_constant, "inputs:metallic_constant"))
+    ((inputs_reflection_roughness_constant, "inputs:reflection_roughness_constant"))
+    ((inputs_specular_level, "inputs:specular_level"))
+    ((inputs_tex, "inputs:tex"))
+    ((inputs_wrap_u, "inputs:wrap_u"))
+    ((inputs_wrap_v, "inputs:wrap_v"))
     ((lookup_color, "lookup_color"))
     ((materialBinding, "material:binding"))
-    ((metallic_constant, "inputs:metallic_constant"))
     ((multiply_float2_float2, "multiply(float2,float2)"))
     ((nvidia_support_definitions_mdl, "nvidia/support_definitions.mdl"))
     ((OmniPBR_mdl, "OmniPBR.mdl"))
@@ -82,11 +87,6 @@ TF_DEFINE_PRIVATE_TOKENS(
     ((primvars_displayColor, "primvars:displayColor"))
     ((primvars_normals, "primvars:normals"))
     ((primvars_st, "primvars:st"))
-    ((reflection_roughness_constant, "inputs:reflection_roughness_constant"))
-    ((specular_level, "inputs:specular_level"))
-    ((tex, "inputs:tex"))
-    ((wrap_u, "inputs:wrap_u"))
-    ((wrap_v, "inputs:wrap_v"))
 );
 
 #ifdef CESIUM_OMNI_MSVC
@@ -102,8 +102,6 @@ const omni::fabric::TokenC add_float2_float2 = omni::fabric::asInt(pxr::UsdToken
 const omni::fabric::TokenC albedo_add = omni::fabric::asInt(pxr::UsdTokens->albedo_add);
 const omni::fabric::TokenC b = omni::fabric::asInt(pxr::UsdTokens->b);
 const omni::fabric::TokenC constant = omni::fabric::asInt(pxr::UsdTokens->constant);
-const omni::fabric::TokenC coord = omni::fabric::asInt(pxr::UsdTokens->coord);
-const omni::fabric::TokenC diffuse_color_constant = omni::fabric::asInt(pxr::UsdTokens->diffuse_color_constant);
 const omni::fabric::TokenC diffuse_texture = omni::fabric::asInt(pxr::UsdTokens->diffuse_texture);
 const omni::fabric::TokenC displacement = omni::fabric::asInt(pxr::UsdTokens->displacement);
 const omni::fabric::TokenC doubleSided = omni::fabric::asInt(pxr::UsdTokens->doubleSided);
@@ -115,11 +113,18 @@ const omni::fabric::TokenC info_implementationSource = omni::fabric::asInt(pxr::
 const omni::fabric::TokenC info_mdl_sourceAsset = omni::fabric::asInt(pxr::UsdTokens->info_mdl_sourceAsset);
 const omni::fabric::TokenC info_mdl_sourceAsset_subIdentifier = omni::fabric::asInt(pxr::UsdTokens->info_mdl_sourceAsset_subIdentifier);
 const omni::fabric::TokenC info_sourceAsset_subIdentifier = omni::fabric::asInt(pxr::UsdTokens->info_sourceAsset_subIdentifier);
+const omni::fabric::TokenC inputs_coord = omni::fabric::asInt(pxr::UsdTokens->inputs_coord);
+const omni::fabric::TokenC inputs_diffuse_color_constant = omni::fabric::asInt(pxr::UsdTokens->inputs_diffuse_color_constant);
+const omni::fabric::TokenC inputs_metallic_constant = omni::fabric::asInt(pxr::UsdTokens->inputs_metallic_constant);
+const omni::fabric::TokenC inputs_reflection_roughness_constant = omni::fabric::asInt(pxr::UsdTokens->inputs_reflection_roughness_constant);
+const omni::fabric::TokenC inputs_specular_level = omni::fabric::asInt(pxr::UsdTokens->inputs_specular_level);
+const omni::fabric::TokenC inputs_tex = omni::fabric::asInt(pxr::UsdTokens->inputs_tex);
+const omni::fabric::TokenC inputs_wrap_u = omni::fabric::asInt(pxr::UsdTokens->inputs_wrap_u);
+const omni::fabric::TokenC inputs_wrap_v = omni::fabric::asInt(pxr::UsdTokens->inputs_wrap_v);
 const omni::fabric::TokenC lookup_color = omni::fabric::asInt(pxr::UsdTokens->lookup_color);
 const omni::fabric::TokenC Material = omni::fabric::asInt(pxr::UsdTokens->Material);
 const omni::fabric::TokenC materialBinding = omni::fabric::asInt(pxr::UsdTokens->materialBinding);
 const omni::fabric::TokenC Mesh = omni::fabric::asInt(pxr::UsdTokens->Mesh);
-const omni::fabric::TokenC metallic_constant = omni::fabric::asInt(pxr::UsdTokens->metallic_constant);
 const omni::fabric::TokenC multiply = omni::fabric::asInt(pxr::UsdTokens->multiply);
 const omni::fabric::TokenC multiply_float2_float2 = omni::fabric::asInt(pxr::UsdTokens->multiply_float2_float2);
 const omni::fabric::TokenC none = omni::fabric::asInt(pxr::UsdTokens->none);
@@ -136,18 +141,13 @@ const omni::fabric::TokenC primvars = omni::fabric::asInt(pxr::UsdTokens->primva
 const omni::fabric::TokenC primvars_displayColor = omni::fabric::asInt(pxr::UsdTokens->primvars_displayColor);
 const omni::fabric::TokenC primvars_normals = omni::fabric::asInt(pxr::UsdTokens->primvars_normals);
 const omni::fabric::TokenC primvars_st = omni::fabric::asInt(pxr::UsdTokens->primvars_st);
-const omni::fabric::TokenC reflection_roughness_constant = omni::fabric::asInt(pxr::UsdTokens->reflection_roughness_constant);
 const omni::fabric::TokenC Shader = omni::fabric::asInt(pxr::UsdTokens->Shader);
 const omni::fabric::TokenC sourceAsset = omni::fabric::asInt(pxr::UsdTokens->sourceAsset);
-const omni::fabric::TokenC specular_level = omni::fabric::asInt(pxr::UsdTokens->specular_level);
 const omni::fabric::TokenC subdivisionScheme = omni::fabric::asInt(pxr::UsdTokens->subdivisionScheme);
 const omni::fabric::TokenC surface = omni::fabric::asInt(pxr::UsdTokens->surface);
-const omni::fabric::TokenC tex = omni::fabric::asInt(pxr::UsdTokens->tex);
 const omni::fabric::TokenC texture_coordinate_2d = omni::fabric::asInt(pxr::UsdTokens->texture_coordinate_2d);
 const omni::fabric::TokenC vertex = omni::fabric::asInt(pxr::UsdTokens->vertex);
 const omni::fabric::TokenC visibility = omni::fabric::asInt(pxr::UsdTokens->visibility);
-const omni::fabric::TokenC wrap_u = omni::fabric::asInt(pxr::UsdTokens->wrap_u);
-const omni::fabric::TokenC wrap_v = omni::fabric::asInt(pxr::UsdTokens->wrap_v);
 const omni::fabric::TokenC _auto = omni::fabric::asInt(pxr::UsdTokens->_auto);
 const omni::fabric::TokenC _cesium_localToEcefTransform = omni::fabric::asInt(pxr::UsdTokens->_cesium_localToEcefTransform);
 const omni::fabric::TokenC _cesium_tileId = omni::fabric::asInt(pxr::UsdTokens->_cesium_tileId);
@@ -177,8 +177,6 @@ const pxr::TfToken& add_float2_float2 = pxr::UsdTokens->add_float2_float2;
 const pxr::TfToken& albedo_add = pxr::UsdTokens->albedo_add;
 const pxr::TfToken& b = pxr::UsdTokens->b;
 const pxr::TfToken& constant = pxr::UsdTokens->constant;
-const pxr::TfToken& coord = pxr::UsdTokens->coord;
-const pxr::TfToken& diffuse_color_constant = pxr::UsdTokens->diffuse_color_constant;
 const pxr::TfToken& diffuse_texture = pxr::UsdTokens->diffuse_texture;
 const pxr::TfToken& displacement = pxr::UsdTokens->displacement;
 const pxr::TfToken& doubleSided = pxr::UsdTokens->doubleSided;
@@ -190,11 +188,18 @@ const pxr::TfToken& info_implementationSource = pxr::UsdTokens->info_implementat
 const pxr::TfToken& info_mdl_sourceAsset = pxr::UsdTokens->info_mdl_sourceAsset;
 const pxr::TfToken& info_mdl_sourceAsset_subIdentifier = pxr::UsdTokens->info_mdl_sourceAsset_subIdentifier;
 const pxr::TfToken& info_sourceAsset_subIdentifier = pxr::UsdTokens->info_sourceAsset_subIdentifier;
+const pxr::TfToken& inputs_coord = pxr::UsdTokens->inputs_coord;
+const pxr::TfToken& inputs_diffuse_color_constant = pxr::UsdTokens->inputs_diffuse_color_constant;
+const pxr::TfToken& inputs_metallic_constant = pxr::UsdTokens->inputs_metallic_constant;
+const pxr::TfToken& inputs_reflection_roughness_constant = pxr::UsdTokens->inputs_reflection_roughness_constant;
+const pxr::TfToken& inputs_specular_level = pxr::UsdTokens->inputs_specular_level;
+const pxr::TfToken& inputs_tex = pxr::UsdTokens->inputs_tex;
+const pxr::TfToken& inputs_wrap_u = pxr::UsdTokens->inputs_wrap_u;
+const pxr::TfToken& inputs_wrap_v = pxr::UsdTokens->inputs_wrap_v;
 const pxr::TfToken& lookup_color = pxr::UsdTokens->lookup_color;
 const pxr::TfToken& Material = pxr::UsdTokens->Material;
 const pxr::TfToken& materialBinding = pxr::UsdTokens->materialBinding;
 const pxr::TfToken& Mesh = pxr::UsdTokens->Mesh;
-const pxr::TfToken& metallic_constant = pxr::UsdTokens->metallic_constant;
 const pxr::TfToken& multiply = pxr::UsdTokens->multiply;
 const pxr::TfToken& multiply_float2_float2 = pxr::UsdTokens->multiply_float2_float2;
 const pxr::TfToken& none = pxr::UsdTokens->none;
@@ -211,18 +216,13 @@ const pxr::TfToken& primvars = pxr::UsdTokens->primvars;
 const pxr::TfToken& primvars_displayColor = pxr::UsdTokens->primvars_displayColor;
 const pxr::TfToken& primvars_normals = pxr::UsdTokens->primvars_normals;
 const pxr::TfToken& primvars_st = pxr::UsdTokens->primvars_st;
-const pxr::TfToken& reflection_roughness_constant = pxr::UsdTokens->reflection_roughness_constant;
 const pxr::TfToken& Shader = pxr::UsdTokens->Shader;
 const pxr::TfToken& sourceAsset = pxr::UsdTokens->sourceAsset;
-const pxr::TfToken& specular_level = pxr::UsdTokens->specular_level;
 const pxr::TfToken& subdivisionScheme = pxr::UsdTokens->subdivisionScheme;
 const pxr::TfToken& surface = pxr::UsdTokens->surface;
-const pxr::TfToken& tex = pxr::UsdTokens->tex;
 const pxr::TfToken& texture_coordinate_2d = pxr::UsdTokens->texture_coordinate_2d;
 const pxr::TfToken& vertex = pxr::UsdTokens->vertex;
 const pxr::TfToken& visibility = pxr::UsdTokens->visibility;
-const pxr::TfToken& wrap_u = pxr::UsdTokens->wrap_u;
-const pxr::TfToken& wrap_v = pxr::UsdTokens->wrap_v;
 const pxr::TfToken& _auto = pxr::UsdTokens->_auto;
 const pxr::TfToken& _cesium_localToEcefTransform = pxr::UsdTokens->_cesium_localToEcefTransform;
 const pxr::TfToken& _cesium_tileId = pxr::UsdTokens->_cesium_tileId;

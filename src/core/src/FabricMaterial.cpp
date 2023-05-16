@@ -134,7 +134,7 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
 
                 // in
                 relationshipIdsFabric[1] = 1; // lookup color
-                relationshipNamesFabric[1] = FabricTokens::coord;
+                relationshipNamesFabric[1] = FabricTokens::inputs_coord;
             }
 
             {
@@ -144,7 +144,7 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
 
                 // in
                 relationshipIdsFabric[3] = 0; // shader
-                relationshipNamesFabric[3] = FabricTokens::diffuse_color_constant;
+                relationshipNamesFabric[3] = FabricTokens::inputs_diffuse_color_constant;
             }
         } else {
             nodePathsFabric[0] = shaderPathFabricUint64;
@@ -181,10 +181,10 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
 
         // clang-format off
         addShaderParams(attributes);
-        attributes.addAttribute(FabricTypes::diffuse_color_constant, FabricTokens::diffuse_color_constant);
-        attributes.addAttribute(FabricTypes::metallic_constant, FabricTokens::metallic_constant);
-        attributes.addAttribute(FabricTypes::reflection_roughness_constant, FabricTokens::reflection_roughness_constant);
-        attributes.addAttribute(FabricTypes::specular_level, FabricTokens::specular_level);
+        attributes.addAttribute(FabricTypes::inputs_diffuse_color_constant, FabricTokens::inputs_diffuse_color_constant);
+        attributes.addAttribute(FabricTypes::inputs_metallic_constant, FabricTokens::inputs_metallic_constant);
+        attributes.addAttribute(FabricTypes::inputs_reflection_roughness_constant, FabricTokens::inputs_reflection_roughness_constant);
+        attributes.addAttribute(FabricTypes::inputs_specular_level, FabricTokens::inputs_specular_level);
         attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
         attributes.addAttribute(FabricTypes::_cesium_tileId, FabricTokens::_cesium_tileId);
         // clang-format on
@@ -197,7 +197,7 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         auto infoMdlSourceAssetSpan = isrw->getAttributeWr(srw.getId(), shaderPathFabric, FabricTokens::info_mdl_sourceAsset);
         auto* infoMdlSourceAsset = reinterpret_cast<omni::fabric::AssetPath*>(infoMdlSourceAssetSpan.ptr);
         auto infoMdlSourceAssetSubIdentifierFabric = srw.getAttributeWr<omni::fabric::Token>(shaderPathFabric, FabricTokens::info_mdl_sourceAsset_subIdentifier);
-        auto specularLevelFabric = srw.getAttributeWr<float>(shaderPathFabric, FabricTokens::specular_level);
+        auto specularLevelFabric = srw.getAttributeWr<float>(shaderPathFabric, FabricTokens::inputs_specular_level);
         // clang-format on
 
         infoMdlSourceAsset->assetPath = UsdTokens::OmniPBR_mdl;
@@ -251,10 +251,10 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
 
             // clang-format off
             addShaderParams(attributes);
-            attributes.addAttribute(FabricTypes::tex, FabricTokens::tex);
-            attributes.addAttribute(FabricTypes::coord, FabricTokens::coord);
-            attributes.addAttribute(FabricTypes::wrap_u, FabricTokens::wrap_u);
-            attributes.addAttribute(FabricTypes::wrap_v, FabricTokens::wrap_v);
+            attributes.addAttribute(FabricTypes::inputs_tex, FabricTokens::inputs_tex);
+            attributes.addAttribute(FabricTypes::inputs_coord, FabricTokens::inputs_coord);
+            attributes.addAttribute(FabricTypes::inputs_wrap_u, FabricTokens::inputs_wrap_u);
+            attributes.addAttribute(FabricTypes::inputs_wrap_v, FabricTokens::inputs_wrap_v);
             attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
             attributes.addAttribute(FabricTypes::_cesium_tileId, FabricTokens::_cesium_tileId);
             // clang-format on
@@ -266,10 +266,10 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             srw.setArrayAttributeSize(lookupColorPathFabric, FabricTokens::_paramColorSpace, 2);
 
             // clang-format off
-            auto wrapUFabric = srw.getAttributeWr<int>(lookupColorPathFabric, FabricTokens::wrap_u);
-            auto wrapVFabric = srw.getAttributeWr<int>(lookupColorPathFabric, FabricTokens::wrap_v);
-            auto coordFabric = srw.getAttributeWr<pxr::GfVec2f>(lookupColorPathFabric, FabricTokens::coord);
-            auto texFabricSpan = isrw->getAttributeWr(srw.getId(), lookupColorPathFabric, FabricTokens::tex);
+            auto wrapUFabric = srw.getAttributeWr<int>(lookupColorPathFabric, FabricTokens::inputs_wrap_u);
+            auto wrapVFabric = srw.getAttributeWr<int>(lookupColorPathFabric, FabricTokens::inputs_wrap_v);
+            auto coordFabric = srw.getAttributeWr<pxr::GfVec2f>(lookupColorPathFabric, FabricTokens::inputs_coord);
+            auto texFabricSpan = isrw->getAttributeWr(srw.getId(), lookupColorPathFabric, FabricTokens::inputs_tex);
             auto* texFabric = reinterpret_cast<omni::fabric::AssetPath*>(texFabricSpan.ptr);
             auto infoMdlSourceAssetSpan = isrw->getAttributeWr(srw.getId(), lookupColorPathFabric, FabricTokens::info_mdl_sourceAsset);
             auto* infoMdlSourceAsset = reinterpret_cast<omni::fabric::AssetPath*>(infoMdlSourceAssetSpan.ptr);
@@ -285,7 +285,7 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             infoMdlSourceAsset->assetPath = UsdTokens::nvidia_support_definitions_mdl;
             infoMdlSourceAsset->resolvedPath = pxr::TfToken();
             *infoMdlSourceAssetSubIdentifierFabric = FabricTokens::lookup_color;
-            paramColorSpaceFabric[0] = FabricTokens::tex;
+            paramColorSpaceFabric[0] = FabricTokens::inputs_tex;
             paramColorSpaceFabric[1] = FabricTokens::_auto;
         }
     }
@@ -317,9 +317,9 @@ void FabricMaterial::reset() {
     const auto shaderPathFabric = omni::fabric::Path(omni::fabric::asInt(_shaderPath));
 
     // clang-format off
-    auto diffuseColorConstantFabric = srw.getAttributeWr<pxr::GfVec3f>(shaderPathFabric, FabricTokens::diffuse_color_constant);
-    auto metallicConstantFabric = srw.getAttributeWr<float>(shaderPathFabric, FabricTokens::metallic_constant);
-    auto reflectionRoughnessConstantFabric = srw.getAttributeWr<float>(shaderPathFabric, FabricTokens::reflection_roughness_constant);
+    auto diffuseColorConstantFabric = srw.getAttributeWr<pxr::GfVec3f>(shaderPathFabric, FabricTokens::inputs_diffuse_color_constant);
+    auto metallicConstantFabric = srw.getAttributeWr<float>(shaderPathFabric, FabricTokens::inputs_metallic_constant);
+    auto reflectionRoughnessConstantFabric = srw.getAttributeWr<float>(shaderPathFabric, FabricTokens::inputs_reflection_roughness_constant);
     // clang-format on
 
     *diffuseColorConstantFabric = baseColorFactor;
@@ -336,9 +336,9 @@ void FabricMaterial::setInitialValues(const FabricMaterialDefinition& materialDe
     const auto shaderPathFabric = omni::fabric::Path(omni::fabric::asInt(_shaderPath));
 
     // clang-format off
-    auto diffuseColorConstantFabric = srw.getAttributeWr<pxr::GfVec3f>(shaderPathFabric, FabricTokens::diffuse_color_constant);
-    auto metallicConstantFabric = srw.getAttributeWr<float>(shaderPathFabric, FabricTokens::metallic_constant);
-    auto reflectionRoughnessConstantFabric = srw.getAttributeWr<float>(shaderPathFabric, FabricTokens::reflection_roughness_constant);
+    auto diffuseColorConstantFabric = srw.getAttributeWr<pxr::GfVec3f>(shaderPathFabric, FabricTokens::inputs_diffuse_color_constant);
+    auto metallicConstantFabric = srw.getAttributeWr<float>(shaderPathFabric, FabricTokens::inputs_metallic_constant);
+    auto reflectionRoughnessConstantFabric = srw.getAttributeWr<float>(shaderPathFabric, FabricTokens::inputs_reflection_roughness_constant);
     // clang-format on
 
     *diffuseColorConstantFabric = materialDefinition.getBaseColorFactor();
@@ -397,9 +397,9 @@ void FabricMaterial::setTile(
     const auto shaderPathFabric = omni::fabric::Path(omni::fabric::asInt(_shaderPath));
 
     // clang-format off
-    auto diffuseColorConstantFabric = srw.getAttributeWr<pxr::GfVec3f>(shaderPathFabric, FabricTokens::diffuse_color_constant);
-    auto metallicConstantFabric = srw.getAttributeWr<float>(shaderPathFabric, FabricTokens::metallic_constant);
-    auto reflectionRoughnessConstantFabric = srw.getAttributeWr<float>(shaderPathFabric, FabricTokens::reflection_roughness_constant);
+    auto diffuseColorConstantFabric = srw.getAttributeWr<pxr::GfVec3f>(shaderPathFabric, FabricTokens::inputs_diffuse_color_constant);
+    auto metallicConstantFabric = srw.getAttributeWr<float>(shaderPathFabric, FabricTokens::inputs_metallic_constant);
+    auto reflectionRoughnessConstantFabric = srw.getAttributeWr<float>(shaderPathFabric, FabricTokens::inputs_reflection_roughness_constant);
     // clang-format on
 
     *diffuseColorConstantFabric = baseColorFactor;
