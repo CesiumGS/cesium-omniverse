@@ -220,71 +220,87 @@ void Context::onUpdateFrame(const std::vector<Viewport>& viewports) {
 void Context::processPropertyChanged(const ChangedPrim& changedPrim) {
     const auto& [path, name, primType, changeType] = changedPrim;
 
-    std::set<std::shared_ptr<OmniTileset>> tilesetsToReload;
+    switch (primType) {
+        case ChangedPrimType::CESIUM_DATA:
+            return processCesiumDataChanged(changedPrim);
+        case ChangedPrimType::CESIUM_TILESET:
+            return processCesiumTilesetChanged(changedPrim);
+        case ChangedPrimType::CESIUM_IMAGERY:
+            return processCesiumImageryChanged(changedPrim);
+    }
+}
 
-    if (primType == ChangedPrimType::CESIUM_DATA) {
-        if (name == pxr::CesiumTokens->cesiumProjectDefaultIonAccessToken) {
-            // Reload tilesets that use the project default token
-            const auto& tilesets = AssetRegistry::getInstance().getAllTilesets();
-            for (const auto& tileset : tilesets) {
-                const auto tilesetToken = tileset->getIonAccessToken();
-                const auto defaultToken = Context::instance().getDefaultToken();
-                if (!tilesetToken.has_value() || tilesetToken.value().token == defaultToken.value().token) {
-                    tilesetsToReload.emplace(tileset);
-                }
+void Context::processCesiumDataChanged(const ChangedPrim& changedPrim) {
+    const auto& [path, name, primType, changeType] = changedPrim;
+
+    if (name == pxr::CesiumTokens->cesiumProjectDefaultIonAccessToken) {
+        // Reload tilesets that use the project default token
+        const auto& tilesets = AssetRegistry::getInstance().getAllTilesets();
+        for (const auto& tileset : tilesets) {
+            const auto tilesetToken = tileset->getIonAccessToken();
+            const auto defaultToken = Context::instance().getDefaultToken();
+            if (!tilesetToken.has_value() || tilesetToken.value().token == defaultToken.value().token) {
+                tileset->reload();
             }
-        } else if (
-            name == pxr::CesiumTokens->cesiumDebugDisableMaterials ||
-            name == pxr::CesiumTokens->cesiumDebugDisableGeometryPool ||
-            name == pxr::CesiumTokens->cesiumDebugDisableMaterialPool ||
-            name == pxr::CesiumTokens->cesiumDebugGeometryPoolInitialCapacity ||
-            name == pxr::CesiumTokens->cesiumDebugMaterialPoolInitialCapacity) {
-            reloadStage();
         }
-    } else if (primType == ChangedPrimType::CESIUM_TILESET) {
-        // Reload the tileset
-        const auto tileset = AssetRegistry::getInstance().getTilesetByPath(path);
-        if (tileset.has_value()) {
-            // clang-format off
-            if (name == pxr::CesiumTokens->cesiumSourceType ||
-                name == pxr::CesiumTokens->cesiumUrl ||
-                name == pxr::CesiumTokens->cesiumIonAssetId ||
-                name == pxr::CesiumTokens->cesiumIonAccessToken ||
-                name == pxr::CesiumTokens->cesiumMaximumScreenSpaceError ||
-                name == pxr::CesiumTokens->cesiumPreloadAncestors ||
-                name == pxr::CesiumTokens->cesiumPreloadSiblings ||
-                name == pxr::CesiumTokens->cesiumForbidHoles ||
-                name == pxr::CesiumTokens->cesiumMaximumSimultaneousTileLoads ||
-                name == pxr::CesiumTokens->cesiumMaximumCachedBytes ||
-                name == pxr::CesiumTokens->cesiumLoadingDescendantLimit ||
-                name == pxr::CesiumTokens->cesiumEnableFrustumCulling ||
-                name == pxr::CesiumTokens->cesiumEnableFogCulling ||
-                name == pxr::CesiumTokens->cesiumEnforceCulledScreenSpaceError ||
-                name == pxr::CesiumTokens->cesiumCulledScreenSpaceError ||
-                name == pxr::CesiumTokens->cesiumSmoothNormals ||
-                name == pxr::CesiumTokens->cesiumShowCreditsOnScreen) {
-                tilesetsToReload.emplace(tileset.value());
-            }
-            // clang-format on
-        }
-    } else if (primType == ChangedPrimType::CESIUM_IMAGERY) {
-        const auto tilesetPath = path.GetParentPath();
-        const auto tileset = AssetRegistry::getInstance().getTilesetByPath(tilesetPath);
-        if (tileset.has_value()) {
-            // clang-format off
-            if (name == pxr::CesiumTokens->cesiumIonAssetId ||
-                name == pxr::CesiumTokens->cesiumIonAccessToken ||
-                name == pxr::CesiumTokens->cesiumShowCreditsOnScreen) {
-                // Reload the tileset that the imagery is attached to
-                tilesetsToReload.emplace(tileset.value());
-            }
-            // clang-format on
-        }
+    } else if (
+        name == pxr::CesiumTokens->cesiumDebugDisableMaterials ||
+        name == pxr::CesiumTokens->cesiumDebugDisableGeometryPool ||
+        name == pxr::CesiumTokens->cesiumDebugDisableMaterialPool ||
+        name == pxr::CesiumTokens->cesiumDebugGeometryPoolInitialCapacity ||
+        name == pxr::CesiumTokens->cesiumDebugMaterialPoolInitialCapacity) {
+        reloadStage();
+    }
+}
+
+void Context::processCesiumTilesetChanged(const ChangedPrim& changedPrim) {
+    const auto& [path, name, primType, changeType] = changedPrim;
+
+    const auto tileset = AssetRegistry::getInstance().getTilesetByPath(path);
+    if (!tileset.has_value()) {
+        return;
     }
 
-    for (const auto& tileset : tilesetsToReload) {
-        tileset->reload();
+    // clang-format off
+    if (name == pxr::CesiumTokens->cesiumSourceType ||
+        name == pxr::CesiumTokens->cesiumUrl ||
+        name == pxr::CesiumTokens->cesiumIonAssetId ||
+        name == pxr::CesiumTokens->cesiumIonAccessToken ||
+        name == pxr::CesiumTokens->cesiumMaximumScreenSpaceError ||
+        name == pxr::CesiumTokens->cesiumPreloadAncestors ||
+        name == pxr::CesiumTokens->cesiumPreloadSiblings ||
+        name == pxr::CesiumTokens->cesiumForbidHoles ||
+        name == pxr::CesiumTokens->cesiumMaximumSimultaneousTileLoads ||
+        name == pxr::CesiumTokens->cesiumMaximumCachedBytes ||
+        name == pxr::CesiumTokens->cesiumLoadingDescendantLimit ||
+        name == pxr::CesiumTokens->cesiumEnableFrustumCulling ||
+        name == pxr::CesiumTokens->cesiumEnableFogCulling ||
+        name == pxr::CesiumTokens->cesiumEnforceCulledScreenSpaceError ||
+        name == pxr::CesiumTokens->cesiumCulledScreenSpaceError ||
+        name == pxr::CesiumTokens->cesiumSmoothNormals ||
+        name == pxr::CesiumTokens->cesiumShowCreditsOnScreen) {
+        tileset.value()->reload();
     }
+    // clang-format on
+}
+
+void Context::processCesiumImageryChanged(const ChangedPrim& changedPrim) {
+    const auto& [path, name, primType, changeType] = changedPrim;
+
+    const auto tilesetPath = path.GetParentPath();
+    const auto tileset = AssetRegistry::getInstance().getTilesetByPath(tilesetPath);
+    if (!tileset.has_value()) {
+        return;
+    }
+
+    // clang-format off
+    if (name == pxr::CesiumTokens->cesiumIonAssetId ||
+        name == pxr::CesiumTokens->cesiumIonAccessToken ||
+        name == pxr::CesiumTokens->cesiumShowCreditsOnScreen) {
+        // Reload the tileset that the imagery is attached to
+        tileset.value()->reload();
+    }
+    // clang-format on
 }
 
 void Context::processPrimRemoved(const ChangedPrim& changedPrim) {

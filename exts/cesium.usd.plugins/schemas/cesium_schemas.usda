@@ -69,7 +69,7 @@ class CesiumDataPrim "CesiumDataPrim" (
             string apiName = "debugDisableMaterials"
         }
         displayName = "Disable Materials"
-        doc = "For debugging only: whether to disable materials."
+        doc = "Debug option that renders tilesets with materials disabled."
     )
 
     bool cesium:debug:disableGeometryPool = true (
@@ -77,7 +77,7 @@ class CesiumDataPrim "CesiumDataPrim" (
             string apiName = "debugDisableGeometryPool"
         }
         displayName = "Disable Geometry Pool"
-        doc = "For debugging only: whether to disable the geometry pool."
+        doc = "Debug option that disables geometry pooling."
     )
 
     bool cesium:debug:disableMaterialPool = false (
@@ -85,7 +85,7 @@ class CesiumDataPrim "CesiumDataPrim" (
             string apiName = "debugDisableMaterialPool"
         }
         displayName = "Disable Material Pool"
-        doc = "For debugging only: whether to disable the material pool."
+        doc = "Debug option that disables material pooling."
     )
 
     uint64 cesium:debug:geometryPoolInitialCapacity = 0 (
@@ -93,7 +93,7 @@ class CesiumDataPrim "CesiumDataPrim" (
             string apiName = "debugGeometryPoolInitialCapacity"
         }
         displayName = "Geometry Pool Initial Capacity"
-        doc = "For debugging only: the initial capacity of the geometry pool."
+        doc = "Debug option that controls the initial capacity of the geometry pool."
     )
 
     uint64 cesium:debug:materialPoolInitialCapacity = 2048 (
@@ -101,7 +101,7 @@ class CesiumDataPrim "CesiumDataPrim" (
             string apiName = "debugMaterialPoolInitialCapacity"
         }
         displayName = "Material Pool Initial Capacity"
-        doc = "For debugging only: the initial capacity of the material pool."
+        doc = "Debug option that controls the initial capacity of the material pool."
     )
 
 }

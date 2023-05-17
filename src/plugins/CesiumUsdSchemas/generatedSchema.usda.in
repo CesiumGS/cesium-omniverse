@@ -14,23 +14,23 @@ class CesiumDataPrim "CesiumDataPrim" (
 {
     bool cesium:debug:disableGeometryPool = 1 (
         displayName = "Disable Geometry Pool"
-        doc = "For debugging only: whether to disable the geometry pool."
+        doc = "Debug option that disables geometry pooling."
     )
     bool cesium:debug:disableMaterialPool = 0 (
         displayName = "Disable Material Pool"
-        doc = "For debugging only: whether to disable the material pool."
+        doc = "Debug option that disables material pooling."
     )
     bool cesium:debug:disableMaterials = 0 (
         displayName = "Disable Materials"
-        doc = "For debugging only: whether to disable materials."
+        doc = "Debug option that renders tilesets with materials disabled."
     )
     uint64 cesium:debug:geometryPoolInitialCapacity = 0 (
         displayName = "Geometry Pool Initial Capacity"
-        doc = "For debugging only: the initial capacity of the geometry pool."
+        doc = "Debug option that controls the initial capacity of the geometry pool."
     )
     uint64 cesium:debug:materialPoolInitialCapacity = 2048 (
         displayName = "Material Pool Initial Capacity"
-        doc = "For debugging only: the initial capacity of the material pool."
+        doc = "Debug option that controls the initial capacity of the material pool."
     )
     double cesium:georeferenceOrigin:height = 2250 (
         displayName = "Georeference Origin Height"

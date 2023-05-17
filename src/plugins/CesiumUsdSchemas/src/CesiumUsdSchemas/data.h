@@ -222,7 +222,7 @@ public:
     // --------------------------------------------------------------------- //
     // DEBUGDISABLEMATERIALS 
     // --------------------------------------------------------------------- //
-    /// For debugging only: whether to disable materials.
+    /// Debug option that renders tilesets with materials disabled.
     ///
     /// | ||
     /// | -- | -- |
@@ -242,7 +242,7 @@ public:
     // --------------------------------------------------------------------- //
     // DEBUGDISABLEGEOMETRYPOOL 
     // --------------------------------------------------------------------- //
-    /// For debugging only: whether to disable the geometry pool.
+    /// Debug option that disables geometry pooling.
     ///
     /// | ||
     /// | -- | -- |
@@ -262,7 +262,7 @@ public:
     // --------------------------------------------------------------------- //
     // DEBUGDISABLEMATERIALPOOL 
     // --------------------------------------------------------------------- //
-    /// For debugging only: whether to disable the material pool.
+    /// Debug option that disables material pooling.
     ///
     /// | ||
     /// | -- | -- |
@@ -282,7 +282,7 @@ public:
     // --------------------------------------------------------------------- //
     // DEBUGGEOMETRYPOOLINITIALCAPACITY 
     // --------------------------------------------------------------------- //
-    /// For debugging only: the initial capacity of the geometry pool.
+    /// Debug option that controls the initial capacity of the geometry pool.
     ///
     /// | ||
     /// | -- | -- |
@@ -302,7 +302,7 @@ public:
     // --------------------------------------------------------------------- //
     // DEBUGMATERIALPOOLINITIALCAPACITY 
     // --------------------------------------------------------------------- //
-    /// For debugging only: the initial capacity of the material pool.
+    /// Debug option that controls the initial capacity of the material pool.
     ///
     /// | ||
     /// | -- | -- |
