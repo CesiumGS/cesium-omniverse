@@ -187,11 +187,13 @@ void Context::clearStage() {
 }
 
 void Context::reloadStage() {
-    // Ensure that the CesiumData prim exists so that we can set the georeference
-    // and other top-level properties without waiting for an ion session to start
-    UsdUtil::getOrCreateCesiumData();
-
     clearStage();
+
+    auto& fabricMeshManager = FabricMeshManager::getInstance();
+    fabricMeshManager.setDisableGeometryPool(getDebugDisableGeometryPool());
+    fabricMeshManager.setDisableMaterialPool(getDebugDisableMaterialPool());
+    fabricMeshManager.setGeometryPoolInitialCapacity(getDebugGeometryPoolInitialCapacity());
+    fabricMeshManager.setMaterialPoolInitialCapacity(getDebugMaterialPoolInitialCapacity());
 
     // Repopulate the asset registry. We need to do this manually because USD doesn't notify us about
     // resynced paths when the stage is loaded.
@@ -231,6 +233,13 @@ void Context::processPropertyChanged(const ChangedPrim& changedPrim) {
                     tilesetsToReload.emplace(tileset);
                 }
             }
+        } else if (
+            name == pxr::CesiumTokens->cesiumDebugDisableMaterials ||
+            name == pxr::CesiumTokens->cesiumDebugDisableGeometryPool ||
+            name == pxr::CesiumTokens->cesiumDebugDisableMaterialPool ||
+            name == pxr::CesiumTokens->cesiumDebugGeometryPoolInitialCapacity ||
+            name == pxr::CesiumTokens->cesiumDebugMaterialPoolInitialCapacity) {
+            reloadStage();
         }
     } else if (primType == ChangedPrimType::CESIUM_TILESET) {
         // Reload the tileset
@@ -375,6 +384,10 @@ void Context::setStageId(long stageId) {
         const auto stageInProgressId =
             iStageInProgress->get(carb::flatcache::UsdStageId{static_cast<uint64_t>(stageId)});
         _fabricStageInProgress = carb::flatcache::StageInProgress(stageInProgressId);
+
+        // Ensure that the CesiumData prim exists so that we can set the georeference
+        // and other top-level properties without waiting for an ion session to start
+        UsdUtil::getOrCreateCesiumData();
 
         // Repopulate the asset registry
         reloadStage();
@@ -616,7 +629,38 @@ std::filesystem::path Context::getCertificatePath() const {
 }
 
 bool Context::getDebugDisableMaterials() const {
-    return _debugDisableMaterials;
+    const auto cesiumDataUsd = UsdUtil::getOrCreateCesiumData();
+    bool disableMaterials;
+    cesiumDataUsd.GetDebugDisableMaterialsAttr().Get(&disableMaterials);
+    return disableMaterials;
+}
+
+bool Context::getDebugDisableGeometryPool() const {
+    const auto cesiumDataUsd = UsdUtil::getOrCreateCesiumData();
+    bool disableGeometryPool;
+    cesiumDataUsd.GetDebugDisableGeometryPoolAttr().Get(&disableGeometryPool);
+    return disableGeometryPool;
+}
+
+bool Context::getDebugDisableMaterialPool() const {
+    const auto cesiumDataUsd = UsdUtil::getOrCreateCesiumData();
+    bool disableMaterialPool;
+    cesiumDataUsd.GetDebugDisableMaterialPoolAttr().Get(&disableMaterialPool);
+    return disableMaterialPool;
+}
+
+uint64_t Context::getDebugGeometryPoolInitialCapacity() const {
+    const auto cesiumDataUsd = UsdUtil::getOrCreateCesiumData();
+    uint64_t geometryPoolInitialCapacity;
+    cesiumDataUsd.GetDebugGeometryPoolInitialCapacityAttr().Get(&geometryPoolInitialCapacity);
+    return geometryPoolInitialCapacity;
+}
+
+uint64_t Context::getDebugMaterialPoolInitialCapacity() const {
+    const auto cesiumDataUsd = UsdUtil::getOrCreateCesiumData();
+    uint64_t materialPoolInitialCapacity;
+    cesiumDataUsd.GetDebugMaterialPoolInitialCapacityAttr().Get(&materialPoolInitialCapacity);
+    return materialPoolInitialCapacity;
 }
 
 bool Context::creditsAvailable() const {

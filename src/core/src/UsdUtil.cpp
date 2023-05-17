@@ -267,6 +267,11 @@ pxr::CesiumData defineCesiumData(const pxr::SdfPath& path) {
     cesiumData.CreateGeoreferenceOriginLongitudeAttr(pxr::VtValue(-105.25737));
     cesiumData.CreateGeoreferenceOriginLatitudeAttr(pxr::VtValue(39.736401));
     cesiumData.CreateGeoreferenceOriginHeightAttr(pxr::VtValue(2250.0));
+    cesiumData.CreateDebugDisableMaterialsAttr(pxr::VtValue(false));
+    cesiumData.CreateDebugDisableGeometryPoolAttr(pxr::VtValue(true));
+    cesiumData.CreateDebugDisableMaterialPoolAttr(pxr::VtValue(false));
+    cesiumData.CreateDebugGeometryPoolInitialCapacityAttr(pxr::VtValue(uint64_t(0)));
+    cesiumData.CreateDebugMaterialPoolInitialCapacityAttr(pxr::VtValue(uint64_t(2048)));
 
     return cesiumData;
 }

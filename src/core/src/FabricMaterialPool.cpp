@@ -4,15 +4,14 @@
 
 namespace cesium::omniverse {
 
-FabricMaterialPool::FabricMaterialPool(int64_t poolId, const FabricMaterialDefinition& materialDefinition)
+FabricMaterialPool::FabricMaterialPool(
+    int64_t poolId,
+    const FabricMaterialDefinition& materialDefinition,
+    uint64_t initialCapacity)
     : ObjectPool<FabricMaterial>()
     , _poolId(poolId)
     , _materialDefinition(materialDefinition) {
-
-    // Material creation is expensive and often stalls the main thread so create as many as we can upfront.
-    // The number below is roughly the number of tiles cesium-native keeps in memory before hitting the
-    // default maximum memory usage for Cesium World Terrain.
-    setCapacity(2000);
+    setCapacity(initialCapacity);
 }
 
 const FabricMaterialDefinition& FabricMaterialPool::getMaterialDefinition() const {

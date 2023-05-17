@@ -120,7 +120,7 @@ private:
 
 public:
     // --------------------------------------------------------------------- //
-    // IONASSETID
+    // IONASSETID 
     // --------------------------------------------------------------------- //
     /// The ID of the Cesium ion asset to use.
     ///
@@ -131,7 +131,7 @@ public:
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Int64 |
     UsdAttribute GetIonAssetIdAttr() const;
 
-    /// See GetIonAssetIdAttr(), and also
+    /// See GetIonAssetIdAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
@@ -140,7 +140,7 @@ public:
 
 public:
     // --------------------------------------------------------------------- //
-    // IONACCESSTOKEN
+    // IONACCESSTOKEN 
     // --------------------------------------------------------------------- //
     /// The access token to use to access the Cesium ion resource. Overrides the default token. Blank if using URL.
     ///
@@ -151,7 +151,7 @@ public:
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
     UsdAttribute GetIonAccessTokenAttr() const;
 
-    /// See GetIonAccessTokenAttr(), and also
+    /// See GetIonAccessTokenAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
@@ -160,7 +160,7 @@ public:
 
 public:
     // --------------------------------------------------------------------- //
-    // SHOWCREDITSONSCREEN
+    // SHOWCREDITSONSCREEN 
     // --------------------------------------------------------------------- //
     /// Whether or not to show this imagery layer's credits on screen.
     ///
@@ -171,7 +171,7 @@ public:
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
     UsdAttribute GetShowCreditsOnScreenAttr() const;
 
-    /// See GetShowCreditsOnScreenAttr(), and also
+    /// See GetShowCreditsOnScreenAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
@@ -180,11 +180,11 @@ public:
 
 public:
     // ===================================================================== //
-    // Feel free to add custom code below this line, it will be preserved by
-    // the code generator.
+    // Feel free to add custom code below this line, it will be preserved by 
+    // the code generator. 
     //
-    // Just remember to:
-    //  - Close the class declaration with };
+    // Just remember to: 
+    //  - Close the class declaration with }; 
     //  - Close the namespace with PXR_NAMESPACE_CLOSE_SCOPE
     //  - Close the include guard with #endif
     // ===================================================================== //

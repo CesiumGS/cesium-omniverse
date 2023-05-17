@@ -128,6 +128,11 @@ class Context {
     void processPrimAdded(const ChangedPrim& changedPrim);
     void processUsdNotifications();
 
+    bool getDebugDisableGeometryPool() const;
+    bool getDebugDisableMaterialPool() const;
+    uint64_t getDebugGeometryPoolInitialCapacity() const;
+    uint64_t getDebugMaterialPoolInitialCapacity() const;
+
     std::shared_ptr<TaskProcessor> _taskProcessor;
     std::shared_ptr<HttpAssetAccessor> _httpAssetAccessor;
     std::shared_ptr<Cesium3DTilesSelection::CreditSystem> _creditSystem;
@@ -152,8 +157,6 @@ class Context {
 
     std::filesystem::path _cesiumExtensionLocation;
     std::filesystem::path _certificatePath;
-
-    bool _debugDisableMaterials{false};
 };
 
 } // namespace cesium::omniverse
