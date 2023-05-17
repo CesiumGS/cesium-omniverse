@@ -37,6 +37,8 @@ FabricMaterial::~FabricMaterial() {
     FabricUtil::destroyPrim(_shaderPath);
     FabricUtil::destroyPrim(_displacementPath);
     FabricUtil::destroyPrim(_surfacePath);
+    FabricUtil::destroyPrim(_lookupColorPath);
+    FabricUtil::destroyPrim(_textureCoordinate2dPath);
 }
 
 void FabricMaterial::setActive(bool active) {
@@ -348,6 +350,8 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
     _shaderPath = shaderPath;
     _displacementPath = displacementPath;
     _surfacePath = surfacePath;
+    _lookupColorPath = lookupColorPath;
+    _textureCoordinate2dPath = textureCoordinate2dPath;
 
     reset();
 }
