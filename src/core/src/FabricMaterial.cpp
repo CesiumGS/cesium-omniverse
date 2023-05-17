@@ -317,8 +317,12 @@ void FabricMaterial::reset() {
 
     FabricUtil::setTilesetIdAndTileId(_materialPath, -1, -1);
     FabricUtil::setTilesetIdAndTileId(_shaderPath, -1, -1);
-    FabricUtil::setTilesetIdAndTileId(_lookupColorPath, -1, -1);
-    FabricUtil::setTilesetIdAndTileId(_textureCoordinate2dPath, -1, -1);
+
+    const auto hasBaseColorTexture = _materialDefinition.hasBaseColorTexture();
+    if (hasBaseColorTexture) {
+        FabricUtil::setTilesetIdAndTileId(_lookupColorPath, -1, -1);
+        FabricUtil::setTilesetIdAndTileId(_textureCoordinate2dPath, -1, -1);
+    }
 }
 
 void FabricMaterial::setInitialValues(const FabricMaterialDefinition& materialDefinition) {
@@ -399,7 +403,11 @@ void FabricMaterial::setTile(
 
     FabricUtil::setTilesetIdAndTileId(_materialPath, tilesetId, tileId);
     FabricUtil::setTilesetIdAndTileId(_shaderPath, tilesetId, tileId);
-    FabricUtil::setTilesetIdAndTileId(_lookupColorPath, tilesetId, tileId);
-    FabricUtil::setTilesetIdAndTileId(_textureCoordinate2dPath, tilesetId, tileId);
+
+    const auto hasBaseColorTexture = _materialDefinition.hasBaseColorTexture();
+    if (hasBaseColorTexture) {
+        FabricUtil::setTilesetIdAndTileId(_lookupColorPath, tilesetId, tileId);
+        FabricUtil::setTilesetIdAndTileId(_textureCoordinate2dPath, tilesetId, tileId);
+    }
 }
 }; // namespace cesium::omniverse
