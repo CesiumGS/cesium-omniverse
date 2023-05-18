@@ -24,6 +24,8 @@ class CesiumCreditsViewportFrame:
 
         self._credits: List[Tuple[str, bool]] = []
 
+        self._viewport_index = viewport_index
+
         self._build_fn()
 
     def getFrame(self):
@@ -54,6 +56,7 @@ class CesiumCreditsViewportFrame:
             return
 
         new_credits = self._cesium_omniverse_interface.get_credits()
+        self._logger.info(f"CreditsViewportFrame: viewport {self._viewport_index} credits len is {len(new_credits)} at address {self}")
 
         if new_credits != self._credits:
             self._credits.clear()

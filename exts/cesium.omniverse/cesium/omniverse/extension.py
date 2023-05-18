@@ -157,8 +157,6 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             self._debug_window.destroy()
             self._debug_window = None
 
-        self._destroy_credits_viewport_frames()
-
         # Deregister the function that shows the window from omni.ui
         ui.Workspace.set_show_window_fn(CesiumOmniverseMainWindow.WINDOW_NAME, None)
         ui.Workspace.set_show_window_fn(CesiumOmniverseAssetWindow.WINDOW_NAME, None)
@@ -195,6 +193,8 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         if self._attributes_widget_controller is not None:
             self._attributes_widget_controller.destroy()
             self._attributes_widget_controller = None
+
+        self._destroy_credits_viewport_frames()
 
         self._logger.info("CesiumOmniverse shutdown")
 
@@ -417,7 +417,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         for instance in get_viewport_window_instances():
             credits_viewport_frame = CesiumCreditsViewportFrame(_cesium_omniverse_interface, instance, viewport_index)
             viewport_index += 1
-            viewport_frames.append(credits_viewport_frame.getFrame())
+            viewport_frames.append(credits_viewport_frame)
         self._credits_viewport_frames = viewport_frames
         self._num_credits_viewport_frames = len(viewport_frames)
 
