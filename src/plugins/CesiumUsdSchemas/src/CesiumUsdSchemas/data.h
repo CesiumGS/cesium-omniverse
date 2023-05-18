@@ -31,7 +31,7 @@ class SdfAssetPath;
 ///
 /// Stores stage level data for Cesium for Omniverse/USD.
 ///
-class CesiumData : public UsdTyped
+class CESIUM_API CesiumData : public UsdTyped
 {
 public:
     /// Compile time constant representing what kind of schema this class is.
@@ -57,13 +57,11 @@ public:
     }
 
     /// Destructor.
-    CESIUM_API
     virtual ~CesiumData();
 
     /// Return a vector of names of all pre-declared attributes for this schema
     /// class and all its ancestor classes.  Does not include attributes that
     /// may be authored by custom/extended methods of the schemas involved.
-    CESIUM_API
     static const TfTokenVector &
     GetSchemaAttributeNames(bool includeInherited=true);
 
@@ -76,7 +74,6 @@ public:
     /// CesiumData(stage->GetPrimAtPath(path));
     /// \endcode
     ///
-    CESIUM_API
     static CesiumData
     Get(const UsdStagePtr &stage, const SdfPath &path);
 
@@ -102,7 +99,6 @@ public:
     /// specify this schema class, in case a stronger typeName opinion overrides
     /// the opinion at the current EditTarget.
     ///
-    CESIUM_API
     static CesiumData
     Define(const UsdStagePtr &stage, const SdfPath &path);
 
@@ -110,19 +106,16 @@ protected:
     /// Returns the type of schema this class belongs to.
     ///
     /// \sa UsdSchemaType
-    CESIUM_API
     UsdSchemaType _GetSchemaType() const override;
 
 private:
     // needs to invoke _GetStaticTfType.
     friend class UsdSchemaRegistry;
-    CESIUM_API
     static const TfType &_GetStaticTfType();
 
     static bool _IsTypedSchema();
 
     // override SchemaBase virtuals.
-    CESIUM_API
     const TfType &_GetTfType() const override;
 
 public:
@@ -136,7 +129,6 @@ public:
     /// | Declaration | `string cesium:projectDefaultIonAccessToken = ""` |
     /// | C++ Type | std::string |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
-    CESIUM_API
     UsdAttribute GetProjectDefaultIonAccessTokenAttr() const;
 
     /// See GetProjectDefaultIonAccessTokenAttr(), and also 
@@ -144,7 +136,6 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    CESIUM_API
     UsdAttribute CreateProjectDefaultIonAccessTokenAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -158,7 +149,6 @@ public:
     /// | Declaration | `string cesium:projectDefaultIonAccessTokenId = ""` |
     /// | C++ Type | std::string |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
-    CESIUM_API
     UsdAttribute GetProjectDefaultIonAccessTokenIdAttr() const;
 
     /// See GetProjectDefaultIonAccessTokenIdAttr(), and also 
@@ -166,7 +156,6 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    CESIUM_API
     UsdAttribute CreateProjectDefaultIonAccessTokenIdAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -180,7 +169,6 @@ public:
     /// | Declaration | `double cesium:georeferenceOrigin:longitude = -105.25737` |
     /// | C++ Type | double |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double |
-    CESIUM_API
     UsdAttribute GetGeoreferenceOriginLongitudeAttr() const;
 
     /// See GetGeoreferenceOriginLongitudeAttr(), and also 
@@ -188,7 +176,6 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    CESIUM_API
     UsdAttribute CreateGeoreferenceOriginLongitudeAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -202,7 +189,6 @@ public:
     /// | Declaration | `double cesium:georeferenceOrigin:latitude = 39.736401` |
     /// | C++ Type | double |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double |
-    CESIUM_API
     UsdAttribute GetGeoreferenceOriginLatitudeAttr() const;
 
     /// See GetGeoreferenceOriginLatitudeAttr(), and also 
@@ -210,7 +196,6 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    CESIUM_API
     UsdAttribute CreateGeoreferenceOriginLatitudeAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -224,7 +209,6 @@ public:
     /// | Declaration | `double cesium:georeferenceOrigin:height = 2250` |
     /// | C++ Type | double |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double |
-    CESIUM_API
     UsdAttribute GetGeoreferenceOriginHeightAttr() const;
 
     /// See GetGeoreferenceOriginHeightAttr(), and also 
@@ -232,7 +216,6 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    CESIUM_API
     UsdAttribute CreateGeoreferenceOriginHeightAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -246,7 +229,6 @@ public:
     /// | Declaration | `bool cesium:debug:disableMaterials = 0` |
     /// | C++ Type | bool |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
-    CESIUM_API
     UsdAttribute GetDebugDisableMaterialsAttr() const;
 
     /// See GetDebugDisableMaterialsAttr(), and also 
@@ -254,7 +236,6 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    CESIUM_API
     UsdAttribute CreateDebugDisableMaterialsAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -268,7 +249,6 @@ public:
     /// | Declaration | `bool cesium:debug:disableGeometryPool = 1` |
     /// | C++ Type | bool |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
-    CESIUM_API
     UsdAttribute GetDebugDisableGeometryPoolAttr() const;
 
     /// See GetDebugDisableGeometryPoolAttr(), and also 
@@ -276,7 +256,6 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    CESIUM_API
     UsdAttribute CreateDebugDisableGeometryPoolAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -290,7 +269,6 @@ public:
     /// | Declaration | `bool cesium:debug:disableMaterialPool = 0` |
     /// | C++ Type | bool |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
-    CESIUM_API
     UsdAttribute GetDebugDisableMaterialPoolAttr() const;
 
     /// See GetDebugDisableMaterialPoolAttr(), and also 
@@ -298,7 +276,6 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    CESIUM_API
     UsdAttribute CreateDebugDisableMaterialPoolAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -312,7 +289,6 @@ public:
     /// | Declaration | `uint64 cesium:debug:geometryPoolInitialCapacity = 0` |
     /// | C++ Type | uint64_t |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->UInt64 |
-    CESIUM_API
     UsdAttribute GetDebugGeometryPoolInitialCapacityAttr() const;
 
     /// See GetDebugGeometryPoolInitialCapacityAttr(), and also 
@@ -320,7 +296,6 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    CESIUM_API
     UsdAttribute CreateDebugGeometryPoolInitialCapacityAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -334,7 +309,6 @@ public:
     /// | Declaration | `uint64 cesium:debug:materialPoolInitialCapacity = 2048` |
     /// | C++ Type | uint64_t |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->UInt64 |
-    CESIUM_API
     UsdAttribute GetDebugMaterialPoolInitialCapacityAttr() const;
 
     /// See GetDebugMaterialPoolInitialCapacityAttr(), and also 
@@ -342,7 +316,6 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    CESIUM_API
     UsdAttribute CreateDebugMaterialPoolInitialCapacityAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
