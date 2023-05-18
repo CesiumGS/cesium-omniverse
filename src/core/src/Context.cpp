@@ -227,6 +227,8 @@ void Context::processPropertyChanged(const ChangedPrim& changedPrim) {
             return processCesiumTilesetChanged(changedPrim);
         case ChangedPrimType::CESIUM_IMAGERY:
             return processCesiumImageryChanged(changedPrim);
+        default:
+            return;
     }
 }
 
