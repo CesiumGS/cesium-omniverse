@@ -23,6 +23,7 @@ class CesiumCreditsViewportFrame:
         self._setup_subscriptions()
 
         self._credits: List[Tuple[str, bool]] = []
+        self._new_credits: List[Tuple[str, bool]] = []
 
         self._viewport_index = viewport_index
 
@@ -55,16 +56,13 @@ class CesiumCreditsViewportFrame:
         if self._data_attribution_button is None:
             return
 
-        new_credits = self._cesium_omniverse_interface.get_credits()
-        self._logger.info(f"CreditsViewportFrame: viewport {self._viewport_index} credits len is {len(new_credits)} at address {self}")
-
-        if new_credits != self._credits:
+        if self._new_credits != self._credits:
             self._credits.clear()
-            self._credits.extend(new_credits)
+            self._credits.extend(self._new_credits)
             self._build_fn()
 
         has_offscreen_credits = False
-        for _, show_on_screen in new_credits:
+        for _, show_on_screen in self._new_credits:
             if not show_on_screen:
                 has_offscreen_credits = True
 
@@ -75,13 +73,12 @@ class CesiumCreditsViewportFrame:
                 self._logger.info("Hide Data Attribution")
             self._data_attribution_button.visible = has_offscreen_credits
 
-        self._cesium_omniverse_interface.credits_start_next_frame()
-
     def _on_data_attribution_button_clicked(self):
         self._credits_window = CesiumOmniverseCreditsWindow(self._cesium_omniverse_interface, self._credits)
 
     def _build_fn(self):
         with self._credits_viewport_frame:
+            self._logger.info("CreditViewportFrame: rebuilding")
             with ui.VStack():
                 ui.Spacer()
                 with ui.HStack(height=0):
@@ -103,3 +100,6 @@ class CesiumCreditsViewportFrame:
                         height=0,
                         clicked_fn=self._on_data_attribution_button_clicked,
                     )
+
+    def set_new_credits(self, credits):
+        self._new_credits = credits

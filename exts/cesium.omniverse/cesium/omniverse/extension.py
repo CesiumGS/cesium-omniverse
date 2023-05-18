@@ -20,7 +20,7 @@ from omni.kit.viewport.window import get_viewport_window_instances
 import omni.ui as ui
 import omni.usd
 import os
-from typing import List, Optional, Callable
+from typing import List, Optional, Callable, Tuple
 
 cesium_extension_location = os.path.join(os.path.dirname(__file__), "../../")
 
@@ -67,6 +67,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._logger: logging.Logger = logging.getLogger(__name__)
         self._menu = None
         self._num_credits_viewport_frames = 0
+        self._credits: List[Tuple[str, bool]] = []
 
         try:
             # This installs lxml which is needed for credit display.
@@ -101,7 +102,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         if show_on_startup:
             ui.Workspace.show_window(CesiumOmniverseMainWindow.WINDOW_NAME)
 
-        self._setup_credits_viewport_frame()
+        self._setup_credits_viewport_frames()
 
         # Subscribe to stage event stream
         usd_context = omni.usd.get_context()
@@ -217,9 +218,18 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             viewports.append(viewport)
 
         if len(viewports) != self._num_credits_viewport_frames:
-            self._setup_credits_viewport_frame()
+            self._logger.info("CreditViewportFrame: num viewports changed, triggering CreditsViewportFrames setup")
+            self._setup_credits_viewport_frames()
 
         _cesium_omniverse_interface.on_update_frame(viewports)
+        new_credits = _cesium_omniverse_interface.get_credits()
+        if new_credits != self._credits:
+            self._credits.clear()
+            self._credits.extend(new_credits)
+            self._logger.info("CreditViewportFrame: credits changed, triggering CreditsViewportFrames setup")
+            self._setup_credits_viewport_frames()
+            self._credits = new_credits
+        _cesium_omniverse_interface.credits_start_next_frame()
 
     def _on_stage_event(self, event):
         if _cesium_omniverse_interface is None:
@@ -410,14 +420,16 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         elif self._debug_window is not None:
             self._debug_window.visible = False
 
-    def _setup_credits_viewport_frame(self):
+    def _setup_credits_viewport_frames(self):
         self._destroy_credits_viewport_frames()
         viewport_frames = []
         viewport_index = 0
         for instance in get_viewport_window_instances():
             credits_viewport_frame = CesiumCreditsViewportFrame(_cesium_omniverse_interface, instance, viewport_index)
-            viewport_index += 1
+            credits_viewport_frame.set_new_credits(self._credits)
+            self._logger.info(f"CreditViewportFrame: created CreditsViewportFrame for viewport window {viewport_index}")
             viewport_frames.append(credits_viewport_frame)
+            viewport_index += 1
         self._credits_viewport_frames = viewport_frames
         self._num_credits_viewport_frames = len(viewport_frames)
 
