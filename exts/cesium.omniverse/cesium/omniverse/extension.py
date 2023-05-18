@@ -52,7 +52,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._main_window: Optional[CesiumOmniverseMainWindow] = None
         self._asset_window: Optional[CesiumOmniverseAssetWindow] = None
         self._debug_window: Optional[CesiumOmniverseDebugWindow] = None
-        self._credits_viewport_frame: Optional[CesiumCreditsViewportFrame] = None
+        self._credits_viewport_frames: List[Optional[CesiumCreditsViewportFrame]] = []
         self._on_stage_subscription: Optional[carb.events.ISubscription] = None
         self._on_update_subscription: Optional[carb.events.ISubscription] = None
         self._show_asset_window_subscription: Optional[carb.events.ISubscription] = None
@@ -66,6 +66,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._attributes_widget_controller: Optional[CesiumAttributesWidgetController] = None
         self._logger: logging.Logger = logging.getLogger(__name__)
         self._menu = None
+        self._num_credits_viewport_frames = 0
 
         try:
             # This installs lxml which is needed for credit display.
@@ -100,7 +101,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         if show_on_startup:
             ui.Workspace.show_window(CesiumOmniverseMainWindow.WINDOW_NAME)
 
-        self._credits_viewport_frame = CesiumCreditsViewportFrame(_cesium_omniverse_interface)
+        self._setup_credits_viewport_frame()
 
         # Subscribe to stage event stream
         usd_context = omni.usd.get_context()
@@ -156,9 +157,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             self._debug_window.destroy()
             self._debug_window = None
 
-        if self._credits_viewport_frame is not None:
-            self._credits_viewport_frame.destroy()
-            self._credits_viewport_frame = None
+        self._destroy_credits_viewport_frames()
 
         # Deregister the function that shows the window from omni.ui
         ui.Workspace.set_show_window_fn(CesiumOmniverseMainWindow.WINDOW_NAME, None)
@@ -216,6 +215,9 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             viewport.width = float(viewport_api.resolution[0])
             viewport.height = float(viewport_api.resolution[1])
             viewports.append(viewport)
+
+        if len(viewports) != self._num_credits_viewport_frames:
+            self._setup_credits_viewport_frame()
 
         _cesium_omniverse_interface.on_update_frame(viewports)
 
@@ -407,3 +409,20 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             asyncio.ensure_future(self._dock_window_async(self._debug_window))
         elif self._debug_window is not None:
             self._debug_window.visible = False
+
+    def _setup_credits_viewport_frame(self):
+        self._destroy_credits_viewport_frames()
+        viewport_frames = []
+        viewport_index = 0
+        for instance in get_viewport_window_instances():
+            credits_viewport_frame = CesiumCreditsViewportFrame(_cesium_omniverse_interface, instance, viewport_index)
+            viewport_index += 1
+            viewport_frames.append(credits_viewport_frame.getFrame())
+        self._credits_viewport_frames = viewport_frames
+        self._num_credits_viewport_frames = len(viewport_frames)
+
+    def _destroy_credits_viewport_frames(self):
+        for credits_viewport_frame in self._credits_viewport_frames:
+            if credits_viewport_frame is not None:
+                credits_viewport_frame.destroy()
+                credits_viewport_frame = None

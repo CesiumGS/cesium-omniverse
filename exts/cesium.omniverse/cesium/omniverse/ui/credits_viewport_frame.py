@@ -2,7 +2,6 @@ import logging
 import carb.events
 import omni.kit.app as app
 import omni.ui as ui
-from omni.kit.viewport.utility import get_active_viewport_window
 from typing import List, Optional, Tuple
 from ..bindings import ICesiumOmniverseInterface
 from .credits_parser import CesiumCreditsParser
@@ -10,13 +9,12 @@ from .credits_window import CesiumOmniverseCreditsWindow
 
 
 class CesiumCreditsViewportFrame:
-    def __init__(self, cesium_omniverse_interface: ICesiumOmniverseInterface):
+    def __init__(self, cesium_omniverse_interface: ICesiumOmniverseInterface, instance, viewport_index: int):
         self._logger = logging.getLogger(__name__)
 
         self._cesium_omniverse_interface = cesium_omniverse_interface
 
-        viewport_window = get_active_viewport_window()
-        self._credits_viewport_frame = viewport_window.get_frame("cesium.omniverse.viewport.ION_CREDITS")
+        self._credits_viewport_frame = instance.get_frame("cesium.omniverse.viewport.ION_CREDITS")
 
         self._credits_window: Optional[CesiumOmniverseCreditsWindow] = None
         self._data_attribution_button: Optional[ui.Button] = None
@@ -27,6 +25,9 @@ class CesiumCreditsViewportFrame:
         self._credits: List[Tuple[str, bool]] = []
 
         self._build_fn()
+
+    def getFrame(self):
+        return self._credits_viewport_frame
 
     def __del__(self):
         self.destroy()
