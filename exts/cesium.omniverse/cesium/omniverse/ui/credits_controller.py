@@ -15,6 +15,8 @@ class CreditsController:
     _parsed_credits: List[ParsedCredit] = []
     _credits: List[Tuple[str, bool]] = []
     _event_handlers = []
+    _subscriptions: List[carb.events.ISubscription] = []
+    _initted: bool = False
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -23,23 +25,24 @@ class CreditsController:
         return cls._instance
 
     def __init__(self):
-        print("CreditsController __init__ run.")
-        CreditsController._logger = logging.getLogger(__name__)
-        self._subscriptions: List[carb.events.ISubscription] = []
-        self._setup_subscriptions()
+        if not CreditsController._initted:
+            print("CreditsController __init__ run.")
+            CreditsController._logger = logging.getLogger(__name__)
+            self._setup_subscriptions()
+            CreditsController._initted = True
 
     def __del__(self):
         if CreditsController._instance is not None:
             self.destroy()
 
     def destroy(self):
-        for subscription in self._subscriptions:
+        for subscription in CreditsController._subscriptions:
             subscription.unsubscribe()
-        self._subscriptions.clear()
+        CreditsController._subscriptions.clear()
 
     def _setup_subscriptions(self):
         update_stream = app.get_app().get_update_event_stream()
-        self._subscriptions.append(
+        CreditsController._subscriptions.append(
             update_stream.create_subscription_to_pop(
                 self._on_update_frame, name="cesium.omniverse.viewport.ON_UPDATE_FRAME"
             )
