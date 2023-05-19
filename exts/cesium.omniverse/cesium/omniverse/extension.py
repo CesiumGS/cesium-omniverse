@@ -20,7 +20,7 @@ from omni.kit.viewport.window import get_viewport_window_instances
 import omni.ui as ui
 import omni.usd
 import os
-from typing import List, Optional, Callable, Tuple
+from typing import List, Optional, Callable
 from .ui.credits_controller import CreditsController
 
 cesium_extension_location = os.path.join(os.path.dirname(__file__), "../../")
@@ -425,12 +425,9 @@ class CesiumOmniverseExtension(omni.ext.IExt):
     def _setup_credits_viewport_frames(self):
         self._destroy_credits_viewport_frames()
         viewport_frames = []
-        viewport_index = 0
         for instance in get_viewport_window_instances():
-            credits_viewport_frame = CesiumCreditsViewportFrame(_cesium_omniverse_interface, instance, viewport_index)
-            self._logger.info(f"CreditViewportFrame: created CreditsViewportFrame for viewport window {viewport_index}")
+            credits_viewport_frame = CesiumCreditsViewportFrame(_cesium_omniverse_interface, instance)
             viewport_frames.append(credits_viewport_frame)
-            viewport_index += 1
         self._credits_viewport_frames = viewport_frames
 
     def _destroy_credits_viewport_frames(self):

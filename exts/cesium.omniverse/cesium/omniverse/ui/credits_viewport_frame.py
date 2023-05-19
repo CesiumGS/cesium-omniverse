@@ -10,7 +10,7 @@ from .credits_controller import CreditsController
 
 
 class CesiumCreditsViewportFrame:
-    def __init__(self, cesium_omniverse_interface: ICesiumOmniverseInterface, instance, viewport_index: int):
+    def __init__(self, cesium_omniverse_interface: ICesiumOmniverseInterface, instance):
         self._logger = logging.getLogger(__name__)
 
         self._cesium_omniverse_interface = cesium_omniverse_interface
@@ -24,11 +24,8 @@ class CesiumCreditsViewportFrame:
         self._setup_subscriptions()
 
         self._credits: List[Tuple[str, bool]] = []
-        # self._new_credits: List[Tuple[str, bool]] = []
-
-        self._viewport_index = viewport_index
-
         self._new_credits = CreditsController().get_current_credits()
+
         CreditsController().register_handler(self)
 
         self._build_fn()
