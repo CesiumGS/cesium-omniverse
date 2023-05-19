@@ -52,18 +52,18 @@ class CreditsViewportController:
 
         new_credits = CreditsViewportController._cesium_omniverse_interface.get_credits()
         # cheap test
-        if (new_credits != CreditsViewportController._credits):
+        if new_credits != CreditsViewportController._credits:
             CreditsViewportController._logger.info("CreditsViewportController credits have changed")
             CreditsViewportController._credits.clear()
             CreditsViewportController._credits.extend(new_credits)
 
             # deep test
             credits_parser = CesiumCreditsParser(
-                                new_credits,
-                                should_show_on_screen=True,
-                                combine_labels=True,
-                                label_alignment=ui.Alignment.RIGHT,
-                            )
+                new_credits,
+                should_show_on_screen=True,
+                combine_labels=True,
+                label_alignment=ui.Alignment.RIGHT,
+            )
             new_parsed_credits = credits_parser._parse_credits(new_credits, True, False)
             if new_parsed_credits != CreditsViewportController._parsed_credits:
                 CreditsViewportController._logger.info("CreditsViewportController: parsed credits changed")
