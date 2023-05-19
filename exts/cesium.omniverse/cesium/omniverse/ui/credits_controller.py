@@ -1,12 +1,16 @@
 from .credits_parser import CesiumCreditsParser
-from typing import List
+from typing import List, Optional
 import logging
 import carb.events
 import omni.kit.app as app
+from ..bindings import ICesiumOmniverseInterface
 
 
 class CreditsController:
     _instance = None
+    _cesium_omniverse_interface = None
+    _some_string = None
+    _logger: Optional[logging.Logger] = None
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -16,12 +20,13 @@ class CreditsController:
 
     def __init__(self):
         print("CreditsController __init__ run.")
-        self._logger = logging.getLogger(__name__)
+        CreditsController._logger = logging.getLogger(__name__)
         self._subscriptions: List[carb.events.ISubscription] = []
         self._setup_subscriptions()
 
     def __del__(self):
-        self.destroy()
+        if CreditsController._instance is not None:
+            self.destroy()
 
     def destroy(self):
         for subscription in self._subscriptions:
@@ -37,7 +42,21 @@ class CreditsController:
         )
 
     def _on_update_frame(self, _e: carb.events.IEvent):
-        self._logger.info("CreditsController is updating the frame")
+        # if _cesium_omniverse_interface is None:
+        #     return
 
-    def start(self):
-        pass
+        CreditsController._logger.info("CreditsController is updating the frame")
+        new_credits = CreditsController._cesium_omniverse_interface.get_credits()
+        # if new_credits != self._credits:
+        #     self._credits.clear()
+        #     self._credits.extend(new_credits)
+        #     self._logger.info("CreditViewportFrame: credits changed, triggering CreditsViewportFrames setup")
+        #     self._setup_credits_viewport_frames()
+        #     self._credits = new_credits
+        new_credits_len = len(new_credits)
+        CreditsController._logger.info(f"CreditsController credits is length {new_credits_len}")
+        CreditsController._cesium_omniverse_interface.credits_start_next_frame()
+
+    def start(self, cesium_omniverse_interface: ICesiumOmniverseInterface):
+        CreditsController._cesium_omniverse_interface = cesium_omniverse_interface
+        CreditsController._logger.info("CreditsController in start")

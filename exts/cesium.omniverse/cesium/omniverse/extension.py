@@ -103,7 +103,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         if show_on_startup:
             ui.Workspace.show_window(CesiumOmniverseMainWindow.WINDOW_NAME)
 
-        CreditsController().start()
+        CreditsController().start(_cesium_omniverse_interface)
         self._setup_credits_viewport_frames()
 
         # Subscribe to stage event stream
@@ -223,15 +223,16 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             self._logger.info("CreditViewportFrame: num viewports changed, triggering CreditsViewportFrames setup")
             self._setup_credits_viewport_frames()
 
+        # new_credits = _cesium_omniverse_interface.get_credits()
+        # if new_credits != self._credits:
+        #     self._credits.clear()
+        #     self._credits.extend(new_credits)
+        #     self._logger.info("CreditViewportFrame: credits changed, triggering CreditsViewportFrames setup")
+        #     self._setup_credits_viewport_frames()
+        #     self._credits = new_credits
+        # _cesium_omniverse_interface.credits_start_next_frame()
         _cesium_omniverse_interface.on_update_frame(viewports)
-        new_credits = _cesium_omniverse_interface.get_credits()
-        if new_credits != self._credits:
-            self._credits.clear()
-            self._credits.extend(new_credits)
-            self._logger.info("CreditViewportFrame: credits changed, triggering CreditsViewportFrames setup")
-            self._setup_credits_viewport_frames()
-            self._credits = new_credits
-        _cesium_omniverse_interface.credits_start_next_frame()
+
 
     def _on_stage_event(self, event):
         if _cesium_omniverse_interface is None:
