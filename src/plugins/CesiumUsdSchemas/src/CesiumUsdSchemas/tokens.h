@@ -63,6 +63,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumData
     const TfToken cesiumDebugMaterialPoolInitialCapacity;
+    /// \brief "cesium:ecefToUsdTransform"
+    /// 
+    /// CesiumSession
+    const TfToken cesiumEcefToUsdTransform;
     /// \brief "cesium:enableFogCulling"
     /// 
     /// CesiumTilesetAPI

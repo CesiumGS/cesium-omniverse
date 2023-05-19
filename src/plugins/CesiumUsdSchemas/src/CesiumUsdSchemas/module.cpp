@@ -8,6 +8,7 @@ TF_WRAP_MODULE
 {
   TF_WRAP(CesiumData);
   TF_WRAP(CesiumImagery);
+  TF_WRAP(CesiumSession);
   TF_WRAP(CesiumTilesetAPI);
   TF_WRAP(CesiumTokens);
 }
