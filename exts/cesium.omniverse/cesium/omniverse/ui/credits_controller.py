@@ -1,9 +1,10 @@
-from .credits_parser import CesiumCreditsParser
-from typing import List, Optional
+from .credits_parser import CesiumCreditsParser, ParsedCredit
+from typing import List, Optional, Tuple
 import logging
 import carb.events
 import omni.kit.app as app
 from ..bindings import ICesiumOmniverseInterface
+import omni.ui as ui
 
 
 class CreditsController:
@@ -11,6 +12,8 @@ class CreditsController:
     _cesium_omniverse_interface = None
     _some_string = None
     _logger: Optional[logging.Logger] = None
+    _parsed_credits: List[ParsedCredit] = []
+    _credits: List[Tuple[str, bool]] = []
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -42,19 +45,27 @@ class CreditsController:
         )
 
     def _on_update_frame(self, _e: carb.events.IEvent):
-        # if _cesium_omniverse_interface is None:
-        #     return
+        if CreditsController._cesium_omniverse_interface is None:
+            return
 
-        CreditsController._logger.info("CreditsController is updating the frame")
         new_credits = CreditsController._cesium_omniverse_interface.get_credits()
-        # if new_credits != self._credits:
-        #     self._credits.clear()
-        #     self._credits.extend(new_credits)
-        #     self._logger.info("CreditViewportFrame: credits changed, triggering CreditsViewportFrames setup")
-        #     self._setup_credits_viewport_frames()
-        #     self._credits = new_credits
-        new_credits_len = len(new_credits)
-        CreditsController._logger.info(f"CreditsController credits is length {new_credits_len}")
+        # cheap test
+        if (new_credits != CreditsController._credits):
+            CreditsController._logger.info("CreditsController credits have changed")
+            CreditsController._credits.clear()
+            CreditsController._credits.extend(new_credits)
+
+            # deep test
+            credits_parser = CesiumCreditsParser(
+                                new_credits,
+                                should_show_on_screen=True,
+                                combine_labels=True,
+                                label_alignment=ui.Alignment.RIGHT,
+                            )
+            new_parsed_credits = credits_parser._parse_credits(new_credits, True, False)
+            if new_parsed_credits != CreditsController._parsed_credits:
+                CreditsController._logger.info("CreditsController: parsed credits changed")
+                CreditsController._parsed_credits = new_parsed_credits
         CreditsController._cesium_omniverse_interface.credits_start_next_frame()
 
     def start(self, cesium_omniverse_interface: ICesiumOmniverseInterface):

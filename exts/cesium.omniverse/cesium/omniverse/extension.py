@@ -219,9 +219,9 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             viewport.height = float(viewport_api.resolution[1])
             viewports.append(viewport)
 
-        if len(viewports) != self._num_credits_viewport_frames:
-            self._logger.info("CreditViewportFrame: num viewports changed, triggering CreditsViewportFrames setup")
-            self._setup_credits_viewport_frames()
+        #if len(viewports) != self._num_credits_viewport_frames:
+        #    self._logger.info("CreditViewportFrame: num viewports changed, triggering CreditsViewportFrames setup")
+        #    self._setup_credits_viewport_frames()
 
         # new_credits = _cesium_omniverse_interface.get_credits()
         # if new_credits != self._credits:
