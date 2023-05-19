@@ -14,6 +14,7 @@ class CreditsController:
     _logger: Optional[logging.Logger] = None
     _parsed_credits: List[ParsedCredit] = []
     _credits: List[Tuple[str, bool]] = []
+    _event_handlers = []
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -52,6 +53,8 @@ class CreditsController:
         # cheap test
         if (new_credits != CreditsController._credits):
             CreditsController._logger.info("CreditsController credits have changed")
+            CreditsController.send_event(self, "Event: credits changed")
+
             CreditsController._credits.clear()
             CreditsController._credits.extend(new_credits)
 
@@ -71,3 +74,10 @@ class CreditsController:
     def start(self, cesium_omniverse_interface: ICesiumOmniverseInterface):
         CreditsController._cesium_omniverse_interface = cesium_omniverse_interface
         CreditsController._logger.info("CreditsController in start")
+
+    def register_handler(self, handler):
+        CreditsController._event_handlers.append(handler)
+
+    def send_event(self, event):
+        for handler in self._event_handlers:
+            handler.handle_event(event)
