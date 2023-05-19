@@ -21,7 +21,7 @@ import omni.ui as ui
 import omni.usd
 import os
 from typing import List, Optional, Callable
-from .ui.credits_controller import CreditsController
+from .ui.credits_viewport_controller import CreditsViewportController
 
 cesium_extension_location = os.path.join(os.path.dirname(__file__), "../../")
 
@@ -102,7 +102,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         if show_on_startup:
             ui.Workspace.show_window(CesiumOmniverseMainWindow.WINDOW_NAME)
 
-        CreditsController().start(_cesium_omniverse_interface)
+        CreditsViewportController().start(_cesium_omniverse_interface)
         self._setup_credits_viewport_frames()
 
         # Subscribe to stage event stream
@@ -435,4 +435,4 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             if credits_viewport_frame is not None:
                 credits_viewport_frame.destroy()
                 credits_viewport_frame = None
-        CreditsController().clear_handlers()
+        CreditsViewportController().clear_handlers()

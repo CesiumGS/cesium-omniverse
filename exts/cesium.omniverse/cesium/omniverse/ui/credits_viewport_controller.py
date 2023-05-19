@@ -7,7 +7,7 @@ from ..bindings import ICesiumOmniverseInterface
 import omni.ui as ui
 
 
-class CreditsController:
+class CreditsViewportController:
     _instance = None
     _cesium_omniverse_interface = None
     _some_string = None
@@ -21,43 +21,41 @@ class CreditsController:
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = super().__new__(cls, *args, **kwargs)
-            print("CreditsController __new__ run.")
         return cls._instance
 
     def __init__(self):
-        if not CreditsController._initted:
-            print("CreditsController __init__ run.")
-            CreditsController._logger = logging.getLogger(__name__)
+        if not CreditsViewportController._initted:
+            CreditsViewportController._logger = logging.getLogger(__name__)
             self._setup_subscriptions()
-            CreditsController._initted = True
+            CreditsViewportController._initted = True
 
     def __del__(self):
-        if CreditsController._instance is not None:
+        if CreditsViewportController._instance is not None:
             self.destroy()
 
     def destroy(self):
-        for subscription in CreditsController._subscriptions:
+        for subscription in CreditsViewportController._subscriptions:
             subscription.unsubscribe()
-        CreditsController._subscriptions.clear()
+        CreditsViewportController._subscriptions.clear()
 
     def _setup_subscriptions(self):
         update_stream = app.get_app().get_update_event_stream()
-        CreditsController._subscriptions.append(
+        CreditsViewportController._subscriptions.append(
             update_stream.create_subscription_to_pop(
                 self._on_update_frame, name="cesium.omniverse.viewport.ON_UPDATE_FRAME"
             )
         )
 
     def _on_update_frame(self, _e: carb.events.IEvent):
-        if CreditsController._cesium_omniverse_interface is None:
+        if CreditsViewportController._cesium_omniverse_interface is None:
             return
 
-        new_credits = CreditsController._cesium_omniverse_interface.get_credits()
+        new_credits = CreditsViewportController._cesium_omniverse_interface.get_credits()
         # cheap test
-        if (new_credits != CreditsController._credits):
-            CreditsController._logger.info("CreditsController credits have changed")
-            CreditsController._credits.clear()
-            CreditsController._credits.extend(new_credits)
+        if (new_credits != CreditsViewportController._credits):
+            CreditsViewportController._logger.info("CreditsViewportController credits have changed")
+            CreditsViewportController._credits.clear()
+            CreditsViewportController._credits.extend(new_credits)
 
             # deep test
             credits_parser = CesiumCreditsParser(
@@ -67,25 +65,25 @@ class CreditsController:
                                 label_alignment=ui.Alignment.RIGHT,
                             )
             new_parsed_credits = credits_parser._parse_credits(new_credits, True, False)
-            if new_parsed_credits != CreditsController._parsed_credits:
-                CreditsController._logger.info("CreditsController: parsed credits changed")
-                CreditsController.send_event(self, new_credits)
-                CreditsController._parsed_credits = new_parsed_credits
-        CreditsController._cesium_omniverse_interface.credits_start_next_frame()
+            if new_parsed_credits != CreditsViewportController._parsed_credits:
+                CreditsViewportController._logger.info("CreditsViewportController: parsed credits changed")
+                CreditsViewportController.send_event(self, new_credits)
+                CreditsViewportController._parsed_credits = new_parsed_credits
+        CreditsViewportController._cesium_omniverse_interface.credits_start_next_frame()
 
     def start(self, cesium_omniverse_interface: ICesiumOmniverseInterface):
-        CreditsController._cesium_omniverse_interface = cesium_omniverse_interface
-        CreditsController._logger.info("CreditsController in start")
+        CreditsViewportController._cesium_omniverse_interface = cesium_omniverse_interface
+        CreditsViewportController._logger.info("CreditsViewportController in start")
 
     def register_handler(self, handler):
-        CreditsController._event_handlers.append(handler)
+        CreditsViewportController._event_handlers.append(handler)
 
     def send_event(self, event):
-        for handler in CreditsController._event_handlers:
+        for handler in CreditsViewportController._event_handlers:
             handler.handle_event(event)
 
     def clear_handlers(self):
-        CreditsController._event_handlers = []
+        CreditsViewportController._event_handlers = []
 
     def get_current_credits(self):
-        return CreditsController._credits
+        return CreditsViewportController._credits

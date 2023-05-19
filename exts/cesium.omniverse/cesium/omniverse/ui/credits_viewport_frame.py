@@ -6,7 +6,7 @@ from typing import List, Optional, Tuple
 from ..bindings import ICesiumOmniverseInterface
 from .credits_parser import CesiumCreditsParser
 from .credits_window import CesiumOmniverseCreditsWindow
-from .credits_controller import CreditsController
+from .credits_viewport_controller import CreditsViewportController
 
 
 class CesiumCreditsViewportFrame:
@@ -24,9 +24,9 @@ class CesiumCreditsViewportFrame:
         self._setup_subscriptions()
 
         self._credits: List[Tuple[str, bool]] = []
-        self._new_credits = CreditsController().get_current_credits()
+        self._new_credits = CreditsViewportController().get_current_credits()
 
-        CreditsController().register_handler(self)
+        CreditsViewportController().register_handler(self)
 
         self._build_fn()
 
@@ -106,5 +106,4 @@ class CesiumCreditsViewportFrame:
         self._new_credits = credits
 
     def handle_event(self, event):
-        print("Event received from CreditsController")
         self._new_credits = event
