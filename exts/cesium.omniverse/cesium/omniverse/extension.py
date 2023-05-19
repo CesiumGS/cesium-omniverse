@@ -21,6 +21,7 @@ import omni.ui as ui
 import omni.usd
 import os
 from typing import List, Optional, Callable, Tuple
+from .ui.credits_controller import CreditsController
 
 cesium_extension_location = os.path.join(os.path.dirname(__file__), "../../")
 
@@ -102,6 +103,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         if show_on_startup:
             ui.Workspace.show_window(CesiumOmniverseMainWindow.WINDOW_NAME)
 
+        CreditsController().start()
         self._setup_credits_viewport_frames()
 
         # Subscribe to stage event stream
