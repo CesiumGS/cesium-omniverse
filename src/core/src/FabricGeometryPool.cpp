@@ -4,10 +4,15 @@
 
 namespace cesium::omniverse {
 
-FabricGeometryPool::FabricGeometryPool(int64_t poolId, const FabricGeometryDefinition& geometryDefinition)
+FabricGeometryPool::FabricGeometryPool(
+    int64_t poolId,
+    const FabricGeometryDefinition& geometryDefinition,
+    uint64_t initialCapacity)
     : ObjectPool<FabricGeometry>()
     , _poolId(poolId)
-    , _geometryDefinition(geometryDefinition) {}
+    , _geometryDefinition(geometryDefinition) {
+    setCapacity(initialCapacity);
+}
 
 const FabricGeometryDefinition& FabricGeometryPool::getGeometryDefinition() const {
     return _geometryDefinition;
