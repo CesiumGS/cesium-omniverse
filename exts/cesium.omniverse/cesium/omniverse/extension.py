@@ -223,14 +223,6 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             self._setup_credits_viewport_frames()
             self._num_credits_viewport_frames = len(viewports)
 
-        # new_credits = _cesium_omniverse_interface.get_credits()
-        # if new_credits != self._credits:
-        #     self._credits.clear()
-        #     self._credits.extend(new_credits)
-        #     self._logger.info("CreditViewportFrame: credits changed, triggering CreditsViewportFrames setup")
-        #     self._setup_credits_viewport_frames()
-        #     self._credits = new_credits
-        # _cesium_omniverse_interface.credits_start_next_frame()
         _cesium_omniverse_interface.on_update_frame(viewports)
 
     def _on_stage_event(self, event):
