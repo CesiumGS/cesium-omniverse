@@ -53,8 +53,6 @@ class CreditsController:
         # cheap test
         if (new_credits != CreditsController._credits):
             CreditsController._logger.info("CreditsController credits have changed")
-            CreditsController.send_event(self, "Event: credits changed")
-
             CreditsController._credits.clear()
             CreditsController._credits.extend(new_credits)
 
@@ -68,6 +66,7 @@ class CreditsController:
             new_parsed_credits = credits_parser._parse_credits(new_credits, True, False)
             if new_parsed_credits != CreditsController._parsed_credits:
                 CreditsController._logger.info("CreditsController: parsed credits changed")
+                CreditsController.send_event(self, new_credits)
                 CreditsController._parsed_credits = new_parsed_credits
         CreditsController._cesium_omniverse_interface.credits_start_next_frame()
 
@@ -79,5 +78,11 @@ class CreditsController:
         CreditsController._event_handlers.append(handler)
 
     def send_event(self, event):
-        for handler in self._event_handlers:
+        for handler in CreditsController._event_handlers:
             handler.handle_event(event)
+
+    def clear_handlers(self):
+        CreditsController._event_handlers = []
+
+    def get_current_credits(self):
+        return CreditsController._credits

@@ -24,10 +24,11 @@ class CesiumCreditsViewportFrame:
         self._setup_subscriptions()
 
         self._credits: List[Tuple[str, bool]] = []
-        self._new_credits: List[Tuple[str, bool]] = []
+        # self._new_credits: List[Tuple[str, bool]] = []
 
         self._viewport_index = viewport_index
 
+        self._new_credits = CreditsController().get_current_credits()
         CreditsController().register_handler(self)
 
         self._build_fn()
@@ -108,4 +109,5 @@ class CesiumCreditsViewportFrame:
         self._new_credits = credits
 
     def handle_event(self, event):
-        print(f"Event received: {event}")
+        print("Event received from CreditsController")
+        self._new_credits = event

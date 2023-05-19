@@ -68,7 +68,6 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._logger: logging.Logger = logging.getLogger(__name__)
         self._menu = None
         self._num_credits_viewport_frames = 0
-        self._credits: List[Tuple[str, bool]] = []
 
         try:
             # This installs lxml which is needed for credit display.
@@ -219,9 +218,10 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             viewport.height = float(viewport_api.resolution[1])
             viewports.append(viewport)
 
-        #if len(viewports) != self._num_credits_viewport_frames:
-        #    self._logger.info("CreditViewportFrame: num viewports changed, triggering CreditsViewportFrames setup")
-        #    self._setup_credits_viewport_frames()
+        if len(viewports) != self._num_credits_viewport_frames:
+            self._logger.info("CreditViewportFrame: num viewports changed, triggering CreditsViewportFrames setup")
+            self._setup_credits_viewport_frames()
+            self._num_credits_viewport_frames = len(viewports)
 
         # new_credits = _cesium_omniverse_interface.get_credits()
         # if new_credits != self._credits:
@@ -232,7 +232,6 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         #     self._credits = new_credits
         # _cesium_omniverse_interface.credits_start_next_frame()
         _cesium_omniverse_interface.on_update_frame(viewports)
-
 
     def _on_stage_event(self, event):
         if _cesium_omniverse_interface is None:
@@ -429,15 +428,14 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         viewport_index = 0
         for instance in get_viewport_window_instances():
             credits_viewport_frame = CesiumCreditsViewportFrame(_cesium_omniverse_interface, instance, viewport_index)
-            credits_viewport_frame.set_new_credits(self._credits)
             self._logger.info(f"CreditViewportFrame: created CreditsViewportFrame for viewport window {viewport_index}")
             viewport_frames.append(credits_viewport_frame)
             viewport_index += 1
         self._credits_viewport_frames = viewport_frames
-        self._num_credits_viewport_frames = len(viewport_frames)
 
     def _destroy_credits_viewport_frames(self):
         for credits_viewport_frame in self._credits_viewport_frames:
             if credits_viewport_frame is not None:
                 credits_viewport_frame.destroy()
                 credits_viewport_frame = None
+        CreditsController().clear_handlers()
