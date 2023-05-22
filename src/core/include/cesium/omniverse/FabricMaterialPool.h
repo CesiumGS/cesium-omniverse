@@ -8,7 +8,7 @@ namespace cesium::omniverse {
 
 class FabricMaterialPool final : public ObjectPool<FabricMaterial> {
   public:
-    FabricMaterialPool(int64_t poolId, const FabricMaterialDefinition& materialDefinition);
+    FabricMaterialPool(int64_t poolId, const FabricMaterialDefinition& materialDefinition, uint64_t initialCapacity);
 
     const FabricMaterialDefinition& getMaterialDefinition() const;
 

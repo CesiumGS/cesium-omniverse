@@ -120,7 +120,7 @@ private:
 
 public:
     // --------------------------------------------------------------------- //
-    // PROJECTDEFAULTIONACCESSTOKEN
+    // PROJECTDEFAULTIONACCESSTOKEN 
     // --------------------------------------------------------------------- //
     /// A string representing the token for accessing Cesium ion assets.
     ///
@@ -131,7 +131,7 @@ public:
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
     UsdAttribute GetProjectDefaultIonAccessTokenAttr() const;
 
-    /// See GetProjectDefaultIonAccessTokenAttr(), and also
+    /// See GetProjectDefaultIonAccessTokenAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
@@ -140,7 +140,7 @@ public:
 
 public:
     // --------------------------------------------------------------------- //
-    // PROJECTDEFAULTIONACCESSTOKENID
+    // PROJECTDEFAULTIONACCESSTOKENID 
     // --------------------------------------------------------------------- //
     /// A string representing the token ID for accessing Cesium ion assets.
     ///
@@ -151,7 +151,7 @@ public:
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
     UsdAttribute GetProjectDefaultIonAccessTokenIdAttr() const;
 
-    /// See GetProjectDefaultIonAccessTokenIdAttr(), and also
+    /// See GetProjectDefaultIonAccessTokenIdAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
@@ -160,7 +160,7 @@ public:
 
 public:
     // --------------------------------------------------------------------- //
-    // GEOREFERENCEORIGINLONGITUDE
+    // GEOREFERENCEORIGINLONGITUDE 
     // --------------------------------------------------------------------- //
     /// The longitude of the origin in degrees, in the range [-180, 180].
     ///
@@ -171,7 +171,7 @@ public:
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double |
     UsdAttribute GetGeoreferenceOriginLongitudeAttr() const;
 
-    /// See GetGeoreferenceOriginLongitudeAttr(), and also
+    /// See GetGeoreferenceOriginLongitudeAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
@@ -180,7 +180,7 @@ public:
 
 public:
     // --------------------------------------------------------------------- //
-    // GEOREFERENCEORIGINLATITUDE
+    // GEOREFERENCEORIGINLATITUDE 
     // --------------------------------------------------------------------- //
     /// The latitude of the origin in degrees, in the range [-90, 90].
     ///
@@ -191,7 +191,7 @@ public:
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double |
     UsdAttribute GetGeoreferenceOriginLatitudeAttr() const;
 
-    /// See GetGeoreferenceOriginLatitudeAttr(), and also
+    /// See GetGeoreferenceOriginLatitudeAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
@@ -200,7 +200,7 @@ public:
 
 public:
     // --------------------------------------------------------------------- //
-    // GEOREFERENCEORIGINHEIGHT
+    // GEOREFERENCEORIGINHEIGHT 
     // --------------------------------------------------------------------- //
     /// The height of the origin in meters above the WGS84 ellipsoid. Do not confuse this with a geoid height or height above mean sea level, which can be tens of meters higher or lower depending on where in the world the origin is located.
     ///
@@ -211,7 +211,7 @@ public:
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double |
     UsdAttribute GetGeoreferenceOriginHeightAttr() const;
 
-    /// See GetGeoreferenceOriginHeightAttr(), and also
+    /// See GetGeoreferenceOriginHeightAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
@@ -219,12 +219,112 @@ public:
     UsdAttribute CreateGeoreferenceOriginHeightAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
+    // --------------------------------------------------------------------- //
+    // DEBUGDISABLEMATERIALS 
+    // --------------------------------------------------------------------- //
+    /// Debug option that renders tilesets with materials disabled.
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `bool cesium:debug:disableMaterials = 0` |
+    /// | C++ Type | bool |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
+    UsdAttribute GetDebugDisableMaterialsAttr() const;
+
+    /// See GetDebugDisableMaterialsAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    UsdAttribute CreateDebugDisableMaterialsAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
+    // DEBUGDISABLEGEOMETRYPOOL 
+    // --------------------------------------------------------------------- //
+    /// Debug option that disables geometry pooling.
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `bool cesium:debug:disableGeometryPool = 1` |
+    /// | C++ Type | bool |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
+    UsdAttribute GetDebugDisableGeometryPoolAttr() const;
+
+    /// See GetDebugDisableGeometryPoolAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    UsdAttribute CreateDebugDisableGeometryPoolAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
+    // DEBUGDISABLEMATERIALPOOL 
+    // --------------------------------------------------------------------- //
+    /// Debug option that disables material pooling.
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `bool cesium:debug:disableMaterialPool = 0` |
+    /// | C++ Type | bool |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
+    UsdAttribute GetDebugDisableMaterialPoolAttr() const;
+
+    /// See GetDebugDisableMaterialPoolAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    UsdAttribute CreateDebugDisableMaterialPoolAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
+    // DEBUGGEOMETRYPOOLINITIALCAPACITY 
+    // --------------------------------------------------------------------- //
+    /// Debug option that controls the initial capacity of the geometry pool.
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `uint64 cesium:debug:geometryPoolInitialCapacity = 0` |
+    /// | C++ Type | uint64_t |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->UInt64 |
+    UsdAttribute GetDebugGeometryPoolInitialCapacityAttr() const;
+
+    /// See GetDebugGeometryPoolInitialCapacityAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    UsdAttribute CreateDebugGeometryPoolInitialCapacityAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
+    // DEBUGMATERIALPOOLINITIALCAPACITY 
+    // --------------------------------------------------------------------- //
+    /// Debug option that controls the initial capacity of the material pool.
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `uint64 cesium:debug:materialPoolInitialCapacity = 2048` |
+    /// | C++ Type | uint64_t |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->UInt64 |
+    UsdAttribute GetDebugMaterialPoolInitialCapacityAttr() const;
+
+    /// See GetDebugMaterialPoolInitialCapacityAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    UsdAttribute CreateDebugMaterialPoolInitialCapacityAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
     // ===================================================================== //
-    // Feel free to add custom code below this line, it will be preserved by
-    // the code generator.
+    // Feel free to add custom code below this line, it will be preserved by 
+    // the code generator. 
     //
-    // Just remember to:
-    //  - Close the class declaration with };
+    // Just remember to: 
+    //  - Close the class declaration with }; 
     //  - Close the namespace with PXR_NAMESPACE_CLOSE_SCOPE
     //  - Close the include guard with #endif
     // ===================================================================== //
