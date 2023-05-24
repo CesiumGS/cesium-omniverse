@@ -55,7 +55,8 @@
       "editorconfig.editorconfig",
       "cheshirekow.cmake-format",
       "redhat.vscode-yaml",
-      "tamasfe.even-better-toml"
+      "tamasfe.even-better-toml",
+      "ms-python.black-formatter"
     ],
     "unwantedRecommendations": []
   }
