@@ -39,7 +39,10 @@
     "python.analysis.typeCheckingMode": "basic",
     "python.linting.enabled": true,
     "python.linting.pylintEnabled": false,
-    "python.linting.flake8Enabled": true
+    "python.linting.flake8Enabled": true,
+    "[python]": {
+      "editor.defaultFormatter": "ms-python.black-formatter"
+    }
   },
   "extensions": {
     "recommendations": [
@@ -52,7 +55,8 @@
       "editorconfig.editorconfig",
       "cheshirekow.cmake-format",
       "redhat.vscode-yaml",
-      "tamasfe.even-better-toml"
+      "tamasfe.even-better-toml",
+      "ms-python.black-formatter"
     ],
     "unwantedRecommendations": []
   }
