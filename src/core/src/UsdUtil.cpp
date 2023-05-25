@@ -8,6 +8,7 @@
 #include <CesiumGeospatial/GlobeTransforms.h>
 #include <glm/gtc/matrix_access.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
+#include <pxr/usd/sdf/primSpec.h>
 #include <pxr/usd/usd/prim.h>
 #include <pxr/usd/usd/stage.h>
 #include <pxr/usd/usd/timeCode.h>
@@ -276,6 +277,15 @@ pxr::CesiumData defineCesiumData(const pxr::SdfPath& path) {
     return cesiumData;
 }
 
+pxr::CesiumSession defineCesiumSession(const pxr::SdfPath& path) {
+    auto stage = getUsdStage();
+    auto cesiumSession = pxr::CesiumSession::Define(stage, path);
+
+    cesiumSession.CreateEcefToUsdTransformAttr();
+
+    return cesiumSession;
+}
+
 pxr::CesiumTilesetAPI defineCesiumTileset(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto xform = pxr::UsdGeomXform::Define(stage, path);
@@ -329,6 +339,28 @@ pxr::CesiumData getOrCreateCesiumData() {
     return defineCesiumData(CesiumDataPath);
 }
 
+pxr::CesiumSession getOrCreateCesiumSession() {
+    static const auto CesiumSessionPath = pxr::SdfPath("/CesiumSession");
+
+    auto stage = getUsdStage();
+
+    if (isCesiumSession(CesiumSessionPath)) {
+        auto cesiumSession = pxr::CesiumSession::Get(stage, CesiumSessionPath);
+        return cesiumSession;
+    }
+
+    // Ensures that CesiumSession is created in the session layer
+    const ScopedEdit scopedEdit(stage);
+
+    // Create the CesiumSession prim
+    const auto cesiumSession = defineCesiumSession(CesiumSessionPath);
+
+    // Prevent CesiumSession from being traversed and composed into the stage
+    cesiumSession.GetPrim().SetActive(false);
+
+    return cesiumSession;
+}
+
 pxr::CesiumTilesetAPI getCesiumTileset(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto tileset = pxr::CesiumTilesetAPI::Get(stage, path);
@@ -367,6 +399,16 @@ bool isCesiumData(const pxr::SdfPath& path) {
     }
 
     return prim.IsA<pxr::CesiumData>();
+}
+
+bool isCesiumSession(const pxr::SdfPath& path) {
+    auto stage = getUsdStage();
+    auto prim = stage->GetPrimAtPath(path);
+    if (!prim.IsValid()) {
+        return false;
+    }
+
+    return prim.IsA<pxr::CesiumSession>();
 }
 
 bool isCesiumTileset(const pxr::SdfPath& path) {

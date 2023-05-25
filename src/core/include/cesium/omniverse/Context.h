@@ -160,6 +160,8 @@ class Context {
 
     std::filesystem::path _cesiumExtensionLocation;
     std::filesystem::path _certificatePath;
+
+    glm::dmat4 _ecefToUsdTransform;
 };
 
 } // namespace cesium::omniverse
