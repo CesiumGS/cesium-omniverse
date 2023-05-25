@@ -7,6 +7,26 @@ class CesiumDataPrim "CesiumDataPrim" (
     doc = "Stores stage level data for Cesium for Omniverse/USD."
 )
 {
+    bool cesium:debug:disableGeometryPool = 0 (
+        displayName = "Disable Geometry Pool"
+        doc = "Debug option that disables geometry pooling."
+    )
+    bool cesium:debug:disableMaterialPool = 0 (
+        displayName = "Disable Material Pool"
+        doc = "Debug option that disables material pooling."
+    )
+    bool cesium:debug:disableMaterials = 0 (
+        displayName = "Disable Materials"
+        doc = "Debug option that renders tilesets with materials disabled."
+    )
+    uint64 cesium:debug:geometryPoolInitialCapacity = 0 (
+        displayName = "Geometry Pool Initial Capacity"
+        doc = "Debug option that controls the initial capacity of the geometry pool."
+    )
+    uint64 cesium:debug:materialPoolInitialCapacity = 2048 (
+        displayName = "Material Pool Initial Capacity"
+        doc = "Debug option that controls the initial capacity of the material pool."
+    )
     double cesium:georeferenceOrigin:height = 2250 (
         displayName = "Georeference Origin Height"
         doc = "The height of the origin in meters above the WGS84 ellipsoid. Do not confuse this with a geoid height or height above mean sea level, which can be tens of meters higher or lower depending on where in the world the origin is located."
@@ -26,6 +46,16 @@ class CesiumDataPrim "CesiumDataPrim" (
     string cesium:projectDefaultIonAccessTokenId = "" (
         displayName = "Project default ion Access Token ID"
         doc = "A string representing the token ID for accessing Cesium ion assets."
+    )
+}
+
+class CesiumSessionPrim "CesiumSessionPrim" (
+    doc = "Stores session layer state for Cesium for Omniverse/USD."
+)
+{
+    matrix4d cesium:ecefToUsdTransform (
+        displayName = "ECEF to USD Transform"
+        doc = "The 4x4 transformation matrix (row major) from global ECEF coordinates to USD stage coordinates based on the georeference origin."
     )
 }
 

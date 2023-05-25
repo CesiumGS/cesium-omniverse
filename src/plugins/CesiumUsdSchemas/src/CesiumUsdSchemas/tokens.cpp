@@ -4,6 +4,12 @@ PXR_NAMESPACE_OPEN_SCOPE
 
 CesiumTokensType::CesiumTokensType() :
     cesiumCulledScreenSpaceError("cesium:culledScreenSpaceError", TfToken::Immortal),
+    cesiumDebugDisableGeometryPool("cesium:debug:disableGeometryPool", TfToken::Immortal),
+    cesiumDebugDisableMaterialPool("cesium:debug:disableMaterialPool", TfToken::Immortal),
+    cesiumDebugDisableMaterials("cesium:debug:disableMaterials", TfToken::Immortal),
+    cesiumDebugGeometryPoolInitialCapacity("cesium:debug:geometryPoolInitialCapacity", TfToken::Immortal),
+    cesiumDebugMaterialPoolInitialCapacity("cesium:debug:materialPoolInitialCapacity", TfToken::Immortal),
+    cesiumEcefToUsdTransform("cesium:ecefToUsdTransform", TfToken::Immortal),
     cesiumEnableFogCulling("cesium:enableFogCulling", TfToken::Immortal),
     cesiumEnableFrustumCulling("cesium:enableFrustumCulling", TfToken::Immortal),
     cesiumEnforceCulledScreenSpaceError("cesium:enforceCulledScreenSpaceError", TfToken::Immortal),
@@ -30,6 +36,12 @@ CesiumTokensType::CesiumTokensType() :
     url("url", TfToken::Immortal),
     allTokens({
         cesiumCulledScreenSpaceError,
+        cesiumDebugDisableGeometryPool,
+        cesiumDebugDisableMaterialPool,
+        cesiumDebugDisableMaterials,
+        cesiumDebugGeometryPoolInitialCapacity,
+        cesiumDebugMaterialPoolInitialCapacity,
+        cesiumEcefToUsdTransform,
         cesiumEnableFogCulling,
         cesiumEnableFrustumCulling,
         cesiumEnforceCulledScreenSpaceError,

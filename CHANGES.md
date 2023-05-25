@@ -1,5 +1,12 @@
 # Change Log
 
+### v0.6.2 - 2023-05-19
+
+* Added more rendering statistics to the Cesium Debugging window.
+* Added debug options to the top-level `Cesium` prim.
+* Fixed issue where `cesium:enableFrustumCulling` wasn't appearing in the USD schema UI.
+* Fixed issue where some Fabric shader node prims were not being deleted.
+
 ### v0.6.1 - 2023-05-11
 
 - Added `premake5.lua` to `cesium.omniverse` and `cesium.usd.plugins` to better support Kit templates.

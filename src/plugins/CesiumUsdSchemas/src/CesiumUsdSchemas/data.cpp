@@ -165,6 +165,91 @@ CesiumData::CreateGeoreferenceOriginHeightAttr(VtValue const &defaultValue, bool
                        writeSparsely);
 }
 
+UsdAttribute
+CesiumData::GetDebugDisableMaterialsAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumDebugDisableMaterials);
+}
+
+UsdAttribute
+CesiumData::CreateDebugDisableMaterialsAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumDebugDisableMaterials,
+                       SdfValueTypeNames->Bool,
+                       /* custom = */ false,
+                       SdfVariabilityVarying,
+                       defaultValue,
+                       writeSparsely);
+}
+
+UsdAttribute
+CesiumData::GetDebugDisableGeometryPoolAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumDebugDisableGeometryPool);
+}
+
+UsdAttribute
+CesiumData::CreateDebugDisableGeometryPoolAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumDebugDisableGeometryPool,
+                       SdfValueTypeNames->Bool,
+                       /* custom = */ false,
+                       SdfVariabilityVarying,
+                       defaultValue,
+                       writeSparsely);
+}
+
+UsdAttribute
+CesiumData::GetDebugDisableMaterialPoolAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumDebugDisableMaterialPool);
+}
+
+UsdAttribute
+CesiumData::CreateDebugDisableMaterialPoolAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumDebugDisableMaterialPool,
+                       SdfValueTypeNames->Bool,
+                       /* custom = */ false,
+                       SdfVariabilityVarying,
+                       defaultValue,
+                       writeSparsely);
+}
+
+UsdAttribute
+CesiumData::GetDebugGeometryPoolInitialCapacityAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumDebugGeometryPoolInitialCapacity);
+}
+
+UsdAttribute
+CesiumData::CreateDebugGeometryPoolInitialCapacityAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumDebugGeometryPoolInitialCapacity,
+                       SdfValueTypeNames->UInt64,
+                       /* custom = */ false,
+                       SdfVariabilityVarying,
+                       defaultValue,
+                       writeSparsely);
+}
+
+UsdAttribute
+CesiumData::GetDebugMaterialPoolInitialCapacityAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumDebugMaterialPoolInitialCapacity);
+}
+
+UsdAttribute
+CesiumData::CreateDebugMaterialPoolInitialCapacityAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumDebugMaterialPoolInitialCapacity,
+                       SdfValueTypeNames->UInt64,
+                       /* custom = */ false,
+                       SdfVariabilityVarying,
+                       defaultValue,
+                       writeSparsely);
+}
+
 namespace {
 static inline TfTokenVector
 _ConcatenateAttributeNames(const TfTokenVector& left,const TfTokenVector& right)
@@ -187,6 +272,11 @@ CesiumData::GetSchemaAttributeNames(bool includeInherited)
         CesiumTokens->cesiumGeoreferenceOriginLongitude,
         CesiumTokens->cesiumGeoreferenceOriginLatitude,
         CesiumTokens->cesiumGeoreferenceOriginHeight,
+        CesiumTokens->cesiumDebugDisableMaterials,
+        CesiumTokens->cesiumDebugDisableGeometryPool,
+        CesiumTokens->cesiumDebugDisableMaterialPool,
+        CesiumTokens->cesiumDebugGeometryPoolInitialCapacity,
+        CesiumTokens->cesiumDebugMaterialPoolInitialCapacity,
     };
     static TfTokenVector allNames =
         _ConcatenateAttributeNames(

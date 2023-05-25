@@ -124,9 +124,17 @@ class Context {
 
   private:
     void processPropertyChanged(const ChangedPrim& changedPrim);
+    void processCesiumDataChanged(const ChangedPrim& changedPrim);
+    void processCesiumTilesetChanged(const ChangedPrim& changedPrim);
+    void processCesiumImageryChanged(const ChangedPrim& changedPrim);
     void processPrimRemoved(const ChangedPrim& changedPrim);
     void processPrimAdded(const ChangedPrim& changedPrim);
     void processUsdNotifications();
+
+    bool getDebugDisableGeometryPool() const;
+    bool getDebugDisableMaterialPool() const;
+    uint64_t getDebugGeometryPoolInitialCapacity() const;
+    uint64_t getDebugMaterialPoolInitialCapacity() const;
 
     std::shared_ptr<TaskProcessor> _taskProcessor;
     std::shared_ptr<HttpAssetAccessor> _httpAssetAccessor;
@@ -153,7 +161,7 @@ class Context {
     std::filesystem::path _cesiumExtensionLocation;
     std::filesystem::path _certificatePath;
 
-    bool _debugDisableMaterials{false};
+    glm::dmat4 _ecefToUsdTransform;
 };
 
 } // namespace cesium::omniverse

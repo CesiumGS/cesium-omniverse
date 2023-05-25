@@ -23,5 +23,11 @@ class CesiumDataSchemaAttributesWidget(SchemaPropertiesWidget):
                 CustomLayoutProperty("cesium:georeferenceOrigin:latitude", "Latitude")
                 CustomLayoutProperty("cesium:georeferenceOrigin:longitude", "Longitude")
                 CustomLayoutProperty("cesium:georeferenceOrigin:height", "Height")
+            with CustomLayoutGroup("Debug Options", collapsed=True):
+                CustomLayoutProperty("cesium:debug:disableMaterials")
+                CustomLayoutProperty("cesium:debug:disableGeometryPool")
+                CustomLayoutProperty("cesium:debug:disableMaterialPool")
+                CustomLayoutProperty("cesium:debug:geometryPoolInitialCapacity")
+                CustomLayoutProperty("cesium:debug:materialPoolInitialCapacity")
 
         return frame.apply(props)
