@@ -3,6 +3,7 @@
 #include <Cesium3DTilesSelection/ViewState.h>
 #include <CesiumUsdSchemas/data.h>
 #include <CesiumUsdSchemas/imagery.h>
+#include <CesiumUsdSchemas/session.h>
 #include <CesiumUsdSchemas/tilesetAPI.h>
 #include <carb/flatcache/StageWithHistory.h>
 #include <glm/glm.hpp>
@@ -29,6 +30,30 @@ struct Decomposed {
     pxr::GfVec3f scale;
 };
 
+class ScopedEdit {
+  public:
+    ScopedEdit(pxr::UsdStageRefPtr stage)
+        : _stage(stage)
+        , _sessionLayer(_stage->GetSessionLayer())
+        , _sessionLayerWasEditable(_sessionLayer->PermissionToEdit())
+        , _originalEditTarget(_stage->GetEditTarget()) {
+
+        _sessionLayer->SetPermissionToEdit(true);
+        _stage->SetEditTarget(pxr::UsdEditTarget(_sessionLayer));
+    }
+
+    ~ScopedEdit() {
+        _sessionLayer->SetPermissionToEdit(_sessionLayerWasEditable);
+        _stage->SetEditTarget(_originalEditTarget);
+    }
+
+  private:
+    pxr::UsdStageRefPtr _stage;
+    pxr::SdfLayerHandle _sessionLayer;
+    bool _sessionLayerWasEditable;
+    pxr::UsdEditTarget _originalEditTarget;
+};
+
 pxr::UsdStageRefPtr getUsdStage();
 carb::flatcache::StageInProgress getFabricStageInProgress();
 bool hasStage();
@@ -53,15 +78,18 @@ computeViewState(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPat
 pxr::GfRange3d computeWorldExtent(const pxr::GfRange3d& localExtent, const glm::dmat4& localToUsdTransform);
 
 pxr::CesiumData defineCesiumData(const pxr::SdfPath& path);
+pxr::CesiumSession defineCesiumSession(const pxr::SdfPath& path);
 pxr::CesiumTilesetAPI defineCesiumTileset(const pxr::SdfPath& path);
 pxr::CesiumImagery defineCesiumImagery(const pxr::SdfPath& path);
 
 pxr::CesiumData getOrCreateCesiumData();
+pxr::CesiumSession getOrCreateCesiumSession();
 pxr::CesiumTilesetAPI getCesiumTileset(const pxr::SdfPath& path);
 pxr::CesiumImagery getCesiumImagery(const pxr::SdfPath& path);
 std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& path);
 
 bool isCesiumData(const pxr::SdfPath& path);
+bool isCesiumSession(const pxr::SdfPath& path);
 bool isCesiumTileset(const pxr::SdfPath& path);
 bool isCesiumImagery(const pxr::SdfPath& path);
 

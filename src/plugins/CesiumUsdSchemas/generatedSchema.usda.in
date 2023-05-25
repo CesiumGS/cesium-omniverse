@@ -54,6 +54,16 @@ class CesiumDataPrim "CesiumDataPrim" (
     )
 }
 
+class CesiumSessionPrim "CesiumSessionPrim" (
+    doc = "Stores session layer state for Cesium for Omniverse/USD."
+)
+{
+    matrix4d cesium:ecefToUsdTransform (
+        displayName = "ECEF to USD Transform"
+        doc = "The 4x4 transformation matrix (row major) from global ECEF coordinates to USD stage coordinates based on the georeference origin."
+    )
+}
+
 class "CesiumTilesetSchemaAPI" (
     doc = "Adds Cesium specific data to a prim for representing a tileset."
 )

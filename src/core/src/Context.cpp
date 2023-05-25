@@ -211,6 +211,19 @@ void Context::reloadStage() {
 void Context::onUpdateFrame(const std::vector<Viewport>& viewports) {
     processUsdNotifications();
 
+    const auto georeferenceOrigin = Context::instance().getGeoreferenceOrigin();
+    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdTransform(georeferenceOrigin);
+
+    // Check if the ecefToUsd transform has changed and update CesiumSession
+    if (ecefToUsdTransform != _ecefToUsdTransform) {
+        _ecefToUsdTransform = ecefToUsdTransform;
+
+        const auto stage = UsdUtil::getUsdStage();
+        const UsdUtil::ScopedEdit scopedEdit(stage);
+        auto cesiumSession = UsdUtil::getOrCreateCesiumSession();
+        cesiumSession.GetEcefToUsdTransformAttr().Set(pxr::VtValue(UsdUtil::glmToUsdMatrix(ecefToUsdTransform)));
+    }
+
     const auto& tilesets = AssetRegistry::getInstance().getAllTilesets();
     for (const auto& tileset : tilesets) {
         tileset->onUpdateFrame(viewports);
@@ -406,6 +419,7 @@ void Context::setStageId(long stageId) {
         // Ensure that the CesiumData prim exists so that we can set the georeference
         // and other top-level properties without waiting for an ion session to start
         UsdUtil::getOrCreateCesiumData();
+        UsdUtil::getOrCreateCesiumSession();
 
         // Repopulate the asset registry
         reloadStage();
