@@ -167,8 +167,8 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         return FabricUtil::printFabricStage();
     }
 
-    FabricStatistics getFabricStatistics() noexcept override {
-        return FabricUtil::getStatistics();
+    RenderStatistics getRenderStatistics() noexcept override {
+        return Context::instance().getRenderStatistics();
     }
 
     bool creditsAvailable() noexcept override {
@@ -177,6 +177,10 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
 
     std::vector<std::pair<std::string, bool>> getCredits() noexcept override {
         return Context::instance().getCredits();
+    }
+
+    void creditsStartNextFrame() noexcept override {
+        return Context::instance().creditsStartNextFrame();
     }
 };
 } // namespace cesium::omniverse

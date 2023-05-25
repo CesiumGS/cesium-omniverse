@@ -30,6 +30,7 @@
       "${workspaceFolder}/exts/cesium.omniverse",
       "${workspaceFolder}/extern/nvidia/app/kit/extscore/omni.kit.pip_archive/pip_prebundle",
       "${workspaceFolder}/extern/nvidia/app/kit/plugins/bindings-python",
+      "${workspaceFolder}/extern/nvidia/app/kit/kernel/py",
       "${workspaceFolder}/extern/nvidia/app/extscache/kaolin_app.research.dataset_visualizer-1.0.0+cp37",
       "${workspaceFolder}/extern/nvidia/app/extscache/kaolin_app.research.training_visualizer-1.0.0+cp37",
       "${workspaceFolder}/extern/nvidia/app/extscache/kaolin_app.research.utils-1.0.0+cp37",
@@ -426,7 +427,10 @@
     "python.analysis.typeCheckingMode": "basic",
     "python.linting.enabled": true,
     "python.linting.pylintEnabled": false,
-    "python.linting.flake8Enabled": true
+    "python.linting.flake8Enabled": true,
+    "[python]": {
+      "editor.defaultFormatter": "ms-python.black-formatter"
+    }
   },
   "extensions": {
     "recommendations": [
@@ -437,7 +441,8 @@
       "editorconfig.editorconfig",
       "cheshirekow.cmake-format",
       "redhat.vscode-yaml",
-      "tamasfe.even-better-toml"
+      "tamasfe.even-better-toml",
+      "ms-python.black-formatter"
     ],
     "unwantedRecommendations": []
   }

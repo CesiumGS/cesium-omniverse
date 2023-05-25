@@ -51,8 +51,10 @@ class OmniTileset {
     float getCulledScreenSpaceError() const;
     bool getSuspendUpdate() const;
     bool getSmoothNormals() const;
+    bool getShowCreditsOnScreen() const;
 
     int64_t getTilesetId() const;
+    uint64_t getCachedBytes() const;
 
     void reload();
     void addImageryIon(const pxr::SdfPath& imageryPath);

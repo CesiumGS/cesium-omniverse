@@ -12,6 +12,26 @@ class CesiumDataPrim "CesiumDataPrim" (
     doc = "Stores stage level data for Cesium for Omniverse/USD."
 )
 {
+    bool cesium:debug:disableGeometryPool = 1 (
+        displayName = "Disable Geometry Pool"
+        doc = "Debug option that disables geometry pooling."
+    )
+    bool cesium:debug:disableMaterialPool = 0 (
+        displayName = "Disable Material Pool"
+        doc = "Debug option that disables material pooling."
+    )
+    bool cesium:debug:disableMaterials = 0 (
+        displayName = "Disable Materials"
+        doc = "Debug option that renders tilesets with materials disabled."
+    )
+    uint64 cesium:debug:geometryPoolInitialCapacity = 0 (
+        displayName = "Geometry Pool Initial Capacity"
+        doc = "Debug option that controls the initial capacity of the geometry pool."
+    )
+    uint64 cesium:debug:materialPoolInitialCapacity = 2048 (
+        displayName = "Material Pool Initial Capacity"
+        doc = "Debug option that controls the initial capacity of the material pool."
+    )
     double cesium:georeferenceOrigin:height = 2250 (
         displayName = "Georeference Origin Height"
         doc = "The height of the origin in meters above the WGS84 ellipsoid. Do not confuse this with a geoid height or height above mean sea level, which can be tens of meters higher or lower depending on where in the world the origin is located."
@@ -90,6 +110,10 @@ class "CesiumTilesetSchemaAPI" (
         displayName = "Preload Siblings"
         doc = "Whether to preload sibling tiles. Setting this to true causes tiles with the same parent as a rendered tile to be loaded, even if they are culled. Setting this to true may provide a better panning experience at the cost of loading more tiles."
     )
+    bool cesium:showCreditsOnScreen = 0 (
+        displayName = "Show Credits On Screen"
+        doc = "Whether or not to show this tileset's credits on screen."
+    )
     bool cesium:smoothNormals = 0 (
         displayName = "Smooth Normals"
         doc = "Generate smooth normals instead of flat normals when normals are missing."
@@ -120,6 +144,10 @@ class CesiumImageryPrim "CesiumImageryPrim" (
     int64 cesium:ionAssetId = 0 (
         displayName = "ion Asset ID"
         doc = "The ID of the Cesium ion asset to use."
+    )
+    bool cesium:showCreditsOnScreen = 0 (
+        displayName = "Show Credits On Screen"
+        doc = "Whether or not to show this imagery layer's credits on screen."
     )
 }
 

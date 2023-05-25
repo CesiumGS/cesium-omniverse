@@ -2,7 +2,7 @@ import logging
 import omni.kit.app as app
 import omni.ui as ui
 from pathlib import Path
-from typing import List
+from typing import List, Tuple
 from .credits_parser import CesiumCreditsParser
 from ..bindings import ICesiumOmniverseInterface
 from .styles import CesiumOmniverseUiStyles
@@ -11,7 +11,10 @@ from .styles import CesiumOmniverseUiStyles
 class CesiumOmniverseCreditsWindow(ui.Window):
     WINDOW_NAME = "Data Attribution"
 
-    def __init__(self, cesium_omniverse_interface: ICesiumOmniverseInterface, **kwargs):
+    # There is a builtin name called credits, which is why this argument is called asset_credits.
+    def __init__(
+        self, cesium_omniverse_interface: ICesiumOmniverseInterface, asset_credits: List[Tuple[str, bool]], **kwargs
+    ):
         super().__init__(CesiumOmniverseCreditsWindow.WINDOW_NAME, **kwargs)
 
         manager = app.get_app().get_extension_manager()
@@ -27,7 +30,7 @@ class CesiumOmniverseCreditsWindow(ui.Window):
         self.padding_x = 12
         self.padding_y = 12
 
-        self._credits: List[(str, bool)] = self._cesium_omniverse_interface.get_credits()
+        self._credits = asset_credits
 
         self.frame.set_build_fn(self._build_ui)
 

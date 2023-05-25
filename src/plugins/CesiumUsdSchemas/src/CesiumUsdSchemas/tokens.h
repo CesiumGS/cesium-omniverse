@@ -43,6 +43,26 @@ struct CesiumTokensType {
     /// 
     /// CesiumTilesetAPI
     const TfToken cesiumCulledScreenSpaceError;
+    /// \brief "cesium:debug:disableGeometryPool"
+    /// 
+    /// CesiumData
+    const TfToken cesiumDebugDisableGeometryPool;
+    /// \brief "cesium:debug:disableMaterialPool"
+    /// 
+    /// CesiumData
+    const TfToken cesiumDebugDisableMaterialPool;
+    /// \brief "cesium:debug:disableMaterials"
+    /// 
+    /// CesiumData
+    const TfToken cesiumDebugDisableMaterials;
+    /// \brief "cesium:debug:geometryPoolInitialCapacity"
+    /// 
+    /// CesiumData
+    const TfToken cesiumDebugGeometryPoolInitialCapacity;
+    /// \brief "cesium:debug:materialPoolInitialCapacity"
+    /// 
+    /// CesiumData
+    const TfToken cesiumDebugMaterialPoolInitialCapacity;
     /// \brief "cesium:enableFogCulling"
     /// 
     /// CesiumTilesetAPI
@@ -111,6 +131,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumData
     const TfToken cesiumProjectDefaultIonAccessTokenId;
+    /// \brief "cesium:showCreditsOnScreen"
+    /// 
+    /// CesiumImagery, CesiumTilesetAPI
+    const TfToken cesiumShowCreditsOnScreen;
     /// \brief "cesium:smoothNormals"
     /// 
     /// CesiumTilesetAPI

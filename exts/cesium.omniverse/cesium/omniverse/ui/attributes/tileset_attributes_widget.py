@@ -26,6 +26,8 @@ class CesiumTilesetAttributesWidget(SchemaPropertiesWidget):
 
         with frame:
             ui.Button("Refresh Tileset", clicked_fn=self.on_refresh_button_clicked)
+            with CustomLayoutGroup("Credit Display"):
+                CustomLayoutProperty("cesium:showCreditsOnScreen")
             with CustomLayoutGroup("Source"):
                 CustomLayoutProperty("cesium:sourceType")
                 CustomLayoutProperty("cesium:ionAssetId")
@@ -41,7 +43,7 @@ class CesiumTilesetAttributesWidget(SchemaPropertiesWidget):
                 CustomLayoutProperty("cesium:maximumCachedBytes")
                 CustomLayoutProperty("cesium:loadingDescendantLimit")
             with CustomLayoutGroup("Tile Culling"):
-                CustomLayoutProperty("cesium:enableFrustrumCulling")
+                CustomLayoutProperty("cesium:enableFrustumCulling")
                 CustomLayoutProperty("cesium:enableFogCulling")
                 CustomLayoutProperty("cesium:enforceCulledScreenSpaceError")
                 CustomLayoutProperty("cesium:culledScreenSpaceError")

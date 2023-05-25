@@ -60,6 +60,41 @@ _CreateGeoreferenceOriginHeightAttr(CesiumData &self,
     return self.CreateGeoreferenceOriginHeightAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
 }
+        
+static UsdAttribute
+_CreateDebugDisableMaterialsAttr(CesiumData &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateDebugDisableMaterialsAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateDebugDisableGeometryPoolAttr(CesiumData &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateDebugDisableGeometryPoolAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateDebugDisableMaterialPoolAttr(CesiumData &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateDebugDisableMaterialPoolAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateDebugGeometryPoolInitialCapacityAttr(CesiumData &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateDebugGeometryPoolInitialCapacityAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->UInt64), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateDebugMaterialPoolInitialCapacityAttr(CesiumData &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateDebugMaterialPoolInitialCapacityAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->UInt64), writeSparsely);
+}
 
 static std::string
 _Repr(const CesiumData &self)
@@ -135,6 +170,41 @@ void wrapCesiumData()
              &This::GetGeoreferenceOriginHeightAttr)
         .def("CreateGeoreferenceOriginHeightAttr",
              &_CreateGeoreferenceOriginHeightAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetDebugDisableMaterialsAttr",
+             &This::GetDebugDisableMaterialsAttr)
+        .def("CreateDebugDisableMaterialsAttr",
+             &_CreateDebugDisableMaterialsAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetDebugDisableGeometryPoolAttr",
+             &This::GetDebugDisableGeometryPoolAttr)
+        .def("CreateDebugDisableGeometryPoolAttr",
+             &_CreateDebugDisableGeometryPoolAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetDebugDisableMaterialPoolAttr",
+             &This::GetDebugDisableMaterialPoolAttr)
+        .def("CreateDebugDisableMaterialPoolAttr",
+             &_CreateDebugDisableMaterialPoolAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetDebugGeometryPoolInitialCapacityAttr",
+             &This::GetDebugGeometryPoolInitialCapacityAttr)
+        .def("CreateDebugGeometryPoolInitialCapacityAttr",
+             &_CreateDebugGeometryPoolInitialCapacityAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetDebugMaterialPoolInitialCapacityAttr",
+             &This::GetDebugMaterialPoolInitialCapacityAttr)
+        .def("CreateDebugMaterialPoolInitialCapacityAttr",
+             &_CreateDebugMaterialPoolInitialCapacityAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 

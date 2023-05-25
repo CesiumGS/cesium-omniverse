@@ -1,5 +1,24 @@
 # Change Log
 
+### v0.6.2 - 2023-05-19
+
+* Added more rendering statistics to the Cesium Debugging window.
+* Added debug options to the top-level `Cesium` prim.
+* Fixed issue where `cesium:enableFrustumCulling` wasn't appearing in the USD schema UI.
+* Fixed issue where some Fabric shader node prims were not being deleted.
+
+### v0.6.1 - 2023-05-11
+
+- Added `premake5.lua` to `cesium.omniverse` and `cesium.usd.plugins` to better support Kit templates.
+- Fixed crash in the Cesium Debugging window when reloading a stage.
+
+### v0.6.0 - 2023-05-04
+
+- Added option to show credits on screen.
+- Fixed issue where tileset traversal was happening on hidden tilesets.
+- Fixed issue where tile render resources were not being released back into the Fabric mesh pool in certain cases.
+- Fixed regression where the texture wrap mode was no longer clamping to edge.
+
 ### v0.5.0 - 2023-05-01
 
 - Added material pool for better performance and to reduce texture/material loading artifacts.

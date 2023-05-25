@@ -144,6 +144,13 @@ _CreateSmoothNormalsAttr(CesiumTilesetAPI &self,
     return self.CreateSmoothNormalsAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
+        
+static UsdAttribute
+_CreateShowCreditsOnScreenAttr(CesiumTilesetAPI &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateShowCreditsOnScreenAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+}
 
 static std::string
 _Repr(const CesiumTilesetAPI &self)
@@ -303,6 +310,13 @@ void wrapCesiumTilesetAPI()
              &This::GetSmoothNormalsAttr)
         .def("CreateSmoothNormalsAttr",
              &_CreateSmoothNormalsAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetShowCreditsOnScreenAttr",
+             &This::GetShowCreditsOnScreenAttr)
+        .def("CreateShowCreditsOnScreenAttr",
+             &_CreateShowCreditsOnScreenAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 

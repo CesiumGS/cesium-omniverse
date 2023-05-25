@@ -63,6 +63,47 @@ class CesiumDataPrim "CesiumDataPrim" (
         displayName = "Georeference Origin Height"
         doc = "The height of the origin in meters above the WGS84 ellipsoid. Do not confuse this with a geoid height or height above mean sea level, which can be tens of meters higher or lower depending on where in the world the origin is located."
     )
+
+    bool cesium:debug:disableMaterials = false (
+        customData = {
+            string apiName = "debugDisableMaterials"
+        }
+        displayName = "Disable Materials"
+        doc = "Debug option that renders tilesets with materials disabled."
+    )
+
+    bool cesium:debug:disableGeometryPool = true (
+        customData = {
+            string apiName = "debugDisableGeometryPool"
+        }
+        displayName = "Disable Geometry Pool"
+        doc = "Debug option that disables geometry pooling."
+    )
+
+    bool cesium:debug:disableMaterialPool = false (
+        customData = {
+            string apiName = "debugDisableMaterialPool"
+        }
+        displayName = "Disable Material Pool"
+        doc = "Debug option that disables material pooling."
+    )
+
+    uint64 cesium:debug:geometryPoolInitialCapacity = 0 (
+        customData = {
+            string apiName = "debugGeometryPoolInitialCapacity"
+        }
+        displayName = "Geometry Pool Initial Capacity"
+        doc = "Debug option that controls the initial capacity of the geometry pool."
+    )
+
+    uint64 cesium:debug:materialPoolInitialCapacity = 2048 (
+        customData = {
+            string apiName = "debugMaterialPoolInitialCapacity"
+        }
+        displayName = "Material Pool Initial Capacity"
+        doc = "Debug option that controls the initial capacity of the material pool."
+    )
+
 }
 
 class "CesiumTilesetSchemaAPI" (
@@ -209,6 +250,14 @@ class "CesiumTilesetSchemaAPI" (
         displayName = "Smooth Normals"
         doc = "Generate smooth normals instead of flat normals when normals are missing."
     )
+
+    bool cesium:showCreditsOnScreen = false (
+        customData = {
+            string apiName = "showCreditsOnScreen"
+        }
+        displayName = "Show Credits On Screen"
+        doc = "Whether or not to show this tileset's credits on screen."
+    )
 }
 
 class CesiumImageryPrim "CesiumImageryPrim" (
@@ -232,6 +281,14 @@ class CesiumImageryPrim "CesiumImageryPrim" (
         }
         displayName = "ion Access Token"
         doc = "The access token to use to access the Cesium ion resource. Overrides the default token. Blank if using URL."
+    )
+
+    bool cesium:showCreditsOnScreen = false (
+        customData = {
+            string apiName = "showCreditsOnScreen"
+        }
+        displayName = "Show Credits On Screen"
+        doc = "Whether or not to show this imagery layer's credits on screen."
     )
 }
 

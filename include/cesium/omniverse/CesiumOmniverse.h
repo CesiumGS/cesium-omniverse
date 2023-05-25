@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cesium/omniverse/FabricStatistics.h"
+#include "cesium/omniverse/RenderStatistics.h"
 #include "cesium/omniverse/SetDefaultTokenResult.h"
 #include "cesium/omniverse/TokenTroubleshooter.h"
 
@@ -234,14 +234,15 @@ class ICesiumOmniverseInterface {
     virtual std::string printFabricStage() noexcept = 0;
 
     /**
-     * @brief Get Fabric statistics. For debugging only.
+     * @brief Get render statistics. For debugging only.
      *
-     * @returns Object containing Fabric statistics.
+     * @returns Object containing render statistics.
      */
-    virtual FabricStatistics getFabricStatistics() noexcept = 0;
+    virtual RenderStatistics getRenderStatistics() noexcept = 0;
 
     virtual bool creditsAvailable() noexcept = 0;
     virtual std::vector<std::pair<std::string, bool>> getCredits() noexcept = 0;
+    virtual void creditsStartNextFrame() noexcept = 0;
 };
 
 } // namespace cesium::omniverse

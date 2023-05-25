@@ -153,6 +153,11 @@ void FabricPrepareRenderResources::free(
     void* pMainThreadResult) noexcept {
     if (pLoadThreadResult) {
         const auto pTileLoadThreadResult = reinterpret_cast<TileLoadThreadResult*>(pLoadThreadResult);
+
+        for (const auto& mesh : pTileLoadThreadResult->fabricMeshes) {
+            FabricMeshManager::getInstance().releaseMesh(mesh);
+        }
+
         delete pTileLoadThreadResult;
     }
 

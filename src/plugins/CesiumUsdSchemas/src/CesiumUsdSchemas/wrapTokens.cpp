@@ -42,6 +42,11 @@ void wrapCesiumTokens()
     boost::python::class_<CesiumTokensType, boost::noncopyable>
         cls("Tokens", boost::python::no_init);
     _AddToken(cls, "cesiumCulledScreenSpaceError", CesiumTokens->cesiumCulledScreenSpaceError);
+    _AddToken(cls, "cesiumDebugDisableGeometryPool", CesiumTokens->cesiumDebugDisableGeometryPool);
+    _AddToken(cls, "cesiumDebugDisableMaterialPool", CesiumTokens->cesiumDebugDisableMaterialPool);
+    _AddToken(cls, "cesiumDebugDisableMaterials", CesiumTokens->cesiumDebugDisableMaterials);
+    _AddToken(cls, "cesiumDebugGeometryPoolInitialCapacity", CesiumTokens->cesiumDebugGeometryPoolInitialCapacity);
+    _AddToken(cls, "cesiumDebugMaterialPoolInitialCapacity", CesiumTokens->cesiumDebugMaterialPoolInitialCapacity);
     _AddToken(cls, "cesiumEnableFogCulling", CesiumTokens->cesiumEnableFogCulling);
     _AddToken(cls, "cesiumEnableFrustumCulling", CesiumTokens->cesiumEnableFrustumCulling);
     _AddToken(cls, "cesiumEnforceCulledScreenSpaceError", CesiumTokens->cesiumEnforceCulledScreenSpaceError);
@@ -59,6 +64,7 @@ void wrapCesiumTokens()
     _AddToken(cls, "cesiumPreloadSiblings", CesiumTokens->cesiumPreloadSiblings);
     _AddToken(cls, "cesiumProjectDefaultIonAccessToken", CesiumTokens->cesiumProjectDefaultIonAccessToken);
     _AddToken(cls, "cesiumProjectDefaultIonAccessTokenId", CesiumTokens->cesiumProjectDefaultIonAccessTokenId);
+    _AddToken(cls, "cesiumShowCreditsOnScreen", CesiumTokens->cesiumShowCreditsOnScreen);
     _AddToken(cls, "cesiumSmoothNormals", CesiumTokens->cesiumSmoothNormals);
     _AddToken(cls, "cesiumSourceType", CesiumTokens->cesiumSourceType);
     _AddToken(cls, "cesiumSuspendUpdate", CesiumTokens->cesiumSuspendUpdate);

@@ -70,36 +70,24 @@ void FabricMeshManager::releaseMesh(std::shared_ptr<FabricMesh> mesh) {
     }
 }
 
-uint64_t FabricMeshManager::getNumberOfGeometriesInUse() const {
-    uint64_t count = 0;
-    for (const auto& geometryPool : _geometryPools) {
-        count += geometryPool->getNumberActive();
-    }
-    return count;
+void FabricMeshManager::setDisableGeometryPool(bool disableGeometryPool) {
+    assert(_geometryPools.size() == 0);
+    _disableGeometryPool = disableGeometryPool;
 }
 
-uint64_t FabricMeshManager::getNumberOfMaterialsInUse() const {
-    uint64_t count = 0;
-    for (const auto& materialPool : _materialPools) {
-        count += materialPool->getNumberActive();
-    }
-    return count;
+void FabricMeshManager::setDisableMaterialPool(bool disableMaterialPool) {
+    assert(_materialPools.size() == 0);
+    _disableMaterialPool = disableMaterialPool;
 }
 
-uint64_t FabricMeshManager::getGeometryPoolCapacity() const {
-    uint64_t count = 0;
-    for (const auto& geometryPool : _geometryPools) {
-        count += geometryPool->getCapacity();
-    }
-    return count;
+void FabricMeshManager::setGeometryPoolInitialCapacity(uint64_t geometryPoolInitialCapacity) {
+    assert(_geometryPools.size() == 0);
+    _geometryPoolInitialCapacity = geometryPoolInitialCapacity;
 }
 
-uint64_t FabricMeshManager::getMaterialPoolCapacity() const {
-    uint64_t count = 0;
-    for (const auto& materialPool : _materialPools) {
-        count += materialPool->getCapacity();
-    }
-    return count;
+void FabricMeshManager::setMaterialPoolInitialCapacity(uint64_t materialPoolInitialCapacity) {
+    assert(_materialPools.size() == 0);
+    _materialPoolInitialCapacity = materialPoolInitialCapacity;
 }
 
 void FabricMeshManager::clear() {
@@ -117,7 +105,7 @@ std::shared_ptr<FabricGeometry> FabricMeshManager::acquireGeometry(
     const auto hasImagery = imagery != nullptr;
     FabricGeometryDefinition geometryDefinition(model, primitive, smoothNormals, hasImagery, imageryTexcoordSetIndex);
 
-    if (_debugDisableGeometryPool) {
+    if (_disableGeometryPool) {
         const auto path = pxr::SdfPath(fmt::format("/fabric_geometry_{}", getNextGeometryId()));
         return std::make_shared<FabricGeometry>(path, geometryDefinition);
     }
@@ -137,7 +125,7 @@ std::shared_ptr<FabricMaterial> FabricMeshManager::acquireMaterial(
     const auto hasImagery = imagery != nullptr;
     FabricMaterialDefinition materialDefinition(model, primitive, hasImagery);
 
-    if (_debugDisableMaterialPool) {
+    if (_disableMaterialPool) {
         const auto path = pxr::SdfPath(fmt::format("/fabric_material_{}", getNextMaterialId()));
         return std::make_shared<FabricMaterial>(path, materialDefinition);
     }
@@ -151,7 +139,7 @@ std::shared_ptr<FabricMaterial> FabricMeshManager::acquireMaterial(
 }
 
 void FabricMeshManager::releaseGeometry(std::shared_ptr<FabricGeometry> geometry) {
-    if (_debugDisableGeometryPool) {
+    if (_disableGeometryPool) {
         return;
     }
 
@@ -162,7 +150,7 @@ void FabricMeshManager::releaseGeometry(std::shared_ptr<FabricGeometry> geometry
 }
 
 void FabricMeshManager::releaseMaterial(std::shared_ptr<FabricMaterial> material) {
-    if (_debugDisableMaterialPool) {
+    if (_disableMaterialPool) {
         return;
     }
 
@@ -182,7 +170,8 @@ FabricMeshManager::getGeometryPool(const FabricGeometryDefinition& geometryDefin
     }
 
     // Create a new pool
-    return _geometryPools.emplace_back(std::make_shared<FabricGeometryPool>(getNextPoolId(), geometryDefinition));
+    return _geometryPools.emplace_back(
+        std::make_shared<FabricGeometryPool>(getNextPoolId(), geometryDefinition, _geometryPoolInitialCapacity));
 }
 
 std::shared_ptr<FabricMaterialPool>
@@ -195,7 +184,8 @@ FabricMeshManager::getMaterialPool(const FabricMaterialDefinition& materialDefin
     }
 
     // Create a new pool
-    return _materialPools.emplace_back(std::make_shared<FabricMaterialPool>(getNextPoolId(), materialDefinition));
+    return _materialPools.emplace_back(
+        std::make_shared<FabricMaterialPool>(getNextPoolId(), materialDefinition, _materialPoolInitialCapacity));
 }
 
 int64_t FabricMeshManager::getNextGeometryId() {

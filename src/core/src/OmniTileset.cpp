@@ -209,8 +209,21 @@ bool OmniTileset::getSmoothNormals() const {
     return smoothNormals;
 }
 
+bool OmniTileset::getShowCreditsOnScreen() const {
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+
+    bool showCreditsOnScreen;
+    tileset.GetShowCreditsOnScreenAttr().Get<bool>(&showCreditsOnScreen);
+
+    return showCreditsOnScreen;
+}
+
 int64_t OmniTileset::getTilesetId() const {
     return _tilesetId;
+}
+
+uint64_t OmniTileset::getCachedBytes() const {
+    return _tileset->getTotalDataBytes();
 }
 
 void OmniTileset::reload() {
@@ -243,6 +256,7 @@ void OmniTileset::reload() {
     options.enableFogCulling = getEnableFogCulling();
     options.enforceCulledScreenSpaceError = getEnforceCulledScreenSpaceError();
     options.culledScreenSpaceError = getCulledScreenSpaceError();
+    options.showCreditsOnScreen = getShowCreditsOnScreen();
 
     options.loadErrorCallback =
         [tilesetPath, ionAssetId, name](const Cesium3DTilesSelection::TilesetLoadFailureDetails& error) {
@@ -292,6 +306,8 @@ void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
     const auto tilesetName = getName();
 
     Cesium3DTilesSelection::RasterOverlayOptions options;
+    options.showCreditsOnScreen = imagery.getShowCreditsOnScreen();
+
     options.loadErrorCallback = [tilesetPath, tilesetIonAssetId, tilesetName, imageryIonAssetId, imageryName](
                                     const Cesium3DTilesSelection::RasterOverlayLoadFailureDetails& error) {
         // Check for a 401 connecting to Cesium ion, which means the token is invalid
@@ -348,7 +364,9 @@ void OmniTileset::updateTransform() {
 }
 
 void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
-    if (!getSuspendUpdate()) {
+    const auto visible = UsdUtil::isPrimVisible(_tilesetPath);
+
+    if (visible && !getSuspendUpdate()) {
         // Go ahead and select some tiles
         const auto& georeferenceOrigin = Context::instance().getGeoreferenceOrigin();
 
@@ -364,8 +382,6 @@ void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
         // No tiles have ever been selected. Return early.
         return;
     }
-
-    const auto visible = UsdUtil::isPrimVisible(_tilesetPath);
 
     // Hide tiles that we no longer need
     for (const auto tile : _pViewUpdateResult->tilesFadingOut) {

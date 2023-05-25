@@ -43,4 +43,14 @@ std::optional<CesiumIonClient::Token> OmniImagery::getIonAccessToken() const {
 
     return t;
 }
+
+bool OmniImagery::getShowCreditsOnScreen() const {
+    auto imagery = UsdUtil::getCesiumImagery(_path);
+
+    bool showCreditsOnScreen;
+    imagery.GetShowCreditsOnScreenAttr().Get<bool>(&showCreditsOnScreen);
+
+    return showCreditsOnScreen;
+}
+
 } // namespace cesium::omniverse
