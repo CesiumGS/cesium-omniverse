@@ -601,7 +601,7 @@ void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform
         // clang-format off
         auto tilesetIdFabric = srw.getAttributeArrayRd<int64_t>(buckets, bucketId, FabricTokens::_cesium_tilesetId);
         auto localToEcefTransformFabric = srw.getAttributeArrayRd<pxr::GfMatrix4d>(buckets, bucketId, FabricTokens::_cesium_localToEcefTransform);
-        auto localExtentFabric = srw.getAttributeArrayRd<pxr::GfRange3d>(buckets, bucketId, FabricTokens::_localExtent);
+        auto extentFabric = srw.getAttributeArrayRd<pxr::GfRange3d>(buckets, bucketId, FabricTokens::extent);
 
         auto worldPositionFabric = srw.getAttributeArrayWr<pxr::GfVec3d>(buckets, bucketId, FabricTokens::_worldPosition);
         auto worldOrientationFabric = srw.getAttributeArrayWr<pxr::GfQuatf>(buckets, bucketId, FabricTokens::_worldOrientation);
@@ -613,10 +613,10 @@ void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform
             if (tilesetIdFabric[i] == tilesetId) {
                 const auto localToEcefTransform = UsdUtil::usdToGlmMatrix(localToEcefTransformFabric[i]);
                 const auto localToUsdTransform = ecefToUsdTransform * localToEcefTransform;
-                const auto localExtent = localExtentFabric[i];
+                const auto extent = extentFabric[i];
                 const auto [worldPosition, worldOrientation, worldScale] =
                     UsdUtil::glmToUsdMatrixDecomposed(localToUsdTransform);
-                const auto worldExtent = UsdUtil::computeWorldExtent(localExtent, localToUsdTransform);
+                const auto worldExtent = UsdUtil::computeWorldExtent(extent, localToUsdTransform);
 
                 worldPositionFabric[i] = worldPosition;
                 worldOrientationFabric[i] = worldOrientation;

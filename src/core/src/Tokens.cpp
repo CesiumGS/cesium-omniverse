@@ -23,6 +23,7 @@ TF_DEFINE_PRIVATE_TOKENS(
     (diffuse_texture)
     (displacement)
     (doubleSided)
+    (extent)
     (faceVertexCounts)
     (faceVertexIndices)
     (id)
@@ -46,7 +47,6 @@ TF_DEFINE_PRIVATE_TOKENS(
     (_cesium_tileId)
     (_cesium_tilesetId)
     (_deletedPrims)
-    (_localExtent)
     (_localMatrix)
     (_nodePaths)
     (_paramColorSpace)
@@ -106,6 +106,7 @@ const omni::fabric::TokenC constant = omni::fabric::asInt(pxr::UsdTokens->consta
 const omni::fabric::TokenC diffuse_texture = omni::fabric::asInt(pxr::UsdTokens->diffuse_texture);
 const omni::fabric::TokenC displacement = omni::fabric::asInt(pxr::UsdTokens->displacement);
 const omni::fabric::TokenC doubleSided = omni::fabric::asInt(pxr::UsdTokens->doubleSided);
+const omni::fabric::TokenC extent = omni::fabric::asInt(pxr::UsdTokens->extent);
 const omni::fabric::TokenC faceVertexCounts = omni::fabric::asInt(pxr::UsdTokens->faceVertexCounts);
 const omni::fabric::TokenC faceVertexIndices = omni::fabric::asInt(pxr::UsdTokens->faceVertexIndices);
 const omni::fabric::TokenC id = omni::fabric::asInt(pxr::UsdTokens->id);
@@ -155,7 +156,6 @@ const omni::fabric::TokenC _cesium_localToEcefTransform = omni::fabric::asInt(px
 const omni::fabric::TokenC _cesium_tileId = omni::fabric::asInt(pxr::UsdTokens->_cesium_tileId);
 const omni::fabric::TokenC _cesium_tilesetId = omni::fabric::asInt(pxr::UsdTokens->_cesium_tilesetId);
 const omni::fabric::TokenC _deletedPrims = omni::fabric::asInt(pxr::UsdTokens->_deletedPrims);
-const omni::fabric::TokenC _localExtent = omni::fabric::asInt(pxr::UsdTokens->_localExtent);
 const omni::fabric::TokenC _localMatrix = omni::fabric::asInt(pxr::UsdTokens->_localMatrix);
 const omni::fabric::TokenC _nodePaths = omni::fabric::asInt(pxr::UsdTokens->_nodePaths);
 const omni::fabric::TokenC _paramColorSpace = omni::fabric::asInt(pxr::UsdTokens->_paramColorSpace);
@@ -182,6 +182,7 @@ const pxr::TfToken& constant = pxr::UsdTokens->constant;
 const pxr::TfToken& diffuse_texture = pxr::UsdTokens->diffuse_texture;
 const pxr::TfToken& displacement = pxr::UsdTokens->displacement;
 const pxr::TfToken& doubleSided = pxr::UsdTokens->doubleSided;
+const pxr::TfToken& extent = pxr::UsdTokens->extent;
 const pxr::TfToken& faceVertexCounts = pxr::UsdTokens->faceVertexCounts;
 const pxr::TfToken& faceVertexIndices = pxr::UsdTokens->faceVertexIndices;
 const pxr::TfToken& id = pxr::UsdTokens->id;
@@ -231,7 +232,6 @@ const pxr::TfToken& _cesium_localToEcefTransform = pxr::UsdTokens->_cesium_local
 const pxr::TfToken& _cesium_tileId = pxr::UsdTokens->_cesium_tileId;
 const pxr::TfToken& _cesium_tilesetId = pxr::UsdTokens->_cesium_tilesetId;
 const pxr::TfToken& _deletedPrims = pxr::UsdTokens->_deletedPrims;
-const pxr::TfToken& _localExtent = pxr::UsdTokens->_localExtent;
 const pxr::TfToken& _localMatrix = pxr::UsdTokens->_localMatrix;
 const pxr::TfToken& _nodePaths = pxr::UsdTokens->_nodePaths;
 const pxr::TfToken& _paramColorSpace = pxr::UsdTokens->_paramColorSpace;

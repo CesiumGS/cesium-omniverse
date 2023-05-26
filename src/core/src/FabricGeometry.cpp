@@ -89,7 +89,7 @@ void FabricGeometry::initialize() {
     attributes.addAttribute(FabricTypes::faceVertexCounts, FabricTokens::faceVertexCounts);
     attributes.addAttribute(FabricTypes::faceVertexIndices, FabricTokens::faceVertexIndices);
     attributes.addAttribute(FabricTypes::points, FabricTokens::points);
-    attributes.addAttribute(FabricTypes::_localExtent, FabricTokens::_localExtent);
+    attributes.addAttribute(FabricTypes::extent, FabricTokens::extent);
     attributes.addAttribute(FabricTypes::_worldExtent, FabricTokens::_worldExtent);
     attributes.addAttribute(FabricTypes::_worldVisibility, FabricTokens::_worldVisibility);
     attributes.addAttribute(FabricTypes::primvars, FabricTokens::primvars);
@@ -177,7 +177,7 @@ void FabricGeometry::reset() {
     const auto pathFabric = omni::fabric::Path(omni::fabric::asInt(_path));
 
     // clang-format off
-    auto localExtentFabric = srw.getAttributeWr<pxr::GfRange3d>(pathFabric, FabricTokens::_localExtent);
+    auto extentFabric = srw.getAttributeWr<pxr::GfRange3d>(pathFabric, FabricTokens::extent);
     auto worldExtentFabric = srw.getAttributeWr<pxr::GfRange3d>(pathFabric, FabricTokens::_worldExtent);
     auto worldVisibilityFabric = srw.getAttributeWr<bool>(pathFabric, FabricTokens::_worldVisibility);
     auto tilesetIdFabric = srw.getAttributeWr<int64_t>(pathFabric, FabricTokens::_cesium_tilesetId);
@@ -188,7 +188,7 @@ void FabricGeometry::reset() {
     auto worldScaleFabric = srw.getAttributeWr<pxr::GfVec3f>(pathFabric, FabricTokens::_worldScale);
     // clang-format on
 
-    *localExtentFabric = DEFAULT_EXTENT;
+    *extentFabric = DEFAULT_EXTENT;
     *worldExtentFabric = DEFAULT_EXTENT;
     *worldVisibilityFabric = false;
     *tilesetIdFabric = -1;
@@ -242,17 +242,17 @@ void FabricGeometry::setTile(
         imageryTexcoordSetIndex,
         glm::fvec2(imageryTexcoordTranslation),
         glm::fvec2(imageryTexcoordScale));
-    const auto localExtent = GltfUtil::getExtent(model, primitive);
+    const auto extent = GltfUtil::getExtent(model, primitive);
     const auto faceVertexCounts = GltfUtil::getFaceVertexCounts(indices);
 
-    if (positions.empty() || indices.empty() || !localExtent.has_value()) {
+    if (positions.empty() || indices.empty() || !extent.has_value()) {
         return;
     }
 
     const auto localToEcefTransform = gltfToEcefTransform * nodeTransform;
     const auto localToUsdTransform = ecefToUsdTransform * localToEcefTransform;
     const auto [worldPosition, worldOrientation, worldScale] = UsdUtil::glmToUsdMatrixDecomposed(localToUsdTransform);
-    const auto worldExtent = UsdUtil::computeWorldExtent(localExtent.value(), localToUsdTransform);
+    const auto worldExtent = UsdUtil::computeWorldExtent(extent.value(), localToUsdTransform);
 
     srw.setArrayAttributeSize(pathFabric, FabricTokens::faceVertexCounts, faceVertexCounts.size());
     srw.setArrayAttributeSize(pathFabric, FabricTokens::faceVertexIndices, indices.size());
@@ -263,7 +263,7 @@ void FabricGeometry::setTile(
     auto faceVertexCountsFabric = srw.getArrayAttributeWr<int>(pathFabric, FabricTokens::faceVertexCounts);
     auto faceVertexIndicesFabric = srw.getArrayAttributeWr<int>(pathFabric, FabricTokens::faceVertexIndices);
     auto pointsFabric = srw.getArrayAttributeWr<pxr::GfVec3f>(pathFabric, FabricTokens::points);
-    auto localExtentFabric = srw.getAttributeWr<pxr::GfRange3d>(pathFabric, FabricTokens::_localExtent);
+    auto extentFabric = srw.getAttributeWr<pxr::GfRange3d>(pathFabric, FabricTokens::extent);
     auto worldExtentFabric = srw.getAttributeWr<pxr::GfRange3d>(pathFabric, FabricTokens::_worldExtent);
     auto tilesetIdFabric = srw.getAttributeWr<int64_t>(pathFabric, FabricTokens::_cesium_tilesetId);
     auto tileIdFabric = srw.getAttributeWr<int64_t>(pathFabric, FabricTokens::_cesium_tileId);
@@ -278,7 +278,7 @@ void FabricGeometry::setTile(
     std::copy(indices.begin(), indices.end(), faceVertexIndicesFabric.begin());
     std::copy(positions.begin(), positions.end(), pointsFabric.begin());
 
-    *localExtentFabric = localExtent.value();
+    *extentFabric = extent.value();
     *worldExtentFabric = worldExtent;
     *tilesetIdFabric = tilesetId;
     *tileIdFabric = tileId;
