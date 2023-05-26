@@ -219,7 +219,6 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             viewports.append(viewport)
 
         if len(viewports) != self._num_credits_viewport_frames:
-            self._logger.info("CreditViewportFrame: num viewports changed, triggering CreditsViewportFrames setup")
             self._setup_credits_viewport_frames()
             self._num_credits_viewport_frames = len(viewports)
 
