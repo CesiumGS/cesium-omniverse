@@ -79,7 +79,6 @@ class CesiumCreditsViewportFrame:
 
     def _build_fn(self):
         with self._credits_viewport_frame:
-            self._logger.info("CreditViewportFrame: rebuilding")
             with ui.VStack():
                 ui.Spacer()
                 with ui.HStack(height=0):
