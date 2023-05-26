@@ -6,6 +6,7 @@
 #endif
 
 #include <CesiumGltf/AccessorView.h>
+#include <CesiumGltf/ExtensionKhrMaterialsUnlit.h>
 #include <CesiumGltf/Model.h>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -330,6 +331,11 @@ pxr::GfVec3f getBaseColorFactor(const CesiumGltf::Material& material) {
 }
 
 float getMetallicFactor(const CesiumGltf::Material& material) {
+    if (material.hasExtension<CesiumGltf::ExtensionKhrMaterialsUnlit>()) {
+        // Unlit materials aren't supported in Omniverse yet but we can hard code the metallic factor to something reasonable
+        return 0.0f;
+    }
+
     const auto& pbrMetallicRoughness = material.pbrMetallicRoughness;
     if (pbrMetallicRoughness.has_value()) {
         return static_cast<float>(pbrMetallicRoughness->metallicFactor);
@@ -339,6 +345,11 @@ float getMetallicFactor(const CesiumGltf::Material& material) {
 }
 
 float getRoughnessFactor(const CesiumGltf::Material& material) {
+    if (material.hasExtension<CesiumGltf::ExtensionKhrMaterialsUnlit>()) {
+        // Unlit materials aren't supported in Omniverse yet but we can hard code the roughness factor to something reasonable
+        return 1.0f;
+    }
+
     const auto& pbrMetallicRoughness = material.pbrMetallicRoughness;
     if (pbrMetallicRoughness.has_value()) {
         return static_cast<float>(pbrMetallicRoughness->roughnessFactor);
