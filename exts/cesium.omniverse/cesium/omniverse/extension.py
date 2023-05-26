@@ -415,11 +415,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
 
     def _setup_credits_viewport_frames(self):
         self._destroy_credits_viewport_frames()
-        viewport_frames = []
-        for instance in get_viewport_window_instances():
-            credits_viewport_frame = CesiumCreditsViewportFrame(_cesium_omniverse_interface, instance)
-            viewport_frames.append(credits_viewport_frame)
-        self._credits_viewport_frames = viewport_frames
+        self._credits_viewport_frames = [CesiumCreditsViewportFrame(_cesium_omniverse_interface, i) for i in get_viewport_window_instances()]
 
     def _destroy_credits_viewport_frames(self):
         for credits_viewport_frame in self._credits_viewport_frames:
