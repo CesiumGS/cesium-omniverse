@@ -164,28 +164,13 @@ FabricPrepareRenderResources::prepareInLoadThread(
             Cesium3DTilesSelection::TileLoadResultAndRenderResources{std::move(tileLoadResult), nullptr});
     }
 
-    struct IntermediateMainThreadResult {
-        std::vector<IntermediaryMesh> meshes;
-        std::vector<std::shared_ptr<FabricMesh>> fabricMeshes;
-        Cesium3DTilesSelection::TileLoadResult tileLoadResult;
-    };
-
     // If there are no imagery layers attached to the tile add the tile right away
     if (!tileLoadResult.rasterOverlayDetails.has_value()) {
         auto meshes = gatherMeshes(_tileset, transform, *pModel);
-        return asyncSystem
-            .runInMainThread([meshes = std::move(meshes), tileLoadResult = std::move(tileLoadResult)]() {
+        return asyncSystem.runInMainThread(
+            [transform, meshes = std::move(meshes), tileLoadResult = std::move(tileLoadResult)]() {
                 const auto& model = *std::get_if<CesiumGltf::Model>(&tileLoadResult.contentKind);
                 auto fabricMeshes = acquireFabricMeshes(model, meshes);
-                return IntermediateMainThreadResult{
-                    std::move(meshes), std::move(fabricMeshes), std::move(tileLoadResult)};
-            })
-            .thenInWorkerThread([transform](IntermediateMainThreadResult&& mainThreadResult) {
-                auto meshes = std::move(mainThreadResult.meshes);
-                auto fabricMeshes = std::move(mainThreadResult.fabricMeshes);
-                auto tileLoadResult = std::move(mainThreadResult.tileLoadResult);
-                const auto& model = *std::get_if<CesiumGltf::Model>(&tileLoadResult.contentKind);
-
                 setFabricMeshes(model, meshes, fabricMeshes);
                 return Cesium3DTilesSelection::TileLoadResultAndRenderResources{
                     std::move(tileLoadResult),
