@@ -13,45 +13,19 @@
 namespace cesium::omniverse {
 
 std::shared_ptr<FabricMesh> FabricMeshManager::acquireMesh(
-    int64_t tilesetId,
-    int64_t tileId,
-    const glm::dmat4& ecefToUsdTransform,
-    const glm::dmat4& gltfToEcefTransform,
-    const glm::dmat4& nodeTransform,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     bool smoothNormals,
     const CesiumGltf::ImageCesium* imagery,
-    const glm::dvec2& imageryTexcoordTranslation,
-    const glm::dvec2& imageryTexcoordScale,
     uint64_t imageryTexcoordSetIndex) {
 
-    const auto hasImagery = imagery != nullptr;
     const auto geometry = acquireGeometry(model, primitive, smoothNormals, imagery, imageryTexcoordSetIndex);
-
-    geometry->setTile(
-        tilesetId,
-        tileId,
-        ecefToUsdTransform,
-        gltfToEcefTransform,
-        nodeTransform,
-        model,
-        primitive,
-        smoothNormals,
-        hasImagery,
-        imageryTexcoordTranslation,
-        imageryTexcoordScale,
-        imageryTexcoordSetIndex);
 
     const auto hasMaterial = geometry->getGeometryDefinition().hasMaterial();
     auto material = std::shared_ptr<FabricMaterial>(nullptr);
 
     if (hasMaterial) {
         material = acquireMaterial(model, primitive, imagery);
-
-        material->setTile(tilesetId, tileId, model, primitive, imagery);
-
-        geometry->assignMaterial(material);
     }
 
     return std::make_shared<FabricMesh>(geometry, material);
