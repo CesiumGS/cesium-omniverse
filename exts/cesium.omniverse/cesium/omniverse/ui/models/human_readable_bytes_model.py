@@ -1,4 +1,3 @@
-import logging
 import omni.ui as ui
 
 
@@ -25,9 +24,9 @@ class HumanReadableBytesModel(ui.AbstractValueModel):
         return float(self._value)
 
     def get_value_as_string(self) -> str:
+        value = self._value
         for unit in ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB"]:
-            logging.getLogger(__name__).warn(self._value)
-            if abs(self._value) < 1024:
-                return f"{self._value:3.2f} {unit}"
-            self._value /= 1024
-        return f"{self._value:.2f}YiB"
+            if abs(value) < 1024:
+                return f"{value:3.2f} {unit}"
+            value /= 1024
+        return f"{value:.2f}YiB"

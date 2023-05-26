@@ -53,7 +53,6 @@ class CesiumOmniverseStatisticsWidget(ui.Frame):
         )
         self._statistics_delegate = StatisticsDelegate()
         self._statistics_tree_view: Optional[ui.TreeView] = None
-        self._aframe: Optional[ui.Frame] = None
 
         self._subscriptions: List[carb.events.ISubscription] = []
         self._setup_subscriptions()
