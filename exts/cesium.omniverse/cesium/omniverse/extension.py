@@ -53,7 +53,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._main_window: Optional[CesiumOmniverseMainWindow] = None
         self._asset_window: Optional[CesiumOmniverseAssetWindow] = None
         self._debug_window: Optional[CesiumOmniverseDebugWindow] = None
-        self._credits_viewport_frames: List[Optional[CesiumCreditsViewportFrame]] = []
+        self._credits_viewport_frames: List[CesiumCreditsViewportFrame] = []
         self._on_stage_subscription: Optional[carb.events.ISubscription] = None
         self._on_update_subscription: Optional[carb.events.ISubscription] = None
         self._show_asset_window_subscription: Optional[carb.events.ISubscription] = None
@@ -424,7 +424,5 @@ class CesiumOmniverseExtension(omni.ext.IExt):
 
     def _destroy_credits_viewport_frames(self):
         for credits_viewport_frame in self._credits_viewport_frames:
-            if credits_viewport_frame is not None:
-                credits_viewport_frame.destroy()
-                credits_viewport_frame = None
+            credits_viewport_frame.destroy()
         CreditsViewportController().clear_handlers()
