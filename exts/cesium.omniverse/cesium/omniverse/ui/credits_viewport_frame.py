@@ -101,8 +101,5 @@ class CesiumCreditsViewportFrame:
                         clicked_fn=self._on_data_attribution_button_clicked,
                     )
 
-    def set_new_credits(self, credits):
-        self._new_credits = credits
-
     def handle_event(self, event):
         self._new_credits = event
