@@ -418,6 +418,8 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._credits_viewport_frames = [
             CesiumCreditsViewportFrame(_cesium_omniverse_interface, i) for i in get_viewport_window_instances()
         ]
+        if self._credits_viewport_controller is not None:
+            self._credits_viewport_controller.broadcast_credits()
 
     def _destroy_credits_viewport_frames(self):
         for credits_viewport_frame in self._credits_viewport_frames:
