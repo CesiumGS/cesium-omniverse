@@ -6,7 +6,7 @@ from typing import List, Optional, Tuple
 from ..bindings import ICesiumOmniverseInterface
 from .credits_parser import CesiumCreditsParser
 from .credits_window import CesiumOmniverseCreditsWindow
-from .credits_viewport_controller import CreditsViewportController
+import json
 
 
 class CesiumCreditsViewportFrame:
@@ -20,13 +20,12 @@ class CesiumCreditsViewportFrame:
         self._credits_window: Optional[CesiumOmniverseCreditsWindow] = None
         self._data_attribution_button: Optional[ui.Button] = None
 
+        self._on_credits_changed_event = carb.events.type_from_string("cesium.omniverse.viewport.ON_CREDITS_CHANGED")
         self._subscriptions: List[carb.events.ISubscription] = []
         self._setup_subscriptions()
 
         self._credits: List[Tuple[str, bool]] = []
-        self._new_credits = CreditsViewportController().get_current_credits()
-
-        CreditsViewportController().register_handler(self)
+        self._new_credits: List[Tuple[str, bool]] = []
 
         self._build_fn()
 
@@ -50,6 +49,13 @@ class CesiumCreditsViewportFrame:
         self._subscriptions.append(
             update_stream.create_subscription_to_pop(
                 self._on_update_frame, name="cesium.omniverse.viewport.ON_UPDATE_FRAME"
+            )
+        )
+        message_bus = app.get_app().get_message_bus_event_stream()
+        event = carb.events.type_from_string("cesium.omniverse.viewport.ON_CREDITS_CHANGED")
+        self._subscriptions.append(
+            message_bus.create_subscription_to_pop_by_type(
+                event, self._on_credits_changed, name="cesium.omniverse.viewport.ON_CREDITS_CHANGED"
             )
         )
 
@@ -101,5 +107,8 @@ class CesiumCreditsViewportFrame:
                         clicked_fn=self._on_data_attribution_button_clicked,
                     )
 
-    def handle_event(self, event):
-        self._new_credits = event
+    def _on_credits_changed(self, _e: carb.events.IEvent):
+        credits_raw = _e.payload['credits']
+        credits = json.loads(credits_raw)
+        if credits is not None:
+            self._new_credits = credits

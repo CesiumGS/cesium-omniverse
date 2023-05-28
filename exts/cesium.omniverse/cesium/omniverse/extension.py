@@ -65,6 +65,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._imagery_to_add_after_token_set: List[ImageryToAdd] = []
         self._adding_assets = False
         self._attributes_widget_controller: Optional[CesiumAttributesWidgetController] = None
+        self._credits_viewport_controller: Optional[CreditsViewportController] = None
         self._logger: logging.Logger = logging.getLogger(__name__)
         self._menu = None
         self._num_credits_viewport_frames = 0
@@ -102,8 +103,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         if show_on_startup:
             ui.Workspace.show_window(CesiumOmniverseMainWindow.WINDOW_NAME)
 
-        CreditsViewportController().start(_cesium_omniverse_interface)
-        self._setup_credits_viewport_frames()
+        self._credits_viewport_controller = CreditsViewportController(_cesium_omniverse_interface)
 
         # Subscribe to stage event stream
         usd_context = omni.usd.get_context()
@@ -423,4 +423,3 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         for credits_viewport_frame in self._credits_viewport_frames:
             credits_viewport_frame.destroy()
         self._credits_viewport_frames.clear()
-        CreditsViewportController().clear_handlers()
