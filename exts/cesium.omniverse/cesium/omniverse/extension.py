@@ -68,7 +68,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._credits_viewport_controller: Optional[CreditsViewportController] = None
         self._logger: logging.Logger = logging.getLogger(__name__)
         self._menu = None
-        self._num_credits_viewport_frames = 0
+        self._num_credits_viewport_frames: int = 0
 
         try:
             # This installs lxml which is needed for credit display.

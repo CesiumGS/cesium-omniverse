@@ -7,6 +7,7 @@ from ..bindings import ICesiumOmniverseInterface
 import omni.ui as ui
 import omni.kit.app
 import json
+from carb.events import IEventStream
 
 
 class CreditsViewportController:
@@ -19,9 +20,10 @@ class CreditsViewportController:
         self._subscriptions: List[carb.events.ISubscription] = []
 
         self._setup_update_subscription()
-        self._message_bus = omni.kit.app.get_app().get_message_bus_event_stream()
+        self._message_bus: IEventStream = omni.kit.app.get_app().get_message_bus_event_stream()
         self._logger = logging.getLogger(__name__)
-        self._EVENT_CREDITS_CHANGED = carb.events.type_from_string("cesium.omniverse.viewport.ON_CREDITS_CHANGED")
+        self._EVENT_CREDITS_CHANGED: int = \
+            carb.events.type_from_string("cesium.omniverse.viewport.ON_CREDITS_CHANGED")
 
     def __del__(self):
         self.destroy()
@@ -58,8 +60,9 @@ class CreditsViewportController:
             )
             new_parsed_credits = credits_parser._parse_credits(new_credits, True, False)
             if new_parsed_credits != self._parsed_credits:
-                self.broadcast_credits()
                 self._parsed_credits = new_parsed_credits
+                self.broadcast_credits()
+
         self._cesium_omniverse_interface.credits_start_next_frame()
 
     def broadcast_credits(self):
