@@ -11,7 +11,6 @@ from carb.events import IEventStream
 
 
 class CreditsViewportController:
-
     def __init__(self, cesium_omniverse_interface: ICesiumOmniverseInterface):
         self._cesium_omniverse_interface = cesium_omniverse_interface
         self._logger: Optional[logging.Logger] = None
