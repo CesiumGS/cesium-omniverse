@@ -30,17 +30,10 @@ class FabricMeshManager {
     }
 
     std::shared_ptr<FabricMesh> acquireMesh(
-        int64_t tilesetId,
-        int64_t tileId,
-        const glm::dmat4& ecefToUsdTransform,
-        const glm::dmat4& gltfToEcefTransform,
-        const glm::dmat4& nodeTransform,
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
         bool smoothNormals,
         const CesiumGltf::ImageCesium* imagery,
-        const glm::dvec2& imageryTexcoordTranslation,
-        const glm::dvec2& imageryTexcoordScale,
         uint64_t imageryTexcoordSetIndex);
 
     void releaseMesh(std::shared_ptr<FabricMesh> mesh);
