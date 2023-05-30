@@ -2,9 +2,8 @@ import logging
 import carb.events
 import omni.kit.app as app
 import omni.ui as ui
-from typing import List, Optional
+from typing import List
 from ..bindings import ICesiumOmniverseInterface
-from .models.statistics_widget_models import StatisticsList, StatisticsItem, StatisticsDelegate
 from .models.space_delimited_number_model import SpaceDelimitedNumberModel
 from .models.human_readable_bytes_model import HumanReadableBytesModel
 
@@ -37,23 +36,6 @@ class CesiumOmniverseStatisticsWidget(ui.Frame):
         self._tileset_cached_bytes_model: SpaceDelimitedNumberModel = SpaceDelimitedNumberModel(0)
         self._tileset_cached_bytes_human_readable_model: HumanReadableBytesModel = HumanReadableBytesModel(0)
 
-        self._statistics = StatisticsList(
-            [
-                StatisticsItem(label=MATERIALS_LOADED_TEXT, value=self._materials_loaded_model),
-                StatisticsItem(label=GEOMETRIES_LOADED_TEXT, value=self._geometries_loaded_model),
-                StatisticsItem(label=GEOMETRIES_VISIBLE_TEXT, value=self._geometries_visible_model),
-                StatisticsItem(label=TRIANGLES_LOADED_TEXT, value=self._triangles_loaded_model),
-                StatisticsItem(label=TRIANGLES_VISIBLE_TEXT, value=self._triangles_visible_model),
-                StatisticsItem(label=TILESET_CACHED_BYTES_TEXT, value=self._tileset_cached_bytes_model),
-                StatisticsItem(
-                    label=TILESET_CACHED_BYTES_HUMAN_READABLE_TEXT,
-                    value=self._tileset_cached_bytes_human_readable_model,
-                ),
-            ]
-        )
-        self._statistics_delegate = StatisticsDelegate()
-        self._statistics_tree_view: Optional[ui.TreeView] = None
-
         self._subscriptions: List[carb.events.ISubscription] = []
         self._setup_subscriptions()
 
@@ -85,20 +67,24 @@ class CesiumOmniverseStatisticsWidget(ui.Frame):
         self._triangles_visible_model.set_value(render_statistics.number_of_triangles_visible)
         self._tileset_cached_bytes_model.set_value(render_statistics.tileset_cached_bytes)
         self._tileset_cached_bytes_human_readable_model.set_value(render_statistics.tileset_cached_bytes)
-        self._statistics.refresh()
 
     def _build_fn(self):
         """Builds all UI components."""
 
-        with ui.VStack():
-            with ui.Frame(
-                style_type_name_override="TreeView",
-                style={"Field": {"background_color": 0xFF000000}},
-            ):
-                self._statistics_tree_view = ui.TreeView(
-                    self._statistics,
-                    delegate=self._statistics_delegate,
-                    root_visible=False,
-                    header_visible=True,
-                    style={"TreeView.Item": {"margin": 4}},
-                )
+        with ui.VStack(spacing=4):
+            with ui.HStack(height=16):
+                ui.Label("Statistics", height=0)
+                ui.Spacer()
+
+            for label, model in [
+                (MATERIALS_LOADED_TEXT, self._materials_loaded_model),
+                (GEOMETRIES_LOADED_TEXT, self._geometries_loaded_model),
+                (GEOMETRIES_VISIBLE_TEXT, self._geometries_visible_model),
+                (TRIANGLES_LOADED_TEXT, self._triangles_loaded_model),
+                (TRIANGLES_VISIBLE_TEXT, self._triangles_visible_model),
+                (TILESET_CACHED_BYTES_TEXT, self._tileset_cached_bytes_model),
+                (TILESET_CACHED_BYTES_HUMAN_READABLE_TEXT, self._tileset_cached_bytes_human_readable_model),
+            ]:
+                with ui.HStack(height=0):
+                    ui.Label(label, height=0)
+                    ui.StringField(model=model, height=0, read_only=True)

@@ -14,6 +14,7 @@ class SpaceDelimitedNumberModel(ui.AbstractValueModel):
 
     def set_value(self, value: float) -> None:
         self._value = value
+        self._value_changed()
 
     def get_value_as_bool(self) -> bool:
         raise NotImplementedError
