@@ -13,14 +13,13 @@ from carb.events import IEventStream
 class CreditsViewportController:
     def __init__(self, cesium_omniverse_interface: ICesiumOmniverseInterface):
         self._cesium_omniverse_interface = cesium_omniverse_interface
-        self._logger: Optional[logging.Logger] = None
+        self._logger: Optional[logging.Logger] = logging.getLogger(__name__)
         self._parsed_credits: List[ParsedCredit] = []
         self._credits: List[Tuple[str, bool]] = []
         self._subscriptions: List[carb.events.ISubscription] = []
 
         self._setup_update_subscription()
         self._message_bus: IEventStream = omni.kit.app.get_app().get_message_bus_event_stream()
-        self._logger = logging.getLogger(__name__)
         self._EVENT_CREDITS_CHANGED: int = carb.events.type_from_string(
             "cesium.omniverse.viewport.ON_CREDITS_CHANGED"
         )
