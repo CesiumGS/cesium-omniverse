@@ -108,7 +108,7 @@ class CesiumCreditsViewportFrame:
                     )
 
     def _on_credits_changed(self, _e: carb.events.IEvent):
-        credits_raw = _e.payload['credits']
-        credits = json.loads(credits_raw)
+        credits_json = _e.payload["credits"]
+        credits = json.loads(credits_json)
         if credits is not None:
             self._new_credits = credits

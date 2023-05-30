@@ -22,8 +22,9 @@ class CreditsViewportController:
         self._setup_update_subscription()
         self._message_bus: IEventStream = omni.kit.app.get_app().get_message_bus_event_stream()
         self._logger = logging.getLogger(__name__)
-        self._EVENT_CREDITS_CHANGED: int = \
-            carb.events.type_from_string("cesium.omniverse.viewport.ON_CREDITS_CHANGED")
+        self._EVENT_CREDITS_CHANGED: int = carb.events.type_from_string(
+            "cesium.omniverse.viewport.ON_CREDITS_CHANGED"
+        )
 
     def __del__(self):
         self.destroy()
