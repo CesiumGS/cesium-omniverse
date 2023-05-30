@@ -53,6 +53,19 @@
             }
         },
         {
+            "label": "Build (tracing)",
+            "type": "shell",
+            "group": "build",
+            "problemMatcher": "$gcc",
+            "windows": {
+                "problemMatcher": "$msCompile",
+                "command": "scripts/vscode_build_launcher.bat build ${input:build-type} ${input:compiler} --tracing"
+            },
+            "linux": {
+                "command": "python3 scripts/vscode_build.py build ${input:build-type} ${input:compiler} --tracing"
+            }
+        },
+        {
             "label": "Build (verbose)",
             "type": "shell",
             "group": "build",

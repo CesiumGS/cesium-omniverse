@@ -79,6 +79,7 @@ option(CESIUM_OMNI_ENABLE_TESTS "Unit tests" ON)
 option(CESIUM_OMNI_ENABLE_DOCUMENTATION "Generate HTML documentation with Doxygen" ON)
 option(CESIUM_OMNI_ENABLE_SANITIZERS "Check for undefined behavior at runtime" OFF)
 option(CESIUM_OMNI_ENABLE_LINTERS "Enable clang-format for code formatting and clang-tidy for static code analysis" ON)
+option(CESIUM_OMNI_ENABLE_TRACING "Whether to enable the Cesium performance tracing framework (CESIUM_TRACE_* macros)." OFF)
 
 # Coverage can only be enabled if tests are also enabled
 cmake_dependent_option(
@@ -179,6 +180,10 @@ set(CESIUM_OMNI_CXX_DEFINES "")
 set(CESIUM_OMNI_CXX_DEFINES_DEBUG "")
 set(CESIUM_OMNI_LINKER_FLAGS "")
 set(CESIUM_OMNI_LINKER_FLAGS_DEBUG "")
+
+if (CESIUM_OMNI_ENABLE_TRACING)
+    set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} "CESIUM_TRACING_ENABLED")
+endif()
 
 set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} CESIUM_OMNI_VERSION="${PROJECT_VERSION}")
 

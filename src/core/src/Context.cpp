@@ -29,6 +29,10 @@
 #include <pxr/usd/usdGeom/xform.h>
 #include <pxr/usd/usdUtils/stageCache.h>
 
+#ifdef CESIUM_TRACING_ENABLED
+#include <chrono>
+#endif
+
 namespace cesium::omniverse {
 
 namespace {
@@ -90,10 +94,20 @@ void Context::initialize(int64_t contextId, const std::filesystem::path& cesiumE
     _session->resume();
 
     Cesium3DTilesSelection::registerAllTileContentTypes();
+
+    CESIUM_TRACE_INIT((cesiumExtensionLocation /
+                       fmt::format(
+                           "cesium-trace-{}.json",
+                           std::chrono::time_point_cast<std::chrono::microseconds>(std::chrono::steady_clock::now())
+                               .time_since_epoch()
+                               .count()))
+                          .string());
 }
 
 void Context::destroy() {
     clearStage();
+
+    CESIUM_TRACE_SHUTDOWN();
 }
 
 std::shared_ptr<TaskProcessor> Context::getTaskProcessor() {
