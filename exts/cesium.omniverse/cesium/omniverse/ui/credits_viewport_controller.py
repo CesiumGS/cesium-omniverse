@@ -8,6 +8,7 @@ import omni.ui as ui
 import omni.kit.app
 import json
 from carb.events import IEventStream
+from .events import EVENT_CREDITS_CHANGED
 
 
 class CreditsViewportController:
@@ -20,9 +21,7 @@ class CreditsViewportController:
 
         self._setup_update_subscription()
         self._message_bus: IEventStream = omni.kit.app.get_app().get_message_bus_event_stream()
-        self._EVENT_CREDITS_CHANGED: int = carb.events.type_from_string(
-            "cesium.omniverse.viewport.ON_CREDITS_CHANGED"
-        )
+        self._EVENT_CREDITS_CHANGED: int = EVENT_CREDITS_CHANGED
 
     def __del__(self):
         self.destroy()

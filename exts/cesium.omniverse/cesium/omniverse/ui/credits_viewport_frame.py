@@ -7,6 +7,7 @@ from ..bindings import ICesiumOmniverseInterface
 from .credits_parser import CesiumCreditsParser
 from .credits_window import CesiumOmniverseCreditsWindow
 import json
+from .events import EVENT_CREDITS_CHANGED
 
 
 class CesiumCreditsViewportFrame:
@@ -20,7 +21,7 @@ class CesiumCreditsViewportFrame:
         self._credits_window: Optional[CesiumOmniverseCreditsWindow] = None
         self._data_attribution_button: Optional[ui.Button] = None
 
-        self._on_credits_changed_event = carb.events.type_from_string("cesium.omniverse.viewport.ON_CREDITS_CHANGED")
+        self._on_credits_changed_event = EVENT_CREDITS_CHANGED
         self._subscriptions: List[carb.events.ISubscription] = []
         self._setup_subscriptions()
 
@@ -52,10 +53,9 @@ class CesiumCreditsViewportFrame:
             )
         )
         message_bus = app.get_app().get_message_bus_event_stream()
-        event = carb.events.type_from_string("cesium.omniverse.viewport.ON_CREDITS_CHANGED")
         self._subscriptions.append(
             message_bus.create_subscription_to_pop_by_type(
-                event, self._on_credits_changed, name="cesium.omniverse.viewport.ON_CREDITS_CHANGED"
+                EVENT_CREDITS_CHANGED, self._on_credits_changed
             )
         )
 
