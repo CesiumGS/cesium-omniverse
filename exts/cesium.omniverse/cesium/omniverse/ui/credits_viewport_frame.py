@@ -54,9 +54,7 @@ class CesiumCreditsViewportFrame:
         )
         message_bus = app.get_app().get_message_bus_event_stream()
         self._subscriptions.append(
-            message_bus.create_subscription_to_pop_by_type(
-                EVENT_CREDITS_CHANGED, self._on_credits_changed
-            )
+            message_bus.create_subscription_to_pop_by_type(EVENT_CREDITS_CHANGED, self._on_credits_changed)
         )
 
     def _on_update_frame(self, _e: carb.events.IEvent):
