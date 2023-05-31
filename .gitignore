@@ -64,3 +64,6 @@ _testoutput
 
 # Packman user files
 *.user
+
+# Tracing files
+cesium-trace-*.json
