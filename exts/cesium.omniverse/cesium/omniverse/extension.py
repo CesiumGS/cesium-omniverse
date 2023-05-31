@@ -159,6 +159,10 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             self._debug_window.destroy()
             self._debug_window = None
 
+        if self._credits_viewport_controller is not None:
+            self._credits_viewport_controller.destroy()
+            self._credits_viewport_controller = None
+
         # Deregister the function that shows the window from omni.ui
         ui.Workspace.set_show_window_fn(CesiumOmniverseMainWindow.WINDOW_NAME, None)
         ui.Workspace.set_show_window_fn(CesiumOmniverseAssetWindow.WINDOW_NAME, None)
