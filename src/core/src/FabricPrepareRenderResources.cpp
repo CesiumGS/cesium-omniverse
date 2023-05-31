@@ -19,12 +19,32 @@
 namespace cesium::omniverse {
 
 namespace {
+
+template <typename T> size_t getIndexFromRef(const std::vector<T>& vector, const T& item) {
+    return static_cast<size_t>(&item - vector.data());
+};
+
 struct TileLoadThreadResult {
     glm::dmat4 tileTransform;
     std::vector<std::shared_ptr<FabricMesh>> fabricMeshes;
 };
 
-std::vector<std::shared_ptr<FabricMesh>> createFabricMeshes(
+struct IntermediaryMesh {
+    const int64_t tilesetId;
+    const int64_t tileId;
+    const glm::dmat4 ecefToUsdTransform;
+    const glm::dmat4 gltfToEcefTransform;
+    const glm::dmat4 nodeTransform;
+    const uint64_t meshId;
+    const uint64_t primitiveId;
+    const bool smoothNormals;
+    const CesiumGltf::ImageCesium* imagery;
+    const glm::dvec2 imageryTexcoordTranslation;
+    const glm::dvec2 imageryTexcoordScale;
+    const uint64_t imageryTexcoordSetIndex;
+};
+
+std::vector<IntermediaryMesh> gatherMeshes(
     const OmniTileset& tileset,
     const glm::dmat4& tileTransform,
     const CesiumGltf::Model& model,
@@ -44,7 +64,7 @@ std::vector<std::shared_ptr<FabricMesh>> createFabricMeshes(
     auto gltfToEcefTransform = Cesium3DTilesSelection::GltfUtilities::applyRtcCenter(model, tileTransform);
     gltfToEcefTransform = Cesium3DTilesSelection::GltfUtilities::applyGltfUpAxisTransform(model, gltfToEcefTransform);
 
-    std::vector<std::shared_ptr<FabricMesh>> fabricMeshes;
+    std::vector<IntermediaryMesh> meshes;
 
     model.forEachPrimitiveInScene(
         -1,
@@ -57,34 +77,74 @@ std::vector<std::shared_ptr<FabricMesh>> createFabricMeshes(
          &imageryTexcoordTranslation,
          &imageryTexcoordScale,
          imageryTexcoordSetIndex,
-         &fabricMeshes](
+         &meshes](
             const CesiumGltf::Model& gltf,
             [[maybe_unused]] const CesiumGltf::Node& node,
             [[maybe_unused]] const CesiumGltf::Mesh& mesh,
             const CesiumGltf::MeshPrimitive& primitive,
             const glm::dmat4& transform) {
-            const auto fabricMesh = FabricMeshManager::getInstance().acquireMesh(
+            const auto meshId = getIndexFromRef(gltf.meshes, mesh);
+            const auto primitiveId = getIndexFromRef(mesh.primitives, primitive);
+            meshes.emplace_back(IntermediaryMesh{
                 tilesetId,
                 tileId,
                 ecefToUsdTransform,
                 gltfToEcefTransform,
                 transform,
-                gltf,
-                primitive,
+                meshId,
+                primitiveId,
                 smoothNormals,
                 imagery,
                 imageryTexcoordTranslation,
                 imageryTexcoordScale,
-                imageryTexcoordSetIndex);
-            fabricMeshes.push_back(fabricMesh);
+                imageryTexcoordSetIndex,
+            });
         });
+
+    return meshes;
+}
+
+std::vector<IntermediaryMesh>
+gatherMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const CesiumGltf::Model& model) {
+    return gatherMeshes(tileset, tileTransform, model, nullptr, glm::dvec2(), glm::dvec2(), 0);
+}
+
+std::vector<std::shared_ptr<FabricMesh>>
+acquireFabricMeshes(const CesiumGltf::Model& model, const std::vector<IntermediaryMesh>& meshes) {
+    std::vector<std::shared_ptr<FabricMesh>> fabricMeshes;
+    fabricMeshes.reserve(meshes.size());
+
+    for (const auto& mesh : meshes) {
+        const auto& primitive = model.meshes[mesh.meshId].primitives[mesh.primitiveId];
+        fabricMeshes.emplace_back(FabricMeshManager::getInstance().acquireMesh(
+            model, primitive, mesh.smoothNormals, mesh.imagery, mesh.imageryTexcoordSetIndex));
+    }
 
     return fabricMeshes;
 }
 
-std::vector<std::shared_ptr<FabricMesh>>
-createFabricMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const CesiumGltf::Model& model) {
-    return createFabricMeshes(tileset, tileTransform, model, nullptr, glm::dvec2(), glm::dvec2(), 0);
+void setFabricMeshes(
+    const CesiumGltf::Model& model,
+    const std::vector<IntermediaryMesh>& meshes,
+    const std::vector<std::shared_ptr<FabricMesh>>& fabricMeshes) {
+    for (size_t i = 0; i < meshes.size(); i++) {
+        const auto& mesh = meshes[i];
+        const auto& fabricMesh = fabricMeshes[i];
+        const auto& primitive = model.meshes[mesh.meshId].primitives[mesh.primitiveId];
+        fabricMesh->setTile(
+            mesh.tilesetId,
+            mesh.tileId,
+            mesh.ecefToUsdTransform,
+            mesh.gltfToEcefTransform,
+            mesh.nodeTransform,
+            model,
+            primitive,
+            mesh.smoothNormals,
+            mesh.imagery,
+            mesh.imageryTexcoordTranslation,
+            mesh.imageryTexcoordScale,
+            mesh.imageryTexcoordSetIndex);
+    }
 }
 
 } // namespace
@@ -104,31 +164,31 @@ FabricPrepareRenderResources::prepareInLoadThread(
             Cesium3DTilesSelection::TileLoadResultAndRenderResources{std::move(tileLoadResult), nullptr});
     }
 
-    return asyncSystem.runInMainThread([this, asyncSystem, transform, tileLoadResult = std::move(tileLoadResult)]() {
-        const auto pModel = std::get_if<CesiumGltf::Model>(&tileLoadResult.contentKind);
-
-        // If there are no imagery layers attached to the tile add the tile right away
-        if (!tileLoadResult.rasterOverlayDetails.has_value()) {
-
-            const auto fabricMeshes = createFabricMeshes(_tileset, transform, *pModel);
-
-            return asyncSystem.createResolvedFuture(Cesium3DTilesSelection::TileLoadResultAndRenderResources{
-                std::move(tileLoadResult),
-                new TileLoadThreadResult{
-                    transform,
-                    std::move(fabricMeshes),
-                },
+    // If there are no imagery layers attached to the tile add the tile right away
+    if (!tileLoadResult.rasterOverlayDetails.has_value()) {
+        auto meshes = gatherMeshes(_tileset, transform, *pModel);
+        return asyncSystem.runInMainThread(
+            [transform, meshes = std::move(meshes), tileLoadResult = std::move(tileLoadResult)]() {
+                const auto& model = *std::get_if<CesiumGltf::Model>(&tileLoadResult.contentKind);
+                auto fabricMeshes = acquireFabricMeshes(model, meshes);
+                setFabricMeshes(model, meshes, fabricMeshes);
+                return Cesium3DTilesSelection::TileLoadResultAndRenderResources{
+                    std::move(tileLoadResult),
+                    new TileLoadThreadResult{
+                        transform,
+                        std::move(fabricMeshes),
+                    },
+                };
             });
-        }
+    }
 
-        // Otherwise add the tile + imagery later
-        return asyncSystem.createResolvedFuture(Cesium3DTilesSelection::TileLoadResultAndRenderResources{
-            std::move(tileLoadResult),
-            new TileLoadThreadResult{
-                transform,
-                {},
-            },
-        });
+    // Otherwise add the tile + imagery later
+    return asyncSystem.createResolvedFuture(Cesium3DTilesSelection::TileLoadResultAndRenderResources{
+        std::move(tileLoadResult),
+        new TileLoadThreadResult{
+            transform,
+            {},
+        },
     });
 }
 
@@ -220,14 +280,19 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
         }
     }
 
-    const auto fabricMeshes = createFabricMeshes(
+    const auto& model = tile.getContent().getRenderContent()->getModel();
+
+    const auto meshes = gatherMeshes(
         _tileset,
         pTileRenderResources->tileTransform,
-        tile.getContent().getRenderContent()->getModel(),
+        model,
         &rasterTile.getImage(),
         translation,
         scale,
         static_cast<uint64_t>(overlayTextureCoordinateID));
+
+    const auto fabricMeshes = acquireFabricMeshes(model, meshes);
+    setFabricMeshes(model, meshes, fabricMeshes);
 
     pTileRenderResources->fabricMeshes = fabricMeshes;
 }

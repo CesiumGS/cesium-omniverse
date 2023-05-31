@@ -2,31 +2,36 @@ import logging
 import carb.events
 import omni.kit.app as app
 import omni.ui as ui
-from omni.kit.viewport.utility import get_active_viewport_window
 from typing import List, Optional, Tuple
 from ..bindings import ICesiumOmniverseInterface
 from .credits_parser import CesiumCreditsParser
 from .credits_window import CesiumOmniverseCreditsWindow
+import json
+from .events import EVENT_CREDITS_CHANGED
 
 
 class CesiumCreditsViewportFrame:
-    def __init__(self, cesium_omniverse_interface: ICesiumOmniverseInterface):
+    def __init__(self, cesium_omniverse_interface: ICesiumOmniverseInterface, instance):
         self._logger = logging.getLogger(__name__)
 
         self._cesium_omniverse_interface = cesium_omniverse_interface
 
-        viewport_window = get_active_viewport_window()
-        self._credits_viewport_frame = viewport_window.get_frame("cesium.omniverse.viewport.ION_CREDITS")
+        self._credits_viewport_frame = instance.get_frame("cesium.omniverse.viewport.ION_CREDITS")
 
         self._credits_window: Optional[CesiumOmniverseCreditsWindow] = None
         self._data_attribution_button: Optional[ui.Button] = None
 
+        self._on_credits_changed_event = EVENT_CREDITS_CHANGED
         self._subscriptions: List[carb.events.ISubscription] = []
         self._setup_subscriptions()
 
         self._credits: List[Tuple[str, bool]] = []
+        self._new_credits: List[Tuple[str, bool]] = []
 
         self._build_fn()
+
+    def getFrame(self):
+        return self._credits_viewport_frame
 
     def __del__(self):
         self.destroy()
@@ -47,20 +52,22 @@ class CesiumCreditsViewportFrame:
                 self._on_update_frame, name="cesium.omniverse.viewport.ON_UPDATE_FRAME"
             )
         )
+        message_bus = app.get_app().get_message_bus_event_stream()
+        self._subscriptions.append(
+            message_bus.create_subscription_to_pop_by_type(EVENT_CREDITS_CHANGED, self._on_credits_changed)
+        )
 
     def _on_update_frame(self, _e: carb.events.IEvent):
         if self._data_attribution_button is None:
             return
 
-        new_credits = self._cesium_omniverse_interface.get_credits()
-
-        if new_credits != self._credits:
+        if self._new_credits != self._credits:
             self._credits.clear()
-            self._credits.extend(new_credits)
+            self._credits.extend(self._new_credits)
             self._build_fn()
 
         has_offscreen_credits = False
-        for _, show_on_screen in new_credits:
+        for _, show_on_screen in self._new_credits:
             if not show_on_screen:
                 has_offscreen_credits = True
 
@@ -70,8 +77,6 @@ class CesiumCreditsViewportFrame:
             else:
                 self._logger.info("Hide Data Attribution")
             self._data_attribution_button.visible = has_offscreen_credits
-
-        self._cesium_omniverse_interface.credits_start_next_frame()
 
     def _on_data_attribution_button_clicked(self):
         self._credits_window = CesiumOmniverseCreditsWindow(self._cesium_omniverse_interface, self._credits)
@@ -99,3 +104,9 @@ class CesiumCreditsViewportFrame:
                         height=0,
                         clicked_fn=self._on_data_attribution_button_clicked,
                     )
+
+    def _on_credits_changed(self, _e: carb.events.IEvent):
+        credits_json = _e.payload["credits"]
+        credits = json.loads(credits_json)
+        if credits is not None:
+            self._new_credits = credits
