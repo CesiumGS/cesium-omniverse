@@ -21,6 +21,7 @@ import omni.ui as ui
 import omni.usd
 import os
 from typing import List, Optional, Callable
+from .ui.credits_viewport_controller import CreditsViewportController
 
 cesium_extension_location = os.path.join(os.path.dirname(__file__), "../../")
 
@@ -52,7 +53,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._main_window: Optional[CesiumOmniverseMainWindow] = None
         self._asset_window: Optional[CesiumOmniverseAssetWindow] = None
         self._debug_window: Optional[CesiumOmniverseDebugWindow] = None
-        self._credits_viewport_frame: Optional[CesiumCreditsViewportFrame] = None
+        self._credits_viewport_frames: List[CesiumCreditsViewportFrame] = []
         self._on_stage_subscription: Optional[carb.events.ISubscription] = None
         self._on_update_subscription: Optional[carb.events.ISubscription] = None
         self._show_asset_window_subscription: Optional[carb.events.ISubscription] = None
@@ -64,8 +65,10 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._imagery_to_add_after_token_set: List[ImageryToAdd] = []
         self._adding_assets = False
         self._attributes_widget_controller: Optional[CesiumAttributesWidgetController] = None
+        self._credits_viewport_controller: Optional[CreditsViewportController] = None
         self._logger: logging.Logger = logging.getLogger(__name__)
         self._menu = None
+        self._num_credits_viewport_frames: int = 0
 
         try:
             # This installs lxml which is needed for credit display.
@@ -100,7 +103,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         if show_on_startup:
             ui.Workspace.show_window(CesiumOmniverseMainWindow.WINDOW_NAME)
 
-        self._credits_viewport_frame = CesiumCreditsViewportFrame(_cesium_omniverse_interface)
+        self._credits_viewport_controller = CreditsViewportController(_cesium_omniverse_interface)
 
         # Subscribe to stage event stream
         usd_context = omni.usd.get_context()
@@ -156,9 +159,9 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             self._debug_window.destroy()
             self._debug_window = None
 
-        if self._credits_viewport_frame is not None:
-            self._credits_viewport_frame.destroy()
-            self._credits_viewport_frame = None
+        if self._credits_viewport_controller is not None:
+            self._credits_viewport_controller.destroy()
+            self._credits_viewport_controller = None
 
         # Deregister the function that shows the window from omni.ui
         ui.Workspace.set_show_window_fn(CesiumOmniverseMainWindow.WINDOW_NAME, None)
@@ -197,6 +200,8 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             self._attributes_widget_controller.destroy()
             self._attributes_widget_controller = None
 
+        self._destroy_credits_viewport_frames()
+
         self._logger.info("CesiumOmniverse shutdown")
 
         # Release the Cesium Omniverse interface.
@@ -216,6 +221,10 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             viewport.width = float(viewport_api.resolution[0])
             viewport.height = float(viewport_api.resolution[1])
             viewports.append(viewport)
+
+        if len(viewports) != self._num_credits_viewport_frames:
+            self._setup_credits_viewport_frames()
+            self._num_credits_viewport_frames = len(viewports)
 
         _cesium_omniverse_interface.on_update_frame(viewports)
 
@@ -407,3 +416,16 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             asyncio.ensure_future(self._dock_window_async(self._debug_window))
         elif self._debug_window is not None:
             self._debug_window.visible = False
+
+    def _setup_credits_viewport_frames(self):
+        self._destroy_credits_viewport_frames()
+        self._credits_viewport_frames = [
+            CesiumCreditsViewportFrame(_cesium_omniverse_interface, i) for i in get_viewport_window_instances()
+        ]
+        if self._credits_viewport_controller is not None:
+            self._credits_viewport_controller.broadcast_credits()
+
+    def _destroy_credits_viewport_frames(self):
+        for credits_viewport_frame in self._credits_viewport_frames:
+            credits_viewport_frame.destroy()
+        self._credits_viewport_frames.clear()
