@@ -59,10 +59,10 @@
             "problemMatcher": "$gcc",
             "windows": {
                 "problemMatcher": "$msCompile",
-                "command": "scripts/vscode_build_launcher.bat build ${input:build-type} ${input:compiler} --tracing"
+                "command": "scripts/vscode_build_launcher.bat build Release default --tracing"
             },
             "linux": {
-                "command": "python3 scripts/vscode_build.py build ${input:build-type} ${input:compiler} --tracing"
+                "command": "python3 scripts/vscode_build.py build Release default --tracing"
             }
         },
         {

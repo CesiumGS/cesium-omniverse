@@ -377,7 +377,7 @@ cmake --build build
 
 A file called `cesium-trace-xxxxxxxxxxx.json` will be saved to the `exts/cesium-omniverse` folder when the program exits. This file can then be inspected in `chrome://tracing/`.
 
-Note that the JSON output may get truncated if the program closes unexpectedly - e.g. when the debugging session is stopped or the program crashes - or if `app.fastShutdown` is `true` (like with Omniverse Create). Therefore the best workflow for performance tracing is to run `cesium.omniverse.app.kit` and close the window normally.
+Note that the JSON output may get truncated if the program closes unexpectedly - e.g. when the debugging session is stopped or the program crashes - or if `app.fastShutdown` is `true` (like with Omniverse Create and `cesium.omniverse.app.kit`). Therefore the best workflow for performance tracing is to run `cesium.omniverse.app.trace.kit` and close the window normally.
 
 ## Sanitizers
 
@@ -520,6 +520,34 @@ Each workspace contains recommended extensions and settings for VSCode developme
       ]
     },
     {
+      "name": "Performance Tracing",
+      "preLaunchTask": "Build Only (release)",
+      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit",
+      "args": [
+        "${workspaceFolder}/apps/cesium.omniverse.app.trace.kit"
+      ],
+      "env": {
+        // Disable LSAN when debugging since it doesn't work with GDB and prints harmless but annoying warning messages
+        "ASAN_OPTIONS": "detect_leaks=0",
+        "UBSAN_OPTIONS": "print_stacktrace=1"
+      },
+      "cwd": "${workspaceFolder}",
+      "type": "lldb",
+      "request": "launch",
+      "console": "internalConsole",
+      "internalConsoleOptions": "openOnSessionStart",
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        },
+        {
+          "text": "set print elements 0"
+        }
+      ]
+    },
+    {
       "name": "Code",
       "preLaunchTask": "Build Only (debug)",
       "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit",
@@ -596,6 +624,19 @@ Each workspace contains recommended extensions and settings for VSCode developme
       "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit.exe",
       "args": [
         "${workspaceFolder}/apps/cesium.omniverse.app.kit"
+      ],
+      "cwd": "${workspaceFolder}",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "console": "internalConsole",
+      "internalConsoleOptions": "openOnSessionStart"
+    },
+    {
+      "name": "Performance Tracing",
+      "preLaunchTask": "Build Only (release)",
+      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit.exe",
+      "args": [
+        "${workspaceFolder}/apps/cesium.omniverse.app.trace.kit"
       ],
       "cwd": "${workspaceFolder}",
       "type": "cppvsdbg",
