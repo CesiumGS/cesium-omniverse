@@ -23,8 +23,8 @@
   - [Build Windows Package (Local)](#build-windows-package-local)
 - [VSCode](#vscode)
   - [Workspaces](#workspaces)
-  - [Debugging](#debugging)
   - [Tasks](#tasks)
+  - [Debugging](#debugging)
 - [Project Structure](#project-structure)
 - [Third Party Libraries](#third-party-libraries)
   - [Overriding Packman Libraries](#overriding-packman-libraries)
@@ -479,205 +479,6 @@ Each workspace contains recommended extensions and settings for VSCode developme
 - [cesium-omniverse-linux.code-workspace](./.vscode/cesium-omniverse-linux.code-workspace)
 - [cesium-omniverse-windows.code-workspace](./.vscode/cesium-omniverse-windows.code-workspace)
 
-### Debugging
-
-- Create `.vscode/launch.json` and copy the configurations below. Feel free to edit these or add additional configurations for your own debugging purposes.
-- Select an option from the `Run and Debug` panel, such as `Test`, and click the green arrow.
-
-<!-- omit in toc -->
-#### Linux
-
-```json
-{
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Kit App",
-      "preLaunchTask": "Build Only (debug)",
-      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit",
-      "args": [
-        "${workspaceFolder}/apps/cesium.omniverse.app.kit"
-      ],
-      "env": {
-        // Disable LSAN when debugging since it doesn't work with GDB and prints harmless but annoying warning messages
-        "ASAN_OPTIONS": "detect_leaks=0",
-        "UBSAN_OPTIONS": "print_stacktrace=1"
-      },
-      "cwd": "${workspaceFolder}",
-      "type": "lldb",
-      "request": "launch",
-      "console": "internalConsole",
-      "internalConsoleOptions": "openOnSessionStart",
-      "MIMode": "gdb",
-      "setupCommands": [
-        {
-          "text": "-enable-pretty-printing",
-          "ignoreFailures": true
-        },
-        {
-          "text": "set print elements 0"
-        }
-      ]
-    },
-    {
-      "name": "Performance Tracing",
-      "preLaunchTask": "Build Only (release)",
-      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit",
-      "args": [
-        "${workspaceFolder}/apps/cesium.omniverse.app.trace.kit"
-      ],
-      "env": {
-        // Disable LSAN when debugging since it doesn't work with GDB and prints harmless but annoying warning messages
-        "ASAN_OPTIONS": "detect_leaks=0",
-        "UBSAN_OPTIONS": "print_stacktrace=1"
-      },
-      "cwd": "${workspaceFolder}",
-      "type": "lldb",
-      "request": "launch",
-      "console": "internalConsole",
-      "internalConsoleOptions": "openOnSessionStart",
-      "MIMode": "gdb",
-      "setupCommands": [
-        {
-          "text": "-enable-pretty-printing",
-          "ignoreFailures": true
-        },
-        {
-          "text": "set print elements 0"
-        }
-      ]
-    },
-    {
-      "name": "Code",
-      "preLaunchTask": "Build Only (debug)",
-      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit",
-      "args": [
-        "${workspaceFolder}/extern/nvidia/app/apps/omni.code.kit"
-      ],
-      "env": {
-        // Disable LSAN when debugging since it doesn't work with GDB and prints harmless but annoying warning messages
-        "ASAN_OPTIONS": "detect_leaks=0",
-        "UBSAN_OPTIONS": "print_stacktrace=1"
-      },
-      "cwd": "${workspaceFolder}",
-      "type": "lldb",
-      "request": "launch",
-      "console": "internalConsole",
-      "internalConsoleOptions": "openOnSessionStart",
-      "MIMode": "gdb",
-      "setupCommands": [
-        {
-          "text": "-enable-pretty-printing",
-          "ignoreFailures": true
-        },
-        {
-          "text": "set print elements 0"
-        }
-      ]
-    },
-    {
-      "name": "Test",
-      "preLaunchTask": "Build Only (debug)",
-      "program": "${workspaceFolder}/build-debug/bin/tests",
-      "env": {
-        // Disable LSAN when debugging since it doesn't work with GDB and prints harmless but annoying warning messages
-        "ASAN_OPTIONS": "detect_leaks=0",
-        "UBSAN_OPTIONS": "print_stacktrace=1"
-      },
-      "cwd": "${workspaceFolder}",
-      "type": "lldb",
-      "request": "launch",
-      "console": "internalConsole",
-      "internalConsoleOptions": "openOnSessionStart",
-      "MIMode": "gdb",
-      "setupCommands": [
-        {
-          "text": "-enable-pretty-printing",
-          "ignoreFailures": true
-        },
-        {
-          "text": "set print elements 0"
-        }
-      ]
-    },
-    {
-      "name": "Python Debugging (attach)",
-      "type": "python",
-      "request": "attach",
-      "port": 3000,
-      "host": "localhost"
-    }
-  ]
-}
-```
-
-<!-- omit in toc -->
-#### Windows
-
-```json
-{
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Kit App",
-      "preLaunchTask": "Build Only (debug)",
-      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit.exe",
-      "args": [
-        "${workspaceFolder}/apps/cesium.omniverse.app.kit"
-      ],
-      "cwd": "${workspaceFolder}",
-      "type": "cppvsdbg",
-      "request": "launch",
-      "console": "internalConsole",
-      "internalConsoleOptions": "openOnSessionStart"
-    },
-    {
-      "name": "Performance Tracing",
-      "preLaunchTask": "Build Only (release)",
-      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit.exe",
-      "args": [
-        "${workspaceFolder}/apps/cesium.omniverse.app.trace.kit"
-      ],
-      "cwd": "${workspaceFolder}",
-      "type": "cppvsdbg",
-      "request": "launch",
-      "console": "internalConsole",
-      "internalConsoleOptions": "openOnSessionStart"
-    },
-    {
-      "name": "Code",
-      "preLaunchTask": "Build Only (debug)",
-      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit.exe",
-      "args": [
-        "${workspaceFolder}/extern/nvidia/app/apps/omni.code.kit"
-      ],
-      "cwd": "${workspaceFolder}",
-      "type": "cppvsdbg",
-      "request": "launch",
-      "console": "internalConsole",
-      "internalConsoleOptions": "openOnSessionStart"
-    },
-    {
-      "name": "Test",
-      "preLaunchTask": "Build Only (debug)",
-      "program": "${workspaceFolder}/build/bin/Debug/tests",
-      "cwd": "${workspaceFolder}",
-      "type": "cppvsdbg",
-      "request": "launch",
-      "console": "internalConsole",
-      "internalConsoleOptions": "openOnSessionStart"
-    },
-    {
-      "name": "Python Debugging (attach)",
-      "type": "python",
-      "request": "attach",
-      "port": 3000,
-      "host": "localhost"
-    }
-  ]
-}
-```
-
 ### Tasks
 
 [`.vscode/tasks.json`](./.vscode/tasks.json) comes with the following tasks:
@@ -697,12 +498,27 @@ Each workspace contains recommended extensions and settings for VSCode developme
 - Format - formats the code with clang-format
 - Lint - runs clang-tidy
 - Lint Fix - runs clang-tidy and fixes issues
-- Dependency graph - shows the third party library dependency graph
+- Dependency Graph - shows the third party library dependency graph
 
 To run a task:
 
 - `Ctrl + Shift + B` and select the task, e.g. `Build`
 - Select the build type and compiler (if applicable)
+
+### Debugging
+
+Windows and Linux versions of `launch.json` are provided in the `.vscode` folder.
+
+* On Windows copy `launch.json.windows` and rename it to `launch.json`.
+* On Linux copy `launch.json.linux` and rename it to `launch.json`.
+
+Then select a configuration from the `Run and Debug` panel, such as `Kit App`, and click the green arrow.
+
+> **Note:** Most configurations run a build-only prelaunch task. This assumes the project has already been configured. When debugging for the first time make sure to configure the project first by pressing `Ctrl + Shift + B` and running  `Build (debug)`.
+
+> **Note:** For performance tracing make sure the project has been configured with tracing enabled by pressing `Ctrl + Shift + B` and running  `Build (tracing)`.
+
+> **Note:** For Python debugging, first run `Python Debugging (start)`, then wait for Omniverse to load, then run `Python Debugging (attach)`. Now with both debuggers running you can set breakpoints in both the C++ and Python code.
 
 ## Project Structure
 
