@@ -354,4 +354,28 @@ class "CesiumGlobalAnchorAPI" (
         displayName = "Georeference Origin Height"
         doc = "The height of the anchor in meters above the WGS84 ellipsoid. Do not confuse this with a geoid height or height above mean sea level, which can be tens of meters higher or lower depending on where in the world the origin is located."
     )
+
+    double3 cesium:anchor:position = (0.0, 0.0, 0.0) (
+        customData = {
+            string apiName = "position"
+        }
+        displayName = "Position (Earth-Centered, Earth-Fixed)"
+        doc = "The actual position of the globally anchored prim in the ECEF coordinate system used by Cesium for Omniverse."
+    )
+
+    double3 cesium:anchor:rotation = (0.0, 0.0, 0.0) (
+        customData = {
+            string apiName = "rotation"
+        }
+        displayName = "Rotation (East-Up-North)"
+        doc = "The actual rotation of the globally anchored prim oriented to the ECEF coordinate system used by Cesium for Omniverse."
+    )
+
+    double3 cesium:anchor:scale = (1.0, 1.0, 1.0) (
+        customData = {
+            string apiName = "scale"
+        }
+        displayName = "Scale"
+        doc = "The local scaling of the prim."
+    )
 }

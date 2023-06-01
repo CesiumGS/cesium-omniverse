@@ -35,10 +35,42 @@ PXR_NAMESPACE_OPEN_SCOPE
 /// Use CesiumTokens like so:
 ///
 /// \code
-///     gprim.GetMyTokenValuedAttr().Set(CesiumTokens->cesiumCulledScreenSpaceError);
+///     gprim.GetMyTokenValuedAttr().Set(CesiumTokens->cesiumAnchorAdjustOrientationForGlobeWhenMoving);
 /// \endcode
 struct CesiumTokensType {
     CESIUM_API CesiumTokensType();
+    /// \brief "cesium:anchor:adjustOrientationForGlobeWhenMoving"
+    /// 
+    /// CesiumGlobalAnchorAPI
+    const TfToken cesiumAnchorAdjustOrientationForGlobeWhenMoving;
+    /// \brief "cesium:anchor:detectTransformChanges"
+    /// 
+    /// CesiumGlobalAnchorAPI
+    const TfToken cesiumAnchorDetectTransformChanges;
+    /// \brief "cesium:anchor:height"
+    /// 
+    /// CesiumGlobalAnchorAPI
+    const TfToken cesiumAnchorHeight;
+    /// \brief "cesium:anchor:latitude"
+    /// 
+    /// CesiumGlobalAnchorAPI
+    const TfToken cesiumAnchorLatitude;
+    /// \brief "cesium:anchor:longitude"
+    /// 
+    /// CesiumGlobalAnchorAPI
+    const TfToken cesiumAnchorLongitude;
+    /// \brief "cesium:anchor:position"
+    /// 
+    /// CesiumGlobalAnchorAPI
+    const TfToken cesiumAnchorPosition;
+    /// \brief "cesium:anchor:rotation"
+    /// 
+    /// CesiumGlobalAnchorAPI
+    const TfToken cesiumAnchorRotation;
+    /// \brief "cesium:anchor:scale"
+    /// 
+    /// CesiumGlobalAnchorAPI
+    const TfToken cesiumAnchorScale;
     /// \brief "cesium:culledScreenSpaceError"
     /// 
     /// CesiumTilesetAPI
