@@ -20,7 +20,7 @@ namespace cesium::omniverse {
 
 namespace {
 
-const auto MATERIAL_LOADING_COLOR = pxr::GfVec3f(1.0f, 0.0f, 0.0f);
+const auto MATERIAL_LOADING_COLOR = pxr::GfVec3f(0.0f, 0.0f, 0.0f);
 const auto DEFAULT_COLOR = pxr::GfVec3f(1.0f, 1.0f, 1.0f);
 const auto DEFAULT_EXTENT = pxr::GfRange3d(pxr::GfVec3d(0.0, 0.0, 0.0), pxr::GfVec3d(0.0, 0.0, 0.0));
 const auto DEFAULT_POSITION = pxr::GfVec3d(0.0, 0.0, 0.0);

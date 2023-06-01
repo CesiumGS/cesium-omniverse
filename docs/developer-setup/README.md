@@ -14,6 +14,7 @@
 - [Coverage](#coverage)
 - [Documentation](#documentation)
 - [Installing](#installing)
+- [Tracing](#tracing)
 - [Sanitizers](#sanitizers)
 - [Formatting](#formatting)
 - [Linting](#linting)
@@ -26,6 +27,7 @@
   - [Tasks](#tasks)
 - [Project Structure](#project-structure)
 - [Third Party Libraries](#third-party-libraries)
+  - [Overriding Packman Libraries](#overriding-packman-libraries)
 
 ## Prerequisites
 
@@ -364,6 +366,19 @@ cmake -B build -D CMAKE_INSTALL_PREFIX=$HOME/Desktop/CesiumOmniverse
 cmake --build build --target install --component library
 ```
 
+## Tracing
+
+To enable performance tracing set `CESIUM_OMNI_ENABLE_TRACING`:
+
+```sh
+cmake -B build -D CESIUM_OMNI_ENABLE_TRACING
+cmake --build build
+```
+
+A file called `cesium-trace-xxxxxxxxxxx.json` will be saved to the `exts/cesium-omniverse` folder when the program exits. This file can then be inspected in `chrome://tracing/`.
+
+Note that the JSON output may get truncated if the program closes unexpectedly - e.g. when the debugging session is stopped or the program crashes - or if `app.fastShutdown` is `true` (like with Omniverse Create and `cesium.omniverse.app.kit`). Therefore the best workflow for performance tracing is to run `cesium.omniverse.app.trace.kit` and close the window normally.
+
 ## Sanitizers
 
 When sanitizers are enabled they will check for mistakes that are difficult to catch at compile time, such as reading past the end of an array or dereferencing a null pointer. Sanitizers should not be used for production builds because they inject these checks into the binaries themselves, creating some runtime overhead.
@@ -505,6 +520,34 @@ Each workspace contains recommended extensions and settings for VSCode developme
       ]
     },
     {
+      "name": "Performance Tracing",
+      "preLaunchTask": "Build Only (release)",
+      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit",
+      "args": [
+        "${workspaceFolder}/apps/cesium.omniverse.app.trace.kit"
+      ],
+      "env": {
+        // Disable LSAN when debugging since it doesn't work with GDB and prints harmless but annoying warning messages
+        "ASAN_OPTIONS": "detect_leaks=0",
+        "UBSAN_OPTIONS": "print_stacktrace=1"
+      },
+      "cwd": "${workspaceFolder}",
+      "type": "lldb",
+      "request": "launch",
+      "console": "internalConsole",
+      "internalConsoleOptions": "openOnSessionStart",
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        },
+        {
+          "text": "set print elements 0"
+        }
+      ]
+    },
+    {
       "name": "Code",
       "preLaunchTask": "Build Only (debug)",
       "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit",
@@ -589,6 +632,19 @@ Each workspace contains recommended extensions and settings for VSCode developme
       "internalConsoleOptions": "openOnSessionStart"
     },
     {
+      "name": "Performance Tracing",
+      "preLaunchTask": "Build Only (release)",
+      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit.exe",
+      "args": [
+        "${workspaceFolder}/apps/cesium.omniverse.app.trace.kit"
+      ],
+      "cwd": "${workspaceFolder}",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "console": "internalConsole",
+      "internalConsoleOptions": "openOnSessionStart"
+    },
+    {
       "name": "Code",
       "preLaunchTask": "Build Only (debug)",
       "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit.exe",
@@ -628,6 +684,7 @@ Each workspace contains recommended extensions and settings for VSCode developme
 
 - Configure - configures the project
 - Build (advanced) - configures and builds the project
+- Build (tracing) - configures and builds the project with tracing enabled
 - Build (verbose) - configures and builds the project with verbose output
 - Build (debug) - configures and builds the project in debug mode with the default compiler
 - Build (release) - configures and builds the project in release mode with the default compiler
@@ -673,7 +730,7 @@ Some dependencies are pulled in as Git submodules instead. When adding a new git
 
 ### Overriding Packman Libraries
 
-The external dpendencies from Nvidia use Nvidia's packman tool to fetch and install. The dependency files are found at `/extern/nvidia/deps` in this repository. You can override these by using a `*.packman.xml.user` file. For example, to override the version of kit you can create a user file called `kit-sdk.packman.xml.user` next to `kit-sdk.packman.xml` in the `deps` directory. You can then use standard packman configurations within this file, such as:
+The external dependencies from Nvidia use Nvidia's packman tool to fetch and install. The dependency files are found at `/extern/nvidia/deps` in this repository. You can override these by using a `*.packman.xml.user` file. For example, to override the version of kit you can create a user file called `kit-sdk.packman.xml.user` next to `kit-sdk.packman.xml` in the `deps` directory. You can then use standard packman configurations within this file, such as:
 
 ```xml
 <project toolsVersion="5.6">

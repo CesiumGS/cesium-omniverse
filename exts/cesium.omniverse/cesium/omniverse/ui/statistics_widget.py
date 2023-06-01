@@ -1,15 +1,19 @@
+import logging
 import carb.events
 import omni.kit.app as app
 import omni.ui as ui
 from typing import List
 from ..bindings import ICesiumOmniverseInterface
+from .models.space_delimited_number_model import SpaceDelimitedNumberModel
+from .models.human_readable_bytes_model import HumanReadableBytesModel
 
-NUMBER_OF_MATERIALS_LOADED_TEXT = "Number of materials loaded: {0}"
-NUMBER_OF_GEOMETRIES_LOADED_TEXT = "Number of geometries loaded: {0}"
-NUMBER_OF_GEOMETRIES_VISIBLE_TEXT = "Number of geometries visible: {0}"
-NUMBER_OF_TRIANGLES_LOADED_TEXT = "Number of triangles loaded: {0}"
-NUMBER_OF_TRIANGLES_VISIBLE_TEXT = "Number of triangles visible: {0}"
-TILESET_CACHED_BYTES_TEXT = "Tileset cached bytes: {0}"
+MATERIALS_LOADED_TEXT = "Materials loaded"
+GEOMETRIES_LOADED_TEXT = "Geometries loaded"
+GEOMETRIES_VISIBLE_TEXT = "Geometries visible"
+TRIANGLES_LOADED_TEXT = "Triangles loaded"
+TRIANGLES_VISIBLE_TEXT = "Triangles visible"
+TILESET_CACHED_BYTES_TEXT = "Tileset cached bytes"
+TILESET_CACHED_BYTES_HUMAN_READABLE_TEXT = "Tileset cached bytes (Human-readable)"
 
 
 class CesiumOmniverseStatisticsWidget(ui.Frame):
@@ -20,14 +24,17 @@ class CesiumOmniverseStatisticsWidget(ui.Frame):
     def __init__(self, cesium_omniverse_interface: ICesiumOmniverseInterface, **kwargs):
         super().__init__(build_fn=self._build_fn, **kwargs)
 
+        self._logger = logging.getLogger(__name__)
+
         self._cesium_omniverse_interface = cesium_omniverse_interface
 
-        self._statistics_number_of_materials_loaded_field: ui.SimpleStringModel = ui.SimpleStringModel("")
-        self._statistics_number_of_geometries_loaded_field: ui.SimpleStringModel = ui.SimpleStringModel("")
-        self._statistics_number_of_geometries_visible_field: ui.SimpleStringModel = ui.SimpleStringModel("")
-        self._statistics_number_of_triangles_loaded_field: ui.SimpleStringModel = ui.SimpleStringModel("")
-        self._statistics_number_of_triangles_visible_field: ui.SimpleStringModel = ui.SimpleStringModel("")
-        self._statistics_tileset_cached_bytes_field: ui.SimpleStringModel = ui.SimpleStringModel("")
+        self._materials_loaded_model: SpaceDelimitedNumberModel = SpaceDelimitedNumberModel(0)
+        self._geometries_loaded_model: SpaceDelimitedNumberModel = SpaceDelimitedNumberModel(0)
+        self._geometries_visible_model: SpaceDelimitedNumberModel = SpaceDelimitedNumberModel(0)
+        self._triangles_loaded_model: SpaceDelimitedNumberModel = SpaceDelimitedNumberModel(0)
+        self._triangles_visible_model: SpaceDelimitedNumberModel = SpaceDelimitedNumberModel(0)
+        self._tileset_cached_bytes_model: SpaceDelimitedNumberModel = SpaceDelimitedNumberModel(0)
+        self._tileset_cached_bytes_human_readable_model: HumanReadableBytesModel = HumanReadableBytesModel(0)
 
         self._subscriptions: List[carb.events.ISubscription] = []
         self._setup_subscriptions()
@@ -53,33 +60,31 @@ class CesiumOmniverseStatisticsWidget(ui.Frame):
             return
 
         render_statistics = self._cesium_omniverse_interface.get_render_statistics()
-        self._statistics_number_of_materials_loaded_field.set_value(
-            NUMBER_OF_MATERIALS_LOADED_TEXT.format(render_statistics.number_of_materials_loaded)
-        )
-        self._statistics_number_of_geometries_loaded_field.set_value(
-            NUMBER_OF_GEOMETRIES_LOADED_TEXT.format(render_statistics.number_of_geometries_loaded)
-        )
-        self._statistics_number_of_geometries_visible_field.set_value(
-            NUMBER_OF_GEOMETRIES_VISIBLE_TEXT.format(render_statistics.number_of_geometries_visible)
-        )
-        self._statistics_number_of_triangles_loaded_field.set_value(
-            NUMBER_OF_TRIANGLES_LOADED_TEXT.format(render_statistics.number_of_triangles_loaded)
-        )
-        self._statistics_number_of_triangles_visible_field.set_value(
-            NUMBER_OF_TRIANGLES_VISIBLE_TEXT.format(render_statistics.number_of_triangles_visible)
-        )
-        self._statistics_tileset_cached_bytes_field.set_value(
-            TILESET_CACHED_BYTES_TEXT.format(render_statistics.tileset_cached_bytes)
-        )
+        self._materials_loaded_model.set_value(render_statistics.number_of_materials_loaded)
+        self._geometries_loaded_model.set_value(render_statistics.number_of_geometries_loaded)
+        self._geometries_visible_model.set_value(render_statistics.number_of_geometries_visible)
+        self._triangles_loaded_model.set_value(render_statistics.number_of_triangles_loaded)
+        self._triangles_visible_model.set_value(render_statistics.number_of_triangles_visible)
+        self._tileset_cached_bytes_model.set_value(render_statistics.tileset_cached_bytes)
+        self._tileset_cached_bytes_human_readable_model.set_value(render_statistics.tileset_cached_bytes)
 
     def _build_fn(self):
         """Builds all UI components."""
 
-        with ui.VStack():
-            ui.Label("Statistics", height=0)
-            ui.StringField(self._statistics_number_of_materials_loaded_field, height=0, read_only=True)
-            ui.StringField(self._statistics_number_of_geometries_loaded_field, height=0, read_only=True)
-            ui.StringField(self._statistics_number_of_geometries_visible_field, height=0, read_only=True)
-            ui.StringField(self._statistics_number_of_triangles_loaded_field, height=0, read_only=True)
-            ui.StringField(self._statistics_number_of_triangles_visible_field, height=0, read_only=True)
-            ui.StringField(self._statistics_tileset_cached_bytes_field, height=0, read_only=True)
+        with ui.VStack(spacing=4):
+            with ui.HStack(height=16):
+                ui.Label("Statistics", height=0)
+                ui.Spacer()
+
+            for label, model in [
+                (MATERIALS_LOADED_TEXT, self._materials_loaded_model),
+                (GEOMETRIES_LOADED_TEXT, self._geometries_loaded_model),
+                (GEOMETRIES_VISIBLE_TEXT, self._geometries_visible_model),
+                (TRIANGLES_LOADED_TEXT, self._triangles_loaded_model),
+                (TRIANGLES_VISIBLE_TEXT, self._triangles_visible_model),
+                (TILESET_CACHED_BYTES_TEXT, self._tileset_cached_bytes_model),
+                (TILESET_CACHED_BYTES_HUMAN_READABLE_TEXT, self._tileset_cached_bytes_human_readable_model),
+            ]:
+                with ui.HStack(height=0):
+                    ui.Label(label, height=0)
+                    ui.StringField(model=model, height=0, read_only=True)

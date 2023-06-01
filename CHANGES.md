@@ -1,5 +1,16 @@
 # Change Log
 
+### v0.7.0 - 2023-06-01
+
+* Set better default values when loading glTFs with the `KHR_materials_unlit` extension. This improves the visual quality of Google 3D Tiles.
+* Improved installation process by forcing application reload when Cesium for Omniverse is first enabled.
+* Changed material loading color from red to black.
+* Added `/CesiumSession` prim for storing ephemeral state in the Session Layer, including `ecefToUsdTransform`.
+* Fixed credits not appearing on all viewports.
+* Improved readability of debug statistics.
+* Integrated Cesium Native's performance tracing utility.
+* Updated to Cesium Native 0.24.0 which adds support for 3D Tiles 1.1 implicit tiling.
+
 ### v0.6.2 - 2023-05-19
 
 * Added more rendering statistics to the Cesium Debugging window.
