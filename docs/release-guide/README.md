@@ -53,11 +53,11 @@ This is the process we follow when releasing a new version of Cesium for Omniver
 After the package is built, verify that the extension loads in Omniverse Create:
 
 * Open Omniverse Create
-* Remove the existing Cesium for Omniverse extension from the list of search paths
+* Open the extensions window and remove Cesium for Omniverse from the list of search paths (if it exists)
 * Close Omniverse Create
 * Unzip the package to `$USERHOME$/Documents/Kit/Shared/exts`
 * Open Omniverse Create
-* Enable Cesium for Omniverse and check autoload
+* Open the extensions window and enable autoload for Cesium for Omniverse
 * Restart Omniverse Create
 * Verify that there aren't any console errors
 * Verify that you can load Cesium World Terrain and OSM buildings
