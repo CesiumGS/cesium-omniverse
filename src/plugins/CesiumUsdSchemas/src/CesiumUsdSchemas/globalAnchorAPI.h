@@ -24,14 +24,14 @@ PXR_NAMESPACE_OPEN_SCOPE
 class SdfAssetPath;
 
 // -------------------------------------------------------------------------- //
-// CESIUMGLOBALANCHORAPI                                                      //
+// CESIUMGLOBALANCHORSCHEMAAPI                                                //
 // -------------------------------------------------------------------------- //
 
 /// \class CesiumGlobalAnchorAPI
 ///
 /// Adds Global Anchoring information to a Prim for use with Cesium for Omniverse.
 ///
-CESIUM_API class CesiumGlobalAnchorAPI : public UsdAPISchemaBase
+class CESIUM_API CesiumGlobalAnchorAPI : public UsdAPISchemaBase
 {
 public:
     /// Compile time constant representing what kind of schema this class is.
@@ -79,7 +79,7 @@ public:
 
 
     /// Applies this <b>single-apply</b> API schema to the given \p prim.
-    /// This information is stored by adding "CesiumGlobalAnchorAPI" to the 
+    /// This information is stored by adding "CesiumGlobalAnchorSchemaAPI" to the 
     /// token-valued, listOp metadata \em apiSchemas on the prim.
     /// 
     /// \return A valid CesiumGlobalAnchorAPI object is returned upon success. 

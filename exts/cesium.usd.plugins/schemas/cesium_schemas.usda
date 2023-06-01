@@ -307,7 +307,7 @@ class CesiumImageryPrim "CesiumImageryPrim" (
     )
 }
 
-class "CesiumGlobalAnchorAPI" (
+class "CesiumGlobalAnchorSchemaAPI" (
     doc = """Adds Global Anchoring information to a Prim for use with Cesium for Omniverse."""
     inherits = </APISchemaBase>
     customData = {

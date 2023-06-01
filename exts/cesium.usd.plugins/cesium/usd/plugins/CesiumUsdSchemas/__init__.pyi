@@ -6,17 +6,12 @@ __all__ = [
     "Imagery",
     "TilesetAPI",
     "Tokens",
+    "GlobalAnchorAPI",
 ]
 
 # TODO: Fill out these stubs since we can't seem to autogen them.
-class Data(pxr.Usd.Typed, pxr.Usd.SchemaBase, Boost.Python.instance):
-    pass
-
-class Imagery(pxr.Usd.Typed, pxr.Usd.SchemaBase, Boost.Python.instance):
-    pass
-
-class TilesetAPI(pxr.Usd.APISchemaBase, pxr.Usd.SchemaBase, Boost.Python.instance):
-    pass
-
-class Tokens(Boost.Python.instance):
-    pass
+class Data(pxr.Usd.Typed, pxr.Usd.SchemaBase, Boost.Python.instance): ...
+class Imagery(pxr.Usd.Typed, pxr.Usd.SchemaBase, Boost.Python.instance): ...
+class TilesetAPI(pxr.Usd.APISchemaBase, pxr.Usd.SchemaBase, Boost.Python.instance): ...
+class Tokens(Boost.Python.instance): ...
+class GlobalAnchorAPI(pxr.Usd.APISchemaBase, pxr.Usd.SchemaBase, Boost.Python.instance): ...

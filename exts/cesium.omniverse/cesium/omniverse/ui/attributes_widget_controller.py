@@ -1,6 +1,11 @@
 import logging
 import omni.kit.window.property
-from .attributes import CesiumDataSchemaAttributesWidget, CesiumImageryAttributesWidget, CesiumTilesetAttributesWidget
+from .attributes import (
+    CesiumDataSchemaAttributesWidget,
+    CesiumImageryAttributesWidget,
+    CesiumTilesetAttributesWidget,
+    CesiumGlobalAnchorAttributesWidget,
+)
 from ..bindings import ICesiumOmniverseInterface
 
 
@@ -17,11 +22,13 @@ class CesiumAttributesWidgetController:
         self._register_data_attributes_widget()
         self._register_tileset_attributes_widget()
         self._register_imagery_attributes_widget()
+        self._register_global_anchor_attributes_widget()
 
     def destroy(self):
         self._unregister_data_attributes_widget()
         self._unregister_tileset_attributes_widget()
         self._unregister_imagery_attributes_widget()
+        self._unregister_global_anchor_attributes_widget()
 
     @staticmethod
     def _register_data_attributes_widget():
@@ -59,3 +66,16 @@ class CesiumAttributesWidgetController:
         window = omni.kit.window.property.get_window()
         if window is not None:
             window.unregister_widget("prim", "cesiumImagery")
+
+    def _register_global_anchor_attributes_widget(self):
+        window = omni.kit.window.property.get_window()
+        if window is not None:
+            window.register_widget(
+                "prim", "cesiumGlobalAnchorAPI", CesiumGlobalAnchorAttributesWidget(self._cesium_omniverse_interface)
+            )
+
+    @staticmethod
+    def _unregister_global_anchor_attributes_widget():
+        window = omni.kit.window.property.get_window()
+        if window is not None:
+            window.unregister_widget("prim", "cesiumGlobalAnchorAPI")

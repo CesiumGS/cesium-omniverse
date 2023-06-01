@@ -18,7 +18,7 @@ TF_REGISTRY_FUNCTION(TfType)
 
 TF_DEFINE_PRIVATE_TOKENS(
     _schemaTokens,
-    (CesiumGlobalAnchorAPI)
+    (CesiumGlobalAnchorSchemaAPI)
 );
 
 /* virtual */
