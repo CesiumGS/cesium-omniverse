@@ -1,4 +1,5 @@
 from .bindings import acquire_cesium_omniverse_interface, release_cesium_omniverse_interface, Viewport
+from .ui.add_menu_controller import CesiumAddMenuController
 from .utils.utils import wait_n_frames
 from .ui.asset_window import CesiumOmniverseAssetWindow
 from .ui.debug_window import CesiumOmniverseDebugWindow
@@ -66,6 +67,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._adding_assets = False
         self._attributes_widget_controller: Optional[CesiumAttributesWidgetController] = None
         self._credits_viewport_controller: Optional[CreditsViewportController] = None
+        self._add_menu_controller: Optional[CesiumAddMenuController] = None
         self._logger: logging.Logger = logging.getLogger(__name__)
         self._menu = None
         self._num_credits_viewport_frames: int = 0
@@ -104,6 +106,8 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             ui.Workspace.show_window(CesiumOmniverseMainWindow.WINDOW_NAME)
 
         self._credits_viewport_controller = CreditsViewportController(_cesium_omniverse_interface)
+
+        self._add_menu_controller = CesiumAddMenuController(_cesium_omniverse_interface)
 
         # Subscribe to stage event stream
         usd_context = omni.usd.get_context()
@@ -199,6 +203,10 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         if self._attributes_widget_controller is not None:
             self._attributes_widget_controller.destroy()
             self._attributes_widget_controller = None
+
+        if self._add_menu_controller is not None:
+            self._add_menu_controller.destroy()
+            self._add_menu_controller = None
 
         self._destroy_credits_viewport_frames()
 
