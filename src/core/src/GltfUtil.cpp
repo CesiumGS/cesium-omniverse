@@ -8,11 +8,7 @@
 #include <CesiumGltf/AccessorView.h>
 #include <CesiumGltf/ExtensionKhrMaterialsUnlit.h>
 #include <CesiumGltf/Model.h>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
 #include <pxr/base/gf/range3d.h>
-#include <pxr/base/gf/vec2f.h>
-#include <pxr/base/gf/vec3d.h>
 #include <spdlog/fmt/fmt.h>
 
 #include <numeric>
@@ -24,7 +20,7 @@ namespace {
 const CesiumGltf::MaterialPBRMetallicRoughness defaultPbrMetallicRoughness;
 
 template <typename IndexType>
-pxr::VtArray<int> createIndices(
+IndicesAccessor getIndicesAccessor(
     const CesiumGltf::MeshPrimitive& primitive,
     const CesiumGltf::AccessorView<IndexType>& indicesAccessorView) {
     if (indicesAccessorView.status() != CesiumGltf::AccessorViewStatus::Valid) {
@@ -36,13 +32,7 @@ pxr::VtArray<int> createIndices(
             return {};
         }
 
-        pxr::VtArray<int> indices;
-        indices.reserve(static_cast<uint64_t>(indicesAccessorView.size()));
-        for (auto i = 0; i < indicesAccessorView.size(); i++) {
-            indices.push_back(static_cast<int>(indicesAccessorView[i]));
-        }
-
-        return indices;
+        return IndicesAccessor(indicesAccessorView);
     }
 
     if (primitive.mode == CesiumGltf::MeshPrimitive::Mode::TRIANGLE_STRIP) {
@@ -50,21 +40,7 @@ pxr::VtArray<int> createIndices(
             return {};
         }
 
-        pxr::VtArray<int> indices;
-        indices.reserve(static_cast<uint64_t>(indicesAccessorView.size() - 2) * 3);
-        for (auto i = 0; i < indicesAccessorView.size() - 2; i++) {
-            if (i % 2) {
-                indices.push_back(static_cast<int>(indicesAccessorView[i]));
-                indices.push_back(static_cast<int>(indicesAccessorView[i + 2]));
-                indices.push_back(static_cast<int>(indicesAccessorView[i + 1]));
-            } else {
-                indices.push_back(static_cast<int>(indicesAccessorView[i]));
-                indices.push_back(static_cast<int>(indicesAccessorView[i + 1]));
-                indices.push_back(static_cast<int>(indicesAccessorView[i + 2]));
-            }
-        }
-
-        return indices;
+        return IndicesAccessor::FromTriangleStrips(indicesAccessorView);
     }
 
     if (primitive.mode == CesiumGltf::MeshPrimitive::Mode::TRIANGLE_FAN) {
@@ -72,15 +48,7 @@ pxr::VtArray<int> createIndices(
             return {};
         }
 
-        pxr::VtArray<int> indices;
-        indices.reserve(static_cast<uint64_t>(indicesAccessorView.size() - 2) * 3);
-        for (auto i = 0; i < indicesAccessorView.size() - 2; i++) {
-            indices.push_back(static_cast<int>(indicesAccessorView[0]));
-            indices.push_back(static_cast<int>(indicesAccessorView[i + 1]));
-            indices.push_back(static_cast<int>(indicesAccessorView[i + 2]));
-        }
-
-        return indices;
+        return IndicesAccessor::FromTriangleFans(indicesAccessorView);
     }
 
     return {};
@@ -152,7 +120,7 @@ getPositionsView(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive
     return positionsView;
 }
 
-pxr::VtArray<pxr::GfVec2f> getTexcoords(
+TexcoordsAccessor getTexcoords(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     const std::string& semantic,
@@ -167,46 +135,19 @@ pxr::VtArray<pxr::GfVec2f> getTexcoords(
         return {};
     }
 
-    pxr::VtArray<pxr::GfVec2f> usdTexcoords;
-    usdTexcoords.reserve(static_cast<size_t>(texcoordsView.size()));
-
-    const auto applyTransform = translation != glm::fvec2(0.0, 0.0) && scale != glm::fvec2(1.0, 1.0);
-
-    for (auto i = 0; i < texcoordsView.size(); ++i) {
-        auto texcoord = texcoordsView[i];
-
-        if (flipVertical) {
-            texcoord.y = 1.0f - texcoord.y;
-        }
-
-        if (applyTransform) {
-            texcoord = texcoord * scale + translation;
-        }
-
-        usdTexcoords.push_back(pxr::GfVec2f(texcoord.x, texcoord.y));
-    }
-
-    return usdTexcoords;
+    return TexcoordsAccessor(texcoordsView, translation, scale, flipVertical);
 }
 
 } // namespace
 
-pxr::VtArray<pxr::GfVec3f> getPositions(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+PositionsAccessor getPositions(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
     const auto positionsView = getPositionsView(model, primitive);
 
     if (positionsView.status() != CesiumGltf::AccessorViewStatus::Valid) {
         return {};
     }
 
-    pxr::VtArray<pxr::GfVec3f> usdPositions;
-    usdPositions.reserve(static_cast<size_t>(positionsView.size()));
-
-    for (auto i = 0; i < positionsView.size(); i++) {
-        const auto& position = positionsView[i];
-        usdPositions.push_back(pxr::GfVec3f(position.x, position.y, position.z));
-    }
-
-    return usdPositions;
+    return PositionsAccessor(positionsView);
 }
 
 std::optional<pxr::GfRange3d> getExtent(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
@@ -230,81 +171,51 @@ std::optional<pxr::GfRange3d> getExtent(const CesiumGltf::Model& model, const Ce
     return pxr::GfRange3d(pxr::GfVec3d(min[0], min[1], min[2]), pxr::GfVec3d(max[0], max[1], max[2]));
 }
 
-pxr::VtArray<int> getIndices(
+IndicesAccessor getIndices(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
-    const pxr::VtArray<pxr::GfVec3f>& positions) {
+    const PositionsAccessor& positions) {
     const auto indicesAccessor = model.getSafe<CesiumGltf::Accessor>(&model.accessors, primitive.indices);
     if (!indicesAccessor) {
-        pxr::VtArray<int> indices(positions.size());
-        std::iota(indices.begin(), indices.end(), 0);
-        return indices;
+        return IndicesAccessor(positions.size());
     }
 
     if (indicesAccessor->componentType == CesiumGltf::AccessorSpec::ComponentType::UNSIGNED_BYTE) {
-        CesiumGltf::AccessorView<std::uint8_t> view{model, *indicesAccessor};
-        return createIndices(primitive, view);
+        CesiumGltf::AccessorView<uint8_t> view{model, *indicesAccessor};
+        return getIndicesAccessor(primitive, view);
     } else if (indicesAccessor->componentType == CesiumGltf::AccessorSpec::ComponentType::UNSIGNED_SHORT) {
-        CesiumGltf::AccessorView<std::uint16_t> view{model, *indicesAccessor};
-        return createIndices(primitive, view);
+        CesiumGltf::AccessorView<uint16_t> view{model, *indicesAccessor};
+        return getIndicesAccessor(primitive, view);
     } else if (indicesAccessor->componentType == CesiumGltf::AccessorSpec::ComponentType::UNSIGNED_INT) {
-        CesiumGltf::AccessorView<std::uint32_t> view{model, *indicesAccessor};
-        return createIndices(primitive, view);
+        CesiumGltf::AccessorView<uint32_t> view{model, *indicesAccessor};
+        return getIndicesAccessor(primitive, view);
     }
 
     return {};
 }
 
-pxr::VtArray<pxr::GfVec3f> getNormals(
+NormalsAccessor getNormals(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
-    const pxr::VtArray<pxr::GfVec3f>& positions,
-    const pxr::VtArray<int>& indices,
+    const PositionsAccessor& positions,
+    const IndicesAccessor& indices,
     bool smoothNormals) {
 
     const auto normalsView = getNormalsView(model, primitive);
 
     if (normalsView.status() == CesiumGltf::AccessorViewStatus::Valid) {
-        pxr::VtArray<pxr::GfVec3f> normalsUsd;
-        normalsUsd.reserve(static_cast<size_t>(normalsView.size()));
-        for (auto i = 0; i < normalsView.size(); ++i) {
-            const auto& normal = normalsView[i];
-            normalsUsd.push_back(pxr::GfVec3f(normal.x, normal.y, normal.z));
-        }
-        return normalsUsd;
+        return NormalsAccessor(normalsView);
     }
 
     if (smoothNormals) {
-        pxr::VtArray<pxr::GfVec3f> normalsUsd(positions.size(), pxr::GfVec3f(0.0f));
-
-        for (size_t i = 0; i < indices.size(); i += 3) {
-            auto idx0 = static_cast<size_t>(indices[i]);
-            auto idx1 = static_cast<size_t>(indices[i + 1]);
-            auto idx2 = static_cast<size_t>(indices[i + 2]);
-
-            const auto& p0 = positions[idx0];
-            const auto& p1 = positions[idx1];
-            const auto& p2 = positions[idx2];
-            auto n = pxr::GfCross(p1 - p0, p2 - p0);
-            n.Normalize();
-
-            normalsUsd[idx0] += n;
-            normalsUsd[idx1] += n;
-            normalsUsd[idx2] += n;
-        }
-
-        for (auto& n : normalsUsd) {
-            n.Normalize();
-        }
-
-        return normalsUsd;
+        return NormalsAccessor::GenerateSmooth(positions, indices);
     }
 
     // Otherwise if normals are missing and smoothNormals is false Omniverse will generate flat normals for us automatically
     return {};
 }
 
-pxr::VtArray<pxr::GfVec2f> getTexcoords(
+TexcoordsAccessor getTexcoords(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     uint64_t setIndex,
@@ -313,9 +224,8 @@ pxr::VtArray<pxr::GfVec2f> getTexcoords(
     return getTexcoords(model, primitive, "TEXCOORD", setIndex, translation, scale, true);
 }
 
-pxr::VtArray<int> getFaceVertexCounts(const pxr::VtArray<int>& indices) {
-    pxr::VtArray<int> faceVertexCounts(indices.size() / 3, 3);
-    return faceVertexCounts;
+FaceVertexCountsAccessor getFaceVertexCounts(const IndicesAccessor& indices) {
+    return FaceVertexCountsAccessor(indices.size() / 3);
 }
 
 pxr::GfVec3f getBaseColorFactor(const CesiumGltf::Material& material) {
@@ -394,7 +304,7 @@ bool getDoubleSided(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimit
     return material.doubleSided;
 }
 
-pxr::VtArray<pxr::GfVec2f> getImageryTexcoords(
+TexcoordsAccessor getImageryTexcoords(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     uint64_t setIndex,
