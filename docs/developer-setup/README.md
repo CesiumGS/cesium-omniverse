@@ -509,8 +509,22 @@ To run a task:
 
 Windows and Linux versions of `launch.json` are provided in the `.vscode` folder.
 
-* On Windows copy `launch.json.windows` and rename it to `launch.json`.
-* On Linux copy `launch.json.linux` and rename it to `launch.json`.
+* On Windows copy `launch.windows.json` and rename it to `launch.json`.
+* On Linux copy `launch.linux.json` and rename it to `launch.json`.
+
+Alternatively, create a symlink so that `launch.json` always stays up-to-date:
+
+```sh
+# Windows - Command Prompt As Administrator
+cd .vscode
+mklink launch.json launch.windows.json
+```
+
+```sh
+# Linux
+cd .vscode
+sudo ln -s launch.linux.json launch.json
+```
 
 Then select a configuration from the `Run and Debug` panel, such as `Kit App`, and click the green arrow.
 
@@ -518,7 +532,7 @@ Then select a configuration from the `Run and Debug` panel, such as `Kit App`, a
 
 > **Note:** For performance tracing make sure the project has been configured with tracing enabled by pressing `Ctrl + Shift + B` and running  `Build (tracing)`.
 
-> **Note:** For Python debugging, first run `Python Debugging (start)`, then wait for Omniverse to load, then run `Python Debugging (attach)`. Now with both debuggers running you can set breakpoints in both the C++ and Python code.
+> **Note:** For Python debugging, first run `Python Debugging (start)`, then wait for Omniverse to load, then run `Python Debugging (attach)`. Now you can set breakpoints in both the C++ and Python code.
 
 ## Project Structure
 
