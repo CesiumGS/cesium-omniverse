@@ -63,7 +63,8 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("get_render_statistics", &ICesiumOmniverseInterface::getRenderStatistics)
         .def("credits_available", &ICesiumOmniverseInterface::creditsAvailable)
         .def("get_credits", &ICesiumOmniverseInterface::getCredits)
-        .def("credits_start_next_frame", &ICesiumOmniverseInterface::creditsStartNextFrame);
+        .def("credits_start_next_frame", &ICesiumOmniverseInterface::creditsStartNextFrame)
+        .def("add_global_anchor_to_prim", &ICesiumOmniverseInterface::addGlobalAnchorToPrim);
     // clang-format on
 
     py::class_<CesiumIonSession, std::shared_ptr<CesiumIonSession>>(m, "CesiumIonSession")

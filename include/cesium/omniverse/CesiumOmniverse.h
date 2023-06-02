@@ -243,6 +243,13 @@ class ICesiumOmniverseInterface {
     virtual bool creditsAvailable() noexcept = 0;
     virtual std::vector<std::pair<std::string, bool>> getCredits() noexcept = 0;
     virtual void creditsStartNextFrame() noexcept = 0;
+
+    /**
+     * @brief Given the provided sdf path (as a charstring), add a global anchor API to it and set it up.
+     *
+     * @param path A sdf path in the USD stage provided as a charstring.
+     */
+    virtual void addGlobalAnchorToPrim(const char* path) noexcept = 0;
 };
 
 } // namespace cesium::omniverse

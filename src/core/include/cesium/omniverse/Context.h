@@ -122,6 +122,8 @@ class Context {
 
     RenderStatistics getRenderStatistics() const;
 
+    void addGlobalAnchorToPrim(const pxr::SdfPath& path);
+
   private:
     void processPropertyChanged(const ChangedPrim& changedPrim);
     void processCesiumDataChanged(const ChangedPrim& changedPrim);

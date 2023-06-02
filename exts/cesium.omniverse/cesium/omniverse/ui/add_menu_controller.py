@@ -30,7 +30,6 @@ class CesiumAddMenuController:
         self._items_added.clear()
 
     def _add_global_anchor_api(self, payload: PrimSelectionPayload):
-        # TODO: Call the C++ layer to add the the API with the current position as global.
-        import pprint
-
-        self._logger.warning(pprint.pformat(payload.get_paths()))
+        # TODO: Implement undo functionality.
+        for path in payload:
+            self._cesium_omniverse_interface.add_global_anchor_to_prim(str(path))

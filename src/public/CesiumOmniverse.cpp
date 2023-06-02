@@ -182,6 +182,10 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
     void creditsStartNextFrame() noexcept override {
         return Context::instance().creditsStartNextFrame();
     }
+
+    void addGlobalAnchorToPrim(const char* path) noexcept override {
+        return Context::instance().addGlobalAnchorToPrim(pxr::SdfPath(path));
+    }
 };
 } // namespace cesium::omniverse
 

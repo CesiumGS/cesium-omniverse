@@ -737,4 +737,9 @@ RenderStatistics Context::getRenderStatistics() const {
     return renderStatistics;
 }
 
+void Context::addGlobalAnchorToPrim(const pxr::SdfPath &path) {
+    // TODO: Move this to the GlobalAnchor class I'm creating. Doing this right now to test it before I leave.
+    UsdUtil::defineGlobalAnchor(path);
+}
+
 } // namespace cesium::omniverse

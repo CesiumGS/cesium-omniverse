@@ -327,6 +327,25 @@ pxr::CesiumImagery defineCesiumImagery(const pxr::SdfPath& path) {
     return imagery;
 }
 
+pxr::CesiumGlobalAnchorAPI defineGlobalAnchor(const pxr::SdfPath& path) {
+    auto stage = getUsdStage();
+    auto prim = stage->GetPrimAtPath(path);
+
+    auto globalAnchor = pxr::CesiumGlobalAnchorAPI::Apply(prim);
+    assert(globalAnchor.GetPrim().IsValid());
+
+    globalAnchor.CreateAdjustOrientationForGlobeWhenMovingAttr();
+    globalAnchor.CreateDetectTransformChangesAttr();
+    globalAnchor.CreateLongitudeAttr();
+    globalAnchor.CreateLatitudeAttr();
+    globalAnchor.CreateHeightAttr();
+    globalAnchor.CreatePositionAttr();
+    globalAnchor.CreateRotationAttr();
+    globalAnchor.CreateScaleAttr();
+
+    return globalAnchor;
+}
+
 pxr::CesiumData getOrCreateCesiumData() {
     static const auto CesiumDataPath = pxr::SdfPath("/Cesium");
 
@@ -389,6 +408,13 @@ std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& p
     }
 
     return result;
+}
+
+pxr::CesiumGlobalAnchorAPI getGlobalAnchor(const pxr::SdfPath& path) {
+    auto stage = UsdUtil::getUsdStage();
+    auto globalAnchor = pxr::CesiumGlobalAnchorAPI::Get(stage, path);
+    assert(globalAnchor.GetPrim().IsValid());
+    return globalAnchor;
 }
 
 bool isCesiumData(const pxr::SdfPath& path) {

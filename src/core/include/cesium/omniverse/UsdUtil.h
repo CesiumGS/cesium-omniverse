@@ -5,6 +5,7 @@
 #include <CesiumUsdSchemas/imagery.h>
 #include <CesiumUsdSchemas/session.h>
 #include <CesiumUsdSchemas/tilesetAPI.h>
+#include <CesiumUsdSchemas/globalAnchorAPI.h>
 #include <carb/flatcache/StageWithHistory.h>
 #include <glm/glm.hpp>
 #include <pxr/base/gf/matrix4d.h>
@@ -81,12 +82,14 @@ pxr::CesiumData defineCesiumData(const pxr::SdfPath& path);
 pxr::CesiumSession defineCesiumSession(const pxr::SdfPath& path);
 pxr::CesiumTilesetAPI defineCesiumTileset(const pxr::SdfPath& path);
 pxr::CesiumImagery defineCesiumImagery(const pxr::SdfPath& path);
+pxr::CesiumGlobalAnchorAPI defineGlobalAnchor(const pxr::SdfPath& path);
 
 pxr::CesiumData getOrCreateCesiumData();
 pxr::CesiumSession getOrCreateCesiumSession();
 pxr::CesiumTilesetAPI getCesiumTileset(const pxr::SdfPath& path);
 pxr::CesiumImagery getCesiumImagery(const pxr::SdfPath& path);
 std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& path);
+pxr::CesiumGlobalAnchorAPI getGlobalAnchor(const pxr::SdfPath& path);
 
 bool isCesiumData(const pxr::SdfPath& path);
 bool isCesiumSession(const pxr::SdfPath& path);
