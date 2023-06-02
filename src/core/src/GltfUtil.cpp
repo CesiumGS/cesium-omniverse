@@ -17,7 +17,9 @@ namespace cesium::omniverse::GltfUtil {
 
 namespace {
 
+const CesiumGltf::Material defaultMaterial;
 const CesiumGltf::MaterialPBRMetallicRoughness defaultPbrMetallicRoughness;
+const CesiumGltf::Sampler defaultSampler;
 
 template <typename IndexType>
 IndicesAccessor getIndicesAccessor(
@@ -138,6 +140,33 @@ TexcoordsAccessor getTexcoords(
     return TexcoordsAccessor(texcoordsView, translation, scale, flipVertical);
 }
 
+float getBaseAlpha(const CesiumGltf::MaterialPBRMetallicRoughness& pbrMetallicRoughness) {
+    return static_cast<float>(pbrMetallicRoughness.baseColorFactor[3]);
+}
+
+pxr::GfVec3f getBaseColorFactor(const CesiumGltf::MaterialPBRMetallicRoughness& pbrMetallicRoughness) {
+    return pxr::GfVec3f(
+        static_cast<float>(pbrMetallicRoughness.baseColorFactor[0]),
+        static_cast<float>(pbrMetallicRoughness.baseColorFactor[1]),
+        static_cast<float>(pbrMetallicRoughness.baseColorFactor[2]));
+}
+
+float getMetallicFactor(const CesiumGltf::MaterialPBRMetallicRoughness& pbrMetallicRoughness) {
+    return static_cast<float>(pbrMetallicRoughness.metallicFactor);
+}
+
+float getRoughnessFactor(const CesiumGltf::MaterialPBRMetallicRoughness& pbrMetallicRoughness) {
+    return static_cast<float>(pbrMetallicRoughness.roughnessFactor);
+}
+
+int getWrapS(const CesiumGltf::Sampler& sampler) {
+    return sampler.wrapS;
+}
+
+int getWrapT(const CesiumGltf::Sampler& sampler) {
+    return sampler.wrapT;
+}
+
 } // namespace
 
 PositionsAccessor getPositions(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
@@ -228,13 +257,35 @@ FaceVertexCountsAccessor getFaceVertexCounts(const IndicesAccessor& indices) {
     return FaceVertexCountsAccessor(indices.size() / 3);
 }
 
+float getAlphaCutoff(const CesiumGltf::Material& material) {
+    return static_cast<float>(material.alphaCutoff);
+}
+
+int getAlphaMode(const CesiumGltf::Material& material) {
+    if (material.alphaMode == CesiumGltf::Material::AlphaMode::OPAQUE) {
+        return 0;
+    } else if (material.alphaMode == CesiumGltf::Material::AlphaMode::MASK) {
+        return 1;
+    } else if (material.alphaMode == CesiumGltf::Material::AlphaMode::BLEND) {
+        return 2;
+    }
+
+    return 0;
+}
+
+float getBaseAlpha(const CesiumGltf::Material& material) {
+    const auto& pbrMetallicRoughness = material.pbrMetallicRoughness;
+    if (pbrMetallicRoughness.has_value()) {
+        return getBaseAlpha(pbrMetallicRoughness.value());
+    }
+
+    return getDefaultBaseAlpha();
+}
+
 pxr::GfVec3f getBaseColorFactor(const CesiumGltf::Material& material) {
     const auto& pbrMetallicRoughness = material.pbrMetallicRoughness;
     if (pbrMetallicRoughness.has_value()) {
-        return pxr::GfVec3f(
-            static_cast<float>(pbrMetallicRoughness.value().baseColorFactor[0]),
-            static_cast<float>(pbrMetallicRoughness.value().baseColorFactor[1]),
-            static_cast<float>(pbrMetallicRoughness.value().baseColorFactor[2]));
+        return getBaseColorFactor(pbrMetallicRoughness.value());
     }
 
     return getDefaultBaseColorFactor();
@@ -248,7 +299,7 @@ float getMetallicFactor(const CesiumGltf::Material& material) {
 
     const auto& pbrMetallicRoughness = material.pbrMetallicRoughness;
     if (pbrMetallicRoughness.has_value()) {
-        return static_cast<float>(pbrMetallicRoughness->metallicFactor);
+        return getMetallicFactor(pbrMetallicRoughness.value());
     }
 
     return getDefaultMetallicFactor();
@@ -262,25 +313,70 @@ float getRoughnessFactor(const CesiumGltf::Material& material) {
 
     const auto& pbrMetallicRoughness = material.pbrMetallicRoughness;
     if (pbrMetallicRoughness.has_value()) {
-        return static_cast<float>(pbrMetallicRoughness->roughnessFactor);
+        return getRoughnessFactor(pbrMetallicRoughness.value());
     }
 
     return getDefaultRoughnessFactor();
 }
 
+int getBaseColorTextureWrapS(const CesiumGltf::Model& model, const CesiumGltf::Material& material) {
+    const auto baseColorTextureIndex = getBaseColorTextureIndex(model, material);
+
+    if (baseColorTextureIndex.has_value()) {
+        const auto samplerIndex = model.textures[baseColorTextureIndex.value()].sampler;
+        if (samplerIndex != -1) {
+            const auto& sampler = model.samplers[samplerIndex];
+            return sampler.wrapS;
+        }
+    }
+
+    return getDefaultWrapS();
+}
+
+int getBaseColorTextureWrapT(const CesiumGltf::Model& model, const CesiumGltf::Material& material) {
+    const auto baseColorTextureIndex = getBaseColorTextureIndex(model, material);
+
+    if (baseColorTextureIndex.has_value()) {
+        const auto samplerIndex = model.textures[baseColorTextureIndex.value()].sampler;
+        if (samplerIndex != -1) {
+            const auto& sampler = model.samplers[samplerIndex];
+            return sampler.wrapT;
+        }
+    }
+
+    return getDefaultWrapT();
+}
+
+float getDefaultAlphaCutoff() {
+    return getAlphaCutoff(defaultMaterial);
+}
+
+int getDefaultAlphaMode() {
+    return getAlphaMode(defaultMaterial);
+}
+
+float getDefaultBaseAlpha() {
+    return getBaseAlpha(defaultPbrMetallicRoughness);
+}
+
 pxr::GfVec3f getDefaultBaseColorFactor() {
-    return pxr::GfVec3f(
-        static_cast<float>(defaultPbrMetallicRoughness.baseColorFactor[0]),
-        static_cast<float>(defaultPbrMetallicRoughness.baseColorFactor[1]),
-        static_cast<float>(defaultPbrMetallicRoughness.baseColorFactor[2]));
+    return getBaseColorFactor(defaultPbrMetallicRoughness);
 }
 
 float getDefaultMetallicFactor() {
-    return static_cast<float>(defaultPbrMetallicRoughness.metallicFactor);
+    return getMetallicFactor(defaultPbrMetallicRoughness);
 }
 
 float getDefaultRoughnessFactor() {
-    return static_cast<float>(defaultPbrMetallicRoughness.roughnessFactor);
+    return getRoughnessFactor(defaultPbrMetallicRoughness);
+}
+
+int getDefaultWrapS() {
+    return getWrapS(defaultSampler);
+}
+
+int getDefaultWrapT() {
+    return getWrapT(defaultSampler);
 }
 
 std::optional<uint64_t> getBaseColorTextureIndex(const CesiumGltf::Model& model, const CesiumGltf::Material& material) {

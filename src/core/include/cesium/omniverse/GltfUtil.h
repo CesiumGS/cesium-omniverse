@@ -40,13 +40,23 @@ TexcoordsAccessor getTexcoords(
 
 FaceVertexCountsAccessor getFaceVertexCounts(const IndicesAccessor& indices);
 
+float getAlphaCutoff(const CesiumGltf::Material& material);
+int getAlphaMode(const CesiumGltf::Material& material);
+float getBaseAlpha(const CesiumGltf::Material& material);
 pxr::GfVec3f getBaseColorFactor(const CesiumGltf::Material& material);
 float getMetallicFactor(const CesiumGltf::Material& material);
 float getRoughnessFactor(const CesiumGltf::Material& material);
+int getBaseColorTextureWrapS(const CesiumGltf::Model& model, const CesiumGltf::Material& material);
+int getBaseColorTextureWrapT(const CesiumGltf::Model& model, const CesiumGltf::Material& material);
 
+float getDefaultAlphaCutoff();
+int getDefaultAlphaMode();
+float getDefaultBaseAlpha();
 pxr::GfVec3f getDefaultBaseColorFactor();
 float getDefaultMetallicFactor();
 float getDefaultRoughnessFactor();
+int getDefaultWrapS();
+int getDefaultWrapT();
 
 std::optional<uint64_t> getBaseColorTextureIndex(const CesiumGltf::Model& model, const CesiumGltf::Material& material);
 

@@ -20,8 +20,8 @@ namespace cesium::omniverse {
 
 namespace {
 
-const auto MATERIAL_LOADING_COLOR = pxr::GfVec3f(0.0f, 0.0f, 0.0f);
-const auto DEFAULT_COLOR = pxr::GfVec3f(1.0f, 1.0f, 1.0f);
+const auto DEFAULT_VERTEX_COLOR = pxr::GfVec3f(1.0f, 1.0f, 1.0f);
+const auto DEFAULT_VERTEX_OPACITY = 1.0f;
 const auto DEFAULT_EXTENT = pxr::GfRange3d(pxr::GfVec3d(0.0, 0.0, 0.0), pxr::GfVec3d(0.0, 0.0, 0.0));
 const auto DEFAULT_POSITION = pxr::GfVec3d(0.0, 0.0, 0.0);
 const auto DEFAULT_ORIENTATION = pxr::GfQuatf(1.0f, 0.0, 0.0, 0.0);
@@ -90,6 +90,7 @@ void FabricGeometry::initialize() {
     attributes.addAttribute(FabricTypes::primvars, FabricTokens::primvars);
     attributes.addAttribute(FabricTypes::primvarInterpolations, FabricTokens::primvarInterpolations);
     attributes.addAttribute(FabricTypes::primvars_displayColor, FabricTokens::primvars_displayColor);
+    attributes.addAttribute(FabricTypes::primvars_displayOpacity, FabricTokens::primvars_displayOpacity);
     attributes.addAttribute(FabricTypes::Mesh, FabricTokens::Mesh);
     attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
     attributes.addAttribute(FabricTypes::_cesium_tileId, FabricTokens::_cesium_tileId);
@@ -128,6 +129,7 @@ void FabricGeometry::initialize() {
     size_t primvarIndexNormal = 0;
 
     const size_t primvarIndexDisplayColor = primvarsCount++;
+    const size_t primvarIndexDisplayOpacity = primvarsCount++;
 
     if (hasTexcoords) {
         primvarIndexSt = primvarsCount++;
@@ -146,7 +148,10 @@ void FabricGeometry::initialize() {
     // clang-format on
 
     primvarsFabric[primvarIndexDisplayColor] = FabricTokens::primvars_displayColor;
+    primvarsFabric[primvarIndexDisplayOpacity] = FabricTokens::primvars_displayOpacity;
+
     primvarInterpolationsFabric[primvarIndexDisplayColor] = FabricTokens::constant;
+    primvarInterpolationsFabric[primvarIndexDisplayOpacity] = FabricTokens::constant;
 
     if (hasTexcoords) {
         primvarsFabric[primvarIndexSt] = FabricTokens::primvars_st;
@@ -220,7 +225,6 @@ void FabricGeometry::setTile(
     const glm::dvec2& imageryTexcoordScale,
     uint64_t imageryTexcoordSetIndex) {
 
-    const auto hasMaterial = _geometryDefinition.hasMaterial();
     const auto hasTexcoords = _geometryDefinition.hasTexcoords();
     const auto hasNormals = _geometryDefinition.hasNormals();
 
@@ -253,6 +257,7 @@ void FabricGeometry::setTile(
     sip.setArrayAttributeSize(pathFabric, FabricTokens::faceVertexIndices, indices.size());
     sip.setArrayAttributeSize(pathFabric, FabricTokens::points, positions.size());
     sip.setArrayAttributeSize(pathFabric, FabricTokens::primvars_displayColor, 1);
+    sip.setArrayAttributeSize(pathFabric, FabricTokens::primvars_displayOpacity, 1);
 
     // clang-format off
     auto faceVertexCountsFabric = sip.getArrayAttributeWr<int>(pathFabric, FabricTokens::faceVertexCounts);
@@ -267,6 +272,7 @@ void FabricGeometry::setTile(
     auto worldOrientationFabric = sip.getAttributeWr<pxr::GfQuatf>(pathFabric, FabricTokens::_worldOrientation);
     auto worldScaleFabric = sip.getAttributeWr<pxr::GfVec3f>(pathFabric, FabricTokens::_worldScale);
     auto displayColorFabric = sip.getArrayAttributeWr<pxr::GfVec3f>(pathFabric, FabricTokens::primvars_displayColor);
+    auto displayOpacityFabric = sip.getArrayAttributeWr<float>(pathFabric, FabricTokens::primvars_displayOpacity);
     // clang-format on
 
     faceVertexCounts.fill(faceVertexCountsFabric);
@@ -282,7 +288,8 @@ void FabricGeometry::setTile(
     *worldOrientationFabric = worldOrientation;
     *worldScaleFabric = worldScale;
 
-    displayColorFabric[0] = hasMaterial ? MATERIAL_LOADING_COLOR : DEFAULT_COLOR;
+    displayColorFabric[0] = DEFAULT_VERTEX_COLOR;
+    displayOpacityFabric[0] = DEFAULT_VERTEX_OPACITY;
 
     if (hasTexcoords) {
         const auto& texcoords = hasImagery ? imageryTexcoords : texcoords_0;
