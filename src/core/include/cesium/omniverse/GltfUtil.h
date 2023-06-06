@@ -1,8 +1,9 @@
 #pragma once
 
+#include "cesium/omniverse/GltfAccessors.h"
+
 #include <glm/glm.hpp>
-#include <pxr/base/vt/array.h>
-#include <pxr/usd/sdf/assetPath.h>
+#include <pxr/base/gf/range3d.h>
 
 namespace CesiumGltf {
 struct ImageCesium;
@@ -14,30 +15,30 @@ struct Texture;
 
 namespace cesium::omniverse::GltfUtil {
 
-pxr::VtArray<pxr::GfVec3f> getPositions(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
+PositionsAccessor getPositions(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
 std::optional<pxr::GfRange3d> getExtent(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
-pxr::VtArray<int> getIndices(
+IndicesAccessor getIndices(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
-    const pxr::VtArray<pxr::GfVec3f>& positions);
+    const PositionsAccessor& positions);
 
-pxr::VtArray<pxr::GfVec3f> getNormals(
+NormalsAccessor getNormals(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
-    const pxr::VtArray<pxr::GfVec3f>& positions,
-    const pxr::VtArray<int>& indices,
+    const PositionsAccessor& positionsAccessor,
+    const IndicesAccessor& indices,
     bool smoothNormals);
 
-pxr::VtArray<pxr::GfVec2f> getTexcoords(
+TexcoordsAccessor getTexcoords(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     uint64_t setIndex,
     const glm::fvec2& translation,
     const glm::fvec2& scale);
 
-pxr::VtArray<int> getFaceVertexCounts(const pxr::VtArray<int>& indices);
+FaceVertexCountsAccessor getFaceVertexCounts(const IndicesAccessor& indices);
 
 pxr::GfVec3f getBaseColorFactor(const CesiumGltf::Material& material);
 float getMetallicFactor(const CesiumGltf::Material& material);
@@ -51,7 +52,7 @@ std::optional<uint64_t> getBaseColorTextureIndex(const CesiumGltf::Model& model,
 
 bool getDoubleSided(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
-pxr::VtArray<pxr::GfVec2f> getImageryTexcoords(
+TexcoordsAccessor getImageryTexcoords(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     uint64_t setIndex,

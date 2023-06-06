@@ -240,7 +240,7 @@ void FabricGeometry::setTile(
     const auto localExtent = GltfUtil::getExtent(model, primitive);
     const auto faceVertexCounts = GltfUtil::getFaceVertexCounts(indices);
 
-    if (positions.empty() || indices.empty() || !localExtent.has_value()) {
+    if (positions.size() == 0 || indices.size() == 0 || !localExtent.has_value()) {
         return;
     }
 
@@ -269,9 +269,9 @@ void FabricGeometry::setTile(
     auto displayColorFabric = sip.getArrayAttributeWr<pxr::GfVec3f>(pathFabric, FabricTokens::primvars_displayColor);
     // clang-format on
 
-    std::copy(faceVertexCounts.begin(), faceVertexCounts.end(), faceVertexCountsFabric.begin());
-    std::copy(indices.begin(), indices.end(), faceVertexIndicesFabric.begin());
-    std::copy(positions.begin(), positions.end(), pointsFabric.begin());
+    faceVertexCounts.fill(faceVertexCountsFabric);
+    indices.fill(faceVertexIndicesFabric);
+    positions.fill(pointsFabric);
 
     *localExtentFabric = localExtent.value();
     *worldExtentFabric = worldExtent;
@@ -291,7 +291,7 @@ void FabricGeometry::setTile(
 
         auto stFabric = sip.getArrayAttributeWr<pxr::GfVec2f>(pathFabric, FabricTokens::primvars_st);
 
-        std::copy(texcoords.begin(), texcoords.end(), stFabric.begin());
+        texcoords.fill(stFabric);
     }
 
     if (hasNormals) {
@@ -299,7 +299,7 @@ void FabricGeometry::setTile(
 
         auto normalsFabric = sip.getArrayAttributeWr<pxr::GfVec3f>(pathFabric, FabricTokens::primvars_normals);
 
-        std::copy(normals.begin(), normals.end(), normalsFabric.begin());
+        normals.fill(normalsFabric);
     }
 }
 
