@@ -1,0 +1,13 @@
+{
+  "version": "0.2.1",
+  "configurations": [
+    {
+      "name": "Kit App",
+      "project": "extern/nvidia/_build/target-deps/kit-sdk/kit.exe",
+      "args": [
+        "apps/cesium.omniverse.app.kit"
+      ],
+      "currentDir": "${workspaceRoot}"
+    }
+  ]
+}
