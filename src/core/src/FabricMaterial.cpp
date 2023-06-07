@@ -219,6 +219,7 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         attributes.addAttribute(FabricTypes::alpha_mode, FabricTokens::alpha_mode);
         attributes.addAttribute(FabricTypes::base_alpha, FabricTokens::base_alpha);
         attributes.addAttribute(FabricTypes::base_color_factor, FabricTokens::base_color_factor);
+        attributes.addAttribute(FabricTypes::emissive_factor, FabricTokens::emissive_factor);
         attributes.addAttribute(FabricTypes::metallic_factor, FabricTokens::metallic_factor);
         attributes.addAttribute(FabricTypes::roughness_factor, FabricTokens::roughness_factor);
         attributes.addAttribute(FabricTypes::info_id, FabricTokens::info_id);
@@ -233,7 +234,7 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         attributes.createAttributes(shaderPathFabric);
 
         sip.setArrayAttributeSize(shaderPathFabric, FabricTokens::_paramColorSpace, 0);
-        sip.setArrayAttributeSize(shaderPathFabric, FabricTokens::_parameters, 6);
+        sip.setArrayAttributeSize(shaderPathFabric, FabricTokens::_parameters, 7);
 
         // clang-format off
         auto infoIdFabric = sip.getAttributeWr<carb::flatcache::Token>(shaderPathFabric, FabricTokens::info_id);
@@ -247,8 +248,9 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         parametersFabric[1] = FabricTokens::alpha_mode;
         parametersFabric[2] = FabricTokens::base_alpha;
         parametersFabric[3] = FabricTokens::base_color_factor;
-        parametersFabric[4] = FabricTokens::metallic_factor;
-        parametersFabric[5] = FabricTokens::roughness_factor;
+        parametersFabric[4] = FabricTokens::emissive_factor;
+        parametersFabric[5] = FabricTokens::metallic_factor;
+        parametersFabric[6] = FabricTokens::roughness_factor;
     }
 
     if (hasBaseColorTexture) {
@@ -345,6 +347,7 @@ void FabricMaterial::reset() {
     const auto alphaMode = GltfUtil::getDefaultAlphaMode();
     const auto baseAlpha = GltfUtil::getDefaultBaseAlpha();
     const auto baseColorFactor = GltfUtil::getDefaultBaseColorFactor();
+    const auto emissiveFactor = GltfUtil::getDefaultEmissiveFactor();
     const auto metallicFactor = GltfUtil::getDefaultMetallicFactor();
     const auto roughnessFactor = GltfUtil::getDefaultRoughnessFactor();
     const auto baseColorTextureWrapS = GltfUtil::getDefaultWrapS();
@@ -357,6 +360,7 @@ void FabricMaterial::reset() {
     auto alphaModeFabric = sip.getAttributeWr<int>(shaderPathFabric, FabricTokens::alpha_mode);
     auto baseAlphaFabric = sip.getAttributeWr<float>(shaderPathFabric, FabricTokens::base_alpha);
     auto baseColorFactorFabric = sip.getAttributeWr<pxr::GfVec3f>(shaderPathFabric, FabricTokens::base_color_factor);
+    auto emissiveFactorFabric = sip.getAttributeWr<pxr::GfVec3f>(shaderPathFabric, FabricTokens::emissive_factor);
     auto metallicFactorFabric = sip.getAttributeWr<float>(shaderPathFabric, FabricTokens::metallic_factor);
     auto roughnessFactorFabric = sip.getAttributeWr<float>(shaderPathFabric, FabricTokens::roughness_factor);
     // clang-format on
@@ -365,6 +369,7 @@ void FabricMaterial::reset() {
     *alphaModeFabric = alphaMode;
     *baseAlphaFabric = baseAlpha;
     *baseColorFactorFabric = baseColorFactor;
+    *emissiveFactorFabric = emissiveFactor;
     *metallicFactorFabric = metallicFactor;
     *roughnessFactorFabric = roughnessFactor;
 
@@ -400,6 +405,7 @@ void FabricMaterial::setInitialValues(const FabricMaterialDefinition& materialDe
     auto alphaModeFabric = sip.getAttributeWr<int>(shaderPathFabric, FabricTokens::alpha_mode);
     auto baseAlphaFabric = sip.getAttributeWr<float>(shaderPathFabric, FabricTokens::base_alpha);
     auto baseColorFactorFabric = sip.getAttributeWr<pxr::GfVec3f>(shaderPathFabric, FabricTokens::base_color_factor);
+    auto emissiveFactorFabric = sip.getAttributeWr<pxr::GfVec3f>(shaderPathFabric, FabricTokens::emissive_factor);
     auto metallicFactorFabric = sip.getAttributeWr<float>(shaderPathFabric, FabricTokens::metallic_factor);
     auto roughnessFactorFabric = sip.getAttributeWr<float>(shaderPathFabric, FabricTokens::roughness_factor);
     // clang-format on
@@ -408,6 +414,7 @@ void FabricMaterial::setInitialValues(const FabricMaterialDefinition& materialDe
     *alphaModeFabric = materialDefinition.getAlphaMode();
     *baseAlphaFabric = materialDefinition.getBaseAlpha();
     *baseColorFactorFabric = materialDefinition.getBaseColorFactor();
+    *emissiveFactorFabric = materialDefinition.getEmissiveFactor();
     *metallicFactorFabric = materialDefinition.getMetallicFactor();
     *roughnessFactorFabric = materialDefinition.getRoughnessFactor();
 
@@ -435,6 +442,7 @@ void FabricMaterial::setTile(
     int alphaMode;
     float baseAlpha;
     pxr::GfVec3f baseColorFactor;
+    pxr::GfVec3f emissiveFactor;
     float metallicFactor;
     float roughnessFactor;
     int baseColorTextureWrapS;
@@ -452,6 +460,7 @@ void FabricMaterial::setTile(
         alphaMode = GltfUtil::getAlphaMode(material);
         baseAlpha = GltfUtil::getBaseAlpha(material);
         baseColorFactor = GltfUtil::getBaseColorFactor(material);
+        emissiveFactor = GltfUtil::getBaseColorFactor(material);
         metallicFactor = GltfUtil::getMetallicFactor(material);
         roughnessFactor = GltfUtil::getRoughnessFactor(material);
         baseColorTextureWrapS = GltfUtil::getBaseColorTextureWrapS(model, material);
@@ -467,6 +476,7 @@ void FabricMaterial::setTile(
         alphaMode = GltfUtil::getDefaultAlphaMode();
         baseAlpha = GltfUtil::getDefaultBaseAlpha();
         baseColorFactor = GltfUtil::getDefaultBaseColorFactor();
+        emissiveFactor = GltfUtil::getDefaultEmissiveFactor();
         metallicFactor = GltfUtil::getDefaultMetallicFactor();
         roughnessFactor = GltfUtil::getDefaultRoughnessFactor();
         baseColorTextureWrapS = GltfUtil::getDefaultWrapS();
@@ -495,6 +505,7 @@ void FabricMaterial::setTile(
     auto alphaModeFabric = sip.getAttributeWr<int>(shaderPathFabric, FabricTokens::alpha_mode);
     auto baseAlphaFabric = sip.getAttributeWr<float>(shaderPathFabric, FabricTokens::base_alpha);
     auto baseColorFactorFabric = sip.getAttributeWr<pxr::GfVec3f>(shaderPathFabric, FabricTokens::base_color_factor);
+    auto emissiveFactorFabric = sip.getAttributeWr<pxr::GfVec3f>(shaderPathFabric, FabricTokens::emissive_factor);
     auto metallicFactorFabric = sip.getAttributeWr<float>(shaderPathFabric, FabricTokens::metallic_factor);
     auto roughnessFactorFabric = sip.getAttributeWr<float>(shaderPathFabric, FabricTokens::roughness_factor);
     // clang-format on
@@ -503,6 +514,7 @@ void FabricMaterial::setTile(
     *alphaModeFabric = alphaMode;
     *baseAlphaFabric = baseAlpha;
     *baseColorFactorFabric = baseColorFactor;
+    *emissiveFactorFabric = emissiveFactor;
     *metallicFactorFabric = metallicFactor;
     *roughnessFactorFabric = roughnessFactor;
 

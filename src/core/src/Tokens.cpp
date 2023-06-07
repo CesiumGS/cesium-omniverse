@@ -18,6 +18,7 @@ TF_DEFINE_PRIVATE_TOKENS(
     (constant)
     (displacement)
     (doubleSided)
+    (emissive_factor)
     (faceVertexCounts)
     (faceVertexIndices)
     (gltf_material)
@@ -82,6 +83,7 @@ const carb::flatcache::TokenC baseColorTex = carb::flatcache::asInt(pxr::UsdToke
 const carb::flatcache::TokenC constant = carb::flatcache::asInt(pxr::UsdTokens->constant);
 const carb::flatcache::TokenC displacement = carb::flatcache::asInt(pxr::UsdTokens->displacement);
 const carb::flatcache::TokenC doubleSided = carb::flatcache::asInt(pxr::UsdTokens->doubleSided);
+const carb::flatcache::TokenC emissive_factor = carb::flatcache::asInt(pxr::UsdTokens->emissive_factor);
 const carb::flatcache::TokenC faceVertexCounts = carb::flatcache::asInt(pxr::UsdTokens->faceVertexCounts);
 const carb::flatcache::TokenC faceVertexIndices = carb::flatcache::asInt(pxr::UsdTokens->faceVertexIndices);
 const carb::flatcache::TokenC gltf_material = carb::flatcache::asInt(pxr::UsdTokens->gltf_material);
@@ -145,6 +147,7 @@ const pxr::TfToken& baseColorTex = pxr::UsdTokens->baseColorTex;
 const pxr::TfToken& constant = pxr::UsdTokens->constant;
 const pxr::TfToken& displacement = pxr::UsdTokens->displacement;
 const pxr::TfToken& doubleSided = pxr::UsdTokens->doubleSided;
+const pxr::TfToken& emissive_factor = pxr::UsdTokens->emissive_factor;
 const pxr::TfToken& faceVertexCounts = pxr::UsdTokens->faceVertexCounts;
 const pxr::TfToken& faceVertexIndices = pxr::UsdTokens->faceVertexIndices;
 const pxr::TfToken& gltf_material = pxr::UsdTokens->gltf_material;

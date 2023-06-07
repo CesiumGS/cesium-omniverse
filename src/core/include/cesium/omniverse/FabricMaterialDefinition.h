@@ -24,6 +24,7 @@ class FabricMaterialDefinition {
     int getAlphaMode() const;
     float getBaseAlpha() const;
     pxr::GfVec3f getBaseColorFactor() const;
+    pxr::GfVec3f getEmissiveFactor() const;
     float getMetallicFactor() const;
     float getRoughnessFactor() const;
     int getWrapS() const;
@@ -39,6 +40,7 @@ class FabricMaterialDefinition {
     int _alphaMode;
     float _baseAlpha;
     pxr::GfVec3f _baseColorFactor;
+    pxr::GfVec3f _emissiveFactor;
     float _metallicFactor;
     float _roughnessFactor;
     int _wrapS;

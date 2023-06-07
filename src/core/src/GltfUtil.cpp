@@ -291,6 +291,13 @@ pxr::GfVec3f getBaseColorFactor(const CesiumGltf::Material& material) {
     return getDefaultBaseColorFactor();
 }
 
+pxr::GfVec3f getEmissiveFactor(const CesiumGltf::Material& material) {
+    return pxr::GfVec3f(
+        static_cast<float>(material.emissiveFactor[0]),
+        static_cast<float>(material.emissiveFactor[1]),
+        static_cast<float>(material.emissiveFactor[2]));
+}
+
 float getMetallicFactor(const CesiumGltf::Material& material) {
     if (material.hasExtension<CesiumGltf::ExtensionKhrMaterialsUnlit>()) {
         // Unlit materials aren't supported in Omniverse yet but we can hard code the metallic factor to something reasonable
@@ -361,6 +368,10 @@ float getDefaultBaseAlpha() {
 
 pxr::GfVec3f getDefaultBaseColorFactor() {
     return getBaseColorFactor(defaultPbrMetallicRoughness);
+}
+
+pxr::GfVec3f getDefaultEmissiveFactor() {
+    return getEmissiveFactor(defaultMaterial);
 }
 
 float getDefaultMetallicFactor() {

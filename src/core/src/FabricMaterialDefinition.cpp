@@ -25,6 +25,7 @@ FabricMaterialDefinition::FabricMaterialDefinition(
         _alphaMode = GltfUtil::getAlphaMode(material);
         _baseAlpha = GltfUtil::getBaseAlpha(material);
         _baseColorFactor = GltfUtil::getBaseColorFactor(material);
+        _emissiveFactor = GltfUtil::getEmissiveFactor(material);
         _metallicFactor = GltfUtil::getMetallicFactor(material);
         _roughnessFactor = GltfUtil::getRoughnessFactor(material);
         _hasBaseColorTexture = GltfUtil::getBaseColorTextureIndex(model, material).has_value();
@@ -35,6 +36,7 @@ FabricMaterialDefinition::FabricMaterialDefinition(
         _alphaMode = GltfUtil::getDefaultAlphaMode();
         _baseAlpha = GltfUtil::getDefaultBaseAlpha();
         _baseColorFactor = GltfUtil::getDefaultBaseColorFactor();
+        _emissiveFactor = GltfUtil::getDefaultEmissiveFactor();
         _metallicFactor = 0.0f; // Override the glTF default of 1.0
         _roughnessFactor = GltfUtil::getDefaultRoughnessFactor();
         _hasBaseColorTexture = false;
@@ -67,6 +69,10 @@ float FabricMaterialDefinition::getBaseAlpha() const {
 
 pxr::GfVec3f FabricMaterialDefinition::getBaseColorFactor() const {
     return _baseColorFactor;
+}
+
+pxr::GfVec3f FabricMaterialDefinition::getEmissiveFactor() const {
+    return _emissiveFactor;
 }
 
 float FabricMaterialDefinition::getMetallicFactor() const {
@@ -104,6 +110,10 @@ bool FabricMaterialDefinition::operator==(const FabricMaterialDefinition& other)
     }
 
     if (_baseColorFactor != other._baseColorFactor) {
+        return false;
+    }
+
+    if (_emissiveFactor != other._emissiveFactor) {
         return false;
     }
 
