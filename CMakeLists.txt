@@ -519,7 +519,7 @@ set(KIT_EXTENSION_PLUGINS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.usd.plugins/pl
 # found this way.
 
 # Automatically fetch certificates used for any requests from the core Context class
-execute_process(COMMAND "${Python3_EXECUTABLE}" "${SCRIPTS_DIRECTORY}/updateCerts.py" "${KIT_EXTENSION_CERTS_PATH}")
+execute_process(COMMAND "${Python3_EXECUTABLE}" "${SCRIPTS_DIRECTORY}/update_certs.py" "${KIT_EXTENSION_CERTS_PATH}")
 
 get_property(INSTALL_SEARCH_PATHS GLOBAL PROPERTY NVIDIA_ADDITIONAL_SEARCH_PATHS_PROPERTY)
 
