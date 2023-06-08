@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from calendar import c
 import sys
 import subprocess
 import multiprocessing
@@ -9,9 +8,8 @@ import shutil
 
 try:
     import pty
-except:
+except Exception:
     pass
-import subprocess
 import webbrowser
 from typing import List, NamedTuple
 

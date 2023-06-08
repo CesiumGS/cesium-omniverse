@@ -96,8 +96,8 @@ def generate_conan_third_party_json(third_party_json, libraries_to_skip):
         license = library['license']
 
         licenses = []
-        for l in license:
-            licenses.extend(l.split(', '))
+        for lc in license:
+            licenses.extend(lc.split(', '))
 
         display_name_pieces = display_name.split('/')
         name = display_name_pieces[0]

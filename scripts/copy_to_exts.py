@@ -2,7 +2,6 @@
 This file is a post build step run by cmake that copies over the CHANGES.md and related resources to
 the exts/docs folder for packaging.
 """
-import os
 import re
 import shutil
 from dataclasses import dataclass
@@ -18,6 +17,7 @@ class PathPair:
     :arg source: The source path for the file.
     :arg relative_destination: The relative destination for the file.
     """
+
     source: Path
     relative_destination: str = ""
 
@@ -57,8 +57,9 @@ def copy_to_destination(pair: PathPair, destination: Path) -> None:
     :param pair: The PathPair for the copy operation.
     :param destination: The path of the destination directory.
     """
-    true_destination = destination.joinpath(
-        pair.relative_destination) if pair.relative_destination != "" else destination
+    true_destination = (
+        destination.joinpath(pair.relative_destination) if pair.relative_destination != "" else destination
+    )
 
     # In the event that true_destination isn't a direct file path, we need to take the source filename and append it
     # to true_destination.
