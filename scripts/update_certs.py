@@ -22,7 +22,6 @@ def main():
     CERT_URL = "https://curl.se/ca/cacert.pem"
     CERT_FILE_PATH = sys.argv[1]
 
-
     # --- ensure directory structure exists ----
     os.makedirs(os.path.dirname(CERT_FILE_PATH), exist_ok=True)
 
@@ -34,7 +33,7 @@ def main():
         print(f"failed to fetch certificates from {CERT_URL}")
         return -1
 
-    with open(CERT_FILE_PATH, 'w') as f:
+    with open(CERT_FILE_PATH, "w") as f:
         f.write(req.text)
 
     return 0
@@ -42,4 +41,3 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
-
