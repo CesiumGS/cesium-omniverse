@@ -382,6 +382,19 @@ CesiumTilesetAPI::CreateShowCreditsOnScreenAttr(VtValue const &defaultValue, boo
                        writeSparsely);
 }
 
+UsdRelationship
+CesiumTilesetAPI::GetGeoreferenceBindingRel() const
+{
+    return GetPrim().GetRelationship(CesiumTokens->cesiumGeoreferenceBinding);
+}
+
+UsdRelationship
+CesiumTilesetAPI::CreateGeoreferenceBindingRel() const
+{
+    return GetPrim().CreateRelationship(CesiumTokens->cesiumGeoreferenceBinding,
+                       /* custom = */ false);
+}
+
 namespace {
 static inline TfTokenVector
 _ConcatenateAttributeNames(const TfTokenVector& left,const TfTokenVector& right)
