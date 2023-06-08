@@ -60,6 +60,9 @@ exts/cesium.omniverse/doc/resources/*
 !exts/cesium.omniverse/doc/resources/icon.png
 !exts/cesium.omniverse/doc/resources/preview.jpg
 
+# Extension Certs
+exts/cesium.omniverse/certs/cacert.pem
+
 # Test output
 _testoutput
 
