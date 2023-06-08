@@ -85,7 +85,7 @@ jobs:
       # The -v{num} is a cache key buster to invalidate the Docker image cache
       - name: Load Docker image cache
         if: matrix.config.name == 'CentOS 7 - GCC'
-        uses: satackey/action-docker-layer-caching@v0.0.11
+        uses: jpribyl/action-docker-layer-caching@v0.1.1
         continue-on-error: true
         with:
           key: docker-layer-caching-v1-${{ github.workflow }}-{hash}
