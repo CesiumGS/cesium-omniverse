@@ -17,7 +17,7 @@ jobs:
           - {
               name: 'Windows - MSVC',
               artifact: 'windows-msvc.tar.xz',
-              os: ['self-hosted', 'windows', 'x64', 'vs2022'],
+              os: windows-latest-l,
               cc: 'cl',
               cxx: 'cl',
               build-type: 'Release',
@@ -39,7 +39,7 @@ jobs:
           - {
               name: 'CentOS 7 - GCC',
               artifact: 'linux-gcc.tar.xz',
-              os: ubuntu-22.04,
+              os: ubuntu-latest-m,
               cc: 'gcc-11',
               cxx: 'g++-11',
               build-type: 'Release',
@@ -70,7 +70,7 @@ jobs:
       - name: Conan Set build directory (Windows)
         if: runner.os == 'Windows'
         run: |
-          echo "CONAN_USER_HOME=d:\" >> $env:GITHUB_ENV
+          echo "CONAN_USER_HOME=$env:GITHUB_WORKSPACE" >> $env:GITHUB_ENV
           echo "CONAN_USER_HOME_SHORT=None" >> $env:GITHUB_ENV
 
       # The -v{num} is a cache key buster because we were starting to use the same cache keys from previous tests
@@ -80,7 +80,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.CONAN_USER_HOME }}/.conan
-          key: conan-${{ matrix.config.name }}-${{ hashFiles('cmake/AddConanDependencies.cmake') }}-v2
+          key: conan-${{ matrix.config.name }}-${{ hashFiles('cmake/AddConanDependencies.cmake') }}-v3
 
       # The -v{num} is a cache key buster to invalidate the Docker image cache
       - name: Load Docker image cache
