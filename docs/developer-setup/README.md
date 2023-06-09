@@ -32,7 +32,7 @@
 ## Prerequisites
 
 - Install Nvidia Omniverse: https://www.nvidia.com/en-us/omniverse/download/
-- Install Omniverse Code 2022.3.0 (or later)
+- Install Omniverse Create 2022.3.3 (or later)
 
 See [Linux](#linux) or [Windows](#windows) for step-by-step installation instructions
 
@@ -49,6 +49,10 @@ See [Linux](#linux) or [Windows](#windows) for step-by-step installation instruc
 
 ### Linux
 
+- Ensure the correct NVIDIA drivers are installed (not the default open source driver) and that the GPU can be identified
+```sh
+nvidia-smi
+```
 - Install dependencies (for Ubuntu 22.04 - other Linux distributions should be similar)
   ```sh
   sudo apt install -y gcc-9 g++-9 clang-14 python3 python3-pip cmake make git doxygen clang-format-14 clang-tidy-14 clangd-14 gcovr
@@ -103,6 +107,10 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
     cd <first_path_in_list>
     mklink python3.exe python.exe
     ```
+- Install `requests` module for Python
+  ```sh
+  pip3 install requests
+  ```
 - Install `cmake-format`
   ```sh
   pip3 install cmake-format
@@ -152,6 +160,10 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
   where python
   cd <first_path_in_list>
   mklink python3.exe python.exe
+  ```
+- Install `requests`
+  ```sh
+  pip3 install requests
   ```
 - Install `cmake-format`
   ```sh
@@ -505,7 +517,7 @@ To run a task:
 - `Ctrl + Shift + B` and select the task, e.g. `Build`
 - Select the build type and compiler (if applicable)
 
-### Debugging
+### Launching/Debugging
 
 Windows and Linux versions of `launch.json` are provided in the `.vscode` folder.
 
@@ -533,6 +545,15 @@ Then select a configuration from the `Run and Debug` panel, such as `Kit App`, a
 > **Note:** For performance tracing make sure the project has been configured with tracing enabled by pressing `Ctrl + Shift + B` and running  `Build (tracing)`.
 
 > **Note:** For Python debugging, first run `Python Debugging (start)`, then wait for Omniverse to load, then run `Python Debugging (attach)`. Now you can set breakpoints in both the C++ and Python code.
+
+#### Launch/Debug Troubleshooting
+- When running in debug within vscode, if you find execution halting at a breakpoint outside the cesium codebase, you may need to uncheck "C++: on throw" under the "Breakpoints" section of the "Run and Debug" panel.
+- On Linux, if you are given an error or warning about IOMMU, you may need to turn this off in the BIOS. IOMMU also goes by the name of Intel VT-d and AMD-Vi.
+- On Linux, if repeated `"[Omniverse app]" is not responding` prompts to either force quit or wait, you may want to extend the global timeout for such events from the default 5s to 30s with the following command (for gnome):
+```sh
+gsettings set org.gnome.mutter check-alive-timeout 30000
+```
+
 
 ## Project Structure
 

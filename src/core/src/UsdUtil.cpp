@@ -265,9 +265,6 @@ pxr::CesiumData defineCesiumData(const pxr::SdfPath& path) {
 
     cesiumData.CreateProjectDefaultIonAccessTokenAttr();
     cesiumData.CreateProjectDefaultIonAccessTokenIdAttr();
-    cesiumData.CreateGeoreferenceOriginLongitudeAttr(pxr::VtValue(-105.25737));
-    cesiumData.CreateGeoreferenceOriginLatitudeAttr(pxr::VtValue(39.736401));
-    cesiumData.CreateGeoreferenceOriginHeightAttr(pxr::VtValue(2250.0));
     cesiumData.CreateDebugDisableMaterialsAttr(pxr::VtValue(false));
     cesiumData.CreateDebugDisableGeometryPoolAttr(pxr::VtValue(false));
     cesiumData.CreateDebugDisableMaterialPoolAttr(pxr::VtValue(false));
@@ -284,6 +281,17 @@ pxr::CesiumSession defineCesiumSession(const pxr::SdfPath& path) {
     cesiumSession.CreateEcefToUsdTransformAttr();
 
     return cesiumSession;
+}
+
+pxr::CesiumGeoreference defineCesiumGeoreference(const pxr::SdfPath& path) {
+    auto stage = getUsdStage();
+    auto georeference = pxr::CesiumGeoreference::Define(stage, path);
+
+    georeference.CreateGeoreferenceOriginLatitudeAttr(pxr::VtValue(39.736401));
+    georeference.CreateGeoreferenceOriginLongitudeAttr(pxr::VtValue(-105.25737));
+    georeference.CreateGeoreferenceOriginHeightAttr(pxr::VtValue(2250.0));
+
+    return georeference;
 }
 
 pxr::CesiumTilesetAPI defineCesiumTileset(const pxr::SdfPath& path) {
@@ -361,6 +369,16 @@ pxr::CesiumSession getOrCreateCesiumSession() {
     return cesiumSession;
 }
 
+pxr::CesiumGeoreference getOrCreateCesiumGeoreference() {
+    static const auto path = pxr::SdfPath("/CesiumGeoreference");
+
+    if (isCesiumGeoreference(path)) {
+        return pxr::CesiumGeoreference::Get(getUsdStage(), path);
+    }
+
+    return defineCesiumGeoreference(path);
+}
+
 pxr::CesiumTilesetAPI getCesiumTileset(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto tileset = pxr::CesiumTilesetAPI::Get(stage, path);
@@ -409,6 +427,16 @@ bool isCesiumSession(const pxr::SdfPath& path) {
     }
 
     return prim.IsA<pxr::CesiumSession>();
+}
+
+bool isCesiumGeoreference(const pxr::SdfPath& path) {
+    auto stage = getUsdStage();
+    auto prim = stage->GetPrimAtPath(path);
+    if (!prim.IsValid()) {
+        return false;
+    }
+
+    return prim.IsA<pxr::CesiumGeoreference>();
 }
 
 bool isCesiumTileset(const pxr::SdfPath& path) {

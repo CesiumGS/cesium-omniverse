@@ -2,6 +2,7 @@
 
 #include "cesium/omniverse/FabricMaterialDefinition.h"
 
+#include <omni/fabric/IPath.h>
 #include <pxr/usd/sdf/path.h>
 
 namespace omni::ui {
@@ -30,7 +31,7 @@ class FabricMaterial {
 
     void setActive(bool active);
 
-    pxr::SdfPath getPath() const;
+    omni::fabric::Path getPathFabric() const;
     const FabricMaterialDefinition& getMaterialDefinition() const;
 
   private:
@@ -40,10 +41,9 @@ class FabricMaterial {
 
     const FabricMaterialDefinition _materialDefinition;
 
-    pxr::SdfPath _materialPath;
-    pxr::SdfPath _shaderPath;
-    pxr::SdfPath _lookupColorPath;
-    pxr::SdfPath _textureCoordinate2dPath;
+    omni::fabric::Path _materialPathFabric;
+    omni::fabric::Path _shaderPathFabric;
+    omni::fabric::Path _baseColorTexPathFabric;
 
     std::unique_ptr<omni::ui::DynamicTextureProvider> _baseColorTexture;
 };

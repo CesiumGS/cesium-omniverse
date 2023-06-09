@@ -432,6 +432,7 @@ void Context::setStageId(long stageId) {
         // Ensure that the CesiumData prim exists so that we can set the georeference
         // and other top-level properties without waiting for an ion session to start
         UsdUtil::getOrCreateCesiumData();
+        UsdUtil::getOrCreateCesiumGeoreference();
         UsdUtil::getOrCreateCesiumSession();
 
         // Repopulate the asset registry
@@ -454,24 +455,24 @@ int64_t Context::getNextTileId() const {
 }
 
 const CesiumGeospatial::Cartographic Context::getGeoreferenceOrigin() const {
-    const auto cesiumData = UsdUtil::getOrCreateCesiumData();
+    const auto georeference = UsdUtil::getOrCreateCesiumGeoreference();
 
     double longitude;
     double latitude;
     double height;
-    cesiumData.GetGeoreferenceOriginLongitudeAttr().Get<double>(&longitude);
-    cesiumData.GetGeoreferenceOriginLatitudeAttr().Get<double>(&latitude);
-    cesiumData.GetGeoreferenceOriginHeightAttr().Get<double>(&height);
+    georeference.GetGeoreferenceOriginLongitudeAttr().Get<double>(&longitude);
+    georeference.GetGeoreferenceOriginLatitudeAttr().Get<double>(&latitude);
+    georeference.GetGeoreferenceOriginHeightAttr().Get<double>(&height);
 
     return CesiumGeospatial::Cartographic(glm::radians(longitude), glm::radians(latitude), height);
 }
 
 void Context::setGeoreferenceOrigin(const CesiumGeospatial::Cartographic& origin) {
-    const auto cesiumData = UsdUtil::getOrCreateCesiumData();
+    const auto georeference = UsdUtil::getOrCreateCesiumGeoreference();
 
-    cesiumData.GetGeoreferenceOriginLongitudeAttr().Set<double>(glm::degrees(origin.longitude));
-    cesiumData.GetGeoreferenceOriginLatitudeAttr().Set<double>(glm::degrees(origin.latitude));
-    cesiumData.GetGeoreferenceOriginHeightAttr().Set<double>(origin.height);
+    georeference.GetGeoreferenceOriginLongitudeAttr().Set<double>(glm::degrees(origin.longitude));
+    georeference.GetGeoreferenceOriginLatitudeAttr().Set<double>(glm::degrees(origin.latitude));
+    georeference.GetGeoreferenceOriginHeightAttr().Set<double>(origin.height);
 }
 
 void Context::connectToIon() {

@@ -342,6 +342,11 @@ void wrapCesiumTilesetAPI()
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 
+        
+        .def("GetGeoreferenceBindingRel",
+             &This::GetGeoreferenceBindingRel)
+        .def("CreateGeoreferenceBindingRel",
+             &This::CreateGeoreferenceBindingRel)
         .def("__repr__", ::_Repr)
     ;
 

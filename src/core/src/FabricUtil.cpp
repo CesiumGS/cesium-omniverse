@@ -551,7 +551,7 @@ FabricStatistics getStatistics() {
 }
 
 namespace {
-void destroyPrimsSpan(gsl::span<const pxr::SdfPath> paths) {
+void destroyPrimsSpan(gsl::span<const omni::fabric::Path> paths) {
     // Only delete prims if there's still a stage to delete them from
     if (!UsdUtil::hasStage()) {
         return;
@@ -560,7 +560,7 @@ void destroyPrimsSpan(gsl::span<const pxr::SdfPath> paths) {
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
     for (const auto& path : paths) {
-        srw.destroyPrim(omni::fabric::asInt(path));
+        srw.destroyPrim(path);
     }
 
     // Prims removed from Fabric need special handling for their removal to be reflected in the Hydra render index
@@ -576,16 +576,16 @@ void destroyPrimsSpan(gsl::span<const pxr::SdfPath> paths) {
     auto deletedPrimsFabric = srw.getArrayAttributeWr<uint64_t>(changeTrackingPath, FabricTokens::_deletedPrims);
 
     for (size_t i = 0; i < paths.size(); i++) {
-        deletedPrimsFabric[deletedPrimsSize + i] = omni::fabric::asInt(paths[i]).path;
+        deletedPrimsFabric[deletedPrimsSize + i] = omni::fabric::PathC(paths[i]).path;
     }
 }
 } // namespace
 
-void destroyPrim(const pxr::SdfPath& path) {
+void destroyPrim(const omni::fabric::Path& path) {
     destroyPrimsSpan(gsl::span(&path, 1));
 }
 
-void destroyPrims(const std::vector<pxr::SdfPath>& paths) {
+void destroyPrims(const std::vector<omni::fabric::Path>& paths) {
     destroyPrimsSpan(gsl::span(paths));
 }
 
@@ -627,10 +627,9 @@ void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform
     }
 }
 
-void setTilesetIdAndTileId(const pxr::SdfPath& path, int64_t tilesetId, int64_t tileId) {
+void setTilesetIdAndTileId(const omni::fabric::Path& pathFabric, int64_t tilesetId, int64_t tileId) {
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
-    const auto pathFabric = omni::fabric::Path(omni::fabric::asInt(path));
     auto tilesetIdFabric = srw.getAttributeWr<int64_t>(pathFabric, FabricTokens::_cesium_tilesetId);
     auto tileIdFabric = srw.getAttributeWr<int64_t>(pathFabric, FabricTokens::_cesium_tileId);
 

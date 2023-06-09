@@ -2,6 +2,7 @@
 
 #include "cesium/omniverse/FabricGeometryDefinition.h"
 
+#include <omni/fabric/IPath.h>
 #include <glm/glm.hpp>
 #include <pxr/usd/sdf/path.h>
 
@@ -36,7 +37,7 @@ class FabricGeometry {
     void setActive(bool active);
     void setVisibility(bool visible);
 
-    pxr::SdfPath getPath() const;
+    omni::fabric::Path getPathFabric() const;
     const FabricGeometryDefinition& getGeometryDefinition() const;
 
     void assignMaterial(std::shared_ptr<FabricMaterial> material);
@@ -45,7 +46,7 @@ class FabricGeometry {
     void initialize();
     void reset();
 
-    const pxr::SdfPath _path;
+    const omni::fabric::Path _pathFabric;
     const FabricGeometryDefinition _geometryDefinition;
 };
 

@@ -499,6 +499,18 @@ public:
     UsdAttribute CreateShowCreditsOnScreenAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
+    // --------------------------------------------------------------------- //
+    // GEOREFERENCEBINDING 
+    // --------------------------------------------------------------------- //
+    /// Specifies which Cesium Georeference object to use for this tileset.
+    ///
+    UsdRelationship GetGeoreferenceBindingRel() const;
+
+    /// See GetGeoreferenceBindingRel(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create
+    UsdRelationship CreateGeoreferenceBindingRel() const;
+
+public:
     // ===================================================================== //
     // Feel free to add custom code below this line, it will be preserved by 
     // the code generator. 

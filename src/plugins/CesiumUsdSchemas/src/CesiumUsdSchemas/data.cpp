@@ -115,57 +115,6 @@ CesiumData::CreateProjectDefaultIonAccessTokenIdAttr(VtValue const &defaultValue
 }
 
 UsdAttribute
-CesiumData::GetGeoreferenceOriginLongitudeAttr() const
-{
-    return GetPrim().GetAttribute(CesiumTokens->cesiumGeoreferenceOriginLongitude);
-}
-
-UsdAttribute
-CesiumData::CreateGeoreferenceOriginLongitudeAttr(VtValue const &defaultValue, bool writeSparsely) const
-{
-    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumGeoreferenceOriginLongitude,
-                       SdfValueTypeNames->Double,
-                       /* custom = */ false,
-                       SdfVariabilityVarying,
-                       defaultValue,
-                       writeSparsely);
-}
-
-UsdAttribute
-CesiumData::GetGeoreferenceOriginLatitudeAttr() const
-{
-    return GetPrim().GetAttribute(CesiumTokens->cesiumGeoreferenceOriginLatitude);
-}
-
-UsdAttribute
-CesiumData::CreateGeoreferenceOriginLatitudeAttr(VtValue const &defaultValue, bool writeSparsely) const
-{
-    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumGeoreferenceOriginLatitude,
-                       SdfValueTypeNames->Double,
-                       /* custom = */ false,
-                       SdfVariabilityVarying,
-                       defaultValue,
-                       writeSparsely);
-}
-
-UsdAttribute
-CesiumData::GetGeoreferenceOriginHeightAttr() const
-{
-    return GetPrim().GetAttribute(CesiumTokens->cesiumGeoreferenceOriginHeight);
-}
-
-UsdAttribute
-CesiumData::CreateGeoreferenceOriginHeightAttr(VtValue const &defaultValue, bool writeSparsely) const
-{
-    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumGeoreferenceOriginHeight,
-                       SdfValueTypeNames->Double,
-                       /* custom = */ false,
-                       SdfVariabilityVarying,
-                       defaultValue,
-                       writeSparsely);
-}
-
-UsdAttribute
 CesiumData::GetDebugDisableMaterialsAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumDebugDisableMaterials);
@@ -269,9 +218,6 @@ CesiumData::GetSchemaAttributeNames(bool includeInherited)
     static TfTokenVector localNames = {
         CesiumTokens->cesiumProjectDefaultIonAccessToken,
         CesiumTokens->cesiumProjectDefaultIonAccessTokenId,
-        CesiumTokens->cesiumGeoreferenceOriginLongitude,
-        CesiumTokens->cesiumGeoreferenceOriginLatitude,
-        CesiumTokens->cesiumGeoreferenceOriginHeight,
         CesiumTokens->cesiumDebugDisableMaterials,
         CesiumTokens->cesiumDebugDisableGeometryPool,
         CesiumTokens->cesiumDebugDisableMaterialPool,

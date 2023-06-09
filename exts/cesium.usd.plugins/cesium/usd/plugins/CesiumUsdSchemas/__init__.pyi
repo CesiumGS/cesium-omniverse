@@ -3,6 +3,7 @@ import Boost.Python
 
 __all__ = [
     "Data",
+    "Georeference",
     "Imagery",
     "TilesetAPI",
     "Tokens",
@@ -10,6 +11,9 @@ __all__ = [
 
 # TODO: Fill out these stubs since we can't seem to autogen them.
 class Data(pxr.Usd.Typed, pxr.Usd.SchemaBase, Boost.Python.instance):
+    pass
+
+class Georeference(pxr.Usd.Typed, pxr.Usd.SchemaBase, Boost.Python.instance):
     pass
 
 class Imagery(pxr.Usd.Typed, pxr.Usd.SchemaBase, Boost.Python.instance):
