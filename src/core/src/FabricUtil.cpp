@@ -104,7 +104,11 @@ std::string printAttributeValue(const T* values, uint64_t elementCount, uint64_t
 }
 
 template <bool IsArray, typename BaseType, uint64_t ComponentCount>
-std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::fabric::Token& attributeName) {
+std::string printAttributeValue(
+    const omni::fabric::Path& primPath,
+    const omni::fabric::Token& attributeName,
+    const omni::fabric::AttributeRole& role) {
+
     using ElementType = std::array<BaseType, ComponentCount>;
 
     auto stageReaderWriter = UsdUtil::getFabricStageReaderWriter();
@@ -117,7 +121,13 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
             return NO_DATA_STRING;
         }
 
-        return printAttributeValue<BaseType>(values.front().data(), elementCount, ComponentCount, true);
+        const auto valuesPtr = values.front().data();
+
+        if (role == omni::fabric::AttributeRole::eText) {
+            return std::string(reinterpret_cast<const char*>(valuesPtr), elementCount);
+        }
+
+        return printAttributeValue<BaseType>(valuesPtr, elementCount, ComponentCount, true);
     } else {
         const auto value = stageReaderWriter.getAttributeRd<ElementType>(primPath, attributeName);
 
@@ -137,6 +147,7 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
     const auto componentCount = attributeType.componentCount;
     const auto name = attribute.name;
     const auto arrayDepth = attributeType.arrayDepth;
+    const auto role = attributeType.role;
 
     // This switch statement should cover most of the attribute types we expect to see on the stage.
     // This includes the USD types in SdfValueTypeNames and Fabric types like assets and tokens.
@@ -146,7 +157,7 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
             case omni::fabric::BaseDataType::eAsset: {
                 switch (componentCount) {
                     case 1: {
-                        return printAttributeValue<false, AssetWrapper, 1>(primPath, name);
+                        return printAttributeValue<false, AssetWrapper, 1>(primPath, name, role);
                     }
                     default: {
                         break;
@@ -157,7 +168,7 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
             case omni::fabric::BaseDataType::eToken: {
                 switch (componentCount) {
                     case 1: {
-                        return printAttributeValue<false, TokenWrapper, 1>(primPath, name);
+                        return printAttributeValue<false, TokenWrapper, 1>(primPath, name, role);
                     }
                     default: {
                         break;
@@ -168,7 +179,7 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
             case omni::fabric::BaseDataType::eBool: {
                 switch (componentCount) {
                     case 1: {
-                        return printAttributeValue<false, BoolWrapper, 1>(primPath, name);
+                        return printAttributeValue<false, BoolWrapper, 1>(primPath, name, role);
                     }
                     default: {
                         break;
@@ -179,7 +190,7 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
             case omni::fabric::BaseDataType::eUChar: {
                 switch (componentCount) {
                     case 1: {
-                        return printAttributeValue<false, uint8_t, 1>(primPath, name);
+                        return printAttributeValue<false, uint8_t, 1>(primPath, name, role);
                     }
                     default: {
                         break;
@@ -190,16 +201,16 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
             case omni::fabric::BaseDataType::eInt: {
                 switch (componentCount) {
                     case 1: {
-                        return printAttributeValue<false, int32_t, 1>(primPath, name);
+                        return printAttributeValue<false, int32_t, 1>(primPath, name, role);
                     }
                     case 2: {
-                        return printAttributeValue<false, int32_t, 2>(primPath, name);
+                        return printAttributeValue<false, int32_t, 2>(primPath, name, role);
                     }
                     case 3: {
-                        return printAttributeValue<false, int32_t, 3>(primPath, name);
+                        return printAttributeValue<false, int32_t, 3>(primPath, name, role);
                     }
                     case 4: {
-                        return printAttributeValue<false, int32_t, 4>(primPath, name);
+                        return printAttributeValue<false, int32_t, 4>(primPath, name, role);
                     }
                     default: {
                         break;
@@ -210,7 +221,7 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
             case omni::fabric::BaseDataType::eUInt: {
                 switch (componentCount) {
                     case 1: {
-                        return printAttributeValue<false, uint32_t, 1>(primPath, name);
+                        return printAttributeValue<false, uint32_t, 1>(primPath, name, role);
                     }
                     default: {
                         break;
@@ -221,7 +232,7 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
             case omni::fabric::BaseDataType::eInt64: {
                 switch (componentCount) {
                     case 1: {
-                        return printAttributeValue<false, int64_t, 1>(primPath, name);
+                        return printAttributeValue<false, int64_t, 1>(primPath, name, role);
                     }
                     default: {
                         break;
@@ -232,7 +243,7 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
             case omni::fabric::BaseDataType::eUInt64: {
                 switch (componentCount) {
                     case 1: {
-                        return printAttributeValue<false, uint64_t, 1>(primPath, name);
+                        return printAttributeValue<false, uint64_t, 1>(primPath, name, role);
                     }
                     default: {
                         break;
@@ -243,16 +254,16 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
             case omni::fabric::BaseDataType::eFloat: {
                 switch (componentCount) {
                     case 1: {
-                        return printAttributeValue<false, float, 1>(primPath, name);
+                        return printAttributeValue<false, float, 1>(primPath, name, role);
                     }
                     case 2: {
-                        return printAttributeValue<false, float, 2>(primPath, name);
+                        return printAttributeValue<false, float, 2>(primPath, name, role);
                     }
                     case 3: {
-                        return printAttributeValue<false, float, 3>(primPath, name);
+                        return printAttributeValue<false, float, 3>(primPath, name, role);
                     }
                     case 4: {
-                        return printAttributeValue<false, float, 4>(primPath, name);
+                        return printAttributeValue<false, float, 4>(primPath, name, role);
                     }
                     default: {
                         break;
@@ -263,25 +274,25 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
             case omni::fabric::BaseDataType::eDouble: {
                 switch (componentCount) {
                     case 1: {
-                        return printAttributeValue<false, double, 1>(primPath, name);
+                        return printAttributeValue<false, double, 1>(primPath, name, role);
                     }
                     case 2: {
-                        return printAttributeValue<false, double, 2>(primPath, name);
+                        return printAttributeValue<false, double, 2>(primPath, name, role);
                     }
                     case 3: {
-                        return printAttributeValue<false, double, 3>(primPath, name);
+                        return printAttributeValue<false, double, 3>(primPath, name, role);
                     }
                     case 4: {
-                        return printAttributeValue<false, double, 4>(primPath, name);
+                        return printAttributeValue<false, double, 4>(primPath, name, role);
                     }
                     case 6: {
-                        return printAttributeValue<false, double, 6>(primPath, name);
+                        return printAttributeValue<false, double, 6>(primPath, name, role);
                     }
                     case 9: {
-                        return printAttributeValue<false, double, 9>(primPath, name);
+                        return printAttributeValue<false, double, 9>(primPath, name, role);
                     }
                     case 16: {
-                        return printAttributeValue<false, double, 16>(primPath, name);
+                        return printAttributeValue<false, double, 16>(primPath, name, role);
                     }
                     default: {
                         break;
@@ -293,7 +304,7 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
             case omni::fabric::BaseDataType::eRelationship: {
                 switch (componentCount) {
                     case 1: {
-                        return printAttributeValue<true, uint64_t, 1>(primPath, name);
+                        return printAttributeValue<true, uint64_t, 1>(primPath, name, role);
                     }
                     default: {
                         break;
@@ -310,7 +321,7 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
             case omni::fabric::BaseDataType::eAsset: {
                 switch (componentCount) {
                     case 1: {
-                        return printAttributeValue<true, AssetWrapper, 1>(primPath, name);
+                        return printAttributeValue<true, AssetWrapper, 1>(primPath, name, role);
                     }
                     default: {
                         break;
@@ -321,7 +332,7 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
             case omni::fabric::BaseDataType::eToken: {
                 switch (componentCount) {
                     case 1: {
-                        return printAttributeValue<true, TokenWrapper, 1>(primPath, name);
+                        return printAttributeValue<true, TokenWrapper, 1>(primPath, name, role);
                     }
                     default: {
                         break;
@@ -332,7 +343,7 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
             case omni::fabric::BaseDataType::eBool: {
                 switch (componentCount) {
                     case 1: {
-                        return printAttributeValue<true, BoolWrapper, 1>(primPath, name);
+                        return printAttributeValue<true, BoolWrapper, 1>(primPath, name, role);
                     }
                     default: {
                         break;
@@ -343,7 +354,7 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
             case omni::fabric::BaseDataType::eUChar: {
                 switch (componentCount) {
                     case 1: {
-                        return printAttributeValue<true, uint8_t, 1>(primPath, name);
+                        return printAttributeValue<true, uint8_t, 1>(primPath, name, role);
                     }
                     default: {
                         break;
@@ -354,16 +365,16 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
             case omni::fabric::BaseDataType::eInt: {
                 switch (componentCount) {
                     case 1: {
-                        return printAttributeValue<true, int32_t, 1>(primPath, name);
+                        return printAttributeValue<true, int32_t, 1>(primPath, name, role);
                     }
                     case 2: {
-                        return printAttributeValue<true, int32_t, 2>(primPath, name);
+                        return printAttributeValue<true, int32_t, 2>(primPath, name, role);
                     }
                     case 3: {
-                        return printAttributeValue<true, int32_t, 3>(primPath, name);
+                        return printAttributeValue<true, int32_t, 3>(primPath, name, role);
                     }
                     case 4: {
-                        return printAttributeValue<true, int32_t, 4>(primPath, name);
+                        return printAttributeValue<true, int32_t, 4>(primPath, name, role);
                     }
                     default: {
                         break;
@@ -374,7 +385,7 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
             case omni::fabric::BaseDataType::eUInt: {
                 switch (componentCount) {
                     case 1: {
-                        return printAttributeValue<true, uint32_t, 1>(primPath, name);
+                        return printAttributeValue<true, uint32_t, 1>(primPath, name, role);
                     }
                     default: {
                         break;
@@ -385,7 +396,7 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
             case omni::fabric::BaseDataType::eInt64: {
                 switch (componentCount) {
                     case 1: {
-                        return printAttributeValue<true, int64_t, 1>(primPath, name);
+                        return printAttributeValue<true, int64_t, 1>(primPath, name, role);
                     }
                     default: {
                         break;
@@ -396,7 +407,7 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
             case omni::fabric::BaseDataType::eUInt64: {
                 switch (componentCount) {
                     case 1: {
-                        return printAttributeValue<true, uint64_t, 1>(primPath, name);
+                        return printAttributeValue<true, uint64_t, 1>(primPath, name, role);
                     }
                     default: {
                         break;
@@ -407,16 +418,16 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
             case omni::fabric::BaseDataType::eFloat: {
                 switch (componentCount) {
                     case 1: {
-                        return printAttributeValue<true, float, 1>(primPath, name);
+                        return printAttributeValue<true, float, 1>(primPath, name, role);
                     }
                     case 2: {
-                        return printAttributeValue<true, float, 2>(primPath, name);
+                        return printAttributeValue<true, float, 2>(primPath, name, role);
                     }
                     case 3: {
-                        return printAttributeValue<true, float, 3>(primPath, name);
+                        return printAttributeValue<true, float, 3>(primPath, name, role);
                     }
                     case 4: {
-                        return printAttributeValue<true, float, 4>(primPath, name);
+                        return printAttributeValue<true, float, 4>(primPath, name, role);
                     }
                     default: {
                         break;
@@ -427,25 +438,25 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
             case omni::fabric::BaseDataType::eDouble: {
                 switch (componentCount) {
                     case 1: {
-                        return printAttributeValue<true, double, 1>(primPath, name);
+                        return printAttributeValue<true, double, 1>(primPath, name, role);
                     }
                     case 2: {
-                        return printAttributeValue<true, double, 2>(primPath, name);
+                        return printAttributeValue<true, double, 2>(primPath, name, role);
                     }
                     case 3: {
-                        return printAttributeValue<true, double, 3>(primPath, name);
+                        return printAttributeValue<true, double, 3>(primPath, name, role);
                     }
                     case 4: {
-                        return printAttributeValue<true, double, 4>(primPath, name);
+                        return printAttributeValue<true, double, 4>(primPath, name, role);
                     }
                     case 6: {
-                        return printAttributeValue<true, double, 6>(primPath, name);
+                        return printAttributeValue<true, double, 6>(primPath, name, role);
                     }
                     case 9: {
-                        return printAttributeValue<true, double, 9>(primPath, name);
+                        return printAttributeValue<true, double, 9>(primPath, name, role);
                     }
                     case 16: {
-                        return printAttributeValue<true, double, 16>(primPath, name);
+                        return printAttributeValue<true, double, 16>(primPath, name, role);
                     }
                     default: {
                         break;
