@@ -31,13 +31,13 @@ const auto DEFAULT_MATRIX = pxr::GfMatrix4d(1.0);
 } // namespace
 
 FabricGeometry::FabricGeometry(pxr::SdfPath path, const FabricGeometryDefinition& geometryDefinition)
-    : _path(path)
+    : _pathFabric(path.GetText())
     , _geometryDefinition(geometryDefinition) {
     initialize();
 }
 
 FabricGeometry::~FabricGeometry() {
-    FabricUtil::destroyPrim(_path);
+    FabricUtil::destroyPrim(_pathFabric);
 }
 
 void FabricGeometry::setActive(bool active) {
@@ -49,13 +49,12 @@ void FabricGeometry::setActive(bool active) {
 void FabricGeometry::setVisibility(bool visible) {
     auto sip = UsdUtil::getFabricStageInProgress();
 
-    auto worldVisibilityFabric =
-        sip.getAttributeWr<bool>(carb::flatcache::asInt(_path), FabricTokens::_worldVisibility);
+    auto worldVisibilityFabric = sip.getAttributeWr<bool>(_pathFabric, FabricTokens::_worldVisibility);
     *worldVisibilityFabric = visible;
 }
 
-pxr::SdfPath FabricGeometry::getPath() const {
-    return _path;
+carb::flatcache::Path FabricGeometry::getPathFabric() const {
+    return _pathFabric;
 }
 
 const FabricGeometryDefinition& FabricGeometry::getGeometryDefinition() const {
@@ -64,9 +63,8 @@ const FabricGeometryDefinition& FabricGeometry::getGeometryDefinition() const {
 
 void FabricGeometry::assignMaterial(std::shared_ptr<FabricMaterial> material) {
     auto sip = UsdUtil::getFabricStageInProgress();
-    const auto pathFabric = carb::flatcache::Path(carb::flatcache::asInt(_path));
-    auto materialIdFabric = sip.getAttributeWr<uint64_t>(pathFabric, FabricTokens::materialId);
-    *materialIdFabric = carb::flatcache::asInt(material->getPath()).path;
+    auto materialIdFabric = sip.getAttributeWr<uint64_t>(_pathFabric, FabricTokens::materialId);
+    *materialIdFabric = carb::flatcache::PathC(material->getPathFabric()).path;
 }
 
 void FabricGeometry::initialize() {
@@ -76,9 +74,8 @@ void FabricGeometry::initialize() {
     const auto doubleSided = _geometryDefinition.getDoubleSided();
 
     auto sip = UsdUtil::getFabricStageInProgress();
-    const auto pathFabric = carb::flatcache::Path(carb::flatcache::asInt(_path));
 
-    sip.createPrim(pathFabric);
+    sip.createPrim(_pathFabric);
 
     FabricAttributesBuilder attributes;
     attributes.addAttribute(FabricTypes::faceVertexCounts, FabricTokens::faceVertexCounts);
@@ -113,11 +110,11 @@ void FabricGeometry::initialize() {
         attributes.addAttribute(FabricTypes::primvars_normals, FabricTokens::primvars_normals);
     }
 
-    attributes.createAttributes(pathFabric);
+    attributes.createAttributes(_pathFabric);
 
     // clang-format off
-    auto doubleSidedFabric = sip.getAttributeWr<bool>(pathFabric, FabricTokens::doubleSided);
-    auto subdivisionSchemeFabric = sip.getAttributeWr<carb::flatcache::Token>(pathFabric, FabricTokens::subdivisionScheme);
+    auto doubleSidedFabric = sip.getAttributeWr<bool>(_pathFabric, FabricTokens::doubleSided);
+    auto subdivisionSchemeFabric = sip.getAttributeWr<carb::flatcache::Token>(_pathFabric, FabricTokens::subdivisionScheme);
     // clang-format on
 
     *subdivisionSchemeFabric = FabricTokens::none;
@@ -139,12 +136,12 @@ void FabricGeometry::initialize() {
         primvarIndexNormal = primvarsCount++;
     }
 
-    sip.setArrayAttributeSize(pathFabric, FabricTokens::primvars, primvarsCount);
-    sip.setArrayAttributeSize(pathFabric, FabricTokens::primvarInterpolations, primvarsCount);
+    sip.setArrayAttributeSize(_pathFabric, FabricTokens::primvars, primvarsCount);
+    sip.setArrayAttributeSize(_pathFabric, FabricTokens::primvarInterpolations, primvarsCount);
 
     // clang-format off
-    auto primvarsFabric = sip.getArrayAttributeWr<carb::flatcache::Token>(pathFabric, FabricTokens::primvars);
-    auto primvarInterpolationsFabric = sip.getArrayAttributeWr<carb::flatcache::Token>(pathFabric, FabricTokens::primvarInterpolations);
+    auto primvarsFabric = sip.getArrayAttributeWr<carb::flatcache::Token>(_pathFabric, FabricTokens::primvars);
+    auto primvarInterpolationsFabric = sip.getArrayAttributeWr<carb::flatcache::Token>(_pathFabric, FabricTokens::primvarInterpolations);
     // clang-format on
 
     primvarsFabric[primvarIndexDisplayColor] = FabricTokens::primvars_displayColor;
@@ -175,18 +172,18 @@ void FabricGeometry::reset() {
     const auto hasNormals = _geometryDefinition.hasNormals();
 
     auto sip = UsdUtil::getFabricStageInProgress();
-    const auto pathFabric = carb::flatcache::Path(carb::flatcache::asInt(_path));
 
-    auto localExtentFabric = sip.getAttributeWr<pxr::GfRange3d>(pathFabric, FabricTokens::_localExtent);
-    auto worldExtentFabric = sip.getAttributeWr<pxr::GfRange3d>(pathFabric, FabricTokens::_worldExtent);
-    auto worldVisibilityFabric = sip.getAttributeWr<bool>(pathFabric, FabricTokens::_worldVisibility);
-    auto tilesetIdFabric = sip.getAttributeWr<int64_t>(pathFabric, FabricTokens::_cesium_tilesetId);
-    auto tileIdFabric = sip.getAttributeWr<int64_t>(pathFabric, FabricTokens::_cesium_tileId);
-    auto localToEcefTransformFabric =
-        sip.getAttributeWr<pxr::GfMatrix4d>(pathFabric, FabricTokens::_cesium_localToEcefTransform);
-    auto worldPositionFabric = sip.getAttributeWr<pxr::GfVec3d>(pathFabric, FabricTokens::_worldPosition);
-    auto worldOrientationFabric = sip.getAttributeWr<pxr::GfQuatf>(pathFabric, FabricTokens::_worldOrientation);
-    auto worldScaleFabric = sip.getAttributeWr<pxr::GfVec3f>(pathFabric, FabricTokens::_worldScale);
+    // clang-format off
+    auto localExtentFabric = sip.getAttributeWr<pxr::GfRange3d>(_pathFabric, FabricTokens::_localExtent);
+    auto worldExtentFabric = sip.getAttributeWr<pxr::GfRange3d>(_pathFabric, FabricTokens::_worldExtent);
+    auto worldVisibilityFabric = sip.getAttributeWr<bool>(_pathFabric, FabricTokens::_worldVisibility);
+    auto tilesetIdFabric = sip.getAttributeWr<int64_t>(_pathFabric, FabricTokens::_cesium_tilesetId);
+    auto tileIdFabric = sip.getAttributeWr<int64_t>(_pathFabric, FabricTokens::_cesium_tileId);
+    auto localToEcefTransformFabric = sip.getAttributeWr<pxr::GfMatrix4d>(_pathFabric, FabricTokens::_cesium_localToEcefTransform);
+    auto worldPositionFabric = sip.getAttributeWr<pxr::GfVec3d>(_pathFabric, FabricTokens::_worldPosition);
+    auto worldOrientationFabric = sip.getAttributeWr<pxr::GfQuatf>(_pathFabric, FabricTokens::_worldOrientation);
+    auto worldScaleFabric = sip.getAttributeWr<pxr::GfVec3f>(_pathFabric, FabricTokens::_worldScale);
+    // clang-format on
 
     *localExtentFabric = DEFAULT_EXTENT;
     *worldExtentFabric = DEFAULT_EXTENT;
@@ -198,16 +195,16 @@ void FabricGeometry::reset() {
     *worldOrientationFabric = DEFAULT_ORIENTATION;
     *worldScaleFabric = DEFAULT_SCALE;
 
-    sip.setArrayAttributeSize(pathFabric, FabricTokens::faceVertexCounts, 0);
-    sip.setArrayAttributeSize(pathFabric, FabricTokens::faceVertexIndices, 0);
-    sip.setArrayAttributeSize(pathFabric, FabricTokens::points, 0);
+    sip.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexCounts, 0);
+    sip.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexIndices, 0);
+    sip.setArrayAttributeSize(_pathFabric, FabricTokens::points, 0);
 
     if (hasTexcoords) {
-        sip.setArrayAttributeSize(pathFabric, FabricTokens::primvars_st, 0);
+        sip.setArrayAttributeSize(_pathFabric, FabricTokens::primvars_st, 0);
     }
 
     if (hasNormals) {
-        sip.setArrayAttributeSize(pathFabric, FabricTokens::primvars_normals, 0);
+        sip.setArrayAttributeSize(_pathFabric, FabricTokens::primvars_normals, 0);
     }
 }
 
@@ -229,7 +226,6 @@ void FabricGeometry::setTile(
     const auto hasNormals = _geometryDefinition.hasNormals();
 
     auto sip = UsdUtil::getFabricStageInProgress();
-    const auto pathFabric = carb::flatcache::Path(carb::flatcache::asInt(_path));
 
     const auto positions = GltfUtil::getPositions(model, primitive);
     const auto indices = GltfUtil::getIndices(model, primitive, positions);
@@ -253,26 +249,26 @@ void FabricGeometry::setTile(
     const auto [worldPosition, worldOrientation, worldScale] = UsdUtil::glmToUsdMatrixDecomposed(localToUsdTransform);
     const auto worldExtent = UsdUtil::computeWorldExtent(localExtent.value(), localToUsdTransform);
 
-    sip.setArrayAttributeSize(pathFabric, FabricTokens::faceVertexCounts, faceVertexCounts.size());
-    sip.setArrayAttributeSize(pathFabric, FabricTokens::faceVertexIndices, indices.size());
-    sip.setArrayAttributeSize(pathFabric, FabricTokens::points, positions.size());
-    sip.setArrayAttributeSize(pathFabric, FabricTokens::primvars_displayColor, 1);
-    sip.setArrayAttributeSize(pathFabric, FabricTokens::primvars_displayOpacity, 1);
+    sip.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexCounts, faceVertexCounts.size());
+    sip.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexIndices, indices.size());
+    sip.setArrayAttributeSize(_pathFabric, FabricTokens::points, positions.size());
+    sip.setArrayAttributeSize(_pathFabric, FabricTokens::primvars_displayColor, 1);
+    sip.setArrayAttributeSize(_pathFabric, FabricTokens::primvars_displayOpacity, 1);
 
     // clang-format off
-    auto faceVertexCountsFabric = sip.getArrayAttributeWr<int>(pathFabric, FabricTokens::faceVertexCounts);
-    auto faceVertexIndicesFabric = sip.getArrayAttributeWr<int>(pathFabric, FabricTokens::faceVertexIndices);
-    auto pointsFabric = sip.getArrayAttributeWr<pxr::GfVec3f>(pathFabric, FabricTokens::points);
-    auto localExtentFabric = sip.getAttributeWr<pxr::GfRange3d>(pathFabric, FabricTokens::_localExtent);
-    auto worldExtentFabric = sip.getAttributeWr<pxr::GfRange3d>(pathFabric, FabricTokens::_worldExtent);
-    auto tilesetIdFabric = sip.getAttributeWr<int64_t>(pathFabric, FabricTokens::_cesium_tilesetId);
-    auto tileIdFabric = sip.getAttributeWr<int64_t>(pathFabric, FabricTokens::_cesium_tileId);
-    auto localToEcefTransformFabric = sip.getAttributeWr<pxr::GfMatrix4d>(pathFabric, FabricTokens::_cesium_localToEcefTransform);
-    auto worldPositionFabric = sip.getAttributeWr<pxr::GfVec3d>(pathFabric, FabricTokens::_worldPosition);
-    auto worldOrientationFabric = sip.getAttributeWr<pxr::GfQuatf>(pathFabric, FabricTokens::_worldOrientation);
-    auto worldScaleFabric = sip.getAttributeWr<pxr::GfVec3f>(pathFabric, FabricTokens::_worldScale);
-    auto displayColorFabric = sip.getArrayAttributeWr<pxr::GfVec3f>(pathFabric, FabricTokens::primvars_displayColor);
-    auto displayOpacityFabric = sip.getArrayAttributeWr<float>(pathFabric, FabricTokens::primvars_displayOpacity);
+    auto faceVertexCountsFabric = sip.getArrayAttributeWr<int>(_pathFabric, FabricTokens::faceVertexCounts);
+    auto faceVertexIndicesFabric = sip.getArrayAttributeWr<int>(_pathFabric, FabricTokens::faceVertexIndices);
+    auto pointsFabric = sip.getArrayAttributeWr<pxr::GfVec3f>(_pathFabric, FabricTokens::points);
+    auto localExtentFabric = sip.getAttributeWr<pxr::GfRange3d>(_pathFabric, FabricTokens::_localExtent);
+    auto worldExtentFabric = sip.getAttributeWr<pxr::GfRange3d>(_pathFabric, FabricTokens::_worldExtent);
+    auto tilesetIdFabric = sip.getAttributeWr<int64_t>(_pathFabric, FabricTokens::_cesium_tilesetId);
+    auto tileIdFabric = sip.getAttributeWr<int64_t>(_pathFabric, FabricTokens::_cesium_tileId);
+    auto localToEcefTransformFabric = sip.getAttributeWr<pxr::GfMatrix4d>(_pathFabric, FabricTokens::_cesium_localToEcefTransform);
+    auto worldPositionFabric = sip.getAttributeWr<pxr::GfVec3d>(_pathFabric, FabricTokens::_worldPosition);
+    auto worldOrientationFabric = sip.getAttributeWr<pxr::GfQuatf>(_pathFabric, FabricTokens::_worldOrientation);
+    auto worldScaleFabric = sip.getAttributeWr<pxr::GfVec3f>(_pathFabric, FabricTokens::_worldScale);
+    auto displayColorFabric = sip.getArrayAttributeWr<pxr::GfVec3f>(_pathFabric, FabricTokens::primvars_displayColor);
+    auto displayOpacityFabric = sip.getArrayAttributeWr<float>(_pathFabric, FabricTokens::primvars_displayOpacity);
     // clang-format on
 
     faceVertexCounts.fill(faceVertexCountsFabric);
@@ -294,17 +290,17 @@ void FabricGeometry::setTile(
     if (hasTexcoords) {
         const auto& texcoords = hasImagery ? imageryTexcoords : texcoords_0;
 
-        sip.setArrayAttributeSize(pathFabric, FabricTokens::primvars_st, texcoords.size());
+        sip.setArrayAttributeSize(_pathFabric, FabricTokens::primvars_st, texcoords.size());
 
-        auto stFabric = sip.getArrayAttributeWr<pxr::GfVec2f>(pathFabric, FabricTokens::primvars_st);
+        auto stFabric = sip.getArrayAttributeWr<pxr::GfVec2f>(_pathFabric, FabricTokens::primvars_st);
 
         texcoords.fill(stFabric);
     }
 
     if (hasNormals) {
-        sip.setArrayAttributeSize(pathFabric, FabricTokens::primvars_normals, normals.size());
+        sip.setArrayAttributeSize(_pathFabric, FabricTokens::primvars_normals, normals.size());
 
-        auto normalsFabric = sip.getArrayAttributeWr<pxr::GfVec3f>(pathFabric, FabricTokens::primvars_normals);
+        auto normalsFabric = sip.getArrayAttributeWr<pxr::GfVec3f>(_pathFabric, FabricTokens::primvars_normals);
 
         normals.fill(normalsFabric);
     }

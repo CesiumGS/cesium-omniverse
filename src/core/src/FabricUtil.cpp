@@ -543,7 +543,7 @@ FabricStatistics getStatistics() {
 }
 
 namespace {
-void destroyPrimsSpan(gsl::span<const pxr::SdfPath> paths) {
+void destroyPrimsSpan(gsl::span<const carb::flatcache::Path> paths) {
     // Only delete prims if there's still a stage to delete them from
     if (!UsdUtil::hasStage()) {
         return;
@@ -552,7 +552,7 @@ void destroyPrimsSpan(gsl::span<const pxr::SdfPath> paths) {
     auto sip = UsdUtil::getFabricStageInProgress();
 
     for (const auto& path : paths) {
-        sip.destroyPrim(carb::flatcache::asInt(path));
+        sip.destroyPrim(path);
     }
 
     // Prims removed from Fabric need special handling for their removal to be reflected in the Hydra render index
@@ -568,16 +568,16 @@ void destroyPrimsSpan(gsl::span<const pxr::SdfPath> paths) {
     auto deletedPrimsFabric = sip.getArrayAttributeWr<uint64_t>(changeTrackingPath, FabricTokens::_deletedPrims);
 
     for (size_t i = 0; i < paths.size(); i++) {
-        deletedPrimsFabric[deletedPrimsSize + i] = carb::flatcache::asInt(paths[i]).path;
+        deletedPrimsFabric[deletedPrimsSize + i] = carb::flatcache::PathC(paths[i]).path;
     }
 }
 } // namespace
 
-void destroyPrim(const pxr::SdfPath& path) {
+void destroyPrim(const carb::flatcache::Path& path) {
     destroyPrimsSpan(gsl::span(&path, 1));
 }
 
-void destroyPrims(const std::vector<pxr::SdfPath>& paths) {
+void destroyPrims(const std::vector<carb::flatcache::Path>& paths) {
     destroyPrimsSpan(gsl::span(paths));
 }
 
@@ -619,10 +619,9 @@ void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform
     }
 }
 
-void setTilesetIdAndTileId(const pxr::SdfPath& path, int64_t tilesetId, int64_t tileId) {
+void setTilesetIdAndTileId(const carb::flatcache::Path& pathFabric, int64_t tilesetId, int64_t tileId) {
     auto sip = UsdUtil::getFabricStageInProgress();
 
-    const auto pathFabric = carb::flatcache::Path(carb::flatcache::asInt(path));
     auto tilesetIdFabric = sip.getAttributeWr<int64_t>(pathFabric, FabricTokens::_cesium_tilesetId);
     auto tileIdFabric = sip.getAttributeWr<int64_t>(pathFabric, FabricTokens::_cesium_tileId);
 
