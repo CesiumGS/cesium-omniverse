@@ -33,7 +33,8 @@ def main():
         print(f"failed to fetch certificates from {CERT_URL}")
         return -1
 
-    with open(CERT_FILE_PATH, "w") as f:
+    # explicit encoding is required for windows
+    with open(CERT_FILE_PATH, "w", encoding='utf-8') as f:
         f.write(req.text)
 
     return 0
