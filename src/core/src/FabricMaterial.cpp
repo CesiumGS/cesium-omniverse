@@ -215,7 +215,8 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
 
             attributes.createAttributes(baseColorTexPathFabric);
 
-            srw.setArrayAttributeSize(baseColorTexPathFabric, FabricTokens::_paramColorSpace, 0);
+            // _paramColorSpace is an array of pairs: [texture_parameter_token, color_space_enum], [texture_parameter_token, color_space_enum], ...
+            srw.setArrayAttributeSize(baseColorTexPathFabric, FabricTokens::_paramColorSpace, 2);
             srw.setArrayAttributeSize(baseColorTexPathFabric, FabricTokens::_sdrMetadata, 0);
 
             // clang-format off
@@ -227,6 +228,7 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             auto infoImplementationSourceFabric = srw.getAttributeWr<omni::fabric::Token>(baseColorTexPathFabric, FabricTokens::info_implementationSource);
             auto infoMdlSourceAssetFabric = srw.getAttributeWr<omni::fabric::AssetPath>(baseColorTexPathFabric, FabricTokens::info_mdl_sourceAsset);
             auto infoMdlSourceAssetSubIdentifierFabric = srw.getAttributeWr<omni::fabric::Token>(baseColorTexPathFabric, FabricTokens::info_mdl_sourceAsset_subIdentifier);
+            auto paramColorSpaceFabric = srw.getArrayAttributeWr<omni::fabric::Token>(baseColorTexPathFabric, FabricTokens::_paramColorSpace);
             // clang-format on
 
             *offsetFabric = pxr::GfVec2f(0.0f, 0.0f);
@@ -239,6 +241,8 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             infoMdlSourceAssetFabric->assetPath = UsdTokens::gltf_pbr_mdl;
             infoMdlSourceAssetFabric->resolvedPath = pxr::TfToken();
             *infoMdlSourceAssetSubIdentifierFabric = FabricTokens::gltf_texture_lookup;
+            paramColorSpaceFabric[0] = FabricTokens::inputs_texture;
+            paramColorSpaceFabric[1] = FabricTokens::_auto;
         }
     }
 

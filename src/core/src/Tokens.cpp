@@ -52,6 +52,7 @@ TF_DEFINE_PRIVATE_TOKENS(
     (_worldPosition)
     (_worldScale)
     (_worldVisibility)
+    ((_auto, "auto"))
     ((info_implementationSource, "info:implementationSource"))
     ((info_mdl_sourceAsset, "info:mdl:sourceAsset"))
     ((info_mdl_sourceAsset_subIdentifier, "info:mdl:sourceAsset:subIdentifier"))
@@ -135,6 +136,7 @@ const omni::fabric::TokenC Shader = omni::fabric::asInt(pxr::UsdTokens->Shader);
 const omni::fabric::TokenC sourceAsset = omni::fabric::asInt(pxr::UsdTokens->sourceAsset);
 const omni::fabric::TokenC subdivisionScheme = omni::fabric::asInt(pxr::UsdTokens->subdivisionScheme);
 const omni::fabric::TokenC vertex = omni::fabric::asInt(pxr::UsdTokens->vertex);
+const omni::fabric::TokenC _auto = omni::fabric::asInt(pxr::UsdTokens->_auto);
 const omni::fabric::TokenC _cesium_localToEcefTransform = omni::fabric::asInt(pxr::UsdTokens->_cesium_localToEcefTransform);
 const omni::fabric::TokenC _cesium_tileId = omni::fabric::asInt(pxr::UsdTokens->_cesium_tileId);
 const omni::fabric::TokenC _cesium_tilesetId = omni::fabric::asInt(pxr::UsdTokens->_cesium_tilesetId);
@@ -202,6 +204,7 @@ const pxr::TfToken& Shader = pxr::UsdTokens->Shader;
 const pxr::TfToken& sourceAsset = pxr::UsdTokens->sourceAsset;
 const pxr::TfToken& subdivisionScheme = pxr::UsdTokens->subdivisionScheme;
 const pxr::TfToken& vertex = pxr::UsdTokens->vertex;
+const pxr::TfToken& _auto = pxr::UsdTokens->_auto;
 const pxr::TfToken& _cesium_localToEcefTransform = pxr::UsdTokens->_cesium_localToEcefTransform;
 const pxr::TfToken& _cesium_tileId = pxr::UsdTokens->_cesium_tileId;
 const pxr::TfToken& _cesium_tilesetId = pxr::UsdTokens->_cesium_tilesetId;
