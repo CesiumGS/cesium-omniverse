@@ -5,6 +5,7 @@
 #include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/FabricMeshManager.h"
 #include "cesium/omniverse/FabricUtil.h"
+#include "cesium/omniverse/GeospatialUtil.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/OmniImagery.h"
@@ -457,14 +458,7 @@ int64_t Context::getNextTileId() const {
 const CesiumGeospatial::Cartographic Context::getGeoreferenceOrigin() const {
     const auto georeference = UsdUtil::getOrCreateCesiumGeoreference();
 
-    double longitude;
-    double latitude;
-    double height;
-    georeference.GetGeoreferenceOriginLongitudeAttr().Get<double>(&longitude);
-    georeference.GetGeoreferenceOriginLatitudeAttr().Get<double>(&latitude);
-    georeference.GetGeoreferenceOriginHeightAttr().Get<double>(&height);
-
-    return CesiumGeospatial::Cartographic(glm::radians(longitude), glm::radians(latitude), height);
+    return GeospatialUtil::convertGeoreferenceToCartographic(georeference);
 }
 
 void Context::setGeoreferenceOrigin(const CesiumGeospatial::Cartographic& origin) {

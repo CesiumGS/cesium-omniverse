@@ -5,6 +5,7 @@
 #include "cesium/omniverse/FabricMesh.h"
 #include "cesium/omniverse/FabricPrepareRenderResources.h"
 #include "cesium/omniverse/FabricUtil.h"
+#include "cesium/omniverse/GeospatialUtil.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/OmniImagery.h"
@@ -28,7 +29,7 @@
 
 namespace cesium::omniverse {
 
-OmniTileset::OmniTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPath &georeferencePath)
+OmniTileset::OmniTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPath& georeferencePath)
     : _tilesetPath(tilesetPath)
     , _tilesetId(Context::instance().getNextTilesetId()) {
     reload();
@@ -367,7 +368,7 @@ void OmniTileset::updateTransform() {
     // about changes to the current prim and not its ancestor prims. Also Tf::Notice may notify us in a thread other
     // than the main thread and we would have to be careful to synchronize updates to Fabric in the main thread.
 
-    const auto georeferenceOrigin = Context::instance().getGeoreferenceOrigin();
+    const auto georeferenceOrigin = GeospatialUtil::convertGeoreferenceToCartographic(getGeoreference());
     const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdTransformForPrim(georeferenceOrigin, _tilesetPath);
 
     // Check for transform changes and update prims accordingly
@@ -382,7 +383,7 @@ void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
 
     if (visible && !getSuspendUpdate()) {
         // Go ahead and select some tiles
-        const auto& georeferenceOrigin = Context::instance().getGeoreferenceOrigin();
+        const auto& georeferenceOrigin = GeospatialUtil::convertGeoreferenceToCartographic(getGeoreference());
 
         _viewStates.clear();
         for (const auto& viewport : viewports) {
