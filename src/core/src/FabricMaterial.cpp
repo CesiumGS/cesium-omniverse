@@ -287,7 +287,8 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
 
             attributes.createAttributes(baseColorTexPathFabric);
 
-            sip.setArrayAttributeSize(baseColorTexPathFabric, FabricTokens::_paramColorSpace, 0);
+            // _paramColorSpace is an array of pairs: [texture_parameter_token, color_space_enum], [texture_parameter_token, color_space_enum], ...
+            sip.setArrayAttributeSize(baseColorTexPathFabric, FabricTokens::_paramColorSpace, 2);
             sip.setArrayAttributeSize(baseColorTexPathFabric, FabricTokens::_parameters, 7);
 
             // clang-format off
@@ -298,6 +299,7 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             auto textureFabric = sip.getAttributeWr<FabricAsset>(baseColorTexPathFabric, FabricTokens::texture);
             auto infoIdFabric = sip.getAttributeWr<carb::flatcache::Token>(baseColorTexPathFabric, FabricTokens::info_id);
             auto infoSourceAssetSubIdentifierFabric = sip.getAttributeWr<carb::flatcache::Token>(baseColorTexPathFabric, FabricTokens::info_sourceAsset_subIdentifier);
+            auto paramColorSpaceFabric = sip.getArrayAttributeWr<carb::flatcache::Token>(baseColorTexPathFabric, FabricTokens::_paramColorSpace);
             auto parametersFabric = sip.getArrayAttributeWr<carb::flatcache::Token>(baseColorTexPathFabric, FabricTokens::_parameters);
             // clang-format on
 
@@ -308,6 +310,8 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             *textureFabric = FabricAsset(baseColorTexturePath);
             *infoIdFabric = FabricTokens::gltf_pbr_mdl;
             *infoSourceAssetSubIdentifierFabric = FabricTokens::gltf_texture_lookup;
+            paramColorSpaceFabric[0] = FabricTokens::texture;
+            paramColorSpaceFabric[1] = FabricTokens::_auto;
             parametersFabric[0] = FabricTokens::offset;
             parametersFabric[1] = FabricTokens::rotation;
             parametersFabric[2] = FabricTokens::scale;

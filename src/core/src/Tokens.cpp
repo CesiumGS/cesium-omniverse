@@ -63,6 +63,7 @@ TF_DEFINE_PRIVATE_TOKENS(
     (_worldPosition)
     (_worldScale)
     (_worldVisibility)
+    ((_auto, "auto"))
     ((gltf_pbr_mdl, "gltf/pbr.mdl"))
     ((info_id, "info:id"))
     ((info_sourceAsset_subIdentifier, "info:sourceAsset:subIdentifier"))
@@ -117,6 +118,7 @@ const carb::flatcache::TokenC texture = carb::flatcache::asInt(pxr::UsdTokens->t
 const carb::flatcache::TokenC vertex = carb::flatcache::asInt(pxr::UsdTokens->vertex);
 const carb::flatcache::TokenC wrap_s = carb::flatcache::asInt(pxr::UsdTokens->wrap_s);
 const carb::flatcache::TokenC wrap_t = carb::flatcache::asInt(pxr::UsdTokens->wrap_t);
+const carb::flatcache::TokenC _auto = carb::flatcache::asInt(pxr::UsdTokens->_auto);
 const carb::flatcache::TokenC _cesium_localToEcefTransform = carb::flatcache::asInt(pxr::UsdTokens->_cesium_localToEcefTransform);
 const carb::flatcache::TokenC _cesium_tileId = carb::flatcache::asInt(pxr::UsdTokens->_cesium_tileId);
 const carb::flatcache::TokenC _cesium_tilesetId = carb::flatcache::asInt(pxr::UsdTokens->_cesium_tilesetId);
@@ -181,6 +183,7 @@ const pxr::TfToken& texture = pxr::UsdTokens->texture;
 const pxr::TfToken& vertex = pxr::UsdTokens->vertex;
 const pxr::TfToken& wrap_s = pxr::UsdTokens->wrap_s;
 const pxr::TfToken& wrap_t = pxr::UsdTokens->wrap_t;
+const pxr::TfToken& _auto = pxr::UsdTokens->_auto;
 const pxr::TfToken& _cesium_localToEcefTransform = pxr::UsdTokens->_cesium_localToEcefTransform;
 const pxr::TfToken& _cesium_tileId = pxr::UsdTokens->_cesium_tileId;
 const pxr::TfToken& _cesium_tilesetId = pxr::UsdTokens->_cesium_tilesetId;
