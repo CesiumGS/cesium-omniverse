@@ -13,4 +13,4 @@ const CesiumGeospatial::Cartographic convertGeoreferenceToCartographic(const pxr
     return CesiumGeospatial::Cartographic(glm::radians(longitude), glm::radians(latitude), height);
 }
 
-}
+} // namespace cesium::omniverse::GeospatialUtil
