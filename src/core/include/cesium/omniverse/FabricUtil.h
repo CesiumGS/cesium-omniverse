@@ -2,8 +2,8 @@
 
 #include "cesium/omniverse/RenderStatistics.h"
 
-#include <omni/fabric/IPath.h>
 #include <glm/glm.hpp>
+#include <omni/fabric/IPath.h>
 #include <pxr/usd/sdf/path.h>
 
 #include <string>
