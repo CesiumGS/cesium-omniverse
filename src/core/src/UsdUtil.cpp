@@ -370,8 +370,10 @@ pxr::CesiumSession getOrCreateCesiumSession() {
 }
 
 pxr::CesiumGeoreference getOrCreateCesiumGeoreference() {
-    static const auto path = pxr::SdfPath("/CesiumGeoreference");
+    return getCesiumGeoreference(pxr::SdfPath("/CesiumGeoreference"));
+}
 
+pxr::CesiumGeoreference getCesiumGeoreference(const pxr::SdfPath& path) {
     if (isCesiumGeoreference(path)) {
         return pxr::CesiumGeoreference::Get(getUsdStage(), path);
     }
@@ -463,6 +465,16 @@ bool primExists(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto prim = stage->GetPrimAtPath(path);
     return prim.IsValid();
+}
+
+[[maybe_unused]] void setGeoreferenceForTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPath& georeferencePath) {
+    auto stage = getUsdStage();
+
+    if (isCesiumTileset(tilesetPath)) {
+        auto tileset = getCesiumTileset(tilesetPath);
+
+        tileset.GetGeoreferenceBindingRel().AddTarget(georeferencePath);
+    }
 }
 
 } // namespace cesium::omniverse::UsdUtil

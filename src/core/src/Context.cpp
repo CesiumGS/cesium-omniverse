@@ -214,7 +214,7 @@ void Context::reloadStage() {
     for (const auto& prim : stage->Traverse()) {
         const auto& path = prim.GetPath();
         if (UsdUtil::isCesiumTileset(path)) {
-            AssetRegistry::getInstance().addTileset(path);
+            AssetRegistry::getInstance().addTileset(path, pxr::SdfPath("/CesiumGeoreference"));
         } else if (UsdUtil::isCesiumImagery(path)) {
             AssetRegistry::getInstance().addImagery(path);
         }
@@ -349,7 +349,7 @@ void Context::processPrimAdded(const ChangedPrim& changedPrim) {
     if (changedPrim.primType == ChangedPrimType::CESIUM_TILESET) {
         // Add the tileset to the asset registry
         const auto tilesetPath = changedPrim.path;
-        AssetRegistry::getInstance().addTileset(tilesetPath);
+        AssetRegistry::getInstance().addTileset(tilesetPath, pxr::SdfPath("/CesiumGeoreference"));
     } else if (changedPrim.primType == ChangedPrimType::CESIUM_IMAGERY) {
         // Add the imagery to the asset registry and reload the tileset that the imagery is attached to
         const auto imageryPath = changedPrim.path;

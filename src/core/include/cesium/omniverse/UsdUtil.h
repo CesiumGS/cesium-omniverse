@@ -87,6 +87,7 @@ pxr::CesiumImagery defineCesiumImagery(const pxr::SdfPath& path);
 pxr::CesiumData getOrCreateCesiumData();
 pxr::CesiumSession getOrCreateCesiumSession();
 pxr::CesiumGeoreference getOrCreateCesiumGeoreference();
+pxr::CesiumGeoreference getCesiumGeoreference(const pxr::SdfPath& path);
 pxr::CesiumTilesetAPI getCesiumTileset(const pxr::SdfPath& path);
 pxr::CesiumImagery getCesiumImagery(const pxr::SdfPath& path);
 std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& path);
@@ -98,5 +99,7 @@ bool isCesiumTileset(const pxr::SdfPath& path);
 bool isCesiumImagery(const pxr::SdfPath& path);
 
 bool primExists(const pxr::SdfPath& path);
+
+[[maybe_unused]] void setGeoreferenceForTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPath& georeferencePath);
 
 }; // namespace cesium::omniverse::UsdUtil

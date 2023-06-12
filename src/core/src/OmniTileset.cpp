@@ -28,10 +28,12 @@
 
 namespace cesium::omniverse {
 
-OmniTileset::OmniTileset(const pxr::SdfPath& tilesetPath)
+OmniTileset::OmniTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPath &georeferencePath)
     : _tilesetPath(tilesetPath)
     , _tilesetId(Context::instance().getNextTilesetId()) {
     reload();
+
+    UsdUtil::setGeoreferenceForTileset(tilesetPath, georeferencePath);
 }
 
 OmniTileset::~OmniTileset() {}
@@ -218,12 +220,24 @@ bool OmniTileset::getShowCreditsOnScreen() const {
     return showCreditsOnScreen;
 }
 
+pxr::CesiumGeoreference OmniTileset::getGeoreference() const {
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+
+    pxr::SdfPathVector targets;
+    tileset.GetGeoreferenceBindingRel().GetTargets(&targets);
+    assert(!targets.empty());
+
+    // We only care about the first target.
+    const auto georeferencePath = targets[0];
+    return UsdUtil::getCesiumGeoreference(georeferencePath);
+}
+
 int64_t OmniTileset::getTilesetId() const {
     return _tilesetId;
 }
 
 uint64_t OmniTileset::getCachedBytes() const {
-    return _tileset->getTotalDataBytes();
+    return static_cast<uint64_t>(_tileset->getTotalDataBytes());
 }
 
 void OmniTileset::reload() {
