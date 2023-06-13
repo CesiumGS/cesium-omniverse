@@ -215,7 +215,7 @@ void Context::reloadStage() {
     for (const auto& prim : stage->Traverse()) {
         const auto& path = prim.GetPath();
         if (UsdUtil::isCesiumTileset(path)) {
-            AssetRegistry::getInstance().addTileset(path, pxr::SdfPath("/CesiumGeoreference"));
+            AssetRegistry::getInstance().addTileset(path, UsdUtil::GEOREFERENCE_PATH);
         } else if (UsdUtil::isCesiumImagery(path)) {
             AssetRegistry::getInstance().addImagery(path);
         }

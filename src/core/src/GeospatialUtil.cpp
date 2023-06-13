@@ -2,7 +2,7 @@
 
 namespace cesium::omniverse::GeospatialUtil {
 
-const CesiumGeospatial::Cartographic convertGeoreferenceToCartographic(const pxr::CesiumGeoreference& georeference) {
+CesiumGeospatial::Cartographic convertGeoreferenceToCartographic(const pxr::CesiumGeoreference& georeference) {
     double longitude;
     double latitude;
     double height;

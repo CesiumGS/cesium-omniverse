@@ -55,6 +55,8 @@ class ScopedEdit {
     pxr::UsdEditTarget _originalEditTarget;
 };
 
+static const auto GEOREFERENCE_PATH = pxr::SdfPath("/CesiumGeoreference");
+
 pxr::UsdStageRefPtr getUsdStage();
 carb::flatcache::StageInProgress getFabricStageInProgress();
 bool hasStage();
@@ -100,6 +102,6 @@ bool isCesiumImagery(const pxr::SdfPath& path);
 
 bool primExists(const pxr::SdfPath& path);
 
-[[maybe_unused]] void setGeoreferenceForTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPath& georeferencePath);
+void setGeoreferenceForTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPath& georeferencePath);
 
 }; // namespace cesium::omniverse::UsdUtil
