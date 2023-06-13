@@ -448,7 +448,6 @@ bool OmniTileset::updateExtent() {
 
     const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
     const auto bounding_volume = root_tile->getBoundingVolume();
-    const auto rootTransform = root_tile->getTransform();
     const auto oriented = Cesium3DTilesSelection::getOrientedBoundingBoxFromBoundingVolume(bounding_volume);
     const auto georeferenceOrigin = Context::instance().getGeoreferenceOrigin();
     const auto ecefToUsdTranform =
