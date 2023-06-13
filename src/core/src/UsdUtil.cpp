@@ -371,13 +371,17 @@ pxr::CesiumSession getOrCreateCesiumSession() {
 }
 
 pxr::CesiumGeoreference getOrCreateCesiumGeoreference() {
-    static const auto path = pxr::SdfPath("/CesiumGeoreference");
-
-    if (isCesiumGeoreference(path)) {
-        return pxr::CesiumGeoreference::Get(getUsdStage(), path);
+    if (isCesiumGeoreference(GEOREFERENCE_PATH)) {
+        return pxr::CesiumGeoreference::Get(getUsdStage(), GEOREFERENCE_PATH);
     }
 
-    return defineCesiumGeoreference(path);
+    return defineCesiumGeoreference(GEOREFERENCE_PATH);
+}
+
+pxr::CesiumGeoreference getCesiumGeoreference(const pxr::SdfPath& path) {
+    auto georeference = pxr::CesiumGeoreference::Get(getUsdStage(), path);
+    assert(georeference.GetPrim().IsValid());
+    return georeference;
 }
 
 pxr::CesiumTilesetAPI getCesiumTileset(const pxr::SdfPath& path) {
@@ -464,6 +468,16 @@ bool primExists(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto prim = stage->GetPrimAtPath(path);
     return prim.IsValid();
+}
+
+void setGeoreferenceForTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPath& georeferencePath) {
+    auto stage = getUsdStage();
+
+    if (isCesiumTileset(tilesetPath)) {
+        auto tileset = getCesiumTileset(tilesetPath);
+
+        tileset.GetGeoreferenceBindingRel().AddTarget(georeferencePath);
+    }
 }
 
 } // namespace cesium::omniverse::UsdUtil

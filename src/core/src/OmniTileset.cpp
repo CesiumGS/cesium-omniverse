@@ -5,6 +5,7 @@
 #include "cesium/omniverse/FabricMesh.h"
 #include "cesium/omniverse/FabricPrepareRenderResources.h"
 #include "cesium/omniverse/FabricUtil.h"
+#include "cesium/omniverse/GeospatialUtil.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/OmniImagery.h"
@@ -34,10 +35,12 @@ using namespace pxr;
 
 namespace cesium::omniverse {
 
-OmniTileset::OmniTileset(const pxr::SdfPath& tilesetPath)
+OmniTileset::OmniTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPath& georeferencePath)
     : _tilesetPath(tilesetPath)
     , _tilesetId(Context::instance().getNextTilesetId()) {
     reload();
+
+    UsdUtil::setGeoreferenceForTileset(tilesetPath, georeferencePath);
 }
 
 OmniTileset::~OmniTileset() {}
@@ -224,12 +227,24 @@ bool OmniTileset::getShowCreditsOnScreen() const {
     return showCreditsOnScreen;
 }
 
+pxr::CesiumGeoreference OmniTileset::getGeoreference() const {
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+
+    pxr::SdfPathVector targets;
+    tileset.GetGeoreferenceBindingRel().GetTargets(&targets);
+    assert(!targets.empty());
+
+    // We only care about the first target.
+    const auto georeferencePath = targets[0];
+    return UsdUtil::getCesiumGeoreference(georeferencePath);
+}
+
 int64_t OmniTileset::getTilesetId() const {
     return _tilesetId;
 }
 
 uint64_t OmniTileset::getCachedBytes() const {
-    return _tileset->getTotalDataBytes();
+    return static_cast<uint64_t>(_tileset->getTotalDataBytes());
 }
 
 void OmniTileset::reload() {
@@ -388,7 +403,7 @@ void OmniTileset::updateTransform() {
     // about changes to the current prim and not its ancestor prims. Also Tf::Notice may notify us in a thread other
     // than the main thread and we would have to be careful to synchronize updates to Fabric in the main thread.
 
-    const auto georeferenceOrigin = Context::instance().getGeoreferenceOrigin();
+    const auto georeferenceOrigin = GeospatialUtil::convertGeoreferenceToCartographic(getGeoreference());
     const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdTransformForPrim(georeferenceOrigin, _tilesetPath);
 
     // Check for transform changes and update prims accordingly
@@ -403,7 +418,7 @@ void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
 
     if (visible && !getSuspendUpdate()) {
         // Go ahead and select some tiles
-        const auto& georeferenceOrigin = Context::instance().getGeoreferenceOrigin();
+        const auto& georeferenceOrigin = GeospatialUtil::convertGeoreferenceToCartographic(getGeoreference());
 
         _viewStates.clear();
         for (const auto& viewport : viewports) {

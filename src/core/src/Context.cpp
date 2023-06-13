@@ -5,6 +5,7 @@
 #include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/FabricMeshManager.h"
 #include "cesium/omniverse/FabricUtil.h"
+#include "cesium/omniverse/GeospatialUtil.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/OmniImagery.h"
@@ -214,7 +215,7 @@ void Context::reloadStage() {
     for (const auto& prim : stage->Traverse()) {
         const auto& path = prim.GetPath();
         if (UsdUtil::isCesiumTileset(path)) {
-            AssetRegistry::getInstance().addTileset(path);
+            AssetRegistry::getInstance().addTileset(path, UsdUtil::GEOREFERENCE_PATH);
         } else if (UsdUtil::isCesiumImagery(path)) {
             AssetRegistry::getInstance().addImagery(path);
         }
@@ -349,7 +350,7 @@ void Context::processPrimAdded(const ChangedPrim& changedPrim) {
     if (changedPrim.primType == ChangedPrimType::CESIUM_TILESET) {
         // Add the tileset to the asset registry
         const auto tilesetPath = changedPrim.path;
-        AssetRegistry::getInstance().addTileset(tilesetPath);
+        AssetRegistry::getInstance().addTileset(tilesetPath, pxr::SdfPath("/CesiumGeoreference"));
     } else if (changedPrim.primType == ChangedPrimType::CESIUM_IMAGERY) {
         // Add the imagery to the asset registry and reload the tileset that the imagery is attached to
         const auto imageryPath = changedPrim.path;
@@ -457,14 +458,7 @@ int64_t Context::getNextTileId() const {
 const CesiumGeospatial::Cartographic Context::getGeoreferenceOrigin() const {
     const auto georeference = UsdUtil::getOrCreateCesiumGeoreference();
 
-    double longitude;
-    double latitude;
-    double height;
-    georeference.GetGeoreferenceOriginLongitudeAttr().Get<double>(&longitude);
-    georeference.GetGeoreferenceOriginLatitudeAttr().Get<double>(&latitude);
-    georeference.GetGeoreferenceOriginHeightAttr().Get<double>(&height);
-
-    return CesiumGeospatial::Cartographic(glm::radians(longitude), glm::radians(latitude), height);
+    return GeospatialUtil::convertGeoreferenceToCartographic(georeference);
 }
 
 void Context::setGeoreferenceOrigin(const CesiumGeospatial::Cartographic& origin) {

@@ -3,6 +3,7 @@
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/FabricMesh.h"
 #include "cesium/omniverse/FabricMeshManager.h"
+#include "cesium/omniverse/GeospatialUtil.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/UsdUtil.h"
 
@@ -59,8 +60,8 @@ std::vector<IntermediaryMesh> gatherMeshes(
 
     const auto smoothNormals = tileset.getSmoothNormals();
 
-    const auto ecefToUsdTransform =
-        UsdUtil::computeEcefToUsdTransformForPrim(Context::instance().getGeoreferenceOrigin(), tileset.getPath());
+    const auto georeferenceOrigin = GeospatialUtil::convertGeoreferenceToCartographic(tileset.getGeoreference());
+    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdTransformForPrim(georeferenceOrigin, tileset.getPath());
 
     auto gltfToEcefTransform = Cesium3DTilesSelection::GltfUtilities::applyRtcCenter(model, tileTransform);
     gltfToEcefTransform = Cesium3DTilesSelection::GltfUtilities::applyGltfUpAxisTransform(model, gltfToEcefTransform);

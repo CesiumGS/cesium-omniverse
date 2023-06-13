@@ -1,6 +1,7 @@
 #pragma once
 
 #include <CesiumIonClient/Token.h>
+#include <CesiumUsdSchemas/georeference.h>
 #include <glm/glm.hpp>
 #include <pxr/usd/sdf/path.h>
 
@@ -29,7 +30,7 @@ struct Viewport;
 
 class OmniTileset {
   public:
-    OmniTileset(const pxr::SdfPath& tilesetPath);
+    OmniTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPath& georeferencePath);
     ~OmniTileset();
 
     pxr::SdfPath getPath() const;
@@ -52,6 +53,7 @@ class OmniTileset {
     bool getSuspendUpdate() const;
     bool getSmoothNormals() const;
     bool getShowCreditsOnScreen() const;
+    pxr::CesiumGeoreference getGeoreference() const;
 
     int64_t getTilesetId() const;
     uint64_t getCachedBytes() const;
