@@ -19,6 +19,7 @@ class FabricMaterialDefinition {
         bool hasImagery);
 
     bool hasBaseColorTexture() const;
+    bool hasVertexColors() const;
 
     float getAlphaCutoff() const;
     int getAlphaMode() const;
@@ -33,7 +34,8 @@ class FabricMaterialDefinition {
     bool operator==(const FabricMaterialDefinition& other) const;
 
   private:
-    bool _hasBaseColorTexture{false};
+    bool _hasBaseColorTexture;
+    bool _hasVertexColors;
 
     // Remove these once dynamic material values are supported in Kit 105
     float _alphaCutoff;

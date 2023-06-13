@@ -22,11 +22,11 @@ FabricGeometryDefinition::FabricGeometryDefinition(
     const auto hasMaterial = GltfUtil::hasMaterial(primitive);
     const auto hasPrimitiveSt = GltfUtil::hasTexcoords(model, primitive, 0);
     const auto hasImagerySt = GltfUtil::hasImageryTexcoords(model, primitive, imageryTexcoordSetIndex);
-    const auto hasNormals = GltfUtil::hasNormals(model, primitive, smoothNormals);
 
     _hasMaterial = (hasMaterial || hasImagery) && !Context::instance().getDebugDisableMaterials();
     _hasTexcoords = hasPrimitiveSt || hasImagerySt;
-    _hasNormals = hasNormals;
+    _hasNormals = GltfUtil::hasNormals(model, primitive, smoothNormals);
+    _hasVertexColors = GltfUtil::hasVertexColors(model, primitive, 0);
     _doubleSided = GltfUtil::getDoubleSided(model, primitive);
 }
 
@@ -40,6 +40,10 @@ bool FabricGeometryDefinition::hasTexcoords() const {
 
 bool FabricGeometryDefinition::hasNormals() const {
     return _hasNormals;
+}
+
+bool FabricGeometryDefinition::hasVertexColors() const {
+    return _hasVertexColors;
 }
 
 bool FabricGeometryDefinition::getDoubleSided() const {
@@ -56,6 +60,10 @@ bool FabricGeometryDefinition::operator==(const FabricGeometryDefinition& other)
     }
 
     if (_hasNormals != other._hasNormals) {
+        return false;
+    }
+
+    if (_hasVertexColors != other._hasVertexColors) {
         return false;
     }
 

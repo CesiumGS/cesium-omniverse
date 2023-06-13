@@ -49,10 +49,16 @@ FabricMaterialDefinition::FabricMaterialDefinition(
         _wrapS = CesiumGltf::Sampler::WrapS::CLAMP_TO_EDGE;
         _wrapT = CesiumGltf::Sampler::WrapS::CLAMP_TO_EDGE;
     }
+
+    _hasVertexColors = GltfUtil::hasVertexColors(model, primitive, 0);
 }
 
 bool FabricMaterialDefinition::hasBaseColorTexture() const {
     return _hasBaseColorTexture;
+}
+
+bool FabricMaterialDefinition::hasVertexColors() const {
+    return _hasVertexColors;
 }
 
 float FabricMaterialDefinition::getAlphaCutoff() const {
@@ -94,6 +100,10 @@ int FabricMaterialDefinition::getWrapT() const {
 // In C++ 20 we can use the default equality comparison (= default)
 bool FabricMaterialDefinition::operator==(const FabricMaterialDefinition& other) const {
     if (_hasBaseColorTexture != other._hasBaseColorTexture) {
+        return false;
+    }
+
+    if (_hasVertexColors != other._hasVertexColors) {
         return false;
     }
 
