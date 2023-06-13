@@ -31,8 +31,6 @@
 #include <pxr/base/vt/array.h>
 #include <pxr/usd/sdf/valueTypeName.h>
 
-using namespace pxr;
-
 namespace cesium::omniverse {
 
 OmniTileset::OmniTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPath& georeferencePath)
@@ -362,7 +360,9 @@ void OmniTileset::onUpdateFrame(const std::vector<Viewport>& viewports) {
     updateTransform();
     updateView(viewports);
 
-    if (!boundingBoxSet) boundingBoxSet = updateExtent();
+    if (!boundingBoxSet) {
+        boundingBoxSet = updateExtent();
+    }
 }
 
 void OmniTileset::updateTransform() {
@@ -442,25 +442,29 @@ void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
 
 bool OmniTileset::updateExtent() {
     const auto root_tile = _tileset->getRootTile();
-    if (root_tile == nullptr) return false;
+    if (root_tile == nullptr) {
+        return false;
+    }
 
     const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
     const auto bounding_volume = root_tile->getBoundingVolume();
     const auto rootTransform = root_tile->getTransform();
     const auto oriented = Cesium3DTilesSelection::getOrientedBoundingBoxFromBoundingVolume(bounding_volume);
     const auto georeferenceOrigin = Context::instance().getGeoreferenceOrigin();
-    const auto ecefToUsdTranform = UsdUtil::computeEcefToUsdTransformForPrim(georeferenceOrigin, tileset.GetPrim().GetPath());
+    const auto ecefToUsdTranform =
+        UsdUtil::computeEcefToUsdTransformForPrim(georeferenceOrigin, tileset.GetPrim().GetPath());
     const auto usdOriented = oriented.transform(ecefToUsdTranform);
     const auto center = usdOriented.getCenter();
 
-    VtArray<GfVec3f> extent;
+    pxr::VtArray<pxr::GfVec3f> extent;
     const auto xLenHalf = static_cast<float>(usdOriented.getLengths().x) * 0.5f;
     const auto yLenHalf = static_cast<float>(usdOriented.getLengths().y) * 0.5f;
     const auto zLenHalf = static_cast<float>(usdOriented.getLengths().z) * 0.5f;
 
-    const auto centerGf = GfVec3f(static_cast<float>(center.x), static_cast<float>(center.y), static_cast<float>(center.z));
-    extent.push_back(GfVec3f(-xLenHalf, -yLenHalf, -zLenHalf) + centerGf);
-    extent.push_back(GfVec3f(xLenHalf, yLenHalf, zLenHalf) + centerGf);
+    const auto centerGf =
+        pxr::GfVec3f(static_cast<float>(center.x), static_cast<float>(center.y), static_cast<float>(center.z));
+    extent.push_back(pxr::GfVec3f(-xLenHalf, -yLenHalf, -zLenHalf) + centerGf);
+    extent.push_back(pxr::GfVec3f(xLenHalf, yLenHalf, zLenHalf) + centerGf);
 
     auto boundable = pxr::UsdGeomBoundable(tileset);
     boundable.GetExtentAttr().Set(extent);

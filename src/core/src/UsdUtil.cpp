@@ -12,10 +12,10 @@
 #include <pxr/usd/usd/prim.h>
 #include <pxr/usd/usd/stage.h>
 #include <pxr/usd/usd/timeCode.h>
+#include <pxr/usd/usdGeom/mesh.h>
 #include <pxr/usd/usdGeom/metrics.h>
 #include <pxr/usd/usdGeom/xform.h>
 #include <spdlog/fmt/fmt.h>
-#include <pxr/usd/usdGeom/mesh.h>
 
 #include <regex>
 
