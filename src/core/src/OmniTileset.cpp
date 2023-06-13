@@ -24,12 +24,9 @@
 #include <Cesium3DTilesSelection/ViewUpdateResult.h>
 #include <CesiumUsdSchemas/imagery.h>
 #include <CesiumUsdSchemas/tilesetAPI.h>
-#include <pxr/base/vt/array.h>
-#include <pxr/usd/sdf/valueTypeName.h>
 #include <pxr/usd/usd/prim.h>
 #include <pxr/usd/usd/stage.h>
 #include <pxr/usd/usdGeom/boundable.h>
-#include <pxr/usd/usdGeom/mesh.h>
 
 namespace cesium::omniverse {
 
@@ -360,8 +357,8 @@ void OmniTileset::onUpdateFrame(const std::vector<Viewport>& viewports) {
     updateTransform();
     updateView(viewports);
 
-    if (!boundingBoxSet) {
-        boundingBoxSet = updateExtent();
+    if (!_extentSet) {
+        _extentSet = updateExtent();
     }
 }
 
@@ -441,19 +438,16 @@ void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
 }
 
 bool OmniTileset::updateExtent() {
-    const auto root_tile = _tileset->getRootTile();
-    if (root_tile == nullptr) {
-        return false;
-    }
+    const auto rootTile = _tileset->getRootTile();
+    if (rootTile == nullptr) return false;
 
     const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
-    const auto bounding_volume = root_tile->getBoundingVolume();
+    const auto& bounding_volume = rootTile->getBoundingVolume();
     const auto oriented = Cesium3DTilesSelection::getOrientedBoundingBoxFromBoundingVolume(bounding_volume);
     const auto georeferenceOrigin = Context::instance().getGeoreferenceOrigin();
-    const auto ecefToUsdTranform =
-        UsdUtil::computeEcefToUsdTransformForPrim(georeferenceOrigin, tileset.GetPrim().GetPath());
-    const auto usdOriented = oriented.transform(ecefToUsdTranform);
-    const auto center = usdOriented.getCenter();
+    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdTransformForPrim(georeferenceOrigin, _tilesetPath);
+    const auto usdOriented = oriented.transform(ecefToUsdTransform);
+    const auto& center = usdOriented.getCenter();
 
     pxr::VtArray<pxr::GfVec3f> extent;
     const auto xLenHalf = static_cast<float>(usdOriented.getLengths().x) * 0.5f;
