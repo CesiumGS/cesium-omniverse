@@ -439,7 +439,9 @@ void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
 
 bool OmniTileset::updateExtent() {
     auto rootTile = _tileset->getRootTile();
-    if (rootTile == nullptr) return false;
+    if (rootTile == nullptr) {
+        return false;
+    }
 
     const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
     const auto& bounding_volume = rootTile->getBoundingVolume();
