@@ -297,10 +297,12 @@ pxr::CesiumGeoreference defineCesiumGeoreference(const pxr::SdfPath& path) {
 
 pxr::CesiumTilesetAPI defineCesiumTileset(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
-    auto xform = pxr::UsdGeomMesh::Define(stage, path);
-    assert(xform.GetPrim().IsValid());
+    auto mesh = pxr::UsdGeomMesh::Define(stage, path);
+    mesh.GetSubdivisionSchemeAttr().Set(pxr::TfToken("none"));
+    mesh.GetInterpolateBoundaryAttr().Set(pxr::TfToken("none"));
+    assert(mesh.GetPrim().IsValid());
 
-    auto tileset = pxr::CesiumTilesetAPI::Apply(xform.GetPrim());
+    auto tileset = pxr::CesiumTilesetAPI::Apply(mesh.GetPrim());
     assert(tileset.GetPrim().IsValid());
 
     tileset.CreateUrlAttr();
