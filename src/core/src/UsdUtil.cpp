@@ -15,6 +15,7 @@
 #include <pxr/usd/usdGeom/metrics.h>
 #include <pxr/usd/usdGeom/xform.h>
 #include <spdlog/fmt/fmt.h>
+#include <pxr/usd/usdGeom/mesh.h>
 
 #include <regex>
 
@@ -296,7 +297,7 @@ pxr::CesiumGeoreference defineCesiumGeoreference(const pxr::SdfPath& path) {
 
 pxr::CesiumTilesetAPI defineCesiumTileset(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
-    auto xform = pxr::UsdGeomXform::Define(stage, path);
+    auto xform = pxr::UsdGeomMesh::Define(stage, path);
     assert(xform.GetPrim().IsValid());
 
     auto tileset = pxr::CesiumTilesetAPI::Apply(xform.GetPrim());

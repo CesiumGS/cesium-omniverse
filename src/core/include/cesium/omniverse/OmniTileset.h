@@ -72,5 +72,6 @@ class OmniTileset {
     int64_t _tilesetId;
     glm::dmat4 _ecefToUsdTransform;
     std::vector<Cesium3DTilesSelection::ViewState> _viewStates;
+    bool boundingBoxSet = false;
 };
 } // namespace cesium::omniverse
