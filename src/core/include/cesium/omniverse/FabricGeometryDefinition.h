@@ -21,6 +21,7 @@ class FabricGeometryDefinition {
     bool hasMaterial() const;
     bool hasTexcoords() const;
     bool hasNormals() const;
+    bool hasVertexColors() const;
     bool getDoubleSided() const;
 
     bool operator==(const FabricGeometryDefinition& other) const;
@@ -29,6 +30,7 @@ class FabricGeometryDefinition {
     bool _hasMaterial{false};
     bool _hasTexcoords{false};
     bool _hasNormals{false};
+    bool _hasVertexColors{false};
     bool _doubleSided{false};
 };
 
