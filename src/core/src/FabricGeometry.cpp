@@ -77,6 +77,7 @@ void FabricGeometry::initialize() {
     const auto hasMaterial = _geometryDefinition.hasMaterial();
     const auto hasTexcoords = _geometryDefinition.hasTexcoords();
     const auto hasNormals = _geometryDefinition.hasNormals();
+    const auto hasVertexColors = _geometryDefinition.hasVertexColors();
     const auto doubleSided = _geometryDefinition.getDoubleSided();
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
@@ -113,6 +114,10 @@ void FabricGeometry::initialize() {
         attributes.addAttribute(FabricTypes::primvars_normals, FabricTokens::primvars_normals);
     }
 
+    if (hasVertexColors) {
+        attributes.addAttribute(FabricTypes::primvars_vertexColor, FabricTokens::primvars_vertexColor);
+    }
+
     attributes.createAttributes(_pathFabric);
 
     srw.setArrayAttributeSize(_pathFabric, FabricTokens::materialBinding, hasMaterial ? 1 : 0);
@@ -122,13 +127,14 @@ void FabricGeometry::initialize() {
     auto subdivisionSchemeFabric = srw.getAttributeWr<omni::fabric::Token>(_pathFabric, FabricTokens::subdivisionScheme);
     // clang-format on
 
-    *subdivisionSchemeFabric = FabricTokens::none;
     *doubleSidedFabric = doubleSided;
+    *subdivisionSchemeFabric = FabricTokens::none;
 
     // Initialize primvars
     size_t primvarsCount = 0;
     size_t primvarIndexSt = 0;
     size_t primvarIndexNormal = 0;
+    size_t primvarIndexVertexColor = 0;
 
     const size_t primvarIndexDisplayColor = primvarsCount++;
     const size_t primvarIndexDisplayOpacity = primvarsCount++;
@@ -139,6 +145,10 @@ void FabricGeometry::initialize() {
 
     if (hasNormals) {
         primvarIndexNormal = primvarsCount++;
+    }
+
+    if (hasVertexColors) {
+        primvarIndexVertexColor = primvarsCount++;
     }
 
     srw.setArrayAttributeSize(_pathFabric, FabricTokens::primvars, primvarsCount);
@@ -165,6 +175,11 @@ void FabricGeometry::initialize() {
         primvarInterpolationsFabric[primvarIndexNormal] = FabricTokens::vertex;
     }
 
+    if (hasVertexColors) {
+        primvarsFabric[primvarIndexVertexColor] = FabricTokens::primvars_vertexColor;
+        primvarInterpolationsFabric[primvarIndexVertexColor] = FabricTokens::vertex;
+    }
+
     reset();
 }
 
@@ -175,6 +190,7 @@ void FabricGeometry::reset() {
 
     const auto hasTexcoords = _geometryDefinition.hasTexcoords();
     const auto hasNormals = _geometryDefinition.hasNormals();
+    const auto hasVertexColors = _geometryDefinition.hasVertexColors();
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
@@ -211,6 +227,10 @@ void FabricGeometry::reset() {
     if (hasNormals) {
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::primvars_normals, 0);
     }
+
+    if (hasVertexColors) {
+        srw.setArrayAttributeSize(_pathFabric, FabricTokens::primvars_vertexColor, 0);
+    }
 }
 
 void FabricGeometry::setTile(
@@ -229,12 +249,14 @@ void FabricGeometry::setTile(
 
     const auto hasTexcoords = _geometryDefinition.hasTexcoords();
     const auto hasNormals = _geometryDefinition.hasNormals();
+    const auto hasVertexColors = _geometryDefinition.hasVertexColors();
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
     const auto positions = GltfUtil::getPositions(model, primitive);
     const auto indices = GltfUtil::getIndices(model, primitive, positions);
     const auto normals = GltfUtil::getNormals(model, primitive, positions, indices, smoothNormals);
+    const auto vertexColors = GltfUtil::getVertexColors(model, primitive, 0);
     const auto texcoords_0 = GltfUtil::getTexcoords(model, primitive, 0, glm::fvec2(0.0, 0.0), glm::fvec2(1.0, 1.0));
     const auto imageryTexcoords = GltfUtil::getImageryTexcoords(
         model,
@@ -308,6 +330,15 @@ void FabricGeometry::setTile(
         auto normalsFabric = srw.getArrayAttributeWr<pxr::GfVec3f>(_pathFabric, FabricTokens::primvars_normals);
 
         normals.fill(normalsFabric);
+    }
+
+    if (hasVertexColors) {
+        srw.setArrayAttributeSize(_pathFabric, FabricTokens::primvars_vertexColor, vertexColors.size());
+
+        auto vertexColorsFabric =
+            srw.getArrayAttributeWr<pxr::GfVec3f>(_pathFabric, FabricTokens::primvars_vertexColor);
+
+        vertexColors.fill(vertexColorsFabric);
     }
 }
 

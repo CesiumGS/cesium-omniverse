@@ -88,6 +88,30 @@ class TexcoordsAccessor {
     uint64_t _size;
 };
 
+class VertexColorsAccessor {
+  public:
+    VertexColorsAccessor();
+    VertexColorsAccessor(const CesiumGltf::AccessorView<glm::u8vec3>& uint8Vec3View);
+    VertexColorsAccessor(const CesiumGltf::AccessorView<glm::u8vec4>& uint8Vec4View);
+    VertexColorsAccessor(const CesiumGltf::AccessorView<glm::u16vec3>& uint16Vec3View);
+    VertexColorsAccessor(const CesiumGltf::AccessorView<glm::u16vec4>& uint16Vec4View);
+    VertexColorsAccessor(const CesiumGltf::AccessorView<glm::fvec3>& float32Vec3View);
+    VertexColorsAccessor(const CesiumGltf::AccessorView<glm::fvec4>& float32Vec4View);
+
+    void fill(const gsl::span<pxr::GfVec3f>& values) const;
+    uint64_t size() const;
+
+  private:
+    CesiumGltf::AccessorView<glm::u8vec3> _uint8Vec3View;
+    CesiumGltf::AccessorView<glm::u8vec4> _uint8Vec4View;
+    CesiumGltf::AccessorView<glm::u16vec3> _uint16Vec3View;
+    CesiumGltf::AccessorView<glm::u16vec4> _uint16Vec4View;
+    CesiumGltf::AccessorView<glm::fvec3> _float32Vec3View;
+    CesiumGltf::AccessorView<glm::fvec4> _float32Vec4View;
+
+    uint64_t _size;
+};
+
 class FaceVertexCountsAccessor {
   public:
     FaceVertexCountsAccessor();

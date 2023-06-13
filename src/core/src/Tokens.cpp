@@ -35,6 +35,7 @@ TF_DEFINE_PRIVATE_TOKENS(
     (sourceAsset)
     (subdivisionScheme)
     (vertex)
+    (vertexColor)
     (_cesium_localToEcefTransform)
     (_cesium_tileId)
     (_cesium_tilesetId)
@@ -69,6 +70,7 @@ TF_DEFINE_PRIVATE_TOKENS(
     ((inputs_scale, "inputs:scale"))
     ((inputs_tex_coord_index, "inputs:tex_coord_index"))
     ((inputs_texture, "inputs:texture"))
+    ((inputs_vertex_color_name, "inputs:vertex_color_name"))
     ((inputs_wrap_s, "inputs:wrap_s"))
     ((inputs_wrap_t, "inputs:wrap_t"))
     ((materialBinding, "material:binding"))
@@ -80,6 +82,7 @@ TF_DEFINE_PRIVATE_TOKENS(
     ((primvars_displayOpacity, "primvars:displayOpacity"))
     ((primvars_normals, "primvars:normals"))
     ((primvars_st, "primvars:st"))
+    ((primvars_vertexColor, "primvars:vertexColor"))
 );
 
 #ifdef CESIUM_OMNI_MSVC
@@ -114,6 +117,7 @@ const omni::fabric::TokenC inputs_roughness_factor = omni::fabric::asInt(pxr::Us
 const omni::fabric::TokenC inputs_scale = omni::fabric::asInt(pxr::UsdTokens->inputs_scale);
 const omni::fabric::TokenC inputs_tex_coord_index = omni::fabric::asInt(pxr::UsdTokens->inputs_tex_coord_index);
 const omni::fabric::TokenC inputs_texture = omni::fabric::asInt(pxr::UsdTokens->inputs_texture);
+const omni::fabric::TokenC inputs_vertex_color_name = omni::fabric::asInt(pxr::UsdTokens->inputs_vertex_color_name);
 const omni::fabric::TokenC inputs_wrap_s = omni::fabric::asInt(pxr::UsdTokens->inputs_wrap_s);
 const omni::fabric::TokenC inputs_wrap_t = omni::fabric::asInt(pxr::UsdTokens->inputs_wrap_t);
 const omni::fabric::TokenC Material = omni::fabric::asInt(pxr::UsdTokens->Material);
@@ -132,10 +136,12 @@ const omni::fabric::TokenC primvars_displayColor = omni::fabric::asInt(pxr::UsdT
 const omni::fabric::TokenC primvars_displayOpacity = omni::fabric::asInt(pxr::UsdTokens->primvars_displayOpacity);
 const omni::fabric::TokenC primvars_normals = omni::fabric::asInt(pxr::UsdTokens->primvars_normals);
 const omni::fabric::TokenC primvars_st = omni::fabric::asInt(pxr::UsdTokens->primvars_st);
+const omni::fabric::TokenC primvars_vertexColor = omni::fabric::asInt(pxr::UsdTokens->primvars_vertexColor);
 const omni::fabric::TokenC Shader = omni::fabric::asInt(pxr::UsdTokens->Shader);
 const omni::fabric::TokenC sourceAsset = omni::fabric::asInt(pxr::UsdTokens->sourceAsset);
 const omni::fabric::TokenC subdivisionScheme = omni::fabric::asInt(pxr::UsdTokens->subdivisionScheme);
 const omni::fabric::TokenC vertex = omni::fabric::asInt(pxr::UsdTokens->vertex);
+const omni::fabric::TokenC vertexColor = omni::fabric::asInt(pxr::UsdTokens->vertexColor);
 const omni::fabric::TokenC _auto = omni::fabric::asInt(pxr::UsdTokens->_auto);
 const omni::fabric::TokenC _cesium_localToEcefTransform = omni::fabric::asInt(pxr::UsdTokens->_cesium_localToEcefTransform);
 const omni::fabric::TokenC _cesium_tileId = omni::fabric::asInt(pxr::UsdTokens->_cesium_tileId);
@@ -182,6 +188,7 @@ const pxr::TfToken& inputs_roughness_factor = pxr::UsdTokens->inputs_roughness_f
 const pxr::TfToken& inputs_scale = pxr::UsdTokens->inputs_scale;
 const pxr::TfToken& inputs_tex_coord_index = pxr::UsdTokens->inputs_tex_coord_index;
 const pxr::TfToken& inputs_texture = pxr::UsdTokens->inputs_texture;
+const pxr::TfToken& inputs_vertex_color_name = pxr::UsdTokens->inputs_vertex_color_name;
 const pxr::TfToken& inputs_wrap_s = pxr::UsdTokens->inputs_wrap_s;
 const pxr::TfToken& inputs_wrap_t = pxr::UsdTokens->inputs_wrap_t;
 const pxr::TfToken& Material = pxr::UsdTokens->Material;
@@ -200,10 +207,12 @@ const pxr::TfToken& primvars_displayColor = pxr::UsdTokens->primvars_displayColo
 const pxr::TfToken& primvars_displayOpacity = pxr::UsdTokens->primvars_displayOpacity;
 const pxr::TfToken& primvars_normals = pxr::UsdTokens->primvars_normals;
 const pxr::TfToken& primvars_st = pxr::UsdTokens->primvars_st;
+const pxr::TfToken& primvars_vertexColor = pxr::UsdTokens->primvars_vertexColor;
 const pxr::TfToken& Shader = pxr::UsdTokens->Shader;
 const pxr::TfToken& sourceAsset = pxr::UsdTokens->sourceAsset;
 const pxr::TfToken& subdivisionScheme = pxr::UsdTokens->subdivisionScheme;
 const pxr::TfToken& vertex = pxr::UsdTokens->vertex;
+const pxr::TfToken& vertexColor = pxr::UsdTokens->vertexColor;
 const pxr::TfToken& _auto = pxr::UsdTokens->_auto;
 const pxr::TfToken& _cesium_localToEcefTransform = pxr::UsdTokens->_cesium_localToEcefTransform;
 const pxr::TfToken& _cesium_tileId = pxr::UsdTokens->_cesium_tileId;

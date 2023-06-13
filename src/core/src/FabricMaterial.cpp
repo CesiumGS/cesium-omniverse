@@ -58,6 +58,7 @@ const FabricMaterialDefinition& FabricMaterial::getMaterialDefinition() const {
 
 void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinition& materialDefinition) {
     const auto hasBaseColorTexture = materialDefinition.hasBaseColorTexture();
+    const auto hasVertexColors = materialDefinition.hasVertexColors();
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
@@ -164,6 +165,10 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         attributes.addAttribute(FabricTypes::_cesium_tileId, FabricTokens::_cesium_tileId);
         // clang-format on
 
+        if (hasVertexColors) {
+            attributes.addAttribute(FabricTypes::inputs_vertex_color_name, FabricTokens::inputs_vertex_color_name);
+        }
+
         attributes.createAttributes(shaderPathFabric);
 
         srw.setArrayAttributeSize(shaderPathFabric, FabricTokens::_paramColorSpace, 0);
@@ -179,6 +184,15 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         infoMdlSourceAssetFabric->assetPath = UsdTokens::gltf_pbr_mdl;
         infoMdlSourceAssetFabric->resolvedPath = pxr::TfToken();
         *infoMdlSourceAssetSubIdentifierFabric = FabricTokens::gltf_material;
+
+        if (hasVertexColors) {
+            const auto vertexColorPrimvarNameSize = UsdTokens::vertexColor.GetString().size();
+            srw.setArrayAttributeSize(
+                shaderPathFabric, FabricTokens::inputs_vertex_color_name, vertexColorPrimvarNameSize);
+            auto vertexColorNameFabric =
+                srw.getArrayAttributeWr<uint8_t>(shaderPathFabric, FabricTokens::inputs_vertex_color_name);
+            memcpy(vertexColorNameFabric.data(), UsdTokens::vertexColor.GetText(), vertexColorPrimvarNameSize);
+        }
     }
 
     if (hasBaseColorTexture) {

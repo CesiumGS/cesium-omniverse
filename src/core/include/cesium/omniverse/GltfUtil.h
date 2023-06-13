@@ -38,6 +38,9 @@ TexcoordsAccessor getTexcoords(
     const glm::fvec2& translation,
     const glm::fvec2& scale);
 
+VertexColorsAccessor
+getVertexColors(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);
+
 FaceVertexCountsAccessor getFaceVertexCounts(const IndicesAccessor& indices);
 
 float getAlphaCutoff(const CesiumGltf::Material& material);
@@ -78,6 +81,8 @@ bool hasNormals(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive&
 bool hasTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);
 
 bool hasImageryTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);
+
+bool hasVertexColors(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);
 
 bool hasMaterial(const CesiumGltf::MeshPrimitive& primitive);
 
