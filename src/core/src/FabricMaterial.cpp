@@ -60,6 +60,7 @@ const FabricMaterialDefinition& FabricMaterial::getMaterialDefinition() const {
 
 void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinition& materialDefinition) {
     const auto hasBaseColorTexture = materialDefinition.hasBaseColorTexture();
+    const auto hasVertexColors = materialDefinition.hasVertexColors();
 
     auto sip = UsdUtil::getFabricStageInProgress();
 
@@ -232,10 +233,16 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         attributes.addAttribute(FabricTypes::_cesium_tileId, FabricTokens::_cesium_tileId);
         // clang-format on
 
+        if (hasVertexColors) {
+            attributes.addAttribute(FabricTypes::vertex_color_name, FabricTokens::vertex_color_name);
+        }
+
         attributes.createAttributes(shaderPathFabric);
 
+        const size_t parametersCount = hasVertexColors ? 8 : 7;
+
         sip.setArrayAttributeSize(shaderPathFabric, FabricTokens::_paramColorSpace, 0);
-        sip.setArrayAttributeSize(shaderPathFabric, FabricTokens::_parameters, 7);
+        sip.setArrayAttributeSize(shaderPathFabric, FabricTokens::_parameters, parametersCount);
 
         // clang-format off
         auto infoIdFabric = sip.getAttributeWr<carb::flatcache::Token>(shaderPathFabric, FabricTokens::info_id);
@@ -252,6 +259,15 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         parametersFabric[4] = FabricTokens::emissive_factor;
         parametersFabric[5] = FabricTokens::metallic_factor;
         parametersFabric[6] = FabricTokens::roughness_factor;
+
+        if (hasVertexColors) {
+            const auto vertexColorPrimvarNameSize = UsdTokens::vertexColor.GetString().size();
+            sip.setArrayAttributeSize(shaderPathFabric, FabricTokens::vertex_color_name, vertexColorPrimvarNameSize);
+            auto vertexColorNameFabric =
+                sip.getArrayAttributeWr<uint8_t>(shaderPathFabric, FabricTokens::vertex_color_name);
+            memcpy(vertexColorNameFabric.data(), UsdTokens::vertexColor.GetText(), vertexColorPrimvarNameSize);
+            parametersFabric[7] = FabricTokens::vertex_color_name;
+        }
     }
 
     if (hasBaseColorTexture) {

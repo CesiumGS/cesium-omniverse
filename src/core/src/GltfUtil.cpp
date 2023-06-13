@@ -253,6 +253,59 @@ TexcoordsAccessor getTexcoords(
     return getTexcoords(model, primitive, "TEXCOORD", setIndex, translation, scale, true);
 }
 
+VertexColorsAccessor
+getVertexColors(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex) {
+    const auto vertexColorAttribute = primitive.attributes.find(fmt::format("{}_{}", "COLOR", setIndex));
+    if (vertexColorAttribute == primitive.attributes.end()) {
+        return {};
+    }
+
+    auto vertexColorAccessor = model.getSafe<CesiumGltf::Accessor>(&model.accessors, vertexColorAttribute->second);
+    if (!vertexColorAccessor) {
+        return {};
+    }
+
+    if (vertexColorAccessor->componentType == CesiumGltf::AccessorSpec::ComponentType::UNSIGNED_BYTE) {
+        if (vertexColorAccessor->type == CesiumGltf::AccessorSpec::Type::VEC3) {
+            CesiumGltf::AccessorView<glm::u8vec3> view{model, *vertexColorAccessor};
+            if (view.status() == CesiumGltf::AccessorViewStatus::Valid) {
+                return VertexColorsAccessor(view);
+            }
+        } else if (vertexColorAccessor->type == CesiumGltf::AccessorSpec::Type::VEC4) {
+            CesiumGltf::AccessorView<glm::u8vec4> view{model, *vertexColorAccessor};
+            if (view.status() == CesiumGltf::AccessorViewStatus::Valid) {
+                return VertexColorsAccessor(view);
+            }
+        }
+    } else if (vertexColorAccessor->componentType == CesiumGltf::AccessorSpec::ComponentType::UNSIGNED_SHORT) {
+        if (vertexColorAccessor->type == CesiumGltf::AccessorSpec::Type::VEC3) {
+            CesiumGltf::AccessorView<glm::u16vec3> view{model, *vertexColorAccessor};
+            if (view.status() == CesiumGltf::AccessorViewStatus::Valid) {
+                return VertexColorsAccessor(view);
+            }
+        } else if (vertexColorAccessor->type == CesiumGltf::AccessorSpec::Type::VEC4) {
+            CesiumGltf::AccessorView<glm::u16vec4> view{model, *vertexColorAccessor};
+            if (view.status() == CesiumGltf::AccessorViewStatus::Valid) {
+                return VertexColorsAccessor(view);
+            }
+        }
+    } else if (vertexColorAccessor->componentType == CesiumGltf::AccessorSpec::ComponentType::FLOAT) {
+        if (vertexColorAccessor->type == CesiumGltf::AccessorSpec::Type::VEC3) {
+            CesiumGltf::AccessorView<glm::fvec3> view{model, *vertexColorAccessor};
+            if (view.status() == CesiumGltf::AccessorViewStatus::Valid) {
+                return VertexColorsAccessor(view);
+            }
+        } else if (vertexColorAccessor->type == CesiumGltf::AccessorSpec::Type::VEC4) {
+            CesiumGltf::AccessorView<glm::fvec4> view{model, *vertexColorAccessor};
+            if (view.status() == CesiumGltf::AccessorViewStatus::Valid) {
+                return VertexColorsAccessor(view);
+            }
+        }
+    }
+
+    return {};
+}
+
 FaceVertexCountsAccessor getFaceVertexCounts(const IndicesAccessor& indices) {
     return FaceVertexCountsAccessor(indices.size() / 3);
 }
@@ -440,6 +493,10 @@ bool hasImageryTexcoords(
     uint64_t setIndex) {
     return getTexcoordsView(model, primitive, "_CESIUMOVERLAY", setIndex).status() ==
            CesiumGltf::AccessorViewStatus::Valid;
+}
+
+bool hasVertexColors(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex) {
+    return getVertexColors(model, primitive, setIndex).size() > 0;
 }
 
 bool hasMaterial(const CesiumGltf::MeshPrimitive& primitive) {

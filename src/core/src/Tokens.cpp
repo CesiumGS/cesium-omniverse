@@ -43,6 +43,8 @@ TF_DEFINE_PRIVATE_TOKENS(
     (tex_coord_index)
     (texture)
     (vertex)
+    (vertex_color_name)
+    (vertexColor)
     (wrap_s)
     (wrap_t)
     (_cesium_localToEcefTransform)
@@ -71,6 +73,7 @@ TF_DEFINE_PRIVATE_TOKENS(
     ((primvars_displayOpacity, "primvars:displayOpacity"))
     ((primvars_normals, "primvars:normals"))
     ((primvars_st, "primvars:st"))
+    ((primvars_vertexColor, "primvars:vertexColor"))
 );
 }
 
@@ -107,6 +110,7 @@ const carb::flatcache::TokenC primvars_displayColor = carb::flatcache::asInt(pxr
 const carb::flatcache::TokenC primvars_displayOpacity = carb::flatcache::asInt(pxr::UsdTokens->primvars_displayOpacity);
 const carb::flatcache::TokenC primvars_normals = carb::flatcache::asInt(pxr::UsdTokens->primvars_normals);
 const carb::flatcache::TokenC primvars_st = carb::flatcache::asInt(pxr::UsdTokens->primvars_st);
+const carb::flatcache::TokenC primvars_vertexColor = carb::flatcache::asInt(pxr::UsdTokens->primvars_vertexColor);
 const carb::flatcache::TokenC rotation = carb::flatcache::asInt(pxr::UsdTokens->rotation);
 const carb::flatcache::TokenC roughness_factor = carb::flatcache::asInt(pxr::UsdTokens->roughness_factor);
 const carb::flatcache::TokenC scale = carb::flatcache::asInt(pxr::UsdTokens->scale);
@@ -116,6 +120,8 @@ const carb::flatcache::TokenC surface = carb::flatcache::asInt(pxr::UsdTokens->s
 const carb::flatcache::TokenC tex_coord_index = carb::flatcache::asInt(pxr::UsdTokens->tex_coord_index);
 const carb::flatcache::TokenC texture = carb::flatcache::asInt(pxr::UsdTokens->texture);
 const carb::flatcache::TokenC vertex = carb::flatcache::asInt(pxr::UsdTokens->vertex);
+const carb::flatcache::TokenC vertex_color_name = carb::flatcache::asInt(pxr::UsdTokens->vertex_color_name);
+const carb::flatcache::TokenC vertexColor = carb::flatcache::asInt(pxr::UsdTokens->vertexColor);
 const carb::flatcache::TokenC wrap_s = carb::flatcache::asInt(pxr::UsdTokens->wrap_s);
 const carb::flatcache::TokenC wrap_t = carb::flatcache::asInt(pxr::UsdTokens->wrap_t);
 const carb::flatcache::TokenC _auto = carb::flatcache::asInt(pxr::UsdTokens->_auto);
@@ -172,6 +178,7 @@ const pxr::TfToken& primvars_displayColor = pxr::UsdTokens->primvars_displayColo
 const pxr::TfToken& primvars_displayOpacity = pxr::UsdTokens->primvars_displayOpacity;
 const pxr::TfToken& primvars_normals = pxr::UsdTokens->primvars_normals;
 const pxr::TfToken& primvars_st = pxr::UsdTokens->primvars_st;
+const pxr::TfToken& primvars_vertexColor = pxr::UsdTokens->primvars_vertexColor;
 const pxr::TfToken& rotation = pxr::UsdTokens->rotation;
 const pxr::TfToken& roughness_factor = pxr::UsdTokens->roughness_factor;
 const pxr::TfToken& scale = pxr::UsdTokens->scale;
@@ -181,6 +188,8 @@ const pxr::TfToken& surface = pxr::UsdTokens->surface;
 const pxr::TfToken& tex_coord_index = pxr::UsdTokens->tex_coord_index;
 const pxr::TfToken& texture = pxr::UsdTokens->texture;
 const pxr::TfToken& vertex = pxr::UsdTokens->vertex;
+const pxr::TfToken& vertex_color_name = pxr::UsdTokens->vertex_color_name;
+const pxr::TfToken& vertexColor = pxr::UsdTokens->vertexColor;
 const pxr::TfToken& wrap_s = pxr::UsdTokens->wrap_s;
 const pxr::TfToken& wrap_t = pxr::UsdTokens->wrap_t;
 const pxr::TfToken& _auto = pxr::UsdTokens->_auto;
