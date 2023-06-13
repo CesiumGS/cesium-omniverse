@@ -438,7 +438,7 @@ void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
 }
 
 bool OmniTileset::updateExtent() {
-    const auto rootTile = _tileset->getRootTile();
+    auto rootTile = _tileset->getRootTile();
     if (rootTile == nullptr) return false;
 
     const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
@@ -449,11 +449,12 @@ bool OmniTileset::updateExtent() {
     const auto usdOriented = oriented.transform(ecefToUsdTransform);
     const auto& center = usdOriented.getCenter();
 
-    pxr::VtArray<pxr::GfVec3f> extent;
-    const auto xLenHalf = static_cast<float>(usdOriented.getLengths().x) * 0.5f;
-    const auto yLenHalf = static_cast<float>(usdOriented.getLengths().y) * 0.5f;
-    const auto zLenHalf = static_cast<float>(usdOriented.getLengths().z) * 0.5f;
+    const auto& halfAxes = usdOriented.getHalfAxes();
+    const auto xLenHalf = static_cast<float>(glm::length(halfAxes[0]));
+    const auto yLenHalf = static_cast<float>(glm::length(halfAxes[1]));
+    const auto zLenHalf = static_cast<float>(glm::length(halfAxes[2]));
 
+    pxr::VtArray<pxr::GfVec3f> extent;
     const auto centerGf =
         pxr::GfVec3f(static_cast<float>(center.x), static_cast<float>(center.y), static_cast<float>(center.z));
     extent.push_back(pxr::GfVec3f(-xLenHalf, -yLenHalf, -zLenHalf) + centerGf);

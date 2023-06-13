@@ -1,6 +1,7 @@
 #include "cesium/omniverse/UsdUtil.h"
 
 #include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/Viewport.h"
 
 #include <CesiumGeometry/Transforms.h>
@@ -298,8 +299,8 @@ pxr::CesiumGeoreference defineCesiumGeoreference(const pxr::SdfPath& path) {
 pxr::CesiumTilesetAPI defineCesiumTileset(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto mesh = pxr::UsdGeomMesh::Define(stage, path);
-    mesh.GetSubdivisionSchemeAttr().Set(pxr::TfToken("none"));
-    mesh.GetInterpolateBoundaryAttr().Set(pxr::TfToken("none"));
+    mesh.GetSubdivisionSchemeAttr().Set(UsdTokens::none);
+    mesh.GetInterpolateBoundaryAttr().Set(UsdTokens::none);
     assert(mesh.GetPrim().IsValid());
 
     auto tileset = pxr::CesiumTilesetAPI::Apply(mesh.GetPrim());
