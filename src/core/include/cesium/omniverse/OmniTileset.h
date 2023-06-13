@@ -65,6 +65,7 @@ class OmniTileset {
   private:
     void updateTransform();
     void updateView(const std::vector<Viewport>& viewports);
+    void updateExtent();
 
     std::unique_ptr<Cesium3DTilesSelection::Tileset> _tileset;
     std::shared_ptr<FabricPrepareRenderResources> _renderResourcesPreparer;
