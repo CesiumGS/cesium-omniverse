@@ -362,13 +362,7 @@ void OmniTileset::onUpdateFrame(const std::vector<Viewport>& viewports) {
     updateTransform();
     updateView(viewports);
 
-    if (!boundingBoxSet) {
-        const auto root_tile = _tileset->getRootTile();
-        if (root_tile != nullptr) {
-            updateExtent();
-            boundingBoxSet = true;
-        }
-    }
+    if (!boundingBoxSet) boundingBoxSet = updateExtent();
 }
 
 void OmniTileset::updateTransform() {
@@ -446,9 +440,9 @@ void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
     }
 }
 
-void OmniTileset::updateExtent() {
+bool OmniTileset::updateExtent() {
     const auto root_tile = _tileset->getRootTile();
-    if (root_tile == nullptr) return;
+    if (root_tile == nullptr) return false;
 
     const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
     const auto bounding_volume = root_tile->getBoundingVolume();
@@ -457,7 +451,6 @@ void OmniTileset::updateExtent() {
     const auto georeferenceOrigin = Context::instance().getGeoreferenceOrigin();
     const auto ecefToUsdTranform = UsdUtil::computeEcefToUsdTransformForPrim(georeferenceOrigin, tileset.GetPrim().GetPath());
     const auto usdOriented = oriented.transform(ecefToUsdTranform);
-
     const auto center = usdOriented.getCenter();
 
     VtArray<GfVec3f> extent;
@@ -471,6 +464,7 @@ void OmniTileset::updateExtent() {
 
     auto boundable = pxr::UsdGeomBoundable(tileset);
     boundable.GetExtentAttr().Set(extent);
+    return true;
 }
 
 } // namespace cesium::omniverse
