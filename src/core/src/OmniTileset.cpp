@@ -24,12 +24,12 @@
 #include <Cesium3DTilesSelection/ViewUpdateResult.h>
 #include <CesiumUsdSchemas/imagery.h>
 #include <CesiumUsdSchemas/tilesetAPI.h>
+#include <pxr/base/vt/array.h>
+#include <pxr/usd/sdf/valueTypeName.h>
 #include <pxr/usd/usd/prim.h>
 #include <pxr/usd/usd/stage.h>
 #include <pxr/usd/usdGeom/boundable.h>
 #include <pxr/usd/usdGeom/mesh.h>
-#include <pxr/base/vt/array.h>
-#include <pxr/usd/sdf/valueTypeName.h>
 
 namespace cesium::omniverse {
 
