@@ -10,6 +10,6 @@ class Cartographic;
 
 namespace cesium::omniverse::GeospatialUtil {
 
-const CesiumGeospatial::Cartographic convertGeoreferenceToCartographic(const pxr::CesiumGeoreference& georeference);
+CesiumGeospatial::Cartographic convertGeoreferenceToCartographic(const pxr::CesiumGeoreference& georeference);
 
 }; // namespace cesium::omniverse::GeospatialUtil
