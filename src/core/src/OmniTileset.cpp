@@ -244,7 +244,6 @@ TilesetStatistics OmniTileset::getStatistics() const {
     statistics.tilesLoaded = static_cast<uint64_t>(_tileset->getNumberOfTilesLoaded());
 
     if (_pViewUpdateResult) {
-        // Note: this only updates statistics for the last updateView call. It does not take into account multiple viewports.
         statistics.tilesVisited = static_cast<uint64_t>(_pViewUpdateResult->tilesVisited);
         statistics.culledTilesVisited = static_cast<uint64_t>(_pViewUpdateResult->culledTilesVisited);
         statistics.tilesRendered = static_cast<uint64_t>(_pViewUpdateResult->tilesToRenderThisFrame.size());
