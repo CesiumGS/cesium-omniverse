@@ -1,4 +1,4 @@
-#include "doctestUtils.h"
+#include "testUtils.h"
 
 #include <cesium/omniverse/ObjectPool.h>
 #include <doctest/doctest.h>
