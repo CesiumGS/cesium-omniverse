@@ -138,7 +138,15 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def_readonly("geometries_rendered", &RenderStatistics::geometriesRendered)
         .def_readonly("triangles_loaded", &RenderStatistics::trianglesLoaded)
         .def_readonly("triangles_rendered", &RenderStatistics::trianglesRendered)
-        .def_readonly("tileset_cached_bytes", &RenderStatistics::tilesetCachedBytes);
+        .def_readonly("tileset_cached_bytes", &RenderStatistics::tilesetCachedBytes)
+        .def_readonly("tiles_visited", &RenderStatistics::tilesVisited)
+        .def_readonly("culled_tiles_visited", &RenderStatistics::culledTilesVisited)
+        .def_readonly("tiles_rendered", &RenderStatistics::tilesRendered)
+        .def_readonly("tiles_culled", &RenderStatistics::tilesCulled)
+        .def_readonly("max_depth_visited", &RenderStatistics::maxDepthVisited)
+        .def_readonly("tiles_loading_worker", &RenderStatistics::tilesLoadingWorker)
+        .def_readonly("tiles_loading_main", &RenderStatistics::tilesLoadingMain)
+        .def_readonly("tiles_loaded", &RenderStatistics::tilesLoaded);
 
     py::class_<Viewport>(m, "Viewport")
         .def(py::init())

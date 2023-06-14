@@ -237,8 +237,24 @@ int64_t OmniTileset::getTilesetId() const {
     return _tilesetId;
 }
 
-uint64_t OmniTileset::getCachedBytes() const {
-    return static_cast<uint64_t>(_tileset->getTotalDataBytes());
+TilesetStatistics OmniTileset::getStatistics() const {
+    TilesetStatistics statistics;
+
+    statistics.tilesetCachedBytes = static_cast<uint64_t>(_tileset->getTotalDataBytes());
+    statistics.tilesLoaded = static_cast<uint64_t>(_tileset->getNumberOfTilesLoaded());
+
+    if (_pViewUpdateResult) {
+        // Note: this only updates statistics for the last updateView call. It does not take into account multiple viewports.
+        statistics.tilesVisited = static_cast<uint64_t>(_pViewUpdateResult->tilesVisited);
+        statistics.culledTilesVisited = static_cast<uint64_t>(_pViewUpdateResult->culledTilesVisited);
+        statistics.tilesRendered = static_cast<uint64_t>(_pViewUpdateResult->tilesToRenderThisFrame.size());
+        statistics.tilesCulled = static_cast<uint64_t>(_pViewUpdateResult->tilesCulled);
+        statistics.maxDepthVisited = static_cast<uint64_t>(_pViewUpdateResult->maxDepthVisited);
+        statistics.tilesLoadingWorker = static_cast<uint64_t>(_pViewUpdateResult->workerThreadTileLoadQueueLength);
+        statistics.tilesLoadingMain = static_cast<uint64_t>(_pViewUpdateResult->mainThreadTileLoadQueueLength);
+    }
+
+    return statistics;
 }
 
 void OmniTileset::reload() {

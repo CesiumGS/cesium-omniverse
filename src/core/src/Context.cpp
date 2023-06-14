@@ -730,7 +730,7 @@ void Context::creditsStartNextFrame() {
 RenderStatistics Context::getRenderStatistics() const {
     RenderStatistics renderStatistics;
 
-    FabricStatistics fabricStatistics = FabricUtil::getStatistics();
+    auto fabricStatistics = FabricUtil::getStatistics();
     renderStatistics.materialsCapacity = fabricStatistics.materialsCapacity;
     renderStatistics.materialsLoaded = fabricStatistics.materialsLoaded;
     renderStatistics.geometriesCapacity = fabricStatistics.geometriesCapacity;
@@ -741,7 +741,16 @@ RenderStatistics Context::getRenderStatistics() const {
 
     const auto& tilesets = AssetRegistry::getInstance().getAllTilesets();
     for (const auto& tileset : tilesets) {
-        renderStatistics.tilesetCachedBytes += tileset->getCachedBytes();
+        auto tilesetStatistics = tileset->getStatistics();
+        renderStatistics.tilesetCachedBytes += tilesetStatistics.tilesetCachedBytes;
+        renderStatistics.tilesVisited += tilesetStatistics.tilesVisited;
+        renderStatistics.culledTilesVisited += tilesetStatistics.culledTilesVisited;
+        renderStatistics.tilesRendered += tilesetStatistics.tilesRendered;
+        renderStatistics.tilesCulled += tilesetStatistics.tilesCulled;
+        renderStatistics.maxDepthVisited += tilesetStatistics.maxDepthVisited;
+        renderStatistics.tilesLoadingWorker += tilesetStatistics.tilesLoadingWorker;
+        renderStatistics.tilesLoadingMain += tilesetStatistics.tilesLoadingMain;
+        renderStatistics.tilesLoaded += tilesetStatistics.tilesLoaded;
     }
 
     return renderStatistics;
