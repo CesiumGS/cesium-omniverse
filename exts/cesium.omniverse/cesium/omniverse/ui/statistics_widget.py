@@ -7,11 +7,13 @@ from ..bindings import ICesiumOmniverseInterface
 from .models.space_delimited_number_model import SpaceDelimitedNumberModel
 from .models.human_readable_bytes_model import HumanReadableBytesModel
 
+MATERIALS_CAPACITY_TEXT = "Materials capacity"
 MATERIALS_LOADED_TEXT = "Materials loaded"
+GEOMETRIES_CAPACITY_TEXT = "Geometries capacity"
 GEOMETRIES_LOADED_TEXT = "Geometries loaded"
-GEOMETRIES_VISIBLE_TEXT = "Geometries visible"
+GEOMETRIES_RENDERED_TEXT = "Geometries rendered"
 TRIANGLES_LOADED_TEXT = "Triangles loaded"
-TRIANGLES_VISIBLE_TEXT = "Triangles visible"
+TRIANGLES_RENDERED_TEXT = "Triangles rendered"
 TILESET_CACHED_BYTES_TEXT = "Tileset cached bytes"
 TILESET_CACHED_BYTES_HUMAN_READABLE_TEXT = "Tileset cached bytes (Human-readable)"
 
@@ -28,11 +30,13 @@ class CesiumOmniverseStatisticsWidget(ui.Frame):
 
         self._cesium_omniverse_interface = cesium_omniverse_interface
 
+        self._materials_capacity_model: SpaceDelimitedNumberModel = SpaceDelimitedNumberModel(0)
         self._materials_loaded_model: SpaceDelimitedNumberModel = SpaceDelimitedNumberModel(0)
+        self._geometries_capacity_model: SpaceDelimitedNumberModel = SpaceDelimitedNumberModel(0)
         self._geometries_loaded_model: SpaceDelimitedNumberModel = SpaceDelimitedNumberModel(0)
-        self._geometries_visible_model: SpaceDelimitedNumberModel = SpaceDelimitedNumberModel(0)
+        self._geometries_rendered_model: SpaceDelimitedNumberModel = SpaceDelimitedNumberModel(0)
         self._triangles_loaded_model: SpaceDelimitedNumberModel = SpaceDelimitedNumberModel(0)
-        self._triangles_visible_model: SpaceDelimitedNumberModel = SpaceDelimitedNumberModel(0)
+        self._triangles_rendered_model: SpaceDelimitedNumberModel = SpaceDelimitedNumberModel(0)
         self._tileset_cached_bytes_model: SpaceDelimitedNumberModel = SpaceDelimitedNumberModel(0)
         self._tileset_cached_bytes_human_readable_model: HumanReadableBytesModel = HumanReadableBytesModel(0)
 
@@ -60,11 +64,13 @@ class CesiumOmniverseStatisticsWidget(ui.Frame):
             return
 
         render_statistics = self._cesium_omniverse_interface.get_render_statistics()
-        self._materials_loaded_model.set_value(render_statistics.number_of_materials_loaded)
-        self._geometries_loaded_model.set_value(render_statistics.number_of_geometries_loaded)
-        self._geometries_visible_model.set_value(render_statistics.number_of_geometries_visible)
-        self._triangles_loaded_model.set_value(render_statistics.number_of_triangles_loaded)
-        self._triangles_visible_model.set_value(render_statistics.number_of_triangles_visible)
+        self._materials_capacity_model.set_value(render_statistics.materials_capacity)
+        self._materials_loaded_model.set_value(render_statistics.materials_loaded)
+        self._geometries_capacity_model.set_value(render_statistics.geometries_capacity)
+        self._geometries_loaded_model.set_value(render_statistics.geometries_loaded)
+        self._geometries_rendered_model.set_value(render_statistics.geometries_rendered)
+        self._triangles_loaded_model.set_value(render_statistics.triangles_loaded)
+        self._triangles_rendered_model.set_value(render_statistics.triangles_rendered)
         self._tileset_cached_bytes_model.set_value(render_statistics.tileset_cached_bytes)
         self._tileset_cached_bytes_human_readable_model.set_value(render_statistics.tileset_cached_bytes)
 
@@ -77,11 +83,13 @@ class CesiumOmniverseStatisticsWidget(ui.Frame):
                 ui.Spacer()
 
             for label, model in [
+                (MATERIALS_CAPACITY_TEXT, self._materials_capacity_model),
                 (MATERIALS_LOADED_TEXT, self._materials_loaded_model),
+                (GEOMETRIES_CAPACITY_TEXT, self._geometries_capacity_model),
                 (GEOMETRIES_LOADED_TEXT, self._geometries_loaded_model),
-                (GEOMETRIES_VISIBLE_TEXT, self._geometries_visible_model),
+                (GEOMETRIES_RENDERED_TEXT, self._geometries_rendered_model),
                 (TRIANGLES_LOADED_TEXT, self._triangles_loaded_model),
-                (TRIANGLES_VISIBLE_TEXT, self._triangles_visible_model),
+                (TRIANGLES_RENDERED_TEXT, self._triangles_rendered_model),
                 (TILESET_CACHED_BYTES_TEXT, self._tileset_cached_bytes_model),
                 (TILESET_CACHED_BYTES_HUMAN_READABLE_TEXT, self._tileset_cached_bytes_human_readable_model),
             ]:

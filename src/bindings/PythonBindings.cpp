@@ -131,11 +131,13 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def_readonly("asset_exists_in_user_account", &AssetTroubleshootingDetails::assetExistsInUserAccount);
 
     py::class_<RenderStatistics>(m, "RenderStatistics")
-        .def_readonly("number_of_materials_loaded", &RenderStatistics::numberOfMaterialsLoaded)
-        .def_readonly("number_of_geometries_loaded", &RenderStatistics::numberOfGeometriesLoaded)
-        .def_readonly("number_of_geometries_visible", &RenderStatistics::numberOfGeometriesVisible)
-        .def_readonly("number_of_triangles_loaded", &RenderStatistics::numberOfTrianglesLoaded)
-        .def_readonly("number_of_triangles_visible", &RenderStatistics::numberOfTrianglesVisible)
+        .def_readonly("materials_capacity", &RenderStatistics::materialsCapacity)
+        .def_readonly("materials_loaded", &RenderStatistics::materialsLoaded)
+        .def_readonly("geometries_capacity", &RenderStatistics::geometriesCapacity)
+        .def_readonly("geometries_loaded", &RenderStatistics::geometriesLoaded)
+        .def_readonly("geometries_rendered", &RenderStatistics::geometriesRendered)
+        .def_readonly("triangles_loaded", &RenderStatistics::trianglesLoaded)
+        .def_readonly("triangles_rendered", &RenderStatistics::trianglesRendered)
         .def_readonly("tileset_cached_bytes", &RenderStatistics::tilesetCachedBytes);
 
     py::class_<Viewport>(m, "Viewport")
