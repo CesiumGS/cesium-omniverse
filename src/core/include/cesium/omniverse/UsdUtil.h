@@ -3,10 +3,10 @@
 #include <Cesium3DTilesSelection/ViewState.h>
 #include <CesiumUsdSchemas/data.h>
 #include <CesiumUsdSchemas/georeference.h>
+#include <CesiumUsdSchemas/globalAnchorAPI.h>
 #include <CesiumUsdSchemas/imagery.h>
 #include <CesiumUsdSchemas/session.h>
 #include <CesiumUsdSchemas/tilesetAPI.h>
-#include <CesiumUsdSchemas/globalAnchorAPI.h>
 #include <carb/flatcache/StageWithHistory.h>
 #include <glm/glm.hpp>
 #include <pxr/base/gf/matrix4d.h>
