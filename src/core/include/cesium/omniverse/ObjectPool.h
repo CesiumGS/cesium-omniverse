@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <cassert>
 #include <memory>
 #include <queue>
 
@@ -62,7 +63,7 @@ template <typename T> class ObjectPool {
 
         assert(newCapacity >= oldCapacity);
 
-        if (capacity < newCapacity) {
+        if (newCapacity <= oldCapacity) {
             // We can't shrink capacity because it would mean destroying objects currently in use
             return;
         }
