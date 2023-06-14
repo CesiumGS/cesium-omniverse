@@ -9,7 +9,7 @@ endif()
 # Both CXX and C need to be given otherwise Conan may ignore the CMAKE_C_COMPILER flag
 project(
     CesiumOmniverse
-    VERSION 0.6.2
+    VERSION 0.7.0
     DESCRIPTION "Cesium for Omniverse"
     LANGUAGES CXX C)
 
@@ -79,6 +79,7 @@ option(CESIUM_OMNI_ENABLE_TESTS "Unit tests" ON)
 option(CESIUM_OMNI_ENABLE_DOCUMENTATION "Generate HTML documentation with Doxygen" ON)
 option(CESIUM_OMNI_ENABLE_SANITIZERS "Check for undefined behavior at runtime" OFF)
 option(CESIUM_OMNI_ENABLE_LINTERS "Enable clang-format for code formatting and clang-tidy for static code analysis" ON)
+option(CESIUM_OMNI_ENABLE_TRACING "Whether to enable the Cesium performance tracing framework (CESIUM_TRACE_* macros)." OFF)
 
 # Coverage can only be enabled if tests are also enabled
 cmake_dependent_option(
@@ -179,6 +180,10 @@ set(CESIUM_OMNI_CXX_DEFINES "")
 set(CESIUM_OMNI_CXX_DEFINES_DEBUG "")
 set(CESIUM_OMNI_LINKER_FLAGS "")
 set(CESIUM_OMNI_LINKER_FLAGS_DEBUG "")
+
+if (CESIUM_OMNI_ENABLE_TRACING)
+    set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} "CESIUM_TRACING_ENABLED")
+endif()
 
 set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} CESIUM_OMNI_VERSION="${PROJECT_VERSION}")
 
@@ -491,6 +496,7 @@ configure_file("${PROJECT_SOURCE_DIR}/src/plugins/CesiumUsdSchemas/generatedSche
                "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.generatedSchema.usda.kit")
 
 set(KIT_EXTENSION_BIN_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse/bin")
+set(KIT_EXTENSION_CERTS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse/certs/cacert.pem")
 set(KIT_PLUGIN_EXTENSION_BIN_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.usd.plugins/bin")
 set(KIT_EXTENSION_BINDINGS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse/cesium/omniverse/bindings")
 set(KIT_PLUGIN_EXTENSION_BINDINGS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.usd.plugins/cesium/usd/plugins")
@@ -511,6 +517,9 @@ set(KIT_EXTENSION_PLUGINS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.usd.plugins/pl
 # This path doesn't exist, so in order to find python we need to explicility add it
 # to the search path. Unfortunately CMake will print a warning when python .so is
 # found this way.
+
+# Automatically fetch certificates used for any requests from the core Context class
+execute_process(COMMAND "${Python3_EXECUTABLE}" "${SCRIPTS_DIRECTORY}/update_certs.py" "${KIT_EXTENSION_CERTS_PATH}")
 
 get_property(INSTALL_SEARCH_PATHS GLOBAL PROPERTY NVIDIA_ADDITIONAL_SEARCH_PATHS_PROPERTY)
 

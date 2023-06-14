@@ -28,6 +28,7 @@ add_external_project(
     OPTIONS
         CESIUM_TESTS_ENABLED=OFF
         CESIUM_COVERAGE_ENABLED=OFF
+        CESIUM_TRACING_ENABLED=${CESIUM_OMNI_ENABLE_TRACING}
     PROJECT_EXTERN_DIRECTORY
         "${PROJECT_SOURCE_DIR}/extern"
     EXPECTED_DEBUG_POSTFIX "d"
@@ -45,15 +46,6 @@ if(exit_code AND NOT exit_code EQUAL 0)
     message(FATAL_ERROR "Gathering Nvidia libraries failed")
 endif()
 # cmake-format: on
-
-if(UNIX)
-    execute_process(COMMAND bash "${PROJECT_SOURCE_DIR}/extern/nvidia/link_app.sh")
-elseif(WIN32)
-    execute_process(COMMAND cmd /C "${PROJECT_SOURCE_DIR}/extern/nvidia/link_app.bat")
-endif()
-
-# Don't check for errors from the previous command because we can still proceed with the build
-# without creating a symlink to Omniverse Code
 
 if(WIN32)
     set(NVIDIA_PLATFORM_NAME "windows-x86_64")

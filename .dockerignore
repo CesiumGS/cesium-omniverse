@@ -16,3 +16,4 @@
 # Ignore in nested directories
 **/.DS_Store
 **/__pycache__
+**/cesium-trace-*.json

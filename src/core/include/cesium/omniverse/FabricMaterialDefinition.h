@@ -19,22 +19,34 @@ class FabricMaterialDefinition {
         bool hasImagery);
 
     bool hasBaseColorTexture() const;
-    bool hasTexcoordTransform() const;
+    bool hasVertexColors() const;
 
+    float getAlphaCutoff() const;
+    int getAlphaMode() const;
+    float getBaseAlpha() const;
     pxr::GfVec3f getBaseColorFactor() const;
+    pxr::GfVec3f getEmissiveFactor() const;
     float getMetallicFactor() const;
     float getRoughnessFactor() const;
+    int getWrapS() const;
+    int getWrapT() const;
 
     bool operator==(const FabricMaterialDefinition& other) const;
 
   private:
-    bool _hasBaseColorTexture{false};
-    bool _hasTexcoordTransform{false};
+    bool _hasBaseColorTexture;
+    bool _hasVertexColors;
 
     // Remove these once dynamic material values are supported in Kit 105
-    pxr::GfVec3f _baseColorFactor{1.0, 1.0, 1.0};
-    float _metallicFactor{0.0f};
-    float _roughnessFactor{1.0f};
+    float _alphaCutoff;
+    int _alphaMode;
+    float _baseAlpha;
+    pxr::GfVec3f _baseColorFactor;
+    pxr::GfVec3f _emissiveFactor;
+    float _metallicFactor;
+    float _roughnessFactor;
+    int _wrapS;
+    int _wrapT;
 };
 
 } // namespace cesium::omniverse

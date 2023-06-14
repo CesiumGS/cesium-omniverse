@@ -3,6 +3,7 @@
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/FabricMesh.h"
 #include "cesium/omniverse/FabricMeshManager.h"
+#include "cesium/omniverse/GeospatialUtil.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/UsdUtil.h"
 
@@ -53,13 +54,14 @@ std::vector<IntermediaryMesh> gatherMeshes(
     const glm::dvec2& imageryTexcoordScale,
     uint64_t imageryTexcoordSetIndex) {
 
+    CESIUM_TRACE("FabricPrepareRenderResources::gatherMeshes");
     const auto tilesetId = tileset.getTilesetId();
     const auto tileId = Context::instance().getNextTileId();
 
     const auto smoothNormals = tileset.getSmoothNormals();
 
-    const auto ecefToUsdTransform =
-        UsdUtil::computeEcefToUsdTransformForPrim(Context::instance().getGeoreferenceOrigin(), tileset.getPath());
+    const auto georeferenceOrigin = GeospatialUtil::convertGeoreferenceToCartographic(tileset.getGeoreference());
+    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdTransformForPrim(georeferenceOrigin, tileset.getPath());
 
     auto gltfToEcefTransform = Cesium3DTilesSelection::GltfUtilities::applyRtcCenter(model, tileTransform);
     gltfToEcefTransform = Cesium3DTilesSelection::GltfUtilities::applyGltfUpAxisTransform(model, gltfToEcefTransform);
@@ -111,6 +113,7 @@ gatherMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const 
 
 std::vector<std::shared_ptr<FabricMesh>>
 acquireFabricMeshes(const CesiumGltf::Model& model, const std::vector<IntermediaryMesh>& meshes) {
+    CESIUM_TRACE("FabricPrepareRenderResources::acquireFabricMeshes");
     std::vector<std::shared_ptr<FabricMesh>> fabricMeshes;
     fabricMeshes.reserve(meshes.size());
 
@@ -127,6 +130,7 @@ void setFabricMeshes(
     const CesiumGltf::Model& model,
     const std::vector<IntermediaryMesh>& meshes,
     const std::vector<std::shared_ptr<FabricMesh>>& fabricMeshes) {
+    CESIUM_TRACE("FabricPrepareRenderResources::setFabricMeshes");
     for (size_t i = 0; i < meshes.size(); i++) {
         const auto& mesh = meshes[i];
         const auto& fabricMesh = fabricMeshes[i];

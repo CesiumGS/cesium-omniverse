@@ -1,0 +1,17 @@
+[package]
+title = "Cesium For Omniverse Performance Tracing App"
+version = "0.0.0"
+app = true
+
+[dependencies]
+"cesium.omniverse.app" = {}
+
+[settings]
+app.window.title = "Cesium For Omniverse Performance Tracing App"
+app.fastShutdown = false
+
+[settings.app.exts]
+folders.'++' = [
+    "${app}",
+    "${app}/../exts"
+]

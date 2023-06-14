@@ -19,10 +19,6 @@ class CesiumDataSchemaAttributesWidget(SchemaPropertiesWidget):
         with frame:
             with CustomLayoutGroup("Access Tokens"):
                 CustomLayoutProperty("cesium:projectDefaultIonAccessToken")
-            with CustomLayoutGroup("Georeference Origin Point Coordinates"):
-                CustomLayoutProperty("cesium:georeferenceOrigin:latitude", "Latitude")
-                CustomLayoutProperty("cesium:georeferenceOrigin:longitude", "Longitude")
-                CustomLayoutProperty("cesium:georeferenceOrigin:height", "Height")
             with CustomLayoutGroup("Debug Options", collapsed=True):
                 CustomLayoutProperty("cesium:debug:disableMaterials")
                 CustomLayoutProperty("cesium:debug:disableGeometryPool")

@@ -2,6 +2,7 @@
 
 #include "cesium/omniverse/FabricMaterialDefinition.h"
 
+#include <carb/flatcache/IPath.h>
 #include <pxr/usd/sdf/path.h>
 
 namespace omni::ui {
@@ -30,7 +31,7 @@ class FabricMaterial {
 
     void setActive(bool active);
 
-    pxr::SdfPath getPath() const;
+    carb::flatcache::Path getPathFabric() const;
     const FabricMaterialDefinition& getMaterialDefinition() const;
 
   private:
@@ -40,12 +41,11 @@ class FabricMaterial {
 
     const FabricMaterialDefinition _materialDefinition;
 
-    pxr::SdfPath _materialPath;
-    pxr::SdfPath _shaderPath;
-    pxr::SdfPath _displacementPath;
-    pxr::SdfPath _surfacePath;
-    pxr::SdfPath _lookupColorPath;
-    pxr::SdfPath _textureCoordinate2dPath;
+    carb::flatcache::Path _materialPathFabric;
+    carb::flatcache::Path _shaderPathFabric;
+    carb::flatcache::Path _displacementPathFabric;
+    carb::flatcache::Path _surfacePathFabric;
+    carb::flatcache::Path _baseColorTexPathFabric;
 
     std::unique_ptr<omni::ui::DynamicTextureProvider> _baseColorTexture;
 };

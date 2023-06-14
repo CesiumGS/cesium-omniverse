@@ -5,6 +5,7 @@
 #include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/FabricMeshManager.h"
 #include "cesium/omniverse/FabricUtil.h"
+#include "cesium/omniverse/GeospatialUtil.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/OmniImagery.h"
@@ -28,6 +29,10 @@
 #include <pxr/usd/usd/primRange.h>
 #include <pxr/usd/usdGeom/xform.h>
 #include <pxr/usd/usdUtils/stageCache.h>
+
+#ifdef CESIUM_TRACING_ENABLED
+#include <chrono>
+#endif
 
 namespace cesium::omniverse {
 
@@ -90,10 +95,19 @@ void Context::initialize(int64_t contextId, const std::filesystem::path& cesiumE
     _session->resume();
 
     Cesium3DTilesSelection::registerAllTileContentTypes();
+
+#ifdef CESIUM_TRACING_ENABLED
+    const auto timeNow = std::chrono::time_point_cast<std::chrono::microseconds>(std::chrono::steady_clock::now());
+    const auto timeSinceEpoch = timeNow.time_since_epoch().count();
+    const auto path = cesiumExtensionLocation / fmt::format("cesium-trace-{}.json", timeSinceEpoch);
+    CESIUM_TRACE_INIT(path.string());
+#endif
 }
 
 void Context::destroy() {
     clearStage();
+
+    CESIUM_TRACE_SHUTDOWN();
 }
 
 std::shared_ptr<TaskProcessor> Context::getTaskProcessor() {
@@ -201,7 +215,7 @@ void Context::reloadStage() {
     for (const auto& prim : stage->Traverse()) {
         const auto& path = prim.GetPath();
         if (UsdUtil::isCesiumTileset(path)) {
-            AssetRegistry::getInstance().addTileset(path);
+            AssetRegistry::getInstance().addTileset(path, UsdUtil::GEOREFERENCE_PATH);
         } else if (UsdUtil::isCesiumImagery(path)) {
             AssetRegistry::getInstance().addImagery(path);
         }
@@ -336,7 +350,7 @@ void Context::processPrimAdded(const ChangedPrim& changedPrim) {
     if (changedPrim.primType == ChangedPrimType::CESIUM_TILESET) {
         // Add the tileset to the asset registry
         const auto tilesetPath = changedPrim.path;
-        AssetRegistry::getInstance().addTileset(tilesetPath);
+        AssetRegistry::getInstance().addTileset(tilesetPath, pxr::SdfPath("/CesiumGeoreference"));
     } else if (changedPrim.primType == ChangedPrimType::CESIUM_IMAGERY) {
         // Add the imagery to the asset registry and reload the tileset that the imagery is attached to
         const auto imageryPath = changedPrim.path;
@@ -419,6 +433,7 @@ void Context::setStageId(long stageId) {
         // Ensure that the CesiumData prim exists so that we can set the georeference
         // and other top-level properties without waiting for an ion session to start
         UsdUtil::getOrCreateCesiumData();
+        UsdUtil::getOrCreateCesiumGeoreference();
         UsdUtil::getOrCreateCesiumSession();
 
         // Repopulate the asset registry
@@ -441,24 +456,17 @@ int64_t Context::getNextTileId() const {
 }
 
 const CesiumGeospatial::Cartographic Context::getGeoreferenceOrigin() const {
-    const auto cesiumData = UsdUtil::getOrCreateCesiumData();
+    const auto georeference = UsdUtil::getOrCreateCesiumGeoreference();
 
-    double longitude;
-    double latitude;
-    double height;
-    cesiumData.GetGeoreferenceOriginLongitudeAttr().Get<double>(&longitude);
-    cesiumData.GetGeoreferenceOriginLatitudeAttr().Get<double>(&latitude);
-    cesiumData.GetGeoreferenceOriginHeightAttr().Get<double>(&height);
-
-    return CesiumGeospatial::Cartographic(glm::radians(longitude), glm::radians(latitude), height);
+    return GeospatialUtil::convertGeoreferenceToCartographic(georeference);
 }
 
 void Context::setGeoreferenceOrigin(const CesiumGeospatial::Cartographic& origin) {
-    const auto cesiumData = UsdUtil::getOrCreateCesiumData();
+    const auto georeference = UsdUtil::getOrCreateCesiumGeoreference();
 
-    cesiumData.GetGeoreferenceOriginLongitudeAttr().Set<double>(glm::degrees(origin.longitude));
-    cesiumData.GetGeoreferenceOriginLatitudeAttr().Set<double>(glm::degrees(origin.latitude));
-    cesiumData.GetGeoreferenceOriginHeightAttr().Set<double>(origin.height);
+    georeference.GetGeoreferenceOriginLongitudeAttr().Set<double>(glm::degrees(origin.longitude));
+    georeference.GetGeoreferenceOriginLatitudeAttr().Set<double>(glm::degrees(origin.latitude));
+    georeference.GetGeoreferenceOriginHeightAttr().Set<double>(origin.height);
 }
 
 void Context::connectToIon() {

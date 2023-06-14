@@ -1,0 +1,18 @@
+[package]
+title = "Cesium For Omniverse Python Debugging App"
+version = "0.0.0"
+app = true
+
+[dependencies]
+"cesium.omniverse.app" = {}
+"omni.kit.debug.vscode" = {}
+"omni.kit.debug.python" = {}
+
+[settings]
+app.window.title = "Cesium For Omniverse Python Debugging App"
+
+[settings.app.exts]
+folders.'++' = [
+    "${app}",
+    "${app}/../exts"
+]

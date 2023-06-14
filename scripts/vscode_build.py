@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from calendar import c
 import sys
 import subprocess
 import multiprocessing
@@ -9,9 +8,8 @@ import shutil
 
 try:
     import pty
-except:
+except Exception:
     pass
-import subprocess
 import webbrowser
 from typing import List, NamedTuple
 
@@ -51,7 +49,8 @@ class Args(NamedTuple):
     task: str
     build_folder: str
     build_type: str
-    compiler_name: int
+    compiler_name: str
+    tracing: bool
     verbose: bool
     parallel: bool
     build_only: bool
@@ -70,6 +69,9 @@ def get_cmake_configure_command(args: Args):
     # Release is the default build type, so no need to pass CMAKE_BUILD_TYPE
     if args.build_type != "Release":
         cmd.extend(("-D", "CMAKE_BUILD_TYPE={}".format(args.build_type)))
+
+    if args.tracing:
+        cmd.extend(("-D", "CESIUM_OMNI_ENABLE_TRACING=ON"))
 
     if is_windows():
         cmd.extend(("-G", "Ninja Multi-Config", "-D", "CMAKE_C_COMPILER=cl", "-D", "CMAKE_CXX_COMPILER=cl"))
@@ -249,10 +251,11 @@ def main(av: List[str]):
     build_type = av[1] if len(av) >= 2 else "Release"
     compiler_name = av[2] if len(av) >= 3 else "default"
     build_folder = get_build_folder_name(build_type, compiler_name)
+    tracing = True if len(av) >= 4 and av[3] == "--tracing" else False
     verbose = True if len(av) >= 4 and av[3] == "--verbose" else False
     parallel = False if len(av) >= 5 and av[4] == "--no-parallel" else True
     build_only = True if len(av) >= 4 and av[3] == "--build-only" else False
-    args = Args(task, build_folder, build_type, compiler_name, verbose, parallel, build_only)
+    args = Args(task, build_folder, build_type, compiler_name, tracing, verbose, parallel, build_only)
 
     if task == "configure":
         configure(args)

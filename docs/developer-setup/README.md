@@ -14,6 +14,7 @@
 - [Coverage](#coverage)
 - [Documentation](#documentation)
 - [Installing](#installing)
+- [Tracing](#tracing)
 - [Sanitizers](#sanitizers)
 - [Formatting](#formatting)
 - [Linting](#linting)
@@ -22,15 +23,16 @@
   - [Build Windows Package (Local)](#build-windows-package-local)
 - [VSCode](#vscode)
   - [Workspaces](#workspaces)
-  - [Debugging](#debugging)
   - [Tasks](#tasks)
+  - [Debugging](#debugging)
 - [Project Structure](#project-structure)
 - [Third Party Libraries](#third-party-libraries)
+  - [Overriding Packman Libraries](#overriding-packman-libraries)
 
 ## Prerequisites
 
 - Install Nvidia Omniverse: https://www.nvidia.com/en-us/omniverse/download/
-- Install Omniverse Code 2022.3.0 (or later)
+- Install Omniverse Create 2022.3.3 (or later)
 
 See [Linux](#linux) or [Windows](#windows) for step-by-step installation instructions
 
@@ -47,6 +49,10 @@ See [Linux](#linux) or [Windows](#windows) for step-by-step installation instruc
 
 ### Linux
 
+- Ensure the correct NVIDIA drivers are installed (not the default open source driver) and that the GPU can be identified
+```sh
+nvidia-smi
+```
 - Install dependencies (for Ubuntu 22.04 - other Linux distributions should be similar)
   ```sh
   sudo apt install -y gcc-9 g++-9 clang-14 python3 python3-pip cmake make git doxygen clang-format-14 clang-tidy-14 clangd-14 gcovr
@@ -101,6 +107,10 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
     cd <first_path_in_list>
     mklink python3.exe python.exe
     ```
+- Install `requests` module for Python
+  ```sh
+  pip3 install requests
+  ```
 - Install `cmake-format`
   ```sh
   pip3 install cmake-format
@@ -150,6 +160,10 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
   where python
   cd <first_path_in_list>
   mklink python3.exe python.exe
+  ```
+- Install `requests`
+  ```sh
+  pip3 install requests
   ```
 - Install `cmake-format`
   ```sh
@@ -364,6 +378,19 @@ cmake -B build -D CMAKE_INSTALL_PREFIX=$HOME/Desktop/CesiumOmniverse
 cmake --build build --target install --component library
 ```
 
+## Tracing
+
+To enable performance tracing set `CESIUM_OMNI_ENABLE_TRACING`:
+
+```sh
+cmake -B build -D CESIUM_OMNI_ENABLE_TRACING
+cmake --build build
+```
+
+A file called `cesium-trace-xxxxxxxxxxx.json` will be saved to the `exts/cesium-omniverse` folder when the program exits. This file can then be inspected in `chrome://tracing/`.
+
+Note that the JSON output may get truncated if the program closes unexpectedly - e.g. when the debugging session is stopped or the program crashes - or if `app.fastShutdown` is `true` (like with Omniverse Create and `cesium.omniverse.app.kit`). Therefore the best workflow for performance tracing is to run `cesium.omniverse.app.trace.kit` and close the window normally.
+
 ## Sanitizers
 
 When sanitizers are enabled they will check for mistakes that are difficult to catch at compile time, such as reading past the end of an array or dereferencing a null pointer. Sanitizers should not be used for production builds because they inject these checks into the binaries themselves, creating some runtime overhead.
@@ -464,170 +491,13 @@ Each workspace contains recommended extensions and settings for VSCode developme
 - [cesium-omniverse-linux.code-workspace](./.vscode/cesium-omniverse-linux.code-workspace)
 - [cesium-omniverse-windows.code-workspace](./.vscode/cesium-omniverse-windows.code-workspace)
 
-### Debugging
-
-- Create `.vscode/launch.json` and copy the configurations below. Feel free to edit these or add additional configurations for your own debugging purposes.
-- Select an option from the `Run and Debug` panel, such as `Test`, and click the green arrow.
-
-<!-- omit in toc -->
-#### Linux
-
-```json
-{
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Kit App",
-      "preLaunchTask": "Build Only (debug)",
-      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit",
-      "args": [
-        "${workspaceFolder}/apps/cesium.omniverse.app.kit"
-      ],
-      "env": {
-        // Disable LSAN when debugging since it doesn't work with GDB and prints harmless but annoying warning messages
-        "ASAN_OPTIONS": "detect_leaks=0",
-        "UBSAN_OPTIONS": "print_stacktrace=1"
-      },
-      "cwd": "${workspaceFolder}",
-      "type": "lldb",
-      "request": "launch",
-      "console": "internalConsole",
-      "internalConsoleOptions": "openOnSessionStart",
-      "MIMode": "gdb",
-      "setupCommands": [
-        {
-          "text": "-enable-pretty-printing",
-          "ignoreFailures": true
-        },
-        {
-          "text": "set print elements 0"
-        }
-      ]
-    },
-    {
-      "name": "Code",
-      "preLaunchTask": "Build Only (debug)",
-      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit",
-      "args": [
-        "${workspaceFolder}/extern/nvidia/app/apps/omni.code.kit"
-      ],
-      "env": {
-        // Disable LSAN when debugging since it doesn't work with GDB and prints harmless but annoying warning messages
-        "ASAN_OPTIONS": "detect_leaks=0",
-        "UBSAN_OPTIONS": "print_stacktrace=1"
-      },
-      "cwd": "${workspaceFolder}",
-      "type": "lldb",
-      "request": "launch",
-      "console": "internalConsole",
-      "internalConsoleOptions": "openOnSessionStart",
-      "MIMode": "gdb",
-      "setupCommands": [
-        {
-          "text": "-enable-pretty-printing",
-          "ignoreFailures": true
-        },
-        {
-          "text": "set print elements 0"
-        }
-      ]
-    },
-    {
-      "name": "Test",
-      "preLaunchTask": "Build Only (debug)",
-      "program": "${workspaceFolder}/build-debug/bin/tests",
-      "env": {
-        // Disable LSAN when debugging since it doesn't work with GDB and prints harmless but annoying warning messages
-        "ASAN_OPTIONS": "detect_leaks=0",
-        "UBSAN_OPTIONS": "print_stacktrace=1"
-      },
-      "cwd": "${workspaceFolder}",
-      "type": "lldb",
-      "request": "launch",
-      "console": "internalConsole",
-      "internalConsoleOptions": "openOnSessionStart",
-      "MIMode": "gdb",
-      "setupCommands": [
-        {
-          "text": "-enable-pretty-printing",
-          "ignoreFailures": true
-        },
-        {
-          "text": "set print elements 0"
-        }
-      ]
-    },
-    {
-      "name": "Python Debugging (attach)",
-      "type": "python",
-      "request": "attach",
-      "port": 3000,
-      "host": "localhost"
-    }
-  ]
-}
-```
-
-<!-- omit in toc -->
-#### Windows
-
-```json
-{
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Kit App",
-      "preLaunchTask": "Build Only (debug)",
-      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit.exe",
-      "args": [
-        "${workspaceFolder}/apps/cesium.omniverse.app.kit"
-      ],
-      "cwd": "${workspaceFolder}",
-      "type": "cppvsdbg",
-      "request": "launch",
-      "console": "internalConsole",
-      "internalConsoleOptions": "openOnSessionStart"
-    },
-    {
-      "name": "Code",
-      "preLaunchTask": "Build Only (debug)",
-      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit.exe",
-      "args": [
-        "${workspaceFolder}/extern/nvidia/app/apps/omni.code.kit"
-      ],
-      "cwd": "${workspaceFolder}",
-      "type": "cppvsdbg",
-      "request": "launch",
-      "console": "internalConsole",
-      "internalConsoleOptions": "openOnSessionStart"
-    },
-    {
-      "name": "Test",
-      "preLaunchTask": "Build Only (debug)",
-      "program": "${workspaceFolder}/build/bin/Debug/tests",
-      "cwd": "${workspaceFolder}",
-      "type": "cppvsdbg",
-      "request": "launch",
-      "console": "internalConsole",
-      "internalConsoleOptions": "openOnSessionStart"
-    },
-    {
-      "name": "Python Debugging (attach)",
-      "type": "python",
-      "request": "attach",
-      "port": 3000,
-      "host": "localhost"
-    }
-  ]
-}
-```
-
 ### Tasks
 
 [`.vscode/tasks.json`](./.vscode/tasks.json) comes with the following tasks:
 
 - Configure - configures the project
 - Build (advanced) - configures and builds the project
+- Build (tracing) - configures and builds the project with tracing enabled
 - Build (verbose) - configures and builds the project with verbose output
 - Build (debug) - configures and builds the project in debug mode with the default compiler
 - Build (release) - configures and builds the project in release mode with the default compiler
@@ -640,12 +510,50 @@ Each workspace contains recommended extensions and settings for VSCode developme
 - Format - formats the code with clang-format
 - Lint - runs clang-tidy
 - Lint Fix - runs clang-tidy and fixes issues
-- Dependency graph - shows the third party library dependency graph
+- Dependency Graph - shows the third party library dependency graph
 
 To run a task:
 
 - `Ctrl + Shift + B` and select the task, e.g. `Build`
 - Select the build type and compiler (if applicable)
+
+### Launching/Debugging
+
+Windows and Linux versions of `launch.json` are provided in the `.vscode` folder.
+
+* On Windows copy `launch.windows.json` and rename it to `launch.json`.
+* On Linux copy `launch.linux.json` and rename it to `launch.json`.
+
+Alternatively, create a symlink so that `launch.json` always stays up-to-date:
+
+```sh
+# Windows - Command Prompt As Administrator
+cd .vscode
+mklink launch.json launch.windows.json
+```
+
+```sh
+# Linux
+cd .vscode
+sudo ln -s launch.linux.json launch.json
+```
+
+Then select a configuration from the `Run and Debug` panel, such as `Kit App`, and click the green arrow.
+
+> **Note:** Most configurations run a build-only prelaunch task. This assumes the project has already been configured. When debugging for the first time make sure to configure the project first by pressing `Ctrl + Shift + B` and running  `Build (debug)`.
+
+> **Note:** For performance tracing make sure the project has been configured with tracing enabled by pressing `Ctrl + Shift + B` and running  `Build (tracing)`.
+
+> **Note:** For Python debugging, first run `Python Debugging (start)`, then wait for Omniverse to load, then run `Python Debugging (attach)`. Now you can set breakpoints in both the C++ and Python code.
+
+#### Launch/Debug Troubleshooting
+- When running in debug within vscode, if you find execution halting at a breakpoint outside the cesium codebase, you may need to uncheck "C++: on throw" under the "Breakpoints" section of the "Run and Debug" panel.
+- On Linux, if you are given an error or warning about IOMMU, you may need to turn this off in the BIOS. IOMMU also goes by the name of Intel VT-d and AMD-Vi.
+- On Linux, if repeated `"[Omniverse app]" is not responding` prompts to either force quit or wait, you may want to extend the global timeout for such events from the default 5s to 30s with the following command (for gnome):
+```sh
+gsettings set org.gnome.mutter check-alive-timeout 30000
+```
+
 
 ## Project Structure
 
@@ -673,7 +581,7 @@ Some dependencies are pulled in as Git submodules instead. When adding a new git
 
 ### Overriding Packman Libraries
 
-The external dpendencies from Nvidia use Nvidia's packman tool to fetch and install. The dependency files are found at `/extern/nvidia/deps` in this repository. You can override these by using a `*.packman.xml.user` file. For example, to override the version of kit you can create a user file called `kit-sdk.packman.xml.user` next to `kit-sdk.packman.xml` in the `deps` directory. You can then use standard packman configurations within this file, such as:
+The external dependencies from Nvidia use Nvidia's packman tool to fetch and install. The dependency files are found at `/extern/nvidia/deps` in this repository. You can override these by using a `*.packman.xml.user` file. For example, to override the version of kit you can create a user file called `kit-sdk.packman.xml.user` next to `kit-sdk.packman.xml` in the `deps` directory. You can then use standard packman configurations within this file, such as:
 
 ```xml
 <project toolsVersion="5.6">
