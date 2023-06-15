@@ -3,12 +3,12 @@ from omni.kit.property.usd.custom_layout_helper import CustomLayoutFrame, Custom
 from omni.kit.property.usd.usd_property_widget import SchemaPropertiesWidget
 import omni.ui as ui
 from ...bindings import ICesiumOmniverseInterface
-from cesium.usd.plugins.CesiumUsdSchemas import TilesetAPI as CesiumTilesetAPI
+from cesium.usd.plugins.CesiumUsdSchemas import Tileset as CesiumTilesetPrim
 
 
 class CesiumTilesetAttributesWidget(SchemaPropertiesWidget):
     def __init__(self, _cesium_omniverse_interface: ICesiumOmniverseInterface):
-        super().__init__("Cesium Tileset Settings", CesiumTilesetAPI, include_inherited=False)
+        super().__init__("Cesium Tileset Settings", CesiumTilesetPrim, include_inherited=False)
 
         self._logger = logging.getLogger(__name__)
 

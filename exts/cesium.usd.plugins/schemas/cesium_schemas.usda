@@ -129,12 +129,11 @@ class CesiumGeoreferencePrim "CesiumGeoreferencePrim" (
     )
 }
 
-class "CesiumTilesetSchemaAPI" (
+class CesiumTilesetPrim "CesiumTilesetPrim" (
     doc = """Adds Cesium specific data to a prim for representing a tileset."""
-    inherits = </APISchemaBase>
+    inherits = </Typed>
     customData = {
-        string className = "TilesetAPI"
-        token apiSchemaType = "singleApply"
+        string className = "Tileset"
     }
 ) {
     uniform token cesium:sourceType = "ion" (

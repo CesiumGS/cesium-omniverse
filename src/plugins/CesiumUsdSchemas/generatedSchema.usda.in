@@ -1,11 +1,6 @@
 #usda 1.0
 (
     "WARNING: THIS FILE IS GENERATED.  DO NOT EDIT."
-    customLayerData = {
-        string[] appliedAPISchemas = ["CesiumTilesetSchemaAPI"]
-        dictionary multipleApplyAPISchemas = {
-        }
-    }
 )
 
 class CesiumDataPrim "CesiumDataPrim" (
@@ -70,7 +65,7 @@ class CesiumGeoreferencePrim "CesiumGeoreferencePrim" (
     )
 }
 
-class "CesiumTilesetSchemaAPI" (
+class CesiumTilesetPrim "CesiumTilesetPrim" (
     doc = "Adds Cesium specific data to a prim for representing a tileset."
 )
 {

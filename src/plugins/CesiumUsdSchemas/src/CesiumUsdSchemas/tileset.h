@@ -1,11 +1,11 @@
-#ifndef CESIUM_GENERATED_TILESETAPI_H
-#define CESIUM_GENERATED_TILESETAPI_H
+#ifndef CESIUM_GENERATED_TILESET_H
+#define CESIUM_GENERATED_TILESET_H
 
-/// \file cesium/tilesetAPI.h
+/// \file cesium/tileset.h
 
 #include "pxr/pxr.h"
 #include ".//api.h"
-#include "pxr/usd/usd/apiSchemaBase.h"
+#include "pxr/usd/usd/typed.h"
 #include "pxr/usd/usd/prim.h"
 #include "pxr/usd/usd/stage.h"
 #include ".//tokens.h"
@@ -24,10 +24,10 @@ PXR_NAMESPACE_OPEN_SCOPE
 class SdfAssetPath;
 
 // -------------------------------------------------------------------------- //
-// CESIUMTILESETSCHEMAAPI                                                     //
+// CESIUMTILESETPRIM                                                          //
 // -------------------------------------------------------------------------- //
 
-/// \class CesiumTilesetAPI
+/// \class CesiumTileset
 ///
 /// Adds Cesium specific data to a prim for representing a tileset.
 ///
@@ -36,33 +36,33 @@ class SdfAssetPath;
 /// So to set an attribute to the value "rightHanded", use CesiumTokens->rightHanded
 /// as the value.
 ///
-class CESIUM_API CesiumTilesetAPI : public UsdAPISchemaBase
+class CESIUM_API CesiumTileset : public UsdTyped
 {
 public:
     /// Compile time constant representing what kind of schema this class is.
     ///
     /// \sa UsdSchemaType
-    static const UsdSchemaType schemaType = UsdSchemaType::SingleApplyAPI;
+    static const UsdSchemaType schemaType = UsdSchemaType::ConcreteTyped;
 
-    /// Construct a CesiumTilesetAPI on UsdPrim \p prim .
-    /// Equivalent to CesiumTilesetAPI::Get(prim.GetStage(), prim.GetPath())
+    /// Construct a CesiumTileset on UsdPrim \p prim .
+    /// Equivalent to CesiumTileset::Get(prim.GetStage(), prim.GetPath())
     /// for a \em valid \p prim, but will not immediately throw an error for
     /// an invalid \p prim
-    explicit CesiumTilesetAPI(const UsdPrim& prim=UsdPrim())
-        : UsdAPISchemaBase(prim)
+    explicit CesiumTileset(const UsdPrim& prim=UsdPrim())
+        : UsdTyped(prim)
     {
     }
 
-    /// Construct a CesiumTilesetAPI on the prim held by \p schemaObj .
-    /// Should be preferred over CesiumTilesetAPI(schemaObj.GetPrim()),
+    /// Construct a CesiumTileset on the prim held by \p schemaObj .
+    /// Should be preferred over CesiumTileset(schemaObj.GetPrim()),
     /// as it preserves SchemaBase state.
-    explicit CesiumTilesetAPI(const UsdSchemaBase& schemaObj)
-        : UsdAPISchemaBase(schemaObj)
+    explicit CesiumTileset(const UsdSchemaBase& schemaObj)
+        : UsdTyped(schemaObj)
     {
     }
 
     /// Destructor.
-    virtual ~CesiumTilesetAPI();
+    virtual ~CesiumTileset();
 
     /// Return a vector of names of all pre-declared attributes for this schema
     /// class and all its ancestor classes.  Does not include attributes that
@@ -70,35 +70,42 @@ public:
     static const TfTokenVector &
     GetSchemaAttributeNames(bool includeInherited=true);
 
-    /// Return a CesiumTilesetAPI holding the prim adhering to this
+    /// Return a CesiumTileset holding the prim adhering to this
     /// schema at \p path on \p stage.  If no prim exists at \p path on
     /// \p stage, or if the prim at that path does not adhere to this schema,
     /// return an invalid schema object.  This is shorthand for the following:
     ///
     /// \code
-    /// CesiumTilesetAPI(stage->GetPrimAtPath(path));
+    /// CesiumTileset(stage->GetPrimAtPath(path));
     /// \endcode
     ///
-    static CesiumTilesetAPI
+    static CesiumTileset
     Get(const UsdStagePtr &stage, const SdfPath &path);
 
-
-    /// Applies this <b>single-apply</b> API schema to the given \p prim.
-    /// This information is stored by adding "CesiumTilesetSchemaAPI" to the 
-    /// token-valued, listOp metadata \em apiSchemas on the prim.
-    /// 
-    /// \return A valid CesiumTilesetAPI object is returned upon success. 
-    /// An invalid (or empty) CesiumTilesetAPI object is returned upon 
-    /// failure. See \ref UsdPrim::ApplyAPI() for conditions 
-    /// resulting in failure. 
-    /// 
-    /// \sa UsdPrim::GetAppliedSchemas()
-    /// \sa UsdPrim::HasAPI()
-    /// \sa UsdPrim::ApplyAPI()
-    /// \sa UsdPrim::RemoveAPI()
+    /// Attempt to ensure a \a UsdPrim adhering to this schema at \p path
+    /// is defined (according to UsdPrim::IsDefined()) on this stage.
     ///
-    static CesiumTilesetAPI 
-    Apply(const UsdPrim &prim);
+    /// If a prim adhering to this schema at \p path is already defined on this
+    /// stage, return that prim.  Otherwise author an \a SdfPrimSpec with
+    /// \a specifier == \a SdfSpecifierDef and this schema's prim type name for
+    /// the prim at \p path at the current EditTarget.  Author \a SdfPrimSpec s
+    /// with \p specifier == \a SdfSpecifierDef and empty typeName at the
+    /// current EditTarget for any nonexistent, or existing but not \a Defined
+    /// ancestors.
+    ///
+    /// The given \a path must be an absolute prim path that does not contain
+    /// any variant selections.
+    ///
+    /// If it is impossible to author any of the necessary PrimSpecs, (for
+    /// example, in case \a path cannot map to the current UsdEditTarget's
+    /// namespace) issue an error and return an invalid \a UsdPrim.
+    ///
+    /// Note that this method may return a defined prim whose typeName does not
+    /// specify this schema class, in case a stronger typeName opinion overrides
+    /// the opinion at the current EditTarget.
+    ///
+    static CesiumTileset
+    Define(const UsdStagePtr &stage, const SdfPath &path);
 
 protected:
     /// Returns the type of schema this class belongs to.
