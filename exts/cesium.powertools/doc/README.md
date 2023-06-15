@@ -4,7 +4,7 @@ This extension provides supporting features and tools that may be useful while d
 
 ## Current Features
 
-### Open Cesium Debugger Button
+### Open Cesium Debugging Window
 
 Easier and quicker way for opening the Cesium Debugging window.
 
