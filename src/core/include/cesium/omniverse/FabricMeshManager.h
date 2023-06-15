@@ -42,6 +42,7 @@ class FabricMeshManager {
     void setDisableMaterialPool(bool disableMaterialPool);
     void setGeometryPoolInitialCapacity(uint64_t geometryPoolInitialCapacity);
     void setMaterialPoolInitialCapacity(uint64_t materialPoolInitialCapacity);
+    void setDebugRandomColors(bool debugRandomColors);
 
     void clear();
 
@@ -80,6 +81,8 @@ class FabricMeshManager {
 
     uint64_t _geometryPoolInitialCapacity{0};
     uint64_t _materialPoolInitialCapacity{0};
+
+    bool _debugRandomColors{false};
 
     std::atomic<int64_t> _geometryId{0};
     std::atomic<int64_t> _materialId{0};

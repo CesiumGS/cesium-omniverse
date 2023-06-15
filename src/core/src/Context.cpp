@@ -208,6 +208,7 @@ void Context::reloadStage() {
     fabricMeshManager.setDisableMaterialPool(getDebugDisableMaterialPool());
     fabricMeshManager.setGeometryPoolInitialCapacity(getDebugGeometryPoolInitialCapacity());
     fabricMeshManager.setMaterialPoolInitialCapacity(getDebugMaterialPoolInitialCapacity());
+    fabricMeshManager.setDebugRandomColors(getDebugRandomColors());
 
     // Repopulate the asset registry. We need to do this manually because USD doesn't notify us about
     // resynced paths when the stage is loaded.
@@ -277,7 +278,8 @@ void Context::processCesiumDataChanged(const ChangedPrim& changedPrim) {
         name == pxr::CesiumTokens->cesiumDebugDisableGeometryPool ||
         name == pxr::CesiumTokens->cesiumDebugDisableMaterialPool ||
         name == pxr::CesiumTokens->cesiumDebugGeometryPoolInitialCapacity ||
-        name == pxr::CesiumTokens->cesiumDebugMaterialPoolInitialCapacity) {
+        name == pxr::CesiumTokens->cesiumDebugMaterialPoolInitialCapacity ||
+        name == pxr::CesiumTokens->cesiumDebugRandomColors) {
         reloadStage();
     }
 }
@@ -701,6 +703,13 @@ uint64_t Context::getDebugMaterialPoolInitialCapacity() const {
     uint64_t materialPoolInitialCapacity;
     cesiumDataUsd.GetDebugMaterialPoolInitialCapacityAttr().Get(&materialPoolInitialCapacity);
     return materialPoolInitialCapacity;
+}
+
+bool Context::getDebugRandomColors() const {
+    const auto cesiumDataUsd = UsdUtil::getOrCreateCesiumData();
+    bool debugRandomColors;
+    cesiumDataUsd.GetDebugRandomColorsAttr().Get(&debugRandomColors);
+    return debugRandomColors;
 }
 
 bool Context::creditsAvailable() const {
