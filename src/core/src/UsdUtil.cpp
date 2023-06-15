@@ -270,6 +270,7 @@ pxr::CesiumData defineCesiumData(const pxr::SdfPath& path) {
     cesiumData.CreateDebugDisableMaterialPoolAttr(pxr::VtValue(false));
     cesiumData.CreateDebugGeometryPoolInitialCapacityAttr(pxr::VtValue(uint64_t(0)));
     cesiumData.CreateDebugMaterialPoolInitialCapacityAttr(pxr::VtValue(uint64_t(2048)));
+    cesiumData.CreateDebugRandomColorsAttr(pxr::VtValue(false));
 
     return cesiumData;
 }

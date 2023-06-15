@@ -535,27 +535,48 @@ FabricStatistics getStatistics() {
 
     for (size_t bucketId = 0; bucketId < geometryBuckets.bucketCount(); bucketId++) {
         auto paths = srw.getPathArray(geometryBuckets, bucketId);
-        statistics.numberOfGeometriesLoaded += paths.size();
 
-        auto worldVisibilityFabric =
-            srw.getAttributeArrayRd<bool>(geometryBuckets, bucketId, FabricTokens::_worldVisibility);
-        auto faceVertexCountsFabric =
-            srw.getArrayAttributeArrayRd<int>(geometryBuckets, bucketId, FabricTokens::faceVertexCounts);
+        // clang-format off
+        auto worldVisibilityFabric = srw.getAttributeArrayRd<bool>(geometryBuckets, bucketId, FabricTokens::_worldVisibility);
+        auto faceVertexCountsFabric = srw.getArrayAttributeArrayRd<int>(geometryBuckets, bucketId, FabricTokens::faceVertexCounts);
+        auto tilesetIdFabric = srw.getAttributeArrayRd<int64_t>(geometryBuckets, bucketId, FabricTokens::_cesium_tilesetId);
+        // clang-format on
+
+        statistics.geometriesCapacity += paths.size();
 
         for (size_t i = 0; i < paths.size(); i++) {
+            if (tilesetIdFabric[i] == -1) {
+                continue;
+            }
+
+            statistics.geometriesLoaded++;
+
             const auto triangleCount = faceVertexCountsFabric[i].size();
-            statistics.numberOfTrianglesLoaded += triangleCount;
+            statistics.trianglesLoaded += triangleCount;
 
             if (worldVisibilityFabric[i]) {
-                statistics.numberOfGeometriesVisible++;
-                statistics.numberOfTrianglesVisible += triangleCount;
+                statistics.geometriesRendered++;
+                statistics.trianglesRendered += triangleCount;
             }
         }
     }
 
     for (size_t bucketId = 0; bucketId < materialBuckets.bucketCount(); bucketId++) {
         auto paths = srw.getPathArray(materialBuckets, bucketId);
-        statistics.numberOfMaterialsLoaded += paths.size();
+
+        // clang-format off
+        auto tilesetIdFabric = srw.getAttributeArrayRd<int64_t>(materialBuckets, bucketId, FabricTokens::_cesium_tilesetId);
+        // clang-format on
+
+        statistics.materialsCapacity += paths.size();
+
+        for (size_t i = 0; i < paths.size(); i++) {
+            if (tilesetIdFabric[i] == -1) {
+                continue;
+            }
+
+            statistics.materialsLoaded++;
+        }
     }
 
     return statistics;

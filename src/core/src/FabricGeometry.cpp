@@ -13,6 +13,7 @@
 #endif
 
 #include <CesiumGltf/Model.h>
+#include <glm/gtc/random.hpp>
 #include <omni/fabric/FabricUSD.h>
 #include <pxr/base/gf/range3d.h>
 
@@ -30,9 +31,13 @@ const auto DEFAULT_MATRIX = pxr::GfMatrix4d(1.0);
 
 } // namespace
 
-FabricGeometry::FabricGeometry(pxr::SdfPath path, const FabricGeometryDefinition& geometryDefinition)
+FabricGeometry::FabricGeometry(
+    pxr::SdfPath path,
+    const FabricGeometryDefinition& geometryDefinition,
+    bool debugRandomColors)
     : _pathFabric(path.GetText())
-    , _geometryDefinition(geometryDefinition) {
+    , _geometryDefinition(geometryDefinition)
+    , _debugRandomColors(debugRandomColors) {
     initialize();
 }
 
@@ -311,7 +316,15 @@ void FabricGeometry::setTile(
     *worldOrientationFabric = worldOrientation;
     *worldScaleFabric = worldScale;
 
-    displayColorFabric[0] = DEFAULT_VERTEX_COLOR;
+    if (_debugRandomColors) {
+        const auto r = glm::linearRand(0.0f, 1.0f);
+        const auto g = glm::linearRand(0.0f, 1.0f);
+        const auto b = glm::linearRand(0.0f, 1.0f);
+        displayColorFabric[0] = pxr::GfVec3f(r, g, b);
+    } else {
+        displayColorFabric[0] = DEFAULT_VERTEX_COLOR;
+    }
+
     displayOpacityFabric[0] = DEFAULT_VERTEX_OPACITY;
 
     if (hasTexcoords) {

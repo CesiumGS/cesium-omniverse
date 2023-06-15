@@ -27,6 +27,10 @@ class CesiumDataPrim "CesiumDataPrim" (
         displayName = "Material Pool Initial Capacity"
         doc = "Debug option that controls the initial capacity of the material pool."
     )
+    bool cesium:debug:randomColors = 0 (
+        displayName = "Random Colors"
+        doc = "Debug option that renders tiles with random colors."
+    )
     string cesium:projectDefaultIonAccessToken = "" (
         displayName = "Project default ion Access Token"
         doc = "A string representing the token for accessing Cesium ion assets."

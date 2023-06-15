@@ -17,7 +17,7 @@ class FabricMaterial;
 
 class FabricGeometry {
   public:
-    FabricGeometry(pxr::SdfPath path, const FabricGeometryDefinition& geometryDefinition);
+    FabricGeometry(pxr::SdfPath path, const FabricGeometryDefinition& geometryDefinition, bool debugRandomColors);
     ~FabricGeometry();
 
     void setTile(
@@ -48,6 +48,7 @@ class FabricGeometry {
 
     const omni::fabric::Path _pathFabric;
     const FabricGeometryDefinition _geometryDefinition;
+    const bool _debugRandomColors;
 };
 
 } // namespace cesium::omniverse
