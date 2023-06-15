@@ -1,0 +1,29 @@
+[package]
+version = "0.1.0"
+category = "simulation"
+feature = false
+app = false
+title = "Cesium for Omniverse Power Tools"
+description = "Additional experimental helper features for Cesium for Omniverse."
+authors = "Cesium GS Inc."
+repository = "https://github.com/CesiumGS/cesium-omniverse"
+keywords = [
+    "cesium",
+    "omniverse",
+    "geospatial",
+    "3D Tiles",
+    "glTF",
+    "globe",
+    "earth",
+    "simulation",
+]
+
+# Paths are relative to the extension folder
+readme = "doc/README.md"
+icon = "doc/resources/icon.png"
+
+[dependencies]
+"cesium.omniverse" = {}
+
+[[python.module]]
+name = "cesium.powertools"
