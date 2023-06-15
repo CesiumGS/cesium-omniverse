@@ -730,16 +730,27 @@ void Context::creditsStartNextFrame() {
 RenderStatistics Context::getRenderStatistics() const {
     RenderStatistics renderStatistics;
 
-    FabricStatistics fabricStatistics = FabricUtil::getStatistics();
-    renderStatistics.numberOfMaterialsLoaded = fabricStatistics.numberOfMaterialsLoaded;
-    renderStatistics.numberOfGeometriesLoaded = fabricStatistics.numberOfGeometriesLoaded;
-    renderStatistics.numberOfGeometriesVisible = fabricStatistics.numberOfGeometriesVisible;
-    renderStatistics.numberOfTrianglesLoaded = fabricStatistics.numberOfTrianglesLoaded;
-    renderStatistics.numberOfTrianglesVisible = fabricStatistics.numberOfTrianglesVisible;
+    auto fabricStatistics = FabricUtil::getStatistics();
+    renderStatistics.materialsCapacity = fabricStatistics.materialsCapacity;
+    renderStatistics.materialsLoaded = fabricStatistics.materialsLoaded;
+    renderStatistics.geometriesCapacity = fabricStatistics.geometriesCapacity;
+    renderStatistics.geometriesLoaded = fabricStatistics.geometriesLoaded;
+    renderStatistics.geometriesRendered = fabricStatistics.geometriesRendered;
+    renderStatistics.trianglesLoaded = fabricStatistics.trianglesLoaded;
+    renderStatistics.trianglesRendered = fabricStatistics.trianglesRendered;
 
     const auto& tilesets = AssetRegistry::getInstance().getAllTilesets();
     for (const auto& tileset : tilesets) {
-        renderStatistics.tilesetCachedBytes += tileset->getCachedBytes();
+        auto tilesetStatistics = tileset->getStatistics();
+        renderStatistics.tilesetCachedBytes += tilesetStatistics.tilesetCachedBytes;
+        renderStatistics.tilesVisited += tilesetStatistics.tilesVisited;
+        renderStatistics.culledTilesVisited += tilesetStatistics.culledTilesVisited;
+        renderStatistics.tilesRendered += tilesetStatistics.tilesRendered;
+        renderStatistics.tilesCulled += tilesetStatistics.tilesCulled;
+        renderStatistics.maxDepthVisited += tilesetStatistics.maxDepthVisited;
+        renderStatistics.tilesLoadingWorker += tilesetStatistics.tilesLoadingWorker;
+        renderStatistics.tilesLoadingMain += tilesetStatistics.tilesLoadingMain;
+        renderStatistics.tilesLoaded += tilesetStatistics.tilesLoaded;
     }
 
     return renderStatistics;
