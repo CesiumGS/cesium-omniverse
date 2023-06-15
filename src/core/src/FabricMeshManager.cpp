@@ -64,6 +64,10 @@ void FabricMeshManager::setMaterialPoolInitialCapacity(uint64_t materialPoolInit
     _materialPoolInitialCapacity = materialPoolInitialCapacity;
 }
 
+void FabricMeshManager::setDebugRandomColors(bool debugRandomColors) {
+    _debugRandomColors = debugRandomColors;
+}
+
 void FabricMeshManager::clear() {
     _geometryPools.clear();
     _materialPools.clear();
@@ -81,7 +85,7 @@ std::shared_ptr<FabricGeometry> FabricMeshManager::acquireGeometry(
 
     if (_disableGeometryPool) {
         const auto path = pxr::SdfPath(fmt::format("/fabric_geometry_{}", getNextGeometryId()));
-        return std::make_shared<FabricGeometry>(path, geometryDefinition);
+        return std::make_shared<FabricGeometry>(path, geometryDefinition, _debugRandomColors);
     }
 
     std::scoped_lock<std::mutex> lock(_poolMutex);
@@ -144,8 +148,8 @@ FabricMeshManager::getGeometryPool(const FabricGeometryDefinition& geometryDefin
     }
 
     // Create a new pool
-    return _geometryPools.emplace_back(
-        std::make_shared<FabricGeometryPool>(getNextPoolId(), geometryDefinition, _geometryPoolInitialCapacity));
+    return _geometryPools.emplace_back(std::make_shared<FabricGeometryPool>(
+        getNextPoolId(), geometryDefinition, _geometryPoolInitialCapacity, _debugRandomColors));
 }
 
 std::shared_ptr<FabricMaterialPool>

@@ -198,6 +198,23 @@ CesiumData::CreateDebugMaterialPoolInitialCapacityAttr(VtValue const &defaultVal
                        writeSparsely);
 }
 
+UsdAttribute
+CesiumData::GetDebugRandomColorsAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumDebugRandomColors);
+}
+
+UsdAttribute
+CesiumData::CreateDebugRandomColorsAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumDebugRandomColors,
+                       SdfValueTypeNames->Bool,
+                       /* custom = */ false,
+                       SdfVariabilityVarying,
+                       defaultValue,
+                       writeSparsely);
+}
+
 namespace {
 static inline TfTokenVector
 _ConcatenateAttributeNames(const TfTokenVector& left,const TfTokenVector& right)
@@ -222,6 +239,7 @@ CesiumData::GetSchemaAttributeNames(bool includeInherited)
         CesiumTokens->cesiumDebugDisableMaterialPool,
         CesiumTokens->cesiumDebugGeometryPoolInitialCapacity,
         CesiumTokens->cesiumDebugMaterialPoolInitialCapacity,
+        CesiumTokens->cesiumDebugRandomColors,
     };
     static TfTokenVector allNames =
         _ConcatenateAttributeNames(

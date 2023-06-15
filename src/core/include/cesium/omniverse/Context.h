@@ -135,6 +135,7 @@ class Context {
     bool getDebugDisableMaterialPool() const;
     uint64_t getDebugGeometryPoolInitialCapacity() const;
     uint64_t getDebugMaterialPoolInitialCapacity() const;
+    bool getDebugRandomColors() const;
 
     std::shared_ptr<TaskProcessor> _taskProcessor;
     std::shared_ptr<HttpAssetAccessor> _httpAssetAccessor;

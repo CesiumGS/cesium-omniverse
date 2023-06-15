@@ -8,7 +8,11 @@ namespace cesium::omniverse {
 
 class FabricGeometryPool final : public ObjectPool<FabricGeometry> {
   public:
-    FabricGeometryPool(int64_t poolId, const FabricGeometryDefinition& geometryDefinition, uint64_t initialCapacity);
+    FabricGeometryPool(
+        int64_t poolId,
+        const FabricGeometryDefinition& geometryDefinition,
+        uint64_t initialCapacity,
+        bool debugRandomColors);
 
     const FabricGeometryDefinition& getGeometryDefinition() const;
 
@@ -19,6 +23,7 @@ class FabricGeometryPool final : public ObjectPool<FabricGeometry> {
   private:
     const int64_t _poolId;
     const FabricGeometryDefinition _geometryDefinition;
+    const bool _debugRandomColors;
 };
 
 } // namespace cesium::omniverse
