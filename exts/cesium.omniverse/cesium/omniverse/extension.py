@@ -1,5 +1,5 @@
 from .bindings import acquire_cesium_omniverse_interface, release_cesium_omniverse_interface, Viewport
-from .utils.utils import wait_n_frames
+from .utils import wait_n_frames, dock_window_async
 from .ui.asset_window import CesiumOmniverseAssetWindow
 from .ui.debug_window import CesiumOmniverseDebugWindow
 from .ui.main_window import CesiumOmniverseMainWindow
@@ -27,19 +27,6 @@ cesium_extension_location = os.path.join(os.path.dirname(__file__), "../../")
 
 
 class CesiumOmniverseExtension(omni.ext.IExt):
-    @staticmethod
-    async def _dock_window_async(
-        window: Optional[ui.Window], target: str = "Stage", position: ui.DockPosition = ui.DockPosition.SAME
-    ):
-        if window is None:
-            return
-
-        # Wait five frame
-        await wait_n_frames(5)
-        stage_window = ui.Workspace.get_window(target)
-        window.dock_in(stage_window, position, 1)
-        window.focus()
-
     @staticmethod
     def _set_menu(path, value):
         # Set the menu to create this window on and off
@@ -376,7 +363,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             self._main_window.set_visibility_changed_fn(
                 partial(self._visibility_changed_fn, CesiumOmniverseMainWindow.MENU_PATH)
             )
-            asyncio.ensure_future(self._dock_window_async(self._main_window))
+            asyncio.ensure_future(dock_window_async(self._main_window))
         elif self._main_window is not None:
             self._main_window.visible = False
 
@@ -389,7 +376,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._asset_window.set_visibility_changed_fn(
             partial(self._visibility_changed_fn, CesiumOmniverseAssetWindow.MENU_PATH)
         )
-        asyncio.ensure_future(self._dock_window_async(self._asset_window, "Content"))
+        asyncio.ensure_future(dock_window_async(self._asset_window, "Content"))
 
     def show_assets_window(self, _menu, value):
         if _cesium_omniverse_interface is None:
@@ -413,7 +400,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             self._debug_window.set_visibility_changed_fn(
                 partial(self._visibility_changed_fn, CesiumOmniverseDebugWindow.MENU_PATH)
             )
-            asyncio.ensure_future(self._dock_window_async(self._debug_window))
+            asyncio.ensure_future(dock_window_async(self._debug_window))
         elif self._debug_window is not None:
             self._debug_window.visible = False
 
