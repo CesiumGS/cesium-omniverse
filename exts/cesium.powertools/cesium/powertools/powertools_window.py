@@ -34,7 +34,7 @@ class CesiumPowertoolsWindow(ui.Window):
         # You do not necessarily need to create an action function in this window class. If you have a function
         #  in another window or class, you can absolutely call that instead from here.
         self._actions: List[PowertoolsAction] = [
-            PowertoolsAction("Cesium Debugger", CesiumOmniverseDebugWindow.show_window)
+            PowertoolsAction("Open Cesium Debugging Window", CesiumOmniverseDebugWindow.show_window)
         ]
 
         self.frame.set_build_fn(self._build_fn)
