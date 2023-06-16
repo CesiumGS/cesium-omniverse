@@ -89,7 +89,8 @@ std::shared_ptr<FabricGeometry> FabricMeshManager::acquireGeometry(
     uint64_t imageryTexcoordSetIndex) {
 
     const auto hasImagery = imagery != nullptr;
-    FabricGeometryDefinition geometryDefinition(model, primitive, smoothNormals, hasImagery, imageryTexcoordSetIndex, _disableMaterials);
+    FabricGeometryDefinition geometryDefinition(
+        model, primitive, smoothNormals, hasImagery, imageryTexcoordSetIndex, _disableMaterials);
 
     if (_disableGeometryPool) {
         const auto path = pxr::SdfPath(fmt::format("/fabric_geometry_{}", getNextGeometryId()));
