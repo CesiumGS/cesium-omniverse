@@ -31,6 +31,7 @@
     // Python modules search paths:
     "python.analysis.extraPaths": [
       "${workspaceFolder}/exts/cesium.omniverse",
+      "${workspaceFolder}/exts/cesium.usd.plugins",
       "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/extscore/omni.kit.pip_archive/pip_prebundle",
       "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/plugins/bindings-python",
       "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kernel/py",

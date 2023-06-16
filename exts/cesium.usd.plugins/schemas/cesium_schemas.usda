@@ -48,6 +48,14 @@ class CesiumDataPrim "CesiumDataPrim" (
         doc = "Debug option that renders tilesets with materials disabled."
     )
 
+    bool cesium:debug:disableTextures = false (
+        customData = {
+            string apiName = "debugDisableTextures"
+        }
+        displayName = "Disable Textures"
+        doc = "Debug option that renders tilesets with textures disabled."
+    )
+
     bool cesium:debug:disableGeometryPool = true (
         customData = {
             string apiName = "debugDisableGeometryPool"

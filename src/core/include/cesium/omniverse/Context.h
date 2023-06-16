@@ -114,7 +114,6 @@ class Context {
 
     std::filesystem::path getCesiumExtensionLocation() const;
     std::filesystem::path getCertificatePath() const;
-    bool getDebugDisableMaterials() const;
 
     bool creditsAvailable() const;
     std::vector<std::pair<std::string, bool>> getCredits() const;
@@ -133,6 +132,8 @@ class Context {
     void processPrimAdded(const ChangedPrim& changedPrim);
     void processUsdNotifications();
 
+    bool getDebugDisableMaterials() const;
+    bool getDebugDisableTextures() const;
     bool getDebugDisableGeometryPool() const;
     bool getDebugDisableMaterialPool() const;
     uint64_t getDebugGeometryPoolInitialCapacity() const;

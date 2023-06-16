@@ -16,7 +16,8 @@ class FabricMaterialDefinition {
     FabricMaterialDefinition(
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
-        bool hasImagery);
+        bool hasImagery,
+        bool disableTextures);
 
     bool hasBaseColorTexture() const;
     bool hasVertexColors() const;
