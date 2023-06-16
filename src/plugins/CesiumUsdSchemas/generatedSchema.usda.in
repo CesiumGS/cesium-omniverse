@@ -24,6 +24,10 @@ class CesiumDataPrim "CesiumDataPrim" (
         displayName = "Disable Materials"
         doc = "Debug option that renders tilesets with materials disabled."
     )
+    bool cesium:debug:disableTextures = 0 (
+        displayName = "Disable Textures"
+        doc = "Debug option that renders tilesets with textures disabled."
+    )
     uint64 cesium:debug:geometryPoolInitialCapacity = 0 (
         displayName = "Geometry Pool Initial Capacity"
         doc = "Debug option that controls the initial capacity of the geometry pool."

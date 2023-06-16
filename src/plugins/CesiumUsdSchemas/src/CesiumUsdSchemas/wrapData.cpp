@@ -48,6 +48,13 @@ _CreateDebugDisableMaterialsAttr(CesiumData &self,
 }
         
 static UsdAttribute
+_CreateDebugDisableTexturesAttr(CesiumData &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateDebugDisableTexturesAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+}
+        
+static UsdAttribute
 _CreateDebugDisableGeometryPoolAttr(CesiumData &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateDebugDisableGeometryPoolAttr(
@@ -142,6 +149,13 @@ void wrapCesiumData()
              &This::GetDebugDisableMaterialsAttr)
         .def("CreateDebugDisableMaterialsAttr",
              &_CreateDebugDisableMaterialsAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetDebugDisableTexturesAttr",
+             &This::GetDebugDisableTexturesAttr)
+        .def("CreateDebugDisableTexturesAttr",
+             &_CreateDebugDisableTexturesAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         

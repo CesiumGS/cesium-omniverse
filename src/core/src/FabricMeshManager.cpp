@@ -44,6 +44,14 @@ void FabricMeshManager::releaseMesh(std::shared_ptr<FabricMesh> mesh) {
     }
 }
 
+void FabricMeshManager::setDisableMaterials(bool disableMaterials) {
+    _disableMaterials = disableMaterials;
+}
+
+void FabricMeshManager::setDisableTextures(bool disableTextures) {
+    _disableTextures = disableTextures;
+}
+
 void FabricMeshManager::setDisableGeometryPool(bool disableGeometryPool) {
     assert(_geometryPools.size() == 0);
     _disableGeometryPool = disableGeometryPool;
@@ -81,7 +89,7 @@ std::shared_ptr<FabricGeometry> FabricMeshManager::acquireGeometry(
     uint64_t imageryTexcoordSetIndex) {
 
     const auto hasImagery = imagery != nullptr;
-    FabricGeometryDefinition geometryDefinition(model, primitive, smoothNormals, hasImagery, imageryTexcoordSetIndex);
+    FabricGeometryDefinition geometryDefinition(model, primitive, smoothNormals, hasImagery, imageryTexcoordSetIndex, _disableMaterials);
 
     if (_disableGeometryPool) {
         const auto path = pxr::SdfPath(fmt::format("/fabric_geometry_{}", getNextGeometryId()));
@@ -101,7 +109,7 @@ std::shared_ptr<FabricMaterial> FabricMeshManager::acquireMaterial(
     const CesiumGltf::ImageCesium* imagery) {
 
     const auto hasImagery = imagery != nullptr;
-    FabricMaterialDefinition materialDefinition(model, primitive, hasImagery);
+    FabricMaterialDefinition materialDefinition(model, primitive, hasImagery, _disableTextures);
 
     if (_disableMaterialPool) {
         const auto path = pxr::SdfPath(fmt::format("/fabric_material_{}", getNextMaterialId()));
