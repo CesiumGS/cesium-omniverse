@@ -51,6 +51,7 @@ setup_lib(
         sdf
         tf
         usd
+        usdGeom
         tbb
         boost_python37
         python37
