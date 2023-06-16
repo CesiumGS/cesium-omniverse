@@ -14,13 +14,13 @@ namespace cesium::omniverse {
 FabricMaterialDefinition::FabricMaterialDefinition(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
-    bool hasImagery) {
+    bool hasImagery,
+    bool disableTextures) {
 
     const auto hasGltfMaterial = GltfUtil::hasMaterial(primitive);
 
     if (hasGltfMaterial) {
         const auto& material = model.materials[static_cast<size_t>(primitive.material)];
-
         _alphaCutoff = GltfUtil::getAlphaCutoff(material);
         _alphaMode = GltfUtil::getAlphaMode(material);
         _baseAlpha = GltfUtil::getBaseAlpha(material);
@@ -48,6 +48,10 @@ FabricMaterialDefinition::FabricMaterialDefinition(
         _hasBaseColorTexture = true;
         _wrapS = CesiumGltf::Sampler::WrapS::CLAMP_TO_EDGE;
         _wrapT = CesiumGltf::Sampler::WrapS::CLAMP_TO_EDGE;
+    }
+
+    if (disableTextures) {
+        _hasBaseColorTexture = false;
     }
 
     _hasVertexColors = GltfUtil::hasVertexColors(model, primitive, 0);
