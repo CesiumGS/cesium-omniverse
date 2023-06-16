@@ -339,11 +339,11 @@ class CesiumImageryPrim "CesiumImageryPrim" (
     )
 }
 
-class "CesiumGlobalAnchorSchemaAPI" (
-    doc = """Adds Global Anchoring information to a Prim for use with Cesium for Omniverse."""
+class "CesiumGlobeAnchorSchemaAPI" (
+    doc = """Adds Globe Anchoring information to a Prim for use with Cesium for Omniverse."""
     inherits = </APISchemaBase>
     customData = {
-        string className = "GlobalAnchorAPI"
+        string className = "GlobeAnchorAPI"
         token apiSchemaType = "singleApply"
     }
 ) {
@@ -409,5 +409,13 @@ class "CesiumGlobalAnchorSchemaAPI" (
         }
         displayName = "Scale"
         doc = "The local scaling of the prim."
+    )
+
+    rel cesium:anchor:georeferenceBinding (
+        customData = {
+            string apiName = "georeferenceBinding"
+        }
+        displayName = "Georeference Origin Binding"
+        doc = "The Georeference Origin prim used for the globe anchor calculations."
     )
 }

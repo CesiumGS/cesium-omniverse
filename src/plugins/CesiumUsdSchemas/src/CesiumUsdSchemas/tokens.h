@@ -41,35 +41,39 @@ struct CesiumTokensType {
     CESIUM_API CesiumTokensType();
     /// \brief "cesium:anchor:adjustOrientationForGlobeWhenMoving"
     /// 
-    /// CesiumGlobalAnchorAPI
+    /// CesiumGlobeAnchorAPI
     const TfToken cesiumAnchorAdjustOrientationForGlobeWhenMoving;
     /// \brief "cesium:anchor:detectTransformChanges"
     /// 
-    /// CesiumGlobalAnchorAPI
+    /// CesiumGlobeAnchorAPI
     const TfToken cesiumAnchorDetectTransformChanges;
+    /// \brief "cesium:anchor:georeferenceBinding"
+    /// 
+    /// CesiumGlobeAnchorAPI
+    const TfToken cesiumAnchorGeoreferenceBinding;
     /// \brief "cesium:anchor:height"
     /// 
-    /// CesiumGlobalAnchorAPI
+    /// CesiumGlobeAnchorAPI
     const TfToken cesiumAnchorHeight;
     /// \brief "cesium:anchor:latitude"
     /// 
-    /// CesiumGlobalAnchorAPI
+    /// CesiumGlobeAnchorAPI
     const TfToken cesiumAnchorLatitude;
     /// \brief "cesium:anchor:longitude"
     /// 
-    /// CesiumGlobalAnchorAPI
+    /// CesiumGlobeAnchorAPI
     const TfToken cesiumAnchorLongitude;
     /// \brief "cesium:anchor:position"
     /// 
-    /// CesiumGlobalAnchorAPI
+    /// CesiumGlobeAnchorAPI
     const TfToken cesiumAnchorPosition;
     /// \brief "cesium:anchor:rotation"
     /// 
-    /// CesiumGlobalAnchorAPI
+    /// CesiumGlobeAnchorAPI
     const TfToken cesiumAnchorRotation;
     /// \brief "cesium:anchor:scale"
     /// 
-    /// CesiumGlobalAnchorAPI
+    /// CesiumGlobeAnchorAPI
     const TfToken cesiumAnchorScale;
     /// \brief "cesium:culledScreenSpaceError"
     /// 

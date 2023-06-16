@@ -337,23 +337,24 @@ pxr::CesiumImagery defineCesiumImagery(const pxr::SdfPath& path) {
     return imagery;
 }
 
-pxr::CesiumGlobalAnchorAPI defineGlobalAnchor(const pxr::SdfPath& path) {
+pxr::CesiumGlobeAnchorAPI defineGlobeAnchor(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto prim = stage->GetPrimAtPath(path);
 
-    auto globalAnchor = pxr::CesiumGlobalAnchorAPI::Apply(prim);
-    assert(globalAnchor.GetPrim().IsValid());
+    auto globeAnchor = pxr::CesiumGlobeAnchorAPI::Apply(prim);
+    assert(globeAnchor.GetPrim().IsValid());
 
-    globalAnchor.CreateAdjustOrientationForGlobeWhenMovingAttr();
-    globalAnchor.CreateDetectTransformChangesAttr();
-    globalAnchor.CreateLongitudeAttr();
-    globalAnchor.CreateLatitudeAttr();
-    globalAnchor.CreateHeightAttr();
-    globalAnchor.CreatePositionAttr();
-    globalAnchor.CreateRotationAttr();
-    globalAnchor.CreateScaleAttr();
+    globeAnchor.CreateAdjustOrientationForGlobeWhenMovingAttr();
+    globeAnchor.CreateDetectTransformChangesAttr();
+    globeAnchor.CreateLongitudeAttr();
+    globeAnchor.CreateLatitudeAttr();
+    globeAnchor.CreateHeightAttr();
+    globeAnchor.CreatePositionAttr();
+    globeAnchor.CreateRotationAttr();
+    globeAnchor.CreateScaleAttr();
+    globeAnchor.CreateGeoreferenceBindingRel();
 
-    return globalAnchor;
+    return globeAnchor;
 }
 
 pxr::CesiumData getOrCreateCesiumData() {
@@ -434,11 +435,11 @@ std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& p
     return result;
 }
 
-pxr::CesiumGlobalAnchorAPI getGlobalAnchor(const pxr::SdfPath& path) {
+pxr::CesiumGlobeAnchorAPI getGlobeAnchor(const pxr::SdfPath& path) {
     auto stage = UsdUtil::getUsdStage();
-    auto globalAnchor = pxr::CesiumGlobalAnchorAPI::Get(stage, path);
-    assert(globalAnchor.GetPrim().IsValid());
-    return globalAnchor;
+    auto globeAnchor = pxr::CesiumGlobeAnchorAPI::Get(stage, path);
+    assert(globeAnchor.GetPrim().IsValid());
+    return globeAnchor;
 }
 
 bool isCesiumData(const pxr::SdfPath& path) {

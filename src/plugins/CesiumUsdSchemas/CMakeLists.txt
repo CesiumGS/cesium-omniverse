@@ -2,7 +2,7 @@ include(Macros)
 
 set(SOURCES
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/data.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/globalAnchorAPI.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/globeAnchorAPI.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/georeference.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/imagery.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/session.cpp"
@@ -13,7 +13,7 @@ set(PY_BINDING_SOURCES
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/module.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/moduleDeps.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapData.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapGlobalAnchorAPI.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapGlobeAnchorAPI.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapGeoreference.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapImagery.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapSession.cpp"

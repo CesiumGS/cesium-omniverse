@@ -1,7 +1,7 @@
-#ifndef CESIUM_GENERATED_GLOBALANCHORAPI_H
-#define CESIUM_GENERATED_GLOBALANCHORAPI_H
+#ifndef CESIUM_GENERATED_GLOBEANCHORAPI_H
+#define CESIUM_GENERATED_GLOBEANCHORAPI_H
 
-/// \file cesium/globalAnchorAPI.h
+/// \file cesium/globeAnchorAPI.h
 
 #include "pxr/pxr.h"
 #include ".//api.h"
@@ -24,14 +24,14 @@ PXR_NAMESPACE_OPEN_SCOPE
 class SdfAssetPath;
 
 // -------------------------------------------------------------------------- //
-// CESIUMGLOBALANCHORSCHEMAAPI                                                //
+// CESIUMGLOBEANCHORSCHEMAAPI                                                 //
 // -------------------------------------------------------------------------- //
 
-/// \class CesiumGlobalAnchorAPI
+/// \class CesiumGlobeAnchorAPI
 ///
-/// Adds Global Anchoring information to a Prim for use with Cesium for Omniverse.
+/// Adds Globe Anchoring information to a Prim for use with Cesium for Omniverse.
 ///
-class CESIUM_API CesiumGlobalAnchorAPI : public UsdAPISchemaBase
+class CESIUM_API CesiumGlobeAnchorAPI : public UsdAPISchemaBase
 {
 public:
     /// Compile time constant representing what kind of schema this class is.
@@ -39,25 +39,25 @@ public:
     /// \sa UsdSchemaType
     static const UsdSchemaType schemaType = UsdSchemaType::SingleApplyAPI;
 
-    /// Construct a CesiumGlobalAnchorAPI on UsdPrim \p prim .
-    /// Equivalent to CesiumGlobalAnchorAPI::Get(prim.GetStage(), prim.GetPath())
+    /// Construct a CesiumGlobeAnchorAPI on UsdPrim \p prim .
+    /// Equivalent to CesiumGlobeAnchorAPI::Get(prim.GetStage(), prim.GetPath())
     /// for a \em valid \p prim, but will not immediately throw an error for
     /// an invalid \p prim
-    explicit CesiumGlobalAnchorAPI(const UsdPrim& prim=UsdPrim())
+    explicit CesiumGlobeAnchorAPI(const UsdPrim& prim=UsdPrim())
         : UsdAPISchemaBase(prim)
     {
     }
 
-    /// Construct a CesiumGlobalAnchorAPI on the prim held by \p schemaObj .
-    /// Should be preferred over CesiumGlobalAnchorAPI(schemaObj.GetPrim()),
+    /// Construct a CesiumGlobeAnchorAPI on the prim held by \p schemaObj .
+    /// Should be preferred over CesiumGlobeAnchorAPI(schemaObj.GetPrim()),
     /// as it preserves SchemaBase state.
-    explicit CesiumGlobalAnchorAPI(const UsdSchemaBase& schemaObj)
+    explicit CesiumGlobeAnchorAPI(const UsdSchemaBase& schemaObj)
         : UsdAPISchemaBase(schemaObj)
     {
     }
 
     /// Destructor.
-    virtual ~CesiumGlobalAnchorAPI();
+    virtual ~CesiumGlobeAnchorAPI();
 
     /// Return a vector of names of all pre-declared attributes for this schema
     /// class and all its ancestor classes.  Does not include attributes that
@@ -65,25 +65,25 @@ public:
     static const TfTokenVector &
     GetSchemaAttributeNames(bool includeInherited=true);
 
-    /// Return a CesiumGlobalAnchorAPI holding the prim adhering to this
+    /// Return a CesiumGlobeAnchorAPI holding the prim adhering to this
     /// schema at \p path on \p stage.  If no prim exists at \p path on
     /// \p stage, or if the prim at that path does not adhere to this schema,
     /// return an invalid schema object.  This is shorthand for the following:
     ///
     /// \code
-    /// CesiumGlobalAnchorAPI(stage->GetPrimAtPath(path));
+    /// CesiumGlobeAnchorAPI(stage->GetPrimAtPath(path));
     /// \endcode
     ///
-    static CesiumGlobalAnchorAPI
+    static CesiumGlobeAnchorAPI
     Get(const UsdStagePtr &stage, const SdfPath &path);
 
 
     /// Applies this <b>single-apply</b> API schema to the given \p prim.
-    /// This information is stored by adding "CesiumGlobalAnchorSchemaAPI" to the 
+    /// This information is stored by adding "CesiumGlobeAnchorSchemaAPI" to the 
     /// token-valued, listOp metadata \em apiSchemas on the prim.
     /// 
-    /// \return A valid CesiumGlobalAnchorAPI object is returned upon success. 
-    /// An invalid (or empty) CesiumGlobalAnchorAPI object is returned upon 
+    /// \return A valid CesiumGlobeAnchorAPI object is returned upon success. 
+    /// An invalid (or empty) CesiumGlobeAnchorAPI object is returned upon 
     /// failure. See \ref UsdPrim::ApplyAPI() for conditions 
     /// resulting in failure. 
     /// 
@@ -92,7 +92,7 @@ public:
     /// \sa UsdPrim::ApplyAPI()
     /// \sa UsdPrim::RemoveAPI()
     ///
-    static CesiumGlobalAnchorAPI 
+    static CesiumGlobeAnchorAPI 
     Apply(const UsdPrim &prim);
 
 protected:
@@ -270,6 +270,18 @@ public:
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
     UsdAttribute CreateScaleAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
+    // GEOREFERENCEBINDING 
+    // --------------------------------------------------------------------- //
+    /// The Georeference Origin prim used for the globe anchor calculations.
+    ///
+    UsdRelationship GetGeoreferenceBindingRel() const;
+
+    /// See GetGeoreferenceBindingRel(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create
+    UsdRelationship CreateGeoreferenceBindingRel() const;
 
 public:
     // ===================================================================== //

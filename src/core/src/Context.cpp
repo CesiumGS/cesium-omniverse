@@ -472,6 +472,14 @@ void Context::setGeoreferenceOrigin(const CesiumGeospatial::Cartographic& origin
     georeference.GetGeoreferenceOriginLongitudeAttr().Set<double>(glm::degrees(origin.longitude));
     georeference.GetGeoreferenceOriginLatitudeAttr().Set<double>(glm::degrees(origin.latitude));
     georeference.GetGeoreferenceOriginHeightAttr().Set<double>(origin.height);
+
+    auto cartographicOrigin = GeospatialUtil::convertGeoreferenceToCartographic(georeference);
+    _coordinateSystem = CesiumGeospatial::LocalHorizontalCoordinateSystem(
+        cartographicOrigin,
+        CesiumGeospatial::LocalDirection::East,
+        CesiumGeospatial::LocalDirection::Up,
+        CesiumGeospatial::LocalDirection::South,
+        0.01);
 }
 
 void Context::connectToIon() {
@@ -775,9 +783,24 @@ RenderStatistics Context::getRenderStatistics() const {
     return renderStatistics;
 }
 
-void Context::addGlobalAnchorToPrim(const pxr::SdfPath& path) {
+void Context::addGlobeAnchorToPrim(const pxr::SdfPath& path) {
+    auto prim = UsdUtil::getUsdStage()->GetPrimAtPath(path);
+
     // TODO: Move this to the GlobalAnchor class I'm creating. Doing this right now to test it before I leave.
-    UsdUtil::defineGlobalAnchor(path);
+    auto globeAnchorApi = UsdUtil::defineGlobeAnchor(path);
+
+    // Until we support multiple georeference points, we should just use the default georeference object.
+    auto georeferenceOrigin = UsdUtil::getOrCreateCesiumGeoreference();
+
+    globeAnchorApi.GetGeoreferenceBindingRel().AddTarget(georeferenceOrigin.GetPath());
+
+    const auto& cartographicOrigin = GeospatialUtil::convertGeoreferenceToCartographic(georeferenceOrigin);
+
+    auto usdToEcef = UsdUtil::computeUsdToEcefTransformForPrim(cartographicOrigin, path);
+
+    auto anchor = CesiumGeospatial::GlobeAnchor::fromAnchorToLocalTransform(_coordinateSystem, usdToEcef);
+
+    // TODO: Finish this.
 }
 
 } // namespace cesium::omniverse

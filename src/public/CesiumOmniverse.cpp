@@ -184,7 +184,7 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
     }
 
     void addGlobalAnchorToPrim(const char* path) noexcept override {
-        return Context::instance().addGlobalAnchorToPrim(pxr::SdfPath(path));
+        return Context::instance().addGlobeAnchorToPrim(pxr::SdfPath(path));
     }
 };
 } // namespace cesium::omniverse

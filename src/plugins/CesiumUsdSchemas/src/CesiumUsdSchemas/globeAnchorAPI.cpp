@@ -1,4 +1,4 @@
-#include ".//globalAnchorAPI.h"
+#include ".//globeAnchorAPI.h"
 #include "pxr/usd/usd/schemaRegistry.h"
 #include "pxr/usd/usd/typed.h"
 #include "pxr/usd/usd/tokens.h"
@@ -11,59 +11,59 @@ PXR_NAMESPACE_OPEN_SCOPE
 // Register the schema with the TfType system.
 TF_REGISTRY_FUNCTION(TfType)
 {
-    TfType::Define<CesiumGlobalAnchorAPI,
+    TfType::Define<CesiumGlobeAnchorAPI,
         TfType::Bases< UsdAPISchemaBase > >();
     
 }
 
 TF_DEFINE_PRIVATE_TOKENS(
     _schemaTokens,
-    (CesiumGlobalAnchorSchemaAPI)
+    (CesiumGlobeAnchorSchemaAPI)
 );
 
 /* virtual */
-CesiumGlobalAnchorAPI::~CesiumGlobalAnchorAPI()
+CesiumGlobeAnchorAPI::~CesiumGlobeAnchorAPI()
 {
 }
 
 /* static */
-CesiumGlobalAnchorAPI
-CesiumGlobalAnchorAPI::Get(const UsdStagePtr &stage, const SdfPath &path)
+CesiumGlobeAnchorAPI
+CesiumGlobeAnchorAPI::Get(const UsdStagePtr &stage, const SdfPath &path)
 {
     if (!stage) {
         TF_CODING_ERROR("Invalid stage");
-        return CesiumGlobalAnchorAPI();
+        return CesiumGlobeAnchorAPI();
     }
-    return CesiumGlobalAnchorAPI(stage->GetPrimAtPath(path));
+    return CesiumGlobeAnchorAPI(stage->GetPrimAtPath(path));
 }
 
 
 /* virtual */
-UsdSchemaType CesiumGlobalAnchorAPI::_GetSchemaType() const {
-    return CesiumGlobalAnchorAPI::schemaType;
+UsdSchemaType CesiumGlobeAnchorAPI::_GetSchemaType() const {
+    return CesiumGlobeAnchorAPI::schemaType;
 }
 
 /* static */
-CesiumGlobalAnchorAPI
-CesiumGlobalAnchorAPI::Apply(const UsdPrim &prim)
+CesiumGlobeAnchorAPI
+CesiumGlobeAnchorAPI::Apply(const UsdPrim &prim)
 {
-    if (prim.ApplyAPI<CesiumGlobalAnchorAPI>()) {
-        return CesiumGlobalAnchorAPI(prim);
+    if (prim.ApplyAPI<CesiumGlobeAnchorAPI>()) {
+        return CesiumGlobeAnchorAPI(prim);
     }
-    return CesiumGlobalAnchorAPI();
+    return CesiumGlobeAnchorAPI();
 }
 
 /* static */
 const TfType &
-CesiumGlobalAnchorAPI::_GetStaticTfType()
+CesiumGlobeAnchorAPI::_GetStaticTfType()
 {
-    static TfType tfType = TfType::Find<CesiumGlobalAnchorAPI>();
+    static TfType tfType = TfType::Find<CesiumGlobeAnchorAPI>();
     return tfType;
 }
 
 /* static */
 bool 
-CesiumGlobalAnchorAPI::_IsTypedSchema()
+CesiumGlobeAnchorAPI::_IsTypedSchema()
 {
     static bool isTyped = _GetStaticTfType().IsA<UsdTyped>();
     return isTyped;
@@ -71,19 +71,19 @@ CesiumGlobalAnchorAPI::_IsTypedSchema()
 
 /* virtual */
 const TfType &
-CesiumGlobalAnchorAPI::_GetTfType() const
+CesiumGlobeAnchorAPI::_GetTfType() const
 {
     return _GetStaticTfType();
 }
 
 UsdAttribute
-CesiumGlobalAnchorAPI::GetAdjustOrientationForGlobeWhenMovingAttr() const
+CesiumGlobeAnchorAPI::GetAdjustOrientationForGlobeWhenMovingAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumAnchorAdjustOrientationForGlobeWhenMoving);
 }
 
 UsdAttribute
-CesiumGlobalAnchorAPI::CreateAdjustOrientationForGlobeWhenMovingAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumGlobeAnchorAPI::CreateAdjustOrientationForGlobeWhenMovingAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumAnchorAdjustOrientationForGlobeWhenMoving,
                        SdfValueTypeNames->Bool,
@@ -94,13 +94,13 @@ CesiumGlobalAnchorAPI::CreateAdjustOrientationForGlobeWhenMovingAttr(VtValue con
 }
 
 UsdAttribute
-CesiumGlobalAnchorAPI::GetDetectTransformChangesAttr() const
+CesiumGlobeAnchorAPI::GetDetectTransformChangesAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumAnchorDetectTransformChanges);
 }
 
 UsdAttribute
-CesiumGlobalAnchorAPI::CreateDetectTransformChangesAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumGlobeAnchorAPI::CreateDetectTransformChangesAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumAnchorDetectTransformChanges,
                        SdfValueTypeNames->Bool,
@@ -111,13 +111,13 @@ CesiumGlobalAnchorAPI::CreateDetectTransformChangesAttr(VtValue const &defaultVa
 }
 
 UsdAttribute
-CesiumGlobalAnchorAPI::GetLongitudeAttr() const
+CesiumGlobeAnchorAPI::GetLongitudeAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumAnchorLongitude);
 }
 
 UsdAttribute
-CesiumGlobalAnchorAPI::CreateLongitudeAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumGlobeAnchorAPI::CreateLongitudeAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumAnchorLongitude,
                        SdfValueTypeNames->Double,
@@ -128,13 +128,13 @@ CesiumGlobalAnchorAPI::CreateLongitudeAttr(VtValue const &defaultValue, bool wri
 }
 
 UsdAttribute
-CesiumGlobalAnchorAPI::GetLatitudeAttr() const
+CesiumGlobeAnchorAPI::GetLatitudeAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumAnchorLatitude);
 }
 
 UsdAttribute
-CesiumGlobalAnchorAPI::CreateLatitudeAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumGlobeAnchorAPI::CreateLatitudeAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumAnchorLatitude,
                        SdfValueTypeNames->Double,
@@ -145,13 +145,13 @@ CesiumGlobalAnchorAPI::CreateLatitudeAttr(VtValue const &defaultValue, bool writ
 }
 
 UsdAttribute
-CesiumGlobalAnchorAPI::GetHeightAttr() const
+CesiumGlobeAnchorAPI::GetHeightAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumAnchorHeight);
 }
 
 UsdAttribute
-CesiumGlobalAnchorAPI::CreateHeightAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumGlobeAnchorAPI::CreateHeightAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumAnchorHeight,
                        SdfValueTypeNames->Double,
@@ -162,13 +162,13 @@ CesiumGlobalAnchorAPI::CreateHeightAttr(VtValue const &defaultValue, bool writeS
 }
 
 UsdAttribute
-CesiumGlobalAnchorAPI::GetPositionAttr() const
+CesiumGlobeAnchorAPI::GetPositionAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumAnchorPosition);
 }
 
 UsdAttribute
-CesiumGlobalAnchorAPI::CreatePositionAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumGlobeAnchorAPI::CreatePositionAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumAnchorPosition,
                        SdfValueTypeNames->Double3,
@@ -179,13 +179,13 @@ CesiumGlobalAnchorAPI::CreatePositionAttr(VtValue const &defaultValue, bool writ
 }
 
 UsdAttribute
-CesiumGlobalAnchorAPI::GetRotationAttr() const
+CesiumGlobeAnchorAPI::GetRotationAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumAnchorRotation);
 }
 
 UsdAttribute
-CesiumGlobalAnchorAPI::CreateRotationAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumGlobeAnchorAPI::CreateRotationAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumAnchorRotation,
                        SdfValueTypeNames->Double3,
@@ -196,13 +196,13 @@ CesiumGlobalAnchorAPI::CreateRotationAttr(VtValue const &defaultValue, bool writ
 }
 
 UsdAttribute
-CesiumGlobalAnchorAPI::GetScaleAttr() const
+CesiumGlobeAnchorAPI::GetScaleAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumAnchorScale);
 }
 
 UsdAttribute
-CesiumGlobalAnchorAPI::CreateScaleAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumGlobeAnchorAPI::CreateScaleAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumAnchorScale,
                        SdfValueTypeNames->Double3,
@@ -210,6 +210,19 @@ CesiumGlobalAnchorAPI::CreateScaleAttr(VtValue const &defaultValue, bool writeSp
                        SdfVariabilityVarying,
                        defaultValue,
                        writeSparsely);
+}
+
+UsdRelationship
+CesiumGlobeAnchorAPI::GetGeoreferenceBindingRel() const
+{
+    return GetPrim().GetRelationship(CesiumTokens->cesiumAnchorGeoreferenceBinding);
+}
+
+UsdRelationship
+CesiumGlobeAnchorAPI::CreateGeoreferenceBindingRel() const
+{
+    return GetPrim().CreateRelationship(CesiumTokens->cesiumAnchorGeoreferenceBinding,
+                       /* custom = */ false);
 }
 
 namespace {
@@ -226,7 +239,7 @@ _ConcatenateAttributeNames(const TfTokenVector& left,const TfTokenVector& right)
 
 /*static*/
 const TfTokenVector&
-CesiumGlobalAnchorAPI::GetSchemaAttributeNames(bool includeInherited)
+CesiumGlobeAnchorAPI::GetSchemaAttributeNames(bool includeInherited)
 {
     static TfTokenVector localNames = {
         CesiumTokens->cesiumAnchorAdjustOrientationForGlobeWhenMoving,

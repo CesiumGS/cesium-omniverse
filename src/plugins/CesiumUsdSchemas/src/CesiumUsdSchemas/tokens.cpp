@@ -5,6 +5,7 @@ PXR_NAMESPACE_OPEN_SCOPE
 CesiumTokensType::CesiumTokensType() :
     cesiumAnchorAdjustOrientationForGlobeWhenMoving("cesium:anchor:adjustOrientationForGlobeWhenMoving", TfToken::Immortal),
     cesiumAnchorDetectTransformChanges("cesium:anchor:detectTransformChanges", TfToken::Immortal),
+    cesiumAnchorGeoreferenceBinding("cesium:anchor:georeferenceBinding", TfToken::Immortal),
     cesiumAnchorHeight("cesium:anchor:height", TfToken::Immortal),
     cesiumAnchorLatitude("cesium:anchor:latitude", TfToken::Immortal),
     cesiumAnchorLongitude("cesium:anchor:longitude", TfToken::Immortal),
@@ -48,6 +49,7 @@ CesiumTokensType::CesiumTokensType() :
     allTokens({
         cesiumAnchorAdjustOrientationForGlobeWhenMoving,
         cesiumAnchorDetectTransformChanges,
+        cesiumAnchorGeoreferenceBinding,
         cesiumAnchorHeight,
         cesiumAnchorLatitude,
         cesiumAnchorLongitude,

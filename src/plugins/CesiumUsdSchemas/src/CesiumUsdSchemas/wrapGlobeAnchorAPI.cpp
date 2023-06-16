@@ -1,4 +1,4 @@
-#include ".//globalAnchorAPI.h"
+#include ".//globeAnchorAPI.h"
 #include "pxr/usd/usd/schemaBase.h"
 
 #include "pxr/usd/sdf/primSpec.h"
@@ -27,78 +27,78 @@ WRAP_CUSTOM;
 
         
 static UsdAttribute
-_CreateAdjustOrientationForGlobeWhenMovingAttr(CesiumGlobalAnchorAPI &self,
+_CreateAdjustOrientationForGlobeWhenMovingAttr(CesiumGlobeAnchorAPI &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateAdjustOrientationForGlobeWhenMovingAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
-_CreateDetectTransformChangesAttr(CesiumGlobalAnchorAPI &self,
+_CreateDetectTransformChangesAttr(CesiumGlobeAnchorAPI &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateDetectTransformChangesAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
-_CreateLongitudeAttr(CesiumGlobalAnchorAPI &self,
+_CreateLongitudeAttr(CesiumGlobeAnchorAPI &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateLongitudeAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
 }
         
 static UsdAttribute
-_CreateLatitudeAttr(CesiumGlobalAnchorAPI &self,
+_CreateLatitudeAttr(CesiumGlobeAnchorAPI &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateLatitudeAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
 }
         
 static UsdAttribute
-_CreateHeightAttr(CesiumGlobalAnchorAPI &self,
+_CreateHeightAttr(CesiumGlobeAnchorAPI &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateHeightAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
 }
         
 static UsdAttribute
-_CreatePositionAttr(CesiumGlobalAnchorAPI &self,
+_CreatePositionAttr(CesiumGlobeAnchorAPI &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreatePositionAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double3), writeSparsely);
 }
         
 static UsdAttribute
-_CreateRotationAttr(CesiumGlobalAnchorAPI &self,
+_CreateRotationAttr(CesiumGlobeAnchorAPI &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateRotationAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double3), writeSparsely);
 }
         
 static UsdAttribute
-_CreateScaleAttr(CesiumGlobalAnchorAPI &self,
+_CreateScaleAttr(CesiumGlobeAnchorAPI &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateScaleAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double3), writeSparsely);
 }
 
 static std::string
-_Repr(const CesiumGlobalAnchorAPI &self)
+_Repr(const CesiumGlobeAnchorAPI &self)
 {
     std::string primRepr = TfPyRepr(self.GetPrim());
     return TfStringPrintf(
-        "Cesium.GlobalAnchorAPI(%s)",
+        "Cesium.GlobeAnchorAPI(%s)",
         primRepr.c_str());
 }
 
 } // anonymous namespace
 
-void wrapCesiumGlobalAnchorAPI()
+void wrapCesiumGlobeAnchorAPI()
 {
-    typedef CesiumGlobalAnchorAPI This;
+    typedef CesiumGlobeAnchorAPI This;
 
     class_<This, bases<UsdAPISchemaBase> >
-        cls("GlobalAnchorAPI");
+        cls("GlobeAnchorAPI");
 
     cls
         .def(init<UsdPrim>(arg("prim")))
@@ -180,6 +180,11 @@ void wrapCesiumGlobalAnchorAPI()
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 
+        
+        .def("GetGeoreferenceBindingRel",
+             &This::GetGeoreferenceBindingRel)
+        .def("CreateGeoreferenceBindingRel",
+             &This::CreateGeoreferenceBindingRel)
         .def("__repr__", ::_Repr)
     ;
 

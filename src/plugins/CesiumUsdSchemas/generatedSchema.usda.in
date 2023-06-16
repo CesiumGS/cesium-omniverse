@@ -2,7 +2,7 @@
 (
     "WARNING: THIS FILE IS GENERATED.  DO NOT EDIT."
     customLayerData = {
-        string[] appliedAPISchemas = ["CesiumTilesetSchemaAPI", "CesiumGlobalAnchorSchemaAPI"]
+        string[] appliedAPISchemas = ["CesiumTilesetSchemaAPI", "CesiumGlobeAnchorSchemaAPI"]
         dictionary multipleApplyAPISchemas = {
         }
     }
@@ -179,8 +179,8 @@ class CesiumImageryPrim "CesiumImageryPrim" (
     )
 }
 
-class "CesiumGlobalAnchorSchemaAPI" (
-    doc = "Adds Global Anchoring information to a Prim for use with Cesium for Omniverse."
+class "CesiumGlobeAnchorSchemaAPI" (
+    doc = "Adds Globe Anchoring information to a Prim for use with Cesium for Omniverse."
 )
 {
     bool cesium:anchor:adjustOrientationForGlobeWhenMoving = 1 (
@@ -190,6 +190,10 @@ class "CesiumGlobalAnchorSchemaAPI" (
     bool cesium:anchor:detectTransformChanges = 1 (
         displayName = "Detect Transform Changes"
         doc = "Gets or sets whether to automatically detect changes in the Prim's transform and update the precise globe coordinates accordingly."
+    )
+    rel cesium:anchor:georeferenceBinding (
+        displayName = "Georeference Origin Binding"
+        doc = "The Georeference Origin prim used for the globe anchor calculations."
     )
     double cesium:anchor:height = 10 (
         displayName = "Georeference Origin Height"
