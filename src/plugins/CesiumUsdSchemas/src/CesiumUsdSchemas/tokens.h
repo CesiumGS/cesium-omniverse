@@ -95,6 +95,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumData
     const TfToken cesiumDebugMaterialPoolInitialCapacity;
+    /// \brief "cesium:debug:randomColors"
+    /// 
+    /// CesiumData
+    const TfToken cesiumDebugRandomColors;
     /// \brief "cesium:ecefToUsdTransform"
     /// 
     /// CesiumSession

@@ -79,6 +79,14 @@ class CesiumDataPrim "CesiumDataPrim" (
         displayName = "Material Pool Initial Capacity"
         doc = "Debug option that controls the initial capacity of the material pool."
     )
+
+    bool cesium:debug:randomColors = false (
+        customData = {
+            string apiName = "debugRandomColors"
+        }
+        displayName = "Random Colors"
+        doc = "Debug option that renders tiles with random colors."
+    )
 }
 
 class CesiumSessionPrim "CesiumSessionPrim" (
