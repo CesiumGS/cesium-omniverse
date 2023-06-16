@@ -1,0 +1,149 @@
+import logging
+import omni.ui as ui
+import omni.usd
+from ..utils.proj import epsg_to_ecef, epsg_to_wgs84, get_crs_name_from_epsg
+import math
+from .custom_fields import string_field_with_label, int_field_with_label, float_field_with_label
+
+
+class CesiumGeorefHelperWindow(ui.Window):
+    WINDOW_NAME = "Cesium Georeference Helper"
+
+    _logger: logging.Logger
+
+    def __init__(self, **kwargs):
+        super().__init__(CesiumGeorefHelperWindow.WINDOW_NAME, **kwargs)
+
+        self._logger = logging.getLogger(__name__)
+
+        # Set the function that is called to build widgets when the window is visible
+        self.frame.set_build_fn(self._build_fn)
+
+    def destroy(self):
+        # It will destroy all the children
+        super().destroy()
+
+    def __del__(self):
+        self.destroy()
+
+    def convert_coordinates(self):
+        # Get the CRS and check if it is valid, adjust UI values accordingly
+        crs = get_crs_name_from_epsg(self._epsg_model.get_value_as_int())
+        if crs is None:
+            self._epsg_name_model.set_value("Invalid EPSG Code")
+            self._wgs84_latitude_model.set_value(math.nan)
+            self._wgs84_longitude_model.set_value(math.nan)
+            self._wgs84_height_model.set_value(math.nan)
+            self._ecef_x_model.set_value(math.nan)
+            self._ecef_y_model.set_value(math.nan)
+            self._ecef_z_model.set_value(math.nan)
+            return
+
+        self._epsg_name_model.set_value(crs)
+
+        # Convert coords to WGS84 and set in UI
+        wgs84_coords = epsg_to_wgs84(
+            self._epsg_model.as_string,
+            self._easting_model.as_float,
+            self._northing_model.as_float,
+            self._elevation_model.as_float,
+        )
+
+        self._wgs84_latitude_model.set_value(wgs84_coords[0])
+        self._wgs84_longitude_model.set_value(wgs84_coords[1])
+        self._wgs84_height_model.set_value(wgs84_coords[2])
+
+        # Convert coords to ECEF and set in UI
+        ecef_coords = epsg_to_ecef(
+            self._epsg_model.as_string,
+            self._easting_model.as_float,
+            self._northing_model.as_float,
+            self._elevation_model.as_float,
+        )
+
+        self._ecef_x_model.set_value(ecef_coords[0])
+        self._ecef_y_model.set_value(ecef_coords[1])
+        self._ecef_z_model.set_value(ecef_coords[2])
+
+    def set_georeference_prim(self):
+        if math.isnan(self._wgs84_latitude_model.get_value_as_float()):
+            self._logger.warning("Cannot set CesiumGeoreference to NaN")
+            return
+
+        stage = omni.usd.get_context().get_stage()
+        cesium_prim = stage.GetPrimAtPath("/CesiumGeoreference")
+        cesium_prim.GetAttribute("cesium:georeferenceOrigin:latitude").Set(
+            self._wgs84_latitude_model.get_value_as_float()
+        )
+        cesium_prim.GetAttribute("cesium:georeferenceOrigin:longitude").Set(
+            self._wgs84_longitude_model.get_value_as_float()
+        )
+        cesium_prim.GetAttribute("cesium:georeferenceOrigin:height").Set(
+            self._wgs84_height_model.get_value_as_float()
+        )
+
+    def _build_fn(self):
+        """Builds out the UI buttons and their handlers."""
+
+        with ui.VStack(spacing=4):
+            label_style = {"Label": {"font_size": 16}}
+
+            ui.Label(
+                "Enter coordinates in any EPSG CRS to convert them to ECEF and WGS84",
+                word_wrap=True,
+                style=label_style,
+            )
+            ui.Spacer(height=10)
+            ui.Label("Your Project Details:", height=20)
+
+            # TODO: Precision issues to resolve
+            def on_coordinate_update(event):
+                self.convert_coordinates()
+
+            # Define the SimpleValueModels for the UI
+            self._epsg_model = ui.SimpleIntModel(28356)
+            self._epsg_name_model = ui.SimpleStringModel("")
+            self._easting_model = ui.SimpleFloatModel(503000.0)
+            self._northing_model = ui.SimpleFloatModel(6950000.0)
+            self._elevation_model = ui.SimpleFloatModel(0.0)
+
+            # Add the value changed callbacks
+            self._epsg_model.add_value_changed_fn(on_coordinate_update)
+            self._easting_model.add_value_changed_fn(on_coordinate_update)
+            self._northing_model.add_value_changed_fn(on_coordinate_update)
+            self._elevation_model.add_value_changed_fn(on_coordinate_update)
+
+            # TODO: Make EPSG an autocomplete field
+
+            int_field_with_label("EPSG Code", model=self._epsg_model)
+            string_field_with_label("EPSG Name", model=self._epsg_name_model, enabled=False)
+            float_field_with_label("Easting / X", model=self._easting_model)
+            float_field_with_label("Northing / Y", model=self._northing_model)
+            float_field_with_label("Elevation / Z", model=self._elevation_model)
+
+            ui.Spacer(height=10)
+
+            # TODO: It would be nice to be able to copy these fields, or potentially have two way editing
+
+            ui.Label("WGS84 Results:", height=20)
+            self._wgs84_latitude_model = ui.SimpleFloatModel(0.0)
+            self._wgs84_longitude_model = ui.SimpleFloatModel(0.0)
+            self._wgs84_height_model = ui.SimpleFloatModel(0.0)
+            float_field_with_label("Latitude", model=self._wgs84_latitude_model, enabled=False)
+            float_field_with_label("Longitude", model=self._wgs84_longitude_model, enabled=False)
+            float_field_with_label("Elevation", model=self._wgs84_height_model, enabled=False)
+
+            ui.Spacer(height=10)
+
+            ui.Label("ECEF Results:", height=20)
+            self._ecef_x_model = ui.SimpleFloatModel(0.0)
+            self._ecef_y_model = ui.SimpleFloatModel(0.0)
+            self._ecef_z_model = ui.SimpleFloatModel(0.0)
+            float_field_with_label("X", model=self._ecef_x_model, enabled=False)
+            float_field_with_label("Y", model=self._ecef_y_model, enabled=False)
+            float_field_with_label("Z", model=self._ecef_z_model, enabled=False)
+
+            ui.Button("Set Georeference", height=20, clicked_fn=self.set_georeference_prim)
+
+            # Do the first conversion
+            self.convert_coordinates()

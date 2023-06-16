@@ -2,7 +2,7 @@ import logging
 import omni.ui as ui
 from typing import Callable, Optional, List
 from cesium.omniverse.ui import CesiumOmniverseDebugWindow
-
+from .ui.georef_helper_window import CesiumGeorefHelperWindow
 
 class PowertoolsAction:
     def __init__(self, title: str, action: Callable):
@@ -34,7 +34,8 @@ class CesiumPowertoolsWindow(ui.Window):
         # You do not necessarily need to create an action function in this window class. If you have a function
         #  in another window or class, you can absolutely call that instead from here.
         self._actions: List[PowertoolsAction] = [
-            PowertoolsAction("Open Cesium Debugging Window", CesiumOmniverseDebugWindow.show_window)
+            PowertoolsAction("Open Cesium Debugging Window", CesiumOmniverseDebugWindow.show_window),
+            PowertoolsAction("Open Cesium Georeference Helper Window", CesiumGeorefHelperWindow)
         ]
 
         self.frame.set_build_fn(self._build_fn)
