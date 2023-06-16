@@ -370,6 +370,7 @@ void OmniTileset::onUpdateFrame(const std::vector<Viewport>& viewports) {
 
     updateTransform();
     updateView(viewports);
+    updateLoadStatus();
 }
 
 void OmniTileset::updateTransform() {
@@ -443,6 +444,17 @@ void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
                 }
             }
         }
+    }
+}
+
+void OmniTileset::updateLoadStatus() {
+    const auto loadProgress = _tileset->computeLoadProgress();
+
+    if (loadProgress < 100.0f) {
+        _activeLoading = true;
+    } else if (_activeLoading) {
+        Broadcast::tilesetLoaded(_tilesetPath);
+        _activeLoading = false;
     }
 }
 
