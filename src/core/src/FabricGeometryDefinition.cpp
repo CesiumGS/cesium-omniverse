@@ -1,6 +1,5 @@
 #include "cesium/omniverse/FabricGeometryDefinition.h"
 
-#include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/GltfUtil.h"
 
 #ifdef CESIUM_OMNI_MSVC
@@ -17,13 +16,14 @@ FabricGeometryDefinition::FabricGeometryDefinition(
     const CesiumGltf::MeshPrimitive& primitive,
     bool smoothNormals,
     bool hasImagery,
-    uint64_t imageryTexcoordSetIndex) {
+    uint64_t imageryTexcoordSetIndex,
+    bool disableMaterials) {
 
     const auto hasMaterial = GltfUtil::hasMaterial(primitive);
     const auto hasPrimitiveSt = GltfUtil::hasTexcoords(model, primitive, 0);
     const auto hasImagerySt = GltfUtil::hasImageryTexcoords(model, primitive, imageryTexcoordSetIndex);
 
-    _hasMaterial = (hasMaterial || hasImagery) && !Context::instance().getDebugDisableMaterials();
+    _hasMaterial = (hasMaterial || hasImagery) && !disableMaterials;
     _hasTexcoords = hasPrimitiveSt || hasImagerySt;
     _hasNormals = GltfUtil::hasNormals(model, primitive, smoothNormals);
     _hasVertexColors = GltfUtil::hasVertexColors(model, primitive, 0);

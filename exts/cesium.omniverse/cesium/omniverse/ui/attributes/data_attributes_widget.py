@@ -21,6 +21,7 @@ class CesiumDataSchemaAttributesWidget(SchemaPropertiesWidget):
                 CustomLayoutProperty("cesium:projectDefaultIonAccessToken")
             with CustomLayoutGroup("Debug Options", collapsed=True):
                 CustomLayoutProperty("cesium:debug:disableMaterials")
+                CustomLayoutProperty("cesium:debug:disableTextures")
                 CustomLayoutProperty("cesium:debug:disableGeometryPool")
                 CustomLayoutProperty("cesium:debug:disableMaterialPool")
                 CustomLayoutProperty("cesium:debug:geometryPoolInitialCapacity")

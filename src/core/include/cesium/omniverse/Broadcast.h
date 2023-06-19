@@ -18,6 +18,7 @@ void showTroubleshooter(
     const std::string& imageryName,
     const std::string& message);
 void setDefaultTokenComplete();
+void tilesetLoaded(const pxr::SdfPath& tilesetPath);
 void sendMessageToBus(carb::events::EventType eventType);
 void sendMessageToBus(const char* eventKey);
 } // namespace cesium::omniverse::Broadcast
