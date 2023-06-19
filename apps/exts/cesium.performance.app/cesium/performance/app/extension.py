@@ -9,12 +9,14 @@ import omni.ui as ui
 import omni.usd
 import omni.kit.app as app
 import omni.kit.ui
+from pxr import UsdGeom, Sdf
 from .performance_window import CesiumPerformanceWindow
 from cesium.omniverse.bindings import acquire_cesium_omniverse_interface, release_cesium_omniverse_interface
 from cesium.omniverse.utils import wait_n_frames, dock_window_async
 from cesium.usd.plugins.CesiumUsdSchemas import (
     Data as CesiumData,
     Georeference as CesiumGeoreference,
+    Imagery as CesiumImagery,
     TilesetAPI as CesiumTilesetAPI,
     Tokens as CesiumTokens,
 )
@@ -151,7 +153,7 @@ class CesiumPerformanceExtension(omni.ext.IExt):
     def _create_tileset_ion(self, path: str, asset_id: int, access_token: str) -> str:
         stage = omni.usd.get_context().get_stage()
         tileset_path = omni.usd.get_stage_next_free_path(stage, path, False)
-        xform = omni.usd.UsdGeom.Xform.Define(stage, tileset_path)
+        xform = UsdGeom.Xform.Define(stage, tileset_path)
         assert xform.GetPrim().IsValid()
         tileset_prim = CesiumTilesetAPI.Apply(xform.GetPrim())
         assert tileset_prim.GetPrim().IsValid()
@@ -161,6 +163,23 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         tileset_prim.GetSourceTypeAttr().Set(CesiumTokens.ion)
 
         return tileset_path  # type: ignore
+
+    def _create_imagery_ion(self, path: str, asset_id: int, access_token: str) -> str:
+        stage = omni.usd.get_context().get_stage()
+        imagery_path = omni.usd.get_stage_next_free_path(stage, path, False)
+        imagery_prim = CesiumImagery.Define(stage, imagery_path)
+        assert imagery_prim.GetPrim().IsValid()
+        parent_prim = imagery_prim.GetPrim().GetParent()
+        assert parent_prim.HasAPI(CesiumTilesetAPI)
+
+        imagery_prim.GetIonAssetIdAttr().Set(asset_id)
+        imagery_prim.GetIonAccessTokenAttr().Set(access_token)
+
+        return imagery_path  # type: ignore
+
+    @staticmethod
+    def _get_imagery_path(tileset_path: str, imagery_name: str) -> str:
+        return Sdf.Path(tileset_path).AppendPath(imagery_name).pathString  # type: ignore
 
     def _set_georeference(self, longitude: float, latitude: float, height: float):
         stage = omni.usd.get_context().get_stage()
@@ -190,6 +209,12 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         self._logger.warning("View New York City")
         self._clear_scene()
         tileset_path = self._create_tileset_ion("/Cesium_World_Terrain", 1, ION_ACCESS_TOKEN)
+        self._create_imagery_ion(
+            CesiumPerformanceExtension._get_imagery_path(tileset_path, "Bing_Maps_Aerial_Imagery"),
+            2,
+            ION_ACCESS_TOKEN,
+        )
+
         self._set_georeference(-74.0, 40.69, 50)
         self._load_tileset(tileset_path, self._tileset_loaded)
 
@@ -200,6 +225,11 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         self._logger.warning("View Tour")
         self._clear_scene()
         tileset_path = self._create_tileset_ion("/Cesium_World_Terrain", 1, ION_ACCESS_TOKEN)
+        self._create_imagery_ion(
+            CesiumPerformanceExtension._get_imagery_path(tileset_path, "Bing_Maps_Aerial_Imagery"),
+            2,
+            ION_ACCESS_TOKEN,
+        )
 
         def tour_stop_0():
             self._set_georeference(-74.0, 40.69, 50)
