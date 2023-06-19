@@ -5,6 +5,7 @@ __all__ = [
     "Data",
     "Georeference",
     "Imagery",
+    "Session",
     "Tileset",
     "Tokens",
 ]
@@ -20,6 +21,10 @@ class Georeference(pxr.Usd.Typed, pxr.Usd.SchemaBase, Boost.Python.instance):
 
 
 class Imagery(pxr.Usd.Typed, pxr.Usd.SchemaBase, Boost.Python.instance):
+    pass
+
+
+class Session(pxr.Usd.Typed, pxr.Usd.SchemaBase, Boost.Python.instance):
     pass
 
 
