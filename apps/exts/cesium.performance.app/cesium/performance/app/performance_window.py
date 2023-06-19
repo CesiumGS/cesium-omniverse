@@ -15,8 +15,6 @@ GRAND_CANYON_TEXT = "Grand Canyon"
 TOUR_TEXT = "Tour"
 
 DURATION_TEXT = "Duration (seconds)"
-FPS_TEXT = "Frames Per Second"
-TILES_LOADED_TEXT = "Tiles Loaded"
 
 
 class CesiumPerformanceWindow(ui.Window):
@@ -81,12 +79,13 @@ class CesiumPerformanceWindow(ui.Window):
 
                 for label, model in [
                     (DURATION_TEXT, self._duration_model),
-                    (FPS_TEXT, self._duration_model),
-                    (TILES_LOADED_TEXT, self._duration_model),
                 ]:
                     with ui.HStack(height=0):
                         ui.Label(label, height=0)
                         ui.StringField(model=model, height=0, read_only=True)
+
+            with ui.VStack(spacing=0):
+                ui.Button("Stop", height=16, clicked_fn=self._stop)
 
     def _view_new_york_city(self):
         bus = app.get_app().get_message_bus_event_stream()
@@ -103,6 +102,11 @@ class CesiumPerformanceWindow(ui.Window):
         view_new_york_city_event = carb.events.type_from_string("cesium.performance.VIEW_TOUR")
         bus.push(view_new_york_city_event)
 
+    def _stop(self):
+        bus = app.get_app().get_message_bus_event_stream()
+        stop_event = carb.events.type_from_string("cesium.performance.STOP")
+        bus.push(stop_event)
+
     def get_random_colors(self) -> bool:
         return self._random_colors_checkbox_model.get_value_as_bool()
 
@@ -111,3 +115,6 @@ class CesiumPerformanceWindow(ui.Window):
 
     def get_frustum_culling(self) -> bool:
         return self._frustum_culling_checkbox_model.get_value_as_bool()
+
+    def set_duration(self, duration: float):
+        self._duration_model.set_value(duration)

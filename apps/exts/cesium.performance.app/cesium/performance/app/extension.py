@@ -1,6 +1,7 @@
 from functools import partial
 import asyncio
-from typing import Optional
+import time
+from typing import Callable, Optional
 import logging
 import carb.events
 import omni.ext
@@ -30,6 +31,8 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         self._tileset_loaded_subscription: Optional[carb.events.ISubscription] = None
 
         self._tileset_path: Optional[str] = None
+        self._active: bool = False
+        self._start_time: float = 0.0
 
     def on_startup(self):
         global _cesium_omniverse_interface
@@ -52,8 +55,16 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         view_tour_event = carb.events.type_from_string("cesium.performance.VIEW_TOUR")
         self._view_tour_subscription = bus.create_subscription_to_pop_by_type(view_tour_event, self._view_tour)
 
+        stop_event = carb.events.type_from_string("cesium.performance.STOP")
+        self._stop_subscription = bus.create_subscription_to_pop_by_type(stop_event, self._on_stop)
+
+        update_stream = app.get_app().get_update_event_stream()
+        self._update_frame_subscription = update_stream.create_subscription_to_pop(
+            self._on_update_frame, name="cesium.performance.ON_UPDATE_FRAME"
+        )
+
     def on_shutdown(self):
-        self._destroy_performance_window()
+        self._clear_scene()
 
         if self._view_new_york_city_subscription is not None:
             self._view_new_york_city_subscription.unsubscribe()
@@ -67,7 +78,15 @@ class CesiumPerformanceExtension(omni.ext.IExt):
             self._view_tour_subscription.unsubscribe()
             self._view_tour_subscription = None
 
-        self._clear_scene()
+        if self._stop_subscription is not None:
+            self._stop_subscription.unsubscribe()
+            self._stop_subscription = None
+
+        if self._update_frame_subscription is not None:
+            self._update_frame_subscription.unsubscribe()
+            self._update_frame_subscription = None
+
+        self._destroy_performance_window()
 
         release_cesium_omniverse_interface(_cesium_omniverse_interface)
 
@@ -116,24 +135,61 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         elif self._performance_window is not None:
             self._performance_window.visible = False
 
-    def _view_new_york_city(self, _: carb.events.IEvent):
+    def _on_update_frame(self, _e: carb.events.IEvent):
+        if self._active is True:
+            duration = self._get_duration()
+            self._update_duration_ui(duration)
+
+    def _view_new_york_city(self, _e: carb.events.IEvent):
+        self._logger.warning("View New York City")
+
         self._clear_scene()
 
         _cesium_omniverse_interface.set_georeference_origin(-74.0, 40.69, 50)
 
         tileset_path = _cesium_omniverse_interface.add_tileset_ion("Cesium_World_Terrain", 1, ION_ACCESS_TOKEN)
 
-        self._load_tileset(tileset_path)
+        self._load_tileset(tileset_path, self._tileset_loaded)
 
-        self._logger.warning("View NYC")
-
-    def _view_grand_canyon(self, _: carb.events.IEvent):
+    def _view_grand_canyon(self, _e: carb.events.IEvent):
         self._logger.warning("View Grand Canyon")
 
-    def _view_tour(self, _: carb.events.IEvent):
+    def _view_tour(self, _e: carb.events.IEvent):
         self._logger.warning("View Tour")
 
-    def _load_tileset(self, tileset_path: str):
+        self._clear_scene()
+
+        def tour_stop_0():
+            _cesium_omniverse_interface.set_georeference_origin(-74.0, 40.69, 50)
+
+        def tour_stop_1():
+            _cesium_omniverse_interface.set_georeference_origin(2.349, 48.86, 100)
+
+        def tour_stop_2():
+            _cesium_omniverse_interface.set_georeference_origin(-157.86, 21.31, 10)
+
+        tour_stops = [tour_stop_0, tour_stop_1, tour_stop_2]
+        current_stop = 0
+
+        def tileset_loaded(_e: carb.events.IEvent):
+            nonlocal current_stop
+
+            duration = self._get_duration()
+            self._logger.warning("Tour stop {} loaded in {} seconds".format(current_stop, duration))
+
+            if current_stop == len(tour_stops) - 1:
+                self._tileset_loaded(_e)
+            else:
+                current_stop += 1
+                tour_stops[current_stop]()
+
+        tour_stops[0]()
+
+        tileset_path = _cesium_omniverse_interface.add_tileset_ion("Cesium_World_Terrain", 1, ION_ACCESS_TOKEN)
+
+        self._load_tileset(tileset_path, tileset_loaded)
+
+    def _load_tileset(self, tileset_path: str, tileset_loaded: Callable):
         stage = omni.usd.get_context().get_stage()
 
         tileset_prim = CesiumTilesetAPI.Get(stage, tileset_path)
@@ -150,12 +206,10 @@ class CesiumPerformanceExtension(omni.ext.IExt):
             self._logger.error("Can't run performance test: performance window is None")
             return
 
-        self._tileset_path = tileset_path
-
         bus = app.get_app().get_message_bus_event_stream()
         tileset_loaded_event = carb.events.type_from_string("cesium.omniverse.TILESET_LOADED")
         self._tileset_loaded_subscription = bus.create_subscription_to_pop_by_type(
-            tileset_loaded_event, self._tileset_loaded
+            tileset_loaded_event, tileset_loaded
         )
 
         random_colors = self._performance_window.get_random_colors()
@@ -166,13 +220,38 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         tileset_prim.GetForbidHolesAttr().Set(forbid_holes)
         tileset_prim.GetEnableFrustumCullingAttr().Set(frustum_culling)
 
-    def _tileset_loaded(self, _: carb.events.IEvent):
-        self._logger.warning("Tileset loaded")
+        self._tileset_path = tileset_path
+        self._active = True
+        self._start_time = time.time()
+
+    def _tileset_loaded(self, _e: carb.events.IEvent):
+        self._stop()
+        duration = self._get_duration()
+        self._update_duration_ui(duration)
+        self._logger.warning("Tileset loaded in {} seconds".format(duration))
+
+    def _get_duration(self) -> float:
+        current_time = time.time()
+        duration = current_time - self._start_time
+        return duration
+
+    def _update_duration_ui(self, duration: float):
+        if self._performance_window is not None:
+            self._performance_window.set_duration(duration)
 
     def _clear_scene(self):
-        if self._tileset_loaded_subscription is not None:
-            self._tileset_loaded_subscription.unsubscribe()
-            self._tileset_loaded_subscription = None
+        self._stop()
+        self._update_duration_ui(0.0)
 
         if self._tileset_path is not None:
             _cesium_omniverse_interface.remove_tileset(self._tileset_path)
+
+    def _on_stop(self, _e: carb.events.IEvent):
+        self._stop()
+
+    def _stop(self):
+        self._active = False
+
+        if self._tileset_loaded_subscription is not None:
+            self._tileset_loaded_subscription.unsubscribe()
+            self._tileset_loaded_subscription = None
