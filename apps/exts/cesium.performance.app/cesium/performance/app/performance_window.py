@@ -11,6 +11,7 @@ FRUSTUM_CULLING_TEXT = "Frustum culling"
 TRACING_ENABLED_TEXT = "Tracing enabled"
 
 NEW_YORK_CITY_TEXT = "New York City"
+PARIS_TEXT = "Paris"
 GRAND_CANYON_TEXT = "Grand Canyon"
 TOUR_TEXT = "Tour"
 
@@ -67,6 +68,7 @@ class CesiumPerformanceWindow(ui.Window):
 
                 for label, callback in [
                     (NEW_YORK_CITY_TEXT, self._view_new_york_city),
+                    (PARIS_TEXT, self._view_paris),
                     (GRAND_CANYON_TEXT, self._view_grand_canyon),
                     (TOUR_TEXT, self._view_tour),
                 ]:
@@ -91,6 +93,11 @@ class CesiumPerformanceWindow(ui.Window):
         bus = app.get_app().get_message_bus_event_stream()
         view_new_york_city_event = carb.events.type_from_string("cesium.performance.VIEW_NEW_YORK_CITY")
         bus.push(view_new_york_city_event)
+
+    def _view_paris(self):
+        bus = app.get_app().get_message_bus_event_stream()
+        view_paris_event = carb.events.type_from_string("cesium.performance.VIEW_PARIS")
+        bus.push(view_paris_event)
 
     def _view_grand_canyon(self):
         bus = app.get_app().get_message_bus_event_stream()

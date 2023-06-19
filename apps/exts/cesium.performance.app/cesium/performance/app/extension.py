@@ -57,6 +57,9 @@ class CesiumPerformanceExtension(omni.ext.IExt):
             view_new_york_city_event, self._view_new_york_city
         )
 
+        view_paris_event = carb.events.type_from_string("cesium.performance.VIEW_PARIS")
+        self._view_paris_subscription = bus.create_subscription_to_pop_by_type(view_paris_event, self._view_paris)
+
         view_grand_canyon_event = carb.events.type_from_string("cesium.performance.VIEW_GRAND_CANYON")
         self._view_grand_canyon_subscription = bus.create_subscription_to_pop_by_type(
             view_grand_canyon_event, self._view_grand_canyon
@@ -79,6 +82,10 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         if self._view_new_york_city_subscription is not None:
             self._view_new_york_city_subscription.unsubscribe()
             self._view_new_york_city_subscription = None
+
+        if self._view_paris_subscription is not None:
+            self._view_paris_subscription.unsubscribe()
+            self._view_paris_subscription = None
 
         if self._view_grand_canyon_subscription is not None:
             self._view_grand_canyon_subscription.unsubscribe()
@@ -215,11 +222,34 @@ class CesiumPerformanceExtension(omni.ext.IExt):
             ION_ACCESS_TOKEN,
         )
 
-        self._set_georeference(-74.0, 40.69, 50)
+        self._set_georeference(-74.0060, 40.7128, 50.0)
+        self._load_tileset(tileset_path, self._tileset_loaded)
+
+    def _view_paris(self, _e: carb.events.IEvent):
+        self._logger.warning("View Paris")
+        self._clear_scene()
+        tileset_path = self._create_tileset_ion("/Cesium_World_Terrain", 1, ION_ACCESS_TOKEN)
+        self._create_imagery_ion(
+            CesiumPerformanceExtension._get_imagery_path(tileset_path, "Bing_Maps_Aerial_Imagery"),
+            2,
+            ION_ACCESS_TOKEN,
+        )
+
+        self._set_georeference(2.3522, 48.8566, 100.0)
         self._load_tileset(tileset_path, self._tileset_loaded)
 
     def _view_grand_canyon(self, _e: carb.events.IEvent):
         self._logger.warning("View Grand Canyon")
+        self._clear_scene()
+        tileset_path = self._create_tileset_ion("/Cesium_World_Terrain", 1, ION_ACCESS_TOKEN)
+        self._create_imagery_ion(
+            CesiumPerformanceExtension._get_imagery_path(tileset_path, "Bing_Maps_Aerial_Imagery"),
+            2,
+            ION_ACCESS_TOKEN,
+        )
+
+        self._set_georeference(-112.3535, 36.2679, 2100.0)
+        self._load_tileset(tileset_path, self._tileset_loaded)
 
     def _view_tour(self, _e: carb.events.IEvent):
         self._logger.warning("View Tour")
@@ -232,13 +262,13 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         )
 
         def tour_stop_0():
-            self._set_georeference(-74.0, 40.69, 50)
+            self._set_georeference(-74.0060, 40.7128, 50.0)
 
         def tour_stop_1():
-            self._set_georeference(2.349, 48.86, 100)
+            self._set_georeference(2.3522, 48.8566, 100.0)
 
         def tour_stop_2():
-            self._set_georeference(-157.86, 21.31, 10)
+            self._set_georeference(-112.3535, 36.2679, 2100.0)
 
         tour = Tour(self, [tour_stop_0, tour_stop_1, tour_stop_2], self._tileset_loaded)
 
