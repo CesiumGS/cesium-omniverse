@@ -266,10 +266,12 @@ pxr::CesiumData defineCesiumData(const pxr::SdfPath& path) {
     cesiumData.CreateProjectDefaultIonAccessTokenAttr();
     cesiumData.CreateProjectDefaultIonAccessTokenIdAttr();
     cesiumData.CreateDebugDisableMaterialsAttr(pxr::VtValue(false));
+    cesiumData.CreateDebugDisableTexturesAttr(pxr::VtValue(false));
     cesiumData.CreateDebugDisableGeometryPoolAttr(pxr::VtValue(true));
     cesiumData.CreateDebugDisableMaterialPoolAttr(pxr::VtValue(false));
     cesiumData.CreateDebugGeometryPoolInitialCapacityAttr(pxr::VtValue(uint64_t(0)));
     cesiumData.CreateDebugMaterialPoolInitialCapacityAttr(pxr::VtValue(uint64_t(2048)));
+    cesiumData.CreateDebugRandomColorsAttr(pxr::VtValue(false));
 
     return cesiumData;
 }

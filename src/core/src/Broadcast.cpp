@@ -7,6 +7,7 @@ const char* PROFILE_UPDATED_EVENT_KEY = "cesium.omniverse.PROFILE_UPDATED";
 const char* TOKENS_UPDATED_EVENT_KEY = "cesium.omniverse.TOKENS_UPDATED";
 const char* SHOW_TROUBLESHOOTER_EVENT_KEY = "cesium.omniverse.SHOW_TROUBLESHOOTER";
 const char* SET_DEFAULT_PROJECT_TOKEN_COMPLETE_KEY = "cesium.omniverse.SET_DEFAULT_PROJECT_TOKEN_COMPLETE";
+const char* TILESET_LOADED_KEY = "cesium.omniverse.TILESET_LOADED";
 
 template <typename... ValuesT>
 void sendMessageToBusWithPayload(carb::events::EventType eventType, ValuesT&&... payload) {
@@ -57,6 +58,10 @@ void showTroubleshooter(
 
 void setDefaultTokenComplete() {
     sendMessageToBus(SET_DEFAULT_PROJECT_TOKEN_COMPLETE_KEY);
+}
+
+void tilesetLoaded(const pxr::SdfPath& tilesetPath) {
+    sendMessageToBusWithPayload(TILESET_LOADED_KEY, std::make_pair("tilesetPath", tilesetPath.GetText()));
 }
 
 void sendMessageToBus(carb::events::EventType eventType) {
