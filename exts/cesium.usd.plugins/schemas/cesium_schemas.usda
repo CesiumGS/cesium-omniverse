@@ -48,6 +48,14 @@ class CesiumDataPrim "CesiumDataPrim" (
         doc = "Debug option that renders tilesets with materials disabled."
     )
 
+    bool cesium:debug:disableTextures = false (
+        customData = {
+            string apiName = "debugDisableTextures"
+        }
+        displayName = "Disable Textures"
+        doc = "Debug option that renders tilesets with textures disabled."
+    )
+
     bool cesium:debug:disableGeometryPool = true (
         customData = {
             string apiName = "debugDisableGeometryPool"
@@ -78,6 +86,14 @@ class CesiumDataPrim "CesiumDataPrim" (
         }
         displayName = "Material Pool Initial Capacity"
         doc = "Debug option that controls the initial capacity of the material pool."
+    )
+
+    bool cesium:debug:randomColors = false (
+        customData = {
+            string apiName = "debugRandomColors"
+        }
+        displayName = "Random Colors"
+        doc = "Debug option that renders tiles with random colors."
     )
 }
 

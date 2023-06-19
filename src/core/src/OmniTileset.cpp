@@ -238,8 +238,23 @@ int64_t OmniTileset::getTilesetId() const {
     return _tilesetId;
 }
 
-uint64_t OmniTileset::getCachedBytes() const {
-    return static_cast<uint64_t>(_tileset->getTotalDataBytes());
+TilesetStatistics OmniTileset::getStatistics() const {
+    TilesetStatistics statistics;
+
+    statistics.tilesetCachedBytes = static_cast<uint64_t>(_tileset->getTotalDataBytes());
+    statistics.tilesLoaded = static_cast<uint64_t>(_tileset->getNumberOfTilesLoaded());
+
+    if (_pViewUpdateResult) {
+        statistics.tilesVisited = static_cast<uint64_t>(_pViewUpdateResult->tilesVisited);
+        statistics.culledTilesVisited = static_cast<uint64_t>(_pViewUpdateResult->culledTilesVisited);
+        statistics.tilesRendered = static_cast<uint64_t>(_pViewUpdateResult->tilesToRenderThisFrame.size());
+        statistics.tilesCulled = static_cast<uint64_t>(_pViewUpdateResult->tilesCulled);
+        statistics.maxDepthVisited = static_cast<uint64_t>(_pViewUpdateResult->maxDepthVisited);
+        statistics.tilesLoadingWorker = static_cast<uint64_t>(_pViewUpdateResult->workerThreadTileLoadQueueLength);
+        statistics.tilesLoadingMain = static_cast<uint64_t>(_pViewUpdateResult->mainThreadTileLoadQueueLength);
+    }
+
+    return statistics;
 }
 
 void OmniTileset::reload() {
@@ -360,6 +375,7 @@ void OmniTileset::onUpdateFrame(const std::vector<Viewport>& viewports) {
     if (!_extentSet) {
         _extentSet = updateExtent();
     }
+    updateLoadStatus();
 }
 
 void OmniTileset::updateTransform() {
@@ -465,6 +481,17 @@ bool OmniTileset::updateExtent() {
     auto boundable = pxr::UsdGeomBoundable(tileset);
     boundable.GetExtentAttr().Set(extent);
     return true;
+}
+
+void OmniTileset::updateLoadStatus() {
+    const auto loadProgress = _tileset->computeLoadProgress();
+
+    if (loadProgress < 100.0f) {
+        _activeLoading = true;
+    } else if (_activeLoading) {
+        Broadcast::tilesetLoaded(_tilesetPath);
+        _activeLoading = false;
+    }
 }
 
 } // namespace cesium::omniverse

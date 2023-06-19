@@ -28,6 +28,18 @@ enum TilesetSourceType { ION = 0, URL = 1 };
 class FabricPrepareRenderResources;
 struct Viewport;
 
+struct TilesetStatistics {
+    uint64_t tilesetCachedBytes{0};
+    uint64_t tilesVisited{0};
+    uint64_t culledTilesVisited{0};
+    uint64_t tilesRendered{0};
+    uint64_t tilesCulled{0};
+    uint64_t maxDepthVisited{0};
+    uint64_t tilesLoadingWorker{0};
+    uint64_t tilesLoadingMain{0};
+    uint64_t tilesLoaded{0};
+};
+
 class OmniTileset {
   public:
     OmniTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPath& georeferencePath);
@@ -56,7 +68,7 @@ class OmniTileset {
     pxr::CesiumGeoreference getGeoreference() const;
 
     int64_t getTilesetId() const;
-    uint64_t getCachedBytes() const;
+    TilesetStatistics getStatistics() const;
 
     void reload();
     void addImageryIon(const pxr::SdfPath& imageryPath);
@@ -66,6 +78,7 @@ class OmniTileset {
     void updateTransform();
     void updateView(const std::vector<Viewport>& viewports);
     bool updateExtent();
+    void updateLoadStatus();
 
     std::unique_ptr<Cesium3DTilesSelection::Tileset> _tileset;
     std::shared_ptr<FabricPrepareRenderResources> _renderResourcesPreparer;
@@ -76,5 +89,6 @@ class OmniTileset {
     glm::dmat4 _ecefToUsdTransform;
     std::vector<Cesium3DTilesSelection::ViewState> _viewStates;
     bool _extentSet = false;
+    bool _activeLoading{false};
 };
 } // namespace cesium::omniverse

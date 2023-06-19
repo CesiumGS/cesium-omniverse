@@ -48,6 +48,13 @@ _CreateDebugDisableMaterialsAttr(CesiumData &self,
 }
         
 static UsdAttribute
+_CreateDebugDisableTexturesAttr(CesiumData &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateDebugDisableTexturesAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+}
+        
+static UsdAttribute
 _CreateDebugDisableGeometryPoolAttr(CesiumData &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateDebugDisableGeometryPoolAttr(
@@ -73,6 +80,13 @@ _CreateDebugMaterialPoolInitialCapacityAttr(CesiumData &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateDebugMaterialPoolInitialCapacityAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->UInt64), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateDebugRandomColorsAttr(CesiumData &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateDebugRandomColorsAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
 
 static std::string
@@ -138,6 +152,13 @@ void wrapCesiumData()
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
+        .def("GetDebugDisableTexturesAttr",
+             &This::GetDebugDisableTexturesAttr)
+        .def("CreateDebugDisableTexturesAttr",
+             &_CreateDebugDisableTexturesAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
         .def("GetDebugDisableGeometryPoolAttr",
              &This::GetDebugDisableGeometryPoolAttr)
         .def("CreateDebugDisableGeometryPoolAttr",
@@ -163,6 +184,13 @@ void wrapCesiumData()
              &This::GetDebugMaterialPoolInitialCapacityAttr)
         .def("CreateDebugMaterialPoolInitialCapacityAttr",
              &_CreateDebugMaterialPoolInitialCapacityAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetDebugRandomColorsAttr",
+             &This::GetDebugRandomColorsAttr)
+        .def("CreateDebugRandomColorsAttr",
+             &_CreateDebugRandomColorsAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 

@@ -180,6 +180,26 @@ public:
 
 public:
     // --------------------------------------------------------------------- //
+    // DEBUGDISABLETEXTURES 
+    // --------------------------------------------------------------------- //
+    /// Debug option that renders tilesets with textures disabled.
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `bool cesium:debug:disableTextures = 0` |
+    /// | C++ Type | bool |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
+    UsdAttribute GetDebugDisableTexturesAttr() const;
+
+    /// See GetDebugDisableTexturesAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    UsdAttribute CreateDebugDisableTexturesAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
     // DEBUGDISABLEGEOMETRYPOOL 
     // --------------------------------------------------------------------- //
     /// Debug option that disables geometry pooling.
@@ -257,6 +277,26 @@ public:
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
     UsdAttribute CreateDebugMaterialPoolInitialCapacityAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
+    // DEBUGRANDOMCOLORS 
+    // --------------------------------------------------------------------- //
+    /// Debug option that renders tiles with random colors.
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `bool cesium:debug:randomColors = 0` |
+    /// | C++ Type | bool |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
+    UsdAttribute GetDebugRandomColorsAttr() const;
+
+    /// See GetDebugRandomColorsAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    UsdAttribute CreateDebugRandomColorsAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // ===================================================================== //

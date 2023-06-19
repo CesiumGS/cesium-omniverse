@@ -34,6 +34,10 @@ class CesiumOmniverseDebugWindow(ui.Window):
     def __del__(self):
         self.destroy()
 
+    @staticmethod
+    def show_window():
+        ui.Workspace.show_window(CesiumOmniverseDebugWindow.WINDOW_NAME)
+
     def _build_fn(self):
         """Builds out the UI buttons and their handlers."""
 

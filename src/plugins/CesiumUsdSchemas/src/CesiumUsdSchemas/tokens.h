@@ -55,6 +55,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumData
     const TfToken cesiumDebugDisableMaterials;
+    /// \brief "cesium:debug:disableTextures"
+    /// 
+    /// CesiumData
+    const TfToken cesiumDebugDisableTextures;
     /// \brief "cesium:debug:geometryPoolInitialCapacity"
     /// 
     /// CesiumData
@@ -63,6 +67,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumData
     const TfToken cesiumDebugMaterialPoolInitialCapacity;
+    /// \brief "cesium:debug:randomColors"
+    /// 
+    /// CesiumData
+    const TfToken cesiumDebugRandomColors;
     /// \brief "cesium:ecefToUsdTransform"
     /// 
     /// CesiumSession

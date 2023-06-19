@@ -38,10 +38,13 @@ class FabricMeshManager {
 
     void releaseMesh(std::shared_ptr<FabricMesh> mesh);
 
+    void setDisableMaterials(bool disableMaterials);
+    void setDisableTextures(bool disableTextures);
     void setDisableGeometryPool(bool disableGeometryPool);
     void setDisableMaterialPool(bool disableMaterialPool);
     void setGeometryPoolInitialCapacity(uint64_t geometryPoolInitialCapacity);
     void setMaterialPoolInitialCapacity(uint64_t materialPoolInitialCapacity);
+    void setDebugRandomColors(bool debugRandomColors);
 
     void clear();
 
@@ -75,11 +78,15 @@ class FabricMeshManager {
     std::vector<std::shared_ptr<FabricGeometryPool>> _geometryPools;
     std::vector<std::shared_ptr<FabricMaterialPool>> _materialPools;
 
+    bool _disableMaterials{false};
+    bool _disableTextures{false};
     bool _disableGeometryPool{false};
     bool _disableMaterialPool{false};
 
     uint64_t _geometryPoolInitialCapacity{0};
     uint64_t _materialPoolInitialCapacity{0};
+
+    bool _debugRandomColors{false};
 
     std::atomic<int64_t> _geometryId{0};
     std::atomic<int64_t> _materialId{0};
