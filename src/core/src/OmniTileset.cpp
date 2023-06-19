@@ -468,15 +468,15 @@ bool OmniTileset::updateExtent() {
     const auto& center = usdOriented.getCenter();
 
     const auto& halfAxes = usdOriented.getHalfAxes();
-    const auto xLenHalf = static_cast<float>(glm::length(halfAxes[0]));
-    const auto yLenHalf = static_cast<float>(glm::length(halfAxes[1]));
-    const auto zLenHalf = static_cast<float>(glm::length(halfAxes[2]));
+    const auto xLengthHalf = static_cast<float>(glm::length(halfAxes[0]));
+    const auto yLengthHalf = static_cast<float>(glm::length(halfAxes[1]));
+    const auto zLengthHalf = static_cast<float>(glm::length(halfAxes[2]));
 
     pxr::VtArray<pxr::GfVec3f> extent;
     const auto centerGf =
         pxr::GfVec3f(static_cast<float>(center.x), static_cast<float>(center.y), static_cast<float>(center.z));
-    extent.push_back(pxr::GfVec3f(-xLenHalf, -yLenHalf, -zLenHalf) + centerGf);
-    extent.push_back(pxr::GfVec3f(xLenHalf, yLenHalf, zLenHalf) + centerGf);
+    extent.push_back(pxr::GfVec3f(-xLengthHalf, -yLengthHalf, -zLengthHalf) + centerGf);
+    extent.push_back(pxr::GfVec3f(xLengthHalf, yLengthHalf, zLengthHalf) + centerGf);
 
     auto boundable = pxr::UsdGeomBoundable(tileset);
     boundable.GetExtentAttr().Set(extent);
