@@ -58,14 +58,14 @@ class CesiumAttributesWidgetController:
         window = omni.kit.window.property.get_window()
         if window is not None:
             window.register_widget(
-                "prim", "cesiumTilesetAPI", CesiumTilesetAttributesWidget(self._cesium_omniverse_interface)
+                "prim", "cesiumTileset", CesiumTilesetAttributesWidget(self._cesium_omniverse_interface)
             )
 
     @staticmethod
     def _unregister_tileset_attributes_widget():
         window = omni.kit.window.property.get_window()
         if window is not None:
-            window.unregister_widget("prim", "cesiumTilesetAPI")
+            window.unregister_widget("prim", "cesiumTileset")
 
     @staticmethod
     def _register_imagery_attributes_widget():
