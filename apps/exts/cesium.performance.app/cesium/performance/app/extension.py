@@ -2,8 +2,10 @@ from functools import partial
 import asyncio
 from typing import Optional
 import logging
+import carb.events
 import omni.ext
 import omni.ui as ui
+import omni.kit.app as app
 import omni.kit.ui
 from .performance_window import CesiumPerformanceWindow
 from cesium.omniverse.bindings import acquire_cesium_omniverse_interface, release_cesium_omniverse_interface
@@ -17,18 +19,45 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         self._logger = logging.getLogger(__name__)
 
         self._performance_window: Optional[CesiumPerformanceWindow] = None
+        self._view_new_york_city_subscription: Optional[carb.events.ISubscription] = None
+        self._view_grand_canyon_subscription: Optional[carb.events.ISubscription] = None
+        self._view_tour_subscription: Optional[carb.events.ISubscription] = None
 
     def on_startup(self):
-        self._logger.info("Starting Cesium Performance Testing...")
-
         global _cesium_omniverse_interface
         _cesium_omniverse_interface = acquire_cesium_omniverse_interface()
 
         self._setup_menus()
         self._show_and_dock_startup_windows()
 
+        bus = app.get_app().get_message_bus_event_stream()
+        view_new_york_city_event = carb.events.type_from_string("cesium.performance.VIEW_NEW_YORK_CITY")
+        self._view_new_york_city_subscription = bus.create_subscription_to_pop_by_type(
+            view_new_york_city_event, self._view_new_york_city
+        )
+
+        view_grand_canyon_event = carb.events.type_from_string("cesium.performance.VIEW_GRAND_CANYON")
+        self._view_grand_canyon_subscription = bus.create_subscription_to_pop_by_type(
+            view_grand_canyon_event, self._view_grand_canyon
+        )
+
+        view_tour_event = carb.events.type_from_string("cesium.performance.VIEW_TOUR")
+        self._view_tour_subscription = bus.create_subscription_to_pop_by_type(view_tour_event, self._view_tour)
+
     def on_shutdown(self):
         self._destroy_performance_window()
+
+        if self._view_new_york_city_subscription is not None:
+            self._view_new_york_city_subscription.unsubscribe()
+            self._view_new_york_city_subscription = None
+
+        if self._view_grand_canyon_subscription is not None:
+            self._view_grand_canyon_subscription.unsubscribe()
+            self._view_grand_canyon_subscription = None
+
+        if self._view_tour_subscription is not None:
+            self._view_tour_subscription.unsubscribe()
+            self._view_tour_subscription = None
 
         release_cesium_omniverse_interface(_cesium_omniverse_interface)
 
@@ -76,3 +105,12 @@ class CesiumPerformanceExtension(omni.ext.IExt):
             )
         elif self._performance_window is not None:
             self._performance_window.visible = False
+
+    def _view_new_york_city(self, _: carb.events.IEvent):
+        self._logger.warning("View NYC")
+
+    def _view_grand_canyon(self, _: carb.events.IEvent):
+        self._logger.warning("View Grand Canyon")
+
+    def _view_tour(self, _: carb.events.IEvent):
+        self._logger.warning("View Tour")

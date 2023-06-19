@@ -1,4 +1,6 @@
 import logging
+import carb.events
+import omni.kit.app as app
 import omni.ui as ui
 from cesium.omniverse.bindings import ICesiumOmniverseInterface
 from cesium.omniverse.ui.models.space_delimited_number_model import SpaceDelimitedNumberModel
@@ -87,10 +89,16 @@ class CesiumPerformanceWindow(ui.Window):
                         ui.StringField(model=model, height=0, read_only=True)
 
     def _view_new_york_city(self):
-        print("View New York City")
+        bus = app.get_app().get_message_bus_event_stream()
+        view_new_york_city_event = carb.events.type_from_string("cesium.performance.VIEW_NEW_YORK_CITY")
+        bus.push(view_new_york_city_event)
 
     def _view_grand_canyon(self):
-        print("View Grand Canyon")
+        bus = app.get_app().get_message_bus_event_stream()
+        view_new_york_city_event = carb.events.type_from_string("cesium.performance.VIEW_GRAND_CANYON")
+        bus.push(view_new_york_city_event)
 
     def _view_tour(self):
-        print("Tour")
+        bus = app.get_app().get_message_bus_event_stream()
+        view_new_york_city_event = carb.events.type_from_string("cesium.performance.VIEW_TOUR")
+        bus.push(view_new_york_city_event)
