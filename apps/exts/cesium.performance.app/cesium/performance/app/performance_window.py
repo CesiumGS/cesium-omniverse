@@ -102,3 +102,12 @@ class CesiumPerformanceWindow(ui.Window):
         bus = app.get_app().get_message_bus_event_stream()
         view_new_york_city_event = carb.events.type_from_string("cesium.performance.VIEW_TOUR")
         bus.push(view_new_york_city_event)
+
+    def get_random_colors(self) -> bool:
+        return self._random_colors_checkbox_model.get_value_as_bool()
+
+    def get_forbid_holes(self) -> bool:
+        return self._forbid_holes_checkbox_model.get_value_as_bool()
+
+    def get_frustum_culling(self) -> bool:
+        return self._frustum_culling_checkbox_model.get_value_as_bool()

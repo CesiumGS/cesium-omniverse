@@ -5,11 +5,16 @@ import logging
 import carb.events
 import omni.ext
 import omni.ui as ui
+import omni.usd
 import omni.kit.app as app
 import omni.kit.ui
 from .performance_window import CesiumPerformanceWindow
 from cesium.omniverse.bindings import acquire_cesium_omniverse_interface, release_cesium_omniverse_interface
 from cesium.omniverse.utils import wait_n_frames, dock_window_async
+from cesium.usd.plugins.CesiumUsdSchemas import TilesetAPI as CesiumTilesetAPI, Data as CesiumData
+
+ION_ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyZTA0MDlmYi01Y2RhLTQ0MjQtYjBlOS1kMmZhMzQ0OWRkNGYiLCJpZCI6MjU5LCJpYXQiOjE2ODU2MzExMTF9.y2CrqatkaHKHcj6NIDJ8ioll-tnOi-2CblnzI6iUays"
+GOOGLE_3D_TILES_ACCESS_TOKEN = "AIzaSyC2PMYr_ZaMJT5DdZ8WJNYMwB0lDyvx5q8"
 
 
 class CesiumPerformanceExtension(omni.ext.IExt):
@@ -22,6 +27,9 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         self._view_new_york_city_subscription: Optional[carb.events.ISubscription] = None
         self._view_grand_canyon_subscription: Optional[carb.events.ISubscription] = None
         self._view_tour_subscription: Optional[carb.events.ISubscription] = None
+        self._tileset_loaded_subscription: Optional[carb.events.ISubscription] = None
+
+        self._tileset_path: Optional[str] = None
 
     def on_startup(self):
         global _cesium_omniverse_interface
@@ -58,6 +66,8 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         if self._view_tour_subscription is not None:
             self._view_tour_subscription.unsubscribe()
             self._view_tour_subscription = None
+
+        self._clear_scene()
 
         release_cesium_omniverse_interface(_cesium_omniverse_interface)
 
@@ -107,6 +117,14 @@ class CesiumPerformanceExtension(omni.ext.IExt):
             self._performance_window.visible = False
 
     def _view_new_york_city(self, _: carb.events.IEvent):
+        self._clear_scene()
+
+        _cesium_omniverse_interface.set_georeference_origin(-74.0, 40.69, 50)
+
+        tileset_path = _cesium_omniverse_interface.add_tileset_ion("Cesium_World_Terrain", 1, ION_ACCESS_TOKEN)
+
+        self._load_tileset(tileset_path)
+
         self._logger.warning("View NYC")
 
     def _view_grand_canyon(self, _: carb.events.IEvent):
@@ -114,3 +132,47 @@ class CesiumPerformanceExtension(omni.ext.IExt):
 
     def _view_tour(self, _: carb.events.IEvent):
         self._logger.warning("View Tour")
+
+    def _load_tileset(self, tileset_path: str):
+        stage = omni.usd.get_context().get_stage()
+
+        tileset_prim = CesiumTilesetAPI.Get(stage, tileset_path)
+        if not tileset_prim.GetPrim().IsValid():
+            self._logger.error("Can't run performance test: tileset prim is not valid")
+            return
+
+        cesium_prim = CesiumData.Get(stage, "/Cesium")
+        if not cesium_prim.GetPrim().IsValid():
+            self._logger.error("Can't run performance test: cesium prim is not valid")
+            return
+
+        if self._performance_window is None:
+            self._logger.error("Can't run performance test: performance window is None")
+            return
+
+        self._tileset_path = tileset_path
+
+        bus = app.get_app().get_message_bus_event_stream()
+        tileset_loaded_event = carb.events.type_from_string("cesium.omniverse.TILESET_LOADED")
+        self._tileset_loaded_subscription = bus.create_subscription_to_pop_by_type(
+            tileset_loaded_event, self._tileset_loaded
+        )
+
+        random_colors = self._performance_window.get_random_colors()
+        forbid_holes = self._performance_window.get_forbid_holes()
+        frustum_culling = self._performance_window.get_frustum_culling()
+
+        cesium_prim.GetDebugRandomColorsAttr().Set(random_colors)
+        tileset_prim.GetForbidHolesAttr().Set(forbid_holes)
+        tileset_prim.GetEnableFrustumCullingAttr().Set(frustum_culling)
+
+    def _tileset_loaded(self, _: carb.events.IEvent):
+        self._logger.warning("Tileset loaded")
+
+    def _clear_scene(self):
+        if self._tileset_loaded_subscription is not None:
+            self._tileset_loaded_subscription.unsubscribe()
+            self._tileset_loaded_subscription = None
+
+        if self._tileset_path is not None:
+            _cesium_omniverse_interface.remove_tileset(self._tileset_path)
