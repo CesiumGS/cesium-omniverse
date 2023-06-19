@@ -431,8 +431,7 @@ bool isCesiumTileset(const pxr::SdfPath& path) {
         return false;
     }
 
-    // return prim.HasAPI<pxr::CesiumTileset>();
-    return true;
+    return prim.IsA<pxr::CesiumTileset>();
 }
 
 bool isCesiumImagery(const pxr::SdfPath& path) {

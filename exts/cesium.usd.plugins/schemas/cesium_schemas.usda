@@ -147,7 +147,7 @@ class CesiumGeoreferencePrim "CesiumGeoreferencePrim" (
 }
 
 class CesiumTilesetPrim "CesiumTilesetPrim" (
-    doc = """Adds Cesium specific data to a prim for representing a tileset."""
+    doc = """A prim representing a tileset."""
     inherits = </Boundable>
     customData = {
         string className = "Tileset"
