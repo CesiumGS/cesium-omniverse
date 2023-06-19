@@ -1,10 +1,12 @@
 import logging
 import omni.ui as ui
+from cesium.omniverse.bindings import ICesiumOmniverseInterface
 from cesium.omniverse.ui.models.space_delimited_number_model import SpaceDelimitedNumberModel
 
 RANDOM_COLORS_TEXT = "Random colors"
 FORBID_HOLES_TEXT = "Forbid holes"
 FRUSTUM_CULLING_TEXT = "Frustum culling"
+TRACING_ENABLED_TEXT = "Tracing enabled"
 
 NEW_YORK_CITY_TEXT = "New York City"
 GRAND_CANYON_TEXT = "Grand Canyon"
@@ -14,13 +16,15 @@ DURATION_TEXT = "Duration (seconds)"
 FPS_TEXT = "Frames Per Second"
 TILES_LOADED_TEXT = "Tiles Loaded"
 
+
 class CesiumPerformanceWindow(ui.Window):
     WINDOW_NAME = "Cesium Performance Testing"
     MENU_PATH = f"Window/Cesium/{WINDOW_NAME}"
 
-    def __init__(self, **kwargs):
+    def __init__(self, cesium_omniverse_interface: ICesiumOmniverseInterface, **kwargs):
         super().__init__(CesiumPerformanceWindow.WINDOW_NAME, **kwargs)
 
+        self._cesium_omniverse_interface = cesium_omniverse_interface
         self._logger = logging.getLogger(__name__)
 
         self._random_colors_checkbox_model = ui.SimpleBoolModel(False)
@@ -28,7 +32,6 @@ class CesiumPerformanceWindow(ui.Window):
         self._frustum_culling_checkbox_model = ui.SimpleBoolModel(False)
 
         self._duration_model: SpaceDelimitedNumberModel = SpaceDelimitedNumberModel(0)
-
 
         self.frame.set_build_fn(self._build_fn)
 
@@ -50,6 +53,14 @@ class CesiumPerformanceWindow(ui.Window):
                     with ui.HStack(height=0):
                         ui.Label(label, height=0)
                         ui.CheckBox(model)
+
+                with ui.HStack(height=16):
+                    tracing_label = ui.Label(TRACING_ENABLED_TEXT, height=0)
+                    tracing_label.set_tooltip(
+                        "Enabled when the project is configured with -D CESIUM_OMNI_ENABLE_TRACING"
+                    )
+                    enabled_string = "ON" if self._cesium_omniverse_interface.is_tracing_enabled() else "OFF"
+                    ui.Label(enabled_string, height=0)
 
             with ui.VStack(spacing=0):
                 ui.Label("Scenarios", height=16)

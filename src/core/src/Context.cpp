@@ -30,7 +30,7 @@
 #include <pxr/usd/usdGeom/xform.h>
 #include <pxr/usd/usdUtils/stageCache.h>
 
-#ifdef CESIUM_TRACING_ENABLED
+#if CESIUM_TRACING_ENABLED
 #include <chrono>
 #endif
 
@@ -96,7 +96,7 @@ void Context::initialize(int64_t contextId, const std::filesystem::path& cesiumE
 
     Cesium3DTilesSelection::registerAllTileContentTypes();
 
-#ifdef CESIUM_TRACING_ENABLED
+#if CESIUM_TRACING_ENABLED
     const auto timeNow = std::chrono::time_point_cast<std::chrono::microseconds>(std::chrono::steady_clock::now());
     const auto timeSinceEpoch = timeNow.time_since_epoch().count();
     const auto path = cesiumExtensionLocation / fmt::format("cesium-trace-{}.json", timeSinceEpoch);

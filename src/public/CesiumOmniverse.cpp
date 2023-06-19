@@ -182,6 +182,14 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
     void creditsStartNextFrame() noexcept override {
         return Context::instance().creditsStartNextFrame();
     }
+
+    bool isTracingEnabled() noexcept override {
+#if CESIUM_TRACING_ENABLED
+        return true;
+#else
+        return false;
+#endif
+    }
 };
 } // namespace cesium::omniverse
 

@@ -6,6 +6,7 @@ import omni.ext
 import omni.ui as ui
 import omni.kit.ui
 from .performance_window import CesiumPerformanceWindow
+from cesium.omniverse.bindings import acquire_cesium_omniverse_interface, release_cesium_omniverse_interface
 from cesium.omniverse.utils import wait_n_frames, dock_window_async
 
 
@@ -20,11 +21,16 @@ class CesiumPerformanceExtension(omni.ext.IExt):
     def on_startup(self):
         self._logger.info("Starting Cesium Performance Testing...")
 
+        global _cesium_omniverse_interface
+        _cesium_omniverse_interface = acquire_cesium_omniverse_interface()
+
         self._setup_menus()
         self._show_and_dock_startup_windows()
 
     def on_shutdown(self):
         self._destroy_performance_window()
+
+        release_cesium_omniverse_interface(_cesium_omniverse_interface)
 
     def _setup_menus(self):
         ui.Workspace.set_show_window_fn(
@@ -64,7 +70,7 @@ class CesiumPerformanceExtension(omni.ext.IExt):
 
     def _show_performance_window(self, _menu, value):
         if value:
-            self._performance_window = CesiumPerformanceWindow(width=300, height=400)
+            self._performance_window = CesiumPerformanceWindow(_cesium_omniverse_interface, width=300, height=400)
             self._performance_window.set_visibility_changed_fn(
                 partial(self._visibility_changed_fn, CesiumPerformanceWindow.MENU_PATH)
             )
