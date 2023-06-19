@@ -22,7 +22,7 @@ from cesium.usd.plugins.CesiumUsdSchemas import (
 )
 
 ION_ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyZTA0MDlmYi01Y2RhLTQ0MjQtYjBlOS1kMmZhMzQ0OWRkNGYiLCJpZCI6MjU5LCJpYXQiOjE2ODU2MzExMTF9.y2CrqatkaHKHcj6NIDJ8ioll-tnOi-2CblnzI6iUays"
-GOOGLE_3D_TILES_ACCESS_TOKEN = "AIzaSyC2PMYr_ZaMJT5DdZ8WJNYMwB0lDyvx5q8"
+GOOGLE_3D_TILES_URL = "https://tile.googleapis.com/v1/3dtiles/root.json?key=AIzaSyC2PMYr_ZaMJT5DdZ8WJNYMwB0lDyvx5q8"
 
 CESIUM_DATA_PRIM_PATH = "/Cesium"
 CESIUM_GEOREFERENCE_PRIM_PATH = "/CesiumGeoreference"
@@ -35,9 +35,19 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         self._logger = logging.getLogger(__name__)
 
         self._performance_window: Optional[CesiumPerformanceWindow] = None
+
         self._view_new_york_city_subscription: Optional[carb.events.ISubscription] = None
+        self._view_paris_subscription: Optional[carb.events.ISubscription] = None
         self._view_grand_canyon_subscription: Optional[carb.events.ISubscription] = None
         self._view_tour_subscription: Optional[carb.events.ISubscription] = None
+        self._view_new_york_city_google_subscription: Optional[carb.events.ISubscription] = None
+        self._view_paris_google_subscription: Optional[carb.events.ISubscription] = None
+        self._view_grand_canyon_google_subscription: Optional[carb.events.ISubscription] = None
+        self._view_tour_google_subscription: Optional[carb.events.ISubscription] = None
+
+        self._stop_subscription: Optional[carb.events.ISubscription] = None
+        self._update_frame_subscription: Optional[carb.events.ISubscription] = None
+
         self._tileset_loaded_subscription: Optional[carb.events.ISubscription] = None
 
         self._tileset_path: Optional[str] = None
@@ -68,6 +78,26 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         view_tour_event = carb.events.type_from_string("cesium.performance.VIEW_TOUR")
         self._view_tour_subscription = bus.create_subscription_to_pop_by_type(view_tour_event, self._view_tour)
 
+        view_new_york_city_google_event = carb.events.type_from_string("cesium.performance.VIEW_NEW_YORK_CITY_GOOGLE")
+        self._view_new_york_city_google_subscription = bus.create_subscription_to_pop_by_type(
+            view_new_york_city_google_event, self._view_new_york_city_google
+        )
+
+        view_paris_google_event = carb.events.type_from_string("cesium.performance.VIEW_PARIS_GOOGLE")
+        self._view_paris_google_subscription = bus.create_subscription_to_pop_by_type(
+            view_paris_google_event, self._view_paris_google
+        )
+
+        view_grand_canyon_google_event = carb.events.type_from_string("cesium.performance.VIEW_GRAND_CANYON_GOOGLE")
+        self._view_grand_canyon_google_subscription = bus.create_subscription_to_pop_by_type(
+            view_grand_canyon_google_event, self._view_grand_canyon_google
+        )
+
+        view_tour_google_event = carb.events.type_from_string("cesium.performance.VIEW_TOUR_GOOGLE")
+        self._view_tour_google_subscription = bus.create_subscription_to_pop_by_type(
+            view_tour_google_event, self._view_tour_google
+        )
+
         stop_event = carb.events.type_from_string("cesium.performance.STOP")
         self._stop_subscription = bus.create_subscription_to_pop_by_type(stop_event, self._on_stop)
 
@@ -94,6 +124,22 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         if self._view_tour_subscription is not None:
             self._view_tour_subscription.unsubscribe()
             self._view_tour_subscription = None
+
+        if self._view_new_york_city_google_subscription is not None:
+            self._view_new_york_city_google_subscription.unsubscribe()
+            self._view_new_york_city_google_subscription = None
+
+        if self._view_paris_google_subscription is not None:
+            self._view_paris_google_subscription.unsubscribe()
+            self._view_paris_google_subscription = None
+
+        if self._view_grand_canyon_google_subscription is not None:
+            self._view_grand_canyon_google_subscription.unsubscribe()
+            self._view_grand_canyon_google_subscription = None
+
+        if self._view_tour_google_subscription is not None:
+            self._view_tour_google_subscription.unsubscribe()
+            self._view_tour_google_subscription = None
 
         if self._stop_subscription is not None:
             self._stop_subscription.unsubscribe()
@@ -168,6 +214,19 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         tileset_prim.GetIonAssetIdAttr().Set(asset_id)
         tileset_prim.GetIonAccessTokenAttr().Set(access_token)
         tileset_prim.GetSourceTypeAttr().Set(CesiumTokens.ion)
+
+        return tileset_path  # type: ignore
+
+    def _create_tileset_google(self) -> str:
+        stage = omni.usd.get_context().get_stage()
+        tileset_path = omni.usd.get_stage_next_free_path(stage, "/Google_3D_Tiles", False)
+        xform = UsdGeom.Xform.Define(stage, tileset_path)
+        assert xform.GetPrim().IsValid()
+        tileset_prim = CesiumTilesetAPI.Apply(xform.GetPrim())
+        assert tileset_prim.GetPrim().IsValid()
+
+        tileset_prim.GetUrlAttr().Set(GOOGLE_3D_TILES_URL)
+        tileset_prim.GetSourceTypeAttr().Set(CesiumTokens.url)
 
         return tileset_path  # type: ignore
 
@@ -260,6 +319,45 @@ class CesiumPerformanceExtension(omni.ext.IExt):
             2,
             ION_ACCESS_TOKEN,
         )
+
+        def tour_stop_0():
+            self._set_georeference(-74.0060, 40.7128, 50.0)
+
+        def tour_stop_1():
+            self._set_georeference(2.3522, 48.8566, 100.0)
+
+        def tour_stop_2():
+            self._set_georeference(-112.3535, 36.2679, 2100.0)
+
+        tour = Tour(self, [tour_stop_0, tour_stop_1, tour_stop_2], self._tileset_loaded)
+
+        self._load_tileset(tileset_path, tour.tour_stop_loaded)
+
+    def _view_new_york_city_google(self, _e: carb.events.IEvent):
+        self._logger.warning("View New York City Google")
+        self._clear_scene()
+        tileset_path = self._create_tileset_google()
+        self._set_georeference(-74.0060, 40.7128, 50.0)
+        self._load_tileset(tileset_path, self._tileset_loaded)
+
+    def _view_paris_google(self, _e: carb.events.IEvent):
+        self._logger.warning("View Paris Google")
+        self._clear_scene()
+        tileset_path = self._create_tileset_google()
+        self._set_georeference(2.3522, 48.8566, 100.0)
+        self._load_tileset(tileset_path, self._tileset_loaded)
+
+    def _view_grand_canyon_google(self, _e: carb.events.IEvent):
+        self._logger.warning("View Grand Canyon Google")
+        self._clear_scene()
+        tileset_path = self._create_tileset_google()
+        self._set_georeference(-112.3535, 36.2679, 2100.0)
+        self._load_tileset(tileset_path, self._tileset_loaded)
+
+    def _view_tour_google(self, _e: carb.events.IEvent):
+        self._logger.warning("View Tour Google")
+        self._clear_scene()
+        tileset_path = self._create_tileset_google()
 
         def tour_stop_0():
             self._set_georeference(-74.0060, 40.7128, 50.0)

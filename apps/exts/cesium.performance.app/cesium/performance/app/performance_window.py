@@ -15,6 +15,11 @@ PARIS_TEXT = "Paris"
 GRAND_CANYON_TEXT = "Grand Canyon"
 TOUR_TEXT = "Tour"
 
+NEW_YORK_CITY_GOOGLE_TEXT = "New York City (Google)"
+PARIS_GOOGLE_TEXT = "Paris (Google)"
+GRAND_CANYON_GOOGLE_TEXT = "Grand Canyon (Google)"
+TOUR_GOOGLE_TEXT = "Tour (Google)"
+
 DURATION_TEXT = "Duration (seconds)"
 
 
@@ -71,6 +76,10 @@ class CesiumPerformanceWindow(ui.Window):
                     (PARIS_TEXT, self._view_paris),
                     (GRAND_CANYON_TEXT, self._view_grand_canyon),
                     (TOUR_TEXT, self._view_tour),
+                    (NEW_YORK_CITY_GOOGLE_TEXT, self._view_new_york_city_google),
+                    (PARIS_GOOGLE_TEXT, self._view_paris_google),
+                    (GRAND_CANYON_GOOGLE_TEXT, self._view_grand_canyon_google),
+                    (TOUR_GOOGLE_TEXT, self._view_tour_google),
                 ]:
                     ui.Button(label, height=20, clicked_fn=callback)
 
@@ -101,13 +110,33 @@ class CesiumPerformanceWindow(ui.Window):
 
     def _view_grand_canyon(self):
         bus = app.get_app().get_message_bus_event_stream()
-        view_new_york_city_event = carb.events.type_from_string("cesium.performance.VIEW_GRAND_CANYON")
-        bus.push(view_new_york_city_event)
+        view_grand_canyon_event = carb.events.type_from_string("cesium.performance.VIEW_GRAND_CANYON")
+        bus.push(view_grand_canyon_event)
 
     def _view_tour(self):
         bus = app.get_app().get_message_bus_event_stream()
-        view_new_york_city_event = carb.events.type_from_string("cesium.performance.VIEW_TOUR")
-        bus.push(view_new_york_city_event)
+        view_tour_event = carb.events.type_from_string("cesium.performance.VIEW_TOUR")
+        bus.push(view_tour_event)
+
+    def _view_new_york_city_google(self):
+        bus = app.get_app().get_message_bus_event_stream()
+        view_new_york_city_google_event = carb.events.type_from_string("cesium.performance.VIEW_NEW_YORK_CITY_GOOGLE")
+        bus.push(view_new_york_city_google_event)
+
+    def _view_paris_google(self):
+        bus = app.get_app().get_message_bus_event_stream()
+        view_paris_google_event = carb.events.type_from_string("cesium.performance.VIEW_PARIS_GOOGLE")
+        bus.push(view_paris_google_event)
+
+    def _view_grand_canyon_google(self):
+        bus = app.get_app().get_message_bus_event_stream()
+        view_grand_canyon_google_event = carb.events.type_from_string("cesium.performance.VIEW_GRAND_CANYON_GOOGLE")
+        bus.push(view_grand_canyon_google_event)
+
+    def _view_tour_google(self):
+        bus = app.get_app().get_message_bus_event_stream()
+        view_tour_google_event = carb.events.type_from_string("cesium.performance.VIEW_TOUR_GOOGLE")
+        bus.push(view_tour_google_event)
 
     def _stop(self):
         bus = app.get_app().get_message_bus_event_stream()
