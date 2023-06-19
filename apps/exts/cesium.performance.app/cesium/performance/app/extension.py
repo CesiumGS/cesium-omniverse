@@ -1,7 +1,7 @@
 from functools import partial
 import asyncio
 import time
-from typing import Callable, Optional
+from typing import Callable, List, Optional
 import logging
 import carb.events
 import omni.ext
@@ -145,9 +145,9 @@ class CesiumPerformanceExtension(omni.ext.IExt):
 
         self._clear_scene()
 
-        _cesium_omniverse_interface.set_georeference_origin(-74.0, 40.69, 50)
-
         tileset_path = _cesium_omniverse_interface.add_tileset_ion("Cesium_World_Terrain", 1, ION_ACCESS_TOKEN)
+
+        _cesium_omniverse_interface.set_georeference_origin(-74.0, 40.69, 50)
 
         self._load_tileset(tileset_path, self._tileset_loaded)
 
@@ -159,6 +159,8 @@ class CesiumPerformanceExtension(omni.ext.IExt):
 
         self._clear_scene()
 
+        tileset_path = _cesium_omniverse_interface.add_tileset_ion("Cesium_World_Terrain", 1, ION_ACCESS_TOKEN)
+
         def tour_stop_0():
             _cesium_omniverse_interface.set_georeference_origin(-74.0, 40.69, 50)
 
@@ -168,26 +170,9 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         def tour_stop_2():
             _cesium_omniverse_interface.set_georeference_origin(-157.86, 21.31, 10)
 
-        tour_stops = [tour_stop_0, tour_stop_1, tour_stop_2]
-        current_stop = 0
+        tour = Tour(self, [tour_stop_0, tour_stop_1, tour_stop_2], self._tileset_loaded)
 
-        def tileset_loaded(_e: carb.events.IEvent):
-            nonlocal current_stop
-
-            duration = self._get_duration()
-            self._logger.warning("Tour stop {} loaded in {} seconds".format(current_stop, duration))
-
-            if current_stop == len(tour_stops) - 1:
-                self._tileset_loaded(_e)
-            else:
-                current_stop += 1
-                tour_stops[current_stop]()
-
-        tour_stops[0]()
-
-        tileset_path = _cesium_omniverse_interface.add_tileset_ion("Cesium_World_Terrain", 1, ION_ACCESS_TOKEN)
-
-        self._load_tileset(tileset_path, tileset_loaded)
+        self._load_tileset(tileset_path, tour.tour_stop_loaded)
 
     def _load_tileset(self, tileset_path: str, tileset_loaded: Callable):
         stage = omni.usd.get_context().get_stage()
@@ -228,7 +213,7 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         self._stop()
         duration = self._get_duration()
         self._update_duration_ui(duration)
-        self._logger.warning("Tileset loaded in {} seconds".format(duration))
+        self._logger.warning("Loaded in {} seconds".format(duration))
 
     def _get_duration(self) -> float:
         current_time = time.time()
@@ -255,3 +240,28 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         if self._tileset_loaded_subscription is not None:
             self._tileset_loaded_subscription.unsubscribe()
             self._tileset_loaded_subscription = None
+
+
+class Tour:
+    def __init__(self, ext: CesiumPerformanceExtension, tour_stops: List[Callable], tour_complete: Callable):
+        self._ext: CesiumPerformanceExtension = ext
+        self._tour_stops: List[Callable] = tour_stops
+        self._tour_complete: Callable = tour_complete
+        self._current_stop: int = 0
+        self._duration: float = 0.0
+
+        assert len(tour_stops) > 0
+        tour_stops[0]()
+
+    def tour_stop_loaded(self, _e: carb.events.IEvent):
+        duration = self._ext._get_duration()
+        current_duration = duration - self._duration
+        self._duration = duration
+
+        self._ext._logger.warning("Tour stop {} loaded in {} seconds".format(self._current_stop, current_duration))
+
+        if self._current_stop == len(self._tour_stops) - 1:
+            self._tour_complete(_e)
+        else:
+            self._current_stop += 1
+            self._tour_stops[self._current_stop]()
