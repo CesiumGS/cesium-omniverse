@@ -7,4 +7,4 @@ app = false
 "cesium.omniverse" = {}
 
 [[python.module]]
-name = "cesium.performance"
+name = "cesium.performance.app"

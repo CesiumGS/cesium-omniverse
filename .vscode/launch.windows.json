@@ -32,7 +32,7 @@
       "preLaunchTask": "Build Only (release)",
       "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit.exe",
       "args": [
-        "${workspaceFolder}/apps/cesium.performance.app.kit"
+        "${workspaceFolder}/apps/cesium.performance.kit"
       ],
       "cwd": "${workspaceFolder}",
       "type": "cppvsdbg",
