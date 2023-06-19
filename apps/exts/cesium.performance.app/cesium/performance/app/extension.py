@@ -12,10 +12,18 @@ import omni.kit.ui
 from .performance_window import CesiumPerformanceWindow
 from cesium.omniverse.bindings import acquire_cesium_omniverse_interface, release_cesium_omniverse_interface
 from cesium.omniverse.utils import wait_n_frames, dock_window_async
-from cesium.usd.plugins.CesiumUsdSchemas import TilesetAPI as CesiumTilesetAPI, Data as CesiumData
+from cesium.usd.plugins.CesiumUsdSchemas import (
+    Data as CesiumData,
+    Georeference as CesiumGeoreference,
+    TilesetAPI as CesiumTilesetAPI,
+    Tokens as CesiumTokens,
+)
 
 ION_ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyZTA0MDlmYi01Y2RhLTQ0MjQtYjBlOS1kMmZhMzQ0OWRkNGYiLCJpZCI6MjU5LCJpYXQiOjE2ODU2MzExMTF9.y2CrqatkaHKHcj6NIDJ8ioll-tnOi-2CblnzI6iUays"
 GOOGLE_3D_TILES_ACCESS_TOKEN = "AIzaSyC2PMYr_ZaMJT5DdZ8WJNYMwB0lDyvx5q8"
+
+CESIUM_DATA_PRIM_PATH = "/Cesium"
+CESIUM_GEOREFERENCE_PRIM_PATH = "/CesiumGeoreference"
 
 
 class CesiumPerformanceExtension(omni.ext.IExt):
@@ -140,15 +148,49 @@ class CesiumPerformanceExtension(omni.ext.IExt):
             duration = self._get_duration()
             self._update_duration_ui(duration)
 
+    def _create_tileset_ion(self, path: str, asset_id: int, access_token: str) -> str:
+        stage = omni.usd.get_context().get_stage()
+        tileset_path = omni.usd.get_stage_next_free_path(stage, path, False)
+        xform = omni.usd.UsdGeom.Xform.Define(stage, tileset_path)
+        assert xform.GetPrim().IsValid()
+        tileset_prim = CesiumTilesetAPI.Apply(xform.GetPrim())
+        assert tileset_prim.GetPrim().IsValid()
+
+        tileset_prim.GetIonAssetIdAttr().Set(asset_id)
+        tileset_prim.GetIonAccessTokenAttr().Set(access_token)
+        tileset_prim.GetSourceTypeAttr().Set(CesiumTokens.ion)
+
+        return tileset_path  # type: ignore
+
+    def _set_georeference(self, longitude: float, latitude: float, height: float):
+        stage = omni.usd.get_context().get_stage()
+        cesium_georeference_prim = CesiumGeoreference.Get(stage, CESIUM_GEOREFERENCE_PRIM_PATH)
+        assert cesium_georeference_prim.GetPrim().IsValid()
+        cesium_georeference_prim.GetGeoreferenceOriginLongitudeAttr().Set(longitude)
+        cesium_georeference_prim.GetGeoreferenceOriginLatitudeAttr().Set(latitude)
+        cesium_georeference_prim.GetGeoreferenceOriginHeightAttr().Set(height)
+
+    def _get_tileset_prim(self, path: str) -> CesiumTilesetAPI:
+        stage = omni.usd.get_context().get_stage()
+        tileset_prim = CesiumTilesetAPI.Get(stage, path)
+        assert tileset_prim.GetPrim().IsValid()
+        return tileset_prim
+
+    def _get_cesium_prim(self) -> CesiumData:
+        stage = omni.usd.get_context().get_stage()
+        cesium_prim = CesiumData.Get(stage, CESIUM_DATA_PRIM_PATH)
+        assert cesium_prim.GetPrim().IsValid()
+        return cesium_prim
+
+    def _remove_prim(self, path: str):
+        stage = omni.usd.get_context().get_stage()
+        stage.RemovePrim(path)
+
     def _view_new_york_city(self, _e: carb.events.IEvent):
         self._logger.warning("View New York City")
-
         self._clear_scene()
-
-        tileset_path = _cesium_omniverse_interface.add_tileset_ion("Cesium_World_Terrain", 1, ION_ACCESS_TOKEN)
-
-        _cesium_omniverse_interface.set_georeference_origin(-74.0, 40.69, 50)
-
+        tileset_path = self._create_tileset_ion("/Cesium_World_Terrain", 1, ION_ACCESS_TOKEN)
+        self._set_georeference(-74.0, 40.69, 50)
         self._load_tileset(tileset_path, self._tileset_loaded)
 
     def _view_grand_canyon(self, _e: carb.events.IEvent):
@@ -156,40 +198,27 @@ class CesiumPerformanceExtension(omni.ext.IExt):
 
     def _view_tour(self, _e: carb.events.IEvent):
         self._logger.warning("View Tour")
-
         self._clear_scene()
-
-        tileset_path = _cesium_omniverse_interface.add_tileset_ion("Cesium_World_Terrain", 1, ION_ACCESS_TOKEN)
+        tileset_path = self._create_tileset_ion("/Cesium_World_Terrain", 1, ION_ACCESS_TOKEN)
 
         def tour_stop_0():
-            _cesium_omniverse_interface.set_georeference_origin(-74.0, 40.69, 50)
+            self._set_georeference(-74.0, 40.69, 50)
 
         def tour_stop_1():
-            _cesium_omniverse_interface.set_georeference_origin(2.349, 48.86, 100)
+            self._set_georeference(2.349, 48.86, 100)
 
         def tour_stop_2():
-            _cesium_omniverse_interface.set_georeference_origin(-157.86, 21.31, 10)
+            self._set_georeference(-157.86, 21.31, 10)
 
         tour = Tour(self, [tour_stop_0, tour_stop_1, tour_stop_2], self._tileset_loaded)
 
         self._load_tileset(tileset_path, tour.tour_stop_loaded)
 
     def _load_tileset(self, tileset_path: str, tileset_loaded: Callable):
-        stage = omni.usd.get_context().get_stage()
+        tileset_prim = self._get_tileset_prim(tileset_path)
+        cesium_prim = self._get_cesium_prim()
 
-        tileset_prim = CesiumTilesetAPI.Get(stage, tileset_path)
-        if not tileset_prim.GetPrim().IsValid():
-            self._logger.error("Can't run performance test: tileset prim is not valid")
-            return
-
-        cesium_prim = CesiumData.Get(stage, "/Cesium")
-        if not cesium_prim.GetPrim().IsValid():
-            self._logger.error("Can't run performance test: cesium prim is not valid")
-            return
-
-        if self._performance_window is None:
-            self._logger.error("Can't run performance test: performance window is None")
-            return
+        assert self._performance_window is not None
 
         bus = app.get_app().get_message_bus_event_stream()
         tileset_loaded_event = carb.events.type_from_string("cesium.omniverse.TILESET_LOADED")
@@ -229,7 +258,7 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         self._update_duration_ui(0.0)
 
         if self._tileset_path is not None:
-            _cesium_omniverse_interface.remove_tileset(self._tileset_path)
+            self._remove_prim(self._tileset_path)
 
     def _on_stop(self, _e: carb.events.IEvent):
         self._stop()
