@@ -263,16 +263,6 @@ pxr::CesiumData defineCesiumData(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto cesiumData = pxr::CesiumData::Define(stage, path);
 
-    cesiumData.CreateProjectDefaultIonAccessTokenAttr();
-    cesiumData.CreateProjectDefaultIonAccessTokenIdAttr();
-    cesiumData.CreateDebugDisableMaterialsAttr(pxr::VtValue(false));
-    cesiumData.CreateDebugDisableTexturesAttr(pxr::VtValue(false));
-    cesiumData.CreateDebugDisableGeometryPoolAttr(pxr::VtValue(true));
-    cesiumData.CreateDebugDisableMaterialPoolAttr(pxr::VtValue(false));
-    cesiumData.CreateDebugGeometryPoolInitialCapacityAttr(pxr::VtValue(uint64_t(0)));
-    cesiumData.CreateDebugMaterialPoolInitialCapacityAttr(pxr::VtValue(uint64_t(2048)));
-    cesiumData.CreateDebugRandomColorsAttr(pxr::VtValue(false));
-
     return cesiumData;
 }
 
@@ -280,18 +270,12 @@ pxr::CesiumSession defineCesiumSession(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto cesiumSession = pxr::CesiumSession::Define(stage, path);
 
-    cesiumSession.CreateEcefToUsdTransformAttr();
-
     return cesiumSession;
 }
 
 pxr::CesiumGeoreference defineCesiumGeoreference(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto georeference = pxr::CesiumGeoreference::Define(stage, path);
-
-    georeference.CreateGeoreferenceOriginLatitudeAttr(pxr::VtValue(39.736401));
-    georeference.CreateGeoreferenceOriginLongitudeAttr(pxr::VtValue(-105.25737));
-    georeference.CreateGeoreferenceOriginHeightAttr(pxr::VtValue(2250.0));
 
     return georeference;
 }
@@ -308,10 +292,6 @@ pxr::CesiumImagery defineCesiumImagery(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto imagery = pxr::CesiumImagery::Define(stage, path);
     assert(imagery.GetPrim().IsValid());
-
-    imagery.CreateIonAssetIdAttr();
-    imagery.CreateIonAccessTokenAttr();
-    imagery.CreateShowCreditsOnScreenAttr(pxr::VtValue(false));
 
     return imagery;
 }
