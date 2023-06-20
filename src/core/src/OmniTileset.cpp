@@ -23,7 +23,7 @@
 #include <Cesium3DTilesSelection/ViewState.h>
 #include <Cesium3DTilesSelection/ViewUpdateResult.h>
 #include <CesiumUsdSchemas/imagery.h>
-#include <CesiumUsdSchemas/tilesetAPI.h>
+#include <CesiumUsdSchemas/tileset.h>
 #include <pxr/usd/usd/prim.h>
 #include <pxr/usd/usd/stage.h>
 

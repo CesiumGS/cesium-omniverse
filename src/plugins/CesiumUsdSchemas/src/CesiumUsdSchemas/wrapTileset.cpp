@@ -1,4 +1,4 @@
-#include ".//tilesetAPI.h"
+#include ".//tileset.h"
 #include "pxr/usd/usd/schemaBase.h"
 
 #include "pxr/usd/sdf/primSpec.h"
@@ -27,148 +27,148 @@ WRAP_CUSTOM;
 
         
 static UsdAttribute
-_CreateSourceTypeAttr(CesiumTilesetAPI &self,
+_CreateSourceTypeAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateSourceTypeAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Token), writeSparsely);
 }
         
 static UsdAttribute
-_CreateUrlAttr(CesiumTilesetAPI &self,
+_CreateUrlAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateUrlAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
-_CreateIonAssetIdAttr(CesiumTilesetAPI &self,
+_CreateIonAssetIdAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateIonAssetIdAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int64), writeSparsely);
 }
         
 static UsdAttribute
-_CreateIonAccessTokenAttr(CesiumTilesetAPI &self,
+_CreateIonAccessTokenAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateIonAccessTokenAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
-_CreateMaximumScreenSpaceErrorAttr(CesiumTilesetAPI &self,
+_CreateMaximumScreenSpaceErrorAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateMaximumScreenSpaceErrorAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Float), writeSparsely);
 }
         
 static UsdAttribute
-_CreatePreloadAncestorsAttr(CesiumTilesetAPI &self,
+_CreatePreloadAncestorsAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreatePreloadAncestorsAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
-_CreatePreloadSiblingsAttr(CesiumTilesetAPI &self,
+_CreatePreloadSiblingsAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreatePreloadSiblingsAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
-_CreateForbidHolesAttr(CesiumTilesetAPI &self,
+_CreateForbidHolesAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateForbidHolesAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
-_CreateMaximumSimultaneousTileLoadsAttr(CesiumTilesetAPI &self,
+_CreateMaximumSimultaneousTileLoadsAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateMaximumSimultaneousTileLoadsAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->UInt), writeSparsely);
 }
         
 static UsdAttribute
-_CreateMaximumCachedBytesAttr(CesiumTilesetAPI &self,
+_CreateMaximumCachedBytesAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateMaximumCachedBytesAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->UInt64), writeSparsely);
 }
         
 static UsdAttribute
-_CreateLoadingDescendantLimitAttr(CesiumTilesetAPI &self,
+_CreateLoadingDescendantLimitAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateLoadingDescendantLimitAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->UInt), writeSparsely);
 }
         
 static UsdAttribute
-_CreateEnableFrustumCullingAttr(CesiumTilesetAPI &self,
+_CreateEnableFrustumCullingAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateEnableFrustumCullingAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
-_CreateEnableFogCullingAttr(CesiumTilesetAPI &self,
+_CreateEnableFogCullingAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateEnableFogCullingAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
-_CreateEnforceCulledScreenSpaceErrorAttr(CesiumTilesetAPI &self,
+_CreateEnforceCulledScreenSpaceErrorAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateEnforceCulledScreenSpaceErrorAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
-_CreateCulledScreenSpaceErrorAttr(CesiumTilesetAPI &self,
+_CreateCulledScreenSpaceErrorAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateCulledScreenSpaceErrorAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Float), writeSparsely);
 }
         
 static UsdAttribute
-_CreateSuspendUpdateAttr(CesiumTilesetAPI &self,
+_CreateSuspendUpdateAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateSuspendUpdateAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
-_CreateSmoothNormalsAttr(CesiumTilesetAPI &self,
+_CreateSmoothNormalsAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateSmoothNormalsAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
-_CreateShowCreditsOnScreenAttr(CesiumTilesetAPI &self,
+_CreateShowCreditsOnScreenAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateShowCreditsOnScreenAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
 
 static std::string
-_Repr(const CesiumTilesetAPI &self)
+_Repr(const CesiumTileset &self)
 {
     std::string primRepr = TfPyRepr(self.GetPrim());
     return TfStringPrintf(
-        "Cesium.TilesetAPI(%s)",
+        "Cesium.Tileset(%s)",
         primRepr.c_str());
 }
 
 } // anonymous namespace
 
-void wrapCesiumTilesetAPI()
+void wrapCesiumTileset()
 {
-    typedef CesiumTilesetAPI This;
+    typedef CesiumTileset This;
 
-    class_<This, bases<UsdAPISchemaBase> >
-        cls("TilesetAPI");
+    class_<This, bases<UsdGeomBoundable> >
+        cls("Tileset");
 
     cls
         .def(init<UsdPrim>(arg("prim")))
@@ -178,8 +178,8 @@ void wrapCesiumTilesetAPI()
         .def("Get", &This::Get, (arg("stage"), arg("path")))
         .staticmethod("Get")
 
-        .def("Apply", &This::Apply, (arg("prim")))
-        .staticmethod("Apply")
+        .def("Define", &This::Define, (arg("stage"), arg("path")))
+        .staticmethod("Define")
 
         .def("GetSchemaAttributeNames",
              &This::GetSchemaAttributeNames,

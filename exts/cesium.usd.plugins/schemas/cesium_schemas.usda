@@ -4,7 +4,8 @@
         usdGenSchema.
     """
     subLayers = [
-        @usd/schema.usda@
+        @usd/schema.usda@,
+        @usdGeom/schema.usda@
     ]
 )
 
@@ -145,12 +146,12 @@ class CesiumGeoreferencePrim "CesiumGeoreferencePrim" (
     )
 }
 
-class "CesiumTilesetSchemaAPI" (
-    doc = """Adds Cesium specific data to a prim for representing a tileset."""
-    inherits = </APISchemaBase>
+class CesiumTilesetPrim "CesiumTilesetPrim" (
+    doc = """A prim representing a tileset."""
+    inherits = </Boundable>
     customData = {
-        string className = "TilesetAPI"
-        token apiSchemaType = "singleApply"
+        string className = "Tileset"
+
     }
 ) {
     uniform token cesium:sourceType = "ion" (

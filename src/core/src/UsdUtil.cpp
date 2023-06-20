@@ -296,32 +296,11 @@ pxr::CesiumGeoreference defineCesiumGeoreference(const pxr::SdfPath& path) {
     return georeference;
 }
 
-pxr::CesiumTilesetAPI defineCesiumTileset(const pxr::SdfPath& path) {
+pxr::CesiumTileset defineCesiumTileset(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
-    auto xform = pxr::UsdGeomXform::Define(stage, path);
-    assert(xform.GetPrim().IsValid());
+    auto tileset = pxr::CesiumTileset::Define(stage, path);
 
-    auto tileset = pxr::CesiumTilesetAPI::Apply(xform.GetPrim());
     assert(tileset.GetPrim().IsValid());
-
-    tileset.CreateUrlAttr();
-    tileset.CreateIonAssetIdAttr();
-    tileset.CreateIonAccessTokenAttr();
-    tileset.CreateMaximumScreenSpaceErrorAttr(pxr::VtValue(16.0f));
-    tileset.CreatePreloadAncestorsAttr(pxr::VtValue(true));
-    tileset.CreatePreloadSiblingsAttr(pxr::VtValue(true));
-    tileset.CreateForbidHolesAttr(pxr::VtValue(false));
-    tileset.CreateMaximumSimultaneousTileLoadsAttr(pxr::VtValue(uint32_t(20)));
-    tileset.CreateMaximumCachedBytesAttr(pxr::VtValue(uint64_t(536870912)));
-    tileset.CreateLoadingDescendantLimitAttr(pxr::VtValue(uint32_t(20)));
-    tileset.CreateEnableFrustumCullingAttr(pxr::VtValue(true));
-    tileset.CreateEnableFogCullingAttr(pxr::VtValue(true));
-    tileset.CreateEnforceCulledScreenSpaceErrorAttr(pxr::VtValue(true));
-    tileset.CreateCulledScreenSpaceErrorAttr(pxr::VtValue(64.0f));
-    tileset.CreateSuspendUpdateAttr(pxr::VtValue(false));
-    tileset.CreateSmoothNormalsAttr(pxr::VtValue(false));
-    tileset.CreateShowCreditsOnScreenAttr(pxr::VtValue(false));
-
     return tileset;
 }
 
@@ -385,9 +364,9 @@ pxr::CesiumGeoreference getCesiumGeoreference(const pxr::SdfPath& path) {
     return georeference;
 }
 
-pxr::CesiumTilesetAPI getCesiumTileset(const pxr::SdfPath& path) {
+pxr::CesiumTileset getCesiumTileset(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
-    auto tileset = pxr::CesiumTilesetAPI::Get(stage, path);
+    auto tileset = pxr::CesiumTileset::Get(stage, path);
     assert(tileset.GetPrim().IsValid());
     return tileset;
 }
@@ -452,7 +431,7 @@ bool isCesiumTileset(const pxr::SdfPath& path) {
         return false;
     }
 
-    return prim.HasAPI<pxr::CesiumTilesetAPI>();
+    return prim.IsA<pxr::CesiumTileset>();
 }
 
 bool isCesiumImagery(const pxr::SdfPath& path) {
