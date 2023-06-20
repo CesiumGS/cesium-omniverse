@@ -34,7 +34,7 @@ def main():
         return -1
 
     # explicit encoding is required for windows
-    with open(CERT_FILE_PATH, "w", encoding='utf-8') as f:
+    with open(CERT_FILE_PATH, "w", encoding="utf-8") as f:
         f.write(req.text)
 
     return 0
