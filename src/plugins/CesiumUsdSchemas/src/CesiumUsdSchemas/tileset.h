@@ -29,7 +29,7 @@ class SdfAssetPath;
 
 /// \class CesiumTileset
 ///
-/// Adds Cesium specific data to a prim for representing a tileset.
+/// A prim representing a tileset.
 ///
 /// For any described attribute \em Fallback \em Value or \em Allowed \em Values below
 /// that are text/tokens, the actual token is published and defined in \ref CesiumTokens.
