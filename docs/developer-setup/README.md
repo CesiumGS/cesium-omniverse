@@ -24,7 +24,7 @@
 - [VSCode](#vscode)
   - [Workspaces](#workspaces)
   - [Tasks](#tasks)
-  - [Debugging](#debugging)
+  - [Launching/Debugging](#launchingdebugging)
 - [Project Structure](#project-structure)
 - [Third Party Libraries](#third-party-libraries)
   - [Overriding Packman Libraries](#overriding-packman-libraries)
@@ -389,7 +389,7 @@ cmake --build build
 
 A file called `cesium-trace-xxxxxxxxxxx.json` will be saved to the `exts/cesium-omniverse` folder when the program exits. This file can then be inspected in `chrome://tracing/`.
 
-Note that the JSON output may get truncated if the program closes unexpectedly - e.g. when the debugging session is stopped or the program crashes - or if `app.fastShutdown` is `true` (like with Omniverse Create and `cesium.omniverse.app.kit`). Therefore the best workflow for performance tracing is to run `cesium.omniverse.app.trace.kit` and close the window normally.
+Note that the JSON output may get truncated if the program closes unexpectedly - e.g. when the debugging session is stopped or the program crashes - or if `app.fastShutdown` is `true` (like with Omniverse Create and `cesium.omniverse.dev.kit`). Therefore the best workflow for performance tracing is to run `cesium.omniverse.dev.trace.kit` and close the window normally.
 
 ## Sanitizers
 
@@ -546,6 +546,7 @@ Then select a configuration from the `Run and Debug` panel, such as `Kit App`, a
 
 > **Note:** For Python debugging, first run `Python Debugging (start)`, then wait for Omniverse to load, then run `Python Debugging (attach)`. Now you can set breakpoints in both the C++ and Python code.
 
+<!-- omit in toc -->
 #### Launch/Debug Troubleshooting
 - When running in debug within vscode, if you find execution halting at a breakpoint outside the cesium codebase, you may need to uncheck "C++: on throw" under the "Breakpoints" section of the "Run and Debug" panel.
 - On Linux, if you are given an error or warning about IOMMU, you may need to turn this off in the BIOS. IOMMU also goes by the name of Intel VT-d and AMD-Vi.

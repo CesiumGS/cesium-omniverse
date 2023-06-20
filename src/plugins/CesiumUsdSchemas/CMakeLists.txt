@@ -5,7 +5,7 @@ set(SOURCES
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/georeference.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/imagery.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/session.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/tilesetAPI.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/tileset.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/tokens.cpp")
 
 set(PY_BINDING_SOURCES
@@ -15,7 +15,7 @@ set(PY_BINDING_SOURCES
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapGeoreference.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapImagery.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapSession.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapTilesetAPI.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapTileset.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapTokens.cpp")
 
 set(CESIUM_USD_SCHEMAS_CXX_FLAGS ${CESIUM_OMNI_CXX_FLAGS})
@@ -51,6 +51,7 @@ setup_lib(
         sdf
         tf
         usd
+        usdGeom
         tbb
         boost_python310
         python310

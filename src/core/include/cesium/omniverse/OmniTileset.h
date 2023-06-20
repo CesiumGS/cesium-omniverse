@@ -77,6 +77,7 @@ class OmniTileset {
   private:
     void updateTransform();
     void updateView(const std::vector<Viewport>& viewports);
+    bool updateExtent();
     void updateLoadStatus();
 
     std::unique_ptr<Cesium3DTilesSelection::Tileset> _tileset;
@@ -87,6 +88,7 @@ class OmniTileset {
     int64_t _tilesetId;
     glm::dmat4 _ecefToUsdTransform;
     std::vector<Cesium3DTilesSelection::ViewState> _viewStates;
+    bool _extentSet = false;
     bool _activeLoading{false};
 };
 } // namespace cesium::omniverse
