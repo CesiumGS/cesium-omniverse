@@ -364,18 +364,20 @@ In some cases it's helpful to produce a self-contained build that can be tested 
 
 To install `CesiumOmniverse` onto the local system run:
 
+On Linux
+
 ```sh
 cmake -B build
-cmake --build build --target install --component library
+cmake --build build
+cmake --install build --component library --prefix $HOME/Desktop/CesiumOmniverse
 ```
 
-By default executables will be installed to `/usr/local/bin`, libraries will be installed to `/usr/local/lib`, and includes will be installed to `/usr/local/include`.
-
-To choose a custom install directory set `CMAKE_INSTALL_PREFIX`:
+On Windows
 
 ```sh
-cmake -B build -D CMAKE_INSTALL_PREFIX=$HOME/Desktop/CesiumOmniverse
-cmake --build build --target install --component library
+cmake -B build
+cmake --build build --config Release
+cmake --install build --config Release --component library --prefix $HOME/Desktop/CesiumOmniverse
 ```
 
 ## Tracing
