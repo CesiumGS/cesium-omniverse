@@ -23,11 +23,11 @@ TEST_SUITE("Example Tests") {
         int x = 1;
 
         // Note that these two subcases run independantly of each other!
-        SUBCASE("increment") {
+        SUBCASE("Increment") {
             x += 1;
             CHECK(x == 2);
         }
-        SUBCASE("decrement") {
+        SUBCASE("Decrement") {
             x -= 1;
             CHECK(x == 0);
         }
@@ -76,7 +76,7 @@ TEST_SUITE("Example Tests") {
         CHECK_THROWS(throw "test exception!");
         CHECK_NOTHROW(if (false) throw "should not throw");
 
-        // prints a warning if the assert fails, but does not fail the test
+        // Prints a warning if the assert fails, but does not fail the test
         WARN(true);
     }
 }
