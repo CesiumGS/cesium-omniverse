@@ -20,4 +20,4 @@
     });                                                                                                              \
     _doctest_subcase_idx = 0
 
-void fillWithRandomInts(std::list<int> &lst, int min, int max, int n);
+void fillWithRandomInts(std::list<int>& lst, int min, int max, int n);

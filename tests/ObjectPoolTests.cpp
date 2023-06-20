@@ -37,7 +37,7 @@ class MockObjectPool final : public cesium::omniverse::ObjectPool<MockObject> {
     };
 };
 
-void testRandomSequenceOfCmds(MockObjectPool &opl, int numEvents, bool setCap) {
+void testRandomSequenceOfCmds(MockObjectPool& opl, int numEvents, bool setCap) {
     // Track the objects we've acquired so we can release them
     std::queue<std::shared_ptr<MockObject>> activeObjects;
 
@@ -61,8 +61,7 @@ void testRandomSequenceOfCmds(MockObjectPool &opl, int numEvents, bool setCap) {
 
             // Ensure the new size is GTE, avoiding rollover
             uint64_t guaranteedGTE =
-                std::max(opl.getCapacity(), opl.getCapacity() +
-                static_cast<uint64_t>(rand() % MAX_TESTED_POOL_SIZE));
+                std::max(opl.getCapacity(), opl.getCapacity() + static_cast<uint64_t>(rand() % MAX_TESTED_POOL_SIZE));
             opl.setCapacity(guaranteedGTE);
         }
     }
