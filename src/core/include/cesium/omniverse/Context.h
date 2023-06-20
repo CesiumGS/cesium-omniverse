@@ -6,6 +6,7 @@
 #include "cesium/omniverse/UsdNotificationHandler.h"
 
 #include <CesiumGeospatial/Cartographic.h>
+#include <CesiumGeospatial/Ellipsoid.h>
 #include <CesiumGeospatial/GlobeAnchor.h>
 #include <CesiumGeospatial/LocalHorizontalCoordinateSystem.h>
 #include <carb/flatcache/StageWithHistory.h>
@@ -170,7 +171,6 @@ class Context {
     std::filesystem::path _certificatePath;
 
     glm::dmat4 _ecefToUsdTransform;
-    CesiumGeospatial::LocalHorizontalCoordinateSystem _coordinateSystem;
 };
 
 } // namespace cesium::omniverse
