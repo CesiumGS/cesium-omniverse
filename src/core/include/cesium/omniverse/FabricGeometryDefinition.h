@@ -16,7 +16,8 @@ class FabricGeometryDefinition {
         const CesiumGltf::MeshPrimitive& primitive,
         bool smoothNormals,
         bool hasImagery,
-        uint64_t imageryTexcoordSetIndex);
+        uint64_t imageryTexcoordSetIndex,
+        bool disableMaterials);
 
     bool hasMaterial() const;
     bool hasTexcoords() const;
