@@ -1,0 +1,11 @@
+[package]
+title = "Cesium for Omniverse Performance Testing Extension"
+version = "0.0.0"
+app = false
+toggleable = false
+
+[dependencies]
+"cesium.omniverse" = {}
+
+[[python.module]]
+name = "cesium.performance.app"
