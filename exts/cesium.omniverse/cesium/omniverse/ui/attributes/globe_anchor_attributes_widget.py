@@ -2,12 +2,12 @@ import logging
 from omni.kit.property.usd.custom_layout_helper import CustomLayoutFrame, CustomLayoutGroup, CustomLayoutProperty
 from omni.kit.property.usd.usd_property_widget import SchemaPropertiesWidget
 from ...bindings import ICesiumOmniverseInterface
-from cesium.usd.plugins.CesiumUsdSchemas import GlobeAnchorAPI as CesiumGlobalAnchorAPI
+from cesium.usd.plugins.CesiumUsdSchemas import GlobeAnchorAPI as CesiumGlobeAnchorAPI
 
 
-class CesiumGlobalAnchorAttributesWidget(SchemaPropertiesWidget):
+class CesiumGlobeAnchorAttributesWidget(SchemaPropertiesWidget):
     def __init__(self, _cesium_omniverse_interface: ICesiumOmniverseInterface):
-        super().__init__("Cesium Global Anchor", CesiumGlobalAnchorAPI, include_inherited=False)
+        super().__init__("Cesium Globe Anchor", CesiumGlobeAnchorAPI, include_inherited=False)
 
         self._logger = logging.getLogger(__name__)
 

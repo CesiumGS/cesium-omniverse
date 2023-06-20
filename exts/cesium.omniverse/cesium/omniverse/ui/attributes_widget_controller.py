@@ -5,7 +5,7 @@ from .attributes import (
     CesiumGeoreferenceSchemaAttributesWidget,
     CesiumImageryAttributesWidget,
     CesiumTilesetAttributesWidget,
-    CesiumGlobalAnchorAttributesWidget,
+    CesiumGlobeAnchorAttributesWidget,
 )
 from ..bindings import ICesiumOmniverseInterface
 
@@ -86,7 +86,7 @@ class CesiumAttributesWidgetController:
         window = omni.kit.window.property.get_window()
         if window is not None:
             window.register_widget(
-                "prim", "cesiumGlobalAnchorAPI", CesiumGlobalAnchorAttributesWidget(self._cesium_omniverse_interface)
+                "prim", "cesiumGlobalAnchorAPI", CesiumGlobeAnchorAttributesWidget(self._cesium_omniverse_interface)
             )
 
     @staticmethod
