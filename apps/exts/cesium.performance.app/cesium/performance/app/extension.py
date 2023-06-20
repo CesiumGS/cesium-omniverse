@@ -9,7 +9,7 @@ import omni.ui as ui
 import omni.usd
 import omni.kit.app as app
 import omni.kit.ui
-from pxr import UsdGeom, Sdf
+from pxr import Sdf
 from .performance_window import CesiumPerformanceWindow
 from cesium.omniverse.bindings import acquire_cesium_omniverse_interface, release_cesium_omniverse_interface
 from cesium.omniverse.utils import wait_n_frames, dock_window_async
@@ -17,7 +17,7 @@ from cesium.usd.plugins.CesiumUsdSchemas import (
     Data as CesiumData,
     Georeference as CesiumGeoreference,
     Imagery as CesiumImagery,
-    TilesetAPI as CesiumTilesetAPI,
+    Tileset as CesiumTileset,
     Tokens as CesiumTokens,
 )
 
@@ -206,9 +206,7 @@ class CesiumPerformanceExtension(omni.ext.IExt):
     def _create_tileset_ion(self, path: str, asset_id: int, access_token: str) -> str:
         stage = omni.usd.get_context().get_stage()
         tileset_path = omni.usd.get_stage_next_free_path(stage, path, False)
-        xform = UsdGeom.Xform.Define(stage, tileset_path)
-        assert xform.GetPrim().IsValid()
-        tileset_prim = CesiumTilesetAPI.Apply(xform.GetPrim())
+        tileset_prim = CesiumTileset.Define(stage, tileset_path)
         assert tileset_prim.GetPrim().IsValid()
 
         tileset_prim.GetIonAssetIdAttr().Set(asset_id)
@@ -220,10 +218,7 @@ class CesiumPerformanceExtension(omni.ext.IExt):
     def _create_tileset_google(self) -> str:
         stage = omni.usd.get_context().get_stage()
         tileset_path = omni.usd.get_stage_next_free_path(stage, "/Google_3D_Tiles", False)
-        xform = UsdGeom.Xform.Define(stage, tileset_path)
-        assert xform.GetPrim().IsValid()
-        tileset_prim = CesiumTilesetAPI.Apply(xform.GetPrim())
-        assert tileset_prim.GetPrim().IsValid()
+        tileset_prim = CesiumTileset.Define(stage, tileset_path)
 
         tileset_prim.GetUrlAttr().Set(GOOGLE_3D_TILES_URL)
         tileset_prim.GetSourceTypeAttr().Set(CesiumTokens.url)
@@ -236,7 +231,7 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         imagery_prim = CesiumImagery.Define(stage, imagery_path)
         assert imagery_prim.GetPrim().IsValid()
         parent_prim = imagery_prim.GetPrim().GetParent()
-        assert parent_prim.HasAPI(CesiumTilesetAPI)
+        assert parent_prim.IsA(CesiumTileset)
 
         imagery_prim.GetIonAssetIdAttr().Set(asset_id)
         imagery_prim.GetIonAccessTokenAttr().Set(access_token)
@@ -255,9 +250,9 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         cesium_georeference_prim.GetGeoreferenceOriginLatitudeAttr().Set(latitude)
         cesium_georeference_prim.GetGeoreferenceOriginHeightAttr().Set(height)
 
-    def _get_tileset_prim(self, path: str) -> CesiumTilesetAPI:
+    def _get_tileset_prim(self, path: str) -> CesiumTileset:
         stage = omni.usd.get_context().get_stage()
-        tileset_prim = CesiumTilesetAPI.Get(stage, path)
+        tileset_prim = CesiumTileset.Get(stage, path)
         assert tileset_prim.GetPrim().IsValid()
         return tileset_prim
 
