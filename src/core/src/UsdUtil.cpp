@@ -1,7 +1,6 @@
 #include "cesium/omniverse/UsdUtil.h"
 
 #include "cesium/omniverse/Context.h"
-#include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/Viewport.h"
 
 #include <CesiumGeometry/Transforms.h>
@@ -13,7 +12,6 @@
 #include <pxr/usd/usd/prim.h>
 #include <pxr/usd/usd/stage.h>
 #include <pxr/usd/usd/timeCode.h>
-#include <pxr/usd/usdGeom/mesh.h>
 #include <pxr/usd/usdGeom/metrics.h>
 #include <pxr/usd/usdGeom/xform.h>
 #include <spdlog/fmt/fmt.h>
