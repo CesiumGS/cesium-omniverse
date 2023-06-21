@@ -263,24 +263,12 @@ pxr::CesiumData defineCesiumData(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto cesiumData = pxr::CesiumData::Define(stage, path);
 
-    cesiumData.CreateProjectDefaultIonAccessTokenAttr();
-    cesiumData.CreateProjectDefaultIonAccessTokenIdAttr();
-    cesiumData.CreateDebugDisableMaterialsAttr(pxr::VtValue(false));
-    cesiumData.CreateDebugDisableTexturesAttr(pxr::VtValue(false));
-    cesiumData.CreateDebugDisableGeometryPoolAttr(pxr::VtValue(true));
-    cesiumData.CreateDebugDisableMaterialPoolAttr(pxr::VtValue(false));
-    cesiumData.CreateDebugGeometryPoolInitialCapacityAttr(pxr::VtValue(uint64_t(0)));
-    cesiumData.CreateDebugMaterialPoolInitialCapacityAttr(pxr::VtValue(uint64_t(2048)));
-    cesiumData.CreateDebugRandomColorsAttr(pxr::VtValue(false));
-
     return cesiumData;
 }
 
 pxr::CesiumSession defineCesiumSession(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto cesiumSession = pxr::CesiumSession::Define(stage, path);
-
-    cesiumSession.CreateEcefToUsdTransformAttr();
 
     return cesiumSession;
 }
@@ -289,39 +277,14 @@ pxr::CesiumGeoreference defineCesiumGeoreference(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto georeference = pxr::CesiumGeoreference::Define(stage, path);
 
-    georeference.CreateGeoreferenceOriginLatitudeAttr(pxr::VtValue(39.736401));
-    georeference.CreateGeoreferenceOriginLongitudeAttr(pxr::VtValue(-105.25737));
-    georeference.CreateGeoreferenceOriginHeightAttr(pxr::VtValue(2250.0));
-
     return georeference;
 }
 
-pxr::CesiumTilesetAPI defineCesiumTileset(const pxr::SdfPath& path) {
+pxr::CesiumTileset defineCesiumTileset(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
-    auto xform = pxr::UsdGeomXform::Define(stage, path);
-    assert(xform.GetPrim().IsValid());
+    auto tileset = pxr::CesiumTileset::Define(stage, path);
 
-    auto tileset = pxr::CesiumTilesetAPI::Apply(xform.GetPrim());
     assert(tileset.GetPrim().IsValid());
-
-    tileset.CreateUrlAttr();
-    tileset.CreateIonAssetIdAttr();
-    tileset.CreateIonAccessTokenAttr();
-    tileset.CreateMaximumScreenSpaceErrorAttr(pxr::VtValue(16.0f));
-    tileset.CreatePreloadAncestorsAttr(pxr::VtValue(true));
-    tileset.CreatePreloadSiblingsAttr(pxr::VtValue(true));
-    tileset.CreateForbidHolesAttr(pxr::VtValue(false));
-    tileset.CreateMaximumSimultaneousTileLoadsAttr(pxr::VtValue(uint32_t(20)));
-    tileset.CreateMaximumCachedBytesAttr(pxr::VtValue(uint64_t(536870912)));
-    tileset.CreateLoadingDescendantLimitAttr(pxr::VtValue(uint32_t(20)));
-    tileset.CreateEnableFrustumCullingAttr(pxr::VtValue(true));
-    tileset.CreateEnableFogCullingAttr(pxr::VtValue(true));
-    tileset.CreateEnforceCulledScreenSpaceErrorAttr(pxr::VtValue(true));
-    tileset.CreateCulledScreenSpaceErrorAttr(pxr::VtValue(64.0f));
-    tileset.CreateSuspendUpdateAttr(pxr::VtValue(false));
-    tileset.CreateSmoothNormalsAttr(pxr::VtValue(false));
-    tileset.CreateShowCreditsOnScreenAttr(pxr::VtValue(false));
-
     return tileset;
 }
 
@@ -329,10 +292,6 @@ pxr::CesiumImagery defineCesiumImagery(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto imagery = pxr::CesiumImagery::Define(stage, path);
     assert(imagery.GetPrim().IsValid());
-
-    imagery.CreateIonAssetIdAttr();
-    imagery.CreateIonAccessTokenAttr();
-    imagery.CreateShowCreditsOnScreenAttr(pxr::VtValue(false));
 
     return imagery;
 }
@@ -405,9 +364,9 @@ pxr::CesiumGeoreference getCesiumGeoreference(const pxr::SdfPath& path) {
     return georeference;
 }
 
-pxr::CesiumTilesetAPI getCesiumTileset(const pxr::SdfPath& path) {
+pxr::CesiumTileset getCesiumTileset(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
-    auto tileset = pxr::CesiumTilesetAPI::Get(stage, path);
+    auto tileset = pxr::CesiumTileset::Get(stage, path);
     assert(tileset.GetPrim().IsValid());
     return tileset;
 }
@@ -479,7 +438,7 @@ bool isCesiumTileset(const pxr::SdfPath& path) {
         return false;
     }
 
-    return prim.HasAPI<pxr::CesiumTilesetAPI>();
+    return prim.IsA<pxr::CesiumTileset>();
 }
 
 bool isCesiumImagery(const pxr::SdfPath& path) {

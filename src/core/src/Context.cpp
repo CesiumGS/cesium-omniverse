@@ -23,7 +23,7 @@
 #include <Cesium3DTilesSelection/registerAllTileContentTypes.h>
 #include <CesiumUsdSchemas/data.h>
 #include <CesiumUsdSchemas/imagery.h>
-#include <CesiumUsdSchemas/tilesetAPI.h>
+#include <CesiumUsdSchemas/tileset.h>
 #include <CesiumUsdSchemas/tokens.h>
 #include <pxr/usd/sdf/path.h>
 #include <pxr/usd/usd/primRange.h>

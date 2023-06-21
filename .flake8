@@ -2,4 +2,5 @@
 max-line-length = 118
 extend-ignore = E203
 filename = ./exts/cesium.omniverse/*.py,
-           ./scripts/*.py
+           ./scripts/*.py,
+           ./apps/exts/*.py
