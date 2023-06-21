@@ -27,8 +27,3 @@ icon = "doc/resources/icon.png"
 
 [[python.module]]
 name = "cesium.powertools"
-
-[python.pipapi]
-requirements = [
-    "pyproj==3.6.0"
-]

@@ -1,10 +1,16 @@
-import pyproj
+import omni.kit.pipapi
+
+# Install dependencies for this module
+omni.kit.pipapi.install("pyproj==3.2.1")
+
 
 ECEF_EPSG = 4978
 WGS84_EPSG = 4979
 
 
 def get_crs_name_from_epsg(epsg_code):
+    import pyproj
+
     try:
         return pyproj.crs.CRS.from_epsg(epsg_code).name
     except pyproj.exceptions.CRSError:
@@ -12,6 +18,8 @@ def get_crs_name_from_epsg(epsg_code):
 
 
 def epsg_to_epsg(from_epsg, to_epsg, x, y, z):
+    import pyproj
+
     from_crs = pyproj.crs.CRS.from_epsg(from_epsg)
     to_crs = pyproj.crs.CRS.from_epsg(to_epsg)
 
