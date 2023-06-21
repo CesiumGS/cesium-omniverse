@@ -9,7 +9,8 @@ import omni.ui as ui
 import omni.usd
 import omni.kit.app as app
 import omni.kit.ui
-from pxr import Sdf
+from omni.kit.viewport.utility import get_active_viewport
+from pxr import Gf, Sdf, UsdGeom
 from .performance_window import CesiumPerformanceWindow
 from cesium.omniverse.bindings import acquire_cesium_omniverse_interface, release_cesium_omniverse_interface
 from cesium.omniverse.utils import wait_n_frames, dock_window_async
@@ -26,6 +27,7 @@ GOOGLE_3D_TILES_URL = "https://tile.googleapis.com/v1/3dtiles/root.json?key=AIza
 
 CESIUM_DATA_PRIM_PATH = "/Cesium"
 CESIUM_GEOREFERENCE_PRIM_PATH = "/CesiumGeoreference"
+CESIUM_CAMERA_PATH = "/Camera"
 
 
 class CesiumPerformanceExtension(omni.ext.IExt):
@@ -50,6 +52,7 @@ class CesiumPerformanceExtension(omni.ext.IExt):
 
         self._tileset_loaded_subscription: Optional[carb.events.ISubscription] = None
 
+        self._camera_path: Optional[str] = None
         self._tileset_path: Optional[str] = None
         self._active: bool = False
         self._start_time: float = 0.0
@@ -100,6 +103,14 @@ class CesiumPerformanceExtension(omni.ext.IExt):
 
         stop_event = carb.events.type_from_string("cesium.performance.STOP")
         self._stop_subscription = bus.create_subscription_to_pop_by_type(stop_event, self._on_stop)
+
+        usd_context = omni.usd.get_context()
+        if usd_context.get_stage_state() == omni.usd.StageState.OPENED:
+            self._on_stage_opened()
+
+        self._on_stage_subscription = usd_context.get_stage_event_stream().create_subscription_to_pop(
+            self._on_stage_event, name="cesium.performance.ON_STAGE_EVENT"
+        )
 
         update_stream = app.get_app().get_update_event_stream()
         self._update_frame_subscription = update_stream.create_subscription_to_pop(
@@ -203,106 +214,182 @@ class CesiumPerformanceExtension(omni.ext.IExt):
             duration = self._get_duration()
             self._update_duration_ui(duration)
 
-    def _create_tileset_ion(self, path: str, asset_id: int, access_token: str) -> str:
+    def _on_stage_event(self, _e: carb.events.IEvent):
+        usd_context = omni.usd.get_context()
+        if usd_context.get_stage_state() == omni.usd.StageState.OPENED:
+            self._on_stage_opened()
+
+    def _on_stage_opened(self):
+        self._camera_path = self._create_camera(CESIUM_CAMERA_PATH)
+
+    @staticmethod
+    def _create_tileset_ion(path: str, asset_id: int, access_token: str) -> str:
         stage = omni.usd.get_context().get_stage()
         tileset_path = omni.usd.get_stage_next_free_path(stage, path, False)
-        tileset_prim = CesiumTileset.Define(stage, tileset_path)
-        assert tileset_prim.GetPrim().IsValid()
+        tileset = CesiumTileset.Define(stage, tileset_path)
+        assert tileset.GetPrim().IsValid()
 
-        tileset_prim.GetIonAssetIdAttr().Set(asset_id)
-        tileset_prim.GetIonAccessTokenAttr().Set(access_token)
-        tileset_prim.GetSourceTypeAttr().Set(CesiumTokens.ion)
+        tileset.GetIonAssetIdAttr().Set(asset_id)
+        tileset.GetIonAccessTokenAttr().Set(access_token)
+        tileset.GetSourceTypeAttr().Set(CesiumTokens.ion)
 
-        return tileset_path  # type: ignore
+        return tileset_path
 
-    def _create_tileset_google(self) -> str:
+    @staticmethod
+    def _create_tileset_google() -> str:
         stage = omni.usd.get_context().get_stage()
         tileset_path = omni.usd.get_stage_next_free_path(stage, "/Google_3D_Tiles", False)
-        tileset_prim = CesiumTileset.Define(stage, tileset_path)
+        tileset = CesiumTileset.Define(stage, tileset_path)
 
-        tileset_prim.GetUrlAttr().Set(GOOGLE_3D_TILES_URL)
-        tileset_prim.GetSourceTypeAttr().Set(CesiumTokens.url)
+        tileset.GetUrlAttr().Set(GOOGLE_3D_TILES_URL)
+        tileset.GetSourceTypeAttr().Set(CesiumTokens.url)
 
-        return tileset_path  # type: ignore
+        return tileset_path
 
-    def _create_imagery_ion(self, path: str, asset_id: int, access_token: str) -> str:
+    @staticmethod
+    def _create_imagery_ion(path: str, asset_id: int, access_token: str) -> str:
         stage = omni.usd.get_context().get_stage()
         imagery_path = omni.usd.get_stage_next_free_path(stage, path, False)
-        imagery_prim = CesiumImagery.Define(stage, imagery_path)
-        assert imagery_prim.GetPrim().IsValid()
-        parent_prim = imagery_prim.GetPrim().GetParent()
-        assert parent_prim.IsA(CesiumTileset)
+        imagery = CesiumImagery.Define(stage, imagery_path)
+        assert imagery.GetPrim().IsValid()
+        parent = imagery.GetPrim().GetParent()
+        assert parent.IsA(CesiumTileset)
 
-        imagery_prim.GetIonAssetIdAttr().Set(asset_id)
-        imagery_prim.GetIonAccessTokenAttr().Set(access_token)
+        imagery.GetIonAssetIdAttr().Set(asset_id)
+        imagery.GetIonAccessTokenAttr().Set(access_token)
 
-        return imagery_path  # type: ignore
+        return imagery_path
+
+    @staticmethod
+    def _create_camera(path: str) -> str:
+        stage = omni.usd.get_context().get_stage()
+        if stage.GetPrimAtPath(path):
+            return path
+
+        camera = UsdGeom.Camera.Define(stage, path)
+        assert camera.GetPrim().IsValid()
+
+        camera.GetClippingRangeAttr().Set(Gf.Vec2f(1.0, 100000000.0))
+
+        return path
 
     @staticmethod
     def _get_imagery_path(tileset_path: str, imagery_name: str) -> str:
-        return Sdf.Path(tileset_path).AppendPath(imagery_name).pathString  # type: ignore
+        return Sdf.Path(tileset_path).AppendPath(imagery_name).pathString
 
-    def _set_georeference(self, longitude: float, latitude: float, height: float):
+    @staticmethod
+    def _set_georeference(longitude: float, latitude: float, height: float):
         stage = omni.usd.get_context().get_stage()
-        cesium_georeference_prim = CesiumGeoreference.Get(stage, CESIUM_GEOREFERENCE_PRIM_PATH)
-        assert cesium_georeference_prim.GetPrim().IsValid()
-        cesium_georeference_prim.GetGeoreferenceOriginLongitudeAttr().Set(longitude)
-        cesium_georeference_prim.GetGeoreferenceOriginLatitudeAttr().Set(latitude)
-        cesium_georeference_prim.GetGeoreferenceOriginHeightAttr().Set(height)
+        cesium_georeference = CesiumGeoreference.Get(stage, CESIUM_GEOREFERENCE_PRIM_PATH)
+        assert cesium_georeference.GetPrim().IsValid()
+        cesium_georeference.GetGeoreferenceOriginLongitudeAttr().Set(longitude)
+        cesium_georeference.GetGeoreferenceOriginLatitudeAttr().Set(latitude)
+        cesium_georeference.GetGeoreferenceOriginHeightAttr().Set(height)
 
-    def _get_tileset_prim(self, path: str) -> CesiumTileset:
+    def _set_camera(
+        self,
+        translate: Gf.Vec3d,
+        rotate: Gf.Vec3f,
+        focal_length: float,
+        horizontal_aperture: float,
+        vertical_aperture: float,
+    ):
         stage = omni.usd.get_context().get_stage()
-        tileset_prim = CesiumTileset.Get(stage, path)
-        assert tileset_prim.GetPrim().IsValid()
-        return tileset_prim
+        viewport = get_active_viewport()
+        viewport.set_active_camera(self._camera_path)
 
-    def _get_cesium_prim(self) -> CesiumData:
+        camera = UsdGeom.Camera.Get(stage, self._camera_path)
+        camera.GetFocalLengthAttr().Set(focal_length)
+        camera.GetHorizontalApertureAttr().Set(horizontal_aperture)
+        camera.GetVerticalApertureAttr().Set(vertical_aperture)
+
+        xform_common_api = UsdGeom.XformCommonAPI(camera.GetPrim())
+        xform_common_api.SetTranslate(translate)
+        xform_common_api.SetRotate(rotate, UsdGeom.XformCommonAPI.RotationOrderYXZ)
+
+    @staticmethod
+    def _get_tileset(path: str) -> CesiumTileset:
         stage = omni.usd.get_context().get_stage()
-        cesium_prim = CesiumData.Get(stage, CESIUM_DATA_PRIM_PATH)
-        assert cesium_prim.GetPrim().IsValid()
-        return cesium_prim
+        tileset = CesiumTileset.Get(stage, path)
+        assert tileset.GetPrim().IsValid()
+        return tileset
 
-    def _remove_prim(self, path: str):
+    @staticmethod
+    def _get_cesium_data() -> CesiumData:
+        stage = omni.usd.get_context().get_stage()
+        cesium_data = CesiumData.Get(stage, CESIUM_DATA_PRIM_PATH)
+        assert cesium_data.GetPrim().IsValid()
+        return cesium_data
+
+    @staticmethod
+    def _remove_prim(path: str):
         stage = omni.usd.get_context().get_stage()
         stage.RemovePrim(path)
+
+    def _setup_location_new_york_city(self):
+        self._set_georeference(-74.0060, 40.7128, 50.0)
+        self._set_camera(
+            Gf.Vec3d(-176516.8372437113, 33877.019622553846, 197777.19771945066),
+            Gf.Vec3f(-7.9392824, -37.71652, -6.0970836),
+            18.14756,
+            20.955,
+            15.2908,
+        )
+
+    def _setup_location_paris(self):
+        self._set_georeference(2.3522, 48.8566, 100.0)
+        self._set_camera(
+            Gf.Vec3d(-285275.1368718885, 780.3607448845705, 35392.91845506678),
+            Gf.Vec3f(0.46399376, 65.245544, -1.0061567),
+            18.14756,
+            20.955,
+            15.2908,
+        )
+
+    def _setup_location_grand_canyon(self):
+        self._set_georeference(-112.3535, 36.2679, 2100.0)
+        self._set_camera(
+            Gf.Vec3d(-339866.7567928189, 27967.440239271935, -59650.894693908194),
+            Gf.Vec3f(5.532731, -129.35608, -6.704948),
+            18.14756,
+            20.955,
+            15.2908,
+        )
 
     def _view_new_york_city(self, _e: carb.events.IEvent):
         self._logger.warning("View New York City")
         self._clear_scene()
+        self._setup_location_new_york_city()
         tileset_path = self._create_tileset_ion("/Cesium_World_Terrain", 1, ION_ACCESS_TOKEN)
         self._create_imagery_ion(
-            CesiumPerformanceExtension._get_imagery_path(tileset_path, "Bing_Maps_Aerial_Imagery"),
+            self._get_imagery_path(tileset_path, "Bing_Maps_Aerial_Imagery"),
             2,
             ION_ACCESS_TOKEN,
         )
-
-        self._set_georeference(-74.0060, 40.7128, 50.0)
         self._load_tileset(tileset_path, self._tileset_loaded)
 
     def _view_paris(self, _e: carb.events.IEvent):
         self._logger.warning("View Paris")
         self._clear_scene()
+        self._setup_location_paris()
         tileset_path = self._create_tileset_ion("/Cesium_World_Terrain", 1, ION_ACCESS_TOKEN)
         self._create_imagery_ion(
-            CesiumPerformanceExtension._get_imagery_path(tileset_path, "Bing_Maps_Aerial_Imagery"),
+            self._get_imagery_path(tileset_path, "Bing_Maps_Aerial_Imagery"),
             2,
             ION_ACCESS_TOKEN,
         )
-
-        self._set_georeference(2.3522, 48.8566, 100.0)
         self._load_tileset(tileset_path, self._tileset_loaded)
 
     def _view_grand_canyon(self, _e: carb.events.IEvent):
         self._logger.warning("View Grand Canyon")
         self._clear_scene()
+        self._setup_location_grand_canyon()
         tileset_path = self._create_tileset_ion("/Cesium_World_Terrain", 1, ION_ACCESS_TOKEN)
         self._create_imagery_ion(
-            CesiumPerformanceExtension._get_imagery_path(tileset_path, "Bing_Maps_Aerial_Imagery"),
+            self._get_imagery_path(tileset_path, "Bing_Maps_Aerial_Imagery"),
             2,
             ION_ACCESS_TOKEN,
         )
-
-        self._set_georeference(-112.3535, 36.2679, 2100.0)
         self._load_tileset(tileset_path, self._tileset_loaded)
 
     def _view_tour(self, _e: carb.events.IEvent):
@@ -310,19 +397,19 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         self._clear_scene()
         tileset_path = self._create_tileset_ion("/Cesium_World_Terrain", 1, ION_ACCESS_TOKEN)
         self._create_imagery_ion(
-            CesiumPerformanceExtension._get_imagery_path(tileset_path, "Bing_Maps_Aerial_Imagery"),
+            self._get_imagery_path(tileset_path, "Bing_Maps_Aerial_Imagery"),
             2,
             ION_ACCESS_TOKEN,
         )
 
         def tour_stop_0():
-            self._set_georeference(-74.0060, 40.7128, 50.0)
+            self._setup_location_new_york_city()
 
         def tour_stop_1():
-            self._set_georeference(2.3522, 48.8566, 100.0)
+            self._setup_location_paris()
 
         def tour_stop_2():
-            self._set_georeference(-112.3535, 36.2679, 2100.0)
+            self._setup_location_grand_canyon()
 
         tour = Tour(self, [tour_stop_0, tour_stop_1, tour_stop_2], self._tileset_loaded)
 
@@ -331,22 +418,22 @@ class CesiumPerformanceExtension(omni.ext.IExt):
     def _view_new_york_city_google(self, _e: carb.events.IEvent):
         self._logger.warning("View New York City Google")
         self._clear_scene()
+        self._setup_location_new_york_city()
         tileset_path = self._create_tileset_google()
-        self._set_georeference(-74.0060, 40.7128, 50.0)
         self._load_tileset(tileset_path, self._tileset_loaded)
 
     def _view_paris_google(self, _e: carb.events.IEvent):
         self._logger.warning("View Paris Google")
         self._clear_scene()
+        self._setup_location_paris()
         tileset_path = self._create_tileset_google()
-        self._set_georeference(2.3522, 48.8566, 100.0)
         self._load_tileset(tileset_path, self._tileset_loaded)
 
     def _view_grand_canyon_google(self, _e: carb.events.IEvent):
         self._logger.warning("View Grand Canyon Google")
         self._clear_scene()
+        self._setup_location_grand_canyon()
         tileset_path = self._create_tileset_google()
-        self._set_georeference(-112.3535, 36.2679, 2100.0)
         self._load_tileset(tileset_path, self._tileset_loaded)
 
     def _view_tour_google(self, _e: carb.events.IEvent):
@@ -355,21 +442,21 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         tileset_path = self._create_tileset_google()
 
         def tour_stop_0():
-            self._set_georeference(-74.0060, 40.7128, 50.0)
+            self._setup_location_new_york_city()
 
         def tour_stop_1():
-            self._set_georeference(2.3522, 48.8566, 100.0)
+            self._setup_location_paris()
 
         def tour_stop_2():
-            self._set_georeference(-112.3535, 36.2679, 2100.0)
+            self._setup_location_grand_canyon()
 
         tour = Tour(self, [tour_stop_0, tour_stop_1, tour_stop_2], self._tileset_loaded)
 
         self._load_tileset(tileset_path, tour.tour_stop_loaded)
 
     def _load_tileset(self, tileset_path: str, tileset_loaded: Callable):
-        tileset_prim = self._get_tileset_prim(tileset_path)
-        cesium_prim = self._get_cesium_prim()
+        tileset = self._get_tileset(tileset_path)
+        cesium_data = self._get_cesium_data()
 
         assert self._performance_window is not None
 
@@ -383,9 +470,9 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         forbid_holes = self._performance_window.get_forbid_holes()
         frustum_culling = self._performance_window.get_frustum_culling()
 
-        cesium_prim.GetDebugRandomColorsAttr().Set(random_colors)
-        tileset_prim.GetForbidHolesAttr().Set(forbid_holes)
-        tileset_prim.GetEnableFrustumCullingAttr().Set(frustum_culling)
+        cesium_data.GetDebugRandomColorsAttr().Set(random_colors)
+        tileset.GetForbidHolesAttr().Set(forbid_holes)
+        tileset.GetEnableFrustumCullingAttr().Set(frustum_culling)
 
         self._tileset_path = tileset_path
         self._active = True
