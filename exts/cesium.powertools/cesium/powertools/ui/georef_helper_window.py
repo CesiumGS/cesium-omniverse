@@ -26,7 +26,11 @@ class CesiumGeorefHelperWindow(ui.Window):
     def __del__(self):
         self.destroy()
 
-    def convert_coordinates(self):
+    @staticmethod
+    def create_window():
+        return CesiumGeorefHelperWindow(width=250, height=550)
+
+    def _convert_coordinates(self):
         # Get the CRS and check if it is valid, adjust UI values accordingly
         crs = get_crs_name_from_epsg(self._epsg_model.get_value_as_int())
         if crs is None:
@@ -65,7 +69,7 @@ class CesiumGeorefHelperWindow(ui.Window):
         self._ecef_y_model.set_value(ecef_coords[1])
         self._ecef_z_model.set_value(ecef_coords[2])
 
-    def set_georeference_prim(self):
+    def _set_georeference_prim(self):
         if math.isnan(self._wgs84_latitude_model.get_value_as_float()):
             self._logger.warning("Cannot set CesiumGeoreference to NaN")
             return
@@ -98,7 +102,7 @@ class CesiumGeorefHelperWindow(ui.Window):
 
             # TODO: Precision issues to resolve
             def on_coordinate_update(event):
-                self.convert_coordinates()
+                self._convert_coordinates()
 
             # Define the SimpleValueModels for the UI
             self._epsg_model = ui.SimpleIntModel(28356)
@@ -143,7 +147,7 @@ class CesiumGeorefHelperWindow(ui.Window):
             float_field_with_label("Y", model=self._ecef_y_model, enabled=False)
             float_field_with_label("Z", model=self._ecef_z_model, enabled=False)
 
-            ui.Button("Set Georeference", height=20, clicked_fn=self.set_georeference_prim)
+            ui.Button("Set Georeference", height=20, clicked_fn=self._set_georeference_prim)
 
             # Do the first conversion
-            self.convert_coordinates()
+            self._convert_coordinates()

@@ -35,7 +35,7 @@ class CesiumPowertoolsWindow(ui.Window):
         #  in another window or class, you can absolutely call that instead from here.
         self._actions: List[PowertoolsAction] = [
             PowertoolsAction("Open Cesium Debugging Window", CesiumOmniverseDebugWindow.show_window),
-            PowertoolsAction("Open Cesium Georeference Helper Window", self._open_georeference_helper)
+            PowertoolsAction("Open Cesium Georeference Helper Window", CesiumGeorefHelperWindow.create_window)
         ]
 
         self.frame.set_build_fn(self._build_fn)
@@ -51,6 +51,3 @@ class CesiumPowertoolsWindow(ui.Window):
         with ui.VStack(spacing=4):
             for action in self._actions:
                 action.button()
-
-    def _open_georeference_helper(self):
-        CesiumGeorefHelperWindow(width=250, height=550)
