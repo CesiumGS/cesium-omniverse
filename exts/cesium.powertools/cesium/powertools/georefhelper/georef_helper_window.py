@@ -1,7 +1,7 @@
 import logging
 import omni.ui as ui
 import omni.usd
-from ..utils.proj import epsg_to_ecef, epsg_to_wgs84, get_crs_name_from_epsg
+from .proj import epsg_to_ecef, epsg_to_wgs84, get_crs_name_from_epsg
 import math
 from .custom_fields import string_field_with_label, int_field_with_label, float_field_with_label
 
