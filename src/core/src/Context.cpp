@@ -23,7 +23,7 @@
 #include <Cesium3DTilesSelection/registerAllTileContentTypes.h>
 #include <CesiumUsdSchemas/data.h>
 #include <CesiumUsdSchemas/imagery.h>
-#include <CesiumUsdSchemas/tilesetAPI.h>
+#include <CesiumUsdSchemas/tileset.h>
 #include <CesiumUsdSchemas/tokens.h>
 #include <pxr/usd/sdf/path.h>
 #include <pxr/usd/usd/primRange.h>
@@ -204,6 +204,8 @@ void Context::reloadStage() {
     clearStage();
 
     auto& fabricMeshManager = FabricMeshManager::getInstance();
+    fabricMeshManager.setDisableMaterials(getDebugDisableMaterials());
+    fabricMeshManager.setDisableTextures(getDebugDisableTextures());
     fabricMeshManager.setDisableGeometryPool(getDebugDisableGeometryPool());
     fabricMeshManager.setDisableMaterialPool(getDebugDisableMaterialPool());
     fabricMeshManager.setGeometryPoolInitialCapacity(getDebugGeometryPoolInitialCapacity());
@@ -275,6 +277,7 @@ void Context::processCesiumDataChanged(const ChangedPrim& changedPrim) {
         }
     } else if (
         name == pxr::CesiumTokens->cesiumDebugDisableMaterials ||
+        name == pxr::CesiumTokens->cesiumDebugDisableTextures ||
         name == pxr::CesiumTokens->cesiumDebugDisableGeometryPool ||
         name == pxr::CesiumTokens->cesiumDebugDisableMaterialPool ||
         name == pxr::CesiumTokens->cesiumDebugGeometryPoolInitialCapacity ||
@@ -675,6 +678,13 @@ bool Context::getDebugDisableMaterials() const {
     bool disableMaterials;
     cesiumDataUsd.GetDebugDisableMaterialsAttr().Get(&disableMaterials);
     return disableMaterials;
+}
+
+bool Context::getDebugDisableTextures() const {
+    const auto cesiumDataUsd = UsdUtil::getOrCreateCesiumData();
+    bool disableTextures;
+    cesiumDataUsd.GetDebugDisableTexturesAttr().Get(&disableTextures);
+    return disableTextures;
 }
 
 bool Context::getDebugDisableGeometryPool() const {

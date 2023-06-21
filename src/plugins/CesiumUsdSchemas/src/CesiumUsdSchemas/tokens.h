@@ -41,7 +41,7 @@ struct CesiumTokensType {
     CESIUM_API CesiumTokensType();
     /// \brief "cesium:culledScreenSpaceError"
     /// 
-    /// CesiumTilesetAPI
+    /// CesiumTileset
     const TfToken cesiumCulledScreenSpaceError;
     /// \brief "cesium:debug:disableGeometryPool"
     /// 
@@ -55,6 +55,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumData
     const TfToken cesiumDebugDisableMaterials;
+    /// \brief "cesium:debug:disableTextures"
+    /// 
+    /// CesiumData
+    const TfToken cesiumDebugDisableTextures;
     /// \brief "cesium:debug:geometryPoolInitialCapacity"
     /// 
     /// CesiumData
@@ -73,23 +77,23 @@ struct CesiumTokensType {
     const TfToken cesiumEcefToUsdTransform;
     /// \brief "cesium:enableFogCulling"
     /// 
-    /// CesiumTilesetAPI
+    /// CesiumTileset
     const TfToken cesiumEnableFogCulling;
     /// \brief "cesium:enableFrustumCulling"
     /// 
-    /// CesiumTilesetAPI
+    /// CesiumTileset
     const TfToken cesiumEnableFrustumCulling;
     /// \brief "cesium:enforceCulledScreenSpaceError"
     /// 
-    /// CesiumTilesetAPI
+    /// CesiumTileset
     const TfToken cesiumEnforceCulledScreenSpaceError;
     /// \brief "cesium:forbidHoles"
     /// 
-    /// CesiumTilesetAPI
+    /// CesiumTileset
     const TfToken cesiumForbidHoles;
     /// \brief "cesium:georeferenceBinding"
     /// 
-    /// CesiumTilesetAPI
+    /// CesiumTileset
     const TfToken cesiumGeoreferenceBinding;
     /// \brief "cesium:georeferenceOrigin:height"
     /// 
@@ -105,35 +109,35 @@ struct CesiumTokensType {
     const TfToken cesiumGeoreferenceOriginLongitude;
     /// \brief "cesium:ionAccessToken"
     /// 
-    /// CesiumImagery, CesiumTilesetAPI
+    /// CesiumImagery, CesiumTileset
     const TfToken cesiumIonAccessToken;
     /// \brief "cesium:ionAssetId"
     /// 
-    /// CesiumImagery, CesiumTilesetAPI
+    /// CesiumImagery, CesiumTileset
     const TfToken cesiumIonAssetId;
     /// \brief "cesium:loadingDescendantLimit"
     /// 
-    /// CesiumTilesetAPI
+    /// CesiumTileset
     const TfToken cesiumLoadingDescendantLimit;
     /// \brief "cesium:maximumCachedBytes"
     /// 
-    /// CesiumTilesetAPI
+    /// CesiumTileset
     const TfToken cesiumMaximumCachedBytes;
     /// \brief "cesium:maximumScreenSpaceError"
     /// 
-    /// CesiumTilesetAPI
+    /// CesiumTileset
     const TfToken cesiumMaximumScreenSpaceError;
     /// \brief "cesium:maximumSimultaneousTileLoads"
     /// 
-    /// CesiumTilesetAPI
+    /// CesiumTileset
     const TfToken cesiumMaximumSimultaneousTileLoads;
     /// \brief "cesium:preloadAncestors"
     /// 
-    /// CesiumTilesetAPI
+    /// CesiumTileset
     const TfToken cesiumPreloadAncestors;
     /// \brief "cesium:preloadSiblings"
     /// 
-    /// CesiumTilesetAPI
+    /// CesiumTileset
     const TfToken cesiumPreloadSiblings;
     /// \brief "cesium:projectDefaultIonAccessToken"
     /// 
@@ -145,31 +149,31 @@ struct CesiumTokensType {
     const TfToken cesiumProjectDefaultIonAccessTokenId;
     /// \brief "cesium:showCreditsOnScreen"
     /// 
-    /// CesiumImagery, CesiumTilesetAPI
+    /// CesiumImagery, CesiumTileset
     const TfToken cesiumShowCreditsOnScreen;
     /// \brief "cesium:smoothNormals"
     /// 
-    /// CesiumTilesetAPI
+    /// CesiumTileset
     const TfToken cesiumSmoothNormals;
     /// \brief "cesium:sourceType"
     /// 
-    /// CesiumTilesetAPI
+    /// CesiumTileset
     const TfToken cesiumSourceType;
     /// \brief "cesium:suspendUpdate"
     /// 
-    /// CesiumTilesetAPI
+    /// CesiumTileset
     const TfToken cesiumSuspendUpdate;
     /// \brief "cesium:url"
     /// 
-    /// CesiumTilesetAPI
+    /// CesiumTileset
     const TfToken cesiumUrl;
     /// \brief "ion"
     /// 
-    /// Possible value for CesiumTilesetAPI::GetCesiumSourceTypeAttr(), Default value for CesiumTilesetAPI::GetCesiumSourceTypeAttr()
+    /// Possible value for CesiumTileset::GetCesiumSourceTypeAttr(), Default value for CesiumTileset::GetCesiumSourceTypeAttr()
     const TfToken ion;
     /// \brief "url"
     /// 
-    /// Possible value for CesiumTilesetAPI::GetCesiumSourceTypeAttr()
+    /// Possible value for CesiumTileset::GetCesiumSourceTypeAttr()
     const TfToken url;
     /// A vector of all of the tokens listed above.
     const std::vector<TfToken> allTokens;

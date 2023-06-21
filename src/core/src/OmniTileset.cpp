@@ -23,9 +23,10 @@
 #include <Cesium3DTilesSelection/ViewState.h>
 #include <Cesium3DTilesSelection/ViewUpdateResult.h>
 #include <CesiumUsdSchemas/imagery.h>
-#include <CesiumUsdSchemas/tilesetAPI.h>
+#include <CesiumUsdSchemas/tileset.h>
 #include <pxr/usd/usd/prim.h>
 #include <pxr/usd/usd/stage.h>
+#include <pxr/usd/usdGeom/boundable.h>
 
 namespace cesium::omniverse {
 
@@ -370,6 +371,11 @@ void OmniTileset::onUpdateFrame(const std::vector<Viewport>& viewports) {
 
     updateTransform();
     updateView(viewports);
+
+    if (!_extentSet) {
+        _extentSet = updateExtent();
+    }
+    updateLoadStatus();
 }
 
 void OmniTileset::updateTransform() {
@@ -390,6 +396,7 @@ void OmniTileset::updateTransform() {
     if (ecefToUsdTransform != _ecefToUsdTransform) {
         _ecefToUsdTransform = ecefToUsdTransform;
         FabricUtil::setTilesetTransform(_tilesetId, ecefToUsdTransform);
+        updateExtent();
     }
 }
 
@@ -443,6 +450,47 @@ void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
                 }
             }
         }
+    }
+}
+
+bool OmniTileset::updateExtent() {
+    auto rootTile = _tileset->getRootTile();
+    if (rootTile == nullptr) {
+        return false;
+    }
+
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+    const auto& bounding_volume = rootTile->getBoundingVolume();
+    const auto oriented = Cesium3DTilesSelection::getOrientedBoundingBoxFromBoundingVolume(bounding_volume);
+    const auto georeferenceOrigin = Context::instance().getGeoreferenceOrigin();
+    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdTransformForPrim(georeferenceOrigin, _tilesetPath);
+    const auto usdOriented = oriented.transform(ecefToUsdTransform);
+    const auto& center = usdOriented.getCenter();
+
+    const auto& halfAxes = usdOriented.getHalfAxes();
+    const auto xLengthHalf = static_cast<float>(glm::length(halfAxes[0]));
+    const auto yLengthHalf = static_cast<float>(glm::length(halfAxes[1]));
+    const auto zLengthHalf = static_cast<float>(glm::length(halfAxes[2]));
+
+    pxr::VtArray<pxr::GfVec3f> extent;
+    const auto centerGf =
+        pxr::GfVec3f(static_cast<float>(center.x), static_cast<float>(center.y), static_cast<float>(center.z));
+    extent.push_back(pxr::GfVec3f(-xLengthHalf, -yLengthHalf, -zLengthHalf) + centerGf);
+    extent.push_back(pxr::GfVec3f(xLengthHalf, yLengthHalf, zLengthHalf) + centerGf);
+
+    auto boundable = pxr::UsdGeomBoundable(tileset);
+    boundable.GetExtentAttr().Set(extent);
+    return true;
+}
+
+void OmniTileset::updateLoadStatus() {
+    const auto loadProgress = _tileset->computeLoadProgress();
+
+    if (loadProgress < 100.0f) {
+        _activeLoading = true;
+    } else if (_activeLoading) {
+        Broadcast::tilesetLoaded(_tilesetPath);
+        _activeLoading = false;
     }
 }
 
