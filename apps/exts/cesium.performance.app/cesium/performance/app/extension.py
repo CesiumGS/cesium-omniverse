@@ -22,7 +22,7 @@ from cesium.usd.plugins.CesiumUsdSchemas import (
     Tokens as CesiumTokens,
 )
 
-ION_ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyZTA0MDlmYi01Y2RhLTQ0MjQtYjBlOS1kMmZhMzQ0OWRkNGYiLCJpZCI6MjU5LCJpYXQiOjE2ODU2MzExMTF9.y2CrqatkaHKHcj6NIDJ8ioll-tnOi-2CblnzI6iUays"
+ION_ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyZTA0MDlmYi01Y2RhLTQ0MjQtYjBlOS1kMmZhMzQ0OWRkNGYiLCJpZCI6MjU5LCJpYXQiOjE2ODU2MzExMTF9.y2CrqatkaHKHcj6NIDJ8ioll-tnOi-2CblnzI6iUays"  # noqa: E501
 GOOGLE_3D_TILES_URL = "https://tile.googleapis.com/v1/3dtiles/root.json?key=AIzaSyC2PMYr_ZaMJT5DdZ8WJNYMwB0lDyvx5q8"
 
 CESIUM_DATA_PRIM_PATH = "/Cesium"
@@ -48,6 +48,7 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         self._view_tour_google_subscription: Optional[carb.events.ISubscription] = None
 
         self._stop_subscription: Optional[carb.events.ISubscription] = None
+        self._on_stage_subscription: Optional[carb.events.ISubscription] = None
         self._update_frame_subscription: Optional[carb.events.ISubscription] = None
 
         self._tileset_loaded_subscription: Optional[carb.events.ISubscription] = None
@@ -155,6 +156,10 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         if self._stop_subscription is not None:
             self._stop_subscription.unsubscribe()
             self._stop_subscription = None
+
+        if self._on_stage_subscription is not None:
+            self._on_stage_subscription.unsubscribe()
+            self._on_stage_subscription = None
 
         if self._update_frame_subscription is not None:
             self._update_frame_subscription.unsubscribe()
