@@ -98,7 +98,7 @@ class CesiumGeorefHelperWindow(ui.Window):
                 style=label_style,
             )
             ui.Spacer(height=10)
-            ui.Label("Your Project Details:", height=20)
+            ui.Label("Your Project Details:", style=label_style)
 
             # TODO: Precision issues to resolve
             def on_coordinate_update(event):
@@ -129,7 +129,7 @@ class CesiumGeorefHelperWindow(ui.Window):
 
             # TODO: It would be nice to be able to copy these fields, or potentially have two way editing
 
-            ui.Label("WGS84 Results:", height=20)
+            ui.Label("WGS84 Results:", style=label_style)
             self._wgs84_latitude_model = ui.SimpleFloatModel(0.0)
             self._wgs84_longitude_model = ui.SimpleFloatModel(0.0)
             self._wgs84_height_model = ui.SimpleFloatModel(0.0)
@@ -139,7 +139,7 @@ class CesiumGeorefHelperWindow(ui.Window):
 
             ui.Spacer(height=10)
 
-            ui.Label("ECEF Results:", height=20)
+            ui.Label("ECEF Results:", style=label_style)
             self._ecef_x_model = ui.SimpleFloatModel(0.0)
             self._ecef_y_model = ui.SimpleFloatModel(0.0)
             self._ecef_z_model = ui.SimpleFloatModel(0.0)
