@@ -11,6 +11,7 @@
 #include "cesium/omniverse/OmniImagery.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/TaskProcessor.h"
+#include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
 #ifdef CESIUM_OMNI_MSVC
@@ -257,6 +258,10 @@ void Context::processPropertyChanged(const ChangedPrim& changedPrim) {
             return processCesiumTilesetChanged(changedPrim);
         case ChangedPrimType::CESIUM_IMAGERY:
             return processCesiumImageryChanged(changedPrim);
+        case ChangedPrimType::CESIUM_GEOREFERENCE:
+            return processCesiumGeoreferenceChanged(changedPrim);
+        case ChangedPrimType::CESIUM_GLOBE_ANCHOR:
+            return processCesiumGlobeAnchorChanged(changedPrim);
         default:
             return;
     }
@@ -335,6 +340,29 @@ void Context::processCesiumImageryChanged(const ChangedPrim& changedPrim) {
         tileset.value()->reload();
     }
     // clang-format on
+}
+
+void Context::processCesiumGeoreferenceChanged([[maybe_unused]] const cesium::omniverse::ChangedPrim& changedPrim) {
+    // TODO: Update all related anchors.
+}
+
+void Context::processCesiumGlobeAnchorChanged(const cesium::omniverse::ChangedPrim& changedPrim) {
+    const auto& [path, name, primType, changeType] = changedPrim;
+
+    if (name == pxr::CesiumTokens->cesiumAnchorLatitude || name == pxr::CesiumTokens->cesiumAnchorLongitude ||
+        name == pxr::CesiumTokens->cesiumAnchorHeight) {
+        // TODO: Handle lat/long/height changes.
+    }
+
+    if (name == pxr::CesiumTokens->cesiumAnchorPosition || name == pxr::CesiumTokens->cesiumAnchorRotation ||
+        name == pxr::CesiumTokens->cesiumAnchorScale) {
+        // TODO: Handle ECEF changes.
+    }
+
+    if (name == cesium::omniverse::UsdTokens::xformOp_translate ||
+        name == cesium::omniverse::UsdTokens::xformOp_rotation || name == cesium::omniverse::UsdTokens::xformOp_scale) {
+        // TODO: Handle TRS changes.
+    }
 }
 
 void Context::processPrimRemoved(const ChangedPrim& changedPrim) {

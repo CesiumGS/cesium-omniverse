@@ -10,6 +10,8 @@ enum class ChangedPrimType {
     CESIUM_TILESET,
     CESIUM_IMAGERY,
     CESIUM_DATA,
+    CESIUM_GEOREFERENCE,
+    CESIUM_GLOBE_ANCHOR,
     OTHER,
 };
 

@@ -451,6 +451,16 @@ bool isCesiumImagery(const pxr::SdfPath& path) {
     return prim.IsA<pxr::CesiumImagery>();
 }
 
+bool hasCesiumGlobeAnchor(const pxr::SdfPath& path) {
+    auto stage = getUsdStage();
+    auto prim = stage->GetPrimAtPath(path);
+    if (!prim.IsValid()) {
+        return false;
+    }
+
+    return prim.HasAPI<pxr::CesiumGlobeAnchorAPI>();
+}
+
 bool primExists(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto prim = stage->GetPrimAtPath(path);

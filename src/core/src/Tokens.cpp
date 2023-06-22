@@ -47,6 +47,9 @@ TF_DEFINE_PRIVATE_TOKENS(
     (vertexColor)
     (wrap_s)
     (wrap_t)
+    ((xformOp_translate, "xformOp:translate"))
+    ((xformOp_rotation, "xformOp:rotation"))
+    ((xformOp_scale, "xformOp:scale"))
     (_cesium_localToEcefTransform)
     (_cesium_tileId)
     (_cesium_tilesetId)
@@ -192,6 +195,9 @@ const pxr::TfToken& vertex_color_name = pxr::UsdTokens->vertex_color_name;
 const pxr::TfToken& vertexColor = pxr::UsdTokens->vertexColor;
 const pxr::TfToken& wrap_s = pxr::UsdTokens->wrap_s;
 const pxr::TfToken& wrap_t = pxr::UsdTokens->wrap_t;
+const pxr::TfToken& xformOp_translate = pxr::UsdTokens->xformOp_translate;
+const pxr::TfToken& xformOp_rotation = pxr::UsdTokens->xformOp_rotation;
+const pxr::TfToken& xformOp_scale = pxr::UsdTokens->xformOp_scale;
 const pxr::TfToken& _auto = pxr::UsdTokens->_auto;
 const pxr::TfToken& _cesium_localToEcefTransform = pxr::UsdTokens->_cesium_localToEcefTransform;
 const pxr::TfToken& _cesium_tileId = pxr::UsdTokens->_cesium_tileId;

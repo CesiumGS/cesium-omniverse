@@ -102,6 +102,7 @@ bool isCesiumSession(const pxr::SdfPath& path);
 bool isCesiumGeoreference(const pxr::SdfPath& path);
 bool isCesiumTileset(const pxr::SdfPath& path);
 bool isCesiumImagery(const pxr::SdfPath& path);
+bool hasCesiumGlobeAnchor(const pxr::SdfPath&);
 
 bool primExists(const pxr::SdfPath& path);
 

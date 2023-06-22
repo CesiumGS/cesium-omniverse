@@ -133,6 +133,8 @@ class Context {
     void processCesiumDataChanged(const ChangedPrim& changedPrim);
     void processCesiumTilesetChanged(const ChangedPrim& changedPrim);
     void processCesiumImageryChanged(const ChangedPrim& changedPrim);
+    void processCesiumGeoreferenceChanged(const ChangedPrim& changedPrim);
+    void processCesiumGlobeAnchorChanged(const ChangedPrim& changedPrim);
     void processPrimRemoved(const ChangedPrim& changedPrim);
     void processPrimAdded(const ChangedPrim& changedPrim);
     void processUsdNotifications();
