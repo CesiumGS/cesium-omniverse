@@ -243,6 +243,7 @@ class ICesiumOmniverseInterface {
     virtual bool creditsAvailable() noexcept = 0;
     virtual std::vector<std::pair<std::string, bool>> getCredits() noexcept = 0;
     virtual void creditsStartNextFrame() noexcept = 0;
+    virtual bool isTracingEnabled() noexcept = 0;
 };
 
 } // namespace cesium::omniverse
