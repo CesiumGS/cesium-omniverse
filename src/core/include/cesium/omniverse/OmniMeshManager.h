@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cesium/omniverse/OmniMesh.h"
+#include "cesium/omniverse/OmniSceneDelegate.h"
 
 #include <mutex>
 
@@ -38,6 +39,7 @@ class OmniMeshManager {
 
     void releaseMesh(std::shared_ptr<OmniMesh> mesh);
 
+    void setSceneDelegate(OmniSceneDelegate sceneDelegate);
     void setDisableMaterials(bool disableMaterials);
     void setDisableTextures(bool disableTextures);
     void setDisableGeometryPool(bool disableGeometryPool);
@@ -93,6 +95,8 @@ class OmniMeshManager {
     std::atomic<int64_t> _poolId{0};
 
     std::mutex _poolMutex;
+
+    OmniSceneDelegate _sceneDelegate{OmniSceneDelegate::FABRIC};
 };
 
 } // namespace cesium::omniverse

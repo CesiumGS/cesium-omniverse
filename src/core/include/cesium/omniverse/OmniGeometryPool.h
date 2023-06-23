@@ -3,6 +3,7 @@
 #include "cesium/omniverse/ObjectPool.h"
 #include "cesium/omniverse/OmniGeometry.h"
 #include "cesium/omniverse/OmniGeometryDefinition.h"
+#include "cesium/omniverse/OmniSceneDelegate.h"
 
 namespace cesium::omniverse {
 
@@ -12,7 +13,8 @@ class OmniGeometryPool final : public ObjectPool<OmniGeometry> {
         int64_t poolId,
         const OmniGeometryDefinition& geometryDefinition,
         uint64_t initialCapacity,
-        bool debugRandomColors);
+        bool debugRandomColors,
+        OmniSceneDelegate sceneDelegate);
 
     const OmniGeometryDefinition& getGeometryDefinition() const;
 
@@ -24,6 +26,7 @@ class OmniGeometryPool final : public ObjectPool<OmniGeometry> {
     const int64_t _poolId;
     const OmniGeometryDefinition _geometryDefinition;
     const bool _debugRandomColors;
+    const OmniSceneDelegate _sceneDelegate;
 };
 
 } // namespace cesium::omniverse

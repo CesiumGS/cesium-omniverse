@@ -46,11 +46,18 @@ void OmniMeshManager::releaseMesh(std::shared_ptr<OmniMesh> mesh) {
     }
 }
 
+void OmniMeshManager::setSceneDelegate(OmniSceneDelegate sceneDelegate) {
+    assert(_geometryPools.size() == 0);
+    _sceneDelegate = sceneDelegate;
+}
+
 void OmniMeshManager::setDisableMaterials(bool disableMaterials) {
+    assert(_geometryPools.size() == 0);
     _disableMaterials = disableMaterials;
 }
 
 void OmniMeshManager::setDisableTextures(bool disableTextures) {
+    assert(_geometryPools.size() == 0);
     _disableTextures = disableTextures;
 }
 
@@ -75,6 +82,7 @@ void OmniMeshManager::setMaterialPoolInitialCapacity(uint64_t materialPoolInitia
 }
 
 void OmniMeshManager::setDebugRandomColors(bool debugRandomColors) {
+    assert(_geometryPools.size() == 0);
     _debugRandomColors = debugRandomColors;
 }
 
@@ -159,7 +167,7 @@ std::shared_ptr<OmniGeometryPool> OmniMeshManager::getGeometryPool(const OmniGeo
 
     // Create a new pool
     return _geometryPools.emplace_back(std::make_shared<OmniGeometryPool>(
-        getNextPoolId(), geometryDefinition, _geometryPoolInitialCapacity, _debugRandomColors));
+        getNextPoolId(), geometryDefinition, _geometryPoolInitialCapacity, _debugRandomColors, _sceneDelegate));
 }
 
 std::shared_ptr<OmniMaterialPool> OmniMeshManager::getMaterialPool(const OmniMaterialDefinition& materialDefinition) {
@@ -171,8 +179,8 @@ std::shared_ptr<OmniMaterialPool> OmniMeshManager::getMaterialPool(const OmniMat
     }
 
     // Create a new pool
-    return _materialPools.emplace_back(
-        std::make_shared<OmniMaterialPool>(getNextPoolId(), materialDefinition, _materialPoolInitialCapacity));
+    return _materialPools.emplace_back(std::make_shared<OmniMaterialPool>(
+        getNextPoolId(), materialDefinition, _materialPoolInitialCapacity, _sceneDelegate));
 }
 
 int64_t OmniMeshManager::getNextGeometryId() {
