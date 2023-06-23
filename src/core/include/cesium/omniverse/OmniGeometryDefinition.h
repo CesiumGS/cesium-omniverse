@@ -9,9 +9,9 @@ struct Model;
 
 namespace cesium::omniverse {
 
-class FabricGeometryDefinition {
+class OmniGeometryDefinition {
   public:
-    FabricGeometryDefinition(
+    OmniGeometryDefinition(
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
         bool smoothNormals,
@@ -25,7 +25,7 @@ class FabricGeometryDefinition {
     bool hasVertexColors() const;
     bool getDoubleSided() const;
 
-    bool operator==(const FabricGeometryDefinition& other) const;
+    bool operator==(const OmniGeometryDefinition& other) const;
 
   private:
     bool _hasMaterial{false};

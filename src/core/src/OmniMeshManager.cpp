@@ -1,18 +1,20 @@
-#include "cesium/omniverse/FabricMeshManager.h"
+#include "cesium/omniverse/OmniMeshManager.h"
 
 #include "cesium/omniverse/FabricGeometry.h"
-#include "cesium/omniverse/FabricGeometryDefinition.h"
-#include "cesium/omniverse/FabricGeometryPool.h"
 #include "cesium/omniverse/FabricMaterial.h"
-#include "cesium/omniverse/FabricMaterialDefinition.h"
-#include "cesium/omniverse/FabricMaterialPool.h"
 #include "cesium/omniverse/GltfUtil.h"
+#include "cesium/omniverse/OmniGeometry.h"
+#include "cesium/omniverse/OmniGeometryDefinition.h"
+#include "cesium/omniverse/OmniGeometryPool.h"
+#include "cesium/omniverse/OmniMaterial.h"
+#include "cesium/omniverse/OmniMaterialDefinition.h"
+#include "cesium/omniverse/OmniMaterialPool.h"
 
 #include <spdlog/fmt/fmt.h>
 
 namespace cesium::omniverse {
 
-std::shared_ptr<FabricMesh> FabricMeshManager::acquireMesh(
+std::shared_ptr<OmniMesh> OmniMeshManager::acquireMesh(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     bool smoothNormals,
@@ -22,16 +24,16 @@ std::shared_ptr<FabricMesh> FabricMeshManager::acquireMesh(
     const auto geometry = acquireGeometry(model, primitive, smoothNormals, imagery, imageryTexcoordSetIndex);
 
     const auto hasMaterial = geometry->getGeometryDefinition().hasMaterial();
-    auto material = std::shared_ptr<FabricMaterial>(nullptr);
+    auto material = std::shared_ptr<OmniMaterial>(nullptr);
 
     if (hasMaterial) {
         material = acquireMaterial(model, primitive, imagery);
     }
 
-    return std::make_shared<FabricMesh>(geometry, material);
+    return std::make_shared<OmniMesh>(geometry, material);
 }
 
-void FabricMeshManager::releaseMesh(std::shared_ptr<FabricMesh> mesh) {
+void OmniMeshManager::releaseMesh(std::shared_ptr<OmniMesh> mesh) {
     const auto geometry = mesh->getGeometry();
     const auto material = mesh->getMaterial();
 
@@ -44,44 +46,44 @@ void FabricMeshManager::releaseMesh(std::shared_ptr<FabricMesh> mesh) {
     }
 }
 
-void FabricMeshManager::setDisableMaterials(bool disableMaterials) {
+void OmniMeshManager::setDisableMaterials(bool disableMaterials) {
     _disableMaterials = disableMaterials;
 }
 
-void FabricMeshManager::setDisableTextures(bool disableTextures) {
+void OmniMeshManager::setDisableTextures(bool disableTextures) {
     _disableTextures = disableTextures;
 }
 
-void FabricMeshManager::setDisableGeometryPool(bool disableGeometryPool) {
+void OmniMeshManager::setDisableGeometryPool(bool disableGeometryPool) {
     assert(_geometryPools.size() == 0);
     _disableGeometryPool = disableGeometryPool;
 }
 
-void FabricMeshManager::setDisableMaterialPool(bool disableMaterialPool) {
+void OmniMeshManager::setDisableMaterialPool(bool disableMaterialPool) {
     assert(_materialPools.size() == 0);
     _disableMaterialPool = disableMaterialPool;
 }
 
-void FabricMeshManager::setGeometryPoolInitialCapacity(uint64_t geometryPoolInitialCapacity) {
+void OmniMeshManager::setGeometryPoolInitialCapacity(uint64_t geometryPoolInitialCapacity) {
     assert(_geometryPools.size() == 0);
     _geometryPoolInitialCapacity = geometryPoolInitialCapacity;
 }
 
-void FabricMeshManager::setMaterialPoolInitialCapacity(uint64_t materialPoolInitialCapacity) {
+void OmniMeshManager::setMaterialPoolInitialCapacity(uint64_t materialPoolInitialCapacity) {
     assert(_materialPools.size() == 0);
     _materialPoolInitialCapacity = materialPoolInitialCapacity;
 }
 
-void FabricMeshManager::setDebugRandomColors(bool debugRandomColors) {
+void OmniMeshManager::setDebugRandomColors(bool debugRandomColors) {
     _debugRandomColors = debugRandomColors;
 }
 
-void FabricMeshManager::clear() {
+void OmniMeshManager::clear() {
     _geometryPools.clear();
     _materialPools.clear();
 }
 
-std::shared_ptr<FabricGeometry> FabricMeshManager::acquireGeometry(
+std::shared_ptr<OmniGeometry> OmniMeshManager::acquireGeometry(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     bool smoothNormals,
@@ -89,11 +91,11 @@ std::shared_ptr<FabricGeometry> FabricMeshManager::acquireGeometry(
     uint64_t imageryTexcoordSetIndex) {
 
     const auto hasImagery = imagery != nullptr;
-    FabricGeometryDefinition geometryDefinition(
+    OmniGeometryDefinition geometryDefinition(
         model, primitive, smoothNormals, hasImagery, imageryTexcoordSetIndex, _disableMaterials);
 
     if (_disableGeometryPool) {
-        const auto path = pxr::SdfPath(fmt::format("/fabric_geometry_{}", getNextGeometryId()));
+        const auto path = pxr::SdfPath(fmt::format("/omni_geometry_{}", getNextGeometryId()));
         return std::make_shared<FabricGeometry>(path, geometryDefinition, _debugRandomColors);
     }
 
@@ -104,16 +106,16 @@ std::shared_ptr<FabricGeometry> FabricMeshManager::acquireGeometry(
 
     return geometry;
 }
-std::shared_ptr<FabricMaterial> FabricMeshManager::acquireMaterial(
+std::shared_ptr<OmniMaterial> OmniMeshManager::acquireMaterial(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     const CesiumGltf::ImageCesium* imagery) {
 
     const auto hasImagery = imagery != nullptr;
-    FabricMaterialDefinition materialDefinition(model, primitive, hasImagery, _disableTextures);
+    OmniMaterialDefinition materialDefinition(model, primitive, hasImagery, _disableTextures);
 
     if (_disableMaterialPool) {
-        const auto path = pxr::SdfPath(fmt::format("/fabric_material_{}", getNextMaterialId()));
+        const auto path = pxr::SdfPath(fmt::format("/omni_material_{}", getNextMaterialId()));
         return std::make_shared<FabricMaterial>(path, materialDefinition);
     }
 
@@ -125,7 +127,7 @@ std::shared_ptr<FabricMaterial> FabricMeshManager::acquireMaterial(
     return material;
 }
 
-void FabricMeshManager::releaseGeometry(std::shared_ptr<FabricGeometry> geometry) {
+void OmniMeshManager::releaseGeometry(std::shared_ptr<OmniGeometry> geometry) {
     if (_disableGeometryPool) {
         return;
     }
@@ -136,7 +138,7 @@ void FabricMeshManager::releaseGeometry(std::shared_ptr<FabricGeometry> geometry
     geometryPool->release(geometry);
 }
 
-void FabricMeshManager::releaseMaterial(std::shared_ptr<FabricMaterial> material) {
+void OmniMeshManager::releaseMaterial(std::shared_ptr<OmniMaterial> material) {
     if (_disableMaterialPool) {
         return;
     }
@@ -147,8 +149,7 @@ void FabricMeshManager::releaseMaterial(std::shared_ptr<FabricMaterial> material
     materialPool->release(material);
 }
 
-std::shared_ptr<FabricGeometryPool>
-FabricMeshManager::getGeometryPool(const FabricGeometryDefinition& geometryDefinition) {
+std::shared_ptr<OmniGeometryPool> OmniMeshManager::getGeometryPool(const OmniGeometryDefinition& geometryDefinition) {
     for (const auto& geometryPool : _geometryPools) {
         if (geometryDefinition == geometryPool->getGeometryDefinition()) {
             // Found a pool with the same geometry definition
@@ -157,12 +158,11 @@ FabricMeshManager::getGeometryPool(const FabricGeometryDefinition& geometryDefin
     }
 
     // Create a new pool
-    return _geometryPools.emplace_back(std::make_shared<FabricGeometryPool>(
+    return _geometryPools.emplace_back(std::make_shared<OmniGeometryPool>(
         getNextPoolId(), geometryDefinition, _geometryPoolInitialCapacity, _debugRandomColors));
 }
 
-std::shared_ptr<FabricMaterialPool>
-FabricMeshManager::getMaterialPool(const FabricMaterialDefinition& materialDefinition) {
+std::shared_ptr<OmniMaterialPool> OmniMeshManager::getMaterialPool(const OmniMaterialDefinition& materialDefinition) {
     for (const auto& materialPool : _materialPools) {
         if (materialDefinition == materialPool->getMaterialDefinition()) {
             // Found a pool with the same material definition
@@ -172,18 +172,18 @@ FabricMeshManager::getMaterialPool(const FabricMaterialDefinition& materialDefin
 
     // Create a new pool
     return _materialPools.emplace_back(
-        std::make_shared<FabricMaterialPool>(getNextPoolId(), materialDefinition, _materialPoolInitialCapacity));
+        std::make_shared<OmniMaterialPool>(getNextPoolId(), materialDefinition, _materialPoolInitialCapacity));
 }
 
-int64_t FabricMeshManager::getNextGeometryId() {
+int64_t OmniMeshManager::getNextGeometryId() {
     return _geometryId++;
 }
 
-int64_t FabricMeshManager::getNextMaterialId() {
+int64_t OmniMeshManager::getNextMaterialId() {
     return _materialId++;
 }
 
-int64_t FabricMeshManager::getNextPoolId() {
+int64_t OmniMeshManager::getNextPoolId() {
     return _poolId++;
 }
 

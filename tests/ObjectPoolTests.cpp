@@ -13,8 +13,8 @@
 constexpr int MAX_TESTED_POOL_SIZE = 1024; // The max size pool to randomly generate
 
 // ObjectPool is a virtual class so we cannot directly instantiate it for
-// testing, and instatiating the classes that implement it (FabricGeometryPool
-// and FabricMaterialPool) requires mocking more complicated classes, so we
+// testing, and instantiating the classes that implement it (OmniGeometryPool
+// and OmniMaterialPool) requires mocking more complicated classes, so we
 // create a bare-bones class here.
 
 class MockObject {

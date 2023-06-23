@@ -25,7 +25,7 @@ struct Model;
 namespace cesium::omniverse {
 enum TilesetSourceType { ION = 0, URL = 1 };
 
-class FabricPrepareRenderResources;
+class OmniPrepareRenderResources;
 struct Viewport;
 
 struct TilesetStatistics {
@@ -81,7 +81,7 @@ class OmniTileset {
     void updateLoadStatus();
 
     std::unique_ptr<Cesium3DTilesSelection::Tileset> _tileset;
-    std::shared_ptr<FabricPrepareRenderResources> _renderResourcesPreparer;
+    std::shared_ptr<OmniPrepareRenderResources> _renderResourcesPreparer;
     const Cesium3DTilesSelection::ViewUpdateResult* _pViewUpdateResult;
 
     pxr::SdfPath _tilesetPath;

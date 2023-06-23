@@ -1,9 +1,7 @@
 #pragma once
 
-#include "cesium/omniverse/OmniGeometry.h"
 #include "cesium/omniverse/OmniGeometryDefinition.h"
 
-#include <carb/flatcache/IPath.h>
 #include <glm/glm.hpp>
 #include <pxr/usd/sdf/path.h>
 
@@ -16,12 +14,12 @@ namespace cesium::omniverse {
 
 class OmniMaterial;
 
-class FabricGeometry final : public OmniGeometry {
+class OmniGeometry {
   public:
-    FabricGeometry(pxr::SdfPath path, const OmniGeometryDefinition& geometryDefinition, bool debugRandomColors);
-    ~FabricGeometry();
+    OmniGeometry(pxr::SdfPath path, const OmniGeometryDefinition& geometryDefinition, bool debugRandomColors);
+    virtual ~OmniGeometry() = default;
 
-    void setTile(
+    virtual void setTile(
         int64_t tilesetId,
         int64_t tileId,
         const glm::dmat4& ecefToUsdTransform,
@@ -33,17 +31,22 @@ class FabricGeometry final : public OmniGeometry {
         bool hasImagery,
         const glm::dvec2& imageryTexcoordTranslation,
         const glm::dvec2& imageryTexcoordScale,
-        uint64_t imageryTexcoordSetIndex) override;
+        uint64_t imageryTexcoordSetIndex) = 0;
 
-    void setVisibility(bool visible) override;
+    void setActive(bool active);
+    virtual void setVisibility(bool visible) = 0;
 
-    void assignMaterial(std::shared_ptr<OmniMaterial> material) override;
+    pxr::SdfPath getPath() const;
+    const OmniGeometryDefinition& getGeometryDefinition() const;
 
-  private:
-    void initialize();
-    void reset() override;
+    virtual void assignMaterial(std::shared_ptr<OmniMaterial> material) = 0;
 
-    const carb::flatcache::Path _pathFabric;
+  protected:
+    virtual void reset() = 0;
+
+    const pxr::SdfPath _path;
+    const OmniGeometryDefinition _geometryDefinition;
+    const bool _debugRandomColors;
 };
 
 } // namespace cesium::omniverse

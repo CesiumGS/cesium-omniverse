@@ -2,9 +2,9 @@
 
 #include "cesium/omniverse/FabricAsset.h"
 #include "cesium/omniverse/FabricAttributesBuilder.h"
-#include "cesium/omniverse/FabricMaterialDefinition.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GltfUtil.h"
+#include "cesium/omniverse/OmniMaterialDefinition.h"
 #include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
@@ -22,9 +22,8 @@
 
 namespace cesium::omniverse {
 
-FabricMaterial::FabricMaterial(pxr::SdfPath path, const FabricMaterialDefinition& materialDefinition)
-    : _materialDefinition(materialDefinition) {
-
+FabricMaterial::FabricMaterial(pxr::SdfPath path, const OmniMaterialDefinition& materialDefinition)
+    : OmniMaterial(path, materialDefinition) {
     initialize(path, materialDefinition);
 
     // Remove this function once dynamic material values are supported in Kit 105
@@ -44,21 +43,7 @@ FabricMaterial::~FabricMaterial() {
     }
 }
 
-void FabricMaterial::setActive(bool active) {
-    if (!active) {
-        reset();
-    }
-}
-
-carb::flatcache::Path FabricMaterial::getPathFabric() const {
-    return _materialPathFabric;
-}
-
-const FabricMaterialDefinition& FabricMaterial::getMaterialDefinition() const {
-    return _materialDefinition;
-}
-
-void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinition& materialDefinition) {
+void FabricMaterial::initialize(pxr::SdfPath path, const OmniMaterialDefinition& materialDefinition) {
     const auto hasBaseColorTexture = materialDefinition.hasBaseColorTexture();
     const auto hasVertexColors = materialDefinition.hasVertexColors();
 
@@ -409,7 +394,7 @@ void FabricMaterial::reset() {
     }
 }
 
-void FabricMaterial::setInitialValues(const FabricMaterialDefinition& materialDefinition) {
+void FabricMaterial::setInitialValues(const OmniMaterialDefinition& materialDefinition) {
     const auto hasBaseColorTexture = _materialDefinition.hasBaseColorTexture();
 
     auto sip = UsdUtil::getFabricStageInProgress();

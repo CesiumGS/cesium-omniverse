@@ -1,6 +1,7 @@
 #pragma once
 
-#include "cesium/omniverse/FabricMaterialDefinition.h"
+#include "cesium/omniverse/OmniMaterial.h"
+#include "cesium/omniverse/OmniMaterialDefinition.h"
 
 #include <carb/flatcache/IPath.h>
 #include <pxr/usd/sdf/path.h>
@@ -17,9 +18,9 @@ struct Model;
 
 namespace cesium::omniverse {
 
-class FabricMaterial {
+class FabricMaterial final : public OmniMaterial {
   public:
-    FabricMaterial(pxr::SdfPath path, const FabricMaterialDefinition& materialDefinition);
+    FabricMaterial(pxr::SdfPath path, const OmniMaterialDefinition& materialDefinition);
     ~FabricMaterial();
 
     void setTile(
@@ -27,19 +28,12 @@ class FabricMaterial {
         int64_t tileId,
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
-        const CesiumGltf::ImageCesium* imagery);
-
-    void setActive(bool active);
-
-    carb::flatcache::Path getPathFabric() const;
-    const FabricMaterialDefinition& getMaterialDefinition() const;
+        const CesiumGltf::ImageCesium* imagery) override;
 
   private:
-    void initialize(pxr::SdfPath path, const FabricMaterialDefinition& materialDefinition);
-    void reset();
-    void setInitialValues(const FabricMaterialDefinition& materialDefinition);
-
-    const FabricMaterialDefinition _materialDefinition;
+    void initialize(pxr::SdfPath path, const OmniMaterialDefinition& materialDefinition);
+    void reset() override;
+    void setInitialValues(const OmniMaterialDefinition& materialDefinition);
 
     carb::flatcache::Path _materialPathFabric;
     carb::flatcache::Path _shaderPathFabric;

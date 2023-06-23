@@ -1,24 +1,24 @@
-#include "cesium/omniverse/FabricMesh.h"
+#include "cesium/omniverse/OmniMesh.h"
 
 #include "cesium/omniverse/UsdUtil.h"
 
 namespace cesium::omniverse {
-FabricMesh::FabricMesh(std::shared_ptr<FabricGeometry> geometry, std::shared_ptr<FabricMaterial> material)
+OmniMesh::OmniMesh(std::shared_ptr<OmniGeometry> geometry, std::shared_ptr<OmniMaterial> material)
     : _geometry(geometry)
     , _material(material) {}
 
-std::shared_ptr<FabricGeometry> FabricMesh::getGeometry() const {
+std::shared_ptr<OmniGeometry> OmniMesh::getGeometry() const {
     return _geometry;
 }
-std::shared_ptr<FabricMaterial> FabricMesh::getMaterial() const {
+std::shared_ptr<OmniMaterial> OmniMesh::getMaterial() const {
     return _material;
 }
 
-void FabricMesh::setVisibility(bool visible) const {
+void OmniMesh::setVisibility(bool visible) const {
     _geometry->setVisibility(visible);
 }
 
-void FabricMesh::setTile(
+void OmniMesh::setTile(
     int64_t tilesetId,
     int64_t tileId,
     const glm::dmat4& ecefToUsdTransform,

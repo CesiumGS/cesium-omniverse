@@ -11,9 +11,9 @@ struct Model;
 
 namespace cesium::omniverse {
 
-class FabricMaterialDefinition {
+class OmniMaterialDefinition {
   public:
-    FabricMaterialDefinition(
+    OmniMaterialDefinition(
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
         bool hasImagery,
@@ -32,7 +32,7 @@ class FabricMaterialDefinition {
     int getWrapS() const;
     int getWrapT() const;
 
-    bool operator==(const FabricMaterialDefinition& other) const;
+    bool operator==(const OmniMaterialDefinition& other) const;
 
   private:
     bool _hasBaseColorTexture;

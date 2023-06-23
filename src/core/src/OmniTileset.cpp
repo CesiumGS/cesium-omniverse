@@ -2,13 +2,13 @@
 
 #include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/Context.h"
-#include "cesium/omniverse/FabricMesh.h"
-#include "cesium/omniverse/FabricPrepareRenderResources.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GeospatialUtil.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/OmniImagery.h"
+#include "cesium/omniverse/OmniMesh.h"
+#include "cesium/omniverse/OmniPrepareRenderResources.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/UsdUtil.h"
 #include "cesium/omniverse/Viewport.h"
@@ -258,7 +258,7 @@ TilesetStatistics OmniTileset::getStatistics() const {
 }
 
 void OmniTileset::reload() {
-    _renderResourcesPreparer = std::make_shared<FabricPrepareRenderResources>(*this);
+    _renderResourcesPreparer = std::make_shared<OmniPrepareRenderResources>(*this);
     auto& context = Context::instance();
     const auto asyncSystem = CesiumAsync::AsyncSystem(context.getTaskProcessor());
     const auto externals = Cesium3DTilesSelection::TilesetExternals{
@@ -428,8 +428,8 @@ void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
                 const auto pRenderResources = pRenderContent->getRenderResources();
                 if (pRenderResources) {
                     const auto pTileRenderResources = reinterpret_cast<TileRenderResources*>(pRenderResources);
-                    for (const auto& fabricMesh : pTileRenderResources->fabricMeshes) {
-                        fabricMesh->setVisibility(false);
+                    for (const auto& omniMesh : pTileRenderResources->omniMeshes) {
+                        omniMesh->setVisibility(false);
                     }
                 }
             }
@@ -444,8 +444,8 @@ void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
                 const auto pRenderResources = pRenderContent->getRenderResources();
                 if (pRenderResources) {
                     const auto pTileRenderResources = reinterpret_cast<TileRenderResources*>(pRenderResources);
-                    for (const auto& fabricMesh : pTileRenderResources->fabricMeshes) {
-                        fabricMesh->setVisibility(visible);
+                    for (const auto& omniMesh : pTileRenderResources->omniMeshes) {
+                        omniMesh->setVisibility(visible);
                     }
                 }
             }

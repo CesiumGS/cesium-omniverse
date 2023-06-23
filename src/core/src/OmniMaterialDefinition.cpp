@@ -1,4 +1,4 @@
-#include "cesium/omniverse/FabricMaterialDefinition.h"
+#include "cesium/omniverse/OmniMaterialDefinition.h"
 
 #include "cesium/omniverse/GltfUtil.h"
 
@@ -11,7 +11,7 @@
 
 namespace cesium::omniverse {
 
-FabricMaterialDefinition::FabricMaterialDefinition(
+OmniMaterialDefinition::OmniMaterialDefinition(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     bool hasImagery,
@@ -57,52 +57,52 @@ FabricMaterialDefinition::FabricMaterialDefinition(
     _hasVertexColors = GltfUtil::hasVertexColors(model, primitive, 0);
 }
 
-bool FabricMaterialDefinition::hasBaseColorTexture() const {
+bool OmniMaterialDefinition::hasBaseColorTexture() const {
     return _hasBaseColorTexture;
 }
 
-bool FabricMaterialDefinition::hasVertexColors() const {
+bool OmniMaterialDefinition::hasVertexColors() const {
     return _hasVertexColors;
 }
 
-float FabricMaterialDefinition::getAlphaCutoff() const {
+float OmniMaterialDefinition::getAlphaCutoff() const {
     return _alphaCutoff;
 }
 
-int FabricMaterialDefinition::getAlphaMode() const {
+int OmniMaterialDefinition::getAlphaMode() const {
     return _alphaMode;
 }
 
-float FabricMaterialDefinition::getBaseAlpha() const {
+float OmniMaterialDefinition::getBaseAlpha() const {
     return _baseAlpha;
 }
 
-pxr::GfVec3f FabricMaterialDefinition::getBaseColorFactor() const {
+pxr::GfVec3f OmniMaterialDefinition::getBaseColorFactor() const {
     return _baseColorFactor;
 }
 
-pxr::GfVec3f FabricMaterialDefinition::getEmissiveFactor() const {
+pxr::GfVec3f OmniMaterialDefinition::getEmissiveFactor() const {
     return _emissiveFactor;
 }
 
-float FabricMaterialDefinition::getMetallicFactor() const {
+float OmniMaterialDefinition::getMetallicFactor() const {
     return _metallicFactor;
 }
 
-float FabricMaterialDefinition::getRoughnessFactor() const {
+float OmniMaterialDefinition::getRoughnessFactor() const {
     return _roughnessFactor;
 }
 
-int FabricMaterialDefinition::getWrapS() const {
+int OmniMaterialDefinition::getWrapS() const {
     return _wrapS;
 }
 
-int FabricMaterialDefinition::getWrapT() const {
+int OmniMaterialDefinition::getWrapT() const {
     return _wrapT;
 }
 
 // In C++ 20 we can use the default equality comparison (= default)
-bool FabricMaterialDefinition::operator==(const FabricMaterialDefinition& other) const {
+bool OmniMaterialDefinition::operator==(const OmniMaterialDefinition& other) const {
     if (_hasBaseColorTexture != other._hasBaseColorTexture) {
         return false;
     }

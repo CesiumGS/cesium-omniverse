@@ -3,12 +3,12 @@
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/CesiumIonSession.h"
-#include "cesium/omniverse/FabricMeshManager.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GeospatialUtil.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/OmniImagery.h"
+#include "cesium/omniverse/OmniMeshManager.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/UsdUtil.h"
@@ -195,22 +195,22 @@ void Context::reloadTileset(const pxr::SdfPath& tilesetPath) {
 }
 
 void Context::clearStage() {
-    // The order is important. Clear tilesets first so that FabricMeshes are released back into the pool. Then clear the pools.
+    // The order is important. Clear tilesets first so that OmniMeshes are released back into the pool. Then clear the pools.
     AssetRegistry::getInstance().clear();
-    FabricMeshManager::getInstance().clear();
+    OmniMeshManager::getInstance().clear();
 }
 
 void Context::reloadStage() {
     clearStage();
 
-    auto& fabricMeshManager = FabricMeshManager::getInstance();
-    fabricMeshManager.setDisableMaterials(getDebugDisableMaterials());
-    fabricMeshManager.setDisableTextures(getDebugDisableTextures());
-    fabricMeshManager.setDisableGeometryPool(getDebugDisableGeometryPool());
-    fabricMeshManager.setDisableMaterialPool(getDebugDisableMaterialPool());
-    fabricMeshManager.setGeometryPoolInitialCapacity(getDebugGeometryPoolInitialCapacity());
-    fabricMeshManager.setMaterialPoolInitialCapacity(getDebugMaterialPoolInitialCapacity());
-    fabricMeshManager.setDebugRandomColors(getDebugRandomColors());
+    auto& omniMeshManager = OmniMeshManager::getInstance();
+    omniMeshManager.setDisableMaterials(getDebugDisableMaterials());
+    omniMeshManager.setDisableTextures(getDebugDisableTextures());
+    omniMeshManager.setDisableGeometryPool(getDebugDisableGeometryPool());
+    omniMeshManager.setDisableMaterialPool(getDebugDisableMaterialPool());
+    omniMeshManager.setGeometryPoolInitialCapacity(getDebugGeometryPoolInitialCapacity());
+    omniMeshManager.setMaterialPoolInitialCapacity(getDebugMaterialPoolInitialCapacity());
+    omniMeshManager.setDebugRandomColors(getDebugRandomColors());
 
     // Repopulate the asset registry. We need to do this manually because USD doesn't notify us about
     // resynced paths when the stage is loaded.

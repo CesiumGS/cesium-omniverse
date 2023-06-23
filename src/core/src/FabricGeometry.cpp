@@ -1,9 +1,9 @@
 #include "cesium/omniverse/FabricGeometry.h"
 
 #include "cesium/omniverse/FabricAttributesBuilder.h"
-#include "cesium/omniverse/FabricMaterial.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GltfUtil.h"
+#include "cesium/omniverse/OmniMaterial.h"
 #include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
@@ -33,22 +33,15 @@ const auto DEFAULT_MATRIX = pxr::GfMatrix4d(1.0);
 
 FabricGeometry::FabricGeometry(
     pxr::SdfPath path,
-    const FabricGeometryDefinition& geometryDefinition,
+    const OmniGeometryDefinition& geometryDefinition,
     bool debugRandomColors)
-    : _pathFabric(path.GetText())
-    , _geometryDefinition(geometryDefinition)
-    , _debugRandomColors(debugRandomColors) {
+    : OmniGeometry(path, geometryDefinition, debugRandomColors)
+    , _pathFabric(path.GetText()) {
     initialize();
 }
 
 FabricGeometry::~FabricGeometry() {
     FabricUtil::destroyPrim(_pathFabric);
-}
-
-void FabricGeometry::setActive(bool active) {
-    if (!active) {
-        reset();
-    }
 }
 
 void FabricGeometry::setVisibility(bool visible) {
@@ -58,18 +51,10 @@ void FabricGeometry::setVisibility(bool visible) {
     *worldVisibilityFabric = visible;
 }
 
-carb::flatcache::Path FabricGeometry::getPathFabric() const {
-    return _pathFabric;
-}
-
-const FabricGeometryDefinition& FabricGeometry::getGeometryDefinition() const {
-    return _geometryDefinition;
-}
-
-void FabricGeometry::assignMaterial(std::shared_ptr<FabricMaterial> material) {
+void FabricGeometry::assignMaterial(std::shared_ptr<OmniMaterial> material) {
     auto sip = UsdUtil::getFabricStageInProgress();
     auto materialIdFabric = sip.getAttributeWr<uint64_t>(_pathFabric, FabricTokens::materialId);
-    *materialIdFabric = carb::flatcache::PathC(material->getPathFabric()).path;
+    *materialIdFabric = carb::flatcache::asInt(material->getPath()).path;
 }
 
 void FabricGeometry::initialize() {

@@ -10,18 +10,18 @@
 
 namespace cesium::omniverse {
 
-class FabricMesh;
+class OmniMesh;
 class OmniTileset;
 
 struct TileRenderResources {
     glm::dmat4 tileTransform;
-    std::vector<std::shared_ptr<FabricMesh>> fabricMeshes;
+    std::vector<std::shared_ptr<OmniMesh>> omniMeshes;
 };
 
-class FabricPrepareRenderResources : public Cesium3DTilesSelection::IPrepareRendererResources {
+class OmniPrepareRenderResources : public Cesium3DTilesSelection::IPrepareRendererResources {
   public:
-    FabricPrepareRenderResources(const OmniTileset& tileset);
-    ~FabricPrepareRenderResources() = default;
+    OmniPrepareRenderResources(const OmniTileset& tileset);
+    ~OmniPrepareRenderResources() = default;
 
     CesiumAsync::Future<Cesium3DTilesSelection::TileLoadResultAndRenderResources> prepareInLoadThread(
         const CesiumAsync::AsyncSystem& asyncSystem,

@@ -1,23 +1,23 @@
 #pragma once
 
-#include "cesium/omniverse/FabricGeometry.h"
-#include "cesium/omniverse/FabricGeometryDefinition.h"
-#include "cesium/omniverse/FabricMaterial.h"
-#include "cesium/omniverse/FabricMaterialDefinition.h"
+#include "cesium/omniverse/OmniGeometry.h"
+#include "cesium/omniverse/OmniGeometryDefinition.h"
+#include "cesium/omniverse/OmniMaterial.h"
+#include "cesium/omniverse/OmniMaterialDefinition.h"
 
 #include <memory>
 
 namespace cesium::omniverse {
 
-class FabricGeometryDefinition;
-class FabricMaterialDefinition;
+class OmniGeometryDefinition;
+class OmniMaterialDefinition;
 
-class FabricMesh {
+class OmniMesh {
   public:
-    FabricMesh(std::shared_ptr<FabricGeometry> geometry, std::shared_ptr<FabricMaterial> material);
+    OmniMesh(std::shared_ptr<OmniGeometry> geometry, std::shared_ptr<OmniMaterial> material);
 
-    std::shared_ptr<FabricGeometry> getGeometry() const;
-    std::shared_ptr<FabricMaterial> getMaterial() const;
+    std::shared_ptr<OmniGeometry> getGeometry() const;
+    std::shared_ptr<OmniMaterial> getMaterial() const;
 
     void setVisibility(bool visible) const;
 
@@ -36,8 +36,8 @@ class FabricMesh {
         uint64_t imageryTexcoordSetIndex);
 
   private:
-    std::shared_ptr<FabricGeometry> _geometry;
-    std::shared_ptr<FabricMaterial> _material;
+    std::shared_ptr<OmniGeometry> _geometry;
+    std::shared_ptr<OmniMaterial> _material;
 };
 
 } // namespace cesium::omniverse

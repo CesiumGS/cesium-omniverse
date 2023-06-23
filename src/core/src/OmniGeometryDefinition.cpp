@@ -1,4 +1,4 @@
-#include "cesium/omniverse/FabricGeometryDefinition.h"
+#include "cesium/omniverse/OmniGeometryDefinition.h"
 
 #include "cesium/omniverse/GltfUtil.h"
 
@@ -11,7 +11,7 @@
 
 namespace cesium::omniverse {
 
-FabricGeometryDefinition::FabricGeometryDefinition(
+OmniGeometryDefinition::OmniGeometryDefinition(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     bool smoothNormals,
@@ -30,27 +30,27 @@ FabricGeometryDefinition::FabricGeometryDefinition(
     _doubleSided = GltfUtil::getDoubleSided(model, primitive);
 }
 
-bool FabricGeometryDefinition::hasMaterial() const {
+bool OmniGeometryDefinition::hasMaterial() const {
     return _hasMaterial;
 }
 
-bool FabricGeometryDefinition::hasTexcoords() const {
+bool OmniGeometryDefinition::hasTexcoords() const {
     return _hasTexcoords;
 }
 
-bool FabricGeometryDefinition::hasNormals() const {
+bool OmniGeometryDefinition::hasNormals() const {
     return _hasNormals;
 }
 
-bool FabricGeometryDefinition::hasVertexColors() const {
+bool OmniGeometryDefinition::hasVertexColors() const {
     return _hasVertexColors;
 }
 
-bool FabricGeometryDefinition::getDoubleSided() const {
+bool OmniGeometryDefinition::getDoubleSided() const {
     return _doubleSided;
 }
 
-bool FabricGeometryDefinition::operator==(const FabricGeometryDefinition& other) const {
+bool OmniGeometryDefinition::operator==(const OmniGeometryDefinition& other) const {
     if (_hasMaterial != other._hasMaterial) {
         return false;
     }

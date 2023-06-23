@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cesium/omniverse/FabricMesh.h"
+#include "cesium/omniverse/OmniMesh.h"
 
 #include <mutex>
 
@@ -12,31 +12,31 @@ struct Model;
 
 namespace cesium::omniverse {
 
-class FabricGeometryPool;
-class FabricMaterialPool;
-class FabricGeometryDefinition;
-class FabricMaterialDefinition;
+class OmniGeometryPool;
+class OmniMaterialPool;
+class OmniGeometryDefinition;
+class OmniMaterialDefinition;
 
-class FabricMeshManager {
+class OmniMeshManager {
   public:
-    FabricMeshManager(const FabricMeshManager&) = delete;
-    FabricMeshManager(FabricMeshManager&&) = delete;
-    FabricMeshManager& operator=(const FabricMeshManager&) = delete;
-    FabricMeshManager& operator=(FabricMeshManager) = delete;
+    OmniMeshManager(const OmniMeshManager&) = delete;
+    OmniMeshManager(OmniMeshManager&&) = delete;
+    OmniMeshManager& operator=(const OmniMeshManager&) = delete;
+    OmniMeshManager& operator=(OmniMeshManager) = delete;
 
-    static FabricMeshManager& getInstance() {
-        static FabricMeshManager instance;
+    static OmniMeshManager& getInstance() {
+        static OmniMeshManager instance;
         return instance;
     }
 
-    std::shared_ptr<FabricMesh> acquireMesh(
+    std::shared_ptr<OmniMesh> acquireMesh(
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
         bool smoothNormals,
         const CesiumGltf::ImageCesium* imagery,
         uint64_t imageryTexcoordSetIndex);
 
-    void releaseMesh(std::shared_ptr<FabricMesh> mesh);
+    void releaseMesh(std::shared_ptr<OmniMesh> mesh);
 
     void setDisableMaterials(bool disableMaterials);
     void setDisableTextures(bool disableTextures);
@@ -49,34 +49,34 @@ class FabricMeshManager {
     void clear();
 
   protected:
-    FabricMeshManager() = default;
-    ~FabricMeshManager() = default;
+    OmniMeshManager() = default;
+    ~OmniMeshManager() = default;
 
   private:
-    std::shared_ptr<FabricGeometry> acquireGeometry(
+    std::shared_ptr<OmniGeometry> acquireGeometry(
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
         bool smoothNormals,
         const CesiumGltf::ImageCesium* imagery,
         uint64_t imageryTexcoordSetIndex);
 
-    std::shared_ptr<FabricMaterial> acquireMaterial(
+    std::shared_ptr<OmniMaterial> acquireMaterial(
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
         const CesiumGltf::ImageCesium* imagery);
 
-    void releaseGeometry(std::shared_ptr<FabricGeometry> geometry);
-    void releaseMaterial(std::shared_ptr<FabricMaterial> material);
+    void releaseGeometry(std::shared_ptr<OmniGeometry> geometry);
+    void releaseMaterial(std::shared_ptr<OmniMaterial> material);
 
-    std::shared_ptr<FabricGeometryPool> getGeometryPool(const FabricGeometryDefinition& geometryDefinition);
-    std::shared_ptr<FabricMaterialPool> getMaterialPool(const FabricMaterialDefinition& materialDefinition);
+    std::shared_ptr<OmniGeometryPool> getGeometryPool(const OmniGeometryDefinition& geometryDefinition);
+    std::shared_ptr<OmniMaterialPool> getMaterialPool(const OmniMaterialDefinition& materialDefinition);
 
     int64_t getNextGeometryId();
     int64_t getNextMaterialId();
     int64_t getNextPoolId();
 
-    std::vector<std::shared_ptr<FabricGeometryPool>> _geometryPools;
-    std::vector<std::shared_ptr<FabricMaterialPool>> _materialPools;
+    std::vector<std::shared_ptr<OmniGeometryPool>> _geometryPools;
+    std::vector<std::shared_ptr<OmniMaterialPool>> _materialPools;
 
     bool _disableMaterials{false};
     bool _disableTextures{false};
