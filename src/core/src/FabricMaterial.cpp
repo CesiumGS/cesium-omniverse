@@ -70,9 +70,6 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
     const auto shaderPathFabric = omni::fabric::Path(shaderPath.GetText());
     const auto baseColorTexPathFabric = omni::fabric::Path(baseColorTexPath.GetText());
 
-    const auto shaderPathFabricUint64 = omni::fabric::PathC(shaderPathFabric).path;
-    const auto baseColorTexPathFabricUint64 = omni::fabric::PathC(baseColorTexPathFabric).path;
-
     // Material
     {
         srw.createPrim(materialPathFabric);
@@ -80,65 +77,10 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         FabricAttributesBuilder attributes;
 
         attributes.addAttribute(FabricTypes::Material, FabricTokens::Material);
-        attributes.addAttribute(FabricTypes::_nodePaths, FabricTokens::_nodePaths);
-        attributes.addAttribute(FabricTypes::_terminal_names, FabricTokens::_terminal_names);
-        attributes.addAttribute(FabricTypes::_terminal_sourceNames, FabricTokens::_terminal_sourceNames);
-        attributes.addAttribute(FabricTypes::_terminal_sourceIds, FabricTokens::_terminal_sourceIds);
-        attributes.addAttribute(FabricTypes::_relationship_ids, FabricTokens::_relationship_ids);
-        attributes.addAttribute(FabricTypes::_relationship_names, FabricTokens::_relationship_names);
         attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
         attributes.addAttribute(FabricTypes::_cesium_tileId, FabricTokens::_cesium_tileId);
 
         attributes.createAttributes(materialPathFabric);
-
-        auto nodePathsCount = 1;
-        auto relationshipCount = 0;
-
-        if (hasBaseColorTexture) {
-            nodePathsCount = 2;
-            relationshipCount = 2;
-        }
-
-        srw.setArrayAttributeSize(materialPathFabric, FabricTokens::_terminal_names, 3);
-        srw.setArrayAttributeSize(materialPathFabric, FabricTokens::_terminal_sourceNames, 3);
-        srw.setArrayAttributeSize(materialPathFabric, FabricTokens::_terminal_sourceIds, 3);
-        srw.setArrayAttributeSize(materialPathFabric, FabricTokens::_nodePaths, nodePathsCount);
-        srw.setArrayAttributeSize(materialPathFabric, FabricTokens::_relationship_ids, relationshipCount);
-        srw.setArrayAttributeSize(materialPathFabric, FabricTokens::_relationship_names, relationshipCount);
-
-        // clang-format off
-        auto terminalNamesFabric = srw.getArrayAttributeWr<omni::fabric::Token>(materialPathFabric, FabricTokens::_terminal_names);
-        auto terminalSourceNamesFabric = srw.getArrayAttributeWr<omni::fabric::Token>(materialPathFabric, FabricTokens::_terminal_sourceNames);
-        auto terminalSourceIdsFabric = srw.getArrayAttributeWr<int>(materialPathFabric, FabricTokens::_terminal_sourceIds);
-        auto nodePathsFabric = srw.getArrayAttributeWr<uint64_t>(materialPathFabric, FabricTokens::_nodePaths);
-        auto relationshipIdsFabric = srw.getArrayAttributeWr<int>(materialPathFabric, FabricTokens::_relationship_ids);
-        auto relationshipNamesFabric = srw.getArrayAttributeWr<omni::fabric::Token>(materialPathFabric, FabricTokens::_relationship_names);
-        // clang-format on
-
-        terminalNamesFabric[0] = FabricTokens::outputs_mdl_displacement;
-        terminalNamesFabric[1] = FabricTokens::outputs_mdl_surface;
-        terminalNamesFabric[2] = FabricTokens::outputs_mdl_volume;
-
-        terminalSourceNamesFabric[0] = FabricTokens::out;
-        terminalSourceNamesFabric[1] = FabricTokens::out;
-        terminalSourceNamesFabric[2] = FabricTokens::out;
-
-        terminalSourceIdsFabric[0] = 0;
-        terminalSourceIdsFabric[1] = 0;
-        terminalSourceIdsFabric[2] = 0;
-
-        if (hasBaseColorTexture) {
-            nodePathsFabric[0] = shaderPathFabricUint64;
-            nodePathsFabric[1] = baseColorTexPathFabricUint64;
-
-            relationshipIdsFabric[0] = 1; // baseColorTex
-            relationshipIdsFabric[1] = 0; // shader
-
-            relationshipNamesFabric[0] = FabricTokens::outputs_out;
-            relationshipNamesFabric[1] = FabricTokens::inputs_base_color_texture;
-        } else {
-            nodePathsFabric[0] = shaderPathFabricUint64;
-        }
     }
 
     // Shader
@@ -155,6 +97,7 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
         attributes.addAttribute(FabricTypes::inputs_emissive_factor, FabricTokens::inputs_emissive_factor);
         attributes.addAttribute(FabricTypes::inputs_metallic_factor, FabricTokens::inputs_metallic_factor);
         attributes.addAttribute(FabricTypes::inputs_roughness_factor, FabricTokens::inputs_roughness_factor);
+        attributes.addAttribute(FabricTypes::outputs_out, FabricTokens::outputs_out);
         attributes.addAttribute(FabricTypes::info_implementationSource, FabricTokens::info_implementationSource);
         attributes.addAttribute(FabricTypes::info_mdl_sourceAsset, FabricTokens::info_mdl_sourceAsset);
         attributes.addAttribute(FabricTypes::info_mdl_sourceAsset_subIdentifier, FabricTokens::info_mdl_sourceAsset_subIdentifier);
@@ -193,6 +136,20 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
                 srw.getArrayAttributeWr<uint8_t>(shaderPathFabric, FabricTokens::inputs_vertex_color_name);
             memcpy(vertexColorNameFabric.data(), UsdTokens::vertexColor.GetText(), vertexColorPrimvarNameSize);
         }
+
+        // Connect the material terminals to the shader.
+        srw.createConnection(
+            materialPathFabric,
+            FabricTokens::outputs_mdl_surface,
+            omni::fabric::Connection{omni::fabric::PathC(shaderPathFabric), FabricTokens::outputs_out});
+        srw.createConnection(
+            materialPathFabric,
+            FabricTokens::outputs_mdl_displacement,
+            omni::fabric::Connection{omni::fabric::PathC(shaderPathFabric), FabricTokens::outputs_out});
+        srw.createConnection(
+            materialPathFabric,
+            FabricTokens::outputs_mdl_volume,
+            omni::fabric::Connection{omni::fabric::PathC(shaderPathFabric), FabricTokens::outputs_out});
     }
 
     if (hasBaseColorTexture) {
@@ -217,6 +174,7 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             attributes.addAttribute(FabricTypes::inputs_texture, FabricTokens::inputs_texture);
             attributes.addAttribute(FabricTypes::inputs_wrap_s, FabricTokens::inputs_wrap_s);
             attributes.addAttribute(FabricTypes::inputs_wrap_t, FabricTokens::inputs_wrap_t);
+            attributes.addAttribute(FabricTypes::outputs_out, FabricTokens::outputs_out);
             attributes.addAttribute(FabricTypes::info_implementationSource, FabricTokens::info_implementationSource);
             attributes.addAttribute(FabricTypes::info_mdl_sourceAsset, FabricTokens::info_mdl_sourceAsset);
             attributes.addAttribute(FabricTypes::info_mdl_sourceAsset_subIdentifier, FabricTokens::info_mdl_sourceAsset_subIdentifier);
@@ -257,6 +215,12 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             *infoMdlSourceAssetSubIdentifierFabric = FabricTokens::gltf_texture_lookup;
             paramColorSpaceFabric[0] = FabricTokens::inputs_texture;
             paramColorSpaceFabric[1] = FabricTokens::_auto;
+
+            // Create connection from shader to texture.
+            srw.createConnection(
+                shaderPathFabric,
+                FabricTokens::inputs_base_color_texture,
+                omni::fabric::Connection{omni::fabric::PathC(baseColorTexPathFabric), FabricTokens::outputs_out});
         }
     }
 

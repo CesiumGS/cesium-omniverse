@@ -40,14 +40,8 @@ TF_DEFINE_PRIVATE_TOKENS(
     (_cesium_tileId)
     (_cesium_tilesetId)
     (_deletedPrims)
-    (_nodePaths)
     (_paramColorSpace)
-    (_relationship_ids)
-    (_relationship_names)
     (_sdrMetadata)
-    (_terminal_names)
-    (_terminal_sourceIds)
-    (_terminal_sourceNames)
     (_worldExtent)
     (_worldOrientation)
     (_worldPosition)
@@ -147,14 +141,8 @@ const omni::fabric::TokenC _cesium_localToEcefTransform = omni::fabric::asInt(px
 const omni::fabric::TokenC _cesium_tileId = omni::fabric::asInt(pxr::UsdTokens->_cesium_tileId);
 const omni::fabric::TokenC _cesium_tilesetId = omni::fabric::asInt(pxr::UsdTokens->_cesium_tilesetId);
 const omni::fabric::TokenC _deletedPrims = omni::fabric::asInt(pxr::UsdTokens->_deletedPrims);
-const omni::fabric::TokenC _nodePaths = omni::fabric::asInt(pxr::UsdTokens->_nodePaths);
 const omni::fabric::TokenC _paramColorSpace = omni::fabric::asInt(pxr::UsdTokens->_paramColorSpace);
-const omni::fabric::TokenC _relationship_ids = omni::fabric::asInt(pxr::UsdTokens->_relationship_ids);
-const omni::fabric::TokenC _relationship_names = omni::fabric::asInt(pxr::UsdTokens->_relationship_names);
 const omni::fabric::TokenC _sdrMetadata = omni::fabric::asInt(pxr::UsdTokens->_sdrMetadata);
-const omni::fabric::TokenC _terminal_names = omni::fabric::asInt(pxr::UsdTokens->_terminal_names);
-const omni::fabric::TokenC _terminal_sourceIds = omni::fabric::asInt(pxr::UsdTokens->_terminal_sourceIds);
-const omni::fabric::TokenC _terminal_sourceNames = omni::fabric::asInt(pxr::UsdTokens->_terminal_sourceNames);
 const omni::fabric::TokenC _worldExtent = omni::fabric::asInt(pxr::UsdTokens->_worldExtent);
 const omni::fabric::TokenC _worldOrientation = omni::fabric::asInt(pxr::UsdTokens->_worldOrientation);
 const omni::fabric::TokenC _worldPosition = omni::fabric::asInt(pxr::UsdTokens->_worldPosition);
@@ -218,14 +206,8 @@ const pxr::TfToken& _cesium_localToEcefTransform = pxr::UsdTokens->_cesium_local
 const pxr::TfToken& _cesium_tileId = pxr::UsdTokens->_cesium_tileId;
 const pxr::TfToken& _cesium_tilesetId = pxr::UsdTokens->_cesium_tilesetId;
 const pxr::TfToken& _deletedPrims = pxr::UsdTokens->_deletedPrims;
-const pxr::TfToken& _nodePaths = pxr::UsdTokens->_nodePaths;
 const pxr::TfToken& _paramColorSpace = pxr::UsdTokens->_paramColorSpace;
-const pxr::TfToken& _relationship_ids = pxr::UsdTokens->_relationship_ids;
-const pxr::TfToken& _relationship_names = pxr::UsdTokens->_relationship_names;
 const pxr::TfToken& _sdrMetadata = pxr::UsdTokens->_sdrMetadata;
-const pxr::TfToken& _terminal_names = pxr::UsdTokens->_terminal_names;
-const pxr::TfToken& _terminal_sourceIds = pxr::UsdTokens->_terminal_sourceIds;
-const pxr::TfToken& _terminal_sourceNames = pxr::UsdTokens->_terminal_sourceNames;
 const pxr::TfToken& _worldExtent = pxr::UsdTokens->_worldExtent;
 const pxr::TfToken& _worldOrientation = pxr::UsdTokens->_worldOrientation;
 const pxr::TfToken& _worldPosition = pxr::UsdTokens->_worldPosition;
