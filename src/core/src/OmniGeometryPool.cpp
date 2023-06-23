@@ -1,6 +1,7 @@
 #include "cesium/omniverse/OmniGeometryPool.h"
 
 #include "cesium/omniverse/FabricGeometry.h"
+#include "cesium/omniverse/UsdGeometry.h"
 
 #include <spdlog/fmt/fmt.h>
 
@@ -32,7 +33,7 @@ std::shared_ptr<OmniGeometry> OmniGeometryPool::createObject(uint64_t objectId) 
             return std::make_shared<FabricGeometry>(path, _geometryDefinition, _debugRandomColors);
         }
         case OmniSceneDelegate::USD: {
-            return std::make_shared<FabricGeometry>(path, _geometryDefinition, _debugRandomColors);
+            return std::make_shared<UsdGeometry>(path, _geometryDefinition, _debugRandomColors);
         }
         default: {
             assert(false);

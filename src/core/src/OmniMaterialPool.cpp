@@ -1,6 +1,7 @@
 #include "cesium/omniverse/OmniMaterialPool.h"
 
 #include "cesium/omniverse/FabricMaterial.h"
+#include "cesium/omniverse/UsdMaterial.h"
 
 #include <spdlog/fmt/fmt.h>
 
@@ -30,7 +31,7 @@ std::shared_ptr<OmniMaterial> OmniMaterialPool::createObject(uint64_t objectId) 
             return std::make_shared<FabricMaterial>(path, _materialDefinition);
         }
         case OmniSceneDelegate::USD: {
-            return std::make_shared<FabricMaterial>(path, _materialDefinition);
+            return std::make_shared<UsdMaterial>(path, _materialDefinition);
         }
         default: {
             assert(false);
