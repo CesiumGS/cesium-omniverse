@@ -35,7 +35,7 @@ class CesiumPerformanceWindow(ui.Window):
 
         self._random_colors_checkbox_model = ui.SimpleBoolModel(False)
         self._forbid_holes_checkbox_model = ui.SimpleBoolModel(False)
-        self._frustum_culling_checkbox_model = ui.SimpleBoolModel(False)
+        self._frustum_culling_checkbox_model = ui.SimpleBoolModel(True)
 
         self._duration_model: SpaceDelimitedNumberModel = SpaceDelimitedNumberModel(0)
 
