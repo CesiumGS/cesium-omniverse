@@ -3,9 +3,9 @@
 #include "cesium/omniverse/OmniGeometry.h"
 #include "cesium/omniverse/OmniGeometryDefinition.h"
 
-#include <carb/flatcache/IPath.h>
 #include <glm/glm.hpp>
 #include <pxr/usd/sdf/path.h>
+#include <pxr/usd/usdGeom/mesh.h>
 
 namespace CesiumGltf {
 struct MeshPrimitive;
@@ -43,7 +43,7 @@ class UsdGeometry final : public OmniGeometry {
     void initialize();
     void reset() override;
 
-    const carb::flatcache::Path _pathFabric;
+    pxr::UsdGeomMesh _mesh;
 };
 
 } // namespace cesium::omniverse

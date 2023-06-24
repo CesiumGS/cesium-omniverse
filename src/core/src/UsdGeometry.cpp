@@ -1,7 +1,5 @@
 #include "cesium/omniverse/UsdGeometry.h"
 
-#include "cesium/omniverse/FabricAttributesBuilder.h"
-#include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/OmniMaterial.h"
 #include "cesium/omniverse/Tokens.h"
@@ -13,9 +11,11 @@
 #endif
 
 #include <CesiumGltf/Model.h>
-#include <carb/flatcache/FlatCacheUSD.h>
 #include <glm/gtc/random.hpp>
 #include <pxr/base/gf/range3d.h>
+#include <pxr/base/gf/rotation.h>
+#include <pxr/base/vt/array.h>
+#include <pxr/usd/usdGeom/xformCommonAPI.h>
 
 namespace cesium::omniverse {
 
@@ -23,35 +23,52 @@ namespace {
 
 const auto DEFAULT_VERTEX_COLOR = pxr::GfVec3f(1.0f, 1.0f, 1.0f);
 const auto DEFAULT_VERTEX_OPACITY = 1.0f;
-const auto DEFAULT_EXTENT = pxr::GfRange3d(pxr::GfVec3d(0.0, 0.0, 0.0), pxr::GfVec3d(0.0, 0.0, 0.0));
+const auto DEFAULT_EXTENT = pxr::VtArray<pxr::GfVec3f>{pxr::GfVec3f(0.0f, 0.0f, 0.0f), pxr::GfVec3f(0.0f, 0.0f, 0.0f)};
 const auto DEFAULT_POSITION = pxr::GfVec3d(0.0, 0.0, 0.0);
-const auto DEFAULT_ORIENTATION = pxr::GfQuatf(1.0f, 0.0, 0.0, 0.0);
+const auto DEFAULT_ORIENTATION = pxr::GfVec3f(0.0f, 0.0f, 0.0f);
 const auto DEFAULT_SCALE = pxr::GfVec3f(1.0f, 1.0f, 1.0f);
 const auto DEFAULT_MATRIX = pxr::GfMatrix4d(1.0);
+
+template <typename T> gsl::span<T> getSpan(pxr::VtArray<T>& array) {
+    return gsl::span<T>(array.data(), array.size());
+}
+
+pxr::VtArray<pxr::GfVec3f> getExtent(const pxr::GfRange3d& range) {
+    const auto& min = range.GetMin();
+    const auto& max = range.GetMax();
+
+    auto extent = pxr::VtArray<pxr::GfVec3f>(2);
+
+    extent[0] = pxr::GfVec3f(static_cast<float>(min[0]), static_cast<float>(min[1]), static_cast<float>(min[2]));
+    extent[1] = pxr::GfVec3f(static_cast<float>(max[0]), static_cast<float>(max[1]), static_cast<float>(max[2]));
+
+    return extent;
+}
+
+pxr::GfVec3f getEulerRotation(const pxr::GfQuatf& quat) {
+    const auto rotation = pxr::GfRotation(quat);
+    const auto euler = rotation.Decompose(pxr::GfVec3d::XAxis(), pxr::GfVec3d::YAxis(), pxr::GfVec3d::ZAxis());
+    return pxr::GfVec3f(static_cast<float>(euler[0]), static_cast<float>(euler[1]), static_cast<float>(euler[2]));
+}
 
 } // namespace
 
 UsdGeometry::UsdGeometry(pxr::SdfPath path, const OmniGeometryDefinition& geometryDefinition, bool debugRandomColors)
-    : OmniGeometry(path, geometryDefinition, debugRandomColors)
-    , _pathFabric(path.GetText()) {
+    : OmniGeometry(path, geometryDefinition, debugRandomColors) {
     initialize();
 }
 
 UsdGeometry::~UsdGeometry() {
-    FabricUtil::destroyPrim(_pathFabric);
+    const auto stage = UsdUtil::getUsdStage();
+    stage->RemovePrim(_path);
 }
 
 void UsdGeometry::setVisibility(bool visible) {
-    auto sip = UsdUtil::getFabricStageInProgress();
-
-    auto worldVisibilityFabric = sip.getAttributeWr<bool>(_pathFabric, FabricTokens::_worldVisibility);
-    *worldVisibilityFabric = visible;
+    _mesh.GetPrim().SetActive(visible);
 }
 
 void UsdGeometry::assignMaterial(std::shared_ptr<OmniMaterial> material) {
-    auto sip = UsdUtil::getFabricStageInProgress();
-    auto materialIdFabric = sip.getAttributeWr<uint64_t>(_pathFabric, FabricTokens::materialId);
-    *materialIdFabric = carb::flatcache::asInt(material->getPath()).path;
+    (void)material;
 }
 
 void UsdGeometry::initialize() {
@@ -61,106 +78,40 @@ void UsdGeometry::initialize() {
     const auto hasVertexColors = _geometryDefinition.hasVertexColors();
     const auto doubleSided = _geometryDefinition.getDoubleSided();
 
-    auto sip = UsdUtil::getFabricStageInProgress();
+    (void)hasMaterial;
 
-    sip.createPrim(_pathFabric);
+    const auto stage = UsdUtil::getUsdStage();
+    auto mesh = pxr::UsdGeomMesh::Define(stage, _path);
+    auto prim = mesh.GetPrim();
 
-    FabricAttributesBuilder attributes;
-    attributes.addAttribute(FabricTypes::faceVertexCounts, FabricTokens::faceVertexCounts);
-    attributes.addAttribute(FabricTypes::faceVertexIndices, FabricTokens::faceVertexIndices);
-    attributes.addAttribute(FabricTypes::points, FabricTokens::points);
-    attributes.addAttribute(FabricTypes::_localExtent, FabricTokens::_localExtent);
-    attributes.addAttribute(FabricTypes::_worldExtent, FabricTokens::_worldExtent);
-    attributes.addAttribute(FabricTypes::_worldVisibility, FabricTokens::_worldVisibility);
-    attributes.addAttribute(FabricTypes::primvars, FabricTokens::primvars);
-    attributes.addAttribute(FabricTypes::primvarInterpolations, FabricTokens::primvarInterpolations);
-    attributes.addAttribute(FabricTypes::primvars_displayColor, FabricTokens::primvars_displayColor);
-    attributes.addAttribute(FabricTypes::primvars_displayOpacity, FabricTokens::primvars_displayOpacity);
-    attributes.addAttribute(FabricTypes::Mesh, FabricTokens::Mesh);
-    attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
-    attributes.addAttribute(FabricTypes::_cesium_tileId, FabricTokens::_cesium_tileId);
-    attributes.addAttribute(FabricTypes::_cesium_localToEcefTransform, FabricTokens::_cesium_localToEcefTransform);
-    attributes.addAttribute(FabricTypes::_worldPosition, FabricTokens::_worldPosition);
-    attributes.addAttribute(FabricTypes::_worldOrientation, FabricTokens::_worldOrientation);
-    attributes.addAttribute(FabricTypes::_worldScale, FabricTokens::_worldScale);
-    attributes.addAttribute(FabricTypes::doubleSided, FabricTokens::doubleSided);
-    attributes.addAttribute(FabricTypes::subdivisionScheme, FabricTokens::subdivisionScheme);
-
-    if (hasMaterial) {
-        attributes.addAttribute(FabricTypes::materialId, FabricTokens::materialId);
-    }
+    mesh.CreateFaceVertexCountsAttr();
+    mesh.CreateFaceVertexIndicesAttr();
+    mesh.CreatePointsAttr();
+    mesh.CreateExtentAttr();
 
     if (hasTexcoords) {
-        attributes.addAttribute(FabricTypes::primvars_st, FabricTokens::primvars_st);
+        mesh.CreatePrimvar(UsdTokens::primvars_st, pxr::SdfValueTypeNames->TexCoord2fArray, pxr::UsdGeomTokens->vertex);
     }
 
     if (hasNormals) {
-        attributes.addAttribute(FabricTypes::primvars_normals, FabricTokens::primvars_normals);
+        mesh.CreateNormalsAttr();
+        mesh.SetNormalsInterpolation(UsdTokens::vertex);
     }
 
     if (hasVertexColors) {
-        attributes.addAttribute(FabricTypes::primvars_vertexColor, FabricTokens::primvars_vertexColor);
+        mesh.CreatePrimvar(
+            UsdTokens::primvars_vertexColor, pxr::SdfValueTypeNames->Color3fArray, pxr::UsdGeomTokens->vertex);
     }
 
-    attributes.createAttributes(_pathFabric);
+    mesh.GetDoubleSidedAttr().Set(doubleSided);
+    mesh.GetSubdivisionSchemeAttr().Set(UsdTokens::none);
 
-    // clang-format off
-    auto doubleSidedFabric = sip.getAttributeWr<bool>(_pathFabric, FabricTokens::doubleSided);
-    auto subdivisionSchemeFabric = sip.getAttributeWr<carb::flatcache::Token>(_pathFabric, FabricTokens::subdivisionScheme);
-    // clang-format on
+    mesh.CreateDisplayColorPrimvar(UsdTokens::constant);
+    mesh.CreateDisplayOpacityPrimvar(UsdTokens::constant);
 
-    *doubleSidedFabric = doubleSided;
-    *subdivisionSchemeFabric = FabricTokens::none;
-
-    // Initialize primvars
-    size_t primvarsCount = 0;
-    size_t primvarIndexSt = 0;
-    size_t primvarIndexNormal = 0;
-    size_t primvarIndexVertexColor = 0;
-
-    const size_t primvarIndexDisplayColor = primvarsCount++;
-    const size_t primvarIndexDisplayOpacity = primvarsCount++;
-
-    if (hasTexcoords) {
-        primvarIndexSt = primvarsCount++;
-    }
-
-    if (hasNormals) {
-        primvarIndexNormal = primvarsCount++;
-    }
-
-    if (hasVertexColors) {
-        primvarIndexVertexColor = primvarsCount++;
-    }
-
-    sip.setArrayAttributeSize(_pathFabric, FabricTokens::primvars, primvarsCount);
-    sip.setArrayAttributeSize(_pathFabric, FabricTokens::primvarInterpolations, primvarsCount);
-
-    // clang-format off
-    auto primvarsFabric = sip.getArrayAttributeWr<carb::flatcache::Token>(_pathFabric, FabricTokens::primvars);
-    auto primvarInterpolationsFabric = sip.getArrayAttributeWr<carb::flatcache::Token>(_pathFabric, FabricTokens::primvarInterpolations);
-    // clang-format on
-
-    primvarsFabric[primvarIndexDisplayColor] = FabricTokens::primvars_displayColor;
-    primvarsFabric[primvarIndexDisplayOpacity] = FabricTokens::primvars_displayOpacity;
-
-    primvarInterpolationsFabric[primvarIndexDisplayColor] = FabricTokens::constant;
-    primvarInterpolationsFabric[primvarIndexDisplayOpacity] = FabricTokens::constant;
-
-    if (hasTexcoords) {
-        primvarsFabric[primvarIndexSt] = FabricTokens::primvars_st;
-        primvarInterpolationsFabric[primvarIndexSt] = FabricTokens::vertex;
-    }
-
-    if (hasNormals) {
-        primvarsFabric[primvarIndexNormal] = FabricTokens::primvars_normals;
-        primvarInterpolationsFabric[primvarIndexNormal] = FabricTokens::vertex;
-    }
-
-    if (hasVertexColors) {
-        primvarsFabric[primvarIndexVertexColor] = FabricTokens::primvars_vertexColor;
-        primvarInterpolationsFabric[primvarIndexVertexColor] = FabricTokens::vertex;
-    }
+    prim.SetMetadata(UsdTokens::_cesium_tilesetId, int64_t(0));
+    prim.SetMetadata(UsdTokens::_cesium_tileId, int64_t(0));
+    prim.SetMetadata(UsdTokens::_cesium_localToEcefTransform, pxr::GfMatrix4d());
 
     reset();
 }
@@ -174,44 +125,35 @@ void UsdGeometry::reset() {
     const auto hasNormals = _geometryDefinition.hasNormals();
     const auto hasVertexColors = _geometryDefinition.hasVertexColors();
 
-    auto sip = UsdUtil::getFabricStageInProgress();
+    const auto stage = UsdUtil::getUsdStage();
+    auto mesh = _mesh;
+    auto prim = mesh.GetPrim();
 
-    // clang-format off
-    auto localExtentFabric = sip.getAttributeWr<pxr::GfRange3d>(_pathFabric, FabricTokens::_localExtent);
-    auto worldExtentFabric = sip.getAttributeWr<pxr::GfRange3d>(_pathFabric, FabricTokens::_worldExtent);
-    auto worldVisibilityFabric = sip.getAttributeWr<bool>(_pathFabric, FabricTokens::_worldVisibility);
-    auto tilesetIdFabric = sip.getAttributeWr<int64_t>(_pathFabric, FabricTokens::_cesium_tilesetId);
-    auto tileIdFabric = sip.getAttributeWr<int64_t>(_pathFabric, FabricTokens::_cesium_tileId);
-    auto localToEcefTransformFabric = sip.getAttributeWr<pxr::GfMatrix4d>(_pathFabric, FabricTokens::_cesium_localToEcefTransform);
-    auto worldPositionFabric = sip.getAttributeWr<pxr::GfVec3d>(_pathFabric, FabricTokens::_worldPosition);
-    auto worldOrientationFabric = sip.getAttributeWr<pxr::GfQuatf>(_pathFabric, FabricTokens::_worldOrientation);
-    auto worldScaleFabric = sip.getAttributeWr<pxr::GfVec3f>(_pathFabric, FabricTokens::_worldScale);
-    // clang-format on
+    mesh.GetExtentAttr().Set(DEFAULT_EXTENT);
+    prim.SetActive(false);
+    prim.SetMetadata(UsdTokens::_cesium_tilesetId, int64_t(-1));
+    prim.SetMetadata(UsdTokens::_cesium_tileId, int64_t(-1));
+    prim.SetMetadata(UsdTokens::_cesium_localToEcefTransform, DEFAULT_MATRIX);
 
-    *localExtentFabric = DEFAULT_EXTENT;
-    *worldExtentFabric = DEFAULT_EXTENT;
-    *worldVisibilityFabric = false;
-    *tilesetIdFabric = -1;
-    *tileIdFabric = -1;
-    *localToEcefTransformFabric = DEFAULT_MATRIX;
-    *worldPositionFabric = DEFAULT_POSITION;
-    *worldOrientationFabric = DEFAULT_ORIENTATION;
-    *worldScaleFabric = DEFAULT_SCALE;
+    auto xformCommonApi = pxr::UsdGeomXformCommonAPI(prim);
+    xformCommonApi.SetTranslate(DEFAULT_POSITION);
+    xformCommonApi.SetRotate(DEFAULT_ORIENTATION);
+    xformCommonApi.SetScale(DEFAULT_SCALE);
 
-    sip.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexCounts, 0);
-    sip.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexIndices, 0);
-    sip.setArrayAttributeSize(_pathFabric, FabricTokens::points, 0);
+    mesh.GetFaceVertexCountsAttr().Set(pxr::VtArray<int>());
+    mesh.GetFaceVertexIndicesAttr().Set(pxr::VtArray<int>());
+    mesh.GetPointsAttr().Set(pxr::VtArray<pxr::GfVec3f>());
 
     if (hasTexcoords) {
-        sip.setArrayAttributeSize(_pathFabric, FabricTokens::primvars_st, 0);
+        mesh.GetPrimvar(UsdTokens::primvars_st).Set(pxr::VtArray<pxr::GfVec2f>());
     }
 
     if (hasNormals) {
-        sip.setArrayAttributeSize(_pathFabric, FabricTokens::primvars_normals, 0);
+        mesh.GetNormalsAttr().Set(pxr::VtArray<pxr::GfVec3f>());
     }
 
     if (hasVertexColors) {
-        sip.setArrayAttributeSize(_pathFabric, FabricTokens::primvars_vertexColor, 0);
+        mesh.GetPrimvar(UsdTokens::primvars_vertexColor).Set(pxr::VtArray<pxr::GfVec3f>());
     }
 }
 
@@ -233,7 +175,8 @@ void UsdGeometry::setTile(
     const auto hasNormals = _geometryDefinition.hasNormals();
     const auto hasVertexColors = _geometryDefinition.hasVertexColors();
 
-    auto sip = UsdUtil::getFabricStageInProgress();
+    auto mesh = _mesh;
+    auto prim = mesh.GetPrim();
 
     const auto positions = GltfUtil::getPositions(model, primitive);
     const auto indices = GltfUtil::getIndices(model, primitive, positions);
@@ -256,79 +199,74 @@ void UsdGeometry::setTile(
     const auto localToEcefTransform = gltfToEcefTransform * nodeTransform;
     const auto localToUsdTransform = ecefToUsdTransform * localToEcefTransform;
     const auto [worldPosition, worldOrientation, worldScale] = UsdUtil::glmToUsdMatrixDecomposed(localToUsdTransform);
-    const auto worldExtent = UsdUtil::computeWorldExtent(localExtent.value(), localToUsdTransform);
 
-    sip.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexCounts, faceVertexCounts.size());
-    sip.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexIndices, indices.size());
-    sip.setArrayAttributeSize(_pathFabric, FabricTokens::points, positions.size());
-    sip.setArrayAttributeSize(_pathFabric, FabricTokens::primvars_displayColor, 1);
-    sip.setArrayAttributeSize(_pathFabric, FabricTokens::primvars_displayOpacity, 1);
+    auto faceVertexCountsUsd = pxr::VtArray<int>(faceVertexCounts.size());
+    auto faceVertexCountsSpan = getSpan(faceVertexCountsUsd);
+    faceVertexCounts.fill(faceVertexCountsSpan);
 
-    // clang-format off
-    auto faceVertexCountsFabric = sip.getArrayAttributeWr<int>(_pathFabric, FabricTokens::faceVertexCounts);
-    auto faceVertexIndicesFabric = sip.getArrayAttributeWr<int>(_pathFabric, FabricTokens::faceVertexIndices);
-    auto pointsFabric = sip.getArrayAttributeWr<pxr::GfVec3f>(_pathFabric, FabricTokens::points);
-    auto localExtentFabric = sip.getAttributeWr<pxr::GfRange3d>(_pathFabric, FabricTokens::_localExtent);
-    auto worldExtentFabric = sip.getAttributeWr<pxr::GfRange3d>(_pathFabric, FabricTokens::_worldExtent);
-    auto tilesetIdFabric = sip.getAttributeWr<int64_t>(_pathFabric, FabricTokens::_cesium_tilesetId);
-    auto tileIdFabric = sip.getAttributeWr<int64_t>(_pathFabric, FabricTokens::_cesium_tileId);
-    auto localToEcefTransformFabric = sip.getAttributeWr<pxr::GfMatrix4d>(_pathFabric, FabricTokens::_cesium_localToEcefTransform);
-    auto worldPositionFabric = sip.getAttributeWr<pxr::GfVec3d>(_pathFabric, FabricTokens::_worldPosition);
-    auto worldOrientationFabric = sip.getAttributeWr<pxr::GfQuatf>(_pathFabric, FabricTokens::_worldOrientation);
-    auto worldScaleFabric = sip.getAttributeWr<pxr::GfVec3f>(_pathFabric, FabricTokens::_worldScale);
-    auto displayColorFabric = sip.getArrayAttributeWr<pxr::GfVec3f>(_pathFabric, FabricTokens::primvars_displayColor);
-    auto displayOpacityFabric = sip.getArrayAttributeWr<float>(_pathFabric, FabricTokens::primvars_displayOpacity);
-    // clang-format on
+    auto indicesUsd = pxr::VtArray<int>(indices.size());
+    auto indicesSpan = getSpan(indicesUsd);
+    indices.fill(indicesSpan);
 
-    faceVertexCounts.fill(faceVertexCountsFabric);
-    indices.fill(faceVertexIndicesFabric);
-    positions.fill(pointsFabric);
+    auto positionsUsd = pxr::VtArray<pxr::GfVec3f>(positions.size());
+    auto positionsSpan = getSpan(positionsUsd);
+    positions.fill(positionsSpan);
 
-    *localExtentFabric = localExtent.value();
-    *worldExtentFabric = worldExtent;
-    *tilesetIdFabric = tilesetId;
-    *tileIdFabric = tileId;
-    *localToEcefTransformFabric = UsdUtil::glmToUsdMatrix(localToEcefTransform);
-    *worldPositionFabric = worldPosition;
-    *worldOrientationFabric = worldOrientation;
-    *worldScaleFabric = worldScale;
+    mesh.GetFaceVertexCountsAttr().Set(pxr::VtValue::Take(faceVertexCountsUsd));
+    mesh.GetFaceVertexIndicesAttr().Set(pxr::VtValue::Take(indicesUsd));
+    mesh.GetPointsAttr().Set(pxr::VtValue::Take(positionsUsd));
+
+    mesh.GetExtentAttr().Set(getExtent(localExtent.value()));
+
+    prim.SetMetadata(UsdTokens::_cesium_tilesetId, tilesetId);
+    prim.SetMetadata(UsdTokens::_cesium_tileId, tileId);
+    prim.SetMetadata(UsdTokens::_cesium_localToEcefTransform, UsdUtil::glmToUsdMatrix(localToEcefTransform));
+
+    auto xformCommonApi = pxr::UsdGeomXformCommonAPI(prim);
+    xformCommonApi.SetTranslate(worldPosition);
+    xformCommonApi.SetRotate(getEulerRotation(worldOrientation));
+    xformCommonApi.SetScale(worldScale);
 
     if (_debugRandomColors) {
         const auto r = glm::linearRand(0.0f, 1.0f);
         const auto g = glm::linearRand(0.0f, 1.0f);
         const auto b = glm::linearRand(0.0f, 1.0f);
-        displayColorFabric[0] = pxr::GfVec3f(r, g, b);
+
+        pxr::VtArray<pxr::GfVec3f> displayColor(1);
+        displayColor[0] = pxr::GfVec3f(r, g, b);
+        mesh.GetDisplayColorPrimvar().Set(displayColor);
     } else {
-        displayColorFabric[0] = DEFAULT_VERTEX_COLOR;
+        pxr::VtArray<pxr::GfVec3f> displayColor(1);
+        displayColor[0] = DEFAULT_VERTEX_COLOR;
+        mesh.GetDisplayColorPrimvar().Set(displayColor);
     }
 
-    displayOpacityFabric[0] = DEFAULT_VERTEX_OPACITY;
+    mesh.GetDisplayOpacityPrimvar().Set(DEFAULT_VERTEX_OPACITY);
 
     if (hasTexcoords) {
         const auto& texcoords = hasImagery ? imageryTexcoords : texcoords_0;
 
-        sip.setArrayAttributeSize(_pathFabric, FabricTokens::primvars_st, texcoords.size());
+        auto texcoordsUsd = pxr::VtArray<pxr::GfVec2f>(texcoords.size());
+        auto texcoordsSpan = getSpan(texcoordsUsd);
+        texcoords.fill(texcoordsSpan);
 
-        auto stFabric = sip.getArrayAttributeWr<pxr::GfVec2f>(_pathFabric, FabricTokens::primvars_st);
-
-        texcoords.fill(stFabric);
+        mesh.GetPrimvar(UsdTokens::primvars_st).Set(pxr::VtValue::Take(texcoordsUsd));
     }
 
     if (hasNormals) {
-        sip.setArrayAttributeSize(_pathFabric, FabricTokens::primvars_normals, normals.size());
+        auto normalsUsd = pxr::VtArray<pxr::GfVec3f>(normals.size());
+        auto normalsSpan = getSpan(normalsUsd);
+        normals.fill(normalsSpan);
 
-        auto normalsFabric = sip.getArrayAttributeWr<pxr::GfVec3f>(_pathFabric, FabricTokens::primvars_normals);
-
-        normals.fill(normalsFabric);
+        mesh.GetNormalsAttr().Set(pxr::VtValue::Take(normalsUsd));
     }
 
     if (hasVertexColors) {
-        sip.setArrayAttributeSize(_pathFabric, FabricTokens::primvars_vertexColor, vertexColors.size());
+        auto vertexColorsUsd = pxr::VtArray<pxr::GfVec3f>(vertexColors.size());
+        auto vertexColorSpan = getSpan(vertexColorsUsd);
+        vertexColors.fill(vertexColorSpan);
 
-        auto vertexColorsFabric =
-            sip.getArrayAttributeWr<pxr::GfVec3f>(_pathFabric, FabricTokens::primvars_vertexColor);
-
-        vertexColors.fill(vertexColorsFabric);
+        mesh.GetPrimvar(UsdTokens::primvars_vertexColor).Set(pxr::VtValue::Take(vertexColorsUsd));
     }
 }
 
