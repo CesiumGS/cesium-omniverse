@@ -16,7 +16,7 @@ TF_REGISTRY_FUNCTION(TfScriptModuleLoader) {
         TfToken("vt")
     };
     TfScriptModuleLoader::GetInstance().
-        RegisterLibrary(TfToken("cesiumUsdSchemas"), TfToken("cesium.usd.plugins.CesiumUsdSchemas"), reqs);
+        RegisterLibrary(TfToken("CesiumUsdSchemas"), TfToken("cesium.usd.plugins.CesiumUsdSchemas"), reqs);
 }
 
 PXR_NAMESPACE_CLOSE_SCOPE

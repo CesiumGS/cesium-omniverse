@@ -66,7 +66,7 @@ setup_lib(
         ${CESIUM_OMNI_CXX_FLAGS_DEBUG}
     CXX_DEFINES
         ${CESIUM_OMNI_CXX_DEFINES}
-        CESIUM_EXPORTS
+        CESIUMUSDSCHEMAS_EXPORTS
     CXX_DEFINES_DEBUG
         ${CESIUM_OMNI_CXX_DEFINES_DEBUG}
 )
@@ -78,7 +78,9 @@ setup_usd_python_lib(
         # Use the same Python version as Omniverse (Python 3.7)
         "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/python"
     TARGET_NAME
-        cesiumUsdSchemas
+        _CesiumUsdSchemas
+    PACKAGE_NAME
+        CesiumUsdSchemas
     PYTHON_MODULE_NAME
         CesiumUsdSchemas
     TYPE
