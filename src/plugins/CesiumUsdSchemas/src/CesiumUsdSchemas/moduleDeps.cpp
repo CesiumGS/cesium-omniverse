@@ -13,7 +13,8 @@ TF_REGISTRY_FUNCTION(TfScriptModuleLoader) {
         TfToken("sdf"),
         TfToken("tf"),
         TfToken("usd"),
-        TfToken("vt")
+        TfToken("vt"),
+        TfToken("usdGeom"),
     };
     TfScriptModuleLoader::GetInstance().
         RegisterLibrary(TfToken("cesiumUsdSchemas"), TfToken("cesium.usd.plugins.CesiumUsdSchemas"), reqs);
