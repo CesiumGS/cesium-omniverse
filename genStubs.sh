@@ -8,19 +8,18 @@
 # code we're stubbing, so those imports need to be valid
 
 PROJECT_ROOT=`dirname -- "$( readlink -f -- "$0"; )"`
-NVIDIA_USD_BINS="$PROJECT_ROOT/extern/nvidia/_build/target-deps/usd/release/bin"
-NVIDIA_PYTHON_BINS="$PROJECT_ROOT/extern/nvidia/_build/target-deps/python/bin"
-NVIDIA_PYTHON_EXECUTABLE="$NVIDIA_PYTHON_BINS/python3"
-NVIDIA_PYTHON_LIBS="$PROJECT_ROOT/extern/nvidia/_build/target-deps/python/lib"
-NVIDIA_USD_PYTHON_LIBS="$PROJECT_ROOT/extern/nvidia/_build/target-deps/usd/release/lib/python"
-NVIDIA_USDRT_LIBS="$PROJECT_ROOT/extern/nvidia/_build/target-deps/usdrt/_build/linux-x86_64/release/usdrt_only"
+
+NVIDIA_USD_ROOT=$PROJECT_ROOT/extern/nvidia/_build/target-deps/usd/release
+NVIDIA_USD_PYTHON_LIBS=$NVIDIA_USD_ROOT/lib/python
+
+NVIDIA_PYTHON_ROOT=$PROJECT_ROOT/extern/nvidia/_build/target-deps/python
+NVIDIA_PYTHON_EXECUTABLE=$NVIDIA_PYTHON_ROOT/python
 
 FLAT_LIBRARIES_DIR="/tmp/CesiumOmniverseFlatLibs"
 CESIUM_OMNI_STUB_PATH="$PROJECT_ROOT/exts/cesium.omniverse/cesium/omniverse/bindings/CesiumOmniversePythonBindings.pyi"
 CESIUM_USD_STUB_PATH="$PROJECT_ROOT/exts/cesium.usd.plugins/cesium/usd/plugins/CesiumUsdSchemas/__init__.pyi"
 
 export PYTHONPATH="$NVIDIA_USD_PYTHON_LIBS:$PYTHONPATH"
-export PATH="$NVIDIA_USD_BINS:$NVIDIA_PYTHON_LIBS:$NVIDIA_PYTHON_BINS:$NVIDIA_USD_PYTHON_LIBS:$NVIDIA_USDRT_LIBS:$PATH"
 
 echo "Ensuring mypy is installed"
 $NVIDIA_PYTHON_EXECUTABLE -m pip install mypy
