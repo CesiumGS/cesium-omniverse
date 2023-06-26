@@ -157,7 +157,7 @@ _Repr(const CesiumTileset &self)
 {
     std::string primRepr = TfPyRepr(self.GetPrim());
     return TfStringPrintf(
-        "Cesium.Tileset(%s)",
+        "CesiumUsdSchemas.Tileset(%s)",
         primRepr.c_str());
 }
 

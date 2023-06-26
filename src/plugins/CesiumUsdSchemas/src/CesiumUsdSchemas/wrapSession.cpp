@@ -38,7 +38,7 @@ _Repr(const CesiumSession &self)
 {
     std::string primRepr = TfPyRepr(self.GetPrim());
     return TfStringPrintf(
-        "Cesium.Session(%s)",
+        "CesiumUsdSchemas.Session(%s)",
         primRepr.c_str());
 }
 
