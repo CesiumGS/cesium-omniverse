@@ -132,22 +132,22 @@ void setFabricMeshes(
     const std::vector<std::shared_ptr<FabricMesh>>& fabricMeshes) {
     CESIUM_TRACE("FabricPrepareRenderResources::setFabricMeshes");
     for (size_t i = 0; i < meshes.size(); i++) {
-        const auto& mesh = meshes[i];
+            const IntermediaryMesh& intermediaryMesh = meshes[i];
         const auto& fabricMesh = fabricMeshes[i];
-        const auto& primitive = model.meshes[mesh.meshId].primitives[mesh.primitiveId];
+        const auto& primitive = model.meshes[intermediaryMesh.meshId].primitives[intermediaryMesh.primitiveId];
         fabricMesh->setTile(
-            mesh.tilesetId,
-            mesh.tileId,
-            mesh.ecefToUsdTransform,
-            mesh.gltfToEcefTransform,
-            mesh.nodeTransform,
+            intermediaryMesh.tilesetId,
+            intermediaryMesh.tileId,
+            intermediaryMesh.ecefToUsdTransform,
+            intermediaryMesh.gltfToEcefTransform,
+            intermediaryMesh.nodeTransform,
             model,
             primitive,
-            mesh.smoothNormals,
-            mesh.imagery,
-            mesh.imageryTexcoordTranslation,
-            mesh.imageryTexcoordScale,
-            mesh.imageryTexcoordSetIndex);
+            intermediaryMesh.smoothNormals,
+            intermediaryMesh.imagery,
+            intermediaryMesh.imageryTexcoordTranslation,
+            intermediaryMesh.imageryTexcoordScale,
+            intermediaryMesh.imageryTexcoordSetIndex);
     }
 }
 

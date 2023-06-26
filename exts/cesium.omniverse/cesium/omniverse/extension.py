@@ -416,3 +416,6 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         for credits_viewport_frame in self._credits_viewport_frames:
             credits_viewport_frame.destroy()
         self._credits_viewport_frames.clear()
+
+    def get_cesium_omniverse_interface(self):
+        return _cesium_omniverse_interface

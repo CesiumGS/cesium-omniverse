@@ -3,6 +3,7 @@ import omni.ui as ui
 from typing import Callable, Optional, List
 from cesium.omniverse.ui import CesiumOmniverseDebugWindow
 from .georefhelper.georef_helper_window import CesiumGeorefHelperWindow
+from .proceduralGeometries.procedural_geometries_window import ProceduralGeometryWindow
 
 
 class PowertoolsAction:
@@ -37,6 +38,7 @@ class CesiumPowertoolsWindow(ui.Window):
         self._actions: List[PowertoolsAction] = [
             PowertoolsAction("Open Cesium Debugging Window", CesiumOmniverseDebugWindow.show_window),
             PowertoolsAction("Open Cesium Georeference Helper Window", CesiumGeorefHelperWindow.create_window),
+            PowertoolsAction("Open Procedural Geometry Window", ProceduralGeometryWindow.create_window)
         ]
 
         self.frame.set_build_fn(self._build_fn)

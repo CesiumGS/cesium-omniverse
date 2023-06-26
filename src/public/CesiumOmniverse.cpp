@@ -190,6 +190,10 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         return false;
 #endif
     }
+
+    int generateProceduralGeometry() noexcept override {
+        return 42;
+    }
 };
 } // namespace cesium::omniverse
 
