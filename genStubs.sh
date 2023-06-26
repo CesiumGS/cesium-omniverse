@@ -26,7 +26,7 @@ $NVIDIA_PYTHON_EXECUTABLE -m pip install mypy
 
 echo "Building lib files flat in temp dir"
 cmake -B build
-cmake --build build
+cmake --build build --parallel 8
 cmake --install build --component library --prefix $FLAT_LIBRARIES_DIR
 
 # To find the imports mypy has to be run from the same dir as the object files
