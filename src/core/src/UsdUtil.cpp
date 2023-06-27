@@ -56,6 +56,13 @@ carb::flatcache::StageInProgress getFabricStageInProgress() {
     return Context::instance().getFabricStageInProgress();
 }
 
+carb::flatcache::StageInProgressId getFabricStageInProgressId() {
+    const auto iStageInProgress = carb::getCachedInterface<carb::flatcache::IStageInProgress>();
+    const auto stageId = Context::instance().getStageId();
+    const auto stageInProgressId = iStageInProgress->get(carb::flatcache::UsdStageId{static_cast<uint64_t>(stageId)});
+    return stageInProgressId;
+}
+
 bool hasStage() {
     return Context::instance().getStageId() != 0;
 }

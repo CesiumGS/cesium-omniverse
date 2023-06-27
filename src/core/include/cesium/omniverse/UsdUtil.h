@@ -59,6 +59,8 @@ static const auto GEOREFERENCE_PATH = pxr::SdfPath("/CesiumGeoreference");
 
 pxr::UsdStageRefPtr getUsdStage();
 carb::flatcache::StageInProgress getFabricStageInProgress();
+carb::flatcache::StageInProgressId getFabricStageInProgressId();
+
 bool hasStage();
 glm::dvec3 usdToGlmVector(const pxr::GfVec3d& vector);
 glm::dmat4 usdToGlmMatrix(const pxr::GfMatrix4d& matrix);
