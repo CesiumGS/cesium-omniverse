@@ -37,8 +37,20 @@ find_package(
     COMPONENTS Interpreter
     REQUIRED)
 
-# For various reasons we need to link to release libraries
-set(USE_NVIDIA_RELEASE_LIBRARIES TRUE)
+# Options:
+option(CESIUM_OMNI_ENABLE_TESTS "Unit tests" ON)
+option(CESIUM_OMNI_ENABLE_DOCUMENTATION "Generate HTML documentation with Doxygen" ON)
+option(CESIUM_OMNI_ENABLE_SANITIZERS "Check for undefined behavior at runtime" OFF)
+option(CESIUM_OMNI_ENABLE_LINTERS "Enable clang-format for code formatting and clang-tidy for static code analysis" ON)
+option(CESIUM_OMNI_ENABLE_TRACING "Whether to enable the Cesium performance tracing framework (CESIUM_TRACE_* macros)." OFF)
+option(CESIUM_OMNI_USE_NVIDIA_DEBUG_LIBRARIES "Whether to build using NVIDIA debug libraries." OFF)
+
+if(CESIUM_OMNI_USE_NVIDIA_DEBUG_LIBRARIES)
+    set(USE_NVIDIA_RELEASE_LIBRARIES FALSE)
+else()
+    set(USE_NVIDIA_RELEASE_LIBRARIES TRUE)
+endif()
+
 
 if(MSVC)
     if(${USE_NVIDIA_RELEASE_LIBRARIES})
@@ -73,13 +85,6 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 # Built-in CMake include for using `cmake_dependent_option`
 include(CMakeDependentOption)
-
-# Options:
-option(CESIUM_OMNI_ENABLE_TESTS "Unit tests" ON)
-option(CESIUM_OMNI_ENABLE_DOCUMENTATION "Generate HTML documentation with Doxygen" ON)
-option(CESIUM_OMNI_ENABLE_SANITIZERS "Check for undefined behavior at runtime" OFF)
-option(CESIUM_OMNI_ENABLE_LINTERS "Enable clang-format for code formatting and clang-tidy for static code analysis" ON)
-option(CESIUM_OMNI_ENABLE_TRACING "Whether to enable the Cesium performance tracing framework (CESIUM_TRACE_* macros)." OFF)
 
 # Coverage can only be enabled if tests are also enabled
 cmake_dependent_option(

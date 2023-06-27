@@ -15,6 +15,19 @@
       "internalConsoleOptions": "openOnSessionStart"
     },
     {
+      "name": "Development App (Kit Debug)",
+      "preLaunchTask": "Build Only (debug)",
+      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk-debug/kit.exe",
+      "args": [
+        "${workspaceFolder}/apps/cesium.omniverse.dev.kit"
+      ],
+      "cwd": "${workspaceFolder}",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "console": "internalConsole",
+      "internalConsoleOptions": "openOnSessionStart"
+    },
+    {
       "name": "Performance Tracing",
       "preLaunchTask": "Build Only (release)",
       "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit.exe",
