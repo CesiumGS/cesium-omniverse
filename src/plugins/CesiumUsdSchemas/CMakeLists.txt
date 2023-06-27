@@ -103,7 +103,7 @@ setup_usd_python_lib(
 add_custom_command(
     TARGET CesiumUsdSchemas
     POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.plugInfo.json.build"
+    COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_BINARY_DIR}/CesiumUsdSchemas.plugInfo.json.build"
             "$<TARGET_FILE_DIR:CesiumUsdSchemas>/plugins/CesiumUsdSchemas/resources/plugInfo.json"
-    COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.generatedSchema.usda.build"
+    COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_BINARY_DIR}/CesiumUsdSchemas.generatedSchema.usda.build"
             "$<TARGET_FILE_DIR:CesiumUsdSchemas>/plugins/CesiumUsdSchemas/resources/generatedSchema.usda")

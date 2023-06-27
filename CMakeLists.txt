@@ -475,21 +475,21 @@ set(PLUG_INFO_LIBRARY_PATH_KIT "../../bin/${PLUG_INFO_LIBRARY_FILE_NAME}")
 
 set(PLUG_INFO_LIBRARY_PATH ${PLUG_INFO_LIBRARY_PATH_BUILD})
 configure_file("${PROJECT_SOURCE_DIR}/src/plugins/CesiumUsdSchemas/plugInfo.json.in"
-               "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.plugInfo.json.build")
+               "${PROJECT_BINARY_DIR}/CesiumUsdSchemas.plugInfo.json.build")
 set(PLUG_INFO_LIBRARY_PATH ${PLUG_INFO_LIBRARY_PATH_INSTALL})
 configure_file("${PROJECT_SOURCE_DIR}/src/plugins/CesiumUsdSchemas/plugInfo.json.in"
-               "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.plugInfo.json.install")
+               "${PROJECT_BINARY_DIR}/CesiumUsdSchemas.plugInfo.json.install")
 set(PLUG_INFO_LIBRARY_PATH ${PLUG_INFO_LIBRARY_PATH_KIT})
 configure_file("${PROJECT_SOURCE_DIR}/src/plugins/CesiumUsdSchemas/plugInfo.json.in"
-               "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.plugInfo.json.kit")
+               "${PROJECT_BINARY_DIR}/CesiumUsdSchemas.plugInfo.json.kit")
 
 # Configure generatedSchema.usda for CesiumUsdSchemas
 configure_file("${PROJECT_SOURCE_DIR}/src/plugins/CesiumUsdSchemas/generatedSchema.usda.in"
-               "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.generatedSchema.usda.build")
+               "${PROJECT_BINARY_DIR}/CesiumUsdSchemas.generatedSchema.usda.build")
 configure_file("${PROJECT_SOURCE_DIR}/src/plugins/CesiumUsdSchemas/generatedSchema.usda.in"
-               "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.generatedSchema.usda.install")
+               "${PROJECT_BINARY_DIR}/CesiumUsdSchemas.generatedSchema.usda.install")
 configure_file("${PROJECT_SOURCE_DIR}/src/plugins/CesiumUsdSchemas/generatedSchema.usda.in"
-               "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.generatedSchema.usda.kit")
+               "${PROJECT_BINARY_DIR}/CesiumUsdSchemas.generatedSchema.usda.kit")
 
 set(KIT_EXTENSION_BIN_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse/bin")
 set(KIT_EXTENSION_CERTS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse/certs/cacert.pem")
@@ -630,26 +630,26 @@ install(
     EXCLUDE_FROM_ALL)
 
 install(
-    FILES "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.plugInfo.json.kit"
+    FILES "${PROJECT_BINARY_DIR}/CesiumUsdSchemas.plugInfo.json.kit"
     DESTINATION "${KIT_EXTENSION_PLUGINS_PATH}/CesiumUsdSchemas/resources/"
     RENAME "plugInfo.json"
     COMPONENT install)
 
 install(
-    FILES "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.plugInfo.json.install"
+    FILES "${PROJECT_BINARY_DIR}/CesiumUsdSchemas.plugInfo.json.install"
     DESTINATION "plugins/CesiumUsdSchemas/resources/"
     RENAME "plugInfo.json"
     COMPONENT library
     EXCLUDE_FROM_ALL)
 
 install(
-    FILES "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.generatedSchema.usda.kit"
+    FILES "${PROJECT_BINARY_DIR}/CesiumUsdSchemas.generatedSchema.usda.kit"
     DESTINATION "${KIT_EXTENSION_PLUGINS_PATH}/CesiumUsdSchemas/resources/"
     RENAME "generatedSchema.usda"
     COMPONENT install)
 
 install(
-    FILES "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.generatedSchema.usda.install"
+    FILES "${PROJECT_BINARY_DIR}/CesiumUsdSchemas.generatedSchema.usda.install"
     DESTINATION "plugins/CesiumUsdSchemas/resources/"
     RENAME "generatedSchema.usda"
     COMPONENT library
