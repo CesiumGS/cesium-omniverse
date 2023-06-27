@@ -463,10 +463,6 @@ endforeach()
 # Hide CONAN_CMD_PATH from CMake GUI
 mark_as_advanced(CONAN_CMD_PATH)
 
-set(PLUG_INFO_LIBRARY_PATH_BUILD "../../${PLUG_INFO_LIBRARY_FILE_NAME}")
-set(PLUG_INFO_LIBRARY_PATH_INSTALL "../../lib/${PLUG_INFO_LIBRARY_FILE_NAME}")
-set(PLUG_INFO_LIBRARY_PATH_KIT "../../bin/${PLUG_INFO_LIBRARY_FILE_NAME}")
-
 # Configure plugInfo.json for CesiumUsdSchemas
 set(PLUG_INFO_RESOURCE_PATH "resources")
 set(PLUG_INFO_ROOT "..")
@@ -603,13 +599,13 @@ install(
             EXCLUDE_FROM_ALL)
 
 install(
-    TARGETS _cesiumUsdSchemas
+    TARGETS _CesiumUsdSchemas
     ARCHIVE DESTINATION "${KIT_PLUGIN_EXTENSION_BINDINGS_PATH}/CesiumUsdSchemas" COMPONENT install
     LIBRARY DESTINATION "${KIT_PLUGIN_EXTENSION_BINDINGS_PATH}/CesiumUsdSchemas" COMPONENT install
     RUNTIME DESTINATION "${KIT_PLUGIN_EXTENSION_BINDINGS_PATH}/CesiumUsdSchemas" COMPONENT install)
 
 install(
-    TARGETS _cesiumUsdSchemas
+    TARGETS _CesiumUsdSchemas
             RUNTIME_DEPENDENCIES
             DIRECTORIES
             ${INSTALL_SEARCH_PATHS}

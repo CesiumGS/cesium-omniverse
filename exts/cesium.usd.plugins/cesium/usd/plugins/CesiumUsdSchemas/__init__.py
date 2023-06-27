@@ -1,7 +1,7 @@
-from . import _cesiumUsdSchemas
+from . import _CesiumUsdSchemas
 from pxr import Tf
 
-Tf.PrepareModule(_cesiumUsdSchemas, locals())
+Tf.PrepareModule(_CesiumUsdSchemas, locals())
 del Tf
 
 try:

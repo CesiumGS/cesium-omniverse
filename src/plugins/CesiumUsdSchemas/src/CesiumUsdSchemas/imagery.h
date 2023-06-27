@@ -1,7 +1,7 @@
-#ifndef CESIUM_GENERATED_IMAGERY_H
-#define CESIUM_GENERATED_IMAGERY_H
+#ifndef CESIUMUSDSCHEMAS_GENERATED_IMAGERY_H
+#define CESIUMUSDSCHEMAS_GENERATED_IMAGERY_H
 
-/// \file cesium/imagery.h
+/// \file CesiumUsdSchemas/imagery.h
 
 #include "pxr/pxr.h"
 #include ".//api.h"
@@ -57,13 +57,13 @@ public:
     }
 
     /// Destructor.
-    CESIUM_API
+    CESIUMUSDSCHEMAS_API
     virtual ~CesiumImagery();
 
     /// Return a vector of names of all pre-declared attributes for this schema
     /// class and all its ancestor classes.  Does not include attributes that
     /// may be authored by custom/extended methods of the schemas involved.
-    CESIUM_API
+    CESIUMUSDSCHEMAS_API
     static const TfTokenVector &
     GetSchemaAttributeNames(bool includeInherited=true);
 
@@ -76,7 +76,7 @@ public:
     /// CesiumImagery(stage->GetPrimAtPath(path));
     /// \endcode
     ///
-    CESIUM_API
+    CESIUMUSDSCHEMAS_API
     static CesiumImagery
     Get(const UsdStagePtr &stage, const SdfPath &path);
 
@@ -102,7 +102,7 @@ public:
     /// specify this schema class, in case a stronger typeName opinion overrides
     /// the opinion at the current EditTarget.
     ///
-    CESIUM_API
+    CESIUMUSDSCHEMAS_API
     static CesiumImagery
     Define(const UsdStagePtr &stage, const SdfPath &path);
 
@@ -110,19 +110,19 @@ protected:
     /// Returns the type of schema this class belongs to.
     ///
     /// \sa UsdSchemaType
-    CESIUM_API
+    CESIUMUSDSCHEMAS_API
     UsdSchemaType _GetSchemaType() const override;
 
 private:
     // needs to invoke _GetStaticTfType.
     friend class UsdSchemaRegistry;
-    CESIUM_API
+    CESIUMUSDSCHEMAS_API
     static const TfType &_GetStaticTfType();
 
     static bool _IsTypedSchema();
 
     // override SchemaBase virtuals.
-    CESIUM_API
+    CESIUMUSDSCHEMAS_API
     const TfType &_GetTfType() const override;
 
 public:
@@ -136,7 +136,7 @@ public:
     /// | Declaration | `int64 cesium:ionAssetId = 0` |
     /// | C++ Type | int64_t |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Int64 |
-    CESIUM_API
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetIonAssetIdAttr() const;
 
     /// See GetIonAssetIdAttr(), and also 
@@ -144,7 +144,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    CESIUM_API
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreateIonAssetIdAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -158,7 +158,7 @@ public:
     /// | Declaration | `string cesium:ionAccessToken = ""` |
     /// | C++ Type | std::string |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
-    CESIUM_API
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetIonAccessTokenAttr() const;
 
     /// See GetIonAccessTokenAttr(), and also 
@@ -166,7 +166,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    CESIUM_API
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreateIonAccessTokenAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -180,7 +180,7 @@ public:
     /// | Declaration | `bool cesium:showCreditsOnScreen = 0` |
     /// | C++ Type | bool |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
-    CESIUM_API
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetShowCreditsOnScreenAttr() const;
 
     /// See GetShowCreditsOnScreenAttr(), and also 
@@ -188,7 +188,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
-    CESIUM_API
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreateShowCreditsOnScreenAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:

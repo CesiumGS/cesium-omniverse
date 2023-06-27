@@ -152,48 +152,46 @@ function(setup_usd_python_lib)
     cmake_parse_arguments(
         ""
         ""
-        "TARGET_NAME;PYTHON_DIR;PYTHON_MODULE_NAME"
+        "TARGET_NAME;PYTHON_DIR;PYTHON_MODULE_NAME;PACKAGE_NAME"
         "SOURCES;LIBRARIES;DEPENDENCIES;CXX_FLAGS;CXX_FLAGS_DEBUG;CXX_DEFINES;CXX_DEFINES_DEBUG"
         ${ARGN})
 
-    set(_PREFIXED_TARGET_NAME "_${_TARGET_NAME}")
-
-    add_library(${_PREFIXED_TARGET_NAME} SHARED)
+    add_library(${_TARGET_NAME} SHARED)
 
     if(_DEPENDENCIES)
-        add_dependencies(${_PREFIXED_TARGET_NAME} ${_DEPENDENCIES})
+        add_dependencies(${_TARGET_NAME} ${_DEPENDENCIES})
     endif()
 
-    add_dependencies(${_PREFIXED_TARGET_NAME} ${_LIBRARIES})
+    add_dependencies(${_TARGET_NAME} ${_LIBRARIES})
 
-    target_sources(${_PREFIXED_TARGET_NAME} PRIVATE ${_SOURCES})
+    target_sources(${_TARGET_NAME} PRIVATE ${_SOURCES})
 
-    target_compile_options(${_PREFIXED_TARGET_NAME} PRIVATE ${_CXX_FLAGS} "$<$<CONFIG:DEBUG>:${_CXX_FLAGS_DEBUG}>")
+    target_compile_options(${_TARGET_NAME} PRIVATE ${_CXX_FLAGS} "$<$<CONFIG:DEBUG>:${_CXX_FLAGS_DEBUG}>")
 
-    target_compile_definitions(${_PREFIXED_TARGET_NAME} PRIVATE ${_CXX_DEFINES}
+    target_compile_definitions(${_TARGET_NAME} PRIVATE ${_CXX_DEFINES}
                                                                 "$<$<CONFIG:DEBUG>:${_CXX_DEFINES_DEBUG}>")
 
     # cmake-format: off
-    target_compile_definitions(${_PREFIXED_TARGET_NAME}
+    target_compile_definitions(${_TARGET_NAME}
         PRIVATE
-        MFB_PACKAGE_NAME=${_TARGET_NAME}
-        MFB_ALT_PACKAGE_NAME=${_TARGET_NAME}
-        MFB_PACKAGE_MODULE=${_TARGET_NAME}.${_PYTHON_MODULE_NAME})
+        MFB_PACKAGE_NAME=${_PACKAGE_NAME}
+        MFB_ALT_PACKAGE_NAME=${_PACKAGE_NAME}
+        MFB_PACKAGE_MODULE=${_PYTHON_MODULE_NAME})
     # cmake-format: on
 
-    target_link_libraries(${_PREFIXED_TARGET_NAME} PRIVATE ${_LIBRARIES})
+    target_link_libraries(${_TARGET_NAME} PRIVATE ${_LIBRARIES})
 
     if(CESIUM_OMNI_ENABLE_COVERAGE AND NOT WIN32)
-        target_link_libraries(${_PREFIXED_TARGET_NAME} PRIVATE gcov)
+        target_link_libraries(${_TARGET_NAME} PRIVATE gcov)
     endif()
 
     if(WIN32)
-        set_target_properties(${_PREFIXED_TARGET_NAME} PROPERTIES SUFFIX ".pyd")
+        set_target_properties(${_TARGET_NAME} PROPERTIES SUFFIX ".pyd")
     else()
-        set_target_properties(${_PREFIXED_TARGET_NAME} PROPERTIES SUFFIX ".so")
+        set_target_properties(${_TARGET_NAME} PROPERTIES SUFFIX ".so")
     endif()
 
-    set_target_properties(${_PREFIXED_TARGET_NAME} PROPERTIES PREFIX "")
+    set_target_properties(${_TARGET_NAME} PROPERTIES PREFIX "")
 
     if(_PYTHON_DIR)
         # Using a specific version of Python
@@ -213,10 +211,10 @@ function(setup_usd_python_lib)
 
     if(WIN32)
         add_custom_command(
-            TARGET ${_PREFIXED_TARGET_NAME}
+            TARGET ${_TARGET_NAME}
             POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${_PREFIXED_TARGET_NAME}>
-                    $<TARGET_FILE_DIR:${_PREFIXED_TARGET_NAME}>
+            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${_TARGET_NAME}>
+                    $<TARGET_FILE_DIR:${_TARGET_NAME}>
             COMMAND_EXPAND_LISTS)
     endif()
 
