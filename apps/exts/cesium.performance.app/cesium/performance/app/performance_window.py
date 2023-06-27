@@ -63,7 +63,7 @@ class CesiumPerformanceWindow(ui.Window):
                 with ui.HStack(height=16):
                     tracing_label = ui.Label(TRACING_ENABLED_TEXT, height=0)
                     tracing_label.set_tooltip(
-                        "Enabled when the project is configured with -D CESIUM_OMNI_ENABLE_TRACING"
+                        "Enabled when the project is configured with -D CESIUM_OMNI_ENABLE_TRACING=ON"
                     )
                     enabled_string = "ON" if self._cesium_omniverse_interface.is_tracing_enabled() else "OFF"
                     ui.Label(enabled_string, height=0)

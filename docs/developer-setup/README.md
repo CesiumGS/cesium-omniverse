@@ -386,7 +386,7 @@ cmake --install build --config Release --component library --prefix /path/to/ins
 To enable performance tracing set `CESIUM_OMNI_ENABLE_TRACING`:
 
 ```sh
-cmake -B build -D CESIUM_OMNI_ENABLE_TRACING
+cmake -B build -D CESIUM_OMNI_ENABLE_TRACING=ON
 cmake --build build
 ```
 

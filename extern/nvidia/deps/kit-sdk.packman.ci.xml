@@ -1,0 +1,6 @@
+<!-- This file is used in CI since we only need the release build of Kit-->
+<project toolsVersion="5.6">
+  <dependency name="kit_sdk" linkPath="../_build/target-deps/kit-sdk/">
+    <package name="kit-sdk" version="104.2+release.275.6d591d71.tc.${platform}.release"/>
+  </dependency>
+</project>

@@ -44,13 +44,13 @@ option(CESIUM_OMNI_ENABLE_SANITIZERS "Check for undefined behavior at runtime" O
 option(CESIUM_OMNI_ENABLE_LINTERS "Enable clang-format for code formatting and clang-tidy for static code analysis" ON)
 option(CESIUM_OMNI_ENABLE_TRACING "Whether to enable the Cesium performance tracing framework (CESIUM_TRACE_* macros)." OFF)
 option(CESIUM_OMNI_USE_NVIDIA_DEBUG_LIBRARIES "Whether to build using NVIDIA debug libraries." OFF)
+option(CESIUM_OMNI_CI "Whether the build is running in CI." OFF)
 
 if(CESIUM_OMNI_USE_NVIDIA_DEBUG_LIBRARIES)
     set(USE_NVIDIA_RELEASE_LIBRARIES FALSE)
 else()
     set(USE_NVIDIA_RELEASE_LIBRARIES TRUE)
 endif()
-
 
 if(MSVC)
     if(${USE_NVIDIA_RELEASE_LIBRARIES})
