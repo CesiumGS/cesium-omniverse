@@ -5,6 +5,7 @@
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/FabricProceduralGeometry.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/UsdUtil.h"
@@ -192,7 +193,8 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
     }
 
     int generateProceduralGeometry() noexcept override {
-        return 42;
+        auto val = cesium::omniverse::FabricProceduralGeometry::createCube();
+        return val;
     }
 };
 } // namespace cesium::omniverse

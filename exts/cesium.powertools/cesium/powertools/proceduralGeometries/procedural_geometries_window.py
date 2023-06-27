@@ -30,7 +30,7 @@ class ProceduralGeometryWindow(ui.Window):
         return ProceduralGeometryWindow(width=250, height=250)
 
     def _create_fabric_quad(self):
-        return_val = self._cesium_omniverse_interface.generateProceduralGeometry()
+        return_val = self._cesium_omniverse_interface.generate_procedural_geometry()
         self._logger.info(f"return val is {return_val}")
         pass
 
