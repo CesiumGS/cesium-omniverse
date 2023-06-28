@@ -454,8 +454,6 @@ cmake -B build
 cmake --build build --target clang-tidy
 ```
 
-Note that these targets are not available on Windows currently.
-
 ## Packaging
 
 ### Build Linux Package (Local)
