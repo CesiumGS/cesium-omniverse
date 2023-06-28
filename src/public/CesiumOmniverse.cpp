@@ -17,13 +17,13 @@
 
 namespace cesium::omniverse {
 
-class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
+class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
   protected:
     void onStartup(const char* cesiumExtensionLocation) noexcept override {
         Context::onStartup(cesiumExtensionLocation);
     }
 
-    void onShutdown() noexcept {
+    void onShutdown() noexcept override {
         Context::onShutdown();
     }
 
@@ -56,7 +56,7 @@ class CesiumOmniversePlugin : public ICesiumOmniverseInterface {
         int64_t tilesetIonAssetId,
         const char* imageryName,
         int64_t imageryIonAssetId) noexcept override {
-        const auto tilesetPath = addTilesetIon(tilesetName, tilesetIonAssetId, "");
+        auto tilesetPath = addTilesetIon(tilesetName, tilesetIonAssetId, "");
         addImageryIon(tilesetPath.c_str(), imageryName, imageryIonAssetId, "");
 
         return tilesetPath;
@@ -200,7 +200,9 @@ const struct carb::PluginImplDesc pluginImplDesc = {
     carb::PluginHotReload::eDisabled,
     "dev"};
 
+// NOLINTBEGIN
 CARB_PLUGIN_IMPL(pluginImplDesc, cesium::omniverse::CesiumOmniversePlugin)
 CARB_PLUGIN_IMPL_DEPS(carb::flatcache::FlatCache, carb::flatcache::IStageInProgress)
+// NOLINTEND
 
 void fillInterface([[maybe_unused]] cesium::omniverse::CesiumOmniversePlugin& iface) {}

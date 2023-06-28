@@ -10,7 +10,7 @@ class FabricMaterialPool final : public ObjectPool<FabricMaterial> {
   public:
     FabricMaterialPool(int64_t poolId, const FabricMaterialDefinition& materialDefinition, uint64_t initialCapacity);
 
-    const FabricMaterialDefinition& getMaterialDefinition() const;
+    [[nodiscard]] const FabricMaterialDefinition& getMaterialDefinition() const;
 
   protected:
     std::shared_ptr<FabricMaterial> createObject(uint64_t objectId) override;

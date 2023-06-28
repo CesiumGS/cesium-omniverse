@@ -34,7 +34,7 @@ struct Decomposed {
 class ScopedEdit {
   public:
     ScopedEdit(pxr::UsdStageRefPtr stage)
-        : _stage(stage)
+        : _stage(std::move(stage))
         , _sessionLayer(_stage->GetSessionLayer())
         , _sessionLayerWasEditable(_sessionLayer->PermissionToEdit())
         , _originalEditTarget(_stage->GetEditTarget()) {

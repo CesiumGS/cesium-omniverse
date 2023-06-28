@@ -34,19 +34,19 @@ template <typename T> class ObjectPool {
         setActive(object, false);
     }
 
-    uint64_t getCapacity() const {
+    [[nodiscard]] uint64_t getCapacity() const {
         return _capacity;
     }
 
-    uint64_t getNumberActive() const {
+    [[nodiscard]] uint64_t getNumberActive() const {
         return getCapacity() - getNumberInactive();
     }
 
-    uint64_t getNumberInactive() const {
+    [[nodiscard]] uint64_t getNumberInactive() const {
         return _queue.size();
     }
 
-    double computePercentActive() const {
+    [[nodiscard]] double computePercentActive() const {
         const auto numberActive = static_cast<double>(getNumberActive());
         const auto capacity = static_cast<double>(getCapacity());
 
