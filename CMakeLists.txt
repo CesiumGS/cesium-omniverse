@@ -79,7 +79,7 @@ option(CESIUM_OMNI_ENABLE_TESTS "Unit tests" ON)
 option(CESIUM_OMNI_ENABLE_DOCUMENTATION "Generate HTML documentation with Doxygen" ON)
 option(CESIUM_OMNI_ENABLE_SANITIZERS "Check for undefined behavior at runtime" OFF)
 option(CESIUM_OMNI_ENABLE_LINTERS "Enable clang-format for code formatting and clang-tidy for static code analysis" ON)
-option(CESIUM_OMNI_ENABLE_TRACING "Whether to enable the Cesium performance tracing framework (CESIUM_TRACE_* macros)." OFF)
+option(CESIUM_OMNI_ENABLE_TRACING "Whether to enable the Cesium performance tracing framework" OFF)
 
 # Coverage can only be enabled if tests are also enabled
 cmake_dependent_option(
@@ -112,7 +112,12 @@ endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Source directories for formatting and linting
-set(LINT_SOURCE_DIRECTORIES "${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/src" "${PROJECT_SOURCE_DIR}/tests")
+set(LINT_SOURCE_DIRECTORIES
+    "${PROJECT_SOURCE_DIR}/include"
+    "${PROJECT_SOURCE_DIR}/src/bindings"
+    "${PROJECT_SOURCE_DIR}/src/core"
+    "${PROJECT_SOURCE_DIR}/src/public"
+    "${PROJECT_SOURCE_DIR}/tests")
 
 # Source directories for coverage
 set(COVERAGE_SOURCE_DIRECTORIES "${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/src")
@@ -181,7 +186,7 @@ set(CESIUM_OMNI_CXX_DEFINES_DEBUG "")
 set(CESIUM_OMNI_LINKER_FLAGS "")
 set(CESIUM_OMNI_LINKER_FLAGS_DEBUG "")
 
-if (CESIUM_OMNI_ENABLE_TRACING)
+if(CESIUM_OMNI_ENABLE_TRACING)
     set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} "CESIUM_TRACING_ENABLED")
 endif()
 

@@ -16,8 +16,8 @@ class FabricMesh {
   public:
     FabricMesh(std::shared_ptr<FabricGeometry> geometry, std::shared_ptr<FabricMaterial> material);
 
-    std::shared_ptr<FabricGeometry> getGeometry() const;
-    std::shared_ptr<FabricMaterial> getMaterial() const;
+    [[nodiscard]] std::shared_ptr<FabricGeometry> getGeometry() const;
+    [[nodiscard]] std::shared_ptr<FabricMaterial> getMaterial() const;
 
     void setVisibility(bool visible) const;
 

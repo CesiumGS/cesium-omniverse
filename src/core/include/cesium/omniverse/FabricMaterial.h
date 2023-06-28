@@ -31,8 +31,8 @@ class FabricMaterial {
 
     void setActive(bool active);
 
-    carb::flatcache::Path getPathFabric() const;
-    const FabricMaterialDefinition& getMaterialDefinition() const;
+    [[nodiscard]] carb::flatcache::Path getPathFabric() const;
+    [[nodiscard]] const FabricMaterialDefinition& getMaterialDefinition() const;
 
   private:
     void initialize(pxr::SdfPath path, const FabricMaterialDefinition& materialDefinition);

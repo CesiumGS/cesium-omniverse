@@ -18,10 +18,10 @@ struct TileRenderResources {
     std::vector<std::shared_ptr<FabricMesh>> fabricMeshes;
 };
 
-class FabricPrepareRenderResources : public Cesium3DTilesSelection::IPrepareRendererResources {
+class FabricPrepareRenderResources final : public Cesium3DTilesSelection::IPrepareRendererResources {
   public:
     FabricPrepareRenderResources(const OmniTileset& tileset);
-    ~FabricPrepareRenderResources() = default;
+    ~FabricPrepareRenderResources() override = default;
 
     CesiumAsync::Future<Cesium3DTilesSelection::TileLoadResultAndRenderResources> prepareInLoadThread(
         const CesiumAsync::AsyncSystem& asyncSystem,
