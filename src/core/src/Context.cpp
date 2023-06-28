@@ -139,8 +139,8 @@ void Context::setProjectDefaultToken(const CesiumIonClient::Token& token) {
 
 pxr::SdfPath Context::addTilesetUrl(const std::string& name, const std::string& url) {
     const auto tilesetName = UsdUtil::getSafeName(name);
-    const auto tilesetPath = UsdUtil::getPathUnique(UsdUtil::getRootPath(), tilesetName);
-    const auto tilesetUsd = UsdUtil::defineCesiumTileset(tilesetPath);
+    auto tilesetPath = UsdUtil::getPathUnique(UsdUtil::getRootPath(), tilesetName);
+    auto tilesetUsd = UsdUtil::defineCesiumTileset(tilesetPath);
 
     tilesetUsd.GetUrlAttr().Set<std::string>(url);
 
@@ -149,8 +149,8 @@ pxr::SdfPath Context::addTilesetUrl(const std::string& name, const std::string& 
 
 pxr::SdfPath Context::addTilesetIon(const std::string& name, int64_t ionAssetId, const std::string& ionAccessToken) {
     const auto tilesetName = UsdUtil::getSafeName(name);
-    const auto tilesetPath = UsdUtil::getPathUnique(UsdUtil::getRootPath(), tilesetName);
-    const auto tilesetUsd = UsdUtil::defineCesiumTileset(tilesetPath);
+    auto tilesetPath = UsdUtil::getPathUnique(UsdUtil::getRootPath(), tilesetName);
+    auto tilesetUsd = UsdUtil::defineCesiumTileset(tilesetPath);
 
     tilesetUsd.GetIonAssetIdAttr().Set<int64_t>(ionAssetId);
     tilesetUsd.GetIonAccessTokenAttr().Set<std::string>(ionAccessToken);
@@ -164,8 +164,8 @@ pxr::SdfPath Context::addImageryIon(
     int64_t ionAssetId,
     const std::string& ionAccessToken) {
     const auto imageryName = UsdUtil::getSafeName(name);
-    const auto imageryPath = UsdUtil::getPathUnique(tilesetPath, imageryName);
-    const auto imageryUsd = UsdUtil::defineCesiumImagery(imageryPath);
+    auto imageryPath = UsdUtil::getPathUnique(tilesetPath, imageryName);
+    auto imageryUsd = UsdUtil::defineCesiumImagery(imageryPath);
 
     imageryUsd.GetIonAssetIdAttr().Set<int64_t>(ionAssetId);
     imageryUsd.GetIonAccessTokenAttr().Set<std::string>(ionAccessToken);
@@ -271,7 +271,8 @@ void Context::processCesiumDataChanged(const ChangedPrim& changedPrim) {
         for (const auto& tileset : tilesets) {
             const auto tilesetToken = tileset->getIonAccessToken();
             const auto defaultToken = Context::instance().getDefaultToken();
-            if (!tilesetToken.has_value() || tilesetToken.value().token == defaultToken.value().token) {
+            if (!tilesetToken.has_value() ||
+                (defaultToken.has_value() && tilesetToken.value().token == defaultToken.value().token)) {
                 tileset->reload();
             }
         }
@@ -399,7 +400,7 @@ pxr::UsdStageRefPtr Context::getStage() const {
 
 omni::fabric::StageReaderWriter Context::getFabricStageReaderWriter() const {
     assert(_fabricStageReaderWriter.has_value());
-    return _fabricStageReaderWriter.value();
+    return _fabricStageReaderWriter.value(); // NOLINT(bugprone-unchecked-optional-access)
 }
 
 long Context::getStageId() const {
@@ -605,10 +606,11 @@ void Context::updateTroubleshootingDetails(
 
     _defaultTokenTroubleshootingDetails = TokenTroubleshootingDetails();
 
-    if (isDefaultTokenSet()) {
-        auto defaultToken = getDefaultToken().value().token;
+    const auto& defaultToken = getDefaultToken();
+    if (defaultToken.has_value()) {
+        const auto& token = defaultToken.value().token;
         troubleshooter.updateTokenTroubleshootingDetails(
-            tilesetIonAssetId, defaultToken, tokenEventId, _defaultTokenTroubleshootingDetails.value());
+            tilesetIonAssetId, token, tokenEventId, _defaultTokenTroubleshootingDetails.value());
     }
 
     _assetTokenTroubleshootingDetails = TokenTroubleshootingDetails();
@@ -647,8 +649,9 @@ void Context::updateTroubleshootingDetails(
 
     _defaultTokenTroubleshootingDetails = TokenTroubleshootingDetails();
 
-    if (isDefaultTokenSet()) {
-        auto token = getDefaultToken().value().token;
+    const auto& defaultToken = getDefaultToken();
+    if (defaultToken.has_value()) {
+        const auto& token = defaultToken.value().token;
         troubleshooter.updateTokenTroubleshootingDetails(
             imageryIonAssetId, token, tokenEventId, _defaultTokenTroubleshootingDetails.value());
     }

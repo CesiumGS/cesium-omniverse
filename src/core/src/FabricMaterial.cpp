@@ -25,7 +25,7 @@ namespace cesium::omniverse {
 FabricMaterial::FabricMaterial(pxr::SdfPath path, const FabricMaterialDefinition& materialDefinition)
     : _materialDefinition(materialDefinition) {
 
-    initialize(path, materialDefinition);
+    initialize(std::move(path), materialDefinition);
 
     // Remove this function once dynamic material values are supported in Kit 105
     setInitialValues(materialDefinition);
@@ -62,7 +62,7 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
-    const auto materialPath = path;
+    const auto materialPath = std::move(path);
     const auto shaderPath = materialPath.AppendChild(UsdTokens::Shader);
     const auto baseColorTexPath = materialPath.AppendChild(UsdTokens::baseColorTex);
 

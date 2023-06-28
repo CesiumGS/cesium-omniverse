@@ -32,7 +32,7 @@ const auto DEFAULT_MATRIX = pxr::GfMatrix4d(1.0);
 } // namespace
 
 FabricGeometry::FabricGeometry(
-    pxr::SdfPath path,
+    const pxr::SdfPath& path,
     const FabricGeometryDefinition& geometryDefinition,
     bool debugRandomColors)
     : _pathFabric(path.GetText())
@@ -66,7 +66,7 @@ const FabricGeometryDefinition& FabricGeometry::getGeometryDefinition() const {
     return _geometryDefinition;
 }
 
-void FabricGeometry::assignMaterial(std::shared_ptr<FabricMaterial> material) {
+void FabricGeometry::assignMaterial(const std::shared_ptr<FabricMaterial>& material) {
     if (!_geometryDefinition.hasMaterial()) {
         return;
     }

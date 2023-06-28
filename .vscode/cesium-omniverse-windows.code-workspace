@@ -9,6 +9,8 @@
     // being added to the file associations object.
     // See https://github.com/microsoft/vscode-cpptools/issues/5537
     "C_Cpp.autoAddFileAssociations": false,
+    // Disable C/C++ extension IntelliSense since it conflicts with clangd
+    "C_Cpp.intelliSenseEngine": "disabled",
     // Ignore submodules in git sidebar
     "git.detectSubmodules": false,
     "git.ignoreSubmodules": true,
@@ -373,6 +375,7 @@
   },
   "extensions": {
     "recommendations": [
+      "llvm-vs-code-extensions.vscode-clangd",
       "ms-python.python",
       "ms-python.vscode-pylance",
       "ms-vscode.cpptools",

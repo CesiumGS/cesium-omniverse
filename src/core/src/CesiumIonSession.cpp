@@ -18,9 +18,9 @@ const char* browserCommandBase = "xdg-open";
 
 CesiumIonSession::CesiumIonSession(
     CesiumAsync::AsyncSystem& asyncSystem,
-    const std::shared_ptr<CesiumAsync::IAssetAccessor>& pAssetAccessor)
+    std::shared_ptr<CesiumAsync::IAssetAccessor> pAssetAccessor)
     : _asyncSystem(asyncSystem)
-    , _pAssetAccessor(pAssetAccessor)
+    , _pAssetAccessor(std::move(pAssetAccessor))
     , _connection(std::nullopt)
     , _profile(std::nullopt)
     , _assets(std::nullopt)
@@ -272,7 +272,8 @@ Future<Token> getTokenFuture(const CesiumIonSession& session) {
     std::string defaultIonAccessToken = Settings::getDefaultAccessToken();
 
     if (!defaultIonAccessToken.empty()) {
-        return session.getConnection()
+        return session // NOLINT(bugprone-unchecked-optional-access)
+            .getConnection()
             ->token(defaultIonAccessToken)
             .thenImmediately([](Response<Token>&& tokenResponse) {
                 if (tokenResponse.value) {

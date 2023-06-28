@@ -14,7 +14,7 @@ class FabricGeometryPool final : public ObjectPool<FabricGeometry> {
         uint64_t initialCapacity,
         bool debugRandomColors);
 
-    const FabricGeometryDefinition& getGeometryDefinition() const;
+    [[nodiscard]] const FabricGeometryDefinition& getGeometryDefinition() const;
 
   protected:
     std::shared_ptr<FabricGeometry> createObject(uint64_t objectId) override;

@@ -4,7 +4,7 @@
 #include <pxr/base/work/dispatcher.h>
 
 namespace cesium::omniverse {
-class TaskProcessor : public CesiumAsync::ITaskProcessor {
+class TaskProcessor final : public CesiumAsync::ITaskProcessor {
   public:
     void startTask(std::function<void()> f) override;
 

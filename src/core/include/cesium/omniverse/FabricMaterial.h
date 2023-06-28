@@ -31,8 +31,8 @@ class FabricMaterial {
 
     void setActive(bool active);
 
-    omni::fabric::Path getPathFabric() const;
-    const FabricMaterialDefinition& getMaterialDefinition() const;
+    [[nodiscard]] omni::fabric::Path getPathFabric() const;
+    [[nodiscard]] const FabricMaterialDefinition& getMaterialDefinition() const;
 
   private:
     void initialize(pxr::SdfPath path, const FabricMaterialDefinition& materialDefinition);

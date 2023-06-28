@@ -66,7 +66,7 @@ setup_lib(
         ${CESIUM_OMNI_CXX_FLAGS_DEBUG}
     CXX_DEFINES
         ${CESIUM_OMNI_CXX_DEFINES}
-        CESIUM_EXPORTS
+        CESIUMUSDSCHEMAS_EXPORTS
     CXX_DEFINES_DEBUG
         ${CESIUM_OMNI_CXX_DEFINES_DEBUG}
 )
@@ -78,7 +78,9 @@ setup_usd_python_lib(
         # Use the same Python version as Omniverse (Python 3.10)
         "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/python"
     TARGET_NAME
-        cesiumUsdSchemas
+        _CesiumUsdSchemas
+    PACKAGE_NAME
+        CesiumUsdSchemas
     PYTHON_MODULE_NAME
         CesiumUsdSchemas
     TYPE
@@ -101,7 +103,7 @@ setup_usd_python_lib(
 add_custom_command(
     TARGET CesiumUsdSchemas
     POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.plugInfo.json.build"
+    COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_BINARY_DIR}/CesiumUsdSchemas.plugInfo.json.build"
             "$<TARGET_FILE_DIR:CesiumUsdSchemas>/plugins/CesiumUsdSchemas/resources/plugInfo.json"
-    COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.generatedSchema.usda.build"
+    COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_BINARY_DIR}/CesiumUsdSchemas.generatedSchema.usda.build"
             "$<TARGET_FILE_DIR:CesiumUsdSchemas>/plugins/CesiumUsdSchemas/resources/generatedSchema.usda")

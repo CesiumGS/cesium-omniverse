@@ -17,7 +17,10 @@ class FabricMaterial;
 
 class FabricGeometry {
   public:
-    FabricGeometry(pxr::SdfPath path, const FabricGeometryDefinition& geometryDefinition, bool debugRandomColors);
+    FabricGeometry(
+        const pxr::SdfPath& path,
+        const FabricGeometryDefinition& geometryDefinition,
+        bool debugRandomColors);
     ~FabricGeometry();
 
     void setTile(
@@ -37,10 +40,10 @@ class FabricGeometry {
     void setActive(bool active);
     void setVisibility(bool visible);
 
-    omni::fabric::Path getPathFabric() const;
-    const FabricGeometryDefinition& getGeometryDefinition() const;
+    [[nodiscard]] omni::fabric::Path getPathFabric() const;
+    [[nodiscard]] const FabricGeometryDefinition& getGeometryDefinition() const;
 
-    void assignMaterial(std::shared_ptr<FabricMaterial> material);
+    void assignMaterial(const std::shared_ptr<FabricMaterial>& material);
 
   private:
     void initialize();

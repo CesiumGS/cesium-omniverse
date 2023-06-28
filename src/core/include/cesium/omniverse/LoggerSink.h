@@ -18,7 +18,7 @@ namespace cesium::omniverse {
 #define CESIUM_LOG_ERROR(...) Context::instance().getLogger()->error(__VA_ARGS__)
 #define CESIUM_LOG_FATAL(...) Context::instance().getLogger()->fatal(__VA_ARGS__)
 
-class LoggerSink : public spdlog::sinks::base_sink<spdlog::details::null_mutex> {
+class LoggerSink final : public spdlog::sinks::base_sink<spdlog::details::null_mutex> {
   public:
     LoggerSink(omni::log::Level logLevel);
 

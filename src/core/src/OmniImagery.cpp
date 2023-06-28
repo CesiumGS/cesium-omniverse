@@ -7,8 +7,8 @@
 
 namespace cesium::omniverse {
 
-OmniImagery::OmniImagery(const pxr::SdfPath& path)
-    : _path(path) {}
+OmniImagery::OmniImagery(pxr::SdfPath path)
+    : _path(std::move(path)) {}
 
 pxr::SdfPath OmniImagery::getPath() const {
     return _path;

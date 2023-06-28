@@ -1,7 +1,7 @@
 #ifndef CESIUM_TOKENS_H
 #define CESIUM_TOKENS_H
 
-/// \file cesium/tokens.h
+/// \file CesiumUsdSchemas/tokens.h
 
 // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 // 
@@ -38,7 +38,7 @@ PXR_NAMESPACE_OPEN_SCOPE
 ///     gprim.GetMyTokenValuedAttr().Set(CesiumTokens->cesiumCulledScreenSpaceError);
 /// \endcode
 struct CesiumTokensType {
-    CESIUM_API CesiumTokensType();
+    CESIUMUSDSCHEMAS_API CesiumTokensType();
     /// \brief "cesium:culledScreenSpaceError"
     /// 
     /// CesiumTileset
@@ -183,7 +183,7 @@ struct CesiumTokensType {
 ///
 /// A global variable with static, efficient \link TfToken TfTokens\endlink
 /// for use in all public USD API.  \sa CesiumTokensType
-extern CESIUM_API TfStaticData<CesiumTokensType> CesiumTokens;
+extern CESIUMUSDSCHEMAS_API TfStaticData<CesiumTokensType> CesiumTokens;
 
 PXR_NAMESPACE_CLOSE_SCOPE
 
