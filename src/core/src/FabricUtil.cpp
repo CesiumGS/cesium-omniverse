@@ -1,10 +1,10 @@
 #include "cesium/omniverse/FabricUtil.h"
 
-#include "cesium/omniverse/FabricAsset.h"
 #include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <carb/flatcache/FlatCacheUSD.h>
+#include <carb/flatcache/PathToAttributesMap.h>
 #include <pxr/base/gf/matrix4d.h>
 #include <pxr/base/gf/quatf.h>
 #include <pxr/base/gf/range3d.h>
@@ -51,22 +51,20 @@ std::ostream& operator<<(std::ostream& os, const BoolWrapper& boolWrapper) {
 
 class AssetWrapper {
   private:
-    FabricAsset asset;
+    carb::flatcache::AssetPath asset;
 
   public:
     friend std::ostream& operator<<(std::ostream& os, const AssetWrapper& assetWrapper);
 };
 
 std::ostream& operator<<(std::ostream& os, const AssetWrapper& assetWrapper) {
-    if (assetWrapper.asset.isEmpty()) {
+    if (assetWrapper.asset.assetPath.IsEmpty()) {
         os << NO_DATA_STRING;
         return os;
     }
 
-    assert(assetWrapper.asset.isPaddingEmpty());
-
-    os << "Asset Path: " << assetWrapper.asset.getAssetPath()
-       << ", Resolved Path: " << assetWrapper.asset.getResolvedPath();
+    os << "Asset Path: " << assetWrapper.asset.assetPath.GetText()
+       << ", Resolved Path: " << assetWrapper.asset.resolvedPath.GetText();
     return os;
 }
 

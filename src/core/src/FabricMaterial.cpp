@@ -1,6 +1,6 @@
 #include "cesium/omniverse/FabricMaterial.h"
 
-#include "cesium/omniverse/FabricAsset.h"
+#include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/FabricAttributesBuilder.h"
 #include "cesium/omniverse/FabricMaterialDefinition.h"
 #include "cesium/omniverse/FabricUtil.h"
@@ -15,6 +15,7 @@
 
 #include <CesiumGltf/Model.h>
 #include <carb/flatcache/FlatCacheUSD.h>
+#include <carb/flatcache/PathToAttributesMap.h>
 #include <omni/ui/ImageProvider/DynamicTextureProvider.h>
 #include <spdlog/fmt/fmt.h>
 
@@ -63,6 +64,8 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
     const auto hasVertexColors = materialDefinition.hasVertexColors();
 
     auto sip = UsdUtil::getFabricStageInProgress();
+    const auto sipId = UsdUtil::getFabricStageInProgressId();
+    const auto iSip = carb::getCachedInterface<carb::flatcache::IStageInProgress>();
 
     const auto materialPath = path;
     const auto shaderPath = materialPath.AppendChild(UsdTokens::Shader);
@@ -312,18 +315,21 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             auto rotationFabric = sip.getAttributeWr<float>(baseColorTexPathFabric, FabricTokens::rotation);
             auto scaleFabric = sip.getAttributeWr<pxr::GfVec2f>(baseColorTexPathFabric, FabricTokens::scale);
             auto texCoordIndexFabric = sip.getAttributeWr<int>(baseColorTexPathFabric, FabricTokens::tex_coord_index);
-            auto textureFabric = sip.getAttributeWr<FabricAsset>(baseColorTexPathFabric, FabricTokens::texture);
             auto infoIdFabric = sip.getAttributeWr<carb::flatcache::Token>(baseColorTexPathFabric, FabricTokens::info_id);
             auto infoSourceAssetSubIdentifierFabric = sip.getAttributeWr<carb::flatcache::Token>(baseColorTexPathFabric, FabricTokens::info_sourceAsset_subIdentifier);
             auto paramColorSpaceFabric = sip.getArrayAttributeWr<carb::flatcache::Token>(baseColorTexPathFabric, FabricTokens::_paramColorSpace);
             auto parametersFabric = sip.getArrayAttributeWr<carb::flatcache::Token>(baseColorTexPathFabric, FabricTokens::_parameters);
             // clang-format on
 
+            // Can't use sip.getAttributeWr for AssetPath attributes since sizeof(AssetPath) is smaller than what's actually stored in Fabric
+            // Presumably the extra bytes have debugging or other information.
+            auto textureFabric = reinterpret_cast<carb::flatcache::AssetPath*>(
+                iSip->getAttributeWr(sipId, carb::flatcache::PathC(baseColorTexPathFabric), FabricTokens::texture).ptr);
+
             *offsetFabric = pxr::GfVec2f(0.0f, 0.0f);
             *rotationFabric = 0.0f;
             *scaleFabric = pxr::GfVec2f(1.0f, 1.0f);
             *texCoordIndexFabric = 0;
-            *textureFabric = FabricAsset(baseColorTexturePath);
             *infoIdFabric = FabricTokens::gltf_pbr_mdl;
             *infoSourceAssetSubIdentifierFabric = FabricTokens::gltf_texture_lookup;
             paramColorSpaceFabric[0] = FabricTokens::texture;
@@ -335,6 +341,8 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             parametersFabric[4] = FabricTokens::texture;
             parametersFabric[5] = FabricTokens::wrap_s;
             parametersFabric[6] = FabricTokens::wrap_t;
+            textureFabric->assetPath = pxr::TfToken(baseColorTexturePath.GetAssetPath());
+            textureFabric->resolvedPath = pxr::TfToken(baseColorTexturePath.GetResolvedPath());
         }
     }
 
