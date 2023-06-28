@@ -6,9 +6,10 @@
 #include <cpr/cpr.h>
 
 #include <filesystem>
+#include <utility>
 
 namespace cesium::omniverse {
-class HttpAssetResponse : public CesiumAsync::IAssetResponse {
+class HttpAssetResponse final : public CesiumAsync::IAssetResponse {
   public:
     HttpAssetResponse(cpr::Response&& response)
         : _response{std::move(response)} {
@@ -17,11 +18,11 @@ class HttpAssetResponse : public CesiumAsync::IAssetResponse {
         }
     }
 
-    uint16_t statusCode() const override {
+    [[nodiscard]] uint16_t statusCode() const override {
         return uint16_t(_response.status_code);
     }
 
-    std::string contentType() const override {
+    [[nodiscard]] std::string contentType() const override {
         auto it = _response.header.find("content-type");
         if (it != _response.header.end()) {
             return it->second;
@@ -30,11 +31,11 @@ class HttpAssetResponse : public CesiumAsync::IAssetResponse {
         return "";
     }
 
-    const CesiumAsync::HttpHeaders& headers() const override {
+    [[nodiscard]] const CesiumAsync::HttpHeaders& headers() const override {
         return _headers;
     }
 
-    gsl::span<const std::byte> data() const override {
+    [[nodiscard]] gsl::span<const std::byte> data() const override {
         return {reinterpret_cast<const std::byte*>(_response.text.data()), _response.text.size()};
     }
 
@@ -43,31 +44,31 @@ class HttpAssetResponse : public CesiumAsync::IAssetResponse {
     cpr::Response _response;
 };
 
-class HttpAssetRequest : public CesiumAsync::IAssetRequest {
+class HttpAssetRequest final : public CesiumAsync::IAssetRequest {
   public:
     HttpAssetRequest(
         std::string&& method,
-        const std::string& url,
+        std::string url,
         const std::vector<CesiumAsync::IAssetAccessor::THeader>& headers,
         cpr::Response&& response)
         : _method{std::move(method)}
-        , _url{url}
+        , _url{std::move(url)}
         , _headers{headers.begin(), headers.end()}
         , _response{std::move(response)} {}
 
-    const std::string& method() const override {
+    [[nodiscard]] const std::string& method() const override {
         return _method;
     }
 
-    const std::string& url() const override {
+    [[nodiscard]] const std::string& url() const override {
         return _url;
     }
 
-    const CesiumAsync::HttpHeaders& headers() const override {
+    [[nodiscard]] const CesiumAsync::HttpHeaders& headers() const override {
         return _headers;
     }
 
-    const CesiumAsync::IAssetResponse* response() const override {
+    [[nodiscard]] const CesiumAsync::IAssetResponse* response() const override {
         return &_response;
     }
 
@@ -78,7 +79,7 @@ class HttpAssetRequest : public CesiumAsync::IAssetRequest {
     HttpAssetResponse _response;
 };
 
-class HttpAssetAccessor : public CesiumAsync::IAssetAccessor {
+class HttpAssetAccessor final : public CesiumAsync::IAssetAccessor {
   public:
     HttpAssetAccessor(const std::filesystem::path& certificatePath);
 

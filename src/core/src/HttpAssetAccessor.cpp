@@ -19,12 +19,12 @@ std::string decodeGzip(std::string& content) {
     zs.avail_in = static_cast<uInt>(content.size());
 
     int ret;
-    char outbuffer[32768];
+    std::array<char, 32768> outbuffer;
     std::string output;
 
     // get the decompressed bytes blockwise using repeated calls to inflate
     do {
-        zs.next_out = reinterpret_cast<Bytef*>(outbuffer);
+        zs.next_out = reinterpret_cast<Bytef*>(outbuffer.data());
         zs.avail_out = sizeof(outbuffer);
 
         ret = inflate(&zs, 0);
@@ -33,7 +33,7 @@ std::string decodeGzip(std::string& content) {
             std::size_t decompressSoFar = output.size();
             std::size_t addSize = zs.total_out - output.size();
             output.resize(output.size() + addSize);
-            std::memcpy(output.data() + decompressSoFar, outbuffer, addSize);
+            std::memcpy(output.data() + decompressSoFar, outbuffer.data(), addSize);
         }
 
     } while (ret == Z_OK);
@@ -47,7 +47,7 @@ std::string decodeGzip(std::string& content) {
     return output;
 }
 
-struct GZipDecompressInterceptor : public cpr::Interceptor {
+struct GZipDecompressInterceptor final : public cpr::Interceptor {
   public:
     GZipDecompressInterceptor(const std::filesystem::path& certificatePath)
         : _certificatePath(certificatePath.generic_string()) {}
@@ -109,8 +109,7 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> HttpAssetAccess
     session->SetHeader(cprHeader);
     session->SetUrl(cpr::Url(url));
     session->GetCallback([promise, url, headers](cpr::Response&& response) mutable {
-        promise.resolve(
-            std::make_shared<HttpAssetRequest>("GET", std::move(url), std::move(headers), std::move(response)));
+        promise.resolve(std::make_shared<HttpAssetRequest>("GET", url, headers, std::move(response)));
     });
 
     return promise.getFuture();
@@ -132,16 +131,14 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> HttpAssetAccess
 #endif
     if (verb == "GET") {
         session->GetCallback([promise, url, headers](cpr::Response&& response) mutable {
-            promise.resolve(
-                std::make_shared<HttpAssetRequest>("GET", std::move(url), std::move(headers), std::move(response)));
+            promise.resolve(std::make_shared<HttpAssetRequest>("GET", url, headers, std::move(response)));
         });
 
         return promise.getFuture();
     } else if (verb == "POST") {
         session->SetBody(cpr::Body{reinterpret_cast<const char*>(contentPayload.data()), contentPayload.size()});
         session->PostCallback([promise, url, headers](cpr::Response&& response) mutable {
-            promise.resolve(
-                std::make_shared<HttpAssetRequest>("POST", std::move(url), std::move(headers), std::move(response)));
+            promise.resolve(std::make_shared<HttpAssetRequest>("POST", url, headers, std::move(response)));
         });
 
         return promise.getFuture();

@@ -191,19 +191,11 @@ def format(args: Args):
 
 
 def lint(args: Args):
-    if is_windows():
-        print("Linters are not supported for Windows")
-        return
-
     clang_tidy_cmd = get_cmake_build_command(args, "clang-tidy")
     process(clang_tidy_cmd)
 
 
 def lint_fix(args: Args):
-    if is_windows():
-        print("Linters are not supported for Windows")
-        return
-
     clang_tidy_cmd = get_cmake_build_command(args, "clang-tidy-fix")
     process(clang_tidy_cmd)
 

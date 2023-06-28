@@ -10,7 +10,7 @@ CesiumGeospatial::Cartographic convertGeoreferenceToCartographic(const pxr::Cesi
     georeference.GetGeoreferenceOriginLatitudeAttr().Get<double>(&latitude);
     georeference.GetGeoreferenceOriginHeightAttr().Get<double>(&height);
 
-    return CesiumGeospatial::Cartographic(glm::radians(longitude), glm::radians(latitude), height);
+    return {glm::radians(longitude), glm::radians(latitude), height};
 }
 
 } // namespace cesium::omniverse::GeospatialUtil

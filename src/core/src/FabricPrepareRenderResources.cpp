@@ -172,7 +172,7 @@ FabricPrepareRenderResources::prepareInLoadThread(
     if (!tileLoadResult.rasterOverlayDetails.has_value()) {
         auto meshes = gatherMeshes(_tileset, transform, *pModel);
         return asyncSystem.runInMainThread(
-            [transform, meshes = std::move(meshes), tileLoadResult = std::move(tileLoadResult)]() {
+            [transform, meshes = std::move(meshes), tileLoadResult = std::move(tileLoadResult)]() mutable {
                 const auto& model = *std::get_if<CesiumGltf::Model>(&tileLoadResult.contentKind);
                 auto fabricMeshes = acquireFabricMeshes(model, meshes);
                 setFabricMeshes(model, meshes, fabricMeshes);
