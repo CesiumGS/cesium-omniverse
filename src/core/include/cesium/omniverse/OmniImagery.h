@@ -6,13 +6,13 @@
 namespace cesium::omniverse {
 class OmniImagery {
   public:
-    OmniImagery(const pxr::SdfPath& path);
+    OmniImagery(pxr::SdfPath path);
 
-    pxr::SdfPath getPath() const;
-    std::string getName() const;
-    int64_t getIonAssetId() const;
-    std::optional<CesiumIonClient::Token> getIonAccessToken() const;
-    bool getShowCreditsOnScreen() const;
+    [[nodiscard]] pxr::SdfPath getPath() const;
+    [[nodiscard]] std::string getName() const;
+    [[nodiscard]] int64_t getIonAssetId() const;
+    [[nodiscard]] std::optional<CesiumIonClient::Token> getIonAccessToken() const;
+    [[nodiscard]] bool getShowCreditsOnScreen() const;
 
   private:
     pxr::SdfPath _path;

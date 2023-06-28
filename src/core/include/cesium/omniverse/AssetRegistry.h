@@ -30,18 +30,18 @@ class AssetRegistry {
 
     void addTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPath& georeferencePath);
     void removeTileset(const pxr::SdfPath& path);
-    std::optional<std::shared_ptr<OmniTileset>> getTilesetByPath(const pxr::SdfPath& path) const;
-    std::optional<std::shared_ptr<OmniTileset>> getTilesetByIonAssetId(int64_t ionAssetId) const;
-    const std::list<std::shared_ptr<OmniTileset>>& getAllTilesets() const;
-    std::vector<pxr::SdfPath> getAllTilesetPaths() const;
+    [[nodiscard]] std::optional<std::shared_ptr<OmniTileset>> getTilesetByPath(const pxr::SdfPath& path) const;
+    [[nodiscard]] std::optional<std::shared_ptr<OmniTileset>> getTilesetByIonAssetId(int64_t ionAssetId) const;
+    [[nodiscard]] const std::list<std::shared_ptr<OmniTileset>>& getAllTilesets() const;
+    [[nodiscard]] std::vector<pxr::SdfPath> getAllTilesetPaths() const;
 
     void addImagery(const pxr::SdfPath& path);
     void removeImagery(const pxr::SdfPath& path);
-    std::optional<std::shared_ptr<OmniImagery>> getImageryByPath(const pxr::SdfPath& path) const;
-    std::optional<std::shared_ptr<OmniImagery>> getImageryByIonAssetId(int64_t ionAssetId) const;
-    const std::list<std::shared_ptr<OmniImagery>>& getAllImageries() const;
+    [[nodiscard]] std::optional<std::shared_ptr<OmniImagery>> getImageryByPath(const pxr::SdfPath& path) const;
+    [[nodiscard]] std::optional<std::shared_ptr<OmniImagery>> getImageryByIonAssetId(int64_t ionAssetId) const;
+    [[nodiscard]] const std::list<std::shared_ptr<OmniImagery>>& getAllImageries() const;
 
-    AssetType getAssetType(const pxr::SdfPath& path) const;
+    [[nodiscard]] AssetType getAssetType(const pxr::SdfPath& path) const;
 
     void clear();
 

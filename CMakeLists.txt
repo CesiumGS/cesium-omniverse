@@ -42,8 +42,8 @@ option(CESIUM_OMNI_ENABLE_TESTS "Unit tests" ON)
 option(CESIUM_OMNI_ENABLE_DOCUMENTATION "Generate HTML documentation with Doxygen" ON)
 option(CESIUM_OMNI_ENABLE_SANITIZERS "Check for undefined behavior at runtime" OFF)
 option(CESIUM_OMNI_ENABLE_LINTERS "Enable clang-format for code formatting and clang-tidy for static code analysis" ON)
-option(CESIUM_OMNI_ENABLE_TRACING "Whether to enable the Cesium performance tracing framework (CESIUM_TRACE_* macros)." OFF)
-option(CESIUM_OMNI_USE_NVIDIA_DEBUG_LIBRARIES "Whether to build using NVIDIA debug libraries." OFF)
+option(CESIUM_OMNI_ENABLE_TRACING "Whether to enable the Cesium performance tracing framework" OFF)
+option(CESIUM_OMNI_USE_NVIDIA_DEBUG_LIBRARIES "Whether to build using NVIDIA debug libraries" OFF)
 option(CESIUM_OMNI_CI "Whether the build is running in CI." OFF)
 
 if(CESIUM_OMNI_USE_NVIDIA_DEBUG_LIBRARIES)
@@ -117,7 +117,12 @@ endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Source directories for formatting and linting
-set(LINT_SOURCE_DIRECTORIES "${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/src" "${PROJECT_SOURCE_DIR}/tests")
+set(LINT_SOURCE_DIRECTORIES
+    "${PROJECT_SOURCE_DIR}/include"
+    "${PROJECT_SOURCE_DIR}/src/bindings"
+    "${PROJECT_SOURCE_DIR}/src/core"
+    "${PROJECT_SOURCE_DIR}/src/public"
+    "${PROJECT_SOURCE_DIR}/tests")
 
 # Source directories for coverage
 set(COVERAGE_SOURCE_DIRECTORIES "${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/src")
@@ -186,7 +191,7 @@ set(CESIUM_OMNI_CXX_DEFINES_DEBUG "")
 set(CESIUM_OMNI_LINKER_FLAGS "")
 set(CESIUM_OMNI_LINKER_FLAGS_DEBUG "")
 
-if (CESIUM_OMNI_ENABLE_TRACING)
+if(CESIUM_OMNI_ENABLE_TRACING)
     set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} "CESIUM_TRACING_ENABLED")
 endif()
 
@@ -480,21 +485,21 @@ set(PLUG_INFO_LIBRARY_PATH_KIT "../../bin/${PLUG_INFO_LIBRARY_FILE_NAME}")
 
 set(PLUG_INFO_LIBRARY_PATH ${PLUG_INFO_LIBRARY_PATH_BUILD})
 configure_file("${PROJECT_SOURCE_DIR}/src/plugins/CesiumUsdSchemas/plugInfo.json.in"
-               "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.plugInfo.json.build")
+               "${PROJECT_BINARY_DIR}/CesiumUsdSchemas.plugInfo.json.build")
 set(PLUG_INFO_LIBRARY_PATH ${PLUG_INFO_LIBRARY_PATH_INSTALL})
 configure_file("${PROJECT_SOURCE_DIR}/src/plugins/CesiumUsdSchemas/plugInfo.json.in"
-               "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.plugInfo.json.install")
+               "${PROJECT_BINARY_DIR}/CesiumUsdSchemas.plugInfo.json.install")
 set(PLUG_INFO_LIBRARY_PATH ${PLUG_INFO_LIBRARY_PATH_KIT})
 configure_file("${PROJECT_SOURCE_DIR}/src/plugins/CesiumUsdSchemas/plugInfo.json.in"
-               "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.plugInfo.json.kit")
+               "${PROJECT_BINARY_DIR}/CesiumUsdSchemas.plugInfo.json.kit")
 
 # Configure generatedSchema.usda for CesiumUsdSchemas
 configure_file("${PROJECT_SOURCE_DIR}/src/plugins/CesiumUsdSchemas/generatedSchema.usda.in"
-               "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.generatedSchema.usda.build")
+               "${PROJECT_BINARY_DIR}/CesiumUsdSchemas.generatedSchema.usda.build")
 configure_file("${PROJECT_SOURCE_DIR}/src/plugins/CesiumUsdSchemas/generatedSchema.usda.in"
-               "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.generatedSchema.usda.install")
+               "${PROJECT_BINARY_DIR}/CesiumUsdSchemas.generatedSchema.usda.install")
 configure_file("${PROJECT_SOURCE_DIR}/src/plugins/CesiumUsdSchemas/generatedSchema.usda.in"
-               "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.generatedSchema.usda.kit")
+               "${PROJECT_BINARY_DIR}/CesiumUsdSchemas.generatedSchema.usda.kit")
 
 set(KIT_EXTENSION_BIN_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse/bin")
 set(KIT_EXTENSION_CERTS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse/certs/cacert.pem")
@@ -635,26 +640,26 @@ install(
     EXCLUDE_FROM_ALL)
 
 install(
-    FILES "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.plugInfo.json.kit"
+    FILES "${PROJECT_BINARY_DIR}/CesiumUsdSchemas.plugInfo.json.kit"
     DESTINATION "${KIT_EXTENSION_PLUGINS_PATH}/CesiumUsdSchemas/resources/"
     RENAME "plugInfo.json"
     COMPONENT install)
 
 install(
-    FILES "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.plugInfo.json.install"
+    FILES "${PROJECT_BINARY_DIR}/CesiumUsdSchemas.plugInfo.json.install"
     DESTINATION "plugins/CesiumUsdSchemas/resources/"
     RENAME "plugInfo.json"
     COMPONENT library
     EXCLUDE_FROM_ALL)
 
 install(
-    FILES "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.generatedSchema.usda.kit"
+    FILES "${PROJECT_BINARY_DIR}/CesiumUsdSchemas.generatedSchema.usda.kit"
     DESTINATION "${KIT_EXTENSION_PLUGINS_PATH}/CesiumUsdSchemas/resources/"
     RENAME "generatedSchema.usda"
     COMPONENT install)
 
 install(
-    FILES "${PROJECT_BINARY_DIR}/cesiumUsdSchemas.generatedSchema.usda.install"
+    FILES "${PROJECT_BINARY_DIR}/CesiumUsdSchemas.generatedSchema.usda.install"
     DESTINATION "plugins/CesiumUsdSchemas/resources/"
     RENAME "generatedSchema.usda"
     COMPONENT library

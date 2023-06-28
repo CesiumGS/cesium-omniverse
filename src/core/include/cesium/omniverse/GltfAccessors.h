@@ -20,8 +20,8 @@ class PositionsAccessor {
     PositionsAccessor(const CesiumGltf::AccessorView<glm::fvec3>& view);
 
     void fill(const gsl::span<pxr::GfVec3f>& values) const;
-    const glm::fvec3& get(uint64_t index) const;
-    uint64_t size() const;
+    [[nodiscard]] const glm::fvec3& get(uint64_t index) const;
+    [[nodiscard]] uint64_t size() const;
 
   private:
     CesiumGltf::AccessorView<glm::fvec3> _view;
@@ -40,8 +40,8 @@ class IndicesAccessor {
     template <typename T> static IndicesAccessor FromTriangleFans(const CesiumGltf::AccessorView<T>& view);
 
     void fill(const gsl::span<int>& values) const;
-    uint32_t get(uint64_t index) const;
-    uint64_t size() const;
+    [[nodiscard]] uint32_t get(uint64_t index) const;
+    [[nodiscard]] uint64_t size() const;
 
   private:
     std::vector<uint32_t> _computed;

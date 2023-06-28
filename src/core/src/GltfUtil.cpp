@@ -137,7 +137,7 @@ TexcoordsAccessor getTexcoords(
         return {};
     }
 
-    return TexcoordsAccessor(texcoordsView, translation, scale, flipVertical);
+    return {texcoordsView, translation, scale, flipVertical};
 }
 
 template <typename VertexColorType>
@@ -154,10 +154,10 @@ float getBaseAlpha(const CesiumGltf::MaterialPBRMetallicRoughness& pbrMetallicRo
 }
 
 pxr::GfVec3f getBaseColorFactor(const CesiumGltf::MaterialPBRMetallicRoughness& pbrMetallicRoughness) {
-    return pxr::GfVec3f(
+    return {
         static_cast<float>(pbrMetallicRoughness.baseColorFactor[0]),
         static_cast<float>(pbrMetallicRoughness.baseColorFactor[1]),
-        static_cast<float>(pbrMetallicRoughness.baseColorFactor[2]));
+        static_cast<float>(pbrMetallicRoughness.baseColorFactor[2])};
 }
 
 float getMetallicFactor(const CesiumGltf::MaterialPBRMetallicRoughness& pbrMetallicRoughness) {
@@ -185,7 +185,7 @@ PositionsAccessor getPositions(const CesiumGltf::Model& model, const CesiumGltf:
         return {};
     }
 
-    return PositionsAccessor(positionsView);
+    return {positionsView};
 }
 
 std::optional<pxr::GfRange3d> getExtent(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
@@ -215,7 +215,7 @@ IndicesAccessor getIndices(
     const PositionsAccessor& positions) {
     const auto indicesAccessor = model.getSafe<CesiumGltf::Accessor>(&model.accessors, primitive.indices);
     if (!indicesAccessor) {
-        return IndicesAccessor(positions.size());
+        return {positions.size()};
     }
 
     if (indicesAccessor->componentType == CesiumGltf::AccessorSpec::ComponentType::UNSIGNED_BYTE) {
@@ -242,7 +242,7 @@ NormalsAccessor getNormals(
     const auto normalsView = getNormalsView(model, primitive);
 
     if (normalsView.status() == CesiumGltf::AccessorViewStatus::Valid) {
-        return NormalsAccessor(normalsView);
+        return {normalsView};
     }
 
     if (smoothNormals) {
@@ -298,7 +298,7 @@ getVertexColors(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive&
 }
 
 FaceVertexCountsAccessor getFaceVertexCounts(const IndicesAccessor& indices) {
-    return FaceVertexCountsAccessor(indices.size() / 3);
+    return {indices.size() / 3};
 }
 
 float getAlphaCutoff(const CesiumGltf::Material& material) {
@@ -336,10 +336,10 @@ pxr::GfVec3f getBaseColorFactor(const CesiumGltf::Material& material) {
 }
 
 pxr::GfVec3f getEmissiveFactor(const CesiumGltf::Material& material) {
-    return pxr::GfVec3f(
+    return {
         static_cast<float>(material.emissiveFactor[0]),
         static_cast<float>(material.emissiveFactor[1]),
-        static_cast<float>(material.emissiveFactor[2]));
+        static_cast<float>(material.emissiveFactor[2])};
 }
 
 float getMetallicFactor(const CesiumGltf::Material& material) {

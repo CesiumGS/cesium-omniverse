@@ -13,14 +13,14 @@ const char* DEFAULT_ACCESS_TOKEN_PATH = "/exts/cesium.omniverse/defaultAccessTok
 
 std::string getAccessToken() {
     auto settings = carb::getCachedInterface<carb::settings::ISettings>();
-    auto key = std::string(PERSISTENT_SETTINGS_PREFIX).append(USER_ACCESS_TOKEN_PATH).c_str();
-    return {settings->getStringBuffer(key)};
+    auto key = std::string(PERSISTENT_SETTINGS_PREFIX).append(USER_ACCESS_TOKEN_PATH);
+    return {settings->getStringBuffer(key.c_str())};
 }
 
 void setAccessToken(const std::string& accessToken) {
     auto settings = carb::getCachedInterface<carb::settings::ISettings>();
-    auto key = std::string(PERSISTENT_SETTINGS_PREFIX).append(USER_ACCESS_TOKEN_PATH).c_str();
-    settings->set(key, accessToken.c_str());
+    auto key = std::string(PERSISTENT_SETTINGS_PREFIX).append(USER_ACCESS_TOKEN_PATH);
+    settings->set(key.c_str(), accessToken.c_str());
 }
 
 std::string getDefaultAccessToken() {
