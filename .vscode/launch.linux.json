@@ -44,7 +44,7 @@
       "cwd": "${workspaceFolder}",
       "type": "lldb",
       "request": "launch",
-      "console": "internalConsole",
+      "console": "externalTerminal",
       "internalConsoleOptions": "openOnSessionStart",
       "MIMode": "gdb",
       "setupCommands": [

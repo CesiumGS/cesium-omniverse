@@ -24,7 +24,7 @@
       "cwd": "${workspaceFolder}",
       "type": "cppvsdbg",
       "request": "launch",
-      "console": "internalConsole",
+      "console": "externalTerminal",
       "internalConsoleOptions": "openOnSessionStart"
     },
     {
