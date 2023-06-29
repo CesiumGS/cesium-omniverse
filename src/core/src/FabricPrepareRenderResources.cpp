@@ -27,7 +27,7 @@ template <typename T> size_t getIndexFromRef(const std::vector<T>& vector, const
 
 struct TileLoadThreadResult {
     glm::dmat4 tileTransform;
-    std::vector<std::shared_ptr<FabricMesh>> fabricMeshes;
+    bool hasRasterOverlay;
 };
 
 struct IntermediaryMesh {
@@ -168,30 +168,13 @@ FabricPrepareRenderResources::prepareInLoadThread(
             Cesium3DTilesSelection::TileLoadResultAndRenderResources{std::move(tileLoadResult), nullptr});
     }
 
-    // If there are no imagery layers attached to the tile add the tile right away
-    if (!tileLoadResult.rasterOverlayDetails.has_value()) {
-        auto meshes = gatherMeshes(_tileset, transform, *pModel);
-        return asyncSystem.runInMainThread(
-            [transform, meshes = std::move(meshes), tileLoadResult = std::move(tileLoadResult)]() mutable {
-                const auto& model = *std::get_if<CesiumGltf::Model>(&tileLoadResult.contentKind);
-                auto fabricMeshes = acquireFabricMeshes(model, meshes);
-                setFabricMeshes(model, meshes, fabricMeshes);
-                return Cesium3DTilesSelection::TileLoadResultAndRenderResources{
-                    std::move(tileLoadResult),
-                    new TileLoadThreadResult{
-                        transform,
-                        std::move(fabricMeshes),
-                    },
-                };
-            });
-    }
+    const auto hasRasterOverlay = tileLoadResult.rasterOverlayDetails.has_value();
 
-    // Otherwise add the tile + imagery later
     return asyncSystem.createResolvedFuture(Cesium3DTilesSelection::TileLoadResultAndRenderResources{
         std::move(tileLoadResult),
         new TileLoadThreadResult{
             transform,
-            {},
+            hasRasterOverlay,
         },
     });
 }
@@ -199,16 +182,40 @@ FabricPrepareRenderResources::prepareInLoadThread(
 void* FabricPrepareRenderResources::prepareInMainThread(
     [[maybe_unused]] Cesium3DTilesSelection::Tile& tile,
     void* pLoadThreadResult) {
-    if (pLoadThreadResult) {
-        std::unique_ptr<TileLoadThreadResult> pTileLoadThreadResult{
-            reinterpret_cast<TileLoadThreadResult*>(pLoadThreadResult)};
+    if (!pLoadThreadResult) {
+        return nullptr;
+    }
+
+    std::unique_ptr<TileLoadThreadResult> pTileLoadThreadResult{
+        reinterpret_cast<TileLoadThreadResult*>(pLoadThreadResult)};
+
+    const auto& tileTransform = pTileLoadThreadResult->tileTransform;
+
+    if (pTileLoadThreadResult->hasRasterOverlay) {
+        // Add the tile + imagery later
         return new TileRenderResources{
-            pTileLoadThreadResult->tileTransform,
-            std::move(pTileLoadThreadResult->fabricMeshes),
+            tileTransform,
+            {},
         };
     }
 
-    return nullptr;
+    const auto& content = tile.getContent();
+    auto pRenderContent = content.getRenderContent();
+    if (!pRenderContent) {
+        return nullptr;
+    }
+
+    const auto& model = pRenderContent->getModel();
+
+    auto meshes = gatherMeshes(_tileset, tileTransform, model);
+    auto fabricMeshes = acquireFabricMeshes(model, meshes);
+
+    setFabricMeshes(model, meshes, fabricMeshes);
+
+    return new TileRenderResources{
+        tileTransform,
+        std::move(fabricMeshes),
+    };
 }
 
 void FabricPrepareRenderResources::free(
@@ -217,11 +224,6 @@ void FabricPrepareRenderResources::free(
     void* pMainThreadResult) noexcept {
     if (pLoadThreadResult) {
         const auto pTileLoadThreadResult = reinterpret_cast<TileLoadThreadResult*>(pLoadThreadResult);
-
-        for (const auto& mesh : pTileLoadThreadResult->fabricMeshes) {
-            FabricMeshManager::getInstance().releaseMesh(mesh);
-        }
-
         delete pTileLoadThreadResult;
     }
 
