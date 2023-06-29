@@ -39,8 +39,8 @@ class CesiumPowertoolsWindow(ui.Window):
         self._actions: List[PowertoolsAction] = [
             PowertoolsAction("Open Cesium Debugging Window", CesiumOmniverseDebugWindow.show_window),
             PowertoolsAction("Open Cesium Georeference Helper Window", CesiumGeorefHelperWindow.create_window),
-            PowertoolsAction("Open Procedural Geometry Window", ProceduralGeometryWindow.create_window)
-            PowertoolsAction("Extend Far Plane", extend_far_plane),
+            PowertoolsAction("Open Procedural Geometry Window", ProceduralGeometryWindow.create_window),
+            PowertoolsAction("Extend Far Plane", extend_far_plane)
         ]
 
         self.frame.set_build_fn(self._build_fn)
