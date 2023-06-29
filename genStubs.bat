@@ -35,11 +35,11 @@ cd %FLAT_LIBRARIES_DIR%\lib
 :: We call mypy in this strange way to ensure the correct nvidia python executable is used
 echo "Generating stubs"
 %NVIDIA_PYTHON_EXECUTABLE% -c "from mypy import stubgen; stubgen.main()" -m CesiumOmniversePythonBindings -v
-%NVIDIA_PYTHON_EXECUTABLE% -c "from mypy import stubgen; stubgen.main()" -m _cesiumUsdSchemas -v
+%NVIDIA_PYTHON_EXECUTABLE% -c "from mypy import stubgen; stubgen.main()" -m _CesiumUsdSchemas -v
 
 echo "Copying stubs"
 copy out\CesiumOmniversePythonBindings.pyi %CESIUM_OMNI_STUB_PATH%
-copy out\_cesiumUsdSchemas.pyi %CESIUM_USD_STUB_PATH%
+copy out\_CesiumUsdSchemas.pyi %CESIUM_USD_STUB_PATH%
 
 echo "Formatting stubs"
 black %CESIUM_OMNI_STUB_PATH%

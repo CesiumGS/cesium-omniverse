@@ -36,7 +36,7 @@ class FabricMeshManager {
         const CesiumGltf::ImageCesium* imagery,
         uint64_t imageryTexcoordSetIndex);
 
-    void releaseMesh(std::shared_ptr<FabricMesh> mesh);
+    void releaseMesh(const std::shared_ptr<FabricMesh>& mesh);
 
     void setDisableMaterials(bool disableMaterials);
     void setDisableTextures(bool disableTextures);
@@ -65,8 +65,8 @@ class FabricMeshManager {
         const CesiumGltf::MeshPrimitive& primitive,
         const CesiumGltf::ImageCesium* imagery);
 
-    void releaseGeometry(std::shared_ptr<FabricGeometry> geometry);
-    void releaseMaterial(std::shared_ptr<FabricMaterial> material);
+    void releaseGeometry(const std::shared_ptr<FabricGeometry>& geometry);
+    void releaseMaterial(const std::shared_ptr<FabricMaterial>& material);
 
     std::shared_ptr<FabricGeometryPool> getGeometryPool(const FabricGeometryDefinition& geometryDefinition);
     std::shared_ptr<FabricMaterialPool> getMaterialPool(const FabricMaterialDefinition& materialDefinition);

@@ -38,7 +38,7 @@ OmniTileset::OmniTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPath& ge
     UsdUtil::setGeoreferenceForTileset(tilesetPath, georeferencePath);
 }
 
-OmniTileset::~OmniTileset() {}
+OmniTileset::~OmniTileset() = default;
 
 pxr::SdfPath OmniTileset::getPath() const {
     return _tilesetPath;
@@ -260,7 +260,7 @@ TilesetStatistics OmniTileset::getStatistics() const {
 void OmniTileset::reload() {
     _renderResourcesPreparer = std::make_shared<FabricPrepareRenderResources>(*this);
     auto& context = Context::instance();
-    const auto asyncSystem = CesiumAsync::AsyncSystem(context.getTaskProcessor());
+    auto asyncSystem = CesiumAsync::AsyncSystem(context.getTaskProcessor());
     const auto externals = Cesium3DTilesSelection::TilesetExternals{
         context.getHttpAssetAccessor(),
         _renderResourcesPreparer,

@@ -4,6 +4,7 @@ from typing import Callable, Optional, List
 from cesium.omniverse.ui import CesiumOmniverseDebugWindow
 from .georefhelper.georef_helper_window import CesiumGeorefHelperWindow
 from .proceduralGeometries.procedural_geometries_window import ProceduralGeometryWindow
+from .utils import extend_far_plane
 
 
 class PowertoolsAction:
@@ -39,6 +40,7 @@ class CesiumPowertoolsWindow(ui.Window):
             PowertoolsAction("Open Cesium Debugging Window", CesiumOmniverseDebugWindow.show_window),
             PowertoolsAction("Open Cesium Georeference Helper Window", CesiumGeorefHelperWindow.create_window),
             PowertoolsAction("Open Procedural Geometry Window", ProceduralGeometryWindow.create_window)
+            PowertoolsAction("Extend Far Plane", extend_far_plane),
         ]
 
         self.frame.set_build_fn(self._build_fn)

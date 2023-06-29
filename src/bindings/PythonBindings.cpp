@@ -12,14 +12,13 @@
 // Needs to go after carb
 #include "pyboost11.h"
 
-namespace pybind11 {
-namespace detail {
+namespace pybind11::detail {
 
 PYBOOST11_TYPE_CASTER(pxr::GfMatrix4d, _("Matrix4d"));
 
-} // end namespace detail
-} // end namespace pybind11
+} // namespace pybind11::detail
 
+// NOLINTNEXTLINE
 CARB_BINDINGS("cesium.omniverse.python")
 DISABLE_PYBIND11_DYNAMIC_CAST(cesium::omniverse::ICesiumOmniverseInterface)
 

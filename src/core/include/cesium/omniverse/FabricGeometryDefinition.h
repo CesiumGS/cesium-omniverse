@@ -19,11 +19,11 @@ class FabricGeometryDefinition {
         uint64_t imageryTexcoordSetIndex,
         bool disableMaterials);
 
-    bool hasMaterial() const;
-    bool hasTexcoords() const;
-    bool hasNormals() const;
-    bool hasVertexColors() const;
-    bool getDoubleSided() const;
+    [[nodiscard]] bool hasMaterial() const;
+    [[nodiscard]] bool hasTexcoords() const;
+    [[nodiscard]] bool hasNormals() const;
+    [[nodiscard]] bool hasVertexColors() const;
+    [[nodiscard]] bool getDoubleSided() const;
 
     bool operator==(const FabricGeometryDefinition& other) const;
 

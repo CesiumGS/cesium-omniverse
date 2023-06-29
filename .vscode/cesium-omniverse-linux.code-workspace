@@ -10,7 +10,6 @@
     // See https://github.com/microsoft/vscode-cpptools/issues/5537
     "C_Cpp.autoAddFileAssociations": false,
     // Disable C/C++ extension IntelliSense since it conflicts with clangd
-    // and has trouble finding third party libraries
     "C_Cpp.intelliSenseEngine": "disabled",
     // Ignore submodules in git sidebar
     "git.detectSubmodules": false,
