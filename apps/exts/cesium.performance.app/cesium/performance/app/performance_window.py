@@ -3,7 +3,6 @@ import carb.events
 import omni.kit.app as app
 import omni.ui as ui
 from cesium.omniverse.bindings import ICesiumOmniverseInterface
-from cesium.omniverse.ui.models.space_delimited_number_model import SpaceDelimitedNumberModel
 
 RANDOM_COLORS_TEXT = "Random colors"
 FORBID_HOLES_TEXT = "Forbid holes"
@@ -21,6 +20,11 @@ GRAND_CANYON_GOOGLE_TEXT = "Grand Canyon (Google)"
 TOUR_GOOGLE_TEXT = "Tour (Google)"
 
 DURATION_TEXT = "Duration (seconds)"
+FPS_TEXT = "FPS"
+FPS_MEAN_TEXT = "FPS (mean)"
+FPS_MEDIAN_TEXT = "FPS (median)"
+FPS_LOW_TEXT = "FPS (low)"
+FPS_HIGH_TEXT = "FPS (high)"
 
 
 class CesiumPerformanceWindow(ui.Window):
@@ -37,7 +41,12 @@ class CesiumPerformanceWindow(ui.Window):
         self._forbid_holes_checkbox_model = ui.SimpleBoolModel(False)
         self._frustum_culling_checkbox_model = ui.SimpleBoolModel(True)
 
-        self._duration_model: SpaceDelimitedNumberModel = SpaceDelimitedNumberModel(0)
+        self._duration_model = ui.SimpleFloatModel(0.0)
+        self._fps_model = ui.SimpleFloatModel(0.0)
+        self._fps_mean_model = ui.SimpleFloatModel(0.0)
+        self._fps_median_model = ui.SimpleFloatModel(0.0)
+        self._fps_low_model = ui.SimpleFloatModel(0.0)
+        self._fps_high_model = ui.SimpleFloatModel(0.0)
 
         self.frame.set_build_fn(self._build_fn)
 
@@ -90,6 +99,11 @@ class CesiumPerformanceWindow(ui.Window):
 
                 for label, model in [
                     (DURATION_TEXT, self._duration_model),
+                    (FPS_TEXT, self._fps_model),
+                    (FPS_MEAN_TEXT, self._fps_mean_model),
+                    (FPS_MEDIAN_TEXT, self._fps_median_model),
+                    (FPS_LOW_TEXT, self._fps_low_model),
+                    (FPS_HIGH_TEXT, self._fps_high_model),
                 ]:
                     with ui.HStack(height=0):
                         ui.Label(label, height=0)
@@ -152,5 +166,20 @@ class CesiumPerformanceWindow(ui.Window):
     def get_frustum_culling(self) -> bool:
         return self._frustum_culling_checkbox_model.get_value_as_bool()
 
-    def set_duration(self, duration: float):
-        self._duration_model.set_value(duration)
+    def set_duration(self, value: float):
+        self._duration_model.set_value(value)
+
+    def set_fps(self, value: float):
+        self._fps_model.set_value(value)
+
+    def set_fps_mean(self, value: float):
+        self._fps_mean_model.set_value(value)
+
+    def set_fps_median(self, value: float):
+        self._fps_median_model.set_value(value)
+
+    def set_fps_low(self, value: float):
+        self._fps_low_model.set_value(value)
+
+    def set_fps_high(self, value: float):
+        self._fps_high_model.set_value(value)
