@@ -9,6 +9,7 @@ RANDOM_COLORS_TEXT = "Random colors"
 FORBID_HOLES_TEXT = "Forbid holes"
 FRUSTUM_CULLING_TEXT = "Frustum culling"
 TRACING_ENABLED_TEXT = "Tracing enabled"
+MAIN_THREAD_LOADING_TIME_LIMIT_TEXT = "Main thread loading time limit (ms)"
 
 NEW_YORK_CITY_TEXT = "New York City"
 PARIS_TEXT = "Paris"
@@ -36,6 +37,7 @@ class CesiumPerformanceWindow(ui.Window):
         self._random_colors_checkbox_model = ui.SimpleBoolModel(False)
         self._forbid_holes_checkbox_model = ui.SimpleBoolModel(False)
         self._frustum_culling_checkbox_model = ui.SimpleBoolModel(True)
+        self._main_thread_loading_time_limit_model = ui.SimpleFloatModel(0.0)
 
         self._duration_model: SpaceDelimitedNumberModel = SpaceDelimitedNumberModel(0)
 
@@ -59,6 +61,10 @@ class CesiumPerformanceWindow(ui.Window):
                     with ui.HStack(height=0):
                         ui.Label(label, height=0)
                         ui.CheckBox(model)
+
+                with ui.HStack(height=0):
+                    ui.Label(MAIN_THREAD_LOADING_TIME_LIMIT_TEXT, height=0)
+                    ui.StringField(self._main_thread_loading_time_limit_model)
 
                 with ui.HStack(height=16):
                     tracing_label = ui.Label(TRACING_ENABLED_TEXT, height=0)
@@ -151,6 +157,9 @@ class CesiumPerformanceWindow(ui.Window):
 
     def get_frustum_culling(self) -> bool:
         return self._frustum_culling_checkbox_model.get_value_as_bool()
+
+    def get_main_thread_loading_time_limit_model(self) -> float:
+        return self._main_thread_loading_time_limit_model.get_value_as_float()
 
     def set_duration(self, duration: float):
         self._duration_model.set_value(duration)

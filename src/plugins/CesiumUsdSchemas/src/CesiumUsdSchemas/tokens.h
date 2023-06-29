@@ -119,6 +119,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumTileset
     const TfToken cesiumLoadingDescendantLimit;
+    /// \brief "cesium:mainThreadLoadingTimeLimit"
+    /// 
+    /// CesiumTileset
+    const TfToken cesiumMainThreadLoadingTimeLimit;
     /// \brief "cesium:maximumCachedBytes"
     /// 
     /// CesiumTileset
