@@ -594,22 +594,6 @@ void destroyPrimsSpan(gsl::span<const omni::fabric::Path> paths) {
     for (const auto& path : paths) {
         srw.destroyPrim(path);
     }
-
-    // Prims removed from Fabric need special handling for their removal to be reflected in the Hydra render index
-    // This workaround may not be needed in future Kit versions, but is needed as of Kit 104.2
-    const omni::fabric::Path changeTrackingPath("/TempChangeTracking");
-
-    if (srw.getAttribute<uint64_t>(changeTrackingPath, FabricTokens::_deletedPrims) == nullptr) {
-        return;
-    }
-
-    const auto deletedPrimsSize = srw.getArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims);
-    srw.setArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims, deletedPrimsSize + paths.size());
-    auto deletedPrimsFabric = srw.getArrayAttributeWr<uint64_t>(changeTrackingPath, FabricTokens::_deletedPrims);
-
-    for (size_t i = 0; i < paths.size(); i++) {
-        deletedPrimsFabric[deletedPrimsSize + i] = omni::fabric::PathC(paths[i]).path;
-    }
 }
 } // namespace
 
