@@ -61,6 +61,7 @@ void wrapCesiumTokens()
     _AddToken(cls, "cesiumIonAccessToken", CesiumTokens->cesiumIonAccessToken);
     _AddToken(cls, "cesiumIonAssetId", CesiumTokens->cesiumIonAssetId);
     _AddToken(cls, "cesiumLoadingDescendantLimit", CesiumTokens->cesiumLoadingDescendantLimit);
+    _AddToken(cls, "cesiumMainThreadLoadingTimeLimit", CesiumTokens->cesiumMainThreadLoadingTimeLimit);
     _AddToken(cls, "cesiumMaximumCachedBytes", CesiumTokens->cesiumMaximumCachedBytes);
     _AddToken(cls, "cesiumMaximumScreenSpaceError", CesiumTokens->cesiumMaximumScreenSpaceError);
     _AddToken(cls, "cesiumMaximumSimultaneousTileLoads", CesiumTokens->cesiumMaximumSimultaneousTileLoads);

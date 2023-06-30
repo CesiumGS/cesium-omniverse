@@ -222,6 +222,15 @@ bool OmniTileset::getShowCreditsOnScreen() const {
     return showCreditsOnScreen;
 }
 
+float OmniTileset::getMainThreadLoadingTimeLimit() const {
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+
+    float mainThreadLoadingTimeLimit;
+    tileset.GetMainThreadLoadingTimeLimitAttr().Get<float>(&mainThreadLoadingTimeLimit);
+
+    return mainThreadLoadingTimeLimit;
+}
+
 pxr::CesiumGeoreference OmniTileset::getGeoreference() const {
     auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
@@ -288,6 +297,7 @@ void OmniTileset::reload() {
     options.enforceCulledScreenSpaceError = getEnforceCulledScreenSpaceError();
     options.culledScreenSpaceError = getCulledScreenSpaceError();
     options.showCreditsOnScreen = getShowCreditsOnScreen();
+    options.mainThreadLoadingTimeLimit = getMainThreadLoadingTimeLimit();
 
     options.loadErrorCallback =
         [tilesetPath, ionAssetId, name](const Cesium3DTilesSelection::TilesetLoadFailureDetails& error) {

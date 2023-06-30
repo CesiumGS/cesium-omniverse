@@ -479,10 +479,12 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         random_colors = self._performance_window.get_random_colors()
         forbid_holes = self._performance_window.get_forbid_holes()
         frustum_culling = self._performance_window.get_frustum_culling()
+        main_thread_loading_time_limit = self._performance_window.get_main_thread_loading_time_limit_model()
 
         cesium_data.GetDebugRandomColorsAttr().Set(random_colors)
         tileset.GetForbidHolesAttr().Set(forbid_holes)
         tileset.GetEnableFrustumCullingAttr().Set(frustum_culling)
+        tileset.GetMainThreadLoadingTimeLimitAttr().Set(main_thread_loading_time_limit)
 
         self._tileset_path = tileset_path
         self._active = True

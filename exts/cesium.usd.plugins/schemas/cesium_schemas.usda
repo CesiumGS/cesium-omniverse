@@ -300,6 +300,14 @@ class CesiumTilesetPrim "CesiumTilesetPrim" (
         doc = "Whether or not to show this tileset's credits on screen."
     )
 
+    float cesium:mainThreadLoadingTimeLimit = 0.0 (
+        customData = {
+            string apiName = "mainThreadLoadingTimeLimit"
+        }
+        displayName = "Main Thread Loading Time Limit"
+        doc = "A soft limit on how long (in milliseconds) to spend on the main-thread part of tile loading each frame. A value of 0.0 indicates that all pending main-thread loads should be completed each tick."
+    )
+
     rel cesium:georeferenceBinding (
         customData = {
             string apiName = "georeferenceBinding"
