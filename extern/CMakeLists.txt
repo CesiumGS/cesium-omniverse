@@ -35,10 +35,6 @@ add_external_project(
 )
 # cmake-format: on
 
-if (CESIUM_OMNI_CI)
-    file(COPY_FILE "${PROJECT_SOURCE_DIR}/extern/nvidia/deps/kit-sdk.packman.ci.xml" "${PROJECT_SOURCE_DIR}/extern/nvidia/deps/kit-sdk.packman.xml")
-endif()
-
 if(UNIX)
     execute_process(COMMAND bash "${PROJECT_SOURCE_DIR}/extern/nvidia/prebuild.sh" RESULT_VARIABLE exit_code)
 elseif(WIN32)
