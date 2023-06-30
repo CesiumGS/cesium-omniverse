@@ -62,6 +62,7 @@ class OmniTileset {
     [[nodiscard]] float getCulledScreenSpaceError() const;
     [[nodiscard]] bool getSuspendUpdate() const;
     [[nodiscard]] bool getSmoothNormals() const;
+    [[nodiscard]] float getMainThreadLoadingTimeLimit() const;
     [[nodiscard]] bool getShowCreditsOnScreen() const;
     [[nodiscard]] pxr::CesiumGeoreference getGeoreference() const;
 
