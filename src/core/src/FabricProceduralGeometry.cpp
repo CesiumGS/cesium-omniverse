@@ -14,6 +14,7 @@
 
 #include <pxr/usd/usd/prim.h>
 #include <omni/gpucompute/GpuCompute.h>
+#include <iostream>
 
 
 int cesium::omniverse::FabricProceduralGeometry::createCube() {
@@ -28,46 +29,43 @@ void cesium::omniverse::FabricProceduralGeometry::modifyUsdPrim() {
     //Linker error getting UsdContext using omni::usd
     // auto context = omni::usd::UsdContext::getContext();
     const pxr::UsdStageRefPtr usdStagePtr = Context::instance().getStage();
-
+    carb::flatcache::StageInProgress stageInProgress = UsdUtil::getFabricStageInProgress();
+    auto iStageInProgress = carb::getCachedInterface<carb::flatcache::IStageInProgress>();
     long id = Context::instance().getStageId();
     auto usdStageId = carb::flatcache::UsdStageId{static_cast<uint64_t>(id)};
 
     //create a cube in USD and set its size.
     pxr::UsdPrim prim = usdStagePtr->DefinePrim(pxr::SdfPath("/TestCube"), pxr::TfToken("Cube"));
-    prim.CreateAttribute(pxr::TfToken("size"), pxr::SdfValueTypeNames->Double).Set(1.0);
+    prim.CreateAttribute(pxr::TfToken("size"), pxr::SdfValueTypeNames->Double).Set(3.0);
 
     //prefetch it to Fabric’s cache.
-    auto iStageInProgress = carb::getCachedInterface<carb::flatcache::IStageInProgress>();
     carb::flatcache::Path primPath("/TestCube");
     iStageInProgress->prefetchPrim(usdStageId, primPath);
 
     //use Fabric to modify the cube’s dimensions
-    carb::flatcache::StageInProgress sip = UsdUtil::getFabricStageInProgress();
-    auto sizeToken = carb::flatcache::Token("size");
-    auto* sizePtr = sip.getAttribute<double>(primPath, sizeToken);
-    *sizePtr *= 10;
+    auto sizeFabricToken = carb::flatcache::Token("size");
+
+    double& size = *stageInProgress.getAttribute<double>(primPath, carb::flatcache::Token("size"));
+    size = size * 10;
+    // auto* sizePtr = stageInProgress.getAttribute<double>(primPath, sizeFabricToken);
+    // *sizePtr *= 10;
 
     // //write our changes back to USD.
     const auto flatCache = carb::getCachedInterface<carb::flatcache::FlatCache>();
     if (flatCache->createCache != nullptr) {
         auto& pathToAttributesMap = flatCache->createCache(usdStageId, flatcache::kDefaultUserId, carb::flatcache::CacheType::eWithoutHistory);
-        //auto pathToAttributesMapPtr = flatCache->getCache(usdStageId, flatcache::kDefaultUserId);
-        // auto pam = *pamPtr;
-        // flatCache->cacheToUsd(pam);
-        //flatCache->cacheToUsd(*pathToAttributesMapPtr);
         flatCache->cacheToUsd(pathToAttributesMap);
     }
 
-    // //check that Fabric correctly modified the USD stage.
-//    pxr::UsdAttribute sizeAttr = prim.GetAttribute(pxr::TfToken("size"));
-//    double value;
-//    sizeAttr.Get(&value);
-//    if (value == 10.f) {
-//        value = 20;
-//    } else {
-//        value = 5.f;
-//    }
-    // CHECK(value == 10.0f);
+    //check that Fabric correctly modified the USD stage.
+    pxr::UsdAttribute sizeAttr = prim.GetAttribute(pxr::TfToken("size"));
+    double value;
+    sizeAttr.Get(&value);
+    if (value == 10.f) {
+        std::cout << "modified stage" << std::endl;
+    } else {
+        std::cout << "did not modify stage" << std::endl;
+    }
 }
 
 void cesium::omniverse::FabricProceduralGeometry::modify1000Prims() {
