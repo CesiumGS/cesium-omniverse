@@ -58,7 +58,7 @@ class CesiumDataPrim "CesiumDataPrim" (
         doc = "Debug option that renders tilesets with textures disabled."
     )
 
-    bool cesium:debug:disableGeometryPool = true (
+    bool cesium:debug:disableGeometryPool = false (
         customData = {
             string apiName = "debugDisableGeometryPool"
         }
@@ -74,7 +74,7 @@ class CesiumDataPrim "CesiumDataPrim" (
         doc = "Debug option that disables material pooling."
     )
 
-    uint64 cesium:debug:geometryPoolInitialCapacity = 0 (
+    uint64 cesium:debug:geometryPoolInitialCapacity = 2048 (
         customData = {
             string apiName = "debugGeometryPoolInitialCapacity"
         }

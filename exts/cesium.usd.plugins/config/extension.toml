@@ -30,9 +30,11 @@ readme = "doc/README.md"
 preview_image = "doc/images/preview.jpg"
 icon = "doc/images/icon.png"
 
+[package.target]
+kit = ["105.*"]
+
 # Which extensions this extension depends on
 [dependencies]
-"usdrt.scenegraph" = {}
 "omni.usd.libs" = {}
 
 # Main python module this extension provides, it will be publicly available as "import cesium.usd.plugins"

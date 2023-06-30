@@ -35,10 +35,6 @@ add_external_project(
 )
 # cmake-format: on
 
-if (CESIUM_OMNI_CI)
-    file(COPY_FILE "${PROJECT_SOURCE_DIR}/extern/nvidia/deps/kit-sdk.packman.ci.xml" "${PROJECT_SOURCE_DIR}/extern/nvidia/deps/kit-sdk.packman.xml")
-endif()
-
 if(UNIX)
     execute_process(COMMAND bash "${PROJECT_SOURCE_DIR}/extern/nvidia/prebuild.sh" RESULT_VARIABLE exit_code)
 elseif(WIN32)
@@ -111,14 +107,14 @@ set(NVIDIA_USD_RELEASE_LIBRARIES ${NVIDIA_USD_RELEASE_LIBRARIES} tbb)
 set(NVIDIA_USD_DEBUG_LIBRARIES ${NVIDIA_USD_DEBUG_LIBRARIES} tbb_debug)
 
 # Add boost python
-set(NVIDIA_USD_TARGET_NAMES ${NVIDIA_USD_TARGET_NAMES} boost_python37)
+set(NVIDIA_USD_TARGET_NAMES ${NVIDIA_USD_TARGET_NAMES} boost_python310)
 
 if(WIN32)
-    set(NVIDIA_USD_RELEASE_LIBRARIES ${NVIDIA_USD_RELEASE_LIBRARIES} boost_python37-vc141-mt-x64-1_68)
-    set(NVIDIA_USD_DEBUG_LIBRARIES ${NVIDIA_USD_DEBUG_LIBRARIES} boost_python37-vc141-mt-gd-x64-1_68)
+    set(NVIDIA_USD_RELEASE_LIBRARIES ${NVIDIA_USD_RELEASE_LIBRARIES} boost_python310-vc142-mt-x64-1_76)
+    set(NVIDIA_USD_DEBUG_LIBRARIES ${NVIDIA_USD_DEBUG_LIBRARIES} boost_python310-vc142-mt-gd-x64-1_76)
 else()
-    set(NVIDIA_USD_RELEASE_LIBRARIES ${NVIDIA_USD_RELEASE_LIBRARIES} boost_python37)
-    set(NVIDIA_USD_DEBUG_LIBRARIES ${NVIDIA_USD_DEBUG_LIBRARIES} boost_python37)
+    set(NVIDIA_USD_RELEASE_LIBRARIES ${NVIDIA_USD_RELEASE_LIBRARIES} boost_python310)
+    set(NVIDIA_USD_DEBUG_LIBRARIES ${NVIDIA_USD_DEBUG_LIBRARIES} boost_python310)
 endif()
 
 if(${USE_NVIDIA_RELEASE_LIBRARIES})
@@ -160,30 +156,30 @@ if(WIN32)
         DEBUG_DLL_DIR
             "${PYTHON_ROOT}"
         RELEASE_LIBRARIES
-            python37
+            python310
         DEBUG_LIBRARIES
-            python37
+            python310
         TARGET_NAMES
-            python37
+            python310
     )
     # cmake-format: on
 else()
     # cmake-format: off
     add_prebuilt_project(
         RELEASE_INCLUDE_DIR
-            "${PYTHON_ROOT}/include/python3.7m"
+            "${PYTHON_ROOT}/include/python3.10"
         DEBUG_INCLUDE_DIR
-            "${PYTHON_ROOT}/include/python3.7m"
+            "${PYTHON_ROOT}/include/python3.10"
         RELEASE_LIBRARY_DIR
             "${PYTHON_ROOT}/lib"
         DEBUG_LIBRARY_DIR
             "${PYTHON_ROOT}/lib"
         RELEASE_LIBRARIES
-            python3.7m
+            python3.10
         DEBUG_LIBRARIES
-            python3.7m
+            python3.10
         TARGET_NAMES
-            python37
+            python310
     )
     # cmake-format: on
 endif()
@@ -199,9 +195,9 @@ add_prebuilt_project(
     DEBUG_LIBRARY_DIR
         "${USDRT_ROOT}/_build/${NVIDIA_PLATFORM_NAME}/${NVIDIA_DEBUG_FOLDER_NAME}/usdrt_only"
     RELEASE_LIBRARIES
-        carb.flatcache.plugin
+        omni.fabric.plugin
     DEBUG_LIBRARIES
-        carb.flatcache.plugin
+        omni.fabric.plugin
     TARGET_NAMES
         usdrt
 )
@@ -227,21 +223,11 @@ add_prebuilt_project(
 # cmake-format: on
 
 # cmake-format: off
-add_prebuilt_project(
-    RELEASE_INCLUDE_DIR
+add_prebuilt_project_header_only(
+    INCLUDE_DIR
         "${KIT_SDK_ROOT}/dev/include"
-    DEBUG_INCLUDE_DIR
-        "${KIT_SDK_ROOT}/dev/include"
-    RELEASE_LIBRARY_DIR
-        "${KIT_SDK_ROOT}/kernel/plugins"
-    DEBUG_LIBRARY_DIR
-        "${KIT_SDK_ROOT}/kernel/plugins"
-    RELEASE_LIBRARIES
-        omni.kit.app.plugin
-    DEBUG_LIBRARIES
-        omni.kit.app.plugin
-    TARGET_NAMES
-        omni_kit_app
+    TARGET_NAME
+        omni_kit
 )
 # cmake-format: on
 
@@ -310,9 +296,9 @@ add_prebuilt_project(
     DEBUG_INCLUDE_DIR
         "${KIT_SDK_ROOT}/dev/include"
     RELEASE_LIBRARY_DIR
-        "${KIT_SDK_ROOT}/extscore/omni.ui/bin"
+        "${KIT_SDK_ROOT}/exts/omni.ui/bin"
     DEBUG_LIBRARY_DIR
-        "${KIT_SDK_ROOT}/extscore/omni.ui/bin"
+        "${KIT_SDK_ROOT}/exts/omni.ui/bin"
     RELEASE_LIBRARIES
         omni.ui
     DEBUG_LIBRARIES
@@ -334,23 +320,22 @@ add_prebuilt_project_header_only(
 
 if(WIN32)
     set(NVIDIA_ADDITIONAL_LIBRARIES
-        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/kit-sdk/extscore/omni.kit.renderer.imgui/bin/imgui.dll"
-        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/kit-sdk/extscore/omni.kit.renderer.imgui/bin/deps/freetype.dll"
+        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/kit-sdk/exts/omni.kit.renderer.imgui/bin/imgui.dll"
+        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/kit-sdk/exts/omni.kit.renderer.imgui/bin/deps/freetype.dll"
     )
 
     set_property(GLOBAL PROPERTY NVIDIA_ADDITIONAL_LIBRARIES_PROPERTY "${NVIDIA_ADDITIONAL_LIBRARIES}")
 else()
     set(NVIDIA_ADDITIONAL_SEARCH_PATHS
-        "$<TARGET_FILE_DIR:python37>"
+        "$<TARGET_FILE_DIR:python310>"
         "$<TARGET_FILE_DIR:usd>"
         "$<TARGET_FILE_DIR:carb>"
         # This is where freetype is located on Linux
-        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/kit-sdk/plugins")
+        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/kit-sdk/exts/omni.kit.renderer.imgui/bin/deps")
 
     set(NVIDIA_ADDITIONAL_LINK_DIRECTORIES
-        # This is where freetype is located on Linux
-        # Needed by imgui which doesn't set its rpath properly
-        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/kit-sdk/plugins")
+        # This is where freetype is located on Linux. Needed by imgui which doesn't set its rpath properly
+        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/kit-sdk/exts/omni.kit.renderer.imgui/bin/deps")
 
     set_property(GLOBAL PROPERTY NVIDIA_ADDITIONAL_SEARCH_PATHS_PROPERTY "${NVIDIA_ADDITIONAL_SEARCH_PATHS}")
     set_property(GLOBAL PROPERTY NVIDIA_ADDITIONAL_LINK_DIRECTORIES_PROPERTY "${NVIDIA_ADDITIONAL_LINK_DIRECTORIES}")

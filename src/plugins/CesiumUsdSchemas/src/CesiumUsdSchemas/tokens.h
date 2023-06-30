@@ -173,11 +173,11 @@ struct CesiumTokensType {
     const TfToken cesiumUrl;
     /// \brief "ion"
     /// 
-    /// Possible value for CesiumTileset::GetCesiumSourceTypeAttr(), Default value for CesiumTileset::GetCesiumSourceTypeAttr()
+    /// Possible value for CesiumTileset::GetSourceTypeAttr(), Default value for CesiumTileset::GetSourceTypeAttr()
     const TfToken ion;
     /// \brief "url"
     /// 
-    /// Possible value for CesiumTileset::GetCesiumSourceTypeAttr()
+    /// Possible value for CesiumTileset::GetSourceTypeAttr()
     const TfToken url;
     /// A vector of all of the tokens listed above.
     const std::vector<TfToken> allTokens;

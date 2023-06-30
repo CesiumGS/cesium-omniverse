@@ -52,8 +52,9 @@ CesiumSession::Define(
 }
 
 /* virtual */
-UsdSchemaType CesiumSession::_GetSchemaType() const {
-    return CesiumSession::schemaType;
+UsdSchemaKind CesiumSession::_GetSchemaKind() const
+{
+    return CesiumSession::schemaKind;
 }
 
 /* static */
