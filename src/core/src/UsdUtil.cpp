@@ -1,6 +1,7 @@
 #include "cesium/omniverse/UsdUtil.h"
 
 #include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/GeospatialUtil.h"
 #include "cesium/omniverse/Viewport.h"
 
 #include <CesiumGeometry/Transforms.h>
@@ -8,6 +9,7 @@
 #include <CesiumGeospatial/GlobeTransforms.h>
 #include <glm/gtc/matrix_access.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
+#include <pxr/base/gf/rotation.h>
 #include <pxr/usd/sdf/primSpec.h>
 #include <pxr/usd/usd/prim.h>
 #include <pxr/usd/usd/stage.h>
@@ -19,34 +21,6 @@
 #include <regex>
 
 namespace cesium::omniverse::UsdUtil {
-
-namespace {
-glm::dmat4 getEastNorthUpToFixedFrame(const CesiumGeospatial::Cartographic& cartographic) {
-    const auto cartesian = CesiumGeospatial::Ellipsoid::WGS84.cartographicToCartesian(cartographic);
-    const auto matrix = CesiumGeospatial::GlobeTransforms::eastNorthUpToFixedFrame(cartesian);
-    return matrix;
-}
-
-glm::dmat4 getAxisConversionTransform() {
-    const auto upAxis = getUsdUpAxis();
-
-    auto axisConversion = glm::dmat4(1.0);
-
-    // USD up axis can be either Y or Z
-    if (upAxis == pxr::UsdGeomTokens->y) {
-        axisConversion = CesiumGeometry::Transforms::Y_UP_TO_Z_UP;
-    }
-
-    return axisConversion;
-}
-
-glm::dmat4 getUnitConversionTransform() {
-    const auto metersPerUnit = getUsdMetersPerUnit();
-    const auto matrix = glm::scale(glm::dmat4(1.0), glm::dvec3(metersPerUnit));
-    return matrix;
-}
-
-} // namespace
 
 pxr::UsdStageRefPtr getUsdStage() {
     return Context::instance().getStage();
@@ -197,7 +171,8 @@ std::string getSafeName(const std::string& assetName) {
 }
 
 glm::dmat4 computeUsdToEcefTransform(const CesiumGeospatial::Cartographic& origin) {
-    return getEastNorthUpToFixedFrame(origin) * getAxisConversionTransform() * getUnitConversionTransform();
+    return GeospatialUtil::getEastNorthUpToFixedFrame(origin) * GeospatialUtil::getAxisConversionTransform() *
+           GeospatialUtil::getUnitConversionTransform();
 }
 
 glm::dmat4 computeEcefToUsdTransform(const CesiumGeospatial::Cartographic& origin) {
@@ -257,6 +232,12 @@ pxr::GfRange3d computeWorldExtent(const pxr::GfRange3d& localExtent, const glm::
     }
 
     return pxr::GfRange3d(glmToUsdVector(worldMin), glmToUsdVector(worldMax));
+}
+
+pxr::GfVec3f getEulerAnglesFromQuaternion(const pxr::GfQuatf& quaternion) {
+    const auto rotation = pxr::GfRotation(quaternion);
+    const auto euler = rotation.Decompose(pxr::GfVec3d::XAxis(), pxr::GfVec3d::YAxis(), pxr::GfVec3d::ZAxis());
+    return pxr::GfVec3f(static_cast<float>(euler[0]), static_cast<float>(euler[1]), static_cast<float>(euler[2]));
 }
 
 pxr::CesiumData defineCesiumData(const pxr::SdfPath& path) {
@@ -394,7 +375,7 @@ std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& p
     return result;
 }
 
-pxr::CesiumGlobeAnchorAPI getGlobeAnchor(const pxr::SdfPath& path) {
+pxr::CesiumGlobeAnchorAPI getCesiumGlobeAnchor(const pxr::SdfPath& path) {
     auto stage = UsdUtil::getUsdStage();
     auto globeAnchor = pxr::CesiumGlobeAnchorAPI::Get(stage, path);
     assert(globeAnchor.GetPrim().IsValid());

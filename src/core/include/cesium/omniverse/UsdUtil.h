@@ -80,6 +80,7 @@ glm::dmat4 computeUsdToEcefTransformForPrim(const CesiumGeospatial::Cartographic
 Cesium3DTilesSelection::ViewState
 computeViewState(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath, const Viewport& viewport);
 pxr::GfRange3d computeWorldExtent(const pxr::GfRange3d& localExtent, const glm::dmat4& localToUsdTransform);
+pxr::GfVec3f getEulerAnglesFromQuaternion(const pxr::GfQuatf& quaternion);
 
 pxr::CesiumData defineCesiumData(const pxr::SdfPath& path);
 pxr::CesiumSession defineCesiumSession(const pxr::SdfPath& path);
@@ -95,7 +96,7 @@ pxr::CesiumGeoreference getCesiumGeoreference(const pxr::SdfPath& path);
 pxr::CesiumTileset getCesiumTileset(const pxr::SdfPath& path);
 pxr::CesiumImagery getCesiumImagery(const pxr::SdfPath& path);
 std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& path);
-pxr::CesiumGlobeAnchorAPI getGlobeAnchor(const pxr::SdfPath& path);
+pxr::CesiumGlobeAnchorAPI getCesiumGlobeAnchor(const pxr::SdfPath& path);
 
 bool isCesiumData(const pxr::SdfPath& path);
 bool isCesiumSession(const pxr::SdfPath& path);

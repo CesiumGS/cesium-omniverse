@@ -6,6 +6,7 @@
 #include "cesium/omniverse/FabricMeshManager.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GeospatialUtil.h"
+#include "cesium/omniverse/GlobeAnchorRegistry.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/OmniImagery.h"
@@ -199,6 +200,7 @@ void Context::clearStage() {
     // The order is important. Clear tilesets first so that FabricMeshes are released back into the pool. Then clear the pools.
     AssetRegistry::getInstance().clear();
     FabricMeshManager::getInstance().clear();
+    GlobeAnchorRegistry::getInstance().clear();
 }
 
 void Context::reloadStage() {
@@ -349,19 +351,40 @@ void Context::processCesiumGeoreferenceChanged([[maybe_unused]] const cesium::om
 void Context::processCesiumGlobeAnchorChanged(const cesium::omniverse::ChangedPrim& changedPrim) {
     const auto& [path, name, primType, changeType] = changedPrim;
 
+    auto globeAnchor = UsdUtil::getCesiumGlobeAnchor(path);
+    pxr::SdfPathVector targets;
+    if (!globeAnchor.GetGeoreferenceBindingRel().GetForwardedTargets(&targets)) {
+        return;
+    }
+    auto georeferenceOrigin = UsdUtil::getCesiumGeoreference(targets[0]);
+    auto cartographicOrigin = GeospatialUtil::convertGeoreferenceToCartographic(georeferenceOrigin);
+
     if (name == pxr::CesiumTokens->cesiumAnchorLatitude || name == pxr::CesiumTokens->cesiumAnchorLongitude ||
         name == pxr::CesiumTokens->cesiumAnchorHeight) {
-        // TODO: Handle lat/long/height changes.
+        GeospatialUtil::updateAnchorByLatLongHeight(cartographicOrigin, globeAnchor);
+
+        return;
     }
 
     if (name == pxr::CesiumTokens->cesiumAnchorPosition || name == pxr::CesiumTokens->cesiumAnchorRotation ||
         name == pxr::CesiumTokens->cesiumAnchorScale) {
-        // TODO: Handle ECEF changes.
+        GeospatialUtil::updateAnchorByFixedTransform(cartographicOrigin, globeAnchor);
+
+        return;
     }
 
-    if (name == cesium::omniverse::UsdTokens::xformOp_translate ||
-        name == cesium::omniverse::UsdTokens::xformOp_rotation || name == cesium::omniverse::UsdTokens::xformOp_scale) {
-        // TODO: Handle TRS changes.
+    bool detectTransformChanges;
+    globeAnchor.GetDetectTransformChangesAttr().Get(&detectTransformChanges);
+
+    if (detectTransformChanges && (name == pxr::CesiumTokens->cesiumAnchorDetectTransformChanges ||
+                                   name == cesium::omniverse::UsdTokens::xformOp_translate ||
+                                   name == cesium::omniverse::UsdTokens::xformOp_rotation ||
+                                   name == cesium::omniverse::UsdTokens::xformOp_scale)) {
+        GeospatialUtil::updateAnchorByUsdTransform(cartographicOrigin, globeAnchor);
+
+        // TODO: Adjust orientation if that is enabled.
+
+        return;
     }
 }
 
@@ -805,33 +828,15 @@ RenderStatistics Context::getRenderStatistics() const {
 
 void Context::addGlobeAnchorToPrim(const pxr::SdfPath& path) {
     auto prim = UsdUtil::getUsdStage()->GetPrimAtPath(path);
-    auto globeAnchorApi = UsdUtil::defineGlobeAnchor(path);
+    auto globeAnchor = UsdUtil::defineGlobeAnchor(path);
 
     // Until we support multiple georeference points, we should just use the default georeference object.
     auto georeferenceOrigin = UsdUtil::getOrCreateCesiumGeoreference();
-    globeAnchorApi.GetGeoreferenceBindingRel().AddTarget(georeferenceOrigin.GetPath());
+    globeAnchor.GetGeoreferenceBindingRel().AddTarget(georeferenceOrigin.GetPath());
 
     const auto& cartographicOrigin = GeospatialUtil::convertGeoreferenceToCartographic(georeferenceOrigin);
 
-    auto usdToEcef = UsdUtil::computeUsdToEcefTransformForPrim(cartographicOrigin, path);
-    auto fixedTransform = UsdUtil::glmToUsdMatrixDecomposed(usdToEcef);
-
-    std::optional<CesiumGeospatial::Cartographic> cartographicPosition =
-        CesiumGeospatial::Ellipsoid::WGS84.cartesianToCartographic(UsdUtil::usdToGlmVector(fixedTransform.position));
-
-    globeAnchorApi.GetPositionAttr().Set(fixedTransform.position);
-    globeAnchorApi.GetRotationAttr().Set(fixedTransform.orientation);
-    globeAnchorApi.GetScaleAttr().Set(fixedTransform.scale);
-
-    if (cartographicPosition) {
-        globeAnchorApi.GetLatitudeAttr().Set(glm::degrees(cartographicPosition->latitude));
-        globeAnchorApi.GetLongitudeAttr().Set(glm::degrees(cartographicPosition->longitude));
-        globeAnchorApi.GetHeightAttr().Set(cartographicPosition->height);
-    } else {
-        globeAnchorApi.GetLatitudeAttr().Set(0.0);
-        globeAnchorApi.GetLongitudeAttr().Set(0.0);
-        globeAnchorApi.GetHeightAttr().Set(0.0);
-    }
+    GeospatialUtil::updateAnchorByUsdTransform(cartographicOrigin, globeAnchor);
 }
 
 } // namespace cesium::omniverse
