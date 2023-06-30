@@ -157,7 +157,8 @@ void updateAnchorByFixedTransform(
     glm::dvec3 skew{};
     glm::dvec4 perspective{};
 
-    auto fixedTransform = glm::decompose(globeAnchor->getAnchorToFixedTransform(), s, r, t, skew, perspective);
+    [[maybe_unused]] auto fixedTransform =
+        glm::decompose(globeAnchor->getAnchorToFixedTransform(), s, r, t, skew, perspective);
     assert(fixedTransform);
 
     auto cartographicPosition = CesiumGeospatial::Ellipsoid::WGS84.cartesianToCartographic(t);
