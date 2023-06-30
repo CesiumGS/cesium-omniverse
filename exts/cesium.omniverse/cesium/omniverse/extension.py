@@ -59,8 +59,9 @@ class CesiumOmniverseExtension(omni.ext.IExt):
 
         try:
             # This installs lxml which is needed for credit display.
-            omni.kit.pipapi.install("wheel")
-            omni.kit.pipapi.install("lxml")
+            omni.kit.pipapi.install(
+                package="lxml", module="lxml", use_online_index=False, ignore_cache=True, ignore_import_check=False
+            )
         except Exception as e:
             self._logger.error(e)
 

@@ -42,6 +42,9 @@ kit = ["105.*"]
 [[python.module]]
 name = "cesium.omniverse"
 
+[python.pipapi]
+archiveDirs = ["vendor"]
+
 [[native.plugin]]
 path = "bin/cesium.omniverse.plugin"
 

@@ -72,7 +72,9 @@ class CesiumCreditsParser:
             return results
 
         try:
-            omni.kit.pipapi.install("lxml==4.9.2")
+            omni.kit.pipapi.install(
+                package="lxml", module="lxml", use_online_index=False, ignore_cache=True, ignore_import_check=False
+            )
             from lxml import etree
 
             parser = etree.HTMLParser()
