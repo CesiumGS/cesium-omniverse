@@ -307,10 +307,7 @@ void FabricMaterial::setTile(
     int64_t tilesetId,
     int64_t tileId,
     const CesiumGltf::Model& model,
-    const CesiumGltf::MeshPrimitive& primitive,
-    const CesiumGltf::ImageCesium* imagery,
-    const glm::dvec2& imageryTexcoordTranslation,
-    const glm::dvec2& imageryTexcoordScale) {
+    const CesiumGltf::MeshPrimitive& primitive) {
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
@@ -331,8 +328,6 @@ void FabricMaterial::setTile(
     const auto hasBaseColorTexture = _materialDefinition.hasBaseColorTexture();
     const auto hasGltfMaterial = GltfUtil::hasMaterial(primitive);
 
-    const CesiumGltf::ImageCesium* baseColorImage = nullptr;
-
     if (hasGltfMaterial) {
         const auto& material = model.materials[static_cast<size_t>(primitive.material)];
 
@@ -349,7 +344,12 @@ void FabricMaterial::setTile(
         const auto baseColorTextureIndex = GltfUtil::getBaseColorTextureIndex(model, material);
 
         if (baseColorTextureIndex.has_value()) {
-            baseColorImage = &GltfUtil::getImageCesium(model, model.textures[baseColorTextureIndex.value()]);
+            const auto& baseColorImage = GltfUtil::getImageCesium(model, model.textures[baseColorTextureIndex.value()]);
+            _baseColorTexture->setBytesData(
+                reinterpret_cast<const uint8_t*>(baseColorImage.pixelData.data()),
+                carb::Uint2{static_cast<uint32_t>(baseColorImage.width), static_cast<uint32_t>(baseColorImage.height)},
+                omni::ui::kAutoCalculateStride,
+                carb::Format::eRGBA8_SRGB);
         }
     } else {
         alphaCutoff = GltfUtil::getDefaultAlphaCutoff();
@@ -361,24 +361,6 @@ void FabricMaterial::setTile(
         roughnessFactor = GltfUtil::getDefaultRoughnessFactor();
         baseColorTextureWrapS = GltfUtil::getDefaultWrapS();
         baseColorTextureWrapT = GltfUtil::getDefaultWrapT();
-    }
-
-    // Imagery overrides the base color texture in the glTF
-    if (imagery != nullptr) {
-        baseColorImage = imagery;
-        baseColorTextureWrapS = CesiumGltf::Sampler::WrapS::CLAMP_TO_EDGE;
-        baseColorTextureWrapT = CesiumGltf::Sampler::WrapS::CLAMP_TO_EDGE;
-        offset = UsdUtil::glmToUsdVector(glm::fvec2(imageryTexcoordTranslation));
-        rotation = DEFAULT_ROTATION;
-        scale = UsdUtil::glmToUsdVector(glm::fvec2(imageryTexcoordScale));
-    }
-
-    if (hasBaseColorTexture) {
-        _baseColorTexture->setBytesData(
-            reinterpret_cast<const uint8_t*>(baseColorImage->pixelData.data()),
-            carb::Uint2{static_cast<uint32_t>(baseColorImage->width), static_cast<uint32_t>(baseColorImage->height)},
-            omni::ui::kAutoCalculateStride,
-            carb::Format::eRGBA8_SRGB);
     }
 
     // clang-format off
@@ -420,4 +402,37 @@ void FabricMaterial::setTile(
         FabricUtil::setTilesetIdAndTileId(_baseColorTexPathFabric, tilesetId, tileId);
     }
 }
-}; // namespace cesium::omniverse
+
+void FabricMaterial::setImagery(
+    const CesiumGltf::ImageCesium* imagery,
+    const glm::dvec2& imageryTexcoordTranslation,
+    const glm::dvec2& imageryTexcoordScale,
+    uint64_t imageryTexcoordSetIndex) {
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+
+    if (!_materialDefinition.hasBaseColorTexture()) {
+        return;
+    }
+
+    _baseColorTexture->setBytesData(
+        reinterpret_cast<const uint8_t*>(imagery->pixelData.data()),
+        carb::Uint2{static_cast<uint32_t>(imagery->width), static_cast<uint32_t>(imagery->height)},
+        omni::ui::kAutoCalculateStride,
+        carb::Format::eRGBA8_SRGB);
+
+    auto texCoordIndexFabric = srw.getAttributeWr<int>(_baseColorTexPathFabric, FabricTokens::inputs_tex_coord_index);
+    auto wrapSFabric = srw.getAttributeWr<int>(_baseColorTexPathFabric, FabricTokens::inputs_wrap_s);
+    auto wrapTFabric = srw.getAttributeWr<int>(_baseColorTexPathFabric, FabricTokens::inputs_wrap_t);
+    auto offsetFabric = srw.getAttributeWr<pxr::GfVec2f>(_baseColorTexPathFabric, FabricTokens::inputs_offset);
+    auto rotationFabric = srw.getAttributeWr<float>(_baseColorTexPathFabric, FabricTokens::inputs_rotation);
+    auto scaleFabric = srw.getAttributeWr<pxr::GfVec2f>(_baseColorTexPathFabric, FabricTokens::inputs_scale);
+
+    *texCoordIndexFabric = static_cast<int>(imageryTexcoordSetIndex);
+    *wrapSFabric = CesiumGltf::Sampler::WrapS::CLAMP_TO_EDGE;
+    *wrapTFabric = CesiumGltf::Sampler::WrapS::CLAMP_TO_EDGE;
+    *offsetFabric = UsdUtil::glmToUsdVector(glm::fvec2(imageryTexcoordTranslation));
+    *rotationFabric = DEFAULT_ROTATION;
+    *scaleFabric = UsdUtil::glmToUsdVector(glm::fvec2(imageryTexcoordScale));
+}
+
+} // namespace cesium::omniverse

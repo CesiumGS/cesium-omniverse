@@ -247,8 +247,7 @@ void FabricGeometry::setTile(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     bool smoothNormals,
-    bool hasImagery,
-    uint64_t imageryTexcoordSetIndex) {
+    bool hasImagery) {
 
     const auto hasTexcoords = _geometryDefinition.hasTexcoords();
     const auto hasNormals = _geometryDefinition.hasNormals();
@@ -261,7 +260,7 @@ void FabricGeometry::setTile(
     const auto normals = GltfUtil::getNormals(model, primitive, positions, indices, smoothNormals);
     const auto vertexColors = GltfUtil::getVertexColors(model, primitive, 0);
     const auto texcoords_0 = GltfUtil::getTexcoords(model, primitive, 0);
-    const auto imageryTexcoords = GltfUtil::getImageryTexcoords(model, primitive, imageryTexcoordSetIndex);
+    const auto imageryTexcoords = GltfUtil::getImageryTexcoords(model, primitive, 0);
     const auto extent = GltfUtil::getExtent(model, primitive);
     const auto faceVertexCounts = GltfUtil::getFaceVertexCounts(indices);
 

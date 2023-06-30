@@ -27,17 +27,12 @@ void FabricMesh::setTile(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     bool smoothNormals,
-    const CesiumGltf::ImageCesium* imagery,
-    const glm::dvec2& imageryTexcoordTranslation,
-    const glm::dvec2& imageryTexcoordScale,
-    uint64_t imageryTexcoordSetIndex) {
+    bool hasImagery) {
 
     const auto geometry = getGeometry();
     const auto material = getMaterial();
 
     assert(geometry != nullptr);
-
-    const auto hasImagery = imagery != nullptr;
 
     geometry->setTile(
         tilesetId,
@@ -48,13 +43,23 @@ void FabricMesh::setTile(
         model,
         primitive,
         smoothNormals,
-        hasImagery,
-        imageryTexcoordSetIndex);
+        hasImagery);
 
     if (material != nullptr) {
-        material->setTile(
-            tilesetId, tileId, model, primitive, imagery, imageryTexcoordTranslation, imageryTexcoordScale);
+        material->setTile(tilesetId, tileId, model, primitive);
         geometry->assignMaterial(material);
+    }
+}
+
+void FabricMesh::setImagery(
+    const CesiumGltf::ImageCesium* imagery,
+    const glm::dvec2& imageryTexcoordTranslation,
+    const glm::dvec2& imageryTexcoordScale,
+    uint64_t imageryTexcoordSetIndex) {
+    const auto material = getMaterial();
+
+    if (material != nullptr) {
+        material->setImagery(imagery, imageryTexcoordTranslation, imageryTexcoordScale, imageryTexcoordSetIndex);
     }
 }
 

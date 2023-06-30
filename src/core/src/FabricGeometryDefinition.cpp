@@ -16,12 +16,11 @@ FabricGeometryDefinition::FabricGeometryDefinition(
     const CesiumGltf::MeshPrimitive& primitive,
     bool smoothNormals,
     bool hasImagery,
-    uint64_t imageryTexcoordSetIndex,
     bool disableMaterials) {
 
     const auto hasMaterial = GltfUtil::hasMaterial(primitive);
     const auto hasPrimitiveSt = GltfUtil::hasTexcoords(model, primitive, 0);
-    const auto hasImagerySt = GltfUtil::hasImageryTexcoords(model, primitive, imageryTexcoordSetIndex);
+    const auto hasImagerySt = GltfUtil::hasImageryTexcoords(model, primitive, 0);
 
     _hasMaterial = (hasMaterial || hasImagery) && !disableMaterials;
     _hasTexcoords = hasPrimitiveSt || hasImagerySt;

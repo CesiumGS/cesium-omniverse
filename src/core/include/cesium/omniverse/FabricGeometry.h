@@ -32,8 +32,7 @@ class FabricGeometry {
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
         bool smoothNormals,
-        bool hasImagery,
-        uint64_t imageryTexcoordSetIndex);
+        bool hasImagery);
 
     void setActive(bool active);
     void setVisibility(bool visible);
