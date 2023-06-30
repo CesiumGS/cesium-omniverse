@@ -265,7 +265,7 @@ public:
     ///
     /// | ||
     /// | -- | -- |
-    /// | Declaration | `uint64 cesium:debug:geometryPoolInitialCapacity = 0` |
+    /// | Declaration | `uint64 cesium:debug:geometryPoolInitialCapacity = 2048` |
     /// | C++ Type | uint64_t |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->UInt64 |
     CESIUMUSDSCHEMAS_API
