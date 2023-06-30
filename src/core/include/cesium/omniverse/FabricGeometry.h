@@ -33,8 +33,6 @@ class FabricGeometry {
         const CesiumGltf::MeshPrimitive& primitive,
         bool smoothNormals,
         bool hasImagery,
-        const glm::dvec2& imageryTexcoordTranslation,
-        const glm::dvec2& imageryTexcoordScale,
         uint64_t imageryTexcoordSetIndex);
 
     void setActive(bool active);

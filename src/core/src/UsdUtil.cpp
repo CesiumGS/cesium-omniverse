@@ -97,6 +97,10 @@ pxr::GfVec3d glmToUsdVector(const glm::dvec3& vector) {
     return {vector.x, vector.y, vector.z};
 }
 
+pxr::GfVec2f glmToUsdVector(const glm::fvec2& vector) {
+    return {vector.x, vector.y};
+}
+
 pxr::GfMatrix4d glmToUsdMatrix(const glm::dmat4& matrix) {
     // Column-major to row-major
     return pxr::GfMatrix4d{

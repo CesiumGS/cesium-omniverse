@@ -20,6 +20,12 @@
 
 #include <array>
 
+namespace {
+const auto DEFAULT_OFFSET = pxr::GfVec2f(0.0f, 0.0f);
+const auto DEFAULT_ROTATION = 0.0f;
+const auto DEFAULT_SCALE = pxr::GfVec2f(1.0f, 1.0f);
+} // namespace
+
 namespace cesium::omniverse {
 
 FabricMaterial::FabricMaterial(pxr::SdfPath path, const FabricMaterialDefinition& materialDefinition)
@@ -200,9 +206,9 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
             auto paramColorSpaceFabric = srw.getArrayAttributeWr<omni::fabric::Token>(baseColorTexPathFabric, FabricTokens::_paramColorSpace);
             // clang-format on
 
-            *offsetFabric = pxr::GfVec2f(0.0f, 0.0f);
-            *rotationFabric = 0.0f;
-            *scaleFabric = pxr::GfVec2f(1.0f, 1.0f);
+            *offsetFabric = DEFAULT_OFFSET;
+            *rotationFabric = DEFAULT_ROTATION;
+            *scaleFabric = DEFAULT_SCALE;
             *texCoordIndexFabric = 0;
             textureFabric->assetPath = pxr::TfToken(baseColorTexturePath.GetAssetPath());
             textureFabric->resolvedPath = pxr::TfToken(baseColorTexturePath.GetResolvedPath());
@@ -253,6 +259,9 @@ void FabricMaterial::reset() {
     const auto roughnessFactor = GltfUtil::getDefaultRoughnessFactor();
     const auto baseColorTextureWrapS = GltfUtil::getDefaultWrapS();
     const auto baseColorTextureWrapT = GltfUtil::getDefaultWrapT();
+    const auto offset = DEFAULT_OFFSET;
+    const auto rotation = DEFAULT_ROTATION;
+    const auto scale = DEFAULT_SCALE;
 
     // clang-format off
     auto alphaCutoffFabric = srw.getAttributeWr<float>(_shaderPathFabric, FabricTokens::inputs_alpha_cutoff);
@@ -275,9 +284,15 @@ void FabricMaterial::reset() {
     if (hasBaseColorTexture) {
         auto wrapSFabric = srw.getAttributeWr<int>(_baseColorTexPathFabric, FabricTokens::inputs_wrap_s);
         auto wrapTFabric = srw.getAttributeWr<int>(_baseColorTexPathFabric, FabricTokens::inputs_wrap_t);
+        auto offsetFabric = srw.getAttributeWr<pxr::GfVec2f>(_baseColorTexPathFabric, FabricTokens::inputs_offset);
+        auto rotationFabric = srw.getAttributeWr<float>(_baseColorTexPathFabric, FabricTokens::inputs_rotation);
+        auto scaleFabric = srw.getAttributeWr<pxr::GfVec2f>(_baseColorTexPathFabric, FabricTokens::inputs_scale);
 
         *wrapSFabric = baseColorTextureWrapS;
         *wrapTFabric = baseColorTextureWrapT;
+        *offsetFabric = offset;
+        *rotationFabric = rotation;
+        *scaleFabric = scale;
     }
 
     FabricUtil::setTilesetIdAndTileId(_materialPathFabric, -1, -1);
@@ -293,7 +308,9 @@ void FabricMaterial::setTile(
     int64_t tileId,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
-    const CesiumGltf::ImageCesium* imagery) {
+    const CesiumGltf::ImageCesium* imagery,
+    const glm::dvec2& imageryTexcoordTranslation,
+    const glm::dvec2& imageryTexcoordScale) {
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
@@ -306,6 +323,10 @@ void FabricMaterial::setTile(
     float roughnessFactor;
     int baseColorTextureWrapS;
     int baseColorTextureWrapT;
+
+    pxr::GfVec2f offset = DEFAULT_OFFSET;
+    float rotation = DEFAULT_ROTATION;
+    pxr::GfVec2f scale = DEFAULT_SCALE;
 
     const auto hasBaseColorTexture = _materialDefinition.hasBaseColorTexture();
     const auto hasGltfMaterial = GltfUtil::hasMaterial(primitive);
@@ -347,6 +368,9 @@ void FabricMaterial::setTile(
         baseColorImage = imagery;
         baseColorTextureWrapS = CesiumGltf::Sampler::WrapS::CLAMP_TO_EDGE;
         baseColorTextureWrapT = CesiumGltf::Sampler::WrapS::CLAMP_TO_EDGE;
+        offset = UsdUtil::glmToUsdVector(glm::fvec2(imageryTexcoordTranslation));
+        rotation = DEFAULT_ROTATION;
+        scale = UsdUtil::glmToUsdVector(glm::fvec2(imageryTexcoordScale));
     }
 
     if (hasBaseColorTexture) {
@@ -378,9 +402,15 @@ void FabricMaterial::setTile(
     if (hasBaseColorTexture) {
         auto wrapSFabric = srw.getAttributeWr<int>(_baseColorTexPathFabric, FabricTokens::inputs_wrap_s);
         auto wrapTFabric = srw.getAttributeWr<int>(_baseColorTexPathFabric, FabricTokens::inputs_wrap_t);
+        auto offsetFabric = srw.getAttributeWr<pxr::GfVec2f>(_baseColorTexPathFabric, FabricTokens::inputs_offset);
+        auto rotationFabric = srw.getAttributeWr<float>(_baseColorTexPathFabric, FabricTokens::inputs_rotation);
+        auto scaleFabric = srw.getAttributeWr<pxr::GfVec2f>(_baseColorTexPathFabric, FabricTokens::inputs_scale);
 
         *wrapSFabric = baseColorTextureWrapS;
         *wrapTFabric = baseColorTextureWrapT;
+        *offsetFabric = offset;
+        *rotationFabric = rotation;
+        *scaleFabric = scale;
     }
 
     FabricUtil::setTilesetIdAndTileId(_materialPathFabric, tilesetId, tileId);

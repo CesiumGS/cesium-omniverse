@@ -127,8 +127,6 @@ TexcoordsAccessor getTexcoords(
     const CesiumGltf::MeshPrimitive& primitive,
     const std::string& semantic,
     uint64_t setIndex,
-    const glm::fvec2& translation,
-    const glm::fvec2& scale,
     bool flipVertical) {
 
     const auto texcoordsView = getTexcoordsView(model, primitive, semantic, setIndex);
@@ -137,7 +135,7 @@ TexcoordsAccessor getTexcoords(
         return {};
     }
 
-    return {texcoordsView, translation, scale, flipVertical};
+    return {texcoordsView, flipVertical};
 }
 
 template <typename VertexColorType>
@@ -253,13 +251,9 @@ NormalsAccessor getNormals(
     return {};
 }
 
-TexcoordsAccessor getTexcoords(
-    const CesiumGltf::Model& model,
-    const CesiumGltf::MeshPrimitive& primitive,
-    uint64_t setIndex,
-    const glm::fvec2& translation,
-    const glm::fvec2& scale) {
-    return getTexcoords(model, primitive, "TEXCOORD", setIndex, translation, scale, true);
+TexcoordsAccessor
+getTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex) {
+    return getTexcoords(model, primitive, "TEXCOORD", setIndex, true);
 }
 
 VertexColorsAccessor
@@ -455,13 +449,9 @@ bool getDoubleSided(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimit
     return material.doubleSided;
 }
 
-TexcoordsAccessor getImageryTexcoords(
-    const CesiumGltf::Model& model,
-    const CesiumGltf::MeshPrimitive& primitive,
-    uint64_t setIndex,
-    const glm::fvec2& translation,
-    const glm::fvec2& scale) {
-    return getTexcoords(model, primitive, "_CESIUMOVERLAY", setIndex, translation, scale, false);
+TexcoordsAccessor
+getImageryTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex) {
+    return getTexcoords(model, primitive, "_CESIUMOVERLAY", setIndex, false);
 }
 
 const CesiumGltf::ImageCesium& getImageCesium(const CesiumGltf::Model& model, const CesiumGltf::Texture& texture) {

@@ -186,13 +186,8 @@ TexcoordsAccessor::TexcoordsAccessor()
 
 TexcoordsAccessor::TexcoordsAccessor(
     const CesiumGltf::AccessorView<glm::fvec2>& view,
-    const glm::fvec2& translation,
-    const glm::fvec2& scale,
     bool flipVertical)
     : _view(view)
-    , _translation(translation)
-    , _scale(scale)
-    , _applyTransform(translation != glm::fvec2(0.0, 0.0) && scale != glm::fvec2(1.0, 1.0))
     , _flipVertical(flipVertical)
     , _size(view.size()) {}
 
@@ -204,13 +199,6 @@ void TexcoordsAccessor::fill(const gsl::span<pxr::GfVec2f>& values) const {
     if (_flipVertical) {
         for (uint64_t i = 0; i < _size; i++) {
             values[i][1] = 1.0f - values[i][1];
-        }
-    }
-
-    if (_applyTransform) {
-        for (uint64_t i = 0; i < _size; i++) {
-            values[i][0] = values[i][0] * _scale.x + _translation.x;
-            values[i][1] = values[i][1] * _scale.y + _translation.y;
         }
     }
 }

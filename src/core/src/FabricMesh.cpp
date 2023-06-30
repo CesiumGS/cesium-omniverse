@@ -49,12 +49,11 @@ void FabricMesh::setTile(
         primitive,
         smoothNormals,
         hasImagery,
-        imageryTexcoordTranslation,
-        imageryTexcoordScale,
         imageryTexcoordSetIndex);
 
     if (material != nullptr) {
-        material->setTile(tilesetId, tileId, model, primitive, imagery);
+        material->setTile(
+            tilesetId, tileId, model, primitive, imagery, imageryTexcoordTranslation, imageryTexcoordScale);
         geometry->assignMaterial(material);
     }
 }
