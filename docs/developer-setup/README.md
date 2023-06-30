@@ -591,14 +591,14 @@ The external dependencies from Nvidia use Nvidia's packman tool to fetch and ins
 ```xml
 <project toolsVersion="5.6">
   <dependency name="kit_sdk" linkPath="../_build/target-deps/kit-sdk/">
-    <package name="kit-sdk" version="105.0.1+release.109424.8162ffed.tc.${platform}.release"/>
+    <package name="kit-sdk" version="105.0.1+release.109439.ed961c5c.tc.${platform}.release"/>
   </dependency>
   <dependency name="kit_sdk_debug" linkPath="../_build/target-deps/kit-sdk-debug/">
-    <package name="kit-sdk" version="105.0.1+release.109424.8162ffed.tc.${platform}.debug"/>
+    <package name="kit-sdk" version="105.0.1+release.109439.ed961c5c.tc.${platform}.debug"/>
   </dependency>
 </project>
 ```
 
-The above configuration would override the version of the Kit SDK used to `105.0.1+release.109424.8162ffed.tc`.
+The above configuration would override the version of the Kit SDK used to `105.0.1+release.109439.ed961c5c.tc`.
 
 These user files are ignored by the `.gitignore` so it is safe to test out prerelease and private versions of new libraries.
