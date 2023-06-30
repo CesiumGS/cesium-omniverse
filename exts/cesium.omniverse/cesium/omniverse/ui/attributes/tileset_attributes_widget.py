@@ -42,6 +42,7 @@ class CesiumTilesetAttributesWidget(SchemaPropertiesWidget):
                 CustomLayoutProperty("cesium:maximumSimultaneousTileLoads")
                 CustomLayoutProperty("cesium:maximumCachedBytes")
                 CustomLayoutProperty("cesium:loadingDescendantLimit")
+                CustomLayoutProperty("cesium:mainThreadLoadingTimeLimit")
             with CustomLayoutGroup("Tile Culling"):
                 CustomLayoutProperty("cesium:enableFrustumCulling")
                 CustomLayoutProperty("cesium:enableFogCulling")

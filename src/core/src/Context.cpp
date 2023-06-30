@@ -313,6 +313,7 @@ void Context::processCesiumTilesetChanged(const ChangedPrim& changedPrim) {
         name == pxr::CesiumTokens->cesiumEnforceCulledScreenSpaceError ||
         name == pxr::CesiumTokens->cesiumCulledScreenSpaceError ||
         name == pxr::CesiumTokens->cesiumSmoothNormals ||
+        name == pxr::CesiumTokens->cesiumMainThreadLoadingTimeLimit ||
         name == pxr::CesiumTokens->cesiumShowCreditsOnScreen) {
         tileset.value()->reload();
     }

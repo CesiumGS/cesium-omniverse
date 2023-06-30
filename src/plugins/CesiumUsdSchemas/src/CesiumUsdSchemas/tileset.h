@@ -530,6 +530,28 @@ public:
 
 public:
     // --------------------------------------------------------------------- //
+    // MAINTHREADLOADINGTIMELIMIT 
+    // --------------------------------------------------------------------- //
+    /// A soft limit on how long (in milliseconds) to spend on the main-thread part of tile loading each frame. A value of 0.0 indicates that all pending main-thread loads should be completed each tick.
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `float cesium:mainThreadLoadingTimeLimit = 0` |
+    /// | C++ Type | float |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Float |
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute GetMainThreadLoadingTimeLimitAttr() const;
+
+    /// See GetMainThreadLoadingTimeLimitAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute CreateMainThreadLoadingTimeLimitAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
     // GEOREFERENCEBINDING 
     // --------------------------------------------------------------------- //
     /// Specifies which Cesium Georeference object to use for this tileset.
