@@ -52,8 +52,9 @@ CesiumTileset::Define(
 }
 
 /* virtual */
-UsdSchemaType CesiumTileset::_GetSchemaType() const {
-    return CesiumTileset::schemaType;
+UsdSchemaKind CesiumTileset::_GetSchemaKind() const
+{
+    return CesiumTileset::schemaKind;
 }
 
 /* static */

@@ -26,15 +26,15 @@ pxr::UsdStageRefPtr getUsdStage() {
     return Context::instance().getStage();
 }
 
-carb::flatcache::StageInProgress getFabricStageInProgress() {
-    return Context::instance().getFabricStageInProgress();
+omni::fabric::StageReaderWriter getFabricStageReaderWriter() {
+    return Context::instance().getFabricStageReaderWriter();
 }
 
-carb::flatcache::StageInProgressId getFabricStageInProgressId() {
-    const auto iStageInProgress = carb::getCachedInterface<carb::flatcache::IStageInProgress>();
+omni::fabric::StageReaderWriterId getFabricStageReaderWriterId() {
+    const auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
     const auto stageId = Context::instance().getStageId();
-    const auto stageInProgressId = iStageInProgress->get(carb::flatcache::UsdStageId{static_cast<uint64_t>(stageId)});
-    return stageInProgressId;
+    const auto stageReaderWriterId = iStageReaderWriter->get(omni::fabric::UsdStageId{static_cast<uint64_t>(stageId)});
+    return stageReaderWriterId;
 }
 
 bool hasStage() {

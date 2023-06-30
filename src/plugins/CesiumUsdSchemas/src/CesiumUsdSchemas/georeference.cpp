@@ -52,8 +52,9 @@ CesiumGeoreference::Define(
 }
 
 /* virtual */
-UsdSchemaType CesiumGeoreference::_GetSchemaType() const {
-    return CesiumGeoreference::schemaType;
+UsdSchemaKind CesiumGeoreference::_GetSchemaKind() const
+{
+    return CesiumGeoreference::schemaKind;
 }
 
 /* static */

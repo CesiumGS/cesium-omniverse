@@ -39,8 +39,17 @@ CesiumGlobeAnchorAPI::Get(const UsdStagePtr &stage, const SdfPath &path)
 
 
 /* virtual */
-UsdSchemaType CesiumGlobeAnchorAPI::_GetSchemaType() const {
-    return CesiumGlobeAnchorAPI::schemaType;
+UsdSchemaKind CesiumGlobeAnchorAPI::_GetSchemaKind() const
+{
+    return CesiumGlobeAnchorAPI::schemaKind;
+}
+
+/* static */
+bool
+CesiumGlobeAnchorAPI::CanApply(
+    const UsdPrim &prim, std::string *whyNot)
+{
+    return prim.CanApplyAPI<CesiumGlobeAnchorAPI>(whyNot);
 }
 
 /* static */

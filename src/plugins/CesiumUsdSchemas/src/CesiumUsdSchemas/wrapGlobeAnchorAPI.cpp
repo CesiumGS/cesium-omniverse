@@ -4,6 +4,7 @@
 #include "pxr/usd/sdf/primSpec.h"
 
 #include "pxr/usd/usd/pyConversions.h"
+#include "pxr/base/tf/pyAnnotatedBoolResult.h"
 #include "pxr/base/tf/pyContainerConversions.h"
 #include "pxr/base/tf/pyResultConversions.h"
 #include "pxr/base/tf/pyUtils.h"
@@ -91,11 +92,29 @@ _Repr(const CesiumGlobeAnchorAPI &self)
         primRepr.c_str());
 }
 
+struct CesiumGlobeAnchorAPI_CanApplyResult : 
+    public TfPyAnnotatedBoolResult<std::string>
+{
+    CesiumGlobeAnchorAPI_CanApplyResult(bool val, std::string const &msg) :
+        TfPyAnnotatedBoolResult<std::string>(val, msg) {}
+};
+
+static CesiumGlobeAnchorAPI_CanApplyResult
+_WrapCanApply(const UsdPrim& prim)
+{
+    std::string whyNot;
+    bool result = CesiumGlobeAnchorAPI::CanApply(prim, &whyNot);
+    return CesiumGlobeAnchorAPI_CanApplyResult(result, whyNot);
+}
+
 } // anonymous namespace
 
 void wrapCesiumGlobeAnchorAPI()
 {
     typedef CesiumGlobeAnchorAPI This;
+
+    CesiumGlobeAnchorAPI_CanApplyResult::Wrap<CesiumGlobeAnchorAPI_CanApplyResult>(
+        "_CanApplyResult", "whyNot");
 
     class_<This, bases<UsdAPISchemaBase> >
         cls("GlobeAnchorAPI");
@@ -107,6 +126,9 @@ void wrapCesiumGlobeAnchorAPI()
 
         .def("Get", &This::Get, (arg("stage"), arg("path")))
         .staticmethod("Get")
+
+        .def("CanApply", &_WrapCanApply, (arg("prim")))
+        .staticmethod("CanApply")
 
         .def("Apply", &This::Apply, (arg("prim")))
         .staticmethod("Apply")
