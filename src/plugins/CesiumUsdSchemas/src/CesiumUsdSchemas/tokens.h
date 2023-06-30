@@ -1,7 +1,7 @@
 #ifndef CESIUM_TOKENS_H
 #define CESIUM_TOKENS_H
 
-/// \file cesium/tokens.h
+/// \file CesiumUsdSchemas/tokens.h
 
 // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 // 
@@ -38,7 +38,7 @@ PXR_NAMESPACE_OPEN_SCOPE
 ///     gprim.GetMyTokenValuedAttr().Set(CesiumTokens->cesiumAnchorAdjustOrientationForGlobeWhenMoving);
 /// \endcode
 struct CesiumTokensType {
-    CESIUM_API CesiumTokensType();
+    CESIUMUSDSCHEMAS_API CesiumTokensType();
     /// \brief "cesium:anchor:adjustOrientationForGlobeWhenMoving"
     /// 
     /// CesiumGlobeAnchorAPI
@@ -155,6 +155,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumTileset
     const TfToken cesiumLoadingDescendantLimit;
+    /// \brief "cesium:mainThreadLoadingTimeLimit"
+    /// 
+    /// CesiumTileset
+    const TfToken cesiumMainThreadLoadingTimeLimit;
     /// \brief "cesium:maximumCachedBytes"
     /// 
     /// CesiumTileset
@@ -219,7 +223,7 @@ struct CesiumTokensType {
 ///
 /// A global variable with static, efficient \link TfToken TfTokens\endlink
 /// for use in all public USD API.  \sa CesiumTokensType
-extern CESIUM_API TfStaticData<CesiumTokensType> CesiumTokens;
+extern CESIUMUSDSCHEMAS_API TfStaticData<CesiumTokensType> CesiumTokens;
 
 PXR_NAMESPACE_CLOSE_SCOPE
 

@@ -28,7 +28,7 @@ struct ChangedPrim {
     ChangeType changeType;
 };
 
-class UsdNotificationHandler : public pxr::TfWeakBase {
+class UsdNotificationHandler final : public pxr::TfWeakBase {
   public:
     UsdNotificationHandler();
     ~UsdNotificationHandler();

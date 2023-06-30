@@ -1,4 +1,4 @@
 ---
-Checks: "-*,bugprone-*,performance-*,modernize-*,-modernize-use-trailing-return-type"
+Checks: "-*,bugprone-*,performance-*,modernize-*,-modernize-use-trailing-return-type,-bugprone-easily-swappable-parameters,-bugprone-exception-escape"
 WarningsAsErrors: "*"
 FormatStyle: none

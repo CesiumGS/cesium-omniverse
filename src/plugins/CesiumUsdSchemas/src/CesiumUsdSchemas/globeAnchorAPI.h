@@ -1,7 +1,7 @@
-#ifndef CESIUM_GENERATED_GLOBEANCHORAPI_H
-#define CESIUM_GENERATED_GLOBEANCHORAPI_H
+#ifndef CESIUMUSDSCHEMAS_GENERATED_GLOBEANCHORAPI_H
+#define CESIUMUSDSCHEMAS_GENERATED_GLOBEANCHORAPI_H
 
-/// \file cesium/globeAnchorAPI.h
+/// \file CesiumUsdSchemas/globeAnchorAPI.h
 
 #include "pxr/pxr.h"
 #include ".//api.h"
@@ -31,7 +31,7 @@ class SdfAssetPath;
 ///
 /// Adds Globe Anchoring information to a Prim for use with Cesium for Omniverse.
 ///
-class CESIUM_API CesiumGlobeAnchorAPI : public UsdAPISchemaBase
+class CesiumGlobeAnchorAPI : public UsdAPISchemaBase
 {
 public:
     /// Compile time constant representing what kind of schema this class is.
@@ -57,11 +57,13 @@ public:
     }
 
     /// Destructor.
+    CESIUMUSDSCHEMAS_API
     virtual ~CesiumGlobeAnchorAPI();
 
     /// Return a vector of names of all pre-declared attributes for this schema
     /// class and all its ancestor classes.  Does not include attributes that
     /// may be authored by custom/extended methods of the schemas involved.
+    CESIUMUSDSCHEMAS_API
     static const TfTokenVector &
     GetSchemaAttributeNames(bool includeInherited=true);
 
@@ -74,6 +76,7 @@ public:
     /// CesiumGlobeAnchorAPI(stage->GetPrimAtPath(path));
     /// \endcode
     ///
+    CESIUMUSDSCHEMAS_API
     static CesiumGlobeAnchorAPI
     Get(const UsdStagePtr &stage, const SdfPath &path);
 
@@ -92,6 +95,7 @@ public:
     /// \sa UsdPrim::ApplyAPI()
     /// \sa UsdPrim::RemoveAPI()
     ///
+    CESIUMUSDSCHEMAS_API
     static CesiumGlobeAnchorAPI 
     Apply(const UsdPrim &prim);
 
@@ -99,16 +103,19 @@ protected:
     /// Returns the type of schema this class belongs to.
     ///
     /// \sa UsdSchemaType
+    CESIUMUSDSCHEMAS_API
     UsdSchemaType _GetSchemaType() const override;
 
 private:
     // needs to invoke _GetStaticTfType.
     friend class UsdSchemaRegistry;
+    CESIUMUSDSCHEMAS_API
     static const TfType &_GetStaticTfType();
 
     static bool _IsTypedSchema();
 
     // override SchemaBase virtuals.
+    CESIUMUSDSCHEMAS_API
     const TfType &_GetTfType() const override;
 
 public:
@@ -122,6 +129,7 @@ public:
     /// | Declaration | `bool cesium:anchor:adjustOrientationForGlobeWhenMoving = 1` |
     /// | C++ Type | bool |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetAdjustOrientationForGlobeWhenMovingAttr() const;
 
     /// See GetAdjustOrientationForGlobeWhenMovingAttr(), and also 
@@ -129,6 +137,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreateAdjustOrientationForGlobeWhenMovingAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -142,6 +151,7 @@ public:
     /// | Declaration | `bool cesium:anchor:detectTransformChanges = 1` |
     /// | C++ Type | bool |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetDetectTransformChangesAttr() const;
 
     /// See GetDetectTransformChangesAttr(), and also 
@@ -149,6 +159,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreateDetectTransformChangesAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -162,6 +173,7 @@ public:
     /// | Declaration | `double cesium:anchor:longitude = 0` |
     /// | C++ Type | double |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double |
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetLongitudeAttr() const;
 
     /// See GetLongitudeAttr(), and also 
@@ -169,6 +181,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreateLongitudeAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -182,6 +195,7 @@ public:
     /// | Declaration | `double cesium:anchor:latitude = 0` |
     /// | C++ Type | double |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double |
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetLatitudeAttr() const;
 
     /// See GetLatitudeAttr(), and also 
@@ -189,6 +203,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreateLatitudeAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -202,6 +217,7 @@ public:
     /// | Declaration | `double cesium:anchor:height = 10` |
     /// | C++ Type | double |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double |
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetHeightAttr() const;
 
     /// See GetHeightAttr(), and also 
@@ -209,6 +225,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreateHeightAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -222,6 +239,7 @@ public:
     /// | Declaration | `double3 cesium:anchor:position = (0, 0, 0)` |
     /// | C++ Type | GfVec3d |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double3 |
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetPositionAttr() const;
 
     /// See GetPositionAttr(), and also 
@@ -229,6 +247,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreatePositionAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -242,6 +261,7 @@ public:
     /// | Declaration | `double3 cesium:anchor:rotation = (0, 0, 0)` |
     /// | C++ Type | GfVec3d |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double3 |
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetRotationAttr() const;
 
     /// See GetRotationAttr(), and also 
@@ -249,6 +269,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreateRotationAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -262,6 +283,7 @@ public:
     /// | Declaration | `double3 cesium:anchor:scale = (1, 1, 1)` |
     /// | C++ Type | GfVec3d |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double3 |
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetScaleAttr() const;
 
     /// See GetScaleAttr(), and also 
@@ -269,6 +291,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreateScaleAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -277,10 +300,12 @@ public:
     // --------------------------------------------------------------------- //
     /// The Georeference Origin prim used for the globe anchor calculations.
     ///
+    CESIUMUSDSCHEMAS_API
     UsdRelationship GetGeoreferenceBindingRel() const;
 
     /// See GetGeoreferenceBindingRel(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create
+    CESIUMUSDSCHEMAS_API
     UsdRelationship CreateGeoreferenceBindingRel() const;
 
 public:

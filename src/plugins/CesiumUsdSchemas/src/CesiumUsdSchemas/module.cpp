@@ -1,4 +1,3 @@
-#include "Python.h"
 #include "pxr/pxr.h"
 #include "pxr/base/tf/pyModule.h"
 

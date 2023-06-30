@@ -1,7 +1,7 @@
-#ifndef CESIUM_GENERATED_TILESET_H
-#define CESIUM_GENERATED_TILESET_H
+#ifndef CESIUMUSDSCHEMAS_GENERATED_TILESET_H
+#define CESIUMUSDSCHEMAS_GENERATED_TILESET_H
 
-/// \file cesium/tileset.h
+/// \file CesiumUsdSchemas/tileset.h
 
 #include "pxr/pxr.h"
 #include ".//api.h"
@@ -36,7 +36,7 @@ class SdfAssetPath;
 /// So to set an attribute to the value "rightHanded", use CesiumTokens->rightHanded
 /// as the value.
 ///
-class CESIUM_API CesiumTileset : public UsdGeomBoundable
+class CesiumTileset : public UsdGeomBoundable
 {
 public:
     /// Compile time constant representing what kind of schema this class is.
@@ -62,11 +62,13 @@ public:
     }
 
     /// Destructor.
+    CESIUMUSDSCHEMAS_API
     virtual ~CesiumTileset();
 
     /// Return a vector of names of all pre-declared attributes for this schema
     /// class and all its ancestor classes.  Does not include attributes that
     /// may be authored by custom/extended methods of the schemas involved.
+    CESIUMUSDSCHEMAS_API
     static const TfTokenVector &
     GetSchemaAttributeNames(bool includeInherited=true);
 
@@ -79,6 +81,7 @@ public:
     /// CesiumTileset(stage->GetPrimAtPath(path));
     /// \endcode
     ///
+    CESIUMUSDSCHEMAS_API
     static CesiumTileset
     Get(const UsdStagePtr &stage, const SdfPath &path);
 
@@ -104,6 +107,7 @@ public:
     /// specify this schema class, in case a stronger typeName opinion overrides
     /// the opinion at the current EditTarget.
     ///
+    CESIUMUSDSCHEMAS_API
     static CesiumTileset
     Define(const UsdStagePtr &stage, const SdfPath &path);
 
@@ -111,16 +115,19 @@ protected:
     /// Returns the type of schema this class belongs to.
     ///
     /// \sa UsdSchemaType
+    CESIUMUSDSCHEMAS_API
     UsdSchemaType _GetSchemaType() const override;
 
 private:
     // needs to invoke _GetStaticTfType.
     friend class UsdSchemaRegistry;
+    CESIUMUSDSCHEMAS_API
     static const TfType &_GetStaticTfType();
 
     static bool _IsTypedSchema();
 
     // override SchemaBase virtuals.
+    CESIUMUSDSCHEMAS_API
     const TfType &_GetTfType() const override;
 
 public:
@@ -136,6 +143,7 @@ public:
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Token |
     /// | \ref SdfVariability "Variability" | SdfVariabilityUniform |
     /// | \ref CesiumTokens "Allowed Values" | ion, url |
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetSourceTypeAttr() const;
 
     /// See GetSourceTypeAttr(), and also 
@@ -143,6 +151,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreateSourceTypeAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -156,6 +165,7 @@ public:
     /// | Declaration | `string cesium:url = ""` |
     /// | C++ Type | std::string |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetUrlAttr() const;
 
     /// See GetUrlAttr(), and also 
@@ -163,6 +173,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreateUrlAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -176,6 +187,7 @@ public:
     /// | Declaration | `int64 cesium:ionAssetId = 0` |
     /// | C++ Type | int64_t |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Int64 |
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetIonAssetIdAttr() const;
 
     /// See GetIonAssetIdAttr(), and also 
@@ -183,6 +195,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreateIonAssetIdAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -196,6 +209,7 @@ public:
     /// | Declaration | `string cesium:ionAccessToken = ""` |
     /// | C++ Type | std::string |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetIonAccessTokenAttr() const;
 
     /// See GetIonAccessTokenAttr(), and also 
@@ -203,6 +217,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreateIonAccessTokenAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -216,6 +231,7 @@ public:
     /// | Declaration | `float cesium:maximumScreenSpaceError = 16` |
     /// | C++ Type | float |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Float |
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetMaximumScreenSpaceErrorAttr() const;
 
     /// See GetMaximumScreenSpaceErrorAttr(), and also 
@@ -223,6 +239,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreateMaximumScreenSpaceErrorAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -236,6 +253,7 @@ public:
     /// | Declaration | `bool cesium:preloadAncestors = 1` |
     /// | C++ Type | bool |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetPreloadAncestorsAttr() const;
 
     /// See GetPreloadAncestorsAttr(), and also 
@@ -243,6 +261,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreatePreloadAncestorsAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -256,6 +275,7 @@ public:
     /// | Declaration | `bool cesium:preloadSiblings = 1` |
     /// | C++ Type | bool |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetPreloadSiblingsAttr() const;
 
     /// See GetPreloadSiblingsAttr(), and also 
@@ -263,6 +283,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreatePreloadSiblingsAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -276,6 +297,7 @@ public:
     /// | Declaration | `bool cesium:forbidHoles = 0` |
     /// | C++ Type | bool |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetForbidHolesAttr() const;
 
     /// See GetForbidHolesAttr(), and also 
@@ -283,6 +305,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreateForbidHolesAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -296,6 +319,7 @@ public:
     /// | Declaration | `uint cesium:maximumSimultaneousTileLoads = 20` |
     /// | C++ Type | unsigned int |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->UInt |
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetMaximumSimultaneousTileLoadsAttr() const;
 
     /// See GetMaximumSimultaneousTileLoadsAttr(), and also 
@@ -303,6 +327,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreateMaximumSimultaneousTileLoadsAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -316,6 +341,7 @@ public:
     /// | Declaration | `uint64 cesium:maximumCachedBytes = 536870912` |
     /// | C++ Type | uint64_t |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->UInt64 |
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetMaximumCachedBytesAttr() const;
 
     /// See GetMaximumCachedBytesAttr(), and also 
@@ -323,6 +349,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreateMaximumCachedBytesAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -336,6 +363,7 @@ public:
     /// | Declaration | `uint cesium:loadingDescendantLimit = 20` |
     /// | C++ Type | unsigned int |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->UInt |
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetLoadingDescendantLimitAttr() const;
 
     /// See GetLoadingDescendantLimitAttr(), and also 
@@ -343,6 +371,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreateLoadingDescendantLimitAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -356,6 +385,7 @@ public:
     /// | Declaration | `bool cesium:enableFrustumCulling = 1` |
     /// | C++ Type | bool |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetEnableFrustumCullingAttr() const;
 
     /// See GetEnableFrustumCullingAttr(), and also 
@@ -363,6 +393,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreateEnableFrustumCullingAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -376,6 +407,7 @@ public:
     /// | Declaration | `bool cesium:enableFogCulling = 1` |
     /// | C++ Type | bool |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetEnableFogCullingAttr() const;
 
     /// See GetEnableFogCullingAttr(), and also 
@@ -383,6 +415,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreateEnableFogCullingAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -396,6 +429,7 @@ public:
     /// | Declaration | `bool cesium:enforceCulledScreenSpaceError = 1` |
     /// | C++ Type | bool |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetEnforceCulledScreenSpaceErrorAttr() const;
 
     /// See GetEnforceCulledScreenSpaceErrorAttr(), and also 
@@ -403,6 +437,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreateEnforceCulledScreenSpaceErrorAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -416,6 +451,7 @@ public:
     /// | Declaration | `float cesium:culledScreenSpaceError = 64` |
     /// | C++ Type | float |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Float |
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetCulledScreenSpaceErrorAttr() const;
 
     /// See GetCulledScreenSpaceErrorAttr(), and also 
@@ -423,6 +459,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreateCulledScreenSpaceErrorAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -436,6 +473,7 @@ public:
     /// | Declaration | `bool cesium:suspendUpdate = 0` |
     /// | C++ Type | bool |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetSuspendUpdateAttr() const;
 
     /// See GetSuspendUpdateAttr(), and also 
@@ -443,6 +481,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreateSuspendUpdateAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -456,6 +495,7 @@ public:
     /// | Declaration | `bool cesium:smoothNormals = 0` |
     /// | C++ Type | bool |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetSmoothNormalsAttr() const;
 
     /// See GetSmoothNormalsAttr(), and also 
@@ -463,6 +503,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreateSmoothNormalsAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
@@ -476,6 +517,7 @@ public:
     /// | Declaration | `bool cesium:showCreditsOnScreen = 0` |
     /// | C++ Type | bool |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetShowCreditsOnScreenAttr() const;
 
     /// See GetShowCreditsOnScreenAttr(), and also 
@@ -483,7 +525,30 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreateShowCreditsOnScreenAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
+    // MAINTHREADLOADINGTIMELIMIT 
+    // --------------------------------------------------------------------- //
+    /// A soft limit on how long (in milliseconds) to spend on the main-thread part of tile loading each frame. A value of 0.0 indicates that all pending main-thread loads should be completed each tick.
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `float cesium:mainThreadLoadingTimeLimit = 0` |
+    /// | C++ Type | float |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Float |
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute GetMainThreadLoadingTimeLimitAttr() const;
+
+    /// See GetMainThreadLoadingTimeLimitAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute CreateMainThreadLoadingTimeLimitAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // --------------------------------------------------------------------- //
@@ -491,10 +556,12 @@ public:
     // --------------------------------------------------------------------- //
     /// Specifies which Cesium Georeference object to use for this tileset.
     ///
+    CESIUMUSDSCHEMAS_API
     UsdRelationship GetGeoreferenceBindingRel() const;
 
     /// See GetGeoreferenceBindingRel(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create
+    CESIUMUSDSCHEMAS_API
     UsdRelationship CreateGeoreferenceBindingRel() const;
 
 public:

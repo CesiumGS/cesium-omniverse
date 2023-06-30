@@ -52,7 +52,7 @@ _Repr(const CesiumImagery &self)
 {
     std::string primRepr = TfPyRepr(self.GetPrim());
     return TfStringPrintf(
-        "Cesium.Imagery(%s)",
+        "CesiumUsdSchemas.Imagery(%s)",
         primRepr.c_str());
 }
 

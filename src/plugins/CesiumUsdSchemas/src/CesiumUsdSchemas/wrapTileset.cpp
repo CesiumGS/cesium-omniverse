@@ -151,13 +151,20 @@ _CreateShowCreditsOnScreenAttr(CesiumTileset &self,
     return self.CreateShowCreditsOnScreenAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
+        
+static UsdAttribute
+_CreateMainThreadLoadingTimeLimitAttr(CesiumTileset &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateMainThreadLoadingTimeLimitAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Float), writeSparsely);
+}
 
 static std::string
 _Repr(const CesiumTileset &self)
 {
     std::string primRepr = TfPyRepr(self.GetPrim());
     return TfStringPrintf(
-        "Cesium.Tileset(%s)",
+        "CesiumUsdSchemas.Tileset(%s)",
         primRepr.c_str());
 }
 
@@ -317,6 +324,13 @@ void wrapCesiumTileset()
              &This::GetShowCreditsOnScreenAttr)
         .def("CreateShowCreditsOnScreenAttr",
              &_CreateShowCreditsOnScreenAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetMainThreadLoadingTimeLimitAttr",
+             &This::GetMainThreadLoadingTimeLimitAttr)
+        .def("CreateMainThreadLoadingTimeLimitAttr",
+             &_CreateMainThreadLoadingTimeLimitAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 

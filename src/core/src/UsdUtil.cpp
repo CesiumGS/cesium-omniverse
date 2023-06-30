@@ -30,17 +30,24 @@ carb::flatcache::StageInProgress getFabricStageInProgress() {
     return Context::instance().getFabricStageInProgress();
 }
 
+carb::flatcache::StageInProgressId getFabricStageInProgressId() {
+    const auto iStageInProgress = carb::getCachedInterface<carb::flatcache::IStageInProgress>();
+    const auto stageId = Context::instance().getStageId();
+    const auto stageInProgressId = iStageInProgress->get(carb::flatcache::UsdStageId{static_cast<uint64_t>(stageId)});
+    return stageInProgressId;
+}
+
 bool hasStage() {
     return Context::instance().getStageId() != 0;
 }
 
 glm::dvec3 usdToGlmVector(const pxr::GfVec3d& vector) {
-    return glm::dvec3(vector[0], vector[1], vector[2]);
+    return {vector[0], vector[1], vector[2]};
 }
 
 glm::dmat4 usdToGlmMatrix(const pxr::GfMatrix4d& matrix) {
     // Row-major to column-major
-    return glm::dmat4{
+    return {
         matrix[0][0],
         matrix[1][0],
         matrix[2][0],
@@ -61,7 +68,7 @@ glm::dmat4 usdToGlmMatrix(const pxr::GfMatrix4d& matrix) {
 }
 
 pxr::GfVec3d glmToUsdVector(const glm::dvec3& vector) {
-    return pxr::GfVec3d(vector.x, vector.y, vector.z);
+    return {vector.x, vector.y, vector.z};
 }
 
 pxr::GfMatrix4d glmToUsdMatrix(const glm::dmat4& matrix) {
@@ -132,7 +139,7 @@ bool isPrimVisible(const pxr::SdfPath& path) {
 
 pxr::TfToken getUsdUpAxis() {
     const auto stage = getUsdStage();
-    const auto upAxis = pxr::UsdGeomGetStageUpAxis(stage);
+    auto upAxis = pxr::UsdGeomGetStageUpAxis(stage);
     return upAxis;
 }
 
@@ -231,7 +238,7 @@ pxr::GfRange3d computeWorldExtent(const pxr::GfRange3d& localExtent, const glm::
         worldMax = glm::max(worldMax, worldPosition);
     }
 
-    return pxr::GfRange3d(glmToUsdVector(worldMin), glmToUsdVector(worldMax));
+    return {glmToUsdVector(worldMin), glmToUsdVector(worldMax)};
 }
 
 pxr::GfVec3f getEulerAnglesFromQuaternion(const pxr::GfQuatf& quaternion) {

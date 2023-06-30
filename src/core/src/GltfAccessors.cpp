@@ -10,12 +10,12 @@ PositionsAccessor::PositionsAccessor(const CesiumGltf::AccessorView<glm::fvec3>&
 
 void PositionsAccessor::fill(const gsl::span<pxr::GfVec3f>& values) const {
     for (uint64_t i = 0; i < _size; i++) {
-        values[i] = *reinterpret_cast<const pxr::GfVec3f*>(&_view[i]);
+        values[i] = *reinterpret_cast<const pxr::GfVec3f*>(&_view[static_cast<int64_t>(i)]);
     }
 }
 
 const glm::fvec3& PositionsAccessor::get(uint64_t index) const {
-    return _view[index];
+    return _view[static_cast<int64_t>(index)];
 }
 
 uint64_t PositionsAccessor::size() const {
@@ -57,8 +57,8 @@ template <typename T> IndicesAccessor IndicesAccessor::FromTriangleStrips(const 
     }
 
     auto accessor = IndicesAccessor();
-    accessor._computed = std::move(indices);
     accessor._size = indices.size();
+    accessor._computed = std::move(indices);
     return accessor;
 }
 
@@ -78,8 +78,8 @@ template <typename T> IndicesAccessor IndicesAccessor::FromTriangleFans(const Ce
     }
 
     auto accessor = IndicesAccessor();
-    accessor._computed = std::move(indices);
     accessor._size = indices.size();
+    accessor._computed = std::move(indices);
     return accessor;
 }
 
@@ -95,15 +95,15 @@ void IndicesAccessor::fill(const gsl::span<int>& values) const {
         }
     } else if (_uint8View.status() == CesiumGltf::AccessorViewStatus::Valid) {
         for (uint64_t i = 0; i < _size; i++) {
-            values[i] = static_cast<int>(_uint8View[i]);
+            values[i] = static_cast<int>(_uint8View[static_cast<int64_t>(i)]);
         }
     } else if (_uint16View.status() == CesiumGltf::AccessorViewStatus::Valid) {
         for (uint64_t i = 0; i < _size; i++) {
-            values[i] = static_cast<int>(_uint16View[i]);
+            values[i] = static_cast<int>(_uint16View[static_cast<int64_t>(i)]);
         }
     } else if (_uint32View.status() == CesiumGltf::AccessorViewStatus::Valid) {
         for (uint64_t i = 0; i < _size; i++) {
-            values[i] = static_cast<int>(_uint32View[i]);
+            values[i] = static_cast<int>(_uint32View[static_cast<int64_t>(i)]);
         }
     } else {
         for (uint64_t i = 0; i < _size; i++) {
@@ -116,11 +116,11 @@ uint32_t IndicesAccessor::get(uint64_t index) const {
     if (!_computed.empty()) {
         return _computed[index];
     } else if (_uint8View.status() == CesiumGltf::AccessorViewStatus::Valid) {
-        return static_cast<uint32_t>(_uint8View[index]);
+        return static_cast<uint32_t>(_uint8View[static_cast<int64_t>(index)]);
     } else if (_uint16View.status() == CesiumGltf::AccessorViewStatus::Valid) {
-        return static_cast<uint32_t>(_uint16View[index]);
+        return static_cast<uint32_t>(_uint16View[static_cast<int64_t>(index)]);
     } else if (_uint32View.status() == CesiumGltf::AccessorViewStatus::Valid) {
-        return static_cast<uint32_t>(_uint32View[index]);
+        return static_cast<uint32_t>(_uint32View[static_cast<int64_t>(index)]);
     } else {
         return static_cast<uint32_t>(index);
     }
@@ -172,7 +172,7 @@ void NormalsAccessor::fill(const gsl::span<pxr::GfVec3f>& values) const {
         }
     } else {
         for (uint64_t i = 0; i < _size; i++) {
-            values[i] = *reinterpret_cast<const pxr::GfVec3f*>(&_view[i]);
+            values[i] = *reinterpret_cast<const pxr::GfVec3f*>(&_view[static_cast<int64_t>(i)]);
         }
     }
 }
@@ -198,7 +198,7 @@ TexcoordsAccessor::TexcoordsAccessor(
 
 void TexcoordsAccessor::fill(const gsl::span<pxr::GfVec2f>& values) const {
     for (uint64_t i = 0; i < _size; i++) {
-        values[i] = *reinterpret_cast<const pxr::GfVec2f*>(&_view[i]);
+        values[i] = *reinterpret_cast<const pxr::GfVec2f*>(&_view[static_cast<int64_t>(i)]);
     }
 
     if (_flipVertical) {
@@ -253,38 +253,38 @@ void VertexColorsAccessor::fill(const gsl::span<pxr::GfVec3f>& values) const {
     if (_uint8Vec3View.status() == CesiumGltf::AccessorViewStatus::Valid) {
         for (uint64_t i = 0; i < _size; i++) {
             values[i] = pxr::GfVec3f(
-                static_cast<float>(_uint8Vec3View[i].x) / static_cast<float>(MAX_UINT8),
-                static_cast<float>(_uint8Vec3View[i].y) / static_cast<float>(MAX_UINT8),
-                static_cast<float>(_uint8Vec3View[i].z) / static_cast<float>(MAX_UINT8));
+                static_cast<float>(_uint8Vec3View[static_cast<int64_t>(i)].x) / static_cast<float>(MAX_UINT8),
+                static_cast<float>(_uint8Vec3View[static_cast<int64_t>(i)].y) / static_cast<float>(MAX_UINT8),
+                static_cast<float>(_uint8Vec3View[static_cast<int64_t>(i)].z) / static_cast<float>(MAX_UINT8));
         }
     } else if (_uint8Vec4View.status() == CesiumGltf::AccessorViewStatus::Valid) {
         for (uint64_t i = 0; i < _size; i++) {
             values[i] = pxr::GfVec3f(
-                static_cast<float>(_uint8Vec4View[i].x) / static_cast<float>(MAX_UINT8),
-                static_cast<float>(_uint8Vec4View[i].y) / static_cast<float>(MAX_UINT8),
-                static_cast<float>(_uint8Vec4View[i].z) / static_cast<float>(MAX_UINT8));
+                static_cast<float>(_uint8Vec4View[static_cast<int64_t>(i)].x) / static_cast<float>(MAX_UINT8),
+                static_cast<float>(_uint8Vec4View[static_cast<int64_t>(i)].y) / static_cast<float>(MAX_UINT8),
+                static_cast<float>(_uint8Vec4View[static_cast<int64_t>(i)].z) / static_cast<float>(MAX_UINT8));
         }
     } else if (_uint16Vec3View.status() == CesiumGltf::AccessorViewStatus::Valid) {
         for (uint64_t i = 0; i < _size; i++) {
             values[i] = pxr::GfVec3f(
-                static_cast<float>(_uint16Vec3View[i].x) / static_cast<float>(MAX_UINT16),
-                static_cast<float>(_uint16Vec3View[i].y) / static_cast<float>(MAX_UINT16),
-                static_cast<float>(_uint16Vec3View[i].z) / static_cast<float>(MAX_UINT16));
+                static_cast<float>(_uint16Vec3View[static_cast<int64_t>(i)].x) / static_cast<float>(MAX_UINT16),
+                static_cast<float>(_uint16Vec3View[static_cast<int64_t>(i)].y) / static_cast<float>(MAX_UINT16),
+                static_cast<float>(_uint16Vec3View[static_cast<int64_t>(i)].z) / static_cast<float>(MAX_UINT16));
         }
     } else if (_uint16Vec4View.status() == CesiumGltf::AccessorViewStatus::Valid) {
         for (uint64_t i = 0; i < _size; i++) {
             values[i] = pxr::GfVec3f(
-                static_cast<float>(_uint16Vec4View[i].x) / static_cast<float>(MAX_UINT16),
-                static_cast<float>(_uint16Vec4View[i].y) / static_cast<float>(MAX_UINT16),
-                static_cast<float>(_uint16Vec4View[i].z) / static_cast<float>(MAX_UINT16));
+                static_cast<float>(_uint16Vec4View[static_cast<int64_t>(i)].x) / static_cast<float>(MAX_UINT16),
+                static_cast<float>(_uint16Vec4View[static_cast<int64_t>(i)].y) / static_cast<float>(MAX_UINT16),
+                static_cast<float>(_uint16Vec4View[static_cast<int64_t>(i)].z) / static_cast<float>(MAX_UINT16));
         }
     } else if (_float32Vec3View.status() == CesiumGltf::AccessorViewStatus::Valid) {
         for (uint64_t i = 0; i < _size; i++) {
-            values[i] = *reinterpret_cast<const pxr::GfVec3f*>(&_float32Vec3View[i]);
+            values[i] = *reinterpret_cast<const pxr::GfVec3f*>(&_float32Vec3View[static_cast<int64_t>(i)]);
         }
     } else if (_float32Vec4View.status() == CesiumGltf::AccessorViewStatus::Valid) {
         for (uint64_t i = 0; i < _size; i++) {
-            values[i] = *reinterpret_cast<const pxr::GfVec3f*>(&_float32Vec4View[i]);
+            values[i] = *reinterpret_cast<const pxr::GfVec3f*>(&_float32Vec4View[static_cast<int64_t>(i)]);
         }
     }
 }

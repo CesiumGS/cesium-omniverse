@@ -38,7 +38,7 @@ OmniTileset::OmniTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPath& ge
     UsdUtil::setGeoreferenceForTileset(tilesetPath, georeferencePath);
 }
 
-OmniTileset::~OmniTileset() {}
+OmniTileset::~OmniTileset() = default;
 
 pxr::SdfPath OmniTileset::getPath() const {
     return _tilesetPath;
@@ -222,6 +222,15 @@ bool OmniTileset::getShowCreditsOnScreen() const {
     return showCreditsOnScreen;
 }
 
+float OmniTileset::getMainThreadLoadingTimeLimit() const {
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+
+    float mainThreadLoadingTimeLimit;
+    tileset.GetMainThreadLoadingTimeLimitAttr().Get<float>(&mainThreadLoadingTimeLimit);
+
+    return mainThreadLoadingTimeLimit;
+}
+
 pxr::CesiumGeoreference OmniTileset::getGeoreference() const {
     auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
@@ -260,7 +269,7 @@ TilesetStatistics OmniTileset::getStatistics() const {
 void OmniTileset::reload() {
     _renderResourcesPreparer = std::make_shared<FabricPrepareRenderResources>(*this);
     auto& context = Context::instance();
-    const auto asyncSystem = CesiumAsync::AsyncSystem(context.getTaskProcessor());
+    auto asyncSystem = CesiumAsync::AsyncSystem(context.getTaskProcessor());
     const auto externals = Cesium3DTilesSelection::TilesetExternals{
         context.getHttpAssetAccessor(),
         _renderResourcesPreparer,
@@ -288,6 +297,7 @@ void OmniTileset::reload() {
     options.enforceCulledScreenSpaceError = getEnforceCulledScreenSpaceError();
     options.culledScreenSpaceError = getCulledScreenSpaceError();
     options.showCreditsOnScreen = getShowCreditsOnScreen();
+    options.mainThreadLoadingTimeLimit = getMainThreadLoadingTimeLimit();
 
     options.loadErrorCallback =
         [tilesetPath, ionAssetId, name](const Cesium3DTilesSelection::TilesetLoadFailureDetails& error) {

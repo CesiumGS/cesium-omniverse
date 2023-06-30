@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Kit App",
+      "name": "Development App",
       "preLaunchTask": "Build Only (debug)",
       "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit",
       "args": [
@@ -16,7 +16,35 @@
       "cwd": "${workspaceFolder}",
       "type": "lldb",
       "request": "launch",
-      "console": "internalConsole",
+      "console": "externalTerminal",
+      "internalConsoleOptions": "openOnSessionStart",
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        },
+        {
+          "text": "set print elements 0"
+        }
+      ]
+    },
+    {
+      "name": "Development App (Kit Debug)",
+      "preLaunchTask": "Build Only (debug)",
+      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk-debug/kit",
+      "args": [
+        "${workspaceFolder}/apps/cesium.omniverse.dev.kit"
+      ],
+      "env": {
+        // Disable LSAN when debugging since it doesn't work with GDB and prints harmless but annoying warning messages
+        "ASAN_OPTIONS": "detect_leaks=0",
+        "UBSAN_OPTIONS": "print_stacktrace=1"
+      },
+      "cwd": "${workspaceFolder}",
+      "type": "lldb",
+      "request": "launch",
+      "console": "externalTerminal",
       "internalConsoleOptions": "openOnSessionStart",
       "MIMode": "gdb",
       "setupCommands": [
@@ -44,7 +72,7 @@
       "cwd": "${workspaceFolder}",
       "type": "lldb",
       "request": "launch",
-      "console": "internalConsole",
+      "console": "externalTerminal",
       "internalConsoleOptions": "openOnSessionStart",
       "MIMode": "gdb",
       "setupCommands": [
@@ -72,7 +100,7 @@
       "cwd": "${workspaceFolder}",
       "type": "lldb",
       "request": "launch",
-      "console": "internalConsole",
+      "console": "externalTerminal",
       "internalConsoleOptions": "openOnSessionStart",
       "MIMode": "gdb",
       "setupCommands": [
@@ -97,7 +125,7 @@
       "cwd": "${workspaceFolder}",
       "type": "lldb",
       "request": "launch",
-      "console": "internalConsole",
+      "console": "externalTerminal",
       "internalConsoleOptions": "openOnSessionStart",
       "MIMode": "gdb",
       "setupCommands": [
@@ -125,7 +153,7 @@
       "cwd": "${workspaceFolder}",
       "type": "lldb",
       "request": "launch",
-      "console": "internalConsole",
+      "console": "externalTerminal",
       "internalConsoleOptions": "openOnSessionStart",
       "MIMode": "gdb",
       "setupCommands": [

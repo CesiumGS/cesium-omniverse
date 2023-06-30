@@ -250,6 +250,7 @@ class ICesiumOmniverseInterface {
      * @param path A sdf path in the USD stage provided as a charstring.
      */
     virtual void addGlobalAnchorToPrim(const char* path) noexcept = 0;
+    virtual bool isTracingEnabled() noexcept = 0;
 };
 
 } // namespace cesium::omniverse

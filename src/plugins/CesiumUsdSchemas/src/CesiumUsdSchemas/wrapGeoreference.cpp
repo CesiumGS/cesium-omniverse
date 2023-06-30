@@ -52,7 +52,7 @@ _Repr(const CesiumGeoreference &self)
 {
     std::string primRepr = TfPyRepr(self.GetPrim());
     return TfStringPrintf(
-        "Cesium.Georeference(%s)",
+        "CesiumUsdSchemas.Georeference(%s)",
         primRepr.c_str());
 }
 

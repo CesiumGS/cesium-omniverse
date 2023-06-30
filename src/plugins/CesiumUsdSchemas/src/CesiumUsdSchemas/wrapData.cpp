@@ -94,7 +94,7 @@ _Repr(const CesiumData &self)
 {
     std::string primRepr = TfPyRepr(self.GetPrim());
     return TfStringPrintf(
-        "Cesium.Data(%s)",
+        "CesiumUsdSchemas.Data(%s)",
         primRepr.c_str());
 }
 

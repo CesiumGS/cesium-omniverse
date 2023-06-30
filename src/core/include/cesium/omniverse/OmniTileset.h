@@ -11,14 +11,12 @@
 #include <vector>
 
 namespace Cesium3DTilesSelection {
-struct ImageCesium;
 class Tileset;
 class ViewState;
 class ViewUpdateResult;
 } // namespace Cesium3DTilesSelection
 
 namespace CesiumGltf {
-struct ImageCesium;
 struct Model;
 } // namespace CesiumGltf
 
@@ -45,30 +43,31 @@ class OmniTileset {
     OmniTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPath& georeferencePath);
     ~OmniTileset();
 
-    pxr::SdfPath getPath() const;
-    std::string getName() const;
-    TilesetSourceType getSourceType() const;
-    std::string getUrl() const;
-    int64_t getIonAssetId() const;
-    std::optional<CesiumIonClient::Token> getIonAccessToken() const;
-    float getMaximumScreenSpaceError() const;
-    bool getPreloadAncestors() const;
-    bool getPreloadSiblings() const;
-    bool getForbidHoles() const;
-    uint32_t getMaximumSimultaneousTileLoads() const;
-    uint64_t getMaximumCachedBytes() const;
-    uint32_t getLoadingDescendantLimit() const;
-    bool getEnableFrustumCulling() const;
-    bool getEnableFogCulling() const;
-    bool getEnforceCulledScreenSpaceError() const;
-    float getCulledScreenSpaceError() const;
-    bool getSuspendUpdate() const;
-    bool getSmoothNormals() const;
-    bool getShowCreditsOnScreen() const;
-    pxr::CesiumGeoreference getGeoreference() const;
+    [[nodiscard]] pxr::SdfPath getPath() const;
+    [[nodiscard]] std::string getName() const;
+    [[nodiscard]] TilesetSourceType getSourceType() const;
+    [[nodiscard]] std::string getUrl() const;
+    [[nodiscard]] int64_t getIonAssetId() const;
+    [[nodiscard]] std::optional<CesiumIonClient::Token> getIonAccessToken() const;
+    [[nodiscard]] float getMaximumScreenSpaceError() const;
+    [[nodiscard]] bool getPreloadAncestors() const;
+    [[nodiscard]] bool getPreloadSiblings() const;
+    [[nodiscard]] bool getForbidHoles() const;
+    [[nodiscard]] uint32_t getMaximumSimultaneousTileLoads() const;
+    [[nodiscard]] uint64_t getMaximumCachedBytes() const;
+    [[nodiscard]] uint32_t getLoadingDescendantLimit() const;
+    [[nodiscard]] bool getEnableFrustumCulling() const;
+    [[nodiscard]] bool getEnableFogCulling() const;
+    [[nodiscard]] bool getEnforceCulledScreenSpaceError() const;
+    [[nodiscard]] float getCulledScreenSpaceError() const;
+    [[nodiscard]] bool getSuspendUpdate() const;
+    [[nodiscard]] bool getSmoothNormals() const;
+    [[nodiscard]] float getMainThreadLoadingTimeLimit() const;
+    [[nodiscard]] bool getShowCreditsOnScreen() const;
+    [[nodiscard]] pxr::CesiumGeoreference getGeoreference() const;
 
-    int64_t getTilesetId() const;
-    TilesetStatistics getStatistics() const;
+    [[nodiscard]] int64_t getTilesetId() const;
+    [[nodiscard]] TilesetStatistics getStatistics() const;
 
     void reload();
     void addImageryIon(const pxr::SdfPath& imageryPath);

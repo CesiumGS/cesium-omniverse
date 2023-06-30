@@ -31,9 +31,6 @@
 
 ## Prerequisites
 
-- Install Nvidia Omniverse: https://www.nvidia.com/en-us/omniverse/download/
-- Install Omniverse Create 2022.3.3 (or later)
-
 See [Linux](#linux) or [Windows](#windows) for step-by-step installation instructions
 
 - Linux (Ubuntu 22.04+ or equivalent) or Windows
@@ -50,9 +47,9 @@ See [Linux](#linux) or [Windows](#windows) for step-by-step installation instruc
 ### Linux
 
 - Ensure the correct NVIDIA drivers are installed (not the default open source driver) and that the GPU can be identified
-```sh
-nvidia-smi
-```
+  ```sh
+  nvidia-smi
+  ```
 - Install dependencies (for Ubuntu 22.04 - other Linux distributions should be similar)
   ```sh
   sudo apt install -y gcc-9 g++-9 clang-14 python3 python3-pip cmake make git doxygen clang-format-14 clang-tidy-14 clangd-14 gcovr
@@ -205,11 +202,11 @@ git submodule update --init --recursive
 ```sh
 ## Release
 cmake -B build
-cmake --build build --parallel 8
+cmake --build build --target install --parallel 8
 
 ## Debug
 cmake -B build-debug -D CMAKE_BUILD_TYPE=Debug
-cmake --build build-debug --parallel 8
+cmake --build build-debug --target install --parallel 8
 ```
 
 Binaries will be written to `build/bin`. Shared libraries and static libraries will be written to `build/lib`.
@@ -217,9 +214,13 @@ Binaries will be written to `build/bin`. Shared libraries and static libraries w
 ### Windows
 
 ```sh
+## Release
 cmake -B build
-cmake --build build --config Release --parallel 8
-cmake --build build --config Debug --parallel 8
+cmake --build build --config Release --target install --parallel 8
+
+## Debug
+cmake -B build
+cmake --build build --config Debug --target install --parallel 8
 ```
 
 Binaries and shared libraries will be written to `build/bin/Release`. Static libraries and python modules will be written to `build/lib/Release`.
@@ -369,7 +370,7 @@ On Linux
 ```sh
 cmake -B build
 cmake --build build
-cmake --install build --component library --prefix $HOME/Desktop/CesiumOmniverse
+cmake --install build --component library --prefix /path/to/install/location
 ```
 
 On Windows
@@ -377,7 +378,7 @@ On Windows
 ```sh
 cmake -B build
 cmake --build build --config Release
-cmake --install build --config Release --component library --prefix $HOME/Desktop/CesiumOmniverse
+cmake --install build --config Release --component library --prefix /path/to/install/location
 ```
 
 ## Tracing
@@ -385,7 +386,7 @@ cmake --install build --config Release --component library --prefix $HOME/Deskto
 To enable performance tracing set `CESIUM_OMNI_ENABLE_TRACING`:
 
 ```sh
-cmake -B build -D CESIUM_OMNI_ENABLE_TRACING
+cmake -B build -D CESIUM_OMNI_ENABLE_TRACING=ON
 cmake --build build
 ```
 
@@ -454,8 +455,6 @@ cmake -B build
 cmake --build build --target clang-tidy
 ```
 
-Note that these targets are not available on Windows currently.
-
 ## Packaging
 
 ### Build Linux Package (Local)
@@ -500,6 +499,7 @@ Each workspace contains recommended extensions and settings for VSCode developme
 - Configure - configures the project
 - Build (advanced) - configures and builds the project
 - Build (tracing) - configures and builds the project with tracing enabled
+- Build (kit debug) - configures and builds the project using NVIDIA debug libraries
 - Build (verbose) - configures and builds the project with verbose output
 - Build (debug) - configures and builds the project in debug mode with the default compiler
 - Build (release) - configures and builds the project in release mode with the default compiler
@@ -544,7 +544,9 @@ Then select a configuration from the `Run and Debug` panel, such as `Kit App`, a
 
 > **Note:** Most configurations run a build-only prelaunch task. This assumes the project has already been configured. When debugging for the first time make sure to configure the project first by pressing `Ctrl + Shift + B` and running  `Build (debug)`.
 
-> **Note:** For performance tracing make sure the project has been configured with tracing enabled by pressing `Ctrl + Shift + B` and running  `Build (tracing)`.
+> **Note:** For running the `Performance Tracing` configuration, make sure the project has been configured with tracing enabled by pressing `Ctrl + Shift + B` and running  `Build (tracing)`.
+
+> **Note:** For running the `Development App (Kit Debug)` configuration make sure the project has been built with NVIDIA debug libraries by pressing `Ctrl + Shift + B` and running  `Build (kit debug)`.
 
 > **Note:** For Python debugging, first run `Python Debugging (start)`, then wait for Omniverse to load, then run `Python Debugging (attach)`. Now you can set breakpoints in both the C++ and Python code.
 
@@ -590,6 +592,9 @@ The external dependencies from Nvidia use Nvidia's packman tool to fetch and ins
 <project toolsVersion="5.6">
   <dependency name="kit_sdk" linkPath="../_build/target-deps/kit-sdk/">
     <package name="kit-sdk" version="104.2+release.275.6d591d71.tc.${platform}.release"/>
+  </dependency>
+  <dependency name="kit_sdk_debug" linkPath="../_build/target-deps/kit-sdk-debug/">
+    <package name="kit-sdk" version="104.2+release.275.6d591d71.tc.${platform}.debug"/>
   </dependency>
 </project>
 ```

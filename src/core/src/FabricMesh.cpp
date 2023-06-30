@@ -4,8 +4,8 @@
 
 namespace cesium::omniverse {
 FabricMesh::FabricMesh(std::shared_ptr<FabricGeometry> geometry, std::shared_ptr<FabricMaterial> material)
-    : _geometry(geometry)
-    , _material(material) {}
+    : _geometry(std::move(geometry))
+    , _material(std::move(material)) {}
 
 std::shared_ptr<FabricGeometry> FabricMesh::getGeometry() const {
     return _geometry;

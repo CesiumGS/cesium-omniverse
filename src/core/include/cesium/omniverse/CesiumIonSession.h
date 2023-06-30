@@ -16,46 +16,46 @@ class CesiumIonSession {
   public:
     CesiumIonSession(
         CesiumAsync::AsyncSystem& asyncSystem,
-        const std::shared_ptr<CesiumAsync::IAssetAccessor>& pAssetAccessor);
+        std::shared_ptr<CesiumAsync::IAssetAccessor> pAssetAccessor);
 
-    const std::shared_ptr<CesiumAsync::IAssetAccessor>& getAssetAccessor() const {
+    [[nodiscard]] const std::shared_ptr<CesiumAsync::IAssetAccessor>& getAssetAccessor() const {
         return this->_pAssetAccessor;
     }
-    const CesiumAsync::AsyncSystem& getAsyncSystem() const {
+    [[nodiscard]] const CesiumAsync::AsyncSystem& getAsyncSystem() const {
         return this->_asyncSystem;
     }
     CesiumAsync::AsyncSystem& getAsyncSystem() {
         return this->_asyncSystem;
     }
 
-    bool isConnected() const {
+    [[nodiscard]] bool isConnected() const {
         return this->_connection.has_value();
     }
-    bool isConnecting() const {
+    [[nodiscard]] bool isConnecting() const {
         return this->_isConnecting;
     }
-    bool isResuming() const {
+    [[nodiscard]] bool isResuming() const {
         return this->_isResuming;
     }
 
-    bool isProfileLoaded() const {
+    [[nodiscard]] bool isProfileLoaded() const {
         return this->_profile.has_value();
     }
-    bool isLoadingProfile() const {
+    [[nodiscard]] bool isLoadingProfile() const {
         return this->_isLoadingProfile;
     }
 
-    bool isAssetListLoaded() const {
+    [[nodiscard]] bool isAssetListLoaded() const {
         return this->_assets.has_value();
     }
-    bool isLoadingAssetList() const {
+    [[nodiscard]] bool isLoadingAssetList() const {
         return this->_isLoadingAssets;
     }
 
-    bool isTokenListLoaded() const {
+    [[nodiscard]] bool isTokenListLoaded() const {
         return this->_tokens.has_value();
     }
-    bool isLoadingTokenList() const {
+    [[nodiscard]] bool isLoadingTokenList() const {
         return this->_isLoadingTokens;
     }
 
@@ -69,12 +69,12 @@ class CesiumIonSession {
     void refreshAssets();
     void refreshTokens();
 
-    const std::optional<CesiumIonClient::Connection>& getConnection() const;
+    [[nodiscard]] const std::optional<CesiumIonClient::Connection>& getConnection() const;
     const CesiumIonClient::Profile& getProfile();
     const CesiumIonClient::Assets& getAssets();
     const std::vector<CesiumIonClient::Token>& getTokens();
 
-    const std::string& getAuthorizeUrl() const {
+    [[nodiscard]] const std::string& getAuthorizeUrl() const {
         return this->_authorizeUrl;
     }
 
@@ -94,7 +94,8 @@ class CesiumIonSession {
      * @return The details of the token, or an error response if the token does
      * not exist in the signed-in user account.
      */
-    CesiumAsync::Future<CesiumIonClient::Response<CesiumIonClient::Token>> findToken(const std::string& token) const;
+    [[nodiscard]] CesiumAsync::Future<CesiumIonClient::Response<CesiumIonClient::Token>>
+    findToken(const std::string& token) const;
 
     /**
      * Gets the project default token.

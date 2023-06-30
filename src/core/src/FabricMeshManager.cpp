@@ -31,7 +31,7 @@ std::shared_ptr<FabricMesh> FabricMeshManager::acquireMesh(
     return std::make_shared<FabricMesh>(geometry, material);
 }
 
-void FabricMeshManager::releaseMesh(std::shared_ptr<FabricMesh> mesh) {
+void FabricMeshManager::releaseMesh(const std::shared_ptr<FabricMesh>& mesh) {
     const auto geometry = mesh->getGeometry();
     const auto material = mesh->getMaterial();
 
@@ -100,7 +100,7 @@ std::shared_ptr<FabricGeometry> FabricMeshManager::acquireGeometry(
     std::scoped_lock<std::mutex> lock(_poolMutex);
 
     const auto geometryPool = getGeometryPool(geometryDefinition);
-    const auto geometry = geometryPool->acquire();
+    auto geometry = geometryPool->acquire();
 
     return geometry;
 }
@@ -120,12 +120,12 @@ std::shared_ptr<FabricMaterial> FabricMeshManager::acquireMaterial(
     std::scoped_lock<std::mutex> lock(_poolMutex);
 
     const auto materialPool = getMaterialPool(materialDefinition);
-    const auto material = materialPool->acquire();
+    auto material = materialPool->acquire();
 
     return material;
 }
 
-void FabricMeshManager::releaseGeometry(std::shared_ptr<FabricGeometry> geometry) {
+void FabricMeshManager::releaseGeometry(const std::shared_ptr<FabricGeometry>& geometry) {
     if (_disableGeometryPool) {
         return;
     }
@@ -136,7 +136,7 @@ void FabricMeshManager::releaseGeometry(std::shared_ptr<FabricGeometry> geometry
     geometryPool->release(geometry);
 }
 
-void FabricMeshManager::releaseMaterial(std::shared_ptr<FabricMaterial> material) {
+void FabricMeshManager::releaseMaterial(const std::shared_ptr<FabricMaterial>& material) {
     if (_disableMaterialPool) {
         return;
     }

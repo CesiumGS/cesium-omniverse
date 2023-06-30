@@ -87,7 +87,7 @@ _Repr(const CesiumGlobeAnchorAPI &self)
 {
     std::string primRepr = TfPyRepr(self.GetPrim());
     return TfStringPrintf(
-        "Cesium.GlobeAnchorAPI(%s)",
+        "CesiumUsdSchemas.GlobeAnchorAPI(%s)",
         primRepr.c_str());
 }
 

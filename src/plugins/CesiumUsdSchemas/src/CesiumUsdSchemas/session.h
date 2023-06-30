@@ -1,7 +1,7 @@
-#ifndef CESIUM_GENERATED_SESSION_H
-#define CESIUM_GENERATED_SESSION_H
+#ifndef CESIUMUSDSCHEMAS_GENERATED_SESSION_H
+#define CESIUMUSDSCHEMAS_GENERATED_SESSION_H
 
-/// \file cesium/session.h
+/// \file CesiumUsdSchemas/session.h
 
 #include "pxr/pxr.h"
 #include ".//api.h"
@@ -31,7 +31,7 @@ class SdfAssetPath;
 ///
 /// Stores session layer state for Cesium for Omniverse/USD.
 ///
-class CESIUM_API CesiumSession : public UsdTyped
+class CesiumSession : public UsdTyped
 {
 public:
     /// Compile time constant representing what kind of schema this class is.
@@ -57,11 +57,13 @@ public:
     }
 
     /// Destructor.
+    CESIUMUSDSCHEMAS_API
     virtual ~CesiumSession();
 
     /// Return a vector of names of all pre-declared attributes for this schema
     /// class and all its ancestor classes.  Does not include attributes that
     /// may be authored by custom/extended methods of the schemas involved.
+    CESIUMUSDSCHEMAS_API
     static const TfTokenVector &
     GetSchemaAttributeNames(bool includeInherited=true);
 
@@ -74,6 +76,7 @@ public:
     /// CesiumSession(stage->GetPrimAtPath(path));
     /// \endcode
     ///
+    CESIUMUSDSCHEMAS_API
     static CesiumSession
     Get(const UsdStagePtr &stage, const SdfPath &path);
 
@@ -99,6 +102,7 @@ public:
     /// specify this schema class, in case a stronger typeName opinion overrides
     /// the opinion at the current EditTarget.
     ///
+    CESIUMUSDSCHEMAS_API
     static CesiumSession
     Define(const UsdStagePtr &stage, const SdfPath &path);
 
@@ -106,16 +110,19 @@ protected:
     /// Returns the type of schema this class belongs to.
     ///
     /// \sa UsdSchemaType
+    CESIUMUSDSCHEMAS_API
     UsdSchemaType _GetSchemaType() const override;
 
 private:
     // needs to invoke _GetStaticTfType.
     friend class UsdSchemaRegistry;
+    CESIUMUSDSCHEMAS_API
     static const TfType &_GetStaticTfType();
 
     static bool _IsTypedSchema();
 
     // override SchemaBase virtuals.
+    CESIUMUSDSCHEMAS_API
     const TfType &_GetTfType() const override;
 
 public:
@@ -129,6 +136,7 @@ public:
     /// | Declaration | `matrix4d cesium:ecefToUsdTransform` |
     /// | C++ Type | GfMatrix4d |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Matrix4d |
+    CESIUMUSDSCHEMAS_API
     UsdAttribute GetEcefToUsdTransformAttr() const;
 
     /// See GetEcefToUsdTransformAttr(), and also 
@@ -136,6 +144,7 @@ public:
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
     UsdAttribute CreateEcefToUsdTransformAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:

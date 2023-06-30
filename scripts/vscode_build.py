@@ -52,6 +52,7 @@ class Args(NamedTuple):
     compiler_name: str
     tracing: bool
     verbose: bool
+    kit_debug: bool
     parallel: bool
     build_only: bool
 
@@ -72,6 +73,9 @@ def get_cmake_configure_command(args: Args):
 
     if args.tracing:
         cmd.extend(("-D", "CESIUM_OMNI_ENABLE_TRACING=ON"))
+
+    if args.kit_debug:
+        cmd.extend(("-D", "CESIUM_OMNI_USE_NVIDIA_DEBUG_LIBRARIES=ON"))
 
     if is_windows():
         cmd.extend(("-G", "Ninja Multi-Config", "-D", "CMAKE_C_COMPILER=cl", "-D", "CMAKE_CXX_COMPILER=cl"))
@@ -191,19 +195,11 @@ def format(args: Args):
 
 
 def lint(args: Args):
-    if is_windows():
-        print("Linters are not supported for Windows")
-        return
-
     clang_tidy_cmd = get_cmake_build_command(args, "clang-tidy")
     process(clang_tidy_cmd)
 
 
 def lint_fix(args: Args):
-    if is_windows():
-        print("Linters are not supported for Windows")
-        return
-
     clang_tidy_cmd = get_cmake_build_command(args, "clang-tidy-fix")
     process(clang_tidy_cmd)
 
@@ -253,9 +249,10 @@ def main(av: List[str]):
     build_folder = get_build_folder_name(build_type, compiler_name)
     tracing = True if len(av) >= 4 and av[3] == "--tracing" else False
     verbose = True if len(av) >= 4 and av[3] == "--verbose" else False
+    kit_debug = True if len(av) >= 4 and av[3] == "--kit-debug" else False
     parallel = False if len(av) >= 5 and av[4] == "--no-parallel" else True
     build_only = True if len(av) >= 4 and av[3] == "--build-only" else False
-    args = Args(task, build_folder, build_type, compiler_name, tracing, verbose, parallel, build_only)
+    args = Args(task, build_folder, build_type, compiler_name, tracing, verbose, kit_debug, parallel, build_only)
 
     if task == "configure":
         configure(args)
