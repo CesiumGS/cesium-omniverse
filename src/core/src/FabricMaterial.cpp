@@ -26,9 +26,6 @@ FabricMaterial::FabricMaterial(pxr::SdfPath path, const FabricMaterialDefinition
     : _materialDefinition(materialDefinition) {
 
     initialize(std::move(path), materialDefinition);
-
-    // Remove this function once dynamic material values are supported in Kit 105
-    setInitialValues(materialDefinition);
 }
 
 FabricMaterial::~FabricMaterial() {
@@ -288,38 +285,6 @@ void FabricMaterial::reset() {
 
     if (hasBaseColorTexture) {
         FabricUtil::setTilesetIdAndTileId(_baseColorTexPathFabric, -1, -1);
-    }
-}
-
-void FabricMaterial::setInitialValues(const FabricMaterialDefinition& materialDefinition) {
-    const auto hasBaseColorTexture = _materialDefinition.hasBaseColorTexture();
-
-    auto srw = UsdUtil::getFabricStageReaderWriter();
-
-    // clang-format off
-    auto alphaCutoffFabric = srw.getAttributeWr<float>(_shaderPathFabric, FabricTokens::inputs_alpha_cutoff);
-    auto alphaModeFabric = srw.getAttributeWr<int>(_shaderPathFabric, FabricTokens::inputs_alpha_mode);
-    auto baseAlphaFabric = srw.getAttributeWr<float>(_shaderPathFabric, FabricTokens::inputs_base_alpha);
-    auto baseColorFactorFabric = srw.getAttributeWr<pxr::GfVec3f>(_shaderPathFabric, FabricTokens::inputs_base_color_factor);
-    auto emissiveFactorFabric = srw.getAttributeWr<pxr::GfVec3f>(_shaderPathFabric, FabricTokens::inputs_emissive_factor);
-    auto metallicFactorFabric = srw.getAttributeWr<float>(_shaderPathFabric, FabricTokens::inputs_metallic_factor);
-    auto roughnessFactorFabric = srw.getAttributeWr<float>(_shaderPathFabric, FabricTokens::inputs_roughness_factor);
-    // clang-format on
-
-    *alphaCutoffFabric = materialDefinition.getAlphaCutoff();
-    *alphaModeFabric = materialDefinition.getAlphaMode();
-    *baseAlphaFabric = materialDefinition.getBaseAlpha();
-    *baseColorFactorFabric = materialDefinition.getBaseColorFactor();
-    *emissiveFactorFabric = materialDefinition.getEmissiveFactor();
-    *metallicFactorFabric = materialDefinition.getMetallicFactor();
-    *roughnessFactorFabric = materialDefinition.getRoughnessFactor();
-
-    if (hasBaseColorTexture) {
-        auto wrapSFabric = srw.getAttributeWr<int>(_baseColorTexPathFabric, FabricTokens::inputs_wrap_s);
-        auto wrapTFabric = srw.getAttributeWr<int>(_baseColorTexPathFabric, FabricTokens::inputs_wrap_t);
-
-        *wrapSFabric = materialDefinition.getWrapS();
-        *wrapTFabric = materialDefinition.getWrapT();
     }
 }
 
