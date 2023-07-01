@@ -56,6 +56,7 @@ void FabricMesh::setImagery(
     const glm::dvec2& imageryTexcoordTranslation,
     const glm::dvec2& imageryTexcoordScale,
     uint64_t imageryTexcoordSetIndex) {
+
     const auto material = getMaterial();
 
     if (material != nullptr) {

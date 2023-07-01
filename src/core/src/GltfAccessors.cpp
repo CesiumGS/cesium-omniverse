@@ -184,9 +184,7 @@ uint64_t NormalsAccessor::size() const {
 TexcoordsAccessor::TexcoordsAccessor()
     : _size(0) {}
 
-TexcoordsAccessor::TexcoordsAccessor(
-    const CesiumGltf::AccessorView<glm::fvec2>& view,
-    bool flipVertical)
+TexcoordsAccessor::TexcoordsAccessor(const CesiumGltf::AccessorView<glm::fvec2>& view, bool flipVertical)
     : _view(view)
     , _flipVertical(flipVertical)
     , _size(view.size()) {}

@@ -408,7 +408,6 @@ void FabricMaterial::setImagery(
     const glm::dvec2& imageryTexcoordTranslation,
     const glm::dvec2& imageryTexcoordScale,
     uint64_t imageryTexcoordSetIndex) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
 
     if (!_materialDefinition.hasBaseColorTexture()) {
         return;
@@ -419,6 +418,8 @@ void FabricMaterial::setImagery(
         carb::Uint2{static_cast<uint32_t>(imagery->width), static_cast<uint32_t>(imagery->height)},
         omni::ui::kAutoCalculateStride,
         carb::Format::eRGBA8_SRGB);
+
+    auto srw = UsdUtil::getFabricStageReaderWriter();
 
     auto texCoordIndexFabric = srw.getAttributeWr<int>(_baseColorTexPathFabric, FabricTokens::inputs_tex_coord_index);
     auto wrapSFabric = srw.getAttributeWr<int>(_baseColorTexPathFabric, FabricTokens::inputs_wrap_s);
