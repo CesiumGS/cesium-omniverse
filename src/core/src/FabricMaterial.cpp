@@ -427,12 +427,17 @@ void FabricMaterial::setImagery(
     auto rotationFabric = srw.getAttributeWr<float>(_baseColorTexPathFabric, FabricTokens::inputs_rotation);
     auto scaleFabric = srw.getAttributeWr<pxr::GfVec2f>(_baseColorTexPathFabric, FabricTokens::inputs_scale);
 
+    // gltf/pbr.mdl does texture transform math in glTF coordinates (top-left origin), so we needed to convert
+    // the imagery texcoord translate/scale to work in that space
+    glm::dvec2 offset(imageryTexcoordTranslation.x, 1.0 - imageryTexcoordTranslation.y - imageryTexcoordScale.y);
+    glm::dvec2 scale(imageryTexcoordScale.x, imageryTexcoordScale.y);
+
     *texCoordIndexFabric = static_cast<int>(imageryTexcoordSetIndex);
     *wrapSFabric = CesiumGltf::Sampler::WrapS::CLAMP_TO_EDGE;
     *wrapTFabric = CesiumGltf::Sampler::WrapS::CLAMP_TO_EDGE;
-    *offsetFabric = UsdUtil::glmToUsdVector(glm::fvec2(imageryTexcoordTranslation));
+    *offsetFabric = UsdUtil::glmToUsdVector(glm::fvec2(offset));
     *rotationFabric = DEFAULT_ROTATION;
-    *scaleFabric = UsdUtil::glmToUsdVector(glm::fvec2(imageryTexcoordScale));
+    *scaleFabric = UsdUtil::glmToUsdVector(glm::fvec2(scale));
 }
 
 } // namespace cesium::omniverse
