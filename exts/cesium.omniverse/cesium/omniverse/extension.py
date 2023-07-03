@@ -22,6 +22,7 @@ import omni.usd
 import os
 from typing import List, Optional, Callable
 from .ui.credits_viewport_controller import CreditsViewportController
+from .install.install_lxml import install_lxml
 
 cesium_extension_location = os.path.join(os.path.dirname(__file__), "../../")
 
@@ -57,12 +58,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._menu = None
         self._num_credits_viewport_frames: int = 0
 
-        try:
-            # This installs lxml which is needed for credit display.
-            omni.kit.pipapi.install("wheel")
-            omni.kit.pipapi.install("lxml")
-        except Exception as e:
-            self._logger.error(e)
+        install_lxml(cesium_extension_location)
 
     def on_startup(self):
         # The ability to show up the window if the system requires it. We use it in QuickLayout.
