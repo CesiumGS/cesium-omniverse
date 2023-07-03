@@ -104,24 +104,19 @@ void setFabricMeshes(
     bool hasImagery) {
     CESIUM_TRACE("FabricPrepareRenderResources::setFabricMeshes");
     for (size_t i = 0; i < meshes.size(); i++) {
-            const mesh& intermediaryMesh = meshes[i];
+        const auto& mesh = meshes[i];
         const auto& fabricMesh = fabricMeshes[i];
-        const auto& primitive = model.meshes[intermediaryMesh.meshId].primitives[intermediaryMesh.primitiveId];
+        const auto& primitive = model.meshes[mesh.meshId].primitives[mesh.primitiveId];
         fabricMesh->setTile(
-            intermediaryMesh.tilesetId,
-            intermediaryMesh.tileId,
-            intermediaryMesh.ecefToUsdTransform,
-            intermediaryMesh.gltfToEcefTransform,
-            intermediaryMesh.nodeTransform,
+            mesh.tilesetId,
+            mesh.tileId,
+            mesh.ecefToUsdTransform,
+            mesh.gltfToEcefTransform,
+            mesh.nodeTransform,
             model,
             primitive,
             mesh.smoothNormals,
             hasImagery);
-            intermediaryMesh.smoothNormals,
-            intermediaryMesh.imagery,
-            intermediaryMesh.imageryTexcoordTranslation,
-            intermediaryMesh.imageryTexcoordScale,
-            intermediaryMesh.imageryTexcoordSetIndex);
     }
 }
 
