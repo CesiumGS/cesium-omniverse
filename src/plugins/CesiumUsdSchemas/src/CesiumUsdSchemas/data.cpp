@@ -52,8 +52,9 @@ CesiumData::Define(
 }
 
 /* virtual */
-UsdSchemaType CesiumData::_GetSchemaType() const {
-    return CesiumData::schemaType;
+UsdSchemaKind CesiumData::_GetSchemaKind() const
+{
+    return CesiumData::schemaKind;
 }
 
 /* static */

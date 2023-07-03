@@ -80,16 +80,18 @@ setup_lib(
         usdVol
         vt
         work
-        boost_python37
+        boost_python310
         tbb
         carb
         cuda
         nvrtc
         omni_kit_app
+        cudart
+        omni_kit
         omni_ui
         rtx_plugins
         pybind11
-        python37
+        python310
     ADDITIONAL_LIBRARIES
         "${ADDITIONAL_LIBRARIES}"
     ADDITIONAL_LINK_DIRECTORIES

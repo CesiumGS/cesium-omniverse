@@ -52,8 +52,9 @@ CesiumTileset::Define(
 }
 
 /* virtual */
-UsdSchemaType CesiumTileset::_GetSchemaType() const {
-    return CesiumTileset::schemaType;
+UsdSchemaKind CesiumTileset::_GetSchemaKind() const
+{
+    return CesiumTileset::schemaKind;
 }
 
 /* static */
@@ -385,6 +386,23 @@ CesiumTileset::CreateShowCreditsOnScreenAttr(VtValue const &defaultValue, bool w
                        writeSparsely);
 }
 
+UsdAttribute
+CesiumTileset::GetMainThreadLoadingTimeLimitAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumMainThreadLoadingTimeLimit);
+}
+
+UsdAttribute
+CesiumTileset::CreateMainThreadLoadingTimeLimitAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumMainThreadLoadingTimeLimit,
+                       SdfValueTypeNames->Float,
+                       /* custom = */ false,
+                       SdfVariabilityVarying,
+                       defaultValue,
+                       writeSparsely);
+}
+
 UsdRelationship
 CesiumTileset::GetGeoreferenceBindingRel() const
 {
@@ -433,6 +451,7 @@ CesiumTileset::GetSchemaAttributeNames(bool includeInherited)
         CesiumTokens->cesiumSuspendUpdate,
         CesiumTokens->cesiumSmoothNormals,
         CesiumTokens->cesiumShowCreditsOnScreen,
+        CesiumTokens->cesiumMainThreadLoadingTimeLimit,
     };
     static TfTokenVector allNames =
         _ConcatenateAttributeNames(

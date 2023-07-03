@@ -2,7 +2,7 @@
 
 #include "cesium/omniverse/FabricMaterialDefinition.h"
 
-#include <carb/flatcache/IPath.h>
+#include <omni/fabric/IPath.h>
 #include <pxr/usd/sdf/path.h>
 
 namespace omni::ui {
@@ -26,12 +26,17 @@ class FabricMaterial {
         int64_t tilesetId,
         int64_t tileId,
         const CesiumGltf::Model& model,
-        const CesiumGltf::MeshPrimitive& primitive,
-        const CesiumGltf::ImageCesium* imagery);
+        const CesiumGltf::MeshPrimitive& primitive);
+
+    void setImagery(
+        const CesiumGltf::ImageCesium* imagery,
+        const glm::dvec2& imageryTexcoordTranslation,
+        const glm::dvec2& imageryTexcoordScale,
+        uint64_t imageryTexcoordSetIndex);
 
     void setActive(bool active);
 
-    [[nodiscard]] carb::flatcache::Path getPathFabric() const;
+    [[nodiscard]] omni::fabric::Path getPathFabric() const;
     [[nodiscard]] const FabricMaterialDefinition& getMaterialDefinition() const;
 
   private:
@@ -41,11 +46,9 @@ class FabricMaterial {
 
     const FabricMaterialDefinition _materialDefinition;
 
-    carb::flatcache::Path _materialPathFabric;
-    carb::flatcache::Path _shaderPathFabric;
-    carb::flatcache::Path _displacementPathFabric;
-    carb::flatcache::Path _surfacePathFabric;
-    carb::flatcache::Path _baseColorTexPathFabric;
+    omni::fabric::Path _materialPathFabric;
+    omni::fabric::Path _shaderPathFabric;
+    omni::fabric::Path _baseColorTexPathFabric;
 
     std::unique_ptr<omni::ui::DynamicTextureProvider> _baseColorTexture;
 };

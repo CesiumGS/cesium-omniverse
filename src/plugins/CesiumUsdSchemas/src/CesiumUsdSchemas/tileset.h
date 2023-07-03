@@ -41,8 +41,8 @@ class CesiumTileset : public UsdGeomBoundable
 public:
     /// Compile time constant representing what kind of schema this class is.
     ///
-    /// \sa UsdSchemaType
-    static const UsdSchemaType schemaType = UsdSchemaType::ConcreteTyped;
+    /// \sa UsdSchemaKind
+    static const UsdSchemaKind schemaKind = UsdSchemaKind::ConcreteTyped;
 
     /// Construct a CesiumTileset on UsdPrim \p prim .
     /// Equivalent to CesiumTileset::Get(prim.GetStage(), prim.GetPath())
@@ -112,11 +112,11 @@ public:
     Define(const UsdStagePtr &stage, const SdfPath &path);
 
 protected:
-    /// Returns the type of schema this class belongs to.
+    /// Returns the kind of schema this class belongs to.
     ///
-    /// \sa UsdSchemaType
+    /// \sa UsdSchemaKind
     CESIUMUSDSCHEMAS_API
-    UsdSchemaType _GetSchemaType() const override;
+    UsdSchemaKind _GetSchemaKind() const override;
 
 private:
     // needs to invoke _GetStaticTfType.
@@ -527,6 +527,28 @@ public:
     /// the default for \p writeSparsely is \c false.
     CESIUMUSDSCHEMAS_API
     UsdAttribute CreateShowCreditsOnScreenAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
+    // MAINTHREADLOADINGTIMELIMIT 
+    // --------------------------------------------------------------------- //
+    /// A soft limit on how long (in milliseconds) to spend on the main-thread part of tile loading each frame. A value of 0.0 indicates that all pending main-thread loads should be completed each tick.
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `float cesium:mainThreadLoadingTimeLimit = 0` |
+    /// | C++ Type | float |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Float |
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute GetMainThreadLoadingTimeLimitAttr() const;
+
+    /// See GetMainThreadLoadingTimeLimitAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute CreateMainThreadLoadingTimeLimitAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // --------------------------------------------------------------------- //

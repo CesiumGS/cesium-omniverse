@@ -6,8 +6,8 @@
 #include <CesiumUsdSchemas/imagery.h>
 #include <CesiumUsdSchemas/session.h>
 #include <CesiumUsdSchemas/tileset.h>
-#include <carb/flatcache/StageWithHistory.h>
 #include <glm/glm.hpp>
+#include <omni/fabric/SimStageWithHistory.h>
 #include <pxr/base/gf/matrix4d.h>
 #include <pxr/base/gf/quatf.h>
 #include <pxr/base/gf/vec3d.h>
@@ -58,13 +58,14 @@ class ScopedEdit {
 static const auto GEOREFERENCE_PATH = pxr::SdfPath("/CesiumGeoreference");
 
 pxr::UsdStageRefPtr getUsdStage();
-carb::flatcache::StageInProgress getFabricStageInProgress();
-carb::flatcache::StageInProgressId getFabricStageInProgressId();
+omni::fabric::StageReaderWriter getFabricStageReaderWriter();
+omni::fabric::StageReaderWriterId getFabricStageReaderWriterId();
 
 bool hasStage();
 glm::dvec3 usdToGlmVector(const pxr::GfVec3d& vector);
 glm::dmat4 usdToGlmMatrix(const pxr::GfMatrix4d& matrix);
 pxr::GfVec3d glmToUsdVector(const glm::dvec3& vector);
+pxr::GfVec2f glmToUsdVector(const glm::fvec2& vector);
 pxr::GfMatrix4d glmToUsdMatrix(const glm::dmat4& matrix);
 Decomposed glmToUsdMatrixDecomposed(const glm::dmat4& matrix);
 glm::dmat4 computeUsdWorldTransform(const pxr::SdfPath& path);

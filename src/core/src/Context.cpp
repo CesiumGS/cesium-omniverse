@@ -313,6 +313,7 @@ void Context::processCesiumTilesetChanged(const ChangedPrim& changedPrim) {
         name == pxr::CesiumTokens->cesiumEnforceCulledScreenSpaceError ||
         name == pxr::CesiumTokens->cesiumCulledScreenSpaceError ||
         name == pxr::CesiumTokens->cesiumSmoothNormals ||
+        name == pxr::CesiumTokens->cesiumMainThreadLoadingTimeLimit ||
         name == pxr::CesiumTokens->cesiumShowCreditsOnScreen) {
         tileset.value()->reload();
     }
@@ -398,9 +399,9 @@ pxr::UsdStageRefPtr Context::getStage() const {
     return _stage;
 }
 
-carb::flatcache::StageInProgress Context::getFabricStageInProgress() const {
-    assert(_fabricStageInProgress.has_value());
-    return _fabricStageInProgress.value(); // NOLINT(bugprone-unchecked-optional-access)
+omni::fabric::StageReaderWriter Context::getFabricStageReaderWriter() const {
+    assert(_fabricStageReaderWriter.has_value());
+    return _fabricStageReaderWriter.value(); // NOLINT(bugprone-unchecked-optional-access)
 }
 
 long Context::getStageId() const {
@@ -419,7 +420,7 @@ void Context::setStageId(long stageId) {
     if (oldStage > 0) {
         // Remove references to the old stage
         _stage.Reset();
-        _fabricStageInProgress.reset();
+        _fabricStageReaderWriter.reset();
         _stageId = 0;
 
         // Now it's safe to clear anything else that references the stage
@@ -431,10 +432,10 @@ void Context::setStageId(long stageId) {
         _stage = pxr::UsdUtilsStageCache::Get().Find(pxr::UsdStageCache::Id::FromLongInt(stageId));
 
         // Set the Fabric stage
-        const auto iStageInProgress = carb::getCachedInterface<carb::flatcache::IStageInProgress>();
-        const auto stageInProgressId =
-            iStageInProgress->get(carb::flatcache::UsdStageId{static_cast<uint64_t>(stageId)});
-        _fabricStageInProgress = carb::flatcache::StageInProgress(stageInProgressId);
+        const auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+        const auto stageReaderWriterId =
+            iStageReaderWriter->get(omni::fabric::UsdStageId{static_cast<uint64_t>(stageId)});
+        _fabricStageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
 
         // Ensure that the CesiumData prim exists so that we can set the georeference
         // and other top-level properties without waiting for an ion session to start

@@ -2,8 +2,8 @@
 
 #include "cesium/omniverse/FabricGeometryDefinition.h"
 
-#include <carb/flatcache/IPath.h>
 #include <glm/glm.hpp>
+#include <omni/fabric/IPath.h>
 #include <pxr/usd/sdf/path.h>
 
 namespace CesiumGltf {
@@ -32,15 +32,12 @@ class FabricGeometry {
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
         bool smoothNormals,
-        bool hasImagery,
-        const glm::dvec2& imageryTexcoordTranslation,
-        const glm::dvec2& imageryTexcoordScale,
-        uint64_t imageryTexcoordSetIndex);
+        bool hasImagery);
 
     void setActive(bool active);
     void setVisibility(bool visible);
 
-    [[nodiscard]] carb::flatcache::Path getPathFabric() const;
+    [[nodiscard]] omni::fabric::Path getPathFabric() const;
     [[nodiscard]] const FabricGeometryDefinition& getGeometryDefinition() const;
 
     void assignMaterial(const std::shared_ptr<FabricMaterial>& material);
@@ -49,7 +46,7 @@ class FabricGeometry {
     void initialize();
     void reset();
 
-    const carb::flatcache::Path _pathFabric;
+    const omni::fabric::Path _pathFabric;
     const FabricGeometryDefinition _geometryDefinition;
     const bool _debugRandomColors;
 };

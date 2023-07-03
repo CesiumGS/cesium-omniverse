@@ -14,7 +14,7 @@
 #include <CesiumGeospatial/Cartographic.h>
 #include <CesiumUsdSchemas/data.h>
 #include <carb/PluginUtils.h>
-#include <carb/flatcache/FlatCache.h>
+#include <omni/fabric/IFabric.h>
 
 namespace cesium::omniverse {
 
@@ -208,7 +208,7 @@ const struct carb::PluginImplDesc pluginImplDesc = {
 
 // NOLINTBEGIN
 CARB_PLUGIN_IMPL(pluginImplDesc, cesium::omniverse::CesiumOmniversePlugin)
-CARB_PLUGIN_IMPL_DEPS(carb::flatcache::FlatCache, carb::flatcache::IStageInProgress)
+CARB_PLUGIN_IMPL_DEPS(omni::fabric::IFabric, omni::fabric::IStageReaderWriter)
 // NOLINTEND
 
 void fillInterface([[maybe_unused]] cesium::omniverse::CesiumOmniversePlugin& iface) {}

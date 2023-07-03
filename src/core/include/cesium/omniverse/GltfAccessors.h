@@ -70,20 +70,13 @@ class NormalsAccessor {
 class TexcoordsAccessor {
   public:
     TexcoordsAccessor();
-    TexcoordsAccessor(
-        const CesiumGltf::AccessorView<glm::fvec2>& view,
-        const glm::fvec2& translation,
-        const glm::fvec2& scale,
-        bool flipVertical);
+    TexcoordsAccessor(const CesiumGltf::AccessorView<glm::fvec2>& view, bool flipVertical);
 
     void fill(const gsl::span<pxr::GfVec2f>& values) const;
     uint64_t size() const;
 
   private:
     CesiumGltf::AccessorView<glm::fvec2> _view;
-    glm::fvec2 _translation;
-    glm::fvec2 _scale;
-    bool _applyTransform;
     bool _flipVertical;
     uint64_t _size;
 };

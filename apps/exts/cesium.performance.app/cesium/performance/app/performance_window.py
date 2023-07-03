@@ -3,12 +3,12 @@ import carb.events
 import omni.kit.app as app
 import omni.ui as ui
 from cesium.omniverse.bindings import ICesiumOmniverseInterface
-from cesium.omniverse.ui.models.space_delimited_number_model import SpaceDelimitedNumberModel
 
 RANDOM_COLORS_TEXT = "Random colors"
 FORBID_HOLES_TEXT = "Forbid holes"
 FRUSTUM_CULLING_TEXT = "Frustum culling"
 TRACING_ENABLED_TEXT = "Tracing enabled"
+MAIN_THREAD_LOADING_TIME_LIMIT_TEXT = "Main thread loading time limit (ms)"
 
 NEW_YORK_CITY_TEXT = "New York City"
 PARIS_TEXT = "Paris"
@@ -21,6 +21,11 @@ GRAND_CANYON_GOOGLE_TEXT = "Grand Canyon (Google)"
 TOUR_GOOGLE_TEXT = "Tour (Google)"
 
 DURATION_TEXT = "Duration (seconds)"
+FPS_TEXT = "FPS"
+FPS_MEAN_TEXT = "FPS (mean)"
+FPS_MEDIAN_TEXT = "FPS (median)"
+FPS_LOW_TEXT = "FPS (low)"
+FPS_HIGH_TEXT = "FPS (high)"
 
 
 class CesiumPerformanceWindow(ui.Window):
@@ -36,8 +41,14 @@ class CesiumPerformanceWindow(ui.Window):
         self._random_colors_checkbox_model = ui.SimpleBoolModel(False)
         self._forbid_holes_checkbox_model = ui.SimpleBoolModel(False)
         self._frustum_culling_checkbox_model = ui.SimpleBoolModel(True)
+        self._main_thread_loading_time_limit_model = ui.SimpleFloatModel(0.0)
 
-        self._duration_model: SpaceDelimitedNumberModel = SpaceDelimitedNumberModel(0)
+        self._duration_model = ui.SimpleFloatModel(0.0)
+        self._fps_model = ui.SimpleFloatModel(0.0)
+        self._fps_mean_model = ui.SimpleFloatModel(0.0)
+        self._fps_median_model = ui.SimpleFloatModel(0.0)
+        self._fps_low_model = ui.SimpleFloatModel(0.0)
+        self._fps_high_model = ui.SimpleFloatModel(0.0)
 
         self.frame.set_build_fn(self._build_fn)
 
@@ -60,10 +71,14 @@ class CesiumPerformanceWindow(ui.Window):
                         ui.Label(label, height=0)
                         ui.CheckBox(model)
 
+                with ui.HStack(height=0):
+                    ui.Label(MAIN_THREAD_LOADING_TIME_LIMIT_TEXT, height=0)
+                    ui.StringField(self._main_thread_loading_time_limit_model)
+
                 with ui.HStack(height=16):
                     tracing_label = ui.Label(TRACING_ENABLED_TEXT, height=0)
                     tracing_label.set_tooltip(
-                        "Enabled when the project is configured with -D CESIUM_OMNI_ENABLE_TRACING"
+                        "Enabled when the project is configured with -D CESIUM_OMNI_ENABLE_TRACING=ON"
                     )
                     enabled_string = "ON" if self._cesium_omniverse_interface.is_tracing_enabled() else "OFF"
                     ui.Label(enabled_string, height=0)
@@ -90,6 +105,11 @@ class CesiumPerformanceWindow(ui.Window):
 
                 for label, model in [
                     (DURATION_TEXT, self._duration_model),
+                    (FPS_TEXT, self._fps_model),
+                    (FPS_MEAN_TEXT, self._fps_mean_model),
+                    (FPS_MEDIAN_TEXT, self._fps_median_model),
+                    (FPS_LOW_TEXT, self._fps_low_model),
+                    (FPS_HIGH_TEXT, self._fps_high_model),
                 ]:
                     with ui.HStack(height=0):
                         ui.Label(label, height=0)
@@ -152,5 +172,23 @@ class CesiumPerformanceWindow(ui.Window):
     def get_frustum_culling(self) -> bool:
         return self._frustum_culling_checkbox_model.get_value_as_bool()
 
-    def set_duration(self, duration: float):
-        self._duration_model.set_value(duration)
+    def get_main_thread_loading_time_limit_model(self) -> float:
+        return self._main_thread_loading_time_limit_model.get_value_as_float()
+
+    def set_duration(self, value: float):
+        self._duration_model.set_value(value)
+
+    def set_fps(self, value: float):
+        self._fps_model.set_value(value)
+
+    def set_fps_mean(self, value: float):
+        self._fps_mean_model.set_value(value)
+
+    def set_fps_median(self, value: float):
+        self._fps_median_model.set_value(value)
+
+    def set_fps_low(self, value: float):
+        self._fps_low_model.set_value(value)
+
+    def set_fps_high(self, value: float):
+        self._fps_high_model.set_value(value)

@@ -37,8 +37,19 @@ find_package(
     COMPONENTS Interpreter
     REQUIRED)
 
-# For various reasons we need to link to release libraries
-set(USE_NVIDIA_RELEASE_LIBRARIES TRUE)
+# Options:
+option(CESIUM_OMNI_ENABLE_TESTS "Unit tests" ON)
+option(CESIUM_OMNI_ENABLE_DOCUMENTATION "Generate HTML documentation with Doxygen" ON)
+option(CESIUM_OMNI_ENABLE_SANITIZERS "Check for undefined behavior at runtime" OFF)
+option(CESIUM_OMNI_ENABLE_LINTERS "Enable clang-format for code formatting and clang-tidy for static code analysis" ON)
+option(CESIUM_OMNI_ENABLE_TRACING "Whether to enable the Cesium performance tracing framework" OFF)
+option(CESIUM_OMNI_USE_NVIDIA_DEBUG_LIBRARIES "Whether to build using NVIDIA debug libraries" OFF)
+
+if(CESIUM_OMNI_USE_NVIDIA_DEBUG_LIBRARIES)
+    set(USE_NVIDIA_RELEASE_LIBRARIES FALSE)
+else()
+    set(USE_NVIDIA_RELEASE_LIBRARIES TRUE)
+endif()
 
 if(MSVC)
     if(${USE_NVIDIA_RELEASE_LIBRARIES})
@@ -73,13 +84,6 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 # Built-in CMake include for using `cmake_dependent_option`
 include(CMakeDependentOption)
-
-# Options:
-option(CESIUM_OMNI_ENABLE_TESTS "Unit tests" ON)
-option(CESIUM_OMNI_ENABLE_DOCUMENTATION "Generate HTML documentation with Doxygen" ON)
-option(CESIUM_OMNI_ENABLE_SANITIZERS "Check for undefined behavior at runtime" OFF)
-option(CESIUM_OMNI_ENABLE_LINTERS "Enable clang-format for code formatting and clang-tidy for static code analysis" ON)
-option(CESIUM_OMNI_ENABLE_TRACING "Whether to enable the Cesium performance tracing framework" OFF)
 
 # Coverage can only be enabled if tests are also enabled
 cmake_dependent_option(
@@ -361,6 +365,9 @@ set(CESIUM_OMNI_CXX_DEFINES
 # Boost is a dependency of USD. It is dynamically linked so we need to set this flag.
 set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} BOOST_ALL_DYN_LINK)
 
+# Hide USD build warning
+set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} BOOST_BIND_GLOBAL_PLACEHOLDERS)
+
 # TBB is a dependency of USD
 if(NOT ${USE_NVIDIA_RELEASE_LIBRARIES})
     set(CESIUM_OMNI_CXX_DEFINES_DEBUG ${CESIUM_OMNI_CXX_DEFINES_DEBUG} TBB_USE_DEBUG)
@@ -506,7 +513,7 @@ set(KIT_EXTENSION_PLUGINS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.usd.plugins/pl
 # You may see warnings like:
 #
 # CMake Warning at build/src/cmake_install.cmake:115 (file):
-#   Dependency libpython3.7m.so.1.0 found in search directory:
+#   Dependency libpython3.10.so.1.0 found in search directory:
 #     cesium-omniverse/extern/nvidia/_build/target-deps/python/lib
 #
 #   See file(GET_RUNTIME_DEPENDENCIES) documentation for more information.

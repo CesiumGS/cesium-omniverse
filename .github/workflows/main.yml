@@ -28,7 +28,7 @@ jobs:
           - {
               name: 'Ubuntu - GCC',
               artifact: 'linux-gcc.tar.xz',
-              os: ubuntu-22.04,
+              os: ubuntu-latest-m,
               cc: 'gcc-11',
               cxx: 'g++-11',
               build-type: 'Release',

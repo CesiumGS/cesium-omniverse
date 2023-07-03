@@ -24,6 +24,9 @@ readme = "doc/README.md"
 preview_image = "doc/resources/preview.jpg"
 icon = "doc/resources/icon.png"
 
+[package.target]
+kit = ["105.*"]
+
 # Which extensions this extension depends on
 [dependencies]
 "cesium.usd.plugins" = {}
@@ -38,6 +41,9 @@ icon = "doc/resources/icon.png"
 # Main python module this extension provides, it will be publicly available as "import cesium.omniverse"
 [[python.module]]
 name = "cesium.omniverse"
+
+[python.pipapi]
+archiveDirs = ["vendor"]
 
 [[native.plugin]]
 path = "bin/cesium.omniverse.plugin"

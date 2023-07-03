@@ -1,5 +1,8 @@
 <project toolsVersion="5.6">
   <dependency name="kit_sdk" linkPath="../_build/target-deps/kit-sdk/">
-    <package name="kit-sdk" version="104.2+release.275.6d591d71.tc.${platform}.release"/>
+    <package name="kit-sdk" version="105.0.1+release.109439.ed961c5c.tc.${platform}.release"/>
+  </dependency>
+  <dependency name="kit_sdk_debug" linkPath="../_build/target-deps/kit-sdk-debug/">
+    <package name="kit-sdk" version="105.0.1+release.109439.ed961c5c.tc.${platform}.debug"/>
   </dependency>
 </project>

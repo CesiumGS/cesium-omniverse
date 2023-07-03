@@ -30,6 +30,9 @@ class FabricMesh {
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
         bool smoothNormals,
+        bool hasImagery);
+
+    void setImagery(
         const CesiumGltf::ImageCesium* imagery,
         const glm::dvec2& imageryTexcoordTranslation,
         const glm::dvec2& imageryTexcoordScale,

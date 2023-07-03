@@ -12,6 +12,7 @@ import omni.kit.ui
 from omni.kit.viewport.utility import get_active_viewport
 from pxr import Gf, Sdf, UsdGeom
 from .performance_window import CesiumPerformanceWindow
+from .fps_sampler import FpsSampler
 from cesium.omniverse.bindings import acquire_cesium_omniverse_interface, release_cesium_omniverse_interface
 from cesium.omniverse.utils import wait_n_frames, dock_window_async
 from cesium.usd.plugins.CesiumUsdSchemas import (
@@ -57,6 +58,7 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         self._tileset_path: Optional[str] = None
         self._active: bool = False
         self._start_time: float = 0.0
+        self._fps_sampler: FpsSampler = FpsSampler()
 
     def on_startup(self):
         global _cesium_omniverse_interface
@@ -165,6 +167,8 @@ class CesiumPerformanceExtension(omni.ext.IExt):
             self._update_frame_subscription.unsubscribe()
             self._update_frame_subscription = None
 
+        self._fps_sampler.destroy()
+
         self._destroy_performance_window()
 
         release_cesium_omniverse_interface(_cesium_omniverse_interface)
@@ -218,6 +222,7 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         if self._active is True:
             duration = self._get_duration()
             self._update_duration_ui(duration)
+            self._update_fps_ui(self._fps_sampler.get_fps())
 
     def _on_stage_event(self, _e: carb.events.IEvent):
         usd_context = omni.usd.get_context()
@@ -474,19 +479,26 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         random_colors = self._performance_window.get_random_colors()
         forbid_holes = self._performance_window.get_forbid_holes()
         frustum_culling = self._performance_window.get_frustum_culling()
+        main_thread_loading_time_limit = self._performance_window.get_main_thread_loading_time_limit_model()
 
         cesium_data.GetDebugRandomColorsAttr().Set(random_colors)
         tileset.GetForbidHolesAttr().Set(forbid_holes)
         tileset.GetEnableFrustumCullingAttr().Set(frustum_culling)
+        tileset.GetMainThreadLoadingTimeLimitAttr().Set(main_thread_loading_time_limit)
 
         self._tileset_path = tileset_path
         self._active = True
         self._start_time = time.time()
+        self._fps_sampler.start()
 
     def _tileset_loaded(self, _e: carb.events.IEvent):
         self._stop()
         duration = self._get_duration()
         self._update_duration_ui(duration)
+        self._update_fps_mean_ui(self._fps_sampler.get_mean())
+        self._update_fps_median_ui(self._fps_sampler.get_median())
+        self._update_fps_low_ui(self._fps_sampler.get_low())
+        self._update_fps_high_ui(self._fps_sampler.get_high())
         self._logger.warning("Loaded in {} seconds".format(duration))
 
     def _get_duration(self) -> float:
@@ -494,13 +506,38 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         duration = current_time - self._start_time
         return duration
 
-    def _update_duration_ui(self, duration: float):
+    def _update_duration_ui(self, value: float):
         if self._performance_window is not None:
-            self._performance_window.set_duration(duration)
+            self._performance_window.set_duration(value)
+
+    def _update_fps_ui(self, value: float):
+        if self._performance_window is not None:
+            self._performance_window.set_fps(value)
+
+    def _update_fps_mean_ui(self, value: float):
+        if self._performance_window is not None:
+            self._performance_window.set_fps_mean(value)
+
+    def _update_fps_median_ui(self, value: float):
+        if self._performance_window is not None:
+            self._performance_window.set_fps_median(value)
+
+    def _update_fps_low_ui(self, value: float):
+        if self._performance_window is not None:
+            self._performance_window.set_fps_low(value)
+
+    def _update_fps_high_ui(self, value: float):
+        if self._performance_window is not None:
+            self._performance_window.set_fps_high(value)
 
     def _clear_scene(self):
         self._stop()
         self._update_duration_ui(0.0)
+        self._update_fps_ui(0.0)
+        self._update_fps_mean_ui(0.0)
+        self._update_fps_median_ui(0.0)
+        self._update_fps_low_ui(0.0)
+        self._update_fps_high_ui(0.0)
 
         if self._tileset_path is not None:
             self._remove_prim(self._tileset_path)
@@ -510,6 +547,8 @@ class CesiumPerformanceExtension(omni.ext.IExt):
 
     def _stop(self):
         self._active = False
+
+        self._fps_sampler.stop()
 
         if self._tileset_loaded_subscription is not None:
             self._tileset_loaded_subscription.unsubscribe()

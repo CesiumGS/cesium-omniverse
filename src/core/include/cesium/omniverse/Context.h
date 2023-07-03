@@ -6,8 +6,8 @@
 #include "cesium/omniverse/UsdNotificationHandler.h"
 
 #include <CesiumGeospatial/Cartographic.h>
-#include <carb/flatcache/StageWithHistory.h>
 #include <glm/glm.hpp>
+#include <omni/fabric/SimStageWithHistory.h>
 #include <pxr/usd/usd/common.h>
 #include <spdlog/logger.h>
 
@@ -75,7 +75,7 @@ class Context {
     void onUpdateUi();
 
     pxr::UsdStageRefPtr getStage() const;
-    carb::flatcache::StageInProgress getFabricStageInProgress() const;
+    omni::fabric::StageReaderWriter getFabricStageReaderWriter() const;
     long getStageId() const;
 
     void setStageId(long stageId);
@@ -151,7 +151,7 @@ class Context {
     std::optional<TokenTroubleshootingDetails> _defaultTokenTroubleshootingDetails = std::nullopt;
 
     pxr::UsdStageRefPtr _stage;
-    std::optional<carb::flatcache::StageInProgress> _fabricStageInProgress;
+    std::optional<omni::fabric::StageReaderWriter> _fabricStageReaderWriter;
     long _stageId{0};
     UsdNotificationHandler _usdNotificationHandler;
 
