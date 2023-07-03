@@ -1,5 +1,23 @@
 # Change Log
 
+### v0.8.0 - 2023-07-03
+
+* Breaking change: Cesium for Omniverse now requires Kit 105 or above (USD Composer 2023.1.0 or above).
+* Breaking change: broke out georeference attributes from `CesiumDataPrim` into dedicated `CesiumGeoreferencePrim` class.
+* Breaking change: `CesiumTilesetPrim` is now a concrete type that inherits from `UsdGeomBoundable`.
+* Breaking change: `CesiumTilesetPrim` now has an explicit binding to a `CesiumGeoreferencePrim`.
+* Breaking change: default values for attributes are no longer written out when saved as `.usd` files.
+* Added ability to zoom to extents on tilesets.
+* Added vertex color support.
+* Added `cesium.omniverse.TILESET_LOADED` Carbonite event.
+* Added more statistics to the Cesium Debugging window.
+* Fixed holes when camera is moving.
+* Fixed orphaned tiles.
+* Fixed credit parsing issue.
+* Improved performance when refining with parent tile's imagery.
+* Improved performance when creating Fabric geometry.
+* Switched base material to `gltf/pbr.mdl`.
+
 ### v0.7.0 - 2023-06-01
 
 * Set better default values when loading glTFs with the `KHR_materials_unlit` extension. This improves the visual quality of Google 3D Tiles.
