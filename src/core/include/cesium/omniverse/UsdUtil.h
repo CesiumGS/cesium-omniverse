@@ -65,6 +65,7 @@ bool hasStage();
 glm::dvec3 usdToGlmVector(const pxr::GfVec3d& vector);
 glm::dmat4 usdToGlmMatrix(const pxr::GfMatrix4d& matrix);
 pxr::GfVec3d glmToUsdVector(const glm::dvec3& vector);
+pxr::GfVec2f glmToUsdVector(const glm::fvec2& vector);
 pxr::GfMatrix4d glmToUsdMatrix(const glm::dmat4& matrix);
 Decomposed glmToUsdMatrixDecomposed(const glm::dmat4& matrix);
 glm::dmat4 computeUsdWorldTransform(const pxr::SdfPath& path);

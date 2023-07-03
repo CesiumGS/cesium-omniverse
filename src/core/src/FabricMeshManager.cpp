@@ -16,16 +16,15 @@ std::shared_ptr<FabricMesh> FabricMeshManager::acquireMesh(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     bool smoothNormals,
-    const CesiumGltf::ImageCesium* imagery,
-    uint64_t imageryTexcoordSetIndex) {
+    bool hasImagery) {
 
-    const auto geometry = acquireGeometry(model, primitive, smoothNormals, imagery, imageryTexcoordSetIndex);
+    const auto geometry = acquireGeometry(model, primitive, smoothNormals, hasImagery);
 
     const auto hasMaterial = geometry->getGeometryDefinition().hasMaterial();
     auto material = std::shared_ptr<FabricMaterial>(nullptr);
 
     if (hasMaterial) {
-        material = acquireMaterial(model, primitive, imagery);
+        material = acquireMaterial(model, primitive, hasImagery);
     }
 
     return std::make_shared<FabricMesh>(geometry, material);
@@ -85,12 +84,9 @@ std::shared_ptr<FabricGeometry> FabricMeshManager::acquireGeometry(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     bool smoothNormals,
-    const CesiumGltf::ImageCesium* imagery,
-    uint64_t imageryTexcoordSetIndex) {
+    bool hasImagery) {
 
-    const auto hasImagery = imagery != nullptr;
-    FabricGeometryDefinition geometryDefinition(
-        model, primitive, smoothNormals, hasImagery, imageryTexcoordSetIndex, _disableMaterials);
+    FabricGeometryDefinition geometryDefinition(model, primitive, smoothNormals, hasImagery, _disableMaterials);
 
     if (_disableGeometryPool) {
         const auto path = pxr::SdfPath(fmt::format("/fabric_geometry_{}", getNextGeometryId()));
@@ -107,9 +103,8 @@ std::shared_ptr<FabricGeometry> FabricMeshManager::acquireGeometry(
 std::shared_ptr<FabricMaterial> FabricMeshManager::acquireMaterial(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
-    const CesiumGltf::ImageCesium* imagery) {
+    bool hasImagery) {
 
-    const auto hasImagery = imagery != nullptr;
     FabricMaterialDefinition materialDefinition(model, primitive, hasImagery, _disableTextures);
 
     if (_disableMaterialPool) {

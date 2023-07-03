@@ -31,12 +31,8 @@ NormalsAccessor getNormals(
     const IndicesAccessor& indices,
     bool smoothNormals);
 
-TexcoordsAccessor getTexcoords(
-    const CesiumGltf::Model& model,
-    const CesiumGltf::MeshPrimitive& primitive,
-    uint64_t setIndex,
-    const glm::fvec2& translation,
-    const glm::fvec2& scale);
+TexcoordsAccessor
+getTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);
 
 VertexColorsAccessor
 getVertexColors(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);
@@ -67,12 +63,8 @@ std::optional<uint64_t> getBaseColorTextureIndex(const CesiumGltf::Model& model,
 
 bool getDoubleSided(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
-TexcoordsAccessor getImageryTexcoords(
-    const CesiumGltf::Model& model,
-    const CesiumGltf::MeshPrimitive& primitive,
-    uint64_t setIndex,
-    const glm::fvec2& translation,
-    const glm::fvec2& scale);
+TexcoordsAccessor
+getImageryTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);
 
 const CesiumGltf::ImageCesium& getImageCesium(const CesiumGltf::Model& model, const CesiumGltf::Texture& texture);
 
