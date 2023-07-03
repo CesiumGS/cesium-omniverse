@@ -85,8 +85,6 @@ setup_lib(
         carb
         cuda
         nvrtc
-        omni_kit_app
-        cudart
         omni_kit
         omni_ui
         rtx_plugins
