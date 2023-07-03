@@ -1,5 +1,4 @@
 import logging
-import omni.kit.pipapi
 import omni.ui as ui
 import webbrowser
 from dataclasses import dataclass
@@ -7,8 +6,6 @@ from functools import partial
 from typing import Optional, List, Tuple
 from .uri_image import CesiumUriImage
 from .image_button import CesiumImageButton
-
-_num_retries = 0
 
 
 @dataclass
@@ -66,15 +63,7 @@ class CesiumCreditsParser:
     ) -> List[ParsedCredit]:
         results = []
 
-        global _num_retries
-        if _num_retries > 10:
-            # Once we've attempted 10 times, we don't want to attempt again for the life of this session.
-            return results
-
         try:
-            omni.kit.pipapi.install(
-                package="lxml", module="lxml", use_online_index=False, ignore_cache=True, ignore_import_check=False
-            )
             from lxml import etree
 
             parser = etree.HTMLParser()
@@ -94,8 +83,6 @@ class CesiumCreditsParser:
 
         except Exception as e:
             self._logger.debug(e)
-
-            _num_retries = _num_retries + 1
 
             if perform_fallback:
                 self._logger.warning("Performing credits fallback.")
