@@ -16,9 +16,8 @@ This is the process we follow when releasing a new version of Cesium for Omniver
 13. Tag the release, e.g. `git tag -a v0.0.0 -m "0.0.0 release"`.
 14. Push the tag, e.g. `git push origin v0.0.0`.
 15. Wait for CI to pass.
-16. Download the latest build from S3. In the AWS management console (old AWS account), go to the bucket [`cesium-travis-builds/cesium-omniverse/main`](https://s3.console.aws.amazon.com/s3/buckets/cesium-travis-builds?region=us-east-1&prefix=cesium-omniverse/main/&showversions=false), find the appropriate date and commit hash to download the CentOS and Windows zip files (e.g. `CesiumForOmniverse-Linux-xxxxxxx.zip` and `CesiumForOmniverse-Windows-xxxxxxx.zip` )
-17. Rename both zip files to use the version number instead of the commit hash, e.g. rename `CesiumForOmniverse-Linux-xxxxxxx.zip` to `CesiumForOmniverse-Linux-v0.0.0.zip` and `CesiumForOmniverse-Windows-xxxxxxx.zip` to `CesiumForOmniverse-Windows-v0.0.0.zip`.
-18. Create a new release on GitHub: https://github.com/CesiumGS/cesium-omniverse/releases/new.
+16. Download the latest build from S3. In the AWS management console (old AWS account), go to the bucket [`cesium-travis-builds/cesium-omniverse`](https://s3.console.aws.amazon.com/s3/buckets/cesium-travis-builds?prefix=cesium-omniverse/&region=us-east-1), find the folder with the new tag and download the CentOS and Windows zip files (e.g. `CesiumForOmniverse-Linux-v0.0.0.zip` and `CesiumForOmniverse-Windows-v0.0.0.zip` )
+17. Create a new release on GitHub: https://github.com/CesiumGS/cesium-omniverse/releases/new.
     * Chose the new tag.
     * Copy the changelog into the description. Follow the format used in previous releases.
     * Upload the Linux and Windows release zip files.
