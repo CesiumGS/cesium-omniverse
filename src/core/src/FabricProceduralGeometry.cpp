@@ -174,7 +174,7 @@ void cesium::omniverse::FabricProceduralGeometry::modify1000PrimsViaCuda() {
 
         double* ptr = sizesD.data();
         size_t elemCount = sizesD.size();
-        void *args[] = { &ptr, &elemCount };
+        void *args[] = { &ptr, &elemCount }; //NOLINT
         int blockSize, minGridSize;
         cuOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, kernel, nullptr, 0, 0);
         //CUresult err = cuLaunchKernel(kernel, minGridSize, 1, 1, blockSize, 1, 1, 0, NULL, args, 0);

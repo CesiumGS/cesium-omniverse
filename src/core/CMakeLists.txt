@@ -84,7 +84,6 @@ setup_lib(
         tbb
         carb
         cuda
-        cudart
         nvrtc
         omni_kit_app
         omni_ui
