@@ -83,7 +83,9 @@ setup_lib(
         boost_python37
         tbb
         carb
+        cuda
         cudart
+        nvrtc
         omni_kit_app
         omni_ui
         rtx_plugins

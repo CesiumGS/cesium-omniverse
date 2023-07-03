@@ -266,15 +266,23 @@ if(WIN32)
         DEBUG_DLL_DIR
             "${CUDA_ROOT}/cuda/bin"
         RELEASE_LIBRARIES
+            cuda
             cudart
+            nvrtc
         DEBUG_LIBRARIES
+            cuda
             cudart
+            nvrtc
         RELEASE_DLL_LIBRARIES
             cudart64_110
+            nvrtc64_112_0
         DEBUG_DLL_LIBRARIES
             cudart64_110
+            nvrtc64_112_0
         TARGET_NAMES
+            cuda
             cudart
+            nvrtc
     )
     # cmake-format: on
 else()
