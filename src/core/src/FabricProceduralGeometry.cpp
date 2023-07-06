@@ -157,6 +157,11 @@ void cesium::omniverse::FabricProceduralGeometry::modify1000PrimsViaCuda() {
     auto fabricReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
     omni::fabric::PrimBucketList cubeBuckets = fabricReaderWriter.findPrims({ cubeTag });
 
+    auto isCudaCompatible = checkCudaCompatibility();
+    if (!isCudaCompatible) {
+        std::cout << "error: CUDA drives and toolkit versions are not compatible." << std::endl;
+    }
+
     //CUDA via CUDA_JIT and string
     static const char* scaleCubes =
         "   extern \"C\" __global__"
@@ -178,6 +183,18 @@ void cesium::omniverse::FabricProceduralGeometry::modify1000PrimsViaCuda() {
     if (result != CUDA_SUCCESS) {
         std::cout << "error: CUDA did not get a device." << std::endl;
     }
+
+    int major, minor;
+    result = cuDeviceGetAttribute(&major, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, device);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: could not get CUDA major version." << std::endl;
+    }
+    result = cuDeviceGetAttribute(&minor, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, device);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: could not get CUDA minor version." << std::endl;
+    }
+
+    std::cout << "Compute capability: " << major << "." << minor << std::endl;
 
     CUcontext context;
     result = cuCtxCreate(&context, 0, device);
@@ -224,19 +241,38 @@ CUfunction cesium::omniverse::FabricProceduralGeometry::compileKernel(const char
     CUmodule module;
 
     // Set up JIT compilation options and compile the module
-    CUjit_option options[] = { //NOLINT
-        CU_JIT_TARGET_FROM_CUCONTEXT,
-        CU_JIT_OPTIMIZATION_LEVEL,
-    };
+    // CUjit_option jitOptions[] = { //NOLINT
+    //     CU_JIT_TARGET_FROM_CUCONTEXT,
+    //     CU_JIT_OPTIMIZATION_LEVEL,
+    // };
 
-    void *option_values[] = { //NOLINT
-        nullptr, // Target is picked from CUcontext
-        (void *)3 // Optimization level 3
-    };
+    // void *jitOptVals[] = { //NOLINT
+    //     nullptr, // Target is picked from CUcontext
+    //     (void *)3 // Optimization level 3
+    // };
+
+    const unsigned int jitNumOptions = 2;
+    CUjit_option jitOptions[jitNumOptions]; //NOLINT
+    void*        jitOptVals[jitNumOptions]; //NOLINT
+
+    // Set up JIT compilation options to print verbose log
+    jitOptions[0] = CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES;
+    int jitLogBufferSize = 1024;
+    jitOptVals[0] = (void *)(size_t)jitLogBufferSize; //NOLINT
+
+    char* jitLogBuffer = new char[jitLogBufferSize];
+    jitOptions[1] = CU_JIT_INFO_LOG_BUFFER; //NOLINT
+    jitOptVals[1] = jitLogBuffer; //NOLINT
 
     // Compile the module
-    CUresult result = cuModuleLoadDataEx(&module, kernelSource, 2, options, option_values);
-    if(result != CUDA_SUCCESS) {
+    CUresult result = cuModuleLoadDataEx(&module, kernelSource, 2, jitOptions, jitOptVals);
+    //attempt to use cuModuleLoadData instead of cuModuleLoadDataEx to see if it solves the CUDA_ERROR_INVALID_IMAGE (200) issue. (It did not.)
+    //CUresult result = cuModuleLoadData(&module, kernelSource);
+
+    std::cout << "JIT compilation log:\n" << jitLogBuffer << std::endl;
+    delete[] jitLogBuffer;
+
+    if (result != CUDA_SUCCESS) {
         const char *error;
         cuGetErrorString(result, &error);
         std::cerr << "Could not compile module: " << error << std::endl;
@@ -245,7 +281,7 @@ CUfunction cesium::omniverse::FabricProceduralGeometry::compileKernel(const char
 
     // Get kernel function
     result = cuModuleGetFunction(&kernel_func, module, kernelName);
-    if(result != CUDA_SUCCESS) {
+    if (result != CUDA_SUCCESS) {
         const char *error;
         cuGetErrorString(result, &error);
         std::cerr << "Could not get kernel function: " << error << std::endl;
@@ -253,6 +289,34 @@ CUfunction cesium::omniverse::FabricProceduralGeometry::compileKernel(const char
     }
 
     return kernel_func;
+}
+
+bool cesium::omniverse::FabricProceduralGeometry::checkCudaCompatibility() {
+    int runtimeVer, driverVer;
+
+    // Get CUDA Runtime version
+    if (cudaRuntimeGetVersion(&runtimeVer) != cudaSuccess) {
+        std::cerr << "Failed to get CUDA Runtime version" << std::endl;
+        return false;
+    }
+
+    // Get CUDA driver version
+    if (cudaDriverGetVersion(&driverVer) != cudaSuccess) {
+        std::cerr << "Failed to get CUDA driver version" << std::endl;
+        return false;
+    }
+
+    std::cout << "CUDA Runtime Version: " << runtimeVer / 1000 << "." << (runtimeVer % 100) / 10 << std::endl;
+    std::cout << "CUDA Driver Version: " << driverVer / 1000 << "." << (driverVer % 100) / 10 << std::endl;
+
+    // Check compatibility
+    if (runtimeVer > driverVer) {
+        std::cerr << "CUDA Toolkit version is greater than the driver version. "
+                  << "Please update the CUDA driver." << std::endl;
+        return false;
+    }
+
+    return true;
 }
 
 // CUfunction cesium::omniverse::FabricProceduralGeometry::compileKernel(const char *kernelSource, const char *kernelName) {
