@@ -309,7 +309,7 @@ CUfunction cesium::omniverse::FabricProceduralGeometry::compileKernel2(const cha
 
     // Compile the program
     auto compileResult = nvrtcCompileProgram(prog, 0, nullptr);
-    if (result != NVRTC_SUCCESS) {
+    if (compileResult != NVRTC_SUCCESS) {
         std::cout << "Failed to compile the program." << std::endl;
     }
 
@@ -319,11 +319,6 @@ CUfunction cesium::omniverse::FabricProceduralGeometry::compileKernel2(const cha
     char* log = new char[logSize];
     nvrtcGetProgramLog(prog, log);
     std::cout << "Compilation log: \n" << log << std::endl;
-
-    // Check the compilation result
-    if (compileResult != NVRTC_SUCCESS) {
-        std::cout << "Failed to compile the program." << std::endl;
-    }
 
     // Get the PTX code
     size_t ptxSize;
