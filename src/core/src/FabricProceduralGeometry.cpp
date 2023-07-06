@@ -163,15 +163,23 @@ void cesium::omniverse::FabricProceduralGeometry::modify1000PrimsViaCuda() {
     }
 
     //CUDA via CUDA_JIT and string
+    // static const char* scaleCubes =
+    //     "   extern \"C\" __global__"
+    //     "   void scaleCubes(double* cubeSizes, size_t count)"
+    //     "   {"
+    //     "       size_t i = blockIdx.x * blockDim.x + threadIdx.x;"
+    //     "       if(count<=i) return;"
+    //     ""
+    //     "       cubeSizes[i] *= 10.0;"
+    //     "   }";
+
+    //minimally viable test kernel
     static const char* scaleCubes =
-        "   extern \"C\" __global__"
-        "   void scaleCubes(double* cubeSizes, size_t count)"
-        "   {"
-        "       size_t i = blockIdx.x * blockDim.x + threadIdx.x;"
-        "       if(count<=i) return;"
-        ""
-        "       cubeSizes[i] *= 10.0;"
-        "   }";
+    "extern \"C\" __global__ void testKernel(int* output)"
+    "{"
+    "    int i = blockIdx.x * blockDim.x + threadIdx.x;"
+    "    output[i] = i;"
+    "}";
 
     CUresult result = cuInit(0);
     if (result != CUDA_SUCCESS) {
