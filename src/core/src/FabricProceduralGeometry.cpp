@@ -168,6 +168,23 @@ void cesium::omniverse::FabricProceduralGeometry::modify1000PrimsViaCuda() {
         "       cubeSizes[i] *= 10.0;"
         "   }";
 
+    CUresult result = cuInit(0);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: CUDA did not init." << std::endl;
+    }
+
+    CUdevice device;
+    result = cuDeviceGet(&device, 0);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: CUDA did not get a device." << std::endl;
+    }
+
+    CUcontext context;
+    result = cuCtxCreate(&context, 0, device);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: could not create CUDA context." << std::endl;
+    }
+
     CUfunction kernel = compileKernel(scaleCubes, "scaleCubes");
 
     //const auto flatCache = carb::getCachedInterface<carb::flatcache::FlatCache>();
@@ -188,34 +205,76 @@ void cesium::omniverse::FabricProceduralGeometry::modify1000PrimsViaCuda() {
         int blockSize, minGridSize;
         cuOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, kernel, nullptr, 0, 0);
         //CUresult err = cuLaunchKernel(kernel, minGridSize, 1, 1, blockSize, 1, 1, 0, NULL, args, 0);
-        auto err = cuLaunchKernel(kernel, minGridSize, 1, 1, blockSize, 1, 1, 0, NULL, args, 0);
+        auto err = cuLaunchKernel(kernel, minGridSize, 1, 1, blockSize, 1, 1, 0, nullptr, args, nullptr);
         // REQUIRE(!err);
         if (err) {
             std::cout << "error" << std::endl;
         }
     }
+
+    result = cuCtxDestroy(context);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: could not destroy CUDA context." << std::endl;
+    }
 }
 
 CUfunction cesium::omniverse::FabricProceduralGeometry::compileKernel(const char *kernelSource, const char *kernelName) {
-    nvrtcProgram prog;
-    nvrtcCreateProgram(&prog, kernelSource, "myKernel.cu", 0, nullptr, nullptr);
 
-    // Compile the program
-    nvrtcCompileProgram(prog, 0, nullptr);
-
-    // Get the PTX code
-    size_t ptxSize;
-    nvrtcGetPTXSize(prog, &ptxSize);
-    char *ptx = new char[ptxSize];
-    nvrtcGetPTX(prog, ptx);
-
-    // Load the PTX code into a CUDA module
+    CUfunction kernel_func;
     CUmodule module;
-    cuModuleLoadData(&module, ptx);
 
-    // Get the kernel function from the module
-    CUfunction kernel;
-    cuModuleGetFunction(&kernel, module, kernelName);
+    // Set up JIT compilation options and compile the module
+    CUjit_option options[] = { //NOLINT
+        CU_JIT_TARGET_FROM_CUCONTEXT,
+        CU_JIT_OPTIMIZATION_LEVEL,
+    };
 
-    return kernel;
+    void *option_values[] = { //NOLINT
+        nullptr, // Target is picked from CUcontext
+        (void *)3 // Optimization level 3
+    };
+
+    // Compile the module
+    CUresult result = cuModuleLoadDataEx(&module, kernelSource, 2, options, option_values);
+    if(result != CUDA_SUCCESS) {
+        const char *error;
+        cuGetErrorString(result, &error);
+        std::cerr << "Could not compile module: " << error << std::endl;
+        return nullptr;
+    }
+
+    // Get kernel function
+    result = cuModuleGetFunction(&kernel_func, module, kernelName);
+    if(result != CUDA_SUCCESS) {
+        const char *error;
+        cuGetErrorString(result, &error);
+        std::cerr << "Could not get kernel function: " << error << std::endl;
+        return nullptr;
+    }
+
+    return kernel_func;
 }
+
+// CUfunction cesium::omniverse::FabricProceduralGeometry::compileKernel(const char *kernelSource, const char *kernelName) {
+//     nvrtcProgram prog;
+//     nvrtcCreateProgram(&prog, kernelSource, "myKernel.cu", 0, nullptr, nullptr);
+
+//     // Compile the program
+//     nvrtcCompileProgram(prog, 0, nullptr);
+
+//     // Get the PTX code
+//     size_t ptxSize;
+//     nvrtcGetPTXSize(prog, &ptxSize);
+//     char *ptx = new char[ptxSize];
+//     nvrtcGetPTX(prog, ptx);
+
+//     // Load the PTX code into a CUDA module
+//     CUmodule module;
+//     cuModuleLoadData(&module, ptx);
+
+//     // Get the kernel function from the module
+//     CUfunction kernel;
+//     cuModuleGetFunction(&kernel, module, kernelName);
+
+//     return kernel;
+// }
