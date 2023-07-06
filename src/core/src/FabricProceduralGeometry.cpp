@@ -163,23 +163,23 @@ void cesium::omniverse::FabricProceduralGeometry::modify1000PrimsViaCuda() {
     }
 
     //CUDA via CUDA_JIT and string
-    // static const char* scaleCubes =
-    //     "   extern \"C\" __global__"
-    //     "   void scaleCubes(double* cubeSizes, size_t count)"
-    //     "   {"
-    //     "       size_t i = blockIdx.x * blockDim.x + threadIdx.x;"
-    //     "       if(count<=i) return;"
-    //     ""
-    //     "       cubeSizes[i] *= 10.0;"
-    //     "   }";
+    static const char* scaleCubes =
+        "   extern \"C\" __global__"
+        "   void scaleCubes(double* cubeSizes, size_t count)"
+        "   {"
+        "       size_t i = blockIdx.x * blockDim.x + threadIdx.x;"
+        "       if(count<=i) return;"
+        ""
+        "       cubeSizes[i] *= 10.0;"
+        "   }";
 
     //minimally viable test kernel
-    static const char* scaleCubes =
-    "extern \"C\" __global__ void testKernel(int* output)"
-    "{"
-    "    int i = blockIdx.x * blockDim.x + threadIdx.x;"
-    "    output[i] = i;"
-    "}";
+    // static const char* scaleCubes =
+    // "extern \"C\" __global__ void testKernel(int* output)"
+    // "{"
+    // "    int i = blockIdx.x * blockDim.x + threadIdx.x;"
+    // "    output[i] = i;"
+    // "}";
 
     CUresult result = cuInit(0);
     if (result != CUDA_SUCCESS) {
@@ -210,7 +210,8 @@ void cesium::omniverse::FabricProceduralGeometry::modify1000PrimsViaCuda() {
         std::cout << "error: could not create CUDA context." << std::endl;
     }
 
-    CUfunction kernel = compileKernel(scaleCubes, "scaleCubes");
+    // CUfunction kernel = compileKernel(scaleCubes, "scaleCubes");
+    CUfunction kernel = compileKernel2(scaleCubes, "scaleCubes");
 
     //const auto flatCache = carb::getCachedInterface<carb::flatcache::FlatCache>();
     // const auto iFabricUsd = carb::getCachedInterface<omni::fabric::IFabricUsd>();
@@ -299,6 +300,30 @@ CUfunction cesium::omniverse::FabricProceduralGeometry::compileKernel(const char
     return kernel_func;
 }
 
+CUfunction cesium::omniverse::FabricProceduralGeometry::compileKernel2(const char *kernelSource, const char *kernelName) {
+    nvrtcProgram prog;
+    nvrtcCreateProgram(&prog, kernelSource, kernelName, 0, nullptr, nullptr);
+
+    // Compile the program
+    nvrtcCompileProgram(prog, 0, nullptr);
+
+    // Get the PTX code
+    size_t ptxSize;
+    nvrtcGetPTXSize(prog, &ptxSize);
+    char *ptx = new char[ptxSize];
+    nvrtcGetPTX(prog, ptx);
+
+    // Load the PTX code into a CUDA module
+    CUmodule module;
+    cuModuleLoadData(&module, ptx);
+
+    // Get the kernel function from the module
+    CUfunction kernel;
+    cuModuleGetFunction(&kernel, module, kernelName);
+
+    return kernel;
+}
+
 bool cesium::omniverse::FabricProceduralGeometry::checkCudaCompatibility() {
     int runtimeVer, driverVer;
 
@@ -327,26 +352,4 @@ bool cesium::omniverse::FabricProceduralGeometry::checkCudaCompatibility() {
     return true;
 }
 
-// CUfunction cesium::omniverse::FabricProceduralGeometry::compileKernel(const char *kernelSource, const char *kernelName) {
-//     nvrtcProgram prog;
-//     nvrtcCreateProgram(&prog, kernelSource, "myKernel.cu", 0, nullptr, nullptr);
 
-//     // Compile the program
-//     nvrtcCompileProgram(prog, 0, nullptr);
-
-//     // Get the PTX code
-//     size_t ptxSize;
-//     nvrtcGetPTXSize(prog, &ptxSize);
-//     char *ptx = new char[ptxSize];
-//     nvrtcGetPTX(prog, ptx);
-
-//     // Load the PTX code into a CUDA module
-//     CUmodule module;
-//     cuModuleLoadData(&module, ptx);
-
-//     // Get the kernel function from the module
-//     CUfunction kernel;
-//     cuModuleGetFunction(&kernel, module, kernelName);
-
-//     return kernel;
-// }

@@ -11,6 +11,7 @@ void modifyUsdPrim();
 void modify1000Prims();
 void modify1000PrimsViaCuda();
 CUfunction compileKernel(const char *kernelSource, const char *kernelName);
+CUfunction compileKernel2(const char *kernelSource, const char *kernelName);
 bool checkCudaCompatibility();
 
 }
