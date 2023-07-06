@@ -256,10 +256,10 @@ if(WIN32)
         DEBUG_DLL_DIR
             "${CUDA_ROOT}/cuda/bin"
         RELEASE_LIBRARIES
-            cuda
+            cudart
             nvrtc
         DEBUG_LIBRARIES
-            cuda
+            cudart
             nvrtc
         RELEASE_DLL_LIBRARIES
             cudart64_110
@@ -268,7 +268,7 @@ if(WIN32)
             cudart64_110
             nvrtc64_112_0
         TARGET_NAMES
-            cuda
+            cudart
             nvrtc
     )
     # cmake-format: on
@@ -289,6 +289,35 @@ else()
             cudart
         TARGET_NAMES
             cudart
+    )
+    # cmake-format: on
+endif()
+
+if(WIN32)
+    # cmake-format: off
+    add_prebuilt_project(
+        RELEASE_INCLUDE_DIR
+            "${CUDA_ROOT}"
+        DEBUG_INCLUDE_DIR
+            "${CUDA_ROOT}"
+        RELEASE_LIBRARY_DIR
+            "${CUDA_ROOT}/cuda/lib/x64"
+        RELEASE_DLL_DIR
+            "C:/Windows/System32"
+        DEBUG_LIBRARY_DIR
+            "${CUDA_ROOT}/cuda/lib/x64"
+        DEBUG_DLL_DIR
+            "C:/Windows/System32"
+        RELEASE_LIBRARIES
+            cuda
+        DEBUG_LIBRARIES
+            cuda
+        RELEASE_DLL_LIBRARIES
+            nvcuda
+        DEBUG_DLL_LIBRARIES
+            nvcuda
+        TARGET_NAMES
+            cuda
     )
     # cmake-format: on
 endif()
