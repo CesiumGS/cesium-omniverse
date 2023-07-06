@@ -26,8 +26,13 @@ class FabricMaterial {
         int64_t tilesetId,
         int64_t tileId,
         const CesiumGltf::Model& model,
-        const CesiumGltf::MeshPrimitive& primitive,
-        const CesiumGltf::ImageCesium* imagery);
+        const CesiumGltf::MeshPrimitive& primitive);
+
+    void setImagery(
+        const CesiumGltf::ImageCesium* imagery,
+        const glm::dvec2& imageryTexcoordTranslation,
+        const glm::dvec2& imageryTexcoordScale,
+        uint64_t imageryTexcoordSetIndex);
 
     void setActive(bool active);
 

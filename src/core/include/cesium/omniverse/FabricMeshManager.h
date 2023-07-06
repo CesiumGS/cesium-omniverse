@@ -33,8 +33,7 @@ class FabricMeshManager {
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
         bool smoothNormals,
-        const CesiumGltf::ImageCesium* imagery,
-        uint64_t imageryTexcoordSetIndex);
+        bool hasImagery);
 
     void releaseMesh(const std::shared_ptr<FabricMesh>& mesh);
 
@@ -57,13 +56,10 @@ class FabricMeshManager {
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
         bool smoothNormals,
-        const CesiumGltf::ImageCesium* imagery,
-        uint64_t imageryTexcoordSetIndex);
+        bool hasImagery);
 
-    std::shared_ptr<FabricMaterial> acquireMaterial(
-        const CesiumGltf::Model& model,
-        const CesiumGltf::MeshPrimitive& primitive,
-        const CesiumGltf::ImageCesium* imagery);
+    std::shared_ptr<FabricMaterial>
+    acquireMaterial(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, bool hasImagery);
 
     void releaseGeometry(const std::shared_ptr<FabricGeometry>& geometry);
     void releaseMaterial(const std::shared_ptr<FabricMaterial>& material);

@@ -27,7 +27,7 @@ template <typename T> size_t getIndexFromRef(const std::vector<T>& vector, const
 
 struct TileLoadThreadResult {
     glm::dmat4 tileTransform;
-    bool hasRasterOverlay;
+    bool hasImagery;
 };
 
 struct IntermediaryMesh {
@@ -39,21 +39,10 @@ struct IntermediaryMesh {
     const uint64_t meshId;
     const uint64_t primitiveId;
     const bool smoothNormals;
-    const CesiumGltf::ImageCesium* imagery;
-    const glm::dvec2 imageryTexcoordTranslation;
-    const glm::dvec2 imageryTexcoordScale;
-    const uint64_t imageryTexcoordSetIndex;
 };
 
-std::vector<IntermediaryMesh> gatherMeshes(
-    const OmniTileset& tileset,
-    const glm::dmat4& tileTransform,
-    const CesiumGltf::Model& model,
-    const CesiumGltf::ImageCesium* imagery,
-    const glm::dvec2& imageryTexcoordTranslation,
-    const glm::dvec2& imageryTexcoordScale,
-    uint64_t imageryTexcoordSetIndex) {
-
+std::vector<IntermediaryMesh>
+gatherMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const CesiumGltf::Model& model) {
     CESIUM_TRACE("FabricPrepareRenderResources::gatherMeshes");
     const auto tilesetId = tileset.getTilesetId();
     const auto tileId = Context::instance().getNextTileId();
@@ -70,16 +59,7 @@ std::vector<IntermediaryMesh> gatherMeshes(
 
     model.forEachPrimitiveInScene(
         -1,
-        [tilesetId,
-         tileId,
-         &ecefToUsdTransform,
-         &gltfToEcefTransform,
-         smoothNormals,
-         imagery,
-         &imageryTexcoordTranslation,
-         &imageryTexcoordScale,
-         imageryTexcoordSetIndex,
-         &meshes](
+        [tilesetId, tileId, &ecefToUsdTransform, &gltfToEcefTransform, smoothNormals, &meshes](
             const CesiumGltf::Model& gltf,
             [[maybe_unused]] const CesiumGltf::Node& node,
             [[maybe_unused]] const CesiumGltf::Mesh& mesh,
@@ -96,31 +76,22 @@ std::vector<IntermediaryMesh> gatherMeshes(
                 meshId,
                 primitiveId,
                 smoothNormals,
-                imagery,
-                imageryTexcoordTranslation,
-                imageryTexcoordScale,
-                imageryTexcoordSetIndex,
             });
         });
 
     return meshes;
 }
 
-std::vector<IntermediaryMesh>
-gatherMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const CesiumGltf::Model& model) {
-    return gatherMeshes(tileset, tileTransform, model, nullptr, glm::dvec2(), glm::dvec2(), 0);
-}
-
 std::vector<std::shared_ptr<FabricMesh>>
-acquireFabricMeshes(const CesiumGltf::Model& model, const std::vector<IntermediaryMesh>& meshes) {
+acquireFabricMeshes(const CesiumGltf::Model& model, const std::vector<IntermediaryMesh>& meshes, bool hasImagery) {
     CESIUM_TRACE("FabricPrepareRenderResources::acquireFabricMeshes");
     std::vector<std::shared_ptr<FabricMesh>> fabricMeshes;
     fabricMeshes.reserve(meshes.size());
 
     for (const auto& mesh : meshes) {
         const auto& primitive = model.meshes[mesh.meshId].primitives[mesh.primitiveId];
-        fabricMeshes.emplace_back(FabricMeshManager::getInstance().acquireMesh(
-            model, primitive, mesh.smoothNormals, mesh.imagery, mesh.imageryTexcoordSetIndex));
+        fabricMeshes.emplace_back(
+            FabricMeshManager::getInstance().acquireMesh(model, primitive, mesh.smoothNormals, hasImagery));
     }
 
     return fabricMeshes;
@@ -129,7 +100,8 @@ acquireFabricMeshes(const CesiumGltf::Model& model, const std::vector<Intermedia
 void setFabricMeshes(
     const CesiumGltf::Model& model,
     const std::vector<IntermediaryMesh>& meshes,
-    const std::vector<std::shared_ptr<FabricMesh>>& fabricMeshes) {
+    const std::vector<std::shared_ptr<FabricMesh>>& fabricMeshes,
+    bool hasImagery) {
     CESIUM_TRACE("FabricPrepareRenderResources::setFabricMeshes");
     for (size_t i = 0; i < meshes.size(); i++) {
         const auto& mesh = meshes[i];
@@ -144,10 +116,7 @@ void setFabricMeshes(
             model,
             primitive,
             mesh.smoothNormals,
-            mesh.imagery,
-            mesh.imageryTexcoordTranslation,
-            mesh.imageryTexcoordScale,
-            mesh.imageryTexcoordSetIndex);
+            hasImagery);
     }
 }
 
@@ -168,13 +137,13 @@ FabricPrepareRenderResources::prepareInLoadThread(
             Cesium3DTilesSelection::TileLoadResultAndRenderResources{std::move(tileLoadResult), nullptr});
     }
 
-    const auto hasRasterOverlay = tileLoadResult.rasterOverlayDetails.has_value();
+    const auto hasImagery = tileLoadResult.rasterOverlayDetails.has_value();
 
     return asyncSystem.createResolvedFuture(Cesium3DTilesSelection::TileLoadResultAndRenderResources{
         std::move(tileLoadResult),
         new TileLoadThreadResult{
             transform,
-            hasRasterOverlay,
+            hasImagery,
         },
     });
 }
@@ -190,14 +159,7 @@ void* FabricPrepareRenderResources::prepareInMainThread(
         reinterpret_cast<TileLoadThreadResult*>(pLoadThreadResult)};
 
     const auto& tileTransform = pTileLoadThreadResult->tileTransform;
-
-    if (pTileLoadThreadResult->hasRasterOverlay) {
-        // Add the tile + imagery later
-        return new TileRenderResources{
-            tileTransform,
-            {},
-        };
-    }
+    const auto hasImagery = pTileLoadThreadResult->hasImagery;
 
     const auto& content = tile.getContent();
     auto pRenderContent = content.getRenderContent();
@@ -208,9 +170,9 @@ void* FabricPrepareRenderResources::prepareInMainThread(
     const auto& model = pRenderContent->getModel();
 
     auto meshes = gatherMeshes(_tileset, tileTransform, model);
-    auto fabricMeshes = acquireFabricMeshes(model, meshes);
+    auto fabricMeshes = acquireFabricMeshes(model, meshes, hasImagery);
 
-    setFabricMeshes(model, meshes, fabricMeshes);
+    setFabricMeshes(model, meshes, fabricMeshes, hasImagery);
 
     return new TileRenderResources{
         tileTransform,
@@ -254,9 +216,7 @@ void FabricPrepareRenderResources::freeRaster(
     [[maybe_unused]] const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
     [[maybe_unused]] void* pLoadThreadResult,
     [[maybe_unused]] void* pMainThreadResult) noexcept {
-    // Nothing to do here.
-    // Due to Kit 104.2 material limitations, a tile can only ever have one imagery attached.
-    // The texture will get freed when the prim is freed.
+    // Multiple overlays is not supported yet. The texture will get freed when the prim is freed.
 }
 
 void FabricPrepareRenderResources::attachRasterInMainThread(
@@ -277,30 +237,9 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
         return;
     }
 
-    if (pTileRenderResources->fabricMeshes.size() > 0) {
-        // Already created the tile with lower-res imagery.
-        // Due to Kit 104.2 material limitations, we can't update the texture or assign a new material to the prim.
-        // But we can delete the existing prim and create a new prim.
-        for (const auto& mesh : pTileRenderResources->fabricMeshes) {
-            FabricMeshManager::getInstance().releaseMesh(mesh);
-        }
+    for (const auto& mesh : pTileRenderResources->fabricMeshes) {
+        mesh->setImagery(&rasterTile.getImage(), translation, scale, overlayTextureCoordinateID);
     }
-
-    const auto& model = tile.getContent().getRenderContent()->getModel();
-
-    const auto meshes = gatherMeshes(
-        _tileset,
-        pTileRenderResources->tileTransform,
-        model,
-        &rasterTile.getImage(),
-        translation,
-        scale,
-        static_cast<uint64_t>(overlayTextureCoordinateID));
-
-    const auto fabricMeshes = acquireFabricMeshes(model, meshes);
-    setFabricMeshes(model, meshes, fabricMeshes);
-
-    pTileRenderResources->fabricMeshes = fabricMeshes;
 }
 
 void FabricPrepareRenderResources::detachRasterInMainThread(
@@ -308,9 +247,7 @@ void FabricPrepareRenderResources::detachRasterInMainThread(
     [[maybe_unused]] int32_t overlayTextureCoordinateID,
     [[maybe_unused]] const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
     [[maybe_unused]] void* pMainThreadRendererResources) noexcept {
-    // Nothing to do here.
-    // Due to Kit 104.2 material limitations, a tile can only ever have one imagery attached.
-    // If we remove the imagery from the tileset we need to reload the whole tileset.
+    // Multiple overlays is not supported yet. The texture will get freed when the prim is freed.
 }
 
 } // namespace cesium::omniverse

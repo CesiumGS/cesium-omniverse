@@ -1,5 +1,5 @@
 [package]
-version = "0.7.0"
+version = "0.8.0"
 category = "simulation"
 feature = false
 app = false
@@ -41,6 +41,9 @@ kit = ["105.*"]
 # Main python module this extension provides, it will be publicly available as "import cesium.omniverse"
 [[python.module]]
 name = "cesium.omniverse"
+
+[python.pipapi]
+archiveDirs = ["vendor"]
 
 [[native.plugin]]
 path = "bin/cesium.omniverse.plugin"
