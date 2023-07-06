@@ -302,24 +302,51 @@ CUfunction cesium::omniverse::FabricProceduralGeometry::compileKernel(const char
 
 CUfunction cesium::omniverse::FabricProceduralGeometry::compileKernel2(const char *kernelSource, const char *kernelName) {
     nvrtcProgram prog;
-    nvrtcCreateProgram(&prog, kernelSource, kernelName, 0, nullptr, nullptr);
+    nvrtcResult result = nvrtcCreateProgram(&prog, kernelSource, kernelName, 0, nullptr, nullptr);
+    if (result != NVRTC_SUCCESS) {
+        std::cout << "Failed to create the program." << std::endl;
+    }
 
     // Compile the program
-    nvrtcCompileProgram(prog, 0, nullptr);
+    auto compileResult = nvrtcCompileProgram(prog, 0, nullptr);
+    if (result != NVRTC_SUCCESS) {
+        std::cout << "Failed to compile the program." << std::endl;
+    }
+
+    // Get compilation log
+    size_t logSize;
+    nvrtcGetProgramLogSize(prog, &logSize);
+    char* log = new char[logSize];
+    nvrtcGetProgramLog(prog, log);
+    std::cout << "Compilation log: \n" << log << std::endl;
+
+    // Check the compilation result
+    if (compileResult != NVRTC_SUCCESS) {
+        std::cout << "Failed to compile the program." << std::endl;
+    }
 
     // Get the PTX code
     size_t ptxSize;
     nvrtcGetPTXSize(prog, &ptxSize);
     char *ptx = new char[ptxSize];
-    nvrtcGetPTX(prog, ptx);
+    result = nvrtcGetPTX(prog, ptx);
+    if (result != NVRTC_SUCCESS) {
+        std::cout << "Failed to get the PTX code." << std::endl;
+    }
 
     // Load the PTX code into a CUDA module
     CUmodule module;
-    cuModuleLoadData(&module, ptx);
+    CUresult moduleLoadResult = cuModuleLoadData(&module, ptx);
+    if (moduleLoadResult != CUDA_SUCCESS) {
+        std::cout << "Failed to load the module." << std::endl;
+    }
 
     // Get the kernel function from the module
     CUfunction kernel;
     cuModuleGetFunction(&kernel, module, kernelName);
+
+    delete[] log;
+    delete[] ptx;
 
     return kernel;
 }
