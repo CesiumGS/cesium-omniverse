@@ -582,27 +582,14 @@ FabricStatistics getStatistics() {
     return statistics;
 }
 
-namespace {
-void destroyPrimsSpan(gsl::span<const omni::fabric::Path> paths) {
+void destroyPrim(const omni::fabric::Path& path) {
     // Only delete prims if there's still a stage to delete them from
     if (!UsdUtil::hasStage()) {
         return;
     }
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
-
-    for (const auto& path : paths) {
-        srw.destroyPrim(path);
-    }
-}
-} // namespace
-
-void destroyPrim(const omni::fabric::Path& path) {
-    destroyPrimsSpan(gsl::span(&path, 1));
-}
-
-void destroyPrims(const std::vector<omni::fabric::Path>& paths) {
-    destroyPrimsSpan(gsl::span(paths));
+    srw.destroyPrim(path);
 }
 
 void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform) {

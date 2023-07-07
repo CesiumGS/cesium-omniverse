@@ -69,6 +69,13 @@ _CreateDebugDisableMaterialPoolAttr(CesiumData &self,
 }
         
 static UsdAttribute
+_CreateDebugDisableTexturePoolAttr(CesiumData &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateDebugDisableTexturePoolAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+}
+        
+static UsdAttribute
 _CreateDebugGeometryPoolInitialCapacityAttr(CesiumData &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateDebugGeometryPoolInitialCapacityAttr(
@@ -79,6 +86,13 @@ static UsdAttribute
 _CreateDebugMaterialPoolInitialCapacityAttr(CesiumData &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateDebugMaterialPoolInitialCapacityAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->UInt64), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateDebugTexturePoolInitialCapacityAttr(CesiumData &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateDebugTexturePoolInitialCapacityAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->UInt64), writeSparsely);
 }
         
@@ -173,6 +187,13 @@ void wrapCesiumData()
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
+        .def("GetDebugDisableTexturePoolAttr",
+             &This::GetDebugDisableTexturePoolAttr)
+        .def("CreateDebugDisableTexturePoolAttr",
+             &_CreateDebugDisableTexturePoolAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
         .def("GetDebugGeometryPoolInitialCapacityAttr",
              &This::GetDebugGeometryPoolInitialCapacityAttr)
         .def("CreateDebugGeometryPoolInitialCapacityAttr",
@@ -184,6 +205,13 @@ void wrapCesiumData()
              &This::GetDebugMaterialPoolInitialCapacityAttr)
         .def("CreateDebugMaterialPoolInitialCapacityAttr",
              &_CreateDebugMaterialPoolInitialCapacityAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetDebugTexturePoolInitialCapacityAttr",
+             &This::GetDebugTexturePoolInitialCapacityAttr)
+        .def("CreateDebugTexturePoolInitialCapacityAttr",
+             &_CreateDebugTexturePoolInitialCapacityAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         

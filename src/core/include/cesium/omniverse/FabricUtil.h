@@ -27,7 +27,6 @@ namespace cesium::omniverse::FabricUtil {
 std::string printFabricStage();
 FabricStatistics getStatistics();
 void destroyPrim(const omni::fabric::Path& path);
-void destroyPrims(const std::vector<omni::fabric::Path>& paths);
 void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform);
 void setTilesetIdAndTileId(const omni::fabric::Path& pathFabric, int64_t tilesetId, int64_t tileId);
 

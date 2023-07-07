@@ -2,7 +2,7 @@
 
 #include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/Context.h"
-#include "cesium/omniverse/FabricMesh.h"
+#include "cesium/omniverse/FabricGeometry.h"
 #include "cesium/omniverse/FabricPrepareRenderResources.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GeospatialUtil.h"
@@ -439,7 +439,7 @@ void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
                 if (pRenderResources) {
                     const auto pTileRenderResources = reinterpret_cast<TileRenderResources*>(pRenderResources);
                     for (const auto& fabricMesh : pTileRenderResources->fabricMeshes) {
-                        fabricMesh->setVisibility(false);
+                        fabricMesh.geometry->setVisibility(false);
                     }
                 }
             }
@@ -455,7 +455,7 @@ void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
                 if (pRenderResources) {
                     const auto pTileRenderResources = reinterpret_cast<TileRenderResources*>(pRenderResources);
                     for (const auto& fabricMesh : pTileRenderResources->fabricMeshes) {
-                        fabricMesh->setVisibility(visible);
+                        fabricMesh.geometry->setVisibility(visible);
                     }
                 }
             }

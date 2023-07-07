@@ -20,8 +20,8 @@ FabricMaterialDefinition::FabricMaterialDefinition(
     const auto hasGltfMaterial = GltfUtil::hasMaterial(primitive);
 
     if (hasGltfMaterial) {
-        const auto& material = model.materials[static_cast<size_t>(primitive.material)];
-        _hasBaseColorTexture = GltfUtil::getBaseColorTextureIndex(model, material).has_value();
+        const auto materialInfo = GltfUtil::getMaterialInfo(model, primitive);
+        _hasBaseColorTexture = materialInfo.baseColorTexture.has_value();
     } else {
         _hasBaseColorTexture = false;
     }

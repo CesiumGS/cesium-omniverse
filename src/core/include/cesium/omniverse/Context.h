@@ -134,8 +134,10 @@ class Context {
     bool getDebugDisableTextures() const;
     bool getDebugDisableGeometryPool() const;
     bool getDebugDisableMaterialPool() const;
+    bool getDebugDisableTexturePool() const;
     uint64_t getDebugGeometryPoolInitialCapacity() const;
     uint64_t getDebugMaterialPoolInitialCapacity() const;
+    uint64_t getDebugTexturePoolInitialCapacity() const;
     bool getDebugRandomColors() const;
 
     std::shared_ptr<TaskProcessor> _taskProcessor;

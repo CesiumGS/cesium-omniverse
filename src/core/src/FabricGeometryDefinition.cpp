@@ -22,11 +22,13 @@ FabricGeometryDefinition::FabricGeometryDefinition(
     const auto hasPrimitiveSt = GltfUtil::hasTexcoords(model, primitive, 0);
     const auto hasImagerySt = GltfUtil::hasImageryTexcoords(model, primitive, 0);
 
+    const auto materialInfo = GltfUtil::getMaterialInfo(model, primitive);
+
     _hasMaterial = (hasMaterial || hasImagery) && !disableMaterials;
     _hasTexcoords = hasPrimitiveSt || hasImagerySt;
     _hasNormals = GltfUtil::hasNormals(model, primitive, smoothNormals);
     _hasVertexColors = GltfUtil::hasVertexColors(model, primitive, 0);
-    _doubleSided = GltfUtil::getDoubleSided(model, primitive);
+    _doubleSided = materialInfo.doubleSided;
 }
 
 bool FabricGeometryDefinition::hasMaterial() const {

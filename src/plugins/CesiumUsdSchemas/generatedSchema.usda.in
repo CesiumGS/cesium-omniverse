@@ -19,6 +19,10 @@ class CesiumDataPrim "CesiumDataPrim" (
         displayName = "Disable Materials"
         doc = "Debug option that renders tilesets with materials disabled."
     )
+    bool cesium:debug:disableTexturePool = 0 (
+        displayName = "Disable Texture Pool"
+        doc = "Debug option that disables texture pooling."
+    )
     bool cesium:debug:disableTextures = 0 (
         displayName = "Disable Textures"
         doc = "Debug option that renders tilesets with textures disabled."
@@ -34,6 +38,10 @@ class CesiumDataPrim "CesiumDataPrim" (
     bool cesium:debug:randomColors = 0 (
         displayName = "Random Colors"
         doc = "Debug option that renders tiles with random colors."
+    )
+    uint64 cesium:debug:texturePoolInitialCapacity = 2048 (
+        displayName = "Texture Pool Initial Capacity"
+        doc = "Debug option that controls the initial capacity of the texture pool."
     )
     string cesium:projectDefaultIonAccessToken = "" (
         displayName = "Project default ion Access Token"
