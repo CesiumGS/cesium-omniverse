@@ -24,44 +24,35 @@
 
 
 int cesium::omniverse::FabricProceduralGeometry::createCube() {
-    //modifyUsdPrim();
+    modifyUsdPrim();
     //modify1000Prims();
-    modify1000PrimsViaCuda();
+    //modify1000PrimsViaCuda();
 
-    return 178;
+    return 45;
 }
 
 void cesium::omniverse::FabricProceduralGeometry::modifyUsdPrim() {
     //Linker error getting UsdContext using omni::usd
     // auto context = omni::usd::UsdContext::getContext();
     const pxr::UsdStageRefPtr usdStagePtr = Context::instance().getStage();
-    //carb::flatcache::StageInProgress stageInProgress = UsdUtil::getFabricStageInProgress();
     omni::fabric::StageReaderWriter stageReaderWriter = UsdUtil::getFabricStageReaderWriter();
-    //auto iStageInProgress = carb::getCachedInterface<carb::flatcache::IStageInProgress>();
     auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
     long id = Context::instance().getStageId();
-    //auto usdStageId = carb::flatcache::UsdStageId{static_cast<uint64_t>(id)};
     auto usdStageId = omni::fabric::UsdStageId{static_cast<uint64_t>(id)};
 
     //create a cube in USD and set its size.
     pxr::UsdPrim prim = usdStagePtr->DefinePrim(pxr::SdfPath("/TestCube"), pxr::TfToken("Cube"));
-    prim.CreateAttribute(pxr::TfToken("size"), pxr::SdfValueTypeNames->Double).Set(3.0);
-
-    //create a second cube in USD as a reference.
-    // pxr::UsdPrim prim2 = usdStagePtr->DefinePrim(pxr::SdfPath("/TestCube2"), pxr::TfToken("Cube"));
-    // prim2.CreateAttribute(pxr::TfToken("size"), pxr::SdfValueTypeNames->Double).Set(6.0);
+    auto sizeUsdToken = pxr::TfToken("size");
+    prim.CreateAttribute(sizeUsdToken, pxr::SdfValueTypeNames->Double).Set(3.0);
 
     //prefetch it to Fabric’s cache.
-    //carb::flatcache::Path primPath("/TestCube");
     omni::fabric::Path primPath("/TestCube");
     iStageReaderWriter->prefetchPrim(usdStageId, primPath);
 
     //use Fabric to modify the cube’s dimensions
-    //auto sizeFabricToken = carb::flatcache::Token("size");
     auto sizeFabricToken = omni::fabric::Token("size");
 
-    //double& size = *stageInProgress.getAttribute<double>(primPath, carb::flatcache::Token("size"));
-    double& size = *stageReaderWriter.getAttribute<double>(primPath, omni::fabric::Token("size"));
+    double& size = *stageReaderWriter.getAttribute<double>(primPath, sizeFabricToken);
     double sizeTarget = 30;
     size = sizeTarget;
 
@@ -75,9 +66,8 @@ void cesium::omniverse::FabricProceduralGeometry::modifyUsdPrim() {
     auto fabricId = omni::fabric::FabricId();
     iFabricUsd->exportUsdPrimData(fabricId);
 
-
     //check that Fabric correctly modified the USD stage.
-    pxr::UsdAttribute sizeAttr = prim.GetAttribute(pxr::TfToken("size"));
+    pxr::UsdAttribute sizeAttr = prim.GetAttribute(sizeUsdToken);
     double value;
     sizeAttr.Get(&value);
     if (value == sizeTarget) {
@@ -170,7 +160,7 @@ void cesium::omniverse::FabricProceduralGeometry::modify1000PrimsViaCuda() {
         "       size_t i = blockIdx.x * blockDim.x + threadIdx.x;"
         "       if(count<=i) return;"
         ""
-        "       cubeSizes[i] *= 10.0;"
+        "       cubeSizes[i] = i / 10.0 + 1.0;"
         "   }";
 
     //minimally viable test kernel
@@ -241,6 +231,22 @@ void cesium::omniverse::FabricProceduralGeometry::modify1000PrimsViaCuda() {
     result = cuCtxDestroy(context);
     if (result != CUDA_SUCCESS) {
         std::cout << "error: could not destroy CUDA context." << std::endl;
+    }
+
+    //write data back to USD to check it
+    const auto iFabricUsd = carb::getCachedInterface<omni::fabric::IFabricUsd>();
+    auto fabricId = omni::fabric::FabricId();
+    iFabricUsd->exportUsdPrimData(fabricId);
+    const pxr::UsdStageRefPtr usdStage = Context::instance().getStage();
+
+    for (size_t i = 0; i != cubeCount; i++)
+    {
+        pxr::SdfPath path("/cube_" + std::to_string(i));
+        pxr::UsdPrim prim = usdStage->GetPrimAtPath(path);
+        pxr::UsdAttribute sizeAttr = prim.GetAttribute(pxr::TfToken("size"));
+        double value;
+        sizeAttr.Get(&value);
+        //CHECK(value == 10.0f);
     }
 }
 
