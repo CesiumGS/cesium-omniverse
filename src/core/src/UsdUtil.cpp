@@ -46,23 +46,25 @@ glm::dvec3 usdToGlmVector(const pxr::GfVec3d& vector) {
 }
 
 glm::dmat4 usdToGlmMatrix(const pxr::GfMatrix4d& matrix) {
-    // Row-major to column-major
+    // USD is row-major with left-to-right matrix multiplication
+    // glm is column-major with right-to-left matrix multiplication
+    // This means they have the same data layout
     return {
         matrix[0][0],
-        matrix[1][0],
-        matrix[2][0],
-        matrix[3][0],
         matrix[0][1],
-        matrix[1][1],
-        matrix[2][1],
-        matrix[3][1],
         matrix[0][2],
-        matrix[1][2],
-        matrix[2][2],
-        matrix[3][2],
         matrix[0][3],
+        matrix[1][0],
+        matrix[1][1],
+        matrix[1][2],
         matrix[1][3],
+        matrix[2][0],
+        matrix[2][1],
+        matrix[2][2],
         matrix[2][3],
+        matrix[3][0],
+        matrix[3][1],
+        matrix[3][2],
         matrix[3][3],
     };
 }
@@ -76,23 +78,25 @@ pxr::GfVec2f glmToUsdVector(const glm::fvec2& vector) {
 }
 
 pxr::GfMatrix4d glmToUsdMatrix(const glm::dmat4& matrix) {
-    // Column-major to row-major
+    // USD is row-major with left-to-right matrix multiplication
+    // glm is column-major with right-to-left matrix multiplication
+    // This means they have the same data layout
     return pxr::GfMatrix4d{
         matrix[0][0],
-        matrix[1][0],
-        matrix[2][0],
-        matrix[3][0],
         matrix[0][1],
-        matrix[1][1],
-        matrix[2][1],
-        matrix[3][1],
         matrix[0][2],
-        matrix[1][2],
-        matrix[2][2],
-        matrix[3][2],
         matrix[0][3],
+        matrix[1][0],
+        matrix[1][1],
+        matrix[1][2],
         matrix[1][3],
+        matrix[2][0],
+        matrix[2][1],
+        matrix[2][2],
         matrix[2][3],
+        matrix[3][0],
+        matrix[3][1],
+        matrix[3][2],
         matrix[3][3],
     };
 }
@@ -125,9 +129,7 @@ glm::dmat4 computeUsdWorldTransform(const pxr::SdfPath& path) {
     const auto time = pxr::UsdTimeCode::Default();
     const auto transform = xform.ComputeLocalToWorldTransform(time);
     const auto matrix = usdToGlmMatrix(transform);
-
-    // For some reason the USD matrix is column major instead of row major, so we need to transpose here
-    return glm::transpose(matrix);
+    return matrix;
 }
 
 bool isPrimVisible(const pxr::SdfPath& path) {
@@ -212,9 +214,9 @@ computeViewState(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPat
 
     const auto usdToEcef = UsdUtil::computeUsdToEcefTransformForPrim(origin, primPath);
     const auto inverseView = glm::inverse(viewMatrix);
-    const auto omniCameraUp = glm::dvec3(viewMatrix[1]);
-    const auto omniCameraFwd = glm::dvec3(-viewMatrix[2]);
-    const auto omniCameraPosition = glm::dvec3(glm::row(inverseView, 3));
+    const auto omniCameraUp = glm::dvec3(inverseView[1]);
+    const auto omniCameraFwd = glm::dvec3(-inverseView[2]);
+    const auto omniCameraPosition = glm::dvec3(inverseView[3]);
     const auto cameraUp = glm::normalize(glm::dvec3(usdToEcef * glm::dvec4(omniCameraUp, 0.0)));
     const auto cameraFwd = glm::normalize(glm::dvec3(usdToEcef * glm::dvec4(omniCameraFwd, 0.0)));
     const auto cameraPosition = glm::dvec3(usdToEcef * glm::dvec4(omniCameraPosition, 1.0));
