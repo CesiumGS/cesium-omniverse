@@ -40,10 +40,10 @@ TEST_SUITE("gltf utils") {
         CHECK(cesium::omniverse::IndicesAccessor(data).size() == data);
     }
 
-    void checkGltfExpectedResults(const std::string& gltfFileName, YAML::Node expectedResults) {
+    void checkGltfExpectedResults(const std::filesystem::path& gltfFileName, YAML::Node expectedResults) {
 
         // --- Load Gltf ---
-        std::ifstream gltfStream(gltfFileName, std::ifstream::in);
+        std::ifstream gltfStream(gltfFileName, std::ifstream::binary);
         std::stringstream gltfBuf;
         gltfBuf << gltfStream.rdbuf();
         CesiumGltfReader::GltfReader reader;
