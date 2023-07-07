@@ -1,6 +1,8 @@
 #include "cesium/omniverse/FabricProceduralGeometry.h"
 
 #include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/FabricAttributesBuilder.h"
+#include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
 // #include <carb/flatcache/FlatCache.h>
@@ -24,9 +26,10 @@
 
 
 int cesium::omniverse::FabricProceduralGeometry::createCube() {
-    modifyUsdPrim();
+    //modifyUsdPrim();
     //modify1000Prims();
     //modify1000PrimsViaCuda();
+    createQuadMeshViaFabric();
 
     return 45;
 }
@@ -380,4 +383,69 @@ bool cesium::omniverse::FabricProceduralGeometry::checkCudaCompatibility() {
     return true;
 }
 
+void cesium::omniverse::FabricProceduralGeometry::createQuadMeshViaFabric() {
+    const auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+    auto usdStageId = Context::instance().getStageId();
 
+    const auto stageReaderWriterId =
+        iStageReaderWriter->get(omni::fabric::UsdStageId{static_cast<uint64_t>(usdStageId)});
+    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+
+    omni::fabric::Path fabricPath = omni::fabric::Path("/fabricMeshCube");
+    stageReaderWriter.createPrim(fabricPath);
+
+    FabricAttributesBuilder attributes;
+    attributes.addAttribute(FabricTypes::faceVertexCounts, FabricTokens::faceVertexCounts);
+    attributes.addAttribute(FabricTypes::faceVertexIndices, FabricTokens::faceVertexIndices);
+    attributes.addAttribute(FabricTypes::points, FabricTokens::points);
+    attributes.addAttribute(FabricTypes::Mesh, FabricTokens::Mesh);
+    attributes.addAttribute(FabricTypes::extent, FabricTokens::extent);
+    attributes.addAttribute(FabricTypes::_worldExtent, FabricTokens::_worldExtent);
+    attributes.addAttribute(FabricTypes::_worldVisibility, FabricTokens::_worldVisibility);
+    attributes.addAttribute(FabricTypes::_worldPosition, FabricTokens::_worldPosition);
+    attributes.addAttribute(FabricTypes::_worldOrientation, FabricTokens::_worldOrientation);
+    attributes.addAttribute(FabricTypes::_worldScale, FabricTokens::_worldScale);
+    attributes.createAttributes(fabricPath);
+
+    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::faceVertexCounts, 2);
+    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::faceVertexIndices, 6);
+    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::points, 4);
+
+    auto pointsFabric = stageReaderWriter.getArrayAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::points);
+    float extentScalar = 50;
+    pointsFabric[0] = pxr::GfVec3f(-extentScalar, -extentScalar, 0);
+    pointsFabric[1] = pxr::GfVec3f(-extentScalar, extentScalar, 0);
+    pointsFabric[2] = pxr::GfVec3f(extentScalar, extentScalar, 0);
+    pointsFabric[3] = pxr::GfVec3f(extentScalar, -extentScalar, 0);
+
+    auto faceVertexCountsFabric = stageReaderWriter.getArrayAttributeWr<int>(fabricPath, FabricTokens::faceVertexCounts);
+    faceVertexCountsFabric[0] = 3;
+    faceVertexCountsFabric[1] = 3;
+
+    auto faceVertexIndicesFabric = stageReaderWriter.getArrayAttributeWr<int>(fabricPath, FabricTokens::faceVertexIndices);
+    faceVertexIndicesFabric[0] = 0;
+    faceVertexIndicesFabric[1] = 1;
+    faceVertexIndicesFabric[2] = 2;
+    faceVertexIndicesFabric[3] = 0;
+    faceVertexIndicesFabric[4] = 2;
+    faceVertexIndicesFabric[5] = 3;
+
+    auto extent = pxr::GfRange3d(pxr::GfVec3d(-extentScalar, -extentScalar, 0), pxr::GfVec3d(extentScalar, extentScalar, 0));
+    auto extentFabric = stageReaderWriter.getAttributeWr<pxr::GfRange3d>(fabricPath, FabricTokens::extent);
+    *extentFabric = extent;
+
+    auto worldExtentFabric = stageReaderWriter.getAttributeWr<pxr::GfRange3d>(fabricPath, FabricTokens::_worldExtent);
+    *worldExtentFabric = pxr::GfRange3d(pxr::GfVec3d(0.0, 0.0, 0.0), pxr::GfVec3d(0.0, 0.0, 0.0));
+
+    auto worldVisibilityFabric = stageReaderWriter.getAttributeWr<bool>(fabricPath, FabricTokens::_worldVisibility);
+    *worldVisibilityFabric = true;
+
+    auto worldPositionFabric = stageReaderWriter.getAttributeWr<pxr::GfVec3d>(fabricPath, FabricTokens::_worldPosition);
+    *worldPositionFabric = pxr::GfVec3d(0, 0, 0);
+
+    auto worldOrientationFabric = stageReaderWriter.getAttributeWr<pxr::GfQuatf>(fabricPath, FabricTokens::_worldOrientation);
+    *worldOrientationFabric = pxr::GfQuatf(1.f, 0, 0, 0);
+
+    auto worldScaleFabric = stageReaderWriter.getAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::_worldScale);
+    *worldScaleFabric = pxr::GfVec3f(1.f, 1.f, 1.f);
+}
