@@ -27,8 +27,8 @@
 
 int cesium::omniverse::FabricProceduralGeometry::createCube() {
     //modifyUsdPrim();
-    //modify1000Prims();
-    modify1000PrimsViaCuda();
+    modify1000Prims();
+    //modify1000PrimsViaCuda();
     //createQuadMeshViaFabric();
     //addOneMillionCPU();
     //addOneMillionCuda();
@@ -89,11 +89,13 @@ void cesium::omniverse::FabricProceduralGeometry::modify1000Prims() {
 
     //use USD to make a thousand cubes
     const size_t cubeCount = 1000;
+    auto customAttrUsdToken = pxr::TfToken("cudaTest");
     for (size_t i = 0; i != cubeCount; i++)
     {
         pxr::SdfPath path("/cube_" + std::to_string(i));
         pxr::UsdPrim prim = usdStagePtr->DefinePrim(path, pxr::TfToken("Cube"));
-        prim.CreateAttribute(pxr::TfToken("size"), pxr::SdfValueTypeNames->Double).Set(1.0);
+        prim.CreateAttribute(pxr::TfToken("size"), pxr::SdfValueTypeNames->Double).Set(3.3);
+        prim.CreateAttribute(customAttrUsdToken, pxr::SdfValueTypeNames->Double).Set(17.3);
     }
 
 
@@ -119,14 +121,26 @@ void cesium::omniverse::FabricProceduralGeometry::modify1000Prims() {
     //carb::flatcache::PrimBucketList cubeBuckets = stage.findPrims({ cubeTag });
 
     // Fabric is free to store the 1000 cubes in as many buckets as it likes...iterate over the buckets
+    int counter = 0;
+    auto cudaTestFabricToken = omni::fabric::Token("cudaTest");
+    auto fabricSizeToken = omni::fabric::Token("size");
     for (size_t bucket = 0; bucket != cubeBuckets.bucketCount(); bucket++)
     {
-        auto sizes = fabricReaderWriter.getAttributeArray<double>(cubeBuckets, bucket, omni::fabric::Token("size"));
+        auto sizes = fabricReaderWriter.getAttributeArray<double>(cubeBuckets, bucket, fabricSizeToken);
         for (double& size : sizes)
         {
-            size *= 10;
+            size = 77.7;
         }
+
+        auto testValues = fabricReaderWriter.getAttributeArray<double>(cubeBuckets, bucket, cudaTestFabricToken);
+        for (double& testValue : testValues)
+        {
+            testValue = 123.45;
+        }
+
+        counter++;
     }
+    std::cout << "Modified " << counter << " prims" << std::endl;
 }
 
 void cesium::omniverse::FabricProceduralGeometry::modify1000PrimsViaCuda() {
