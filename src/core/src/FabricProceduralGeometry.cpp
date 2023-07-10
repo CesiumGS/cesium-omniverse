@@ -28,11 +28,12 @@
 int cesium::omniverse::FabricProceduralGeometry::createCube() {
     //modifyUsdPrim();
     //modify1000Prims();
-    //modify1000PrimsViaCuda();
+    modify1000PrimsViaCuda();
     //createQuadMeshViaFabric();
-    //createQuadViaFabricAndCuda();
     //addOneMillionCPU();
-    addOneMillionCuda();
+    //addOneMillionCuda();
+    //editSingleFabricAttributeViaCuda();
+    //createQuadViaFabricAndCuda();
 
     return 45;
 }
@@ -136,7 +137,7 @@ void cesium::omniverse::FabricProceduralGeometry::modify1000PrimsViaCuda() {
     {
         pxr::SdfPath path("/cube_" + std::to_string(i));
         pxr::UsdPrim prim = usdStagePtr->DefinePrim(path, pxr::TfToken("Cube"));
-        prim.CreateAttribute(pxr::TfToken("size"), pxr::SdfValueTypeNames->Double).Set(1.0);
+        prim.CreateAttribute(pxr::TfToken("size"), pxr::SdfValueTypeNames->Double).Set(17.3);
     }
 
     long id = Context::instance().getStageId();
@@ -148,34 +149,18 @@ void cesium::omniverse::FabricProceduralGeometry::modify1000PrimsViaCuda() {
         iStageReaderWriter->prefetchPrim(usdStageId, path);
     }
 
-    omni::fabric::AttrNameAndType cubeTag(omni::fabric::Type(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName), omni::fabric::Token("Cube"));
+    //select and bucket the Cube prims
+    omni::fabric::AttrNameAndType cubeTag(
+        omni::fabric::Type(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName),
+        omni::fabric::Token("Cube"));
     const auto stageReaderWriterId = iStageReaderWriter->get(omni::fabric::UsdStageId{static_cast<uint64_t>(id)});
-    auto fabricReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
-    omni::fabric::PrimBucketList cubeBuckets = fabricReaderWriter.findPrims({ cubeTag });
+    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+    omni::fabric::PrimBucketList cubeBuckets = stageReaderWriter.findPrims({ cubeTag });
 
     auto isCudaCompatible = checkCudaCompatibility();
     if (!isCudaCompatible) {
         std::cout << "error: CUDA drives and toolkit versions are not compatible." << std::endl;
     }
-
-    //CUDA via CUDA_JIT and string
-    static const char* scaleCubes =
-        "   extern \"C\" __global__"
-        "   void scaleCubes(double* cubeSizes, size_t count)"
-        "   {"
-        "       size_t i = blockIdx.x * blockDim.x + threadIdx.x;"
-        "       if(count<=i) return;"
-        ""
-        "       cubeSizes[i] = 99.9;"
-        "   }";
-
-    //minimally viable test kernel
-    // static const char* scaleCubes =
-    // "extern \"C\" __global__ void testKernel(int* output)"
-    // "{"
-    // "    int i = blockIdx.x * blockDim.x + threadIdx.x;"
-    // "    output[i] = i;"
-    // "}";
 
     CUresult result = cuInit(0);
     if (result != CUDA_SUCCESS) {
@@ -206,8 +191,39 @@ void cesium::omniverse::FabricProceduralGeometry::modify1000PrimsViaCuda() {
         std::cout << "error: could not create CUDA context." << std::endl;
     }
 
-    // CUfunction kernel = compileKernel(scaleCubes, "scaleCubes");
-    CUfunction kernel = compileKernel2(scaleCubes, "scaleCubes");
+    //CUDA via CUDA_JIT and string
+    const char *kernelCode = R"(
+    extern "C" __global__
+    void scaleCubes(double* cubeSizes, size_t count)
+    {
+        size_t i = blockIdx.x * blockDim.x + threadIdx.x;
+        if (count<=i) return;
+        float oldVal = cubeSizes[i];
+        cubeSizes[i] = 99.9;
+        printf("Changed size of cube %llu from %lf to %lf\n", i, oldVal, cubeSizes[i]);
+    }
+    )";
+
+    nvrtcProgram prog;
+    nvrtcCreateProgram(&prog, kernelCode, "scaleCubes", 0, nullptr, nullptr);
+
+    // Compile the program
+    nvrtcResult res = nvrtcCompileProgram(prog, 0, nullptr);
+    if (res != NVRTC_SUCCESS) {
+        std::cout << "error compiling NVRTC program" << std::endl;
+    }
+
+    // Get the PTX (assembly code for the GPU) from the compilation
+    size_t ptxSize;
+    nvrtcGetPTXSize(prog, &ptxSize);
+    char* ptx = new char[ptxSize];
+    nvrtcGetPTX(prog, ptx);
+
+    // Load the generated PTX and get a handle to the kernel.
+    CUmodule module;
+    CUfunction function;
+    cuModuleLoadDataEx(&module, ptx, 0, nullptr, nullptr);
+    cuModuleGetFunction(&function, module, "scaleCubes");
 
     auto bucketCount = cubeBuckets.bucketCount();
     printf("Num buckets: %llu", bucketCount);
@@ -215,15 +231,15 @@ void cesium::omniverse::FabricProceduralGeometry::modify1000PrimsViaCuda() {
     //iterate over buckets but pass the vector for the whole bucket to the GPU.
     for (size_t bucket = 0; bucket != cubeBuckets.bucketCount(); bucket++)
     {
-        gsl::span<double> sizesD = fabricReaderWriter.getAttributeArrayGpu<double>(cubeBuckets, bucket, omni::fabric::Token("size"));
+        gsl::span<double> sizesD = stageReaderWriter.getAttributeArrayGpu<double>(cubeBuckets, bucket, omni::fabric::Token("size"));
 
         double* ptr = sizesD.data();
         size_t elemCount = sizesD.size();
         void *args[] = { &ptr, &elemCount }; //NOLINT
         int blockSize, minGridSize;
-        cuOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, kernel, nullptr, 0, 0);
+        cuOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, function, nullptr, 0, 0);
         //CUresult err = cuLaunchKernel(kernel, minGridSize, 1, 1, blockSize, 1, 1, 0, NULL, args, 0);
-        auto err = cuLaunchKernel(kernel, minGridSize, 1, 1, blockSize, 1, 1, 0, nullptr, args, nullptr);
+        auto err = cuLaunchKernel(function, minGridSize, 1, 1, blockSize, 1, 1, 0, nullptr, args, nullptr);
         // REQUIRE(!err);
         if (err) {
             std::cout << "error" << std::endl;
@@ -236,20 +252,19 @@ void cesium::omniverse::FabricProceduralGeometry::modify1000PrimsViaCuda() {
     }
 
     //write data back to USD to check it
-    const auto iFabricUsd = carb::getCachedInterface<omni::fabric::IFabricUsd>();
-    auto fabricId = omni::fabric::FabricId();
-    iFabricUsd->exportUsdPrimData(fabricId);
-    const pxr::UsdStageRefPtr usdStage = Context::instance().getStage();
+    // const auto iFabricUsd = carb::getCachedInterface<omni::fabric::IFabricUsd>();
+    // auto fabricId = omni::fabric::FabricId();
+    // iFabricUsd->exportUsdPrimData(fabricId);
+    // const pxr::UsdStageRefPtr usdStage = Context::instance().getStage();
 
-    for (size_t i = 0; i != cubeCount; i++)
-    {
-        pxr::SdfPath path("/cube_" + std::to_string(i));
-        pxr::UsdPrim prim = usdStage->GetPrimAtPath(path);
-        pxr::UsdAttribute sizeAttr = prim.GetAttribute(pxr::TfToken("size"));
-        double value;
-        sizeAttr.Get(&value);
-        //CHECK(value == 10.0f);
-    }
+    // for (size_t i = 0; i != cubeCount; i++)
+    // {
+    //     pxr::SdfPath path("/cube_" + std::to_string(i));
+    //     pxr::UsdPrim prim = usdStage->GetPrimAtPath(path);
+    //     pxr::UsdAttribute sizeAttr = prim.GetAttribute(pxr::TfToken("size"));
+    //     double value;
+    //     sizeAttr.Get(&value);
+    // }
 }
 
 CUfunction cesium::omniverse::FabricProceduralGeometry::compileKernel(const char *kernelSource, const char *kernelName) {
@@ -457,7 +472,7 @@ void cesium::omniverse::FabricProceduralGeometry::createQuadViaFabricAndCuda() {
         iStageReaderWriter->get(omni::fabric::UsdStageId{static_cast<uint64_t>(usdStageId)});
     auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
 
-    omni::fabric::Path fabricPath = omni::fabric::Path("/fabricMeshCube");
+    omni::fabric::Path fabricPath = omni::fabric::Path("/fabricMeshQuad");
     stageReaderWriter.createPrim(fabricPath);
 
     FabricAttributesBuilder attributes;
@@ -476,6 +491,11 @@ void cesium::omniverse::FabricProceduralGeometry::createQuadViaFabricAndCuda() {
     stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::faceVertexCounts, 2);
     stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::faceVertexIndices, 6);
     stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::points, 4);
+
+    auto customAttrFabricToken = omni::fabric::Token("cudaTest");
+    stageReaderWriter.createAttribute(fabricPath, customAttrFabricToken, omni::fabric::BaseDataType::eFloat);
+    auto customAttrWriter = stageReaderWriter.getAttribute<float>(fabricPath, customAttrFabricToken);
+    *customAttrWriter = 17.3f;
 
     auto pointsFabric = stageReaderWriter.getArrayAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::points);
     float extentScalar = 50;
@@ -734,7 +754,7 @@ void cesium::omniverse::FabricProceduralGeometry::addOneMillionCuda() {
   void *args[] = { &N, &x, &y }; //NOLINT
   int blockSize = 256;
   int numBlocks = (N + blockSize - 1) / blockSize;
-  cuLaunchKernel(function, numBlocks, 1, 1, blockSize, 1, 1, 0, NULL, args, NULL);
+  cuLaunchKernel(function, numBlocks, 1, 1, blockSize, 1, 1, 0, nullptr, args, nullptr);
 
   // Wait for GPU to finish before accessing on host
   cudaDeviceSynchronize();
@@ -754,5 +774,138 @@ void cesium::omniverse::FabricProceduralGeometry::addOneMillionCuda() {
 __global__ void cesium::omniverse::FabricProceduralGeometry::addArrays(int n, float* x, float* y) {
     for (auto i = 0; i < n; i++) {
         y[i] += x[i];
+    }
+}
+
+void cesium::omniverse::FabricProceduralGeometry::editSingleFabricAttributeViaCuda() {
+   const auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+    auto usdStageId = Context::instance().getStageId();
+
+    const auto stageReaderWriterId =
+        iStageReaderWriter->get(omni::fabric::UsdStageId{static_cast<uint64_t>(usdStageId)});
+    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+
+    omni::fabric::Path fabricPath = omni::fabric::Path("/fabricMeshQuad");
+    stageReaderWriter.createPrim(fabricPath);
+
+    FabricAttributesBuilder attributes;
+    attributes.addAttribute(FabricTypes::faceVertexCounts, FabricTokens::faceVertexCounts);
+    attributes.addAttribute(FabricTypes::faceVertexIndices, FabricTokens::faceVertexIndices);
+    attributes.addAttribute(FabricTypes::points, FabricTokens::points);
+    attributes.addAttribute(FabricTypes::Mesh, FabricTokens::Mesh);
+    attributes.addAttribute(FabricTypes::extent, FabricTokens::extent);
+    attributes.addAttribute(FabricTypes::_worldExtent, FabricTokens::_worldExtent);
+    attributes.addAttribute(FabricTypes::_worldVisibility, FabricTokens::_worldVisibility);
+    attributes.addAttribute(FabricTypes::_worldPosition, FabricTokens::_worldPosition);
+    attributes.addAttribute(FabricTypes::_worldOrientation, FabricTokens::_worldOrientation);
+    attributes.addAttribute(FabricTypes::_worldScale, FabricTokens::_worldScale);
+    attributes.createAttributes(fabricPath);
+
+    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::faceVertexCounts, 2);
+    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::faceVertexIndices, 6);
+    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::points, 4);
+
+    auto customAttrFabricToken = omni::fabric::Token("cudaTest");
+    stageReaderWriter.createAttribute(fabricPath, customAttrFabricToken, omni::fabric::BaseDataType::eFloat);
+    auto customAttrWriter = stageReaderWriter.getAttribute<float>(fabricPath, customAttrFabricToken);
+    *customAttrWriter = 17.3f;
+
+    auto pointsFabric = stageReaderWriter.getArrayAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::points);
+    float extentScalar = 50;
+    pointsFabric[0] = pxr::GfVec3f(-extentScalar, -extentScalar, 0);
+    pointsFabric[1] = pxr::GfVec3f(-extentScalar, extentScalar, 0);
+    pointsFabric[2] = pxr::GfVec3f(extentScalar, extentScalar, 0);
+    pointsFabric[3] = pxr::GfVec3f(extentScalar, -extentScalar, 0);
+
+    auto faceVertexCountsFabric = stageReaderWriter.getArrayAttributeWr<int>(fabricPath, FabricTokens::faceVertexCounts);
+    faceVertexCountsFabric[0] = 3;
+    faceVertexCountsFabric[1] = 3;
+
+    auto faceVertexIndicesFabric = stageReaderWriter.getArrayAttributeWr<int>(fabricPath, FabricTokens::faceVertexIndices);
+    faceVertexIndicesFabric[0] = 0;
+    faceVertexIndicesFabric[1] = 1;
+    faceVertexIndicesFabric[2] = 2;
+    faceVertexIndicesFabric[3] = 0;
+    faceVertexIndicesFabric[4] = 2;
+    faceVertexIndicesFabric[5] = 3;
+
+    auto extent = pxr::GfRange3d(pxr::GfVec3d(-extentScalar, -extentScalar, 0), pxr::GfVec3d(extentScalar, extentScalar, 0));
+    auto extentFabric = stageReaderWriter.getAttributeWr<pxr::GfRange3d>(fabricPath, FabricTokens::extent);
+    *extentFabric = extent;
+
+    auto worldExtentFabric = stageReaderWriter.getAttributeWr<pxr::GfRange3d>(fabricPath, FabricTokens::_worldExtent);
+    *worldExtentFabric = pxr::GfRange3d(pxr::GfVec3d(0.0, 0.0, 0.0), pxr::GfVec3d(0.0, 0.0, 0.0));
+
+    auto worldVisibilityFabric = stageReaderWriter.getAttributeWr<bool>(fabricPath, FabricTokens::_worldVisibility);
+    *worldVisibilityFabric = true;
+
+    auto worldPositionFabric = stageReaderWriter.getAttributeWr<pxr::GfVec3d>(fabricPath, FabricTokens::_worldPosition);
+    *worldPositionFabric = pxr::GfVec3d(0, 0, 0);
+
+    auto worldOrientationFabric = stageReaderWriter.getAttributeWr<pxr::GfQuatf>(fabricPath, FabricTokens::_worldOrientation);
+    *worldOrientationFabric = pxr::GfQuatf(1.f, 0, 0, 0);
+
+    auto worldScaleFabric = stageReaderWriter.getAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::_worldScale);
+    *worldScaleFabric = pxr::GfVec3f(1.f, 1.f, 1.f);
+
+
+    // modify with CUDA
+    CUresult result = cuInit(0);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: CUDA did not init." << std::endl;
+    }
+
+    CUdevice device;
+    result = cuDeviceGet(&device, 0);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: CUDA did not get a device." << std::endl;
+    }
+
+    int major, minor;
+    result = cuDeviceGetAttribute(&major, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, device);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: could not get CUDA major version." << std::endl;
+    }
+    result = cuDeviceGetAttribute(&minor, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, device);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: could not get CUDA minor version." << std::endl;
+    }
+
+    CUcontext context;
+    result = cuCtxCreate(&context, 0, device);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: could not create CUDA context." << std::endl;
+    }
+
+    //CUDA JIT
+    const char* kernelCode = R"(
+    extern "C" __global__
+    void squareValue(float* data, size_t size)
+    {
+        size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+        if (idx < size) {
+            data[idx] = 33.3f;
+            printf("Element %zu is = %f\n", idx, data[idx]);
+        }
+    }
+    )";
+
+    CUfunction kernel = compileKernel2(kernelCode, "squareValue");
+
+    auto customAttrData = stageReaderWriter.getAttributeGpu<float>(fabricPath, customAttrFabricToken);
+    size_t elemCount = 1;
+    void *args[] = { &customAttrData, &elemCount }; //NOLINT
+    int blockSize, minGridSize;
+    cuOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, kernel, nullptr, 0, 0);
+    auto err = cuLaunchKernel(kernel, minGridSize, 1, 1, blockSize, 1, 1, 0, nullptr, args, nullptr);
+    // REQUIRE(!err);
+    if (err) {
+        std::cout << "error" << std::endl;
+    }
+
+    result = cuCtxDestroy(context);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: could not destroy CUDA context." << std::endl;
     }
 }
