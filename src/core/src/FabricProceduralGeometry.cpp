@@ -30,7 +30,9 @@ int cesium::omniverse::FabricProceduralGeometry::createCube() {
     //modify1000Prims();
     //modify1000PrimsViaCuda();
     //createQuadMeshViaFabric();
-    createQuadViaFabricAndCuda();
+    //createQuadViaFabricAndCuda();
+    //addOneMillionCPU();
+    addOneMillionCuda();
 
     return 45;
 }
@@ -164,7 +166,7 @@ void cesium::omniverse::FabricProceduralGeometry::modify1000PrimsViaCuda() {
         "       size_t i = blockIdx.x * blockDim.x + threadIdx.x;"
         "       if(count<=i) return;"
         ""
-        "       cubeSizes[i] = i / 10.0 + 1.0;"
+        "       cubeSizes[i] = 99.9;"
         "   }";
 
     //minimally viable test kernel
@@ -207,12 +209,8 @@ void cesium::omniverse::FabricProceduralGeometry::modify1000PrimsViaCuda() {
     // CUfunction kernel = compileKernel(scaleCubes, "scaleCubes");
     CUfunction kernel = compileKernel2(scaleCubes, "scaleCubes");
 
-    //const auto flatCache = carb::getCachedInterface<carb::flatcache::FlatCache>();
-    // const auto iFabricUsd = carb::getCachedInterface<omni::fabric::IFabricUsd>();
-    // auto framework = carb::getFramework();
-    // p2a.platform.gpuCuda = framework->tryAcquireInterface<omni::gpucompute::GpuCompute>("omni.gpucompute-cuda.plugin");
-    // p2a.platform.gpuCudaCtx = &p2a.platform.gpuCuda->createContext();
-
+    auto bucketCount = cubeBuckets.bucketCount();
+    printf("Num buckets: %llu", bucketCount);
 
     //iterate over buckets but pass the vector for the whole bucket to the GPU.
     for (size_t bucket = 0; bucket != cubeBuckets.bucketCount(); bucket++)
@@ -586,7 +584,6 @@ void cesium::omniverse::FabricProceduralGeometry::createQuadViaFabricAndCuda() {
     // CUfunction kernel = compileKernel(scaleCubes, "scaleCubes");
     CUfunction kernel = compileKernel2(kernelCode, "addTenToXComponentKernel");
 
-
     struct Triplet
     {
         float x;
@@ -594,10 +591,33 @@ void cesium::omniverse::FabricProceduralGeometry::createQuadViaFabricAndCuda() {
         float z;
     };
 
+
+
+    // // auto pointsFabric = stageReaderWriter.getArrayAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::points);
+    // //auto pointsFabricGpu = stageReaderWriter.getAttributeWrGpu<pxr::GfVec3f>(fabricPath, FabricTokens::points);
+    // auto pointsFabricGpu = stageReaderWriter.getAttributeGpu<pxr::GfVec3f>(fabricPath, FabricTokens::points);
+    // auto* directData = pointsFabricGpu->data();
+    // //direct float data access of GfVec3f
+    // auto* triplets = reinterpret_cast<Triplet*>(directData);
+    // size_t elemCount = pointsFabric.size();
+    // void *args[] = { &triplets, &elemCount }; //NOLINT
+    // int blockSize, minGridSize;
+    // cuOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, kernel, nullptr, 0, 0);
+    // auto err = cuLaunchKernel(kernel, minGridSize, 1, 1, blockSize, 1, 1, 0, nullptr, args, nullptr);
+    // // REQUIRE(!err);
+    // if (err) {
+    //     std::cout << "error" << std::endl;
+    // }
+
+    //omni::fabric::AttrNameAndType quadTag(omni::fabric::BaseDataType::eToken, FabricTokens::points);
     omni::fabric::AttrNameAndType quadTag(omni::fabric::Type(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName), omni::fabric::Token("Mesh"));
     omni::fabric::PrimBucketList quadBuckets = stageReaderWriter.findPrims({ quadTag });
+    auto bucketCount = quadBuckets.bucketCount();
+    printf("Found %llu buckets\n", bucketCount);
 
-    //iterate over buckets but pass the vector for the whole bucket to the GPU.
+    // omni::fabric::PrimBucketList quadBuckets = stageReaderWriter.findPrims({ quadTag });
+
+    // //iterate over buckets but pass the vector for the whole bucket to the GPU.
     for (size_t bucket = 0; bucket != quadBuckets.bucketCount(); bucket++)
     {
 
@@ -622,5 +642,114 @@ void cesium::omniverse::FabricProceduralGeometry::createQuadViaFabricAndCuda() {
     result = cuCtxDestroy(context);
     if (result != CUDA_SUCCESS) {
         std::cout << "error: could not destroy CUDA context." << std::endl;
+    }
+}
+
+void cesium::omniverse::FabricProceduralGeometry::addOneMillionCPU() {
+    int N = 1<<20;
+
+    auto* a = new float[N];
+    auto* b = new float[N];
+
+    for (int i = 0; i < 1000000; i++) {
+        a[i] = 1.f;
+        b[i] = 2.f;
+    }
+
+    addArrays(N, a, b);
+
+    auto maxError = 0.f;
+    for (int i = 0; i < N; i++) {
+        maxError = fmax(maxError, b[i] - 3.f);
+    }
+    std::cout << "max error: " << maxError << std::endl;
+
+    cudaFree(a);
+    cudaFree(b);
+}
+
+void cesium::omniverse::FabricProceduralGeometry::addOneMillionCuda() {
+    // const char *kernelCode = R"(
+    // extern "C" __global__
+    // void add(int n, float *x, float *y)
+    // {
+    // int index = threadIdx.x;
+    // int stride = blockDim.x;
+
+    // for (int i = index; i < n; i += stride)
+    //     y[i] = x[i] + y[i];
+    // }
+    // )";
+
+    const char *kernelCode = R"(
+    extern "C" __global__
+    void add(int n, float *x, float *y)
+    {
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    int stride = blockDim.x * gridDim.x;
+
+    for (int i = index; i < n; i += stride)
+        y[i] = x[i] + y[i];
+    }
+    )";
+
+  int N = 1<<20;
+  float *x, *y;
+
+  // Allocate Unified Memory – accessible from CPU or GPU
+  cudaMallocManaged(&x, N*sizeof(float));
+  cudaMallocManaged(&y, N*sizeof(float));
+
+  // initialize x and y arrays on the host
+  for (int i = 0; i < N; i++) {
+    x[i] = 1.0f;
+    y[i] = 2.0f;
+  }
+
+  nvrtcProgram prog;
+  nvrtcCreateProgram(&prog, kernelCode, "add_program", 0, nullptr, nullptr);
+
+  // Compile the program
+  nvrtcResult res = nvrtcCompileProgram(prog, 0, nullptr);
+  if (res != NVRTC_SUCCESS) {
+    std::cout << "error compiling NVRTC program" << std::endl;
+  }
+
+  // Get the PTX (assembly code for the GPU) from the compilation
+  size_t ptxSize;
+  nvrtcGetPTXSize(prog, &ptxSize);
+  char* ptx = new char[ptxSize];
+  nvrtcGetPTX(prog, ptx);
+
+  // Load the generated PTX and get a handle to the kernel.
+  CUmodule module;
+  CUfunction function;
+  cuModuleLoadDataEx(&module, ptx, 0, nullptr, nullptr);
+  cuModuleGetFunction(&function, module, "add");
+
+  // Set kernel parameters and launch the kernel.
+  void *args[] = { &N, &x, &y }; //NOLINT
+  int blockSize = 256;
+  int numBlocks = (N + blockSize - 1) / blockSize;
+  cuLaunchKernel(function, numBlocks, 1, 1, blockSize, 1, 1, 0, NULL, args, NULL);
+
+  // Wait for GPU to finish before accessing on host
+  cudaDeviceSynchronize();
+
+  // Check for errors (all values should be 3.0f)
+  float maxError = 0.0f;
+  for (int i = 0; i < N; i++)
+    maxError = fmax(maxError, fabs(y[i]-3.0f));
+  std::cout << "Max error: " << maxError << std::endl;
+
+  // Free memory
+  cudaFree(x);
+  cudaFree(y);
+
+}
+
+__global__ void cesium::omniverse::FabricProceduralGeometry::addArrays(int n, float* x, float* y) {
+    for (auto i = 0; i < n; i++) {
+        y[i] += x[i];
     }
 }
