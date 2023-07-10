@@ -89,6 +89,36 @@ TEST_SUITE("gltf utils") {
             CHECK(gltfUtil::getBaseColorFactor(mat) == expectedResults["baseColorFactor"].as<std::vector<float>>());
             CHECK(gltfUtil::getEmissiveFactor(mat) == expectedResults["emissiveFactor"].as<std::vector<float>>());
         }
+
+        // Accessor smoke tests
+        cesium::omniverse::PositionsAccessor positions;
+        cesium::omniverse::IndicesAccessor indices;
+        CHECK_NOTHROW(positions = gltfUtil::getPositions(model, prim));
+        CHECK_NOTHROW(indices = gltfUtil::getIndices(model, prim, positions));
+        if (gltfUtil::hasNormals(model, prim, true)) {
+            CHECK_NOTHROW(gltfUtil::getNormals(model, prim, positions, indices, false));
+        }
+        if (gltfUtil::hasVertexColors(model, prim, 0)) {
+            CHECK_NOTHROW(gltfUtil::getVertexColors(model, prim, 0));
+        }
+        if (gltfUtil::hasTexcoords(model, prim, 0)) {
+            CHECK_NOTHROW(gltfUtil::getTexcoords(model, prim, 0));
+        }
+        if (gltfUtil::hasImageryTexcoords(model, prim, 0)) {
+            CHECK_NOTHROW(gltfUtil::getImageryTexcoords(model, prim, 0));
+        }
+        CHECK_NOTHROW(gltfUtil::getExtent(model, prim));
+
+        // Default getter smoke tests
+        CHECK_NOTHROW(gltfUtil::getDefaultBaseAlpha());
+        CHECK_NOTHROW(gltfUtil::getDefaultBaseColorFactor());
+        CHECK_NOTHROW(gltfUtil::getDefaultMetallicFactor());
+        CHECK_NOTHROW(gltfUtil::getDefaultRoughnessFactor());
+        CHECK_NOTHROW(gltfUtil::getDefaultEmissiveFactor());
+        CHECK_NOTHROW(gltfUtil::getDefaultWrapS());
+        CHECK_NOTHROW(gltfUtil::getDefaultWrapT());
+        CHECK_NOTHROW(gltfUtil::getDefaultAlphaCutoff());
+        CHECK_NOTHROW(gltfUtil::getDefaultAlphaMode());
     }
 
     TEST_CASE("check helper functions on various models") {
