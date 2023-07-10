@@ -3,7 +3,9 @@
 #include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/FabricGeometry.h"
+#include "cesium/omniverse/FabricMaterial.h"
 #include "cesium/omniverse/FabricPrepareRenderResources.h"
+#include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GeospatialUtil.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
@@ -447,6 +449,8 @@ void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
     }
 
     // Update visibility for selected tiles
+    uint64_t materialIndex = 0;
+
     for (const auto tile : _pViewUpdateResult->tilesToRenderThisFrame) {
         if (tile->getState() == Cesium3DTilesSelection::TileLoadState::Done) {
             const auto pRenderContent = tile->getContent().getRenderContent();
@@ -455,7 +459,35 @@ void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
                 if (pRenderResources) {
                     const auto pTileRenderResources = reinterpret_cast<TileRenderResources*>(pRenderResources);
                     for (const auto& fabricMesh : pTileRenderResources->fabricMeshes) {
-                        fabricMesh.geometry->setVisibility(visible);
+                        const auto& geometry = fabricMesh.geometry;
+                        const auto& baseColorTexture = fabricMesh.baseColorTexture;
+                        const auto& materialInfo = fabricMesh.materialInfo;
+                        const auto& baseColorTextureInfo = materialInfo.baseColorTexture;
+                        const auto hasMaterial = geometry->getGeometryDefinition().hasMaterial();
+
+                        geometry->setVisibility(visible);
+
+                        if (hasMaterial) {
+                            if (materialIndex >= _materials.size()) {
+                                // TODO: don't hardcode false
+                                // TODO: destroy the acquired materials
+                                _materials.emplace_back(
+                                    FabricResourceManager::getInstance().acquireMaterial(materialInfo, false));
+                            }
+
+                            const auto& material = _materials[materialIndex];
+                            materialIndex++;
+
+                            material->setMaterial(_tilesetId, materialInfo);
+
+                            if (baseColorTexture != nullptr && baseColorTextureInfo.has_value()) {
+                                material->setBaseColorTexture(baseColorTexture, baseColorTextureInfo.value());
+                            } else {
+                                material->clearBaseColorTexture();
+                            }
+
+                            geometry->setMaterial(material);
+                        }
                     }
                 }
             }

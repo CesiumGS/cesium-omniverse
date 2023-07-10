@@ -19,9 +19,9 @@ class OmniTileset;
 
 struct FabricMesh {
     std::shared_ptr<FabricGeometry> geometry;
-    std::shared_ptr<FabricMaterial> material;
     std::shared_ptr<FabricTexture> baseColorTexture;
     MaterialInfo materialInfo;
+    uint64_t lastSelectedFrame{0};
 };
 
 struct TileRenderResources {

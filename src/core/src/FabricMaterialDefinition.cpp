@@ -12,19 +12,11 @@
 namespace cesium::omniverse {
 
 FabricMaterialDefinition::FabricMaterialDefinition(
-    const CesiumGltf::Model& model,
-    const CesiumGltf::MeshPrimitive& primitive,
+    const MaterialInfo& materialInfo,
     bool hasImagery,
     bool disableTextures) {
 
-    const auto hasGltfMaterial = GltfUtil::hasMaterial(primitive);
-
-    if (hasGltfMaterial) {
-        const auto materialInfo = GltfUtil::getMaterialInfo(model, primitive);
-        _hasBaseColorTexture = materialInfo.baseColorTexture.has_value();
-    } else {
-        _hasBaseColorTexture = false;
-    }
+    _hasBaseColorTexture = materialInfo.baseColorTexture.has_value();
 
     if (hasImagery) {
         _hasBaseColorTexture = true;
@@ -34,7 +26,7 @@ FabricMaterialDefinition::FabricMaterialDefinition(
         _hasBaseColorTexture = false;
     }
 
-    _hasVertexColors = GltfUtil::hasVertexColors(model, primitive, 0);
+    _hasVertexColors = materialInfo.hasVertexColors;
 }
 
 bool FabricMaterialDefinition::hasBaseColorTexture() const {

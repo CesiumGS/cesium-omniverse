@@ -68,10 +68,6 @@ const FabricGeometryDefinition& FabricGeometry::getGeometryDefinition() const {
 }
 
 void FabricGeometry::setMaterial(const std::shared_ptr<FabricMaterial>& material) {
-    if (!_geometryDefinition.hasMaterial()) {
-        return;
-    }
-
     auto srw = UsdUtil::getFabricStageReaderWriter();
     srw.setArrayAttributeSize(_pathFabric, FabricTokens::materialBinding, 1);
     auto materialBindingFabric = srw.getArrayAttributeWr<uint64_t>(_pathFabric, FabricTokens::materialBinding);

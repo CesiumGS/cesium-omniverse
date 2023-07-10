@@ -492,6 +492,8 @@ MaterialInfo getMaterialInfo(const CesiumGltf::Model& model, const CesiumGltf::M
         materialInfo.roughnessFactor = 1.0;
     }
 
+    materialInfo.hasVertexColors = hasVertexColors(model, primitive, 0);
+
     return materialInfo;
 }
 
@@ -505,6 +507,7 @@ MaterialInfo getDefaultMaterialInfo() {
         getDefaultMetallicFactor(),
         getDefaultRoughnessFactor(),
         getDefaultDoubleSided(),
+        false,
         std::nullopt,
     };
 }

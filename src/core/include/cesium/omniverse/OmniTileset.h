@@ -23,6 +23,7 @@ struct Model;
 namespace cesium::omniverse {
 enum TilesetSourceType { ION = 0, URL = 1 };
 
+class FabricMaterial;
 class FabricPrepareRenderResources;
 struct Viewport;
 
@@ -89,5 +90,6 @@ class OmniTileset {
     std::vector<Cesium3DTilesSelection::ViewState> _viewStates;
     bool _extentSet = false;
     bool _activeLoading{false};
+    std::vector<std::shared_ptr<FabricMaterial>> _materials;
 };
 } // namespace cesium::omniverse

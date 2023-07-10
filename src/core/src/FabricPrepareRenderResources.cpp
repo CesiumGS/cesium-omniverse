@@ -108,14 +108,10 @@ acquireFabricMeshes(const CesiumGltf::Model& model, const std::vector<MeshInfo>&
         fabricMesh.geometry = fabricGeometry;
 
         if (fabricGeometry->getGeometryDefinition().hasMaterial()) {
-            const auto fabricMaterial = FabricResourceManager.acquireMaterial(model, primitive, hasImagery);
-            fabricMesh.material = fabricMaterial;
-
             const auto materialInfo = GltfUtil::getMaterialInfo(model, primitive);
             fabricMesh.materialInfo = materialInfo;
 
-            if (fabricMaterial->getMaterialDefinition().hasBaseColorTexture() &&
-                materialInfo.baseColorTexture.has_value()) {
+            if (materialInfo.baseColorTexture.has_value()) {
                 const auto fabricTexture = FabricResourceManager.acquireTexture();
                 fabricMesh.baseColorTexture = fabricTexture;
             }
@@ -137,9 +133,7 @@ void setFabricMeshes(
 
         auto& mesh = fabricMeshes[i];
         auto& geometry = mesh.geometry;
-        auto& material = mesh.material;
         auto& baseColorTexture = mesh.baseColorTexture;
-        auto& materialInfo = mesh.materialInfo;
 
         geometry->setGeometry(
             meshInfo.tilesetId,
@@ -151,15 +145,9 @@ void setFabricMeshes(
             meshInfo.smoothNormals,
             hasImagery);
 
-        if (material != nullptr) {
-            material->setMaterial(meshInfo.tilesetId, materialInfo);
-            geometry->setMaterial(material);
-
-            if (baseColorTexture != nullptr && materialInfo.baseColorTexture.has_value()) {
-                const auto baseColorTextureImage = GltfUtil::getBaseColorTextureImage(model, primitive);
-                baseColorTexture->setImage(*baseColorTextureImage);
-                material->setBaseColorTexture(baseColorTexture, materialInfo.baseColorTexture.value());
-            }
+        if (baseColorTexture != nullptr) {
+            const auto baseColorTextureImage = GltfUtil::getBaseColorTextureImage(model, primitive);
+            baseColorTexture->setImage(*baseColorTextureImage);
         }
     }
 }
@@ -237,16 +225,11 @@ void FabricPrepareRenderResources::free(
 
         for (const auto& mesh : pTileRenderResources->fabricMeshes) {
             auto& geometry = mesh.geometry;
-            auto& material = mesh.material;
             auto& baseColorTexture = mesh.baseColorTexture;
 
             assert(geometry != nullptr);
 
             FabricResourceManager.releaseGeometry(geometry);
-
-            if (material != nullptr) {
-                FabricResourceManager.releaseMaterial(material);
-            }
 
             if (baseColorTexture != nullptr) {
                 FabricResourceManager.releaseTexture(baseColorTexture);
@@ -326,23 +309,26 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
         return;
     }
 
-    for (const auto& mesh : pTileRenderResources->fabricMeshes) {
-        auto& material = mesh.material;
-        if (material != nullptr) {
-            const auto textureInfo = TextureInfo{
-                translation,
-                0.0,
-                scale,
-                static_cast<uint64_t>(overlayTextureCoordinateID),
-                CesiumGltf::Sampler::WrapS::CLAMP_TO_EDGE,
-                CesiumGltf::Sampler::WrapT::CLAMP_TO_EDGE,
-                false,
-            };
+    (void)overlayTextureCoordinateID;
+    (void)translation;
+    (void)scale;
+    // for (const auto& mesh : pTileRenderResources->fabricMeshes) {
+    //     auto& material = mesh.material;
+    //     if (material != nullptr) {
+    //         const auto textureInfo = TextureInfo{
+    //             translation,
+    //             0.0,
+    //             scale,
+    //             static_cast<uint64_t>(overlayTextureCoordinateID),
+    //             CesiumGltf::Sampler::WrapS::CLAMP_TO_EDGE,
+    //             CesiumGltf::Sampler::WrapT::CLAMP_TO_EDGE,
+    //             false,
+    //         };
 
-            // Replace the original base color texture with the imagery
-            material->setBaseColorTexture(texture, textureInfo);
-        }
-    }
+    //         // Replace the original base color texture with the imagery
+    //         material->setBaseColorTexture(texture, textureInfo);
+    //     }
+    // }
 }
 
 void FabricPrepareRenderResources::detachRasterInMainThread(
@@ -362,20 +348,20 @@ void FabricPrepareRenderResources::detachRasterInMainThread(
         return;
     }
 
-    for (const auto& mesh : pTileRenderResources->fabricMeshes) {
-        auto& material = mesh.material;
-        const auto& baseColorTexture = mesh.baseColorTexture;
-        const auto& materialInfo = mesh.materialInfo;
+    // for (const auto& mesh : pTileRenderResources->fabricMeshes) {
+    //     auto& material = mesh.material;
+    //     const auto& baseColorTexture = mesh.baseColorTexture;
+    //     const auto& materialInfo = mesh.materialInfo;
 
-        if (material != nullptr) {
-            if (baseColorTexture != nullptr && materialInfo.baseColorTexture.has_value()) {
-                // Switch back to the original base color texture
-                material->setBaseColorTexture(baseColorTexture, materialInfo.baseColorTexture.value());
-            } else {
-                material->clearBaseColorTexture();
-            }
-        }
-    }
+    //     if (material != nullptr) {
+    //         if (baseColorTexture != nullptr && materialInfo.baseColorTexture.has_value()) {
+    //             // Switch back to the original base color texture
+    //             material->setBaseColorTexture(baseColorTexture, materialInfo.baseColorTexture.value());
+    //         } else {
+    //             material->clearBaseColorTexture();
+    //         }
+    //     }
+    // }
 }
 
 } // namespace cesium::omniverse
