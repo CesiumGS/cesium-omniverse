@@ -25,7 +25,6 @@ class FabricGeometry {
 
     void setGeometry(
         int64_t tilesetId,
-        int64_t tileId,
         const glm::dmat4& ecefToUsdTransform,
         const glm::dmat4& gltfToEcefTransform,
         const glm::dmat4& nodeTransform,
