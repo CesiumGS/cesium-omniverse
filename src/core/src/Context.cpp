@@ -461,10 +461,6 @@ int64_t Context::getNextTilesetId() const {
     return _tilesetId++;
 }
 
-int64_t Context::getNextTileId() const {
-    return _tileId++;
-}
-
 const CesiumGeospatial::Cartographic Context::getGeoreferenceOrigin() const {
     const auto georeference = UsdUtil::getOrCreateCesiumGeoreference();
 

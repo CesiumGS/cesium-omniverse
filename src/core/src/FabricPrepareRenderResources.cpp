@@ -44,7 +44,6 @@ struct TileLoadThreadResult {
 
 struct MeshInfo {
     const int64_t tilesetId;
-    const int64_t tileId;
     const glm::dmat4 ecefToUsdTransform;
     const glm::dmat4 gltfToEcefTransform;
     const glm::dmat4 nodeTransform;
@@ -57,7 +56,6 @@ std::vector<MeshInfo>
 gatherMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const CesiumGltf::Model& model) {
     CESIUM_TRACE("FabricPrepareRenderResources::gatherMeshes");
     const auto tilesetId = tileset.getTilesetId();
-    const auto tileId = Context::instance().getNextTileId();
 
     const auto smoothNormals = tileset.getSmoothNormals();
 
@@ -71,7 +69,7 @@ gatherMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const 
 
     model.forEachPrimitiveInScene(
         -1,
-        [tilesetId, tileId, &ecefToUsdTransform, &gltfToEcefTransform, smoothNormals, &meshes](
+        [tilesetId, &ecefToUsdTransform, &gltfToEcefTransform, smoothNormals, &meshes](
             const CesiumGltf::Model& gltf,
             [[maybe_unused]] const CesiumGltf::Node& node,
             const CesiumGltf::Mesh& mesh,
@@ -81,7 +79,6 @@ gatherMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const 
             const auto primitiveId = getIndexFromRef(mesh.primitives, primitive);
             meshes.emplace_back(MeshInfo{
                 tilesetId,
-                tileId,
                 ecefToUsdTransform,
                 gltfToEcefTransform,
                 transform,
@@ -146,7 +143,6 @@ void setFabricMeshes(
 
         geometry->setGeometry(
             meshInfo.tilesetId,
-            meshInfo.tileId,
             meshInfo.ecefToUsdTransform,
             meshInfo.gltfToEcefTransform,
             meshInfo.nodeTransform,
@@ -156,7 +152,7 @@ void setFabricMeshes(
             hasImagery);
 
         if (material != nullptr) {
-            material->setMaterial(meshInfo.tilesetId, meshInfo.tileId, materialInfo);
+            material->setMaterial(meshInfo.tilesetId, materialInfo);
             geometry->setMaterial(material);
 
             if (baseColorTexture != nullptr && materialInfo.baseColorTexture.has_value()) {

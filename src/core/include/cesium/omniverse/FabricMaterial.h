@@ -29,7 +29,7 @@ class FabricMaterial {
         pxr::SdfAssetPath defaultTextureAssetPath);
     ~FabricMaterial();
 
-    void setMaterial(int64_t tilesetId, int64_t tileId, const MaterialInfo& materialInfo);
+    void setMaterial(int64_t tilesetId, const MaterialInfo& materialInfo);
 
     void setBaseColorTexture(const std::shared_ptr<FabricTexture>& texture, const TextureInfo& textureInfo);
 
@@ -43,7 +43,7 @@ class FabricMaterial {
   private:
     void initialize(pxr::SdfPath path, const FabricMaterialDefinition& materialDefinition);
     void reset();
-    void setTilesetIdAndTileId(int64_t tilesetId, int64_t tileId);
+    void setTilesetId(int64_t tilesetId);
     void setMaterialValues(const MaterialInfo& materialInfo);
     void setBaseColorTextureValues(const pxr::SdfAssetPath& textureAssetPath, const TextureInfo& textureInfo);
 

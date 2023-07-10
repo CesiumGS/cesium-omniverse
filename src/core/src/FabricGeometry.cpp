@@ -101,7 +101,6 @@ void FabricGeometry::initialize() {
     attributes.addAttribute(FabricTypes::primvars_displayOpacity, FabricTokens::primvars_displayOpacity);
     attributes.addAttribute(FabricTypes::Mesh, FabricTokens::Mesh);
     attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
-    attributes.addAttribute(FabricTypes::_cesium_tileId, FabricTokens::_cesium_tileId);
     attributes.addAttribute(FabricTypes::_cesium_localToEcefTransform, FabricTokens::_cesium_localToEcefTransform);
     attributes.addAttribute(FabricTypes::_worldPosition, FabricTokens::_worldPosition);
     attributes.addAttribute(FabricTypes::_worldOrientation, FabricTokens::_worldOrientation);
@@ -218,7 +217,7 @@ void FabricGeometry::reset() {
     displayColorFabric[0] = DEFAULT_VERTEX_COLOR;
     displayOpacityFabric[0] = DEFAULT_VERTEX_OPACITY;
 
-    FabricUtil::setTilesetIdAndTileId(_pathFabric, -1, -1);
+    FabricUtil::setTilesetId(_pathFabric, -1);
 
     srw.setArrayAttributeSize(_pathFabric, FabricTokens::materialBinding, 0);
     srw.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexCounts, 0);
@@ -240,7 +239,6 @@ void FabricGeometry::reset() {
 
 void FabricGeometry::setGeometry(
     int64_t tilesetId,
-    int64_t tileId,
     const glm::dmat4& ecefToUsdTransform,
     const glm::dmat4& gltfToEcefTransform,
     const glm::dmat4& nodeTransform,
@@ -303,7 +301,7 @@ void FabricGeometry::setGeometry(
     *worldOrientationFabric = worldOrientation;
     *worldScaleFabric = worldScale;
 
-    FabricUtil::setTilesetIdAndTileId(_pathFabric, tilesetId, tileId);
+    FabricUtil::setTilesetId(_pathFabric, tilesetId);
 
     if (_debugRandomColors) {
         const auto r = glm::linearRand(0.0f, 1.0f);

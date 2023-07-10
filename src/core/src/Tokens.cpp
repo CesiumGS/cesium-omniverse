@@ -37,7 +37,6 @@ TF_DEFINE_PRIVATE_TOKENS(
     (vertex)
     (vertexColor)
     (_cesium_localToEcefTransform)
-    (_cesium_tileId)
     (_cesium_tilesetId)
     (_deletedPrims)
     (_paramColorSpace)
@@ -138,7 +137,6 @@ const omni::fabric::TokenC vertex = omni::fabric::asInt(pxr::UsdTokens->vertex);
 const omni::fabric::TokenC vertexColor = omni::fabric::asInt(pxr::UsdTokens->vertexColor);
 const omni::fabric::TokenC _auto = omni::fabric::asInt(pxr::UsdTokens->_auto);
 const omni::fabric::TokenC _cesium_localToEcefTransform = omni::fabric::asInt(pxr::UsdTokens->_cesium_localToEcefTransform);
-const omni::fabric::TokenC _cesium_tileId = omni::fabric::asInt(pxr::UsdTokens->_cesium_tileId);
 const omni::fabric::TokenC _cesium_tilesetId = omni::fabric::asInt(pxr::UsdTokens->_cesium_tilesetId);
 const omni::fabric::TokenC _deletedPrims = omni::fabric::asInt(pxr::UsdTokens->_deletedPrims);
 const omni::fabric::TokenC _paramColorSpace = omni::fabric::asInt(pxr::UsdTokens->_paramColorSpace);
@@ -203,7 +201,6 @@ const pxr::TfToken& vertex = pxr::UsdTokens->vertex;
 const pxr::TfToken& vertexColor = pxr::UsdTokens->vertexColor;
 const pxr::TfToken& _auto = pxr::UsdTokens->_auto;
 const pxr::TfToken& _cesium_localToEcefTransform = pxr::UsdTokens->_cesium_localToEcefTransform;
-const pxr::TfToken& _cesium_tileId = pxr::UsdTokens->_cesium_tileId;
 const pxr::TfToken& _cesium_tilesetId = pxr::UsdTokens->_cesium_tilesetId;
 const pxr::TfToken& _deletedPrims = pxr::UsdTokens->_deletedPrims;
 const pxr::TfToken& _paramColorSpace = pxr::UsdTokens->_paramColorSpace;
