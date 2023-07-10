@@ -32,6 +32,7 @@ struct MaterialInfo {
     double metallicFactor;
     double roughnessFactor;
     bool doubleSided;
+    bool hasVertexColors;
     std::optional<TextureInfo> baseColorTexture;
 };
 

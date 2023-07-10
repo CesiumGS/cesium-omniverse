@@ -26,6 +26,7 @@ class FabricGeometryDefinition;
 class FabricMaterialDefinition;
 class FabricTexture;
 class FabricTexturePool;
+struct MaterialInfo;
 
 class FabricResourceManager {
   public:
@@ -45,8 +46,7 @@ class FabricResourceManager {
         bool smoothNormals,
         bool hasImagery);
 
-    std::shared_ptr<FabricMaterial>
-    acquireMaterial(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, bool hasImagery);
+    std::shared_ptr<FabricMaterial> acquireMaterial(const MaterialInfo& materialInfo, bool hasImagery);
 
     std::shared_ptr<FabricTexture> acquireTexture();
 

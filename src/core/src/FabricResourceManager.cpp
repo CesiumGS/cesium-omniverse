@@ -48,12 +48,9 @@ std::shared_ptr<FabricGeometry> FabricResourceManager::acquireGeometry(
 
     return geometry;
 }
-std::shared_ptr<FabricMaterial> FabricResourceManager::acquireMaterial(
-    const CesiumGltf::Model& model,
-    const CesiumGltf::MeshPrimitive& primitive,
-    bool hasImagery) {
-
-    FabricMaterialDefinition materialDefinition(model, primitive, hasImagery, _disableTextures);
+std::shared_ptr<FabricMaterial>
+FabricResourceManager::acquireMaterial(const MaterialInfo& materialInfo, bool hasImagery) {
+    FabricMaterialDefinition materialDefinition(materialInfo, hasImagery, _disableTextures);
 
     if (_disableMaterialPool) {
         const auto path = pxr::SdfPath(fmt::format("/fabric_material_{}", getNextMaterialId()));

@@ -111,10 +111,11 @@ acquireFabricMeshes(const CesiumGltf::Model& model, const std::vector<MeshInfo>&
         fabricMesh.geometry = fabricGeometry;
 
         if (fabricGeometry->getGeometryDefinition().hasMaterial()) {
-            const auto fabricMaterial = FabricResourceManager.acquireMaterial(model, primitive, hasImagery);
-            fabricMesh.material = fabricMaterial;
-
             const auto materialInfo = GltfUtil::getMaterialInfo(model, primitive);
+
+            const auto fabricMaterial = FabricResourceManager.acquireMaterial(materialInfo, hasImagery);
+
+            fabricMesh.material = fabricMaterial;
             fabricMesh.materialInfo = materialInfo;
 
             if (fabricMaterial->getMaterialDefinition().hasBaseColorTexture() &&
