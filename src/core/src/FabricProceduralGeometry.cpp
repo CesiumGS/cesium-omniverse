@@ -685,15 +685,18 @@ void cesium::omniverse::FabricProceduralGeometry::addOneMillionCuda() {
     extern "C" __global__
     void add(int n, float *x, float *y)
     {
-    int index = blockIdx.x * blockDim.x + threadIdx.x;
-    int stride = blockDim.x * gridDim.x;
+        int index = blockIdx.x * blockDim.x + threadIdx.x;
+        int stride = blockDim.x * gridDim.x;
 
-    for (int i = index; i < n; i += stride)
-        y[i] = x[i] + y[i];
+        for (int i = index; i < n; i += stride) {
+            y[i] = x[i] + y[i];
+            // printf("threadIdx.x: %i, blockIdx.x: %i, blockDim.x: %i, gridDim.x: %i, y[%i]: %f\n", threadIdx.x, blockIdx.x, blockDim.x, gridDim.x, index, y[i]);
+        }
     }
     )";
 
   int N = 1<<20;
+  N++;
   float *x, *y;
 
   // Allocate Unified Memory – accessible from CPU or GPU
