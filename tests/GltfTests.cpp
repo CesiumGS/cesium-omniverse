@@ -1,4 +1,3 @@
-#include <CesiumGltfReader/GltfReader.h>
 #include "testUtils.h"
 
 #include "cesium/omniverse/GltfAccessors.h"
@@ -7,9 +6,10 @@
 #include <CesiumGltf/Material.h>
 #include <CesiumGltf/MeshPrimitive.h>
 #include <CesiumGltf/Model.h>
+#include <CesiumGltfReader/GltfReader.h>
 #include <doctest/doctest.h>
-#include <sys/types.h>
 
+#include <cstddef>
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
@@ -22,6 +22,8 @@
 #include <gsl/span>
 #include <yaml-cpp/yaml.h>
 
+using namespace cesium::omniverse;
+
 const std::string ASSET_DIR = "tests/testAssets/gltfs";
 const std::string CONFIG_PATH = "tests/configs/gltfConfig.yaml";
 
@@ -30,24 +32,22 @@ bool operator==(const pxr::GfVec3f& v3, const std::vector<float>& v) {
     return v.size() == 3 && v3[0] == v[0] && v3[1] == v[1] && v3[2] == v[2];
 }
 
-TEST_SUITE("gltf utils") {
-    TEST_CASE("IndicesAccessor smoke test") {
-        uint64_t data;
-        std::list<uint64_t> dataContainer = {42, 64, 8675309, 21};
-
-        DOCTEST_VALUE_PARAMETERIZED_DATA(data, dataContainer);
-
-        CHECK(cesium::omniverse::IndicesAccessor(data).size() == data);
-    }
-
+TEST_SUITE("Test GltfUtil") {
     void checkGltfExpectedResults(const std::filesystem::path& gltfFileName, const YAML::Node& expectedResults) {
 
         // --- Load Gltf ---
         std::ifstream gltfStream(gltfFileName, std::ifstream::binary);
-        std::stringstream gltfBuf;
-        gltfBuf << gltfStream.rdbuf();
+        // std::stringstream gltfBuf;
+        // gltfBuf << gltfStream.rdbuf();
+        gltfStream.seekg(0, std::ios::end);
+        auto gltfFileLength = gltfStream.tellg();
+        gltfStream.seekg(0, std::ios::beg);
+
+        std::vector<std::byte> gltfBuf(gltfFileLength);
+        gltfStream.read((char*)&gltfBuf[0], gltfFileLength);
+
         CesiumGltfReader::GltfReader reader;
-        auto gltf = reader.readGltf(gsl::span(reinterpret_cast<const std::byte*>(gltfBuf.str().c_str()), gltfBuf.str().size()));
+        auto gltf = reader.readGltf(gsl::span(reinterpret_cast<const std::byte*>(gltfBuf.data()), gltfFileLength));
 
         if (!gltf.errors.empty()) {
             for (const auto& err : gltf.errors) {
@@ -65,59 +65,61 @@ TEST_SUITE("gltf utils") {
         const auto& prim = gltf.model->meshes[0].primitives[0];
         const auto& model = *gltf.model;
 
-        namespace gltfUtil = cesium::omniverse::GltfUtil;
-
-        CHECK(gltfUtil::hasNormals(model, prim, true) == expectedResults["hasNormals"].as<bool>());
-        CHECK(gltfUtil::hasTexcoords(model, prim, 0) == expectedResults["hasTexcoords"].as<bool>());
-        CHECK(gltfUtil::hasImageryTexcoords(model, prim, 0) == expectedResults["hasImageryTexcoords"].as<bool>());
-        CHECK(gltfUtil::hasVertexColors(model, prim, 0) == expectedResults["hasVertexColors"].as<bool>());
-        CHECK(gltfUtil::hasMaterial(prim) == expectedResults["hasMaterial"].as<bool>());
-        CHECK(gltfUtil::getDoubleSided(model, prim) == expectedResults["doubleSided"].as<bool>());
+        CHECK(GltfUtil::hasNormals(model, prim, false) == expectedResults["hasNormals"].as<bool>());
+        CHECK(GltfUtil::hasTexcoords(model, prim, 0) == expectedResults["hasTexcoords"].as<bool>());
+        CHECK(GltfUtil::hasImageryTexcoords(model, prim, 0) == expectedResults["hasImageryTexcoords"].as<bool>());
+        CHECK(GltfUtil::hasVertexColors(model, prim, 0) == expectedResults["hasVertexColors"].as<bool>());
+        CHECK(GltfUtil::hasMaterial(prim) == expectedResults["hasMaterial"].as<bool>());
+        CHECK(GltfUtil::getDoubleSided(model, prim) == expectedResults["doubleSided"].as<bool>());
 
         // material tests
-        if (gltfUtil::hasMaterial(prim)) {
+        if (GltfUtil::hasMaterial(prim)) {
             const auto& mat = gltf.model->materials[0];
-            CHECK(gltfUtil::getAlphaMode(mat) == expectedResults["alphaMode"].as<int>());
-            CHECK(gltfUtil::getAlphaCutoff(mat) == expectedResults["alphaCutoff"].as<float>());
-            CHECK(gltfUtil::getBaseAlpha(mat) == expectedResults["baseAlpha"].as<float>());
-            CHECK(gltfUtil::getMetallicFactor(mat) == expectedResults["metallicFactor"].as<float>());
-            CHECK(gltfUtil::getRoughnessFactor(mat) == expectedResults["roughnessFactor"].as<float>());
-            CHECK(gltfUtil::getBaseColorTextureWrapS(model, mat) == expectedResults["baseColorTextureWrapS"].as<int>());
-            CHECK(gltfUtil::getBaseColorTextureWrapT(model, mat) == expectedResults["baseColorTextureWrapT"].as<int>());
+            CHECK(GltfUtil::getAlphaMode(mat) == expectedResults["alphaMode"].as<int>());
+            CHECK(GltfUtil::getAlphaCutoff(mat) == expectedResults["alphaCutoff"].as<float>());
+            CHECK(GltfUtil::getBaseAlpha(mat) == expectedResults["baseAlpha"].as<float>());
+            CHECK(GltfUtil::getMetallicFactor(mat) == expectedResults["metallicFactor"].as<float>());
+            CHECK(GltfUtil::getRoughnessFactor(mat) == expectedResults["roughnessFactor"].as<float>());
+            CHECK(GltfUtil::getBaseColorTextureWrapS(model, mat) == expectedResults["baseColorTextureWrapS"].as<int>());
+            CHECK(GltfUtil::getBaseColorTextureWrapT(model, mat) == expectedResults["baseColorTextureWrapT"].as<int>());
 
-            CHECK(gltfUtil::getBaseColorFactor(mat) == expectedResults["baseColorFactor"].as<std::vector<float>>());
-            CHECK(gltfUtil::getEmissiveFactor(mat) == expectedResults["emissiveFactor"].as<std::vector<float>>());
+            CHECK(GltfUtil::getBaseColorFactor(mat) == expectedResults["baseColorFactor"].as<std::vector<float>>());
+            CHECK(GltfUtil::getEmissiveFactor(mat) == expectedResults["emissiveFactor"].as<std::vector<float>>());
         }
 
         // Accessor smoke tests
-        cesium::omniverse::PositionsAccessor positions;
-        cesium::omniverse::IndicesAccessor indices;
-        CHECK_NOTHROW(positions = gltfUtil::getPositions(model, prim));
-        CHECK_NOTHROW(indices = gltfUtil::getIndices(model, prim, positions));
-        if (gltfUtil::hasNormals(model, prim, true)) {
-            CHECK_NOTHROW(gltfUtil::getNormals(model, prim, positions, indices, false));
+        PositionsAccessor positions;
+        IndicesAccessor indices;
+        positions = GltfUtil::getPositions(model, prim);
+        CHECK(positions.size() > 0);
+        indices = GltfUtil::getIndices(model, prim, positions);
+        CHECK(indices.size() > 0);
+        if (GltfUtil::hasNormals(model, prim, false)) {
+            CHECK(GltfUtil::getNormals(model, prim, positions, indices, false).size() > 0);
         }
-        if (gltfUtil::hasVertexColors(model, prim, 0)) {
-            CHECK_NOTHROW(gltfUtil::getVertexColors(model, prim, 0));
+        if (GltfUtil::hasVertexColors(model, prim, 0)) {
+            CHECK(GltfUtil::getVertexColors(model, prim, 0).size() > 0);
         }
-        if (gltfUtil::hasTexcoords(model, prim, 0)) {
-            CHECK_NOTHROW(gltfUtil::getTexcoords(model, prim, 0));
+        if (GltfUtil::hasTexcoords(model, prim, 0)) {
+            CHECK(GltfUtil::getTexcoords(model, prim, 0).size() > 0);
         }
-        if (gltfUtil::hasImageryTexcoords(model, prim, 0)) {
-            CHECK_NOTHROW(gltfUtil::getImageryTexcoords(model, prim, 0));
+        if (GltfUtil::hasImageryTexcoords(model, prim, 0)) {
+            CHECK(GltfUtil::getImageryTexcoords(model, prim, 0).size() > 0);
         }
-        CHECK_NOTHROW(gltfUtil::getExtent(model, prim));
+        CHECK(GltfUtil::getExtent(model, prim) != std::nullopt);
+    }
 
-        // Default getter smoke tests
-        CHECK_NOTHROW(gltfUtil::getDefaultBaseAlpha());
-        CHECK_NOTHROW(gltfUtil::getDefaultBaseColorFactor());
-        CHECK_NOTHROW(gltfUtil::getDefaultMetallicFactor());
-        CHECK_NOTHROW(gltfUtil::getDefaultRoughnessFactor());
-        CHECK_NOTHROW(gltfUtil::getDefaultEmissiveFactor());
-        CHECK_NOTHROW(gltfUtil::getDefaultWrapS());
-        CHECK_NOTHROW(gltfUtil::getDefaultWrapT());
-        CHECK_NOTHROW(gltfUtil::getDefaultAlphaCutoff());
-        CHECK_NOTHROW(gltfUtil::getDefaultAlphaMode());
+    TEST_CASE("Default getter smoke tests") {
+
+        CHECK_NOTHROW(GltfUtil::getDefaultBaseAlpha());
+        CHECK_NOTHROW(GltfUtil::getDefaultBaseColorFactor());
+        CHECK_NOTHROW(GltfUtil::getDefaultMetallicFactor());
+        CHECK_NOTHROW(GltfUtil::getDefaultRoughnessFactor());
+        CHECK_NOTHROW(GltfUtil::getDefaultEmissiveFactor());
+        CHECK_NOTHROW(GltfUtil::getDefaultWrapS());
+        CHECK_NOTHROW(GltfUtil::getDefaultWrapT());
+        CHECK_NOTHROW(GltfUtil::getDefaultAlphaCutoff());
+        CHECK_NOTHROW(GltfUtil::getDefaultAlphaMode());
     }
 
     TEST_CASE("Check helper functions on various models") {

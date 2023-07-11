@@ -23,8 +23,9 @@ int main(int argc, char** argv) {
     // restore the previous working directory
     std::filesystem::current_path(oldWorkingDir);
 
-    if (context.shouldExit()) // important - query flags (and --exit) rely on the user doing this
-        return res;           // propagate the result of the tests
+    if (context.shouldExit()) { // important - query flags (and --exit) rely on the user doing this
+        return res;             // propagate the result of the tests
+    }
 
     int client_stuff_return_code = 0;
     // your program - if the testing framework is integrated in your production code

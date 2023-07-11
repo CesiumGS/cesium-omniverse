@@ -96,7 +96,7 @@ TEST_SUITE("Example Tests") {
         // as() does work for some non-scalar types, such as vectors, lists, and maps
         // for adding custom types to the config, see:
         // https://github.com/jbeder/yaml-cpp/wiki/Tutorial#converting-tofrom-native-data-types
-        auto fib = expectedResults["fibonacciSeq"].as<std::vector<int>>();
+        const auto fib = expectedResults["fibonacciSeq"].as<std::vector<int>>();
         CHECK(fib[2] + fib[3] == fib[4]);
 
         // More complicated checks can be done with helper functions that take the scenario as input

@@ -4,7 +4,7 @@
 scenarios:
   default:
     hasNormals : True
-    hasTexcoords : False
+    hasTexcoords : True
     hasImageryTexcoords : False
     hasVertexColors : False
     doubleSided : False
@@ -26,23 +26,32 @@ scenarios:
       - 1
       - 1
 
-  Duck.gltf:
-    metallicFactor : 0
-
+  # Note: all files should all be .glbs. Anything that uses or queries
+  # accessors requires (included in some tests) requires a call to
+  # CesiumGltfReader::resolveExternalData, which proved to be complicated to integrate.
   Duck.glb:
     hasTexcoords : True
     metallicFactor : 0
 
-  Mesh_Primitives_00.gltf:
+  Mesh_Primitives_00.glb:
+    hasNormals : False
+    hasTexcoords : False
     baseColorFactor:
       - 0
       - 1
       - 0
 
-  Mesh_PrimitivesUV_00.gltf:
-    hasMaterial : False
+  Mesh_PrimitivesUV_00.glb:
+    hasNormals : False
+    hasTexcoords : False
 
-  Material_07.gltf:
+  Mesh_PrimitivesUV_06.glb:
+    hasVertexColors : True
+
+  Mesh_PrimitivesUV_08.glb:
+    hasVertexColors : True
+
+  Material_07.glb:
     metallicFactor : 0.0
     emissiveFactor :
       - 1
@@ -53,48 +62,58 @@ scenarios:
       - 0.2
       - 0.2
 
-
-  Material_AlphaBlend_05.gltf:
+  Material_AlphaBlend_05.glb:
+    hasNormals : False
+    hasTexcoords : True
     alphaMode : 2
     baseAlpha : 0.7
 
-  Material_AlphaBlend_06.gltf:
+  Material_AlphaBlend_06.glb:
+    hasNormals : False
+    hasVertexColors : True
+    hasTexcoords : True
     alphaMode : 2
     baseAlpha : 0.7
 
-  Material_AlphaMask_04.gltf:
+  Material_AlphaMask_04.glb:
+    hasNormals : False
+    hasTexcoords : True
     alphaMode : 1
     alphaCutoff : 0.0
 
-  Material_AlphaMask_06.gltf:
+  Material_AlphaMask_06.glb:
+    hasNormals : False
+    hasTexcoords : True
     alphaMode : 1
     alphaCutoff : 0.6
     baseAlpha : 0.7
 
-  # Note: vertex color files should all be .glbs. Anything that uses or queries
-  # the vertex colors requires access to a buffer that, for a .gltf, can only be
-  # filled by a call to CesiumGltfReader::resolveExternalData, which proved to
-  # be complicated to integrate.
   Mesh_PrimitiveVertexColor_00.glb:
-    hasVertexColors : True
     hasMaterial : False
+    hasTexcoords : False
+    hasVertexColors : True
 
   Mesh_PrimitiveVertexColor_01.glb:
     hasMaterial : False
+    hasTexcoords : False
     hasVertexColors : True
 
   Mesh_PrimitiveVertexColor_02.glb:
     hasMaterial : False
+    hasTexcoords : False
     hasVertexColors : True
 
   Mesh_PrimitiveVertexColor_03.glb:
     hasMaterial : False
+    hasTexcoords : False
     hasVertexColors : True
 
   Mesh_PrimitiveVertexColor_04.glb:
     hasMaterial : False
+    hasTexcoords : False
     hasVertexColors : True
 
   Mesh_PrimitiveVertexColor_05.glb:
     hasMaterial : False
+    hasTexcoords : False
     hasVertexColors : True
