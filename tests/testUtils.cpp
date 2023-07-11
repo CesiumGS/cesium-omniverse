@@ -27,7 +27,7 @@ ConfigMap getScenarioConfig(const std::string& scenario, YAML::Node configRoot) 
         sConfig[it->first.as<std::string>()] = it->second;
     }
 
-    const auto&  overrides = configRoot["scenarios"][scenario];
+    const auto& overrides = configRoot["scenarios"][scenario];
 
     for (auto it = overrides.begin(); it != overrides.end(); it++) {
         sConfig[it->first.as<std::string>()] = it->second;
