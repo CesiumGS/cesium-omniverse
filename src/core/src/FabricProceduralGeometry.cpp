@@ -6,6 +6,7 @@
 #include "cesium/omniverse/UsdUtil.h"
 
 // #include <carb/flatcache/FlatCache.h>
+#include <glm/gtc/random.hpp>
 #include <omni/fabric/FabricUSD.h>
 #include <omni/fabric/IFabric.h>
 #include <carb/Framework.h>
@@ -28,12 +29,13 @@
 int cesium::omniverse::FabricProceduralGeometry::createCube() {
     //modifyUsdPrim();
     //modify1000Prims();
-    modify1000PrimsViaCuda();
+    //modify1000PrimsViaCuda();
     //createQuadMeshViaFabric();
     //addOneMillionCPU();
     //addOneMillionCuda();
     //editSingleFabricAttributeViaCuda();
     //createQuadViaFabricAndCuda();
+    createAndModifyQuadsViaCuda(500);
 
     return 45;
 }
@@ -924,4 +926,94 @@ void cesium::omniverse::FabricProceduralGeometry::editSingleFabricAttributeViaCu
     if (result != CUDA_SUCCESS) {
         std::cout << "error: could not destroy CUDA context." << std::endl;
     }
+}
+
+
+void cesium::omniverse::FabricProceduralGeometry::createQuadsViaFabric(int numQuads) {
+    const auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+    const auto usdStageId = omni::fabric::UsdStageId{static_cast<uint64_t>(cesium::omniverse::Context::instance().getStageId())};
+    const auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
+    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+
+    const std::string primPathStub{"/quadMesh_"};
+
+    for (int i = 0; i < numQuads; i++) {
+        pxr::SdfPath path("/cube_" + std::to_string(i));
+        //auto fabricPath = omni::fabric::Path("/fabricMeshCube" + std::to_string(i).c_str());
+        const auto fabricPath = omni::fabric::Path((primPathStub + std::to_string(i)).c_str());
+        stageReaderWriter.createPrim(fabricPath);
+
+        FabricAttributesBuilder attributes;
+        attributes.addAttribute(FabricTypes::faceVertexCounts, FabricTokens::faceVertexCounts);
+        attributes.addAttribute(FabricTypes::faceVertexCounts, FabricTokens::faceVertexCounts);
+        attributes.addAttribute(FabricTypes::faceVertexIndices, FabricTokens::faceVertexIndices);
+        attributes.addAttribute(FabricTypes::points, FabricTokens::points);
+        attributes.addAttribute(FabricTypes::Mesh, FabricTokens::Mesh);
+        attributes.addAttribute(FabricTypes::extent, FabricTokens::extent);
+        attributes.addAttribute(FabricTypes::_worldExtent, FabricTokens::_worldExtent);
+        attributes.addAttribute(FabricTypes::_worldVisibility, FabricTokens::_worldVisibility);
+        attributes.addAttribute(FabricTypes::_worldPosition, FabricTokens::_worldPosition);
+        attributes.addAttribute(FabricTypes::_worldOrientation, FabricTokens::_worldOrientation);
+        attributes.addAttribute(FabricTypes::_worldScale, FabricTokens::_worldScale);
+        attributes.createAttributes(fabricPath);
+
+        stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::faceVertexCounts, 2);
+        stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::faceVertexIndices, 6);
+        stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::points, 4);
+
+        auto pointsFabric = stageReaderWriter.getArrayAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::points);
+        auto extentScalar = glm::linearRand(10.f, 200.f);
+
+        float centerBounds = 1000.f;
+        auto center = pxr::GfVec3f{
+            glm::linearRand(-centerBounds, centerBounds),
+            glm::linearRand(-centerBounds, centerBounds),
+            glm::linearRand(-centerBounds, centerBounds)
+        };
+
+        pointsFabric[0] = pxr::GfVec3f(-extentScalar, -extentScalar, 0) + center;
+        pointsFabric[1] = pxr::GfVec3f(-extentScalar, extentScalar, 0) + center;
+        pointsFabric[2] = pxr::GfVec3f(extentScalar, extentScalar, 0) + center;
+        pointsFabric[3] = pxr::GfVec3f(extentScalar, -extentScalar, 0) + center;
+
+
+        auto faceVertexCountsFabric = stageReaderWriter.getArrayAttributeWr<int>(fabricPath, FabricTokens::faceVertexCounts);
+        faceVertexCountsFabric[0] = 3;
+        faceVertexCountsFabric[1] = 3;
+
+        auto faceVertexIndicesFabric = stageReaderWriter.getArrayAttributeWr<int>(fabricPath, FabricTokens::faceVertexIndices);
+        faceVertexIndicesFabric[0] = 0;
+        faceVertexIndicesFabric[1] = 1;
+        faceVertexIndicesFabric[2] = 2;
+        faceVertexIndicesFabric[3] = 0;
+        faceVertexIndicesFabric[4] = 2;
+        faceVertexIndicesFabric[5] = 3;
+
+        auto extent = pxr::GfRange3d(pxr::GfVec3d(-extentScalar, -extentScalar, 0), pxr::GfVec3d(extentScalar, extentScalar, 0));
+        auto extentFabric = stageReaderWriter.getAttributeWr<pxr::GfRange3d>(fabricPath, FabricTokens::extent);
+        *extentFabric = extent;
+
+        auto worldExtentFabric = stageReaderWriter.getAttributeWr<pxr::GfRange3d>(fabricPath, FabricTokens::_worldExtent);
+        *worldExtentFabric = pxr::GfRange3d(pxr::GfVec3d(0.0, 0.0, 0.0), pxr::GfVec3d(0.0, 0.0, 0.0));
+
+        auto worldVisibilityFabric = stageReaderWriter.getAttributeWr<bool>(fabricPath, FabricTokens::_worldVisibility);
+        *worldVisibilityFabric = true;
+
+        auto worldPositionFabric = stageReaderWriter.getAttributeWr<pxr::GfVec3d>(fabricPath, FabricTokens::_worldPosition);
+        *worldPositionFabric = pxr::GfVec3d(0, 0, 0);
+
+        auto worldOrientationFabric = stageReaderWriter.getAttributeWr<pxr::GfQuatf>(fabricPath, FabricTokens::_worldOrientation);
+        *worldOrientationFabric = pxr::GfQuatf(1.f, 0, 0, 0);
+
+        auto worldScaleFabric = stageReaderWriter.getAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::_worldScale);
+        *worldScaleFabric = pxr::GfVec3f(1.f, 1.f, 1.f);
+    }
+
+}
+void cesium::omniverse::FabricProceduralGeometry::modifyQuadsViaCuda() {
+
+}
+void cesium::omniverse::FabricProceduralGeometry::createAndModifyQuadsViaCuda(int numQuads) {
+    createQuadsViaFabric(numQuads);
+    modifyQuadsViaCuda();
 }

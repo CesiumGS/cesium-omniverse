@@ -13,6 +13,9 @@ void modify1000PrimsViaCuda();
 void createQuadMeshViaFabric();
 void editSingleFabricAttributeViaCuda();
 void createQuadViaFabricAndCuda();
+void createQuadsViaFabric(int numQuads);
+void modifyQuadsViaCuda();
+void createAndModifyQuadsViaCuda(int numQuads);
 
 CUfunction compileKernel(const char *kernelSource, const char *kernelName);
 CUfunction compileKernel2(const char *kernelSource, const char *kernelName);
