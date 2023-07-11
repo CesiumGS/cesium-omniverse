@@ -87,7 +87,7 @@ TEST_SUITE("Example Tests") {
         return "foo";
     }
 
-    void checkAgainstExpectedResults(const std::string& scenarioName, YAML::Node expectedResults) {
+    void checkAgainstExpectedResults(const std::string& scenarioName, const YAML::Node& expectedResults) {
 
         // we have to specify the type of the desired data from the config via as()
         CHECK(3.14159 == expectedResults["pi"].as<double>());
@@ -111,7 +111,7 @@ TEST_SUITE("Example Tests") {
         // an override for one or more scenarios
         std::vector<std::string> scenarios = {"scenario1", "scenario2", "scenario3"};
 
-        for (auto& s : scenarios) {
+        for (const auto& s : scenarios) {
             ConfigMap conf = getScenarioConfig(s, configRoot);
             checkAgainstExpectedResults(s, conf);
         }

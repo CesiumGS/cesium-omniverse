@@ -21,15 +21,15 @@ void fillWithRandomInts(std::list<int>& lst, int min, int max, int n) {
 ConfigMap getScenarioConfig(const std::string& scenario, YAML::Node configRoot) {
     ConfigMap sConfig = ConfigMap();
 
-    YAML::Node defaultConfig = configRoot["scenarios"]["default"];
+    const auto& defaultConfig = configRoot["scenarios"]["default"];
 
     for (YAML::const_iterator it = defaultConfig.begin(); it != defaultConfig.end(); it++) {
         sConfig[it->first.as<std::string>()] = it->second;
     }
 
-    YAML::Node overrides = configRoot["scenarios"][scenario];
+    const auto&  overrides = configRoot["scenarios"][scenario];
 
-    for (YAML::const_iterator it = overrides.begin(); it != overrides.end(); it++) {
+    for (auto it = overrides.begin(); it != overrides.end(); it++) {
         sConfig[it->first.as<std::string>()] = it->second;
     }
 

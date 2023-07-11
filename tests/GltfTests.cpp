@@ -1,4 +1,4 @@
-#include "CesiumGltfReader/GltfReader.h"
+#include <CesiumGltfReader/GltfReader.h>
 #include "testUtils.h"
 
 #include "cesium/omniverse/GltfAccessors.h"
@@ -26,7 +26,7 @@ const std::string ASSET_DIR = "tests/testAssets/gltfs";
 const std::string CONFIG_PATH = "tests/configs/gltfConfig.yaml";
 
 // simplifies casting when comparing some material queries to expected output from config
-bool operator==(pxr::GfVec3f v3, std::vector<float> v) {
+bool operator==(const pxr::GfVec3f& v3, const std::vector<float>& v) {
     return v.size() == 3 && v3[0] == v[0] && v3[1] == v[1] && v3[2] == v[2];
 }
 
@@ -40,18 +40,17 @@ TEST_SUITE("gltf utils") {
         CHECK(cesium::omniverse::IndicesAccessor(data).size() == data);
     }
 
-    void checkGltfExpectedResults(const std::filesystem::path& gltfFileName, YAML::Node expectedResults) {
+    void checkGltfExpectedResults(const std::filesystem::path& gltfFileName, const YAML::Node& expectedResults) {
 
         // --- Load Gltf ---
         std::ifstream gltfStream(gltfFileName, std::ifstream::binary);
         std::stringstream gltfBuf;
         gltfBuf << gltfStream.rdbuf();
         CesiumGltfReader::GltfReader reader;
-        CesiumGltfReader::GltfReaderResult gltf =
-            reader.readGltf(gsl::span(reinterpret_cast<const std::byte*>(gltfBuf.str().c_str()), gltfBuf.str().size()));
+        auto gltf = reader.readGltf(gsl::span(reinterpret_cast<const std::byte*>(gltfBuf.str().c_str()), gltfBuf.str().size()));
 
         if (!gltf.errors.empty()) {
-            for (const std::string& err : gltf.errors) {
+            for (const auto& err : gltf.errors) {
                 std::cerr << err;
             }
             throw std::runtime_error("failed to parse model");
@@ -63,8 +62,8 @@ TEST_SUITE("gltf utils") {
         }
 
         // --- Begin checks ---
-        CesiumGltf::MeshPrimitive prim = gltf.model->meshes[0].primitives[0];
-        CesiumGltf::Model model = *gltf.model;
+        const auto& prim = gltf.model->meshes[0].primitives[0];
+        const auto& model = *gltf.model;
 
         namespace gltfUtil = cesium::omniverse::GltfUtil;
 
@@ -77,7 +76,7 @@ TEST_SUITE("gltf utils") {
 
         // material tests
         if (gltfUtil::hasMaterial(prim)) {
-            CesiumGltf::Material mat = gltf.model->materials[0];
+            const auto& mat = gltf.model->materials[0];
             CHECK(gltfUtil::getAlphaMode(mat) == expectedResults["alphaMode"].as<int>());
             CHECK(gltfUtil::getAlphaCutoff(mat) == expectedResults["alphaCutoff"].as<float>());
             CHECK(gltfUtil::getBaseAlpha(mat) == expectedResults["baseAlpha"].as<float>());
@@ -121,7 +120,7 @@ TEST_SUITE("gltf utils") {
         CHECK_NOTHROW(gltfUtil::getDefaultAlphaMode());
     }
 
-    TEST_CASE("check helper functions on various models") {
+    TEST_CASE("Check helper functions on various models") {
 
         std::vector<std::string> gltfFiles;
 
@@ -134,14 +133,14 @@ TEST_SUITE("gltf utils") {
         }
 
         // parse test config yaml
-        YAML::Node configRoot = YAML::LoadFile(CONFIG_PATH);
-        std::filesystem::path basePath = std::filesystem::path(ASSET_DIR);
+        const auto configRoot = YAML::LoadFile(CONFIG_PATH);
+        const auto basePath = std::filesystem::path(ASSET_DIR);
 
         for (auto const& fileName : gltfFiles) {
             // attach filename to any failed checks
             CAPTURE(fileName);
 
-            ConfigMap conf = getScenarioConfig(fileName, configRoot);
+            const auto conf = getScenarioConfig(fileName, configRoot);
 
             // the / operator concatonates file paths
             checkGltfExpectedResults(basePath / fileName, conf);
