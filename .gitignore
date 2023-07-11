@@ -71,3 +71,6 @@ _testoutput
 
 # Tracing files
 cesium-trace-*.json
+
+# Carb settings from Cesium Power Tools extensions
+carb_settings.txt
