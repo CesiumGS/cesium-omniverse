@@ -26,10 +26,14 @@
 
 
 
-int cesium::omniverse::FabricProceduralGeometry::createCube() {
-    //modifyUsdPrim();
-    //modify1000Prims();
+int cesium::omniverse::FabricProceduralGeometry::runExperiment() {
+    //modifyUsdPrim(); // does not correctly write back to USD
+
+    //"size" attr does not retain modification, but test attr does
+    //modify1000PrimsWithFabric();
+
     modify1000PrimsViaCuda();
+
     //createQuadMeshViaFabric();
     //addOneMillionCPU();
     //addOneMillionCuda();
@@ -53,6 +57,8 @@ void cesium::omniverse::FabricProceduralGeometry::modifyUsdPrim() {
     pxr::UsdPrim prim = usdStagePtr->DefinePrim(pxr::SdfPath("/TestCube"), pxr::TfToken("Cube"));
     auto sizeUsdToken = pxr::TfToken("size");
     prim.CreateAttribute(sizeUsdToken, pxr::SdfValueTypeNames->Double).Set(3.0);
+    auto customAttrUsdToken = pxr::TfToken("customTestAttr");
+    prim.CreateAttribute(customAttrUsdToken, pxr::SdfValueTypeNames->Double).Set(123.45);
 
     //prefetch it to Fabric’s cache.
     omni::fabric::Path primPath("/TestCube");
@@ -60,10 +66,15 @@ void cesium::omniverse::FabricProceduralGeometry::modifyUsdPrim() {
 
     //use Fabric to modify the cube’s dimensions
     auto sizeFabricToken = omni::fabric::Token("size");
+    auto customAttrFabricToken = omni::fabric::Token("customTestAttr");
 
     double& size = *stageReaderWriter.getAttribute<double>(primPath, sizeFabricToken);
     double sizeTarget = 30;
     size = sizeTarget;
+
+    double& customAttr = *stageReaderWriter.getAttribute<double>(primPath, customAttrFabricToken);
+    double customAttrTarget = 987.654;
+    customAttr = customAttrTarget;
 
     // //write our changes back to USD.
     // const auto flatCache = carb::getCachedInterface<carb::flatcache::FlatCache>();
@@ -76,17 +87,17 @@ void cesium::omniverse::FabricProceduralGeometry::modifyUsdPrim() {
     iFabricUsd->exportUsdPrimData(fabricId);
 
     //check that Fabric correctly modified the USD stage.
-    pxr::UsdAttribute sizeAttr = prim.GetAttribute(sizeUsdToken);
+    pxr::UsdAttribute verifyAttr = prim.GetAttribute(customAttrUsdToken);
     double value;
-    sizeAttr.Get(&value);
-    if (value == sizeTarget) {
+    verifyAttr.Get(&value);
+    if (value == customAttrTarget) {
         std::cout << "modified stage" << std::endl;
     } else {
         std::cout << "did not modify stage" << std::endl;
     }
 }
 
-void cesium::omniverse::FabricProceduralGeometry::modify1000Prims() {
+void cesium::omniverse::FabricProceduralGeometry::modify1000PrimsWithFabric() {
     const pxr::UsdStageRefPtr usdStagePtr = Context::instance().getStage();
 
     //use USD to make a thousand cubes
@@ -119,8 +130,6 @@ void cesium::omniverse::FabricProceduralGeometry::modify1000Prims() {
     const auto stageReaderWriterId = iStageReaderWriter->get(omni::fabric::UsdStageId{static_cast<uint64_t>(id)});
     auto fabricReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
     omni::fabric::PrimBucketList cubeBuckets = fabricReaderWriter.findPrims({ cubeTag });
-    //carb::flatcache::PrimBucketList cubeBuckets = iStageInProgress->findPrims({ cubeTag });
-    //carb::flatcache::PrimBucketList cubeBuckets = stage.findPrims({ cubeTag });
 
     // Fabric is free to store the 1000 cubes in as many buckets as it likes...iterate over the buckets
     int counter = 0;

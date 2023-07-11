@@ -41,9 +41,9 @@ class ProceduralGeometryWindow(ui.Window):
             label_style = {"Label": {"font_size": 16}}
 
             ui.Label(
-                "Generate quad via Fabric",
+                "Run Procedural Geometry Experiment",
                 word_wrap=True,
                 style=label_style,
             )
 
-            ui.Button("Create Geometry", height=20, clicked_fn=self._create_fabric_quad)
+            ui.Button("Run", height=20, clicked_fn=self._create_fabric_quad)

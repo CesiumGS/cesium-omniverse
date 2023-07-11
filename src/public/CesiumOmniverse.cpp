@@ -193,7 +193,7 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
     }
 
     int generateProceduralGeometry() noexcept override {
-        auto val = cesium::omniverse::FabricProceduralGeometry::createCube();
+        auto val = cesium::omniverse::FabricProceduralGeometry::runExperiment();
         return val;
     }
 };

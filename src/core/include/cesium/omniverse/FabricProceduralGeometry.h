@@ -6,9 +6,9 @@
 
 namespace cesium::omniverse::FabricProceduralGeometry {
 
-int createCube();
+int runExperiment();
 void modifyUsdPrim();
-void modify1000Prims();
+void modify1000PrimsWithFabric();
 void modify1000PrimsViaCuda();
 void createQuadMeshViaFabric();
 void editSingleFabricAttributeViaCuda();
