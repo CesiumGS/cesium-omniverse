@@ -37,8 +37,6 @@ TEST_SUITE("Test GltfUtil") {
 
         // --- Load Gltf ---
         std::ifstream gltfStream(gltfFileName, std::ifstream::binary);
-        // std::stringstream gltfBuf;
-        // gltfBuf << gltfStream.rdbuf();
         gltfStream.seekg(0, std::ios::end);
         auto gltfFileLength = gltfStream.tellg();
         gltfStream.seekg(0, std::ios::beg);

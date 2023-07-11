@@ -13,7 +13,6 @@ setup_app(
     SOURCES
         ${SOURCES}
     LIBRARIES
-        CesiumGltfReader # should be redundant but linker fails if missing
         CesiumOmniverseCore
         doctest::doctest
         yaml-cpp::yaml-cpp
