@@ -10,6 +10,7 @@ int runExperiment();
 void modifyUsdPrim();
 void modify1000PrimsWithFabric();
 void modify1000UsdPrimsViaCuda();
+void modify1000FabricPrimsViaCuda();
 void createQuadMeshViaFabric();
 void editSingleFabricAttributeViaCuda();
 void createQuadViaFabricAndCuda();
