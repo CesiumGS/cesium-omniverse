@@ -27,8 +27,8 @@
 
 int cesium::omniverse::FabricProceduralGeometry::createCube() {
     //modifyUsdPrim();
-    modify1000Prims();
-    //modify1000PrimsViaCuda();
+    //modify1000Prims();
+    modify1000PrimsViaCuda();
     //createQuadMeshViaFabric();
     //addOneMillionCPU();
     //addOneMillionCuda();
@@ -147,11 +147,13 @@ void cesium::omniverse::FabricProceduralGeometry::modify1000PrimsViaCuda() {
     const size_t cubeCount = 1000;
 
     const pxr::UsdStageRefPtr usdStagePtr = Context::instance().getStage();
+    auto customAttrUsdToken = pxr::TfToken("cudaTest");
     for (size_t i = 0; i != cubeCount; i++)
     {
         pxr::SdfPath path("/cube_" + std::to_string(i));
         pxr::UsdPrim prim = usdStagePtr->DefinePrim(path, pxr::TfToken("Cube"));
         prim.CreateAttribute(pxr::TfToken("size"), pxr::SdfValueTypeNames->Double).Set(17.3);
+        prim.CreateAttribute(customAttrUsdToken, pxr::SdfValueTypeNames->Double).Set(2.2);
     }
 
     long id = Context::instance().getStageId();
@@ -213,7 +215,7 @@ void cesium::omniverse::FabricProceduralGeometry::modify1000PrimsViaCuda() {
         size_t i = blockIdx.x * blockDim.x + threadIdx.x;
         if (count<=i) return;
         float oldVal = cubeSizes[i];
-        cubeSizes[i] = 99.9;
+        cubeSizes[i] = 543.21;
         printf("Changed size of cube %llu from %lf to %lf\n", i, oldVal, cubeSizes[i]);
     }
     )";
@@ -245,7 +247,7 @@ void cesium::omniverse::FabricProceduralGeometry::modify1000PrimsViaCuda() {
     //iterate over buckets but pass the vector for the whole bucket to the GPU.
     for (size_t bucket = 0; bucket != cubeBuckets.bucketCount(); bucket++)
     {
-        gsl::span<double> sizesD = stageReaderWriter.getAttributeArrayGpu<double>(cubeBuckets, bucket, omni::fabric::Token("size"));
+        gsl::span<double> sizesD = stageReaderWriter.getAttributeArrayGpu<double>(cubeBuckets, bucket, omni::fabric::Token("cudaTest"));
 
         double* ptr = sizesD.data();
         size_t elemCount = sizesD.size();

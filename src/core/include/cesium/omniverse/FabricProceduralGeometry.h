@@ -6,8 +6,6 @@
 
 namespace cesium::omniverse::FabricProceduralGeometry {
 
-
-
 int createCube();
 void modifyUsdPrim();
 void modify1000Prims();
@@ -15,6 +13,7 @@ void modify1000PrimsViaCuda();
 void createQuadMeshViaFabric();
 void editSingleFabricAttributeViaCuda();
 void createQuadViaFabricAndCuda();
+
 CUfunction compileKernel(const char *kernelSource, const char *kernelName);
 CUfunction compileKernel2(const char *kernelSource, const char *kernelName);
 bool checkCudaCompatibility();
