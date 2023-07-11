@@ -32,14 +32,27 @@ int cesium::omniverse::FabricProceduralGeometry::runExperiment() {
     //"size" attr does not retain modification, but test attr does
     //modify1000PrimsWithFabric();
 
-    modify1000PrimsViaCuda();
+    //create 1000 cubes with USD, modify params via CUDA
+    //modify1000UsdPrimsViaCuda();
 
+    //minimal function to create a quad in Fabric
     //createQuadMeshViaFabric();
+
+    //basic example to add one million values via CPU
     //addOneMillionCPU();
+    //addOneMillionCPU function but using CUDA instead of CPU
     //addOneMillionCuda();
+
+    //test to edit a single attribute using CUDA on a quad mesh made in Fabric
+    //NOT WORKING
     //editSingleFabricAttributeViaCuda();
+
+    //create Quad in Fabric, edit vert in CUDA
+    //NOT WORKING
     //createQuadViaFabricAndCuda();
-    //createAndModifyQuadsViaCuda(500);
+
+
+    createAndModifyQuadsViaCuda(500);
 
     return 45;
 }
@@ -154,7 +167,7 @@ void cesium::omniverse::FabricProceduralGeometry::modify1000PrimsWithFabric() {
     std::cout << "Modified " << counter << " prims" << std::endl;
 }
 
-void cesium::omniverse::FabricProceduralGeometry::modify1000PrimsViaCuda() {
+void cesium::omniverse::FabricProceduralGeometry::modify1000UsdPrimsViaCuda() {
     const size_t cubeCount = 1000;
 
     const pxr::UsdStageRefPtr usdStagePtr = Context::instance().getStage();
@@ -434,7 +447,7 @@ void cesium::omniverse::FabricProceduralGeometry::createQuadMeshViaFabric() {
         iStageReaderWriter->get(omni::fabric::UsdStageId{static_cast<uint64_t>(usdStageId)});
     auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
 
-    omni::fabric::Path fabricPath = omni::fabric::Path("/fabricMeshCube");
+    omni::fabric::Path fabricPath = omni::fabric::Path("/fabricMeshQuad");
     stageReaderWriter.createPrim(fabricPath);
 
     FabricAttributesBuilder attributes;
