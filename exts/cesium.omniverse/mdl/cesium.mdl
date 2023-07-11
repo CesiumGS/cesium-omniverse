@@ -4,6 +4,8 @@ import ::anno::*;
 import ::state::*;
 import ::tex::*;
 
+using ::gltf::pbr import *;
+
 module [[
 	anno::version( 1, 0, 0),
 	anno::display_name("Cesium MDL functions")
@@ -19,8 +21,8 @@ export float2 world_coordinate_2d(float2 min_world_xy=float2(-5000.0,-5000.0), f
 ]]{
 	// Get the world pos of the pixel
 	float3 world_pos = state::transform_vector(state::coordinate_internal, state::coordinate_world, state::position());
-	
-	// Return 0-1 UVs based on the min/max world coordinates provided 
+
+	// Return 0-1 UVs based on the min/max world coordinates provided
 	return float2(0.0,0.0) + (float2(world_pos.x, world_pos.y) - min_world_xy) * (float2(1.0, 1.0) - float2(0.0, 0.0)) / (max_world_xy - min_world_xy);
 }
 
@@ -55,3 +57,5 @@ export color lookup_world_texture_color(uniform texture_2d texture = texture_2d(
         wrap_u: ::tex::wrap_clamp,
         wrap_v: ::tex::wrap_clamp);
 }
+
+export material cesium_gltf_material(*) = gltf_material();
