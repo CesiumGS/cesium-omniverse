@@ -1,8 +1,7 @@
-#include "doctestUtils.h"
+#include "testUtils.h"
 
 #include <cesium/omniverse/ObjectPool.h>
 #include <doctest/doctest.h>
-#include <sys/types.h>
 
 #include <algorithm>
 #include <cstdint>
