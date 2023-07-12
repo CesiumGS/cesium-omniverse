@@ -545,7 +545,7 @@ FabricStatistics getStatistics() {
         statistics.geometriesCapacity += paths.size();
 
         for (size_t i = 0; i < paths.size(); i++) {
-            if (tilesetIdFabric[i] == -1) {
+            if (tilesetIdFabric[i] == NO_TILESET_ID) {
                 continue;
             }
 
@@ -571,7 +571,7 @@ FabricStatistics getStatistics() {
         statistics.materialsCapacity += paths.size();
 
         for (size_t i = 0; i < paths.size(); i++) {
-            if (tilesetIdFabric[i] == -1) {
+            if (tilesetIdFabric[i] == NO_TILESET_ID) {
                 continue;
             }
 

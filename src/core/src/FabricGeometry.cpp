@@ -213,7 +213,7 @@ void FabricGeometry::reset() {
     displayColorFabric[0] = DEFAULT_VERTEX_COLOR;
     displayOpacityFabric[0] = DEFAULT_VERTEX_OPACITY;
 
-    FabricUtil::setTilesetId(_pathFabric, -1);
+    FabricUtil::setTilesetId(_pathFabric, NO_TILESET_ID);
 
     srw.setArrayAttributeSize(_pathFabric, FabricTokens::material_binding, 0);
     srw.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexCounts, 0);

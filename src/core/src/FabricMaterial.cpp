@@ -217,7 +217,7 @@ void FabricMaterial::reset() {
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
     setMaterialValues(GltfUtil::getDefaultMaterialInfo());
-    setTilesetId(-1);
+    setTilesetId(NO_TILESET_ID);
 
     if (_materialDefinition.hasBaseColorTexture()) {
         clearBaseColorTexture();
