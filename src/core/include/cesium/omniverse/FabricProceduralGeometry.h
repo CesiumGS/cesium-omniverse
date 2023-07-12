@@ -15,7 +15,7 @@ void createQuadMeshViaUsd(const char* path, float maxCenterRandomization = 0);
 void createQuadMeshViaFabric();
 void editSingleFabricAttributeViaCuda();
 void modifyQuadsViaCuda();
-void createAndModifyQuadsViaCuda(int numQuads);
+void createFabricQuadsModifyViaCuda(int numQuads);
 
 void createQuadViaFabricAndCuda();
 void createQuadsViaFabric(int numQuads);
