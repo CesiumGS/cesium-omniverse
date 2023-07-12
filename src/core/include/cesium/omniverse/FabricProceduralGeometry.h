@@ -8,7 +8,7 @@ namespace cesium::omniverse::FabricProceduralGeometry {
 
 int runExperiment();
 void modifyUsdPrim();
-void modify1000PrimsWithFabric();
+void modify1000UsdPrimsWithFabric();
 void modify1000UsdCubesViaCuda();
 void modify1000UsdQuadsViaCuda();
 void createQuadMeshViaUsd(const char* path, float maxCenterRandomization = 0);

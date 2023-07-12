@@ -5,27 +5,47 @@
 #include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
-// #include <carb/flatcache/FlatCache.h>
 #include <glm/gtc/random.hpp>
 #include <omni/fabric/FabricUSD.h>
 #include <omni/fabric/IFabric.h>
 #include <carb/Framework.h>
 
-// #include <carb/flatcache/FlatCacheUSD.h>
 // #include <omni/usd/omni.h>
 // #include <omni/usd/UsdContextIncludes.h>
 // #include <omni/usd/UsdContext.h>
 
-// #include <CesiumUsdSchemas/data.h>
 #include "pxr/base/tf/token.h"
 
 #include <pxr/usd/usd/prim.h>
-// #include <omni/gpucompute/GpuCompute.h>
 #include <iostream>
 #include <omni/gpucompute/GpuCompute.h>
 #include "pxr/usd/usdGeom/mesh.h"
 
 namespace cesium::omniverse::FabricProceduralGeometry {
+
+
+constexpr int numPrimsForExperiment = 99;
+
+const omni::fabric::Type cudaTestAttributeFabricType(omni::fabric::BaseDataType::eDouble, 1, 0, omni::fabric::AttributeRole::eNone);
+omni::fabric::Token getCudaTestAttributeFabricToken() {
+    static const auto cudaTestAttributeFabricToken = omni::fabric::Token("cudaTest");
+    return cudaTestAttributeFabricToken;
+}
+
+//CUDA via CUDA_JIT and string
+const char* kernelCode = R"(
+extern "C" __global__
+void changeValue(double* values, size_t count)
+{
+    size_t i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (count <= i) return;
+
+    float oldVal = values[i];
+    values[i] = 543.21;
+    printf("Changed value of index %llu from %lf to %lf\n", i, oldVal, values[i]);
+}
+)";
+
 int runExperiment() {
     //modifyUsdPrim(); // does not correctly write back to USD
 
@@ -57,7 +77,7 @@ int runExperiment() {
     // createQuadViaFabricAndCuda();
 
 
-    // createAndModifyQuadsViaCuda(99);
+    // createAndModifyQuadsViaCuda(numPrimsForExperiment);
 
 
     /* GEOMETRY CREATION */
@@ -117,7 +137,7 @@ void modifyUsdPrim() {
     }
 }
 
-void modify1000PrimsWithFabric() {
+void modify1000UsdPrimsWithFabric() {
     const pxr::UsdStageRefPtr usdStagePtr = Context::instance().getStage();
 
     //use USD to make a thousand cubes
@@ -130,7 +150,6 @@ void modify1000PrimsWithFabric() {
         prim.CreateAttribute(pxr::TfToken("size"), pxr::SdfValueTypeNames->Double).Set(3.3);
         prim.CreateAttribute(customAttrUsdToken, pxr::SdfValueTypeNames->Double).Set(17.3);
     }
-
 
     //call prefetchPrim to get the data into Fabric.
     long id = Context::instance().getStageId();
@@ -153,7 +172,6 @@ void modify1000PrimsWithFabric() {
 
     // Fabric is free to store the 1000 cubes in as many buckets as it likes...iterate over the buckets
     int counter = 0;
-    auto cudaTestFabricToken = omni::fabric::Token("cudaTest");
     auto fabricSizeToken = omni::fabric::Token("size");
     for (size_t bucket = 0; bucket != cubeBuckets.bucketCount(); bucket++)
     {
@@ -163,7 +181,7 @@ void modify1000PrimsWithFabric() {
             size = 77.7;
         }
 
-        auto testValues = fabricReaderWriter.getAttributeArray<double>(cubeBuckets, bucket, cudaTestFabricToken);
+        auto testValues = fabricReaderWriter.getAttributeArray<double>(cubeBuckets, bucket, getCudaTestAttributeFabricToken());
         for (double& testValue : testValues)
         {
             testValue = 123.45;
@@ -242,20 +260,6 @@ void modify1000UsdCubesViaCuda() {
         std::cout << "error: could not create CUDA context." << std::endl;
     }
 
-    //CUDA via CUDA_JIT and string
-    const char *kernelCode = R"(
-    extern "C" __global__
-    void changeValue(double* values, size_t count)
-    {
-        size_t i = blockIdx.x * blockDim.x + threadIdx.x;
-        if (count <= i) return;
-
-        float oldVal = values[i];
-        values[i] = 543.21;
-        printf("Changed value of index %llu from %lf to %lf\n", i, oldVal, values[i]);
-    }
-    )";
-
     nvrtcProgram prog;
     nvrtcCreateProgram(&prog, kernelCode, "changeValue", 0, nullptr, nullptr);
 
@@ -283,7 +287,7 @@ void modify1000UsdCubesViaCuda() {
     //iterate over buckets but pass the vector for the whole bucket to the GPU.
     for (size_t bucket = 0; bucket != cubeBuckets.bucketCount(); bucket++)
     {
-        gsl::span<double> sizesD = stageReaderWriter.getAttributeArrayGpu<double>(cubeBuckets, bucket, omni::fabric::Token("cudaTest"));
+        gsl::span<double> sizesD = stageReaderWriter.getAttributeArrayGpu<double>(cubeBuckets, bucket, getCudaTestAttributeFabricToken());
 
         double* ptr = sizesD.data();
         size_t elemCount = sizesD.size();
@@ -531,9 +535,8 @@ void createQuadViaFabricAndCuda() {
     stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::faceVertexIndices, 6);
     stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::points, 4);
 
-    auto customAttrFabricToken = omni::fabric::Token("cudaTest");
-    stageReaderWriter.createAttribute(fabricPath, customAttrFabricToken, omni::fabric::BaseDataType::eFloat);
-    auto customAttrWriter = stageReaderWriter.getAttribute<float>(fabricPath, customAttrFabricToken);
+    stageReaderWriter.createAttribute(fabricPath, getCudaTestAttributeFabricToken(), cudaTestAttributeFabricType);
+    auto customAttrWriter = stageReaderWriter.getAttribute<float>(fabricPath, getCudaTestAttributeFabricToken());
     *customAttrWriter = 17.3f;
 
     auto pointsFabric = stageReaderWriter.getArrayAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::points);
@@ -620,7 +623,7 @@ void createQuadViaFabricAndCuda() {
     // }
     // )";
 
-    const char* kernelCode = R"(
+    const char* addToXKernelCode = R"(
     struct Triplet
     {
         float x;
@@ -641,7 +644,7 @@ void createQuadViaFabricAndCuda() {
     )";
 
     // CUfunction kernel = compileKernel(scaleCubes, "scaleCubes");
-    CUfunction kernel = compileKernel2(kernelCode, "addTenToXComponentKernel");
+    CUfunction kernel = compileKernel2(addToXKernelCode, "addTenToXComponentKernel");
 
     struct Triplet
     {
@@ -669,8 +672,8 @@ void createQuadViaFabricAndCuda() {
     // }
 
     //omni::fabric::AttrNameAndType quadTag(omni::fabric::BaseDataType::eToken, FabricTokens::points);
-    omni::fabric::AttrNameAndType quadTag(omni::fabric::Type(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName), omni::fabric::Token("Mesh"));
-    omni::fabric::PrimBucketList quadBuckets = stageReaderWriter.findPrims({ quadTag });
+    omni::fabric::AttrNameAndType quadMeshTag(omni::fabric::Type(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName), omni::fabric::Token("Mesh"));
+    omni::fabric::PrimBucketList quadBuckets = stageReaderWriter.findPrims({ quadMeshTag });
     auto bucketCount = quadBuckets.bucketCount();
     printf("Found %llu buckets\n", bucketCount);
 
@@ -728,19 +731,8 @@ void addOneMillionCPU() {
 }
 
 void addOneMillionCuda() {
-    // const char *kernelCode = R"(
-    // extern "C" __global__
-    // void add(int n, float *x, float *y)
-    // {
-    // int index = threadIdx.x;
-    // int stride = blockDim.x;
 
-    // for (int i = index; i < n; i += stride)
-    //     y[i] = x[i] + y[i];
-    // }
-    // )";
-
-    const char *kernelCode = R"(
+    const char *addKernelCode = R"(
     extern "C" __global__
     void add(int n, float *x, float *y)
     {
@@ -769,7 +761,7 @@ void addOneMillionCuda() {
   }
 
   nvrtcProgram prog;
-  nvrtcCreateProgram(&prog, kernelCode, "add_program", 0, nullptr, nullptr);
+  nvrtcCreateProgram(&prog, addKernelCode, "add_program", 0, nullptr, nullptr);
 
   // Compile the program
   nvrtcResult res = nvrtcCompileProgram(prog, 0, nullptr);
@@ -844,9 +836,8 @@ void editSingleFabricAttributeViaCuda() {
     stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::faceVertexIndices, 6);
     stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::points, 4);
 
-    auto customAttrFabricToken = omni::fabric::Token("cudaTest");
-    stageReaderWriter.createAttribute(fabricPath, customAttrFabricToken, omni::fabric::BaseDataType::eFloat);
-    auto customAttrWriter = stageReaderWriter.getAttribute<float>(fabricPath, customAttrFabricToken);
+    stageReaderWriter.createAttribute(fabricPath, getCudaTestAttributeFabricToken() , omni::fabric::BaseDataType::eFloat);
+    auto customAttrWriter = stageReaderWriter.getAttribute<float>(fabricPath, getCudaTestAttributeFabricToken());
     *customAttrWriter = 12.3f;
 
     auto pointsFabric = stageReaderWriter.getArrayAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::points);
@@ -891,8 +882,8 @@ void editSingleFabricAttributeViaCuda() {
     // omni::fabric::AttrNameAndType quadTag(
     //     omni::fabric::Type(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::ePrimTypeName),
     //     omni::fabric::Token("cudaTest"));
-    omni::fabric::AttrNameAndType quadTag(omni::fabric::Type(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName), omni::fabric::Token("Mesh"));
-    omni::fabric::PrimBucketList cubeBuckets = stageReaderWriter.findPrims({ quadTag });
+    omni::fabric::AttrNameAndType quadMeshTag(omni::fabric::Type(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName), omni::fabric::Token("Mesh"));
+    omni::fabric::PrimBucketList cubeBuckets = stageReaderWriter.findPrims({ quadMeshTag });
 
     auto isCudaCompatible = checkCudaCompatibility();
     if (!isCudaCompatible) {
@@ -928,20 +919,6 @@ void editSingleFabricAttributeViaCuda() {
         std::cout << "error: could not create CUDA context." << std::endl;
     }
 
-    //CUDA via CUDA_JIT and string
-    const char *kernelCode = R"(
-    extern "C" __global__
-    void changeValue(double* values, size_t count)
-    {
-        size_t i = blockIdx.x * blockDim.x + threadIdx.x;
-        if (count <= i) return;
-
-        float oldVal = values[i];
-        values[i] = 543.21;
-        printf("Changed value of index %llu from %lf to %lf\n", i, oldVal, values[i]);
-    }
-    )";
-
     nvrtcProgram prog;
     nvrtcCreateProgram(&prog, kernelCode, "changeValue", 0, nullptr, nullptr);
 
@@ -970,7 +947,7 @@ void editSingleFabricAttributeViaCuda() {
     //iterate over buckets but pass the vector for the whole bucket to the GPU.
     for (size_t bucket = 0; bucket != cubeBuckets.bucketCount(); bucket++)
     {
-        gsl::span<double> sizesD = stageReaderWriter.getAttributeArrayGpu<double>(cubeBuckets, bucket, omni::fabric::Token("cudaTest"));
+        gsl::span<double> sizesD = stageReaderWriter.getAttributeArrayGpu<double>(cubeBuckets, bucket, getCudaTestAttributeFabricToken());
 
         double* ptr = sizesD.data();
         size_t elemCount = sizesD.size();
@@ -989,67 +966,6 @@ void editSingleFabricAttributeViaCuda() {
     if (result != CUDA_SUCCESS) {
         std::cout << "error: could not destroy CUDA context." << std::endl;
     }
-
-
-    // // modify with CUDA
-    // CUresult result = cuInit(0);
-    // if (result != CUDA_SUCCESS) {
-    //     std::cout << "error: CUDA did not init." << std::endl;
-    // }
-
-    // CUdevice device;
-    // result = cuDeviceGet(&device, 0);
-    // if (result != CUDA_SUCCESS) {
-    //     std::cout << "error: CUDA did not get a device." << std::endl;
-    // }
-
-    // int major, minor;
-    // result = cuDeviceGetAttribute(&major, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, device);
-    // if (result != CUDA_SUCCESS) {
-    //     std::cout << "error: could not get CUDA major version." << std::endl;
-    // }
-    // result = cuDeviceGetAttribute(&minor, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, device);
-    // if (result != CUDA_SUCCESS) {
-    //     std::cout << "error: could not get CUDA minor version." << std::endl;
-    // }
-
-    // CUcontext context;
-    // result = cuCtxCreate(&context, 0, device);
-    // if (result != CUDA_SUCCESS) {
-    //     std::cout << "error: could not create CUDA context." << std::endl;
-    // }
-
-    // //CUDA JIT
-    // const char* kernelCode = R"(
-    // extern "C" __global__
-    // void changeValue(float* data, size_t size)
-    // {
-    //     size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
-
-    //     if (idx < size) {
-    //         data[idx] = 3.21f;
-    //         printf("Element %zu is = %f\n", idx, data[idx]);
-    //     }
-    // }
-    // )";
-
-    // CUfunction kernel = compileKernel2(kernelCode, "changeValue");
-
-    // auto customAttrData = stageReaderWriter.getAttributeGpu<float>(fabricPath, customAttrFabricToken);
-    // size_t elemCount = 1;
-    // void *args[] = { &customAttrData, &elemCount }; //NOLINT
-    // int blockSize, minGridSize;
-    // cuOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, kernel, nullptr, 0, 0);
-    // auto err = cuLaunchKernel(kernel, minGridSize, 1, 1, blockSize, 1, 1, 0, nullptr, args, nullptr);
-    // // REQUIRE(!err);
-    // if (err) {
-    //     std::cout << "error" << std::endl;
-    // }
-
-    // result = cuCtxDestroy(context);
-    // if (result != CUDA_SUCCESS) {
-    //     std::cout << "error: could not destroy CUDA context." << std::endl;
-    // }
 }
 
 
@@ -1060,9 +976,6 @@ void createQuadsViaFabric(int numQuads) {
     auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
 
     const std::string primPathStub{"/quadMesh_"};
-
-    auto cudaTestAttributeFabricToken = omni::fabric::Token("cudaTest");
-    const omni::fabric::Type cudaTestAttributeFabricType(omni::fabric::BaseDataType::eDouble, 1, 0, omni::fabric::AttributeRole::eNone);
 
     for (int i = 0; i < numQuads; i++) {
         // pxr::SdfPath path("/cube_" + std::to_string(i));
@@ -1136,8 +1049,8 @@ void createQuadsViaFabric(int numQuads) {
         *worldScaleFabric = pxr::GfVec3f(1.f, 1.f, 1.f);
 
         //create a custom attribute for testing
-        stageReaderWriter.createAttribute(fabricPath, cudaTestAttributeFabricToken, cudaTestAttributeFabricType);
-        auto testAttribute = stageReaderWriter.getAttributeWr<double>(fabricPath, cudaTestAttributeFabricToken);
+        stageReaderWriter.createAttribute(fabricPath, getCudaTestAttributeFabricToken(), cudaTestAttributeFabricType);
+        auto testAttribute = stageReaderWriter.getAttributeWr<double>(fabricPath, getCudaTestAttributeFabricToken());
         *testAttribute = 123.45;
     }
 }
@@ -1149,9 +1062,7 @@ void modifyQuadsViaCuda() {
     auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
     auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
 
-    const omni::fabric::Type cudaTestAttributeFabricType(omni::fabric::BaseDataType::eDouble, 1, 0, omni::fabric::AttributeRole::eNone);
-    auto cudaTestAttributeFabricToken = omni::fabric::Token("cudaTest");
-    omni::fabric::AttrNameAndType quadTag(cudaTestAttributeFabricType, cudaTestAttributeFabricToken);
+    omni::fabric::AttrNameAndType quadTag(cudaTestAttributeFabricType, getCudaTestAttributeFabricToken());
     omni::fabric::PrimBucketList quadBuckets = stageReaderWriter.findPrims({quadTag});
 
     if (quadBuckets.bucketCount() == 0 ) {
@@ -1192,20 +1103,6 @@ void modifyQuadsViaCuda() {
         std::cout << "error: could not create CUDA context." << std::endl;
     }
 
-    //CUDA via CUDA_JIT and string
-    const char *kernelCode = R"(
-    extern "C" __global__
-    void changeValue(double* values, size_t count)
-    {
-        size_t i = blockIdx.x * blockDim.x + threadIdx.x;
-        if (i >= count) return;
-
-        double oldVal = values[i];
-        values[i] = 543.21;
-        printf("Changed value of index %llu from %lf to %lf\n", i, oldVal, values[i]);
-    }
-    )";
-
     nvrtcProgram prog;
     nvrtcCreateProgram(&prog, kernelCode, "changeValue", 0, nullptr, nullptr);
 
@@ -1235,7 +1132,7 @@ void modifyQuadsViaCuda() {
     int primCount = 0;
     for (size_t bucket = 0; bucket != quadBuckets.bucketCount(); bucket++)
     {
-        gsl::span<double> values = stageReaderWriter.getAttributeArrayGpu<double>(quadBuckets, bucket, omni::fabric::Token("cudaTest"));
+        gsl::span<double> values = stageReaderWriter.getAttributeArrayGpu<double>(quadBuckets, bucket, getCudaTestAttributeFabricToken());
 
         double* ptr = values.data();
         size_t elemCount = values.size();
