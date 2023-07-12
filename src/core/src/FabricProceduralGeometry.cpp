@@ -34,14 +34,12 @@ int runExperiment() {
     //modify1000PrimsWithFabric();
 
     //create 1000 cubes with USD, modify params via CUDA
-    //modify1000UsdCubesViaCuda();
+    modify1000UsdCubesViaCuda();
 
 
     //create 1000 quads with USD, modify params via CUDA
     //NOT WORKING: runtime errors if using a Mesh (not with a Cube)
     //modify1000UsdQuadsViaCuda();
-
-
 
 
     //basic example to add one million values via CPU
@@ -59,7 +57,7 @@ int runExperiment() {
     // createQuadViaFabricAndCuda();
 
 
-    createAndModifyQuadsViaCuda(99);
+    // createAndModifyQuadsViaCuda(99);
 
 
     /* GEOMETRY CREATION */
@@ -363,12 +361,8 @@ CUfunction compileKernel(const char *kernelSource, const char *kernelName) {
 }
 
 
-} // namespace cesium::omniverse::FabricProceduralGeometry
 
-
-
-
-CUfunction cesium::omniverse::FabricProceduralGeometry::compileKernel2(const char *kernelSource, const char *kernelName) {
+CUfunction compileKernel2(const char *kernelSource, const char *kernelName) {
     nvrtcProgram prog;
     nvrtcResult result = nvrtcCreateProgram(&prog, kernelSource, kernelName, 0, nullptr, nullptr);
     if (result != NVRTC_SUCCESS) {
@@ -414,7 +408,7 @@ CUfunction cesium::omniverse::FabricProceduralGeometry::compileKernel2(const cha
     return kernel;
 }
 
-bool cesium::omniverse::FabricProceduralGeometry::checkCudaCompatibility() {
+bool checkCudaCompatibility() {
     int runtimeVer, driverVer;
 
     // Get CUDA Runtime version
@@ -442,7 +436,7 @@ bool cesium::omniverse::FabricProceduralGeometry::checkCudaCompatibility() {
     return true;
 }
 
-void cesium::omniverse::FabricProceduralGeometry::createQuadMeshViaFabric() {
+void createQuadMeshViaFabric() {
     const auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
     auto usdStageId = Context::instance().getStageId();
 
@@ -509,7 +503,7 @@ void cesium::omniverse::FabricProceduralGeometry::createQuadMeshViaFabric() {
     *worldScaleFabric = pxr::GfVec3f(1.f, 1.f, 1.f);
 }
 
-void cesium::omniverse::FabricProceduralGeometry::createQuadViaFabricAndCuda() {
+void createQuadViaFabricAndCuda() {
     const auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
     auto usdStageId = Context::instance().getStageId();
 
@@ -710,7 +704,7 @@ void cesium::omniverse::FabricProceduralGeometry::createQuadViaFabricAndCuda() {
     }
 }
 
-void cesium::omniverse::FabricProceduralGeometry::addOneMillionCPU() {
+void addOneMillionCPU() {
     int N = 1<<20;
 
     auto* a = new float[N];
@@ -733,7 +727,7 @@ void cesium::omniverse::FabricProceduralGeometry::addOneMillionCPU() {
     cudaFree(b);
 }
 
-void cesium::omniverse::FabricProceduralGeometry::addOneMillionCuda() {
+void addOneMillionCuda() {
     // const char *kernelCode = R"(
     // extern "C" __global__
     // void add(int n, float *x, float *y)
@@ -816,13 +810,13 @@ void cesium::omniverse::FabricProceduralGeometry::addOneMillionCuda() {
 
 }
 
-__global__ void cesium::omniverse::FabricProceduralGeometry::addArrays(int n, float* x, float* y) {
+__global__ void addArrays(int n, float* x, float* y) {
     for (auto i = 0; i < n; i++) {
         y[i] += x[i];
     }
 }
 
-void cesium::omniverse::FabricProceduralGeometry::editSingleFabricAttributeViaCuda() {
+void editSingleFabricAttributeViaCuda() {
    const auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
     auto usdStageId = Context::instance().getStageId();
 
@@ -1059,7 +1053,7 @@ void cesium::omniverse::FabricProceduralGeometry::editSingleFabricAttributeViaCu
 }
 
 
-void cesium::omniverse::FabricProceduralGeometry::createQuadsViaFabric(int numQuads) {
+void createQuadsViaFabric(int numQuads) {
     const auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
     const auto usdStageId = omni::fabric::UsdStageId{static_cast<uint64_t>(cesium::omniverse::Context::instance().getStageId())};
     const auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
@@ -1148,7 +1142,7 @@ void cesium::omniverse::FabricProceduralGeometry::createQuadsViaFabric(int numQu
     }
 }
 
-void cesium::omniverse::FabricProceduralGeometry::modifyQuadsViaCuda() {
+void modifyQuadsViaCuda() {
 
     auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
     auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
@@ -1263,12 +1257,12 @@ void cesium::omniverse::FabricProceduralGeometry::modifyQuadsViaCuda() {
     }
 }
 
-void cesium::omniverse::FabricProceduralGeometry::createAndModifyQuadsViaCuda(int numQuads) {
+void createAndModifyQuadsViaCuda(int numQuads) {
     createQuadsViaFabric(numQuads);
     modifyQuadsViaCuda();
 }
 
-void cesium::omniverse::FabricProceduralGeometry::modify1000UsdQuadsViaCuda() {
+void modify1000UsdQuadsViaCuda() {
     const size_t quadCount = 100;
 
     const pxr::UsdStageRefPtr usdStagePtr = Context::instance().getStage();
@@ -1405,7 +1399,7 @@ void cesium::omniverse::FabricProceduralGeometry::modify1000UsdQuadsViaCuda() {
     // }
 }
 
-void cesium::omniverse::FabricProceduralGeometry::createQuadMeshViaUsd(const char* pathString, float maxCenterRandomization) {
+void createQuadMeshViaUsd(const char* pathString, float maxCenterRandomization) {
     const pxr::UsdStageRefPtr usdStagePtr = Context::instance().getStage();
     pxr::SdfPath path(pathString);
 
@@ -1452,3 +1446,9 @@ void cesium::omniverse::FabricProceduralGeometry::createQuadMeshViaUsd(const cha
     auto prim = mesh.GetPrim();
     prim.CreateAttribute(customAttrUsdToken, pxr::SdfValueTypeNames->Double).Set(12.3);
 }
+
+
+
+} // namespace cesium::omniverse::FabricProceduralGeometry
+
+
