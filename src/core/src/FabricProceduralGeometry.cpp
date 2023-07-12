@@ -1081,7 +1081,7 @@ void cesium::omniverse::FabricProceduralGeometry::createQuadsViaFabric(int numQu
     const std::string primPathStub{"/quadMesh_"};
 
     auto cudaTestAttributeFabricToken = omni::fabric::Token("cudaTest");
-    const omni::fabric::Type cudaTestAttributeFabricType(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
+    const omni::fabric::Type cudaTestAttributeFabricType(omni::fabric::BaseDataType::eDouble, 1, 0, omni::fabric::AttributeRole::eNone);
 
     for (int i = 0; i < numQuads; i++) {
         // pxr::SdfPath path("/cube_" + std::to_string(i));
@@ -1156,8 +1156,8 @@ void cesium::omniverse::FabricProceduralGeometry::createQuadsViaFabric(int numQu
 
         //create a custom attribute for testing
         stageReaderWriter.createAttribute(fabricPath, cudaTestAttributeFabricToken, cudaTestAttributeFabricType);
-        auto testAttribute = stageReaderWriter.getAttributeWr<float>(fabricPath, cudaTestAttributeFabricToken);
-        *testAttribute = 123.45f;
+        auto testAttribute = stageReaderWriter.getAttributeWr<double>(fabricPath, cudaTestAttributeFabricToken);
+        *testAttribute = 123.45;
     }
 }
 
@@ -1168,9 +1168,7 @@ void cesium::omniverse::FabricProceduralGeometry::modifyQuadsViaCuda() {
     auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
     auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
 
-    // omni::fabric::AttrNameAndType quadTag(omni::fabric::Type(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName), omni::fabric::Token("Mesh"));
-    // omni::fabric::PrimBucketList cubeBuckets = stageReaderWriter.findPrims({ quadTag });
-    const omni::fabric::Type cudaTestAttributeFabricType(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
+    const omni::fabric::Type cudaTestAttributeFabricType(omni::fabric::BaseDataType::eDouble, 1, 0, omni::fabric::AttributeRole::eNone);
     auto cudaTestAttributeFabricToken = omni::fabric::Token("cudaTest");
     omni::fabric::AttrNameAndType quadTag(cudaTestAttributeFabricType, cudaTestAttributeFabricToken);
     omni::fabric::PrimBucketList quadBuckets = stageReaderWriter.findPrims({quadTag});
@@ -1216,14 +1214,14 @@ void cesium::omniverse::FabricProceduralGeometry::modifyQuadsViaCuda() {
     //CUDA via CUDA_JIT and string
     const char *kernelCode = R"(
     extern "C" __global__
-    void changeValue(float* values, size_t count)
+    void changeValue(double* values, size_t count)
     {
         size_t i = blockIdx.x * blockDim.x + threadIdx.x;
         if (i >= count) return;
 
-        float oldVal = values[i];
-        values[i] = 543.21f;
-        printf("Changed value of index %llu from %f to %f\n", i, oldVal, values[i]);
+        double oldVal = values[i];
+        values[i] = 543.21;
+        printf("Changed value of index %llu from %lf to %lf\n", i, oldVal, values[i]);
     }
     )";
 
@@ -1256,9 +1254,9 @@ void cesium::omniverse::FabricProceduralGeometry::modifyQuadsViaCuda() {
     int primCount = 0;
     for (size_t bucket = 0; bucket != quadBuckets.bucketCount(); bucket++)
     {
-        gsl::span<float> values = stageReaderWriter.getAttributeArrayGpu<float>(quadBuckets, bucket, omni::fabric::Token("cudaTest"));
+        gsl::span<double> values = stageReaderWriter.getAttributeArrayGpu<double>(quadBuckets, bucket, omni::fabric::Token("cudaTest"));
 
-        float* ptr = values.data();
+        double* ptr = values.data();
         size_t elemCount = values.size();
         void *args[] = { &ptr, &elemCount }; //NOLINT
         int blockSize = 32 * 4;
@@ -1276,103 +1274,6 @@ void cesium::omniverse::FabricProceduralGeometry::modifyQuadsViaCuda() {
     if (result != CUDA_SUCCESS) {
         std::cout << "error: could not destroy CUDA context." << std::endl;
     }
-
-    //write data back to USD to check it
-    // const auto iFabricUsd = carb::getCachedInterface<omni::fabric::IFabricUsd>();
-    // auto fabricId = omni::fabric::FabricId();
-    // iFabricUsd->exportUsdPrimData(fabricId);
-    // const pxr::UsdStageRefPtr usdStage = Context::instance().getStage();
-
-    // for (size_t i = 0; i != cubeCount; i++)
-    // {
-    //     pxr::SdfPath path("/cube_" + std::to_string(i));
-    //     pxr::UsdPrim prim = usdStage->GetPrimAtPath(path);
-    //     pxr::UsdAttribute sizeAttr = prim.GetAttribute(pxr::TfToken("size"));
-    //     double value;
-    //     sizeAttr.Get(&value);
-    // }
-
-    ////////////////////////////////////////////////////////////////////////
-    // CUresult result = cuInit(0);
-    // if (result != CUDA_SUCCESS) {
-    //     std::cout << "error: CUDA did not init." << std::endl;
-    // }
-
-    // CUdevice device;
-    // result = cuDeviceGet(&device, 0);
-    // if (result != CUDA_SUCCESS) {
-    //     std::cout << "error: CUDA did not get a device." << std::endl;
-    // }
-
-    // int major, minor;
-    // result = cuDeviceGetAttribute(&major, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, device);
-    // if (result != CUDA_SUCCESS) {
-    //     std::cout << "error: could not get CUDA major version." << std::endl;
-    // }
-    // result = cuDeviceGetAttribute(&minor, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, device);
-    // if (result != CUDA_SUCCESS) {
-    //     std::cout << "error: could not get CUDA minor version." << std::endl;
-    // }
-
-    // CUcontext context;
-    // result = cuCtxCreate(&context, 0, device);
-    // if (result != CUDA_SUCCESS) {
-    //     std::cout << "error: could not create CUDA context." << std::endl;
-    // }
-
-    // //scale with CUDA to be oblong
-    // //CUDA via CUDA_JIT and string
-    // const char *kernelCode = R"(
-    // extern "C" __global__
-    // void changeValue(double* values, size_t count)
-    // {
-    //     size_t i = blockIdx.x * blockDim.x + threadIdx.x;
-    //     if (count<=i) return;
-    //     float oldVal = values[i];
-    //     values[i] = 543.21;
-    //     printf("Changed value %llu from %lf to %lf\n", i, oldVal, values[i]);
-    // }
-    // )";
-
-    // // CUfunction kernel = compileKernel(scaleCubes, "scaleCubes");
-    // CUfunction kernel = compileKernel2(kernelCode, "changeValue");
-
-    // auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
-    // auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
-    // auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
-    // auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
-
-    // omni::fabric::AttrNameAndType quadTag(omni::fabric::Type(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName), omni::fabric::Token("Mesh"));
-    // omni::fabric::PrimBucketList quadBuckets = stageReaderWriter.findPrims({ quadTag });
-    // auto bucketCount = quadBuckets.bucketCount();
-    // printf("Found %llu buckets\n", bucketCount);
-
-    // // //iterate over buckets but pass the vector for the whole bucket to the GPU.
-    // auto testAttributeFabricToken = omni::fabric::Token("testAttribute");
-    // int primCount = 0;
-    // for (size_t bucket = 0; bucket != quadBuckets.bucketCount(); bucket++)
-    // {
-    //     // Step 2: Get the device pointer to the data
-    //     auto values = stageReaderWriter.getAttributeArrayGpu<float>(quadBuckets, bucket, testAttributeFabricToken);
-    //     auto* ptr = values.data();
-    //     size_t elemCount = values.size();
-    //     void *args[] = { &ptr, &elemCount }; //NOLINT
-    //     int blockSize, minGridSize;
-    //     cuOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, kernel, nullptr, 0, 0);
-    //     auto err = cuLaunchKernel(kernel, minGridSize, 1, 1, blockSize, 1, 1, 0, nullptr, args, nullptr);
-    //     // REQUIRE(!err);
-    //     if (err) {
-    //         std::cout << "error" << std::endl;
-    //     }
-    //     primCount += static_cast<int>(elemCount);
-    // }
-
-    // std::cout << "altered " << primCount << " prims" << std::endl;
-
-    // result = cuCtxDestroy(context);
-    // if (result != CUDA_SUCCESS) {
-    //     std::cout << "error: could not destroy CUDA context." << std::endl;
-    // }
 }
 
 void cesium::omniverse::FabricProceduralGeometry::createAndModifyQuadsViaCuda(int numQuads) {
