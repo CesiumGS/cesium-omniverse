@@ -69,8 +69,8 @@ const FabricGeometryDefinition& FabricGeometry::getGeometryDefinition() const {
 
 void FabricGeometry::setMaterial(const std::shared_ptr<FabricMaterial>& material) {
     auto srw = UsdUtil::getFabricStageReaderWriter();
-    srw.setArrayAttributeSize(_pathFabric, FabricTokens::materialBinding, 1);
-    auto materialBindingFabric = srw.getArrayAttributeWr<uint64_t>(_pathFabric, FabricTokens::materialBinding);
+    srw.setArrayAttributeSize(_pathFabric, FabricTokens::material_binding, 1);
+    auto materialBindingFabric = srw.getArrayAttributeWr<uint64_t>(_pathFabric, FabricTokens::material_binding);
     materialBindingFabric[0] = omni::fabric::PathC(material->getPathFabric()).path;
 }
 
@@ -103,7 +103,7 @@ void FabricGeometry::initialize() {
     attributes.addAttribute(FabricTypes::_worldScale, FabricTokens::_worldScale);
     attributes.addAttribute(FabricTypes::doubleSided, FabricTokens::doubleSided);
     attributes.addAttribute(FabricTypes::subdivisionScheme, FabricTokens::subdivisionScheme);
-    attributes.addAttribute(FabricTypes::materialBinding, FabricTokens::materialBinding);
+    attributes.addAttribute(FabricTypes::material_binding, FabricTokens::material_binding);
 
     if (hasTexcoords) {
         attributes.addAttribute(FabricTypes::primvars_st, FabricTokens::primvars_st);
@@ -215,7 +215,7 @@ void FabricGeometry::reset() {
 
     FabricUtil::setTilesetId(_pathFabric, -1);
 
-    srw.setArrayAttributeSize(_pathFabric, FabricTokens::materialBinding, 0);
+    srw.setArrayAttributeSize(_pathFabric, FabricTokens::material_binding, 0);
     srw.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexCounts, 0);
     srw.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexIndices, 0);
     srw.setArrayAttributeSize(_pathFabric, FabricTokens::points, 0);

@@ -66,7 +66,7 @@ TF_DEFINE_PRIVATE_TOKENS(
     ((inputs_vertex_color_name, "inputs:vertex_color_name"))
     ((inputs_wrap_s, "inputs:wrap_s"))
     ((inputs_wrap_t, "inputs:wrap_t"))
-    ((materialBinding, "material:binding"))
+    ((material_binding, "material:binding"))
     ((outputs_mdl_displacement, "outputs:mdl:displacement"))
     ((outputs_mdl_surface, "outputs:mdl:surface"))
     ((outputs_mdl_volume, "outputs:mdl:volume"))
@@ -114,7 +114,7 @@ const omni::fabric::TokenC inputs_vertex_color_name = omni::fabric::asInt(pxr::U
 const omni::fabric::TokenC inputs_wrap_s = omni::fabric::asInt(pxr::UsdTokens->inputs_wrap_s);
 const omni::fabric::TokenC inputs_wrap_t = omni::fabric::asInt(pxr::UsdTokens->inputs_wrap_t);
 const omni::fabric::TokenC Material = omni::fabric::asInt(pxr::UsdTokens->Material);
-const omni::fabric::TokenC materialBinding = omni::fabric::asInt(pxr::UsdTokens->materialBinding);
+const omni::fabric::TokenC material_binding = omni::fabric::asInt(pxr::UsdTokens->material_binding);
 const omni::fabric::TokenC Mesh = omni::fabric::asInt(pxr::UsdTokens->Mesh);
 const omni::fabric::TokenC none = omni::fabric::asInt(pxr::UsdTokens->none);
 const omni::fabric::TokenC out = omni::fabric::asInt(pxr::UsdTokens->out);
@@ -178,7 +178,7 @@ const pxr::TfToken& inputs_vertex_color_name = pxr::UsdTokens->inputs_vertex_col
 const pxr::TfToken& inputs_wrap_s = pxr::UsdTokens->inputs_wrap_s;
 const pxr::TfToken& inputs_wrap_t = pxr::UsdTokens->inputs_wrap_t;
 const pxr::TfToken& Material = pxr::UsdTokens->Material;
-const pxr::TfToken& materialBinding = pxr::UsdTokens->materialBinding;
+const pxr::TfToken& material_binding = pxr::UsdTokens->material_binding;
 const pxr::TfToken& Mesh = pxr::UsdTokens->Mesh;
 const pxr::TfToken& none = pxr::UsdTokens->none;
 const pxr::TfToken& out = pxr::UsdTokens->out;
