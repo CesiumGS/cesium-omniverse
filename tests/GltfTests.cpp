@@ -28,7 +28,7 @@ const std::string ASSET_DIR = "tests/testAssets/gltfs";
 const std::string CONFIG_PATH = "tests/configs/gltfConfig.yaml";
 
 // simplifies casting when comparing some material queries to expected output from config
-bool operator==(const pxr::GfVec3f& v3, const std::vector<float>& v) {
+bool operator==(const glm::dvec3& v3, const std::vector<double>& v) {
     return v.size() == 3 && v3[0] == v[0] && v3[1] == v[1] && v3[2] == v[2];
 }
 
@@ -68,21 +68,19 @@ TEST_SUITE("Test GltfUtil") {
         CHECK(GltfUtil::hasImageryTexcoords(model, prim, 0) == expectedResults["hasImageryTexcoords"].as<bool>());
         CHECK(GltfUtil::hasVertexColors(model, prim, 0) == expectedResults["hasVertexColors"].as<bool>());
         CHECK(GltfUtil::hasMaterial(prim) == expectedResults["hasMaterial"].as<bool>());
-        CHECK(GltfUtil::getDoubleSided(model, prim) == expectedResults["doubleSided"].as<bool>());
 
         // material tests
         if (GltfUtil::hasMaterial(prim)) {
-            const auto& mat = gltf.model->materials[0];
-            CHECK(GltfUtil::getAlphaMode(mat) == expectedResults["alphaMode"].as<int>());
-            CHECK(GltfUtil::getAlphaCutoff(mat) == expectedResults["alphaCutoff"].as<float>());
-            CHECK(GltfUtil::getBaseAlpha(mat) == expectedResults["baseAlpha"].as<float>());
-            CHECK(GltfUtil::getMetallicFactor(mat) == expectedResults["metallicFactor"].as<float>());
-            CHECK(GltfUtil::getRoughnessFactor(mat) == expectedResults["roughnessFactor"].as<float>());
-            CHECK(GltfUtil::getBaseColorTextureWrapS(model, mat) == expectedResults["baseColorTextureWrapS"].as<int>());
-            CHECK(GltfUtil::getBaseColorTextureWrapT(model, mat) == expectedResults["baseColorTextureWrapT"].as<int>());
-
-            CHECK(GltfUtil::getBaseColorFactor(mat) == expectedResults["baseColorFactor"].as<std::vector<float>>());
-            CHECK(GltfUtil::getEmissiveFactor(mat) == expectedResults["emissiveFactor"].as<std::vector<float>>());
+            const auto& matInfo = GltfUtil::getMaterialInfo(model, prim);
+            CHECK(matInfo.alphaCutoff == expectedResults["alphaCutoff"].as<double>());
+            CHECK(matInfo.alphaMode == expectedResults["alphaMode"].as<int32_t>());
+            CHECK(matInfo.baseAlpha == expectedResults["baseAlpha"].as<double>());
+            CHECK(matInfo.baseColorFactor == expectedResults["baseColorFactor"].as<std::vector<double>>());
+            CHECK(matInfo.emissiveFactor == expectedResults["emissiveFactor"].as<std::vector<double>>());
+            CHECK(matInfo.metallicFactor == expectedResults["metallicFactor"].as<double>());
+            CHECK(matInfo.roughnessFactor == expectedResults["roughnessFactor"].as<double>());
+            CHECK(matInfo.doubleSided == expectedResults["doubleSided"].as<bool>());
+            CHECK(matInfo.hasVertexColors == expectedResults["hasVertexColors"].as<bool>());
         }
 
         // Accessor smoke tests
@@ -108,16 +106,8 @@ TEST_SUITE("Test GltfUtil") {
     }
 
     TEST_CASE("Default getter smoke tests") {
-
-        CHECK_NOTHROW(GltfUtil::getDefaultBaseAlpha());
-        CHECK_NOTHROW(GltfUtil::getDefaultBaseColorFactor());
-        CHECK_NOTHROW(GltfUtil::getDefaultMetallicFactor());
-        CHECK_NOTHROW(GltfUtil::getDefaultRoughnessFactor());
-        CHECK_NOTHROW(GltfUtil::getDefaultEmissiveFactor());
-        CHECK_NOTHROW(GltfUtil::getDefaultWrapS());
-        CHECK_NOTHROW(GltfUtil::getDefaultWrapT());
-        CHECK_NOTHROW(GltfUtil::getDefaultAlphaCutoff());
-        CHECK_NOTHROW(GltfUtil::getDefaultAlphaMode());
+        CHECK_NOTHROW(GltfUtil::getDefaultMaterialInfo());
+        CHECK_NOTHROW(GltfUtil::getDefaultTextureInfo());
     }
 
     TEST_CASE("Check helper functions on various models") {

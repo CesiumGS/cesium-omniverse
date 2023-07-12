@@ -259,6 +259,28 @@ public:
 
 public:
     // --------------------------------------------------------------------- //
+    // DEBUGDISABLETEXTUREPOOL 
+    // --------------------------------------------------------------------- //
+    /// Debug option that disables texture pooling.
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `bool cesium:debug:disableTexturePool = 0` |
+    /// | C++ Type | bool |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute GetDebugDisableTexturePoolAttr() const;
+
+    /// See GetDebugDisableTexturePoolAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute CreateDebugDisableTexturePoolAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
     // DEBUGGEOMETRYPOOLINITIALCAPACITY 
     // --------------------------------------------------------------------- //
     /// Debug option that controls the initial capacity of the geometry pool.
@@ -300,6 +322,28 @@ public:
     /// the default for \p writeSparsely is \c false.
     CESIUMUSDSCHEMAS_API
     UsdAttribute CreateDebugMaterialPoolInitialCapacityAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
+    // DEBUGTEXTUREPOOLINITIALCAPACITY 
+    // --------------------------------------------------------------------- //
+    /// Debug option that controls the initial capacity of the texture pool.
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `uint64 cesium:debug:texturePoolInitialCapacity = 2048` |
+    /// | C++ Type | uint64_t |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->UInt64 |
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute GetDebugTexturePoolInitialCapacityAttr() const;
+
+    /// See GetDebugTexturePoolInitialCapacityAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute CreateDebugTexturePoolInitialCapacityAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // --------------------------------------------------------------------- //

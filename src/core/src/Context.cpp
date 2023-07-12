@@ -3,7 +3,7 @@
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/CesiumIonSession.h"
-#include "cesium/omniverse/FabricMeshManager.h"
+#include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GeospatialUtil.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
@@ -195,22 +195,24 @@ void Context::reloadTileset(const pxr::SdfPath& tilesetPath) {
 }
 
 void Context::clearStage() {
-    // The order is important. Clear tilesets first so that FabricMeshes are released back into the pool. Then clear the pools.
+    // The order is important. Clear tilesets first so that Fabric resources are released back into the pool. Then clear the pools.
     AssetRegistry::getInstance().clear();
-    FabricMeshManager::getInstance().clear();
+    FabricResourceManager::getInstance().clear();
 }
 
 void Context::reloadStage() {
     clearStage();
 
-    auto& fabricMeshManager = FabricMeshManager::getInstance();
-    fabricMeshManager.setDisableMaterials(getDebugDisableMaterials());
-    fabricMeshManager.setDisableTextures(getDebugDisableTextures());
-    fabricMeshManager.setDisableGeometryPool(getDebugDisableGeometryPool());
-    fabricMeshManager.setDisableMaterialPool(getDebugDisableMaterialPool());
-    fabricMeshManager.setGeometryPoolInitialCapacity(getDebugGeometryPoolInitialCapacity());
-    fabricMeshManager.setMaterialPoolInitialCapacity(getDebugMaterialPoolInitialCapacity());
-    fabricMeshManager.setDebugRandomColors(getDebugRandomColors());
+    auto& fabricResourceManager = FabricResourceManager::getInstance();
+    fabricResourceManager.setDisableMaterials(getDebugDisableMaterials());
+    fabricResourceManager.setDisableTextures(getDebugDisableTextures());
+    fabricResourceManager.setDisableGeometryPool(getDebugDisableGeometryPool());
+    fabricResourceManager.setDisableMaterialPool(getDebugDisableMaterialPool());
+    fabricResourceManager.setDisableTexturePool(getDebugDisableTexturePool());
+    fabricResourceManager.setGeometryPoolInitialCapacity(getDebugGeometryPoolInitialCapacity());
+    fabricResourceManager.setMaterialPoolInitialCapacity(getDebugMaterialPoolInitialCapacity());
+    fabricResourceManager.setTexturePoolInitialCapacity(getDebugTexturePoolInitialCapacity());
+    fabricResourceManager.setDebugRandomColors(getDebugRandomColors());
 
     // Repopulate the asset registry. We need to do this manually because USD doesn't notify us about
     // resynced paths when the stage is loaded.
@@ -283,6 +285,7 @@ void Context::processCesiumDataChanged(const ChangedPrim& changedPrim) {
         name == pxr::CesiumTokens->cesiumDebugDisableMaterialPool ||
         name == pxr::CesiumTokens->cesiumDebugGeometryPoolInitialCapacity ||
         name == pxr::CesiumTokens->cesiumDebugMaterialPoolInitialCapacity ||
+        name == pxr::CesiumTokens->cesiumDebugTexturePoolInitialCapacity ||
         name == pxr::CesiumTokens->cesiumDebugRandomColors) {
         reloadStage();
     }
@@ -456,10 +459,6 @@ int64_t Context::getContextId() const {
 
 int64_t Context::getNextTilesetId() const {
     return _tilesetId++;
-}
-
-int64_t Context::getNextTileId() const {
-    return _tileId++;
 }
 
 const CesiumGeospatial::Cartographic Context::getGeoreferenceOrigin() const {
@@ -705,6 +704,13 @@ bool Context::getDebugDisableMaterialPool() const {
     return disableMaterialPool;
 }
 
+bool Context::getDebugDisableTexturePool() const {
+    const auto cesiumDataUsd = UsdUtil::getOrCreateCesiumData();
+    bool disableTexturePool;
+    cesiumDataUsd.GetDebugDisableTexturePoolAttr().Get(&disableTexturePool);
+    return disableTexturePool;
+}
+
 uint64_t Context::getDebugGeometryPoolInitialCapacity() const {
     const auto cesiumDataUsd = UsdUtil::getOrCreateCesiumData();
     uint64_t geometryPoolInitialCapacity;
@@ -717,6 +723,13 @@ uint64_t Context::getDebugMaterialPoolInitialCapacity() const {
     uint64_t materialPoolInitialCapacity;
     cesiumDataUsd.GetDebugMaterialPoolInitialCapacityAttr().Get(&materialPoolInitialCapacity);
     return materialPoolInitialCapacity;
+}
+
+uint64_t Context::getDebugTexturePoolInitialCapacity() const {
+    const auto cesiumDataUsd = UsdUtil::getOrCreateCesiumData();
+    uint64_t texturePoolInitialCapacity;
+    cesiumDataUsd.GetDebugTexturePoolInitialCapacityAttr().Get(&texturePoolInitialCapacity);
+    return texturePoolInitialCapacity;
 }
 
 bool Context::getDebugRandomColors() const {

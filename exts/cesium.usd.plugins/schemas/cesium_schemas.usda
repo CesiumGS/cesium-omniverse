@@ -74,6 +74,14 @@ class CesiumDataPrim "CesiumDataPrim" (
         doc = "Debug option that disables material pooling."
     )
 
+    bool cesium:debug:disableTexturePool = false (
+        customData = {
+            string apiName = "debugDisableTexturePool"
+        }
+        displayName = "Disable Texture Pool"
+        doc = "Debug option that disables texture pooling."
+    )
+
     uint64 cesium:debug:geometryPoolInitialCapacity = 2048 (
         customData = {
             string apiName = "debugGeometryPoolInitialCapacity"
@@ -88,6 +96,14 @@ class CesiumDataPrim "CesiumDataPrim" (
         }
         displayName = "Material Pool Initial Capacity"
         doc = "Debug option that controls the initial capacity of the material pool."
+    )
+
+    uint64 cesium:debug:texturePoolInitialCapacity = 2048 (
+        customData = {
+            string apiName = "debugTexturePoolInitialCapacity"
+        }
+        displayName = "Texture Pool Initial Capacity"
+        doc = "Debug option that controls the initial capacity of the texture pool."
     )
 
     bool cesium:debug:randomColors = false (

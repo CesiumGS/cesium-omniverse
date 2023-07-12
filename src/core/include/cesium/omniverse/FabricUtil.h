@@ -20,6 +20,9 @@ struct FabricStatistics {
     uint64_t trianglesRendered{0};
 };
 
+// -1 means the prim is not yet associated with a tileset
+const auto NO_TILESET_ID = int64_t(-1);
+
 } // namespace cesium::omniverse
 
 namespace cesium::omniverse::FabricUtil {
@@ -27,8 +30,7 @@ namespace cesium::omniverse::FabricUtil {
 std::string printFabricStage();
 FabricStatistics getStatistics();
 void destroyPrim(const omni::fabric::Path& path);
-void destroyPrims(const std::vector<omni::fabric::Path>& paths);
 void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform);
-void setTilesetIdAndTileId(const omni::fabric::Path& pathFabric, int64_t tilesetId, int64_t tileId);
+void setTilesetId(const omni::fabric::Path& pathFabric, int64_t tilesetId);
 
 } // namespace cesium::omniverse::FabricUtil

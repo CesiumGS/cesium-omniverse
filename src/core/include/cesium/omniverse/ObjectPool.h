@@ -9,7 +9,7 @@ namespace cesium::omniverse {
 
 template <typename T> class ObjectPool {
   public:
-    ObjectPool() {}
+    ObjectPool() = default;
 
     virtual ~ObjectPool() = default;
 
