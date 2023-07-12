@@ -39,7 +39,7 @@ class FabricGeometry {
     [[nodiscard]] omni::fabric::Path getPathFabric() const;
     [[nodiscard]] const FabricGeometryDefinition& getGeometryDefinition() const;
 
-    void setMaterial(const std::shared_ptr<FabricMaterial>& material);
+    void setMaterial(const omni::fabric::Path& materialPath);
 
   private:
     void initialize();

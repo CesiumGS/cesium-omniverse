@@ -105,11 +105,13 @@ acquireFabricMeshes(const CesiumGltf::Model& model, const std::vector<MeshInfo>&
         auto& fabricMesh = fabricMeshes.emplace_back();
 
         const auto& primitive = model.meshes[mesh.meshId].primitives[mesh.primitiveId];
-        const auto fabricGeometry =
-            fabricResourceManager.acquireGeometry(model, primitive, mesh.smoothNormals, hasImagery);
+        const auto fabricGeometry = fabricResourceManager.acquireGeometry(model, primitive, mesh.smoothNormals);
         fabricMesh.geometry = fabricGeometry;
 
-        if (fabricGeometry->getGeometryDefinition().hasMaterial()) {
+        const auto shouldAcquireMaterial =
+            FabricResourceManager::getInstance().shouldAcquireMaterial(primitive, hasImagery);
+
+        if (shouldAcquireMaterial) {
             const auto materialInfo = GltfUtil::getMaterialInfo(model, primitive);
 
             const auto fabricMaterial = fabricResourceManager.acquireMaterial(materialInfo, hasImagery);
@@ -117,8 +119,7 @@ acquireFabricMeshes(const CesiumGltf::Model& model, const std::vector<MeshInfo>&
             fabricMesh.material = fabricMaterial;
             fabricMesh.materialInfo = materialInfo;
 
-            if (fabricMaterial->getMaterialDefinition().hasBaseColorTexture() &&
-                materialInfo.baseColorTexture.has_value()) {
+            if (fabricMaterial->getMaterialDefinition().hasBaseColorTexture()) {
                 const auto fabricTexture = fabricResourceManager.acquireTexture();
                 fabricMesh.baseColorTexture = fabricTexture;
             }
@@ -174,7 +175,7 @@ void setFabricMeshes(
 
         if (material != nullptr) {
             material->setMaterial(meshInfo.tilesetId, materialInfo);
-            geometry->setMaterial(material);
+            geometry->setMaterial(material->getPathFabric());
 
             if (baseColorTexture != nullptr && materialInfo.baseColorTexture.has_value()) {
                 material->setBaseColorTexture(baseColorTexture, materialInfo.baseColorTexture.value());

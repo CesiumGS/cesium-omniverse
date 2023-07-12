@@ -1,6 +1,7 @@
 #pragma once
 
 #include <pxr/usd/sdf/assetPath.h>
+#include <pxr/usd/sdf/path.h>
 
 #include <atomic>
 #include <mutex>
@@ -40,11 +41,10 @@ class FabricResourceManager {
         return instance;
     }
 
-    std::shared_ptr<FabricGeometry> acquireGeometry(
-        const CesiumGltf::Model& model,
-        const CesiumGltf::MeshPrimitive& primitive,
-        bool smoothNormals,
-        bool hasImagery);
+    bool shouldAcquireMaterial(const CesiumGltf::MeshPrimitive& primitive, bool hasImagery) const;
+
+    std::shared_ptr<FabricGeometry>
+    acquireGeometry(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, bool smoothNormals);
 
     std::shared_ptr<FabricMaterial> acquireMaterial(const MaterialInfo& materialInfo, bool hasImagery);
 

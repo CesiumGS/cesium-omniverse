@@ -28,13 +28,20 @@ FabricResourceManager::FabricResourceManager() {
 
 FabricResourceManager::~FabricResourceManager() = default;
 
+bool FabricResourceManager::shouldAcquireMaterial(const CesiumGltf::MeshPrimitive& primitive, bool hasImagery) const {
+    if (_disableMaterials) {
+        return false;
+    }
+
+    return hasImagery || GltfUtil::hasMaterial(primitive);
+}
+
 std::shared_ptr<FabricGeometry> FabricResourceManager::acquireGeometry(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
-    bool smoothNormals,
-    bool hasImagery) {
+    bool smoothNormals) {
 
-    FabricGeometryDefinition geometryDefinition(model, primitive, smoothNormals, hasImagery, _disableMaterials);
+    FabricGeometryDefinition geometryDefinition(model, primitive, smoothNormals);
 
     if (_disableGeometryPool) {
         const auto path = pxr::SdfPath(fmt::format("/fabric_geometry_{}", getNextGeometryId()));

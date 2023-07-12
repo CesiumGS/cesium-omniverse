@@ -67,11 +67,11 @@ const FabricGeometryDefinition& FabricGeometry::getGeometryDefinition() const {
     return _geometryDefinition;
 }
 
-void FabricGeometry::setMaterial(const std::shared_ptr<FabricMaterial>& material) {
+void FabricGeometry::setMaterial(const omni::fabric::Path& materialPath) {
     auto srw = UsdUtil::getFabricStageReaderWriter();
     srw.setArrayAttributeSize(_pathFabric, FabricTokens::material_binding, 1);
     auto materialBindingFabric = srw.getArrayAttributeWr<uint64_t>(_pathFabric, FabricTokens::material_binding);
-    materialBindingFabric[0] = omni::fabric::PathC(material->getPathFabric()).path;
+    materialBindingFabric[0] = omni::fabric::PathC(materialPath).path;
 }
 
 void FabricGeometry::initialize() {
