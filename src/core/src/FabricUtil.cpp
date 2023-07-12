@@ -590,6 +590,20 @@ void destroyPrim(const omni::fabric::Path& path) {
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
     srw.destroyPrim(path);
+
+    // Prims removed from Fabric need special handling for their removal to be reflected in the Hydra render index
+    // This workaround may not be needed in future Kit versions, but is needed as of Kit 105.0
+    const omni::fabric::Path changeTrackingPath("/TempChangeTracking");
+
+    if (srw.getAttribute<uint64_t>(changeTrackingPath, FabricTokens::_deletedPrims) == nullptr) {
+        return;
+    }
+
+    const auto deletedPrimsSize = srw.getArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims);
+    srw.setArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims, deletedPrimsSize + 1);
+    auto deletedPrimsFabric = srw.getArrayAttributeWr<uint64_t>(changeTrackingPath, FabricTokens::_deletedPrims);
+
+    deletedPrimsFabric[deletedPrimsSize] = omni::fabric::PathC(path).path;
 }
 
 void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform) {
