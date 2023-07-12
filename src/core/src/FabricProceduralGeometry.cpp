@@ -54,7 +54,7 @@ int runExperiment() {
     //modify1000PrimsWithFabric();
 
     //create 1000 cubes with USD, modify params via CUDA
-    //modify1000UsdCubesViaCuda();
+    modify1000UsdCubesViaCuda();
 
 
     //create 1000 quads with USD, modify params via CUDA
@@ -77,7 +77,7 @@ int runExperiment() {
     // createQuadViaFabricAndCuda();
 
 
-    createFabricQuadsModifyViaCuda(numPrimsForExperiment);
+    // createFabricQuadsModifyViaCuda(numPrimsForExperiment);
 
 
     /* GEOMETRY CREATION */
@@ -215,94 +215,7 @@ void modify1000UsdCubesViaCuda() {
         iStageReaderWriter->prefetchPrim(usdStageId, path);
     }
 
-    //select and bucket the Cube prims
-    omni::fabric::AttrNameAndType cubeTag(
-        omni::fabric::Type(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName),
-        omni::fabric::Token("Cube"));
-    const auto stageReaderWriterId = iStageReaderWriter->get(omni::fabric::UsdStageId{static_cast<uint64_t>(id)});
-    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
-    omni::fabric::PrimBucketList buckets = stageReaderWriter.findPrims({ cubeTag });
-
-    auto bucketCount = buckets.bucketCount();
-    printf("Num buckets: %llu", bucketCount);
-
-    auto isCudaCompatible = checkCudaCompatibility();
-    if (!isCudaCompatible) {
-        std::cout << "error: CUDA drives and toolkit versions are not compatible." << std::endl;
-    }
-
-    CUresult result = cuInit(0);
-    if (result != CUDA_SUCCESS) {
-        std::cout << "error: CUDA did not init." << std::endl;
-    }
-
-    CUdevice device;
-    result = cuDeviceGet(&device, 0);
-    if (result != CUDA_SUCCESS) {
-        std::cout << "error: CUDA did not get a device." << std::endl;
-    }
-
-    int major, minor;
-    result = cuDeviceGetAttribute(&major, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, device);
-    if (result != CUDA_SUCCESS) {
-        std::cout << "error: could not get CUDA major version." << std::endl;
-    }
-    result = cuDeviceGetAttribute(&minor, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, device);
-    if (result != CUDA_SUCCESS) {
-        std::cout << "error: could not get CUDA minor version." << std::endl;
-    }
-    std::cout << "Compute capability: " << major << "." << minor << std::endl;
-
-    CUcontext context;
-    result = cuCtxCreate(&context, 0, device);
-    if (result != CUDA_SUCCESS) {
-        std::cout << "error: could not create CUDA context." << std::endl;
-    }
-
-    nvrtcProgram prog;
-    nvrtcCreateProgram(&prog, kernelCode, "changeValue", 0, nullptr, nullptr);
-
-    // Compile the program
-    nvrtcResult res = nvrtcCompileProgram(prog, 0, nullptr);
-    if (res != NVRTC_SUCCESS) {
-        std::cout << "error compiling NVRTC program" << std::endl;
-        return;
-    }
-
-    // Get the PTX (assembly code for the GPU) from the compilation
-    size_t ptxSize;
-    nvrtcGetPTXSize(prog, &ptxSize);
-    char* ptx = new char[ptxSize];
-    nvrtcGetPTX(prog, ptx);
-
-    // Load the generated PTX and get a handle to the kernel.
-    CUmodule module;
-    CUfunction function;
-    cuModuleLoadDataEx(&module, ptx, 0, nullptr, nullptr);
-    cuModuleGetFunction(&function, module, "changeValue");
-
-    //iterate over buckets but pass the vector for the whole bucket to the GPU.
-    for (size_t bucketNum = 0; bucketNum != buckets.bucketCount(); bucketNum++)
-    {
-        auto values = stageReaderWriter.getAttributeArrayGpu<double>(buckets, bucketNum, getCudaTestAttributeFabricToken());
-
-        double* rawDataPtr = values.data();
-        size_t elemCount = values.size();
-        void *args[] = { &rawDataPtr, &elemCount }; //NOLINT
-        int blockSize, minGridSize;
-        cuOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, function, nullptr, 0, 0);
-        auto err = cuLaunchKernel(function, minGridSize, 1, 1, blockSize, 1, 1, 0, nullptr, args, nullptr);
-        if (err) {
-            std::cout << "error running the Cuda kernel" << std::endl;
-        }
-    }
-
-    result = cuCtxDestroy(context);
-    if (result != CUDA_SUCCESS) {
-        std::cout << "error: could not destroy CUDA context." << std::endl;
-    }
-
-    delete[] ptx;
+    modifyQuadsViaCuda();
 }
 
 CUfunction compileKernel(const char *kernelSource, const char *kernelName) {
@@ -1112,6 +1025,9 @@ void modifyQuadsViaCuda() {
         void *args[] = { &ptr, &elemCount }; //NOLINT
         int blockSize = 32 * 4;
         int numBlocks = (static_cast<int>(elemCount) + blockSize - 1) / blockSize;
+        // alternatively, CUDA can calculate these for you
+        // int blockSize, minGridSize;
+        // cuOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, function, nullptr, 0, 0);
         auto err = cuLaunchKernel(function, numBlocks, 1, 1, blockSize, 1, 1, 0, nullptr, args, nullptr);
         if (err) {
             std::cout << "error" << std::endl;
