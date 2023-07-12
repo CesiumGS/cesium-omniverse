@@ -54,7 +54,7 @@ int runExperiment() {
     //modify1000PrimsWithFabric();
 
     //create 1000 cubes with USD, modify params via CUDA
-    modify1000UsdCubesViaCuda();
+    // modify1000UsdCubesViaCuda();
 
 
     //create 1000 quads with USD, modify params via CUDA
@@ -77,7 +77,7 @@ int runExperiment() {
     // createQuadViaFabricAndCuda();
 
 
-    // createFabricQuadsModifyViaCuda(numPrimsForExperiment);
+    createFabricQuadsModifyViaCuda(numPrimsForExperiment);
 
 
     /* GEOMETRY CREATION */
@@ -218,6 +218,8 @@ void modify1000UsdCubesViaCuda() {
     modifyQuadsViaCuda();
 }
 
+//a way to compile without using nvrtc
+//note: did not work, but might now work with DLLs correctly handled
 CUfunction compileKernel(const char *kernelSource, const char *kernelName) {
 
     CUfunction kernel_func;
@@ -273,7 +275,6 @@ CUfunction compileKernel(const char *kernelSource, const char *kernelName) {
 
     return kernel_func;
 }
-
 
 
 CUfunction compileKernel2(const char *kernelSource, const char *kernelName) {
