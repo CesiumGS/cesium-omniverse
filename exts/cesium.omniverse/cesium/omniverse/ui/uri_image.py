@@ -46,4 +46,3 @@ class CesiumUriImage:
 
     def get_image(self):
         return self._image
-

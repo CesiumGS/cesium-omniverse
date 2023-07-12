@@ -97,7 +97,6 @@ class CesiumCreditsParser:
 
     def _build_ui_elements(self, parsed_credits: List[ParsedCredit], label_alignment: ui.Alignment):
         for parsed_credit in parsed_credits:
-
             # VStack + Spacer pushes our content to the bottom of the Stack to account for varying heights
             with ui.VStack(spacing=0, width=0):
                 ui.Spacer()
