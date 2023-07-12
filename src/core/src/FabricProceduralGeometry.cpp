@@ -34,16 +34,15 @@ int cesium::omniverse::FabricProceduralGeometry::runExperiment() {
     //modify1000PrimsWithFabric();
 
     //create 1000 cubes with USD, modify params via CUDA
-    //modify1000UsdPrimsViaCuda();
+    //modify1000UsdCubesViaCuda();
 
-    //createQuadMeshViaUsd("/Quad", 200.f);
 
     //create 1000 quads with USD, modify params via CUDA
-    modify1000UsdQuadsViaCuda();
+    //NOT WORKING: runtime errors if using a Mesh (not with a Cube)
+    //modify1000UsdQuadsViaCuda();
 
 
-    //minimal function to create a quad in Fabric
-    //createQuadMeshViaFabric();
+
 
     //basic example to add one million values via CPU
     //addOneMillionCPU();
@@ -60,7 +59,13 @@ int cesium::omniverse::FabricProceduralGeometry::runExperiment() {
     // createQuadViaFabricAndCuda();
 
 
-    //createAndModifyQuadsViaCuda(500);
+    createAndModifyQuadsViaCuda(100);
+
+
+    /* GEOMETRY CREATION */
+
+    //createQuadMeshViaFabric();
+    //createQuadMeshViaUsd("/Quad", 200.f);
 
     return 45;
 }
@@ -175,7 +180,7 @@ void cesium::omniverse::FabricProceduralGeometry::modify1000PrimsWithFabric() {
     std::cout << "Modified " << counter << " prims" << std::endl;
 }
 
-void cesium::omniverse::FabricProceduralGeometry::modify1000UsdPrimsViaCuda() {
+void cesium::omniverse::FabricProceduralGeometry::modify1000UsdCubesViaCuda() {
     const size_t cubeCount = 1000;
 
     const pxr::UsdStageRefPtr usdStagePtr = Context::instance().getStage();
@@ -1075,11 +1080,11 @@ void cesium::omniverse::FabricProceduralGeometry::createQuadsViaFabric(int numQu
 
     const std::string primPathStub{"/quadMesh_"};
 
-    auto testAttributeFabricToken = omni::fabric::Token("testAttribute");
-    const omni::fabric::Type testAttributeFabricType(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
+    auto cudaTestAttributeFabricToken = omni::fabric::Token("cudaTest");
+    const omni::fabric::Type cudaTestAttributeFabricType(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
 
     for (int i = 0; i < numQuads; i++) {
-        pxr::SdfPath path("/cube_" + std::to_string(i));
+        // pxr::SdfPath path("/cube_" + std::to_string(i));
         //auto fabricPath = omni::fabric::Path("/fabricMeshCube" + std::to_string(i).c_str());
         const auto fabricPath = omni::fabric::Path((primPathStub + std::to_string(i)).c_str());
         stageReaderWriter.createPrim(fabricPath);
@@ -1150,9 +1155,9 @@ void cesium::omniverse::FabricProceduralGeometry::createQuadsViaFabric(int numQu
         *worldScaleFabric = pxr::GfVec3f(1.f, 1.f, 1.f);
 
         //create a custom attribute for testing
-        stageReaderWriter.createAttribute(fabricPath, testAttributeFabricToken, testAttributeFabricType);
-        auto testAttribute = stageReaderWriter.getAttributeWr<float>(fabricPath, testAttributeFabricToken);
-        *testAttribute = 12358.11f;
+        stageReaderWriter.createAttribute(fabricPath, cudaTestAttributeFabricToken, cudaTestAttributeFabricType);
+        auto testAttribute = stageReaderWriter.getAttributeWr<float>(fabricPath, cudaTestAttributeFabricToken);
+        *testAttribute = 123.45f;
     }
 }
 
@@ -1163,9 +1168,16 @@ void cesium::omniverse::FabricProceduralGeometry::modifyQuadsViaCuda() {
     auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
     auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
 
+    // omni::fabric::AttrNameAndType quadTag(omni::fabric::Type(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName), omni::fabric::Token("Mesh"));
+    // omni::fabric::PrimBucketList cubeBuckets = stageReaderWriter.findPrims({ quadTag });
+    const omni::fabric::Type cudaTestAttributeFabricType(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
+    auto cudaTestAttributeFabricToken = omni::fabric::Token("cudaTest");
+    omni::fabric::AttrNameAndType quadTag(cudaTestAttributeFabricType, cudaTestAttributeFabricToken);
+    omni::fabric::PrimBucketList quadBuckets = stageReaderWriter.findPrims({quadTag});
 
-    omni::fabric::AttrNameAndType quadTag(omni::fabric::Type(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName), omni::fabric::Token("Mesh"));
-    omni::fabric::PrimBucketList cubeBuckets = stageReaderWriter.findPrims({ quadTag });
+    if (quadBuckets.bucketCount() == 0 ) {
+        std::cout << "No prims found, returning" << std::endl;
+    }
 
     auto isCudaCompatible = checkCudaCompatibility();
     if (!isCudaCompatible) {
@@ -1237,14 +1249,14 @@ void cesium::omniverse::FabricProceduralGeometry::modifyQuadsViaCuda() {
     cuModuleLoadDataEx(&module, ptx, 0, nullptr, nullptr);
     cuModuleGetFunction(&function, module, "changeValue");
 
-    auto bucketCount = cubeBuckets.bucketCount();
-    printf("Num buckets: %llu", bucketCount);
+    auto bucketCount = quadBuckets.bucketCount();
+    printf("Num buckets: %llu\n", bucketCount);
 
     //iterate over buckets but pass the vector for the whole bucket to the GPU.
     int primCount = 0;
-    for (size_t bucket = 0; bucket != cubeBuckets.bucketCount(); bucket++)
+    for (size_t bucket = 0; bucket != quadBuckets.bucketCount(); bucket++)
     {
-        gsl::span<double> sizesD = stageReaderWriter.getAttributeArrayGpu<double>(cubeBuckets, bucket, omni::fabric::Token("testAttribute"));
+        gsl::span<double> sizesD = stageReaderWriter.getAttributeArrayGpu<double>(quadBuckets, bucket, omni::fabric::Token("cudaTest"));
 
         double* ptr = sizesD.data();
         size_t elemCount = sizesD.size();
@@ -1372,10 +1384,17 @@ void cesium::omniverse::FabricProceduralGeometry::createAndModifyQuadsViaCuda(in
 
 void cesium::omniverse::FabricProceduralGeometry::modify1000UsdQuadsViaCuda() {
     const size_t quadCount = 100;
+
+    const pxr::UsdStageRefPtr usdStagePtr = Context::instance().getStage();
     for (size_t i = 0; i != quadCount; i++)
     {
-        //pxr::SdfPath path("/quad _" + std::to_string(i));
         createQuadMeshViaUsd(("/quad_" + std::to_string(i)).c_str(), 300.f);
+
+        //NOTE: this function has a runtime error. You can define primitives (Cube, Sphere) and an Xform
+        //However, a Mesh will lead to runtime errors
+        pxr::SdfPath path("/quad_" + std::to_string(i));
+        pxr::UsdPrim prim = usdStagePtr->DefinePrim(path, pxr::TfToken("Xform"));
+
     }
 
     //Alter cudaTest attribute on all quads with Cuda
