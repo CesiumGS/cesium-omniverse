@@ -97,13 +97,16 @@ class CesiumCreditsViewportFrame:
                             label_alignment=ui.Alignment.RIGHT,
                         )
 
-                    self._data_attribution_button = ui.Button(
-                        "Data Attribution",
-                        visible=False,
-                        width=0,
-                        height=0,
-                        clicked_fn=self._on_data_attribution_button_clicked,
-                    )
+                    # VStack + Spacer pushes our content to the bottom of the Stack to account for varying heights
+                    with ui.VStack(spacing=0, width=0):
+                        ui.Spacer()
+                        self._data_attribution_button = ui.Button(
+                            "Data Attribution",
+                            visible=False,
+                            width=0,
+                            height=0,
+                            clicked_fn=self._on_data_attribution_button_clicked,
+                        )
 
     def _on_credits_changed(self, _e: carb.events.IEvent):
         credits_json = _e.payload["credits"]
