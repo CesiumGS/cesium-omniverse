@@ -99,27 +99,27 @@ acquireFabricMeshes(const CesiumGltf::Model& model, const std::vector<MeshInfo>&
     std::vector<FabricMesh> fabricMeshes;
     fabricMeshes.reserve(meshes.size());
 
-    auto& FabricResourceManager = FabricResourceManager::getInstance();
+    auto& fabricResourceManager = FabricResourceManager::getInstance();
 
     for (const auto& mesh : meshes) {
         auto& fabricMesh = fabricMeshes.emplace_back();
 
         const auto& primitive = model.meshes[mesh.meshId].primitives[mesh.primitiveId];
         const auto fabricGeometry =
-            FabricResourceManager.acquireGeometry(model, primitive, mesh.smoothNormals, hasImagery);
+            fabricResourceManager.acquireGeometry(model, primitive, mesh.smoothNormals, hasImagery);
         fabricMesh.geometry = fabricGeometry;
 
         if (fabricGeometry->getGeometryDefinition().hasMaterial()) {
             const auto materialInfo = GltfUtil::getMaterialInfo(model, primitive);
 
-            const auto fabricMaterial = FabricResourceManager.acquireMaterial(materialInfo, hasImagery);
+            const auto fabricMaterial = fabricResourceManager.acquireMaterial(materialInfo, hasImagery);
 
             fabricMesh.material = fabricMaterial;
             fabricMesh.materialInfo = materialInfo;
 
             if (fabricMaterial->getMaterialDefinition().hasBaseColorTexture() &&
                 materialInfo.baseColorTexture.has_value()) {
-                const auto fabricTexture = FabricResourceManager.acquireTexture();
+                const auto fabricTexture = fabricResourceManager.acquireTexture();
                 fabricMesh.baseColorTexture = fabricTexture;
             }
         }
@@ -279,7 +279,7 @@ void FabricPrepareRenderResources::free(
 
     if (pMainThreadResult) {
         const auto pTileRenderResources = reinterpret_cast<TileRenderResources*>(pMainThreadResult);
-        auto& FabricResourceManager = FabricResourceManager::getInstance();
+        auto& fabricResourceManager = FabricResourceManager::getInstance();
 
         for (const auto& mesh : pTileRenderResources->fabricMeshes) {
             auto& geometry = mesh.geometry;
@@ -288,14 +288,14 @@ void FabricPrepareRenderResources::free(
 
             assert(geometry != nullptr);
 
-            FabricResourceManager.releaseGeometry(geometry);
+            fabricResourceManager.releaseGeometry(geometry);
 
             if (material != nullptr) {
-                FabricResourceManager.releaseMaterial(material);
+                fabricResourceManager.releaseMaterial(material);
             }
 
             if (baseColorTexture != nullptr) {
-                FabricResourceManager.releaseTexture(baseColorTexture);
+                fabricResourceManager.releaseTexture(baseColorTexture);
             }
         }
 

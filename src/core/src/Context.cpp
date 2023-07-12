@@ -203,16 +203,16 @@ void Context::clearStage() {
 void Context::reloadStage() {
     clearStage();
 
-    auto& FabricResourceManager = FabricResourceManager::getInstance();
-    FabricResourceManager.setDisableMaterials(getDebugDisableMaterials());
-    FabricResourceManager.setDisableTextures(getDebugDisableTextures());
-    FabricResourceManager.setDisableGeometryPool(getDebugDisableGeometryPool());
-    FabricResourceManager.setDisableMaterialPool(getDebugDisableMaterialPool());
-    FabricResourceManager.setDisableTexturePool(getDebugDisableTexturePool());
-    FabricResourceManager.setGeometryPoolInitialCapacity(getDebugGeometryPoolInitialCapacity());
-    FabricResourceManager.setMaterialPoolInitialCapacity(getDebugMaterialPoolInitialCapacity());
-    FabricResourceManager.setTexturePoolInitialCapacity(getDebugTexturePoolInitialCapacity());
-    FabricResourceManager.setDebugRandomColors(getDebugRandomColors());
+    auto& fabricResourceManager = FabricResourceManager::getInstance();
+    fabricResourceManager.setDisableMaterials(getDebugDisableMaterials());
+    fabricResourceManager.setDisableTextures(getDebugDisableTextures());
+    fabricResourceManager.setDisableGeometryPool(getDebugDisableGeometryPool());
+    fabricResourceManager.setDisableMaterialPool(getDebugDisableMaterialPool());
+    fabricResourceManager.setDisableTexturePool(getDebugDisableTexturePool());
+    fabricResourceManager.setGeometryPoolInitialCapacity(getDebugGeometryPoolInitialCapacity());
+    fabricResourceManager.setMaterialPoolInitialCapacity(getDebugMaterialPoolInitialCapacity());
+    fabricResourceManager.setTexturePoolInitialCapacity(getDebugTexturePoolInitialCapacity());
+    fabricResourceManager.setDebugRandomColors(getDebugRandomColors());
 
     // Repopulate the asset registry. We need to do this manually because USD doesn't notify us about
     // resynced paths when the stage is loaded.
