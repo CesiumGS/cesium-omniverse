@@ -8,34 +8,50 @@ namespace cesium::omniverse::FabricProceduralGeometry {
 
 int runExperiment();
 
-/* EXPERIMENTS */
 
- //Sanity check. Modify single USD Cube prim using Fabric.
- //Issues:
- // 1) changes do not write back to USD stage
- // 2) "size" attribute does not update, though "cudaTest" does
+
+/* EXPERIMENTS *//////////////////////////////////////////
+
+//Sanity check. Modify single USD Cube Prim using Fabric.
+//Issues:
+// 1) changes do not write back to USD stage
+// 2) "size" attribute does not update, though "cudaTest" does
 void modifyUsdCubePrimWithFabric();
 
-//Sanity check. Modify 1000 USD Cube prims with Fabric
+//Sanity check. Modify 1000 USD Cube Prims with Fabric
 //Issues:
- // 1) changes do not write back to USD stage
- // 2) "size" attribute does not update, though "cudaTest" does
+// 1) changes do not write back to USD stage
+// 2) "size" attribute does not update, though "cudaTest" does
 void modify1000UsdCubePrimsWithFabric();
 
+//Create 1000 Cube Prims with USD, modify "cudaTest" param via Fabric/CUDA
+//Issues: works
+void modify1000UsdCubesViaCuda();
 
-void modify1000UsdCubesViaCuda(); //create 1000 cubes with USD, modify "cudaTest" param via CUDA
-void modify1000UsdQuadsViaCuda(); //does not work, meshes throw runtime error
+//Create 1000 quad Mesh Prims, modify "cudaTest" param via Fabric/CUDA
+//Issues:
+// Runtime error during prefetching if creating a UsdGeomMesh. UsdGeomGprim is fine. (double check this statement)
+void modify1000UsdQuadsViaCuda();
+
+//old test, ignored.
+//Create a single quad Mesh in Fabric, edit "cudaTest" attribute with CUDA
+//Can test editing without using PrimBucketList
 void editSingleFabricAttributeViaCuda();
-void modifyQuadsViaCuda();
 
+//Get all prims with "cudaTest" attr and edits the attr with CUDA
+//Issues: TODO
+void modifyAllPrimsWithCustomAttrViaCuda();
+
+// Create single quad Mesh in Fabric, shift X position of points via CUDA
+// More complex kernel to edit pxr::GfVec3fs with in CUDA
+// Issues: not working. TODO: notes
+void createQuadViaFabricAndShiftWithCuda();
+
+//Create N quad Mesh Prims in Fabric, edit "cudaTest" attr with CUDA
 void createFabricQuadsModifyViaCuda(int numQuads);
 
 
-void createQuadViaFabricAndCuda(); // old experiment
-
-
-
-/* GEOMETRY CREATION */
+/* GEOMETRY CREATION */////////////////////////////////////
 
 void createQuadMeshViaUsd(const char* path, float maxCenterRandomization = 0);
 void createQuadMeshViaFabric();
@@ -43,13 +59,13 @@ void createQuadsViaFabric(int numQuads);
 
 
 
-/* ANIMATIONS */
+/* ANIMATIONS *///////////////////////////////////////////
 
 void alterScale();
 
 
 
-/* CUDA SPECIFIC */
+/* CUDA SPECIFIC *//////////////////////////////////////////
 
 // Compilation method without nvrtcProgram. Compilation log is less informative.
 CUfunction compileKernel(const char *kernelSource, const char *kernelName);

@@ -49,38 +49,15 @@ void changeValue(double* values, size_t count)
 )";
 
 int runExperiment() {
+
     // modifyUsdCubePrimWithFabric();
     // modify1000UsdCubePrimsWithFabric();
-
-
-    //modify1000UsdCubesViaCuda();
-
-
-    //create 1000 quads with USD, modify params via CUDA
-    //NOT WORKING: runtime errors if using a Mesh (not with a Cube)
+    modify1000UsdCubesViaCuda();
     // modify1000UsdQuadsViaCuda();
-
-    //test to edit a single attribute using CUDA on a quad mesh made in Fabric
-    //do not use buckets
-    //NOT WORKING
     // editSingleFabricAttributeViaCuda();
-
-    //create Quad in Fabric, edit vert in CUDA
-    //NOT WORKING
-    // createQuadViaFabricAndCuda();
-
-
-    createFabricQuadsModifyViaCuda(numPrimsForExperiment);
-
-    //no visible updates
-    // alterScale();
-
-    /* GEOMETRY CREATION */
-
-    //createQuadMeshViaFabric();
-    //createQuadMeshViaUsd("/Quad", 200.f);
-
-
+    // createQuadViaFabricAndShiftWithCuda();
+    // modifyAllPrimsWithCustomAttrViaCuda();
+    // createFabricQuadsModifyViaCuda(numPrimsForExperiment);
 
     return 45;
 }
@@ -213,7 +190,7 @@ void modify1000UsdCubesViaCuda() {
         iStageReaderWriter->prefetchPrim(usdStageId, path);
     }
 
-    modifyQuadsViaCuda();
+    modifyAllPrimsWithCustomAttrViaCuda();
 }
 
 //a way to compile without using nvrtc
@@ -353,7 +330,7 @@ void createQuadMeshViaFabric() {
     createQuadsViaFabric(1);
 }
 
-void createQuadViaFabricAndCuda() {
+void createQuadViaFabricAndShiftWithCuda() {
     const auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
     auto usdStageId = Context::instance().getStageId();
 
@@ -894,15 +871,15 @@ void createQuadsViaFabric(int numQuads) {
     }
 }
 
-void modifyQuadsViaCuda() {
+void modifyAllPrimsWithCustomAttrViaCuda() {
 
     auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
     auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
     auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
     auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
 
-    omni::fabric::AttrNameAndType quadTag(cudaTestAttributeFabricType, getCudaTestAttributeFabricToken());
-    omni::fabric::PrimBucketList buckets = stageReaderWriter.findPrims({quadTag});
+    omni::fabric::AttrNameAndType cudaTestAttrTag(cudaTestAttributeFabricType, getCudaTestAttributeFabricToken());
+    omni::fabric::PrimBucketList buckets = stageReaderWriter.findPrims({cudaTestAttrTag});
 
     if (buckets.bucketCount() == 0 ) {
         std::cout << "No prims found, returning" << std::endl;
@@ -983,7 +960,7 @@ void modifyQuadsViaCuda() {
 
 void createFabricQuadsModifyViaCuda(int numQuads) {
     createQuadsViaFabric(numQuads);
-    modifyQuadsViaCuda();
+    modifyAllPrimsWithCustomAttrViaCuda();
 }
 
 void modify1000UsdQuadsViaCuda() {
