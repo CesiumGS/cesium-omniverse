@@ -59,7 +59,7 @@ int cesium::omniverse::FabricProceduralGeometry::runExperiment() {
     // createQuadViaFabricAndCuda();
 
 
-    createAndModifyQuadsViaCuda(100);
+    createAndModifyQuadsViaCuda(99);
 
 
     /* GEOMETRY CREATION */
@@ -1216,14 +1216,14 @@ void cesium::omniverse::FabricProceduralGeometry::modifyQuadsViaCuda() {
     //CUDA via CUDA_JIT and string
     const char *kernelCode = R"(
     extern "C" __global__
-    void changeValue(double* values, size_t count)
+    void changeValue(float* values, size_t count)
     {
         size_t i = blockIdx.x * blockDim.x + threadIdx.x;
-        if (count <= i) return;
+        if (i >= count) return;
 
         float oldVal = values[i];
-        values[i] = 543.21;
-        printf("Changed value of index %llu from %lf to %lf\n", i, oldVal, values[i]);
+        values[i] = 543.21f;
+        printf("Changed value of index %llu from %f to %f\n", i, oldVal, values[i]);
     }
     )";
 
@@ -1256,16 +1256,14 @@ void cesium::omniverse::FabricProceduralGeometry::modifyQuadsViaCuda() {
     int primCount = 0;
     for (size_t bucket = 0; bucket != quadBuckets.bucketCount(); bucket++)
     {
-        gsl::span<double> sizesD = stageReaderWriter.getAttributeArrayGpu<double>(quadBuckets, bucket, omni::fabric::Token("cudaTest"));
+        gsl::span<float> values = stageReaderWriter.getAttributeArrayGpu<float>(quadBuckets, bucket, omni::fabric::Token("cudaTest"));
 
-        double* ptr = sizesD.data();
-        size_t elemCount = sizesD.size();
+        float* ptr = values.data();
+        size_t elemCount = values.size();
         void *args[] = { &ptr, &elemCount }; //NOLINT
-        int blockSize, minGridSize;
-        cuOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, function, nullptr, 0, 0);
-        //CUresult err = cuLaunchKernel(kernel, minGridSize, 1, 1, blockSize, 1, 1, 0, NULL, args, 0);
-        auto err = cuLaunchKernel(function, minGridSize, 1, 1, blockSize, 1, 1, 0, nullptr, args, nullptr);
-        // REQUIRE(!err);
+        int blockSize = 32 * 4;
+        int numBlocks = (static_cast<int>(elemCount) + blockSize - 1) / blockSize;
+        auto err = cuLaunchKernel(function, numBlocks, 1, 1, blockSize, 1, 1, 0, nullptr, args, nullptr);
         if (err) {
             std::cout << "error" << std::endl;
         }
