@@ -49,25 +49,16 @@ void changeValue(double* values, size_t count)
 )";
 
 int runExperiment() {
-    //modifyUsdPrim(); // does not correctly write back to USD
+    // modifyUsdCubePrimWithFabric();
+    // modify1000UsdCubePrimsWithFabric();
 
-    //"size" attr does not retain modification, but test attr does
-    //No CUDA
-    //modify1000PrimsWithFabric();
 
-    //create 1000 cubes with USD, modify params via CUDA
-    // modify1000UsdCubesViaCuda();
+    //modify1000UsdCubesViaCuda();
 
 
     //create 1000 quads with USD, modify params via CUDA
     //NOT WORKING: runtime errors if using a Mesh (not with a Cube)
-    //modify1000UsdQuadsViaCuda();
-
-
-    //basic example to add one million values via CPU
-    //addOneMillionCPU();
-    //addOneMillionCPU function but using CUDA instead of CPU
-    //addOneMillionCuda();
+    // modify1000UsdQuadsViaCuda();
 
     //test to edit a single attribute using CUDA on a quad mesh made in Fabric
     //do not use buckets
@@ -79,9 +70,10 @@ int runExperiment() {
     // createQuadViaFabricAndCuda();
 
 
-    // createFabricQuadsModifyViaCuda(numPrimsForExperiment);
+    createFabricQuadsModifyViaCuda(numPrimsForExperiment);
 
-    alterScale();
+    //no visible updates
+    // alterScale();
 
     /* GEOMETRY CREATION */
 
@@ -93,7 +85,7 @@ int runExperiment() {
     return 45;
 }
 
-void modifyUsdPrim() {
+void modifyUsdCubePrimWithFabric() {
     //Linker error getting UsdContext using omni::usd
     // auto context = omni::usd::UsdContext::getContext();
     const pxr::UsdStageRefPtr usdStagePtr = Context::instance().getStage();
@@ -142,7 +134,7 @@ void modifyUsdPrim() {
     }
 }
 
-void modify1000UsdPrimsWithFabric() {
+void modify1000UsdCubePrimsWithFabric() {
     const pxr::UsdStageRefPtr usdStagePtr = Context::instance().getStage();
 
     //use USD to make a thousand cubes
@@ -153,7 +145,7 @@ void modify1000UsdPrimsWithFabric() {
         pxr::SdfPath path("/cube_" + std::to_string(i));
         pxr::UsdPrim prim = usdStagePtr->DefinePrim(path, pxr::TfToken("Cube"));
         prim.CreateAttribute(pxr::TfToken("size"), pxr::SdfValueTypeNames->Double).Set(3.3);
-        prim.CreateAttribute(customAttrUsdToken, pxr::SdfValueTypeNames->Double).Set(17.3);
+        prim.CreateAttribute(customAttrUsdToken, pxr::SdfValueTypeNames->Double).Set(123.45);
     }
 
     //call prefetchPrim to get the data into Fabric.
@@ -189,7 +181,7 @@ void modify1000UsdPrimsWithFabric() {
         auto testValues = fabricReaderWriter.getAttributeArray<double>(cubeBuckets, bucket, getCudaTestAttributeFabricToken());
         for (double& testValue : testValues)
         {
-            testValue = 123.45;
+            testValue = 54.321;
         }
 
         counter++;
@@ -206,6 +198,7 @@ void modify1000UsdCubesViaCuda() {
     {
         pxr::SdfPath path("/cube_" + std::to_string(i));
         pxr::UsdPrim prim = usdStagePtr->DefinePrim(path, pxr::TfToken("Cube"));
+        //note that "size" is not altered by CUDA kernel
         prim.CreateAttribute(pxr::TfToken("size"), pxr::SdfValueTypeNames->Double).Set(17.3);
         prim.CreateAttribute(cudaTestAttrUsdToken, pxr::SdfValueTypeNames->Double).Set(12.3);
     }
@@ -357,70 +350,7 @@ bool checkCudaCompatibility() {
 }
 
 void createQuadMeshViaFabric() {
-    const auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
-    auto usdStageId = Context::instance().getStageId();
-
-    const auto stageReaderWriterId =
-        iStageReaderWriter->get(omni::fabric::UsdStageId{static_cast<uint64_t>(usdStageId)});
-    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
-
-    omni::fabric::Path fabricPath = omni::fabric::Path("/fabricMeshQuad");
-    stageReaderWriter.createPrim(fabricPath);
-
-    FabricAttributesBuilder attributes;
-    attributes.addAttribute(FabricTypes::faceVertexCounts, FabricTokens::faceVertexCounts);
-    attributes.addAttribute(FabricTypes::faceVertexIndices, FabricTokens::faceVertexIndices);
-    attributes.addAttribute(FabricTypes::points, FabricTokens::points);
-    attributes.addAttribute(FabricTypes::Mesh, FabricTokens::Mesh);
-    attributes.addAttribute(FabricTypes::extent, FabricTokens::extent);
-    attributes.addAttribute(FabricTypes::_worldExtent, FabricTokens::_worldExtent);
-    attributes.addAttribute(FabricTypes::_worldVisibility, FabricTokens::_worldVisibility);
-    attributes.addAttribute(FabricTypes::_worldPosition, FabricTokens::_worldPosition);
-    attributes.addAttribute(FabricTypes::_worldOrientation, FabricTokens::_worldOrientation);
-    attributes.addAttribute(FabricTypes::_worldScale, FabricTokens::_worldScale);
-    attributes.createAttributes(fabricPath);
-
-    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::faceVertexCounts, 2);
-    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::faceVertexIndices, 6);
-    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::points, 4);
-
-    auto pointsFabric = stageReaderWriter.getArrayAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::points);
-    float extentScalar = 50;
-    pointsFabric[0] = pxr::GfVec3f(-extentScalar, -extentScalar, 0);
-    pointsFabric[1] = pxr::GfVec3f(-extentScalar, extentScalar, 0);
-    pointsFabric[2] = pxr::GfVec3f(extentScalar, extentScalar, 0);
-    pointsFabric[3] = pxr::GfVec3f(extentScalar, -extentScalar, 0);
-
-    auto faceVertexCountsFabric = stageReaderWriter.getArrayAttributeWr<int>(fabricPath, FabricTokens::faceVertexCounts);
-    faceVertexCountsFabric[0] = 3;
-    faceVertexCountsFabric[1] = 3;
-
-    auto faceVertexIndicesFabric = stageReaderWriter.getArrayAttributeWr<int>(fabricPath, FabricTokens::faceVertexIndices);
-    faceVertexIndicesFabric[0] = 0;
-    faceVertexIndicesFabric[1] = 1;
-    faceVertexIndicesFabric[2] = 2;
-    faceVertexIndicesFabric[3] = 0;
-    faceVertexIndicesFabric[4] = 2;
-    faceVertexIndicesFabric[5] = 3;
-
-    auto extent = pxr::GfRange3d(pxr::GfVec3d(-extentScalar, -extentScalar, 0), pxr::GfVec3d(extentScalar, extentScalar, 0));
-    auto extentFabric = stageReaderWriter.getAttributeWr<pxr::GfRange3d>(fabricPath, FabricTokens::extent);
-    *extentFabric = extent;
-
-    auto worldExtentFabric = stageReaderWriter.getAttributeWr<pxr::GfRange3d>(fabricPath, FabricTokens::_worldExtent);
-    *worldExtentFabric = pxr::GfRange3d(pxr::GfVec3d(0.0, 0.0, 0.0), pxr::GfVec3d(0.0, 0.0, 0.0));
-
-    auto worldVisibilityFabric = stageReaderWriter.getAttributeWr<bool>(fabricPath, FabricTokens::_worldVisibility);
-    *worldVisibilityFabric = true;
-
-    auto worldPositionFabric = stageReaderWriter.getAttributeWr<pxr::GfVec3d>(fabricPath, FabricTokens::_worldPosition);
-    *worldPositionFabric = pxr::GfVec3d(0, 0, 0);
-
-    auto worldOrientationFabric = stageReaderWriter.getAttributeWr<pxr::GfQuatf>(fabricPath, FabricTokens::_worldOrientation);
-    *worldOrientationFabric = pxr::GfQuatf(1.f, 0, 0, 0);
-
-    auto worldScaleFabric = stageReaderWriter.getAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::_worldScale);
-    *worldScaleFabric = pxr::GfVec3f(1.f, 1.f, 1.f);
+    createQuadsViaFabric(1);
 }
 
 void createQuadViaFabricAndCuda() {
@@ -1066,9 +996,39 @@ void modify1000UsdQuadsViaCuda() {
 
         //NOTE: this function has a runtime error. You can define primitives (Cube, Sphere) and an Xform
         //However, a Mesh will lead to runtime errors
-        pxr::SdfPath path("/quad_" + std::to_string(i));
-        pxr::UsdPrim prim = usdStagePtr->DefinePrim(path, pxr::TfToken("Xform"));
+        //test code below to see if something like an xformable can be used instead
+        // pxr::SdfPath path("/quad_" + std::to_string(i));
+        //pxr::UsdPrim prim = usdStagePtr->DefinePrim(path, pxr::TfToken("Mesh"));
+        // auto prim = pxr::UsdGeomMesh::Define(usdStagePtr, path);
 
+        // float centerRandomization{200.f};
+        // pxr::GfVec3f center{
+        // glm::linearRand(-centerRandomization, centerRandomization),
+        // glm::linearRand(-centerRandomization, centerRandomization),
+        // glm::linearRand(-centerRandomization, centerRandomization)
+        // };
+
+        // auto pointsAttr = prim.GetPointsAttr();
+        // auto points = pxr::VtArray<pxr::GfVec3f>{4};
+        // float quadSize{50.f};
+        // points[0] = pxr::GfVec3f{-quadSize, -quadSize, 0} + center;
+        // points[1] = pxr::GfVec3f{-quadSize, quadSize, 0} + center;
+        // points[2] = pxr::GfVec3f{quadSize, quadSize, 0} + center;
+        // points[3] = pxr::GfVec3f{quadSize, -quadSize, 0} + center;
+        // pointsAttr.Set(points);
+
+        // auto faceVertexIndicesAttr = prim.GetFaceVertexIndicesAttr();
+        // pxr::VtArray<int> faceVertIndices{0, 1, 2, 0, 2, 3};
+        // faceVertexIndicesAttr.Set(faceVertIndices);
+
+        // auto faceVertexCountsAttr = prim.GetFaceVertexCountsAttr();
+        // faceVertexIndicesAttr.Set(pxr::VtArray<int>{3, 3});
+
+        // auto extentAttr = prim.GetExtentAttr();
+        // extentAttr.Set(pxr::VtArray<pxr::GfVec3f>{
+        //     pxr::GfVec3f(-quadSize, -quadSize, 0),
+        //     pxr::GfVec3f(-quadSize, -quadSize, 0)
+        //     });
     }
 
     //Alter cudaTest attribute on all quads with Cuda
@@ -1201,14 +1161,12 @@ void createQuadMeshViaUsd(const char* pathString, float maxCenterRandomization) 
 
     //set points
     auto pointsAttr = mesh.GetPointsAttr();
-
     //if you want to know the type name
     // {
     //     pxr::SdfValueTypeName typeName = pointsAttr.GetTypeName();
     //     auto attrToken = typeName.GetAsToken();
     //     std::cout << "Type name: " << attrToken.GetString() << std::endl;
     // }
-
     pxr::VtArray<pxr::GfVec3f> points{4};
     float quadScalar = 50.f;
     pxr::GfVec3f center{
@@ -1234,6 +1192,15 @@ void createQuadMeshViaUsd(const char* pathString, float maxCenterRandomization) 
     extent[0] = pxr::GfVec3f{-quadScalar, -quadScalar, 0};
     extent[1] = pxr::GfVec3f{quadScalar, quadScalar, 0};
     extentAttr.Set(extent);
+
+    // auto worldPositionFabric = stageReaderWriter.getAttributeWr<pxr::GfVec3d>(fabricPath, FabricTokens::_worldPosition);
+    // *worldPositionFabric = pxr::GfVec3d(0, 0, 0);
+
+    // auto worldOrientationFabric = stageReaderWriter.getAttributeWr<pxr::GfQuatf>(fabricPath, FabricTokens::_worldOrientation);
+    // *worldOrientationFabric = pxr::GfQuatf(1.f, 0, 0, 0);
+
+    // auto worldScaleFabric = stageReaderWriter.getAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::_worldScale);
+    // *worldScaleFabric = pxr::GfVec3f(1.f, 1.f, 1.f);
 
     auto customAttrUsdToken = pxr::TfToken("cudaTest");
     //can only set a custom attr on the prim, not on an object defined by the USD schema
