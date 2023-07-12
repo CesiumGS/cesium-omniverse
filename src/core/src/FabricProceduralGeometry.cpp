@@ -25,8 +25,8 @@
 #include <omni/gpucompute/GpuCompute.h>
 #include "pxr/usd/usdGeom/mesh.h"
 
-
-int cesium::omniverse::FabricProceduralGeometry::runExperiment() {
+namespace cesium::omniverse::FabricProceduralGeometry {
+int runExperiment() {
     //modifyUsdPrim(); // does not correctly write back to USD
 
     //"size" attr does not retain modification, but test attr does
@@ -70,7 +70,7 @@ int cesium::omniverse::FabricProceduralGeometry::runExperiment() {
     return 45;
 }
 
-void cesium::omniverse::FabricProceduralGeometry::modifyUsdPrim() {
+void modifyUsdPrim() {
     //Linker error getting UsdContext using omni::usd
     // auto context = omni::usd::UsdContext::getContext();
     const pxr::UsdStageRefPtr usdStagePtr = Context::instance().getStage();
@@ -102,12 +102,8 @@ void cesium::omniverse::FabricProceduralGeometry::modifyUsdPrim() {
     double customAttrTarget = 987.654;
     customAttr = customAttrTarget;
 
-    // //write our changes back to USD.
-    // const auto flatCache = carb::getCachedInterface<carb::flatcache::FlatCache>();
-    // if (flatCache->createCache != nullptr) {
-    //     auto& pathToAttributesMap = flatCache->createCache(usdStageId, flatcache::kDefaultUserId, carb::flatcache::CacheType::eWithoutHistory);
-    //     flatCache->cacheToUsd(pathToAttributesMap);
-    // }
+    //write our changes back to USD.
+    //NOTE: does not work
     const auto iFabricUsd = carb::getCachedInterface<omni::fabric::IFabricUsd>();
     auto fabricId = omni::fabric::FabricId();
     iFabricUsd->exportUsdPrimData(fabricId);
@@ -123,7 +119,7 @@ void cesium::omniverse::FabricProceduralGeometry::modifyUsdPrim() {
     }
 }
 
-void cesium::omniverse::FabricProceduralGeometry::modify1000PrimsWithFabric() {
+void modify1000PrimsWithFabric() {
     const pxr::UsdStageRefPtr usdStagePtr = Context::instance().getStage();
 
     //use USD to make a thousand cubes
@@ -180,7 +176,7 @@ void cesium::omniverse::FabricProceduralGeometry::modify1000PrimsWithFabric() {
     std::cout << "Modified " << counter << " prims" << std::endl;
 }
 
-void cesium::omniverse::FabricProceduralGeometry::modify1000UsdCubesViaCuda() {
+void modify1000UsdCubesViaCuda() {
     const size_t cubeCount = 1000;
 
     const pxr::UsdStageRefPtr usdStagePtr = Context::instance().getStage();
@@ -308,24 +304,9 @@ void cesium::omniverse::FabricProceduralGeometry::modify1000UsdCubesViaCuda() {
     if (result != CUDA_SUCCESS) {
         std::cout << "error: could not destroy CUDA context." << std::endl;
     }
-
-    //write data back to USD to check it
-    // const auto iFabricUsd = carb::getCachedInterface<omni::fabric::IFabricUsd>();
-    // auto fabricId = omni::fabric::FabricId();
-    // iFabricUsd->exportUsdPrimData(fabricId);
-    // const pxr::UsdStageRefPtr usdStage = Context::instance().getStage();
-
-    // for (size_t i = 0; i != cubeCount; i++)
-    // {
-    //     pxr::SdfPath path("/cube_" + std::to_string(i));
-    //     pxr::UsdPrim prim = usdStage->GetPrimAtPath(path);
-    //     pxr::UsdAttribute sizeAttr = prim.GetAttribute(pxr::TfToken("size"));
-    //     double value;
-    //     sizeAttr.Get(&value);
-    // }
 }
 
-CUfunction cesium::omniverse::FabricProceduralGeometry::compileKernel(const char *kernelSource, const char *kernelName) {
+CUfunction compileKernel(const char *kernelSource, const char *kernelName) {
 
     CUfunction kernel_func;
     CUmodule module;
@@ -380,6 +361,12 @@ CUfunction cesium::omniverse::FabricProceduralGeometry::compileKernel(const char
 
     return kernel_func;
 }
+
+
+} // namespace cesium::omniverse::FabricProceduralGeometry
+
+
+
 
 CUfunction cesium::omniverse::FabricProceduralGeometry::compileKernel2(const char *kernelSource, const char *kernelName) {
     nvrtcProgram prog;
