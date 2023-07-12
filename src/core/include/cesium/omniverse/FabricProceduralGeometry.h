@@ -51,7 +51,13 @@ void createQuadViaFabricAndShiftWithCuda();
 void createFabricQuadsModifyViaCuda(int numQuads);
 
 
+//Create USD cubes, translate with USD
+//Issues: throws runtime error
+void alterUsdPrimTranslationWithUsd();
+//create USD cubes, translate with Fabric
+//Issues: translates, but not visible
 void alterUsdPrimTranslationWithFabric();
+// void alterUsdPrimTranslationWithCuda();
 
 
 

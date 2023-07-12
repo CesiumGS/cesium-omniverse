@@ -58,6 +58,8 @@ int runExperiment() {
     // createQuadViaFabricAndShiftWithCuda();
     // modifyAllPrimsWithCustomAttrViaCuda();
     // createFabricQuadsModifyViaCuda(numPrimsForExperiment);
+
+    // alterUsdPrimTranslationWithUsd();
     // alterUsdPrimTranslationWithFabric();
 
     return 45;
@@ -1248,6 +1250,37 @@ void alterUsdPrimTranslationWithFabric() {
         for (unsigned long long i = 0; i < numElements; i++) {
             values[i] = 543.21;
         }
+    }
+}
+
+void alterUsdPrimTranslationWithUsd() {
+    auto usdStagePtr = Context::instance().getStage();
+
+    const size_t cubeCount = 10;
+    for (size_t i = 0; i != cubeCount; i++)
+    {
+        pxr::SdfPath path("/cube_" + std::to_string(i));
+
+        //parenting to an Xform could work
+        // pxr::UsdGeomXform xform = pxr::UsdGeomXform::Define(usdStagePtr, path);
+        // pxr::UsdPrim prim = usdStagePtr->DefinePrim(xform.GetPath().AppendChild(pxr::TfToken("CubePrim")), pxr::TfToken("Cube"));
+
+        pxr::UsdPrim prim = usdStagePtr->DefinePrim(path, pxr::TfToken("Cube"));
+        if (prim.IsA<pxr::UsdGeomXformable>()) {
+            pxr::UsdGeomXformable xformable(prim);
+            // Add an xformOp to the Xformable prim to define the transform
+            xformable.AddTranslateOp().Set(pxr::GfVec3d(3. * static_cast<double>(i), 0, 0));
+        }
+    }
+
+    //expand coords along diagonal
+    for (size_t i = 0; i != cubeCount; i++)
+    {
+        pxr::SdfPath path("/cube_" + std::to_string(i));
+        auto prim = usdStagePtr->GetPrimAtPath(path);
+        pxr::UsdGeomXformable xformable(prim);
+        auto coord = static_cast<double>(i);
+        xformable.AddTranslateOp().Set(pxr::GfVec3d(coord, coord, coord));
     }
 }
 
