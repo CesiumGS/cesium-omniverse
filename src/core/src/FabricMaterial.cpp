@@ -235,10 +235,6 @@ void FabricMaterial::setBaseColorTexture(
     const std::shared_ptr<FabricTexture>& texture,
     const TextureInfo& textureInfo) {
 
-    if (!UsdUtil::hasStage()) {
-        return;
-    }
-
     if (!_materialDefinition.hasBaseColorTexture()) {
         return;
     }
@@ -247,10 +243,6 @@ void FabricMaterial::setBaseColorTexture(
 }
 
 void FabricMaterial::clearBaseColorTexture() {
-    if (!UsdUtil::hasStage()) {
-        return;
-    }
-
     setBaseColorTextureValues(_defaultTextureAssetPath, GltfUtil::getDefaultTextureInfo());
 }
 
