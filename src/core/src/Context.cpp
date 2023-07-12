@@ -11,6 +11,7 @@
 #include "cesium/omniverse/OmniImagery.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/TaskProcessor.h"
+#include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
 #ifdef CESIUM_OMNI_MSVC
@@ -317,7 +318,8 @@ void Context::processCesiumTilesetChanged(const ChangedPrim& changedPrim) {
         name == pxr::CesiumTokens->cesiumCulledScreenSpaceError ||
         name == pxr::CesiumTokens->cesiumSmoothNormals ||
         name == pxr::CesiumTokens->cesiumMainThreadLoadingTimeLimit ||
-        name == pxr::CesiumTokens->cesiumShowCreditsOnScreen) {
+        name == pxr::CesiumTokens->cesiumShowCreditsOnScreen ||
+        name == UsdTokens::material_binding) {
         tileset.value()->reload();
     }
     // clang-format on

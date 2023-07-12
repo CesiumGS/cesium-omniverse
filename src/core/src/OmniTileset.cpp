@@ -27,6 +27,7 @@
 #include <pxr/usd/usd/prim.h>
 #include <pxr/usd/usd/stage.h>
 #include <pxr/usd/usdGeom/boundable.h>
+#include <pxr/usd/usdShade/materialBindingAPI.h>
 
 namespace cesium::omniverse {
 
@@ -241,6 +242,16 @@ pxr::CesiumGeoreference OmniTileset::getGeoreference() const {
     // We only care about the first target.
     const auto georeferencePath = targets[0];
     return UsdUtil::getCesiumGeoreference(georeferencePath);
+}
+
+pxr::SdfPath OmniTileset::getMaterialPath() const {
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+
+    const auto materialBindingApi = pxr::UsdShadeMaterialBindingAPI(tileset);
+    const auto materialBinding = materialBindingApi.GetDirectBinding();
+    const auto& materialPath = materialBinding.GetMaterialPath();
+
+    return materialPath;
 }
 
 int64_t OmniTileset::getTilesetId() const {

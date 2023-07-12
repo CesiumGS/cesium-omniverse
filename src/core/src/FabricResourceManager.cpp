@@ -28,8 +28,15 @@ FabricResourceManager::FabricResourceManager() {
 
 FabricResourceManager::~FabricResourceManager() = default;
 
-bool FabricResourceManager::shouldAcquireMaterial(const CesiumGltf::MeshPrimitive& primitive, bool hasImagery) const {
+bool FabricResourceManager::shouldAcquireMaterial(
+    const CesiumGltf::MeshPrimitive& primitive,
+    bool hasImagery,
+    const pxr::SdfPath& materialPath) const {
     if (_disableMaterials) {
+        return false;
+    }
+
+    if (!materialPath.IsEmpty()) {
         return false;
     }
 

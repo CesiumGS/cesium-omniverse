@@ -19,6 +19,7 @@
 #include <Cesium3DTilesSelection/Tile.h>
 #include <Cesium3DTilesSelection/Tileset.h>
 #include <CesiumAsync/AsyncSystem.h>
+#include <omni/fabric/FabricUSD.h>
 #include <omni/ui/ImageProvider/DynamicTextureProvider.h>
 
 namespace cesium::omniverse {
@@ -93,8 +94,11 @@ gatherMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const 
     return meshes;
 }
 
-std::vector<FabricMesh>
-acquireFabricMeshes(const CesiumGltf::Model& model, const std::vector<MeshInfo>& meshes, bool hasImagery) {
+std::vector<FabricMesh> acquireFabricMeshes(
+    const CesiumGltf::Model& model,
+    const std::vector<MeshInfo>& meshes,
+    bool hasImagery,
+    const OmniTileset& tileset) {
     CESIUM_TRACE("FabricPrepareRenderResources::acquireFabricMeshes");
     std::vector<FabricMesh> fabricMeshes;
     fabricMeshes.reserve(meshes.size());
@@ -108,8 +112,8 @@ acquireFabricMeshes(const CesiumGltf::Model& model, const std::vector<MeshInfo>&
         const auto fabricGeometry = fabricResourceManager.acquireGeometry(model, primitive, mesh.smoothNormals);
         fabricMesh.geometry = fabricGeometry;
 
-        const auto shouldAcquireMaterial =
-            FabricResourceManager::getInstance().shouldAcquireMaterial(primitive, hasImagery);
+        const auto shouldAcquireMaterial = FabricResourceManager::getInstance().shouldAcquireMaterial(
+            primitive, hasImagery, tileset.getMaterialPath());
 
         if (shouldAcquireMaterial) {
             const auto materialInfo = GltfUtil::getMaterialInfo(model, primitive);
@@ -152,11 +156,13 @@ void setFabricMeshes(
     const CesiumGltf::Model& model,
     const std::vector<MeshInfo>& meshes,
     std::vector<FabricMesh>& fabricMeshes,
-    bool hasImagery) {
+    bool hasImagery,
+    const OmniTileset& tileset) {
     CESIUM_TRACE("FabricPrepareRenderResources::setFabricMeshes");
     for (size_t i = 0; i < meshes.size(); i++) {
         const auto& meshInfo = meshes[i];
         const auto& primitive = model.meshes[meshInfo.meshId].primitives[meshInfo.primitiveId];
+        const auto& materialPath = tileset.getMaterialPath();
 
         auto& mesh = fabricMeshes[i];
         auto& geometry = mesh.geometry;
@@ -181,6 +187,8 @@ void setFabricMeshes(
             if (baseColorTexture != nullptr && materialInfo.baseColorTexture.has_value()) {
                 material->setBaseColorTexture(baseColorTexture, materialInfo.baseColorTexture.value());
             }
+        } else if (!materialPath.IsEmpty()) {
+            geometry->setMaterial(omni::fabric::Path(omni::fabric::asInt(materialPath)));
         }
     }
 }
@@ -214,9 +222,9 @@ FabricPrepareRenderResources::prepareInLoadThread(
 
     return asyncSystem
         .runInMainThread(
-            [hasImagery, meshes = std::move(meshes), tileLoadResult = std::move(tileLoadResult)]() mutable {
+            [this, hasImagery, meshes = std::move(meshes), tileLoadResult = std::move(tileLoadResult)]() mutable {
                 const auto pModel = std::get_if<CesiumGltf::Model>(&tileLoadResult.contentKind);
-                auto fabricMeshes = acquireFabricMeshes(*pModel, meshes, hasImagery);
+                auto fabricMeshes = acquireFabricMeshes(*pModel, meshes, hasImagery, _tileset);
                 return IntermediateLoadThreadResult{
                     std::move(tileLoadResult),
                     std::move(meshes),
@@ -262,7 +270,7 @@ void* FabricPrepareRenderResources::prepareInMainThread(Cesium3DTilesSelection::
 
     const auto& model = pRenderContent->getModel();
 
-    setFabricMeshes(model, meshes, fabricMeshes, hasImagery);
+    setFabricMeshes(model, meshes, fabricMeshes, hasImagery, _tileset);
 
     return new TileRenderResources{
         tileTransform,
