@@ -23,6 +23,10 @@ void createQuadsViaFabric(int numQuads);
 void createQuadMeshViaUsd(const char* path, float maxCenterRandomization = 0);
 void createQuadMeshViaFabric();
 
+
+//animations
+void alterScale();
+
 CUfunction compileKernel(const char *kernelSource, const char *kernelName);
 CUfunction compileKernel2(const char *kernelSource, const char *kernelName);
 bool checkCudaCompatibility();

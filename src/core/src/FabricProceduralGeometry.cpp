@@ -20,6 +20,8 @@
 #include <iostream>
 #include <omni/gpucompute/GpuCompute.h>
 #include "pxr/usd/usdGeom/mesh.h"
+#include "pxr/usd/usdGeom/xform.h"
+#include "pxr/usd/usdGeom/xformable.h"
 
 namespace cesium::omniverse::FabricProceduralGeometry {
 
@@ -77,13 +79,16 @@ int runExperiment() {
     // createQuadViaFabricAndCuda();
 
 
-    createFabricQuadsModifyViaCuda(numPrimsForExperiment);
+    // createFabricQuadsModifyViaCuda(numPrimsForExperiment);
 
+    alterScale();
 
     /* GEOMETRY CREATION */
 
     //createQuadMeshViaFabric();
     //createQuadMeshViaUsd("/Quad", 200.f);
+
+
 
     return 45;
 }
@@ -1236,7 +1241,75 @@ void createQuadMeshViaUsd(const char* pathString, float maxCenterRandomization) 
     prim.CreateAttribute(customAttrUsdToken, pxr::SdfValueTypeNames->Double).Set(12.3);
 }
 
+void alterScale() {
+    auto usdStagePtr = Context::instance().getStage();
 
+    const size_t cubeCount = 10;
+    auto customAttrUsdToken = pxr::TfToken("cudaTest");
+    for (size_t i = 0; i != cubeCount; i++)
+    {
+        pxr::SdfPath path("/cube_" + std::to_string(i));
+
+        //parenting to an Xform could work
+        // pxr::UsdGeomXform xform = pxr::UsdGeomXform::Define(usdStagePtr, path);
+        // pxr::UsdPrim prim = usdStagePtr->DefinePrim(xform.GetPath().AppendChild(pxr::TfToken("CubePrim")), pxr::TfToken("Cube"));
+
+        pxr::UsdPrim prim = usdStagePtr->DefinePrim(path, pxr::TfToken("Cube"));
+        if (prim.IsA<pxr::UsdGeomXformable>()) {
+            pxr::UsdGeomXformable xformable(prim);
+            // Add an xformOp to the Xformable prim to define the transform
+            xformable.AddTranslateOp().Set(pxr::GfVec3d(3. * static_cast<double>(i), 0, 0));
+            prim.CreateAttribute(customAttrUsdToken, pxr::SdfValueTypeNames->Double).Set(123.45);
+        }
+
+        //leads to error when moving in the editor
+        // prim.CreateAttribute(pxr::TfToken("size"), pxr::SdfValueTypeNames->Double).Set(3.3);
+        // // prim.CreateAttribute(pxr::TfToken("xformOp:scale"), pxr::SdfValueTypeNames->Point3f).Set(pxr::GfVec3f(2.f, 2.f, 2.f));
+        // prim.CreateAttribute(pxr::TfToken("xformOp:translate"), pxr::SdfValueTypeNames->Point3f).Set(pxr::GfVec3f(static_cast<float>(i * 5), 0.f, 0.f));
+    }
+
+
+    //call prefetchPrim to get the data into Fabric.
+    long id = Context::instance().getStageId();
+    auto usdStageId = omni::fabric::UsdStageId{static_cast<uint64_t>(id)};
+    auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+    for (size_t i = 0; i != cubeCount; i++)
+    {
+        omni::fabric::Path path(("/cube_" + std::to_string(i)).c_str());
+        iStageReaderWriter->prefetchPrim(usdStageId, path);
+    }
+
+    //get all USD Cubes
+    auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
+    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+
+    auto ptn = omni::fabric::Type(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName);
+    auto ct = omni::fabric::Token("Cube");
+    omni::fabric::AttrNameAndType ant(ptn, ct);
+    auto bucketList = stageReaderWriter.findPrims({ant});
+
+    // edit translations
+    auto token = omni::fabric::Token("xformOp:translate");
+    auto numBuckets = bucketList.bucketCount();
+    const float scaleMin = 0.f;
+    const float scaleMax = 3.f;
+    for (size_t bucketNum = 0; bucketNum < numBuckets; bucketNum++) {
+        gsl::span<pxr::GfVec3d> values = stageReaderWriter.getAttributeArray<pxr::GfVec3d>(bucketList, bucketNum, token);
+        auto numElements = values.size();
+        for (unsigned long long i = 0; i < numElements; i++) {
+            double xVal = values[i].data()[0];
+            values[i].Set(xVal, glm::linearRand(scaleMin, scaleMax), static_cast<double>(i));
+        }
+    }
+
+    for (size_t bucketNum = 0; bucketNum < numBuckets; bucketNum++) {
+        gsl::span<double> values = stageReaderWriter.getAttributeArray<double>(bucketList, bucketNum, getCudaTestAttributeFabricToken());
+        const auto numElements = values.size();
+        for (unsigned long long i = 0; i < numElements; i++) {
+            values[i] = 543.21;
+        }
+    }
+}
 
 } // namespace cesium::omniverse::FabricProceduralGeometry
 
