@@ -51,19 +51,16 @@ void createQuadViaFabricAndShiftWithCuda();
 void createFabricQuadsModifyViaCuda(int numQuads);
 
 
+void alterUsdPrimTranslationWithFabric();
+
+
+
+
 /* GEOMETRY CREATION */////////////////////////////////////
 
 void createQuadMeshViaUsd(const char* path, float maxCenterRandomization = 0);
 void createQuadMeshViaFabric();
 void createQuadsViaFabric(int numQuads);
-
-
-
-/* ANIMATIONS *///////////////////////////////////////////
-
-void alterScale();
-
-
 
 /* CUDA SPECIFIC *//////////////////////////////////////////
 

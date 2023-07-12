@@ -58,6 +58,7 @@ int runExperiment() {
     // createQuadViaFabricAndShiftWithCuda();
     // modifyAllPrimsWithCustomAttrViaCuda();
     // createFabricQuadsModifyViaCuda(numPrimsForExperiment);
+    // alterUsdPrimTranslationWithFabric();
 
     return 45;
 }
@@ -1185,7 +1186,7 @@ void createQuadMeshViaUsd(const char* pathString, float maxCenterRandomization) 
     prim.CreateAttribute(customAttrUsdToken, pxr::SdfValueTypeNames->Double).Set(12.3);
 }
 
-void alterScale() {
+void alterUsdPrimTranslationWithFabric() {
     auto usdStagePtr = Context::instance().getStage();
 
     const size_t cubeCount = 10;
@@ -1205,13 +1206,7 @@ void alterScale() {
             xformable.AddTranslateOp().Set(pxr::GfVec3d(3. * static_cast<double>(i), 0, 0));
             prim.CreateAttribute(customAttrUsdToken, pxr::SdfValueTypeNames->Double).Set(123.45);
         }
-
-        //leads to error when moving in the editor
-        // prim.CreateAttribute(pxr::TfToken("size"), pxr::SdfValueTypeNames->Double).Set(3.3);
-        // // prim.CreateAttribute(pxr::TfToken("xformOp:scale"), pxr::SdfValueTypeNames->Point3f).Set(pxr::GfVec3f(2.f, 2.f, 2.f));
-        // prim.CreateAttribute(pxr::TfToken("xformOp:translate"), pxr::SdfValueTypeNames->Point3f).Set(pxr::GfVec3f(static_cast<float>(i * 5), 0.f, 0.f));
     }
-
 
     //call prefetchPrim to get the data into Fabric.
     long id = Context::instance().getStageId();
@@ -1227,10 +1222,10 @@ void alterScale() {
     auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
     auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
 
-    auto ptn = omni::fabric::Type(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName);
-    auto ct = omni::fabric::Token("Cube");
-    omni::fabric::AttrNameAndType ant(ptn, ct);
-    auto bucketList = stageReaderWriter.findPrims({ant});
+    omni::fabric::AttrNameAndType cubeTag(
+        omni::fabric::Type(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName),
+        omni::fabric::Token("Cube"));
+    auto bucketList = stageReaderWriter.findPrims({cubeTag});
 
     // edit translations
     auto token = omni::fabric::Token("xformOp:translate");
@@ -1246,6 +1241,7 @@ void alterScale() {
         }
     }
 
+    // edit cudaTest attr
     for (size_t bucketNum = 0; bucketNum < numBuckets; bucketNum++) {
         gsl::span<double> values = stageReaderWriter.getAttributeArray<double>(bucketList, bucketNum, getCudaTestAttributeFabricToken());
         const auto numElements = values.size();
