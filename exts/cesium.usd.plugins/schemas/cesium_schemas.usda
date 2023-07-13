@@ -165,7 +165,7 @@ class CesiumGeoreferencePrim "CesiumGeoreferencePrim" (
 
 class CesiumTilesetPrim "CesiumTilesetPrim" (
     doc = """A prim representing a tileset."""
-    inherits = </Boundable>
+    inherits = </Gprim>
     customData = {
         string className = "Tileset"
 

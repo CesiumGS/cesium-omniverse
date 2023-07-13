@@ -65,6 +65,7 @@ class OmniTileset {
     [[nodiscard]] float getMainThreadLoadingTimeLimit() const;
     [[nodiscard]] bool getShowCreditsOnScreen() const;
     [[nodiscard]] pxr::CesiumGeoreference getGeoreference() const;
+    [[nodiscard]] pxr::SdfPath getMaterialPath() const;
 
     [[nodiscard]] int64_t getTilesetId() const;
     [[nodiscard]] TilesetStatistics getStatistics() const;

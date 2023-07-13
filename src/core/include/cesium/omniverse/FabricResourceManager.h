@@ -41,7 +41,10 @@ class FabricResourceManager {
         return instance;
     }
 
-    bool shouldAcquireMaterial(const CesiumGltf::MeshPrimitive& primitive, bool hasImagery) const;
+    bool shouldAcquireMaterial(
+        const CesiumGltf::MeshPrimitive& primitive,
+        bool hasImagery,
+        const pxr::SdfPath& materialPath) const;
 
     std::shared_ptr<FabricGeometry>
     acquireGeometry(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, bool smoothNormals);
