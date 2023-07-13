@@ -1,6 +1,9 @@
 import omni.usd
 from omni.kit.viewport.utility import get_active_viewport
 from pxr import Gf, UsdGeom
+import json
+import carb.settings
+import os
 
 
 # Modified version of ScopedEdit in _build_viewport_cameras in omni.kit.widget.viewport
@@ -38,3 +41,9 @@ def extend_far_plane():
 
     scoped_edit = ScopedEdit(stage)  # noqa: F841
     camera.GetClippingRangeAttr().Set(Gf.Vec2f(1.0, 10000000000.0))
+
+
+def save_carb_settings(powertools_extension_location: str):
+    carb_settings_path = os.path.join(powertools_extension_location, "carb_settings.txt")
+    with open(carb_settings_path, "w") as fh:
+        fh.write(json.dumps(carb.settings.get_settings().get("/"), indent=2))

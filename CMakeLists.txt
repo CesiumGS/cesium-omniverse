@@ -9,7 +9,7 @@ endif()
 # Both CXX and C need to be given otherwise Conan may ignore the CMAKE_C_COMPILER flag
 project(
     CesiumOmniverse
-    VERSION 0.7.0
+    VERSION 0.8.0
     DESCRIPTION "Cesium for Omniverse"
     LANGUAGES CXX C)
 
@@ -425,6 +425,7 @@ find_package(cpr)
 find_package(doctest)
 find_package(stb)
 find_package(ZLIB)
+find_package(yaml-cpp)
 
 # So that the installed libraries can find shared libraries in the same directory
 set(CMAKE_INSTALL_RPATH $ORIGIN)

@@ -174,7 +174,7 @@ void wrapCesiumTileset()
 {
     typedef CesiumTileset This;
 
-    class_<This, bases<UsdGeomBoundable> >
+    class_<This, bases<UsdGeomGprim> >
         cls("Tileset");
 
     cls

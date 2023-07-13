@@ -37,11 +37,11 @@ setup_lib(
         CesiumUsdSchemas
         CesiumIonClient
         Cesium3DTilesSelection
-        CesiumAsync
         CesiumGeospatial
         CesiumGeometry
         CesiumGltf
         CesiumGltfReader
+        CesiumAsync
         CesiumJsonReader
         CesiumUtility
         async++

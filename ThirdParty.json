@@ -16,6 +16,15 @@
         "url": "https://docs.libcpr.org/"
     },
     {
+        "name": "glTF-Asset-Generator",
+        "license": [
+            "MIT"
+        ],
+        "version": "0.6.1",
+        "url": "https://github.com/KhronosGroup/glTF-Asset-Generator",
+        "notes": "A selection of test models from this generator are used for testing."
+    },
+    {
         "name": "libcurl",
         "license": [
             "curl"
@@ -55,6 +64,14 @@
         ],
         "version": "cci.20220909",
         "url": "https://github.com/nothings/stb"
+    },
+    {
+        "name": "yaml-cpp",
+        "license": [
+            "MIT"
+        ],
+        "version": "0.7.0",
+        "url": "https://github.com/jbeder/yaml-cpp"
     },
     {
         "name": "zlib",
