@@ -64,7 +64,8 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("get_credits", &ICesiumOmniverseInterface::getCredits)
         .def("credits_start_next_frame", &ICesiumOmniverseInterface::creditsStartNextFrame)
         .def("is_tracing_enabled", &ICesiumOmniverseInterface::isTracingEnabled)
-        .def("generate_procedural_geometry", &ICesiumOmniverseInterface::generateProceduralGeometry);
+        .def("create_procedural_prims", &ICesiumOmniverseInterface::createProceduralPrims)
+        .def("alter_procedural_prims", &ICesiumOmniverseInterface::alterProceduralPrims);
     // clang-format on
 
     py::class_<CesiumIonSession, std::shared_ptr<CesiumIonSession>>(m, "CesiumIonSession")

@@ -93,7 +93,7 @@ void changeValue(Vec3f** values, size_t count)
 )";
 
 
-int runExperiment() {
+int createPrims() {
 
     // modifyUsdCubePrimWithFabric();
     // modify1000UsdCubePrimsWithFabric();
@@ -102,7 +102,7 @@ int runExperiment() {
     // editSingleFabricAttributeViaCuda();
     // createQuadViaFabricAndShiftWithCuda();
     // modifyAllPrimsWithCustomAttrViaCuda();
-    createFabricQuadsModifyViaCuda(numPrimsForExperiment);
+    // createFabricQuadsModifyViaCuda(numPrimsForExperiment);
 
     // alterUsdPrimTranslationWithUsd();
     // alterUsdPrimTranslationWithFabric();
@@ -111,7 +111,14 @@ int runExperiment() {
     // setDisplayColor();
     // createQuadsViaFabric(10);
 
-    return 45;
+    createQuadsViaFabric(99);
+
+    return 0;
+}
+
+int alterPrims() {
+    modifyAllPrimsWithCustomAttrViaCuda();
+    return 0;
 }
 
 void modifyUsdCubePrimWithFabric() {

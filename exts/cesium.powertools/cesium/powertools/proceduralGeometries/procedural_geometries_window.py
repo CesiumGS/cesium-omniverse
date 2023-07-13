@@ -29,10 +29,13 @@ class ProceduralGeometryWindow(ui.Window):
     def create_window():
         return ProceduralGeometryWindow(width=250, height=250)
 
-    def _create_fabric_quad(self):
-        return_val = self._cesium_omniverse_interface.generate_procedural_geometry()
+    def _create_prims(self):
+        return_val = self._cesium_omniverse_interface.create_procedural_prims()
         self._logger.info(f"return val is {return_val}")
-        pass
+
+    def _alter_prims(self):
+        return_val = self._cesium_omniverse_interface.alter_procedural_prims()
+        self._logger.info(f"return val is {return_val}")
 
     def _build_fn(self):
         """Builds out the UI buttons and their handlers."""
@@ -46,4 +49,7 @@ class ProceduralGeometryWindow(ui.Window):
                 style=label_style,
             )
 
-            ui.Button("Run", height=20, clicked_fn=self._create_fabric_quad)
+            ui.Button("Create prims", height=20, clicked_fn=self._create_prims)
+
+            ui.Button("Alter prims", height=20, clicked_fn=self._alter_prims)
+

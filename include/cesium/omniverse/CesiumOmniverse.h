@@ -244,7 +244,8 @@ class ICesiumOmniverseInterface {
     virtual std::vector<std::pair<std::string, bool>> getCredits() noexcept = 0;
     virtual void creditsStartNextFrame() noexcept = 0;
     virtual bool isTracingEnabled() noexcept = 0;
-    virtual int generateProceduralGeometry() noexcept = 0;
+    virtual int createProceduralPrims() noexcept = 0;
+    virtual int alterProceduralPrims() noexcept = 0;
 };
 
 } // namespace cesium::omniverse

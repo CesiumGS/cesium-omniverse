@@ -6,7 +6,8 @@
 
 namespace cesium::omniverse::FabricProceduralGeometry {
 
-int runExperiment();
+int createPrims();
+int alterPrims();
 
 
 
