@@ -139,6 +139,19 @@ std::string printAttributeValue(
     }
 }
 
+std::string printConnection(const omni::fabric::Path& primPath, const omni::fabric::Token& attributeName) {
+    auto stageReaderWriter = UsdUtil::getFabricStageReaderWriter();
+    const auto connection = stageReaderWriter.getConnection(primPath, attributeName);
+    if (connection == nullptr) {
+        return NO_DATA_STRING;
+    }
+
+    const auto path = omni::fabric::Path(connection->path).getText();
+    const auto attrName = omni::fabric::Token(connection->attrName).getText();
+
+    return fmt::format("Path: {}, Attribute Name: {}", path, attrName);
+}
+
 std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::fabric::AttrNameAndType& attribute) {
     auto stageReaderWriter = UsdUtil::getFabricStageReaderWriter();
 
@@ -158,6 +171,17 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
                 switch (componentCount) {
                     case 1: {
                         return printAttributeValue<false, AssetWrapper, 1>(primPath, name, role);
+                    }
+                    default: {
+                        break;
+                    }
+                }
+                break;
+            }
+            case omni::fabric::BaseDataType::eConnection: {
+                switch (componentCount) {
+                    case 1: {
+                        return printConnection(primPath, name);
                     }
                     default: {
                         break;
