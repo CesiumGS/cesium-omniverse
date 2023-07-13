@@ -69,6 +69,8 @@ class FabricPrepareRenderResources final : public Cesium3DTilesSelection::IPrepa
         void* pMainThreadRendererResources) noexcept override;
 
   private:
+    [[nodiscard]] bool tilesetExists() const;
+
     const OmniTileset& _tileset;
 };
 } // namespace cesium::omniverse

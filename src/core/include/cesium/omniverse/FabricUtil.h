@@ -20,6 +20,9 @@ struct FabricStatistics {
     uint64_t trianglesRendered{0};
 };
 
+// -1 means the prim is not yet associated with a tileset
+const auto NO_TILESET_ID = int64_t(-1);
+
 } // namespace cesium::omniverse
 
 namespace cesium::omniverse::FabricUtil {

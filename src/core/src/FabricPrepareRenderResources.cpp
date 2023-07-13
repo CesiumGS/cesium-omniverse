@@ -210,6 +210,11 @@ FabricPrepareRenderResources::prepareInLoadThread(
             Cesium3DTilesSelection::TileLoadResultAndRenderResources{std::move(tileLoadResult), nullptr});
     }
 
+    if (!tilesetExists()) {
+        return asyncSystem.createResolvedFuture(
+            Cesium3DTilesSelection::TileLoadResultAndRenderResources{std::move(tileLoadResult), nullptr});
+    }
+
     const auto hasImagery = tileLoadResult.rasterOverlayDetails.has_value();
 
     auto meshes = gatherMeshes(_tileset, transform, *pModel);
@@ -223,6 +228,14 @@ FabricPrepareRenderResources::prepareInLoadThread(
     return asyncSystem
         .runInMainThread(
             [this, hasImagery, meshes = std::move(meshes), tileLoadResult = std::move(tileLoadResult)]() mutable {
+                if (!tilesetExists()) {
+                    return IntermediateLoadThreadResult{
+                        std::move(tileLoadResult),
+                        {},
+                        {},
+                    };
+                }
+
                 const auto pModel = std::get_if<CesiumGltf::Model>(&tileLoadResult.contentKind);
                 auto fabricMeshes = acquireFabricMeshes(*pModel, meshes, hasImagery, _tileset);
                 return IntermediateLoadThreadResult{
@@ -231,8 +244,13 @@ FabricPrepareRenderResources::prepareInLoadThread(
                     std::move(fabricMeshes),
                 };
             })
-        .thenInWorkerThread([transform, hasImagery](IntermediateLoadThreadResult&& workerResult) mutable {
+        .thenInWorkerThread([this, transform, hasImagery](IntermediateLoadThreadResult&& workerResult) mutable {
             auto tileLoadResult = std::move(workerResult.tileLoadResult);
+
+            if (!tilesetExists()) {
+                return Cesium3DTilesSelection::TileLoadResultAndRenderResources{std::move(tileLoadResult), nullptr};
+            }
+
             auto meshes = std::move(workerResult.meshes);
             auto fabricMeshes = std::move(workerResult.fabricMeshes);
             const auto pModel = std::get_if<CesiumGltf::Model>(&tileLoadResult.contentKind);
@@ -254,8 +272,13 @@ void* FabricPrepareRenderResources::prepareInMainThread(Cesium3DTilesSelection::
         return nullptr;
     }
 
+    // Wrap in a unique_ptr so that pLoadThreadResult gets freed when this function returns
     std::unique_ptr<TileLoadThreadResult> pTileLoadThreadResult{
         reinterpret_cast<TileLoadThreadResult*>(pLoadThreadResult)};
+
+    if (!tilesetExists()) {
+        return nullptr;
+    }
 
     const auto& meshes = pTileLoadThreadResult->meshes;
     auto& fabricMeshes = pTileLoadThreadResult->fabricMeshes;
@@ -316,6 +339,11 @@ void FabricPrepareRenderResources::free(
 void* FabricPrepareRenderResources::prepareRasterInLoadThread(
     CesiumGltf::ImageCesium& image,
     [[maybe_unused]] const std::any& rendererOptions) {
+
+    if (!tilesetExists()) {
+        return nullptr;
+    }
+
     auto texture = FabricResourceManager::getInstance().acquireTexture();
     texture->setImage(image);
     return new ImageryLoadThreadResult{texture};
@@ -328,8 +356,13 @@ void* FabricPrepareRenderResources::prepareRasterInMainThread(
         return nullptr;
     }
 
+    // Wrap in a unique_ptr so that pLoadThreadResult gets freed when this function returns
     std::unique_ptr<ImageryLoadThreadResult> pImageryLoadThreadResult{
         reinterpret_cast<ImageryLoadThreadResult*>(pLoadThreadResult)};
+
+    if (!tilesetExists()) {
+        return nullptr;
+    }
 
     auto texture = pImageryLoadThreadResult->texture;
 
@@ -366,6 +399,10 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
 
     auto pImageryRenderResources = reinterpret_cast<ImageryRenderResources*>(pMainThreadRendererResources);
     if (!pImageryRenderResources) {
+        return;
+    }
+
+    if (!tilesetExists()) {
         return;
     }
 
@@ -418,6 +455,10 @@ void FabricPrepareRenderResources::detachRasterInMainThread(
         return;
     }
 
+    if (!tilesetExists()) {
+        return;
+    }
+
     for (const auto& mesh : pTileRenderResources->fabricMeshes) {
         auto& material = mesh.material;
         const auto& baseColorTexture = mesh.baseColorTexture;
@@ -432,6 +473,12 @@ void FabricPrepareRenderResources::detachRasterInMainThread(
             }
         }
     }
+}
+
+bool FabricPrepareRenderResources::tilesetExists() const {
+    // When a tileset is deleted there's a short period between the prim being deleted and TfNotice notifying us about the change.
+    // This function helps us know whether we should proceed with loading render resources.
+    return UsdUtil::hasStage() && UsdUtil::primExists(_tileset.getPath());
 }
 
 } // namespace cesium::omniverse

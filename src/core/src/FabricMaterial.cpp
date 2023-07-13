@@ -217,7 +217,7 @@ void FabricMaterial::reset() {
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
     setMaterialValues(GltfUtil::getDefaultMaterialInfo());
-    setTilesetId(-1);
+    setTilesetId(NO_TILESET_ID);
 
     if (_materialDefinition.hasBaseColorTexture()) {
         clearBaseColorTexture();
@@ -235,10 +235,6 @@ void FabricMaterial::setBaseColorTexture(
     const std::shared_ptr<FabricTexture>& texture,
     const TextureInfo& textureInfo) {
 
-    if (!UsdUtil::hasStage()) {
-        return;
-    }
-
     if (!_materialDefinition.hasBaseColorTexture()) {
         return;
     }
@@ -247,10 +243,6 @@ void FabricMaterial::setBaseColorTexture(
 }
 
 void FabricMaterial::clearBaseColorTexture() {
-    if (!UsdUtil::hasStage()) {
-        return;
-    }
-
     setBaseColorTextureValues(_defaultTextureAssetPath, GltfUtil::getDefaultTextureInfo());
 }
 
