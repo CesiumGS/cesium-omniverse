@@ -59,7 +59,7 @@ void alterUsdPrimTranslationWithUsd();
 void alterUsdPrimTranslationWithFabric();
 // void alterUsdPrimTranslationWithCuda();
 
-
+void setDisplayColor();
 
 
 /* GEOMETRY CREATION */////////////////////////////////////
@@ -67,6 +67,7 @@ void alterUsdPrimTranslationWithFabric();
 void createQuadMeshViaUsd(const char* path, float maxCenterRandomization = 0);
 void createQuadMeshViaFabric();
 void createQuadsViaFabric(int numQuads);
+void createQuadMeshWithDisplayColor();
 
 /* CUDA SPECIFIC *//////////////////////////////////////////
 

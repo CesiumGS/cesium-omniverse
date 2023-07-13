@@ -23,6 +23,7 @@
 #include "pxr/usd/usdGeom/xform.h"
 #include "pxr/usd/usdGeom/xformable.h"
 
+
 namespace cesium::omniverse::FabricProceduralGeometry {
 
 
@@ -48,19 +49,67 @@ void changeValue(double* values, size_t count)
 }
 )";
 
+// const char* modifyVec3fKernelCode = R"(
+// struct Vec3f
+// {
+//     float x;
+//     float y;
+//     float z;
+// };
+
+// extern "C" __global__
+// void changeValue(Vec3f** values, size_t count)
+// {
+//     size_t i = blockIdx.x * blockDim.x + threadIdx.x;
+//     if (count <= i) return;
+
+//     float oldValX = values[i][0].x;
+//     values[i][0].x = 0;
+//     values[i][0].y = 1.0f;
+//     printf("Changed x value of index %llu from %f to %f\n", i, oldValX, values[i][0].x);
+// }
+// )";
+
+const char* modifyVec3fKernelCode = R"(
+struct Vec3f
+{
+    float x;
+    float y;
+    float z;
+};
+
+extern "C" __global__
+void changeValue(Vec3f** values, size_t count)
+{
+    size_t i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i >= count) return;
+
+    Vec3f* row = values[i];
+    float oldValX = row[0].x;
+    row[0].x = 0;
+    row[0].y = 1.0f;
+    printf("Changed x value of index %llu from %f to %f\n", i, oldValX, row[0].x);
+}
+)";
+
+
 int runExperiment() {
 
     // modifyUsdCubePrimWithFabric();
     // modify1000UsdCubePrimsWithFabric();
-    modify1000UsdCubesViaCuda();
+    // modify1000UsdCubesViaCuda();
     // modify1000UsdQuadsViaCuda();
     // editSingleFabricAttributeViaCuda();
     // createQuadViaFabricAndShiftWithCuda();
     // modifyAllPrimsWithCustomAttrViaCuda();
-    // createFabricQuadsModifyViaCuda(numPrimsForExperiment);
+    createFabricQuadsModifyViaCuda(numPrimsForExperiment);
 
     // alterUsdPrimTranslationWithUsd();
     // alterUsdPrimTranslationWithFabric();
+
+    // createQuadMeshViaUsd("/testQuadMesh", 0);
+    // setDisplayColor();
+    // createQuadsViaFabric(10);
 
     return 45;
 }
@@ -80,6 +129,13 @@ void modifyUsdCubePrimWithFabric() {
     prim.CreateAttribute(sizeUsdToken, pxr::SdfValueTypeNames->Double).Set(3.0);
     auto customAttrUsdToken = pxr::TfToken("customTestAttr");
     prim.CreateAttribute(customAttrUsdToken, pxr::SdfValueTypeNames->Double).Set(123.45);
+
+    auto gprim = pxr::UsdGeomGprim(prim);
+    auto displayColorPrimvar = gprim.CreateDisplayColorPrimvar(UsdTokens::constant);
+    auto displayColor = pxr::VtArray<pxr::GfVec3f>(1);
+    displayColor[0] = pxr::GfVec3f(0, 1.0f, 1.0f);
+    displayColorPrimvar.Set(displayColor);
+    // prim.CreateAttribute(pxr::TfToken("primvars:displayColor"), pxr::SdfValueTypeNames->).Set(displayColor);
 
     //prefetch it to Fabric’s cache.
     omni::fabric::Path primPath("/TestCube");
@@ -815,6 +871,7 @@ void createQuadsViaFabric(int numQuads) {
         attributes.addAttribute(FabricTypes::extent, FabricTokens::extent);
         attributes.addAttribute(FabricTypes::_worldExtent, FabricTokens::_worldExtent);
         attributes.addAttribute(FabricTypes::_worldVisibility, FabricTokens::_worldVisibility);
+        attributes.addAttribute(FabricTypes::primvars_displayColor, FabricTokens::primvars_displayColor);
         // attributes.addAttribute(FabricTypes::_worldPosition, FabricTokens::_worldPosition);
         // attributes.addAttribute(FabricTypes::_worldOrientation, FabricTokens::_worldOrientation);
         // attributes.addAttribute(FabricTypes::_worldScale, FabricTokens::_worldScale);
@@ -867,8 +924,13 @@ void createQuadsViaFabric(int numQuads) {
         // auto worldScaleFabric = stageReaderWriter.getAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::_worldScale);
         // *worldScaleFabric = pxr::GfVec3f(1.f, 1.f, 1.f);
 
+        stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::primvars_displayColor, 1);
+        auto displayColors = stageReaderWriter.getArrayAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::primvars_displayColor);
+        displayColors[0] = pxr::GfVec3f(1.0f, 0, 0);
+
         //create a custom attribute for testing
         stageReaderWriter.createAttribute(fabricPath, getCudaTestAttributeFabricToken(), cudaTestAttributeFabricType);
+
         auto testAttribute = stageReaderWriter.getAttributeWr<double>(fabricPath, getCudaTestAttributeFabricToken());
         *testAttribute = 123.45;
     }
@@ -906,12 +968,20 @@ void modifyAllPrimsWithCustomAttrViaCuda() {
     }
 
     nvrtcProgram prog;
-    nvrtcCreateProgram(&prog, kernelCode, "changeValue", 0, nullptr, nullptr);
+    //nvrtcCreateProgram(&prog, kernelCode, "changeValue", 0, nullptr, nullptr);
+    nvrtcCreateProgram(&prog, modifyVec3fKernelCode, "changeValue", 0, nullptr, nullptr);
 
     // Compile the program
     nvrtcResult res = nvrtcCompileProgram(prog, 0, nullptr);
     if (res != NVRTC_SUCCESS) {
-        std::cout << "error compiling NVRTC program" << std::endl;
+        std::cout << "Error compiling NVRTC program:" << std::endl;
+
+        size_t logSize;
+        nvrtcGetProgramLogSize(prog, &logSize);
+        char* log = new char[logSize];
+        nvrtcGetProgramLog(prog, log);
+        std::cout << "   Compilation log: \n" << log << std::endl;
+
         return;
     }
 
@@ -932,11 +1002,31 @@ void modifyAllPrimsWithCustomAttrViaCuda() {
 
     //iterate over buckets but pass the vector for the whole bucket to the GPU.
     int primCount = 0;
+    //test on CPU
+    // for (size_t bucket = 0; bucket != buckets.bucketCount(); bucket++)
+    // {
+    //     auto values = stageReaderWriter.getAttributeArray<pxr::GfVec3f*>(buckets, bucket, FabricTokens::primvars_displayColor);
+    //     auto elementCount = values.size();
+    //     for (size_t i = 0; i < elementCount; i++) {
+    //         printf("displayColors of element %llu are %f, %f, %f\n", i, values[i][0][0], values[i][0][1], values[i][0][2]);
+    //         values[i][0][0] = 0;
+    //         values[i][0][1] = 1.f;
+    //     }
+    // }
+
+    struct Vec3f
+    {
+        float x;
+        float y;
+        float z;
+    };
+
     for (size_t bucket = 0; bucket != buckets.bucketCount(); bucket++)
     {
-        gsl::span<double> values = stageReaderWriter.getAttributeArrayGpu<double>(buckets, bucket, getCudaTestAttributeFabricToken());
+        //gsl::span<double> values = stageReaderWriter.getAttributeArrayGpu<double>(buckets, bucket, getCudaTestAttributeFabricToken());
+        auto values = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3f*>(buckets, bucket, FabricTokens::primvars_displayColor);
 
-        double* ptr = values.data();
+        auto ptr = reinterpret_cast<Vec3f**>(values.data());
         size_t elemCount = values.size();
         void *args[] = { &ptr, &elemCount }; //NOLINT
         int blockSize = 32 * 4;
@@ -1186,6 +1276,11 @@ void createQuadMeshViaUsd(const char* pathString, float maxCenterRandomization) 
     //can only set a custom attr on the prim, not on an object defined by the USD schema
     auto prim = mesh.GetPrim();
     prim.CreateAttribute(customAttrUsdToken, pxr::SdfValueTypeNames->Double).Set(12.3);
+
+    // mesh.CreateDisplayColorPrimvar(UsdTokens::constant);
+    // pxr::VtArray<pxr::GfVec3f> displayColor(1);
+    // displayColor[0] = pxr::GfVec3f(1.0f, 0.0f, 0.0f);
+    // mesh.GetDisplayColorPrimvar().Set(displayColor);
 }
 
 void alterUsdPrimTranslationWithFabric() {
@@ -1282,6 +1377,42 @@ void alterUsdPrimTranslationWithUsd() {
         auto coord = static_cast<double>(i);
         xformable.AddTranslateOp().Set(pxr::GfVec3d(coord, coord, coord));
     }
+}
+
+void setDisplayColor() {
+    auto usdStagePtr = Context::instance().getStage();
+    pxr::SdfPath cubePath("/testPrim");
+    pxr::UsdPrim cubePrim = usdStagePtr->GetPrimAtPath(cubePath);
+
+    if (!cubePrim.IsValid()) {
+        std::cout << "must be a /testPrim prim in the stage" << std::endl;
+        return;
+    }
+
+    pxr::UsdGeomMesh cubeMesh(cubePrim);
+
+    // // Create the displayColor attribute if it doesn't already exist
+    // if (!cubeMesh.GetDisplayColorPrimvar())
+    // {
+    //     cubeMesh.CreateDisplayColorPrimvar();
+    // }
+
+    // cubeMesh.CreateDisplayColorPrimvar().Set(pxr::VtArray<pxr::GfVec3f>{pxr::GfVec3f(0.0f, 1.0, 0.0)});
+
+
+    // Create the displayColor attribute if it doesn't already exist
+    if (!cubeMesh.GetDisplayColorAttr())
+    {
+        cubeMesh.CreateDisplayColorAttr();
+    }
+
+    // Set the display color to red
+    cubeMesh.GetDisplayColorAttr().Set(pxr::VtArray<pxr::GfVec3f>{pxr::GfVec3f(0.0, 1.0, 0.0)});
+
+}
+
+void createQuadMeshWithDisplayColor() {
+
 }
 
 } // namespace cesium::omniverse::FabricProceduralGeometry
