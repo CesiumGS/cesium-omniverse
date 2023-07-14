@@ -6,6 +6,7 @@
 
 #include <CesiumGeometry/Transforms.h>
 #include <CesiumGeospatial/Cartographic.h>
+#include <CesiumGeospatial/GlobeAnchor.h>
 #include <CesiumGeospatial/GlobeTransforms.h>
 #include <glm/gtc/matrix_access.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
@@ -75,6 +76,10 @@ pxr::GfVec3d glmToUsdVector(const glm::dvec3& vector) {
 
 pxr::GfVec2f glmToUsdVector(const glm::fvec2& vector) {
     return {vector.x, vector.y};
+}
+
+pxr::GfQuatd glmToUsdQuat(const glm::dquat& quat) {
+    return {quat.w, quat.x, quat.y, quat.z};
 }
 
 pxr::GfMatrix4d glmToUsdMatrix(const glm::dmat4& matrix) {
@@ -184,8 +189,13 @@ std::string getSafeName(const std::string& assetName) {
 }
 
 glm::dmat4 computeUsdToEcefTransform(const CesiumGeospatial::Cartographic& origin) {
-    return GeospatialUtil::getEastNorthUpToFixedFrame(origin) * GeospatialUtil::getAxisConversionTransform() *
-           GeospatialUtil::getUnitConversionTransform();
+    const auto enuToFixed = GeospatialUtil::getEastNorthUpToFixedFrame(origin);
+    [[maybe_unused]] const auto eastInFixed = glm::dvec3(enuToFixed * glm::dvec4(glm::dvec3(1.0, 0.0, 0.0), 0.0));
+
+    //    const auto localCoordinateSystem = GeospatialUtil::getCoordinateSystem(origin, 1);
+    //    return localCoordinateSystem.getEcefToLocalTransformation();
+
+    return enuToFixed * GeospatialUtil::getAxisConversionTransform() * GeospatialUtil::getUnitConversionTransform();
 }
 
 glm::dmat4 computeEcefToUsdTransform(const CesiumGeospatial::Cartographic& origin) {

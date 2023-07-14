@@ -28,7 +28,7 @@ class CesiumGlobeAnchorAttributesWidget(SchemaPropertiesWidget):
                 CustomLayoutProperty("cesium:anchor:longitude")
                 CustomLayoutProperty("cesium:anchor:latitude")
                 CustomLayoutProperty("cesium:anchor:height")
-            with CustomLayoutGroup("Stage Positioning"):
+            with CustomLayoutGroup("Advanced Positioning", collapsed=True):
                 CustomLayoutProperty("cesium:anchor:position")
                 CustomLayoutProperty("cesium:anchor:rotation")
                 CustomLayoutProperty("cesium:anchor:scale")

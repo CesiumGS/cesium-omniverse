@@ -361,6 +361,20 @@ void Context::processCesiumGlobeAnchorChanged(const cesium::omniverse::ChangedPr
     auto georeferenceOrigin = UsdUtil::getCesiumGeoreference(targets[0]);
     auto cartographicOrigin = GeospatialUtil::convertGeoreferenceToCartographic(georeferenceOrigin);
 
+    bool detectTransformChanges;
+    globeAnchor.GetDetectTransformChangesAttr().Get(&detectTransformChanges);
+
+    return;
+
+    if (detectTransformChanges && (name == pxr::CesiumTokens->cesiumAnchorDetectTransformChanges ||
+                                   name == cesium::omniverse::UsdTokens::xformOp_translate ||
+                                   name == cesium::omniverse::UsdTokens::xformOp_rotation ||
+                                   name == cesium::omniverse::UsdTokens::xformOp_scale)) {
+        GeospatialUtil::updateAnchorByUsdTransform(cartographicOrigin, globeAnchor);
+
+        return;
+    }
+
     if (name == pxr::CesiumTokens->cesiumAnchorLatitude || name == pxr::CesiumTokens->cesiumAnchorLongitude ||
         name == pxr::CesiumTokens->cesiumAnchorHeight) {
         GeospatialUtil::updateAnchorByLatLongHeight(cartographicOrigin, globeAnchor);
@@ -371,20 +385,6 @@ void Context::processCesiumGlobeAnchorChanged(const cesium::omniverse::ChangedPr
     if (name == pxr::CesiumTokens->cesiumAnchorPosition || name == pxr::CesiumTokens->cesiumAnchorRotation ||
         name == pxr::CesiumTokens->cesiumAnchorScale) {
         GeospatialUtil::updateAnchorByFixedTransform(cartographicOrigin, globeAnchor);
-
-        return;
-    }
-
-    bool detectTransformChanges;
-    globeAnchor.GetDetectTransformChangesAttr().Get(&detectTransformChanges);
-
-    if (detectTransformChanges && (name == pxr::CesiumTokens->cesiumAnchorDetectTransformChanges ||
-                                   name == cesium::omniverse::UsdTokens::xformOp_translate ||
-                                   name == cesium::omniverse::UsdTokens::xformOp_rotation ||
-                                   name == cesium::omniverse::UsdTokens::xformOp_scale)) {
-        GeospatialUtil::updateAnchorByUsdTransform(cartographicOrigin, globeAnchor);
-
-        // TODO: Adjust orientation if that is enabled.
 
         return;
     }

@@ -10,6 +10,7 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <pxr/usd/usdGeom/xform.h>
+#include <pxr/usd/usdGeom/xformCommonAPI.h>
 
 namespace cesium::omniverse::GeospatialUtil {
 
@@ -37,15 +38,10 @@ glm::dmat4 getAxisConversionTransform() {
     return axisConversion;
 }
 
-CesiumGeospatial::LocalHorizontalCoordinateSystem
+[[maybe_unused]] CesiumGeospatial::LocalHorizontalCoordinateSystem
 getCoordinateSystem(const pxr::CesiumGeoreference& georeference, const double scaleInMeters) {
-    auto cartographicOrigin = GeospatialUtil::convertGeoreferenceToCartographic(georeference);
-    return {
-        cartographicOrigin,
-        CesiumGeospatial::LocalDirection::East,
-        CesiumGeospatial::LocalDirection::Up,
-        CesiumGeospatial::LocalDirection::South,
-        scaleInMeters};
+    auto origin = GeospatialUtil::convertGeoreferenceToCartographic(georeference);
+    return getCoordinateSystem(origin, scaleInMeters);
 }
 
 CesiumGeospatial::LocalHorizontalCoordinateSystem
@@ -88,6 +84,20 @@ void updateAnchorByUsdTransform(const CesiumGeospatial::Cartographic& origin, co
     }
 
     auto fixedTransform = UsdUtil::glmToUsdMatrixDecomposed(globeAnchor->getAnchorToFixedTransform());
+
+    if (!maybeGlobeAnchor.has_value()) {
+        // We need to do this when it's a new anchor.
+
+        auto xformCommonApi = pxr::UsdGeomXformCommonAPI(anchor.GetPrim());
+        xformCommonApi.SetTranslate(pxr::GfVec3f(0.f, 0.f, 0.f));
+        xformCommonApi.SetRotate(pxr::GfVec3f(0.0f, 0.0f, 0.0f));
+        xformCommonApi.SetScale(pxr::GfVec3f(1.f, 1.f, 1.f));
+
+        auto localTransform = globeAnchor->getAnchorToLocalTransform(
+            GeospatialUtil::getCoordinateSystem(origin, UsdUtil::getUsdMetersPerUnit()));
+        auto xform = pxr::UsdGeomXform(anchor.GetPrim());
+        xform.AddTransformOp().Set(UsdUtil::glmToUsdMatrix(localTransform));
+    }
 
     std::optional<CesiumGeospatial::Cartographic> cartographicPosition =
         CesiumGeospatial::Ellipsoid::WGS84.cartesianToCartographic(UsdUtil::usdToGlmVector(fixedTransform.position));
@@ -136,32 +146,48 @@ void updateAnchorByFixedTransform(
     auto ecefRotationVec = UsdUtil::usdToGlmVector(usdEcefRotationVec);
     auto ecefScaleVec = UsdUtil::usdToGlmVector(usdEcefScaleVec);
 
-    // TODO: figure out why translation and scale aren't working
-    auto translation = glm::translate(glm::dmat4(), ecefPositionVec);
+    auto translation = glm::translate(glm::dmat4(1.0), ecefPositionVec);
     auto rotation = glm::eulerAngleYXZ<double>(
         glm::radians(ecefRotationVec.y), glm::radians(ecefRotationVec.x), glm::radians(ecefRotationVec.z));
-    auto scale = glm::scale(glm::dmat4(), ecefScaleVec);
+    auto scale = glm::scale(glm::dmat4(1.0), ecefScaleVec);
     auto transformationMatrix = translation * rotation * scale;
 
     bool shouldReorient;
     anchor.GetAdjustOrientationForGlobeWhenMovingAttr().Get(&shouldReorient);
     globeAnchor->setAnchorToFixedTransform(transformationMatrix, shouldReorient);
 
-    auto xform = pxr::UsdGeomXform(anchor.GetPrim());
-    xform.AddTransformOp().Set(UsdUtil::glmToUsdMatrix(
-        globeAnchor->getAnchorToLocalTransform(GeospatialUtil::getCoordinateSystem(origin, 0.01))));
+    glm::dvec3 ls{};
+    glm::dquat lr{};
+    glm::dvec3 lt{};
+    glm::dvec3 lskew{};
+    glm::dvec4 lperspective{};
 
-    glm::dvec3 s{};
-    glm::dquat r{};
-    glm::dvec3 t{};
-    glm::dvec3 skew{};
-    glm::dvec4 perspective{};
+    [[maybe_unused]] auto localTransform = glm::decompose(
+        globeAnchor->getAnchorToLocalTransform(
+            GeospatialUtil::getCoordinateSystem(origin, UsdUtil::getUsdMetersPerUnit())),
+        ls,
+        lr,
+        lt,
+        lskew,
+        lperspective);
+    assert(localTransform);
+
+    auto xform = pxr::UsdGeomXformCommonAPI(anchor.GetPrim());
+    xform.SetTranslate(UsdUtil::glmToUsdVector(lt));
+    xform.SetRotate(UsdUtil::getEulerAnglesFromQuaternion(pxr::GfQuatf(UsdUtil::glmToUsdQuat(lr))));
+    xform.SetScale(pxr::GfVec3f(UsdUtil::glmToUsdVector(ls)));
+
+    glm::dvec3 fs{};
+    glm::dquat fr{};
+    glm::dvec3 ft{};
+    glm::dvec3 fskew{};
+    glm::dvec4 fperspective{};
 
     [[maybe_unused]] auto fixedTransform =
-        glm::decompose(globeAnchor->getAnchorToFixedTransform(), s, r, t, skew, perspective);
+        glm::decompose(globeAnchor->getAnchorToFixedTransform(), fs, fr, ft, fskew, fperspective);
     assert(fixedTransform);
 
-    auto cartographicPosition = CesiumGeospatial::Ellipsoid::WGS84.cartesianToCartographic(t);
+    auto cartographicPosition = CesiumGeospatial::Ellipsoid::WGS84.cartesianToCartographic(ft);
 
     if (cartographicPosition) {
         anchor.GetLatitudeAttr().Set(glm::degrees(cartographicPosition->latitude));
