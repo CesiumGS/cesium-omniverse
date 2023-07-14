@@ -14,11 +14,8 @@ class FabricGeometryDefinition {
     FabricGeometryDefinition(
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
-        bool smoothNormals,
-        bool hasImagery,
-        bool disableMaterials);
+        bool smoothNormals);
 
-    [[nodiscard]] bool hasMaterial() const;
     [[nodiscard]] bool hasTexcoords() const;
     [[nodiscard]] bool hasNormals() const;
     [[nodiscard]] bool hasVertexColors() const;
@@ -27,7 +24,6 @@ class FabricGeometryDefinition {
     bool operator==(const FabricGeometryDefinition& other) const;
 
   private:
-    bool _hasMaterial{false};
     bool _hasTexcoords{false};
     bool _hasNormals{false};
     bool _hasVertexColors{false};

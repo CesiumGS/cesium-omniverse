@@ -1,8 +1,10 @@
 #pragma once
 
 #include "cesium/omniverse/FabricMaterialDefinition.h"
+#include "cesium/omniverse/GltfUtil.h"
 
 #include <omni/fabric/IPath.h>
+#include <pxr/usd/sdf/assetPath.h>
 #include <pxr/usd/sdf/path.h>
 
 namespace omni::ui {
@@ -17,22 +19,21 @@ struct Model;
 
 namespace cesium::omniverse {
 
+class FabricTexture;
+
 class FabricMaterial {
   public:
-    FabricMaterial(pxr::SdfPath path, const FabricMaterialDefinition& materialDefinition);
+    FabricMaterial(
+        pxr::SdfPath path,
+        const FabricMaterialDefinition& materialDefinition,
+        pxr::SdfAssetPath defaultTextureAssetPath);
     ~FabricMaterial();
 
-    void setTile(
-        int64_t tilesetId,
-        int64_t tileId,
-        const CesiumGltf::Model& model,
-        const CesiumGltf::MeshPrimitive& primitive);
+    void setMaterial(int64_t tilesetId, const MaterialInfo& materialInfo);
 
-    void setImagery(
-        const CesiumGltf::ImageCesium* imagery,
-        const glm::dvec2& imageryTexcoordTranslation,
-        const glm::dvec2& imageryTexcoordScale,
-        uint64_t imageryTexcoordSetIndex);
+    void setBaseColorTexture(const std::shared_ptr<FabricTexture>& texture, const TextureInfo& textureInfo);
+
+    void clearBaseColorTexture();
 
     void setActive(bool active);
 
@@ -42,15 +43,16 @@ class FabricMaterial {
   private:
     void initialize(pxr::SdfPath path, const FabricMaterialDefinition& materialDefinition);
     void reset();
-    void setInitialValues(const FabricMaterialDefinition& materialDefinition);
+    void setTilesetId(int64_t tilesetId);
+    void setMaterialValues(const MaterialInfo& materialInfo);
+    void setBaseColorTextureValues(const pxr::SdfAssetPath& textureAssetPath, const TextureInfo& textureInfo);
 
     const FabricMaterialDefinition _materialDefinition;
+    const pxr::SdfAssetPath _defaultTextureAssetPath;
 
     omni::fabric::Path _materialPathFabric;
     omni::fabric::Path _shaderPathFabric;
     omni::fabric::Path _baseColorTexPathFabric;
-
-    std::unique_ptr<omni::ui::DynamicTextureProvider> _baseColorTexture;
 };
 
 } // namespace cesium::omniverse

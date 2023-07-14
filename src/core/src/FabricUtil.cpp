@@ -139,6 +139,19 @@ std::string printAttributeValue(
     }
 }
 
+std::string printConnection(const omni::fabric::Path& primPath, const omni::fabric::Token& attributeName) {
+    auto stageReaderWriter = UsdUtil::getFabricStageReaderWriter();
+    const auto connection = stageReaderWriter.getConnection(primPath, attributeName);
+    if (connection == nullptr) {
+        return NO_DATA_STRING;
+    }
+
+    const auto path = omni::fabric::Path(connection->path).getText();
+    const auto attrName = omni::fabric::Token(connection->attrName).getText();
+
+    return fmt::format("Path: {}, Attribute Name: {}", path, attrName);
+}
+
 std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::fabric::AttrNameAndType& attribute) {
     auto stageReaderWriter = UsdUtil::getFabricStageReaderWriter();
 
@@ -158,6 +171,17 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
                 switch (componentCount) {
                     case 1: {
                         return printAttributeValue<false, AssetWrapper, 1>(primPath, name, role);
+                    }
+                    default: {
+                        break;
+                    }
+                }
+                break;
+            }
+            case omni::fabric::BaseDataType::eConnection: {
+                switch (componentCount) {
+                    case 1: {
+                        return printConnection(primPath, name);
                     }
                     default: {
                         break;
@@ -545,7 +569,7 @@ FabricStatistics getStatistics() {
         statistics.geometriesCapacity += paths.size();
 
         for (size_t i = 0; i < paths.size(); i++) {
-            if (tilesetIdFabric[i] == -1) {
+            if (tilesetIdFabric[i] == NO_TILESET_ID) {
                 continue;
             }
 
@@ -571,7 +595,7 @@ FabricStatistics getStatistics() {
         statistics.materialsCapacity += paths.size();
 
         for (size_t i = 0; i < paths.size(); i++) {
-            if (tilesetIdFabric[i] == -1) {
+            if (tilesetIdFabric[i] == NO_TILESET_ID) {
                 continue;
             }
 
@@ -582,27 +606,28 @@ FabricStatistics getStatistics() {
     return statistics;
 }
 
-namespace {
-void destroyPrimsSpan(gsl::span<const omni::fabric::Path> paths) {
+void destroyPrim(const omni::fabric::Path& path) {
     // Only delete prims if there's still a stage to delete them from
     if (!UsdUtil::hasStage()) {
         return;
     }
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
+    srw.destroyPrim(path);
 
-    for (const auto& path : paths) {
-        srw.destroyPrim(path);
+    // Prims removed from Fabric need special handling for their removal to be reflected in the Hydra render index
+    // This workaround may not be needed in future Kit versions, but is needed as of Kit 105.0
+    const omni::fabric::Path changeTrackingPath("/TempChangeTracking");
+
+    if (srw.getAttribute<uint64_t>(changeTrackingPath, FabricTokens::_deletedPrims) == nullptr) {
+        return;
     }
-}
-} // namespace
 
-void destroyPrim(const omni::fabric::Path& path) {
-    destroyPrimsSpan(gsl::span(&path, 1));
-}
+    const auto deletedPrimsSize = srw.getArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims);
+    srw.setArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims, deletedPrimsSize + 1);
+    auto deletedPrimsFabric = srw.getArrayAttributeWr<uint64_t>(changeTrackingPath, FabricTokens::_deletedPrims);
 
-void destroyPrims(const std::vector<omni::fabric::Path>& paths) {
-    destroyPrimsSpan(gsl::span(paths));
+    deletedPrimsFabric[deletedPrimsSize] = omni::fabric::PathC(path).path;
 }
 
 void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform) {
@@ -643,14 +668,12 @@ void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform
     }
 }
 
-void setTilesetIdAndTileId(const omni::fabric::Path& pathFabric, int64_t tilesetId, int64_t tileId) {
+void setTilesetId(const omni::fabric::Path& pathFabric, int64_t tilesetId) {
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
     auto tilesetIdFabric = srw.getAttributeWr<int64_t>(pathFabric, FabricTokens::_cesium_tilesetId);
-    auto tileIdFabric = srw.getAttributeWr<int64_t>(pathFabric, FabricTokens::_cesium_tileId);
 
     *tilesetIdFabric = tilesetId;
-    *tileIdFabric = tileId;
 }
 
 } // namespace cesium::omniverse::FabricUtil

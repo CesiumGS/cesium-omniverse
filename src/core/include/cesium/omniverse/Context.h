@@ -87,7 +87,6 @@ class Context {
 
     int64_t getContextId() const;
     int64_t getNextTilesetId() const;
-    int64_t getNextTileId() const;
 
     const CesiumGeospatial::Cartographic getGeoreferenceOrigin() const;
     void setGeoreferenceOrigin(const CesiumGeospatial::Cartographic& origin);
@@ -143,8 +142,10 @@ class Context {
     bool getDebugDisableTextures() const;
     bool getDebugDisableGeometryPool() const;
     bool getDebugDisableMaterialPool() const;
+    bool getDebugDisableTexturePool() const;
     uint64_t getDebugGeometryPoolInitialCapacity() const;
     uint64_t getDebugMaterialPoolInitialCapacity() const;
+    uint64_t getDebugTexturePoolInitialCapacity() const;
     bool getDebugRandomColors() const;
 
     std::shared_ptr<TaskProcessor> _taskProcessor;
@@ -167,7 +168,6 @@ class Context {
     int64_t _contextId;
 
     mutable std::atomic<int64_t> _tilesetId{};
-    mutable std::atomic<int64_t> _tileId{};
 
     std::filesystem::path _cesiumExtensionLocation;
     std::filesystem::path _certificatePath;

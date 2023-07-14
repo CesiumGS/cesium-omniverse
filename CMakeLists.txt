@@ -425,6 +425,7 @@ find_package(cpr)
 find_package(doctest)
 find_package(stb)
 find_package(ZLIB)
+find_package(yaml-cpp)
 
 # So that the installed libraries can find shared libraries in the same directory
 set(CMAKE_INSTALL_RPATH $ORIGIN)

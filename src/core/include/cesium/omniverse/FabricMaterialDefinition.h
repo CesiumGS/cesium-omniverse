@@ -11,13 +11,11 @@ struct Model;
 
 namespace cesium::omniverse {
 
+struct MaterialInfo;
+
 class FabricMaterialDefinition {
   public:
-    FabricMaterialDefinition(
-        const CesiumGltf::Model& model,
-        const CesiumGltf::MeshPrimitive& primitive,
-        bool hasImagery,
-        bool disableTextures);
+    FabricMaterialDefinition(const MaterialInfo& materialInfo, bool hasImagery, bool disableTextures);
 
     [[nodiscard]] bool hasBaseColorTexture() const;
     [[nodiscard]] bool hasVertexColors() const;

@@ -1,0 +1,29 @@
+---
+
+
+# One way to use the config file is to generate multiple scenarios with
+# variations on some known parameters. If most of the scenarios have a
+# parameter at one particular value, it can make sense to establish that as
+# the default, then we only need to list the changes from that default.
+# See the gltf test config for a real use-case
+scenarios:
+  default:
+      # currently supported data types for the testUtils methods:
+      # float
+      pi : 3.14159
+      # int
+      onlyEvenPrime : 2
+      # string
+      transmogrifierOutput : "foo"
+      # sequence
+      fibonacciSeq :
+        - 1
+        - 1
+        - 2
+        - 3
+        - 5
+
+
+  # an example override for a given item
+  scenario2:
+      transmogrifierOutput : "bar"

@@ -7,8 +7,6 @@
 
 #include <CesiumGltf/AccessorView.h>
 #include <glm/glm.hpp>
-#include <pxr/base/gf/vec2f.h>
-#include <pxr/base/gf/vec3f.h>
 
 #include <gsl/span>
 
@@ -19,7 +17,7 @@ class PositionsAccessor {
     PositionsAccessor();
     PositionsAccessor(const CesiumGltf::AccessorView<glm::fvec3>& view);
 
-    void fill(const gsl::span<pxr::GfVec3f>& values) const;
+    void fill(const gsl::span<glm::fvec3>& values) const;
     [[nodiscard]] const glm::fvec3& get(uint64_t index) const;
     [[nodiscard]] uint64_t size() const;
 
@@ -58,8 +56,8 @@ class NormalsAccessor {
 
     static NormalsAccessor GenerateSmooth(const PositionsAccessor& positions, const IndicesAccessor& indices);
 
-    void fill(const gsl::span<pxr::GfVec3f>& values) const;
-    uint64_t size() const;
+    void fill(const gsl::span<glm::fvec3>& values) const;
+    [[nodiscard]] uint64_t size() const;
 
   private:
     std::vector<glm::fvec3> _computed;
@@ -72,8 +70,8 @@ class TexcoordsAccessor {
     TexcoordsAccessor();
     TexcoordsAccessor(const CesiumGltf::AccessorView<glm::fvec2>& view, bool flipVertical);
 
-    void fill(const gsl::span<pxr::GfVec2f>& values) const;
-    uint64_t size() const;
+    void fill(const gsl::span<glm::fvec2>& values) const;
+    [[nodiscard]] uint64_t size() const;
 
   private:
     CesiumGltf::AccessorView<glm::fvec2> _view;
@@ -91,8 +89,8 @@ class VertexColorsAccessor {
     VertexColorsAccessor(const CesiumGltf::AccessorView<glm::fvec3>& float32Vec3View);
     VertexColorsAccessor(const CesiumGltf::AccessorView<glm::fvec4>& float32Vec4View);
 
-    void fill(const gsl::span<pxr::GfVec3f>& values) const;
-    uint64_t size() const;
+    void fill(const gsl::span<glm::fvec3>& values) const;
+    [[nodiscard]] uint64_t size() const;
 
   private:
     CesiumGltf::AccessorView<glm::u8vec3> _uint8Vec3View;
@@ -111,7 +109,7 @@ class FaceVertexCountsAccessor {
     FaceVertexCountsAccessor(uint64_t size);
 
     void fill(const gsl::span<int>& values) const;
-    uint64_t size() const;
+    [[nodiscard]] uint64_t size() const;
 
   private:
     uint64_t _size;

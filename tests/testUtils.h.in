@@ -1,11 +1,23 @@
 #pragma once
 
+// ************************************
+// ***** Before editing this file *****
+// ************************************
+// be sure you are editing testUtils.h.in and not directly editing testUtils.h
+// cmake generates testUtils.h at build time by processing testUtils.h.in
+// in order to perform some string replacement
+
 #include <algorithm>
 #include <cstdlib>
 #include <list>
 #include <string>
 
+#include <yaml-cpp/yaml.h>
+
 #define NUM_TEST_REPETITIONS 100
+// Some tests contain relative paths rooted in the top level project dir
+// cmake fills in this information via string replacement
+#define TEST_WORKING_DIRECTORY "@TEST_WORKING_DIRECTORY@"
 
 // Macro for parameterizing test data using one currently recommended method.
 // See the doctest docs for more info:
@@ -21,3 +33,6 @@
     _doctest_subcase_idx = 0
 
 void fillWithRandomInts(std::list<int>& lst, int min, int max, int n);
+
+using ConfigMap = YAML::Node;
+ConfigMap getScenarioConfig(const std::string& scenario, YAML::Node configRoot);

@@ -5,7 +5,7 @@
 
 #include "pxr/pxr.h"
 #include ".//api.h"
-#include "pxr/usd/usdGeom/boundable.h"
+#include "pxr/usd/usdGeom/gprim.h"
 #include "pxr/usd/usd/prim.h"
 #include "pxr/usd/usd/stage.h"
 #include ".//tokens.h"
@@ -36,7 +36,7 @@ class SdfAssetPath;
 /// So to set an attribute to the value "rightHanded", use CesiumTokens->rightHanded
 /// as the value.
 ///
-class CesiumTileset : public UsdGeomBoundable
+class CesiumTileset : public UsdGeomGprim
 {
 public:
     /// Compile time constant representing what kind of schema this class is.
@@ -49,7 +49,7 @@ public:
     /// for a \em valid \p prim, but will not immediately throw an error for
     /// an invalid \p prim
     explicit CesiumTileset(const UsdPrim& prim=UsdPrim())
-        : UsdGeomBoundable(prim)
+        : UsdGeomGprim(prim)
     {
     }
 
@@ -57,7 +57,7 @@ public:
     /// Should be preferred over CesiumTileset(schemaObj.GetPrim()),
     /// as it preserves SchemaBase state.
     explicit CesiumTileset(const UsdSchemaBase& schemaObj)
-        : UsdGeomBoundable(schemaObj)
+        : UsdGeomGprim(schemaObj)
     {
     }
 

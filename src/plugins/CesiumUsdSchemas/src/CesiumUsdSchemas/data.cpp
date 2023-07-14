@@ -183,6 +183,23 @@ CesiumData::CreateDebugDisableMaterialPoolAttr(VtValue const &defaultValue, bool
 }
 
 UsdAttribute
+CesiumData::GetDebugDisableTexturePoolAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumDebugDisableTexturePool);
+}
+
+UsdAttribute
+CesiumData::CreateDebugDisableTexturePoolAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumDebugDisableTexturePool,
+                       SdfValueTypeNames->Bool,
+                       /* custom = */ false,
+                       SdfVariabilityVarying,
+                       defaultValue,
+                       writeSparsely);
+}
+
+UsdAttribute
 CesiumData::GetDebugGeometryPoolInitialCapacityAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumDebugGeometryPoolInitialCapacity);
@@ -209,6 +226,23 @@ UsdAttribute
 CesiumData::CreateDebugMaterialPoolInitialCapacityAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumDebugMaterialPoolInitialCapacity,
+                       SdfValueTypeNames->UInt64,
+                       /* custom = */ false,
+                       SdfVariabilityVarying,
+                       defaultValue,
+                       writeSparsely);
+}
+
+UsdAttribute
+CesiumData::GetDebugTexturePoolInitialCapacityAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumDebugTexturePoolInitialCapacity);
+}
+
+UsdAttribute
+CesiumData::CreateDebugTexturePoolInitialCapacityAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumDebugTexturePoolInitialCapacity,
                        SdfValueTypeNames->UInt64,
                        /* custom = */ false,
                        SdfVariabilityVarying,
@@ -256,8 +290,10 @@ CesiumData::GetSchemaAttributeNames(bool includeInherited)
         CesiumTokens->cesiumDebugDisableTextures,
         CesiumTokens->cesiumDebugDisableGeometryPool,
         CesiumTokens->cesiumDebugDisableMaterialPool,
+        CesiumTokens->cesiumDebugDisableTexturePool,
         CesiumTokens->cesiumDebugGeometryPoolInitialCapacity,
         CesiumTokens->cesiumDebugMaterialPoolInitialCapacity,
+        CesiumTokens->cesiumDebugTexturePoolInitialCapacity,
         CesiumTokens->cesiumDebugRandomColors,
     };
     static TfTokenVector allNames =
