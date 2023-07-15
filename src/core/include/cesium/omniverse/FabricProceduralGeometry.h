@@ -39,9 +39,6 @@ void modify1000UsdQuadsViaCuda();
 //Can test editing without using PrimBucketList
 void editSingleFabricAttributeViaCuda();
 
-//Get all prims with "cudaTest" attr and edits the attr with CUDA
-//Issues: TODO
-void modifyAllPrimsWithCustomAttrViaCuda();
 
 // Create single quad Mesh in Fabric, shift X position of points via CUDA
 // More complex kernel to edit pxr::GfVec3fs with in CUDA
@@ -51,24 +48,38 @@ void createQuadViaFabricAndShiftWithCuda();
 //Create N quad Mesh Prims in Fabric, edit "cudaTest" attr with CUDA
 void createFabricQuadsModifyViaCuda(int numQuads);
 
+void alterFabricPrimTranslationWithFabric();
+
+
+void setDisplayColor();
 
 //Create USD cubes, translate with USD
 //Issues: throws runtime error
 void alterUsdPrimTranslationWithUsd();
+
 //create USD cubes, translate with Fabric
 //Issues: translates, but not visible
 void alterUsdPrimTranslationWithFabric();
-// void alterUsdPrimTranslationWithCuda();
-
-void setDisplayColor();
 
 
-/* GEOMETRY CREATION */////////////////////////////////////
+/* PRIM CREATION */////////////////////////////////////
 
 void createQuadMeshViaUsd(const char* path, float maxCenterRandomization = 0);
 void createQuadMeshViaFabric();
-void createQuadsViaFabric(int numQuads);
+void createQuadsViaFabric(int numQuads, float maxCenterRandomization = 0);
 void createQuadMeshWithDisplayColor();
+
+/* PRIM ALTERATIONS */////////////////////////////////////
+
+//Get all prims with "cudaTest" attr and edits the position with Fabric
+//Issues: TODO
+void repositionAllPrimsWithCustomAttrViaFabric(double spacing = 10.0);
+
+//Get all prims with "cudaTest" attr and edits the attr with CUDA
+//Issues: TODO
+void modifyAllPrimsWithCustomAttrViaCuda();
+
+
 
 /* CUDA SPECIFIC *//////////////////////////////////////////
 

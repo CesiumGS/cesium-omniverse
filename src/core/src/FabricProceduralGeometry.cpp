@@ -22,6 +22,8 @@
 #include "pxr/usd/usdGeom/mesh.h"
 #include "pxr/usd/usdGeom/xform.h"
 #include "pxr/usd/usdGeom/xformable.h"
+#include "pxr/usd/usdGeom/xformCommonAPI.h"
+#include "pxr/usd/usdGeom/cube.h"
 
 
 namespace cesium::omniverse::FabricProceduralGeometry {
@@ -106,6 +108,7 @@ int createPrims() {
 
     // alterUsdPrimTranslationWithUsd();
     // alterUsdPrimTranslationWithFabric();
+    // alterFabricPrimTranslationWithFabric();
 
     // createQuadMeshViaUsd("/testQuadMesh", 0);
     // setDisplayColor();
@@ -117,7 +120,8 @@ int createPrims() {
 }
 
 int alterPrims() {
-    modifyAllPrimsWithCustomAttrViaCuda();
+    repositionAllPrimsWithCustomAttrViaFabric(200);
+    // modifyAllPrimsWithCustomAttrViaCuda();
     return 0;
 }
 
@@ -858,7 +862,7 @@ void editSingleFabricAttributeViaCuda() {
 }
 
 
-void createQuadsViaFabric(int numQuads) {
+void createQuadsViaFabric(int numQuads, float maxCenterRandomization) {
     const auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
     const auto usdStageId = omni::fabric::UsdStageId{static_cast<uint64_t>(cesium::omniverse::Context::instance().getStageId())};
     const auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
@@ -879,7 +883,7 @@ void createQuadsViaFabric(int numQuads) {
         attributes.addAttribute(FabricTypes::_worldExtent, FabricTokens::_worldExtent);
         attributes.addAttribute(FabricTypes::_worldVisibility, FabricTokens::_worldVisibility);
         attributes.addAttribute(FabricTypes::primvars_displayColor, FabricTokens::primvars_displayColor);
-        // attributes.addAttribute(FabricTypes::_worldPosition, FabricTokens::_worldPosition);
+        attributes.addAttribute(FabricTypes::_worldPosition, FabricTokens::_worldPosition);
         // attributes.addAttribute(FabricTypes::_worldOrientation, FabricTokens::_worldOrientation);
         // attributes.addAttribute(FabricTypes::_worldScale, FabricTokens::_worldScale);
         attributes.createAttributes(fabricPath);
@@ -887,11 +891,10 @@ void createQuadsViaFabric(int numQuads) {
         stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::points, 4);
         auto pointsFabric = stageReaderWriter.getArrayAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::points);
         auto extentScalar = glm::linearRand(10.f, 200.f);
-        float centerBounds = 1000.f;
         auto center = pxr::GfVec3f{
-            glm::linearRand(-centerBounds, centerBounds),
-            glm::linearRand(-centerBounds, centerBounds),
-            glm::linearRand(-centerBounds, centerBounds)
+            glm::linearRand(-maxCenterRandomization, maxCenterRandomization),
+            glm::linearRand(-maxCenterRandomization, maxCenterRandomization),
+            glm::linearRand(-maxCenterRandomization, maxCenterRandomization)
         };
         pointsFabric[0] = pxr::GfVec3f(-extentScalar, -extentScalar, 0) + center;
         pointsFabric[1] = pxr::GfVec3f(-extentScalar, extentScalar, 0) + center;
@@ -922,8 +925,8 @@ void createQuadsViaFabric(int numQuads) {
         auto worldVisibilityFabric = stageReaderWriter.getAttributeWr<bool>(fabricPath, FabricTokens::_worldVisibility);
         *worldVisibilityFabric = true;
 
-        // auto worldPositionFabric = stageReaderWriter.getAttributeWr<pxr::GfVec3d>(fabricPath, FabricTokens::_worldPosition);
-        // *worldPositionFabric = pxr::GfVec3d(0, 0, 0);
+        auto worldPositionFabric = stageReaderWriter.getAttributeWr<pxr::GfVec3d>(fabricPath, FabricTokens::_worldPosition);
+        *worldPositionFabric = pxr::GfVec3d(0, 0, 0);
 
         // auto worldOrientationFabric = stageReaderWriter.getAttributeWr<pxr::GfQuatf>(fabricPath, FabricTokens::_worldOrientation);
         // *worldOrientationFabric = pxr::GfQuatf(1.f, 0, 0, 0);
@@ -1298,18 +1301,10 @@ void alterUsdPrimTranslationWithFabric() {
     for (size_t i = 0; i != cubeCount; i++)
     {
         pxr::SdfPath path("/cube_" + std::to_string(i));
-
-        //parenting to an Xform could work
-        // pxr::UsdGeomXform xform = pxr::UsdGeomXform::Define(usdStagePtr, path);
-        // pxr::UsdPrim prim = usdStagePtr->DefinePrim(xform.GetPath().AppendChild(pxr::TfToken("CubePrim")), pxr::TfToken("Cube"));
-
-        pxr::UsdPrim prim = usdStagePtr->DefinePrim(path, pxr::TfToken("Cube"));
-        if (prim.IsA<pxr::UsdGeomXformable>()) {
-            pxr::UsdGeomXformable xformable(prim);
-            // Add an xformOp to the Xformable prim to define the transform
-            xformable.AddTranslateOp().Set(pxr::GfVec3d(3. * static_cast<double>(i), 0, 0));
-            prim.CreateAttribute(customAttrUsdToken, pxr::SdfValueTypeNames->Double).Set(123.45);
-        }
+        auto cube = pxr::UsdGeomCube::Define(usdStagePtr, path);
+        cube.GetPrim().CreateAttribute(customAttrUsdToken, pxr::SdfValueTypeNames->Double).Set(12.3);
+        auto xform = pxr::UsdGeomXformCommonAPI::Get(usdStagePtr, path);
+        xform.SetTranslate(pxr::GfVec3d(0, 0, 0));
     }
 
     //call prefetchPrim to get the data into Fabric.
@@ -1322,26 +1317,20 @@ void alterUsdPrimTranslationWithFabric() {
         iStageReaderWriter->prefetchPrim(usdStageId, path);
     }
 
-    //get all USD Cubes
+    //get all USD prims with the custom attr
     auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
     auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
-
-    omni::fabric::AttrNameAndType cubeTag(
-        omni::fabric::Type(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName),
-        omni::fabric::Token("Cube"));
-    auto bucketList = stageReaderWriter.findPrims({cubeTag});
+    omni::fabric::AttrNameAndType primTag(cudaTestAttributeFabricType, getCudaTestAttributeFabricToken());
+    auto bucketList = stageReaderWriter.findPrims({primTag});
 
     // edit translations
-    auto token = omni::fabric::Token("xformOp:translate");
+    auto token = omni::fabric::Token("_worldPosition");
     auto numBuckets = bucketList.bucketCount();
-    const float scaleMin = 0.f;
-    const float scaleMax = 3.f;
     for (size_t bucketNum = 0; bucketNum < numBuckets; bucketNum++) {
-        gsl::span<pxr::GfVec3d> values = stageReaderWriter.getAttributeArray<pxr::GfVec3d>(bucketList, bucketNum, token);
+        auto values = stageReaderWriter.getAttributeArray<pxr::GfVec3d>(bucketList, bucketNum, token);
         auto numElements = values.size();
         for (unsigned long long i = 0; i < numElements; i++) {
-            double xVal = values[i].data()[0];
-            values[i].Set(xVal, glm::linearRand(scaleMin, scaleMax), static_cast<double>(i));
+            values[i].Set(static_cast<double>(1), static_cast<double>(2), static_cast<double>(3));
         }
     }
 
@@ -1354,6 +1343,39 @@ void alterUsdPrimTranslationWithFabric() {
         }
     }
 }
+
+void repositionAllPrimsWithCustomAttrViaFabric(double spacing) {
+
+    //get all prims with the custom attr
+    auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+    auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
+    auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
+    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+    omni::fabric::AttrNameAndType primTag(cudaTestAttributeFabricType, getCudaTestAttributeFabricToken());
+    auto bucketList = stageReaderWriter.findPrims({primTag});
+
+    // edit translations
+    auto token = omni::fabric::Token("_worldPosition");
+    auto numBuckets = bucketList.bucketCount();
+    for (size_t bucketNum = 0; bucketNum < numBuckets; bucketNum++) {
+        auto values = stageReaderWriter.getAttributeArray<pxr::GfVec3d>(bucketList, bucketNum, token);
+        auto numElements = values.size();
+        for (unsigned long long i = 0; i < numElements; i++) {
+            auto coord = static_cast<double>(i) * spacing;
+            values[i].Set(coord, coord, coord);
+        }
+    }
+
+    // edit cudaTest attr
+    for (size_t bucketNum = 0; bucketNum < numBuckets; bucketNum++) {
+        gsl::span<double> values = stageReaderWriter.getAttributeArray<double>(bucketList, bucketNum, getCudaTestAttributeFabricToken());
+        const auto numElements = values.size();
+        for (unsigned long long i = 0; i < numElements; i++) {
+            values[i] = 543.21;
+        }
+    }
+}
+
 
 void alterUsdPrimTranslationWithUsd() {
     auto usdStagePtr = Context::instance().getStage();
@@ -1378,11 +1400,16 @@ void alterUsdPrimTranslationWithUsd() {
     //expand coords along diagonal
     for (size_t i = 0; i != cubeCount; i++)
     {
+        // This crashes at runtime
+        // auto prim = usdStagePtr->GetPrimAtPath(path);
+        // pxr::UsdGeomXformable xformable(prim);
+        // auto coord = static_cast<double>(i);
+        // xformable.AddTranslateOp().Set(pxr::GfVec3d(coord, coord, coord));
+
         pxr::SdfPath path("/cube_" + std::to_string(i));
-        auto prim = usdStagePtr->GetPrimAtPath(path);
-        pxr::UsdGeomXformable xformable(prim);
+        auto xform = pxr::UsdGeomXformCommonAPI::Get(usdStagePtr, path);
         auto coord = static_cast<double>(i);
-        xformable.AddTranslateOp().Set(pxr::GfVec3d(coord, coord, coord));
+        xform.SetTranslate(pxr::GfVec3d(coord, coord, coord));
     }
 }
 
