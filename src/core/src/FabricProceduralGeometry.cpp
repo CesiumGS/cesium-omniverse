@@ -71,8 +71,28 @@ void changeValue(double* values, size_t count)
 //     printf("Changed x value of index %llu from %f to %f\n", i, oldValX, values[i][0].x);
 // }
 // )";
+const char* modifyVec3dKernelCode = R"(
+struct Vec3d
+{
+    double x;
+    double y;
+    double z;
+};
 
-const char* modifyVec3fKernelCode = R"(
+extern "C" __global__
+void setVec3d(Vec3d* values, size_t count)
+{
+    size_t i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i >= count) return;
+
+    double oldValX = values[i].x;
+    values[i].x = static_cast<double>(i) * 10;
+    values[i].y = static_cast<double>(i) * 10;
+    printf("Changed x value of index %llu from %lf to %lf\n", i, oldValX, values[i].x);
+}
+)";
+
+const char* modifyVec3fArrayKernelCode = R"(
 struct Vec3f
 {
     float x;
@@ -89,7 +109,7 @@ void changeValue(Vec3f** values, size_t count)
     Vec3f* row = values[i];
     float oldValX = row[0].x;
     row[0].x = 0;
-    row[0].y = 1.0f;
+    row[0].y = 100.0f;
     printf("Changed x value of index %llu from %f to %f\n", i, oldValX, row[0].x);
 }
 )";
@@ -120,7 +140,8 @@ int createPrims() {
 }
 
 int alterPrims() {
-    repositionAllPrimsWithCustomAttrViaFabric(200);
+    // repositionAllPrimsWithCustomAttrViaFabric(200);
+    repositionAllPrimsWithCustomAttrViaCuda(200);
     // modifyAllPrimsWithCustomAttrViaCuda();
     return 0;
 }
@@ -979,7 +1000,7 @@ void modifyAllPrimsWithCustomAttrViaCuda() {
 
     nvrtcProgram prog;
     //nvrtcCreateProgram(&prog, kernelCode, "changeValue", 0, nullptr, nullptr);
-    nvrtcCreateProgram(&prog, modifyVec3fKernelCode, "changeValue", 0, nullptr, nullptr);
+    nvrtcCreateProgram(&prog, modifyVec3fArrayKernelCode, "changeValue", 0, nullptr, nullptr);
 
     // Compile the program
     nvrtcResult res = nvrtcCompileProgram(prog, 0, nullptr);
@@ -1060,6 +1081,126 @@ void modifyAllPrimsWithCustomAttrViaCuda() {
 
     delete[] ptx;
 }
+
+void repositionAllPrimsWithCustomAttrViaCuda(double spacing) {
+
+    auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+    auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
+    auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
+    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+
+    omni::fabric::AttrNameAndType cudaTestAttrTag(cudaTestAttributeFabricType, getCudaTestAttributeFabricToken());
+    omni::fabric::PrimBucketList buckets = stageReaderWriter.findPrims({cudaTestAttrTag});
+
+    if (buckets.bucketCount() == 0 ) {
+        std::cout << "No prims found, returning" << std::endl;
+    }
+
+    CUresult result = cuInit(0);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: CUDA did not init." << std::endl;
+    }
+
+    CUdevice device;
+    result = cuDeviceGet(&device, 0);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: CUDA did not get a device." << std::endl;
+    }
+
+    CUcontext context;
+    result = cuCtxCreate(&context, 0, device);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: could not create CUDA context." << std::endl;
+    }
+
+    nvrtcProgram prog;
+    //nvrtcCreateProgram(&prog, kernelCode, "changeValue", 0, nullptr, nullptr);
+    nvrtcCreateProgram(&prog, modifyVec3dKernelCode, "changeValue", 0, nullptr, nullptr);
+
+    // Compile the program
+    nvrtcResult res = nvrtcCompileProgram(prog, 0, nullptr);
+    if (res != NVRTC_SUCCESS) {
+        std::cout << "Error compiling NVRTC program:" << std::endl;
+
+        size_t logSize;
+        nvrtcGetProgramLogSize(prog, &logSize);
+        char* log = new char[logSize];
+        nvrtcGetProgramLog(prog, log);
+        std::cout << "   Compilation log: \n" << log << std::endl;
+
+        return;
+    }
+
+    // Get the PTX (assembly code for the GPU) from the compilation
+    size_t ptxSize;
+    nvrtcGetPTXSize(prog, &ptxSize);
+    char* ptx = new char[ptxSize];
+    nvrtcGetPTX(prog, ptx);
+
+    // Load the generated PTX and get a handle to the kernel.
+    CUmodule module;
+    CUfunction function;
+    cuModuleLoadDataEx(&module, ptx, 0, nullptr, nullptr);
+    cuModuleGetFunction(&function, module, "setVec3d");
+
+    auto bucketCount = buckets.bucketCount();
+    printf("Num buckets: %llu\n", bucketCount);
+
+    //iterate over buckets but pass the vector for the whole bucket to the GPU.
+    int primCount = 0;
+    //test on CPU
+    // for (size_t bucket = 0; bucket != buckets.bucketCount(); bucket++)
+    // {
+    //     auto values = stageReaderWriter.getAttributeArray<pxr::GfVec3f*>(buckets, bucket, FabricTokens::primvars_displayColor);
+    //     auto elementCount = values.size();
+    //     for (size_t i = 0; i < elementCount; i++) {
+    //         printf("displayColors of element %llu are %f, %f, %f\n", i, values[i][0][0], values[i][0][1], values[i][0][2]);
+    //         values[i][0][0] = 0;
+    //         values[i][0][1] = 1.f;
+    //     }
+    // }
+
+    struct Vec3d
+    {
+        double x;
+        double y;
+        double z;
+    };
+
+    //DEVELOP
+    std::cout << spacing << std::endl;
+
+    for (size_t bucket = 0; bucket != buckets.bucketCount(); bucket++)
+    {
+        //gsl::span<double> values = stageReaderWriter.getAttributeArrayGpu<double>(buckets, bucket, getCudaTestAttributeFabricToken());
+        auto values = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3d>(buckets, bucket, FabricTokens::_worldPosition);
+
+        auto ptr = reinterpret_cast<Vec3d*>(values.data());
+        size_t elemCount = values.size();
+        void *args[] = { &ptr, &elemCount }; //NOLINT
+        int blockSize = 32 * 4;
+        int numBlocks = (static_cast<int>(elemCount) + blockSize - 1) / blockSize;
+        // alternatively, CUDA can calculate these for you
+        // int blockSize, minGridSize;
+        // cuOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, function, nullptr, 0, 0);
+        auto err = cuLaunchKernel(function, numBlocks, 1, 1, blockSize, 1, 1, 0, nullptr, args, nullptr);
+        if (err) {
+            std::cout << "error" << std::endl;
+        }
+        primCount += static_cast<int>(elemCount);
+    }
+
+    std::cout << "modified " << primCount << " quads" << std::endl;
+
+    result = cuCtxDestroy(context);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: could not destroy CUDA context." << std::endl;
+    }
+
+    delete[] ptx;
+}
+
+
 
 void createFabricQuadsModifyViaCuda(int numQuads) {
     createQuadsViaFabric(numQuads);

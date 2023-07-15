@@ -72,8 +72,8 @@ void createQuadMeshWithDisplayColor();
 /* PRIM ALTERATIONS */////////////////////////////////////
 
 //Get all prims with "cudaTest" attr and edits the position with Fabric
-//Issues: TODO
 void repositionAllPrimsWithCustomAttrViaFabric(double spacing = 10.0);
+void repositionAllPrimsWithCustomAttrViaCuda(double spacing = 10.0);
 
 //Get all prims with "cudaTest" attr and edits the attr with CUDA
 //Issues: TODO
