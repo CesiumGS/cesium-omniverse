@@ -1,5 +1,7 @@
 #pragma once
 
+#include "cesium/omniverse/GltfUtil.h"
+
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
 #undef OPAQUE
@@ -10,12 +12,21 @@
 
 namespace cesium::omniverse {
 
-class FabricMesh;
+class FabricGeometry;
+class FabricMaterial;
+class FabricTexture;
 class OmniTileset;
+
+struct FabricMesh {
+    std::shared_ptr<FabricGeometry> geometry;
+    std::shared_ptr<FabricMaterial> material;
+    std::shared_ptr<FabricTexture> baseColorTexture;
+    MaterialInfo materialInfo;
+};
 
 struct TileRenderResources {
     glm::dmat4 tileTransform;
-    std::vector<std::shared_ptr<FabricMesh>> fabricMeshes;
+    std::vector<FabricMesh> fabricMeshes;
 };
 
 class FabricPrepareRenderResources final : public Cesium3DTilesSelection::IPrepareRendererResources {
@@ -58,6 +69,8 @@ class FabricPrepareRenderResources final : public Cesium3DTilesSelection::IPrepa
         void* pMainThreadRendererResources) noexcept override;
 
   private:
+    [[nodiscard]] bool tilesetExists() const;
+
     const OmniTileset& _tileset;
 };
 } // namespace cesium::omniverse

@@ -14,23 +14,17 @@ namespace cesium::omniverse {
 FabricGeometryDefinition::FabricGeometryDefinition(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
-    bool smoothNormals,
-    bool hasImagery,
-    bool disableMaterials) {
+    bool smoothNormals) {
 
-    const auto hasMaterial = GltfUtil::hasMaterial(primitive);
     const auto hasPrimitiveSt = GltfUtil::hasTexcoords(model, primitive, 0);
     const auto hasImagerySt = GltfUtil::hasImageryTexcoords(model, primitive, 0);
 
-    _hasMaterial = (hasMaterial || hasImagery) && !disableMaterials;
+    const auto materialInfo = GltfUtil::getMaterialInfo(model, primitive);
+
     _hasTexcoords = hasPrimitiveSt || hasImagerySt;
     _hasNormals = GltfUtil::hasNormals(model, primitive, smoothNormals);
     _hasVertexColors = GltfUtil::hasVertexColors(model, primitive, 0);
-    _doubleSided = GltfUtil::getDoubleSided(model, primitive);
-}
-
-bool FabricGeometryDefinition::hasMaterial() const {
-    return _hasMaterial;
+    _doubleSided = materialInfo.doubleSided;
 }
 
 bool FabricGeometryDefinition::hasTexcoords() const {
@@ -50,10 +44,6 @@ bool FabricGeometryDefinition::getDoubleSided() const {
 }
 
 bool FabricGeometryDefinition::operator==(const FabricGeometryDefinition& other) const {
-    if (_hasMaterial != other._hasMaterial) {
-        return false;
-    }
-
     if (_hasTexcoords != other._hasTexcoords) {
         return false;
     }

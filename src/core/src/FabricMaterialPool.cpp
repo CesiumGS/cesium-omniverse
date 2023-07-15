@@ -7,10 +7,12 @@ namespace cesium::omniverse {
 FabricMaterialPool::FabricMaterialPool(
     int64_t poolId,
     const FabricMaterialDefinition& materialDefinition,
-    uint64_t initialCapacity)
+    uint64_t initialCapacity,
+    pxr::SdfAssetPath defaultTextureAssetPath)
     : ObjectPool<FabricMaterial>()
     , _poolId(poolId)
-    , _materialDefinition(materialDefinition) {
+    , _materialDefinition(materialDefinition)
+    , _defaultTextureAssetPath(std::move(defaultTextureAssetPath)) {
     setCapacity(initialCapacity);
 }
 
@@ -20,7 +22,7 @@ const FabricMaterialDefinition& FabricMaterialPool::getMaterialDefinition() cons
 
 std::shared_ptr<FabricMaterial> FabricMaterialPool::createObject(uint64_t objectId) {
     const auto path = pxr::SdfPath(fmt::format("/fabric_material_pool_{}_object_{}", _poolId, objectId));
-    return std::make_shared<FabricMaterial>(path, _materialDefinition);
+    return std::make_shared<FabricMaterial>(path, _materialDefinition, _defaultTextureAssetPath);
 }
 
 void FabricMaterialPool::setActive(std::shared_ptr<FabricMaterial> material, bool active) {

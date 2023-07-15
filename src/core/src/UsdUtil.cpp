@@ -8,6 +8,7 @@
 #include <CesiumGeospatial/GlobeTransforms.h>
 #include <glm/gtc/matrix_access.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
+#include <omni/ui/ImageProvider/DynamicTextureProvider.h>
 #include <pxr/usd/sdf/primSpec.h>
 #include <pxr/usd/usd/prim.h>
 #include <pxr/usd/usd/stage.h>
@@ -101,6 +102,14 @@ pxr::GfVec3d glmToUsdVector(const glm::dvec3& vector) {
 
 pxr::GfVec2f glmToUsdVector(const glm::fvec2& vector) {
     return {vector.x, vector.y};
+}
+
+pxr::GfVec3f glmToUsdVector(const glm::fvec3& vector) {
+    return {vector.x, vector.y, vector.z};
+}
+
+pxr::GfRange3d glmToUsdRange(const std::array<glm::dvec3, 2>& extent) {
+    return {glmToUsdVector(extent[0]), glmToUsdVector(extent[1])};
 }
 
 pxr::GfMatrix4d glmToUsdMatrix(const glm::dmat4& matrix) {
@@ -202,11 +211,15 @@ pxr::SdfPath getPathUnique(const pxr::SdfPath& parentPath, const std::string& na
     return path;
 }
 
-std::string getSafeName(const std::string& assetName) {
+std::string getSafeName(const std::string& name) {
     const std::regex regex("[\\W]+");
     const std::string replace = "_";
 
-    return std::regex_replace(assetName, regex, replace);
+    return std::regex_replace(name, regex, replace);
+}
+
+pxr::SdfAssetPath getDynamicTextureProviderAssetPath(const std::string& name) {
+    return pxr::SdfAssetPath(fmt::format("{}{}", rtx::resourcemanager::kDynamicTexturePrefix, name));
 }
 
 glm::dmat4 computeUsdToEcefTransform(const CesiumGeospatial::Cartographic& origin) {
