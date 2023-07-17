@@ -7,7 +7,7 @@ def perform_vendor_install():
     logger = logging.getLogger(__name__)
 
     # Only vendor wheels for the main Cesium Omniverse extension should be placed here.
-    #  This file needs to be mirrored for each extension.
+    #  This action needs to be mirrored for each extension.
     vendor_wheels: List[WheelInfo] = [
         WheelInfo(
             module="lxml",

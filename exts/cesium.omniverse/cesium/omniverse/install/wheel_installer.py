@@ -24,11 +24,12 @@ class WheelInstaller:
     Class for installing wheel files bundled with the extension.
     """
 
-    def __init__(self, info: WheelInfo):
+    def __init__(self, info: WheelInfo, extension_module="cesium.omniverse"):
         """
         Creates a new instance of a wheel installer for installing a python package.
 
         :param info: A WheelInfo data class containing the information for wheel installation.
+        :param extension_module: The full module for the extension, if a different extension is using this class.
 
         :raises ValueError: If any arguments are null or empty strings.
         """
@@ -44,7 +45,7 @@ class WheelInstaller:
         self._info = info
 
         manager = app.get_app().get_extension_manager()
-        ext_id = manager.get_extension_id_by_module("cesium.omniverse")
+        ext_id = manager.get_extension_id_by_module(extension_module)
         self._vendor_directory_path = Path(manager.get_extension_path(ext_id)).joinpath("vendor")
 
     def install(self) -> bool:
