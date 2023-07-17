@@ -173,7 +173,7 @@ int createPrims() {
     // setDisplayColor();
     // createQuadsViaFabric(10);
 
-    createQuadsViaFabric(99);
+    createQuadsViaFabric(99, 200.f);
 
     return 0;
 }
@@ -183,7 +183,7 @@ int alterPrims() {
     // repositionAllPrimsWithCustomAttrViaCuda(200);
     // modifyAllPrimsWithCustomAttrViaCuda();
     // randomizePrimWorldPositionsWithCustomAttrViaCuda();
-    randomRotateAllPrimsWithCustomAttrViaFabric();
+    rotateAllPrimsWithCustomAttrViaFabric();
     return 0;
 }
 
@@ -991,6 +991,7 @@ void createQuadsViaFabric(int numQuads, float maxCenterRandomization) {
         *worldPositionFabric = pxr::GfVec3d(1.0, 2.0, 3.0);
 
         auto worldOrientationFabric = stageReaderWriter.getAttributeWr<pxr::GfQuatf>(fabricPath, FabricTokens::_worldOrientation);
+        //*worldOrientationFabric = pxr::GfQuatf(1.f, 0, 0, 0);
         *worldOrientationFabric = pxr::GfQuatf(1.f, 0, 0, 0);
 
         // auto worldScaleFabric = stageReaderWriter.getAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::_worldScale);
@@ -1750,7 +1751,7 @@ void createQuadMeshWithDisplayColor() {
 
 }
 
-void randomRotateAllPrimsWithCustomAttrViaFabric() {
+void rotateAllPrimsWithCustomAttrViaFabric() {
     //get all prims with the custom attr
     auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
     auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
@@ -1763,41 +1764,53 @@ void randomRotateAllPrimsWithCustomAttrViaFabric() {
     auto token = omni::fabric::Token("_worldOrientation");
     auto numBuckets = bucketList.bucketCount();
     for (size_t bucketNum = 0; bucketNum < numBuckets; bucketNum++) {
-        auto values = stageReaderWriter.getAttributeArray<pxr::GfQuatd>(bucketList, bucketNum, token);
+        auto values = stageReaderWriter.getAttributeArray<pxr::GfQuatf>(bucketList, bucketNum, token);
         auto numElements = values.size();
         for (unsigned long long i = 0; i < numElements; i++) {
-            pxr::GfQuatd quat = values[i];
+            pxr::GfQuatf quat = values[i];
             auto glmQuat = convertToGlm(quat);
-            auto angle = static_cast<double>(glm::radians(45.f));
-            glm::dvec3 axis(1, 0, 0); //
-            glm::dquat rotation = glm::angleAxis(angle, axis);
-            glmQuat = glmQuat * rotation;
+            auto angle = static_cast<float>(glm::radians(1.f));
+            glm::fvec3 axis(1, 0, 0); //
+            glm::fquat rotation = glm::angleAxis(angle, axis);
+            glmQuat = rotation * glmQuat;
             auto rotatedQuat = convertToGf(glmQuat);
             values[i] = rotatedQuat;
         }
     }
 
     // edit cudaTest attr
-    for (size_t bucketNum = 0; bucketNum < numBuckets; bucketNum++) {
-        gsl::span<double> values = stageReaderWriter.getAttributeArray<double>(bucketList, bucketNum, getCudaTestAttributeFabricToken());
-        const auto numElements = values.size();
-        for (unsigned long long i = 0; i < numElements; i++) {
-            values[i] = 543.21;
-        }
+    // for (size_t bucketNum = 0; bucketNum < numBuckets; bucketNum++) {
+    //     gsl::span<double> values = stageReaderWriter.getAttributeArray<double>(bucketList, bucketNum, getCudaTestAttributeFabricToken());
+    //     const auto numElements = values.size();
+    //     for (unsigned long long i = 0; i < numElements; i++) {
+    //         values[i] = 543.21;
+    //     }
+    // }
+}
+
+    // glm::dquat convertToGlm(const pxr::GfQuatd& quat) {
+    //     return {
+    //         quat.GetReal(),
+    //         quat.GetImaginary()[0],
+    //         quat.GetImaginary()[1],
+    //         quat.GetImaginary()[2]};
+    // }
+
+    glm::fquat convertToGlm(const pxr::GfQuatf& quat) {
+        return {
+            quat.GetReal(),
+            quat.GetImaginary()[0],
+            quat.GetImaginary()[1],
+            quat.GetImaginary()[2]};
     }
-}
 
-glm::dquat convertToGlm(const pxr::GfQuatd& quat) {
-    return {
-        quat.GetReal(),
-        quat.GetImaginary()[0],
-        quat.GetImaginary()[1],
-        quat.GetImaginary()[2]};
-}
+    // pxr::GfQuatd convertToGf(const glm::dquat& quat) {
+    //     return {quat.w, pxr::GfVec3d(quat.x, quat.y, quat.z)};
+    // }
 
-pxr::GfQuatd convertToGf(const glm::dquat& quat) {
-    return {quat.w, pxr::GfVec3d(quat.x, quat.y, quat.z)};
-}
+    pxr::GfQuatf convertToGf(const glm::fquat& quat) {
+        return {quat.w, pxr::GfVec3f(quat.x, quat.y, quat.z)};
+    }
 
 } // namespace cesium::omniverse::FabricProceduralGeometry
 
