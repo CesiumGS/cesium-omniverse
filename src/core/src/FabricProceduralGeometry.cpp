@@ -108,7 +108,7 @@ struct Vec3d
 };
 
 extern "C" __global__
-void randomizeVec3d(Vec3d* values, size_t count)
+void randomizeVec3d(Vec3d* values, size_t count, int seed)
 {
     size_t i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i >= count) return;
@@ -118,9 +118,9 @@ void randomizeVec3d(Vec3d* values, size_t count)
     double randomizationAmount = 200.0;
     double oldValX = values[i].x;
 
-    double randX = rand(i) * randomizationAmount - (randomizationAmount / 2.0);
-    double randY = rand(i + count) * randomizationAmount - (randomizationAmount / 2.0);
-    double randZ = rand(i + count * 2) * randomizationAmount - (randomizationAmount / 2.0);
+    double randX = rand(i + seed) * randomizationAmount - (randomizationAmount / 2.0);
+    double randY = rand(i + seed + count) * randomizationAmount - (randomizationAmount / 2.0);
+    double randZ = rand(i + seed + count * 2) * randomizationAmount - (randomizationAmount / 2.0);
 
     values[i].x = randX;
     values[i].y = randY;
@@ -1335,7 +1335,8 @@ void randomizePrimWorldPositionsWithCustomAttrViaCuda() {
 
         auto ptr = reinterpret_cast<Vec3d*>(values.data());
         size_t elemCount = values.size();
-        void *args[] = { &ptr, &elemCount }; //NOLINT
+        auto seed = rand();
+        void *args[] = { &ptr, &elemCount, &seed }; //NOLINT
         int blockSize = 32 * 4;
         int numBlocks = (static_cast<int>(elemCount) + blockSize - 1) / blockSize;
         // alternatively, CUDA can calculate these for you
