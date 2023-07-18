@@ -23,9 +23,8 @@ class FabricGeometry {
         bool debugRandomColors);
     ~FabricGeometry();
 
-    void setTile(
+    void setGeometry(
         int64_t tilesetId,
-        int64_t tileId,
         const glm::dmat4& ecefToUsdTransform,
         const glm::dmat4& gltfToEcefTransform,
         const glm::dmat4& nodeTransform,
@@ -40,7 +39,7 @@ class FabricGeometry {
     [[nodiscard]] omni::fabric::Path getPathFabric() const;
     [[nodiscard]] const FabricGeometryDefinition& getGeometryDefinition() const;
 
-    void assignMaterial(const std::shared_ptr<FabricMaterial>& material);
+    void setMaterial(const omni::fabric::Path& materialPath);
 
   private:
     void initialize();

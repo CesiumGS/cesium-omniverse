@@ -2,7 +2,7 @@
 
 #include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/Context.h"
-#include "cesium/omniverse/FabricMesh.h"
+#include "cesium/omniverse/FabricGeometry.h"
 #include "cesium/omniverse/FabricPrepareRenderResources.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GeospatialUtil.h"
@@ -27,6 +27,7 @@
 #include <pxr/usd/usd/prim.h>
 #include <pxr/usd/usd/stage.h>
 #include <pxr/usd/usdGeom/boundable.h>
+#include <pxr/usd/usdShade/materialBindingAPI.h>
 
 namespace cesium::omniverse {
 
@@ -243,6 +244,16 @@ pxr::CesiumGeoreference OmniTileset::getGeoreference() const {
     return UsdUtil::getCesiumGeoreference(georeferencePath);
 }
 
+pxr::SdfPath OmniTileset::getMaterialPath() const {
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+
+    const auto materialBindingApi = pxr::UsdShadeMaterialBindingAPI(tileset);
+    const auto materialBinding = materialBindingApi.GetDirectBinding();
+    const auto& materialPath = materialBinding.GetMaterialPath();
+
+    return materialPath;
+}
+
 int64_t OmniTileset::getTilesetId() const {
     return _tilesetId;
 }
@@ -439,7 +450,7 @@ void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
                 if (pRenderResources) {
                     const auto pTileRenderResources = reinterpret_cast<TileRenderResources*>(pRenderResources);
                     for (const auto& fabricMesh : pTileRenderResources->fabricMeshes) {
-                        fabricMesh->setVisibility(false);
+                        fabricMesh.geometry->setVisibility(false);
                     }
                 }
             }
@@ -455,7 +466,7 @@ void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
                 if (pRenderResources) {
                     const auto pTileRenderResources = reinterpret_cast<TileRenderResources*>(pRenderResources);
                     for (const auto& fabricMesh : pTileRenderResources->fabricMeshes) {
-                        fabricMesh->setVisibility(visible);
+                        fabricMesh.geometry->setVisibility(visible);
                     }
                 }
             }
