@@ -180,7 +180,7 @@ void runHeaderTest(Vec3f* values, size_t count)
 )";
 
 const char* curandHeaderTest = R"(
-#include "extern\nvidia\_build\target-deps\cuda\cuda\include\curand_kernel.h"
+#include <curand_kernel.h>
 
 struct Vec3d
 {
@@ -2077,7 +2077,13 @@ void runCurandHeaderTest() {
                        nullptr);              // includeNames
 
     // Compile the program
-    nvrtcResult res = nvrtcCompileProgram(prog, 0, nullptr);
+    std::string compileOptions = "--include-path=extern/nvidia/_build/target-deps/cuda/cuda/include";
+    char *compileParams[1]; //NOLINT
+    compileParams[0] = reinterpret_cast<char *>(malloc(sizeof(char) * (compileOptions.length() + 1))); //NOLINT
+    sprintf_s(compileParams[0], sizeof(char) * (compileOptions.length() + 1),
+        "%s", compileOptions.c_str());
+
+    nvrtcResult res = nvrtcCompileProgram(prog, 1, compileParams);
      if (res != NVRTC_SUCCESS) {
         std::cout << "Error compiling NVRTC program:" << std::endl;
 
