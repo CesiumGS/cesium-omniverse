@@ -97,25 +97,29 @@ class CesiumCreditsParser:
 
     def _build_ui_elements(self, parsed_credits: List[ParsedCredit], label_alignment: ui.Alignment):
         for parsed_credit in parsed_credits:
-            if parsed_credit.image_uri is not None:
-                if parsed_credit.link is not None:
-                    CesiumImageButton(
-                        src=parsed_credit.image_uri,
-                        padding=4,
-                        clicked_fn=partial(self._button_clicked, parsed_credit.link),
-                    )
-                else:
-                    CesiumUriImage(src=parsed_credit.image_uri)
-            elif parsed_credit.text is not None:
-                if parsed_credit.link is not None:
-                    ui.Button(
-                        parsed_credit.text,
-                        clicked_fn=partial(self._button_clicked, parsed_credit.link),
-                        height=0,
-                        width=0,
-                    )
-                else:
-                    ui.Label(parsed_credit.text, height=0, word_wrap=True, alignment=label_alignment)
+            # VStack + Spacer pushes our content to the bottom of the Stack to account for varying heights
+            with ui.VStack(spacing=0, width=0):
+                ui.Spacer()
+                if parsed_credit.image_uri is not None:
+                    if parsed_credit.link is not None:
+                        CesiumImageButton(
+                            src=parsed_credit.image_uri,
+                            padding=4,
+                            height=28,
+                            clicked_fn=partial(self._button_clicked, parsed_credit.link),
+                        )
+                    else:
+                        CesiumUriImage(src=parsed_credit.image_uri, padding=4, height=28)
+                elif parsed_credit.text is not None:
+                    if parsed_credit.link is not None:
+                        ui.Button(
+                            parsed_credit.text,
+                            clicked_fn=partial(self._button_clicked, parsed_credit.link),
+                            height=0,
+                            width=0,
+                        )
+                    else:
+                        ui.Label(parsed_credit.text, height=0, word_wrap=True, alignment=label_alignment)
 
     def _build_ui(self, parsed_credits: List[ParsedCredit], combine_labels: bool, label_alignment: ui.Alignment):
         if combine_labels:
@@ -133,7 +137,10 @@ class CesiumCreditsParser:
             # Add the label even if the string is empty. The label will expand to fill the parent HStack
             # which acts like a spacer that right-aligns the image and button elements. Eventually we
             # should find a different solution here.
-            ui.Label(label_strings_combined, height=0, word_wrap=True, alignment=label_alignment)
+            # VStack + Spacer pushes our content to the bottom of the Stack to account for varying heights
+            with ui.VStack(spacing=0):
+                ui.Spacer()
+                ui.Label(label_strings_combined, height=0, word_wrap=True, alignment=label_alignment)
 
             self._build_ui_elements(other_credits, label_alignment)
         else:
