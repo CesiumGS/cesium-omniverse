@@ -82,10 +82,11 @@ void repositionAllPrimsWithCustomAttrViaCuda(double spacing = 10.0);
 void randomizePrimWorldPositionsWithCustomAttrViaCuda();
 
 void rotateAllPrimsWithCustomAttrViaFabric();
+
 void billboardAllPrimsWithCustomAttrViaFabric();
+void billboardAllPrimsWithCustomAttrViaCuda();
 
-
-
+void runSimpleCudaHeaderTest();
 
 
 //Get all prims with "cudaTest" attr and edits the attr with CUDA

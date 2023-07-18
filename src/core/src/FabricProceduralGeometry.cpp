@@ -154,6 +154,30 @@ void changeValue(Vec3f** values, size_t count)
 }
 )";
 
+const char* cudaSimpleHeaderTest = R"(
+#include "cudaTestHeader.h"
+
+struct Vec3f
+{
+    float x;
+    float y;
+    float z;
+};
+
+extern "C" __global__
+void runHeaderTest(Vec3f* values, size_t count)
+{
+    size_t i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (count <= i) return;
+
+    cudaHello();
+
+    // float oldValX = values[i].x;
+    values[i].x = 0;
+    values[i].y = 1.0f;
+    // printf("Changed x value of index %llu from %f to %f\n", i, oldValX, values[i][0].x);
+}
+)";
 
 int createPrims() {
 
@@ -185,7 +209,8 @@ int alterPrims() {
     // modifyAllPrimsWithCustomAttrViaCuda();
     // randomizePrimWorldPositionsWithCustomAttrViaCuda();
     // rotateAllPrimsWithCustomAttrViaFabric();
-    billboardAllPrimsWithCustomAttrViaFabric();
+    // billboardAllPrimsWithCustomAttrViaFabric();
+    runSimpleCudaHeaderTest();
     return 0;
 }
 
@@ -901,7 +926,6 @@ void editSingleFabricAttributeViaCuda() {
     auto bucketCount = cubeBuckets.bucketCount();
     printf("Num buckets: %llu", bucketCount);
 
-    //iterate over buckets but pass the vector for the whole bucket to the GPU.
     for (size_t bucket = 0; bucket != cubeBuckets.bucketCount(); bucket++)
     {
         gsl::span<double> sizesD = stageReaderWriter.getAttributeArrayGpu<double>(cubeBuckets, bucket, getCudaTestAttributeFabricToken());
@@ -1840,8 +1864,149 @@ void billboardAllPrimsWithCustomAttrViaFabric() {
     }
 }
 
+void billboardAllPrimsWithCustomAttrViaCuda() {
+    std::cout << "TODO" << std::endl;
+    return;
+
+    // //get all prims with the custom attr
+    // auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+    // auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
+    // auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
+    // auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+    // omni::fabric::AttrNameAndType primTag(cudaTestAttributeFabricType, getCudaTestAttributeFabricToken());
+    // auto bucketList = stageReaderWriter.findPrims({primTag});
+
+    // // edit rotations
+    // auto token = omni::fabric::Token("_worldOrientation");
+    // auto worldPositionsTokens = omni::fabric::Token("_worldPosition");
+    // auto numBuckets = bucketList.bucketCount();
+
+    // glm::fvec3 lookatPosition{0.0, 0.0, 0.0};
+
+    // for (size_t bucketNum = 0; bucketNum < numBuckets; bucketNum++) {
+    //     auto values = stageReaderWriter.getAttributeArray<pxr::GfQuatf>(bucketList, bucketNum, token);
+    //     auto worldPositions = stageReaderWriter.getAttributeArray<pxr::GfVec3d>(bucketList, bucketNum, worldPositionsTokens);
+    //     auto numElements = values.size();
+    //     for (unsigned long long i = 0; i < numElements; i++) {
+    //         // pxr::GfQuatf quat = values[i];
+    //         // auto glmQuat = convertToGlm(quat);
+    //         auto worldPositionGfVec3f = pxr::GfVec3f(worldPositions[i]);
+    //         auto worldPositionGlm = usdToGlmVector(worldPositionGfVec3f);
+    //         glm::fvec3 direction = worldPositionGlm - lookatPosition;
+    //         direction = glm::normalize(direction);
+    //         glm::fquat newQuat = glm::quatLookAt(direction, glm::fvec3{0, 1.f, 0});
+    //         auto rotatedQuat = convertToGf(newQuat);
+    //         values[i] = rotatedQuat;
+    //     }
+    // }
+}
+
 glm::fvec3 usdToGlmVector(const pxr::GfVec3f& vector) {
     return {vector[0], vector[1], vector[2]};
+}
+
+void runSimpleCudaHeaderTest() {
+
+    auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+    auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
+    auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
+    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+
+    omni::fabric::AttrNameAndType cudaTestAttrTag(cudaTestAttributeFabricType, getCudaTestAttributeFabricToken());
+    omni::fabric::PrimBucketList buckets = stageReaderWriter.findPrims({cudaTestAttrTag});
+
+    if (buckets.bucketCount() == 0 ) {
+        std::cout << "No prims found, returning" << std::endl;
+    }
+
+    CUresult result = cuInit(0);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: CUDA did not init." << std::endl;
+    }
+
+    CUdevice device;
+    result = cuDeviceGet(&device, 0);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: CUDA did not get a device." << std::endl;
+    }
+
+    CUcontext context;
+    result = cuCtxCreate(&context, 0, device);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: could not create CUDA context." << std::endl;
+    }
+
+    nvrtcProgram prog;
+    nvrtcCreateProgram(&prog,                 // prog
+                       cudaSimpleHeaderTest,  // buffer
+                       nullptr,               // name
+                       0,                     // numHeaders
+                       nullptr,               // headers
+                       nullptr);              // includeNames
+
+    // Compile the program
+    nvrtcResult res = nvrtcCompileProgram(prog, 0, nullptr);
+     if (res != NVRTC_SUCCESS) {
+        std::cout << "Error compiling NVRTC program:" << std::endl;
+
+        size_t logSize;
+        nvrtcGetProgramLogSize(prog, &logSize);
+        char* log = new char[logSize];
+        nvrtcGetProgramLog(prog, log);
+        std::cout << "   Compilation log: \n" << log << std::endl;
+
+        return;
+    }
+
+    // Get the PTX (assembly code for the GPU) from the compilation
+    size_t ptxSize;
+    nvrtcGetPTXSize(prog, &ptxSize);
+    char* ptx = new char[ptxSize];
+    nvrtcGetPTX(prog, ptx);
+
+    // Load the generated PTX and get a handle to the kernel.
+    CUmodule module;
+    CUfunction function;
+    cuModuleLoadDataEx(&module, ptx, 0, nullptr, nullptr);
+    cuModuleGetFunction(&function, module, "runHeaderTest");
+
+    auto bucketCount = buckets.bucketCount();
+    printf("Num buckets: %llu\n", bucketCount);
+
+    int primCount = 0;
+
+    struct Vec3d
+    {
+        double x;
+        double y;
+        double z;
+    };
+
+    for (size_t bucket = 0; bucket != buckets.bucketCount(); bucket++)
+    {
+        gsl::span<double> sizesD = stageReaderWriter.getAttributeArrayGpu<double>(buckets, bucket, getCudaTestAttributeFabricToken());
+
+        double* ptr = sizesD.data();
+        size_t elemCount = sizesD.size();
+        void *args[] = { &ptr, &elemCount }; //NOLINT
+        int blockSize, minGridSize;
+        cuOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, function, nullptr, 0, 0);
+        //CUresult err = cuLaunchKernel(kernel, minGridSize, 1, 1, blockSize, 1, 1, 0, NULL, args, 0);
+        auto err = cuLaunchKernel(function, minGridSize, 1, 1, blockSize, 1, 1, 0, nullptr, args, nullptr);
+        // REQUIRE(!err);
+        if (err) {
+            std::cout << "error" << std::endl;
+        }
+    }
+
+    std::cout << "modified " << primCount << " quads" << std::endl;
+
+    result = cuCtxDestroy(context);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: could not destroy CUDA context." << std::endl;
+    }
+
+    delete[] ptx;
 }
 
 } // namespace cesium::omniverse::FabricProceduralGeometry
