@@ -13,4 +13,14 @@ CesiumGeospatial::Cartographic convertGeoreferenceToCartographic(const pxr::Cesi
     return {glm::radians(longitude), glm::radians(latitude), height};
 }
 
+CesiumGeospatial::LocalHorizontalCoordinateSystem
+getCoordinateSystem(const CesiumGeospatial::Cartographic& origin, const double scaleInMeters) {
+    return {
+        origin,
+        CesiumGeospatial::LocalDirection::East,
+        CesiumGeospatial::LocalDirection::Up,
+        CesiumGeospatial::LocalDirection::South,
+        scaleInMeters};
+}
+
 } // namespace cesium::omniverse::GeospatialUtil
