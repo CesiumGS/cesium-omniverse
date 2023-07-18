@@ -87,6 +87,7 @@ void billboardAllPrimsWithCustomAttrViaFabric();
 void billboardAllPrimsWithCustomAttrViaCuda();
 
 void runSimpleCudaHeaderTest();
+void runCurandHeaderTest();
 
 
 //Get all prims with "cudaTest" attr and edits the attr with CUDA
