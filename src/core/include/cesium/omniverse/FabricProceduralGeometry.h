@@ -82,6 +82,7 @@ void repositionAllPrimsWithCustomAttrViaCuda(double spacing = 10.0);
 void randomizePrimWorldPositionsWithCustomAttrViaCuda();
 
 void rotateAllPrimsWithCustomAttrViaFabric();
+void billboardAllPrimsWithCustomAttrViaFabric();
 
 
 
@@ -94,9 +95,11 @@ void modifyAllPrimsWithCustomAttrViaCuda();
 // CONVERSION
 
 // glm::dquat convertToGlm(const pxr::GfQuatd& quat);
-// pxr::GfQuatd convertToGf(const glm::dquat& quat);
+pxr::GfQuatd convertToGf(const glm::dquat& quat);
 glm::fquat convertToGlm(const pxr::GfQuatf& quat);
 pxr::GfQuatf convertToGf(const glm::fquat& quat);
+glm::fvec3 usdToGlmVector(const pxr::GfVec3f& vector);
+
 
 /* CUDA SPECIFIC *//////////////////////////////////////////
 

@@ -5,6 +5,7 @@
 #include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
+#include <glm/fwd.hpp>
 #include <glm/gtc/random.hpp>
 #include <glm/trigonometric.hpp>
 #include <omni/fabric/FabricUSD.h>
@@ -173,7 +174,7 @@ int createPrims() {
     // setDisplayColor();
     // createQuadsViaFabric(10);
 
-    createQuadsViaFabric(99, 200.f);
+    createQuadsViaFabric(100, 1500.f);
 
     return 0;
 }
@@ -183,7 +184,8 @@ int alterPrims() {
     // repositionAllPrimsWithCustomAttrViaCuda(200);
     // modifyAllPrimsWithCustomAttrViaCuda();
     // randomizePrimWorldPositionsWithCustomAttrViaCuda();
-    rotateAllPrimsWithCustomAttrViaFabric();
+    // rotateAllPrimsWithCustomAttrViaFabric();
+    billboardAllPrimsWithCustomAttrViaFabric();
     return 0;
 }
 
@@ -953,15 +955,10 @@ void createQuadsViaFabric(int numQuads, float maxCenterRandomization) {
         stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::points, 4);
         auto pointsFabric = stageReaderWriter.getArrayAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::points);
         auto extentScalar = glm::linearRand(10.f, 200.f);
-        auto center = pxr::GfVec3f{
-            glm::linearRand(-maxCenterRandomization, maxCenterRandomization),
-            glm::linearRand(-maxCenterRandomization, maxCenterRandomization),
-            glm::linearRand(-maxCenterRandomization, maxCenterRandomization)
-        };
-        pointsFabric[0] = pxr::GfVec3f(-extentScalar, -extentScalar, 0) + center;
-        pointsFabric[1] = pxr::GfVec3f(-extentScalar, extentScalar, 0) + center;
-        pointsFabric[2] = pxr::GfVec3f(extentScalar, extentScalar, 0) + center;
-        pointsFabric[3] = pxr::GfVec3f(extentScalar, -extentScalar, 0) + center;
+        pointsFabric[0] = pxr::GfVec3f(-extentScalar, -extentScalar, 0);
+        pointsFabric[1] = pxr::GfVec3f(-extentScalar, extentScalar, 0);
+        pointsFabric[2] = pxr::GfVec3f(extentScalar, extentScalar, 0);
+        pointsFabric[3] = pxr::GfVec3f(extentScalar, -extentScalar, 0);
 
         stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::faceVertexCounts, 2);
         auto faceVertexCountsFabric = stageReaderWriter.getArrayAttributeWr<int>(fabricPath, FabricTokens::faceVertexCounts);
@@ -987,12 +984,18 @@ void createQuadsViaFabric(int numQuads, float maxCenterRandomization) {
         auto worldVisibilityFabric = stageReaderWriter.getAttributeWr<bool>(fabricPath, FabricTokens::_worldVisibility);
         *worldVisibilityFabric = true;
 
+        auto center = pxr::GfVec3d{
+            glm::linearRand(-maxCenterRandomization, maxCenterRandomization),
+            glm::linearRand(-maxCenterRandomization, maxCenterRandomization),
+            glm::linearRand(-maxCenterRandomization, maxCenterRandomization)
+        };
+
         auto worldPositionFabric = stageReaderWriter.getAttributeWr<pxr::GfVec3d>(fabricPath, FabricTokens::_worldPosition);
-        *worldPositionFabric = pxr::GfVec3d(1.0, 2.0, 3.0);
+        *worldPositionFabric = pxr::GfVec3d(1.0, 2.0, 3.0) + center;
 
         auto worldOrientationFabric = stageReaderWriter.getAttributeWr<pxr::GfQuatf>(fabricPath, FabricTokens::_worldOrientation);
         //*worldOrientationFabric = pxr::GfQuatf(1.f, 0, 0, 0);
-        *worldOrientationFabric = pxr::GfQuatf(1.f, 0, 0, 0);
+        *worldOrientationFabric = pxr::GfQuatf(0.f, 0, 0, 0);
 
         // auto worldScaleFabric = stageReaderWriter.getAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::_worldScale);
         // *worldScaleFabric = pxr::GfVec3f(1.f, 1.f, 1.f);
@@ -1777,40 +1780,69 @@ void rotateAllPrimsWithCustomAttrViaFabric() {
             values[i] = rotatedQuat;
         }
     }
-
-    // edit cudaTest attr
-    // for (size_t bucketNum = 0; bucketNum < numBuckets; bucketNum++) {
-    //     gsl::span<double> values = stageReaderWriter.getAttributeArray<double>(bucketList, bucketNum, getCudaTestAttributeFabricToken());
-    //     const auto numElements = values.size();
-    //     for (unsigned long long i = 0; i < numElements; i++) {
-    //         values[i] = 543.21;
-    //     }
-    // }
 }
 
-    // glm::dquat convertToGlm(const pxr::GfQuatd& quat) {
-    //     return {
-    //         quat.GetReal(),
-    //         quat.GetImaginary()[0],
-    //         quat.GetImaginary()[1],
-    //         quat.GetImaginary()[2]};
-    // }
+// glm::dquat convertToGlm(const pxr::GfQuatd& quat) {
+//     return {
+//         quat.GetReal(),
+//         quat.GetImaginary()[0],
+//         quat.GetImaginary()[1],
+//         quat.GetImaginary()[2]};
+// }
 
-    glm::fquat convertToGlm(const pxr::GfQuatf& quat) {
-        return {
-            quat.GetReal(),
-            quat.GetImaginary()[0],
-            quat.GetImaginary()[1],
-            quat.GetImaginary()[2]};
+glm::fquat convertToGlm(const pxr::GfQuatf& quat) {
+    return {
+        quat.GetReal(),
+        quat.GetImaginary()[0],
+        quat.GetImaginary()[1],
+        quat.GetImaginary()[2]};
+}
+
+pxr::GfQuatd convertToGf(const glm::dquat& quat) {
+    return {quat.w, pxr::GfVec3d(quat.x, quat.y, quat.z)};
+}
+
+pxr::GfQuatf convertToGf(const glm::fquat& quat) {
+    return {quat.w, pxr::GfVec3f(quat.x, quat.y, quat.z)};
+}
+
+void billboardAllPrimsWithCustomAttrViaFabric() {
+    //get all prims with the custom attr
+    auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+    auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
+    auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
+    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+    omni::fabric::AttrNameAndType primTag(cudaTestAttributeFabricType, getCudaTestAttributeFabricToken());
+    auto bucketList = stageReaderWriter.findPrims({primTag});
+
+    // edit rotations
+    auto token = omni::fabric::Token("_worldOrientation");
+    auto worldPositionsTokens = omni::fabric::Token("_worldPosition");
+    auto numBuckets = bucketList.bucketCount();
+
+    glm::fvec3 lookatPosition{0.0, 0.0, 0.0};
+
+    for (size_t bucketNum = 0; bucketNum < numBuckets; bucketNum++) {
+        auto values = stageReaderWriter.getAttributeArray<pxr::GfQuatf>(bucketList, bucketNum, token);
+        auto worldPositions = stageReaderWriter.getAttributeArray<pxr::GfVec3d>(bucketList, bucketNum, worldPositionsTokens);
+        auto numElements = values.size();
+        for (unsigned long long i = 0; i < numElements; i++) {
+            // pxr::GfQuatf quat = values[i];
+            // auto glmQuat = convertToGlm(quat);
+            auto worldPositionGfVec3f = pxr::GfVec3f(worldPositions[i]);
+            auto worldPositionGlm = usdToGlmVector(worldPositionGfVec3f);
+            glm::fvec3 direction = worldPositionGlm - lookatPosition;
+            direction = glm::normalize(direction);
+            glm::fquat newQuat = glm::quatLookAt(direction, glm::fvec3{0, 1.f, 0});
+            auto rotatedQuat = convertToGf(newQuat);
+            values[i] = rotatedQuat;
+        }
     }
+}
 
-    // pxr::GfQuatd convertToGf(const glm::dquat& quat) {
-    //     return {quat.w, pxr::GfVec3d(quat.x, quat.y, quat.z)};
-    // }
-
-    pxr::GfQuatf convertToGf(const glm::fquat& quat) {
-        return {quat.w, pxr::GfVec3f(quat.x, quat.y, quat.z)};
-    }
+glm::fvec3 usdToGlmVector(const pxr::GfVec3f& vector) {
+    return {vector[0], vector[1], vector[2]};
+}
 
 } // namespace cesium::omniverse::FabricProceduralGeometry
 
