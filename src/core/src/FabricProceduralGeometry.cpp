@@ -190,18 +190,19 @@ struct Vec3d
 };
 
 extern "C" __global__
-void runCurandTest(Vec3d* values, size_t count)
+void runCurandTest(Vec3d* values, size_t count, unsigned int seed)
 {
     size_t i = blockIdx.x * blockDim.x + threadIdx.x;
     if (count <= i) return;
 
     curandState state;
-    curand_init(i, i, 0, &state);
+    curand_init(seed, i, 0, &state);
 
-    double oldValX = values[i].x;
+    double oldVal = values[i].z;
     values[i].x = 0;
-    values[i].y = curand_uniform(&state);
-    printf("Changed x value of index %zu from %lf to %lf via curand\n", i, oldValX, values[i].x);
+    values[i].y = 0;
+    values[i].z = curand_uniform_double(&state) * 2000;
+    printf("Changed z value of index %zu from %lf to %lf via curand seed %d\n", i, oldVal, values[i].z, seed);
 }
 )";
 
