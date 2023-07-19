@@ -226,6 +226,71 @@ void runCurandTest(Vec3d* values, size_t count, unsigned int seed)
 }
 )";
 
+const char* lookAtKernelCode = R"(
+struct fquat
+{
+    float w;
+    float x;
+    float y;
+    float z;
+};
+
+//CUDA only has common linear algebra functions for float3, not double3
+
+__device__ double3 cross(double3 a, double3 b)
+{
+    return make_double3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
+}
+
+__device__ double dot(double3 a, double3 b) {
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+__device__ double3 normalize(double3 v) {
+    double length = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+    return make_double3(v.x / length, v.y / length, v.z / length);
+}
+
+__device__ double magnitude(double3 v) {
+    return sqrt(dot(v, v));
+}
+
+__device__ fquat directionToQuaternion(double3 direction) {
+    double3 reference = make_double3(0.0, 0.0, 1.0);
+    double3 axis = cross(reference, direction);
+
+    // Ensure the direction and reference aren't parallel
+    if (magnitude(axis) == 0.0) {
+        axis = make_double3(0.0, 1.0, 0.0);
+    }
+
+    axis = normalize(axis);
+
+    double angle = acos(dot(reference, normalize(direction)));
+    double s = sin(angle / 2.0);
+
+    fquat result;
+    result.w = static_cast<float>(cos(angle / 2.0));
+    result.x = static_cast<float>(axis.x * s);
+    result.y = static_cast<float>(axis.y * s);
+    result.z = static_cast<float>(axis.z * s);
+
+    return result;
+}
+
+extern "C" __global__
+void lookAt(fquat* orientations, double3* worldPositions, double3* lookatPosition, size_t count)
+{
+    size_t i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i >= count) return;
+
+    double3 lookAtDirection = normalize(
+        make_double3(lookatPosition[0].x - worldPositions[i].x, lookatPosition[0].y - worldPositions[i].y, lookatPosition[0].z - worldPositions[i].z));
+    orientations[i] = directionToQuaternion(lookAtDirection);
+}
+)";
+
+
 int createPrims() {
 
     // modifyUsdCubePrimWithFabric();
@@ -257,10 +322,11 @@ int alterPrims() {
     // randomizePrimWorldPositionsWithCustomAttrViaCuda();
     // rotateAllPrimsWithCustomAttrViaFabric();
     // billboardAllPrimsWithCustomAttrViaFabric();
+    billboardAllPrimsWithCustomAttrViaCuda();
     // runSimpleCudaHeaderTest();
     // runCurandHeaderTest();
     // exportToUsd();
-    randomizeDVec3ViaCuda();
+    // randomizeDVec3ViaCuda();
     return 0;
 }
 
@@ -1897,9 +1963,9 @@ void billboardAllPrimsWithCustomAttrViaFabric() {
     glm::fvec3 lookatPosition{0.0, 0.0, 0.0};
 
     for (size_t bucketNum = 0; bucketNum < numBuckets; bucketNum++) {
-        auto values = stageReaderWriter.getAttributeArray<pxr::GfQuatf>(bucketList, bucketNum, token);
+        auto orientations = stageReaderWriter.getAttributeArray<pxr::GfQuatf>(bucketList, bucketNum, token);
         auto worldPositions = stageReaderWriter.getAttributeArray<pxr::GfVec3d>(bucketList, bucketNum, worldPositionsTokens);
-        auto numElements = values.size();
+        auto numElements = orientations.size();
         for (unsigned long long i = 0; i < numElements; i++) {
             // pxr::GfQuatf quat = values[i];
             // auto glmQuat = convertToGlm(quat);
@@ -1909,46 +1975,124 @@ void billboardAllPrimsWithCustomAttrViaFabric() {
             direction = glm::normalize(direction);
             glm::fquat newQuat = glm::quatLookAt(direction, glm::fvec3{0, 1.f, 0});
             auto rotatedQuat = convertToGf(newQuat);
-            values[i] = rotatedQuat;
+            orientations[i] = rotatedQuat;
         }
     }
 }
 
 void billboardAllPrimsWithCustomAttrViaCuda() {
-    std::cout << "TODO" << std::endl;
-    return;
+    //get all prims with the custom attr
+    auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+    auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
+    auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
+    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+    omni::fabric::AttrNameAndType primTag(cudaTestAttributeFabricType, getCudaTestAttributeFabricToken());
+    auto bucketList = stageReaderWriter.findPrims({primTag});
 
-    // //get all prims with the custom attr
-    // auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
-    // auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
-    // auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
-    // auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
-    // omni::fabric::AttrNameAndType primTag(cudaTestAttributeFabricType, getCudaTestAttributeFabricToken());
-    // auto bucketList = stageReaderWriter.findPrims({primTag});
+    // edit rotations
+    auto token = omni::fabric::Token("_worldOrientation");
+    auto worldPositionsTokens = omni::fabric::Token("_worldPosition");
 
-    // // edit rotations
-    // auto token = omni::fabric::Token("_worldOrientation");
-    // auto worldPositionsTokens = omni::fabric::Token("_worldPosition");
-    // auto numBuckets = bucketList.bucketCount();
+    auto numBuckets = bucketList.bucketCount();
+    printf("Num buckets: %llu\n", numBuckets);
 
-    // glm::fvec3 lookatPosition{0.0, 0.0, 0.0};
+    if (bucketList.bucketCount() == 0 ) {
+        std::cout << "No prims found, returning" << std::endl;
+    }
 
-    // for (size_t bucketNum = 0; bucketNum < numBuckets; bucketNum++) {
-    //     auto values = stageReaderWriter.getAttributeArray<pxr::GfQuatf>(bucketList, bucketNum, token);
-    //     auto worldPositions = stageReaderWriter.getAttributeArray<pxr::GfVec3d>(bucketList, bucketNum, worldPositionsTokens);
-    //     auto numElements = values.size();
-    //     for (unsigned long long i = 0; i < numElements; i++) {
-    //         // pxr::GfQuatf quat = values[i];
-    //         // auto glmQuat = convertToGlm(quat);
-    //         auto worldPositionGfVec3f = pxr::GfVec3f(worldPositions[i]);
-    //         auto worldPositionGlm = usdToGlmVector(worldPositionGfVec3f);
-    //         glm::fvec3 direction = worldPositionGlm - lookatPosition;
-    //         direction = glm::normalize(direction);
-    //         glm::fquat newQuat = glm::quatLookAt(direction, glm::fvec3{0, 1.f, 0});
-    //         auto rotatedQuat = convertToGf(newQuat);
-    //         values[i] = rotatedQuat;
-    //     }
-    // }
+    CUresult result = cuInit(0);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: CUDA did not init." << std::endl;
+    }
+
+    CUdevice device;
+    result = cuDeviceGet(&device, 0);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: CUDA did not get a device." << std::endl;
+    }
+
+    CUcontext context;
+    result = cuCtxCreate(&context, 0, device);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: could not create CUDA context." << std::endl;
+    }
+
+    nvrtcProgram prog;
+    nvrtcCreateProgram(&prog, lookAtKernelCode, "lookAt", 0, nullptr, nullptr);
+
+    // Compile the program
+    nvrtcResult res = nvrtcCompileProgram(prog, 0, nullptr);
+    if (res != NVRTC_SUCCESS) {
+        std::cout << "Error compiling NVRTC program:" << std::endl;
+
+        size_t logSize;
+        nvrtcGetProgramLogSize(prog, &logSize);
+        char* log = new char[logSize];
+        nvrtcGetProgramLog(prog, log);
+        std::cout << "   Compilation log: \n" << log << std::endl;
+
+        return;
+    }
+
+    // Get the PTX (assembly code for the GPU) from the compilation
+    size_t ptxSize;
+    nvrtcGetPTXSize(prog, &ptxSize);
+    char* ptx = new char[ptxSize];
+    nvrtcGetPTX(prog, ptx);
+
+    // Load the generated PTX and get a handle to the kernel.
+    CUmodule module;
+    CUfunction function;
+    cuModuleLoadDataEx(&module, ptx, 0, nullptr, nullptr);
+    cuModuleGetFunction(&function, module, "lookAt");
+
+    //iterate over buckets but pass the vector for the whole bucket to the GPU.
+    int primCount = 0;
+
+    cudaError_t err;
+    glm::dvec3 lookatPositionHost{0.0, 0.0, 0.0};
+    glm::dvec3* lookatPositionDevice;
+    err = cudaMalloc((void**)&lookatPositionDevice, sizeof(glm::dvec3));
+    if (err != cudaSuccess) {
+        printf("cudaMalloc failed: %s\n", cudaGetErrorString(err));
+        return;
+    }
+    err = cudaMemcpy(lookatPositionDevice, &lookatPositionHost, sizeof(glm::dvec3), cudaMemcpyHostToDevice);
+    if (err != cudaSuccess) {
+        printf("cudaMemcpy failed: %s\n", cudaGetErrorString(err));
+        return;
+    }
+
+    for (size_t bucket = 0; bucket != bucketList.bucketCount(); bucket++)
+    {
+        //gsl::span<double> values = stageReaderWriter.getAttributeArrayGpu<double>(buckets, bucket, getCudaTestAttributeFabricToken());
+        auto worldPositions = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3d>(bucketList, bucket, FabricTokens::_worldPosition);
+        auto worldOrientations = stageReaderWriter.getAttributeArrayGpu<pxr::GfQuatf>(bucketList, bucket, FabricTokens::_worldOrientation);
+
+        auto worldPositionsPtr = reinterpret_cast<glm::dvec3*>(worldPositions.data());
+        auto worldOrientationsPtr = reinterpret_cast<glm::fquat*>(worldOrientations.data());
+        size_t elemCount = worldPositions.size();
+        void *args[] = { &worldOrientationsPtr, &worldPositionsPtr, &lookatPositionDevice, &elemCount}; //NOLINT
+        int blockSize = 32 * 4;
+        int numBlocks = (static_cast<int>(elemCount) + blockSize - 1) / blockSize;
+        auto launchResult = cuLaunchKernel(function, numBlocks, 1, 1, blockSize, 1, 1, 0, nullptr, args, nullptr);
+        if (launchResult) {
+            std::cout << "error" << std::endl;
+        }
+        primCount += static_cast<int>(elemCount);
+    }
+
+    cudaFree(lookatPositionDevice);
+
+    std::cout << "modified " << primCount << " quads" << std::endl;
+
+    result = cuCtxDestroy(context);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: could not destroy CUDA context." << std::endl;
+    }
+
+    delete[] ptx;
+
 }
 
 glm::fvec3 usdToGlmVector(const pxr::GfVec3f& vector) {
