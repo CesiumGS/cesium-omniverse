@@ -9,6 +9,7 @@
 #include <CesiumGeospatial/GlobeAnchor.h>
 #include <CesiumGeospatial/GlobeTransforms.h>
 #include <glm/gtc/matrix_access.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <omni/ui/ImageProvider/DynamicTextureProvider.h>
 #include <pxr/base/gf/rotation.h>
@@ -201,31 +202,18 @@ pxr::SdfAssetPath getDynamicTextureProviderAssetPath(const std::string& name) {
     return pxr::SdfAssetPath(fmt::format("{}{}", rtx::resourcemanager::kDynamicTexturePrefix, name));
 }
 
-glm::dmat4 computeUsdToEcefTransform(const CesiumGeospatial::Cartographic& origin) {
-    const auto enuToFixed = GeospatialUtil::getEastNorthUpToFixedFrame(origin);
-    [[maybe_unused]] const auto eastInFixed = glm::dvec3(enuToFixed * glm::dvec4(glm::dvec3(1.0, 0.0, 0.0), 0.0));
-
-    //    const auto localCoordinateSystem = GeospatialUtil::getCoordinateSystem(origin, 1);
-    //    return localCoordinateSystem.getEcefToLocalTransformation();
-
-    return enuToFixed * GeospatialUtil::getAxisConversionTransform() * GeospatialUtil::getUnitConversionTransform();
-}
-
-glm::dmat4 computeEcefToUsdTransform(const CesiumGeospatial::Cartographic& origin) {
-    return glm::inverse(computeUsdToEcefTransform(origin));
-}
-
 glm::dmat4
 computeEcefToUsdTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath) {
-    const auto ecefToUsdTransform = computeEcefToUsdTransform(origin);
-    const auto primUsdWorldTransform = computeUsdWorldTransform(primPath);
-    const auto primEcefToUsdTransform = primUsdWorldTransform * ecefToUsdTransform;
+    const auto ecefToUsdTransform =
+        GeospatialUtil::getCoordinateSystem(origin, getUsdMetersPerUnit()).getEcefToLocalTransformation();
+    const auto primInverseUsdWorldTransform = glm::affineInverse(computeUsdWorldTransform(primPath));
+    const auto primEcefToUsdTransform = primInverseUsdWorldTransform * ecefToUsdTransform;
     return primEcefToUsdTransform;
 }
 
 glm::dmat4
 computeUsdToEcefTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath) {
-    return glm::inverse(computeEcefToUsdTransformForPrim(origin, primPath));
+    return glm::affineInverse(computeEcefToUsdTransformForPrim(origin, primPath));
 }
 
 Cesium3DTilesSelection::ViewState

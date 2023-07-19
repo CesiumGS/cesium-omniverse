@@ -9,7 +9,8 @@
 
 namespace CesiumGeospatial {
 class Cartographic;
-}
+class LocalHorizontalCoordinateSystem;
+} // namespace CesiumGeospatial
 
 namespace cesium::omniverse::GeospatialUtil {
 
