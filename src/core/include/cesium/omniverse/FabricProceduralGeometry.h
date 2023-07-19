@@ -7,6 +7,7 @@
 #include "pxr/base/gf/quatd.h"
 #include "pxr/base/gf/quatf.h"
 #include "glm/gtc/quaternion.hpp"
+#include <cmath>
 
 namespace cesium::omniverse::FabricProceduralGeometry {
 
@@ -80,6 +81,7 @@ void repositionAllPrimsWithCustomAttrViaFabric(double spacing = 10.0);
 void repositionAllPrimsWithCustomAttrViaCuda(double spacing = 10.0);
 
 void randomizePrimWorldPositionsWithCustomAttrViaCuda();
+void randomizeDVec3ViaCuda();
 
 void rotateAllPrimsWithCustomAttrViaFabric();
 
@@ -88,6 +90,7 @@ void billboardAllPrimsWithCustomAttrViaCuda();
 
 void runSimpleCudaHeaderTest();
 void runCurandHeaderTest();
+void exportToUsd();
 
 
 //Get all prims with "cudaTest" attr and edits the attr with CUDA

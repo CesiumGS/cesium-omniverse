@@ -132,6 +132,26 @@ void randomizeVec3d(Vec3d* values, size_t count, int seed)
 }
 )";
 
+const char* randomizeDVecKernelCode = R"(
+#include <curand_kernel.h>
+
+extern "C" __global__
+void randomizeDVec3(double3* values, size_t count, unsigned int seed)
+{
+    size_t i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (count <= i) return;
+
+    curandState state;
+    curand_init(seed, i, 0, &state);
+
+    double oldVal = values[i].z;
+    values[i].x = 0;
+    values[i].y = 0;
+    values[i].z = curand_uniform_double(&state) * 2000;
+    printf("Changed z value of index %zu from %lf to %lf via curand seed %d\n", i, oldVal, values[i].z, seed);
+}
+)";
+
 const char* modifyVec3fArrayKernelCode = R"(
 struct Vec3f
 {
@@ -238,7 +258,9 @@ int alterPrims() {
     // rotateAllPrimsWithCustomAttrViaFabric();
     // billboardAllPrimsWithCustomAttrViaFabric();
     // runSimpleCudaHeaderTest();
-    runCurandHeaderTest();
+    // runCurandHeaderTest();
+    // exportToUsd();
+    randomizeDVec3ViaCuda();
     return 0;
 }
 
@@ -2161,6 +2183,118 @@ void runCurandHeaderTest() {
     }
 
     delete[] ptx;
+}
+
+void randomizeDVec3ViaCuda() {
+
+    auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+    auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
+    auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
+    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+
+    omni::fabric::AttrNameAndType cudaTestAttrTag(cudaTestAttributeFabricType, getCudaTestAttributeFabricToken());
+    omni::fabric::PrimBucketList buckets = stageReaderWriter.findPrims({cudaTestAttrTag});
+
+    if (buckets.bucketCount() == 0 ) {
+        std::cout << "No prims found, returning" << std::endl;
+    }
+
+    CUresult result = cuInit(0);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: CUDA did not init." << std::endl;
+    }
+
+    CUdevice device;
+    result = cuDeviceGet(&device, 0);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: CUDA did not get a device." << std::endl;
+    }
+
+    CUcontext context;
+    result = cuCtxCreate(&context, 0, device);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: could not create CUDA context." << std::endl;
+    }
+
+    nvrtcProgram prog;
+    //nvrtcCreateProgram(&prog, kernelCode, "changeValue", 0, nullptr, nullptr);
+    nvrtcCreateProgram(&prog, randomizeDVecKernelCode, "changeValue", 0, nullptr, nullptr);
+
+    // Compile the program
+    std::string compileOptions = "--include-path=extern/nvidia/_build/target-deps/cuda/cuda/include";
+    char *compileParams[1]; //NOLINT
+    compileParams[0] = reinterpret_cast<char *>(malloc(sizeof(char) * (compileOptions.length() + 1))); //NOLINT
+    sprintf_s(compileParams[0], sizeof(char) * (compileOptions.length() + 1),
+        "%s", compileOptions.c_str());
+
+    nvrtcResult res = nvrtcCompileProgram(prog, 1, compileParams);    if (res != NVRTC_SUCCESS) {
+        std::cout << "Error compiling NVRTC program:" << std::endl;
+
+        size_t logSize;
+        nvrtcGetProgramLogSize(prog, &logSize);
+        char* log = new char[logSize];
+        nvrtcGetProgramLog(prog, log);
+        std::cout << "   Compilation log: \n" << log << std::endl;
+
+        return;
+    }
+
+    // Get the PTX (assembly code for the GPU) from the compilation
+    size_t ptxSize;
+    nvrtcGetPTXSize(prog, &ptxSize);
+    char* ptx = new char[ptxSize];
+    nvrtcGetPTX(prog, ptx);
+
+    // Load the generated PTX and get a handle to the kernel.
+    CUmodule module;
+    CUfunction function;
+    cuModuleLoadDataEx(&module, ptx, 0, nullptr, nullptr);
+    cuModuleGetFunction(&function, module, "randomizeDVec3");
+
+    auto bucketCount = buckets.bucketCount();
+    printf("Num buckets: %llu\n", bucketCount);
+
+    //iterate over buckets but pass the vector for the whole bucket to the GPU.
+    int primCount = 0;
+
+    for (size_t bucket = 0; bucket != buckets.bucketCount(); bucket++)
+    {
+        //gsl::span<double> values = stageReaderWriter.getAttributeArrayGpu<double>(buckets, bucket, getCudaTestAttributeFabricToken());
+        auto values = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3d>(buckets, bucket, FabricTokens::_worldPosition);
+
+        auto ptr = reinterpret_cast<glm::dvec3*>(values.data());
+        size_t elemCount = values.size();
+        auto seed = rand();
+        void *args[] = { &ptr, &elemCount, &seed }; //NOLINT
+        int blockSize = 32 * 4;
+        int numBlocks = (static_cast<int>(elemCount) + blockSize - 1) / blockSize;
+        // alternatively, CUDA can calculate these for you
+        // int blockSize, minGridSize;
+        // cuOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, function, nullptr, 0, 0);
+        auto err = cuLaunchKernel(function, numBlocks, 1, 1, blockSize, 1, 1, 0, nullptr, args, nullptr);
+        if (err) {
+            std::cout << "error" << std::endl;
+        }
+        primCount += static_cast<int>(elemCount);
+    }
+
+    std::cout << "modified " << primCount << " quads" << std::endl;
+
+    result = cuCtxDestroy(context);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: could not destroy CUDA context." << std::endl;
+    }
+
+    delete[] ptx;
+}
+
+// no effect
+void exportToUsd() {
+    const auto iFabricUsd = carb::getCachedInterface<omni::fabric::IFabricUsd>();
+    auto fabricId = omni::fabric::FabricId();
+    iFabricUsd->exportUsdPrimData(fabricId);
+    // auto usdStageRefPtr = Context::instance().getStage();
+    // iFabricUsd->exportUsdPrimDataToStage(fabricId, usdStageRefPtr, 0, 0);
 }
 
 } // namespace cesium::omniverse::FabricProceduralGeometry
