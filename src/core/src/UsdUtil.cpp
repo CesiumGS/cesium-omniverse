@@ -1,12 +1,14 @@
 #include "cesium/omniverse/UsdUtil.h"
 
 #include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/GeospatialUtil.h"
 #include "cesium/omniverse/Viewport.h"
 
 #include <CesiumGeometry/Transforms.h>
 #include <CesiumGeospatial/Cartographic.h>
 #include <CesiumGeospatial/GlobeTransforms.h>
 #include <glm/gtc/matrix_access.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <omni/ui/ImageProvider/DynamicTextureProvider.h>
 #include <pxr/usd/sdf/primSpec.h>
@@ -20,34 +22,6 @@
 #include <regex>
 
 namespace cesium::omniverse::UsdUtil {
-
-namespace {
-glm::dmat4 getEastNorthUpToFixedFrame(const CesiumGeospatial::Cartographic& cartographic) {
-    const auto cartesian = CesiumGeospatial::Ellipsoid::WGS84.cartographicToCartesian(cartographic);
-    const auto matrix = CesiumGeospatial::GlobeTransforms::eastNorthUpToFixedFrame(cartesian);
-    return matrix;
-}
-
-glm::dmat4 getAxisConversionTransform() {
-    const auto upAxis = getUsdUpAxis();
-
-    auto axisConversion = glm::dmat4(1.0);
-
-    // USD up axis can be either Y or Z
-    if (upAxis == pxr::UsdGeomTokens->y) {
-        axisConversion = CesiumGeometry::Transforms::Y_UP_TO_Z_UP;
-    }
-
-    return axisConversion;
-}
-
-glm::dmat4 getUnitConversionTransform() {
-    const auto metersPerUnit = getUsdMetersPerUnit();
-    const auto matrix = glm::scale(glm::dmat4(1.0), glm::dvec3(metersPerUnit));
-    return matrix;
-}
-
-} // namespace
 
 pxr::UsdStageRefPtr getUsdStage() {
     return Context::instance().getStage();
@@ -222,25 +196,18 @@ pxr::SdfAssetPath getDynamicTextureProviderAssetPath(const std::string& name) {
     return pxr::SdfAssetPath(fmt::format("{}{}", rtx::resourcemanager::kDynamicTexturePrefix, name));
 }
 
-glm::dmat4 computeUsdToEcefTransform(const CesiumGeospatial::Cartographic& origin) {
-    return getEastNorthUpToFixedFrame(origin) * getAxisConversionTransform() * getUnitConversionTransform();
-}
-
-glm::dmat4 computeEcefToUsdTransform(const CesiumGeospatial::Cartographic& origin) {
-    return glm::inverse(computeUsdToEcefTransform(origin));
-}
-
 glm::dmat4
 computeEcefToUsdTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath) {
-    const auto ecefToUsdTransform = computeEcefToUsdTransform(origin);
-    const auto primUsdWorldTransform = computeUsdWorldTransform(primPath);
-    const auto primEcefToUsdTransform = primUsdWorldTransform * ecefToUsdTransform;
+    const auto ecefToUsdTransform =
+        GeospatialUtil::getCoordinateSystem(origin, getUsdMetersPerUnit()).getEcefToLocalTransformation();
+    const auto primInverseUsdWorldTransform = glm::affineInverse(computeUsdWorldTransform(primPath));
+    const auto primEcefToUsdTransform = primInverseUsdWorldTransform * ecefToUsdTransform;
     return primEcefToUsdTransform;
 }
 
 glm::dmat4
 computeUsdToEcefTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath) {
-    return glm::inverse(computeEcefToUsdTransformForPrim(origin, primPath));
+    return glm::affineInverse(computeEcefToUsdTransformForPrim(origin, primPath));
 }
 
 Cesium3DTilesSelection::ViewState
