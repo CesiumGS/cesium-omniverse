@@ -233,13 +233,46 @@ struct fquat
     float x;
     float y;
     float z;
+
+    __device__ fquat() : w(0), x(0), y(0), z(0) {}
+    __device__ fquat(float _w, float _x, float _y, float _z) {
+        w = _w;
+        x = _x;
+        y = _y;
+        z = _z;
+    }
 };
 
-//CUDA only has common linear algebra functions for float3, not double3
-
-__device__ double3 cross(double3 a, double3 b)
+struct dquat
 {
-    return make_double3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
+    double w;
+    double x;
+    double y;
+    double z;
+
+    __device__ dquat() : w(0), x(0), y(0), z(0) {}
+    __device__ dquat(double _w, double _x, double _y, double _z) {
+        w = _w;
+        x = _x;
+        y = _y;
+        z = _z;
+    }
+};
+
+struct dmat4 {
+    double m[4][4];
+
+    __device__ double* operator[] (int index) {
+        return m[index];
+    }
+};
+
+__device__ double3 cross(double3 a, double3 b) {
+    double3 result;
+    result.x = a.y * b.z - a.z * b.y;
+    result.y = a.z * b.x - a.x * b.z;
+    result.z = a.x * b.y - a.y * b.x;
+    return result;
 }
 
 __device__ double dot(double3 a, double3 b) {
@@ -247,46 +280,80 @@ __device__ double dot(double3 a, double3 b) {
 }
 
 __device__ double3 normalize(double3 v) {
-    double length = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-    return make_double3(v.x / length, v.y / length, v.z / length);
+    double len = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+    v.x /= len;
+    v.y /= len;
+    v.z /= len;
+    return v;
 }
 
-__device__ double magnitude(double3 v) {
-    return sqrt(dot(v, v));
-}
+__device__ dquat mat4ToQuat(double m[4][4]) {
+    dquat q;
+    double trace = m[0][0] + m[1][1] + m[2][2];
 
-__device__ fquat directionToQuaternion(double3 direction) {
-    double3 reference = make_double3(0.0, 0.0, 1.0);
-    double3 axis = cross(reference, direction);
-
-    // Ensure the direction and reference aren't parallel
-    if (magnitude(axis) == 0.0) {
-        axis = make_double3(0.0, 1.0, 0.0);
+    if (trace > 0.0) {
+        double s = 0.5 / sqrt(trace + 1.0);
+        q.w = 0.25 / s;
+        q.x = (m[2][1] - m[1][2]) * s;
+        q.y = (m[0][2] - m[2][0]) * s;
+        q.z = (m[1][0] - m[0][1]) * s;
+    } else {
+        if (m[0][0] > m[1][1] && m[0][0] > m[2][2]) {
+            double s = 2.0 * sqrt(1.0 + m[0][0] - m[1][1] - m[2][2]);
+            q.x = 0.25 * s;
+            q.w = (m[2][1] - m[1][2]) / s;
+            q.y = (m[0][1] + m[1][0]) / s;
+            q.z = (m[0][2] + m[2][0]) / s;
+        } else if (m[1][1] > m[2][2]) {
+            double s = 2.0 * sqrt(1.0 + m[1][1] - m[0][0] - m[2][2]);
+            q.y = 0.25 * s;
+            q.w = (m[0][2] - m[2][0]) / s;
+            q.x = (m[0][1] + m[1][0]) / s;
+            q.z = (m[1][2] + m[2][1]) / s;
+        } else {
+            double s = 2.0 * sqrt(1.0 + m[2][2] - m[0][0] - m[1][1]);
+            q.z = 0.25 * s;
+            q.w = (m[1][0] - m[0][1]) / s;
+            q.x = (m[0][2] + m[2][0]) / s;
+            q.y = (m[1][2] + m[2][1]) / s;
+        }
     }
 
-    axis = normalize(axis);
-
-    double angle = acos(dot(reference, normalize(direction)));
-    double s = sin(angle / 2.0);
-
-    fquat result;
-    result.w = static_cast<float>(cos(angle / 2.0));
-    result.x = static_cast<float>(axis.x * s);
-    result.y = static_cast<float>(axis.y * s);
-    result.z = static_cast<float>(axis.z * s);
-
-    return result;
+    return q;
 }
 
-extern "C" __global__
-void lookAt(fquat* orientations, double3* worldPositions, double3* lookatPosition, size_t count)
+__device__ dmat4 d_lookAt(double3 worldPositions, double3 lookatPosition, double3 up)
 {
-    size_t i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (i >= count) return;
+    double3 f = normalize(make_double3(lookatPosition.x - worldPositions.x, lookatPosition.y - worldPositions.y, lookatPosition.z - worldPositions.z));
+    double3 s = normalize(cross(f, up));
+    double3 u = cross(s, f);
 
-    double3 lookAtDirection = normalize(
-        make_double3(lookatPosition[0].x - worldPositions[i].x, lookatPosition[0].y - worldPositions[i].y, lookatPosition[0].z - worldPositions[i].z));
-    orientations[i] = directionToQuaternion(lookAtDirection);
+    dmat4 Result = {};
+    Result[0][0] = s.x;
+    Result[1][0] = s.y;
+    Result[2][0] = s.z;
+    Result[0][1] = u.x;
+    Result[1][1] = u.y;
+    Result[2][1] = u.z;
+    Result[0][2] =-f.x;
+    Result[1][2] =-f.y;
+    Result[2][2] =-f.z;
+    Result[3][0] =-dot(s, worldPositions);
+    Result[3][1] =-dot(u, worldPositions);
+    Result[3][2] = dot(f, worldPositions);
+    Result[3][3] = 1.0;
+    return Result;
+}
+
+extern "C" __global__ void lookAtKernel(fquat* orientation, double3* worldPositions, double3* lookatPosition, size_t count) {
+
+    const size_t i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (count <= i) return;
+
+    const double3 up = make_double3(0, 1.0, 0);
+    dmat4 lookAtMat = d_lookAt(worldPositions[i], *lookatPosition, up);
+    dquat dresult = mat4ToQuat(lookAtMat.m);
+    orientation[i] = fquat(static_cast<float>(dresult.w), static_cast<float>(dresult.x), static_cast<float>(dresult.y), static_cast<float>(dresult.z));
 }
 )";
 
@@ -2044,7 +2111,7 @@ void billboardAllPrimsWithCustomAttrViaCuda() {
     CUmodule module;
     CUfunction function;
     cuModuleLoadDataEx(&module, ptx, 0, nullptr, nullptr);
-    cuModuleGetFunction(&function, module, "lookAt");
+    cuModuleGetFunction(&function, module, "lookAtKernel");
 
     //iterate over buckets but pass the vector for the whole bucket to the GPU.
     int primCount = 0;
