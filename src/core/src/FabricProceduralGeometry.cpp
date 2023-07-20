@@ -287,6 +287,7 @@ __device__ double3 normalize(double3 v) {
     return v;
 }
 
+//column major
 __device__ dquat mat4ToQuat(double m[4][4]) {
     dquat q;
     double trace = m[0][0] + m[1][1] + m[2][2];
@@ -322,11 +323,51 @@ __device__ dquat mat4ToQuat(double m[4][4]) {
     return q;
 }
 
-__device__ dmat4 d_lookAt(double3 worldPositions, double3 lookatPosition, double3 up)
+// //row major
+// __device__ dquat mat4ToQuat(double m[4][4]) {
+//     dquat q;
+//     double trace = m[0][0] + m[1][1] + m[2][2];
+
+//     if (trace > 0.0) {
+//         double s = 0.5 / sqrt(trace + 1.0);
+//         q.w = 0.25 / s;
+//         q.x = (m[1][2] - m[2][1]) * s;
+//         q.y = (m[2][0] - m[0][2]) * s;
+//         q.z = (m[0][1] - m[1][0]) * s;
+//     } else {
+//         if (m[0][0] > m[1][1] && m[0][0] > m[2][2]) {
+//             double s = 2.0 * sqrt(1.0 + m[0][0] - m[1][1] - m[2][2]);
+//             q.w = (m[1][2] - m[2][1]) / s;
+//             q.x = 0.25 * s;
+//             q.y = (m[1][0] + m[0][1]) / s;
+//             q.z = (m[2][0] + m[0][2]) / s;
+//         } else if (m[1][1] > m[2][2]) {
+//             double s = 2.0 * sqrt(1.0 + m[1][1] - m[0][0] - m[2][2]);
+//             q.w = (m[2][0] - m[0][2]) / s;
+//             q.y = 0.25 * s;
+//             q.x = (m[0][1] + m[1][0]) / s;
+//             q.z = (m[2][1] + m[1][2]) / s;
+//         } else {
+//             double s = 2.0 * sqrt(1.0 + m[2][2] - m[0][0] - m[1][1]);
+//             q.w = (m[0][1] - m[1][0]) / s;
+//             q.z = 0.25 * s;
+//             q.x = (m[0][2] + m[2][0]) / s;
+//             q.y = (m[1][2] + m[2][1]) / s;
+//         }
+//     }
+
+//     return q;
+// }
+
+
+__device__ dmat4 d_lookAt(double3 worldPosition, double3 lookatPosition, double3 up)
 {
-    double3 f = normalize(make_double3(lookatPosition.x - worldPositions.x, lookatPosition.y - worldPositions.y, lookatPosition.z - worldPositions.z));
-    double3 s = normalize(cross(f, up));
-    double3 u = cross(s, f);
+    double3 lookAtDirection = normalize(make_double3(lookatPosition.x - worldPosition.x, lookatPosition.y - worldPosition.y, lookatPosition.z - worldPosition.z));
+    printf("lookAtDirection is (%lf, %lf, %lf)\n", lookAtDirection.x, lookAtDirection.y, lookAtDirection.z);
+    double3 s = normalize(cross(lookAtDirection, up));
+    printf("s is (%lf, %lf, %lf)\n", s.x, s.y, s.z);
+    double3 u = cross(s, lookAtDirection);
+    printf("u is (%lf, %lf, %lf)\n", u.x, u.y, u.z);
 
     dmat4 Result = {};
     Result[0][0] = s.x;
@@ -335,25 +376,92 @@ __device__ dmat4 d_lookAt(double3 worldPositions, double3 lookatPosition, double
     Result[0][1] = u.x;
     Result[1][1] = u.y;
     Result[2][1] = u.z;
-    Result[0][2] =-f.x;
-    Result[1][2] =-f.y;
-    Result[2][2] =-f.z;
-    Result[3][0] =-dot(s, worldPositions);
-    Result[3][1] =-dot(u, worldPositions);
-    Result[3][2] = dot(f, worldPositions);
+    Result[0][2] =-lookAtDirection.x;
+    Result[1][2] =-lookAtDirection.y;
+    Result[2][2] =-lookAtDirection.z;
+    Result[3][0] =-dot(s, worldPosition);
+    Result[3][1] =-dot(u, worldPosition);
+    Result[3][2] = dot(lookAtDirection, worldPosition);
     Result[3][3] = 1.0;
     return Result;
 }
+
+__device__ dquat quatLookAtRH(double3 direction, double3 up)
+{
+    double3 Result[3];
+
+    Result[2] = normalize(make_double3(-direction.x, -direction.y, -direction.z));
+    double3 Right = cross(up, Result[2]);
+    double RightLength = sqrt(Right.x * Right.x + Right.y * Right.y + Right.z * Right.z);
+    Result[0] = make_double3(Right.x / RightLength, Right.y / RightLength, Right.z / RightLength);
+    Result[1] = cross(Result[2], Result[0]);
+
+    double3& xVec = Result[0];
+    double3& yVec = Result[1];
+    double3& zVec = Result[2];
+
+    double m00 = xVec.x, m01 = yVec.x, m02 = zVec.x,
+           m10 = xVec.y, m11 = yVec.y, m12 = zVec.y,
+           m20 = xVec.z, m21 = yVec.z, m22 = zVec.z;
+
+    double t = m00 + m11 + m22;
+    double w, x, y, z;
+
+    if (t > 0.0) {
+        double s = sqrt(t + 1.0) * 2.0; // s=4*qw
+        w = 0.25 * s;
+        x = (m21 - m12) / s;
+        y = (m02 - m20) / s;
+        z = (m10 - m01) / s;
+    } else if ((m00 > m11) && (m00 > m22)) {
+        double s = sqrt(1.0 + m00 - m11 - m22) * 2.0; // s=4*qx
+        w = (m21 - m12) / s;
+        x = 0.25 * s;
+        y = (m01 + m10) / s;
+        z = (m02 + m20) / s;
+    } else if (m11 > m22) {
+        double s = sqrt(1.0 + m11 - m00 - m22) * 2.0; // s=4*qy
+        w = (m02 - m20) / s;
+        x = (m01 + m10) / s;
+        y = 0.25 * s;
+        z = (m12 + m21) / s;
+    } else {
+        double s = sqrt(1.0 + m22 - m00 - m11) * 2.0; // s=4*qz
+        w = (m10 - m01) / s;
+        x = (m02 + m20) / s;
+        y = (m12 + m21) / s;
+        z = 0.25 * s;
+    }
+
+    return dquat(w, x, y, z);
+}
+
+
 
 extern "C" __global__ void lookAtKernel(fquat* orientation, double3* worldPositions, double3* lookatPosition, size_t count) {
 
     const size_t i = blockIdx.x * blockDim.x + threadIdx.x;
     if (count <= i) return;
 
-    const double3 up = make_double3(0, 1.0, 0);
-    dmat4 lookAtMat = d_lookAt(worldPositions[i], *lookatPosition, up);
-    dquat dresult = mat4ToQuat(lookAtMat.m);
-    orientation[i] = fquat(static_cast<float>(dresult.w), static_cast<float>(dresult.x), static_cast<float>(dresult.y), static_cast<float>(dresult.z));
+    const double3 up = make_double3(0, 1.0, 0.0);
+    // // printf("worldPosition is %lf, %lf, %lf\n", worldPositions[i].x, worldPositions[i].y, worldPositions[i].z);
+    // dmat4 lookAtMat = d_lookAt(worldPositions[i], *lookatPosition, up);
+    // dquat dresult = mat4ToQuat(lookAtMat.m);
+    // fquat result = fquat(static_cast<float>(dresult.w), static_cast<float>(-dresult.x), static_cast<float>(-dresult.y), static_cast<float>(dresult.z));
+
+    double3 lookAtDirection = make_double3(lookatPosition->x - worldPositions[i].x, lookatPosition->y - worldPositions[i].y, lookatPosition->z - worldPositions[i].z);
+    // double3 lookAtDirection;
+    // lookAtDirection.x = lookatPosition.x - worldPositions[i].x;
+    // lookAtDirection.y = lookatPosition.y - worldPositions[i].y;
+    // lookAtDirection.z = lookatPosition.z - worldPositions[i].z;
+
+    // lookAtDirection = normalize(lookAtDirection);
+
+    dquat dresult = quatLookAtRH(lookAtDirection, up);
+    fquat result = fquat(static_cast<float>(dresult.w), static_cast<float>(dresult.x), static_cast<float>(dresult.y), static_cast<float>(dresult.z));
+    printf("resulting quat is %f, %f, %f, %f\n", result.w, result.x, result.y, result.z);
+    printf("works\n");
+    orientation[i] = result;
 }
 )";
 
@@ -1199,6 +1307,8 @@ void createQuadsViaFabric(int numQuads, float maxCenterRandomization) {
 
         auto worldPositionFabric = stageReaderWriter.getAttributeWr<pxr::GfVec3d>(fabricPath, FabricTokens::_worldPosition);
         *worldPositionFabric = pxr::GfVec3d(1.0, 2.0, 3.0) + center;
+        //DEBUG
+        // *worldPositionFabric = pxr::GfVec3d(300.0, 300.0, 0.0);
 
         auto worldOrientationFabric = stageReaderWriter.getAttributeWr<pxr::GfQuatf>(fabricPath, FabricTokens::_worldOrientation);
         //*worldOrientationFabric = pxr::GfQuatf(1.f, 0, 0, 0);
