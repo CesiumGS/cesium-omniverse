@@ -229,26 +229,39 @@ void runCurandTest(Vec3d* values, size_t count, unsigned int seed)
 const char* lookAtKernelCode = R"(
 struct fquat
 {
-    float w;
     float x;
     float y;
     float z;
+    float w;
 
-    __device__ fquat() : w(0), x(0), y(0), z(0) {}
-    __device__ fquat(float _w, float _x, float _y, float _z) {
-        w = _w;
+    __device__ fquat() : x(0), y(0), z(0), w(0) {}
+    __device__ fquat(float _x, float _y, float _z, float _w) {
         x = _x;
         y = _y;
         z = _z;
+        w = _w;
     }
 };
 
+
+struct mat3 {
+    float3 col0;
+    float3 col1;
+    float3 col2;
+};
+
+__device__ float dot(float3 a, float3 b)
+{
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+
 __device__ float3 normalize(float3 v) {
-    float norm = sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
-    float inverseNorm = 1.0f / norm;
-    v.x *= inverseNorm;
-    v.y *= inverseNorm;
-    v.z *= inverseNorm;
+    float normSquared = v.x * v.x + v.y * v.y + v.z * v.z;
+    float inverseSqrtNorm = rsqrtf(normSquared);
+    v.x *= inverseSqrtNorm;
+    v.y *= inverseSqrtNorm;
+    v.z *= inverseSqrtNorm;
     return v;
 }
 
@@ -270,23 +283,15 @@ __device__ float3 cross(float3 a, float3 b)
     );
 }
 
-__device__ fquat quatLookAtRH(float3 direction, float3 up)
+__device__ float3 operator*(const float3 &a, const float &b) {
+    return make_float3(a.x * b, a.y * b, a.z * b);
+}
+
+__device__ fquat quat_cast(mat3 Result)
 {
-    float3 Result[3];
-
-    Result[2] = normalize(make_float3(-direction.x, -direction.y, -direction.z));
-    float3 Right = cross(up, Result[2]);
-    float RightLength = sqrt(Right.x * Right.x + Right.y * Right.y + Right.z * Right.z);
-    Result[0] = make_float3(Right.x / RightLength, Right.y / RightLength, Right.z / RightLength);
-    Result[1] = cross(Result[2], Result[0]);
-
-    float3& xVec = Result[0];
-    float3& yVec = Result[1];
-    float3& zVec = Result[2];
-
-    float m00 = xVec.x, m01 = yVec.x, m02 = zVec.x,
-           m10 = xVec.y, m11 = yVec.y, m12 = zVec.y,
-           m20 = xVec.z, m21 = yVec.z, m22 = zVec.z;
+    float m00 = Result.col0.x, m01 = Result.col1.x, m02 = Result.col2.x,
+           m10 = Result.col0.y, m11 = Result.col1.y, m12 = Result.col2.y,
+           m20 = Result.col0.z, m21 = Result.col1.z, m22 = Result.col2.z;
 
     float t = m00 + m11 + m22;
     float w, x, y, z;
@@ -317,23 +322,34 @@ __device__ fquat quatLookAtRH(float3 direction, float3 up)
         z = 0.25f * s;
     }
 
-    return fquat(w, x, y, z);
+    return fquat(x, y, z, w);
+}
+
+__device__ fquat quatLookAtRH(float3 direction, float3 up)
+{
+    mat3 Result;
+
+    Result.col2 = make_float3(-direction.x, -direction.y, -direction.z);
+    float3 Right = cross(up, Result.col2);
+    Result.col0 = Right * rsqrtf(max(0.0000f, dot(Right, Right)));
+
+    Result.col1 = cross(Result.col2, Result.col0);
+
+    return quat_cast(Result);
 }
 
 extern "C" __global__ void lookAtKernel(fquat* orientation, double3* worldPositions, double3* lookatPosition, size_t count) {
 
     const size_t i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (count <= i) return;
+    if (i >= count) return;
 
     const float3 up = make_float3(0, 1.0, 0.0);
 
     double3 lookAtDirectionD = make_double3(lookatPosition->x - worldPositions[i].x, lookatPosition->y - worldPositions[i].y, lookatPosition->z - worldPositions[i].z);
-    lookAtDirectionD = normalize(lookAtDirectionD);
     float3 lookAtDirection = make_float3(static_cast<float>(lookAtDirectionD.x), static_cast<float>(lookAtDirectionD.y), static_cast<float>(lookAtDirectionD.z));
+    lookAtDirection = normalize(lookAtDirection);
 
     fquat result = quatLookAtRH(lookAtDirection, up);
-    printf("resulting quat is %f, %f, %f, %f\n", result.w, result.x, result.y, result.z);
-    printf("works\n");
     orientation[i] = result;
 }
 )";
@@ -1179,7 +1195,7 @@ void createQuadsViaFabric(int numQuads, float maxCenterRandomization) {
         };
 
         auto worldPositionFabric = stageReaderWriter.getAttributeWr<pxr::GfVec3d>(fabricPath, FabricTokens::_worldPosition);
-        *worldPositionFabric = pxr::GfVec3d(1.0, 2.0, 3.0) + center;
+        *worldPositionFabric = pxr::GfVec3d(0.0, 0.0, 0.0) + center;
         //DEBUG
         // *worldPositionFabric = pxr::GfVec3d(300.0, 300.0, 0.0);
 
@@ -2021,7 +2037,7 @@ void billboardAllPrimsWithCustomAttrViaFabric() {
             // auto glmQuat = convertToGlm(quat);
             auto worldPositionGfVec3f = pxr::GfVec3f(worldPositions[i]);
             auto worldPositionGlm = usdToGlmVector(worldPositionGfVec3f);
-            glm::fvec3 direction = worldPositionGlm - lookatPosition;
+            glm::fvec3 direction = lookatPosition - worldPositionGlm;
             direction = glm::normalize(direction);
             glm::fquat newQuat = glm::quatLookAt(direction, glm::fvec3{0, 1.f, 0});
             auto rotatedQuat = convertToGf(newQuat);
@@ -2115,7 +2131,6 @@ void billboardAllPrimsWithCustomAttrViaCuda() {
 
     for (size_t bucket = 0; bucket != bucketList.bucketCount(); bucket++)
     {
-        //gsl::span<double> values = stageReaderWriter.getAttributeArrayGpu<double>(buckets, bucket, getCudaTestAttributeFabricToken());
         auto worldPositions = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3d>(bucketList, bucket, FabricTokens::_worldPosition);
         auto worldOrientations = stageReaderWriter.getAttributeArrayGpu<pxr::GfQuatf>(bucketList, bucket, FabricTokens::_worldOrientation);
 
