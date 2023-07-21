@@ -374,7 +374,7 @@ int createPrims() {
     // setDisplayColor();
     // createQuadsViaFabric(10);
 
-    createQuadsViaFabric(100, 1500.f);
+    createQuadsViaFabric(2000, 200.f);
 
     return 0;
 }
@@ -1158,7 +1158,7 @@ void createQuadsViaFabric(int numQuads, float maxCenterRandomization) {
 
         stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::points, 4);
         auto pointsFabric = stageReaderWriter.getArrayAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::points);
-        auto extentScalar = glm::linearRand(10.f, 200.f);
+        auto extentScalar = glm::linearRand(1.f, 8.f);
         pointsFabric[0] = pxr::GfVec3f(-extentScalar, -extentScalar, 0);
         pointsFabric[1] = pxr::GfVec3f(-extentScalar, extentScalar, 0);
         pointsFabric[2] = pxr::GfVec3f(extentScalar, extentScalar, 0);
@@ -1208,7 +1208,7 @@ void createQuadsViaFabric(int numQuads, float maxCenterRandomization) {
 
         stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::primvars_displayColor, 1);
         auto displayColors = stageReaderWriter.getArrayAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::primvars_displayColor);
-        displayColors[0] = pxr::GfVec3f(1.0f, 0, 0);
+        displayColors[0] = pxr::GfVec3f(0.8f, 0.8f, 0.8f);
 
         //create a custom attribute for testing
         stageReaderWriter.createAttribute(fabricPath, getCudaTestAttributeFabricToken(), cudaTestAttributeFabricType);
