@@ -2071,22 +2071,6 @@ void billboardAllPrimsWithCustomAttrViaCuda() {
     //iterate over buckets but pass the vector for the whole bucket to the GPU.
     int primCount = 0;
 
-    //using CUDA Runtime API
-    //Don't do it. It'll switch the context
-    // cudaError_t err;
-    // glm::dvec3* lookatPositionDevice;
-    // err = cudaMalloc((void**)&lookatPositionDevice, sizeof(glm::dvec3));
-    // if (err != cudaSuccess) {
-    //     printf("cudaMalloc failed: %s\n", cudaGetErrorString(err));
-    //     return;
-    // }
-    // err = cudaMemcpy(lookatPositionDevice, &lookatPositionHost, sizeof(glm::dvec3), cudaMemcpyHostToDevice);
-    // if (err != cudaSuccess) {
-    //     printf("cudaMemcpy failed: %s\n", cudaGetErrorString(err));
-    //     return;
-    // }
-
-    //Driver API
     CUresult err;
     CUdeviceptr lookatPositionDevice;
 
@@ -2516,7 +2500,7 @@ void CudaRunner::init(const char* kernelCodeDEBUG, const char* kernelFunctionNam
         throw std::runtime_error("ERROR");
     }
     auto threadId = std::this_thread::get_id();
-    std::cout << "Current thread ID: " << threadId << std::endl;
+    std::cout << "Initial thread ID: " << threadId << std::endl;
 
 
     // nvrtcProgram program;
@@ -2582,28 +2566,36 @@ void CudaRunner::runKernel(void** args, size_t elemCount) {
     int blockSize = 32 * 4;
     int numBlocks = (static_cast<int>(elemCount) + blockSize - 1) / blockSize;
 
-    CUcontext currentContext;
-    cuCtxGetCurrent(&currentContext);
+    auto launchResult = cuLaunchKernel(_function, numBlocks, 1, 1, blockSize, 1, 1, 0, nullptr, args, nullptr);
+    if (launchResult) {
+        const char *errName = nullptr;
+        const char *errString = nullptr;
 
-    if (currentContext != _context) {
-        auto threadId = std::this_thread::get_id();
-        std::cout << "Current thread ID: " << threadId << std::endl;
-        std::cout << "Error: Context has changed!" << std::endl;
+        cuGetErrorName(launchResult, &errName);
+        cuGetErrorString(launchResult, &errString);
 
-        // throw std::runtime_error("contexts don't match");
-        cuCtxSetCurrent(_context);
+        std::cout << "Error launching kernel: " << errName << ": " << errString << std::endl;
+
+        CUcontext currentContext;
+        cuCtxGetCurrent(&currentContext);
+        if (currentContext != _context) {
+            std::cout << "Warning: Context has changed!" << std::endl;
+            auto threadId = std::this_thread::get_id();
+            std::cout << "Current thread ID: " << threadId << std::endl;
+
+            // throw std::runtime_error("contexts don't match");
+            cuCtxSetCurrent(_context);
+        }
     }
 
-    auto launchResult = cuLaunchKernel(_function, numBlocks, 1, 1, blockSize, 1, 1, 0, nullptr, args, nullptr);
-        if (launchResult) {
-            const char *errName = nullptr;
-            const char *errString = nullptr;
+    //retry after Context switch
+    if (launchResult) {
+        launchResult = cuLaunchKernel(_function, numBlocks, 1, 1, blockSize, 1, 1, 0, nullptr, args, nullptr);
+    }
 
-            cuGetErrorName(launchResult, &errName);
-            cuGetErrorString(launchResult, &errString);
-
-            std::cout << "Error launching kernel: " << errName << ": " << errString << std::endl;
-        }
+    if (launchResult) {
+        throw std::runtime_error("kernel still failed to launch after switch to original context\n");
+    }
 }
 
 } // namespace cesium::omniverse::FabricProceduralGeometry
