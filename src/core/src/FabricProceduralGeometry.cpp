@@ -20,6 +20,7 @@
 
 #include <pxr/usd/usd/prim.h>
 #include <iostream>
+#include <stdexcept>
 #include <omni/gpucompute/GpuCompute.h>
 #include "pxr/usd/usdGeom/mesh.h"
 #include "pxr/usd/usdGeom/xform.h"
@@ -32,6 +33,8 @@ namespace cesium::omniverse::FabricProceduralGeometry {
 
 
 constexpr int numPrimsForExperiment = 99;
+glm::dvec3 lookatPositionHost{0.0, 0.0, 0.0};
+CudaRunner cudaRunner;
 
 const omni::fabric::Type cudaTestAttributeFabricType(omni::fabric::BaseDataType::eDouble, 1, 0, omni::fabric::AttributeRole::eNone);
 omni::fabric::Token getCudaTestAttributeFabricToken() {
@@ -243,7 +246,6 @@ struct fquat
     }
 };
 
-
 struct mat3 {
     float3 col0;
     float3 col1;
@@ -254,7 +256,6 @@ __device__ float dot(float3 a, float3 b)
 {
     return a.x * b.x + a.y * b.y + a.z * b.z;
 }
-
 
 __device__ float3 normalize(float3 v) {
     float normSquared = v.x * v.x + v.y * v.y + v.z * v.z;
@@ -339,7 +340,6 @@ __device__ fquat quatLookAtRH(float3 direction, float3 up)
 }
 
 extern "C" __global__ void lookAtKernel(fquat* orientation, double3* worldPositions, double3* lookatPosition, size_t count) {
-
     const size_t i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i >= count) return;
 
@@ -2066,57 +2066,12 @@ void billboardAllPrimsWithCustomAttrViaCuda() {
         std::cout << "No prims found, returning" << std::endl;
     }
 
-    CUresult result = cuInit(0);
-    if (result != CUDA_SUCCESS) {
-        std::cout << "error: CUDA did not init." << std::endl;
-    }
-
-    CUdevice device;
-    result = cuDeviceGet(&device, 0);
-    if (result != CUDA_SUCCESS) {
-        std::cout << "error: CUDA did not get a device." << std::endl;
-    }
-
-    CUcontext context;
-    result = cuCtxCreate(&context, 0, device);
-    if (result != CUDA_SUCCESS) {
-        std::cout << "error: could not create CUDA context." << std::endl;
-    }
-
-    nvrtcProgram prog;
-    nvrtcCreateProgram(&prog, lookAtKernelCode, "lookAt", 0, nullptr, nullptr);
-
-    // Compile the program
-    nvrtcResult res = nvrtcCompileProgram(prog, 0, nullptr);
-    if (res != NVRTC_SUCCESS) {
-        std::cout << "Error compiling NVRTC program:" << std::endl;
-
-        size_t logSize;
-        nvrtcGetProgramLogSize(prog, &logSize);
-        char* log = new char[logSize];
-        nvrtcGetProgramLog(prog, log);
-        std::cout << "   Compilation log: \n" << log << std::endl;
-
-        return;
-    }
-
-    // Get the PTX (assembly code for the GPU) from the compilation
-    size_t ptxSize;
-    nvrtcGetPTXSize(prog, &ptxSize);
-    char* ptx = new char[ptxSize];
-    nvrtcGetPTX(prog, ptx);
-
-    // Load the generated PTX and get a handle to the kernel.
-    CUmodule module;
-    CUfunction function;
-    cuModuleLoadDataEx(&module, ptx, 0, nullptr, nullptr);
-    cuModuleGetFunction(&function, module, "lookAtKernel");
+    cudaRunner.init(lookAtKernelCode, "lookAt");
 
     //iterate over buckets but pass the vector for the whole bucket to the GPU.
     int primCount = 0;
 
     cudaError_t err;
-    glm::dvec3 lookatPositionHost{0.0, 0.0, 0.0};
     glm::dvec3* lookatPositionDevice;
     err = cudaMalloc((void**)&lookatPositionDevice, sizeof(glm::dvec3));
     if (err != cudaSuccess) {
@@ -2133,30 +2088,21 @@ void billboardAllPrimsWithCustomAttrViaCuda() {
     {
         auto worldPositions = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3d>(bucketList, bucket, FabricTokens::_worldPosition);
         auto worldOrientations = stageReaderWriter.getAttributeArrayGpu<pxr::GfQuatf>(bucketList, bucket, FabricTokens::_worldOrientation);
-
         auto worldPositionsPtr = reinterpret_cast<glm::dvec3*>(worldPositions.data());
         auto worldOrientationsPtr = reinterpret_cast<glm::fquat*>(worldOrientations.data());
         size_t elemCount = worldPositions.size();
         void *args[] = { &worldOrientationsPtr, &worldPositionsPtr, &lookatPositionDevice, &elemCount}; //NOLINT
-        int blockSize = 32 * 4;
-        int numBlocks = (static_cast<int>(elemCount) + blockSize - 1) / blockSize;
-        auto launchResult = cuLaunchKernel(function, numBlocks, 1, 1, blockSize, 1, 1, 0, nullptr, args, nullptr);
-        if (launchResult) {
-            std::cout << "error" << std::endl;
-        }
+
+        cudaRunner.runKernel(args, elemCount);
+
         primCount += static_cast<int>(elemCount);
     }
 
-    cudaFree(lookatPositionDevice);
-
     std::cout << "modified " << primCount << " quads" << std::endl;
 
-    result = cuCtxDestroy(context);
-    if (result != CUDA_SUCCESS) {
-        std::cout << "error: could not destroy CUDA context." << std::endl;
-    }
+    cudaFree(lookatPositionDevice);
 
-    delete[] ptx;
+    lookatPositionHost.x += 10.0;
 
 }
 
@@ -2504,6 +2450,123 @@ void exportToUsd() {
     iFabricUsd->exportUsdPrimData(fabricId);
     // auto usdStageRefPtr = Context::instance().getStage();
     // iFabricUsd->exportUsdPrimDataToStage(fabricId, usdStageRefPtr, 0, 0);
+}
+
+void CudaRunner::init(const char* kernelCodeDEBUG, const char* kernelFunctionName) {
+    if (_initted) return;
+
+    _kernelCode = kernelCodeDEBUG;
+    _kernelFunctionName = kernelFunctionName;
+
+    CUresult result;
+
+    result = cuInit(0);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: CUDA did not init." << std::endl;
+        throw std::runtime_error("ERROR");
+    }
+
+    // CUdevice device;
+    result = cuDeviceGet(&_device, 0);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: CUDA did not get a device." << std::endl;
+        throw std::runtime_error("ERROR");
+    }
+
+    // CUcontext context;
+    result = cuCtxCreate(&_context, 0, _device);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: could not create CUDA context." << std::endl;
+        throw std::runtime_error("ERROR");
+    }
+    auto threadId = std::this_thread::get_id();
+    std::cout << "Current thread ID: " << threadId << std::endl;
+
+
+    // nvrtcProgram program;
+    nvrtcCreateProgram(&_program, _kernelCode, _kernelFunctionName, 0, nullptr, nullptr);
+
+    nvrtcResult res = nvrtcCompileProgram(_program, 0, nullptr);
+    if (res != NVRTC_SUCCESS) {
+        std::cout << "Error compiling NVRTC program:" << std::endl;
+
+        size_t logSize;
+        nvrtcGetProgramLogSize(_program, &logSize);
+        char* log = new char[logSize];
+        nvrtcGetProgramLog(_program, log);
+        std::cout << "   Compilation log: \n" << log << std::endl;
+        delete[] log;
+
+        throw std::runtime_error("ERROR");
+    }
+
+    // Get the PTX (assembly code for the GPU)
+    size_t ptxSize;
+    nvrtcGetPTXSize(_program, &ptxSize);
+    _ptx = new char[ptxSize];
+    nvrtcGetPTX(_program, _ptx);
+
+    // CUmodule module;
+    // CUfunction function;
+    cuModuleLoadDataEx(&_module, _ptx, 0, nullptr, nullptr);
+    auto cudaRes = cuModuleGetFunction(&_function, _module, "lookAtKernel");
+    if (cudaRes != CUDA_SUCCESS) {
+        const char *errName = nullptr;
+        const char *errString = nullptr;
+        cuGetErrorName(cudaRes, &errName);
+        cuGetErrorString(cudaRes, &errString);
+        std::cout << "Error getting function: " << errName << ": " << errString << std::endl;
+
+        std::ostringstream errMsg;
+        errMsg << "Error getting function: " << errName << ": " << errString;
+        throw std::runtime_error(errMsg.str());
+    }
+
+    _initted = true;
+}
+
+void CudaRunner::teardown() {
+    auto result = cuCtxDestroy(_context);
+    if (result != CUDA_SUCCESS) {
+        std::cout << "error: could not destroy CUDA context." << std::endl;
+    }
+
+    delete[] _ptx;
+
+    // untested
+    // cuModuleUnload(_module);
+    // nvrtcDestroyProgram(&_program);
+}
+
+CudaRunner::~CudaRunner() {
+    if (_initted) teardown();
+}
+
+void CudaRunner::runKernel(void** args, size_t elemCount) {
+    int blockSize = 32 * 4;
+    int numBlocks = (static_cast<int>(elemCount) + blockSize - 1) / blockSize;
+
+    CUcontext currentContext;
+    cuCtxGetCurrent(&currentContext);
+
+    if (currentContext != _context) {
+        auto threadId = std::this_thread::get_id();
+        std::cout << "Current thread ID: " << threadId << std::endl;
+
+        std::cout << "Error: Context has changed!" << std::endl;
+        throw std::runtime_error("contexts don't match");
+    }
+
+    auto launchResult = cuLaunchKernel(_function, numBlocks, 1, 1, blockSize, 1, 1, 0, nullptr, args, nullptr);
+        if (launchResult) {
+            const char *errName = nullptr;
+            const char *errString = nullptr;
+
+            cuGetErrorName(launchResult, &errName);
+            cuGetErrorString(launchResult, &errString);
+
+            std::cout << "Error launching kernel: " << errName << ": " << errString << std::endl;
+        }
 }
 
 } // namespace cesium::omniverse::FabricProceduralGeometry

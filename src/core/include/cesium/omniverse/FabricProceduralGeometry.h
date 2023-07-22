@@ -14,7 +14,25 @@ namespace cesium::omniverse::FabricProceduralGeometry {
 int createPrims();
 int alterPrims();
 
+class CudaRunner {
+    private:
+        const char* _kernelCode;
+        const char* _kernelFunctionName;
+        CUdevice _device;
+        CUcontext _context;
+        nvrtcProgram _program;
+        char* _ptx;
+        CUmodule _module;
+        CUfunction _function;
+        bool _initted = false;
+        void teardown();
 
+    public:
+        void runKernel(void** args, size_t elemCount);
+        void init(const char* kernelCode, const char* kernelFunctionName);
+
+        ~CudaRunner();
+};
 
 /* EXPERIMENTS *//////////////////////////////////////////
 
