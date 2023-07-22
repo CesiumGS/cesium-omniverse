@@ -2071,18 +2071,46 @@ void billboardAllPrimsWithCustomAttrViaCuda() {
     //iterate over buckets but pass the vector for the whole bucket to the GPU.
     int primCount = 0;
 
-    cudaError_t err;
-    glm::dvec3* lookatPositionDevice;
-    err = cudaMalloc((void**)&lookatPositionDevice, sizeof(glm::dvec3));
-    if (err != cudaSuccess) {
-        printf("cudaMalloc failed: %s\n", cudaGetErrorString(err));
+    //using CUDA Runtime API
+    //Don't do it. It'll switch the context
+    // cudaError_t err;
+    // glm::dvec3* lookatPositionDevice;
+    // err = cudaMalloc((void**)&lookatPositionDevice, sizeof(glm::dvec3));
+    // if (err != cudaSuccess) {
+    //     printf("cudaMalloc failed: %s\n", cudaGetErrorString(err));
+    //     return;
+    // }
+    // err = cudaMemcpy(lookatPositionDevice, &lookatPositionHost, sizeof(glm::dvec3), cudaMemcpyHostToDevice);
+    // if (err != cudaSuccess) {
+    //     printf("cudaMemcpy failed: %s\n", cudaGetErrorString(err));
+    //     return;
+    // }
+
+    //Driver API
+    CUresult err;
+    CUdeviceptr lookatPositionDevice;
+
+    err = cuMemAlloc(&lookatPositionDevice, sizeof(glm::dvec3));
+    if (err != CUDA_SUCCESS) {
+        const char *errName;
+        const char *errStr;
+        cuGetErrorName(err, &errName);
+        cuGetErrorString(err, &errStr);
+        printf("cuMemAlloc failed: %s: %s\n", errName, errStr);
         return;
     }
-    err = cudaMemcpy(lookatPositionDevice, &lookatPositionHost, sizeof(glm::dvec3), cudaMemcpyHostToDevice);
-    if (err != cudaSuccess) {
-        printf("cudaMemcpy failed: %s\n", cudaGetErrorString(err));
+
+    err = cuMemcpyHtoD(lookatPositionDevice, &lookatPositionHost, sizeof(glm::dvec3));
+    if (err != CUDA_SUCCESS) {
+        const char *errName;
+        const char *errStr;
+        cuGetErrorName(err, &errName);
+        cuGetErrorString(err, &errStr);
+        printf("cuMemcpyHtoD failed: %s: %s\n", errName, errStr);
         return;
     }
+
+
 
     for (size_t bucket = 0; bucket != bucketList.bucketCount(); bucket++)
     {
@@ -2100,7 +2128,15 @@ void billboardAllPrimsWithCustomAttrViaCuda() {
 
     std::cout << "modified " << primCount << " quads" << std::endl;
 
-    cudaFree(lookatPositionDevice);
+    err = cuMemFree(lookatPositionDevice);
+    if (err != CUDA_SUCCESS) {
+        const char *errName;
+        const char *errStr;
+        cuGetErrorName(err, &errName);
+        cuGetErrorString(err, &errStr);
+        printf("cuMemFree failed: %s: %s\n", errName, errStr);
+        return;
+    }
 
     lookatPositionHost.x += 10.0;
 
@@ -2552,9 +2588,10 @@ void CudaRunner::runKernel(void** args, size_t elemCount) {
     if (currentContext != _context) {
         auto threadId = std::this_thread::get_id();
         std::cout << "Current thread ID: " << threadId << std::endl;
-
         std::cout << "Error: Context has changed!" << std::endl;
-        throw std::runtime_error("contexts don't match");
+
+        // throw std::runtime_error("contexts don't match");
+        cuCtxSetCurrent(_context);
     }
 
     auto launchResult = cuLaunchKernel(_function, numBlocks, 1, 1, blockSize, 1, 1, 0, nullptr, args, nullptr);
