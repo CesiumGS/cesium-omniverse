@@ -54,8 +54,8 @@ persistent.exts."cesium.omniverse".userAccessToken = ""
 
 [[test]]
 args = [
-    "--/renderer/enabled=pxr",
-    "--/renderer/active=pxr",
+    "--/renderer/enabled=rtx",
+    "--/renderer/active=rtx",
     "--/app/window/dpiScaleOverride=1.0",
     "--/app/window/scaleToMonitor=false",
     "--/app/file/ignoreUnsavedOnExit=true",
