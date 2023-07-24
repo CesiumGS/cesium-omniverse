@@ -375,7 +375,8 @@ int createPrims() {
     // setDisplayColor();
     // createQuadsViaFabric(10);
 
-    createQuadsViaFabric(80000, 1000.f);
+    // createQuadsViaFabric(80000, 1000.f);
+    createMultiquadViaFabric();
 
     return 0;
 }
@@ -1219,6 +1220,137 @@ void createQuadsViaFabric(int numQuads, float maxCenterRandomization) {
     }
 }
 
+void createMultiquadViaFabric() {
+    const auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+    const auto usdStageId = omni::fabric::UsdStageId{static_cast<uint64_t>(cesium::omniverse::Context::instance().getStageId())};
+    const auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
+    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+
+    const std::string primPathStub{"/multiquadMesh"};
+    const auto fabricPath = omni::fabric::Path((primPathStub + std::to_string(0)).c_str());
+    stageReaderWriter.createPrim(fabricPath);
+
+    FabricAttributesBuilder attributes;
+    attributes.addAttribute(FabricTypes::faceVertexCounts, FabricTokens::faceVertexCounts);
+    attributes.addAttribute(FabricTypes::faceVertexIndices, FabricTokens::faceVertexIndices);
+    attributes.addAttribute(FabricTypes::points, FabricTokens::points);
+    attributes.addAttribute(FabricTypes::Mesh, FabricTokens::Mesh);
+    attributes.addAttribute(FabricTypes::extent, FabricTokens::extent);
+    attributes.addAttribute(FabricTypes::_worldExtent, FabricTokens::_worldExtent);
+    attributes.addAttribute(FabricTypes::_worldVisibility, FabricTokens::_worldVisibility);
+    attributes.addAttribute(FabricTypes::primvars_displayColor, FabricTokens::primvars_displayColor);
+    attributes.addAttribute(FabricTypes::_worldPosition, FabricTokens::_worldPosition);
+    attributes.addAttribute(FabricTypes::_worldOrientation, FabricTokens::_worldOrientation);
+    // attributes.addAttribute(FabricTypes::_worldScale, FabricTokens::_worldScale);
+    attributes.createAttributes(fabricPath);
+
+    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::points, 16);
+    auto pointsFabric = stageReaderWriter.getArrayAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::points);
+    // auto extentScalar = glm::linearRand(1.f, 8.f);
+    const float unit = 1.f;
+    pxr::GfVec3f quadShift{-unit * 2.f, unit * 2.f, 0};
+    pointsFabric[0] = pxr::GfVec3f{-unit, -unit, 0} + quadShift;
+    pointsFabric[1] = pxr::GfVec3f{-unit, unit, 0} + quadShift;
+    pointsFabric[2] = pxr::GfVec3f{unit, unit, 0} + quadShift;
+    pointsFabric[3] = pxr::GfVec3f{unit, -unit, 0} + quadShift;
+    quadShift.Set(unit * 2.f, unit * 2.f, 0);
+    pointsFabric[4] = pxr::GfVec3f{-unit, -unit, 0} + quadShift;
+    pointsFabric[5] = pxr::GfVec3f{-unit, unit, 0} + quadShift;
+    pointsFabric[6] = pxr::GfVec3f{unit, unit, 0} + quadShift;
+    pointsFabric[7] = pxr::GfVec3f{unit, -unit, 0} + quadShift;
+    quadShift.Set(unit * 2.f, unit * -2.f, 0);
+    pointsFabric[8] = pxr::GfVec3f{-unit, -unit, 0} + quadShift;
+    pointsFabric[9] = pxr::GfVec3f{-unit, unit, 0} + quadShift;
+    pointsFabric[10] = pxr::GfVec3f{unit, unit, 0} + quadShift;
+    pointsFabric[11] = pxr::GfVec3f{unit, -unit, 0} + quadShift;
+    quadShift.Set(unit * -2.f, unit * -2.f, 0);
+    pointsFabric[12] = pxr::GfVec3f{-unit, -unit, 0} + quadShift;
+    pointsFabric[13] = pxr::GfVec3f{-unit, unit, 0} + quadShift;
+    pointsFabric[14] = pxr::GfVec3f{unit, unit, 0} + quadShift;
+    pointsFabric[15] = pxr::GfVec3f{unit, -unit, 0} + quadShift;
+
+    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::faceVertexCounts, 8);
+    auto faceVertexCountsFabric = stageReaderWriter.getArrayAttributeWr<int>(fabricPath, FabricTokens::faceVertexCounts);
+    faceVertexCountsFabric[0] = 3;
+    faceVertexCountsFabric[1] = 3;
+    faceVertexCountsFabric[2] = 3;
+    faceVertexCountsFabric[3] = 3;
+    faceVertexCountsFabric[4] = 3;
+    faceVertexCountsFabric[5] = 3;
+    faceVertexCountsFabric[6] = 3;
+    faceVertexCountsFabric[7] = 3;
+
+    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::faceVertexIndices, 24);
+    auto faceVertexIndicesFabric = stageReaderWriter.getArrayAttributeWr<int>(fabricPath, FabricTokens::faceVertexIndices);
+    faceVertexIndicesFabric[0] = 0;
+    faceVertexIndicesFabric[1] = 1;
+    faceVertexIndicesFabric[2] = 2;
+    faceVertexIndicesFabric[3] = 0;
+    faceVertexIndicesFabric[4] = 2;
+    faceVertexIndicesFabric[5] = 3;
+
+    faceVertexIndicesFabric[0 + 6] = 0 + 4;
+    faceVertexIndicesFabric[1 + 6] = 1 + 4;
+    faceVertexIndicesFabric[2 + 6] = 2 + 4;
+    faceVertexIndicesFabric[3 + 6] = 0 + 4;
+    faceVertexIndicesFabric[4 + 6] = 2 + 4;
+    faceVertexIndicesFabric[5 + 6] = 3 + 4;
+
+    faceVertexIndicesFabric[0 + 12] = 0 + 8;
+    faceVertexIndicesFabric[1 + 12] = 1 + 8;
+    faceVertexIndicesFabric[2 + 12] = 2 + 8;
+    faceVertexIndicesFabric[3 + 12] = 0 + 8;
+    faceVertexIndicesFabric[4 + 12] = 2 + 8;
+    faceVertexIndicesFabric[5 + 12] = 3 + 8;
+
+    faceVertexIndicesFabric[0 + 18] = 0 + 12;
+    faceVertexIndicesFabric[1 + 18] = 1 + 12;
+    faceVertexIndicesFabric[2 + 18] = 2 + 12;
+    faceVertexIndicesFabric[3 + 18] = 0 + 12;
+    faceVertexIndicesFabric[4 + 18] = 2 + 12;
+    faceVertexIndicesFabric[5 + 18] = 3 + 12;
+
+
+    auto extent = pxr::GfRange3d(pxr::GfVec3d(-unit * 3.f, -unit * 3.f, 0), pxr::GfVec3d(unit * 3.f, unit * 3.f, 0));
+    auto extentFabric = stageReaderWriter.getAttributeWr<pxr::GfRange3d>(fabricPath, FabricTokens::extent);
+    *extentFabric = extent;
+
+    auto worldExtentFabric = stageReaderWriter.getAttributeWr<pxr::GfRange3d>(fabricPath, FabricTokens::_worldExtent);
+    *worldExtentFabric = pxr::GfRange3d(pxr::GfVec3d(0.0, 0.0, 0.0), pxr::GfVec3d(0.0, 0.0, 0.0));
+
+    auto worldVisibilityFabric = stageReaderWriter.getAttributeWr<bool>(fabricPath, FabricTokens::_worldVisibility);
+    *worldVisibilityFabric = true;
+
+    // auto center = pxr::GfVec3d{
+    //     glm::linearRand(-maxCenterRandomization, maxCenterRandomization),
+    //     glm::linearRand(-maxCenterRandomization, maxCenterRandomization),
+    //     glm::linearRand(-maxCenterRandomization, maxCenterRandomization)
+    // };
+
+    auto worldPositionFabric = stageReaderWriter.getAttributeWr<pxr::GfVec3d>(fabricPath, FabricTokens::_worldPosition);
+    *worldPositionFabric = pxr::GfVec3d(0.0, 0.0, 0.0);// + center;
+    //DEBUG
+    // *worldPositionFabric = pxr::GfVec3d(300.0, 300.0, 0.0);
+
+    auto worldOrientationFabric = stageReaderWriter.getAttributeWr<pxr::GfQuatf>(fabricPath, FabricTokens::_worldOrientation);
+    //*worldOrientationFabric = pxr::GfQuatf(1.f, 0, 0, 0);
+    *worldOrientationFabric = pxr::GfQuatf(0.f, 0, 0, 0);
+
+    // auto worldScaleFabric = stageReaderWriter.getAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::_worldScale);
+    // *worldScaleFabric = pxr::GfVec3f(1.f, 1.f, 1.f);
+
+    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::primvars_displayColor, 1);
+    auto displayColors = stageReaderWriter.getArrayAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::primvars_displayColor);
+    displayColors[0] = pxr::GfVec3f(0.8f, 0.8f, 0.8f);
+
+    //create a custom attribute for testing
+    stageReaderWriter.createAttribute(fabricPath, getCudaTestAttributeFabricToken(), cudaTestAttributeFabricType);
+
+    auto testAttribute = stageReaderWriter.getAttributeWr<double>(fabricPath, getCudaTestAttributeFabricToken());
+    *testAttribute = 123.45;
+}
+
+
 void modifyAllPrimsWithCustomAttrViaCuda() {
 
     auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
@@ -1284,7 +1416,7 @@ void modifyAllPrimsWithCustomAttrViaCuda() {
     printf("Num buckets: %llu\n", bucketCount);
 
     //iterate over buckets but pass the vector for the whole bucket to the GPU.
-    int primCount = 0;
+    // int primCount = 0;
     //test on CPU
     // for (size_t bucket = 0; bucket != buckets.bucketCount(); bucket++)
     // {
@@ -1321,7 +1453,7 @@ void modifyAllPrimsWithCustomAttrViaCuda() {
         if (err) {
             std::cout << "error" << std::endl;
         }
-        primCount += static_cast<int>(elemCount);
+        // primCount += static_cast<int>(elemCount);
     }
 
     // std::cout << "modified " << primCount << " quads" << std::endl;
@@ -1399,7 +1531,7 @@ void repositionAllPrimsWithCustomAttrViaCuda(double spacing) {
     printf("Num buckets: %llu\n", bucketCount);
 
     //iterate over buckets but pass the vector for the whole bucket to the GPU.
-    int primCount = 0;
+    //int primCount = 0;
     //test on CPU
     // for (size_t bucket = 0; bucket != buckets.bucketCount(); bucket++)
     // {
@@ -1439,7 +1571,7 @@ void repositionAllPrimsWithCustomAttrViaCuda(double spacing) {
         if (err) {
             std::cout << "error" << std::endl;
         }
-        primCount += static_cast<int>(elemCount);
+        // primCount += static_cast<int>(elemCount);
     }
 
     // std::cout << "modified " << primCount << " quads" << std::endl;
@@ -2070,7 +2202,7 @@ void billboardAllPrimsWithCustomAttrViaCuda() {
     cudaRunner.init(lookAtKernelCode, "lookAt");
 
     //iterate over buckets but pass the vector for the whole bucket to the GPU.
-    int primCount = 0;
+    // int primCount = 0;
 
     CUresult err;
     CUdeviceptr lookatPositionDevice;
@@ -2108,7 +2240,7 @@ void billboardAllPrimsWithCustomAttrViaCuda() {
 
         cudaRunner.runKernel(args, elemCount);
 
-        primCount += static_cast<int>(elemCount);
+        // primCount += static_cast<int>(elemCount);
     }
 
     // std::cout << "modified " << primCount << " quads" << std::endl;
