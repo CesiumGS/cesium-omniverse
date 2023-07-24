@@ -91,6 +91,7 @@ void alterUsdPrimTranslationWithFabric();
 void createQuadMeshViaUsd(const char* path, float maxCenterRandomization = 0);
 void createQuadMeshViaFabric();
 void createMultiquadViaFabric();
+void createMultiquadMeshViaFabric2(size_t size);
 void createQuadsViaFabric(int numQuads, float maxCenterRandomization = 0);
 void createQuadMeshWithDisplayColor();
 

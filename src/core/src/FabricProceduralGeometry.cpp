@@ -376,7 +376,8 @@ int createPrims() {
     // createQuadsViaFabric(10);
 
     // createQuadsViaFabric(80000, 1000.f);
-    createMultiquadViaFabric();
+    // createMultiquadViaFabric();
+    createMultiquadMeshViaFabric2(4);
 
     return 0;
 }
@@ -1348,6 +1349,117 @@ void createMultiquadViaFabric() {
 
     auto testAttribute = stageReaderWriter.getAttributeWr<double>(fabricPath, getCudaTestAttributeFabricToken());
     *testAttribute = 123.45;
+}
+
+void createMultiquadMeshViaFabric2(size_t size) {
+    const auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+    const auto usdStageId = omni::fabric::UsdStageId{static_cast<uint64_t>(cesium::omniverse::Context::instance().getStageId())};
+    const auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
+    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+
+    const std::string primPathStub{"/multiquadMesh"};
+    const auto fabricPath = omni::fabric::Path((primPathStub + std::to_string(0)).c_str());
+    stageReaderWriter.createPrim(fabricPath);
+
+    FabricAttributesBuilder attributes;
+    attributes.addAttribute(FabricTypes::faceVertexCounts, FabricTokens::faceVertexCounts);
+    attributes.addAttribute(FabricTypes::faceVertexIndices, FabricTokens::faceVertexIndices);
+    attributes.addAttribute(FabricTypes::points, FabricTokens::points);
+    attributes.addAttribute(FabricTypes::Mesh, FabricTokens::Mesh);
+    attributes.addAttribute(FabricTypes::extent, FabricTokens::extent);
+    attributes.addAttribute(FabricTypes::_worldExtent, FabricTokens::_worldExtent);
+    attributes.addAttribute(FabricTypes::_worldVisibility, FabricTokens::_worldVisibility);
+    attributes.addAttribute(FabricTypes::primvars_displayColor, FabricTokens::primvars_displayColor);
+    attributes.addAttribute(FabricTypes::_worldPosition, FabricTokens::_worldPosition);
+    attributes.addAttribute(FabricTypes::_worldOrientation, FabricTokens::_worldOrientation);
+    // attributes.addAttribute(FabricTypes::_worldScale, FabricTokens::_worldScale);
+    attributes.createAttributes(fabricPath);
+
+    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::points, size * size * 4);
+    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::faceVertexCounts, size * size * 2);
+    auto pointsFabric =
+        stageReaderWriter.getArrayAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::points);
+    auto faceVertexCountsFabric =
+        stageReaderWriter.getArrayAttributeWr<int>(fabricPath, FabricTokens::faceVertexCounts);
+    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::faceVertexIndices, size * size * 6);
+    auto faceVertexIndicesFabric =
+        stageReaderWriter.getArrayAttributeWr<int>(fabricPath, FabricTokens::faceVertexIndices);
+
+
+    const float unit = 1.f;
+    auto floatSize = static_cast<float>(size);
+    float extentVal = floatSize / 2 * unit * 2 + (floatSize / 2 - 1) * unit * 2;
+
+    size_t vertIndex = 0;
+    size_t vertexCountsIndex = 0;
+    size_t faceVertexIndex = 0;
+    size_t quadCounter = 0;
+    for (size_t rowNum = 0; rowNum < size; rowNum++) {
+        for (size_t colNum = 0; colNum < size; colNum++) {
+            float xPos = -extentVal + static_cast<float>(colNum) * unit * 4;
+            float yPos = -extentVal + static_cast<float>(rowNum) * unit * 4;
+            //verts
+            pxr::GfVec3f quadShift{xPos, yPos, 0};
+            pointsFabric[vertIndex++] = pxr::GfVec3f{-unit, -unit, 0} + quadShift;
+            pointsFabric[vertIndex++] = pxr::GfVec3f{-unit, unit, 0} + quadShift;
+            pointsFabric[vertIndex++] = pxr::GfVec3f{unit, unit, 0} + quadShift;
+            pointsFabric[vertIndex++] = pxr::GfVec3f{unit, -unit, 0} + quadShift;
+
+            //vert counts
+            faceVertexCountsFabric[vertexCountsIndex++] = 3;
+            faceVertexCountsFabric[vertexCountsIndex++] = 3;
+
+            //vert indices
+            faceVertexIndicesFabric[faceVertexIndex++] = 0 + static_cast<int>(quadCounter * 4);
+            faceVertexIndicesFabric[faceVertexIndex++] = 1 + static_cast<int>(quadCounter * 4);
+            faceVertexIndicesFabric[faceVertexIndex++] = 2 + static_cast<int>(quadCounter * 4);
+            faceVertexIndicesFabric[faceVertexIndex++] = 0 + static_cast<int>(quadCounter * 4);
+            faceVertexIndicesFabric[faceVertexIndex++] = 2 + static_cast<int>(quadCounter * 4);
+            faceVertexIndicesFabric[faceVertexIndex++] = 3 + static_cast<int>(quadCounter * 4);
+            quadCounter++;
+        }
+    }
+
+    auto outerExtent = extentVal + unit;
+    auto extent = pxr::GfRange3d(pxr::GfVec3d(-outerExtent, -outerExtent, 0), pxr::GfVec3d(outerExtent, outerExtent, 0));
+    auto extentFabric = stageReaderWriter.getAttributeWr<pxr::GfRange3d>(fabricPath, FabricTokens::extent);
+    *extentFabric = extent;
+
+    auto worldExtentFabric = stageReaderWriter.getAttributeWr<pxr::GfRange3d>(fabricPath, FabricTokens::_worldExtent);
+    *worldExtentFabric = pxr::GfRange3d(pxr::GfVec3d(0.0, 0.0, 0.0), pxr::GfVec3d(0.0, 0.0, 0.0));
+
+    auto worldVisibilityFabric = stageReaderWriter.getAttributeWr<bool>(fabricPath, FabricTokens::_worldVisibility);
+    *worldVisibilityFabric = true;
+
+    // auto center = pxr::GfVec3d{
+    //     glm::linearRand(-maxCenterRandomization, maxCenterRandomization),
+    //     glm::linearRand(-maxCenterRandomization, maxCenterRandomization),
+    //     glm::linearRand(-maxCenterRandomization, maxCenterRandomization)
+    // };
+
+    auto worldPositionFabric = stageReaderWriter.getAttributeWr<pxr::GfVec3d>(fabricPath, FabricTokens::_worldPosition);
+    *worldPositionFabric = pxr::GfVec3d(0.0, 0.0, 0.0);// + center;
+    //DEBUG
+    // *worldPositionFabric = pxr::GfVec3d(300.0, 300.0, 0.0);
+
+    auto worldOrientationFabric = stageReaderWriter.getAttributeWr<pxr::GfQuatf>(fabricPath, FabricTokens::_worldOrientation);
+    //*worldOrientationFabric = pxr::GfQuatf(1.f, 0, 0, 0);
+    *worldOrientationFabric = pxr::GfQuatf(0.f, 0, 0, 0);
+
+    // auto worldScaleFabric = stageReaderWriter.getAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::_worldScale);
+    // *worldScaleFabric = pxr::GfVec3f(1.f, 1.f, 1.f);
+
+    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::primvars_displayColor, 1);
+    auto displayColors = stageReaderWriter.getArrayAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::primvars_displayColor);
+    displayColors[0] = pxr::GfVec3f(0.8f, 0.8f, 0.8f);
+
+    //create a custom attribute for testing
+    stageReaderWriter.createAttribute(fabricPath, getCudaTestAttributeFabricToken(), cudaTestAttributeFabricType);
+
+    auto testAttribute = stageReaderWriter.getAttributeWr<double>(fabricPath, getCudaTestAttributeFabricToken());
+    *testAttribute = 123.45;
+
+
 }
 
 
