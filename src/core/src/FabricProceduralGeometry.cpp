@@ -375,7 +375,7 @@ int createPrims() {
     // setDisplayColor();
     // createQuadsViaFabric(10);
 
-    createQuadsViaFabric(40000, 800.f);
+    createQuadsViaFabric(80000, 1000.f);
 
     return 0;
 }
@@ -2549,7 +2549,7 @@ void CudaRunner::init(const char* kernelCodeDEBUG, const char* kernelFunctionNam
 int animatePrims(float deltaTime) {
     // std::cout << "animating " << deltaTime << std::endl;
     const float speed = 1.5f;
-    const float radius = 400.f;
+    const float radius = 600.f;
     alterPrims();
     elapsedTime += deltaTime;
     lookatPositionHost.x = sin(elapsedTime * speed) * radius;
