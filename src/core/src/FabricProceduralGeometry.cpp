@@ -43,6 +43,12 @@ omni::fabric::Token getCudaTestAttributeFabricToken() {
     return cudaTestAttributeFabricToken;
 }
 
+const omni::fabric::Type quadOrientationType(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
+omni::fabric::Token getQuadOrientationAttributeFabricToken() {
+    static const auto quadOrientationAttributeFabricToken = omni::fabric::Token("quadOrientation");
+    return quadOrientationAttributeFabricToken;
+}
+
 //CUDA via CUDA_JIT and string
 const char* kernelCode = R"(
 extern "C" __global__
@@ -355,6 +361,156 @@ extern "C" __global__ void lookAtKernel(fquat* orientation, double3* worldPositi
 }
 )";
 
+const char* lookAtMultiquadKernelCode = R"(
+struct fquat
+{
+    float x;
+    float y;
+    float z;
+    float w;
+
+    __device__ fquat() : x(0), y(0), z(0), w(0) {}
+    __device__ fquat(float _x, float _y, float _z, float _w) {
+        x = _x;
+        y = _y;
+        z = _z;
+        w = _w;
+    }
+};
+
+
+
+struct mat3 {
+    float3 col0;
+    float3 col1;
+    float3 col2;
+
+        __host__ __device__ float3 multiply(float3 vec) const {
+        float3 result;
+        result.x = dot(col0, vec);
+        result.y = dot(col1, vec);
+        result.z = dot(col2, vec);
+        return result;
+    }
+};
+
+struct quad {
+    float3 lowerLeft;
+    float3 upperLeft;
+    float3 upperRight;
+    float3 lowerRight;
+
+    __device__ getCenter() {
+        return make_float3(
+            (lowerLeft.x + upperRight.x) * .5f),
+            (lowerLeft.y + upperRight.y) * .5f),
+            0));
+    }
+};
+
+__device__ float3 normalize(float3 v) {
+    float normSquared = v.x * v.x + v.y * v.y + v.z * v.z;
+    float inverseSqrtNorm = rsqrtf(normSquared);
+    v.x *= inverseSqrtNorm;
+    v.y *= inverseSqrtNorm;
+    v.z *= inverseSqrtNorm;
+    return v;
+}
+
+__device__ double3 normalize(double3 v) {
+    double norm = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+    double inverseNorm = 1.0 / norm;
+    v.x *= inverseNorm;
+    v.y *= inverseNorm;
+    v.z *= inverseNorm;
+    return v;
+}
+
+__device__ float3 cross(float3 a, float3 b)
+{
+    return make_float3(
+        a.y * b.z - a.z * b.y,
+        a.z * b.x - a.x * b.z,
+        a.x * b.y - a.y * b.x
+    );
+}
+
+__device__ float3 operator*(const float3 &a, const float &b) {
+    return make_float3(a.x * b, a.y * b, a.z * b);
+}
+
+__device__ fquat quat_cast(mat3 Result)
+{
+    float m00 = Result.col0.x, m01 = Result.col1.x, m02 = Result.col2.x,
+           m10 = Result.col0.y, m11 = Result.col1.y, m12 = Result.col2.y,
+           m20 = Result.col0.z, m21 = Result.col1.z, m22 = Result.col2.z;
+
+    float t = m00 + m11 + m22;
+    float w, x, y, z;
+
+    if (t > 0.0) {
+        float s = sqrt(t + 1.0f) * 2.0f; // s=4*qw
+        w = 0.25f * s;
+        x = (m21 - m12) / s;
+        y = (m02 - m20) / s;
+        z = (m10 - m01) / s;
+    } else if ((m00 > m11) && (m00 > m22)) {
+        float s = sqrt(1.0f + m00 - m11 - m22) * 2.0f; // s=4*qx
+        w = (m21 - m12) / s;
+        x = 0.25f * s;
+        y = (m01 + m10) / s;
+        z = (m02 + m20) / s;
+    } else if (m11 > m22) {
+        float s = sqrt(1.0 + m11 - m00 - m22) * 2.0f; // s=4*qy
+        w = (m02 - m20) / s;
+        x = (m01 + m10) / s;
+        y = 0.25f * s;
+        z = (m12 + m21) / s;
+    } else {
+        float s = sqrt(1.0f + m22 - m00 - m11) * 2.0f; // s=4*qz
+        w = (m10 - m01) / s;
+        x = (m02 + m20) / s;
+        y = (m12 + m21) / s;
+        z = 0.25f * s;
+    }
+
+    return fquat(x, y, z, w);
+}
+
+__device__ fquat quatLookAtRH(float3 direction, float3 up)
+{
+    mat3 Result;
+
+    Result.col2 = make_float3(-direction.x, -direction.y, -direction.z);
+    float3 Right = cross(up, Result.col2);
+    Result.col0 = Right * rsqrtf(max(0.0000f, dot(Right, Right)));
+
+    Result.col1 = cross(Result.col2, Result.col0);
+
+    return Result;
+}
+
+extern "C" __global__ void lookAtMultiquadKernel(quad* quads, double3* lookatPosition, size_t count) {
+    const size_t i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i >= count) return;
+
+    const float3 up = make_float3(0, 1.0, 0.0);
+    const float3 quadCenter = quads[i].getCenter();
+
+    double3 lookAtDirectionD = make_double3(lookatPosition->x - quadCenter.x, lookatPosition->y - quadCenter.y, lookatPosition->z - quadCenter.z);
+    float3 lookAtDirection = make_float3(static_cast<float>(lookAtDirectionD.x), static_cast<float>(lookAtDirectionD.y), static_cast<float>(lookAtDirectionD.z));
+    lookAtDirection = normalize(lookAtDirection);
+
+    mat3 rotationMatrix = quatLookAtRH(lookAtDirection, up);
+    quad result;
+    result.lowerLeft = rotationMatrix.multiply(result.lowerLeft);
+    result.upperLeft = rotationMatrix.multiply(result.upperLeft);
+    result.upperRight = rotationMatrix.multiply(result.upperRight);
+    result.lowerRight = rotationMatrix.multiply(result.lowerRight);
+
+    // orientation[i] = result;
+}
+)";
 
 int createPrims() {
 
@@ -377,7 +533,7 @@ int createPrims() {
 
     // createQuadsViaFabric(80000, 1000.f);
     // createMultiquadViaFabric();
-    createMultiquadMeshViaFabric2(4);
+    createMultiquadMeshViaFabric2(10);
 
     return 0;
 }
@@ -389,7 +545,8 @@ int alterPrims() {
     // randomizePrimWorldPositionsWithCustomAttrViaCuda();
     // rotateAllPrimsWithCustomAttrViaFabric();
     // billboardAllPrimsWithCustomAttrViaFabric();
-    billboardAllPrimsWithCustomAttrViaCuda();
+    // billboardAllPrimsWithCustomAttrViaCuda();
+    billboardMultiquadWithCustomAttrViaCuda();
     // runSimpleCudaHeaderTest();
     // runCurandHeaderTest();
     // exportToUsd();
@@ -1455,11 +1612,12 @@ void createMultiquadMeshViaFabric2(size_t size) {
 
     //create a custom attribute for testing
     stageReaderWriter.createAttribute(fabricPath, getCudaTestAttributeFabricToken(), cudaTestAttributeFabricType);
-
     auto testAttribute = stageReaderWriter.getAttributeWr<double>(fabricPath, getCudaTestAttributeFabricToken());
     *testAttribute = 123.45;
 
-
+    //create one quaternion for each quad
+    stageReaderWriter.createAttribute(fabricPath, getQuadOrientationAttributeFabricToken(), quadOrientationType);
+    stageReaderWriter.setArrayAttributeSize(fabricPath, getQuadOrientationAttributeFabricToken(), size * 4);
 }
 
 
@@ -2349,6 +2507,90 @@ void billboardAllPrimsWithCustomAttrViaCuda() {
         auto worldOrientationsPtr = reinterpret_cast<glm::fquat*>(worldOrientations.data());
         size_t elemCount = worldPositions.size();
         void *args[] = { &worldOrientationsPtr, &worldPositionsPtr, &lookatPositionDevice, &elemCount}; //NOLINT
+
+        cudaRunner.runKernel(args, elemCount);
+
+        // primCount += static_cast<int>(elemCount);
+    }
+
+    // std::cout << "modified " << primCount << " quads" << std::endl;
+
+    err = cuMemFree(lookatPositionDevice);
+    if (err != CUDA_SUCCESS) {
+        const char *errName;
+        const char *errStr;
+        cuGetErrorName(err, &errName);
+        cuGetErrorString(err, &errStr);
+        printf("cuMemFree failed: %s: %s\n", errName, errStr);
+        return;
+    }
+
+    // lookatPositionHost.x += 10.0;
+
+}
+
+void billboardMultiquadWithCustomAttrViaCuda() {
+    //get all prims with the custom attr
+    auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+    auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
+    auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
+    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+    omni::fabric::AttrNameAndType primTag(cudaTestAttributeFabricType, getCudaTestAttributeFabricToken());
+    auto bucketList = stageReaderWriter.findPrims({primTag});
+
+    // edit rotations
+
+    // auto numBuckets = bucketList.bucketCount();
+    // printf("Num buckets: %llu\n", numBuckets);
+
+    if (bucketList.bucketCount() == 0 ) {
+        std::cout << "No prims found, returning" << std::endl;
+        throw std::runtime_error("Bucketlist is empty");
+    }
+
+    cudaRunner.init(lookAtMultiquadKernelCode, "lookAtMultiquadKernel");
+
+    //iterate over buckets but pass the vector for the whole bucket to the GPU.
+    // int primCount = 0;
+
+    CUresult err;
+    CUdeviceptr lookatPositionDevice;
+
+    err = cuMemAlloc(&lookatPositionDevice, sizeof(glm::dvec3));
+    if (err != CUDA_SUCCESS) {
+        const char *errName;
+        const char *errStr;
+        cuGetErrorName(err, &errName);
+        cuGetErrorString(err, &errStr);
+        printf("cuMemAlloc failed: %s: %s\n", errName, errStr);
+        return;
+    }
+
+    err = cuMemcpyHtoD(lookatPositionDevice, &lookatPositionHost, sizeof(glm::dvec3));
+    if (err != CUDA_SUCCESS) {
+        const char *errName;
+        const char *errStr;
+        cuGetErrorName(err, &errName);
+        cuGetErrorString(err, &errStr);
+        printf("cuMemcpyHtoD failed: %s: %s\n", errName, errStr);
+        return;
+    }
+
+
+    struct quad {
+        float lowerLeft;
+        float upperLeft;
+        float upperRight;
+        float lowerRight;
+    };
+
+    for (size_t bucket = 0; bucket != bucketList.bucketCount(); bucket++)
+    {
+        auto positions = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3d>(bucketList, bucket, FabricTokens::points);
+        auto quadsPtr = reinterpret_cast<quad*>(positions.data());
+
+        size_t elemCount = positions.size() / 4;
+        void *args[] = { &quadsPtr, &lookatPositionDevice, &elemCount}; //NOLINT
 
         cudaRunner.runKernel(args, elemCount);
 
