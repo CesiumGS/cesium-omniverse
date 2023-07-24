@@ -35,6 +35,7 @@ namespace cesium::omniverse::FabricProceduralGeometry {
 constexpr int numPrimsForExperiment = 99;
 glm::dvec3 lookatPositionHost{0.0, 0.0, 0.0};
 CudaRunner cudaRunner;
+double elapsedTime = 0;
 
 const omni::fabric::Type cudaTestAttributeFabricType(omni::fabric::BaseDataType::eDouble, 1, 0, omni::fabric::AttributeRole::eNone);
 omni::fabric::Token getCudaTestAttributeFabricToken() {
@@ -374,7 +375,7 @@ int createPrims() {
     // setDisplayColor();
     // createQuadsViaFabric(10);
 
-    createQuadsViaFabric(2000, 200.f);
+    createQuadsViaFabric(40000, 800.f);
 
     return 0;
 }
@@ -1323,7 +1324,7 @@ void modifyAllPrimsWithCustomAttrViaCuda() {
         primCount += static_cast<int>(elemCount);
     }
 
-    std::cout << "modified " << primCount << " quads" << std::endl;
+    // std::cout << "modified " << primCount << " quads" << std::endl;
 
     result = cuCtxDestroy(context);
     if (result != CUDA_SUCCESS) {
@@ -1441,7 +1442,7 @@ void repositionAllPrimsWithCustomAttrViaCuda(double spacing) {
         primCount += static_cast<int>(elemCount);
     }
 
-    std::cout << "modified " << primCount << " quads" << std::endl;
+    // std::cout << "modified " << primCount << " quads" << std::endl;
 
     result = cuCtxDestroy(context);
     if (result != CUDA_SUCCESS) {
@@ -2059,8 +2060,8 @@ void billboardAllPrimsWithCustomAttrViaCuda() {
     auto token = omni::fabric::Token("_worldOrientation");
     auto worldPositionsTokens = omni::fabric::Token("_worldPosition");
 
-    auto numBuckets = bucketList.bucketCount();
-    printf("Num buckets: %llu\n", numBuckets);
+    // auto numBuckets = bucketList.bucketCount();
+    // printf("Num buckets: %llu\n", numBuckets);
 
     if (bucketList.bucketCount() == 0 ) {
         std::cout << "No prims found, returning" << std::endl;
@@ -2110,7 +2111,7 @@ void billboardAllPrimsWithCustomAttrViaCuda() {
         primCount += static_cast<int>(elemCount);
     }
 
-    std::cout << "modified " << primCount << " quads" << std::endl;
+    // std::cout << "modified " << primCount << " quads" << std::endl;
 
     err = cuMemFree(lookatPositionDevice);
     if (err != CUDA_SUCCESS) {
@@ -2122,7 +2123,7 @@ void billboardAllPrimsWithCustomAttrViaCuda() {
         return;
     }
 
-    lookatPositionHost.x += 10.0;
+    // lookatPositionHost.x += 10.0;
 
 }
 
@@ -2546,7 +2547,15 @@ void CudaRunner::init(const char* kernelCodeDEBUG, const char* kernelFunctionNam
 }
 
 int animatePrims(float deltaTime) {
-    std::cout << "animating " << deltaTime << std::endl;
+    // std::cout << "animating " << deltaTime << std::endl;
+    const float speed = 1.5f;
+    const float radius = 400.f;
+    alterPrims();
+    elapsedTime += deltaTime;
+    lookatPositionHost.x = sin(elapsedTime * speed) * radius;
+    // std::cout << "x: " << lookatPositionHost.x << std::endl;
+    lookatPositionHost.y = sin(elapsedTime * speed * .93f) * radius;
+    lookatPositionHost.z = sin(elapsedTime * speed * 1.27f) * radius;
     return 0;
 }
 

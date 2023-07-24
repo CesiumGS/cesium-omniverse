@@ -1,9 +1,10 @@
 import carb.events
 import logging
+import omni.kit.app as app
 import omni.ui as ui
+import time
 from cesium.omniverse.extension import _cesium_omniverse_interface as coi
 from typing import List
-import omni.kit.app as app
 
 
 class ProceduralGeometryWindow(ui.Window):
@@ -20,6 +21,7 @@ class ProceduralGeometryWindow(ui.Window):
         self.frame.set_build_fn(self._build_fn)
 
         self._cesium_omniverse_interface = coi
+        self._last_time: float = 0.0
 
     def destroy(self):
         # It will destroy all the children
@@ -72,7 +74,9 @@ class ProceduralGeometryWindow(ui.Window):
         )
 
     def _on_update_frame(self, _):
-        self._logger.info("inside _on_update_frame in ProdGeoWindow")
-        self._cesium_omniverse_interface.animate_procedural_prims(.5)
+        current_time = time.time()
+        elapsed = current_time - self._last_time
+        self._last_time = current_time
+        self._cesium_omniverse_interface.animate_procedural_prims(elapsed)
 
 
