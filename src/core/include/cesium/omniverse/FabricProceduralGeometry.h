@@ -13,6 +13,7 @@ namespace cesium::omniverse::FabricProceduralGeometry {
 
 int createPrims();
 int alterPrims();
+int animatePrims(float deltaTime);
 
 class CudaRunner {
     private:

@@ -246,6 +246,7 @@ class ICesiumOmniverseInterface {
     virtual bool isTracingEnabled() noexcept = 0;
     virtual int createProceduralPrims() noexcept = 0;
     virtual int alterProceduralPrims() noexcept = 0;
+    virtual int animateProceduralPrims(float deltaTime) noexcept = 0;
 };
 
 } // namespace cesium::omniverse

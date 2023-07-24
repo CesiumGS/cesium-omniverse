@@ -2545,6 +2545,12 @@ void CudaRunner::init(const char* kernelCodeDEBUG, const char* kernelFunctionNam
     _initted = true;
 }
 
+int animatePrims(float deltaTime) {
+    std::cout << "animating " << deltaTime << std::endl;
+    return 0;
+}
+
+
 void CudaRunner::teardown() {
     auto result = cuCtxDestroy(_context);
     if (result != CUDA_SUCCESS) {

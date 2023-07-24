@@ -202,6 +202,11 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
         return val;
     }
 
+    int animateProceduralPrims(float deltaTime) noexcept override {
+        auto val = cesium::omniverse::FabricProceduralGeometry::animatePrims(deltaTime);
+        return val;
+    }
+
 };
 } // namespace cesium::omniverse
 

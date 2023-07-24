@@ -37,6 +37,10 @@ class ProceduralGeometryWindow(ui.Window):
         return_val = self._cesium_omniverse_interface.alter_procedural_prims()
         self._logger.info(f"return val is {return_val}")
 
+    def _animate_prims(self):
+        return_val = self._cesium_omniverse_interface.animate_procedural_prims(.5)
+        self._logger.info(f"return val is {return_val}")
+
     def _build_fn(self):
         """Builds out the UI buttons and their handlers."""
 
@@ -52,4 +56,6 @@ class ProceduralGeometryWindow(ui.Window):
             ui.Button("Create prims", height=20, clicked_fn=self._create_prims)
 
             ui.Button("Alter prims", height=20, clicked_fn=self._alter_prims)
+
+            ui.Button("Animate prims",  height=20, clicked_fn=self._animate_prims)
 
