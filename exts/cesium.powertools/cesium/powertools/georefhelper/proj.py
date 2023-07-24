@@ -1,9 +1,3 @@
-import omni.kit.pipapi
-
-# Install dependencies for this module
-omni.kit.pipapi.install("pyproj==3.2.1")
-
-
 ECEF_EPSG = 4978
 WGS84_EPSG = 4979
 

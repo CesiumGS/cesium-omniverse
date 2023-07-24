@@ -1,12 +1,13 @@
 from functools import partial
 import asyncio
-from typing import Optional
+from typing import Optional, List
 import logging
 import omni.ext
 import omni.ui as ui
 import omni.kit.ui
 from .powertools_window import CesiumPowertoolsWindow
 from cesium.omniverse.utils import wait_n_frames, dock_window_async
+from cesium.omniverse.install import WheelInfo, WheelInstaller
 
 
 class CesiumPowertoolsExtension(omni.ext.IExt):
@@ -16,6 +17,8 @@ class CesiumPowertoolsExtension(omni.ext.IExt):
         self._logger = logging.getLogger(__name__)
 
         self._powertools_window: Optional[CesiumPowertoolsWindow] = None
+
+        self._install_py_dependencies()
 
     def on_startup(self):
         self._logger.info("Starting Cesium Power Tools...")
@@ -70,3 +73,19 @@ class CesiumPowertoolsExtension(omni.ext.IExt):
             )
         elif self._powertools_window is not None:
             self._powertools_window.visible = False
+
+    def _install_py_dependencies(self):
+        vendor_wheels: List[WheelInfo] = [
+            WheelInfo(
+                module="pyproj",
+                windows_whl="pyproj-3.6.0-cp310-cp310-win_amd64.whl",
+                linux_x64_whl="pyproj-3.6.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+                linux_aarch_whl="pyproj-3.6.0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl",
+            )
+        ]
+
+        for w in vendor_wheels:
+            installer = WheelInstaller(w, extension_module="cesium.powertools")
+
+            if not installer.install():
+                self._logger.error(f"Could not install wheel for {w.module}")
