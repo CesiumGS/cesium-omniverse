@@ -109,6 +109,7 @@ void rotateAllPrimsWithCustomAttrViaFabric();
 void billboardAllPrimsWithCustomAttrViaFabric();
 void billboardAllPrimsWithCustomAttrViaCuda();
 void billboardMultiquadWithCustomAttrViaCuda();
+void printPositionsWithFabric();
 
 void runSimpleCudaHeaderTest();
 void runCurandHeaderTest();
