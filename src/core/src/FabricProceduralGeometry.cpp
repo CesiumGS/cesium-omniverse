@@ -7,6 +7,7 @@
 
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/fwd.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/random.hpp>
 #include <glm/trigonometric.hpp>
 #include <omni/fabric/FabricUSD.h>
@@ -546,7 +547,8 @@ int createPrims() {
 
     // createQuadsViaFabric(80000, 1000.f);
     // createMultiquadViaFabric();
-    createMultiquadMeshViaFabric2(2);
+    // createMultiquadMeshViaFabric2(3);
+    createSingleQuad(pxr::GfVec3f(3.f, -3.f, 0), 2);
 
     return 0;
 }
@@ -559,7 +561,8 @@ int alterPrims() {
     // rotateAllPrimsWithCustomAttrViaFabric();
     // billboardAllPrimsWithCustomAttrViaFabric();
     // billboardAllPrimsWithCustomAttrViaCuda();
-    billboardMultiquadWithCustomAttrViaFabric();
+    // billboardMultiquadWithCustomAttrViaFabric();
+    billboardQuad();
     // billboardMultiquadWithCustomAttrViaCuda();
     // printPositionsWithFabric();
     // runSimpleCudaHeaderTest();
@@ -3234,6 +3237,7 @@ void lookatMultiquad(quad* quads, double3* lookatPosition, int numQuads) {
         glm::vec3 eye(quadCenter.x, quadCenter.y, quadCenter.z);
         glm::vec3 center{lookatPosition->x, lookatPosition->y, lookatPosition->z};
         auto rotationMatrixGlm = glm::lookAt(eye, center, glm::vec3{0, 1, 0});
+        rotationMatrixGlm = glm::affineInverse(rotationMatrixGlm);
 
         // auto llGlm = toGlm(quads[i].lowerLeft);
         // auto llGlmRotated = rotateVector(rotationMatrixGlm, llGlm);
@@ -3321,8 +3325,8 @@ float3 rotateVector(const glm::mat4& rotationMatrix, const float3& vectorToRotat
     return make_float3(result.x, result.y, result.z);
 }
 
-glm::vec3 toGlm(float3 input) {
-    return glm::vec3{input.x, input.y, input.z};
+glm::fvec3 toGlm(float3 input) {
+    return glm::fvec3{input.x, input.y, input.z};
 }
 
 // Function to subtract a float3 vector from another float3 vector
@@ -3332,6 +3336,203 @@ float3 subtractFloat3(const float3& a, const float3& b) {
 
 float3 addFloat3(const float3& a, const float3& b) {
     return make_float3(a.x + b.x, a.y + b.y, a.z + b.z);
+}
+
+void createSingleQuad(pxr::GfVec3f center, float size) {
+    const auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+    const auto usdStageId = omni::fabric::UsdStageId{static_cast<uint64_t>(cesium::omniverse::Context::instance().getStageId())};
+    const auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
+    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+
+    const std::string primPathStub{"/quadMesh_"};
+
+    int i = 0;
+
+    const auto fabricPath = omni::fabric::Path((primPathStub + std::to_string(i)).c_str());
+    stageReaderWriter.createPrim(fabricPath);
+
+    FabricAttributesBuilder attributes;
+    attributes.addAttribute(FabricTypes::faceVertexCounts, FabricTokens::faceVertexCounts);
+    attributes.addAttribute(FabricTypes::faceVertexIndices, FabricTokens::faceVertexIndices);
+    attributes.addAttribute(FabricTypes::points, FabricTokens::points);
+    attributes.addAttribute(FabricTypes::Mesh, FabricTokens::Mesh);
+    attributes.addAttribute(FabricTypes::extent, FabricTokens::extent);
+    attributes.addAttribute(FabricTypes::_worldExtent, FabricTokens::_worldExtent);
+    attributes.addAttribute(FabricTypes::_worldVisibility, FabricTokens::_worldVisibility);
+    attributes.addAttribute(FabricTypes::primvars_displayColor, FabricTokens::primvars_displayColor);
+    attributes.addAttribute(FabricTypes::_worldPosition, FabricTokens::_worldPosition);
+    attributes.addAttribute(FabricTypes::_worldOrientation, FabricTokens::_worldOrientation);
+    // attributes.addAttribute(FabricTypes::_worldScale, FabricTokens::_worldScale);
+    attributes.createAttributes(fabricPath);
+
+    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::points, 4);
+    auto pointsFabric = stageReaderWriter.getArrayAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::points);
+    auto extentScalar = size;
+    pointsFabric[0] = pxr::GfVec3f(-extentScalar, -extentScalar, 0) + center;
+    pointsFabric[1] = pxr::GfVec3f(-extentScalar, extentScalar, 0) + center;
+    pointsFabric[2] = pxr::GfVec3f(extentScalar, extentScalar, 0) + center;
+    pointsFabric[3] = pxr::GfVec3f(extentScalar, -extentScalar, 0) + center;
+
+    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::faceVertexCounts, 2);
+    auto faceVertexCountsFabric = stageReaderWriter.getArrayAttributeWr<int>(fabricPath, FabricTokens::faceVertexCounts);
+    faceVertexCountsFabric[0] = 3;
+    faceVertexCountsFabric[1] = 3;
+
+    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::faceVertexIndices, 6);
+    auto faceVertexIndicesFabric = stageReaderWriter.getArrayAttributeWr<int>(fabricPath, FabricTokens::faceVertexIndices);
+    faceVertexIndicesFabric[0] = 0;
+    faceVertexIndicesFabric[1] = 1;
+    faceVertexIndicesFabric[2] = 2;
+    faceVertexIndicesFabric[3] = 0;
+    faceVertexIndicesFabric[4] = 2;
+    faceVertexIndicesFabric[5] = 3;
+
+    auto extent = pxr::GfRange3d(pxr::GfVec3d(-extentScalar * 2.f, -extentScalar * 2.f, 0), pxr::GfVec3d(extentScalar * 2.f, extentScalar * 2.f, 0));
+    auto extentFabric = stageReaderWriter.getAttributeWr<pxr::GfRange3d>(fabricPath, FabricTokens::extent);
+    *extentFabric = extent;
+
+    auto worldExtentFabric = stageReaderWriter.getAttributeWr<pxr::GfRange3d>(fabricPath, FabricTokens::_worldExtent);
+    *worldExtentFabric = pxr::GfRange3d(pxr::GfVec3d(0.0, 0.0, 0.0), pxr::GfVec3d(0.0, 0.0, 0.0));
+
+    auto worldVisibilityFabric = stageReaderWriter.getAttributeWr<bool>(fabricPath, FabricTokens::_worldVisibility);
+    *worldVisibilityFabric = true;
+
+    auto worldPositionFabric = stageReaderWriter.getAttributeWr<pxr::GfVec3d>(fabricPath, FabricTokens::_worldPosition);
+    *worldPositionFabric = pxr::GfVec3d(0.0, 0.0, 0.0);
+    //DEBUG
+    // *worldPositionFabric = pxr::GfVec3d(300.0, 300.0, 0.0);
+
+    auto worldOrientationFabric = stageReaderWriter.getAttributeWr<pxr::GfQuatf>(fabricPath, FabricTokens::_worldOrientation);
+    //*worldOrientationFabric = pxr::GfQuatf(1.f, 0, 0, 0);
+    *worldOrientationFabric = pxr::GfQuatf(0.f, 0, 0, 0);
+
+    // auto worldScaleFabric = stageReaderWriter.getAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::_worldScale);
+    // *worldScaleFabric = pxr::GfVec3f(1.f, 1.f, 1.f);
+
+    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::primvars_displayColor, 1);
+    auto displayColors = stageReaderWriter.getArrayAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::primvars_displayColor);
+    displayColors[0] = pxr::GfVec3f(0.8f, 0.8f, 0.8f);
+
+    //create a custom attribute for testing
+    stageReaderWriter.createAttribute(fabricPath, getCudaTestAttributeFabricToken(), cudaTestAttributeFabricType);
+
+    auto testAttribute = stageReaderWriter.getAttributeWr<double>(fabricPath, getCudaTestAttributeFabricToken());
+    *testAttribute = 123.45;
+
+}
+
+void billboardQuad() {
+    //get all prims with the custom attr
+    auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+    auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
+    auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
+    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+    omni::fabric::AttrNameAndType primTag(cudaTestAttributeFabricType, getCudaTestAttributeFabricToken());
+    auto bucketList = stageReaderWriter.findPrims({primTag});
+
+    // edit rotations
+    // auto token = omni::fabric::Token("_worldOrientation");
+    // auto worldPositionsTokens = omni::fabric::Token("_worldPosition");
+    auto numBuckets = bucketList.bucketCount();
+
+    glm::fvec3 lookatPosition{0.0, 0.0, 0.0};
+
+    glm::fvec3 up{0, 1.f, 0};
+
+    for (size_t bucketNum = 0; bucketNum < numBuckets; bucketNum++) {
+        // auto orientations = stageReaderWriter.getAttributeArray<pxr::GfQuatf>(bucketList, bucketNum, token);
+        // auto worldPositions = stageReaderWriter.getAttributeArray<pxr::GfVec3d>(bucketList, bucketNum, worldPositionsTokens);
+        auto points = stageReaderWriter.getAttributeArray<pxr::GfVec3f*>(bucketList, bucketNum, FabricTokens::points);
+        if (points.data() == nullptr) {
+            throw std::runtime_error("Fabric did not retrieve points.\n");
+        }
+        auto quads = reinterpret_cast<quadGlm*>(points[0]->data());
+
+        auto numElements = 1; //TEST
+        for (int i = 0; i < numElements; i++) {
+
+            quadGlm quad = quads[i];
+            // pxr::GfQuatf quat = values[i];
+            // auto glmQuat = convertToGlm(quat);
+            auto center = quad.getCenter();
+
+            // auto worldPositionGlm = usdToGlmVector(worldPositionGfVec3f);
+            auto target = glm::fvec3{0, 0, 0};
+            // glm::fvec3 direction = lookatPosition - worldPosition;
+            glm::vec3 direction = glm::normalize(target - center);
+            direction = glm::normalize(direction);
+            // glm::fquat newQuat = glm::quatLookAt(direction, glm::fvec3{0, 1.f, 0});
+            // auto rotatedQuat = convertToGf(newQuat);
+            // orientations[i] = rotatedQuat;
+
+            // auto transformationMatrix = glm::lookAt(lookatPosition, quadCenter, up);
+
+            glm::mat4 viewMatrix = glm::lookAt(center, center + direction, up);
+            // Remove the translation part from the view matrix
+            viewMatrix[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
+            quadGlm rotatedQuad;
+            // rotatedQuad.lowerLeft = glm::vec3(viewMatrix * glm::vec4(quad.lowerLeft, 1.0f));
+            // rotatedQuad.upperLeft = glm::vec3(viewMatrix * glm::vec4(quad.upperLeft, 1.0f));
+            // rotatedQuad.upperRight = glm::vec3(viewMatrix * glm::vec4(quad.upperRight, 1.0f));
+            // rotatedQuad.lowerRight = glm::vec3(viewMatrix * glm::vec4(quad.lowerRight, 1.0f));
+
+            // Create the forward and up vectors for the initial orientation of the quad
+            // glm::vec3 forward = glm::vec3(0.0f, 0.0f, -1.0f);
+
+            // Compute the rotation matrix
+            // glm::mat4 rotationMatrix = glm::inverse(glm::lookAt(glm::vec3(0.0f), forward, up)) * glm::lookAt(glm::vec3(0.0f), direction, up);
+
+            // Transform the points of the quad using the rotation matrix
+
+            //test with quaternions
+            // Compute the direction from the center of the quad to the target
+            glm::vec3 targetDirection = glm::normalize(target - center);
+
+            // Create the initial forward vector for the quad
+            glm::vec3 initialDirection = glm::vec3(0.0f, 0.0f, 1.0f); // the quad is initially facing the positive Z-axis
+
+            // Compute the axis of rotation
+            glm::vec3 axis = glm::cross(initialDirection, targetDirection);
+
+            // Compute the cosine of the angle of rotation
+            float cosTheta = glm::dot(initialDirection, targetDirection);
+
+            // Compute the angle of rotation
+            float angle = glm::acos(cosTheta);
+
+            // Create the rotation quaternion
+            glm::quat rotationQuat = glm::angleAxis(angle, axis);
+
+            // Convert the quaternion to a rotation matrix
+            glm::mat4 rotationMatrix = glm::mat4_cast(rotationQuat);
+
+            rotatedQuad.lowerLeft = glm::vec3(rotationMatrix * glm::vec4(quad.lowerLeft - center, 1.0f)) + center;
+            rotatedQuad.upperLeft = glm::vec3(rotationMatrix * glm::vec4(quad.upperLeft - center, 1.0f)) + center;
+            rotatedQuad.upperRight = glm::vec3(rotationMatrix * glm::vec4(quad.upperRight - center, 1.0f)) + center;
+            rotatedQuad.lowerRight = glm::vec3(rotationMatrix * glm::vec4(quad.lowerRight - center, 1.0f)) + center;
+
+            quads[i].lowerLeft = rotatedQuad.lowerLeft;
+            quads[i].lowerRight = rotatedQuad.lowerRight;
+            quads[i].upperLeft = rotatedQuad.upperLeft;
+            quads[i].upperRight = rotatedQuad.upperRight;
+
+            auto newCenter = quads[i].getCenter();
+            printf("newCenter is (%f, %f, %f)\n", newCenter.x, newCenter.y, newCenter.z);
+        }
+    }
+}
+
+glm::fvec3 toGlm(pxr::GfVec3f input) {
+    return glm::fvec3{input[0], input[1], input[2]};
+}
+
+glm::fvec3 multiplyHomogenous(const glm::mat4 transformationMatrix, const glm::fvec3 point) {
+    glm::vec4 homogeneousPoint{point, 1.0f};
+
+    // Apply the transformation
+    glm::vec4 transformedHomogeneousPoint = transformationMatrix * homogeneousPoint;
+    return glm::vec3{transformedHomogeneousPoint.x, transformedHomogeneousPoint.y, transformedHomogeneousPoint.z};
 }
 
 

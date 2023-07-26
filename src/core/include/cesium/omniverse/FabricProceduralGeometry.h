@@ -4,6 +4,7 @@
 #include <cuda/include/cuda.h>
 #include <cuda/include/nvrtc.h>
 #include <cuda/include/cuda_runtime.h>
+#include <glm/fwd.hpp>
 #include "glm/glm.hpp"
 #include "pxr/base/gf/quatd.h"
 #include "pxr/base/gf/quatf.h"
@@ -48,6 +49,34 @@ struct quad {
             (lowerLeft.x + upperRight.x) * .5f,
             (lowerLeft.y + upperRight.y) * .5f,
             0);
+    }
+};
+
+struct quadPxr {
+    //TODO: vec3 to float3
+    pxr::GfVec3f lowerLeft;
+    pxr::GfVec3f upperLeft;
+    pxr::GfVec3f upperRight;
+    pxr::GfVec3f lowerRight;
+
+    pxr::GfVec3f getCenter() {
+        auto center = lowerLeft + upperLeft + upperRight + lowerRight;
+        center *= .25f;
+        return center;
+    }
+};
+
+struct quadGlm {
+    //TODO: vec3 to float3
+    glm::fvec3 lowerLeft;
+    glm::fvec3 upperLeft;
+    glm::fvec3 upperRight;
+    glm::fvec3 lowerRight;
+
+    glm::fvec3 getCenter() {
+        auto center = lowerLeft + upperLeft + upperRight + lowerRight;
+        center *= .25f;
+        return center;
     }
 };
 
@@ -134,6 +163,7 @@ void createMultiquadViaFabric();
 void createMultiquadMeshViaFabric2(size_t size);
 void createQuadsViaFabric(int numQuads, float maxCenterRandomization = 0);
 void createQuadMeshWithDisplayColor();
+void createSingleQuad(pxr::GfVec3f center, float size);
 
 /* PRIM ALTERATIONS */////////////////////////////////////
 
@@ -150,6 +180,7 @@ void billboardAllPrimsWithCustomAttrViaFabric();
 void billboardAllPrimsWithCustomAttrViaCuda();
 void billboardMultiquadWithCustomAttrViaFabric();
 void billboardMultiquadWithCustomAttrViaCuda();
+void billboardQuad();
 void printPositionsWithFabric();
 
 void runSimpleCudaHeaderTest();
@@ -173,10 +204,13 @@ glm::fvec3 usdToGlmVector(const pxr::GfVec3f& vector);
 void lookatMultiquad(quad* quads, double3* lookatPosition, int numQuads);
 glm::vec3 rotateVector(const glm::mat4& rotationMatrix, const glm::vec3& vectorToRotate);
 float3 rotateVector(const glm::mat4& rotationMatrix, const float3& vectorToRotate);
-glm::vec3 toGlm(float3 input);
+glm::fvec3 toGlm(float3 input);
+glm::fvec3 toGlm(pxr::GfVec3f input);
 // Function to subtract a float3 vector from another float3 vector
 float3 subtractFloat3(const float3& a, const float3& b);
 float3 addFloat3(const float3& a, const float3& b);
+glm::fvec3 multiplyHomogenous(const glm::mat4 transformationMatrix, const glm::fvec3 point);
+
 
 /* CUDA SPECIFIC *//////////////////////////////////////////
 
