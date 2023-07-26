@@ -19,6 +19,9 @@ class ExtensionTest(omni.kit.test.AsyncTestCase):
         self.assertIsNotNone(_window_ref)
 
     async def test_window_docked(self):
-        await ui_test.wait_n_updates(4)
         global _window_ref
+        # docked is false if the window is not in focus,
+        # as may be the case if other extensions are loaded
+        await _window_ref.focus()
+        await ui_test.wait_n_updates(4)
         self.assertTrue(_window_ref.window.docked)
