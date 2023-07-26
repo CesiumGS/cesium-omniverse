@@ -19,3 +19,13 @@ async def dock_window_async(
     stage_window = ui.Workspace.get_window(target)
     window.dock_in(stage_window, position, 1)
     window.focus()
+
+
+def str_is_empty_or_none(s: Optional[str]):
+    if s is None:
+        return True
+
+    if s == "":
+        return True
+
+    return False
