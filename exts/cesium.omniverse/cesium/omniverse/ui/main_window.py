@@ -184,34 +184,24 @@ class CesiumOmniverseMainWindow(ui.Window):
         self._upload_button.enabled = enabled
         self._sign_out_button.enabled = enabled
 
-        if enabled:
-            self._add_button.style = CesiumOmniverseUiStyles.top_bar_button_style
-            self._upload_button.style = CesiumOmniverseUiStyles.top_bar_button_style
-            self._sign_out_button.style = CesiumOmniverseUiStyles.top_bar_button_style
-        else:
-            self._add_button.style = CesiumOmniverseUiStyles.top_bar_button_disabled_style
-            self._upload_button.style = CesiumOmniverseUiStyles.top_bar_button_disabled_style
-            self._sign_out_button.style = CesiumOmniverseUiStyles.top_bar_button_disabled_style
-
     def _build_fn(self):
         """Builds all UI components."""
 
         with ui.VStack(spacing=0):
             button_style = CesiumOmniverseUiStyles.top_bar_button_style
-            disabled_button_style = CesiumOmniverseUiStyles.top_bar_button_disabled_style
 
             with ui.HStack(height=ui.Length(80, ui.UnitType.PIXEL)):
                 self._add_button = ui.Button(
                     "Add",
                     image_url=f"{self._icon_path}/FontAwesome/plus-solid.png",
-                    style=disabled_button_style,
+                    style=button_style,
                     clicked_fn=self._add_button_clicked,
                     enabled=False,
                 )
                 self._upload_button = ui.Button(
                     "Upload",
                     image_url=f"{self._icon_path}/FontAwesome/cloud-upload-alt-solid.png",
-                    style=disabled_button_style,
+                    style=button_style,
                     clicked_fn=self._upload_button_clicked,
                     enabled=False,
                 )
@@ -237,7 +227,7 @@ class CesiumOmniverseMainWindow(ui.Window):
                     "Sign Out",
                     image_url=f"{self._icon_path}/FontAwesome/sign-out-alt-solid.png",
                     # style=button_style,
-                    style=disabled_button_style,
+                    style=button_style,
                     clicked_fn=self._sign_out_button_clicked,
                     enabled=False,
                 )

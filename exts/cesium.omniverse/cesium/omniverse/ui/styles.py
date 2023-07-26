@@ -42,15 +42,8 @@ class CesiumOmniverseUiStyles:
             "alignment": Alignment.CENTER,
         },
         "Button.Label": {"alignment": Alignment.CENTER_BOTTOM},
-    }
-
-    top_bar_button_disabled_style = {
-        "Button": {"padding": 10.0, "stack_direction": Direction.TOP_TO_BOTTOM},
-        "Button.Image": {
-            "alignment": Alignment.CENTER,
-            "color": cl("#808080"),
-        },
-        "Button.Label": {"alignment": Alignment.CENTER_BOTTOM, "color": cl("#808080")},
+        "Button.Image:disabled": {"color": cl("#808080")},
+        "Button.Label:disabled": {"color": cl("#808080")},
     }
 
     asset_detail_frame = {"ScrollingFrame": {"background_color": cl("#1F2123"), "padding": 10}}
