@@ -1,5 +1,6 @@
 #pragma once
 
+#include <corecrt_math.h>
 #include <cuda/include/cuda.h>
 #include <cuda/include/nvrtc.h>
 #include <cuda/include/cuda_runtime.h>
@@ -34,6 +35,45 @@ class CudaRunner {
 
         ~CudaRunner();
 };
+
+struct quad {
+    //TODO: vec3 to float3
+    float3 lowerLeft;
+    float3 upperLeft;
+    float3 upperRight;
+    float3 lowerRight;
+
+    float3 getCenter() {
+        return make_float3(
+            (lowerLeft.x + upperRight.x) * .5f,
+            (lowerLeft.y + upperRight.y) * .5f,
+            0);
+    }
+};
+
+float dot(float3 a, float3 b);
+
+struct mat3 {
+    float3 col0;
+    float3 col1;
+    float3 col2;
+
+    [[nodiscard]] float3 multiply(float3 vec) const {
+        float3 result;
+        result.x = dot(col0, vec);
+        result.y = dot(col1, vec);
+        result.z = dot(col2, vec);
+        return result;
+    }
+};
+
+float3 normalize(float3 v);
+
+float3 cross(float3 a, float3 b);
+
+float3 operator*(const float3& a, const float& b);
+
+mat3 matLookAtRH(float3 direction, float3 up);
 
 /* EXPERIMENTS *//////////////////////////////////////////
 
@@ -108,6 +148,7 @@ void rotateAllPrimsWithCustomAttrViaFabric();
 
 void billboardAllPrimsWithCustomAttrViaFabric();
 void billboardAllPrimsWithCustomAttrViaCuda();
+void billboardMultiquadWithCustomAttrViaFabric();
 void billboardMultiquadWithCustomAttrViaCuda();
 void printPositionsWithFabric();
 
@@ -128,6 +169,14 @@ glm::fquat convertToGlm(const pxr::GfQuatf& quat);
 pxr::GfQuatf convertToGf(const glm::fquat& quat);
 glm::fvec3 usdToGlmVector(const pxr::GfVec3f& vector);
 
+/* HELPERS */
+void lookatMultiquad(quad* quads, double3* lookatPosition, int numQuads);
+glm::vec3 rotateVector(const glm::mat4& rotationMatrix, const glm::vec3& vectorToRotate);
+float3 rotateVector(const glm::mat4& rotationMatrix, const float3& vectorToRotate);
+glm::vec3 toGlm(float3 input);
+// Function to subtract a float3 vector from another float3 vector
+float3 subtractFloat3(const float3& a, const float3& b);
+float3 addFloat3(const float3& a, const float3& b);
 
 /* CUDA SPECIFIC *//////////////////////////////////////////
 

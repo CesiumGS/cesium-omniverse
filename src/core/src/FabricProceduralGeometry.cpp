@@ -5,6 +5,7 @@
 #include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
+#include <glm/ext/matrix_transform.hpp>
 #include <glm/fwd.hpp>
 #include <glm/gtc/random.hpp>
 #include <glm/trigonometric.hpp>
@@ -394,7 +395,7 @@ struct mat3 {
     float3 col1;
     float3 col2;
 
-        __host__ __device__ float3 multiply(float3 vec) const {
+    __host__ __device__ float3 multiply(float3 vec) const {
         float3 result;
         result.x = dot(col0, vec);
         result.y = dot(col1, vec);
@@ -486,7 +487,7 @@ __device__ fquat quat_cast(mat3 Result)
     return fquat(x, y, z, w);
 }
 
-__device__ mat3 quatLookAtRH(float3 direction, float3 up)
+__device__ mat3 matLookAtRH(float3 direction, float3 up)
 {
     mat3 Result;
 
@@ -499,18 +500,24 @@ __device__ mat3 quatLookAtRH(float3 direction, float3 up)
     return Result;
 }
 
-extern "C" __global__ void lookAtMultiquadKernel(quad* quads, double3* lookatPosition, size_t count) {
+extern "C" __global__ void lookAtMultiquadKernel(quad* quads, double3* lookatPosition, int numQuads) {
     const size_t i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (i >= count) return;
+    if (i >= numQuads) return;
+
+    printf("(kernel) numQuads: %d\n", numQuads);
+
+    printf("(kernel) lookAtPosition is (%lf, %lf, %lf)\n", lookatPosition->x, lookatPosition->y, lookatPosition->z);
 
     const float3 up = make_float3(0, 1.0, 0.0);
     const float3 quadCenter = quads[i].getCenter();
+    printf("(kernel) quadCenter is (%f, %f, %f)\n", quadCenter.x, quadCenter.y, quadCenter.z);
 
     double3 lookAtDirectionD = make_double3(lookatPosition->x - quadCenter.x, lookatPosition->y - quadCenter.y, lookatPosition->z - quadCenter.z);
     float3 lookAtDirection = make_float3(static_cast<float>(lookAtDirectionD.x), static_cast<float>(lookAtDirectionD.y), static_cast<float>(lookAtDirectionD.z));
     lookAtDirection = normalize(lookAtDirection);
+    printf("(kernel) lookAtDirection is (%f, %f, %f)\n", lookAtDirection.x, lookAtDirection.y, lookAtDirection.z);
 
-    mat3 rotationMatrix = quatLookAtRH(lookAtDirection, up);
+    mat3 rotationMatrix = matLookAtRH(lookAtDirection, up);
     quads[i].lowerLeft = rotationMatrix.multiply(quads[i].lowerLeft);
     quads[i].upperLeft = rotationMatrix.multiply(quads[i].upperLeft);
     quads[i].upperRight = rotationMatrix.multiply(quads[i].upperRight);
@@ -539,7 +546,7 @@ int createPrims() {
 
     // createQuadsViaFabric(80000, 1000.f);
     // createMultiquadViaFabric();
-    createMultiquadMeshViaFabric2(10);
+    createMultiquadMeshViaFabric2(2);
 
     return 0;
 }
@@ -552,8 +559,9 @@ int alterPrims() {
     // rotateAllPrimsWithCustomAttrViaFabric();
     // billboardAllPrimsWithCustomAttrViaFabric();
     // billboardAllPrimsWithCustomAttrViaCuda();
+    billboardMultiquadWithCustomAttrViaFabric();
     // billboardMultiquadWithCustomAttrViaCuda();
-    printPositionsWithFabric();
+    // printPositionsWithFabric();
     // runSimpleCudaHeaderTest();
     // runCurandHeaderTest();
     // exportToUsd();
@@ -2541,6 +2549,56 @@ void billboardAllPrimsWithCustomAttrViaCuda() {
 
 }
 
+void billboardMultiquadWithCustomAttrViaFabric() {
+    //get all prims with the custom attr
+    auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+    auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
+    auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
+    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+    omni::fabric::AttrNameAndType primTag(cudaTestAttributeFabricType, getCudaTestAttributeFabricToken());
+    auto bucketList = stageReaderWriter.findPrims({primTag});
+
+    auto numBuckets = bucketList.bucketCount();
+    printf("Num buckets: %llu\n", numBuckets);
+
+    if (bucketList.bucketCount() == 0 ) {
+        std::cout << "No prims found, returning" << std::endl;
+        throw std::runtime_error("Bucketlist is empty");
+    }
+
+    auto lookatPosition = make_double3(0, 0, 0);
+
+    for (size_t bucketNum = 0; bucketNum != bucketList.bucketCount(); bucketNum++)
+    {
+        auto positions = stageReaderWriter.getAttributeArray<pxr::GfVec3f*>(bucketList, bucketNum, FabricTokens::points);
+        auto numQuadsSpan = stageReaderWriter.getAttributeArray<int>(bucketList, bucketNum, getNumQuadsAttributeFabricToken());
+        int numQuads = numQuadsSpan[0];
+        auto sizeofQuad = sizeof(quad);
+        std::cout << "sizeofQuad: " << sizeofQuad << std::endl;
+        auto sizeOfGfVec3f = sizeof(pxr::GfVec3f);
+        std::cout << "sizeofGfVec3f " << sizeOfGfVec3f << std::endl;
+        std::cout << "sizeofFloat3 " << sizeof(float3) << std::endl;
+
+        auto quadsPtr = reinterpret_cast<quad*>(positions[0]->data());
+        std::cout << "(host) numQuads: " << numQuads << std::endl;
+
+        for (int quadNum = 0; quadNum < numQuads; quadNum++) {
+            printf("quad %d lowerLeft: %f, %f, %f\n", quadNum,
+                quadsPtr[quadNum].lowerLeft.x,
+                quadsPtr[quadNum].lowerLeft.y,
+                quadsPtr[quadNum].lowerLeft.z);
+        }
+
+        int elemCount = numQuads;
+        if (elemCount == 0) {
+            throw std::runtime_error("Fabric did not retrieve any elements");
+        }
+        std::cout << elemCount << std::endl;
+
+        lookatMultiquad(quadsPtr, &lookatPosition, numQuads);
+    }
+}
+
 void billboardMultiquadWithCustomAttrViaCuda() {
     //get all prims with the custom attr
     auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
@@ -2586,29 +2644,42 @@ void billboardMultiquadWithCustomAttrViaCuda() {
         return;
     }
 
-
-    struct quad {
-        float lowerLeft;
-        float upperLeft;
-        float upperRight;
-        float lowerRight;
+    struct vec3 {
+        float x;
+        float y;
+        float z;
     };
 
-    for (size_t bucket = 0; bucket != bucketList.bucketCount(); bucket++)
-    {
-        auto positions = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3f*>(bucketList, bucket, FabricTokens::points);
-        auto positionsCount = positions.size();
-        std::cout << "positionsCount is " << positionsCount << std::endl;
-        auto quadsPtr = reinterpret_cast<quad*>(positions.data());
+    struct quad {
+        vec3 lowerLeft;
+        vec3 upperLeft;
+        vec3 upperRight;
+        vec3 lowerRight;
+    };
 
-        size_t elemCount = positions.size() / 4;
+    for (size_t bucketNum = 0; bucketNum != bucketList.bucketCount(); bucketNum++)
+    {
+        auto positions = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3f*>(bucketList, bucketNum, FabricTokens::points);
+        auto numQuadsSpan = stageReaderWriter.getAttributeArray<int>(bucketList, bucketNum, getNumQuadsAttributeFabricToken());
+        int numQuads = numQuadsSpan[0];
+        auto quadsPtr = reinterpret_cast<quad*>(positions.data());
+        std::cout << "(host) numQuads: " << numQuads << std::endl;
+
+        for (int quadNum = 0; quadNum < numQuads; quadNum++) {
+            printf("quad %d lowerLeft: %f, %f, %f\n", quadNum,
+                quadsPtr[quadNum].lowerLeft.x,
+                quadsPtr[quadNum].lowerLeft.y,
+                quadsPtr[quadNum].lowerLeft.z);
+        }
+
+        int elemCount = numQuads;
         if (elemCount == 0) {
             throw std::runtime_error("Fabric did not retrieve any elements");
         }
         std::cout << elemCount << std::endl;
         void *args[] = { &quadsPtr, &lookatPositionDevice, &elemCount}; //NOLINT
 
-        cudaRunner.runKernel(args, elemCount);
+        cudaRunner.runKernel(args, static_cast<size_t>(elemCount));
 
         // primCount += static_cast<int>(elemCount);
     }
@@ -3139,5 +3210,129 @@ void printPositionsWithFabric() {
         }
     }
 }
+
+float dot(float3 a, float3 b)
+{
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+void lookatMultiquad(quad* quads, double3* lookatPosition, int numQuads) {
+    // printf("(kernel) numQuads: %d\n", numQuads);
+
+    // printf("(kernel) lookAtPosition is (%lf, %lf, %lf)\n", lookatPosition->x, lookatPosition->y, lookatPosition->z);
+
+    for (int i = 0; i < numQuads; i++) {
+        const float3 up = make_float3(0, 1.0, 0.0);
+        const float3 quadCenter = quads[i].getCenter();
+        printf("(kernel) quadCenter is (%f, %f, %f)\n", quadCenter.x, quadCenter.y, quadCenter.z);
+
+        double3 lookAtDirectionD = make_double3(lookatPosition->x - quadCenter.x, lookatPosition->y - quadCenter.y, lookatPosition->z - quadCenter.z);
+        float3 lookAtDirection = make_float3(static_cast<float>(lookAtDirectionD.x), static_cast<float>(lookAtDirectionD.y), static_cast<float>(lookAtDirectionD.z));
+        lookAtDirection = normalize(lookAtDirection);
+        printf("(kernel) lookAtDirection is (%f, %f, %f)\n", lookAtDirection.x, lookAtDirection.y, lookAtDirection.z);
+
+        glm::vec3 eye(quadCenter.x, quadCenter.y, quadCenter.z);
+        glm::vec3 center{lookatPosition->x, lookatPosition->y, lookatPosition->z};
+        auto rotationMatrixGlm = glm::lookAt(eye, center, glm::vec3{0, 1, 0});
+
+        // auto llGlm = toGlm(quads[i].lowerLeft);
+        // auto llGlmRotated = rotateVector(rotationMatrixGlm, llGlm);
+
+        //translate to origin
+        quads[i].lowerLeft = subtractFloat3(quads[i].lowerLeft, quadCenter);
+        quads[i].lowerRight = subtractFloat3(quads[i].lowerRight, quadCenter);
+        quads[i].upperLeft = subtractFloat3(quads[i].upperLeft, quadCenter);
+        quads[i].upperRight = subtractFloat3(quads[i].upperRight, quadCenter);
+
+        //rotate
+        quads[i].lowerLeft = rotateVector(rotationMatrixGlm, quads[i].lowerLeft);
+        quads[i].lowerRight = rotateVector(rotationMatrixGlm, quads[i].lowerRight);
+        quads[i].upperLeft = rotateVector(rotationMatrixGlm, quads[i].upperLeft);
+        quads[i].upperRight = rotateVector(rotationMatrixGlm, quads[i].upperRight);
+
+        //translate back
+        quads[i].lowerLeft = addFloat3(quads[i].lowerLeft, quadCenter);
+        quads[i].lowerRight = addFloat3(quads[i].lowerRight, quadCenter);
+        quads[i].upperLeft = addFloat3(quads[i].upperLeft, quadCenter);
+        quads[i].upperRight = addFloat3(quads[i].upperRight, quadCenter);
+
+        // auto lrGlm = toGlm(quads[i].lowerRight);
+        // auto lrGlmRotated = rotateVector(rotationMatrixGlm, lrGlm);
+        // quads[i].lowerRight = make_float3(lrGlmRotated.x, lrGlmRotated.y, lrGlmRotated.z);
+
+        // glm::fquat newQuat = glm::quatLookAt(center - eye, glm::fvec3{0, 1.f, 0});
+            // auto worldPositionGfVec3f = pxr::GfVec3f(worldPositions[i]);
+            // auto worldPositionGlm = usdToGlmVector(worldPositionGfVec3f);
+            // glm::fvec3 direction = lookatPosition - worldPositionGlm;
+            // direction = glm::normalize(direction);
+            // glm::fquat newQuat = glm::quatLookAt(direction, glm::fvec3{0, 1.f, 0});
+            // auto rotatedQuat = convertToGf(newQuat);
+            // orientations[i] = rotatedQuat;
+
+        // mat3 rotationMatrix = matLookAtRH(lookAtDirection, up);
+        // quads[i].lowerLeft = rotationMatrix.multiply(quads[i].lowerLeft);
+        // quads[i].upperLeft = rotationMatrix.multiply(quads[i].upperLeft);
+        // quads[i].upperRight = rotationMatrix.multiply(quads[i].upperRight);
+        // quads[i].lowerRight = rotationMatrix.multiply(quads[i].lowerRight);
+    }
+}
+
+mat3 matLookAtRH(float3 direction, float3 up) {
+    mat3 Result;
+
+    Result.col2 = make_float3(-direction.x, -direction.y, -direction.z);
+    float3 Right = cross(up, Result.col2);
+    Result.col0 = Right * sqrtf(fmax(0.0000f, dot(Right, Right)));
+
+    Result.col1 = cross(Result.col2, Result.col0);
+
+    return Result;
+}
+float3 operator*(const float3& a, const float& b) {
+    return make_float3(a.x * b, a.y * b, a.z * b);
+}
+float3 cross(float3 a, float3 b) {
+    return make_float3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
+}
+float3 normalize(float3 v) {
+    float normSquared = v.x * v.x + v.y * v.y + v.z * v.z;
+    float inverseSqrtNorm = 1.f / sqrtf(normSquared);
+    v.x *= inverseSqrtNorm;
+    v.y *= inverseSqrtNorm;
+    v.z *= inverseSqrtNorm;
+    return v;
+}
+
+glm::vec3 rotateVector(const glm::mat4& rotationMatrix, const glm::vec3& vectorToRotate) {
+    // Convert the 3D vector to a vec4 with w component as 1.0
+    glm::vec4 homogeneousVector(vectorToRotate, 1.0f);
+
+    // Multiply the vector by the rotation matrix to perform the rotation
+    glm::vec4 rotatedHomogeneousVector = rotationMatrix * homogeneousVector;
+
+    // Convert the resulting vec4 back to a vec3
+    glm::vec3 rotatedVector(rotatedHomogeneousVector.x, rotatedHomogeneousVector.y, rotatedHomogeneousVector.z);
+
+    return rotatedVector;
+}
+
+float3 rotateVector(const glm::mat4& rotationMatrix, const float3& vectorToRotate) {
+    auto result = rotateVector(rotationMatrix, toGlm(vectorToRotate));
+    return make_float3(result.x, result.y, result.z);
+}
+
+glm::vec3 toGlm(float3 input) {
+    return glm::vec3{input.x, input.y, input.z};
+}
+
+// Function to subtract a float3 vector from another float3 vector
+float3 subtractFloat3(const float3& a, const float3& b) {
+    return make_float3(a.x - b.x, a.y - b.y, a.z - b.z);
+}
+
+float3 addFloat3(const float3& a, const float3& b) {
+    return make_float3(a.x + b.x, a.y + b.y, a.z + b.z);
+}
+
 
 } // namespace cesium::omniverse::FabricProceduralGeometry
