@@ -1,5 +1,7 @@
 #include "cesium/omniverse/GeospatialUtil.h"
 
+#include "cesium/omniverse/UsdUtil.h"
+
 namespace cesium::omniverse::GeospatialUtil {
 
 CesiumGeospatial::Cartographic convertGeoreferenceToCartographic(const pxr::CesiumGeoreference& georeference) {
@@ -15,6 +17,17 @@ CesiumGeospatial::Cartographic convertGeoreferenceToCartographic(const pxr::Cesi
 
 CesiumGeospatial::LocalHorizontalCoordinateSystem
 getCoordinateSystem(const CesiumGeospatial::Cartographic& origin, const double scaleInMeters) {
+    const auto upAxis = UsdUtil::getUsdUpAxis();
+
+    if (upAxis == pxr::UsdGeomTokens->z) {
+        return {
+            origin,
+            CesiumGeospatial::LocalDirection::East,
+            CesiumGeospatial::LocalDirection::North,
+            CesiumGeospatial::LocalDirection::Up,
+            scaleInMeters};
+    }
+
     return {
         origin,
         CesiumGeospatial::LocalDirection::East,

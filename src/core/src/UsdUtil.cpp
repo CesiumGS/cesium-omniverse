@@ -200,7 +200,7 @@ glm::dmat4
 computeEcefToUsdTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath) {
     const auto ecefToUsdTransform =
         GeospatialUtil::getCoordinateSystem(origin, getUsdMetersPerUnit()).getEcefToLocalTransformation();
-    const auto primInverseUsdWorldTransform = glm::affineInverse(computeUsdWorldTransform(primPath));
+    const auto primInverseUsdWorldTransform = computeUsdWorldTransform(primPath);
     const auto primEcefToUsdTransform = primInverseUsdWorldTransform * ecefToUsdTransform;
     return primEcefToUsdTransform;
 }
