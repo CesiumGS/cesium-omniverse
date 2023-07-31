@@ -44,12 +44,13 @@ class FabricResourceManager {
     bool shouldAcquireMaterial(
         const CesiumGltf::MeshPrimitive& primitive,
         bool hasImagery,
-        const pxr::SdfPath& materialPath) const;
+        const pxr::SdfPath& tilesetMaterialPath) const;
 
     std::shared_ptr<FabricGeometry>
     acquireGeometry(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, bool smoothNormals);
 
-    std::shared_ptr<FabricMaterial> acquireMaterial(const MaterialInfo& materialInfo, bool hasImagery);
+    std::shared_ptr<FabricMaterial>
+    acquireMaterial(const MaterialInfo& materialInfo, bool hasImagery, const pxr::SdfPath& tilesetMaterialPath);
 
     std::shared_ptr<FabricTexture> acquireTexture();
 
@@ -107,7 +108,7 @@ class FabricResourceManager {
     std::mutex _poolMutex;
 
     std::unique_ptr<omni::ui::DynamicTextureProvider> _defaultTexture;
-    pxr::SdfAssetPath _defaultTextureAssetPath;
+    pxr::TfToken _defaultTextureAssetPathToken;
 };
 
 } // namespace cesium::omniverse

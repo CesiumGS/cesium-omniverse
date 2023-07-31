@@ -18,7 +18,8 @@ export float2 world_coordinate_2d(float2 min_world_xy=float2(-5000.0,-5000.0), f
     anno::author("Cesium"),
     anno::in_group("Cesium functions"),
     anno::ui_order(300)
-]]{
+]]
+{
     // Get the world pos of the pixel
     float3 world_pos = state::transform_vector(state::coordinate_internal, state::coordinate_world, state::position());
 
@@ -74,4 +75,17 @@ export color lookup_world_texture_color(uniform texture_2d texture = texture_2d(
         wrap_v: ::tex::wrap_clamp);
 }
 
-export material cesium_gltf_material(*) = gltf_material();
+// For internal use only. See note in FabricMaterial.cpp
+export gltf_texture_lookup_value cesium_texture_lookup(*) [[ anno::hidden() ]] = gltf_texture_lookup();
+
+export color cesium_base_color_texture(gltf_texture_lookup_value base_color_texture)
+[[
+    anno::display_name("Base color texture lookup color"),
+    anno::description("Returns color from the base color texture of the tile"),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium functions"),
+    anno::ui_order(300)
+]]
+{
+    return color(base_color_texture.value.x, base_color_texture.value.y, base_color_texture.value.z);
+}

@@ -4,6 +4,7 @@
 #include "cesium/omniverse/GltfUtil.h"
 
 #include <omni/fabric/IPath.h>
+#include <omni/fabric/Type.h>
 #include <pxr/usd/sdf/assetPath.h>
 #include <pxr/usd/sdf/path.h>
 
@@ -11,28 +12,21 @@ namespace omni::ui {
 class DynamicTextureProvider;
 }
 
-namespace CesiumGltf {
-struct ImageCesium;
-struct MeshPrimitive;
-struct Model;
-} // namespace CesiumGltf
-
 namespace cesium::omniverse {
-
-class FabricTexture;
 
 class FabricMaterial {
   public:
     FabricMaterial(
-        pxr::SdfPath path,
+        const pxr::SdfPath& path,
         const FabricMaterialDefinition& materialDefinition,
-        pxr::SdfAssetPath defaultTextureAssetPath);
+        const pxr::TfToken& defaultTextureAssetPathToken);
+
     ~FabricMaterial();
 
     void setMaterial(int64_t tilesetId, const MaterialInfo& materialInfo);
+    void setBaseColorTexture(const pxr::TfToken& textureAssetPathToken, const TextureInfo& textureInfo);
 
-    void setBaseColorTexture(const std::shared_ptr<FabricTexture>& texture, const TextureInfo& textureInfo);
-
+    void clearMaterial();
     void clearBaseColorTexture();
 
     void setActive(bool active);
@@ -41,18 +35,30 @@ class FabricMaterial {
     [[nodiscard]] const FabricMaterialDefinition& getMaterialDefinition() const;
 
   private:
-    void initialize(pxr::SdfPath path, const FabricMaterialDefinition& materialDefinition);
+    void initialize();
+    void initializeFromExistingMaterial(const omni::fabric::Path& path);
+
+    void createMaterial(const omni::fabric::Path& materialPath);
+    void createShader(const omni::fabric::Path& shaderPath, const omni::fabric::Path& materialPath);
+    void createTexture(
+        const omni::fabric::Path& texturePath,
+        const omni::fabric::Path& shaderPath,
+        const omni::fabric::Token& shaderInput);
+
     void reset();
-    void setTilesetId(int64_t tilesetId);
-    void setMaterialValues(const MaterialInfo& materialInfo);
-    void setBaseColorTextureValues(const pxr::SdfAssetPath& textureAssetPath, const TextureInfo& textureInfo);
+    void setShaderValues(const omni::fabric::Path& shaderPath, const MaterialInfo& materialInfo);
+    void setTextureValues(
+        const omni::fabric::Path& texturePath,
+        const pxr::TfToken& textureAssetPathToken,
+        const TextureInfo& textureInfo);
 
+    omni::fabric::Path _materialPath;
     const FabricMaterialDefinition _materialDefinition;
-    const pxr::SdfAssetPath _defaultTextureAssetPath;
+    const pxr::TfToken _defaultTextureAssetPathToken;
 
-    omni::fabric::Path _materialPathFabric;
-    omni::fabric::Path _shaderPathFabric;
-    omni::fabric::Path _baseColorTexPathFabric;
+    std::vector<omni::fabric::Path> _shaderPaths;
+    std::vector<omni::fabric::Path> _baseColorTexturePaths;
+    std::vector<omni::fabric::Path> _allPaths;
 };
 
 } // namespace cesium::omniverse

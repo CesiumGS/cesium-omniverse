@@ -76,6 +76,8 @@ void Context::initialize(int64_t contextId, const std::filesystem::path& cesiumE
 
     _cesiumExtensionLocation = cesiumExtensionLocation.lexically_normal();
     _certificatePath = _cesiumExtensionLocation / "certs" / "cacert.pem";
+    const auto cesiumMdlPath = _cesiumExtensionLocation / "mdl" / "cesium.mdl";
+    _cesiumMdlPathToken = pxr::TfToken(cesiumMdlPath.generic_string());
 
     _taskProcessor = std::make_shared<TaskProcessor>();
     _httpAssetAccessor = std::make_shared<HttpAssetAccessor>(_certificatePath);
@@ -672,12 +674,16 @@ void Context::updateTroubleshootingDetails(
     }
 }
 
-std::filesystem::path Context::getCesiumExtensionLocation() const {
+const std::filesystem::path& Context::getCesiumExtensionLocation() const {
     return _cesiumExtensionLocation;
 }
 
-std::filesystem::path Context::getCertificatePath() const {
+const std::filesystem::path& Context::getCertificatePath() const {
     return _certificatePath;
+}
+
+const pxr::TfToken& Context::getCesiumMdlPathToken() const {
+    return _cesiumMdlPathToken;
 }
 
 bool Context::getDebugDisableMaterials() const {

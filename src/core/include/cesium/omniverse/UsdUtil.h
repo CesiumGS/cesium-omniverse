@@ -77,7 +77,7 @@ double getUsdMetersPerUnit();
 pxr::SdfPath getRootPath();
 pxr::SdfPath getPathUnique(const pxr::SdfPath& parentPath, const std::string& name);
 std::string getSafeName(const std::string& name);
-pxr::SdfAssetPath getDynamicTextureProviderAssetPath(const std::string& name);
+pxr::TfToken getDynamicTextureProviderAssetPathToken(const std::string& name);
 glm::dmat4 computeEcefToUsdTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath);
 glm::dmat4 computeUsdToEcefTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath);
 Cesium3DTilesSelection::ViewState

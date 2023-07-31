@@ -16,13 +16,14 @@ __pragma(warning(disable: 4003))
 TF_DEFINE_PRIVATE_TOKENS(
     UsdTokens,
     (baseColorTex)
+    (cesium_base_color_texture)
+    (cesium_texture_lookup)
     (constant)
     (doubleSided)
     (extent)
     (faceVertexCounts)
     (faceVertexIndices)
     (gltf_material)
-    ((gltf_pbr_mdl, "gltf/pbr.mdl"))
     (gltf_texture_lookup)
     (Material)
     (Mesh)
@@ -47,6 +48,7 @@ TF_DEFINE_PRIVATE_TOKENS(
     (_worldScale)
     (_worldVisibility)
     ((_auto, "auto"))
+    ((gltf_pbr_mdl, "gltf/pbr.mdl"))
     ((info_implementationSource, "info:implementationSource"))
     ((info_mdl_sourceAsset, "info:mdl:sourceAsset"))
     ((info_mdl_sourceAsset_subIdentifier, "info:mdl:sourceAsset:subIdentifier"))
@@ -56,6 +58,7 @@ TF_DEFINE_PRIVATE_TOKENS(
     ((inputs_base_color_factor, "inputs:base_color_factor"))
     ((inputs_base_color_texture, "inputs:base_color_texture"))
     ((inputs_emissive_factor, "inputs:emissive_factor"))
+    ((inputs_excludeFromWhiteMode, "inputs:excludeFromWhiteMode"))
     ((inputs_metallic_factor, "inputs:metallic_factor"))
     ((inputs_offset, "inputs:offset"))
     ((inputs_rotation, "inputs:rotation"))
@@ -86,6 +89,8 @@ __pragma(warning(pop))
 
 namespace cesium::omniverse::FabricTokens {
 const omni::fabric::TokenC baseColorTex = omni::fabric::asInt(pxr::UsdTokens->baseColorTex);
+const omni::fabric::TokenC cesium_base_color_texture = omni::fabric::asInt(pxr::UsdTokens->cesium_base_color_texture);
+const omni::fabric::TokenC cesium_texture_lookup = omni::fabric::asInt(pxr::UsdTokens->cesium_texture_lookup);
 const omni::fabric::TokenC constant = omni::fabric::asInt(pxr::UsdTokens->constant);
 const omni::fabric::TokenC doubleSided = omni::fabric::asInt(pxr::UsdTokens->doubleSided);
 const omni::fabric::TokenC extent = omni::fabric::asInt(pxr::UsdTokens->extent);
@@ -103,6 +108,7 @@ const omni::fabric::TokenC inputs_base_alpha = omni::fabric::asInt(pxr::UsdToken
 const omni::fabric::TokenC inputs_base_color_factor = omni::fabric::asInt(pxr::UsdTokens->inputs_base_color_factor);
 const omni::fabric::TokenC inputs_base_color_texture = omni::fabric::asInt(pxr::UsdTokens->inputs_base_color_texture);
 const omni::fabric::TokenC inputs_emissive_factor = omni::fabric::asInt(pxr::UsdTokens->inputs_emissive_factor);
+const omni::fabric::TokenC inputs_excludeFromWhiteMode = omni::fabric::asInt(pxr::UsdTokens->inputs_excludeFromWhiteMode);
 const omni::fabric::TokenC inputs_metallic_factor = omni::fabric::asInt(pxr::UsdTokens->inputs_metallic_factor);
 const omni::fabric::TokenC inputs_offset = omni::fabric::asInt(pxr::UsdTokens->inputs_offset);
 const omni::fabric::TokenC inputs_rotation = omni::fabric::asInt(pxr::UsdTokens->inputs_rotation);
@@ -150,6 +156,8 @@ const omni::fabric::TokenC _worldVisibility = omni::fabric::asInt(pxr::UsdTokens
 
 namespace cesium::omniverse::UsdTokens {
 const pxr::TfToken& baseColorTex = pxr::UsdTokens->baseColorTex;
+const pxr::TfToken& cesium_base_color_texture = pxr::UsdTokens->cesium_base_color_texture;
+const pxr::TfToken& cesium_texture_lookup = pxr::UsdTokens->cesium_texture_lookup;
 const pxr::TfToken& constant = pxr::UsdTokens->constant;
 const pxr::TfToken& doubleSided = pxr::UsdTokens->doubleSided;
 const pxr::TfToken& extent = pxr::UsdTokens->extent;
@@ -167,6 +175,7 @@ const pxr::TfToken& inputs_base_alpha = pxr::UsdTokens->inputs_base_alpha;
 const pxr::TfToken& inputs_base_color_factor = pxr::UsdTokens->inputs_base_color_factor;
 const pxr::TfToken& inputs_base_color_texture = pxr::UsdTokens->inputs_base_color_texture;
 const pxr::TfToken& inputs_emissive_factor = pxr::UsdTokens->inputs_emissive_factor;
+const pxr::TfToken& inputs_excludeFromWhiteMode = pxr::UsdTokens->inputs_excludeFromWhiteMode;
 const pxr::TfToken& inputs_metallic_factor = pxr::UsdTokens->inputs_metallic_factor;
 const pxr::TfToken& inputs_offset = pxr::UsdTokens->inputs_offset;
 const pxr::TfToken& inputs_rotation = pxr::UsdTokens->inputs_rotation;

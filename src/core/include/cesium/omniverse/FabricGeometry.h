@@ -13,8 +13,6 @@ struct Model;
 
 namespace cesium::omniverse {
 
-class FabricMaterial;
-
 class FabricGeometry {
   public:
     FabricGeometry(

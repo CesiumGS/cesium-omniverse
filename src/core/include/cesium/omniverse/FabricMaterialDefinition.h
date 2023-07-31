@@ -3,11 +3,7 @@
 #include <glm/glm.hpp>
 #include <pxr/base/gf/vec2f.h>
 #include <pxr/base/gf/vec3f.h>
-
-namespace CesiumGltf {
-struct MeshPrimitive;
-struct Model;
-} // namespace CesiumGltf
+#include <pxr/usd/sdf/path.h>
 
 namespace cesium::omniverse {
 
@@ -15,16 +11,23 @@ struct MaterialInfo;
 
 class FabricMaterialDefinition {
   public:
-    FabricMaterialDefinition(const MaterialInfo& materialInfo, bool hasImagery, bool disableTextures);
+    FabricMaterialDefinition(
+        const MaterialInfo& materialInfo,
+        bool hasImagery,
+        bool disableTextures,
+        const pxr::SdfPath& tilesetMaterialPath);
 
     [[nodiscard]] bool hasBaseColorTexture() const;
     [[nodiscard]] bool hasVertexColors() const;
+    [[nodiscard]] bool hasTilesetMaterial() const;
+    [[nodiscard]] const pxr::SdfPath& getTilesetMaterialPath() const;
 
     bool operator==(const FabricMaterialDefinition& other) const;
 
   private:
     bool _hasBaseColorTexture;
     bool _hasVertexColors;
+    pxr::SdfPath _tilesetMaterialPath;
 };
 
 } // namespace cesium::omniverse
