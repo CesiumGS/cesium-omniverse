@@ -1,4 +1,5 @@
 from .bindings import acquire_cesium_omniverse_interface, release_cesium_omniverse_interface, Viewport
+from .install import perform_vendor_install
 from .utils import wait_n_frames, dock_window_async
 from .ui.asset_window import CesiumOmniverseAssetWindow
 from .ui.debug_window import CesiumOmniverseDebugWindow
@@ -22,7 +23,6 @@ import omni.usd
 import os
 from typing import List, Optional, Callable
 from .ui.credits_viewport_controller import CreditsViewportController
-from .install.install_lxml import install_lxml
 
 cesium_extension_location = os.path.join(os.path.dirname(__file__), "../../")
 
@@ -58,7 +58,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._menu = None
         self._num_credits_viewport_frames: int = 0
 
-        install_lxml(cesium_extension_location)
+        perform_vendor_install()
 
     def on_startup(self):
         # The ability to show up the window if the system requires it. We use it in QuickLayout.
