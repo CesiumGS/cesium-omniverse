@@ -7,8 +7,8 @@ import ::tex::*;
 using ::gltf::pbr import *;
 
 module [[
-	anno::version( 1, 0, 0),
-	anno::display_name("Cesium MDL functions")
+    anno::version( 1, 0, 0),
+    anno::display_name("Cesium MDL functions")
 ]];
 
 export float2 world_coordinate_2d(float2 min_world_xy=float2(-5000.0,-5000.0), float2 max_world_xy=float2(5000.0,5000.0))
@@ -16,14 +16,14 @@ export float2 world_coordinate_2d(float2 min_world_xy=float2(-5000.0,-5000.0), f
     anno::display_name("World Coordinate 2D"),
     anno::description("Returns UV coordinates for mapping rasters to world space positions."),
     anno::author("Cesium"),
-	anno::in_group("Cesium functions"),
-	anno::ui_order(300)
+    anno::in_group("Cesium functions"),
+    anno::ui_order(300)
 ]]{
-	// Get the world pos of the pixel
-	float3 world_pos = state::transform_vector(state::coordinate_internal, state::coordinate_world, state::position());
+    // Get the world pos of the pixel
+    float3 world_pos = state::transform_vector(state::coordinate_internal, state::coordinate_world, state::position());
 
-	// Return 0-1 UVs based on the min/max world coordinates provided
-	return float2(0.0,0.0) + (float2(world_pos.x, world_pos.y) - min_world_xy) * (float2(1.0, 1.0) - float2(0.0, 0.0)) / (max_world_xy - min_world_xy);
+    // Return 0-1 UVs based on the min/max world coordinates provided
+    return float2(0.0,0.0) + (float2(world_pos.x, world_pos.y) - min_world_xy) * (float2(1.0, 1.0) - float2(0.0, 0.0)) / (max_world_xy - min_world_xy);
 }
 
 export float4 lookup_world_texture_float4(uniform texture_2d texture = texture_2d(), float2 min_world_xy=float2(-5000.0,-5000.0), float2 max_world_xy=float2(5000.0,5000.0))
@@ -31,14 +31,14 @@ export float4 lookup_world_texture_float4(uniform texture_2d texture = texture_2
     anno::display_name("World-mapped texture lookup float4"),
     anno::description("Returns float4 from a texture mapped to world UV coordinates"),
     anno::author("Cesium GS Inc."),
-	anno::in_group("Cesium functions"),
-	anno::ui_order(300)
+    anno::in_group("Cesium functions"),
+    anno::ui_order(300)
 ]]
 {
-	return tex::lookup_float4(
+    return tex::lookup_float4(
         tex: texture,
         coord: world_coordinate_2d(min_world_xy, max_world_xy),
-		wrap_u: ::tex::wrap_clamp,
+        wrap_u: ::tex::wrap_clamp,
         wrap_v: ::tex::wrap_clamp);
 }
 
@@ -47,14 +47,14 @@ export float3 lookup_world_texture_float3(uniform texture_2d texture = texture_2
     anno::display_name("World-mapped texture lookup float3"),
     anno::description("Returns float3 from a texture mapped to world UV coordinates"),
     anno::author("Cesium GS Inc."),
-	anno::in_group("Cesium functions"),
-	anno::ui_order(300)
+    anno::in_group("Cesium functions"),
+    anno::ui_order(300)
 ]]
 {
-	return tex::lookup_float3(
+    return tex::lookup_float3(
         tex: texture,
         coord: world_coordinate_2d(min_world_xy, max_world_xy),
-		wrap_u: ::tex::wrap_clamp,
+        wrap_u: ::tex::wrap_clamp,
         wrap_v: ::tex::wrap_clamp);
 }
 
@@ -65,11 +65,11 @@ export float3 lookup_world_texture_float3(uniform texture_2d texture = texture_2
 //     anno::display_name("World-mapped texture lookup color"),
 //     anno::description("Returns color from a texture mapped to world UV coordinates"),
 //     anno::author("Cesium GS Inc."),
-// 	anno::in_group("Cesium functions"),
-// 	anno::ui_order(300)
+//     anno::in_group("Cesium functions"),
+//     anno::ui_order(300)
 // ]]
 // {
-// 	return tex::lookup_color(
+//     return tex::lookup_color(
 //         tex: texture,
 //         coord: world_coordinate_2d(min_world_xy, max_world_xy));
 // }
