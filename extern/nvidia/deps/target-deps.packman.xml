@@ -7,7 +7,6 @@
     <filter include="carb_sdk_plugins"/>
     <filter include="pybind11"/>
     <filter include="cuda"/>
-    <filter include="rtx_plugins"/>
   </import>
   <import path="../_build/target-deps/kit-sdk-debug/dev/all-deps.packman.xml">
     <filter include="nv_usd_py310_debug"/>
@@ -20,5 +19,4 @@
   <dependency name="carb_sdk_plugins" linkPath="../_build/target-deps/carb_sdk_plugins"/>
   <dependency name="pybind11" linkPath="../_build/target-deps/pybind11/pybind11"/>
   <dependency name="cuda" linkPath="../_build/target-deps/cuda/cuda"/>
-  <dependency name="rtx_plugins" linkPath="../_build/target-deps/rtx_plugins"/>
 </project>
