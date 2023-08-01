@@ -11,13 +11,15 @@ This is the process we follow when releasing a new version of Cesium for Omniver
 8. Update the extension `version` in [extension.toml](../../exts/cesium.omniverse/config/extension.toml). This should be the same version as above.
 9. Update [`CHANGES.md`](CHANGES.md).
 10. Update `ION_ACCESS_TOKEN` and `GOOGLE_3D_TILES_URL` in `cesium.performance.app` using the newly generated keys.
-11. Commit the changes, e.g. `git commit -am "0.0.0 release"`.
-12. Push the commit, e.g. `git push origin main`.
-13. Tag the release, e.g. `git tag -a v0.0.0 -m "0.0.0 release"`.
-14. Push the tag, e.g. `git push origin v0.0.0`.
-15. Wait for CI to pass.
-16. Download the latest build from S3. In the AWS management console (old AWS account), go to the bucket [`cesium-travis-builds/cesium-omniverse`](https://s3.console.aws.amazon.com/s3/buckets/cesium-travis-builds?prefix=cesium-omniverse/&region=us-east-1), find the folder with the new tag and download the CentOS and Windows zip files (e.g. `CesiumForOmniverse-Linux-v0.0.0.zip` and `CesiumForOmniverse-Windows-v0.0.0.zip` )
-17. Create a new release on GitHub: https://github.com/CesiumGS/cesium-omniverse/releases/new.
+11. Create a branch, e.g. `git checkout -b release-0.0.0`.
+12. Commit the changes, e.g. `git commit -am "0.0.0 release"`.
+13. Push the commit, e.g. `git push origin release-0.0.0`.
+14. Open a PR and merge the branch with "Rebase and merge".
+15. Tag the release, e.g. `git tag -a v0.0.0 -m "0.0.0 release"`.
+16. Push the tag, e.g. `git push origin v0.0.0`.
+17. Wait for CI to pass.
+18. Download the latest build from S3. In the AWS management console (old AWS account), go to the bucket [`cesium-travis-builds/cesium-omniverse`](https://s3.console.aws.amazon.com/s3/buckets/cesium-travis-builds?prefix=cesium-omniverse/&region=us-east-1), find the folder with the new tag and download the CentOS and Windows zip files (e.g. `CesiumForOmniverse-Linux-v0.0.0.zip` and `CesiumForOmniverse-Windows-v0.0.0.zip` )
+19. Create a new release on GitHub: https://github.com/CesiumGS/cesium-omniverse/releases/new.
     * Chose the new tag.
     * Copy the changelog into the description. Follow the format used in previous releases.
     * Upload the Linux and Windows release zip files.
