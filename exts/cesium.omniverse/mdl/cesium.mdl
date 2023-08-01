@@ -78,7 +78,12 @@ export color lookup_world_texture_color(uniform texture_2d texture = texture_2d(
 // For internal use only. See note in FabricMaterial.cpp
 export gltf_texture_lookup_value cesium_texture_lookup(*) [[ anno::hidden() ]] = gltf_texture_lookup();
 
-export color cesium_base_color_texture(gltf_texture_lookup_value base_color_texture)
+export color cesium_base_color_texture(
+    gltf_texture_lookup_value base_color_texture
+    [[
+        anno::hidden()
+    ]]
+)
 [[
     anno::display_name("Base color texture lookup color"),
     anno::description("Returns color from the base color texture of the tile"),
