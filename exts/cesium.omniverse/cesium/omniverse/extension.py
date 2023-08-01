@@ -26,6 +26,7 @@ from .ui.credits_viewport_controller import CreditsViewportController
 
 cesium_extension_location = os.path.join(os.path.dirname(__file__), "../../")
 
+
 class CesiumOmniverseExtension(omni.ext.IExt):
     @staticmethod
     def _set_menu(path, value):
