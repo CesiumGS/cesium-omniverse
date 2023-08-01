@@ -4,6 +4,7 @@ import omni.usd
 from .proj import epsg_to_ecef, epsg_to_wgs84, get_crs_name_from_epsg
 import math
 from .custom_fields import string_field_with_label, int_field_with_label, float_field_with_label
+from pxr import Sdf
 
 
 class CesiumGeorefHelperWindow(ui.Window):
@@ -28,7 +29,7 @@ class CesiumGeorefHelperWindow(ui.Window):
 
     @staticmethod
     def create_window():
-        return CesiumGeorefHelperWindow(width=250, height=550)
+        return CesiumGeorefHelperWindow(width=250, height=600)
 
     def _convert_coordinates(self):
         # Get the CRS and check if it is valid, adjust UI values accordingly
@@ -85,6 +86,26 @@ class CesiumGeorefHelperWindow(ui.Window):
         cesium_prim.GetAttribute("cesium:georeferenceOrigin:height").Set(
             self._wgs84_height_model.get_value_as_float()
         )
+
+    @staticmethod
+    def set_georef_from_environment():
+        stage = omni.usd.get_context().get_stage()
+
+        environment_prim = stage.GetPrimAtPath("/Environment")
+        cesium_prim = stage.GetPrimAtPath("/CesiumGeoreference")
+
+        lat_attr = environment_prim.GetAttribute("location:latitude")
+        long_attr = environment_prim.GetAttribute("location:longitude")
+
+        if lat_attr and long_attr:
+            cesium_prim.GetAttribute("cesium:georeferenceOrigin:latitude").Set(lat_attr.Get())
+            cesium_prim.GetAttribute("cesium:georeferenceOrigin:longitude").Set(long_attr.Get())
+            cesium_prim.GetAttribute("cesium:georeferenceOrigin:height").Set(0.0)
+        else:
+            logger = logging.getLogger(__name__)
+            logger.warning(
+                "Cannot set CesiumGeoreference as environment prim does not have latitude or longitude attributes"
+            )
 
     def _build_fn(self):
         """Builds out the UI buttons and their handlers."""
@@ -147,7 +168,10 @@ class CesiumGeorefHelperWindow(ui.Window):
             float_field_with_label("Y", model=self._ecef_y_model, enabled=False)
             float_field_with_label("Z", model=self._ecef_z_model, enabled=False)
 
-            ui.Button("Set Georeference", height=20, clicked_fn=self._set_georeference_prim)
+            ui.Button("Set Georeference from EPSG", height=20, clicked_fn=self._set_georeference_prim)
+            ui.Button(
+                "Set Georeference from Environment Prim", height=20, clicked_fn=self.set_georef_from_environment
+            )
 
             # Do the first conversion
             self._convert_coordinates()

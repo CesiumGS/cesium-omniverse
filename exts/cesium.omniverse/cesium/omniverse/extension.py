@@ -57,7 +57,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._credits_viewport_controller: Optional[CreditsViewportController] = None
         self._add_menu_controller: Optional[CesiumAddMenuController] = None
         self._logger: logging.Logger = logging.getLogger(__name__)
-        self._menu = None
+        self._menus = []
         self._num_credits_viewport_frames: int = 0
 
         perform_vendor_install()
@@ -70,7 +70,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         )
         ui.Workspace.set_show_window_fn(CesiumOmniverseDebugWindow.WINDOW_NAME, partial(self.show_debug_window, None))
 
-        show_on_startup = True
+        show_on_startup = omni_settings.get_settings().get_as_bool("/exts/cesium.omniverse/showOnStartup")
 
         self._add_to_menu(CesiumOmniverseMainWindow.MENU_PATH, self.show_main_window, show_on_startup)
         self._add_to_menu(CesiumOmniverseAssetWindow.MENU_PATH, self.show_assets_window, False)
@@ -133,7 +133,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         )
 
     def on_shutdown(self):
-        self._menu = None
+        self._menus.clear()
 
         if self._main_window is not None:
             self._main_window.destroy()
@@ -332,7 +332,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         editor_menu = omni.kit.ui.get_editor_menu()
 
         if editor_menu:
-            self._menu = editor_menu.add_item(path, callback, toggle=True, value=show_on_startup)
+            self._menus.append(editor_menu.add_item(path, callback, toggle=True, value=show_on_startup))
 
     async def _destroy_window_async(self, path):
         # Wait one frame, this is due to the one frame defer in Window::_moveToMainOSWindow()

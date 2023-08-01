@@ -1,5 +1,5 @@
 [package]
-version = "0.8.0"
+version = "0.9.0"
 category = "simulation"
 feature = false
 app = false
@@ -51,11 +51,12 @@ path = "bin/cesium.omniverse.plugin"
 [settings]
 exts."cesium.omniverse".defaultAccessToken = ""
 persistent.exts."cesium.omniverse".userAccessToken = ""
+exts."cesium.omniverse".showOnStartup = true
 
 [[test]]
 args = [
-    "--/renderer/enabled=pxr",
-    "--/renderer/active=pxr",
+    "--/renderer/enabled=rtx",
+    "--/renderer/active=rtx",
     "--/app/window/dpiScaleOverride=1.0",
     "--/app/window/scaleToMonitor=false",
     "--/app/file/ignoreUnsavedOnExit=true",
@@ -65,7 +66,14 @@ dependencies = [
     "omni.kit.mainwindow",
     "omni.kit.ui_test",
     "omni.kit.test_suite.helpers",
+    "omni.kit.window.file",
+    "omni.kit.viewport.window",
 ]
 pythonTests.include = ["cesium.omniverse.*"]
 pythonTests.exclude = []
+
+pythonTests.unreliable = [
+    "*test_window_docked", # window does not dock when tests run from the empty test kit via the omniverse app
+]
+
 timeout = 180

@@ -46,6 +46,17 @@ getCoordinateSystem(const pxr::CesiumGeoreference& georeference, const double sc
 
 CesiumGeospatial::LocalHorizontalCoordinateSystem
 getCoordinateSystem(const CesiumGeospatial::Cartographic& origin, const double scaleInMeters) {
+    const auto upAxis = UsdUtil::getUsdUpAxis();
+
+    if (upAxis == pxr::UsdGeomTokens->z) {
+        return {
+            origin,
+            CesiumGeospatial::LocalDirection::East,
+            CesiumGeospatial::LocalDirection::North,
+            CesiumGeospatial::LocalDirection::Up,
+            scaleInMeters};
+    }
+
     return {
         origin,
         CesiumGeospatial::LocalDirection::East,

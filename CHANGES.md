@@ -1,5 +1,15 @@
 # Change Log
 
+### v0.9.0 - 2023-08-01
+
+* Breaking change: `CesiumTilesetPrim` now inherits from `UsdGeomGprim` instead of `UsdGeomBoundable`.
+* Improved texture loading performance by moving texture loading to a worker thread.
+* Improved performance when refining with parent tile's imagery by sharing the same texture instead of duplicating it.
+* Added support for assigning materials to a tileset.
+* Improved styling of credits.
+* Visually enable/disable top bar buttons based on sign-in status.
+* Fixed bug where not all Cesium windows would not appear in Windows menu.
+
 ### v0.8.0 - 2023-07-03
 
 * Breaking change: Cesium for Omniverse now requires Kit 105 or above (USD Composer 2023.1.0 or above).
