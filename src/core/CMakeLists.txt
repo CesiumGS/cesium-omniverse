@@ -58,7 +58,7 @@ setup_lib(
         cpr::cpr
         stb::stb
         ZLIB::ZLIB
-        usdrt
+        fabric
         ar
         arch
         gf
@@ -86,7 +86,6 @@ setup_lib(
         cudart
         omni_kit
         omni_ui
-        rtx_plugins
         pybind11
         python310
     ADDITIONAL_LIBRARIES

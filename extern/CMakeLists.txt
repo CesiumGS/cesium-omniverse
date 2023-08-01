@@ -71,7 +71,6 @@ set(CARB_ROOT "${NVIDIA_BUILD_DIR}/target-deps/carb_sdk_plugins")
 set(KIT_SDK_ROOT "${NVIDIA_BUILD_DIR}/target-deps/kit-sdk")
 set(PYBIND11_ROOT "${NVIDIA_BUILD_DIR}/target-deps/pybind11")
 set(CUDA_ROOT "${NVIDIA_BUILD_DIR}/target-deps/cuda")
-set(RTX_PLUGINS_ROOT "${NVIDIA_BUILD_DIR}/target-deps/rtx_plugins")
 
 set(NVIDIA_USD_LIBRARIES
     ar
@@ -187,9 +186,9 @@ endif()
 # cmake-format: off
 add_prebuilt_project(
     RELEASE_INCLUDE_DIR
-        "${USDRT_ROOT}/include"
+        "${USDRT_ROOT}/include/usdrt_only"
     DEBUG_INCLUDE_DIR
-        "${USDRT_ROOT}/include"
+        "${USDRT_ROOT}/include/usdrt_only"
     RELEASE_LIBRARY_DIR
         "${USDRT_ROOT}/_build/${NVIDIA_PLATFORM_NAME}/${NVIDIA_RELEASE_FOLDER_NAME}/usdrt_only"
     DEBUG_LIBRARY_DIR
@@ -199,7 +198,7 @@ add_prebuilt_project(
     DEBUG_LIBRARIES
         omni.fabric.plugin
     TARGET_NAMES
-        usdrt
+        fabric
 )
 # cmake-format: on
 
@@ -305,16 +304,6 @@ add_prebuilt_project(
         omni.ui
     TARGET_NAMES
         omni_ui
-)
-# cmake-format: on
-
-# cmake-format: off
-# DynamicTextureProvider.h includes IImaging.h which only exists in the rtx_plugin package
-add_prebuilt_project_header_only(
-    INCLUDE_DIR
-        "${RTX_PLUGINS_ROOT}/include"
-    TARGET_NAME
-        rtx_plugins
 )
 # cmake-format: on
 
