@@ -68,7 +68,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         )
         ui.Workspace.set_show_window_fn(CesiumOmniverseDebugWindow.WINDOW_NAME, partial(self.show_debug_window, None))
 
-        show_on_startup = True
+        show_on_startup = omni_settings.get_settings().get_as_bool("/exts/cesium.omniverse/showOnStartup")
 
         self._add_to_menu(CesiumOmniverseMainWindow.MENU_PATH, self.show_main_window, show_on_startup)
         self._add_to_menu(CesiumOmniverseAssetWindow.MENU_PATH, self.show_assets_window, False)
