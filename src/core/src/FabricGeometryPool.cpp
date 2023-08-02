@@ -24,7 +24,7 @@ const FabricGeometryDefinition& FabricGeometryPool::getGeometryDefinition() cons
 
 std::shared_ptr<FabricGeometry> FabricGeometryPool::createObject(uint64_t objectId) {
     const auto pathStr = fmt::format("/fabric_geometry_pool_{}_object_{}", _poolId, objectId);
-    const auto path = pxr::SdfPath(pathStr);
+    const auto path = omni::fabric::Path(pathStr.c_str());
     return std::make_shared<FabricGeometry>(path, _geometryDefinition, _debugRandomColors, _stageId);
 }
 

@@ -186,7 +186,7 @@ void setFabricMeshes(
 
         if (material != nullptr) {
             material->setMaterial(meshInfo.tilesetId, materialInfo);
-            geometry->setMaterial(material->getPathFabric());
+            geometry->setMaterial(material->getPath());
 
             if (baseColorTexture != nullptr && materialInfo.baseColorTexture.has_value()) {
                 material->setBaseColorTexture(

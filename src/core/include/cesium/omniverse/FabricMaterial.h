@@ -17,7 +17,7 @@ namespace cesium::omniverse {
 class FabricMaterial {
   public:
     FabricMaterial(
-        const pxr::SdfPath& path,
+        const omni::fabric::Path& path,
         const FabricMaterialDefinition& materialDefinition,
         const pxr::TfToken& defaultTextureAssetPathToken,
         long stageId);
@@ -31,7 +31,7 @@ class FabricMaterial {
 
     void setActive(bool active);
 
-    [[nodiscard]] omni::fabric::Path getPathFabric() const;
+    [[nodiscard]] omni::fabric::Path getPath() const;
     [[nodiscard]] const FabricMaterialDefinition& getMaterialDefinition() const;
 
   private:

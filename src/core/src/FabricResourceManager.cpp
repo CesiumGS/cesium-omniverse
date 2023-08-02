@@ -65,7 +65,7 @@ std::shared_ptr<FabricGeometry> FabricResourceManager::acquireGeometry(
 
     if (_disableGeometryPool) {
         const auto pathStr = fmt::format("/fabric_geometry_{}", getNextGeometryId());
-        const auto path = pxr::SdfPath(pathStr);
+        const auto path = omni::fabric::Path(pathStr.c_str());
         return std::make_shared<FabricGeometry>(path, geometryDefinition, _debugRandomColors, stageId);
     }
 
@@ -90,7 +90,7 @@ std::shared_ptr<FabricMaterial> FabricResourceManager::acquireMaterial(
 
     if (_disableMaterialPool) {
         const auto pathStr = fmt::format("/fabric_material_{}", getNextMaterialId());
-        const auto path = pxr::SdfPath(pathStr);
+        const auto path = omni::fabric::Path(pathStr.c_str());
         return std::make_shared<FabricMaterial>(path, materialDefinition, _defaultTextureAssetPathToken, stageId);
     }
 

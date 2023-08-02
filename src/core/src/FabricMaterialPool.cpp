@@ -24,7 +24,7 @@ const FabricMaterialDefinition& FabricMaterialPool::getMaterialDefinition() cons
 
 std::shared_ptr<FabricMaterial> FabricMaterialPool::createObject(uint64_t objectId) {
     const auto pathStr = fmt::format("/fabric_material_pool_{}_object_{}", _poolId, objectId);
-    const auto path = pxr::SdfPath(pathStr);
+    const auto path = omni::fabric::Path(pathStr.c_str());
     return std::make_shared<FabricMaterial>(path, _materialDefinition, _defaultTextureAssetPathToken, _stageId);
 }
 

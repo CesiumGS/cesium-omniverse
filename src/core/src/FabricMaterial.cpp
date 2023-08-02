@@ -12,11 +12,11 @@
 namespace cesium::omniverse {
 
 FabricMaterial::FabricMaterial(
-    const pxr::SdfPath& path,
+    const omni::fabric::Path& path,
     const FabricMaterialDefinition& materialDefinition,
     const pxr::TfToken& defaultTextureAssetPathToken,
     long stageId)
-    : _materialPath(FabricUtil::toFabricPath(path))
+    : _materialPath(path)
     , _materialDefinition(materialDefinition)
     , _defaultTextureAssetPathToken(defaultTextureAssetPathToken)
     , _stageId(stageId) {
@@ -55,7 +55,7 @@ void FabricMaterial::setActive(bool active) {
     }
 }
 
-omni::fabric::Path FabricMaterial::getPathFabric() const {
+omni::fabric::Path FabricMaterial::getPath() const {
     return _materialPath;
 }
 
