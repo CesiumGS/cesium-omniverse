@@ -366,7 +366,7 @@ void Context::processPrimAdded(const ChangedPrim& changedPrim) {
     if (changedPrim.primType == ChangedPrimType::CESIUM_TILESET) {
         // Add the tileset to the asset registry
         const auto tilesetPath = changedPrim.path;
-        AssetRegistry::getInstance().addTileset(tilesetPath, pxr::SdfPath("/CesiumGeoreference"));
+        AssetRegistry::getInstance().addTileset(tilesetPath, UsdUtil::GEOREFERENCE_PATH);
     } else if (changedPrim.primType == ChangedPrimType::CESIUM_IMAGERY) {
         // Add the imagery to the asset registry and reload the tileset that the imagery is attached to
         const auto imageryPath = changedPrim.path;

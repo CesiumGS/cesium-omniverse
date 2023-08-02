@@ -64,7 +64,8 @@ std::shared_ptr<FabricGeometry> FabricResourceManager::acquireGeometry(
     FabricGeometryDefinition geometryDefinition(model, primitive, smoothNormals);
 
     if (_disableGeometryPool) {
-        const auto path = pxr::SdfPath(fmt::format("/fabric_geometry_{}", getNextGeometryId()));
+        const auto pathStr = fmt::format("/fabric_geometry_{}", getNextGeometryId());
+        const auto path = pxr::SdfPath(pathStr);
         return std::make_shared<FabricGeometry>(path, geometryDefinition, _debugRandomColors, stageId);
     }
 
@@ -88,7 +89,8 @@ std::shared_ptr<FabricMaterial> FabricResourceManager::acquireMaterial(
     FabricMaterialDefinition materialDefinition(materialInfo, hasImagery, _disableTextures, tilesetMaterialPath);
 
     if (_disableMaterialPool) {
-        const auto path = pxr::SdfPath(fmt::format("/fabric_material_{}", getNextMaterialId()));
+        const auto pathStr = fmt::format("/fabric_material_{}", getNextMaterialId());
+        const auto path = pxr::SdfPath(pathStr);
         return std::make_shared<FabricMaterial>(path, materialDefinition, _defaultTextureAssetPathToken, stageId);
     }
 
