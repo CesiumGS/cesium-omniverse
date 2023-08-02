@@ -1,6 +1,12 @@
 from .bindings import acquire_cesium_omniverse_interface, release_cesium_omniverse_interface, Viewport
 from .install import perform_vendor_install
-from .utils import wait_n_frames, dock_window_async, perform_action_after_n_frames_async
+from .utils import (
+    wait_n_frames,
+    dock_window_async,
+    perform_action_after_n_frames_async,
+    add_tileset_ion,
+    add_imagery_ion,
+)
 from .ui.asset_window import CesiumOmniverseAssetWindow
 from .ui.debug_window import CesiumOmniverseDebugWindow
 from .ui.main_window import CesiumOmniverseMainWindow
@@ -23,6 +29,7 @@ import omni.usd
 import os
 from typing import List, Optional, Callable
 from .ui.credits_viewport_controller import CreditsViewportController
+from pxr import Usd
 
 cesium_extension_location = os.path.join(os.path.dirname(__file__), "../../")
 
@@ -279,16 +286,10 @@ class CesiumOmniverseExtension(omni.ext.IExt):
                 return
 
         if asset_to_add.imagery_name is not None and asset_to_add.imagery_ion_asset_id is not None:
-            tileset_path = _cesium_omniverse_interface.add_tileset_and_imagery(
-                asset_to_add.tileset_name,
-                asset_to_add.tileset_ion_asset_id,
-                asset_to_add.imagery_name,
-                asset_to_add.imagery_ion_asset_id,
-            )
+            tileset_path = add_tileset_ion(asset_to_add.tileset_name, asset_to_add.tileset_ion_asset_id)
+            add_imagery_ion(tileset_path, asset_to_add.imagery_name, asset_to_add.imagery_ion_asset_id)
         else:
-            tileset_path = _cesium_omniverse_interface.add_tileset_ion(
-                asset_to_add.tileset_name, asset_to_add.tileset_ion_asset_id
-            )
+            tileset_path = add_tileset_ion(asset_to_add.tileset_name, asset_to_add.tileset_ion_asset_id)
 
         if tileset_path == "":
             self._logger.warning("Error adding tileset and imagery to stage")
