@@ -1,5 +1,5 @@
 [package]
-version = "0.8.0"
+version = "0.9.0"
 category = "simulation"
 feature = false
 app = false
@@ -51,6 +51,7 @@ path = "bin/cesium.omniverse.plugin"
 [settings]
 exts."cesium.omniverse".defaultAccessToken = ""
 persistent.exts."cesium.omniverse".userAccessToken = ""
+exts."cesium.omniverse".showOnStartup = true
 
 [[test]]
 args = [

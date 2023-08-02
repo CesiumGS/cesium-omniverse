@@ -18,7 +18,8 @@ class FabricGeometry {
     FabricGeometry(
         const pxr::SdfPath& path,
         const FabricGeometryDefinition& geometryDefinition,
-        bool debugRandomColors);
+        bool debugRandomColors,
+        long stageId);
     ~FabricGeometry();
 
     void setGeometry(
@@ -42,10 +43,12 @@ class FabricGeometry {
   private:
     void initialize();
     void reset();
+    bool stageDestroyed();
 
     const omni::fabric::Path _pathFabric;
     const FabricGeometryDefinition _geometryDefinition;
     const bool _debugRandomColors;
+    const long _stageId;
 };
 
 } // namespace cesium::omniverse

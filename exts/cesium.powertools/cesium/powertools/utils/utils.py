@@ -1,6 +1,6 @@
 import omni.usd
 from omni.kit.viewport.utility import get_active_viewport
-from pxr import Gf, UsdGeom
+from pxr import Gf, UsdGeom, Sdf
 import json
 import carb.settings
 import os
@@ -47,3 +47,27 @@ def save_carb_settings(powertools_extension_location: str):
     carb_settings_path = os.path.join(powertools_extension_location, "carb_settings.txt")
     with open(carb_settings_path, "w") as fh:
         fh.write(json.dumps(carb.settings.get_settings().get("/"), indent=2))
+
+
+# Helper function to search for an attribute on a prim, or create it if not present
+def get_or_create_attribute(prim, name, type):
+    attribute = prim.GetAttribute(name)
+    if not attribute:
+        attribute = prim.CreateAttribute(name, type)
+    return attribute
+
+
+def set_sunstudy_from_georef():
+    stage = omni.usd.get_context().get_stage()
+
+    environment_prim = stage.GetPrimAtPath("/Environment")
+    cesium_prim = stage.GetPrimAtPath("/CesiumGeoreference")
+
+    lat_attr = get_or_create_attribute(environment_prim, "location:latitude", Sdf.ValueTypeNames.Float)
+    lat_attr.Set(cesium_prim.GetAttribute("cesium:georeferenceOrigin:latitude").Get())
+
+    long_attr = get_or_create_attribute(environment_prim, "location:longitude", Sdf.ValueTypeNames.Float)
+    long_attr.Set(cesium_prim.GetAttribute("cesium:georeferenceOrigin:longitude").Get())
+
+    north_attr = get_or_create_attribute(environment_prim, "location:north_orientation", Sdf.ValueTypeNames.Float)
+    north_attr.Set(90.0)  # Always set to 90, otherwise the sun is at the wrong angle

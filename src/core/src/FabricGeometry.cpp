@@ -34,25 +34,43 @@ const auto DEFAULT_VISIBILITY = false;
 FabricGeometry::FabricGeometry(
     const pxr::SdfPath& path,
     const FabricGeometryDefinition& geometryDefinition,
-    bool debugRandomColors)
+    bool debugRandomColors,
+    long stageId)
     : _pathFabric(path.GetText())
     , _geometryDefinition(geometryDefinition)
-    , _debugRandomColors(debugRandomColors) {
+    , _debugRandomColors(debugRandomColors)
+    , _stageId(stageId) {
+    if (stageDestroyed()) {
+        return;
+    }
+
     initialize();
     reset();
 }
 
 FabricGeometry::~FabricGeometry() {
+    if (stageDestroyed()) {
+        return;
+    }
+
     FabricUtil::destroyPrim(_pathFabric);
 }
 
 void FabricGeometry::setActive(bool active) {
+    if (stageDestroyed()) {
+        return;
+    }
+
     if (!active) {
         reset();
     }
 }
 
 void FabricGeometry::setVisibility(bool visible) {
+    if (stageDestroyed()) {
+        return;
+    }
+
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
     auto worldVisibilityFabric = srw.getAttributeWr<bool>(_pathFabric, FabricTokens::_worldVisibility);
@@ -68,6 +86,10 @@ const FabricGeometryDefinition& FabricGeometry::getGeometryDefinition() const {
 }
 
 void FabricGeometry::setMaterial(const omni::fabric::Path& materialPath) {
+    if (stageDestroyed()) {
+        return;
+    }
+
     auto srw = UsdUtil::getFabricStageReaderWriter();
     srw.setArrayAttributeSize(_pathFabric, FabricTokens::material_binding, 1);
     auto materialBindingFabric = srw.getArrayAttributeWr<uint64_t>(_pathFabric, FabricTokens::material_binding);
@@ -181,10 +203,6 @@ void FabricGeometry::initialize() {
 }
 
 void FabricGeometry::reset() {
-    if (!UsdUtil::hasStage()) {
-        return;
-    }
-
     const auto hasTexcoords = _geometryDefinition.hasTexcoords();
     const auto hasNormals = _geometryDefinition.hasNormals();
     const auto hasVertexColors = _geometryDefinition.hasVertexColors();
@@ -242,6 +260,10 @@ void FabricGeometry::setGeometry(
     const CesiumGltf::MeshPrimitive& primitive,
     bool smoothNormals,
     bool hasImagery) {
+
+    if (stageDestroyed()) {
+        return;
+    }
 
     const auto hasTexcoords = _geometryDefinition.hasTexcoords();
     const auto hasNormals = _geometryDefinition.hasNormals();
@@ -335,6 +357,13 @@ void FabricGeometry::setGeometry(
 
         vertexColors.fill(vertexColorsFabric);
     }
+}
+
+bool FabricGeometry::stageDestroyed() {
+    // Add this guard to all public member functions, including constructors and destructors. Tile render resources can
+    // continue to be processed asynchronously even after the tileset and USD stage have been destroyed, so prevent any
+    // operations that would modify the stage.
+    return _stageId != UsdUtil::getUsdStageId();
 }
 
 }; // namespace cesium::omniverse

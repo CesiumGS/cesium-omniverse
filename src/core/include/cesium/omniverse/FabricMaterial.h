@@ -19,8 +19,8 @@ class FabricMaterial {
     FabricMaterial(
         const pxr::SdfPath& path,
         const FabricMaterialDefinition& materialDefinition,
-        const pxr::TfToken& defaultTextureAssetPathToken);
-
+        const pxr::TfToken& defaultTextureAssetPathToken,
+        long stageId);
     ~FabricMaterial();
 
     void setMaterial(int64_t tilesetId, const MaterialInfo& materialInfo);
@@ -51,10 +51,12 @@ class FabricMaterial {
         const omni::fabric::Path& texturePath,
         const pxr::TfToken& textureAssetPathToken,
         const TextureInfo& textureInfo);
+    bool stageDestroyed();
 
     omni::fabric::Path _materialPath;
     const FabricMaterialDefinition _materialDefinition;
     const pxr::TfToken _defaultTextureAssetPathToken;
+    const long _stageId;
 
     std::vector<omni::fabric::Path> _shaderPaths;
     std::vector<omni::fabric::Path> _baseColorTexturePaths;

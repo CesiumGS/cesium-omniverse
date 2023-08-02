@@ -14,10 +14,16 @@ namespace cesium::omniverse {
 FabricMaterial::FabricMaterial(
     const pxr::SdfPath& path,
     const FabricMaterialDefinition& materialDefinition,
-    const pxr::TfToken& defaultTextureAssetPathToken)
+    const pxr::TfToken& defaultTextureAssetPathToken,
+    long stageId)
     : _materialPath(FabricUtil::toFabricPath(path))
     , _materialDefinition(materialDefinition)
-    , _defaultTextureAssetPathToken(defaultTextureAssetPathToken) {
+    , _defaultTextureAssetPathToken(defaultTextureAssetPathToken)
+    , _stageId(stageId) {
+
+    if (stageDestroyed()) {
+        return;
+    }
 
     if (materialDefinition.hasTilesetMaterial()) {
         const auto tilesetMaterialPath = FabricUtil::toFabricPath(materialDefinition.getTilesetMaterialPath());
@@ -30,12 +36,20 @@ FabricMaterial::FabricMaterial(
 }
 
 FabricMaterial::~FabricMaterial() {
+    if (stageDestroyed()) {
+        return;
+    }
+
     for (const auto& path : _allPaths) {
         FabricUtil::destroyPrim(path);
     }
 }
 
 void FabricMaterial::setActive(bool active) {
+    if (stageDestroyed()) {
+        return;
+    }
+
     if (!active) {
         reset();
     }
@@ -245,15 +259,15 @@ void FabricMaterial::createTexture(
 }
 
 void FabricMaterial::reset() {
-    if (!UsdUtil::hasStage()) {
-        return;
-    }
-
     clearMaterial();
     clearBaseColorTexture();
 }
 
 void FabricMaterial::setMaterial(int64_t tilesetId, const MaterialInfo& materialInfo) {
+    if (stageDestroyed()) {
+        return;
+    }
+
     for (auto& shaderPath : _shaderPaths) {
         setShaderValues(shaderPath, materialInfo);
     }
@@ -331,6 +345,13 @@ void FabricMaterial::setTextureValues(
     *offsetFabric = UsdUtil::glmToUsdVector(glm::fvec2(offset));
     *rotationFabric = static_cast<float>(rotation);
     *scaleFabric = UsdUtil::glmToUsdVector(glm::fvec2(scale));
+}
+
+bool FabricMaterial::stageDestroyed() {
+    // Add this guard to all public member functions, including constructors and destructors. Tile render resources can
+    // continue to be processed asynchronously even after the tileset and USD stage have been destroyed, so prevent any
+    // operations that would modify the stage.
+    return _stageId != UsdUtil::getUsdStageId();
 }
 
 } // namespace cesium::omniverse
