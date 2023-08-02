@@ -47,10 +47,20 @@ class ProceduralGeometryWindow(ui.Window):
         camera_path = viewport.get_active_camera()
         camera = UsdGeom.Camera.Get(stage, camera_path)
         xform = UsdGeom.Xformable(camera)
+        print(f"xform is {type(xform)}")
         time = Usd.TimeCode.Default()  # The time at which we compute the bounding box
         world_transform: Gf.Matrix4d = xform.ComputeLocalToWorldTransform(time)
         translation: Gf.Vec3d = world_transform.ExtractTranslation()
-        self._logger.info(f"got translation: {translation}")
+
+        matrix_list = [[world_transform.GetRow(i)[j] for j in range(4)] for i in range(4)]
+        # Assuming Y-up, the up vector components are found in the second column
+        up_vector = Gf.Vec3f(matrix_list[0][1], matrix_list[1][1], matrix_list[2][1])
+
+        print("Up vector:", up_vector)
+
+
+        # self._logger.info(f"got translation: {translation}")
+        self._logger.info(f"get up vector {up_vector}")
 
         return_val = self._cesium_omniverse_interface.alter_procedural_prims(
             translation[0], translation[1], translation[2])
