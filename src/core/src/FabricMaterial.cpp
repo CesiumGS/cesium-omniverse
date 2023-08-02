@@ -26,15 +26,24 @@ namespace cesium::omniverse {
 FabricMaterial::FabricMaterial(
     pxr::SdfPath path,
     const FabricMaterialDefinition& materialDefinition,
-    pxr::SdfAssetPath defaultTextureAssetPath)
+    pxr::SdfAssetPath defaultTextureAssetPath,
+    long stageId)
     : _materialDefinition(materialDefinition)
-    , _defaultTextureAssetPath(std::move(defaultTextureAssetPath)) {
+    , _defaultTextureAssetPath(std::move(defaultTextureAssetPath))
+    , _stageId(stageId) {
+    if (stageDestroyed()) {
+        return;
+    }
 
     initialize(std::move(path), materialDefinition);
     reset();
 }
 
 FabricMaterial::~FabricMaterial() {
+    if (stageDestroyed()) {
+        return;
+    }
+
     FabricUtil::destroyPrim(_materialPathFabric);
     FabricUtil::destroyPrim(_shaderPathFabric);
 
@@ -44,6 +53,10 @@ FabricMaterial::~FabricMaterial() {
 }
 
 void FabricMaterial::setActive(bool active) {
+    if (stageDestroyed()) {
+        return;
+    }
+
     if (!active) {
         reset();
     }
@@ -210,10 +223,6 @@ void FabricMaterial::initialize(pxr::SdfPath path, const FabricMaterialDefinitio
 }
 
 void FabricMaterial::reset() {
-    if (!UsdUtil::hasStage()) {
-        return;
-    }
-
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
     setMaterialValues(GltfUtil::getDefaultMaterialInfo());
@@ -225,6 +234,10 @@ void FabricMaterial::reset() {
 }
 
 void FabricMaterial::setMaterial(int64_t tilesetId, const MaterialInfo& materialInfo) {
+    if (stageDestroyed()) {
+        return;
+    }
+
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
     setMaterialValues(materialInfo);
@@ -234,6 +247,9 @@ void FabricMaterial::setMaterial(int64_t tilesetId, const MaterialInfo& material
 void FabricMaterial::setBaseColorTexture(
     const std::shared_ptr<FabricTexture>& texture,
     const TextureInfo& textureInfo) {
+    if (stageDestroyed()) {
+        return;
+    }
 
     if (!_materialDefinition.hasBaseColorTexture()) {
         return;
@@ -312,6 +328,13 @@ void FabricMaterial::setBaseColorTextureValues(
     *offsetFabric = UsdUtil::glmToUsdVector(glm::fvec2(offset));
     *rotationFabric = static_cast<float>(rotation);
     *scaleFabric = UsdUtil::glmToUsdVector(glm::fvec2(scale));
+}
+
+bool FabricMaterial::stageDestroyed() {
+    // Add this guard to all public member functions, including constructors and destructors. Tile render resources can
+    // continue to be processed asynchronously even after the tileset and USD stage have been destroyed, so prevent any
+    // operations that would modify the stage.
+    return _stageId != UsdUtil::getUsdStageId();
 }
 
 } // namespace cesium::omniverse
