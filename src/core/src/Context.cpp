@@ -138,53 +138,6 @@ void Context::setProjectDefaultToken(const CesiumIonClient::Token& token) {
     cesiumDataUsd.GetProjectDefaultIonAccessTokenIdAttr().Set<std::string>(token.id);
 }
 
-pxr::SdfPath Context::addTilesetUrl(const std::string& name, const std::string& url) {
-    const auto tilesetName = UsdUtil::getSafeName(name);
-    auto tilesetPath = UsdUtil::getPathUnique(UsdUtil::getRootPath(), tilesetName);
-    auto tilesetUsd = UsdUtil::defineCesiumTileset(tilesetPath);
-
-    tilesetUsd.GetUrlAttr().Set<std::string>(url);
-
-    return tilesetPath;
-}
-
-pxr::SdfPath Context::addTilesetIon(const std::string& name, int64_t ionAssetId, const std::string& ionAccessToken) {
-    const auto tilesetName = UsdUtil::getSafeName(name);
-    auto tilesetPath = UsdUtil::getPathUnique(UsdUtil::getRootPath(), tilesetName);
-    auto tilesetUsd = UsdUtil::defineCesiumTileset(tilesetPath);
-
-    tilesetUsd.GetIonAssetIdAttr().Set<int64_t>(ionAssetId);
-    tilesetUsd.GetIonAccessTokenAttr().Set<std::string>(ionAccessToken);
-
-    return tilesetPath;
-}
-
-pxr::SdfPath Context::addImageryIon(
-    const pxr::SdfPath& tilesetPath,
-    const std::string& name,
-    int64_t ionAssetId,
-    const std::string& ionAccessToken) {
-    const auto imageryName = UsdUtil::getSafeName(name);
-    auto imageryPath = UsdUtil::getPathUnique(tilesetPath, imageryName);
-    auto imageryUsd = UsdUtil::defineCesiumImagery(imageryPath);
-
-    imageryUsd.GetIonAssetIdAttr().Set<int64_t>(ionAssetId);
-    imageryUsd.GetIonAccessTokenAttr().Set<std::string>(ionAccessToken);
-
-    return imageryPath;
-}
-
-void Context::removeTileset(const pxr::SdfPath& tilesetPath) {
-    const auto tileset = AssetRegistry::getInstance().getTilesetByPath(tilesetPath);
-
-    if (!tileset.has_value()) {
-        return;
-    }
-
-    const auto stage = UsdUtil::getUsdStage();
-    stage->RemovePrim(tilesetPath);
-}
-
 void Context::reloadTileset(const pxr::SdfPath& tilesetPath) {
     const auto tileset = AssetRegistry::getInstance().getTilesetByPath(tilesetPath);
 
