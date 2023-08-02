@@ -5,6 +5,9 @@ import omni.ui as ui
 import time
 from cesium.omniverse.extension import _cesium_omniverse_interface as coi
 from typing import List
+from omni.kit.viewport.utility import get_active_viewport
+import omni.usd
+from pxr import Usd, UsdGeom, Gf
 
 
 class ProceduralGeometryWindow(ui.Window):
@@ -39,8 +42,18 @@ class ProceduralGeometryWindow(ui.Window):
         self._logger.info(f"return val is {return_val}")
 
     def _alter_prims(self):
-        self._logger.info("inside _alter_prims")
-        return_val = self._cesium_omniverse_interface.alter_procedural_prims()
+        stage = omni.usd.get_context().get_stage()
+        viewport = get_active_viewport()
+        camera_path = viewport.get_active_camera()
+        camera = UsdGeom.Camera.Get(stage, camera_path)
+        xform = UsdGeom.Xformable(camera)
+        time = Usd.TimeCode.Default()  # The time at which we compute the bounding box
+        world_transform: Gf.Matrix4d = xform.ComputeLocalToWorldTransform(time)
+        translation: Gf.Vec3d = world_transform.ExtractTranslation()
+        self._logger.info(f"got translation: {translation}")
+
+        return_val = self._cesium_omniverse_interface.alter_procedural_prims(
+            translation[0], translation[1], translation[2])
         self._logger.info(f"return val is {return_val}")
 
     def _animate_prims(self):

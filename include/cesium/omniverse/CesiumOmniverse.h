@@ -3,6 +3,7 @@
 #include "cesium/omniverse/RenderStatistics.h"
 #include "cesium/omniverse/SetDefaultTokenResult.h"
 #include "cesium/omniverse/TokenTroubleshooter.h"
+#include "pxr/base/gf/vec3d.h"
 
 #include <carb/Interface.h>
 #include <pxr/pxr.h>
@@ -245,7 +246,10 @@ class ICesiumOmniverseInterface {
     virtual void creditsStartNextFrame() noexcept = 0;
     virtual bool isTracingEnabled() noexcept = 0;
     virtual int createProceduralPrims() noexcept = 0;
-    virtual int alterProceduralPrims() noexcept = 0;
+    virtual int alterProceduralPrims(
+        double cameraPositionX,
+        double cameraPositionY,
+        double cameraPositionZ) noexcept = 0;
     virtual int animateProceduralPrims(float deltaTime) noexcept = 0;
 };
 

@@ -7,6 +7,7 @@
 
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/fwd.hpp>
+#include <glm/geometric.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/random.hpp>
 #include <glm/trigonometric.hpp>
@@ -547,13 +548,26 @@ int createPrims() {
 
     // createQuadsViaFabric(80000, 1000.f);
     // createMultiquadViaFabric();
-    // createMultiquadMeshViaFabric2(3);
-    createSingleQuad(pxr::GfVec3f(3.f, -3.f, 0), 2);
+    createMultiquadMeshViaFabric2(1);
+    // createSingleQuad(pxr::GfVec3f(3.f, -3.f, 0), 2);
+    // createSingleQuad(pxr::GfVec3f(3.f, 3.f, -3.0f), 2);
 
     return 0;
 }
 
-int alterPrims() {
+int alterPrims(double cameraPositionX, double cameraPositionY, double cameraPositionZ) {
+    printf("camera position is %lf, %lf, %lf\n", cameraPositionX, cameraPositionY, cameraPositionZ);
+
+    //DEBUG
+    // cameraPositionX = 4;
+    // cameraPositionY = 0;
+    // cameraPositionZ = 0;
+
+    auto cameraPositionf = glm::fvec3(
+        static_cast<float>(cameraPositionX),
+        static_cast<float>(cameraPositionY),
+        static_cast<float>(cameraPositionZ));
+
     // repositionAllPrimsWithCustomAttrViaFabric(200);
     // repositionAllPrimsWithCustomAttrViaCuda(200);
     // modifyAllPrimsWithCustomAttrViaCuda();
@@ -562,7 +576,8 @@ int alterPrims() {
     // billboardAllPrimsWithCustomAttrViaFabric();
     // billboardAllPrimsWithCustomAttrViaCuda();
     // billboardMultiquadWithCustomAttrViaFabric();
-    billboardQuad();
+    // billboardQuad(glm::fvec3{10.f, 0, 0});
+    billboardQuads(cameraPositionf, glm::fvec3(0, 1.0f, 0.f));
     // billboardMultiquadWithCustomAttrViaCuda();
     // printPositionsWithFabric();
     // runSimpleCudaHeaderTest();
@@ -3126,7 +3141,7 @@ int animatePrims(float deltaTime) {
     // std::cout << "animating " << deltaTime << std::endl;
     const float speed = 1.5f;
     const float radius = 600.f;
-    alterPrims();
+    alterPrims(0, 0, 0); // TODO: no dummy vars
     elapsedTime += deltaTime;
     lookatPositionHost.x = sin(elapsedTime * speed) * radius;
     // std::cout << "x: " << lookatPositionHost.x << std::endl;
@@ -3225,7 +3240,7 @@ void lookatMultiquad(quad* quads, double3* lookatPosition, int numQuads) {
     // printf("(kernel) lookAtPosition is (%lf, %lf, %lf)\n", lookatPosition->x, lookatPosition->y, lookatPosition->z);
 
     for (int i = 0; i < numQuads; i++) {
-        const float3 up = make_float3(0, 1.0, 0.0);
+        // const float3 up = make_float3(0, 1.0, 0.0);
         const float3 quadCenter = quads[i].getCenter();
         printf("(kernel) quadCenter is (%f, %f, %f)\n", quadCenter.x, quadCenter.y, quadCenter.z);
 
@@ -3418,10 +3433,9 @@ void createSingleQuad(pxr::GfVec3f center, float size) {
 
     auto testAttribute = stageReaderWriter.getAttributeWr<double>(fabricPath, getCudaTestAttributeFabricToken());
     *testAttribute = 123.45;
-
 }
 
-void billboardQuad() {
+void billboardQuad(glm::fvec3 target) {
     //get all prims with the custom attr
     auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
     auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
@@ -3430,14 +3444,7 @@ void billboardQuad() {
     omni::fabric::AttrNameAndType primTag(cudaTestAttributeFabricType, getCudaTestAttributeFabricToken());
     auto bucketList = stageReaderWriter.findPrims({primTag});
 
-    // edit rotations
-    // auto token = omni::fabric::Token("_worldOrientation");
-    // auto worldPositionsTokens = omni::fabric::Token("_worldPosition");
     auto numBuckets = bucketList.bucketCount();
-
-    glm::fvec3 lookatPosition{0.0, 0.0, 0.0};
-
-    glm::fvec3 up{0, 1.f, 0};
 
     for (size_t bucketNum = 0; bucketNum < numBuckets; bucketNum++) {
         // auto orientations = stageReaderWriter.getAttributeArray<pxr::GfQuatf>(bucketList, bucketNum, token);
@@ -3450,63 +3457,29 @@ void billboardQuad() {
 
         auto numElements = 1; //TEST
         for (int i = 0; i < numElements; i++) {
-
             quadGlm quad = quads[i];
-            // pxr::GfQuatf quat = values[i];
-            // auto glmQuat = convertToGlm(quat);
             auto center = quad.getCenter();
 
-            // auto worldPositionGlm = usdToGlmVector(worldPositionGfVec3f);
-            auto target = glm::fvec3{0, 0, 0};
-            // glm::fvec3 direction = lookatPosition - worldPosition;
-            glm::vec3 direction = glm::normalize(target - center);
-            direction = glm::normalize(direction);
-            // glm::fquat newQuat = glm::quatLookAt(direction, glm::fvec3{0, 1.f, 0});
-            // auto rotatedQuat = convertToGf(newQuat);
-            // orientations[i] = rotatedQuat;
-
-            // auto transformationMatrix = glm::lookAt(lookatPosition, quadCenter, up);
-
-            glm::mat4 viewMatrix = glm::lookAt(center, center + direction, up);
-            // Remove the translation part from the view matrix
-            viewMatrix[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-
-            quadGlm rotatedQuad;
-            // rotatedQuad.lowerLeft = glm::vec3(viewMatrix * glm::vec4(quad.lowerLeft, 1.0f));
-            // rotatedQuad.upperLeft = glm::vec3(viewMatrix * glm::vec4(quad.upperLeft, 1.0f));
-            // rotatedQuad.upperRight = glm::vec3(viewMatrix * glm::vec4(quad.upperRight, 1.0f));
-            // rotatedQuad.lowerRight = glm::vec3(viewMatrix * glm::vec4(quad.lowerRight, 1.0f));
-
-            // Create the forward and up vectors for the initial orientation of the quad
-            // glm::vec3 forward = glm::vec3(0.0f, 0.0f, -1.0f);
-
-            // Compute the rotation matrix
-            // glm::mat4 rotationMatrix = glm::inverse(glm::lookAt(glm::vec3(0.0f), forward, up)) * glm::lookAt(glm::vec3(0.0f), direction, up);
-
-            // Transform the points of the quad using the rotation matrix
-
-            //test with quaternions
             // Compute the direction from the center of the quad to the target
-            glm::vec3 targetDirection = glm::normalize(target - center);
-
-            // Create the initial forward vector for the quad
-            glm::vec3 initialDirection = glm::vec3(0.0f, 0.0f, 1.0f); // the quad is initially facing the positive Z-axis
+            auto targetDirection = glm::normalize(target - center);
+            auto forwardDirection = getForwardDirection(quad);
 
             // Compute the axis of rotation
-            glm::vec3 axis = glm::cross(initialDirection, targetDirection);
+            auto axis = glm::cross(forwardDirection, targetDirection);
 
             // Compute the cosine of the angle of rotation
-            float cosTheta = glm::dot(initialDirection, targetDirection);
+            auto cosTheta = glm::dot(forwardDirection, targetDirection);
 
             // Compute the angle of rotation
-            float angle = glm::acos(cosTheta);
+            auto angle = glm::acos(cosTheta);
 
             // Create the rotation quaternion
-            glm::quat rotationQuat = glm::angleAxis(angle, axis);
+            auto rotationQuat = glm::angleAxis(angle, axis);
 
             // Convert the quaternion to a rotation matrix
-            glm::mat4 rotationMatrix = glm::mat4_cast(rotationQuat);
+            auto rotationMatrix = glm::mat4_cast(rotationQuat);
 
+            quadGlm rotatedQuad;
             rotatedQuad.lowerLeft = glm::vec3(rotationMatrix * glm::vec4(quad.lowerLeft - center, 1.0f)) + center;
             rotatedQuad.upperLeft = glm::vec3(rotationMatrix * glm::vec4(quad.upperLeft - center, 1.0f)) + center;
             rotatedQuad.upperRight = glm::vec3(rotationMatrix * glm::vec4(quad.upperRight - center, 1.0f)) + center;
@@ -3516,9 +3489,34 @@ void billboardQuad() {
             quads[i].lowerRight = rotatedQuad.lowerRight;
             quads[i].upperLeft = rotatedQuad.upperLeft;
             quads[i].upperRight = rotatedQuad.upperRight;
+        }
+    }
+}
 
-            auto newCenter = quads[i].getCenter();
-            printf("newCenter is (%f, %f, %f)\n", newCenter.x, newCenter.y, newCenter.z);
+void billboardQuads(glm::fvec3 target, glm::fvec3 targetUp) {
+    //get all prims with the custom attr
+    auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+    auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
+    auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
+    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+    omni::fabric::AttrNameAndType primTag(cudaTestAttributeFabricType, getCudaTestAttributeFabricToken());
+    auto bucketList = stageReaderWriter.findPrims({primTag});
+
+    auto numBuckets = bucketList.bucketCount();
+
+    for (size_t bucketNum = 0; bucketNum < numBuckets; bucketNum++) {
+        auto numQuadsSpan = stageReaderWriter.getAttributeArray<int>(bucketList, bucketNum, getNumQuadsAttributeFabricToken());
+        int numQuads = numQuadsSpan[0];
+
+        auto points = stageReaderWriter.getAttributeArray<pxr::GfVec3f*>(bucketList, bucketNum, FabricTokens::points);
+        if (points.data() == nullptr) {
+            throw std::runtime_error("Fabric did not retrieve points.\n");
+        }
+        auto quads = reinterpret_cast<quadGlm*>(points[0]->data());
+
+        auto numElements = numQuads;
+        for (int i = 0; i < numElements; i++) {
+            rotateQuadToTarget(quads[i], target, targetUp);
         }
     }
 }
@@ -3535,5 +3533,89 @@ glm::fvec3 multiplyHomogenous(const glm::mat4 transformationMatrix, const glm::f
     return glm::vec3{transformedHomogeneousPoint.x, transformedHomogeneousPoint.y, transformedHomogeneousPoint.z};
 }
 
+glm::vec3 getForwardDirection(const quadGlm& quad) {
+    // Calculate two edge vectors of the quad
+    glm::vec3 up = quad.lowerLeft - quad.upperLeft;
+    glm::vec3 right = quad.lowerRight - quad.lowerLeft;
+
+    // Calculate the normal vector (forward direction) of the quad using the cross product of the edge vectors
+    glm::vec3 forward = glm::normalize(glm::cross(up, right));
+
+    return forward;
+}
+
+void rotateQuadToTarget(quadGlm& quad, const glm::vec3& target, const glm::vec3& targetUp) {
+    auto quadCenter = quad.getCenter();
+    auto newQuadForward = glm::normalize(target - quadCenter);
+    glm::fvec3 newQuadRight;
+    glm::fvec3 newQuadUp;
+    if (almostEquals(newQuadForward, targetUp)) {
+        //directly beneath the camera, no op
+        return;
+    } else {
+        newQuadRight = glm::normalize(glm::cross(newQuadForward, targetUp));
+        newQuadUp = glm::normalize(glm::cross(newQuadRight, newQuadForward));
+    }
+
+    // auto translationMatrix = glm::mat3x3(newQuadForward, newQuadRight, newQuadUp);
+    auto translationMatrix = glm::mat3x3(newQuadRight, newQuadUp, newQuadForward);
+    // auto shiftedUL = quad.upperLeft - quadCenter;
+    // auto shiftedLL = quad.lowerLeft - quadCenter;
+    // auto shiftedUR = quad.upperRight - quadCenter;
+    // auto shiftedLR = quad.lowerRight - quadCenter;
+
+    //quad points are assumed to be in XY plane
+    auto rotatedLL = translationMatrix * glm::fvec3(-1.0f, -1.0f, 0);
+    auto rotatedUL = translationMatrix * glm::fvec3(-1.0f, 1.0f, 0);
+    auto rotatedUR = translationMatrix * glm::fvec3(1.0f, 1.0f, 0);
+    auto rotatedLR = translationMatrix * glm::fvec3(1.0f, -1.0f, 0);
+    auto newQuadUL = rotatedUL + quadCenter;
+    auto newQuadUR = rotatedUR + quadCenter;
+    auto newQuadLL = rotatedLL + quadCenter;
+    auto newQuadLR = rotatedLR + quadCenter;
+
+    quad.upperLeft = newQuadUL;
+    quad.upperRight = newQuadUR;
+    quad.lowerLeft = newQuadLL;
+    quad.lowerRight = newQuadLR;
+}
+
+// void rotateQuadToTarget(quadGlm& quad, const glm::vec3& target) {
+//     // Compute the direction from the center of the quad to the target
+//     glm::vec3 center = quad.getCenter();
+//     glm::vec3 targetDirection = glm::normalize(target - center);
+
+//     // Compute the quad's current forward direction
+//     glm::vec3 currentForward = getForwardDirection(quad);
+
+//     // Compute the angle and axis for the rotation
+//     float angle = glm::acos(glm::dot(currentForward, targetDirection));
+//     glm::vec3 axis = glm::normalize(glm::cross(currentForward, targetDirection));
+
+//     // Compute the rotation matrix
+//     glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), angle, axis);
+
+//     // Apply the rotation to each vertex of the quad
+//     quad.lowerLeft = glm::vec3(rotation * glm::vec4(quad.lowerLeft - center, 1.0)) + center;
+//     quad.upperLeft = glm::vec3(rotation * glm::vec4(quad.upperLeft - center, 1.0)) + center;
+//     quad.upperRight = glm::vec3(rotation * glm::vec4(quad.upperRight - center, 1.0)) + center;
+//     quad.lowerRight = glm::vec3(rotation * glm::vec4(quad.lowerRight - center, 1.0)) + center;
+// }
+
+void printQuad(quadGlm q) {
+    printf("Quad info:\n");
+    printf("  center is is (%f, %f, %f)\n", q.getCenter().x, q.getCenter().y, q.getCenter().z);
+    printf("  *upperLeft is (%f, %f, %f)\n", q.upperLeft.x, q.upperLeft.y, q.upperRight.z);
+    printf("  *lowerLeft is (%f, %f, %f)\n", q.lowerLeft.x, q.lowerLeft.y, q.lowerLeft.z);
+}
+
+bool almostEquals(glm::vec3 a, glm::vec3 b) {
+    const float epsilon = 0.0000001f;
+    if (abs(a.x - b.x) > epsilon) return false;
+    if (abs(a.y - b.y) > epsilon) return false;
+    if (abs(a.z - b.z) > epsilon) return false;
+
+    return true;
+}
 
 } // namespace cesium::omniverse::FabricProceduralGeometry

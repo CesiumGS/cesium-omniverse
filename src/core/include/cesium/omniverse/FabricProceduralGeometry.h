@@ -14,7 +14,7 @@
 namespace cesium::omniverse::FabricProceduralGeometry {
 
 int createPrims();
-int alterPrims();
+int alterPrims(double cameraPositionX, double cameraPositionY, double cameraPositionZ);
 int animatePrims(float deltaTime);
 
 class CudaRunner {
@@ -180,13 +180,14 @@ void billboardAllPrimsWithCustomAttrViaFabric();
 void billboardAllPrimsWithCustomAttrViaCuda();
 void billboardMultiquadWithCustomAttrViaFabric();
 void billboardMultiquadWithCustomAttrViaCuda();
-void billboardQuad();
+void billboardQuad(glm::fvec3 target);
+void billboardQuads(glm::fvec3 target, glm::fvec3 targetUp);
 void printPositionsWithFabric();
 
 void runSimpleCudaHeaderTest();
 void runCurandHeaderTest();
 void exportToUsd();
-
+void rotateQuadToTarget(quadGlm& quad, const glm::vec3& target, const glm::vec3& up);
 
 //Get all prims with "cudaTest" attr and edits the attr with CUDA
 //Issues: TODO
@@ -210,7 +211,9 @@ glm::fvec3 toGlm(pxr::GfVec3f input);
 float3 subtractFloat3(const float3& a, const float3& b);
 float3 addFloat3(const float3& a, const float3& b);
 glm::fvec3 multiplyHomogenous(const glm::mat4 transformationMatrix, const glm::fvec3 point);
-
+glm::vec3 getForwardDirection(const quadGlm& quad);
+void printQuad(quadGlm q);
+bool almostEquals(glm::vec3, glm::vec3);
 
 /* CUDA SPECIFIC *//////////////////////////////////////////
 
