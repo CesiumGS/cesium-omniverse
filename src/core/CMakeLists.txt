@@ -55,6 +55,7 @@ setup_lib(
         uriparser
         webpdecoder
         turbojpeg
+        meshoptimizer
         cpr::cpr
         stb::stb
         ZLIB::ZLIB
