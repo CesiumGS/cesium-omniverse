@@ -63,7 +63,8 @@ gatherMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const 
     const auto smoothNormals = tileset.getSmoothNormals();
 
     const auto georeferenceOrigin = GeospatialUtil::convertGeoreferenceToCartographic(tileset.getGeoreference());
-    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdTransformForPrim(georeferenceOrigin, tileset.getPath());
+    const auto ecefToUsdTransform =
+        UsdUtil::computeEcefToUsdWorldTransformForPrim(georeferenceOrigin, tileset.getPath());
 
     auto gltfToEcefTransform = Cesium3DTilesSelection::GltfUtilities::applyRtcCenter(model, tileTransform);
     gltfToEcefTransform = Cesium3DTilesSelection::GltfUtilities::applyGltfUpAxisTransform(model, gltfToEcefTransform);

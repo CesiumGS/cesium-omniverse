@@ -72,7 +72,8 @@ pxr::GfRange3d glmToUsdRange(const std::array<glm::dvec3, 2>& range);
 pxr::GfQuatd glmToUsdQuat(const glm::dquat& quat);
 pxr::GfMatrix4d glmToUsdMatrix(const glm::dmat4& matrix);
 Decomposed glmToUsdMatrixDecomposed(const glm::dmat4& matrix);
-glm::dmat4 computeUsdWorldTransform(const pxr::SdfPath& path);
+glm::dmat4 computeUsdLocalToWorldTransform(const pxr::SdfPath& path);
+glm::dmat4 computeUsdWorldToLocalTransform(const pxr::SdfPath& path);
 bool isPrimVisible(const pxr::SdfPath& path);
 pxr::TfToken getUsdUpAxis();
 double getUsdMetersPerUnit();
@@ -80,8 +81,14 @@ pxr::SdfPath getRootPath();
 pxr::SdfPath getPathUnique(const pxr::SdfPath& parentPath, const std::string& name);
 std::string getSafeName(const std::string& name);
 pxr::SdfAssetPath getDynamicTextureProviderAssetPath(const std::string& name);
-glm::dmat4 computeEcefToUsdTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath);
-glm::dmat4 computeUsdToEcefTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath);
+glm::dmat4
+computeEcefToUsdWorldTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath);
+glm::dmat4
+computeUsdWorldToEcefTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath);
+glm::dmat4
+computeEcefToUsdLocalTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath);
+glm::dmat4
+computeUsdLocalToEcefTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath);
 Cesium3DTilesSelection::ViewState
 computeViewState(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath, const Viewport& viewport);
 pxr::GfRange3d computeWorldExtent(const pxr::GfRange3d& localExtent, const glm::dmat4& localToUsdTransform);

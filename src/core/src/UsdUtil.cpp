@@ -136,7 +136,7 @@ Decomposed glmToUsdMatrixDecomposed(const glm::dmat4& matrix) {
     };
 }
 
-glm::dmat4 computeUsdWorldTransform(const pxr::SdfPath& path) {
+glm::dmat4 computeUsdLocalToWorldTransform(const pxr::SdfPath& path) {
     const auto stage = getUsdStage();
     const auto prim = stage->GetPrimAtPath(path);
     assert(prim.IsValid());
@@ -145,6 +145,10 @@ glm::dmat4 computeUsdWorldTransform(const pxr::SdfPath& path) {
     const auto transform = xform.ComputeLocalToWorldTransform(time);
     const auto matrix = usdToGlmMatrix(transform);
     return matrix;
+}
+
+glm::dmat4 computeUsdWorldToLocalTransform(const pxr::SdfPath& path) {
+    return glm::affineInverse(computeUsdLocalToWorldTransform(path));
 }
 
 bool isPrimVisible(const pxr::SdfPath& path) {
@@ -203,17 +207,31 @@ pxr::SdfAssetPath getDynamicTextureProviderAssetPath(const std::string& name) {
 }
 
 glm::dmat4
-computeEcefToUsdTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath) {
+computeEcefToUsdWorldTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath) {
     const auto ecefToUsdTransform =
         GeospatialUtil::getCoordinateSystem(origin, getUsdMetersPerUnit()).getEcefToLocalTransformation();
-    const auto primInverseUsdWorldTransform = computeUsdWorldTransform(primPath);
-    const auto primEcefToUsdTransform = primInverseUsdWorldTransform * ecefToUsdTransform;
+    const auto primUsdWorldTransform = computeUsdLocalToWorldTransform(primPath);
+    const auto primEcefToUsdTransform = primUsdWorldTransform * ecefToUsdTransform;
     return primEcefToUsdTransform;
 }
 
 glm::dmat4
-computeUsdToEcefTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath) {
-    return glm::affineInverse(computeEcefToUsdTransformForPrim(origin, primPath));
+computeUsdWorldToEcefTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath) {
+    return glm::affineInverse(computeEcefToUsdWorldTransformForPrim(origin, primPath));
+}
+
+glm::dmat4
+computeEcefToUsdLocalTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath) {
+    const auto ecefToUsdTransform =
+        GeospatialUtil::getCoordinateSystem(origin, UsdUtil::getUsdMetersPerUnit()).getEcefToLocalTransformation();
+    const auto usdWorldToLocalTransform = UsdUtil::computeUsdWorldToLocalTransform(primPath);
+    const auto primEcefToUsdTransform = usdWorldToLocalTransform * ecefToUsdTransform;
+    return primEcefToUsdTransform;
+}
+
+glm::dmat4
+computeUsdLocalToEcefTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath) {
+    return glm::affineInverse(computeEcefToUsdLocalTransformForPrim(origin, primPath));
 }
 
 Cesium3DTilesSelection::ViewState
@@ -223,7 +241,7 @@ computeViewState(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPat
     const auto width = viewport.width;
     const auto height = viewport.height;
 
-    const auto usdToEcef = UsdUtil::computeUsdToEcefTransformForPrim(origin, primPath);
+    const auto usdToEcef = UsdUtil::computeUsdWorldToEcefTransformForPrim(origin, primPath);
     const auto inverseView = glm::inverse(viewMatrix);
     const auto omniCameraUp = glm::dvec3(inverseView[1]);
     const auto omniCameraFwd = glm::dvec3(-inverseView[2]);

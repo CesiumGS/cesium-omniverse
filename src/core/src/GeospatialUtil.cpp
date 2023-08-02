@@ -25,19 +25,6 @@ CesiumGeospatial::Cartographic convertGeoreferenceToCartographic(const pxr::Cesi
     return {glm::radians(longitude), glm::radians(latitude), height};
 }
 
-glm::dmat4 getAxisConversionTransform() {
-    const auto upAxis = UsdUtil::getUsdUpAxis();
-
-    auto axisConversion = glm::dmat4(1.0);
-
-    // USD up axis can be either Y or Z
-    if (upAxis == pxr::UsdGeomTokens->y) {
-        axisConversion = CesiumGeometry::Transforms::Y_UP_TO_Z_UP;
-    }
-
-    return axisConversion;
-}
-
 [[maybe_unused]] CesiumGeospatial::LocalHorizontalCoordinateSystem
 getCoordinateSystem(const pxr::CesiumGeoreference& georeference, const double scaleInMeters) {
     auto origin = GeospatialUtil::convertGeoreferenceToCartographic(georeference);
@@ -65,46 +52,33 @@ getCoordinateSystem(const CesiumGeospatial::Cartographic& origin, const double s
         scaleInMeters};
 }
 
-glm::dmat4 getEastNorthUpToFixedFrame(const CesiumGeospatial::Cartographic& cartographic) {
-    const auto cartesian = CesiumGeospatial::Ellipsoid::WGS84.cartographicToCartesian(cartographic);
-    const auto matrix = CesiumGeospatial::GlobeTransforms::eastNorthUpToFixedFrame(cartesian);
-    return matrix;
-}
-
-glm::dmat4 getUnitConversionTransform() {
-    const auto metersPerUnit = UsdUtil::getUsdMetersPerUnit();
-    const auto matrix = glm::scale(glm::dmat4(1.0), glm::dvec3(metersPerUnit));
-    return matrix;
-}
-
 void updateAnchorByUsdTransform(const CesiumGeospatial::Cartographic& origin, const pxr::CesiumGlobeAnchorAPI& anchor) {
-    auto ecefTransform = UsdUtil::computeUsdToEcefTransformForPrim(origin, anchor.GetPath());
-
-    std::optional<std::shared_ptr<CesiumGeospatial::GlobeAnchor>> maybeGlobeAnchor =
+    std::optional<std::shared_ptr<OmniGlobeAnchor>> maybeGlobeAnchor =
         GlobeAnchorRegistry::getInstance().getAnchor(anchor.GetPath());
 
-    std::shared_ptr<CesiumGeospatial::GlobeAnchor> globeAnchor;
+    std::shared_ptr<OmniGlobeAnchor> globeAnchor;
     if (maybeGlobeAnchor.has_value()) {
         globeAnchor = maybeGlobeAnchor.value();
 
         bool shouldReorient;
         anchor.GetAdjustOrientationForGlobeWhenMovingAttr().Get(&shouldReorient);
-        globeAnchor->setAnchorToFixedTransform(ecefTransform, shouldReorient);
+        globeAnchor->updateByUsdTransform(origin, shouldReorient);
     } else {
-        globeAnchor = GlobeAnchorRegistry::getInstance().createAnchor(anchor.GetPath(), ecefTransform);
+        auto anchorToFixed = UsdUtil::computeUsdLocalToEcefTransformForPrim(origin, anchor.GetPath());
+        globeAnchor = GlobeAnchorRegistry::getInstance().createAnchor(anchor.GetPath(), anchorToFixed);
     }
 
-    auto fixedTransform = UsdUtil::glmToUsdMatrixDecomposed(globeAnchor->getAnchorToFixedTransform());
+    auto fixedTransform = UsdUtil::glmToUsdMatrixDecomposed(globeAnchor->getAnchor()->getAnchorToFixedTransform());
 
     if (!maybeGlobeAnchor.has_value()) {
         // We need to do this when it's a new anchor.
 
         auto xformCommonApi = pxr::UsdGeomXformCommonAPI(anchor.GetPrim());
         xformCommonApi.SetTranslate(pxr::GfVec3f(0.f, 0.f, 0.f));
-        xformCommonApi.SetRotate(pxr::GfVec3f(0.0f, 0.0f, 0.0f));
+        xformCommonApi.SetRotate(pxr::GfVec3f(0.f, 0.f, 0.f));
         xformCommonApi.SetScale(pxr::GfVec3f(1.f, 1.f, 1.f));
 
-        auto localTransform = globeAnchor->getAnchorToLocalTransform(
+        auto localTransform = globeAnchor->getAnchor()->getAnchorToLocalTransform(
             GeospatialUtil::getCoordinateSystem(origin, UsdUtil::getUsdMetersPerUnit()));
         auto xform = pxr::UsdGeomXform(anchor.GetPrim());
         xform.AddTransformOp().Set(UsdUtil::glmToUsdMatrix(localTransform));
@@ -135,15 +109,15 @@ void updateAnchorByLatLongHeight(
 void updateAnchorByFixedTransform(
     const CesiumGeospatial::Cartographic& origin,
     const pxr::CesiumGlobeAnchorAPI& anchor) {
-    std::optional<std::shared_ptr<CesiumGeospatial::GlobeAnchor>> maybeGlobeAnchor =
+    std::optional<std::shared_ptr<OmniGlobeAnchor>> omniGlobeAnchor =
         GlobeAnchorRegistry::getInstance().getAnchor(anchor.GetPath());
 
-    if (!maybeGlobeAnchor.has_value()) {
+    if (!omniGlobeAnchor.has_value()) {
         // TODO: Log an error. Something bad has occurred.
         return;
     }
 
-    std::shared_ptr<CesiumGeospatial::GlobeAnchor> globeAnchor = maybeGlobeAnchor.value();
+    std::shared_ptr<CesiumGeospatial::GlobeAnchor> globeAnchor = omniGlobeAnchor.value()->getAnchor();
 
     pxr::GfVec3d usdEcefPositionVec;
     anchor.GetPositionAttr().Get(&usdEcefPositionVec);

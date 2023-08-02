@@ -1,5 +1,7 @@
 #pragma once
 
+#include "OmniGlobeAnchor.h"
+
 #include <CesiumGeospatial/GlobeAnchor.h>
 #include <pxr/usd/sdf/path.h>
 
@@ -26,14 +28,14 @@ class GlobeAnchorRegistry {
     GlobeAnchorRegistry& operator=(GlobeAnchorRegistry) = delete;
 
     void clear();
-    std::shared_ptr<CesiumGeospatial::GlobeAnchor> createAnchor(pxr::SdfPath path, glm::dmat4 anchorToFixed);
-    std::optional<std::shared_ptr<CesiumGeospatial::GlobeAnchor>> getAnchor(const pxr::SdfPath& path);
+    std::shared_ptr<OmniGlobeAnchor> createAnchor(pxr::SdfPath path, glm::dmat4 anchorToFixed);
+    std::optional<std::shared_ptr<OmniGlobeAnchor>> getAnchor(const pxr::SdfPath& path);
 
   protected:
     GlobeAnchorRegistry() = default;
     ~GlobeAnchorRegistry() = default;
 
   private:
-    std::unordered_map<std::string, std::shared_ptr<CesiumGeospatial::GlobeAnchor>> _anchors{};
+    std::unordered_map<std::string, std::shared_ptr<OmniGlobeAnchor>> _anchors{};
 };
 } // namespace cesium::omniverse
