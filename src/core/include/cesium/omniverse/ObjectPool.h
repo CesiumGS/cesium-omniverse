@@ -46,6 +46,10 @@ template <typename T> class ObjectPool {
         return _queue.size();
     }
 
+    [[nodiscard]] bool isEmpty() const {
+        return getNumberInactive() == getCapacity();
+    }
+
     [[nodiscard]] double computePercentActive() const {
         const auto numberActive = static_cast<double>(getNumberActive());
         const auto capacity = static_cast<double>(getCapacity());
