@@ -555,7 +555,8 @@ int createPrims() {
     return 0;
 }
 
-int alterPrims(double cameraPositionX, double cameraPositionY, double cameraPositionZ) {
+int alterPrims(double cameraPositionX, double cameraPositionY, double cameraPositionZ,
+    float cameraUpX, float cameraUpY, float cameraUpZ) {
     printf("camera position is %lf, %lf, %lf\n", cameraPositionX, cameraPositionY, cameraPositionZ);
 
     //DEBUG
@@ -577,7 +578,7 @@ int alterPrims(double cameraPositionX, double cameraPositionY, double cameraPosi
     // billboardAllPrimsWithCustomAttrViaCuda();
     // billboardMultiquadWithCustomAttrViaFabric();
     // billboardQuad(glm::fvec3{10.f, 0, 0});
-    billboardQuads(cameraPositionf, glm::fvec3(0, 1.0f, 0.f));
+    billboardQuads(cameraPositionf, glm::fvec3(cameraUpX, cameraUpY, cameraUpZ));
     // billboardMultiquadWithCustomAttrViaCuda();
     // printPositionsWithFabric();
     // runSimpleCudaHeaderTest();
@@ -3141,7 +3142,7 @@ int animatePrims(float deltaTime) {
     // std::cout << "animating " << deltaTime << std::endl;
     const float speed = 1.5f;
     const float radius = 600.f;
-    alterPrims(0, 0, 0); // TODO: no dummy vars
+    alterPrims(0, 0, 0, 0, 0, 0); // TODO: no dummy vars
     elapsedTime += deltaTime;
     lookatPositionHost.x = sin(elapsedTime * speed) * radius;
     // std::cout << "x: " << lookatPositionHost.x << std::endl;
@@ -3545,11 +3546,13 @@ glm::vec3 getForwardDirection(const quadGlm& quad) {
 }
 
 void rotateQuadToTarget(quadGlm& quad, const glm::vec3& target, const glm::vec3& targetUp) {
+    auto targetUpN = glm::normalize(targetUp);
     auto quadCenter = quad.getCenter();
-    auto newQuadForward = glm::normalize(target - quadCenter);
+    auto newQuadForward = target - quadCenter;
+    auto newQuadForwardN = glm::normalize(newQuadForward);
     glm::fvec3 newQuadRight;
     glm::fvec3 newQuadUp;
-    if (almostEquals(newQuadForward, targetUp)) {
+    if (almostEquals(newQuadForwardN, targetUpN)) {
         //directly beneath the camera, no op
         return;
     } else {

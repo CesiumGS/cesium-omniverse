@@ -197,9 +197,10 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
         return val;
     }
 
-    int alterProceduralPrims(double cameraPositionX, double cameraPositionY, double cameraPositionZ) noexcept override {
+    int alterProceduralPrims(double cameraPositionX, double cameraPositionY, double cameraPositionZ,
+        float cameraUpX, float cameraUpY, float cameraUpZ) noexcept override {
         auto val = cesium::omniverse::FabricProceduralGeometry::alterPrims(
-            cameraPositionX, cameraPositionY, cameraPositionZ);
+            cameraPositionX, cameraPositionY, cameraPositionZ, cameraUpX, cameraUpY, cameraUpZ);
         return val;
     }
 

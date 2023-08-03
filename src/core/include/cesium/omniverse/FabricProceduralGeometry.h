@@ -14,7 +14,8 @@
 namespace cesium::omniverse::FabricProceduralGeometry {
 
 int createPrims();
-int alterPrims(double cameraPositionX, double cameraPositionY, double cameraPositionZ);
+int alterPrims(double cameraPositionX, double cameraPositionY, double cameraPositionZ,
+float cameraUpX, float cameraUpY, float cameraUpZ);
 int animatePrims(float deltaTime);
 
 class CudaRunner {

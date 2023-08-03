@@ -50,11 +50,15 @@ class ProceduralGeometryWindow(ui.Window):
         print(f"xform is {type(xform)}")
         time = Usd.TimeCode.Default()  # The time at which we compute the bounding box
         world_transform: Gf.Matrix4d = xform.ComputeLocalToWorldTransform(time)
+
+        print("Matrix:")
+        for i in range(4):
+            row = [0 if abs(world_transform[i][j]) < 0.00001 else world_transform[i][j] for j in range(4)]
+            print(" ".join(map(str, row)))
+
         translation: Gf.Vec3d = world_transform.ExtractTranslation()
 
-        matrix_list = [[world_transform.GetRow(i)[j] for j in range(4)] for i in range(4)]
-        # Assuming Y-up, the up vector components are found in the second column
-        up_vector = Gf.Vec3f(matrix_list[0][1], matrix_list[1][1], matrix_list[2][1])
+        up_vector = Gf.Vec3f(world_transform[1][0], world_transform[1][1], world_transform[1][2])
 
         print("Up vector:", up_vector)
 
@@ -63,7 +67,8 @@ class ProceduralGeometryWindow(ui.Window):
         self._logger.info(f"get up vector {up_vector}")
 
         return_val = self._cesium_omniverse_interface.alter_procedural_prims(
-            translation[0], translation[1], translation[2])
+            translation[0], translation[1], translation[2],
+            up_vector[0], up_vector[1], up_vector[2])
         self._logger.info(f"return val is {return_val}")
 
     def _animate_prims(self):
