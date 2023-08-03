@@ -548,7 +548,7 @@ int createPrims() {
 
     // createQuadsViaFabric(80000, 1000.f);
     // createMultiquadViaFabric();
-    createMultiquadMeshViaFabric2(1);
+    createMultiquadMeshViaFabric2(20);
     // createSingleQuad(pxr::GfVec3f(3.f, -3.f, 0), 2);
     // createSingleQuad(pxr::GfVec3f(3.f, 3.f, -3.0f), 2);
 
