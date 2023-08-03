@@ -14,7 +14,8 @@ class FabricMaterialPool final : public ObjectPool<FabricMaterial> {
         int64_t poolId,
         const FabricMaterialDefinition& materialDefinition,
         uint64_t initialCapacity,
-        pxr::SdfAssetPath defaultTextureAssetPath);
+        pxr::SdfAssetPath defaultTextureAssetPath,
+        long stageId);
 
     [[nodiscard]] const FabricMaterialDefinition& getMaterialDefinition() const;
 
@@ -26,6 +27,7 @@ class FabricMaterialPool final : public ObjectPool<FabricMaterial> {
     const int64_t _poolId;
     const FabricMaterialDefinition _materialDefinition;
     const pxr::SdfAssetPath _defaultTextureAssetPath;
+    const long _stageId;
 };
 
 } // namespace cesium::omniverse

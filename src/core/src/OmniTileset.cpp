@@ -39,7 +39,9 @@ OmniTileset::OmniTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPath& ge
     UsdUtil::setGeoreferenceForTileset(tilesetPath, georeferencePath);
 }
 
-OmniTileset::~OmniTileset() = default;
+OmniTileset::~OmniTileset() {
+    _renderResourcesPreparer->detachTileset();
+}
 
 pxr::SdfPath OmniTileset::getPath() const {
     return _tilesetPath;
