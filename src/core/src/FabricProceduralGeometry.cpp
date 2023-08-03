@@ -37,6 +37,7 @@ namespace cesium::omniverse::FabricProceduralGeometry {
 
 constexpr int numPrimsForExperiment = 99;
 glm::dvec3 lookatPositionHost{0.0, 0.0, 0.0};
+glm::fvec3 lookatUpHost{0.0, 0.0, 0.0};
 CudaRunner cudaRunner;
 double elapsedTime = 0;
 
@@ -527,6 +528,165 @@ extern "C" __global__ void lookAtMultiquadKernel(quad* quads, double3* lookatPos
 }
 )";
 
+const char* lookAtMultiquadKernelCode2 = R"(
+
+__device__ float dot(float3 a, float3 b)
+{
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+struct mat3 {
+    float3 col0;
+    float3 col1;
+    float3 col2;
+
+    __host__ __device__ float3 multiply(float3 vec) const {
+        float3 result;
+        result.x = dot(col0, vec);
+        result.y = dot(col1, vec);
+        result.z = dot(col2, vec);
+        return result;
+    }
+};
+
+struct quad {
+    float3 lowerLeft;
+    float3 upperLeft;
+    float3 upperRight;
+    float3 lowerRight;
+
+    __device__ float3 getCenter() {
+        return make_float3(
+            (lowerLeft.x + upperRight.x) * .5f,
+            (lowerLeft.y + upperRight.y) * .5f,
+            0);
+    }
+};
+
+__device__ float3 normalize(float3 v) {
+    float normSquared = v.x * v.x + v.y * v.y + v.z * v.z;
+    float inverseSqrtNorm = rsqrtf(normSquared);
+    v.x *= inverseSqrtNorm;
+    v.y *= inverseSqrtNorm;
+    v.z *= inverseSqrtNorm;
+    return v;
+}
+
+__device__ double3 normalize(double3 v) {
+    double norm = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+    double inverseNorm = 1.0 / norm;
+    v.x *= inverseNorm;
+    v.y *= inverseNorm;
+    v.z *= inverseNorm;
+    return v;
+}
+
+__device__ float3 cross(float3 a, float3 b)
+{
+    return make_float3(
+        a.y * b.z - a.z * b.y,
+        a.z * b.x - a.x * b.z,
+        a.x * b.y - a.y * b.x
+    );
+}
+
+__device__ float3 operator*(const float3 &a, const float &b) {
+    return make_float3(a.x * b, a.y * b, a.z * b);
+}
+
+__device__ bool almostEquals(float3 a, float3 b) {
+    const float epsilon = 0.0000001f;
+    if (abs(a.x - b.x) > epsilon) return false;
+    if (abs(a.y - b.y) > epsilon) return false;
+    if (abs(a.z - b.z) > epsilon) return false;
+
+    return true;
+}
+
+__device__ double3 subtractDouble3(double3 a, double3 b) {
+    return make_double3(a.x - b.x, a.y - b.y, a.z - b.z);
+}
+
+__device__ float3 addFloat3(float3 a, float3 b) {
+    return make_float3(a.x + b.x, a.y + b.y, a.z + b.z);
+}
+
+extern "C" __global__ void lookAtMultiquadKernel(quad* quads, double3* lookatPosition, float3* lookatUp, int numQuads) {
+    const size_t i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i >= numQuads) return;
+
+    int quadIndex = static_cast<int>(i);
+
+
+    //DEBUG
+    lookatPosition->x = 4; lookatPosition->y = 4; lookatPosition->z = 0;
+    lookatUp->x = 0; lookatUp->y = 1; lookatUp->z = 0;
+
+    printf("(kernel) lookAtPosition is (%lf, %lf, %lf)\n", lookatPosition->x, lookatPosition->y, lookatPosition->z);
+
+    printf("(kernel) numQuads: %d\n", numQuads);
+
+    float3 targetUpN = normalize(*lookatUp); //TODO: handle this at CPU level
+    float3 quadCenter = quads[quadIndex].getCenter();
+    double3 quadCenterD = make_double3(static_cast<double>(quadCenter.x), static_cast<double>(quadCenter.y) , static_cast<double>(quadCenter.z));
+    double3 newQuadForwardDouble = subtractDouble3(*lookatPosition, quadCenterD);
+    float3 newQuadForward = make_float3(
+        static_cast<float>(newQuadForwardDouble.x),
+        static_cast<float>(newQuadForwardDouble.y),
+        static_cast<float>(newQuadForwardDouble.z));
+    float3 newQuadForwardN = normalize(newQuadForward);
+    float3 newQuadRightN;
+    float3 newQuadUpN;
+
+    printf("newQuadForwardN: %f, %f, %f\n", newQuadForwardN.x, newQuadForwardN.y, newQuadForwardN.z);
+    printf("targetUpN: %f, %f, %f\n", targetUpN.x, targetUpN.y, targetUpN.z);
+    if (almostEquals(newQuadForwardN, targetUpN)) {
+        //directly beneath the camera, no op
+        printf("directly beneath camera, no op. returning\n");
+        return;
+    } else {
+        newQuadRightN = normalize(cross(newQuadForwardN, targetUpN));
+        newQuadUpN = normalize(cross(newQuadRightN, newQuadForward));
+    }
+
+    mat3 translationMatrix = {newQuadRightN, newQuadUpN, newQuadForwardN};
+
+    //quad points are assumed to be in XY plane
+    float3 rotatedLL = translationMatrix.multiply(make_float3(-1.0f, -1.0f, 0));
+    float3 rotatedUL = translationMatrix.multiply(make_float3(-1.0f, 1.0f, 0));
+    float3 rotatedUR = translationMatrix.multiply(make_float3(1.0f, 1.0f, 0));
+    float3 rotatedLR = translationMatrix.multiply(make_float3(1.0f, -1.0f, 0));
+    float3 newQuadUL = addFloat3(rotatedUL, quadCenter);
+    float3 newQuadUR = addFloat3(rotatedUR, quadCenter);
+    float3 newQuadLL = addFloat3(rotatedLL, quadCenter);
+    float3 newQuadLR = addFloat3(rotatedLR, quadCenter);
+
+    //DEBUG: initial quad positions
+    printf("Initial quad positions:\n");
+    printf("  ll: %f, %f, %f\n", quads[quadIndex].lowerLeft);
+    printf("  ul: %f, %f, %f\n", quads[quadIndex].upperLeft);
+    printf("  ur: %f, %f, %f\n", quads[quadIndex].upperRight);
+    printf("  lr: %f, %f, %f\n", quads[quadIndex].lowerRight);
+
+    //DEBUG: just shift one to the x positive
+    // quads[quadIndex].upperLeft = newQuadUL;
+    // quads[quadIndex].upperRight = newQuadUR;
+    // quads[quadIndex].lowerLeft = newQuadLL;
+    // quads[quadIndex].lowerRight = newQuadLR;
+    quads[quadIndex].upperLeft = addFloat3(quads[quadIndex].upperLeft, make_float3(1.0f, 0, 0));
+    quads[quadIndex].upperRight = addFloat3(quads[quadIndex].upperRight, make_float3(1.0f, 0, 0));
+    quads[quadIndex].lowerLeft = addFloat3(quads[quadIndex].lowerLeft, make_float3(1.0f, 0, 0));
+    quads[quadIndex].lowerRight = addFloat3(quads[quadIndex].lowerRight, make_float3(1.0f, 0, 0));
+
+    printf("New quad positions:\n");
+    printf("  ll: %f, %f, %f\n", quads[quadIndex].lowerLeft);
+    printf("  ul: %f, %f, %f\n", quads[quadIndex].upperLeft);
+    printf("  ur: %f, %f, %f\n", quads[quadIndex].upperRight);
+    printf("  lr: %f, %f, %f\n", quads[quadIndex].lowerRight);
+
+}
+)";
+
 int createPrims() {
 
     // modifyUsdCubePrimWithFabric();
@@ -548,7 +708,7 @@ int createPrims() {
 
     // createQuadsViaFabric(80000, 1000.f);
     // createMultiquadViaFabric();
-    createMultiquadMeshViaFabric2(20);
+    createMultiquadMeshViaFabric2(1);
     // createSingleQuad(pxr::GfVec3f(3.f, -3.f, 0), 2);
     // createSingleQuad(pxr::GfVec3f(3.f, 3.f, -3.0f), 2);
 
@@ -578,7 +738,8 @@ int alterPrims(double cameraPositionX, double cameraPositionY, double cameraPosi
     // billboardAllPrimsWithCustomAttrViaCuda();
     // billboardMultiquadWithCustomAttrViaFabric();
     // billboardQuad(glm::fvec3{10.f, 0, 0});
-    billboardQuads(cameraPositionf, glm::fvec3(cameraUpX, cameraUpY, cameraUpZ));
+    // billboardMultiQuadCpu(cameraPositionf, glm::fvec3(cameraUpX, cameraUpY, cameraUpZ));
+    billboardMultiQuadCuda(cameraPositionf, glm::fvec3(cameraUpX, cameraUpY, cameraUpZ));
     // billboardMultiquadWithCustomAttrViaCuda();
     // printPositionsWithFabric();
     // runSimpleCudaHeaderTest();
@@ -3195,14 +3356,15 @@ void CudaRunner::runKernel(void** args, size_t elemCount) {
         }
     }
 
+    //DEBUG: bypass re-launching for new. arg params will need to be re-malloc'ed
     //retry after Context switch
-    if (launchResult) {
-        launchResult = cuLaunchKernel(_function, numBlocks, 1, 1, blockSize, 1, 1, 0, nullptr, args, nullptr);
-    }
+    // if (launchResult) {
+    //     launchResult = cuLaunchKernel(_function, numBlocks, 1, 1, blockSize, 1, 1, 0, nullptr, args, nullptr);
+    // }
 
-    if (launchResult) {
-        throw std::runtime_error("kernel still failed to launch after switch to original context\n");
-    }
+    // if (launchResult) {
+    //     throw std::runtime_error("kernel still failed to launch after switch to original context\n");
+    // }
 }
 
 void printPositionsWithFabric() {
@@ -3494,7 +3656,7 @@ void billboardQuad(glm::fvec3 target) {
     }
 }
 
-void billboardQuads(glm::fvec3 target, glm::fvec3 targetUp) {
+void billboardMultiQuadCpu(glm::fvec3 target, glm::fvec3 targetUp) {
     //get all prims with the custom attr
     auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
     auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
@@ -3517,10 +3679,128 @@ void billboardQuads(glm::fvec3 target, glm::fvec3 targetUp) {
 
         auto numElements = numQuads;
         for (int i = 0; i < numElements; i++) {
-            rotateQuadToTarget(quads[i], target, targetUp);
+            rotateQuadToTarget(quads, i, target, targetUp);
         }
     }
 }
+
+void billboardMultiQuadCuda(glm::fvec3 lookatPosition, glm::fvec3 lookatUp) {
+    lookatPositionHost.x = static_cast<double>(lookatPosition.x);
+    lookatPositionHost.y = static_cast<double>(lookatPosition.y);
+    lookatPositionHost.z = static_cast<double>(lookatPosition.z);
+
+    lookatUpHost.x = lookatUp.x;
+    lookatUpHost.y = lookatUp.y;
+    lookatUpHost.z = lookatUp.z;
+
+    //get all prims with the custom attr
+    auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+    auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
+    auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
+    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+    omni::fabric::AttrNameAndType primTag(cudaTestAttributeFabricType, getCudaTestAttributeFabricToken());
+    auto bucketList = stageReaderWriter.findPrims({primTag});
+
+    cudaRunner.init(lookAtMultiquadKernelCode2, "lookAtMultiquadKernel");
+
+    CUresult err;
+    CUdeviceptr lookatPositionDevice;
+
+    err = cuMemAlloc(&lookatPositionDevice, sizeof(glm::dvec3));
+    if (err != CUDA_SUCCESS) {
+        const char *errName;
+        const char *errStr;
+        cuGetErrorName(err, &errName);
+        cuGetErrorString(err, &errStr);
+        printf("cuMemAlloc failed: %s: %s\n", errName, errStr);
+        return;
+    }
+
+    err = cuMemcpyHtoD(lookatPositionDevice, &lookatPositionHost, sizeof(glm::dvec3));
+    if (err != CUDA_SUCCESS) {
+        const char *errName;
+        const char *errStr;
+        cuGetErrorName(err, &errName);
+        cuGetErrorString(err, &errStr);
+        printf("cuMemcpyHtoD failed: %s: %s\n", errName, errStr);
+        return;
+    }
+
+    CUdeviceptr lookatUpDevice;
+    err = cuMemAlloc(&lookatUpDevice, sizeof(glm::fvec3));
+    if (err != CUDA_SUCCESS) {
+        const char *errName;
+        const char *errStr;
+        cuGetErrorName(err, &errName);
+        cuGetErrorString(err, &errStr);
+        printf("cuMemAlloc failed: %s: %s\n", errName, errStr);
+        return;
+    }
+
+    err = cuMemcpyHtoD(lookatUpDevice, &lookatUpHost, sizeof(glm::fvec3));
+    if (err != CUDA_SUCCESS) {
+        const char *errName;
+        const char *errStr;
+        cuGetErrorName(err, &errName);
+        cuGetErrorString(err, &errStr);
+        printf("cuMemcpyHtoD failed: %s: %s\n", errName, errStr);
+        return;
+    }
+
+
+    for (size_t bucketNum = 0; bucketNum != bucketList.bucketCount(); bucketNum++)
+    {
+        auto positions = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3f*>(bucketList, bucketNum, FabricTokens::points);
+        auto numQuadsSpan = stageReaderWriter.getAttributeArray<int>(bucketList, bucketNum, getNumQuadsAttributeFabricToken());
+        int numQuads = numQuadsSpan[0];
+        auto quadsPtr = reinterpret_cast<quadGlm*>(positions.data());
+        std::cout << "(host) numQuads: " << numQuads << std::endl;
+
+        // for (int quadNum = 0; quadNum < numQuads; quadNum++) {
+        //     printf("quad %d lowerLeft: %f, %f, %f\n", quadNum,
+        //         quadsPtr[quadNum].lowerLeft.x,
+        //         quadsPtr[quadNum].lowerLeft.y,
+        //         quadsPtr[quadNum].lowerLeft.z);
+        // }
+
+        int elemCount = numQuads;
+        if (elemCount == 0) {
+            throw std::runtime_error("Fabric did not retrieve any elements");
+        }
+        std::cout << elemCount << std::endl;
+        void *args[] = { &quadsPtr, &lookatPositionDevice, &lookatUpDevice, &elemCount}; //NOLINT
+
+        cudaRunner.runKernel(args, static_cast<size_t>(elemCount));
+
+        // primCount += static_cast<int>(elemCount);
+    }
+
+    // std::cout << "modified " << primCount << " quads" << std::endl;
+
+    err = cuMemFree(lookatPositionDevice);
+    if (err != CUDA_SUCCESS) {
+        const char *errName;
+        const char *errStr;
+        cuGetErrorName(err, &errName);
+        cuGetErrorString(err, &errStr);
+        printf("cuMemFree failed: %s: %s\n", errName, errStr);
+        return;
+    }
+
+    err = cuMemFree(lookatUpDevice);
+    if (err != CUDA_SUCCESS) {
+        const char *errName;
+        const char *errStr;
+        cuGetErrorName(err, &errName);
+        cuGetErrorString(err, &errStr);
+        printf("cuMemFree failed: %s: %s\n", errName, errStr);
+        return;
+    }
+
+    // lookatPositionHost.x += 10.0;
+
+}
+
 
 glm::fvec3 toGlm(pxr::GfVec3f input) {
     return glm::fvec3{input[0], input[1], input[2]};
@@ -3545,9 +3825,9 @@ glm::vec3 getForwardDirection(const quadGlm& quad) {
     return forward;
 }
 
-void rotateQuadToTarget(quadGlm& quad, const glm::vec3& target, const glm::vec3& targetUp) {
+void rotateQuadToTarget(quadGlm* quads, int quadIndex, const glm::vec3& target, const glm::vec3& targetUp) {
     auto targetUpN = glm::normalize(targetUp);
-    auto quadCenter = quad.getCenter();
+    auto quadCenter = quads[quadIndex].getCenter();
     auto newQuadForward = target - quadCenter;
     auto newQuadForwardN = glm::normalize(newQuadForward);
     glm::fvec3 newQuadRight;
@@ -3577,10 +3857,10 @@ void rotateQuadToTarget(quadGlm& quad, const glm::vec3& target, const glm::vec3&
     auto newQuadLL = rotatedLL + quadCenter;
     auto newQuadLR = rotatedLR + quadCenter;
 
-    quad.upperLeft = newQuadUL;
-    quad.upperRight = newQuadUR;
-    quad.lowerLeft = newQuadLL;
-    quad.lowerRight = newQuadLR;
+    quads[quadIndex].upperLeft = newQuadUL;
+    quads[quadIndex].upperRight = newQuadUR;
+    quads[quadIndex].lowerLeft = newQuadLL;
+    quads[quadIndex].lowerRight = newQuadLR;
 }
 
 // void rotateQuadToTarget(quadGlm& quad, const glm::vec3& target) {
