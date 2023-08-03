@@ -193,6 +193,28 @@ void setFabricMeshes(
     }
 }
 
+void freeFabricMeshes(const std::vector<FabricMesh>& fabricMeshes) {
+    auto& fabricResourceManager = FabricResourceManager::getInstance();
+
+    for (const auto& mesh : fabricMeshes) {
+        auto& geometry = mesh.geometry;
+        auto& material = mesh.material;
+        auto& baseColorTexture = mesh.baseColorTexture;
+
+        assert(geometry != nullptr);
+
+        fabricResourceManager.releaseGeometry(geometry);
+
+        if (material != nullptr) {
+            fabricResourceManager.releaseMaterial(material);
+        }
+
+        if (baseColorTexture != nullptr) {
+            fabricResourceManager.releaseTexture(baseColorTexture);
+        }
+    }
+}
+
 } // namespace
 
 FabricPrepareRenderResources::FabricPrepareRenderResources(const OmniTileset& tileset)
@@ -307,31 +329,13 @@ void FabricPrepareRenderResources::free(
     void* pMainThreadResult) noexcept {
     if (pLoadThreadResult) {
         const auto pTileLoadThreadResult = reinterpret_cast<TileLoadThreadResult*>(pLoadThreadResult);
+        freeFabricMeshes(pTileLoadThreadResult->fabricMeshes);
         delete pTileLoadThreadResult;
     }
 
     if (pMainThreadResult) {
         const auto pTileRenderResources = reinterpret_cast<TileRenderResources*>(pMainThreadResult);
-        auto& fabricResourceManager = FabricResourceManager::getInstance();
-
-        for (const auto& mesh : pTileRenderResources->fabricMeshes) {
-            auto& geometry = mesh.geometry;
-            auto& material = mesh.material;
-            auto& baseColorTexture = mesh.baseColorTexture;
-
-            assert(geometry != nullptr);
-
-            fabricResourceManager.releaseGeometry(geometry);
-
-            if (material != nullptr) {
-                fabricResourceManager.releaseMaterial(material);
-            }
-
-            if (baseColorTexture != nullptr) {
-                fabricResourceManager.releaseTexture(baseColorTexture);
-            }
-        }
-
+        freeFabricMeshes(pTileRenderResources->fabricMeshes);
         delete pTileRenderResources;
     }
 }
