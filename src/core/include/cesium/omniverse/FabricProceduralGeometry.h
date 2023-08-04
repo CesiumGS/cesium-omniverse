@@ -185,11 +185,13 @@ void billboardQuad(glm::fvec3 target);
 void billboardMultiQuadCpu(glm::fvec3 target, glm::fvec3 targetUp);
 void billboardMultiQuadCuda(glm::fvec3 target, glm::fvec3 targetUp);
 void printPositionsWithFabric();
-
+void printMultiquadPointsWithCuda();
 void runSimpleCudaHeaderTest();
 void runCurandHeaderTest();
 void exportToUsd();
 void rotateQuadToTarget(quadGlm* quads, int quadIndex, const glm::vec3& target, const glm::vec3& up);
+void printPointsWithCuda();
+void printMultiquadWithCuda();
 
 //Get all prims with "cudaTest" attr and edits the attr with CUDA
 //Issues: TODO

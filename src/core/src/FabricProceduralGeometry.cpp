@@ -508,6 +508,11 @@ extern "C" __global__ void lookAtMultiquadKernel(quad* quads, double3* lookatPos
     if (i >= numQuads) return;
 
     printf("(kernel) numQuads: %d\n", numQuads);
+    printf("Initial quad positions:\n");
+    printf("  ll: %f, %f, %f\n", quads[i].lowerLeft);
+    printf("  ul: %f, %f, %f\n", quads[i].upperLeft);
+    printf("  ur: %f, %f, %f\n", quads[i].upperRight);
+    printf("  lr: %f, %f, %f\n", quads[i].lowerRight);
 
     printf("(kernel) lookAtPosition is (%lf, %lf, %lf)\n", lookatPosition->x, lookatPosition->y, lookatPosition->z);
 
@@ -611,23 +616,32 @@ __device__ float3 addFloat3(float3 a, float3 b) {
     return make_float3(a.x + b.x, a.y + b.y, a.z + b.z);
 }
 
-extern "C" __global__ void lookAtMultiquadKernel(quad* quads, double3* lookatPosition, float3* lookatUp, int numQuads) {
+extern "C" __global__ void lookAtMultiquadKernel(quad** quads, double3* lookatPosition, float3* lookatUp, int numQuads) {
     const size_t i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i >= numQuads) return;
 
     int quadIndex = static_cast<int>(i);
 
+    printf("(kernel) quadIndex: %d\n", quadIndex);
 
-    //DEBUG
-    lookatPosition->x = 4; lookatPosition->y = 4; lookatPosition->z = 0;
-    lookatUp->x = 0; lookatUp->y = 1; lookatUp->z = 0;
+    //DEBUG: initial quad positions
+    printf("Initial quad positions:\n");
+    printf("  ll: %f, %f, %f\n", quads[0][quadIndex].lowerLeft);
+    printf("  ul: %f, %f, %f\n", quads[0][quadIndex].upperLeft);
+    printf("  ur: %f, %f, %f\n", quads[0][quadIndex].upperRight);
+    printf("  lr: %f, %f, %f\n", quads[0][quadIndex].lowerRight);
+
+    // //DEBUG
+    // lookatPosition->x = 4; lookatPosition->y = 4; lookatPosition->z = 0;
+    // lookatUp->x = 0; lookatUp->y = 1; lookatUp->z = 0;
 
     printf("(kernel) lookAtPosition is (%lf, %lf, %lf)\n", lookatPosition->x, lookatPosition->y, lookatPosition->z);
+    printf("(kernel) lookatUp is (%f, %f, %f)\n", lookatUp->x, lookatUp->y, lookatUp->z);
 
-    printf("(kernel) numQuads: %d\n", numQuads);
+    // printf("(kernel) numQuads: %d\n", numQuads);
 
     float3 targetUpN = normalize(*lookatUp); //TODO: handle this at CPU level
-    float3 quadCenter = quads[quadIndex].getCenter();
+    float3 quadCenter = quads[0][quadIndex].getCenter();
     double3 quadCenterD = make_double3(static_cast<double>(quadCenter.x), static_cast<double>(quadCenter.y) , static_cast<double>(quadCenter.z));
     double3 newQuadForwardDouble = subtractDouble3(*lookatPosition, quadCenterD);
     float3 newQuadForward = make_float3(
@@ -638,8 +652,7 @@ extern "C" __global__ void lookAtMultiquadKernel(quad* quads, double3* lookatPos
     float3 newQuadRightN;
     float3 newQuadUpN;
 
-    printf("newQuadForwardN: %f, %f, %f\n", newQuadForwardN.x, newQuadForwardN.y, newQuadForwardN.z);
-    printf("targetUpN: %f, %f, %f\n", targetUpN.x, targetUpN.y, targetUpN.z);
+    // printf("targetUpN: %f, %f, %f\n", targetUpN.x, targetUpN.y, targetUpN.z);
     if (almostEquals(newQuadForwardN, targetUpN)) {
         //directly beneath the camera, no op
         printf("directly beneath camera, no op. returning\n");
@@ -649,9 +662,17 @@ extern "C" __global__ void lookAtMultiquadKernel(quad* quads, double3* lookatPos
         newQuadUpN = normalize(cross(newQuadRightN, newQuadForward));
     }
 
+    printf("newQuadRightN: %f, %f, %f\n", newQuadRightN.x, newQuadRightN.y, newQuadRightN.z);
+    printf("newQuadForwardN: %f, %f, %f\n", newQuadForwardN.x, newQuadForwardN.y, newQuadForwardN.z);
+    printf("newQuadUpN: %f, %f, %f\n", newQuadUpN.x, newQuadUpN.y, newQuadUpN.z);
+
     mat3 translationMatrix = {newQuadRightN, newQuadUpN, newQuadForwardN};
 
-    //quad points are assumed to be in XY plane
+
+
+
+
+    //untransormed quad points are assumed to be in XY plane
     float3 rotatedLL = translationMatrix.multiply(make_float3(-1.0f, -1.0f, 0));
     float3 rotatedUL = translationMatrix.multiply(make_float3(-1.0f, 1.0f, 0));
     float3 rotatedUR = translationMatrix.multiply(make_float3(1.0f, 1.0f, 0));
@@ -661,29 +682,52 @@ extern "C" __global__ void lookAtMultiquadKernel(quad* quads, double3* lookatPos
     float3 newQuadLL = addFloat3(rotatedLL, quadCenter);
     float3 newQuadLR = addFloat3(rotatedLR, quadCenter);
 
-    //DEBUG: initial quad positions
-    printf("Initial quad positions:\n");
-    printf("  ll: %f, %f, %f\n", quads[quadIndex].lowerLeft);
-    printf("  ul: %f, %f, %f\n", quads[quadIndex].upperLeft);
-    printf("  ur: %f, %f, %f\n", quads[quadIndex].upperRight);
-    printf("  lr: %f, %f, %f\n", quads[quadIndex].lowerRight);
 
-    //DEBUG: just shift one to the x positive
-    // quads[quadIndex].upperLeft = newQuadUL;
-    // quads[quadIndex].upperRight = newQuadUR;
-    // quads[quadIndex].lowerLeft = newQuadLL;
-    // quads[quadIndex].lowerRight = newQuadLR;
-    quads[quadIndex].upperLeft = addFloat3(quads[quadIndex].upperLeft, make_float3(1.0f, 0, 0));
-    quads[quadIndex].upperRight = addFloat3(quads[quadIndex].upperRight, make_float3(1.0f, 0, 0));
-    quads[quadIndex].lowerLeft = addFloat3(quads[quadIndex].lowerLeft, make_float3(1.0f, 0, 0));
-    quads[quadIndex].lowerRight = addFloat3(quads[quadIndex].lowerRight, make_float3(1.0f, 0, 0));
+    quads[0][quadIndex].upperLeft = newQuadUL;
+    quads[0][quadIndex].upperRight = newQuadUR;
+    quads[0][quadIndex].lowerLeft = newQuadLL;
+    quads[0][quadIndex].lowerRight = newQuadLR;
 
     printf("New quad positions:\n");
-    printf("  ll: %f, %f, %f\n", quads[quadIndex].lowerLeft);
-    printf("  ul: %f, %f, %f\n", quads[quadIndex].upperLeft);
-    printf("  ur: %f, %f, %f\n", quads[quadIndex].upperRight);
-    printf("  lr: %f, %f, %f\n", quads[quadIndex].lowerRight);
+    printf("  ll: %f, %f, %f\n", quads[0][quadIndex].lowerLeft);
+    printf("  ul: %f, %f, %f\n", quads[0][quadIndex].upperLeft);
+    printf("  ur: %f, %f, %f\n", quads[0][quadIndex].upperRight);
+    printf("  lr: %f, %f, %f\n", quads[0][quadIndex].lowerRight);
+}
+)";
 
+const char* printMultiquadKernel = R"(
+
+struct quad {
+    float3 lowerLeft;
+    float3 upperLeft;
+    float3 upperRight;
+    float3 lowerRight;
+};
+
+extern "C" __global__ void printMultiquad(quad* quads, int numQuads) {
+    const size_t i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i >= numQuads) return;
+
+    int quadIndex = static_cast<int>(i);
+
+    printf("Quad positions for quad %d:\n", quadIndex);
+    printf("  ll: %f, %f, %f\n", quads[quadIndex].lowerLeft.x, quads[quadIndex].lowerLeft.y, quads[quadIndex].lowerLeft.z);
+    printf("  ul: %f, %f, %f\n", quads[quadIndex].upperLeft.x, quads[quadIndex].upperLeft.y, quads[quadIndex].upperLeft.z);
+    printf("  ur: %f, %f, %f\n", quads[quadIndex].upperRight.x, quads[quadIndex].upperRight.y, quads[quadIndex].upperRight.z);
+    printf("  lr: %f, %f, %f\n", quads[quadIndex].lowerRight.x, quads[quadIndex].lowerRight.y, quads[quadIndex].lowerRight.z);
+}
+)";
+
+const char* printPointsKernel = R"(
+
+extern "C" __global__ void printPoints(float3** points, int numPoints) {
+    const size_t i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i >= numPoints) return;
+
+    int pointIndex = static_cast<int>(i);
+
+    printf("point %d: %f, %f, %f\n", pointIndex, points[0][pointIndex].x, points[0][pointIndex].y, points[0][pointIndex].z);
 }
 )";
 
@@ -724,6 +768,11 @@ int alterPrims(double cameraPositionX, double cameraPositionY, double cameraPosi
     // cameraPositionY = 0;
     // cameraPositionZ = 0;
 
+    //trick clang
+    printf("dummy %f\n", cameraUpX);
+    printf("dummy %f\n", cameraUpY);
+    printf("dummy %f\n", cameraUpZ);
+
     auto cameraPositionf = glm::fvec3(
         static_cast<float>(cameraPositionX),
         static_cast<float>(cameraPositionY),
@@ -739,9 +788,12 @@ int alterPrims(double cameraPositionX, double cameraPositionY, double cameraPosi
     // billboardMultiquadWithCustomAttrViaFabric();
     // billboardQuad(glm::fvec3{10.f, 0, 0});
     // billboardMultiQuadCpu(cameraPositionf, glm::fvec3(cameraUpX, cameraUpY, cameraUpZ));
-    billboardMultiQuadCuda(cameraPositionf, glm::fvec3(cameraUpX, cameraUpY, cameraUpZ));
+    // billboardMultiQuadCuda(cameraPositionf, glm::fvec3(cameraUpX, cameraUpY, cameraUpZ));
     // billboardMultiquadWithCustomAttrViaCuda();
+    // printMultiquadWithCuda();
+    printMultiquadPointsWithCuda();
     // printPositionsWithFabric();
+    // printMultiquadPointsWithCuda();
     // runSimpleCudaHeaderTest();
     // runCurandHeaderTest();
     // exportToUsd();
@@ -2845,12 +2897,12 @@ void billboardMultiquadWithCustomAttrViaCuda() {
         auto quadsPtr = reinterpret_cast<quad*>(positions.data());
         std::cout << "(host) numQuads: " << numQuads << std::endl;
 
-        for (int quadNum = 0; quadNum < numQuads; quadNum++) {
-            printf("quad %d lowerLeft: %f, %f, %f\n", quadNum,
-                quadsPtr[quadNum].lowerLeft.x,
-                quadsPtr[quadNum].lowerLeft.y,
-                quadsPtr[quadNum].lowerLeft.z);
-        }
+        // for (int quadNum = 0; quadNum < numQuads; quadNum++) {
+        //     printf("quad %d lowerLeft: %f, %f, %f\n", quadNum,
+        //         quadsPtr[quadNum].lowerLeft.x,
+        //         quadsPtr[quadNum].lowerLeft.y,
+        //         quadsPtr[quadNum].lowerLeft.z);
+        // }
 
         int elemCount = numQuads;
         if (elemCount == 0) {
@@ -3283,7 +3335,7 @@ void CudaRunner::init(const char* kernelCodeDEBUG, const char* kernelFunctionNam
     // CUmodule module;
     // CUfunction function;
     cuModuleLoadDataEx(&_module, _ptx, 0, nullptr, nullptr);
-    auto cudaRes = cuModuleGetFunction(&_function, _module, "lookAtMultiquadKernel");
+    auto cudaRes = cuModuleGetFunction(&_function, _module, _kernelFunctionName);
     if (cudaRes != CUDA_SUCCESS) {
         const char *errName = nullptr;
         const char *errString = nullptr;
@@ -3753,7 +3805,7 @@ void billboardMultiQuadCuda(glm::fvec3 lookatPosition, glm::fvec3 lookatUp) {
         auto positions = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3f*>(bucketList, bucketNum, FabricTokens::points);
         auto numQuadsSpan = stageReaderWriter.getAttributeArray<int>(bucketList, bucketNum, getNumQuadsAttributeFabricToken());
         int numQuads = numQuadsSpan[0];
-        auto quadsPtr = reinterpret_cast<quadGlm*>(positions.data());
+        auto quadsPtr = reinterpret_cast<quadGlm**>(positions.data());
         std::cout << "(host) numQuads: " << numQuads << std::endl;
 
         // for (int quadNum = 0; quadNum < numQuads; quadNum++) {
@@ -3899,6 +3951,66 @@ bool almostEquals(glm::vec3 a, glm::vec3 b) {
     if (abs(a.z - b.z) > epsilon) return false;
 
     return true;
+}
+
+void printMultiquadWithCuda() {
+    //get all prims with the custom attr
+    auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+    auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
+    auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
+    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+    omni::fabric::AttrNameAndType primTag(cudaTestAttributeFabricType, getCudaTestAttributeFabricToken());
+    auto bucketList = stageReaderWriter.findPrims({primTag});
+
+    cudaRunner.init(printMultiquadKernel, "printMultiquad");
+
+    for (size_t bucketNum = 0; bucketNum != bucketList.bucketCount(); bucketNum++)
+    {
+        auto positions = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3f*>(bucketList, bucketNum, FabricTokens::points);
+        auto numQuadsSpan = stageReaderWriter.getAttributeArray<int>(bucketList, bucketNum, getNumQuadsAttributeFabricToken());
+        int numQuads = numQuadsSpan[0];
+        auto quadsPtr = reinterpret_cast<quad*>(positions.data());
+        std::cout << "(host) numQuads: " << numQuads << std::endl;
+
+
+        int elemCount = numQuads;
+        if (elemCount == 0) {
+            throw std::runtime_error("Fabric did not retrieve any elements");
+        }
+        std::cout << elemCount << std::endl;
+        void *args[] = { &quadsPtr, &elemCount}; //NOLINT
+
+        cudaRunner.runKernel(args, static_cast<size_t>(elemCount));
+    }
+}
+
+void printMultiquadPointsWithCuda() {
+    //get all prims with the custom attr
+    auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+    auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
+    auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
+    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+    omni::fabric::AttrNameAndType primTag(cudaTestAttributeFabricType, getCudaTestAttributeFabricToken());
+    auto bucketList = stageReaderWriter.findPrims({primTag});
+
+    cudaRunner.init(printPointsKernel, "printPoints");
+
+    for (size_t bucketNum = 0; bucketNum != bucketList.bucketCount(); bucketNum++)
+    {
+        auto positions = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3f*>(bucketList, bucketNum, FabricTokens::points);
+        auto numQuadsSpan = stageReaderWriter.getAttributeArray<int>(bucketList, bucketNum, getNumQuadsAttributeFabricToken());
+        int numQuads = numQuadsSpan[0];
+        auto quadsPtr = reinterpret_cast<quadPxr*>(positions.data());
+
+        auto elemCount = numQuads * 4;
+        if (elemCount == 0) {
+            throw std::runtime_error("Fabric did not retrieve any elements");
+        }
+        std::cout << elemCount << std::endl;
+        void *args[] = { &quadsPtr, &elemCount}; //NOLINT
+
+        cudaRunner.runKernel(args, static_cast<size_t>(elemCount));
+    }
 }
 
 } // namespace cesium::omniverse::FabricProceduralGeometry
