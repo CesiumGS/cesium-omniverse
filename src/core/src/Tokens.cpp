@@ -17,6 +17,7 @@ TF_DEFINE_PRIVATE_TOKENS(
     UsdTokens,
     (baseColorTex)
     (cesium_base_color_texture)
+    (cesium_read_from_texture_array)
     (cesium_texture_lookup)
     (constant)
     (doubleSided)
@@ -66,6 +67,7 @@ TF_DEFINE_PRIVATE_TOKENS(
     ((inputs_scale, "inputs:scale"))
     ((inputs_tex_coord_index, "inputs:tex_coord_index"))
     ((inputs_texture, "inputs:texture"))
+    ((inputs_textures, "inputs:textures"))
     ((inputs_vertex_color_name, "inputs:vertex_color_name"))
     ((inputs_wrap_s, "inputs:wrap_s"))
     ((inputs_wrap_t, "inputs:wrap_t"))
@@ -90,6 +92,7 @@ __pragma(warning(pop))
 namespace cesium::omniverse::FabricTokens {
 const omni::fabric::TokenC baseColorTex = omni::fabric::asInt(pxr::UsdTokens->baseColorTex);
 const omni::fabric::TokenC cesium_base_color_texture = omni::fabric::asInt(pxr::UsdTokens->cesium_base_color_texture);
+const omni::fabric::TokenC cesium_read_from_texture_array = omni::fabric::asInt(pxr::UsdTokens->cesium_read_from_texture_array);
 const omni::fabric::TokenC cesium_texture_lookup = omni::fabric::asInt(pxr::UsdTokens->cesium_texture_lookup);
 const omni::fabric::TokenC constant = omni::fabric::asInt(pxr::UsdTokens->constant);
 const omni::fabric::TokenC doubleSided = omni::fabric::asInt(pxr::UsdTokens->doubleSided);
@@ -116,6 +119,7 @@ const omni::fabric::TokenC inputs_roughness_factor = omni::fabric::asInt(pxr::Us
 const omni::fabric::TokenC inputs_scale = omni::fabric::asInt(pxr::UsdTokens->inputs_scale);
 const omni::fabric::TokenC inputs_tex_coord_index = omni::fabric::asInt(pxr::UsdTokens->inputs_tex_coord_index);
 const omni::fabric::TokenC inputs_texture = omni::fabric::asInt(pxr::UsdTokens->inputs_texture);
+const omni::fabric::TokenC inputs_textures = omni::fabric::asInt(pxr::UsdTokens->inputs_textures);
 const omni::fabric::TokenC inputs_vertex_color_name = omni::fabric::asInt(pxr::UsdTokens->inputs_vertex_color_name);
 const omni::fabric::TokenC inputs_wrap_s = omni::fabric::asInt(pxr::UsdTokens->inputs_wrap_s);
 const omni::fabric::TokenC inputs_wrap_t = omni::fabric::asInt(pxr::UsdTokens->inputs_wrap_t);
@@ -157,6 +161,7 @@ const omni::fabric::TokenC _worldVisibility = omni::fabric::asInt(pxr::UsdTokens
 namespace cesium::omniverse::UsdTokens {
 const pxr::TfToken& baseColorTex = pxr::UsdTokens->baseColorTex;
 const pxr::TfToken& cesium_base_color_texture = pxr::UsdTokens->cesium_base_color_texture;
+const pxr::TfToken& cesium_read_from_texture_array = pxr::UsdTokens->cesium_read_from_texture_array;
 const pxr::TfToken& cesium_texture_lookup = pxr::UsdTokens->cesium_texture_lookup;
 const pxr::TfToken& constant = pxr::UsdTokens->constant;
 const pxr::TfToken& doubleSided = pxr::UsdTokens->doubleSided;
@@ -183,6 +188,7 @@ const pxr::TfToken& inputs_roughness_factor = pxr::UsdTokens->inputs_roughness_f
 const pxr::TfToken& inputs_scale = pxr::UsdTokens->inputs_scale;
 const pxr::TfToken& inputs_tex_coord_index = pxr::UsdTokens->inputs_tex_coord_index;
 const pxr::TfToken& inputs_texture = pxr::UsdTokens->inputs_texture;
+const pxr::TfToken& inputs_textures = pxr::UsdTokens->inputs_textures;
 const pxr::TfToken& inputs_vertex_color_name = pxr::UsdTokens->inputs_vertex_color_name;
 const pxr::TfToken& inputs_wrap_s = pxr::UsdTokens->inputs_wrap_s;
 const pxr::TfToken& inputs_wrap_t = pxr::UsdTokens->inputs_wrap_t;

@@ -8,6 +8,7 @@
 namespace cesium::omniverse::FabricTokens {
 extern const omni::fabric::TokenC baseColorTex;
 extern const omni::fabric::TokenC cesium_base_color_texture;
+extern const omni::fabric::TokenC cesium_read_from_texture_array;
 extern const omni::fabric::TokenC cesium_texture_lookup;
 extern const omni::fabric::TokenC constant;
 extern const omni::fabric::TokenC doubleSided;
@@ -34,6 +35,7 @@ extern const omni::fabric::TokenC inputs_roughness_factor;
 extern const omni::fabric::TokenC inputs_scale;
 extern const omni::fabric::TokenC inputs_tex_coord_index;
 extern const omni::fabric::TokenC inputs_texture;
+extern const omni::fabric::TokenC inputs_textures;
 extern const omni::fabric::TokenC inputs_vertex_color_name;
 extern const omni::fabric::TokenC inputs_wrap_s;
 extern const omni::fabric::TokenC inputs_wrap_t;
@@ -75,6 +77,7 @@ extern const omni::fabric::TokenC _worldVisibility;
 namespace cesium::omniverse::UsdTokens {
 extern const pxr::TfToken& baseColorTex;
 extern const pxr::TfToken& cesium_base_color_texture;
+extern const pxr::TfToken& cesium_read_from_texture_array;
 extern const pxr::TfToken& cesium_texture_lookup;
 extern const pxr::TfToken& constant;
 extern const pxr::TfToken& doubleSided;
@@ -101,6 +104,7 @@ extern const pxr::TfToken& inputs_roughness_factor;
 extern const pxr::TfToken& inputs_scale;
 extern const pxr::TfToken& inputs_tex_coord_index;
 extern const pxr::TfToken& inputs_texture;
+extern const pxr::TfToken& inputs_textures;
 extern const pxr::TfToken& inputs_vertex_color_name;
 extern const pxr::TfToken& inputs_wrap_s;
 extern const pxr::TfToken& inputs_wrap_t;
@@ -161,6 +165,7 @@ const omni::fabric::Type inputs_roughness_factor(omni::fabric::BaseDataType::eFl
 const omni::fabric::Type inputs_scale(omni::fabric::BaseDataType::eFloat, 2, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_tex_coord_index(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_texture(omni::fabric::BaseDataType::eAsset, 1, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type inputs_textures(omni::fabric::BaseDataType::eAsset, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_vertex_color_name(omni::fabric::BaseDataType::eUChar, 1, 1, omni::fabric::AttributeRole::eText);
 const omni::fabric::Type inputs_wrap_s(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_wrap_t(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);

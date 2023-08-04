@@ -93,3 +93,43 @@ export color cesium_base_color_texture(
 {
     return color(base_color_texture.value.x, base_color_texture.value.y, base_color_texture.value.z);
 }
+
+export gltf_texture_lookup_value cesium_read_from_texture_array(
+    uniform texture_2d[2] textures,
+    float2 min_world = float2(-5000.0, -5000.0),
+    float2 max_world = float2(5000.0, 5000.0),
+    up_axis_mode up_axis = Y
+)
+[[
+    anno::display_name("Read from texture array"),
+    anno::description("Read from texture array"),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium functions"),
+    anno::ui_order(300)
+]]
+{
+    gltf_texture_lookup_value tex_ret;
+    tex_ret.valid = true;
+
+    int texture_index = 0;//::scene::data_lookup_int("texture_index");
+
+    for (int i = 0; i < 2; i++) {
+        if (i == texture_index) {
+            tex_ret.value = tex::lookup_float4(
+                tex: textures[i],
+                coord: world_coordinate_2d(min_world, max_world, up_axis),
+                wrap_u: ::tex::wrap_clamp,
+                wrap_v: ::tex::wrap_clamp);
+
+            return tex_ret;
+        }
+    }
+
+    tex_ret.value = tex::lookup_float4(
+        tex: textures[1],
+        coord: world_coordinate_2d(min_world, max_world, up_axis),
+        wrap_u: ::tex::wrap_clamp,
+        wrap_v: ::tex::wrap_clamp);
+
+    return tex_ret;
+}

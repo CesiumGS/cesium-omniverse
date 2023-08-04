@@ -98,33 +98,6 @@ void FabricMaterial::initialize() {
     }
 }
 
-void FabricMaterial::initializeFromExistingMaterial(const omni::fabric::Path& srcMaterialPath) {
-    const auto hasBaseColorTexture = _materialDefinition.hasBaseColorTexture();
-
-    auto srw = UsdUtil::getFabricStageReaderWriter();
-
-    const auto& dstMaterialPath = _materialPath;
-
-    const auto dstPaths = FabricUtil::copyMaterial(srcMaterialPath, dstMaterialPath);
-
-    for (const auto& dstPath : dstPaths) {
-        srw.createAttribute(dstPath, FabricTokens::_cesium_tilesetId, FabricTypes::_cesium_tilesetId);
-        _allPaths.push_back(dstPath);
-
-        const auto mdlIdentifier = FabricUtil::getMdlIdentifier(dstPath);
-
-        if (mdlIdentifier == FabricTokens::cesium_base_color_texture) {
-            if (hasBaseColorTexture) {
-                // Create a base color texture node to fill the empty slot
-                const auto baseColorTexturePath = FabricUtil::joinPaths(dstMaterialPath, FabricTokens::baseColorTex);
-                createTexture(baseColorTexturePath, dstPath, FabricTokens::inputs_base_color_texture);
-                _allPaths.push_back(baseColorTexturePath);
-                _baseColorTexturePaths.push_back(baseColorTexturePath);
-            }
-        }
-    }
-}
-
 void FabricMaterial::createMaterial(const omni::fabric::Path& materialPath) {
     auto srw = UsdUtil::getFabricStageReaderWriter();
     srw.createPrim(materialPath);
@@ -221,19 +194,11 @@ void FabricMaterial::createTexture(
     FabricAttributesBuilder attributes;
 
     // clang-format off
-    attributes.addAttribute(FabricTypes::inputs_offset, FabricTokens::inputs_offset);
-    attributes.addAttribute(FabricTypes::inputs_rotation, FabricTokens::inputs_rotation);
-    attributes.addAttribute(FabricTypes::inputs_scale, FabricTokens::inputs_scale);
-    attributes.addAttribute(FabricTypes::inputs_tex_coord_index, FabricTokens::inputs_tex_coord_index);
-    attributes.addAttribute(FabricTypes::inputs_texture, FabricTokens::inputs_texture);
-    attributes.addAttribute(FabricTypes::inputs_wrap_s, FabricTokens::inputs_wrap_s);
-    attributes.addAttribute(FabricTypes::inputs_wrap_t, FabricTokens::inputs_wrap_t);
-    attributes.addAttribute(FabricTypes::inputs_excludeFromWhiteMode, FabricTokens::inputs_excludeFromWhiteMode);
+    attributes.addAttribute(FabricTypes::inputs_textures, FabricTokens::inputs_textures);
     attributes.addAttribute(FabricTypes::outputs_out, FabricTokens::outputs_out);
     attributes.addAttribute(FabricTypes::info_implementationSource, FabricTokens::info_implementationSource);
     attributes.addAttribute(FabricTypes::info_mdl_sourceAsset, FabricTokens::info_mdl_sourceAsset);
     attributes.addAttribute(FabricTypes::info_mdl_sourceAsset_subIdentifier, FabricTokens::info_mdl_sourceAsset_subIdentifier);
-    attributes.addAttribute(FabricTypes::_paramColorSpace, FabricTokens::_paramColorSpace);
     attributes.addAttribute(FabricTypes::_sdrMetadata, FabricTokens::_sdrMetadata);
     attributes.addAttribute(FabricTypes::Shader, FabricTokens::Shader);
     attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
@@ -241,31 +206,24 @@ void FabricMaterial::createTexture(
 
     attributes.createAttributes(texturePath);
 
-    // _paramColorSpace is an array of pairs: [texture_parameter_token, color_space_enum], [texture_parameter_token, color_space_enum], ...
-    srw.setArrayAttributeSize(texturePath, FabricTokens::_paramColorSpace, 2);
+    srw.setArrayAttributeSize(texturePath, FabricTokens::inputs_textures, 2);
     srw.setArrayAttributeSize(texturePath, FabricTokens::_sdrMetadata, 0);
 
     // clang-format off
-    auto inputsExcludeFromWhiteModeFabric = srw.getAttributeWr<bool>(texturePath, FabricTokens::inputs_excludeFromWhiteMode);
     auto infoImplementationSourceFabric = srw.getAttributeWr<omni::fabric::Token>(texturePath, FabricTokens::info_implementationSource);
     auto infoMdlSourceAssetFabric = srw.getAttributeWr<omni::fabric::AssetPath>(texturePath, FabricTokens::info_mdl_sourceAsset);
     auto infoMdlSourceAssetSubIdentifierFabric = srw.getAttributeWr<omni::fabric::Token>(texturePath, FabricTokens::info_mdl_sourceAsset_subIdentifier);
-    auto paramColorSpaceFabric = srw.getArrayAttributeWr<omni::fabric::Token>(texturePath, FabricTokens::_paramColorSpace);
     // clang-format on
 
     // For some reason, when a material network has both cesium nodes and glTF nodes it causes an infinite loop of
     // material loading. If this material is initialized from a tileset material use the cesium wrapper nodes instead.
-    const auto& custom = _materialDefinition.hasTilesetMaterial();
-    const auto& assetPath = custom ? Context::instance().getCesiumMdlPathToken() : UsdTokens::gltf_pbr_mdl;
-    const auto& subIdentifier = custom ? FabricTokens::cesium_texture_lookup : FabricTokens::gltf_texture_lookup;
+    const auto& assetPath = Context::instance().getCesiumMdlPathToken();
+    const auto& subIdentifier = FabricTokens::cesium_read_from_texture_array;
 
-    *inputsExcludeFromWhiteModeFabric = false;
     *infoImplementationSourceFabric = FabricTokens::sourceAsset;
     infoMdlSourceAssetFabric->assetPath = assetPath;
     infoMdlSourceAssetFabric->resolvedPath = pxr::TfToken();
     *infoMdlSourceAssetSubIdentifierFabric = subIdentifier;
-    paramColorSpaceFabric[0] = FabricTokens::inputs_texture;
-    paramColorSpaceFabric[1] = FabricTokens::_auto;
 
     // Create connection from shader to texture.
     srw.createConnection(
@@ -329,36 +287,18 @@ void FabricMaterial::setTextureValues(
     const omni::fabric::Path& texturePath,
     const pxr::TfToken& textureAssetPathToken,
     const TextureInfo& textureInfo) {
+
+    (void)textureAssetPathToken;
+    (void)textureInfo;
+
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
-    auto offset = textureInfo.offset;
-    auto rotation = textureInfo.rotation;
-    auto scale = textureInfo.scale;
+    auto texturesFabric = srw.getArrayAttributeWr<omni::fabric::AssetPath>(texturePath, FabricTokens::inputs_textures);
 
-    if (!textureInfo.flipVertical) {
-        // gltf/pbr.mdl does texture transform math in glTF coordinates (top-left origin), so we needed to convert
-        // the translation and scale parameters to work in that space. This doesn't handle rotation yet because we
-        // haven't needed it for imagery layers.
-        offset = {offset.x, 1.0 - offset.y - scale.y};
-        scale = {scale.x, scale.y};
-    }
-
-    auto textureFabric = srw.getAttributeWr<omni::fabric::AssetPath>(texturePath, FabricTokens::inputs_texture);
-    auto texCoordIndexFabric = srw.getAttributeWr<int>(texturePath, FabricTokens::inputs_tex_coord_index);
-    auto wrapSFabric = srw.getAttributeWr<int>(texturePath, FabricTokens::inputs_wrap_s);
-    auto wrapTFabric = srw.getAttributeWr<int>(texturePath, FabricTokens::inputs_wrap_t);
-    auto offsetFabric = srw.getAttributeWr<pxr::GfVec2f>(texturePath, FabricTokens::inputs_offset);
-    auto rotationFabric = srw.getAttributeWr<float>(texturePath, FabricTokens::inputs_rotation);
-    auto scaleFabric = srw.getAttributeWr<pxr::GfVec2f>(texturePath, FabricTokens::inputs_scale);
-
-    textureFabric->assetPath = textureAssetPathToken;
-    textureFabric->resolvedPath = pxr::TfToken();
-    *texCoordIndexFabric = static_cast<int>(textureInfo.setIndex);
-    *wrapSFabric = textureInfo.wrapS;
-    *wrapTFabric = textureInfo.wrapT;
-    *offsetFabric = UsdUtil::glmToUsdVector(glm::fvec2(offset));
-    *rotationFabric = static_cast<float>(rotation);
-    *scaleFabric = UsdUtil::glmToUsdVector(glm::fvec2(scale));
+    texturesFabric[0].assetPath = _textureAssetPathTokenRed;
+    texturesFabric[0].resolvedPath = pxr::TfToken();
+    texturesFabric[1].assetPath = _textureAssetPathTokenRed;
+    texturesFabric[1].resolvedPath = pxr::TfToken();
 }
 
 bool FabricMaterial::stageDestroyed() {

@@ -36,7 +36,6 @@ class FabricMaterial {
 
   private:
     void initialize();
-    void initializeFromExistingMaterial(const omni::fabric::Path& path);
 
     void createMaterial(const omni::fabric::Path& materialPath);
     void createShader(const omni::fabric::Path& shaderPath, const omni::fabric::Path& materialPath);
