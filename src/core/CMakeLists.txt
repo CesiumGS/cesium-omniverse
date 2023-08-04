@@ -55,6 +55,7 @@ setup_lib(
         uriparser
         webpdecoder
         turbojpeg
+        meshoptimizer
         cpr::cpr
         stb::stb
         ZLIB::ZLIB
@@ -83,7 +84,6 @@ setup_lib(
         boost_python310
         tbb
         carb
-        cudart
         omni_kit
         omni_ui
         pybind11

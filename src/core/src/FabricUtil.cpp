@@ -607,11 +607,6 @@ FabricStatistics getStatistics() {
 }
 
 void destroyPrim(const omni::fabric::Path& path) {
-    // Only delete prims if there's still a stage to delete them from
-    if (!UsdUtil::hasStage()) {
-        return;
-    }
-
     auto srw = UsdUtil::getFabricStageReaderWriter();
     srw.destroyPrim(path);
 

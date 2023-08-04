@@ -46,10 +46,13 @@ class FabricResourceManager {
         bool hasImagery,
         const pxr::SdfPath& materialPath) const;
 
-    std::shared_ptr<FabricGeometry>
-    acquireGeometry(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, bool smoothNormals);
+    std::shared_ptr<FabricGeometry> acquireGeometry(
+        const CesiumGltf::Model& model,
+        const CesiumGltf::MeshPrimitive& primitive,
+        bool smoothNormals,
+        long stageId);
 
-    std::shared_ptr<FabricMaterial> acquireMaterial(const MaterialInfo& materialInfo, bool hasImagery);
+    std::shared_ptr<FabricMaterial> acquireMaterial(const MaterialInfo& materialInfo, bool hasImagery, long stageId);
 
     std::shared_ptr<FabricTexture> acquireTexture();
 
@@ -77,6 +80,12 @@ class FabricResourceManager {
     std::shared_ptr<FabricGeometryPool> getGeometryPool(const FabricGeometryDefinition& geometryDefinition);
     std::shared_ptr<FabricMaterialPool> getMaterialPool(const FabricMaterialDefinition& materialDefinition);
     std::shared_ptr<FabricTexturePool> getTexturePool();
+
+    std::shared_ptr<FabricGeometryPool>
+    createGeometryPool(const FabricGeometryDefinition& geometryDefinition, long stageId);
+    std::shared_ptr<FabricMaterialPool>
+    createMaterialPool(const FabricMaterialDefinition& materialDefinition, long stageId);
+    std::shared_ptr<FabricTexturePool> createTexturePool();
 
     int64_t getNextGeometryId();
     int64_t getNextMaterialId();

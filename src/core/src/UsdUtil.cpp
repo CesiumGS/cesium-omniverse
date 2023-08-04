@@ -29,19 +29,23 @@ pxr::UsdStageRefPtr getUsdStage() {
     return Context::instance().getStage();
 }
 
+long getUsdStageId() {
+    return Context::instance().getStageId();
+}
+
 omni::fabric::StageReaderWriter getFabricStageReaderWriter() {
     return Context::instance().getFabricStageReaderWriter();
 }
 
 omni::fabric::StageReaderWriterId getFabricStageReaderWriterId() {
     const auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
-    const auto stageId = Context::instance().getStageId();
+    const auto stageId = getUsdStageId();
     const auto stageReaderWriterId = iStageReaderWriter->get(omni::fabric::UsdStageId{static_cast<uint64_t>(stageId)});
     return stageReaderWriterId;
 }
 
 bool hasStage() {
-    return Context::instance().getStageId() != 0;
+    return getUsdStageId() != 0;
 }
 
 glm::dvec3 usdToGlmVector(const pxr::GfVec3d& vector) {

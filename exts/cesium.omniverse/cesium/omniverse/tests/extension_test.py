@@ -1,5 +1,9 @@
 import omni.kit.test
 import omni.kit.ui_test as ui_test
+import omni.usd
+import pxr.Usd
+
+import cesium.usd
 from typing import Optional
 
 
@@ -25,3 +29,19 @@ class ExtensionTest(omni.kit.test.AsyncTestCase):
         await _window_ref.focus()
         await ui_test.wait_n_updates(4)
         self.assertTrue(_window_ref.window.docked)
+
+    async def test_blank_tileset(self):
+        global _window_ref
+
+        blankTilesetButton = _window_ref.find("**/Button[*].text=='Blank 3D Tiles Tileset'")
+        self.assertIsNotNone(blankTilesetButton)
+
+        stage: pxr.Usd.Stage = omni.usd.get_context().get_stage()
+        self.assertIsNotNone(stage)
+
+        self.assertFalse(any([i.IsA(cesium.usd.plugins.CesiumUsdSchemas.Tileset) for i in stage.Traverse()]))
+
+        await blankTilesetButton.click()
+
+        await ui_test.wait_n_updates(2)  # passes without, but seems prudent
+        self.assertTrue(any([i.IsA(cesium.usd.plugins.CesiumUsdSchemas.Tileset) for i in stage.Traverse()]))

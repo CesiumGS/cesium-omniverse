@@ -59,6 +59,7 @@ class ScopedEdit {
 static const auto GEOREFERENCE_PATH = pxr::SdfPath("/CesiumGeoreference");
 
 pxr::UsdStageRefPtr getUsdStage();
+long getUsdStageId();
 omni::fabric::StageReaderWriter getFabricStageReaderWriter();
 omni::fabric::StageReaderWriterId getFabricStageReaderWriterId();
 

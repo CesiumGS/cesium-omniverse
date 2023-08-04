@@ -68,9 +68,10 @@ class FabricPrepareRenderResources final : public Cesium3DTilesSelection::IPrepa
         const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
         void* pMainThreadRendererResources) noexcept override;
 
-  private:
     [[nodiscard]] bool tilesetExists() const;
+    void detachTileset();
 
-    const OmniTileset& _tileset;
+  private:
+    const OmniTileset* _tileset;
 };
 } // namespace cesium::omniverse
