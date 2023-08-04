@@ -61,6 +61,12 @@ class FabricMaterial {
     std::vector<omni::fabric::Path> _shaderPaths;
     std::vector<omni::fabric::Path> _baseColorTexturePaths;
     std::vector<omni::fabric::Path> _allPaths;
+
+    std::unique_ptr<omni::ui::DynamicTextureProvider> _textureRed;
+    std::unique_ptr<omni::ui::DynamicTextureProvider> _textureBlue;
+
+    pxr::TfToken _textureAssetPathTokenRed;
+    pxr::TfToken _textureAssetPathTokenBlue;
 };
 
 } // namespace cesium::omniverse

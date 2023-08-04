@@ -1,5 +1,7 @@
 #include "cesium/omniverse/FabricMaterial.h"
 
+#include "omni/ui/ImageProvider/DynamicTextureProvider.h"
+
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/FabricAttributesBuilder.h"
 #include "cesium/omniverse/FabricUtil.h"
@@ -21,16 +23,28 @@ FabricMaterial::FabricMaterial(
     , _defaultTextureAssetPathToken(defaultTextureAssetPathToken)
     , _stageId(stageId) {
 
+    const auto textureNameRed = "red";
+    const auto textureNameBlue = "blue";
+
+    _textureRed = std::make_unique<omni::ui::DynamicTextureProvider>(textureNameRed);
+    _textureBlue = std::make_unique<omni::ui::DynamicTextureProvider>(textureNameBlue);
+
+    const auto bytesRed = std::array<uint8_t, 4>{{255, 0, 0, 255}};
+    const auto bytesBlue = std::array<uint8_t, 4>{{0, 0, 255, 255}};
+
+    const auto size = carb::Uint2{1, 1};
+
+    _textureRed->setBytesData(bytesRed.data(), size, omni::ui::kAutoCalculateStride, carb::Format::eRGBA8_SRGB);
+    _textureBlue->setBytesData(bytesBlue.data(), size, omni::ui::kAutoCalculateStride, carb::Format::eRGBA8_SRGB);
+
+    _textureAssetPathTokenRed = UsdUtil::getDynamicTextureProviderAssetPathToken(textureNameRed);
+    _textureAssetPathTokenBlue = UsdUtil::getDynamicTextureProviderAssetPathToken(textureNameBlue);
+
     if (stageDestroyed()) {
         return;
     }
 
-    if (materialDefinition.hasTilesetMaterial()) {
-        const auto tilesetMaterialPath = FabricUtil::toFabricPath(materialDefinition.getTilesetMaterialPath());
-        initializeFromExistingMaterial(tilesetMaterialPath);
-    } else {
-        initialize();
-    }
+    initialize();
 
     reset();
 }
