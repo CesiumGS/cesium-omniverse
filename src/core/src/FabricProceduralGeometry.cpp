@@ -622,14 +622,7 @@ extern "C" __global__ void lookAtMultiquadKernel(quad** quads, double3* lookatPo
 
     int quadIndex = static_cast<int>(i);
 
-    // DEBUG
-    // lookatPosition->x = 4; lookatPosition->y = 4; lookatPosition->z = 0;
-    // lookatUp->x = 0; lookatUp->y = 1; lookatUp->z = 0;
-
-
-    // printf("(kernel) numQuads: %d\n", numQuads);
-
-    float3 targetUpN = normalize(*lookatUp); //TODO: handle this at CPU level
+    float3 targetUpN = *lookatUp;
     float3 quadCenter = quads[0][quadIndex].getCenter();
     double3 quadCenterD = make_double3(static_cast<double>(quadCenter.x), static_cast<double>(quadCenter.y) , static_cast<double>(quadCenter.z));
     double3 newQuadForwardDouble = subtractDouble3(*lookatPosition, quadCenterD);
@@ -641,7 +634,6 @@ extern "C" __global__ void lookAtMultiquadKernel(quad** quads, double3* lookatPo
     float3 newQuadRightN;
     float3 newQuadUpN;
 
-    // printf("targetUpN: %f, %f, %f\n", targetUpN.x, targetUpN.y, targetUpN.z);
     if (almostEquals(newQuadForwardN, targetUpN)) {
         //directly beneath the camera, no op
         printf("directly beneath camera, no op. returning\n");
@@ -662,7 +654,6 @@ extern "C" __global__ void lookAtMultiquadKernel(quad** quads, double3* lookatPo
     float3 newQuadUR = addFloat3(rotatedUR, quadCenter);
     float3 newQuadLL = addFloat3(rotatedLL, quadCenter);
     float3 newQuadLR = addFloat3(rotatedLR, quadCenter);
-
 
     quads[0][quadIndex].upperLeft = newQuadUL;
     quads[0][quadIndex].upperRight = newQuadUR;
@@ -727,7 +718,7 @@ int createPrims() {
 
     // createQuadsViaFabric(80000, 1000.f);
     // createMultiquadViaFabric();
-    createMultiquadMeshViaFabric2(20);
+    createMultiquadMeshViaFabric2(500);
     // createSingleQuad(pxr::GfVec3f(3.f, -3.f, 0), 2);
     // createSingleQuad(pxr::GfVec3f(3.f, 3.f, -3.0f), 2);
 
@@ -736,7 +727,7 @@ int createPrims() {
 
 int alterPrims(double cameraPositionX, double cameraPositionY, double cameraPositionZ,
     float cameraUpX, float cameraUpY, float cameraUpZ) {
-    printf("camera position is %lf, %lf, %lf\n", cameraPositionX, cameraPositionY, cameraPositionZ);
+    // printf("camera position is %lf, %lf, %lf\n", cameraPositionX, cameraPositionY, cameraPositionZ);
 
     //DEBUG
     // cameraPositionX = 4;
@@ -744,9 +735,6 @@ int alterPrims(double cameraPositionX, double cameraPositionY, double cameraPosi
     // cameraPositionZ = 0;
 
     //trick clang
-    printf("dummy %f\n", cameraUpX);
-    printf("dummy %f\n", cameraUpY);
-    printf("dummy %f\n", cameraUpZ);
 
     auto cameraPositionf = glm::fvec3(
         static_cast<float>(cameraPositionX),
@@ -2786,7 +2774,7 @@ void billboardMultiquadWithCustomAttrViaFabric() {
         std::cout << "sizeofFloat3 " << sizeof(float3) << std::endl;
 
         auto quadsPtr = reinterpret_cast<quad*>(positions[0]->data());
-        std::cout << "(host) numQuads: " << numQuads << std::endl;
+        // std::cout << "(host) numQuads: " << numQuads << std::endl;
 
         for (int quadNum = 0; quadNum < numQuads; quadNum++) {
             printf("quad %d lowerLeft: %f, %f, %f\n", quadNum,
@@ -3325,16 +3313,24 @@ void CudaRunner::init(const char* kernelCodeDEBUG, const char* kernelFunctionNam
     _initted = true;
 }
 
-int animatePrims(float deltaTime) {
+int animatePrims(float deltaTime, double cameraPositionX, double cameraPositionY, double cameraPositionZ,
+        float cameraUpX, float cameraUpY, float cameraUpZ) {
     // std::cout << "animating " << deltaTime << std::endl;
-    const float speed = 1.5f;
-    const float radius = 600.f;
-    alterPrims(0, 0, 0, 0, 0, 0); // TODO: no dummy vars
+    // const float speed = 1.5f;
+    // const float radius = 600.f;
+    alterPrims(cameraPositionX, cameraPositionY, cameraPositionZ, cameraUpX, cameraUpY, cameraUpZ); // TODO: no dummy vars
     elapsedTime += deltaTime;
-    lookatPositionHost.x = sin(elapsedTime * speed) * radius;
-    // std::cout << "x: " << lookatPositionHost.x << std::endl;
-    lookatPositionHost.y = sin(elapsedTime * speed * .93f) * radius;
-    lookatPositionHost.z = sin(elapsedTime * speed * 1.27f) * radius;
+    lookatPositionHost.x = cameraPositionX;
+    lookatPositionHost.y = cameraPositionY;
+    lookatPositionHost.z = cameraPositionZ;
+    lookatUpHost.x = cameraUpX;
+    lookatUpHost.y = cameraUpY;
+    lookatUpHost.z = cameraUpZ;
+
+    // lookatPositionHost.x = sin(elapsedTime * speed) * radius;
+    // // std::cout << "x: " << lookatPositionHost.x << std::endl;
+    // lookatPositionHost.y = sin(elapsedTime * speed * .93f) * radius;
+    // lookatPositionHost.z = sin(elapsedTime * speed * 1.27f) * radius;
     return 0;
 }
 
@@ -3780,7 +3776,7 @@ void billboardMultiQuadCuda(glm::fvec3 lookatPosition, glm::fvec3 lookatUp) {
         auto numQuadsSpan = stageReaderWriter.getAttributeArray<int>(bucketList, bucketNum, getNumQuadsAttributeFabricToken());
         int numQuads = numQuadsSpan[0];
         auto quadsPtr = reinterpret_cast<quad*>(positions.data());
-        std::cout << "(host) numQuads: " << numQuads << std::endl;
+        // std::cout << "(host) numQuads: " << numQuads << std::endl;
 
         // for (int quadNum = 0; quadNum < numQuads; quadNum++) {
         //     printf("quad %d lowerLeft: %f, %f, %f\n", quadNum,
@@ -3793,7 +3789,7 @@ void billboardMultiQuadCuda(glm::fvec3 lookatPosition, glm::fvec3 lookatUp) {
         if (elemCount == 0) {
             throw std::runtime_error("Fabric did not retrieve any elements");
         }
-        std::cout << elemCount << std::endl;
+        // std::cout << elemCount << std::endl;
         void *args[] = { &quadsPtr, &lookatPositionDevice, &lookatUpDevice, &elemCount}; //NOLINT
 
         cudaRunner.runKernel(args, static_cast<size_t>(elemCount));

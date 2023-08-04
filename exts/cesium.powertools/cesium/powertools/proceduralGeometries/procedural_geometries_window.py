@@ -47,24 +47,10 @@ class ProceduralGeometryWindow(ui.Window):
         camera_path = viewport.get_active_camera()
         camera = UsdGeom.Camera.Get(stage, camera_path)
         xform = UsdGeom.Xformable(camera)
-        # print(f"xform is {type(xform)}")
         time = Usd.TimeCode.Default()  # The time at which we compute the bounding box
         world_transform: Gf.Matrix4d = xform.ComputeLocalToWorldTransform(time)
-
-        # print("Matrix:")
-        # for i in range(4):
-        #     row = [0 if abs(world_transform[i][j]) < 0.00001 else world_transform[i][j] for j in range(4)]
-        #     print(" ".join(map(str, row)))
-
         translation: Gf.Vec3d = world_transform.ExtractTranslation()
-
         up_vector = Gf.Vec3f(world_transform[1][0], world_transform[1][1], world_transform[1][2])
-
-        # print("Up vector:", up_vector)
-
-
-        # self._logger.info(f"got translation: {translation}")
-        # self._logger.info(f"get up vector {up_vector}")
 
         return_val = self._cesium_omniverse_interface.alter_procedural_prims(
             translation[0], translation[1], translation[2],
@@ -102,9 +88,18 @@ class ProceduralGeometryWindow(ui.Window):
         )
 
     def _on_update_frame(self, _):
-        current_time = time.time()
-        elapsed = current_time - self._last_time
-        self._last_time = current_time
-        self._cesium_omniverse_interface.animate_procedural_prims(elapsed)
+        time = Usd.TimeCode.Default()  # The time at which we compute the bounding box
+        # current_time = time.time()
+        # elapsed = current_time - self._last_time
+        # self._last_time = current_time
 
+        stage = omni.usd.get_context().get_stage()
+        viewport = get_active_viewport()
+        camera_path = viewport.get_active_camera()
+        camera = UsdGeom.Camera.Get(stage, camera_path)
+        xform = UsdGeom.Xformable(camera)
+        world_transform: Gf.Matrix4d = xform.ComputeLocalToWorldTransform(time)
+        translation: Gf.Vec3d = world_transform.ExtractTranslation()
+        up_vector = Gf.Vec3f(world_transform[1][0], world_transform[1][1], world_transform[1][2])
 
+        self._cesium_omniverse_interface.animate_procedural_prims(0, translation[0], translation[1], translation[2], up_vector[0], up_vector[1], up_vector[2])

@@ -204,8 +204,11 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
         return val;
     }
 
-    int animateProceduralPrims(float deltaTime) noexcept override {
-        auto val = cesium::omniverse::FabricProceduralGeometry::animatePrims(deltaTime);
+    int animateProceduralPrims(float deltaTime, double cameraPositionX, double cameraPositionY, double cameraPositionZ,
+        float cameraUpX, float cameraUpY, float cameraUpZ) noexcept override {
+        auto val = cesium::omniverse::FabricProceduralGeometry::animatePrims(
+            deltaTime, cameraPositionX, cameraPositionY, cameraPositionZ,
+            cameraUpX, cameraUpY, cameraUpZ);
         return val;
     }
 

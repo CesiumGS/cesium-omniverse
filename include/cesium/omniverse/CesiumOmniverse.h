@@ -249,7 +249,8 @@ class ICesiumOmniverseInterface {
     virtual int alterProceduralPrims(
         double cameraPositionX, double cameraPositionY, double cameraPositionZ,
         float cameraUpX, float cameraUpY, float cameraUpZ) noexcept = 0;
-    virtual int animateProceduralPrims(float deltaTime) noexcept = 0;
+    virtual int animateProceduralPrims(float deltaTime, double cameraPositionX, double cameraPositionY, double cameraPositionZ,
+        float cameraUpX, float cameraUpY, float cameraUpZ) noexcept = 0;
 };
 
 } // namespace cesium::omniverse
