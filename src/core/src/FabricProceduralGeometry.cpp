@@ -23,7 +23,10 @@
 
 #include <pxr/usd/usd/prim.h>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <stdexcept>
+#include <string>
 #include <omni/gpucompute/GpuCompute.h>
 #include "pxr/usd/usdGeom/mesh.h"
 #include "pxr/usd/usdGeom/xform.h"
@@ -718,7 +721,8 @@ int createPrims() {
 
     // createQuadsViaFabric(80000, 1000.f);
     // createMultiquadViaFabric();
-    createMultiquadMeshViaFabric2(500);
+    // createMultiquadMeshViaFabric2(500);
+    createMultiquadFromPtsFile("pointCloudData/pump0.pts");
     // createSingleQuad(pxr::GfVec3f(3.f, -3.f, 0), 2);
     // createSingleQuad(pxr::GfVec3f(3.f, 3.f, -3.0f), 2);
 
@@ -3982,5 +3986,138 @@ void printMultiquadPointsWithCuda() {
         cudaRunner.runKernel(args, static_cast<size_t>(elemCount));
     }
 }
+
+void createMultiquadFromPtsFile(const std::string &ptsFile) {
+    std::vector<pxr::GfVec3f> points;
+    std::ifstream file(ptsFile);
+
+    if (!file.is_open()) {
+        std::cerr << "Error opening file: " << ptsFile << std::endl;
+        return;
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+        std::istringstream ss(line);
+        float x, y, z;
+        if (!(ss >> x >> y >> z)) {
+            std::cerr << "Error reading line: " << line << std::endl;
+            continue;
+        }
+        points.emplace_back(x, y, z);
+    }
+
+    file.close();
+
+    const auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+    const auto usdStageId = omni::fabric::UsdStageId{static_cast<uint64_t>(cesium::omniverse::Context::instance().getStageId())};
+    const auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
+    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+
+    const std::string primPathStub{"/multiquadMesh"};
+    const auto fabricPath = omni::fabric::Path((primPathStub + std::to_string(0)).c_str());
+    stageReaderWriter.createPrim(fabricPath);
+
+    FabricAttributesBuilder attributes;
+    attributes.addAttribute(FabricTypes::faceVertexCounts, FabricTokens::faceVertexCounts);
+    attributes.addAttribute(FabricTypes::faceVertexIndices, FabricTokens::faceVertexIndices);
+    attributes.addAttribute(FabricTypes::points, FabricTokens::points);
+    attributes.addAttribute(FabricTypes::Mesh, FabricTokens::Mesh);
+    attributes.addAttribute(FabricTypes::extent, FabricTokens::extent);
+    attributes.addAttribute(FabricTypes::_worldExtent, FabricTokens::_worldExtent);
+    attributes.addAttribute(FabricTypes::_worldVisibility, FabricTokens::_worldVisibility);
+    attributes.addAttribute(FabricTypes::primvars_displayColor, FabricTokens::primvars_displayColor);
+    attributes.addAttribute(FabricTypes::_worldPosition, FabricTokens::_worldPosition);
+    attributes.addAttribute(FabricTypes::_worldOrientation, FabricTokens::_worldOrientation);
+    // attributes.addAttribute(FabricTypes::_worldScale, FabricTokens::_worldScale);
+    attributes.createAttributes(fabricPath);
+
+    auto numQuads = points.size();
+    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::points, static_cast<size_t>(numQuads * 4));
+    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::faceVertexCounts, numQuads * 4 * 2);
+    auto pointsFabric =
+        stageReaderWriter.getArrayAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::points);
+    auto faceVertexCountsFabric =
+        stageReaderWriter.getArrayAttributeWr<int>(fabricPath, FabricTokens::faceVertexCounts);
+    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::faceVertexIndices, numQuads * 4 * 2 * 3);
+    auto faceVertexIndicesFabric =
+        stageReaderWriter.getArrayAttributeWr<int>(fabricPath, FabricTokens::faceVertexIndices);
+
+    glm::dvec3 extentsMin{std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max()};
+    glm::dvec3 extentsMax{std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest()};
+
+    size_t vertIndex = 0;
+    size_t vertexCountsIndex = 0;
+    size_t faceVertexIndex = 0;
+    size_t quadCounter = 0;
+    const float quadHalfSize = 0.1f;
+    for (size_t quadNum = 0; quadNum < numQuads; quadNum++) {
+            //verts
+            pxr::GfVec3f quadShift = points[quadNum];
+            pointsFabric[vertIndex++] = pxr::GfVec3f{-quadHalfSize, -quadHalfSize, 0} + quadShift;
+            pointsFabric[vertIndex++] = pxr::GfVec3f{-quadHalfSize, quadHalfSize, 0} + quadShift;
+            pointsFabric[vertIndex++] = pxr::GfVec3f{quadHalfSize, quadHalfSize, 0} + quadShift;
+            pointsFabric[vertIndex++] = pxr::GfVec3f{quadHalfSize, -quadHalfSize, 0} + quadShift;
+
+            //vert counts
+            faceVertexCountsFabric[vertexCountsIndex++] = 3;
+            faceVertexCountsFabric[vertexCountsIndex++] = 3;
+
+            //vert indices
+            faceVertexIndicesFabric[faceVertexIndex++] = 0 + static_cast<int>(quadCounter * 4);
+            faceVertexIndicesFabric[faceVertexIndex++] = 1 + static_cast<int>(quadCounter * 4);
+            faceVertexIndicesFabric[faceVertexIndex++] = 2 + static_cast<int>(quadCounter * 4);
+            faceVertexIndicesFabric[faceVertexIndex++] = 0 + static_cast<int>(quadCounter * 4);
+            faceVertexIndicesFabric[faceVertexIndex++] = 2 + static_cast<int>(quadCounter * 4);
+            faceVertexIndicesFabric[faceVertexIndex++] = 3 + static_cast<int>(quadCounter * 4);
+            quadCounter++;
+
+            extentsMin.x = fmin(extentsMin.x, -quadHalfSize + quadShift[0]);
+            extentsMin.y = fmin(extentsMin.y, -quadHalfSize + quadShift[1]);
+            extentsMin.z = fmin(extentsMin.z, quadShift[2]);
+            extentsMax.x = fmax(extentsMax.x, quadHalfSize + quadShift[0]);
+            extentsMax.y = fmax(extentsMax.y, quadHalfSize + quadShift[1]);
+            extentsMax.z = fmax(extentsMax.z, quadShift[2]);
+    }
+
+    auto extent = pxr::GfRange3d(
+        pxr::GfVec3d(extentsMin[0], extentsMin[1], extentsMin[2]),
+        pxr::GfVec3d(extentsMax[0], extentsMax[1], extentsMax[2]));
+    auto extentFabric = stageReaderWriter.getAttributeWr<pxr::GfRange3d>(fabricPath, FabricTokens::extent);
+    *extentFabric = extent;
+
+    auto worldExtentFabric = stageReaderWriter.getAttributeWr<pxr::GfRange3d>(fabricPath, FabricTokens::_worldExtent);
+    *worldExtentFabric = pxr::GfRange3d(pxr::GfVec3d(0.0, 0.0, 0.0), pxr::GfVec3d(0.0, 0.0, 0.0));
+
+    auto worldVisibilityFabric = stageReaderWriter.getAttributeWr<bool>(fabricPath, FabricTokens::_worldVisibility);
+    *worldVisibilityFabric = true;
+
+    //TODO: center of mass of point cloud?
+    auto worldPositionFabric = stageReaderWriter.getAttributeWr<pxr::GfVec3d>(fabricPath, FabricTokens::_worldPosition);
+    *worldPositionFabric = pxr::GfVec3d(0.0, 0.0, 0.0);
+
+    auto worldOrientationFabric = stageReaderWriter.getAttributeWr<pxr::GfQuatf>(fabricPath, FabricTokens::_worldOrientation);
+    *worldOrientationFabric = pxr::GfQuatf(0.f, 0, 0, 0);
+
+    // auto worldScaleFabric = stageReaderWriter.getAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::_worldScale);
+    // *worldScaleFabric = pxr::GfVec3f(1.f, 1.f, 1.f);
+
+    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::primvars_displayColor, 1);
+    auto displayColors = stageReaderWriter.getArrayAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::primvars_displayColor);
+    displayColors[0] = pxr::GfVec3f(0.8f, 0.8f, 0.8f);
+
+    //create a custom attribute for testing
+    stageReaderWriter.createAttribute(fabricPath, getCudaTestAttributeFabricToken(), cudaTestAttributeFabricType);
+    auto testAttribute = stageReaderWriter.getAttributeWr<double>(fabricPath, getCudaTestAttributeFabricToken());
+    *testAttribute = 123.45;
+
+    //record number of quads (for testing purposes)
+    stageReaderWriter.createAttribute(fabricPath, getNumQuadsAttributeFabricToken(), numQuadsFabricType);
+    auto numQuadsAttribute = stageReaderWriter.getAttributeWr<int>(fabricPath, getNumQuadsAttributeFabricToken());
+    *numQuadsAttribute = static_cast<int>(numQuads);
+
+    return;
+}
+
 
 } // namespace cesium::omniverse::FabricProceduralGeometry
