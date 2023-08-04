@@ -31,12 +31,16 @@ kit = ["105.*"]
 [dependencies]
 "cesium.usd.plugins" = {}
 "usdrt.scenegraph" = {}
+"omni.ui" = {}
+"omni.usd" = {}
 "omni.ui.scene" = {}
 "omni.usd.libs" = {}
+"omni.kit.commands" = {}
 "omni.kit.pipapi" = {}
 "omni.kit.uiapp" = {}
 "omni.kit.viewport.utility" = {}
 "omni.kit.property.usd" = {}
+"omni.kit.menu.utils" = {}
 
 # Main python module this extension provides, it will be publicly available as "import cesium.omniverse"
 [[python.module]]
