@@ -1,6 +1,6 @@
 from .bindings import acquire_cesium_omniverse_interface, release_cesium_omniverse_interface, Viewport
 from .install import perform_vendor_install
-from .utils import wait_n_frames, dock_window_async
+from .utils import wait_n_frames, dock_window_async, perform_action_after_n_frames_async
 from .ui.asset_window import CesiumOmniverseAssetWindow
 from .ui.debug_window import CesiumOmniverseDebugWindow
 from .ui.main_window import CesiumOmniverseMainWindow
@@ -85,7 +85,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
 
         # Show the window. It will call `self.show_window`
         if show_on_startup:
-            ui.Workspace.show_window(CesiumOmniverseMainWindow.WINDOW_NAME)
+            asyncio.ensure_future(perform_action_after_n_frames_async(15, CesiumOmniverseExtension._open_window))
 
         self._credits_viewport_controller = CreditsViewportController(_cesium_omniverse_interface)
 
@@ -223,7 +223,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             # Show Fabric modal if Fabric is disabled.
             fabric_enabled = omni_settings.get_settings().get_as_bool("/app/useFabricSceneDelegate")
             if not fabric_enabled:
-                CesiumFabricModal()
+                asyncio.ensure_future(perform_action_after_n_frames_async(15, CesiumOmniverseExtension._open_modal))
         elif event.type == int(omni.usd.StageEventType.CLOSED):
             _cesium_omniverse_interface.on_stage_change(0)
             if self._attributes_widget_controller is not None:
@@ -413,3 +413,11 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         for credits_viewport_frame in self._credits_viewport_frames:
             credits_viewport_frame.destroy()
         self._credits_viewport_frames.clear()
+
+    @staticmethod
+    def _open_window():
+        ui.Workspace.show_window(CesiumOmniverseMainWindow.WINDOW_NAME)
+
+    @staticmethod
+    def _open_modal():
+        CesiumFabricModal()
