@@ -154,11 +154,13 @@ void FabricMaterial::createShader(const omni::fabric::Path& shaderPath, const om
     auto infoMdlSourceAssetSubIdentifierFabric = srw.getAttributeWr<omni::fabric::Token>(shaderPath, FabricTokens::info_mdl_sourceAsset_subIdentifier);
     // clang-format on
 
+    const auto& assetPath = Context::instance().getCesiumMdlPathToken();
+
     *inputsExcludeFromWhiteModeFabric = false;
     *infoImplementationSourceFabric = FabricTokens::sourceAsset;
-    infoMdlSourceAssetFabric->assetPath = UsdTokens::gltf_pbr_mdl;
+    infoMdlSourceAssetFabric->assetPath = assetPath;
     infoMdlSourceAssetFabric->resolvedPath = pxr::TfToken();
-    *infoMdlSourceAssetSubIdentifierFabric = FabricTokens::gltf_material;
+    *infoMdlSourceAssetSubIdentifierFabric = FabricTokens::cesium_material;
 
     if (hasVertexColors) {
         const auto vertexColorPrimvarNameSize = UsdTokens::vertexColor.GetString().size();
@@ -194,6 +196,7 @@ void FabricMaterial::createTexture(
     FabricAttributesBuilder attributes;
 
     // clang-format off
+    attributes.addAttribute(FabricTypes::inputs_texture, FabricTokens::inputs_texture);
     attributes.addAttribute(FabricTypes::inputs_textures, FabricTokens::inputs_textures);
     attributes.addAttribute(FabricTypes::outputs_out, FabricTokens::outputs_out);
     attributes.addAttribute(FabricTypes::info_implementationSource, FabricTokens::info_implementationSource);
@@ -293,11 +296,15 @@ void FabricMaterial::setTextureValues(
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
+    auto textureFabric = srw.getAttributeWr<omni::fabric::AssetPath>(texturePath, FabricTokens::inputs_texture);
     auto texturesFabric = srw.getArrayAttributeWr<omni::fabric::AssetPath>(texturePath, FabricTokens::inputs_textures);
+
+    textureFabric->assetPath = _textureAssetPathTokenRed;
+    textureFabric->resolvedPath = pxr::TfToken();
 
     texturesFabric[0].assetPath = _textureAssetPathTokenRed;
     texturesFabric[0].resolvedPath = pxr::TfToken();
-    texturesFabric[1].assetPath = _textureAssetPathTokenRed;
+    texturesFabric[1].assetPath = _textureAssetPathTokenBlue;
     texturesFabric[1].resolvedPath = pxr::TfToken();
 }
 

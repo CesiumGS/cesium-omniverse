@@ -17,6 +17,7 @@ TF_DEFINE_PRIVATE_TOKENS(
     UsdTokens,
     (baseColorTex)
     (cesium_base_color_texture)
+    (cesium_material)
     (cesium_read_from_texture_array)
     (cesium_texture_lookup)
     (constant)
@@ -92,6 +93,7 @@ __pragma(warning(pop))
 namespace cesium::omniverse::FabricTokens {
 const omni::fabric::TokenC baseColorTex = omni::fabric::asInt(pxr::UsdTokens->baseColorTex);
 const omni::fabric::TokenC cesium_base_color_texture = omni::fabric::asInt(pxr::UsdTokens->cesium_base_color_texture);
+const omni::fabric::TokenC cesium_material = omni::fabric::asInt(pxr::UsdTokens->cesium_material);
 const omni::fabric::TokenC cesium_read_from_texture_array = omni::fabric::asInt(pxr::UsdTokens->cesium_read_from_texture_array);
 const omni::fabric::TokenC cesium_texture_lookup = omni::fabric::asInt(pxr::UsdTokens->cesium_texture_lookup);
 const omni::fabric::TokenC constant = omni::fabric::asInt(pxr::UsdTokens->constant);
@@ -161,6 +163,7 @@ const omni::fabric::TokenC _worldVisibility = omni::fabric::asInt(pxr::UsdTokens
 namespace cesium::omniverse::UsdTokens {
 const pxr::TfToken& baseColorTex = pxr::UsdTokens->baseColorTex;
 const pxr::TfToken& cesium_base_color_texture = pxr::UsdTokens->cesium_base_color_texture;
+const pxr::TfToken& cesium_material = pxr::UsdTokens->cesium_material;
 const pxr::TfToken& cesium_read_from_texture_array = pxr::UsdTokens->cesium_read_from_texture_array;
 const pxr::TfToken& cesium_texture_lookup = pxr::UsdTokens->cesium_texture_lookup;
 const pxr::TfToken& constant = pxr::UsdTokens->constant;

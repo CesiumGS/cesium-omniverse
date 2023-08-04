@@ -8,6 +8,7 @@
 namespace cesium::omniverse::FabricTokens {
 extern const omni::fabric::TokenC baseColorTex;
 extern const omni::fabric::TokenC cesium_base_color_texture;
+extern const omni::fabric::TokenC cesium_material;
 extern const omni::fabric::TokenC cesium_read_from_texture_array;
 extern const omni::fabric::TokenC cesium_texture_lookup;
 extern const omni::fabric::TokenC constant;
@@ -77,6 +78,7 @@ extern const omni::fabric::TokenC _worldVisibility;
 namespace cesium::omniverse::UsdTokens {
 extern const pxr::TfToken& baseColorTex;
 extern const pxr::TfToken& cesium_base_color_texture;
+extern const pxr::TfToken& cesium_material;
 extern const pxr::TfToken& cesium_read_from_texture_array;
 extern const pxr::TfToken& cesium_texture_lookup;
 extern const pxr::TfToken& constant;
