@@ -622,21 +622,10 @@ extern "C" __global__ void lookAtMultiquadKernel(quad** quads, double3* lookatPo
 
     int quadIndex = static_cast<int>(i);
 
-    printf("(kernel) quadIndex: %d\n", quadIndex);
-
-    //DEBUG: initial quad positions
-    printf("Initial quad positions:\n");
-    printf("  ll: %f, %f, %f\n", quads[0][quadIndex].lowerLeft.x, quads[0][quadIndex].lowerLeft.y, quads[0][quadIndex].lowerLeft.z);
-    printf("  ul: %f, %f, %f\n", quads[0][quadIndex].upperLeft.x, quads[0][quadIndex].upperLeft.y, quads[0][quadIndex].upperLeft.z);
-    printf("  ur: %f, %f, %f\n", quads[0][quadIndex].upperRight.x, quads[0][quadIndex].upperRight.y, quads[0][quadIndex].upperRight.z);
-    printf("  lr: %f, %f, %f\n", quads[0][quadIndex].lowerRight.x, quads[0][quadIndex].lowerRight.y, quads[0][quadIndex].lowerRight.z);
-
     // DEBUG
     // lookatPosition->x = 4; lookatPosition->y = 4; lookatPosition->z = 0;
     // lookatUp->x = 0; lookatUp->y = 1; lookatUp->z = 0;
 
-    printf("(kernel) lookAtPosition is (%lf, %lf, %lf)\n", lookatPosition->x, lookatPosition->y, lookatPosition->z);
-    printf("(kernel) lookatUp is (%f, %f, %f)\n", lookatUp->x, lookatUp->y, lookatUp->z);
 
     // printf("(kernel) numQuads: %d\n", numQuads);
 
@@ -662,15 +651,10 @@ extern "C" __global__ void lookAtMultiquadKernel(quad** quads, double3* lookatPo
         newQuadUpN = normalize(cross(newQuadRightN, newQuadForward));
     }
 
-    printf("newQuadRightN: %f, %f, %f\n", newQuadRightN.x, newQuadRightN.y, newQuadRightN.z);
-    printf("newQuadForwardN: %f, %f, %f\n", newQuadForwardN.x, newQuadForwardN.y, newQuadForwardN.z);
-    printf("newQuadUpN: %f, %f, %f\n", newQuadUpN.x, newQuadUpN.y, newQuadUpN.z);
-
     mat3 translationMatrix = {newQuadRightN, newQuadUpN, newQuadForwardN};
 
     //untransformed quad points are assumed to be in XY plane
     float3 rotatedLL = translationMatrix.multiply(make_float3(-1.0f, -1.0f, 0));
-    printf("rotatedLL: %f, %f, %f\n", rotatedLL.x, rotatedLL.y, rotatedLL.z);
     float3 rotatedUL = translationMatrix.multiply(make_float3(-1.0f, 1.0f, 0));
     float3 rotatedUR = translationMatrix.multiply(make_float3(1.0f, 1.0f, 0));
     float3 rotatedLR = translationMatrix.multiply(make_float3(1.0f, -1.0f, 0));
@@ -684,12 +668,6 @@ extern "C" __global__ void lookAtMultiquadKernel(quad** quads, double3* lookatPo
     quads[0][quadIndex].upperRight = newQuadUR;
     quads[0][quadIndex].lowerLeft = newQuadLL;
     quads[0][quadIndex].lowerRight = newQuadLR;
-
-    printf("New quad positions:\n");
-    printf("  ll: %f, %f, %f\n", quads[0][quadIndex].lowerLeft);
-    printf("  ul: %f, %f, %f\n", quads[0][quadIndex].upperLeft);
-    printf("  ur: %f, %f, %f\n", quads[0][quadIndex].upperRight);
-    printf("  lr: %f, %f, %f\n", quads[0][quadIndex].lowerRight);
 }
 )";
 
@@ -749,7 +727,7 @@ int createPrims() {
 
     // createQuadsViaFabric(80000, 1000.f);
     // createMultiquadViaFabric();
-    createMultiquadMeshViaFabric2(1);
+    createMultiquadMeshViaFabric2(20);
     // createSingleQuad(pxr::GfVec3f(3.f, -3.f, 0), 2);
     // createSingleQuad(pxr::GfVec3f(3.f, 3.f, -3.0f), 2);
 
