@@ -43,6 +43,7 @@ glm::dvec3 lookatPositionHost{0.0, 0.0, 0.0};
 glm::fvec3 lookatUpHost{0.0, 0.0, 0.0};
 CudaRunner cudaRunner;
 double elapsedTime = 0;
+float _quadSize = 0;
 
 const omni::fabric::Type cudaTestAttributeFabricType(omni::fabric::BaseDataType::eDouble, 1, 0, omni::fabric::AttributeRole::eNone);
 omni::fabric::Token getCudaTestAttributeFabricToken() {
@@ -722,7 +723,7 @@ int createPrims() {
     // createQuadsViaFabric(80000, 1000.f);
     // createMultiquadViaFabric();
     // createMultiquadMeshViaFabric2(500);
-    createMultiquadFromPtsFile("pointCloudData/pump0.pts");
+    createMultiquadFromPtsFile("pointCloudData/pump0.pts", 0.01f);
     // createSingleQuad(pxr::GfVec3f(3.f, -3.f, 0), 2);
     // createSingleQuad(pxr::GfVec3f(3.f, 3.f, -3.0f), 2);
 
@@ -3987,7 +3988,8 @@ void printMultiquadPointsWithCuda() {
     }
 }
 
-void createMultiquadFromPtsFile(const std::string &ptsFile) {
+void createMultiquadFromPtsFile(const std::string &ptsFile, float quadSize) {
+    _quadSize = quadSize;
     std::vector<pxr::GfVec3f> points;
     std::ifstream file(ptsFile);
 
@@ -4050,7 +4052,7 @@ void createMultiquadFromPtsFile(const std::string &ptsFile) {
     size_t vertexCountsIndex = 0;
     size_t faceVertexIndex = 0;
     size_t quadCounter = 0;
-    const float quadHalfSize = 0.1f;
+    const float quadHalfSize = _quadSize * .5f;
     for (size_t quadNum = 0; quadNum < numQuads; quadNum++) {
             //verts
             pxr::GfVec3f quadShift = points[quadNum];
@@ -4099,6 +4101,7 @@ void createMultiquadFromPtsFile(const std::string &ptsFile) {
     auto worldOrientationFabric = stageReaderWriter.getAttributeWr<pxr::GfQuatf>(fabricPath, FabricTokens::_worldOrientation);
     *worldOrientationFabric = pxr::GfQuatf(0.f, 0, 0, 0);
 
+    //NOTE: throws write error
     // auto worldScaleFabric = stageReaderWriter.getAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::_worldScale);
     // *worldScaleFabric = pxr::GfVec3f(1.f, 1.f, 1.f);
 

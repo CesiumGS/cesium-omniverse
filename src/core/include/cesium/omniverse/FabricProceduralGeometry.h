@@ -166,7 +166,7 @@ void createMultiquadMeshViaFabric2(size_t size);
 void createQuadsViaFabric(int numQuads, float maxCenterRandomization = 0);
 void createQuadMeshWithDisplayColor();
 void createSingleQuad(pxr::GfVec3f center, float size);
-void createMultiquadFromPtsFile(const std::string &ptsFile);
+void createMultiquadFromPtsFile(const std::string &ptsFile, float quadSize);
 
 /* PRIM ALTERATIONS */////////////////////////////////////
 
