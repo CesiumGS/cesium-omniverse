@@ -43,7 +43,7 @@ glm::dvec3 lookatPositionHost{0.0, 0.0, 0.0};
 glm::fvec3 lookatUpHost{0.0, 0.0, 0.0};
 CudaRunner cudaRunner;
 double elapsedTime = 0;
-float _quadSize = 0;
+float _quadSizeHost = 0;
 
 const omni::fabric::Type cudaTestAttributeFabricType(omni::fabric::BaseDataType::eDouble, 1, 0, omni::fabric::AttributeRole::eNone);
 omni::fabric::Token getCudaTestAttributeFabricToken() {
@@ -566,9 +566,9 @@ struct quad {
 
     __device__ float3 getCenter() {
         return make_float3(
-            (lowerLeft.x + upperRight.x) * .5f,
-            (lowerLeft.y + upperRight.y) * .5f,
-            0);
+            (lowerLeft.x + upperLeft.x + upperRight.x + lowerRight.x) * .25f,
+            (lowerLeft.y + upperLeft.y + upperRight.y + lowerRight.y) * .25f,
+            (lowerLeft.z + upperLeft.z + upperRight.z + lowerRight.z) * .25f);
     }
 };
 
@@ -620,11 +620,12 @@ __device__ float3 addFloat3(float3 a, float3 b) {
     return make_float3(a.x + b.x, a.y + b.y, a.z + b.z);
 }
 
-extern "C" __global__ void lookAtMultiquadKernel(quad** quads, double3* lookatPosition, float3* lookatUp, int numQuads) {
+extern "C" __global__ void lookAtMultiquadKernel(quad** quads, double3* lookatPosition, float3* lookatUp, float *quadSize, int numQuads) {
     const size_t i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i >= numQuads) return;
 
     int quadIndex = static_cast<int>(i);
+    const float quadHalfSize = *quadSize * 0.5f;
 
     float3 targetUpN = *lookatUp;
     float3 quadCenter = quads[0][quadIndex].getCenter();
@@ -650,10 +651,10 @@ extern "C" __global__ void lookAtMultiquadKernel(quad** quads, double3* lookatPo
     mat3 translationMatrix = {newQuadRightN, newQuadUpN, newQuadForwardN};
 
     //untransformed quad points are assumed to be in XY plane
-    float3 rotatedLL = translationMatrix.multiply(make_float3(-1.0f, -1.0f, 0));
-    float3 rotatedUL = translationMatrix.multiply(make_float3(-1.0f, 1.0f, 0));
-    float3 rotatedUR = translationMatrix.multiply(make_float3(1.0f, 1.0f, 0));
-    float3 rotatedLR = translationMatrix.multiply(make_float3(1.0f, -1.0f, 0));
+    float3 rotatedLL = translationMatrix.multiply(make_float3(-quadHalfSize, -quadHalfSize, 0));
+    float3 rotatedUL = translationMatrix.multiply(make_float3(-quadHalfSize, quadHalfSize, 0));
+    float3 rotatedUR = translationMatrix.multiply(make_float3(quadHalfSize, quadHalfSize, 0));
+    float3 rotatedLR = translationMatrix.multiply(make_float3(quadHalfSize, -quadHalfSize, 0));
     float3 newQuadUL = addFloat3(rotatedUL, quadCenter);
     float3 newQuadUR = addFloat3(rotatedUR, quadCenter);
     float3 newQuadLL = addFloat3(rotatedLL, quadCenter);
@@ -723,7 +724,7 @@ int createPrims() {
     // createQuadsViaFabric(80000, 1000.f);
     // createMultiquadViaFabric();
     // createMultiquadMeshViaFabric2(500);
-    createMultiquadFromPtsFile("pointCloudData/pump0.pts", 0.01f);
+    createMultiquadFromPtsFile("pointCloudData/pump0.pts", 0.005f);
     // createSingleQuad(pxr::GfVec3f(3.f, -3.f, 0), 2);
     // createSingleQuad(pxr::GfVec3f(3.f, 3.f, -3.0f), 2);
 
@@ -3774,6 +3775,27 @@ void billboardMultiQuadCuda(glm::fvec3 lookatPosition, glm::fvec3 lookatUp) {
         return;
     }
 
+    CUdeviceptr quadSizeDevice;
+    err = cuMemAlloc(&quadSizeDevice, sizeof(float));
+    if (err != CUDA_SUCCESS) {
+        const char *errName;
+        const char *errStr;
+        cuGetErrorName(err, &errName);
+        cuGetErrorString(err, &errStr);
+        printf("cuMemAlloc failed: %s: %s\n", errName, errStr);
+        return;
+    }
+
+    err = cuMemcpyHtoD(quadSizeDevice, &_quadSizeHost, sizeof(float));
+    if (err != CUDA_SUCCESS) {
+        const char *errName;
+        const char *errStr;
+        cuGetErrorName(err, &errName);
+        cuGetErrorString(err, &errStr);
+        printf("cuMemcpyHtoD failed: %s: %s\n", errName, errStr);
+        return;
+    }
+
 
     for (size_t bucketNum = 0; bucketNum != bucketList.bucketCount(); bucketNum++)
     {
@@ -3795,7 +3817,7 @@ void billboardMultiQuadCuda(glm::fvec3 lookatPosition, glm::fvec3 lookatUp) {
             throw std::runtime_error("Fabric did not retrieve any elements");
         }
         // std::cout << elemCount << std::endl;
-        void *args[] = { &quadsPtr, &lookatPositionDevice, &lookatUpDevice, &elemCount}; //NOLINT
+        void *args[] = { &quadsPtr, &lookatPositionDevice, &lookatUpDevice, &quadSizeDevice, &elemCount}; //NOLINT
 
         cudaRunner.runKernel(args, static_cast<size_t>(elemCount));
 
@@ -3824,8 +3846,15 @@ void billboardMultiQuadCuda(glm::fvec3 lookatPosition, glm::fvec3 lookatUp) {
         return;
     }
 
-    // lookatPositionHost.x += 10.0;
-
+    err = cuMemFree(quadSizeDevice);
+    if (err != CUDA_SUCCESS) {
+        const char *errName;
+        const char *errStr;
+        cuGetErrorName(err, &errName);
+        cuGetErrorString(err, &errStr);
+        printf("cuMemFree failed: %s: %s\n", errName, errStr);
+        return;
+    }
 }
 
 
@@ -3989,7 +4018,7 @@ void printMultiquadPointsWithCuda() {
 }
 
 void createMultiquadFromPtsFile(const std::string &ptsFile, float quadSize) {
-    _quadSize = quadSize;
+    _quadSizeHost = quadSize;
     std::vector<pxr::GfVec3f> points;
     std::ifstream file(ptsFile);
 
@@ -4010,6 +4039,7 @@ void createMultiquadFromPtsFile(const std::string &ptsFile, float quadSize) {
     }
 
     file.close();
+    std::cout << "read " << points.size() << " points" << std::endl;
 
     const auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
     const auto usdStageId = omni::fabric::UsdStageId{static_cast<uint64_t>(cesium::omniverse::Context::instance().getStageId())};
@@ -4052,7 +4082,7 @@ void createMultiquadFromPtsFile(const std::string &ptsFile, float quadSize) {
     size_t vertexCountsIndex = 0;
     size_t faceVertexIndex = 0;
     size_t quadCounter = 0;
-    const float quadHalfSize = _quadSize * .5f;
+    const float quadHalfSize = _quadSizeHost * .5f;
     for (size_t quadNum = 0; quadNum < numQuads; quadNum++) {
             //verts
             pxr::GfVec3f quadShift = points[quadNum];
