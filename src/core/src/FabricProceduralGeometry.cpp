@@ -77,27 +77,6 @@ void changeValue(double* values, size_t count)
 }
 )";
 
-const char* modifyVec3fKernelCode = R"(
-struct Vec3f
-{
-    float x;
-    float y;
-    float z;
-};
-
-extern "C" __global__
-void setVec3f(Vec3f* values, size_t count)
-{
-    size_t i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (count <= i) return;
-
-    float oldValX = values[i].x;
-    values[i].x = 0;
-    values[i].y = 1.0f;
-    printf("Changed x value of index %llu from %f to %f\n", i, oldValX, values[i][0].x);
-}
-)";
-
 const char* modifyVec3dKernelCode = R"(
 struct Vec3d
 {
@@ -376,168 +355,6 @@ extern "C" __global__ void lookAtKernel(fquat* orientation, double3* worldPositi
 )";
 
 const char* lookAtMultiquadKernelCode = R"(
-struct fquat
-{
-    float x;
-    float y;
-    float z;
-    float w;
-
-    __device__ fquat() : x(0), y(0), z(0), w(0) {}
-    __device__ fquat(float _x, float _y, float _z, float _w) {
-        x = _x;
-        y = _y;
-        z = _z;
-        w = _w;
-    }
-};
-
-__device__ float dot(float3 a, float3 b)
-{
-    return a.x * b.x + a.y * b.y + a.z * b.z;
-}
-
-struct mat3 {
-    float3 col0;
-    float3 col1;
-    float3 col2;
-
-    __host__ __device__ float3 multiply(float3 vec) const {
-        float3 result;
-        result.x = dot(col0, vec);
-        result.y = dot(col1, vec);
-        result.z = dot(col2, vec);
-        return result;
-    }
-};
-
-struct quad {
-    float3 lowerLeft;
-    float3 upperLeft;
-    float3 upperRight;
-    float3 lowerRight;
-
-    __device__ float3 getCenter() {
-        return make_float3(
-            (lowerLeft.x + upperRight.x) * .5f,
-            (lowerLeft.y + upperRight.y) * .5f,
-            0);
-    }
-};
-
-__device__ float3 normalize(float3 v) {
-    float normSquared = v.x * v.x + v.y * v.y + v.z * v.z;
-    float inverseSqrtNorm = rsqrtf(normSquared);
-    v.x *= inverseSqrtNorm;
-    v.y *= inverseSqrtNorm;
-    v.z *= inverseSqrtNorm;
-    return v;
-}
-
-__device__ double3 normalize(double3 v) {
-    double norm = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-    double inverseNorm = 1.0 / norm;
-    v.x *= inverseNorm;
-    v.y *= inverseNorm;
-    v.z *= inverseNorm;
-    return v;
-}
-
-__device__ float3 cross(float3 a, float3 b)
-{
-    return make_float3(
-        a.y * b.z - a.z * b.y,
-        a.z * b.x - a.x * b.z,
-        a.x * b.y - a.y * b.x
-    );
-}
-
-__device__ float3 operator*(const float3 &a, const float &b) {
-    return make_float3(a.x * b, a.y * b, a.z * b);
-}
-
-__device__ fquat quat_cast(mat3 Result)
-{
-    float m00 = Result.col0.x, m01 = Result.col1.x, m02 = Result.col2.x,
-           m10 = Result.col0.y, m11 = Result.col1.y, m12 = Result.col2.y,
-           m20 = Result.col0.z, m21 = Result.col1.z, m22 = Result.col2.z;
-
-    float t = m00 + m11 + m22;
-    float w, x, y, z;
-
-    if (t > 0.0) {
-        float s = sqrt(t + 1.0f) * 2.0f; // s=4*qw
-        w = 0.25f * s;
-        x = (m21 - m12) / s;
-        y = (m02 - m20) / s;
-        z = (m10 - m01) / s;
-    } else if ((m00 > m11) && (m00 > m22)) {
-        float s = sqrt(1.0f + m00 - m11 - m22) * 2.0f; // s=4*qx
-        w = (m21 - m12) / s;
-        x = 0.25f * s;
-        y = (m01 + m10) / s;
-        z = (m02 + m20) / s;
-    } else if (m11 > m22) {
-        float s = sqrt(1.0 + m11 - m00 - m22) * 2.0f; // s=4*qy
-        w = (m02 - m20) / s;
-        x = (m01 + m10) / s;
-        y = 0.25f * s;
-        z = (m12 + m21) / s;
-    } else {
-        float s = sqrt(1.0f + m22 - m00 - m11) * 2.0f; // s=4*qz
-        w = (m10 - m01) / s;
-        x = (m02 + m20) / s;
-        y = (m12 + m21) / s;
-        z = 0.25f * s;
-    }
-
-    return fquat(x, y, z, w);
-}
-
-__device__ mat3 matLookAtRH(float3 direction, float3 up)
-{
-    mat3 Result;
-
-    Result.col2 = make_float3(-direction.x, -direction.y, -direction.z);
-    float3 Right = cross(up, Result.col2);
-    Result.col0 = Right * rsqrtf(max(0.0000f, dot(Right, Right)));
-
-    Result.col1 = cross(Result.col2, Result.col0);
-
-    return Result;
-}
-
-extern "C" __global__ void lookAtMultiquadKernel(quad* quads, double3* lookatPosition, int numQuads) {
-    const size_t i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (i >= numQuads) return;
-
-    printf("(kernel) numQuads: %d\n", numQuads);
-    printf("Initial quad positions:\n");
-    printf("  ll: %f, %f, %f\n", quads[i].lowerLeft);
-    printf("  ul: %f, %f, %f\n", quads[i].upperLeft);
-    printf("  ur: %f, %f, %f\n", quads[i].upperRight);
-    printf("  lr: %f, %f, %f\n", quads[i].lowerRight);
-
-    printf("(kernel) lookAtPosition is (%lf, %lf, %lf)\n", lookatPosition->x, lookatPosition->y, lookatPosition->z);
-
-    const float3 up = make_float3(0, 1.0, 0.0);
-    const float3 quadCenter = quads[i].getCenter();
-    printf("(kernel) quadCenter is (%f, %f, %f)\n", quadCenter.x, quadCenter.y, quadCenter.z);
-
-    double3 lookAtDirectionD = make_double3(lookatPosition->x - quadCenter.x, lookatPosition->y - quadCenter.y, lookatPosition->z - quadCenter.z);
-    float3 lookAtDirection = make_float3(static_cast<float>(lookAtDirectionD.x), static_cast<float>(lookAtDirectionD.y), static_cast<float>(lookAtDirectionD.z));
-    lookAtDirection = normalize(lookAtDirection);
-    printf("(kernel) lookAtDirection is (%f, %f, %f)\n", lookAtDirection.x, lookAtDirection.y, lookAtDirection.z);
-
-    mat3 rotationMatrix = matLookAtRH(lookAtDirection, up);
-    quads[i].lowerLeft = rotationMatrix.multiply(quads[i].lowerLeft);
-    quads[i].upperLeft = rotationMatrix.multiply(quads[i].upperLeft);
-    quads[i].upperRight = rotationMatrix.multiply(quads[i].upperRight);
-    quads[i].lowerRight = rotationMatrix.multiply(quads[i].lowerRight);
-}
-)";
-
-const char* lookAtMultiquadKernelCode2 = R"(
 
 __device__ float dot(float3 a, float3 b)
 {
@@ -723,8 +540,8 @@ int createPrims() {
 
     // createQuadsViaFabric(80000, 1000.f);
     // createMultiquadViaFabric();
-    // createMultiquadMeshViaFabric2(500);
-    createMultiquadFromPtsFile("pointCloudData/pump0.pts", 0.005f);
+    createMultiquadMeshViaFabric2(1500);
+    // createMultiquadFromPtsFile("pointCloudData/pump0.pts", 0.005f);
     // createSingleQuad(pxr::GfVec3f(3.f, -3.f, 0), 2);
     // createSingleQuad(pxr::GfVec3f(3.f, 3.f, -3.0f), 2);
 
@@ -2799,107 +2616,6 @@ void billboardMultiquadWithCustomAttrViaFabric() {
     }
 }
 
-void billboardMultiquadWithCustomAttrViaCuda() {
-    //get all prims with the custom attr
-    auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
-    auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
-    auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
-    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
-    omni::fabric::AttrNameAndType primTag(cudaTestAttributeFabricType, getCudaTestAttributeFabricToken());
-    auto bucketList = stageReaderWriter.findPrims({primTag});
-
-    auto numBuckets = bucketList.bucketCount();
-    printf("Num buckets: %llu\n", numBuckets);
-
-    if (bucketList.bucketCount() == 0 ) {
-        std::cout << "No prims found, returning" << std::endl;
-        throw std::runtime_error("Bucketlist is empty");
-    }
-
-    cudaRunner.init(lookAtMultiquadKernelCode, "lookAtMultiquadKernel");
-
-    //iterate over buckets but pass the vector for the whole bucket to the GPU.
-    // int primCount = 0;
-
-    CUresult err;
-    CUdeviceptr lookatPositionDevice;
-
-    err = cuMemAlloc(&lookatPositionDevice, sizeof(glm::dvec3));
-    if (err != CUDA_SUCCESS) {
-        const char *errName;
-        const char *errStr;
-        cuGetErrorName(err, &errName);
-        cuGetErrorString(err, &errStr);
-        printf("cuMemAlloc failed: %s: %s\n", errName, errStr);
-        return;
-    }
-
-    err = cuMemcpyHtoD(lookatPositionDevice, &lookatPositionHost, sizeof(glm::dvec3));
-    if (err != CUDA_SUCCESS) {
-        const char *errName;
-        const char *errStr;
-        cuGetErrorName(err, &errName);
-        cuGetErrorString(err, &errStr);
-        printf("cuMemcpyHtoD failed: %s: %s\n", errName, errStr);
-        return;
-    }
-
-    struct vec3 {
-        float x;
-        float y;
-        float z;
-    };
-
-    struct quad {
-        vec3 lowerLeft;
-        vec3 upperLeft;
-        vec3 upperRight;
-        vec3 lowerRight;
-    };
-
-    for (size_t bucketNum = 0; bucketNum != bucketList.bucketCount(); bucketNum++)
-    {
-        auto positions = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3f*>(bucketList, bucketNum, FabricTokens::points);
-        auto numQuadsSpan = stageReaderWriter.getAttributeArray<int>(bucketList, bucketNum, getNumQuadsAttributeFabricToken());
-        int numQuads = numQuadsSpan[0];
-        auto quadsPtr = reinterpret_cast<quad*>(positions.data());
-        std::cout << "(host) numQuads: " << numQuads << std::endl;
-
-        // for (int quadNum = 0; quadNum < numQuads; quadNum++) {
-        //     printf("quad %d lowerLeft: %f, %f, %f\n", quadNum,
-        //         quadsPtr[quadNum].lowerLeft.x,
-        //         quadsPtr[quadNum].lowerLeft.y,
-        //         quadsPtr[quadNum].lowerLeft.z);
-        // }
-
-        int elemCount = numQuads;
-        if (elemCount == 0) {
-            throw std::runtime_error("Fabric did not retrieve any elements");
-        }
-        std::cout << elemCount << std::endl;
-        void *args[] = { &quadsPtr, &lookatPositionDevice, &elemCount}; //NOLINT
-
-        cudaRunner.runKernel(args, static_cast<size_t>(elemCount));
-
-        // primCount += static_cast<int>(elemCount);
-    }
-
-    // std::cout << "modified " << primCount << " quads" << std::endl;
-
-    err = cuMemFree(lookatPositionDevice);
-    if (err != CUDA_SUCCESS) {
-        const char *errName;
-        const char *errStr;
-        cuGetErrorName(err, &errName);
-        cuGetErrorString(err, &errStr);
-        printf("cuMemFree failed: %s: %s\n", errName, errStr);
-        return;
-    }
-
-    // lookatPositionHost.x += 10.0;
-
-}
-
 glm::fvec3 usdToGlmVector(const pxr::GfVec3f& vector) {
     return {vector[0], vector[1], vector[2]};
 }
@@ -3246,6 +2962,27 @@ void exportToUsd() {
     // iFabricUsd->exportUsdPrimDataToStage(fabricId, usdStageRefPtr, 0, 0);
 }
 
+int animatePrims(float deltaTime, double cameraPositionX, double cameraPositionY, double cameraPositionZ,
+        float cameraUpX, float cameraUpY, float cameraUpZ) {
+    // std::cout << "animating " << deltaTime << std::endl;
+    // const float speed = 1.5f;
+    // const float radius = 600.f;
+    alterPrims(cameraPositionX, cameraPositionY, cameraPositionZ, cameraUpX, cameraUpY, cameraUpZ); // TODO: no dummy vars
+    elapsedTime += deltaTime;
+    lookatPositionHost.x = cameraPositionX;
+    lookatPositionHost.y = cameraPositionY;
+    lookatPositionHost.z = cameraPositionZ;
+    lookatUpHost.x = cameraUpX;
+    lookatUpHost.y = cameraUpY;
+    lookatUpHost.z = cameraUpZ;
+
+    // lookatPositionHost.x = sin(elapsedTime * speed) * radius;
+    // // std::cout << "x: " << lookatPositionHost.x << std::endl;
+    // lookatPositionHost.y = sin(elapsedTime * speed * .93f) * radius;
+    // lookatPositionHost.z = sin(elapsedTime * speed * 1.27f) * radius;
+    return 0;
+}
+
 void CudaRunner::init(const char* kernelCodeDEBUG, const char* kernelFunctionName) {
     if (_initted) return;
 
@@ -3276,6 +3013,15 @@ void CudaRunner::init(const char* kernelCodeDEBUG, const char* kernelFunctionNam
     auto threadId = std::this_thread::get_id();
     std::cout << "Initial thread ID: " << threadId << std::endl;
 
+    //print the numbers of SMs
+    int numDevices;
+    cuDeviceGetCount(&numDevices);
+    for(int i = 0; i < numDevices; i++) {
+        cuDeviceGet(&_device, i);
+        int numSMs;
+        cuDeviceGetAttribute(&numSMs, CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT, _device);
+        std::cout << "Device " << i << " has " << numSMs << " Streaming Multiprocessors." << std::endl;
+    }
 
     // nvrtcProgram program;
     nvrtcCreateProgram(&_program, _kernelCode, _kernelFunctionName, 0, nullptr, nullptr);
@@ -3319,28 +3065,6 @@ void CudaRunner::init(const char* kernelCodeDEBUG, const char* kernelFunctionNam
     _initted = true;
 }
 
-int animatePrims(float deltaTime, double cameraPositionX, double cameraPositionY, double cameraPositionZ,
-        float cameraUpX, float cameraUpY, float cameraUpZ) {
-    // std::cout << "animating " << deltaTime << std::endl;
-    // const float speed = 1.5f;
-    // const float radius = 600.f;
-    alterPrims(cameraPositionX, cameraPositionY, cameraPositionZ, cameraUpX, cameraUpY, cameraUpZ); // TODO: no dummy vars
-    elapsedTime += deltaTime;
-    lookatPositionHost.x = cameraPositionX;
-    lookatPositionHost.y = cameraPositionY;
-    lookatPositionHost.z = cameraPositionZ;
-    lookatUpHost.x = cameraUpX;
-    lookatUpHost.y = cameraUpY;
-    lookatUpHost.z = cameraUpZ;
-
-    // lookatPositionHost.x = sin(elapsedTime * speed) * radius;
-    // // std::cout << "x: " << lookatPositionHost.x << std::endl;
-    // lookatPositionHost.y = sin(elapsedTime * speed * .93f) * radius;
-    // lookatPositionHost.z = sin(elapsedTime * speed * 1.27f) * radius;
-    return 0;
-}
-
-
 void CudaRunner::teardown() {
     auto result = cuCtxDestroy(_context);
     if (result != CUDA_SUCCESS) {
@@ -3359,10 +3083,13 @@ CudaRunner::~CudaRunner() {
 }
 
 void CudaRunner::runKernel(void** args, size_t elemCount) {
-    int blockSize = 32 * 4;
-    int numBlocks = (static_cast<int>(elemCount) + blockSize - 1) / blockSize;
 
-    auto launchResult = cuLaunchKernel(_function, numBlocks, 1, 1, blockSize, 1, 1, 0, nullptr, args, nullptr);
+    // int blockSize = 32 * 4;
+    int minGridSize;
+    cuOccupancyMaxPotentialBlockSize(&minGridSize, &_blockSize, _function, nullptr, 0, 0);
+    _numBlocks = (static_cast<int>(elemCount) + _blockSize - 1) / _blockSize;
+
+    auto launchResult = cuLaunchKernel(_function, _numBlocks, 1, 1, _blockSize, 1, 1, 0, nullptr, args, nullptr);
     if (launchResult) {
         const char *errName = nullptr;
         const char *errString = nullptr;
@@ -3729,7 +3456,7 @@ void billboardMultiQuadCuda(glm::fvec3 lookatPosition, glm::fvec3 lookatUp) {
     omni::fabric::AttrNameAndType primTag(cudaTestAttributeFabricType, getCudaTestAttributeFabricToken());
     auto bucketList = stageReaderWriter.findPrims({primTag});
 
-    cudaRunner.init(lookAtMultiquadKernelCode2, "lookAtMultiquadKernel");
+    cudaRunner.init(lookAtMultiquadKernelCode, "lookAtMultiquadKernel");
 
     CUresult err;
     CUdeviceptr lookatPositionDevice;

@@ -30,6 +30,7 @@ class CudaRunner {
         CUmodule _module;
         CUfunction _function;
         bool _initted = false;
+        int _blockSize, _numBlocks;
         void teardown();
 
     public:
@@ -145,7 +146,6 @@ void createFabricQuadsModifyViaCuda(int numQuads);
 
 void alterFabricPrimTranslationWithFabric();
 
-
 void setDisplayColor();
 
 //Create USD cubes, translate with USD
@@ -181,7 +181,6 @@ void rotateAllPrimsWithCustomAttrViaFabric();
 
 void billboardAllPrimsWithCustomAttrViaFabric();
 void billboardAllPrimsWithCustomAttrViaCuda();
-void billboardMultiquadWithCustomAttrViaFabric();
 void billboardMultiquadWithCustomAttrViaCuda();
 void billboardQuad(glm::fvec3 target);
 void billboardMultiQuadCpu(glm::fvec3 target, glm::fvec3 targetUp);
