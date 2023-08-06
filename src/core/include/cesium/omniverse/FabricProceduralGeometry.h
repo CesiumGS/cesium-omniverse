@@ -19,6 +19,20 @@ float cameraUpX, float cameraUpY, float cameraUpZ);
 int animatePrims(float deltaTime, double cameraPositionX, double cameraPositionY, double cameraPositionZ,
         float cameraUpX, float cameraUpY, float cameraUpZ);
 
+struct quad {
+    //TODO: vec3 to float3
+    float3 lowerLeft;
+    float3 upperLeft;
+    float3 upperRight;
+    float3 lowerRight;
+
+    float3 getCenter() {
+        return make_float3(
+            (lowerLeft.x + upperRight.x) * .5f,
+            (lowerLeft.y + upperRight.y) * .5f,
+            0);
+    }
+};
 class CudaRunner {
     private:
         const char* _kernelCode;
@@ -40,20 +54,6 @@ class CudaRunner {
         ~CudaRunner();
 };
 
-struct quad {
-    //TODO: vec3 to float3
-    float3 lowerLeft;
-    float3 upperLeft;
-    float3 upperRight;
-    float3 lowerRight;
-
-    float3 getCenter() {
-        return make_float3(
-            (lowerLeft.x + upperRight.x) * .5f,
-            (lowerLeft.y + upperRight.y) * .5f,
-            0);
-    }
-};
 
 struct quadPxr {
     //TODO: vec3 to float3

@@ -44,6 +44,7 @@ glm::fvec3 lookatUpHost{0.0, 0.0, 0.0};
 CudaRunner cudaRunner;
 double elapsedTime = 0;
 float _quadSizeHost = 0;
+std::vector<quad*> bucketQuadsPtrs;
 
 const omni::fabric::Type cudaTestAttributeFabricType(omni::fabric::BaseDataType::eDouble, 1, 0, omni::fabric::AttributeRole::eNone);
 omni::fabric::Token getCudaTestAttributeFabricToken() {
@@ -540,8 +541,8 @@ int createPrims() {
 
     // createQuadsViaFabric(80000, 1000.f);
     // createMultiquadViaFabric();
-    createMultiquadMeshViaFabric2(1500);
-    // createMultiquadFromPtsFile("pointCloudData/pump0.pts", 0.005f);
+    // createMultiquadMeshViaFabric2(1500);
+    createMultiquadFromPtsFile("pointCloudData/pump0.pts", 0.005f);
     // createSingleQuad(pxr::GfVec3f(3.f, -3.f, 0), 2);
     // createSingleQuad(pxr::GfVec3f(3.f, 3.f, -3.0f), 2);
 
@@ -3523,13 +3524,17 @@ void billboardMultiQuadCuda(glm::fvec3 lookatPosition, glm::fvec3 lookatUp) {
         return;
     }
 
-
+    // std::cout << "numBuckets " << bucketList.bucketCount() << std::endl;
     for (size_t bucketNum = 0; bucketNum != bucketList.bucketCount(); bucketNum++)
     {
-        auto positions = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3f*>(bucketList, bucketNum, FabricTokens::points);
         auto numQuadsSpan = stageReaderWriter.getAttributeArray<int>(bucketList, bucketNum, getNumQuadsAttributeFabricToken());
         int numQuads = numQuadsSpan[0];
-        auto quadsPtr = reinterpret_cast<quad*>(positions.data());
+
+        if (bucketQuadsPtrs.size() == 0) {
+            auto positions = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3f*>(bucketList, bucketNum, FabricTokens::points);
+            auto quadsPtr = reinterpret_cast<quad*>(positions.data());
+            bucketQuadsPtrs.push_back(quadsPtr);
+        }
         // std::cout << "(host) numQuads: " << numQuads << std::endl;
 
         // for (int quadNum = 0; quadNum < numQuads; quadNum++) {
@@ -3544,7 +3549,7 @@ void billboardMultiQuadCuda(glm::fvec3 lookatPosition, glm::fvec3 lookatUp) {
             throw std::runtime_error("Fabric did not retrieve any elements");
         }
         // std::cout << elemCount << std::endl;
-        void *args[] = { &quadsPtr, &lookatPositionDevice, &lookatUpDevice, &quadSizeDevice, &elemCount}; //NOLINT
+        void *args[] = { &bucketQuadsPtrs[0], &lookatPositionDevice, &lookatUpDevice, &quadSizeDevice, &elemCount}; //NOLINT
 
         cudaRunner.runKernel(args, static_cast<size_t>(elemCount));
 
