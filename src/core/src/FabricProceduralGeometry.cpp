@@ -27,6 +27,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
 #include <omni/gpucompute/GpuCompute.h>
 #include "pxr/usd/usdGeom/mesh.h"
 #include "pxr/usd/usdGeom/xform.h"
@@ -44,7 +45,8 @@ glm::fvec3 lookatUpHost{0.0, 0.0, 0.0};
 CudaRunner cudaRunner;
 double elapsedTime = 0;
 float _quadSizeHost = 0;
-std::vector<quad*> bucketQuadsPtrs;
+// std::vector<quad*> bucketQuadsPtrs;
+std::unordered_map<size_t, quad*> bucketQuadsPtrsMap;
 
 const omni::fabric::Type cudaTestAttributeFabricType(omni::fabric::BaseDataType::eDouble, 1, 0, omni::fabric::AttributeRole::eNone);
 omni::fabric::Token getCudaTestAttributeFabricToken() {
@@ -542,7 +544,12 @@ int createPrims() {
     // createQuadsViaFabric(80000, 1000.f);
     // createMultiquadViaFabric();
     // createMultiquadMeshViaFabric2(1500);
-    createMultiquadFromPtsFile("pointCloudData/pump0.pts", 0.005f);
+    createMultiquadFromPtsFile("pointCloudData/pump0.pts", 0.010f);
+    // createMultiquadFromPtsFile("pointCloudData/StSulpice_000000.pts", 0.025f);
+    // createMultiquadFromPtsFile("pointCloudData/StSulpice_000001.pts", 0.025f);
+    // createMultiquadFromPtsFile("pointCloudData/StSulpice_000002.pts", 0.025f);
+    // createMultiquadFromPtsFile("pointCloudData/StSulpice_000003.pts", 0.015f);
+    // createMultiquadFromPtsFile("pointCloudData/StSulpice_000004.pts", 0.025f);
     // createSingleQuad(pxr::GfVec3f(3.f, -3.f, 0), 2);
     // createSingleQuad(pxr::GfVec3f(3.f, 3.f, -3.0f), 2);
 
@@ -3530,26 +3537,19 @@ void billboardMultiQuadCuda(glm::fvec3 lookatPosition, glm::fvec3 lookatUp) {
         auto numQuadsSpan = stageReaderWriter.getAttributeArray<int>(bucketList, bucketNum, getNumQuadsAttributeFabricToken());
         int numQuads = numQuadsSpan[0];
 
-        if (bucketQuadsPtrs.size() == 0) {
+        if (bucketQuadsPtrsMap.find(bucketNum) == bucketQuadsPtrsMap.end()) {
             auto positions = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3f*>(bucketList, bucketNum, FabricTokens::points);
             auto quadsPtr = reinterpret_cast<quad*>(positions.data());
-            bucketQuadsPtrs.push_back(quadsPtr);
-        }
-        // std::cout << "(host) numQuads: " << numQuads << std::endl;
+            bucketQuadsPtrsMap[bucketNum] = quadsPtr;
 
-        // for (int quadNum = 0; quadNum < numQuads; quadNum++) {
-        //     printf("quad %d lowerLeft: %f, %f, %f\n", quadNum,
-        //         quadsPtr[quadNum].lowerLeft.x,
-        //         quadsPtr[quadNum].lowerLeft.y,
-        //         quadsPtr[quadNum].lowerLeft.z);
-        // }
+        }
 
         int elemCount = numQuads;
         if (elemCount == 0) {
             throw std::runtime_error("Fabric did not retrieve any elements");
         }
         // std::cout << elemCount << std::endl;
-        void *args[] = { &bucketQuadsPtrs[0], &lookatPositionDevice, &lookatUpDevice, &quadSizeDevice, &elemCount}; //NOLINT
+        void *args[] = { &bucketQuadsPtrsMap[0], &lookatPositionDevice, &lookatUpDevice, &quadSizeDevice, &elemCount}; //NOLINT
 
         cudaRunner.runKernel(args, static_cast<size_t>(elemCount));
 
