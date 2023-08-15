@@ -6,6 +6,7 @@
 #include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
+#include <glm/fwd.hpp>
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
@@ -298,7 +299,7 @@ void FabricGeometry::setGeometry(
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexCounts, numVoxels * 2 * 6);
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexIndices, numVoxels * 6 * 2 * 3);
 
-        auto pointsFabric = srw.getArrayAttributeWr<pxr::GfVec3f>(_pathFabric, FabricTokens::points);
+        auto pointsFabric = srw.getArrayAttributeWr<glm::fvec3>(_pathFabric, FabricTokens::points);
         auto faceVertexCountsFabric = srw.getArrayAttributeWr<int>(_pathFabric, FabricTokens::faceVertexCounts);
         auto faceVertexIndicesFabric = srw.getArrayAttributeWr<int>(_pathFabric, FabricTokens::faceVertexIndices);
 
@@ -313,77 +314,73 @@ void FabricGeometry::setGeometry(
         size_t vertIndex = 0;
         size_t vertexCountsIndex = 0;
         size_t faceVertexIndex = 0;
-        size_t voxelCounter = 0;
         size_t vertexColorsIndex = 0;
-        for (size_t voxelNum = 0; voxelNum < numVoxels; voxelNum++) {
-            auto centerGlm = positions.get(voxelNum);
-            pxr::GfVec3f center{centerGlm.x, centerGlm.y, centerGlm.z};
+        for (size_t voxelIndex = 0; voxelIndex < numVoxels; voxelIndex++) {
+            const auto center = positions.get(voxelIndex);
 
-            pointsFabric[vertIndex++] = pxr::GfVec3f{-shapeHalfSize, -shapeHalfSize, -shapeHalfSize} + center;
-            pointsFabric[vertIndex++] = pxr::GfVec3f{-shapeHalfSize, shapeHalfSize, -shapeHalfSize} + center;
-            pointsFabric[vertIndex++] = pxr::GfVec3f{shapeHalfSize, shapeHalfSize, -shapeHalfSize} + center;
-            pointsFabric[vertIndex++] = pxr::GfVec3f{shapeHalfSize, -shapeHalfSize, -shapeHalfSize} + center;
-            pointsFabric[vertIndex++] = pxr::GfVec3f{-shapeHalfSize, -shapeHalfSize, shapeHalfSize} + center;
-            pointsFabric[vertIndex++] = pxr::GfVec3f{-shapeHalfSize, shapeHalfSize, shapeHalfSize} + center;
-            pointsFabric[vertIndex++] = pxr::GfVec3f{shapeHalfSize, shapeHalfSize, shapeHalfSize} + center;
-            pointsFabric[vertIndex++] = pxr::GfVec3f{shapeHalfSize, -shapeHalfSize, shapeHalfSize} + center;
+            pointsFabric[vertIndex++] = glm::fvec3{-shapeHalfSize, -shapeHalfSize, -shapeHalfSize} + center;
+            pointsFabric[vertIndex++] = glm::fvec3{-shapeHalfSize, shapeHalfSize, -shapeHalfSize} + center;
+            pointsFabric[vertIndex++] = glm::fvec3{shapeHalfSize, shapeHalfSize, -shapeHalfSize} + center;
+            pointsFabric[vertIndex++] = glm::fvec3{shapeHalfSize, -shapeHalfSize, -shapeHalfSize} + center;
+            pointsFabric[vertIndex++] = glm::fvec3{-shapeHalfSize, -shapeHalfSize, shapeHalfSize} + center;
+            pointsFabric[vertIndex++] = glm::fvec3{-shapeHalfSize, shapeHalfSize, shapeHalfSize} + center;
+            pointsFabric[vertIndex++] = glm::fvec3{shapeHalfSize, shapeHalfSize, shapeHalfSize} + center;
+            pointsFabric[vertIndex++] = glm::fvec3{shapeHalfSize, -shapeHalfSize, shapeHalfSize} + center;
 
             for (int i = 0; i < 6; i++) {
                 faceVertexCountsFabric[vertexCountsIndex++] = 3;
                 faceVertexCountsFabric[vertexCountsIndex++] = 3;
             }
 
-            //front
-            faceVertexIndicesFabric[faceVertexIndex++] = 0 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 1 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 2 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 0 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 2 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 3 + static_cast<int>(voxelCounter * 8);
-            //left
-            faceVertexIndicesFabric[faceVertexIndex++] = 4 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 5 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 1 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 4 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 1 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 0 + static_cast<int>(voxelCounter * 8);
-            //right
-            faceVertexIndicesFabric[faceVertexIndex++] = 3 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 2 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 6 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 3 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 6 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 7 + static_cast<int>(voxelCounter * 8);
-            //top
-            faceVertexIndicesFabric[faceVertexIndex++] = 1 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 5 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 6 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 1 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 5 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 2 + static_cast<int>(voxelCounter * 8);
-            //bottom
-            faceVertexIndicesFabric[faceVertexIndex++] = 3 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 7 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 4 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 3 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 4 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 0 + static_cast<int>(voxelCounter * 8);
-            //back
-            faceVertexIndicesFabric[faceVertexIndex++] = 7 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 6 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 5 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 7 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 5 + static_cast<int>(voxelCounter * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 4 + static_cast<int>(voxelCounter * 8);
+            // front
+            faceVertexIndicesFabric[faceVertexIndex++] = 0 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 1 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 2 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 0 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 2 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 3 + static_cast<int>(voxelIndex * 8);
+            // left
+            faceVertexIndicesFabric[faceVertexIndex++] = 4 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 5 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 1 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 4 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 1 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 0 + static_cast<int>(voxelIndex * 8);
+            // right
+            faceVertexIndicesFabric[faceVertexIndex++] = 3 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 2 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 6 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 3 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 6 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 7 + static_cast<int>(voxelIndex * 8);
+            // top
+            faceVertexIndicesFabric[faceVertexIndex++] = 1 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 5 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 6 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 1 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 5 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 2 + static_cast<int>(voxelIndex * 8);
+            // bottom
+            faceVertexIndicesFabric[faceVertexIndex++] = 3 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 7 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 4 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 3 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 4 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 0 + static_cast<int>(voxelIndex * 8);
+            // back
+            faceVertexIndicesFabric[faceVertexIndex++] = 7 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 6 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 5 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 7 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 5 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 4 + static_cast<int>(voxelIndex * 8);
 
             if (hasVertexColors) {
-                const auto color = vertexColorsSpan[voxelNum];
+                const auto color = vertexColorsSpan[voxelIndex];
                 for (int i = 0; i < 8; i++) {
                     vertexColorsFabric[vertexColorsIndex++] = color;
                 }
             }
-
-            voxelCounter++;
         }
 
         // clang-format off
