@@ -292,7 +292,7 @@ void FabricGeometry::setGeometry(
 
     if (primitive.mode == 0) { //if tile is a point cloud
 
-        const float quadHalfSize = 0.5f;
+        const float quadHalfSize = 1.0f;
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::points, positions.size() * 4);
 
         size_t primvarsCount = 0;
@@ -305,12 +305,6 @@ void FabricGeometry::setGeometry(
         primvarInterpolationsFabric[primvarIndexDisplayColor] = FabricTokens::vertex;
 
         auto numQuads = positions.size();
-
-        const auto primvarsDisplayColorIndicesToken = omni::fabric::Token("primvars:displayColor:indices");
-        const omni::fabric::Type primvarsDisplayColorIndicesType(omni::fabric::BaseDataType::eInt, 1, 1, omni::fabric::AttributeRole::eNone);
-
-        srw.createAttribute(_pathFabric, primvarsDisplayColorIndicesToken, primvarsDisplayColorIndicesType);
-        srw.setArrayAttributeSize(_pathFabric, primvarsDisplayColorIndicesToken, numQuads * 4);
 
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::points, static_cast<size_t>(numQuads * 4));
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexCounts, numQuads * 4 * 2);
