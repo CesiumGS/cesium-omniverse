@@ -383,23 +383,6 @@ void FabricGeometry::setGeometry(
             }
         }
 
-        // clang-format off
-        auto extentFabric = srw.getAttributeWr<pxr::GfRange3d>(_pathFabric, FabricTokens::extent);
-        auto worldExtentFabric = srw.getAttributeWr<pxr::GfRange3d>(_pathFabric, FabricTokens::_worldExtent);
-        auto localToEcefTransformFabric = srw.getAttributeWr<pxr::GfMatrix4d>(_pathFabric, FabricTokens::_cesium_localToEcefTransform);
-        auto worldPositionFabric = srw.getAttributeWr<pxr::GfVec3d>(_pathFabric, FabricTokens::_worldPosition);
-        auto worldOrientationFabric = srw.getAttributeWr<pxr::GfQuatf>(_pathFabric, FabricTokens::_worldOrientation);
-        auto worldScaleFabric = srw.getAttributeWr<pxr::GfVec3f>(_pathFabric, FabricTokens::_worldScale);
-        // clang-format on
-
-        *extentFabric = localExtent;
-        *worldExtentFabric = worldExtent;
-        *localToEcefTransformFabric = UsdUtil::glmToUsdMatrix(localToEcefTransform);
-        *worldPositionFabric = worldPosition;
-        *worldOrientationFabric = worldOrientation;
-        *worldScaleFabric = worldScale;
-
-        FabricUtil::setTilesetId(_pathFabric, tilesetId);
     } else {
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexCounts, faceVertexCounts.size());
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexIndices, indices.size());
@@ -409,12 +392,6 @@ void FabricGeometry::setGeometry(
         auto faceVertexCountsFabric = srw.getArrayAttributeWr<int>(_pathFabric, FabricTokens::faceVertexCounts);
         auto faceVertexIndicesFabric = srw.getArrayAttributeWr<int>(_pathFabric, FabricTokens::faceVertexIndices);
         auto pointsFabric = srw.getArrayAttributeWr<glm::fvec3>(_pathFabric, FabricTokens::points);
-        auto extentFabric = srw.getAttributeWr<pxr::GfRange3d>(_pathFabric, FabricTokens::extent);
-        auto worldExtentFabric = srw.getAttributeWr<pxr::GfRange3d>(_pathFabric, FabricTokens::_worldExtent);
-        auto localToEcefTransformFabric = srw.getAttributeWr<pxr::GfMatrix4d>(_pathFabric, FabricTokens::_cesium_localToEcefTransform);
-        auto worldPositionFabric = srw.getAttributeWr<pxr::GfVec3d>(_pathFabric, FabricTokens::_worldPosition);
-        auto worldOrientationFabric = srw.getAttributeWr<pxr::GfQuatf>(_pathFabric, FabricTokens::_worldOrientation);
-        auto worldScaleFabric = srw.getAttributeWr<pxr::GfVec3f>(_pathFabric, FabricTokens::_worldScale);
         auto displayColorFabric = srw.getArrayAttributeWr<pxr::GfVec3f>(_pathFabric, FabricTokens::primvars_displayColor);
         auto displayOpacityFabric = srw.getArrayAttributeWr<float>(_pathFabric, FabricTokens::primvars_displayOpacity);
         // clang-format on
@@ -422,15 +399,6 @@ void FabricGeometry::setGeometry(
         faceVertexCounts.fill(faceVertexCountsFabric);
         indices.fill(faceVertexIndicesFabric);
         positions.fill(pointsFabric);
-
-        *extentFabric = localExtent;
-        *worldExtentFabric = worldExtent;
-        *localToEcefTransformFabric = UsdUtil::glmToUsdMatrix(localToEcefTransform);
-        *worldPositionFabric = worldPosition;
-        *worldOrientationFabric = worldOrientation;
-        *worldScaleFabric = worldScale;
-
-        FabricUtil::setTilesetId(_pathFabric, tilesetId);
 
         if (_debugRandomColors) {
             const auto r = glm::linearRand(0.0f, 1.0f);
@@ -470,6 +438,24 @@ void FabricGeometry::setGeometry(
             vertexColors.fill(vertexColorsFabric);
         }
     }
+
+    // clang-format off
+    auto extentFabric = srw.getAttributeWr<pxr::GfRange3d>(_pathFabric, FabricTokens::extent);
+    auto worldExtentFabric = srw.getAttributeWr<pxr::GfRange3d>(_pathFabric, FabricTokens::_worldExtent);
+    auto localToEcefTransformFabric = srw.getAttributeWr<pxr::GfMatrix4d>(_pathFabric, FabricTokens::_cesium_localToEcefTransform);
+    auto worldPositionFabric = srw.getAttributeWr<pxr::GfVec3d>(_pathFabric, FabricTokens::_worldPosition);
+    auto worldOrientationFabric = srw.getAttributeWr<pxr::GfQuatf>(_pathFabric, FabricTokens::_worldOrientation);
+    auto worldScaleFabric = srw.getAttributeWr<pxr::GfVec3f>(_pathFabric, FabricTokens::_worldScale);
+    // clang-format on
+
+    *extentFabric = localExtent;
+    *worldExtentFabric = worldExtent;
+    *localToEcefTransformFabric = UsdUtil::glmToUsdMatrix(localToEcefTransform);
+    *worldPositionFabric = worldPosition;
+    *worldOrientationFabric = worldOrientation;
+    *worldScaleFabric = worldScale;
+
+    FabricUtil::setTilesetId(_pathFabric, tilesetId);
 }
 
 bool FabricGeometry::stageDestroyed() {
