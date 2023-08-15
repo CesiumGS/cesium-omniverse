@@ -300,12 +300,9 @@ void FabricGeometry::setGeometry(
 
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexIndices, numVoxels * 6 * 2 * 3);
 
-        auto pointsFabric =
-            srw.getArrayAttributeWr<pxr::GfVec3f>(_pathFabric, FabricTokens::points);
-        auto faceVertexCountsFabric =
-            srw.getArrayAttributeWr<int>(_pathFabric, FabricTokens::faceVertexCounts);
-        auto faceVertexIndicesFabric =
-            srw.getArrayAttributeWr<int>(_pathFabric, FabricTokens::faceVertexIndices);
+        auto pointsFabric = srw.getArrayAttributeWr<pxr::GfVec3f>(_pathFabric, FabricTokens::points);
+        auto faceVertexCountsFabric = srw.getArrayAttributeWr<int>(_pathFabric, FabricTokens::faceVertexCounts);
+        auto faceVertexIndicesFabric = srw.getArrayAttributeWr<int>(_pathFabric, FabricTokens::faceVertexIndices);
 
         std::vector<glm::fvec3> vertexColorsData(numVoxels);
         gsl::span<glm::fvec3> vertexColorsSpan(vertexColorsData);
@@ -313,8 +310,7 @@ void FabricGeometry::setGeometry(
             vertexColors.fill(vertexColorsSpan);
             srw.setArrayAttributeSize(_pathFabric, FabricTokens::primvars_vertexColor, numVoxels * 8);
         }
-        auto vertexColorsFabric =
-            srw.getArrayAttributeWr<glm::fvec3>(_pathFabric, FabricTokens::primvars_vertexColor);
+        auto vertexColorsFabric = srw.getArrayAttributeWr<glm::fvec3>(_pathFabric, FabricTokens::primvars_vertexColor);
 
         size_t vertIndex = 0;
         size_t vertexCountsIndex = 0;
@@ -387,8 +383,9 @@ void FabricGeometry::setGeometry(
             auto color = vertexColorsSpan[voxelNum];
             if (hasVertexColors) {
                 for (int i = 0; i < 8; i++) {
-                   vertexColorsFabric[vertexColorsIndex++] = color;
-}            }
+                    vertexColorsFabric[vertexColorsIndex++] = color;
+                }
+            }
         }
 
         // clang-format off
@@ -406,8 +403,7 @@ void FabricGeometry::setGeometry(
         *worldPositionFabric = worldPosition;
         *worldOrientationFabric = worldOrientation;
         *worldScaleFabric = worldScale;
-    }
-    else {
+    } else {
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexCounts, faceVertexCounts.size());
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexIndices, indices.size());
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::points, positions.size());
@@ -471,7 +467,8 @@ void FabricGeometry::setGeometry(
         if (hasVertexColors) {
             srw.setArrayAttributeSize(_pathFabric, FabricTokens::primvars_vertexColor, vertexColors.size());
 
-            auto vertexColorsFabric = srw.getArrayAttributeWr<glm::fvec3>(_pathFabric, FabricTokens::primvars_vertexColor);
+            auto vertexColorsFabric =
+                srw.getArrayAttributeWr<glm::fvec3>(_pathFabric, FabricTokens::primvars_vertexColor);
 
             vertexColors.fill(vertexColorsFabric);
         }
