@@ -9,10 +9,18 @@ namespace cesium::omniverse {
 
 class OmniGlobeAnchor {
   public:
-    OmniGlobeAnchor(const pxr::SdfPath& anchorPrimPath, const glm::dmat4 anchorToFixed);
+    OmniGlobeAnchor(pxr::SdfPath anchorPrimPath, const glm::dmat4 anchorToFixed);
 
-    std::shared_ptr<CesiumGeospatial::GlobeAnchor> getAnchor();
-    void updateByUsdTransform(const CesiumGeospatial::Cartographic& origin, bool shouldReorient);
+    const glm::dmat4 getAnchorToFixedTransform();
+    const glm::dmat4 getAnchorToLocalTransform(const CesiumGeospatial::Cartographic& origin);
+    std::optional<CesiumGeospatial::Cartographic> getCartographicPosition();
+    [[maybe_unused]] const pxr::SdfPath getPrimPath();
+    bool updateByFixedTransform(
+        glm::dvec3 ecefPositionVec,
+        glm::dvec3 ecefRotationVec,
+        glm::dvec3 ecefScaleVec,
+        bool shouldReorient);
+    bool updateByUsdTransform(const CesiumGeospatial::Cartographic& origin, bool shouldReorient);
 
   private:
     pxr::SdfPath _anchorPrimPath;

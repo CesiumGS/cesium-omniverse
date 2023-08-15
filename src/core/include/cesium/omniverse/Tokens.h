@@ -71,6 +71,7 @@ extern const omni::fabric::TokenC _worldVisibility;
 
 namespace cesium::omniverse::UsdTokens {
 extern const pxr::TfToken& baseColorTex;
+extern const pxr::TfToken& cesium;
 extern const pxr::TfToken& constant;
 extern const pxr::TfToken& doubleSided;
 extern const pxr::TfToken& extent;
@@ -120,7 +121,7 @@ extern const pxr::TfToken& sourceAsset;
 extern const pxr::TfToken& subdivisionScheme;
 extern const pxr::TfToken& vertex;
 extern const pxr::TfToken& vertexColor;
-extern const pxr::TfToken& xformOp_transform;
+extern const pxr::TfToken& xformOp_transform_cesium;
 extern const pxr::TfToken& _auto;
 extern const pxr::TfToken& _cesium_localToEcefTransform;
 extern const pxr::TfToken& _cesium_tilesetId;

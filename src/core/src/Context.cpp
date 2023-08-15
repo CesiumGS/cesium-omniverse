@@ -371,7 +371,7 @@ void Context::processCesiumGlobeAnchorChanged(const cesium::omniverse::ChangedPr
     globeAnchor.GetDetectTransformChangesAttr().Get(&detectTransformChanges);
 
     if (detectTransformChanges && (name == pxr::CesiumTokens->cesiumAnchorDetectTransformChanges ||
-                                   name == cesium::omniverse::UsdTokens::xformOp_transform)) {
+                                   name == UsdTokens::xformOp_transform_cesium)) {
         GeospatialUtil::updateAnchorByUsdTransform(cartographicOrigin, globeAnchor);
 
         return;

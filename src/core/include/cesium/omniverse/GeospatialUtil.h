@@ -24,10 +24,12 @@ CesiumGeospatial::LocalHorizontalCoordinateSystem
 getCoordinateSystem(const CesiumGeospatial::Cartographic& origin, const double scaleInMeters);
 glm::dmat4 getUnitConversionTransform();
 
-void updateAnchorByUsdTransform(const CesiumGeospatial::Cartographic& origin, const pxr::CesiumGlobeAnchorAPI& anchor);
+void updateAnchorByUsdTransform(
+    const CesiumGeospatial::Cartographic& origin,
+    const pxr::CesiumGlobeAnchorAPI& anchorApi);
 void updateAnchorByLatLongHeight(const CesiumGeospatial::Cartographic& origin, const pxr::CesiumGlobeAnchorAPI& anchor);
 void updateAnchorByFixedTransform(
     const CesiumGeospatial::Cartographic& origin,
-    const pxr::CesiumGlobeAnchorAPI& anchor);
+    const pxr::CesiumGlobeAnchorAPI& anchorApi);
 
 }; // namespace cesium::omniverse::GeospatialUtil

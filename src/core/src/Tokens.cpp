@@ -16,6 +16,7 @@ __pragma(warning(disable: 4003))
 TF_DEFINE_PRIVATE_TOKENS(
     UsdTokens,
     (baseColorTex)
+    (cesium)
     (constant)
     (doubleSided)
     (extent)
@@ -38,7 +39,7 @@ TF_DEFINE_PRIVATE_TOKENS(
     (vertexColor)
     (wrap_s)
     (wrap_t)
-    ((xformOp_transform, "xformOp:transform"))
+    ((xformOp_transform_cesium, "xformOp:transform:cesium"))
     (_cesium_localToEcefTransform)
     (_cesium_tilesetId)
     (_deletedPrims)
@@ -153,6 +154,7 @@ const omni::fabric::TokenC _worldVisibility = omni::fabric::asInt(pxr::UsdTokens
 
 namespace cesium::omniverse::UsdTokens {
 const pxr::TfToken& baseColorTex = pxr::UsdTokens->baseColorTex;
+const pxr::TfToken& cesium = pxr::UsdTokens->cesium;
 const pxr::TfToken& constant = pxr::UsdTokens->constant;
 const pxr::TfToken& doubleSided = pxr::UsdTokens->doubleSided;
 const pxr::TfToken& extent = pxr::UsdTokens->extent;
@@ -204,7 +206,7 @@ const pxr::TfToken& vertex = pxr::UsdTokens->vertex;
 const pxr::TfToken& vertexColor = pxr::UsdTokens->vertexColor;
 const pxr::TfToken& wrap_s = pxr::UsdTokens->wrap_s;
 const pxr::TfToken& wrap_t = pxr::UsdTokens->wrap_t;
-const pxr::TfToken& xformOp_transform = pxr::UsdTokens->xformOp_transform;
+const pxr::TfToken& xformOp_transform_cesium = pxr::UsdTokens->xformOp_transform_cesium;
 const pxr::TfToken& _auto = pxr::UsdTokens->_auto;
 const pxr::TfToken& _cesium_localToEcefTransform = pxr::UsdTokens->_cesium_localToEcefTransform;
 const pxr::TfToken& _cesium_tilesetId = pxr::UsdTokens->_cesium_tilesetId;

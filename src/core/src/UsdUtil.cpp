@@ -2,6 +2,7 @@
 
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/GeospatialUtil.h"
+#include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/Viewport.h"
 
 #include <CesiumGeometry/Transforms.h>
@@ -19,6 +20,7 @@
 #include <pxr/usd/usd/timeCode.h>
 #include <pxr/usd/usdGeom/metrics.h>
 #include <pxr/usd/usdGeom/xform.h>
+#include <pxr/usd/usdGeom/xformCommonAPI.h>
 #include <spdlog/fmt/fmt.h>
 
 #include <regex>
@@ -501,6 +503,39 @@ void setGeoreferenceForTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPa
         auto tileset = getCesiumTileset(tilesetPath);
 
         tileset.GetGeoreferenceBindingRel().AddTarget(georeferencePath);
+    }
+}
+
+void addOrUpdateTransformOpForAnchor(const pxr::SdfPath& path, const glm::dmat4& transform) {
+    auto prim = getUsdStage()->GetPrimAtPath(path);
+    
+    if (!hasCesiumGlobeAnchor(path)) {
+        return;
+    }
+
+    auto xform = pxr::UsdGeomXform(prim);
+    auto resetXformStack = xform.GetResetXformStack();
+    auto xformOps = xform.GetOrderedXformOps(&resetXformStack);
+
+    auto hasCesiumSuffix = [](auto op) { return op.HasSuffix(UsdTokens::cesium); };
+    auto transformOp = std::find_if(xformOps.begin(), xformOps.end(), hasCesiumSuffix);
+
+    if (transformOp != xformOps.end()) {
+        transformOp->Set(UsdUtil::glmToUsdMatrix(transform));
+    } else {
+        // We need to do this when it's a new anchor.
+        xform.ClearXformOpOrder();
+
+        // We reset the TRS values to defaults, so they can be used as an offset.
+        //   This has the side effect of "baking" the transform at the time that the anchor is added
+        //   to the into the anchor transform. Maybe we can fix that later.
+        auto xformCommonApi = pxr::UsdGeomXformCommonAPI(prim);
+        xformCommonApi.SetTranslate(pxr::GfVec3d(0., 0., 0.));
+        xformCommonApi.SetRotate(pxr::GfVec3f(0.f, 0.f, 0.f));
+        xformCommonApi.SetScale(pxr::GfVec3f(1.f, 1.f, 1.f));
+
+        xform.AddTransformOp(pxr::UsdGeomXformOp::PrecisionDouble, UsdTokens::cesium)
+            .Set(UsdUtil::glmToUsdMatrix(transform));
     }
 }
 
