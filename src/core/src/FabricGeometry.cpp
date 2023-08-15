@@ -292,7 +292,7 @@ void FabricGeometry::setGeometry(
 
     if (primitive.mode == 0) { //if tile is a point cloud
 
-        const float quadHalfSize = 1.0f;
+        const float quadHalfSize = 2.0f;
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::points, positions.size() * 4);
 
         size_t primvarsCount = 0;
@@ -307,7 +307,7 @@ void FabricGeometry::setGeometry(
         auto numQuads = positions.size();
 
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::points, static_cast<size_t>(numQuads * 4));
-        srw.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexCounts, numQuads * 4 * 2);
+        srw.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexCounts, numQuads * 2);
         auto pointsFabric =
             srw.getArrayAttributeWr<pxr::GfVec3f>(_pathFabric, FabricTokens::points);
         auto faceVertexCountsFabric =
