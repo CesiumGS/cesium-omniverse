@@ -292,22 +292,12 @@ void FabricGeometry::setGeometry(
 
     if (primitive.mode == 0) { //if tile is a point cloud
 
-        const float quadHalfSize = 2.0f;
-        srw.setArrayAttributeSize(_pathFabric, FabricTokens::points, positions.size() * 4);
-
-        size_t primvarsCount = 0;
-        const size_t primvarIndexDisplayColor = primvarsCount++;
-        srw.setArrayAttributeSize(_pathFabric, FabricTokens::primvars, primvarsCount);
-        auto primvarsFabric = srw.getArrayAttribute<omni::fabric::Token>(_pathFabric, FabricTokens::primvars);
-        primvarsFabric[primvarIndexDisplayColor] = FabricTokens::primvars_displayColor;
-        srw.setArrayAttributeSize(_pathFabric, FabricTokens::primvarInterpolations, 1);
-        auto primvarInterpolationsFabric = srw.getArrayAttributeWr<omni::fabric::Token>(_pathFabric, FabricTokens::primvarInterpolations);
-        primvarInterpolationsFabric[primvarIndexDisplayColor] = FabricTokens::vertex;
-
         auto numQuads = positions.size();
-
+        const float quadHalfSize = 2.0f;
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::points, static_cast<size_t>(numQuads * 4));
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexCounts, numQuads * 2);
+        srw.setArrayAttributeSize(_pathFabric, FabricTokens::primvars_displayColor, numQuads * 4);
+
         auto pointsFabric =
             srw.getArrayAttributeWr<pxr::GfVec3f>(_pathFabric, FabricTokens::points);
         auto faceVertexCountsFabric =
@@ -315,7 +305,6 @@ void FabricGeometry::setGeometry(
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexIndices, numQuads * 4 * 2 * 3);
         auto faceVertexIndicesFabric =
             srw.getArrayAttributeWr<int>(_pathFabric, FabricTokens::faceVertexIndices);
-        srw.setArrayAttributeSize(_pathFabric, FabricTokens::primvars_displayColor, numQuads * 4);
 
         std::vector<glm::fvec3> vertexColorsData(numQuads);
         gsl::span<glm::fvec3> vertexColorsSpan(vertexColorsData);
