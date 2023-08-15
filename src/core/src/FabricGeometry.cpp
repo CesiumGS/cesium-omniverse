@@ -293,11 +293,9 @@ void FabricGeometry::setGeometry(
     if (primitive.mode == 0) { //if tile is a point cloud
 
         const auto numVoxels = positions.size();
-        const float quadHalfSize = 1.5f;
+        const auto shapeHalfSize = 1.5f;
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::points, static_cast<size_t>(numVoxels * 8));
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexCounts, numVoxels * 2 * 6);
-        srw.setArrayAttributeSize(_pathFabric, FabricTokens::primvars_displayColor, numVoxels * 8);
-
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexIndices, numVoxels * 6 * 2 * 3);
 
         auto pointsFabric = srw.getArrayAttributeWr<pxr::GfVec3f>(_pathFabric, FabricTokens::points);
@@ -321,14 +319,14 @@ void FabricGeometry::setGeometry(
             auto centerGlm = positions.get(voxelNum);
             pxr::GfVec3f center{centerGlm.x, centerGlm.y, centerGlm.z};
 
-            pointsFabric[vertIndex++] = pxr::GfVec3f{-quadHalfSize, -quadHalfSize, -quadHalfSize} + center;
-            pointsFabric[vertIndex++] = pxr::GfVec3f{-quadHalfSize, quadHalfSize, -quadHalfSize} + center;
-            pointsFabric[vertIndex++] = pxr::GfVec3f{quadHalfSize, quadHalfSize, -quadHalfSize} + center;
-            pointsFabric[vertIndex++] = pxr::GfVec3f{quadHalfSize, -quadHalfSize, -quadHalfSize} + center;
-            pointsFabric[vertIndex++] = pxr::GfVec3f{-quadHalfSize, -quadHalfSize, quadHalfSize} + center;
-            pointsFabric[vertIndex++] = pxr::GfVec3f{-quadHalfSize, quadHalfSize, quadHalfSize} + center;
-            pointsFabric[vertIndex++] = pxr::GfVec3f{quadHalfSize, quadHalfSize, quadHalfSize} + center;
-            pointsFabric[vertIndex++] = pxr::GfVec3f{quadHalfSize, -quadHalfSize, quadHalfSize} + center;
+            pointsFabric[vertIndex++] = pxr::GfVec3f{-shapeHalfSize, -shapeHalfSize, -shapeHalfSize} + center;
+            pointsFabric[vertIndex++] = pxr::GfVec3f{-shapeHalfSize, shapeHalfSize, -shapeHalfSize} + center;
+            pointsFabric[vertIndex++] = pxr::GfVec3f{shapeHalfSize, shapeHalfSize, -shapeHalfSize} + center;
+            pointsFabric[vertIndex++] = pxr::GfVec3f{shapeHalfSize, -shapeHalfSize, -shapeHalfSize} + center;
+            pointsFabric[vertIndex++] = pxr::GfVec3f{-shapeHalfSize, -shapeHalfSize, shapeHalfSize} + center;
+            pointsFabric[vertIndex++] = pxr::GfVec3f{-shapeHalfSize, shapeHalfSize, shapeHalfSize} + center;
+            pointsFabric[vertIndex++] = pxr::GfVec3f{shapeHalfSize, shapeHalfSize, shapeHalfSize} + center;
+            pointsFabric[vertIndex++] = pxr::GfVec3f{shapeHalfSize, -shapeHalfSize, shapeHalfSize} + center;
 
             for (int i = 0; i < 6; i++) {
                 faceVertexCountsFabric[vertexCountsIndex++] = 3;
@@ -403,6 +401,8 @@ void FabricGeometry::setGeometry(
         *worldPositionFabric = worldPosition;
         *worldOrientationFabric = worldOrientation;
         *worldScaleFabric = worldScale;
+
+        FabricUtil::setTilesetId(_pathFabric, tilesetId);
     } else {
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexCounts, faceVertexCounts.size());
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexIndices, indices.size());
