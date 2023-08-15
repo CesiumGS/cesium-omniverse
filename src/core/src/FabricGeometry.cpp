@@ -290,7 +290,7 @@ void FabricGeometry::setGeometry(
     const auto [worldPosition, worldOrientation, worldScale] = UsdUtil::glmToUsdMatrixDecomposed(localToUsdTransform);
     const auto worldExtent = UsdUtil::computeWorldExtent(localExtent, localToUsdTransform);
 
-    if (primitive.mode == 0) { //if tile is a point cloud
+    if (primitive.mode == CesiumGltf::MeshPrimitive::Mode::POINTS) {
 
         const auto numVoxels = positions.size();
         const auto shapeHalfSize = 1.5f;
