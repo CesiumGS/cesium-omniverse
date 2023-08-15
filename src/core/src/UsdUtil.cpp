@@ -196,8 +196,9 @@ std::string getSafeName(const std::string& name) {
     return std::regex_replace(name, regex, replace);
 }
 
-pxr::SdfAssetPath getDynamicTextureProviderAssetPath(const std::string& name) {
-    return pxr::SdfAssetPath(fmt::format("{}{}", rtx::resourcemanager::kDynamicTexturePrefix, name));
+pxr::TfToken getDynamicTextureProviderAssetPathToken(const std::string& name) {
+    return pxr::TfToken(
+        pxr::SdfAssetPath(fmt::format("{}{}", rtx::resourcemanager::kDynamicTexturePrefix, name)).GetAssetPath());
 }
 
 glm::dmat4

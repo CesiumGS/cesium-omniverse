@@ -12,7 +12,7 @@ namespace cesium::omniverse {
 
 FabricTexture::FabricTexture(const std::string& name)
     : _texture(std::make_unique<omni::ui::DynamicTextureProvider>(name))
-    , _assetPath(UsdUtil::getDynamicTextureProviderAssetPath(name)) {
+    , _assetPathToken(UsdUtil::getDynamicTextureProviderAssetPathToken(name)) {
     reset();
 }
 
@@ -24,8 +24,8 @@ void FabricTexture::setActive(bool active) {
     }
 }
 
-const pxr::SdfAssetPath& FabricTexture::getAssetPath() const {
-    return _assetPath;
+const pxr::TfToken& FabricTexture::getAssetPathToken() const {
+    return _assetPathToken;
 }
 
 void FabricTexture::reset() {
