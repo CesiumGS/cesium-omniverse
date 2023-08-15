@@ -6,6 +6,7 @@
 #include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
+
 #include <glm/fwd.hpp>
 
 #ifdef CESIUM_OMNI_MSVC
