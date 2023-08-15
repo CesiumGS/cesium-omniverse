@@ -393,24 +393,11 @@ void FabricGeometry::setGeometry(
         auto faceVertexCountsFabric = srw.getArrayAttributeWr<int>(_pathFabric, FabricTokens::faceVertexCounts);
         auto faceVertexIndicesFabric = srw.getArrayAttributeWr<int>(_pathFabric, FabricTokens::faceVertexIndices);
         auto pointsFabric = srw.getArrayAttributeWr<glm::fvec3>(_pathFabric, FabricTokens::points);
-        auto displayColorFabric = srw.getArrayAttributeWr<pxr::GfVec3f>(_pathFabric, FabricTokens::primvars_displayColor);
-        auto displayOpacityFabric = srw.getArrayAttributeWr<float>(_pathFabric, FabricTokens::primvars_displayOpacity);
         // clang-format on
 
         faceVertexCounts.fill(faceVertexCountsFabric);
         indices.fill(faceVertexIndicesFabric);
         positions.fill(pointsFabric);
-
-        if (_debugRandomColors) {
-            const auto r = glm::linearRand(0.0f, 1.0f);
-            const auto g = glm::linearRand(0.0f, 1.0f);
-            const auto b = glm::linearRand(0.0f, 1.0f);
-            displayColorFabric[0] = pxr::GfVec3f(r, g, b);
-        } else {
-            displayColorFabric[0] = DEFAULT_VERTEX_COLOR;
-        }
-
-        displayOpacityFabric[0] = DEFAULT_VERTEX_OPACITY;
 
         if (hasTexcoords) {
             const auto& texcoords = hasImagery ? imageryTexcoords : texcoords_0;
@@ -447,6 +434,8 @@ void FabricGeometry::setGeometry(
     auto worldPositionFabric = srw.getAttributeWr<pxr::GfVec3d>(_pathFabric, FabricTokens::_worldPosition);
     auto worldOrientationFabric = srw.getAttributeWr<pxr::GfQuatf>(_pathFabric, FabricTokens::_worldOrientation);
     auto worldScaleFabric = srw.getAttributeWr<pxr::GfVec3f>(_pathFabric, FabricTokens::_worldScale);
+    auto displayColorFabric = srw.getArrayAttributeWr<pxr::GfVec3f>(_pathFabric, FabricTokens::primvars_displayColor);
+    auto displayOpacityFabric = srw.getArrayAttributeWr<float>(_pathFabric, FabricTokens::primvars_displayOpacity);
     // clang-format on
 
     *extentFabric = localExtent;
@@ -455,6 +444,17 @@ void FabricGeometry::setGeometry(
     *worldPositionFabric = worldPosition;
     *worldOrientationFabric = worldOrientation;
     *worldScaleFabric = worldScale;
+
+    if (_debugRandomColors) {
+        const auto r = glm::linearRand(0.0f, 1.0f);
+        const auto g = glm::linearRand(0.0f, 1.0f);
+        const auto b = glm::linearRand(0.0f, 1.0f);
+        displayColorFabric[0] = pxr::GfVec3f(r, g, b);
+    } else {
+        displayColorFabric[0] = DEFAULT_VERTEX_COLOR;
+    }
+
+    displayOpacityFabric[0] = DEFAULT_VERTEX_OPACITY;
 
     FabricUtil::setTilesetId(_pathFabric, tilesetId);
 }
