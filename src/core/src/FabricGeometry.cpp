@@ -292,7 +292,7 @@ void FabricGeometry::setGeometry(
 
     if (primitive.mode == 0) { //if tile is a point cloud
 
-        auto numVoxels = positions.size();
+        const auto numVoxels = positions.size();
         const float quadHalfSize = 1.5f;
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::points, static_cast<size_t>(numVoxels * 8));
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexCounts, numVoxels * 2 * 6);
@@ -378,14 +378,14 @@ void FabricGeometry::setGeometry(
             faceVertexIndicesFabric[faceVertexIndex++] = 5 + static_cast<int>(voxelCounter * 8);
             faceVertexIndicesFabric[faceVertexIndex++] = 4 + static_cast<int>(voxelCounter * 8);
 
-            voxelCounter++;
-
-            auto color = vertexColorsSpan[voxelNum];
             if (hasVertexColors) {
+                const auto color = vertexColorsSpan[voxelNum];
                 for (int i = 0; i < 8; i++) {
                     vertexColorsFabric[vertexColorsIndex++] = color;
                 }
             }
+
+            voxelCounter++;
         }
 
         // clang-format off
