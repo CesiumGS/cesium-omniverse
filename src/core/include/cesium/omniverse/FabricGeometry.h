@@ -13,12 +13,10 @@ struct Model;
 
 namespace cesium::omniverse {
 
-class FabricMaterial;
-
 class FabricGeometry {
   public:
     FabricGeometry(
-        const pxr::SdfPath& path,
+        const omni::fabric::Path& path,
         const FabricGeometryDefinition& geometryDefinition,
         bool debugRandomColors,
         long stageId);
@@ -37,7 +35,7 @@ class FabricGeometry {
     void setActive(bool active);
     void setVisibility(bool visible);
 
-    [[nodiscard]] omni::fabric::Path getPathFabric() const;
+    [[nodiscard]] omni::fabric::Path getPath() const;
     [[nodiscard]] const FabricGeometryDefinition& getGeometryDefinition() const;
 
     void setMaterial(const omni::fabric::Path& materialPath);
@@ -47,7 +45,7 @@ class FabricGeometry {
     void reset();
     bool stageDestroyed();
 
-    const omni::fabric::Path _pathFabric;
+    const omni::fabric::Path _path;
     const FabricGeometryDefinition _geometryDefinition;
     const bool _debugRandomColors;
     const long _stageId;

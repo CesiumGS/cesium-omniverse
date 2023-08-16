@@ -4,11 +4,6 @@
 #include <pxr/base/gf/vec2f.h>
 #include <pxr/base/gf/vec3f.h>
 
-namespace CesiumGltf {
-struct MeshPrimitive;
-struct Model;
-} // namespace CesiumGltf
-
 namespace cesium::omniverse {
 
 struct MaterialInfo;

@@ -1,0 +1,16 @@
+mdl 1.8;
+
+import ::anno::*;
+import ::state::*;
+import ::tex::*;
+
+using ::gltf::pbr import *;
+
+module [[
+    anno::version( 1, 0, 0),
+    anno::display_name("Cesium MDL functions")
+]];
+
+// For internal use only. See note in FabricMaterial.cpp
+export gltf_texture_lookup_value cesium_texture_lookup(*) [[ anno::hidden() ]] = gltf_texture_lookup();
+export material cesium_material(*) [[ anno::hidden() ]] = gltf_material();

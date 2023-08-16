@@ -31,6 +31,8 @@ std::string printFabricStage();
 FabricStatistics getStatistics();
 void destroyPrim(const omni::fabric::Path& path);
 void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform);
-void setTilesetId(const omni::fabric::Path& pathFabric, int64_t tilesetId);
+void setTilesetId(const omni::fabric::Path& path, int64_t tilesetId);
+omni::fabric::Path toFabricPath(const pxr::SdfPath& path);
+omni::fabric::Path joinPaths(const omni::fabric::Path& absolutePath, const omni::fabric::Token& relativePath);
 
 } // namespace cesium::omniverse::FabricUtil

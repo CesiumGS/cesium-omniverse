@@ -3,11 +3,11 @@
 #include "cesium/omniverse/FabricGeometry.h"
 #include "cesium/omniverse/FabricGeometryDefinition.h"
 #include "cesium/omniverse/FabricGeometryPool.h"
-#include "cesium/omniverse/FabricMaterial.h"
 #include "cesium/omniverse/FabricMaterialDefinition.h"
 #include "cesium/omniverse/FabricMaterialPool.h"
 #include "cesium/omniverse/FabricTexture.h"
 #include "cesium/omniverse/FabricTexturePool.h"
+#include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/UsdUtil.h"
 
@@ -30,7 +30,7 @@ template <typename T> void removePool(std::vector<T>& pools, const T& pool) {
 
 FabricResourceManager::FabricResourceManager() {
     const auto defaultTextureName = "fabric_default_texture";
-    _defaultTextureAssetPath = UsdUtil::getDynamicTextureProviderAssetPath(defaultTextureName);
+    _defaultTextureAssetPathToken = UsdUtil::getDynamicTextureProviderAssetPathToken(defaultTextureName);
     _defaultTexture = std::make_unique<omni::ui::DynamicTextureProvider>(defaultTextureName);
 
     const auto bytes = std::array<uint8_t, 4>{{255, 255, 255, 255}};
@@ -43,12 +43,12 @@ FabricResourceManager::~FabricResourceManager() = default;
 bool FabricResourceManager::shouldAcquireMaterial(
     const CesiumGltf::MeshPrimitive& primitive,
     bool hasImagery,
-    const pxr::SdfPath& materialPath) const {
+    const pxr::SdfPath& tilesetMaterialPath) const {
     if (_disableMaterials) {
         return false;
     }
 
-    if (!materialPath.IsEmpty()) {
+    if (!tilesetMaterialPath.IsEmpty()) {
         return false;
     }
 
@@ -64,7 +64,8 @@ std::shared_ptr<FabricGeometry> FabricResourceManager::acquireGeometry(
     FabricGeometryDefinition geometryDefinition(model, primitive, smoothNormals);
 
     if (_disableGeometryPool) {
-        const auto path = pxr::SdfPath(fmt::format("/fabric_geometry_{}", getNextGeometryId()));
+        const auto pathStr = fmt::format("/fabric_geometry_{}", getNextGeometryId());
+        const auto path = omni::fabric::Path(pathStr.c_str());
         return std::make_shared<FabricGeometry>(path, geometryDefinition, _debugRandomColors, stageId);
     }
 
@@ -85,8 +86,9 @@ FabricResourceManager::acquireMaterial(const MaterialInfo& materialInfo, bool ha
     FabricMaterialDefinition materialDefinition(materialInfo, hasImagery, _disableTextures);
 
     if (_disableMaterialPool) {
-        const auto path = pxr::SdfPath(fmt::format("/fabric_material_{}", getNextMaterialId()));
-        return std::make_shared<FabricMaterial>(path, materialDefinition, _defaultTextureAssetPath, stageId);
+        const auto pathStr = fmt::format("/fabric_material_{}", getNextMaterialId());
+        const auto path = omni::fabric::Path(pathStr.c_str());
+        return std::make_shared<FabricMaterial>(path, materialDefinition, _defaultTextureAssetPathToken, stageId);
     }
 
     std::scoped_lock<std::mutex> lock(_poolMutex);
@@ -258,7 +260,7 @@ FabricResourceManager::createGeometryPool(const FabricGeometryDefinition& geomet
 std::shared_ptr<FabricMaterialPool>
 FabricResourceManager::createMaterialPool(const FabricMaterialDefinition& materialDefinition, long stageId) {
     return _materialPools.emplace_back(std::make_shared<FabricMaterialPool>(
-        getNextPoolId(), materialDefinition, _materialPoolInitialCapacity, _defaultTextureAssetPath, stageId));
+        getNextPoolId(), materialDefinition, _materialPoolInitialCapacity, _defaultTextureAssetPathToken, stageId));
 }
 
 std::shared_ptr<FabricTexturePool> FabricResourceManager::createTexturePool() {
