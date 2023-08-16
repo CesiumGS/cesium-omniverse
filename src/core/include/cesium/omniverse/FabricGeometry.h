@@ -35,7 +35,7 @@ class FabricGeometry {
     void setActive(bool active);
     void setVisibility(bool visible);
 
-    [[nodiscard]] omni::fabric::Path getPath() const;
+    [[nodiscard]] const omni::fabric::Path& getPath() const;
     [[nodiscard]] const FabricGeometryDefinition& getGeometryDefinition() const;
 
     void setMaterial(const omni::fabric::Path& materialPath);
