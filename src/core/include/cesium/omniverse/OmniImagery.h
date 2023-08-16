@@ -6,7 +6,7 @@
 namespace cesium::omniverse {
 class OmniImagery {
   public:
-    OmniImagery(pxr::SdfPath path);
+    OmniImagery(const pxr::SdfPath& path);
 
     [[nodiscard]] pxr::SdfPath getPath() const;
     [[nodiscard]] std::string getName() const;

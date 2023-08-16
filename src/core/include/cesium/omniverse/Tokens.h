@@ -6,15 +6,14 @@
 // clang-format off
 
 namespace cesium::omniverse::FabricTokens {
-extern const omni::fabric::TokenC baseColorTex;
+extern const omni::fabric::TokenC baseColorTexture;
+extern const omni::fabric::TokenC cesium_material;
+extern const omni::fabric::TokenC cesium_texture_lookup;
 extern const omni::fabric::TokenC constant;
 extern const omni::fabric::TokenC doubleSided;
 extern const omni::fabric::TokenC extent;
 extern const omni::fabric::TokenC faceVertexCounts;
 extern const omni::fabric::TokenC faceVertexIndices;
-extern const omni::fabric::TokenC gltf_material;
-extern const omni::fabric::TokenC gltf_pbr_mdl;
-extern const omni::fabric::TokenC gltf_texture_lookup;
 extern const omni::fabric::TokenC info_implementationSource;
 extern const omni::fabric::TokenC info_mdl_sourceAsset;
 extern const omni::fabric::TokenC info_mdl_sourceAsset_subIdentifier;
@@ -24,6 +23,7 @@ extern const omni::fabric::TokenC inputs_base_alpha;
 extern const omni::fabric::TokenC inputs_base_color_factor;
 extern const omni::fabric::TokenC inputs_base_color_texture;
 extern const omni::fabric::TokenC inputs_emissive_factor;
+extern const omni::fabric::TokenC inputs_excludeFromWhiteMode;
 extern const omni::fabric::TokenC inputs_metallic_factor;
 extern const omni::fabric::TokenC inputs_offset;
 extern const omni::fabric::TokenC inputs_rotation;
@@ -70,15 +70,14 @@ extern const omni::fabric::TokenC _worldVisibility;
 }
 
 namespace cesium::omniverse::UsdTokens {
-extern const pxr::TfToken& baseColorTex;
+extern const pxr::TfToken& baseColorTexture;
+extern const pxr::TfToken& cesium_material;
+extern const pxr::TfToken& cesium_texture_lookup;
 extern const pxr::TfToken& constant;
 extern const pxr::TfToken& doubleSided;
 extern const pxr::TfToken& extent;
 extern const pxr::TfToken& faceVertexCounts;
 extern const pxr::TfToken& faceVertexIndices;
-extern const pxr::TfToken& gltf_material;
-extern const pxr::TfToken& gltf_pbr_mdl;
-extern const pxr::TfToken& gltf_texture_lookup;
 extern const pxr::TfToken& info_implementationSource;
 extern const pxr::TfToken& info_mdl_sourceAsset;
 extern const pxr::TfToken& info_mdl_sourceAsset_subIdentifier;
@@ -88,6 +87,7 @@ extern const pxr::TfToken& inputs_base_alpha;
 extern const pxr::TfToken& inputs_base_color_factor;
 extern const pxr::TfToken& inputs_base_color_texture;
 extern const pxr::TfToken& inputs_emissive_factor;
+extern const pxr::TfToken& inputs_excludeFromWhiteMode;
 extern const pxr::TfToken& inputs_metallic_factor;
 extern const pxr::TfToken& inputs_offset;
 extern const pxr::TfToken& inputs_rotation;
@@ -147,6 +147,7 @@ const omni::fabric::Type inputs_alpha_mode(omni::fabric::BaseDataType::eInt, 1, 
 const omni::fabric::Type inputs_base_alpha(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_base_color_factor(omni::fabric::BaseDataType::eFloat, 3, 0, omni::fabric::AttributeRole::eColor);
 const omni::fabric::Type inputs_emissive_factor(omni::fabric::BaseDataType::eFloat, 3, 0, omni::fabric::AttributeRole::eColor);
+const omni::fabric::Type inputs_excludeFromWhiteMode(omni::fabric::BaseDataType::eBool, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_metallic_factor(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_offset(omni::fabric::BaseDataType::eFloat, 2, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_rotation(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);

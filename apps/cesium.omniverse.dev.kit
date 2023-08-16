@@ -6,6 +6,7 @@ app = true
 [dependencies]
 # Include basic configuration (that brings most of basic extensions)
 "omni.app.dev" = {}
+"omni.kit.window.material_graph" = {}
 "cesium.omniverse" = {}
 "cesium.powertools" = {}
 #"omni.example.ui" = {}
@@ -17,6 +18,15 @@ app.useFabricSceneDelegate = true
 app.usdrt.scene_delegate.enableProxyCubes = false
 app.usdrt.scene_delegate.geometryStreaming.enabled = false
 app.fastShutdown = true
+# Both searchPaths settings must be set in order for material graph to find cesium mdl exports
+renderer.mdl.searchPaths.custom = "${app}/../exts/cesium.omniverse/mdl"
+materialConfig.searchPaths.custom = ["${app}/../exts/cesium.omniverse/mdl"]
+materialConfig.materialGraph.userAllowList = ["cesium.mdl"]
 
 [settings.app.exts]
-folders.'++' = ["${app}/../exts"] # Make extensions from this repo available.
+folders.'++' = [
+    "${app}", # Find other applications in this folder
+    "${app}/exts", # Find extensions in this folder
+    "${app}/../exts", # Find cesium.omniverse and cesium.usd.schemas
+    "${app}/../extern/nvidia/app/extscache" # Find omni.kit.window.material_graph
+]

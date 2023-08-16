@@ -89,6 +89,16 @@ void UsdNotificationHandler::onObjectsChanged(const pxr::UsdNotice::ObjectsChang
     for (const auto& path : resyncedPaths) {
         if (path.IsPrimPath()) {
             if (UsdUtil::primExists(path)) {
+                const auto isTileset = getType(path) == ChangedPrimType::CESIUM_TILESET;
+                const auto alreadyRegistered = AssetRegistry::getInstance().getTilesetByPath(path).has_value();
+
+                if (isTileset && alreadyRegistered) {
+                    // A prim may be resynced even if its path doesn't change, like when an API Schema is applied to it
+                    // This happens when a material is assigned to a tileset for the first time
+                    // We don't want to add the prim again if it's already registered
+                    continue;
+                }
+
                 onPrimAdded(path);
             } else {
                 onPrimRemoved(path);
