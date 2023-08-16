@@ -142,11 +142,11 @@ void FabricMaterial::createShader(const omni::fabric::Path& shaderPath, const om
     *infoMdlSourceAssetSubIdentifierFabric = FabricTokens::cesium_material;
 
     if (hasVertexColors) {
-        const auto vertexColorPrimvarNameSize = UsdTokens::vertexColor.GetString().size();
+        const auto vertexColorPrimvarNameSize = pxr::UsdTokens->vertexColor.GetString().size();
         srw.setArrayAttributeSize(shaderPath, FabricTokens::inputs_vertex_color_name, vertexColorPrimvarNameSize);
         auto vertexColorNameFabric =
             srw.getArrayAttributeWr<uint8_t>(shaderPath, FabricTokens::inputs_vertex_color_name);
-        memcpy(vertexColorNameFabric.data(), UsdTokens::vertexColor.GetText(), vertexColorPrimvarNameSize);
+        memcpy(vertexColorNameFabric.data(), pxr::UsdTokens->vertexColor.GetText(), vertexColorPrimvarNameSize);
     }
 
     // Connect the material terminals to the shader.
