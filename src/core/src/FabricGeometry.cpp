@@ -293,10 +293,9 @@ void FabricGeometry::setGeometry(
     const auto worldExtent = UsdUtil::computeWorldExtent(localExtent, localToUsdTransform);
 
     if (primitive.mode == CesiumGltf::MeshPrimitive::Mode::POINTS) {
-
         const auto numVoxels = positions.size();
         const auto shapeHalfSize = 1.5f;
-        srw.setArrayAttributeSize(_pathFabric, FabricTokens::points, static_cast<size_t>(numVoxels * 8));
+        srw.setArrayAttributeSize(_pathFabric, FabricTokens::points, numVoxels * 8);
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexCounts, numVoxels * 2 * 6);
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexIndices, numVoxels * 6 * 2 * 3);
 
@@ -317,7 +316,7 @@ void FabricGeometry::setGeometry(
         size_t faceVertexIndex = 0;
         size_t vertexColorsIndex = 0;
         for (size_t voxelIndex = 0; voxelIndex < numVoxels; voxelIndex++) {
-            const auto center = positions.get(voxelIndex);
+            const auto& center = positions.get(voxelIndex);
 
             pointsFabric[vertIndex++] = glm::fvec3{-shapeHalfSize, -shapeHalfSize, -shapeHalfSize} + center;
             pointsFabric[vertIndex++] = glm::fvec3{-shapeHalfSize, shapeHalfSize, -shapeHalfSize} + center;
@@ -377,23 +376,20 @@ void FabricGeometry::setGeometry(
             faceVertexIndicesFabric[faceVertexIndex++] = 4 + static_cast<int>(voxelIndex * 8);
 
             if (hasVertexColors) {
-                const auto color = vertexColorsSpan[voxelIndex];
+                const auto& color = vertexColorsSpan[voxelIndex];
                 for (int i = 0; i < 8; i++) {
                     vertexColorsFabric[vertexColorsIndex++] = color;
                 }
             }
         }
-
     } else {
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexCounts, faceVertexCounts.size());
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::faceVertexIndices, indices.size());
         srw.setArrayAttributeSize(_pathFabric, FabricTokens::points, positions.size());
 
-        // clang-format off
         auto faceVertexCountsFabric = srw.getArrayAttributeWr<int>(_pathFabric, FabricTokens::faceVertexCounts);
         auto faceVertexIndicesFabric = srw.getArrayAttributeWr<int>(_pathFabric, FabricTokens::faceVertexIndices);
         auto pointsFabric = srw.getArrayAttributeWr<glm::fvec3>(_pathFabric, FabricTokens::points);
-        // clang-format on
 
         faceVertexCounts.fill(faceVertexCountsFabric);
         indices.fill(faceVertexIndicesFabric);
