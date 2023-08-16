@@ -68,7 +68,7 @@ void FabricMaterial::initialize() {
 
     const auto& materialPath = _materialPath;
     const auto shaderPath = FabricUtil::joinPaths(materialPath, FabricTokens::Shader);
-    const auto baseColorTexturePath = FabricUtil::joinPaths(materialPath, FabricTokens::baseColorTex);
+    const auto baseColorTexturePath = FabricUtil::joinPaths(materialPath, FabricTokens::baseColorTexture);
 
     createMaterial(materialPath);
     _allPaths.push_back(materialPath);
@@ -102,7 +102,8 @@ void FabricMaterial::initializeFromExistingMaterial(const omni::fabric::Path& sr
         if (mdlIdentifier == FabricTokens::cesium_base_color_texture) {
             if (hasBaseColorTexture) {
                 // Create a base color texture node to fill the empty slot
-                const auto baseColorTexturePath = FabricUtil::joinPaths(dstMaterialPath, FabricTokens::baseColorTex);
+                const auto baseColorTexturePath =
+                    FabricUtil::joinPaths(dstMaterialPath, FabricTokens::baseColorTexture);
                 createTexture(baseColorTexturePath, dstPath, FabricTokens::inputs_base_color_texture);
                 _allPaths.push_back(baseColorTexturePath);
                 _baseColorTexturePaths.push_back(baseColorTexturePath);
@@ -169,9 +170,9 @@ void FabricMaterial::createShader(const omni::fabric::Path& shaderPath, const om
 
     *inputsExcludeFromWhiteModeFabric = false;
     *infoImplementationSourceFabric = FabricTokens::sourceAsset;
-    infoMdlSourceAssetFabric->assetPath = UsdTokens::gltf_pbr_mdl;
+    infoMdlSourceAssetFabric->assetPath = Context::instance().getCesiumMdlPathToken();
     infoMdlSourceAssetFabric->resolvedPath = pxr::TfToken();
-    *infoMdlSourceAssetSubIdentifierFabric = FabricTokens::gltf_material;
+    *infoMdlSourceAssetSubIdentifierFabric = FabricTokens::cesium_material;
 
     if (hasVertexColors) {
         const auto vertexColorPrimvarNameSize = UsdTokens::vertexColor.GetString().size();
@@ -239,17 +240,11 @@ void FabricMaterial::createTexture(
     auto paramColorSpaceFabric = srw.getArrayAttributeWr<omni::fabric::Token>(texturePath, FabricTokens::_paramColorSpace);
     // clang-format on
 
-    // For some reason, when a material network has both cesium nodes and glTF nodes it causes an infinite loop of
-    // material loading. If this material is initialized from a tileset material use the cesium wrapper nodes instead.
-    const auto& custom = _materialDefinition.hasTilesetMaterial();
-    const auto& assetPath = custom ? Context::instance().getCesiumMdlPathToken() : UsdTokens::gltf_pbr_mdl;
-    const auto& subIdentifier = custom ? FabricTokens::cesium_texture_lookup : FabricTokens::gltf_texture_lookup;
-
     *inputsExcludeFromWhiteModeFabric = false;
     *infoImplementationSourceFabric = FabricTokens::sourceAsset;
-    infoMdlSourceAssetFabric->assetPath = assetPath;
+    infoMdlSourceAssetFabric->assetPath = Context::instance().getCesiumMdlPathToken();
     infoMdlSourceAssetFabric->resolvedPath = pxr::TfToken();
-    *infoMdlSourceAssetSubIdentifierFabric = subIdentifier;
+    *infoMdlSourceAssetSubIdentifierFabric = FabricTokens::cesium_texture_lookup;
     paramColorSpaceFabric[0] = FabricTokens::inputs_texture;
     paramColorSpaceFabric[1] = FabricTokens::_auto;
 
@@ -278,6 +273,10 @@ void FabricMaterial::setMaterial(int64_t tilesetId, const MaterialInfo& material
 }
 
 void FabricMaterial::setBaseColorTexture(const pxr::TfToken& textureAssetPathToken, const TextureInfo& textureInfo) {
+    if (stageDestroyed()) {
+        return;
+    }
+
     for (auto& _baseColorTexturePath : _baseColorTexturePaths) {
         setTextureValues(_baseColorTexturePath, textureAssetPathToken, textureInfo);
     }

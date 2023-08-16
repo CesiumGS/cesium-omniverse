@@ -74,9 +74,6 @@ export color cesium_lookup_world_texture_color(uniform texture_2d texture = text
         wrap_v: ::tex::wrap_clamp);
 }
 
-// For internal use only. See note in FabricMaterial.cpp
-export gltf_texture_lookup_value cesium_texture_lookup(*) [[ anno::hidden() ]] = gltf_texture_lookup();
-
 export color cesium_base_color_texture(
     gltf_texture_lookup_value base_color_texture
     [[
@@ -93,3 +90,7 @@ export color cesium_base_color_texture(
 {
     return color(base_color_texture.value.x, base_color_texture.value.y, base_color_texture.value.z);
 }
+
+// For internal use only. See note in FabricMaterial.cpp
+export gltf_texture_lookup_value cesium_texture_lookup(*) [[ anno::hidden() ]] = gltf_texture_lookup();
+export material cesium_material(*) [[ anno::hidden() ]] = gltf_material();

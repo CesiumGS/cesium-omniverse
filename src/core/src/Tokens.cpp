@@ -15,16 +15,15 @@ __pragma(warning(disable: 4003))
 
 TF_DEFINE_PRIVATE_TOKENS(
     UsdTokens,
-    (baseColorTex)
+    (baseColorTexture)
     (cesium_base_color_texture)
+    (cesium_material)
     (cesium_texture_lookup)
     (constant)
     (doubleSided)
     (extent)
     (faceVertexCounts)
     (faceVertexIndices)
-    (gltf_material)
-    (gltf_texture_lookup)
     (Material)
     (Mesh)
     (none)
@@ -48,7 +47,6 @@ TF_DEFINE_PRIVATE_TOKENS(
     (_worldScale)
     (_worldVisibility)
     ((_auto, "auto"))
-    ((gltf_pbr_mdl, "gltf/pbr.mdl"))
     ((info_implementationSource, "info:implementationSource"))
     ((info_mdl_sourceAsset, "info:mdl:sourceAsset"))
     ((info_mdl_sourceAsset_subIdentifier, "info:mdl:sourceAsset:subIdentifier"))
@@ -88,17 +86,15 @@ __pragma(warning(pop))
 }
 
 namespace cesium::omniverse::FabricTokens {
-const omni::fabric::TokenC baseColorTex = omni::fabric::asInt(pxr::UsdTokens->baseColorTex);
+const omni::fabric::TokenC baseColorTexture = omni::fabric::asInt(pxr::UsdTokens->baseColorTexture);
 const omni::fabric::TokenC cesium_base_color_texture = omni::fabric::asInt(pxr::UsdTokens->cesium_base_color_texture);
+const omni::fabric::TokenC cesium_material = omni::fabric::asInt(pxr::UsdTokens->cesium_material);
 const omni::fabric::TokenC cesium_texture_lookup = omni::fabric::asInt(pxr::UsdTokens->cesium_texture_lookup);
 const omni::fabric::TokenC constant = omni::fabric::asInt(pxr::UsdTokens->constant);
 const omni::fabric::TokenC doubleSided = omni::fabric::asInt(pxr::UsdTokens->doubleSided);
 const omni::fabric::TokenC extent = omni::fabric::asInt(pxr::UsdTokens->extent);
 const omni::fabric::TokenC faceVertexCounts = omni::fabric::asInt(pxr::UsdTokens->faceVertexCounts);
 const omni::fabric::TokenC faceVertexIndices = omni::fabric::asInt(pxr::UsdTokens->faceVertexIndices);
-const omni::fabric::TokenC gltf_material = omni::fabric::asInt(pxr::UsdTokens->gltf_material);
-const omni::fabric::TokenC gltf_pbr_mdl = omni::fabric::asInt(pxr::UsdTokens->gltf_pbr_mdl);
-const omni::fabric::TokenC gltf_texture_lookup = omni::fabric::asInt(pxr::UsdTokens->gltf_texture_lookup);
 const omni::fabric::TokenC info_implementationSource = omni::fabric::asInt(pxr::UsdTokens->info_implementationSource);
 const omni::fabric::TokenC info_mdl_sourceAsset = omni::fabric::asInt(pxr::UsdTokens->info_mdl_sourceAsset);
 const omni::fabric::TokenC info_mdl_sourceAsset_subIdentifier = omni::fabric::asInt(pxr::UsdTokens->info_mdl_sourceAsset_subIdentifier);
@@ -155,17 +151,15 @@ const omni::fabric::TokenC _worldVisibility = omni::fabric::asInt(pxr::UsdTokens
 }
 
 namespace cesium::omniverse::UsdTokens {
-const pxr::TfToken& baseColorTex = pxr::UsdTokens->baseColorTex;
+const pxr::TfToken& baseColorTexture = pxr::UsdTokens->baseColorTexture;
 const pxr::TfToken& cesium_base_color_texture = pxr::UsdTokens->cesium_base_color_texture;
+const pxr::TfToken& cesium_material = pxr::UsdTokens->cesium_material;
 const pxr::TfToken& cesium_texture_lookup = pxr::UsdTokens->cesium_texture_lookup;
 const pxr::TfToken& constant = pxr::UsdTokens->constant;
 const pxr::TfToken& doubleSided = pxr::UsdTokens->doubleSided;
 const pxr::TfToken& extent = pxr::UsdTokens->extent;
 const pxr::TfToken& faceVertexCounts = pxr::UsdTokens->faceVertexCounts;
 const pxr::TfToken& faceVertexIndices = pxr::UsdTokens->faceVertexIndices;
-const pxr::TfToken& gltf_material = pxr::UsdTokens->gltf_material;
-const pxr::TfToken& gltf_pbr_mdl = pxr::UsdTokens->gltf_pbr_mdl;
-const pxr::TfToken& gltf_texture_lookup = pxr::UsdTokens->gltf_texture_lookup;
 const pxr::TfToken& info_implementationSource = pxr::UsdTokens->info_implementationSource;
 const pxr::TfToken& info_mdl_sourceAsset = pxr::UsdTokens->info_mdl_sourceAsset;
 const pxr::TfToken& info_mdl_sourceAsset_subIdentifier = pxr::UsdTokens->info_mdl_sourceAsset_subIdentifier;
