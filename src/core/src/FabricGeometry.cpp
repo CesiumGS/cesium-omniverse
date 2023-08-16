@@ -7,6 +7,8 @@
 #include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
+#include <glm/fwd.hpp>
+
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
 #undef OPAQUE
@@ -290,14 +292,137 @@ void FabricGeometry::setGeometry(
     const auto [worldPosition, worldOrientation, worldScale] = UsdUtil::glmToUsdMatrixDecomposed(localToUsdTransform);
     const auto worldExtent = UsdUtil::computeWorldExtent(localExtent, localToUsdTransform);
 
-    srw.setArrayAttributeSize(_path, FabricTokens::faceVertexCounts, faceVertexCounts.size());
-    srw.setArrayAttributeSize(_path, FabricTokens::faceVertexIndices, indices.size());
-    srw.setArrayAttributeSize(_path, FabricTokens::points, positions.size());
+    if (primitive.mode == CesiumGltf::MeshPrimitive::Mode::POINTS) {
+        const auto numVoxels = positions.size();
+        const auto shapeHalfSize = 1.5f;
+        srw.setArrayAttributeSize(_path, FabricTokens::points, numVoxels * 8);
+        srw.setArrayAttributeSize(_path, FabricTokens::faceVertexCounts, numVoxels * 2 * 6);
+        srw.setArrayAttributeSize(_path, FabricTokens::faceVertexIndices, numVoxels * 6 * 2 * 3);
+
+        auto pointsFabric = srw.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::points);
+        auto faceVertexCountsFabric = srw.getArrayAttributeWr<int>(_path, FabricTokens::faceVertexCounts);
+        auto faceVertexIndicesFabric = srw.getArrayAttributeWr<int>(_path, FabricTokens::faceVertexIndices);
+
+        std::vector<glm::fvec3> vertexColorsData(numVoxels);
+        gsl::span<glm::fvec3> vertexColorsSpan(vertexColorsData);
+        if (hasVertexColors) {
+            vertexColors.fill(vertexColorsSpan);
+            srw.setArrayAttributeSize(_path, FabricTokens::primvars_vertexColor, numVoxels * 8);
+        }
+        auto vertexColorsFabric = srw.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::primvars_vertexColor);
+
+        size_t vertIndex = 0;
+        size_t vertexCountsIndex = 0;
+        size_t faceVertexIndex = 0;
+        size_t vertexColorsIndex = 0;
+        for (size_t voxelIndex = 0; voxelIndex < numVoxels; voxelIndex++) {
+            const auto& center = positions.get(voxelIndex);
+
+            pointsFabric[vertIndex++] = glm::fvec3{-shapeHalfSize, -shapeHalfSize, -shapeHalfSize} + center;
+            pointsFabric[vertIndex++] = glm::fvec3{-shapeHalfSize, shapeHalfSize, -shapeHalfSize} + center;
+            pointsFabric[vertIndex++] = glm::fvec3{shapeHalfSize, shapeHalfSize, -shapeHalfSize} + center;
+            pointsFabric[vertIndex++] = glm::fvec3{shapeHalfSize, -shapeHalfSize, -shapeHalfSize} + center;
+            pointsFabric[vertIndex++] = glm::fvec3{-shapeHalfSize, -shapeHalfSize, shapeHalfSize} + center;
+            pointsFabric[vertIndex++] = glm::fvec3{-shapeHalfSize, shapeHalfSize, shapeHalfSize} + center;
+            pointsFabric[vertIndex++] = glm::fvec3{shapeHalfSize, shapeHalfSize, shapeHalfSize} + center;
+            pointsFabric[vertIndex++] = glm::fvec3{shapeHalfSize, -shapeHalfSize, shapeHalfSize} + center;
+
+            for (int i = 0; i < 6; i++) {
+                faceVertexCountsFabric[vertexCountsIndex++] = 3;
+                faceVertexCountsFabric[vertexCountsIndex++] = 3;
+            }
+
+            // front
+            faceVertexIndicesFabric[faceVertexIndex++] = 0 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 1 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 2 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 0 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 2 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 3 + static_cast<int>(voxelIndex * 8);
+            // left
+            faceVertexIndicesFabric[faceVertexIndex++] = 4 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 5 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 1 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 4 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 1 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 0 + static_cast<int>(voxelIndex * 8);
+            // right
+            faceVertexIndicesFabric[faceVertexIndex++] = 3 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 2 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 6 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 3 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 6 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 7 + static_cast<int>(voxelIndex * 8);
+            // top
+            faceVertexIndicesFabric[faceVertexIndex++] = 1 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 5 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 6 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 1 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 5 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 2 + static_cast<int>(voxelIndex * 8);
+            // bottom
+            faceVertexIndicesFabric[faceVertexIndex++] = 3 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 7 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 4 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 3 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 4 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 0 + static_cast<int>(voxelIndex * 8);
+            // back
+            faceVertexIndicesFabric[faceVertexIndex++] = 7 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 6 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 5 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 7 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 5 + static_cast<int>(voxelIndex * 8);
+            faceVertexIndicesFabric[faceVertexIndex++] = 4 + static_cast<int>(voxelIndex * 8);
+
+            if (hasVertexColors) {
+                const auto& color = vertexColorsSpan[voxelIndex];
+                for (int i = 0; i < 8; i++) {
+                    vertexColorsFabric[vertexColorsIndex++] = color;
+                }
+            }
+        }
+    } else {
+        srw.setArrayAttributeSize(_path, FabricTokens::faceVertexCounts, faceVertexCounts.size());
+        srw.setArrayAttributeSize(_path, FabricTokens::faceVertexIndices, indices.size());
+        srw.setArrayAttributeSize(_path, FabricTokens::points, positions.size());
+
+        auto faceVertexCountsFabric = srw.getArrayAttributeWr<int>(_path, FabricTokens::faceVertexCounts);
+        auto faceVertexIndicesFabric = srw.getArrayAttributeWr<int>(_path, FabricTokens::faceVertexIndices);
+        auto pointsFabric = srw.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::points);
+
+        faceVertexCounts.fill(faceVertexCountsFabric);
+        indices.fill(faceVertexIndicesFabric);
+        positions.fill(pointsFabric);
+
+        if (hasTexcoords) {
+            const auto& texcoords = hasImagery ? imageryTexcoords : texcoords_0;
+
+            srw.setArrayAttributeSize(_path, FabricTokens::primvars_st, texcoords.size());
+
+            auto stFabric = srw.getArrayAttributeWr<glm::fvec2>(_path, FabricTokens::primvars_st);
+
+            texcoords.fill(stFabric);
+        }
+
+        if (hasNormals) {
+            srw.setArrayAttributeSize(_path, FabricTokens::primvars_normals, normals.size());
+
+            auto normalsFabric = srw.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::primvars_normals);
+
+            normals.fill(normalsFabric);
+        }
+
+        if (hasVertexColors) {
+            srw.setArrayAttributeSize(_path, FabricTokens::primvars_vertexColor, vertexColors.size());
+
+            auto vertexColorsFabric = srw.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::primvars_vertexColor);
+
+            vertexColors.fill(vertexColorsFabric);
+        }
+    }
 
     // clang-format off
-    auto faceVertexCountsFabric = srw.getArrayAttributeWr<int>(_path, FabricTokens::faceVertexCounts);
-    auto faceVertexIndicesFabric = srw.getArrayAttributeWr<int>(_path, FabricTokens::faceVertexIndices);
-    auto pointsFabric = srw.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::points);
     auto extentFabric = srw.getAttributeWr<pxr::GfRange3d>(_path, FabricTokens::extent);
     auto worldExtentFabric = srw.getAttributeWr<pxr::GfRange3d>(_path, FabricTokens::_worldExtent);
     auto localToEcefTransformFabric = srw.getAttributeWr<pxr::GfMatrix4d>(_path, FabricTokens::_cesium_localToEcefTransform);
@@ -308,18 +433,12 @@ void FabricGeometry::setGeometry(
     auto displayOpacityFabric = srw.getArrayAttributeWr<float>(_path, FabricTokens::primvars_displayOpacity);
     // clang-format on
 
-    faceVertexCounts.fill(faceVertexCountsFabric);
-    indices.fill(faceVertexIndicesFabric);
-    positions.fill(pointsFabric);
-
     *extentFabric = localExtent;
     *worldExtentFabric = worldExtent;
     *localToEcefTransformFabric = UsdUtil::glmToUsdMatrix(localToEcefTransform);
     *worldPositionFabric = worldPosition;
     *worldOrientationFabric = worldOrientation;
     *worldScaleFabric = worldScale;
-
-    FabricUtil::setTilesetId(_path, tilesetId);
 
     if (_debugRandomColors) {
         const auto r = glm::linearRand(0.0f, 1.0f);
@@ -332,31 +451,7 @@ void FabricGeometry::setGeometry(
 
     displayOpacityFabric[0] = DEFAULT_VERTEX_OPACITY;
 
-    if (hasTexcoords) {
-        const auto& texcoords = hasImagery ? imageryTexcoords : texcoords_0;
-
-        srw.setArrayAttributeSize(_path, FabricTokens::primvars_st, texcoords.size());
-
-        auto stFabric = srw.getArrayAttributeWr<glm::fvec2>(_path, FabricTokens::primvars_st);
-
-        texcoords.fill(stFabric);
-    }
-
-    if (hasNormals) {
-        srw.setArrayAttributeSize(_path, FabricTokens::primvars_normals, normals.size());
-
-        auto normalsFabric = srw.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::primvars_normals);
-
-        normals.fill(normalsFabric);
-    }
-
-    if (hasVertexColors) {
-        srw.setArrayAttributeSize(_path, FabricTokens::primvars_vertexColor, vertexColors.size());
-
-        auto vertexColorsFabric = srw.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::primvars_vertexColor);
-
-        vertexColors.fill(vertexColorsFabric);
-    }
+    FabricUtil::setTilesetId(_path, tilesetId);
 }
 
 bool FabricGeometry::stageDestroyed() {
