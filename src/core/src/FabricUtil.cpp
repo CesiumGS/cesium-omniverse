@@ -23,14 +23,14 @@ const char* const TYPE_NOT_SUPPORTED_STRING = "[Type Not Supported]";
 // Wraps the token type so that we can define a custom stream insertion operator
 class TokenWrapper {
   private:
-    omni::fabric::Token token;
+    omni::fabric::TokenC token;
 
   public:
     friend std::ostream& operator<<(std::ostream& os, const TokenWrapper& tokenWrapper);
 };
 
 std::ostream& operator<<(std::ostream& os, const TokenWrapper& tokenWrapper) {
-    os << tokenWrapper.token.getString();
+    os << omni::fabric::Token(tokenWrapper.token).getString();
     return os;
 }
 
@@ -614,15 +614,16 @@ void destroyPrim(const omni::fabric::Path& path) {
     // This workaround may not be needed in future Kit versions, but is needed as of Kit 105.0
     const omni::fabric::Path changeTrackingPath("/TempChangeTracking");
 
-    if (srw.getAttribute<uint64_t>(changeTrackingPath, FabricTokens::_deletedPrims) == nullptr) {
+    if (srw.getAttributeRd<omni::fabric::PathC>(changeTrackingPath, FabricTokens::_deletedPrims) == nullptr) {
         return;
     }
 
     const auto deletedPrimsSize = srw.getArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims);
     srw.setArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims, deletedPrimsSize + 1);
-    auto deletedPrimsFabric = srw.getArrayAttributeWr<uint64_t>(changeTrackingPath, FabricTokens::_deletedPrims);
+    auto deletedPrimsFabric =
+        srw.getArrayAttributeWr<omni::fabric::PathC>(changeTrackingPath, FabricTokens::_deletedPrims);
 
-    deletedPrimsFabric[deletedPrimsSize] = omni::fabric::PathC(path).path;
+    deletedPrimsFabric[deletedPrimsSize] = path;
 }
 
 void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform) {
@@ -663,12 +664,20 @@ void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform
     }
 }
 
-void setTilesetId(const omni::fabric::Path& pathFabric, int64_t tilesetId) {
+void setTilesetId(const omni::fabric::Path& path, int64_t tilesetId) {
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
-    auto tilesetIdFabric = srw.getAttributeWr<int64_t>(pathFabric, FabricTokens::_cesium_tilesetId);
+    auto tilesetIdFabric = srw.getAttributeWr<int64_t>(path, FabricTokens::_cesium_tilesetId);
 
     *tilesetIdFabric = tilesetId;
+}
+
+omni::fabric::Path toFabricPath(const pxr::SdfPath& path) {
+    return {omni::fabric::asInt(path)};
+}
+
+omni::fabric::Path joinPaths(const omni::fabric::Path& absolutePath, const omni::fabric::Token& relativePath) {
+    return {fmt::format("{}/{}", absolutePath.getText(), relativePath.getText()).c_str()};
 }
 
 } // namespace cesium::omniverse::FabricUtil

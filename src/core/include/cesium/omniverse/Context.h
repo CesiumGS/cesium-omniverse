@@ -116,8 +116,9 @@ class Context {
         uint64_t tokenEventId,
         uint64_t assetEventId);
 
-    std::filesystem::path getCesiumExtensionLocation() const;
-    std::filesystem::path getCertificatePath() const;
+    const std::filesystem::path& getCesiumExtensionLocation() const;
+    const std::filesystem::path& getCertificatePath() const;
+    const pxr::TfToken& getCesiumMdlPathToken() const;
 
     bool creditsAvailable() const;
     std::vector<std::pair<std::string, bool>> getCredits() const;
@@ -171,6 +172,7 @@ class Context {
 
     std::filesystem::path _cesiumExtensionLocation;
     std::filesystem::path _certificatePath;
+    pxr::TfToken _cesiumMdlPathToken;
 
     glm::dmat4 _ecefToUsdTransform;
 };

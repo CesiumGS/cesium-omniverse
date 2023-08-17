@@ -34,8 +34,8 @@ struct Decomposed {
 
 class ScopedEdit {
   public:
-    ScopedEdit(pxr::UsdStageRefPtr stage)
-        : _stage(std::move(stage))
+    ScopedEdit(const pxr::UsdStageRefPtr& stage)
+        : _stage(stage)
         , _sessionLayer(_stage->GetSessionLayer())
         , _sessionLayerWasEditable(_sessionLayer->PermissionToEdit())
         , _originalEditTarget(_stage->GetEditTarget()) {
@@ -81,7 +81,7 @@ double getUsdMetersPerUnit();
 pxr::SdfPath getRootPath();
 pxr::SdfPath getPathUnique(const pxr::SdfPath& parentPath, const std::string& name);
 std::string getSafeName(const std::string& name);
-pxr::SdfAssetPath getDynamicTextureProviderAssetPath(const std::string& name);
+pxr::TfToken getDynamicTextureProviderAssetPathToken(const std::string& name);
 glm::dmat4
 computeEcefToUsdWorldTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath);
 glm::dmat4

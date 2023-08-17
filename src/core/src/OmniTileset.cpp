@@ -280,6 +280,10 @@ TilesetStatistics OmniTileset::getStatistics() const {
 }
 
 void OmniTileset::reload() {
+    if (_renderResourcesPreparer != nullptr) {
+        _renderResourcesPreparer->detachTileset();
+    }
+
     _renderResourcesPreparer = std::make_shared<FabricPrepareRenderResources>(*this);
     auto& context = Context::instance();
     auto asyncSystem = CesiumAsync::AsyncSystem(context.getTaskProcessor());
@@ -326,6 +330,8 @@ void OmniTileset::reload() {
         };
 
     _pViewUpdateResult = nullptr;
+    _extentSet = false;
+    _activeLoading = false;
 
     if (getSourceType() == TilesetSourceType::URL) {
         _tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(externals, url, options);

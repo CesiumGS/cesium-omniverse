@@ -5,6 +5,7 @@
 #include "cesium/omniverse/FabricMaterial.h"
 #include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricTexture.h"
+#include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GeospatialUtil.h"
 #include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/OmniTileset.h"
@@ -105,6 +106,7 @@ std::vector<FabricMesh> acquireFabricMeshes(
     fabricMeshes.reserve(meshes.size());
 
     auto& fabricResourceManager = FabricResourceManager::getInstance();
+    const auto tilesetMaterialPath = tileset.getMaterialPath();
     const auto stageId = UsdUtil::getUsdStageId();
 
     for (const auto& mesh : meshes) {
@@ -115,8 +117,8 @@ std::vector<FabricMesh> acquireFabricMeshes(
             fabricResourceManager.acquireGeometry(model, primitive, mesh.smoothNormals, stageId);
         fabricMesh.geometry = fabricGeometry;
 
-        const auto shouldAcquireMaterial = FabricResourceManager::getInstance().shouldAcquireMaterial(
-            primitive, hasImagery, tileset.getMaterialPath());
+        const auto shouldAcquireMaterial =
+            FabricResourceManager::getInstance().shouldAcquireMaterial(primitive, hasImagery, tilesetMaterialPath);
 
         if (shouldAcquireMaterial) {
             const auto materialInfo = GltfUtil::getMaterialInfo(model, primitive);
@@ -165,7 +167,7 @@ void setFabricMeshes(
     for (size_t i = 0; i < meshes.size(); i++) {
         const auto& meshInfo = meshes[i];
         const auto& primitive = model.meshes[meshInfo.meshId].primitives[meshInfo.primitiveId];
-        const auto& materialPath = tileset.getMaterialPath();
+        const auto& tilesetMaterialPath = tileset.getMaterialPath();
 
         auto& mesh = fabricMeshes[i];
         auto& geometry = mesh.geometry;
@@ -185,13 +187,14 @@ void setFabricMeshes(
 
         if (material != nullptr) {
             material->setMaterial(meshInfo.tilesetId, materialInfo);
-            geometry->setMaterial(material->getPathFabric());
+            geometry->setMaterial(material->getPath());
 
             if (baseColorTexture != nullptr && materialInfo.baseColorTexture.has_value()) {
-                material->setBaseColorTexture(baseColorTexture, materialInfo.baseColorTexture.value());
+                material->setBaseColorTexture(
+                    baseColorTexture->getAssetPathToken(), materialInfo.baseColorTexture.value());
             }
-        } else if (!materialPath.IsEmpty()) {
-            geometry->setMaterial(omni::fabric::Path(omni::fabric::asInt(materialPath)));
+        } else if (!tilesetMaterialPath.IsEmpty()) {
+            geometry->setMaterial(FabricUtil::toFabricPath(tilesetMaterialPath));
         }
     }
 }
@@ -436,7 +439,7 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
             };
 
             // Replace the original base color texture with the imagery
-            material->setBaseColorTexture(texture, textureInfo);
+            material->setBaseColorTexture(texture->getAssetPathToken(), textureInfo);
         }
     }
 }
@@ -470,7 +473,8 @@ void FabricPrepareRenderResources::detachRasterInMainThread(
         if (material != nullptr) {
             if (baseColorTexture != nullptr && materialInfo.baseColorTexture.has_value()) {
                 // Switch back to the original base color texture
-                material->setBaseColorTexture(baseColorTexture, materialInfo.baseColorTexture.value());
+                material->setBaseColorTexture(
+                    baseColorTexture->getAssetPathToken(), materialInfo.baseColorTexture.value());
             } else {
                 material->clearBaseColorTexture();
             }

@@ -3,7 +3,7 @@
 #include "cesium/omniverse/UsdUtil.h"
 
 namespace cesium::omniverse {
-void FabricAttributesBuilder::addAttribute(const omni::fabric::Type& type, const omni::fabric::TokenC& name) {
+void FabricAttributesBuilder::addAttribute(const omni::fabric::Type& type, const omni::fabric::Token& name) {
     assert(_size < MAX_ATTRIBUTES);
     _attributes[_size++] = omni::fabric::AttrNameAndType{type, name};
 }

@@ -208,8 +208,9 @@ std::string getSafeName(const std::string& name) {
     return std::regex_replace(name, regex, replace);
 }
 
-pxr::SdfAssetPath getDynamicTextureProviderAssetPath(const std::string& name) {
-    return pxr::SdfAssetPath(fmt::format("{}{}", rtx::resourcemanager::kDynamicTexturePrefix, name));
+pxr::TfToken getDynamicTextureProviderAssetPathToken(const std::string& name) {
+    return pxr::TfToken(
+        pxr::SdfAssetPath(fmt::format("{}{}", rtx::resourcemanager::kDynamicTexturePrefix, name)).GetAssetPath());
 }
 
 glm::dmat4
@@ -508,7 +509,7 @@ void setGeoreferenceForTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPa
 
 void addOrUpdateTransformOpForAnchor(const pxr::SdfPath& path, const glm::dmat4& transform) {
     auto prim = getUsdStage()->GetPrimAtPath(path);
-    
+
     if (!hasCesiumGlobeAnchor(path)) {
         return;
     }
@@ -517,7 +518,7 @@ void addOrUpdateTransformOpForAnchor(const pxr::SdfPath& path, const glm::dmat4&
     auto resetXformStack = xform.GetResetXformStack();
     auto xformOps = xform.GetOrderedXformOps(&resetXformStack);
 
-    auto hasCesiumSuffix = [](auto op) { return op.HasSuffix(UsdTokens::cesium); };
+    auto hasCesiumSuffix = [](auto op) { return op.HasSuffix(pxr::UsdTokens->cesium); };
     auto transformOp = std::find_if(xformOps.begin(), xformOps.end(), hasCesiumSuffix);
 
     if (transformOp != xformOps.end()) {
@@ -534,7 +535,7 @@ void addOrUpdateTransformOpForAnchor(const pxr::SdfPath& path, const glm::dmat4&
         xformCommonApi.SetRotate(pxr::GfVec3f(0.f, 0.f, 0.f));
         xformCommonApi.SetScale(pxr::GfVec3f(1.f, 1.f, 1.f));
 
-        xform.AddTransformOp(pxr::UsdGeomXformOp::PrecisionDouble, UsdTokens::cesium)
+        xform.AddTransformOp(pxr::UsdGeomXformOp::PrecisionDouble, pxr::UsdTokens->cesium)
             .Set(UsdUtil::glmToUsdMatrix(transform));
     }
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <pxr/base/tf/token.h>
 #include <pxr/usd/sdf/assetPath.h>
 
 #include <memory>
@@ -23,12 +24,12 @@ class FabricTexture {
 
     void setActive(bool active);
 
-    [[nodiscard]] const pxr::SdfAssetPath& getAssetPath() const;
+    [[nodiscard]] const pxr::TfToken& getAssetPathToken() const;
 
   private:
     void reset();
 
     std::unique_ptr<omni::ui::DynamicTextureProvider> _texture;
-    pxr::SdfAssetPath _assetPath;
+    pxr::TfToken _assetPathToken;
 };
 } // namespace cesium::omniverse

@@ -6,7 +6,7 @@ namespace cesium::omniverse {
 
 class FabricAttributesBuilder {
   public:
-    void addAttribute(const omni::fabric::Type& type, const omni::fabric::TokenC& name);
+    void addAttribute(const omni::fabric::Type& type, const omni::fabric::Token& name);
     void createAttributes(const omni::fabric::Path& path) const;
 
   private:

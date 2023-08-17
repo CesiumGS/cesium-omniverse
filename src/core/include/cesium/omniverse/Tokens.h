@@ -1,138 +1,109 @@
 #pragma once
 
-#include <omni/fabric/SimStageWithHistory.h>
-#include <pxr/base/tf/token.h>
+#include <omni/fabric/FabricUSD.h>
+#include <pxr/base/tf/staticTokens.h>
 
 // clang-format off
+namespace pxr {
 
-namespace cesium::omniverse::FabricTokens {
-extern const omni::fabric::TokenC baseColorTex;
-extern const omni::fabric::TokenC constant;
-extern const omni::fabric::TokenC doubleSided;
-extern const omni::fabric::TokenC extent;
-extern const omni::fabric::TokenC faceVertexCounts;
-extern const omni::fabric::TokenC faceVertexIndices;
-extern const omni::fabric::TokenC gltf_material;
-extern const omni::fabric::TokenC gltf_pbr_mdl;
-extern const omni::fabric::TokenC gltf_texture_lookup;
-extern const omni::fabric::TokenC info_implementationSource;
-extern const omni::fabric::TokenC info_mdl_sourceAsset;
-extern const omni::fabric::TokenC info_mdl_sourceAsset_subIdentifier;
-extern const omni::fabric::TokenC inputs_alpha_cutoff;
-extern const omni::fabric::TokenC inputs_alpha_mode;
-extern const omni::fabric::TokenC inputs_base_alpha;
-extern const omni::fabric::TokenC inputs_base_color_factor;
-extern const omni::fabric::TokenC inputs_base_color_texture;
-extern const omni::fabric::TokenC inputs_emissive_factor;
-extern const omni::fabric::TokenC inputs_metallic_factor;
-extern const omni::fabric::TokenC inputs_offset;
-extern const omni::fabric::TokenC inputs_rotation;
-extern const omni::fabric::TokenC inputs_roughness_factor;
-extern const omni::fabric::TokenC inputs_scale;
-extern const omni::fabric::TokenC inputs_tex_coord_index;
-extern const omni::fabric::TokenC inputs_texture;
-extern const omni::fabric::TokenC inputs_vertex_color_name;
-extern const omni::fabric::TokenC inputs_wrap_s;
-extern const omni::fabric::TokenC inputs_wrap_t;
-extern const omni::fabric::TokenC Material;
-extern const omni::fabric::TokenC material_binding;
-extern const omni::fabric::TokenC Mesh;
-extern const omni::fabric::TokenC none;
-extern const omni::fabric::TokenC out;
-extern const omni::fabric::TokenC outputs_mdl_displacement;
-extern const omni::fabric::TokenC outputs_mdl_surface;
-extern const omni::fabric::TokenC outputs_mdl_volume;
-extern const omni::fabric::TokenC outputs_out;
-extern const omni::fabric::TokenC points;
-extern const omni::fabric::TokenC primvarInterpolations;
-extern const omni::fabric::TokenC primvars;
-extern const omni::fabric::TokenC primvars_displayColor;
-extern const omni::fabric::TokenC primvars_displayOpacity;
-extern const omni::fabric::TokenC primvars_normals;
-extern const omni::fabric::TokenC primvars_st;
-extern const omni::fabric::TokenC primvars_vertexColor;
-extern const omni::fabric::TokenC Shader;
-extern const omni::fabric::TokenC sourceAsset;
-extern const omni::fabric::TokenC subdivisionScheme;
-extern const omni::fabric::TokenC vertex;
-extern const omni::fabric::TokenC vertexColor;
-extern const omni::fabric::TokenC _auto;
-extern const omni::fabric::TokenC _cesium_localToEcefTransform;
-extern const omni::fabric::TokenC _cesium_tilesetId;
-extern const omni::fabric::TokenC _deletedPrims;
-extern const omni::fabric::TokenC _paramColorSpace;
-extern const omni::fabric::TokenC _sdrMetadata;
-extern const omni::fabric::TokenC _worldExtent;
-extern const omni::fabric::TokenC _worldOrientation;
-extern const omni::fabric::TokenC _worldPosition;
-extern const omni::fabric::TokenC _worldScale;
-extern const omni::fabric::TokenC _worldVisibility;
+#ifdef CESIUM_OMNI_MSVC
+__pragma(warning(push)) __pragma(warning(disable : 4003))
+#endif
+
+// Note: variable names should match the USD token names as closely as possible, with special characters converted to underscores
+
+#define USD_TOKENS \
+    (baseColorTexture) \
+    (cesium) \
+    (cesium_material) \
+    (cesium_texture_lookup) \
+    (constant) \
+    (doubleSided) \
+    (extent) \
+    (faceVertexCounts) \
+    (faceVertexIndices) \
+    (Material) \
+    (Mesh) \
+    (none) \
+    (points) \
+    (primvarInterpolations) \
+    (primvars) \
+    (Shader) \
+    (sourceAsset) \
+    (subdivisionScheme) \
+    (vertex) \
+    (vertexColor) \
+    (_cesium_localToEcefTransform) \
+    (_cesium_tilesetId) \
+    (_deletedPrims) \
+    (_paramColorSpace) \
+    (_sdrMetadata) \
+    (_worldExtent) \
+    (_worldOrientation) \
+    (_worldPosition) \
+    (_worldScale) \
+    (_worldVisibility) \
+    ((_auto, "auto")) \
+    ((info_implementationSource, "info:implementationSource")) \
+    ((info_mdl_sourceAsset, "info:mdl:sourceAsset")) \
+    ((info_mdl_sourceAsset_subIdentifier, "info:mdl:sourceAsset:subIdentifier")) \
+    ((inputs_alpha_cutoff, "inputs:alpha_cutoff")) \
+    ((inputs_alpha_mode, "inputs:alpha_mode")) \
+    ((inputs_base_alpha, "inputs:base_alpha")) \
+    ((inputs_base_color_factor, "inputs:base_color_factor")) \
+    ((inputs_base_color_texture, "inputs:base_color_texture")) \
+    ((inputs_emissive_factor, "inputs:emissive_factor")) \
+    ((inputs_excludeFromWhiteMode, "inputs:excludeFromWhiteMode")) \
+    ((inputs_metallic_factor, "inputs:metallic_factor")) \
+    ((inputs_offset, "inputs:offset")) \
+    ((inputs_rotation, "inputs:rotation")) \
+    ((inputs_roughness_factor, "inputs:roughness_factor")) \
+    ((inputs_scale, "inputs:scale")) \
+    ((inputs_tex_coord_index, "inputs:tex_coord_index")) \
+    ((inputs_texture, "inputs:texture")) \
+    ((inputs_vertex_color_name, "inputs:vertex_color_name")) \
+    ((inputs_wrap_s, "inputs:wrap_s")) \
+    ((inputs_wrap_t, "inputs:wrap_t")) \
+    ((material_binding, "material:binding")) \
+    ((outputs_mdl_displacement, "outputs:mdl:displacement")) \
+    ((outputs_mdl_surface, "outputs:mdl:surface")) \
+    ((outputs_mdl_volume, "outputs:mdl:volume")) \
+    ((outputs_out, "outputs:out")) \
+    ((primvars_displayColor, "primvars:displayColor")) \
+    ((primvars_displayOpacity, "primvars:displayOpacity")) \
+    ((primvars_normals, "primvars:normals")) \
+    ((primvars_st, "primvars:st")) \
+    ((primvars_vertexColor, "primvars:vertexColor")) \
+    ((xformOp_transform_cesium, "xformOp:transform:cesium"))
+
+TF_DECLARE_PUBLIC_TOKENS(UsdTokens, USD_TOKENS);
+
+#define FABRIC_DEFINE_TOKEN_ELEM(elem) const omni::fabric::TokenC elem = omni::fabric::asInt(pxr::UsdTokens->elem);
+
+#define FABRIC_DEFINE_TOKEN(r, data, elem) \
+    BOOST_PP_TUPLE_ELEM(1, 0, BOOST_PP_IIF(TF_PP_IS_TUPLE(elem), \
+        (FABRIC_DEFINE_TOKEN_ELEM(BOOST_PP_TUPLE_ELEM(2, 0, elem))), \
+        (FABRIC_DEFINE_TOKEN_ELEM(elem))))
+
+#define FABRIC_DEFINE_TOKENS(seq) BOOST_PP_SEQ_FOR_EACH(FABRIC_DEFINE_TOKEN, ~, seq)
+
+#define FABRIC_DECLARE_TOKEN_ELEM(elem) extern const omni::fabric::TokenC elem;
+
+#define FABRIC_DECLARE_TOKEN(r, data, elem) \
+    BOOST_PP_TUPLE_ELEM(1, 0, BOOST_PP_IIF(TF_PP_IS_TUPLE(elem), \
+        (FABRIC_DECLARE_TOKEN_ELEM(BOOST_PP_TUPLE_ELEM(2, 0, elem))), \
+        (FABRIC_DECLARE_TOKEN_ELEM(elem))))
+
+#define FABRIC_DECLARE_TOKENS(seq) BOOST_PP_SEQ_FOR_EACH(FABRIC_DECLARE_TOKEN, ~, seq)
+
+#ifdef CESIUM_OMNI_MSVC
+__pragma(warning(pop))
+#endif
+
 }
 
-namespace cesium::omniverse::UsdTokens {
-extern const pxr::TfToken& baseColorTex;
-extern const pxr::TfToken& cesium;
-extern const pxr::TfToken& constant;
-extern const pxr::TfToken& doubleSided;
-extern const pxr::TfToken& extent;
-extern const pxr::TfToken& faceVertexCounts;
-extern const pxr::TfToken& faceVertexIndices;
-extern const pxr::TfToken& gltf_material;
-extern const pxr::TfToken& gltf_pbr_mdl;
-extern const pxr::TfToken& gltf_texture_lookup;
-extern const pxr::TfToken& info_implementationSource;
-extern const pxr::TfToken& info_mdl_sourceAsset;
-extern const pxr::TfToken& info_mdl_sourceAsset_subIdentifier;
-extern const pxr::TfToken& inputs_alpha_cutoff;
-extern const pxr::TfToken& inputs_alpha_mode;
-extern const pxr::TfToken& inputs_base_alpha;
-extern const pxr::TfToken& inputs_base_color_factor;
-extern const pxr::TfToken& inputs_base_color_texture;
-extern const pxr::TfToken& inputs_emissive_factor;
-extern const pxr::TfToken& inputs_metallic_factor;
-extern const pxr::TfToken& inputs_offset;
-extern const pxr::TfToken& inputs_rotation;
-extern const pxr::TfToken& inputs_roughness_factor;
-extern const pxr::TfToken& inputs_scale;
-extern const pxr::TfToken& inputs_tex_coord_index;
-extern const pxr::TfToken& inputs_texture;
-extern const pxr::TfToken& inputs_vertex_color_name;
-extern const pxr::TfToken& inputs_wrap_s;
-extern const pxr::TfToken& inputs_wrap_t;
-extern const pxr::TfToken& Material;
-extern const pxr::TfToken& material_binding;
-extern const pxr::TfToken& Mesh;
-extern const pxr::TfToken& none;
-extern const pxr::TfToken& out;
-extern const pxr::TfToken& outputs_mdl_displacement;
-extern const pxr::TfToken& outputs_mdl_surface;
-extern const pxr::TfToken& outputs_mdl_volume;
-extern const pxr::TfToken& outputs_out;
-extern const pxr::TfToken& points;
-extern const pxr::TfToken& primvarInterpolations;
-extern const pxr::TfToken& primvars;
-extern const pxr::TfToken& primvars_displayColor;
-extern const pxr::TfToken& primvars_displayOpacity;
-extern const pxr::TfToken& primvars_normals;
-extern const pxr::TfToken& primvars_st;
-extern const pxr::TfToken& primvars_vertexColor;
-extern const pxr::TfToken& Shader;
-extern const pxr::TfToken& sourceAsset;
-extern const pxr::TfToken& subdivisionScheme;
-extern const pxr::TfToken& vertex;
-extern const pxr::TfToken& vertexColor;
-extern const pxr::TfToken& xformOp_transform_cesium;
-extern const pxr::TfToken& _auto;
-extern const pxr::TfToken& _cesium_localToEcefTransform;
-extern const pxr::TfToken& _cesium_tilesetId;
-extern const pxr::TfToken& _deletedPrims;
-extern const pxr::TfToken& _paramColorSpace;
-extern const pxr::TfToken& _sdrMetadata;
-extern const pxr::TfToken& _worldExtent;
-extern const pxr::TfToken& _worldOrientation;
-extern const pxr::TfToken& _worldPosition;
-extern const pxr::TfToken& _worldScale;
-extern const pxr::TfToken& _worldVisibility;
+namespace cesium::omniverse::FabricTokens {
+FABRIC_DECLARE_TOKENS(USD_TOKENS);
 }
 
 namespace cesium::omniverse::FabricTypes {
@@ -149,6 +120,7 @@ const omni::fabric::Type inputs_alpha_mode(omni::fabric::BaseDataType::eInt, 1, 
 const omni::fabric::Type inputs_base_alpha(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_base_color_factor(omni::fabric::BaseDataType::eFloat, 3, 0, omni::fabric::AttributeRole::eColor);
 const omni::fabric::Type inputs_emissive_factor(omni::fabric::BaseDataType::eFloat, 3, 0, omni::fabric::AttributeRole::eColor);
+const omni::fabric::Type inputs_excludeFromWhiteMode(omni::fabric::BaseDataType::eBool, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_metallic_factor(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_offset(omni::fabric::BaseDataType::eFloat, 2, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_rotation(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
