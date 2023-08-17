@@ -37,7 +37,7 @@ add_external_project(
 # cmake-format: on
 
 if(UNIX)
-    execute_process(COMMAND bash "${PROJECT_SOURCE_DIR}/extern/nvidia/prebuild.sh" RESULT_VARIABLE exit_code)
+    execute_process(COMMAND bash -c "${PROJECT_SOURCE_DIR}/extern/nvidia/prebuild.sh" RESULT_VARIABLE exit_code)
 elseif(WIN32)
     execute_process(COMMAND cmd /C "${PROJECT_SOURCE_DIR}/extern/nvidia/prebuild.bat" RESULT_VARIABLE exit_code)
 endif()
@@ -49,12 +49,19 @@ endif()
 # cmake-format: on
 
 # Add a symlink to USD Composer (create) so that we can use its extensions (e.g. omni.kit.window.material_graph) in our internal applications
-# Don't check for errors because we can still proceed with the build
 if(UNIX)
-    execute_process(COMMAND bash -c "${PROJECT_SOURCE_DIR}/extern/nvidia/link_app.sh --app create")
+    execute_process(COMMAND bash -c "${PROJECT_SOURCE_DIR}/extern/nvidia/link_app.sh --app create"
+                    RESULT_VARIABLE exit_code)
 elseif(WIN32)
-    execute_process(COMMAND cmd /C "${PROJECT_SOURCE_DIR}/extern/nvidia/link_app.bat --app create")
+    execute_process(COMMAND cmd /C "${PROJECT_SOURCE_DIR}/extern/nvidia/link_app.bat --app create"
+                    RESULT_VARIABLE exit_code)
 endif()
+
+# cmake-format: off
+if(exit_code AND NOT exit_code EQUAL 0)
+    message(WARNING "Could not find USD Composer which contains the material graph extension needed by cesium.omniverse.dev.kit. While Cesium for Omniverse will still build fine, running cesium.omniverse.dev.kit will fail.")
+endif()
+# cmake-format: on
 
 if(WIN32)
     set(NVIDIA_PLATFORM_NAME "windows-x86_64")
