@@ -248,11 +248,11 @@ void FabricMaterial::setBaseColorTexture(const pxr::TfToken& textureAssetPathTok
 }
 
 void FabricMaterial::clearMaterial() {
-    setMaterial(NO_TILESET_ID, GltfUtil::getDefaultMaterialInfo());
+    //setMaterial(NO_TILESET_ID, GltfUtil::getDefaultMaterialInfo());
 }
 
 void FabricMaterial::clearBaseColorTexture() {
-    setBaseColorTexture(_defaultTextureAssetPathToken, GltfUtil::getDefaultTextureInfo());
+    //setBaseColorTexture(_defaultTextureAssetPathToken, GltfUtil::getDefaultTextureInfo());
 }
 
 void FabricMaterial::setTilesetId(int64_t tilesetId) {
@@ -288,6 +288,10 @@ void FabricMaterial::setTextureValues(
     const omni::fabric::Path& texturePath,
     const pxr::TfToken& textureAssetPathToken,
     const TextureInfo& textureInfo) {
+    if (_alreadySetTexture) {
+        return;
+    }
+    _alreadySetTexture = true;
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
     auto offset = textureInfo.offset;

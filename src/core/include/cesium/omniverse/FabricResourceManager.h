@@ -72,6 +72,7 @@ class FabricResourceManager {
     void setDebugRandomColors(bool debugRandomColors);
 
     void retainPath(const omni::fabric::Path& path);
+    void retainToken(const pxr::TfToken& token);
 
     void clear();
 
@@ -122,6 +123,7 @@ class FabricResourceManager {
     pxr::TfToken _defaultTextureAssetPathToken;
 
     std::vector<omni::fabric::Path> _retainedPaths;
+    std::vector<pxr::TfToken> _retainedTokens;
 };
 
 } // namespace cesium::omniverse

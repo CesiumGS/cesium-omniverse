@@ -1,5 +1,9 @@
 #include "cesium/omniverse/FabricTexturePool.h"
 
+#include "cesium/omniverse/FabricResourceManager.h"
+#include "cesium/omniverse/UsdUtil.h"
+
+#include <omni/ui/ImageProvider/DynamicTextureProvider.h>
 #include <spdlog/fmt/fmt.h>
 
 namespace cesium::omniverse {

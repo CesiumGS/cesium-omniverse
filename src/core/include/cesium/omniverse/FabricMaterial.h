@@ -60,6 +60,7 @@ class FabricMaterial {
 
     omni::fabric::Path _shaderPath;
     omni::fabric::Path _baseColorTexturePath;
+    bool _alreadySetTexture = false;
 };
 
 } // namespace cesium::omniverse

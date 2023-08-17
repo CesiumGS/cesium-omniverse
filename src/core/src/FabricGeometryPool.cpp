@@ -1,4 +1,5 @@
 #include "cesium/omniverse/FabricGeometryPool.h"
+#include "cesium/omniverse/FabricResourceManager.h"
 
 #include "cesium/omniverse/FabricResourceManager.h"
 

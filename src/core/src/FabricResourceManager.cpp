@@ -166,9 +166,9 @@ void FabricResourceManager::releaseTexture(const std::shared_ptr<FabricTexture>&
     assert(texturePool != nullptr);
     texturePool->release(texture);
 
-    if (texturePool->isEmpty()) {
-        removePool(_texturePools, texturePool);
-    }
+    // if (texturePool->isEmpty()) {
+    //     removePool(_texturePools, texturePool);
+    // }
 }
 
 void FabricResourceManager::setDisableMaterials(bool disableMaterials) {
@@ -275,6 +275,10 @@ void FabricResourceManager::retainPath(const omni::fabric::Path& path) {
     // It's possible this will be fixed in a future Kit release at which point we can remove
     // this workaround.
     _retainedPaths.push_back(path);
+}
+
+void FabricResourceManager::retainToken(const pxr::TfToken& token) {
+    _retainedTokens.push_back(token);
 }
 
 int64_t FabricResourceManager::getNextGeometryId() {
