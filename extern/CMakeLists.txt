@@ -51,7 +51,7 @@ endif()
 # Add a symlink to USD Composer (create) so that we can use its extensions (e.g. omni.kit.window.material_graph) in our internal applications
 # Don't check for errors because we can still proceed with the build
 if(UNIX)
-    execute_process(COMMAND bash "${PROJECT_SOURCE_DIR}/extern/nvidia/link_app.sh --app create")
+    execute_process(COMMAND bash -c "${PROJECT_SOURCE_DIR}/extern/nvidia/link_app.sh --app create")
 elseif(WIN32)
     execute_process(COMMAND cmd /C "${PROJECT_SOURCE_DIR}/extern/nvidia/link_app.bat --app create")
 endif()
