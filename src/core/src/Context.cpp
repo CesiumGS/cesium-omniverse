@@ -323,7 +323,7 @@ void Context::processCesiumTilesetChanged(const ChangedPrim& changedPrim) {
         name == pxr::CesiumTokens->cesiumSmoothNormals ||
         name == pxr::CesiumTokens->cesiumMainThreadLoadingTimeLimit ||
         name == pxr::CesiumTokens->cesiumShowCreditsOnScreen ||
-        name == UsdTokens::material_binding) {
+        name == pxr::UsdTokens->material_binding) {
         tileset.value()->reload();
     }
     // clang-format on
