@@ -31,7 +31,7 @@ class FabricMaterial {
 
     void setActive(bool active);
 
-    [[nodiscard]] omni::fabric::Path getPath() const;
+    [[nodiscard]] const omni::fabric::Path& getPath() const;
     [[nodiscard]] const FabricMaterialDefinition& getMaterialDefinition() const;
 
   private:

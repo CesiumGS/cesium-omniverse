@@ -79,7 +79,7 @@ void FabricGeometry::setVisibility(bool visible) {
     *worldVisibilityFabric = visible;
 }
 
-omni::fabric::Path FabricGeometry::getPath() const {
+const omni::fabric::Path& FabricGeometry::getPath() const {
     return _path;
 }
 
@@ -94,8 +94,8 @@ void FabricGeometry::setMaterial(const omni::fabric::Path& materialPath) {
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
     srw.setArrayAttributeSize(_path, FabricTokens::material_binding, 1);
-    auto materialBindingFabric = srw.getArrayAttributeWr<uint64_t>(_path, FabricTokens::material_binding);
-    materialBindingFabric[0] = omni::fabric::PathC(materialPath).path;
+    auto materialBindingFabric = srw.getArrayAttributeWr<omni::fabric::PathC>(_path, FabricTokens::material_binding);
+    materialBindingFabric[0] = materialPath;
 }
 
 void FabricGeometry::initialize() {
@@ -145,7 +145,7 @@ void FabricGeometry::initialize() {
 
     // clang-format off
     auto doubleSidedFabric = srw.getAttributeWr<bool>(_path, FabricTokens::doubleSided);
-    auto subdivisionSchemeFabric = srw.getAttributeWr<omni::fabric::Token>(_path, FabricTokens::subdivisionScheme);
+    auto subdivisionSchemeFabric = srw.getAttributeWr<omni::fabric::TokenC>(_path, FabricTokens::subdivisionScheme);
     // clang-format on
 
     *doubleSidedFabric = doubleSided;
@@ -178,8 +178,8 @@ void FabricGeometry::initialize() {
     srw.setArrayAttributeSize(_path, FabricTokens::primvars_displayOpacity, 1);
 
     // clang-format off
-    auto primvarsFabric = srw.getArrayAttributeWr<omni::fabric::Token>(_path, FabricTokens::primvars);
-    auto primvarInterpolationsFabric = srw.getArrayAttributeWr<omni::fabric::Token>(_path, FabricTokens::primvarInterpolations);
+    auto primvarsFabric = srw.getArrayAttributeWr<omni::fabric::TokenC>(_path, FabricTokens::primvars);
+    auto primvarInterpolationsFabric = srw.getArrayAttributeWr<omni::fabric::TokenC>(_path, FabricTokens::primvarInterpolations);
     // clang-format on
 
     primvarsFabric[primvarIndexDisplayColor] = FabricTokens::primvars_displayColor;
