@@ -1,12 +1,7 @@
 from .bindings import acquire_cesium_omniverse_interface, release_cesium_omniverse_interface, Viewport
 from .install import perform_vendor_install
-from .utils import (
-    wait_n_frames,
-    dock_window_async,
-    perform_action_after_n_frames_async,
-    add_tileset_ion,
-    add_imagery_ion,
-)
+from .utils import wait_n_frames, dock_window_async, perform_action_after_n_frames_async
+from .usdUtils import add_tileset_ion, add_imagery_ion
 from .ui.asset_window import CesiumOmniverseAssetWindow
 from .ui.debug_window import CesiumOmniverseDebugWindow
 from .ui.main_window import CesiumOmniverseMainWindow
@@ -29,7 +24,6 @@ import omni.usd
 import os
 from typing import List, Optional, Callable
 from .ui.credits_viewport_controller import CreditsViewportController
-from pxr import Usd
 
 cesium_extension_location = os.path.join(os.path.dirname(__file__), "../../")
 
@@ -316,9 +310,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             self._imagery_to_add_after_token_set.append(imagery_to_add)
             return
 
-        _cesium_omniverse_interface.add_ion_imagery(
-            imagery_to_add.tileset_path, imagery_to_add.imagery_name, imagery_to_add.imagery_ion_asset_id
-        )
+        add_imagery_ion(imagery_to_add.tileset_path, imagery_to_add.imagery_name, imagery_to_add.imagery_ion_asset_id)
         _cesium_omniverse_interface.reload_tileset(imagery_to_add.tileset_path)
 
     def _add_to_menu(self, path, callback: Callable[[bool], None], show_on_startup):
