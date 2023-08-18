@@ -52,7 +52,7 @@ void FabricMaterial::setActive(bool active) {
     }
 }
 
-omni::fabric::Path FabricMaterial::getPath() const {
+const omni::fabric::Path& FabricMaterial::getPath() const {
     return _materialPath;
 }
 
@@ -130,9 +130,9 @@ void FabricMaterial::createShader(const omni::fabric::Path& shaderPath, const om
 
     // clang-format off
     auto inputsExcludeFromWhiteModeFabric = srw.getAttributeWr<bool>(shaderPath, FabricTokens::inputs_excludeFromWhiteMode);
-    auto infoImplementationSourceFabric = srw.getAttributeWr<omni::fabric::Token>(shaderPath, FabricTokens::info_implementationSource);
+    auto infoImplementationSourceFabric = srw.getAttributeWr<omni::fabric::TokenC>(shaderPath, FabricTokens::info_implementationSource);
     auto infoMdlSourceAssetFabric = srw.getAttributeWr<omni::fabric::AssetPath>(shaderPath, FabricTokens::info_mdl_sourceAsset);
-    auto infoMdlSourceAssetSubIdentifierFabric = srw.getAttributeWr<omni::fabric::Token>(shaderPath, FabricTokens::info_mdl_sourceAsset_subIdentifier);
+    auto infoMdlSourceAssetSubIdentifierFabric = srw.getAttributeWr<omni::fabric::TokenC>(shaderPath, FabricTokens::info_mdl_sourceAsset_subIdentifier);
     // clang-format on
 
     *inputsExcludeFromWhiteModeFabric = false;
@@ -153,15 +153,15 @@ void FabricMaterial::createShader(const omni::fabric::Path& shaderPath, const om
     srw.createConnection(
         materialPath,
         FabricTokens::outputs_mdl_surface,
-        omni::fabric::Connection{omni::fabric::PathC(shaderPath), FabricTokens::outputs_out});
+        omni::fabric::Connection{shaderPath, FabricTokens::outputs_out});
     srw.createConnection(
         materialPath,
         FabricTokens::outputs_mdl_displacement,
-        omni::fabric::Connection{omni::fabric::PathC(shaderPath), FabricTokens::outputs_out});
+        omni::fabric::Connection{shaderPath, FabricTokens::outputs_out});
     srw.createConnection(
         materialPath,
         FabricTokens::outputs_mdl_volume,
-        omni::fabric::Connection{omni::fabric::PathC(shaderPath), FabricTokens::outputs_out});
+        omni::fabric::Connection{shaderPath, FabricTokens::outputs_out});
 }
 
 void FabricMaterial::createTexture(
@@ -201,10 +201,10 @@ void FabricMaterial::createTexture(
 
     // clang-format off
     auto inputsExcludeFromWhiteModeFabric = srw.getAttributeWr<bool>(texturePath, FabricTokens::inputs_excludeFromWhiteMode);
-    auto infoImplementationSourceFabric = srw.getAttributeWr<omni::fabric::Token>(texturePath, FabricTokens::info_implementationSource);
+    auto infoImplementationSourceFabric = srw.getAttributeWr<omni::fabric::TokenC>(texturePath, FabricTokens::info_implementationSource);
     auto infoMdlSourceAssetFabric = srw.getAttributeWr<omni::fabric::AssetPath>(texturePath, FabricTokens::info_mdl_sourceAsset);
-    auto infoMdlSourceAssetSubIdentifierFabric = srw.getAttributeWr<omni::fabric::Token>(texturePath, FabricTokens::info_mdl_sourceAsset_subIdentifier);
-    auto paramColorSpaceFabric = srw.getArrayAttributeWr<omni::fabric::Token>(texturePath, FabricTokens::_paramColorSpace);
+    auto infoMdlSourceAssetSubIdentifierFabric = srw.getAttributeWr<omni::fabric::TokenC>(texturePath, FabricTokens::info_mdl_sourceAsset_subIdentifier);
+    auto paramColorSpaceFabric = srw.getArrayAttributeWr<omni::fabric::TokenC>(texturePath, FabricTokens::_paramColorSpace);
     // clang-format on
 
     *inputsExcludeFromWhiteModeFabric = false;
@@ -216,8 +216,7 @@ void FabricMaterial::createTexture(
     paramColorSpaceFabric[1] = FabricTokens::_auto;
 
     // Create connection from shader to texture.
-    srw.createConnection(
-        shaderPath, shaderInput, omni::fabric::Connection{omni::fabric::PathC(texturePath), FabricTokens::outputs_out});
+    srw.createConnection(shaderPath, shaderInput, omni::fabric::Connection{texturePath, FabricTokens::outputs_out});
 }
 
 void FabricMaterial::reset() {
