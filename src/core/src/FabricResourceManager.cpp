@@ -268,6 +268,15 @@ std::shared_ptr<FabricTexturePool> FabricResourceManager::createTexturePool() {
         std::make_shared<FabricTexturePool>(getNextPoolId(), _texturePoolInitialCapacity));
 }
 
+void FabricResourceManager::retainPath(const omni::fabric::Path& path) {
+    // This is a workaround for https://github.com/CesiumGS/cesium-omniverse/issues/425.
+    // By retaining a reference to the path we avoid a crash deep in the Sdf library
+    // that's triggered by loading a tileset, removing the tileset, and reloading the tileset.
+    // It's possible this will be fixed in a future Kit release at which point we can remove
+    // this workaround.
+    _retainedPaths.push_back(path);
+}
+
 int64_t FabricResourceManager::getNextGeometryId() {
     return _geometryId++;
 }

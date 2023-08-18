@@ -2,6 +2,7 @@
 
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/FabricAttributesBuilder.h"
+#include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
@@ -67,15 +68,19 @@ void FabricMaterial::initialize() {
     const auto shaderPath = FabricUtil::joinPaths(materialPath, FabricTokens::Shader);
     const auto baseColorTexturePath = FabricUtil::joinPaths(materialPath, FabricTokens::baseColorTexture);
 
-    createMaterial(materialPath);
     _materialPath = materialPath;
-
-    createShader(shaderPath, materialPath);
     _shaderPath = shaderPath;
+    _baseColorTexturePath = baseColorTexturePath;
+
+    FabricResourceManager::getInstance().retainPath(materialPath);
+    FabricResourceManager::getInstance().retainPath(shaderPath);
+    FabricResourceManager::getInstance().retainPath(baseColorTexturePath);
+
+    createMaterial(materialPath);
+    createShader(shaderPath, materialPath);
 
     if (hasBaseColorTexture) {
         createTexture(baseColorTexturePath, shaderPath, FabricTokens::inputs_base_color_texture);
-        _baseColorTexturePath = baseColorTexturePath;
     }
 }
 
