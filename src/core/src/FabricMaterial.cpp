@@ -2,6 +2,7 @@
 
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/FabricAttributesBuilder.h"
+#include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
@@ -72,15 +73,18 @@ void FabricMaterial::initialize() {
 
     createMaterial(materialPath);
     _allPaths.push_back(materialPath);
+    FabricResourceManager::getInstance().retainPath(materialPath);
 
     createShader(shaderPath, materialPath);
     _allPaths.push_back(shaderPath);
     _shaderPaths.push_back(shaderPath);
+    FabricResourceManager::getInstance().retainPath(shaderPath);
 
     if (hasBaseColorTexture) {
         createTexture(baseColorTexturePath, shaderPath, FabricTokens::inputs_base_color_texture);
         _allPaths.push_back(baseColorTexturePath);
         _baseColorTexturePaths.push_back(baseColorTexturePath);
+        FabricResourceManager::getInstance().retainPath(baseColorTexturePath);
     }
 }
 
@@ -96,6 +100,7 @@ void FabricMaterial::initializeFromExistingMaterial(const omni::fabric::Path& sr
     for (const auto& dstPath : dstPaths) {
         srw.createAttribute(dstPath, FabricTokens::_cesium_tilesetId, FabricTypes::_cesium_tilesetId);
         _allPaths.push_back(dstPath);
+        FabricResourceManager::getInstance().retainPath(dstPath);
 
         const auto mdlIdentifier = FabricUtil::getMdlIdentifier(dstPath);
 
@@ -107,6 +112,7 @@ void FabricMaterial::initializeFromExistingMaterial(const omni::fabric::Path& sr
                 createTexture(baseColorTexturePath, dstPath, FabricTokens::inputs_base_color_texture);
                 _allPaths.push_back(baseColorTexturePath);
                 _baseColorTexturePaths.push_back(baseColorTexturePath);
+                FabricResourceManager::getInstance().retainPath(baseColorTexturePath);
             }
         }
     }

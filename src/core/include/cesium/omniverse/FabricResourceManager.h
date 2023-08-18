@@ -1,5 +1,6 @@
 #pragma once
 
+#include <omni/fabric/IPath.h>
 #include <pxr/usd/sdf/assetPath.h>
 #include <pxr/usd/sdf/path.h>
 
@@ -74,6 +75,8 @@ class FabricResourceManager {
     void setTexturePoolInitialCapacity(uint64_t texturePoolInitialCapacity);
     void setDebugRandomColors(bool debugRandomColors);
 
+    void retainPath(const omni::fabric::Path& path);
+
     void clear();
 
   protected:
@@ -121,6 +124,8 @@ class FabricResourceManager {
 
     std::unique_ptr<omni::ui::DynamicTextureProvider> _defaultTexture;
     pxr::TfToken _defaultTextureAssetPathToken;
+
+    std::vector<omni::fabric::Path> _retainedPaths;
 };
 
 } // namespace cesium::omniverse

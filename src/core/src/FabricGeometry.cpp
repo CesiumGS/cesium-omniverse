@@ -2,6 +2,7 @@
 
 #include "cesium/omniverse/FabricAttributesBuilder.h"
 #include "cesium/omniverse/FabricMaterial.h"
+#include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/Tokens.h"
@@ -45,6 +46,8 @@ FabricGeometry::FabricGeometry(
     if (stageDestroyed()) {
         return;
     }
+
+    FabricResourceManager::getInstance().retainPath(path);
 
     initialize();
     reset();
