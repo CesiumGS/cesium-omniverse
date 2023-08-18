@@ -1,5 +1,7 @@
 #include "cesium/omniverse/FabricGeometryPool.h"
 
+#include "cesium/omniverse/FabricResourceManager.h"
+
 #include <spdlog/fmt/fmt.h>
 
 namespace cesium::omniverse {
@@ -25,6 +27,7 @@ const FabricGeometryDefinition& FabricGeometryPool::getGeometryDefinition() cons
 std::shared_ptr<FabricGeometry> FabricGeometryPool::createObject(uint64_t objectId) {
     const auto pathStr = fmt::format("/fabric_geometry_pool_{}_object_{}", _poolId, objectId);
     const auto path = omni::fabric::Path(pathStr.c_str());
+    FabricResourceManager::getInstance().retainPath(path);
     return std::make_shared<FabricGeometry>(path, _geometryDefinition, _debugRandomColors, _stageId);
 }
 
