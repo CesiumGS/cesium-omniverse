@@ -38,94 +38,11 @@ class ICesiumOmniverseInterface {
     virtual void onShutdown() noexcept = 0;
 
     /**
-     * @brief Adds a tileset from url.
-     *
-     * @param name The user-given name of this tileset.
-     * @param url The tileset url.
-     * @returns The tileset sdf path.
-     */
-    virtual std::string addTilesetUrl(const char* name, const char* url) noexcept = 0;
-
-    /**
-     * @brief Adds a tileset from ion using the project default ion access token.
-     *
-     * @param name The user-given name of this tileset.
-     * @param ionAssetId The ion asset ID.
-     * @returns The tileset sdf path.
-     */
-    virtual std::string addTilesetIon(const char* name, int64_t ionAssetId) noexcept = 0;
-
-    /**
-     * @brief Adds a tileset from ion using the given ion access token.
-     *
-     * @param name The user-given name of this tileset.
-     * @param ionAssetId The ion asset ID.
-     * @param ionAccessToken The ion access token.
-     * @returns The tileset sdf path.
-     */
-    virtual std::string addTilesetIon(const char* name, int64_t ionAssetId, const char* ionAccessToken) noexcept = 0;
-
-    /**
-     * @brief Adds imagery from ion.
-     *
-     * @param tilesetPath The sdf path of the tileset that the imagery will be attached to.
-     * @param name The user-given name of this imagery.
-     * @param ionAssetId The ion asset ID.
-     * @returns The imagery sdf path.
-     */
-    virtual std::string addImageryIon(const char* tilesetPath, const char* name, int64_t ionAssetId) noexcept = 0;
-
-    /**
-     * @brief Adds imagery from ion.
-     *
-     * @param tilesetPath The sdf path of the tileset that the imagery will be attached to.
-     * @param name The user-given name of this imagery.
-     * @param ionAssetId The ion asset ID.
-     * @param ionAccessToken The ion access token.
-     * @returns The imagery sdf path.
-     */
-    virtual std::string addImageryIon(
-        const char* tilesetPath,
-        const char* name,
-        int64_t ionAssetId,
-        const char* ionAccessToken) noexcept = 0;
-
-    /**
-     * @brief Adds a tileset and imagery from ion.
-     *
-     * @param tilesetName The user-given name of this tileset.
-     * @param tilesetIonAssetId The ion asset ID for the tileset.
-     * @param imageryName The user-given name of this imagery.
-     * @param imageryIonAssetId The ion asset ID for the imagery.
-     * @returns The tileset sdf path.
-     */
-    virtual std::string addTilesetAndImagery(
-        const char* tilesetName,
-        int64_t tilesetIonAssetId,
-        const char* imageryName,
-        int64_t imageryIonAssetId) noexcept = 0;
-
-    /**
      * @brief Gets all the tileset paths on the stage.
      *
      * @return The tileset sdf paths.
      */
     virtual std::vector<std::string> getAllTilesetPaths() noexcept = 0;
-
-    /**
-     * @brief Returns true if the given path corresponds to a CesiumTileset prim, otherwise returns false.
-     *
-     * @param path The sdf path.
-     * @return Returns true if the given path corresponds to a CesiumTileset prim, otherwise returns false.
-     */
-    virtual bool isTileset(const char* path) noexcept = 0;
-
-    /**
-     * @brief Removes a tileset from the stage.
-     *
-     * @param tilesetPath The tileset sdf path. If there's no tileset with this path nothing happens.
-     */
-    virtual void removeTileset(const char* tilesetPath) noexcept = 0;
 
     /**
      * @brief Reloads a tileset.

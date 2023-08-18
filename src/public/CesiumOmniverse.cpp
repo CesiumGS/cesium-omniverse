@@ -27,40 +27,6 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
         Context::onShutdown();
     }
 
-    std::string addTilesetUrl(const char* name, const char* url) noexcept override {
-        return Context::instance().addTilesetUrl(name, url).GetString();
-    }
-
-    std::string addTilesetIon(const char* name, int64_t ionAssetId) noexcept override {
-        return addTilesetIon(name, ionAssetId, "");
-    }
-
-    std::string addTilesetIon(const char* name, int64_t ionAssetId, const char* ionAccessToken) noexcept override {
-        return Context::instance().addTilesetIon(name, ionAssetId, ionAccessToken).GetString();
-    }
-
-    std::string addImageryIon(const char* tilesetPath, const char* name, int64_t ionAssetId) noexcept override {
-        return addImageryIon(tilesetPath, name, ionAssetId, "");
-    }
-
-    std::string
-    addImageryIon(const char* tilesetPath, const char* name, int64_t ionAssetId, const char* ionAccessToken) noexcept
-        override {
-        return Context::instance()
-            .addImageryIon(pxr::SdfPath(tilesetPath), name, ionAssetId, ionAccessToken)
-            .GetString();
-    }
-
-    std::string addTilesetAndImagery(
-        const char* tilesetName,
-        int64_t tilesetIonAssetId,
-        const char* imageryName,
-        int64_t imageryIonAssetId) noexcept override {
-        auto tilesetPath = addTilesetIon(tilesetName, tilesetIonAssetId, "");
-        addImageryIon(tilesetPath.c_str(), imageryName, imageryIonAssetId, "");
-
-        return tilesetPath;
-    }
     std::vector<std::string> getAllTilesetPaths() noexcept override {
         const auto paths = AssetRegistry::getInstance().getAllTilesetPaths();
 
@@ -72,14 +38,6 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
         }
 
         return result;
-    }
-
-    bool isTileset(const char* path) noexcept override {
-        return AssetRegistry::getInstance().getAssetType(pxr::SdfPath(path)) == AssetType::TILESET;
-    }
-
-    void removeTileset(const char* tilesetPath) noexcept override {
-        Context::instance().removeTileset(pxr::SdfPath(tilesetPath));
     }
 
     void reloadTileset(const char* tilesetPath) noexcept override {

@@ -2,6 +2,7 @@ from .bindings import acquire_cesium_omniverse_interface, release_cesium_omniver
 from .ui.add_menu_controller import CesiumAddMenuController
 from .install import perform_vendor_install
 from .utils import wait_n_frames, dock_window_async, perform_action_after_n_frames_async
+from .usdUtils import add_tileset_ion, add_imagery_ion
 from .ui.asset_window import CesiumOmniverseAssetWindow
 from .ui.debug_window import CesiumOmniverseDebugWindow
 from .ui.main_window import CesiumOmniverseMainWindow
@@ -287,16 +288,10 @@ class CesiumOmniverseExtension(omni.ext.IExt):
                 return
 
         if asset_to_add.imagery_name is not None and asset_to_add.imagery_ion_asset_id is not None:
-            tileset_path = _cesium_omniverse_interface.add_tileset_and_imagery(
-                asset_to_add.tileset_name,
-                asset_to_add.tileset_ion_asset_id,
-                asset_to_add.imagery_name,
-                asset_to_add.imagery_ion_asset_id,
-            )
+            tileset_path = add_tileset_ion(asset_to_add.tileset_name, asset_to_add.tileset_ion_asset_id)
+            add_imagery_ion(tileset_path, asset_to_add.imagery_name, asset_to_add.imagery_ion_asset_id)
         else:
-            tileset_path = _cesium_omniverse_interface.add_tileset_ion(
-                asset_to_add.tileset_name, asset_to_add.tileset_ion_asset_id
-            )
+            tileset_path = add_tileset_ion(asset_to_add.tileset_name, asset_to_add.tileset_ion_asset_id)
 
         if tileset_path == "":
             self._logger.warning("Error adding tileset and imagery to stage")
@@ -323,9 +318,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             self._imagery_to_add_after_token_set.append(imagery_to_add)
             return
 
-        _cesium_omniverse_interface.add_ion_imagery(
-            imagery_to_add.tileset_path, imagery_to_add.imagery_name, imagery_to_add.imagery_ion_asset_id
-        )
+        add_imagery_ion(imagery_to_add.tileset_path, imagery_to_add.imagery_name, imagery_to_add.imagery_ion_asset_id)
         _cesium_omniverse_interface.reload_tileset(imagery_to_add.tileset_path)
 
     def _add_to_menu(self, path, callback: Callable[[bool], None], show_on_startup):

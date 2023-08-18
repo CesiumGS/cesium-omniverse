@@ -63,15 +63,6 @@ class Context {
     std::shared_ptr<spdlog::logger> getLogger();
 
     void setProjectDefaultToken(const CesiumIonClient::Token& token);
-    pxr::SdfPath addTilesetUrl(const std::string& name, const std::string& url);
-    pxr::SdfPath addTilesetIon(const std::string& name, int64_t ionAssetId, const std::string& ionAccessToken);
-    pxr::SdfPath addImageryIon(
-        const pxr::SdfPath& tilesetPath,
-        const std::string& name,
-        int64_t ionAssetId,
-        const std::string& ionAccessToken);
-
-    void removeTileset(const pxr::SdfPath& tilesetPath);
     void reloadTileset(const pxr::SdfPath& tilesetPath);
     void clearStage();
     void reloadStage();
