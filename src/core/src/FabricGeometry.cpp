@@ -264,7 +264,8 @@ void FabricGeometry::setGeometry(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     bool smoothNormals,
-    bool hasImagery) {
+    bool hasImagery,
+    float geometricError) {
 
     if (stageDestroyed()) {
         return;
@@ -297,8 +298,8 @@ void FabricGeometry::setGeometry(
 
     if (primitive.mode == CesiumGltf::MeshPrimitive::Mode::POINTS) {
         const auto numVoxels = positions.size();
-        const auto shapeHalfSize = 1.5f;
-        srw.setArrayAttributeSize(_path, FabricTokens::points, numVoxels * 8);
+        const auto shapeHalfSize = 0.02f * geometricError;
+        srw.setArrayAttributeSize(_path, FabricTokens::points, static_cast<size_t>(numVoxels * 8));
         srw.setArrayAttributeSize(_path, FabricTokens::faceVertexCounts, numVoxels * 2 * 6);
         srw.setArrayAttributeSize(_path, FabricTokens::faceVertexIndices, numVoxels * 6 * 2 * 3);
 

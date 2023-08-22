@@ -47,6 +47,7 @@ struct MeshInfo {
     const uint64_t meshId;
     const uint64_t primitiveId;
     const bool smoothNormals;
+    float geometricError;
 };
 
 struct TileLoadThreadResult {
@@ -54,6 +55,7 @@ struct TileLoadThreadResult {
     std::vector<FabricMesh> fabricMeshes;
     glm::dmat4 tileTransform;
     bool hasImagery;
+    float geometricError;
 };
 
 std::vector<MeshInfo>
@@ -161,6 +163,7 @@ void setFabricMeshes(
     const std::vector<MeshInfo>& meshes,
     std::vector<FabricMesh>& fabricMeshes,
     bool hasImagery,
+    float geometricError,
     const OmniTileset& tileset) {
     CESIUM_TRACE("FabricPrepareRenderResources::setFabricMeshes");
     for (size_t i = 0; i < meshes.size(); i++) {
@@ -182,7 +185,8 @@ void setFabricMeshes(
             model,
             primitive,
             meshInfo.smoothNormals,
-            hasImagery);
+            hasImagery,
+            geometricError);
 
         if (material != nullptr) {
             material->setMaterial(meshInfo.tilesetId, materialInfo);
@@ -315,7 +319,8 @@ void* FabricPrepareRenderResources::prepareInMainThread(Cesium3DTilesSelection::
     const auto& model = pRenderContent->getModel();
 
     if (tilesetExists()) {
-        setFabricMeshes(model, meshes, fabricMeshes, hasImagery, *_tileset);
+        auto geometricError = static_cast<float>(tile.getGeometricError());
+        setFabricMeshes(model, meshes, fabricMeshes, hasImagery, geometricError, *_tileset);
     }
 
     return new TileRenderResources{
