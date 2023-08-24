@@ -58,7 +58,7 @@ FabricGeometry::~FabricGeometry() {
         return;
     }
 
-    FabricUtil::destroyPrim(_path);
+        FabricUtil::destroyPrim(_path);
 }
 
 void FabricGeometry::setActive(bool active) {
@@ -314,6 +314,13 @@ void FabricGeometry::setGeometry(
             srw.setArrayAttributeSize(_path, FabricTokens::primvars_vertexColor, numVoxels * 8);
         }
         auto vertexColorsFabric = srw.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::primvars_vertexColor);
+        CudaKernelArgs kernelArgs;
+        kernelArgs.args["points"] = pointsFabric;
+        auto elementCount = pointsFabric.size();
+        std::string tileId = "testTileId";
+        CudaRunner runner{CudaKernelType::CREATE_VOXELS, CudaUpdateType::ONCE, tileId, kernelArgs, static_cast<int>(elementCount)}; //TODO: tile ID
+        CudaManager::getInstance().addRunner(runner);
+
 
         size_t vertIndex = 0;
         size_t vertexCountsIndex = 0;

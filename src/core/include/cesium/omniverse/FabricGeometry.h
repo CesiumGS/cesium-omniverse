@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cesium/omniverse/FabricGeometryDefinition.h"
+#include "cesium/omniverse/CudaManager.h"
 
 #include <glm/glm.hpp>
 #include <omni/fabric/IPath.h>
@@ -50,6 +51,6 @@ class FabricGeometry {
     const FabricGeometryDefinition _geometryDefinition;
     const bool _debugRandomColors;
     const long _stageId;
-};
+    };
 
 } // namespace cesium::omniverse
