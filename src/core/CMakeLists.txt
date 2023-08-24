@@ -85,6 +85,8 @@ setup_lib(
         tbb
         carb
         cudart
+        cuda
+        nvrtc
         omni_kit
         omni_ui
         pybind11
