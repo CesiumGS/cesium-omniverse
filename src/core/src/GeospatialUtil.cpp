@@ -56,14 +56,19 @@ void updateAnchorByUsdTransform(
     if (maybeGlobeAnchor.has_value()) {
         globeAnchor = maybeGlobeAnchor.value();
 
-        bool shouldReorient;
-        anchorApi.GetAdjustOrientationForGlobeWhenMovingAttr().Get(&shouldReorient);
-        bool updateOccurred = globeAnchor->updateByUsdTransform(origin, shouldReorient);
+        auto usdTransform = UsdUtil::getCesiumTransformOpValueForPathIfExists(globeAnchor->getPrimPath());
+        auto cachedTransform = globeAnchor->getCachedTransformation();
 
-        // We need to short circuit if an update isn't necessary.
-        if (!updateOccurred) {
+        double tolerance = 0.01;
+        if (usdTransform.has_value() && pxr::GfIsClose(usdTransform.value(), cachedTransform, tolerance)) {
+
+            // Short circuit if an update isn't actually necessary.
             return;
         }
+
+        bool shouldReorient;
+        anchorApi.GetAdjustOrientationForGlobeWhenMovingAttr().Get(&shouldReorient);
+        globeAnchor->updateByUsdTransform(origin, shouldReorient);
     } else {
         auto anchorToFixed = UsdUtil::computeUsdLocalToEcefTransformForPrim(origin, anchorApi.GetPath());
         globeAnchor = GlobeAnchorRegistry::getInstance().createAnchor(anchorApi.GetPath(), anchorToFixed);
@@ -76,27 +81,72 @@ void updateAnchorByUsdTransform(
         UsdUtil::addOrUpdateTransformOpForAnchor(anchorApi.GetPath(), localTransform);
     }
 
-    std::optional<CesiumGeospatial::Cartographic> cartographicPosition =
-        CesiumGeospatial::Ellipsoid::WGS84.cartesianToCartographic(UsdUtil::usdToGlmVector(fixedTransform.position));
-
     anchorApi.GetPositionAttr().Set(fixedTransform.position);
     anchorApi.GetRotationAttr().Set(pxr::GfVec3d(UsdUtil::getEulerAnglesFromQuaternion(fixedTransform.orientation)));
     anchorApi.GetScaleAttr().Set(pxr::GfVec3d(fixedTransform.scale));
 
+    std::optional<CesiumGeospatial::Cartographic> cartographicPosition =
+        CesiumGeospatial::Ellipsoid::WGS84.cartesianToCartographic(UsdUtil::usdToGlmVector(fixedTransform.position));
+
     if (cartographicPosition) {
-        anchorApi.GetLatitudeAttr().Set(glm::degrees(cartographicPosition->latitude));
-        anchorApi.GetLongitudeAttr().Set(glm::degrees(cartographicPosition->longitude));
-        anchorApi.GetHeightAttr().Set(cartographicPosition->height);
+        auto geographicPosition = pxr::GfVec3d{
+            glm::degrees(cartographicPosition->latitude),
+            glm::degrees(cartographicPosition->longitude),
+            cartographicPosition->height};
+
+        anchorApi.GetGeographicCoordinateAttr().Set(geographicPosition);
     } else {
-        anchorApi.GetLatitudeAttr().Set(0.0);
-        anchorApi.GetLongitudeAttr().Set(0.0);
-        anchorApi.GetHeightAttr().Set(0.0);
+        // TODO: Log an error. Probably.
+        anchorApi.GetGeographicCoordinateAttr().Set(pxr::GfVec3d{0.0, 0.0, 0.0});
     }
+
+    globeAnchor->updateCachedValues();
 }
 
 void updateAnchorByLatLongHeight(
-    [[maybe_unused]] const CesiumGeospatial::Cartographic& origin,
-    [[maybe_unused]] const pxr::CesiumGlobeAnchorAPI& anchor) {}
+    const CesiumGeospatial::Cartographic& origin,
+    const pxr::CesiumGlobeAnchorAPI& anchorApi) {
+    std::optional<std::shared_ptr<OmniGlobeAnchor>> maybeGlobeAnchor =
+        GlobeAnchorRegistry::getInstance().getAnchor(anchorApi.GetPath());
+
+    if (!maybeGlobeAnchor.has_value()) {
+        // TODO: Log an error. Something bad has occurred.
+        return;
+    }
+
+    std::shared_ptr<OmniGlobeAnchor> globeAnchor = maybeGlobeAnchor.value();
+
+    pxr::GfVec3d usdGeographicCoordinate;
+    anchorApi.GetGeographicCoordinateAttr().Get(&usdGeographicCoordinate);
+
+    auto cachedGeographicCoordinate = globeAnchor->getCachedGeographicCoordinate();
+
+    double tolerance = 0.01;
+    if (pxr::GfIsClose(usdGeographicCoordinate, cachedGeographicCoordinate, tolerance)) {
+
+        // Short circuit if we don't need to do an actual update.
+        return;
+    }
+
+    double usdLatitude = usdGeographicCoordinate[0];
+    double usdLongitude = usdGeographicCoordinate[1];
+    double usdHeight = usdGeographicCoordinate[2];
+
+    bool shouldReorient;
+    anchorApi.GetAdjustOrientationForGlobeWhenMovingAttr().Get(&shouldReorient);
+
+    globeAnchor->updateByGeographicCoordinates(usdLatitude, usdLongitude, usdHeight, shouldReorient);
+
+    auto localTransform = globeAnchor->getAnchorToLocalTransform(origin);
+    UsdUtil::addOrUpdateTransformOpForAnchor(anchorApi.GetPath(), localTransform);
+
+    auto fixedTransform = UsdUtil::glmToUsdMatrixDecomposed(globeAnchor->getAnchorToFixedTransform());
+    anchorApi.GetPositionAttr().Set(fixedTransform.position);
+    anchorApi.GetRotationAttr().Set(pxr::GfVec3d(UsdUtil::getEulerAnglesFromQuaternion(fixedTransform.orientation)));
+    anchorApi.GetScaleAttr().Set(pxr::GfVec3d(fixedTransform.scale));
+
+    globeAnchor->updateCachedValues();
+}
 
 void updateAnchorByFixedTransform(
     const CesiumGeospatial::Cartographic& origin,
@@ -123,15 +173,22 @@ void updateAnchorByFixedTransform(
     anchorApi.GetScaleAttr().Get(&usdEcefScaleVec);
     auto ecefScaleVec = UsdUtil::usdToGlmVector(usdEcefScaleVec);
 
-    bool shouldReorient;
-    anchorApi.GetAdjustOrientationForGlobeWhenMovingAttr().Get(&shouldReorient);
-    bool updateOccurred =
-        globeAnchor->updateByFixedTransform(ecefPositionVec, ecefRotationVec, ecefScaleVec, shouldReorient);
+    auto cachedEcefPosition = globeAnchor->getCachedEcefPosition();
+    auto cachedEcefRotation = globeAnchor->getCachedEcefRotation();
+    auto cachedEcefScale = globeAnchor->getCachedEcefScale();
 
-    // We need to short circuit if an update isn't necessary.
-    if (!updateOccurred) {
+    double tolerance = 0.01;
+    if (pxr::GfIsClose(usdEcefPositionVec, cachedEcefPosition, tolerance) &&
+        pxr::GfIsClose(usdEcefRotationVec, cachedEcefRotation, tolerance) &&
+        pxr::GfIsClose(usdEcefScaleVec, cachedEcefScale, tolerance)) {
+
+        // Short circuit early if there isn't actually an update.
         return;
     }
+
+    bool shouldReorient;
+    anchorApi.GetAdjustOrientationForGlobeWhenMovingAttr().Get(&shouldReorient);
+    globeAnchor->updateByFixedTransform(ecefPositionVec, ecefRotationVec, ecefScaleVec, shouldReorient);
 
     auto localTransform = globeAnchor->getAnchorToLocalTransform(origin);
     UsdUtil::addOrUpdateTransformOpForAnchor(anchorApi.GetPath(), localTransform);
@@ -139,15 +196,18 @@ void updateAnchorByFixedTransform(
     auto cartographicPosition = globeAnchor->getCartographicPosition();
 
     if (cartographicPosition) {
-        anchorApi.GetLatitudeAttr().Set(glm::degrees(cartographicPosition->latitude));
-        anchorApi.GetLongitudeAttr().Set(glm::degrees(cartographicPosition->longitude));
-        anchorApi.GetHeightAttr().Set(cartographicPosition->height);
+        auto geographicPosition = pxr::GfVec3d{
+            glm::degrees(cartographicPosition->latitude),
+            glm::degrees(cartographicPosition->longitude),
+            cartographicPosition->height};
+
+        anchorApi.GetGeographicCoordinateAttr().Set(geographicPosition);
     } else {
         // TODO: Log an error. Probably.
-        anchorApi.GetLatitudeAttr().Set(0.0);
-        anchorApi.GetLongitudeAttr().Set(0.0);
-        anchorApi.GetHeightAttr().Set(0.0);
+        anchorApi.GetGeographicCoordinateAttr().Set(pxr::GfVec3d{0.0, 0.0, 0.0});
     }
+
+    globeAnchor->updateCachedValues();
 }
 
 } // namespace cesium::omniverse::GeospatialUtil

@@ -43,10 +43,8 @@ void wrapCesiumTokens()
         cls("Tokens", boost::python::no_init);
     _AddToken(cls, "cesiumAnchorAdjustOrientationForGlobeWhenMoving", CesiumTokens->cesiumAnchorAdjustOrientationForGlobeWhenMoving);
     _AddToken(cls, "cesiumAnchorDetectTransformChanges", CesiumTokens->cesiumAnchorDetectTransformChanges);
+    _AddToken(cls, "cesiumAnchorGeographicCoordinates", CesiumTokens->cesiumAnchorGeographicCoordinates);
     _AddToken(cls, "cesiumAnchorGeoreferenceBinding", CesiumTokens->cesiumAnchorGeoreferenceBinding);
-    _AddToken(cls, "cesiumAnchorHeight", CesiumTokens->cesiumAnchorHeight);
-    _AddToken(cls, "cesiumAnchorLatitude", CesiumTokens->cesiumAnchorLatitude);
-    _AddToken(cls, "cesiumAnchorLongitude", CesiumTokens->cesiumAnchorLongitude);
     _AddToken(cls, "cesiumAnchorPosition", CesiumTokens->cesiumAnchorPosition);
     _AddToken(cls, "cesiumAnchorRotation", CesiumTokens->cesiumAnchorRotation);
     _AddToken(cls, "cesiumAnchorScale", CesiumTokens->cesiumAnchorScale);

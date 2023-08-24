@@ -123,5 +123,6 @@ bool primExists(const pxr::SdfPath& path);
 void setGeoreferenceForTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPath& georeferencePath);
 
 void addOrUpdateTransformOpForAnchor(const pxr::SdfPath& path, const glm::dmat4& transform);
+std::optional<pxr::GfMatrix4d> getCesiumTransformOpValueForPathIfExists(const pxr::SdfPath& path);
 
 }; // namespace cesium::omniverse::UsdUtil

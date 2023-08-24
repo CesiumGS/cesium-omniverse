@@ -185,75 +185,31 @@ public:
 
 public:
     // --------------------------------------------------------------------- //
-    // LONGITUDE 
+    // GEOGRAPHICCOORDINATE 
     // --------------------------------------------------------------------- //
-    /// The longitude of the anchor in degrees, in the range [-180, 180].
+    /// The position of the globally anchored prim as a Latitude, Longitude, Height coordinate.
     ///
     /// | ||
     /// | -- | -- |
-    /// | Declaration | `double cesium:anchor:longitude = 0` |
-    /// | C++ Type | double |
-    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double |
+    /// | Declaration | `double3 cesium:anchor:geographicCoordinates = (0, 0, 10)` |
+    /// | C++ Type | GfVec3d |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double3 |
     CESIUMUSDSCHEMAS_API
-    UsdAttribute GetLongitudeAttr() const;
+    UsdAttribute GetGeographicCoordinateAttr() const;
 
-    /// See GetLongitudeAttr(), and also 
+    /// See GetGeographicCoordinateAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
     CESIUMUSDSCHEMAS_API
-    UsdAttribute CreateLongitudeAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
-
-public:
-    // --------------------------------------------------------------------- //
-    // LATITUDE 
-    // --------------------------------------------------------------------- //
-    /// The latitude of the anchor in degrees, in the range [-90, 90].
-    ///
-    /// | ||
-    /// | -- | -- |
-    /// | Declaration | `double cesium:anchor:latitude = 0` |
-    /// | C++ Type | double |
-    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double |
-    CESIUMUSDSCHEMAS_API
-    UsdAttribute GetLatitudeAttr() const;
-
-    /// See GetLatitudeAttr(), and also 
-    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
-    /// If specified, author \p defaultValue as the attribute's default,
-    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
-    /// the default for \p writeSparsely is \c false.
-    CESIUMUSDSCHEMAS_API
-    UsdAttribute CreateLatitudeAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
-
-public:
-    // --------------------------------------------------------------------- //
-    // HEIGHT 
-    // --------------------------------------------------------------------- //
-    /// The height of the anchor in meters above the WGS84 ellipsoid. Do not confuse this with a geoid height or height above mean sea level, which can be tens of meters higher or lower depending on where in the world the origin is located.
-    ///
-    /// | ||
-    /// | -- | -- |
-    /// | Declaration | `double cesium:anchor:height = 10` |
-    /// | C++ Type | double |
-    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double |
-    CESIUMUSDSCHEMAS_API
-    UsdAttribute GetHeightAttr() const;
-
-    /// See GetHeightAttr(), and also 
-    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
-    /// If specified, author \p defaultValue as the attribute's default,
-    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
-    /// the default for \p writeSparsely is \c false.
-    CESIUMUSDSCHEMAS_API
-    UsdAttribute CreateHeightAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+    UsdAttribute CreateGeographicCoordinateAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // --------------------------------------------------------------------- //
     // POSITION 
     // --------------------------------------------------------------------- //
-    /// The actual position of the globally anchored prim in the ECEF coordinate system used by Cesium for Omniverse.
+    /// The actual position of the globally anchored prim in the ECEF coordinate system.
     ///
     /// | ||
     /// | -- | -- |
@@ -275,7 +231,7 @@ public:
     // --------------------------------------------------------------------- //
     // ROTATION 
     // --------------------------------------------------------------------- //
-    /// The actual rotation of the globally anchored prim oriented to the ECEF coordinate system used by Cesium for Omniverse.
+    /// The actual rotation of the globally anchored prim oriented to the ECEF coordinate system.
     ///
     /// | ||
     /// | -- | -- |

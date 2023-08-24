@@ -335,9 +335,7 @@ pxr::CesiumGlobeAnchorAPI defineGlobeAnchor(const pxr::SdfPath& path) {
 
     globeAnchor.CreateAdjustOrientationForGlobeWhenMovingAttr();
     globeAnchor.CreateDetectTransformChangesAttr();
-    globeAnchor.CreateLongitudeAttr();
-    globeAnchor.CreateLatitudeAttr();
-    globeAnchor.CreateHeightAttr();
+    globeAnchor.CreateGeographicCoordinateAttr();
     globeAnchor.CreatePositionAttr();
     globeAnchor.CreateRotationAttr();
     globeAnchor.CreateScaleAttr();
@@ -538,6 +536,25 @@ void addOrUpdateTransformOpForAnchor(const pxr::SdfPath& path, const glm::dmat4&
         xform.AddTransformOp(pxr::UsdGeomXformOp::PrecisionDouble, pxr::UsdTokens->cesium)
             .Set(UsdUtil::glmToUsdMatrix(transform));
     }
+}
+
+std::optional<pxr::GfMatrix4d> getCesiumTransformOpValueForPathIfExists(const pxr::SdfPath& path) {
+    auto prim = getUsdStage()->GetPrimAtPath(path);
+    auto xform = pxr::UsdGeomXform(prim);
+    auto resetXformStack = xform.GetResetXformStack();
+    auto xformOps = xform.GetOrderedXformOps(&resetXformStack);
+
+    auto hasCesiumSuffix = [](auto op) { return op.HasSuffix(pxr::UsdTokens->cesium); };
+    auto transformOp = std::find_if(xformOps.begin(), xformOps.end(), hasCesiumSuffix);
+
+    if (transformOp != xformOps.end()) {
+        pxr::GfMatrix4d transform;
+        transformOp->Get(&transform);
+
+        return transform;
+    }
+
+    return std::nullopt;
 }
 
 } // namespace cesium::omniverse::UsdUtil

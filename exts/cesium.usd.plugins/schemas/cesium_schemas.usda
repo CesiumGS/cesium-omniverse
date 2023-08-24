@@ -389,28 +389,12 @@ class "CesiumGlobeAnchorSchemaAPI" (
         doc = "Gets or sets whether to automatically detect changes in the Prim's transform and update the precise globe coordinates accordingly."
     )
 
-    double cesium:anchor:longitude = 0.0 (
+    double3 cesium:anchor:geographicCoordinates = (0.0, 0.0, 10.0) (
         customData = {
-            string apiName = "longitude"
+            string apiName = "geographicCoordinate"
         }
-        displayName = "Anchor Longitude"
-        doc = "The longitude of the anchor in degrees, in the range [-180, 180]."
-    )
-
-    double cesium:anchor:latitude = 0.0  (
-        customData = {
-            string apiName = "latitude"
-        }
-        displayName = "Georeference Original Latitude"
-        doc = "The latitude of the anchor in degrees, in the range [-90, 90]."
-    )
-
-    double cesium:anchor:height = 10.0 (
-        customData = {
-            string apiName = "height"
-        }
-        displayName = "Georeference Origin Height"
-        doc = "The height of the anchor in meters above the WGS84 ellipsoid. Do not confuse this with a geoid height or height above mean sea level, which can be tens of meters higher or lower depending on where in the world the origin is located."
+        displayName = "Geographic Coordinate (Latitude, Longitude, Height)"
+        doc = "The position of the globally anchored prim as a Latitude, Longitude, Height coordinate."
     )
 
     double3 cesium:anchor:position = (0.0, 0.0, 0.0) (
@@ -418,7 +402,7 @@ class "CesiumGlobeAnchorSchemaAPI" (
             string apiName = "position"
         }
         displayName = "Position (Earth-Centered, Earth-Fixed)"
-        doc = "The actual position of the globally anchored prim in the ECEF coordinate system used by Cesium for Omniverse."
+        doc = "The actual position of the globally anchored prim in the ECEF coordinate system."
     )
 
     double3 cesium:anchor:rotation = (0.0, 0.0, 0.0) (
@@ -426,7 +410,7 @@ class "CesiumGlobeAnchorSchemaAPI" (
             string apiName = "rotation"
         }
         displayName = "Rotation (East-Up-North)"
-        doc = "The actual rotation of the globally anchored prim oriented to the ECEF coordinate system used by Cesium for Omniverse."
+        doc = "The actual rotation of the globally anchored prim oriented to the ECEF coordinate system."
     )
 
     double3 cesium:anchor:scale = (1.0, 1.0, 1.0) (

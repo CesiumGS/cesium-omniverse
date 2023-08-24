@@ -332,8 +332,7 @@ void Context::processCesiumGlobeAnchorChanged(const cesium::omniverse::ChangedPr
         return;
     }
 
-    if (name == pxr::CesiumTokens->cesiumAnchorLatitude || name == pxr::CesiumTokens->cesiumAnchorLongitude ||
-        name == pxr::CesiumTokens->cesiumAnchorHeight) {
+    if (name == pxr::CesiumTokens->cesiumAnchorGeographicCoordinates) {
         GeospatialUtil::updateAnchorByLatLongHeight(cartographicOrigin, globeAnchor);
 
         return;

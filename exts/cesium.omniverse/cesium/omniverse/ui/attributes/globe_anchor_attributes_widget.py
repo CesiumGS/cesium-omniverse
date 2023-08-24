@@ -25,9 +25,7 @@ class CesiumGlobeAnchorAttributesWidget(SchemaPropertiesWidget):
                 CustomLayoutProperty("cesium:anchor:adjustOrientationForGlobeWhenMoving")
                 CustomLayoutProperty("cesium:anchor:detectTransformChanges")
             with CustomLayoutGroup("Global Positioning"):
-                CustomLayoutProperty("cesium:anchor:longitude")
-                CustomLayoutProperty("cesium:anchor:latitude")
-                CustomLayoutProperty("cesium:anchor:height")
+                CustomLayoutProperty("cesium:anchor:geographicCoordinates")
             with CustomLayoutGroup("Advanced Positioning", collapsed=True):
                 CustomLayoutProperty("cesium:anchor:position")
                 CustomLayoutProperty("cesium:anchor:rotation")

@@ -27,7 +27,9 @@ glm::dmat4 getUnitConversionTransform();
 void updateAnchorByUsdTransform(
     const CesiumGeospatial::Cartographic& origin,
     const pxr::CesiumGlobeAnchorAPI& anchorApi);
-void updateAnchorByLatLongHeight(const CesiumGeospatial::Cartographic& origin, const pxr::CesiumGlobeAnchorAPI& anchor);
+void updateAnchorByLatLongHeight(
+    const CesiumGeospatial::Cartographic& origin,
+    const pxr::CesiumGlobeAnchorAPI& anchorApi);
 void updateAnchorByFixedTransform(
     const CesiumGeospatial::Cartographic& origin,
     const pxr::CesiumGlobeAnchorAPI& anchorApi);

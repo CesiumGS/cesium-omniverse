@@ -42,24 +42,10 @@ _CreateDetectTransformChangesAttr(CesiumGlobeAnchorAPI &self,
 }
         
 static UsdAttribute
-_CreateLongitudeAttr(CesiumGlobeAnchorAPI &self,
+_CreateGeographicCoordinateAttr(CesiumGlobeAnchorAPI &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateLongitudeAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
-}
-        
-static UsdAttribute
-_CreateLatitudeAttr(CesiumGlobeAnchorAPI &self,
-                                      object defaultVal, bool writeSparsely) {
-    return self.CreateLatitudeAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
-}
-        
-static UsdAttribute
-_CreateHeightAttr(CesiumGlobeAnchorAPI &self,
-                                      object defaultVal, bool writeSparsely) {
-    return self.CreateHeightAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
+    return self.CreateGeographicCoordinateAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double3), writeSparsely);
 }
         
 static UsdAttribute
@@ -160,24 +146,10 @@ void wrapCesiumGlobeAnchorAPI()
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetLongitudeAttr",
-             &This::GetLongitudeAttr)
-        .def("CreateLongitudeAttr",
-             &_CreateLongitudeAttr,
-             (arg("defaultValue")=object(),
-              arg("writeSparsely")=false))
-        
-        .def("GetLatitudeAttr",
-             &This::GetLatitudeAttr)
-        .def("CreateLatitudeAttr",
-             &_CreateLatitudeAttr,
-             (arg("defaultValue")=object(),
-              arg("writeSparsely")=false))
-        
-        .def("GetHeightAttr",
-             &This::GetHeightAttr)
-        .def("CreateHeightAttr",
-             &_CreateHeightAttr,
+        .def("GetGeographicCoordinateAttr",
+             &This::GetGeographicCoordinateAttr)
+        .def("CreateGeographicCoordinateAttr",
+             &_CreateGeographicCoordinateAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
