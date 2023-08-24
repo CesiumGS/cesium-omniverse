@@ -9,7 +9,7 @@ import urllib3
 def find_omniverse_apps():
     http = urllib3.PoolManager()
     try:
-        r = http.request("GET", "http://127.0.0.1:33480/components")
+        r = http.request("GET", "http://localhost:33480/components")
     except Exception as e:
         print(f"Failed retrieving apps from an Omniverse Launcher, maybe it is not installed?\nError: {e}")
         sys.exit(1)
