@@ -86,6 +86,7 @@ set(USDRT_ROOT "${NVIDIA_BUILD_DIR}/target-deps/usdrt")
 set(CARB_ROOT "${NVIDIA_BUILD_DIR}/target-deps/carb_sdk_plugins")
 set(KIT_SDK_ROOT "${NVIDIA_BUILD_DIR}/target-deps/kit-sdk")
 set(PYBIND11_ROOT "${NVIDIA_BUILD_DIR}/target-deps/pybind11")
+set(CUDA_ROOT "${NVIDIA_BUILD_DIR}/target-deps/cuda")
 
 set(NVIDIA_USD_LIBRARIES
     ar
@@ -253,6 +254,54 @@ add_prebuilt_project_header_only(
         pybind11
 )
 # cmake-format: on
+
+if(WIN32)
+    # cmake-format: off
+    add_prebuilt_project(
+        RELEASE_INCLUDE_DIR
+            "${CUDA_ROOT}"
+        DEBUG_INCLUDE_DIR
+            "${CUDA_ROOT}"
+        RELEASE_LIBRARY_DIR
+            "${CUDA_ROOT}/cuda/lib/x64"
+        RELEASE_DLL_DIR
+            "${CUDA_ROOT}/cuda/bin"
+        DEBUG_LIBRARY_DIR
+            "${CUDA_ROOT}/cuda/lib/x64"
+        DEBUG_DLL_DIR
+            "${CUDA_ROOT}/cuda/bin"
+        RELEASE_LIBRARIES
+            cudart
+        DEBUG_LIBRARIES
+            cudart
+        RELEASE_DLL_LIBRARIES
+            cudart64_110
+        DEBUG_DLL_LIBRARIES
+            cudart64_110
+        TARGET_NAMES
+            cudart
+    )
+    # cmake-format: on
+else()
+    # cmake-format: off
+    add_prebuilt_project(
+        RELEASE_INCLUDE_DIR
+            "${CUDA_ROOT}"
+        DEBUG_INCLUDE_DIR
+            "${CUDA_ROOT}"
+        RELEASE_LIBRARY_DIR
+            "${CUDA_ROOT}/cuda/lib64"
+        DEBUG_LIBRARY_DIR
+            "${CUDA_ROOT}/cuda/lib64"
+        RELEASE_LIBRARIES
+            cudart
+        DEBUG_LIBRARIES
+            cudart
+        TARGET_NAMES
+            cudart
+    )
+    # cmake-format: on
+endif()
 
 # cmake-format: off
 # omni.ui gives us access to DynamicTextureProvider.h

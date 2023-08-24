@@ -84,6 +84,7 @@ setup_lib(
         boost_python310
         tbb
         carb
+        cudart
         omni_kit
         omni_ui
         pybind11
