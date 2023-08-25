@@ -44,7 +44,7 @@ function(setup_lib)
         target_link_libraries(${_TARGET_NAME} PUBLIC gcov)
     endif()
 
-    if (_ADDITIONAL_LINK_DIRECTORIES)
+    if(_ADDITIONAL_LINK_DIRECTORIES)
         target_link_directories(${_TARGET_NAME} PUBLIC ${_ADDITIONAL_LINK_DIRECTORIES})
     endif()
 
@@ -168,8 +168,7 @@ function(setup_usd_python_lib)
 
     target_compile_options(${_TARGET_NAME} PRIVATE ${_CXX_FLAGS} "$<$<CONFIG:DEBUG>:${_CXX_FLAGS_DEBUG}>")
 
-    target_compile_definitions(${_TARGET_NAME} PRIVATE ${_CXX_DEFINES}
-                                                                "$<$<CONFIG:DEBUG>:${_CXX_DEFINES_DEBUG}>")
+    target_compile_definitions(${_TARGET_NAME} PRIVATE ${_CXX_DEFINES} "$<$<CONFIG:DEBUG>:${_CXX_DEFINES_DEBUG}>")
 
     # cmake-format: off
     target_compile_definitions(${_TARGET_NAME}
@@ -213,8 +212,7 @@ function(setup_usd_python_lib)
         add_custom_command(
             TARGET ${_TARGET_NAME}
             POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${_TARGET_NAME}>
-                    $<TARGET_FILE_DIR:${_TARGET_NAME}>
+            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${_TARGET_NAME}> $<TARGET_FILE_DIR:${_TARGET_NAME}>
             COMMAND_EXPAND_LISTS)
     endif()
 
