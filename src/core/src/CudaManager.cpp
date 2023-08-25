@@ -109,8 +109,6 @@ void** CudaManager::packArgs(CudaKernelArgs cudaKernelArgs, CudaKernelType cudaK
                 // throw std::runtime_error("contexts don't match");
                 cuCtxSetCurrent(_context);
             }
-        } else {
-            std::cout << "Successfully launched kernel" << std::endl;
         }
     }
 
