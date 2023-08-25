@@ -309,6 +309,16 @@ else()
 endif()
 
 if(WIN32)
+    # Find the directory containing nvcuda.dll
+    # Usually it will be C:\Windows\System32
+    find_file(
+        NVCUDA_DLL
+        nvcuda.dll
+        REQUIRED
+        NO_CACHE)
+
+    get_filename_component(CUDA_DLL_DIR ${NVCUDA_DLL} DIRECTORY)
+
     # cmake-format: off
     add_prebuilt_project(
         RELEASE_INCLUDE_DIR
@@ -318,11 +328,11 @@ if(WIN32)
         RELEASE_LIBRARY_DIR
             "${CUDA_ROOT}/cuda/lib/x64"
         RELEASE_DLL_DIR
-            "C:/Windows/System32"
+            "${CUDA_DLL_DIR}"
         DEBUG_LIBRARY_DIR
             "${CUDA_ROOT}/cuda/lib/x64"
         DEBUG_DLL_DIR
-            "C:/Windows/System32"
+            "${CUDA_DLL_DIR}"
         RELEASE_LIBRARIES
             cuda
         DEBUG_LIBRARIES
