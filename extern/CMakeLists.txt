@@ -304,9 +304,9 @@ else()
 endif()
 
 if(WIN32)
-    # Find the directory containing nvcuda.dll
-    # For example C:\Windows\System32
-    # TODO: use find_library?
+    # Find the directory containing nvcuda.dll, e.g. C:\Windows\System32
+    # find_library doesn't work for DLLs which is why find_file is used instead
+    # See https://gitlab.kitware.com/cmake/cmake/-/issues/21067
     find_file(
         CUDA_DRIVER
         nvcuda.dll
@@ -342,8 +342,7 @@ if(WIN32)
     )
     # cmake-format: on
 else()
-    # Find the directory containing libcuda.so
-    # For example /usr/lib/x86_64-linux-gnu
+    # Find the directory containing libcuda.so, e.g. /usr/lib/x86_64-linux-gnu
     find_library(
         CUDA_DRIVER
         cuda

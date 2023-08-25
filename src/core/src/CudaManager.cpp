@@ -165,10 +165,7 @@ void CudaManager::compileKernel(CudaKernelType kernelType) {
             break;
         default:
             throw new std::runtime_error("Attempt to compile an unsupported CUDA kernel.");
-            break;
     }
-
-    return nullptr;
 }
 
 [[nodiscard]] const char* CudaManager::getFunctionName(CudaKernelType kernelType) const {
@@ -178,9 +175,6 @@ void CudaManager::compileKernel(CudaKernelType kernelType) {
             break;
         default:
             throw new std::runtime_error("Attempt to find function for an unsupported CUDA kernel.");
-            break;
     }
-
-    return nullptr;
 }
 } // namespace cesium::omniverse
