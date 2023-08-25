@@ -275,16 +275,20 @@ if(WIN32)
     )
     # cmake-format: on
 else()
+    # Find the directory containing libcuda.so, e.g. /usr/lib/x86_64-linux-gnu
+    find_library(CUDA_DRIVER_LIB cuda REQUIRED NO_CACHE)
+    get_filename_component(CUDA_DRIVER_DIR "${CUDA_DRIVER_LIB}" DIRECTORY)
+
     # cmake-format: off
-    add_prebuilt_project_import_library_only(
+    add_prebuilt_project(
         RELEASE_INCLUDE_DIR
             "${CUDA_ROOT}"
         DEBUG_INCLUDE_DIR
             "${CUDA_ROOT}"
         RELEASE_LIBRARY_DIR
-            "${CUDA_ROOT}/cuda/lib/x64"
+            "${CUDA_DRIVER_DIR}"
         DEBUG_LIBRARY_DIR
-            "${CUDA_ROOT}/cuda/lib/x64"
+            "${CUDA_DRIVER_DIR}"
         RELEASE_LIBRARIES
             cuda
         DEBUG_LIBRARIES
