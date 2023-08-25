@@ -38,6 +38,36 @@ namespace cesium::omniverse {
         std::unordered_map<std::string, std::any> args;
     };
 
+    class CudaRunner {
+        //TODO: move semantics
+        public:
+            CudaKernelType kernelType;
+
+            CudaRunner() {
+                throw std::runtime_error("This should never be called\n");
+            }
+            CudaRunner(CudaKernelType cudaKernelType, CudaUpdateType updateType, std::string tileId_, CudaKernelArgs args, int elementCount_) :
+                kernelType(cudaKernelType), kernelArgs(std::move(args)), elementCount(elementCount_), _tileId(tileId_), _updateType(updateType) {};
+            [[nodiscard]] const std::string& getTileId() const { return _tileId; }
+            CudaKernelArgs kernelArgs;
+            [[nodiscard]] const CudaUpdateType& getUpdateType() const { return _updateType; }
+            int elementCount;
+        private:
+            // omni::fabric::PrimBucketList _bucketList;
+            std::string _tileId;
+            CudaUpdateType _updateType;
+    };
+
+    class CudaKernel {
+        public:
+            nvrtcProgram program;
+            char* ptx;
+            CUmodule module;
+            CUfunction function;
+        private:
+            // const char* _kernelFunctionName;
+    };
+
     class CudaManager{
         public:
             static CudaManager& getInstance() {
@@ -64,35 +94,5 @@ namespace cesium::omniverse {
             void initialize();
             void runRunner(CudaRunner& runner);
             void** packArgs(CudaKernelArgs cudaKernelArgs, CudaKernelType cudaKernelType);
-    };
-
-    class CudaRunner {
-        //TODO: move semantics
-        public:
-            CudaKernelType kernelType;
-
-            CudaRunner() {
-                throw std::runtime_error("This should never be called\n");
-            }
-            CudaRunner(CudaKernelType cudaKernelType, CudaUpdateType updateType, std::string tileId, CudaKernelArgs args, int elementCount) :
-                kernelType(cudaKernelType), kernelArgs(std::move(args)), elementCount(elementCount), _tileId(tileId), _updateType(updateType) {};
-            [[nodiscard]] const std::string& getTileId() const { return _tileId; }
-            CudaKernelArgs kernelArgs;
-            [[nodiscard]] const CudaUpdateType& getUpdateType() const { return _updateType; }
-            int elementCount;
-        private:
-            // omni::fabric::PrimBucketList _bucketList;
-            std::string _tileId;
-            CudaUpdateType _updateType;
-    };
-
-    class CudaKernel {
-        public:
-            nvrtcProgram program;
-            char* ptx;
-            CUmodule module;
-            CUfunction function;
-        private:
-            // const char* _kernelFunctionName;
     };
 }
