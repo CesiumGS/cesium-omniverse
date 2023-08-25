@@ -92,6 +92,7 @@ void FabricMaterial::createMaterial(const omni::fabric::Path& materialPath) {
 
     attributes.addAttribute(FabricTypes::Material, FabricTokens::Material);
     attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
+    attributes.addAttribute(FabricTypes::_cesium_tileId, FabricTokens::_cesium_tileId);
 
     attributes.createAttributes(materialPath);
 }
@@ -122,6 +123,7 @@ void FabricMaterial::createShader(const omni::fabric::Path& shaderPath, const om
     attributes.addAttribute(FabricTypes::_sdrMetadata, FabricTokens::_sdrMetadata);
     attributes.addAttribute(FabricTypes::Shader, FabricTokens::Shader);
     attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
+    attributes.addAttribute(FabricTypes::_cesium_tileId, FabricTokens::_cesium_tileId);
     // clang-format on
 
     if (hasVertexColors) {
@@ -229,7 +231,7 @@ void FabricMaterial::reset() {
     clearBaseColorTexture();
 }
 
-void FabricMaterial::setMaterial(int64_t tilesetId, const MaterialInfo& materialInfo) {
+void FabricMaterial::setMaterial(int64_t tilesetId, int64_t tileId, const MaterialInfo& materialInfo) {
     if (stageDestroyed()) {
         return;
     }
@@ -237,7 +239,7 @@ void FabricMaterial::setMaterial(int64_t tilesetId, const MaterialInfo& material
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
     setShaderValues(_shaderPath, materialInfo);
-    setTilesetId(tilesetId);
+    setTilesetIdAndTileId(tilesetId, tileId);
 }
 
 void FabricMaterial::setBaseColorTexture(const pxr::TfToken& textureAssetPathToken, const TextureInfo& textureInfo) {
@@ -253,19 +255,19 @@ void FabricMaterial::setBaseColorTexture(const pxr::TfToken& textureAssetPathTok
 }
 
 void FabricMaterial::clearMaterial() {
-    setMaterial(NO_TILESET_ID, GltfUtil::getDefaultMaterialInfo());
+    setMaterial(NO_TILESET_ID, NO_TILE_ID, GltfUtil::getDefaultMaterialInfo());
 }
 
 void FabricMaterial::clearBaseColorTexture() {
     setBaseColorTexture(_defaultTextureAssetPathToken, GltfUtil::getDefaultTextureInfo());
 }
 
-void FabricMaterial::setTilesetId(int64_t tilesetId) {
-    FabricUtil::setTilesetId(_materialPath, tilesetId);
-    FabricUtil::setTilesetId(_shaderPath, tilesetId);
+void FabricMaterial::setTilesetIdAndTileId(int64_t tilesetId, int64_t tileId) {
+    FabricUtil::setTilesetIdAndTileId(_materialPath, tilesetId, tileId);
+    FabricUtil::setTilesetIdAndTileId(_shaderPath, tilesetId, tileId);
 
     if (_materialDefinition.hasBaseColorTexture()) {
-        FabricUtil::setTilesetId(_baseColorTexturePath, tilesetId);
+        FabricUtil::setTilesetIdAndTileId(_baseColorTexturePath, tilesetId, tileId);
     }
 }
 

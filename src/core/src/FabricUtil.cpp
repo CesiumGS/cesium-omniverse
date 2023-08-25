@@ -664,12 +664,14 @@ void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform
     }
 }
 
-void setTilesetId(const omni::fabric::Path& path, int64_t tilesetId) {
+void setTilesetIdAndTileId(const omni::fabric::Path& path, int64_t tilesetId, int64_t tileId) {
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
     auto tilesetIdFabric = srw.getAttributeWr<int64_t>(path, FabricTokens::_cesium_tilesetId);
+    auto tileIdFabric = srw.getAttributeWr<int64_t>(path, FabricTokens::_cesium_tileId);
 
     *tilesetIdFabric = tilesetId;
+    *tileIdFabric = tileId;
 }
 
 omni::fabric::Path toFabricPath(const pxr::SdfPath& path) {

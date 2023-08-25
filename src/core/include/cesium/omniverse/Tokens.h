@@ -34,6 +34,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     (vertexColor) \
     (_cesium_localToEcefTransform) \
     (_cesium_tilesetId) \
+    (_cesium_tileId) \
     (_deletedPrims) \
     (_paramColorSpace) \
     (_sdrMetadata) \
@@ -144,6 +145,7 @@ const omni::fabric::Type primvars_vertexColor(omni::fabric::BaseDataType::eFloat
 const omni::fabric::Type Shader(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName);
 const omni::fabric::Type subdivisionScheme(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _cesium_localToEcefTransform(omni::fabric::BaseDataType::eDouble, 16, 0, omni::fabric::AttributeRole::eMatrix);
+const omni::fabric::Type _cesium_tileId(omni::fabric::BaseDataType::eInt64, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _cesium_tilesetId(omni::fabric::BaseDataType::eInt64, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _paramColorSpace(omni::fabric::BaseDataType::eToken, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _sdrMetadata(omni::fabric::BaseDataType::eToken, 1, 1, omni::fabric::AttributeRole::eNone);

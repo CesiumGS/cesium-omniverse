@@ -22,6 +22,7 @@ struct FabricStatistics {
 
 // -1 means the prim is not yet associated with a tileset
 const auto NO_TILESET_ID = int64_t(-1);
+const auto NO_TILE_ID = int64_t(-1);
 
 } // namespace cesium::omniverse
 
@@ -31,7 +32,7 @@ std::string printFabricStage();
 FabricStatistics getStatistics();
 void destroyPrim(const omni::fabric::Path& path);
 void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform);
-void setTilesetId(const omni::fabric::Path& path, int64_t tilesetId);
+void setTilesetIdAndTileId(const omni::fabric::Path& pathFabric, int64_t tilesetId, int64_t tileId);
 omni::fabric::Path toFabricPath(const pxr::SdfPath& path);
 omni::fabric::Path joinPaths(const omni::fabric::Path& absolutePath, const omni::fabric::Token& relativePath);
 

@@ -23,7 +23,7 @@ class FabricMaterial {
         long stageId);
     ~FabricMaterial();
 
-    void setMaterial(int64_t tilesetId, const MaterialInfo& materialInfo);
+    void setMaterial(int64_t tilesetId, int64_t tileId, const MaterialInfo& materialInfo);
     void setBaseColorTexture(const pxr::TfToken& textureAssetPathToken, const TextureInfo& textureInfo);
 
     void clearMaterial();
@@ -50,7 +50,7 @@ class FabricMaterial {
         const omni::fabric::Path& texturePath,
         const pxr::TfToken& textureAssetPathToken,
         const TextureInfo& textureInfo);
-    void setTilesetId(int64_t tilesetId);
+    void setTilesetIdAndTileId(int64_t tilesetId, int64_t tileId);
     bool stageDestroyed();
 
     omni::fabric::Path _materialPath;
