@@ -315,7 +315,6 @@ void FabricGeometry::setGeometry(
         }
         auto vertexColorsFabric = srw.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::primvars_vertexColor);
 
-#ifdef HAS_CUDA
         CudaKernelArgs kernelArgs;
         kernelArgs.args["points"] = pointsFabric;
         auto elementCount = pointsFabric.size();
@@ -327,7 +326,6 @@ void FabricGeometry::setGeometry(
             kernelArgs,
             static_cast<int>(elementCount)}; //TODO: tile ID
         CudaManager::getInstance().addRunner(runner);
-#endif
 
         size_t vertIndex = 0;
         size_t vertexCountsIndex = 0;

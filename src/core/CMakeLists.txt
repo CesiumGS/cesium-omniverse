@@ -21,66 +21,6 @@ glob_files(SOURCES "${CMAKE_CURRENT_LIST_DIR}/src/*.cpp")
 get_property(ADDITIONAL_LIBRARIES GLOBAL PROPERTY NVIDIA_ADDITIONAL_LIBRARIES_PROPERTY)
 get_property(ADDITIONAL_LINK_DIRECTORIES GLOBAL PROPERTY NVIDIA_ADDITIONAL_LINK_DIRECTORIES_PROPERTY)
 
-set(LIBRARIES
-    CesiumUsdSchemas
-    CesiumIonClient
-    Cesium3DTilesSelection
-    CesiumGeospatial
-    CesiumGeometry
-    CesiumGltf
-    CesiumGltfReader
-    CesiumAsync
-    CesiumJsonReader
-    CesiumUtility
-    async++
-    csprng
-    draco
-    ktx_read
-    modp_b64
-    s2geometry
-    spdlog
-    tinyxml2
-    uriparser
-    webpdecoder
-    turbojpeg
-    meshoptimizer
-    cpr::cpr
-    stb::stb
-    ZLIB::ZLIB
-    fabric
-    ar
-    arch
-    gf
-    js
-    kind
-    ndr
-    pcp
-    plug
-    sdf
-    sdr
-    tf
-    trace
-    usd
-    usdGeom
-    usdLux
-    usdShade
-    usdUI
-    usdUtils
-    usdVol
-    vt
-    work
-    boost_python310
-    tbb
-    carb
-    omni_kit
-    omni_ui
-    pybind11
-    python310)
-
-if(${HAS_CUDA})
-    set(LIBRARIES ${LIBRARIES} cuda nvrtc)
-endif()
-
 # cmake-format: off
 setup_lib(
     TARGET_NAME
@@ -94,7 +34,62 @@ setup_lib(
     INCLUDE_DIRS
         "${CMAKE_CURRENT_LIST_DIR}/include"
     LIBRARIES
-        ${LIBRARIES}
+        CesiumUsdSchemas
+        CesiumIonClient
+        Cesium3DTilesSelection
+        CesiumGeospatial
+        CesiumGeometry
+        CesiumGltf
+        CesiumGltfReader
+        CesiumAsync
+        CesiumJsonReader
+        CesiumUtility
+        async++
+        csprng
+        draco
+        ktx_read
+        modp_b64
+        s2geometry
+        spdlog
+        tinyxml2
+        uriparser
+        webpdecoder
+        turbojpeg
+        meshoptimizer
+        cpr::cpr
+        stb::stb
+        ZLIB::ZLIB
+        fabric
+        ar
+        arch
+        gf
+        js
+        kind
+        ndr
+        pcp
+        plug
+        sdf
+        sdr
+        tf
+        trace
+        usd
+        usdGeom
+        usdLux
+        usdShade
+        usdUI
+        usdUtils
+        usdVol
+        vt
+        work
+        boost_python310
+        tbb
+        carb
+        omni_kit
+        omni_ui
+        cuda
+        nvrtc
+        pybind11
+        python310
     ADDITIONAL_LIBRARIES
         "${ADDITIONAL_LIBRARIES}"
     ADDITIONAL_LINK_DIRECTORIES

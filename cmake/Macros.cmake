@@ -486,6 +486,59 @@ $<$<CONFIG:MinSizeRel>:${_RELEASE_INCLUDE_DIR}>")
     endforeach()
 endfunction()
 
+function(add_prebuilt_project_import_library_only)
+    cmake_parse_arguments(
+        ""
+        ""
+        "RELEASE_INCLUDE_DIR;DEBUG_INCLUDE_DIR;RELEASE_LIBRARY_DIR;DEBUG_LIBRARY_DIR"
+        "RELEASE_LIBRARIES;DEBUG_LIBRARIES;TARGET_NAMES"
+        ${ARGN})
+
+    foreach(
+        lib IN
+        ZIP_LISTS
+        _TARGET_NAMES
+        _RELEASE_LIBRARIES
+        _DEBUG_LIBRARIES)
+        set(TARGET_NAME ${lib_0})
+        set(RELEASE_NAME ${lib_1})
+        set(DEBUG_NAME ${lib_2})
+        add_library(
+            ${TARGET_NAME}
+            STATIC
+            IMPORTED
+            GLOBAL)
+        set(TARGET_INCLUDE_DIRECTORY
+            "\
+$<$<CONFIG:Debug>:${_DEBUG_INCLUDE_DIR}>\
+$<$<CONFIG:Release>:${_RELEASE_INCLUDE_DIR}>\
+$<$<CONFIG:RelWithDebInfo>:${_RELEASE_INCLUDE_DIR}>\
+$<$<CONFIG:MinSizeRel>:${_RELEASE_INCLUDE_DIR}>")
+
+        target_include_directories(${TARGET_NAME} INTERFACE "${TARGET_INCLUDE_DIRECTORY}")
+
+        cmake_path(
+            APPEND
+            _RELEASE_LIBRARY_DIR
+            ${CMAKE_STATIC_LIBRARY_PREFIX}${RELEASE_NAME}${CMAKE_STATIC_LIBRARY_SUFFIX}
+            OUTPUT_VARIABLE
+            ${TARGET_NAME}_LIBRARY_RELEASE)
+        cmake_path(
+            APPEND
+            _DEBUG_LIBRARY_DIR
+            ${CMAKE_STATIC_LIBRARY_PREFIX}${DEBUG_NAME}${CMAKE_STATIC_LIBRARY_SUFFIX}
+            OUTPUT_VARIABLE
+            ${TARGET_NAME}_LIBRARY_DEBUG)
+
+        set_target_properties(
+            ${TARGET_NAME}
+            PROPERTIES IMPORTED_LOCATION_DEBUG "${${TARGET_NAME}_LIBRARY_DEBUG}"
+                       IMPORTED_LOCATION_RELEASE "${${TARGET_NAME}_LIBRARY_RELEASE}"
+                       IMPORTED_LOCATION_RELWITHDEBINFO "${${TARGET_NAME}_LIBRARY_RELEASE}"
+                       IMPORTED_LOCATION_MINSIZEREL "${${TARGET_NAME}_LIBRARY_RELEASE}")
+    endforeach()
+endfunction()
+
 function(add_prebuilt_project_header_only)
     cmake_parse_arguments(
         ""

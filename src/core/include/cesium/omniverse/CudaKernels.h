@@ -1,4 +1,3 @@
-#ifdef HAS_CUDA
 #pragma once
 
 namespace cesium::omniverse::cudaKernels {
@@ -37,4 +36,3 @@ inline const char* createVoxelsKernel = R"(
     }
     )";
 } // namespace cesium::omniverse::cudaKernels
-#endif

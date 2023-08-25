@@ -1,4 +1,3 @@
-#ifdef HAS_CUDA
 #pragma once
 
 #include "cesium/omniverse/CudaKernels.h"
@@ -106,5 +105,3 @@ class CudaManager {
     void** packArgs(CudaKernelArgs cudaKernelArgs, CudaKernelType cudaKernelType);
 };
 } // namespace cesium::omniverse
-
-#endif
