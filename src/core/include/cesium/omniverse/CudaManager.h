@@ -1,14 +1,16 @@
+#ifdef HAS_CUDA
 #pragma once
 
-#include "cesium/omniverse/CudaManager.h"
 #include "cesium/omniverse/CudaKernels.h"
+#include "cesium/omniverse/CudaManager.h"
 
-#include <any>
 #include <cuda/include/cuda.h>
 #include <cuda/include/cuda_runtime.h>
 #include <cuda/include/nvrtc.h>
 #include <omni/fabric/FabricUSD.h>
 #include <omni/fabric/IFabric.h>
+
+#include <any>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -18,81 +20,91 @@
 //TODO: handle DLLs in application directory
 
 namespace cesium::omniverse {
-    class CudaManager;
-    class CudaRunner;
-    class CudaKernel;
-    struct CudaKernelArgs;
+class CudaManager;
+class CudaRunner;
+class CudaKernel;
+struct CudaKernelArgs;
 
-    enum CudaKernelType {
-        HELLO_WORLD,
-        CREATE_VOXELS,
-        PRINT_POINTS
-    };
+enum CudaKernelType { HELLO_WORLD, CREATE_VOXELS, PRINT_POINTS };
 
-    enum CudaUpdateType {
-        ONCE,
-        ON_UPDATE
-    };
+enum CudaUpdateType { ONCE, ON_UPDATE };
 
-    struct CudaKernelArgs {
-        std::unordered_map<std::string, std::any> args;
-    };
+struct CudaKernelArgs {
+    std::unordered_map<std::string, std::any> args;
+};
 
-    class CudaRunner {
-        //TODO: move semantics
-        public:
-            CudaKernelType kernelType;
+class CudaRunner {
+    //TODO: move semantics
+  public:
+    CudaKernelType kernelType;
 
-            CudaRunner() {
-                throw std::runtime_error("This should never be called\n");
-            }
-            CudaRunner(CudaKernelType cudaKernelType, CudaUpdateType updateType, std::string tileId_, CudaKernelArgs args, int elementCount_) :
-                kernelType(cudaKernelType), kernelArgs(std::move(args)), elementCount(elementCount_), _tileId(tileId_), _updateType(updateType) {};
-            [[nodiscard]] const std::string& getTileId() const { return _tileId; }
-            CudaKernelArgs kernelArgs;
-            [[nodiscard]] const CudaUpdateType& getUpdateType() const { return _updateType; }
-            int elementCount;
-        private:
-            // omni::fabric::PrimBucketList _bucketList;
-            std::string _tileId;
-            CudaUpdateType _updateType;
-    };
+    CudaRunner() {
+        throw std::runtime_error("This should never be called\n");
+    }
+    CudaRunner(
+        CudaKernelType cudaKernelType,
+        CudaUpdateType updateType,
+        std::string tileId_,
+        CudaKernelArgs args,
+        int elementCount_)
+        : kernelType(cudaKernelType)
+        , kernelArgs(std::move(args))
+        , elementCount(elementCount_)
+        , _tileId(tileId_)
+        , _updateType(updateType){};
+    [[nodiscard]] const std::string& getTileId() const {
+        return _tileId;
+    }
+    CudaKernelArgs kernelArgs;
+    [[nodiscard]] const CudaUpdateType& getUpdateType() const {
+        return _updateType;
+    }
+    int elementCount;
 
-    class CudaKernel {
-        public:
-            nvrtcProgram program;
-            char* ptx;
-            CUmodule module;
-            CUfunction function;
-        private:
-            // const char* _kernelFunctionName;
-    };
+  private:
+    // omni::fabric::PrimBucketList _bucketList;
+    std::string _tileId;
+    CudaUpdateType _updateType;
+};
 
-    class CudaManager{
-        public:
-            static CudaManager& getInstance() {
-                static CudaManager instance;
-                return instance;
-            }
+class CudaKernel {
+  public:
+    nvrtcProgram program;
+    char* ptx;
+    CUmodule module;
+    CUfunction function;
 
-            void addRunner(const CudaRunner& cudaRunner);
-            // void removeRunner(std::string tileId, CudaUpdateType updateType);
-            [[nodiscard]] const char* getKernelCode(CudaKernelType kernelType) const;
-            [[nodiscard]] const char* getFunctionName(CudaKernelType kernelType) const;
+  private:
+    // const char* _kernelFunctionName;
+};
 
-        private:
-            CUdevice _device;
-            CUcontext _context;
-            bool _initialized = false;
-            std::unordered_map<CudaUpdateType, std::unordered_map<std::string, CudaRunner>> _runnersByUpdateType;
-            std::unordered_map<CudaKernelType, CudaKernel> _kernels;
-            int _blockSize, _numBlocks;
+class CudaManager {
+  public:
+    static CudaManager& getInstance() {
+        static CudaManager instance;
+        return instance;
+    }
 
-            void onUpdate();
-            void compileKernel(CudaKernelType kernelType);
-            void runAllRunners();
-            void initialize();
-            void runRunner(CudaRunner& runner);
-            void** packArgs(CudaKernelArgs cudaKernelArgs, CudaKernelType cudaKernelType);
-    };
-}
+    void addRunner(const CudaRunner& cudaRunner);
+    // void removeRunner(std::string tileId, CudaUpdateType updateType);
+    [[nodiscard]] const char* getKernelCode(CudaKernelType kernelType) const;
+    [[nodiscard]] const char* getFunctionName(CudaKernelType kernelType) const;
+
+  private:
+    CUdevice _device;
+    CUcontext _context;
+    bool _initialized = false;
+    std::unordered_map<CudaUpdateType, std::unordered_map<std::string, CudaRunner>> _runnersByUpdateType;
+    std::unordered_map<CudaKernelType, CudaKernel> _kernels;
+    int _blockSize, _numBlocks;
+
+    void onUpdate();
+    void compileKernel(CudaKernelType kernelType);
+    void runAllRunners();
+    void initialize();
+    void runRunner(CudaRunner& runner);
+    void** packArgs(CudaKernelArgs cudaKernelArgs, CudaKernelType cudaKernelType);
+};
+} // namespace cesium::omniverse
+
+#endif

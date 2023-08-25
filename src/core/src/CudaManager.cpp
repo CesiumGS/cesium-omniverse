@@ -1,3 +1,4 @@
+#ifdef HAS_CUDA
 #include "cesium/omniverse/CudaManager.h"
 
 #include "cesium/omniverse/CudaKernels.h"
@@ -178,3 +179,4 @@ void CudaManager::compileKernel(CudaKernelType kernelType) {
     }
 }
 } // namespace cesium::omniverse
+#endif
