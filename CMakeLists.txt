@@ -414,6 +414,10 @@ set(CESIUM_OMNI_LINKER_FLAGS_DEBUG
 # Third party dependencies not handled by conan
 add_subdirectory(extern)
 
+if(${HAS_CUDA})
+    set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} CESIUM_OMNI_HAS_CUDA)
+endif()
+
 # Tell CMake to search for packages with the correct build type (i.e. Release or Debug) as generated
 # by ConfigureConan.cmake with the cmake_find_package_multi generator
 set(CMAKE_FIND_PACKAGE_PREFER_CONFIG TRUE)
