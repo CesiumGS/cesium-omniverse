@@ -45,6 +45,7 @@ namespace cesium::omniverse {
                 return instance;
             }
 
+            void onUpdateFrame();
             void addRunner(CudaRunner& cudaRunner);
             // void removeRunner(std::string tileId, CudaUpdateType updateType);
             [[nodiscard]] const char* getKernelCode(CudaKernelType kernelType) const;
@@ -58,7 +59,6 @@ namespace cesium::omniverse {
             std::unordered_map<CudaKernelType, CudaKernel> _kernels;
             int _blockSize, _numBlocks;
 
-            void onUpdate();
             void compileKernel(CudaKernelType kernelType);
             void runAllRunners();
             void initialize();
@@ -67,7 +67,6 @@ namespace cesium::omniverse {
     };
 
     class CudaRunner {
-        //TODO: move semantics
         public:
             CudaKernelType kernelType;
 

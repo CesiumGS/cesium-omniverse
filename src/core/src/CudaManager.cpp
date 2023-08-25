@@ -5,6 +5,7 @@
 #include <exception>
 #include <stdexcept>
 #include <unordered_map>
+#include <iostream>
 
 namespace cesium::omniverse {
 
@@ -35,7 +36,6 @@ namespace cesium::omniverse {
     }
 
     void CudaManager::runAllRunners() {
-
         for (auto& [updateType, runners] : _runnersByUpdateType) {
             if (updateType == CudaUpdateType::ONCE) {
                 auto onceRunners = runners;
@@ -46,7 +46,7 @@ namespace cesium::omniverse {
         }
     }
 
-    void CudaManager::onUpdate() {
+    void CudaManager::onUpdateFrame() {
         runAllRunners();
     }
 
@@ -97,7 +97,7 @@ void** CudaManager::packArgs(CudaKernelArgs cudaKernelArgs, CudaKernelType cudaK
             cuGetErrorName(launchResult, &errName);
             cuGetErrorString(launchResult, &errString);
 
-            // std::cout << "Error launching kernel: " << errName << ": " << errString << std::endl;
+            std::cout << "Error launching kernel: " << errName << ": " << errString << std::endl;
 
             CUcontext currentContext;
             cuCtxGetCurrent(&currentContext);
@@ -109,6 +109,8 @@ void** CudaManager::packArgs(CudaKernelArgs cudaKernelArgs, CudaKernelType cudaK
                 // throw std::runtime_error("contexts don't match");
                 cuCtxSetCurrent(_context);
             }
+        } else {
+            std::cout << "Successfully launched kernel" << std::endl;
         }
     }
 

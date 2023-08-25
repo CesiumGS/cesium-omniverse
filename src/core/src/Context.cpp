@@ -3,6 +3,7 @@
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/CesiumIonSession.h"
+#include "cesium/omniverse/CudaManager.h"
 #include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GeospatialUtil.h"
@@ -205,6 +206,8 @@ void Context::onUpdateFrame(const std::vector<Viewport>& viewports) {
     for (const auto& tileset : tilesets) {
         tileset->onUpdateFrame(viewports);
     }
+
+    CudaManager::getInstance().onUpdateFrame();
 }
 
 void Context::processPropertyChanged(const ChangedPrim& changedPrim) {
