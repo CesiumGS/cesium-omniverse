@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CesiumUsdSchemas/globeAnchorAPI.h"
+#include "OmniGlobeAnchor.h"
 
 #include <CesiumGeospatial/Cartographic.h>
 #include <CesiumGeospatial/LocalHorizontalCoordinateSystem.h>
@@ -33,5 +34,9 @@ void updateAnchorByLatLongHeight(
 void updateAnchorByFixedTransform(
     const CesiumGeospatial::Cartographic& origin,
     const pxr::CesiumGlobeAnchorAPI& anchorApi);
+void updateAnchorOrigin(
+    const CesiumGeospatial::Cartographic& origin,
+    const pxr::CesiumGlobeAnchorAPI& anchorApi,
+    const std::shared_ptr<OmniGlobeAnchor>& globeAnchor);
 
 }; // namespace cesium::omniverse::GeospatialUtil

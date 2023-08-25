@@ -210,4 +210,14 @@ void updateAnchorByFixedTransform(
     globeAnchor->updateCachedValues();
 }
 
+void updateAnchorOrigin(
+    const CesiumGeospatial::Cartographic& origin,
+    const pxr::CesiumGlobeAnchorAPI& anchorApi,
+    const std::shared_ptr<OmniGlobeAnchor>& globeAnchor) {
+    auto localTransform = globeAnchor->getAnchorToLocalTransform(origin);
+    UsdUtil::addOrUpdateTransformOpForAnchor(anchorApi.GetPath(), localTransform);
+
+    globeAnchor->updateCachedValues();
+}
+
 } // namespace cesium::omniverse::GeospatialUtil

@@ -25,4 +25,15 @@ std::optional<std::shared_ptr<OmniGlobeAnchor>> GlobeAnchorRegistry::getAnchor(c
     return std::nullopt;
 }
 
+std::vector<std::shared_ptr<OmniGlobeAnchor>> GlobeAnchorRegistry::getAllAnchors() {
+    std::vector<std::shared_ptr<OmniGlobeAnchor>> result;
+    result.reserve(_anchors.size());
+
+    for (const auto& item : _anchors) {
+        result.push_back(item.second);
+    }
+
+    return result;
+}
+
 } // namespace cesium::omniverse

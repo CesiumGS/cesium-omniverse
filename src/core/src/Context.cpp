@@ -307,8 +307,28 @@ void Context::processCesiumImageryChanged(const ChangedPrim& changedPrim) {
     // clang-format on
 }
 
-void Context::processCesiumGeoreferenceChanged([[maybe_unused]] const cesium::omniverse::ChangedPrim& changedPrim) {
-    // TODO: Update all related anchors.
+void Context::processCesiumGeoreferenceChanged(const cesium::omniverse::ChangedPrim& changedPrim) {
+    const auto& [path, name, primType, changeType] = changedPrim;
+
+    auto anchors = GlobeAnchorRegistry::getInstance().getAllAnchors();
+    for (const auto& globeAnchor : anchors) {
+        auto anchorApi = UsdUtil::getCesiumGlobeAnchor(globeAnchor->getPrimPath());
+
+        pxr::SdfPathVector targets;
+        if (!anchorApi.GetGeoreferenceBindingRel().GetForwardedTargets(&targets)) {
+            return;
+        }
+
+        // We only want to update an anchor if we are updating it's related Georeference Prim.
+        if (path != targets[0]) {
+            return;
+        }
+
+        auto georeferenceOrigin = UsdUtil::getCesiumGeoreference(targets[0]);
+        auto origin = GeospatialUtil::convertGeoreferenceToCartographic(georeferenceOrigin);
+
+        GeospatialUtil::updateAnchorOrigin(origin, anchorApi, globeAnchor);
+    }
 }
 
 void Context::processCesiumGlobeAnchorChanged(const cesium::omniverse::ChangedPrim& changedPrim) {
