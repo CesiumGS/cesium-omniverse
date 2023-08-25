@@ -198,6 +198,7 @@ void FabricMaterial::createTexture(
     attributes.addAttribute(FabricTypes::_sdrMetadata, FabricTokens::_sdrMetadata);
     attributes.addAttribute(FabricTypes::Shader, FabricTokens::Shader);
     attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
+    attributes.addAttribute(FabricTypes::_cesium_tileId, FabricTokens::_cesium_tileId);
     // clang-format on
 
     attributes.createAttributes(texturePath);

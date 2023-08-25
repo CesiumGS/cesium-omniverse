@@ -319,10 +319,8 @@ void FabricGeometry::setGeometry(
         CudaKernelArgs kernelArgs;
         kernelArgs.args["points"] = pointsFabric;
         auto elementCount = pointsFabric.size();
-        std::string testTileId = "testTileId";
-        CudaRunner runner{CudaKernelType::CREATE_VOXELS, CudaUpdateType::ONCE, testTileId, kernelArgs, static_cast<int>(elementCount)}; //TODO: tile ID
+        CudaRunner runner{CudaKernelType::CREATE_VOXELS, CudaUpdateType::ONCE, tileId, kernelArgs, static_cast<int>(elementCount)}; //TODO: tile ID
         CudaManager::getInstance().addRunner(runner);
-
 
         size_t vertIndex = 0;
         size_t vertexCountsIndex = 0;

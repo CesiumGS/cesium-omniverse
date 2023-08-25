@@ -41,7 +41,6 @@ namespace cesium::omniverse {
                 auto onceRunners = runners;
                 for (auto& [tileId, runner] : runners) {
                     runRunner(runner);
-                    //TODO: mark for deletion
                 }
             }
         }
@@ -51,15 +50,17 @@ namespace cesium::omniverse {
         runAllRunners();
     }
 
-    void CudaManager::addRunner(const CudaRunner& cudaRunner) {
+    void CudaManager::addRunner(CudaRunner& cudaRunner) {
         if (!_initialized) initialize();
 
         if (_kernels.find(cudaRunner.kernelType) == _kernels.end()) {
             compileKernel(cudaRunner.kernelType);
         }
 
-        auto& innerMap = _runnersByUpdateType[cudaRunner.getUpdateType()];  // This will create an entry if it doesn't exist.
-        innerMap[cudaRunner.getTileId()] = cudaRunner;
+        auto& innerMap = _runnersByUpdateType[cudaRunner.getUpdateType()];
+        // innerMap[cudaRunner.getTileId()] = cudaRunner;
+        innerMap.insert({cudaRunner.getTileId(), std::move(cudaRunner)});
+
     }
 
 void** CudaManager::packArgs(CudaKernelArgs cudaKernelArgs, CudaKernelType cudaKernelType) {
@@ -112,6 +113,10 @@ void** CudaManager::packArgs(CudaKernelArgs cudaKernelArgs, CudaKernelType cudaK
     }
 
     void CudaManager::compileKernel(CudaKernelType kernelType) {
+        if (_kernels.find(kernelType) != _kernels.end()) {
+            return;
+        }
+
         auto kernelCode = getKernelCode(kernelType);
         auto kernelFunctionName = getFunctionName(kernelType);
 
@@ -125,10 +130,7 @@ void** CudaManager::packArgs(CudaKernelArgs cudaKernelArgs, CudaKernelType cudaK
             nvrtcGetProgramLogSize(kernel.program, &logSize);
             char* log = new char[logSize];
             nvrtcGetProgramLog(kernel.program, log);
-            // std::cout << "   Compilation log: \n" << log << std::endl; //TODO: logger
-            delete[] log;
-
-            throw std::runtime_error("Error compiling NVRTC program");
+            throw std::runtime_error(log);
         }
 
         // Get the PTX (assembly code for the GPU)
@@ -156,8 +158,10 @@ void** CudaManager::packArgs(CudaKernelArgs cudaKernelArgs, CudaKernelType cudaK
     [[nodiscard]] const char* CudaManager::getKernelCode(CudaKernelType kernelType) const {
         switch (kernelType) {
             case CudaKernelType::CREATE_VOXELS:
-                return cesium::omniverse::cudaKernels::helloWorldKernel;
+                return cesium::omniverse::cudaKernels::createVoxelsKernel;
                 break;
+            case CudaKernelType::HELLO_WORLD:
+                return cesium::omniverse::cudaKernels::helloWorldKernel;
             default:
                 throw new std::exception("Attempt to compile an unsupported CUDA kernel.");
         }
@@ -167,6 +171,9 @@ void** CudaManager::packArgs(CudaKernelArgs cudaKernelArgs, CudaKernelType cudaK
         switch (kernelType) {
             case CudaKernelType::CREATE_VOXELS:
                 return "createVoxels";
+                break;
+            case CudaKernelType::HELLO_WORLD:
+                return "helloWorld";
                 break;
             default:
                 throw new std::exception("Attempt to find function for an unsupported CUDA kernel.");

@@ -45,7 +45,7 @@ namespace cesium::omniverse {
                 return instance;
             }
 
-            void addRunner(const CudaRunner& cudaRunner);
+            void addRunner(CudaRunner& cudaRunner);
             // void removeRunner(std::string tileId, CudaUpdateType updateType);
             [[nodiscard]] const char* getKernelCode(CudaKernelType kernelType) const;
             [[nodiscard]] const char* getFunctionName(CudaKernelType kernelType) const;
@@ -54,7 +54,7 @@ namespace cesium::omniverse {
             CUdevice _device;
             CUcontext _context;
             bool _initialized = false;
-            std::unordered_map<CudaUpdateType, std::unordered_map<std::string, CudaRunner>> _runnersByUpdateType;
+            std::unordered_map<CudaUpdateType, std::unordered_map<int64_t, CudaRunner>> _runnersByUpdateType;
             std::unordered_map<CudaKernelType, CudaKernel> _kernels;
             int _blockSize, _numBlocks;
 
@@ -74,15 +74,15 @@ namespace cesium::omniverse {
             CudaRunner() {
                 throw std::runtime_error("This should never be called\n");
             }
-            CudaRunner(CudaKernelType cudaKernelType, CudaUpdateType updateType, std::string tileId, CudaKernelArgs args, int elementCount) :
+            CudaRunner(CudaKernelType cudaKernelType, CudaUpdateType updateType, int64_t tileId, CudaKernelArgs args, int elementCount) :
                 kernelType(cudaKernelType), kernelArgs(std::move(args)), elementCount(elementCount), _tileId(tileId), _updateType(updateType) {};
-            [[nodiscard]] const std::string& getTileId() const { return _tileId; }
+            [[nodiscard]] int64_t getTileId() const { return _tileId; }
             CudaKernelArgs kernelArgs;
             [[nodiscard]] const CudaUpdateType& getUpdateType() const { return _updateType; }
             int elementCount;
         private:
             // omni::fabric::PrimBucketList _bucketList;
-            std::string _tileId;
+            int64_t _tileId;
             CudaUpdateType _updateType;
     };
 
