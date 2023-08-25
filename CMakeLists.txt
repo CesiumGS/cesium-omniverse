@@ -560,20 +560,20 @@ install(
             COMPONENT library
             EXCLUDE_FROM_ALL)
 
+get_property(NVIDIA_LIBRARIES_TO_INSTALL GLOBAL PROPERTY NVIDIA_LIBRARIES_TO_INSTALL_PROPERTY)
+
 install(
     TARGETS cesium.omniverse.plugin
+            RUNTIME_DEPENDENCIES
+            PRE_INCLUDE_REGEXES
+            ${NVIDIA_LIBRARIES_TO_INSTALL}
+            PRE_EXCLUDE_REGEXES
+            ".*"
+            POST_EXCLUDE_REGEXES
+            ${INSTALL_POST_EXCLUDE_REGEXES}
     ARCHIVE DESTINATION ${KIT_EXTENSION_BIN_PATH} COMPONENT install
     LIBRARY DESTINATION ${KIT_EXTENSION_BIN_PATH} COMPONENT install
     RUNTIME DESTINATION ${KIT_EXTENSION_BIN_PATH} COMPONENT install)
-
-# Certain libraries like nvrtc don't ship with kit so we need to install it ourselves and include it in our releases
-get_property(NVIDIA_LIBRARIES_TO_INSTALL GLOBAL PROPERTY NVIDIA_LIBRARIES_TO_INSTALL_PROPERTY)
-foreach(NVIDIA_LIBRARY_TO_INSTALL ${NVIDIA_LIBRARIES_TO_INSTALL})
-    install(
-        FILES ${NVIDIA_LIBRARY_TO_INSTALL}
-        DESTINATION ${KIT_EXTENSION_BIN_PATH}
-        COMPONENT install)
-endforeach()
 
 # TODO: this is also installing the .lib. How to avoid that?
 install(

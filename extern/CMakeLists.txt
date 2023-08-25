@@ -305,14 +305,15 @@ endif()
 
 if(WIN32)
     # Find the directory containing nvcuda.dll
-    # Usually it will be C:\Windows\System32
+    # For example C:\Windows\System32
+    # TODO: use find_library?
     find_file(
-        NVCUDA_DLL
+        CUDA_DRIVER
         nvcuda.dll
         REQUIRED
         NO_CACHE)
 
-    get_filename_component(CUDA_DLL_DIR "${NVCUDA_DLL}" DIRECTORY)
+    get_filename_component(CUDA_DRIVER_DIR "${CUDA_DRIVER}" DIRECTORY)
 
     # cmake-format: off
     add_prebuilt_project(
@@ -323,11 +324,11 @@ if(WIN32)
         RELEASE_LIBRARY_DIR
             "${CUDA_ROOT}/cuda/lib/x64"
         RELEASE_DLL_DIR
-            "${CUDA_DLL_DIR}"
+            "${CUDA_DRIVER_DIR}"
         DEBUG_LIBRARY_DIR
             "${CUDA_ROOT}/cuda/lib/x64"
         DEBUG_DLL_DIR
-            "${CUDA_DLL_DIR}"
+            "${CUDA_DRIVER_DIR}"
         RELEASE_LIBRARIES
             cuda
         DEBUG_LIBRARIES
@@ -341,21 +342,34 @@ if(WIN32)
     )
     # cmake-format: on
 else()
+    # Find the directory containing libcuda.so
+    # For example /usr/lib/x86_64-linux-gnu
+    find_library(
+        CUDA_DRIVER
+        cuda
+        REQUIRED
+        NO_CACHE)
+
+    get_filename_component(CUDA_DRIVER_DIR "${CUDA_DRIVER}" DIRECTORY)
+
+    # cmake-format: off
     add_prebuilt_project(
         RELEASE_INCLUDE_DIR
-        "${CUDA_ROOT}"
+            "${CUDA_ROOT}"
         DEBUG_INCLUDE_DIR
-        "${CUDA_ROOT}"
+            "${CUDA_ROOT}"
         RELEASE_LIBRARY_DIR
-        "${CUDA_ROOT}/cuda/lib/x64"
+            "${CUDA_DRIVER_DIR}"
         DEBUG_LIBRARY_DIR
-        "${CUDA_ROOT}/cuda/lib/x64"
+            "${CUDA_DRIVER_DIR}"
         RELEASE_LIBRARIES
-        cuda
+            cuda
         DEBUG_LIBRARIES
-        cuda
+            cuda
         TARGET_NAMES
-        cuda)
+            cuda)
+    # cmake-format: on
+
 endif()
 
 # cmake-format: off
@@ -384,11 +398,7 @@ if(WIN32)
         "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/kit-sdk/exts/omni.kit.renderer.imgui/bin/deps/freetype.dll"
     )
 
-    set(NVIDIA_LIBRARIES_TO_INSTALL
-        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/cuda/cuda/bin/nvrtc64_112_0.dll")
-
     set_property(GLOBAL PROPERTY NVIDIA_ADDITIONAL_LIBRARIES_PROPERTY "${NVIDIA_ADDITIONAL_LIBRARIES}")
-    set_property(GLOBAL PROPERTY NVIDIA_LIBRARIES_TO_INSTALL_PROPERTY "${NVIDIA_LIBRARIES_TO_INSTALL}")
 else()
     set(NVIDIA_ADDITIONAL_SEARCH_PATHS
         "$<TARGET_FILE_DIR:python310>"
@@ -401,10 +411,10 @@ else()
         # This is where freetype is located on Linux. Needed by imgui which doesn't set its rpath properly
         "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/kit-sdk/exts/omni.kit.renderer.imgui/bin/deps")
 
-    set(NVIDIA_LIBRARIES_TO_INSTALL
-        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/cuda/cuda/bin/nvrtc64_112_0.so")
-
     set_property(GLOBAL PROPERTY NVIDIA_ADDITIONAL_SEARCH_PATHS_PROPERTY "${NVIDIA_ADDITIONAL_SEARCH_PATHS}")
     set_property(GLOBAL PROPERTY NVIDIA_ADDITIONAL_LINK_DIRECTORIES_PROPERTY "${NVIDIA_ADDITIONAL_LINK_DIRECTORIES}")
-    set_property(GLOBAL PROPERTY NVIDIA_LIBRARIES_TO_INSTALL_PROPERTY "${NVIDIA_LIBRARIES_TO_INSTALL}")
 endif()
+
+# Certain libraries like nvrtc don't ship with kit so we need to install it ourselves and include it in our releases
+set(NVIDIA_LIBRARIES_TO_INSTALL "nvrtc")
+set_property(GLOBAL PROPERTY NVIDIA_LIBRARIES_TO_INSTALL_PROPERTY "${NVIDIA_LIBRARIES_TO_INSTALL}")
