@@ -109,7 +109,7 @@ jobs:
         if: ${{ runner.os == 'Linux' && matrix.config.name != 'CentOS 7 - GCC' }}
         run: |
           sudo apt update
-          sudo apt install -y doxygen clang-tidy-14 gcovr
+          sudo apt install -y doxygen clang-tidy-14 gcovr nvidia-driver-535
           sudo pip3 install conan==1.58.0 black==23.1.0 flake8==6.0.0
 
       # Could not figure out how to add Chocolatey libraries to the PATH automatically with refreshenv, so
