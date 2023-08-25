@@ -121,7 +121,7 @@ void updateAnchorByLatLongHeight(
 
     auto cachedGeographicCoordinate = globeAnchor->getCachedGeographicCoordinate();
 
-    double tolerance = 0.01;
+    double tolerance = 0.0000001;
     if (pxr::GfIsClose(usdGeographicCoordinate, cachedGeographicCoordinate, tolerance)) {
 
         // Short circuit if we don't need to do an actual update.
@@ -177,7 +177,7 @@ void updateAnchorByFixedTransform(
     auto cachedEcefRotation = globeAnchor->getCachedEcefRotation();
     auto cachedEcefScale = globeAnchor->getCachedEcefScale();
 
-    double tolerance = 0.01;
+    double tolerance = 0.0001;
     if (pxr::GfIsClose(usdEcefPositionVec, cachedEcefPosition, tolerance) &&
         pxr::GfIsClose(usdEcefRotationVec, cachedEcefRotation, tolerance) &&
         pxr::GfIsClose(usdEcefScaleVec, cachedEcefScale, tolerance)) {
