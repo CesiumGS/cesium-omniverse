@@ -517,18 +517,16 @@ $<$<CONFIG:MinSizeRel>:${_RELEASE_INCLUDE_DIR}>")
 
         target_include_directories(${TARGET_NAME} INTERFACE "${TARGET_INCLUDE_DIRECTORY}")
 
-        cmake_path(
-            APPEND
-            _RELEASE_LIBRARY_DIR
-            ${CMAKE_STATIC_LIBRARY_PREFIX}${RELEASE_NAME}${CMAKE_STATIC_LIBRARY_SUFFIX}
-            OUTPUT_VARIABLE
-            ${TARGET_NAME}_LIBRARY_RELEASE)
-        cmake_path(
-            APPEND
-            _DEBUG_LIBRARY_DIR
-            ${CMAKE_STATIC_LIBRARY_PREFIX}${DEBUG_NAME}${CMAKE_STATIC_LIBRARY_SUFFIX}
-            OUTPUT_VARIABLE
-            ${TARGET_NAME}_LIBRARY_DEBUG)
+        find_library(
+            ${TARGET_NAME}_LIBRARY_RELEASE
+            NAMES ${RELEASE_NAME}
+            PATHS ${_RELEASE_LIBRARY_DIR}
+            NO_DEFAULT_PATH NO_CACHE)
+        find_library(
+            ${TARGET_NAME}_LIBRARY_DEBUG
+            NAMES ${DEBUG_NAME}
+            PATHS ${_DEBUG_LIBRARY_DIR}
+            NO_DEFAULT_PATH NO_CACHE)
 
         set_target_properties(
             ${TARGET_NAME}
