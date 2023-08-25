@@ -564,8 +564,6 @@ install(
             COMPONENT library
             EXCLUDE_FROM_ALL)
 
-get_property(NVIDIA_LIBRARIES_TO_INSTALL GLOBAL PROPERTY NVIDIA_LIBRARIES_TO_INSTALL_PROPERTY)
-
 install(
     TARGETS cesium.omniverse.plugin
             RUNTIME_DEPENDENCIES

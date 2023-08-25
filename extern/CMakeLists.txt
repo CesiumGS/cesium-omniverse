@@ -259,28 +259,22 @@ if(WIN32)
     # Find the directory containing nvcuda.dll, e.g. C:\Windows\System32
     # find_library doesn't work for DLLs which is why find_file is used instead
     # See https://gitlab.kitware.com/cmake/cmake/-/issues/21067
-    find_file(
-        CUDA_DRIVER
-        nvcuda.dll
-        REQUIRED
-        NO_CACHE)
+    find_file(CUDA_DRIVER_LIB nvcuda.dll NO_CACHE)
 else()
     # Find the directory containing libcuda.so, e.g. /usr/lib/x86_64-linux-gnu
-    find_library(
-        CUDA_DRIVER
-        cuda
-        REQUIRED
-        NO_CACHE)
+    find_library(CUDA_DRIVER_LIB cuda NO_CACHE)
 endif()
 
-if(CUDA_DRIVER)
+if(CUDA_DRIVER_LIB)
     set(HAS_CUDA True)
-    get_filename_component(CUDA_DRIVER_DIR "${CUDA_DRIVER}" DIRECTORY)
+    get_filename_component(CUDA_DRIVER_DIR "${CUDA_DRIVER_LIB}" DIRECTORY)
 else()
     set(HAS_CUDA False)
 endif()
 
-set(HAS_CUDA ${HAS_CUDA} PARENT_SCOPE)
+set(HAS_CUDA
+    ${HAS_CUDA}
+    PARENT_SCOPE)
 
 if(${HAS_CUDA})
     if(WIN32)
@@ -424,4 +418,6 @@ endif()
 
 # Certain libraries like nvrtc don't ship with kit so we need to install it ourselves and include it in our releases
 set(NVIDIA_LIBRARIES_TO_INSTALL "nvrtc")
-set_property(GLOBAL PROPERTY NVIDIA_LIBRARIES_TO_INSTALL_PROPERTY "${NVIDIA_LIBRARIES_TO_INSTALL}")
+set(NVIDIA_LIBRARIES_TO_INSTALL
+    ${NVIDIA_LIBRARIES_TO_INSTALL}
+    PARENT_SCOPE)
