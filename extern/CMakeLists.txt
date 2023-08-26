@@ -276,7 +276,11 @@ if(WIN32)
     # cmake-format: on
 else()
     # Find the directory containing libcuda.so, e.g. /usr/lib/x86_64-linux-gnu
-    find_library(CUDA_DRIVER_LIB cuda REQUIRED NO_CACHE)
+    find_library(
+        CUDA_DRIVER_LIB
+        cuda
+        REQUIRED
+        NO_CACHE)
     get_filename_component(CUDA_DRIVER_DIR "${CUDA_DRIVER_LIB}" DIRECTORY)
 
     # cmake-format: off
@@ -388,9 +392,3 @@ else()
     set_property(GLOBAL PROPERTY NVIDIA_ADDITIONAL_SEARCH_PATHS_PROPERTY "${NVIDIA_ADDITIONAL_SEARCH_PATHS}")
     set_property(GLOBAL PROPERTY NVIDIA_ADDITIONAL_LINK_DIRECTORIES_PROPERTY "${NVIDIA_ADDITIONAL_LINK_DIRECTORIES}")
 endif()
-
-# Certain libraries like nvrtc don't ship with kit so we need to install it ourselves and include it in our releases
-set(NVIDIA_LIBRARIES_TO_INSTALL "nvrtc")
-set(NVIDIA_LIBRARIES_TO_INSTALL
-    ${NVIDIA_LIBRARIES_TO_INSTALL}
-    PARENT_SCOPE)
