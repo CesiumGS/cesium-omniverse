@@ -580,8 +580,10 @@ install(
             DIRECTORIES
             ${INSTALL_SEARCH_PATHS}
             PRE_EXCLUDE_REGEXES
+            nvcuda.dll
             ${INSTALL_PRE_EXCLUDE_REGEXES}
             POST_EXCLUDE_REGEXES
+            nvcuda.dll
             ${INSTALL_POST_EXCLUDE_REGEXES}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
             COMPONENT library
