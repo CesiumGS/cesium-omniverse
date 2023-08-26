@@ -532,9 +532,12 @@ execute_process(COMMAND "${Python3_EXECUTABLE}" "${SCRIPTS_DIRECTORY}/update_cer
 
 get_property(INSTALL_SEARCH_PATHS GLOBAL PROPERTY NVIDIA_ADDITIONAL_SEARCH_PATHS_PROPERTY)
 
-# Don't install cuda since it's a system library and won't exist on Windows CI
+# Skip system libraries when running install
 set(INSTALL_PRE_EXCLUDE_REGEXES "api-ms-*" "ext-ms-*" "cuda")
 set(INSTALL_POST_EXCLUDE_REGEXES "system32" "^\/lib")
+
+# Skip all runtime dependencies except nvrtc when installing to exts/cesium-omniverse/bin
+set(INSTALL_PRE_INCLUDE_REGEXES "nvtrc")
 
 install(
     TARGETS CesiumUsdSchemas
@@ -561,12 +564,11 @@ install(
             COMPONENT library
             EXCLUDE_FROM_ALL)
 
-# Install nvrtc to exts/cesium.omniverse/bin. Skip all other runtime dependencies since those are included with Kit SDK
 install(
     TARGETS cesium.omniverse.plugin
             RUNTIME_DEPENDENCIES
             PRE_INCLUDE_REGEXES
-            nvrtc
+            ${INSTALL_PRE_INCLUDE_REGEXES}
             PRE_EXCLUDE_REGEXES
             ".*"
             POST_EXCLUDE_REGEXES
