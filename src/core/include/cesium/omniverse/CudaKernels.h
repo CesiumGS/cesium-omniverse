@@ -32,7 +32,7 @@ namespace cesium::omniverse::cudaKernels {
         size_t i = blockIdx.x * blockDim.x + threadIdx.x;
         if (count <= i) return;
 
-        printf("Placeholder: create voxel at index %llu\n", i);
+        // printf("Placeholder: create voxel at index %llu\n", i);
     }
     )";
 }

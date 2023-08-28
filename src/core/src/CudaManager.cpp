@@ -38,6 +38,9 @@ namespace cesium::omniverse {
     void CudaManager::runAllRunners() {
         for (auto& [updateType, runners] : _runnersByUpdateType) {
             if (updateType == CudaUpdateType::ONCE) {
+                throw std::runtime_error("Single-run kernels are not yet supported.");
+            }
+            else if (updateType == CudaUpdateType::ON_UPDATE_FRAME) {
                 auto onceRunners = runners;
                 for (auto& [tileId, runner] : runners) {
                     runRunner(runner);
@@ -61,6 +64,12 @@ namespace cesium::omniverse {
         // innerMap[cudaRunner.getTileId()] = cudaRunner;
         innerMap.insert({cudaRunner.getTileId(), std::move(cudaRunner)});
 
+    }
+
+    void CudaManager::removeRunner(int64_t tileId) {
+        for (auto& [updateType, runners] : _runnersByUpdateType) {
+            runners.erase(tileId);
+        }
     }
 
 void** CudaManager::packArgs(CudaKernelArgs cudaKernelArgs, CudaKernelType cudaKernelType) {

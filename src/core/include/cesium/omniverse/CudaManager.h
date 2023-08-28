@@ -31,7 +31,7 @@ namespace cesium::omniverse {
 
     enum CudaUpdateType {
         ONCE,
-        ON_UPDATE
+        ON_UPDATE_FRAME
     };
 
     struct CudaKernelArgs {
@@ -47,7 +47,7 @@ namespace cesium::omniverse {
 
             void onUpdateFrame();
             void addRunner(CudaRunner& cudaRunner);
-            // void removeRunner(std::string tileId, CudaUpdateType updateType);
+            void removeRunner(int64_t tileId);
             [[nodiscard]] const char* getKernelCode(CudaKernelType kernelType) const;
             [[nodiscard]] const char* getFunctionName(CudaKernelType kernelType) const;
 

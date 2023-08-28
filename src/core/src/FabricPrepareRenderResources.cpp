@@ -1,6 +1,7 @@
 #include "cesium/omniverse/FabricPrepareRenderResources.h"
 
 #include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/CudaManager.h"
 #include "cesium/omniverse/FabricGeometry.h"
 #include "cesium/omniverse/FabricMaterial.h"
 #include "cesium/omniverse/FabricResourceManager.h"
@@ -330,6 +331,7 @@ void* FabricPrepareRenderResources::prepareInMainThread(Cesium3DTilesSelection::
     return new TileRenderResources{
         tileTransform,
         std::move(fabricMeshes),
+        (meshes.size() > 0) ? meshes[0].tileId : 0
     };
 }
 
@@ -346,6 +348,8 @@ void FabricPrepareRenderResources::free(
     if (pMainThreadResult) {
         const auto pTileRenderResources = static_cast<TileRenderResources*>(pMainThreadResult);
         freeFabricMeshes(pTileRenderResources->fabricMeshes);
+        auto tileId = pTileRenderResources->tileId;
+        CudaManager::getInstance().removeRunner(static_cast<int64_t>(tileId));
         delete pTileRenderResources;
     }
 }
