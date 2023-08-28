@@ -4,6 +4,7 @@
 
 #include <omni/kit/IApp.h>
 #include <zlib.h>
+
 #include <exception>
 #include <stdexcept>
 
