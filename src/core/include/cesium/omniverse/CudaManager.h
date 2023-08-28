@@ -46,10 +46,10 @@ class CudaRunner {
         CudaUpdateType updateType,
         int64_t tileId,
         CudaKernelArgs args,
-        int elementCount)
+        int elementCountArg)
         : kernelType(cudaKernelType)
         , kernelArgs(std::move(args))
-        , elementCount(elementCount)
+        , elementCount(elementCountArg)
         , _tileId(tileId)
         , _updateType(updateType){};
     [[nodiscard]] int64_t getTileId() const {
