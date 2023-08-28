@@ -9,3 +9,11 @@ app = true
 
 [settings]
 app.window.title = "Cesium For Omniverse Performance Testing App"
+
+[settings.app.exts]
+folders.'++' = [
+    "${app}", # Find other applications in this folder
+    "${app}/exts", # Find extensions in this folder
+    "${app}/../exts", # Find cesium.omniverse and cesium.usd.schemas
+    "${app}/../extern/nvidia/app/extscache" # Find omni.kit.window.material_graph
+]
