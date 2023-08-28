@@ -257,6 +257,53 @@ add_prebuilt_project_header_only(
 
 if(WIN32)
     # cmake-format: off
+    add_prebuilt_project_import_library_only(
+        RELEASE_INCLUDE_DIR
+            "${CUDA_ROOT}"
+        DEBUG_INCLUDE_DIR
+            "${CUDA_ROOT}"
+        RELEASE_LIBRARY_DIR
+            "${CUDA_ROOT}/cuda/lib/x64"
+        DEBUG_LIBRARY_DIR
+            "${CUDA_ROOT}/cuda/lib/x64"
+        RELEASE_LIBRARIES
+            cuda
+        DEBUG_LIBRARIES
+            cuda
+        TARGET_NAMES
+            cuda
+    )
+    # cmake-format: on
+else()
+    # Find the directory containing libcuda.so, e.g. /usr/lib/x86_64-linux-gnu
+    find_library(
+        CUDA_DRIVER_LIB
+        cuda
+        REQUIRED
+        NO_CACHE)
+    get_filename_component(CUDA_DRIVER_DIR "${CUDA_DRIVER_LIB}" DIRECTORY)
+
+    # cmake-format: off
+    add_prebuilt_project(
+        RELEASE_INCLUDE_DIR
+            "${CUDA_ROOT}"
+        DEBUG_INCLUDE_DIR
+            "${CUDA_ROOT}"
+        RELEASE_LIBRARY_DIR
+            "${CUDA_DRIVER_DIR}"
+        DEBUG_LIBRARY_DIR
+            "${CUDA_DRIVER_DIR}"
+        RELEASE_LIBRARIES
+            cuda
+        DEBUG_LIBRARIES
+            cuda
+        TARGET_NAMES
+            cuda)
+    # cmake-format: on
+endif()
+
+if(WIN32)
+    # cmake-format: off
     add_prebuilt_project(
         RELEASE_INCLUDE_DIR
             "${CUDA_ROOT}"
@@ -271,19 +318,14 @@ if(WIN32)
         DEBUG_DLL_DIR
             "${CUDA_ROOT}/cuda/bin"
         RELEASE_LIBRARIES
-            cudart
             nvrtc
         DEBUG_LIBRARIES
-            cudart
             nvrtc
         RELEASE_DLL_LIBRARIES
-            cudart64_110
             nvrtc64_112_0
         DEBUG_DLL_LIBRARIES
-            cudart64_110
             nvrtc64_112_0
         TARGET_NAMES
-            cudart
             nvrtc
     )
     # cmake-format: on
@@ -299,40 +341,11 @@ else()
         DEBUG_LIBRARY_DIR
             "${CUDA_ROOT}/cuda/lib64"
         RELEASE_LIBRARIES
-            cudart
+            nvrtc
         DEBUG_LIBRARIES
-            cudart
+            nvrtc
         TARGET_NAMES
-            cudart
-    )
-    # cmake-format: on
-endif()
-
-if(WIN32)
-    # cmake-format: off
-    add_prebuilt_project(
-        RELEASE_INCLUDE_DIR
-            "${CUDA_ROOT}"
-        DEBUG_INCLUDE_DIR
-            "${CUDA_ROOT}"
-        RELEASE_LIBRARY_DIR
-            "${CUDA_ROOT}/cuda/lib/x64"
-        RELEASE_DLL_DIR
-            "C:/Windows/System32"
-        DEBUG_LIBRARY_DIR
-            "${CUDA_ROOT}/cuda/lib/x64"
-        DEBUG_DLL_DIR
-            "C:/Windows/System32"
-        RELEASE_LIBRARIES
-            cuda
-        DEBUG_LIBRARIES
-            cuda
-        RELEASE_DLL_LIBRARIES
-            nvcuda
-        DEBUG_DLL_LIBRARIES
-            nvcuda
-        TARGET_NAMES
-            cuda
+            nvrtc
     )
     # cmake-format: on
 endif()
