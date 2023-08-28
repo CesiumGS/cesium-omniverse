@@ -2,7 +2,7 @@
 
 namespace cesium::omniverse::cudaKernels {
 
-    inline const char* printPointsKernel = R"(
+inline const char* printPointsKernel = R"(
 
     extern "C" __global__ void printPoints(float3** points, int numPoints) {
         const size_t i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -14,7 +14,7 @@ namespace cesium::omniverse::cudaKernels {
     }
     )";
 
-    inline const char* helloWorldKernel = R"(
+inline const char* helloWorldKernel = R"(
     extern "C" __global__
     void helloWorld(double* values, size_t count)
     {
@@ -25,7 +25,7 @@ namespace cesium::omniverse::cudaKernels {
     }
     )";
 
-    inline const char* createVoxelsKernel = R"(
+inline const char* createVoxelsKernel = R"(
     extern "C" __global__
     void createVoxels(float3** points, size_t count)
     {
@@ -35,4 +35,4 @@ namespace cesium::omniverse::cudaKernels {
         // printf("Placeholder: create voxel at index %llu\n", i);
     }
     )";
-}
+} // namespace cesium::omniverse::cudaKernels

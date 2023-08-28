@@ -328,11 +328,7 @@ void* FabricPrepareRenderResources::prepareInMainThread(Cesium3DTilesSelection::
         setFabricMeshes(model, meshes, fabricMeshes, hasImagery, geometricError, *_tileset);
     }
 
-    return new TileRenderResources{
-        tileTransform,
-        std::move(fabricMeshes),
-        (meshes.size() > 0) ? meshes[0].tileId : 0
-    };
+    return new TileRenderResources{tileTransform, std::move(fabricMeshes), (meshes.size() > 0) ? meshes[0].tileId : 0};
 }
 
 void FabricPrepareRenderResources::free(

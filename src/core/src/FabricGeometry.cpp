@@ -58,7 +58,7 @@ FabricGeometry::~FabricGeometry() {
         return;
     }
 
-        FabricUtil::destroyPrim(_path);
+    FabricUtil::destroyPrim(_path);
 }
 
 void FabricGeometry::setActive(bool active) {
@@ -319,7 +319,12 @@ void FabricGeometry::setGeometry(
         CudaKernelArgs kernelArgs;
         kernelArgs.args["points"] = pointsFabric;
         auto elementCount = pointsFabric.size();
-        CudaRunner runner{CudaKernelType::CREATE_VOXELS, CudaUpdateType::ON_UPDATE_FRAME, tileId, kernelArgs, static_cast<int>(elementCount)}; //TODO: tile ID
+        CudaRunner runner{
+            CudaKernelType::CREATE_VOXELS,
+            CudaUpdateType::ON_UPDATE_FRAME,
+            tileId,
+            kernelArgs,
+            static_cast<int>(elementCount)};
         CudaManager::getInstance().addRunner(runner);
 
         size_t vertIndex = 0;
