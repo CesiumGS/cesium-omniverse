@@ -84,7 +84,6 @@ setup_lib(
         boost_python310
         tbb
         carb
-        cudart
         cuda
         nvrtc
         omni_kit
