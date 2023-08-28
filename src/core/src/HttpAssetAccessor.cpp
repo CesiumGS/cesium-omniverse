@@ -4,6 +4,8 @@
 
 #include <omni/kit/IApp.h>
 #include <zlib.h>
+#include <exception>
+#include <stdexcept>
 
 namespace cesium::omniverse {
 namespace {
@@ -109,7 +111,11 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> HttpAssetAccess
     session->SetHeader(cprHeader);
     session->SetUrl(cpr::Url(url));
     session->GetCallback([promise, url, headers](cpr::Response&& response) mutable {
-        promise.resolve(std::make_shared<HttpAssetRequest>("GET", url, headers, std::move(response)));
+        if (response.error) {
+            promise.reject(std::runtime_error("failed to fetch tileset from: " + url + "\n"));
+        } else {
+            promise.resolve(std::make_shared<HttpAssetRequest>("GET", url, headers, std::move(response)));
+        }
     });
 
     return promise.getFuture();
