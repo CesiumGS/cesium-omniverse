@@ -94,8 +94,8 @@ void OmniGlobeAnchor::updateByFixedTransform(
     glm::dvec3 ecefScaleVec,
     bool shouldReorient) {
     auto translation = glm::translate(glm::dmat4(1.0), ecefPositionVec);
-    auto rotation = glm::eulerAngleYXZ<double>(
-        glm::radians(ecefRotationVec.y), glm::radians(ecefRotationVec.x), glm::radians(ecefRotationVec.z));
+    auto rotation = glm::eulerAngleXYZ<double>(
+        glm::radians(ecefRotationVec.x), glm::radians(ecefRotationVec.y), glm::radians(ecefRotationVec.z));
     auto scale = glm::scale(glm::dmat4(1.0), ecefScaleVec);
     auto newAnchorToFixed = translation * rotation * scale;
 
@@ -107,23 +107,11 @@ void OmniGlobeAnchor::updateByGeographicCoordinates(
     double longitude,
     double height,
     bool shouldReorient) {
-    // We should keep an eye on this function. There's a lot of work that occurs here every time one of the global
-    // coordinates are updated. We may need to find a faster way to bail if lat/long/height hasn't changed.
-
     auto cartographic = CesiumGeospatial::Cartographic::fromDegrees(longitude, latitude, height);
     auto newEcefPositionVec = CesiumGeospatial::Ellipsoid::WGS84.cartographicToCartesian(cartographic);
-    const auto anchorToFixed = _anchor->getAnchorToFixedTransform();
 
-    glm::dvec3 ecefScaleVec{};
-    glm::dquat ecefRotationQuat{};
-    glm::dvec3 _ft{};
-    glm::dvec3 _fskew{};
-    glm::dvec4 _fperspective{};
-
-    [[maybe_unused]] bool decomposable =
-        glm::decompose(anchorToFixed, ecefScaleVec, ecefRotationQuat, _ft, _fskew, _fperspective);
-
-    auto ecefRotationVec = glm::eulerAngles(ecefRotationQuat);
+    auto ecefRotationVec = UsdUtil::usdToGlmVector(_valueCache.ecefRotation);
+    auto ecefScaleVec = UsdUtil::usdToGlmVector(_valueCache.ecefScale);
 
     updateByFixedTransform(newEcefPositionVec, ecefRotationVec, ecefScaleVec, shouldReorient);
 }
