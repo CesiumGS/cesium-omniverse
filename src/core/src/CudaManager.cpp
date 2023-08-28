@@ -20,20 +20,17 @@ void CudaManager::initialize() {
 
     result = cuInit(0);
     if (result != CUDA_SUCCESS) {
-        // std::cout << "error: CUDA did not init." << std::endl; //TODO: logger
-        throw std::runtime_error("ERROR");
+        throw std::runtime_error("ERROR: CUDA did not init");
     }
 
     result = cuDeviceGet(&_device, 0);
     if (result != CUDA_SUCCESS) {
-        // std::cout << "error: CUDA did not get a device." << std::endl; //TODO: logger
-        throw std::runtime_error("ERROR");
+        throw std::runtime_error("ERROR: CUDA did not get a device");
     }
 
     result = cuCtxCreate(&_context, 0, _device);
     if (result != CUDA_SUCCESS) {
-        // std::cout << "error: could not create CUDA context." << std::endl; //TODO: logger
-        throw std::runtime_error("ERROR");
+        throw std::runtime_error("ERROR: could not create CUDA context");
     }
 
     _initialized = true;
@@ -66,7 +63,6 @@ void CudaManager::addRunner(CudaRunner& cudaRunner) {
     }
 
     auto& innerMap = _runnersByUpdateType[cudaRunner.getUpdateType()];
-    // innerMap[cudaRunner.getTileId()] = cudaRunner;
     innerMap.insert({cudaRunner.getTileId(), std::move(cudaRunner)});
 }
 
@@ -77,17 +73,16 @@ void CudaManager::removeRunner(int64_t tileId) {
 }
 
 void** CudaManager::packArgs(CudaKernelArgs cudaKernelArgs, CudaKernelType cudaKernelType) {
-    void** args = new void*[10](); // dynamically allocate an array of 10 void pointers and zero-initialize them
+    void** args = new void*[10]();
 
     switch (cudaKernelType) {
         case CudaKernelType::CREATE_VOXELS:
             args[0] = &cudaKernelArgs.args["points"];
             break;
         case CudaKernelType::HELLO_WORLD:
-            // nothing to do as we zero-initialized the array
             break;
         default:
-            delete[] args; // free the allocated memory before throwing an exception
+            delete[] args;
             throw std::runtime_error("Cannot create kernel args\n");
     }
 
@@ -135,13 +130,14 @@ void CudaManager::compileKernel(CudaKernelType kernelType) {
 
     nvrtcCreateProgram(&kernel.program, kernelCode, kernelFunctionName, 0, nullptr, nullptr);
 
-    nvrtcResult res = nvrtcCompileProgram(kernel.program, 0, nullptr);
-    if (res != NVRTC_SUCCESS) {
+    nvrtcResult compileResult = nvrtcCompileProgram(kernel.program, 0, nullptr);
+    std::unique_ptr<char[]> log; //NOLINT
+    if (compileResult != NVRTC_SUCCESS) {
         size_t logSize;
         nvrtcGetProgramLogSize(kernel.program, &logSize);
-        char* log = new char[logSize];
-        nvrtcGetProgramLog(kernel.program, log);
-        throw std::runtime_error(log);
+        log.reset(new char[logSize]);
+        nvrtcGetProgramLog(kernel.program, log.get());
+        throw std::runtime_error(log.get());
     }
 
     // Get the PTX (assembly code for the GPU)
@@ -174,7 +170,7 @@ void CudaManager::compileKernel(CudaKernelType kernelType) {
         case CudaKernelType::HELLO_WORLD:
             return cesium::omniverse::cudaKernels::helloWorldKernel;
         default:
-            throw new std::exception("Attempt to compile an unsupported CUDA kernel.");
+            throw new std::runtime_error("Attempt to compile an unsupported CUDA kernel.");
     }
 }
 
@@ -187,7 +183,7 @@ void CudaManager::compileKernel(CudaKernelType kernelType) {
             return "helloWorld";
             break;
         default:
-            throw new std::exception("Attempt to find function for an unsupported CUDA kernel.");
+            throw new std::runtime_error("Attempt to find function for an unsupported CUDA kernel.");
     }
 }
 } // namespace cesium::omniverse
