@@ -133,10 +133,6 @@ void FabricResourceManager::releaseGeometry(const std::shared_ptr<FabricGeometry
     const auto geometryPool = getGeometryPool(geometry->getGeometryDefinition());
     assert(geometryPool != nullptr);
     geometryPool->release(geometry);
-
-    if (geometryPool->isEmpty()) {
-        removePool(_geometryPools, geometryPool);
-    }
 }
 
 void FabricResourceManager::releaseMaterial(const std::shared_ptr<FabricMaterial>& material) {
@@ -149,10 +145,6 @@ void FabricResourceManager::releaseMaterial(const std::shared_ptr<FabricMaterial
     const auto materialPool = getMaterialPool(material->getMaterialDefinition());
     assert(materialPool != nullptr);
     materialPool->release(material);
-
-    if (materialPool->isEmpty()) {
-        removePool(_materialPools, materialPool);
-    }
 }
 
 void FabricResourceManager::releaseTexture(const std::shared_ptr<FabricTexture>& texture) {
@@ -165,10 +157,6 @@ void FabricResourceManager::releaseTexture(const std::shared_ptr<FabricTexture>&
     const auto texturePool = getTexturePool();
     assert(texturePool != nullptr);
     texturePool->release(texture);
-
-    if (texturePool->isEmpty()) {
-        removePool(_texturePools, texturePool);
-    }
 }
 
 void FabricResourceManager::setDisableMaterials(bool disableMaterials) {
