@@ -23,7 +23,6 @@ class CudaKernel;
 struct CudaKernelArgs;
 
 enum CudaKernelType { HELLO_WORLD, CREATE_VOXELS, PRINT_POINTS };
-
 enum CudaUpdateType { ONCE, ON_UPDATE_FRAME };
 
 struct CudaKernelArgs {
