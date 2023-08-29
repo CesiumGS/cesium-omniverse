@@ -113,7 +113,8 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> HttpAssetAccess
     session->SetUrl(cpr::Url(url));
     session->GetCallback([promise, url, headers](cpr::Response&& response) mutable {
         if (response.error) {
-            promise.reject(std::runtime_error(fmt::format("Request to {} failed with error: {}", url, response.error.message)));
+            promise.reject(
+                std::runtime_error(fmt::format("Request to {} failed with error: {}", url, response.error.message)));
         } else {
             promise.resolve(std::make_shared<HttpAssetRequest>("GET", url, headers, std::move(response)));
         }
