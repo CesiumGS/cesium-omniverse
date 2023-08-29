@@ -36,18 +36,17 @@ jobs:
               generator: 'Unix Makefiles',
               coverage: 'false',
             }
-# Temporarily disabling CentOS builds while we figure out why they're so slow.
-#          - {
-#              name: 'CentOS 7 - GCC',
-#              artifact: 'linux-gcc.tar.xz',
-#              os: ubuntu-latest-m,
-#              cc: 'gcc-11',
-#              cxx: 'g++-11',
-#              build-type: 'Release',
-#              build-code: 'CentOS7',
-#              generator: 'Unix Makefiles',
-#              coverage: 'false',
-#            }
+          - {
+              name: 'CentOS 7 - GCC',
+              artifact: 'linux-gcc.tar.xz',
+              os: ubuntu-latest-m,
+              cc: 'gcc-11',
+              cxx: 'g++-11',
+              build-type: 'Release',
+              build-code: 'CentOS7',
+              generator: 'Unix Makefiles',
+              coverage: 'false',
+            }
 
     steps:
       - uses: actions/checkout@v3
@@ -90,7 +89,9 @@ jobs:
         continue-on-error: true
         with:
           key: docker-layer-caching-v1-${{ github.workflow }}-{hash}
-          restore-keys: docker-layer-caching-v1-${{ github.workflow }}-
+          restore-keys: |
+            docker-layer-caching-v1-${{ github.workflow }}-
+            layer-docker-layer-caching-v1-${{ github.workflow }}-
 
       - name: CentOS Build with Docker
         uses: ./.github/actions
