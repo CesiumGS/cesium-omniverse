@@ -6,7 +6,7 @@ inputs:
     required: true
 runs:
   using: 'docker'
-  image: '../../docker/CentOS7.Dockerfile'
+  image: '../../docker/CI.Dockerfile'
   # Tell Conan to look for or create its build folder (.conan) in the repository's root directory
   env:
     CONAN_USER_HOME: $GITHUB_WORKSPACE
