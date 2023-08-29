@@ -1,4 +1,6 @@
 # Change Log
+### v0.10.0 - 2023-09-01
+* Improved error message if fetching tileset fails
 
 ### v0.10.0 - 2023-09-01
 
