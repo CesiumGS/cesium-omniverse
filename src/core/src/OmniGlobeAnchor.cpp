@@ -84,7 +84,7 @@ std::optional<CesiumGeospatial::Cartographic> OmniGlobeAnchor::getCartographicPo
     return CesiumGeospatial::Ellipsoid::WGS84.cartesianToCartographic(ft);
 }
 
-[[maybe_unused]] const pxr::SdfPath OmniGlobeAnchor::getPrimPath() {
+const pxr::SdfPath OmniGlobeAnchor::getPrimPath() {
     return _anchorPrimPath;
 }
 
