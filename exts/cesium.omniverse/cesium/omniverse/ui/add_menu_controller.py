@@ -2,6 +2,7 @@ from functools import partial
 import logging
 import omni.kit.context_menu
 from omni.kit.property.usd import PrimPathWidget, PrimSelectionPayload
+from omni.kit.window.property import get_window as get_property_window
 from pxr import UsdGeom
 from ..bindings import ICesiumOmniverseInterface
 
@@ -33,3 +34,4 @@ class CesiumAddMenuController:
         # TODO: Implement undo functionality.
         for path in payload:
             self._cesium_omniverse_interface.add_global_anchor_to_prim(str(path))
+            get_property_window().request_rebuild()
