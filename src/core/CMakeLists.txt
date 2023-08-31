@@ -37,6 +37,7 @@ setup_lib(
         CesiumUsdSchemas
         CesiumIonClient
         Cesium3DTilesSelection
+        Cesium3DTilesReader
         CesiumGeospatial
         CesiumGeometry
         CesiumGltf
