@@ -537,7 +537,7 @@ set(INSTALL_PRE_EXCLUDE_REGEXES "api-ms-*" "ext-ms-*" "cuda")
 set(INSTALL_POST_EXCLUDE_REGEXES "system32" "^\/lib")
 
 # Skip all runtime dependencies except nvrtc when installing to exts/cesium-omniverse/bin
-set(INSTALL_PRE_INCLUDE_REGEXES "nvtrc")
+set(INSTALL_PRE_INCLUDE_REGEXES "nvrtc")
 
 install(
     TARGETS CesiumUsdSchemas
