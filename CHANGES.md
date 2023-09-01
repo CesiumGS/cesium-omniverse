@@ -1,9 +1,7 @@
 # Change Log
+
 ### v0.10.0 - 2023-09-01
 * Improved error message if fetching tileset fails
-
-### v0.10.0 - 2023-09-01
-
 * Added basic point cloud support
 * Fixed loading extension in Omniverse Code 2023.1.1
 * Fixed crashes when reloading tileset
