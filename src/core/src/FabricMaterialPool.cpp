@@ -5,7 +5,7 @@
 namespace cesium::omniverse {
 
 FabricMaterialPool::FabricMaterialPool(
-    int64_t poolId,
+    uint64_t poolId,
     const FabricMaterialDefinition& materialDefinition,
     uint64_t initialCapacity,
     const pxr::TfToken& defaultTextureAssetPathToken,

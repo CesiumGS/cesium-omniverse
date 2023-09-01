@@ -5,7 +5,7 @@
 namespace cesium::omniverse {
 
 FabricGeometryPool::FabricGeometryPool(
-    int64_t poolId,
+    uint64_t poolId,
     const FabricGeometryDefinition& geometryDefinition,
     uint64_t initialCapacity,
     bool debugRandomColors,
