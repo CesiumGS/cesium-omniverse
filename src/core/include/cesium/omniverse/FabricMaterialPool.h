@@ -11,7 +11,7 @@ namespace cesium::omniverse {
 class FabricMaterialPool final : public ObjectPool<FabricMaterial> {
   public:
     FabricMaterialPool(
-        int64_t poolId,
+        uint64_t poolId,
         const FabricMaterialDefinition& materialDefinition,
         uint64_t initialCapacity,
         const pxr::TfToken& defaultTextureAssetPathToken,
@@ -24,7 +24,7 @@ class FabricMaterialPool final : public ObjectPool<FabricMaterial> {
     void setActive(std::shared_ptr<FabricMaterial> material, bool active) override;
 
   private:
-    const int64_t _poolId;
+    const uint64_t _poolId;
     const FabricMaterialDefinition _materialDefinition;
     const pxr::TfToken _defaultTextureAssetPathToken;
     const long _stageId;
