@@ -367,6 +367,8 @@ void Context::processCesiumGlobeAnchorChanged(const cesium::omniverse::ChangedPr
 }
 
 void Context::processPrimRemoved(const ChangedPrim& changedPrim) {
+    // TODO: Remove prim from anchor registry if has anchor API.
+
     if (changedPrim.primType == ChangedPrimType::CESIUM_TILESET) {
         // Remove the tileset from the asset registry
         const auto tilesetPath = changedPrim.path;
@@ -821,6 +823,12 @@ RenderStatistics Context::getRenderStatistics() const {
 }
 
 void Context::addGlobeAnchorToPrim(const pxr::SdfPath& path) {
+    if (UsdUtil::isCesiumData(path) || UsdUtil::isCesiumGeoreference(path) || UsdUtil::isCesiumImagery(path) ||
+        UsdUtil::isCesiumSession(path) || UsdUtil::isCesiumTileset(path)) {
+        _logger->warn("Cannot attach Globe Anchor to Cesium Tilesets, Imagery, Georeference, Session, or Data prims.");
+        return;
+    }
+
     auto prim = UsdUtil::getUsdStage()->GetPrimAtPath(path);
     auto globeAnchor = UsdUtil::defineGlobeAnchor(path);
 
