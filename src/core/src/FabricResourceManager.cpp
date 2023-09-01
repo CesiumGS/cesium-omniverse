@@ -358,19 +358,19 @@ void FabricResourceManager::retainPath(const omni::fabric::Path& path) {
     _retainedPaths.push_back(path);
 }
 
-int64_t FabricResourceManager::getNextGeometryId() {
+uint64_t FabricResourceManager::getNextGeometryId() {
     return _geometryId++;
 }
 
-int64_t FabricResourceManager::getNextMaterialId() {
+uint64_t FabricResourceManager::getNextMaterialId() {
     return _materialId++;
 }
 
-int64_t FabricResourceManager::getNextTextureId() {
+uint64_t FabricResourceManager::getNextTextureId() {
     return _textureId++;
 }
 
-int64_t FabricResourceManager::getNextPoolId() {
+uint64_t FabricResourceManager::getNextPoolId() {
     return _poolId++;
 }
 

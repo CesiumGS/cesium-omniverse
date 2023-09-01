@@ -111,10 +111,10 @@ class FabricResourceManager {
     createMaterialPool(const FabricMaterialDefinition& materialDefinition, long stageId);
     std::shared_ptr<FabricTexturePool> createTexturePool();
 
-    int64_t getNextGeometryId();
-    int64_t getNextMaterialId();
-    int64_t getNextTextureId();
-    int64_t getNextPoolId();
+    uint64_t getNextGeometryId();
+    uint64_t getNextMaterialId();
+    uint64_t getNextTextureId();
+    uint64_t getNextPoolId();
 
     std::vector<std::shared_ptr<FabricGeometryPool>> _geometryPools;
     std::vector<std::shared_ptr<FabricMaterialPool>> _materialPools;
@@ -132,10 +132,10 @@ class FabricResourceManager {
 
     bool _debugRandomColors{false};
 
-    std::atomic<int64_t> _geometryId{0};
-    std::atomic<int64_t> _materialId{0};
-    std::atomic<int64_t> _textureId{0};
-    std::atomic<int64_t> _poolId{0};
+    std::atomic<uint64_t> _geometryId{0};
+    std::atomic<uint64_t> _materialId{0};
+    std::atomic<uint64_t> _textureId{0};
+    std::atomic<uint64_t> _poolId{0};
 
     std::mutex _poolMutex;
 

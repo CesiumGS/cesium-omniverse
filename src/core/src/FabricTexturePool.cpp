@@ -4,7 +4,7 @@
 
 namespace cesium::omniverse {
 
-FabricTexturePool::FabricTexturePool(int64_t poolId, uint64_t initialCapacity)
+FabricTexturePool::FabricTexturePool(uint64_t poolId, uint64_t initialCapacity)
     : ObjectPool<FabricTexture>()
     , _poolId(poolId) {
     setCapacity(initialCapacity);
