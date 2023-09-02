@@ -6,6 +6,7 @@
 
 #include <exception>
 #include <iostream>
+#include <memory>
 #include <stdexcept>
 #include <unordered_map>
 
@@ -41,30 +42,29 @@ void CudaManager::runAllRunners() {
         if (updateType == CudaUpdateType::ONCE) {
             throw std::runtime_error("Single-run kernels are not yet supported.");
         } else if (updateType == CudaUpdateType::ON_UPDATE_FRAME) {
-            auto onceRunners = runners;
             for (auto& [tileId, runner] : runners) {
-                runRunner(runner);
+                runRunner(*runner);
             }
         }
     }
 }
 
+void CudaManager::createRunner(CudaKernelType cudaKernelType, CudaUpdateType cudaUpdateType, int64_t tileId, CudaKernelArgs kernelArgs, int numberOfElements) {
+    if (_kernels.find(cudaKernelType) == _kernels.end()) {
+        compileKernel(cudaKernelType);
+    }
+
+    auto runnerPtr = std::make_unique<CudaRunner>(cudaKernelType, cudaUpdateType, tileId, kernelArgs, static_cast<int>(numberOfElements));
+    auto& innerMap = _runnersByUpdateType[cudaUpdateType];
+    innerMap.insert({tileId, std::move(runnerPtr)});
+}
+
+
 void CudaManager::onUpdateFrame() {
     runAllRunners();
 }
 
-void CudaManager::addRunner(CudaRunner& cudaRunner) {
-    if (!_initialized) {
-        initialize();
-    }
 
-    if (_kernels.find(cudaRunner.kernelType) == _kernels.end()) {
-        compileKernel(cudaRunner.kernelType);
-    }
-
-    auto& innerMap = _runnersByUpdateType[cudaRunner.getUpdateType()];
-    innerMap.insert({cudaRunner.getTileId(), std::move(cudaRunner)});
-}
 
 void CudaManager::removeRunner(int64_t tileId) {
     for (auto& [updateType, runners] : _runnersByUpdateType) {
@@ -72,48 +72,43 @@ void CudaManager::removeRunner(int64_t tileId) {
     }
 }
 
-void** CudaManager::packArgs(CudaKernelArgs cudaKernelArgs, CudaKernelType cudaKernelType) {
-    void** args = new void*[10]();
-
-    switch (cudaKernelType) {
-        case CudaKernelType::CREATE_VOXELS:
-            args[0] = &cudaKernelArgs.args["points"];
-            break;
-        case CudaKernelType::HELLO_WORLD:
-            break;
-        default:
-            delete[] args;
-            throw std::runtime_error("Cannot create kernel args\n");
-    }
-
-    return args;
-}
 
 void CudaManager::runRunner(CudaRunner& runner) {
-    auto kernel = _kernels[runner.kernelType];
+    for (size_t bucketNumber = 0; bucketNumber != runner.primBucketList.bucketCount(); bucketNumber++)
+    {
+        auto kernel = _kernels[runner.kernelType];
 
-    int minGridSize, blockSize;
-    cuOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, kernel.function, nullptr, 0, 0);
-    int numBlocks = (static_cast<int>(runner.elementCount) + blockSize - 1) / blockSize;
+        int minGridSize, blockSize;
+        cuOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, kernel.function, nullptr, 0, 0);
+        int numBlocks = (static_cast<int>(runner.elementCount) + blockSize - 1) / blockSize;
 
-    void* tempArgs[] = {&runner.elementCount}; //NOLINT
-    auto launchResult =
-        cuLaunchKernel(kernel.function, numBlocks, 1, 1, blockSize, 1, 1, 0, nullptr, tempArgs, nullptr);
-    if (launchResult) {
-        const char* errName = nullptr;
-        const char* errString = nullptr;
+        // void* tempArgs[] = {&runner.elementCount}; //NOLINT
 
-        cuGetErrorName(launchResult, &errName);
-        cuGetErrorString(launchResult, &errString);
+        // (quad** quads, double3* lookAtPosition, float3* lookAtUp, float *quadSize, int numQuads)
+        glm::dvec3 lookAtPosition(0, 0, 0); // placeholder
+        glm::fvec3 lookAtUp(0, 1.0f, 0);
+        float quadSize = 1.0f;
+        void *args[] = { &runner.quadBucketMap[bucketNumber], &lookAtPosition, &lookAtUp, &quadSize, &runner.elementCount}; //NOLINT
+        //auto args = runner.getPackedKernelArgs(bucketNumber);
+        // runner.setPackedKernelArgs(bucketumber, args);
+        auto launchResult =
+            cuLaunchKernel(kernel.function, numBlocks, 1, 1, blockSize, 1, 1, 0, nullptr, args, nullptr);
+        if (launchResult) {
+            const char* errName = nullptr;
+            const char* errString = nullptr;
 
-        std::cout << "Error launching kernel: " << errName << ": " << errString << std::endl;
+            cuGetErrorName(launchResult, &errName);
+            cuGetErrorString(launchResult, &errString);
 
-        CUcontext currentContext;
-        cuCtxGetCurrent(&currentContext);
-        // There's currently an issue where the CUDA context occassionally
-        // changes. We have to test for and handle this.
-        if (currentContext != _context) {
-            cuCtxSetCurrent(_context);
+            std::cout << "Error launching kernel: " << errName << ": " << errString << std::endl;
+
+            CUcontext currentContext;
+            cuCtxGetCurrent(&currentContext);
+            // There's currently an issue where the CUDA context occassionally
+            // changes. We have to test for and handle this.
+            if (currentContext != _context) {
+                cuCtxSetCurrent(_context);
+            }
         }
     }
 }
@@ -164,6 +159,9 @@ void CudaManager::compileKernel(CudaKernelType kernelType) {
 
 [[nodiscard]] const char* CudaManager::getKernelCode(CudaKernelType kernelType) const {
     switch (kernelType) {
+        case CudaKernelType::LOOKAT_QUADS:
+            return cesium::omniverse::cudaKernels::lookAtQuadsKernel;
+            break;
         case CudaKernelType::CREATE_VOXELS:
             return cesium::omniverse::cudaKernels::createVoxelsKernel;
             break;
@@ -176,6 +174,9 @@ void CudaManager::compileKernel(CudaKernelType kernelType) {
 
 [[nodiscard]] const char* CudaManager::getFunctionName(CudaKernelType kernelType) const {
     switch (kernelType) {
+        case CudaKernelType::LOOKAT_QUADS:
+            return "lookAtQuads";
+            break;
         case CudaKernelType::CREATE_VOXELS:
             return "createVoxels";
             break;
@@ -185,5 +186,15 @@ void CudaManager::compileKernel(CudaKernelType kernelType) {
         default:
             throw new std::runtime_error("Attempt to find function for an unsupported CUDA kernel.");
     }
+}
+
+omni::fabric::Token CudaManager::getTileToken(int64_t tileId) {
+    if (_tileTokens.find(tileId) == _tileTokens.end()) {
+        auto tokenName = "tile" + std::to_string(tileId);
+        // auto tok = omni::fabric::Token(tokenName.c_str());
+        _tileTokens[tileId] = omni::fabric::Token(tokenName.c_str());
+    }
+
+    return _tileTokens[tileId];
 }
 } // namespace cesium::omniverse

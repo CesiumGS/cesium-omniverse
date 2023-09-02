@@ -299,105 +299,81 @@ void FabricGeometry::setGeometry(
     const auto worldExtent = UsdUtil::computeWorldExtent(localExtent, localToUsdTransform);
 
     if (primitive.mode == CesiumGltf::MeshPrimitive::Mode::POINTS) {
-        const auto numVoxels = positions.size();
+        const int numberOfPointsPerShape = 4;
+        const int numberOfFacesPerShape = 2;
+
+        auto stageReaderWriter = Context::instance().getFabricStageReaderWriter();
+        // TODO: do not recreate the Fabric token
+        auto tileToken = CudaManager::getInstance().getTileToken(tileId);
+        stageReaderWriter.createAttribute(_path, tileToken, CudaManager::getInstance().getTileTokenType());
+        // auto testAttribute = stageReaderWriter.getAttributeWr<double>(fabricPath, getCudaTestAttributeFabricToken());
+        // *testAttribute = 123.45;
+
+        // how many quads, spheres, voxels, etc.
+        const auto numberOfShapes = positions.size();
+        geometricError = 100.0f; // TODO: dev
         const auto shapeHalfSize = 0.02f * geometricError;
-        srw.setArrayAttributeSize(_path, FabricTokens::points, static_cast<size_t>(numVoxels * 8));
-        srw.setArrayAttributeSize(_path, FabricTokens::faceVertexCounts, numVoxels * 2 * 6);
-        srw.setArrayAttributeSize(_path, FabricTokens::faceVertexIndices, numVoxels * 6 * 2 * 3);
+        srw.setArrayAttributeSize(_path, FabricTokens::points, static_cast<size_t>(numberOfShapes * numberOfPointsPerShape));
+        srw.setArrayAttributeSize(_path, FabricTokens::faceVertexCounts, numberOfShapes * numberOfFacesPerShape);
+        srw.setArrayAttributeSize(_path, FabricTokens::faceVertexIndices, numberOfShapes * numberOfFacesPerShape * 3);
 
         auto pointsFabric = srw.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::points);
         auto faceVertexCountsFabric = srw.getArrayAttributeWr<int>(_path, FabricTokens::faceVertexCounts);
         auto faceVertexIndicesFabric = srw.getArrayAttributeWr<int>(_path, FabricTokens::faceVertexIndices);
 
-        std::vector<glm::fvec3> vertexColorsData(numVoxels);
+        std::vector<glm::fvec3> vertexColorsData(numberOfShapes * numberOfPointsPerShape); // TODO: not great to waste this memory
         gsl::span<glm::fvec3> vertexColorsSpan(vertexColorsData);
         if (hasVertexColors) {
             vertexColors.fill(vertexColorsSpan);
-            srw.setArrayAttributeSize(_path, FabricTokens::primvars_vertexColor, numVoxels * 8);
+            srw.setArrayAttributeSize(_path, FabricTokens::primvars_vertexColor, numberOfShapes * numberOfPointsPerShape);
         }
         auto vertexColorsFabric = srw.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::primvars_vertexColor);
         CudaKernelArgs kernelArgs;
-        kernelArgs.args["points"] = pointsFabric;
-        auto elementCount = pointsFabric.size();
-        CudaRunner runner{
-            CudaKernelType::CREATE_VOXELS,
-            CudaUpdateType::ON_UPDATE_FRAME,
-            tileId,
-            kernelArgs,
-            static_cast<int>(elementCount)};
-        CudaManager::getInstance().addRunner(runner);
+        // (quad** quads, double3* lookatPosition, float3* lookatUp, float *quadSize, int numQuads)
+        kernelArgs.args["quads"] = pointsFabric;
+        kernelArgs.args["lookatPosition"] = glm::dvec3(0, 0, 0);
+        kernelArgs.args["quadSize"] = 1.0f;
+        kernelArgs.args["numQuads"] = numberOfShapes;
 
-        size_t vertIndex = 0;
-        size_t vertexCountsIndex = 0;
+        size_t vertexIndex = 0;
+        size_t faceVertexCountsIndex = 0;
         size_t faceVertexIndex = 0;
         size_t vertexColorsIndex = 0;
-        for (size_t voxelIndex = 0; voxelIndex < numVoxels; voxelIndex++) {
-            const auto& center = positions.get(voxelIndex);
+        for (size_t shapeIndex = 0; shapeIndex < numberOfShapes; shapeIndex++) {
+            const auto& center = positions.get(shapeIndex);
 
-            pointsFabric[vertIndex++] = glm::fvec3{-shapeHalfSize, -shapeHalfSize, -shapeHalfSize} + center;
-            pointsFabric[vertIndex++] = glm::fvec3{-shapeHalfSize, shapeHalfSize, -shapeHalfSize} + center;
-            pointsFabric[vertIndex++] = glm::fvec3{shapeHalfSize, shapeHalfSize, -shapeHalfSize} + center;
-            pointsFabric[vertIndex++] = glm::fvec3{shapeHalfSize, -shapeHalfSize, -shapeHalfSize} + center;
-            pointsFabric[vertIndex++] = glm::fvec3{-shapeHalfSize, -shapeHalfSize, shapeHalfSize} + center;
-            pointsFabric[vertIndex++] = glm::fvec3{-shapeHalfSize, shapeHalfSize, shapeHalfSize} + center;
-            pointsFabric[vertIndex++] = glm::fvec3{shapeHalfSize, shapeHalfSize, shapeHalfSize} + center;
-            pointsFabric[vertIndex++] = glm::fvec3{shapeHalfSize, -shapeHalfSize, shapeHalfSize} + center;
+            pointsFabric[vertexIndex++] = glm::fvec3{-shapeHalfSize, -shapeHalfSize, 0} + center;
+            pointsFabric[vertexIndex++] = glm::fvec3{-shapeHalfSize, shapeHalfSize, 0} + center;
+            pointsFabric[vertexIndex++] = glm::fvec3{shapeHalfSize, shapeHalfSize, 0} + center;
+            pointsFabric[vertexIndex++] = glm::fvec3{shapeHalfSize, -shapeHalfSize, 0} + center;
 
-            for (int i = 0; i < 6; i++) {
-                faceVertexCountsFabric[vertexCountsIndex++] = 3;
-                faceVertexCountsFabric[vertexCountsIndex++] = 3;
+            for (int i = 0; i < numberOfFacesPerShape; i++) {
+                faceVertexCountsFabric[faceVertexCountsIndex++] = 3;
             }
 
-            // front
-            faceVertexIndicesFabric[faceVertexIndex++] = 0 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 1 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 2 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 0 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 2 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 3 + static_cast<int>(voxelIndex * 8);
-            // left
-            faceVertexIndicesFabric[faceVertexIndex++] = 4 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 5 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 1 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 4 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 1 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 0 + static_cast<int>(voxelIndex * 8);
-            // right
-            faceVertexIndicesFabric[faceVertexIndex++] = 3 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 2 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 6 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 3 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 6 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 7 + static_cast<int>(voxelIndex * 8);
-            // top
-            faceVertexIndicesFabric[faceVertexIndex++] = 1 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 5 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 6 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 1 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 5 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 2 + static_cast<int>(voxelIndex * 8);
-            // bottom
-            faceVertexIndicesFabric[faceVertexIndex++] = 3 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 7 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 4 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 3 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 4 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 0 + static_cast<int>(voxelIndex * 8);
-            // back
-            faceVertexIndicesFabric[faceVertexIndex++] = 7 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 6 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 5 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 7 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 5 + static_cast<int>(voxelIndex * 8);
-            faceVertexIndicesFabric[faceVertexIndex++] = 4 + static_cast<int>(voxelIndex * 8);
+            const int vertexIndexOffset = static_cast<int>(shapeIndex * numberOfPointsPerShape);
+            faceVertexIndicesFabric[faceVertexIndex++] = 0 + vertexIndexOffset;
+            faceVertexIndicesFabric[faceVertexIndex++] = 1 + vertexIndexOffset;
+            faceVertexIndicesFabric[faceVertexIndex++] = 2 + vertexIndexOffset;
+            faceVertexIndicesFabric[faceVertexIndex++] = 0 + vertexIndexOffset;
+            faceVertexIndicesFabric[faceVertexIndex++] = 2 + vertexIndexOffset;
+            faceVertexIndicesFabric[faceVertexIndex++] = 3 + vertexIndexOffset;
 
             if (hasVertexColors) {
-                const auto& color = vertexColorsSpan[voxelIndex];
-                for (int i = 0; i < 8; i++) {
+                const auto& color = vertexColorsSpan[shapeIndex];
+                for (int i = 0; i < numberOfPointsPerShape; i++) {
                     vertexColorsFabric[vertexColorsIndex++] = color;
                 }
             }
         }
+
+        auto elementCount = pointsFabric.size();
+        CudaManager::getInstance().createRunner(
+            CudaKernelType::LOOKAT_QUADS,
+            CudaUpdateType::ON_UPDATE_FRAME,
+            tileId,
+            kernelArgs,
+            static_cast<int>(elementCount));
     } else {
         srw.setArrayAttributeSize(_path, FabricTokens::faceVertexCounts, faceVertexCounts.size());
         srw.setArrayAttributeSize(_path, FabricTokens::faceVertexIndices, indices.size());
