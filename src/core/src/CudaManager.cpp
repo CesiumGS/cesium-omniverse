@@ -38,15 +38,15 @@ void CudaManager::initialize() {
 }
 
 void CudaManager::runAllRunners() {
-    for (auto& [updateType, runners] : _runnersByUpdateType) {
-        if (updateType == CudaUpdateType::ONCE) {
-            throw std::runtime_error("Single-run kernels are not yet supported.");
-        } else if (updateType == CudaUpdateType::ON_UPDATE_FRAME) {
-            for (auto& [tileId, runner] : runners) {
-                runRunner(*runner);
-            }
-        }
-    }
+    // for (auto& [updateType, runners] : _runnersByUpdateType) {
+    //     if (updateType == CudaUpdateType::ONCE) {
+    //         throw std::runtime_error("Single-run kernels are not yet supported.");
+    //     } else if (updateType == CudaUpdateType::ON_UPDATE_FRAME) {
+    //         for (auto& [tileId, runner] : runners) {
+    //             runRunner(*runner);
+    //         }
+    //     }
+    // }
 }
 
 void CudaManager::createRunner(CudaKernelType cudaKernelType, CudaUpdateType cudaUpdateType, int64_t tileId, CudaKernelArgs kernelArgs, int numberOfElements) {
@@ -191,7 +191,6 @@ void CudaManager::compileKernel(CudaKernelType kernelType) {
 omni::fabric::Token CudaManager::getTileToken(int64_t tileId) {
     if (_tileTokens.find(tileId) == _tileTokens.end()) {
         auto tokenName = "tile" + std::to_string(tileId);
-        // auto tok = omni::fabric::Token(tokenName.c_str());
         _tileTokens[tileId] = omni::fabric::Token(tokenName.c_str());
     }
 

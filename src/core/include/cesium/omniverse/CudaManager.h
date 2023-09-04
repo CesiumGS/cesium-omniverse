@@ -35,7 +35,7 @@ struct CudaKernelArgs;
 enum CudaKernelType { HELLO_WORLD, CREATE_VOXELS, PRINT_POINTS, LOOKAT_QUADS };
 enum CudaUpdateType { ONCE, ON_UPDATE_FRAME };
 
-const omni::fabric::Type tileIdFabricType(omni::fabric::BaseDataType::eInt64, 1, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type tileIdFabricType(omni::fabric::BaseDataType::eDouble, 1, 0, omni::fabric::AttributeRole::eNone);
 
 struct CudaKernelArgs {
     std::unordered_map<std::string, std::any> args;
@@ -109,12 +109,33 @@ class CudaRunner {
         , primBucketList(initializePrimBucketList(tileId))
         , _tileId(tileId)
         , _updateType(cudaUpdateType) {
+          std::cout << "in constructor for tile " << std::to_string(_tileId) << std::endl;
           auto stageReaderWriter = Context::instance().getFabricStageReaderWriter();
 
-          for (size_t bucketNum = 0; bucketNum < primBucketList.size(); bucketNum++) {
+          for (size_t bucketNum = 0; bucketNum  < primBucketList.size(); bucketNum++) {
+            std::cout << "  in bucket " << std::to_string(bucketNum) << std::endl;
+
+            // accessing the bucket is corrupting the points buffer
+            // (but not if you use stageReaderWriter.getAttributeArray)
+            // auto positions = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3f*>(primBucketList, bucketNum, FabricTokens::points);
+            // bool isNull = positions.data() == nullptr;
+            // if (isNull) {
+            //   std::cout << " positions.data() was accessed, is null" << std::endl;
+            // } else {
+            //   std::cout << " positions.data() was accessed, is not null" << std::endl;
+            // }
+
             auto positions = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3f*>(primBucketList, bucketNum, FabricTokens::points);
-            auto quadsPtr = reinterpret_cast<quad*>(positions.data());
-            quadBucketMap[bucketNum] = quadsPtr;
+            bool isNull = positions.data() == nullptr;
+            if (isNull) {
+              std::cout << " positions.data() was accessed, is null" << std::endl;
+            } else {
+              std::cout << " positions.data() was accessed, is not null" << std::endl;
+            }
+
+
+            // auto quadsPtr = reinterpret_cast<quad*>(positions.data());
+            // quadBucketMap[bucketNum] = quadsPtr;
           }
         };
     // ~CudaRunner() {

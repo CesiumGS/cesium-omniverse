@@ -1,5 +1,6 @@
 #include "cesium/omniverse/FabricGeometry.h"
 
+#include "cesium/omniverse/CudaManager.h"
 #include "cesium/omniverse/FabricAttributesBuilder.h"
 #include "cesium/omniverse/FabricMaterial.h"
 #include "cesium/omniverse/FabricResourceManager.h"
@@ -9,6 +10,7 @@
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <glm/fwd.hpp>
+#include <string>
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
@@ -303,11 +305,11 @@ void FabricGeometry::setGeometry(
         const int numberOfFacesPerShape = 2;
 
         auto stageReaderWriter = Context::instance().getFabricStageReaderWriter();
-        // TODO: do not recreate the Fabric token
         auto tileToken = CudaManager::getInstance().getTileToken(tileId);
+        // DEBUG
         stageReaderWriter.createAttribute(_path, tileToken, CudaManager::getInstance().getTileTokenType());
-        // auto testAttribute = stageReaderWriter.getAttributeWr<double>(fabricPath, getCudaTestAttributeFabricToken());
-        // *testAttribute = 123.45;
+        auto tileTokenAttribute = stageReaderWriter.getAttributeWr<double>(_path, tileToken);
+        *tileTokenAttribute = 123.45;
 
         // how many quads, spheres, voxels, etc.
         const auto numberOfShapes = positions.size();
@@ -317,7 +319,7 @@ void FabricGeometry::setGeometry(
         srw.setArrayAttributeSize(_path, FabricTokens::faceVertexCounts, numberOfShapes * numberOfFacesPerShape);
         srw.setArrayAttributeSize(_path, FabricTokens::faceVertexIndices, numberOfShapes * numberOfFacesPerShape * 3);
 
-        auto pointsFabric = srw.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::points);
+        auto pointsFabric = srw.getArrayAttributeWr<pxr::GfVec3f>(_path, FabricTokens::points);
         auto faceVertexCountsFabric = srw.getArrayAttributeWr<int>(_path, FabricTokens::faceVertexCounts);
         auto faceVertexIndicesFabric = srw.getArrayAttributeWr<int>(_path, FabricTokens::faceVertexIndices);
 
@@ -341,11 +343,12 @@ void FabricGeometry::setGeometry(
         size_t vertexColorsIndex = 0;
         for (size_t shapeIndex = 0; shapeIndex < numberOfShapes; shapeIndex++) {
             const auto& center = positions.get(shapeIndex);
+            auto centerPxr = pxr::GfVec3f{center.x, center.y, center.z};
 
-            pointsFabric[vertexIndex++] = glm::fvec3{-shapeHalfSize, -shapeHalfSize, 0} + center;
-            pointsFabric[vertexIndex++] = glm::fvec3{-shapeHalfSize, shapeHalfSize, 0} + center;
-            pointsFabric[vertexIndex++] = glm::fvec3{shapeHalfSize, shapeHalfSize, 0} + center;
-            pointsFabric[vertexIndex++] = glm::fvec3{shapeHalfSize, -shapeHalfSize, 0} + center;
+            pointsFabric[vertexIndex++] = pxr::GfVec3f{-shapeHalfSize, -shapeHalfSize, 0} + centerPxr;
+            pointsFabric[vertexIndex++] = pxr::GfVec3f{-shapeHalfSize, shapeHalfSize, 0} + centerPxr;
+            pointsFabric[vertexIndex++] = pxr::GfVec3f{shapeHalfSize, shapeHalfSize, 0} + centerPxr;
+            pointsFabric[vertexIndex++] = pxr::GfVec3f{shapeHalfSize, -shapeHalfSize, 0} + centerPxr;
 
             for (int i = 0; i < numberOfFacesPerShape; i++) {
                 faceVertexCountsFabric[faceVertexCountsIndex++] = 3;
@@ -366,14 +369,6 @@ void FabricGeometry::setGeometry(
                 }
             }
         }
-
-        auto elementCount = pointsFabric.size();
-        CudaManager::getInstance().createRunner(
-            CudaKernelType::LOOKAT_QUADS,
-            CudaUpdateType::ON_UPDATE_FRAME,
-            tileId,
-            kernelArgs,
-            static_cast<int>(elementCount));
     } else {
         srw.setArrayAttributeSize(_path, FabricTokens::faceVertexCounts, faceVertexCounts.size());
         srw.setArrayAttributeSize(_path, FabricTokens::faceVertexIndices, indices.size());
@@ -444,6 +439,44 @@ void FabricGeometry::setGeometry(
     displayOpacityFabric[0] = DEFAULT_VERTEX_OPACITY;
 
     FabricUtil::setTilesetIdAndTileId(_path, tilesetId, tileId);
+
+    // DEBUG
+    if (tileId == 0) {
+        std::cout << "Creating runner for tile " << std::to_string(tileId) << "..." << std::endl;
+        auto stageReaderWriter = Context::instance().getFabricStageReaderWriter();
+
+        // auto elementCount = pointsFabric.size();
+        // CudaManager::getInstance().createRunner(
+        //     CudaKernelType::LOOKAT_QUADS,
+        //     CudaUpdateType::ON_UPDATE_FRAME,
+        //     tileId,
+        //     kernelArgs,
+        //     static_cast<int>(elementCount));
+
+        omni::fabric::AttrNameAndType tag(
+            CudaManager::getInstance().getTileTokenType(),
+            CudaManager::getInstance().getTileToken(tileId)
+        );
+
+        auto primBucketList = stageReaderWriter.findPrims({tag});
+        for (size_t bucketNum = 0; bucketNum  < primBucketList.size(); bucketNum++) {
+            std::cout << "  in bucket " << std::to_string(bucketNum) << std::endl;
+
+            auto testAttr = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3f*>(primBucketList, bucketNum, FabricTokens::points);
+            // auto testAttr = stageReaderWriter.getAttributeArrayGpu<int>(primBucketList, bucketNum, FabricTokens::faceVertexIndices);
+            // auto testAttr = srw.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::primvars_vertexColor);
+            // auto testAttr = stageReaderWriter.getAttributeArrayGpu<glm::fvec3>(primBucketList, bucketNum, FabricTokens::primvars_vertexColor);
+            bool isNull = testAttr.data() == nullptr;
+            if (isNull) {
+                std::cout << " testAttr.data() was accessed, is null" << std::endl;
+            } else {
+                std::cout << " testAttr.data() was accessed, is not null" << std::endl;
+            }
+        }
+
+        // DEBUG
+        std::cout << "...Created runner for tile " << std::to_string(tileId) << std::endl;
+    }
 }
 
 bool FabricGeometry::stageDestroyed() {
