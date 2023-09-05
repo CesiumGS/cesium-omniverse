@@ -4,12 +4,16 @@
 
 ### v0.10.0 - 2023-09-01
 
-* Added basic point cloud support
-* Fixed loading extension in Omniverse Code 2023.1.1
-* Fixed crashes when reloading tileset
-* Fixed memory leak when removing tileset mid-load
-* Fixed several other bugs related to removing tilesets mid-load
-* Upgraded to cesium-native v0.26.0
+* Reduced the number of materials created when loading untextured tilesets.
+
+### v0.10.0 - 2023-09-01
+
+* Added basic point cloud support.
+* Fixed loading extension in Omniverse Code 2023.1.1.
+* Fixed crashes when reloading tileset.
+* Fixed memory leak when removing tileset mid-load.
+* Fixed several other bugs related to removing tilesets mid-load.
+* Upgraded to cesium-native v0.26.0.
 
 ### v0.9.0 - 2023-08-01
 
