@@ -21,6 +21,9 @@ struct TextureInfo {
     int32_t wrapS;
     int32_t wrapT;
     bool flipVertical;
+
+    // Make sure to update this function when adding new fields to the struct
+    bool operator==(const TextureInfo& other) const;
 };
 
 struct MaterialInfo {
@@ -34,6 +37,9 @@ struct MaterialInfo {
     bool doubleSided;
     bool hasVertexColors;
     std::optional<TextureInfo> baseColorTexture;
+
+    // Make sure to update this function when adding new fields to the struct
+    bool operator==(const MaterialInfo& other) const;
 };
 
 } // namespace cesium::omniverse

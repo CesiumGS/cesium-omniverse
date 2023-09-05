@@ -1,4 +1,4 @@
-FROM cesiumgs/omniverse-centos7-build:2023-08-29
+FROM cesiumgs/omniverse-centos7-build:2023-09-05
 
 WORKDIR /var/app
 
