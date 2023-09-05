@@ -597,6 +597,20 @@ install(
             COMPONENT library
             EXCLUDE_FROM_ALL)
 
+if(WIN32)
+    # Nothing links against nvrtc-builtins but if we don't include it we get a runtime crash.
+    # Unfortunately this means we have to bypass CMake's dependency system and install it manually here.
+    install(
+        FILES "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/cuda/cuda/bin/nvrtc-builtins64_118.dll"
+        DESTINATION "${KIT_EXTENSION_BIN_PATH}"
+        COMPONENT install)
+else()
+    install(
+        FILES "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/cuda/cuda/bin/libnvrtc-builtins64_118.so"
+        DESTINATION "${KIT_EXTENSION_BIN_PATH}"
+        COMPONENT install)
+endif()
+
 install(
     TARGETS CesiumOmniversePythonBindings
     ARCHIVE DESTINATION ${KIT_EXTENSION_BINDINGS_PATH} COMPONENT install
