@@ -1,3 +1,5 @@
+# This is used to generate the image with dependencies that CI.Dockerfile relies on.
+# For instructions for deploying this, check docs/release-guide/push-docker-image.md.
 FROM centos:7
 
 RUN yum update -y -q

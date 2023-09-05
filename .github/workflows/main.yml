@@ -36,18 +36,17 @@ jobs:
               generator: 'Unix Makefiles',
               coverage: 'false',
             }
-# Temporarily disabling CentOS builds while we figure out why they're so slow.
-#          - {
-#              name: 'CentOS 7 - GCC',
-#              artifact: 'linux-gcc.tar.xz',
-#              os: ubuntu-latest-m,
-#              cc: 'gcc-11',
-#              cxx: 'g++-11',
-#              build-type: 'Release',
-#              build-code: 'CentOS7',
-#              generator: 'Unix Makefiles',
-#              coverage: 'false',
-#            }
+          - {
+              name: 'CentOS 7 - GCC',
+              artifact: 'linux-gcc.tar.xz',
+              os: ubuntu-latest-m,
+              cc: 'gcc-11',
+              cxx: 'g++-11',
+              build-type: 'Release',
+              build-code: 'CentOS7',
+              generator: 'Unix Makefiles',
+              coverage: 'false',
+            }
 
     steps:
       - uses: actions/checkout@v3
@@ -82,15 +81,6 @@ jobs:
         with:
           path: ${{ env.CONAN_USER_HOME }}/.conan
           key: conan-${{ matrix.config.name }}-${{ hashFiles('cmake/AddConanDependencies.cmake') }}-v3
-
-      # The -v{num} is a cache key buster to invalidate the Docker image cache
-      - name: Load Docker image cache
-        if: matrix.config.name == 'CentOS 7 - GCC'
-        uses: jpribyl/action-docker-layer-caching@v0.1.1
-        continue-on-error: true
-        with:
-          key: docker-layer-caching-v1-${{ github.workflow }}-{hash}
-          restore-keys: docker-layer-caching-v1-${{ github.workflow }}-
 
       - name: CentOS Build with Docker
         uses: ./.github/actions
