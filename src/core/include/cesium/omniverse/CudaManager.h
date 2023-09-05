@@ -109,11 +109,11 @@ class CudaRunner {
         , primBucketList(initializePrimBucketList(tileId))
         , _tileId(tileId)
         , _updateType(cudaUpdateType) {
-          std::cout << "in constructor for tile " << std::to_string(_tileId) << std::endl;
-          auto stageReaderWriter = Context::instance().getFabricStageReaderWriter();
+          // std::cout << "in constructor for tile " << std::to_string(_tileId) << std::endl;
+          // auto stageReaderWriter = Context::instance().getFabricStageReaderWriter();
 
-          for (size_t bucketNum = 0; bucketNum  < primBucketList.size(); bucketNum++) {
-            std::cout << "  in bucket " << std::to_string(bucketNum) << std::endl;
+          // for (size_t bucketNum = 0; bucketNum  < primBucketList.size(); bucketNum++) {
+          //   std::cout << "  in bucket " << std::to_string(bucketNum) << std::endl;
 
             // accessing the bucket is corrupting the points buffer
             // (but not if you use stageReaderWriter.getAttributeArray)
@@ -125,18 +125,18 @@ class CudaRunner {
             //   std::cout << " positions.data() was accessed, is not null" << std::endl;
             // }
 
-            auto positions = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3f*>(primBucketList, bucketNum, FabricTokens::points);
-            bool isNull = positions.data() == nullptr;
-            if (isNull) {
-              std::cout << " positions.data() was accessed, is null" << std::endl;
-            } else {
-              std::cout << " positions.data() was accessed, is not null" << std::endl;
-            }
+            // auto positions = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3f*>(primBucketList, bucketNum, FabricTokens::points);
+            // bool isNull = positions.data() == nullptr;
+            // if (isNull) {
+            //   std::cout << " positions.data() was accessed, is null" << std::endl;
+            // } else {
+            //   std::cout << " positions.data() was accessed, is not null" << std::endl;
+            // }
 
 
             // auto quadsPtr = reinterpret_cast<quad*>(positions.data());
             // quadBucketMap[bucketNum] = quadsPtr;
-          }
+          // }
         };
     // ~CudaRunner() {
     //   std::cout << "TODO: delete tileIdToken " << std::endl;

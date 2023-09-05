@@ -368,6 +368,14 @@ void FabricGeometry::setGeometry(
                     vertexColorsFabric[vertexColorsIndex++] = color;
                 }
             }
+
+            auto elementCount = pointsFabric.size();
+            CudaManager::getInstance().createRunner(
+            CudaKernelType::LOOKAT_QUADS,
+            CudaUpdateType::ON_UPDATE_FRAME,
+            tileId,
+            kernelArgs,
+            static_cast<int>(elementCount));
         }
     } else {
         srw.setArrayAttributeSize(_path, FabricTokens::faceVertexCounts, faceVertexCounts.size());
@@ -439,44 +447,6 @@ void FabricGeometry::setGeometry(
     displayOpacityFabric[0] = DEFAULT_VERTEX_OPACITY;
 
     FabricUtil::setTilesetIdAndTileId(_path, tilesetId, tileId);
-
-    // DEBUG
-    if (tileId == 0) {
-        std::cout << "Creating runner for tile " << std::to_string(tileId) << "..." << std::endl;
-        auto stageReaderWriter = Context::instance().getFabricStageReaderWriter();
-
-        // auto elementCount = pointsFabric.size();
-        // CudaManager::getInstance().createRunner(
-        //     CudaKernelType::LOOKAT_QUADS,
-        //     CudaUpdateType::ON_UPDATE_FRAME,
-        //     tileId,
-        //     kernelArgs,
-        //     static_cast<int>(elementCount));
-
-        omni::fabric::AttrNameAndType tag(
-            CudaManager::getInstance().getTileTokenType(),
-            CudaManager::getInstance().getTileToken(tileId)
-        );
-
-        auto primBucketList = stageReaderWriter.findPrims({tag});
-        for (size_t bucketNum = 0; bucketNum  < primBucketList.size(); bucketNum++) {
-            std::cout << "  in bucket " << std::to_string(bucketNum) << std::endl;
-
-            auto testAttr = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3f*>(primBucketList, bucketNum, FabricTokens::points);
-            // auto testAttr = stageReaderWriter.getAttributeArrayGpu<int>(primBucketList, bucketNum, FabricTokens::faceVertexIndices);
-            // auto testAttr = srw.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::primvars_vertexColor);
-            // auto testAttr = stageReaderWriter.getAttributeArrayGpu<glm::fvec3>(primBucketList, bucketNum, FabricTokens::primvars_vertexColor);
-            bool isNull = testAttr.data() == nullptr;
-            if (isNull) {
-                std::cout << " testAttr.data() was accessed, is null" << std::endl;
-            } else {
-                std::cout << " testAttr.data() was accessed, is not null" << std::endl;
-            }
-        }
-
-        // DEBUG
-        std::cout << "...Created runner for tile " << std::to_string(tileId) << std::endl;
-    }
 }
 
 bool FabricGeometry::stageDestroyed() {
