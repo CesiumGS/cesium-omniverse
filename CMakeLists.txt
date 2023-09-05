@@ -532,8 +532,12 @@ execute_process(COMMAND "${Python3_EXECUTABLE}" "${SCRIPTS_DIRECTORY}/update_cer
 
 get_property(INSTALL_SEARCH_PATHS GLOBAL PROPERTY NVIDIA_ADDITIONAL_SEARCH_PATHS_PROPERTY)
 
-set(INSTALL_PRE_EXCLUDE_REGEXES "api-ms-*" "ext-ms-*")
+# Skip system libraries when running install
+set(INSTALL_PRE_EXCLUDE_REGEXES "api-ms-*" "ext-ms-*" "cuda")
 set(INSTALL_POST_EXCLUDE_REGEXES "system32" "^\/lib")
+
+# Skip all runtime dependencies except nvrtc when installing to exts/cesium-omniverse/bin
+set(INSTALL_PRE_INCLUDE_REGEXES "nvrtc")
 
 install(
     TARGETS CesiumUsdSchemas
@@ -562,6 +566,13 @@ install(
 
 install(
     TARGETS cesium.omniverse.plugin
+            RUNTIME_DEPENDENCIES
+            PRE_INCLUDE_REGEXES
+            ${INSTALL_PRE_INCLUDE_REGEXES}
+            PRE_EXCLUDE_REGEXES
+            ".*"
+            POST_EXCLUDE_REGEXES
+            ${INSTALL_POST_EXCLUDE_REGEXES}
     ARCHIVE DESTINATION ${KIT_EXTENSION_BIN_PATH} COMPONENT install
     LIBRARY DESTINATION ${KIT_EXTENSION_BIN_PATH} COMPONENT install
     RUNTIME DESTINATION ${KIT_EXTENSION_BIN_PATH} COMPONENT install)
