@@ -190,8 +190,9 @@ void runTestCode() {
 }
 
 int createPrims() {
-    createMultiquadFromPtsFile("pointCloudData/pump0.pts", 0.010f);
-    hasCreated = true;
+    // createMultiquadFromPtsFile("pointCloudData/pump0.pts", 0.01f);
+    createMultiquadFromPtsFile("pointCloudData/pump0.head100.pts", 0.01f);
+    // hasCreated = true;
     return 0;
 }
 
@@ -255,7 +256,7 @@ void createMultiquadFromPtsFile(const std::string &ptsFile, float quadSize) {
     attributes.createAttributes(fabricPath);
 
     auto numQuads = points.size();
-    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::points, static_cast<size_t>(numQuads * 4));
+    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::points, numQuads * 4);
     stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::faceVertexCounts, numQuads * 4 * 2);
     auto pointsFabric =
         stageReaderWriter.getArrayAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::points);

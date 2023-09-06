@@ -473,7 +473,7 @@ void FabricGeometry::runProofOfConceptCode() {
 
 void FabricGeometry::billboardMultiQuadCuda(glm::fvec3 lookatPosition, glm::fvec3 lookatUp) {
     glm::dvec3 lookatPositionHost{0.0, 0.0, 0.0};
-    glm::fvec3 lookatUpHost{0.0, 0.0, 0.0};
+    glm::fvec3 lookatUpHost{0.0, 1.0, 0.0};
 
     lookatPositionHost.x = static_cast<double>(lookatPosition.x);
     lookatPositionHost.y = static_cast<double>(lookatPosition.y);
