@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <corecrt_math.h>
 #include <cuda/include/cuda.h>
 #include <cuda/include/nvrtc.h>
 #include <cuda/include/cuda_runtime.h>
