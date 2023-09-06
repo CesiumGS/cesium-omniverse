@@ -437,6 +437,7 @@ add_subdirectory(src)
 if(CESIUM_OMNI_ENABLE_TESTS)
     enable_testing()
     add_subdirectory(tests)
+    add_subdirectory(cesiumTestsExtension)
 endif()
 
 # Ninja and various Makefiles generators support generating compile_commands.json
@@ -510,6 +511,9 @@ set(KIT_PLUGIN_EXTENSION_BIN_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.usd.plugins
 set(KIT_EXTENSION_BINDINGS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse/cesium/omniverse/bindings")
 set(KIT_PLUGIN_EXTENSION_BINDINGS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.usd.plugins/cesium/usd/plugins")
 set(KIT_EXTENSION_PLUGINS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.usd.plugins/plugins")
+
+set(KIT_EXTENSION_TESTS_BIN_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.tests/bin")
+set(KIT_EXTENSION_TESTS_BINDINGS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.tests/cesium/tests/bindings")
 
 # You may see warnings like:
 #
@@ -662,6 +666,57 @@ install(
     RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
             COMPONENT library
             EXCLUDE_FROM_ALL)
+
+install(
+    TARGETS cesium.omniverse.tests.plugin
+    ARCHIVE DESTINATION ${KIT_EXTENSION_TESTS_BIN_PATH} COMPONENT install
+    LIBRARY DESTINATION ${KIT_EXTENSION_TESTS_BIN_PATH} COMPONENT install
+    RUNTIME DESTINATION ${KIT_EXTENSION_TESTS_BIN_PATH} COMPONENT install)
+install(
+    TARGETS cesium.omniverse.tests.plugin
+            RUNTIME_DEPENDENCIES
+            DIRECTORIES
+            ${INSTALL_SEARCH_PATHS}
+            PRE_EXCLUDE_REGEXES
+            ${INSTALL_PRE_EXCLUDE_REGEXES}
+            POST_EXCLUDE_REGEXES
+            ${INSTALL_POST_EXCLUDE_REGEXES}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            COMPONENT library
+            EXCLUDE_FROM_ALL
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            COMPONENT library
+            EXCLUDE_FROM_ALL
+    RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            COMPONENT library
+            EXCLUDE_FROM_ALL)
+
+
+install(
+    TARGETS CesiumOmniverseTestsPythonBindings
+    ARCHIVE DESTINATION ${KIT_EXTENSION_TESTS_BINDINGS_PATH} COMPONENT install
+    LIBRARY DESTINATION ${KIT_EXTENSION_TESTS_BINDINGS_PATH} COMPONENT install
+    RUNTIME DESTINATION ${KIT_EXTENSION_TESTS_BINDINGS_PATH} COMPONENT install)
+
+install(
+    TARGETS CesiumOmniverseTestsPythonBindings
+            RUNTIME_DEPENDENCIES
+            DIRECTORIES
+            ${INSTALL_SEARCH_PATHS}
+            PRE_EXCLUDE_REGEXES
+            ${INSTALL_PRE_EXCLUDE_REGEXES}
+            POST_EXCLUDE_REGEXES
+            ${INSTALL_POST_EXCLUDE_REGEXES}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            COMPONENT library
+            EXCLUDE_FROM_ALL
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            COMPONENT library
+            EXCLUDE_FROM_ALL
+    RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            COMPONENT library
+            EXCLUDE_FROM_ALL)
+
 
 install(
     DIRECTORY "${PROJECT_SOURCE_DIR}/include/"

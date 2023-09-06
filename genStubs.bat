@@ -18,6 +18,7 @@ set NVIDIA_PYTHON_EXECUTABLE=%NVIDIA_PYTHON_ROOT%\python.exe
 set FLAT_LIBRARIES_DIR=%TEMP%\CesiumOmniverseFlatLibs
 set CESIUM_OMNI_STUB_PATH=%PROJECT_ROOT%\exts\cesium.omniverse\cesium\omniverse\bindings\CesiumOmniversePythonBindings.pyi
 set CESIUM_USD_STUB_PATH=%PROJECT_ROOT%\exts\cesium.usd.plugins\cesium\usd\plugins\CesiumUsdSchemas\__init__.pyi
+set CESIUM_TESTS_STUB_PATH=%PROJECT_ROOT%\exts\cesium.tests\cesium\tests\bindings\CesiumOmniverseTestsPythonBindings.pyi
 
 set PYTHONPATH=%NVIDIA_USD_PYTHON_LIBS%;%PYTHONPATH%
 
@@ -36,14 +37,17 @@ cd %FLAT_LIBRARIES_DIR%\lib
 echo "Generating stubs"
 %NVIDIA_PYTHON_EXECUTABLE% -c "from mypy import stubgen; stubgen.main()" -m CesiumOmniversePythonBindings -v
 %NVIDIA_PYTHON_EXECUTABLE% -c "from mypy import stubgen; stubgen.main()" -m _CesiumUsdSchemas -v
+%NVIDIA_PYTHON_EXECUTABLE% -c "from mypy import stubgen; stubgen.main()" -m CesiumOmniverseTestsPythonBindings -v
 
 echo "Copying stubs"
 copy out\CesiumOmniversePythonBindings.pyi %CESIUM_OMNI_STUB_PATH%
 copy out\_CesiumUsdSchemas.pyi %CESIUM_USD_STUB_PATH%
+copy out\CesiumOmniverseTestsPythonBindings.pyi %CESIUM_TESTS_STUB_PATH%
 
 echo "Formatting stubs"
 black %CESIUM_OMNI_STUB_PATH%
 black %CESIUM_USD_STUB_PATH%
+black %CESIUM_TESTS_STUB_PATH%
 
 echo "Cleaning up temp dir"
 cd %PROJECT_ROOT%

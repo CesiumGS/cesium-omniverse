@@ -1,0 +1,33 @@
+[package]
+version = "0.1.0"
+category = "simulation"
+feature = false
+app = false
+title = "Cesium for Omniverse Test"
+description = "An extention to run tests against Cesium for Omniverse."
+authors = "Cesium GS Inc."
+repository = "https://github.com/CesiumGS/cesium-omniverse"
+keywords = [
+    "cesium",
+    "omniverse",
+    "geospatial",
+    "3D Tiles",
+    "glTF",
+    "globe",
+    "earth",
+    "simulation",
+    "test"
+]
+
+[[native.plugin]]
+path = "bin/cesium.omniverse.tests.plugin"
+
+# Paths are relative to the extension folder
+readme = "doc/README.md"
+icon = "doc/resources/icon.png"
+
+[[python.module]]
+name = "cesium.tests"
+
+[python.pipapi]
+archiveDirs = ["vendor"]
