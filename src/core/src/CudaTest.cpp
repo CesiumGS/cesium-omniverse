@@ -191,7 +191,8 @@ void runTestCode() {
 
 int createPrims() {
     // createMultiquadFromPtsFile("pointCloudData/pump0.pts", 0.01f);
-    createMultiquadFromPtsFile("pointCloudData/pump0.head100.pts", 0.01f);
+    // createMultiquadFromPtsFile("pointCloudData/pump0.head100.pts", 0.01f);
+    createMultiquadFromPtsFile("pointCloudData/simpleTest.pts", 0.01f);
     // hasCreated = true;
     return 0;
 }
@@ -211,25 +212,36 @@ int alterPrims(double cameraPositionX, double cameraPositionY, double cameraPosi
 void createMultiquadFromPtsFile(const std::string &ptsFile, float quadSize) {
     _quadSizeHost = quadSize;
     std::vector<pxr::GfVec3f> points;
-    std::ifstream file(ptsFile);
+    // std::ifstream file(ptsFile);
 
-    if (!file.is_open()) {
-        std::cerr << "Error opening file: " << ptsFile << std::endl;
-        return;
-    }
+    // if (!file.is_open()) {
+    //     std::cerr << "Error opening file: " << ptsFile << std::endl;
+    //     return;
+    // }
 
-    std::string line;
-    while (std::getline(file, line)) {
-        std::istringstream ss(line);
-        float x, y, z;
-        if (!(ss >> x >> y >> z)) {
-            std::cerr << "Error reading line: " << line << std::endl;
-            continue;
-        }
-        points.emplace_back(x, y, z);
-    }
+    // std::string line;
+    // while (std::getline(file, line)) {
+    //     std::istringstream ss(line);
+    //     float x, y, z;
+    //     if (!(ss >> x >> y >> z)) {
+    //         std::cerr << "Error reading line: " << line << std::endl;
+    //         continue;
+    //     }
+    //     points.emplace_back(x, y, z);
+    // }
 
-    file.close();
+    // file.close();
+
+    // std::vector<pxr::GfVec3f> points;
+    points.emplace_back(0.0f, 0.0f, -5.0f);
+    points.emplace_back(0.0f, 1.0f, -5.0f);
+    points.emplace_back(0.0f, -1.0f, -5.0f);
+    points.emplace_back(1.0f, 0.0f, -5.0f);
+    points.emplace_back(1.0f, 1.0f, -5.0f);
+    points.emplace_back(1.0f, -1.0f, -5.0f);
+    points.emplace_back(-1.0f, 0.0f, -5.0f);
+    points.emplace_back(-1.0f, 1.0f, -5.0f);
+    points.emplace_back(-1.0f, -1.0f, -5.0f);
     std::cout << "read " << points.size() << " points" << std::endl;
 
     const auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
