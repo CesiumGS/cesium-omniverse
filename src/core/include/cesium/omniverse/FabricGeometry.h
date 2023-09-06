@@ -2,10 +2,14 @@
 
 #include "cesium/omniverse/CudaManager.h"
 #include "cesium/omniverse/FabricGeometryDefinition.h"
+#include "cesium/omniverse/Tokens.h"
+#include "omni/fabric/Type.h"
+#include <omni/fabric/FabricTypes.h>
 
 #include <glm/glm.hpp>
 #include <omni/fabric/IPath.h>
 #include <pxr/usd/sdf/path.h>
+
 
 namespace CesiumGltf {
 struct MeshPrimitive;
@@ -13,6 +17,8 @@ struct Model;
 } // namespace CesiumGltf
 
 namespace cesium::omniverse {
+
+const omni::fabric::Type cudaTestAttributeFabricType(omni::fabric::BaseDataType::eDouble, 1, 0, omni::fabric::AttributeRole::eNone);
 
 class FabricGeometry {
   public:
@@ -52,6 +58,16 @@ class FabricGeometry {
     const FabricGeometryDefinition _geometryDefinition;
     const bool _debugRandomColors;
     const long _stageId;
+
+    // from proof of concept
+    void runProofOfConceptCode();
+    void billboardMultiQuadCuda(glm::fvec3 lookatPosition, glm::fvec3 lookatUp);
+
+    omni::fabric::Token getCudaTestAttributeFabricToken() {
+        static const auto cudaTestAttributeFabricToken = omni::fabric::Token("cudaTest");
+        return cudaTestAttributeFabricToken;
+    }
+
 };
 
 } // namespace cesium::omniverse

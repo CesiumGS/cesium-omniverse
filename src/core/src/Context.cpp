@@ -4,6 +4,7 @@
 #include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/CudaManager.h"
+#include "cesium/omniverse/CudaTest.h"
 #include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GeospatialUtil.h"
@@ -208,6 +209,7 @@ void Context::onUpdateFrame(const std::vector<Viewport>& viewports) {
     }
 
     CudaManager::getInstance().onUpdateFrame();
+    CudaTest::animatePrims(0.1f, 0, 0, 0, 0, 1.0f, 0);
 }
 
 void Context::processPropertyChanged(const ChangedPrim& changedPrim) {

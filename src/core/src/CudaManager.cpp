@@ -49,6 +49,8 @@ void CudaManager::runAllRunners() {
     // }
 }
 
+#pragma warning(push)
+#pragma warning(disable: 4100)
 void CudaManager::createRunner(CudaKernelType cudaKernelType, CudaUpdateType cudaUpdateType, int64_t tileId, CudaKernelArgs kernelArgs, int numberOfElements) {
     if (_kernels.find(cudaKernelType) == _kernels.end()) {
         compileKernel(cudaKernelType);
@@ -58,6 +60,7 @@ void CudaManager::createRunner(CudaKernelType cudaKernelType, CudaUpdateType cud
     auto& innerMap = _runnersByUpdateType[cudaUpdateType];
     innerMap.insert({tileId, std::move(runnerPtr)});
 }
+#pragma warning(pop)
 
 
 void CudaManager::onUpdateFrame() {

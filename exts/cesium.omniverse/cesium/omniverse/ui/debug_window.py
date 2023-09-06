@@ -64,10 +64,15 @@ class CesiumOmniverseDebugWindow(ui.Window):
             fabric_stage = self._cesium_omniverse_interface.print_fabric_stage()
             self._cesium_message_field.set_value(fabric_stage)
 
+        def run_cuda_test():
+            return_val = self._cesium_omniverse_interface.run_cuda_test()
+            self._logger.info(f"return val is {return_val}")
+
         with ui.VStack(spacing=10):
             with ui.VStack():
                 ui.Button("Remove all Tilesets", height=20, clicked_fn=remove_all_tilesets)
                 ui.Button("Reload all Tilesets", height=20, clicked_fn=reload_all_tilesets)
                 ui.Button("Print Fabric stage", height=20, clicked_fn=print_fabric_stage)
+                ui.Button("Run CUDA test", height=20, clicked_fn=run_cuda_test)
                 ui.StringField(self._cesium_message_field, height=100, multiline=True, read_only=True)
             self._statistics_widget = CesiumOmniverseStatisticsWidget(self._cesium_omniverse_interface)

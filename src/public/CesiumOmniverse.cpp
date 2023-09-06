@@ -9,6 +9,7 @@
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/UsdUtil.h"
 #include "cesium/omniverse/Viewport.h"
+#include "cesium/omniverse/CudaTest.h"
 
 #include <CesiumGeospatial/Cartographic.h>
 #include <CesiumUsdSchemas/data.h>
@@ -141,6 +142,10 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
         return Context::instance().creditsStartNextFrame();
     }
 
+    void runCudaTest() noexcept override {
+        cesium::omniverse::CudaTest::runTestCode();
+    }
+
     bool isTracingEnabled() noexcept override {
 #if CESIUM_TRACING_ENABLED
         return true;
@@ -148,6 +153,8 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
         return false;
 #endif
     }
+
+
 };
 } // namespace cesium::omniverse
 
