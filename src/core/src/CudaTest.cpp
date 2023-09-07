@@ -190,9 +190,9 @@ void runTestCode() {
 }
 
 int createPrims() {
-    // createMultiquadFromPtsFile("pointCloudData/pump0.pts", 0.01f);
+    createMultiquadFromPtsFile("pointCloudData/pump0.pts", 0.01f);
     // createMultiquadFromPtsFile("pointCloudData/pump0.head100.pts", 0.01f);
-    createMultiquadFromPtsFile("pointCloudData/simpleTest.pts", 0.01f);
+    // createMultiquadFromPtsFile("pointCloudData/simpleTest.pts", 0.01f);
     // hasCreated = true;
     return 0;
 }
@@ -210,38 +210,40 @@ int alterPrims(double cameraPositionX, double cameraPositionY, double cameraPosi
 }
 
 void createMultiquadFromPtsFile(const std::string &ptsFile, float quadSize) {
+    const int numberOfPointsPerShape = 4;
+    const int numberOfFacesPerShape = 2;
+
     _quadSizeHost = quadSize;
     std::vector<pxr::GfVec3f> points;
-    // std::ifstream file(ptsFile);
+    std::ifstream file(ptsFile);
 
-    // if (!file.is_open()) {
-    //     std::cerr << "Error opening file: " << ptsFile << std::endl;
-    //     return;
-    // }
+    if (!file.is_open()) {
+        std::cerr << "Error opening file: " << ptsFile << std::endl;
+        return;
+    }
 
-    // std::string line;
-    // while (std::getline(file, line)) {
-    //     std::istringstream ss(line);
-    //     float x, y, z;
-    //     if (!(ss >> x >> y >> z)) {
-    //         std::cerr << "Error reading line: " << line << std::endl;
-    //         continue;
-    //     }
-    //     points.emplace_back(x, y, z);
-    // }
+    std::string line;
+    while (std::getline(file, line)) {
+        std::istringstream ss(line);
+        float x, y, z;
+        if (!(ss >> x >> y >> z)) {
+            std::cerr << "Error reading line: " << line << std::endl;
+            continue;
+        }
+        points.emplace_back(x, y, z);
+    }
 
-    // file.close();
+    file.close();
 
-    // std::vector<pxr::GfVec3f> points;
-    points.emplace_back(0.0f, 0.0f, -5.0f);
-    points.emplace_back(0.0f, 1.0f, -5.0f);
-    points.emplace_back(0.0f, -1.0f, -5.0f);
-    points.emplace_back(1.0f, 0.0f, -5.0f);
-    points.emplace_back(1.0f, 1.0f, -5.0f);
-    points.emplace_back(1.0f, -1.0f, -5.0f);
-    points.emplace_back(-1.0f, 0.0f, -5.0f);
-    points.emplace_back(-1.0f, 1.0f, -5.0f);
-    points.emplace_back(-1.0f, -1.0f, -5.0f);
+    // points.emplace_back(0.0f, 0.0f, -5.0f);
+    // points.emplace_back(0.0f, 1.0f, -5.0f);
+    // points.emplace_back(0.0f, -1.0f, -5.0f);
+    // points.emplace_back(1.0f, 0.0f, -5.0f);
+    // points.emplace_back(1.0f, 1.0f, -5.0f);
+    // points.emplace_back(1.0f, -1.0f, -5.0f);
+    // points.emplace_back(-1.0f, 0.0f, -5.0f);
+    // points.emplace_back(-1.0f, 1.0f, -5.0f);
+    // points.emplace_back(-1.0f, -1.0f, -5.0f);
     std::cout << "read " << points.size() << " points" << std::endl;
 
     const auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
@@ -268,13 +270,14 @@ void createMultiquadFromPtsFile(const std::string &ptsFile, float quadSize) {
     attributes.createAttributes(fabricPath);
 
     auto numQuads = points.size();
-    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::points, numQuads * 4);
-    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::faceVertexCounts, numQuads * 4 * 2);
+    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::points, numQuads * numberOfPointsPerShape);
+    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::faceVertexCounts, numQuads * numberOfFacesPerShape);
+    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::faceVertexIndices, numQuads * numberOfFacesPerShape * 3);
+
     auto pointsFabric =
         stageReaderWriter.getArrayAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::points);
     auto faceVertexCountsFabric =
         stageReaderWriter.getArrayAttributeWr<int>(fabricPath, FabricTokens::faceVertexCounts);
-    stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::faceVertexIndices, numQuads * 4 * 2 * 3);
     auto faceVertexIndicesFabric =
         stageReaderWriter.getArrayAttributeWr<int>(fabricPath, FabricTokens::faceVertexIndices);
 
@@ -284,7 +287,6 @@ void createMultiquadFromPtsFile(const std::string &ptsFile, float quadSize) {
     size_t vertIndex = 0;
     size_t vertexCountsIndex = 0;
     size_t faceVertexIndex = 0;
-    size_t quadCounter = 0;
     const float quadHalfSize = _quadSizeHost * .5f;
     for (size_t quadNum = 0; quadNum < numQuads; quadNum++) {
             //verts
@@ -299,13 +301,12 @@ void createMultiquadFromPtsFile(const std::string &ptsFile, float quadSize) {
             faceVertexCountsFabric[vertexCountsIndex++] = 3;
 
             //vert indices
-            faceVertexIndicesFabric[faceVertexIndex++] = 0 + static_cast<int>(quadCounter * 4);
-            faceVertexIndicesFabric[faceVertexIndex++] = 1 + static_cast<int>(quadCounter * 4);
-            faceVertexIndicesFabric[faceVertexIndex++] = 2 + static_cast<int>(quadCounter * 4);
-            faceVertexIndicesFabric[faceVertexIndex++] = 0 + static_cast<int>(quadCounter * 4);
-            faceVertexIndicesFabric[faceVertexIndex++] = 2 + static_cast<int>(quadCounter * 4);
-            faceVertexIndicesFabric[faceVertexIndex++] = 3 + static_cast<int>(quadCounter * 4);
-            quadCounter++;
+            faceVertexIndicesFabric[faceVertexIndex++] = 0 + static_cast<int>(quadNum * 4);
+            faceVertexIndicesFabric[faceVertexIndex++] = 1 + static_cast<int>(quadNum * 4);
+            faceVertexIndicesFabric[faceVertexIndex++] = 2 + static_cast<int>(quadNum * 4);
+            faceVertexIndicesFabric[faceVertexIndex++] = 0 + static_cast<int>(quadNum * 4);
+            faceVertexIndicesFabric[faceVertexIndex++] = 2 + static_cast<int>(quadNum * 4);
+            faceVertexIndicesFabric[faceVertexIndex++] = 3 + static_cast<int>(quadNum * 4);
 
             extentsMin.x = fmin(extentsMin.x, -quadHalfSize + quadShift[0]);
             extentsMin.y = fmin(extentsMin.y, -quadHalfSize + quadShift[1]);
