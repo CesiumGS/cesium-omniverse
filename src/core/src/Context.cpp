@@ -209,7 +209,14 @@ void Context::onUpdateFrame(const std::vector<Viewport>& viewports) {
     }
 
     CudaManager::getInstance().onUpdateFrame();
-    CudaTest::animatePrims(0.1f, 0, 0, 0, 0, 1.0f, 0);
+
+    auto camPos = cesium::omniverse::CudaTest::getLookatPositionHost();
+    // auto camUp = cesium::omniverse::CudaTest::getLookatUpHost();
+    auto camUp = cesium::omniverse::CudaTest::getLookatUpHost();
+    CudaTest::animatePrims(
+        0.1f,
+        camPos.x, camPos.y, camPos.z,
+        camUp.x, camUp.y, camUp.z);
 }
 
 void Context::processPropertyChanged(const ChangedPrim& changedPrim) {

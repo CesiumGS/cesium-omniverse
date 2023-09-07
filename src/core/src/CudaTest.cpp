@@ -652,6 +652,14 @@ void setLookatUpHost(glm::fvec3 upVector) {
     lookatUpHost = upVector;
 }
 
+glm::dvec3 getLookatPositionHost() {
+    return lookatPositionHost;
+}
+
+glm::fvec3 getLookatUpHost() {
+    return lookatUpHost;
+}
+
 #pragma warning(pop)
 }
 

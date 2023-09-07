@@ -52,6 +52,9 @@ void runTestCode();
 
 void setLookatPositionHost(glm::dvec3 position);
 void setLookatUpHost(glm::fvec3 upVector);
+glm::dvec3 getLookatPositionHost();
+glm::fvec3 getLookatUpHost();
+
 
 int createPrims();
 void createMultiquadFromPtsFile(const std::string &ptsFile, float quadSize);

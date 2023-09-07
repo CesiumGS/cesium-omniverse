@@ -213,8 +213,6 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             self._setup_credits_viewport_frames()
             self._num_credits_viewport_frames = len(viewports)
 
-        _cesium_omniverse_interface.on_update_frame(viewports)
-
         stage = omni.usd.get_context().get_stage()
         viewport = get_active_viewport()
         camera_path = viewport.get_active_camera()
@@ -227,6 +225,9 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         _cesium_omniverse_interface.update_cuda_manager(
             translation[0], translation[1], translation[2],
             up_vector[0], up_vector[1], up_vector[2])
+
+        _cesium_omniverse_interface.on_update_frame(viewports)
+
 
 
     def _on_stage_event(self, event):
