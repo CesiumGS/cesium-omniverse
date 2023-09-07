@@ -57,7 +57,8 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("get_credits", &ICesiumOmniverseInterface::getCredits)
         .def("credits_start_next_frame", &ICesiumOmniverseInterface::creditsStartNextFrame)
         .def("is_tracing_enabled", &ICesiumOmniverseInterface::isTracingEnabled)
-        .def("run_cuda_test", &ICesiumOmniverseInterface::runCudaTest);
+        .def("run_cuda_test", &ICesiumOmniverseInterface::runCudaTest)
+        .def("update_cuda_manager", &ICesiumOmniverseInterface::updateCudaManager);
     // clang-format on
 
     py::class_<CesiumIonSession, std::shared_ptr<CesiumIonSession>>(m, "CesiumIonSession")

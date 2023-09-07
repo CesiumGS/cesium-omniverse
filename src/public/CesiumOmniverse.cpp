@@ -146,6 +146,12 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
         cesium::omniverse::CudaTest::runTestCode();
     }
 
+    void updateCudaManager(double cameraPositionX, double cameraPositionY, double cameraPositionZ,
+        float cameraUpX, float cameraUpY, float cameraUpZ) noexcept override {
+            cesium::omniverse::CudaTest::setLookatPositionHost(glm::dvec3{cameraPositionX, cameraPositionY, cameraPositionZ});
+            cesium::omniverse::CudaTest::setLookatUpHost(glm::fvec3{cameraUpX, cameraUpY, cameraUpZ});
+    }
+
     bool isTracingEnabled() noexcept override {
 #if CESIUM_TRACING_ENABLED
         return true;

@@ -190,10 +190,10 @@ void runTestCode() {
 }
 
 int createPrims() {
-    createMultiquadFromPtsFile("pointCloudData/pump0.pts", 0.01f);
-    // createMultiquadFromPtsFile("pointCloudData/pump0.head100.pts", 0.01f);
-    // createMultiquadFromPtsFile("pointCloudData/simpleTest.pts", 0.01f);
-    // hasCreated = true;
+    // createMultiquadFromPtsFile("pointCloudData/pump0.pts", 0.01f);
+    // createMultiquadFromPtsFile("pointCloudData/pump0.head100000.pts", 0.01f);
+    createMultiquadFromPtsFile("pointCloudData/simpleTest.pts", 0.5f);
+    hasCreated = true;
     return 0;
 }
 
@@ -631,9 +631,7 @@ int animatePrims(float deltaTime, double cameraPositionX, double cameraPositionY
 
     if (!hasCreated) return 0;
 
-    std::cout << "animating prims" << std::endl;
-
-    alterPrims(cameraPositionX, cameraPositionY, cameraPositionZ, cameraUpX, cameraUpY, cameraUpZ); // TODO: no dummy vars
+    alterPrims(cameraPositionX, cameraPositionY, cameraPositionZ, cameraUpX, cameraUpY, cameraUpZ);
 
     elapsedTime += deltaTime;
     lookatPositionHost.x = cameraPositionX;
@@ -644,6 +642,14 @@ int animatePrims(float deltaTime, double cameraPositionX, double cameraPositionY
     lookatUpHost.z = cameraUpZ;
 
     return 0;
+}
+
+void setLookatPositionHost(glm::dvec3 position) {
+    lookatPositionHost = position;
+}
+
+void setLookatUpHost(glm::fvec3 upVector) {
+    lookatUpHost = upVector;
 }
 
 #pragma warning(pop)

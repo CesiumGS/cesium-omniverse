@@ -212,6 +212,8 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             self._num_credits_viewport_frames = len(viewports)
 
         _cesium_omniverse_interface.on_update_frame(viewports)
+        _cesium_omniverse_interface.update_cuda_manager(0, 0, 0, 0, 1.0, 0)
+
 
     def _on_stage_event(self, event):
         if _cesium_omniverse_interface is None:
