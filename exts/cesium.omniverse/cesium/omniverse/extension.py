@@ -24,6 +24,8 @@ import omni.usd
 import os
 from typing import List, Optional, Callable
 from .ui.credits_viewport_controller import CreditsViewportController
+from pxr import Usd, UsdGeom, Gf
+from omni.kit.viewport.utility import get_active_viewport
 
 cesium_extension_location = os.path.join(os.path.dirname(__file__), "../../")
 
@@ -212,7 +214,19 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             self._num_credits_viewport_frames = len(viewports)
 
         _cesium_omniverse_interface.on_update_frame(viewports)
-        _cesium_omniverse_interface.update_cuda_manager(0, 0, 0, 0, 1.0, 0)
+
+        stage = omni.usd.get_context().get_stage()
+        viewport = get_active_viewport()
+        camera_path = viewport.get_active_camera()
+        camera = UsdGeom.Camera.Get(stage, camera_path)
+        xform = UsdGeom.Xformable(camera)
+        time = Usd.TimeCode.Default()  # The time at which we compute the bounding box
+        world_transform: Gf.Matrix4d = xform.ComputeLocalToWorldTransform(time)
+        translation: Gf.Vec3d = world_transform.ExtractTranslation()
+        up_vector = Gf.Vec3f(world_transform[1][0], world_transform[1][1], world_transform[1][2])
+        _cesium_omniverse_interface.update_cuda_manager(
+            translation[0], translation[1], translation[2],
+            up_vector[0], up_vector[1], up_vector[2])
 
 
     def _on_stage_event(self, event):
