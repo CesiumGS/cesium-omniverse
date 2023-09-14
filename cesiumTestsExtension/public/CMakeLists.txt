@@ -17,6 +17,7 @@ setup_lib(
         "${PROJECT_SOURCE_DIR}/cesiumTestsExtension/include"
     LIBRARIES
         CesiumOmniverseCore
+        doctest::doctest
     ADDITIONAL_LIBRARIES
         # Unfortunately we need this in both cesium.omniverse.plugin and CesiumOmniverseCore because we're bypassing
         # CMake's built-in dependency system

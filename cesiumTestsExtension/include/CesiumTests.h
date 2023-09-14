@@ -1,11 +1,10 @@
 #pragma once
 #include <carb/Interface.h>
-// TODO put this in the right place and try removing test sub-namespace
-namespace cesium::omniverse::tests
-{
 
-class ICesiumOmniverseTestsInterface{
-    public:
+namespace cesium::omniverse::tests {
+
+class ICesiumOmniverseTestsInterface {
+  public:
     CARB_PLUGIN_INTERFACE("cesium::omniverse::tests::ICesiumOmniverseTestsInterface", 0, 0);
     /**
      * @brief Call this on extension startup.
@@ -22,4 +21,4 @@ class ICesiumOmniverseTestsInterface{
     virtual void run_all_tests(long int stage_id) noexcept = 0;
 };
 
-}
+} // namespace cesium::omniverse::tests

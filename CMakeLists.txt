@@ -691,7 +691,6 @@ install(
             COMPONENT library
             EXCLUDE_FROM_ALL)
 
-
 install(
     TARGETS CesiumOmniverseTestsPythonBindings
     ARCHIVE DESTINATION ${KIT_EXTENSION_TESTS_BINDINGS_PATH} COMPONENT install
@@ -716,7 +715,6 @@ install(
     RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
             COMPONENT library
             EXCLUDE_FROM_ALL)
-
 
 install(
     DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
