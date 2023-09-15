@@ -1,4 +1,5 @@
 import omni.ext
+import omni.usd
 import omni.kit.ui
 from .bindings import acquire_cesium_omniverse_tests_interface, release_cesium_omniverse_tests_interface
 
@@ -13,7 +14,10 @@ class CesiumTestsExtension(omni.ext.IExt):
         global tests_interface
         tests_interface = acquire_cesium_omniverse_tests_interface()
 
-        tests_interface.run_all_tests(0)
+        # TODO ensure the stage has been set up before getting stage id
+        stageId = omni.usd.get_context().get_stage_id()
+
+        tests_interface.run_all_tests(stageId)
 
         print("Started Cesium Tests Extension.")
 

@@ -121,7 +121,8 @@ set(LINT_SOURCE_DIRECTORIES
     "${PROJECT_SOURCE_DIR}/src/bindings"
     "${PROJECT_SOURCE_DIR}/src/core"
     "${PROJECT_SOURCE_DIR}/src/public"
-    "${PROJECT_SOURCE_DIR}/tests")
+    "${PROJECT_SOURCE_DIR}/tests"
+    "${PROJECT_SOURCE_DIR}/cesiumTestsExtension")
 
 # Source directories for coverage
 set(COVERAGE_SOURCE_DIRECTORIES "${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/src")

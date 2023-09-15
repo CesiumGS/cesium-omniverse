@@ -12,7 +12,6 @@ setup_python_module(
     SOURCES
         ${SOURCES}
     LIBRARIES
-        doctest::doctest
         cesium.omniverse.tests.plugin
     CXX_FLAGS
         ${CESIUM_OMNI_CXX_FLAGS}

@@ -1,12 +1,6 @@
-# Cesium for Omniverse Test Extension
+# Cesium for Omniverse Tests Extension
 
 This extension is designed to run tests against the Cesium for Omniverse Extension.
-
-
-## Current Features
-
-### TODO list features
-
 
 ## License
 

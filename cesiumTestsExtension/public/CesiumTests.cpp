@@ -6,6 +6,8 @@
 #include "CesiumTests.h"
 
 #include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/LoggerSink.h"
+#include "cesium/omniverse/UsdUtil.h"
 
 #include <carb/PluginUtils.h>
 #include <doctest/doctest.h>
