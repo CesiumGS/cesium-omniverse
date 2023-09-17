@@ -5,12 +5,11 @@
 #include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
-
 
 namespace cesium::omniverse::FabricProceduralGeometry {
 
@@ -21,7 +20,8 @@ double elapsedTime = 0;
 float _quadSizeHost = 0;
 std::unordered_map<size_t, pxr::GfVec3f*> bucketQuadsPtrsMap;
 
-const omni::fabric::Type billboardedAttributeFabricType(omni::fabric::BaseDataType::eBool, 1, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type
+    billboardedAttributeFabricType(omni::fabric::BaseDataType::eBool, 1, 0, omni::fabric::AttributeRole::eNone);
 omni::fabric::Token getBillboardedAttributeFabricToken() {
     static const auto billboardedFabricToken = omni::fabric::Token("billboarded");
     return billboardedFabricToken;
@@ -178,33 +178,42 @@ int createPrims() {
     auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
     omni::fabric::AttrNameAndType primTag(billboardedAttributeFabricType, getBillboardedAttributeFabricToken());
     omni::fabric::PrimBucketList bucketList = stageReaderWriter.findPrims({primTag});
-    for (size_t bucketNum = 0; bucketNum != bucketList.bucketCount(); bucketNum++)
-    {
+    for (size_t bucketNum = 0; bucketNum != bucketList.bucketCount(); bucketNum++) {
         // Compile-time error in getAttributeArrayRdGpu:
         // WrapperImpl.h(669): error C2197: 'void (__cdecl *)(omni::fabric::ConstSpanC *,omni::fabric::StageReaderWriterId,omni::fabric::PrimBucketListId,size_t,omni::fabric::TokenC)': too many arguments for call
         // auto positions = stageReaderWriter.getAttributeArrayRdGpu<pxr::GfVec3f*>(bucketList, bucketNum, FabricTokens::points);
 
-        auto positions = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3f*>(bucketList, bucketNum, FabricTokens::points);
+        auto positions =
+            stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3f*>(bucketList, bucketNum, FabricTokens::points);
         std::cout << positions.size() << std::endl; // trick clang
     }
 
     return 0;
 }
 
-int alterPrims(double cameraPositionX, double cameraPositionY, double cameraPositionZ,
-    float cameraUpX, float cameraUpY, float cameraUpZ) {
+int alterPrims(
+    double cameraPositionX,
+    double cameraPositionY,
+    double cameraPositionZ,
+    float cameraUpX,
+    float cameraUpY,
+    float cameraUpZ) {
 
     auto cameraPositionf = glm::fvec3(
-        static_cast<float>(cameraPositionX),
-        static_cast<float>(cameraPositionY),
-        static_cast<float>(cameraPositionZ));
+        static_cast<float>(cameraPositionX), static_cast<float>(cameraPositionY), static_cast<float>(cameraPositionZ));
 
     billboardMultiQuadCuda(cameraPositionf, glm::fvec3(cameraUpX, cameraUpY, cameraUpZ));
     return 0;
 }
 
-int animatePrims(float deltaTime, double cameraPositionX, double cameraPositionY, double cameraPositionZ,
-        float cameraUpX, float cameraUpY, float cameraUpZ) {
+int animatePrims(
+    float deltaTime,
+    double cameraPositionX,
+    double cameraPositionY,
+    double cameraPositionZ,
+    float cameraUpX,
+    float cameraUpY,
+    float cameraUpZ) {
 
     elapsedTime += deltaTime;
     lookatPositionHost.x = cameraPositionX;
@@ -220,7 +229,9 @@ int animatePrims(float deltaTime, double cameraPositionX, double cameraPositionY
 }
 
 void CudaRunner::init(const char* kernelCodeDEBUG, const char* kernelFunctionName) {
-    if (_initted) return;
+    if (_initted) {
+        return;
+    }
 
     _kernelCode = kernelCodeDEBUG;
     _kernelFunctionName = kernelFunctionName;
@@ -252,7 +263,7 @@ void CudaRunner::init(const char* kernelCodeDEBUG, const char* kernelFunctionNam
     //print the numbers of SMs
     int numDevices;
     cuDeviceGetCount(&numDevices);
-    for(int i = 0; i < numDevices; i++) {
+    for (int i = 0; i < numDevices; i++) {
         cuDeviceGet(&_device, i);
         int numSMs;
         cuDeviceGetAttribute(&numSMs, CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT, _device);
@@ -287,8 +298,8 @@ void CudaRunner::init(const char* kernelCodeDEBUG, const char* kernelFunctionNam
     cuModuleLoadDataEx(&_module, _ptx, 0, nullptr, nullptr);
     auto cudaRes = cuModuleGetFunction(&_function, _module, _kernelFunctionName);
     if (cudaRes != CUDA_SUCCESS) {
-        const char *errName = nullptr;
-        const char *errString = nullptr;
+        const char* errName = nullptr;
+        const char* errString = nullptr;
         cuGetErrorName(cudaRes, &errName);
         cuGetErrorString(cudaRes, &errString);
         std::cout << "Error getting function: " << errName << ": " << errString << std::endl;
@@ -315,7 +326,8 @@ void CudaRunner::teardown() {
 }
 
 CudaRunner::~CudaRunner() {
-    if (_initted) teardown();
+    if (_initted)
+        teardown();
 }
 
 bool CudaRunner::runKernel(void** args, size_t elemCount) {
@@ -326,8 +338,8 @@ bool CudaRunner::runKernel(void** args, size_t elemCount) {
 
     auto launchResult = cuLaunchKernel(_function, _numBlocks, 1, 1, _blockSize, 1, 1, 0, nullptr, args, nullptr);
     if (launchResult) {
-        const char *errName = nullptr;
-        const char *errString = nullptr;
+        const char* errName = nullptr;
+        const char* errString = nullptr;
 
         cuGetErrorName(launchResult, &errName);
         cuGetErrorString(launchResult, &errString);
@@ -382,9 +394,9 @@ void billboardMultiQuadCuda(glm::fvec3 lookatPosition, glm::fvec3 lookatUp) {
     auto lookatUpDevice = allocAndCopyToDevice(&lookatUpHost, sizeof(glm::fvec3));
     auto quadSizeDevice = allocAndCopyToDevice(&_quadSizeHost, sizeof(float));
 
-    for (size_t bucketNum = 0; bucketNum != bucketList.bucketCount(); bucketNum++)
-    {
-        auto numQuadsSpan = stageReaderWriter.getAttributeArray<int>(bucketList, bucketNum, getNumQuadsAttributeFabricToken());
+    for (size_t bucketNum = 0; bucketNum != bucketList.bucketCount(); bucketNum++) {
+        auto numQuadsSpan =
+            stageReaderWriter.getAttributeArray<int>(bucketList, bucketNum, getNumQuadsAttributeFabricToken());
         int elemCount = numQuadsSpan[0];
         if (elemCount == 0) {
             throw std::runtime_error("Fabric did not retrieve any elements");
@@ -398,9 +410,10 @@ void billboardMultiQuadCuda(glm::fvec3 lookatPosition, glm::fvec3 lookatUp) {
         // }
         // void *args[] = { &bucketQuadsPtrsMap[bucketNum], &lookatPositionDevice, &lookatUpDevice, &quadSizeDevice, &elemCount}; // NOLINT
 
-        auto positions = stageReaderWriter.getAttributeArrayWrGpu<pxr::GfVec3f>(bucketList, bucketNum, FabricTokens::points);
+        auto positions =
+            stageReaderWriter.getAttributeArrayWrGpu<pxr::GfVec3f>(bucketList, bucketNum, FabricTokens::points);
         auto data = positions.data();
-        void* args[] = { &data, &lookatPositionDevice, &lookatUpDevice, &quadSizeDevice, &elemCount}; // NOLINT
+        void* args[] = {&data, &lookatPositionDevice, &lookatUpDevice, &quadSizeDevice, &elemCount}; // NOLINT
 
         auto success = cudaRunner.runKernel(args, static_cast<size_t>(elemCount));
         if (!success) {
@@ -413,7 +426,7 @@ void billboardMultiQuadCuda(glm::fvec3 lookatPosition, glm::fvec3 lookatUp) {
     freeDeviceMemory(quadSizeDevice);
 }
 
-void createMultiquadFromPtsFile(const std::string &ptsFile, float quadSize, float scale) {
+void createMultiquadFromPtsFile(const std::string& ptsFile, float quadSize, float scale) {
     _quadSizeHost = quadSize;
     std::vector<pxr::GfVec3f> points;
     std::ifstream file(ptsFile);
@@ -438,7 +451,8 @@ void createMultiquadFromPtsFile(const std::string &ptsFile, float quadSize, floa
     std::cout << "read " << points.size() << " points" << std::endl;
 
     const auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
-    const auto usdStageId = omni::fabric::UsdStageId{static_cast<uint64_t>(cesium::omniverse::Context::instance().getStageId())};
+    const auto usdStageId =
+        omni::fabric::UsdStageId{static_cast<uint64_t>(cesium::omniverse::Context::instance().getStageId())};
     const auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
     auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
 
@@ -463,44 +477,47 @@ void createMultiquadFromPtsFile(const std::string &ptsFile, float quadSize, floa
     auto numQuads = points.size();
     stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::points, static_cast<size_t>(numQuads * 4));
     stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::faceVertexCounts, numQuads * 2);
-    auto pointsFabric =
-        stageReaderWriter.getArrayAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::points);
+    auto pointsFabric = stageReaderWriter.getArrayAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::points);
     auto faceVertexCountsFabric =
         stageReaderWriter.getArrayAttributeWr<int>(fabricPath, FabricTokens::faceVertexCounts);
     stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::faceVertexIndices, numQuads * 6);
     auto faceVertexIndicesFabric =
         stageReaderWriter.getArrayAttributeWr<int>(fabricPath, FabricTokens::faceVertexIndices);
 
-    glm::dvec3 extentsMin{std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max()};
-    glm::dvec3 extentsMax{std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest()};
+    glm::dvec3 extentsMin{
+        std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max()};
+    glm::dvec3 extentsMax{
+        std::numeric_limits<float>::lowest(),
+        std::numeric_limits<float>::lowest(),
+        std::numeric_limits<float>::lowest()};
 
     size_t vertIndex = 0;
     size_t vertexCountsIndex = 0;
     size_t faceVertexIndex = 0;
     const float quadHalfSize = _quadSizeHost * .5f;
     for (size_t quadNum = 0; quadNum < numQuads; quadNum++) {
-            pxr::GfVec3f quadShift = points[quadNum];
-            pointsFabric[vertIndex++] = pxr::GfVec3f{-quadHalfSize, -quadHalfSize, 0} + quadShift;
-            pointsFabric[vertIndex++] = pxr::GfVec3f{-quadHalfSize, quadHalfSize, 0} + quadShift;
-            pointsFabric[vertIndex++] = pxr::GfVec3f{quadHalfSize, quadHalfSize, 0} + quadShift;
-            pointsFabric[vertIndex++] = pxr::GfVec3f{quadHalfSize, -quadHalfSize, 0} + quadShift;
+        pxr::GfVec3f quadShift = points[quadNum];
+        pointsFabric[vertIndex++] = pxr::GfVec3f{-quadHalfSize, -quadHalfSize, 0} + quadShift;
+        pointsFabric[vertIndex++] = pxr::GfVec3f{-quadHalfSize, quadHalfSize, 0} + quadShift;
+        pointsFabric[vertIndex++] = pxr::GfVec3f{quadHalfSize, quadHalfSize, 0} + quadShift;
+        pointsFabric[vertIndex++] = pxr::GfVec3f{quadHalfSize, -quadHalfSize, 0} + quadShift;
 
-            faceVertexCountsFabric[vertexCountsIndex++] = 3;
-            faceVertexCountsFabric[vertexCountsIndex++] = 3;
+        faceVertexCountsFabric[vertexCountsIndex++] = 3;
+        faceVertexCountsFabric[vertexCountsIndex++] = 3;
 
-            faceVertexIndicesFabric[faceVertexIndex++] = 0 + static_cast<int>(quadNum * 4);
-            faceVertexIndicesFabric[faceVertexIndex++] = 1 + static_cast<int>(quadNum * 4);
-            faceVertexIndicesFabric[faceVertexIndex++] = 2 + static_cast<int>(quadNum * 4);
-            faceVertexIndicesFabric[faceVertexIndex++] = 0 + static_cast<int>(quadNum * 4);
-            faceVertexIndicesFabric[faceVertexIndex++] = 2 + static_cast<int>(quadNum * 4);
-            faceVertexIndicesFabric[faceVertexIndex++] = 3 + static_cast<int>(quadNum * 4);
+        faceVertexIndicesFabric[faceVertexIndex++] = 0 + static_cast<int>(quadNum * 4);
+        faceVertexIndicesFabric[faceVertexIndex++] = 1 + static_cast<int>(quadNum * 4);
+        faceVertexIndicesFabric[faceVertexIndex++] = 2 + static_cast<int>(quadNum * 4);
+        faceVertexIndicesFabric[faceVertexIndex++] = 0 + static_cast<int>(quadNum * 4);
+        faceVertexIndicesFabric[faceVertexIndex++] = 2 + static_cast<int>(quadNum * 4);
+        faceVertexIndicesFabric[faceVertexIndex++] = 3 + static_cast<int>(quadNum * 4);
 
-            extentsMin.x = fmin(extentsMin.x, -quadHalfSize + quadShift[0]);
-            extentsMin.y = fmin(extentsMin.y, -quadHalfSize + quadShift[1]);
-            extentsMin.z = fmin(extentsMin.z, quadShift[2]);
-            extentsMax.x = fmax(extentsMax.x, quadHalfSize + quadShift[0]);
-            extentsMax.y = fmax(extentsMax.y, quadHalfSize + quadShift[1]);
-            extentsMax.z = fmax(extentsMax.z, quadShift[2]);
+        extentsMin.x = fmin(extentsMin.x, -quadHalfSize + quadShift[0]);
+        extentsMin.y = fmin(extentsMin.y, -quadHalfSize + quadShift[1]);
+        extentsMin.z = fmin(extentsMin.z, quadShift[2]);
+        extentsMax.x = fmax(extentsMax.x, quadHalfSize + quadShift[0]);
+        extentsMax.y = fmax(extentsMax.y, quadHalfSize + quadShift[1]);
+        extentsMax.z = fmax(extentsMax.z, quadShift[2]);
     }
 
     auto extent = pxr::GfRange3d(
@@ -519,7 +536,8 @@ void createMultiquadFromPtsFile(const std::string &ptsFile, float quadSize, floa
     auto worldPositionFabric = stageReaderWriter.getAttributeWr<pxr::GfVec3d>(fabricPath, FabricTokens::_worldPosition);
     *worldPositionFabric = pxr::GfVec3d(0.0, 0.0, 0.0);
 
-    auto worldOrientationFabric = stageReaderWriter.getAttributeWr<pxr::GfQuatf>(fabricPath, FabricTokens::_worldOrientation);
+    auto worldOrientationFabric =
+        stageReaderWriter.getAttributeWr<pxr::GfQuatf>(fabricPath, FabricTokens::_worldOrientation);
     *worldOrientationFabric = pxr::GfQuatf(0.f, 0, 0, 0);
 
     // NOTE: throws write error
@@ -527,7 +545,8 @@ void createMultiquadFromPtsFile(const std::string &ptsFile, float quadSize, floa
     // *worldScaleFabric = pxr::GfVec3f(1.f, 1.f, 1.f);
 
     stageReaderWriter.setArrayAttributeSize(fabricPath, FabricTokens::primvars_displayColor, 1);
-    auto displayColors = stageReaderWriter.getArrayAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::primvars_displayColor);
+    auto displayColors =
+        stageReaderWriter.getArrayAttributeWr<pxr::GfVec3f>(fabricPath, FabricTokens::primvars_displayColor);
     displayColors[0] = pxr::GfVec3f(0.8f, 0.8f, 0.8f);
 
     // create a custom attribute for testing
@@ -553,8 +572,8 @@ CUdeviceptr allocAndCopyToDevice(void* hostPtr, size_t size) {
 void freeDeviceMemory(CUdeviceptr devicePtr) {
     CUresult err = cuMemFree(devicePtr);
     if (err != CUDA_SUCCESS) {
-        const char *errName;
-        const char *errStr;
+        const char* errName;
+        const char* errStr;
         cuGetErrorName(err, &errName);
         cuGetErrorString(err, &errStr);
         printf("cuMemFree failed for address %p: %s: %s\n", (void*)devicePtr, errName, errStr);
