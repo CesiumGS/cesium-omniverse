@@ -161,6 +161,9 @@ class ICesiumOmniverseInterface {
     virtual std::vector<std::pair<std::string, bool>> getCredits() noexcept = 0;
     virtual void creditsStartNextFrame() noexcept = 0;
     virtual bool isTracingEnabled() noexcept = 0;
+    virtual void createTestPointCloud() noexcept = 0;
+    virtual void runKernelOnPointCloud(double cameraPositionX, double cameraPositionY, double cameraPositionZ,
+        float cameraUpX, float cameraUpY, float cameraUpZ) noexcept = 0;
 };
 
 } // namespace cesium::omniverse

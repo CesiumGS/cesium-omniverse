@@ -1,3 +1,4 @@
+#include "cesium/omniverse/FabricProceduralGeometry.h"
 #define CARB_EXPORTS
 
 #include "cesium/omniverse/CesiumOmniverse.h"
@@ -5,6 +6,7 @@
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/FabricProceduralGeometry.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/UsdUtil.h"
@@ -147,6 +149,17 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
 #else
         return false;
 #endif
+    }
+
+    void createTestPointCloud() noexcept override {
+        cesium::omniverse::FabricProceduralGeometry::createPrims();
+    }
+
+    void runKernelOnPointCloud(double cameraPositionX, double cameraPositionY, double cameraPositionZ,
+        float cameraUpX, float cameraUpY, float cameraUpZ) noexcept override {
+        cesium::omniverse::FabricProceduralGeometry::animatePrims(
+            0, cameraPositionX, cameraPositionY, cameraPositionZ,
+            cameraUpX, cameraUpY, cameraUpZ);
     }
 };
 } // namespace cesium::omniverse
