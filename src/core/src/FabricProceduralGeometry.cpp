@@ -169,7 +169,8 @@ extern "C" __global__ void lookAtMultiquadKernel(quad** quads, double3* lookatPo
 int createPrims() {
 
     // createMultiquadFromPtsFile("pointCloudData/simpleTest.pts", 50.0f); // run a simple test of a 3x3 point-cloud grid
-    createMultiquadFromPtsFile("pointCloudData/pump0.pts", 0.125f, 5.0f); // an example with about 175,000  points
+    // createMultiquadFromPtsFile("pointCloudData/pump0.pts", 0.125f, 5.0f); // an example with about 175,000  points
+    createMultiquadFromPtsFile("pointCloudData/StSulpice_000000.pts", 0.125f, 5.0f); // an example with about 1,500,000  points
 
     // make an initial read call to getAttributeArray
     auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
@@ -396,7 +397,7 @@ void billboardMultiQuadCuda(glm::fvec3 lookatPosition, glm::fvec3 lookatUp) {
 
     for (size_t bucketNum = 0; bucketNum != bucketList.bucketCount(); bucketNum++) {
         auto numQuadsSpan =
-            stageReaderWriter.getAttributeArray<int>(bucketList, bucketNum, getNumQuadsAttributeFabricToken());
+            stageReaderWriter.getAttributeArrayRd<int>(bucketList, bucketNum, getNumQuadsAttributeFabricToken());
         int elemCount = numQuadsSpan[0];
         if (elemCount == 0) {
             throw std::runtime_error("Fabric did not retrieve any elements");
