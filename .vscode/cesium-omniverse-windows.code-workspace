@@ -19,7 +19,7 @@
       "editor.tabSize": 2,
       "editor.insertSpaces": true
     },
-    "yaml.format.singleQuote": false,
+    "yaml.format.singleQuote": true,
     "files.associations": {
       "*.kit": "toml"
     },
