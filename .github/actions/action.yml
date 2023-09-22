@@ -1,23 +1,23 @@
-name: 'CentOS 7 Build'
-description: 'Build Cesium for Omniverse in Docker container running a CentOS 7 image'
+name: "CentOS 7 Build"
+description: "Build Cesium for Omniverse in Docker container running a CentOS 7 image"
 inputs:
   build-type:
-    description: 'Release or debug build'
+    description: "Release or debug build"
     required: true
 runs:
-  using: 'docker'
-  image: '../../docker/CentOS7.Dockerfile'
+  using: "docker"
+  image: "../../docker/CI.Dockerfile"
   # Tell Conan to look for or create its build folder (.conan) in the repository's root directory
   env:
     CONAN_USER_HOME: $GITHUB_WORKSPACE
   args:
     # Tell bash to run a command
-    - '-c'
+    - "-c"
     # Parallel 2 because github action limited to two cores
     # Linters are turned off because there is no pre-compiled C++20-capable LLVM toolset for CentOS 7. It won't affect the build, it just means there won't be code formatting or linting. It will build fine with GCC.
     # Make sure to configure without sanitizers and any other development options
-    - 'cmake -B build -D CMAKE_BUILD_TYPE=${{ inputs.build-type }} -D CESIUM_OMNI_ENABLE_LINTERS=OFF -D CESIUM_OMNI_ENABLE_SANITIZERS=OFF &&
+    - "cmake -B build -D CMAKE_BUILD_TYPE=${{ inputs.build-type }} -D CESIUM_OMNI_ENABLE_LINTERS=OFF -D CESIUM_OMNI_ENABLE_SANITIZERS=OFF &&
       cmake --build build --parallel 2 &&
       ctest --test-dir build --output-on-failure &&
       cmake --build build --target install &&
-      cmake --build build --target package'
+      cmake --build build --target package"

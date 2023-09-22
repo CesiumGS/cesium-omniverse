@@ -1,8 +1,13 @@
+# This is used to generate the image with dependencies that CI.Dockerfile relies on.
+# For instructions for deploying this, check docs/release-guide/push-docker-image.md.
 FROM centos:7
 
 RUN yum update -y -q
 
-# extra repositories that have newer versions of some packages
+# Add nvidia repository
+RUN yum-config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo
+
+# Extra repositories that have newer versions of some packages
 RUN yum install -y -q \
     epel-release \
     centos-release-scl
@@ -28,7 +33,8 @@ RUN yum install -y -q \
     libffi-devel \
     zlib-devel \
     sqlite-devel \
-    xz-devel
+    xz-devel \
+    nvidia-driver-branch-535.x86_64
 
 # Create links to some of the custom packages
 RUN update-alternatives --install /usr/bin/gcc gcc /opt/rh/devtoolset-11/root/usr/bin/gcc 100 && \

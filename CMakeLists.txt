@@ -9,7 +9,7 @@ endif()
 # Both CXX and C need to be given otherwise Conan may ignore the CMAKE_C_COMPILER flag
 project(
     CesiumOmniverse
-    VERSION 0.9.0
+    VERSION 0.10.0
     DESCRIPTION "Cesium for Omniverse"
     LANGUAGES CXX C)
 
@@ -537,7 +537,7 @@ set(INSTALL_PRE_EXCLUDE_REGEXES "api-ms-*" "ext-ms-*" "cuda")
 set(INSTALL_POST_EXCLUDE_REGEXES "system32" "^\/lib")
 
 # Skip all runtime dependencies except nvrtc when installing to exts/cesium-omniverse/bin
-set(INSTALL_PRE_INCLUDE_REGEXES "nvtrc")
+set(INSTALL_PRE_INCLUDE_REGEXES "nvrtc")
 
 install(
     TARGETS CesiumUsdSchemas

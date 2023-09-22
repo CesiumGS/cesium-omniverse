@@ -7,6 +7,7 @@ add_external_project(
     LIBRARIES
         CesiumIonClient
         Cesium3DTilesSelection
+        Cesium3DTilesReader
         CesiumAsync
         CesiumGeospatial
         CesiumGeometry

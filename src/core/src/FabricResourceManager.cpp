@@ -18,12 +18,9 @@ namespace cesium::omniverse {
 
 namespace {
 template <typename T> void removePool(std::vector<T>& pools, const T& pool) {
-    auto it =
-        std::find_if(pools.begin(), pools.end(), [&pool](const auto& other) { return pool.get() == other.get(); });
-
-    if (it != pools.end()) {
-        pools.erase(it);
-    }
+    pools.erase(
+        std::remove_if(pools.begin(), pools.end(), [&pool](const auto& other) { return pool.get() == other.get(); }),
+        pools.end());
 }
 
 } // namespace
@@ -81,14 +78,102 @@ std::shared_ptr<FabricGeometry> FabricResourceManager::acquireGeometry(
 
     return geometry;
 }
+
+bool useSharedMaterial(const FabricMaterialDefinition& materialDefinition) {
+    if (materialDefinition.hasBaseColorTexture()) {
+        return false;
+    }
+
+    return true;
+}
+
 std::shared_ptr<FabricMaterial>
-FabricResourceManager::acquireMaterial(const MaterialInfo& materialInfo, bool hasImagery, long stageId) {
+FabricResourceManager::createMaterial(const FabricMaterialDefinition& materialDefinition, long stageId) {
+    const auto pathStr = fmt::format("/fabric_material_{}", getNextMaterialId());
+    const auto path = omni::fabric::Path(pathStr.c_str());
+    return std::make_shared<FabricMaterial>(path, materialDefinition, _defaultTextureAssetPathToken, stageId);
+}
+
+void FabricResourceManager::removeSharedMaterial(const SharedMaterial& sharedMaterial) {
+    _sharedMaterials.erase(
+        std::remove_if(
+            _sharedMaterials.begin(),
+            _sharedMaterials.end(),
+            [&sharedMaterial](const auto& other) { return &sharedMaterial == &other; }),
+        _sharedMaterials.end());
+}
+
+SharedMaterial* FabricResourceManager::getSharedMaterial(const MaterialInfo& materialInfo, int64_t tilesetId) {
+    for (auto& sharedMaterial : _sharedMaterials) {
+        if (sharedMaterial.materialInfo == materialInfo && sharedMaterial.tilesetId == tilesetId) {
+            return &sharedMaterial;
+        }
+    }
+
+    return nullptr;
+}
+
+SharedMaterial* FabricResourceManager::getSharedMaterial(const std::shared_ptr<FabricMaterial>& material) {
+    for (auto& sharedMaterial : _sharedMaterials) {
+        if (sharedMaterial.material.get() == material.get()) {
+            return &sharedMaterial;
+        }
+    }
+
+    return nullptr;
+}
+
+std::shared_ptr<FabricMaterial> FabricResourceManager::acquireSharedMaterial(
+    const MaterialInfo& materialInfo,
+    const FabricMaterialDefinition& materialDefinition,
+    long stageId,
+    int64_t tilesetId) {
+
+    const auto sharedMaterial = getSharedMaterial(materialInfo, tilesetId);
+
+    if (sharedMaterial != nullptr) {
+        sharedMaterial->referenceCount++;
+        return sharedMaterial->material;
+    }
+
+    auto material = createMaterial(materialDefinition, stageId);
+
+    _sharedMaterials.emplace_back(SharedMaterial{
+        material,
+        materialInfo,
+        tilesetId,
+        1,
+    });
+
+    return material;
+}
+
+void FabricResourceManager::releaseSharedMaterial(const std::shared_ptr<FabricMaterial>& material) {
+    const auto sharedMaterial = getSharedMaterial(material);
+
+    assert(sharedMaterial != nullptr);
+
+    if (sharedMaterial != nullptr) {
+        sharedMaterial->referenceCount--;
+        if (sharedMaterial->referenceCount == 0) {
+            removeSharedMaterial(*sharedMaterial);
+        }
+    }
+}
+
+std::shared_ptr<FabricMaterial> FabricResourceManager::acquireMaterial(
+    const MaterialInfo& materialInfo,
+    bool hasImagery,
+    long stageId,
+    int64_t tilesetId) {
     FabricMaterialDefinition materialDefinition(materialInfo, hasImagery, _disableTextures);
 
+    if (useSharedMaterial(materialDefinition)) {
+        return acquireSharedMaterial(materialInfo, materialDefinition, stageId, tilesetId);
+    }
+
     if (_disableMaterialPool) {
-        const auto pathStr = fmt::format("/fabric_material_{}", getNextMaterialId());
-        const auto path = omni::fabric::Path(pathStr.c_str());
-        return std::make_shared<FabricMaterial>(path, materialDefinition, _defaultTextureAssetPathToken, stageId);
+        return createMaterial(materialDefinition, stageId);
     }
 
     std::scoped_lock<std::mutex> lock(_poolMutex);
@@ -133,26 +218,25 @@ void FabricResourceManager::releaseGeometry(const std::shared_ptr<FabricGeometry
     const auto geometryPool = getGeometryPool(geometry->getGeometryDefinition());
     assert(geometryPool != nullptr);
     geometryPool->release(geometry);
-
-    if (geometryPool->isEmpty()) {
-        removePool(_geometryPools, geometryPool);
-    }
 }
 
 void FabricResourceManager::releaseMaterial(const std::shared_ptr<FabricMaterial>& material) {
+    const auto& materialDefinition = material->getMaterialDefinition();
+
+    if (useSharedMaterial(materialDefinition)) {
+        releaseSharedMaterial(material);
+        return;
+    }
+
     if (_disableMaterialPool) {
         return;
     }
 
     std::scoped_lock<std::mutex> lock(_poolMutex);
 
-    const auto materialPool = getMaterialPool(material->getMaterialDefinition());
+    const auto materialPool = getMaterialPool(materialDefinition);
     assert(materialPool != nullptr);
     materialPool->release(material);
-
-    if (materialPool->isEmpty()) {
-        removePool(_materialPools, materialPool);
-    }
 }
 
 void FabricResourceManager::releaseTexture(const std::shared_ptr<FabricTexture>& texture) {
@@ -165,10 +249,6 @@ void FabricResourceManager::releaseTexture(const std::shared_ptr<FabricTexture>&
     const auto texturePool = getTexturePool();
     assert(texturePool != nullptr);
     texturePool->release(texture);
-
-    if (texturePool->isEmpty()) {
-        removePool(_texturePools, texturePool);
-    }
 }
 
 void FabricResourceManager::setDisableMaterials(bool disableMaterials) {
@@ -217,6 +297,7 @@ void FabricResourceManager::clear() {
     _geometryPools.clear();
     _materialPools.clear();
     _texturePools.clear();
+    _sharedMaterials.clear();
 }
 
 std::shared_ptr<FabricGeometryPool>
