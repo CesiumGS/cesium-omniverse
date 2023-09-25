@@ -165,6 +165,11 @@ extern "C" __global__ void lookAtQuads(quad** quads, double3* lookAtPosition, fl
     if (i >= numQuads) return;
 
     int quadIndex = static_cast<int>(i);
+
+    // printf("Quad %d upper left: %f, %f, %f\n", quadIndex, quads[0][quadIndex].upperLeft.x, quads[0][quadIndex].upperLeft.y, quads[0][quadIndex].upperLeft.z);
+    // printf("Quad %d lookAtPosition is %lf, %lf, %lf", lookAtPosition->x, lookAtPosition->y, lookAtPosition->z);
+    // printf("Quad %d lookAtUp is %f, %f, %f", lookAtUp->x, lookAtUp->y, lookAtUp->z);
+
     const float quadHalfSize = *quadSize * 0.5f;
 
     float3 targetUpN = *lookAtUp;

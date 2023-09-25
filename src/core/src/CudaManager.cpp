@@ -169,9 +169,9 @@ void CudaManager::runRunner(CudaRunner& runner) {
     omni::fabric::AttrNameAndType primTag(CudaManager::getInstance().getTileTokenType(), tileToken);
     omni::fabric::PrimBucketList bucketList = srw.findPrims({primTag});
 
-    // auto lookatPositionDevice = allocAndCopyToDevice(&lookatPositionHost, sizeof(glm::dvec3));
-    // auto lookatUpDevice = allocAndCopyToDevice(&lookatUpHost, sizeof(glm::fvec3));
-    // auto quadSizeDevice = allocAndCopyToDevice(&_quadSizeHost, sizeof(float));
+    auto lookatPositionDevice = allocAndCopyToDevice(&lookatPositionHost, sizeof(glm::dvec3));
+    auto lookatUpDevice = allocAndCopyToDevice(&lookatUpHost, sizeof(glm::fvec3));
+    auto quadSizeDevice = allocAndCopyToDevice(&quadSizeHost, sizeof(float));
 
 
     // CUdeviceptr quadSizeDevice;
@@ -220,8 +220,8 @@ void CudaManager::runRunner(CudaRunner& runner) {
         // runner.setPackedKernelArgs(bucketumber, args);
         // void *args[] = { &_quadSizeHost, &runner.elementCount }; // NOLINT
 
-        void *args[] = { &d, &runner.elementCount}; // NOLINT
-        // void *args[] = { &d, &lookatPositionHost, &lookatUpHost, &quadSizeHost, &runner.elementCount}; // NOLINT
+        // void *args[] = { &d, &runner.elementCount}; // NOLINT
+        void *args[] = { &d, &lookatPositionDevice, &lookatUpDevice, &quadSizeDevice, &runner.elementCount}; // NOLINT
 
 
         auto launchResult =
@@ -257,9 +257,9 @@ void CudaManager::runRunner(CudaRunner& runner) {
     //     return;
     // }
 
-    // freeDeviceMemory(lookatPositionDevice);
-    // freeDeviceMemory(lookatUpDevice);
-    // freeDeviceMemory(quadSizeDevice);
+    freeDeviceMemory(lookatPositionDevice);
+    freeDeviceMemory(lookatUpDevice);
+    freeDeviceMemory(quadSizeDevice);
 }
 #pragma warning( pop )
 

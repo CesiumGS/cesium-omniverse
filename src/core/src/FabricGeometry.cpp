@@ -375,7 +375,7 @@ void FabricGeometry::setGeometry(
         if (tileId == 0) {
             // auto numberOfShapes = static_cast<int>(pointsFabric.size());
             CudaManager::getInstance().createRunner(
-            CudaKernelType::PRINT_QUADS,
+            CudaKernelType::LOOKAT_QUADS,
             CudaUpdateType::ON_UPDATE_FRAME,
             tileId,
             kernelArgs,
