@@ -21,7 +21,7 @@ namespace cesium::omniverse {
 bool hasRun = false;
 // glm::dvec3 lookAtPosition(0, 0, 0); // placeholder
 glm::dvec3 lookatPositionHost{0.0, 0.0, 0.0};
-glm::fvec3 lookatUpHost{0.0, 0.0, 0.0};
+glm::fvec3 lookatUpHost{0.0, 1.0, 0.0};
 // glm::fvec3 lookAtUp(0, 1.0f, 0);
 float quadSizeHost = 0.75f;
 // float quadSize = 1.0f;
@@ -220,13 +220,8 @@ void CudaManager::runRunner(CudaRunner& runner) {
         // runner.setPackedKernelArgs(bucketumber, args);
         // void *args[] = { &_quadSizeHost, &runner.elementCount }; // NOLINT
 
-        // DEBUG
-        // runner.elementCount = 5;
-
-        // THIS LINE LEADS TO MEMORY ACCESS ERRORS
         void *args[] = { &d, &runner.elementCount}; // NOLINT
-        // THIS LINE DOES NOT LEAD TO MEMORY ACCESS ERRORS
-        // void *args[] = { &positions, &lookatPositionHost, &lookatUpHost, &quadSizeHost, &runner.elementCount}; // NOLINT
+        // void *args[] = { &d, &lookatPositionHost, &lookatUpHost, &quadSizeHost, &runner.elementCount}; // NOLINT
 
 
         auto launchResult =
@@ -326,6 +321,8 @@ void CudaManager::compileKernel(CudaKernelType kernelType) {
             return cesium::omniverse::cudaKernels::printFloatKernel;
         case CudaKernelType::PRINT_POINTS:
             return cesium::omniverse::cudaKernels::printPointsKernel;
+        case CudaKernelType::PRINT_QUADS:
+            return cesium::omniverse::cudaKernels::printQuadsKernel;
         default:
             throw new std::runtime_error("Attempt to compile an unsupported CUDA kernel.");
     }
@@ -347,6 +344,9 @@ void CudaManager::compileKernel(CudaKernelType kernelType) {
             break;
         case CudaKernelType::PRINT_POINTS:
             return "printPoints";
+            break;
+        case CudaKernelType::PRINT_QUADS:
+            return "run";
             break;
         default:
             throw new std::runtime_error("Attempt to find function for an unsupported CUDA kernel.");

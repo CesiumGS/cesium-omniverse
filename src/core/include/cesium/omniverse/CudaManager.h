@@ -35,7 +35,7 @@ struct CudaKernelArgs;
 // DEBUG
 const omni::fabric::Type cudaTestAttributeFabricType(omni::fabric::BaseDataType::eDouble, 1, 0, omni::fabric::AttributeRole::eNone);
 
-enum CudaKernelType { HELLO_WORLD, CREATE_VOXELS, PRINT_POINTS, LOOKAT_QUADS, PRINT_FLOAT };
+enum CudaKernelType { HELLO_WORLD, CREATE_VOXELS, PRINT_POINTS, LOOKAT_QUADS, PRINT_FLOAT, PRINT_QUADS };
 enum CudaUpdateType { ONCE, ON_UPDATE_FRAME };
 
 const omni::fabric::Type tileIdFabricType(omni::fabric::BaseDataType::eDouble, 1, 0, omni::fabric::AttributeRole::eNone);

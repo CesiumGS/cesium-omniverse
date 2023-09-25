@@ -15,6 +15,35 @@ inline const char* printPointsKernel = R"(
     }
     )";
 
+inline const char* printQuadsKernel = R"(
+
+    struct quad {
+        float3 lowerLeft;
+        float3 upperLeft;
+        float3 upperRight;
+        float3 lowerRight;
+
+        __device__ float3 getCenter() {
+            return make_float3(
+                (lowerLeft.x + upperLeft.x + upperRight.x + lowerRight.x) * .25f,
+                (lowerLeft.y + upperLeft.y + upperRight.y + lowerRight.y) * .25f,
+                (lowerLeft.z + upperLeft.z + upperRight.z + lowerRight.z) * .25f);
+        }
+    };
+
+    extern "C" __global__ void run(quad** quads, int numQuads) {
+        const size_t i = blockIdx.x * blockDim.x + threadIdx.x;
+        if (i >= numQuads) return;
+
+        int quadIndex = static_cast<int>(i);
+
+        printf("Quad %d upper left: %f, %f, %f\n", quadIndex, quads[0][quadIndex].upperLeft.x, quads[0][quadIndex].upperLeft.y, quads[0][quadIndex].upperLeft.z);
+        // quads[0][quadIndex].upperRight = newQuadUR;
+        // quads[0][quadIndex].lowerLeft = newQuadLL;
+        // quads[0][quadIndex].lowerRight = newQuadLR;
+    }
+    )";
+
 inline const char* helloWorldKernel = R"(
     extern "C" __global__
     void helloWorld(size_t count)

@@ -312,22 +312,22 @@ void FabricGeometry::setGeometry(
         *tileTokenAttribute = 123.45;
 
         // how many quads, spheres, voxels, etc.
-        const auto numberOfShapes = positions.size();
+        const auto numberOfDataPoints = positions.size();
         geometricError = 100.0f; // TODO: dev
         const auto shapeHalfSize = 0.02f * geometricError;
-        srw.setArrayAttributeSize(_path, FabricTokens::points, static_cast<size_t>(numberOfShapes * numberOfPointsPerShape));
-        srw.setArrayAttributeSize(_path, FabricTokens::faceVertexCounts, numberOfShapes * numberOfFacesPerShape);
-        srw.setArrayAttributeSize(_path, FabricTokens::faceVertexIndices, numberOfShapes * numberOfFacesPerShape * 3);
+        srw.setArrayAttributeSize(_path, FabricTokens::points, static_cast<size_t>(numberOfDataPoints * numberOfPointsPerShape));
+        srw.setArrayAttributeSize(_path, FabricTokens::faceVertexCounts, numberOfDataPoints * numberOfFacesPerShape);
+        srw.setArrayAttributeSize(_path, FabricTokens::faceVertexIndices, numberOfDataPoints * numberOfFacesPerShape * 3);
 
         auto pointsFabric = srw.getArrayAttributeWr<pxr::GfVec3f>(_path, FabricTokens::points);
         auto faceVertexCountsFabric = srw.getArrayAttributeWr<int>(_path, FabricTokens::faceVertexCounts);
         auto faceVertexIndicesFabric = srw.getArrayAttributeWr<int>(_path, FabricTokens::faceVertexIndices);
 
-        std::vector<glm::fvec3> vertexColorsData(numberOfShapes * numberOfPointsPerShape); // TODO: not great to waste this memory
+        std::vector<glm::fvec3> vertexColorsData(numberOfDataPoints * numberOfPointsPerShape); // TODO: not great to waste this memory
         gsl::span<glm::fvec3> vertexColorsSpan(vertexColorsData);
         if (hasVertexColors) {
             vertexColors.fill(vertexColorsSpan);
-            srw.setArrayAttributeSize(_path, FabricTokens::primvars_vertexColor, numberOfShapes * numberOfPointsPerShape);
+            srw.setArrayAttributeSize(_path, FabricTokens::primvars_vertexColor, numberOfDataPoints * numberOfPointsPerShape);
         }
         auto vertexColorsFabric = srw.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::primvars_vertexColor);
         CudaKernelArgs kernelArgs;
@@ -335,13 +335,13 @@ void FabricGeometry::setGeometry(
         kernelArgs.args["quads"] = pointsFabric;
         kernelArgs.args["lookatPosition"] = glm::dvec3(0, 0, 0);
         kernelArgs.args["quadSize"] = 1.0f;
-        kernelArgs.args["numQuads"] = numberOfShapes;
+        kernelArgs.args["numQuads"] = numberOfDataPoints;
 
         size_t vertexIndex = 0;
         size_t faceVertexCountsIndex = 0;
         size_t faceVertexIndex = 0;
         size_t vertexColorsIndex = 0;
-        for (size_t shapeIndex = 0; shapeIndex < numberOfShapes; shapeIndex++) {
+        for (size_t shapeIndex = 0; shapeIndex < numberOfDataPoints; shapeIndex++) {
             const auto& center = positions.get(shapeIndex);
             auto centerPxr = pxr::GfVec3f{center.x, center.y, center.z};
 
@@ -373,13 +373,13 @@ void FabricGeometry::setGeometry(
         // std::cout << "loading tile " << tileId << std::endl;
 
         if (tileId == 0) {
-            auto elementCount = pointsFabric.size();
+            // auto numberOfShapes = static_cast<int>(pointsFabric.size());
             CudaManager::getInstance().createRunner(
-            CudaKernelType::PRINT_POINTS,
+            CudaKernelType::PRINT_QUADS,
             CudaUpdateType::ON_UPDATE_FRAME,
             tileId,
             kernelArgs,
-            static_cast<int>(elementCount));
+            static_cast<int>(numberOfDataPoints));
 
             // create a custom attribute for testing
             // stageReaderWriter.createAttribute(_path, getCudaTestAttributeFabricToken(), cudaTestAttributeFabricType);
