@@ -1,6 +1,8 @@
 #include "cesium/omniverse/CudaManager.h"
 
 #include "cesium/omniverse/CudaKernels.h"
+#include "cesium/omniverse/Tokens.h"
+#include "cesium/omniverse/UsdUtil.h"
 
 #include <omni/gpucompute/GpuCompute.h>
 
@@ -11,6 +13,20 @@
 #include <unordered_map>
 
 namespace cesium::omniverse {
+
+#pragma warning( push )
+#pragma warning( disable : 4100 )  // Disable warning C4100: 'identifier' : unreferenced
+
+
+bool hasRun = false;
+// glm::dvec3 lookAtPosition(0, 0, 0); // placeholder
+glm::dvec3 lookatPositionHost{0.0, 0.0, 0.0};
+glm::fvec3 lookatUpHost{0.0, 0.0, 0.0};
+// glm::fvec3 lookAtUp(0, 1.0f, 0);
+float quadSizeHost = 0.75f;
+// float quadSize = 1.0f;
+float testFloat = 123.45f;
+
 
 void CudaManager::initialize() {
     if (_initialized) {
@@ -38,19 +54,24 @@ void CudaManager::initialize() {
 }
 
 void CudaManager::runAllRunners() {
-    // for (auto& [updateType, runners] : _runnersByUpdateType) {
-    //     if (updateType == CudaUpdateType::ONCE) {
-    //         throw std::runtime_error("Single-run kernels are not yet supported.");
-    //     } else if (updateType == CudaUpdateType::ON_UPDATE_FRAME) {
-    //         for (auto& [tileId, runner] : runners) {
-    //             runRunner(*runner);
-    //         }
-    //     }
-    // }
+    if (hasRun) {
+        return;
+    }
+
+    for (auto& [updateType, runners] : _runnersByUpdateType) {
+        if (updateType == CudaUpdateType::ONCE) {
+            throw std::runtime_error("Single-run kernels are not yet supported.");
+        } else if (updateType == CudaUpdateType::ON_UPDATE_FRAME) {
+            for (auto& [tileId, runner] : runners) {
+                runRunner(*runner);
+                hasRun = true;
+            }
+            hasRun = true;
+        }
+    }
+
 }
 
-#pragma warning(push)
-#pragma warning(disable: 4100)
 void CudaManager::createRunner(CudaKernelType cudaKernelType, CudaUpdateType cudaUpdateType, int64_t tileId, CudaKernelArgs kernelArgs, int numberOfElements) {
     if (_kernels.find(cudaKernelType) == _kernels.end()) {
         compileKernel(cudaKernelType);
@@ -60,13 +81,11 @@ void CudaManager::createRunner(CudaKernelType cudaKernelType, CudaUpdateType cud
     auto& innerMap = _runnersByUpdateType[cudaUpdateType];
     innerMap.insert({tileId, std::move(runnerPtr)});
 }
-#pragma warning(pop)
 
 
 void CudaManager::onUpdateFrame() {
     runAllRunners();
 }
-
 
 
 void CudaManager::removeRunner(int64_t tileId) {
@@ -75,9 +94,108 @@ void CudaManager::removeRunner(int64_t tileId) {
     }
 }
 
-
+#pragma warning( push )
+#pragma warning( disable : 4100 )
 void CudaManager::runRunner(CudaRunner& runner) {
-    for (size_t bucketNumber = 0; bucketNumber != runner.primBucketList.bucketCount(); bucketNumber++)
+
+    // BEGIN SPLICED CODE
+    // auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+    // auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
+    // auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
+    // auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+
+    // // tile ID for DEBUG purposes
+    // omni::fabric::AttrNameAndType primTag(CudaManager::getInstance().getTileTokenType(), CudaManager::getInstance().getTileToken(0));
+    // auto bucketList = stageReaderWriter.findPrims({primTag});
+
+    // std::cout << "numBuckets " << bucketList.bucketCount() << std::endl;
+    // for (size_t bucketNum = 0; bucketNum != bucketList.bucketCount(); bucketNum++)
+    // {
+    //     auto positions = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3f>(bucketList, bucketNum, FabricTokens::points);
+    //     if (positions.data() != nullptr) {
+    //         std::cout << "no issue running PoC code" << std::endl;
+    //     }
+    // }
+
+
+    // auto srw = UsdUtil::getFabricStageReaderWriter();
+    // auto tileToken = CudaManager::getInstance().getTileToken(runner.getTileId());
+    // omni::fabric::AttrNameAndType primTag(CudaManager::getInstance().getTileTokenType(), tileToken);
+    // omni::fabric::PrimBucketList bucketList = srw.findPrims({primTag});
+    // for (size_t bucketNumber = 0; bucketNumber != bucketList.bucketCount(); bucketNumber++)
+    // {
+    //     auto positions = srw.getArrayAttributeArray<pxr::GfVec3f>(bucketList, bucketNumber, FabricTokens::points);
+    //     if (positions.data() != nullptr) {
+    //         std::cout << "no issue running PoC code" << std::endl;
+    //     }
+    // }
+
+
+    // END SPLICED CODE
+
+
+
+    // BEGIN POC
+
+    // auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+    // auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
+    // auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
+    // auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+
+    // // tile ID for DEBUG purposes
+    // omni::fabric::AttrNameAndType primTag(CudaManager::getInstance().getTileTokenType(), CudaManager::getInstance().getTileToken(0));
+    // auto bucketList = stageReaderWriter.findPrims({primTag});
+
+    // std::cout << "numBuckets " << bucketList.bucketCount() << std::endl;
+    // for (size_t bucketNum = 0; bucketNum != bucketList.bucketCount(); bucketNum++)
+    // {
+    //     auto positions = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3f>(bucketList, bucketNum, FabricTokens::points);
+    //     if (positions.data() != nullptr) {
+    //         std::cout << "no issue running PoC code" << std::endl;
+    //     }
+    // }
+
+
+
+    // END POC
+
+    // BEGIN MEM-ISSUE CODE
+
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+
+    auto tileToken = CudaManager::getInstance().getTileToken(runner.getTileId());
+
+
+    omni::fabric::AttrNameAndType primTag(CudaManager::getInstance().getTileTokenType(), tileToken);
+    omni::fabric::PrimBucketList bucketList = srw.findPrims({primTag});
+
+    // auto lookatPositionDevice = allocAndCopyToDevice(&lookatPositionHost, sizeof(glm::dvec3));
+    // auto lookatUpDevice = allocAndCopyToDevice(&lookatUpHost, sizeof(glm::fvec3));
+    // auto quadSizeDevice = allocAndCopyToDevice(&_quadSizeHost, sizeof(float));
+
+
+    // CUdeviceptr quadSizeDevice;
+    // auto err = cuMemAlloc(&quadSizeDevice, sizeof(float));
+    // if (err != CUDA_SUCCESS) {
+    //     const char *errName;
+    //     const char *errStr;
+    //     cuGetErrorName(err, &errName);
+    //     cuGetErrorString(err, &errStr);
+    //     printf("cuMemAlloc failed: %s: %s\n", errName, errStr);
+    //     return;
+    // }
+
+    // err = cuMemcpyHtoD(quadSizeDevice, &quadSizeHost, sizeof(float));
+    // if (err != CUDA_SUCCESS) {
+    //     const char *errName;
+    //     const char *errStr;
+    //     cuGetErrorName(err, &errName);
+    //     cuGetErrorString(err, &errStr);
+    //     printf("cuMemcpyHtoD failed: %s: %s\n", errName, errStr);
+    //     return;
+    // }
+
+    for (size_t bucketNumber = 0; bucketNumber != bucketList.bucketCount(); bucketNumber++)
     {
         auto kernel = _kernels[runner.kernelType];
 
@@ -88,12 +206,29 @@ void CudaManager::runRunner(CudaRunner& runner) {
         // void* tempArgs[] = {&runner.elementCount}; //NOLINT
 
         // (quad** quads, double3* lookAtPosition, float3* lookAtUp, float *quadSize, int numQuads)
-        glm::dvec3 lookAtPosition(0, 0, 0); // placeholder
-        glm::fvec3 lookAtUp(0, 1.0f, 0);
-        float quadSize = 1.0f;
-        void *args[] = { &runner.quadBucketMap[bucketNumber], &lookAtPosition, &lookAtUp, &quadSize, &runner.elementCount}; //NOLINT
-        //auto args = runner.getPackedKernelArgs(bucketNumber);
+        // glm::dvec3 lookAtPosition(0, 0, 0); // placeholder
+        // glm::fvec3 lookAtUp(0, 1.0f, 0);
+        // float quadSize = 1.0f;
+
+        // void *args[] = { &runner.quadBucketMap[bucketNumber], &lookAtPosition, &lookAtUp, &quadSize, &runner.elementCount}; // NOLINT
+
+        // TODO: getArrayAttributeArrayWr
+        gsl::span<pxr::GfVec3f> positions = srw.getAttributeArrayGpu<pxr::GfVec3f>(bucketList, bucketNumber, FabricTokens::points);
+        pxr::GfVec3f* d = positions.data();
+        // void *args[] = { &positions, &lookatPositionHost, &lookatUpHost, &quadSizeHost, &runner.elementCount}; // NOLINT
+        // auto args = runner.getPackedKernelArgs(bucketNumber);
         // runner.setPackedKernelArgs(bucketumber, args);
+        // void *args[] = { &_quadSizeHost, &runner.elementCount }; // NOLINT
+
+        // DEBUG
+        // runner.elementCount = 5;
+
+        // THIS LINE LEADS TO MEMORY ACCESS ERRORS
+        void *args[] = { &d, &runner.elementCount}; // NOLINT
+        // THIS LINE DOES NOT LEAD TO MEMORY ACCESS ERRORS
+        // void *args[] = { &positions, &lookatPositionHost, &lookatUpHost, &quadSizeHost, &runner.elementCount}; // NOLINT
+
+
         auto launchResult =
             cuLaunchKernel(kernel.function, numBlocks, 1, 1, blockSize, 1, 1, 0, nullptr, args, nullptr);
         if (launchResult) {
@@ -112,9 +247,26 @@ void CudaManager::runRunner(CudaRunner& runner) {
             if (currentContext != _context) {
                 cuCtxSetCurrent(_context);
             }
+        } else {
+            std::cout << "got args and launched kernel fine" << std::endl;
         }
     }
+
+    // err = cuMemFree(quadSizeDevice);
+    // if (err != CUDA_SUCCESS) {
+    //     const char *errName;
+    //     const char *errStr;
+    //     cuGetErrorName(err, &errName);
+    //     cuGetErrorString(err, &errStr);
+    //     printf("cuMemFree failed: %s: %s\n", errName, errStr);
+    //     return;
+    // }
+
+    // freeDeviceMemory(lookatPositionDevice);
+    // freeDeviceMemory(lookatUpDevice);
+    // freeDeviceMemory(quadSizeDevice);
 }
+#pragma warning( pop )
 
 void CudaManager::compileKernel(CudaKernelType kernelType) {
     if (_kernels.find(kernelType) != _kernels.end()) {
@@ -170,6 +322,10 @@ void CudaManager::compileKernel(CudaKernelType kernelType) {
             break;
         case CudaKernelType::HELLO_WORLD:
             return cesium::omniverse::cudaKernels::helloWorldKernel;
+        case CudaKernelType::PRINT_FLOAT:
+            return cesium::omniverse::cudaKernels::printFloatKernel;
+        case CudaKernelType::PRINT_POINTS:
+            return cesium::omniverse::cudaKernels::printPointsKernel;
         default:
             throw new std::runtime_error("Attempt to compile an unsupported CUDA kernel.");
     }
@@ -186,6 +342,12 @@ void CudaManager::compileKernel(CudaKernelType kernelType) {
         case CudaKernelType::HELLO_WORLD:
             return "helloWorld";
             break;
+        case CudaKernelType::PRINT_FLOAT:
+            return "printFloat";
+            break;
+        case CudaKernelType::PRINT_POINTS:
+            return "printPoints";
+            break;
         default:
             throw new std::runtime_error("Attempt to find function for an unsupported CUDA kernel.");
     }
@@ -199,4 +361,89 @@ omni::fabric::Token CudaManager::getTileToken(int64_t tileId) {
 
     return _tileTokens[tileId];
 }
+
+CUdeviceptr CudaManager::allocAndCopyToDevice(void* hostPtr, size_t size) {
+    CUdeviceptr devicePtr;
+    CudaError::check(cuMemAlloc(&devicePtr, size), "cuMemAlloc");
+    CudaError::check(cuMemcpyHtoD(devicePtr, hostPtr, size), "cuMemcpyHtoD");
+    return devicePtr;
+}
+
+void CudaManager::freeDeviceMemory(CUdeviceptr devicePtr) {
+    CUresult err = cuMemFree(devicePtr);
+    if (err != CUDA_SUCCESS) {
+        const char* errName;
+        const char* errStr;
+        cuGetErrorName(err, &errName);
+        cuGetErrorString(err, &errStr);
+        printf("cuMemFree failed for address %p: %s: %s\n", (void*)devicePtr, errName, errStr);
+    }
+}
+
+void CudaManager::runProofOfConceptCode() {
+    glm::fvec3 target{0, 0, 0};
+    glm::fvec3 targetUp{0, 1.0f, 0};
+    billboardMultiQuadCuda(target, targetUp);
+}
+
+omni::fabric::Token CudaManager::getCudaTestAttributeFabricToken() {
+    static const auto cudaTestAttributeFabricToken = omni::fabric::Token("cudaTest");
+    return cudaTestAttributeFabricToken;
+}
+
+void CudaManager::billboardMultiQuadCuda(glm::fvec3 lookatPosition2, glm::fvec3 lookatUp2) {
+
+    //get all prims with the custom attr
+    auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+    auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
+    auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
+    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+
+    // tile ID for DEBUG purposes
+    omni::fabric::AttrNameAndType primTag(CudaManager::getInstance().getTileTokenType(), CudaManager::getInstance().getTileToken(0));
+    auto bucketList = stageReaderWriter.findPrims({primTag});
+
+    std::cout << "numBuckets " << bucketList.bucketCount() << std::endl;
+    for (size_t bucketNum = 0; bucketNum != bucketList.bucketCount(); bucketNum++)
+    {
+        auto positions = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3f*>(bucketList, bucketNum, FabricTokens::points);
+        if (positions.data() != nullptr) {
+            std::cout << "no issue running PoC code" << std::endl;
+        }
+    }
+
+    // std::cout << "modified " << primCount << " quads" << std::endl;
+
+    // err = cuMemFree(lookatPositionDevice);
+    // if (err != CUDA_SUCCESS) {
+    //     const char *errName;
+    //     const char *errStr;
+    //     cuGetErrorName(err, &errName);
+    //     cuGetErrorString(err, &errStr);
+    //     printf("cuMemFree failed: %s: %s\n", errName, errStr);
+    //     return;
+    // }
+
+    // err = cuMemFree(lookatUpDevice);
+    // if (err != CUDA_SUCCESS) {
+    //     const char *errName;
+    //     const char *errStr;
+    //     cuGetErrorName(err, &errName);
+    //     cuGetErrorString(err, &errStr);
+    //     printf("cuMemFree failed: %s: %s\n", errName, errStr);
+    //     return;
+    // }
+
+    // err = cuMemFree(quadSizeDevice);
+    // if (err != CUDA_SUCCESS) {
+    //     const char *errName;
+    //     const char *errStr;
+    //     cuGetErrorName(err, &errName);
+    //     cuGetErrorString(err, &errStr);
+    //     printf("cuMemFree failed: %s: %s\n", errName, errStr);
+    //     return;
+    // }
+}
+#pragma warning( pop )
+
 } // namespace cesium::omniverse

@@ -18,7 +18,7 @@ struct Model;
 
 namespace cesium::omniverse {
 
-const omni::fabric::Type cudaTestAttributeFabricType(omni::fabric::BaseDataType::eDouble, 1, 0, omni::fabric::AttributeRole::eNone);
+// const omni::fabric::Type cudaTestAttributeFabricType(omni::fabric::BaseDataType::eDouble, 1, 0, omni::fabric::AttributeRole::eNone);
 
 class FabricGeometry {
   public:
@@ -63,10 +63,10 @@ class FabricGeometry {
     void runProofOfConceptCode();
     void billboardMultiQuadCuda(glm::fvec3 lookatPosition, glm::fvec3 lookatUp);
 
-    omni::fabric::Token getCudaTestAttributeFabricToken() {
-        static const auto cudaTestAttributeFabricToken = omni::fabric::Token("cudaTest");
-        return cudaTestAttributeFabricToken;
-    }
+    // omni::fabric::Token getCudaTestAttributeFabricToken() {
+    //     static const auto cudaTestAttributeFabricToken = omni::fabric::Token("cudaTest");
+    //     return cudaTestAttributeFabricToken;
+    // }
 
 };
 

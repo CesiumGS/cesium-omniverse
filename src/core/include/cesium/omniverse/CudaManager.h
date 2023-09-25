@@ -32,7 +32,10 @@ class CudaRunner;
 struct CudaKernel;
 struct CudaKernelArgs;
 
-enum CudaKernelType { HELLO_WORLD, CREATE_VOXELS, PRINT_POINTS, LOOKAT_QUADS };
+// DEBUG
+const omni::fabric::Type cudaTestAttributeFabricType(omni::fabric::BaseDataType::eDouble, 1, 0, omni::fabric::AttributeRole::eNone);
+
+enum CudaKernelType { HELLO_WORLD, CREATE_VOXELS, PRINT_POINTS, LOOKAT_QUADS, PRINT_FLOAT };
 enum CudaUpdateType { ONCE, ON_UPDATE_FRAME };
 
 const omni::fabric::Type tileIdFabricType(omni::fabric::BaseDataType::eDouble, 1, 0, omni::fabric::AttributeRole::eNone);
@@ -50,6 +53,20 @@ struct CudaKernel {
 
 struct quad {
     float3 lowerLeft, upperLeft, upperRight, lowerRight;
+};
+
+class CudaError {
+  public:
+    static void check(CUresult err, const char* operation) {
+        if (err != CUDA_SUCCESS) {
+            const char* errName;
+            const char* errStr;
+            cuGetErrorName(err, &errName);
+            cuGetErrorString(err, &errStr);
+            printf("%s failed: %s: %s\n", operation, errName, errStr);
+            throw std::runtime_error(errStr);
+        }
+    }
 };
 
 class CudaManager {
@@ -84,7 +101,14 @@ class CudaManager {
     void initialize();
     void runRunner(CudaRunner& runner);
     std::unordered_map<int64_t, omni::fabric::Token> _tileTokens;
+    CUdeviceptr allocAndCopyToDevice(void* hostPtr, size_t size);
+    void freeDeviceMemory(CUdeviceptr devicePtr);
     // void packKernelArgs(CudaRunner& runner);
+
+    // DEBUG
+    void runProofOfConceptCode();
+    void billboardMultiQuadCuda(glm::fvec3 lookatPosition, glm::fvec3 lookatUp);
+    omni::fabric::Token getCudaTestAttributeFabricToken();
 };
 
 class CudaRunner {
@@ -94,7 +118,7 @@ class CudaRunner {
     CudaKernelArgs kernelArgs;
     omni::fabric::Token tileIdToken;
     omni::fabric::PrimBucketList primBucketList;
-    std::unordered_map<size_t, quad*>quadBucketMap; // TODO: gsl::span?
+    // std::unordered_map<size_t, quad*>quadBucketMap; // TODO: gsl::span?
 
     CudaRunner() = delete;
     CudaRunner(

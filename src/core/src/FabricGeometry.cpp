@@ -370,21 +370,23 @@ void FabricGeometry::setGeometry(
             }
         }
 
+        // std::cout << "loading tile " << tileId << std::endl;
+
         if (tileId == 0) {
-            // auto elementCount = pointsFabric.size();
-            // CudaManager::getInstance().createRunner(
-            // CudaKernelType::LOOKAT_QUADS,
-            // CudaUpdateType::ON_UPDATE_FRAME,
-            // tileId,
-            // kernelArgs,
-            // static_cast<int>(elementCount));
+            auto elementCount = pointsFabric.size();
+            CudaManager::getInstance().createRunner(
+            CudaKernelType::PRINT_POINTS,
+            CudaUpdateType::ON_UPDATE_FRAME,
+            tileId,
+            kernelArgs,
+            static_cast<int>(elementCount));
 
             // create a custom attribute for testing
-            stageReaderWriter.createAttribute(_path, getCudaTestAttributeFabricToken(), cudaTestAttributeFabricType);
-            auto testAttribute = stageReaderWriter.getAttributeWr<double>(_path, getCudaTestAttributeFabricToken());
-            *testAttribute = 123.45;
+            // stageReaderWriter.createAttribute(_path, getCudaTestAttributeFabricToken(), cudaTestAttributeFabricType);
+            // auto testAttribute = stageReaderWriter.getAttributeWr<double>(_path, getCudaTestAttributeFabricToken());
+            // *testAttribute = 123.45;
 
-            runProofOfConceptCode();
+            // runProofOfConceptCode();
         }
     } else {
         srw.setArrayAttributeSize(_path, FabricTokens::faceVertexCounts, faceVertexCounts.size());
@@ -465,157 +467,160 @@ bool FabricGeometry::stageDestroyed() {
     return _stageId != UsdUtil::getUsdStageId();
 }
 
-void FabricGeometry::runProofOfConceptCode() {
-    glm::fvec3 target{0, 0, 0};
-    glm::fvec3 targetUp{0, 1.0f, 0};
-    billboardMultiQuadCuda(target, targetUp);
-}
+// void FabricGeometry::runProofOfConceptCode() {
+//     glm::fvec3 target{0, 0, 0};
+//     glm::fvec3 targetUp{0, 1.0f, 0};
+//     billboardMultiQuadCuda(target, targetUp);
+// }
 
-void FabricGeometry::billboardMultiQuadCuda(glm::fvec3 lookatPosition, glm::fvec3 lookatUp) {
-    glm::dvec3 lookatPositionHost{0.0, 0.0, 0.0};
-    glm::fvec3 lookatUpHost{0.0, 1.0, 0.0};
+// void FabricGeometry::billboardMultiQuadCuda(glm::fvec3 lookatPosition, glm::fvec3 lookatUp) {
+//     glm::dvec3 lookatPositionHost{0.0, 0.0, 0.0};
+//     glm::fvec3 lookatUpHost{0.0, 1.0, 0.0};
 
-    lookatPositionHost.x = static_cast<double>(lookatPosition.x);
-    lookatPositionHost.y = static_cast<double>(lookatPosition.y);
-    lookatPositionHost.z = static_cast<double>(lookatPosition.z);
+//     lookatPositionHost.x = static_cast<double>(lookatPosition.x);
+//     lookatPositionHost.y = static_cast<double>(lookatPosition.y);
+//     lookatPositionHost.z = static_cast<double>(lookatPosition.z);
 
-    lookatUpHost.x = lookatUp.x;
-    lookatUpHost.y = lookatUp.y;
-    lookatUpHost.z = lookatUp.z;
+//     lookatUpHost.x = lookatUp.x;
+//     lookatUpHost.y = lookatUp.y;
+//     lookatUpHost.z = lookatUp.z;
 
-    //get all prims with the custom attr
-    auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
-    auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
-    auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
-    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
-    omni::fabric::AttrNameAndType primTag(cudaTestAttributeFabricType, getCudaTestAttributeFabricToken());
-    auto bucketList = stageReaderWriter.findPrims({primTag});
+//     //get all prims with the custom attr
+//     auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+//     auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
+//     auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
+//     auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+//     omni::fabric::AttrNameAndType primTag(cudaTestAttributeFabricType, getCudaTestAttributeFabricToken());
+//     auto bucketList = stageReaderWriter.findPrims({primTag});
 
-    // cudaRunner.init(lookAtMultiquadKernelCode, "lookAtMultiquadKernel");
+//     // cudaRunner.init(lookAtMultiquadKernelCode, "lookAtMultiquadKernel");
 
-    // CUresult err;
-    // CUdeviceptr lookatPositionDevice;
+//     // CUresult err;
+//     // CUdeviceptr lookatPositionDevice;
 
-    // err = cuMemAlloc(&lookatPositionDevice, sizeof(glm::dvec3));
-    // if (err != CUDA_SUCCESS) {
-    //     const char *errName;
-    //     const char *errStr;
-    //     cuGetErrorName(err, &errName);
-    //     cuGetErrorString(err, &errStr);
-    //     printf("cuMemAlloc failed: %s: %s\n", errName, errStr);
-    //     return;
-    // }
+//     // err = cuMemAlloc(&lookatPositionDevice, sizeof(glm::dvec3));
+//     // if (err != CUDA_SUCCESS) {
+//     //     const char *errName;
+//     //     const char *errStr;
+//     //     cuGetErrorName(err, &errName);
+//     //     cuGetErrorString(err, &errStr);
+//     //     printf("cuMemAlloc failed: %s: %s\n", errName, errStr);
+//     //     return;
+//     // }
 
-    // err = cuMemcpyHtoD(lookatPositionDevice, &lookatPositionHost, sizeof(glm::dvec3));
-    // if (err != CUDA_SUCCESS) {
-    //     const char *errName;
-    //     const char *errStr;
-    //     cuGetErrorName(err, &errName);
-    //     cuGetErrorString(err, &errStr);
-    //     printf("cuMemcpyHtoD failed: %s: %s\n", errName, errStr);
-    //     return;
-    // }
+//     // err = cuMemcpyHtoD(lookatPositionDevice, &lookatPositionHost, sizeof(glm::dvec3));
+//     // if (err != CUDA_SUCCESS) {
+//     //     const char *errName;
+//     //     const char *errStr;
+//     //     cuGetErrorName(err, &errName);
+//     //     cuGetErrorString(err, &errStr);
+//     //     printf("cuMemcpyHtoD failed: %s: %s\n", errName, errStr);
+//     //     return;
+//     // }
 
-    // CUdeviceptr lookatUpDevice;
-    // err = cuMemAlloc(&lookatUpDevice, sizeof(glm::fvec3));
-    // if (err != CUDA_SUCCESS) {
-    //     const char *errName;
-    //     const char *errStr;
-    //     cuGetErrorName(err, &errName);
-    //     cuGetErrorString(err, &errStr);
-    //     printf("cuMemAlloc failed: %s: %s\n", errName, errStr);
-    //     return;
-    // }
+//     // CUdeviceptr lookatUpDevice;
+//     // err = cuMemAlloc(&lookatUpDevice, sizeof(glm::fvec3));
+//     // if (err != CUDA_SUCCESS) {
+//     //     const char *errName;
+//     //     const char *errStr;
+//     //     cuGetErrorName(err, &errName);
+//     //     cuGetErrorString(err, &errStr);
+//     //     printf("cuMemAlloc failed: %s: %s\n", errName, errStr);
+//     //     return;
+//     // }
 
-    // err = cuMemcpyHtoD(lookatUpDevice, &lookatUpHost, sizeof(glm::fvec3));
-    // if (err != CUDA_SUCCESS) {
-    //     const char *errName;
-    //     const char *errStr;
-    //     cuGetErrorName(err, &errName);
-    //     cuGetErrorString(err, &errStr);
-    //     printf("cuMemcpyHtoD failed: %s: %s\n", errName, errStr);
-    //     return;
-    // }
+//     // err = cuMemcpyHtoD(lookatUpDevice, &lookatUpHost, sizeof(glm::fvec3));
+//     // if (err != CUDA_SUCCESS) {
+//     //     const char *errName;
+//     //     const char *errStr;
+//     //     cuGetErrorName(err, &errName);
+//     //     cuGetErrorString(err, &errStr);
+//     //     printf("cuMemcpyHtoD failed: %s: %s\n", errName, errStr);
+//     //     return;
+//     // }
 
-    // CUdeviceptr quadSizeDevice;
-    // err = cuMemAlloc(&quadSizeDevice, sizeof(float));
-    // if (err != CUDA_SUCCESS) {
-    //     const char *errName;
-    //     const char *errStr;
-    //     cuGetErrorName(err, &errName);
-    //     cuGetErrorString(err, &errStr);
-    //     printf("cuMemAlloc failed: %s: %s\n", errName, errStr);
-    //     return;
-    // }
+//     // CUdeviceptr quadSizeDevice;
+//     // err = cuMemAlloc(&quadSizeDevice, sizeof(float));
+//     // if (err != CUDA_SUCCESS) {
+//     //     const char *errName;
+//     //     const char *errStr;
+//     //     cuGetErrorName(err, &errName);
+//     //     cuGetErrorString(err, &errStr);
+//     //     printf("cuMemAlloc failed: %s: %s\n", errName, errStr);
+//     //     return;
+//     // }
 
-    // err = cuMemcpyHtoD(quadSizeDevice, &_quadSizeHost, sizeof(float));
-    // if (err != CUDA_SUCCESS) {
-    //     const char *errName;
-    //     const char *errStr;
-    //     cuGetErrorName(err, &errName);
-    //     cuGetErrorString(err, &errStr);
-    //     printf("cuMemcpyHtoD failed: %s: %s\n", errName, errStr);
-    //     return;
-    // }
+//     // err = cuMemcpyHtoD(quadSizeDevice, &_quadSizeHost, sizeof(float));
+//     // if (err != CUDA_SUCCESS) {
+//     //     const char *errName;
+//     //     const char *errStr;
+//     //     cuGetErrorName(err, &errName);
+//     //     cuGetErrorString(err, &errStr);
+//     //     printf("cuMemcpyHtoD failed: %s: %s\n", errName, errStr);
+//     //     return;
+//     // }
 
-    std::unordered_map<size_t, quad*> bucketQuadsPtrsMap;
+//     // std::unordered_map<size_t, quad*> bucketQuadsPtrsMap;
 
-    // std::cout << "numBuckets " << bucketList.bucketCount() << std::endl;
-    for (size_t bucketNum = 0; bucketNum != bucketList.bucketCount(); bucketNum++)
-    {
-        // auto numQuadsSpan = stageReaderWriter.getAttributeArray<int>(bucketList, bucketNum, getNumQuadsAttributeFabricToken());
-        // int numQuads = numQuadsSpan[0];
+//     // std::cout << "numBuckets " << bucketList.bucketCount() << std::endl;
+//     for (size_t bucketNum = 0; bucketNum != bucketList.bucketCount(); bucketNum++)
+//     {
+//         // auto numQuadsSpan = stageReaderWriter.getAttributeArray<int>(bucketList, bucketNum, getNumQuadsAttributeFabricToken());
+//         // int numQuads = numQuadsSpan[0];
 
-        if (bucketQuadsPtrsMap.find(bucketNum) == bucketQuadsPtrsMap.end()) {
-            auto positions = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3f*>(bucketList, bucketNum, FabricTokens::points);
-            auto quadsPtr = reinterpret_cast<quad*>(positions.data());
-            bucketQuadsPtrsMap[bucketNum] = quadsPtr;
+//         // if (bucketQuadsPtrsMap.find(bucketNum) == bucketQuadsPtrsMap.end()) {
+//         auto positions = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3f*>(bucketList, bucketNum, FabricTokens::points);
+//         if (positions.data() != nullptr) {
+//             std::cout << "no issue running PoC code" << std::endl;
+//         }
+//         // auto quadsPtr = reinterpret_cast<quad*>(positions.data());
+//             // bucketQuadsPtrsMap[bucketNum] = quadsPtr;
 
-        }
+//         // }
 
-        // int elemCount = numQuads;
-        // if (elemCount == 0) {
-        //     throw std::runtime_error("Fabric did not retrieve any elements");
-        // }
-        // // std::cout << elemCount << std::endl;
-        // void *args[] = { &bucketQuadsPtrsMap[0], &lookatPositionDevice, &lookatUpDevice, &quadSizeDevice, &elemCount}; //NOLINT
+//         // int elemCount = numQuads;
+//         // if (elemCount == 0) {
+//         //     throw std::runtime_error("Fabric did not retrieve any elements");
+//         // }
+//         // // std::cout << elemCount << std::endl;
+//         // void *args[] = { &bucketQuadsPtrsMap[0], &lookatPositionDevice, &lookatUpDevice, &quadSizeDevice, &elemCount}; //NOLINT
 
-        // cudaRunner.runKernel(args, static_cast<size_t>(elemCount));
+//         // cudaRunner.runKernel(args, static_cast<size_t>(elemCount));
 
-        // primCount += static_cast<int>(elemCount);
-    }
+//         // primCount += static_cast<int>(elemCount);
+//     }
 
-    // std::cout << "modified " << primCount << " quads" << std::endl;
+//     // std::cout << "modified " << primCount << " quads" << std::endl;
 
-    // err = cuMemFree(lookatPositionDevice);
-    // if (err != CUDA_SUCCESS) {
-    //     const char *errName;
-    //     const char *errStr;
-    //     cuGetErrorName(err, &errName);
-    //     cuGetErrorString(err, &errStr);
-    //     printf("cuMemFree failed: %s: %s\n", errName, errStr);
-    //     return;
-    // }
+//     // err = cuMemFree(lookatPositionDevice);
+//     // if (err != CUDA_SUCCESS) {
+//     //     const char *errName;
+//     //     const char *errStr;
+//     //     cuGetErrorName(err, &errName);
+//     //     cuGetErrorString(err, &errStr);
+//     //     printf("cuMemFree failed: %s: %s\n", errName, errStr);
+//     //     return;
+//     // }
 
-    // err = cuMemFree(lookatUpDevice);
-    // if (err != CUDA_SUCCESS) {
-    //     const char *errName;
-    //     const char *errStr;
-    //     cuGetErrorName(err, &errName);
-    //     cuGetErrorString(err, &errStr);
-    //     printf("cuMemFree failed: %s: %s\n", errName, errStr);
-    //     return;
-    // }
+//     // err = cuMemFree(lookatUpDevice);
+//     // if (err != CUDA_SUCCESS) {
+//     //     const char *errName;
+//     //     const char *errStr;
+//     //     cuGetErrorName(err, &errName);
+//     //     cuGetErrorString(err, &errStr);
+//     //     printf("cuMemFree failed: %s: %s\n", errName, errStr);
+//     //     return;
+//     // }
 
-    // err = cuMemFree(quadSizeDevice);
-    // if (err != CUDA_SUCCESS) {
-    //     const char *errName;
-    //     const char *errStr;
-    //     cuGetErrorName(err, &errName);
-    //     cuGetErrorString(err, &errStr);
-    //     printf("cuMemFree failed: %s: %s\n", errName, errStr);
-    //     return;
-    // }
-}
+//     // err = cuMemFree(quadSizeDevice);
+//     // if (err != CUDA_SUCCESS) {
+//     //     const char *errName;
+//     //     const char *errStr;
+//     //     cuGetErrorName(err, &errName);
+//     //     cuGetErrorString(err, &errStr);
+//     //     printf("cuMemFree failed: %s: %s\n", errName, errStr);
+//     //     return;
+//     // }
+// }
 
 }; // namespace cesium::omniverse

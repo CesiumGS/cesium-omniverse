@@ -10,18 +10,30 @@ inline const char* printPointsKernel = R"(
 
         int pointIndex = static_cast<int>(i);
 
+        // printf("point %d of %d\n", pointIndex, numPoints);
         printf("point %d: %f, %f, %f\n", pointIndex, points[0][pointIndex].x, points[0][pointIndex].y, points[0][pointIndex].z);
     }
     )";
 
 inline const char* helloWorldKernel = R"(
     extern "C" __global__
-    void helloWorld(double* values, size_t count)
+    void helloWorld(size_t count)
     {
         size_t i = blockIdx.x * blockDim.x + threadIdx.x;
         if (count <= i) return;
 
         printf("Hello world, from index %llu\n", i);
+    }
+    )";
+
+inline const char* printFloatKernel = R"(
+    extern "C" __global__
+    void printFloat(float floatVal, size_t count)
+    {
+        size_t i = blockIdx.x * blockDim.x + threadIdx.x;
+        if (count <= i) return;
+
+        printf("At index %llu float is %f\n", i, floatVal);
     }
     )";
 
