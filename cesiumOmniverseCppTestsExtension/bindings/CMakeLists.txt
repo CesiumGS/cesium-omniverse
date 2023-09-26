@@ -8,11 +8,11 @@ setup_python_module(
         # Use the same Python version as Omniverse (Python 3.10)
         "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/python"
     TARGET_NAME
-        CesiumOmniverseTestsPythonBindings
+        CesiumOmniverseCppTestsPythonBindings
     SOURCES
         ${SOURCES}
     LIBRARIES
-        cesium.omniverse.tests.plugin
+        cesium.omniverse.cpp.tests.plugin
     CXX_FLAGS
         ${CESIUM_OMNI_CXX_FLAGS}
     CXX_FLAGS_DEBUG

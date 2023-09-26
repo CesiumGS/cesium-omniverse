@@ -3,9 +3,9 @@
 
 namespace cesium::omniverse::tests {
 
-class ICesiumOmniverseTestsInterface {
+class ICesiumOmniverseCppTestsInterface {
   public:
-    CARB_PLUGIN_INTERFACE("cesium::omniverse::tests::ICesiumOmniverseTestsInterface", 0, 0);
+    CARB_PLUGIN_INTERFACE("cesium::omniverse::tests::ICesiumOmniverseCppTestsInterface", 0, 0);
     /**
      * @brief Call this on extension startup.
      *

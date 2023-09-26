@@ -1,1 +1,1 @@
-from .CesiumOmniverseTestsPythonBindings import *  # noqa: F401 F403
+from .CesiumOmniverseCppTestsPythonBindings import *  # noqa: F401 F403

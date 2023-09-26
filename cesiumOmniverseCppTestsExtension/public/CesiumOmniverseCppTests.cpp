@@ -3,7 +3,7 @@
 #define DOCTEST_CONFIG_IMPLEMENTATION_IN_DLL
 #define DOCTEST_CONFIG_SUPER_FAST_ASSERTS
 
-#include "CesiumOmniverseTests.h"
+#include "CesiumOmniverseCppTests.h"
 
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/LoggerSink.h"
@@ -52,7 +52,7 @@ static void handler(const doctest::AssertData& ad) {
 
 namespace cesium::omniverse::tests {
 
-class CesiumOmniverseTestsPlugin final : public ICesiumOmniverseTestsInterface {
+class CesiumOmniverseCppTestsPlugin final : public ICesiumOmniverseCppTestsInterface {
   public:
     void onStartup(const char* cesiumExtensionLocation) noexcept override {
         Context::onStartup(cesiumExtensionLocation);
@@ -85,15 +85,15 @@ class CesiumOmniverseTestsPlugin final : public ICesiumOmniverseTestsInterface {
 } // namespace cesium::omniverse::tests
 
 const struct carb::PluginImplDesc pluginImplDesc = {
-    "cesium.omniverse.tests.plugin",
+    "cesium.omniverse.cpp.tests.plugin",
     "Cesium Omniverse Tests Plugin.",
     "Cesium",
     carb::PluginHotReload::eDisabled,
     "dev"};
 
 // NOLINTBEGIN
-CARB_PLUGIN_IMPL(pluginImplDesc, cesium::omniverse::tests::CesiumOmniverseTestsPlugin)
+CARB_PLUGIN_IMPL(pluginImplDesc, cesium::omniverse::tests::CesiumOmniverseCppTestsPlugin)
 CARB_PLUGIN_IMPL_DEPS(omni::fabric::IFabric, omni::fabric::IStageReaderWriter)
 // NOLINTEND
 
-void fillInterface([[maybe_unused]] cesium::omniverse::tests::CesiumOmniverseTestsPlugin& iface) {}
+void fillInterface([[maybe_unused]] cesium::omniverse::tests::CesiumOmniverseCppTestsPlugin& iface) {}

@@ -670,12 +670,12 @@ install(
             EXCLUDE_FROM_ALL)
 
 install(
-    TARGETS cesium.omniverse.tests.plugin
+    TARGETS cesium.omniverse.cpp.tests.plugin
     ARCHIVE DESTINATION ${KIT_EXTENSION_TESTS_BIN_PATH} COMPONENT install
     LIBRARY DESTINATION ${KIT_EXTENSION_TESTS_BIN_PATH} COMPONENT install
     RUNTIME DESTINATION ${KIT_EXTENSION_TESTS_BIN_PATH} COMPONENT install)
 install(
-    TARGETS cesium.omniverse.tests.plugin
+    TARGETS cesium.omniverse.cpp.tests.plugin
             RUNTIME_DEPENDENCIES
             DIRECTORIES
             ${INSTALL_SEARCH_PATHS}
@@ -694,13 +694,13 @@ install(
             EXCLUDE_FROM_ALL)
 
 install(
-    TARGETS CesiumOmniverseTestsPythonBindings
+    TARGETS CesiumOmniverseCppTestsPythonBindings
     ARCHIVE DESTINATION ${KIT_EXTENSION_TESTS_BINDINGS_PATH} COMPONENT install
     LIBRARY DESTINATION ${KIT_EXTENSION_TESTS_BINDINGS_PATH} COMPONENT install
     RUNTIME DESTINATION ${KIT_EXTENSION_TESTS_BINDINGS_PATH} COMPONENT install)
 
 install(
-    TARGETS CesiumOmniverseTestsPythonBindings
+    TARGETS CesiumOmniverseCppTestsPythonBindings
             RUNTIME_DEPENDENCIES
             DIRECTORIES
             ${INSTALL_SEARCH_PATHS}

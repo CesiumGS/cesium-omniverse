@@ -7,14 +7,14 @@ get_property(ADDITIONAL_LIBRARIES GLOBAL PROPERTY NVIDIA_ADDITIONAL_LIBRARIES_PR
 # cmake-format: off
 setup_lib(
     TARGET_NAME
-        cesium.omniverse.tests.plugin
+        cesium.omniverse.cpp.tests.plugin
     TYPE
         # Carbonite Plugins needs to be shared libraries
         SHARED
     SOURCES
         ${SOURCES}
     INCLUDE_DIRS
-        "${PROJECT_SOURCE_DIR}/cesiumOmniverseTestsExtension/include"
+        "${PROJECT_SOURCE_DIR}/cesiumOmniverseCppTestsExtension/include"
     LIBRARIES
         CesiumOmniverseCore
         doctest::doctest
