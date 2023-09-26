@@ -46,13 +46,13 @@ exts/cesium.omniverse/cesium/omniverse/bindings/CesiumOmniversePythonBindings.cp
 exts/cesium.usd.plugins/cesium/usd/plugins/CesiumUsdSchemas/_CesiumUsdSchemas.so
 exts/cesium.usd.plugins/cesium/usd/plugins/CesiumUsdSchemas/_CesiumUsdSchemas.pyd
 exts/cesium.usd.plugins/cesium/usd/plugins/CesiumUsdSchemas/_CesiumUsdSchemas.lib
-exts/cesium.omniverse.tests/cesium/omniverse/tests/bindings/CesiumOmniverseTestsPythonBindings.cpython-310-x86_64-linux-gnu.so
-exts/cesium.omniverse.tests/cesium/omniverse/tests/bindings/CesiumOmniverseTestsPythonBindings.cp310-win_amd64.pyd
+exts/cesium.omniverse.cpp.tests/cesium/omniverse/cpp/tests/bindings/CesiumOmniverseCppTestsPythonBindings.cpython-310-x86_64-linux-gnu.so
+exts/cesium.omniverse.cpp.tests/cesium/omniverse/cpp/tests/bindings/CesiumOmniverseCppTestsPythonBindings.cp310-win_amd64.pyd
 
 # Installed libraries
 exts/cesium.omniverse/bin/
 exts/cesium.usd.plugins/bin/
-exts/cesium.omniverse.tests/bin/
+exts/cesium.omniverse.cpp.tests/bin/
 
 # Installed plugins
 exts/cesium.usd.plugins/plugins/

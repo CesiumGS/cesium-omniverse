@@ -1,4 +1,4 @@
-#include "CesiumTests.h"
+#include "CesiumOmniverseTests.h"
 
 #include <carb/BindingsPythonUtils.h>
 

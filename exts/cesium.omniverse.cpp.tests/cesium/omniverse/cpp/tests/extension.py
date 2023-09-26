@@ -4,7 +4,7 @@ import omni.kit.ui
 from .bindings import acquire_cesium_omniverse_tests_interface, release_cesium_omniverse_tests_interface
 
 
-class CesiumTestsExtension(omni.ext.IExt):
+class CesiumOmniverseTestsExtension(omni.ext.IExt):
     def __init__(self):
         super().__init__()
 

@@ -122,7 +122,7 @@ set(LINT_SOURCE_DIRECTORIES
     "${PROJECT_SOURCE_DIR}/src/core"
     "${PROJECT_SOURCE_DIR}/src/public"
     "${PROJECT_SOURCE_DIR}/tests"
-    "${PROJECT_SOURCE_DIR}/cesiumTestsExtension")
+    "${PROJECT_SOURCE_DIR}/cesiumOmniverseCppTestsExtension")
 
 # Source directories for coverage
 set(COVERAGE_SOURCE_DIRECTORIES "${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/src")
@@ -438,7 +438,7 @@ add_subdirectory(src)
 if(CESIUM_OMNI_ENABLE_TESTS)
     enable_testing()
     add_subdirectory(tests)
-    add_subdirectory(cesiumTestsExtension)
+    add_subdirectory(cesiumOmniverseCppTestsExtension)
 endif()
 
 # Ninja and various Makefiles generators support generating compile_commands.json
@@ -513,9 +513,9 @@ set(KIT_EXTENSION_BINDINGS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse/ces
 set(KIT_PLUGIN_EXTENSION_BINDINGS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.usd.plugins/cesium/usd/plugins")
 set(KIT_EXTENSION_PLUGINS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.usd.plugins/plugins")
 
-set(KIT_EXTENSION_TESTS_BIN_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse.tests/bin")
+set(KIT_EXTENSION_TESTS_BIN_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse.cpp.tests/bin")
 set(KIT_EXTENSION_TESTS_BINDINGS_PATH
-    "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse.tests/cesium/omniverse/tests/bindings")
+    "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse.cpp.tests/cesium/omniverse/cpp/tests/bindings")
 
 # You may see warnings like:
 #

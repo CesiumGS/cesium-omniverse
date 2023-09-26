@@ -25,11 +25,11 @@ icon = "doc/resources/icon.png"
 preview_image = "doc/resources/icon.png"
 
 [[native.plugin]]
-path = "bin/cesium.omniverse.tests.plugin"
+path = "bin/cesium.omniverse.cpp.tests.plugin"
 
 # Paths are relative to the extension folder
 readme = "doc/README.md"
 icon = "doc/resources/icon.png"
 
 [[python.module]]
-name = "cesium.omniverse.tests"
+name = "cesium.omniverse.cpp.tests"

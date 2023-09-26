@@ -3,7 +3,7 @@
 #define DOCTEST_CONFIG_IMPLEMENTATION_IN_DLL
 #define DOCTEST_CONFIG_SUPER_FAST_ASSERTS
 
-#include "CesiumTests.h"
+#include "CesiumOmniverseTests.h"
 
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/LoggerSink.h"

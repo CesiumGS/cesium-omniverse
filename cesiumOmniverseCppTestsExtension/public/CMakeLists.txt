@@ -14,7 +14,7 @@ setup_lib(
     SOURCES
         ${SOURCES}
     INCLUDE_DIRS
-        "${PROJECT_SOURCE_DIR}/cesiumTestsExtension/include"
+        "${PROJECT_SOURCE_DIR}/cesiumOmniverseTestsExtension/include"
     LIBRARIES
         CesiumOmniverseCore
         doctest::doctest

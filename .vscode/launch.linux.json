@@ -34,7 +34,7 @@
       "preLaunchTask": "Build Only (debug)",
       "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit",
       "args": [
-        "${workspaceFolder}/apps/cesium.omniverse.tests.runner.kit"
+        "${workspaceFolder}/apps/cesium.omniverse.cpp.tests.runner.kit"
       ],
       "env": {
         // Disable LSAN when debugging since it doesn't work with GDB and prints harmless but annoying warning messages
