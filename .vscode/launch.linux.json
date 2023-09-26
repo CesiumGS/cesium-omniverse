@@ -30,7 +30,7 @@
       ]
     },
     {
-      "name": "Tests",
+      "name": "Tests Extension",
       "preLaunchTask": "Build Only (debug)",
       "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit",
       "args": [
