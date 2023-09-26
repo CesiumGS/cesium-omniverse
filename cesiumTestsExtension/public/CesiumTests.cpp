@@ -84,8 +84,12 @@ class CesiumOmniverseTestsPlugin final : public ICesiumOmniverseTestsInterface {
 
 } // namespace cesium::omniverse::tests
 
-const struct carb::PluginImplDesc pluginImplDesc =
-    {"cesium.tests.plugin", "Cesium Omniverse Tests Plugin.", "Cesium", carb::PluginHotReload::eDisabled, "dev"};
+const struct carb::PluginImplDesc pluginImplDesc = {
+    "cesium.omniverse.tests.plugin",
+    "Cesium Omniverse Tests Plugin.",
+    "Cesium",
+    carb::PluginHotReload::eDisabled,
+    "dev"};
 
 // NOLINTBEGIN
 CARB_PLUGIN_IMPL(pluginImplDesc, cesium::omniverse::tests::CesiumOmniverseTestsPlugin)

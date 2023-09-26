@@ -18,7 +18,7 @@ NVIDIA_PYTHON_EXECUTABLE=$NVIDIA_PYTHON_ROOT/python
 FLAT_LIBRARIES_DIR="/tmp/CesiumOmniverseFlatLibs"
 CESIUM_OMNI_STUB_PATH="$PROJECT_ROOT/exts/cesium.omniverse/cesium/omniverse/bindings/CesiumOmniversePythonBindings.pyi"
 CESIUM_USD_STUB_PATH="$PROJECT_ROOT/exts/cesium.usd.plugins/cesium/usd/plugins/CesiumUsdSchemas/__init__.pyi"
-CESIUM_TESTS_STUB_PATH="$PROJECT_ROOT/exts/cesium.tests/cesium/tests/bindings/CesiumOmniverseTestsPythonBindings.pyi"
+CESIUM_TESTS_STUB_PATH="$PROJECT_ROOT/exts/cesium.omniverse.tests/cesium/tests/bindings/CesiumOmniverseTestsPythonBindings.pyi"
 
 export PYTHONPATH="$NVIDIA_USD_PYTHON_LIBS:$PYTHONPATH"
 

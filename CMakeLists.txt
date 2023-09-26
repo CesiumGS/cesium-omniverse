@@ -513,8 +513,9 @@ set(KIT_EXTENSION_BINDINGS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse/ces
 set(KIT_PLUGIN_EXTENSION_BINDINGS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.usd.plugins/cesium/usd/plugins")
 set(KIT_EXTENSION_PLUGINS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.usd.plugins/plugins")
 
-set(KIT_EXTENSION_TESTS_BIN_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.tests/bin")
-set(KIT_EXTENSION_TESTS_BINDINGS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.tests/cesium/tests/bindings")
+set(KIT_EXTENSION_TESTS_BIN_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse.tests/bin")
+set(KIT_EXTENSION_TESTS_BINDINGS_PATH
+    "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse.tests/cesium/omniverse/tests/bindings")
 
 # You may see warnings like:
 #

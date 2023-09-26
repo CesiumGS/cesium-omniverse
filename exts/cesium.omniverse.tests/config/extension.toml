@@ -32,4 +32,4 @@ readme = "doc/README.md"
 icon = "doc/resources/icon.png"
 
 [[python.module]]
-name = "cesium.tests"
+name = "cesium.omniverse.tests"
