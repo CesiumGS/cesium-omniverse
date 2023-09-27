@@ -17,8 +17,7 @@ glm::dvec3 lookatPositionHost{0.0, 0.0, 0.0};
 glm::fvec3 lookatUpHost{0.0, 0.0, 0.0};
 CudaRunner cudaRunner;
 double elapsedTime = 0;
-float _quadSizeHost = 0;
-std::unordered_map<size_t, pxr::GfVec3f*> bucketQuadsPtrsMap;
+float quadSizeHost = 0;
 
 const omni::fabric::Type
     billboardedAttributeFabricType(omni::fabric::BaseDataType::eBool, 1, 0, omni::fabric::AttributeRole::eNone);
@@ -168,26 +167,11 @@ extern "C" __global__ void lookAtMultiquadKernel(quad** quads, double3* lookatPo
 
 int createPrims() {
 
-    // createMultiquadFromPtsFile("pointCloudData/simpleTest.pts", 50.0f); // run a simple test of a 3x3 point-cloud grid
+    createMultiquadFromPtsFile("pointCloudData/simpleTest.pts", 50.0f); // run a simple test of a 3x3 point-cloud grid
     // createMultiquadFromPtsFile("pointCloudData/pump0.pts", 0.125f, 5.0f); // an example with about 175,000  points
-    createMultiquadFromPtsFile("pointCloudData/StSulpice_000000.pts", 0.125f, 5.0f); // an example with about 1,500,000  points
+    // createMultiquadFromPtsFile("pointCloudData/StSulpice_000000.pts", 0.125f, 5.0f); // an example with about 1,500,000  points
 
-    // make an initial read call to getAttributeArray
-    auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
-    auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
-    auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
-    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
-    omni::fabric::AttrNameAndType primTag(billboardedAttributeFabricType, getBillboardedAttributeFabricToken());
-    omni::fabric::PrimBucketList bucketList = stageReaderWriter.findPrims({primTag});
-    for (size_t bucketNum = 0; bucketNum != bucketList.bucketCount(); bucketNum++) {
-        // Compile-time error in getAttributeArrayRdGpu:
-        // WrapperImpl.h(669): error C2197: 'void (__cdecl *)(omni::fabric::ConstSpanC *,omni::fabric::StageReaderWriterId,omni::fabric::PrimBucketListId,size_t,omni::fabric::TokenC)': too many arguments for call
-        // auto positions = stageReaderWriter.getAttributeArrayRdGpu<pxr::GfVec3f*>(bucketList, bucketNum, FabricTokens::points);
-
-        auto positions =
-            stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3f*>(bucketList, bucketNum, FabricTokens::points);
-        std::cout << positions.size() << std::endl; // trick clang
-    }
+    makeInitialReadCall();
 
     return 0;
 }
@@ -372,7 +356,9 @@ bool CudaRunner::runKernel(void** args, size_t elemCount) {
     return true;
 }
 
+bool firstPass = false;
 void billboardMultiQuadCuda(glm::fvec3 lookatPosition, glm::fvec3 lookatUp) {
+
     lookatPositionHost.x = static_cast<double>(lookatPosition.x);
     lookatPositionHost.y = static_cast<double>(lookatPosition.y);
     lookatPositionHost.z = static_cast<double>(lookatPosition.z);
@@ -388,12 +374,11 @@ void billboardMultiQuadCuda(glm::fvec3 lookatPosition, glm::fvec3 lookatUp) {
     omni::fabric::AttrNameAndType primTag(billboardedAttributeFabricType, getBillboardedAttributeFabricToken());
     omni::fabric::PrimBucketList bucketList = stageReaderWriter.findPrims({primTag});
 
-    // CudaRunner cudaRunner;
     cudaRunner.init(lookAtMultiquadKernelCode, "lookAtMultiquadKernel");
 
     auto lookatPositionDevice = allocAndCopyToDevice(&lookatPositionHost, sizeof(glm::dvec3));
     auto lookatUpDevice = allocAndCopyToDevice(&lookatUpHost, sizeof(glm::fvec3));
-    auto quadSizeDevice = allocAndCopyToDevice(&_quadSizeHost, sizeof(float));
+    auto quadSizeDevice = allocAndCopyToDevice(&quadSizeHost, sizeof(float));
 
     for (size_t bucketNum = 0; bucketNum != bucketList.bucketCount(); bucketNum++) {
         auto numQuadsSpan =
@@ -403,22 +388,21 @@ void billboardMultiQuadCuda(glm::fvec3 lookatPosition, glm::fvec3 lookatUp) {
             throw std::runtime_error("Fabric did not retrieve any elements");
         }
 
-        // cache the data pointers
-        // if (bucketQuadsPtrsMap.find(bucketNum) == bucketQuadsPtrsMap.end()) {
-        //     auto positions = stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3f>(bucketList, bucketNum, FabricTokens::points);
-        //     auto data = positions.data();
-        //     bucketQuadsPtrsMap[bucketNum] = data;
-        // }
-        // void *args[] = { &bucketQuadsPtrsMap[bucketNum], &lookatPositionDevice, &lookatUpDevice, &quadSizeDevice, &elemCount}; // NOLINT
+        gsl::span<pxr::GfVec3f> positions;
+        if (firstPass) {
+            positions =
+                stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3f>(bucketList, bucketNum, FabricTokens::points);
+            firstPass = false;
+        } else {
+            positions =
+                stageReaderWriter.getAttributeArrayWrGpu<pxr::GfVec3f>(bucketList, bucketNum, FabricTokens::points);
+        }
 
-        auto positions =
-            stageReaderWriter.getAttributeArrayWrGpu<pxr::GfVec3f>(bucketList, bucketNum, FabricTokens::points);
         auto data = positions.data();
         void* args[] = {&data, &lookatPositionDevice, &lookatUpDevice, &quadSizeDevice, &elemCount}; // NOLINT
-
         auto success = cudaRunner.runKernel(args, static_cast<size_t>(elemCount));
         if (!success) {
-            bucketQuadsPtrsMap.clear();
+            std::cout << "error running cudaRunner" << std::endl;
         }
     }
 
@@ -428,7 +412,7 @@ void billboardMultiQuadCuda(glm::fvec3 lookatPosition, glm::fvec3 lookatUp) {
 }
 
 void createMultiquadFromPtsFile(const std::string& ptsFile, float quadSize, float scale) {
-    _quadSizeHost = quadSize;
+    quadSizeHost = quadSize;
     std::vector<pxr::GfVec3f> points;
     std::ifstream file(ptsFile);
 
@@ -495,7 +479,7 @@ void createMultiquadFromPtsFile(const std::string& ptsFile, float quadSize, floa
     size_t vertIndex = 0;
     size_t vertexCountsIndex = 0;
     size_t faceVertexIndex = 0;
-    const float quadHalfSize = _quadSizeHost * .5f;
+    const float quadHalfSize = quadSizeHost * .5f;
     for (size_t quadNum = 0; quadNum < numQuads; quadNum++) {
         pxr::GfVec3f quadShift = points[quadNum];
         pointsFabric[vertIndex++] = pxr::GfVec3f{-quadHalfSize, -quadHalfSize, 0} + quadShift;
@@ -580,5 +564,25 @@ void freeDeviceMemory(CUdeviceptr devicePtr) {
         printf("cuMemFree failed for address %p: %s: %s\n", (void*)devicePtr, errName, errStr);
     }
 }
+
+void makeInitialReadCall() {
+    // make an initial read call to getAttributeArray
+    auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+    auto usdStageId = omni::fabric::UsdStageId(Context::instance().getStageId());
+    auto stageReaderWriterId = iStageReaderWriter->get(usdStageId);
+    auto stageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+    omni::fabric::AttrNameAndType primTag(billboardedAttributeFabricType, getBillboardedAttributeFabricToken());
+    omni::fabric::PrimBucketList bucketList = stageReaderWriter.findPrims({primTag});
+    for (size_t bucketNum = 0; bucketNum != bucketList.bucketCount(); bucketNum++) {
+        // Compile-time error in getAttributeArrayRdGpu:
+        // WrapperImpl.h(669): error C2197: 'void (__cdecl *)(omni::fabric::ConstSpanC *,omni::fabric::StageReaderWriterId,omni::fabric::PrimBucketListId,size_t,omni::fabric::TokenC)': too many arguments for call
+        // auto positions = stageReaderWriter.getAttributeArrayRdGpu<pxr::GfVec3f*>(bucketList, bucketNum, FabricTokens::points);
+
+        auto positions =
+            stageReaderWriter.getAttributeArrayGpu<pxr::GfVec3f*>(bucketList, bucketNum, FabricTokens::points);
+        std::cout << positions.size() << std::endl; // trick clang
+    }
+}
+
 
 } // namespace cesium::omniverse::FabricProceduralGeometry

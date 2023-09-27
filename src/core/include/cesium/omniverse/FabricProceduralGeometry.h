@@ -66,5 +66,6 @@ omni::fabric::Token getBillboardedAttributeFabricToken();
 omni::fabric::Token getNumQuadsAttributeFabricToken();
 CUdeviceptr allocAndCopyToDevice(void* hostPtr, size_t size);
 void freeDeviceMemory(CUdeviceptr devicePtr);
+void makeInitialReadCall();
 
 } // namespace cesium::omniverse::FabricProceduralGeometry
