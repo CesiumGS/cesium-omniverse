@@ -64,7 +64,7 @@ class CesiumOmniverseCppTestsPlugin final : public ICesiumOmniverseCppTestsInter
 
     void run_all_tests(long int stage_id) noexcept override {
 
-        std::cout << "Running Cesium Omniverse Tests with stage id: " << stage_id << std::endl;
+        CESIUM_LOG_INFO("Running Cesium Omniverse Tests with stage id: {}", stage_id);
 
         // construct a context
         doctest::Context context;
@@ -78,7 +78,7 @@ class CesiumOmniverseCppTestsPlugin final : public ICesiumOmniverseCppTestsInter
 
         exampleTest();
 
-        std::cout << "Cesium Omniverse Tests complete" << std::endl;
+        CESIUM_LOG_INFO("Cesium Omniverse Tests complete");
     }
 };
 
