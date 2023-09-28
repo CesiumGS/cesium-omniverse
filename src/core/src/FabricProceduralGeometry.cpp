@@ -171,7 +171,7 @@ int createPrims() {
     // createMultiquadFromPtsFile("pointCloudData/pump0.pts", 0.125f, 5.0f); // an example with about 175,000  points
     // createMultiquadFromPtsFile("pointCloudData/StSulpice_000000.pts", 0.125f, 5.0f); // an example with about 1,500,000  points
 
-    makeInitialReadCall();
+    // makeInitialReadCall();
 
     return 0;
 }
@@ -356,7 +356,7 @@ bool CudaRunner::runKernel(void** args, size_t elemCount) {
     return true;
 }
 
-bool firstPass = false;
+bool firstPass = true;
 void billboardMultiQuadCuda(glm::fvec3 lookatPosition, glm::fvec3 lookatUp) {
 
     lookatPositionHost.x = static_cast<double>(lookatPosition.x);
