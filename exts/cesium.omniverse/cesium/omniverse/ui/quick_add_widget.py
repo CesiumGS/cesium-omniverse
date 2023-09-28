@@ -49,6 +49,9 @@ class CesiumOmniverseQuickAddWidget(ui.Frame):
         add_blank_asset_event = carb.events.type_from_string("cesium.omniverse.ADD_BLANK_ASSET")
         app.get_app().get_message_bus_event_stream().push(add_blank_asset_event, payload=asset_to_add.to_dict())
 
+    def _photorealistic_tiles_button_clicked(self):
+        self._add_ion_assets(AssetToAdd("Google Photorealistic 3D Tiles", 823))
+
     def _cwt_bing_maps_button_clicked(self):
         self._add_ion_assets(AssetToAdd("Cesium World Terrain", 1, "Bing Maps Aerial imagery", 2))
 
@@ -91,6 +94,12 @@ class CesiumOmniverseQuickAddWidget(ui.Frame):
                             "Quick Add Cesium ion Assets",
                             style=CesiumOmniverseUiStyles.quick_add_section_label,
                             height=LABEL_HEIGHT,
+                        )
+                        ui.Button(
+                            "Google Photorealistic 3D Tiles",
+                            style=CesiumOmniverseUiStyles.quick_add_button,
+                            height=BUTTON_HEIGHT,
+                            clicked_fn=self._photorealistic_tiles_button_clicked,
                         )
                         ui.Button(
                             "Cesium World Terrain + Bing Maps Aerial imagery",

@@ -46,13 +46,15 @@ void CesiumIonSession::connect() {
         this->_asyncSystem,
         this->_pAssetAccessor,
         "Cesium for Omniverse",
-        413,
+        11,
         "/cesium-for-omniverse/oauth2/callback",
         {"assets:list", "assets:read", "profile:read", "tokens:read", "tokens:write", "geocode"},
         [this](const std::string& url) {
             // NOTE: We open the browser in the Python code. Check in the sign in widget's on_update_frame function.
             this->_authorizeUrl = url;
-        })
+        },
+        "https://api.ion-development.cesium.com/",
+        "https://ion-development.cesium.com/oauth")
         .thenInMainThread([this](CesiumIonClient::Connection&& connection) {
             this->_isConnecting = false;
             this->_connection = std::move(connection);
@@ -82,7 +84,8 @@ void CesiumIonSession::resume() {
 
     this->_isResuming = true;
 
-    this->_connection = Connection(this->_asyncSystem, this->_pAssetAccessor, userAccessToken);
+    this->_connection = Connection(
+        this->_asyncSystem, this->_pAssetAccessor, userAccessToken, "https://api.ion-development.cesium.com/");
 
     // Verify that the connection actually works.
     this->_connection.value()

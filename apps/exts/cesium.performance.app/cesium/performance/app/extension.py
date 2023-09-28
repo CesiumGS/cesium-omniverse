@@ -23,8 +23,8 @@ from cesium.usd.plugins.CesiumUsdSchemas import (
     Tokens as CesiumTokens,
 )
 
-ION_ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlZjM4NjgzNC01Nzg5LTQyMjAtYmYxMC0yNGY2MGEzOGViMGUiLCJpZCI6MjU5LCJpYXQiOjE2OTM1Nzg5MTN9.-J367LOCiroxRBoH9eKhgssEd2Wk_IoqOxROfy-dPjs"  # noqa: E501
-GOOGLE_3D_TILES_URL = "https://tile.googleapis.com/v1/3dtiles/root.json?key=AIzaSyBTr9BGnwtJmS0sL86iTb6QhdJlnkAFLoE"
+ION_ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI4MTkxNmE1Ni03NzEyLTRmNzYtODcwYi1mOTZkM2RiNDFhYmUiLCJpZCI6MTI5LCJpYXQiOjE2OTU4NDQ0MTR9.r-ZnPKqCxRk9tXBDNYaY1rHHm6Fe4O-HMOJYVITe0do"  # noqa: E501
+GOOGLE_3D_TILES_ION_ID = 823
 
 CESIUM_DATA_PRIM_PATH = "/Cesium"
 CESIUM_GEOREFERENCE_PRIM_PATH = "/CesiumGeoreference"
@@ -251,8 +251,7 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         tileset_path = omni.usd.get_stage_next_free_path(stage, "/Google_3D_Tiles", False)
         tileset = CesiumTileset.Define(stage, tileset_path)
 
-        tileset.GetUrlAttr().Set(GOOGLE_3D_TILES_URL)
-        tileset.GetSourceTypeAttr().Set(CesiumTokens.url)
+        tileset.GetIonAssetIdAttr().Set(GOOGLE_3D_TILES_ION_ID)
 
         return tileset_path
 
