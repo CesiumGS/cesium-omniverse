@@ -669,54 +669,57 @@ install(
             COMPONENT library
             EXCLUDE_FROM_ALL)
 
-install(
-    TARGETS cesium.omniverse.cpp.tests.plugin
-    ARCHIVE DESTINATION ${KIT_EXTENSION_TESTS_BIN_PATH} COMPONENT install
-    LIBRARY DESTINATION ${KIT_EXTENSION_TESTS_BIN_PATH} COMPONENT install
-    RUNTIME DESTINATION ${KIT_EXTENSION_TESTS_BIN_PATH} COMPONENT install)
-install(
-    TARGETS cesium.omniverse.cpp.tests.plugin
-            RUNTIME_DEPENDENCIES
-            DIRECTORIES
-            ${INSTALL_SEARCH_PATHS}
-            PRE_EXCLUDE_REGEXES
-            ${INSTALL_PRE_EXCLUDE_REGEXES}
-            POST_EXCLUDE_REGEXES
-            ${INSTALL_POST_EXCLUDE_REGEXES}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT library
-            EXCLUDE_FROM_ALL
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT library
-            EXCLUDE_FROM_ALL
-    RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT library
-            EXCLUDE_FROM_ALL)
 
-install(
-    TARGETS CesiumOmniverseCppTestsPythonBindings
-    ARCHIVE DESTINATION ${KIT_EXTENSION_TESTS_BINDINGS_PATH} COMPONENT install
-    LIBRARY DESTINATION ${KIT_EXTENSION_TESTS_BINDINGS_PATH} COMPONENT install
-    RUNTIME DESTINATION ${KIT_EXTENSION_TESTS_BINDINGS_PATH} COMPONENT install)
+if(CESIUM_OMNI_ENABLE_TESTS)
+    install(
+        TARGETS cesium.omniverse.cpp.tests.plugin
+        ARCHIVE DESTINATION ${KIT_EXTENSION_TESTS_BIN_PATH} COMPONENT install
+        LIBRARY DESTINATION ${KIT_EXTENSION_TESTS_BIN_PATH} COMPONENT install
+        RUNTIME DESTINATION ${KIT_EXTENSION_TESTS_BIN_PATH} COMPONENT install)
+    install(
+        TARGETS cesium.omniverse.cpp.tests.plugin
+                RUNTIME_DEPENDENCIES
+                DIRECTORIES
+                ${INSTALL_SEARCH_PATHS}
+                PRE_EXCLUDE_REGEXES
+                ${INSTALL_PRE_EXCLUDE_REGEXES}
+                POST_EXCLUDE_REGEXES
+                ${INSTALL_POST_EXCLUDE_REGEXES}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                COMPONENT library
+                EXCLUDE_FROM_ALL
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                COMPONENT library
+                EXCLUDE_FROM_ALL
+        RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                COMPONENT library
+                EXCLUDE_FROM_ALL)
 
-install(
-    TARGETS CesiumOmniverseCppTestsPythonBindings
-            RUNTIME_DEPENDENCIES
-            DIRECTORIES
-            ${INSTALL_SEARCH_PATHS}
-            PRE_EXCLUDE_REGEXES
-            ${INSTALL_PRE_EXCLUDE_REGEXES}
-            POST_EXCLUDE_REGEXES
-            ${INSTALL_POST_EXCLUDE_REGEXES}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT library
-            EXCLUDE_FROM_ALL
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT library
-            EXCLUDE_FROM_ALL
-    RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT library
-            EXCLUDE_FROM_ALL)
+    install(
+        TARGETS CesiumOmniverseCppTestsPythonBindings
+        ARCHIVE DESTINATION ${KIT_EXTENSION_TESTS_BINDINGS_PATH} COMPONENT install
+        LIBRARY DESTINATION ${KIT_EXTENSION_TESTS_BINDINGS_PATH} COMPONENT install
+        RUNTIME DESTINATION ${KIT_EXTENSION_TESTS_BINDINGS_PATH} COMPONENT install)
+
+    install(
+        TARGETS CesiumOmniverseCppTestsPythonBindings
+                RUNTIME_DEPENDENCIES
+                DIRECTORIES
+                ${INSTALL_SEARCH_PATHS}
+                PRE_EXCLUDE_REGEXES
+                ${INSTALL_PRE_EXCLUDE_REGEXES}
+                POST_EXCLUDE_REGEXES
+                ${INSTALL_POST_EXCLUDE_REGEXES}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                COMPONENT library
+                EXCLUDE_FROM_ALL
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                COMPONENT library
+                EXCLUDE_FROM_ALL
+        RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                COMPONENT library
+                EXCLUDE_FROM_ALL)
+endif()
 
 install(
     DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
