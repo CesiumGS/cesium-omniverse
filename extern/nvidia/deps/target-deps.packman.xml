@@ -6,6 +6,7 @@
     <filter include="usdrt"/>
     <filter include="carb_sdk_plugins"/>
     <filter include="pybind11"/>
+    <filter include="cuda"/>
   </import>
   <import path="../_build/target-deps/kit-sdk-debug/dev/all-deps.packman.xml">
     <filter include="nv_usd_py310_debug"/>
@@ -17,4 +18,5 @@
   <dependency name="usdrt" linkPath="../_build/target-deps/usdrt"/>
   <dependency name="carb_sdk_plugins" linkPath="../_build/target-deps/carb_sdk_plugins"/>
   <dependency name="pybind11" linkPath="../_build/target-deps/pybind11/pybind11"/>
+  <dependency name="cuda" linkPath="../_build/target-deps/cuda/cuda"/>
 </project>

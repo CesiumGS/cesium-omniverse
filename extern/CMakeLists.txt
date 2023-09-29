@@ -7,6 +7,7 @@ add_external_project(
     LIBRARIES
         CesiumIonClient
         Cesium3DTilesSelection
+        Cesium3DTilesReader
         CesiumAsync
         CesiumGeospatial
         CesiumGeometry
@@ -86,6 +87,7 @@ set(USDRT_ROOT "${NVIDIA_BUILD_DIR}/target-deps/usdrt")
 set(CARB_ROOT "${NVIDIA_BUILD_DIR}/target-deps/carb_sdk_plugins")
 set(KIT_SDK_ROOT "${NVIDIA_BUILD_DIR}/target-deps/kit-sdk")
 set(PYBIND11_ROOT "${NVIDIA_BUILD_DIR}/target-deps/pybind11")
+set(CUDA_ROOT "${NVIDIA_BUILD_DIR}/target-deps/cuda")
 
 set(NVIDIA_USD_LIBRARIES
     ar
@@ -253,6 +255,101 @@ add_prebuilt_project_header_only(
         pybind11
 )
 # cmake-format: on
+
+if(WIN32)
+    # cmake-format: off
+    add_prebuilt_project_import_library_only(
+        RELEASE_INCLUDE_DIR
+            "${CUDA_ROOT}"
+        DEBUG_INCLUDE_DIR
+            "${CUDA_ROOT}"
+        RELEASE_LIBRARY_DIR
+            "${CUDA_ROOT}/cuda/lib/x64"
+        DEBUG_LIBRARY_DIR
+            "${CUDA_ROOT}/cuda/lib/x64"
+        RELEASE_LIBRARIES
+            cuda
+        DEBUG_LIBRARIES
+            cuda
+        TARGET_NAMES
+            cuda
+    )
+    # cmake-format: on
+else()
+    # Find the directory containing libcuda.so, e.g. /usr/lib/x86_64-linux-gnu
+    find_library(
+        CUDA_DRIVER_LIB
+        cuda
+        REQUIRED
+        NO_CACHE)
+    get_filename_component(CUDA_DRIVER_DIR "${CUDA_DRIVER_LIB}" DIRECTORY)
+
+    # cmake-format: off
+    add_prebuilt_project(
+        RELEASE_INCLUDE_DIR
+            "${CUDA_ROOT}"
+        DEBUG_INCLUDE_DIR
+            "${CUDA_ROOT}"
+        RELEASE_LIBRARY_DIR
+            "${CUDA_DRIVER_DIR}"
+        DEBUG_LIBRARY_DIR
+            "${CUDA_DRIVER_DIR}"
+        RELEASE_LIBRARIES
+            cuda
+        DEBUG_LIBRARIES
+            cuda
+        TARGET_NAMES
+            cuda)
+    # cmake-format: on
+endif()
+
+if(WIN32)
+    # cmake-format: off
+    add_prebuilt_project(
+        RELEASE_INCLUDE_DIR
+            "${CUDA_ROOT}"
+        DEBUG_INCLUDE_DIR
+            "${CUDA_ROOT}"
+        RELEASE_LIBRARY_DIR
+            "${CUDA_ROOT}/cuda/lib/x64"
+        RELEASE_DLL_DIR
+            "${CUDA_ROOT}/cuda/bin"
+        DEBUG_LIBRARY_DIR
+            "${CUDA_ROOT}/cuda/lib/x64"
+        DEBUG_DLL_DIR
+            "${CUDA_ROOT}/cuda/bin"
+        RELEASE_LIBRARIES
+            nvrtc
+        DEBUG_LIBRARIES
+            nvrtc
+        RELEASE_DLL_LIBRARIES
+            nvrtc64_112_0
+        DEBUG_DLL_LIBRARIES
+            nvrtc64_112_0
+        TARGET_NAMES
+            nvrtc
+    )
+    # cmake-format: on
+else()
+    # cmake-format: off
+    add_prebuilt_project(
+        RELEASE_INCLUDE_DIR
+            "${CUDA_ROOT}"
+        DEBUG_INCLUDE_DIR
+            "${CUDA_ROOT}"
+        RELEASE_LIBRARY_DIR
+            "${CUDA_ROOT}/cuda/lib64"
+        DEBUG_LIBRARY_DIR
+            "${CUDA_ROOT}/cuda/lib64"
+        RELEASE_LIBRARIES
+            nvrtc
+        DEBUG_LIBRARIES
+            nvrtc
+        TARGET_NAMES
+            nvrtc
+    )
+    # cmake-format: on
+endif()
 
 # cmake-format: off
 # omni.ui gives us access to DynamicTextureProvider.h

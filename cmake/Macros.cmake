@@ -44,7 +44,7 @@ function(setup_lib)
         target_link_libraries(${_TARGET_NAME} PUBLIC gcov)
     endif()
 
-    if (_ADDITIONAL_LINK_DIRECTORIES)
+    if(_ADDITIONAL_LINK_DIRECTORIES)
         target_link_directories(${_TARGET_NAME} PUBLIC ${_ADDITIONAL_LINK_DIRECTORIES})
     endif()
 
@@ -168,8 +168,7 @@ function(setup_usd_python_lib)
 
     target_compile_options(${_TARGET_NAME} PRIVATE ${_CXX_FLAGS} "$<$<CONFIG:DEBUG>:${_CXX_FLAGS_DEBUG}>")
 
-    target_compile_definitions(${_TARGET_NAME} PRIVATE ${_CXX_DEFINES}
-                                                                "$<$<CONFIG:DEBUG>:${_CXX_DEFINES_DEBUG}>")
+    target_compile_definitions(${_TARGET_NAME} PRIVATE ${_CXX_DEFINES} "$<$<CONFIG:DEBUG>:${_CXX_DEFINES_DEBUG}>")
 
     # cmake-format: off
     target_compile_definitions(${_TARGET_NAME}
@@ -213,8 +212,7 @@ function(setup_usd_python_lib)
         add_custom_command(
             TARGET ${_TARGET_NAME}
             POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${_TARGET_NAME}>
-                    $<TARGET_FILE_DIR:${_TARGET_NAME}>
+            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${_TARGET_NAME}> $<TARGET_FILE_DIR:${_TARGET_NAME}>
             COMMAND_EXPAND_LISTS)
     endif()
 
@@ -478,6 +476,57 @@ $<$<CONFIG:MinSizeRel>:${_RELEASE_INCLUDE_DIR}>")
                            IMPORTED_IMPLIB_RELWITHDEBINFO "${${TARGET_NAME}_IMPLIB_RELEASE}"
                            IMPORTED_IMPLIB_MINSIZEREL "${${TARGET_NAME}_IMPLIB_RELEASE}")
         endif()
+
+        set_target_properties(
+            ${TARGET_NAME}
+            PROPERTIES IMPORTED_LOCATION_DEBUG "${${TARGET_NAME}_LIBRARY_DEBUG}"
+                       IMPORTED_LOCATION_RELEASE "${${TARGET_NAME}_LIBRARY_RELEASE}"
+                       IMPORTED_LOCATION_RELWITHDEBINFO "${${TARGET_NAME}_LIBRARY_RELEASE}"
+                       IMPORTED_LOCATION_MINSIZEREL "${${TARGET_NAME}_LIBRARY_RELEASE}")
+    endforeach()
+endfunction()
+
+function(add_prebuilt_project_import_library_only)
+    cmake_parse_arguments(
+        ""
+        ""
+        "RELEASE_INCLUDE_DIR;DEBUG_INCLUDE_DIR;RELEASE_LIBRARY_DIR;DEBUG_LIBRARY_DIR"
+        "RELEASE_LIBRARIES;DEBUG_LIBRARIES;TARGET_NAMES"
+        ${ARGN})
+
+    foreach(
+        lib IN
+        ZIP_LISTS
+        _TARGET_NAMES
+        _RELEASE_LIBRARIES
+        _DEBUG_LIBRARIES)
+        set(TARGET_NAME ${lib_0})
+        set(RELEASE_NAME ${lib_1})
+        set(DEBUG_NAME ${lib_2})
+        add_library(
+            ${TARGET_NAME}
+            STATIC
+            IMPORTED
+            GLOBAL)
+        set(TARGET_INCLUDE_DIRECTORY
+            "\
+$<$<CONFIG:Debug>:${_DEBUG_INCLUDE_DIR}>\
+$<$<CONFIG:Release>:${_RELEASE_INCLUDE_DIR}>\
+$<$<CONFIG:RelWithDebInfo>:${_RELEASE_INCLUDE_DIR}>\
+$<$<CONFIG:MinSizeRel>:${_RELEASE_INCLUDE_DIR}>")
+
+        target_include_directories(${TARGET_NAME} INTERFACE "${TARGET_INCLUDE_DIRECTORY}")
+
+        find_library(
+            ${TARGET_NAME}_LIBRARY_RELEASE
+            NAMES ${RELEASE_NAME}
+            PATHS ${_RELEASE_LIBRARY_DIR}
+            NO_DEFAULT_PATH NO_CACHE)
+        find_library(
+            ${TARGET_NAME}_LIBRARY_DEBUG
+            NAMES ${DEBUG_NAME}
+            PATHS ${_DEBUG_LIBRARY_DIR}
+            NO_DEFAULT_PATH NO_CACHE)
 
         set_target_properties(
             ${TARGET_NAME}

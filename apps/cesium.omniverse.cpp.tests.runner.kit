@@ -1,0 +1,19 @@
+[package]
+title = "Cesium For Omniverse Tests App"
+version = "0.0.0"
+app = true
+
+[dependencies]
+"cesium.omniverse.dev" = {}
+"cesium.omniverse.cpp.tests" = {}
+
+[settings]
+app.window.title = "Cesium for Omniverse Tests App"
+
+[settings.app.exts]
+folders.'++' = [
+    "${app}", # Find other applications in this folder
+    "${app}/exts", # Find extensions in this folder
+    "${app}/../exts", # Find cesium.omniverse and cesium.usd.schemas
+    "${app}/../extern/nvidia/app/extscache" # Find omni.kit.window.material_graph
+]

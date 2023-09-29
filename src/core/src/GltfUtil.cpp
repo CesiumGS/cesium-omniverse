@@ -549,3 +549,85 @@ bool hasMaterial(const CesiumGltf::MeshPrimitive& primitive) {
 }
 
 } // namespace cesium::omniverse::GltfUtil
+
+namespace cesium::omniverse {
+
+// In C++ 20 we can use the default equality comparison (= default)
+bool TextureInfo::operator==(const TextureInfo& other) const {
+    if (offset != other.offset) {
+        return false;
+    }
+
+    if (rotation != other.rotation) {
+        return false;
+    }
+
+    if (scale != other.scale) {
+        return false;
+    }
+
+    if (setIndex != other.setIndex) {
+        return false;
+    }
+
+    if (wrapS != other.wrapS) {
+        return false;
+    }
+
+    if (wrapT != other.wrapT) {
+        return false;
+    }
+
+    if (flipVertical != other.flipVertical) {
+        return false;
+    }
+    return true;
+}
+
+// In C++ 20 we can use the default equality comparison (= default)
+bool MaterialInfo::operator==(const MaterialInfo& other) const {
+    if (alphaCutoff != other.alphaCutoff) {
+        return false;
+    }
+
+    if (alphaMode != other.alphaMode) {
+        return false;
+    }
+
+    if (baseAlpha != other.baseAlpha) {
+        return false;
+    }
+
+    if (baseColorFactor != other.baseColorFactor) {
+        return false;
+    }
+
+    if (emissiveFactor != other.emissiveFactor) {
+        return false;
+    }
+
+    if (metallicFactor != other.metallicFactor) {
+        return false;
+    }
+
+    if (roughnessFactor != other.roughnessFactor) {
+        return false;
+    }
+
+    if (doubleSided != other.doubleSided) {
+        return false;
+    }
+
+    if (hasVertexColors != other.hasVertexColors) {
+        return false;
+    }
+
+    // != operator doesn't compile for some reason
+    if (!(baseColorTexture == other.baseColorTexture)) {
+        return false;
+    }
+
+    return true;
+}
+
+} // namespace cesium::omniverse

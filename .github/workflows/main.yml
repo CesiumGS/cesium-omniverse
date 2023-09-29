@@ -15,37 +15,37 @@ jobs:
       matrix:
         config:
           - {
-              name: 'Windows - MSVC',
-              artifact: 'windows-msvc.tar.xz',
+              name: "Windows - MSVC",
+              artifact: "windows-msvc.tar.xz",
               os: windows-latest-l,
-              cc: 'cl',
-              cxx: 'cl',
-              build-type: 'Release',
-              build-code: 'Windows',
-              generator: 'Ninja Multi-Config',
-              coverage: 'false',
+              cc: "cl",
+              cxx: "cl",
+              build-type: "Release",
+              build-code: "Windows",
+              generator: "Ninja Multi-Config",
+              coverage: "false",
             }
           - {
-              name: 'Ubuntu - GCC',
-              artifact: 'linux-gcc.tar.xz',
+              name: "Ubuntu - GCC",
+              artifact: "linux-gcc.tar.xz",
               os: ubuntu-latest-m,
-              cc: 'gcc-11',
-              cxx: 'g++-11',
-              build-type: 'Release',
-              build-code: 'Ubuntu',
-              generator: 'Unix Makefiles',
-              coverage: 'false',
+              cc: "gcc-11",
+              cxx: "g++-11",
+              build-type: "Release",
+              build-code: "Ubuntu",
+              generator: "Unix Makefiles",
+              coverage: "false",
             }
           - {
-              name: 'CentOS 7 - GCC',
-              artifact: 'linux-gcc.tar.xz',
+              name: "CentOS 7 - GCC",
+              artifact: "linux-gcc.tar.xz",
               os: ubuntu-latest-m,
-              cc: 'gcc-11',
-              cxx: 'g++-11',
-              build-type: 'Release',
-              build-code: 'CentOS7',
-              generator: 'Unix Makefiles',
-              coverage: 'false',
+              cc: "gcc-11",
+              cxx: "g++-11",
+              build-type: "Release",
+              build-code: "CentOS7",
+              generator: "Unix Makefiles",
+              coverage: "false",
             }
 
     steps:
@@ -99,7 +99,7 @@ jobs:
         if: ${{ runner.os == 'Linux' && matrix.config.name != 'CentOS 7 - GCC' }}
         run: |
           sudo apt update
-          sudo apt install -y doxygen clang-tidy-14 gcovr
+          sudo apt install -y doxygen clang-tidy-14 gcovr nvidia-driver-535
           sudo pip3 install conan==1.58.0 black==23.1.0 flake8==6.0.0
 
       # Could not figure out how to add Chocolatey libraries to the PATH automatically with refreshenv, so
@@ -204,4 +204,4 @@ jobs:
       - name: Upload to S3
         if: ${{ matrix.config.name == 'CentOS 7 - GCC' || runner.os == 'Windows' }}
         run: |
-          aws s3 cp build/${{ env.zip_name }} s3://cesium-travis-builds/cesium-omniverse/${{ env.branch }}/${{ env.us_date }}/${{ env.sha_short }}/${{ matrix.config.build-code }}/
+          aws s3 cp build/${{ env.zip_name }} s3://cesium-builds/cesium-omniverse/${{ env.branch }}/${{ env.us_date }}/${{ env.sha_short }}/${{ matrix.config.build-code }}/

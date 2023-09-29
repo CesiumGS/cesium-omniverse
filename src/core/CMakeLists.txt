@@ -37,6 +37,7 @@ setup_lib(
         CesiumUsdSchemas
         CesiumIonClient
         Cesium3DTilesSelection
+        Cesium3DTilesReader
         CesiumGeospatial
         CesiumGeometry
         CesiumGltf
@@ -86,6 +87,8 @@ setup_lib(
         carb
         omni_kit
         omni_ui
+        cuda
+        nvrtc
         pybind11
         python310
     ADDITIONAL_LIBRARIES
