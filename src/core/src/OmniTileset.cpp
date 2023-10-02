@@ -329,6 +329,28 @@ void OmniTileset::reload() {
             CESIUM_LOG_ERROR(error.message);
         };
 
+    if (Context::instance().isCompressedTexturesSupported()) {
+        CesiumGltf::SupportedGpuCompressedPixelFormats supportedFormats;
+
+        // Only BCN compressed texture formats are supported in Omniverse
+        supportedFormats.ETC1_RGB = false;
+        supportedFormats.ETC2_RGBA = false;
+        supportedFormats.BC1_RGB = true;
+        supportedFormats.BC3_RGBA = true;
+        supportedFormats.BC4_R = true;
+        supportedFormats.BC5_RG = true;
+        supportedFormats.BC7_RGBA = true;
+        supportedFormats.PVRTC1_4_RGB = false;
+        supportedFormats.PVRTC1_4_RGBA = false;
+        supportedFormats.ASTC_4x4_RGBA = false;
+        supportedFormats.PVRTC2_4_RGB = false;
+        supportedFormats.PVRTC2_4_RGBA = false;
+        supportedFormats.ETC2_EAC_R11 = false;
+        supportedFormats.ETC2_EAC_RG11 = false;
+
+        options.contentOptions.ktx2TranscodeTargets = CesiumGltf::Ktx2TranscodeTargets(supportedFormats, false);
+    }
+
     _pViewUpdateResult = nullptr;
     _extentSet = false;
     _activeLoading = false;
