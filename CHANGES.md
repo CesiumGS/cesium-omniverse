@@ -2,6 +2,7 @@
 
 ### v0.11.0 - 2023-10-02
 
+* **Breaking change:** Cesium for Omniverse now requires Kit 105.1 or above (USD Composer 2023.2.0 or above).
 * Reduced the number of materials created when loading un-textured tilesets.
 * Added debug option `cesium:debug:disableGeoreferencing` to `CesiumDataPrim` to disable georeferencing and view tilesets in ECEF coordinates.
 * Improvements to C++ testing infrastructure.
@@ -18,7 +19,7 @@
 
 ### v0.9.0 - 2023-08-01
 
-* Breaking change: `CesiumTilesetPrim` now inherits from `UsdGeomGprim` instead of `UsdGeomBoundable`.
+* **Breaking change:** `CesiumTilesetPrim` now inherits from `UsdGeomGprim` instead of `UsdGeomBoundable`.
 * Improved texture loading performance by moving texture loading to a worker thread.
 * Improved performance when refining with parent tile's imagery by sharing the same texture instead of duplicating it.
 * Added support for assigning materials to a tileset.
@@ -28,11 +29,11 @@
 
 ### v0.8.0 - 2023-07-03
 
-* Breaking change: Cesium for Omniverse now requires Kit 105 or above (USD Composer 2023.1.0 or above).
-* Breaking change: broke out georeference attributes from `CesiumDataPrim` into dedicated `CesiumGeoreferencePrim` class.
-* Breaking change: `CesiumTilesetPrim` is now a concrete type that inherits from `UsdGeomBoundable`.
-* Breaking change: `CesiumTilesetPrim` now has an explicit binding to a `CesiumGeoreferencePrim`.
-* Breaking change: default values for attributes are no longer written out when saved as `.usd` files.
+* **Breaking change:** Cesium for Omniverse now requires Kit 105 or above (USD Composer 2023.1.0 or above).
+* **Breaking change:** broke out georeference attributes from `CesiumDataPrim` into dedicated `CesiumGeoreferencePrim` class.
+* **Breaking change:** `CesiumTilesetPrim` is now a concrete type that inherits from `UsdGeomBoundable`.
+* **Breaking change:** `CesiumTilesetPrim` now has an explicit binding to a `CesiumGeoreferencePrim`.
+* **Breaking change:** default values for attributes are no longer written out when saved as `.usd` files.
 * Added ability to zoom to extents on tilesets.
 * Added vertex color support.
 * Added `cesium.omniverse.TILESET_LOADED` Carbonite event.
