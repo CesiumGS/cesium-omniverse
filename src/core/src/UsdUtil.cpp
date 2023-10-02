@@ -197,8 +197,7 @@ std::string getSafeName(const std::string& name) {
 }
 
 pxr::TfToken getDynamicTextureProviderAssetPathToken(const std::string& name) {
-    return pxr::TfToken(
-        pxr::SdfAssetPath(fmt::format("{}{}", rtx::resourcemanager::kDynamicTexturePrefix, name)).GetAssetPath());
+    return pxr::TfToken(pxr::SdfAssetPath(fmt::format("dynamic://{}", name)).GetAssetPath());
 }
 
 glm::dmat4 computeEcefToUsdTransform(const CesiumGeospatial::Cartographic& origin) {
