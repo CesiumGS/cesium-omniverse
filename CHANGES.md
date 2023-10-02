@@ -2,6 +2,7 @@
 
 ### v0.11.0 - 2023-10-02
 
+* Basis Universal textures are now decoded to the native BCn texture format instead of RGBA8 in Kit 105.1 and above.
 * Added debug option `cesium:debug:disableGeoreferencing` to `CesiumDataPrim` to disable georeferencing and view tilesets in ECEF coordinates.
 * Reduced the number of materials created when loading untextured tilesets.
 
