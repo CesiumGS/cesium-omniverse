@@ -23,8 +23,8 @@ from cesium.usd.plugins.CesiumUsdSchemas import (
     Tokens as CesiumTokens,
 )
 
-ION_ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlZjM4NjgzNC01Nzg5LTQyMjAtYmYxMC0yNGY2MGEzOGViMGUiLCJpZCI6MjU5LCJpYXQiOjE2OTM1Nzg5MTN9.-J367LOCiroxRBoH9eKhgssEd2Wk_IoqOxROfy-dPjs"  # noqa: E501
-GOOGLE_3D_TILES_URL = "https://tile.googleapis.com/v1/3dtiles/root.json?key=AIzaSyBTr9BGnwtJmS0sL86iTb6QhdJlnkAFLoE"
+ION_ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIwNzhiNWNjOS1iYmUyLTQ5MTYtODliYy0zMTc3NTJmZTk4MWIiLCJpZCI6MjU5LCJpYXQiOjE2OTYyNzYzNzF9.ooL73wypb9IdmEz4zD3MN87rLtEYo1tEgavGzaC5UM8"  # noqa: E501
+GOOGLE_3D_TILES_URL = "https://tile.googleapis.com/v1/3dtiles/root.json?key=AIzaSyBxuWsnHCKWkqQnSIhdWpsF7bcWvbgpoos"
 
 CESIUM_DATA_PRIM_PATH = "/Cesium"
 CESIUM_GEOREFERENCE_PRIM_PATH = "/CesiumGeoreference"
