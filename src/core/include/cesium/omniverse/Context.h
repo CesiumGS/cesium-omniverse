@@ -38,7 +38,7 @@ struct Viewport;
 
 class Context {
   public:
-    static void onStartup(const std::filesystem::path& cesiumExtensionLocation);
+    static void onStartup(const std::filesystem::path& cesiumExtensionLocation, const std::string& kitVersion);
     static void onShutdown();
     static Context& instance();
 
@@ -49,7 +49,8 @@ class Context {
     Context& operator=(const Context&) = delete;
     Context& operator=(Context&&) = delete;
 
-    void initialize(int64_t contextId, const std::filesystem::path& cesiumExtensionLocation);
+    void
+    initialize(int64_t contextId, const std::filesystem::path& cesiumExtensionLocation, const std::string& kitVersion);
     void destroy();
 
     std::shared_ptr<TaskProcessor> getTaskProcessor();
@@ -106,6 +107,8 @@ class Context {
     const std::filesystem::path& getCertificatePath() const;
     const pxr::TfToken& getCesiumMdlPathToken() const;
 
+    bool isCompressedTexturesSupported() const;
+
     bool creditsAvailable() const;
     std::vector<std::pair<std::string, bool>> getCredits() const;
     void creditsStartNextFrame();
@@ -153,6 +156,7 @@ class Context {
     mutable std::atomic<int64_t> _tilesetId{};
 
     std::filesystem::path _cesiumExtensionLocation;
+    std::string _kitVersion;
     std::filesystem::path _certificatePath;
     pxr::TfToken _cesiumMdlPathToken;
 

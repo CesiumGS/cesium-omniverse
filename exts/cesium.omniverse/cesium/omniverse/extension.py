@@ -77,10 +77,12 @@ class CesiumOmniverseExtension(omni.ext.IExt):
 
         self._logger.info("CesiumOmniverse startup")
 
+        kit_version = omni_app.get_app().get_build_version()
+
         # Acquire the Cesium Omniverse interface.
         global _cesium_omniverse_interface
         _cesium_omniverse_interface = acquire_cesium_omniverse_interface()
-        _cesium_omniverse_interface.on_startup(cesium_extension_location)
+        _cesium_omniverse_interface.on_startup(cesium_extension_location, kit_version)
 
         omni_settings.get_settings().set("/rtx/hydra/TBNFrameMode", 1)
 
