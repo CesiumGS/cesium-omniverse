@@ -102,6 +102,13 @@ _CreateDebugRandomColorsAttr(CesiumData &self,
     return self.CreateDebugRandomColorsAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
+        
+static UsdAttribute
+_CreateDebugDisableGeoreferencingAttr(CesiumData &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateDebugDisableGeoreferencingAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+}
 
 static std::string
 _Repr(const CesiumData &self)
@@ -219,6 +226,13 @@ void wrapCesiumData()
              &This::GetDebugRandomColorsAttr)
         .def("CreateDebugRandomColorsAttr",
              &_CreateDebugRandomColorsAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetDebugDisableGeoreferencingAttr",
+             &This::GetDebugDisableGeoreferencingAttr)
+        .def("CreateDebugDisableGeoreferencingAttr",
+             &_CreateDebugDisableGeoreferencingAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 

@@ -43,6 +43,7 @@ void wrapCesiumTokens()
         cls("Tokens", boost::python::no_init);
     _AddToken(cls, "cesiumCulledScreenSpaceError", CesiumTokens->cesiumCulledScreenSpaceError);
     _AddToken(cls, "cesiumDebugDisableGeometryPool", CesiumTokens->cesiumDebugDisableGeometryPool);
+    _AddToken(cls, "cesiumDebugDisableGeoreferencing", CesiumTokens->cesiumDebugDisableGeoreferencing);
     _AddToken(cls, "cesiumDebugDisableMaterialPool", CesiumTokens->cesiumDebugDisableMaterialPool);
     _AddToken(cls, "cesiumDebugDisableMaterials", CesiumTokens->cesiumDebugDisableMaterials);
     _AddToken(cls, "cesiumDebugDisableTexturePool", CesiumTokens->cesiumDebugDisableTexturePool);

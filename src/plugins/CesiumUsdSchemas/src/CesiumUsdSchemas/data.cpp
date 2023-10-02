@@ -267,6 +267,23 @@ CesiumData::CreateDebugRandomColorsAttr(VtValue const &defaultValue, bool writeS
                        writeSparsely);
 }
 
+UsdAttribute
+CesiumData::GetDebugDisableGeoreferencingAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumDebugDisableGeoreferencing);
+}
+
+UsdAttribute
+CesiumData::CreateDebugDisableGeoreferencingAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumDebugDisableGeoreferencing,
+                       SdfValueTypeNames->Bool,
+                       /* custom = */ false,
+                       SdfVariabilityVarying,
+                       defaultValue,
+                       writeSparsely);
+}
+
 namespace {
 static inline TfTokenVector
 _ConcatenateAttributeNames(const TfTokenVector& left,const TfTokenVector& right)
@@ -295,6 +312,7 @@ CesiumData::GetSchemaAttributeNames(bool includeInherited)
         CesiumTokens->cesiumDebugMaterialPoolInitialCapacity,
         CesiumTokens->cesiumDebugTexturePoolInitialCapacity,
         CesiumTokens->cesiumDebugRandomColors,
+        CesiumTokens->cesiumDebugDisableGeoreferencing,
     };
     static TfTokenVector allNames =
         _ConcatenateAttributeNames(

@@ -2,6 +2,7 @@
 
 ### v0.11.0 - 2023-10-02
 
+* Added debug option `cesium:debug:disableGeoreferencing` to `CesiumDataPrim` to disable georeferencing and view tilesets in ECEF coordinates.
 * Reduced the number of materials created when loading untextured tilesets.
 
 ### v0.10.0 - 2023-09-01
