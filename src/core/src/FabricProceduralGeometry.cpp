@@ -242,8 +242,8 @@ void CudaRunner::init(const char* kernelCodeDEBUG, const char* kernelFunctionNam
         std::cout << "error: could not create CUDA context." << std::endl;
         throw std::runtime_error("ERROR");
     }
-    auto threadId = std::this_thread::get_id();
-    std::cout << "Initial thread ID: " << threadId << std::endl;
+    // auto threadId = std::this_thread::get_id();
+    // std::cout << "Initial thread ID: " << threadId << std::endl;
 
     //print the numbers of SMs
     int numDevices;
@@ -334,10 +334,9 @@ bool CudaRunner::runKernel(void** args, size_t elemCount) {
         CUcontext currentContext;
         cuCtxGetCurrent(&currentContext);
         if (currentContext != _context) {
-            std::cout << "Warning: Context has changed." << std::endl;
-            auto threadId = std::this_thread::get_id();
-            std::cout << "Current thread ID: " << threadId << std::endl;
-
+            std::cout << "Warning: CUDA Context has changed. Resetting." << std::endl;
+            // auto threadId = std::this_thread::get_id();
+            // std::cout << "Current thread ID: " << threadId << std::endl;
             cuCtxSetCurrent(_context);
         }
 
