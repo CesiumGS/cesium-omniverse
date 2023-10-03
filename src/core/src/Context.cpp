@@ -189,9 +189,7 @@ void Context::onUpdateFrame(const std::vector<Viewport>& viewports) {
     processUsdNotifications();
 
     const auto georeferenceOrigin = Context::instance().getGeoreferenceOrigin();
-    const auto ecefToUsdTransform =
-        GeospatialUtil::getCoordinateSystem(georeferenceOrigin, UsdUtil::getUsdMetersPerUnit())
-            .getEcefToLocalTransformation();
+    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdTransform(georeferenceOrigin);
 
     // Check if the ecefToUsd transform has changed and update CesiumSession
     if (ecefToUsdTransform != _ecefToUsdTransform) {

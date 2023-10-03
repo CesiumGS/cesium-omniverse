@@ -368,6 +368,28 @@ public:
     UsdAttribute CreateDebugRandomColorsAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
+    // --------------------------------------------------------------------- //
+    // DEBUGDISABLEGEOREFERENCING 
+    // --------------------------------------------------------------------- //
+    /// Debug option to disable georeferencing. Tiles will be rendered in EPSG:4978 (ECEF) coordinates where (0, 0, 0) is the center of the globe, the X axis points towards the prime meridian, the Y axis points towards the 90th meridian east, and the Z axis points towards the North Pole.
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `bool cesium:debug:disableGeoreferencing = 0` |
+    /// | C++ Type | bool |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute GetDebugDisableGeoreferencingAttr() const;
+
+    /// See GetDebugDisableGeoreferencingAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute CreateDebugDisableGeoreferencingAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
     // ===================================================================== //
     // Feel free to add custom code below this line, it will be preserved by 
     // the code generator. 

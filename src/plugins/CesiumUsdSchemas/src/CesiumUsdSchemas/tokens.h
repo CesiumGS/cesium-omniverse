@@ -75,6 +75,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumData
     const TfToken cesiumDebugDisableGeometryPool;
+    /// \brief "cesium:debug:disableGeoreferencing"
+    /// 
+    /// CesiumData
+    const TfToken cesiumDebugDisableGeoreferencing;
     /// \brief "cesium:debug:disableMaterialPool"
     /// 
     /// CesiumData

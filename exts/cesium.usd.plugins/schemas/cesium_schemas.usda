@@ -113,6 +113,14 @@ class CesiumDataPrim "CesiumDataPrim" (
         displayName = "Random Colors"
         doc = "Debug option that renders tiles with random colors."
     )
+
+    bool cesium:debug:disableGeoreferencing = false (
+        customData = {
+            string apiName = "debugDisableGeoreferencing"
+        }
+        displayName = "Disable Georeferencing"
+        doc = "Debug option to disable georeferencing. Tiles will be rendered in EPSG:4978 (ECEF) coordinates where (0, 0, 0) is the center of the globe, the X axis points towards the prime meridian, the Y axis points towards the 90th meridian east, and the Z axis points towards the North Pole."
+    )
 }
 
 class CesiumSessionPrim "CesiumSessionPrim" (
