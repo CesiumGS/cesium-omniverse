@@ -19,8 +19,8 @@ namespace cesium::omniverse {
 
 class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
   protected:
-    void onStartup(const char* cesiumExtensionLocation, const char* kitVersion) noexcept override {
-        Context::onStartup(cesiumExtensionLocation, kitVersion);
+    void onStartup(const char* cesiumExtensionLocation) noexcept override {
+        Context::onStartup(cesiumExtensionLocation);
     }
 
     void onShutdown() noexcept override {

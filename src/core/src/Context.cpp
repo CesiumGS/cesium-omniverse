@@ -43,7 +43,7 @@ std::unique_ptr<Context> context;
 
 } // namespace
 
-void Context::onStartup(const std::filesystem::path& cesiumExtensionLocation, const std::string& kitVersion) {
+void Context::onStartup(const std::filesystem::path& cesiumExtensionLocation) {
     static int64_t contextId = 0;
 
     // Shut down the current context (if it exists)
@@ -54,7 +54,7 @@ void Context::onStartup(const std::filesystem::path& cesiumExtensionLocation, co
 
     // Initialize the context. This needs to happen after the global variable is set
     // since code inside initialize may call Context::instance.
-    context->initialize(contextId++, cesiumExtensionLocation, kitVersion);
+    context->initialize(contextId++, cesiumExtensionLocation);
 }
 
 void Context::onShutdown() {
@@ -70,15 +70,11 @@ Context& Context::instance() {
     return *context.get();
 }
 
-void Context::initialize(
-    int64_t contextId,
-    const std::filesystem::path& cesiumExtensionLocation,
-    const std::string& kitVersion) {
+void Context::initialize(int64_t contextId, const std::filesystem::path& cesiumExtensionLocation) {
     _contextId = contextId;
     _tilesetId = 0;
 
     _cesiumExtensionLocation = cesiumExtensionLocation.lexically_normal();
-    _kitVersion = kitVersion;
     _certificatePath = _cesiumExtensionLocation / "certs" / "cacert.pem";
     const auto cesiumMdlPath = _cesiumExtensionLocation / "mdl" / "cesium.mdl";
     _cesiumMdlPathToken = pxr::TfToken(cesiumMdlPath.generic_string());
@@ -639,15 +635,6 @@ const std::filesystem::path& Context::getCertificatePath() const {
 
 const pxr::TfToken& Context::getCesiumMdlPathToken() const {
     return _cesiumMdlPathToken;
-}
-
-bool Context::isCompressedTexturesSupported() const {
-    // Compressed textures do not work in Kit 105.0 or 105.0.1
-    if (_kitVersion.rfind("105.0", 0) == 0) {
-        return false;
-    }
-
-    return true;
 }
 
 bool Context::getDebugDisableMaterials() const {

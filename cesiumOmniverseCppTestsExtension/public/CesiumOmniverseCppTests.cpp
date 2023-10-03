@@ -54,8 +54,8 @@ namespace cesium::omniverse::tests {
 
 class CesiumOmniverseCppTestsPlugin final : public ICesiumOmniverseCppTestsInterface {
   public:
-    void onStartup(const char* cesiumExtensionLocation, const char* kitVersion) noexcept override {
-        Context::onStartup(cesiumExtensionLocation, kitVersion);
+    void onStartup(const char* cesiumExtensionLocation) noexcept override {
+        Context::onStartup(cesiumExtensionLocation);
     }
 
     void onShutdown() noexcept override {

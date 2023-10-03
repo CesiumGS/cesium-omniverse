@@ -10,9 +10,8 @@ class ICesiumOmniverseCppTestsInterface {
      * @brief Call this on extension startup.
      *
      * @param cesiumExtensionLocation Path to the Cesium Omniverse extension location.
-     * @param kitVersion The kit version.
      */
-    virtual void onStartup(const char* cesiumExtensionLocation, const char* kitVersion) noexcept = 0;
+    virtual void onStartup(const char* cesiumExtensionLocation) noexcept = 0;
 
     /**
      * @brief Call this on extension shutdown.
