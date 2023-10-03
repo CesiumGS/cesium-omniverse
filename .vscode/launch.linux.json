@@ -88,6 +88,32 @@
       ]
     },
     {
+      "name": "Tests Extension",
+      "preLaunchTask": "Build Only (debug)",
+      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit",
+      "args": [
+        "${workspaceFolder}/apps/cesium.omniverse.cpp.tests.runner.kit"
+      ],
+      "env": {
+        // Disable LSAN when debugging since it doesn't work with GDB and prints harmless but annoying warning messages
+        "ASAN_OPTIONS": "detect_leaks=0",
+        "UBSAN_OPTIONS": "print_stacktrace=1"
+      },
+      "cwd": "${workspaceFolder}",
+      "type": "cppdbg",
+      "request": "launch",
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        },
+        {
+          "text": "set print elements 0"
+        }
+      ]
+    },
+    {
       "name": "Python Debugging (attach)",
       "type": "python",
       "request": "attach",
