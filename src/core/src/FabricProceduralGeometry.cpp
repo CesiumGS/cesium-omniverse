@@ -236,8 +236,7 @@ void CudaRunner::init(const char* kernelCodeDEBUG, const char* kernelFunctionNam
         throw std::runtime_error("ERROR");
     }
 
-    // CUcontext context;
-    result = cuCtxCreate(&_context, 0, _device);
+    result = cuDevicePrimaryCtxRetain(&_context, 0);
     if (result != CUDA_SUCCESS) {
         std::cout << "error: could not create CUDA context." << std::endl;
         throw std::runtime_error("ERROR");
@@ -316,6 +315,7 @@ CudaRunner::~CudaRunner() {
 }
 
 bool CudaRunner::runKernel(void** args, size_t elemCount) {
+    cuCtxSetCurrent(_context);
 
     int minGridSize;
     cuOccupancyMaxPotentialBlockSize(&minGridSize, &_blockSize, _function, nullptr, 0, 0);
