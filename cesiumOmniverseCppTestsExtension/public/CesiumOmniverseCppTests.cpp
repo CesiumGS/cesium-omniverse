@@ -5,9 +5,10 @@
 
 #include "CesiumOmniverseCppTests.h"
 
+#include "UsdUtilTests.h"
+
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/LoggerSink.h"
-#include "cesium/omniverse/UsdUtil.h"
 
 #include <carb/PluginUtils.h>
 #include <doctest/doctest.h>
@@ -66,7 +67,9 @@ class CesiumOmniverseCppTestsPlugin final : public ICesiumOmniverseCppTestsInter
 
         CESIUM_LOG_INFO("Running Cesium Omniverse Tests with stage id: {}", stage_id);
 
-        // construct a context
+        Context::instance().setStageId(stage_id);
+
+        // construct a doctest context
         doctest::Context context;
 
         // sets the context as the default one - so asserts used outside of a testing context do not crash
@@ -77,6 +80,7 @@ class CesiumOmniverseCppTestsPlugin final : public ICesiumOmniverseCppTestsInter
         context.setAssertHandler(handler);
 
         exampleTest();
+        run_all_UsdUtil_tests();
 
         CESIUM_LOG_INFO("Cesium Omniverse Tests complete");
     }
