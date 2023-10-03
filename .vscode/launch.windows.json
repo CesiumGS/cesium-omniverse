@@ -64,6 +64,28 @@
       "internalConsoleOptions": "openOnSessionStart"
     },
     {
+      "name": "Tests Extension",
+      "preLaunchTask": "Build Only (debug)",
+      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit.exe",
+      "args": [
+        "${workspaceFolder}/apps/cesium.omniverse.cpp.tests.runner.kit"
+      ],
+      "cwd": "${workspaceFolder}",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "console": "externalTerminal",
+      "internalConsoleOptions": "openOnSessionStart",
+      "setupCommands": [
+        {
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        },
+        {
+          "text": "set print elements 0"
+        }
+      ]
+    },
+    {
       "name": "Python Debugging (start)",
       "preLaunchTask": "Build Only (debug)",
       "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit.exe",

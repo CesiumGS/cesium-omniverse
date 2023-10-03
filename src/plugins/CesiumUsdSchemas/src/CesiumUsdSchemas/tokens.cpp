@@ -5,6 +5,7 @@ PXR_NAMESPACE_OPEN_SCOPE
 CesiumTokensType::CesiumTokensType() :
     cesiumCulledScreenSpaceError("cesium:culledScreenSpaceError", TfToken::Immortal),
     cesiumDebugDisableGeometryPool("cesium:debug:disableGeometryPool", TfToken::Immortal),
+    cesiumDebugDisableGeoreferencing("cesium:debug:disableGeoreferencing", TfToken::Immortal),
     cesiumDebugDisableMaterialPool("cesium:debug:disableMaterialPool", TfToken::Immortal),
     cesiumDebugDisableMaterials("cesium:debug:disableMaterials", TfToken::Immortal),
     cesiumDebugDisableTexturePool("cesium:debug:disableTexturePool", TfToken::Immortal),
@@ -43,6 +44,7 @@ CesiumTokensType::CesiumTokensType() :
     allTokens({
         cesiumCulledScreenSpaceError,
         cesiumDebugDisableGeometryPool,
+        cesiumDebugDisableGeoreferencing,
         cesiumDebugDisableMaterialPool,
         cesiumDebugDisableMaterials,
         cesiumDebugDisableTexturePool,
