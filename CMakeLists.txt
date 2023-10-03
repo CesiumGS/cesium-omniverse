@@ -9,7 +9,7 @@ endif()
 # Both CXX and C need to be given otherwise Conan may ignore the CMAKE_C_COMPILER flag
 project(
     CesiumOmniverse
-    VERSION 0.10.0
+    VERSION 0.11.0
     DESCRIPTION "Cesium for Omniverse"
     LANGUAGES CXX C)
 
@@ -121,7 +121,8 @@ set(LINT_SOURCE_DIRECTORIES
     "${PROJECT_SOURCE_DIR}/src/bindings"
     "${PROJECT_SOURCE_DIR}/src/core"
     "${PROJECT_SOURCE_DIR}/src/public"
-    "${PROJECT_SOURCE_DIR}/tests")
+    "${PROJECT_SOURCE_DIR}/tests"
+    "${PROJECT_SOURCE_DIR}/cesiumOmniverseCppTestsExtension")
 
 # Source directories for coverage
 set(COVERAGE_SOURCE_DIRECTORIES "${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/src")
@@ -437,6 +438,7 @@ add_subdirectory(src)
 if(CESIUM_OMNI_ENABLE_TESTS)
     enable_testing()
     add_subdirectory(tests)
+    add_subdirectory(cesiumOmniverseCppTestsExtension)
 endif()
 
 # Ninja and various Makefiles generators support generating compile_commands.json
@@ -510,6 +512,10 @@ set(KIT_PLUGIN_EXTENSION_BIN_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.usd.plugins
 set(KIT_EXTENSION_BINDINGS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse/cesium/omniverse/bindings")
 set(KIT_PLUGIN_EXTENSION_BINDINGS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.usd.plugins/cesium/usd/plugins")
 set(KIT_EXTENSION_PLUGINS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.usd.plugins/plugins")
+
+set(KIT_EXTENSION_TESTS_BIN_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse.cpp.tests/bin")
+set(KIT_EXTENSION_TESTS_BINDINGS_PATH
+    "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse.cpp.tests/cesium/omniverse/cpp/tests/bindings")
 
 # You may see warnings like:
 #
@@ -662,6 +668,58 @@ install(
     RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
             COMPONENT library
             EXCLUDE_FROM_ALL)
+
+
+if(CESIUM_OMNI_ENABLE_TESTS)
+    install(
+        TARGETS cesium.omniverse.cpp.tests.plugin
+        ARCHIVE DESTINATION ${KIT_EXTENSION_TESTS_BIN_PATH} COMPONENT install
+        LIBRARY DESTINATION ${KIT_EXTENSION_TESTS_BIN_PATH} COMPONENT install
+        RUNTIME DESTINATION ${KIT_EXTENSION_TESTS_BIN_PATH} COMPONENT install)
+    install(
+        TARGETS cesium.omniverse.cpp.tests.plugin
+                RUNTIME_DEPENDENCIES
+                DIRECTORIES
+                ${INSTALL_SEARCH_PATHS}
+                PRE_EXCLUDE_REGEXES
+                ${INSTALL_PRE_EXCLUDE_REGEXES}
+                POST_EXCLUDE_REGEXES
+                ${INSTALL_POST_EXCLUDE_REGEXES}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                COMPONENT library
+                EXCLUDE_FROM_ALL
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                COMPONENT library
+                EXCLUDE_FROM_ALL
+        RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                COMPONENT library
+                EXCLUDE_FROM_ALL)
+
+    install(
+        TARGETS CesiumOmniverseCppTestsPythonBindings
+        ARCHIVE DESTINATION ${KIT_EXTENSION_TESTS_BINDINGS_PATH} COMPONENT install
+        LIBRARY DESTINATION ${KIT_EXTENSION_TESTS_BINDINGS_PATH} COMPONENT install
+        RUNTIME DESTINATION ${KIT_EXTENSION_TESTS_BINDINGS_PATH} COMPONENT install)
+
+    install(
+        TARGETS CesiumOmniverseCppTestsPythonBindings
+                RUNTIME_DEPENDENCIES
+                DIRECTORIES
+                ${INSTALL_SEARCH_PATHS}
+                PRE_EXCLUDE_REGEXES
+                ${INSTALL_PRE_EXCLUDE_REGEXES}
+                POST_EXCLUDE_REGEXES
+                ${INSTALL_POST_EXCLUDE_REGEXES}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                COMPONENT library
+                EXCLUDE_FROM_ALL
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                COMPONENT library
+                EXCLUDE_FROM_ALL
+        RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                COMPONENT library
+                EXCLUDE_FROM_ALL)
+endif()
 
 install(
     DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
