@@ -79,9 +79,9 @@ std::shared_ptr<FabricGeometry> FabricResourceManager::acquireGeometry(
     return geometry;
 }
 
-bool useSharedMaterial(const FabricMaterialDefinition& materialDefinition) {
+bool useSharedMaterial(const FabricMaterialDefinition& materialDefinition, bool useTextureArray) {
     if (materialDefinition.hasBaseColorTexture()) {
-        return false;
+        return useTextureArray;
     }
 
     return true;
@@ -91,7 +91,8 @@ std::shared_ptr<FabricMaterial>
 FabricResourceManager::createMaterial(const FabricMaterialDefinition& materialDefinition, long stageId) {
     const auto pathStr = fmt::format("/fabric_material_{}", getNextMaterialId());
     const auto path = omni::fabric::Path(pathStr.c_str());
-    return std::make_shared<FabricMaterial>(path, materialDefinition, _defaultTextureAssetPathToken, stageId);
+    return std::make_shared<FabricMaterial>(
+        path, materialDefinition, _defaultTextureAssetPathToken, stageId, _useTextureArray);
 }
 
 void FabricResourceManager::removeSharedMaterial(const SharedMaterial& sharedMaterial) {
@@ -168,7 +169,7 @@ std::shared_ptr<FabricMaterial> FabricResourceManager::acquireMaterial(
     int64_t tilesetId) {
     FabricMaterialDefinition materialDefinition(materialInfo, hasImagery, _disableTextures);
 
-    if (useSharedMaterial(materialDefinition)) {
+    if (useSharedMaterial(materialDefinition, _useTextureArray)) {
         return acquireSharedMaterial(materialInfo, materialDefinition, stageId, tilesetId);
     }
 
@@ -223,7 +224,7 @@ void FabricResourceManager::releaseGeometry(const std::shared_ptr<FabricGeometry
 void FabricResourceManager::releaseMaterial(const std::shared_ptr<FabricMaterial>& material) {
     const auto& materialDefinition = material->getMaterialDefinition();
 
-    if (useSharedMaterial(materialDefinition)) {
+    if (useSharedMaterial(materialDefinition, _useTextureArray)) {
         releaseSharedMaterial(material);
         return;
     }
@@ -341,7 +342,12 @@ FabricResourceManager::createGeometryPool(const FabricGeometryDefinition& geomet
 std::shared_ptr<FabricMaterialPool>
 FabricResourceManager::createMaterialPool(const FabricMaterialDefinition& materialDefinition, long stageId) {
     return _materialPools.emplace_back(std::make_shared<FabricMaterialPool>(
-        getNextPoolId(), materialDefinition, _materialPoolInitialCapacity, _defaultTextureAssetPathToken, stageId));
+        getNextPoolId(),
+        materialDefinition,
+        _materialPoolInitialCapacity,
+        _defaultTextureAssetPathToken,
+        stageId,
+        _useTextureArray));
 }
 
 std::shared_ptr<FabricTexturePool> FabricResourceManager::createTexturePool() {

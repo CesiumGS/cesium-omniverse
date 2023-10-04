@@ -20,7 +20,8 @@ class FabricMaterial {
         const omni::fabric::Path& path,
         const FabricMaterialDefinition& materialDefinition,
         const pxr::TfToken& defaultTextureAssetPathToken,
-        long stageId);
+        long stageId,
+        bool useTextureArray);
     ~FabricMaterial();
 
     void setMaterial(int64_t tilesetId, const MaterialInfo& materialInfo);
@@ -43,10 +44,26 @@ class FabricMaterial {
         const omni::fabric::Path& texturePath,
         const omni::fabric::Path& shaderPath,
         const omni::fabric::Token& shaderInput);
+    void createTextureSingle(
+        const omni::fabric::Path& texturePath,
+        const omni::fabric::Path& shaderPath,
+        const omni::fabric::Token& shaderInput);
+    void createTextureArray(
+        const omni::fabric::Path& texturePath,
+        const omni::fabric::Path& shaderPath,
+        const omni::fabric::Token& shaderInput);
 
     void reset();
     void setShaderValues(const omni::fabric::Path& shaderPath, const MaterialInfo& materialInfo);
     void setTextureValues(
+        const omni::fabric::Path& texturePath,
+        const pxr::TfToken& textureAssetPathToken,
+        const TextureInfo& textureInfo);
+    void setTextureSingleValues(
+        const omni::fabric::Path& texturePath,
+        const pxr::TfToken& textureAssetPathToken,
+        const TextureInfo& textureInfo);
+    void setTextureArrayValues(
         const omni::fabric::Path& texturePath,
         const pxr::TfToken& textureAssetPathToken,
         const TextureInfo& textureInfo);
@@ -60,6 +77,8 @@ class FabricMaterial {
 
     omni::fabric::Path _shaderPath;
     omni::fabric::Path _baseColorTexturePath;
+
+    bool _useTextureArray;
 };
 
 } // namespace cesium::omniverse
