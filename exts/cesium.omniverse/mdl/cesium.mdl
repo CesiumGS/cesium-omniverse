@@ -1,8 +1,14 @@
 mdl 1.8;
 
 import ::anno::*;
+import ::base::*;
+import ::df::*;
+import ::math::*;
 import ::state::*;
 import ::tex::*;
+import ::scene::*;
+import ::limits::*;
+
 
 using ::gltf::pbr import *;
 
@@ -14,3 +20,94 @@ module [[
 // For internal use only. See note in FabricMaterial.cpp
 export gltf_texture_lookup_value cesium_texture_lookup(*) [[ anno::hidden() ]] = gltf_texture_lookup();
 export material cesium_material(*) [[ anno::hidden() ]] = gltf_material();
+
+::tex::wrap_mode convert_wrap_mode(gltf_wrapping_mode mode)
+{
+    if (mode == clamp_to_edge)
+        return ::tex::wrap_clamp;
+    if (mode == mirrored_repeat)
+        return ::tex::wrap_mirrored_repeat;
+
+    return ::tex::wrap_repeat;
+}
+
+float2 khr_texture_transform_apply(
+    float2 coord,
+    float2 offset,
+    float rotation,
+    float2 scale
+)
+{
+    // MDL expects the texture coordinate origin at the bottom left (gltf at top left)
+    // Assuming the renderer follows the MDL specification in which case the coordinates
+    // have been flipped either while loading the glTF geometry or while setting up the state.
+
+    // Undo the flipping for the transformation to get into the original glTF texture space.
+    coord = float2(coord.x, 1.0f - coord.y);
+
+    // first scale
+    coord = coord * scale;
+    // then rotate
+    float cos_rotation = ::math::cos(rotation);
+    float sin_rotation = ::math::sin(rotation);
+    coord = float2(cos_rotation * coord.x + sin_rotation * coord.y, cos_rotation * coord.y - sin_rotation * coord.x);
+    // then translate
+    coord = coord + offset;
+
+    // flip back
+    coord = float2(coord.x, 1.0f - coord.y);
+    return coord;
+}
+
+export gltf_texture_lookup_value cesium_texture_array_lookup(
+    uniform texture_2d texture,
+    uniform int tex_coord_index = 0,
+    uniform float2 offset = float2(0.0f, 0.0),
+    uniform float rotation = 0.0,
+    uniform float2 scale = float2(1.0f, 1.0f),
+    uniform gltf_wrapping_mode wrap_s = repeat,
+    uniform gltf_wrapping_mode wrap_t = repeat
+)
+{
+    gltf_texture_lookup_value tex_ret;
+    if (!tex::texture_isvalid(texture))
+        return tex_ret;
+
+    float3 tex_coord3 = state::texture_coordinate(tex_coord_index);
+    float2 tex_coord = khr_texture_transform_apply(
+        coord: float2(tex_coord3.x, tex_coord3.y),
+        offset: offset,
+        rotation: rotation,
+        scale: scale);
+
+    tex_ret.value = tex::lookup_float4(
+        tex: texture,
+        coord: tex_coord,
+        wrap_u: convert_wrap_mode(wrap_s),
+        wrap_v: convert_wrap_mode(wrap_t));
+    tex_ret.valid = true;
+
+    tex_ret.value *= float4(1.0, 0.0, 0.0, 1.0);
+
+    return tex_ret;
+
+    // uniform texture_2d[3] textures;
+    // textures[0] = texture_0;
+    // textures[1] = texture_1;
+    // textures[2] = texture_2;
+
+    // int texture_index = ::scene::data_lookup_int("textureIndex");
+    // texture_index = texture_index % 3;
+
+    // for (int i = 0; i < 3; i++) {
+    //     if (i == texture_index) {
+    //         tex_ret.value = tex::lookup_float4(
+    //             tex: textures[i],
+    //             coord: float2(0.0, 0.0),
+    //             wrap_u: ::tex::wrap_clamp,
+    //             wrap_v: ::tex::wrap_clamp);
+    //     }
+    // }
+
+    // return tex_ret;
+}

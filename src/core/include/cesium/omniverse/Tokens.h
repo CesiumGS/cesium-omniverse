@@ -15,6 +15,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
 #define USD_TOKENS \
     (baseColorTexture) \
     (cesium_material) \
+    (cesium_texture_array_lookup) \
     (cesium_texture_lookup) \
     (constant) \
     (doubleSided) \

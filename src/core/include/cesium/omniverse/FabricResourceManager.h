@@ -145,6 +145,8 @@ class FabricResourceManager {
     std::vector<omni::fabric::Path> _retainedPaths;
 
     std::vector<SharedMaterial> _sharedMaterials;
+
+    bool _useTextureArray{true};
 };
 
 } // namespace cesium::omniverse
