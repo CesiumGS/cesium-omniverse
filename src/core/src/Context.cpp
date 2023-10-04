@@ -366,18 +366,28 @@ void Context::processCesiumGlobeAnchorChanged(const cesium::omniverse::ChangedPr
 }
 
 void Context::processPrimRemoved(const ChangedPrim& changedPrim) {
-    // TODO: Remove prim from anchor registry if has anchor API.
-
-    if (changedPrim.primType == ChangedPrimType::CESIUM_TILESET) {
-        // Remove the tileset from the asset registry
-        const auto tilesetPath = changedPrim.path;
-        AssetRegistry::getInstance().removeTileset(tilesetPath);
-    } else if (changedPrim.primType == ChangedPrimType::CESIUM_IMAGERY) {
-        // Remove the imagery from the asset registry and reload the tileset that the imagery was attached to
-        const auto imageryPath = changedPrim.path;
-        const auto tilesetPath = changedPrim.path.GetParentPath();
-        AssetRegistry::getInstance().removeImagery(imageryPath);
-        reloadTileset(tilesetPath);
+    switch (changedPrim.primType) {
+        case ChangedPrimType::CESIUM_TILESET: {
+            // Remove the tileset from the asset registry
+            const auto tilesetPath = changedPrim.path;
+            AssetRegistry::getInstance().removeTileset(changedPrim.path);
+        } break;
+        case ChangedPrimType::CESIUM_IMAGERY: {
+            // Remove the imagery from the asset registry and reload the tileset that the imagery was attached to
+            const auto imageryPath = changedPrim.path;
+            const auto tilesetPath = changedPrim.path.GetParentPath();
+            AssetRegistry::getInstance().removeImagery(imageryPath);
+            reloadTileset(tilesetPath);
+        } break;
+        case ChangedPrimType::CESIUM_GLOBE_ANCHOR:
+            if (!GlobeAnchorRegistry::getInstance().removeAnchor(changedPrim.path)) {
+                CESIUM_LOG_ERROR("Failed to remove anchor from registry: {}", changedPrim.path.GetString());
+            }
+            break;
+        case ChangedPrimType::CESIUM_GEOREFERENCE:
+        case ChangedPrimType::CESIUM_DATA:
+        case ChangedPrimType::OTHER:
+            break;
     }
 }
 

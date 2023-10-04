@@ -1,6 +1,7 @@
 #include "cesium/omniverse/UsdNotificationHandler.h"
 
 #include "cesium/omniverse/AssetRegistry.h"
+#include "cesium/omniverse/GlobeAnchorRegistry.h"
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/OmniImagery.h"
 #include "cesium/omniverse/OmniTileset.h"
@@ -35,6 +36,11 @@ ChangedPrimType getType(const pxr::SdfPath& path) {
                 return ChangedPrimType::CESIUM_IMAGERY;
             default:
                 break;
+        }
+
+        // If we still haven't found the prim type, it could be a globe anchor, and we should check if it exists in the anchor registry
+        if (GlobeAnchorRegistry::getInstance().anchorExists(path)) {
+            return ChangedPrimType::CESIUM_GLOBE_ANCHOR;
         }
     }
 
@@ -160,6 +166,12 @@ void UsdNotificationHandler::onPrimRemoved(const pxr::SdfPath& primPath) {
                 CESIUM_LOG_INFO("Removed prim: {}", imageryPath.GetText());
             }
         }
+    }
+
+    const auto& type = getType(primPath);
+    if (type == ChangedPrimType::CESIUM_GLOBE_ANCHOR) {
+        _changedPrims.emplace_back(ChangedPrim{primPath, pxr::TfToken(), type, ChangeType::PRIM_REMOVED});
+        CESIUM_LOG_INFO("Removed prim: {}", primPath.GetText());
     }
 }
 

@@ -28,9 +28,11 @@ class GlobeAnchorRegistry {
     GlobeAnchorRegistry& operator=(GlobeAnchorRegistry) = delete;
 
     void clear();
+    bool anchorExists(pxr::SdfPath path);
     std::shared_ptr<OmniGlobeAnchor> createAnchor(pxr::SdfPath path, glm::dmat4 anchorToFixed);
     std::optional<std::shared_ptr<OmniGlobeAnchor>> getAnchor(const pxr::SdfPath& path);
     std::vector<std::shared_ptr<OmniGlobeAnchor>> getAllAnchors();
+    bool removeAnchor(const pxr::SdfPath& path);
 
   protected:
     GlobeAnchorRegistry() = default;

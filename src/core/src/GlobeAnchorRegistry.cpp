@@ -5,6 +5,10 @@
 
 namespace cesium::omniverse {
 
+bool GlobeAnchorRegistry::anchorExists(pxr::SdfPath path) {
+    return _anchors.count(path.GetText()) > 0;
+}
+
 void GlobeAnchorRegistry::clear() {
     _anchors.clear();
 }
@@ -34,6 +38,10 @@ std::vector<std::shared_ptr<OmniGlobeAnchor>> GlobeAnchorRegistry::getAllAnchors
     }
 
     return result;
+}
+
+bool GlobeAnchorRegistry::removeAnchor(const pxr::SdfPath& path) {
+    return _anchors.erase(path.GetText()) > 0;
 }
 
 } // namespace cesium::omniverse
