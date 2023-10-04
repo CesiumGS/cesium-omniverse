@@ -245,6 +245,7 @@ void Context::processCesiumDataChanged(const ChangedPrim& changedPrim) {
         name == pxr::CesiumTokens->cesiumDebugDisableTextures ||
         name == pxr::CesiumTokens->cesiumDebugDisableGeometryPool ||
         name == pxr::CesiumTokens->cesiumDebugDisableMaterialPool ||
+        name == pxr::CesiumTokens->cesiumDebugDisableTexturePool ||
         name == pxr::CesiumTokens->cesiumDebugGeometryPoolInitialCapacity ||
         name == pxr::CesiumTokens->cesiumDebugMaterialPoolInitialCapacity ||
         name == pxr::CesiumTokens->cesiumDebugTexturePoolInitialCapacity ||
