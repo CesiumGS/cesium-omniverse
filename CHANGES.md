@@ -1,5 +1,9 @@
 # Change Log
 
+### v0.12.0 - 2023-11-01
+
+* Basis Universal textures are now decoded to the native BCn texture format instead of RGBA8 in Kit 105.1 and above.
+
 ### v0.11.0 - 2023-10-02
 
 * **Breaking change:** Cesium for Omniverse now requires Kit 105.1 or above (USD Composer 2023.2.0 or above).
