@@ -187,9 +187,7 @@ void Context::onUpdateFrame(const std::vector<Viewport>& viewports) {
     processUsdNotifications();
 
     const auto georeferenceOrigin = Context::instance().getGeoreferenceOrigin();
-    const auto ecefToUsdTransform =
-        GeospatialUtil::getCoordinateSystem(georeferenceOrigin, UsdUtil::getUsdMetersPerUnit())
-            .getEcefToLocalTransformation();
+    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdTransform(georeferenceOrigin);
 
     // Check if the ecefToUsd transform has changed and update CesiumSession
     if (ecefToUsdTransform != _ecefToUsdTransform) {
@@ -241,6 +239,7 @@ void Context::processCesiumDataChanged(const ChangedPrim& changedPrim) {
         name == pxr::CesiumTokens->cesiumDebugDisableTextures ||
         name == pxr::CesiumTokens->cesiumDebugDisableGeometryPool ||
         name == pxr::CesiumTokens->cesiumDebugDisableMaterialPool ||
+        name == pxr::CesiumTokens->cesiumDebugDisableTexturePool ||
         name == pxr::CesiumTokens->cesiumDebugGeometryPoolInitialCapacity ||
         name == pxr::CesiumTokens->cesiumDebugMaterialPoolInitialCapacity ||
         name == pxr::CesiumTokens->cesiumDebugTexturePoolInitialCapacity ||

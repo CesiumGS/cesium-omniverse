@@ -29,5 +29,6 @@ class CesiumDataSchemaAttributesWidget(SchemaPropertiesWidget):
                 CustomLayoutProperty("cesium:debug:materialPoolInitialCapacity")
                 CustomLayoutProperty("cesium:debug:texturePoolInitialCapacity")
                 CustomLayoutProperty("cesium:debug:randomColors")
+                CustomLayoutProperty("cesium:debug:disableGeoreferencing")
 
         return frame.apply(props)

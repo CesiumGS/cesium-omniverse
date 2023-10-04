@@ -197,14 +197,25 @@ std::string getSafeName(const std::string& name) {
 }
 
 pxr::TfToken getDynamicTextureProviderAssetPathToken(const std::string& name) {
-    return pxr::TfToken(
-        pxr::SdfAssetPath(fmt::format("{}{}", rtx::resourcemanager::kDynamicTexturePrefix, name)).GetAssetPath());
+    return pxr::TfToken(pxr::SdfAssetPath(fmt::format("dynamic://{}", name)).GetAssetPath());
+}
+
+glm::dmat4 computeEcefToUsdTransform(const CesiumGeospatial::Cartographic& origin) {
+    const auto cesiumDataUsd = UsdUtil::getOrCreateCesiumData();
+    bool disableGeoreferencing;
+    cesiumDataUsd.GetDebugDisableGeoreferencingAttr().Get(&disableGeoreferencing);
+
+    if (disableGeoreferencing) {
+        const auto scale = 1.0 / getUsdMetersPerUnit();
+        return glm::scale(glm::dmat4(1.0), glm::dvec3(scale));
+    }
+
+    return GeospatialUtil::getCoordinateSystem(origin, getUsdMetersPerUnit()).getEcefToLocalTransformation();
 }
 
 glm::dmat4
 computeEcefToUsdTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath) {
-    const auto ecefToUsdTransform =
-        GeospatialUtil::getCoordinateSystem(origin, getUsdMetersPerUnit()).getEcefToLocalTransformation();
+    const auto ecefToUsdTransform = computeEcefToUsdTransform(origin);
     const auto primInverseUsdWorldTransform = computeUsdWorldTransform(primPath);
     const auto primEcefToUsdTransform = primInverseUsdWorldTransform * ecefToUsdTransform;
     return primEcefToUsdTransform;

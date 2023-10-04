@@ -10,9 +10,7 @@
       ],
       "cwd": "${workspaceFolder}",
       "type": "cppvsdbg",
-      "request": "launch",
-      "console": "externalTerminal",
-      "internalConsoleOptions": "openOnSessionStart"
+      "request": "launch"
     },
     {
       "name": "Development App (Kit Debug)",
@@ -23,45 +21,7 @@
       ],
       "cwd": "${workspaceFolder}",
       "type": "cppvsdbg",
-      "request": "launch",
-      "console": "externalTerminal",
-      "internalConsoleOptions": "openOnSessionStart"
-    },
-    {
-      "name": "Performance Tracing",
-      "preLaunchTask": "Build Only (release)",
-      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit.exe",
-      "args": [
-        "${workspaceFolder}/apps/cesium.omniverse.dev.trace.kit"
-      ],
-      "cwd": "${workspaceFolder}",
-      "type": "cppvsdbg",
-      "request": "launch",
-      "console": "externalTerminal",
-      "internalConsoleOptions": "openOnSessionStart"
-    },
-    {
-      "name": "Performance Testing App",
-      "preLaunchTask": "Build Only (release)",
-      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit.exe",
-      "args": [
-        "${workspaceFolder}/apps/cesium.performance.kit"
-      ],
-      "cwd": "${workspaceFolder}",
-      "type": "cppvsdbg",
-      "request": "launch",
-      "console": "externalTerminal",
-      "internalConsoleOptions": "openOnSessionStart"
-    },
-    {
-      "name": "C++ Unit Tests",
-      "preLaunchTask": "Build Only (debug)",
-      "program": "${workspaceFolder}/build/bin/Debug/tests.exe",
-      "cwd": "${workspaceFolder}",
-      "type": "cppvsdbg",
-      "request": "launch",
-      "console": "externalTerminal",
-      "internalConsoleOptions": "openOnSessionStart"
+      "request": "launch"
     },
     {
       "name": "Python Debugging (start)",
@@ -72,9 +32,7 @@
       ],
       "cwd": "${workspaceFolder}",
       "type": "cppvsdbg",
-      "request": "launch",
-      "console": "externalTerminal",
-      "internalConsoleOptions": "openOnSessionStart"
+      "request": "launch"
     },
     {
       "name": "Python Debugging (attach)",

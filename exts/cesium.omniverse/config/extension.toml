@@ -1,5 +1,5 @@
 [package]
-version = "0.10.0"
+version = "0.11.0"
 category = "simulation"
 feature = false
 app = false
@@ -51,6 +51,12 @@ archiveDirs = ["vendor"]
 
 [[native.plugin]]
 path = "bin/cesium.omniverse.plugin"
+
+[[native.library]]
+"filter:platform"."windows-x86_64"."path" = "bin/${lib_prefix}nvrtc-builtins64_118${lib_ext}"
+
+[[native.library]]
+"filter:platform"."linux-x86_64"."path" = "bin/${lib_prefix}nvrtc-builtins${lib_ext}"
 
 [settings]
 exts."cesium.omniverse".defaultAccessToken = ""

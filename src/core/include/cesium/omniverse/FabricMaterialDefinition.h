@@ -22,6 +22,7 @@ class FabricMaterialDefinition {
     [[nodiscard]] bool hasTilesetMaterial() const;
     [[nodiscard]] const pxr::SdfPath& getTilesetMaterialPath() const;
 
+    // Make sure to update this function when adding new fields to the class
     bool operator==(const FabricMaterialDefinition& other) const;
 
   private:

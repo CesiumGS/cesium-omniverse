@@ -1,5 +1,7 @@
 #pragma once
 
+#include "cesium/omniverse/GltfUtil.h"
+
 #include <omni/fabric/IPath.h>
 #include <pxr/usd/sdf/assetPath.h>
 #include <pxr/usd/sdf/path.h>
@@ -28,7 +30,13 @@ class FabricGeometryDefinition;
 class FabricMaterialDefinition;
 class FabricTexture;
 class FabricTexturePool;
-struct MaterialInfo;
+
+struct SharedMaterial {
+    std::shared_ptr<FabricMaterial> material;
+    MaterialInfo materialInfo;
+    int64_t tilesetId;
+    uint64_t referenceCount;
+};
 
 class FabricResourceManager {
   public:
@@ -57,7 +65,8 @@ class FabricResourceManager {
         const MaterialInfo& materialInfo,
         bool hasImagery,
         const pxr::SdfPath& tilesetMaterialPath,
-        long stageId);
+        long stageId,
+        int64_t tilesetId);
 
     std::shared_ptr<FabricTexture> acquireTexture();
 
@@ -84,6 +93,18 @@ class FabricResourceManager {
     ~FabricResourceManager();
 
   private:
+    std::shared_ptr<FabricMaterial> createMaterial(const FabricMaterialDefinition& materialDefinition, long stageId);
+
+    void removeSharedMaterial(const SharedMaterial& sharedMaterial);
+    SharedMaterial* getSharedMaterial(const MaterialInfo& materialInfo, int64_t tilesetId);
+    SharedMaterial* getSharedMaterial(const std::shared_ptr<FabricMaterial>& material);
+    std::shared_ptr<FabricMaterial> acquireSharedMaterial(
+        const MaterialInfo& materialInfo,
+        const FabricMaterialDefinition& materialDefinition,
+        long stageId,
+        int64_t tilesetId);
+    void releaseSharedMaterial(const std::shared_ptr<FabricMaterial>& material);
+
     std::shared_ptr<FabricGeometryPool> getGeometryPool(const FabricGeometryDefinition& geometryDefinition);
     std::shared_ptr<FabricMaterialPool> getMaterialPool(const FabricMaterialDefinition& materialDefinition);
     std::shared_ptr<FabricTexturePool> getTexturePool();
@@ -126,6 +147,8 @@ class FabricResourceManager {
     pxr::TfToken _defaultTextureAssetPathToken;
 
     std::vector<omni::fabric::Path> _retainedPaths;
+
+    std::vector<SharedMaterial> _sharedMaterials;
 };
 
 } // namespace cesium::omniverse
