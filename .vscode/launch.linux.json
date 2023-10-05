@@ -111,7 +111,11 @@
         {
           "text": "set print elements 0"
         }
-      ]
+      ],
+      "symbolLoadInfo": {
+        "loadAll": false,
+        "exceptionList": "libcesium.omniverse.plugin.so;libcesium.omniverse.cpp.tests.plugin.so"
+      }
     },
     {
       "name": "Python Debugging (attach)",

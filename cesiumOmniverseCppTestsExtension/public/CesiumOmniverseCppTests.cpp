@@ -63,7 +63,7 @@ class CesiumOmniverseCppTestsPlugin final : public ICesiumOmniverseCppTestsInter
         Context::onShutdown();
     }
 
-    void run_all_tests(long int stage_id) noexcept override {
+    void runAllTests(long int stage_id) noexcept override {
 
         CESIUM_LOG_INFO("Running Cesium Omniverse Tests with stage id: {}", stage_id);
 
@@ -80,7 +80,7 @@ class CesiumOmniverseCppTestsPlugin final : public ICesiumOmniverseCppTestsInter
         context.setAssertHandler(handler);
 
         exampleTest();
-        run_all_UsdUtil_tests();
+        runAllUsdUtilTests();
 
         CESIUM_LOG_INFO("Cesium Omniverse Tests complete");
     }
