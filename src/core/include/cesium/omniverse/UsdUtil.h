@@ -82,7 +82,7 @@ pxr::SdfPath getRootPath();
 pxr::SdfPath getPathUnique(const pxr::SdfPath& parentPath, const std::string& name);
 std::string getSafeName(const std::string& name);
 pxr::TfToken getDynamicTextureProviderAssetPathToken(const std::string& name);
-glm::dmat4 computeEcefToUsdTransform(const CesiumGeospatial::Cartographic& origin);
+glm::dmat4 computeEcefToUsdLocalTransform(const CesiumGeospatial::Cartographic& origin);
 glm::dmat4
 computeEcefToUsdWorldTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath);
 glm::dmat4
@@ -117,7 +117,7 @@ bool isCesiumSession(const pxr::SdfPath& path);
 bool isCesiumGeoreference(const pxr::SdfPath& path);
 bool isCesiumTileset(const pxr::SdfPath& path);
 bool isCesiumImagery(const pxr::SdfPath& path);
-bool hasCesiumGlobeAnchor(const pxr::SdfPath&);
+bool hasCesiumGlobeAnchor(const pxr::SdfPath& path);
 
 bool primExists(const pxr::SdfPath& path);
 

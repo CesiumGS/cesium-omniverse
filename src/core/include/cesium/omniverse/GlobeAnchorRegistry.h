@@ -1,11 +1,10 @@
 #pragma once
 
-#include "OmniGlobeAnchor.h"
-
-#include <CesiumGeospatial/GlobeAnchor.h>
+#include <glm/ext/matrix_double4x4.hpp>
 #include <pxr/usd/sdf/path.h>
 
 #include <memory>
+#include <optional>
 #include <unordered_map>
 
 namespace CesiumGeospatial {
@@ -13,6 +12,8 @@ class GlobeAnchor;
 }
 
 namespace cesium::omniverse {
+
+class OmniGlobeAnchor;
 
 class GlobeAnchorRegistry {
   public:
@@ -28,10 +29,10 @@ class GlobeAnchorRegistry {
     GlobeAnchorRegistry& operator=(GlobeAnchorRegistry) = delete;
 
     void clear();
-    bool anchorExists(pxr::SdfPath path);
-    std::shared_ptr<OmniGlobeAnchor> createAnchor(pxr::SdfPath path, glm::dmat4 anchorToFixed);
-    std::optional<std::shared_ptr<OmniGlobeAnchor>> getAnchor(const pxr::SdfPath& path);
-    std::vector<std::shared_ptr<OmniGlobeAnchor>> getAllAnchors();
+    bool anchorExists(pxr::SdfPath path) const;
+    std::shared_ptr<OmniGlobeAnchor> createAnchor(const pxr::SdfPath& path, const glm::dmat4& anchorToFixed);
+    std::optional<std::shared_ptr<OmniGlobeAnchor>> getAnchor(const pxr::SdfPath& path) const;
+    std::vector<std::shared_ptr<OmniGlobeAnchor>> getAllAnchors() const;
     bool removeAnchor(const pxr::SdfPath& path);
 
   protected:

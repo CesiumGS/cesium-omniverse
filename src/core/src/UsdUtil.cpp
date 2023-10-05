@@ -212,7 +212,7 @@ pxr::TfToken getDynamicTextureProviderAssetPathToken(const std::string& name) {
     return pxr::TfToken(pxr::SdfAssetPath(fmt::format("dynamic://{}", name)).GetAssetPath());
 }
 
-glm::dmat4 computeEcefToUsdTransform(const CesiumGeospatial::Cartographic& origin) {
+glm::dmat4 computeEcefToUsdLocalTransform(const CesiumGeospatial::Cartographic& origin) {
     const auto cesiumDataUsd = UsdUtil::getOrCreateCesiumData();
     bool disableGeoreferencing;
     cesiumDataUsd.GetDebugDisableGeoreferencingAttr().Get(&disableGeoreferencing);
@@ -222,12 +222,12 @@ glm::dmat4 computeEcefToUsdTransform(const CesiumGeospatial::Cartographic& origi
         return glm::scale(glm::dmat4(1.0), glm::dvec3(scale));
     }
 
-    return GeospatialUtil::getCoordinateSystem(origin, getUsdMetersPerUnit()).getEcefToLocalTransformation();
+    return GeospatialUtil::getCoordinateSystem(origin).getEcefToLocalTransformation();
 }
 
 glm::dmat4
 computeEcefToUsdWorldTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath) {
-    const auto ecefToUsdTransform = computeEcefToUsdTransform(origin);
+    const auto ecefToUsdTransform = computeEcefToUsdLocalTransform(origin);
     const auto primUsdWorldTransform = computeUsdLocalToWorldTransform(primPath);
     const auto primEcefToUsdTransform = primUsdWorldTransform * ecefToUsdTransform;
     return primEcefToUsdTransform;
@@ -240,8 +240,7 @@ computeUsdWorldToEcefTransformForPrim(const CesiumGeospatial::Cartographic& orig
 
 glm::dmat4
 computeEcefToUsdLocalTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath) {
-    const auto ecefToUsdTransform =
-        GeospatialUtil::getCoordinateSystem(origin, UsdUtil::getUsdMetersPerUnit()).getEcefToLocalTransformation();
+    const auto ecefToUsdTransform = computeEcefToUsdLocalTransform(origin);
     const auto usdWorldToLocalTransform = UsdUtil::computeUsdWorldToLocalTransform(primPath);
     const auto primEcefToUsdTransform = usdWorldToLocalTransform * ecefToUsdTransform;
     return primEcefToUsdTransform;

@@ -20,21 +20,24 @@ class OmniGlobeAnchor {
   public:
     OmniGlobeAnchor(pxr::SdfPath anchorPrimPath, const glm::dmat4 anchorToFixed);
 
-    const pxr::GfMatrix4d getCachedTransformation();
-    const pxr::GfVec3d getCachedGeographicCoordinate();
-    const pxr::GfVec3d getCachedEcefPosition();
-    const pxr::GfVec3d getCachedEcefRotation();
-    const pxr::GfVec3d getCachedEcefScale();
+    [[nodiscard]] const pxr::GfMatrix4d& getCachedTransformation() const;
+    [[nodiscard]] const pxr::GfVec3d& getCachedGeographicCoordinate() const;
+    [[nodiscard]] const pxr::GfVec3d& getCachedEcefPosition() const;
+    [[nodiscard]] const pxr::GfVec3d& getCachedEcefRotation() const;
+    [[nodiscard]] const pxr::GfVec3d& getCachedEcefScale() const;
     void updateCachedValues();
 
-    const glm::dmat4 getAnchorToFixedTransform();
+    // Using cesium-native nomenclature here. Fixed corresponds to ECEF in our code.
+    [[nodiscard]] const glm::dmat4& getAnchorToFixedTransform() const;
+
+    // Using cesium-native nomenclature here. Local refers to ENU in our code.
     const glm::dmat4 getAnchorToLocalTransform(const CesiumGeospatial::Cartographic& origin);
     std::optional<CesiumGeospatial::Cartographic> getCartographicPosition();
-    [[maybe_unused]] const pxr::SdfPath getPrimPath();
+    [[nodiscard]] const pxr::SdfPath& getPrimPath() const;
     void updateByFixedTransform(
-        glm::dvec3 ecefPositionVec,
-        glm::dvec3 ecefRotationVec,
-        glm::dvec3 ecefScaleVec,
+        const glm::dvec3& ecefPositionVec,
+        const glm::dvec3& ecefRotationVec,
+        const glm::dvec3& ecefScaleVec,
         bool shouldReorient);
     void updateByGeographicCoordinates(double latitude, double longitude, double height, bool shouldReorient);
     void updateByUsdTransform(const CesiumGeospatial::Cartographic& origin, bool shouldReorient);

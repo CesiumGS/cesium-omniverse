@@ -1,6 +1,8 @@
 #include "cesium/omniverse/GeospatialUtil.h"
 
 #include "cesium/omniverse/GlobeAnchorRegistry.h"
+#include "cesium/omniverse/LoggerSink.h"
+#include "cesium/omniverse/OmniGlobeAnchor.h"
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <CesiumGeospatial/GlobeAnchor.h>
@@ -19,15 +21,9 @@ CesiumGeospatial::Cartographic convertGeoreferenceToCartographic(const pxr::Cesi
     return {glm::radians(longitude), glm::radians(latitude), height};
 }
 
-[[maybe_unused]] CesiumGeospatial::LocalHorizontalCoordinateSystem
-getCoordinateSystem(const pxr::CesiumGeoreference& georeference, const double scaleInMeters) {
-    auto origin = GeospatialUtil::convertGeoreferenceToCartographic(georeference);
-    return getCoordinateSystem(origin, scaleInMeters);
-}
-
-CesiumGeospatial::LocalHorizontalCoordinateSystem
-getCoordinateSystem(const CesiumGeospatial::Cartographic& origin, const double scaleInMeters) {
+CesiumGeospatial::LocalHorizontalCoordinateSystem getCoordinateSystem(const CesiumGeospatial::Cartographic& origin) {
     const auto upAxis = UsdUtil::getUsdUpAxis();
+    const auto scaleInMeters = UsdUtil::getUsdMetersPerUnit();
 
     if (upAxis == pxr::UsdGeomTokens->z) {
         return {
@@ -96,8 +92,8 @@ void updateAnchorByUsdTransform(
 
         anchorApi.GetGeographicCoordinateAttr().Set(geographicPosition);
     } else {
-        // TODO: Log an error. Probably.
         anchorApi.GetGeographicCoordinateAttr().Set(pxr::GfVec3d{0.0, 0.0, 0.0});
+        CESIUM_LOG_WARN("Invalid cartographic position for Anchor. Reset to 0, 0, 0.");
     }
 
     globeAnchor->updateCachedValues();
@@ -110,7 +106,9 @@ void updateAnchorByLatLongHeight(
         GlobeAnchorRegistry::getInstance().getAnchor(anchorApi.GetPath());
 
     if (!maybeGlobeAnchor.has_value()) {
-        // TODO: Log an error. Something bad has occurred.
+        CESIUM_LOG_ERROR(
+            "Anchor does not exist in registry but exists in stage. Path: {}", anchorApi.GetPath().GetString());
+
         return;
     }
 
@@ -155,7 +153,9 @@ void updateAnchorByFixedTransform(
         GlobeAnchorRegistry::getInstance().getAnchor(anchorApi.GetPath());
 
     if (!maybeGlobeAnchor.has_value()) {
-        // TODO: Log an error. Something bad has occurred.
+        CESIUM_LOG_ERROR(
+            "Anchor does not exist in registry but exists in stage. Path: {}", anchorApi.GetPath().GetString());
+        
         return;
     }
 
@@ -203,8 +203,8 @@ void updateAnchorByFixedTransform(
 
         anchorApi.GetGeographicCoordinateAttr().Set(geographicPosition);
     } else {
-        // TODO: Log an error. Probably.
         anchorApi.GetGeographicCoordinateAttr().Set(pxr::GfVec3d{0.0, 0.0, 0.0});
+        CESIUM_LOG_WARN("Invalid cartographic position for Anchor. Reset to 0, 0, 0.");
     }
 
     globeAnchor->updateCachedValues();

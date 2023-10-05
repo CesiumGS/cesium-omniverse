@@ -17,7 +17,6 @@ class CesiumGlobeAnchorAttributesWidget(SchemaPropertiesWidget):
         super().clean()
 
     def _customize_props_layout(self, props):
-        # TODO: Lay this out better and give it some better functionality before merge.
         frame = CustomLayoutFrame(hide_extra=True)
 
         with frame:

@@ -12,23 +12,23 @@
 
 namespace cesium::omniverse {
 
-const pxr::GfMatrix4d OmniGlobeAnchor::getCachedTransformation() {
+const pxr::GfMatrix4d& OmniGlobeAnchor::getCachedTransformation() const {
     return _valueCache.transformation;
 }
 
-const pxr::GfVec3d OmniGlobeAnchor::getCachedGeographicCoordinate() {
+const pxr::GfVec3d& OmniGlobeAnchor::getCachedGeographicCoordinate() const {
     return _valueCache.geographicCoordinate;
 }
 
-const pxr::GfVec3d OmniGlobeAnchor::getCachedEcefPosition() {
+const pxr::GfVec3d& OmniGlobeAnchor::getCachedEcefPosition() const {
     return _valueCache.ecefPosition;
 }
 
-const pxr::GfVec3d OmniGlobeAnchor::getCachedEcefRotation() {
+const pxr::GfVec3d& OmniGlobeAnchor::getCachedEcefRotation() const {
     return _valueCache.ecefRotation;
 }
 
-const pxr::GfVec3d OmniGlobeAnchor::getCachedEcefScale() {
+const pxr::GfVec3d& OmniGlobeAnchor::getCachedEcefScale() const {
     return _valueCache.ecefScale;
 }
 
@@ -62,13 +62,12 @@ OmniGlobeAnchor::OmniGlobeAnchor(pxr::SdfPath anchorPrimPath, const glm::dmat4 a
     _anchor = std::make_shared<CesiumGeospatial::GlobeAnchor>(anchorToFixed);
 }
 
-const glm::dmat4 OmniGlobeAnchor::getAnchorToFixedTransform() {
+const glm::dmat4& OmniGlobeAnchor::getAnchorToFixedTransform() const {
     return _anchor->getAnchorToFixedTransform();
 }
 
 const glm::dmat4 OmniGlobeAnchor::getAnchorToLocalTransform(const CesiumGeospatial::Cartographic& origin) {
-    return _anchor->getAnchorToLocalTransform(
-        GeospatialUtil::getCoordinateSystem(origin, UsdUtil::getUsdMetersPerUnit()));
+    return _anchor->getAnchorToLocalTransform(GeospatialUtil::getCoordinateSystem(origin));
 }
 
 std::optional<CesiumGeospatial::Cartographic> OmniGlobeAnchor::getCartographicPosition() {
@@ -84,14 +83,14 @@ std::optional<CesiumGeospatial::Cartographic> OmniGlobeAnchor::getCartographicPo
     return CesiumGeospatial::Ellipsoid::WGS84.cartesianToCartographic(ft);
 }
 
-const pxr::SdfPath OmniGlobeAnchor::getPrimPath() {
+const pxr::SdfPath& OmniGlobeAnchor::getPrimPath() const {
     return _anchorPrimPath;
 }
 
 void OmniGlobeAnchor::updateByFixedTransform(
-    glm::dvec3 ecefPositionVec,
-    glm::dvec3 ecefRotationVec,
-    glm::dvec3 ecefScaleVec,
+    const glm::dvec3& ecefPositionVec,
+    const glm::dvec3& ecefRotationVec,
+    const glm::dvec3& ecefScaleVec,
     bool shouldReorient) {
     auto translation = glm::translate(glm::dmat4(1.0), ecefPositionVec);
     auto rotation = glm::eulerAngleXYZ<double>(

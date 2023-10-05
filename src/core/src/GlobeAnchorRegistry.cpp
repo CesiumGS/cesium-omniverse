@@ -1,11 +1,13 @@
 #include "cesium/omniverse/GlobeAnchorRegistry.h"
 
+#include "cesium/omniverse/OmniGlobeAnchor.h"
+
 #include <memory>
 #include <optional>
 
 namespace cesium::omniverse {
 
-bool GlobeAnchorRegistry::anchorExists(pxr::SdfPath path) {
+bool GlobeAnchorRegistry::anchorExists(pxr::SdfPath path) const {
     return _anchors.count(path.GetText()) > 0;
 }
 
@@ -13,7 +15,8 @@ void GlobeAnchorRegistry::clear() {
     _anchors.clear();
 }
 
-std::shared_ptr<OmniGlobeAnchor> GlobeAnchorRegistry::createAnchor(pxr::SdfPath path, glm::dmat4 anchorToFixed) {
+std::shared_ptr<OmniGlobeAnchor>
+GlobeAnchorRegistry::createAnchor(const pxr::SdfPath& path, const glm::dmat4& anchorToFixed) {
     auto anchor = std::make_shared<OmniGlobeAnchor>(path, anchorToFixed);
 
     _anchors.emplace(path.GetString(), anchor);
@@ -21,7 +24,7 @@ std::shared_ptr<OmniGlobeAnchor> GlobeAnchorRegistry::createAnchor(pxr::SdfPath 
     return anchor;
 }
 
-std::optional<std::shared_ptr<OmniGlobeAnchor>> GlobeAnchorRegistry::getAnchor(const pxr::SdfPath& path) {
+std::optional<std::shared_ptr<OmniGlobeAnchor>> GlobeAnchorRegistry::getAnchor(const pxr::SdfPath& path) const {
     if (auto anchor = _anchors.find(path.GetString()); anchor != _anchors.end()) {
         return anchor->second;
     }
@@ -29,7 +32,7 @@ std::optional<std::shared_ptr<OmniGlobeAnchor>> GlobeAnchorRegistry::getAnchor(c
     return std::nullopt;
 }
 
-std::vector<std::shared_ptr<OmniGlobeAnchor>> GlobeAnchorRegistry::getAllAnchors() {
+std::vector<std::shared_ptr<OmniGlobeAnchor>> GlobeAnchorRegistry::getAllAnchors() const {
     std::vector<std::shared_ptr<OmniGlobeAnchor>> result;
     result.reserve(_anchors.size());
 

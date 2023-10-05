@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CesiumUsdSchemas/globeAnchorAPI.h"
-#include "OmniGlobeAnchor.h"
 
 #include <CesiumGeospatial/Cartographic.h>
 #include <CesiumGeospatial/LocalHorizontalCoordinateSystem.h>
@@ -13,17 +12,15 @@ class Cartographic;
 class LocalHorizontalCoordinateSystem;
 } // namespace CesiumGeospatial
 
-namespace cesium::omniverse::GeospatialUtil {
+namespace cesium::omniverse {
+
+class OmniGlobeAnchor;
+
+namespace GeospatialUtil {
 
 CesiumGeospatial::Cartographic convertGeoreferenceToCartographic(const pxr::CesiumGeoreference& georeference);
 
-glm::dmat4 getAxisConversionTransform();
-glm::dmat4 getEastNorthUpToFixedFrame(const CesiumGeospatial::Cartographic& cartographic);
-[[maybe_unused]] CesiumGeospatial::LocalHorizontalCoordinateSystem
-getCoordinateSystem(const pxr::CesiumGeoreference& georeference, const double scaleInMeters);
-CesiumGeospatial::LocalHorizontalCoordinateSystem
-getCoordinateSystem(const CesiumGeospatial::Cartographic& origin, const double scaleInMeters);
-glm::dmat4 getUnitConversionTransform();
+CesiumGeospatial::LocalHorizontalCoordinateSystem getCoordinateSystem(const CesiumGeospatial::Cartographic& origin);
 
 void updateAnchorByUsdTransform(
     const CesiumGeospatial::Cartographic& origin,
@@ -39,4 +36,5 @@ void updateAnchorOrigin(
     const pxr::CesiumGlobeAnchorAPI& anchorApi,
     const std::shared_ptr<OmniGlobeAnchor>& globeAnchor);
 
-}; // namespace cesium::omniverse::GeospatialUtil
+}; // namespace GeospatialUtil
+}; // namespace cesium::omniverse
