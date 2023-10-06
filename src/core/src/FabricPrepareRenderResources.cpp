@@ -190,8 +190,12 @@ void setFabricMeshes(
             geometry->setMaterial(material->getPath());
 
             if (baseColorTexture != nullptr && materialInfo.baseColorTexture.has_value()) {
-                material->setBaseColorTexture(
-                    baseColorTexture->getAssetPathToken(), materialInfo.baseColorTexture.value());
+                if (material->useTextureArray()) {
+                    geometry->setTextureIndex(baseColorTexture->getIndex());
+                } else {
+                    material->setBaseColorTexture(
+                        baseColorTexture->getAssetPathToken(), materialInfo.baseColorTexture.value());
+                }
             }
         } else if (!tilesetMaterialPath.IsEmpty()) {
             geometry->setMaterial(FabricUtil::toFabricPath(tilesetMaterialPath));

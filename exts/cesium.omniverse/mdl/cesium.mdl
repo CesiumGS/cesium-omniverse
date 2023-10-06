@@ -60,62 +60,39 @@ float2 khr_texture_transform_apply(
 }
 
 export gltf_texture_lookup_value cesium_texture_array_lookup(
-    uniform texture_2d texture,
-    uniform int tex_coord_index = 0,
-    uniform float2 offset = float2(0.0f, 0.0),
-    uniform float rotation = 0.0,
-    uniform float2 scale = float2(1.0f, 1.0f),
-    uniform gltf_wrapping_mode wrap_s = repeat,
-    uniform gltf_wrapping_mode wrap_t = repeat
+    uniform texture_2d texture_0,
+    uniform texture_2d texture_1,
+    uniform texture_2d texture_2
 )
 {
     gltf_texture_lookup_value tex_ret;
-    if (!tex::texture_isvalid(texture))
-        return tex_ret;
 
-    float3 tex_coord3 = state::texture_coordinate(tex_coord_index);
+    float3 tex_coord3 = state::texture_coordinate(0);
     float2 tex_coord = khr_texture_transform_apply(
         coord: float2(tex_coord3.x, tex_coord3.y),
-        offset: offset,
-        rotation: rotation,
-        scale: scale);
+        offset: float2(0.0f, 0.0),
+        rotation: 0.0,
+        scale: float2(1.0f, 1.0f));
 
-    tex_ret.value = tex::lookup_float4(
-        tex: texture,
-        coord: tex_coord,
-        wrap_u: convert_wrap_mode(wrap_s),
-        wrap_v: convert_wrap_mode(wrap_t));
-    tex_ret.valid = true;
-
+    uniform texture_2d[3] textures;
+    textures[0] = texture_0;
+    textures[1] = texture_1;
+    textures[2] = texture_2;
 
     int texture_index = ::scene::data_lookup_int("textureIndex");
     texture_index = texture_index % 3;
 
-    if (texture_index == 0) {
-        tex_ret.value *= float4(1.0, 0.0, 0.0, 1.0);
-    } else if (texture_index == 1) {
-        tex_ret.value *= float4(0.0, 1.0, 0.0, 1.0);
+    for (int i = 0; i < 3; i++) {
+        if (i == texture_index) {
+            tex_ret.value = tex::lookup_float4(
+                tex: textures[i],
+                coord: tex_coord,
+                wrap_u: ::tex::wrap_clamp,
+                wrap_v: ::tex::wrap_clamp);
+            tex_ret.valid = true;
+            break;
+        }
     }
 
     return tex_ret;
-
-    // uniform texture_2d[3] textures;
-    // textures[0] = texture_0;
-    // textures[1] = texture_1;
-    // textures[2] = texture_2;
-
-    // int texture_index = ::scene::data_lookup_int("textureIndex");
-    // texture_index = texture_index % 3;
-
-    // for (int i = 0; i < 3; i++) {
-    //     if (i == texture_index) {
-    //         tex_ret.value = tex::lookup_float4(
-    //             tex: textures[i],
-    //             coord: float2(0.0, 0.0),
-    //             wrap_u: ::tex::wrap_clamp,
-    //             wrap_v: ::tex::wrap_clamp);
-    //     }
-    // }
-
-    // return tex_ret;
 }

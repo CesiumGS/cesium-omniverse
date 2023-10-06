@@ -32,9 +32,10 @@ carb::Format getCompressedImageFormat(CesiumGltf::GpuCompressedPixelFormat pixel
 
 } // namespace
 
-FabricTexture::FabricTexture(const std::string& name)
+FabricTexture::FabricTexture(const std::string& name, uint64_t index)
     : _texture(std::make_unique<omni::ui::DynamicTextureProvider>(name))
-    , _assetPathToken(UsdUtil::getDynamicTextureProviderAssetPathToken(name)) {
+    , _assetPathToken(UsdUtil::getDynamicTextureProviderAssetPathToken(name))
+    , _index(index) {
     reset();
 }
 
@@ -48,6 +49,10 @@ void FabricTexture::setActive(bool active) {
 
 const pxr::TfToken& FabricTexture::getAssetPathToken() const {
     return _assetPathToken;
+}
+
+uint64_t FabricTexture::getIndex() const {
+    return _index;
 }
 
 void FabricTexture::reset() {

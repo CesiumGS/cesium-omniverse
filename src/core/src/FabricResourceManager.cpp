@@ -92,7 +92,7 @@ FabricResourceManager::createMaterial(const FabricMaterialDefinition& materialDe
     const auto pathStr = fmt::format("/fabric_material_{}", getNextMaterialId());
     const auto path = omni::fabric::Path(pathStr.c_str());
     return std::make_shared<FabricMaterial>(
-        path, materialDefinition, _defaultTextureAssetPathToken, stageId, _useTextureArray);
+        path, materialDefinition, _defaultTextureAssetPathToken, stageId, _useTextureArray, _textureArrayLength);
 }
 
 void FabricResourceManager::removeSharedMaterial(const SharedMaterial& sharedMaterial) {
@@ -192,8 +192,9 @@ std::shared_ptr<FabricMaterial> FabricResourceManager::acquireMaterial(
 
 std::shared_ptr<FabricTexture> FabricResourceManager::acquireTexture() {
     if (_disableTexturePool) {
-        const auto name = fmt::format("/fabric_texture_{}", getNextTextureId());
-        return std::make_shared<FabricTexture>(name);
+        const auto id = getNextTextureId();
+        const auto name = fmt::format("/fabric_texture_{}", id);
+        return std::make_shared<FabricTexture>(name, id);
     }
 
     std::scoped_lock<std::mutex> lock(_poolMutex);
@@ -347,7 +348,8 @@ FabricResourceManager::createMaterialPool(const FabricMaterialDefinition& materi
         _materialPoolInitialCapacity,
         _defaultTextureAssetPathToken,
         stageId,
-        _useTextureArray));
+        _useTextureArray,
+        _textureArrayLength));
 }
 
 std::shared_ptr<FabricTexturePool> FabricResourceManager::createTexturePool() {
