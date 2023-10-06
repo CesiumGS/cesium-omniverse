@@ -57,7 +57,7 @@ void OmniGlobeAnchor::updateCachedValues() {
     }
 }
 
-OmniGlobeAnchor::OmniGlobeAnchor(pxr::SdfPath anchorPrimPath, const glm::dmat4 anchorToFixed)
+OmniGlobeAnchor::OmniGlobeAnchor(pxr::SdfPath anchorPrimPath, const glm::dmat4& anchorToFixed)
     : _anchorPrimPath{std::move(anchorPrimPath)} {
     _anchor = std::make_shared<CesiumGeospatial::GlobeAnchor>(anchorToFixed);
 }
@@ -89,30 +89,24 @@ const pxr::SdfPath& OmniGlobeAnchor::getPrimPath() const {
 
 void OmniGlobeAnchor::updateByFixedTransform(
     const glm::dvec3& ecefPositionVec,
-    const glm::dvec3& ecefRotationVec,
+    const glm::dvec3& ecefRotationRadVec,
     const glm::dvec3& ecefScaleVec,
     bool shouldReorient) {
     auto translation = glm::translate(glm::dmat4(1.0), ecefPositionVec);
-    auto rotation = glm::eulerAngleXYZ<double>(
-        glm::radians(ecefRotationVec.x), glm::radians(ecefRotationVec.y), glm::radians(ecefRotationVec.z));
+    auto rotation = glm::eulerAngleXYZ<double>(ecefRotationRadVec.x, ecefRotationRadVec.y, ecefRotationRadVec.z);
     auto scale = glm::scale(glm::dmat4(1.0), ecefScaleVec);
     auto newAnchorToFixed = translation * rotation * scale;
 
     _anchor->setAnchorToFixedTransform(newAnchorToFixed, shouldReorient);
 }
 
-void OmniGlobeAnchor::updateByGeographicCoordinates(
-    double latitude,
-    double longitude,
-    double height,
-    bool shouldReorient) {
-    auto cartographic = CesiumGeospatial::Cartographic::fromDegrees(longitude, latitude, height);
+void OmniGlobeAnchor::updateByGeographicCoordinates(CesiumGeospatial::Cartographic& cartographic, bool shouldReorient) {
     auto newEcefPositionVec = CesiumGeospatial::Ellipsoid::WGS84.cartographicToCartesian(cartographic);
 
-    auto ecefRotationVec = UsdUtil::usdToGlmVector(_valueCache.ecefRotation);
+    auto ecefRotationDegVec = UsdUtil::usdToGlmVector(_valueCache.ecefRotation);
     auto ecefScaleVec = UsdUtil::usdToGlmVector(_valueCache.ecefScale);
 
-    updateByFixedTransform(newEcefPositionVec, ecefRotationVec, ecefScaleVec, shouldReorient);
+    updateByFixedTransform(newEcefPositionVec, glm::radians(ecefRotationDegVec), ecefScaleVec, shouldReorient);
 }
 
 void OmniGlobeAnchor::updateByUsdTransform(const CesiumGeospatial::Cartographic& origin, bool shouldReorient) {

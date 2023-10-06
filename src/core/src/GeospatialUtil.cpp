@@ -133,7 +133,8 @@ void updateAnchorByLatLongHeight(
     bool shouldReorient;
     anchorApi.GetAdjustOrientationForGlobeWhenMovingAttr().Get(&shouldReorient);
 
-    globeAnchor->updateByGeographicCoordinates(usdLatitude, usdLongitude, usdHeight, shouldReorient);
+    auto cartographic = CesiumGeospatial::Cartographic::fromDegrees(usdLongitude, usdLatitude, usdHeight);
+    globeAnchor->updateByGeographicCoordinates(cartographic, shouldReorient);
 
     auto localTransform = globeAnchor->getAnchorToLocalTransform(origin);
     UsdUtil::addOrUpdateTransformOpForAnchor(anchorApi.GetPath(), localTransform);
@@ -188,7 +189,7 @@ void updateAnchorByFixedTransform(
 
     bool shouldReorient;
     anchorApi.GetAdjustOrientationForGlobeWhenMovingAttr().Get(&shouldReorient);
-    globeAnchor->updateByFixedTransform(ecefPositionVec, ecefRotationVec, ecefScaleVec, shouldReorient);
+    globeAnchor->updateByFixedTransform(ecefPositionVec, glm::radians(ecefRotationVec), ecefScaleVec, shouldReorient);
 
     auto localTransform = globeAnchor->getAnchorToLocalTransform(origin);
     UsdUtil::addOrUpdateTransformOpForAnchor(anchorApi.GetPath(), localTransform);

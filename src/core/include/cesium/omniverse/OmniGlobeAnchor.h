@@ -18,7 +18,7 @@ struct OmniGlobeAnchorValueCache {
 
 class OmniGlobeAnchor {
   public:
-    OmniGlobeAnchor(pxr::SdfPath anchorPrimPath, const glm::dmat4 anchorToFixed);
+    OmniGlobeAnchor(pxr::SdfPath anchorPrimPath, const glm::dmat4& anchorToFixed);
 
     [[nodiscard]] const pxr::GfMatrix4d& getCachedTransformation() const;
     [[nodiscard]] const pxr::GfVec3d& getCachedGeographicCoordinate() const;
@@ -36,10 +36,10 @@ class OmniGlobeAnchor {
     [[nodiscard]] const pxr::SdfPath& getPrimPath() const;
     void updateByFixedTransform(
         const glm::dvec3& ecefPositionVec,
-        const glm::dvec3& ecefRotationVec,
+        const glm::dvec3& ecefRotationRadVec,
         const glm::dvec3& ecefScaleVec,
         bool shouldReorient);
-    void updateByGeographicCoordinates(double latitude, double longitude, double height, bool shouldReorient);
+    void updateByGeographicCoordinates(CesiumGeospatial::Cartographic& cartographic, bool shouldReorient);
     void updateByUsdTransform(const CesiumGeospatial::Cartographic& origin, bool shouldReorient);
 
   private:
