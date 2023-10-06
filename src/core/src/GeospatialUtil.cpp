@@ -155,7 +155,7 @@ void updateAnchorByFixedTransform(
     if (!maybeGlobeAnchor.has_value()) {
         CESIUM_LOG_ERROR(
             "Anchor does not exist in registry but exists in stage. Path: {}", anchorApi.GetPath().GetString());
-        
+
         return;
     }
 
