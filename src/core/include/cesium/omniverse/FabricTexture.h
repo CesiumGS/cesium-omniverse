@@ -17,7 +17,7 @@ struct ImageCesium;
 namespace cesium::omniverse {
 class FabricTexture {
   public:
-    FabricTexture(const std::string& name);
+    FabricTexture(const std::string& name, uint64_t index);
     ~FabricTexture();
 
     void setImage(const CesiumGltf::ImageCesium& image);
@@ -25,11 +25,13 @@ class FabricTexture {
     void setActive(bool active);
 
     [[nodiscard]] const pxr::TfToken& getAssetPathToken() const;
+    [[nodiscard]] uint64_t getIndex() const;
 
   private:
     void reset();
 
     std::unique_ptr<omni::ui::DynamicTextureProvider> _texture;
     pxr::TfToken _assetPathToken;
+    uint64_t _index;
 };
 } // namespace cesium::omniverse

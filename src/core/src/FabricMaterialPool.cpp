@@ -10,13 +10,15 @@ FabricMaterialPool::FabricMaterialPool(
     uint64_t initialCapacity,
     const pxr::TfToken& defaultTextureAssetPathToken,
     long stageId,
-    bool useTextureArray)
+    bool useTextureArray,
+    uint64_t textureArrayLength)
     : ObjectPool<FabricMaterial>()
     , _poolId(poolId)
     , _materialDefinition(materialDefinition)
     , _defaultTextureAssetPathToken(defaultTextureAssetPathToken)
     , _stageId(stageId)
-    , _useTextureArray(useTextureArray) {
+    , _useTextureArray(useTextureArray)
+    , _textureArrayLength(textureArrayLength) {
     setCapacity(initialCapacity);
 }
 
@@ -28,7 +30,7 @@ std::shared_ptr<FabricMaterial> FabricMaterialPool::createObject(uint64_t object
     const auto pathStr = fmt::format("/fabric_material_pool_{}_object_{}", _poolId, objectId);
     const auto path = omni::fabric::Path(pathStr.c_str());
     return std::make_shared<FabricMaterial>(
-        path, _materialDefinition, _defaultTextureAssetPathToken, _stageId, _useTextureArray);
+        path, _materialDefinition, _defaultTextureAssetPathToken, _stageId, _useTextureArray, _textureArrayLength);
 }
 
 void FabricMaterialPool::setActive(std::shared_ptr<FabricMaterial> material, bool active) {

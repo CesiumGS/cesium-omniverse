@@ -12,7 +12,7 @@ FabricTexturePool::FabricTexturePool(uint64_t poolId, uint64_t initialCapacity)
 
 std::shared_ptr<FabricTexture> FabricTexturePool::createObject(uint64_t objectId) {
     const auto name = fmt::format("/fabric_texture_pool_{}_object_{}", _poolId, objectId);
-    return std::make_shared<FabricTexture>(name);
+    return std::make_shared<FabricTexture>(name, objectId);
 }
 
 void FabricTexturePool::setActive(std::shared_ptr<FabricTexture> texture, bool active) {

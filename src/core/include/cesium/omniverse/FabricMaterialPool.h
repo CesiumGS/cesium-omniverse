@@ -16,7 +16,8 @@ class FabricMaterialPool final : public ObjectPool<FabricMaterial> {
         uint64_t initialCapacity,
         const pxr::TfToken& defaultTextureAssetPathToken,
         long stageId,
-        bool useTextureArray);
+        bool useTextureArray,
+        uint64_t textureArrayLength);
 
     [[nodiscard]] const FabricMaterialDefinition& getMaterialDefinition() const;
 
@@ -30,6 +31,7 @@ class FabricMaterialPool final : public ObjectPool<FabricMaterial> {
     const pxr::TfToken _defaultTextureAssetPathToken;
     const long _stageId;
     const bool _useTextureArray;
+    const uint64_t _textureArrayLength;
 };
 
 } // namespace cesium::omniverse

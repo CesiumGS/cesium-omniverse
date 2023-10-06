@@ -17,12 +17,14 @@ FabricMaterial::FabricMaterial(
     const FabricMaterialDefinition& materialDefinition,
     const pxr::TfToken& defaultTextureAssetPathToken,
     long stageId,
-    bool useTextureArray)
+    bool useTextureArray,
+    uint64_t textureArrayLength)
     : _materialPath(path)
     , _materialDefinition(materialDefinition)
     , _defaultTextureAssetPathToken(defaultTextureAssetPathToken)
     , _stageId(stageId)
-    , _useTextureArray(useTextureArray) {
+    , _useTextureArray(useTextureArray)
+    , _textureArrayLength(textureArrayLength) {
 
     if (stageDestroyed()) {
         return;
@@ -61,6 +63,10 @@ const omni::fabric::Path& FabricMaterial::getPath() const {
 
 const FabricMaterialDefinition& FabricMaterial::getMaterialDefinition() const {
     return _materialDefinition;
+}
+
+bool FabricMaterial::useTextureArray() const {
+    return _useTextureArray;
 }
 
 void FabricMaterial::initialize() {
