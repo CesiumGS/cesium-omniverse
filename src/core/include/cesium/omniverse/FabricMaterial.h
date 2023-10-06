@@ -38,6 +38,7 @@ class FabricMaterial {
     [[nodiscard]] const FabricMaterialDefinition& getMaterialDefinition() const;
 
     bool useTextureArray() const;
+    void updateTextureArray();
 
   private:
     void initialize();

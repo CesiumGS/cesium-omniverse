@@ -82,6 +82,8 @@ class FabricResourceManager {
 
     void retainPath(const omni::fabric::Path& path);
 
+    const std::vector<pxr::TfToken>& getTextureAssetPathTokens() const;
+
     void clear();
 
   protected:
@@ -148,6 +150,8 @@ class FabricResourceManager {
 
     bool _useTextureArray{true};
     uint64_t _textureArrayLength{3};
+
+    std::vector<pxr::TfToken> _textureAssetPathTokens;
 };
 
 } // namespace cesium::omniverse

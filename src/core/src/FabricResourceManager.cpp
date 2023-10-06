@@ -33,6 +33,8 @@ FabricResourceManager::FabricResourceManager() {
     const auto bytes = std::array<uint8_t, 4>{{255, 255, 255, 255}};
     const auto size = carb::Uint2{1, 1};
     _defaultTexture->setBytesData(bytes.data(), size, omni::ui::kAutoCalculateStride, carb::Format::eRGBA8_SRGB);
+
+    _textureAssetPathTokens.resize(_textureArrayLength, _defaultTextureAssetPathToken);
 }
 
 FabricResourceManager::~FabricResourceManager() = default;
@@ -194,7 +196,13 @@ std::shared_ptr<FabricTexture> FabricResourceManager::acquireTexture() {
     if (_disableTexturePool) {
         const auto id = getNextTextureId();
         const auto name = fmt::format("/fabric_texture_{}", id);
-        return std::make_shared<FabricTexture>(name, id);
+        auto texture = std::make_shared<FabricTexture>(name, id);
+
+        if (id < _textureArrayLength) {
+            _textureAssetPathTokens[id] = texture->getAssetPathToken();
+        }
+
+        return texture;
     }
 
     std::scoped_lock<std::mutex> lock(_poolMutex);
@@ -353,8 +361,16 @@ FabricResourceManager::createMaterialPool(const FabricMaterialDefinition& materi
 }
 
 std::shared_ptr<FabricTexturePool> FabricResourceManager::createTexturePool() {
-    return _texturePools.emplace_back(
-        std::make_shared<FabricTexturePool>(getNextPoolId(), _texturePoolInitialCapacity));
+    const auto poolId = getNextPoolId();
+    auto pool = std::make_shared<FabricTexturePool>(poolId, _texturePoolInitialCapacity);
+
+    for (uint64_t i = 0; i < _textureArrayLength; i++) {
+        const auto name = fmt::format("/fabric_texture_pool_{}_object_{}", poolId, i);
+        const auto token = UsdUtil::getDynamicTextureProviderAssetPathToken(name);
+        _textureAssetPathTokens[i] = token;
+    }
+
+    return _texturePools.emplace_back(std::move(pool));
 }
 
 void FabricResourceManager::retainPath(const omni::fabric::Path& path) {
@@ -364,6 +380,10 @@ void FabricResourceManager::retainPath(const omni::fabric::Path& path) {
     // It's possible this will be fixed in a future Kit release at which point we can remove
     // this workaround.
     _retainedPaths.push_back(path);
+}
+
+const std::vector<pxr::TfToken>& FabricResourceManager::getTextureAssetPathTokens() const {
+    return _textureAssetPathTokens;
 }
 
 uint64_t FabricResourceManager::getNextGeometryId() {

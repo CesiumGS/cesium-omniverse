@@ -192,6 +192,7 @@ void setFabricMeshes(
             if (baseColorTexture != nullptr && materialInfo.baseColorTexture.has_value()) {
                 if (material->useTextureArray()) {
                     geometry->setTextureIndex(baseColorTexture->getIndex());
+                    material->updateTextureArray();
                 } else {
                     material->setBaseColorTexture(
                         baseColorTexture->getAssetPathToken(), materialInfo.baseColorTexture.value());

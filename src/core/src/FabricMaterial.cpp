@@ -69,6 +69,10 @@ bool FabricMaterial::useTextureArray() const {
     return _useTextureArray;
 }
 
+void FabricMaterial::updateTextureArray() {
+    setBaseColorTextures(FabricResourceManager::getInstance().getTextureAssetPathTokens());
+}
+
 void FabricMaterial::initialize() {
     const auto hasBaseColorTexture = _materialDefinition.hasBaseColorTexture();
 
