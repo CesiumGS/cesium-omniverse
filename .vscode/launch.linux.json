@@ -88,6 +88,13 @@
       ]
     },
     {
+      "name": "Python Debugging (attach)",
+      "type": "python",
+      "request": "attach",
+      "port": 3000,
+      "host": "localhost"
+    },
+    {
       "name": "Tests Extension",
       "preLaunchTask": "Build Only (debug)",
       "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit",
@@ -116,13 +123,6 @@
         "loadAll": false,
         "exceptionList": "libcesium.omniverse.plugin.so;libcesium.omniverse.cpp.tests.plugin.so"
       }
-    },
-    {
-      "name": "Python Debugging (attach)",
-      "type": "python",
-      "request": "attach",
-      "port": 3000,
-      "host": "localhost"
     }
   ]
 }

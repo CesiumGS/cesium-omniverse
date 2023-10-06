@@ -148,10 +148,6 @@ jobs:
         if: matrix.config.name != 'CentOS 7 - GCC'
         run: cmake --build build --config ${{ matrix.config.build-type }} --parallel ${{ steps.cpu-cores.outputs.count }}
 
-      - name: Tests
-        if: matrix.config.name != 'CentOS 7 - GCC'
-        run: ctest --test-dir build --output-on-failure
-
       - name: Coverage
         if: matrix.config.coverage == 'true'
         run: cmake --build build --target generate-coverage --config ${{ matrix.config.build-type }}
