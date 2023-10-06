@@ -10,7 +10,7 @@ class FabricAttributesBuilder {
     void createAttributes(const omni::fabric::Path& path) const;
 
   private:
-    static const uint64_t MAX_ATTRIBUTES = 30;
+    static const uint64_t MAX_ATTRIBUTES = 100;
     uint64_t _size = 0;
     std::array<omni::fabric::AttrNameAndType, MAX_ATTRIBUTES> _attributes;
 };

@@ -149,7 +149,7 @@ class FabricResourceManager {
     std::vector<SharedMaterial> _sharedMaterials;
 
     bool _useTextureArray{true};
-    uint64_t _textureArrayLength{3};
+    uint64_t _textureArrayLength{16};
 
     std::vector<pxr::TfToken> _textureAssetPathTokens;
 };

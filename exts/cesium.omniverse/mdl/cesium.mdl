@@ -62,7 +62,20 @@ float2 khr_texture_transform_apply(
 export gltf_texture_lookup_value cesium_texture_array_lookup(
     uniform texture_2d texture_0,
     uniform texture_2d texture_1,
-    uniform texture_2d texture_2
+    uniform texture_2d texture_2,
+    uniform texture_2d texture_3,
+    uniform texture_2d texture_4,
+    uniform texture_2d texture_5,
+    uniform texture_2d texture_6,
+    uniform texture_2d texture_7,
+    uniform texture_2d texture_8,
+    uniform texture_2d texture_9,
+    uniform texture_2d texture_10,
+    uniform texture_2d texture_11,
+    uniform texture_2d texture_12,
+    uniform texture_2d texture_13,
+    uniform texture_2d texture_14,
+    uniform texture_2d texture_15,
 )
 {
     gltf_texture_lookup_value tex_ret;
@@ -74,12 +87,25 @@ export gltf_texture_lookup_value cesium_texture_array_lookup(
         rotation: 0.0,
         scale: float2(1.0f, 1.0f));
 
-    const int TEXTURES_LENGTH = 3;
+    const int TEXTURES_LENGTH = 16;
 
     uniform texture_2d[TEXTURES_LENGTH] textures;
     textures[0] = texture_0;
     textures[1] = texture_1;
     textures[2] = texture_2;
+    textures[3] = texture_3;
+    textures[4] = texture_4;
+    textures[5] = texture_5;
+    textures[6] = texture_6;
+    textures[7] = texture_7;
+    textures[8] = texture_8;
+    textures[9] = texture_9;
+    textures[10] = texture_10;
+    textures[11] = texture_11;
+    textures[12] = texture_12;
+    textures[13] = texture_13;
+    textures[14] = texture_14;
+    textures[15] = texture_15;
 
     int texture_index = ::scene::data_lookup_int("textureIndex");
     texture_index = texture_index % TEXTURES_LENGTH;
