@@ -27,6 +27,7 @@ class FabricMaterial {
 
     void setMaterial(int64_t tilesetId, const MaterialInfo& materialInfo);
     void setBaseColorTexture(const pxr::TfToken& textureAssetPathToken, const TextureInfo& textureInfo);
+    void setBaseColorTextures(const std::vector<pxr::TfToken>& textureAssetPathTokens);
 
     void clearMaterial();
     void clearBaseColorTexture();
@@ -58,18 +59,13 @@ class FabricMaterial {
 
     void reset();
     void setShaderValues(const omni::fabric::Path& shaderPath, const MaterialInfo& materialInfo);
-    void setTextureValues(
-        const omni::fabric::Path& texturePath,
-        const pxr::TfToken& textureAssetPathToken,
-        const TextureInfo& textureInfo);
     void setTextureSingleValues(
         const omni::fabric::Path& texturePath,
         const pxr::TfToken& textureAssetPathToken,
         const TextureInfo& textureInfo);
     void setTextureArrayValues(
         const omni::fabric::Path& texturePath,
-        const pxr::TfToken& textureAssetPathToken,
-        const TextureInfo& textureInfo);
+        const std::vector<pxr::TfToken>& textureAssetPathTokens);
     void setTilesetId(int64_t tilesetId);
     bool stageDestroyed();
 

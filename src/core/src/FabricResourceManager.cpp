@@ -30,7 +30,7 @@ FabricResourceManager::FabricResourceManager() {
     _defaultTextureAssetPathToken = UsdUtil::getDynamicTextureProviderAssetPathToken(defaultTextureName);
     _defaultTexture = std::make_unique<omni::ui::DynamicTextureProvider>(defaultTextureName);
 
-    const auto bytes = std::array<uint8_t, 4>{{255, 255, 255, 255}};
+    const auto bytes = std::array<uint8_t, 4>{{255, 255, 0, 255}};
     const auto size = carb::Uint2{1, 1};
     _defaultTexture->setBytesData(bytes.data(), size, omni::ui::kAutoCalculateStride, carb::Format::eRGBA8_SRGB);
 }
