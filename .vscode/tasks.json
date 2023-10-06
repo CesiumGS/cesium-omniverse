@@ -157,19 +157,6 @@
             }
         },
         {
-            "label": "Test",
-            "type": "shell",
-            "group": "build",
-            "problemMatcher": "$gcc",
-            "windows": {
-                "problemMatcher": "$msCompile",
-                "command": "scripts/vscode_build_launcher.bat test ${input:build-type} ${input:compiler}"
-            },
-            "linux": {
-                "command": "python3 scripts/vscode_build.py test ${input:build-type} ${input:compiler}"
-            }
-        },
-        {
             "label": "Coverage",
             "type": "shell",
             "group": "build",
