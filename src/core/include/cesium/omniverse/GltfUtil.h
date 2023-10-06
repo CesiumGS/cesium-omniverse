@@ -88,4 +88,8 @@ bool hasImageryTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshP
 bool hasVertexColors(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);
 bool hasMaterial(const CesiumGltf::MeshPrimitive& primitive);
 
+std::vector<uint64_t> getTexcoordSetIndexes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
+std::vector<uint64_t>
+getImageryTexcoordSetIndexes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
+
 } // namespace cesium::omniverse::GltfUtil

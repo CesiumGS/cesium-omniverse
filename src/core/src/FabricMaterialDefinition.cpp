@@ -13,24 +13,29 @@ namespace cesium::omniverse {
 
 FabricMaterialDefinition::FabricMaterialDefinition(
     const MaterialInfo& materialInfo,
-    bool hasImagery,
+    uint64_t imageryLayerCount,
     bool disableTextures) {
 
-    _hasBaseColorTexture = materialInfo.baseColorTexture.has_value();
+    uint64_t baseColorTextureCount = 0;
 
-    if (hasImagery) {
-        _hasBaseColorTexture = true;
-    }
+    if (!disableTextures) {
+        if (materialInfo.baseColorTexture.has_value()) {
+            baseColorTextureCount++;
+        }
 
-    if (disableTextures) {
-        _hasBaseColorTexture = false;
+        baseColorTextureCount += imageryLayerCount;
     }
 
     _hasVertexColors = materialInfo.hasVertexColors;
+    _baseColorTextureCount = baseColorTextureCount;
 }
 
-bool FabricMaterialDefinition::hasBaseColorTexture() const {
-    return _hasBaseColorTexture;
+uint64_t FabricMaterialDefinition::getBaseColorTextureCount() const {
+    return _baseColorTextureCount;
+}
+
+bool FabricMaterialDefinition::hasBaseColorTextures() const {
+    return _baseColorTextureCount > 0;
 }
 
 bool FabricMaterialDefinition::hasVertexColors() const {
@@ -39,11 +44,11 @@ bool FabricMaterialDefinition::hasVertexColors() const {
 
 // In C++ 20 we can use the default equality comparison (= default)
 bool FabricMaterialDefinition::operator==(const FabricMaterialDefinition& other) const {
-    if (_hasBaseColorTexture != other._hasBaseColorTexture) {
+    if (_hasVertexColors != other._hasVertexColors) {
         return false;
     }
 
-    if (_hasVertexColors != other._hasVertexColors) {
+    if (_baseColorTextureCount != other._baseColorTextureCount) {
         return false;
     }
 

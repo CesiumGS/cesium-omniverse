@@ -30,7 +30,8 @@ class FabricGeometry {
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
         bool smoothNormals,
-        bool hasImagery);
+        const std::unordered_map<uint64_t, uint64_t>& texcoordIndexMapping,
+        const std::unordered_map<uint64_t, uint64_t>& imageryTexcoordIndexMapping);
 
     void setActive(bool active);
     void setVisibility(bool visible);

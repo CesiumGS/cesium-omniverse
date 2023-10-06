@@ -411,6 +411,23 @@ void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
     _tileset->getOverlays().add(ionRasterOverlay);
 }
 
+std::optional<uint64_t> OmniTileset::findImageryIndex(const Cesium3DTilesSelection::RasterOverlay& overlay) const {
+    uint64_t overlayIndex = 0;
+    for (const auto& pOverlay : _tileset->getOverlays()) {
+        if (&overlay == pOverlay.get()) {
+            return overlayIndex;
+        }
+
+        overlayIndex++;
+    }
+
+    return std::nullopt;
+}
+
+uint64_t OmniTileset::getImageryLayerCount() const {
+    return _tileset->getOverlays().size();
+}
+
 void OmniTileset::onUpdateFrame(const std::vector<Viewport>& viewports) {
     if (!UsdUtil::primExists(_tilesetPath)) {
         // TfNotice can be slow, and sometimes we get a frame or two before we actually get a chance to react on it.
