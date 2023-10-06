@@ -31,6 +31,7 @@ const auto DEFAULT_ORIENTATION = pxr::GfQuatf(1.0f, 0.0, 0.0, 0.0);
 const auto DEFAULT_SCALE = pxr::GfVec3f(1.0f, 1.0f, 1.0f);
 const auto DEFAULT_MATRIX = pxr::GfMatrix4d(1.0);
 const auto DEFAULT_VISIBILITY = false;
+const auto DEFAULT_TEXTURE_INDEX = 0;
 
 } // namespace
 
@@ -99,6 +100,20 @@ void FabricGeometry::setMaterial(const omni::fabric::Path& materialPath) {
     srw.setArrayAttributeSize(_path, FabricTokens::material_binding, 1);
     auto materialBindingFabric = srw.getArrayAttributeWr<omni::fabric::PathC>(_path, FabricTokens::material_binding);
     materialBindingFabric[0] = materialPath;
+
+    static uint64_t textureIndexGlobal = 0;
+    const auto textureIndex = (textureIndexGlobal++) % 2;
+    setTextureIndex(textureIndex);
+}
+
+void FabricGeometry::setTextureIndex(uint64_t textureIndex) {
+    if (stageDestroyed()) {
+        return;
+    }
+
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto textureIndexFabric = srw.getArrayAttributeWr<int>(_path, FabricTokens::primvars_textureIndex);
+    textureIndexFabric[0] = static_cast<int>(textureIndex);
 }
 
 void FabricGeometry::initialize() {
@@ -134,6 +149,7 @@ void FabricGeometry::initialize() {
 
     if (hasTexcoords) {
         attributes.addAttribute(FabricTypes::primvars_st, FabricTokens::primvars_st);
+        attributes.addAttribute(FabricTypes::primvars_textureIndex, FabricTokens::primvars_textureIndex);
     }
 
     if (hasNormals) {
@@ -157,6 +173,7 @@ void FabricGeometry::initialize() {
     // Initialize primvars
     size_t primvarsCount = 0;
     size_t primvarIndexSt = 0;
+    size_t primvarTextureIndex = 0;
     size_t primvarIndexNormal = 0;
     size_t primvarIndexVertexColor = 0;
 
@@ -165,6 +182,7 @@ void FabricGeometry::initialize() {
 
     if (hasTexcoords) {
         primvarIndexSt = primvarsCount++;
+        primvarTextureIndex = primvarsCount++;
     }
 
     if (hasNormals) {
@@ -180,6 +198,10 @@ void FabricGeometry::initialize() {
     srw.setArrayAttributeSize(_path, FabricTokens::primvars_displayColor, 1);
     srw.setArrayAttributeSize(_path, FabricTokens::primvars_displayOpacity, 1);
 
+    if (hasTexcoords) {
+        srw.setArrayAttributeSize(_path, FabricTokens::primvars_textureIndex, 1);
+    }
+
     // clang-format off
     auto primvarsFabric = srw.getArrayAttributeWr<omni::fabric::TokenC>(_path, FabricTokens::primvars);
     auto primvarInterpolationsFabric = srw.getArrayAttributeWr<omni::fabric::TokenC>(_path, FabricTokens::primvarInterpolations);
@@ -194,6 +216,8 @@ void FabricGeometry::initialize() {
     if (hasTexcoords) {
         primvarsFabric[primvarIndexSt] = FabricTokens::primvars_st;
         primvarInterpolationsFabric[primvarIndexSt] = FabricTokens::vertex;
+        primvarsFabric[primvarTextureIndex] = FabricTokens::primvars_textureIndex;
+        primvarInterpolationsFabric[primvarTextureIndex] = FabricTokens::constant;
     }
 
     if (hasNormals) {
@@ -224,6 +248,8 @@ void FabricGeometry::reset() {
     auto worldScaleFabric = srw.getAttributeWr<pxr::GfVec3f>(_path, FabricTokens::_worldScale);
     auto displayColorFabric = srw.getArrayAttributeWr<pxr::GfVec3f>(_path, FabricTokens::primvars_displayColor);
     auto displayOpacityFabric = srw.getArrayAttributeWr<float>(_path, FabricTokens::primvars_displayOpacity);
+    auto textureIndex = srw.getArrayAttributeWr<int>(_path, FabricTokens::primvars_textureIndex);
+
     // clang-format on
 
     *extentFabric = DEFAULT_EXTENT;
@@ -245,6 +271,7 @@ void FabricGeometry::reset() {
 
     if (hasTexcoords) {
         srw.setArrayAttributeSize(_path, FabricTokens::primvars_st, 0);
+        textureIndex[0] = DEFAULT_TEXTURE_INDEX;
     }
 
     if (hasNormals) {
