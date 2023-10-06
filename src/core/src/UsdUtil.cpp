@@ -296,7 +296,7 @@ pxr::GfRange3d computeWorldExtent(const pxr::GfRange3d& localExtent, const glm::
 pxr::GfVec3f getEulerAnglesFromQuaternion(const pxr::GfQuatf& quaternion) {
     const auto rotation = pxr::GfRotation(quaternion);
     const auto euler = rotation.Decompose(pxr::GfVec3d::XAxis(), pxr::GfVec3d::YAxis(), pxr::GfVec3d::ZAxis());
-    return pxr::GfVec3f(static_cast<float>(euler[0]), static_cast<float>(euler[1]), static_cast<float>(euler[2]));
+    return {static_cast<float>(euler[0]), static_cast<float>(euler[1]), static_cast<float>(euler[2])};
 }
 
 pxr::CesiumData defineCesiumData(const pxr::SdfPath& path) {
@@ -342,14 +342,6 @@ pxr::CesiumGlobeAnchorAPI defineGlobeAnchor(const pxr::SdfPath& path) {
 
     auto globeAnchor = pxr::CesiumGlobeAnchorAPI::Apply(prim);
     assert(globeAnchor.GetPrim().IsValid());
-
-    globeAnchor.CreateAdjustOrientationForGlobeWhenMovingAttr();
-    globeAnchor.CreateDetectTransformChangesAttr();
-    globeAnchor.CreateGeographicCoordinateAttr();
-    globeAnchor.CreatePositionAttr();
-    globeAnchor.CreateRotationAttr();
-    globeAnchor.CreateScaleAttr();
-    globeAnchor.CreateGeoreferenceBindingRel();
 
     return globeAnchor;
 }
