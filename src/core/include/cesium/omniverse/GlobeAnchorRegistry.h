@@ -33,6 +33,7 @@ class GlobeAnchorRegistry {
     std::shared_ptr<OmniGlobeAnchor> createAnchor(const pxr::SdfPath& path, const glm::dmat4& anchorToFixed);
     std::optional<std::shared_ptr<OmniGlobeAnchor>> getAnchor(const pxr::SdfPath& path) const;
     std::vector<std::shared_ptr<OmniGlobeAnchor>> getAllAnchors() const;
+    std::vector<std::string> getAllAnchorPaths() const;
     bool removeAnchor(const pxr::SdfPath& path);
 
   protected:

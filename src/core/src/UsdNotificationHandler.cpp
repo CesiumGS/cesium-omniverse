@@ -168,10 +168,16 @@ void UsdNotificationHandler::onPrimRemoved(const pxr::SdfPath& primPath) {
         }
     }
 
-    const auto& type = getType(primPath);
-    if (type == ChangedPrimType::CESIUM_GLOBE_ANCHOR) {
-        _changedPrims.emplace_back(ChangedPrim{primPath, pxr::TfToken(), type, ChangeType::PRIM_REMOVED});
-        CESIUM_LOG_INFO("Removed prim: {}", primPath.GetText());
+    const auto& anchors = GlobeAnchorRegistry::getInstance().getAllAnchorPaths();
+    for (const auto& anchorPath : anchors) {
+        const auto& path = pxr::SdfPath(anchorPath);
+        const auto& type = getType(path);
+        if (type == ChangedPrimType::CESIUM_GLOBE_ANCHOR) {
+            if (inSubtree(primPath, path)) {
+                _changedPrims.emplace_back(ChangedPrim{path, pxr::TfToken(), type, ChangeType::PRIM_REMOVED});
+                CESIUM_LOG_INFO("Removed prim: {}", path.GetText());
+            }
+        }
     }
 }
 

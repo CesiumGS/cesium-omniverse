@@ -37,7 +37,18 @@ std::vector<std::shared_ptr<OmniGlobeAnchor>> GlobeAnchorRegistry::getAllAnchors
     result.reserve(_anchors.size());
 
     for (const auto& item : _anchors) {
-        result.push_back(item.second);
+        result.emplace_back(item.second);
+    }
+
+    return result;
+}
+
+std::vector<std::string> GlobeAnchorRegistry::getAllAnchorPaths() const {
+    std::vector<std::string> result;
+    result.reserve(_anchors.size());
+
+    for (const auto& item : _anchors) {
+        result.emplace_back(item.first);
     }
 
     return result;
