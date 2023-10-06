@@ -39,6 +39,7 @@ class FabricGeometry {
     [[nodiscard]] const FabricGeometryDefinition& getGeometryDefinition() const;
 
     void setMaterial(const omni::fabric::Path& materialPath);
+    void setTextureIndex(uint64_t textureIndex);
 
   private:
     void initialize();

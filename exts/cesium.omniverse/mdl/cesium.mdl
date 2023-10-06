@@ -87,7 +87,15 @@ export gltf_texture_lookup_value cesium_texture_array_lookup(
         wrap_v: convert_wrap_mode(wrap_t));
     tex_ret.valid = true;
 
-    tex_ret.value *= float4(1.0, 0.0, 0.0, 1.0);
+
+    int texture_index = ::scene::data_lookup_int("textureIndex");
+    texture_index = texture_index % 3;
+
+    if (texture_index == 0) {
+        tex_ret.value *= float4(1.0, 0.0, 0.0, 1.0);
+    } else if (texture_index == 1) {
+        tex_ret.value *= float4(0.0, 1.0, 0.0, 1.0);
+    }
 
     return tex_ret;
 
