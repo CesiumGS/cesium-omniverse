@@ -30,6 +30,14 @@ FabricMaterial::FabricMaterial(
         return;
     }
 
+    if (_useTextureArray) {
+        _inputTextureTokens.reserve(_textureArrayLength);
+        for (uint64_t i = 0; i < _textureArrayLength; i++) {
+            const auto name = fmt::format("inputs:texture_{}", i);
+            _inputTextureTokens.emplace_back(name.c_str());
+        }
+    }
+
     initialize();
     reset();
 }
@@ -251,15 +259,6 @@ void FabricMaterial::createTextureArray(
     const omni::fabric::Path& texturePath,
     const omni::fabric::Path& shaderPath,
     const omni::fabric::Token& shaderInput) {
-
-    const auto inputTextureTokens = std::vector<omni::fabric::Token>{
-        FabricTokens::inputs_texture_0,
-        FabricTokens::inputs_texture_1,
-        FabricTokens::inputs_texture_2,
-    };
-
-    assert(inputTextureTokens.size() == _textureArrayLength);
-
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
     srw.createPrim(texturePath);
@@ -267,7 +266,7 @@ void FabricMaterial::createTextureArray(
     FabricAttributesBuilder attributes;
 
     for (uint64_t i = 0; i < _textureArrayLength; i++) {
-        attributes.addAttribute(FabricTypes::inputs_texture, inputTextureTokens[i]);
+        attributes.addAttribute(FabricTypes::inputs_texture, _inputTextureTokens[i]);
     }
 
     // clang-format off
@@ -303,7 +302,7 @@ void FabricMaterial::createTextureArray(
     *infoMdlSourceAssetSubIdentifierFabric = FabricTokens::cesium_texture_array_lookup;
 
     for (uint64_t i = 0; i < _textureArrayLength; i++) {
-        paramColorSpaceFabric[i * 2] = inputTextureTokens[i];
+        paramColorSpaceFabric[i * 2] = _inputTextureTokens[i];
         paramColorSpaceFabric[i * 2 + 1] = FabricTokens::_auto;
     }
 
@@ -438,18 +437,8 @@ void FabricMaterial::setTextureArrayValues(
     const std::vector<pxr::TfToken>& textureAssetPathTokens) {
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
-    assert(textureAssetPathTokens.size() == _textureArrayLength);
-
-    const auto inputTextureTokens = std::vector<omni::fabric::Token>{
-        FabricTokens::inputs_texture_0,
-        FabricTokens::inputs_texture_1,
-        FabricTokens::inputs_texture_2,
-    };
-
-    assert(inputTextureTokens.size() == _textureArrayLength);
-
     for (uint64_t i = 0; i < textureAssetPathTokens.size(); i++) {
-        auto textureFabric = srw.getAttributeWr<omni::fabric::AssetPath>(texturePath, inputTextureTokens[i]);
+        auto textureFabric = srw.getAttributeWr<omni::fabric::AssetPath>(texturePath, _inputTextureTokens[i]);
         textureFabric->assetPath = textureAssetPathTokens[i];
         textureFabric->resolvedPath = pxr::TfToken();
     }

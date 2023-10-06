@@ -80,6 +80,7 @@ class FabricMaterial {
 
     bool _useTextureArray;
     uint64_t _textureArrayLength;
+    std::vector<omni::fabric::Token> _inputTextureTokens;
 };
 
 } // namespace cesium::omniverse

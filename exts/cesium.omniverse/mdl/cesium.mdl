@@ -74,15 +74,17 @@ export gltf_texture_lookup_value cesium_texture_array_lookup(
         rotation: 0.0,
         scale: float2(1.0f, 1.0f));
 
-    uniform texture_2d[3] textures;
+    const int TEXTURES_LENGTH = 3;
+
+    uniform texture_2d[TEXTURES_LENGTH] textures;
     textures[0] = texture_0;
     textures[1] = texture_1;
     textures[2] = texture_2;
 
     int texture_index = ::scene::data_lookup_int("textureIndex");
-    texture_index = texture_index % 3;
+    texture_index = texture_index % TEXTURES_LENGTH;
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < TEXTURES_LENGTH; i++) {
         if (i == texture_index) {
             tex_ret.value = tex::lookup_float4(
                 tex: textures[i],

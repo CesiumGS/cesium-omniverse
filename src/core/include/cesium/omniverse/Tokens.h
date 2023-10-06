@@ -61,9 +61,6 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((inputs_scale, "inputs:scale")) \
     ((inputs_tex_coord_index, "inputs:tex_coord_index")) \
     ((inputs_texture, "inputs:texture")) \
-    ((inputs_texture_0, "inputs:texture_0")) \
-    ((inputs_texture_1, "inputs:texture_1")) \
-    ((inputs_texture_2, "inputs:texture_2")) \
     ((inputs_vertex_color_name, "inputs:vertex_color_name")) \
     ((inputs_wrap_s, "inputs:wrap_s")) \
     ((inputs_wrap_t, "inputs:wrap_t")) \
