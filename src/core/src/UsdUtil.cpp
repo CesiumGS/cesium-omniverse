@@ -2,21 +2,25 @@
 
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/GeospatialUtil.h"
+#include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/Viewport.h"
 
 #include <CesiumGeometry/Transforms.h>
 #include <CesiumGeospatial/Cartographic.h>
+#include <CesiumGeospatial/GlobeAnchor.h>
 #include <CesiumGeospatial/GlobeTransforms.h>
 #include <glm/gtc/matrix_access.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <omni/ui/ImageProvider/DynamicTextureProvider.h>
+#include <pxr/base/gf/rotation.h>
 #include <pxr/usd/sdf/primSpec.h>
 #include <pxr/usd/usd/prim.h>
 #include <pxr/usd/usd/stage.h>
 #include <pxr/usd/usd/timeCode.h>
 #include <pxr/usd/usdGeom/metrics.h>
 #include <pxr/usd/usdGeom/xform.h>
+#include <pxr/usd/usdGeom/xformCommonAPI.h>
 #include <spdlog/fmt/fmt.h>
 
 #include <regex>
@@ -82,6 +86,10 @@ pxr::GfVec2f glmToUsdVector(const glm::fvec2& vector) {
     return {vector.x, vector.y};
 }
 
+pxr::GfQuatd glmToUsdQuat(const glm::dquat& quat) {
+    return {quat.w, quat.x, quat.y, quat.z};
+}
+
 pxr::GfVec3f glmToUsdVector(const glm::fvec3& vector) {
     return {vector.x, vector.y, vector.z};
 }
@@ -134,7 +142,7 @@ Decomposed glmToUsdMatrixDecomposed(const glm::dmat4& matrix) {
     };
 }
 
-glm::dmat4 computeUsdWorldTransform(const pxr::SdfPath& path) {
+glm::dmat4 computeUsdLocalToWorldTransform(const pxr::SdfPath& path) {
     const auto stage = getUsdStage();
     const auto prim = stage->GetPrimAtPath(path);
     assert(prim.IsValid());
@@ -143,6 +151,10 @@ glm::dmat4 computeUsdWorldTransform(const pxr::SdfPath& path) {
     const auto transform = xform.ComputeLocalToWorldTransform(time);
     const auto matrix = usdToGlmMatrix(transform);
     return matrix;
+}
+
+glm::dmat4 computeUsdWorldToLocalTransform(const pxr::SdfPath& path) {
+    return glm::affineInverse(computeUsdLocalToWorldTransform(path));
 }
 
 bool isPrimVisible(const pxr::SdfPath& path) {
@@ -200,7 +212,7 @@ pxr::TfToken getDynamicTextureProviderAssetPathToken(const std::string& name) {
     return pxr::TfToken(pxr::SdfAssetPath(fmt::format("dynamic://{}", name)).GetAssetPath());
 }
 
-glm::dmat4 computeEcefToUsdTransform(const CesiumGeospatial::Cartographic& origin) {
+glm::dmat4 computeEcefToUsdLocalTransform(const CesiumGeospatial::Cartographic& origin) {
     const auto cesiumDataUsd = UsdUtil::getOrCreateCesiumData();
     bool disableGeoreferencing;
     cesiumDataUsd.GetDebugDisableGeoreferencingAttr().Get(&disableGeoreferencing);
@@ -210,20 +222,33 @@ glm::dmat4 computeEcefToUsdTransform(const CesiumGeospatial::Cartographic& origi
         return glm::scale(glm::dmat4(1.0), glm::dvec3(scale));
     }
 
-    return GeospatialUtil::getCoordinateSystem(origin, getUsdMetersPerUnit()).getEcefToLocalTransformation();
+    return GeospatialUtil::getCoordinateSystem(origin).getEcefToLocalTransformation();
 }
 
 glm::dmat4
-computeEcefToUsdTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath) {
-    const auto ecefToUsdTransform = computeEcefToUsdTransform(origin);
-    const auto primInverseUsdWorldTransform = computeUsdWorldTransform(primPath);
-    const auto primEcefToUsdTransform = primInverseUsdWorldTransform * ecefToUsdTransform;
+computeEcefToUsdWorldTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath) {
+    const auto ecefToUsdTransform = computeEcefToUsdLocalTransform(origin);
+    const auto primUsdWorldTransform = computeUsdLocalToWorldTransform(primPath);
+    const auto primEcefToUsdTransform = primUsdWorldTransform * ecefToUsdTransform;
     return primEcefToUsdTransform;
 }
 
 glm::dmat4
-computeUsdToEcefTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath) {
-    return glm::affineInverse(computeEcefToUsdTransformForPrim(origin, primPath));
+computeUsdWorldToEcefTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath) {
+    return glm::affineInverse(computeEcefToUsdWorldTransformForPrim(origin, primPath));
+}
+
+glm::dmat4
+computeEcefToUsdLocalTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath) {
+    const auto ecefToUsdTransform = computeEcefToUsdLocalTransform(origin);
+    const auto usdWorldToLocalTransform = UsdUtil::computeUsdWorldToLocalTransform(primPath);
+    const auto primEcefToUsdTransform = usdWorldToLocalTransform * ecefToUsdTransform;
+    return primEcefToUsdTransform;
+}
+
+glm::dmat4
+computeUsdLocalToEcefTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath) {
+    return glm::affineInverse(computeEcefToUsdLocalTransformForPrim(origin, primPath));
 }
 
 Cesium3DTilesSelection::ViewState
@@ -233,7 +258,7 @@ computeViewState(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPat
     const auto width = viewport.width;
     const auto height = viewport.height;
 
-    const auto usdToEcef = UsdUtil::computeUsdToEcefTransformForPrim(origin, primPath);
+    const auto usdToEcef = UsdUtil::computeUsdWorldToEcefTransformForPrim(origin, primPath);
     const auto inverseView = glm::inverse(viewMatrix);
     const auto omniCameraUp = glm::dvec3(inverseView[1]);
     const auto omniCameraFwd = glm::dvec3(-inverseView[2]);
@@ -266,6 +291,12 @@ pxr::GfRange3d computeWorldExtent(const pxr::GfRange3d& localExtent, const glm::
     }
 
     return {glmToUsdVector(worldMin), glmToUsdVector(worldMax)};
+}
+
+pxr::GfVec3f getEulerAnglesFromQuaternion(const pxr::GfQuatf& quaternion) {
+    const auto rotation = pxr::GfRotation(quaternion);
+    const auto euler = rotation.Decompose(pxr::GfVec3d::XAxis(), pxr::GfVec3d::YAxis(), pxr::GfVec3d::ZAxis());
+    return {static_cast<float>(euler[0]), static_cast<float>(euler[1]), static_cast<float>(euler[2])};
 }
 
 pxr::CesiumData defineCesiumData(const pxr::SdfPath& path) {
@@ -303,6 +334,16 @@ pxr::CesiumImagery defineCesiumImagery(const pxr::SdfPath& path) {
     assert(imagery.GetPrim().IsValid());
 
     return imagery;
+}
+
+pxr::CesiumGlobeAnchorAPI defineGlobeAnchor(const pxr::SdfPath& path) {
+    auto stage = getUsdStage();
+    auto prim = stage->GetPrimAtPath(path);
+
+    auto globeAnchor = pxr::CesiumGlobeAnchorAPI::Apply(prim);
+    assert(globeAnchor.GetPrim().IsValid());
+
+    return globeAnchor;
 }
 
 pxr::CesiumData getOrCreateCesiumData() {
@@ -383,6 +424,13 @@ std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& p
     return result;
 }
 
+pxr::CesiumGlobeAnchorAPI getCesiumGlobeAnchor(const pxr::SdfPath& path) {
+    auto stage = UsdUtil::getUsdStage();
+    auto globeAnchor = pxr::CesiumGlobeAnchorAPI::Get(stage, path);
+    assert(globeAnchor.GetPrim().IsValid());
+    return globeAnchor;
+}
+
 bool isCesiumData(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto prim = stage->GetPrimAtPath(path);
@@ -433,6 +481,16 @@ bool isCesiumImagery(const pxr::SdfPath& path) {
     return prim.IsA<pxr::CesiumImagery>();
 }
 
+bool hasCesiumGlobeAnchor(const pxr::SdfPath& path) {
+    auto stage = getUsdStage();
+    auto prim = stage->GetPrimAtPath(path);
+    if (!prim.IsValid()) {
+        return false;
+    }
+
+    return prim.HasAPI<pxr::CesiumGlobeAnchorAPI>();
+}
+
 bool primExists(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto prim = stage->GetPrimAtPath(path);
@@ -447,6 +505,58 @@ void setGeoreferenceForTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPa
 
         tileset.GetGeoreferenceBindingRel().AddTarget(georeferencePath);
     }
+}
+
+void addOrUpdateTransformOpForAnchor(const pxr::SdfPath& path, const glm::dmat4& transform) {
+    auto prim = getUsdStage()->GetPrimAtPath(path);
+
+    if (!hasCesiumGlobeAnchor(path)) {
+        return;
+    }
+
+    auto xform = pxr::UsdGeomXform(prim);
+    auto resetXformStack = xform.GetResetXformStack();
+    auto xformOps = xform.GetOrderedXformOps(&resetXformStack);
+
+    auto hasCesiumSuffix = [](auto op) { return op.HasSuffix(pxr::UsdTokens->cesium); };
+    auto transformOp = std::find_if(xformOps.begin(), xformOps.end(), hasCesiumSuffix);
+
+    if (transformOp != xformOps.end()) {
+        transformOp->Set(UsdUtil::glmToUsdMatrix(transform));
+    } else {
+        // We need to do this when it's a new anchor.
+        xform.ClearXformOpOrder();
+
+        // We reset the TRS values to defaults, so they can be used as an offset.
+        //   This has the side effect of "baking" the transform at the time that the anchor is added
+        //   to the into the anchor transform. Maybe we can fix that later.
+        auto xformCommonApi = pxr::UsdGeomXformCommonAPI(prim);
+        xformCommonApi.SetTranslate(pxr::GfVec3d(0., 0., 0.));
+        xformCommonApi.SetRotate(pxr::GfVec3f(0.f, 0.f, 0.f));
+        xformCommonApi.SetScale(pxr::GfVec3f(1.f, 1.f, 1.f));
+
+        xform.AddTransformOp(pxr::UsdGeomXformOp::PrecisionDouble, pxr::UsdTokens->cesium)
+            .Set(UsdUtil::glmToUsdMatrix(transform));
+    }
+}
+
+std::optional<pxr::GfMatrix4d> getCesiumTransformOpValueForPathIfExists(const pxr::SdfPath& path) {
+    auto prim = getUsdStage()->GetPrimAtPath(path);
+    auto xform = pxr::UsdGeomXform(prim);
+    auto resetXformStack = xform.GetResetXformStack();
+    auto xformOps = xform.GetOrderedXformOps(&resetXformStack);
+
+    auto hasCesiumSuffix = [](auto op) { return op.HasSuffix(pxr::UsdTokens->cesium); };
+    auto transformOp = std::find_if(xformOps.begin(), xformOps.end(), hasCesiumSuffix);
+
+    if (transformOp != xformOps.end()) {
+        pxr::GfMatrix4d transform;
+        transformOp->Get(&transform);
+
+        return transform;
+    }
+
+    return std::nullopt;
 }
 
 } // namespace cesium::omniverse::UsdUtil

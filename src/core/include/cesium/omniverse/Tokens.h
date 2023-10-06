@@ -14,6 +14,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
 
 #define USD_TOKENS \
     (baseColorTexture) \
+    (cesium) \
     (cesium_material) \
     (cesium_texture_lookup) \
     (constant) \
@@ -72,7 +73,8 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((primvars_displayOpacity, "primvars:displayOpacity")) \
     ((primvars_normals, "primvars:normals")) \
     ((primvars_st, "primvars:st")) \
-    ((primvars_vertexColor, "primvars:vertexColor"))
+    ((primvars_vertexColor, "primvars:vertexColor")) \
+    ((xformOp_transform_cesium, "xformOp:transform:cesium"))
 
 TF_DECLARE_PUBLIC_TOKENS(UsdTokens, USD_TOKENS);
 

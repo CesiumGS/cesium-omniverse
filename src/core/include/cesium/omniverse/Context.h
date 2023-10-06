@@ -6,6 +6,9 @@
 #include "cesium/omniverse/UsdNotificationHandler.h"
 
 #include <CesiumGeospatial/Cartographic.h>
+#include <CesiumGeospatial/Ellipsoid.h>
+#include <CesiumGeospatial/GlobeAnchor.h>
+#include <CesiumGeospatial/LocalHorizontalCoordinateSystem.h>
 #include <glm/glm.hpp>
 #include <omni/fabric/SimStageWithHistory.h>
 #include <pxr/usd/usd/common.h>
@@ -22,7 +25,9 @@ class CreditSystem;
 
 namespace CesiumGeospatial {
 class Cartographic;
-}
+class GlobeAnchor;
+class LocalHorizontalCoordinateSystem;
+} // namespace CesiumGeospatial
 
 namespace CesiumIonClient {
 struct Token;
@@ -112,11 +117,15 @@ class Context {
 
     RenderStatistics getRenderStatistics() const;
 
+    void addGlobeAnchorToPrim(const pxr::SdfPath& path);
+
   private:
     void processPropertyChanged(const ChangedPrim& changedPrim);
     void processCesiumDataChanged(const ChangedPrim& changedPrim);
     void processCesiumTilesetChanged(const ChangedPrim& changedPrim);
     void processCesiumImageryChanged(const ChangedPrim& changedPrim);
+    void processCesiumGeoreferenceChanged(const ChangedPrim& changedPrim);
+    void processCesiumGlobeAnchorChanged(const ChangedPrim& changedPrim);
     void processPrimRemoved(const ChangedPrim& changedPrim);
     void processPrimAdded(const ChangedPrim& changedPrim);
     void processUsdNotifications();

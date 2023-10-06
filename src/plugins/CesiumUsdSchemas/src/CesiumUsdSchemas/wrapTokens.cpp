@@ -41,6 +41,13 @@ void wrapCesiumTokens()
 {
     boost::python::class_<CesiumTokensType, boost::noncopyable>
         cls("Tokens", boost::python::no_init);
+    _AddToken(cls, "cesiumAnchorAdjustOrientationForGlobeWhenMoving", CesiumTokens->cesiumAnchorAdjustOrientationForGlobeWhenMoving);
+    _AddToken(cls, "cesiumAnchorDetectTransformChanges", CesiumTokens->cesiumAnchorDetectTransformChanges);
+    _AddToken(cls, "cesiumAnchorGeographicCoordinates", CesiumTokens->cesiumAnchorGeographicCoordinates);
+    _AddToken(cls, "cesiumAnchorGeoreferenceBinding", CesiumTokens->cesiumAnchorGeoreferenceBinding);
+    _AddToken(cls, "cesiumAnchorPosition", CesiumTokens->cesiumAnchorPosition);
+    _AddToken(cls, "cesiumAnchorRotation", CesiumTokens->cesiumAnchorRotation);
+    _AddToken(cls, "cesiumAnchorScale", CesiumTokens->cesiumAnchorScale);
     _AddToken(cls, "cesiumCulledScreenSpaceError", CesiumTokens->cesiumCulledScreenSpaceError);
     _AddToken(cls, "cesiumDebugDisableGeometryPool", CesiumTokens->cesiumDebugDisableGeometryPool);
     _AddToken(cls, "cesiumDebugDisableGeoreferencing", CesiumTokens->cesiumDebugDisableGeoreferencing);
