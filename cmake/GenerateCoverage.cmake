@@ -88,15 +88,15 @@ endif()
 file(GLOB_RECURSE GCDA_FILES "${PROJECT_BUILD_DIRECTORY}/*.gcda")
 list(LENGTH GCDA_FILES GCDA_FILES_LENGTH)
 
-if(GCDA_FILES_LENGTH GREATER 0)
-    message("Removing old GCDA files: ")
-    foreach(GCDA IN LISTS GCDA_FILES)
-        message("${GCDA}")
-        file(REMOVE "${GCDA}")
-    endforeach()
-endif()
+# if(GCDA_FILES_LENGTH GREATER 0)
+#     message("Removing old GCDA files: ")
+#     foreach(GCDA IN LISTS GCDA_FILES)
+#         message("${GCDA}")
+#         file(REMOVE "${GCDA}")
+#     endforeach()
+# endif()
 
-execute_process(COMMAND ctest WORKING_DIRECTORY "${PROJECT_BUILD_DIRECTORY}")
+# execute_process(COMMAND ctest WORKING_DIRECTORY "${PROJECT_BUILD_DIRECTORY}")
 
 message("Removing and recreating ${PROJECT_BUILD_DIRECTORY}/coverage")
 

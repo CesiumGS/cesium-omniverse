@@ -285,7 +285,7 @@ if(CESIUM_OMNI_ENABLE_SANITIZERS)
 endif()
 
 # Enable code coverage if supported on this platform.
-if(CESIUM_OMNI_ENABLE_COVERAGE)
+if(CESIUM_OMNI_ENABLE_TESTS)
     # At reconfigure time: Delete any lingering GCDA files in the build folder.
     # GCDA files track profiling information and are generated everytime a binary with
     # coverage support is executed. If we don't do this we can encounter a
