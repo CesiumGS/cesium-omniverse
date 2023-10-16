@@ -559,4 +559,29 @@ std::optional<pxr::GfMatrix4d> getCesiumTransformOpValueForPathIfExists(const px
     return std::nullopt;
 }
 
+std::optional<pxr::SdfPath> getAnchorGeoreferencePath(const pxr::SdfPath& path) {
+    if (!hasCesiumGlobeAnchor(path)) {
+        return std::nullopt;
+    }
+
+    auto globeAnchor = getCesiumGlobeAnchor(path);
+    pxr::SdfPathVector targets;
+    if (!globeAnchor.GetGeoreferenceBindingRel().GetForwardedTargets(&targets)) {
+        return std::nullopt;
+    }
+
+    return targets[0];
+}
+
+std::optional<CesiumGeospatial::Cartographic> getCartographicOriginForAnchor(const pxr::SdfPath& path) {
+    auto anchorGeoreferencePath = getAnchorGeoreferencePath(path);
+
+    if (!anchorGeoreferencePath.has_value()) {
+        return std::nullopt;
+    }
+
+    auto georeferenceOrigin = UsdUtil::getCesiumGeoreference(anchorGeoreferencePath.value());
+    return GeospatialUtil::convertGeoreferenceToCartographic(georeferenceOrigin);
+}
+
 } // namespace cesium::omniverse::UsdUtil
