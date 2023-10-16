@@ -27,6 +27,7 @@ struct FabricMesh {
 struct TileRenderResources {
     glm::dmat4 tileTransform;
     std::vector<FabricMesh> fabricMeshes;
+    int64_t tileId;
 };
 
 class FabricPrepareRenderResources final : public Cesium3DTilesSelection::IPrepareRendererResources {

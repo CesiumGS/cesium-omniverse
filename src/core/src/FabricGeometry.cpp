@@ -124,6 +124,7 @@ void FabricGeometry::initialize() {
     attributes.addAttribute(FabricTypes::primvars_displayOpacity, FabricTokens::primvars_displayOpacity);
     attributes.addAttribute(FabricTypes::Mesh, FabricTokens::Mesh);
     attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
+    attributes.addAttribute(FabricTypes::_cesium_tileId, FabricTokens::_cesium_tileId);
     attributes.addAttribute(FabricTypes::_cesium_localToEcefTransform, FabricTokens::_cesium_localToEcefTransform);
     attributes.addAttribute(FabricTypes::_worldPosition, FabricTokens::_worldPosition);
     attributes.addAttribute(FabricTypes::_worldOrientation, FabricTokens::_worldOrientation);
@@ -236,7 +237,7 @@ void FabricGeometry::reset() {
     displayColorFabric[0] = DEFAULT_VERTEX_COLOR;
     displayOpacityFabric[0] = DEFAULT_VERTEX_OPACITY;
 
-    FabricUtil::setTilesetId(_path, NO_TILESET_ID);
+    FabricUtil::setTilesetIdAndTileId(_path, NO_TILESET_ID, NO_TILE_ID);
 
     srw.setArrayAttributeSize(_path, FabricTokens::material_binding, 0);
     srw.setArrayAttributeSize(_path, FabricTokens::faceVertexCounts, 0);
@@ -258,13 +259,15 @@ void FabricGeometry::reset() {
 
 void FabricGeometry::setGeometry(
     int64_t tilesetId,
+    int64_t tileId,
     const glm::dmat4& ecefToUsdTransform,
     const glm::dmat4& gltfToEcefTransform,
     const glm::dmat4& nodeTransform,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     bool smoothNormals,
-    bool hasImagery) {
+    bool hasImagery,
+    float geometricError) {
 
     if (stageDestroyed()) {
         return;
@@ -297,8 +300,8 @@ void FabricGeometry::setGeometry(
 
     if (primitive.mode == CesiumGltf::MeshPrimitive::Mode::POINTS) {
         const auto numVoxels = positions.size();
-        const auto shapeHalfSize = 1.5f;
-        srw.setArrayAttributeSize(_path, FabricTokens::points, numVoxels * 8);
+        const auto shapeHalfSize = 0.02f * geometricError;
+        srw.setArrayAttributeSize(_path, FabricTokens::points, static_cast<size_t>(numVoxels * 8));
         srw.setArrayAttributeSize(_path, FabricTokens::faceVertexCounts, numVoxels * 2 * 6);
         srw.setArrayAttributeSize(_path, FabricTokens::faceVertexIndices, numVoxels * 6 * 2 * 3);
 
@@ -313,6 +316,16 @@ void FabricGeometry::setGeometry(
             srw.setArrayAttributeSize(_path, FabricTokens::primvars_vertexColor, numVoxels * 8);
         }
         auto vertexColorsFabric = srw.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::primvars_vertexColor);
+        CudaKernelArgs kernelArgs;
+        kernelArgs.args["points"] = pointsFabric;
+        auto elementCount = pointsFabric.size();
+        CudaRunner runner{
+            CudaKernelType::CREATE_VOXELS,
+            CudaUpdateType::ON_UPDATE_FRAME,
+            tileId,
+            kernelArgs,
+            static_cast<int>(elementCount)};
+        CudaManager::getInstance().addRunner(runner);
 
         size_t vertIndex = 0;
         size_t vertexCountsIndex = 0;
@@ -454,7 +467,7 @@ void FabricGeometry::setGeometry(
 
     displayOpacityFabric[0] = DEFAULT_VERTEX_OPACITY;
 
-    FabricUtil::setTilesetId(_path, tilesetId);
+    FabricUtil::setTilesetIdAndTileId(_path, tilesetId, tileId);
 }
 
 bool FabricGeometry::stageDestroyed() {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cesium/omniverse/CudaManager.h"
 #include "cesium/omniverse/FabricGeometryDefinition.h"
 
 #include <glm/glm.hpp>
@@ -24,13 +25,15 @@ class FabricGeometry {
 
     void setGeometry(
         int64_t tilesetId,
+        int64_t tileId,
         const glm::dmat4& ecefToUsdTransform,
         const glm::dmat4& gltfToEcefTransform,
         const glm::dmat4& nodeTransform,
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
         bool smoothNormals,
-        bool hasImagery);
+        bool hasImagery,
+        float geometricError);
 
     void setActive(bool active);
     void setVisibility(bool visible);

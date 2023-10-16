@@ -1,6 +1,7 @@
 #include "cesium/omniverse/FabricPrepareRenderResources.h"
 
 #include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/CudaManager.h"
 #include "cesium/omniverse/FabricGeometry.h"
 #include "cesium/omniverse/FabricMaterial.h"
 #include "cesium/omniverse/FabricResourceManager.h"
@@ -41,12 +42,14 @@ struct ImageryRenderResources {
 
 struct MeshInfo {
     const int64_t tilesetId;
+    const int64_t tileId;
     const glm::dmat4 ecefToUsdTransform;
     const glm::dmat4 gltfToEcefTransform;
     const glm::dmat4 nodeTransform;
     const uint64_t meshId;
     const uint64_t primitiveId;
     const bool smoothNormals;
+    float geometricError;
 };
 
 struct TileLoadThreadResult {
@@ -54,12 +57,14 @@ struct TileLoadThreadResult {
     std::vector<FabricMesh> fabricMeshes;
     glm::dmat4 tileTransform;
     bool hasImagery;
+    float geometricError;
 };
 
 std::vector<MeshInfo>
 gatherMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const CesiumGltf::Model& model) {
     CESIUM_TRACE("FabricPrepareRenderResources::gatherMeshes");
     const auto tilesetId = tileset.getTilesetId();
+    const auto tileId = Context::instance().getNextTileId();
 
     const auto smoothNormals = tileset.getSmoothNormals();
 
@@ -74,7 +79,7 @@ gatherMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const 
 
     model.forEachPrimitiveInScene(
         -1,
-        [tilesetId, &ecefToUsdTransform, &gltfToEcefTransform, smoothNormals, &meshes](
+        [tilesetId, tileId, &ecefToUsdTransform, &gltfToEcefTransform, smoothNormals, &meshes](
             const CesiumGltf::Model& gltf,
             [[maybe_unused]] const CesiumGltf::Node& node,
             const CesiumGltf::Mesh& mesh,
@@ -84,6 +89,7 @@ gatherMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const 
             const auto primitiveId = getIndexFromRef(mesh.primitives, primitive);
             meshes.emplace_back(MeshInfo{
                 tilesetId,
+                tileId,
                 ecefToUsdTransform,
                 gltfToEcefTransform,
                 transform,
@@ -163,6 +169,7 @@ void setFabricMeshes(
     const std::vector<MeshInfo>& meshes,
     std::vector<FabricMesh>& fabricMeshes,
     bool hasImagery,
+    float geometricError,
     const OmniTileset& tileset) {
     CESIUM_TRACE("FabricPrepareRenderResources::setFabricMeshes");
     for (size_t i = 0; i < meshes.size(); i++) {
@@ -178,16 +185,18 @@ void setFabricMeshes(
 
         geometry->setGeometry(
             meshInfo.tilesetId,
+            meshInfo.tileId,
             meshInfo.ecefToUsdTransform,
             meshInfo.gltfToEcefTransform,
             meshInfo.nodeTransform,
             model,
             primitive,
             meshInfo.smoothNormals,
-            hasImagery);
+            hasImagery,
+            geometricError);
 
         if (material != nullptr) {
-            material->setMaterial(meshInfo.tilesetId, materialInfo);
+            material->setMaterial(meshInfo.tilesetId, meshInfo.tileId, materialInfo);
             geometry->setMaterial(material->getPath());
 
             if (baseColorTexture != nullptr && materialInfo.baseColorTexture.has_value()) {
@@ -317,13 +326,11 @@ void* FabricPrepareRenderResources::prepareInMainThread(Cesium3DTilesSelection::
     const auto& model = pRenderContent->getModel();
 
     if (tilesetExists()) {
-        setFabricMeshes(model, meshes, fabricMeshes, hasImagery, *_tileset);
+        auto geometricError = static_cast<float>(tile.getGeometricError());
+        setFabricMeshes(model, meshes, fabricMeshes, hasImagery, geometricError, *_tileset);
     }
 
-    return new TileRenderResources{
-        tileTransform,
-        std::move(fabricMeshes),
-    };
+    return new TileRenderResources{tileTransform, std::move(fabricMeshes), (meshes.size() > 0) ? meshes[0].tileId : 0};
 }
 
 void FabricPrepareRenderResources::free(
@@ -339,6 +346,8 @@ void FabricPrepareRenderResources::free(
     if (pMainThreadResult) {
         const auto pTileRenderResources = static_cast<TileRenderResources*>(pMainThreadResult);
         freeFabricMeshes(pTileRenderResources->fabricMeshes);
+        auto tileId = pTileRenderResources->tileId;
+        CudaManager::getInstance().removeRunner(static_cast<int64_t>(tileId));
         delete pTileRenderResources;
     }
 }
