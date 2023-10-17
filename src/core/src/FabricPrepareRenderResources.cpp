@@ -56,7 +56,7 @@ struct TileLoadThreadResult {
 };
 
 bool hasBaseColorTextureGltf(const FabricMesh& fabricMesh) {
-    return fabricMesh.material->getMaterialDefinition().hasBaseColorTextures() &&
+    return fabricMesh.material != nullptr && fabricMesh.material->getMaterialDefinition().hasBaseColorTextures() &&
            fabricMesh.materialInfo.baseColorTexture.has_value();
 }
 
