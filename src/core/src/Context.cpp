@@ -182,6 +182,14 @@ void Context::reloadStage() {
             AssetRegistry::getInstance().addTileset(path, UsdUtil::GEOREFERENCE_PATH);
         } else if (UsdUtil::isCesiumImagery(path)) {
             AssetRegistry::getInstance().addImagery(path);
+        } else if (UsdUtil::hasCesiumGlobeAnchor(path)) {
+            auto origin = UsdUtil::getCartographicOriginForAnchor(path);
+
+            // We probably need to do something else other than crash, but there really isn't more we can do in this case.
+            assert(origin.has_value());
+
+            auto anchorToFixed = UsdUtil::computeUsdLocalToEcefTransformForPrim(origin.value(), path);
+            GlobeAnchorRegistry::getInstance().createAnchor(path, anchorToFixed);
         }
     }
 }
@@ -314,20 +322,18 @@ void Context::processCesiumGeoreferenceChanged(const cesium::omniverse::ChangedP
     for (const auto& globeAnchor : anchors) {
         auto anchorApi = UsdUtil::getCesiumGlobeAnchor(globeAnchor->getPrimPath());
 
-        pxr::SdfPathVector targets;
-        if (!anchorApi.GetGeoreferenceBindingRel().GetForwardedTargets(&targets)) {
-            return;
-        }
-
         // We only want to update an anchor if we are updating it's related Georeference Prim.
-        if (path != targets[0]) {
+        if (path !=
+            UsdUtil::getAnchorGeoreferencePath(globeAnchor->getPrimPath()).value_or(pxr::SdfPath::EmptyPath())) {
             continue;
         }
 
-        auto georeferenceOrigin = UsdUtil::getCesiumGeoreference(targets[0]);
-        auto origin = GeospatialUtil::convertGeoreferenceToCartographic(georeferenceOrigin);
+        auto origin = UsdUtil::getCartographicOriginForAnchor(globeAnchor->getPrimPath());
+        if (!origin.has_value()) {
+            continue;
+        }
 
-        GeospatialUtil::updateAnchorOrigin(origin, anchorApi, globeAnchor);
+        GeospatialUtil::updateAnchorOrigin(origin.value(), anchorApi, globeAnchor);
     }
 }
 
@@ -335,32 +341,31 @@ void Context::processCesiumGlobeAnchorChanged(const cesium::omniverse::ChangedPr
     const auto& [path, name, primType, changeType] = changedPrim;
 
     auto globeAnchor = UsdUtil::getCesiumGlobeAnchor(path);
-    pxr::SdfPathVector targets;
-    if (!globeAnchor.GetGeoreferenceBindingRel().GetForwardedTargets(&targets)) {
+    auto origin = UsdUtil::getCartographicOriginForAnchor(path);
+
+    if (!origin.has_value()) {
         return;
     }
-    auto georeferenceOrigin = UsdUtil::getCesiumGeoreference(targets[0]);
-    auto cartographicOrigin = GeospatialUtil::convertGeoreferenceToCartographic(georeferenceOrigin);
 
     bool detectTransformChanges;
     globeAnchor.GetDetectTransformChangesAttr().Get(&detectTransformChanges);
 
     if (detectTransformChanges && (name == pxr::CesiumTokens->cesiumAnchorDetectTransformChanges ||
                                    name == pxr::UsdTokens->xformOp_transform_cesium)) {
-        GeospatialUtil::updateAnchorByUsdTransform(cartographicOrigin, globeAnchor);
+        GeospatialUtil::updateAnchorByUsdTransform(origin.value(), globeAnchor);
 
         return;
     }
 
     if (name == pxr::CesiumTokens->cesiumAnchorGeographicCoordinates) {
-        GeospatialUtil::updateAnchorByLatLongHeight(cartographicOrigin, globeAnchor);
+        GeospatialUtil::updateAnchorByLatLongHeight(origin.value(), globeAnchor);
 
         return;
     }
 
     if (name == pxr::CesiumTokens->cesiumAnchorPosition || name == pxr::CesiumTokens->cesiumAnchorRotation ||
         name == pxr::CesiumTokens->cesiumAnchorScale) {
-        GeospatialUtil::updateAnchorByFixedTransform(cartographicOrigin, globeAnchor);
+        GeospatialUtil::updateAnchorByFixedTransform(origin.value(), globeAnchor);
 
         return;
     }
@@ -403,6 +408,11 @@ void Context::processPrimAdded(const ChangedPrim& changedPrim) {
         const auto tilesetPath = changedPrim.path.GetParentPath();
         AssetRegistry::getInstance().addImagery(imageryPath);
         reloadTileset(tilesetPath);
+    } else if (changedPrim.primType == ChangedPrimType::CESIUM_GLOBE_ANCHOR) {
+        auto anchorApi = UsdUtil::getCesiumGlobeAnchor(changedPrim.path);
+        auto origin = UsdUtil::getCartographicOriginForAnchor(changedPrim.path);
+        assert(origin.has_value());
+        GeospatialUtil::updateAnchorByUsdTransform(origin.value(), anchorApi);
     }
 }
 
@@ -845,10 +855,6 @@ void Context::addGlobeAnchorToPrim(const pxr::SdfPath& path) {
     // Until we support multiple georeference points, we should just use the default georeference object.
     auto georeferenceOrigin = UsdUtil::getOrCreateCesiumGeoreference();
     globeAnchor.GetGeoreferenceBindingRel().AddTarget(georeferenceOrigin.GetPath());
-
-    const auto cartographicOrigin = GeospatialUtil::convertGeoreferenceToCartographic(georeferenceOrigin);
-
-    GeospatialUtil::updateAnchorByUsdTransform(cartographicOrigin, globeAnchor);
 }
 
 } // namespace cesium::omniverse
