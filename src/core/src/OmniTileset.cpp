@@ -411,6 +411,23 @@ void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
     _tileset->getOverlays().add(ionRasterOverlay);
 }
 
+std::optional<uint64_t> OmniTileset::findImageryIndex(const Cesium3DTilesSelection::RasterOverlay& overlay) const {
+    uint64_t overlayIndex = 0;
+    for (const auto& pOverlay : _tileset->getOverlays()) {
+        if (&overlay == pOverlay.get()) {
+            return overlayIndex;
+        }
+
+        overlayIndex++;
+    }
+
+    return std::nullopt;
+}
+
+uint64_t OmniTileset::getImageryLayerCount() const {
+    return _tileset->getOverlays().size();
+}
+
 void OmniTileset::onUpdateFrame(const std::vector<Viewport>& viewports) {
     if (!UsdUtil::primExists(_tilesetPath)) {
         // TfNotice can be slow, and sometimes we get a frame or two before we actually get a chance to react on it.
@@ -439,7 +456,7 @@ void OmniTileset::updateTransform() {
     // than the main thread and we would have to be careful to synchronize updates to Fabric in the main thread.
 
     const auto georeferenceOrigin = GeospatialUtil::convertGeoreferenceToCartographic(getGeoreference());
-    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdTransformForPrim(georeferenceOrigin, _tilesetPath);
+    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdWorldTransformForPrim(georeferenceOrigin, _tilesetPath);
 
     // Check for transform changes and update prims accordingly
     if (ecefToUsdTransform != _ecefToUsdTransform) {
@@ -512,7 +529,7 @@ bool OmniTileset::updateExtent() {
     const auto& bounding_volume = rootTile->getBoundingVolume();
     const auto oriented = Cesium3DTilesSelection::getOrientedBoundingBoxFromBoundingVolume(bounding_volume);
     const auto georeferenceOrigin = Context::instance().getGeoreferenceOrigin();
-    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdTransformForPrim(georeferenceOrigin, _tilesetPath);
+    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdWorldTransformForPrim(georeferenceOrigin, _tilesetPath);
     const auto usdOriented = oriented.transform(ecefToUsdTransform);
     const auto& center = usdOriented.getCenter();
 

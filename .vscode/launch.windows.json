@@ -40,6 +40,17 @@
       "request": "attach",
       "port": 3000,
       "host": "localhost"
+    },
+    {
+      "name": "Tests Extension",
+      "preLaunchTask": "Build Only (debug)",
+      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit.exe",
+      "args": [
+        "${workspaceFolder}/apps/cesium.omniverse.cpp.tests.runner.kit"
+      ],
+      "cwd": "${workspaceFolder}",
+      "type": "cppvsdbg",
+      "request": "launch"
     }
   ]
 }

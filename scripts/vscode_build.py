@@ -139,20 +139,6 @@ def build(args: Args):
     process(install_kit_cmd)
 
 
-def test(args: Args):
-    working_directory = os.getcwd()
-    bin_folder = get_bin_folder_name(args.build_type, args.compiler_name)
-    test_executable = "{}/{}/tests".format(working_directory, bin_folder)
-
-    configure_cmd = get_cmake_configure_command(args)
-    build_cmd = get_cmake_build_command(args, None)
-    test_cmd = [test_executable]
-
-    process(configure_cmd)
-    process(build_cmd)
-    process(test_cmd)
-
-
 def coverage(args: Args):
     if is_windows():
         print("Coverage is not supported for Windows")
@@ -260,8 +246,6 @@ def main(av: List[str]):
         build(args)
     elif task == "clean":
         clean(args)
-    elif task == "test":
-        test(args)
     elif task == "coverage":
         coverage(args)
     elif task == "documentation":

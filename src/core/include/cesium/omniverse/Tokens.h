@@ -13,9 +13,28 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
 // Note: variable names should match the USD token names as closely as possible, with special characters converted to underscores
 
 #define USD_TOKENS \
-    (baseColorTexture) \
+    (base_color_texture) \
+    (base_color_texture_0) \
+    (base_color_texture_1) \
+    (base_color_texture_2) \
+    (base_color_texture_3) \
+    (base_color_texture_4) \
+    (base_color_texture_5) \
+    (base_color_texture_6) \
+    (base_color_texture_7) \
+    (base_color_texture_8) \
+    (base_color_texture_9) \
+    (base_color_texture_10) \
+    (base_color_texture_11) \
+    (base_color_texture_12) \
+    (base_color_texture_13) \
+    (base_color_texture_14) \
+    (base_color_texture_15) \
+    (base_color_texture_array) \
+    (cesium) \
     (cesium_base_color_texture) \
     (cesium_material) \
+    (cesium_texture_array_lookup) \
     (cesium_texture_lookup) \
     (constant) \
     (doubleSided) \
@@ -61,6 +80,23 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((inputs_scale, "inputs:scale")) \
     ((inputs_tex_coord_index, "inputs:tex_coord_index")) \
     ((inputs_texture, "inputs:texture")) \
+    ((inputs_texture_0, "inputs:texture_0")) \
+    ((inputs_texture_1, "inputs:texture_1")) \
+    ((inputs_texture_2, "inputs:texture_2")) \
+    ((inputs_texture_3, "inputs:texture_3")) \
+    ((inputs_texture_4, "inputs:texture_4")) \
+    ((inputs_texture_5, "inputs:texture_5")) \
+    ((inputs_texture_6, "inputs:texture_6")) \
+    ((inputs_texture_7, "inputs:texture_7")) \
+    ((inputs_texture_8, "inputs:texture_8")) \
+    ((inputs_texture_9, "inputs:texture_9")) \
+    ((inputs_texture_10, "inputs:texture_10")) \
+    ((inputs_texture_11, "inputs:texture_11")) \
+    ((inputs_texture_12, "inputs:texture_12")) \
+    ((inputs_texture_13, "inputs:texture_13")) \
+    ((inputs_texture_14, "inputs:texture_14")) \
+    ((inputs_texture_15, "inputs:texture_15")) \
+    ((inputs_texture_count, "inputs:texture_count")) \
     ((inputs_vertex_color_name, "inputs:vertex_color_name")) \
     ((inputs_wrap_s, "inputs:wrap_s")) \
     ((inputs_wrap_t, "inputs:wrap_t")) \
@@ -72,8 +108,18 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((primvars_displayColor, "primvars:displayColor")) \
     ((primvars_displayOpacity, "primvars:displayOpacity")) \
     ((primvars_normals, "primvars:normals")) \
-    ((primvars_st, "primvars:st")) \
-    ((primvars_vertexColor, "primvars:vertexColor"))
+    ((primvars_st_0, "primvars:st_0")) \
+    ((primvars_st_1, "primvars:st_1")) \
+    ((primvars_st_2, "primvars:st_2")) \
+    ((primvars_st_3, "primvars:st_3")) \
+    ((primvars_st_4, "primvars:st_4")) \
+    ((primvars_st_5, "primvars:st_5")) \
+    ((primvars_st_6, "primvars:st_6")) \
+    ((primvars_st_7, "primvars:st_7")) \
+    ((primvars_st_8, "primvars:st_8")) \
+    ((primvars_st_9, "primvars:st_9")) \
+    ((primvars_vertexColor, "primvars:vertexColor")) \
+    ((xformOp_transform_cesium, "xformOp:transform:cesium"))
 
 TF_DECLARE_PUBLIC_TOKENS(UsdTokens, USD_TOKENS);
 
@@ -103,6 +149,61 @@ __pragma(warning(pop))
 
 namespace cesium::omniverse::FabricTokens {
 FABRIC_DECLARE_TOKENS(USD_TOKENS);
+
+const uint64_t MAX_PRIMVAR_ST_COUNT = 10;
+const uint64_t MAX_TEXTURE_LAYER_COUNT = 16;
+
+const std::array<const omni::fabric::TokenC, MAX_PRIMVAR_ST_COUNT> primvars_st_n = {{
+    primvars_st_0,
+    primvars_st_1,
+    primvars_st_2,
+    primvars_st_3,
+    primvars_st_4,
+    primvars_st_5,
+    primvars_st_6,
+    primvars_st_7,
+    primvars_st_8,
+    primvars_st_9,
+}};
+
+const std::array<const omni::fabric::TokenC, MAX_TEXTURE_LAYER_COUNT> base_color_texture_n = {{
+    base_color_texture_0,
+    base_color_texture_1,
+    base_color_texture_2,
+    base_color_texture_3,
+    base_color_texture_4,
+    base_color_texture_5,
+    base_color_texture_6,
+    base_color_texture_7,
+    base_color_texture_8,
+    base_color_texture_9,
+    base_color_texture_10,
+    base_color_texture_11,
+    base_color_texture_12,
+    base_color_texture_13,
+    base_color_texture_14,
+    base_color_texture_15,
+}};
+
+const std::array<const omni::fabric::TokenC, MAX_TEXTURE_LAYER_COUNT> inputs_texture_n = {{
+    inputs_texture_0,
+    inputs_texture_1,
+    inputs_texture_2,
+    inputs_texture_3,
+    inputs_texture_4,
+    inputs_texture_5,
+    inputs_texture_6,
+    inputs_texture_7,
+    inputs_texture_8,
+    inputs_texture_9,
+    inputs_texture_10,
+    inputs_texture_11,
+    inputs_texture_12,
+    inputs_texture_13,
+    inputs_texture_14,
+    inputs_texture_15,
+}};
+
 }
 
 namespace cesium::omniverse::FabricTypes {
@@ -127,6 +228,7 @@ const omni::fabric::Type inputs_roughness_factor(omni::fabric::BaseDataType::eFl
 const omni::fabric::Type inputs_scale(omni::fabric::BaseDataType::eFloat, 2, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_tex_coord_index(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_texture(omni::fabric::BaseDataType::eAsset, 1, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type inputs_texture_count(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_vertex_color_name(omni::fabric::BaseDataType::eUChar, 1, 1, omni::fabric::AttributeRole::eText);
 const omni::fabric::Type inputs_wrap_s(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_wrap_t(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);

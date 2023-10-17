@@ -63,7 +63,7 @@ class FabricResourceManager {
 
     std::shared_ptr<FabricMaterial> acquireMaterial(
         const MaterialInfo& materialInfo,
-        bool hasImagery,
+        uint64_t imageryLayerCount,
         const pxr::SdfPath& tilesetMaterialPath,
         long stageId,
         int64_t tilesetId);
@@ -144,7 +144,9 @@ class FabricResourceManager {
     std::mutex _poolMutex;
 
     std::unique_ptr<omni::ui::DynamicTextureProvider> _defaultTexture;
+    std::unique_ptr<omni::ui::DynamicTextureProvider> _defaultTransparentTexture;
     pxr::TfToken _defaultTextureAssetPathToken;
+    pxr::TfToken _defaultTransparentTextureAssetPathToken;
 
     std::vector<omni::fabric::Path> _retainedPaths;
 

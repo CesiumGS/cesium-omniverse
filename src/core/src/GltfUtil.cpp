@@ -1,5 +1,7 @@
 #include "cesium/omniverse/GltfUtil.h"
 
+#include "cesium/omniverse/LoggerSink.h"
+
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
 #undef OPAQUE
@@ -12,7 +14,9 @@
 #include <CesiumGltf/TextureInfo.h>
 #include <spdlog/fmt/fmt.h>
 
+#include <charconv>
 #include <numeric>
+#include <regex>
 
 namespace cesium::omniverse::GltfUtil {
 
@@ -312,6 +316,25 @@ const CesiumGltf::ImageCesium& getImageCesium(const CesiumGltf::Model& model, co
     return image.cesium;
 }
 
+std::pair<std::string, uint64_t> parseAttributeName(const std::string& attributeName) {
+    const auto regex = std::regex("^([a-zA-Z_]*)(_([1-9]\\d*|0))?$");
+
+    std::string semantic;
+    std::string setIndex;
+
+    std::smatch matches;
+
+    if (std::regex_match(attributeName, matches, regex)) {
+        semantic = matches[1];
+        setIndex = matches[3];
+    }
+
+    uint64_t setIndexU64 = 0;
+    std::from_chars(setIndex.data(), setIndex.data() + setIndex.size(), setIndexU64);
+
+    return std::make_pair(semantic, setIndexU64);
+}
+
 } // namespace
 
 PositionsAccessor getPositions(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
@@ -538,6 +561,38 @@ bool hasImageryTexcoords(
     uint64_t setIndex) {
     return getTexcoordsView(model, primitive, "_CESIUMOVERLAY", setIndex).status() ==
            CesiumGltf::AccessorViewStatus::Valid;
+}
+
+std::vector<uint64_t>
+getTexcoordSetIndexes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+    auto setIndexes = std::vector<uint64_t>();
+
+    for (const auto& attribute : primitive.attributes) {
+        const auto [semantic, setIndex] = parseAttributeName(attribute.first);
+        if (semantic == "TEXCOORD") {
+            if (hasTexcoords(model, primitive, setIndex)) {
+                setIndexes.push_back(setIndex);
+            }
+        }
+    }
+
+    return setIndexes;
+}
+
+std::vector<uint64_t>
+getImageryTexcoordSetIndexes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+    auto setIndexes = std::vector<uint64_t>();
+
+    for (const auto& attribute : primitive.attributes) {
+        const auto [semantic, setIndex] = parseAttributeName(attribute.first);
+        if (semantic == "_CESIUMOVERLAY") {
+            if (hasImageryTexcoords(model, primitive, setIndex)) {
+                setIndexes.push_back(setIndex);
+            }
+        }
+    }
+
+    return setIndexes;
 }
 
 bool hasVertexColors(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex) {

@@ -18,7 +18,7 @@ class ICesiumOmniverseCppTestsInterface {
      */
     virtual void onShutdown() noexcept = 0;
 
-    virtual void run_all_tests(long int stage_id) noexcept = 0;
+    virtual void runAllTests(long int stage_id) noexcept = 0;
 };
 
 } // namespace cesium::omniverse::tests

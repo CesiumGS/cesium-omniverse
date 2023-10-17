@@ -13,12 +13,13 @@ class FabricMaterialDefinition {
   public:
     FabricMaterialDefinition(
         const MaterialInfo& materialInfo,
-        bool hasImagery,
+        uint64_t imageryLayerCount,
         bool disableTextures,
         const pxr::SdfPath& tilesetMaterialPath);
 
-    [[nodiscard]] bool hasBaseColorTexture() const;
     [[nodiscard]] bool hasVertexColors() const;
+    [[nodiscard]] uint64_t getBaseColorTextureCount() const;
+    [[nodiscard]] bool hasBaseColorTextures() const;
     [[nodiscard]] bool hasTilesetMaterial() const;
     [[nodiscard]] const pxr::SdfPath& getTilesetMaterialPath() const;
 
@@ -26,8 +27,8 @@ class FabricMaterialDefinition {
     bool operator==(const FabricMaterialDefinition& other) const;
 
   private:
-    bool _hasBaseColorTexture;
     bool _hasVertexColors;
+    uint64_t _baseColorTextureCount;
     pxr::SdfPath _tilesetMaterialPath;
 };
 

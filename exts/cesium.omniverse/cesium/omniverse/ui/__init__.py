@@ -15,3 +15,4 @@ from .search_field_widget import CesiumSearchFieldWidget  # noqa: F401
 from .statistics_widget import CesiumOmniverseStatisticsWidget  # noqa: F401
 from .models import *  # noqa: F401 F403
 from .credits_viewport_controller import CreditsViewportController  # noqa: F401
+from .add_menu_controller import CesiumAddMenuController  # noqa: F401
