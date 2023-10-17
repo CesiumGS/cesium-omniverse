@@ -15,20 +15,12 @@ FabricGeometryDefinition::FabricGeometryDefinition(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     bool smoothNormals) {
-
-    const auto hasPrimitiveSt = GltfUtil::hasTexcoords(model, primitive, 0);
-    const auto hasImagerySt = GltfUtil::hasImageryTexcoords(model, primitive, 0);
-
     const auto materialInfo = GltfUtil::getMaterialInfo(model, primitive);
-
-    _hasTexcoords = hasPrimitiveSt || hasImagerySt;
     _hasNormals = GltfUtil::hasNormals(model, primitive, smoothNormals);
     _hasVertexColors = GltfUtil::hasVertexColors(model, primitive, 0);
     _doubleSided = materialInfo.doubleSided;
-}
-
-bool FabricGeometryDefinition::hasTexcoords() const {
-    return _hasTexcoords;
+    _texcoordSetCount = GltfUtil::getTexcoordSetIndexes(model, primitive).size() +
+                        GltfUtil::getImageryTexcoordSetIndexes(model, primitive).size();
 }
 
 bool FabricGeometryDefinition::hasNormals() const {
@@ -43,11 +35,11 @@ bool FabricGeometryDefinition::getDoubleSided() const {
     return _doubleSided;
 }
 
-bool FabricGeometryDefinition::operator==(const FabricGeometryDefinition& other) const {
-    if (_hasTexcoords != other._hasTexcoords) {
-        return false;
-    }
+[[nodiscard]] uint64_t FabricGeometryDefinition::getTexcoordSetCount() const {
+    return _texcoordSetCount;
+}
 
+bool FabricGeometryDefinition::operator==(const FabricGeometryDefinition& other) const {
     if (_hasNormals != other._hasNormals) {
         return false;
     }
@@ -57,6 +49,10 @@ bool FabricGeometryDefinition::operator==(const FabricGeometryDefinition& other)
     }
 
     if (_doubleSided != other._doubleSided) {
+        return false;
+    }
+
+    if (_texcoordSetCount != other._texcoordSetCount) {
         return false;
     }
 

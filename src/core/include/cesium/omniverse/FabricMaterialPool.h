@@ -15,6 +15,7 @@ class FabricMaterialPool final : public ObjectPool<FabricMaterial> {
         const FabricMaterialDefinition& materialDefinition,
         uint64_t initialCapacity,
         const pxr::TfToken& defaultTextureAssetPathToken,
+        const pxr::TfToken& defaultTransparentTextureAssetPathToken,
         long stageId);
 
     [[nodiscard]] const FabricMaterialDefinition& getMaterialDefinition() const;
@@ -27,6 +28,7 @@ class FabricMaterialPool final : public ObjectPool<FabricMaterial> {
     const int64_t _poolId;
     const FabricMaterialDefinition _materialDefinition;
     const pxr::TfToken _defaultTextureAssetPathToken;
+    const pxr::TfToken _defaultTransparentTextureAssetPathToken;
     const long _stageId;
 };
 

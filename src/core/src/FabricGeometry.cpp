@@ -5,6 +5,7 @@
 #include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GltfUtil.h"
+#include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
@@ -31,6 +32,22 @@ const auto DEFAULT_ORIENTATION = pxr::GfQuatf(1.0f, 0.0, 0.0, 0.0);
 const auto DEFAULT_SCALE = pxr::GfVec3f(1.0f, 1.0f, 1.0f);
 const auto DEFAULT_MATRIX = pxr::GfMatrix4d(1.0);
 const auto DEFAULT_VISIBILITY = false;
+
+uint64_t getTexcoordSetCount(const FabricGeometryDefinition& geometryDefinition) {
+    auto texcoordSetCount = geometryDefinition.getTexcoordSetCount();
+
+    if (texcoordSetCount > FabricTokens::MAX_PRIMVAR_ST_COUNT) {
+        CESIUM_LOG_WARN(
+            "Number of texcoord sets ({}) exceeds maximum number of texcoord sets ({}). Textures using excess texcoord "
+            "sets will be ignored.",
+            texcoordSetCount,
+            FabricTokens::MAX_PRIMVAR_ST_COUNT);
+    }
+
+    texcoordSetCount = glm::min(texcoordSetCount, FabricTokens::MAX_PRIMVAR_ST_COUNT);
+
+    return texcoordSetCount;
+}
 
 } // namespace
 
@@ -102,10 +119,10 @@ void FabricGeometry::setMaterial(const omni::fabric::Path& materialPath) {
 }
 
 void FabricGeometry::initialize() {
-    const auto hasTexcoords = _geometryDefinition.hasTexcoords();
     const auto hasNormals = _geometryDefinition.hasNormals();
     const auto hasVertexColors = _geometryDefinition.hasVertexColors();
     const auto doubleSided = _geometryDefinition.getDoubleSided();
+    const auto texcoordSetCount = getTexcoordSetCount(_geometryDefinition);
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
@@ -132,8 +149,8 @@ void FabricGeometry::initialize() {
     attributes.addAttribute(FabricTypes::subdivisionScheme, FabricTokens::subdivisionScheme);
     attributes.addAttribute(FabricTypes::material_binding, FabricTokens::material_binding);
 
-    if (hasTexcoords) {
-        attributes.addAttribute(FabricTypes::primvars_st, FabricTokens::primvars_st);
+    for (uint64_t i = 0; i < texcoordSetCount; i++) {
+        attributes.addAttribute(FabricTypes::primvars_st, FabricTokens::primvars_st_n[i]);
     }
 
     if (hasNormals) {
@@ -156,15 +173,17 @@ void FabricGeometry::initialize() {
 
     // Initialize primvars
     size_t primvarsCount = 0;
-    size_t primvarIndexSt = 0;
     size_t primvarIndexNormal = 0;
     size_t primvarIndexVertexColor = 0;
 
     const size_t primvarIndexDisplayColor = primvarsCount++;
     const size_t primvarIndexDisplayOpacity = primvarsCount++;
 
-    if (hasTexcoords) {
-        primvarIndexSt = primvarsCount++;
+    std::vector<uint64_t> primvarIndexStArray;
+    primvarIndexStArray.reserve(texcoordSetCount);
+
+    for (uint64_t i = 0; i < texcoordSetCount; i++) {
+        primvarIndexStArray.push_back(primvarsCount++);
     }
 
     if (hasNormals) {
@@ -191,9 +210,9 @@ void FabricGeometry::initialize() {
     primvarInterpolationsFabric[primvarIndexDisplayColor] = FabricTokens::constant;
     primvarInterpolationsFabric[primvarIndexDisplayOpacity] = FabricTokens::constant;
 
-    if (hasTexcoords) {
-        primvarsFabric[primvarIndexSt] = FabricTokens::primvars_st;
-        primvarInterpolationsFabric[primvarIndexSt] = FabricTokens::vertex;
+    for (uint64_t i = 0; i < texcoordSetCount; i++) {
+        primvarsFabric[primvarIndexStArray[i]] = FabricTokens::primvars_st_n[i];
+        primvarInterpolationsFabric[primvarIndexStArray[i]] = FabricTokens::vertex;
     }
 
     if (hasNormals) {
@@ -208,9 +227,9 @@ void FabricGeometry::initialize() {
 }
 
 void FabricGeometry::reset() {
-    const auto hasTexcoords = _geometryDefinition.hasTexcoords();
     const auto hasNormals = _geometryDefinition.hasNormals();
     const auto hasVertexColors = _geometryDefinition.hasVertexColors();
+    const auto texcoordSetCount = getTexcoordSetCount(_geometryDefinition);
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
@@ -243,8 +262,8 @@ void FabricGeometry::reset() {
     srw.setArrayAttributeSize(_path, FabricTokens::faceVertexIndices, 0);
     srw.setArrayAttributeSize(_path, FabricTokens::points, 0);
 
-    if (hasTexcoords) {
-        srw.setArrayAttributeSize(_path, FabricTokens::primvars_st, 0);
+    for (uint64_t i = 0; i < texcoordSetCount; i++) {
+        srw.setArrayAttributeSize(_path, FabricTokens::primvars_st_n[i], 0);
     }
 
     if (hasNormals) {
@@ -264,13 +283,13 @@ void FabricGeometry::setGeometry(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     bool smoothNormals,
-    bool hasImagery) {
+    const std::unordered_map<uint64_t, uint64_t>& texcoordIndexMapping,
+    const std::unordered_map<uint64_t, uint64_t>& imageryTexcoordIndexMapping) {
 
     if (stageDestroyed()) {
         return;
     }
 
-    const auto hasTexcoords = _geometryDefinition.hasTexcoords();
     const auto hasNormals = _geometryDefinition.hasNormals();
     const auto hasVertexColors = _geometryDefinition.hasVertexColors();
 
@@ -280,8 +299,6 @@ void FabricGeometry::setGeometry(
     const auto indices = GltfUtil::getIndices(model, primitive, positions);
     const auto normals = GltfUtil::getNormals(model, primitive, positions, indices, smoothNormals);
     const auto vertexColors = GltfUtil::getVertexColors(model, primitive, 0);
-    const auto texcoords_0 = GltfUtil::getTexcoords(model, primitive, 0);
-    const auto imageryTexcoords = GltfUtil::getImageryTexcoords(model, primitive, 0);
     const auto extent = GltfUtil::getExtent(model, primitive);
     const auto faceVertexCounts = GltfUtil::getFaceVertexCounts(indices);
 
@@ -398,14 +415,27 @@ void FabricGeometry::setGeometry(
         indices.fill(faceVertexIndicesFabric);
         positions.fill(pointsFabric);
 
-        if (hasTexcoords) {
-            const auto& texcoords = hasImagery ? imageryTexcoords : texcoords_0;
+        const auto fillTexcoords = [this, &srw](uint64_t texcoordIndex, const TexcoordsAccessor& texcoords) {
+            assert(texcoordIndex < _geometryDefinition.getTexcoordSetCount());
 
-            srw.setArrayAttributeSize(_path, FabricTokens::primvars_st, texcoords.size());
+            if (texcoordIndex >= FabricTokens::MAX_PRIMVAR_ST_COUNT) {
+                return;
+            }
 
-            auto stFabric = srw.getArrayAttributeWr<glm::fvec2>(_path, FabricTokens::primvars_st);
-
+            const auto& primvarStToken = FabricTokens::primvars_st_n[texcoordIndex];
+            srw.setArrayAttributeSize(_path, primvarStToken, texcoords.size());
+            auto stFabric = srw.getArrayAttributeWr<glm::fvec2>(_path, primvarStToken);
             texcoords.fill(stFabric);
+        };
+
+        for (const auto& [gltfSetIndex, primvarStIndex] : texcoordIndexMapping) {
+            const auto texcoords = GltfUtil::getTexcoords(model, primitive, gltfSetIndex);
+            fillTexcoords(primvarStIndex, texcoords);
+        }
+
+        for (const auto& [gltfSetIndex, primvarStIndex] : imageryTexcoordIndexMapping) {
+            const auto texcoords = GltfUtil::getImageryTexcoords(model, primitive, gltfSetIndex);
+            fillTexcoords(primvarStIndex, texcoords);
         }
 
         if (hasNormals) {

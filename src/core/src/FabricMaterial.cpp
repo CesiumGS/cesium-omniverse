@@ -2,8 +2,10 @@
 
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/FabricAttributesBuilder.h"
+#include "cesium/omniverse/FabricMaterialDefinition.h"
 #include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricUtil.h"
+#include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
@@ -12,14 +14,33 @@
 
 namespace cesium::omniverse {
 
+namespace {
+uint64_t getBaseColorTextureCount(const FabricMaterialDefinition& materialDefinition) {
+    auto baseColorTextureCount = materialDefinition.getBaseColorTextureCount();
+
+    if (baseColorTextureCount > FabricTokens::MAX_TEXTURE_LAYER_COUNT) {
+        CESIUM_LOG_WARN(
+            "Number of textures ({}) exceeds maximum texture layer count ({}). Excess textures will be ignored.",
+            baseColorTextureCount,
+            FabricTokens::MAX_TEXTURE_LAYER_COUNT);
+    }
+
+    baseColorTextureCount = glm::min(baseColorTextureCount, FabricTokens::MAX_TEXTURE_LAYER_COUNT);
+
+    return baseColorTextureCount;
+}
+} // namespace
+
 FabricMaterial::FabricMaterial(
     const omni::fabric::Path& path,
     const FabricMaterialDefinition& materialDefinition,
     const pxr::TfToken& defaultTextureAssetPathToken,
+    const pxr::TfToken& defaultTransparentTextureAssetPathToken,
     long stageId)
     : _materialPath(path)
     , _materialDefinition(materialDefinition)
     , _defaultTextureAssetPathToken(defaultTextureAssetPathToken)
+    , _defaultTransparentTextureAssetPathToken(defaultTransparentTextureAssetPathToken)
     , _stageId(stageId) {
 
     if (stageDestroyed()) {
@@ -38,8 +59,12 @@ FabricMaterial::~FabricMaterial() {
     FabricUtil::destroyPrim(_materialPath);
     FabricUtil::destroyPrim(_shaderPath);
 
-    if (_materialDefinition.hasBaseColorTexture()) {
+    if (_materialDefinition.hasBaseColorTextures()) {
         FabricUtil::destroyPrim(_baseColorTexturePath);
+
+        for (const auto& baseColorTextureLayerPath : _baseColorTextureLayerPaths) {
+            FabricUtil::destroyPrim(baseColorTextureLayerPath);
+        }
     }
 }
 
@@ -62,25 +87,39 @@ const FabricMaterialDefinition& FabricMaterial::getMaterialDefinition() const {
 }
 
 void FabricMaterial::initialize() {
-    const auto hasBaseColorTexture = _materialDefinition.hasBaseColorTexture();
-
     const auto& materialPath = _materialPath;
-    const auto shaderPath = FabricUtil::joinPaths(materialPath, FabricTokens::Shader);
-    const auto baseColorTexturePath = FabricUtil::joinPaths(materialPath, FabricTokens::baseColorTexture);
-
-    _materialPath = materialPath;
-    _shaderPath = shaderPath;
-    _baseColorTexturePath = baseColorTexturePath;
-
-    FabricResourceManager::getInstance().retainPath(materialPath);
-    FabricResourceManager::getInstance().retainPath(shaderPath);
-    FabricResourceManager::getInstance().retainPath(baseColorTexturePath);
-
     createMaterial(materialPath);
-    createShader(shaderPath, materialPath);
+    auto& fabricResourceManager = FabricResourceManager::getInstance();
+    fabricResourceManager.retainPath(materialPath);
 
-    if (hasBaseColorTexture) {
+    const auto shaderPath = FabricUtil::joinPaths(materialPath, FabricTokens::Shader);
+    createShader(shaderPath, materialPath);
+    fabricResourceManager.retainPath(shaderPath);
+    _shaderPath = shaderPath;
+
+    const auto baseColorTextureCount = getBaseColorTextureCount(_materialDefinition);
+
+    if (baseColorTextureCount == 1) {
+        const auto baseColorTexturePath = FabricUtil::joinPaths(materialPath, FabricTokens::base_color_texture);
+        fabricResourceManager.retainPath(baseColorTexturePath);
+        _baseColorTexturePath = baseColorTexturePath;
         createTexture(baseColorTexturePath, shaderPath, FabricTokens::inputs_base_color_texture);
+    } else if (baseColorTextureCount > 1) {
+        const auto baseColorTexturePath = FabricUtil::joinPaths(materialPath, FabricTokens::base_color_texture_array);
+        fabricResourceManager.retainPath(baseColorTexturePath);
+        _baseColorTexturePath = baseColorTexturePath;
+        createTextureArray(
+            baseColorTexturePath, shaderPath, FabricTokens::inputs_base_color_texture, baseColorTextureCount);
+
+        _baseColorTextureLayerPaths.reserve(baseColorTextureCount);
+        for (uint64_t i = 0; i < baseColorTextureCount; i++) {
+            const auto& baseColorTextureToken = FabricTokens::base_color_texture_n[i];
+            const auto& inputsBaseColorTextureToken = FabricTokens::inputs_texture_n[i];
+            const auto baseColorTextureLayerPath = FabricUtil::joinPaths(materialPath, baseColorTextureToken);
+            createTexture(baseColorTextureLayerPath, baseColorTexturePath, inputsBaseColorTextureToken);
+            fabricResourceManager.retainPath(baseColorTextureLayerPath);
+            _baseColorTextureLayerPaths.push_back(baseColorTextureLayerPath);
+        }
     }
 }
 
@@ -224,9 +263,53 @@ void FabricMaterial::createTexture(
     srw.createConnection(shaderPath, shaderInput, omni::fabric::Connection{texturePath, FabricTokens::outputs_out});
 }
 
+void FabricMaterial::createTextureArray(
+    const omni::fabric::Path& texturePath,
+    const omni::fabric::Path& shaderPath,
+    const omni::fabric::Token& shaderInput,
+    uint64_t textureCount) {
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+
+    srw.createPrim(texturePath);
+
+    FabricAttributesBuilder attributes;
+
+    // clang-format off
+    attributes.addAttribute(FabricTypes::inputs_texture_count, FabricTokens::inputs_texture_count);
+    attributes.addAttribute(FabricTypes::inputs_excludeFromWhiteMode, FabricTokens::inputs_excludeFromWhiteMode);
+    attributes.addAttribute(FabricTypes::outputs_out, FabricTokens::outputs_out);
+    attributes.addAttribute(FabricTypes::info_implementationSource, FabricTokens::info_implementationSource);
+    attributes.addAttribute(FabricTypes::info_mdl_sourceAsset, FabricTokens::info_mdl_sourceAsset);
+    attributes.addAttribute(FabricTypes::info_mdl_sourceAsset_subIdentifier, FabricTokens::info_mdl_sourceAsset_subIdentifier);
+    attributes.addAttribute(FabricTypes::_sdrMetadata, FabricTokens::_sdrMetadata);
+    attributes.addAttribute(FabricTypes::Shader, FabricTokens::Shader);
+    attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
+    // clang-format on
+
+    attributes.createAttributes(texturePath);
+
+    // clang-format off
+    auto inputsTextureCountFabric = srw.getAttributeWr<int>(texturePath, FabricTokens::inputs_texture_count);
+    auto inputsExcludeFromWhiteModeFabric = srw.getAttributeWr<bool>(texturePath, FabricTokens::inputs_excludeFromWhiteMode);
+    auto infoImplementationSourceFabric = srw.getAttributeWr<omni::fabric::TokenC>(texturePath, FabricTokens::info_implementationSource);
+    auto infoMdlSourceAssetFabric = srw.getAttributeWr<omni::fabric::AssetPath>(texturePath, FabricTokens::info_mdl_sourceAsset);
+    auto infoMdlSourceAssetSubIdentifierFabric = srw.getAttributeWr<omni::fabric::TokenC>(texturePath, FabricTokens::info_mdl_sourceAsset_subIdentifier);
+    // clang-format on
+
+    *inputsTextureCountFabric = static_cast<int>(textureCount);
+    *inputsExcludeFromWhiteModeFabric = false;
+    *infoImplementationSourceFabric = FabricTokens::sourceAsset;
+    infoMdlSourceAssetFabric->assetPath = Context::instance().getCesiumMdlPathToken();
+    infoMdlSourceAssetFabric->resolvedPath = pxr::TfToken();
+    *infoMdlSourceAssetSubIdentifierFabric = FabricTokens::cesium_texture_array_lookup;
+
+    // Create connection from shader to texture.
+    srw.createConnection(shaderPath, shaderInput, omni::fabric::Connection{texturePath, FabricTokens::outputs_out});
+}
+
 void FabricMaterial::reset() {
     clearMaterial();
-    clearBaseColorTexture();
+    clearBaseColorTextures();
 }
 
 void FabricMaterial::setMaterial(int64_t tilesetId, const MaterialInfo& materialInfo) {
@@ -240,32 +323,64 @@ void FabricMaterial::setMaterial(int64_t tilesetId, const MaterialInfo& material
     setTilesetId(tilesetId);
 }
 
-void FabricMaterial::setBaseColorTexture(const pxr::TfToken& textureAssetPathToken, const TextureInfo& textureInfo) {
+void FabricMaterial::setBaseColorTexture(
+    const pxr::TfToken& textureAssetPathToken,
+    const TextureInfo& textureInfo,
+    uint64_t texcoordIndex,
+    uint64_t textureIndex) {
     if (stageDestroyed()) {
         return;
     }
 
-    if (!_materialDefinition.hasBaseColorTexture()) {
+    if (!_materialDefinition.hasBaseColorTextures()) {
         return;
     }
 
-    setTextureValues(_baseColorTexturePath, textureAssetPathToken, textureInfo);
+    if (textureIndex >= FabricTokens::MAX_TEXTURE_LAYER_COUNT) {
+        return;
+    }
+
+    if (_baseColorTextureLayerPaths.empty()) {
+        assert(textureIndex == 0);
+        setTextureValues(_baseColorTexturePath, textureAssetPathToken, textureInfo, texcoordIndex);
+    } else {
+        setTextureValues(_baseColorTextureLayerPaths[textureIndex], textureAssetPathToken, textureInfo, texcoordIndex);
+    }
 }
 
 void FabricMaterial::clearMaterial() {
     setMaterial(NO_TILESET_ID, GltfUtil::getDefaultMaterialInfo());
 }
 
-void FabricMaterial::clearBaseColorTexture() {
-    setBaseColorTexture(_defaultTextureAssetPathToken, GltfUtil::getDefaultTextureInfo());
+void FabricMaterial::clearBaseColorTextures() {
+    if (!_materialDefinition.hasBaseColorTextures()) {
+        return;
+    }
+
+    if (_baseColorTextureLayerPaths.empty()) {
+        clearBaseColorTexture(0);
+    } else {
+        for (uint64_t i = 0; i < _baseColorTextureLayerPaths.size(); i++) {
+            clearBaseColorTexture(i);
+        }
+    }
+}
+
+void FabricMaterial::clearBaseColorTexture(uint64_t textureIndex) {
+    const auto& token = textureIndex == 0 ? _defaultTextureAssetPathToken : _defaultTransparentTextureAssetPathToken;
+    setBaseColorTexture(token, GltfUtil::getDefaultTextureInfo(), 0, textureIndex);
 }
 
 void FabricMaterial::setTilesetId(int64_t tilesetId) {
     FabricUtil::setTilesetId(_materialPath, tilesetId);
     FabricUtil::setTilesetId(_shaderPath, tilesetId);
 
-    if (_materialDefinition.hasBaseColorTexture()) {
+    if (_materialDefinition.hasBaseColorTextures()) {
         FabricUtil::setTilesetId(_baseColorTexturePath, tilesetId);
+
+        for (const auto& baseColorTextureLayerPath : _baseColorTextureLayerPaths) {
+            FabricUtil::setTilesetId(baseColorTextureLayerPath, tilesetId);
+        }
     }
 }
 
@@ -292,7 +407,13 @@ void FabricMaterial::setShaderValues(const omni::fabric::Path& shaderPath, const
 void FabricMaterial::setTextureValues(
     const omni::fabric::Path& texturePath,
     const pxr::TfToken& textureAssetPathToken,
-    const TextureInfo& textureInfo) {
+    const TextureInfo& textureInfo,
+    uint64_t texcoordIndex) {
+
+    if (texcoordIndex >= FabricTokens::MAX_TEXTURE_LAYER_COUNT) {
+        return;
+    }
+
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
     auto offset = textureInfo.offset;
@@ -317,7 +438,7 @@ void FabricMaterial::setTextureValues(
 
     textureFabric->assetPath = textureAssetPathToken;
     textureFabric->resolvedPath = pxr::TfToken();
-    *texCoordIndexFabric = static_cast<int>(textureInfo.setIndex);
+    *texCoordIndexFabric = static_cast<int>(texcoordIndex);
     *wrapSFabric = textureInfo.wrapS;
     *wrapTFabric = textureInfo.wrapT;
     *offsetFabric = UsdUtil::glmToUsdVector(glm::fvec2(offset));
