@@ -141,6 +141,10 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
         return Context::instance().creditsStartNextFrame();
     }
 
+    void addGlobalAnchorToPrim(const char* path) noexcept override {
+        return Context::instance().addGlobeAnchorToPrim(pxr::SdfPath(path));
+    }
+
     bool isTracingEnabled() noexcept override {
 #if CESIUM_TRACING_ENABLED
         return true;

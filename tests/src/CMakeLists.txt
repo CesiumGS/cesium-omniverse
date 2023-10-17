@@ -14,10 +14,11 @@ setup_lib(
     SOURCES
         ${SOURCES}
     INCLUDE_DIRS
-        "${PROJECT_SOURCE_DIR}/cesiumOmniverseCppTestsExtension/include"
+        "${PROJECT_SOURCE_DIR}/tests/include"
     LIBRARIES
         CesiumOmniverseCore
         doctest::doctest
+        yaml-cpp::yaml-cpp
     ADDITIONAL_LIBRARIES
         # Unfortunately we need this in both cesium.omniverse.plugin and CesiumOmniverseCore because we're bypassing
         # CMake's built-in dependency system

@@ -121,8 +121,7 @@ set(LINT_SOURCE_DIRECTORIES
     "${PROJECT_SOURCE_DIR}/src/bindings"
     "${PROJECT_SOURCE_DIR}/src/core"
     "${PROJECT_SOURCE_DIR}/src/public"
-    "${PROJECT_SOURCE_DIR}/tests"
-    "${PROJECT_SOURCE_DIR}/cesiumOmniverseCppTestsExtension")
+    "${PROJECT_SOURCE_DIR}/tests")
 
 # Source directories for coverage
 set(COVERAGE_SOURCE_DIRECTORIES "${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/src")
@@ -325,7 +324,7 @@ if(CESIUM_OMNI_ENABLE_COVERAGE)
             -DPROJECT_BUILD_DIRECTORY=${PROJECT_BINARY_DIR}
             -DPROJECT_SOURCE_DIRECTORIES=${COVERAGE_SOURCE_DIRECTORIES_FORMATTED}
             -DOUTPUT_DIRECTORY=${PROJECT_BINARY_DIR}/coverage -P ${PROJECT_SOURCE_DIR}/cmake/GenerateCoverage.cmake
-        DEPENDS $<TARGET_FILE:tests>
+        DEPENDS $<TARGET_FILE:cesium.omniverse.cpp.tests.plugin>
         VERBATIM)
 endif()
 
@@ -438,7 +437,6 @@ add_subdirectory(src)
 if(CESIUM_OMNI_ENABLE_TESTS)
     enable_testing()
     add_subdirectory(tests)
-    add_subdirectory(cesiumOmniverseCppTestsExtension)
 endif()
 
 # Ninja and various Makefiles generators support generating compile_commands.json
@@ -668,7 +666,6 @@ install(
     RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
             COMPONENT library
             EXCLUDE_FROM_ALL)
-
 
 if(CESIUM_OMNI_ENABLE_TESTS)
     install(

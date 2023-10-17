@@ -76,7 +76,13 @@ void testRandomSequenceOfCmds(MockObjectPool& opl, int numEvents, bool setCap) {
 
     // The percent active is calculated out of the pool's total capacity
     // which must be gte our max observed active count
-    CHECK(opl.computePercentActive() <= (float)numActive / (float)maxActiveCount);
+    float expectedPercentActive;
+    if (maxActiveCount != 0) {
+        expectedPercentActive = (float)numActive / (float)maxActiveCount;
+    } else {
+        expectedPercentActive = 0;
+    }
+    CHECK(opl.computePercentActive() <= expectedPercentActive);
 }
 
 // ---- Begin tests ----

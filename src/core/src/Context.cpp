@@ -6,8 +6,10 @@
 #include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GeospatialUtil.h"
+#include "cesium/omniverse/GlobeAnchorRegistry.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
+#include "cesium/omniverse/OmniGlobeAnchor.h"
 #include "cesium/omniverse/OmniImagery.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/TaskProcessor.h"
@@ -154,6 +156,7 @@ void Context::clearStage() {
     // The order is important. Clear tilesets first so that Fabric resources are released back into the pool. Then clear the pools.
     AssetRegistry::getInstance().clear();
     FabricResourceManager::getInstance().clear();
+    GlobeAnchorRegistry::getInstance().clear();
 }
 
 void Context::reloadStage() {
@@ -179,6 +182,14 @@ void Context::reloadStage() {
             AssetRegistry::getInstance().addTileset(path, UsdUtil::GEOREFERENCE_PATH);
         } else if (UsdUtil::isCesiumImagery(path)) {
             AssetRegistry::getInstance().addImagery(path);
+        } else if (UsdUtil::hasCesiumGlobeAnchor(path)) {
+            auto origin = UsdUtil::getCartographicOriginForAnchor(path);
+
+            // We probably need to do something else other than crash, but there really isn't more we can do in this case.
+            assert(origin.has_value());
+
+            auto anchorToFixed = UsdUtil::computeUsdLocalToEcefTransformForPrim(origin.value(), path);
+            GlobeAnchorRegistry::getInstance().createAnchor(path, anchorToFixed);
         }
     }
 }
@@ -187,7 +198,7 @@ void Context::onUpdateFrame(const std::vector<Viewport>& viewports) {
     processUsdNotifications();
 
     const auto georeferenceOrigin = Context::instance().getGeoreferenceOrigin();
-    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdTransform(georeferenceOrigin);
+    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdLocalTransform(georeferenceOrigin);
 
     // Check if the ecefToUsd transform has changed and update CesiumSession
     if (ecefToUsdTransform != _ecefToUsdTransform) {
@@ -215,6 +226,10 @@ void Context::processPropertyChanged(const ChangedPrim& changedPrim) {
             return processCesiumTilesetChanged(changedPrim);
         case ChangedPrimType::CESIUM_IMAGERY:
             return processCesiumImageryChanged(changedPrim);
+        case ChangedPrimType::CESIUM_GEOREFERENCE:
+            return processCesiumGeoreferenceChanged(changedPrim);
+        case ChangedPrimType::CESIUM_GLOBE_ANCHOR:
+            return processCesiumGlobeAnchorChanged(changedPrim);
         default:
             return;
     }
@@ -300,17 +315,85 @@ void Context::processCesiumImageryChanged(const ChangedPrim& changedPrim) {
     // clang-format on
 }
 
+void Context::processCesiumGeoreferenceChanged(const cesium::omniverse::ChangedPrim& changedPrim) {
+    const auto& [path, name, primType, changeType] = changedPrim;
+
+    auto anchors = GlobeAnchorRegistry::getInstance().getAllAnchors();
+    for (const auto& globeAnchor : anchors) {
+        auto anchorApi = UsdUtil::getCesiumGlobeAnchor(globeAnchor->getPrimPath());
+
+        // We only want to update an anchor if we are updating it's related Georeference Prim.
+        if (path !=
+            UsdUtil::getAnchorGeoreferencePath(globeAnchor->getPrimPath()).value_or(pxr::SdfPath::EmptyPath())) {
+            continue;
+        }
+
+        auto origin = UsdUtil::getCartographicOriginForAnchor(globeAnchor->getPrimPath());
+        if (!origin.has_value()) {
+            continue;
+        }
+
+        GeospatialUtil::updateAnchorOrigin(origin.value(), anchorApi, globeAnchor);
+    }
+}
+
+void Context::processCesiumGlobeAnchorChanged(const cesium::omniverse::ChangedPrim& changedPrim) {
+    const auto& [path, name, primType, changeType] = changedPrim;
+
+    auto globeAnchor = UsdUtil::getCesiumGlobeAnchor(path);
+    auto origin = UsdUtil::getCartographicOriginForAnchor(path);
+
+    if (!origin.has_value()) {
+        return;
+    }
+
+    bool detectTransformChanges;
+    globeAnchor.GetDetectTransformChangesAttr().Get(&detectTransformChanges);
+
+    if (detectTransformChanges && (name == pxr::CesiumTokens->cesiumAnchorDetectTransformChanges ||
+                                   name == pxr::UsdTokens->xformOp_transform_cesium)) {
+        GeospatialUtil::updateAnchorByUsdTransform(origin.value(), globeAnchor);
+
+        return;
+    }
+
+    if (name == pxr::CesiumTokens->cesiumAnchorGeographicCoordinates) {
+        GeospatialUtil::updateAnchorByLatLongHeight(origin.value(), globeAnchor);
+
+        return;
+    }
+
+    if (name == pxr::CesiumTokens->cesiumAnchorPosition || name == pxr::CesiumTokens->cesiumAnchorRotation ||
+        name == pxr::CesiumTokens->cesiumAnchorScale) {
+        GeospatialUtil::updateAnchorByFixedTransform(origin.value(), globeAnchor);
+
+        return;
+    }
+}
+
 void Context::processPrimRemoved(const ChangedPrim& changedPrim) {
-    if (changedPrim.primType == ChangedPrimType::CESIUM_TILESET) {
-        // Remove the tileset from the asset registry
-        const auto tilesetPath = changedPrim.path;
-        AssetRegistry::getInstance().removeTileset(tilesetPath);
-    } else if (changedPrim.primType == ChangedPrimType::CESIUM_IMAGERY) {
-        // Remove the imagery from the asset registry and reload the tileset that the imagery was attached to
-        const auto imageryPath = changedPrim.path;
-        const auto tilesetPath = changedPrim.path.GetParentPath();
-        AssetRegistry::getInstance().removeImagery(imageryPath);
-        reloadTileset(tilesetPath);
+    switch (changedPrim.primType) {
+        case ChangedPrimType::CESIUM_TILESET: {
+            // Remove the tileset from the asset registry
+            const auto tilesetPath = changedPrim.path;
+            AssetRegistry::getInstance().removeTileset(changedPrim.path);
+        } break;
+        case ChangedPrimType::CESIUM_IMAGERY: {
+            // Remove the imagery from the asset registry and reload the tileset that the imagery was attached to
+            const auto imageryPath = changedPrim.path;
+            const auto tilesetPath = changedPrim.path.GetParentPath();
+            AssetRegistry::getInstance().removeImagery(imageryPath);
+            reloadTileset(tilesetPath);
+        } break;
+        case ChangedPrimType::CESIUM_GLOBE_ANCHOR: {
+            if (!GlobeAnchorRegistry::getInstance().removeAnchor(changedPrim.path)) {
+                CESIUM_LOG_ERROR("Failed to remove anchor from registry: {}", changedPrim.path.GetString());
+            }
+        } break;
+        case ChangedPrimType::CESIUM_GEOREFERENCE:
+        case ChangedPrimType::CESIUM_DATA:
+        case ChangedPrimType::OTHER:
+            break;
     }
 }
 
@@ -325,6 +408,11 @@ void Context::processPrimAdded(const ChangedPrim& changedPrim) {
         const auto tilesetPath = changedPrim.path.GetParentPath();
         AssetRegistry::getInstance().addImagery(imageryPath);
         reloadTileset(tilesetPath);
+    } else if (changedPrim.primType == ChangedPrimType::CESIUM_GLOBE_ANCHOR) {
+        auto anchorApi = UsdUtil::getCesiumGlobeAnchor(changedPrim.path);
+        auto origin = UsdUtil::getCartographicOriginForAnchor(changedPrim.path);
+        assert(origin.has_value());
+        GeospatialUtil::updateAnchorByUsdTransform(origin.value(), anchorApi);
     }
 }
 
@@ -752,6 +840,21 @@ RenderStatistics Context::getRenderStatistics() const {
     }
 
     return renderStatistics;
+}
+
+void Context::addGlobeAnchorToPrim(const pxr::SdfPath& path) {
+    if (UsdUtil::isCesiumData(path) || UsdUtil::isCesiumGeoreference(path) || UsdUtil::isCesiumImagery(path) ||
+        UsdUtil::isCesiumSession(path) || UsdUtil::isCesiumTileset(path)) {
+        _logger->warn("Cannot attach Globe Anchor to Cesium Tilesets, Imagery, Georeference, Session, or Data prims.");
+        return;
+    }
+
+    auto prim = UsdUtil::getUsdStage()->GetPrimAtPath(path);
+    auto globeAnchor = UsdUtil::defineGlobeAnchor(path);
+
+    // Until we support multiple georeference points, we should just use the default georeference object.
+    auto georeferenceOrigin = UsdUtil::getOrCreateCesiumGeoreference();
+    globeAnchor.GetGeoreferenceBindingRel().AddTarget(georeferenceOrigin.GetPath());
 }
 
 } // namespace cesium::omniverse

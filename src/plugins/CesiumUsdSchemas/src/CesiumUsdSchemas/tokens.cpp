@@ -3,6 +3,13 @@
 PXR_NAMESPACE_OPEN_SCOPE
 
 CesiumTokensType::CesiumTokensType() :
+    cesiumAnchorAdjustOrientationForGlobeWhenMoving("cesium:anchor:adjustOrientationForGlobeWhenMoving", TfToken::Immortal),
+    cesiumAnchorDetectTransformChanges("cesium:anchor:detectTransformChanges", TfToken::Immortal),
+    cesiumAnchorGeographicCoordinates("cesium:anchor:geographicCoordinates", TfToken::Immortal),
+    cesiumAnchorGeoreferenceBinding("cesium:anchor:georeferenceBinding", TfToken::Immortal),
+    cesiumAnchorPosition("cesium:anchor:position", TfToken::Immortal),
+    cesiumAnchorRotation("cesium:anchor:rotation", TfToken::Immortal),
+    cesiumAnchorScale("cesium:anchor:scale", TfToken::Immortal),
     cesiumCulledScreenSpaceError("cesium:culledScreenSpaceError", TfToken::Immortal),
     cesiumDebugDisableGeometryPool("cesium:debug:disableGeometryPool", TfToken::Immortal),
     cesiumDebugDisableGeoreferencing("cesium:debug:disableGeoreferencing", TfToken::Immortal),
@@ -42,6 +49,13 @@ CesiumTokensType::CesiumTokensType() :
     ion("ion", TfToken::Immortal),
     url("url", TfToken::Immortal),
     allTokens({
+        cesiumAnchorAdjustOrientationForGlobeWhenMoving,
+        cesiumAnchorDetectTransformChanges,
+        cesiumAnchorGeographicCoordinates,
+        cesiumAnchorGeoreferenceBinding,
+        cesiumAnchorPosition,
+        cesiumAnchorRotation,
+        cesiumAnchorScale,
         cesiumCulledScreenSpaceError,
         cesiumDebugDisableGeometryPool,
         cesiumDebugDisableGeoreferencing,
