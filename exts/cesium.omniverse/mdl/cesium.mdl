@@ -1,10 +1,11 @@
 mdl 1.8;
 
-import ::anno::*;
-import ::state::*;
-import ::tex::*;
+import ::anno::version;
+import ::anno::display_name;
+import ::anno::hidden;
 
-using ::gltf::pbr import *;
+import ::gltf::pbr::gltf_texture_lookup;
+import ::gltf::pbr::gltf_material;
 
 module [[
     anno::version( 1, 0, 0),
