@@ -126,7 +126,7 @@ void UsdNotificationHandler::onObjectsChanged(const pxr::UsdNotice::ObjectsChang
 
 void UsdNotificationHandler::onPrimAdded(const pxr::SdfPath& primPath) {
     const auto type = getType(primPath);
-    if (type != ChangedPrimType::OTHER && type != ChangedPrimType::CESIUM_GLOBE_ANCHOR) {
+    if (type != ChangedPrimType::OTHER) {
         _changedPrims.emplace_back(ChangedPrim{primPath, pxr::TfToken(), type, ChangeType::PRIM_ADDED});
         CESIUM_LOG_INFO("Added prim: {}", primPath.GetText());
     }

@@ -125,5 +125,7 @@ void setGeoreferenceForTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPa
 
 void addOrUpdateTransformOpForAnchor(const pxr::SdfPath& path, const glm::dmat4& transform);
 std::optional<pxr::GfMatrix4d> getCesiumTransformOpValueForPathIfExists(const pxr::SdfPath& path);
+std::optional<pxr::SdfPath> getAnchorGeoreferencePath(const pxr::SdfPath& path);
+std::optional<CesiumGeospatial::Cartographic> getCartographicOriginForAnchor(const pxr::SdfPath& path);
 
 }; // namespace cesium::omniverse::UsdUtil
