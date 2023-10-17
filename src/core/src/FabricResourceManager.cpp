@@ -90,7 +90,7 @@ std::shared_ptr<FabricGeometry> FabricResourceManager::acquireGeometry(
 }
 
 bool useSharedMaterial(const FabricMaterialDefinition& materialDefinition) {
-    if (materialDefinition.hasBaseColorTextures()) {
+    if (materialDefinition.hasBaseColorTexture() || materialDefinition.getImageryLayerCount() > 0) {
         return false;
     }
 

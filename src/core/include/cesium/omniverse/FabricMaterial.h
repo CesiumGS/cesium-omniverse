@@ -28,11 +28,17 @@ class FabricMaterial {
     void setBaseColorTexture(
         const pxr::TfToken& textureAssetPathToken,
         const TextureInfo& textureInfo,
+        uint64_t texcoordIndex);
+    void setImageryLayer(
+        const pxr::TfToken& textureAssetPathToken,
+        const TextureInfo& textureInfo,
         uint64_t texcoordIndex,
-        uint64_t textureIndex);
+        uint64_t imageryLayerIndex);
 
     void clearMaterial();
-    void clearBaseColorTexture(uint64_t textureIndex);
+    void clearBaseColorTexture();
+    void clearImageryLayer(uint64_t imageryLayerIndex);
+    void clearImageryLayers();
 
     void setActive(bool active);
 
@@ -48,8 +54,8 @@ class FabricMaterial {
         const omni::fabric::Path& texturePath,
         const omni::fabric::Path& shaderPath,
         const omni::fabric::Token& shaderInput);
-    void createTextureArray(
-        const omni::fabric::Path& texturePath,
+    void createImageryLayerResolver(
+        const omni::fabric::Path& imageryLayerResolverPath,
         const omni::fabric::Path& shaderPath,
         const omni::fabric::Token& shaderInput,
         uint64_t textureCount);
@@ -60,9 +66,7 @@ class FabricMaterial {
         const pxr::TfToken& textureAssetPathToken,
         const TextureInfo& textureInfo,
         uint64_t texcoordIndex);
-    void setTilesetId(int64_t tilesetId);
     bool stageDestroyed();
-    void clearBaseColorTextures();
 
     omni::fabric::Path _materialPath;
     const FabricMaterialDefinition _materialDefinition;
@@ -72,7 +76,9 @@ class FabricMaterial {
 
     omni::fabric::Path _shaderPath;
     omni::fabric::Path _baseColorTexturePath;
-    std::vector<omni::fabric::Path> _baseColorTextureLayerPaths;
+    std::vector<omni::fabric::Path> _imageryLayerPaths;
+
+    std::vector<omni::fabric::Path> _allPaths;
 };
 
 } // namespace cesium::omniverse
