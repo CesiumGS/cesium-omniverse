@@ -14,32 +14,32 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
 
 #define USD_TOKENS \
     (base_color_texture) \
-    (base_color_texture_0) \
-    (base_color_texture_1) \
-    (base_color_texture_2) \
-    (base_color_texture_3) \
-    (base_color_texture_4) \
-    (base_color_texture_5) \
-    (base_color_texture_6) \
-    (base_color_texture_7) \
-    (base_color_texture_8) \
-    (base_color_texture_9) \
-    (base_color_texture_10) \
-    (base_color_texture_11) \
-    (base_color_texture_12) \
-    (base_color_texture_13) \
-    (base_color_texture_14) \
-    (base_color_texture_15) \
-    (base_color_texture_array) \
     (cesium) \
+    (cesium_imagery_layer_resolver) \
     (cesium_material) \
-    (cesium_texture_array_lookup) \
     (cesium_texture_lookup) \
     (constant) \
     (doubleSided) \
     (extent) \
     (faceVertexCounts) \
     (faceVertexIndices) \
+    (imagery_layer_0) \
+    (imagery_layer_1) \
+    (imagery_layer_2) \
+    (imagery_layer_3) \
+    (imagery_layer_4) \
+    (imagery_layer_5) \
+    (imagery_layer_6) \
+    (imagery_layer_7) \
+    (imagery_layer_8) \
+    (imagery_layer_9) \
+    (imagery_layer_10) \
+    (imagery_layer_11) \
+    (imagery_layer_12) \
+    (imagery_layer_13) \
+    (imagery_layer_14) \
+    (imagery_layer_15) \
+    (imagery_layer_resolver) \
     (Material) \
     (Mesh) \
     (none) \
@@ -79,23 +79,24 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((inputs_scale, "inputs:scale")) \
     ((inputs_tex_coord_index, "inputs:tex_coord_index")) \
     ((inputs_texture, "inputs:texture")) \
-    ((inputs_texture_0, "inputs:texture_0")) \
-    ((inputs_texture_1, "inputs:texture_1")) \
-    ((inputs_texture_2, "inputs:texture_2")) \
-    ((inputs_texture_3, "inputs:texture_3")) \
-    ((inputs_texture_4, "inputs:texture_4")) \
-    ((inputs_texture_5, "inputs:texture_5")) \
-    ((inputs_texture_6, "inputs:texture_6")) \
-    ((inputs_texture_7, "inputs:texture_7")) \
-    ((inputs_texture_8, "inputs:texture_8")) \
-    ((inputs_texture_9, "inputs:texture_9")) \
-    ((inputs_texture_10, "inputs:texture_10")) \
-    ((inputs_texture_11, "inputs:texture_11")) \
-    ((inputs_texture_12, "inputs:texture_12")) \
-    ((inputs_texture_13, "inputs:texture_13")) \
-    ((inputs_texture_14, "inputs:texture_14")) \
-    ((inputs_texture_15, "inputs:texture_15")) \
-    ((inputs_texture_count, "inputs:texture_count")) \
+    ((inputs_imagery_layer_0, "inputs:imagery_layer_0")) \
+    ((inputs_imagery_layer_1, "inputs:imagery_layer_1")) \
+    ((inputs_imagery_layer_2, "inputs:imagery_layer_2")) \
+    ((inputs_imagery_layer_3, "inputs:imagery_layer_3")) \
+    ((inputs_imagery_layer_4, "inputs:imagery_layer_4")) \
+    ((inputs_imagery_layer_5, "inputs:imagery_layer_5")) \
+    ((inputs_imagery_layer_6, "inputs:imagery_layer_6")) \
+    ((inputs_imagery_layer_7, "inputs:imagery_layer_7")) \
+    ((inputs_imagery_layer_8, "inputs:imagery_layer_8")) \
+    ((inputs_imagery_layer_9, "inputs:imagery_layer_9")) \
+    ((inputs_imagery_layer_10, "inputs:imagery_layer_10")) \
+    ((inputs_imagery_layer_11, "inputs:imagery_layer_11")) \
+    ((inputs_imagery_layer_12, "inputs:imagery_layer_12")) \
+    ((inputs_imagery_layer_13, "inputs:imagery_layer_13")) \
+    ((inputs_imagery_layer_14, "inputs:imagery_layer_14")) \
+    ((inputs_imagery_layer_15, "inputs:imagery_layer_15")) \
+    ((inputs_imagery_layers_count, "inputs:imagery_layers_count")) \
+    ((inputs_imagery_layers_texture, "inputs:imagery_layers_texture")) \
     ((inputs_vertex_color_name, "inputs:vertex_color_name")) \
     ((inputs_wrap_s, "inputs:wrap_s")) \
     ((inputs_wrap_t, "inputs:wrap_t")) \
@@ -150,7 +151,7 @@ namespace cesium::omniverse::FabricTokens {
 FABRIC_DECLARE_TOKENS(USD_TOKENS);
 
 const uint64_t MAX_PRIMVAR_ST_COUNT = 10;
-const uint64_t MAX_TEXTURE_LAYER_COUNT = 16;
+const uint64_t MAX_IMAGERY_LAYERS_COUNT = 16;
 
 const std::array<const omni::fabric::TokenC, MAX_PRIMVAR_ST_COUNT> primvars_st_n = {{
     primvars_st_0,
@@ -165,42 +166,42 @@ const std::array<const omni::fabric::TokenC, MAX_PRIMVAR_ST_COUNT> primvars_st_n
     primvars_st_9,
 }};
 
-const std::array<const omni::fabric::TokenC, MAX_TEXTURE_LAYER_COUNT> base_color_texture_n = {{
-    base_color_texture_0,
-    base_color_texture_1,
-    base_color_texture_2,
-    base_color_texture_3,
-    base_color_texture_4,
-    base_color_texture_5,
-    base_color_texture_6,
-    base_color_texture_7,
-    base_color_texture_8,
-    base_color_texture_9,
-    base_color_texture_10,
-    base_color_texture_11,
-    base_color_texture_12,
-    base_color_texture_13,
-    base_color_texture_14,
-    base_color_texture_15,
+const std::array<const omni::fabric::TokenC, MAX_IMAGERY_LAYERS_COUNT> imagery_layer_n = {{
+    imagery_layer_0,
+    imagery_layer_1,
+    imagery_layer_2,
+    imagery_layer_3,
+    imagery_layer_4,
+    imagery_layer_5,
+    imagery_layer_6,
+    imagery_layer_7,
+    imagery_layer_8,
+    imagery_layer_9,
+    imagery_layer_10,
+    imagery_layer_11,
+    imagery_layer_12,
+    imagery_layer_13,
+    imagery_layer_14,
+    imagery_layer_15,
 }};
 
-const std::array<const omni::fabric::TokenC, MAX_TEXTURE_LAYER_COUNT> inputs_texture_n = {{
-    inputs_texture_0,
-    inputs_texture_1,
-    inputs_texture_2,
-    inputs_texture_3,
-    inputs_texture_4,
-    inputs_texture_5,
-    inputs_texture_6,
-    inputs_texture_7,
-    inputs_texture_8,
-    inputs_texture_9,
-    inputs_texture_10,
-    inputs_texture_11,
-    inputs_texture_12,
-    inputs_texture_13,
-    inputs_texture_14,
-    inputs_texture_15,
+const std::array<const omni::fabric::TokenC, MAX_IMAGERY_LAYERS_COUNT> inputs_imagery_layer_n = {{
+    inputs_imagery_layer_0,
+    inputs_imagery_layer_1,
+    inputs_imagery_layer_2,
+    inputs_imagery_layer_3,
+    inputs_imagery_layer_4,
+    inputs_imagery_layer_5,
+    inputs_imagery_layer_6,
+    inputs_imagery_layer_7,
+    inputs_imagery_layer_8,
+    inputs_imagery_layer_9,
+    inputs_imagery_layer_10,
+    inputs_imagery_layer_11,
+    inputs_imagery_layer_12,
+    inputs_imagery_layer_13,
+    inputs_imagery_layer_14,
+    inputs_imagery_layer_15,
 }};
 
 }
@@ -227,7 +228,7 @@ const omni::fabric::Type inputs_roughness_factor(omni::fabric::BaseDataType::eFl
 const omni::fabric::Type inputs_scale(omni::fabric::BaseDataType::eFloat, 2, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_tex_coord_index(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_texture(omni::fabric::BaseDataType::eAsset, 1, 0, omni::fabric::AttributeRole::eNone);
-const omni::fabric::Type inputs_texture_count(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type inputs_imagery_layers_count(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_vertex_color_name(omni::fabric::BaseDataType::eUChar, 1, 1, omni::fabric::AttributeRole::eText);
 const omni::fabric::Type inputs_wrap_s(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_wrap_t(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);

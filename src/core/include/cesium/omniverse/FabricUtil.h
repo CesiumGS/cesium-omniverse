@@ -34,5 +34,6 @@ void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform
 void setTilesetId(const omni::fabric::Path& path, int64_t tilesetId);
 omni::fabric::Path toFabricPath(const pxr::SdfPath& path);
 omni::fabric::Path joinPaths(const omni::fabric::Path& absolutePath, const omni::fabric::Token& relativePath);
+bool isEmpty(const omni::fabric::Path& path);
 
 } // namespace cesium::omniverse::FabricUtil

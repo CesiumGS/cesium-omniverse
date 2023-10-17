@@ -56,20 +56,8 @@ struct TileLoadThreadResult {
 };
 
 bool hasBaseColorTextureGltf(const FabricMesh& fabricMesh) {
-    return fabricMesh.material != nullptr && fabricMesh.material->getMaterialDefinition().hasBaseColorTextures() &&
+    return fabricMesh.material != nullptr && fabricMesh.material->getMaterialDefinition().hasBaseColorTexture() &&
            fabricMesh.materialInfo.baseColorTexture.has_value();
-}
-
-uint64_t getBaseColorTextureIndexForGltf() {
-    return 0;
-}
-
-uint64_t getBaseColorTextureIndexForImagery(const FabricMesh& fabricMesh, uint64_t imageryIndex) {
-    if (hasBaseColorTextureGltf(fabricMesh)) {
-        return imageryIndex + 1;
-    }
-
-    return imageryIndex;
 }
 
 std::vector<MeshInfo>
@@ -219,9 +207,8 @@ void setFabricMeshes(
             if (hasBaseColorTextureGltf(mesh)) {
                 const auto& textureInfo = materialInfo.baseColorTexture.value();
                 const auto texcoordIndex = mesh.texcoordIndexMapping[textureInfo.setIndex];
-                const auto textureIndex = getBaseColorTextureIndexForGltf();
                 const auto& textureAssetPath = baseColorTexture->getAssetPathToken();
-                material->setBaseColorTexture(textureAssetPath, textureInfo, texcoordIndex, textureIndex);
+                material->setBaseColorTexture(textureAssetPath, textureInfo, texcoordIndex);
             }
         } else if (!tilesetMaterialPath.IsEmpty()) {
             geometry->setMaterial(FabricUtil::toFabricPath(tilesetMaterialPath));
@@ -479,9 +466,8 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
             };
 
             const auto texcoordIndex = mesh.imageryTexcoordIndexMapping.at(gltfSetIndex);
-            const auto textureIndex = getBaseColorTextureIndexForImagery(mesh, imageryIndex.value());
             const auto& textureAssetPath = texture->getAssetPathToken();
-            material->setBaseColorTexture(textureAssetPath, textureInfo, texcoordIndex, textureIndex);
+            material->setImageryLayer(textureAssetPath, textureInfo, texcoordIndex, imageryIndex.value());
         }
     }
 }
@@ -515,8 +501,7 @@ void FabricPrepareRenderResources::detachRasterInMainThread(
     for (const auto& mesh : pTileRenderResources->fabricMeshes) {
         auto& material = mesh.material;
         if (material != nullptr) {
-            const auto textureIndex = getBaseColorTextureIndexForImagery(mesh, imageryIndex.value());
-            material->clearBaseColorTexture(textureIndex);
+            material->clearImageryLayer(imageryIndex.value());
         }
     }
 }
