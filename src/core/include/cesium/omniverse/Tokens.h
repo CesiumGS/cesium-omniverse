@@ -15,6 +15,8 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
 #define USD_TOKENS \
     (base_color_texture) \
     (cesium) \
+    (cesium_base_color_texture) \
+    (cesium_imagery_layer) \
     (cesium_imagery_layer_resolver) \
     (cesium_material) \
     (cesium_texture_lookup) \

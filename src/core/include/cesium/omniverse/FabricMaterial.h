@@ -47,6 +47,7 @@ class FabricMaterial {
 
   private:
     void initialize();
+    void initializeFromExistingMaterial(const omni::fabric::Path& path);
 
     void createMaterial(const omni::fabric::Path& materialPath);
     void createShader(const omni::fabric::Path& shaderPath, const omni::fabric::Path& materialPath);
@@ -74,9 +75,9 @@ class FabricMaterial {
     const pxr::TfToken _defaultTransparentTextureAssetPathToken;
     const long _stageId;
 
-    omni::fabric::Path _shaderPath;
-    omni::fabric::Path _baseColorTexturePath;
-    std::vector<omni::fabric::Path> _imageryLayerPaths;
+    std::vector<omni::fabric::Path> _shaderPaths;
+    std::vector<omni::fabric::Path> _baseColorTexturePaths;
+    std::vector<std::vector<omni::fabric::Path>> _imageryLayerPaths;
 
     std::vector<omni::fabric::Path> _allPaths;
 };

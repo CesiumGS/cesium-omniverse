@@ -11,6 +11,86 @@ module [[
     anno::display_name("Cesium MDL functions")
 ]];
 
+export enum up_axis_mode {
+    Y,
+    Z
+};
+
+float2 world_coordinate_2d(float2 min_world, float2 max_world, up_axis_mode up_axis)
+{
+    // Get the world pos of the pixel
+    float3 world_pos = state::transform_vector(state::coordinate_internal, state::coordinate_world, state::position());
+    float2 world_pos_horizontal = float2(world_pos.x, up_axis == Y ? world_pos.z : world_pos.y);
+
+    // Return 0-1 UVs based on the min/max world coordinates provided
+    return (world_pos_horizontal - min_world) / (max_world - min_world);
+}
+
+export float4 cesium_lookup_world_texture_float4(uniform texture_2d texture = texture_2d(), float2 min_world = float2(-5000.0, -5000.0), float2 max_world = float2(5000.0, 5000.0), up_axis_mode up_axis = Y)
+[[
+    anno::display_name("World-mapped texture lookup float4"),
+    anno::description("Returns float4 from a texture mapped to world UV coordinates"),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium functions"),
+    anno::ui_order(300)
+]]
+{
+    return tex::lookup_float4(
+        tex: texture,
+        coord: world_coordinate_2d(min_world, max_world, up_axis),
+        wrap_u: ::tex::wrap_clamp,
+        wrap_v: ::tex::wrap_clamp);
+}
+
+export float3 cesium_lookup_world_texture_float3(uniform texture_2d texture = texture_2d(), float2 min_world = float2(-5000.0, -5000.0), float2 max_world = float2(5000.0, 5000.0), up_axis_mode up_axis = Y)
+[[
+    anno::display_name("World-mapped texture lookup float3"),
+    anno::description("Returns float3 from a texture mapped to world UV coordinates"),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium functions"),
+    anno::ui_order(300)
+]]
+{
+    return tex::lookup_float3(
+        tex: texture,
+        coord: world_coordinate_2d(min_world, max_world, up_axis),
+        wrap_u: ::tex::wrap_clamp,
+        wrap_v: ::tex::wrap_clamp);
+}
+
+export color cesium_lookup_world_texture_color(uniform texture_2d texture = texture_2d(), float2 min_world = float2(-5000.0, -5000.0), float2 max_world = float2(5000.0, 5000.0), up_axis_mode up_axis = Y)
+[[
+    anno::display_name("World-mapped texture lookup color"),
+    anno::description("Returns color from a texture mapped to world UV coordinates"),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium functions"),
+    anno::ui_order(300)
+]]
+{
+    return tex::lookup_color(
+        tex: texture,
+        coord: world_coordinate_2d(min_world, max_world, up_axis),
+        wrap_u: ::tex::wrap_clamp,
+        wrap_v: ::tex::wrap_clamp);
+}
+
+export color cesium_base_color_texture(
+    gltf_texture_lookup_value base_color_texture
+    [[
+        anno::hidden()
+    ]]
+)
+[[
+    anno::display_name("Base color texture lookup color"),
+    anno::description("Returns the base color texture of the tile. Returns [0, 0, 0] if the base color texture does not exist."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium functions"),
+    anno::ui_order(300)
+]]
+{
+    return base_color_texture.valid ? color(base_color_texture.value.x, base_color_texture.value.y, base_color_texture.value.z) : color(0.0);
+}
+
 float4 alpha_blend(float4 src, float4 dst) {
     return src * float4(src.w, src.w, src.w, 1.0) + dst * (1.0 - src.w);
 }

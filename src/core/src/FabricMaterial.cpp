@@ -49,7 +49,13 @@ FabricMaterial::FabricMaterial(
         return;
     }
 
-    initialize();
+    if (materialDefinition.hasTilesetMaterial()) {
+        const auto tilesetMaterialPath = FabricUtil::toFabricPath(materialDefinition.getTilesetMaterialPath());
+        initializeFromExistingMaterial(tilesetMaterialPath);
+    } else {
+        initialize();
+    }
+
     reset();
 }
 
@@ -88,13 +94,13 @@ void FabricMaterial::initialize() {
 
     const auto shaderPath = FabricUtil::joinPaths(materialPath, FabricTokens::Shader);
     createShader(shaderPath, materialPath);
-    _shaderPath = shaderPath;
+    _shaderPaths.push_back(shaderPath);
     _allPaths.push_back(shaderPath);
 
     if (_materialDefinition.hasBaseColorTexture()) {
         const auto baseColorTexturePath = FabricUtil::joinPaths(materialPath, FabricTokens::base_color_texture);
         createTexture(baseColorTexturePath, shaderPath, FabricTokens::inputs_base_color_texture);
-        _baseColorTexturePath = baseColorTexturePath;
+        _baseColorTexturePaths.push_back(baseColorTexturePath);
         _allPaths.push_back(baseColorTexturePath);
     }
 
@@ -103,7 +109,7 @@ void FabricMaterial::initialize() {
     if (imageryLayerCount == 1) {
         const auto imageryLayerPath = FabricUtil::joinPaths(materialPath, FabricTokens::imagery_layer_n[0]);
         createTexture(imageryLayerPath, shaderPath, FabricTokens::inputs_imagery_layers_texture);
-        _imageryLayerPaths.push_back(imageryLayerPath);
+        _imageryLayerPaths.push_back({imageryLayerPath});
         _allPaths.push_back(imageryLayerPath);
     } else if (imageryLayerCount > 1) {
         const auto imageryLayerResolverPath = FabricUtil::joinPaths(materialPath, FabricTokens::imagery_layer_resolver);
@@ -115,8 +121,39 @@ void FabricMaterial::initialize() {
         for (uint64_t i = 0; i < imageryLayerCount; i++) {
             const auto imageryLayerPath = FabricUtil::joinPaths(materialPath, FabricTokens::imagery_layer_n[i]);
             createTexture(imageryLayerPath, imageryLayerResolverPath, FabricTokens::inputs_imagery_layer_n[i]);
-            _imageryLayerPaths.push_back(imageryLayerPath);
+            _imageryLayerPaths.push_back({imageryLayerPath});
             _allPaths.push_back(imageryLayerPath);
+        }
+    }
+
+    for (const auto& path : _allPaths) {
+        FabricResourceManager::getInstance().retainPath(path);
+    }
+}
+
+void FabricMaterial::initializeFromExistingMaterial(const omni::fabric::Path& srcMaterialPath) {
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+
+    const auto& dstMaterialPath = _materialPath;
+
+    const auto dstPaths = FabricUtil::copyMaterial(srcMaterialPath, dstMaterialPath);
+
+    for (const auto& dstPath : dstPaths) {
+        srw.createAttribute(dstPath, FabricTokens::_cesium_tilesetId, FabricTypes::_cesium_tilesetId);
+        _allPaths.push_back(dstPath);
+
+        const auto mdlIdentifier = FabricUtil::getMdlIdentifier(dstPath);
+
+        if (mdlIdentifier == FabricTokens::cesium_base_color_texture) {
+            if (_materialDefinition.hasBaseColorTexture()) {
+                // Create a base color texture node to fill the empty slot
+                const auto baseColorTexturePath =
+                    FabricUtil::joinPaths(dstMaterialPath, FabricTokens::base_color_texture);
+                createTexture(baseColorTexturePath, dstPath, FabricTokens::inputs_base_color_texture);
+                _allPaths.push_back(baseColorTexturePath);
+                _baseColorTexturePaths.push_back(baseColorTexturePath);
+                FabricResourceManager::getInstance().retainPath(baseColorTexturePath);
+            }
         }
     }
 
@@ -324,7 +361,9 @@ void FabricMaterial::setMaterial(int64_t tilesetId, const MaterialInfo& material
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
-    setShaderValues(_shaderPath, materialInfo);
+    for (auto& shaderPath : _shaderPaths) {
+        setShaderValues(shaderPath, materialInfo);
+    }
 
     for (const auto& path : _allPaths) {
         FabricUtil::setTilesetId(path, tilesetId);
@@ -339,11 +378,9 @@ void FabricMaterial::setBaseColorTexture(
         return;
     }
 
-    if (FabricUtil::isEmpty(_baseColorTexturePath)) {
-        return;
+    for (auto& baseColorTexturePath : _baseColorTexturePaths) {
+        setTextureValues(baseColorTexturePath, textureAssetPathToken, textureInfo, texcoordIndex);
     }
-
-    setTextureValues(_baseColorTexturePath, textureAssetPathToken, textureInfo, texcoordIndex);
 }
 
 void FabricMaterial::setImageryLayer(
@@ -359,7 +396,9 @@ void FabricMaterial::setImageryLayer(
         return;
     }
 
-    setTextureValues(_imageryLayerPaths[imageryIndex], textureAssetPathToken, textureInfo, texcoordIndex);
+    for (auto& imageryLayerPath : _imageryLayerPaths[imageryIndex]) {
+        setTextureValues(imageryLayerPath, textureAssetPathToken, textureInfo, texcoordIndex);
+    }
 }
 
 void FabricMaterial::clearMaterial() {
