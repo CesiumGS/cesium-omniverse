@@ -66,7 +66,6 @@ class FabricMaterial {
         const pxr::TfToken& textureAssetPathToken,
         const TextureInfo& textureInfo,
         uint64_t texcoordIndex);
-    void setTilesetId(int64_t tilesetId);
     bool stageDestroyed();
 
     omni::fabric::Path _materialPath;
@@ -77,8 +76,9 @@ class FabricMaterial {
 
     omni::fabric::Path _shaderPath;
     omni::fabric::Path _baseColorTexturePath;
-    omni::fabric::Path _imageryLayerResolverPath;
     std::vector<omni::fabric::Path> _imageryLayerPaths;
+
+    std::vector<omni::fabric::Path> _allPaths;
 };
 
 } // namespace cesium::omniverse

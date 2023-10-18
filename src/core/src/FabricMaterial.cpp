@@ -58,19 +58,8 @@ FabricMaterial::~FabricMaterial() {
         return;
     }
 
-    FabricUtil::destroyPrim(_materialPath);
-    FabricUtil::destroyPrim(_shaderPath);
-
-    if (!FabricUtil::isEmpty(_baseColorTexturePath)) {
-        FabricUtil::destroyPrim(_baseColorTexturePath);
-    }
-
-    if (!FabricUtil::isEmpty(_imageryLayerResolverPath)) {
-        FabricUtil::destroyPrim(_imageryLayerResolverPath);
-    }
-
-    for (const auto& imageryLayerPath : _imageryLayerPaths) {
-        FabricUtil::destroyPrim(imageryLayerPath);
+    for (const auto& path : _allPaths) {
+        FabricUtil::destroyPrim(path);
     }
 }
 
@@ -93,22 +82,20 @@ const FabricMaterialDefinition& FabricMaterial::getMaterialDefinition() const {
 }
 
 void FabricMaterial::initialize() {
-    auto& fabricResourceManager = FabricResourceManager::getInstance();
-
     const auto& materialPath = _materialPath;
     createMaterial(materialPath);
-    fabricResourceManager.retainPath(materialPath);
+    _allPaths.push_back(materialPath);
 
     const auto shaderPath = FabricUtil::joinPaths(materialPath, FabricTokens::Shader);
     createShader(shaderPath, materialPath);
-    fabricResourceManager.retainPath(shaderPath);
     _shaderPath = shaderPath;
+    _allPaths.push_back(shaderPath);
 
     if (_materialDefinition.hasBaseColorTexture()) {
         const auto baseColorTexturePath = FabricUtil::joinPaths(materialPath, FabricTokens::base_color_texture);
         createTexture(baseColorTexturePath, shaderPath, FabricTokens::inputs_base_color_texture);
-        fabricResourceManager.retainPath(baseColorTexturePath);
         _baseColorTexturePath = baseColorTexturePath;
+        _allPaths.push_back(baseColorTexturePath);
     }
 
     const auto imageryLayerCount = getImageryLayerCount(_materialDefinition);
@@ -116,22 +103,25 @@ void FabricMaterial::initialize() {
     if (imageryLayerCount == 1) {
         const auto imageryLayerPath = FabricUtil::joinPaths(materialPath, FabricTokens::imagery_layer_n[0]);
         createTexture(imageryLayerPath, shaderPath, FabricTokens::inputs_imagery_layers_texture);
-        fabricResourceManager.retainPath(imageryLayerPath);
         _imageryLayerPaths.push_back(imageryLayerPath);
+        _allPaths.push_back(imageryLayerPath);
     } else if (imageryLayerCount > 1) {
         const auto imageryLayerResolverPath = FabricUtil::joinPaths(materialPath, FabricTokens::imagery_layer_resolver);
         createImageryLayerResolver(
             imageryLayerResolverPath, shaderPath, FabricTokens::inputs_imagery_layers_texture, imageryLayerCount);
-        fabricResourceManager.retainPath(imageryLayerResolverPath);
-        _imageryLayerResolverPath = imageryLayerResolverPath;
+        _allPaths.push_back(imageryLayerResolverPath);
 
         _imageryLayerPaths.reserve(imageryLayerCount);
         for (uint64_t i = 0; i < imageryLayerCount; i++) {
             const auto imageryLayerPath = FabricUtil::joinPaths(materialPath, FabricTokens::imagery_layer_n[i]);
             createTexture(imageryLayerPath, imageryLayerResolverPath, FabricTokens::inputs_imagery_layer_n[i]);
-            fabricResourceManager.retainPath(imageryLayerPath);
             _imageryLayerPaths.push_back(imageryLayerPath);
+            _allPaths.push_back(imageryLayerPath);
         }
+    }
+
+    for (const auto& path : _allPaths) {
+        FabricResourceManager::getInstance().retainPath(path);
     }
 }
 
@@ -335,7 +325,10 @@ void FabricMaterial::setMaterial(int64_t tilesetId, const MaterialInfo& material
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
     setShaderValues(_shaderPath, materialInfo);
-    setTilesetId(tilesetId);
+
+    for (const auto& path : _allPaths) {
+        FabricUtil::setTilesetId(path, tilesetId);
+    }
 }
 
 void FabricMaterial::setBaseColorTexture(
@@ -384,23 +377,6 @@ void FabricMaterial::clearImageryLayer(uint64_t imageryIndex) {
 void FabricMaterial::clearImageryLayers() {
     for (uint64_t i = 0; i < _imageryLayerPaths.size(); i++) {
         clearImageryLayer(i);
-    }
-}
-
-void FabricMaterial::setTilesetId(int64_t tilesetId) {
-    FabricUtil::setTilesetId(_materialPath, tilesetId);
-    FabricUtil::setTilesetId(_shaderPath, tilesetId);
-
-    if (!FabricUtil::isEmpty(_baseColorTexturePath)) {
-        FabricUtil::setTilesetId(_baseColorTexturePath, tilesetId);
-    }
-
-    if (!FabricUtil::isEmpty(_imageryLayerResolverPath)) {
-        FabricUtil::setTilesetId(_imageryLayerResolverPath, tilesetId);
-    }
-
-    for (const auto& imageryLayerPath : _imageryLayerPaths) {
-        FabricUtil::setTilesetId(imageryLayerPath, tilesetId);
     }
 }
 
