@@ -21,6 +21,7 @@ class FabricMaterial {
         const FabricMaterialDefinition& materialDefinition,
         const pxr::TfToken& defaultTextureAssetPathToken,
         const pxr::TfToken& defaultTransparentTextureAssetPathToken,
+        bool debugRandomColors,
         long stageId);
     ~FabricMaterial();
 
@@ -72,6 +73,7 @@ class FabricMaterial {
     const FabricMaterialDefinition _materialDefinition;
     const pxr::TfToken _defaultTextureAssetPathToken;
     const pxr::TfToken _defaultTransparentTextureAssetPathToken;
+    const bool _debugRandomColors;
     const long _stageId;
 
     omni::fabric::Path _shaderPath;
