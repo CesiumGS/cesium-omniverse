@@ -21,6 +21,7 @@ class FabricMaterial {
         const FabricMaterialDefinition& materialDefinition,
         const pxr::TfToken& defaultTextureAssetPathToken,
         const pxr::TfToken& defaultTransparentTextureAssetPathToken,
+        bool debugRandomColors,
         long stageId);
     ~FabricMaterial();
 
@@ -33,11 +34,11 @@ class FabricMaterial {
         const pxr::TfToken& textureAssetPathToken,
         const TextureInfo& textureInfo,
         uint64_t texcoordIndex,
-        uint64_t imageryIndex);
+        uint64_t imageryLayerIndex);
 
     void clearMaterial();
     void clearBaseColorTexture();
-    void clearImageryLayer(uint64_t imageryIndex);
+    void clearImageryLayer(uint64_t imageryLayerIndex);
     void clearImageryLayers();
 
     void setActive(bool active);
@@ -73,6 +74,7 @@ class FabricMaterial {
     const FabricMaterialDefinition _materialDefinition;
     const pxr::TfToken _defaultTextureAssetPathToken;
     const pxr::TfToken _defaultTransparentTextureAssetPathToken;
+    const bool _debugRandomColors;
     const long _stageId;
 
     std::vector<omni::fabric::Path> _shaderPaths;

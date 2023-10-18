@@ -11,6 +11,113 @@ module [[
     anno::display_name("Cesium MDL functions")
 ]];
 
+float4 alpha_blend(float4 src, float4 dst) {
+    return src * float4(src.w, src.w, src.w, 1.0) + dst * (1.0 - src.w);
+}
+
+float4 compute_base_color(
+    gltf_texture_lookup_value imagery_layers_texture,
+    color debug_color,
+    gltf_texture_lookup_value base_color_texture,
+    color base_color_factor,
+    float base_alpha) {
+
+    auto debug_color_float3 = float3(debug_color);
+    auto base_color_factor_float3 = float3(base_color_factor);
+
+    auto base_color = base_color_texture.valid ? base_color_texture.value : float4(1.0);
+    base_color *= float4(base_color_factor_float3.x, base_color_factor_float3.y, base_color_factor_float3.z, base_alpha);
+    base_color = alpha_blend(imagery_layers_texture.value, base_color);
+    base_color *= float4(debug_color_float3.x, debug_color_float3.y, debug_color_float3.z, 1.0);
+
+    return base_color;
+}
+
+export gltf_texture_lookup_value cesium_texture_lookup(*) [[ anno::hidden() ]] = gltf_texture_lookup();
+
+export material cesium_material(
+    gltf_texture_lookup_value imagery_layers_texture = gltf_texture_lookup_value(true, float4(0.0)),
+    uniform color debug_color = color(1.0),
+    // gltf_material inputs below
+    gltf_texture_lookup_value base_color_texture = gltf_texture_lookup_value(),
+    uniform color base_color_factor = color(1.0),
+    uniform float metallic_factor = 1.0,
+    uniform float roughness_factor = 1.0,
+    uniform color emissive_factor = color(0.0),
+    uniform gltf_alpha_mode alpha_mode = opaque,
+    uniform float base_alpha = 1.0,
+    uniform float alpha_cutoff  = 0.5
+) [[ anno::hidden() ]] = let {
+    auto base_color = compute_base_color(imagery_layers_texture, debug_color, base_color_texture, base_color_factor, base_alpha);
+    material base = gltf_material(
+        base_color_texture: gltf_texture_lookup_value(true, base_color),
+        metallic_factor: metallic_factor,
+        roughness_factor: roughness_factor,
+        emissive_factor: emissive_factor,
+        alpha_mode: alpha_mode,
+        alpha_cutoff: alpha_cutoff,
+        vertex_color_name: string("vertexColor")
+    );
+
+} in material(
+    thin_walled: base.thin_walled,
+    surface: base.surface,
+    volume: base.volume,
+    ior: base.ior,
+    geometry: base.geometry
+);
+
+export gltf_texture_lookup_value cesium_imagery_layer_resolver(
+    uniform int imagery_layers_count = 0,
+    gltf_texture_lookup_value imagery_layer_0 = gltf_texture_lookup(),
+    gltf_texture_lookup_value imagery_layer_1 = gltf_texture_lookup(),
+    gltf_texture_lookup_value imagery_layer_2 = gltf_texture_lookup(),
+    gltf_texture_lookup_value imagery_layer_3 = gltf_texture_lookup(),
+    gltf_texture_lookup_value imagery_layer_4 = gltf_texture_lookup(),
+    gltf_texture_lookup_value imagery_layer_5 = gltf_texture_lookup(),
+    gltf_texture_lookup_value imagery_layer_6 = gltf_texture_lookup(),
+    gltf_texture_lookup_value imagery_layer_7 = gltf_texture_lookup(),
+    gltf_texture_lookup_value imagery_layer_8 = gltf_texture_lookup(),
+    gltf_texture_lookup_value imagery_layer_9 = gltf_texture_lookup(),
+    gltf_texture_lookup_value imagery_layer_10 = gltf_texture_lookup(),
+    gltf_texture_lookup_value imagery_layer_11 = gltf_texture_lookup(),
+    gltf_texture_lookup_value imagery_layer_12 = gltf_texture_lookup(),
+    gltf_texture_lookup_value imagery_layer_13 = gltf_texture_lookup(),
+    gltf_texture_lookup_value imagery_layer_14 = gltf_texture_lookup(),
+    gltf_texture_lookup_value imagery_layer_15 = gltf_texture_lookup()
+) [[ anno::hidden() ]] {
+    // The array length should match MAX_IMAGERY_LAYERS_COUNT in Tokens.h
+    gltf_texture_lookup_value[16] imagery_layers(
+        imagery_layer_0,
+        imagery_layer_1,
+        imagery_layer_2,
+        imagery_layer_3,
+        imagery_layer_4,
+        imagery_layer_5,
+        imagery_layer_6,
+        imagery_layer_7,
+        imagery_layer_8,
+        imagery_layer_9,
+        imagery_layer_10,
+        imagery_layer_11,
+        imagery_layer_12,
+        imagery_layer_13,
+        imagery_layer_14,
+        imagery_layer_15,
+    );
+
+    auto resolved_value = float4(0.0);
+
+    for (int i = 0; i < imagery_layers_count; i++) {
+        auto imagery_layer = imagery_layers[i];
+        if (imagery_layer.valid) {
+            resolved_value = alpha_blend(imagery_layer.value, resolved_value);
+        }
+    }
+
+    return gltf_texture_lookup_value(true, resolved_value);
+}
+
 export enum up_axis_mode {
     Y,
     Z
@@ -110,98 +217,4 @@ export color cesium_imagery_layer(
 ]]
 {
     return imagery_layer.valid ? color(imagery_layer.value.x, imagery_layer.value.y, imagery_layer.value.z) : color(0.0);
-}
-
-float4 alpha_blend(float4 src, float4 dst) {
-    return src * float4(src.w, src.w, src.w, 1.0) + dst * (1.0 - src.w);
-}
-
-export gltf_texture_lookup_value cesium_texture_lookup(*) [[ anno::hidden() ]] = gltf_texture_lookup();
-
-export material cesium_material(
-    gltf_texture_lookup_value imagery_layers_texture = gltf_texture_lookup_value(true, float4(0.0)),
-    uniform color debug_color = color(1.0),
-    // gltf_material inputs below
-    gltf_texture_lookup_value base_color_texture = gltf_texture_lookup_value(),
-    uniform color base_color_factor = color(1.0),
-    uniform float metallic_factor = 1.0,
-    uniform float roughness_factor = 1.0,
-    uniform color emissive_factor = color(0.0),
-    uniform gltf_alpha_mode alpha_mode = opaque,
-    uniform float base_alpha = 1.0,
-    uniform float alpha_cutoff  = 0.5
-) [[ anno::hidden() ]] = let {
-    auto base_color_texture_value = base_color_texture.valid ? base_color_texture.value : float4(1.0);
-    auto final_base_color_texture_value = alpha_blend(imagery_layers_texture.value, base_color_texture_value);
-    auto final_base_color_texture = gltf_texture_lookup_value(true, final_base_color_texture_value);
-    auto final_base_color_factor = base_color_factor * debug_color;
-
-    material base = gltf_material(
-        base_color_factor: final_base_color_factor,
-        base_color_texture: final_base_color_texture,
-        metallic_factor: metallic_factor,
-        roughness_factor: roughness_factor,
-        emissive_factor: emissive_factor,
-        alpha_mode: alpha_mode,
-        base_alpha: base_alpha,
-        alpha_cutoff: alpha_cutoff
-    );
-
-} in material(
-    thin_walled: base.thin_walled,
-    surface: base.surface,
-    volume: base.volume,
-    ior: base.ior,
-    geometry: base.geometry
-);
-
-export gltf_texture_lookup_value cesium_imagery_layer_resolver(
-    uniform int imagery_layers_count = 0,
-    gltf_texture_lookup_value imagery_layer_0 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_1 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_2 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_3 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_4 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_5 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_6 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_7 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_8 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_9 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_10 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_11 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_12 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_13 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_14 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_15 = gltf_texture_lookup()
-) [[ anno::hidden() ]] {
-    // The array length should match MAX_IMAGERY_LAYERS_COUNT in Tokens.h
-    gltf_texture_lookup_value[16] imagery_layers(
-        imagery_layer_0,
-        imagery_layer_1,
-        imagery_layer_2,
-        imagery_layer_3,
-        imagery_layer_4,
-        imagery_layer_5,
-        imagery_layer_6,
-        imagery_layer_7,
-        imagery_layer_8,
-        imagery_layer_9,
-        imagery_layer_10,
-        imagery_layer_11,
-        imagery_layer_12,
-        imagery_layer_13,
-        imagery_layer_14,
-        imagery_layer_15,
-    );
-
-    auto resolved_value = float4(0.0);
-
-    for (int i = 0; i < imagery_layers_count; i++) {
-        auto imagery_layer = imagery_layers[i];
-        if (imagery_layer.valid) {
-            resolved_value = alpha_blend(imagery_layer.value, resolved_value);
-        }
-    }
-
-    return gltf_texture_lookup_value(true, resolved_value);
 }
