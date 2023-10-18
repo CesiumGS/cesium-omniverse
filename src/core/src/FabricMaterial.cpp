@@ -105,11 +105,12 @@ void FabricMaterial::initialize() {
     }
 
     const auto imageryLayerCount = getImageryLayerCount(_materialDefinition);
+    _imageryLayerPaths.resize(imageryLayerCount);
 
     if (imageryLayerCount == 1) {
         const auto imageryLayerPath = FabricUtil::joinPaths(materialPath, FabricTokens::imagery_layer_n[0]);
         createTexture(imageryLayerPath, shaderPath, FabricTokens::inputs_imagery_layers_texture);
-        _imageryLayerPaths.push_back({imageryLayerPath});
+        _imageryLayerPaths[0].push_back(imageryLayerPath);
         _allPaths.push_back(imageryLayerPath);
     } else if (imageryLayerCount > 1) {
         const auto imageryLayerResolverPath = FabricUtil::joinPaths(materialPath, FabricTokens::imagery_layer_resolver);
@@ -117,11 +118,10 @@ void FabricMaterial::initialize() {
             imageryLayerResolverPath, shaderPath, FabricTokens::inputs_imagery_layers_texture, imageryLayerCount);
         _allPaths.push_back(imageryLayerResolverPath);
 
-        _imageryLayerPaths.reserve(imageryLayerCount);
         for (uint64_t i = 0; i < imageryLayerCount; i++) {
             const auto imageryLayerPath = FabricUtil::joinPaths(materialPath, FabricTokens::imagery_layer_n[i]);
             createTexture(imageryLayerPath, imageryLayerResolverPath, FabricTokens::inputs_imagery_layer_n[i]);
-            _imageryLayerPaths.push_back({imageryLayerPath});
+            _imageryLayerPaths[i].push_back(imageryLayerPath);
             _allPaths.push_back(imageryLayerPath);
         }
     }
@@ -138,6 +138,9 @@ void FabricMaterial::initializeFromExistingMaterial(const omni::fabric::Path& sr
 
     const auto dstPaths = FabricUtil::copyMaterial(srcMaterialPath, dstMaterialPath);
 
+    const auto imageryLayerCount = getImageryLayerCount(_materialDefinition);
+    _imageryLayerPaths.resize(imageryLayerCount);
+
     for (const auto& dstPath : dstPaths) {
         srw.createAttribute(dstPath, FabricTokens::_cesium_tilesetId, FabricTypes::_cesium_tilesetId);
         _allPaths.push_back(dstPath);
@@ -147,12 +150,22 @@ void FabricMaterial::initializeFromExistingMaterial(const omni::fabric::Path& sr
         if (mdlIdentifier == FabricTokens::cesium_base_color_texture) {
             if (_materialDefinition.hasBaseColorTexture()) {
                 // Create a base color texture node to fill the empty slot
-                const auto baseColorTexturePath =
-                    FabricUtil::joinPaths(dstMaterialPath, FabricTokens::base_color_texture);
+                const auto baseColorTexturePath = FabricUtil::joinPaths(dstPath, FabricTokens::base_color_texture);
                 createTexture(baseColorTexturePath, dstPath, FabricTokens::inputs_base_color_texture);
-                _allPaths.push_back(baseColorTexturePath);
                 _baseColorTexturePaths.push_back(baseColorTexturePath);
-                FabricResourceManager::getInstance().retainPath(baseColorTexturePath);
+                _allPaths.push_back(baseColorTexturePath);
+            }
+        } else if (mdlIdentifier == FabricTokens::cesium_imagery_layer) {
+            const auto imageryLayerIndexFabric =
+                srw.getAttributeRd<int>(dstPath, FabricTokens::inputs_imagery_layer_index);
+            const auto imageryLayerIndex =
+                static_cast<uint64_t>(imageryLayerIndexFabric == nullptr ? 0 : *imageryLayerIndexFabric);
+
+            if (imageryLayerIndex < imageryLayerCount) {
+                const auto imageryLayerPath = FabricUtil::joinPaths(dstPath, FabricTokens::imagery_layer);
+                createTexture(imageryLayerPath, dstPath, FabricTokens::inputs_imagery_layer);
+                _imageryLayerPaths[imageryLayerIndex].push_back(imageryLayerPath);
+                _allPaths.push_back(imageryLayerPath);
             }
         }
     }

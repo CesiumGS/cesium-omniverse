@@ -25,6 +25,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     (extent) \
     (faceVertexCounts) \
     (faceVertexIndices) \
+    (imagery_layer) \
     (imagery_layer_0) \
     (imagery_layer_1) \
     (imagery_layer_2) \
@@ -81,6 +82,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((inputs_scale, "inputs:scale")) \
     ((inputs_tex_coord_index, "inputs:tex_coord_index")) \
     ((inputs_texture, "inputs:texture")) \
+    ((inputs_imagery_layer, "inputs:imagery_layer")) \
     ((inputs_imagery_layer_0, "inputs:imagery_layer_0")) \
     ((inputs_imagery_layer_1, "inputs:imagery_layer_1")) \
     ((inputs_imagery_layer_2, "inputs:imagery_layer_2")) \
@@ -98,6 +100,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((inputs_imagery_layer_14, "inputs:imagery_layer_14")) \
     ((inputs_imagery_layer_15, "inputs:imagery_layer_15")) \
     ((inputs_imagery_layers_count, "inputs:imagery_layers_count")) \
+    ((inputs_imagery_layer_index, "inputs:imagery_layer_index")) \
     ((inputs_imagery_layers_texture, "inputs:imagery_layers_texture")) \
     ((inputs_vertex_color_name, "inputs:vertex_color_name")) \
     ((inputs_wrap_s, "inputs:wrap_s")) \

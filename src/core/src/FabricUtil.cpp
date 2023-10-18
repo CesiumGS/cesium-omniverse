@@ -877,7 +877,8 @@ bool materialHasCesiumNodes(const omni::fabric::Path& path) {
 }
 
 bool isCesiumNode(const omni::fabric::Token& mdlIdentifier) {
-    return mdlIdentifier == FabricTokens::cesium_base_color_texture;
+    return mdlIdentifier == FabricTokens::cesium_base_color_texture ||
+           mdlIdentifier == FabricTokens::cesium_imagery_layer;
 }
 
 omni::fabric::Token getMdlIdentifier(const omni::fabric::Path& path) {

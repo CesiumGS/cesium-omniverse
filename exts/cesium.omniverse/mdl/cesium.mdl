@@ -91,6 +91,27 @@ export color cesium_base_color_texture(
     return base_color_texture.valid ? color(base_color_texture.value.x, base_color_texture.value.y, base_color_texture.value.z) : color(0.0);
 }
 
+export color cesium_imagery_layer(
+    gltf_texture_lookup_value imagery_layer
+    [[
+        anno::hidden()
+    ]],
+    int imagery_layer_index
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Imagery layer lookup color"),
+    anno::description("Returns the color of the imagery layer at the given index. Returns [0, 0, 0] if the imagery layer does not exist."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium functions"),
+    anno::ui_order(300)
+]]
+{
+    return imagery_layer.valid ? color(imagery_layer.value.x, imagery_layer.value.y, imagery_layer.value.z) : color(0.0);
+}
+
 float4 alpha_blend(float4 src, float4 dst) {
     return src * float4(src.w, src.w, src.w, 1.0) + dst * (1.0 - src.w);
 }
