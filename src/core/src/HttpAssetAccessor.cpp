@@ -8,6 +8,8 @@
 #include <exception>
 #include <stdexcept>
 
+#define CPR_RESERVE_SIZE 10485760 // 10 MiB
+
 namespace cesium::omniverse {
 namespace {
 std::string decodeGzip(std::string& content) {
@@ -111,6 +113,7 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> HttpAssetAccess
     session->AddInterceptor(_interceptor);
     session->SetHeader(cprHeader);
     session->SetUrl(cpr::Url(url));
+    session->SetReserveSize(CPR_RESERVE_SIZE);
     session->GetCallback([promise, url, headers](cpr::Response&& response) mutable {
         if (response.error) {
             promise.reject(
@@ -134,6 +137,7 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> HttpAssetAccess
     std::shared_ptr<cpr::Session> session = std::make_shared<cpr::Session>();
     session->SetHeader(cprHeader);
     session->SetUrl(cpr::Url(url));
+    session->SetReserveSize(CPR_RESERVE_SIZE);
 #ifdef CESIUM_OMNI_UNIX
     session->AddInterceptor(_interceptor);
 #endif
