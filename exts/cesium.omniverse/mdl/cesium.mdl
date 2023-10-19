@@ -55,8 +55,7 @@ export material cesium_material(
         roughness_factor: roughness_factor,
         emissive_factor: emissive_factor,
         alpha_mode: alpha_mode,
-        alpha_cutoff: alpha_cutoff,
-        vertex_color_name: string("vertexColor")
+        alpha_cutoff: alpha_cutoff
     );
 
 } in material(
