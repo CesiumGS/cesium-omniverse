@@ -680,4 +680,8 @@ omni::fabric::Path joinPaths(const omni::fabric::Path& absolutePath, const omni:
     return {fmt::format("{}/{}", absolutePath.getText(), relativePath.getText()).c_str()};
 }
 
+bool isEmpty(const omni::fabric::Path& path) {
+    return omni::fabric::PathC(path) == omni::fabric::kUninitializedPath;
+}
+
 } // namespace cesium::omniverse::FabricUtil
