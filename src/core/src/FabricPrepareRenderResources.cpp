@@ -467,7 +467,7 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
 
             const auto texcoordIndex = mesh.imageryTexcoordIndexMapping.at(gltfSetIndex);
             const auto& textureAssetPath = texture->getAssetPathToken();
-            material->setImageryLayer(textureAssetPath, textureInfo, texcoordIndex, imageryLayerIndex.value());
+            material->setImageryLayer(textureAssetPath, textureInfo, texcoordIndex, imageryLayerIndex.value(), 1.0f);
         }
     }
 }

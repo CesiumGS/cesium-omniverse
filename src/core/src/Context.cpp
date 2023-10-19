@@ -313,6 +313,10 @@ void Context::processCesiumImageryChanged(const ChangedPrim& changedPrim) {
         tileset.value()->reload();
     }
     // clang-format on
+
+    if (name == pxr::CesiumTokens->cesiumAlpha) {
+        tileset.value()->updateImageryAlpha(path);
+    }
 }
 
 void Context::processCesiumGeoreferenceChanged(const cesium::omniverse::ChangedPrim& changedPrim) {

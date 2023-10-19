@@ -34,7 +34,9 @@ class FabricMaterial {
         const pxr::TfToken& textureAssetPathToken,
         const TextureInfo& textureInfo,
         uint64_t texcoordIndex,
-        uint64_t imageryLayerIndex);
+        uint64_t imageryLayerIndex,
+        float alpha);
+    void setImageryLayerAlpha(uint64_t imageryLayerIndex, float alpha);
 
     void clearMaterial();
     void clearBaseColorTexture();
@@ -87,7 +89,10 @@ class FabricMaterial {
         const omni::fabric::Path& imageryLayerPath,
         const pxr::TfToken& textureAssetPathToken,
         const TextureInfo& textureInfo,
-        uint64_t texcoordIndex);
+        uint64_t texcoordIndex,
+        float alpha);
+    void setImageryLayerAlphaValue(const omni::fabric::Path& imageryLayerPath, float alpha);
+
     bool stageDestroyed();
 
     omni::fabric::Path _materialPath;

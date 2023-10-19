@@ -19,6 +19,7 @@ namespace cesium::omniverse {
 namespace {
 
 const auto DEFAULT_DEBUG_COLOR = pxr::GfVec3f(1.0f, 1.0f, 1.0f);
+const auto DEFAULT_ALPHA = 1.0f;
 
 uint64_t getImageryLayerCount(const FabricMaterialDefinition& materialDefinition) {
     uint64_t imageryLayerCount = materialDefinition.getImageryLayerCount();
@@ -423,7 +424,8 @@ void FabricMaterial::setImageryLayer(
     const pxr::TfToken& textureAssetPathToken,
     const TextureInfo& textureInfo,
     uint64_t texcoordIndex,
-    uint64_t imageryLayerIndex) {
+    uint64_t imageryLayerIndex,
+    float alpha) {
     if (stageDestroyed()) {
         return;
     }
@@ -433,7 +435,21 @@ void FabricMaterial::setImageryLayer(
     }
 
     for (auto& imageryLayerPath : _imageryLayerPaths[imageryLayerIndex]) {
-        setImageryLayerValues(imageryLayerPath, textureAssetPathToken, textureInfo, texcoordIndex);
+        setImageryLayerValues(imageryLayerPath, textureAssetPathToken, textureInfo, texcoordIndex, alpha);
+    }
+}
+
+void FabricMaterial::setImageryLayerAlpha(uint64_t imageryLayerIndex, float alpha) {
+    if (stageDestroyed()) {
+        return;
+    }
+
+    if (imageryLayerIndex >= _imageryLayerPaths.size()) {
+        return;
+    }
+
+    for (auto& imageryLayerPath : _imageryLayerPaths[imageryLayerIndex]) {
+        setImageryLayerAlphaValue(imageryLayerPath, alpha);
     }
 }
 
@@ -446,7 +462,12 @@ void FabricMaterial::clearBaseColorTexture() {
 }
 
 void FabricMaterial::clearImageryLayer(uint64_t imageryLayerIndex) {
-    setImageryLayer(_defaultTransparentTextureAssetPathToken, GltfUtil::getDefaultTextureInfo(), 0, imageryLayerIndex);
+    setImageryLayer(
+        _defaultTransparentTextureAssetPathToken,
+        GltfUtil::getDefaultTextureInfo(),
+        0,
+        imageryLayerIndex,
+        DEFAULT_ALPHA);
 }
 
 void FabricMaterial::clearImageryLayers() {
@@ -539,9 +560,16 @@ void FabricMaterial::setImageryLayerValues(
     const omni::fabric::Path& imageryLayerPath,
     const pxr::TfToken& textureAssetPathToken,
     const TextureInfo& textureInfo,
-    uint64_t texcoordIndex) {
+    uint64_t texcoordIndex,
+    float alpha) {
     setTextureValuesCommon(imageryLayerPath, textureAssetPathToken, textureInfo, texcoordIndex);
-    // TODO: set alpha here
+    setImageryLayerAlphaValue(imageryLayerPath, alpha);
+}
+
+void FabricMaterial::setImageryLayerAlphaValue(const omni::fabric::Path& imageryLayerPath, float alpha) {
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto alphaFabric = srw.getAttributeWr<float>(imageryLayerPath, FabricTokens::inputs_alpha);
+    *alphaFabric = alpha;
 }
 
 bool FabricMaterial::stageDestroyed() {
