@@ -15,20 +15,11 @@ FabricMaterialDefinition::FabricMaterialDefinition(
     const MaterialInfo& materialInfo,
     uint64_t imageryLayerCount,
     bool disableTextures,
-    const pxr::SdfPath& tilesetMaterialPath) {
-
-    auto hasBaseColorTexture = materialInfo.baseColorTexture.has_value();
-
-    if (disableTextures) {
-        hasBaseColorTexture = false;
-        imageryLayerCount = 0;
-    }
-
-    _hasVertexColors = materialInfo.hasVertexColors;
-    _hasBaseColorTexture = hasBaseColorTexture;
-    _imageryLayerCount = imageryLayerCount;
-    _tilesetMaterialPath = tilesetMaterialPath;
-}
+    const pxr::SdfPath& tilesetMaterialPath)
+    : _hasVertexColors(materialInfo.hasVertexColors)
+    , _hasBaseColorTexture(disableTextures ? false : materialInfo.baseColorTexture.has_value())
+    , _imageryLayerCount(disableTextures ? 0 : imageryLayerCount)
+    , _tilesetMaterialPath(tilesetMaterialPath) {}
 
 bool FabricMaterialDefinition::hasVertexColors() const {
     return _hasVertexColors;
