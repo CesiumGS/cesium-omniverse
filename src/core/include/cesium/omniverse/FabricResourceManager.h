@@ -61,8 +61,12 @@ class FabricResourceManager {
         bool smoothNormals,
         long stageId);
 
-    std::shared_ptr<FabricMaterial>
-    acquireMaterial(const MaterialInfo& materialInfo, uint64_t imageryLayerCount, long stageId, int64_t tilesetId);
+    std::shared_ptr<FabricMaterial> acquireMaterial(
+        const MaterialInfo& materialInfo,
+        uint64_t imageryLayerCount,
+        long stageId,
+        int64_t tilesetId,
+        const pxr::SdfPath& tilesetMaterialPath);
 
     std::shared_ptr<FabricTexture> acquireTexture();
 

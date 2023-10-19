@@ -11,6 +11,113 @@ module [[
     anno::display_name("Cesium MDL functions")
 ]];
 
+annotation annotation_not_connectable();
+
+export float4 cesium_base_color_texture_float4(
+    gltf_texture_lookup_value base_color_texture = gltf_texture_lookup_value()
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]]
+)
+[[
+    anno::display_name("Cesium base color texture lookup float4"),
+    anno::description("Returns the base color texture as a float4. Returns [0, 0, 0, 0] if the base color texture does not exist."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return base_color_texture.valid ? base_color_texture.value : float4(0.0);
+}
+
+export float4 cesium_imagery_layer_float4(
+    gltf_texture_lookup_value imagery_layer = gltf_texture_lookup_value()
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    int imagery_layer_index = 0
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium imagery layer lookup float4"),
+    anno::description("Returns the imagery layer at the given index as a float4. Returns [0, 0, 0, 0] if the imagery layer does not exist."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return imagery_layer.valid ? imagery_layer.value : float4(0.0);
+}
+
+export material cesium_material(
+    uniform color base_color_factor = color(1.0)
+    [[
+        anno::display_name("Base Color Factor"),
+        anno::description("The base color of the material.")
+    ]],
+    uniform float metallic_factor = 0.0
+    [[
+        anno::hard_range(0.0, 1.0),
+        anno::display_name("Metallic Factor"),
+        anno::description("The metalness of the material. Select between dielectric (0.0) and metallic (1.0).")
+    ]],
+
+    uniform float roughness_factor = 1.0
+    [[
+        anno::hard_range(0.0, 1.0),
+        anno::display_name("Roughness Factor"),
+        anno::description("The roughness of the material. Select between very glossy (0.0) and dull (1.0).")
+    ]],
+    uniform color emissive_factor = color(0.0)
+    [[
+        anno::display_name("Emissive Factor"),
+        anno::description("The emissive color of the material.")
+    ]],
+    uniform gltf_alpha_mode alpha_mode = opaque
+    [[
+        anno::display_name("Alpha Mode"),
+        anno::description("Select how to interpret the alpha value.")
+    ]],
+    uniform float base_alpha = 1.0
+    [[
+        anno::hard_range(0.0, 1.0),
+        anno::display_name("Base Alpha"),
+        anno::description("Select between transparent (0.0) and opaque (1.0)."),
+        anno::enable_if("alpha_mode!=opaque")
+    ]],
+    uniform float alpha_cutoff  = 0.5
+    [[
+        anno::hard_range(0.0, 1.0),
+        anno::display_name("Alpha Cutoff"),
+        anno::description("Threshold to decide between fully transparent and fully opaque when alpha mode is 'mask'."),
+        anno::enable_if("alpha_mode==mask")
+    ]]
+) [[
+    anno::display_name("Cesium PBR material"),
+    anno::description("Cesium metallic-roughness material based off glTF PBR model"),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]] = let {
+    material base = gltf_material(
+        base_color_factor: base_color_factor,
+        metallic_factor: metallic_factor,
+        roughness_factor: roughness_factor,
+        emissive_factor: emissive_factor,
+        alpha_mode: alpha_mode,
+        base_alpha: base_alpha,
+        alpha_cutoff: alpha_cutoff
+    );
+
+} in material(
+    thin_walled: base.thin_walled,
+    surface: base.surface,
+    volume: base.volume,
+    ior: base.ior,
+    geometry: base.geometry
+);
+
 float4 alpha_blend(float4 src, float4 dst) {
     return src * float4(src.w, src.w, src.w, 1.0) + dst * (1.0 - src.w);
 }
@@ -33,9 +140,9 @@ float4 compute_base_color(
     return base_color;
 }
 
-export gltf_texture_lookup_value cesium_texture_lookup(*) [[ anno::hidden() ]] = gltf_texture_lookup();
+export gltf_texture_lookup_value cesium_internal_texture_lookup(*) [[ anno::hidden() ]] = gltf_texture_lookup();
 
-export material cesium_material(
+export material cesium_internal_material(
     gltf_texture_lookup_value imagery_layers_texture = gltf_texture_lookup_value(true, float4(0.0)),
     uniform color debug_color = color(1.0),
     // gltf_material inputs below
@@ -66,7 +173,7 @@ export material cesium_material(
     geometry: base.geometry
 );
 
-export gltf_texture_lookup_value cesium_imagery_layer_resolver(
+export gltf_texture_lookup_value cesium_internal_imagery_layer_resolver(
     uniform int imagery_layers_count = 0,
     gltf_texture_lookup_value imagery_layer_0 = gltf_texture_lookup(),
     gltf_texture_lookup_value imagery_layer_1 = gltf_texture_lookup(),

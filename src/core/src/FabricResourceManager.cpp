@@ -56,7 +56,7 @@ bool FabricResourceManager::shouldAcquireMaterial(
     }
 
     if (!tilesetMaterialPath.IsEmpty()) {
-        return false;
+        return FabricUtil::materialHasCesiumNodes(FabricUtil::toFabricPath(tilesetMaterialPath));
     }
 
     return hasImagery || GltfUtil::hasMaterial(primitive);
@@ -181,8 +181,9 @@ std::shared_ptr<FabricMaterial> FabricResourceManager::acquireMaterial(
     const MaterialInfo& materialInfo,
     uint64_t imageryLayerCount,
     long stageId,
-    int64_t tilesetId) {
-    FabricMaterialDefinition materialDefinition(materialInfo, imageryLayerCount, _disableTextures);
+    int64_t tilesetId,
+    const pxr::SdfPath& tilesetMaterialPath) {
+    FabricMaterialDefinition materialDefinition(materialInfo, imageryLayerCount, _disableTextures, tilesetMaterialPath);
 
     if (useSharedMaterial(materialDefinition)) {
         return acquireSharedMaterial(materialInfo, materialDefinition, stageId, tilesetId);
