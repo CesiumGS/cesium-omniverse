@@ -118,7 +118,7 @@ void FabricMaterial::initialize() {
         // If there's a single imagery layer plug into cesium_material directly
         // instead of using a cesium_imagery_layer_resolver
         const auto imageryLayerPath = FabricUtil::joinPaths(materialPath, FabricTokens::imagery_layer_n[0]);
-        createTexture(imageryLayerPath, shaderPath, FabricTokens::inputs_imagery_layers_texture);
+        createImageryLayer(imageryLayerPath, shaderPath, FabricTokens::inputs_imagery_layers_texture);
         _imageryLayerPaths[0].push_back(imageryLayerPath);
         _allPaths.push_back(imageryLayerPath);
     } else if (imageryLayerCount > 1) {
@@ -129,7 +129,7 @@ void FabricMaterial::initialize() {
 
         for (uint64_t i = 0; i < imageryLayerCount; i++) {
             const auto imageryLayerPath = FabricUtil::joinPaths(materialPath, FabricTokens::imagery_layer_n[i]);
-            createTexture(imageryLayerPath, imageryLayerResolverPath, FabricTokens::inputs_imagery_layer_n[i]);
+            createImageryLayer(imageryLayerPath, imageryLayerResolverPath, FabricTokens::inputs_imagery_layer_n[i]);
             _imageryLayerPaths[i].push_back(imageryLayerPath);
             _allPaths.push_back(imageryLayerPath);
         }
@@ -256,10 +256,12 @@ void FabricMaterial::createShader(const omni::fabric::Path& shaderPath, const om
         omni::fabric::Connection{shaderPath, FabricTokens::outputs_out});
 }
 
-void FabricMaterial::createTexture(
+void FabricMaterial::createTextureCommon(
     const omni::fabric::Path& texturePath,
     const omni::fabric::Path& shaderPath,
-    const omni::fabric::Token& shaderInput) {
+    const omni::fabric::Token& shaderInput,
+    const omni::fabric::Token& subIdentifier,
+    const std::vector<std::pair<omni::fabric::Type, omni::fabric::Token>>& additionalAttributes) {
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
     srw.createPrim(texturePath);
@@ -285,6 +287,10 @@ void FabricMaterial::createTexture(
     attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
     // clang-format on
 
+    for (const auto& additionalAttribute : additionalAttributes) {
+        attributes.addAttribute(additionalAttribute.first, additionalAttribute.second);
+    }
+
     attributes.createAttributes(texturePath);
 
     // _paramColorSpace is an array of pairs: [texture_parameter_token, color_space_enum], [texture_parameter_token, color_space_enum], ...
@@ -303,12 +309,34 @@ void FabricMaterial::createTexture(
     *infoImplementationSourceFabric = FabricTokens::sourceAsset;
     infoMdlSourceAssetFabric->assetPath = Context::instance().getCesiumMdlPathToken();
     infoMdlSourceAssetFabric->resolvedPath = pxr::TfToken();
-    *infoMdlSourceAssetSubIdentifierFabric = FabricTokens::cesium_internal_texture_lookup;
+    *infoMdlSourceAssetSubIdentifierFabric = subIdentifier;
     paramColorSpaceFabric[0] = FabricTokens::inputs_texture;
     paramColorSpaceFabric[1] = FabricTokens::_auto;
 
     // Create connection from shader to texture.
     srw.createConnection(shaderPath, shaderInput, omni::fabric::Connection{texturePath, FabricTokens::outputs_out});
+}
+
+void FabricMaterial::createTexture(
+    const omni::fabric::Path& texturePath,
+    const omni::fabric::Path& shaderPath,
+    const omni::fabric::Token& shaderInput) {
+    return createTextureCommon(texturePath, shaderPath, shaderInput, FabricTokens::cesium_internal_texture_lookup);
+}
+
+void FabricMaterial::createImageryLayer(
+    const omni::fabric::Path& imageryLayerPath,
+    const omni::fabric::Path& shaderPath,
+    const omni::fabric::Token& shaderInput) {
+    const auto additionalAttributes = std::vector<std::pair<omni::fabric::Type, omni::fabric::Token>>{{
+        std::make_pair(FabricTypes::inputs_alpha, FabricTokens::inputs_alpha),
+    }};
+    return createTextureCommon(
+        imageryLayerPath,
+        shaderPath,
+        shaderInput,
+        FabricTokens::cesium_internal_imagery_layer_lookup,
+        additionalAttributes);
 }
 
 void FabricMaterial::createImageryLayerResolver(
@@ -405,7 +433,7 @@ void FabricMaterial::setImageryLayer(
     }
 
     for (auto& imageryLayerPath : _imageryLayerPaths[imageryLayerIndex]) {
-        setTextureValues(imageryLayerPath, textureAssetPathToken, textureInfo, texcoordIndex);
+        setImageryLayerValues(imageryLayerPath, textureAssetPathToken, textureInfo, texcoordIndex);
     }
 }
 
@@ -457,7 +485,7 @@ void FabricMaterial::setShaderValues(const omni::fabric::Path& shaderPath, const
     }
 }
 
-void FabricMaterial::setTextureValues(
+void FabricMaterial::setTextureValuesCommon(
     const omni::fabric::Path& texturePath,
     const pxr::TfToken& textureAssetPathToken,
     const TextureInfo& textureInfo,
@@ -497,6 +525,23 @@ void FabricMaterial::setTextureValues(
     *offsetFabric = UsdUtil::glmToUsdVector(glm::fvec2(offset));
     *rotationFabric = static_cast<float>(rotation);
     *scaleFabric = UsdUtil::glmToUsdVector(glm::fvec2(scale));
+}
+
+void FabricMaterial::setTextureValues(
+    const omni::fabric::Path& texturePath,
+    const pxr::TfToken& textureAssetPathToken,
+    const TextureInfo& textureInfo,
+    uint64_t texcoordIndex) {
+    setTextureValuesCommon(texturePath, textureAssetPathToken, textureInfo, texcoordIndex);
+}
+
+void FabricMaterial::setImageryLayerValues(
+    const omni::fabric::Path& imageryLayerPath,
+    const pxr::TfToken& textureAssetPathToken,
+    const TextureInfo& textureInfo,
+    uint64_t texcoordIndex) {
+    setTextureValuesCommon(imageryLayerPath, textureAssetPathToken, textureInfo, texcoordIndex);
+    // TODO: set alpha here
 }
 
 bool FabricMaterial::stageDestroyed() {
