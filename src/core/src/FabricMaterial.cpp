@@ -10,12 +10,16 @@
 #include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
+#include <glm/gtc/random.hpp>
 #include <omni/fabric/FabricUSD.h>
 #include <spdlog/fmt/fmt.h>
 
 namespace cesium::omniverse {
 
 namespace {
+
+const auto DEFAULT_DEBUG_COLOR = pxr::GfVec3f(1.0f, 1.0f, 1.0f);
+
 uint64_t getImageryLayerCount(const FabricMaterialDefinition& materialDefinition) {
     uint64_t imageryLayerCount = materialDefinition.getImageryLayerCount();
 
@@ -31,6 +35,7 @@ uint64_t getImageryLayerCount(const FabricMaterialDefinition& materialDefinition
 
     return imageryLayerCount;
 }
+
 } // namespace
 
 FabricMaterial::FabricMaterial(
@@ -38,11 +43,13 @@ FabricMaterial::FabricMaterial(
     const FabricMaterialDefinition& materialDefinition,
     const pxr::TfToken& defaultTextureAssetPathToken,
     const pxr::TfToken& defaultTransparentTextureAssetPathToken,
+    bool debugRandomColors,
     long stageId)
     : _materialPath(path)
     , _materialDefinition(materialDefinition)
     , _defaultTextureAssetPathToken(defaultTextureAssetPathToken)
     , _defaultTransparentTextureAssetPathToken(defaultTransparentTextureAssetPathToken)
+    , _debugRandomColors(debugRandomColors)
     , _stageId(stageId) {
 
     if (stageDestroyed()) {
@@ -108,6 +115,8 @@ void FabricMaterial::initialize() {
     _imageryLayerPaths.resize(imageryLayerCount);
 
     if (imageryLayerCount == 1) {
+        // If there's a single imagery layer plug into cesium_material directly
+        // instead of using a cesium_imagery_layer_resolver
         const auto imageryLayerPath = FabricUtil::joinPaths(materialPath, FabricTokens::imagery_layer_n[0]);
         createTexture(imageryLayerPath, shaderPath, FabricTokens::inputs_imagery_layers_texture);
         _imageryLayerPaths[0].push_back(imageryLayerPath);
@@ -188,8 +197,6 @@ void FabricMaterial::createMaterial(const omni::fabric::Path& materialPath) {
 }
 
 void FabricMaterial::createShader(const omni::fabric::Path& shaderPath, const omni::fabric::Path& materialPath) {
-    const auto hasVertexColors = _materialDefinition.hasVertexColors();
-
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
     srw.createPrim(shaderPath);
@@ -197,7 +204,7 @@ void FabricMaterial::createShader(const omni::fabric::Path& shaderPath, const om
     FabricAttributesBuilder attributes;
 
     // clang-format off
-    // TODO: add debug_color
+    attributes.addAttribute(FabricTypes::inputs_debug_color, FabricTokens::inputs_debug_color);
     attributes.addAttribute(FabricTypes::inputs_alpha_cutoff, FabricTokens::inputs_alpha_cutoff);
     attributes.addAttribute(FabricTypes::inputs_alpha_mode, FabricTokens::inputs_alpha_mode);
     attributes.addAttribute(FabricTypes::inputs_base_alpha, FabricTokens::inputs_base_alpha);
@@ -216,10 +223,6 @@ void FabricMaterial::createShader(const omni::fabric::Path& shaderPath, const om
     attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
     // clang-format on
 
-    if (hasVertexColors) {
-        attributes.addAttribute(FabricTypes::inputs_vertex_color_name, FabricTokens::inputs_vertex_color_name);
-    }
-
     attributes.createAttributes(shaderPath);
 
     srw.setArrayAttributeSize(shaderPath, FabricTokens::_paramColorSpace, 0);
@@ -237,14 +240,6 @@ void FabricMaterial::createShader(const omni::fabric::Path& shaderPath, const om
     infoMdlSourceAssetFabric->assetPath = Context::instance().getCesiumMdlPathToken();
     infoMdlSourceAssetFabric->resolvedPath = pxr::TfToken();
     *infoMdlSourceAssetSubIdentifierFabric = FabricTokens::cesium_material;
-
-    if (hasVertexColors) {
-        const auto vertexColorPrimvarNameSize = pxr::UsdTokens->vertexColor.GetString().size();
-        srw.setArrayAttributeSize(shaderPath, FabricTokens::inputs_vertex_color_name, vertexColorPrimvarNameSize);
-        auto vertexColorNameFabric =
-            srw.getArrayAttributeWr<uint8_t>(shaderPath, FabricTokens::inputs_vertex_color_name);
-        memcpy(vertexColorNameFabric.data(), pxr::UsdTokens->vertexColor.GetText(), vertexColorPrimvarNameSize);
-    }
 
     // Connect the material terminals to the shader.
     srw.createConnection(
@@ -400,16 +395,16 @@ void FabricMaterial::setImageryLayer(
     const pxr::TfToken& textureAssetPathToken,
     const TextureInfo& textureInfo,
     uint64_t texcoordIndex,
-    uint64_t imageryIndex) {
+    uint64_t imageryLayerIndex) {
     if (stageDestroyed()) {
         return;
     }
 
-    if (imageryIndex >= _imageryLayerPaths.size()) {
+    if (imageryLayerIndex >= _imageryLayerPaths.size()) {
         return;
     }
 
-    for (auto& imageryLayerPath : _imageryLayerPaths[imageryIndex]) {
+    for (auto& imageryLayerPath : _imageryLayerPaths[imageryLayerIndex]) {
         setTextureValues(imageryLayerPath, textureAssetPathToken, textureInfo, texcoordIndex);
     }
 }
@@ -422,8 +417,8 @@ void FabricMaterial::clearBaseColorTexture() {
     setBaseColorTexture(_defaultTextureAssetPathToken, GltfUtil::getDefaultTextureInfo(), 0);
 }
 
-void FabricMaterial::clearImageryLayer(uint64_t imageryIndex) {
-    setImageryLayer(_defaultTransparentTextureAssetPathToken, GltfUtil::getDefaultTextureInfo(), 0, imageryIndex);
+void FabricMaterial::clearImageryLayer(uint64_t imageryLayerIndex) {
+    setImageryLayer(_defaultTransparentTextureAssetPathToken, GltfUtil::getDefaultTextureInfo(), 0, imageryLayerIndex);
 }
 
 void FabricMaterial::clearImageryLayers() {
@@ -435,6 +430,7 @@ void FabricMaterial::clearImageryLayers() {
 void FabricMaterial::setShaderValues(const omni::fabric::Path& shaderPath, const MaterialInfo& materialInfo) {
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
+    auto debugColorFabric = srw.getAttributeWr<pxr::GfVec3f>(shaderPath, FabricTokens::inputs_debug_color);
     auto alphaCutoffFabric = srw.getAttributeWr<float>(shaderPath, FabricTokens::inputs_alpha_cutoff);
     auto alphaModeFabric = srw.getAttributeWr<int>(shaderPath, FabricTokens::inputs_alpha_mode);
     auto baseAlphaFabric = srw.getAttributeWr<float>(shaderPath, FabricTokens::inputs_base_alpha);
@@ -450,6 +446,15 @@ void FabricMaterial::setShaderValues(const omni::fabric::Path& shaderPath, const
     *emissiveFactorFabric = UsdUtil::glmToUsdVector(glm::fvec3(materialInfo.emissiveFactor));
     *metallicFactorFabric = static_cast<float>(materialInfo.metallicFactor);
     *roughnessFactorFabric = static_cast<float>(materialInfo.roughnessFactor);
+
+    if (_debugRandomColors) {
+        const auto r = glm::linearRand(0.0f, 1.0f);
+        const auto g = glm::linearRand(0.0f, 1.0f);
+        const auto b = glm::linearRand(0.0f, 1.0f);
+        *debugColorFabric = pxr::GfVec3f(r, g, b);
+    } else {
+        *debugColorFabric = DEFAULT_DEBUG_COLOR;
+    }
 }
 
 void FabricMaterial::setTextureValues(

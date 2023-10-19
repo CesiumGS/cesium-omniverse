@@ -73,7 +73,7 @@ std::shared_ptr<FabricGeometry> FabricResourceManager::acquireGeometry(
     if (_disableGeometryPool) {
         const auto pathStr = fmt::format("/fabric_geometry_{}", getNextGeometryId());
         const auto path = omni::fabric::Path(pathStr.c_str());
-        return std::make_shared<FabricGeometry>(path, geometryDefinition, _debugRandomColors, stageId);
+        return std::make_shared<FabricGeometry>(path, geometryDefinition, stageId);
     }
 
     std::scoped_lock<std::mutex> lock(_poolMutex);
@@ -102,7 +102,12 @@ FabricResourceManager::createMaterial(const FabricMaterialDefinition& materialDe
     const auto pathStr = fmt::format("/fabric_material_{}", getNextMaterialId());
     const auto path = omni::fabric::Path(pathStr.c_str());
     return std::make_shared<FabricMaterial>(
-        path, materialDefinition, _defaultTextureAssetPathToken, _defaultTransparentTextureAssetPathToken, stageId);
+        path,
+        materialDefinition,
+        _defaultTextureAssetPathToken,
+        _defaultTransparentTextureAssetPathToken,
+        _debugRandomColors,
+        stageId);
 }
 
 void FabricResourceManager::removeSharedMaterial(const SharedMaterial& sharedMaterial) {
@@ -347,7 +352,7 @@ std::shared_ptr<FabricTexturePool> FabricResourceManager::getTexturePool() {
 std::shared_ptr<FabricGeometryPool>
 FabricResourceManager::createGeometryPool(const FabricGeometryDefinition& geometryDefinition, long stageId) {
     return _geometryPools.emplace_back(std::make_shared<FabricGeometryPool>(
-        getNextPoolId(), geometryDefinition, _geometryPoolInitialCapacity, _debugRandomColors, stageId));
+        getNextPoolId(), geometryDefinition, _geometryPoolInitialCapacity, stageId));
 }
 
 std::shared_ptr<FabricMaterialPool>
@@ -358,6 +363,7 @@ FabricResourceManager::createMaterialPool(const FabricMaterialDefinition& materi
         _materialPoolInitialCapacity,
         _defaultTextureAssetPathToken,
         _defaultTransparentTextureAssetPathToken,
+        _debugRandomColors,
         stageId));
 }
 

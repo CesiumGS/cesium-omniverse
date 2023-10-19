@@ -446,8 +446,8 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
         return;
     }
 
-    auto imageryIndex = _tileset->findImageryIndex(rasterTile.getOverlay());
-    if (!imageryIndex.has_value()) {
+    auto imageryLayerIndex = _tileset->findImageryLayerIndex(rasterTile.getOverlay());
+    if (!imageryLayerIndex.has_value()) {
         return;
     }
 
@@ -467,7 +467,7 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
 
             const auto texcoordIndex = mesh.imageryTexcoordIndexMapping.at(gltfSetIndex);
             const auto& textureAssetPath = texture->getAssetPathToken();
-            material->setImageryLayer(textureAssetPath, textureInfo, texcoordIndex, imageryIndex.value());
+            material->setImageryLayer(textureAssetPath, textureInfo, texcoordIndex, imageryLayerIndex.value());
         }
     }
 }
@@ -493,15 +493,15 @@ void FabricPrepareRenderResources::detachRasterInMainThread(
         return;
     }
 
-    auto imageryIndex = _tileset->findImageryIndex(rasterTile.getOverlay());
-    if (!imageryIndex.has_value()) {
+    auto imageryLayerIndex = _tileset->findImageryLayerIndex(rasterTile.getOverlay());
+    if (!imageryLayerIndex.has_value()) {
         return;
     }
 
     for (const auto& mesh : pTileRenderResources->fabricMeshes) {
         auto& material = mesh.material;
         if (material != nullptr) {
-            material->clearImageryLayer(imageryIndex.value());
+            material->clearImageryLayer(imageryLayerIndex.value());
         }
     }
 }
