@@ -15,11 +15,7 @@ namespace cesium::omniverse {
 
 class FabricGeometry {
   public:
-    FabricGeometry(
-        const omni::fabric::Path& path,
-        const FabricGeometryDefinition& geometryDefinition,
-        bool debugRandomColors,
-        long stageId);
+    FabricGeometry(const omni::fabric::Path& path, const FabricGeometryDefinition& geometryDefinition, long stageId);
     ~FabricGeometry();
 
     void setGeometry(
@@ -48,7 +44,6 @@ class FabricGeometry {
 
     const omni::fabric::Path _path;
     const FabricGeometryDefinition _geometryDefinition;
-    const bool _debugRandomColors;
     const long _stageId;
 };
 
