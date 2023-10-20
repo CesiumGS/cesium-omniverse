@@ -118,6 +118,7 @@ class Context {
     RenderStatistics getRenderStatistics() const;
 
     void addGlobeAnchorToPrim(const pxr::SdfPath& path);
+    void addGlobeAnchorToPrim(const pxr::SdfPath& path, double latitude, double longitude, double height);
 
   private:
     void processPropertyChanged(const ChangedPrim& changedPrim);

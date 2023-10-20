@@ -5,6 +5,7 @@ from omni.kit.property.usd import PrimPathWidget, PrimSelectionPayload
 from omni.kit.window.property import get_window as get_property_window
 from pxr import Tf, UsdGeom
 from cesium.usd.plugins.CesiumUsdSchemas import Tileset as CesiumTileset
+from ..api.globe_anchor import anchor_xform_at_path
 from ..bindings import ICesiumOmniverseInterface
 
 
@@ -33,7 +34,7 @@ class CesiumAddMenuController:
 
     def _add_globe_anchor_api(self, payload: PrimSelectionPayload):
         for path in payload:
-            self._cesium_omniverse_interface.add_global_anchor_to_prim(str(path))
+            anchor_xform_at_path(path)
             get_property_window().request_rebuild()
 
     @staticmethod
