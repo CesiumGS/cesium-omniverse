@@ -173,7 +173,7 @@ void FabricMaterial::initializeFromExistingMaterial(const omni::fabric::Path& sr
 
             if (imageryLayerIndex < imageryLayerCount) {
                 const auto imageryLayerPath = FabricUtil::joinPaths(dstPath, FabricTokens::imagery_layer);
-                createTexture(imageryLayerPath, dstPath, FabricTokens::inputs_imagery_layer);
+                createImageryLayer(imageryLayerPath, dstPath, FabricTokens::inputs_imagery_layer);
                 _imageryLayerPaths[imageryLayerIndex].push_back(imageryLayerPath);
                 _allPaths.push_back(imageryLayerPath);
             }
