@@ -411,7 +411,7 @@ void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
     _tileset->getOverlays().add(ionRasterOverlay);
 }
 
-std::optional<uint64_t> OmniTileset::findImageryIndex(const Cesium3DTilesSelection::RasterOverlay& overlay) const {
+std::optional<uint64_t> OmniTileset::findImageryLayerIndex(const Cesium3DTilesSelection::RasterOverlay& overlay) const {
     uint64_t overlayIndex = 0;
     for (const auto& pOverlay : _tileset->getOverlays()) {
         if (&overlay == pOverlay.get()) {
