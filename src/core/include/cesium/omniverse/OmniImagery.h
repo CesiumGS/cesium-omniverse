@@ -13,6 +13,7 @@ class OmniImagery {
     [[nodiscard]] int64_t getIonAssetId() const;
     [[nodiscard]] std::optional<CesiumIonClient::Token> getIonAccessToken() const;
     [[nodiscard]] bool getShowCreditsOnScreen() const;
+    [[nodiscard]] float getAlpha() const;
 
   private:
     pxr::SdfPath _path;

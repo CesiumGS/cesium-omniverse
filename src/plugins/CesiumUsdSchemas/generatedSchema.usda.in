@@ -285,6 +285,10 @@ class CesiumImageryPrim "CesiumImageryPrim" (
     doc = "Adds a prim for representing an imagery layer. Should be a child of a tileset."
 )
 {
+    float cesium:alpha = 1 (
+        displayName = "Alpha"
+        doc = "The alpha blending value, from 0.0 to 1.0, where 1.0 is fully opaque."
+    )
     string cesium:ionAccessToken = "" (
         displayName = "ion Access Token"
         doc = "The access token to use to access the Cesium ion resource. Overrides the default token. Blank if using URL."

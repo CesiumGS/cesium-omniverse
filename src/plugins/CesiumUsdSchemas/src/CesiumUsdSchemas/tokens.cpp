@@ -3,6 +3,7 @@
 PXR_NAMESPACE_OPEN_SCOPE
 
 CesiumTokensType::CesiumTokensType() :
+    cesiumAlpha("cesium:alpha", TfToken::Immortal),
     cesiumAnchorAdjustOrientationForGlobeWhenMoving("cesium:anchor:adjustOrientationForGlobeWhenMoving", TfToken::Immortal),
     cesiumAnchorDetectTransformChanges("cesium:anchor:detectTransformChanges", TfToken::Immortal),
     cesiumAnchorGeographicCoordinates("cesium:anchor:geographicCoordinates", TfToken::Immortal),
@@ -49,6 +50,7 @@ CesiumTokensType::CesiumTokensType() :
     ion("ion", TfToken::Immortal),
     url("url", TfToken::Immortal),
     allTokens({
+        cesiumAlpha,
         cesiumAnchorAdjustOrientationForGlobeWhenMoving,
         cesiumAnchorDetectTransformChanges,
         cesiumAnchorGeographicCoordinates,

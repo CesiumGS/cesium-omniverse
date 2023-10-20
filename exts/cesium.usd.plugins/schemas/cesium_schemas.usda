@@ -371,6 +371,14 @@ class CesiumImageryPrim "CesiumImageryPrim" (
         displayName = "Show Credits On Screen"
         doc = "Whether or not to show this imagery layer's credits on screen."
     )
+
+    float cesium:alpha = 1.0 (
+        customData = {
+            string apiName = "alpha"
+        }
+        displayName = "Alpha"
+        doc = "The alpha blending value, from 0.0 to 1.0, where 1.0 is fully opaque."
+    )
 }
 
 class "CesiumGlobeAnchorSchemaAPI" (
