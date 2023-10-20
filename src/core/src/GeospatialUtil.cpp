@@ -102,28 +102,37 @@ void updateAnchorByUsdTransform(
 void updateAnchorByLatLongHeight(
     const CesiumGeospatial::Cartographic& origin,
     const pxr::CesiumGlobeAnchorAPI& anchorApi) {
-    std::optional<std::shared_ptr<OmniGlobeAnchor>> maybeGlobeAnchor =
-        GlobeAnchorRegistry::getInstance().getAnchor(anchorApi.GetPath());
-
-    if (!maybeGlobeAnchor.has_value()) {
-        CESIUM_LOG_ERROR(
-            "Anchor does not exist in registry but exists in stage. Path: {}", anchorApi.GetPath().GetString());
-
-        return;
-    }
-
-    std::shared_ptr<OmniGlobeAnchor> globeAnchor = maybeGlobeAnchor.value();
-
+    std::shared_ptr<OmniGlobeAnchor> globeAnchor;
     pxr::GfVec3d usdGeographicCoordinate;
     anchorApi.GetGeographicCoordinateAttr().Get(&usdGeographicCoordinate);
 
-    auto cachedGeographicCoordinate = globeAnchor->getCachedGeographicCoordinate();
+    std::optional<std::shared_ptr<OmniGlobeAnchor>> maybeGlobeAnchor =
+        GlobeAnchorRegistry::getInstance().getAnchor(anchorApi.GetPath());
+    if (maybeGlobeAnchor.has_value()) {
+        globeAnchor = maybeGlobeAnchor.value();
 
-    double tolerance = 0.0000001;
-    if (pxr::GfIsClose(usdGeographicCoordinate, cachedGeographicCoordinate, tolerance)) {
+        auto cachedGeographicCoordinate = globeAnchor->getCachedGeographicCoordinate();
 
-        // Short circuit if we don't need to do an actual update.
-        return;
+        double tolerance = 0.0000001;
+        if (pxr::GfIsClose(usdGeographicCoordinate, cachedGeographicCoordinate, tolerance)) {
+
+            // Short circuit if we don't need to do an actual update.
+            return;
+        }
+    } else {
+        // This really isn't ideal, but it's the easiest way to handle this.
+        auto anchorToFixed = UsdUtil::computeUsdLocalToEcefTransformForPrim(origin, anchorApi.GetPath());
+        globeAnchor = GlobeAnchorRegistry::getInstance().createAnchor(anchorApi.GetPath(), anchorToFixed);
+
+        // We have to set the ECEF values and then cache them for the rest of the process to work.
+        auto fixedTransform = UsdUtil::glmToUsdMatrixDecomposed(globeAnchor->getAnchorToFixedTransform());
+
+        anchorApi.GetPositionAttr().Set(fixedTransform.position);
+        anchorApi.GetRotationAttr().Set(
+            pxr::GfVec3d(UsdUtil::getEulerAnglesFromQuaternion(fixedTransform.orientation)));
+        anchorApi.GetScaleAttr().Set(pxr::GfVec3d(fixedTransform.scale));
+
+        globeAnchor->updateCachedValues();
     }
 
     double usdLatitude = usdGeographicCoordinate[0];
