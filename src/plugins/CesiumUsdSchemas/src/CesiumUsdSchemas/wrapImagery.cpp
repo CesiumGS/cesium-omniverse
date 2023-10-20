@@ -46,6 +46,13 @@ _CreateShowCreditsOnScreenAttr(CesiumImagery &self,
     return self.CreateShowCreditsOnScreenAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
+        
+static UsdAttribute
+_CreateAlphaAttr(CesiumImagery &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateAlphaAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Float), writeSparsely);
+}
 
 static std::string
 _Repr(const CesiumImagery &self)
@@ -107,6 +114,13 @@ void wrapCesiumImagery()
              &This::GetShowCreditsOnScreenAttr)
         .def("CreateShowCreditsOnScreenAttr",
              &_CreateShowCreditsOnScreenAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetAlphaAttr",
+             &This::GetAlphaAttr)
+        .def("CreateAlphaAttr",
+             &_CreateAlphaAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 

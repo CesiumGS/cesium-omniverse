@@ -34,7 +34,9 @@ class FabricMaterial {
         const pxr::TfToken& textureAssetPathToken,
         const TextureInfo& textureInfo,
         uint64_t texcoordIndex,
-        uint64_t imageryLayerIndex);
+        uint64_t imageryLayerIndex,
+        float alpha);
+    void setImageryLayerAlpha(uint64_t imageryLayerIndex, float alpha);
 
     void clearMaterial();
     void clearBaseColorTexture();
@@ -52,8 +54,18 @@ class FabricMaterial {
 
     void createMaterial(const omni::fabric::Path& materialPath);
     void createShader(const omni::fabric::Path& shaderPath, const omni::fabric::Path& materialPath);
+    void createTextureCommon(
+        const omni::fabric::Path& texturePath,
+        const omni::fabric::Path& shaderPath,
+        const omni::fabric::Token& shaderInput,
+        const omni::fabric::Token& subIdentifier,
+        const std::vector<std::pair<omni::fabric::Type, omni::fabric::Token>>& additionalAttributes = {});
     void createTexture(
         const omni::fabric::Path& texturePath,
+        const omni::fabric::Path& shaderPath,
+        const omni::fabric::Token& shaderInput);
+    void createImageryLayer(
+        const omni::fabric::Path& imageryLayerPath,
         const omni::fabric::Path& shaderPath,
         const omni::fabric::Token& shaderInput);
     void createImageryLayerResolver(
@@ -63,11 +75,24 @@ class FabricMaterial {
         uint64_t textureCount);
     void reset();
     void setShaderValues(const omni::fabric::Path& shaderPath, const MaterialInfo& materialInfo);
+    void setTextureValuesCommon(
+        const omni::fabric::Path& texturePath,
+        const pxr::TfToken& textureAssetPathToken,
+        const TextureInfo& textureInfo,
+        uint64_t texcoordIndex);
     void setTextureValues(
         const omni::fabric::Path& texturePath,
         const pxr::TfToken& textureAssetPathToken,
         const TextureInfo& textureInfo,
         uint64_t texcoordIndex);
+    void setImageryLayerValues(
+        const omni::fabric::Path& imageryLayerPath,
+        const pxr::TfToken& textureAssetPathToken,
+        const TextureInfo& textureInfo,
+        uint64_t texcoordIndex,
+        float alpha);
+    void setImageryLayerAlphaValue(const omni::fabric::Path& imageryLayerPath, float alpha);
+
     bool stageDestroyed();
 
     omni::fabric::Path _materialPath;

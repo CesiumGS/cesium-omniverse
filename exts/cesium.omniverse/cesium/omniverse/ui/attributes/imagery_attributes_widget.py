@@ -22,5 +22,7 @@ class CesiumImageryAttributesWidget(SchemaPropertiesWidget):
             with CustomLayoutGroup("Source"):
                 CustomLayoutProperty("cesium:ionAssetId")
                 CustomLayoutProperty("cesium:ionAccessToken")
+            with CustomLayoutGroup("Rendering"):
+                CustomLayoutProperty("cesium:alpha")
 
         return frame.apply(props)
