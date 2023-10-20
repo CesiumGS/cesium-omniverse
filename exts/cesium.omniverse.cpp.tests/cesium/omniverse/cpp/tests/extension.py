@@ -3,7 +3,6 @@ import omni.ext
 import omni.usd
 import omni.kit.ui
 import omni.kit.app
-from cesium.omniverse.utils import wait_n_frames
 from .bindings import acquire_cesium_omniverse_tests_interface, release_cesium_omniverse_tests_interface
 
 
