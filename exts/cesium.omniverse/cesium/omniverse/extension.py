@@ -71,7 +71,8 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         )
         ui.Workspace.set_show_window_fn(CesiumOmniverseDebugWindow.WINDOW_NAME, partial(self.show_debug_window, None))
 
-        show_on_startup = omni_settings.get_settings().get_as_bool("/exts/cesium.omniverse/showOnStartup")
+        settings = omni_settings.get_settings()
+        show_on_startup = settings.get_as_bool("/exts/cesium.omniverse/showOnStartup")
 
         self._add_to_menu(CesiumOmniverseMainWindow.MENU_PATH, self.show_main_window, show_on_startup)
         self._add_to_menu(CesiumOmniverseAssetWindow.MENU_PATH, self.show_assets_window, False)
@@ -84,7 +85,29 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         _cesium_omniverse_interface = acquire_cesium_omniverse_interface()
         _cesium_omniverse_interface.on_startup(cesium_extension_location)
 
-        omni_settings.get_settings().set("/rtx/hydra/TBNFrameMode", 1)
+        settings.set("/rtx/hydra/TBNFrameMode", 1)
+
+        # Allow material graph to find cesium mdl exports
+        mdl_custom_paths_name = "materialConfig/searchPaths/custom"
+        mdl_user_allow_list_name = "materialConfig/materialGraph/userAllowList"
+        mdl_renderer_custom_paths_name = "/renderer/mdl/searchPaths/custom"
+
+        cesium_mdl_search_path = os.path.join(cesium_extension_location, "mdl")
+        cesium_mdl_name = "cesium.mdl"
+
+        mdl_custom_paths = settings.get(mdl_custom_paths_name) or []
+        mdl_user_allow_list = settings.get(mdl_user_allow_list_name) or []
+
+        mdl_custom_paths.append(cesium_mdl_search_path)
+        mdl_user_allow_list.append(cesium_mdl_name)
+
+        mdl_renderer_custom_paths = settings.get_as_string(mdl_renderer_custom_paths_name)
+        mdl_renderer_custom_paths_sep = "" if mdl_renderer_custom_paths == "" else ";"
+        mdl_renderer_custom_paths = mdl_renderer_custom_paths + mdl_renderer_custom_paths_sep + cesium_mdl_search_path
+
+        settings.set_string_array(mdl_custom_paths_name, mdl_custom_paths)
+        settings.set_string_array(mdl_user_allow_list_name, mdl_user_allow_list)
+        settings.set_string(mdl_renderer_custom_paths_name, mdl_renderer_custom_paths)
 
         # Show the window. It will call `self.show_window`
         if show_on_startup:
