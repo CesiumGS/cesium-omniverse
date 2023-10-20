@@ -16,16 +16,12 @@ macro(configure_conan)
         message(FATAL_ERROR "REQUIRES was not specified")
     endif()
 
-    if(NOT EXISTS "${_PROJECT_BUILD_DIRECTORY}/conan.cmake")
-        message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
-        file(
-            DOWNLOAD "https://raw.githubusercontent.com/conan-io/cmake-conan/0.17.0/conan.cmake"
-            "${_PROJECT_BUILD_DIRECTORY}/conan.cmake"
-            EXPECTED_HASH SHA256=3bef79da16c2e031dc429e1dac87a08b9226418b300ce004cc125a82687baeef
-            TLS_VERIFY ON)
+    if(NOT EXISTS "${_PROJECT_BUILD_DIRECTORY}/conan-0.17.0.cmake")
+        message(STATUS "Copying Conan 0.17.0 into build folder")
+        file(COPY "${CMAKE_MODULE_PATH}/conan-0.17.0.cmake" DESTINATION "${_PROJECT_BUILD_DIRECTORY}")
     endif()
 
-    include("${_PROJECT_BUILD_DIRECTORY}/conan.cmake")
+    include("${_PROJECT_BUILD_DIRECTORY}/conan-0.17.0.cmake")
 
     # Execute conan config init to ensure ~/.conan/settings.yml exists
     find_program(CONAN_CMD_PATH conan)
