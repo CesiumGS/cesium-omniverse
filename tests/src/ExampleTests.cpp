@@ -41,6 +41,10 @@ TEST_SUITE("Example Tests") {
             x -= 1;
             CHECK(x == 0);
         }
+
+        // Flow returns here after each independant subcase, so we can test
+        // shared effects here
+        CHECK(x != 1);
     }
     // A few notes on subcases:
     //  - You can nest subcases
