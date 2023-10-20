@@ -313,6 +313,13 @@ void Context::processCesiumImageryChanged(const ChangedPrim& changedPrim) {
         tileset.value()->reload();
     }
     // clang-format on
+
+    if (name == pxr::CesiumTokens->cesiumAlpha) {
+        const auto imageryLayerIndex = tileset.value()->findImageryLayerIndex(path);
+        if (imageryLayerIndex.has_value()) {
+            tileset.value()->updateImageryLayerAlpha(imageryLayerIndex.value());
+        }
+    }
 }
 
 void Context::processCesiumGeoreferenceChanged(const cesium::omniverse::ChangedPrim& changedPrim) {
@@ -412,7 +419,16 @@ void Context::processPrimAdded(const ChangedPrim& changedPrim) {
         auto anchorApi = UsdUtil::getCesiumGlobeAnchor(changedPrim.path);
         auto origin = UsdUtil::getCartographicOriginForAnchor(changedPrim.path);
         assert(origin.has_value());
-        GeospatialUtil::updateAnchorByUsdTransform(origin.value(), anchorApi);
+        pxr::GfVec3d coordinates;
+        anchorApi.GetGeographicCoordinateAttr().Get(&coordinates);
+
+        if (coordinates == pxr::GfVec3d{0.0, 0.0, 10.0}) {
+            // Default geo coordinates. Place based on current USD position.
+            GeospatialUtil::updateAnchorByUsdTransform(origin.value(), anchorApi);
+        } else {
+            // Provided geo coordinates. Place at correct location.
+            GeospatialUtil::updateAnchorByLatLongHeight(origin.value(), anchorApi);
+        }
     }
 }
 
@@ -855,6 +871,24 @@ void Context::addGlobeAnchorToPrim(const pxr::SdfPath& path) {
     // Until we support multiple georeference points, we should just use the default georeference object.
     auto georeferenceOrigin = UsdUtil::getOrCreateCesiumGeoreference();
     globeAnchor.GetGeoreferenceBindingRel().AddTarget(georeferenceOrigin.GetPath());
+}
+
+void Context::addGlobeAnchorToPrim(const pxr::SdfPath& path, double latitude, double longitude, double height) {
+    if (UsdUtil::isCesiumData(path) || UsdUtil::isCesiumGeoreference(path) || UsdUtil::isCesiumImagery(path) ||
+        UsdUtil::isCesiumSession(path) || UsdUtil::isCesiumTileset(path)) {
+        _logger->warn("Cannot attach Globe Anchor to Cesium Tilesets, Imagery, Georeference, Session, or Data prims.");
+        return;
+    }
+
+    auto prim = UsdUtil::getUsdStage()->GetPrimAtPath(path);
+    auto globeAnchor = UsdUtil::defineGlobeAnchor(path);
+
+    // Until we support multiple georeference points, we should just use the default georeference object.
+    auto georeferenceOrigin = UsdUtil::getOrCreateCesiumGeoreference();
+    globeAnchor.GetGeoreferenceBindingRel().AddTarget(georeferenceOrigin.GetPath());
+
+    pxr::GfVec3d coordinates{latitude, longitude, height};
+    globeAnchor.GetGeographicCoordinateAttr().Set(coordinates);
 }
 
 } // namespace cesium::omniverse

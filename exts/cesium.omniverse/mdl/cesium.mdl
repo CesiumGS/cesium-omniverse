@@ -142,6 +142,34 @@ float4 compute_base_color(
 
 export gltf_texture_lookup_value cesium_internal_texture_lookup(*) [[ anno::hidden() ]] = gltf_texture_lookup();
 
+export gltf_texture_lookup_value cesium_internal_imagery_layer_lookup(
+    uniform float alpha = 1.0,
+    // gltf_texture_lookup inputs below
+    uniform texture_2d texture = texture_2d(),
+    uniform int tex_coord_index = 0,
+    uniform float2 offset = float2(0.0, 0.0),
+    uniform float rotation = 0.0,
+    uniform float2 scale = float2(1.0, 1.0),
+    uniform gltf_wrapping_mode wrap_s = repeat,
+    uniform gltf_wrapping_mode wrap_t = repeat
+) [[ anno::hidden() ]] {
+    auto imagery_layer = gltf_texture_lookup(
+        texture: texture,
+        tex_coord_index: tex_coord_index,
+        offset: offset,
+        rotation: rotation,
+        scale: scale,
+        wrap_s: wrap_s,
+        wrap_t: wrap_t
+    );
+
+    if (imagery_layer.valid) {
+        imagery_layer.value.w *= alpha;
+    }
+
+    return imagery_layer;
+}
+
 export material cesium_internal_material(
     gltf_texture_lookup_value imagery_layers_texture = gltf_texture_lookup_value(true, float4(0.0)),
     uniform color debug_color = color(1.0),
@@ -175,22 +203,22 @@ export material cesium_internal_material(
 
 export gltf_texture_lookup_value cesium_internal_imagery_layer_resolver(
     uniform int imagery_layers_count = 0,
-    gltf_texture_lookup_value imagery_layer_0 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_1 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_2 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_3 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_4 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_5 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_6 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_7 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_8 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_9 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_10 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_11 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_12 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_13 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_14 = gltf_texture_lookup(),
-    gltf_texture_lookup_value imagery_layer_15 = gltf_texture_lookup()
+    gltf_texture_lookup_value imagery_layer_0 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_1 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_2 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_3 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_4 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_5 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_6 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_7 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_8 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_9 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_10 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_11 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_12 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_13 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_14 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_15 = gltf_texture_lookup_value()
 ) [[ anno::hidden() ]] {
     // The array length should match MAX_IMAGERY_LAYERS_COUNT in Tokens.h
     gltf_texture_lookup_value[16] imagery_layers(

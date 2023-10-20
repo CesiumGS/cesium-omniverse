@@ -10,6 +10,9 @@
 
 namespace cesium::omniverse {
 namespace {
+
+const auto CPR_RESERVE_SIZE = 3145728; // 3 MiB
+
 std::string decodeGzip(std::string& content) {
     z_stream zs; // z_stream is zlib's control structure
     memset(&zs, 0, sizeof(zs));
@@ -111,6 +114,7 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> HttpAssetAccess
     session->AddInterceptor(_interceptor);
     session->SetHeader(cprHeader);
     session->SetUrl(cpr::Url(url));
+    session->SetReserveSize(CPR_RESERVE_SIZE);
     session->GetCallback([promise, url, headers](cpr::Response&& response) mutable {
         if (response.error) {
             promise.reject(
@@ -134,6 +138,7 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> HttpAssetAccess
     std::shared_ptr<cpr::Session> session = std::make_shared<cpr::Session>();
     session->SetHeader(cprHeader);
     session->SetUrl(cpr::Url(url));
+    session->SetReserveSize(CPR_RESERVE_SIZE);
 #ifdef CESIUM_OMNI_UNIX
     session->AddInterceptor(_interceptor);
 #endif
