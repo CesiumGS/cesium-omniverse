@@ -8,10 +8,11 @@
 #include <exception>
 #include <stdexcept>
 
-#define CPR_RESERVE_SIZE 10485760 // 10 MiB
-
 namespace cesium::omniverse {
 namespace {
+
+const auto CPR_RESERVE_SIZE = 3145728; // 3 MiB
+
 std::string decodeGzip(std::string& content) {
     z_stream zs; // z_stream is zlib's control structure
     memset(&zs, 0, sizeof(zs));
