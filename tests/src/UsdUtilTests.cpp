@@ -13,7 +13,6 @@
 #include <pxr/usd/usdGeom/cube.h>
 #include <pxr/usd/usdGeom/xformCommonAPI.h>
 #include <pxr/usd/usdGeom/xformable.h>
-#include <unistd.h>
 
 // define prim paths globally to cut down on repeated definitions
 // name the paths after the function to be tested so they can easily be paired up later
