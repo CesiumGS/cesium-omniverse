@@ -12,7 +12,6 @@ class FabricGeometryPool final : public ObjectPool<FabricGeometry> {
         int64_t poolId,
         const FabricGeometryDefinition& geometryDefinition,
         uint64_t initialCapacity,
-        bool debugRandomColors,
         long stageId);
 
     [[nodiscard]] const FabricGeometryDefinition& getGeometryDefinition() const;
@@ -24,7 +23,6 @@ class FabricGeometryPool final : public ObjectPool<FabricGeometry> {
   private:
     const int64_t _poolId;
     const FabricGeometryDefinition _geometryDefinition;
-    const bool _debugRandomColors;
     const long _stageId;
 };
 

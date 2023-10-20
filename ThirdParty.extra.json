@@ -8,6 +8,15 @@
         "url": "https://github.com/CesiumGS/cesium-native"
     },
     {
+        "name": "cmake-conan",
+        "license": [
+            "MIT"
+        ],
+        "notes": "conan.cmake was downloaded to work around an SSL issue, see https://github.com/conan-io/cmake-conan/issues/575",
+        "version": "0.17.0",
+        "url": "https://github.com/conan-io/cmake-conan"
+    },
+    {
         "name": "glTF-Asset-Generator",
         "license": [
             "MIT"
