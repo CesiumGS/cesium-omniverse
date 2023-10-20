@@ -131,6 +131,23 @@ CesiumImagery::CreateShowCreditsOnScreenAttr(VtValue const &defaultValue, bool w
                        writeSparsely);
 }
 
+UsdAttribute
+CesiumImagery::GetAlphaAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumAlpha);
+}
+
+UsdAttribute
+CesiumImagery::CreateAlphaAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumAlpha,
+                       SdfValueTypeNames->Float,
+                       /* custom = */ false,
+                       SdfVariabilityVarying,
+                       defaultValue,
+                       writeSparsely);
+}
+
 namespace {
 static inline TfTokenVector
 _ConcatenateAttributeNames(const TfTokenVector& left,const TfTokenVector& right)
@@ -151,6 +168,7 @@ CesiumImagery::GetSchemaAttributeNames(bool includeInherited)
         CesiumTokens->cesiumIonAssetId,
         CesiumTokens->cesiumIonAccessToken,
         CesiumTokens->cesiumShowCreditsOnScreen,
+        CesiumTokens->cesiumAlpha,
     };
     static TfTokenVector allNames =
         _ConcatenateAttributeNames(

@@ -17,6 +17,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     (cesium) \
     (cesium_base_color_texture_float4) \
     (cesium_imagery_layer_float4) \
+    (cesium_internal_imagery_layer_lookup) \
     (cesium_internal_imagery_layer_resolver) \
     (cesium_internal_material) \
     (cesium_internal_texture_lookup) \
@@ -67,6 +68,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((info_implementationSource, "info:implementationSource")) \
     ((info_mdl_sourceAsset, "info:mdl:sourceAsset")) \
     ((info_mdl_sourceAsset_subIdentifier, "info:mdl:sourceAsset:subIdentifier")) \
+    ((inputs_alpha, "inputs:alpha")) \
     ((inputs_alpha_cutoff, "inputs:alpha_cutoff")) \
     ((inputs_alpha_mode, "inputs:alpha_mode")) \
     ((inputs_base_alpha, "inputs:base_alpha")) \
@@ -218,6 +220,7 @@ const omni::fabric::Type faceVertexIndices(omni::fabric::BaseDataType::eInt, 1, 
 const omni::fabric::Type info_implementationSource(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type info_mdl_sourceAsset(omni::fabric::BaseDataType::eAsset, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type info_mdl_sourceAsset_subIdentifier(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type inputs_alpha(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_alpha_cutoff(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_alpha_mode(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_base_alpha(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);

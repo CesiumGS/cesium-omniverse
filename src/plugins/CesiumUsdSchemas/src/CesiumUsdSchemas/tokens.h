@@ -35,10 +35,14 @@ PXR_NAMESPACE_OPEN_SCOPE
 /// Use CesiumTokens like so:
 ///
 /// \code
-///     gprim.GetMyTokenValuedAttr().Set(CesiumTokens->cesiumAnchorAdjustOrientationForGlobeWhenMoving);
+///     gprim.GetMyTokenValuedAttr().Set(CesiumTokens->cesiumAlpha);
 /// \endcode
 struct CesiumTokensType {
     CESIUMUSDSCHEMAS_API CesiumTokensType();
+    /// \brief "cesium:alpha"
+    /// 
+    /// CesiumImagery
+    const TfToken cesiumAlpha;
     /// \brief "cesium:anchor:adjustOrientationForGlobeWhenMoving"
     /// 
     /// CesiumGlobeAnchorAPI
