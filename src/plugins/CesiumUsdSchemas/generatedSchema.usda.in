@@ -287,7 +287,7 @@ class CesiumImageryPrim "CesiumImageryPrim" (
 {
     float cesium:alpha = 1 (
         displayName = "Alpha"
-        doc = "The alpha blending value, from 0.0 to 1.0."
+        doc = "The alpha blending value, from 0.0 to 1.0, where 1.0 is fully opaque."
     )
     string cesium:ionAccessToken = "" (
         displayName = "ion Access Token"

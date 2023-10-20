@@ -377,7 +377,7 @@ class CesiumImageryPrim "CesiumImageryPrim" (
             string apiName = "alpha"
         }
         displayName = "Alpha"
-        doc = "The alpha blending value, from 0.0 to 1.0."
+        doc = "The alpha blending value, from 0.0 to 1.0, where 1.0 is fully opaque."
     )
 }
 
