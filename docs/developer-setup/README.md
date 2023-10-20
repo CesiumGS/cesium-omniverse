@@ -457,7 +457,7 @@ Run the following shell script from the root cesium-omniverse directory:
 ./scripts/build_package_centos7.sh
 ```
 
-The resulting `.zip` file will be written to the `build-package` directory (e.g. `CesiumForOmniverse-Linux-v0.0.0.zip`)
+The resulting `.zip` file will be written to the `build-package` directory (e.g. `CesiumGS-cesium-omniverse-linux-x86_64-v0.0.0.zip`)
 
 ### Build Windows Package (Local)
 
@@ -467,7 +467,7 @@ Run the following batch script from the root cesium-omniverse directory:
 ./scripts/build_package_windows.bat
 ```
 
-The resulting `.zip` file will be written to the `build-package` directory (e.g. `CesiumForOmniverse-Windows-v0.0.0.zip`)
+The resulting `.zip` file will be written to the `build-package` directory (e.g. `CesiumGS-cesium-omniverse-windows-x86_64-v0.0.0.zip`)
 
 ## VSCode
 
