@@ -9,6 +9,7 @@ from .bindings import acquire_cesium_omniverse_tests_interface, release_cesium_o
 class CesiumOmniverseCppTestsExtension(omni.ext.IExt):
     def __init__(self):
         super().__init__()
+        self.tests_set_up = False
 
     def on_startup(self):
         print("Starting Cesium Tests Extension...")
@@ -30,12 +31,21 @@ class CesiumOmniverseCppTestsExtension(omni.ext.IExt):
         print("Started Cesium Tests Extension.")
 
     def run_once_after_stage_opens(self, _):
+        # wait until the USD stage is fully set up
         if omni.usd.get_context().get_stage_state() == omni.usd.StageState.OPENED:
-            print("Beginning Cesium Tests Extension tests")
-            stageId = omni.usd.get_context().get_stage_id()
-            tests_interface.run_all_tests(stageId)
-            print("Cesium Tests Extension tests complete")
-            self._run_once_sub.unsubscribe()
+            # set up tests on one frame, then run the tests on the next frame
+            # note we can't use wait_n_frames here as this is a subscribed function
+            # so it cannot be async
+            if not self.tests_set_up:
+                self.tests_set_up = True
+                print("Beginning Cesium Tests Extension tests")
+                stageId = omni.usd.get_context().get_stage_id()
+                tests_interface.set_up_tests(stageId)
+            else:
+                # unsubscribe so there's no way the next frame triggers another run
+                self._run_once_sub.unsubscribe()
+                tests_interface.run_all_tests()
+                print("Cesium Tests Extension tests complete")
 
     def on_shutdown(self):
         print("Stopping Cesium Tests Extension...")

@@ -15,6 +15,7 @@ PYBIND11_MODULE(CesiumOmniverseCppTestsPythonBindings, m) {
     // clang-format off
     carb::defineInterfaceClass<ICesiumOmniverseCppTestsInterface>(
         m, "ICesiumOmniverseCppTestsInterface", "acquire_cesium_omniverse_tests_interface", "release_cesium_omniverse_tests_interface")
+        .def("set_up_tests", &ICesiumOmniverseCppTestsInterface::setUpTests)
         .def("run_all_tests", &ICesiumOmniverseCppTestsInterface::runAllTests)
         .def("on_startup", &ICesiumOmniverseCppTestsInterface::onStartup)
         .def("on_shutdown", &ICesiumOmniverseCppTestsInterface::onShutdown);

@@ -80,7 +80,7 @@ void testRandomSequenceOfCmds(MockObjectPool& opl, int numEvents, bool setCap) {
     if (maxActiveCount != 0) {
         expectedPercentActive = (float)numActive / (float)maxActiveCount;
     } else {
-        expectedPercentActive = 0;
+        expectedPercentActive = 1;
     }
     CHECK(opl.computePercentActive() <= expectedPercentActive);
 }
