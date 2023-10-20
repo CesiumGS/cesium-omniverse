@@ -444,14 +444,10 @@ uint64_t OmniTileset::getImageryLayerCount() const {
     return _tileset->getOverlays().size();
 }
 
-void OmniTileset::updateImageryAlpha(const pxr::SdfPath& imageryPath) {
-    const auto imageryLayerIndex = findImageryLayerIndex(imageryPath);
-    if (!imageryLayerIndex.has_value()) {
-        return;
-    }
+void OmniTileset::updateImageryLayerAlpha(uint64_t imageryLayerIndex) {
+    assert(imageryLayerIndex < _imageryPaths.size());
 
-    auto alpha = OmniImagery(imageryPath).getAlpha();
-    alpha = glm::clamp(alpha, 0.0f, 1.0f);
+    const auto alpha = getImageryLayerAlpha(imageryLayerIndex);
 
     _tileset->forEachLoadedTile([imageryLayerIndex, alpha](Cesium3DTilesSelection::Tile& tile) {
         if (tile.getState() != Cesium3DTilesSelection::TileLoadState::Done) {
@@ -470,9 +466,18 @@ void OmniTileset::updateImageryAlpha(const pxr::SdfPath& imageryPath) {
             if (!fabricMesh.material) {
                 continue;
             }
-            fabricMesh.material->setImageryLayerAlpha(imageryLayerIndex.value(), alpha);
+            fabricMesh.material->setImageryLayerAlpha(imageryLayerIndex, alpha);
         }
     });
+}
+
+float OmniTileset::getImageryLayerAlpha(uint64_t imageryLayerIndex) const {
+    assert(imageryLayerIndex < _imageryPaths.size());
+
+    auto alpha = OmniImagery(_imageryPaths[imageryLayerIndex]).getAlpha();
+    alpha = glm::clamp(alpha, 0.0f, 1.0f);
+
+    return alpha;
 }
 
 void OmniTileset::onUpdateFrame(const std::vector<Viewport>& viewports) {

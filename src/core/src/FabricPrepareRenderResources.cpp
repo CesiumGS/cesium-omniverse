@@ -451,6 +451,8 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
         return;
     }
 
+    const auto alpha = _tileset->getImageryLayerAlpha(imageryLayerIndex.value());
+
     for (const auto& mesh : pTileRenderResources->fabricMeshes) {
         auto& material = mesh.material;
         if (material != nullptr) {
@@ -467,7 +469,7 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
 
             const auto texcoordIndex = mesh.imageryTexcoordIndexMapping.at(gltfSetIndex);
             const auto& textureAssetPath = texture->getAssetPathToken();
-            material->setImageryLayer(textureAssetPath, textureInfo, texcoordIndex, imageryLayerIndex.value(), 1.0f);
+            material->setImageryLayer(textureAssetPath, textureInfo, texcoordIndex, imageryLayerIndex.value(), alpha);
         }
     }
 }

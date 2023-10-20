@@ -315,7 +315,10 @@ void Context::processCesiumImageryChanged(const ChangedPrim& changedPrim) {
     // clang-format on
 
     if (name == pxr::CesiumTokens->cesiumAlpha) {
-        tileset.value()->updateImageryAlpha(path);
+        const auto imageryLayerIndex = tileset.value()->findImageryLayerIndex(path);
+        if (imageryLayerIndex.has_value()) {
+            tileset.value()->updateImageryLayerAlpha(imageryLayerIndex.value());
+        }
     }
 }
 
