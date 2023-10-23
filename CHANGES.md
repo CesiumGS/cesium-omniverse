@@ -2,6 +2,13 @@
 
 ### v0.12.0 - 2023-11-01
 
+* Added support for globe anchors.
+* Added support for multiple imagery layers.
+* Added alpha property to imagery layers.
+* Added support for reading textures and imagery layers in MDL.
+* Added Cesium for Omniverse Python API, see the `cesium.omniverse.api` module.
+* Fixed debug colors not working for tiles with vertex colors.
+* Fixed hangs when loading tilesets by setting `omnihydra.parallelHydraSprimSync` to `false`.
 * Basis Universal textures are now decoded to the native BCn texture format instead of RGBA8 in Kit 105.1 and above.
 
 ### v0.11.0 - 2023-10-02
