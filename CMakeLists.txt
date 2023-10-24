@@ -285,7 +285,7 @@ if(CESIUM_OMNI_ENABLE_SANITIZERS)
 endif()
 
 # Enable code coverage if supported on this platform.
-if(CESIUM_OMNI_ENABLE_COVERAGE)
+if(CESIUM_OMNI_ENABLE_TESTS)
     # At reconfigure time: Delete any lingering GCDA files in the build folder.
     # GCDA files track profiling information and are generated everytime a binary with
     # coverage support is executed. If we don't do this we can encounter a
@@ -758,9 +758,11 @@ string(TOLOWER ${CMAKE_SYSTEM_NAME} SYSTEM_NAME_LOWERCASE)
 set(SYSTEM_PROCESSOR "x86_64")
 
 if(CESIUM_OMNI_GIT_TAG)
-    set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${SYSTEM_NAME_LOWERCASE}-${SYSTEM_PROCESSOR}-${CESIUM_OMNI_GIT_TAG})
+    set(CPACK_PACKAGE_FILE_NAME
+        ${CPACK_PACKAGE_NAME}-${SYSTEM_NAME_LOWERCASE}-${SYSTEM_PROCESSOR}-${CESIUM_OMNI_GIT_TAG})
 else()
-    set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${SYSTEM_NAME_LOWERCASE}-${SYSTEM_PROCESSOR}-${CESIUM_OMNI_GIT_HASH_ABBREVIATED})
+    set(CPACK_PACKAGE_FILE_NAME
+        ${CPACK_PACKAGE_NAME}-${SYSTEM_NAME_LOWERCASE}-${SYSTEM_PROCESSOR}-${CESIUM_OMNI_GIT_HASH_ABBREVIATED})
 endif()
 
 include(CPack)
