@@ -4,7 +4,7 @@ Omniverse is a tool that provides an interface for various other tools to intera
 To better understand extensions and how they're defined, check out the [official Omniverse extension template](https://github.com/NVIDIA-Omniverse/kit-extension-template) for a "hello world" extension.
 There is also a similar [C++ extension template](https://github.com/NVIDIA-Omniverse/kit-extension-template-cpp).
 
-### Our Extensions
+### Our Extensions/Apps
 - Cesium for Omniverse ("The main extension")
     - Responsible for streaming geospatial data onto the stages, and providing the user interface.
 - Cesium Usd plugins
@@ -13,6 +13,8 @@ There is also a similar [C++ extension template](https://github.com/NVIDIA-Omniv
     - Helpful additions for developers, such as one-click ways to open debug interfaces and print the fabric stage.
 - Cesium Cpp Tests
     - Tests of the C++ code underlying the main extension. For more info see [the testing guide](../testing-guide/README.md)
+- The Performance App
+    - Used to get general timing of an interactive session. See [the testing guide](../testing-guide/README.md) for how to run.
 
 ## Project File Structure
 Some self-explanatory directories have been ommitted.

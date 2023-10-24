@@ -1,8 +1,18 @@
 # Testing Guide
 
+## Performance Test App
+Provides some general metrics for how long it takes to load tiles. Can be run with:
+```bash
+extern/nvidia/_build/target-deps/kit-sdk/kit ./apps/cesium.performance.kit
+```
+The is intentionally no vs code launch configuration out of concern that debug related setting could slow the app down.
+
 ## Python Tests
-Python tests are run through `pytest` (see full documentation [here](https://docs.pytest.org/en/latest/)). To run these tests with the proper sourcing and environment, simpy run `scripts/run_python_unit_tests.(bat|sh)`. You can also run these
-tests via the app. Open the extensions window while running omniverse. Find and select the Cesium for Omniverse Extension, then navigate to its Tests tab. The "Run Extension Tests" button will run the python tests (not the C++ tests).
+Python tests are run through `pytest` (see full documentation [here](https://docs.pytest.org/en/latest/)). To run these tests with the proper sourcing and environment, simpy run:
+```bash
+scripts/run_python_unit_tests.(bat|sh)
+```
+You can also run these tests via the app. Open the extensions window while running omniverse. Find and select the Cesium for Omniverse Extension, then navigate to its Tests tab. The "Run Extension Tests" button will run the python tests (not the C++ tests).
 
 ## C++ Tests (The Tests Extension)
 C++ tests are run through `doctest`, which is set up and run via the Tests Extension.
@@ -10,7 +20,10 @@ Normally `doctest` can be run via the command line, but since much of the code w
 can only run properly inside omniverse, we run the tests there too.
 The easiest way to run the tests extension is via the launch configuration in vs code. Simply go to the `run and debug` dropdown and launch the `Tests Extension`. The testing output is provided in the terminal used to launch everything. Failed tests will be caught by the debugger, though you may need to go one level up in the execution stack to see the `CHECK` being called.
 
-To run the extension via the command line, simply pass the tests extension's kit config file to kit with `extern/nvidia/_build/target-deps/kit-sdk/kit ./apps/cesium.omniverse.cpp.tests.runner.kit`
+To run the extension via the command line, simply pass the tests extension's kit config file to kit with
+```bash
+extern/nvidia/_build/target-deps/kit-sdk/kit ./apps/cesium.omniverse.cpp.tests.runner.kit
+```
 
 [doctest documentation](https://bit.ly/doctest-docs) can be found here.
 
