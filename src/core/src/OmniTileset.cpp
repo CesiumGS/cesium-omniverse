@@ -359,11 +359,10 @@ void OmniTileset::reload() {
         _tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(externals, url, options);
     } else if (!ionAccessToken.has_value()) {
         // This happens when adding a blank tileset.
-        _tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(
-            externals, 0, "", options, "https://api.ion-development.cesium.com/");
+        _tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(externals, 0, "", options);
     } else {
         _tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(
-            externals, ionAssetId, ionAccessToken.value().token, options, "https://api.ion-development.cesium.com/");
+            externals, ionAssetId, ionAccessToken.value().token, options);
     }
 
     // Add imagery
@@ -410,11 +409,7 @@ void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
     // The name passed to IonRasterOverlay needs to uniquely identify this imagery otherwise texture caching may break
     const auto uniqueName = fmt::format("imagery_ion_{}", imageryIonAssetId);
     const auto ionRasterOverlay = new Cesium3DTilesSelection::IonRasterOverlay(
-        uniqueName,
-        imageryIonAssetId,
-        imageryIonAccessToken.value().token,
-        options,
-        "https://api.ion-development.cesium.com/");
+        uniqueName, imageryIonAssetId, imageryIonAccessToken.value().token, options);
     _tileset->getOverlays().add(ionRasterOverlay);
     _imageryPaths.push_back(imageryPath);
 }

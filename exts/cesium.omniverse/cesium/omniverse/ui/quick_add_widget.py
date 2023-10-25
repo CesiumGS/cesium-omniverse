@@ -50,7 +50,7 @@ class CesiumOmniverseQuickAddWidget(ui.Frame):
         app.get_app().get_message_bus_event_stream().push(add_blank_asset_event, payload=asset_to_add.to_dict())
 
     def _photorealistic_tiles_button_clicked(self):
-        self._add_ion_assets(AssetToAdd("Google Photorealistic 3D Tiles", 823))
+        self._add_ion_assets(AssetToAdd("Google Photorealistic 3D Tiles", 2275207))
 
     def _cwt_bing_maps_button_clicked(self):
         self._add_ion_assets(AssetToAdd("Cesium World Terrain", 1, "Bing Maps Aerial imagery", 2))
