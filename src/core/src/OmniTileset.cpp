@@ -483,7 +483,8 @@ void OmniTileset::updateImageryLayerAlpha(uint64_t imageryLayerIndex) {
 
 void OmniTileset::updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::TfToken& attributeName) {
     forEachFabricMaterial(_tileset, [&shaderPath, &attributeName](FabricMaterial& fabricMaterial) {
-        fabricMaterial.updateShaderInput(FabricUtil::toFabricPath(shaderPath), FabricUtil::toFabricToken(attributeName));
+        fabricMaterial.updateShaderInput(
+            FabricUtil::toFabricPath(shaderPath), FabricUtil::toFabricToken(attributeName));
     });
 }
 
