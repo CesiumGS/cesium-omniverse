@@ -676,8 +676,18 @@ omni::fabric::Path toFabricPath(const pxr::SdfPath& path) {
     return {omni::fabric::asInt(path)};
 }
 
+omni::fabric::Token toFabricToken(const pxr::TfToken& token) {
+    return {omni::fabric::asInt(token)};
+}
+
 omni::fabric::Path joinPaths(const omni::fabric::Path& absolutePath, const omni::fabric::Token& relativePath) {
     return {fmt::format("{}/{}", absolutePath.getText(), relativePath.getText()).c_str()};
+}
+
+omni::fabric::Path getCopiedShaderPath(const omni::fabric::Path& materialPath, const omni::fabric::Path& shaderPath) {
+    // materialPath is the FabricMaterial path
+    // shaderPath is the USD shader path
+    return FabricUtil::joinPaths(materialPath, omni::fabric::Token(UsdUtil::getSafeName(shaderPath.getText()).c_str()));
 }
 
 namespace {
@@ -816,8 +826,7 @@ copyMaterial(const omni::fabric::Path& srcMaterialPath, const omni::fabric::Path
         if (srcPath == srcMaterialPath) {
             dstPath = dstMaterialPath;
         } else {
-            dstPath = FabricUtil::joinPaths(
-                dstMaterialPath, omni::fabric::Token(UsdUtil::getSafeName(srcPath.getText()).c_str()));
+            dstPath = FabricUtil::getCopiedShaderPath(dstMaterialPath, srcPath);
         }
 
         dstPaths.push_back(dstPath);
@@ -875,6 +884,12 @@ bool materialHasCesiumNodes(const omni::fabric::Path& path) {
 bool isCesiumNode(const omni::fabric::Token& mdlIdentifier) {
     return mdlIdentifier == FabricTokens::cesium_base_color_texture_float4 ||
            mdlIdentifier == FabricTokens::cesium_imagery_layer_float4;
+}
+
+bool isShaderConnectedToMaterial(const omni::fabric::Path& materialPath, const omni::fabric::Path& shaderPath) {
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+    const auto paths = getPrimsInMaterialNetwork(materialPath);
+    return std::find(paths.begin(), paths.end(), shaderPath) != paths.end();
 }
 
 omni::fabric::Token getMdlIdentifier(const omni::fabric::Path& path) {

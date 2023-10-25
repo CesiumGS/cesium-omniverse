@@ -12,6 +12,7 @@ enum class ChangedPrimType {
     CESIUM_DATA,
     CESIUM_GEOREFERENCE,
     CESIUM_GLOBE_ANCHOR,
+    USD_SHADER,
     OTHER,
 };
 
