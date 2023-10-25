@@ -444,12 +444,11 @@ uint64_t OmniTileset::getImageryLayerCount() const {
     return _tileset->getOverlays().size();
 }
 
-void OmniTileset::updateImageryLayerAlpha(uint64_t imageryLayerIndex) {
-    assert(imageryLayerIndex < _imageryPaths.size());
-
-    const auto alpha = getImageryLayerAlpha(imageryLayerIndex);
-
-    _tileset->forEachLoadedTile([imageryLayerIndex, alpha](Cesium3DTilesSelection::Tile& tile) {
+namespace {
+void forEachFabricMaterial(
+    const std::unique_ptr<Cesium3DTilesSelection::Tileset>& tileset,
+    const std::function<void(FabricMaterial& fabricMaterial)>& callback) {
+    tileset->forEachLoadedTile([&callback](Cesium3DTilesSelection::Tile& tile) {
         if (tile.getState() != Cesium3DTilesSelection::TileLoadState::Done) {
             return;
         }
@@ -466,8 +465,26 @@ void OmniTileset::updateImageryLayerAlpha(uint64_t imageryLayerIndex) {
             if (!fabricMesh.material) {
                 continue;
             }
-            fabricMesh.material->setImageryLayerAlpha(imageryLayerIndex, alpha);
+            callback(*fabricMesh.material.get());
         }
+    });
+}
+} // namespace
+
+void OmniTileset::updateImageryLayerAlpha(uint64_t imageryLayerIndex) {
+    assert(imageryLayerIndex < _imageryPaths.size());
+
+    const auto alpha = getImageryLayerAlpha(imageryLayerIndex);
+
+    forEachFabricMaterial(_tileset, [imageryLayerIndex, alpha](FabricMaterial& fabricMaterial) {
+        fabricMaterial.setImageryLayerAlpha(imageryLayerIndex, alpha);
+    });
+}
+
+void OmniTileset::updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::TfToken& attributeName) {
+    forEachFabricMaterial(_tileset, [&shaderPath, &attributeName](FabricMaterial& fabricMaterial) {
+        fabricMaterial.updateShaderInput(
+            FabricUtil::toFabricPath(shaderPath), FabricUtil::toFabricToken(attributeName));
     });
 }
 

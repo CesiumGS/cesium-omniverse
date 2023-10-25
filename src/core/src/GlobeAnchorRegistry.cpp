@@ -19,6 +19,8 @@ std::shared_ptr<OmniGlobeAnchor>
 GlobeAnchorRegistry::createAnchor(const pxr::SdfPath& path, const glm::dmat4& anchorToFixed) {
     auto anchor = std::make_shared<OmniGlobeAnchor>(path, anchorToFixed);
 
+    anchor->updateCachedValues();
+
     _anchors.emplace(path.GetString(), anchor);
 
     return anchor;

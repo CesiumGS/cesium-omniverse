@@ -77,8 +77,9 @@ class OmniTileset {
     findImageryLayerIndex(const Cesium3DTilesSelection::RasterOverlay& overlay) const;
     [[nodiscard]] std::optional<uint64_t> findImageryLayerIndex(const pxr::SdfPath& imageryPath) const;
     [[nodiscard]] uint64_t getImageryLayerCount() const;
-    float getImageryLayerAlpha(uint64_t imageryLayerIndex) const;
+    [[nodiscard]] float getImageryLayerAlpha(uint64_t imageryLayerIndex) const;
     void updateImageryLayerAlpha(uint64_t imageryLayerIndex);
+    void updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::TfToken& attributeName);
     void onUpdateFrame(const std::vector<Viewport>& viewports);
 
   private:

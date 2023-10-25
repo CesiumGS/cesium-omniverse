@@ -37,6 +37,7 @@ class FabricMaterial {
         uint64_t imageryLayerIndex,
         float alpha);
     void setImageryLayerAlpha(uint64_t imageryLayerIndex, float alpha);
+    void updateShaderInput(const omni::fabric::Path& shaderPath, const omni::fabric::Token& attributeName);
 
     void clearMaterial();
     void clearBaseColorTexture();

@@ -21,6 +21,8 @@
 #include <pxr/usd/usdGeom/metrics.h>
 #include <pxr/usd/usdGeom/xform.h>
 #include <pxr/usd/usdGeom/xformCommonAPI.h>
+#include <pxr/usd/usdShade/material.h>
+#include <pxr/usd/usdShade/shader.h>
 #include <spdlog/fmt/fmt.h>
 
 #include <regex>
@@ -431,6 +433,13 @@ pxr::CesiumGlobeAnchorAPI getCesiumGlobeAnchor(const pxr::SdfPath& path) {
     return globeAnchor;
 }
 
+pxr::UsdShadeShader getUsdShader(const pxr::SdfPath& path) {
+    auto stage = getUsdStage();
+    auto shader = pxr::UsdShadeShader::Get(stage, path);
+    assert(shader.GetPrim().IsValid());
+    return shader;
+}
+
 bool isCesiumData(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto prim = stage->GetPrimAtPath(path);
@@ -489,6 +498,26 @@ bool hasCesiumGlobeAnchor(const pxr::SdfPath& path) {
     }
 
     return prim.HasAPI<pxr::CesiumGlobeAnchorAPI>();
+}
+
+bool isUsdShader(const pxr::SdfPath& path) {
+    auto stage = getUsdStage();
+    auto prim = stage->GetPrimAtPath(path);
+    if (!prim.IsValid()) {
+        return false;
+    }
+
+    return prim.IsA<pxr::UsdShadeShader>();
+}
+
+bool isUsdMaterial(const pxr::SdfPath& path) {
+    auto stage = getUsdStage();
+    auto prim = stage->GetPrimAtPath(path);
+    if (!prim.IsValid()) {
+        return false;
+    }
+
+    return prim.IsA<pxr::UsdShadeMaterial>();
 }
 
 bool primExists(const pxr::SdfPath& path) {
