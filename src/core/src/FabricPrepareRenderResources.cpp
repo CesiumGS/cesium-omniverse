@@ -53,8 +53,12 @@ struct TileLoadThreadResult {
     std::vector<MeshInfo> meshes;
     std::vector<FabricMesh> fabricMeshes;
     glm::dmat4 tileTransform;
-    bool hasImagery;
 };
+
+bool hasBaseColorTextureGltf(const FabricMesh& fabricMesh) {
+    return fabricMesh.material != nullptr && fabricMesh.material->getMaterialDefinition().hasBaseColorTexture() &&
+           fabricMesh.materialInfo.baseColorTexture.has_value();
+}
 
 std::vector<MeshInfo>
 gatherMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const CesiumGltf::Model& model) {
@@ -64,7 +68,8 @@ gatherMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const 
     const auto smoothNormals = tileset.getSmoothNormals();
 
     const auto georeferenceOrigin = GeospatialUtil::convertGeoreferenceToCartographic(tileset.getGeoreference());
-    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdTransformForPrim(georeferenceOrigin, tileset.getPath());
+    const auto ecefToUsdTransform =
+        UsdUtil::computeEcefToUsdWorldTransformForPrim(georeferenceOrigin, tileset.getPath());
 
     auto gltfToEcefTransform = Cesium3DTilesSelection::GltfUtilities::applyRtcCenter(model, tileTransform);
     gltfToEcefTransform = Cesium3DTilesSelection::GltfUtilities::applyGltfUpAxisTransform(model, gltfToEcefTransform);
@@ -98,7 +103,7 @@ gatherMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const 
 std::vector<FabricMesh> acquireFabricMeshes(
     const CesiumGltf::Model& model,
     const std::vector<MeshInfo>& meshes,
-    bool hasImagery,
+    uint64_t imageryLayerCount,
     const OmniTileset& tileset) {
     CESIUM_TRACE("FabricPrepareRenderResources::acquireFabricMeshes");
     std::vector<FabricMesh> fabricMeshes;
@@ -116,23 +121,33 @@ std::vector<FabricMesh> acquireFabricMeshes(
             fabricResourceManager.acquireGeometry(model, primitive, mesh.smoothNormals, stageId);
         fabricMesh.geometry = fabricGeometry;
 
-        const auto shouldAcquireMaterial =
-            FabricResourceManager::getInstance().shouldAcquireMaterial(primitive, hasImagery, tilesetMaterialPath);
+        const auto shouldAcquireMaterial = FabricResourceManager::getInstance().shouldAcquireMaterial(
+            primitive, imageryLayerCount > 0, tilesetMaterialPath);
 
         if (shouldAcquireMaterial) {
             const auto materialInfo = GltfUtil::getMaterialInfo(model, primitive);
 
-            const auto fabricMaterial =
-                fabricResourceManager.acquireMaterial(materialInfo, hasImagery, stageId, tileset.getTilesetId());
+            const auto fabricMaterial = fabricResourceManager.acquireMaterial(
+                materialInfo, imageryLayerCount, stageId, tileset.getTilesetId(), tilesetMaterialPath);
 
             fabricMesh.material = fabricMaterial;
             fabricMesh.materialInfo = materialInfo;
 
-            if (fabricMaterial->getMaterialDefinition().hasBaseColorTexture() &&
-                materialInfo.baseColorTexture.has_value()) {
-                const auto fabricTexture = fabricResourceManager.acquireTexture();
-                fabricMesh.baseColorTexture = fabricTexture;
+            if (hasBaseColorTextureGltf(fabricMesh)) {
+                fabricMesh.baseColorTexture = fabricResourceManager.acquireTexture();
             }
+        }
+
+        // Map glTF texcoord set index to primvar st index
+        const auto texcoordSetIndexes = GltfUtil::getTexcoordSetIndexes(model, primitive);
+        const auto imageryTexcoordSetIndexes = GltfUtil::getImageryTexcoordSetIndexes(model, primitive);
+
+        uint64_t primvarStIndex = 0;
+        for (const auto gltfSetIndex : texcoordSetIndexes) {
+            fabricMesh.texcoordIndexMapping[gltfSetIndex] = primvarStIndex++;
+        }
+        for (const auto gltfSetIndex : imageryTexcoordSetIndexes) {
+            fabricMesh.imageryTexcoordIndexMapping[gltfSetIndex] = primvarStIndex++;
         }
     }
 
@@ -150,7 +165,7 @@ void setFabricTextures(
         auto& mesh = fabricMeshes[i];
         auto& baseColorTexture = mesh.baseColorTexture;
 
-        if (baseColorTexture != nullptr) {
+        if (hasBaseColorTextureGltf(mesh)) {
             const auto baseColorTextureImage = GltfUtil::getBaseColorTextureImage(model, primitive);
             baseColorTexture->setImage(*baseColorTextureImage);
         }
@@ -161,7 +176,6 @@ void setFabricMeshes(
     const CesiumGltf::Model& model,
     const std::vector<MeshInfo>& meshes,
     std::vector<FabricMesh>& fabricMeshes,
-    bool hasImagery,
     const OmniTileset& tileset) {
     CESIUM_TRACE("FabricPrepareRenderResources::setFabricMeshes");
     for (size_t i = 0; i < meshes.size(); i++) {
@@ -183,15 +197,18 @@ void setFabricMeshes(
             model,
             primitive,
             meshInfo.smoothNormals,
-            hasImagery);
+            mesh.texcoordIndexMapping,
+            mesh.imageryTexcoordIndexMapping);
 
         if (material != nullptr) {
             material->setMaterial(meshInfo.tilesetId, materialInfo);
             geometry->setMaterial(material->getPath());
 
-            if (baseColorTexture != nullptr && materialInfo.baseColorTexture.has_value()) {
-                material->setBaseColorTexture(
-                    baseColorTexture->getAssetPathToken(), materialInfo.baseColorTexture.value());
+            if (hasBaseColorTextureGltf(mesh)) {
+                const auto& textureInfo = materialInfo.baseColorTexture.value();
+                const auto texcoordIndex = mesh.texcoordIndexMapping[textureInfo.setIndex];
+                const auto& textureAssetPath = baseColorTexture->getAssetPathToken();
+                material->setBaseColorTexture(textureAssetPath, textureInfo, texcoordIndex);
             }
         } else if (!tilesetMaterialPath.IsEmpty()) {
             geometry->setMaterial(FabricUtil::toFabricPath(tilesetMaterialPath));
@@ -243,7 +260,11 @@ FabricPrepareRenderResources::prepareInLoadThread(
             Cesium3DTilesSelection::TileLoadResultAndRenderResources{std::move(tileLoadResult), nullptr});
     }
 
-    const auto hasImagery = tileLoadResult.rasterOverlayDetails.has_value();
+    // We don't know how many imagery layers actually overlap this tile until attachRasterInMainThread is called
+    // but at least we have an upper bound. Unused texture slots are initialized with a 1x1 transparent pixel so
+    // blending still works.
+    const auto overlapsImagery = tileLoadResult.rasterOverlayDetails.has_value();
+    const auto imageryLayerCount = overlapsImagery ? _tileset->getImageryLayerCount() : 0;
 
     auto meshes = gatherMeshes(*_tileset, transform, *pModel);
 
@@ -254,25 +275,27 @@ FabricPrepareRenderResources::prepareInLoadThread(
     };
 
     return asyncSystem
-        .runInMainThread(
-            [this, hasImagery, meshes = std::move(meshes), tileLoadResult = std::move(tileLoadResult)]() mutable {
-                if (!tilesetExists()) {
-                    return IntermediateLoadThreadResult{
-                        std::move(tileLoadResult),
-                        {},
-                        {},
-                    };
-                }
-
-                const auto pModel = std::get_if<CesiumGltf::Model>(&tileLoadResult.contentKind);
-                auto fabricMeshes = acquireFabricMeshes(*pModel, meshes, hasImagery, *_tileset);
+        .runInMainThread([this,
+                          imageryLayerCount,
+                          meshes = std::move(meshes),
+                          tileLoadResult = std::move(tileLoadResult)]() mutable {
+            if (!tilesetExists()) {
                 return IntermediateLoadThreadResult{
                     std::move(tileLoadResult),
-                    std::move(meshes),
-                    std::move(fabricMeshes),
+                    {},
+                    {},
                 };
-            })
-        .thenInWorkerThread([this, transform, hasImagery](IntermediateLoadThreadResult&& workerResult) mutable {
+            }
+
+            const auto pModel = std::get_if<CesiumGltf::Model>(&tileLoadResult.contentKind);
+            auto fabricMeshes = acquireFabricMeshes(*pModel, meshes, imageryLayerCount, *_tileset);
+            return IntermediateLoadThreadResult{
+                std::move(tileLoadResult),
+                std::move(meshes),
+                std::move(fabricMeshes),
+            };
+        })
+        .thenInWorkerThread([this, transform](IntermediateLoadThreadResult&& workerResult) mutable {
             auto tileLoadResult = std::move(workerResult.tileLoadResult);
             auto meshes = std::move(workerResult.meshes);
             auto fabricMeshes = std::move(workerResult.fabricMeshes);
@@ -288,7 +311,6 @@ FabricPrepareRenderResources::prepareInLoadThread(
                     std::move(meshes),
                     std::move(fabricMeshes),
                     transform,
-                    hasImagery,
                 },
             };
         });
@@ -304,7 +326,6 @@ void* FabricPrepareRenderResources::prepareInMainThread(Cesium3DTilesSelection::
 
     const auto& meshes = pTileLoadThreadResult->meshes;
     auto& fabricMeshes = pTileLoadThreadResult->fabricMeshes;
-    const auto hasImagery = pTileLoadThreadResult->hasImagery;
     const auto& tileTransform = pTileLoadThreadResult->tileTransform;
 
     const auto& content = tile.getContent();
@@ -316,7 +337,7 @@ void* FabricPrepareRenderResources::prepareInMainThread(Cesium3DTilesSelection::
     const auto& model = pRenderContent->getModel();
 
     if (tilesetExists()) {
-        setFabricMeshes(model, meshes, fabricMeshes, hasImagery, *_tileset);
+        setFabricMeshes(model, meshes, fabricMeshes, *_tileset);
     }
 
     return new TileRenderResources{
@@ -425,21 +446,30 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
         return;
     }
 
+    auto imageryLayerIndex = _tileset->findImageryLayerIndex(rasterTile.getOverlay());
+    if (!imageryLayerIndex.has_value()) {
+        return;
+    }
+
+    const auto alpha = _tileset->getImageryLayerAlpha(imageryLayerIndex.value());
+
     for (const auto& mesh : pTileRenderResources->fabricMeshes) {
         auto& material = mesh.material;
         if (material != nullptr) {
+            const auto gltfSetIndex = static_cast<uint64_t>(overlayTextureCoordinateID);
             const auto textureInfo = TextureInfo{
                 translation,
                 0.0,
                 scale,
-                static_cast<uint64_t>(overlayTextureCoordinateID),
+                gltfSetIndex,
                 CesiumGltf::Sampler::WrapS::CLAMP_TO_EDGE,
                 CesiumGltf::Sampler::WrapT::CLAMP_TO_EDGE,
                 false,
             };
 
-            // Replace the original base color texture with the imagery
-            material->setBaseColorTexture(texture->getAssetPathToken(), textureInfo);
+            const auto texcoordIndex = mesh.imageryTexcoordIndexMapping.at(gltfSetIndex);
+            const auto& textureAssetPath = texture->getAssetPathToken();
+            material->setImageryLayer(textureAssetPath, textureInfo, texcoordIndex, imageryLayerIndex.value(), alpha);
         }
     }
 }
@@ -447,7 +477,7 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
 void FabricPrepareRenderResources::detachRasterInMainThread(
     const Cesium3DTilesSelection::Tile& tile,
     [[maybe_unused]] int32_t overlayTextureCoordinateID,
-    [[maybe_unused]] const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
+    const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
     [[maybe_unused]] void* pMainThreadRendererResources) noexcept {
 
     auto& content = tile.getContent();
@@ -465,19 +495,15 @@ void FabricPrepareRenderResources::detachRasterInMainThread(
         return;
     }
 
+    auto imageryLayerIndex = _tileset->findImageryLayerIndex(rasterTile.getOverlay());
+    if (!imageryLayerIndex.has_value()) {
+        return;
+    }
+
     for (const auto& mesh : pTileRenderResources->fabricMeshes) {
         auto& material = mesh.material;
-        const auto& baseColorTexture = mesh.baseColorTexture;
-        const auto& materialInfo = mesh.materialInfo;
-
         if (material != nullptr) {
-            if (baseColorTexture != nullptr && materialInfo.baseColorTexture.has_value()) {
-                // Switch back to the original base color texture
-                material->setBaseColorTexture(
-                    baseColorTexture->getAssetPathToken(), materialInfo.baseColorTexture.value());
-            } else {
-                material->clearBaseColorTexture();
-            }
+            material->clearImageryLayer(imageryLayerIndex.value());
         }
     }
 }

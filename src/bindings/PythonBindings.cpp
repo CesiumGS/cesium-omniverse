@@ -8,6 +8,7 @@
 #include <carb/BindingsPythonUtils.h>
 #include <pxr/base/gf/matrix4d.h>
 #include <pxr/base/gf/vec4d.h>
+#include <pxr/usd/sdf/path.h>
 
 // Needs to go after carb
 #include "pyboost11.h"
@@ -56,7 +57,9 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("credits_available", &ICesiumOmniverseInterface::creditsAvailable)
         .def("get_credits", &ICesiumOmniverseInterface::getCredits)
         .def("credits_start_next_frame", &ICesiumOmniverseInterface::creditsStartNextFrame)
-        .def("is_tracing_enabled", &ICesiumOmniverseInterface::isTracingEnabled);
+        .def("is_tracing_enabled", &ICesiumOmniverseInterface::isTracingEnabled)
+        .def("add_global_anchor_to_prim", py::overload_cast<const char*>(&ICesiumOmniverseInterface::addGlobeAnchorToPrim))
+        .def("add_global_anchor_to_prim", py::overload_cast<const char*, double, double, double>(&ICesiumOmniverseInterface::addGlobeAnchorToPrim));
     // clang-format on
 
     py::class_<CesiumIonSession, std::shared_ptr<CesiumIonSession>>(m, "CesiumIonSession")

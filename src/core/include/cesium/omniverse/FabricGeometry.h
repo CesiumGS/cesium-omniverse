@@ -15,11 +15,7 @@ namespace cesium::omniverse {
 
 class FabricGeometry {
   public:
-    FabricGeometry(
-        const omni::fabric::Path& path,
-        const FabricGeometryDefinition& geometryDefinition,
-        bool debugRandomColors,
-        long stageId);
+    FabricGeometry(const omni::fabric::Path& path, const FabricGeometryDefinition& geometryDefinition, long stageId);
     ~FabricGeometry();
 
     void setGeometry(
@@ -30,7 +26,8 @@ class FabricGeometry {
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
         bool smoothNormals,
-        bool hasImagery);
+        const std::unordered_map<uint64_t, uint64_t>& texcoordIndexMapping,
+        const std::unordered_map<uint64_t, uint64_t>& imageryTexcoordIndexMapping);
 
     void setActive(bool active);
     void setVisibility(bool visible);
@@ -47,7 +44,6 @@ class FabricGeometry {
 
     const omni::fabric::Path _path;
     const FabricGeometryDefinition _geometryDefinition;
-    const bool _debugRandomColors;
     const long _stageId;
 };
 

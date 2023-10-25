@@ -160,6 +160,23 @@ class ICesiumOmniverseInterface {
     virtual bool creditsAvailable() noexcept = 0;
     virtual std::vector<std::pair<std::string, bool>> getCredits() noexcept = 0;
     virtual void creditsStartNextFrame() noexcept = 0;
+
+    /**
+     * @brief Given the provided sdf path (as a charstring), add a globe anchor API to it and set it up.
+     *
+     * @param path A sdf path in the USD stage provided as a charstring.
+     */
+    virtual void addGlobeAnchorToPrim(const char* path) noexcept = 0;
+
+    /**
+     * @brief Given the provided sdf path (as a charstring) and latitude, longitude, and height, add a globe anchor API to it and set it up.
+     *
+     * @param path A sdf path in the USD stage provided as a charstring.
+     * @param latitude The latitude provided as a double.
+     * @param longitude The longitude provided as a double.
+     * @param height The height provided as a double.
+     */
+    virtual void addGlobeAnchorToPrim(const char* path, double latitude, double longitude, double height) noexcept = 0;
     virtual bool isTracingEnabled() noexcept = 0;
 };
 

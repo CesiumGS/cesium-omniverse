@@ -113,6 +113,14 @@ class CesiumDataPrim "CesiumDataPrim" (
         displayName = "Random Colors"
         doc = "Debug option that renders tiles with random colors."
     )
+
+    bool cesium:debug:disableGeoreferencing = false (
+        customData = {
+            string apiName = "debugDisableGeoreferencing"
+        }
+        displayName = "Disable Georeferencing"
+        doc = "Debug option to disable georeferencing. Tiles will be rendered in EPSG:4978 (ECEF) coordinates where (0, 0, 0) is the center of the globe, the X axis points towards the prime meridian, the Y axis points towards the 90th meridian east, and the Z axis points towards the North Pole."
+    )
 }
 
 class CesiumSessionPrim "CesiumSessionPrim" (
@@ -362,5 +370,78 @@ class CesiumImageryPrim "CesiumImageryPrim" (
         }
         displayName = "Show Credits On Screen"
         doc = "Whether or not to show this imagery layer's credits on screen."
+    )
+
+    float cesium:alpha = 1.0 (
+        customData = {
+            string apiName = "alpha"
+        }
+        displayName = "Alpha"
+        doc = "The alpha blending value, from 0.0 to 1.0, where 1.0 is fully opaque."
+    )
+}
+
+class "CesiumGlobeAnchorSchemaAPI" (
+    doc = """Adds Globe Anchoring information to a Prim for use with Cesium for Omniverse."""
+    inherits = </APISchemaBase>
+    customData = {
+        string className = "GlobeAnchorAPI"
+        token apiSchemaType = "singleApply"
+    }
+) {
+    bool cesium:anchor:adjustOrientationForGlobeWhenMoving = true (
+        customData = {
+            string apiName = "adjustOrientationForGlobeWhenMoving"
+        }
+        displayName = "Adjust Orientation for Globe when Moving"
+        doc = "Gets or sets whether to adjust the Prim's orientation based on globe curvature as the game object moves."
+    )
+
+    bool cesium:anchor:detectTransformChanges = true (
+        customData = {
+            string apiName = "detectTransformChanges"
+        }
+        displayName = "Detect Transform Changes"
+        doc = "Gets or sets whether to automatically detect changes in the Prim's transform and update the precise globe coordinates accordingly."
+    )
+
+    double3 cesium:anchor:geographicCoordinates = (0.0, 0.0, 10.0) (
+        customData = {
+            string apiName = "geographicCoordinate"
+        }
+        displayName = "Geographic Coordinate (Latitude, Longitude, Height)"
+        doc = "The position of the globally anchored prim as a Latitude, Longitude, Height coordinate."
+    )
+
+    double3 cesium:anchor:position = (0.0, 0.0, 0.0) (
+        customData = {
+            string apiName = "position"
+        }
+        displayName = "Position (Earth-Centered, Earth-Fixed)"
+        doc = "The actual position of the globally anchored prim in the ECEF coordinate system."
+    )
+
+    double3 cesium:anchor:rotation = (0.0, 0.0, 0.0) (
+        customData = {
+            string apiName = "rotation"
+        }
+        displayName = "Rotation (East-Up-North)"
+        doc = "The actual rotation of the globally anchored prim oriented to the ECEF coordinate system."
+    )
+
+    double3 cesium:anchor:scale = (1.0, 1.0, 1.0) (
+        customData = {
+            string apiName = "scale"
+        }
+        displayName = "Scale"
+        doc = "The local scaling of the prim."
+    )
+
+    rel cesium:anchor:georeferenceBinding (
+        customData = {
+            string apiName = "georeferenceBinding"
+        }
+        displayName = "Georeference Origin Binding"
+        doc = "The Georeference Origin prim used for the globe anchor calculations."
     )
 }

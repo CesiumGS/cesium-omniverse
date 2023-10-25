@@ -88,7 +88,6 @@ setup_lib(
         omni_kit
         omni_ui
         cuda
-        nvrtc
         pybind11
         python310
     ADDITIONAL_LIBRARIES

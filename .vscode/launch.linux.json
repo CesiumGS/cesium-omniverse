@@ -14,40 +14,19 @@
         "UBSAN_OPTIONS": "print_stacktrace=1"
       },
       "cwd": "${workspaceFolder}",
-      "type": "lldb",
+      "type": "cppdbg",
       "request": "launch",
-      "console": "externalTerminal",
-      "internalConsoleOptions": "openOnSessionStart",
       "MIMode": "gdb",
-      "setupCommands": [
-        {
-          "text": "-enable-pretty-printing",
-          "ignoreFailures": true
-        },
-        {
-          "text": "set print elements 0"
-        }
-      ]
-    },
-    {
-      "name": "Tests Extension",
-      "preLaunchTask": "Build Only (debug)",
-      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit",
-      "args": [
-        "${workspaceFolder}/apps/cesium.omniverse.cpp.tests.runner.kit"
-      ],
-      "env": {
-        // Disable LSAN when debugging since it doesn't work with GDB and prints harmless but annoying warning messages
-        "ASAN_OPTIONS": "detect_leaks=0",
-        "UBSAN_OPTIONS": "print_stacktrace=1"
+      "symbolLoadInfo": {
+        "loadAll": false,
+        "exceptionList": "libcesium.omniverse.plugin.so;libcesium.omniverse.cpp.tests.plugin.so"
       },
-      "cwd": "${workspaceFolder}",
-      "type": "lldb",
-      "request": "launch",
-      "console": "externalTerminal",
-      "internalConsoleOptions": "openOnSessionStart",
-      "MIMode": "gdb",
       "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "python import sys;sys.path.insert(0, '/usr/share/gcc/python');from libstdcxx.v6.printers import register_libstdcxx_printers;register_libstdcxx_printers(None)",
+          "ignoreFailures": false
+        },
         {
           "text": "-enable-pretty-printing",
           "ignoreFailures": true
@@ -70,93 +49,15 @@
         "UBSAN_OPTIONS": "print_stacktrace=1"
       },
       "cwd": "${workspaceFolder}",
-      "type": "lldb",
+      "type": "cppdbg",
       "request": "launch",
-      "console": "externalTerminal",
-      "internalConsoleOptions": "openOnSessionStart",
       "MIMode": "gdb",
       "setupCommands": [
         {
-          "text": "-enable-pretty-printing",
-          "ignoreFailures": true
+          "description": "Enable pretty-printing for gdb",
+          "text": "python import sys;sys.path.insert(0, '/usr/share/gcc/python');from libstdcxx.v6.printers import register_libstdcxx_printers;register_libstdcxx_printers(None)",
+          "ignoreFailures": false
         },
-        {
-          "text": "set print elements 0"
-        }
-      ]
-    },
-    {
-      "name": "Performance Tracing",
-      "preLaunchTask": "Build Only (release)",
-      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit",
-      "args": [
-        "${workspaceFolder}/apps/cesium.omniverse.dev.trace.kit"
-      ],
-      "env": {
-        // Disable LSAN when debugging since it doesn't work with GDB and prints harmless but annoying warning messages
-        "ASAN_OPTIONS": "detect_leaks=0",
-        "UBSAN_OPTIONS": "print_stacktrace=1"
-      },
-      "cwd": "${workspaceFolder}",
-      "type": "lldb",
-      "request": "launch",
-      "console": "externalTerminal",
-      "internalConsoleOptions": "openOnSessionStart",
-      "MIMode": "gdb",
-      "setupCommands": [
-        {
-          "text": "-enable-pretty-printing",
-          "ignoreFailures": true
-        },
-        {
-          "text": "set print elements 0"
-        }
-      ]
-    },
-    {
-      "name": "Performance Testing App",
-      "preLaunchTask": "Build Only (release)",
-      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit",
-      "args": [
-        "${workspaceFolder}/apps/cesium.performance.kit"
-      ],
-      "env": {
-        // Disable LSAN when debugging since it doesn't work with GDB and prints harmless but annoying warning messages
-        "ASAN_OPTIONS": "detect_leaks=0",
-        "UBSAN_OPTIONS": "print_stacktrace=1"
-      },
-      "cwd": "${workspaceFolder}",
-      "type": "lldb",
-      "request": "launch",
-      "console": "externalTerminal",
-      "internalConsoleOptions": "openOnSessionStart",
-      "MIMode": "gdb",
-      "setupCommands": [
-        {
-          "text": "-enable-pretty-printing",
-          "ignoreFailures": true
-        },
-        {
-          "text": "set print elements 0"
-        }
-      ]
-    },
-    {
-      "name": "C++ Unit Tests",
-      "preLaunchTask": "Build Only (debug)",
-      "program": "${workspaceFolder}/build-debug/bin/tests",
-      "env": {
-        // Disable LSAN when debugging since it doesn't work with GDB and prints harmless but annoying warning messages
-        "ASAN_OPTIONS": "detect_leaks=0",
-        "UBSAN_OPTIONS": "print_stacktrace=1"
-      },
-      "cwd": "${workspaceFolder}",
-      "type": "lldb",
-      "request": "launch",
-      "console": "externalTerminal",
-      "internalConsoleOptions": "openOnSessionStart",
-      "MIMode": "gdb",
-      "setupCommands": [
         {
           "text": "-enable-pretty-printing",
           "ignoreFailures": true
@@ -171,7 +72,7 @@
       "preLaunchTask": "Build Only (debug)",
       "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit",
       "args": [
-        "${workspaceFolder}/apps/cesium.omniverse.dev.kit"
+        "${workspaceFolder}/apps/cesium.omniverse.dev.python.debug.kit"
       ],
       "env": {
         // Disable LSAN when debugging since it doesn't work with GDB and prints harmless but annoying warning messages
@@ -179,12 +80,19 @@
         "UBSAN_OPTIONS": "print_stacktrace=1"
       },
       "cwd": "${workspaceFolder}",
-      "type": "lldb",
+      "type": "cppdbg",
       "request": "launch",
-      "console": "externalTerminal",
-      "internalConsoleOptions": "openOnSessionStart",
       "MIMode": "gdb",
+      "symbolLoadInfo": {
+        "loadAll": false,
+        "exceptionList": "libcesium.omniverse.plugin.so;libcesium.omniverse.cpp.tests.plugin.so"
+      },
       "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "python import sys;sys.path.insert(0, '/usr/share/gcc/python');from libstdcxx.v6.printers import register_libstdcxx_printers;register_libstdcxx_printers(None)",
+          "ignoreFailures": false
+        },
         {
           "text": "-enable-pretty-printing",
           "ignoreFailures": true
@@ -200,6 +108,41 @@
       "request": "attach",
       "port": 3000,
       "host": "localhost"
+    },
+    {
+      "name": "Tests Extension",
+      "preLaunchTask": "Build Only (debug)",
+      "program": "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/kit",
+      "args": [
+        "${workspaceFolder}/apps/cesium.omniverse.cpp.tests.runner.kit"
+      ],
+      "env": {
+        // Disable LSAN when debugging since it doesn't work with GDB and prints harmless but annoying warning messages
+        "ASAN_OPTIONS": "detect_leaks=0",
+        "UBSAN_OPTIONS": "print_stacktrace=1"
+      },
+      "cwd": "${workspaceFolder}",
+      "type": "cppdbg",
+      "request": "launch",
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "python import sys;sys.path.insert(0, '/usr/share/gcc/python');from libstdcxx.v6.printers import register_libstdcxx_printers;register_libstdcxx_printers(None)",
+          "ignoreFailures": false
+        },
+        {
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        },
+        {
+          "text": "set print elements 0"
+        }
+      ],
+      "symbolLoadInfo": {
+        "loadAll": false,
+        "exceptionList": "libcesium.omniverse.plugin.so;libcesium.omniverse.cpp.tests.plugin.so"
+      }
     }
   ]
 }

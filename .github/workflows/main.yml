@@ -148,10 +148,6 @@ jobs:
         if: matrix.config.name != 'CentOS 7 - GCC'
         run: cmake --build build --config ${{ matrix.config.build-type }} --parallel ${{ steps.cpu-cores.outputs.count }}
 
-      - name: Tests
-        if: matrix.config.name != 'CentOS 7 - GCC'
-        run: ctest --test-dir build --output-on-failure
-
       - name: Coverage
         if: matrix.config.coverage == 'true'
         run: cmake --build build --target generate-coverage --config ${{ matrix.config.build-type }}
@@ -180,7 +176,7 @@ jobs:
           echo "branch=${{ github.ref_name }}" >> $GITHUB_ENV
           echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
           echo "us_date=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
-          echo "zip_name=$(find . -maxdepth 2 -type f -name "CesiumForOmniverse*.zip" -exec basename {} \;)" >> $GITHUB_ENV
+          echo "zip_name=$(find . -maxdepth 2 -type f -name "CesiumGS-cesium-omniverse*.zip" -exec basename {} \;)" >> $GITHUB_ENV
 
       - name: Capture Git info (Windows)
         if: runner.os == 'Windows'
@@ -189,7 +185,7 @@ jobs:
           echo "branch=${{ github.ref_name }}" >> $env:GITHUB_ENV
           echo "sha_short=$(git rev-parse --short HEAD)" >> $env:GITHUB_ENV
           echo "us_date=$(Get-Date -Format "yyyy-MM-dd")" >> $env:GITHUB_ENV
-          echo "zip_name=$(Get-ChildItem -Path build/CesiumForOmniverse*.zip -Name)" >> $env:GITHUB_ENV
+          echo "zip_name=$(Get-ChildItem -Path build/CesiumGS-cesium-omniverse*.zip -Name)" >> $env:GITHUB_ENV
 
       - name: Capture AWS secrets
         uses: aws-actions/configure-aws-credentials@v2

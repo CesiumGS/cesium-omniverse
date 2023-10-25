@@ -33,6 +33,14 @@ void destroyPrim(const omni::fabric::Path& path);
 void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform);
 void setTilesetId(const omni::fabric::Path& path, int64_t tilesetId);
 omni::fabric::Path toFabricPath(const pxr::SdfPath& path);
+omni::fabric::Token toFabricToken(const pxr::TfToken& token);
 omni::fabric::Path joinPaths(const omni::fabric::Path& absolutePath, const omni::fabric::Token& relativePath);
+omni::fabric::Path getCopiedShaderPath(const omni::fabric::Path& materialPath, const omni::fabric::Path& shaderPath);
+std::vector<omni::fabric::Path>
+copyMaterial(const omni::fabric::Path& srcMaterialPath, const omni::fabric::Path& dstMaterialPath);
+bool materialHasCesiumNodes(const omni::fabric::Path& path);
+bool isCesiumNode(const omni::fabric::Token& mdlIdentifier);
+bool isShaderConnectedToMaterial(const omni::fabric::Path& materialPath, const omni::fabric::Path& shaderPath);
+omni::fabric::Token getMdlIdentifier(const omni::fabric::Path& path);
 
 } // namespace cesium::omniverse::FabricUtil

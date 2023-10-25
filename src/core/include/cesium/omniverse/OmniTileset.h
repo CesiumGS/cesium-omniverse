@@ -11,6 +11,7 @@
 #include <vector>
 
 namespace Cesium3DTilesSelection {
+class RasterOverlay;
 class Tileset;
 class ViewState;
 class ViewUpdateResult;
@@ -72,6 +73,13 @@ class OmniTileset {
 
     void reload();
     void addImageryIon(const pxr::SdfPath& imageryPath);
+    [[nodiscard]] std::optional<uint64_t>
+    findImageryLayerIndex(const Cesium3DTilesSelection::RasterOverlay& overlay) const;
+    [[nodiscard]] std::optional<uint64_t> findImageryLayerIndex(const pxr::SdfPath& imageryPath) const;
+    [[nodiscard]] uint64_t getImageryLayerCount() const;
+    [[nodiscard]] float getImageryLayerAlpha(uint64_t imageryLayerIndex) const;
+    void updateImageryLayerAlpha(uint64_t imageryLayerIndex);
+    void updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::TfToken& attributeName);
     void onUpdateFrame(const std::vector<Viewport>& viewports);
 
   private:
@@ -90,5 +98,6 @@ class OmniTileset {
     std::vector<Cesium3DTilesSelection::ViewState> _viewStates;
     bool _extentSet = false;
     bool _activeLoading{false};
+    std::vector<pxr::SdfPath> _imageryPaths;
 };
 } // namespace cesium::omniverse

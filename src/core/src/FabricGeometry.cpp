@@ -5,6 +5,7 @@
 #include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GltfUtil.h"
+#include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
@@ -16,7 +17,6 @@
 #endif
 
 #include <CesiumGltf/Model.h>
-#include <glm/gtc/random.hpp>
 #include <omni/fabric/FabricUSD.h>
 
 namespace cesium::omniverse {
@@ -32,16 +32,30 @@ const auto DEFAULT_SCALE = pxr::GfVec3f(1.0f, 1.0f, 1.0f);
 const auto DEFAULT_MATRIX = pxr::GfMatrix4d(1.0);
 const auto DEFAULT_VISIBILITY = false;
 
+uint64_t getTexcoordSetCount(const FabricGeometryDefinition& geometryDefinition) {
+    auto texcoordSetCount = geometryDefinition.getTexcoordSetCount();
+
+    if (texcoordSetCount > FabricTokens::MAX_PRIMVAR_ST_COUNT) {
+        CESIUM_LOG_WARN(
+            "Number of texcoord sets ({}) exceeds maximum number of texcoord sets ({}). Textures using excess texcoord "
+            "sets will be ignored.",
+            texcoordSetCount,
+            FabricTokens::MAX_PRIMVAR_ST_COUNT);
+    }
+
+    texcoordSetCount = glm::min(texcoordSetCount, FabricTokens::MAX_PRIMVAR_ST_COUNT);
+
+    return texcoordSetCount;
+}
+
 } // namespace
 
 FabricGeometry::FabricGeometry(
     const omni::fabric::Path& path,
     const FabricGeometryDefinition& geometryDefinition,
-    bool debugRandomColors,
     long stageId)
     : _path(path)
     , _geometryDefinition(geometryDefinition)
-    , _debugRandomColors(debugRandomColors)
     , _stageId(stageId) {
     if (stageDestroyed()) {
         return;
@@ -102,10 +116,10 @@ void FabricGeometry::setMaterial(const omni::fabric::Path& materialPath) {
 }
 
 void FabricGeometry::initialize() {
-    const auto hasTexcoords = _geometryDefinition.hasTexcoords();
     const auto hasNormals = _geometryDefinition.hasNormals();
     const auto hasVertexColors = _geometryDefinition.hasVertexColors();
     const auto doubleSided = _geometryDefinition.getDoubleSided();
+    const auto texcoordSetCount = getTexcoordSetCount(_geometryDefinition);
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
@@ -120,8 +134,6 @@ void FabricGeometry::initialize() {
     attributes.addAttribute(FabricTypes::_worldVisibility, FabricTokens::_worldVisibility);
     attributes.addAttribute(FabricTypes::primvars, FabricTokens::primvars);
     attributes.addAttribute(FabricTypes::primvarInterpolations, FabricTokens::primvarInterpolations);
-    attributes.addAttribute(FabricTypes::primvars_displayColor, FabricTokens::primvars_displayColor);
-    attributes.addAttribute(FabricTypes::primvars_displayOpacity, FabricTokens::primvars_displayOpacity);
     attributes.addAttribute(FabricTypes::Mesh, FabricTokens::Mesh);
     attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
     attributes.addAttribute(FabricTypes::_cesium_localToEcefTransform, FabricTokens::_cesium_localToEcefTransform);
@@ -132,8 +144,8 @@ void FabricGeometry::initialize() {
     attributes.addAttribute(FabricTypes::subdivisionScheme, FabricTokens::subdivisionScheme);
     attributes.addAttribute(FabricTypes::material_binding, FabricTokens::material_binding);
 
-    if (hasTexcoords) {
-        attributes.addAttribute(FabricTypes::primvars_st, FabricTokens::primvars_st);
+    for (uint64_t i = 0; i < texcoordSetCount; i++) {
+        attributes.addAttribute(FabricTypes::primvars_st, FabricTokens::primvars_st_n[i]);
     }
 
     if (hasNormals) {
@@ -141,7 +153,7 @@ void FabricGeometry::initialize() {
     }
 
     if (hasVertexColors) {
-        attributes.addAttribute(FabricTypes::primvars_vertexColor, FabricTokens::primvars_vertexColor);
+        attributes.addAttribute(FabricTypes::primvars_displayColor, FabricTokens::primvars_displayColor);
     }
 
     attributes.createAttributes(_path);
@@ -156,15 +168,14 @@ void FabricGeometry::initialize() {
 
     // Initialize primvars
     size_t primvarsCount = 0;
-    size_t primvarIndexSt = 0;
     size_t primvarIndexNormal = 0;
     size_t primvarIndexVertexColor = 0;
 
-    const size_t primvarIndexDisplayColor = primvarsCount++;
-    const size_t primvarIndexDisplayOpacity = primvarsCount++;
+    std::vector<uint64_t> primvarIndexStArray;
+    primvarIndexStArray.reserve(texcoordSetCount);
 
-    if (hasTexcoords) {
-        primvarIndexSt = primvarsCount++;
+    for (uint64_t i = 0; i < texcoordSetCount; i++) {
+        primvarIndexStArray.push_back(primvarsCount++);
     }
 
     if (hasNormals) {
@@ -177,23 +188,15 @@ void FabricGeometry::initialize() {
 
     srw.setArrayAttributeSize(_path, FabricTokens::primvars, primvarsCount);
     srw.setArrayAttributeSize(_path, FabricTokens::primvarInterpolations, primvarsCount);
-    srw.setArrayAttributeSize(_path, FabricTokens::primvars_displayColor, 1);
-    srw.setArrayAttributeSize(_path, FabricTokens::primvars_displayOpacity, 1);
 
     // clang-format off
     auto primvarsFabric = srw.getArrayAttributeWr<omni::fabric::TokenC>(_path, FabricTokens::primvars);
     auto primvarInterpolationsFabric = srw.getArrayAttributeWr<omni::fabric::TokenC>(_path, FabricTokens::primvarInterpolations);
     // clang-format on
 
-    primvarsFabric[primvarIndexDisplayColor] = FabricTokens::primvars_displayColor;
-    primvarsFabric[primvarIndexDisplayOpacity] = FabricTokens::primvars_displayOpacity;
-
-    primvarInterpolationsFabric[primvarIndexDisplayColor] = FabricTokens::constant;
-    primvarInterpolationsFabric[primvarIndexDisplayOpacity] = FabricTokens::constant;
-
-    if (hasTexcoords) {
-        primvarsFabric[primvarIndexSt] = FabricTokens::primvars_st;
-        primvarInterpolationsFabric[primvarIndexSt] = FabricTokens::vertex;
+    for (uint64_t i = 0; i < texcoordSetCount; i++) {
+        primvarsFabric[primvarIndexStArray[i]] = FabricTokens::primvars_st_n[i];
+        primvarInterpolationsFabric[primvarIndexStArray[i]] = FabricTokens::vertex;
     }
 
     if (hasNormals) {
@@ -202,15 +205,15 @@ void FabricGeometry::initialize() {
     }
 
     if (hasVertexColors) {
-        primvarsFabric[primvarIndexVertexColor] = FabricTokens::primvars_vertexColor;
+        primvarsFabric[primvarIndexVertexColor] = FabricTokens::primvars_displayColor;
         primvarInterpolationsFabric[primvarIndexVertexColor] = FabricTokens::vertex;
     }
 }
 
 void FabricGeometry::reset() {
-    const auto hasTexcoords = _geometryDefinition.hasTexcoords();
     const auto hasNormals = _geometryDefinition.hasNormals();
     const auto hasVertexColors = _geometryDefinition.hasVertexColors();
+    const auto texcoordSetCount = getTexcoordSetCount(_geometryDefinition);
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
@@ -222,8 +225,6 @@ void FabricGeometry::reset() {
     auto worldPositionFabric = srw.getAttributeWr<pxr::GfVec3d>(_path, FabricTokens::_worldPosition);
     auto worldOrientationFabric = srw.getAttributeWr<pxr::GfQuatf>(_path, FabricTokens::_worldOrientation);
     auto worldScaleFabric = srw.getAttributeWr<pxr::GfVec3f>(_path, FabricTokens::_worldScale);
-    auto displayColorFabric = srw.getArrayAttributeWr<pxr::GfVec3f>(_path, FabricTokens::primvars_displayColor);
-    auto displayOpacityFabric = srw.getArrayAttributeWr<float>(_path, FabricTokens::primvars_displayOpacity);
     // clang-format on
 
     *extentFabric = DEFAULT_EXTENT;
@@ -233,8 +234,6 @@ void FabricGeometry::reset() {
     *worldPositionFabric = DEFAULT_POSITION;
     *worldOrientationFabric = DEFAULT_ORIENTATION;
     *worldScaleFabric = DEFAULT_SCALE;
-    displayColorFabric[0] = DEFAULT_VERTEX_COLOR;
-    displayOpacityFabric[0] = DEFAULT_VERTEX_OPACITY;
 
     FabricUtil::setTilesetId(_path, NO_TILESET_ID);
 
@@ -243,8 +242,8 @@ void FabricGeometry::reset() {
     srw.setArrayAttributeSize(_path, FabricTokens::faceVertexIndices, 0);
     srw.setArrayAttributeSize(_path, FabricTokens::points, 0);
 
-    if (hasTexcoords) {
-        srw.setArrayAttributeSize(_path, FabricTokens::primvars_st, 0);
+    for (uint64_t i = 0; i < texcoordSetCount; i++) {
+        srw.setArrayAttributeSize(_path, FabricTokens::primvars_st_n[i], 0);
     }
 
     if (hasNormals) {
@@ -252,7 +251,7 @@ void FabricGeometry::reset() {
     }
 
     if (hasVertexColors) {
-        srw.setArrayAttributeSize(_path, FabricTokens::primvars_vertexColor, 0);
+        srw.setArrayAttributeSize(_path, FabricTokens::primvars_displayColor, 0);
     }
 }
 
@@ -264,13 +263,13 @@ void FabricGeometry::setGeometry(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     bool smoothNormals,
-    bool hasImagery) {
+    const std::unordered_map<uint64_t, uint64_t>& texcoordIndexMapping,
+    const std::unordered_map<uint64_t, uint64_t>& imageryTexcoordIndexMapping) {
 
     if (stageDestroyed()) {
         return;
     }
 
-    const auto hasTexcoords = _geometryDefinition.hasTexcoords();
     const auto hasNormals = _geometryDefinition.hasNormals();
     const auto hasVertexColors = _geometryDefinition.hasVertexColors();
 
@@ -280,8 +279,6 @@ void FabricGeometry::setGeometry(
     const auto indices = GltfUtil::getIndices(model, primitive, positions);
     const auto normals = GltfUtil::getNormals(model, primitive, positions, indices, smoothNormals);
     const auto vertexColors = GltfUtil::getVertexColors(model, primitive, 0);
-    const auto texcoords_0 = GltfUtil::getTexcoords(model, primitive, 0);
-    const auto imageryTexcoords = GltfUtil::getImageryTexcoords(model, primitive, 0);
     const auto extent = GltfUtil::getExtent(model, primitive);
     const auto faceVertexCounts = GltfUtil::getFaceVertexCounts(indices);
 
@@ -310,9 +307,9 @@ void FabricGeometry::setGeometry(
         gsl::span<glm::fvec3> vertexColorsSpan(vertexColorsData);
         if (hasVertexColors) {
             vertexColors.fill(vertexColorsSpan);
-            srw.setArrayAttributeSize(_path, FabricTokens::primvars_vertexColor, numVoxels * 8);
+            srw.setArrayAttributeSize(_path, FabricTokens::primvars_displayColor, numVoxels * 8);
         }
-        auto vertexColorsFabric = srw.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::primvars_vertexColor);
+        auto vertexColorsFabric = srw.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::primvars_displayColor);
 
         size_t vertIndex = 0;
         size_t vertexCountsIndex = 0;
@@ -398,14 +395,27 @@ void FabricGeometry::setGeometry(
         indices.fill(faceVertexIndicesFabric);
         positions.fill(pointsFabric);
 
-        if (hasTexcoords) {
-            const auto& texcoords = hasImagery ? imageryTexcoords : texcoords_0;
+        const auto fillTexcoords = [this, &srw](uint64_t texcoordIndex, const TexcoordsAccessor& texcoords) {
+            assert(texcoordIndex < _geometryDefinition.getTexcoordSetCount());
 
-            srw.setArrayAttributeSize(_path, FabricTokens::primvars_st, texcoords.size());
+            if (texcoordIndex >= FabricTokens::MAX_PRIMVAR_ST_COUNT) {
+                return;
+            }
 
-            auto stFabric = srw.getArrayAttributeWr<glm::fvec2>(_path, FabricTokens::primvars_st);
-
+            const auto& primvarStToken = FabricTokens::primvars_st_n[texcoordIndex];
+            srw.setArrayAttributeSize(_path, primvarStToken, texcoords.size());
+            auto stFabric = srw.getArrayAttributeWr<glm::fvec2>(_path, primvarStToken);
             texcoords.fill(stFabric);
+        };
+
+        for (const auto& [gltfSetIndex, primvarStIndex] : texcoordIndexMapping) {
+            const auto texcoords = GltfUtil::getTexcoords(model, primitive, gltfSetIndex);
+            fillTexcoords(primvarStIndex, texcoords);
+        }
+
+        for (const auto& [gltfSetIndex, primvarStIndex] : imageryTexcoordIndexMapping) {
+            const auto texcoords = GltfUtil::getImageryTexcoords(model, primitive, gltfSetIndex);
+            fillTexcoords(primvarStIndex, texcoords);
         }
 
         if (hasNormals) {
@@ -417,9 +427,9 @@ void FabricGeometry::setGeometry(
         }
 
         if (hasVertexColors) {
-            srw.setArrayAttributeSize(_path, FabricTokens::primvars_vertexColor, vertexColors.size());
+            srw.setArrayAttributeSize(_path, FabricTokens::primvars_displayColor, vertexColors.size());
 
-            auto vertexColorsFabric = srw.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::primvars_vertexColor);
+            auto vertexColorsFabric = srw.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::primvars_displayColor);
 
             vertexColors.fill(vertexColorsFabric);
         }
@@ -432,8 +442,6 @@ void FabricGeometry::setGeometry(
     auto worldPositionFabric = srw.getAttributeWr<pxr::GfVec3d>(_path, FabricTokens::_worldPosition);
     auto worldOrientationFabric = srw.getAttributeWr<pxr::GfQuatf>(_path, FabricTokens::_worldOrientation);
     auto worldScaleFabric = srw.getAttributeWr<pxr::GfVec3f>(_path, FabricTokens::_worldScale);
-    auto displayColorFabric = srw.getArrayAttributeWr<pxr::GfVec3f>(_path, FabricTokens::primvars_displayColor);
-    auto displayOpacityFabric = srw.getArrayAttributeWr<float>(_path, FabricTokens::primvars_displayOpacity);
     // clang-format on
 
     *extentFabric = localExtent;
@@ -442,17 +450,6 @@ void FabricGeometry::setGeometry(
     *worldPositionFabric = worldPosition;
     *worldOrientationFabric = worldOrientation;
     *worldScaleFabric = worldScale;
-
-    if (_debugRandomColors) {
-        const auto r = glm::linearRand(0.0f, 1.0f);
-        const auto g = glm::linearRand(0.0f, 1.0f);
-        const auto b = glm::linearRand(0.0f, 1.0f);
-        displayColorFabric[0] = pxr::GfVec3f(r, g, b);
-    } else {
-        displayColorFabric[0] = DEFAULT_VERTEX_COLOR;
-    }
-
-    displayOpacityFabric[0] = DEFAULT_VERTEX_OPACITY;
 
     FabricUtil::setTilesetId(_path, tilesetId);
 }

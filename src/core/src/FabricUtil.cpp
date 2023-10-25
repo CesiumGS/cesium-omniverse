@@ -676,8 +676,232 @@ omni::fabric::Path toFabricPath(const pxr::SdfPath& path) {
     return {omni::fabric::asInt(path)};
 }
 
+omni::fabric::Token toFabricToken(const pxr::TfToken& token) {
+    return {omni::fabric::asInt(token)};
+}
+
 omni::fabric::Path joinPaths(const omni::fabric::Path& absolutePath, const omni::fabric::Token& relativePath) {
     return {fmt::format("{}/{}", absolutePath.getText(), relativePath.getText()).c_str()};
+}
+
+omni::fabric::Path getCopiedShaderPath(const omni::fabric::Path& materialPath, const omni::fabric::Path& shaderPath) {
+    // materialPath is the FabricMaterial path
+    // shaderPath is the USD shader path
+    return FabricUtil::joinPaths(materialPath, omni::fabric::Token(UsdUtil::getSafeName(shaderPath.getText()).c_str()));
+}
+
+namespace {
+
+struct FabricConnection {
+    omni::fabric::Connection* connection;
+    omni::fabric::Token attributeName;
+};
+
+std::vector<FabricConnection> getConnections(const omni::fabric::Path& path) {
+    std::vector<FabricConnection> connections;
+
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+    const auto attributes = srw.getAttributeNamesAndTypes(path);
+    const auto& names = attributes.first;
+    const auto& types = attributes.second;
+
+    for (size_t i = 0; i < names.size(); i++) {
+        const auto& name = names[i];
+        const auto& type = types[i];
+        if (type.baseType == omni::fabric::BaseDataType::eConnection) {
+            const auto connection = srw.getConnection(path, name);
+            if (connection != nullptr) {
+                connections.emplace_back(FabricConnection{connection, name});
+            }
+        }
+    }
+
+    return connections;
+}
+
+bool isOutput(const omni::fabric::Token& attributeName) {
+    return attributeName == FabricTokens::outputs_out;
+}
+
+bool isConnection(const omni::fabric::Type& attributeType) {
+    return attributeType.baseType == omni::fabric::BaseDataType::eConnection;
+}
+
+bool isEmptyToken(
+    const omni::fabric::Path& path,
+    const omni::fabric::Token& attributeName,
+    const omni::fabric::Type& attributeType) {
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+    if (attributeType.baseType == omni::fabric::BaseDataType::eToken) {
+        const auto attributeValue = srw.getAttributeRd<omni::fabric::Token>(path, attributeName);
+        if (attributeValue == nullptr || (*attributeValue).size() == 0) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+std::vector<omni::fabric::TokenC> getAttributesToCopy(const omni::fabric::Path& path) {
+    std::vector<omni::fabric::TokenC> attributeNames;
+
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+
+    const auto attributes = srw.getAttributeNamesAndTypes(path);
+    const auto& names = attributes.first;
+    const auto& types = attributes.second;
+
+    for (size_t i = 0; i < names.size(); i++) {
+        const auto& name = names[i];
+        const auto& type = types[i];
+
+        if (!isOutput(name) && !isConnection(type) && !isEmptyToken(path, name, type)) {
+            attributeNames.emplace_back(omni::fabric::TokenC(name));
+        }
+    }
+
+    return attributeNames;
+}
+
+struct FabricAttribute {
+    omni::fabric::Token name;
+    omni::fabric::Type type;
+};
+
+std::vector<FabricAttribute> getAttributesToCreate(const omni::fabric::Path& path) {
+    std::vector<FabricAttribute> attributeNames;
+
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+
+    const auto attributes = srw.getAttributeNamesAndTypes(path);
+    const auto& names = attributes.first;
+    const auto& types = attributes.second;
+
+    for (size_t i = 0; i < names.size(); i++) {
+        const auto& name = names[i];
+        const auto& type = types[i];
+
+        if (isOutput(name) || isEmptyToken(path, name, type)) {
+            attributeNames.emplace_back(FabricAttribute{name, type});
+        }
+    }
+
+    return attributeNames;
+}
+
+void getConnectedPrimsRecursive(const omni::fabric::Path& path, std::vector<omni::fabric::Path>& connectedPaths) {
+    const auto connections = getConnections(path);
+    for (const auto& connection : connections) {
+        const auto it = std::find(connectedPaths.begin(), connectedPaths.end(), connection.connection->path);
+        if (it == connectedPaths.end()) {
+            connectedPaths.emplace_back(connection.connection->path);
+            getConnectedPrimsRecursive(connection.connection->path, connectedPaths);
+        }
+    }
+}
+
+std::vector<omni::fabric::Path> getPrimsInMaterialNetwork(const omni::fabric::Path& path) {
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+    std::vector<omni::fabric::Path> paths;
+    paths.push_back(path);
+    getConnectedPrimsRecursive(path, paths);
+    return paths;
+}
+
+} // namespace
+
+std::vector<omni::fabric::Path>
+copyMaterial(const omni::fabric::Path& srcMaterialPath, const omni::fabric::Path& dstMaterialPath) {
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+    const auto isrw = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+
+    const auto srcPaths = getPrimsInMaterialNetwork(srcMaterialPath);
+
+    std::vector<omni::fabric::Path> dstPaths;
+    dstPaths.reserve(srcPaths.size());
+
+    for (const auto& srcPath : srcPaths) {
+        auto dstPath = omni::fabric::Path();
+
+        if (srcPath == srcMaterialPath) {
+            dstPath = dstMaterialPath;
+        } else {
+            dstPath = FabricUtil::getCopiedShaderPath(dstMaterialPath, srcPath);
+        }
+
+        dstPaths.push_back(dstPath);
+
+        srw.createPrim(dstPath);
+
+        // This excludes connections, outputs, and empty tokens
+        // The material network will be reconnected later once all the prims have been copied
+        // The reason for excluding outputs and empty tokens is so that Omniverse doesn't print the warning
+        //   [Warning] [omni.fabric.plugin] Warning: input has no valid data
+        const auto attributesToCopy = getAttributesToCopy(srcPath);
+
+        isrw->copySpecifiedAttributes(
+            srw.getId(), srcPath, attributesToCopy.data(), dstPath, attributesToCopy.data(), attributesToCopy.size());
+
+        // Add the outputs and empty tokens back. This doesn't print a warning.
+        const auto attributesToCreate = getAttributesToCreate(srcPath);
+        for (const auto& attribute : attributesToCreate) {
+            srw.createAttribute(dstPath, attribute.name, attribute.type);
+        }
+    }
+
+    // Reconnect the prims
+    for (size_t i = 0; i < srcPaths.size(); i++) {
+        const auto& srcPath = srcPaths[i];
+        const auto& dstPath = dstPaths[i];
+        const auto connections = getConnections(srcPath);
+        for (const auto& connection : connections) {
+            const auto it = std::find(srcPaths.begin(), srcPaths.end(), connection.connection->path);
+            assert(it != srcPaths.end()); // Ensure that all connections are part of the material network
+            const auto index = it - srcPaths.begin();
+            const auto dstConnection =
+                omni::fabric::Connection{omni::fabric::PathC(dstPaths[index]), connection.connection->attrName};
+            srw.createConnection(dstPath, connection.attributeName, dstConnection);
+        }
+    }
+
+    return dstPaths;
+}
+
+bool materialHasCesiumNodes(const omni::fabric::Path& path) {
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+    const auto paths = getPrimsInMaterialNetwork(path);
+
+    for (const auto& p : paths) {
+        const auto mdlIdentifier = getMdlIdentifier(p);
+        if (isCesiumNode(mdlIdentifier)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool isCesiumNode(const omni::fabric::Token& mdlIdentifier) {
+    return mdlIdentifier == FabricTokens::cesium_base_color_texture_float4 ||
+           mdlIdentifier == FabricTokens::cesium_imagery_layer_float4;
+}
+
+bool isShaderConnectedToMaterial(const omni::fabric::Path& materialPath, const omni::fabric::Path& shaderPath) {
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+    const auto paths = getPrimsInMaterialNetwork(materialPath);
+    return std::find(paths.begin(), paths.end(), shaderPath) != paths.end();
+}
+
+omni::fabric::Token getMdlIdentifier(const omni::fabric::Path& path) {
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+    if (srw.attributeExists(path, FabricTokens::info_mdl_sourceAsset_subIdentifier)) {
+        const auto infoMdlSourceAssetSubIdentifierFabric =
+            srw.getAttributeRd<omni::fabric::Token>(path, FabricTokens::info_mdl_sourceAsset_subIdentifier);
+        if (infoMdlSourceAssetSubIdentifierFabric != nullptr) {
+            return *infoMdlSourceAssetSubIdentifierFabric;
+        }
+    }
+    return omni::fabric::Token{};
 }
 
 } // namespace cesium::omniverse::FabricUtil

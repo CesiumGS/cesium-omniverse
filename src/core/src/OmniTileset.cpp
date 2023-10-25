@@ -3,6 +3,7 @@
 #include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/FabricGeometry.h"
+#include "cesium/omniverse/FabricMaterial.h"
 #include "cesium/omniverse/FabricPrepareRenderResources.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GeospatialUtil.h"
@@ -329,9 +330,30 @@ void OmniTileset::reload() {
             CESIUM_LOG_ERROR(error.message);
         };
 
+    CesiumGltf::SupportedGpuCompressedPixelFormats supportedFormats;
+
+    // Only BCN compressed texture formats are supported in Omniverse
+    supportedFormats.ETC1_RGB = false;
+    supportedFormats.ETC2_RGBA = false;
+    supportedFormats.BC1_RGB = true;
+    supportedFormats.BC3_RGBA = true;
+    supportedFormats.BC4_R = true;
+    supportedFormats.BC5_RG = true;
+    supportedFormats.BC7_RGBA = true;
+    supportedFormats.PVRTC1_4_RGB = false;
+    supportedFormats.PVRTC1_4_RGBA = false;
+    supportedFormats.ASTC_4x4_RGBA = false;
+    supportedFormats.PVRTC2_4_RGB = false;
+    supportedFormats.PVRTC2_4_RGBA = false;
+    supportedFormats.ETC2_EAC_R11 = false;
+    supportedFormats.ETC2_EAC_RG11 = false;
+
+    options.contentOptions.ktx2TranscodeTargets = CesiumGltf::Ktx2TranscodeTargets(supportedFormats, false);
+
     _pViewUpdateResult = nullptr;
     _extentSet = false;
     _activeLoading = false;
+    _imageryPaths.clear();
 
     if (getSourceType() == TilesetSourceType::URL) {
         _tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(externals, url, options);
@@ -394,6 +416,90 @@ void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
         options,
         "https://api.ion-development.cesium.com/");
     _tileset->getOverlays().add(ionRasterOverlay);
+    _imageryPaths.push_back(imageryPath);
+}
+
+std::optional<uint64_t> OmniTileset::findImageryLayerIndex(const Cesium3DTilesSelection::RasterOverlay& overlay) const {
+    uint64_t imageryLayerIndex = 0;
+    for (const auto& pOverlay : _tileset->getOverlays()) {
+        if (&overlay == pOverlay.get()) {
+            return imageryLayerIndex;
+        }
+
+        imageryLayerIndex++;
+    }
+
+    return std::nullopt;
+}
+
+std::optional<uint64_t> OmniTileset::findImageryLayerIndex(const pxr::SdfPath& imageryPath) const {
+    uint64_t imageryLayerIndex = 0;
+    for (const auto& _imageryPath : _imageryPaths) {
+        if (_imageryPath == imageryPath) {
+            return imageryLayerIndex;
+        }
+
+        imageryLayerIndex++;
+    }
+
+    return std::nullopt;
+}
+
+uint64_t OmniTileset::getImageryLayerCount() const {
+    return _tileset->getOverlays().size();
+}
+
+namespace {
+void forEachFabricMaterial(
+    const std::unique_ptr<Cesium3DTilesSelection::Tileset>& tileset,
+    const std::function<void(FabricMaterial& fabricMaterial)>& callback) {
+    tileset->forEachLoadedTile([&callback](Cesium3DTilesSelection::Tile& tile) {
+        if (tile.getState() != Cesium3DTilesSelection::TileLoadState::Done) {
+            return;
+        }
+        const auto& content = tile.getContent();
+        const auto pRenderContent = content.getRenderContent();
+        if (!pRenderContent) {
+            return;
+        }
+        const auto pTileRenderResources = static_cast<TileRenderResources*>(pRenderContent->getRenderResources());
+        if (!pTileRenderResources) {
+            return;
+        }
+        for (const auto& fabricMesh : pTileRenderResources->fabricMeshes) {
+            if (!fabricMesh.material) {
+                continue;
+            }
+            callback(*fabricMesh.material.get());
+        }
+    });
+}
+} // namespace
+
+void OmniTileset::updateImageryLayerAlpha(uint64_t imageryLayerIndex) {
+    assert(imageryLayerIndex < _imageryPaths.size());
+
+    const auto alpha = getImageryLayerAlpha(imageryLayerIndex);
+
+    forEachFabricMaterial(_tileset, [imageryLayerIndex, alpha](FabricMaterial& fabricMaterial) {
+        fabricMaterial.setImageryLayerAlpha(imageryLayerIndex, alpha);
+    });
+}
+
+void OmniTileset::updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::TfToken& attributeName) {
+    forEachFabricMaterial(_tileset, [&shaderPath, &attributeName](FabricMaterial& fabricMaterial) {
+        fabricMaterial.updateShaderInput(
+            FabricUtil::toFabricPath(shaderPath), FabricUtil::toFabricToken(attributeName));
+    });
+}
+
+float OmniTileset::getImageryLayerAlpha(uint64_t imageryLayerIndex) const {
+    assert(imageryLayerIndex < _imageryPaths.size());
+
+    auto alpha = OmniImagery(_imageryPaths[imageryLayerIndex]).getAlpha();
+    alpha = glm::clamp(alpha, 0.0f, 1.0f);
+
+    return alpha;
 }
 
 void OmniTileset::onUpdateFrame(const std::vector<Viewport>& viewports) {
@@ -424,7 +530,7 @@ void OmniTileset::updateTransform() {
     // than the main thread and we would have to be careful to synchronize updates to Fabric in the main thread.
 
     const auto georeferenceOrigin = GeospatialUtil::convertGeoreferenceToCartographic(getGeoreference());
-    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdTransformForPrim(georeferenceOrigin, _tilesetPath);
+    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdWorldTransformForPrim(georeferenceOrigin, _tilesetPath);
 
     // Check for transform changes and update prims accordingly
     if (ecefToUsdTransform != _ecefToUsdTransform) {
@@ -497,7 +603,7 @@ bool OmniTileset::updateExtent() {
     const auto& bounding_volume = rootTile->getBoundingVolume();
     const auto oriented = Cesium3DTilesSelection::getOrientedBoundingBoxFromBoundingVolume(bounding_volume);
     const auto georeferenceOrigin = Context::instance().getGeoreferenceOrigin();
-    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdTransformForPrim(georeferenceOrigin, _tilesetPath);
+    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdWorldTransformForPrim(georeferenceOrigin, _tilesetPath);
     const auto usdOriented = oriented.transform(ecefToUsdTransform);
     const auto& center = usdOriented.getCenter();
 

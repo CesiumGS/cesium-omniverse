@@ -11,6 +11,10 @@ class CesiumDataPrim "CesiumDataPrim" (
         displayName = "Disable Geometry Pool"
         doc = "Debug option that disables geometry pooling."
     )
+    bool cesium:debug:disableGeoreferencing = 0 (
+        displayName = "Disable Georeferencing"
+        doc = "Debug option to disable georeferencing. Tiles will be rendered in EPSG:4978 (ECEF) coordinates where (0, 0, 0) is the center of the globe, the X axis points towards the prime meridian, the Y axis points towards the 90th meridian east, and the Z axis points towards the North Pole."
+    )
     bool cesium:debug:disableMaterialPool = 0 (
         displayName = "Disable Material Pool"
         doc = "Debug option that disables material pooling."
@@ -281,6 +285,10 @@ class CesiumImageryPrim "CesiumImageryPrim" (
     doc = "Adds a prim for representing an imagery layer. Should be a child of a tileset."
 )
 {
+    float cesium:alpha = 1 (
+        displayName = "Alpha"
+        doc = "The alpha blending value, from 0.0 to 1.0, where 1.0 is fully opaque."
+    )
     string cesium:ionAccessToken = "" (
         displayName = "ion Access Token"
         doc = "The access token to use to access the Cesium ion resource. Overrides the default token. Blank if using URL."
@@ -292,6 +300,40 @@ class CesiumImageryPrim "CesiumImageryPrim" (
     bool cesium:showCreditsOnScreen = 0 (
         displayName = "Show Credits On Screen"
         doc = "Whether or not to show this imagery layer's credits on screen."
+    )
+}
+
+class "CesiumGlobeAnchorSchemaAPI" (
+    doc = "Adds Globe Anchoring information to a Prim for use with Cesium for Omniverse."
+)
+{
+    bool cesium:anchor:adjustOrientationForGlobeWhenMoving = 1 (
+        displayName = "Adjust Orientation for Globe when Moving"
+        doc = "Gets or sets whether to adjust the Prim's orientation based on globe curvature as the game object moves."
+    )
+    bool cesium:anchor:detectTransformChanges = 1 (
+        displayName = "Detect Transform Changes"
+        doc = "Gets or sets whether to automatically detect changes in the Prim's transform and update the precise globe coordinates accordingly."
+    )
+    double3 cesium:anchor:geographicCoordinates = (0, 0, 10) (
+        displayName = "Geographic Coordinate (Latitude, Longitude, Height)"
+        doc = "The position of the globally anchored prim as a Latitude, Longitude, Height coordinate."
+    )
+    rel cesium:anchor:georeferenceBinding (
+        displayName = "Georeference Origin Binding"
+        doc = "The Georeference Origin prim used for the globe anchor calculations."
+    )
+    double3 cesium:anchor:position = (0, 0, 0) (
+        displayName = "Position (Earth-Centered, Earth-Fixed)"
+        doc = "The actual position of the globally anchored prim in the ECEF coordinate system."
+    )
+    double3 cesium:anchor:rotation = (0, 0, 0) (
+        displayName = "Rotation (East-Up-North)"
+        doc = "The actual rotation of the globally anchored prim oriented to the ECEF coordinate system."
+    )
+    double3 cesium:anchor:scale = (1, 1, 1) (
+        displayName = "Scale"
+        doc = "The local scaling of the prim."
     )
 }
 

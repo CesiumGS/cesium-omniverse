@@ -13,37 +13,49 @@ namespace cesium::omniverse {
 
 FabricMaterialDefinition::FabricMaterialDefinition(
     const MaterialInfo& materialInfo,
-    bool hasImagery,
-    bool disableTextures) {
+    uint64_t imageryLayerCount,
+    bool disableTextures,
+    const pxr::SdfPath& tilesetMaterialPath)
+    : _hasVertexColors(materialInfo.hasVertexColors)
+    , _hasBaseColorTexture(disableTextures ? false : materialInfo.baseColorTexture.has_value())
+    , _imageryLayerCount(disableTextures ? 0 : imageryLayerCount)
+    , _tilesetMaterialPath(tilesetMaterialPath) {}
 
-    _hasBaseColorTexture = materialInfo.baseColorTexture.has_value();
-
-    if (hasImagery) {
-        _hasBaseColorTexture = true;
-    }
-
-    if (disableTextures) {
-        _hasBaseColorTexture = false;
-    }
-
-    _hasVertexColors = materialInfo.hasVertexColors;
+bool FabricMaterialDefinition::hasVertexColors() const {
+    return _hasVertexColors;
 }
 
 bool FabricMaterialDefinition::hasBaseColorTexture() const {
     return _hasBaseColorTexture;
 }
 
-bool FabricMaterialDefinition::hasVertexColors() const {
-    return _hasVertexColors;
+uint64_t FabricMaterialDefinition::getImageryLayerCount() const {
+    return _imageryLayerCount;
+}
+
+bool FabricMaterialDefinition::hasTilesetMaterial() const {
+    return !_tilesetMaterialPath.IsEmpty();
+}
+
+const pxr::SdfPath& FabricMaterialDefinition::getTilesetMaterialPath() const {
+    return _tilesetMaterialPath;
 }
 
 // In C++ 20 we can use the default equality comparison (= default)
 bool FabricMaterialDefinition::operator==(const FabricMaterialDefinition& other) const {
+    if (_hasVertexColors != other._hasVertexColors) {
+        return false;
+    }
+
     if (_hasBaseColorTexture != other._hasBaseColorTexture) {
         return false;
     }
 
-    if (_hasVertexColors != other._hasVertexColors) {
+    if (_imageryLayerCount != other._imageryLayerCount) {
+        return false;
+    }
+
+    if (_tilesetMaterialPath != other._tilesetMaterialPath) {
         return false;
     }
 

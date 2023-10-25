@@ -308,19 +308,7 @@ cmake --build build --config Release --parallel 8
 
 ## Unit Tests
 
-```sh
-cmake -B build
-cmake --build build --target tests
-ctest --test-dir build
-```
-
-Or run the doctest executable directly
-
-```sh
-cmake -B build
-cmake --build build --target tests
-./build/bin/tests
-```
+Unit tests can be run by starting the Cesium Omniverse Tests extension inside Omniverse.
 
 ## Coverage
 
@@ -469,7 +457,7 @@ Run the following shell script from the root cesium-omniverse directory:
 ./scripts/build_package_centos7.sh
 ```
 
-The resulting `.zip` file will be written to the `build-package` directory (e.g. `CesiumForOmniverse-Linux-v0.0.0.zip`)
+The resulting `.zip` file will be written to the `build-package` directory (e.g. `CesiumGS-cesium-omniverse-linux-x86_64-v0.0.0.zip`)
 
 ### Build Windows Package (Local)
 
@@ -479,7 +467,7 @@ Run the following batch script from the root cesium-omniverse directory:
 ./scripts/build_package_windows.bat
 ```
 
-The resulting `.zip` file will be written to the `build-package` directory (e.g. `CesiumForOmniverse-Windows-v0.0.0.zip`)
+The resulting `.zip` file will be written to the `build-package` directory (e.g. `CesiumGS-cesium-omniverse-windows-x86_64-v0.0.0.zip`)
 
 ## VSCode
 
@@ -506,7 +494,6 @@ Each workspace contains recommended extensions and settings for VSCode developme
 - Build Only (debug) - builds the project in debug mode with the default compiler
 - Build Only (release) - builds the project in release mode with the default compiler
 - Clean - cleans the build directory
-- Test - runs unit tests
 - Coverage - generates a coverage report and opens a web browser showing the results
 - Documentation - generates documentation and opens a web browser showing the results
 - Format - formats the code with clang-format

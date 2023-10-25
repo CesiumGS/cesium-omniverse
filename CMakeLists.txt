@@ -9,7 +9,7 @@ endif()
 # Both CXX and C need to be given otherwise Conan may ignore the CMAKE_C_COMPILER flag
 project(
     CesiumOmniverse
-    VERSION 0.10.0
+    VERSION 0.11.0
     DESCRIPTION "Cesium for Omniverse"
     LANGUAGES CXX C)
 
@@ -121,8 +121,7 @@ set(LINT_SOURCE_DIRECTORIES
     "${PROJECT_SOURCE_DIR}/src/bindings"
     "${PROJECT_SOURCE_DIR}/src/core"
     "${PROJECT_SOURCE_DIR}/src/public"
-    "${PROJECT_SOURCE_DIR}/tests"
-    "${PROJECT_SOURCE_DIR}/cesiumOmniverseCppTestsExtension")
+    "${PROJECT_SOURCE_DIR}/tests")
 
 # Source directories for coverage
 set(COVERAGE_SOURCE_DIRECTORIES "${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/src")
@@ -325,7 +324,7 @@ if(CESIUM_OMNI_ENABLE_COVERAGE)
             -DPROJECT_BUILD_DIRECTORY=${PROJECT_BINARY_DIR}
             -DPROJECT_SOURCE_DIRECTORIES=${COVERAGE_SOURCE_DIRECTORIES_FORMATTED}
             -DOUTPUT_DIRECTORY=${PROJECT_BINARY_DIR}/coverage -P ${PROJECT_SOURCE_DIR}/cmake/GenerateCoverage.cmake
-        DEPENDS $<TARGET_FILE:tests>
+        DEPENDS $<TARGET_FILE:cesium.omniverse.cpp.tests.plugin>
         VERBATIM)
 endif()
 
@@ -438,7 +437,6 @@ add_subdirectory(src)
 if(CESIUM_OMNI_ENABLE_TESTS)
     enable_testing()
     add_subdirectory(tests)
-    add_subdirectory(cesiumOmniverseCppTestsExtension)
 endif()
 
 # Ninja and various Makefiles generators support generating compile_commands.json
@@ -603,22 +601,6 @@ install(
             COMPONENT library
             EXCLUDE_FROM_ALL)
 
-# Nothing links against nvrtc-builtins but if we don't include it we get a runtime crash.
-# Unfortunately this means we have to bypass CMake's dependency system and install it manually here.
-if(WIN32)
-    install(
-        FILES "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/cuda/cuda/bin/nvrtc-builtins64_118.dll"
-        DESTINATION "${KIT_EXTENSION_BIN_PATH}"
-        COMPONENT install)
-else()
-    install(
-        FILES "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/cuda/cuda/lib64/libnvrtc-builtins.so"
-              "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/cuda/cuda/lib64/libnvrtc-builtins.so.11.8"
-              "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/cuda/cuda/lib64/libnvrtc-builtins.so.11.8.89"
-        DESTINATION "${KIT_EXTENSION_BIN_PATH}"
-        COMPONENT install)
-endif()
-
 install(
     TARGETS CesiumOmniversePythonBindings
     ARCHIVE DESTINATION ${KIT_EXTENSION_BINDINGS_PATH} COMPONENT install
@@ -669,54 +651,56 @@ install(
             COMPONENT library
             EXCLUDE_FROM_ALL)
 
-install(
-    TARGETS cesium.omniverse.cpp.tests.plugin
-    ARCHIVE DESTINATION ${KIT_EXTENSION_TESTS_BIN_PATH} COMPONENT install
-    LIBRARY DESTINATION ${KIT_EXTENSION_TESTS_BIN_PATH} COMPONENT install
-    RUNTIME DESTINATION ${KIT_EXTENSION_TESTS_BIN_PATH} COMPONENT install)
-install(
-    TARGETS cesium.omniverse.cpp.tests.plugin
-            RUNTIME_DEPENDENCIES
-            DIRECTORIES
-            ${INSTALL_SEARCH_PATHS}
-            PRE_EXCLUDE_REGEXES
-            ${INSTALL_PRE_EXCLUDE_REGEXES}
-            POST_EXCLUDE_REGEXES
-            ${INSTALL_POST_EXCLUDE_REGEXES}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT library
-            EXCLUDE_FROM_ALL
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT library
-            EXCLUDE_FROM_ALL
-    RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT library
-            EXCLUDE_FROM_ALL)
+if(CESIUM_OMNI_ENABLE_TESTS)
+    install(
+        TARGETS cesium.omniverse.cpp.tests.plugin
+        ARCHIVE DESTINATION ${KIT_EXTENSION_TESTS_BIN_PATH} COMPONENT install
+        LIBRARY DESTINATION ${KIT_EXTENSION_TESTS_BIN_PATH} COMPONENT install
+        RUNTIME DESTINATION ${KIT_EXTENSION_TESTS_BIN_PATH} COMPONENT install)
+    install(
+        TARGETS cesium.omniverse.cpp.tests.plugin
+                RUNTIME_DEPENDENCIES
+                DIRECTORIES
+                ${INSTALL_SEARCH_PATHS}
+                PRE_EXCLUDE_REGEXES
+                ${INSTALL_PRE_EXCLUDE_REGEXES}
+                POST_EXCLUDE_REGEXES
+                ${INSTALL_POST_EXCLUDE_REGEXES}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                COMPONENT library
+                EXCLUDE_FROM_ALL
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                COMPONENT library
+                EXCLUDE_FROM_ALL
+        RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                COMPONENT library
+                EXCLUDE_FROM_ALL)
 
-install(
-    TARGETS CesiumOmniverseCppTestsPythonBindings
-    ARCHIVE DESTINATION ${KIT_EXTENSION_TESTS_BINDINGS_PATH} COMPONENT install
-    LIBRARY DESTINATION ${KIT_EXTENSION_TESTS_BINDINGS_PATH} COMPONENT install
-    RUNTIME DESTINATION ${KIT_EXTENSION_TESTS_BINDINGS_PATH} COMPONENT install)
+    install(
+        TARGETS CesiumOmniverseCppTestsPythonBindings
+        ARCHIVE DESTINATION ${KIT_EXTENSION_TESTS_BINDINGS_PATH} COMPONENT install
+        LIBRARY DESTINATION ${KIT_EXTENSION_TESTS_BINDINGS_PATH} COMPONENT install
+        RUNTIME DESTINATION ${KIT_EXTENSION_TESTS_BINDINGS_PATH} COMPONENT install)
 
-install(
-    TARGETS CesiumOmniverseCppTestsPythonBindings
-            RUNTIME_DEPENDENCIES
-            DIRECTORIES
-            ${INSTALL_SEARCH_PATHS}
-            PRE_EXCLUDE_REGEXES
-            ${INSTALL_PRE_EXCLUDE_REGEXES}
-            POST_EXCLUDE_REGEXES
-            ${INSTALL_POST_EXCLUDE_REGEXES}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT library
-            EXCLUDE_FROM_ALL
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT library
-            EXCLUDE_FROM_ALL
-    RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT library
-            EXCLUDE_FROM_ALL)
+    install(
+        TARGETS CesiumOmniverseCppTestsPythonBindings
+                RUNTIME_DEPENDENCIES
+                DIRECTORIES
+                ${INSTALL_SEARCH_PATHS}
+                PRE_EXCLUDE_REGEXES
+                ${INSTALL_PRE_EXCLUDE_REGEXES}
+                POST_EXCLUDE_REGEXES
+                ${INSTALL_POST_EXCLUDE_REGEXES}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                COMPONENT library
+                EXCLUDE_FROM_ALL
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                COMPONENT library
+                EXCLUDE_FROM_ALL
+        RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                COMPONENT library
+                EXCLUDE_FROM_ALL)
+endif()
 
 install(
     DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
@@ -768,12 +752,15 @@ set(CPACK_GENERATOR "ZIP")
 set(CPACK_ARCHIVE_COMPONENT_INSTALL ON)
 set(CPACK_COMPONENTS_ALL package)
 set(CPACK_COMPONENTS_ALL_IN_ONE_PACKAGE ON)
-set(CPACK_PACKAGE_NAME CesiumForOmniverse)
+set(CPACK_PACKAGE_NAME CesiumGS-cesium-omniverse)
+
+string(TOLOWER ${CMAKE_SYSTEM_NAME} SYSTEM_NAME_LOWERCASE)
+set(SYSTEM_PROCESSOR "x86_64")
 
 if(CESIUM_OMNI_GIT_TAG)
-    set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${CMAKE_SYSTEM_NAME}-${CESIUM_OMNI_GIT_TAG})
+    set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${SYSTEM_NAME_LOWERCASE}-${SYSTEM_PROCESSOR}-${CESIUM_OMNI_GIT_TAG})
 else()
-    set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${CMAKE_SYSTEM_NAME}-${CESIUM_OMNI_GIT_HASH_ABBREVIATED})
+    set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${SYSTEM_NAME_LOWERCASE}-${SYSTEM_PROCESSOR}-${CESIUM_OMNI_GIT_HASH_ABBREVIATED})
 endif()
 
 include(CPack)

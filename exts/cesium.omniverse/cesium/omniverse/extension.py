@@ -1,4 +1,5 @@
 from .bindings import acquire_cesium_omniverse_interface, release_cesium_omniverse_interface, Viewport
+from .ui.add_menu_controller import CesiumAddMenuController
 from .install import perform_vendor_install
 from .utils import wait_n_frames, dock_window_async, perform_action_after_n_frames_async
 from .usdUtils import add_tileset_ion, add_imagery_ion
@@ -55,6 +56,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._adding_assets = False
         self._attributes_widget_controller: Optional[CesiumAttributesWidgetController] = None
         self._credits_viewport_controller: Optional[CreditsViewportController] = None
+        self._add_menu_controller: Optional[CesiumAddMenuController] = None
         self._logger: logging.Logger = logging.getLogger(__name__)
         self._menus = []
         self._num_credits_viewport_frames: int = 0
@@ -69,7 +71,8 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         )
         ui.Workspace.set_show_window_fn(CesiumOmniverseDebugWindow.WINDOW_NAME, partial(self.show_debug_window, None))
 
-        show_on_startup = omni_settings.get_settings().get_as_bool("/exts/cesium.omniverse/showOnStartup")
+        settings = omni_settings.get_settings()
+        show_on_startup = settings.get_as_bool("/exts/cesium.omniverse/showOnStartup")
 
         self._add_to_menu(CesiumOmniverseMainWindow.MENU_PATH, self.show_main_window, show_on_startup)
         self._add_to_menu(CesiumOmniverseAssetWindow.MENU_PATH, self.show_assets_window, False)
@@ -82,13 +85,37 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         _cesium_omniverse_interface = acquire_cesium_omniverse_interface()
         _cesium_omniverse_interface.on_startup(cesium_extension_location)
 
-        omni_settings.get_settings().set("/rtx/hydra/TBNFrameMode", 1)
+        settings.set("/rtx/hydra/TBNFrameMode", 1)
+
+        # Allow material graph to find cesium mdl exports
+        mdl_custom_paths_name = "materialConfig/searchPaths/custom"
+        mdl_user_allow_list_name = "materialConfig/materialGraph/userAllowList"
+        mdl_renderer_custom_paths_name = "/renderer/mdl/searchPaths/custom"
+
+        cesium_mdl_search_path = os.path.join(cesium_extension_location, "mdl")
+        cesium_mdl_name = "cesium.mdl"
+
+        mdl_custom_paths = settings.get(mdl_custom_paths_name) or []
+        mdl_user_allow_list = settings.get(mdl_user_allow_list_name) or []
+
+        mdl_custom_paths.append(cesium_mdl_search_path)
+        mdl_user_allow_list.append(cesium_mdl_name)
+
+        mdl_renderer_custom_paths = settings.get_as_string(mdl_renderer_custom_paths_name)
+        mdl_renderer_custom_paths_sep = "" if mdl_renderer_custom_paths == "" else ";"
+        mdl_renderer_custom_paths = mdl_renderer_custom_paths + mdl_renderer_custom_paths_sep + cesium_mdl_search_path
+
+        settings.set_string_array(mdl_custom_paths_name, mdl_custom_paths)
+        settings.set_string_array(mdl_user_allow_list_name, mdl_user_allow_list)
+        settings.set_string(mdl_renderer_custom_paths_name, mdl_renderer_custom_paths)
 
         # Show the window. It will call `self.show_window`
         if show_on_startup:
             asyncio.ensure_future(perform_action_after_n_frames_async(15, CesiumOmniverseExtension._open_window))
 
         self._credits_viewport_controller = CreditsViewportController(_cesium_omniverse_interface)
+
+        self._add_menu_controller = CesiumAddMenuController(_cesium_omniverse_interface)
 
         # Subscribe to stage event stream
         usd_context = omni.usd.get_context()
@@ -184,6 +211,10 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         if self._attributes_widget_controller is not None:
             self._attributes_widget_controller.destroy()
             self._attributes_widget_controller = None
+
+        if self._add_menu_controller is not None:
+            self._add_menu_controller.destroy()
+            self._add_menu_controller = None
 
         self._destroy_credits_viewport_frames()
 
