@@ -16,7 +16,6 @@
 
 #include <charconv>
 #include <numeric>
-#include <regex>
 
 namespace cesium::omniverse::GltfUtil {
 
@@ -321,9 +320,12 @@ std::pair<std::string, uint64_t> parseAttributeName(const std::string& attribute
     int lastUnderscorePosition{-1};
     while (searchPosition > 0) {
         if (!isdigit(attributeName[searchPosition])) {
+            if (attributeName[searchPosition] == '_') {
+                lastUnderscorePosition = searchPosition;
+            }
+
             break;
         }
-        lastUnderscorePosition = searchPosition;
         searchPosition--;
     }
 
@@ -332,8 +334,8 @@ std::pair<std::string, uint64_t> parseAttributeName(const std::string& attribute
     if (lastUnderscorePosition == -1) {
         semantic = attributeName;
     } else {
-        semantic = attributeName.substr(0, lastUnderscorePosition - 1);
-        auto setIndex = attributeName.substr(lastUnderscorePosition);
+        semantic = attributeName.substr(0, lastUnderscorePosition);
+        auto setIndex = attributeName.substr(lastUnderscorePosition + 1);
         std::from_chars(setIndex.data(), setIndex.data() + setIndex.size(), setIndexU64);
     }
 
