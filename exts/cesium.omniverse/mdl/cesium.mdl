@@ -124,25 +124,25 @@ export float4 cesium_imagery_layer_float4(
 }
 
 export material cesium_material(
-    uniform color base_color_factor = color(1.0)
+    color base_color_factor = color(1.0)
     [[
         anno::display_name("Base Color Factor"),
         anno::description("The base color of the material.")
     ]],
-    uniform float metallic_factor = 0.0
+    float metallic_factor = 0.0
     [[
         anno::hard_range(0.0, 1.0),
         anno::display_name("Metallic Factor"),
         anno::description("The metalness of the material. Select between dielectric (0.0) and metallic (1.0).")
     ]],
 
-    uniform float roughness_factor = 1.0
+    float roughness_factor = 1.0
     [[
         anno::hard_range(0.0, 1.0),
         anno::display_name("Roughness Factor"),
         anno::description("The roughness of the material. Select between very glossy (0.0) and dull (1.0).")
     ]],
-    uniform color emissive_factor = color(0.0)
+    color emissive_factor = color(0.0)
     [[
         anno::display_name("Emissive Factor"),
         anno::description("The emissive color of the material.")
@@ -152,7 +152,7 @@ export material cesium_material(
         anno::display_name("Alpha Mode"),
         anno::description("Select how to interpret the alpha value.")
     ]],
-    uniform float base_alpha = 1.0
+    float base_alpha = 1.0
     [[
         anno::hard_range(0.0, 1.0),
         anno::display_name("Base Alpha"),
@@ -172,13 +172,20 @@ export material cesium_material(
     anno::author("Cesium GS Inc."),
     anno::in_group("Cesium")
 ]] = let {
+    auto base_color = float3(base_color_factor);
+    auto emissive = float3(emissive_factor);
+
+    // We can't pass varyings (things not marked "uniform") to uniforms like base_color_factor, base_alpha, etc
+    // To work around this, treat them as if they were texture values, which are varying.
+    // If you look at gltf/pbr.mdl the math works out the same in either case.
+    //
+    // Previously our inputs were marked "uniform" but this caused a bunch of warnings like:
+    //   uniform parameter 'base_color_factor' of material got varying attachment
     material base = gltf_material(
-        base_color_factor: base_color_factor,
-        metallic_factor: metallic_factor,
-        roughness_factor: roughness_factor,
-        emissive_factor: emissive_factor,
+        base_color_texture: gltf_texture_lookup_value(true, float4(base_color.x, base_color.y, base_color.z, base_alpha)),
+        metallic_roughness_texture: gltf_texture_lookup_value(true, float4(1.0, roughness_factor, metallic_factor, 1.0)),
+        emissive_texture: gltf_texture_lookup_value(true, float4(emissive.x, emissive.y, emissive.z, 1.0)),
         alpha_mode: alpha_mode,
-        base_alpha: base_alpha,
         alpha_cutoff: alpha_cutoff
     );
 
