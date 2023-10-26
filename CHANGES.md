@@ -1,7 +1,8 @@
 # Change Log
 
-### v0.12.0 - 2023-11-01
+### v0.12.0 - 2023-10-25
 
+* Added a quick add button for Google Photorealistic Tiles through ion.
 * Added support for globe anchors.
 * Added support for multiple imagery layers.
 * Added alpha property to imagery layers.
