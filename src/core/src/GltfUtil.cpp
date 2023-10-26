@@ -317,16 +317,23 @@ const CesiumGltf::ImageCesium& getImageCesium(const CesiumGltf::Model& model, co
 }
 
 std::pair<std::string, uint64_t> parseAttributeName(const std::string& attributeName) {
-    std::string semantic{};
-    uint64_t setIndexU64 = 0;
+    int searchPosition = static_cast<int>(attributeName.size()) - 1;
+    int lastUnderscorePosition{-1};
+    while (searchPosition > 0) {
+        if (!isdigit(attributeName[searchPosition])) {
+            break;
+        }
+        lastUnderscorePosition = searchPosition;
+        searchPosition--;
+    }
 
-    if (attributeName[0] != '_') {
+    std::string semantic{};
+    uint64_t setIndexU64{0};
+    if (lastUnderscorePosition == -1) {
         semantic = attributeName;
     } else {
-        auto lastUnderscorePosition = attributeName.rfind('_');
-        semantic = attributeName.substr(0, lastUnderscorePosition);
-        auto setIndex =
-            attributeName.substr(lastUnderscorePosition + 1, attributeName.size() - lastUnderscorePosition + 1);
+        semantic = attributeName.substr(0, lastUnderscorePosition - 1);
+        auto setIndex = attributeName.substr(lastUnderscorePosition);
         std::from_chars(setIndex.data(), setIndex.data() + setIndex.size(), setIndexU64);
     }
 
