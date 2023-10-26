@@ -325,7 +325,8 @@ std::pair<std::string, uint64_t> parseAttributeName(const std::string& attribute
     } else {
         auto lastUnderscorePosition = attributeName.rfind('_');
         semantic = attributeName.substr(0, lastUnderscorePosition);
-        auto setIndex = attributeName.substr(lastUnderscorePosition + 1, attributeName.size() - lastUnderscorePosition + 1);
+        auto setIndex =
+            attributeName.substr(lastUnderscorePosition + 1, attributeName.size() - lastUnderscorePosition + 1);
         std::from_chars(setIndex.data(), setIndex.data() + setIndex.size(), setIndexU64);
     }
 
