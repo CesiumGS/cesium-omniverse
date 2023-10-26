@@ -1,5 +1,9 @@
 # Change Log
 
+### v0.12.1 - 2023-10-26
+
+* Fixed version numbers.
+
 ### v0.12.0 - 2023-10-25
 
 * Added a quick add button for Google Photorealistic 3D Tiles through ion.
