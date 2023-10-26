@@ -252,6 +252,8 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         tileset = CesiumTileset.Define(stage, tileset_path)
 
         tileset.GetIonAssetIdAttr().Set(GOOGLE_3D_TILES_ION_ID)
+        tileset.GetIonAccessTokenAttr().Set(ION_ACCESS_TOKEN)
+        tileset.GetSourceTypeAttr().Set(CesiumTokens.ion)
 
         return tileset_path
 
