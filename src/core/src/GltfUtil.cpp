@@ -317,7 +317,7 @@ const CesiumGltf::ImageCesium& getImageCesium(const CesiumGltf::Model& model, co
 }
 
 std::pair<std::string, uint64_t> parseAttributeName(const std::string& attributeName) {
-    std::string semantic = "";
+    std::string semantic{};
     uint64_t setIndexU64 = 0;
 
     if (attributeName[0] != '_') {
