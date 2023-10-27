@@ -100,13 +100,13 @@ std::optional<CesiumIonClient::Token> OmniTileset::getIonAccessToken() const {
     return t;
 }
 
-float OmniTileset::getMaximumScreenSpaceError() const {
+double OmniTileset::getMaximumScreenSpaceError() const {
     auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     float maximumScreenSpaceError;
     tileset.GetMaximumScreenSpaceErrorAttr().Get<float>(&maximumScreenSpaceError);
 
-    return maximumScreenSpaceError;
+    return static_cast<double>(maximumScreenSpaceError);
 }
 
 bool OmniTileset::getPreloadAncestors() const {
@@ -190,13 +190,13 @@ bool OmniTileset::getEnforceCulledScreenSpaceError() const {
     return enforceCulledScreenSpaceError;
 }
 
-float OmniTileset::getCulledScreenSpaceError() const {
+double OmniTileset::getCulledScreenSpaceError() const {
     auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     float culledScreenSpaceError;
     tileset.GetCulledScreenSpaceErrorAttr().Get<float>(&culledScreenSpaceError);
 
-    return culledScreenSpaceError;
+    return static_cast<double>(culledScreenSpaceError);
 }
 
 bool OmniTileset::getSuspendUpdate() const {
@@ -226,13 +226,13 @@ bool OmniTileset::getShowCreditsOnScreen() const {
     return showCreditsOnScreen;
 }
 
-float OmniTileset::getMainThreadLoadingTimeLimit() const {
+double OmniTileset::getMainThreadLoadingTimeLimit() const {
     auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     float mainThreadLoadingTimeLimit;
     tileset.GetMainThreadLoadingTimeLimitAttr().Get<float>(&mainThreadLoadingTimeLimit);
 
-    return mainThreadLoadingTimeLimit;
+    return static_cast<double>(mainThreadLoadingTimeLimit);
 }
 
 pxr::CesiumGeoreference OmniTileset::getGeoreference() const {
@@ -488,11 +488,11 @@ void OmniTileset::updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::T
     });
 }
 
-float OmniTileset::getImageryLayerAlpha(uint64_t imageryLayerIndex) const {
+double OmniTileset::getImageryLayerAlpha(uint64_t imageryLayerIndex) const {
     assert(imageryLayerIndex < _imageryPaths.size());
 
     auto alpha = OmniImagery(_imageryPaths[imageryLayerIndex]).getAlpha();
-    alpha = glm::clamp(alpha, 0.0f, 1.0f);
+    alpha = glm::clamp(alpha, 0.0, 1.0);
 
     return alpha;
 }
