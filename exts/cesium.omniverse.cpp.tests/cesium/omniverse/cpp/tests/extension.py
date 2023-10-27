@@ -10,6 +10,9 @@ class CesiumOmniverseCppTestsExtension(omni.ext.IExt):
     def __init__(self):
         super().__init__()
         self.tests_set_up = False
+        self.frames_since_stage_opened = 0
+        self.frame_count_delta = 0
+        self.frames_between_setup_and_tests = 120
 
     def on_startup(self):
         print("Starting Cesium Tests Extension...")
@@ -41,11 +44,13 @@ class CesiumOmniverseCppTestsExtension(omni.ext.IExt):
                 print("Beginning Cesium Tests Extension tests")
                 stageId = omni.usd.get_context().get_stage_id()
                 tests_interface.set_up_tests(stageId)
-            else:
+                self.frame_count_delta = 1
+            elif self.frames_since_stage_opened >= self.frames_between_setup_and_tests:
                 # unsubscribe so there's no way the next frame triggers another run
                 self._run_once_sub.unsubscribe()
                 tests_interface.run_all_tests()
                 print("Cesium Tests Extension tests complete")
+        self.frames_since_stage_opened += self.frame_count_delta
 
     def on_shutdown(self):
         print("Stopping Cesium Tests Extension...")
