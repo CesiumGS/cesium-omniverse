@@ -1,5 +1,9 @@
 # Change Log
 
+### v0.13.0 - 2023-11-01
+
+* Changing certain tileset properties no longer triggers a tileset reload.
+
 ### v0.12.1 - 2023-10-26
 
 * Fixed version numbers.
