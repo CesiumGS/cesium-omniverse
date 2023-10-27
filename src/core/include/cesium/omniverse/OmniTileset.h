@@ -71,6 +71,8 @@ class OmniTileset {
     [[nodiscard]] int64_t getTilesetId() const;
     [[nodiscard]] TilesetStatistics getStatistics() const;
 
+    void updateTilesetOptionsFromProperties();
+
     void reload();
     void addImageryIon(const pxr::SdfPath& imageryPath);
     [[nodiscard]] std::optional<uint64_t>

@@ -280,6 +280,22 @@ TilesetStatistics OmniTileset::getStatistics() const {
     return statistics;
 }
 
+void OmniTileset::updateTilesetOptionsFromProperties() {
+    auto& options = _tileset->getOptions();
+    options.maximumScreenSpaceError = getMaximumScreenSpaceError();
+    options.preloadAncestors = getPreloadAncestors();
+    options.preloadSiblings = getPreloadSiblings();
+    options.forbidHoles = getForbidHoles();
+    options.maximumSimultaneousTileLoads = getMaximumSimultaneousTileLoads();
+    options.maximumCachedBytes = static_cast<int64_t>(getMaximumCachedBytes());
+    options.loadingDescendantLimit = getLoadingDescendantLimit();
+    options.enableFrustumCulling = getEnableFrustumCulling();
+    options.enableFogCulling = getEnableFogCulling();
+    options.enforceCulledScreenSpaceError = getEnforceCulledScreenSpaceError();
+    options.culledScreenSpaceError = getCulledScreenSpaceError();
+    options.mainThreadLoadingTimeLimit = getMainThreadLoadingTimeLimit();
+}
+
 void OmniTileset::reload() {
     if (_renderResourcesPreparer != nullptr) {
         _renderResourcesPreparer->detachTileset();
