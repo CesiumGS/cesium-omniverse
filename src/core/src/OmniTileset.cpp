@@ -257,6 +257,37 @@ pxr::SdfPath OmniTileset::getMaterialPath() const {
     return materialPath;
 }
 
+glm::dvec3 OmniTileset::getDisplayColor() const {
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+
+    pxr::VtVec3fArray displayColorArray;
+    tileset.GetDisplayColorAttr().Get(&displayColorArray);
+
+    if (displayColorArray.size() == 0) {
+        return {1.0, 1.0, 1.0};
+    }
+
+    const auto& displayColor = displayColorArray[0];
+    return {
+        static_cast<double>(displayColor[0]),
+        static_cast<double>(displayColor[1]),
+        static_cast<double>(displayColor[2]),
+    };
+}
+
+double OmniTileset::getDisplayOpacity() const {
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+
+    pxr::VtFloatArray displayOpacityArray;
+    tileset.GetDisplayOpacityAttr().Get(&displayOpacityArray);
+
+    if (displayOpacityArray.size() == 0) {
+        return 1.0;
+    }
+
+    return static_cast<double>(displayOpacityArray[0]);
+}
+
 int64_t OmniTileset::getTilesetId() const {
     return _tilesetId;
 }
@@ -461,9 +492,9 @@ uint64_t OmniTileset::getImageryLayerCount() const {
 }
 
 namespace {
-void forEachFabricMaterial(
+void forEachFabricMesh(
     const std::unique_ptr<Cesium3DTilesSelection::Tileset>& tileset,
-    const std::function<void(FabricMaterial& fabricMaterial)>& callback) {
+    const std::function<void(FabricMesh& fabricMesh)>& callback) {
     tileset->forEachLoadedTile([&callback](Cesium3DTilesSelection::Tile& tile) {
         if (tile.getState() != Cesium3DTilesSelection::TileLoadState::Done) {
             return;
@@ -477,14 +508,32 @@ void forEachFabricMaterial(
         if (!pTileRenderResources) {
             return;
         }
-        for (const auto& fabricMesh : pTileRenderResources->fabricMeshes) {
-            if (!fabricMesh.material) {
-                continue;
-            }
+        for (auto& fabricMesh : pTileRenderResources->fabricMeshes) {
+            callback(fabricMesh);
+        }
+    });
+}
+
+void forEachFabricMaterial(
+    const std::unique_ptr<Cesium3DTilesSelection::Tileset>& tileset,
+    const std::function<void(FabricMaterial& fabricMaterial)>& callback) {
+    forEachFabricMesh(tileset, [&callback](FabricMesh& fabricMesh) {
+        if (fabricMesh.material) {
             callback(*fabricMesh.material.get());
         }
     });
 }
+
+void forEachFabricGeometry(
+    const std::unique_ptr<Cesium3DTilesSelection::Tileset>& tileset,
+    const std::function<void(FabricGeometry& fabricGeometry)>& callback) {
+    forEachFabricMesh(tileset, [&callback](FabricMesh& fabricMesh) {
+        if (fabricMesh.geometry) {
+            callback(*fabricMesh.geometry.get());
+        }
+    });
+}
+
 } // namespace
 
 void OmniTileset::updateImageryLayerAlpha(uint64_t imageryLayerIndex) {
@@ -494,6 +543,25 @@ void OmniTileset::updateImageryLayerAlpha(uint64_t imageryLayerIndex) {
 
     forEachFabricMaterial(_tileset, [imageryLayerIndex, alpha](FabricMaterial& fabricMaterial) {
         fabricMaterial.setImageryLayerAlpha(imageryLayerIndex, alpha);
+    });
+}
+
+void OmniTileset::updateDisplayColor() {
+    const auto displayColor = getDisplayColor();
+
+    forEachFabricGeometry(
+        _tileset, [&displayColor](FabricGeometry& fabricGeometry) { fabricGeometry.setDisplayColor(displayColor); });
+}
+
+void OmniTileset::updateDisplayOpacity() {
+    const auto displayOpacity = getDisplayOpacity();
+
+    forEachFabricGeometry(_tileset, [&displayOpacity](FabricGeometry& fabricGeometry) {
+        fabricGeometry.setDisplayOpacity(displayOpacity);
+    });
+
+    forEachFabricMaterial(_tileset, [&displayOpacity](FabricMaterial& fabricMaterial) {
+        fabricMaterial.setDisplayOpacity(displayOpacity);
     });
 }
 

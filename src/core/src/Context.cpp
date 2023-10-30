@@ -287,11 +287,11 @@ void Context::processCesiumTilesetChanged(const ChangedPrim& changedPrim) {
         name == pxr::CesiumTokens->cesiumCulledScreenSpaceError ||
         name == pxr::CesiumTokens->cesiumMainThreadLoadingTimeLimit) {
         tileset.value()->updateTilesetOptionsFromProperties();
-    }
-    // clang-format on
-
-    // clang-format off
-    if (name == pxr::CesiumTokens->cesiumSourceType ||
+    } else if (name == pxr::UsdTokens->primvars_displayColor) {
+        tileset.value()->updateDisplayColor();
+    } else if (name == pxr::UsdTokens->primvars_displayOpacity) {
+        tileset.value()->updateDisplayOpacity();
+    } else if (name == pxr::CesiumTokens->cesiumSourceType ||
         name == pxr::CesiumTokens->cesiumUrl ||
         name == pxr::CesiumTokens->cesiumIonAssetId ||
         name == pxr::CesiumTokens->cesiumIonAccessToken ||

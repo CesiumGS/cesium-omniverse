@@ -113,6 +113,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((outputs_mdl_volume, "outputs:mdl:volume")) \
     ((outputs_out, "outputs:out")) \
     ((primvars_displayColor, "primvars:displayColor")) \
+    ((primvars_displayOpacity, "primvars:displayOpacity")) \
     ((primvars_normals, "primvars:normals")) \
     ((primvars_st_0, "primvars:st_0")) \
     ((primvars_st_1, "primvars:st_1")) \
@@ -124,6 +125,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((primvars_st_7, "primvars:st_7")) \
     ((primvars_st_8, "primvars:st_8")) \
     ((primvars_st_9, "primvars:st_9")) \
+    ((primvars_vertexColor, "primvars:vertexColor")) \
     ((xformOp_transform_cesium, "xformOp:transform:cesium"))
 
 TF_DECLARE_PUBLIC_TOKENS(UsdTokens, USD_TOKENS);
@@ -247,8 +249,10 @@ const omni::fabric::Type points(omni::fabric::BaseDataType::eFloat, 3, 1, omni::
 const omni::fabric::Type primvarInterpolations(omni::fabric::BaseDataType::eToken, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type primvars(omni::fabric::BaseDataType::eToken, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type primvars_displayColor(omni::fabric::BaseDataType::eFloat, 3, 1, omni::fabric::AttributeRole::eColor);
+const omni::fabric::Type primvars_displayOpacity(omni::fabric::BaseDataType::eFloat, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type primvars_normals(omni::fabric::BaseDataType::eFloat, 3, 1, omni::fabric::AttributeRole::eNormal);
 const omni::fabric::Type primvars_st(omni::fabric::BaseDataType::eFloat, 2, 1, omni::fabric::AttributeRole::eTexCoord);
+const omni::fabric::Type primvars_vertexColor(omni::fabric::BaseDataType::eFloat, 4, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type Shader(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName);
 const omni::fabric::Type subdivisionScheme(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _cesium_localToEcefTransform(omni::fabric::BaseDataType::eDouble, 16, 0, omni::fabric::AttributeRole::eMatrix);

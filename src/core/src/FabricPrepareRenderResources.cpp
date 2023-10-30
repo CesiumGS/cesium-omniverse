@@ -178,10 +178,14 @@ void setFabricMeshes(
     std::vector<FabricMesh>& fabricMeshes,
     const OmniTileset& tileset) {
     CESIUM_TRACE("FabricPrepareRenderResources::setFabricMeshes");
+
+    const auto& tilesetMaterialPath = tileset.getMaterialPath();
+    const auto displayColor = tileset.getDisplayColor();
+    const auto displayOpacity = tileset.getDisplayOpacity();
+
     for (size_t i = 0; i < meshes.size(); i++) {
         const auto& meshInfo = meshes[i];
         const auto& primitive = model.meshes[meshInfo.meshId].primitives[meshInfo.primitiveId];
-        const auto& tilesetMaterialPath = tileset.getMaterialPath();
 
         auto& mesh = fabricMeshes[i];
         auto& geometry = mesh.geometry;
@@ -198,10 +202,12 @@ void setFabricMeshes(
             primitive,
             meshInfo.smoothNormals,
             mesh.texcoordIndexMapping,
-            mesh.imageryTexcoordIndexMapping);
+            mesh.imageryTexcoordIndexMapping,
+            displayColor,
+            displayOpacity);
 
         if (material != nullptr) {
-            material->setMaterial(meshInfo.tilesetId, materialInfo);
+            material->setMaterial(meshInfo.tilesetId, materialInfo, displayOpacity);
             geometry->setMaterial(material->getPath());
 
             if (hasBaseColorTextureGltf(mesh)) {

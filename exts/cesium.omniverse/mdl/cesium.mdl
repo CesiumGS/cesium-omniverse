@@ -3,6 +3,7 @@ mdl 1.8;
 import ::anno::*;
 import ::state::*;
 import ::tex::*;
+import ::scene::*;
 
 using ::gltf::pbr import *;
 
@@ -213,6 +214,7 @@ float4 compute_base_color(
 
     auto base_color = base_color_texture.valid ? base_color_texture.value : float4(1.0);
     base_color *= float4(base_color_factor_float3.x, base_color_factor_float3.y, base_color_factor_float3.z, base_alpha);
+    base_color *= ::scene::data_lookup_float4("vertexColor", float4(1.0));
     base_color = alpha_blend(imagery_layers_texture.value, base_color);
     base_color *= float4(debug_color_float3.x, debug_color_float3.y, debug_color_float3.z, 1.0);
 

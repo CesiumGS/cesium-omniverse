@@ -20,6 +20,7 @@ namespace {
 
 const auto DEFAULT_DEBUG_COLOR = pxr::GfVec3f(1.0f, 1.0f, 1.0f);
 const auto DEFAULT_ALPHA = 1.0f;
+const auto DEFAULT_DISPLAY_OPACITY = 1.0;
 
 uint64_t getImageryLayerCount(const FabricMaterialDefinition& materialDefinition) {
     uint64_t imageryLayerCount = materialDefinition.getImageryLayerCount();
@@ -35,6 +36,10 @@ uint64_t getImageryLayerCount(const FabricMaterialDefinition& materialDefinition
     imageryLayerCount = glm::min(imageryLayerCount, FabricTokens::MAX_IMAGERY_LAYERS_COUNT);
 
     return imageryLayerCount;
+}
+
+AlphaMode getAlphaMode(AlphaMode alphaMode, double displayOpacity) {
+    return displayOpacity < 1.0 ? AlphaMode::BLEND : alphaMode;
 }
 
 } // namespace
@@ -391,10 +396,12 @@ void FabricMaterial::reset() {
     clearImageryLayers();
 }
 
-void FabricMaterial::setMaterial(int64_t tilesetId, const MaterialInfo& materialInfo) {
+void FabricMaterial::setMaterial(int64_t tilesetId, const MaterialInfo& materialInfo, double displayOpacity) {
     if (stageDestroyed()) {
         return;
     }
+
+    _alphaMode = getAlphaMode(materialInfo.alphaMode, displayOpacity);
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
@@ -453,6 +460,20 @@ void FabricMaterial::setImageryLayerAlpha(uint64_t imageryLayerIndex, double alp
     }
 }
 
+void FabricMaterial::setDisplayOpacity(double displayOpacity) {
+    if (stageDestroyed()) {
+        return;
+    }
+
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+
+    for (auto& shaderPath : _shaderPaths) {
+        const auto alphaMode = getAlphaMode(_alphaMode, displayOpacity);
+        auto alphaModeFabric = srw.getAttributeWr<int>(shaderPath, FabricTokens::inputs_alpha_mode);
+        *alphaModeFabric = static_cast<int>(alphaMode);
+    }
+}
+
 void FabricMaterial::updateShaderInput(const omni::fabric::Path& shaderPath, const omni::fabric::Token& attributeName) {
     if (stageDestroyed()) {
         return;
@@ -477,7 +498,7 @@ void FabricMaterial::updateShaderInput(const omni::fabric::Path& shaderPath, con
 }
 
 void FabricMaterial::clearMaterial() {
-    setMaterial(NO_TILESET_ID, GltfUtil::getDefaultMaterialInfo());
+    setMaterial(NO_TILESET_ID, GltfUtil::getDefaultMaterialInfo(), DEFAULT_DISPLAY_OPACITY);
 }
 
 void FabricMaterial::clearBaseColorTexture() {
@@ -512,7 +533,7 @@ void FabricMaterial::setShaderValues(const omni::fabric::Path& shaderPath, const
     auto roughnessFactorFabric = srw.getAttributeWr<float>(shaderPath, FabricTokens::inputs_roughness_factor);
 
     *alphaCutoffFabric = static_cast<float>(materialInfo.alphaCutoff);
-    *alphaModeFabric = materialInfo.alphaMode;
+    *alphaModeFabric = static_cast<int>(_alphaMode);
     *baseAlphaFabric = static_cast<float>(materialInfo.baseAlpha);
     *baseColorFactorFabric = UsdUtil::glmToUsdVector(glm::fvec3(materialInfo.baseColorFactor));
     *emissiveFactorFabric = UsdUtil::glmToUsdVector(glm::fvec3(materialInfo.emissiveFactor));

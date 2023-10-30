@@ -25,7 +25,7 @@ class FabricMaterial {
         long stageId);
     ~FabricMaterial();
 
-    void setMaterial(int64_t tilesetId, const MaterialInfo& materialInfo);
+    void setMaterial(int64_t tilesetId, const MaterialInfo& materialInfo, double displayOpacity);
     void setBaseColorTexture(
         const pxr::TfToken& textureAssetPathToken,
         const TextureInfo& textureInfo,
@@ -37,6 +37,7 @@ class FabricMaterial {
         uint64_t imageryLayerIndex,
         double alpha);
     void setImageryLayerAlpha(uint64_t imageryLayerIndex, double alpha);
+    void setDisplayOpacity(double displayOpacity);
     void updateShaderInput(const omni::fabric::Path& shaderPath, const omni::fabric::Token& attributeName);
 
     void clearMaterial();
@@ -102,6 +103,8 @@ class FabricMaterial {
     const pxr::TfToken _defaultTransparentTextureAssetPathToken;
     const bool _debugRandomColors;
     const long _stageId;
+
+    AlphaMode _alphaMode;
 
     std::vector<omni::fabric::Path> _shaderPaths;
     std::vector<omni::fabric::Path> _baseColorTexturePaths;
