@@ -23,7 +23,7 @@ namespace cesium::omniverse {
 
 namespace {
 
-const auto DEFAULT_DISPLAY_COLOR = pxr::GfVec3f(1.0f, 1.0f, 1.0f);
+const auto DEFAULT_DISPLAY_COLOR = pxr::GfVec4f(1.0f, 1.0f, 1.0f, 1.0f);
 const auto DEFAULT_DISPLAY_OPACITY = 1.0f;
 const auto DEFAULT_EXTENT = pxr::GfRange3d(pxr::GfVec3d(0.0, 0.0, 0.0), pxr::GfVec3d(0.0, 0.0, 0.0));
 const auto DEFAULT_POSITION = pxr::GfVec3d(0.0, 0.0, 0.0);
@@ -48,8 +48,8 @@ uint64_t getTexcoordSetCount(const FabricGeometryDefinition& geometryDefinition)
     return texcoordSetCount;
 }
 
-pxr::GfVec3f glmToUsdColor(const glm::dvec3& color) {
-    return {static_cast<float>(color.x), static_cast<float>(color.y), static_cast<float>(color.z)};
+pxr::GfVec4f glmToUsdColor(const glm::dvec3& color) {
+    return {static_cast<float>(color.x), static_cast<float>(color.y), static_cast<float>(color.z), 1.0f};
 }
 
 } // namespace
@@ -107,7 +107,7 @@ void FabricGeometry::setDisplayColor(const glm::dvec3& displayColor) {
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
-    auto displayColorFabric = srw.getArrayAttributeWr<pxr::GfVec3f>(_path, FabricTokens::primvars_displayColor);
+    auto displayColorFabric = srw.getArrayAttributeWr<pxr::GfVec4f>(_path, FabricTokens::primvars_displayColorVec4);
     displayColorFabric[0] = glmToUsdColor(displayColor);
 }
 
@@ -169,7 +169,7 @@ void FabricGeometry::initialize() {
     attributes.addAttribute(FabricTypes::doubleSided, FabricTokens::doubleSided);
     attributes.addAttribute(FabricTypes::subdivisionScheme, FabricTokens::subdivisionScheme);
     attributes.addAttribute(FabricTypes::material_binding, FabricTokens::material_binding);
-    attributes.addAttribute(FabricTypes::primvars_displayColor, FabricTokens::primvars_displayColor);
+    attributes.addAttribute(FabricTypes::primvars_displayColorVec4, FabricTokens::primvars_displayColorVec4);
     attributes.addAttribute(FabricTypes::primvars_displayOpacity, FabricTokens::primvars_displayOpacity);
 
     for (uint64_t i = 0; i < texcoordSetCount; i++) {
@@ -194,7 +194,7 @@ void FabricGeometry::initialize() {
     *doubleSidedFabric = doubleSided;
     *subdivisionSchemeFabric = FabricTokens::none;
 
-    srw.setArrayAttributeSize(_path, FabricTokens::primvars_displayColor, 1);
+    srw.setArrayAttributeSize(_path, FabricTokens::primvars_displayColorVec4, 1);
     srw.setArrayAttributeSize(_path, FabricTokens::primvars_displayOpacity, 1);
 
     // Initialize primvars
@@ -243,7 +243,7 @@ void FabricGeometry::initialize() {
         primvarInterpolationsFabric[primvarIndexVertexColor] = FabricTokens::vertex;
     }
 
-    primvarsFabric[primvarIndexDisplayColor] = FabricTokens::primvars_displayColor;
+    primvarsFabric[primvarIndexDisplayColor] = FabricTokens::primvars_displayColorVec4;
     primvarInterpolationsFabric[primvarIndexDisplayColor] = FabricTokens::constant;
 
     primvarsFabric[primvarIndexDisplayOpacity] = FabricTokens::primvars_displayOpacity;
@@ -265,7 +265,7 @@ void FabricGeometry::reset() {
     auto worldPositionFabric = srw.getAttributeWr<pxr::GfVec3d>(_path, FabricTokens::_worldPosition);
     auto worldOrientationFabric = srw.getAttributeWr<pxr::GfQuatf>(_path, FabricTokens::_worldOrientation);
     auto worldScaleFabric = srw.getAttributeWr<pxr::GfVec3f>(_path, FabricTokens::_worldScale);
-    auto displayColorFabric = srw.getArrayAttributeWr<pxr::GfVec3f>(_path, FabricTokens::primvars_displayColor);
+    auto displayColorFabric = srw.getArrayAttributeWr<pxr::GfVec4f>(_path, FabricTokens::primvars_displayColorVec4);
     auto displayOpacityFabric = srw.getArrayAttributeWr<float>(_path, FabricTokens::primvars_displayOpacity);
     // clang-format on
 
@@ -488,7 +488,7 @@ void FabricGeometry::setGeometry(
     auto worldPositionFabric = srw.getAttributeWr<pxr::GfVec3d>(_path, FabricTokens::_worldPosition);
     auto worldOrientationFabric = srw.getAttributeWr<pxr::GfQuatf>(_path, FabricTokens::_worldOrientation);
     auto worldScaleFabric = srw.getAttributeWr<pxr::GfVec3f>(_path, FabricTokens::_worldScale);
-    auto displayColorFabric = srw.getArrayAttributeWr<pxr::GfVec3f>(_path, FabricTokens::primvars_displayColor);
+    auto displayColorFabric = srw.getArrayAttributeWr<pxr::GfVec4f>(_path, FabricTokens::primvars_displayColorVec4);
     auto displayOpacityFabric = srw.getArrayAttributeWr<float>(_path, FabricTokens::primvars_displayOpacity);
     // clang-format on
 

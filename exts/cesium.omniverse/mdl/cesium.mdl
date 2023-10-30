@@ -266,6 +266,7 @@ export material cesium_internal_material(
 ) [[ anno::hidden() ]] = let {
     auto base_color = compute_base_color(imagery_layers_texture, debug_color, base_color_texture, base_color_factor, base_alpha);
     material base = gltf_material(
+        vertex_color_name: "displayColorVec4",
         base_color_texture: gltf_texture_lookup_value(true, base_color),
         metallic_factor: metallic_factor,
         roughness_factor: roughness_factor,

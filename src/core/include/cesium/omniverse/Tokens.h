@@ -113,6 +113,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((outputs_mdl_volume, "outputs:mdl:volume")) \
     ((outputs_out, "outputs:out")) \
     ((primvars_displayColor, "primvars:displayColor")) \
+    ((primvars_displayColorVec4, "primvars:displayColorVec4")) \
     ((primvars_displayOpacity, "primvars:displayOpacity")) \
     ((primvars_normals, "primvars:normals")) \
     ((primvars_st_0, "primvars:st_0")) \
@@ -248,7 +249,7 @@ const omni::fabric::Type outputs_out(omni::fabric::BaseDataType::eToken, 1, 0, o
 const omni::fabric::Type points(omni::fabric::BaseDataType::eFloat, 3, 1, omni::fabric::AttributeRole::ePosition);
 const omni::fabric::Type primvarInterpolations(omni::fabric::BaseDataType::eToken, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type primvars(omni::fabric::BaseDataType::eToken, 1, 1, omni::fabric::AttributeRole::eNone);
-const omni::fabric::Type primvars_displayColor(omni::fabric::BaseDataType::eFloat, 3, 1, omni::fabric::AttributeRole::eColor);
+const omni::fabric::Type primvars_displayColorVec4(omni::fabric::BaseDataType::eFloat, 4, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type primvars_displayOpacity(omni::fabric::BaseDataType::eFloat, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type primvars_normals(omni::fabric::BaseDataType::eFloat, 3, 1, omni::fabric::AttributeRole::eNormal);
 const omni::fabric::Type primvars_st(omni::fabric::BaseDataType::eFloat, 2, 1, omni::fabric::AttributeRole::eTexCoord);
