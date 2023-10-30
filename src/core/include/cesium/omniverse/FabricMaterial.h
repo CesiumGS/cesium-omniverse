@@ -35,8 +35,8 @@ class FabricMaterial {
         const TextureInfo& textureInfo,
         uint64_t texcoordIndex,
         uint64_t imageryLayerIndex,
-        float alpha);
-    void setImageryLayerAlpha(uint64_t imageryLayerIndex, float alpha);
+        double alpha);
+    void setImageryLayerAlpha(uint64_t imageryLayerIndex, double alpha);
     void updateShaderInput(const omni::fabric::Path& shaderPath, const omni::fabric::Token& attributeName);
 
     void clearMaterial();
@@ -91,8 +91,8 @@ class FabricMaterial {
         const pxr::TfToken& textureAssetPathToken,
         const TextureInfo& textureInfo,
         uint64_t texcoordIndex,
-        float alpha);
-    void setImageryLayerAlphaValue(const omni::fabric::Path& imageryLayerPath, float alpha);
+        double alpha);
+    void setImageryLayerAlphaValue(const omni::fabric::Path& imageryLayerPath, double alpha);
 
     bool stageDestroyed();
 

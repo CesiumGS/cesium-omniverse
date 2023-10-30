@@ -53,13 +53,13 @@ bool OmniImagery::getShowCreditsOnScreen() const {
     return showCreditsOnScreen;
 }
 
-float OmniImagery::getAlpha() const {
+double OmniImagery::getAlpha() const {
     auto imagery = UsdUtil::getCesiumImagery(_path);
 
     float alpha;
     imagery.GetAlphaAttr().Get<float>(&alpha);
 
-    return alpha;
+    return static_cast<double>(alpha);
 }
 
 } // namespace cesium::omniverse
