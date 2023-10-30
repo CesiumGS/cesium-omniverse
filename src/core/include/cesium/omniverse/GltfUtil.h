@@ -13,6 +13,13 @@ struct Texture;
 } // namespace CesiumGltf
 
 namespace cesium::omniverse {
+
+enum class AlphaMode : int {
+    OPAQUE = 0,
+    MASK = 1,
+    BLEND = 2,
+};
+
 struct TextureInfo {
     glm::dvec2 offset;
     double rotation;
@@ -28,7 +35,7 @@ struct TextureInfo {
 
 struct MaterialInfo {
     double alphaCutoff;
-    int32_t alphaMode;
+    AlphaMode alphaMode;
     double baseAlpha;
     glm::dvec3 baseColorFactor;
     glm::dvec3 emissiveFactor;

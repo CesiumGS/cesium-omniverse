@@ -74,7 +74,6 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((inputs_base_alpha, "inputs:base_alpha")) \
     ((inputs_base_color_factor, "inputs:base_color_factor")) \
     ((inputs_base_color_texture, "inputs:base_color_texture")) \
-    ((inputs_debug_color, "inputs:debug_color")) \
     ((inputs_emissive_factor, "inputs:emissive_factor")) \
     ((inputs_excludeFromWhiteMode, "inputs:excludeFromWhiteMode")) \
     ((inputs_metallic_factor, "inputs:metallic_factor")) \
@@ -84,6 +83,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((inputs_scale, "inputs:scale")) \
     ((inputs_tex_coord_index, "inputs:tex_coord_index")) \
     ((inputs_texture, "inputs:texture")) \
+    ((inputs_tile_color, "inputs:tile_color")) \
     ((inputs_imagery_layer, "inputs:imagery_layer")) \
     ((inputs_imagery_layer_0, "inputs:imagery_layer_0")) \
     ((inputs_imagery_layer_1, "inputs:imagery_layer_1")) \
@@ -113,6 +113,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((outputs_mdl_volume, "outputs:mdl:volume")) \
     ((outputs_out, "outputs:out")) \
     ((primvars_displayColor, "primvars:displayColor")) \
+    ((primvars_displayOpacity, "primvars:displayOpacity")) \
     ((primvars_normals, "primvars:normals")) \
     ((primvars_st_0, "primvars:st_0")) \
     ((primvars_st_1, "primvars:st_1")) \
@@ -124,6 +125,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((primvars_st_7, "primvars:st_7")) \
     ((primvars_st_8, "primvars:st_8")) \
     ((primvars_st_9, "primvars:st_9")) \
+    ((primvars_vertexColor, "primvars:vertexColor")) \
     ((xformOp_transform_cesium, "xformOp:transform:cesium"))
 
 TF_DECLARE_PUBLIC_TOKENS(UsdTokens, USD_TOKENS);
@@ -225,7 +227,7 @@ const omni::fabric::Type inputs_alpha_cutoff(omni::fabric::BaseDataType::eFloat,
 const omni::fabric::Type inputs_alpha_mode(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_base_alpha(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_base_color_factor(omni::fabric::BaseDataType::eFloat, 3, 0, omni::fabric::AttributeRole::eColor);
-const omni::fabric::Type inputs_debug_color(omni::fabric::BaseDataType::eFloat, 3, 0, omni::fabric::AttributeRole::eColor);
+const omni::fabric::Type inputs_tile_color(omni::fabric::BaseDataType::eFloat, 4, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_emissive_factor(omni::fabric::BaseDataType::eFloat, 3, 0, omni::fabric::AttributeRole::eColor);
 const omni::fabric::Type inputs_excludeFromWhiteMode(omni::fabric::BaseDataType::eBool, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_metallic_factor(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
@@ -246,9 +248,9 @@ const omni::fabric::Type outputs_out(omni::fabric::BaseDataType::eToken, 1, 0, o
 const omni::fabric::Type points(omni::fabric::BaseDataType::eFloat, 3, 1, omni::fabric::AttributeRole::ePosition);
 const omni::fabric::Type primvarInterpolations(omni::fabric::BaseDataType::eToken, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type primvars(omni::fabric::BaseDataType::eToken, 1, 1, omni::fabric::AttributeRole::eNone);
-const omni::fabric::Type primvars_displayColor(omni::fabric::BaseDataType::eFloat, 3, 1, omni::fabric::AttributeRole::eColor);
 const omni::fabric::Type primvars_normals(omni::fabric::BaseDataType::eFloat, 3, 1, omni::fabric::AttributeRole::eNormal);
 const omni::fabric::Type primvars_st(omni::fabric::BaseDataType::eFloat, 2, 1, omni::fabric::AttributeRole::eTexCoord);
+const omni::fabric::Type primvars_vertexColor(omni::fabric::BaseDataType::eFloat, 4, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type Shader(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName);
 const omni::fabric::Type subdivisionScheme(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _cesium_localToEcefTransform(omni::fabric::BaseDataType::eDouble, 16, 0, omni::fabric::AttributeRole::eMatrix);

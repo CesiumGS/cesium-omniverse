@@ -157,16 +157,16 @@ double getAlphaCutoff(const CesiumGltf::Material& material) {
     return material.alphaCutoff;
 }
 
-int32_t getAlphaMode(const CesiumGltf::Material& material) {
+AlphaMode getAlphaMode(const CesiumGltf::Material& material) {
     if (material.alphaMode == CesiumGltf::Material::AlphaMode::OPAQUE) {
-        return 0;
+        return AlphaMode::OPAQUE;
     } else if (material.alphaMode == CesiumGltf::Material::AlphaMode::MASK) {
-        return 1;
+        return AlphaMode::MASK;
     } else if (material.alphaMode == CesiumGltf::Material::AlphaMode::BLEND) {
-        return 2;
+        return AlphaMode::BLEND;
     }
 
-    return 0;
+    return AlphaMode::OPAQUE;
 }
 
 double getBaseAlpha(const CesiumGltf::MaterialPBRMetallicRoughness& pbrMetallicRoughness) {
@@ -231,7 +231,7 @@ double getDefaultAlphaCutoff() {
     return getAlphaCutoff(defaultMaterial);
 }
 
-int32_t getDefaultAlphaMode() {
+AlphaMode getDefaultAlphaMode() {
     return getAlphaMode(defaultMaterial);
 }
 

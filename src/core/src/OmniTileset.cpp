@@ -257,6 +257,37 @@ pxr::SdfPath OmniTileset::getMaterialPath() const {
     return materialPath;
 }
 
+glm::dvec3 OmniTileset::getDisplayColor() const {
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+
+    pxr::VtVec3fArray displayColorArray;
+    tileset.GetDisplayColorAttr().Get(&displayColorArray);
+
+    if (displayColorArray.size() == 0) {
+        return {1.0, 1.0, 1.0};
+    }
+
+    const auto& displayColor = displayColorArray[0];
+    return {
+        static_cast<double>(displayColor[0]),
+        static_cast<double>(displayColor[1]),
+        static_cast<double>(displayColor[2]),
+    };
+}
+
+double OmniTileset::getDisplayOpacity() const {
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+
+    pxr::VtFloatArray displayOpacityArray;
+    tileset.GetDisplayOpacityAttr().Get(&displayOpacityArray);
+
+    if (displayOpacityArray.size() == 0) {
+        return 1.0;
+    }
+
+    return static_cast<double>(displayOpacityArray[0]);
+}
+
 int64_t OmniTileset::getTilesetId() const {
     return _tilesetId;
 }
@@ -478,10 +509,9 @@ void forEachFabricMaterial(
             return;
         }
         for (const auto& fabricMesh : pTileRenderResources->fabricMeshes) {
-            if (!fabricMesh.material) {
-                continue;
+            if (fabricMesh.material) {
+                callback(*fabricMesh.material.get());
             }
-            callback(*fabricMesh.material.get());
         }
     });
 }
@@ -494,6 +524,15 @@ void OmniTileset::updateImageryLayerAlpha(uint64_t imageryLayerIndex) {
 
     forEachFabricMaterial(_tileset, [imageryLayerIndex, alpha](FabricMaterial& fabricMaterial) {
         fabricMaterial.setImageryLayerAlpha(imageryLayerIndex, alpha);
+    });
+}
+
+void OmniTileset::updateDisplayColorAndOpacity() {
+    const auto displayColor = getDisplayColor();
+    const auto displayOpacity = getDisplayOpacity();
+
+    forEachFabricMaterial(_tileset, [&displayColor, &displayOpacity](FabricMaterial& fabricMaterial) {
+        fabricMaterial.setDisplayColorAndOpacity(displayColor, displayOpacity);
     });
 }
 

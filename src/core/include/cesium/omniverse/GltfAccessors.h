@@ -89,7 +89,7 @@ class VertexColorsAccessor {
     VertexColorsAccessor(const CesiumGltf::AccessorView<glm::fvec3>& float32Vec3View);
     VertexColorsAccessor(const CesiumGltf::AccessorView<glm::fvec4>& float32Vec4View);
 
-    void fill(const gsl::span<glm::fvec3>& values) const;
+    void fill(const gsl::span<glm::fvec4>& values) const;
     [[nodiscard]] uint64_t size() const;
 
   private:
