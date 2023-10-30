@@ -492,9 +492,9 @@ uint64_t OmniTileset::getImageryLayerCount() const {
 }
 
 namespace {
-void forEachFabricMesh(
+void forEachFabricMaterial(
     const std::unique_ptr<Cesium3DTilesSelection::Tileset>& tileset,
-    const std::function<void(FabricMesh& fabricMesh)>& callback) {
+    const std::function<void(FabricMaterial& fabricMaterial)>& callback) {
     tileset->forEachLoadedTile([&callback](Cesium3DTilesSelection::Tile& tile) {
         if (tile.getState() != Cesium3DTilesSelection::TileLoadState::Done) {
             return;
@@ -508,32 +508,13 @@ void forEachFabricMesh(
         if (!pTileRenderResources) {
             return;
         }
-        for (auto& fabricMesh : pTileRenderResources->fabricMeshes) {
-            callback(fabricMesh);
+        for (const auto& fabricMesh : pTileRenderResources->fabricMeshes) {
+            if (fabricMesh.material) {
+                callback(*fabricMesh.material.get());
+            }
         }
     });
 }
-
-void forEachFabricMaterial(
-    const std::unique_ptr<Cesium3DTilesSelection::Tileset>& tileset,
-    const std::function<void(FabricMaterial& fabricMaterial)>& callback) {
-    forEachFabricMesh(tileset, [&callback](FabricMesh& fabricMesh) {
-        if (fabricMesh.material) {
-            callback(*fabricMesh.material.get());
-        }
-    });
-}
-
-void forEachFabricGeometry(
-    const std::unique_ptr<Cesium3DTilesSelection::Tileset>& tileset,
-    const std::function<void(FabricGeometry& fabricGeometry)>& callback) {
-    forEachFabricMesh(tileset, [&callback](FabricMesh& fabricMesh) {
-        if (fabricMesh.geometry) {
-            callback(*fabricMesh.geometry.get());
-        }
-    });
-}
-
 } // namespace
 
 void OmniTileset::updateImageryLayerAlpha(uint64_t imageryLayerIndex) {

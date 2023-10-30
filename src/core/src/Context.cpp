@@ -431,11 +431,9 @@ void Context::processUsdShaderChanged(const cesium::omniverse::ChangedPrim& chan
 
     const auto& tilesets = AssetRegistry::getInstance().getAllTilesets();
     for (const auto& tileset : tilesets) {
-        if (tileset->getMaterialPath() != materialPath) {
-            continue;
+        if (tileset->getMaterialPath() == materialPath) {
+            tileset->updateShaderInput(path, name);
         }
-
-        tileset->updateShaderInput(path, name);
     }
 }
 

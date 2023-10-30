@@ -74,7 +74,6 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((inputs_base_alpha, "inputs:base_alpha")) \
     ((inputs_base_color_factor, "inputs:base_color_factor")) \
     ((inputs_base_color_texture, "inputs:base_color_texture")) \
-    ((inputs_tile_color, "inputs:tile_color")) \
     ((inputs_emissive_factor, "inputs:emissive_factor")) \
     ((inputs_excludeFromWhiteMode, "inputs:excludeFromWhiteMode")) \
     ((inputs_metallic_factor, "inputs:metallic_factor")) \
@@ -84,6 +83,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((inputs_scale, "inputs:scale")) \
     ((inputs_tex_coord_index, "inputs:tex_coord_index")) \
     ((inputs_texture, "inputs:texture")) \
+    ((inputs_tile_color, "inputs:tile_color")) \
     ((inputs_imagery_layer, "inputs:imagery_layer")) \
     ((inputs_imagery_layer_0, "inputs:imagery_layer_0")) \
     ((inputs_imagery_layer_1, "inputs:imagery_layer_1")) \
@@ -113,6 +113,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((outputs_mdl_volume, "outputs:mdl:volume")) \
     ((outputs_out, "outputs:out")) \
     ((primvars_displayColor, "primvars:displayColor")) \
+    ((primvars_displayOpacity, "primvars:displayOpacity")) \
     ((primvars_normals, "primvars:normals")) \
     ((primvars_st_0, "primvars:st_0")) \
     ((primvars_st_1, "primvars:st_1")) \

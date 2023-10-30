@@ -202,12 +202,10 @@ void setFabricMeshes(
             primitive,
             meshInfo.smoothNormals,
             mesh.texcoordIndexMapping,
-            mesh.imageryTexcoordIndexMapping,
-            displayColor,
-            displayOpacity);
+            mesh.imageryTexcoordIndexMapping);
 
         if (material != nullptr) {
-            material->setMaterial(meshInfo.tilesetId, materialInfo, displayOpacity);
+            material->setMaterial(meshInfo.tilesetId, materialInfo, displayColor, displayOpacity);
             geometry->setMaterial(material->getPath());
 
             if (hasBaseColorTextureGltf(mesh)) {
