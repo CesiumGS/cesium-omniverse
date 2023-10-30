@@ -335,8 +335,7 @@ std::pair<std::string, uint64_t> parseAttributeName(const std::string& attribute
         semantic = attributeName;
     } else {
         semantic = attributeName.substr(0, lastUnderscorePosition);
-        auto setIndex = attributeName.substr(lastUnderscorePosition + 1);
-        std::from_chars(setIndex.data(), setIndex.data() + setIndex.size(), setIndexU64);
+        std::from_chars(attributeName.data() + lastUnderscorePosition + 1, attributeName.data() + attributeName.size() - 1, setIndexU64);
     }
 
     return std::make_pair(semantic, setIndexU64);
