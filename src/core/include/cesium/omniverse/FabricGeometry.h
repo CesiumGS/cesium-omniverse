@@ -27,14 +27,10 @@ class FabricGeometry {
         const CesiumGltf::MeshPrimitive& primitive,
         bool smoothNormals,
         const std::unordered_map<uint64_t, uint64_t>& texcoordIndexMapping,
-        const std::unordered_map<uint64_t, uint64_t>& imageryTexcoordIndexMapping,
-        const glm::dvec3& displayColor,
-        double displayOpacity);
+        const std::unordered_map<uint64_t, uint64_t>& imageryTexcoordIndexMapping);
 
     void setActive(bool active);
     void setVisibility(bool visible);
-    void setDisplayColor(const glm::dvec3& displayColor);
-    void setDisplayOpacity(double displayOpacity);
 
     [[nodiscard]] const omni::fabric::Path& getPath() const;
     [[nodiscard]] const FabricGeometryDefinition& getGeometryDefinition() const;

@@ -84,8 +84,7 @@ class OmniTileset {
     [[nodiscard]] double getImageryLayerAlpha(uint64_t imageryLayerIndex) const;
     void updateImageryLayerAlpha(uint64_t imageryLayerIndex);
     void updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::TfToken& attributeName);
-    void updateDisplayColor();
-    void updateDisplayOpacity();
+    void updateDisplayColorAndOpacity();
 
     void onUpdateFrame(const std::vector<Viewport>& viewports);
 

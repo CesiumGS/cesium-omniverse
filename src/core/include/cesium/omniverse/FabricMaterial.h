@@ -25,7 +25,11 @@ class FabricMaterial {
         long stageId);
     ~FabricMaterial();
 
-    void setMaterial(int64_t tilesetId, const MaterialInfo& materialInfo, double displayOpacity);
+    void setMaterial(
+        int64_t tilesetId,
+        const MaterialInfo& materialInfo,
+        const glm::dvec3& displayColor,
+        double displayOpacity);
     void setBaseColorTexture(
         const pxr::TfToken& textureAssetPathToken,
         const TextureInfo& textureInfo,
@@ -37,7 +41,7 @@ class FabricMaterial {
         uint64_t imageryLayerIndex,
         double alpha);
     void setImageryLayerAlpha(uint64_t imageryLayerIndex, double alpha);
-    void setDisplayOpacity(double displayOpacity);
+    void setDisplayColorAndOpacity(const glm::dvec3& displayColor, double displayOpacity);
     void updateShaderInput(const omni::fabric::Path& shaderPath, const omni::fabric::Token& attributeName);
 
     void clearMaterial();
@@ -76,7 +80,11 @@ class FabricMaterial {
         const omni::fabric::Token& shaderInput,
         uint64_t textureCount);
     void reset();
-    void setShaderValues(const omni::fabric::Path& shaderPath, const MaterialInfo& materialInfo);
+    void setShaderValues(
+        const omni::fabric::Path& shaderPath,
+        const MaterialInfo& materialInfo,
+        const glm::dvec3& displayColor,
+        double displayOpacity);
     void setTextureValuesCommon(
         const omni::fabric::Path& texturePath,
         const pxr::TfToken& textureAssetPathToken,
@@ -105,6 +113,7 @@ class FabricMaterial {
     const long _stageId;
 
     AlphaMode _alphaMode;
+    glm::dvec3 _debugColor;
 
     std::vector<omni::fabric::Path> _shaderPaths;
     std::vector<omni::fabric::Path> _baseColorTexturePaths;

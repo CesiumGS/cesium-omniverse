@@ -546,22 +546,12 @@ void OmniTileset::updateImageryLayerAlpha(uint64_t imageryLayerIndex) {
     });
 }
 
-void OmniTileset::updateDisplayColor() {
+void OmniTileset::updateDisplayColorAndOpacity() {
     const auto displayColor = getDisplayColor();
-
-    forEachFabricGeometry(
-        _tileset, [&displayColor](FabricGeometry& fabricGeometry) { fabricGeometry.setDisplayColor(displayColor); });
-}
-
-void OmniTileset::updateDisplayOpacity() {
     const auto displayOpacity = getDisplayOpacity();
 
-    forEachFabricGeometry(_tileset, [&displayOpacity](FabricGeometry& fabricGeometry) {
-        fabricGeometry.setDisplayOpacity(displayOpacity);
-    });
-
-    forEachFabricMaterial(_tileset, [&displayOpacity](FabricMaterial& fabricMaterial) {
-        fabricMaterial.setDisplayOpacity(displayOpacity);
+    forEachFabricMaterial(_tileset, [&displayColor, &displayOpacity](FabricMaterial& fabricMaterial) {
+        fabricMaterial.setDisplayColorAndOpacity(displayColor, displayOpacity);
     });
 }
 
