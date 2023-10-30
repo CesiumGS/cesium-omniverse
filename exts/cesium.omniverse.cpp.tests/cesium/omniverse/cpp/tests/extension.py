@@ -50,6 +50,7 @@ class CesiumOmniverseCppTestsExtension(omni.ext.IExt):
                 self._run_once_sub.unsubscribe()
                 tests_interface.run_all_tests()
                 print("Cesium Tests Extension tests complete")
+
         self.frames_since_stage_opened += self.frame_count_delta
 
     def on_shutdown(self):
