@@ -74,8 +74,7 @@ class CesiumOmniverseCppTestsPlugin final : public ICesiumOmniverseCppTestsInter
         // delete any test related prims here
         auto stage = cesium::omniverse::UsdUtil::getUsdStage();
         cleanUpUsdUtilTests(stage);
-        // TODO uncomment
-        // cesium::omniverse::cleanUpTilesetTests(stage);
+        cleanUpTilesetTests(stage);
     }
 };
 

@@ -12,7 +12,7 @@ class CesiumOmniverseCppTestsExtension(omni.ext.IExt):
         self.tests_set_up = False
         self.frames_since_stage_opened = 0
         self.frame_count_delta = 0
-        self.frames_between_setup_and_tests = 120
+        self.frames_between_setup_and_tests = 15
 
     def on_startup(self):
         print("Starting Cesium Tests Extension...")
