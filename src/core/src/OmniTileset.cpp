@@ -100,13 +100,13 @@ std::optional<CesiumIonClient::Token> OmniTileset::getIonAccessToken() const {
     return t;
 }
 
-float OmniTileset::getMaximumScreenSpaceError() const {
+double OmniTileset::getMaximumScreenSpaceError() const {
     auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     float maximumScreenSpaceError;
     tileset.GetMaximumScreenSpaceErrorAttr().Get<float>(&maximumScreenSpaceError);
 
-    return maximumScreenSpaceError;
+    return static_cast<double>(maximumScreenSpaceError);
 }
 
 bool OmniTileset::getPreloadAncestors() const {
@@ -190,13 +190,13 @@ bool OmniTileset::getEnforceCulledScreenSpaceError() const {
     return enforceCulledScreenSpaceError;
 }
 
-float OmniTileset::getCulledScreenSpaceError() const {
+double OmniTileset::getCulledScreenSpaceError() const {
     auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     float culledScreenSpaceError;
     tileset.GetCulledScreenSpaceErrorAttr().Get<float>(&culledScreenSpaceError);
 
-    return culledScreenSpaceError;
+    return static_cast<double>(culledScreenSpaceError);
 }
 
 bool OmniTileset::getSuspendUpdate() const {
@@ -226,13 +226,13 @@ bool OmniTileset::getShowCreditsOnScreen() const {
     return showCreditsOnScreen;
 }
 
-float OmniTileset::getMainThreadLoadingTimeLimit() const {
+double OmniTileset::getMainThreadLoadingTimeLimit() const {
     auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     float mainThreadLoadingTimeLimit;
     tileset.GetMainThreadLoadingTimeLimitAttr().Get<float>(&mainThreadLoadingTimeLimit);
 
-    return mainThreadLoadingTimeLimit;
+    return static_cast<double>(mainThreadLoadingTimeLimit);
 }
 
 pxr::CesiumGeoreference OmniTileset::getGeoreference() const {
@@ -278,6 +278,22 @@ TilesetStatistics OmniTileset::getStatistics() const {
     }
 
     return statistics;
+}
+
+void OmniTileset::updateTilesetOptionsFromProperties() {
+    auto& options = _tileset->getOptions();
+    options.maximumScreenSpaceError = getMaximumScreenSpaceError();
+    options.preloadAncestors = getPreloadAncestors();
+    options.preloadSiblings = getPreloadSiblings();
+    options.forbidHoles = getForbidHoles();
+    options.maximumSimultaneousTileLoads = getMaximumSimultaneousTileLoads();
+    options.maximumCachedBytes = static_cast<int64_t>(getMaximumCachedBytes());
+    options.loadingDescendantLimit = getLoadingDescendantLimit();
+    options.enableFrustumCulling = getEnableFrustumCulling();
+    options.enableFogCulling = getEnableFogCulling();
+    options.enforceCulledScreenSpaceError = getEnforceCulledScreenSpaceError();
+    options.culledScreenSpaceError = getCulledScreenSpaceError();
+    options.mainThreadLoadingTimeLimit = getMainThreadLoadingTimeLimit();
 }
 
 void OmniTileset::reload() {
@@ -444,12 +460,11 @@ uint64_t OmniTileset::getImageryLayerCount() const {
     return _tileset->getOverlays().size();
 }
 
-void OmniTileset::updateImageryLayerAlpha(uint64_t imageryLayerIndex) {
-    assert(imageryLayerIndex < _imageryPaths.size());
-
-    const auto alpha = getImageryLayerAlpha(imageryLayerIndex);
-
-    _tileset->forEachLoadedTile([imageryLayerIndex, alpha](Cesium3DTilesSelection::Tile& tile) {
+namespace {
+void forEachFabricMaterial(
+    const std::unique_ptr<Cesium3DTilesSelection::Tileset>& tileset,
+    const std::function<void(FabricMaterial& fabricMaterial)>& callback) {
+    tileset->forEachLoadedTile([&callback](Cesium3DTilesSelection::Tile& tile) {
         if (tile.getState() != Cesium3DTilesSelection::TileLoadState::Done) {
             return;
         }
@@ -466,16 +481,34 @@ void OmniTileset::updateImageryLayerAlpha(uint64_t imageryLayerIndex) {
             if (!fabricMesh.material) {
                 continue;
             }
-            fabricMesh.material->setImageryLayerAlpha(imageryLayerIndex, alpha);
+            callback(*fabricMesh.material.get());
         }
     });
 }
+} // namespace
 
-float OmniTileset::getImageryLayerAlpha(uint64_t imageryLayerIndex) const {
+void OmniTileset::updateImageryLayerAlpha(uint64_t imageryLayerIndex) {
+    assert(imageryLayerIndex < _imageryPaths.size());
+
+    const auto alpha = getImageryLayerAlpha(imageryLayerIndex);
+
+    forEachFabricMaterial(_tileset, [imageryLayerIndex, alpha](FabricMaterial& fabricMaterial) {
+        fabricMaterial.setImageryLayerAlpha(imageryLayerIndex, alpha);
+    });
+}
+
+void OmniTileset::updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::TfToken& attributeName) {
+    forEachFabricMaterial(_tileset, [&shaderPath, &attributeName](FabricMaterial& fabricMaterial) {
+        fabricMaterial.updateShaderInput(
+            FabricUtil::toFabricPath(shaderPath), FabricUtil::toFabricToken(attributeName));
+    });
+}
+
+double OmniTileset::getImageryLayerAlpha(uint64_t imageryLayerIndex) const {
     assert(imageryLayerIndex < _imageryPaths.size());
 
     auto alpha = OmniImagery(_imageryPaths[imageryLayerIndex]).getAlpha();
-    alpha = glm::clamp(alpha, 0.0f, 1.0f);
+    alpha = glm::clamp(alpha, 0.0, 1.0);
 
     return alpha;
 }

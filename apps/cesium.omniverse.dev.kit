@@ -19,10 +19,6 @@ app.usdrt.scene_delegate.enableProxyCubes = false
 app.usdrt.scene_delegate.geometryStreaming.enabled = false
 omnihydra.parallelHydraSprimSync = false
 app.fastShutdown = true
-# Both searchPaths settings must be set in order for material graph to find cesium mdl exports
-renderer.mdl.searchPaths.custom = "${app}/../exts/cesium.omniverse/mdl"
-materialConfig.searchPaths.custom = ["${app}/../exts/cesium.omniverse/mdl"]
-materialConfig.materialGraph.userAllowList = ["cesium.mdl"]
 
 [settings.app.exts]
 folders.'++' = [

@@ -15,6 +15,7 @@
 #include <pxr/base/gf/vec3f.h>
 #include <pxr/usd/sdf/path.h>
 #include <pxr/usd/usd/common.h>
+#include <pxr/usd/usdShade/shader.h>
 
 namespace CesiumGeospatial {
 class Cartographic;
@@ -111,6 +112,7 @@ pxr::CesiumTileset getCesiumTileset(const pxr::SdfPath& path);
 pxr::CesiumImagery getCesiumImagery(const pxr::SdfPath& path);
 std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& path);
 pxr::CesiumGlobeAnchorAPI getCesiumGlobeAnchor(const pxr::SdfPath& path);
+pxr::UsdShadeShader getUsdShader(const pxr::SdfPath& path);
 
 bool isCesiumData(const pxr::SdfPath& path);
 bool isCesiumSession(const pxr::SdfPath& path);
@@ -118,6 +120,9 @@ bool isCesiumGeoreference(const pxr::SdfPath& path);
 bool isCesiumTileset(const pxr::SdfPath& path);
 bool isCesiumImagery(const pxr::SdfPath& path);
 bool hasCesiumGlobeAnchor(const pxr::SdfPath& path);
+
+bool isUsdShader(const pxr::SdfPath& path);
+bool isUsdMaterial(const pxr::SdfPath& path);
 
 bool primExists(const pxr::SdfPath& path);
 

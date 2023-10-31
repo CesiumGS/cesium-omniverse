@@ -230,6 +230,8 @@ void Context::processPropertyChanged(const ChangedPrim& changedPrim) {
             return processCesiumGeoreferenceChanged(changedPrim);
         case ChangedPrimType::CESIUM_GLOBE_ANCHOR:
             return processCesiumGlobeAnchorChanged(changedPrim);
+        case ChangedPrimType::USD_SHADER:
+            return processUsdShaderChanged(changedPrim);
         default:
             return;
     }
@@ -272,11 +274,7 @@ void Context::processCesiumTilesetChanged(const ChangedPrim& changedPrim) {
     }
 
     // clang-format off
-    if (name == pxr::CesiumTokens->cesiumSourceType ||
-        name == pxr::CesiumTokens->cesiumUrl ||
-        name == pxr::CesiumTokens->cesiumIonAssetId ||
-        name == pxr::CesiumTokens->cesiumIonAccessToken ||
-        name == pxr::CesiumTokens->cesiumMaximumScreenSpaceError ||
+    if (name == pxr::CesiumTokens->cesiumMaximumScreenSpaceError ||
         name == pxr::CesiumTokens->cesiumPreloadAncestors ||
         name == pxr::CesiumTokens->cesiumPreloadSiblings ||
         name == pxr::CesiumTokens->cesiumForbidHoles ||
@@ -287,8 +285,17 @@ void Context::processCesiumTilesetChanged(const ChangedPrim& changedPrim) {
         name == pxr::CesiumTokens->cesiumEnableFogCulling ||
         name == pxr::CesiumTokens->cesiumEnforceCulledScreenSpaceError ||
         name == pxr::CesiumTokens->cesiumCulledScreenSpaceError ||
+        name == pxr::CesiumTokens->cesiumMainThreadLoadingTimeLimit) {
+        tileset.value()->updateTilesetOptionsFromProperties();
+    }
+    // clang-format on
+
+    // clang-format off
+    if (name == pxr::CesiumTokens->cesiumSourceType ||
+        name == pxr::CesiumTokens->cesiumUrl ||
+        name == pxr::CesiumTokens->cesiumIonAssetId ||
+        name == pxr::CesiumTokens->cesiumIonAccessToken ||
         name == pxr::CesiumTokens->cesiumSmoothNormals ||
-        name == pxr::CesiumTokens->cesiumMainThreadLoadingTimeLimit ||
         name == pxr::CesiumTokens->cesiumShowCreditsOnScreen ||
         name == pxr::UsdTokens->material_binding) {
         tileset.value()->reload();
@@ -378,6 +385,61 @@ void Context::processCesiumGlobeAnchorChanged(const cesium::omniverse::ChangedPr
     }
 }
 
+void Context::processUsdShaderChanged(const cesium::omniverse::ChangedPrim& changedPrim) {
+    const auto& [path, name, primType, changeType] = changedPrim;
+
+    const auto shader = UsdUtil::getUsdShader(path);
+    const auto shaderPathFabric = FabricUtil::toFabricPath(path);
+    const auto materialPath = path.GetParentPath();
+    const auto materialPathFabric = FabricUtil::toFabricPath(materialPath);
+
+    if (!UsdUtil::isUsdMaterial(materialPath)) {
+        // Skip if parent path is not a material
+        return;
+    }
+
+    const auto inputNamespace = std::string("inputs:");
+
+    const auto& attributeName = name.GetString();
+
+    if (attributeName.rfind(inputNamespace) != 0) {
+        // Skip if changed attribute is not a shader input
+        return;
+    }
+
+    const auto inputName = pxr::TfToken(attributeName.substr(inputNamespace.size()));
+
+    auto shaderInput = shader.GetInput(inputName);
+    if (!shaderInput.IsDefined()) {
+        // Skip if changed attribute is not a shader input
+        return;
+    }
+
+    if (shaderInput.HasConnectedSource()) {
+        // Skip if shader input is connected to something else
+        return;
+    }
+
+    if (!FabricUtil::materialHasCesiumNodes(materialPathFabric)) {
+        // Simple materials can be skipped. We only need to handle materials that have been copied to each tile.
+        return;
+    }
+
+    if (!FabricUtil::isShaderConnectedToMaterial(materialPathFabric, shaderPathFabric)) {
+        // Skip if shader is not connected to the material
+        return;
+    }
+
+    const auto& tilesets = AssetRegistry::getInstance().getAllTilesets();
+    for (const auto& tileset : tilesets) {
+        if (tileset->getMaterialPath() != materialPath) {
+            continue;
+        }
+
+        tileset->updateShaderInput(path, name);
+    }
+}
+
 void Context::processPrimRemoved(const ChangedPrim& changedPrim) {
     switch (changedPrim.primType) {
         case ChangedPrimType::CESIUM_TILESET: {
@@ -399,6 +461,7 @@ void Context::processPrimRemoved(const ChangedPrim& changedPrim) {
         } break;
         case ChangedPrimType::CESIUM_GEOREFERENCE:
         case ChangedPrimType::CESIUM_DATA:
+        case ChangedPrimType::USD_SHADER:
         case ChangedPrimType::OTHER:
             break;
     }

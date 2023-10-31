@@ -425,7 +425,7 @@ void FabricMaterial::setImageryLayer(
     const TextureInfo& textureInfo,
     uint64_t texcoordIndex,
     uint64_t imageryLayerIndex,
-    float alpha) {
+    double alpha) {
     if (stageDestroyed()) {
         return;
     }
@@ -439,7 +439,7 @@ void FabricMaterial::setImageryLayer(
     }
 }
 
-void FabricMaterial::setImageryLayerAlpha(uint64_t imageryLayerIndex, float alpha) {
+void FabricMaterial::setImageryLayerAlpha(uint64_t imageryLayerIndex, double alpha) {
     if (stageDestroyed()) {
         return;
     }
@@ -451,6 +451,29 @@ void FabricMaterial::setImageryLayerAlpha(uint64_t imageryLayerIndex, float alph
     for (auto& imageryLayerPath : _imageryLayerPaths[imageryLayerIndex]) {
         setImageryLayerAlphaValue(imageryLayerPath, alpha);
     }
+}
+
+void FabricMaterial::updateShaderInput(const omni::fabric::Path& shaderPath, const omni::fabric::Token& attributeName) {
+    if (stageDestroyed()) {
+        return;
+    }
+
+    const auto srw = UsdUtil::getFabricStageReaderWriter();
+    const auto isrw = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+
+    const auto copiedShaderPath = FabricUtil::getCopiedShaderPath(_materialPath, shaderPath);
+    const auto attributesToCopy = std::vector<omni::fabric::TokenC>{attributeName};
+
+    assert(isrw->primExists(srw.getId(), copiedShaderPath));
+    assert(isrw->attributeExists(srw.getId(), copiedShaderPath, attributeName));
+
+    isrw->copySpecifiedAttributes(
+        srw.getId(),
+        shaderPath,
+        attributesToCopy.data(),
+        copiedShaderPath,
+        attributesToCopy.data(),
+        attributesToCopy.size());
 }
 
 void FabricMaterial::clearMaterial() {
@@ -561,15 +584,15 @@ void FabricMaterial::setImageryLayerValues(
     const pxr::TfToken& textureAssetPathToken,
     const TextureInfo& textureInfo,
     uint64_t texcoordIndex,
-    float alpha) {
+    double alpha) {
     setTextureValuesCommon(imageryLayerPath, textureAssetPathToken, textureInfo, texcoordIndex);
     setImageryLayerAlphaValue(imageryLayerPath, alpha);
 }
 
-void FabricMaterial::setImageryLayerAlphaValue(const omni::fabric::Path& imageryLayerPath, float alpha) {
+void FabricMaterial::setImageryLayerAlphaValue(const omni::fabric::Path& imageryLayerPath, double alpha) {
     auto srw = UsdUtil::getFabricStageReaderWriter();
     auto alphaFabric = srw.getAttributeWr<float>(imageryLayerPath, FabricTokens::inputs_alpha);
-    *alphaFabric = alpha;
+    *alphaFabric = static_cast<float>(alpha);
 }
 
 bool FabricMaterial::stageDestroyed() {

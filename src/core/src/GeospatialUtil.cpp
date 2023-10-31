@@ -131,8 +131,6 @@ void updateAnchorByLatLongHeight(
         anchorApi.GetRotationAttr().Set(
             pxr::GfVec3d(UsdUtil::getEulerAnglesFromQuaternion(fixedTransform.orientation)));
         anchorApi.GetScaleAttr().Set(pxr::GfVec3d(fixedTransform.scale));
-
-        globeAnchor->updateCachedValues();
     }
 
     double usdLatitude = usdGeographicCoordinate[0];
