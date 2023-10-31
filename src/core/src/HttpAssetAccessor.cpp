@@ -113,6 +113,11 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> HttpAssetAccess
     std::shared_ptr<cpr::Session> session = std::make_shared<cpr::Session>();
     session->AddInterceptor(_interceptor);
     session->SetHeader(cprHeader);
+
+    // TLS 1.3 is not enabled by default.
+    auto sslOptions = cpr::Ssl(cpr::ssl::MaxTLSv1_3{});
+    session->SetSslOptions(sslOptions);
+
     session->SetUrl(cpr::Url(url));
     session->SetReserveSize(CPR_RESERVE_SIZE);
     session->GetCallback([promise, url, headers](cpr::Response&& response) mutable {
