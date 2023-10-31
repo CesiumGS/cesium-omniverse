@@ -3,6 +3,7 @@ mdl 1.8;
 import ::anno::*;
 import ::state::*;
 import ::tex::*;
+import ::scene::*;
 
 using ::gltf::pbr import *;
 
@@ -124,25 +125,25 @@ export float4 cesium_imagery_layer_float4(
 }
 
 export material cesium_material(
-    uniform color base_color_factor = color(1.0)
+    color base_color_factor = color(1.0)
     [[
         anno::display_name("Base Color Factor"),
         anno::description("The base color of the material.")
     ]],
-    uniform float metallic_factor = 0.0
+    float metallic_factor = 0.0
     [[
         anno::hard_range(0.0, 1.0),
         anno::display_name("Metallic Factor"),
         anno::description("The metalness of the material. Select between dielectric (0.0) and metallic (1.0).")
     ]],
 
-    uniform float roughness_factor = 1.0
+    float roughness_factor = 1.0
     [[
         anno::hard_range(0.0, 1.0),
         anno::display_name("Roughness Factor"),
         anno::description("The roughness of the material. Select between very glossy (0.0) and dull (1.0).")
     ]],
-    uniform color emissive_factor = color(0.0)
+    color emissive_factor = color(0.0)
     [[
         anno::display_name("Emissive Factor"),
         anno::description("The emissive color of the material.")
@@ -152,7 +153,7 @@ export material cesium_material(
         anno::display_name("Alpha Mode"),
         anno::description("Select how to interpret the alpha value.")
     ]],
-    uniform float base_alpha = 1.0
+    float base_alpha = 1.0
     [[
         anno::hard_range(0.0, 1.0),
         anno::display_name("Base Alpha"),
@@ -172,13 +173,20 @@ export material cesium_material(
     anno::author("Cesium GS Inc."),
     anno::in_group("Cesium")
 ]] = let {
+    auto base_color = float3(base_color_factor);
+    auto emissive = float3(emissive_factor);
+
+    // We can't pass varyings (things not marked "uniform") to uniforms like base_color_factor, base_alpha, etc
+    // To work around this, treat them as if they were texture values, which are varying.
+    // If you look at gltf/pbr.mdl the math works out the same in either case.
+    //
+    // Previously our inputs were marked "uniform" but this caused a bunch of warnings like:
+    //   uniform parameter 'base_color_factor' of material got varying attachment
     material base = gltf_material(
-        base_color_factor: base_color_factor,
-        metallic_factor: metallic_factor,
-        roughness_factor: roughness_factor,
-        emissive_factor: emissive_factor,
+        base_color_texture: gltf_texture_lookup_value(true, float4(base_color.x, base_color.y, base_color.z, base_alpha)),
+        metallic_roughness_texture: gltf_texture_lookup_value(true, float4(1.0, roughness_factor, metallic_factor, 1.0)),
+        emissive_texture: gltf_texture_lookup_value(true, float4(emissive.x, emissive.y, emissive.z, 1.0)),
         alpha_mode: alpha_mode,
-        base_alpha: base_alpha,
         alpha_cutoff: alpha_cutoff
     );
 
@@ -196,18 +204,18 @@ float4 alpha_blend(float4 src, float4 dst) {
 
 float4 compute_base_color(
     gltf_texture_lookup_value imagery_layers_texture,
-    color debug_color,
+    float4 tile_color,
     gltf_texture_lookup_value base_color_texture,
     color base_color_factor,
     float base_alpha) {
 
-    auto debug_color_float3 = float3(debug_color);
     auto base_color_factor_float3 = float3(base_color_factor);
 
     auto base_color = base_color_texture.valid ? base_color_texture.value : float4(1.0);
     base_color *= float4(base_color_factor_float3.x, base_color_factor_float3.y, base_color_factor_float3.z, base_alpha);
+    base_color *= ::scene::data_lookup_float4("vertexColor", float4(1.0));
     base_color = alpha_blend(imagery_layers_texture.value, base_color);
-    base_color *= float4(debug_color_float3.x, debug_color_float3.y, debug_color_float3.z, 1.0);
+    base_color *= tile_color;
 
     return base_color;
 }
@@ -244,7 +252,7 @@ export gltf_texture_lookup_value cesium_internal_imagery_layer_lookup(
 
 export material cesium_internal_material(
     gltf_texture_lookup_value imagery_layers_texture = gltf_texture_lookup_value(true, float4(0.0)),
-    uniform color debug_color = color(1.0),
+    uniform float4 tile_color = float4(1.0),
     // gltf_material inputs below
     gltf_texture_lookup_value base_color_texture = gltf_texture_lookup_value(),
     uniform color base_color_factor = color(1.0),
@@ -255,7 +263,7 @@ export material cesium_internal_material(
     uniform float base_alpha = 1.0,
     uniform float alpha_cutoff  = 0.5
 ) [[ anno::hidden() ]] = let {
-    auto base_color = compute_base_color(imagery_layers_texture, debug_color, base_color_texture, base_color_factor, base_alpha);
+    auto base_color = compute_base_color(imagery_layers_texture, tile_color, base_color_texture, base_color_factor, base_alpha);
     material base = gltf_material(
         base_color_texture: gltf_texture_lookup_value(true, base_color),
         metallic_factor: metallic_factor,

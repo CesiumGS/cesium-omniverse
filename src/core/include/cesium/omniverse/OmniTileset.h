@@ -50,7 +50,7 @@ class OmniTileset {
     [[nodiscard]] std::string getUrl() const;
     [[nodiscard]] int64_t getIonAssetId() const;
     [[nodiscard]] std::optional<CesiumIonClient::Token> getIonAccessToken() const;
-    [[nodiscard]] float getMaximumScreenSpaceError() const;
+    [[nodiscard]] double getMaximumScreenSpaceError() const;
     [[nodiscard]] bool getPreloadAncestors() const;
     [[nodiscard]] bool getPreloadSiblings() const;
     [[nodiscard]] bool getForbidHoles() const;
@@ -60,16 +60,20 @@ class OmniTileset {
     [[nodiscard]] bool getEnableFrustumCulling() const;
     [[nodiscard]] bool getEnableFogCulling() const;
     [[nodiscard]] bool getEnforceCulledScreenSpaceError() const;
-    [[nodiscard]] float getCulledScreenSpaceError() const;
+    [[nodiscard]] double getCulledScreenSpaceError() const;
     [[nodiscard]] bool getSuspendUpdate() const;
     [[nodiscard]] bool getSmoothNormals() const;
-    [[nodiscard]] float getMainThreadLoadingTimeLimit() const;
+    [[nodiscard]] double getMainThreadLoadingTimeLimit() const;
     [[nodiscard]] bool getShowCreditsOnScreen() const;
     [[nodiscard]] pxr::CesiumGeoreference getGeoreference() const;
     [[nodiscard]] pxr::SdfPath getMaterialPath() const;
+    [[nodiscard]] glm::dvec3 getDisplayColor() const;
+    [[nodiscard]] double getDisplayOpacity() const;
 
     [[nodiscard]] int64_t getTilesetId() const;
     [[nodiscard]] TilesetStatistics getStatistics() const;
+
+    void updateTilesetOptionsFromProperties();
 
     void reload();
     void addImageryIon(const pxr::SdfPath& imageryPath);
@@ -77,9 +81,11 @@ class OmniTileset {
     findImageryLayerIndex(const Cesium3DTilesSelection::RasterOverlay& overlay) const;
     [[nodiscard]] std::optional<uint64_t> findImageryLayerIndex(const pxr::SdfPath& imageryPath) const;
     [[nodiscard]] uint64_t getImageryLayerCount() const;
-    [[nodiscard]] float getImageryLayerAlpha(uint64_t imageryLayerIndex) const;
+    [[nodiscard]] double getImageryLayerAlpha(uint64_t imageryLayerIndex) const;
     void updateImageryLayerAlpha(uint64_t imageryLayerIndex);
     void updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::TfToken& attributeName);
+    void updateDisplayColorAndOpacity();
+
     void onUpdateFrame(const std::vector<Viewport>& viewports);
 
   private:

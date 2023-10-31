@@ -4,6 +4,7 @@ from pxr import Gf, UsdGeom, Sdf
 import json
 import carb.settings
 import os
+from cesium.omniverse.utils.cesium_interface import CesiumInterfaceManager
 
 
 # Modified version of ScopedEdit in _build_viewport_cameras in omni.kit.widget.viewport
@@ -47,6 +48,13 @@ def save_carb_settings(powertools_extension_location: str):
     carb_settings_path = os.path.join(powertools_extension_location, "carb_settings.txt")
     with open(carb_settings_path, "w") as fh:
         fh.write(json.dumps(carb.settings.get_settings().get("/"), indent=2))
+
+
+def save_fabric_stage(powertools_extension_location: str):
+    with CesiumInterfaceManager() as interface:
+        fabric_stage_path = os.path.join(powertools_extension_location, "fabric_stage.txt")
+        with open(fabric_stage_path, "w") as fh:
+            fh.write(interface.print_fabric_stage())
 
 
 # Helper function to search for an attribute on a prim, or create it if not present

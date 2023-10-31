@@ -1,7 +1,18 @@
 # Change Log
 
-### v0.12.0 - 2023-11-01
+### v0.13.0 - 2023-11-01
 
+* Changing certain tileset properties no longer triggers a tileset reload.
+* Added support for `displayColor` and `displayOpacity` for tileset prims.
+* Fixed rendering point clouds with alpha values.
+
+### v0.12.1 - 2023-10-26
+
+* Fixed version numbers.
+
+### v0.12.0 - 2023-10-25
+
+* Added a quick add button for Google Photorealistic 3D Tiles through ion.
 * Added support for globe anchors.
 * Added support for multiple imagery layers.
 * Added alpha property to imagery layers.

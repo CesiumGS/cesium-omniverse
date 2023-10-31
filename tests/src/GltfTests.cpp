@@ -73,7 +73,7 @@ TEST_SUITE("Test GltfUtil") {
         if (GltfUtil::hasMaterial(prim)) {
             const auto& matInfo = GltfUtil::getMaterialInfo(model, prim);
             CHECK(matInfo.alphaCutoff == expectedResults["alphaCutoff"].as<double>());
-            CHECK(matInfo.alphaMode == expectedResults["alphaMode"].as<int32_t>());
+            CHECK(matInfo.alphaMode == static_cast<AlphaMode>(expectedResults["alphaMode"].as<int32_t>()));
             CHECK(matInfo.baseAlpha == expectedResults["baseAlpha"].as<double>());
             CHECK(matInfo.baseColorFactor == expectedResults["baseColorFactor"].as<std::vector<double>>());
             CHECK(matInfo.emissiveFactor == expectedResults["emissiveFactor"].as<std::vector<double>>());

@@ -23,8 +23,6 @@ namespace cesium::omniverse {
 
 namespace {
 
-const auto DEFAULT_VERTEX_COLOR = pxr::GfVec3f(1.0f, 1.0f, 1.0f);
-const auto DEFAULT_VERTEX_OPACITY = 1.0f;
 const auto DEFAULT_EXTENT = pxr::GfRange3d(pxr::GfVec3d(0.0, 0.0, 0.0), pxr::GfVec3d(0.0, 0.0, 0.0));
 const auto DEFAULT_POSITION = pxr::GfVec3d(0.0, 0.0, 0.0);
 const auto DEFAULT_ORIENTATION = pxr::GfQuatf(1.0f, 0.0, 0.0, 0.0);
@@ -153,7 +151,7 @@ void FabricGeometry::initialize() {
     }
 
     if (hasVertexColors) {
-        attributes.addAttribute(FabricTypes::primvars_displayColor, FabricTokens::primvars_displayColor);
+        attributes.addAttribute(FabricTypes::primvars_vertexColor, FabricTokens::primvars_vertexColor);
     }
 
     attributes.createAttributes(_path);
@@ -205,7 +203,7 @@ void FabricGeometry::initialize() {
     }
 
     if (hasVertexColors) {
-        primvarsFabric[primvarIndexVertexColor] = FabricTokens::primvars_displayColor;
+        primvarsFabric[primvarIndexVertexColor] = FabricTokens::primvars_vertexColor;
         primvarInterpolationsFabric[primvarIndexVertexColor] = FabricTokens::vertex;
     }
 }
@@ -251,7 +249,7 @@ void FabricGeometry::reset() {
     }
 
     if (hasVertexColors) {
-        srw.setArrayAttributeSize(_path, FabricTokens::primvars_displayColor, 0);
+        srw.setArrayAttributeSize(_path, FabricTokens::primvars_vertexColor, 0);
     }
 }
 
@@ -303,13 +301,13 @@ void FabricGeometry::setGeometry(
         auto faceVertexCountsFabric = srw.getArrayAttributeWr<int>(_path, FabricTokens::faceVertexCounts);
         auto faceVertexIndicesFabric = srw.getArrayAttributeWr<int>(_path, FabricTokens::faceVertexIndices);
 
-        std::vector<glm::fvec3> vertexColorsData(numVoxels);
-        gsl::span<glm::fvec3> vertexColorsSpan(vertexColorsData);
+        std::vector<glm::fvec4> vertexColorsData(numVoxels);
+        gsl::span<glm::fvec4> vertexColorsSpan(vertexColorsData);
         if (hasVertexColors) {
             vertexColors.fill(vertexColorsSpan);
-            srw.setArrayAttributeSize(_path, FabricTokens::primvars_displayColor, numVoxels * 8);
+            srw.setArrayAttributeSize(_path, FabricTokens::primvars_vertexColor, numVoxels * 8);
         }
-        auto vertexColorsFabric = srw.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::primvars_displayColor);
+        auto vertexColorsFabric = srw.getArrayAttributeWr<glm::fvec4>(_path, FabricTokens::primvars_vertexColor);
 
         size_t vertIndex = 0;
         size_t vertexCountsIndex = 0;
@@ -427,9 +425,9 @@ void FabricGeometry::setGeometry(
         }
 
         if (hasVertexColors) {
-            srw.setArrayAttributeSize(_path, FabricTokens::primvars_displayColor, vertexColors.size());
+            srw.setArrayAttributeSize(_path, FabricTokens::primvars_vertexColor, vertexColors.size());
 
-            auto vertexColorsFabric = srw.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::primvars_displayColor);
+            auto vertexColorsFabric = srw.getArrayAttributeWr<glm::fvec4>(_path, FabricTokens::primvars_vertexColor);
 
             vertexColors.fill(vertexColorsFabric);
         }

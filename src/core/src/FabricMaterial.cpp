@@ -18,8 +18,10 @@ namespace cesium::omniverse {
 
 namespace {
 
-const auto DEFAULT_DEBUG_COLOR = pxr::GfVec3f(1.0f, 1.0f, 1.0f);
+const auto DEFAULT_DEBUG_COLOR = glm::dvec3(1.0, 1.0, 1.0);
 const auto DEFAULT_ALPHA = 1.0f;
+const auto DEFAULT_DISPLAY_COLOR = glm::dvec3(1.0, 1.0, 1.0);
+const auto DEFAULT_DISPLAY_OPACITY = 1.0;
 
 uint64_t getImageryLayerCount(const FabricMaterialDefinition& materialDefinition) {
     uint64_t imageryLayerCount = materialDefinition.getImageryLayerCount();
@@ -35,6 +37,20 @@ uint64_t getImageryLayerCount(const FabricMaterialDefinition& materialDefinition
     imageryLayerCount = glm::min(imageryLayerCount, FabricTokens::MAX_IMAGERY_LAYERS_COUNT);
 
     return imageryLayerCount;
+}
+
+int getAlphaMode(AlphaMode alphaMode, double displayOpacity) {
+    return static_cast<int>(displayOpacity < 1.0 ? AlphaMode::BLEND : alphaMode);
+}
+
+pxr::GfVec4f getTileColor(const glm::dvec3& debugColor, const glm::dvec3& displayColor, double displayOpacity) {
+    const auto finalColor = glm::dvec4(debugColor * displayColor, displayOpacity);
+    return {
+        static_cast<float>(finalColor.x),
+        static_cast<float>(finalColor.y),
+        static_cast<float>(finalColor.z),
+        static_cast<float>(finalColor.w),
+    };
 }
 
 } // namespace
@@ -205,7 +221,7 @@ void FabricMaterial::createShader(const omni::fabric::Path& shaderPath, const om
     FabricAttributesBuilder attributes;
 
     // clang-format off
-    attributes.addAttribute(FabricTypes::inputs_debug_color, FabricTokens::inputs_debug_color);
+    attributes.addAttribute(FabricTypes::inputs_tile_color, FabricTokens::inputs_tile_color);
     attributes.addAttribute(FabricTypes::inputs_alpha_cutoff, FabricTokens::inputs_alpha_cutoff);
     attributes.addAttribute(FabricTypes::inputs_alpha_mode, FabricTokens::inputs_alpha_mode);
     attributes.addAttribute(FabricTypes::inputs_base_alpha, FabricTokens::inputs_base_alpha);
@@ -391,15 +407,30 @@ void FabricMaterial::reset() {
     clearImageryLayers();
 }
 
-void FabricMaterial::setMaterial(int64_t tilesetId, const MaterialInfo& materialInfo) {
+void FabricMaterial::setMaterial(
+    int64_t tilesetId,
+    const MaterialInfo& materialInfo,
+    const glm::dvec3& displayColor,
+    double displayOpacity) {
     if (stageDestroyed()) {
         return;
+    }
+
+    _alphaMode = materialInfo.alphaMode;
+
+    if (_debugRandomColors) {
+        const auto r = glm::linearRand(0.0, 1.0);
+        const auto g = glm::linearRand(0.0, 1.0);
+        const auto b = glm::linearRand(0.0, 1.0);
+        _debugColor = glm::dvec3(r, g, b);
+    } else {
+        _debugColor = DEFAULT_DEBUG_COLOR;
     }
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
     for (auto& shaderPath : _shaderPaths) {
-        setShaderValues(shaderPath, materialInfo);
+        setShaderValues(shaderPath, materialInfo, displayColor, displayOpacity);
     }
 
     for (const auto& path : _allPaths) {
@@ -425,7 +456,7 @@ void FabricMaterial::setImageryLayer(
     const TextureInfo& textureInfo,
     uint64_t texcoordIndex,
     uint64_t imageryLayerIndex,
-    float alpha) {
+    double alpha) {
     if (stageDestroyed()) {
         return;
     }
@@ -439,7 +470,7 @@ void FabricMaterial::setImageryLayer(
     }
 }
 
-void FabricMaterial::setImageryLayerAlpha(uint64_t imageryLayerIndex, float alpha) {
+void FabricMaterial::setImageryLayerAlpha(uint64_t imageryLayerIndex, double alpha) {
     if (stageDestroyed()) {
         return;
     }
@@ -450,6 +481,22 @@ void FabricMaterial::setImageryLayerAlpha(uint64_t imageryLayerIndex, float alph
 
     for (auto& imageryLayerPath : _imageryLayerPaths[imageryLayerIndex]) {
         setImageryLayerAlphaValue(imageryLayerPath, alpha);
+    }
+}
+
+void FabricMaterial::setDisplayColorAndOpacity(const glm::dvec3& displayColor, double displayOpacity) {
+    if (stageDestroyed()) {
+        return;
+    }
+
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+
+    for (auto& shaderPath : _shaderPaths) {
+        auto tileColorFabric = srw.getAttributeWr<pxr::GfVec4f>(shaderPath, FabricTokens::inputs_tile_color);
+        auto alphaModeFabric = srw.getAttributeWr<int>(shaderPath, FabricTokens::inputs_alpha_mode);
+
+        *tileColorFabric = getTileColor(_debugColor, displayColor, displayOpacity);
+        *alphaModeFabric = getAlphaMode(_alphaMode, displayOpacity);
     }
 }
 
@@ -477,7 +524,7 @@ void FabricMaterial::updateShaderInput(const omni::fabric::Path& shaderPath, con
 }
 
 void FabricMaterial::clearMaterial() {
-    setMaterial(NO_TILESET_ID, GltfUtil::getDefaultMaterialInfo());
+    setMaterial(NO_TILESET_ID, GltfUtil::getDefaultMaterialInfo(), DEFAULT_DISPLAY_COLOR, DEFAULT_DISPLAY_OPACITY);
 }
 
 void FabricMaterial::clearBaseColorTexture() {
@@ -499,10 +546,14 @@ void FabricMaterial::clearImageryLayers() {
     }
 }
 
-void FabricMaterial::setShaderValues(const omni::fabric::Path& shaderPath, const MaterialInfo& materialInfo) {
+void FabricMaterial::setShaderValues(
+    const omni::fabric::Path& shaderPath,
+    const MaterialInfo& materialInfo,
+    const glm::dvec3& displayColor,
+    double displayOpacity) {
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
-    auto debugColorFabric = srw.getAttributeWr<pxr::GfVec3f>(shaderPath, FabricTokens::inputs_debug_color);
+    auto tileColorFabric = srw.getAttributeWr<pxr::GfVec4f>(shaderPath, FabricTokens::inputs_tile_color);
     auto alphaCutoffFabric = srw.getAttributeWr<float>(shaderPath, FabricTokens::inputs_alpha_cutoff);
     auto alphaModeFabric = srw.getAttributeWr<int>(shaderPath, FabricTokens::inputs_alpha_mode);
     auto baseAlphaFabric = srw.getAttributeWr<float>(shaderPath, FabricTokens::inputs_base_alpha);
@@ -511,22 +562,14 @@ void FabricMaterial::setShaderValues(const omni::fabric::Path& shaderPath, const
     auto metallicFactorFabric = srw.getAttributeWr<float>(shaderPath, FabricTokens::inputs_metallic_factor);
     auto roughnessFactorFabric = srw.getAttributeWr<float>(shaderPath, FabricTokens::inputs_roughness_factor);
 
+    *tileColorFabric = getTileColor(_debugColor, displayColor, displayOpacity);
     *alphaCutoffFabric = static_cast<float>(materialInfo.alphaCutoff);
-    *alphaModeFabric = materialInfo.alphaMode;
+    *alphaModeFabric = getAlphaMode(_alphaMode, displayOpacity);
     *baseAlphaFabric = static_cast<float>(materialInfo.baseAlpha);
     *baseColorFactorFabric = UsdUtil::glmToUsdVector(glm::fvec3(materialInfo.baseColorFactor));
     *emissiveFactorFabric = UsdUtil::glmToUsdVector(glm::fvec3(materialInfo.emissiveFactor));
     *metallicFactorFabric = static_cast<float>(materialInfo.metallicFactor);
     *roughnessFactorFabric = static_cast<float>(materialInfo.roughnessFactor);
-
-    if (_debugRandomColors) {
-        const auto r = glm::linearRand(0.0f, 1.0f);
-        const auto g = glm::linearRand(0.0f, 1.0f);
-        const auto b = glm::linearRand(0.0f, 1.0f);
-        *debugColorFabric = pxr::GfVec3f(r, g, b);
-    } else {
-        *debugColorFabric = DEFAULT_DEBUG_COLOR;
-    }
 }
 
 void FabricMaterial::setTextureValuesCommon(
@@ -584,15 +627,15 @@ void FabricMaterial::setImageryLayerValues(
     const pxr::TfToken& textureAssetPathToken,
     const TextureInfo& textureInfo,
     uint64_t texcoordIndex,
-    float alpha) {
+    double alpha) {
     setTextureValuesCommon(imageryLayerPath, textureAssetPathToken, textureInfo, texcoordIndex);
     setImageryLayerAlphaValue(imageryLayerPath, alpha);
 }
 
-void FabricMaterial::setImageryLayerAlphaValue(const omni::fabric::Path& imageryLayerPath, float alpha) {
+void FabricMaterial::setImageryLayerAlphaValue(const omni::fabric::Path& imageryLayerPath, double alpha) {
     auto srw = UsdUtil::getFabricStageReaderWriter();
     auto alphaFabric = srw.getAttributeWr<float>(imageryLayerPath, FabricTokens::inputs_alpha);
-    *alphaFabric = alpha;
+    *alphaFabric = static_cast<float>(alpha);
 }
 
 bool FabricMaterial::stageDestroyed() {

@@ -25,7 +25,11 @@ class FabricMaterial {
         long stageId);
     ~FabricMaterial();
 
-    void setMaterial(int64_t tilesetId, const MaterialInfo& materialInfo);
+    void setMaterial(
+        int64_t tilesetId,
+        const MaterialInfo& materialInfo,
+        const glm::dvec3& displayColor,
+        double displayOpacity);
     void setBaseColorTexture(
         const pxr::TfToken& textureAssetPathToken,
         const TextureInfo& textureInfo,
@@ -35,8 +39,9 @@ class FabricMaterial {
         const TextureInfo& textureInfo,
         uint64_t texcoordIndex,
         uint64_t imageryLayerIndex,
-        float alpha);
-    void setImageryLayerAlpha(uint64_t imageryLayerIndex, float alpha);
+        double alpha);
+    void setImageryLayerAlpha(uint64_t imageryLayerIndex, double alpha);
+    void setDisplayColorAndOpacity(const glm::dvec3& displayColor, double displayOpacity);
     void updateShaderInput(const omni::fabric::Path& shaderPath, const omni::fabric::Token& attributeName);
 
     void clearMaterial();
@@ -75,7 +80,11 @@ class FabricMaterial {
         const omni::fabric::Token& shaderInput,
         uint64_t textureCount);
     void reset();
-    void setShaderValues(const omni::fabric::Path& shaderPath, const MaterialInfo& materialInfo);
+    void setShaderValues(
+        const omni::fabric::Path& shaderPath,
+        const MaterialInfo& materialInfo,
+        const glm::dvec3& displayColor,
+        double displayOpacity);
     void setTextureValuesCommon(
         const omni::fabric::Path& texturePath,
         const pxr::TfToken& textureAssetPathToken,
@@ -91,8 +100,8 @@ class FabricMaterial {
         const pxr::TfToken& textureAssetPathToken,
         const TextureInfo& textureInfo,
         uint64_t texcoordIndex,
-        float alpha);
-    void setImageryLayerAlphaValue(const omni::fabric::Path& imageryLayerPath, float alpha);
+        double alpha);
+    void setImageryLayerAlphaValue(const omni::fabric::Path& imageryLayerPath, double alpha);
 
     bool stageDestroyed();
 
@@ -102,6 +111,9 @@ class FabricMaterial {
     const pxr::TfToken _defaultTransparentTextureAssetPathToken;
     const bool _debugRandomColors;
     const long _stageId;
+
+    AlphaMode _alphaMode;
+    glm::dvec3 _debugColor;
 
     std::vector<omni::fabric::Path> _shaderPaths;
     std::vector<omni::fabric::Path> _baseColorTexturePaths;

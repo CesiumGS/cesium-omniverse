@@ -16,7 +16,6 @@
 
 #include <charconv>
 #include <numeric>
-#include <regex>
 
 namespace cesium::omniverse::GltfUtil {
 
@@ -158,16 +157,16 @@ double getAlphaCutoff(const CesiumGltf::Material& material) {
     return material.alphaCutoff;
 }
 
-int32_t getAlphaMode(const CesiumGltf::Material& material) {
+AlphaMode getAlphaMode(const CesiumGltf::Material& material) {
     if (material.alphaMode == CesiumGltf::Material::AlphaMode::OPAQUE) {
-        return 0;
+        return AlphaMode::OPAQUE;
     } else if (material.alphaMode == CesiumGltf::Material::AlphaMode::MASK) {
-        return 1;
+        return AlphaMode::MASK;
     } else if (material.alphaMode == CesiumGltf::Material::AlphaMode::BLEND) {
-        return 2;
+        return AlphaMode::BLEND;
     }
 
-    return 0;
+    return AlphaMode::OPAQUE;
 }
 
 double getBaseAlpha(const CesiumGltf::MaterialPBRMetallicRoughness& pbrMetallicRoughness) {
@@ -232,7 +231,7 @@ double getDefaultAlphaCutoff() {
     return getAlphaCutoff(defaultMaterial);
 }
 
-int32_t getDefaultAlphaMode() {
+AlphaMode getDefaultAlphaMode() {
     return getAlphaMode(defaultMaterial);
 }
 
@@ -317,20 +316,30 @@ const CesiumGltf::ImageCesium& getImageCesium(const CesiumGltf::Model& model, co
 }
 
 std::pair<std::string, uint64_t> parseAttributeName(const std::string& attributeName) {
-    const auto regex = std::regex("^([a-zA-Z_]*)(_([1-9]\\d*|0))?$");
+    int searchPosition = static_cast<int>(attributeName.size()) - 1;
+    int lastUnderscorePosition{-1};
+    while (searchPosition > 0) {
+        if (!isdigit(attributeName[searchPosition])) {
+            if (attributeName[searchPosition] == '_') {
+                lastUnderscorePosition = searchPosition;
+            }
 
-    std::string semantic;
-    std::string setIndex;
-
-    std::smatch matches;
-
-    if (std::regex_match(attributeName, matches, regex)) {
-        semantic = matches[1];
-        setIndex = matches[3];
+            break;
+        }
+        searchPosition--;
     }
 
-    uint64_t setIndexU64 = 0;
-    std::from_chars(setIndex.data(), setIndex.data() + setIndex.size(), setIndexU64);
+    std::string semantic{};
+    uint64_t setIndexU64{0};
+    if (lastUnderscorePosition == -1) {
+        semantic = attributeName;
+    } else {
+        semantic = attributeName.substr(0, lastUnderscorePosition);
+        std::from_chars(
+            attributeName.data() + lastUnderscorePosition + 1,
+            attributeName.data() + attributeName.size(),
+            setIndexU64);
+    }
 
     return std::make_pair(semantic, setIndexU64);
 }
