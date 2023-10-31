@@ -163,10 +163,10 @@
             "problemMatcher": "$gcc",
             "windows": {
                 "problemMatcher": "$msCompile",
-                "command": "scripts/vscode_build_launcher.bat coverage Debug ${input:compiler}"
+                "command": "echo sorry, coverage is not available on windows"
             },
             "linux": {
-                "command": "python3 scripts/vscode_build.py coverage Debug ${input:compiler}",
+                "command": "scripts/generate_coverage.sh",
             }
         },
         {
