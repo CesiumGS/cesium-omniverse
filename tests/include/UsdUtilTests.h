@@ -1,6 +1,5 @@
 #pragma once
+#include <pxr/usd/usd/common.h>
 
-namespace cesium::omniverse::UsdUtil {
-void setUpUsdUtilTests(long int stage_id);
-void cleanUpUsdUtilTests();
-} // namespace cesium::omniverse::UsdUtil
+void setUpUsdUtilTests(const pxr::SdfPath& rootPath);
+void cleanUpUsdUtilTests(const pxr::UsdStageRefPtr& stage);
