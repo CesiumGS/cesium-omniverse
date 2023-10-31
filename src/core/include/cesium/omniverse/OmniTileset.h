@@ -67,6 +67,8 @@ class OmniTileset {
     [[nodiscard]] bool getShowCreditsOnScreen() const;
     [[nodiscard]] pxr::CesiumGeoreference getGeoreference() const;
     [[nodiscard]] pxr::SdfPath getMaterialPath() const;
+    [[nodiscard]] glm::dvec3 getDisplayColor() const;
+    [[nodiscard]] double getDisplayOpacity() const;
 
     [[nodiscard]] int64_t getTilesetId() const;
     [[nodiscard]] TilesetStatistics getStatistics() const;
@@ -82,6 +84,8 @@ class OmniTileset {
     [[nodiscard]] double getImageryLayerAlpha(uint64_t imageryLayerIndex) const;
     void updateImageryLayerAlpha(uint64_t imageryLayerIndex);
     void updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::TfToken& attributeName);
+    void updateDisplayColorAndOpacity();
+
     void onUpdateFrame(const std::vector<Viewport>& viewports);
 
   private:
