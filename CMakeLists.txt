@@ -89,7 +89,7 @@ include(CMakeDependentOption)
 cmake_dependent_option(
     CESIUM_OMNI_ENABLE_COVERAGE
     "Code coverage for checking the thoroughness of unit tests - only available if CESIUM_OMNI_ENABLE_TESTS is ON"
-    ON
+    OFF
     CESIUM_OMNI_ENABLE_TESTS
     OFF)
 cmake_dependent_option(
@@ -285,7 +285,7 @@ if(CESIUM_OMNI_ENABLE_SANITIZERS)
 endif()
 
 # Enable code coverage if supported on this platform.
-if(CESIUM_OMNI_ENABLE_TESTS)
+if(CESIUM_OMNI_ENABLE_COVERAGE)
     # At reconfigure time: Delete any lingering GCDA files in the build folder.
     # GCDA files track profiling information and are generated everytime a binary with
     # coverage support is executed. If we don't do this we can encounter a
