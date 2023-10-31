@@ -36,3 +36,14 @@ See [extension_test.py](../../exts/cesium.omniverse/cesium/omniverse/tests/exten
 ### C++
 `TEST_SUITE`s and `TEST_CASE`s defined in `tests/src/*.cpp` will be auto-discovered by the `run_all_tests` function in `tests/src/CesiumOmniverseCppTests.cpp`. These macros perform some automagic function definitions, so they are best left outside of other function/class definitions. See `tests/src/ExampleTests.cpp` for examples of basic tests and more advanced use cases, such as using a config file to
 define expected outputs or parameterizing tests.
+
+To create a new set of tests for a class that doesn't already have a relevant tests cpp file, say `myCesiumClass.cpp`:
+- create `tests/src/myCesiumClassTests.cpp` and `tests/include/myCesiumClassTests.h`
+- define any setup and cleanup required for the tests in functions in `myCesiumClassTests.cpp`. This can be anything that has to happen on a different frame than the tests, such as prim creation or removal.
+- expose the setup and cleanup functions in `myCesiumClassTests.h`
+- call the setup in `setUpTests()` in `tests/src/CesiumOmniverseCppTests.cpp`
+- call the cleanup in `cleanUpAfterTests()` in `tests/src/CesiumOmniverseCppTests.cpp`
+- define a `TEST_SUITE` in `myCesiumClassTests.cpp`, and place your `TEST_CASE`(s) in it
+
+Any tests defined in the new test suite will be auto-discovered and run when `runAllTests()` (bound to `run_all_tests()`) is called. Classes that do not require setup/cleanup can skip the header and any steps related to setup/cleanup functions.
+
