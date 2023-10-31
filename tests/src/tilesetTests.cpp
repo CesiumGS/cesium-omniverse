@@ -11,11 +11,13 @@
 #include <doctest/doctest.h>
 #include <omni/kit/IApp.h>
 
+#include <memory>
+
 pxr::SdfPath endToEndTilesetPath;
 bool endToEndTilesetLoaded = false;
 carb::events::ISubscriptionPtr endToEndTilesetSubscriptionPtr;
 class TilesetLoadListener;
-TilesetLoadListener* tilesetLoadListener;
+std::unique_ptr<TilesetLoadListener> tilesetLoadListener;
 
 using namespace cesium::omniverse;
 
@@ -38,8 +40,8 @@ void setUpTilesetTests(const pxr::SdfPath& rootPath) {
     auto app = carb::getCachedInterface<omni::kit::IApp>();
     auto bus = app->getMessageBusEventStream();
     auto tilesetLoadedEvent = carb::events::typeFromString("cesium.omniverse.TILESET_LOADED");
-    tilesetLoadListener = new TilesetLoadListener();
-    endToEndTilesetSubscriptionPtr = bus->createSubscriptionToPushByType(tilesetLoadedEvent, tilesetLoadListener);
+    tilesetLoadListener = std::make_unique<TilesetLoadListener>();
+    endToEndTilesetSubscriptionPtr = bus->createSubscriptionToPushByType(tilesetLoadedEvent, tilesetLoadListener.get());
 
     // Load a local test tileset
     endToEndTilesetPath = UsdUtil::getPathUnique(rootPath, "endToEndTileset");
@@ -52,7 +54,7 @@ void setUpTilesetTests(const pxr::SdfPath& rootPath) {
 void cleanUpTilesetTests(const pxr::UsdStageRefPtr& stage) {
     endToEndTilesetSubscriptionPtr->unsubscribe();
     stage->RemovePrim(endToEndTilesetPath);
-    delete tilesetLoadListener;
+    tilesetLoadListener.reset();
 }
 
 TEST_SUITE("Tileset tests") {
