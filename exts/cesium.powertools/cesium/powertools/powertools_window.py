@@ -3,7 +3,7 @@ import omni.ui as ui
 from typing import Callable, Optional, List
 from cesium.omniverse.ui import CesiumOmniverseDebugWindow
 from .georefhelper.georef_helper_window import CesiumGeorefHelperWindow
-from .utils import extend_far_plane, save_carb_settings, set_sunstudy_from_georef
+from .utils import extend_far_plane, save_carb_settings, save_fabric_stage, set_sunstudy_from_georef
 import os
 from functools import partial
 
@@ -44,6 +44,7 @@ class CesiumPowertoolsWindow(ui.Window):
             PowertoolsAction("Open Cesium Georeference Helper Window", CesiumGeorefHelperWindow.create_window),
             PowertoolsAction("Extend Far Plane", extend_far_plane),
             PowertoolsAction("Save Carb Settings", partial(save_carb_settings, powertools_extension_location)),
+            PowertoolsAction("Save Fabric Stage", partial(save_fabric_stage, powertools_extension_location)),
             PowertoolsAction("Set Sun Study from Georef", set_sunstudy_from_georef),
         ]
 
