@@ -7,6 +7,7 @@
 
 #include "UsdUtilTests.h"
 #include "testUtils.h"
+#include "tilesetTests.h"
 
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/LoggerSink.h"
@@ -37,7 +38,12 @@ class CesiumOmniverseCppTestsPlugin final : public ICesiumOmniverseCppTestsInter
 
         CESIUM_LOG_INFO("Setting up Cesium Omniverse Tests with stage id: {}", stage_id);
 
-        cesium::omniverse::UsdUtil::setUpUsdUtilTests(stage_id);
+        Context::instance().setStageId(stage_id);
+
+        auto rootPath = cesium::omniverse::UsdUtil::getRootPath();
+
+        setUpUsdUtilTests(rootPath);
+        setUpTilesetTests(rootPath);
     }
 
     void runAllTests() noexcept override {
@@ -66,7 +72,9 @@ class CesiumOmniverseCppTestsPlugin final : public ICesiumOmniverseCppTestsInter
 
     void cleanUpAfterTests() noexcept {
         // delete any test related prims here
-        cesium::omniverse::UsdUtil::cleanUpUsdUtilTests();
+        auto stage = cesium::omniverse::UsdUtil::getUsdStage();
+        cleanUpUsdUtilTests(stage);
+        cleanUpTilesetTests(stage);
     }
 };
 
@@ -81,7 +89,6 @@ const struct carb::PluginImplDesc pluginImplDesc = {
 
 // NOLINTBEGIN
 CARB_PLUGIN_IMPL(pluginImplDesc, cesium::omniverse::tests::CesiumOmniverseCppTestsPlugin)
-CARB_PLUGIN_IMPL_DEPS(omni::fabric::IFabric, omni::fabric::IStageReaderWriter)
 // NOLINTEND
 
 void fillInterface([[maybe_unused]] cesium::omniverse::tests::CesiumOmniverseCppTestsPlugin& iface) {}

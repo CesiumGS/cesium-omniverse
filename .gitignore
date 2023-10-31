@@ -20,6 +20,9 @@ compile_commands.json
 # from CTest
 /Testing
 
+# from coverage
+/coverage
+
 # everyone has their own launch.json
 .vscode/launch.json
 
@@ -78,5 +81,8 @@ tests/include/testUtils.h
 # Tracing files
 cesium-trace-*.json
 
-# Carb settings from Cesium Power Tools extensions
+# Carb settings from Cesium Power Tools extension
 carb_settings.txt
+
+# Fabric stage from Cesium Power Tools extension
+fabric_stage.txt

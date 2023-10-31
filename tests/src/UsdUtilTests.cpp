@@ -26,14 +26,8 @@ pxr::CesiumData getOrCreateCesiumDataPrim;
 pxr::CesiumSession getOrCreateCesiumSessionPrim;
 pxr::CesiumGeoreference getOrCreateCesiumGeoreferencePrim;
 
-namespace cesium::omniverse::UsdUtil {
-void setUpUsdUtilTests(long int stage_id) {
-
-    Context::instance().setStageId(stage_id);
-
-    auto stage = getUsdStage();
-    auto rootPath = getRootPath();
-
+using namespace cesium::omniverse::UsdUtil;
+void setUpUsdUtilTests(const pxr::SdfPath& rootPath) {
     // might as well name the prims after the function as well, to ensure uniqueness and clarity
     defineCesiumDataPath = rootPath.AppendChild(pxr::TfToken("defineCesiumData"));
     defineCesiumSessionPath = rootPath.AppendChild(pxr::TfToken("defineCesiumSession"));
@@ -54,10 +48,7 @@ void setUpUsdUtilTests(long int stage_id) {
     getOrCreateCesiumGeoreferencePrim = getOrCreateCesiumGeoreference();
 }
 
-void cleanUpUsdUtilTests() {
-
-    auto stage = getUsdStage();
-    auto rootPath = getRootPath();
+void cleanUpUsdUtilTests(const pxr::UsdStageRefPtr& stage) {
 
     // might as well name the prims after the function as well, to ensure uniqueness and clarity
     stage->RemovePrim(defineCesiumDataPath);
@@ -198,4 +189,3 @@ TEST_SUITE("UsdUtil tests") {
         // getCartographicOriginForAnchor(const pxr::SdfPath& path);
     }
 }
-} // namespace cesium::omniverse::UsdUtil
