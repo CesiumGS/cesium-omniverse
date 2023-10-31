@@ -20,6 +20,9 @@ compile_commands.json
 # from CTest
 /Testing
 
+# from coverage
+/coverage
+
 # everyone has their own launch.json
 .vscode/launch.json
 

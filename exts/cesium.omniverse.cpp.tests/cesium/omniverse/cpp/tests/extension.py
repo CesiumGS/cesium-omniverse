@@ -55,5 +55,6 @@ class CesiumOmniverseCppTestsExtension(omni.ext.IExt):
 
     def on_shutdown(self):
         print("Stopping Cesium Tests Extension...")
+        tests_interface.on_shutdown()
         release_cesium_omniverse_tests_interface(tests_interface)
         print("Stopped Cesium Tests Extension.")
