@@ -30,9 +30,8 @@ readme = "doc/README.md"
 preview_image = "doc/images/preview.jpg"
 icon = "doc/images/icon.png"
 
-# Technically only works in 105.1+, but there's no clear way to denote that
 [package.target]
-kit = ["105.*"]
+kit = ["105.1"]
 
 # Which extensions this extension depends on
 [dependencies]

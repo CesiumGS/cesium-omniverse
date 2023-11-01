@@ -287,11 +287,10 @@ void Context::processCesiumTilesetChanged(const ChangedPrim& changedPrim) {
         name == pxr::CesiumTokens->cesiumCulledScreenSpaceError ||
         name == pxr::CesiumTokens->cesiumMainThreadLoadingTimeLimit) {
         tileset.value()->updateTilesetOptionsFromProperties();
-    }
-    // clang-format on
-
-    // clang-format off
-    if (name == pxr::CesiumTokens->cesiumSourceType ||
+    } else if (name == pxr::UsdTokens->primvars_displayColor ||
+        name == pxr::UsdTokens->primvars_displayOpacity) {
+        tileset.value()->updateDisplayColorAndOpacity();
+    } else if (name == pxr::CesiumTokens->cesiumSourceType ||
         name == pxr::CesiumTokens->cesiumUrl ||
         name == pxr::CesiumTokens->cesiumIonAssetId ||
         name == pxr::CesiumTokens->cesiumIonAccessToken ||
@@ -432,11 +431,9 @@ void Context::processUsdShaderChanged(const cesium::omniverse::ChangedPrim& chan
 
     const auto& tilesets = AssetRegistry::getInstance().getAllTilesets();
     for (const auto& tileset : tilesets) {
-        if (tileset->getMaterialPath() != materialPath) {
-            continue;
+        if (tileset->getMaterialPath() == materialPath) {
+            tileset->updateShaderInput(path, name);
         }
-
-        tileset->updateShaderInput(path, name);
     }
 }
 
