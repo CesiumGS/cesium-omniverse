@@ -200,6 +200,7 @@ void setFabricMeshes(
             meshInfo.nodeTransform,
             model,
             primitive,
+            materialInfo,
             meshInfo.smoothNormals,
             mesh.texcoordIndexMapping,
             mesh.imageryTexcoordIndexMapping);

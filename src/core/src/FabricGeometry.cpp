@@ -23,6 +23,7 @@ namespace cesium::omniverse {
 
 namespace {
 
+const auto DEFAULT_DOUBLE_SIDED = false;
 const auto DEFAULT_EXTENT = pxr::GfRange3d(pxr::GfVec3d(0.0, 0.0, 0.0), pxr::GfVec3d(0.0, 0.0, 0.0));
 const auto DEFAULT_POSITION = pxr::GfVec3d(0.0, 0.0, 0.0);
 const auto DEFAULT_ORIENTATION = pxr::GfQuatf(1.0f, 0.0, 0.0, 0.0);
@@ -116,7 +117,6 @@ void FabricGeometry::setMaterial(const omni::fabric::Path& materialPath) {
 void FabricGeometry::initialize() {
     const auto hasNormals = _geometryDefinition.hasNormals();
     const auto hasVertexColors = _geometryDefinition.hasVertexColors();
-    const auto doubleSided = _geometryDefinition.getDoubleSided();
     const auto texcoordSetCount = getTexcoordSetCount(_geometryDefinition);
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
@@ -156,12 +156,7 @@ void FabricGeometry::initialize() {
 
     attributes.createAttributes(_path);
 
-    // clang-format off
-    auto doubleSidedFabric = srw.getAttributeWr<bool>(_path, FabricTokens::doubleSided);
     auto subdivisionSchemeFabric = srw.getAttributeWr<omni::fabric::TokenC>(_path, FabricTokens::subdivisionScheme);
-    // clang-format on
-
-    *doubleSidedFabric = doubleSided;
     *subdivisionSchemeFabric = FabricTokens::none;
 
     // Initialize primvars
@@ -216,6 +211,7 @@ void FabricGeometry::reset() {
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
     // clang-format off
+    auto doubleSidedFabric = srw.getAttributeWr<bool>(_path, FabricTokens::doubleSided);
     auto extentFabric = srw.getAttributeWr<pxr::GfRange3d>(_path, FabricTokens::extent);
     auto worldExtentFabric = srw.getAttributeWr<pxr::GfRange3d>(_path, FabricTokens::_worldExtent);
     auto worldVisibilityFabric = srw.getAttributeWr<bool>(_path, FabricTokens::_worldVisibility);
@@ -225,6 +221,7 @@ void FabricGeometry::reset() {
     auto worldScaleFabric = srw.getAttributeWr<pxr::GfVec3f>(_path, FabricTokens::_worldScale);
     // clang-format on
 
+    *doubleSidedFabric = DEFAULT_DOUBLE_SIDED;
     *extentFabric = DEFAULT_EXTENT;
     *worldExtentFabric = DEFAULT_EXTENT;
     *worldVisibilityFabric = DEFAULT_VISIBILITY;
@@ -260,6 +257,7 @@ void FabricGeometry::setGeometry(
     const glm::dmat4& nodeTransform,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
+    const MaterialInfo& materialInfo,
     bool smoothNormals,
     const std::unordered_map<uint64_t, uint64_t>& texcoordIndexMapping,
     const std::unordered_map<uint64_t, uint64_t>& imageryTexcoordIndexMapping) {
@@ -284,6 +282,7 @@ void FabricGeometry::setGeometry(
         return;
     }
 
+    const auto doubleSided = materialInfo.doubleSided;
     const auto localExtent = UsdUtil::glmToUsdRange(extent.value());
     const auto localToEcefTransform = gltfToEcefTransform * nodeTransform;
     const auto localToUsdTransform = ecefToUsdTransform * localToEcefTransform;
@@ -434,6 +433,7 @@ void FabricGeometry::setGeometry(
     }
 
     // clang-format off
+    auto doubleSidedFabric = srw.getAttributeWr<bool>(_path, FabricTokens::doubleSided);
     auto extentFabric = srw.getAttributeWr<pxr::GfRange3d>(_path, FabricTokens::extent);
     auto worldExtentFabric = srw.getAttributeWr<pxr::GfRange3d>(_path, FabricTokens::_worldExtent);
     auto localToEcefTransformFabric = srw.getAttributeWr<pxr::GfMatrix4d>(_path, FabricTokens::_cesium_localToEcefTransform);
@@ -442,6 +442,7 @@ void FabricGeometry::setGeometry(
     auto worldScaleFabric = srw.getAttributeWr<pxr::GfVec3f>(_path, FabricTokens::_worldScale);
     // clang-format on
 
+    *doubleSidedFabric = doubleSided;
     *extentFabric = localExtent;
     *worldExtentFabric = worldExtent;
     *localToEcefTransformFabric = UsdUtil::glmToUsdMatrix(localToEcefTransform);
