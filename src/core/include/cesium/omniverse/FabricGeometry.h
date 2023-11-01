@@ -13,6 +13,8 @@ struct Model;
 
 namespace cesium::omniverse {
 
+struct MaterialInfo;
+
 class FabricGeometry {
   public:
     FabricGeometry(const omni::fabric::Path& path, const FabricGeometryDefinition& geometryDefinition, long stageId);
@@ -25,6 +27,7 @@ class FabricGeometry {
         const glm::dmat4& nodeTransform,
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
+        const MaterialInfo& materialInfo,
         bool smoothNormals,
         const std::unordered_map<uint64_t, uint64_t>& texcoordIndexMapping,
         const std::unordered_map<uint64_t, uint64_t>& imageryTexcoordIndexMapping);

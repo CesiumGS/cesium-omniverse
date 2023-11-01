@@ -18,7 +18,6 @@ class FabricGeometryDefinition {
 
     [[nodiscard]] bool hasNormals() const;
     [[nodiscard]] bool hasVertexColors() const;
-    [[nodiscard]] bool getDoubleSided() const;
     [[nodiscard]] uint64_t getTexcoordSetCount() const;
 
     bool operator==(const FabricGeometryDefinition& other) const;
@@ -26,7 +25,6 @@ class FabricGeometryDefinition {
   private:
     bool _hasNormals{false};
     bool _hasVertexColors{false};
-    bool _doubleSided{false};
     uint64_t _texcoordSetCount{0};
 };
 
