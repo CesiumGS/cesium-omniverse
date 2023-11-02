@@ -1,5 +1,7 @@
 #pragma once
 
+#include "cesium/omniverse/VertexAttributeType.h"
+
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
 #undef OPAQUE
@@ -89,7 +91,7 @@ class VertexColorsAccessor {
     VertexColorsAccessor(const CesiumGltf::AccessorView<glm::fvec3>& float32Vec3View);
     VertexColorsAccessor(const CesiumGltf::AccessorView<glm::fvec4>& float32Vec4View);
 
-    void fill(const gsl::span<glm::fvec4>& values) const;
+    void fill(const gsl::span<glm::fvec4>& values, uint64_t repeat = 1) const;
     [[nodiscard]] uint64_t size() const;
 
   private:
@@ -112,6 +114,20 @@ class FaceVertexCountsAccessor {
     [[nodiscard]] uint64_t size() const;
 
   private:
+    uint64_t _size;
+};
+
+template <VertexAttributeType T> class VertexAttributeAccessor {
+  public:
+    VertexAttributeAccessor();
+    VertexAttributeAccessor(const CesiumGltf::AccessorView<GetNativeType<T>>& view);
+
+    void fill(const gsl::span<GetFabricType<T>>& values, uint64_t repeat = 1) const;
+
+    [[nodiscard]] uint64_t size() const;
+
+  private:
+    CesiumGltf::AccessorView<GetNativeType<T>> _view;
     uint64_t _size;
 };
 
