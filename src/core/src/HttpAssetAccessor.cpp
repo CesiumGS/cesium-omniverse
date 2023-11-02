@@ -59,9 +59,7 @@ struct GZipDecompressInterceptor final : public cpr::Interceptor {
         : _certificatePath(certificatePath.generic_string()) {}
 
     cpr::Response intercept(cpr::Session& session) override {
-#ifdef CESIUM_OMNI_UNIX
         curl_easy_setopt(session.GetCurlHolder()->handle, CURLOPT_CAINFO, _certificatePath.c_str());
-#endif
         curl_easy_setopt(session.GetCurlHolder()->handle, CURLOPT_ACCEPT_ENCODING, nullptr);
 
         CURLcode curl_error = curl_easy_perform(session.GetCurlHolder()->handle);
@@ -113,6 +111,11 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> HttpAssetAccess
     std::shared_ptr<cpr::Session> session = std::make_shared<cpr::Session>();
     session->AddInterceptor(_interceptor);
     session->SetHeader(cprHeader);
+
+    // TLS 1.3 is not enabled by default.
+    auto sslOptions = cpr::Ssl(cpr::ssl::MaxTLSv1_3{});
+    session->SetSslOptions(sslOptions);
+
     session->SetUrl(cpr::Url(url));
     session->SetReserveSize(CPR_RESERVE_SIZE);
     session->GetCallback([promise, url, headers](cpr::Response&& response) mutable {
@@ -137,11 +140,15 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> HttpAssetAccess
     const auto cprHeader = createCprHeader(headers);
     std::shared_ptr<cpr::Session> session = std::make_shared<cpr::Session>();
     session->SetHeader(cprHeader);
+
+    // TLS 1.3 is not enabled by default.
+    auto sslOptions = cpr::Ssl(cpr::ssl::MaxTLSv1_3{});
+    session->SetSslOptions(sslOptions);
+
     session->SetUrl(cpr::Url(url));
     session->SetReserveSize(CPR_RESERVE_SIZE);
-#ifdef CESIUM_OMNI_UNIX
     session->AddInterceptor(_interceptor);
-#endif
+
     if (verb == "GET") {
         session->GetCallback([promise, url, headers](cpr::Response&& response) mutable {
             promise.resolve(std::make_shared<HttpAssetRequest>("GET", url, headers, std::move(response)));
