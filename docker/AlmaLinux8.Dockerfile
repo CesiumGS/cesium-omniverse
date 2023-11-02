@@ -58,4 +58,4 @@ RUN pip3 install conan==1.58.0 && \
 
 WORKDIR /var/app
 
-ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["/bin/bash", "--login", "-c"]
