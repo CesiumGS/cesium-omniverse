@@ -240,7 +240,7 @@ void FabricGeometry::initialize() {
     }
 
     if (hasVertexColors) {
-        attributes.addAttribute(FabricTypes::primvars_vertexColor, FabricTokens::primvars_vertexColor);
+        attributes.addAttribute(FabricTypes::primvars_COLOR_0, FabricTokens::primvars_COLOR_0);
     }
 
     for (const auto& customVertexAttribute : customVertexAttributes) {
@@ -304,7 +304,7 @@ void FabricGeometry::initialize() {
     }
 
     if (hasVertexColors) {
-        primvarsFabric[primvarIndexVertexColor] = FabricTokens::primvars_vertexColor;
+        primvarsFabric[primvarIndexVertexColor] = FabricTokens::primvars_COLOR_0;
         primvarInterpolationsFabric[primvarIndexVertexColor] = FabricTokens::vertex;
     }
 }
@@ -357,7 +357,7 @@ void FabricGeometry::reset() {
     }
 
     if (hasVertexColors) {
-        srw.setArrayAttributeSize(_path, FabricTokens::primvars_vertexColor, 0);
+        srw.setArrayAttributeSize(_path, FabricTokens::primvars_COLOR_0, 0);
     }
 }
 
@@ -413,8 +413,8 @@ void FabricGeometry::setGeometry(
         auto faceVertexIndicesFabric = srw.getArrayAttributeWr<int>(_path, FabricTokens::faceVertexIndices);
 
         if (hasVertexColors) {
-            srw.setArrayAttributeSize(_path, FabricTokens::primvars_vertexColor, numVoxels * 8);
-            auto vertexColorsFabric = srw.getArrayAttributeWr<glm::fvec4>(_path, FabricTokens::primvars_vertexColor);
+            srw.setArrayAttributeSize(_path, FabricTokens::primvars_COLOR_0, numVoxels * 8);
+            auto vertexColorsFabric = srw.getArrayAttributeWr<glm::fvec4>(_path, FabricTokens::primvars_COLOR_0);
             vertexColors.fill(vertexColorsFabric, 8);
         }
 
@@ -530,9 +530,9 @@ void FabricGeometry::setGeometry(
         }
 
         if (hasVertexColors) {
-            srw.setArrayAttributeSize(_path, FabricTokens::primvars_vertexColor, vertexColors.size());
+            srw.setArrayAttributeSize(_path, FabricTokens::primvars_COLOR_0, vertexColors.size());
 
-            auto vertexColorsFabric = srw.getArrayAttributeWr<glm::fvec4>(_path, FabricTokens::primvars_vertexColor);
+            auto vertexColorsFabric = srw.getArrayAttributeWr<glm::fvec4>(_path, FabricTokens::primvars_COLOR_0);
 
             vertexColors.fill(vertexColorsFabric);
         }
