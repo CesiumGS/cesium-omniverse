@@ -1,5 +1,5 @@
-name: "CentOS 7 Build"
-description: "Build Cesium for Omniverse in Docker container running a CentOS 7 image"
+name: "AlmaLinux 8 Build"
+description: "Build Cesium for Omniverse in Docker container running a AlmaLinux 8 image"
 inputs:
   build-type:
     description: "Release or debug build"
