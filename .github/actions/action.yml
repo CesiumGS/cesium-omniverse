@@ -11,8 +11,6 @@ runs:
   env:
     CONAN_USER_HOME: $GITHUB_WORKSPACE
   args:
-    # Tell bash to run a command
-    - "-c"
     # Gets around a Git issue with CI. https://stackoverflow.com/a/73100228
     - "git config --global --add safe.directory '*'"
     # Parallel 2 because github action limited to two cores
