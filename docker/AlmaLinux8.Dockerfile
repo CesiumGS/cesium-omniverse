@@ -35,9 +35,18 @@ RUN dnf install -y -q \
 # Install the nvidia driver.
 RUN dnf module install -y -q nvidia-driver:535-dkms
 
-# Enables gcc 11 for use within the docker image.
-RUN echo "source /opt/rh/gcc-toolset-11/enable" >> /etc/bashrc
-SHELL ["/bin/bash", "--login", "-c"]
+# /bin/gcc, /bin/gcov, /bin/ranlib and /bin/ar are old versions and not
+# symbolic links, which prevents alternatives from working properly, so
+# rename them
+RUN mv /bin/gcc /bin/gcc-8 && \
+    mv /bin/gcov /bin/gcov-8
+
+# Create links to some of the custom packages
+RUN alternatives --install /usr/bin/gcc gcc /opt/rh/gcc-toolset-11/root/usr/bin/gcc 100 && \
+    alternatives --install /usr/bin/gcov gcov /opt/rh/gcc-toolset-11/root/usr/bin/gcov 100 && \
+    alternatives --install /usr/bin/g++ g++ /opt/rh/gcc-toolset-11/root/usr/bin/g++ 100 && \
+    alternatives --install /usr/bin/cc cc /opt/rh/gcc-toolset-11/root/usr/bin/gcc 100 && \
+    alternatives --install /usr/bin/c++ c++ /opt/rh/gcc-toolset-11/root/usr/bin/g++ 100
 
 # Install newer version of CMake
 RUN wget https://cmake.org/files/v3.24/cmake-3.24.2.tar.gz && \
@@ -58,4 +67,4 @@ RUN pip3 install conan==1.58.0 && \
 
 WORKDIR /var/app
 
-ENTRYPOINT ["/bin/bash", "--login", "-c"]
+ENTRYPOINT ["/bin/bash"]

@@ -11,10 +11,8 @@ runs:
   env:
     CONAN_USER_HOME: $GITHUB_WORKSPACE
   args:
-    - "--login"
+    # Tell bash to run a command
     - "-c"
-    # Gets around a Git issue with CI. https://stackoverflow.com/a/73100228
-    - "git config --global --add safe.directory '*'"
     # Parallel 2 because github action limited to two cores
     # Linters are turned off because there is no pre-compiled C++20-capable LLVM toolset for CentOS 7. It won't affect the build, it just means there won't be code formatting or linting. It will build fine with GCC.
     # Make sure to configure without sanitizers and any other development options
