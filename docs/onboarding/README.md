@@ -20,7 +20,7 @@ There is also a similar [C++ extension template](https://github.com/NVIDIA-Omniv
 Some self-explanatory directories have been ommitted.
 
 - `apps` - Tools that use the extensions, such as the performance testing app, but are not themselves extensions
-- `docker` - Docker configuration for CentOS CI builds
+- `docker` - Docker configuration for AlmaLinux 8 CI builds
 - `exts` - This is where extension code is kept. The file structure follows the pattern:
     ```
     exts
