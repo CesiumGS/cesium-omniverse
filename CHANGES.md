@@ -1,5 +1,9 @@
 # Change Log
 
+### v0.14.0 - 2023-12-01
+
+* Added support for custom vertex attributes. Custom attributes can be accessed by their glTF attribute name with the primvar lookup functions in MDL, e.g. `data_lookup_int` and `data_lookup_float`.
+
 ### v0.13.0 - 2023-11-01
 
 * Changing certain tileset properties no longer triggers a tileset reload.

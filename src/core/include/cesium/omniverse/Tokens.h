@@ -125,7 +125,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((primvars_st_7, "primvars:st_7")) \
     ((primvars_st_8, "primvars:st_8")) \
     ((primvars_st_9, "primvars:st_9")) \
-    ((primvars_vertexColor, "primvars:vertexColor")) \
+    ((primvars_COLOR_0, "primvars:COLOR_0")) \
     ((xformOp_transform_cesium, "xformOp:transform:cesium"))
 
 TF_DECLARE_PUBLIC_TOKENS(UsdTokens, USD_TOKENS);
@@ -250,7 +250,7 @@ const omni::fabric::Type primvarInterpolations(omni::fabric::BaseDataType::eToke
 const omni::fabric::Type primvars(omni::fabric::BaseDataType::eToken, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type primvars_normals(omni::fabric::BaseDataType::eFloat, 3, 1, omni::fabric::AttributeRole::eNormal);
 const omni::fabric::Type primvars_st(omni::fabric::BaseDataType::eFloat, 2, 1, omni::fabric::AttributeRole::eTexCoord);
-const omni::fabric::Type primvars_vertexColor(omni::fabric::BaseDataType::eFloat, 4, 1, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type primvars_COLOR_0(omni::fabric::BaseDataType::eFloat, 4, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type Shader(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName);
 const omni::fabric::Type subdivisionScheme(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _cesium_localToEcefTransform(omni::fabric::BaseDataType::eDouble, 16, 0, omni::fabric::AttributeRole::eMatrix);

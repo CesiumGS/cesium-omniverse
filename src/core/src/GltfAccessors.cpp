@@ -1,12 +1,16 @@
 #include "cesium/omniverse/GltfAccessors.h"
 
+#include "cesium/omniverse/VertexAttributeType.h"
+
+#include <type_traits>
+
 namespace cesium::omniverse {
 PositionsAccessor::PositionsAccessor()
     : _size(0) {}
 
 PositionsAccessor::PositionsAccessor(const CesiumGltf::AccessorView<glm::fvec3>& view)
     : _view(view)
-    , _size(view.size()) {}
+    , _size(static_cast<uint64_t>(view.size())) {}
 
 void PositionsAccessor::fill(const gsl::span<glm::fvec3>& values) const {
     for (uint64_t i = 0; i < _size; i++) {
@@ -30,15 +34,15 @@ IndicesAccessor::IndicesAccessor(uint64_t size)
 
 IndicesAccessor::IndicesAccessor(const CesiumGltf::AccessorView<uint8_t>& uint8View)
     : _uint8View(uint8View)
-    , _size(uint8View.size()) {}
+    , _size(static_cast<uint64_t>(uint8View.size())) {}
 
 IndicesAccessor::IndicesAccessor(const CesiumGltf::AccessorView<uint16_t>& uint16View)
     : _uint16View(uint16View)
-    , _size(uint16View.size()) {}
+    , _size(static_cast<uint64_t>(uint16View.size())) {}
 
 IndicesAccessor::IndicesAccessor(const CesiumGltf::AccessorView<uint32_t>& uint32View)
     : _uint32View(uint32View)
-    , _size(uint32View.size()) {}
+    , _size(static_cast<uint64_t>(uint32View.size())) {}
 
 template <typename T> IndicesAccessor IndicesAccessor::FromTriangleStrips(const CesiumGltf::AccessorView<T>& view) {
     auto indices = std::vector<uint32_t>();
@@ -89,24 +93,27 @@ template IndicesAccessor IndicesAccessor::FromTriangleFans<uint16_t>(const Cesiu
 template IndicesAccessor IndicesAccessor::FromTriangleFans<uint32_t>(const CesiumGltf::AccessorView<uint32_t>& view);
 
 void IndicesAccessor::fill(const gsl::span<int>& values) const {
+    const auto size = values.size();
+    assert(size == _size);
+
     if (!_computed.empty()) {
-        for (uint64_t i = 0; i < _size; i++) {
+        for (uint64_t i = 0; i < size; i++) {
             values[i] = static_cast<int>(_computed[i]);
         }
     } else if (_uint8View.status() == CesiumGltf::AccessorViewStatus::Valid) {
-        for (uint64_t i = 0; i < _size; i++) {
+        for (uint64_t i = 0; i < size; i++) {
             values[i] = static_cast<int>(_uint8View[static_cast<int64_t>(i)]);
         }
     } else if (_uint16View.status() == CesiumGltf::AccessorViewStatus::Valid) {
-        for (uint64_t i = 0; i < _size; i++) {
+        for (uint64_t i = 0; i < size; i++) {
             values[i] = static_cast<int>(_uint16View[static_cast<int64_t>(i)]);
         }
     } else if (_uint32View.status() == CesiumGltf::AccessorViewStatus::Valid) {
-        for (uint64_t i = 0; i < _size; i++) {
+        for (uint64_t i = 0; i < size; i++) {
             values[i] = static_cast<int>(_uint32View[static_cast<int64_t>(i)]);
         }
     } else {
-        for (uint64_t i = 0; i < _size; i++) {
+        for (uint64_t i = 0; i < size; i++) {
             values[i] = static_cast<int>(i);
         }
     }
@@ -135,7 +142,7 @@ NormalsAccessor::NormalsAccessor()
 
 NormalsAccessor::NormalsAccessor(const CesiumGltf::AccessorView<glm::fvec3>& view)
     : _view(view)
-    , _size(view.size()) {}
+    , _size(static_cast<uint64_t>(view.size())) {}
 
 NormalsAccessor NormalsAccessor::GenerateSmooth(const PositionsAccessor& positions, const IndicesAccessor& indices) {
     auto normals = std::vector<glm::fvec3>(positions.size(), glm::fvec3(0.0f));
@@ -166,12 +173,15 @@ NormalsAccessor NormalsAccessor::GenerateSmooth(const PositionsAccessor& positio
 }
 
 void NormalsAccessor::fill(const gsl::span<glm::fvec3>& values) const {
+    const auto size = values.size();
+    assert(size == _size);
+
     if (!_computed.empty()) {
-        for (uint64_t i = 0; i < _size; i++) {
+        for (uint64_t i = 0; i < size; i++) {
             values[i] = _computed[i];
         }
     } else {
-        for (uint64_t i = 0; i < _size; i++) {
+        for (uint64_t i = 0; i < size; i++) {
             values[i] = _view[static_cast<int64_t>(i)];
         }
     }
@@ -187,15 +197,18 @@ TexcoordsAccessor::TexcoordsAccessor()
 TexcoordsAccessor::TexcoordsAccessor(const CesiumGltf::AccessorView<glm::fvec2>& view, bool flipVertical)
     : _view(view)
     , _flipVertical(flipVertical)
-    , _size(view.size()) {}
+    , _size(static_cast<uint64_t>(view.size())) {}
 
 void TexcoordsAccessor::fill(const gsl::span<glm::fvec2>& values) const {
-    for (uint64_t i = 0; i < _size; i++) {
+    const auto size = values.size();
+    assert(size == _size);
+
+    for (uint64_t i = 0; i < size; i++) {
         values[i] = _view[static_cast<int64_t>(i)];
     }
 
     if (_flipVertical) {
-        for (uint64_t i = 0; i < _size; i++) {
+        for (uint64_t i = 0; i < size; i++) {
             values[i][1] = 1.0f - values[i][1];
         }
     }
@@ -210,72 +223,75 @@ VertexColorsAccessor::VertexColorsAccessor()
 
 VertexColorsAccessor::VertexColorsAccessor(const CesiumGltf::AccessorView<glm::u8vec3>& uint8Vec3View)
     : _uint8Vec3View(uint8Vec3View)
-    , _size(uint8Vec3View.size()) {}
+    , _size(static_cast<uint64_t>(uint8Vec3View.size())) {}
 
 VertexColorsAccessor::VertexColorsAccessor(const CesiumGltf::AccessorView<glm::u8vec4>& uint8Vec4View)
     : _uint8Vec4View(uint8Vec4View)
-    , _size(uint8Vec4View.size()) {}
+    , _size(static_cast<uint64_t>(uint8Vec4View.size())) {}
 
 VertexColorsAccessor::VertexColorsAccessor(const CesiumGltf::AccessorView<glm::u16vec3>& uint16Vec3View)
     : _uint16Vec3View(uint16Vec3View)
-    , _size(uint16Vec3View.size()) {}
+    , _size(static_cast<uint64_t>(uint16Vec3View.size())) {}
 
 VertexColorsAccessor::VertexColorsAccessor(const CesiumGltf::AccessorView<glm::u16vec4>& uint16Vec4View)
     : _uint16Vec4View(uint16Vec4View)
-    , _size(uint16Vec4View.size()) {}
+    , _size(static_cast<uint64_t>(uint16Vec4View.size())) {}
 
 VertexColorsAccessor::VertexColorsAccessor(const CesiumGltf::AccessorView<glm::fvec3>& float32Vec3View)
     : _float32Vec3View(float32Vec3View)
-    , _size(float32Vec3View.size()) {}
+    , _size(static_cast<uint64_t>(float32Vec3View.size())) {}
 
 VertexColorsAccessor::VertexColorsAccessor(const CesiumGltf::AccessorView<glm::fvec4>& float32Vec4View)
     : _float32Vec4View(float32Vec4View)
-    , _size(float32Vec4View.size()) {}
+    , _size(static_cast<uint64_t>(float32Vec4View.size())) {}
 
-void VertexColorsAccessor::fill(const gsl::span<glm::fvec4>& values) const {
-    constexpr auto MAX_UINT8 = std::numeric_limits<uint8_t>::max();
-    constexpr auto MAX_UINT16 = std::numeric_limits<uint16_t>::max();
+void VertexColorsAccessor::fill(const gsl::span<glm::fvec4>& values, uint64_t repeat) const {
+    constexpr auto MAX_UINT8 = static_cast<float>(std::numeric_limits<uint8_t>::max());
+    constexpr auto MAX_UINT16 = static_cast<float>(std::numeric_limits<uint16_t>::max());
+
+    const auto size = values.size();
+    assert(size == _size * repeat);
 
     if (_uint8Vec3View.status() == CesiumGltf::AccessorViewStatus::Valid) {
-        for (uint64_t i = 0; i < _size; i++) {
+        for (uint64_t i = 0; i < size; i++) {
             values[i] = glm::fvec4(
-                static_cast<float>(_uint8Vec3View[static_cast<int64_t>(i)].x) / static_cast<float>(MAX_UINT8),
-                static_cast<float>(_uint8Vec3View[static_cast<int64_t>(i)].y) / static_cast<float>(MAX_UINT8),
-                static_cast<float>(_uint8Vec3View[static_cast<int64_t>(i)].z) / static_cast<float>(MAX_UINT8),
+                static_cast<float>(_uint8Vec3View[static_cast<int64_t>(i / repeat)].x) / MAX_UINT8,
+                static_cast<float>(_uint8Vec3View[static_cast<int64_t>(i / repeat)].y) / MAX_UINT8,
+                static_cast<float>(_uint8Vec3View[static_cast<int64_t>(i / repeat)].z) / MAX_UINT8,
                 1.0);
         }
     } else if (_uint8Vec4View.status() == CesiumGltf::AccessorViewStatus::Valid) {
-        for (uint64_t i = 0; i < _size; i++) {
+        for (uint64_t i = 0; i < size; i++) {
             values[i] = glm::fvec4(
-                static_cast<float>(_uint8Vec4View[static_cast<int64_t>(i)].x) / static_cast<float>(MAX_UINT8),
-                static_cast<float>(_uint8Vec4View[static_cast<int64_t>(i)].y) / static_cast<float>(MAX_UINT8),
-                static_cast<float>(_uint8Vec4View[static_cast<int64_t>(i)].z) / static_cast<float>(MAX_UINT8),
-                static_cast<float>(_uint8Vec4View[static_cast<int64_t>(i)].w) / static_cast<float>(MAX_UINT8));
+                static_cast<float>(_uint8Vec4View[static_cast<int64_t>(i / repeat)].x) / MAX_UINT8,
+                static_cast<float>(_uint8Vec4View[static_cast<int64_t>(i / repeat)].y) / MAX_UINT8,
+                static_cast<float>(_uint8Vec4View[static_cast<int64_t>(i / repeat)].z) / MAX_UINT8,
+                static_cast<float>(_uint8Vec4View[static_cast<int64_t>(i / repeat)].w) / MAX_UINT8);
         }
     } else if (_uint16Vec3View.status() == CesiumGltf::AccessorViewStatus::Valid) {
-        for (uint64_t i = 0; i < _size; i++) {
+        for (uint64_t i = 0; i < size; i++) {
             values[i] = glm::fvec4(
-                static_cast<float>(_uint16Vec3View[static_cast<int64_t>(i)].x) / static_cast<float>(MAX_UINT16),
-                static_cast<float>(_uint16Vec3View[static_cast<int64_t>(i)].y) / static_cast<float>(MAX_UINT16),
-                static_cast<float>(_uint16Vec3View[static_cast<int64_t>(i)].z) / static_cast<float>(MAX_UINT16),
+                static_cast<float>(_uint16Vec3View[static_cast<int64_t>(i / repeat)].x) / MAX_UINT16,
+                static_cast<float>(_uint16Vec3View[static_cast<int64_t>(i / repeat)].y) / MAX_UINT16,
+                static_cast<float>(_uint16Vec3View[static_cast<int64_t>(i / repeat)].z) / MAX_UINT16,
                 1.0);
         }
     } else if (_uint16Vec4View.status() == CesiumGltf::AccessorViewStatus::Valid) {
-        for (uint64_t i = 0; i < _size; i++) {
+        for (uint64_t i = 0; i < size; i++) {
             values[i] = glm::fvec4(
-                static_cast<float>(_uint16Vec4View[static_cast<int64_t>(i)].x) / static_cast<float>(MAX_UINT16),
-                static_cast<float>(_uint16Vec4View[static_cast<int64_t>(i)].y) / static_cast<float>(MAX_UINT16),
-                static_cast<float>(_uint16Vec4View[static_cast<int64_t>(i)].z) / static_cast<float>(MAX_UINT16),
-                static_cast<float>(_uint16Vec4View[static_cast<int64_t>(i)].w) / static_cast<float>(MAX_UINT16));
+                static_cast<float>(_uint16Vec4View[static_cast<int64_t>(i / repeat)].x) / MAX_UINT16,
+                static_cast<float>(_uint16Vec4View[static_cast<int64_t>(i / repeat)].y) / MAX_UINT16,
+                static_cast<float>(_uint16Vec4View[static_cast<int64_t>(i / repeat)].z) / MAX_UINT16,
+                static_cast<float>(_uint16Vec4View[static_cast<int64_t>(i / repeat)].w) / MAX_UINT16);
         }
     } else if (_float32Vec3View.status() == CesiumGltf::AccessorViewStatus::Valid) {
-        for (uint64_t i = 0; i < _size; i++) {
-            values[i] = glm::fvec4(_float32Vec3View[static_cast<int64_t>(i)], 1.0f);
+        for (uint64_t i = 0; i < size; i++) {
+            values[i] = glm::fvec4(_float32Vec3View[static_cast<int64_t>(i / repeat)], 1.0f);
         }
 
     } else if (_float32Vec4View.status() == CesiumGltf::AccessorViewStatus::Valid) {
-        for (uint64_t i = 0; i < _size; i++) {
-            values[i] = _float32Vec4View[static_cast<int64_t>(i)];
+        for (uint64_t i = 0; i < size; i++) {
+            values[i] = _float32Vec4View[static_cast<int64_t>(i / repeat)];
         }
     }
 }
@@ -291,7 +307,10 @@ FaceVertexCountsAccessor::FaceVertexCountsAccessor(uint64_t size)
     : _size(size) {}
 
 void FaceVertexCountsAccessor::fill(const gsl::span<int>& values) const {
-    for (uint64_t i = 0; i < _size; i++) {
+    const auto size = values.size();
+    assert(size == _size);
+
+    for (uint64_t i = 0; i < size; i++) {
         values[i] = 3;
     }
 }
@@ -299,5 +318,85 @@ void FaceVertexCountsAccessor::fill(const gsl::span<int>& values) const {
 uint64_t FaceVertexCountsAccessor::size() const {
     return _size;
 }
+
+namespace {
+template <VertexAttributeType AttributeType>
+GetFabricType<AttributeType> normalize(const GetNativeType<AttributeType>& value) {
+    using FabricType = GetFabricType<AttributeType>;
+    using NativeType = GetNativeType<AttributeType>;
+    using FabricValueType = typename FabricType::value_type;
+    using NativeValueType = typename NativeType::value_type;
+
+    static_assert(std::is_same_v<float, FabricValueType>);
+    static_assert(NativeType::length() == FabricType::length());
+
+    if constexpr (std::is_floating_point_v<NativeValueType>) {
+        assert(false);
+        return value;
+    } else if constexpr (std::is_unsigned_v<NativeValueType>) {
+        // Map [0, 255] to [0.0, 1.0] and equivalent for higher bit depth types
+        constexpr auto scale = std::numeric_limits<NativeValueType>().max();
+        return static_cast<FabricType>(value) / static_cast<FabricValueType>(scale);
+    } else {
+        // Map [-128, 127] to [-1.0, 1.0] where -128 and -127 both map to -1.0, and equivalent for higher bit depth types.
+        constexpr auto scale = std::numeric_limits<NativeValueType>().max();
+        return static_cast<FabricType>(glm::max(value, NativeType(-scale))) / static_cast<FabricValueType>(scale);
+    }
+}
+} // namespace
+
+template <VertexAttributeType T>
+VertexAttributeAccessor<T>::VertexAttributeAccessor()
+    : _size(0) {}
+
+template <VertexAttributeType T>
+VertexAttributeAccessor<T>::VertexAttributeAccessor(
+    const CesiumGltf::AccessorView<GetNativeType<T>>& view,
+    bool normalized)
+    : _view(view)
+    , _size(static_cast<uint64_t>(view.size()))
+    , _normalized(normalized) {}
+
+template <VertexAttributeType T>
+void VertexAttributeAccessor<T>::fill(const gsl::span<GetFabricType<T>>& values, uint64_t repeat) const {
+    const auto size = values.size();
+    assert(size == _size * repeat);
+
+    if (_normalized) {
+        for (uint64_t i = 0; i < size; i++) {
+            values[i] = normalize<T>(_view[static_cast<int64_t>(i / repeat)]);
+        }
+    } else {
+        for (uint64_t i = 0; i < size; i++) {
+            values[i] = static_cast<GetFabricType<T>>(_view[static_cast<int64_t>(i / repeat)]);
+        }
+    }
+}
+
+template <VertexAttributeType T> uint64_t VertexAttributeAccessor<T>::size() const {
+    return _size;
+}
+
+// Explicit template instantiation
+template class VertexAttributeAccessor<VertexAttributeType::UINT8>;
+template class VertexAttributeAccessor<VertexAttributeType::INT8>;
+template class VertexAttributeAccessor<VertexAttributeType::UINT16>;
+template class VertexAttributeAccessor<VertexAttributeType::INT16>;
+template class VertexAttributeAccessor<VertexAttributeType::FLOAT32>;
+template class VertexAttributeAccessor<VertexAttributeType::VEC2_UINT8>;
+template class VertexAttributeAccessor<VertexAttributeType::VEC2_INT8>;
+template class VertexAttributeAccessor<VertexAttributeType::VEC2_UINT16>;
+template class VertexAttributeAccessor<VertexAttributeType::VEC2_INT16>;
+template class VertexAttributeAccessor<VertexAttributeType::VEC2_FLOAT32>;
+template class VertexAttributeAccessor<VertexAttributeType::VEC3_UINT8>;
+template class VertexAttributeAccessor<VertexAttributeType::VEC3_INT8>;
+template class VertexAttributeAccessor<VertexAttributeType::VEC3_UINT16>;
+template class VertexAttributeAccessor<VertexAttributeType::VEC3_INT16>;
+template class VertexAttributeAccessor<VertexAttributeType::VEC3_FLOAT32>;
+template class VertexAttributeAccessor<VertexAttributeType::VEC4_UINT8>;
+template class VertexAttributeAccessor<VertexAttributeType::VEC4_INT8>;
+template class VertexAttributeAccessor<VertexAttributeType::VEC4_UINT16>;
+template class VertexAttributeAccessor<VertexAttributeType::VEC4_INT16>;
+template class VertexAttributeAccessor<VertexAttributeType::VEC4_FLOAT32>;
 
 } // namespace cesium::omniverse

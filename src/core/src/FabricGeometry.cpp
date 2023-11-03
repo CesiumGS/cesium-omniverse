@@ -47,6 +47,93 @@ uint64_t getTexcoordSetCount(const FabricGeometryDefinition& geometryDefinition)
     return texcoordSetCount;
 }
 
+template <VertexAttributeType T>
+void setVertexAttributeValues(
+    omni::fabric::StageReaderWriter& srw,
+    const omni::fabric::Path& path,
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive,
+    const VertexAttributeInfo& attribute,
+    uint64_t repeat) {
+
+    const auto accessor = GltfUtil::getVertexAttributeValues<T>(model, primitive, attribute.gltfAttributeName);
+    assert(accessor.size() > 0);
+    srw.setArrayAttributeSize(path, attribute.fabricAttributeName, accessor.size() * repeat);
+    auto fabricValues = srw.getArrayAttributeWr<GetFabricType<T>>(path, attribute.fabricAttributeName);
+    accessor.fill(fabricValues, repeat);
+}
+
+void setVertexAttributeValues(
+    omni::fabric::StageReaderWriter& srw,
+    const omni::fabric::Path& path,
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive,
+    const VertexAttributeInfo& attribute,
+    uint64_t repeat) {
+    switch (attribute.type) {
+        case VertexAttributeType::UINT8:
+            setVertexAttributeValues<VertexAttributeType::UINT8>(srw, path, model, primitive, attribute, repeat);
+            break;
+        case VertexAttributeType::INT8:
+            setVertexAttributeValues<VertexAttributeType::INT8>(srw, path, model, primitive, attribute, repeat);
+            break;
+        case VertexAttributeType::UINT16:
+            setVertexAttributeValues<VertexAttributeType::UINT16>(srw, path, model, primitive, attribute, repeat);
+            break;
+        case VertexAttributeType::INT16:
+            setVertexAttributeValues<VertexAttributeType::INT16>(srw, path, model, primitive, attribute, repeat);
+            break;
+        case VertexAttributeType::FLOAT32:
+            setVertexAttributeValues<VertexAttributeType::FLOAT32>(srw, path, model, primitive, attribute, repeat);
+            break;
+        case VertexAttributeType::VEC2_UINT8:
+            setVertexAttributeValues<VertexAttributeType::VEC2_UINT8>(srw, path, model, primitive, attribute, repeat);
+            break;
+        case VertexAttributeType::VEC2_INT8:
+            setVertexAttributeValues<VertexAttributeType::VEC2_INT8>(srw, path, model, primitive, attribute, repeat);
+            break;
+        case VertexAttributeType::VEC2_UINT16:
+            setVertexAttributeValues<VertexAttributeType::VEC2_UINT16>(srw, path, model, primitive, attribute, repeat);
+            break;
+        case VertexAttributeType::VEC2_INT16:
+            setVertexAttributeValues<VertexAttributeType::VEC2_INT16>(srw, path, model, primitive, attribute, repeat);
+            break;
+        case VertexAttributeType::VEC2_FLOAT32:
+            setVertexAttributeValues<VertexAttributeType::VEC2_FLOAT32>(srw, path, model, primitive, attribute, repeat);
+            break;
+        case VertexAttributeType::VEC3_UINT8:
+            setVertexAttributeValues<VertexAttributeType::VEC3_UINT8>(srw, path, model, primitive, attribute, repeat);
+            break;
+        case VertexAttributeType::VEC3_INT8:
+            setVertexAttributeValues<VertexAttributeType::VEC3_INT8>(srw, path, model, primitive, attribute, repeat);
+            break;
+        case VertexAttributeType::VEC3_UINT16:
+            setVertexAttributeValues<VertexAttributeType::VEC3_UINT16>(srw, path, model, primitive, attribute, repeat);
+            break;
+        case VertexAttributeType::VEC3_INT16:
+            setVertexAttributeValues<VertexAttributeType::VEC3_INT16>(srw, path, model, primitive, attribute, repeat);
+            break;
+        case VertexAttributeType::VEC3_FLOAT32:
+            setVertexAttributeValues<VertexAttributeType::VEC3_FLOAT32>(srw, path, model, primitive, attribute, repeat);
+            break;
+        case VertexAttributeType::VEC4_UINT8:
+            setVertexAttributeValues<VertexAttributeType::VEC4_UINT8>(srw, path, model, primitive, attribute, repeat);
+            break;
+        case VertexAttributeType::VEC4_INT8:
+            setVertexAttributeValues<VertexAttributeType::VEC4_INT8>(srw, path, model, primitive, attribute, repeat);
+            break;
+        case VertexAttributeType::VEC4_UINT16:
+            setVertexAttributeValues<VertexAttributeType::VEC4_UINT16>(srw, path, model, primitive, attribute, repeat);
+            break;
+        case VertexAttributeType::VEC4_INT16:
+            setVertexAttributeValues<VertexAttributeType::VEC4_INT16>(srw, path, model, primitive, attribute, repeat);
+            break;
+        case VertexAttributeType::VEC4_FLOAT32:
+            setVertexAttributeValues<VertexAttributeType::VEC4_FLOAT32>(srw, path, model, primitive, attribute, repeat);
+            break;
+    }
+}
+
 } // namespace
 
 FabricGeometry::FabricGeometry(
@@ -118,6 +205,8 @@ void FabricGeometry::initialize() {
     const auto hasNormals = _geometryDefinition.hasNormals();
     const auto hasVertexColors = _geometryDefinition.hasVertexColors();
     const auto texcoordSetCount = getTexcoordSetCount(_geometryDefinition);
+    const auto& customVertexAttributes = _geometryDefinition.getCustomVertexAttributes();
+    const auto customVertexAttributesCount = customVertexAttributes.size();
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
@@ -151,7 +240,11 @@ void FabricGeometry::initialize() {
     }
 
     if (hasVertexColors) {
-        attributes.addAttribute(FabricTypes::primvars_vertexColor, FabricTokens::primvars_vertexColor);
+        attributes.addAttribute(FabricTypes::primvars_COLOR_0, FabricTokens::primvars_COLOR_0);
+    }
+
+    for (const auto& customVertexAttribute : customVertexAttributes) {
+        attributes.addAttribute(getFabricType(customVertexAttribute.type), customVertexAttribute.fabricAttributeName);
     }
 
     attributes.createAttributes(_path);
@@ -169,6 +262,13 @@ void FabricGeometry::initialize() {
 
     for (uint64_t i = 0; i < texcoordSetCount; i++) {
         primvarIndexStArray.push_back(primvarsCount++);
+    }
+
+    std::vector<uint64_t> primvarIndexCustomVertexAttributesArray;
+    primvarIndexCustomVertexAttributesArray.reserve(customVertexAttributesCount);
+
+    for (uint64_t i = 0; i < customVertexAttributesCount; i++) {
+        primvarIndexCustomVertexAttributesArray.push_back(primvarsCount++);
     }
 
     if (hasNormals) {
@@ -192,13 +292,19 @@ void FabricGeometry::initialize() {
         primvarInterpolationsFabric[primvarIndexStArray[i]] = FabricTokens::vertex;
     }
 
+    for (uint64_t i = 0; i < customVertexAttributesCount; i++) {
+        const auto& customVertexAttribute = *std::next(customVertexAttributes.begin(), static_cast<int>(i));
+        primvarsFabric[primvarIndexCustomVertexAttributesArray[i]] = customVertexAttribute.fabricAttributeName;
+        primvarInterpolationsFabric[primvarIndexCustomVertexAttributesArray[i]] = FabricTokens::vertex;
+    }
+
     if (hasNormals) {
         primvarsFabric[primvarIndexNormal] = FabricTokens::primvars_normals;
         primvarInterpolationsFabric[primvarIndexNormal] = FabricTokens::vertex;
     }
 
     if (hasVertexColors) {
-        primvarsFabric[primvarIndexVertexColor] = FabricTokens::primvars_vertexColor;
+        primvarsFabric[primvarIndexVertexColor] = FabricTokens::primvars_COLOR_0;
         primvarInterpolationsFabric[primvarIndexVertexColor] = FabricTokens::vertex;
     }
 }
@@ -207,6 +313,7 @@ void FabricGeometry::reset() {
     const auto hasNormals = _geometryDefinition.hasNormals();
     const auto hasVertexColors = _geometryDefinition.hasVertexColors();
     const auto texcoordSetCount = getTexcoordSetCount(_geometryDefinition);
+    const auto& customVertexAttributes = _geometryDefinition.getCustomVertexAttributes();
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
@@ -241,12 +348,16 @@ void FabricGeometry::reset() {
         srw.setArrayAttributeSize(_path, FabricTokens::primvars_st_n[i], 0);
     }
 
+    for (const auto& customVertexAttribute : customVertexAttributes) {
+        srw.setArrayAttributeSize(_path, customVertexAttribute.fabricAttributeName, 0);
+    }
+
     if (hasNormals) {
         srw.setArrayAttributeSize(_path, FabricTokens::primvars_normals, 0);
     }
 
     if (hasVertexColors) {
-        srw.setArrayAttributeSize(_path, FabricTokens::primvars_vertexColor, 0);
+        srw.setArrayAttributeSize(_path, FabricTokens::primvars_COLOR_0, 0);
     }
 }
 
@@ -268,6 +379,7 @@ void FabricGeometry::setGeometry(
 
     const auto hasNormals = _geometryDefinition.hasNormals();
     const auto hasVertexColors = _geometryDefinition.hasVertexColors();
+    const auto& customVertexAttributes = _geometryDefinition.getCustomVertexAttributes();
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
@@ -300,18 +412,19 @@ void FabricGeometry::setGeometry(
         auto faceVertexCountsFabric = srw.getArrayAttributeWr<int>(_path, FabricTokens::faceVertexCounts);
         auto faceVertexIndicesFabric = srw.getArrayAttributeWr<int>(_path, FabricTokens::faceVertexIndices);
 
-        std::vector<glm::fvec4> vertexColorsData(numVoxels);
-        gsl::span<glm::fvec4> vertexColorsSpan(vertexColorsData);
         if (hasVertexColors) {
-            vertexColors.fill(vertexColorsSpan);
-            srw.setArrayAttributeSize(_path, FabricTokens::primvars_vertexColor, numVoxels * 8);
+            srw.setArrayAttributeSize(_path, FabricTokens::primvars_COLOR_0, numVoxels * 8);
+            auto vertexColorsFabric = srw.getArrayAttributeWr<glm::fvec4>(_path, FabricTokens::primvars_COLOR_0);
+            vertexColors.fill(vertexColorsFabric, 8);
         }
-        auto vertexColorsFabric = srw.getArrayAttributeWr<glm::fvec4>(_path, FabricTokens::primvars_vertexColor);
+
+        for (const auto& customVertexAttribute : customVertexAttributes) {
+            setVertexAttributeValues(srw, _path, model, primitive, customVertexAttribute, 8);
+        }
 
         size_t vertIndex = 0;
         size_t vertexCountsIndex = 0;
         size_t faceVertexIndex = 0;
-        size_t vertexColorsIndex = 0;
         for (size_t voxelIndex = 0; voxelIndex < numVoxels; voxelIndex++) {
             const auto& center = positions.get(voxelIndex);
 
@@ -371,13 +484,6 @@ void FabricGeometry::setGeometry(
             faceVertexIndicesFabric[faceVertexIndex++] = 7 + static_cast<int>(voxelIndex * 8);
             faceVertexIndicesFabric[faceVertexIndex++] = 5 + static_cast<int>(voxelIndex * 8);
             faceVertexIndicesFabric[faceVertexIndex++] = 4 + static_cast<int>(voxelIndex * 8);
-
-            if (hasVertexColors) {
-                const auto& color = vertexColorsSpan[voxelIndex];
-                for (int i = 0; i < 8; i++) {
-                    vertexColorsFabric[vertexColorsIndex++] = color;
-                }
-            }
         }
     } else {
         srw.setArrayAttributeSize(_path, FabricTokens::faceVertexCounts, faceVertexCounts.size());
@@ -424,11 +530,15 @@ void FabricGeometry::setGeometry(
         }
 
         if (hasVertexColors) {
-            srw.setArrayAttributeSize(_path, FabricTokens::primvars_vertexColor, vertexColors.size());
+            srw.setArrayAttributeSize(_path, FabricTokens::primvars_COLOR_0, vertexColors.size());
 
-            auto vertexColorsFabric = srw.getArrayAttributeWr<glm::fvec4>(_path, FabricTokens::primvars_vertexColor);
+            auto vertexColorsFabric = srw.getArrayAttributeWr<glm::fvec4>(_path, FabricTokens::primvars_COLOR_0);
 
             vertexColors.fill(vertexColorsFabric);
+        }
+
+        for (const auto& customVertexAttribute : customVertexAttributes) {
+            setVertexAttributeValues(srw, _path, model, primitive, customVertexAttribute, 1);
         }
     }
 
