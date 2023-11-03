@@ -627,7 +627,6 @@ getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::Mesh
             type.value(),
             fabricAttributeName,
             attributeName,
-            accessor->normalized,
         });
     }
 
