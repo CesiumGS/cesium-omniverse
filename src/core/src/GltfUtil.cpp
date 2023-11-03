@@ -580,7 +580,7 @@ MaterialInfo getMaterialInfo(const CesiumGltf::Model& model, const CesiumGltf::M
 
 std::set<VertexAttributeInfo>
 getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
-    constexpr std::array<const char*, 9> knownSemantics = {{
+    constexpr std::array<const char*, 8> knownSemantics = {{
         "POSITION",
         "NORMAL",
         "TANGENT",
@@ -589,7 +589,6 @@ getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::Mesh
         "JOINTS",
         "WEIGHTS",
         "_CESIUMOVERLAY",
-        "_FEATURE_ID",
     }};
 
     std::set<VertexAttributeInfo> customVertexAttributes;
