@@ -493,7 +493,7 @@ VertexAttributeAccessor<T> getVertexAttributeValues(
         return {};
     }
 
-    return VertexAttributeAccessor<T>(view);
+    return VertexAttributeAccessor<T>(view, accessor->normalized);
 }
 
 // Explicit template instantiation
@@ -627,6 +627,7 @@ getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::Mesh
             type.value(),
             fabricAttributeName,
             attributeName,
+            accessor->normalized,
         });
     }
 

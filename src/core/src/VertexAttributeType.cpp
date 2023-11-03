@@ -40,9 +40,7 @@ uint64_t getComponentCount(VertexAttributeType type) {
 }
 
 omni::fabric::BaseDataType getFabricBaseDataType() {
-    // Integer primvar lookup doesn't seem to work so cast all data types to float. This is safe to do since
-    // FLOAT32 can represent all possible UINT8, INT8, UINT16, and INT16 values. Also not a significant memory
-    // overhead since Fabric doesn't support INT8, UINT16, and INT16 types anyways.
+    // See comment in header
     return omni::fabric::BaseDataType::eFloat;
 }
 

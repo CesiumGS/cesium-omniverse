@@ -58,6 +58,7 @@ struct VertexAttributeInfo {
     VertexAttributeType type;
     omni::fabric::Token fabricAttributeName;
     std::string gltfAttributeName;
+    bool normalized;
 
     // Make sure to update this function when adding new fields to the struct
     bool operator==(const VertexAttributeInfo& other) const;

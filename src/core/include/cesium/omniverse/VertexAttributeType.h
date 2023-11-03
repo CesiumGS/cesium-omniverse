@@ -35,11 +35,11 @@ std::optional<VertexAttributeType> getVertexAttributeTypeFromGltf(const std::str
 omni::fabric::Type getFabricType(VertexAttributeType type);
 
 template <VertexAttributeType T> struct GetNativeTypeImpl;
-template <> struct GetNativeTypeImpl<VertexAttributeType::UINT8> { using Type = uint8_t; };
-template <> struct GetNativeTypeImpl<VertexAttributeType::INT8> { using Type = int8_t; };
-template <> struct GetNativeTypeImpl<VertexAttributeType::UINT16> { using Type = uint16_t; };
-template <> struct GetNativeTypeImpl<VertexAttributeType::INT16> { using Type = int16_t; };
-template <> struct GetNativeTypeImpl<VertexAttributeType::FLOAT32> { using Type = float; };
+template <> struct GetNativeTypeImpl<VertexAttributeType::UINT8> { using Type = glm::u8vec1; };
+template <> struct GetNativeTypeImpl<VertexAttributeType::INT8> { using Type = glm::i8vec1; };
+template <> struct GetNativeTypeImpl<VertexAttributeType::UINT16> { using Type = glm::u16vec1; };
+template <> struct GetNativeTypeImpl<VertexAttributeType::INT16> { using Type = glm::i16vec1; };
+template <> struct GetNativeTypeImpl<VertexAttributeType::FLOAT32> { using Type = glm::f32vec1; };
 template <> struct GetNativeTypeImpl<VertexAttributeType::VEC2_UINT8> { using Type = glm::u8vec2; };
 template <> struct GetNativeTypeImpl<VertexAttributeType::VEC2_INT8> { using Type = glm::i8vec2; };
 template <> struct GetNativeTypeImpl<VertexAttributeType::VEC2_UINT16> { using Type = glm::u16vec2; };
@@ -59,12 +59,14 @@ template <> struct GetNativeTypeImpl<VertexAttributeType::VEC4_FLOAT32> { using 
 // Integer primvar lookup doesn't seem to work so cast all data types to float. This is safe to do since
 // FLOAT32 can represent all possible UINT8, INT8, UINT16, and INT16 values. Also not a significant memory
 // overhead since Fabric doesn't support INT8, UINT16, and INT16 types anyways.
+//
+// Float is also a convenient data type for storing normalized attributes, which are normalized prior to Fabric upload
 template <VertexAttributeType T> struct GetFabricTypeImpl;
-template <> struct GetFabricTypeImpl<VertexAttributeType::UINT8> { using Type = float; };
-template <> struct GetFabricTypeImpl<VertexAttributeType::INT8> { using Type = float; };
-template <> struct GetFabricTypeImpl<VertexAttributeType::UINT16> { using Type = float; };
-template <> struct GetFabricTypeImpl<VertexAttributeType::INT16> { using Type = float; };
-template <> struct GetFabricTypeImpl<VertexAttributeType::FLOAT32> { using Type = float; };
+template <> struct GetFabricTypeImpl<VertexAttributeType::UINT8> { using Type = glm::f32vec1; };
+template <> struct GetFabricTypeImpl<VertexAttributeType::INT8> { using Type = glm::f32vec1; };
+template <> struct GetFabricTypeImpl<VertexAttributeType::UINT16> { using Type = glm::f32vec1; };
+template <> struct GetFabricTypeImpl<VertexAttributeType::INT16> { using Type = glm::f32vec1; };
+template <> struct GetFabricTypeImpl<VertexAttributeType::FLOAT32> { using Type = glm::f32vec1; };
 template <> struct GetFabricTypeImpl<VertexAttributeType::VEC2_UINT8> { using Type = glm::f32vec2; };
 template <> struct GetFabricTypeImpl<VertexAttributeType::VEC2_INT8> { using Type = glm::f32vec2; };
 template <> struct GetFabricTypeImpl<VertexAttributeType::VEC2_UINT16> { using Type = glm::f32vec2; };

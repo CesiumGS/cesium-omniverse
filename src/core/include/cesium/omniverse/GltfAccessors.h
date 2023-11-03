@@ -127,7 +127,7 @@ class FaceVertexCountsAccessor {
 template <VertexAttributeType T> class VertexAttributeAccessor {
   public:
     VertexAttributeAccessor();
-    VertexAttributeAccessor(const CesiumGltf::AccessorView<GetNativeType<T>>& view);
+    VertexAttributeAccessor(const CesiumGltf::AccessorView<GetNativeType<T>>& view, bool normalized);
 
     void fill(const gsl::span<GetFabricType<T>>& values, uint64_t repeat = 1) const;
 
@@ -136,6 +136,7 @@ template <VertexAttributeType T> class VertexAttributeAccessor {
   private:
     CesiumGltf::AccessorView<GetNativeType<T>> _view;
     uint64_t _size;
+    bool _normalized;
 };
 
 } // namespace cesium::omniverse

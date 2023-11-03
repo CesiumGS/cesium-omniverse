@@ -1,5 +1,9 @@
 #include "cesium/omniverse/GltfAccessors.h"
 
+#include "cesium/omniverse/VertexAttributeType.h"
+
+#include <type_traits>
+
 namespace cesium::omniverse {
 PositionsAccessor::PositionsAccessor()
     : _size(0) {}
@@ -315,23 +319,57 @@ uint64_t FaceVertexCountsAccessor::size() const {
     return _size;
 }
 
+namespace {
+template <VertexAttributeType AttributeType>
+GetFabricType<AttributeType> normalize(const GetNativeType<AttributeType>& value) {
+    using FabricType = GetFabricType<AttributeType>;
+    using NativeType = GetNativeType<AttributeType>;
+    using FabricValueType = typename FabricType::value_type;
+    using NativeValueType = typename NativeType::value_type;
+
+    static_assert(std::is_same_v<float, FabricValueType>);
+    static_assert(NativeType::length() == FabricType::length());
+
+    if constexpr (std::is_floating_point_v<NativeValueType>) {
+        assert(false);
+        return value;
+    } else if constexpr (std::is_unsigned_v<NativeValueType>) {
+        // Map [0, 255] to [0.0, 1.0] and equivalent for higher bit depth types
+        constexpr auto scale = std::numeric_limits<NativeValueType>().max();
+        return static_cast<FabricType>(value) / static_cast<FabricValueType>(scale);
+    } else {
+        // Map [-128, 127] to [-1.0, 1.0] where -128 and -127 both map to -1.0, and equivalent for higher bit depth types.
+        constexpr auto scale = std::numeric_limits<NativeValueType>().max();
+        return static_cast<FabricType>(glm::max(value, NativeType(-scale))) / static_cast<FabricValueType>(scale);
+    }
+}
+} // namespace
+
 template <VertexAttributeType T>
 VertexAttributeAccessor<T>::VertexAttributeAccessor()
     : _size(0) {}
 
 template <VertexAttributeType T>
-VertexAttributeAccessor<T>::VertexAttributeAccessor(const CesiumGltf::AccessorView<GetNativeType<T>>& view)
+VertexAttributeAccessor<T>::VertexAttributeAccessor(
+    const CesiumGltf::AccessorView<GetNativeType<T>>& view,
+    bool normalized)
     : _view(view)
-    , _size(static_cast<uint64_t>(view.size())) {}
+    , _size(static_cast<uint64_t>(view.size()))
+    , _normalized(normalized) {}
 
 template <VertexAttributeType T>
 void VertexAttributeAccessor<T>::fill(const gsl::span<GetFabricType<T>>& values, uint64_t repeat) const {
     const auto size = values.size();
     assert(size == _size * repeat);
 
-    for (uint64_t i = 0; i < size; i++) {
-        // NOLINTNEXTLINE(bugprone-signed-char-misuse)
-        values[i] = static_cast<GetFabricType<T>>(_view[static_cast<int64_t>(i / repeat)]);
+    if (_normalized) {
+        for (uint64_t i = 0; i < size; i++) {
+            values[i] = normalize<T>(_view[static_cast<int64_t>(i / repeat)]);
+        }
+    } else {
+        for (uint64_t i = 0; i < size; i++) {
+            values[i] = static_cast<GetFabricType<T>>(_view[static_cast<int64_t>(i / repeat)]);
+        }
     }
 }
 
