@@ -37,13 +37,13 @@ jobs:
               coverage: "false",
             }
           - {
-              name: "CentOS 7 - GCC",
+              name: "AlmaLinux 8 - GCC",
               artifact: "linux-gcc.tar.xz",
               os: ubuntu-latest-m,
               cc: "gcc-11",
               cxx: "g++-11",
               build-type: "Release",
-              build-code: "CentOS7",
+              build-code: "AlmaLinux8",
               generator: "Unix Makefiles",
               coverage: "false",
             }
@@ -82,21 +82,21 @@ jobs:
           path: ${{ env.CONAN_USER_HOME }}/.conan
           key: conan-${{ matrix.config.name }}-${{ hashFiles('cmake/AddConanDependencies.cmake') }}-v3
 
-      - name: CentOS Build with Docker
+      - name: AlmaLinux Build with Docker
         uses: ./.github/actions
-        if: matrix.config.name == 'CentOS 7 - GCC'
+        if: matrix.config.name == 'AlmaLinux 8 - GCC'
         with:
           build-type: ${{ matrix.config.build-type }}
 
       # Change the ownership from root to user for all files created by Docker in
       # the Conan build directory so that the files can be cached without permission
       # denied errors
-      - name: CentOS Change Conan directory permissions
-        if: matrix.config.name == 'CentOS 7 - GCC'
+      - name: AlmaLinux Change Conan directory permissions
+        if: matrix.config.name == 'AlmaLinux 8 - GCC'
         run: sudo chown -R $USER:$USER $CONAN_USER_HOME/.conan
 
       - name: Install Linux dependencies
-        if: ${{ runner.os == 'Linux' && matrix.config.name != 'CentOS 7 - GCC' }}
+        if: ${{ runner.os == 'Linux' && matrix.config.name != 'AlmaLinux 8 - GCC' }}
         run: |
           sudo apt update
           sudo apt install -y doxygen clang-tidy-14 gcovr nvidia-driver-535
@@ -118,7 +118,7 @@ jobs:
       # Note: CMAKE_BUILD_TYPE is only used by Linux. It is ignored for Windows.
       # Note: CMAKE_CONFIGURATION_TYPES is used by Windows to generate a single configuration for Release since we don't need Debug, RelWithDebugInfo, and MinSizeRel on CI. It is ignored for Linux.
       - name: Configure
-        if: matrix.config.name != 'CentOS 7 - GCC'
+        if: matrix.config.name != 'AlmaLinux 8 - GCC'
         run: cmake -B build -D CESIUM_OMNI_ENABLE_COVERAGE=${{ matrix.config.coverage}} -D CMAKE_C_COMPILER=${{ matrix.config.cc }} -D CMAKE_CXX_COMPILER=${{ matrix.config.cxx }} -D CMAKE_BUILD_TYPE=${{ matrix.config.build-type }} -D CMAKE_CONFIGURATION_TYPES=${{ matrix.config.build-type }} -G "${{ matrix.config.generator }}"
 
       # Change the ownership from root to user for all files in the Conan cache so
@@ -133,19 +133,19 @@ jobs:
           $Acl.SetAccessRule($Ar)
 
       - name: Check C/C++ Formatting
-        if: matrix.config.name != 'CentOS 7 - GCC'
+        if: matrix.config.name != 'AlmaLinux 8 - GCC'
         run: cmake --build build --target clang-format-check-all --config ${{ matrix.config.build-type }}
 
       - name: Check Python Formatting
-        if: matrix.config.name != 'CentOS 7 - GCC'
+        if: matrix.config.name != 'AlmaLinux 8 - GCC'
         run: black --check --diff .
 
       - name: Check Python Linting
-        if: matrix.config.name != 'CentOS 7 - GCC'
+        if: matrix.config.name != 'AlmaLinux 8 - GCC'
         run: flake8
 
       - name: Build
-        if: matrix.config.name != 'CentOS 7 - GCC'
+        if: matrix.config.name != 'AlmaLinux 8 - GCC'
         run: cmake --build build --config ${{ matrix.config.build-type }} --parallel ${{ steps.cpu-cores.outputs.count }}
 
       - name: Coverage
@@ -154,19 +154,19 @@ jobs:
 
       - name: Documentation
         # Currently disabled for Windows because `choco install doxygen.install` is flaky
-        if: ${{ matrix.config.name != 'CentOS 7 - GCC' && runner.os != 'Windows' }}
+        if: ${{ matrix.config.name != 'AlmaLinux 8 - GCC' && runner.os != 'Windows' }}
         run: cmake --build build --target generate-documentation --config ${{ matrix.config.build-type }}
 
       - name: Install (Default/Kit)
-        if: matrix.config.name != 'CentOS 7 - GCC'
+        if: matrix.config.name != 'AlmaLinux 8 - GCC'
         run: cmake --install build --config ${{ matrix.config.build-type }}
 
       - name: Install (Library)
-        if: matrix.config.name != 'CentOS 7 - GCC'
+        if: matrix.config.name != 'AlmaLinux 8 - GCC'
         run: cmake --install build --config ${{ matrix.config.build-type }} --prefix install-library --component library
 
       - name: Package
-        if: matrix.config.name != 'CentOS 7 - GCC'
+        if: matrix.config.name != 'AlmaLinux 8 - GCC'
         run: cmake --build build --target package --config ${{ matrix.config.build-type }}
 
       - name: Capture Git info (not Windows)
@@ -198,6 +198,6 @@ jobs:
           aws-region: us-east-1
 
       - name: Upload to S3
-        if: ${{ matrix.config.name == 'CentOS 7 - GCC' || runner.os == 'Windows' }}
+        if: ${{ matrix.config.name == 'AlmaLinux 8 - GCC' || runner.os == 'Windows' }}
         run: |
           aws s3 cp build/${{ env.zip_name }} s3://cesium-builds/cesium-omniverse/${{ env.branch }}/${{ env.us_date }}/${{ env.sha_short }}/${{ matrix.config.build-code }}/
