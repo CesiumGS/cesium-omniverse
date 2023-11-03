@@ -39,23 +39,8 @@ const std::set<VertexAttributeInfo>& FabricGeometryDefinition::getCustomVertexAt
 }
 
 bool FabricGeometryDefinition::operator==(const FabricGeometryDefinition& other) const {
-    if (_hasNormals != other._hasNormals) {
-        return false;
-    }
-
-    if (_hasVertexColors != other._hasVertexColors) {
-        return false;
-    }
-
-    if (_texcoordSetCount != other._texcoordSetCount) {
-        return false;
-    }
-
-    if (_customVertexAttributes != other._customVertexAttributes) {
-        return false;
-    }
-
-    return true;
+    return _hasNormals == other._hasNormals && _hasVertexColors == other._hasVertexColors &&
+           _texcoordSetCount == other._texcoordSetCount && _customVertexAttributes == other._customVertexAttributes;
 }
 
 } // namespace cesium::omniverse

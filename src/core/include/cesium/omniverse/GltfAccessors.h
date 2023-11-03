@@ -91,7 +91,14 @@ class VertexColorsAccessor {
     VertexColorsAccessor(const CesiumGltf::AccessorView<glm::fvec3>& float32Vec3View);
     VertexColorsAccessor(const CesiumGltf::AccessorView<glm::fvec4>& float32Vec4View);
 
+    /**
+     * @brief Copy accessor values to the given output values, including any data transformations.
+     *
+     * @param values The output values.
+     * @param repeat Indicates how many times each value in the accessor should be repeated in the output. Typically repeat is 1, but for voxel point clouds repeat is 8.
+     */
     void fill(const gsl::span<glm::fvec4>& values, uint64_t repeat = 1) const;
+
     [[nodiscard]] uint64_t size() const;
 
   private:

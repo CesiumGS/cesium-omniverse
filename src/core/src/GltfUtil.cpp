@@ -722,97 +722,23 @@ namespace cesium::omniverse {
 
 // In C++ 20 we can use the default equality comparison (= default)
 bool TextureInfo::operator==(const TextureInfo& other) const {
-    if (offset != other.offset) {
-        return false;
-    }
-
-    if (rotation != other.rotation) {
-        return false;
-    }
-
-    if (scale != other.scale) {
-        return false;
-    }
-
-    if (setIndex != other.setIndex) {
-        return false;
-    }
-
-    if (wrapS != other.wrapS) {
-        return false;
-    }
-
-    if (wrapT != other.wrapT) {
-        return false;
-    }
-
-    if (flipVertical != other.flipVertical) {
-        return false;
-    }
-    return true;
+    return offset == other.offset && rotation == other.rotation && scale == other.scale && setIndex == other.setIndex &&
+           wrapS == other.wrapS && wrapT == other.wrapT && flipVertical == other.flipVertical;
 }
 
 // In C++ 20 we can use the default equality comparison (= default)
 bool MaterialInfo::operator==(const MaterialInfo& other) const {
-    if (alphaCutoff != other.alphaCutoff) {
-        return false;
-    }
-
-    if (alphaMode != other.alphaMode) {
-        return false;
-    }
-
-    if (baseAlpha != other.baseAlpha) {
-        return false;
-    }
-
-    if (baseColorFactor != other.baseColorFactor) {
-        return false;
-    }
-
-    if (emissiveFactor != other.emissiveFactor) {
-        return false;
-    }
-
-    if (metallicFactor != other.metallicFactor) {
-        return false;
-    }
-
-    if (roughnessFactor != other.roughnessFactor) {
-        return false;
-    }
-
-    if (doubleSided != other.doubleSided) {
-        return false;
-    }
-
-    if (hasVertexColors != other.hasVertexColors) {
-        return false;
-    }
-
-    // != operator doesn't compile for some reason
-    if (!(baseColorTexture == other.baseColorTexture)) {
-        return false;
-    }
-
-    return true;
+    return alphaCutoff == other.alphaCutoff && alphaMode == other.alphaMode && baseAlpha == other.baseAlpha &&
+           baseColorFactor == other.baseColorFactor && emissiveFactor == other.emissiveFactor &&
+           metallicFactor == other.metallicFactor && roughnessFactor == other.roughnessFactor &&
+           doubleSided == other.doubleSided && hasVertexColors == other.hasVertexColors &&
+           baseColorTexture == other.baseColorTexture;
 }
 
 // In C++ 20 we can use the default equality comparison (= default)
 bool VertexAttributeInfo::operator==(const VertexAttributeInfo& other) const {
-    if (type != other.type) {
-        return false;
-    }
-
-    if (fabricAttributeName != other.fabricAttributeName) {
-        return false;
-    }
-
-    if (gltfAttributeName != other.gltfAttributeName) {
-        return false;
-    }
-
-    return true;
+    return type == other.type && fabricAttributeName == other.fabricAttributeName &&
+           gltfAttributeName == other.gltfAttributeName;
 }
 
 // This is needed for std::set to be sorted

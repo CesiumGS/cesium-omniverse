@@ -32,10 +32,11 @@ uint64_t getComponentCount(VertexAttributeType type) {
         case VertexAttributeType::VEC4_INT16:
         case VertexAttributeType::VEC4_FLOAT32:
             return 4;
-        default:
-            assert(false);
-            return 0;
     }
+
+    // Unreachable code. All enum cases are handled above.
+    assert(false);
+    return 0;
 }
 
 omni::fabric::BaseDataType getFabricBaseDataType() {
