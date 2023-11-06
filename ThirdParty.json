@@ -21,7 +21,7 @@
         "license": [
             "MIT"
         ],
-        "version": "1.9.0",
+        "version": "1.10.4",
         "url": "https://docs.libcpr.org/"
     },
     {
@@ -38,7 +38,7 @@
         "license": [
             "curl"
         ],
-        "version": "7.86.0",
+        "version": "8.2.1",
         "url": "https://curl.se"
     },
     {
@@ -54,7 +54,7 @@
         "license": [
             "OpenSSL"
         ],
-        "version": "1.1.1s",
+        "version": "1.1.1w",
         "url": "https://github.com/openssl/openssl"
     },
     {

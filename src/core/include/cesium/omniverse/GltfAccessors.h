@@ -1,5 +1,7 @@
 #pragma once
 
+#include "cesium/omniverse/VertexAttributeType.h"
+
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
 #undef OPAQUE
@@ -89,7 +91,14 @@ class VertexColorsAccessor {
     VertexColorsAccessor(const CesiumGltf::AccessorView<glm::fvec3>& float32Vec3View);
     VertexColorsAccessor(const CesiumGltf::AccessorView<glm::fvec4>& float32Vec4View);
 
-    void fill(const gsl::span<glm::fvec3>& values) const;
+    /**
+     * @brief Copy accessor values to the given output values, including any data transformations.
+     *
+     * @param values The output values.
+     * @param repeat Indicates how many times each value in the accessor should be repeated in the output. Typically repeat is 1, but for voxel point clouds repeat is 8.
+     */
+    void fill(const gsl::span<glm::fvec4>& values, uint64_t repeat = 1) const;
+
     [[nodiscard]] uint64_t size() const;
 
   private:
@@ -113,6 +122,21 @@ class FaceVertexCountsAccessor {
 
   private:
     uint64_t _size;
+};
+
+template <VertexAttributeType T> class VertexAttributeAccessor {
+  public:
+    VertexAttributeAccessor();
+    VertexAttributeAccessor(const CesiumGltf::AccessorView<GetNativeType<T>>& view, bool normalized);
+
+    void fill(const gsl::span<GetFabricType<T>>& values, uint64_t repeat = 1) const;
+
+    [[nodiscard]] uint64_t size() const;
+
+  private:
+    CesiumGltf::AccessorView<GetNativeType<T>> _view;
+    uint64_t _size;
+    bool _normalized;
 };
 
 } // namespace cesium::omniverse

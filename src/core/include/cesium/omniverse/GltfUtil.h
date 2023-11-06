@@ -1,8 +1,13 @@
 #pragma once
 
 #include "cesium/omniverse/GltfAccessors.h"
+#include "cesium/omniverse/VertexAttributeType.h"
 
+#include <CesiumGltf/Accessor.h>
 #include <glm/glm.hpp>
+#include <omni/fabric/core/FabricTypes.h>
+
+#include <set>
 
 namespace CesiumGltf {
 struct ImageCesium;
@@ -13,6 +18,13 @@ struct Texture;
 } // namespace CesiumGltf
 
 namespace cesium::omniverse {
+
+enum class AlphaMode : int {
+    OPAQUE = 0,
+    MASK = 1,
+    BLEND = 2,
+};
+
 struct TextureInfo {
     glm::dvec2 offset;
     double rotation;
@@ -28,7 +40,7 @@ struct TextureInfo {
 
 struct MaterialInfo {
     double alphaCutoff;
-    int32_t alphaMode;
+    AlphaMode alphaMode;
     double baseAlpha;
     glm::dvec3 baseColorFactor;
     glm::dvec3 emissiveFactor;
@@ -40,6 +52,16 @@ struct MaterialInfo {
 
     // Make sure to update this function when adding new fields to the struct
     bool operator==(const MaterialInfo& other) const;
+};
+
+struct VertexAttributeInfo {
+    VertexAttributeType type;
+    omni::fabric::Token fabricAttributeName;
+    std::string gltfAttributeName;
+
+    // Make sure to update this function when adding new fields to the struct
+    bool operator==(const VertexAttributeInfo& other) const;
+    bool operator<(const VertexAttributeInfo& other) const;
 };
 
 } // namespace cesium::omniverse
@@ -74,10 +96,19 @@ getImageryTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimit
 VertexColorsAccessor
 getVertexColors(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);
 
+template <VertexAttributeType T>
+VertexAttributeAccessor<T> getVertexAttributeValues(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive,
+    const std::string& attributeName);
+
 const CesiumGltf::ImageCesium*
 getBaseColorTextureImage(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
 MaterialInfo getMaterialInfo(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
+
+std::set<VertexAttributeInfo>
+getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
 MaterialInfo getDefaultMaterialInfo();
 TextureInfo getDefaultTextureInfo();

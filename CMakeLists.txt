@@ -9,7 +9,7 @@ endif()
 # Both CXX and C need to be given otherwise Conan may ignore the CMAKE_C_COMPILER flag
 project(
     CesiumOmniverse
-    VERSION 0.11.0
+    VERSION 0.13.0
     DESCRIPTION "Cesium for Omniverse"
     LANGUAGES CXX C)
 
@@ -89,7 +89,7 @@ include(CMakeDependentOption)
 cmake_dependent_option(
     CESIUM_OMNI_ENABLE_COVERAGE
     "Code coverage for checking the thoroughness of unit tests - only available if CESIUM_OMNI_ENABLE_TESTS is ON"
-    ON
+    OFF
     CESIUM_OMNI_ENABLE_TESTS
     OFF)
 cmake_dependent_option(
@@ -758,9 +758,11 @@ string(TOLOWER ${CMAKE_SYSTEM_NAME} SYSTEM_NAME_LOWERCASE)
 set(SYSTEM_PROCESSOR "x86_64")
 
 if(CESIUM_OMNI_GIT_TAG)
-    set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${SYSTEM_NAME_LOWERCASE}-${SYSTEM_PROCESSOR}-${CESIUM_OMNI_GIT_TAG})
+    set(CPACK_PACKAGE_FILE_NAME
+        ${CPACK_PACKAGE_NAME}-${SYSTEM_NAME_LOWERCASE}-${SYSTEM_PROCESSOR}-${CESIUM_OMNI_GIT_TAG})
 else()
-    set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${SYSTEM_NAME_LOWERCASE}-${SYSTEM_PROCESSOR}-${CESIUM_OMNI_GIT_HASH_ABBREVIATED})
+    set(CPACK_PACKAGE_FILE_NAME
+        ${CPACK_PACKAGE_NAME}-${SYSTEM_NAME_LOWERCASE}-${SYSTEM_PROCESSOR}-${CESIUM_OMNI_GIT_HASH_ABBREVIATED})
 endif()
 
 include(CPack)

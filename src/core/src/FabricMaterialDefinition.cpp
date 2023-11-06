@@ -43,23 +43,8 @@ const pxr::SdfPath& FabricMaterialDefinition::getTilesetMaterialPath() const {
 
 // In C++ 20 we can use the default equality comparison (= default)
 bool FabricMaterialDefinition::operator==(const FabricMaterialDefinition& other) const {
-    if (_hasVertexColors != other._hasVertexColors) {
-        return false;
-    }
-
-    if (_hasBaseColorTexture != other._hasBaseColorTexture) {
-        return false;
-    }
-
-    if (_imageryLayerCount != other._imageryLayerCount) {
-        return false;
-    }
-
-    if (_tilesetMaterialPath != other._tilesetMaterialPath) {
-        return false;
-    }
-
-    return true;
+    return _hasVertexColors == other._hasVertexColors && _hasBaseColorTexture == other._hasBaseColorTexture &&
+           _imageryLayerCount == other._imageryLayerCount && _tilesetMaterialPath == other._tilesetMaterialPath;
 }
 
 } // namespace cesium::omniverse
