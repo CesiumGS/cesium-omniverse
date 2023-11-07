@@ -287,7 +287,7 @@ int32_t getDefaultWrapT() {
 TextureInfo getTextureInfo(const CesiumGltf::Model& model, const CesiumGltf::TextureInfo& textureInfoGltf) {
     TextureInfo textureInfo = getDefaultTextureInfo();
 
-    textureInfo.setIndex = textureInfoGltf.texCoord;
+    textureInfo.setIndex = static_cast<uint64_t>(textureInfoGltf.texCoord);
 
     if (textureInfoGltf.hasExtension<CesiumGltf::ExtensionKhrTextureTransform>()) {
         const auto& textureTransform = *textureInfoGltf.getExtension<CesiumGltf::ExtensionKhrTextureTransform>();
@@ -301,7 +301,7 @@ TextureInfo getTextureInfo(const CesiumGltf::Model& model, const CesiumGltf::Tex
         const auto& texture = model.textures[static_cast<size_t>(index)];
         const auto samplerIndex = texture.sampler;
         if (samplerIndex != -1) {
-            const auto& sampler = model.samplers[samplerIndex];
+            const auto& sampler = model.samplers[static_cast<uint64_t>(samplerIndex)];
             textureInfo.wrapS = getWrapS(sampler);
             textureInfo.wrapT = getWrapT(sampler);
         }
@@ -320,8 +320,8 @@ std::pair<std::string, uint64_t> parseAttributeName(const std::string& attribute
     int searchPosition = static_cast<int>(attributeName.size()) - 1;
     int lastUnderscorePosition{-1};
     while (searchPosition > 0) {
-        if (!isdigit(attributeName[searchPosition])) {
-            if (attributeName[searchPosition] == '_') {
+        if (!isdigit(attributeName[static_cast<size_t>(searchPosition)])) {
+            if (attributeName[static_cast<size_t>(searchPosition)] == '_') {
                 lastUnderscorePosition = searchPosition;
             }
 
@@ -335,7 +335,7 @@ std::pair<std::string, uint64_t> parseAttributeName(const std::string& attribute
     if (lastUnderscorePosition == -1) {
         semantic = attributeName;
     } else {
-        semantic = attributeName.substr(0, lastUnderscorePosition);
+        semantic = attributeName.substr(0, static_cast<size_t>(lastUnderscorePosition));
         std::from_chars(
             attributeName.data() + lastUnderscorePosition + 1,
             attributeName.data() + attributeName.size(),

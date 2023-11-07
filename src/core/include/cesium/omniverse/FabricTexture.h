@@ -15,6 +15,7 @@ struct ImageCesium;
 } // namespace CesiumGltf
 
 namespace cesium::omniverse {
+
 class FabricTexture {
   public:
     FabricTexture(const std::string& name);

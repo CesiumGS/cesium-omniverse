@@ -55,9 +55,8 @@ struct TileLoadThreadResult {
     glm::dmat4 tileTransform;
 };
 
-bool hasBaseColorTextureGltf(const FabricMesh& fabricMesh) {
-    return fabricMesh.material != nullptr && fabricMesh.material->getMaterialDefinition().hasBaseColorTexture() &&
-           fabricMesh.materialInfo.baseColorTexture.has_value();
+bool hasBaseColorTexture(const FabricMesh& fabricMesh) {
+    return fabricMesh.material != nullptr && fabricMesh.material->getMaterialDefinition().hasBaseColorTexture();
 }
 
 std::vector<MeshInfo>
@@ -117,6 +116,7 @@ std::vector<FabricMesh> acquireFabricMeshes(
         auto& fabricMesh = fabricMeshes.emplace_back();
 
         const auto& primitive = model.meshes[mesh.meshId].primitives[mesh.primitiveId];
+
         const auto fabricGeometry =
             fabricResourceManager.acquireGeometry(model, primitive, mesh.smoothNormals, stageId);
         fabricMesh.geometry = fabricGeometry;
@@ -133,7 +133,7 @@ std::vector<FabricMesh> acquireFabricMeshes(
             fabricMesh.material = fabricMaterial;
             fabricMesh.materialInfo = materialInfo;
 
-            if (hasBaseColorTextureGltf(fabricMesh)) {
+            if (hasBaseColorTexture(fabricMesh)) {
                 fabricMesh.baseColorTexture = fabricResourceManager.acquireTexture();
             }
         }
@@ -165,8 +165,9 @@ void setFabricTextures(
         auto& mesh = fabricMeshes[i];
         auto& baseColorTexture = mesh.baseColorTexture;
 
-        if (hasBaseColorTextureGltf(mesh)) {
+        if (hasBaseColorTexture(mesh)) {
             const auto baseColorTextureImage = GltfUtil::getBaseColorTextureImage(model, primitive);
+            assert(baseColorTextureImage);
             baseColorTexture->setImage(*baseColorTextureImage);
         }
     }
@@ -187,11 +188,9 @@ void setFabricMeshes(
         const auto& meshInfo = meshes[i];
         const auto& primitive = model.meshes[meshInfo.meshId].primitives[meshInfo.primitiveId];
 
-        auto& mesh = fabricMeshes[i];
-        auto& geometry = mesh.geometry;
-        auto& material = mesh.material;
-        auto& baseColorTexture = mesh.baseColorTexture;
-        auto& materialInfo = mesh.materialInfo;
+        const auto& mesh = fabricMeshes[i];
+        const auto& geometry = mesh.geometry;
+        const auto& material = mesh.material;
 
         geometry->setGeometry(
             meshInfo.tilesetId,
@@ -200,21 +199,21 @@ void setFabricMeshes(
             meshInfo.nodeTransform,
             model,
             primitive,
-            materialInfo,
+            mesh.materialInfo,
             meshInfo.smoothNormals,
             mesh.texcoordIndexMapping,
             mesh.imageryTexcoordIndexMapping);
 
         if (material != nullptr) {
-            material->setMaterial(meshInfo.tilesetId, materialInfo, displayColor, displayOpacity);
-            geometry->setMaterial(material->getPath());
+            material->setMaterial(
+                meshInfo.tilesetId,
+                mesh.materialInfo,
+                mesh.baseColorTexture,
+                displayColor,
+                displayOpacity,
+                mesh.texcoordIndexMapping);
 
-            if (hasBaseColorTextureGltf(mesh)) {
-                const auto& textureInfo = materialInfo.baseColorTexture.value();
-                const auto texcoordIndex = mesh.texcoordIndexMapping[textureInfo.setIndex];
-                const auto& textureAssetPath = baseColorTexture->getAssetPathToken();
-                material->setBaseColorTexture(textureAssetPath, textureInfo, texcoordIndex);
-            }
+            geometry->setMaterial(material->getPath());
         } else if (!tilesetMaterialPath.IsEmpty()) {
             geometry->setMaterial(FabricUtil::toFabricPath(tilesetMaterialPath));
         }
@@ -471,10 +470,8 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
                 CesiumGltf::Sampler::WrapT::CLAMP_TO_EDGE,
                 false,
             };
-
-            const auto texcoordIndex = mesh.imageryTexcoordIndexMapping.at(gltfSetIndex);
-            const auto& textureAssetPath = texture->getAssetPathToken();
-            material->setImageryLayer(textureAssetPath, textureInfo, texcoordIndex, imageryLayerIndex.value(), alpha);
+            material->setImageryLayer(
+                texture, textureInfo, imageryLayerIndex.value(), alpha, mesh.imageryTexcoordIndexMapping);
         }
     }
 }
