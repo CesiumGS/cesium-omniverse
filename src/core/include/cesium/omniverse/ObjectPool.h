@@ -23,14 +23,14 @@ template <typename T> class ObjectPool {
         }
 
         const auto object = _queue.front();
-        _queue.pop();
+        _queue.pop_front();
         setActive(object, true);
 
         return object;
     }
 
     void release(std::shared_ptr<T> object) {
-        _queue.push(object);
+        _queue.push_back(object);
         setActive(object, false);
     }
 
@@ -75,7 +75,7 @@ template <typename T> class ObjectPool {
         const auto count = newCapacity - oldCapacity;
 
         for (uint64_t i = 0; i < count; i++) {
-            _queue.push(createObject(_objectId++));
+            _queue.push_back(createObject(_objectId++));
             _capacity++;
         }
     }
@@ -84,8 +84,12 @@ template <typename T> class ObjectPool {
     virtual std::shared_ptr<T> createObject(uint64_t objectId) = 0;
     virtual void setActive(std::shared_ptr<T> object, bool active) = 0;
 
+    const std::deque<std::shared_ptr<T>>& getQueue() {
+        return _queue;
+    }
+
   private:
-    std::queue<std::shared_ptr<T>> _queue;
+    std::deque<std::shared_ptr<T>> _queue;
     uint64_t _objectId = 0;
     uint64_t _capacity = 0;
     double _doublingThreshold = 0.75;
