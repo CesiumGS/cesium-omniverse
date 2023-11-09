@@ -103,8 +103,6 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((inputs_imagery_layer_15, "inputs:imagery_layer_15")) \
     ((inputs_imagery_layers_count, "inputs:imagery_layers_count")) \
     ((inputs_imagery_layer_index, "inputs:imagery_layer_index")) \
-    ((inputs_imagery_layers_texture, "inputs:imagery_layers_texture")) \
-    ((inputs_vertex_color_name, "inputs:vertex_color_name")) \
     ((inputs_wrap_s, "inputs:wrap_s")) \
     ((inputs_wrap_t, "inputs:wrap_t")) \
     ((material_binding, "material:binding")) \
@@ -238,7 +236,6 @@ const omni::fabric::Type inputs_scale(omni::fabric::BaseDataType::eFloat, 2, 0, 
 const omni::fabric::Type inputs_tex_coord_index(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_texture(omni::fabric::BaseDataType::eAsset, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_imagery_layers_count(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
-const omni::fabric::Type inputs_vertex_color_name(omni::fabric::BaseDataType::eUChar, 1, 1, omni::fabric::AttributeRole::eText);
 const omni::fabric::Type inputs_wrap_s(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_wrap_t(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type Material(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName);

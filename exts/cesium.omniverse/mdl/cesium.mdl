@@ -203,7 +203,7 @@ float4 alpha_blend(float4 src, float4 dst) {
 }
 
 float4 compute_base_color(
-    gltf_texture_lookup_value imagery_layers_texture,
+    gltf_texture_lookup_value imagery_layer,
     float4 tile_color,
     gltf_texture_lookup_value base_color_texture,
     color base_color_factor,
@@ -214,7 +214,7 @@ float4 compute_base_color(
     auto base_color = base_color_texture.valid ? base_color_texture.value : float4(1.0);
     base_color *= float4(base_color_factor_float3.x, base_color_factor_float3.y, base_color_factor_float3.z, base_alpha);
     base_color *= ::scene::data_lookup_float4("COLOR_0", float4(1.0));
-    base_color = alpha_blend(imagery_layers_texture.value, base_color);
+    base_color = alpha_blend(imagery_layer.value, base_color);
     base_color *= tile_color;
 
     return base_color;
@@ -251,7 +251,7 @@ export gltf_texture_lookup_value cesium_internal_imagery_layer_lookup(
 }
 
 export material cesium_internal_material(
-    gltf_texture_lookup_value imagery_layers_texture = gltf_texture_lookup_value(true, float4(0.0)),
+    gltf_texture_lookup_value imagery_layer = gltf_texture_lookup_value(true, float4(0.0)),
     uniform float4 tile_color = float4(1.0),
     // gltf_material inputs below
     gltf_texture_lookup_value base_color_texture = gltf_texture_lookup_value(),
@@ -263,7 +263,7 @@ export material cesium_internal_material(
     uniform float base_alpha = 1.0,
     uniform float alpha_cutoff  = 0.5
 ) [[ anno::hidden() ]] = let {
-    auto base_color = compute_base_color(imagery_layers_texture, tile_color, base_color_texture, base_color_factor, base_alpha);
+    auto base_color = compute_base_color(imagery_layer, tile_color, base_color_texture, base_color_factor, base_alpha);
     material base = gltf_material(
         base_color_texture: gltf_texture_lookup_value(true, base_color),
         metallic_factor: metallic_factor,
