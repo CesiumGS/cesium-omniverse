@@ -112,7 +112,7 @@ export float4 cesium_imagery_layer_float4(
         anno::hidden(),
         annotation_not_connectable()
     ]],
-    int imagery_layer_index = 0
+    uniform int imagery_layer_index = 0
     [[
         anno::unused()
     ]]

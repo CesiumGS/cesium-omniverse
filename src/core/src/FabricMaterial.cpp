@@ -110,6 +110,13 @@ void createConnection(
     srw.createConnection(inputPath, inputName, omni::fabric::Connection{outputPath, FabricTokens::outputs_out});
 }
 
+void destroyConnection(
+    omni::fabric::StageReaderWriter& srw,
+    const omni::fabric::Path& inputPath,
+    const omni::fabric::Token& inputName) {
+    srw.destroyConnection(inputPath, inputName);
+}
+
 template <typename T> const T& defaultValue(const T* value, const T& defaultValue) {
     return value == nullptr ? defaultValue : *value;
 }
@@ -288,10 +295,6 @@ void FabricMaterial::initializeDefaultMaterial() {
 void FabricMaterial::initializeExistingMaterial(const omni::fabric::Path& path) {
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
-    const auto imageryLayerCount = getImageryLayerCount(_materialDefinition);
-    const auto hasBaseColorTexture = _materialDefinition.hasBaseColorTexture();
-    const auto featureIdCount = getFeatureIdCounts(_materialDefinition).totalCount;
-
     const auto copiedPaths = FabricUtil::copyMaterial(path, _materialPath);
 
     for (const auto& copiedPath : copiedPaths) {
@@ -301,25 +304,15 @@ void FabricMaterial::initializeExistingMaterial(const omni::fabric::Path& path) 
         const auto mdlIdentifier = FabricUtil::getMdlIdentifier(copiedPath);
 
         if (mdlIdentifier == FabricTokens::cesium_base_color_texture_float4) {
-            if (hasBaseColorTexture) {
-                createConnection(srw, _baseColorTexturePath, copiedPath, FabricTokens::inputs_base_color_texture);
-            }
+            _copiedBaseColorTexturePaths.push_back(copiedPath);
         } else if (mdlIdentifier == FabricTokens::cesium_imagery_layer_float4) {
-            const auto indexFabric = srw.getAttributeRd<int>(copiedPath, FabricTokens::inputs_imagery_layer_index);
-            const auto index = static_cast<uint64_t>(defaultValue(indexFabric, 0));
-
-            if (index < imageryLayerCount) {
-                createConnection(srw, _imageryLayerPaths[index], copiedPath, FabricTokens::inputs_imagery_layer);
-            }
+            _copiedImageryLayerPaths.push_back(copiedPath);
         } else if (mdlIdentifier == FabricTokens::cesium_feature_id_int) {
-            const auto setIndexFabric = srw.getAttributeRd<int>(copiedPath, FabricTokens::inputs_feature_id_set_index);
-            const auto setIndex = static_cast<uint64_t>(defaultValue(setIndexFabric, 0));
-
-            if (setIndex < featureIdCount) {
-                createConnection(srw, _featureIdPaths[setIndex], copiedPath, FabricTokens::inputs_feature_id);
-            }
+            _copiedFeatureIdPaths.push_back(copiedPath);
         }
     }
+
+    createConnectionsToCopiedPaths();
 }
 
 void FabricMaterial::createMaterial(const omni::fabric::Path& path) {
@@ -657,6 +650,54 @@ void FabricMaterial::setMaterial(
     }
 }
 
+void FabricMaterial::createConnectionsToCopiedPaths() {
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+
+    const auto hasBaseColorTexture = _materialDefinition.hasBaseColorTexture();
+    const auto imageryLayerCount = getImageryLayerCount(_materialDefinition);
+    const auto featureIdCount = getFeatureIdCounts(_materialDefinition).totalCount;
+
+    for (const auto& copiedPath : _copiedBaseColorTexturePaths) {
+        if (hasBaseColorTexture) {
+            createConnection(srw, _baseColorTexturePath, copiedPath, FabricTokens::inputs_base_color_texture);
+        }
+    }
+
+    for (const auto& copiedPath : _copiedImageryLayerPaths) {
+        const auto indexFabric = srw.getAttributeRd<int>(copiedPath, FabricTokens::inputs_imagery_layer_index);
+        const auto index = static_cast<uint64_t>(defaultValue(indexFabric, 0));
+
+        if (index < imageryLayerCount) {
+            createConnection(srw, _imageryLayerPaths[index], copiedPath, FabricTokens::inputs_imagery_layer);
+        }
+    }
+
+    for (const auto& copiedPath : _copiedFeatureIdPaths) {
+        const auto indexFabric = srw.getAttributeRd<int>(copiedPath, FabricTokens::inputs_feature_id_set_index);
+        const auto index = static_cast<uint64_t>(defaultValue(indexFabric, 0));
+
+        if (index < featureIdCount) {
+            createConnection(srw, _featureIdPaths[index], copiedPath, FabricTokens::inputs_feature_id);
+        }
+    }
+}
+
+void FabricMaterial::destroyConnectionsToCopiedPaths() {
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+
+    for (const auto& copiedPath : _copiedBaseColorTexturePaths) {
+        destroyConnection(srw, copiedPath, FabricTokens::inputs_base_color_texture);
+    }
+
+    for (const auto& copiedPath : _copiedImageryLayerPaths) {
+        destroyConnection(srw, copiedPath, FabricTokens::inputs_imagery_layer);
+    }
+
+    for (const auto& copiedPath : _copiedFeatureIdPaths) {
+        destroyConnection(srw, copiedPath, FabricTokens::inputs_feature_id);
+    }
+}
+
 void FabricMaterial::setImageryLayer(
     const std::shared_ptr<FabricTexture>& texture,
     const TextureInfo& textureInfo,
@@ -720,10 +761,15 @@ void FabricMaterial::updateShaderInput(const omni::fabric::Path& path, const omn
     const auto attributesToCopy = std::vector<omni::fabric::TokenC>{attributeName};
 
     assert(isrw->primExists(srw.getId(), copiedShaderPath));
-    assert(isrw->attributeExists(srw.getId(), copiedShaderPath, attributeName));
 
     isrw->copySpecifiedAttributes(
         srw.getId(), path, attributesToCopy.data(), copiedShaderPath, attributesToCopy.data(), attributesToCopy.size());
+
+    if (attributeName == FabricTokens::inputs_imagery_layer_index ||
+        attributeName == FabricTokens::inputs_feature_id_set_index) {
+        destroyConnectionsToCopiedPaths();
+        createConnectionsToCopiedPaths();
+    }
 }
 
 void FabricMaterial::clearImageryLayer(uint64_t imageryLayerIndex) {
