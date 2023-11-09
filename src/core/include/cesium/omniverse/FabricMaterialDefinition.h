@@ -1,5 +1,7 @@
 #pragma once
 
+#include "cesium/omniverse/GltfUtil.h"
+
 #include <glm/glm.hpp>
 #include <pxr/base/gf/vec2f.h>
 #include <pxr/base/gf/vec3f.h>
@@ -7,18 +9,18 @@
 
 namespace cesium::omniverse {
 
-struct MaterialInfo;
-
 class FabricMaterialDefinition {
   public:
     FabricMaterialDefinition(
         const MaterialInfo& materialInfo,
+        const FeaturesInfo& featuresInfo,
         uint64_t imageryLayerCount,
         bool disableTextures,
         const pxr::SdfPath& tilesetMaterialPath);
 
     [[nodiscard]] bool hasVertexColors() const;
     [[nodiscard]] bool hasBaseColorTexture() const;
+    [[nodiscard]] const std::vector<FeatureIdType>& getFeatureIdTypes() const;
     [[nodiscard]] uint64_t getImageryLayerCount() const;
     [[nodiscard]] bool hasTilesetMaterial() const;
     [[nodiscard]] const pxr::SdfPath& getTilesetMaterialPath() const;
@@ -29,6 +31,7 @@ class FabricMaterialDefinition {
   private:
     bool _hasVertexColors;
     bool _hasBaseColorTexture;
+    std::vector<FeatureIdType> _featureIdTypes;
     uint64_t _imageryLayerCount;
     pxr::SdfPath _tilesetMaterialPath;
 };

@@ -65,10 +65,11 @@ bool FabricResourceManager::shouldAcquireMaterial(
 std::shared_ptr<FabricGeometry> FabricResourceManager::acquireGeometry(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
+    const FeaturesInfo& featuresInfo,
     bool smoothNormals,
     long stageId) {
 
-    FabricGeometryDefinition geometryDefinition(model, primitive, smoothNormals);
+    FabricGeometryDefinition geometryDefinition(model, primitive, featuresInfo, smoothNormals);
 
     if (_disableGeometryPool) {
         const auto pathStr = fmt::format("/fabric_geometry_{}", getNextGeometryId());
@@ -179,11 +180,13 @@ void FabricResourceManager::releaseSharedMaterial(const std::shared_ptr<FabricMa
 
 std::shared_ptr<FabricMaterial> FabricResourceManager::acquireMaterial(
     const MaterialInfo& materialInfo,
+    const FeaturesInfo& featuresInfo,
     uint64_t imageryLayerCount,
     long stageId,
     int64_t tilesetId,
     const pxr::SdfPath& tilesetMaterialPath) {
-    FabricMaterialDefinition materialDefinition(materialInfo, imageryLayerCount, _disableTextures, tilesetMaterialPath);
+    FabricMaterialDefinition materialDefinition(
+        materialInfo, featuresInfo, imageryLayerCount, _disableTextures, tilesetMaterialPath);
 
     if (useSharedMaterial(materialDefinition)) {
         return acquireSharedMaterial(materialInfo, materialDefinition, stageId, tilesetId);

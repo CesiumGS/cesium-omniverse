@@ -8,6 +8,7 @@
 #include <omni/fabric/core/FabricTypes.h>
 
 #include <set>
+#include <variant>
 
 namespace CesiumGltf {
 struct ImageCesium;
@@ -33,6 +34,7 @@ struct TextureInfo {
     int32_t wrapS;
     int32_t wrapT;
     bool flipVertical;
+    std::vector<uint8_t> channels;
 
     // Make sure to update this function when adding new fields to the struct
     bool operator==(const TextureInfo& other) const;
@@ -53,6 +55,27 @@ struct MaterialInfo {
     // Make sure to update this function when adding new fields to the struct
     bool operator==(const MaterialInfo& other) const;
 };
+
+enum class FeatureIdType {
+    INDEX,
+    ATTRIBUTE,
+    TEXTURE,
+};
+
+struct FeatureId {
+    std::optional<uint64_t> nullFeatureId;
+    uint64_t featureCount;
+    std::variant<std::monostate, uint64_t, TextureInfo> featureIdStorage;
+};
+
+struct FeaturesInfo {
+    std::vector<FeatureId> featureIds;
+};
+
+FeatureIdType getFeatureIdType(const FeatureId& featureId);
+std::vector<FeatureIdType> getFeatureIdTypes(const FeaturesInfo& featuresInfo);
+std::vector<uint64_t> getSetIndexMapping(const FeaturesInfo& featuresInfo, FeatureIdType type);
+bool hasFeatureIdType(const FeaturesInfo& featuresInfo, FeatureIdType type);
 
 struct VertexAttributeInfo {
     VertexAttributeType type;
@@ -96,6 +119,8 @@ getImageryTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimit
 VertexColorsAccessor
 getVertexColors(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);
 
+VertexIdsAccessor getVertexIds(const PositionsAccessor& positionsAccessor);
+
 template <VertexAttributeType T>
 VertexAttributeAccessor<T> getVertexAttributeValues(
     const CesiumGltf::Model& model,
@@ -105,7 +130,14 @@ VertexAttributeAccessor<T> getVertexAttributeValues(
 const CesiumGltf::ImageCesium*
 getBaseColorTextureImage(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
+const CesiumGltf::ImageCesium* getFeatureIdTextureImage(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive,
+    uint64_t featureIdSetIndex);
+
 MaterialInfo getMaterialInfo(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
+
+FeaturesInfo getFeaturesInfo(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
 std::set<VertexAttributeInfo>
 getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);

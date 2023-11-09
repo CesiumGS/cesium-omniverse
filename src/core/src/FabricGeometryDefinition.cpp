@@ -14,9 +14,11 @@ namespace cesium::omniverse {
 FabricGeometryDefinition::FabricGeometryDefinition(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
+    const FeaturesInfo& featuresInfo,
     bool smoothNormals)
     : _hasNormals(GltfUtil::hasNormals(model, primitive, smoothNormals))
     , _hasVertexColors(GltfUtil::hasVertexColors(model, primitive, 0))
+    , _hasVertexIds(hasFeatureIdType(featuresInfo, FeatureIdType::INDEX))
     , _texcoordSetCount(
           GltfUtil::getTexcoordSetIndexes(model, primitive).size() +
           GltfUtil::getImageryTexcoordSetIndexes(model, primitive).size())
@@ -30,6 +32,10 @@ bool FabricGeometryDefinition::hasVertexColors() const {
     return _hasVertexColors;
 }
 
+bool FabricGeometryDefinition::hasVertexIds() const {
+    return _hasVertexIds;
+}
+
 uint64_t FabricGeometryDefinition::getTexcoordSetCount() const {
     return _texcoordSetCount;
 }
@@ -40,7 +46,8 @@ const std::set<VertexAttributeInfo>& FabricGeometryDefinition::getCustomVertexAt
 
 bool FabricGeometryDefinition::operator==(const FabricGeometryDefinition& other) const {
     return _hasNormals == other._hasNormals && _hasVertexColors == other._hasVertexColors &&
-           _texcoordSetCount == other._texcoordSetCount && _customVertexAttributes == other._customVertexAttributes;
+           _hasVertexIds == other._hasVertexIds && _texcoordSetCount == other._texcoordSetCount &&
+           _customVertexAttributes == other._customVertexAttributes;
 }
 
 } // namespace cesium::omniverse

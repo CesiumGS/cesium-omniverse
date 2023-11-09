@@ -4,6 +4,7 @@ import ::anno::*;
 import ::state::*;
 import ::tex::*;
 import ::scene::*;
+import ::math::*;
 
 using ::gltf::pbr import *;
 
@@ -13,6 +14,8 @@ module [[
 ]];
 
 annotation annotation_not_connectable();
+
+export const auto DEFAULT_NULL_FEATURE_ID = -1;
 
 export enum up_axis_mode {
     Y,
@@ -124,6 +127,27 @@ export float4 cesium_imagery_layer_float4(
     return imagery_layer.valid ? imagery_layer.value : float4(0.0);
 }
 
+export int cesium_feature_id_int(
+    int feature_id = DEFAULT_NULL_FEATURE_ID
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform int feature_id_set_index = 0
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium feature ID lookup int"),
+    anno::description("Returns the feature ID for the given feature ID set. Returns -1 if the feature ID set does not exist or the feature ID is equal to nullFeatureId in the EXT_mesh_features extension."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return feature_id;
+}
+
 export material cesium_material(
     color base_color_factor = color(1.0)
     [[
@@ -218,6 +242,173 @@ float4 compute_base_color(
     base_color *= tile_color;
 
     return base_color;
+}
+
+// Copied from gltf/pbr.mdl since it's not exported
+float2 khr_texture_transform_apply(
+    float2 coord,
+    float2 offset,
+    float rotation,
+    float2 scale
+)
+{
+    // MDL expects the texture coordinate origin at the bottom left (gltf at top left)
+    // Assuming the renderer follows the MDL specification in which case the coordinates
+    // have been flipped either while loading the glTF geometry or while setting up the state.
+
+    // Undo the flipping for the transformation to get into the original glTF texture space.
+    coord = float2(coord.x, 1.0f - coord.y);
+
+    // first scale
+    coord = coord * scale;
+    // then rotate
+    float cos_rotation = ::math::cos(rotation);
+    float sin_rotation = ::math::sin(rotation);
+    coord = float2(cos_rotation * coord.x + sin_rotation * coord.y, cos_rotation * coord.y - sin_rotation * coord.x);
+    // then translate
+    coord = coord + offset;
+
+    // flip back
+    coord = float2(coord.x, 1.0f - coord.y);
+    return coord;
+}
+
+struct texel_fetch_value
+{
+    bool valid = false;
+    int4 value = int4(0, 0, 0, 0);
+};
+
+int mod(int a, int n) {
+    return (a % n + n) % n;
+}
+
+int mirror(int a) {
+    return a >= 0 ? a : -(1 + a);
+}
+
+int apply_mirrored_repeat(int x, int size) {
+    return (size - 1) - mirror(mod(x, 2 * size) - size);
+}
+
+int apply_clamp_to_edge(int x, int size) {
+    return math::clamp(x, 0, size - 1);
+}
+
+int apply_repeat(int x, int size) {
+    return mod(x, size);
+}
+
+// Modified version of gltf_texture_lookup that uses texel_float4 instead of lookup_float4 to avoid
+// linearly interpolating the texture values which would be incorrect for feature ID tetures. There
+// doesn't seem to be an easier way to do nearest sampling. Unfortunately texel_float4 doesn't do
+// texcoord wrapping so we need to do it ourselves.
+texel_fetch_value texel_fetch(
+    uniform texture_2d texture = texture_2d(),
+    uniform int tex_coord_index = 0,
+    uniform float2 offset = float2(0.0f, 0.0),
+    uniform float rotation = 0.0,
+    uniform float2 scale = float2(1.0f, 1.0f),
+    uniform gltf_wrapping_mode wrap_s = repeat,
+    uniform gltf_wrapping_mode wrap_t = repeat
+)
+{
+    texel_fetch_value tex_ret;
+    if (!tex::texture_isvalid(texture)) {
+        return tex_ret;
+    }
+
+    auto tex_coord3 = state::texture_coordinate(tex_coord_index);
+    auto tex_coord = khr_texture_transform_apply(
+        coord: float2(tex_coord3.x, tex_coord3.y),
+        offset: offset,
+        rotation: rotation,
+        scale: scale);
+
+    auto width = tex::width(texture);
+    auto height = tex::height(texture);
+
+    auto pixel_x = int(tex_coord.x * width);
+    auto pixel_y = int(tex_coord.y * height);
+
+    switch (wrap_s) {
+        case clamp_to_edge:
+            pixel_x = apply_clamp_to_edge(pixel_x, width);
+            break;
+        case mirrored_repeat:
+            pixel_x = apply_mirrored_repeat(pixel_x, width);
+            break;
+        case repeat:
+            pixel_x = apply_repeat(pixel_x, width);
+            break;
+    }
+
+    switch (wrap_t) {
+        case clamp_to_edge:
+            pixel_y = apply_clamp_to_edge(pixel_y, height);
+            break;
+        case mirrored_repeat:
+            pixel_y = apply_mirrored_repeat(pixel_y, height);
+            break;
+        case repeat:
+            pixel_y = apply_repeat(pixel_y, height);
+            break;
+    }
+
+    auto value = tex::texel_float4(
+        tex: texture,
+        coord: int2(pixel_x, pixel_y));
+
+    tex_ret.value = int4(math::round(value * 255.0));
+    tex_ret.valid = true;
+    return tex_ret;
+}
+
+export int cesium_internal_feature_id_texture_lookup(
+    uniform int4 channels = int4(0),
+    uniform int channel_count = 1,
+    uniform int null_feature_id = DEFAULT_NULL_FEATURE_ID,
+    // gltf_texture_lookup inputs below
+    uniform texture_2d texture = texture_2d(),
+    uniform int tex_coord_index = 0,
+    uniform float2 offset = float2(0.0, 0.0),
+    uniform float rotation = 0.0,
+    uniform float2 scale = float2(1.0, 1.0),
+    uniform gltf_wrapping_mode wrap_s = repeat,
+    uniform gltf_wrapping_mode wrap_t = repeat
+) [[ anno::hidden() ]] {
+    auto texel_value = texel_fetch(
+        texture: texture,
+        tex_coord_index: tex_coord_index,
+        offset: offset,
+        rotation: rotation,
+        scale: scale,
+        wrap_s: wrap_s,
+        wrap_t: wrap_t
+    );
+
+    if (!texel_value.valid) {
+        return DEFAULT_NULL_FEATURE_ID;
+    }
+
+    // Feature IDs can be in multiple channels of the texture to form a single uint32
+    auto feature_id = 0;
+    for (int i = 0; i < channel_count; i++) {
+        feature_id |= (texel_value.value[channels[i]] << (i * 8));
+    }
+
+    return feature_id == null_feature_id ? DEFAULT_NULL_FEATURE_ID : feature_id;
+}
+
+export int cesium_internal_feature_id_attribute_lookup(
+    uniform string feature_id_primvar_name,
+    uniform int null_feature_id = DEFAULT_NULL_FEATURE_ID
+) [[ anno::hidden() ]] {
+    // Even if all feature ids in a triangle are the same value, the primvar interpolation math can yield non integer
+    // results (e.g. 0.99999999 or 1.00000001), which when accessed as ints (i.e. floored) can cause variance across
+    // the triangle surface. The fix is to read the primvar as a float, round the value, and cast to int.
+    auto feature_id = int(::math::round(::scene::data_lookup_float(feature_id_primvar_name)));
+    return feature_id == null_feature_id ? DEFAULT_NULL_FEATURE_ID : feature_id;
 }
 
 export gltf_texture_lookup_value cesium_internal_texture_lookup(*) [[ anno::hidden() ]] = gltf_texture_lookup();

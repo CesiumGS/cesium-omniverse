@@ -207,6 +207,7 @@ void FabricGeometry::initialize() {
     const auto texcoordSetCount = getTexcoordSetCount(_geometryDefinition);
     const auto& customVertexAttributes = _geometryDefinition.getCustomVertexAttributes();
     const auto customVertexAttributesCount = customVertexAttributes.size();
+    const auto hasVertexIds = _geometryDefinition.hasVertexIds();
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
@@ -243,6 +244,10 @@ void FabricGeometry::initialize() {
         attributes.addAttribute(FabricTypes::primvars_COLOR_0, FabricTokens::primvars_COLOR_0);
     }
 
+    if (hasVertexIds) {
+        attributes.addAttribute(FabricTypes::primvars_vertexId, FabricTokens::primvars_vertexId);
+    }
+
     for (const auto& customVertexAttribute : customVertexAttributes) {
         attributes.addAttribute(getFabricType(customVertexAttribute.type), customVertexAttribute.fabricAttributeName);
     }
@@ -256,6 +261,7 @@ void FabricGeometry::initialize() {
     size_t primvarsCount = 0;
     size_t primvarIndexNormal = 0;
     size_t primvarIndexVertexColor = 0;
+    size_t primvarIndexVertexId = 0;
 
     std::vector<uint64_t> primvarIndexStArray;
     primvarIndexStArray.reserve(texcoordSetCount);
@@ -277,6 +283,10 @@ void FabricGeometry::initialize() {
 
     if (hasVertexColors) {
         primvarIndexVertexColor = primvarsCount++;
+    }
+
+    if (hasVertexIds) {
+        primvarIndexVertexId = primvarsCount++;
     }
 
     srw.setArrayAttributeSize(_path, FabricTokens::primvars, primvarsCount);
@@ -307,6 +317,11 @@ void FabricGeometry::initialize() {
         primvarsFabric[primvarIndexVertexColor] = FabricTokens::primvars_COLOR_0;
         primvarInterpolationsFabric[primvarIndexVertexColor] = FabricTokens::vertex;
     }
+
+    if (hasVertexIds) {
+        primvarsFabric[primvarIndexVertexId] = FabricTokens::primvars_vertexId;
+        primvarInterpolationsFabric[primvarIndexVertexId] = FabricTokens::vertex;
+    }
 }
 
 void FabricGeometry::reset() {
@@ -314,6 +329,7 @@ void FabricGeometry::reset() {
     const auto hasVertexColors = _geometryDefinition.hasVertexColors();
     const auto texcoordSetCount = getTexcoordSetCount(_geometryDefinition);
     const auto& customVertexAttributes = _geometryDefinition.getCustomVertexAttributes();
+    const auto hasVertexIds = _geometryDefinition.hasVertexIds();
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
@@ -359,6 +375,10 @@ void FabricGeometry::reset() {
     if (hasVertexColors) {
         srw.setArrayAttributeSize(_path, FabricTokens::primvars_COLOR_0, 0);
     }
+
+    if (hasVertexIds) {
+        srw.setArrayAttributeSize(_path, FabricTokens::primvars_vertexId, 0);
+    }
 }
 
 void FabricGeometry::setGeometry(
@@ -380,6 +400,7 @@ void FabricGeometry::setGeometry(
     const auto hasNormals = _geometryDefinition.hasNormals();
     const auto hasVertexColors = _geometryDefinition.hasVertexColors();
     const auto& customVertexAttributes = _geometryDefinition.getCustomVertexAttributes();
+    const auto hasVertexIds = _geometryDefinition.hasVertexIds();
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
@@ -387,6 +408,7 @@ void FabricGeometry::setGeometry(
     const auto indices = GltfUtil::getIndices(model, primitive, positions);
     const auto normals = GltfUtil::getNormals(model, primitive, positions, indices, smoothNormals);
     const auto vertexColors = GltfUtil::getVertexColors(model, primitive, 0);
+    const auto vertexIds = GltfUtil::getVertexIds(positions);
     const auto extent = GltfUtil::getExtent(model, primitive);
     const auto faceVertexCounts = GltfUtil::getFaceVertexCounts(indices);
 
@@ -416,6 +438,12 @@ void FabricGeometry::setGeometry(
             srw.setArrayAttributeSize(_path, FabricTokens::primvars_COLOR_0, numVoxels * 8);
             auto vertexColorsFabric = srw.getArrayAttributeWr<glm::fvec4>(_path, FabricTokens::primvars_COLOR_0);
             vertexColors.fill(vertexColorsFabric, 8);
+        }
+
+        if (hasVertexIds) {
+            srw.setArrayAttributeSize(_path, FabricTokens::primvars_vertexId, numVoxels * 8);
+            auto vertexIdsFabric = srw.getArrayAttributeWr<float>(_path, FabricTokens::primvars_vertexId);
+            vertexIds.fill(vertexIdsFabric, 8);
         }
 
         for (const auto& customVertexAttribute : customVertexAttributes) {
@@ -535,6 +563,14 @@ void FabricGeometry::setGeometry(
             auto vertexColorsFabric = srw.getArrayAttributeWr<glm::fvec4>(_path, FabricTokens::primvars_COLOR_0);
 
             vertexColors.fill(vertexColorsFabric);
+        }
+
+        if (hasVertexIds) {
+            srw.setArrayAttributeSize(_path, FabricTokens::primvars_vertexId, vertexIds.size());
+
+            auto vertexIdsFabric = srw.getArrayAttributeWr<float>(_path, FabricTokens::primvars_vertexId);
+
+            vertexIds.fill(vertexIdsFabric);
         }
 
         for (const auto& customVertexAttribute : customVertexAttributes) {
