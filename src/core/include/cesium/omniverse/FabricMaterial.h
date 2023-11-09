@@ -41,9 +41,9 @@ class FabricMaterial {
         const glm::dvec3& displayColor,
         double displayOpacity,
         const std::unordered_map<uint64_t, uint64_t>& texcoordIndexMapping,
-        const std::vector<uint64_t>& featureIdIndexIndexMapping,
-        const std::vector<uint64_t>& featureIdAttributeIndexMapping,
-        const std::vector<uint64_t>& featureIdTextureIndexMapping);
+        const std::vector<uint64_t>& featureIdIndexSetIndexMapping,
+        const std::vector<uint64_t>& featureIdAttributeSetIndexMapping,
+        const std::vector<uint64_t>& featureIdTextureSetIndexMapping);
 
     void setImageryLayer(
         const std::shared_ptr<FabricTexture>& texture,

@@ -21,9 +21,6 @@ class FabricMaterialDefinition {
     [[nodiscard]] bool hasVertexColors() const;
     [[nodiscard]] bool hasBaseColorTexture() const;
     [[nodiscard]] const std::vector<FeatureIdType>& getFeatureIdTypes() const;
-    [[nodiscard]] uint64_t getFeatureIdIndexCount() const;
-    [[nodiscard]] uint64_t getFeatureIdAttributeCount() const;
-    [[nodiscard]] uint64_t getFeatureIdTextureCount() const;
     [[nodiscard]] uint64_t getImageryLayerCount() const;
     [[nodiscard]] bool hasTilesetMaterial() const;
     [[nodiscard]] const pxr::SdfPath& getTilesetMaterialPath() const;

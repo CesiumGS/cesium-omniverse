@@ -584,9 +584,9 @@ void FabricMaterial::setMaterial(
     const glm::dvec3& displayColor,
     double displayOpacity,
     const std::unordered_map<uint64_t, uint64_t>& texcoordIndexMapping,
-    const std::vector<uint64_t>& featureIdIndexIndexMapping,
-    const std::vector<uint64_t>& featureIdAttributeIndexMapping,
-    const std::vector<uint64_t>& featureIdTextureIndexMapping) {
+    const std::vector<uint64_t>& featureIdIndexSetIndexMapping,
+    const std::vector<uint64_t>& featureIdAttributeSetIndexMapping,
+    const std::vector<uint64_t>& featureIdTextureSetIndexMapping) {
 
     if (stageDestroyed()) {
         return;
@@ -618,7 +618,7 @@ void FabricMaterial::setMaterial(
     const auto featureIdCounts = getFeatureIdCounts(_materialDefinition);
 
     for (uint64_t i = 0; i < featureIdCounts.indexCount; i++) {
-        const auto featureIdSetIndex = featureIdIndexIndexMapping[i];
+        const auto featureIdSetIndex = featureIdIndexSetIndexMapping[i];
         const auto featureId = featuresInfo.featureIds[featureIdSetIndex];
         assert(std::holds_alternative<std::monostate>(featureId.featureIdStorage));
         const auto& featureIdPath = _featureIdPaths[featureIdSetIndex];
@@ -628,7 +628,7 @@ void FabricMaterial::setMaterial(
     }
 
     for (uint64_t i = 0; i < featureIdCounts.attributeCount; i++) {
-        const auto featureIdSetIndex = featureIdAttributeIndexMapping[i];
+        const auto featureIdSetIndex = featureIdAttributeSetIndexMapping[i];
         const auto featureId = featuresInfo.featureIds[featureIdSetIndex];
         assert(std::holds_alternative<uint64_t>(featureId.featureIdStorage));
         const auto attributeSetIndex = std::get<uint64_t>(featureId.featureIdStorage);
@@ -640,7 +640,7 @@ void FabricMaterial::setMaterial(
     }
 
     for (uint64_t i = 0; i < featureIdCounts.textureCount; i++) {
-        const auto featureIdSetIndex = featureIdTextureIndexMapping[i];
+        const auto featureIdSetIndex = featureIdTextureSetIndexMapping[i];
         const auto& featureId = featuresInfo.featureIds[featureIdSetIndex];
         assert(std::holds_alternative<TextureInfo>(featureId.featureIdStorage));
         const auto& textureInfo = std::get<TextureInfo>(featureId.featureIdStorage);

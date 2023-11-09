@@ -11,18 +11,6 @@
 
 namespace cesium::omniverse {
 
-bool hasVertexIds(const FeaturesInfo& featuresInfo) {
-    const auto& featureIds = featuresInfo.featureIds;
-
-    for (const auto& featureId : featureIds) {
-        if (std::holds_alternative<std::monostate>(featureId.featureIdStorage)) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 FabricGeometryDefinition::FabricGeometryDefinition(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
@@ -30,7 +18,7 @@ FabricGeometryDefinition::FabricGeometryDefinition(
     bool smoothNormals)
     : _hasNormals(GltfUtil::hasNormals(model, primitive, smoothNormals))
     , _hasVertexColors(GltfUtil::hasVertexColors(model, primitive, 0))
-    , _hasVertexIds(::cesium::omniverse::hasVertexIds(featuresInfo))
+    , _hasVertexIds(hasFeatureIdType(featuresInfo, FeatureIdType::INDEX))
     , _texcoordSetCount(
           GltfUtil::getTexcoordSetIndexes(model, primitive).size() +
           GltfUtil::getImageryTexcoordSetIndexes(model, primitive).size())

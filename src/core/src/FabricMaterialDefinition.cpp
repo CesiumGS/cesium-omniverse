@@ -12,28 +12,16 @@
 namespace cesium::omniverse {
 
 namespace {
+std::vector<FeatureIdType> filterFeatureIdTypes(const FeaturesInfo& featuresInfo, bool disableTextures) {
+    auto featureIdTypes = getFeatureIdTypes(featuresInfo);
 
-std::vector<FeatureIdType> getFeatureIdTypes(const FeaturesInfo& featuresInfo, bool disableTextures) {
-    const auto& featureIds = featuresInfo.featureIds;
-
-    std::vector<FeatureIdType> featureIdTypes;
-    featureIdTypes.reserve(featureIds.size());
-
-    for (const auto& featureId : featureIds) {
-        if (std::holds_alternative<std::monostate>(featureId.featureIdStorage)) {
-            featureIdTypes.push_back(FeatureIdType::INDEX);
-        } else if (std::holds_alternative<uint64_t>(featureId.featureIdStorage)) {
-            featureIdTypes.push_back(FeatureIdType::ATTRIBUTE);
-        } else if (std::holds_alternative<TextureInfo>(featureId.featureIdStorage)) {
-            if (!disableTextures) {
-                featureIdTypes.push_back(FeatureIdType::TEXTURE);
-            }
-        }
+    if (disableTextures) {
+        featureIdTypes.erase(
+            std::remove(featureIdTypes.begin(), featureIdTypes.end(), FeatureIdType::TEXTURE), featureIdTypes.end());
     }
 
     return featureIdTypes;
 }
-
 } // namespace
 
 FabricMaterialDefinition::FabricMaterialDefinition(
@@ -44,7 +32,7 @@ FabricMaterialDefinition::FabricMaterialDefinition(
     const pxr::SdfPath& tilesetMaterialPath)
     : _hasVertexColors(materialInfo.hasVertexColors)
     , _hasBaseColorTexture(disableTextures ? false : materialInfo.baseColorTexture.has_value())
-    , _featureIdTypes(::cesium::omniverse::getFeatureIdTypes(featuresInfo, disableTextures))
+    , _featureIdTypes(filterFeatureIdTypes(featuresInfo, disableTextures))
     , _imageryLayerCount(disableTextures ? 0 : imageryLayerCount)
     , _tilesetMaterialPath(tilesetMaterialPath) {}
 
@@ -58,18 +46,6 @@ bool FabricMaterialDefinition::hasBaseColorTexture() const {
 
 const std::vector<FeatureIdType>& FabricMaterialDefinition::getFeatureIdTypes() const {
     return _featureIdTypes;
-}
-
-uint64_t FabricMaterialDefinition::getFeatureIdIndexCount() const {
-    return static_cast<uint64_t>(std::count(_featureIdTypes.begin(), _featureIdTypes.end(), FeatureIdType::INDEX));
-}
-
-uint64_t FabricMaterialDefinition::getFeatureIdAttributeCount() const {
-    return static_cast<uint64_t>(std::count(_featureIdTypes.begin(), _featureIdTypes.end(), FeatureIdType::ATTRIBUTE));
-}
-
-uint64_t FabricMaterialDefinition::getFeatureIdTextureCount() const {
-    return static_cast<uint64_t>(std::count(_featureIdTypes.begin(), _featureIdTypes.end(), FeatureIdType::TEXTURE));
 }
 
 uint64_t FabricMaterialDefinition::getImageryLayerCount() const {

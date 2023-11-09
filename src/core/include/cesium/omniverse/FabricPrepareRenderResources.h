@@ -26,9 +26,9 @@ struct FabricMesh {
     FeaturesInfo featuresInfo;
     std::unordered_map<uint64_t, uint64_t> texcoordIndexMapping;
     std::unordered_map<uint64_t, uint64_t> imageryTexcoordIndexMapping;
-    std::vector<uint64_t> featureIdIndexIndexMapping;
-    std::vector<uint64_t> featureIdAttributeIndexMapping;
-    std::vector<uint64_t> featureIdTextureIndexMapping;
+    std::vector<uint64_t> featureIdIndexSetIndexMapping;
+    std::vector<uint64_t> featureIdAttributeSetIndexMapping;
+    std::vector<uint64_t> featureIdTextureSetIndexMapping;
 };
 
 struct TileRenderResources {

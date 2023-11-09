@@ -64,23 +64,8 @@ uint64_t getFeatureIdTextureCount(const FabricMesh& fabricMesh) {
         return 0;
     }
 
-    return fabricMesh.material->getMaterialDefinition().getFeatureIdTextureCount();
-}
-
-uint64_t getFeatureIdAttributeCount(const FabricMesh& fabricMesh) {
-    if (fabricMesh.material == nullptr) {
-        return 0;
-    }
-
-    return fabricMesh.material->getMaterialDefinition().getFeatureIdAttributeCount();
-}
-
-uint64_t getFeatureIdIndexCount(const FabricMesh& fabricMesh) {
-    if (fabricMesh.material == nullptr) {
-        return 0;
-    }
-
-    return fabricMesh.material->getMaterialDefinition().getFeatureIdIndexCount();
+    const auto& featureIdTypes = fabricMesh.material->getMaterialDefinition().getFeatureIdTypes();
+    return static_cast<uint64_t>(std::count(featureIdTypes.begin(), featureIdTypes.end(), FeatureIdType::TEXTURE));
 }
 
 std::vector<MeshInfo>
@@ -183,50 +168,10 @@ std::vector<FabricMesh> acquireFabricMeshes(
             fabricMesh.imageryTexcoordIndexMapping[gltfSetIndex] = primvarStIndex++;
         }
 
-        // Map feature id texture index to set index
-        const auto featureIdTextureCount = getFeatureIdTextureCount(fabricMesh);
-        fabricMesh.featureIdTextureIndexMapping.reserve(featureIdTextureCount);
-        for (uint64_t i = 0; i < featureIdTextureCount; i++) {
-            uint64_t seenTextures = 0;
-            for (uint64_t setIndex = 0; setIndex < featuresInfo.featureIds.size(); setIndex++) {
-                if (std::holds_alternative<TextureInfo>(featuresInfo.featureIds[setIndex].featureIdStorage)) {
-                    if (seenTextures++ == i) {
-                        fabricMesh.featureIdTextureIndexMapping.push_back(setIndex);
-                    }
-                }
-            }
-        }
-        assert(fabricMesh.featureIdTextureIndexMapping.size() == featureIdTextureCount);
-
-        // Map feature id attribute index to set index
-        const auto featureIdAttributeCount = getFeatureIdAttributeCount(fabricMesh);
-        fabricMesh.featureIdAttributeIndexMapping.reserve(featureIdAttributeCount);
-        for (uint64_t i = 0; i < featureIdAttributeCount; i++) {
-            uint64_t seenAttributes = 0;
-            for (uint64_t setIndex = 0; setIndex < featuresInfo.featureIds.size(); setIndex++) {
-                if (std::holds_alternative<uint64_t>(featuresInfo.featureIds[setIndex].featureIdStorage)) {
-                    if (seenAttributes++ == i) {
-                        fabricMesh.featureIdAttributeIndexMapping.push_back(setIndex);
-                    }
-                }
-            }
-        }
-        assert(fabricMesh.featureIdAttributeIndexMapping.size() == featureIdAttributeCount);
-
-        // Map feature id index index to set index
-        const auto featureIdIndexCount = getFeatureIdIndexCount(fabricMesh);
-        fabricMesh.featureIdIndexIndexMapping.reserve(featureIdIndexCount);
-        for (uint64_t i = 0; i < featureIdIndexCount; i++) {
-            uint64_t seenIndexes = 0;
-            for (uint64_t setIndex = 0; setIndex < featuresInfo.featureIds.size(); setIndex++) {
-                if (std::holds_alternative<uint64_t>(featuresInfo.featureIds[setIndex].featureIdStorage)) {
-                    if (seenIndexes++ == i) {
-                        fabricMesh.featureIdIndexIndexMapping.push_back(setIndex);
-                    }
-                }
-            }
-        }
-        assert(fabricMesh.featureIdIndexIndexMapping.size() == featureIdIndexCount);
+        // Map feature id types to set indexes
+        fabricMesh.featureIdIndexSetIndexMapping = getSetIndexMapping(featuresInfo, FeatureIdType::INDEX);
+        fabricMesh.featureIdAttributeSetIndexMapping = getSetIndexMapping(featuresInfo, FeatureIdType::ATTRIBUTE);
+        fabricMesh.featureIdTextureSetIndexMapping = getSetIndexMapping(featuresInfo, FeatureIdType::TEXTURE);
     }
 
     return fabricMeshes;
@@ -251,7 +196,7 @@ void setFabricTextures(
 
         const auto featureIdTextureCount = getFeatureIdTextureCount(mesh);
         for (uint64_t j = 0; j < featureIdTextureCount; j++) {
-            const auto featureIdSetIndex = mesh.featureIdTextureIndexMapping[j];
+            const auto featureIdSetIndex = mesh.featureIdTextureSetIndexMapping[j];
             const auto featureIdTextureImage = GltfUtil::getFeatureIdTextureImage(model, primitive, featureIdSetIndex);
             assert(featureIdTextureImage);
             mesh.featureIdTextures[j]->setImage(*featureIdTextureImage, TransferFunction::LINEAR);
@@ -300,9 +245,9 @@ void setFabricMeshes(
                 displayColor,
                 displayOpacity,
                 mesh.texcoordIndexMapping,
-                mesh.featureIdIndexIndexMapping,
-                mesh.featureIdAttributeIndexMapping,
-                mesh.featureIdTextureIndexMapping);
+                mesh.featureIdIndexSetIndexMapping,
+                mesh.featureIdAttributeSetIndexMapping,
+                mesh.featureIdTextureSetIndexMapping);
 
             geometry->setMaterial(material->getPath());
         } else if (!tilesetMaterialPath.IsEmpty()) {
