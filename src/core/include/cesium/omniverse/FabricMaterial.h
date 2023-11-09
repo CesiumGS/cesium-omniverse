@@ -3,6 +3,11 @@
 #include "cesium/omniverse/FabricMaterialDefinition.h"
 #include "cesium/omniverse/GltfUtil.h"
 
+#ifdef CESIUM_OMNI_MSVC
+#pragma push_macro("OPAQUE")
+#undef OPAQUE
+#endif
+
 #include <omni/fabric/IPath.h>
 #include <omni/fabric/Type.h>
 #include <pxr/usd/sdf/assetPath.h>
