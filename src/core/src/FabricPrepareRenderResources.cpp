@@ -59,6 +59,30 @@ bool hasBaseColorTexture(const FabricMesh& fabricMesh) {
     return fabricMesh.material != nullptr && fabricMesh.material->getMaterialDefinition().hasBaseColorTexture();
 }
 
+uint64_t getFeatureIdTextureCount(const FabricMesh& fabricMesh) {
+    if (fabricMesh.material == nullptr) {
+        return 0;
+    }
+
+    return fabricMesh.material->getMaterialDefinition().getFeatureIdTextureCount();
+}
+
+uint64_t getFeatureIdAttributeCount(const FabricMesh& fabricMesh) {
+    if (fabricMesh.material == nullptr) {
+        return 0;
+    }
+
+    return fabricMesh.material->getMaterialDefinition().getFeatureIdAttributeCount();
+}
+
+uint64_t getFeatureIdIndexCount(const FabricMesh& fabricMesh) {
+    if (fabricMesh.material == nullptr) {
+        return 0;
+    }
+
+    return fabricMesh.material->getMaterialDefinition().getFeatureIdIndexCount();
+}
+
 std::vector<MeshInfo>
 gatherMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const CesiumGltf::Model& model) {
     CESIUM_TRACE("FabricPrepareRenderResources::gatherMeshes");
@@ -117,8 +141,10 @@ std::vector<FabricMesh> acquireFabricMeshes(
 
         const auto& primitive = model.meshes[mesh.meshId].primitives[mesh.primitiveId];
 
+        const auto featuresInfo = GltfUtil::getFeaturesInfo(model, primitive);
+
         const auto fabricGeometry =
-            fabricResourceManager.acquireGeometry(model, primitive, mesh.smoothNormals, stageId);
+            fabricResourceManager.acquireGeometry(model, primitive, featuresInfo, mesh.smoothNormals, stageId);
         fabricMesh.geometry = fabricGeometry;
 
         const auto shouldAcquireMaterial = FabricResourceManager::getInstance().shouldAcquireMaterial(
@@ -128,13 +154,20 @@ std::vector<FabricMesh> acquireFabricMeshes(
             const auto materialInfo = GltfUtil::getMaterialInfo(model, primitive);
 
             const auto fabricMaterial = fabricResourceManager.acquireMaterial(
-                materialInfo, imageryLayerCount, stageId, tileset.getTilesetId(), tilesetMaterialPath);
+                materialInfo, featuresInfo, imageryLayerCount, stageId, tileset.getTilesetId(), tilesetMaterialPath);
 
             fabricMesh.material = fabricMaterial;
             fabricMesh.materialInfo = materialInfo;
+            fabricMesh.featuresInfo = featuresInfo;
 
             if (hasBaseColorTexture(fabricMesh)) {
                 fabricMesh.baseColorTexture = fabricResourceManager.acquireTexture();
+            }
+
+            const auto featureIdTextureCount = getFeatureIdTextureCount(fabricMesh);
+            fabricMesh.featureIdTextures.reserve(featureIdTextureCount);
+            for (uint64_t i = 0; i < featureIdTextureCount; i++) {
+                fabricMesh.featureIdTextures.emplace_back(fabricResourceManager.acquireTexture());
             }
         }
 
@@ -149,6 +182,51 @@ std::vector<FabricMesh> acquireFabricMeshes(
         for (const auto gltfSetIndex : imageryTexcoordSetIndexes) {
             fabricMesh.imageryTexcoordIndexMapping[gltfSetIndex] = primvarStIndex++;
         }
+
+        // Map feature id texture index to set index
+        const auto featureIdTextureCount = getFeatureIdTextureCount(fabricMesh);
+        fabricMesh.featureIdTextureIndexMapping.reserve(featureIdTextureCount);
+        for (uint64_t i = 0; i < featureIdTextureCount; i++) {
+            uint64_t seenTextures = 0;
+            for (uint64_t setIndex = 0; setIndex < featuresInfo.featureIds.size(); setIndex++) {
+                if (std::holds_alternative<TextureInfo>(featuresInfo.featureIds[setIndex].featureIdStorage)) {
+                    if (seenTextures++ == i) {
+                        fabricMesh.featureIdTextureIndexMapping.push_back(setIndex);
+                    }
+                }
+            }
+        }
+        assert(fabricMesh.featureIdTextureIndexMapping.size() == featureIdTextureCount);
+
+        // Map feature id attribute index to set index
+        const auto featureIdAttributeCount = getFeatureIdAttributeCount(fabricMesh);
+        fabricMesh.featureIdAttributeIndexMapping.reserve(featureIdAttributeCount);
+        for (uint64_t i = 0; i < featureIdAttributeCount; i++) {
+            uint64_t seenAttributes = 0;
+            for (uint64_t setIndex = 0; setIndex < featuresInfo.featureIds.size(); setIndex++) {
+                if (std::holds_alternative<uint64_t>(featuresInfo.featureIds[setIndex].featureIdStorage)) {
+                    if (seenAttributes++ == i) {
+                        fabricMesh.featureIdAttributeIndexMapping.push_back(setIndex);
+                    }
+                }
+            }
+        }
+        assert(fabricMesh.featureIdAttributeIndexMapping.size() == featureIdAttributeCount);
+
+        // Map feature id index index to set index
+        const auto featureIdIndexCount = getFeatureIdIndexCount(fabricMesh);
+        fabricMesh.featureIdIndexIndexMapping.reserve(featureIdIndexCount);
+        for (uint64_t i = 0; i < featureIdIndexCount; i++) {
+            uint64_t seenIndexes = 0;
+            for (uint64_t setIndex = 0; setIndex < featuresInfo.featureIds.size(); setIndex++) {
+                if (std::holds_alternative<uint64_t>(featuresInfo.featureIds[setIndex].featureIdStorage)) {
+                    if (seenIndexes++ == i) {
+                        fabricMesh.featureIdIndexIndexMapping.push_back(setIndex);
+                    }
+                }
+            }
+        }
+        assert(fabricMesh.featureIdIndexIndexMapping.size() == featureIdIndexCount);
     }
 
     return fabricMeshes;
@@ -168,7 +246,15 @@ void setFabricTextures(
         if (hasBaseColorTexture(mesh)) {
             const auto baseColorTextureImage = GltfUtil::getBaseColorTextureImage(model, primitive);
             assert(baseColorTextureImage);
-            baseColorTexture->setImage(*baseColorTextureImage);
+            baseColorTexture->setImage(*baseColorTextureImage, TransferFunction::SRGB);
+        }
+
+        const auto featureIdTextureCount = getFeatureIdTextureCount(mesh);
+        for (uint64_t j = 0; j < featureIdTextureCount; j++) {
+            const auto featureIdSetIndex = mesh.featureIdTextureIndexMapping[j];
+            const auto featureIdTextureImage = GltfUtil::getFeatureIdTextureImage(model, primitive, featureIdSetIndex);
+            assert(featureIdTextureImage);
+            mesh.featureIdTextures[j]->setImage(*featureIdTextureImage, TransferFunction::LINEAR);
         }
     }
 }
@@ -208,10 +294,15 @@ void setFabricMeshes(
             material->setMaterial(
                 meshInfo.tilesetId,
                 mesh.materialInfo,
+                mesh.featuresInfo,
                 mesh.baseColorTexture,
+                mesh.featureIdTextures,
                 displayColor,
                 displayOpacity,
-                mesh.texcoordIndexMapping);
+                mesh.texcoordIndexMapping,
+                mesh.featureIdIndexIndexMapping,
+                mesh.featureIdAttributeIndexMapping,
+                mesh.featureIdTextureIndexMapping);
 
             geometry->setMaterial(material->getPath());
         } else if (!tilesetMaterialPath.IsEmpty()) {
@@ -376,7 +467,7 @@ void* FabricPrepareRenderResources::prepareRasterInLoadThread(
     }
 
     auto texture = FabricResourceManager::getInstance().acquireTexture();
-    texture->setImage(image);
+    texture->setImage(image, TransferFunction::SRGB);
     return new ImageryLoadThreadResult{texture};
 }
 

@@ -30,10 +30,15 @@ class FabricMaterial {
     void setMaterial(
         int64_t tilesetId,
         const MaterialInfo& materialInfo,
+        const FeaturesInfo& featuresInfo,
         const std::shared_ptr<FabricTexture>& baseColorTexture,
+        const std::vector<std::shared_ptr<FabricTexture>>& featureIdTextures,
         const glm::dvec3& displayColor,
         double displayOpacity,
-        const std::unordered_map<uint64_t, uint64_t>& texcoordIndexMapping);
+        const std::unordered_map<uint64_t, uint64_t>& texcoordIndexMapping,
+        const std::vector<uint64_t>& featureIdIndexIndexMapping,
+        const std::vector<uint64_t>& featureIdAttributeIndexMapping,
+        const std::vector<uint64_t>& featureIdTextureIndexMapping);
 
     void setImageryLayer(
         const std::shared_ptr<FabricTexture>& texture,
@@ -65,6 +70,9 @@ class FabricMaterial {
     void createTexture(const omni::fabric::Path& path);
     void createImageryLayer(const omni::fabric::Path& path);
     void createImageryLayerResolver(const omni::fabric::Path& path, uint64_t textureCount);
+    void createFeatureIdIndex(const omni::fabric::Path& path);
+    void createFeatureIdAttribute(const omni::fabric::Path& path);
+    void createFeatureIdTexture(const omni::fabric::Path& path);
 
     void reset();
 
@@ -90,6 +98,15 @@ class FabricMaterial {
         uint64_t texcoordIndex,
         double alpha);
     void setImageryLayerAlphaValue(const omni::fabric::Path& path, double alpha);
+    void setFeatureIdIndexValues(const omni::fabric::Path& path, int nullFeatureId);
+    void
+    setFeatureIdAttributeValues(const omni::fabric::Path& path, const std::string& attributeName, int nullFeatureId);
+    void setFeatureIdTextureValues(
+        const omni::fabric::Path& path,
+        const pxr::TfToken& textureAssetPathToken,
+        const TextureInfo& textureInfo,
+        uint64_t texcoordIndex,
+        int nullFeatureId);
 
     bool stageDestroyed();
 
@@ -109,6 +126,10 @@ class FabricMaterial {
     omni::fabric::Path _baseColorTexturePath;
     std::vector<omni::fabric::Path> _imageryLayerPaths;
     omni::fabric::Path _imageryLayerResolverPath;
+    std::vector<omni::fabric::Path> _featureIdPaths;
+    std::vector<omni::fabric::Path> _featureIdIndexPaths;
+    std::vector<omni::fabric::Path> _featureIdAttributePaths;
+    std::vector<omni::fabric::Path> _featureIdTexturePaths;
 
     std::vector<omni::fabric::Path> _allPaths;
 };

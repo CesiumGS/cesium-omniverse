@@ -58,11 +58,13 @@ class FabricResourceManager {
     std::shared_ptr<FabricGeometry> acquireGeometry(
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
+        const FeaturesInfo& featuresInfo,
         bool smoothNormals,
         long stageId);
 
     std::shared_ptr<FabricMaterial> acquireMaterial(
         const MaterialInfo& materialInfo,
+        const FeaturesInfo& featuresInfo,
         uint64_t imageryLayerCount,
         long stageId,
         int64_t tilesetId,

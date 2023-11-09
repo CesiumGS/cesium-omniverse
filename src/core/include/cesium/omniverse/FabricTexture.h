@@ -16,12 +16,17 @@ struct ImageCesium;
 
 namespace cesium::omniverse {
 
+enum class TransferFunction {
+    LINEAR,
+    SRGB,
+};
+
 class FabricTexture {
   public:
     FabricTexture(const std::string& name);
     ~FabricTexture();
 
-    void setImage(const CesiumGltf::ImageCesium& image);
+    void setImage(const CesiumGltf::ImageCesium& image, TransferFunction transferFunction);
 
     void setActive(bool active);
 

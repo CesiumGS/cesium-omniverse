@@ -3,12 +3,17 @@
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/VertexAttributeType.h"
 
+#include <CesiumGltf/FeatureIdTexture.h>
+
+#include <optional>
+
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
 #undef OPAQUE
 #endif
 
 #include <CesiumGltf/AccessorView.h>
+#include <CesiumGltf/ExtensionExtMeshFeatures.h>
 #include <CesiumGltf/ExtensionKhrMaterialsUnlit.h>
 #include <CesiumGltf/ExtensionKhrTextureTransform.h>
 #include <CesiumGltf/Model.h>
@@ -27,6 +32,10 @@ const CesiumGltf::MaterialPBRMetallicRoughness defaultPbrMetallicRoughness;
 const CesiumGltf::Sampler defaultSampler;
 const CesiumGltf::ExtensionKhrTextureTransform defaultTextureTransform;
 const CesiumGltf::TextureInfo defaultTextureInfo;
+
+template <typename T, typename U> std::optional<T> castOptional(const std::optional<U>& optional) {
+    return optional.has_value() ? std::make_optional(static_cast<T>(optional.value())) : std::nullopt;
+}
 
 template <typename IndexType>
 IndicesAccessor getIndicesAccessor(
@@ -310,6 +319,22 @@ TextureInfo getTextureInfo(const CesiumGltf::Model& model, const CesiumGltf::Tex
     return textureInfo;
 }
 
+TextureInfo
+getFeatureIdTextureInfo(const CesiumGltf::Model& model, const CesiumGltf::FeatureIdTexture& featureIdTextureInfo) {
+    TextureInfo textureInfo = getTextureInfo(model, featureIdTextureInfo);
+
+    std::vector<uint8_t> channels;
+    channels.reserve(featureIdTextureInfo.channels.size());
+
+    for (const auto channel : featureIdTextureInfo.channels) {
+        channels.push_back(static_cast<uint8_t>(channel));
+    }
+
+    textureInfo.channels = channels;
+
+    return textureInfo;
+}
+
 const CesiumGltf::ImageCesium& getImageCesium(const CesiumGltf::Model& model, const CesiumGltf::Texture& texture) {
     const auto imageId = static_cast<uint64_t>(texture.source);
     const auto& image = model.images[imageId];
@@ -472,6 +497,10 @@ getVertexColors(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive&
     return {};
 }
 
+VertexIdsAccessor getVertexIds(const PositionsAccessor& positionsAccessor) {
+    return {positionsAccessor.size()};
+}
+
 template <VertexAttributeType T>
 VertexAttributeAccessor<T> getVertexAttributeValues(
     const CesiumGltf::Model& model,
@@ -540,6 +569,34 @@ getBaseColorTextureImage(const CesiumGltf::Model& model, const CesiumGltf::MeshP
     return nullptr;
 }
 
+const CesiumGltf::ImageCesium* getFeatureIdTextureImage(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive,
+    uint64_t featureIdSetIndex) {
+    if (!primitive.hasExtension<CesiumGltf::ExtensionExtMeshFeatures>()) {
+        return nullptr;
+    }
+
+    const auto& extMeshFeatures = *primitive.getExtension<CesiumGltf::ExtensionExtMeshFeatures>();
+    if (featureIdSetIndex >= extMeshFeatures.featureIds.size()) {
+        return nullptr;
+    }
+
+    const auto& featureId = extMeshFeatures.featureIds[featureIdSetIndex];
+    if (!featureId.texture.has_value()) {
+        return nullptr;
+    }
+
+    const auto index = featureId.texture.value().index;
+    if (index < 0 || static_cast<size_t>(index) >= model.textures.size()) {
+        return nullptr;
+    }
+
+    const auto& texture = model.textures[static_cast<size_t>(index)];
+
+    return &getImageCesium(model, texture);
+}
+
 MaterialInfo getMaterialInfo(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
     if (!hasMaterial(primitive)) {
         return getDefaultMaterialInfo();
@@ -576,6 +633,37 @@ MaterialInfo getMaterialInfo(const CesiumGltf::Model& model, const CesiumGltf::M
     materialInfo.hasVertexColors = hasVertexColors(model, primitive, 0);
 
     return materialInfo;
+}
+
+FeaturesInfo getFeaturesInfo(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+    if (!primitive.hasExtension<CesiumGltf::ExtensionExtMeshFeatures>()) {
+        return {};
+    }
+
+    const auto& extMeshFeatures = *primitive.getExtension<CesiumGltf::ExtensionExtMeshFeatures>();
+    const auto& featureIds = extMeshFeatures.featureIds;
+
+    FeaturesInfo featuresInfo;
+    featuresInfo.featureIds.reserve(featureIds.size());
+
+    for (const auto& featureId : featureIds) {
+        const auto nullFeatureId = castOptional<uint64_t>(featureId.nullFeatureId);
+        const auto featureCount = static_cast<uint64_t>(featureId.featureCount);
+
+        auto featureIdStorage = std::variant<std::monostate, uint64_t, TextureInfo>();
+
+        if (featureId.attribute.has_value()) {
+            featureIdStorage = static_cast<uint64_t>(featureId.attribute.value());
+        } else if (featureId.texture.has_value()) {
+            featureIdStorage = getFeatureIdTextureInfo(model, featureId.texture.value());
+        } else {
+            featureIdStorage = std::monostate();
+        }
+
+        featuresInfo.featureIds.emplace_back(FeatureId{nullFeatureId, featureCount, featureIdStorage});
+    }
+
+    return featuresInfo;
 }
 
 std::set<VertexAttributeInfo>

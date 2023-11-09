@@ -12,22 +12,60 @@
 namespace cesium::omniverse {
 
 namespace {
-carb::Format getCompressedImageFormat(CesiumGltf::GpuCompressedPixelFormat pixelFormat) {
+carb::Format
+getCompressedImageFormat(CesiumGltf::GpuCompressedPixelFormat pixelFormat, TransferFunction transferFunction) {
     switch (pixelFormat) {
         case CesiumGltf::GpuCompressedPixelFormat::BC1_RGB:
-            return carb::Format::eBC1_RGBA_SRGB;
+            switch (transferFunction) {
+                case TransferFunction::LINEAR:
+                    return carb::Format::eBC1_RGBA_UNORM;
+                case TransferFunction::SRGB:
+                    return carb::Format::eBC1_RGBA_SRGB;
+            }
+            // Unreachable code. All enum cases are handled above.
+            assert(false);
+            return carb::Format::eUnknown;
         case CesiumGltf::GpuCompressedPixelFormat::BC3_RGBA:
-            return carb::Format::eBC3_RGBA_SRGB;
+            switch (transferFunction) {
+                case TransferFunction::LINEAR:
+                    return carb::Format::eBC3_RGBA_UNORM;
+                case TransferFunction::SRGB:
+                    return carb::Format::eBC3_RGBA_SRGB;
+            }
+            // Unreachable code. All enum cases are handled above.
+            assert(false);
+            return carb::Format::eUnknown;
         case CesiumGltf::GpuCompressedPixelFormat::BC4_R:
             return carb::Format::eBC4_R_UNORM;
         case CesiumGltf::GpuCompressedPixelFormat::BC5_RG:
             return carb::Format::eBC5_RG_UNORM;
         case CesiumGltf::GpuCompressedPixelFormat::BC7_RGBA:
-            return carb::Format::eBC7_RGBA_SRGB;
+            switch (transferFunction) {
+                case TransferFunction::LINEAR:
+                    return carb::Format::eBC7_RGBA_UNORM;
+                case TransferFunction::SRGB:
+                    return carb::Format::eBC7_RGBA_SRGB;
+            }
+            // Unreachable code. All enum cases are handled above.
+            assert(false);
+            return carb::Format::eUnknown;
         default:
             // Unsupported compressed texture format.
             return carb::Format::eUnknown;
-    };
+    }
+}
+
+carb::Format getUncompressedPixelFormat(TransferFunction transferFunction) {
+    switch (transferFunction) {
+        case TransferFunction::LINEAR:
+            return carb::Format::eRGBA8_UNORM;
+        case TransferFunction::SRGB:
+            return carb::Format::eRGBA8_SRGB;
+    }
+
+    // Unreachable code. All enum cases are handled above.
+    assert(false);
+    return carb::Format::eUnknown;
 }
 
 } // namespace
@@ -56,11 +94,13 @@ void FabricTexture::reset() {
     _texture->setBytesData(bytes.data(), size, omni::ui::kAutoCalculateStride, carb::Format::eRGBA8_SRGB);
 }
 
-void FabricTexture::setImage(const CesiumGltf::ImageCesium& image) {
-    auto imageFormat = carb::Format::eRGBA8_SRGB;
+void FabricTexture::setImage(const CesiumGltf::ImageCesium& image, TransferFunction transferFunction) {
+    carb::Format imageFormat;
 
-    if (image.compressedPixelFormat != CesiumGltf::GpuCompressedPixelFormat::NONE) {
-        imageFormat = getCompressedImageFormat(image.compressedPixelFormat);
+    if (image.compressedPixelFormat == CesiumGltf::GpuCompressedPixelFormat::NONE) {
+        imageFormat = getUncompressedPixelFormat(transferFunction);
+    } else {
+        imageFormat = getCompressedImageFormat(image.compressedPixelFormat, transferFunction);
     }
 
     if (imageFormat == carb::Format::eUnknown) {

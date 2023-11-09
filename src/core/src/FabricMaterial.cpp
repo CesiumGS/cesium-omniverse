@@ -26,6 +26,51 @@ const auto DEFAULT_DISPLAY_OPACITY = 1.0;
 const auto DEFAULT_MATERIAL_INFO = GltfUtil::getDefaultMaterialInfo();
 const auto DEFAULT_TEXTURE_INFO = GltfUtil::getDefaultTextureInfo();
 const auto DEFAULT_TEXCOORD_INDEX = uint64_t(0);
+const auto DEFAULT_FEATURE_ID_PRIMVAR_NAME = std::string("_FEATURE_ID_0");
+const auto DEFAULT_NULL_FEATURE_ID = -1;
+
+struct FeatureIdCounts {
+    uint64_t indexCount;
+    uint64_t attributeCount;
+    uint64_t textureCount;
+    uint64_t totalCount;
+};
+
+FeatureIdCounts getFeatureIdCounts(const FabricMaterialDefinition& materialDefinition) {
+    const auto& featureIdTypes = materialDefinition.getFeatureIdTypes();
+    auto featureIdCount = featureIdTypes.size();
+
+    if (featureIdCount > FabricTokens::MAX_FEATURE_ID_COUNT) {
+        CESIUM_LOG_WARN(
+            "Number of feature ID sets ({}) exceeds maximum number of feature ID sets ({}). Excess feature ID sets "
+            "will be ignored.",
+            featureIdCount,
+            FabricTokens::MAX_FEATURE_ID_COUNT);
+    }
+
+    featureIdCount = glm::min(featureIdCount, FabricTokens::MAX_FEATURE_ID_COUNT);
+
+    uint64_t indexCount = 0;
+    uint64_t attributeCount = 0;
+    uint64_t textureCount = 0;
+
+    for (uint64_t i = 0; i < featureIdCount; i++) {
+        const auto featureIdType = featureIdTypes[i];
+        switch (featureIdType) {
+            case FeatureIdType::INDEX:
+                indexCount++;
+                break;
+            case FeatureIdType::ATTRIBUTE:
+                attributeCount++;
+                break;
+            case FeatureIdType::TEXTURE:
+                textureCount++;
+                break;
+        }
+    }
+
+    return FeatureIdCounts{indexCount, attributeCount, textureCount, featureIdCount};
+}
 
 uint64_t getImageryLayerCount(const FabricMaterialDefinition& materialDefinition) {
     auto imageryLayerCount = materialDefinition.getImageryLayerCount();
@@ -67,6 +112,10 @@ void createConnection(
 
 template <typename T> const T& defaultValue(const T* value, const T& defaultValue) {
     return value == nullptr ? defaultValue : *value;
+}
+
+template <typename T, typename U> T defaultValue(const std::optional<U>& optional, const T& defaultValue) {
+    return optional.has_value() ? static_cast<T>(optional.value()) : defaultValue;
 }
 
 } // namespace
@@ -155,6 +204,34 @@ void FabricMaterial::initializeNodes() {
         _imageryLayerPaths.push_back(imageryLayerPath);
         _allPaths.push_back(imageryLayerPath);
     }
+
+    // Create feature ids
+    const auto& featureIdTypes = _materialDefinition.getFeatureIdTypes();
+    const auto featureIdCounts = getFeatureIdCounts(_materialDefinition);
+    _featureIdPaths.reserve(featureIdCounts.totalCount);
+    _featureIdAttributePaths.reserve(featureIdCounts.attributeCount);
+    _featureIdTexturePaths.reserve(featureIdCounts.textureCount);
+
+    for (uint64_t i = 0; i < featureIdCounts.totalCount; i++) {
+        const auto featureIdType = featureIdTypes[i];
+        const auto featureIdPath = FabricUtil::joinPaths(_materialPath, FabricTokens::feature_id_n[i]);
+        switch (featureIdType) {
+            case FeatureIdType::INDEX:
+                createFeatureIdIndex(featureIdPath);
+                _featureIdIndexPaths.push_back(featureIdPath);
+                break;
+            case FeatureIdType::ATTRIBUTE:
+                createFeatureIdAttribute(featureIdPath);
+                _featureIdAttributePaths.push_back(featureIdPath);
+                break;
+            case FeatureIdType::TEXTURE:
+                createFeatureIdTexture(featureIdPath);
+                _featureIdTexturePaths.push_back(featureIdPath);
+                break;
+        }
+        _featureIdPaths.push_back(featureIdPath);
+        _allPaths.push_back(featureIdPath);
+    }
 }
 
 void FabricMaterial::initializeDefaultMaterial() {
@@ -213,6 +290,7 @@ void FabricMaterial::initializeExistingMaterial(const omni::fabric::Path& path) 
 
     const auto imageryLayerCount = getImageryLayerCount(_materialDefinition);
     const auto hasBaseColorTexture = _materialDefinition.hasBaseColorTexture();
+    const auto featureIdCount = getFeatureIdCounts(_materialDefinition).totalCount;
 
     const auto copiedPaths = FabricUtil::copyMaterial(path, _materialPath);
 
@@ -232,6 +310,13 @@ void FabricMaterial::initializeExistingMaterial(const omni::fabric::Path& path) 
 
             if (index < imageryLayerCount) {
                 createConnection(srw, _imageryLayerPaths[index], copiedPath, FabricTokens::inputs_imagery_layer);
+            }
+        } else if (mdlIdentifier == FabricTokens::cesium_feature_id_int) {
+            const auto setIndexFabric = srw.getAttributeRd<int>(copiedPath, FabricTokens::inputs_feature_id_set_index);
+            const auto setIndex = static_cast<uint64_t>(defaultValue(setIndexFabric, 0));
+
+            if (setIndex < featureIdCount) {
+                createConnection(srw, _featureIdPaths[setIndex], copiedPath, FabricTokens::inputs_feature_id);
             }
         }
     }
@@ -399,6 +484,56 @@ void FabricMaterial::createImageryLayerResolver(const omni::fabric::Path& path, 
     *infoMdlSourceAssetSubIdentifierFabric = FabricTokens::cesium_internal_imagery_layer_resolver;
 }
 
+void FabricMaterial::createFeatureIdIndex(const omni::fabric::Path& path) {
+    createFeatureIdAttribute(path);
+}
+
+void FabricMaterial::createFeatureIdAttribute(const omni::fabric::Path& path) {
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+
+    srw.createPrim(path);
+
+    FabricAttributesBuilder attributes;
+
+    // clang-format off
+    attributes.addAttribute(FabricTypes::inputs_feature_id_primvar_name, FabricTokens::inputs_feature_id_primvar_name);
+    attributes.addAttribute(FabricTypes::inputs_null_feature_id, FabricTokens::inputs_null_feature_id);
+    attributes.addAttribute(FabricTypes::inputs_excludeFromWhiteMode, FabricTokens::inputs_excludeFromWhiteMode);
+    attributes.addAttribute(FabricTypes::outputs_out, FabricTokens::outputs_out);
+    attributes.addAttribute(FabricTypes::info_implementationSource, FabricTokens::info_implementationSource);
+    attributes.addAttribute(FabricTypes::info_mdl_sourceAsset, FabricTokens::info_mdl_sourceAsset);
+    attributes.addAttribute(FabricTypes::info_mdl_sourceAsset_subIdentifier, FabricTokens::info_mdl_sourceAsset_subIdentifier);
+    attributes.addAttribute(FabricTypes::_sdrMetadata, FabricTokens::_sdrMetadata);
+    attributes.addAttribute(FabricTypes::Shader, FabricTokens::Shader);
+    attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
+    // clang-format on
+
+    attributes.createAttributes(path);
+
+    // clang-format off
+    auto inputsExcludeFromWhiteModeFabric = srw.getAttributeWr<bool>(path, FabricTokens::inputs_excludeFromWhiteMode);
+    auto infoImplementationSourceFabric = srw.getAttributeWr<omni::fabric::TokenC>(path, FabricTokens::info_implementationSource);
+    auto infoMdlSourceAssetFabric = srw.getAttributeWr<omni::fabric::AssetPath>(path, FabricTokens::info_mdl_sourceAsset);
+    auto infoMdlSourceAssetSubIdentifierFabric = srw.getAttributeWr<omni::fabric::TokenC>(path, FabricTokens::info_mdl_sourceAsset_subIdentifier);
+    // clang-format on
+
+    *inputsExcludeFromWhiteModeFabric = false;
+    *infoImplementationSourceFabric = FabricTokens::sourceAsset;
+    infoMdlSourceAssetFabric->assetPath = Context::instance().getCesiumMdlPathToken();
+    infoMdlSourceAssetFabric->resolvedPath = pxr::TfToken();
+    *infoMdlSourceAssetSubIdentifierFabric = FabricTokens::cesium_internal_feature_id_attribute_lookup;
+}
+
+void FabricMaterial::createFeatureIdTexture(const omni::fabric::Path& path) {
+    static const auto additionalAttributes = std::vector<std::pair<omni::fabric::Type, omni::fabric::Token>>{{
+        std::make_pair(FabricTypes::inputs_channels, FabricTokens::inputs_channels),
+        std::make_pair(FabricTypes::inputs_channel_count, FabricTokens::inputs_channel_count),
+        std::make_pair(FabricTypes::inputs_null_feature_id, FabricTokens::inputs_null_feature_id),
+    }};
+
+    return createTextureCommon(path, FabricTokens::cesium_internal_feature_id_texture_lookup, additionalAttributes);
+}
+
 void FabricMaterial::reset() {
     if (_usesDefaultMaterial) {
         setShaderValues(_shaderPath, DEFAULT_MATERIAL_INFO, DEFAULT_DISPLAY_COLOR, DEFAULT_DISPLAY_OPACITY);
@@ -407,6 +542,23 @@ void FabricMaterial::reset() {
     if (_materialDefinition.hasBaseColorTexture()) {
         setTextureValues(
             _baseColorTexturePath, _defaultTextureAssetPathToken, DEFAULT_TEXTURE_INFO, DEFAULT_TEXCOORD_INDEX);
+    }
+
+    for (const auto& featureIdIndexPath : _featureIdIndexPaths) {
+        setFeatureIdIndexValues(featureIdIndexPath, DEFAULT_NULL_FEATURE_ID);
+    }
+
+    for (const auto& featureIdAttributePath : _featureIdAttributePaths) {
+        setFeatureIdAttributeValues(featureIdAttributePath, DEFAULT_FEATURE_ID_PRIMVAR_NAME, DEFAULT_NULL_FEATURE_ID);
+    }
+
+    for (const auto& featureIdTexturePath : _featureIdTexturePaths) {
+        setFeatureIdTextureValues(
+            featureIdTexturePath,
+            _defaultTransparentTextureAssetPathToken,
+            DEFAULT_TEXTURE_INFO,
+            DEFAULT_TEXCOORD_INDEX,
+            DEFAULT_NULL_FEATURE_ID);
     }
 
     for (const auto& imageryLayerPath : _imageryLayerPaths) {
@@ -426,10 +578,15 @@ void FabricMaterial::reset() {
 void FabricMaterial::setMaterial(
     int64_t tilesetId,
     const MaterialInfo& materialInfo,
+    const FeaturesInfo& featuresInfo,
     const std::shared_ptr<FabricTexture>& baseColorTexture,
+    const std::vector<std::shared_ptr<FabricTexture>>& featureIdTextures,
     const glm::dvec3& displayColor,
     double displayOpacity,
-    const std::unordered_map<uint64_t, uint64_t>& texcoordIndexMapping) {
+    const std::unordered_map<uint64_t, uint64_t>& texcoordIndexMapping,
+    const std::vector<uint64_t>& featureIdIndexIndexMapping,
+    const std::vector<uint64_t>& featureIdAttributeIndexMapping,
+    const std::vector<uint64_t>& featureIdTextureIndexMapping) {
 
     if (stageDestroyed()) {
         return;
@@ -456,6 +613,43 @@ void FabricMaterial::setMaterial(
         const auto texcoordIndex = texcoordIndexMapping.at(textureInfo.setIndex);
 
         setTextureValues(_baseColorTexturePath, textureAssetPath, textureInfo, texcoordIndex);
+    }
+
+    const auto featureIdCounts = getFeatureIdCounts(_materialDefinition);
+
+    for (uint64_t i = 0; i < featureIdCounts.indexCount; i++) {
+        const auto featureIdSetIndex = featureIdIndexIndexMapping[i];
+        const auto featureId = featuresInfo.featureIds[featureIdSetIndex];
+        assert(std::holds_alternative<std::monostate>(featureId.featureIdStorage));
+        const auto& featureIdPath = _featureIdPaths[featureIdSetIndex];
+        const auto nullFeatureId = defaultValue(featureId.nullFeatureId, DEFAULT_NULL_FEATURE_ID);
+
+        setFeatureIdIndexValues(featureIdPath, nullFeatureId);
+    }
+
+    for (uint64_t i = 0; i < featureIdCounts.attributeCount; i++) {
+        const auto featureIdSetIndex = featureIdAttributeIndexMapping[i];
+        const auto featureId = featuresInfo.featureIds[featureIdSetIndex];
+        assert(std::holds_alternative<uint64_t>(featureId.featureIdStorage));
+        const auto attributeSetIndex = std::get<uint64_t>(featureId.featureIdStorage);
+        const auto attributeName = fmt::format("_FEATURE_ID_{}", attributeSetIndex);
+        const auto& featureIdPath = _featureIdPaths[featureIdSetIndex];
+        const auto nullFeatureId = defaultValue(featureId.nullFeatureId, DEFAULT_NULL_FEATURE_ID);
+
+        setFeatureIdAttributeValues(featureIdPath, attributeName, nullFeatureId);
+    }
+
+    for (uint64_t i = 0; i < featureIdCounts.textureCount; i++) {
+        const auto featureIdSetIndex = featureIdTextureIndexMapping[i];
+        const auto& featureId = featuresInfo.featureIds[featureIdSetIndex];
+        assert(std::holds_alternative<TextureInfo>(featureId.featureIdStorage));
+        const auto& textureInfo = std::get<TextureInfo>(featureId.featureIdStorage);
+        const auto& textureAssetPath = featureIdTextures[i]->getAssetPathToken();
+        const auto texcoordIndex = texcoordIndexMapping.at(textureInfo.setIndex);
+        const auto& featureIdPath = _featureIdPaths[featureIdSetIndex];
+        const auto nullFeatureId = defaultValue(featureId.nullFeatureId, DEFAULT_NULL_FEATURE_ID);
+
+        setFeatureIdTextureValues(featureIdPath, textureAssetPath, textureInfo, texcoordIndex, nullFeatureId);
     }
 
     for (const auto& path : _allPaths) {
@@ -640,6 +834,52 @@ void FabricMaterial::setImageryLayerAlphaValue(const omni::fabric::Path& path, d
     auto srw = UsdUtil::getFabricStageReaderWriter();
     auto alphaFabric = srw.getAttributeWr<float>(path, FabricTokens::inputs_alpha);
     *alphaFabric = static_cast<float>(alpha);
+}
+
+void FabricMaterial::setFeatureIdIndexValues(const omni::fabric::Path& path, int nullFeatureId) {
+    setFeatureIdAttributeValues(path, pxr::UsdTokens->vertexId.GetString(), nullFeatureId);
+}
+
+void FabricMaterial::setFeatureIdAttributeValues(
+    const omni::fabric::Path& path,
+    const std::string& primvarName,
+    int nullFeatureId) {
+
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+
+    const auto primvarNameSize = primvarName.size();
+    srw.setArrayAttributeSize(path, FabricTokens::inputs_feature_id_primvar_name, primvarNameSize);
+    auto primvarNameFabric = srw.getArrayAttributeWr<uint8_t>(path, FabricTokens::inputs_feature_id_primvar_name);
+    memcpy(primvarNameFabric.data(), primvarName.data(), primvarNameSize);
+
+    auto nullFeatureIdFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_null_feature_id);
+    *nullFeatureIdFabric = nullFeatureId;
+}
+
+void FabricMaterial::setFeatureIdTextureValues(
+    const omni::fabric::Path& path,
+    const pxr::TfToken& textureAssetPathToken,
+    const TextureInfo& textureInfo,
+    uint64_t texcoordIndex,
+    int nullFeatureId) {
+
+    setTextureValuesCommon(path, textureAssetPathToken, textureInfo, texcoordIndex);
+
+    auto channelCount = glm::min(textureInfo.channels.size(), uint64_t(4));
+    auto channels = glm::u8vec4(0);
+    for (uint64_t i = 0; i < channelCount; i++) {
+        channels[i] = textureInfo.channels[i];
+    }
+    channelCount = glm::max(channelCount, uint64_t(1));
+
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto channelCountFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_channel_count);
+    auto channelsFabric = srw.getAttributeWr<glm::i32vec4>(path, FabricTokens::inputs_channels);
+    auto nullFeatureIdFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_null_feature_id);
+
+    *channelCountFabric = static_cast<int>(channelCount);
+    *channelsFabric = static_cast<glm::i32vec4>(channels);
+    *nullFeatureIdFabric = nullFeatureId;
 }
 
 bool FabricMaterial::stageDestroyed() {

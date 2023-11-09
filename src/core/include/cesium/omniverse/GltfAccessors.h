@@ -112,6 +112,18 @@ class VertexColorsAccessor {
     uint64_t _size;
 };
 
+class VertexIdsAccessor {
+  public:
+    VertexIdsAccessor();
+    VertexIdsAccessor(uint64_t size);
+
+    void fill(const gsl::span<float>& values, uint64_t repeat = 1) const;
+    [[nodiscard]] uint64_t size() const;
+
+  private:
+    uint64_t _size;
+};
+
 class FaceVertexCountsAccessor {
   public:
     FaceVertexCountsAccessor();

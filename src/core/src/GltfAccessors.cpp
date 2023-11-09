@@ -300,6 +300,25 @@ uint64_t VertexColorsAccessor::size() const {
     return _size;
 }
 
+VertexIdsAccessor::VertexIdsAccessor()
+    : _size(0) {}
+
+VertexIdsAccessor::VertexIdsAccessor(uint64_t size)
+    : _size(size) {}
+
+void VertexIdsAccessor::fill(const gsl::span<float>& values, uint64_t repeat) const {
+    const auto size = values.size();
+    assert(size == _size * repeat);
+
+    for (uint64_t i = 0; i < size; i++) {
+        values[i] = static_cast<float>(i / repeat);
+    }
+}
+
+uint64_t VertexIdsAccessor::size() const {
+    return _size;
+}
+
 FaceVertexCountsAccessor::FaceVertexCountsAccessor()
     : _size(0) {}
 

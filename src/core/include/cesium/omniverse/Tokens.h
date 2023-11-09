@@ -16,7 +16,10 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     (base_color_texture) \
     (cesium) \
     (cesium_base_color_texture_float4) \
+    (cesium_feature_id_int) \
     (cesium_imagery_layer_float4) \
+    (cesium_internal_feature_id_attribute_lookup) \
+    (cesium_internal_feature_id_texture_lookup) \
     (cesium_internal_imagery_layer_lookup) \
     (cesium_internal_imagery_layer_resolver) \
     (cesium_internal_material) \
@@ -26,6 +29,16 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     (extent) \
     (faceVertexCounts) \
     (faceVertexIndices) \
+    (feature_id_0) \
+    (feature_id_1) \
+    (feature_id_2) \
+    (feature_id_3) \
+    (feature_id_4) \
+    (feature_id_5) \
+    (feature_id_6) \
+    (feature_id_7) \
+    (feature_id_8) \
+    (feature_id_9) \
     (imagery_layer) \
     (imagery_layer_0) \
     (imagery_layer_1) \
@@ -54,6 +67,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     (sourceAsset) \
     (subdivisionScheme) \
     (vertex) \
+    (vertexId) \
     (_cesium_localToEcefTransform) \
     (_cesium_tilesetId) \
     (_deletedPrims) \
@@ -74,9 +88,15 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((inputs_base_alpha, "inputs:base_alpha")) \
     ((inputs_base_color_factor, "inputs:base_color_factor")) \
     ((inputs_base_color_texture, "inputs:base_color_texture")) \
+    ((inputs_channel_count, "inputs:channel_count")) \
+    ((inputs_channels, "inputs:channels")) \
     ((inputs_emissive_factor, "inputs:emissive_factor")) \
     ((inputs_excludeFromWhiteMode, "inputs:excludeFromWhiteMode")) \
+    ((inputs_feature_id, "inputs:feature_id")) \
+    ((inputs_feature_id_primvar_name, "inputs:feature_id_primvar_name")) \
+    ((inputs_feature_id_set_index, "inputs:feature_id_set_index")) \
     ((inputs_metallic_factor, "inputs:metallic_factor")) \
+    ((inputs_null_feature_id, "inputs:null_feature_id")) \
     ((inputs_offset, "inputs:offset")) \
     ((inputs_rotation, "inputs:rotation")) \
     ((inputs_roughness_factor, "inputs:roughness_factor")) \
@@ -124,6 +144,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((primvars_st_8, "primvars:st_8")) \
     ((primvars_st_9, "primvars:st_9")) \
     ((primvars_COLOR_0, "primvars:COLOR_0")) \
+    ((primvars_vertexId, "primvars:vertexId")) \
     ((xformOp_transform_cesium, "xformOp:transform:cesium"))
 
 TF_DECLARE_PUBLIC_TOKENS(UsdTokens, USD_TOKENS);
@@ -157,6 +178,7 @@ FABRIC_DECLARE_TOKENS(USD_TOKENS);
 
 const uint64_t MAX_PRIMVAR_ST_COUNT = 10;
 const uint64_t MAX_IMAGERY_LAYERS_COUNT = 16;
+const uint64_t MAX_FEATURE_ID_COUNT = 10;
 
 const std::array<const omni::fabric::TokenC, MAX_PRIMVAR_ST_COUNT> primvars_st_n = {{
     primvars_st_0,
@@ -169,6 +191,19 @@ const std::array<const omni::fabric::TokenC, MAX_PRIMVAR_ST_COUNT> primvars_st_n
     primvars_st_7,
     primvars_st_8,
     primvars_st_9,
+}};
+
+const std::array<const omni::fabric::TokenC, MAX_FEATURE_ID_COUNT> feature_id_n = {{
+    feature_id_0,
+    feature_id_1,
+    feature_id_2,
+    feature_id_3,
+    feature_id_4,
+    feature_id_5,
+    feature_id_6,
+    feature_id_7,
+    feature_id_8,
+    feature_id_9,
 }};
 
 const std::array<const omni::fabric::TokenC, MAX_IMAGERY_LAYERS_COUNT> imagery_layer_n = {{
@@ -225,10 +260,14 @@ const omni::fabric::Type inputs_alpha_cutoff(omni::fabric::BaseDataType::eFloat,
 const omni::fabric::Type inputs_alpha_mode(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_base_alpha(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_base_color_factor(omni::fabric::BaseDataType::eFloat, 3, 0, omni::fabric::AttributeRole::eColor);
+const omni::fabric::Type inputs_channel_count(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type inputs_channels(omni::fabric::BaseDataType::eInt, 4, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_tile_color(omni::fabric::BaseDataType::eFloat, 4, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_emissive_factor(omni::fabric::BaseDataType::eFloat, 3, 0, omni::fabric::AttributeRole::eColor);
 const omni::fabric::Type inputs_excludeFromWhiteMode(omni::fabric::BaseDataType::eBool, 1, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type inputs_feature_id_primvar_name(omni::fabric::BaseDataType::eUChar, 1, 1, omni::fabric::AttributeRole::eText);
 const omni::fabric::Type inputs_metallic_factor(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type inputs_null_feature_id(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_offset(omni::fabric::BaseDataType::eFloat, 2, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_rotation(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_roughness_factor(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
@@ -248,6 +287,7 @@ const omni::fabric::Type primvars(omni::fabric::BaseDataType::eToken, 1, 1, omni
 const omni::fabric::Type primvars_normals(omni::fabric::BaseDataType::eFloat, 3, 1, omni::fabric::AttributeRole::eNormal);
 const omni::fabric::Type primvars_st(omni::fabric::BaseDataType::eFloat, 2, 1, omni::fabric::AttributeRole::eTexCoord);
 const omni::fabric::Type primvars_COLOR_0(omni::fabric::BaseDataType::eFloat, 4, 1, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type primvars_vertexId(omni::fabric::BaseDataType::eFloat, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type Shader(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName);
 const omni::fabric::Type subdivisionScheme(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _cesium_localToEcefTransform(omni::fabric::BaseDataType::eDouble, 16, 0, omni::fabric::AttributeRole::eMatrix);
