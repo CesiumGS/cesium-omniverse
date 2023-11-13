@@ -604,6 +604,9 @@ MaterialInfo getMaterialInfo(const CesiumGltf::Model& model, const CesiumGltf::M
 
     auto materialInfo = getDefaultMaterialInfo();
 
+    // This line shouldn't be needed, but gcc 11.2.0 complains about uninitialized members
+    materialInfo.baseColorTexture = std::nullopt;
+
     const auto& material = model.materials[static_cast<size_t>(primitive.material)];
 
     materialInfo.alphaCutoff = getAlphaCutoff(material);
