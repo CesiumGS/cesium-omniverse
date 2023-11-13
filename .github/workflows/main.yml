@@ -7,7 +7,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  PACKMAN_ROOT: $GITHUB_WORKSPACE/packman-repo
+  PACKMAN_ROOT: ${{ github.workspace }}/packman-repo
 
 jobs:
   build:
