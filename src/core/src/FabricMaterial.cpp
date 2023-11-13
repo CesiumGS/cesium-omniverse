@@ -23,8 +23,6 @@ const auto DEFAULT_DEBUG_COLOR = glm::dvec3(1.0, 1.0, 1.0);
 const auto DEFAULT_ALPHA = 1.0f;
 const auto DEFAULT_DISPLAY_COLOR = glm::dvec3(1.0, 1.0, 1.0);
 const auto DEFAULT_DISPLAY_OPACITY = 1.0;
-const auto DEFAULT_MATERIAL_INFO = GltfUtil::getDefaultMaterialInfo();
-const auto DEFAULT_TEXTURE_INFO = GltfUtil::getDefaultTextureInfo();
 const auto DEFAULT_TEXCOORD_INDEX = uint64_t(0);
 const auto DEFAULT_FEATURE_ID_PRIMVAR_NAME = std::string("_FEATURE_ID_0");
 const auto DEFAULT_NULL_FEATURE_ID = -1;
@@ -476,12 +474,16 @@ void FabricMaterial::createFeatureIdTexture(const omni::fabric::Path& path) {
 
 void FabricMaterial::reset() {
     if (_usesDefaultMaterial) {
-        setShaderValues(_shaderPath, DEFAULT_MATERIAL_INFO, DEFAULT_DISPLAY_COLOR, DEFAULT_DISPLAY_OPACITY);
+        setShaderValues(
+            _shaderPath, GltfUtil::getDefaultMaterialInfo(), DEFAULT_DISPLAY_COLOR, DEFAULT_DISPLAY_OPACITY);
     }
 
     if (_materialDefinition.hasBaseColorTexture()) {
         setTextureValues(
-            _baseColorTexturePath, _defaultTextureAssetPathToken, DEFAULT_TEXTURE_INFO, DEFAULT_TEXCOORD_INDEX);
+            _baseColorTexturePath,
+            _defaultTextureAssetPathToken,
+            GltfUtil::getDefaultTextureInfo(),
+            DEFAULT_TEXCOORD_INDEX);
     }
 
     for (const auto& featureIdIndexPath : _featureIdIndexPaths) {
@@ -496,7 +498,7 @@ void FabricMaterial::reset() {
         setFeatureIdTextureValues(
             featureIdTexturePath,
             _defaultTransparentTextureAssetPathToken,
-            DEFAULT_TEXTURE_INFO,
+            GltfUtil::getDefaultTextureInfo(),
             DEFAULT_TEXCOORD_INDEX,
             DEFAULT_NULL_FEATURE_ID);
     }
@@ -505,7 +507,7 @@ void FabricMaterial::reset() {
         setImageryLayerValues(
             imageryLayerPath,
             _defaultTransparentTextureAssetPathToken,
-            DEFAULT_TEXTURE_INFO,
+            GltfUtil::getDefaultTextureInfo(),
             DEFAULT_TEXCOORD_INDEX,
             DEFAULT_ALPHA);
     }
@@ -679,7 +681,7 @@ void FabricMaterial::clearImageryLayer(uint64_t imageryLayerIndex) {
     setImageryLayerValues(
         imageryLayerPath,
         _defaultTransparentTextureAssetPathToken,
-        DEFAULT_TEXTURE_INFO,
+        GltfUtil::getDefaultTextureInfo(),
         DEFAULT_TEXCOORD_INDEX,
         DEFAULT_ALPHA);
 }
