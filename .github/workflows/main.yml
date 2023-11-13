@@ -7,7 +7,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  PACKMAN_ROOT: ${{ github.workspace }}/packman-repo
+  # Packman
+  PM_PACKAGES_ROOT: ${{ github.workspace }}/packman-repo
 
 jobs:
   build:
@@ -89,7 +90,7 @@ jobs:
         id: packman-cache
         uses: actions/cache@v3
         with:
-          path: ${{ env.PACKMAN_ROOT }}
+          path: ${{ env.PM_PACKAGES_ROOT }}
           key: packman-${{ matrix.config.name }}-${{ hashFiles('extern/nvidia/deps/kit-sdk.packman.xml', 'extern/nvidia/deps/target-deps.packman.xml') }}
 
       - name: AlmaLinux Build with Docker
