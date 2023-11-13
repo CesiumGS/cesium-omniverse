@@ -608,6 +608,8 @@ MaterialInfo getMaterialInfo(const CesiumGltf::Model& model, const CesiumGltf::M
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
     auto materialInfo = getDefaultMaterialInfo();
 #pragma GCC diagnostic pop
+#else
+    auto materialInfo = getDefaultMaterialInfo();
 #endif
 
     const auto& material = model.materials[static_cast<size_t>(primitive.material)];
