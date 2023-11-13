@@ -602,10 +602,13 @@ MaterialInfo getMaterialInfo(const CesiumGltf::Model& model, const CesiumGltf::M
         return getDefaultMaterialInfo();
     }
 
+// Ignore uninitialized member warning from gcc 11.2.0. This warning is not reported in gcc 11.4.0
+#ifdef CESIUM_OMNI_GCC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
     auto materialInfo = getDefaultMaterialInfo();
-
-    // This line shouldn't be needed, but gcc 11.2.0 complains about uninitialized members
-    materialInfo.baseColorTexture = std::nullopt;
+#pragma GCC diagnostic pop
+#endif
 
     const auto& material = model.materials[static_cast<size_t>(primitive.material)];
 
