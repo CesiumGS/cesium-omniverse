@@ -1,7 +1,7 @@
 #include "cesium/omniverse/GltfUtil.h"
 
+#include "cesium/omniverse/DataType.h"
 #include "cesium/omniverse/LoggerSink.h"
-#include "cesium/omniverse/VertexAttributeType.h"
 
 #include <CesiumGltf/FeatureIdTexture.h>
 
@@ -16,6 +16,7 @@
 #include <CesiumGltf/ExtensionExtMeshFeatures.h>
 #include <CesiumGltf/ExtensionKhrMaterialsUnlit.h>
 #include <CesiumGltf/ExtensionKhrTextureTransform.h>
+#include <CesiumGltf/FeatureIdTextureView.h>
 #include <CesiumGltf/Model.h>
 #include <CesiumGltf/TextureInfo.h>
 #include <spdlog/fmt/fmt.h>
@@ -298,11 +299,11 @@ TextureInfo getTextureInfo(const CesiumGltf::Model& model, const CesiumGltf::Tex
 
     textureInfo.setIndex = static_cast<uint64_t>(textureInfoGltf.texCoord);
 
-    if (textureInfoGltf.hasExtension<CesiumGltf::ExtensionKhrTextureTransform>()) {
-        const auto& textureTransform = *textureInfoGltf.getExtension<CesiumGltf::ExtensionKhrTextureTransform>();
-        textureInfo.offset = getTexcoordOffset(textureTransform);
-        textureInfo.rotation = getTexcoordRotation(textureTransform);
-        textureInfo.scale = getTexcoordScale(textureTransform);
+    const auto pTextureTransform = textureInfoGltf.getExtension<CesiumGltf::ExtensionKhrTextureTransform>();
+    if (pTextureTransform != nullptr) {
+        textureInfo.offset = getTexcoordOffset(*pTextureTransform);
+        textureInfo.rotation = getTexcoordRotation(*pTextureTransform);
+        textureInfo.scale = getTexcoordScale(*pTextureTransform);
     }
 
     const auto index = textureInfoGltf.index;
@@ -501,54 +502,6 @@ VertexIdsAccessor getVertexIds(const PositionsAccessor& positionsAccessor) {
     return {positionsAccessor.size()};
 }
 
-template <VertexAttributeType T>
-VertexAttributeAccessor<T> getVertexAttributeValues(
-    const CesiumGltf::Model& model,
-    const CesiumGltf::MeshPrimitive& primitive,
-    const std::string& attributeName) {
-    const auto attribute = primitive.attributes.find(attributeName);
-    if (attribute == primitive.attributes.end()) {
-        return {};
-    }
-
-    auto accessor = model.getSafe<CesiumGltf::Accessor>(&model.accessors, attribute->second);
-    if (!accessor) {
-        return {};
-    }
-
-    auto view = CesiumGltf::AccessorView<GetNativeType<T>>(model, *accessor);
-
-    if (view.status() != CesiumGltf::AccessorViewStatus::Valid) {
-        return {};
-    }
-
-    return VertexAttributeAccessor<T>(view, accessor->normalized);
-}
-
-// Explicit template instantiation
-// clang-format off
-template VertexAttributeAccessor<VertexAttributeType::UINT8> getVertexAttributeValues<VertexAttributeType::UINT8>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::INT8> getVertexAttributeValues<VertexAttributeType::INT8>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::UINT16> getVertexAttributeValues<VertexAttributeType::UINT16>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::INT16> getVertexAttributeValues<VertexAttributeType::INT16>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::FLOAT32> getVertexAttributeValues<VertexAttributeType::FLOAT32>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC2_UINT8> getVertexAttributeValues<VertexAttributeType::VEC2_UINT8>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC2_INT8> getVertexAttributeValues<VertexAttributeType::VEC2_INT8>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC2_UINT16> getVertexAttributeValues<VertexAttributeType::VEC2_UINT16>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC2_INT16> getVertexAttributeValues<VertexAttributeType::VEC2_INT16>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC2_FLOAT32> getVertexAttributeValues<VertexAttributeType::VEC2_FLOAT32>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC3_UINT8> getVertexAttributeValues<VertexAttributeType::VEC3_UINT8>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC3_INT8> getVertexAttributeValues<VertexAttributeType::VEC3_INT8>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC3_UINT16> getVertexAttributeValues<VertexAttributeType::VEC3_UINT16>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC3_INT16> getVertexAttributeValues<VertexAttributeType::VEC3_INT16>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC3_FLOAT32> getVertexAttributeValues<VertexAttributeType::VEC3_FLOAT32>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC4_UINT8> getVertexAttributeValues<VertexAttributeType::VEC4_UINT8>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC4_INT8> getVertexAttributeValues<VertexAttributeType::VEC4_INT8>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC4_UINT16> getVertexAttributeValues<VertexAttributeType::VEC4_UINT16>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC4_INT16> getVertexAttributeValues<VertexAttributeType::VEC4_INT16>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC4_FLOAT32> getVertexAttributeValues<VertexAttributeType::VEC4_FLOAT32>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-// clang-format on
-
 const CesiumGltf::ImageCesium*
 getBaseColorTextureImage(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
     if (!hasMaterial(primitive)) {
@@ -573,28 +526,27 @@ const CesiumGltf::ImageCesium* getFeatureIdTextureImage(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     uint64_t featureIdSetIndex) {
-    if (!primitive.hasExtension<CesiumGltf::ExtensionExtMeshFeatures>()) {
+
+    const auto pMeshFeatures = primitive.getExtension<CesiumGltf::ExtensionExtMeshFeatures>();
+    if (!pMeshFeatures) {
         return nullptr;
     }
 
-    const auto& extMeshFeatures = *primitive.getExtension<CesiumGltf::ExtensionExtMeshFeatures>();
-    if (featureIdSetIndex >= extMeshFeatures.featureIds.size()) {
+    const auto pFeatureId = model.getSafe(&pMeshFeatures->featureIds, static_cast<int32_t>(featureIdSetIndex));
+    if (!pFeatureId) {
         return nullptr;
     }
 
-    const auto& featureId = extMeshFeatures.featureIds[featureIdSetIndex];
-    if (!featureId.texture.has_value()) {
+    if (!pFeatureId->texture.has_value()) {
         return nullptr;
     }
 
-    const auto index = featureId.texture.value().index;
-    if (index < 0 || static_cast<size_t>(index) >= model.textures.size()) {
+    const auto featureIdTextureView = CesiumGltf::FeatureIdTextureView(model, pFeatureId->texture.value());
+    if (featureIdTextureView.status() != CesiumGltf::FeatureIdTextureViewStatus::Valid) {
         return nullptr;
     }
 
-    const auto& texture = model.textures[static_cast<size_t>(index)];
-
-    return &getImageCesium(model, texture);
+    return featureIdTextureView.getImage();
 }
 
 MaterialInfo getMaterialInfo(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
@@ -636,12 +588,12 @@ MaterialInfo getMaterialInfo(const CesiumGltf::Model& model, const CesiumGltf::M
 }
 
 FeaturesInfo getFeaturesInfo(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
-    if (!primitive.hasExtension<CesiumGltf::ExtensionExtMeshFeatures>()) {
+    const auto& pMeshFeatures = primitive.getExtension<CesiumGltf::ExtensionExtMeshFeatures>();
+    if (!pMeshFeatures) {
         return {};
     }
 
-    const auto& extMeshFeatures = *primitive.getExtension<CesiumGltf::ExtensionExtMeshFeatures>();
-    const auto& featureIds = extMeshFeatures.featureIds;
+    const auto& featureIds = pMeshFeatures->featureIds;
 
     FeaturesInfo featuresInfo;
     featuresInfo.featureIds.reserve(featureIds.size());
@@ -701,9 +653,9 @@ getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::Mesh
             continue;
         }
 
-        const auto type = getVertexAttributeTypeFromGltf(accessor->type, accessor->componentType);
+        const auto type = getGltfVertexAttributeType(accessor->type, accessor->componentType, accessor->normalized);
 
-        if (!type.has_value()) {
+        if (type == DataType::UNKOWN) {
             continue;
         }
 
@@ -711,7 +663,7 @@ getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::Mesh
         const auto fabricAttributeName = omni::fabric::Token(fabricAttributeNameStr.c_str());
 
         customVertexAttributes.insert(VertexAttributeInfo{
-            type.value(),
+            type,
             fabricAttributeName,
             attributeName,
         });

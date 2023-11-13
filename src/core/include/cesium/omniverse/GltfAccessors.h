@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cesium/omniverse/VertexAttributeType.h"
+#include "cesium/omniverse/DataType.h"
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
@@ -8,6 +8,7 @@
 #endif
 
 #include <CesiumGltf/AccessorView.h>
+#include <CesiumGltf/PropertyAttributePropertyView.h>
 #include <glm/glm.hpp>
 
 #include <gsl/span>
@@ -136,19 +137,37 @@ class FaceVertexCountsAccessor {
     uint64_t _size;
 };
 
-template <VertexAttributeType T> class VertexAttributeAccessor {
+template <DataType T> class VertexAttributeAccessor {
   public:
-    VertexAttributeAccessor();
-    VertexAttributeAccessor(const CesiumGltf::AccessorView<GetNativeType<T>>& view, bool normalized);
+    VertexAttributeAccessor()
+        : _size(0){};
+    VertexAttributeAccessor(const CesiumGltf::AccessorView<GetNativeType<T>>& view)
+        : _view(view)
+        , _size(static_cast<uint64_t>(view.size())) {}
 
-    void fill(const gsl::span<GetFabricType<T>>& values, uint64_t repeat = 1) const;
+    void fill(const gsl::span<GetPrimvarType<T>>& values, uint64_t repeat = 1) const {
+        const auto size = values.size();
+        assert(size == _size * repeat);
 
-    [[nodiscard]] uint64_t size() const;
+        if constexpr (IsNormalized<T>::value) {
+            for (uint64_t i = 0; i < size; i++) {
+                values[i] =
+                    static_cast<GetPrimvarType<T>>(CesiumGltf::normalize(_view[static_cast<int64_t>(i / repeat)]));
+            }
+        } else {
+            for (uint64_t i = 0; i < size; i++) {
+                values[i] = static_cast<GetPrimvarType<T>>(_view[static_cast<int64_t>(i / repeat)]);
+            }
+        }
+    }
+
+    [[nodiscard]] uint64_t size() const {
+        return _size;
+    }
 
   private:
     CesiumGltf::AccessorView<GetNativeType<T>> _view;
     uint64_t _size;
-    bool _normalized;
 };
 
 } // namespace cesium::omniverse

@@ -179,6 +179,8 @@ void FabricResourceManager::releaseSharedMaterial(const std::shared_ptr<FabricMa
 }
 
 std::shared_ptr<FabricMaterial> FabricResourceManager::acquireMaterial(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive,
     const MaterialInfo& materialInfo,
     const FeaturesInfo& featuresInfo,
     uint64_t imageryLayerCount,
@@ -186,7 +188,7 @@ std::shared_ptr<FabricMaterial> FabricResourceManager::acquireMaterial(
     int64_t tilesetId,
     const pxr::SdfPath& tilesetMaterialPath) {
     FabricMaterialDefinition materialDefinition(
-        materialInfo, featuresInfo, imageryLayerCount, _disableTextures, tilesetMaterialPath);
+        model, primitive, materialInfo, featuresInfo, imageryLayerCount, _disableTextures, tilesetMaterialPath);
 
     if (useSharedMaterial(materialDefinition)) {
         return acquireSharedMaterial(materialInfo, materialDefinition, stageId, tilesetId);

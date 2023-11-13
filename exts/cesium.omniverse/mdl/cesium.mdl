@@ -16,6 +16,21 @@ module [[
 annotation annotation_not_connectable();
 
 export const auto DEFAULT_NULL_FEATURE_ID = -1;
+export const auto DEFAULT_PROPERTY_VALUE_BOOL = false;
+export const auto DEFAULT_PROPERTY_VALUE_BOOL2 = bool2(false);
+export const auto DEFAULT_PROPERTY_VALUE_BOOL3 = bool3(false);
+export const auto DEFAULT_PROPERTY_VALUE_BOOL4 = bool4(false);
+export const auto DEFAULT_PROPERTY_VALUE_INT = 0;
+export const auto DEFAULT_PROPERTY_VALUE_INT2 = int2(0);
+export const auto DEFAULT_PROPERTY_VALUE_INT3 = int3(0);
+export const auto DEFAULT_PROPERTY_VALUE_INT4 = int4(0);
+export const auto DEFAULT_PROPERTY_VALUE_FLOAT = 0.0;
+export const auto DEFAULT_PROPERTY_VALUE_FLOAT2 = float2(0.0);
+export const auto DEFAULT_PROPERTY_VALUE_FLOAT3 = float3(0.0);
+export const auto DEFAULT_PROPERTY_VALUE_FLOAT4 = float4(0.0);
+export const auto DEFAULT_PROPERTY_VALUE_FLOAT2x2 = float2x2(0.0);
+export const auto DEFAULT_PROPERTY_VALUE_FLOAT3x3 = float3x3(0.0);
+export const auto DEFAULT_PROPERTY_VALUE_FLOAT4x4 = float4x4(0.0);
 
 export enum up_axis_mode {
     Y,
@@ -112,7 +127,7 @@ export float4 cesium_imagery_layer_float4(
         anno::hidden(),
         annotation_not_connectable()
     ]],
-    int imagery_layer_index = 0
+    uniform int imagery_layer_index = 0
     [[
         anno::unused()
     ]]
@@ -146,6 +161,321 @@ export int cesium_feature_id_int(
 ]]
 {
     return feature_id;
+}
+
+export bool cesium_property_bool(
+    bool property_value = DEFAULT_PROPERTY_VALUE_BOOL
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup bool"),
+    anno::description("Returns the property value. Returns false if the property does not exist or is an incompatible type. Must be a scalar boolean type."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
+export bool2 cesium_property_bool2(
+    bool2 property_value = DEFAULT_PROPERTY_VALUE_BOOL2
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup bool2"),
+    anno::description("Returns the property value. Returns bool2(false) if the property does not exist or is an incompatible type. Must be a 2-component boolean type."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
+export bool3 cesium_property_bool3(
+    bool3 property_value = DEFAULT_PROPERTY_VALUE_BOOL3
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup bool3"),
+    anno::description("Returns the property value. Returns bool3(false) if the property does not exist or is an incompatible type. Must be a 3-component boolean type."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
+export bool4 cesium_property_bool4(
+    bool4 property_value = DEFAULT_PROPERTY_VALUE_BOOL4
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup bool4"),
+    anno::description("Returns the property value. Returns bool4(false) if the property does not exist or is an incompatible type. Must be a 4-component boolean type."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
+export int cesium_property_int(
+    int property_value = DEFAULT_PROPERTY_VALUE_INT
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup int"),
+    anno::description("Returns the property value. Returns 0 if the property does not exist or is an incompatible type. Must be a scalar unnormalized integer or enum type. Values that exceed the 32-bit signed integer range are clamped.
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
+export int2 cesium_property_int2(
+    int2 property_value = DEFAULT_PROPERTY_VALUE_INT2
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup int2"),
+    anno::description("Returns the property value. Returns int2(0) if the property does not exist or is an incompatible type. Must be a 2-component unnormalized integer or enum type. Values that exceed the 32-bit signed integer range are clamped.
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
+export int3 cesium_property_int3(
+    int3 property_value = DEFAULT_PROPERTY_VALUE_INT3
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup int3"),
+    anno::description("Returns the property value. Returns int3(0) if the property does not exist or is an incompatible type. Must be a 3-component unnormalized integer or enum type. Values that exceed the 32-bit signed integer range are clamped.
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
+export int4 cesium_property_int4(
+    int4 property_value = DEFAULT_PROPERTY_VALUE_INT4
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup int4"),
+    anno::description("Returns the property value. Returns int4(0) if the property does not exist or is an incompatible type. Must be a 4-component unnormalized integer or enum type. Values that exceed the 32-bit signed integer range are clamped.
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
+export float cesium_property_float(
+    float property_value = DEFAULT_PROPERTY_VALUE_FLOAT
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup float"),
+    anno::description("Returns the property value. Returns 0.0 if the property does not exist or is an incompatible type. Must be a scalar floating point or normalized integer type. 64-bit floating point values are converted to 32-bit floating point values."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
+export float2 cesium_property_float2(
+    float2 property_value = DEFAULT_PROPERTY_VALUE_FLOAT2
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup float2"),
+    anno::description("Returns the property value. Returns float2(0.0) if the property does not exist or is an incompatible type. Must be a 2-component floating point or normalized integer type. 64-bit floating point values are converted to 32-bit floating point values."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
+export float3 cesium_property_float3(
+    float3 property_value = DEFAULT_PROPERTY_VALUE_FLOAT3
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup float3"),
+    anno::description("Returns the property value. Returns float3(0.0) if the property does not exist or is an incompatible type. Must be a 3-component floating point or normalized integer type. 64-bit floating point values are converted to 32-bit floating point values."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
+export float4 cesium_property_float4(
+    float4 property_value = DEFAULT_PROPERTY_VALUE_FLOAT4
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup float4"),
+    anno::description("Returns the property value. Returns float4(0.0) if the property does not exist or is an incompatible type. Must be a 4-component floating point or normalized integer type. 64-bit floating point values are converted to 32-bit floating point values."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
+export float2x2 cesium_property_float2x2(
+    float2x2 property_value = DEFAULT_PROPERTY_VALUE_FLOAT2x2
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup float2x2"),
+    anno::description("Returns the property value. Returns float2x2(0.0) if the property does not exist or is an incompatible type. Must be a MAT2 floating point or normalized integer type. 64-bit floating point values are converted to 32-bit floating point values."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
+export float3x3 cesium_property_float3x3(
+    float3x3 property_value = DEFAULT_PROPERTY_VALUE_FLOAT3x3
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup float3x3"),
+    anno::description("Returns the property value. Returns float3x3(0.0) if the property does not exist or is an incompatible type. Must be a MAT3 floating point or normalized integer type. 64-bit floating point values are converted to 32-bit floating point values."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
+export float4x4 cesium_property_float4x4(
+    float4x4 property_value = DEFAULT_PROPERTY_VALUE_FLOAT4x4
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup float4x4"),
+    anno::description("Returns the property value. Returns float4x4(0.0) if the property does not exist or is an incompatible type. Must be a MAT4 floating point or normalized integer type. 64-bit floating point values are converted to 32-bit floating point values."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
 }
 
 export material cesium_material(
@@ -409,6 +739,55 @@ export int cesium_internal_feature_id_attribute_lookup(
     // the triangle surface. The fix is to read the primvar as a float, round the value, and cast to int.
     auto feature_id = int(::math::round(::scene::data_lookup_float(feature_id_primvar_name)));
     return feature_id == null_feature_id ? DEFAULT_NULL_FEATURE_ID : feature_id;
+}
+
+export int cesium_internal_property_attribute_int_lookup(
+    uniform string primvar_name
+) [[ anno::hidden() ]] {
+    // See note in DataType.h for why these are data_lookup_float instead of data_lookup_int
+    return int(::math::round(::scene::data_lookup_float(primvar_name)));
+}
+
+export int2 cesium_internal_property_attribute_int2_lookup(
+    uniform string primvar_name
+) [[ anno::hidden() ]] {
+    return int2(::math::round(::scene::data_lookup_float2(primvar_name)));
+}
+
+export int3 cesium_internal_property_attribute_int3_lookup(
+    uniform string primvar_name
+) [[ anno::hidden() ]] {
+    return int3(::math::round(::scene::data_lookup_float3(primvar_name)));
+}
+
+export int4 cesium_internal_property_attribute_int4_lookup(
+    uniform string primvar_name
+) [[ anno::hidden() ]] {
+    return int4(::math::round(::scene::data_lookup_float4(primvar_name)));
+}
+
+export float cesium_internal_property_attribute_float_lookup(
+    uniform string primvar_name
+) [[ anno::hidden() ]] {
+    return ::scene::data_lookup_float(primvar_name);
+}
+
+export float2 cesium_internal_property_attribute_float2_lookup(
+    uniform string primvar_name
+) [[ anno::hidden() ]] {
+    return ::scene::data_lookup_float2(primvar_name);
+}
+
+export float3 cesium_internal_property_attribute_float3_lookup(
+    uniform string primvar_name
+) [[ anno::hidden() ]] {
+    return ::scene::data_lookup_float3(primvar_name);
+}
+
+export float4 cesium_internal_property_attribute_float4_lookup(
+    uniform string primvar_name
+) [[ anno::hidden() ]] {
+    return ::scene::data_lookup_float4(primvar_name);
 }
 
 export gltf_texture_lookup_value cesium_internal_texture_lookup(*) [[ anno::hidden() ]] = gltf_texture_lookup();

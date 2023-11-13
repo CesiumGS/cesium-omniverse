@@ -139,7 +139,14 @@ std::vector<FabricMesh> acquireFabricMeshes(
             const auto materialInfo = GltfUtil::getMaterialInfo(model, primitive);
 
             const auto fabricMaterial = fabricResourceManager.acquireMaterial(
-                materialInfo, featuresInfo, imageryLayerCount, stageId, tileset.getTilesetId(), tilesetMaterialPath);
+                model,
+                primitive,
+                materialInfo,
+                featuresInfo,
+                imageryLayerCount,
+                stageId,
+                tileset.getTilesetId(),
+                tilesetMaterialPath);
 
             fabricMesh.material = fabricMaterial;
             fabricMesh.materialInfo = materialInfo;

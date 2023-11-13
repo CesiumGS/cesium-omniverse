@@ -12,6 +12,8 @@ namespace cesium::omniverse {
 class FabricMaterialDefinition {
   public:
     FabricMaterialDefinition(
+        const CesiumGltf::Model& model,
+        const CesiumGltf::MeshPrimitive& primitive,
         const MaterialInfo& materialInfo,
         const FeaturesInfo& featuresInfo,
         uint64_t imageryLayerCount,
@@ -34,6 +36,8 @@ class FabricMaterialDefinition {
     std::vector<FeatureIdType> _featureIdTypes;
     uint64_t _imageryLayerCount;
     pxr::SdfPath _tilesetMaterialPath;
+    std::vector<DataType> _mdlPropertyAttributeTypes;
+    std::vector<DataType> _mdlPropertyTextureTypes;
 };
 
 } // namespace cesium::omniverse

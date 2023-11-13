@@ -1,7 +1,7 @@
 #pragma once
 
+#include "cesium/omniverse/DataType.h"
 #include "cesium/omniverse/GltfAccessors.h"
-#include "cesium/omniverse/VertexAttributeType.h"
 
 #include <CesiumGltf/Accessor.h>
 #include <glm/glm.hpp>
@@ -78,7 +78,7 @@ std::vector<uint64_t> getSetIndexMapping(const FeaturesInfo& featuresInfo, Featu
 bool hasFeatureIdType(const FeaturesInfo& featuresInfo, FeatureIdType type);
 
 struct VertexAttributeInfo {
-    VertexAttributeType type;
+    DataType type;
     omni::fabric::Token fabricAttributeName;
     std::string gltfAttributeName;
 
@@ -121,11 +121,30 @@ getVertexColors(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive&
 
 VertexIdsAccessor getVertexIds(const PositionsAccessor& positionsAccessor);
 
-template <VertexAttributeType T>
+template <DataType T>
 VertexAttributeAccessor<T> getVertexAttributeValues(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
-    const std::string& attributeName);
+    const std::string& attributeName) {
+
+    const auto attribute = primitive.attributes.find(attributeName);
+    if (attribute == primitive.attributes.end()) {
+        return {};
+    }
+
+    auto accessor = model.getSafe<CesiumGltf::Accessor>(&model.accessors, attribute->second);
+    if (!accessor) {
+        return {};
+    }
+
+    auto view = CesiumGltf::AccessorView<GetNativeType<T>>(model, *accessor);
+
+    if (view.status() != CesiumGltf::AccessorViewStatus::Valid) {
+        return {};
+    }
+
+    return VertexAttributeAccessor<T>(view);
+}
 
 const CesiumGltf::ImageCesium*
 getBaseColorTextureImage(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);

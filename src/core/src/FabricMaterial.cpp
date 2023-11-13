@@ -246,6 +246,7 @@ void FabricMaterial::initializeNodes() {
     const auto& featureIdTypes = _materialDefinition.getFeatureIdTypes();
     const auto featureIdCounts = getFeatureIdCounts(_materialDefinition);
     _featureIdPaths.reserve(featureIdCounts.totalCount);
+    _featureIdIndexPaths.reserve(featureIdCounts.indexCount);
     _featureIdAttributePaths.reserve(featureIdCounts.attributeCount);
     _featureIdTexturePaths.reserve(featureIdCounts.textureCount);
 
