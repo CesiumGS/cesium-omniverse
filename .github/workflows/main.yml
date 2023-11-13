@@ -6,6 +6,9 @@ concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  PACKMAN_ROOT: $GITHUB_WORKSPACE/packman-repo
+
 jobs:
   build:
     name: ${{ matrix.config.name }}
