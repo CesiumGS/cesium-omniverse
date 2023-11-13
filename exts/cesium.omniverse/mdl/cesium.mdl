@@ -31,6 +31,14 @@ export const auto DEFAULT_PROPERTY_VALUE_FLOAT4 = float4(0.0);
 export const auto DEFAULT_PROPERTY_VALUE_FLOAT2x2 = float2x2(0.0);
 export const auto DEFAULT_PROPERTY_VALUE_FLOAT3x3 = float3x3(0.0);
 export const auto DEFAULT_PROPERTY_VALUE_FLOAT4x4 = float4x4(0.0);
+const auto DEFAULT_OFFSET_FLOAT = 0.0;
+const auto DEFAULT_OFFSET_FLOAT2 = float2(0.0);
+const auto DEFAULT_OFFSET_FLOAT3 = float3(0.0);
+const auto DEFAULT_OFFSET_FLOAT4 = float4(0.0);
+const auto DEFAULT_SCALE_FLOAT = 1.0;
+const auto DEFAULT_SCALE_FLOAT2 = float2(1.0);
+const auto DEFAULT_SCALE_FLOAT3 = float3(1.0);
+const auto DEFAULT_SCALE_FLOAT4 = float4(1.0);
 
 export enum up_axis_mode {
     Y,
@@ -731,13 +739,13 @@ export int cesium_internal_feature_id_texture_lookup(
 }
 
 export int cesium_internal_feature_id_attribute_lookup(
-    uniform string feature_id_primvar_name,
+    uniform string primvar_name,
     uniform int null_feature_id = DEFAULT_NULL_FEATURE_ID
 ) [[ anno::hidden() ]] {
     // Even if all feature ids in a triangle are the same value, the primvar interpolation math can yield non integer
     // results (e.g. 0.99999999 or 1.00000001), which when accessed as ints (i.e. floored) can cause variance across
     // the triangle surface. The fix is to read the primvar as a float, round the value, and cast to int.
-    auto feature_id = int(::math::round(::scene::data_lookup_float(feature_id_primvar_name)));
+    auto feature_id = int(::math::round(::scene::data_lookup_float(primvar_name)));
     return feature_id == null_feature_id ? DEFAULT_NULL_FEATURE_ID : feature_id;
 }
 
@@ -767,27 +775,35 @@ export int4 cesium_internal_property_attribute_int4_lookup(
 }
 
 export float cesium_internal_property_attribute_float_lookup(
-    uniform string primvar_name
+    uniform string primvar_name,
+    uniform float offset = DEFAULT_OFFSET_FLOAT,
+    uniform float scale = DEFAULT_SCALE_FLOAT
 ) [[ anno::hidden() ]] {
-    return ::scene::data_lookup_float(primvar_name);
+    return ::scene::data_lookup_float(primvar_name) * scale + offset;
 }
 
 export float2 cesium_internal_property_attribute_float2_lookup(
-    uniform string primvar_name
+    uniform string primvar_name,
+    uniform float offset = DEFAULT_OFFSET_FLOAT2,
+    uniform float scale = DEFAULT_SCALE_FLOAT2
 ) [[ anno::hidden() ]] {
-    return ::scene::data_lookup_float2(primvar_name);
+    return ::scene::data_lookup_float2(primvar_name) * scale + offset;
 }
 
 export float3 cesium_internal_property_attribute_float3_lookup(
-    uniform string primvar_name
+    uniform string primvar_name,
+    uniform float offset = DEFAULT_OFFSET_FLOAT3,
+    uniform float scale = DEFAULT_SCALE_FLOAT3
 ) [[ anno::hidden() ]] {
-    return ::scene::data_lookup_float3(primvar_name);
+    return ::scene::data_lookup_float3(primvar_name) * scale + offset;
 }
 
 export float4 cesium_internal_property_attribute_float4_lookup(
-    uniform string primvar_name
+    uniform string primvar_name,
+    uniform float offset = DEFAULT_OFFSET_FLOAT4,
+    uniform float scale = DEFAULT_SCALE_FLOAT4
 ) [[ anno::hidden() ]] {
-    return ::scene::data_lookup_float4(primvar_name);
+    return ::scene::data_lookup_float4(primvar_name) * scale + offset;
 }
 
 export gltf_texture_lookup_value cesium_internal_texture_lookup(*) [[ anno::hidden() ]] = gltf_texture_lookup();

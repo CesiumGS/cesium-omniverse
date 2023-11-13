@@ -270,6 +270,54 @@ void FabricMaterial::initializeNodes() {
         _featureIdPaths.push_back(featureIdPath);
         _allPaths.push_back(featureIdPath);
     }
+
+    // Create property attributes
+    const auto& propertyAttributeTypes = _materialDefinition.getMdlPropertyAttributeTypes();
+    const auto propertyAttributesCount = propertyAttributeTypes.size();
+    _propertyAttributePaths.reserve(propertyAttributesCount);
+
+    for (uint64_t i = 0; i < propertyAttributesCount; i++) {
+        const auto type = propertyAttributeTypes[i];
+        const auto propertyAttributePath = FabricUtil::joinPaths(_materialPath, FabricTokens::getPropertyToken(i));
+
+        switch (type) {
+            case DataType::INT32:
+                createPropertyAttributeInt(propertyAttributePath);
+                break;
+            case DataType::VEC2_INT32:
+                createPropertyAttributeInt2(propertyAttributePath);
+                break;
+            case DataType::VEC3_INT32:
+                createPropertyAttributeInt3(propertyAttributePath);
+                break;
+            case DataType::VEC4_INT32:
+                createPropertyAttributeInt4(propertyAttributePath);
+                break;
+            case DataType::FLOAT32:
+                createPropertyAttributeFloat(propertyAttributePath);
+                break;
+            case DataType::VEC2_FLOAT32:
+                createPropertyAttributeFloat2(propertyAttributePath);
+                break;
+            case DataType::VEC3_FLOAT32:
+                createPropertyAttributeFloat3(propertyAttributePath);
+                break;
+            case DataType::VEC4_FLOAT32:
+                createPropertyAttributeFloat4(propertyAttributePath);
+                break;
+            default:
+                // Invalid property type
+                assert(false);
+                break;
+        }
+
+        _propertyAttributePaths.push_back(propertyAttributePath);
+    }
+
+    // Create property textures
+    const auto& propertyTextureTypes = _materialDefinition.getMdlPropertyTextureTypes();
+    const auto propertyTexturesCount = propertyTextureTypes.size();
+    _propertyTexturePaths.reserve(propertyTexturesCount);
 }
 
 void FabricMaterial::initializeDefaultMaterial() {
@@ -459,7 +507,7 @@ void FabricMaterial::createFeatureIdAttribute(const omni::fabric::Path& path) {
 
     FabricAttributesBuilder attributes;
 
-    attributes.addAttribute(FabricTypes::inputs_feature_id_primvar_name, FabricTokens::inputs_feature_id_primvar_name);
+    attributes.addAttribute(FabricTypes::inputs_primvar_name, FabricTokens::inputs_primvar_name);
     attributes.addAttribute(FabricTypes::inputs_null_feature_id, FabricTokens::inputs_null_feature_id);
 
     createAttributes(srw, path, attributes, FabricTokens::cesium_internal_feature_id_attribute_lookup);
@@ -473,6 +521,79 @@ void FabricMaterial::createFeatureIdTexture(const omni::fabric::Path& path) {
     }};
 
     return createTextureCommon(path, FabricTokens::cesium_internal_feature_id_texture_lookup, additionalAttributes);
+}
+
+void FabricMaterial::createPropertyAttributeIntCommon(
+    const omni::fabric::Path& path,
+    const omni::fabric::Token& subidentifier) {
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+    srw.createPrim(path);
+    FabricAttributesBuilder attributes;
+    attributes.addAttribute(FabricTypes::inputs_primvar_name, FabricTokens::inputs_primvar_name);
+    createAttributes(srw, path, attributes, subidentifier);
+}
+
+void FabricMaterial::createPropertyAttributeInt(const omni::fabric::Path& path) {
+    createPropertyAttributeIntCommon(path, FabricTokens::cesium_internal_property_attribute_int_lookup);
+}
+
+void FabricMaterial::createPropertyAttributeInt2(const omni::fabric::Path& path) {
+    createPropertyAttributeIntCommon(path, FabricTokens::cesium_internal_property_attribute_int2_lookup);
+}
+
+void FabricMaterial::createPropertyAttributeInt3(const omni::fabric::Path& path) {
+    createPropertyAttributeIntCommon(path, FabricTokens::cesium_internal_property_attribute_int3_lookup);
+}
+
+void FabricMaterial::createPropertyAttributeInt4(const omni::fabric::Path& path) {
+    createPropertyAttributeIntCommon(path, FabricTokens::cesium_internal_property_attribute_int4_lookup);
+}
+
+void FabricMaterial::createPropertyAttributeFloatCommon(
+    const omni::fabric::Path& path,
+    const omni::fabric::Token& subidentifier,
+    const omni::fabric::Type& offsetType,
+    const omni::fabric::Type& scaleType) {
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+    srw.createPrim(path);
+    FabricAttributesBuilder attributes;
+    attributes.addAttribute(FabricTypes::inputs_primvar_name, FabricTokens::inputs_primvar_name);
+    attributes.addAttribute(offsetType, FabricTokens::inputs_offset);
+    attributes.addAttribute(scaleType, FabricTokens::inputs_scale);
+
+    createAttributes(srw, path, attributes, subidentifier);
+}
+
+void FabricMaterial::createPropertyAttributeFloat(const omni::fabric::Path& path) {
+    createPropertyAttributeFloatCommon(
+        path,
+        FabricTokens::cesium_internal_property_attribute_float_lookup,
+        FabricTypes::inputs_offset_float,
+        FabricTypes::inputs_scale_float);
+}
+
+void FabricMaterial::createPropertyAttributeFloat2(const omni::fabric::Path& path) {
+    createPropertyAttributeFloatCommon(
+        path,
+        FabricTokens::cesium_internal_property_attribute_float2_lookup,
+        FabricTypes::inputs_offset_float2,
+        FabricTypes::inputs_scale_float2);
+}
+
+void FabricMaterial::createPropertyAttributeFloat3(const omni::fabric::Path& path) {
+    createPropertyAttributeFloatCommon(
+        path,
+        FabricTokens::cesium_internal_property_attribute_float3_lookup,
+        FabricTypes::inputs_offset_float3,
+        FabricTypes::inputs_scale_float3);
+}
+
+void FabricMaterial::createPropertyAttributeFloat4(const omni::fabric::Path& path) {
+    createPropertyAttributeFloatCommon(
+        path,
+        FabricTokens::cesium_internal_property_attribute_float4_lookup,
+        FabricTypes::inputs_offset_float4,
+        FabricTypes::inputs_scale_float4);
 }
 
 void FabricMaterial::reset() {
@@ -789,8 +910,8 @@ void FabricMaterial::setFeatureIdAttributeValues(
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
     const auto primvarNameSize = primvarName.size();
-    srw.setArrayAttributeSize(path, FabricTokens::inputs_feature_id_primvar_name, primvarNameSize);
-    auto primvarNameFabric = srw.getArrayAttributeWr<uint8_t>(path, FabricTokens::inputs_feature_id_primvar_name);
+    srw.setArrayAttributeSize(path, FabricTokens::inputs_primvar_name, primvarNameSize);
+    auto primvarNameFabric = srw.getArrayAttributeWr<uint8_t>(path, FabricTokens::inputs_primvar_name);
     memcpy(primvarNameFabric.data(), primvarName.data(), primvarNameSize);
 
     auto nullFeatureIdFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_null_feature_id);

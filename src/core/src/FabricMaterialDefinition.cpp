@@ -32,7 +32,7 @@ std::vector<FeatureIdType> filterFeatureIdTypes(const FeaturesInfo& featuresInfo
 }
 
 std::vector<DataType>
-getMdlPropertyAttributeTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+gatherMdlPropertyAttributeTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
     std::vector<DataType> mdlPropertyTypes;
 
     const auto pStructuralMetadataPrimitive =
@@ -57,7 +57,8 @@ getMdlPropertyAttributeTypes(const CesiumGltf::Model& model, const CesiumGltf::M
         const auto propertyAttributeView = CesiumGltf::PropertyAttributeView(model, *pPropertyAttribute);
         if (propertyAttributeView.status() != CesiumGltf::PropertyAttributeViewStatus::Valid) {
             CESIUM_LOG_WARN(
-                "Property attribute is invalid and will be ignored. Status code: {}", propertyAttributeView.status());
+                "Property attribute is invalid and will be ignored. Status code: {}",
+                static_cast<int>(propertyAttributeView.status()));
             continue;
         }
 
@@ -65,7 +66,9 @@ getMdlPropertyAttributeTypes(const CesiumGltf::Model& model, const CesiumGltf::M
             primitive, [&mdlPropertyTypes]([[maybe_unused]] const std::string& propertyName, auto view) {
                 if (view.status() != CesiumGltf::PropertyAttributePropertyViewStatus::Valid) {
                     CESIUM_LOG_WARN(
-                        "Property \"{}\" is invalid and will be ignored. Status code: {}", propertyName, view.status());
+                        "Property \"{}\" is invalid and will be ignored. Status code: {}",
+                        propertyName,
+                        static_cast<int>(view.status()));
                     return;
                 }
 
@@ -101,7 +104,7 @@ template <typename> constexpr bool hasMemberImpl(...) {
 #define HAS_MEMBER(T, EXPR) hasMemberImpl<T>([](auto&& obj) -> decltype(obj.EXPR) {})
 
 std::vector<DataType>
-getMdlPropertyTextureTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+gatherMdlPropertyTextureTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
     std::vector<DataType> mdlPropertyTypes;
 
     const auto pStructuralMetadataPrimitive =
@@ -126,7 +129,8 @@ getMdlPropertyTextureTypes(const CesiumGltf::Model& model, const CesiumGltf::Mes
         const auto propertyTextureView = CesiumGltf::PropertyTextureView(model, *pPropertyTexture);
         if (propertyTextureView.status() != CesiumGltf::PropertyTextureViewStatus::Valid) {
             CESIUM_LOG_WARN(
-                "Property texture is invalid and will be ignored. Status code: {}", propertyTextureView.status());
+                "Property texture is invalid and will be ignored. Status code: {}",
+                static_cast<int>(propertyTextureView.status()));
 
             continue;
         }
@@ -135,7 +139,9 @@ getMdlPropertyTextureTypes(const CesiumGltf::Model& model, const CesiumGltf::Mes
             [&mdlPropertyTypes]([[maybe_unused]] const std::string& propertyName, auto view) {
                 if (view.status() != CesiumGltf::PropertyTexturePropertyViewStatus::Valid) {
                     CESIUM_LOG_WARN(
-                        "Property \"{}\" is invalid and will be ignored. Status code: {}", propertyName, view.status());
+                        "Property \"{}\" is invalid and will be ignored. Status code: {}",
+                        propertyName,
+                        static_cast<int>(view.status()));
                     return;
                 }
 
@@ -216,8 +222,8 @@ FabricMaterialDefinition::FabricMaterialDefinition(
     , _featureIdTypes(filterFeatureIdTypes(featuresInfo, disableTextures))
     , _imageryLayerCount(disableTextures ? 0 : imageryLayerCount)
     , _tilesetMaterialPath(tilesetMaterialPath)
-    , _mdlPropertyAttributeTypes(getMdlPropertyAttributeTypes(model, primitive))
-    , _mdlPropertyTextureTypes(getMdlPropertyTextureTypes(model, primitive)) {}
+    , _mdlPropertyAttributeTypes(gatherMdlPropertyAttributeTypes(model, primitive))
+    , _mdlPropertyTextureTypes(gatherMdlPropertyTextureTypes(model, primitive)) {}
 
 bool FabricMaterialDefinition::hasVertexColors() const {
     return _hasVertexColors;
@@ -241,6 +247,14 @@ bool FabricMaterialDefinition::hasTilesetMaterial() const {
 
 const pxr::SdfPath& FabricMaterialDefinition::getTilesetMaterialPath() const {
     return _tilesetMaterialPath;
+}
+
+const std::vector<DataType>& FabricMaterialDefinition::getMdlPropertyAttributeTypes() const {
+    return _mdlPropertyAttributeTypes;
+}
+
+const std::vector<DataType>& FabricMaterialDefinition::getMdlPropertyTextureTypes() const {
+    return _mdlPropertyTextureTypes;
 }
 
 // In C++ 20 we can use the default equality comparison (= default)

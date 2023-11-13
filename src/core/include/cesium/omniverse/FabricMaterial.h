@@ -78,6 +78,20 @@ class FabricMaterial {
     void createFeatureIdIndex(const omni::fabric::Path& path);
     void createFeatureIdAttribute(const omni::fabric::Path& path);
     void createFeatureIdTexture(const omni::fabric::Path& path);
+    void createPropertyAttributeIntCommon(const omni::fabric::Path& path, const omni::fabric::Token& subidentifier);
+    void createPropertyAttributeInt(const omni::fabric::Path& path);
+    void createPropertyAttributeInt2(const omni::fabric::Path& path);
+    void createPropertyAttributeInt3(const omni::fabric::Path& path);
+    void createPropertyAttributeInt4(const omni::fabric::Path& path);
+    void createPropertyAttributeFloatCommon(
+        const omni::fabric::Path& path,
+        const omni::fabric::Token& subidentifier,
+        const omni::fabric::Type& offsetType,
+        const omni::fabric::Type& scaleType);
+    void createPropertyAttributeFloat(const omni::fabric::Path& path);
+    void createPropertyAttributeFloat2(const omni::fabric::Path& path);
+    void createPropertyAttributeFloat3(const omni::fabric::Path& path);
+    void createPropertyAttributeFloat4(const omni::fabric::Path& path);
 
     void reset();
 
@@ -135,6 +149,8 @@ class FabricMaterial {
     std::vector<omni::fabric::Path> _featureIdIndexPaths;
     std::vector<omni::fabric::Path> _featureIdAttributePaths;
     std::vector<omni::fabric::Path> _featureIdTexturePaths;
+    std::vector<omni::fabric::Path> _propertyAttributePaths;
+    std::vector<omni::fabric::Path> _propertyTexturePaths;
 
     std::vector<omni::fabric::Path> _allPaths;
 };

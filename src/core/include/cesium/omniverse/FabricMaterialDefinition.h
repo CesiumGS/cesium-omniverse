@@ -26,6 +26,8 @@ class FabricMaterialDefinition {
     [[nodiscard]] uint64_t getImageryLayerCount() const;
     [[nodiscard]] bool hasTilesetMaterial() const;
     [[nodiscard]] const pxr::SdfPath& getTilesetMaterialPath() const;
+    [[nodiscard]] const std::vector<DataType>& getMdlPropertyAttributeTypes() const;
+    [[nodiscard]] const std::vector<DataType>& getMdlPropertyTextureTypes() const;
 
     // Make sure to update this function when adding new fields to the class
     bool operator==(const FabricMaterialDefinition& other) const;
