@@ -720,8 +720,8 @@ getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::Mesh
     return customVertexAttributes;
 }
 
-MaterialInfo getDefaultMaterialInfo() {
-    return {
+const MaterialInfo& getDefaultMaterialInfo() {
+    static const auto defaultInfo = MaterialInfo{
         getDefaultAlphaCutoff(),
         getDefaultAlphaMode(),
         getDefaultBaseAlpha(),
@@ -733,10 +733,12 @@ MaterialInfo getDefaultMaterialInfo() {
         false,
         std::nullopt,
     };
+
+    return defaultInfo;
 }
 
-TextureInfo getDefaultTextureInfo() {
-    return {
+const TextureInfo& getDefaultTextureInfo() {
+    static const auto defaultInfo = TextureInfo{
         getDefaultTexcoordOffset(),
         getDefaultTexcoordRotation(),
         getDefaultTexcoordScale(),
@@ -744,7 +746,10 @@ TextureInfo getDefaultTextureInfo() {
         getDefaultWrapS(),
         getDefaultWrapT(),
         true,
+        {},
     };
+
+    return defaultInfo;
 }
 
 bool hasNormals(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, bool smoothNormals) {
