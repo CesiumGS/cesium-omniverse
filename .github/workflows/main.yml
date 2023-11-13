@@ -86,8 +86,8 @@ jobs:
         id: packman-cache
         uses: actions/cache@v3
         with:
-          path: extern/nvidia/_build
-          key: packman-${{ matrix.config.name }}-${{ hashFiles('extern/nvidia/deps/kit-sdk.packman.xml', 'extern/nvidia/deps/target-deps.packman.xml') }}-v1
+          path: ${{ env.PACKMAN_ROOT }}
+          key: packman-${{ matrix.config.name }}-${{ hashFiles('extern/nvidia/deps/kit-sdk.packman.xml', 'extern/nvidia/deps/target-deps.packman.xml') }}
 
       - name: AlmaLinux Build with Docker
         uses: ./.github/actions
