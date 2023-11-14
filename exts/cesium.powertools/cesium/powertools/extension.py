@@ -8,7 +8,6 @@ import omni.kit.ui
 from .powertools_window import CesiumPowertoolsWindow
 from cesium.omniverse.utils import wait_n_frames, dock_window_async
 from cesium.omniverse.install import WheelInfo, WheelInstaller
-from cesium.omniverse.bindings import acquire_cesium_omniverse_interface, release_cesium_omniverse_interface
 
 
 class CesiumPowertoolsExtension(omni.ext.IExt):
@@ -24,20 +23,11 @@ class CesiumPowertoolsExtension(omni.ext.IExt):
     def on_startup(self):
         self._logger.info("Starting Cesium Power Tools...")
 
-        global _cesium_omniverse_interface
-        _cesium_omniverse_interface = acquire_cesium_omniverse_interface()
-
         self._setup_menus()
         self._show_and_dock_startup_windows()
 
-        # settings = carb.settings.get_settings()
-        # if (settings.get("/app/runProfilingScenes")):
-        #     # wait several seconds for Omniverse to load before running the first test
-        #     asyncio.ensure_future(perform_action_after_n_frames_async(120, run_profiling_suite))
-
     def on_shutdown(self):
         self._destroy_powertools_window()
-        release_cesium_omniverse_interface(_cesium_omniverse_interface)
 
     def _setup_menus(self):
         ui.Workspace.set_show_window_fn(
@@ -77,7 +67,7 @@ class CesiumPowertoolsExtension(omni.ext.IExt):
 
     def _show_powertools_window(self, _menu, value):
         if value:
-            self._powertools_window = CesiumPowertoolsWindow(_cesium_omniverse_interface, width=300, height=400)
+            self._powertools_window = CesiumPowertoolsWindow(width=300, height=400)
             self._powertools_window.set_visibility_changed_fn(
                 partial(self._visibility_changed_fn, CesiumPowertoolsWindow.MENU_PATH)
             )
