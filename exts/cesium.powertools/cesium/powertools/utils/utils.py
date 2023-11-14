@@ -1,6 +1,5 @@
 import omni.usd
-from omni.kit.viewport.utility import get_active_viewport
-from pxr import Gf, UsdGeom, Sdf
+from pxr import Sdf
 import json
 import carb.settings
 import os
@@ -31,17 +30,6 @@ class ScopedEdit:
         if self.__edit_target:
             self.__stage.SetEditTarget(self.__edit_target)
             self.__edit_target = None
-
-
-def extend_far_plane():
-    stage = omni.usd.get_context().get_stage()
-    viewport = get_active_viewport()
-    camera_path = viewport.get_active_camera()
-    camera = UsdGeom.Camera.Get(stage, camera_path)
-    assert camera.GetPrim().IsValid()
-
-    scoped_edit = ScopedEdit(stage)  # noqa: F841
-    camera.GetClippingRangeAttr().Set(Gf.Vec2f(1.0, 10000000000.0))
 
 
 def save_carb_settings(powertools_extension_location: str):

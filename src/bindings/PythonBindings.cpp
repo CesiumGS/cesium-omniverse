@@ -59,7 +59,9 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("credits_start_next_frame", &ICesiumOmniverseInterface::creditsStartNextFrame)
         .def("is_tracing_enabled", &ICesiumOmniverseInterface::isTracingEnabled)
         .def("add_global_anchor_to_prim", py::overload_cast<const char*>(&ICesiumOmniverseInterface::addGlobeAnchorToPrim))
-        .def("add_global_anchor_to_prim", py::overload_cast<const char*, double, double, double>(&ICesiumOmniverseInterface::addGlobeAnchorToPrim));
+        .def("add_global_anchor_to_prim", py::overload_cast<const char*, double, double, double>(&ICesiumOmniverseInterface::addGlobeAnchorToPrim))
+        .def("initialize_profiling", &ICesiumOmniverseInterface::initializeProfiling)
+        .def("shut_down_profiling", &ICesiumOmniverseInterface::shutDownProfiling);
     // clang-format on
 
     py::class_<CesiumIonSession, std::shared_ptr<CesiumIonSession>>(m, "CesiumIonSession")

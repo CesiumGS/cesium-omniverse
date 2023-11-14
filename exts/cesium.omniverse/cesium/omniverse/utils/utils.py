@@ -1,7 +1,9 @@
 from typing import Optional, Callable
+from pxr import Gf, UsdGeom
 import omni.usd
 import omni.kit
 import omni.ui as ui
+from omni.kit.viewport.utility import get_active_viewport
 
 
 async def wait_n_frames(n: int) -> None:
@@ -35,3 +37,14 @@ def str_is_empty_or_none(s: Optional[str]) -> bool:
         return True
 
     return False
+
+
+def extend_far_plane():
+    stage = omni.usd.get_context().get_stage()
+    viewport = get_active_viewport()
+    camera_path = viewport.get_active_camera()
+    camera = UsdGeom.Camera.Get(stage, camera_path)
+    assert camera.GetPrim().IsValid()
+
+    scoped_edit = ScopedEdit(stage)  # noqa: F841
+    camera.GetClippingRangeAttr().Set(Gf.Vec2f(1.0, 10000000000.0))

@@ -7,6 +7,7 @@
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/OmniTileset.h"
+#include "cesium/omniverse/Profiler.h"
 #include "cesium/omniverse/UsdUtil.h"
 #include "cesium/omniverse/Viewport.h"
 
@@ -155,6 +156,14 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
 #else
         return false;
 #endif
+    }
+
+    void initializeProfiling(const char* path) noexcept override {
+        Profiler::getInstance().initializeProfiling(path);
+    }
+
+    void shutDownProfiling() noexcept override {
+        Profiler::getInstance().shutDownProfiling();
     }
 };
 } // namespace cesium::omniverse

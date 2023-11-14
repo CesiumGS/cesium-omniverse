@@ -6,6 +6,7 @@ from .georefhelper.georef_helper_window import CesiumGeorefHelperWindow
 from .utils import extend_far_plane, save_carb_settings, save_fabric_stage, set_sunstudy_from_georef
 import os
 from functools import partial
+from cesium.omniverse.bindings import ICesiumOmniverseInterface
 
 powertools_extension_location = os.path.join(os.path.dirname(__file__), "../../")
 
@@ -32,10 +33,11 @@ class CesiumPowertoolsWindow(ui.Window):
     WINDOW_NAME = "Cesium Power Tools"
     MENU_PATH = f"Window/Cesium/{WINDOW_NAME}"
 
-    def __init__(self, **kwargs):
+    def __init__(self, cesium_omniverse_interface: ICesiumOmniverseInterface, **kwargs):
         super().__init__(CesiumPowertoolsWindow.WINDOW_NAME, **kwargs)
 
         self._logger = logging.getLogger(__name__)
+        self._cesium_omniverse_interface = cesium_omniverse_interface
 
         # You do not necessarily need to create an action function in this window class. If you have a function
         #  in another window or class, you can absolutely call that instead from here.
