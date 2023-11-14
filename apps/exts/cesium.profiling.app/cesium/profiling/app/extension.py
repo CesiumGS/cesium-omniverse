@@ -44,6 +44,8 @@ class CesiumProfilingExtension(omni.ext.IExt):
         return files
 
     async def _run_profiling_suite_async(self):
+        self._stop_profiler()
+
         scene_test_duration = 20
         between_test_scene_duration = 5
         current_working_directory = os.getcwd()
