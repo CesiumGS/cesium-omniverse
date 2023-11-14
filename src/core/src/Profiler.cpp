@@ -7,7 +7,6 @@
 #include <windows.h>
 
 #include <chrono>
-#include <iostream>
 
 namespace cesium::omniverse {
 
@@ -18,7 +17,6 @@ void Profiler::initializeProfiling(const char* fileIdentifier) {
     const auto profileFilePath =
         cesiumExtensionLocation / fmt::format("cesium-trace-{}-{}.json", fileIdentifier, timeSinceEpoch);
     CESIUM_TRACE_INIT(profileFilePath.string());
-    std::cout << profileFilePath << std::endl;
 }
 void Profiler::shutDownProfiling() {
     CESIUM_TRACE_SHUTDOWN();
