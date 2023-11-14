@@ -4,8 +4,6 @@
 
 #include <CesiumUtility/Tracing.h>
 #include <spdlog/fmt/fmt.h>
-#include <windows.h>
-
 #include <chrono>
 
 namespace cesium::omniverse {
