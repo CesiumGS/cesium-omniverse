@@ -3,6 +3,9 @@
 #include "cesium/omniverse/DataType.h"
 
 #include <CesiumGltf/Accessor.h>
+#include <CesiumGltf/ClassProperty.h>
+#include <CesiumGltf/PropertyType.h>
+#include <CesiumGltf/Schema.h>
 #include <glm/glm.hpp>
 #include <omni/fabric/FabricTypes.h>
 
@@ -10,6 +13,13 @@
 #include <string>
 
 namespace cesium::omniverse {
+
+enum class TypeGroup {
+    SCALAR,
+    VECTOR,
+    MATRIX,
+    UNKNOWN,
+};
 
 enum class DataType {
     UINT8,
@@ -138,7 +148,7 @@ enum class DataType {
     MAT4_INT32_NORM,
     MAT4_UINT64_NORM,
     MAT4_INT64_NORM,
-    UNKOWN,
+    UNKNOWN,
 };
 
 template <DataType T> struct IsNormalized;
@@ -481,7 +491,7 @@ template <DataType T> struct GetPrimvarTypeImpl;
 // Integer primvar lookup in MDL doesn't seem to work so cast all data types to float. This is safe to do since
 // FLOAT32 can represent all possible UINT8, INT8, UINT16, and INT16 values. Also not a significant memory
 // overhead since Fabric doesn't support INT8, UINT16, and INT16 types anyways. There is some overhead for UINT8 values
-// which can be stored as the eUChar type.
+// which could be stored as the eUChar type.
 template <> struct GetPrimvarTypeImpl<DataType::UINT8> { using Type = float; };
 template <> struct GetPrimvarTypeImpl<DataType::INT8> { using Type = float; };
 template <> struct GetPrimvarTypeImpl<DataType::UINT16> { using Type = float; };
@@ -652,13 +662,13 @@ constexpr DataType getComponentType(DataType type) {
         case DataType::MAT4_INT32_NORM: return DataType::INT32_NORM;
         case DataType::MAT4_UINT64_NORM: return DataType::UINT64_NORM;
         case DataType::MAT4_INT64_NORM: return DataType::INT64_NORM;
-        case DataType::UNKOWN: return DataType::UNKOWN;
+        case DataType::UNKNOWN: return DataType::UNKNOWN;
     }
     // clang-format on
 
     // Unreachable code. All enum cases are handled above.
     assert(false);
-    return DataType::UNKOWN;
+    return DataType::UNKNOWN;
 }
 
 constexpr uint64_t getComponentCount(DataType type) {
@@ -795,7 +805,7 @@ constexpr uint64_t getComponentCount(DataType type) {
         case DataType::MAT4_UINT64_NORM:
         case DataType::MAT4_INT64_NORM:
             return 16;
-        case DataType::UNKOWN:
+        case DataType::UNKNOWN:
             return 0;
     }
 
@@ -804,151 +814,368 @@ constexpr uint64_t getComponentCount(DataType type) {
     return 0;
 }
 
-constexpr DataType fromComponentTypeAndCount(DataType componentType, uint64_t count) {
-    assert(getComponentCount(componentType) == 1);
-    assert(count <= 4);
-
-    // clang-format on
-    switch (count) {
-        case 1:
-            return componentType;
-        case 2:
-            switch (componentType) {
-                case DataType::UINT8:
-                    return DataType::VEC2_UINT8;
-                case DataType::INT8:
-                    return DataType::VEC2_INT8;
-                case DataType::UINT16:
-                    return DataType::VEC2_UINT16;
-                case DataType::INT16:
-                    return DataType::VEC2_INT16;
-                case DataType::UINT32:
-                    return DataType::VEC2_UINT32;
-                case DataType::INT32:
-                    return DataType::VEC2_INT32;
-                case DataType::UINT64:
-                    return DataType::VEC2_UINT64;
-                case DataType::INT64:
-                    return DataType::VEC2_INT64;
-                case DataType::FLOAT32:
-                    return DataType::VEC2_FLOAT32;
-                case DataType::FLOAT64:
-                    return DataType::VEC2_FLOAT64;
-                case DataType::UINT8_NORM:
-                    return DataType::VEC2_UINT8_NORM;
-                case DataType::INT8_NORM:
-                    return DataType::VEC2_INT8_NORM;
-                case DataType::UINT16_NORM:
-                    return DataType::VEC2_UINT16_NORM;
-                case DataType::INT16_NORM:
-                    return DataType::VEC2_INT16_NORM;
-                case DataType::UINT32_NORM:
-                    return DataType::VEC2_UINT32_NORM;
-                case DataType::INT32_NORM:
-                    return DataType::VEC2_INT32_NORM;
-                case DataType::UINT64_NORM:
-                    return DataType::VEC2_UINT64_NORM;
-                case DataType::INT64_NORM:
-                    return DataType::VEC2_INT64_NORM;
-                default:
-                    // Not a valid component type
-                    assert(false);
-                    return DataType::UNKOWN;
-            }
-        case 3:
-            switch (componentType) {
-                case DataType::UINT8:
-                    return DataType::VEC3_UINT8;
-                case DataType::INT8:
-                    return DataType::VEC3_INT8;
-                case DataType::UINT16:
-                    return DataType::VEC3_UINT16;
-                case DataType::INT16:
-                    return DataType::VEC3_INT16;
-                case DataType::UINT32:
-                    return DataType::VEC3_UINT32;
-                case DataType::INT32:
-                    return DataType::VEC3_INT32;
-                case DataType::UINT64:
-                    return DataType::VEC3_UINT64;
-                case DataType::INT64:
-                    return DataType::VEC3_INT64;
-                case DataType::FLOAT32:
-                    return DataType::VEC3_FLOAT32;
-                case DataType::FLOAT64:
-                    return DataType::VEC3_FLOAT64;
-                case DataType::UINT8_NORM:
-                    return DataType::VEC3_UINT8_NORM;
-                case DataType::INT8_NORM:
-                    return DataType::VEC3_INT8_NORM;
-                case DataType::UINT16_NORM:
-                    return DataType::VEC3_UINT16_NORM;
-                case DataType::INT16_NORM:
-                    return DataType::VEC3_INT16_NORM;
-                case DataType::UINT32_NORM:
-                    return DataType::VEC3_UINT32_NORM;
-                case DataType::INT32_NORM:
-                    return DataType::VEC3_INT32_NORM;
-                case DataType::UINT64_NORM:
-                    return DataType::VEC3_UINT64_NORM;
-                case DataType::INT64_NORM:
-                    return DataType::VEC3_INT64_NORM;
-                default:
-                    // Not a valid component type
-                    assert(false);
-                    return DataType::UNKOWN;
-            }
-        case 4:
-            switch (componentType) {
-                case DataType::UINT8:
-                    return DataType::VEC4_UINT8;
-                case DataType::INT8:
-                    return DataType::VEC4_INT8;
-                case DataType::UINT16:
-                    return DataType::VEC4_UINT16;
-                case DataType::INT16:
-                    return DataType::VEC4_INT16;
-                case DataType::UINT32:
-                    return DataType::VEC4_UINT32;
-                case DataType::INT32:
-                    return DataType::VEC4_INT32;
-                case DataType::UINT64:
-                    return DataType::VEC4_UINT64;
-                case DataType::INT64:
-                    return DataType::VEC4_INT64;
-                case DataType::FLOAT32:
-                    return DataType::VEC4_FLOAT32;
-                case DataType::FLOAT64:
-                    return DataType::VEC4_FLOAT64;
-                case DataType::UINT8_NORM:
-                    return DataType::VEC4_UINT8_NORM;
-                case DataType::INT8_NORM:
-                    return DataType::VEC4_INT8_NORM;
-                case DataType::UINT16_NORM:
-                    return DataType::VEC4_UINT16_NORM;
-                case DataType::INT16_NORM:
-                    return DataType::VEC4_INT16_NORM;
-                case DataType::UINT32_NORM:
-                    return DataType::VEC4_UINT32_NORM;
-                case DataType::INT32_NORM:
-                    return DataType::VEC4_INT32_NORM;
-                case DataType::UINT64_NORM:
-                    return DataType::VEC4_UINT64_NORM;
-                case DataType::INT64_NORM:
-                    return DataType::VEC4_INT64_NORM;
-                default:
-                    // Not a valid component type
-                    assert(false);
-                    return DataType::UNKOWN;
-            }
-        default:
-            // Invalid count
-            assert(false);
-            return DataType::UNKOWN;
+constexpr TypeGroup getGroup(DataType type) {
+    switch (type) {
+        case DataType::UINT8:
+        case DataType::INT8:
+        case DataType::UINT16:
+        case DataType::INT16:
+        case DataType::UINT32:
+        case DataType::INT32:
+        case DataType::UINT64:
+        case DataType::INT64:
+        case DataType::FLOAT32:
+        case DataType::FLOAT64:
+        case DataType::UINT8_NORM:
+        case DataType::INT8_NORM:
+        case DataType::UINT16_NORM:
+        case DataType::INT16_NORM:
+        case DataType::UINT32_NORM:
+        case DataType::INT32_NORM:
+        case DataType::UINT64_NORM:
+        case DataType::INT64_NORM:
+            return TypeGroup::SCALAR;
+        case DataType::VEC2_UINT8:
+        case DataType::VEC2_INT8:
+        case DataType::VEC2_UINT16:
+        case DataType::VEC2_INT16:
+        case DataType::VEC2_UINT32:
+        case DataType::VEC2_INT32:
+        case DataType::VEC2_UINT64:
+        case DataType::VEC2_INT64:
+        case DataType::VEC2_FLOAT32:
+        case DataType::VEC2_FLOAT64:
+        case DataType::VEC2_UINT8_NORM:
+        case DataType::VEC2_INT8_NORM:
+        case DataType::VEC2_UINT16_NORM:
+        case DataType::VEC2_INT16_NORM:
+        case DataType::VEC2_UINT32_NORM:
+        case DataType::VEC2_INT32_NORM:
+        case DataType::VEC2_UINT64_NORM:
+        case DataType::VEC2_INT64_NORM:
+        case DataType::VEC3_UINT8:
+        case DataType::VEC3_INT8:
+        case DataType::VEC3_UINT16:
+        case DataType::VEC3_INT16:
+        case DataType::VEC3_UINT32:
+        case DataType::VEC3_INT32:
+        case DataType::VEC3_UINT64:
+        case DataType::VEC3_INT64:
+        case DataType::VEC3_FLOAT32:
+        case DataType::VEC3_FLOAT64:
+        case DataType::VEC3_UINT8_NORM:
+        case DataType::VEC3_INT8_NORM:
+        case DataType::VEC3_UINT16_NORM:
+        case DataType::VEC3_INT16_NORM:
+        case DataType::VEC3_UINT32_NORM:
+        case DataType::VEC3_INT32_NORM:
+        case DataType::VEC3_UINT64_NORM:
+        case DataType::VEC3_INT64_NORM:
+        case DataType::VEC4_UINT8:
+        case DataType::VEC4_INT8:
+        case DataType::VEC4_UINT16:
+        case DataType::VEC4_INT16:
+        case DataType::VEC4_UINT32:
+        case DataType::VEC4_INT32:
+        case DataType::VEC4_UINT64:
+        case DataType::VEC4_INT64:
+        case DataType::VEC4_FLOAT32:
+        case DataType::VEC4_FLOAT64:
+        case DataType::VEC4_UINT8_NORM:
+        case DataType::VEC4_INT8_NORM:
+        case DataType::VEC4_UINT16_NORM:
+        case DataType::VEC4_INT16_NORM:
+        case DataType::VEC4_UINT32_NORM:
+        case DataType::VEC4_INT32_NORM:
+        case DataType::VEC4_UINT64_NORM:
+        case DataType::VEC4_INT64_NORM:
+            return TypeGroup::VECTOR;
+        case DataType::MAT2_UINT8:
+        case DataType::MAT2_INT8:
+        case DataType::MAT2_UINT16:
+        case DataType::MAT2_INT16:
+        case DataType::MAT2_UINT32:
+        case DataType::MAT2_INT32:
+        case DataType::MAT2_UINT64:
+        case DataType::MAT2_INT64:
+        case DataType::MAT2_FLOAT32:
+        case DataType::MAT2_FLOAT64:
+        case DataType::MAT2_UINT8_NORM:
+        case DataType::MAT2_INT8_NORM:
+        case DataType::MAT2_UINT16_NORM:
+        case DataType::MAT2_INT16_NORM:
+        case DataType::MAT2_UINT32_NORM:
+        case DataType::MAT2_INT32_NORM:
+        case DataType::MAT2_UINT64_NORM:
+        case DataType::MAT2_INT64_NORM:
+        case DataType::MAT3_UINT8:
+        case DataType::MAT3_INT8:
+        case DataType::MAT3_UINT16:
+        case DataType::MAT3_INT16:
+        case DataType::MAT3_UINT32:
+        case DataType::MAT3_INT32:
+        case DataType::MAT3_UINT64:
+        case DataType::MAT3_INT64:
+        case DataType::MAT3_FLOAT32:
+        case DataType::MAT3_FLOAT64:
+        case DataType::MAT3_UINT8_NORM:
+        case DataType::MAT3_INT8_NORM:
+        case DataType::MAT3_UINT16_NORM:
+        case DataType::MAT3_INT16_NORM:
+        case DataType::MAT3_UINT32_NORM:
+        case DataType::MAT3_INT32_NORM:
+        case DataType::MAT3_UINT64_NORM:
+        case DataType::MAT3_INT64_NORM:
+        case DataType::MAT4_UINT8:
+        case DataType::MAT4_INT8:
+        case DataType::MAT4_UINT16:
+        case DataType::MAT4_INT16:
+        case DataType::MAT4_UINT32:
+        case DataType::MAT4_INT32:
+        case DataType::MAT4_UINT64:
+        case DataType::MAT4_INT64:
+        case DataType::MAT4_FLOAT32:
+        case DataType::MAT4_FLOAT64:
+        case DataType::MAT4_UINT8_NORM:
+        case DataType::MAT4_INT8_NORM:
+        case DataType::MAT4_UINT16_NORM:
+        case DataType::MAT4_INT16_NORM:
+        case DataType::MAT4_UINT32_NORM:
+        case DataType::MAT4_INT32_NORM:
+        case DataType::MAT4_UINT64_NORM:
+        case DataType::MAT4_INT64_NORM:
+            return TypeGroup::MATRIX;
+        case DataType::UNKNOWN:
+            return TypeGroup::UNKNOWN;
     }
+
+    // Shouldn't reach here
+    assert(false);
+    return TypeGroup::UNKNOWN;
 }
 
-constexpr bool isVertexAttributeType(DataType type) {
+constexpr DataType compose(DataType componentType, TypeGroup group, uint64_t componentCount, bool normalized) {
+    assert(getComponentCount(componentType) == 1);
+    assert(group != TypeGroup::VECTOR || componentCount == 2 || componentCount == 3 || componentCount == 4);
+    assert(group != TypeGroup::MATRIX || componentCount == 4 || componentCount == 9 || componentCount == 16);
+    assert(group != TypeGroup::SCALAR || componentCount == 1);
+
+    switch (group) {
+        case TypeGroup::SCALAR:
+            switch (componentType) {
+                case DataType::UINT8:
+                    return normalized ? DataType::UINT8_NORM : DataType::UINT8;
+                case DataType::INT8:
+                    return normalized ? DataType::INT8_NORM : DataType::INT8;
+                case DataType::UINT16:
+                    return normalized ? DataType::UINT16_NORM : DataType::UINT16;
+                case DataType::INT16:
+                    return normalized ? DataType::INT16_NORM : DataType::INT16;
+                case DataType::UINT32:
+                    return normalized ? DataType::UINT32_NORM : DataType::UINT32;
+                case DataType::INT32:
+                    return normalized ? DataType::INT32_NORM : DataType::INT32;
+                case DataType::UINT64:
+                    return normalized ? DataType::UINT64_NORM : DataType::UINT64;
+                case DataType::INT64:
+                    return normalized ? DataType::INT64_NORM : DataType::INT64;
+                case DataType::FLOAT32:
+                    return DataType::FLOAT32;
+                case DataType::FLOAT64:
+                    return DataType::FLOAT64;
+                default:
+                    // Shouldn't reach here
+                    assert(false);
+                    return DataType::UNKNOWN;
+            }
+        case TypeGroup::VECTOR:
+            switch (componentCount) {
+                case 2:
+                    switch (componentType) {
+                        case DataType::UINT8:
+                            return normalized ? DataType::VEC2_UINT8_NORM : DataType::VEC2_UINT8;
+                        case DataType::INT8:
+                            return normalized ? DataType::VEC2_INT8_NORM : DataType::VEC2_INT8;
+                        case DataType::UINT16:
+                            return normalized ? DataType::VEC2_UINT16_NORM : DataType::VEC2_UINT16;
+                        case DataType::INT16:
+                            return normalized ? DataType::VEC2_INT16_NORM : DataType::VEC2_INT16;
+                        case DataType::UINT32:
+                            return normalized ? DataType::VEC2_UINT32_NORM : DataType::VEC2_UINT32;
+                        case DataType::INT32:
+                            return normalized ? DataType::VEC2_INT32_NORM : DataType::VEC2_INT32;
+                        case DataType::UINT64:
+                            return normalized ? DataType::VEC2_UINT64_NORM : DataType::VEC2_UINT64;
+                        case DataType::INT64:
+                            return normalized ? DataType::VEC2_INT64_NORM : DataType::VEC2_INT64;
+                        case DataType::FLOAT32:
+                            return DataType::VEC2_FLOAT32;
+                        case DataType::FLOAT64:
+                            return DataType::VEC2_FLOAT64;
+                        default:
+                            // Shouldn't reach here
+                            assert(false);
+                            return DataType::UNKNOWN;
+                    }
+                case 3:
+                    switch (componentType) {
+                        case DataType::UINT8:
+                            return normalized ? DataType::VEC3_UINT8_NORM : DataType::VEC3_UINT8;
+                        case DataType::INT8:
+                            return normalized ? DataType::VEC3_INT8_NORM : DataType::VEC3_INT8;
+                        case DataType::UINT16:
+                            return normalized ? DataType::VEC3_UINT16_NORM : DataType::VEC3_UINT16;
+                        case DataType::INT16:
+                            return normalized ? DataType::VEC3_INT16_NORM : DataType::VEC3_INT16;
+                        case DataType::UINT32:
+                            return normalized ? DataType::VEC3_UINT32_NORM : DataType::VEC3_UINT32;
+                        case DataType::INT32:
+                            return normalized ? DataType::VEC3_INT32_NORM : DataType::VEC3_INT32;
+                        case DataType::UINT64:
+                            return normalized ? DataType::VEC3_UINT64_NORM : DataType::VEC3_UINT64;
+                        case DataType::INT64:
+                            return normalized ? DataType::VEC3_INT64_NORM : DataType::VEC3_INT64;
+                        case DataType::FLOAT32:
+                            return DataType::VEC3_FLOAT32;
+                        case DataType::FLOAT64:
+                            return DataType::VEC3_FLOAT64;
+                        default:
+                            // Shouldn't reach here
+                            assert(false);
+                            return DataType::UNKNOWN;
+                    }
+                case 4:
+                    switch (componentType) {
+                        case DataType::UINT8:
+                            return normalized ? DataType::VEC4_UINT8_NORM : DataType::VEC4_UINT8;
+                        case DataType::INT8:
+                            return normalized ? DataType::VEC4_INT8_NORM : DataType::VEC4_INT8;
+                        case DataType::UINT16:
+                            return normalized ? DataType::VEC4_UINT16_NORM : DataType::VEC4_UINT16;
+                        case DataType::INT16:
+                            return normalized ? DataType::VEC4_INT16_NORM : DataType::VEC4_INT16;
+                        case DataType::UINT32:
+                            return normalized ? DataType::VEC4_UINT32_NORM : DataType::VEC4_UINT32;
+                        case DataType::INT32:
+                            return normalized ? DataType::VEC4_INT32_NORM : DataType::VEC4_INT32;
+                        case DataType::UINT64:
+                            return normalized ? DataType::VEC4_UINT64_NORM : DataType::VEC4_UINT64;
+                        case DataType::INT64:
+                            return normalized ? DataType::VEC4_INT64_NORM : DataType::VEC4_INT64;
+                        case DataType::FLOAT32:
+                            return DataType::VEC4_FLOAT32;
+                        case DataType::FLOAT64:
+                            return DataType::VEC4_FLOAT64;
+                        default:
+                            // Shouldn't reach here
+                            assert(false);
+                            return DataType::UNKNOWN;
+                    }
+                default:
+                    // Shouldn't reach here
+                    assert(false);
+                    return DataType::UNKNOWN;
+            }
+        case TypeGroup::MATRIX:
+            switch (componentCount) {
+                case 4:
+                    switch (componentType) {
+                        case DataType::UINT8:
+                            return normalized ? DataType::MAT2_UINT8_NORM : DataType::MAT2_UINT8;
+                        case DataType::INT8:
+                            return normalized ? DataType::MAT2_INT8_NORM : DataType::MAT2_INT8;
+                        case DataType::UINT16:
+                            return normalized ? DataType::MAT2_UINT16_NORM : DataType::MAT2_UINT16;
+                        case DataType::INT16:
+                            return normalized ? DataType::MAT2_INT16_NORM : DataType::MAT2_INT16;
+                        case DataType::UINT32:
+                            return normalized ? DataType::MAT2_UINT32_NORM : DataType::MAT2_UINT32;
+                        case DataType::INT32:
+                            return normalized ? DataType::MAT2_INT32_NORM : DataType::MAT2_INT32;
+                        case DataType::UINT64:
+                            return normalized ? DataType::MAT2_UINT64_NORM : DataType::MAT2_UINT64;
+                        case DataType::INT64:
+                            return normalized ? DataType::MAT2_INT64_NORM : DataType::MAT2_INT64;
+                        case DataType::FLOAT32:
+                            return DataType::MAT2_FLOAT32;
+                        case DataType::FLOAT64:
+                            return DataType::MAT2_FLOAT64;
+                        default:
+                            // Shouldn't reach here
+                            assert(false);
+                            return DataType::UNKNOWN;
+                    }
+                case 9:
+                    switch (componentType) {
+                        case DataType::UINT8:
+                            return normalized ? DataType::MAT3_UINT8_NORM : DataType::MAT3_UINT8;
+                        case DataType::INT8:
+                            return normalized ? DataType::MAT3_INT8_NORM : DataType::MAT3_INT8;
+                        case DataType::UINT16:
+                            return normalized ? DataType::MAT3_UINT16_NORM : DataType::MAT3_UINT16;
+                        case DataType::INT16:
+                            return normalized ? DataType::MAT3_INT16_NORM : DataType::MAT3_INT16;
+                        case DataType::UINT32:
+                            return normalized ? DataType::MAT3_UINT32_NORM : DataType::MAT3_UINT32;
+                        case DataType::INT32:
+                            return normalized ? DataType::MAT3_INT32_NORM : DataType::MAT3_INT32;
+                        case DataType::UINT64:
+                            return normalized ? DataType::MAT3_UINT64_NORM : DataType::MAT3_UINT64;
+                        case DataType::INT64:
+                            return normalized ? DataType::MAT3_INT64_NORM : DataType::MAT3_INT64;
+                        case DataType::FLOAT32:
+                            return DataType::MAT3_FLOAT32;
+                        case DataType::FLOAT64:
+                            return DataType::MAT3_FLOAT64;
+                        default:
+                            // Shouldn't reach here
+                            assert(false);
+                            return DataType::UNKNOWN;
+                    }
+                case 16:
+                    switch (componentType) {
+                        case DataType::UINT8:
+                            return normalized ? DataType::MAT4_UINT8_NORM : DataType::MAT4_UINT8;
+                        case DataType::INT8:
+                            return normalized ? DataType::MAT4_INT8_NORM : DataType::MAT4_INT8;
+                        case DataType::UINT16:
+                            return normalized ? DataType::MAT4_UINT16_NORM : DataType::MAT4_UINT16;
+                        case DataType::INT16:
+                            return normalized ? DataType::MAT4_INT16_NORM : DataType::MAT4_INT16;
+                        case DataType::UINT32:
+                            return normalized ? DataType::MAT4_UINT32_NORM : DataType::MAT4_UINT32;
+                        case DataType::INT32:
+                            return normalized ? DataType::MAT4_INT32_NORM : DataType::MAT4_INT32;
+                        case DataType::UINT64:
+                            return normalized ? DataType::MAT4_UINT64_NORM : DataType::MAT4_UINT64;
+                        case DataType::INT64:
+                            return normalized ? DataType::MAT4_INT64_NORM : DataType::MAT4_INT64;
+                        case DataType::FLOAT32:
+                            return DataType::MAT4_FLOAT32;
+                        case DataType::FLOAT64:
+                            return DataType::MAT4_FLOAT64;
+                        default:
+                            // Shouldn't reach here
+                            assert(false);
+                            return DataType::UNKNOWN;
+                    }
+                default:
+                    // Shouldn't reach here
+                    assert(false);
+                    return DataType::UNKNOWN;
+            }
+        case TypeGroup::UNKNOWN:
+            // Shouldn't reach here
+            assert(false);
+            return DataType::UNKNOWN;
+    }
+
+    // Shouldn't reach here
+    assert(false);
+    return DataType::UNKNOWN;
+}
+
+constexpr bool isPrimvarType(DataType type) {
     // clang-format off
     switch (type) {
         case DataType::UINT8:
@@ -1131,72 +1358,177 @@ constexpr DataType getMdlPropertyType(DataType type) {
         case DataType::MAT4_INT32_NORM:
         case DataType::MAT4_UINT64_NORM:
         case DataType::MAT4_INT64_NORM:
-        case DataType::UNKOWN:
-            return DataType::UNKOWN;
+        case DataType::UNKNOWN:
+            return DataType::UNKNOWN;
     }
     // clang-format on
 
     // Unreachable code. All enum cases are handled above.
     assert(false);
-    return DataType::UNKOWN;
+    return DataType::UNKNOWN;
 }
 
-inline DataType getGltfVertexAttributeType(const std::string& type, int32_t componentType, bool normalized) {
-    if (type == CesiumGltf::Accessor::Type::SCALAR) {
-        if (componentType == CesiumGltf::Accessor::ComponentType::BYTE) {
-            return normalized ? DataType::INT8_NORM : DataType::INT8;
-        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_BYTE) {
-            return normalized ? DataType::UINT8_NORM : DataType::UINT8;
-        } else if (componentType == CesiumGltf::Accessor::ComponentType::SHORT) {
-            return normalized ? DataType::INT16_NORM : DataType::INT16;
-        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_SHORT) {
-            return normalized ? DataType::UINT16_NORM : DataType::UINT16;
-        } else if (componentType == CesiumGltf::Accessor::ComponentType::FLOAT) {
-            return DataType::FLOAT32;
-        }
-    } else if (type == CesiumGltf::Accessor::Type::VEC2) {
-        if (componentType == CesiumGltf::Accessor::ComponentType::BYTE) {
-            return normalized ? DataType::VEC2_INT8_NORM : DataType::VEC2_INT8;
-        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_BYTE) {
-            return normalized ? DataType::VEC2_UINT8_NORM : DataType::VEC2_UINT8;
-        } else if (componentType == CesiumGltf::Accessor::ComponentType::SHORT) {
-            return normalized ? DataType::VEC2_INT16_NORM : DataType::VEC2_INT16;
-        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_SHORT) {
-            return normalized ? DataType::VEC2_UINT16_NORM : DataType::VEC2_UINT16;
-        } else if (componentType == CesiumGltf::Accessor::ComponentType::FLOAT) {
-            return DataType::VEC2_FLOAT32;
-        }
-    } else if (type == CesiumGltf::Accessor::Type::VEC3) {
-        if (componentType == CesiumGltf::Accessor::ComponentType::BYTE) {
-            return normalized ? DataType::VEC3_INT8_NORM : DataType::VEC3_INT8;
-        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_BYTE) {
-            return normalized ? DataType::VEC3_UINT8_NORM : DataType::VEC3_UINT8;
-        } else if (componentType == CesiumGltf::Accessor::ComponentType::SHORT) {
-            return normalized ? DataType::VEC3_INT16_NORM : DataType::VEC3_INT16;
-        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_SHORT) {
-            return normalized ? DataType::VEC3_UINT16_NORM : DataType::VEC3_UINT16;
-        } else if (componentType == CesiumGltf::Accessor::ComponentType::FLOAT) {
-            return DataType::VEC3_FLOAT32;
-        }
-    } else if (type == CesiumGltf::Accessor::Type::VEC4) {
-        if (componentType == CesiumGltf::Accessor::ComponentType::BYTE) {
-            return normalized ? DataType::VEC4_INT8_NORM : DataType::VEC4_INT8;
-        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_BYTE) {
-            return normalized ? DataType::VEC4_UINT8_NORM : DataType::VEC4_UINT8;
-        } else if (componentType == CesiumGltf::Accessor::ComponentType::SHORT) {
-            return normalized ? DataType::VEC4_INT16_NORM : DataType::VEC4_INT16;
-        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_SHORT) {
-            return normalized ? DataType::VEC4_UINT16_NORM : DataType::VEC4_UINT16;
-        } else if (componentType == CesiumGltf::Accessor::ComponentType::FLOAT) {
-            return DataType::VEC4_FLOAT32;
-        }
+inline DataType getGltfVertexAttributeType(const std::string& type, int32_t gltfComponentType, bool normalized) {
+    auto componentType = DataType::UNKNOWN;
+
+    if (gltfComponentType == CesiumGltf::Accessor::ComponentType::BYTE) {
+        componentType = DataType::INT8;
+    } else if (gltfComponentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_BYTE) {
+        componentType = DataType::UINT8;
+    } else if (gltfComponentType == CesiumGltf::Accessor::ComponentType::SHORT) {
+        componentType = DataType::INT16;
+    } else if (gltfComponentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_SHORT) {
+        componentType = DataType::UINT16;
+    } else if (gltfComponentType == CesiumGltf::Accessor::ComponentType::FLOAT) {
+        componentType = DataType::FLOAT32;
     }
 
-    return DataType::UNKOWN;
+    if (componentType == DataType::UNKNOWN) {
+        return DataType::UNKNOWN;
+    }
+
+    if (type == CesiumGltf::Accessor::Type::SCALAR) {
+        return compose(componentType, TypeGroup::SCALAR, 1, normalized);
+    } else if (type == CesiumGltf::Accessor::Type::VEC2) {
+        return compose(componentType, TypeGroup::VECTOR, 2, normalized);
+    } else if (type == CesiumGltf::Accessor::Type::VEC3) {
+        return compose(componentType, TypeGroup::VECTOR, 3, normalized);
+    } else if (type == CesiumGltf::Accessor::Type::VEC4) {
+        return compose(componentType, TypeGroup::VECTOR, 4, normalized);
+    } else if (type == CesiumGltf::Accessor::Type::MAT2) {
+        return compose(componentType, TypeGroup::MATRIX, 4, normalized);
+    } else if (type == CesiumGltf::Accessor::Type::MAT3) {
+        return compose(componentType, TypeGroup::MATRIX, 9, normalized);
+    } else if (type == CesiumGltf::Accessor::Type::MAT4) {
+        return compose(componentType, TypeGroup::MATRIX, 16, normalized);
+    }
+
+    return DataType::UNKNOWN;
+}
+
+inline DataType getClassPropertyType(const CesiumGltf::Schema& schema, const CesiumGltf::ClassProperty& classProperty) {
+    const auto isArray = classProperty.array;
+    const auto arrayCount = static_cast<uint64_t>(classProperty.count.value_or(0));
+    const auto arrayCountInRange = arrayCount > 1 && arrayCount <= 4;
+
+    auto propertyType = CesiumGltf::convertStringToPropertyType(classProperty.type);
+    auto propertyComponentType =
+        CesiumGltf::convertStringToPropertyComponentType(classProperty.componentType.value_or(std::string{}));
+
+    const auto isEnum = propertyType == CesiumGltf::PropertyType::Enum;
+
+    if (isEnum) {
+        const auto& enumType = classProperty.enumType;
+        if (!enumType.has_value()) {
+            return DataType::UNKNOWN;
+        }
+        const auto& enumIter = schema.enums.find(enumType.value());
+        if (enumIter == schema.enums.end()) {
+            return DataType::UNKNOWN;
+        }
+        const auto& enumDefinition = enumIter->second;
+
+        // Treat enum as scalar
+        propertyType = CesiumGltf::PropertyType::Scalar;
+        propertyComponentType = CesiumGltf::convertStringToPropertyComponentType(enumDefinition.valueType);
+    }
+
+    const auto isScalar = propertyType == CesiumGltf::PropertyType::Scalar;
+    const auto isVector = CesiumGltf::isPropertyTypeVecN(propertyType);
+    const auto isMatrix = CesiumGltf::isPropertyTypeMatN(propertyType);
+    const auto normalized = classProperty.normalized;
+
+    if (!isScalar && !isVector && !isMatrix) {
+        // Only scalars, vectors, and matrices are supported
+        return DataType::UNKNOWN;
+    }
+
+    if (isArray && (!isScalar || !arrayCountInRange)) {
+        // Only arrays with 2, 3, or 4 scalar elements are supported
+        return DataType::UNKNOWN;
+    }
+
+    if (propertyType == CesiumGltf::PropertyType::Invalid) {
+        // Something went wrong or invalid schema
+        return DataType::UNKNOWN;
+    }
+
+    if (propertyComponentType == CesiumGltf::PropertyComponentType::None) {
+        // Something went wrong or invalid schema
+        return DataType::UNKNOWN;
+    }
+
+    auto componentType = DataType::UNKNOWN;
+
+    switch (propertyComponentType) {
+        case CesiumGltf::PropertyComponentType::Int8:
+            componentType = DataType::INT8;
+            break;
+        case CesiumGltf::PropertyComponentType::Uint8:
+            componentType = DataType::UINT8;
+            break;
+        case CesiumGltf::PropertyComponentType::Int16:
+            componentType = DataType::INT16;
+            break;
+        case CesiumGltf::PropertyComponentType::Uint16:
+            componentType = DataType::UINT16;
+            break;
+        case CesiumGltf::PropertyComponentType::Int32:
+            componentType = DataType::INT32;
+            break;
+        case CesiumGltf::PropertyComponentType::Uint32:
+            componentType = DataType::UINT32;
+            break;
+        case CesiumGltf::PropertyComponentType::Int64:
+            componentType = DataType::INT64;
+            break;
+        case CesiumGltf::PropertyComponentType::Uint64:
+            componentType = DataType::UINT64;
+            break;
+        case CesiumGltf::PropertyComponentType::Float32:
+            componentType = DataType::FLOAT32;
+            break;
+        case CesiumGltf::PropertyComponentType::Float64:
+            componentType = DataType::FLOAT64;
+            break;
+        default:
+            break;
+    }
+
+    if (componentType == DataType::UNKNOWN) {
+        // Shouldn't ever reach here
+        return DataType::UNKNOWN;
+    }
+
+    if (isArray) {
+        return compose(componentType, TypeGroup::SCALAR, arrayCount, normalized);
+    }
+
+    switch (propertyType) {
+        case CesiumGltf::PropertyType::Scalar:
+            return compose(componentType, TypeGroup::SCALAR, 1, normalized);
+        case CesiumGltf::PropertyType::Vec2:
+            return compose(componentType, TypeGroup::VECTOR, 2, normalized);
+        case CesiumGltf::PropertyType::Vec3:
+            return compose(componentType, TypeGroup::VECTOR, 3, normalized);
+        case CesiumGltf::PropertyType::Vec4:
+            return compose(componentType, TypeGroup::VECTOR, 4, normalized);
+        case CesiumGltf::PropertyType::Mat2:
+            return compose(componentType, TypeGroup::MATRIX, 4, normalized);
+        case CesiumGltf::PropertyType::Mat3:
+            return compose(componentType, TypeGroup::MATRIX, 9, normalized);
+        case CesiumGltf::PropertyType::Mat4:
+            return compose(componentType, TypeGroup::MATRIX, 16, normalized);
+        default:
+            break;
+    }
+
+    // Shouldn't ever reach here
+    return DataType::UNKNOWN;
 }
 
 constexpr DataType getPrimvarType(DataType type) {
-    assert(isVertexAttributeType(type));
+    assert(isPrimvarType(type));
 
     // clang-format off
     switch (type) {
@@ -1239,13 +1571,13 @@ constexpr DataType getPrimvarType(DataType type) {
         default:
             // Not a valid vertex attribute type
             assert(false);
-            return DataType::UNKOWN;
+            return DataType::UNKNOWN;
     }
     // clang-format on
 }
 
 constexpr omni::fabric::BaseDataType getPrimvarBaseDataType(DataType type) {
-    assert(isVertexAttributeType(type));
+    assert(isPrimvarType(type));
 
     const auto componentType = getComponentType(getPrimvarType(type));
     switch (componentType) {
@@ -1265,7 +1597,7 @@ constexpr omni::fabric::BaseDataType getPrimvarBaseDataType(DataType type) {
 }
 
 constexpr omni::fabric::Type getFabricPrimvarType(DataType type) {
-    assert(isVertexAttributeType(type));
+    assert(isPrimvarType(type));
     const auto baseDataType = getPrimvarBaseDataType(type);
     const auto componentCount = getComponentCount(type);
     return {baseDataType, static_cast<uint8_t>(componentCount), 1, omni::fabric::AttributeRole::eNone};

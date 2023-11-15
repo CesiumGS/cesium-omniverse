@@ -2,8 +2,15 @@
 
 #include "cesium/omniverse/DataType.h"
 #include "cesium/omniverse/GltfAccessors.h"
+#include "cesium/omniverse/LoggerSink.h"
 
 #include <CesiumGltf/Accessor.h>
+#include <CesiumGltf/ExtensionMeshPrimitiveExtStructuralMetadata.h>
+#include <CesiumGltf/ExtensionModelExtStructuralMetadata.h>
+#include <CesiumGltf/PropertyAttributePropertyView.h>
+#include <CesiumGltf/PropertyAttributeView.h>
+#include <CesiumGltf/PropertyTexturePropertyView.h>
+#include <CesiumGltf/PropertyTextureView.h>
 #include <glm/glm.hpp>
 #include <omni/fabric/core/FabricTypes.h>
 
@@ -173,5 +180,115 @@ bool hasMaterial(const CesiumGltf::MeshPrimitive& primitive);
 std::vector<uint64_t> getTexcoordSetIndexes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 std::vector<uint64_t>
 getImageryTexcoordSetIndexes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
+
+template <typename Callback>
+void forEachPropertyAttributeProperty(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive,
+    Callback&& callback) {
+    const auto pStructuralMetadataPrimitive =
+        primitive.getExtension<CesiumGltf::ExtensionMeshPrimitiveExtStructuralMetadata>();
+    if (!pStructuralMetadataPrimitive) {
+        return;
+    }
+
+    const auto pStructuralMetadataModel = model.getExtension<CesiumGltf::ExtensionModelExtStructuralMetadata>();
+    if (!pStructuralMetadataModel) {
+        return;
+    }
+
+    for (const auto& propertyAttributeIndex : pStructuralMetadataPrimitive->propertyAttributes) {
+        const auto pPropertyAttribute =
+            model.getSafe(&pStructuralMetadataModel->propertyAttributes, static_cast<int32_t>(propertyAttributeIndex));
+        if (!pPropertyAttribute) {
+            CESIUM_LOG_WARN("Property attribute index {} is out of range.", propertyAttributeIndex);
+            continue;
+        }
+
+        const auto propertyAttributeView = CesiumGltf::PropertyAttributeView(model, *pPropertyAttribute);
+        if (propertyAttributeView.status() != CesiumGltf::PropertyAttributeViewStatus::Valid) {
+            CESIUM_LOG_WARN(
+                "Property attribute is invalid and will be ignored. Status code: {}",
+                static_cast<int>(propertyAttributeView.status()));
+            continue;
+        }
+
+        propertyAttributeView.forEachProperty(
+            primitive,
+            [callback = std::forward<Callback>(callback), &propertyAttributeView, &pStructuralMetadataModel](
+                [[maybe_unused]] const std::string& propertyId, auto propertyAttributePropertyView) {
+                if (propertyAttributePropertyView.status() != CesiumGltf::PropertyAttributePropertyViewStatus::Valid) {
+                    CESIUM_LOG_WARN(
+                        "Property \"{}\" is invalid and will be ignored. Status code: {}",
+                        propertyId,
+                        static_cast<int>(propertyAttributePropertyView.status()));
+                    return;
+                }
+
+                const auto& schema = pStructuralMetadataModel->schema;
+                if (!schema.has_value()) {
+                    CESIUM_LOG_WARN("No schema found. Property \"{}\" will be ignored.", propertyId);
+                    return;
+                }
+
+                callback(propertyId, schema.value(), propertyAttributeView, propertyAttributePropertyView);
+            });
+    }
+}
+
+template <typename Callback>
+void forEachPropertyTexture(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive,
+    Callback&& callback) {
+    const auto pStructuralMetadataPrimitive =
+        primitive.getExtension<CesiumGltf::ExtensionMeshPrimitiveExtStructuralMetadata>();
+    if (!pStructuralMetadataPrimitive) {
+        return;
+    }
+
+    const auto pStructuralMetadataModel = model.getExtension<CesiumGltf::ExtensionModelExtStructuralMetadata>();
+    if (!pStructuralMetadataModel) {
+        return;
+    }
+
+    for (const auto& propertyTextureIndex : pStructuralMetadataPrimitive->propertyTextures) {
+        const auto pPropertyTexture =
+            model.getSafe(&pStructuralMetadataModel->propertyTextures, static_cast<int32_t>(propertyTextureIndex));
+        if (!pPropertyTexture) {
+            CESIUM_LOG_WARN("Property texture index {} is out of range.", propertyTextureIndex);
+            continue;
+        }
+
+        const auto propertyTextureView = CesiumGltf::PropertyTextureView(model, *pPropertyTexture);
+        if (propertyTextureView.status() != CesiumGltf::PropertyTextureViewStatus::Valid) {
+            CESIUM_LOG_WARN(
+                "Property texture is invalid and will be ignored. Status code: {}",
+                static_cast<int>(propertyTextureView.status()));
+
+            continue;
+        }
+
+        propertyTextureView.forEachProperty(
+            [callback = std::forward<Callback>(callback), &propertyTextureView, &pStructuralMetadataModel](
+                [[maybe_unused]] const std::string& propertyId, auto propertyTexturePropertyView) {
+                if (propertyTexturePropertyView.status() != CesiumGltf::PropertyTexturePropertyViewStatus::Valid) {
+                    CESIUM_LOG_WARN(
+                        "Property \"{}\" is invalid and will be ignored. Status code: {}",
+                        propertyId,
+                        static_cast<int>(propertyTexturePropertyView.status()));
+                    return;
+                }
+
+                const auto& schema = pStructuralMetadataModel->schema;
+                if (!schema.has_value()) {
+                    CESIUM_LOG_WARN("No schema found. Property will be ignored. Status code: {}", propertyId);
+                    return;
+                }
+
+                callback(propertyId, schema.value(), propertyTextureView, propertyTexturePropertyView);
+            });
+    }
+}
 
 } // namespace cesium::omniverse::GltfUtil

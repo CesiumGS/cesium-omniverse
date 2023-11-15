@@ -655,7 +655,7 @@ getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::Mesh
 
         const auto type = getGltfVertexAttributeType(accessor->type, accessor->componentType, accessor->normalized);
 
-        if (type == DataType::UNKOWN) {
+        if (type == DataType::UNKNOWN) {
             continue;
         }
 

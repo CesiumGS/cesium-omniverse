@@ -4,6 +4,9 @@
 #include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/LoggerSink.h"
 
+#include <CesiumGltf/PropertyType.h>
+#include <CesiumGltf/Schema.h>
+
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
 #undef OPAQUE
@@ -35,57 +38,46 @@ std::vector<DataType>
 gatherMdlPropertyAttributeTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
     std::vector<DataType> mdlPropertyTypes;
 
-    const auto pStructuralMetadataPrimitive =
-        primitive.getExtension<CesiumGltf::ExtensionMeshPrimitiveExtStructuralMetadata>();
-    if (!pStructuralMetadataPrimitive) {
-        return {};
-    }
+    GltfUtil::forEachPropertyAttributeProperty(
+        model,
+        primitive,
+        [&mdlPropertyTypes](
+            [[maybe_unused]] const std::string& propertyId,
+            const CesiumGltf::Schema& schema,
+            const CesiumGltf::PropertyAttributeView& propertyAttributeView,
+            [[maybe_unused]] auto propertyAttributePropertyView) {
+            const auto pClassProperty = propertyAttributeView.getClassProperty(propertyId);
+            if (!pClassProperty) {
+                return;
+            }
 
-    const auto pStructuralMetadataModel = model.getExtension<CesiumGltf::ExtensionModelExtStructuralMetadata>();
-    if (!pStructuralMetadataModel) {
-        return {};
-    }
+            const auto propertyType = getClassPropertyType(schema, *pClassProperty);
 
-    for (const auto& propertyAttributeIndex : pStructuralMetadataPrimitive->propertyAttributes) {
-        const auto pPropertyAttribute =
-            model.getSafe(&pStructuralMetadataModel->propertyAttributes, static_cast<int32_t>(propertyAttributeIndex));
-        if (!pPropertyAttribute) {
-            CESIUM_LOG_WARN("Property attribute index {} is out of range.", propertyAttributeIndex);
-            continue;
-        }
+            if (propertyType == DataType::UNKNOWN) {
+                // Shouldn't ever reach here, but print a warning just in case
+                CESIUM_LOG_WARN("Unsupported property type. Property \"{}\" will be ignored.", propertyId);
+                return;
+            }
 
-        const auto propertyAttributeView = CesiumGltf::PropertyAttributeView(model, *pPropertyAttribute);
-        if (propertyAttributeView.status() != CesiumGltf::PropertyAttributeViewStatus::Valid) {
-            CESIUM_LOG_WARN(
-                "Property attribute is invalid and will be ignored. Status code: {}",
-                static_cast<int>(propertyAttributeView.status()));
-            continue;
-        }
+            if (getGroup(propertyType) == TypeGroup::MATRIX) {
+                // Matrix types aren't supported for styling
+                // If we want to add support in the future we can pack each row in a separate primvar and reassemble in MDL
+                CESIUM_LOG_WARN(
+                    "Matrix property attributes are not supported for styling. Property \"{}\" will be ignored.",
+                    propertyId);
+                return;
+            }
 
-        propertyAttributeView.forEachProperty(
-            primitive, [&mdlPropertyTypes]([[maybe_unused]] const std::string& propertyName, auto view) {
-                if (view.status() != CesiumGltf::PropertyAttributePropertyViewStatus::Valid) {
-                    CESIUM_LOG_WARN(
-                        "Property \"{}\" is invalid and will be ignored. Status code: {}",
-                        propertyName,
-                        static_cast<int>(view.status()));
-                    return;
-                }
+            const auto mdlPropertyType = getMdlPropertyType(propertyType);
 
-                constexpr auto propertyType =
-                    GetNativeTypeReverse<typename std::decay_t<decltype(view.get(0))>::value_type>::Type;
-                const auto mdlPropertyType = getMdlPropertyType(propertyType);
+            if (mdlPropertyType == DataType::UNKNOWN) {
+                // Shouldn't ever reach here, but print a warning just in case
+                CESIUM_LOG_WARN("Unsupported property type. Property \"{}\" will be ignored.", propertyId);
+                return;
+            }
 
-                if (mdlPropertyType == DataType::UNKOWN) {
-                    CESIUM_LOG_WARN(
-                        "Matrix properties are not supported for styling. Property \"{}\" will be ignored.",
-                        propertyName);
-                    return;
-                }
-
-                mdlPropertyTypes.push_back(mdlPropertyType);
-            });
-    }
+            mdlPropertyTypes.push_back(mdlPropertyType);
+        });
 
     // Sorting ensures that FabricMaterialDefinition equality checking is consistent
     std::sort(mdlPropertyTypes.begin(), mdlPropertyTypes.end());
@@ -93,113 +85,41 @@ gatherMdlPropertyAttributeTypes(const CesiumGltf::Model& model, const CesiumGltf
     return mdlPropertyTypes;
 }
 
-template <typename T, typename F> constexpr auto hasMemberImpl(F&& f) -> decltype(f(std::declval<T>()), true) {
-    return true;
-}
-
-template <typename> constexpr bool hasMemberImpl(...) {
-    return false;
-}
-
-#define HAS_MEMBER(T, EXPR) hasMemberImpl<T>([](auto&& obj) -> decltype(obj.EXPR) {})
-
 std::vector<DataType>
 gatherMdlPropertyTextureTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
     std::vector<DataType> mdlPropertyTypes;
 
-    const auto pStructuralMetadataPrimitive =
-        primitive.getExtension<CesiumGltf::ExtensionMeshPrimitiveExtStructuralMetadata>();
-    if (!pStructuralMetadataPrimitive) {
-        return {};
-    }
+    GltfUtil::forEachPropertyAttributeProperty(
+        model,
+        primitive,
+        [&mdlPropertyTypes](
+            [[maybe_unused]] const std::string& propertyId,
+            const CesiumGltf::Schema& schema,
+            const CesiumGltf::PropertyAttributeView& propertyTextureView,
+            [[maybe_unused]] auto propertyTexturePropertyView) {
+            const auto pClassProperty = propertyTextureView.getClassProperty(propertyId);
+            if (!pClassProperty) {
+                return;
+            }
 
-    const auto pStructuralMetadataModel = model.getExtension<CesiumGltf::ExtensionModelExtStructuralMetadata>();
-    if (!pStructuralMetadataModel) {
-        return {};
-    }
+            const auto propertyType = getClassPropertyType(schema, *pClassProperty);
 
-    for (const auto& propertyTextureIndex : pStructuralMetadataPrimitive->propertyTextures) {
-        const auto pPropertyTexture =
-            model.getSafe(&pStructuralMetadataModel->propertyTextures, static_cast<int32_t>(propertyTextureIndex));
-        if (!pPropertyTexture) {
-            CESIUM_LOG_WARN("Property texture index {} is out of range.", propertyTextureIndex);
-            continue;
-        }
+            if (propertyType == DataType::UNKNOWN) {
+                // Will reach here if it's an array of vectors or an array with count > 4
+                CESIUM_LOG_WARN("Unsupported property type. Property \"{}\" will be ignored.", propertyId);
+                return;
+            }
 
-        const auto propertyTextureView = CesiumGltf::PropertyTextureView(model, *pPropertyTexture);
-        if (propertyTextureView.status() != CesiumGltf::PropertyTextureViewStatus::Valid) {
-            CESIUM_LOG_WARN(
-                "Property texture is invalid and will be ignored. Status code: {}",
-                static_cast<int>(propertyTextureView.status()));
+            const auto mdlPropertyType = getMdlPropertyType(propertyType);
 
-            continue;
-        }
+            if (mdlPropertyType == DataType::UNKNOWN) {
+                // Shouldn't ever reach here, but print a warning just in case
+                CESIUM_LOG_WARN("Unsupported property type. Property \"{}\" will be ignored.", propertyId);
+                return;
+            }
 
-        propertyTextureView.forEachProperty(
-            [&mdlPropertyTypes]([[maybe_unused]] const std::string& propertyName, auto view) {
-                if (view.status() != CesiumGltf::PropertyTexturePropertyViewStatus::Valid) {
-                    CESIUM_LOG_WARN(
-                        "Property \"{}\" is invalid and will be ignored. Status code: {}",
-                        propertyName,
-                        static_cast<int>(view.status()));
-                    return;
-                }
-
-                using ElementType = typename std::decay_t<decltype(view.get(0.0, 0.0))>::value_type;
-
-                // Check if it's an ArrayPropertyView based on presence of size() function
-                constexpr auto isArray = HAS_MEMBER(ElementType, size());
-
-                if constexpr (isArray) {
-                    constexpr auto innerType =
-                        GetNativeTypeReverse<typename std::decay_t<decltype(ElementType{}[0])>>::Type;
-                    constexpr auto isScalar = getComponentCount(innerType) == 1;
-
-                    if constexpr (!isScalar) {
-                        CESIUM_LOG_WARN(
-                            "Array properties of vectors or matrices are not supported for styling. Property \"{}\" "
-                            "will be ignored.",
-                            propertyName);
-                        return;
-                    } else {
-                        const auto arrayCount = view.arrayCount();
-                        assert(arrayCount > 0);
-
-                        if (arrayCount > 4) {
-                            CESIUM_LOG_WARN(
-                                "Array properties with count greater than 4 are not supported for styling. Property "
-                                "\"{}\" will be ignored.",
-                                propertyName);
-                            return;
-                        }
-
-                        const auto propertyType = fromComponentTypeAndCount(innerType, arrayCount);
-                        const auto mdlPropertyType = getMdlPropertyType(propertyType);
-
-                        if (mdlPropertyType == DataType::UNKOWN) {
-                            CESIUM_LOG_WARN(
-                                "Matrix properties are not supported for styling. Property \"{}\" will be ignored.",
-                                propertyName);
-                            return;
-                        }
-
-                        mdlPropertyTypes.push_back(mdlPropertyType);
-                    }
-                } else {
-                    const auto propertyType = GetNativeTypeReverse<ElementType>::Type;
-                    const auto mdlPropertyType = getMdlPropertyType(propertyType);
-
-                    if (mdlPropertyType == DataType::UNKOWN) {
-                        CESIUM_LOG_WARN(
-                            "Matrix properties are not supported for styling. Property \"{}\" will be ignored.",
-                            propertyName);
-                        return;
-                    }
-
-                    mdlPropertyTypes.push_back(mdlPropertyType);
-                }
-            });
-    }
+            mdlPropertyTypes.push_back(mdlPropertyType);
+        });
 
     // Sorting ensures that FabricMaterialDefinition equality checking is consistent
     std::sort(mdlPropertyTypes.begin(), mdlPropertyTypes.end());

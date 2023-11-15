@@ -72,7 +72,7 @@ void setVertexAttributeValues(
     const VertexAttributeInfo& attribute,
     uint64_t repeat) {
 
-    assert(isVertexAttributeType(attribute.type));
+    assert(isPrimvarType(attribute.type));
 
     // clang-format off
     switch (attribute.type) {
