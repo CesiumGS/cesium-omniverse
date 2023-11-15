@@ -231,13 +231,31 @@ void forEachPropertyAttributeProperty(
                     return;
                 }
 
-                callback(propertyId, schema.value(), propertyAttributeView, propertyAttributePropertyView);
+                const auto pClassDefinition = propertyAttributeView.getClass();
+                if (!pClassDefinition) {
+                    CESIUM_LOG_WARN("No class found. Property \"{}\" will be ignored.", propertyId);
+                    return;
+                }
+
+                const auto pClassProperty = propertyAttributeView.getClassProperty(propertyId);
+                if (!pClassProperty) {
+                    CESIUM_LOG_WARN("No class property found. Property \"{}\" will be ignored.", propertyId);
+                    return;
+                }
+
+                callback(
+                    propertyId,
+                    schema.value(),
+                    *pClassDefinition,
+                    *pClassProperty,
+                    propertyAttributeView,
+                    propertyAttributePropertyView);
             });
     }
 }
 
 template <typename Callback>
-void forEachPropertyTexture(
+void forEachPropertyTextureProperty(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     Callback&& callback) {
@@ -282,11 +300,29 @@ void forEachPropertyTexture(
 
                 const auto& schema = pStructuralMetadataModel->schema;
                 if (!schema.has_value()) {
-                    CESIUM_LOG_WARN("No schema found. Property will be ignored. Status code: {}", propertyId);
+                    CESIUM_LOG_WARN("No schema found. Property \"{}\" will be ignored.", propertyId);
                     return;
                 }
 
-                callback(propertyId, schema.value(), propertyTextureView, propertyTexturePropertyView);
+                const auto pClassDefinition = propertyTextureView.getClass();
+                if (!pClassDefinition) {
+                    CESIUM_LOG_WARN("No class found. Property \"{}\" will be ignored.", propertyId);
+                    return;
+                }
+
+                const auto pClassProperty = propertyTextureView.getClassProperty(propertyId);
+                if (!pClassProperty) {
+                    CESIUM_LOG_WARN("No class property found. Property \"{}\" will be ignored.", propertyId);
+                    return;
+                }
+
+                callback(
+                    propertyId,
+                    schema.value(),
+                    *pClassDefinition,
+                    *pClassProperty,
+                    propertyTextureView,
+                    propertyTexturePropertyView);
             });
     }
 }

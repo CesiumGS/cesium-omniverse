@@ -486,12 +486,13 @@ template <> struct GetNativeTypeReverse<glm::f64mat4> { static constexpr auto Ty
 
 // Only specialized for valid glTF vertex attribute types and valid fabric primvar types.
 // Excludes 32 and 64-bit integer types, 64-bit floating point types, and matrix types.
+// If we want to add support for matrix types in the future we can pack each row in a separate primvar and reassemble in MDL.
 template <DataType T> struct GetPrimvarTypeImpl;
 
 // Integer primvar lookup in MDL doesn't seem to work so cast all data types to float. This is safe to do since
 // FLOAT32 can represent all possible UINT8, INT8, UINT16, and INT16 values. Also not a significant memory
 // overhead since Fabric doesn't support INT8, UINT16, and INT16 types anyways. There is some overhead for UINT8 values
-// which could be stored as the eUChar type.
+// which could be stored as eUChar.
 template <> struct GetPrimvarTypeImpl<DataType::UINT8> { using Type = float; };
 template <> struct GetPrimvarTypeImpl<DataType::INT8> { using Type = float; };
 template <> struct GetPrimvarTypeImpl<DataType::UINT16> { using Type = float; };
@@ -512,8 +513,8 @@ template <> struct GetPrimvarTypeImpl<DataType::VEC4_INT8> { using Type = glm::f
 template <> struct GetPrimvarTypeImpl<DataType::VEC4_UINT16> { using Type = glm::f32vec4; };
 template <> struct GetPrimvarTypeImpl<DataType::VEC4_INT16> { using Type = glm::f32vec4; };
 template <> struct GetPrimvarTypeImpl<DataType::VEC4_FLOAT32> { using Type = glm::f32vec4; };
-// Normalized types are always treated as float types since they are normalized on the CPU prior to being uploaded
-// to Fabric. In the future we may do normalization in MDL.
+// Normalized types are always treated as floats. Values are normalized on the CPU prior to Fabric upload since there
+// doesn't seem to be a way in USD / Fabric to declare primvars as normalized and do that conversion on the fly.
 template <> struct GetPrimvarTypeImpl<DataType::UINT8_NORM> { using Type = float; };
 template <> struct GetPrimvarTypeImpl<DataType::INT8_NORM> { using Type = float; };
 template <> struct GetPrimvarTypeImpl<DataType::UINT16_NORM> { using Type = float; };
@@ -814,7 +815,7 @@ constexpr uint64_t getComponentCount(DataType type) {
     return 0;
 }
 
-constexpr TypeGroup getGroup(DataType type) {
+constexpr bool isMatrix(DataType type) {
     switch (type) {
         case DataType::UINT8:
         case DataType::INT8:
@@ -834,7 +835,6 @@ constexpr TypeGroup getGroup(DataType type) {
         case DataType::INT32_NORM:
         case DataType::UINT64_NORM:
         case DataType::INT64_NORM:
-            return TypeGroup::SCALAR;
         case DataType::VEC2_UINT8:
         case DataType::VEC2_INT8:
         case DataType::VEC2_UINT16:
@@ -889,7 +889,8 @@ constexpr TypeGroup getGroup(DataType type) {
         case DataType::VEC4_INT32_NORM:
         case DataType::VEC4_UINT64_NORM:
         case DataType::VEC4_INT64_NORM:
-            return TypeGroup::VECTOR;
+        case DataType::UNKNOWN:
+            return false;
         case DataType::MAT2_UINT8:
         case DataType::MAT2_INT8:
         case DataType::MAT2_UINT16:
@@ -944,14 +945,12 @@ constexpr TypeGroup getGroup(DataType type) {
         case DataType::MAT4_INT32_NORM:
         case DataType::MAT4_UINT64_NORM:
         case DataType::MAT4_INT64_NORM:
-            return TypeGroup::MATRIX;
-        case DataType::UNKNOWN:
-            return TypeGroup::UNKNOWN;
+            return true;
     }
 
     // Shouldn't reach here
     assert(false);
-    return TypeGroup::UNKNOWN;
+    return false;
 }
 
 constexpr DataType compose(DataType componentType, TypeGroup group, uint64_t componentCount, bool normalized) {

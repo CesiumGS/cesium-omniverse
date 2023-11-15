@@ -3,9 +3,7 @@
 #include "cesium/omniverse/DataType.h"
 #include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/LoggerSink.h"
-
-#include <CesiumGltf/PropertyType.h>
-#include <CesiumGltf/Schema.h>
+#include "cesium/omniverse/MetadataUtil.h"
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
@@ -33,100 +31,6 @@ std::vector<FeatureIdType> filterFeatureIdTypes(const FeaturesInfo& featuresInfo
 
     return featureIdTypes;
 }
-
-std::vector<DataType>
-gatherMdlPropertyAttributeTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
-    std::vector<DataType> mdlPropertyTypes;
-
-    GltfUtil::forEachPropertyAttributeProperty(
-        model,
-        primitive,
-        [&mdlPropertyTypes](
-            [[maybe_unused]] const std::string& propertyId,
-            const CesiumGltf::Schema& schema,
-            const CesiumGltf::PropertyAttributeView& propertyAttributeView,
-            [[maybe_unused]] auto propertyAttributePropertyView) {
-            const auto pClassProperty = propertyAttributeView.getClassProperty(propertyId);
-            if (!pClassProperty) {
-                return;
-            }
-
-            const auto propertyType = getClassPropertyType(schema, *pClassProperty);
-
-            if (propertyType == DataType::UNKNOWN) {
-                // Shouldn't ever reach here, but print a warning just in case
-                CESIUM_LOG_WARN("Unsupported property type. Property \"{}\" will be ignored.", propertyId);
-                return;
-            }
-
-            if (getGroup(propertyType) == TypeGroup::MATRIX) {
-                // Matrix types aren't supported for styling
-                // If we want to add support in the future we can pack each row in a separate primvar and reassemble in MDL
-                CESIUM_LOG_WARN(
-                    "Matrix property attributes are not supported for styling. Property \"{}\" will be ignored.",
-                    propertyId);
-                return;
-            }
-
-            const auto mdlPropertyType = getMdlPropertyType(propertyType);
-
-            if (mdlPropertyType == DataType::UNKNOWN) {
-                // Shouldn't ever reach here, but print a warning just in case
-                CESIUM_LOG_WARN("Unsupported property type. Property \"{}\" will be ignored.", propertyId);
-                return;
-            }
-
-            mdlPropertyTypes.push_back(mdlPropertyType);
-        });
-
-    // Sorting ensures that FabricMaterialDefinition equality checking is consistent
-    std::sort(mdlPropertyTypes.begin(), mdlPropertyTypes.end());
-
-    return mdlPropertyTypes;
-}
-
-std::vector<DataType>
-gatherMdlPropertyTextureTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
-    std::vector<DataType> mdlPropertyTypes;
-
-    GltfUtil::forEachPropertyAttributeProperty(
-        model,
-        primitive,
-        [&mdlPropertyTypes](
-            [[maybe_unused]] const std::string& propertyId,
-            const CesiumGltf::Schema& schema,
-            const CesiumGltf::PropertyAttributeView& propertyTextureView,
-            [[maybe_unused]] auto propertyTexturePropertyView) {
-            const auto pClassProperty = propertyTextureView.getClassProperty(propertyId);
-            if (!pClassProperty) {
-                return;
-            }
-
-            const auto propertyType = getClassPropertyType(schema, *pClassProperty);
-
-            if (propertyType == DataType::UNKNOWN) {
-                // Will reach here if it's an array of vectors or an array with count > 4
-                CESIUM_LOG_WARN("Unsupported property type. Property \"{}\" will be ignored.", propertyId);
-                return;
-            }
-
-            const auto mdlPropertyType = getMdlPropertyType(propertyType);
-
-            if (mdlPropertyType == DataType::UNKNOWN) {
-                // Shouldn't ever reach here, but print a warning just in case
-                CESIUM_LOG_WARN("Unsupported property type. Property \"{}\" will be ignored.", propertyId);
-                return;
-            }
-
-            mdlPropertyTypes.push_back(mdlPropertyType);
-        });
-
-    // Sorting ensures that FabricMaterialDefinition equality checking is consistent
-    std::sort(mdlPropertyTypes.begin(), mdlPropertyTypes.end());
-
-    return mdlPropertyTypes;
-}
-
 } // namespace
 
 FabricMaterialDefinition::FabricMaterialDefinition(
@@ -142,8 +46,8 @@ FabricMaterialDefinition::FabricMaterialDefinition(
     , _featureIdTypes(filterFeatureIdTypes(featuresInfo, disableTextures))
     , _imageryLayerCount(disableTextures ? 0 : imageryLayerCount)
     , _tilesetMaterialPath(tilesetMaterialPath)
-    , _mdlPropertyAttributeTypes(gatherMdlPropertyAttributeTypes(model, primitive))
-    , _mdlPropertyTextureTypes(gatherMdlPropertyTextureTypes(model, primitive)) {}
+    , _mdlPropertyAttributeTypes(MetadataUtil::getMdlPropertyAttributeTypes(model, primitive))
+    , _mdlPropertyTextureTypes(MetadataUtil::getMdlPropertyTextureTypes(model, primitive)) {}
 
 bool FabricMaterialDefinition::hasVertexColors() const {
     return _hasVertexColors;
