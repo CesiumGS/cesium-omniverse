@@ -8,9 +8,11 @@
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/LoggerSink.h"
+#include "cesium/omniverse/MetadataUtil.h"
 #include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
+#include <CesiumGltf/MeshPrimitive.h>
 #include <glm/gtc/random.hpp>
 #include <omni/fabric/FabricUSD.h>
 #include <spdlog/fmt/fmt.h>
@@ -669,6 +671,8 @@ void FabricMaterial::reset() {
 }
 
 void FabricMaterial::setMaterial(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive,
     int64_t tilesetId,
     const MaterialInfo& materialInfo,
     const FeaturesInfo& featuresInfo,
@@ -746,7 +750,26 @@ void FabricMaterial::setMaterial(
         setFeatureIdTextureValues(featureIdPath, textureAssetPath, textureInfo, texcoordIndex, nullFeatureId);
     }
 
-    (void)propertyTextures;
+    MetadataUtil::forEachStyleablePropertyAttributeProperty(
+        model,
+        primitive,
+        []([[maybe_unused]] const std::string& propertyId,
+           [[maybe_unused]] const CesiumGltf::Schema& schema,
+           [[maybe_unused]] const CesiumGltf::Class& classDefinition,
+           [[maybe_unused]] const CesiumGltf::ClassProperty& classProperty,
+           [[maybe_unused]] const CesiumGltf::PropertyTexture& propertyTexture,
+           [[maybe_unused]] const CesiumGltf::PropertyTextureProperty& propertyTextureProperty,
+           [[maybe_unused]] const CesiumGltf::PropertyTextureView& propertyTextureView,
+           [[maybe_unused]] auto propertyTexturePropertyView,
+           auto styleableProperty) {
+            const auto& attribute = styleableProperty.attribute;
+            const auto type = styleableProperty.type;
+            if (type == IsNormalized(type)) {
+                setPropertyAttributeValues()
+            }
+        })
+
+        (void) propertyTextures;
 
     for (const auto& path : _allPaths) {
         FabricUtil::setTilesetId(path, tilesetId);

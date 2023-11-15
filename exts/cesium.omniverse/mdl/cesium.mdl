@@ -777,34 +777,98 @@ export int4 cesium_internal_property_attribute_int4_lookup(
     return int4(::math::round(::scene::data_lookup_float4(primvar_name)));
 }
 
+float normalize_int(int value, int maximum_value) {
+    return max(float(value) / float(maximum_value), -1.0);
+}
+
+float2 normalize_int2(int2 value, int maximum_value) {
+    return max(float2(value) / float2(maximum_value), float2(-1.0));
+}
+
+float3 normalize_int3(int3 value, int maximum_value) {
+    return max(float3(value) / float3(maximum_value), float3(-1.0));
+}
+
+float4 normalize_int4(int4 value, int maximum_value) {
+    return max(float4(value) / float4(maximum_value), float4(-1.0));
+}
+
+export int cesium_internal_property_attribute_normalized_int_lookup(
+    uniform string primvar_name,
+    uniform float offset,
+    uniform float scale,
+    uniform int maximum_value
+) [[ anno::hidden() ]] {
+    const auto raw_value = int(::math::round(::scene::data_lookup_float(primvar_name)));
+    const auto normalized_value = normalize_int(raw_value, maximum_value);
+    const auto transformed_value = normalized_value * scale + offset;
+    return transformed_value;
+}
+
+export int2 cesium_internal_property_attribute_normalized_int2_lookup(
+    uniform string primvar_name,
+    uniform float2 offset,
+    uniform float2 scale,
+    uniform int maximum_value
+) [[ anno::hidden() ]] {
+    const auto raw_value = int2(::math::round(::scene::data_lookup_float2(primvar_name)));
+    const auto normalized_value = normalize_int2(raw_value, maximum_value);
+    const auto transformed_value = normalized_value * scale + offset;
+    return transformed_value;
+}
+
+export int3 cesium_internal_property_attribute_normalized_int3_lookup(
+    uniform string primvar_name,
+    uniform float3 offset,
+    uniform float3 scale,
+    uniform int maximum_value
+) [[ anno::hidden() ]] {
+    const auto raw_value = int3(::math::round(::scene::data_lookup_float3(primvar_name)));
+    const auto normalized_value = normalize_int3(raw_value, maximum_value);
+    const auto transformed_value = normalized_value * scale + offset;
+    return transformed_value;
+}
+
+export int4 cesium_internal_property_attribute_normalized_int4_lookup(
+    uniform string primvar_name,
+    uniform float4 offset,
+    uniform float4 scale,
+    uniform int maximum_value
+) [[ anno::hidden() ]] {
+    const auto raw_value = int4(::math::round(::scene::data_lookup_float4(primvar_name)));
+    const auto normalized_value = normalize_int4(raw_value, maximum_value);
+    const auto transformed_value = normalized_value * scale + offset;
+    return transformed_value;
+}
+
 export float cesium_internal_property_attribute_float_lookup(
     uniform string primvar_name,
-    uniform float offset = DEFAULT_OFFSET_FLOAT,
-    uniform float scale = DEFAULT_SCALE_FLOAT
+    uniform float offset,
+    uniform float scale
 ) [[ anno::hidden() ]] {
     return ::scene::data_lookup_float(primvar_name) * scale + offset;
 }
 
 export float2 cesium_internal_property_attribute_float2_lookup(
     uniform string primvar_name,
-    uniform float offset = DEFAULT_OFFSET_FLOAT2,
-    uniform float scale = DEFAULT_SCALE_FLOAT2
+    uniform float2 offset,
+    uniform float2 scale
 ) [[ anno::hidden() ]] {
     return ::scene::data_lookup_float2(primvar_name) * scale + offset;
 }
 
 export float3 cesium_internal_property_attribute_float3_lookup(
     uniform string primvar_name,
-    uniform float offset = DEFAULT_OFFSET_FLOAT3,
-    uniform float scale = DEFAULT_SCALE_FLOAT3
+    uniform float3 offset,
+    uniform float3 scale
 ) [[ anno::hidden() ]] {
     return ::scene::data_lookup_float3(primvar_name) * scale + offset;
 }
 
 export float4 cesium_internal_property_attribute_float4_lookup(
     uniform string primvar_name,
-    uniform float offset = DEFAULT_OFFSET_FLOAT4,
-    uniform float scale = DEFAULT_SCALE_FLOAT4
+    uniform float4 offset,
+    uniform float4 scale
 ) [[ anno::hidden() ]] {
     return ::scene::data_lookup_float4(primvar_name) * scale + offset;
 }

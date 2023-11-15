@@ -1406,6 +1406,7 @@ constexpr bool isPrimvarType(DataType type) {
     // clang-format on
 }
 
+// TODO: need a special type for normalized integers...
 constexpr DataType getMdlPropertyType(DataType type) {
     // clang-format off
     switch (type) {

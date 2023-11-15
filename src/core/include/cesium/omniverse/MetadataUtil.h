@@ -29,10 +29,6 @@ template <DataType Type> struct StyleablePropertyTexturePropertyInfo {
     std::optional<GetNormalizedType<Type>> defaultValue;
 };
 
-struct MetadataInfo {
-    f
-};
-
 template <typename Callback>
 void forEachPropertyAttributeProperty(
     const CesiumGltf::Model& model,
