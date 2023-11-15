@@ -320,19 +320,21 @@ TextureInfo getTextureInfo(const CesiumGltf::Model& model, const CesiumGltf::Tex
     return textureInfo;
 }
 
-TextureInfo
-getFeatureIdTextureInfo(const CesiumGltf::Model& model, const CesiumGltf::FeatureIdTexture& featureIdTextureInfo) {
-    TextureInfo textureInfo = getTextureInfo(model, featureIdTextureInfo);
-
+template <typename T> std::vector<uint8_t> getChannels(const T& textureInfoWithChannels) {
     std::vector<uint8_t> channels;
-    channels.reserve(featureIdTextureInfo.channels.size());
+    channels.reserve(textureInfoWithChannels.channels.size());
 
-    for (const auto channel : featureIdTextureInfo.channels) {
+    for (const auto channel : textureInfoWithChannels.channels) {
         channels.push_back(static_cast<uint8_t>(channel));
     }
 
-    textureInfo.channels = channels;
+    return channels;
+}
 
+TextureInfo
+getFeatureIdTextureInfo(const CesiumGltf::Model& model, const CesiumGltf::FeatureIdTexture& featureIdTexture) {
+    TextureInfo textureInfo = getTextureInfo(model, featureIdTexture);
+    textureInfo.channels = getChannels(featureIdTexture);
     return textureInfo;
 }
 
@@ -697,6 +699,14 @@ TextureInfo getDefaultTextureInfo() {
         getDefaultWrapT(),
         true,
     };
+}
+
+TextureInfo getPropertyTextureInfo(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::PropertyTextureProperty& propertyTextureProperty) {
+    TextureInfo textureInfo = getTextureInfo(model, propertyTextureProperty);
+    textureInfo.channels = getChannels(propertyTextureProperty);
+    return textureInfo;
 }
 
 bool hasNormals(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, bool smoothNormals) {

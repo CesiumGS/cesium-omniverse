@@ -38,6 +38,7 @@ class FabricMaterial {
         const FeaturesInfo& featuresInfo,
         const std::shared_ptr<FabricTexture>& baseColorTexture,
         const std::vector<std::shared_ptr<FabricTexture>>& featureIdTextures,
+        const std::vector<std::shared_ptr<FabricTexture>>& propertyTextures,
         const glm::dvec3& displayColor,
         double displayOpacity,
         const std::unordered_map<uint64_t, uint64_t>& texcoordIndexMapping,

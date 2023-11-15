@@ -8,6 +8,7 @@
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GeospatialUtil.h"
 #include "cesium/omniverse/GltfUtil.h"
+#include "cesium/omniverse/MetadataUtil.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/UsdUtil.h"
 
@@ -66,6 +67,24 @@ uint64_t getFeatureIdTextureCount(const FabricMesh& fabricMesh) {
 
     const auto& featureIdTypes = fabricMesh.material->getMaterialDefinition().getFeatureIdTypes();
     return static_cast<uint64_t>(std::count(featureIdTypes.begin(), featureIdTypes.end(), FeatureIdType::TEXTURE));
+}
+
+std::vector<const CesiumGltf::ImageCesium*> getPropertyTextureImages(
+    const FabricMesh& fabricMesh,
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive) {
+    if (fabricMesh.material == nullptr) {
+        return {};
+    }
+
+    return MetadataUtil::getImagesReferencedByPropertyTextures(model, primitive);
+}
+
+uint64_t getPropertyTextureCount(
+    const FabricMesh& fabricMesh,
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive) {
+    return getPropertyTextureImages(fabricMesh, model, primitive).size();
 }
 
 std::vector<MeshInfo>
@@ -161,6 +180,12 @@ std::vector<FabricMesh> acquireFabricMeshes(
             for (uint64_t i = 0; i < featureIdTextureCount; i++) {
                 fabricMesh.featureIdTextures.emplace_back(fabricResourceManager.acquireTexture());
             }
+
+            const auto propertyTextureCount = getPropertyTextureCount(fabricMesh, model, primitive);
+            fabricMesh.propertyTextures.reserve(propertyTextureCount);
+            for (uint64_t i = 0; i < propertyTextureCount; i++) {
+                fabricMesh.propertyTextures.emplace_back(fabricResourceManager.acquireTexture());
+            }
         }
 
         // Map glTF texcoord set index to primvar st index
@@ -208,6 +233,12 @@ void setFabricTextures(
             assert(featureIdTextureImage);
             mesh.featureIdTextures[j]->setImage(*featureIdTextureImage, TransferFunction::LINEAR);
         }
+
+        const auto propertyTextureImages = getPropertyTextureImages(mesh, model, primitive);
+        const auto propertyTextureCount = propertyTextureImages.size();
+        for (uint64_t j = 0; j < propertyTextureCount; j++) {
+            mesh.propertyTextures[j]->setImage(*propertyTextureImages[j], TransferFunction::LINEAR);
+        }
     }
 }
 
@@ -249,6 +280,7 @@ void setFabricMeshes(
                 mesh.featuresInfo,
                 mesh.baseColorTexture,
                 mesh.featureIdTextures,
+                mesh.propertyTextures,
                 displayColor,
                 displayOpacity,
                 mesh.texcoordIndexMapping,

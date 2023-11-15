@@ -19,26 +19,61 @@ __pragma(warning(pop))
 #endif
 
 }
+// clang-format on
 
 namespace cesium::omniverse::FabricTokens {
 FABRIC_DEFINE_TOKENS(USD_TOKENS);
 
 namespace {
-    std::vector<omni::fabric::Token> propertyTokens;
-}
+std::mutex tokenMutex;
+std::vector<omni::fabric::Token> primvar_st_tokens;
+std::vector<omni::fabric::Token> imagery_layer_tokens;
+std::vector<omni::fabric::Token> inputs_imagery_layer_tokens;
+std::vector<omni::fabric::Token> feature_id_tokens;
+std::vector<omni::fabric::Token> property_attribute_tokens;
+std::vector<omni::fabric::Token> property_texture_tokens;
 
-const omni::fabric::TokenC getPropertyToken(uint64_t index) {
-    // TODO: need a mutex?
-    propertyTokens.resize(index);
+const omni::fabric::TokenC getToken(std::vector<omni::fabric::Token>& tokens, uint64_t index, const char* prefix) {
+    const auto lock = std::scoped_lock<std::mutex>(tokenMutex);
 
-    auto& propertyToken = propertyTokens[index];
-
-    if (propertyToken.asTokenC() == omni::fabric::kUninitializedToken) {
-        const auto propertyTokenStr = fmt::format("property_token_{}", index);
-        propertyToken = omni::fabric::Token(propertyTokenStr.c_str());
+    const auto size = index + 1;
+    if (size > tokens.size()) {
+        tokens.resize(size);
     }
 
-    return propertyToken.asTokenC();
+    auto& token = tokens[index];
+
+    if (token.asTokenC() == omni::fabric::kUninitializedToken) {
+        const auto tokenStr = fmt::format("{}_{}", prefix, index);
+        token = omni::fabric::Token(tokenStr.c_str());
+    }
+
+    return token.asTokenC();
 }
+} // namespace
+
+const omni::fabric::TokenC primvars_st_n(uint64_t index) {
+    return getToken(primvar_st_tokens, index, "primvars:st");
 }
-// clang-format on
+
+const omni::fabric::TokenC imagery_layer_n(uint64_t index) {
+    return getToken(imagery_layer_tokens, index, "imagery_layer");
+}
+
+const omni::fabric::TokenC inputs_imagery_layer_n(uint64_t index) {
+    return getToken(inputs_imagery_layer_tokens, index, "inputs:imagery_layer");
+}
+
+const omni::fabric::TokenC feature_id_n(uint64_t index) {
+    return getToken(feature_id_tokens, index, "feature_id");
+}
+
+const omni::fabric::TokenC property_attribute_n(uint64_t index) {
+    return getToken(property_attribute_tokens, index, "property_attribute");
+}
+
+const omni::fabric::TokenC property_texture_n(uint64_t index) {
+    return getToken(property_texture_tokens, index, "property_texture");
+}
+
+} // namespace cesium::omniverse::FabricTokens
