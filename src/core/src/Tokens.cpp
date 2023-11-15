@@ -28,6 +28,7 @@ namespace {
 }
 
 const omni::fabric::TokenC getPropertyToken(uint64_t index) {
+    // TODO: need a mutex?
     propertyTokens.resize(index);
 
     auto& propertyToken = propertyTokens[index];

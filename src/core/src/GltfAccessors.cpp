@@ -1,11 +1,5 @@
 #include "cesium/omniverse/GltfAccessors.h"
 
-#include "cesium/omniverse/DataType.h"
-
-#include <CesiumGltf/PropertyTransformations.h>
-
-#include <type_traits>
-
 namespace cesium::omniverse {
 PositionsAccessor::PositionsAccessor()
     : _size(0) {}
