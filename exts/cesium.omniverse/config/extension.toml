@@ -27,6 +27,10 @@ icon = "doc/resources/icon.png"
 [package.target]
 kit = ["105.1"]
 
+[package.writeTarget]
+kit = true
+python = false
+
 # Which extensions this extension depends on
 [dependencies]
 "cesium.usd.plugins" = {}
