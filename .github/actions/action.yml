@@ -10,7 +10,7 @@ runs:
   # Tell Conan to look for or create its build folder (.conan) in the repository's root directory
   env:
     CONAN_USER_HOME: $GITHUB_WORKSPACE
-    PACKMAN_ROOT: $GITHUB_WORKSPACE/packman-repo
+    PM_PACKAGES_ROOT: $GITHUB_WORKSPACE/packman-repo
   args:
     # Tell bash to run a command
     - "-c"
