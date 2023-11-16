@@ -105,9 +105,11 @@ jobs:
       # Change the ownership from root to user for all files created by Docker in
       # the Conan build directory so that the files can be cached without permission
       # denied errors
-      - name: AlmaLinux Change Conan directory permissions
+      - name: AlmaLinux Change Conan & Packman directory permissions
         if: matrix.config.name == 'AlmaLinux 8 - GCC'
-        run: sudo chown -R $USER:$USER $CONAN_USER_HOME/.conan
+        run: |
+          sudo chown -R $USER:$USER $CONAN_USER_HOME/.conan
+          sudo chown -R $USER:$USER $PM_PACKAGES_ROOT
 
       - name: Install Linux dependencies
         if: ${{ runner.os == 'Linux' && matrix.config.name != 'AlmaLinux 8 - GCC' }}
