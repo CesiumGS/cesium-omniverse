@@ -26,6 +26,7 @@ jobs:
               cxx: "cl",
               build-type: "Release",
               build-code: "Windows",
+              cache-type: "Windows",
               generator: "Ninja Multi-Config",
               coverage: "false",
             }
@@ -37,6 +38,7 @@ jobs:
               cxx: "g++-11",
               build-type: "Release",
               build-code: "Ubuntu",
+              cache-type: "Linux",
               generator: "Unix Makefiles",
               coverage: "false",
             }
@@ -48,6 +50,7 @@ jobs:
               cxx: "g++-11",
               build-type: "Release",
               build-code: "AlmaLinux8",
+              cache-type: "Linux",
               generator: "Unix Makefiles",
               coverage: "false",
             }
@@ -91,7 +94,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.PM_PACKAGES_ROOT }}
-          key: packman-${{ matrix.config.name }}-${{ hashFiles('extern/nvidia/deps/kit-sdk.packman.xml', 'extern/nvidia/deps/target-deps.packman.xml') }}
+          key: packman-${{ matrix.config.cache-type }}-${{ hashFiles('extern/nvidia/deps/kit-sdk.packman.xml', 'extern/nvidia/deps/target-deps.packman.xml') }}
 
       - name: AlmaLinux Build with Docker
         uses: ./.github/actions
