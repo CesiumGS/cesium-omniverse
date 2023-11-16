@@ -141,7 +141,7 @@ template <DataType T> class VertexAttributeAccessor {
   public:
     VertexAttributeAccessor()
         : _size(0){};
-    VertexAttributeAccessor(const CesiumGltf::AccessorView<GetNativeType<T>>& view)
+    VertexAttributeAccessor(const CesiumGltf::AccessorView<GetRawType<T>>& view)
         : _view(view)
         , _size(static_cast<uint64_t>(view.size())) {}
 
@@ -149,6 +149,7 @@ template <DataType T> class VertexAttributeAccessor {
         const auto size = values.size();
         assert(size == _size * repeat);
 
+        // TODO: or not?
         if constexpr (IsNormalized<T>::value) {
             for (uint64_t i = 0; i < size; i++) {
                 values[i] =
@@ -166,7 +167,7 @@ template <DataType T> class VertexAttributeAccessor {
     }
 
   private:
-    CesiumGltf::AccessorView<GetNativeType<T>> _view;
+    CesiumGltf::AccessorView<GetRawType<T>> _view;
     uint64_t _size;
 };
 

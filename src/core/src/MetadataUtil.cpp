@@ -17,7 +17,10 @@ getMdlPropertyAttributeTypes(const CesiumGltf::Model& model, const CesiumGltf::M
             [[maybe_unused]] const CesiumGltf::PropertyAttributeProperty& propertyAttributeProperty,
             [[maybe_unused]] const CesiumGltf::PropertyAttributeView& propertyTextureView,
             [[maybe_unused]] auto propertyTexturePropertyView,
-            auto styleableProperty) { mdlTypes.push_back(getMdlPropertyType(styleableProperty.type)); });
+            auto styleableProperty) {
+            constexpr auto type = decltype(styleableProperty)::Type;
+            mdlTypes.push_back(GetMdlShaderType<type>::Type);
+        });
 
     std::sort(mdlTypes.begin(), mdlTypes.end());
 
@@ -28,21 +31,26 @@ std::vector<DataType>
 getMdlPropertyTextureTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
     std::vector<DataType> mdlTypes;
 
-    forEachStyleablePropertyTextureProperty(
-        model,
-        primitive,
-        [&mdlTypes](
-            [[maybe_unused]] const std::string& propertyId,
-            [[maybe_unused]] const CesiumGltf::Schema& schema,
-            [[maybe_unused]] const CesiumGltf::Class& classDefinition,
-            [[maybe_unused]] const CesiumGltf::ClassProperty& classProperty,
-            [[maybe_unused]] const CesiumGltf::PropertyTexture& propertyTexture,
-            [[maybe_unused]] const CesiumGltf::PropertyTextureProperty& propertyTextureProperty,
-            [[maybe_unused]] const CesiumGltf::PropertyTextureView& propertyTextureView,
-            [[maybe_unused]] auto propertyTexturePropertyView,
-            auto styleableProperty) { mdlTypes.push_back(getMdlPropertyType(styleableProperty.type)); });
+    (void)model;
+    (void)primitive;
+    // forEachStyleablePropertyTextureProperty(
+    //     model,
+    //     primitive,
+    //     [&mdlTypes](
+    //         [[maybe_unused]] const std::string& propertyId,
+    //         [[maybe_unused]] const CesiumGltf::Schema& schema,
+    //         [[maybe_unused]] const CesiumGltf::Class& classDefinition,
+    //         [[maybe_unused]] const CesiumGltf::ClassProperty& classProperty,
+    //         [[maybe_unused]] const CesiumGltf::PropertyTexture& propertyTexture,
+    //         [[maybe_unused]] const CesiumGltf::PropertyTextureProperty& propertyTextureProperty,
+    //         [[maybe_unused]] const CesiumGltf::PropertyTextureView& propertyTextureView,
+    //         [[maybe_unused]] auto propertyTexturePropertyView,
+    //         auto styleableProperty) {
+    //         constexpr auto type = decltype(styleableProperty)::Type;
+    //         mdlTypes.push_back(GetMdlShaderType<type>::value);
+    //     });
 
-    std::sort(mdlTypes.begin(), mdlTypes.end());
+    // std::sort(mdlTypes.begin(), mdlTypes.end());
 
     return mdlTypes;
 }

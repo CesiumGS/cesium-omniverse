@@ -33,6 +33,8 @@ class FabricMaterial {
     ~FabricMaterial();
 
     void setMaterial(
+        const CesiumGltf::Model& model,
+        const CesiumGltf::MeshPrimitive& primitive,
         int64_t tilesetId,
         const MaterialInfo& materialInfo,
         const FeaturesInfo& featuresInfo,
@@ -119,8 +121,7 @@ class FabricMaterial {
         double alpha);
     void setImageryLayerAlphaValue(const omni::fabric::Path& path, double alpha);
     void setFeatureIdIndexValues(const omni::fabric::Path& path, int nullFeatureId);
-    void
-    setFeatureIdAttributeValues(const omni::fabric::Path& path, const std::string& attributeName, int nullFeatureId);
+    void setFeatureIdAttributeValues(const omni::fabric::Path& path, const std::string& primvarName, int nullFeatureId);
     void setFeatureIdTextureValues(
         const omni::fabric::Path& path,
         const pxr::TfToken& textureAssetPathToken,

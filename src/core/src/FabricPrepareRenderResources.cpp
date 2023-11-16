@@ -275,6 +275,8 @@ void setFabricMeshes(
 
         if (material != nullptr) {
             material->setMaterial(
+                model,
+                primitive,
                 meshInfo.tilesetId,
                 mesh.materialInfo,
                 mesh.featuresInfo,

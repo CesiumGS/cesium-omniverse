@@ -56,8 +56,6 @@ void setVertexAttributeValues(
     const VertexAttributeInfo& attribute,
     uint64_t repeat) {
 
-    assert(isPrimvarType(attribute.type));
-
     // clang-format off
     switch (attribute.type) {
         case DataType::UINT8: setVertexAttributeValues<DataType::UINT8>(srw, path, model, primitive, attribute, repeat); break;

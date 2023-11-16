@@ -5,28 +5,28 @@
 
 namespace cesium::omniverse::MetadataUtil {
 
-template <DataType Type> struct StyleablePropertyAttributePropertyInfo {
+template <DataType T> struct StyleablePropertyAttributePropertyInfo {
+    static constexpr auto Type = T;
     std::string attribute;
-    DataType type;
-    std::optional<GetNormalizedType<Type>> offset;
-    std::optional<GetNormalizedType<Type>> scale;
-    std::optional<GetNormalizedType<Type>> min;
-    std::optional<GetNormalizedType<Type>> max;
+    std::optional<GetTransformedType<T>> offset;
+    std::optional<GetTransformedType<T>> scale;
+    std::optional<GetTransformedType<T>> min;
+    std::optional<GetTransformedType<T>> max;
     bool required;
-    std::optional<GetNativeType<Type>> noData;
-    std::optional<GetNormalizedType<Type>> defaultValue;
+    std::optional<GetRawType<T>> noData;
+    std::optional<GetTransformedType<T>> defaultValue;
 };
 
-template <DataType Type> struct StyleablePropertyTexturePropertyInfo {
+template <DataType T> struct StyleablePropertyTexturePropertyInfo {
+    static constexpr auto Type = T;
     TextureInfo textureInfo;
-    DataType type;
-    std::optional<GetNormalizedType<Type>> offset;
-    std::optional<GetNormalizedType<Type>> scale;
-    std::optional<GetNormalizedType<Type>> min;
-    std::optional<GetNormalizedType<Type>> max;
+    std::optional<GetTransformedType<Type>> offset;
+    std::optional<GetTransformedType<Type>> scale;
+    std::optional<GetTransformedType<Type>> min;
+    std::optional<GetTransformedType<Type>> max;
     bool required;
-    std::optional<GetNativeType<Type>> noData;
-    std::optional<GetNormalizedType<Type>> defaultValue;
+    std::optional<GetRawType<Type>> noData;
+    std::optional<GetTransformedType<Type>> defaultValue;
 };
 
 template <typename Callback>
@@ -213,9 +213,8 @@ void forEachStyleablePropertyAttributeProperty(
             using RawType = decltype(propertyAttributePropertyView.getRaw(0));
             using TransformedType = typename std::decay_t<decltype(propertyAttributePropertyView.get(0))>::value_type;
             constexpr auto type = GetType<RawType, TransformedType>::Type;
-            constexpr auto mdlType = getMdlPropertyType(type);
 
-            if (mdlType == DataType::UNKNOWN) {
+            if (IsMatrix<type>::value) {
                 // Matrices are not supported
                 CESIUM_LOG_WARN("Unsupported property type. Property \"{}\" will be ignored.", propertyId);
                 return;
@@ -225,7 +224,6 @@ void forEachStyleablePropertyAttributeProperty(
 
             const auto styleableProperty = StyleablePropertyAttributePropertyInfo<type>{
                 attribute,
-                type,
                 propertyAttributePropertyView.offset(),
                 propertyAttributePropertyView.scale(),
                 propertyAttributePropertyView.min(),
@@ -286,19 +284,11 @@ void forEachStyleablePropertyTextureProperty(
                 return;
             } else {
                 constexpr auto type = GetType<RawType, TransformedType>::Type;
-                constexpr auto mdlType = getMdlPropertyType(type);
-
-                if (mdlType == DataType::UNKNOWN) {
-                    // Something unexpected happened...
-                    CESIUM_LOG_WARN("Unsupported property type. Property \"{}\" will be ignored.", propertyId);
-                    return;
-                }
 
                 const auto textureInfo = GltfUtil::getPropertyTextureInfo(model, propertyTextureProperty);
 
                 const auto styleableProperty = StyleablePropertyTexturePropertyInfo<type>{
                     textureInfo,
-                    type,
                     propertyTexturePropertyView.offset(),
                     propertyTexturePropertyView.scale(),
                     propertyTexturePropertyView.min(),

@@ -47,8 +47,7 @@ FabricMaterialDefinition::FabricMaterialDefinition(
     , _imageryLayerCount(disableTextures ? 0 : imageryLayerCount)
     , _tilesetMaterialPath(tilesetMaterialPath)
     , _mdlPropertyAttributeTypes(MetadataUtil::getMdlPropertyAttributeTypes(model, primitive))
-//, _mdlPropertyTextureTypes(MetadataUtil::getMdlPropertyTextureTypes(model, primitive))
-{}
+    , _mdlPropertyTextureTypes(MetadataUtil::getMdlPropertyTextureTypes(model, primitive)) {}
 
 bool FabricMaterialDefinition::hasVertexColors() const {
     return _hasVertexColors;

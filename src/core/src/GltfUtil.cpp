@@ -3,6 +3,7 @@
 #include "cesium/omniverse/DataType.h"
 #include "cesium/omniverse/LoggerSink.h"
 
+#include <CesiumGltf/Accessor.h>
 #include <CesiumGltf/FeatureIdTexture.h>
 
 #include <optional>
@@ -373,6 +374,100 @@ std::pair<std::string, uint64_t> parseAttributeName(const std::string& attribute
     return std::make_pair(semantic, setIndexU64);
 }
 
+std::optional<DataType> getGltfVertexAttributeType(const CesiumGltf::Accessor& accessor) {
+    const auto& type = accessor.type;
+    const auto componentType = accessor.componentType;
+    const auto normalized = accessor.normalized;
+
+    if (type == CesiumGltf::Accessor::Type::SCALAR) {
+        if (componentType == CesiumGltf::Accessor::ComponentType::BYTE) {
+            return normalized ? DataType::INT8_NORM : DataType::INT8;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_BYTE) {
+            return normalized ? DataType::UINT8_NORM : DataType::UINT8;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::SHORT) {
+            return normalized ? DataType::INT16_NORM : DataType::INT16;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_SHORT) {
+            return normalized ? DataType::UINT16_NORM : DataType::UINT16;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::FLOAT) {
+            return DataType::FLOAT32;
+        }
+    } else if (type == CesiumGltf::Accessor::Type::VEC2) {
+        if (componentType == CesiumGltf::Accessor::ComponentType::BYTE) {
+            return normalized ? DataType::VEC2_INT8_NORM : DataType::VEC2_INT8;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_BYTE) {
+            return normalized ? DataType::VEC2_UINT8_NORM : DataType::VEC2_UINT8;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::SHORT) {
+            return normalized ? DataType::VEC2_INT16_NORM : DataType::VEC2_INT16;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_SHORT) {
+            return normalized ? DataType::VEC2_UINT16_NORM : DataType::VEC2_UINT16;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::FLOAT) {
+            return DataType::VEC2_FLOAT32;
+        }
+    } else if (type == CesiumGltf::Accessor::Type::VEC3) {
+        if (componentType == CesiumGltf::Accessor::ComponentType::BYTE) {
+            return normalized ? DataType::VEC3_INT8_NORM : DataType::VEC3_INT8;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_BYTE) {
+            return normalized ? DataType::VEC3_UINT8_NORM : DataType::VEC3_UINT8;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::SHORT) {
+            return normalized ? DataType::VEC3_INT16_NORM : DataType::VEC3_INT16;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_SHORT) {
+            return normalized ? DataType::VEC3_UINT16_NORM : DataType::VEC3_UINT16;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::FLOAT) {
+            return DataType::VEC3_FLOAT32;
+        }
+    } else if (type == CesiumGltf::Accessor::Type::VEC4) {
+        if (componentType == CesiumGltf::Accessor::ComponentType::BYTE) {
+            return normalized ? DataType::VEC4_INT8_NORM : DataType::VEC4_INT8;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_BYTE) {
+            return normalized ? DataType::VEC4_UINT8_NORM : DataType::VEC4_UINT8;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::SHORT) {
+            return normalized ? DataType::VEC4_INT16_NORM : DataType::VEC4_INT16;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_SHORT) {
+            return normalized ? DataType::VEC4_UINT16_NORM : DataType::VEC4_UINT16;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::FLOAT) {
+            return DataType::VEC4_FLOAT32;
+        }
+    } else if (type == CesiumGltf::Accessor::Type::MAT2) {
+        if (componentType == CesiumGltf::Accessor::ComponentType::BYTE) {
+            return normalized ? DataType::MAT2_INT8_NORM : DataType::MAT2_INT8;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_BYTE) {
+            return normalized ? DataType::MAT2_UINT8_NORM : DataType::MAT2_UINT8;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::SHORT) {
+            return normalized ? DataType::MAT2_INT16_NORM : DataType::MAT2_INT16;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_SHORT) {
+            return normalized ? DataType::MAT2_UINT16_NORM : DataType::MAT2_UINT16;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::FLOAT) {
+            return DataType::MAT2_FLOAT32;
+        }
+    } else if (type == CesiumGltf::Accessor::Type::MAT3) {
+        if (componentType == CesiumGltf::Accessor::ComponentType::BYTE) {
+            return normalized ? DataType::MAT3_INT8_NORM : DataType::MAT3_INT8;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_BYTE) {
+            return normalized ? DataType::MAT3_UINT8_NORM : DataType::MAT3_UINT8;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::SHORT) {
+            return normalized ? DataType::MAT3_INT16_NORM : DataType::MAT3_INT16;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_SHORT) {
+            return normalized ? DataType::MAT3_UINT16_NORM : DataType::MAT3_UINT16;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::FLOAT) {
+            return DataType::MAT3_FLOAT32;
+        }
+    } else if (type == CesiumGltf::Accessor::Type::MAT4) {
+        if (componentType == CesiumGltf::Accessor::ComponentType::BYTE) {
+            return normalized ? DataType::MAT4_INT8_NORM : DataType::MAT4_INT8;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_BYTE) {
+            return normalized ? DataType::MAT4_UINT8_NORM : DataType::MAT4_UINT8;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::SHORT) {
+            return normalized ? DataType::MAT4_INT16_NORM : DataType::MAT4_INT16;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_SHORT) {
+            return normalized ? DataType::MAT4_UINT16_NORM : DataType::MAT4_UINT16;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::FLOAT) {
+            return DataType::MAT4_FLOAT32;
+        }
+    }
+
+    return std::nullopt;
+}
+
 } // namespace
 
 PositionsAccessor getPositions(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
@@ -642,12 +737,12 @@ getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::Mesh
             continue;
         }
 
-        auto accessor = model.getSafe<CesiumGltf::Accessor>(&model.accessors, static_cast<int32_t>(attribute.second));
-        if (!accessor) {
+        auto pAccessor = model.getSafe<CesiumGltf::Accessor>(&model.accessors, static_cast<int32_t>(attribute.second));
+        if (!pAccessor) {
             continue;
         }
 
-        const auto valid = createAccessorView(model, *accessor, [](const auto& accessorView) {
+        const auto valid = createAccessorView(model, *pAccessor, [](const auto& accessorView) {
             return accessorView.status() == CesiumGltf::AccessorViewStatus::Valid;
         });
 
@@ -655,9 +750,9 @@ getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::Mesh
             continue;
         }
 
-        const auto type = getGltfVertexAttributeType(accessor->type, accessor->componentType, accessor->normalized);
+        const auto type = getGltfVertexAttributeType(*pAccessor);
 
-        if (type == DataType::UNKNOWN) {
+        if (!type.has_value()) {
             continue;
         }
 
@@ -665,7 +760,7 @@ getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::Mesh
         const auto fabricAttributeName = omni::fabric::Token(fabricAttributeNameStr.c_str());
 
         customVertexAttributes.insert(VertexAttributeInfo{
-            type,
+            type.value(),
             fabricAttributeName,
             attributeName,
         });

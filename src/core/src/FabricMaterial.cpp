@@ -33,6 +33,10 @@ const auto DEFAULT_TEXTURE_INFO = GltfUtil::getDefaultTextureInfo();
 const auto DEFAULT_TEXCOORD_INDEX = uint64_t(0);
 const auto DEFAULT_FEATURE_ID_PRIMVAR_NAME = std::string("_FEATURE_ID_0");
 const auto DEFAULT_NULL_FEATURE_ID = -1;
+const auto DEFAULT_OFFSET = 0;
+const auto DEFAULT_SCALE = 0;
+const auto DEFAULT_NO_DATA = 0;
+const auto DEFAULT_DEFAULT_VALUE = 0;
 
 struct FeatureIdCounts {
     uint64_t indexCount;
@@ -147,6 +151,46 @@ void createAttributes(
     infoMdlSourceAssetFabric->assetPath = Context::instance().getCesiumMdlPathToken();
     infoMdlSourceAssetFabric->resolvedPath = pxr::TfToken();
     *infoMdlSourceAssetSubIdentifierFabric = subidentifier;
+}
+
+template <DataType T>
+void setPropertyAttribute(
+    const omni::fabric::Path& path,
+    const std::string& primvarName,
+    const GetMdlTransformedType<T>& offset,
+    const GetMdlTransformedType<T>& scale,
+    const GetMdlRawType<T>& maximumValue,
+    bool hasNoData,
+    const GetMdlRawType<T>& noData,
+    const GetMdlTransformedType<T>& defaultValue) {
+
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+
+    const auto primvarNameSize = primvarName.size();
+    srw.setArrayAttributeSize(path, FabricTokens::inputs_primvar_name, primvarNameSize);
+    auto primvarNameFabric = srw.getArrayAttributeWr<uint8_t>(path, FabricTokens::inputs_primvar_name);
+    memcpy(primvarNameFabric.data(), primvarName.data(), primvarNameSize);
+
+    auto hasNoDataFabric = srw.getAttributeWr<bool>(path, FabricTokens::inputs_has_no_data);
+    auto noDataFabric = srw.getAttributeWr<GetMdlRawType<T>>(path, FabricTokens::inputs_no_data);
+    auto defaultValueFabric = srw.getAttributeWr<GetMdlTransformedType<T>>(path, FabricTokens::inputs_default_value);
+
+    *hasNoDataFabric = hasNoData;
+    *noDataFabric = noData;
+    *defaultValueFabric = defaultValue;
+
+    if constexpr (IsNormalized<T>::value || IsFloatingPoint<T>::value) {
+        auto offsetFabric = srw.getAttributeWr<GetMdlTransformedType<T>>(path, FabricTokens::inputs_offset);
+        auto scaleFabric = srw.getAttributeWr<GetMdlTransformedType<T>>(path, FabricTokens::inputs_scale);
+
+        *offsetFabric = offset;
+        *scaleFabric = scale;
+    }
+
+    if constexpr (IsNormalized<T>::value) {
+        auto maximumValueFabric = srw.getAttributeWr<GetMdlRawType<T>>(path, FabricTokens::inputs_maximum_value);
+        *maximumValueFabric = maximumValue;
+    }
 }
 
 } // namespace
@@ -750,26 +794,44 @@ void FabricMaterial::setMaterial(
         setFeatureIdTextureValues(featureIdPath, textureAssetPath, textureInfo, texcoordIndex, nullFeatureId);
     }
 
+    uint64_t propertyAttributeIndex = 0;
+
     MetadataUtil::forEachStyleablePropertyAttributeProperty(
         model,
         primitive,
-        []([[maybe_unused]] const std::string& propertyId,
-           [[maybe_unused]] const CesiumGltf::Schema& schema,
-           [[maybe_unused]] const CesiumGltf::Class& classDefinition,
-           [[maybe_unused]] const CesiumGltf::ClassProperty& classProperty,
-           [[maybe_unused]] const CesiumGltf::PropertyTexture& propertyTexture,
-           [[maybe_unused]] const CesiumGltf::PropertyTextureProperty& propertyTextureProperty,
-           [[maybe_unused]] const CesiumGltf::PropertyTextureView& propertyTextureView,
-           [[maybe_unused]] auto propertyTexturePropertyView,
-           auto styleableProperty) {
-            const auto& attribute = styleableProperty.attribute;
-            const auto type = styleableProperty.type;
-            if (type == IsNormalized(type)) {
-                setPropertyAttributeValues()
-            }
-        })
+        [this, &propertyAttributeIndex](
+            [[maybe_unused]] const std::string& propertyId,
+            [[maybe_unused]] const CesiumGltf::Schema& schema,
+            [[maybe_unused]] const CesiumGltf::Class& classDefinition,
+            [[maybe_unused]] const CesiumGltf::ClassProperty& classProperty,
+            [[maybe_unused]] const CesiumGltf::PropertyAttribute& propertyAttribute,
+            [[maybe_unused]] const CesiumGltf::PropertyAttributeProperty& propertyAttributeProperty,
+            [[maybe_unused]] const CesiumGltf::PropertyAttributeView& propertyAttributeView,
+            [[maybe_unused]] auto propertyAttributePropertyView,
+            auto styleableProperty) {
+            constexpr auto Type = decltype(styleableProperty)::Type;
+            const auto& primvarName = styleableProperty.attribute;
+            const auto offset = styleableProperty.offset.value_or(GetTransformedType<Type>{DEFAULT_OFFSET});
+            const auto scale = styleableProperty.scale.value_or(GetTransformedType<Type>{DEFAULT_SCALE});
+            const auto maximumValue = GetRawType<Type>{std::numeric_limits<GetRawComponentType<Type>>::max()};
+            const auto hasNoData = styleableProperty.noData.has_value();
+            const auto noData = styleableProperty.noData.value_or(GetRawType<Type>{DEFAULT_NO_DATA});
+            const auto defaultValue =
+                styleableProperty.defaultValue.value_or(GetTransformedType<Type>{DEFAULT_DEFAULT_VALUE});
+            const auto& propertyAttributePath = _propertyAttributePaths[propertyAttributeIndex++];
 
-        (void) propertyTextures;
+            setPropertyAttribute<Type>(
+                propertyAttributePath,
+                primvarName,
+                static_cast<GetMdlTransformedType<Type>>(offset),
+                static_cast<GetMdlTransformedType<Type>>(scale),
+                static_cast<GetMdlRawType<Type>>(maximumValue),
+                hasNoData,
+                static_cast<GetMdlRawType<Type>>(noData),
+                static_cast<GetMdlTransformedType<Type>>(defaultValue));
+        });
+
+    (void)propertyTextures;
 
     for (const auto& path : _allPaths) {
         FabricUtil::setTilesetId(path, tilesetId);

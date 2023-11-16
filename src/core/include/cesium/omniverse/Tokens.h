@@ -72,11 +72,15 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((inputs_base_color_texture, "inputs:base_color_texture")) \
     ((inputs_channel_count, "inputs:channel_count")) \
     ((inputs_channels, "inputs:channels")) \
+    ((inputs_default_value, "inputs:default_value")) \
     ((inputs_emissive_factor, "inputs:emissive_factor")) \
     ((inputs_excludeFromWhiteMode, "inputs:excludeFromWhiteMode")) \
     ((inputs_feature_id, "inputs:feature_id")) \
     ((inputs_feature_id_set_index, "inputs:feature_id_set_index")) \
+    ((inputs_has_no_data, "inputs:has_no_data")) \
+    ((inputs_maximum_value, "inputs:maximum_value")) \
     ((inputs_metallic_factor, "inputs:metallic_factor")) \
+    ((inputs_no_data, "inputs:no_data")) \
     ((inputs_null_feature_id, "inputs:null_feature_id")) \
     ((inputs_offset, "inputs:offset")) \
     ((inputs_primvar_name, "inputs:primvar_name")) \
