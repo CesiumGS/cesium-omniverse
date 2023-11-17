@@ -6,20 +6,9 @@ getMdlPropertyAttributeTypes(const CesiumGltf::Model& model, const CesiumGltf::M
     std::vector<DataType> mdlTypes;
 
     forEachStyleablePropertyAttributeProperty(
-        model,
-        primitive,
-        [&mdlTypes](
-            [[maybe_unused]] const std::string& propertyId,
-            [[maybe_unused]] const CesiumGltf::Schema& schema,
-            [[maybe_unused]] const CesiumGltf::Class& classDefinition,
-            [[maybe_unused]] const CesiumGltf::ClassProperty& classProperty,
-            [[maybe_unused]] const CesiumGltf::PropertyAttribute& propertyAttribute,
-            [[maybe_unused]] const CesiumGltf::PropertyAttributeProperty& propertyAttributeProperty,
-            [[maybe_unused]] const CesiumGltf::PropertyAttributeView& propertyTextureView,
-            [[maybe_unused]] auto propertyTexturePropertyView,
-            auto styleableProperty) {
-            constexpr auto type = decltype(styleableProperty)::Type;
-            mdlTypes.push_back(GetMdlShaderType<type>::Type);
+        model, primitive, [&mdlTypes]([[maybe_unused]] auto propertyAttributePropertyView, auto styleableProperty) {
+            constexpr auto Type = decltype(styleableProperty)::Type;
+            mdlTypes.push_back(GetMdlShaderType<Type>::Type);
         });
 
     std::sort(mdlTypes.begin(), mdlTypes.end());
@@ -31,26 +20,13 @@ std::vector<DataType>
 getMdlPropertyTextureTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
     std::vector<DataType> mdlTypes;
 
-    (void)model;
-    (void)primitive;
-    // forEachStyleablePropertyTextureProperty(
-    //     model,
-    //     primitive,
-    //     [&mdlTypes](
-    //         [[maybe_unused]] const std::string& propertyId,
-    //         [[maybe_unused]] const CesiumGltf::Schema& schema,
-    //         [[maybe_unused]] const CesiumGltf::Class& classDefinition,
-    //         [[maybe_unused]] const CesiumGltf::ClassProperty& classProperty,
-    //         [[maybe_unused]] const CesiumGltf::PropertyTexture& propertyTexture,
-    //         [[maybe_unused]] const CesiumGltf::PropertyTextureProperty& propertyTextureProperty,
-    //         [[maybe_unused]] const CesiumGltf::PropertyTextureView& propertyTextureView,
-    //         [[maybe_unused]] auto propertyTexturePropertyView,
-    //         auto styleableProperty) {
-    //         constexpr auto type = decltype(styleableProperty)::Type;
-    //         mdlTypes.push_back(GetMdlShaderType<type>::value);
-    //     });
+    forEachStyleablePropertyTextureProperty(
+        model, primitive, [&mdlTypes]([[maybe_unused]] auto propertyTexturePropertyView, auto styleableProperty) {
+            constexpr auto Type = decltype(styleableProperty)::Type;
+            mdlTypes.push_back(GetMdlShaderType<Type>::Type);
+        });
 
-    // std::sort(mdlTypes.begin(), mdlTypes.end());
+    std::sort(mdlTypes.begin(), mdlTypes.end());
 
     return mdlTypes;
 }
@@ -60,23 +36,13 @@ getImagesReferencedByPropertyTextures(const CesiumGltf::Model& model, const Cesi
     std::vector<const CesiumGltf::ImageCesium*> images;
 
     forEachStyleablePropertyTextureProperty(
-        model,
-        primitive,
-        [&images](
-            [[maybe_unused]] const std::string& propertyId,
-            [[maybe_unused]] const CesiumGltf::Schema& schema,
-            [[maybe_unused]] const CesiumGltf::Class& classDefinition,
-            [[maybe_unused]] const CesiumGltf::ClassProperty& classProperty,
-            [[maybe_unused]] const CesiumGltf::PropertyTexture& propertyTexture,
-            [[maybe_unused]] const CesiumGltf::PropertyTextureProperty& propertyTextureProperty,
-            [[maybe_unused]] const CesiumGltf::PropertyTextureView& propertyTextureView,
-            auto propertyTexturePropertyView,
-            [[maybe_unused]] auto styleableProperty) {
+        model, primitive, [&images](auto propertyTexturePropertyView, [[maybe_unused]] auto styleableProperty) {
             const auto pImage = propertyTexturePropertyView.getImage();
             assert(pImage);
             images.push_back(pImage);
         });
 
+    // Remove duplicates
     std::sort(images.begin(), images.end());
     const auto endNew = std::unique(images.begin(), images.end());
     images.resize(static_cast<size_t>(std::distance(images.begin(), endNew)));

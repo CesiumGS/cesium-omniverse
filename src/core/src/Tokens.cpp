@@ -26,14 +26,14 @@ FABRIC_DEFINE_TOKENS(USD_TOKENS);
 
 namespace {
 std::mutex tokenMutex;
-std::vector<omni::fabric::Token> primvar_st_tokens;
+std::vector<omni::fabric::Token> primvars_st_tokens;
 std::vector<omni::fabric::Token> imagery_layer_tokens;
 std::vector<omni::fabric::Token> inputs_imagery_layer_tokens;
 std::vector<omni::fabric::Token> feature_id_tokens;
 std::vector<omni::fabric::Token> property_attribute_tokens;
 std::vector<omni::fabric::Token> property_texture_tokens;
 
-const omni::fabric::TokenC getToken(std::vector<omni::fabric::Token>& tokens, uint64_t index, const char* prefix) {
+const omni::fabric::TokenC getToken(std::vector<omni::fabric::Token>& tokens, uint64_t index, std::string_view prefix) {
     const auto lock = std::scoped_lock<std::mutex>(tokenMutex);
 
     const auto size = index + 1;
@@ -53,7 +53,7 @@ const omni::fabric::TokenC getToken(std::vector<omni::fabric::Token>& tokens, ui
 } // namespace
 
 const omni::fabric::TokenC primvars_st_n(uint64_t index) {
-    return getToken(primvar_st_tokens, index, "primvars:st");
+    return getToken(primvars_st_tokens, index, "primvars:st");
 }
 
 const omni::fabric::TokenC imagery_layer_n(uint64_t index) {

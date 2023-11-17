@@ -36,7 +36,7 @@ const auto DEFAULT_NULL_FEATURE_ID = -1;
 const auto DEFAULT_OFFSET = 0;
 const auto DEFAULT_SCALE = 0;
 const auto DEFAULT_NO_DATA = 0;
-const auto DEFAULT_DEFAULT_VALUE = 0;
+const auto DEFAULT_VALUE = 0;
 
 struct FeatureIdCounts {
     uint64_t indexCount;
@@ -799,16 +799,7 @@ void FabricMaterial::setMaterial(
     MetadataUtil::forEachStyleablePropertyAttributeProperty(
         model,
         primitive,
-        [this, &propertyAttributeIndex](
-            [[maybe_unused]] const std::string& propertyId,
-            [[maybe_unused]] const CesiumGltf::Schema& schema,
-            [[maybe_unused]] const CesiumGltf::Class& classDefinition,
-            [[maybe_unused]] const CesiumGltf::ClassProperty& classProperty,
-            [[maybe_unused]] const CesiumGltf::PropertyAttribute& propertyAttribute,
-            [[maybe_unused]] const CesiumGltf::PropertyAttributeProperty& propertyAttributeProperty,
-            [[maybe_unused]] const CesiumGltf::PropertyAttributeView& propertyAttributeView,
-            [[maybe_unused]] auto propertyAttributePropertyView,
-            auto styleableProperty) {
+        [this, &propertyAttributeIndex]([[maybe_unused]] auto propertyAttributePropertyView, auto styleableProperty) {
             constexpr auto Type = decltype(styleableProperty)::Type;
             const auto& primvarName = styleableProperty.attribute;
             const auto offset = styleableProperty.offset.value_or(GetTransformedType<Type>{DEFAULT_OFFSET});
@@ -816,8 +807,7 @@ void FabricMaterial::setMaterial(
             const auto maximumValue = GetRawType<Type>{std::numeric_limits<GetRawComponentType<Type>>::max()};
             const auto hasNoData = styleableProperty.noData.has_value();
             const auto noData = styleableProperty.noData.value_or(GetRawType<Type>{DEFAULT_NO_DATA});
-            const auto defaultValue =
-                styleableProperty.defaultValue.value_or(GetTransformedType<Type>{DEFAULT_DEFAULT_VALUE});
+            const auto defaultValue = styleableProperty.defaultValue.value_or(GetTransformedType<Type>{DEFAULT_VALUE});
             const auto& propertyAttributePath = _propertyAttributePaths[propertyAttributeIndex++];
 
             setPropertyAttribute<Type>(
@@ -830,6 +820,31 @@ void FabricMaterial::setMaterial(
                 static_cast<GetMdlRawType<Type>>(noData),
                 static_cast<GetMdlTransformedType<Type>>(defaultValue));
         });
+
+    // uint64_t propertyTextureIndex = 0;
+
+    // MetadataUtil::forEachStyleablePropertyTextureProperty(
+    //     model, primitive, [this, &propertyTextureIndex]([[maybe_unused]] auto propertyTexturePropertyView, auto styleableProperty) {
+    //         constexpr auto Type = decltype(styleableProperty)::Type;
+    //         const auto& textureInfo = styleableProperty.textureInfo;
+    //         const auto offset = styleableProperty.offset.value_or(GetTransformedType<Type>{DEFAULT_OFFSET});
+    //         const auto scale = styleableProperty.scale.value_or(GetTransformedType<Type>{DEFAULT_SCALE});
+    //         const auto maximumValue = GetRawType<Type>{std::numeric_limits<GetRawComponentType<Type>>::max()};
+    //         const auto hasNoData = styleableProperty.noData.has_value();
+    //         const auto noData = styleableProperty.noData.value_or(GetRawType<Type>{DEFAULT_NO_DATA});
+    //         const auto defaultValue = styleableProperty.defaultValue.value_or(GetTransformedType<Type>{DEFAULT_VALUE});
+    //         const auto& propertyTexturePath = _propertyTexturePaths[propertyTextureIndex++];
+
+    //         setPropertyTexture<Type>(
+    //             propertyTexturePath,
+    //             textureInfo,
+    //             static_cast<GetMdlTransformedType<Type>>(offset),
+    //             static_cast<GetMdlTransformedType<Type>>(scale),
+    //             static_cast<GetMdlRawType<Type>>(maximumValue),
+    //             hasNoData,
+    //             static_cast<GetMdlRawType<Type>>(noData),
+    //             static_cast<GetMdlTransformedType<Type>>(defaultValue));
+    //     });
 
     (void)propertyTextures;
 

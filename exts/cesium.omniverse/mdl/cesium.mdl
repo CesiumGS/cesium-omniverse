@@ -756,15 +756,15 @@ float normalize_int(int value, int maximum_value) {
     return max(float(value) / float(maximum_value), -1.0);
 }
 
-float2 normalize_int2(int2 value, int maximum_value) {
+float2 normalize_int2(int2 value, int2 maximum_value) {
     return max(float2(value) / float2(maximum_value), float2(-1.0));
 }
 
-float3 normalize_int3(int3 value, int maximum_value) {
+float3 normalize_int3(int3 value, int3 maximum_value) {
     return max(float3(value) / float3(maximum_value), float3(-1.0));
 }
 
-float4 normalize_int4(int4 value, int maximum_value) {
+float4 normalize_int4(int4 value, int4 maximum_value) {
     return max(float4(value) / float4(maximum_value), float4(-1.0));
 }
 
@@ -836,7 +836,7 @@ export float2 cesium_internal_property_attribute_normalized_int2_lookup(
     uniform string primvar_name,
     uniform float2 offset,
     uniform float2 scale,
-    uniform int maximum_value,
+    uniform int2 maximum_value,
     uniform bool has_no_data,
     uniform int2 no_data,
     uniform float2 default_value
@@ -855,7 +855,7 @@ export float3 cesium_internal_property_attribute_normalized_int3_lookup(
     uniform string primvar_name,
     uniform float3 offset,
     uniform float3 scale,
-    uniform int maximum_value,
+    uniform int3 maximum_value,
     uniform bool has_no_data,
     uniform int3 no_data,
     uniform float3 default_value
@@ -874,7 +874,7 @@ export float4 cesium_internal_property_attribute_normalized_int4_lookup(
     uniform string primvar_name,
     uniform float4 offset,
     uniform float4 scale,
-    uniform int maximum_value,
+    uniform int4 maximum_value,
     uniform bool has_no_data,
     uniform int4 no_data,
     uniform float4 default_value

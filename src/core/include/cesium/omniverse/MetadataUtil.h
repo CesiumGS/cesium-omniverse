@@ -203,12 +203,12 @@ void forEachStyleablePropertyAttributeProperty(
         primitive,
         [callback = std::forward<Callback>(callback)](
             const std::string& propertyId,
-            const CesiumGltf::Schema& schema,
-            const CesiumGltf::Class& classDefinition,
-            const CesiumGltf::ClassProperty& classProperty,
-            const CesiumGltf::PropertyAttribute& propertyAttribute,
+            [[maybe_unused]] const CesiumGltf::Schema& schema,
+            [[maybe_unused]] const CesiumGltf::Class& classDefinition,
+            [[maybe_unused]] const CesiumGltf::ClassProperty& classProperty,
+            [[maybe_unused]] const CesiumGltf::PropertyAttribute& propertyAttribute,
             const CesiumGltf::PropertyAttributeProperty& propertyAttributeProperty,
-            const CesiumGltf::PropertyAttributeView& propertyAttributeView,
+            [[maybe_unused]] const CesiumGltf::PropertyAttributeView& propertyAttributeView,
             auto propertyAttributePropertyView) {
             using RawType = decltype(propertyAttributePropertyView.getRaw(0));
             using TransformedType = typename std::decay_t<decltype(propertyAttributePropertyView.get(0))>::value_type;
@@ -233,16 +233,7 @@ void forEachStyleablePropertyAttributeProperty(
                 propertyAttributePropertyView.defaultValue(),
             };
 
-            callback(
-                propertyId,
-                schema,
-                classDefinition,
-                classProperty,
-                propertyAttribute,
-                propertyAttributeProperty,
-                propertyAttributeView,
-                propertyAttributePropertyView,
-                styleableProperty);
+            callback(propertyAttributePropertyView, styleableProperty);
         });
 }
 
@@ -266,13 +257,13 @@ void forEachStyleablePropertyTextureProperty(
         model,
         primitive,
         [callback = std::forward<Callback>(callback), &model](
-            const std::string& propertyId,
-            const CesiumGltf::Schema& schema,
-            const CesiumGltf::Class& classDefinition,
-            const CesiumGltf::ClassProperty& classProperty,
-            const CesiumGltf::PropertyTexture& propertyTexture,
+            [[maybe_unused]] const std::string& propertyId,
+            [[maybe_unused]] const CesiumGltf::Schema& schema,
+            [[maybe_unused]] const CesiumGltf::Class& classDefinition,
+            [[maybe_unused]] const CesiumGltf::ClassProperty& classProperty,
+            [[maybe_unused]] const CesiumGltf::PropertyTexture& propertyTexture,
             const CesiumGltf::PropertyTextureProperty& propertyTextureProperty,
-            const CesiumGltf::PropertyTextureView& propertyTextureView,
+            [[maybe_unused]] const CesiumGltf::PropertyTextureView& propertyTextureView,
             auto propertyTexturePropertyView) {
             using RawType = decltype(propertyTexturePropertyView.getRaw(0.0, 0.0));
             using TransformedType =
@@ -298,16 +289,7 @@ void forEachStyleablePropertyTextureProperty(
                     propertyTexturePropertyView.defaultValue(),
                 };
 
-                callback(
-                    propertyId,
-                    schema,
-                    classDefinition,
-                    classProperty,
-                    propertyTexture,
-                    propertyTextureProperty,
-                    propertyTextureView,
-                    propertyTexturePropertyView,
-                    styleableProperty);
+                callback(propertyTexturePropertyView, styleableProperty);
             }
         });
 }
