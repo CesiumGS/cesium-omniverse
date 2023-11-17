@@ -32,7 +32,7 @@ getMdlPropertyTextureTypes(const CesiumGltf::Model& model, const CesiumGltf::Mes
 }
 
 std::vector<const CesiumGltf::ImageCesium*>
-getImagesReferencedByPropertyTextures(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+getPropertyTextureImages(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
     std::vector<const CesiumGltf::ImageCesium*> images;
 
     forEachStyleablePropertyTextureProperty(

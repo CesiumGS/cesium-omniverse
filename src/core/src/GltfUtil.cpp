@@ -374,7 +374,7 @@ std::pair<std::string, uint64_t> parseAttributeName(const std::string& attribute
     return std::make_pair(semantic, setIndexU64);
 }
 
-std::optional<DataType> getGltfVertexAttributeType(const CesiumGltf::Accessor& accessor) {
+std::optional<DataType> getVertexAttributeTypeFromGltf(const CesiumGltf::Accessor& accessor) {
     const auto& type = accessor.type;
     const auto componentType = accessor.componentType;
     const auto normalized = accessor.normalized;
@@ -750,7 +750,7 @@ getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::Mesh
             continue;
         }
 
-        const auto type = getGltfVertexAttributeType(*pAccessor);
+        const auto type = getVertexAttributeTypeFromGltf(*pAccessor);
 
         if (!type.has_value()) {
             continue;

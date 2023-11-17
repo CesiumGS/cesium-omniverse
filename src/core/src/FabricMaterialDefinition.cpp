@@ -1,8 +1,6 @@
 #include "cesium/omniverse/FabricMaterialDefinition.h"
 
-#include "cesium/omniverse/DataType.h"
 #include "cesium/omniverse/GltfUtil.h"
-#include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/MetadataUtil.h"
 
 #ifdef CESIUM_OMNI_MSVC
@@ -10,13 +8,7 @@
 #undef OPAQUE
 #endif
 
-#include <CesiumGltf/ExtensionMeshPrimitiveExtStructuralMetadata.h>
-#include <CesiumGltf/ExtensionModelExtStructuralMetadata.h>
 #include <CesiumGltf/Model.h>
-#include <CesiumGltf/PropertyAttributePropertyView.h>
-#include <CesiumGltf/PropertyAttributeView.h>
-#include <CesiumGltf/PropertyTexturePropertyView.h>
-#include <CesiumGltf/PropertyTextureView.h>
 
 namespace cesium::omniverse {
 

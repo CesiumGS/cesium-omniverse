@@ -2,15 +2,9 @@
 
 #include "cesium/omniverse/DataType.h"
 #include "cesium/omniverse/GltfAccessors.h"
-#include "cesium/omniverse/LoggerSink.h"
 
 #include <CesiumGltf/Accessor.h>
-#include <CesiumGltf/ExtensionMeshPrimitiveExtStructuralMetadata.h>
-#include <CesiumGltf/ExtensionModelExtStructuralMetadata.h>
-#include <CesiumGltf/PropertyAttributePropertyView.h>
-#include <CesiumGltf/PropertyAttributeView.h>
-#include <CesiumGltf/PropertyTexturePropertyView.h>
-#include <CesiumGltf/PropertyTextureView.h>
+#include <CesiumGltf/PropertyTextureProperty.h>
 #include <glm/glm.hpp>
 #include <omni/fabric/core/FabricTypes.h>
 
@@ -131,7 +125,6 @@ VertexIdsAccessor getVertexIds(const PositionsAccessor& positionsAccessor);
 const CesiumGltf::ImageCesium*
 getBaseColorTextureImage(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
-// TODO
 const CesiumGltf::ImageCesium* getFeatureIdTextureImage(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
@@ -171,12 +164,12 @@ VertexAttributeAccessor<T> getVertexAttributeValues(
         return {};
     }
 
-    auto accessor = model.getSafe<CesiumGltf::Accessor>(&model.accessors, attribute->second);
-    if (!accessor) {
+    auto pAccessor = model.getSafe<CesiumGltf::Accessor>(&model.accessors, attribute->second);
+    if (!pAccessor) {
         return {};
     }
 
-    auto view = CesiumGltf::AccessorView<GetRawType<T>>(model, *accessor);
+    auto view = CesiumGltf::AccessorView<GetRawType<T>>(model, *pAccessor);
 
     if (view.status() != CesiumGltf::AccessorViewStatus::Valid) {
         return {};

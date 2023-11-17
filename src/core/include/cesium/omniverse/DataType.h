@@ -1638,7 +1638,7 @@ constexpr omni::fabric::BaseDataType getPrimvarBaseDataType(DataType type) {
     return {};
 }
 
-constexpr omni::fabric::Type getFabricPrimvarType(DataType type) {
+constexpr omni::fabric::Type getPrimvarType(DataType type) {
     // assert(isPrimvarType(type));
     // const auto baseDataType = getPrimvarBaseDataType(type);
     // const auto componentCount = getComponentCount(type);

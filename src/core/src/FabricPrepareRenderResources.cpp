@@ -77,7 +77,7 @@ std::vector<const CesiumGltf::ImageCesium*> getPropertyTextureImages(
         return {};
     }
 
-    return MetadataUtil::getImagesReferencedByPropertyTextures(model, primitive);
+    return MetadataUtil::getPropertyTextureImages(model, primitive);
 }
 
 uint64_t getPropertyTextureCount(

@@ -8,7 +8,6 @@
 #endif
 
 #include <CesiumGltf/AccessorView.h>
-#include <CesiumGltf/PropertyAttributePropertyView.h>
 #include <glm/glm.hpp>
 
 #include <gsl/span>
@@ -149,16 +148,8 @@ template <DataType T> class VertexAttributeAccessor {
         const auto size = values.size();
         assert(size == _size * repeat);
 
-        // TODO: or not?
-        if constexpr (IsNormalized<T>::value) {
-            for (uint64_t i = 0; i < size; i++) {
-                values[i] =
-                    static_cast<GetPrimvarType<T>>(CesiumGltf::normalize(_view[static_cast<int64_t>(i / repeat)]));
-            }
-        } else {
-            for (uint64_t i = 0; i < size; i++) {
-                values[i] = static_cast<GetPrimvarType<T>>(_view[static_cast<int64_t>(i / repeat)]);
-            }
+        for (uint64_t i = 0; i < size; i++) {
+            values[i] = static_cast<GetPrimvarType<T>>(_view[static_cast<int64_t>(i / repeat)]);
         }
     }
 
