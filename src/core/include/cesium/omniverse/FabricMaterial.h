@@ -81,20 +81,27 @@ class FabricMaterial {
     void createFeatureIdIndex(const omni::fabric::Path& path);
     void createFeatureIdAttribute(const omni::fabric::Path& path);
     void createFeatureIdTexture(const omni::fabric::Path& path);
-    void createPropertyAttributeIntCommon(const omni::fabric::Path& path, const omni::fabric::Token& subidentifier);
-    void createPropertyAttributeInt(const omni::fabric::Path& path);
-    void createPropertyAttributeInt2(const omni::fabric::Path& path);
-    void createPropertyAttributeInt3(const omni::fabric::Path& path);
-    void createPropertyAttributeInt4(const omni::fabric::Path& path);
-    void createPropertyAttributeFloatCommon(
+    void createPropertyAttributeInt(
         const omni::fabric::Path& path,
         const omni::fabric::Token& subidentifier,
+        const omni::fabric::Type& noDataType,
+        const omni::fabric::Type& defaultValueType);
+    void createPropertyAttributeNormalizedInt(
+        const omni::fabric::Path& path,
+        const omni::fabric::Token& subidentifier,
+        const omni::fabric::Type& noDataType,
+        const omni::fabric::Type& defaultValueType,
+        const omni::fabric::Type& offsetType,
+        const omni::fabric::Type& scaleType,
+        const omni::fabric::Type& maximumValueType);
+    void createPropertyAttributeFloat(
+        const omni::fabric::Path& path,
+        const omni::fabric::Token& subidentifier,
+        const omni::fabric::Type& noDataType,
+        const omni::fabric::Type& defaultValueType,
         const omni::fabric::Type& offsetType,
         const omni::fabric::Type& scaleType);
-    void createPropertyAttributeFloat(const omni::fabric::Path& path);
-    void createPropertyAttributeFloat2(const omni::fabric::Path& path);
-    void createPropertyAttributeFloat3(const omni::fabric::Path& path);
-    void createPropertyAttributeFloat4(const omni::fabric::Path& path);
+    void createPropertyAttribute(DataType type);
 
     void reset();
 
