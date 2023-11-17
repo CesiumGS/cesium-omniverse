@@ -221,7 +221,7 @@ void forEachStyleablePropertyAttributeProperty(
             auto propertyAttributePropertyView) {
             using RawType = decltype(propertyAttributePropertyView.getRaw(0));
             using TransformedType = typename std::decay_t<decltype(propertyAttributePropertyView.get(0))>::value_type;
-            constexpr auto Type = GetType<RawType, TransformedType>::Type;
+            constexpr auto Type = GetTypeReverse<RawType, TransformedType>::Type;
 
             if (IsMatrix<Type>::value) {
                 CESIUM_LOG_WARN(
@@ -284,7 +284,7 @@ void forEachStyleablePropertyTextureProperty(
                     "Array properties are not supported for styling. Property \"{}\" will be ignored.", propertyId);
                 return;
             } else {
-                constexpr auto Type = GetType<RawType, TransformedType>::Type;
+                constexpr auto Type = GetTypeReverse<RawType, TransformedType>::Type;
 
                 const auto textureInfo = GltfUtil::getPropertyTextureInfo(model, propertyTextureProperty);
 

@@ -41,134 +41,18 @@ void setVertexAttributeValues(
     const VertexAttributeInfo& attribute,
     uint64_t repeat) {
 
-    const auto accessor = GltfUtil::getVertexAttributeValues<T>(model, primitive, attribute.gltfAttributeName);
-    assert(accessor.size() > 0);
-    srw.setArrayAttributeSize(path, attribute.fabricAttributeName, accessor.size() * repeat);
-    auto fabricValues = srw.getArrayAttributeWr<GetPrimvarType<T>>(path, attribute.fabricAttributeName);
-    accessor.fill(fabricValues, repeat);
-}
+    (void)srw;
+    (void)path;
+    (void)model;
+    (void)primitive;
+    (void)attribute;
+    (void)repeat;
 
-void setVertexAttributeValues(
-    omni::fabric::StageReaderWriter& srw,
-    const omni::fabric::Path& path,
-    const CesiumGltf::Model& model,
-    const CesiumGltf::MeshPrimitive& primitive,
-    const VertexAttributeInfo& attribute,
-    uint64_t repeat) {
-
-    switch (attribute.type) {
-        case DataType::UINT8:
-            setVertexAttributeValues<DataType::UINT8>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::INT8:
-            setVertexAttributeValues<DataType::INT8>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::UINT16:
-            setVertexAttributeValues<DataType::UINT16>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::INT16:
-            setVertexAttributeValues<DataType::INT16>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::FLOAT32:
-            setVertexAttributeValues<DataType::FLOAT32>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::UINT8_NORM:
-            setVertexAttributeValues<DataType::UINT8_NORM>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::INT8_NORM:
-            setVertexAttributeValues<DataType::INT8_NORM>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::UINT16_NORM:
-            setVertexAttributeValues<DataType::UINT16_NORM>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::INT16_NORM:
-            setVertexAttributeValues<DataType::INT16_NORM>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::VEC2_UINT8:
-            setVertexAttributeValues<DataType::VEC2_UINT8>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::VEC2_INT8:
-            setVertexAttributeValues<DataType::VEC2_INT8>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::VEC2_UINT16:
-            setVertexAttributeValues<DataType::VEC2_UINT16>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::VEC2_INT16:
-            setVertexAttributeValues<DataType::VEC2_INT16>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::VEC2_FLOAT32:
-            setVertexAttributeValues<DataType::VEC2_FLOAT32>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::VEC2_UINT8_NORM:
-            setVertexAttributeValues<DataType::VEC2_UINT8_NORM>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::VEC2_INT8_NORM:
-            setVertexAttributeValues<DataType::VEC2_INT8_NORM>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::VEC2_UINT16_NORM:
-            setVertexAttributeValues<DataType::VEC2_UINT16_NORM>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::VEC2_INT16_NORM:
-            setVertexAttributeValues<DataType::VEC2_INT16_NORM>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::VEC3_UINT8:
-            setVertexAttributeValues<DataType::VEC3_UINT8>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::VEC3_INT8:
-            setVertexAttributeValues<DataType::VEC3_INT8>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::VEC3_UINT16:
-            setVertexAttributeValues<DataType::VEC3_UINT16>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::VEC3_INT16:
-            setVertexAttributeValues<DataType::VEC3_INT16>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::VEC3_FLOAT32:
-            setVertexAttributeValues<DataType::VEC3_FLOAT32>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::VEC3_UINT8_NORM:
-            setVertexAttributeValues<DataType::VEC3_UINT8_NORM>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::VEC3_INT8_NORM:
-            setVertexAttributeValues<DataType::VEC3_INT8_NORM>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::VEC3_UINT16_NORM:
-            setVertexAttributeValues<DataType::VEC3_UINT16_NORM>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::VEC3_INT16_NORM:
-            setVertexAttributeValues<DataType::VEC3_INT16_NORM>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::VEC4_UINT8:
-            setVertexAttributeValues<DataType::VEC4_UINT8>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::VEC4_INT8:
-            setVertexAttributeValues<DataType::VEC4_INT8>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::VEC4_UINT16:
-            setVertexAttributeValues<DataType::VEC4_UINT16>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::VEC4_INT16:
-            setVertexAttributeValues<DataType::VEC4_INT16>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::VEC4_FLOAT32:
-            setVertexAttributeValues<DataType::VEC4_FLOAT32>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::VEC4_UINT8_NORM:
-            setVertexAttributeValues<DataType::VEC4_UINT8_NORM>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::VEC4_INT8_NORM:
-            setVertexAttributeValues<DataType::VEC4_INT8_NORM>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::VEC4_UINT16_NORM:
-            setVertexAttributeValues<DataType::VEC4_UINT16_NORM>(srw, path, model, primitive, attribute, repeat);
-            break;
-        case DataType::VEC4_INT16_NORM:
-            setVertexAttributeValues<DataType::VEC4_INT16_NORM>(srw, path, model, primitive, attribute, repeat);
-            break;
-        default:
-            // Not a valid vertex attribute type
-            assert(false);
-    }
+    // const auto accessor = GltfUtil::getVertexAttributeValues<T>(model, primitive, attribute.gltfAttributeName);
+    // assert(accessor.size() > 0);
+    // srw.setArrayAttributeSize(path, attribute.fabricAttributeName, accessor.size() * repeat);
+    // auto fabricValues = srw.getArrayAttributeWr<GetPrimvarType<T>>(path, attribute.fabricAttributeName);
+    // accessor.fill(fabricValues, repeat);
 }
 
 } // namespace
@@ -286,7 +170,8 @@ void FabricGeometry::initialize() {
     }
 
     for (const auto& customVertexAttribute : customVertexAttributes) {
-        attributes.addAttribute(getPrimvarType(customVertexAttribute.type), customVertexAttribute.fabricAttributeName);
+        attributes.addAttribute(
+            FabricUtil::getPrimvarType(customVertexAttribute.type), customVertexAttribute.fabricAttributeName);
     }
 
     attributes.createAttributes(_path);
@@ -484,7 +369,15 @@ void FabricGeometry::setGeometry(
         }
 
         for (const auto& customVertexAttribute : customVertexAttributes) {
-            setVertexAttributeValues(srw, _path, model, primitive, customVertexAttribute, 8);
+            CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_DATA_TYPE(
+                setVertexAttributeValues,
+                customVertexAttribute.type,
+                srw,
+                _path,
+                model,
+                primitive,
+                customVertexAttribute,
+                8);
         }
 
         size_t vertIndex = 0;
@@ -606,7 +499,15 @@ void FabricGeometry::setGeometry(
         }
 
         for (const auto& customVertexAttribute : customVertexAttributes) {
-            setVertexAttributeValues(srw, _path, model, primitive, customVertexAttribute, 1);
+            CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_DATA_TYPE(
+                setVertexAttributeValues,
+                customVertexAttribute.type,
+                srw,
+                _path,
+                model,
+                primitive,
+                customVertexAttribute,
+                1);
         }
     }
 
