@@ -687,9 +687,9 @@ void FabricMaterial::createTextureCommon(
 
     FabricAttributesBuilder attributes;
 
-    attributes.addAttribute(FabricTypes::inputs_offset, FabricTokens::inputs_offset);
-    attributes.addAttribute(FabricTypes::inputs_rotation, FabricTokens::inputs_rotation);
-    attributes.addAttribute(FabricTypes::inputs_scale, FabricTokens::inputs_scale);
+    attributes.addAttribute(FabricTypes::inputs_tex_coord_offset, FabricTokens::inputs_tex_coord_offset);
+    attributes.addAttribute(FabricTypes::inputs_tex_coord_rotation, FabricTokens::inputs_tex_coord_rotation);
+    attributes.addAttribute(FabricTypes::inputs_tex_coord_scale, FabricTokens::inputs_tex_coord_scale);
     attributes.addAttribute(FabricTypes::inputs_tex_coord_index, FabricTokens::inputs_tex_coord_index);
     attributes.addAttribute(FabricTypes::inputs_texture, FabricTokens::inputs_texture);
     attributes.addAttribute(FabricTypes::inputs_wrap_s, FabricTokens::inputs_wrap_s);
@@ -1184,9 +1184,9 @@ void FabricMaterial::setTextureValuesCommon(
     auto texCoordIndexFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_tex_coord_index);
     auto wrapSFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_wrap_s);
     auto wrapTFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_wrap_t);
-    auto offsetFabric = srw.getAttributeWr<pxr::GfVec2f>(path, FabricTokens::inputs_offset);
-    auto rotationFabric = srw.getAttributeWr<float>(path, FabricTokens::inputs_rotation);
-    auto scaleFabric = srw.getAttributeWr<pxr::GfVec2f>(path, FabricTokens::inputs_scale);
+    auto offsetFabric = srw.getAttributeWr<pxr::GfVec2f>(path, FabricTokens::inputs_tex_coord_offset);
+    auto rotationFabric = srw.getAttributeWr<float>(path, FabricTokens::inputs_tex_coord_rotation);
+    auto scaleFabric = srw.getAttributeWr<pxr::GfVec2f>(path, FabricTokens::inputs_tex_coord_scale);
 
     textureFabric->assetPath = textureAssetPathToken;
     textureFabric->resolvedPath = pxr::TfToken();
