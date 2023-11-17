@@ -1,4 +1,3 @@
-import glob
 import sys
 from pathlib import Path
 from shutil import copy2
@@ -24,7 +23,7 @@ def main():
     print(f"\tSource: {source_dir}")
     print(f"\tDestination: {dest_dir}\n")
 
-    source_files = glob.glob(glob_pattern, root_dir=source_dir)
+    source_files = source_dir.glob(glob_pattern)
 
     for f in source_files:
         source_path = source_dir / f
