@@ -81,12 +81,12 @@ class FabricMaterial {
     void createFeatureIdIndex(const omni::fabric::Path& path);
     void createFeatureIdAttribute(const omni::fabric::Path& path);
     void createFeatureIdTexture(const omni::fabric::Path& path);
-    void createPropertyAttributeInt(
+    void createPropertyAttributePropertyInt(
         const omni::fabric::Path& path,
         const omni::fabric::Token& subidentifier,
         const omni::fabric::Type& noDataType,
         const omni::fabric::Type& defaultValueType);
-    void createPropertyAttributeNormalizedInt(
+    void createPropertyAttributePropertyNormalizedInt(
         const omni::fabric::Path& path,
         const omni::fabric::Token& subidentifier,
         const omni::fabric::Type& noDataType,
@@ -94,19 +94,19 @@ class FabricMaterial {
         const omni::fabric::Type& offsetType,
         const omni::fabric::Type& scaleType,
         const omni::fabric::Type& maximumValueType);
-    void createPropertyAttributeFloat(
+    void createPropertyAttributePropertyFloat(
         const omni::fabric::Path& path,
         const omni::fabric::Token& subidentifier,
         const omni::fabric::Type& noDataType,
         const omni::fabric::Type& defaultValueType,
         const omni::fabric::Type& offsetType,
         const omni::fabric::Type& scaleType);
-    void createPropertyTextureInt(
+    void createPropertyTexturePropertyInt(
         const omni::fabric::Path& path,
         const omni::fabric::Token& subidentifier,
         const omni::fabric::Type& noDataType,
         const omni::fabric::Type& defaultValueType);
-    void createPropertyTextureNormalizedInt(
+    void createPropertyTexturePropertyNormalizedInt(
         const omni::fabric::Path& path,
         const omni::fabric::Token& subidentifier,
         const omni::fabric::Type& noDataType,
@@ -114,7 +114,7 @@ class FabricMaterial {
         const omni::fabric::Type& offsetType,
         const omni::fabric::Type& scaleType,
         const omni::fabric::Type& maximumValueType);
-    void createPropertyTextureFloat(
+    void createPropertyTexturePropertyFloat(
         const omni::fabric::Path& path,
         const omni::fabric::Token& subidentifier,
         const omni::fabric::Type& noDataType,

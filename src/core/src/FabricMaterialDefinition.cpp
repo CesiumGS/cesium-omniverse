@@ -38,8 +38,8 @@ FabricMaterialDefinition::FabricMaterialDefinition(
     , _featureIdTypes(filterFeatureIdTypes(featuresInfo, disableTextures))
     , _imageryLayerCount(disableTextures ? 0 : imageryLayerCount)
     , _tilesetMaterialPath(tilesetMaterialPath)
-    , _mdlPropertyAttributeTypes(MetadataUtil::getMdlPropertyAttributeTypes(model, primitive))
-    , _mdlPropertyTextureTypes(MetadataUtil::getMdlPropertyTextureTypes(model, primitive)) {}
+    , _mdlPropertyAttributePropertyTypes(MetadataUtil::getMdlPropertyAttributePropertyTypes(model, primitive))
+    , _mdlPropertyTexturePropertyTypes(MetadataUtil::getMdlPropertyTexturePropertyTypes(model, primitive)) {}
 
 bool FabricMaterialDefinition::hasVertexColors() const {
     return _hasVertexColors;
@@ -65,12 +65,12 @@ const pxr::SdfPath& FabricMaterialDefinition::getTilesetMaterialPath() const {
     return _tilesetMaterialPath;
 }
 
-const std::vector<DataType>& FabricMaterialDefinition::getMdlPropertyAttributeTypes() const {
-    return _mdlPropertyAttributeTypes;
+const std::vector<DataType>& FabricMaterialDefinition::getMdlPropertyAttributePropertyTypes() const {
+    return _mdlPropertyAttributePropertyTypes;
 }
 
-const std::vector<DataType>& FabricMaterialDefinition::getMdlPropertyTextureTypes() const {
-    return _mdlPropertyTextureTypes;
+const std::vector<DataType>& FabricMaterialDefinition::getMdlPropertyTexturePropertyTypes() const {
+    return _mdlPropertyTexturePropertyTypes;
 }
 
 // In C++ 20 we can use the default equality comparison (= default)
@@ -78,8 +78,8 @@ bool FabricMaterialDefinition::operator==(const FabricMaterialDefinition& other)
     return _hasVertexColors == other._hasVertexColors && _hasBaseColorTexture == other._hasBaseColorTexture &&
            _featureIdTypes == other._featureIdTypes && _imageryLayerCount == other._imageryLayerCount &&
            _tilesetMaterialPath == other._tilesetMaterialPath &&
-           _mdlPropertyAttributeTypes == other._mdlPropertyAttributeTypes &&
-           _mdlPropertyTextureTypes == other._mdlPropertyTextureTypes;
+           _mdlPropertyAttributePropertyTypes == other._mdlPropertyAttributePropertyTypes &&
+           _mdlPropertyTexturePropertyTypes == other._mdlPropertyTexturePropertyTypes;
 }
 
 } // namespace cesium::omniverse

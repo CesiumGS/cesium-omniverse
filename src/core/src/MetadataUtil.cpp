@@ -2,7 +2,7 @@
 
 namespace cesium::omniverse::MetadataUtil {
 std::vector<DataType>
-getMdlPropertyAttributeTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+getMdlPropertyAttributePropertyTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
     std::vector<DataType> mdlTypes;
 
     forEachStyleablePropertyAttributeProperty(
@@ -17,7 +17,7 @@ getMdlPropertyAttributeTypes(const CesiumGltf::Model& model, const CesiumGltf::M
 }
 
 std::vector<DataType>
-getMdlPropertyTextureTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+getMdlPropertyTexturePropertyTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
     std::vector<DataType> mdlTypes;
 
     forEachStyleablePropertyTextureProperty(

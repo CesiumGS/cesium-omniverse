@@ -286,7 +286,7 @@ void forEachStyleablePropertyTextureProperty(
             } else {
                 constexpr auto Type = GetTypeReverse<RawType, TransformedType>::Type;
 
-                const auto textureInfo = GltfUtil::getPropertyTextureInfo(model, propertyTextureProperty);
+                const auto textureInfo = GltfUtil::getPropertyTexturePropertyInfo(model, propertyTextureProperty);
 
                 const auto styleableProperty = StyleablePropertyTexturePropertyInfo<Type>{
                     propertyTexturePropertyView.offset(),
@@ -305,10 +305,10 @@ void forEachStyleablePropertyTextureProperty(
 }
 
 std::vector<DataType>
-getMdlPropertyAttributeTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
+getMdlPropertyAttributePropertyTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
 std::vector<DataType>
-getMdlPropertyTextureTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
+getMdlPropertyTexturePropertyTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
 std::vector<const CesiumGltf::ImageCesium*>
 getPropertyTextureImages(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);

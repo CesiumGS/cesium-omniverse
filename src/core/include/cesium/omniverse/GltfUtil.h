@@ -139,7 +139,7 @@ getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::Mesh
 
 MaterialInfo getDefaultMaterialInfo();
 TextureInfo getDefaultTextureInfo();
-TextureInfo getPropertyTextureInfo(
+TextureInfo getPropertyTexturePropertyInfo(
     const CesiumGltf::Model& model,
     const CesiumGltf::PropertyTextureProperty& propertyTextureProperty);
 

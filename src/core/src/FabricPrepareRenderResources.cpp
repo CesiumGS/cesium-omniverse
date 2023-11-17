@@ -80,13 +80,6 @@ std::vector<const CesiumGltf::ImageCesium*> getPropertyTextureImages(
     return MetadataUtil::getPropertyTextureImages(model, primitive);
 }
 
-uint64_t getPropertyTextureCount(
-    const FabricMesh& fabricMesh,
-    const CesiumGltf::Model& model,
-    const CesiumGltf::MeshPrimitive& primitive) {
-    return getPropertyTextureImages(fabricMesh, model, primitive).size();
-}
-
 std::vector<MeshInfo>
 gatherMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const CesiumGltf::Model& model) {
     CESIUM_TRACE("FabricPrepareRenderResources::gatherMeshes");
@@ -181,7 +174,7 @@ std::vector<FabricMesh> acquireFabricMeshes(
                 fabricMesh.featureIdTextures.emplace_back(fabricResourceManager.acquireTexture());
             }
 
-            const auto propertyTextureCount = getPropertyTextureCount(fabricMesh, model, primitive);
+            const auto propertyTextureCount = getPropertyTextureImages(fabricMesh, model, primitive).size();
             fabricMesh.propertyTextures.reserve(propertyTextureCount);
             for (uint64_t i = 0; i < propertyTextureCount; i++) {
                 fabricMesh.propertyTextures.emplace_back(fabricResourceManager.acquireTexture());

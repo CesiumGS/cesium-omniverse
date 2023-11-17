@@ -796,7 +796,7 @@ TextureInfo getDefaultTextureInfo() {
     };
 }
 
-TextureInfo getPropertyTextureInfo(
+TextureInfo getPropertyTexturePropertyInfo(
     const CesiumGltf::Model& model,
     const CesiumGltf::PropertyTextureProperty& propertyTextureProperty) {
     TextureInfo textureInfo = getTextureInfo(model, propertyTextureProperty);
