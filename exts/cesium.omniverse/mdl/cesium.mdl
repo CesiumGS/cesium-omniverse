@@ -761,6 +761,103 @@ float4 normalize_int4(int4 value, int4 maximum_value) {
     return max(float4(value) / float4(maximum_value), float4(-1.0));
 }
 
+int finalize_int(int raw_value, bool has_no_data, int no_data, int default_value) {
+    const auto is_no_data = has_no_data && raw_value == no_data;
+    return is_no_data ? default_value : raw_value;
+}
+
+int finalize_int2(int2 raw_value, bool has_no_data, int2 no_data, int2 default_value) {
+    const auto is_no_data = has_no_data && raw_value == no_data;
+    return is_no_data ? default_value : raw_value;
+}
+
+int finalize_int3(int3 raw_value, bool has_no_data, int3 no_data, int3 default_value) {
+    const auto is_no_data = has_no_data && raw_value == no_data;
+    return is_no_data ? default_value : raw_value;
+}
+
+int finalize_int4(int4 raw_value, bool has_no_data, int4 no_data, int4 default_value) {
+    const auto is_no_data = has_no_data && raw_value == no_data;
+    return is_no_data ? default_value : raw_value;
+}
+
+float finalize_normalized_int(int raw_value, bool has_no_data, int no_data, float default_value, float offset, float scale, int maximum_value) {
+    const auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    const auto normalized_value = normalize_int(raw_value, maximum_value);
+    const auto transformed_value = normalized_value * scale + offset;
+    return transformed_value;
+}
+
+float2 finalize_normalized_int2(int2 raw_value, bool has_no_data, int2 no_data, float2 default_value, float2 offset, float2 scale, int2 maximum_value) {
+    const auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    const auto normalized_value = normalize_int2(raw_value, maximum_value);
+    const auto transformed_value = normalized_value * scale + offset;
+    return transformed_value;
+}
+
+float3 finalize_normalized_int3(int3 raw_value, bool has_no_data, int3 no_data, float3 default_value, float3 offset, float3 scale, int3 maximum_value) {
+    const auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    const auto normalized_value = normalize_int3(raw_value, maximum_value);
+    const auto transformed_value = normalized_value * scale + offset;
+    return transformed_value;
+}
+
+float4 finalize_normalized_int4(int4 raw_value, bool has_no_data, int4 no_data, float4 default_value, float4 offset, float4 scale, int4 maximum_value) {
+    const auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    const auto normalized_value = normalize_int4(raw_value, maximum_value);
+    const auto transformed_value = normalized_value * scale + offset;
+    return transformed_value;
+}
+
+float finalize_float(float raw_value, bool has_no_data, float no_data, float default_value, float offset, float scale) {
+    const auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    const auto transformed_value = raw_value * scale + offset;
+    return transformed_value;
+}
+
+float2 finalize_float2(float2 raw_value, bool has_no_data, float2 no_data, float2 default_value, float2 offset, float2 scale) {
+    const auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    const auto transformed_value = raw_value * scale + offset;
+    return transformed_value;
+}
+
+float3 finalize_float3(float3 raw_value, bool has_no_data, float3 no_data, float3 default_value, float3 offset, float3 scale) {
+    const auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    const auto transformed_value = raw_value * scale + offset;
+    return transformed_value;
+}
+
+float4 finalize_float4(float4 raw_value, bool has_no_data, float4 no_data, float4 default_value, float4 offset, float4 scale) {
+    const auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    const auto transformed_value = raw_value * scale + offset;
+    return transformed_value;
+}
+
+
 // See comment in DataType.h for why these are data_lookup_float instead of data_lookup_int
 export int cesium_internal_property_attribute_int_lookup(
     uniform string primvar_name,
@@ -769,8 +866,7 @@ export int cesium_internal_property_attribute_int_lookup(
     uniform int default_value
 ) [[ anno::hidden() ]] {
     const auto raw_value = int(::math::round(::scene::data_lookup_float(primvar_name)));
-    const auto is_no_data = has_no_data && raw_value == no_data;
-    return is_no_data ? default_value : raw_value;
+    return finalize_int(raw_value, has_no_data, no_data, default_value);
 }
 
 export int2 cesium_internal_property_attribute_int2_lookup(
@@ -780,8 +876,7 @@ export int2 cesium_internal_property_attribute_int2_lookup(
     uniform int2 default_value
 ) [[ anno::hidden() ]] {
     const auto raw_value = int2(::math::round(::scene::data_lookup_float2(primvar_name)));
-    const auto is_no_data = has_no_data && raw_value == no_data;
-    return is_no_data ? default_value : raw_value;
+    return finalize_int2(raw_value, has_no_data, no_data, default_value);
 }
 
 export int3 cesium_internal_property_attribute_int3_lookup(
@@ -791,8 +886,7 @@ export int3 cesium_internal_property_attribute_int3_lookup(
     uniform int3 default_value
 ) [[ anno::hidden() ]] {
     const auto raw_value = int3(::math::round(::scene::data_lookup_float3(primvar_name)));
-    const auto is_no_data = has_no_data && raw_value == no_data;
-    return is_no_data ? default_value : raw_value;
+    return finalize_int3(raw_value, has_no_data, no_data, default_value);
 }
 
 export int4 cesium_internal_property_attribute_int4_lookup(
@@ -802,8 +896,7 @@ export int4 cesium_internal_property_attribute_int4_lookup(
     uniform int4 default_value
 ) [[ anno::hidden() ]] {
     const auto raw_value = int4(::math::round(::scene::data_lookup_float4(primvar_name)));
-    const auto is_no_data = has_no_data && raw_value == no_data;
-    return is_no_data ? default_value : raw_value;
+    return finalize_int4(raw_value, has_no_data, no_data, default_value);
 }
 
 export float cesium_internal_property_attribute_normalized_int_lookup(
@@ -816,13 +909,7 @@ export float cesium_internal_property_attribute_normalized_int_lookup(
     uniform int maximum_value
 ) [[ anno::hidden() ]] {
     const auto raw_value = int(::math::round(::scene::data_lookup_float(primvar_name)));
-    const auto is_no_data = has_no_data && raw_value == no_data;
-    if (is_no_data) {
-        return default_value;
-    }
-    const auto normalized_value = normalize_int(raw_value, maximum_value);
-    const auto transformed_value = normalized_value * scale + offset;
-    return transformed_value;
+    return finalize_normalized_int(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
 }
 
 export float2 cesium_internal_property_attribute_normalized_int2_lookup(
@@ -835,13 +922,7 @@ export float2 cesium_internal_property_attribute_normalized_int2_lookup(
     uniform int2 maximum_value
 ) [[ anno::hidden() ]] {
     const auto raw_value = int2(::math::round(::scene::data_lookup_float2(primvar_name)));
-    const auto is_no_data = has_no_data && raw_value == no_data;
-    if (is_no_data) {
-        return default_value;
-    }
-    const auto normalized_value = normalize_int2(raw_value, maximum_value);
-    const auto transformed_value = normalized_value * scale + offset;
-    return transformed_value;
+    return finalize_normalized_int2(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
 }
 
 export float3 cesium_internal_property_attribute_normalized_int3_lookup(
@@ -854,13 +935,7 @@ export float3 cesium_internal_property_attribute_normalized_int3_lookup(
     uniform int3 maximum_value
 ) [[ anno::hidden() ]] {
     const auto raw_value = int3(::math::round(::scene::data_lookup_float3(primvar_name)));
-    const auto is_no_data = has_no_data && raw_value == no_data;
-    if (is_no_data) {
-        return default_value;
-    }
-    const auto normalized_value = normalize_int3(raw_value, maximum_value);
-    const auto transformed_value = normalized_value * scale + offset;
-    return transformed_value;
+    return finalize_normalized_int3(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
 }
 
 export float4 cesium_internal_property_attribute_normalized_int4_lookup(
@@ -873,13 +948,7 @@ export float4 cesium_internal_property_attribute_normalized_int4_lookup(
     uniform int4 maximum_value
 ) [[ anno::hidden() ]] {
     const auto raw_value = int4(::math::round(::scene::data_lookup_float4(primvar_name)));
-    const auto is_no_data = has_no_data && raw_value == no_data;
-    if (is_no_data) {
-        return default_value;
-    }
-    const auto normalized_value = normalize_int4(raw_value, maximum_value);
-    const auto transformed_value = normalized_value * scale + offset;
-    return transformed_value;
+    return finalize_normalized_int4(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
 }
 
 export float cesium_internal_property_attribute_float_lookup(
@@ -891,12 +960,7 @@ export float cesium_internal_property_attribute_float_lookup(
     uniform float scale
 ) [[ anno::hidden() ]] {
     const auto raw_value = ::scene::data_lookup_float(primvar_name);
-    const auto is_no_data = has_no_data && raw_value == no_data;
-    if (is_no_data) {
-        return default_value;
-    }
-    const auto transformed_value = raw_value * scale + offset;
-    return transformed_value;
+    return finalize_float(raw_value, has_no_data, no_data, default_value, offset, scale);
 }
 
 export float2 cesium_internal_property_attribute_float2_lookup(
@@ -908,12 +972,7 @@ export float2 cesium_internal_property_attribute_float2_lookup(
     uniform float2 scale
 ) [[ anno::hidden() ]] {
     const auto raw_value = ::scene::data_lookup_float2(primvar_name);
-    const auto is_no_data = has_no_data && raw_value == no_data;
-    if (is_no_data) {
-        return default_value;
-    }
-    const auto transformed_value = raw_value * scale + offset;
-    return transformed_value;
+    return finalize_float2(raw_value, has_no_data, no_data, default_value, offset, scale);
 }
 
 export float3 cesium_internal_property_attribute_float3_lookup(
@@ -925,12 +984,7 @@ export float3 cesium_internal_property_attribute_float3_lookup(
     uniform float3 scale
 ) [[ anno::hidden() ]] {
     const auto raw_value = ::scene::data_lookup_float3(primvar_name);
-    const auto is_no_data = has_no_data && raw_value == no_data;
-    if (is_no_data) {
-        return default_value;
-    }
-    const auto transformed_value = raw_value * scale + offset;
-    return transformed_value;
+    return finalize_float3(raw_value, has_no_data, no_data, default_value, offset, scale);
 }
 
 export float4 cesium_internal_property_attribute_float4_lookup(
@@ -942,13 +996,48 @@ export float4 cesium_internal_property_attribute_float4_lookup(
     uniform float4 scale
 ) [[ anno::hidden() ]] {
     const auto raw_value = ::scene::data_lookup_float4(primvar_name);
-    const auto is_no_data = has_no_data && raw_value == no_data;
-    if (is_no_data) {
-        return default_value;
-    }
-    const auto transformed_value = raw_value * scale + offset;
-    return transformed_value;
+    return finalize_float4(raw_value, has_no_data, no_data, default_value, offset, scale);
 }
+
+// // TODO: support channels properly
+// // TODO: need texel_fetch_int
+// // TODO: need texel_fetch_float
+// // TOOD: need to rename offset to tex_coord_offset
+// // TOOD: need to rename rotation to tex_coord_rotation
+// // TOOD: need to rename scale to tex_coord_scale
+// export int cesium_internal_property_texture_int_lookup(
+//     uniform bool has_no_data,
+//     uniform int no_data,
+//     uniform int default_value,
+//     uniform int4 channels = int4(0),
+//     uniform int channel_count = 1,
+//     // gltf_texture_lookup inputs below
+//     uniform texture_2d texture = texture_2d(),
+//     uniform int tex_coord_index = 0,
+//     uniform float2 offset = float2(0.0, 0.0),
+//     uniform float rotation = 0.0,
+//     uniform float2 scale = float2(1.0, 1.0),
+//     uniform gltf_wrapping_mode wrap_s = repeat,
+//     uniform gltf_wrapping_mode wrap_t = repeat
+// ) [[ anno::hidden() ]] {
+//     auto texel_value = texel_fetch(
+//         texture: texture,
+//         tex_coord_index: tex_coord_index,
+//         offset: offset,
+//         rotation: rotation,
+//         scale: scale,
+//         wrap_s: wrap_s,
+//         wrap_t: wrap_t
+//     );
+
+//     if (!texel_value.valid) {
+//         return DEFAULT_PROPERTY_VALUE_INT;
+//     }
+
+//     const auto raw_value = texel_value[channels[0]];
+//     const auto is_no_data = has_no_data && raw_value == no_data;
+//     return is_no_data ? default_value : raw_value;
+// }
 
 export gltf_texture_lookup_value cesium_internal_texture_lookup(*) [[ anno::hidden() ]] = gltf_texture_lookup();
 
