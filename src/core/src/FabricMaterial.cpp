@@ -154,7 +154,7 @@ void createAttributes(
 }
 
 template <DataType T>
-void setPropertyAttribute(
+void setPropertyAttributeProperty(
     const omni::fabric::Path& path,
     const std::string& primvarName,
     const GetMdlTransformedType<T>& offset,
@@ -192,6 +192,17 @@ void setPropertyAttribute(
         *maximumValueFabric = maximumValue;
     }
 }
+
+// template <DataType T>
+// void setPropertyTextureProperty(
+//     const omni::fabric::Path& path,
+//     const std::string& primvarName,
+//     const GetMdlTransformedType<T>& offset,
+//     const GetMdlTransformedType<T>& scale,
+//     const GetMdlRawType<T>& maximumValue,
+//     bool hasNoData,
+//     const GetMdlRawType<T>& noData,
+//     const GetMdlTransformedType<T>& defaultValue) {}
 
 } // namespace
 
@@ -775,6 +786,7 @@ void FabricMaterial::createPropertyAttributePropertyInt(
     attributes.addAttribute(defaultValueType, FabricTokens::inputs_default_value);
     createAttributes(srw, path, attributes, subidentifier);
 }
+
 void FabricMaterial::createPropertyAttributePropertyNormalizedInt(
     const omni::fabric::Path& path,
     const omni::fabric::Token& subidentifier,
@@ -821,6 +833,8 @@ void FabricMaterial::createPropertyTexturePropertyInt(
     const omni::fabric::Type& noDataType,
     const omni::fabric::Type& defaultValueType) {
     static const auto additionalAttributes = std::vector<std::pair<omni::fabric::Type, omni::fabric::Token>>{{
+        std::make_pair(FabricTypes::inputs_channels, FabricTokens::inputs_channels),
+        std::make_pair(FabricTypes::inputs_channel_count, FabricTokens::inputs_channel_count),
         std::make_pair(FabricTypes::inputs_has_no_data, FabricTokens::inputs_has_no_data),
         std::make_pair(noDataType, FabricTokens::inputs_no_data),
         std::make_pair(defaultValueType, FabricTokens::inputs_default_value),
@@ -837,6 +851,8 @@ void FabricMaterial::createPropertyTexturePropertyNormalizedInt(
     const omni::fabric::Type& scaleType,
     const omni::fabric::Type& maximumValueType) {
     static const auto additionalAttributes = std::vector<std::pair<omni::fabric::Type, omni::fabric::Token>>{{
+        std::make_pair(FabricTypes::inputs_channels, FabricTokens::inputs_channels),
+        std::make_pair(FabricTypes::inputs_channel_count, FabricTokens::inputs_channel_count),
         std::make_pair(FabricTypes::inputs_has_no_data, FabricTokens::inputs_has_no_data),
         std::make_pair(noDataType, FabricTokens::inputs_no_data),
         std::make_pair(defaultValueType, FabricTokens::inputs_default_value),
@@ -856,6 +872,8 @@ void FabricMaterial::createPropertyTexturePropertyFloat(
     const omni::fabric::Type& offsetType,
     const omni::fabric::Type& scaleType) {
     static const auto additionalAttributes = std::vector<std::pair<omni::fabric::Type, omni::fabric::Token>>{{
+        std::make_pair(FabricTypes::inputs_channels, FabricTokens::inputs_channels),
+        std::make_pair(FabricTypes::inputs_channel_count, FabricTokens::inputs_channel_count),
         std::make_pair(FabricTypes::inputs_has_no_data, FabricTokens::inputs_has_no_data),
         std::make_pair(noDataType, FabricTokens::inputs_no_data),
         std::make_pair(defaultValueType, FabricTokens::inputs_default_value),
@@ -1005,7 +1023,7 @@ void FabricMaterial::setMaterial(
             const auto& propertyAttributePropertyPath =
                 _propertyAttributePropertyPaths[propertyAttributePropertyIndex++];
 
-            setPropertyAttribute<Type>(
+            setPropertyAttributeProperty<Type>(
                 propertyAttributePropertyPath,
                 primvarName,
                 static_cast<GetMdlTransformedType<Type>>(offset),

@@ -1002,15 +1002,12 @@ export float4 cesium_internal_property_attribute_float4_lookup(
 // // TODO: support channels properly
 // // TODO: need texel_fetch_int
 // // TODO: need texel_fetch_float
-// // TOOD: need to rename offset to tex_coord_offset
-// // TOOD: need to rename rotation to tex_coord_rotation
-// // TOOD: need to rename scale to tex_coord_scale
 // export int cesium_internal_property_texture_int_lookup(
+//     uniform int4 channels = int4(0),
+//     uniform int channel_count = 1,
 //     uniform bool has_no_data,
 //     uniform int no_data,
 //     uniform int default_value,
-//     uniform int4 channels = int4(0),
-//     uniform int channel_count = 1,
 //     // gltf_texture_lookup inputs below
 //     uniform texture_2d texture = texture_2d(),
 //     uniform int tex_coord_index = 0,

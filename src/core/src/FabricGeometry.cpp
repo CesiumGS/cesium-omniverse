@@ -41,18 +41,11 @@ void setVertexAttributeValues(
     const VertexAttributeInfo& attribute,
     uint64_t repeat) {
 
-    (void)srw;
-    (void)path;
-    (void)model;
-    (void)primitive;
-    (void)attribute;
-    (void)repeat;
-
-    // const auto accessor = GltfUtil::getVertexAttributeValues<T>(model, primitive, attribute.gltfAttributeName);
-    // assert(accessor.size() > 0);
-    // srw.setArrayAttributeSize(path, attribute.fabricAttributeName, accessor.size() * repeat);
-    // auto fabricValues = srw.getArrayAttributeWr<GetPrimvarType<T>>(path, attribute.fabricAttributeName);
-    // accessor.fill(fabricValues, repeat);
+    const auto accessor = GltfUtil::getVertexAttributeValues<T>(model, primitive, attribute.gltfAttributeName);
+    assert(accessor.size() > 0);
+    srw.setArrayAttributeSize(path, attribute.fabricAttributeName, accessor.size() * repeat);
+    auto fabricValues = srw.getArrayAttributeWr<GetPrimvarType<T>>(path, attribute.fabricAttributeName);
+    accessor.fill(fabricValues, repeat);
 }
 
 } // namespace
