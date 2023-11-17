@@ -312,44 +312,45 @@ void FabricMaterial::initializeNodes() {
     // Create property attribute properties
     const auto& propertyAttributePropertyTypes = _materialDefinition.getMdlPropertyAttributePropertyTypes();
     const auto propertyAttributePropertiesCount = propertyAttributePropertyTypes.size();
-    _propertyAttributePaths.reserve(propertyAttributePropertiesCount);
+    _propertyAttributePropertyPaths.reserve(propertyAttributePropertiesCount);
 
     for (uint64_t i = 0; i < propertyAttributePropertiesCount; i++) {
         const auto type = propertyAttributePropertyTypes[i];
-        const auto propertyAttributePath = FabricUtil::joinPaths(_materialPath, FabricTokens::property_attribute_n(i));
+        const auto propertyAttributePropertyPath =
+            FabricUtil::joinPaths(_materialPath, FabricTokens::property_attribute_n(i));
 
         switch (type) {
             case DataType::INT32:
                 createPropertyAttributePropertyInt(
-                    propertyAttributePath,
+                    propertyAttributePropertyPath,
                     FabricTokens::cesium_internal_property_attribute_int_lookup,
                     FabricTypes::inputs_no_data_int,
                     FabricTypes::inputs_default_value_int);
                 break;
             case DataType::VEC2_INT32:
                 createPropertyAttributePropertyInt(
-                    propertyAttributePath,
+                    propertyAttributePropertyPath,
                     FabricTokens::cesium_internal_property_attribute_int2_lookup,
                     FabricTypes::inputs_no_data_int2,
                     FabricTypes::inputs_default_value_int2);
                 break;
             case DataType::VEC3_INT32:
                 createPropertyAttributePropertyInt(
-                    propertyAttributePath,
+                    propertyAttributePropertyPath,
                     FabricTokens::cesium_internal_property_attribute_int3_lookup,
                     FabricTypes::inputs_no_data_int3,
                     FabricTypes::inputs_default_value_int3);
                 break;
             case DataType::VEC4_INT32:
                 createPropertyAttributePropertyInt(
-                    propertyAttributePath,
+                    propertyAttributePropertyPath,
                     FabricTokens::cesium_internal_property_attribute_int4_lookup,
                     FabricTypes::inputs_no_data_int4,
                     FabricTypes::inputs_default_value_int4);
                 break;
             case DataType::INT32_NORM:
                 createPropertyAttributePropertyNormalizedInt(
-                    propertyAttributePath,
+                    propertyAttributePropertyPath,
                     FabricTokens::cesium_internal_property_attribute_normalized_int_lookup,
                     FabricTypes::inputs_no_data_int,
                     FabricTypes::inputs_default_value_float,
@@ -359,7 +360,7 @@ void FabricMaterial::initializeNodes() {
                 break;
             case DataType::VEC2_INT32_NORM:
                 createPropertyAttributePropertyNormalizedInt(
-                    propertyAttributePath,
+                    propertyAttributePropertyPath,
                     FabricTokens::cesium_internal_property_attribute_normalized_int2_lookup,
                     FabricTypes::inputs_no_data_int2,
                     FabricTypes::inputs_default_value_float2,
@@ -369,7 +370,7 @@ void FabricMaterial::initializeNodes() {
                 break;
             case DataType::VEC3_INT32_NORM:
                 createPropertyAttributePropertyNormalizedInt(
-                    propertyAttributePath,
+                    propertyAttributePropertyPath,
                     FabricTokens::cesium_internal_property_attribute_normalized_int3_lookup,
                     FabricTypes::inputs_no_data_int3,
                     FabricTypes::inputs_default_value_float3,
@@ -379,7 +380,7 @@ void FabricMaterial::initializeNodes() {
                 break;
             case DataType::VEC4_INT32_NORM:
                 createPropertyAttributePropertyNormalizedInt(
-                    propertyAttributePath,
+                    propertyAttributePropertyPath,
                     FabricTokens::cesium_internal_property_attribute_normalized_int4_lookup,
                     FabricTypes::inputs_no_data_int4,
                     FabricTypes::inputs_default_value_float4,
@@ -389,7 +390,7 @@ void FabricMaterial::initializeNodes() {
                 break;
             case DataType::FLOAT32:
                 createPropertyAttributePropertyFloat(
-                    propertyAttributePath,
+                    propertyAttributePropertyPath,
                     FabricTokens::cesium_internal_property_attribute_float_lookup,
                     FabricTypes::inputs_no_data_float,
                     FabricTypes::inputs_default_value_float,
@@ -398,7 +399,7 @@ void FabricMaterial::initializeNodes() {
                 break;
             case DataType::VEC2_FLOAT32:
                 createPropertyAttributePropertyFloat(
-                    propertyAttributePath,
+                    propertyAttributePropertyPath,
                     FabricTokens::cesium_internal_property_attribute_float2_lookup,
                     FabricTypes::inputs_no_data_float2,
                     FabricTypes::inputs_default_value_float2,
@@ -407,7 +408,7 @@ void FabricMaterial::initializeNodes() {
                 break;
             case DataType::VEC3_FLOAT32:
                 createPropertyAttributePropertyFloat(
-                    propertyAttributePath,
+                    propertyAttributePropertyPath,
                     FabricTokens::cesium_internal_property_attribute_float3_lookup,
                     FabricTypes::inputs_no_data_float3,
                     FabricTypes::inputs_default_value_float3,
@@ -416,7 +417,7 @@ void FabricMaterial::initializeNodes() {
                 break;
             case DataType::VEC4_FLOAT32:
                 createPropertyAttributePropertyFloat(
-                    propertyAttributePath,
+                    propertyAttributePropertyPath,
                     FabricTokens::cesium_internal_property_attribute_float4_lookup,
                     FabricTypes::inputs_no_data_float4,
                     FabricTypes::inputs_default_value_float4,
@@ -429,51 +430,131 @@ void FabricMaterial::initializeNodes() {
                 break;
         }
 
-        _propertyAttributePaths.push_back(propertyAttributePath);
+        _propertyAttributePropertyPaths.push_back(propertyAttributePropertyPath);
     }
 
     // Create property textures
     const auto& propertyTexturePropertyTypes = _materialDefinition.getMdlPropertyTexturePropertyTypes();
     const auto propertyTexturePropertiesCount = propertyTexturePropertyTypes.size();
-    _propertyTexturePaths.reserve(propertyTexturePropertiesCount);
+    _propertyTexturePropertyPaths.reserve(propertyTexturePropertiesCount);
 
     for (uint64_t i = 0; i < propertyTexturePropertiesCount; i++) {
         const auto type = propertyTexturePropertyTypes[i];
-        const auto propertyTexturePath = FabricUtil::joinPaths(_materialPath, FabricTokens::property_texture_n(i));
+        const auto propertyTexturePropertyPath =
+            FabricUtil::joinPaths(_materialPath, FabricTokens::property_texture_n(i));
 
-        (void)type;
-        // switch (type) {
-        //     case DataType::INT32:
-        //         createPropertyTexturePropertyInt(propertyTexturePath);
-        //         break;
-        //     case DataType::VEC2_INT32:
-        //         createPropertyTexturePropertyInt2(propertyTexturePath);
-        //         break;
-        //     case DataType::VEC3_INT32:
-        //         createPropertyTexturePropertyInt3(propertyTexturePath);
-        //         break;
-        //     case DataType::VEC4_INT32:
-        //         createPropertyTexturePropertyInt4(propertyTexturePath);
-        //         break;
-        //     case DataType::FLOAT32:
-        //         createPropertyTexturePropertyFloat(propertyTexturePath);
-        //         break;
-        //     case DataType::VEC2_FLOAT32:
-        //         createPropertyTexturePropertyFloat2(propertyTexturePath);
-        //         break;
-        //     case DataType::VEC3_FLOAT32:
-        //         createPropertyTexturePropertyFloat3(propertyTexturePath);
-        //         break;
-        //     case DataType::VEC4_FLOAT32:
-        //         createPropertyTexturePropertyFloat4(propertyTexturePath);
-        //         break;
-        //     default:
-        //         // Invalid property type
-        //         assert(false);
-        //         break;
-        // }
+        switch (type) {
+            case DataType::INT32:
+                createPropertyTexturePropertyInt(
+                    propertyTexturePropertyPath,
+                    FabricTokens::cesium_internal_property_texture_int_lookup,
+                    FabricTypes::inputs_no_data_int,
+                    FabricTypes::inputs_default_value_int);
+                break;
+            case DataType::VEC2_INT32:
+                createPropertyTexturePropertyInt(
+                    propertyTexturePropertyPath,
+                    FabricTokens::cesium_internal_property_texture_int2_lookup,
+                    FabricTypes::inputs_no_data_int2,
+                    FabricTypes::inputs_default_value_int2);
+                break;
+            case DataType::VEC3_INT32:
+                createPropertyTexturePropertyInt(
+                    propertyTexturePropertyPath,
+                    FabricTokens::cesium_internal_property_texture_int3_lookup,
+                    FabricTypes::inputs_no_data_int3,
+                    FabricTypes::inputs_default_value_int3);
+                break;
+            case DataType::VEC4_INT32:
+                createPropertyTexturePropertyInt(
+                    propertyTexturePropertyPath,
+                    FabricTokens::cesium_internal_property_texture_int4_lookup,
+                    FabricTypes::inputs_no_data_int4,
+                    FabricTypes::inputs_default_value_int4);
+                break;
+            case DataType::INT32_NORM:
+                createPropertyTexturePropertyNormalizedInt(
+                    propertyTexturePropertyPath,
+                    FabricTokens::cesium_internal_property_texture_normalized_int_lookup,
+                    FabricTypes::inputs_no_data_int,
+                    FabricTypes::inputs_default_value_float,
+                    FabricTypes::inputs_offset_float,
+                    FabricTypes::inputs_scale_float,
+                    FabricTypes::inputs_maximum_value_int);
+                break;
+            case DataType::VEC2_INT32_NORM:
+                createPropertyTexturePropertyNormalizedInt(
+                    propertyTexturePropertyPath,
+                    FabricTokens::cesium_internal_property_texture_normalized_int2_lookup,
+                    FabricTypes::inputs_no_data_int2,
+                    FabricTypes::inputs_default_value_float2,
+                    FabricTypes::inputs_offset_float2,
+                    FabricTypes::inputs_scale_float2,
+                    FabricTypes::inputs_maximum_value_int2);
+                break;
+            case DataType::VEC3_INT32_NORM:
+                createPropertyTexturePropertyNormalizedInt(
+                    propertyTexturePropertyPath,
+                    FabricTokens::cesium_internal_property_texture_normalized_int3_lookup,
+                    FabricTypes::inputs_no_data_int3,
+                    FabricTypes::inputs_default_value_float3,
+                    FabricTypes::inputs_offset_float3,
+                    FabricTypes::inputs_scale_float3,
+                    FabricTypes::inputs_maximum_value_int3);
+                break;
+            case DataType::VEC4_INT32_NORM:
+                createPropertyTexturePropertyNormalizedInt(
+                    propertyTexturePropertyPath,
+                    FabricTokens::cesium_internal_property_texture_normalized_int4_lookup,
+                    FabricTypes::inputs_no_data_int4,
+                    FabricTypes::inputs_default_value_float4,
+                    FabricTypes::inputs_offset_float4,
+                    FabricTypes::inputs_scale_float4,
+                    FabricTypes::inputs_maximum_value_int4);
+                break;
+            case DataType::FLOAT32:
+                createPropertyTexturePropertyFloat(
+                    propertyTexturePropertyPath,
+                    FabricTokens::cesium_internal_property_texture_float_lookup,
+                    FabricTypes::inputs_no_data_float,
+                    FabricTypes::inputs_default_value_float,
+                    FabricTypes::inputs_offset_float,
+                    FabricTypes::inputs_scale_float);
+                break;
+            case DataType::VEC2_FLOAT32:
+                createPropertyTexturePropertyFloat(
+                    propertyTexturePropertyPath,
+                    FabricTokens::cesium_internal_property_texture_float2_lookup,
+                    FabricTypes::inputs_no_data_float2,
+                    FabricTypes::inputs_default_value_float2,
+                    FabricTypes::inputs_offset_float2,
+                    FabricTypes::inputs_scale_float2);
+                break;
+            case DataType::VEC3_FLOAT32:
+                createPropertyTexturePropertyFloat(
+                    propertyTexturePropertyPath,
+                    FabricTokens::cesium_internal_property_texture_float3_lookup,
+                    FabricTypes::inputs_no_data_float3,
+                    FabricTypes::inputs_default_value_float3,
+                    FabricTypes::inputs_offset_float3,
+                    FabricTypes::inputs_scale_float3);
+                break;
+            case DataType::VEC4_FLOAT32:
+                createPropertyTexturePropertyFloat(
+                    propertyTexturePropertyPath,
+                    FabricTokens::cesium_internal_property_texture_float4_lookup,
+                    FabricTypes::inputs_no_data_float4,
+                    FabricTypes::inputs_default_value_float4,
+                    FabricTypes::inputs_offset_float4,
+                    FabricTypes::inputs_scale_float4);
+                break;
+            default:
+                // Invalid property type
+                assert(false);
+                break;
+        }
 
-        _propertyTexturePaths.push_back(propertyTexturePath);
+        _propertyTexturePropertyPaths.push_back(propertyTexturePropertyPath);
     }
 }
 
@@ -734,6 +815,57 @@ void FabricMaterial::createPropertyAttributePropertyFloat(
     createAttributes(srw, path, attributes, subidentifier);
 }
 
+void FabricMaterial::createPropertyTexturePropertyInt(
+    const omni::fabric::Path& path,
+    const omni::fabric::Token& subidentifier,
+    const omni::fabric::Type& noDataType,
+    const omni::fabric::Type& defaultValueType) {
+    static const auto additionalAttributes = std::vector<std::pair<omni::fabric::Type, omni::fabric::Token>>{{
+        std::make_pair(FabricTypes::inputs_has_no_data, FabricTokens::inputs_has_no_data),
+        std::make_pair(noDataType, FabricTokens::inputs_no_data),
+        std::make_pair(defaultValueType, FabricTokens::inputs_default_value),
+    }};
+    return createTextureCommon(path, subidentifier, additionalAttributes);
+}
+
+void FabricMaterial::createPropertyTexturePropertyNormalizedInt(
+    const omni::fabric::Path& path,
+    const omni::fabric::Token& subidentifier,
+    const omni::fabric::Type& noDataType,
+    const omni::fabric::Type& defaultValueType,
+    const omni::fabric::Type& offsetType,
+    const omni::fabric::Type& scaleType,
+    const omni::fabric::Type& maximumValueType) {
+    static const auto additionalAttributes = std::vector<std::pair<omni::fabric::Type, omni::fabric::Token>>{{
+        std::make_pair(FabricTypes::inputs_has_no_data, FabricTokens::inputs_has_no_data),
+        std::make_pair(noDataType, FabricTokens::inputs_no_data),
+        std::make_pair(defaultValueType, FabricTokens::inputs_default_value),
+        std::make_pair(offsetType, FabricTokens::inputs_offset),
+        std::make_pair(scaleType, FabricTokens::inputs_scale),
+        std::make_pair(maximumValueType, FabricTokens::inputs_maximum_value),
+    }};
+
+    return createTextureCommon(path, subidentifier, additionalAttributes);
+}
+
+void FabricMaterial::createPropertyTexturePropertyFloat(
+    const omni::fabric::Path& path,
+    const omni::fabric::Token& subidentifier,
+    const omni::fabric::Type& noDataType,
+    const omni::fabric::Type& defaultValueType,
+    const omni::fabric::Type& offsetType,
+    const omni::fabric::Type& scaleType) {
+    static const auto additionalAttributes = std::vector<std::pair<omni::fabric::Type, omni::fabric::Token>>{{
+        std::make_pair(FabricTypes::inputs_has_no_data, FabricTokens::inputs_has_no_data),
+        std::make_pair(noDataType, FabricTokens::inputs_no_data),
+        std::make_pair(defaultValueType, FabricTokens::inputs_default_value),
+        std::make_pair(offsetType, FabricTokens::inputs_offset),
+        std::make_pair(scaleType, FabricTokens::inputs_scale),
+    }};
+
+    return createTextureCommon(path, subidentifier, additionalAttributes);
+}
+
 void FabricMaterial::reset() {
     if (_usesDefaultMaterial) {
         setShaderValues(_shaderPath, DEFAULT_MATERIAL_INFO, DEFAULT_DISPLAY_COLOR, DEFAULT_DISPLAY_OPACITY);
@@ -870,10 +1002,11 @@ void FabricMaterial::setMaterial(
             const auto hasNoData = styleableProperty.noData.has_value();
             const auto noData = styleableProperty.noData.value_or(GetRawType<Type>{DEFAULT_NO_DATA});
             const auto defaultValue = styleableProperty.defaultValue.value_or(GetTransformedType<Type>{DEFAULT_VALUE});
-            const auto& propertyAttributePath = _propertyAttributePaths[propertyAttributePropertyIndex++];
+            const auto& propertyAttributePropertyPath =
+                _propertyAttributePropertyPaths[propertyAttributePropertyIndex++];
 
             setPropertyAttribute<Type>(
-                propertyAttributePath,
+                propertyAttributePropertyPath,
                 primvarName,
                 static_cast<GetMdlTransformedType<Type>>(offset),
                 static_cast<GetMdlTransformedType<Type>>(scale),
@@ -895,10 +1028,10 @@ void FabricMaterial::setMaterial(
     //         const auto hasNoData = styleableProperty.noData.has_value();
     //         const auto noData = styleableProperty.noData.value_or(GetRawType<Type>{DEFAULT_NO_DATA});
     //         const auto defaultValue = styleableProperty.defaultValue.value_or(GetTransformedType<Type>{DEFAULT_VALUE});
-    //         const auto& propertyTexturePath = _propertyTexturePaths[propertyTexturePropertyIndex++];
+    //         const auto& propertyTexturePropertyPath = _propertyTexturePropertyPaths[propertyTexturePropertyIndex++];
 
     //         setPropertyTexture<Type>(
-    //             propertyTexturePath,
+    //             propertyTexturePropertyPath,
     //             textureInfo,
     //             static_cast<GetMdlTransformedType<Type>>(offset),
     //             static_cast<GetMdlTransformedType<Type>>(scale),

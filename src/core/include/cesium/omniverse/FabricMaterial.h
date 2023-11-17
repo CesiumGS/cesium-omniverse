@@ -176,8 +176,8 @@ class FabricMaterial {
     std::vector<omni::fabric::Path> _featureIdIndexPaths;
     std::vector<omni::fabric::Path> _featureIdAttributePaths;
     std::vector<omni::fabric::Path> _featureIdTexturePaths;
-    std::vector<omni::fabric::Path> _propertyAttributePaths;
-    std::vector<omni::fabric::Path> _propertyTexturePaths;
+    std::vector<omni::fabric::Path> _propertyAttributePropertyPaths;
+    std::vector<omni::fabric::Path> _propertyTexturePropertyPaths;
 
     std::vector<omni::fabric::Path> _allPaths;
 };
