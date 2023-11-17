@@ -912,10 +912,7 @@ omni::fabric::Token getMdlIdentifier(const omni::fabric::Path& path) {
 }
 
 omni::fabric::Type getPrimvarType(DataType type) {
-    (void)type;
-    // CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_DATA_TYPE_NO_ARGS(getPrimvarTypeImpl, type);
-    // TODO
-    return {};
+    return CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_DATA_TYPE_NO_ARGS(getPrimvarTypeImpl, type);
 }
 
 } // namespace cesium::omniverse::FabricUtil

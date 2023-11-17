@@ -1851,9 +1851,9 @@ template <typename L, std::size_t... I> const auto& getDispatchArray(std::index_
         lambda(std::integral_constant<DataType, DataType(I)>{})...};
     return array;
 }
-template <typename L, typename... P> void dispatch(L lambda, DataType n, P&&... p) {
+template <typename L, typename... P> auto dispatch(L lambda, DataType n, P&&... p) {
     const auto& array = getDispatchArray(std::make_index_sequence<DataTypeCount>{}, lambda);
-    array[static_cast<size_t>(n)](std::forward<P>(p)...);
+    return array[static_cast<size_t>(n)](std::forward<P>(p)...);
 }
 
 // This allows us to call an enum templated function based on a runtime enum value
