@@ -40,6 +40,10 @@ export enum up_axis_mode {
     Z
 };
 
+//-----------------------------------
+// Internal helper functions
+//-----------------------------------
+
 float2 world_coordinate_2d(float2 min_world, float2 max_world, up_axis_mode up_axis)
 {
     // Get the world pos of the pixel
@@ -49,6 +53,288 @@ float2 world_coordinate_2d(float2 min_world, float2 max_world, up_axis_mode up_a
     // Return 0-1 UVs based on the min/max world coordinates provided
     return (world_pos_horizontal - min_world) / (max_world - min_world);
 }
+
+float4 alpha_blend(float4 src, float4 dst) {
+    return src * float4(src.w, src.w, src.w, 1.0) + dst * (1.0 - src.w);
+}
+
+float4 compute_base_color(
+    color base_color_factor,
+    float base_alpha,
+    float4 base_color_texture,
+    float4 imagery_layer,
+    float4 tile_color) {
+
+    auto base_color_factor_float3 = float3(base_color_factor);
+
+    auto base_color = base_color_texture;
+    base_color *= float4(base_color_factor_float3.x, base_color_factor_float3.y, base_color_factor_float3.z, base_alpha);
+    base_color *= scene::data_lookup_float4("COLOR_0", float4(1.0));
+    base_color = alpha_blend(imagery_layer.value, base_color);
+    base_color *= tile_color;
+
+    return base_color;
+}
+
+// Copied from gltf/pbr.mdl since it's not exported
+float2 khr_texture_transform_apply(
+    float2 coord,
+    float2 offset,
+    float rotation,
+    float2 scale
+)
+{
+    // MDL expects the texture coordinate origin at the bottom left (gltf at top left)
+    // Assuming the renderer follows the MDL specification in which case the coordinates
+    // have been flipped either while loading the glTF geometry or while setting up the state.
+
+    // Undo the flipping for the transformation to get into the original glTF texture space.
+    coord = float2(coord.x, 1.0f - coord.y);
+
+    // first scale
+    coord = coord * scale;
+    // then rotate
+    float cos_rotation = math::cos(rotation);
+    float sin_rotation = math::sin(rotation);
+    coord = float2(cos_rotation * coord.x + sin_rotation * coord.y, cos_rotation * coord.y - sin_rotation * coord.x);
+    // then translate
+    coord = coord + offset;
+
+    // flip back
+    coord = float2(coord.x, 1.0f - coord.y);
+    return coord;
+}
+
+int mod(int a, int n) {
+    return (a % n + n) % n;
+}
+
+int mirror(int a) {
+    return a >= 0 ? a : -(1 + a);
+}
+
+int apply_mirrored_repeat(int x, int size) {
+    return (size - 1) - mirror(mod(x, 2 * size) - size);
+}
+
+int apply_clamp_to_edge(int x, int size) {
+    return math::clamp(x, 0, size - 1);
+}
+
+int apply_repeat(int x, int size) {
+    return mod(x, size);
+}
+
+struct texel_fetch_value
+{
+    bool valid = false;
+    int4 value = int4(0, 0, 0, 0);
+};
+
+// Modified version of gltf_texture_lookup that uses texel_float4 instead of lookup_float4 to avoid
+// linearly interpolating texture values which would be incorrect for feature ID textures and
+// property textures. Unfortunately texel_float4 doesn't do texcoord wrapping so we need to do it ourselves.
+texel_fetch_value texel_fetch(
+    uniform texture_2d texture,
+    uniform int tex_coord_index,
+    uniform float2 tex_coord_offset,
+    uniform float tex_coord_rotation,
+    uniform float2 tex_coord_scale,
+    uniform gltf_wrapping_mode wrap_s,
+    uniform gltf_wrapping_mode wrap_t
+)
+{
+    texel_fetch_value tex_ret;
+    if (!tex::texture_isvalid(texture)) {
+        return tex_ret;
+    }
+
+    auto tex_coord3 = state::texture_coordinate(tex_coord_index);
+    auto tex_coord = khr_texture_transform_apply(
+        coord: float2(tex_coord3.x, tex_coord3.y),
+        offset: tex_coord_offset,
+        rotation: tex_coord_rotation,
+        scale: tex_coord_scale);
+
+    auto width = tex::width(texture);
+    auto height = tex::height(texture);
+
+    auto pixel_x = int(tex_coord.x * width);
+    auto pixel_y = int(tex_coord.y * height);
+
+    switch (wrap_s) {
+        case clamp_to_edge:
+            pixel_x = apply_clamp_to_edge(pixel_x, width);
+            break;
+        case mirrored_repeat:
+            pixel_x = apply_mirrored_repeat(pixel_x, width);
+            break;
+        case repeat:
+            pixel_x = apply_repeat(pixel_x, width);
+            break;
+    }
+
+    switch (wrap_t) {
+        case clamp_to_edge:
+            pixel_y = apply_clamp_to_edge(pixel_y, height);
+            break;
+        case mirrored_repeat:
+            pixel_y = apply_mirrored_repeat(pixel_y, height);
+            break;
+        case repeat:
+            pixel_y = apply_repeat(pixel_y, height);
+            break;
+    }
+
+    auto value = tex::texel_float4(
+        tex: texture,
+        coord: int2(pixel_x, pixel_y));
+
+    // Assumes 8-bit per-channel texture
+    tex_ret.value = int4(math::round(value * 255.0));
+    tex_ret.valid = true;
+    return tex_ret;
+}
+
+int unpack_channels(int4 value, int4 channels, int channel_count) {
+    auto value = 0;
+    for (int i = 0; i < channel_count; i++) {
+        value |= (value[channels[i]] << (i * 8));
+    }
+}
+
+int read_channels_int(int4 values, int channel) {
+    return values[channel]
+}
+
+int2 read_channels_int2(int4 values, int2 channels) {
+    return int2(values[channels[0]], values[channels[1]]);
+}
+
+int3 read_channels_int3(int4 values, int3 channels) {
+    return int3(values[channels[0]], values[channels[1]], values[channels[2]]);
+}
+
+int4 read_channels_int4(int4 values, int4 channels) {
+    return int4(values[channels[0]], values[channels[1]], values[channels[2]], values[channels[3]]);
+}
+
+// The normalize functions work for both signed and unsigned ints
+float normalize_int(int value, int maximum_value) {
+    return max(float(value) / float(maximum_value), -1.0);
+}
+
+float2 normalize_int2(int2 value, int2 maximum_value) {
+    return max(float2(value) / float2(maximum_value), float2(-1.0));
+}
+
+float3 normalize_int3(int3 value, int3 maximum_value) {
+    return max(float3(value) / float3(maximum_value), float3(-1.0));
+}
+
+float4 normalize_int4(int4 value, int4 maximum_value) {
+    return max(float4(value) / float4(maximum_value), float4(-1.0));
+}
+
+int finalize_int(int raw_value, bool has_no_data, int no_data, int default_value) {
+    const auto is_no_data = has_no_data && raw_value == no_data;
+    return is_no_data ? default_value : raw_value;
+}
+
+int finalize_int2(int2 raw_value, bool has_no_data, int2 no_data, int2 default_value) {
+    const auto is_no_data = has_no_data && raw_value == no_data;
+    return is_no_data ? default_value : raw_value;
+}
+
+int finalize_int3(int3 raw_value, bool has_no_data, int3 no_data, int3 default_value) {
+    const auto is_no_data = has_no_data && raw_value == no_data;
+    return is_no_data ? default_value : raw_value;
+}
+
+int finalize_int4(int4 raw_value, bool has_no_data, int4 no_data, int4 default_value) {
+    const auto is_no_data = has_no_data && raw_value == no_data;
+    return is_no_data ? default_value : raw_value;
+}
+
+float finalize_normalized_int(int raw_value, bool has_no_data, int no_data, float default_value, float offset, float scale, int maximum_value) {
+    const auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    const auto normalized_value = normalize_int(raw_value, maximum_value);
+    const auto transformed_value = normalized_value * scale + offset;
+    return transformed_value;
+}
+
+float2 finalize_normalized_int2(int2 raw_value, bool has_no_data, int2 no_data, float2 default_value, float2 offset, float2 scale, int2 maximum_value) {
+    const auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    const auto normalized_value = normalize_int2(raw_value, maximum_value);
+    const auto transformed_value = normalized_value * scale + offset;
+    return transformed_value;
+}
+
+float3 finalize_normalized_int3(int3 raw_value, bool has_no_data, int3 no_data, float3 default_value, float3 offset, float3 scale, int3 maximum_value) {
+    const auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    const auto normalized_value = normalize_int3(raw_value, maximum_value);
+    const auto transformed_value = normalized_value * scale + offset;
+    return transformed_value;
+}
+
+float4 finalize_normalized_int4(int4 raw_value, bool has_no_data, int4 no_data, float4 default_value, float4 offset, float4 scale, int4 maximum_value) {
+    const auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    const auto normalized_value = normalize_int4(raw_value, maximum_value);
+    const auto transformed_value = normalized_value * scale + offset;
+    return transformed_value;
+}
+
+float finalize_float(float raw_value, bool has_no_data, float no_data, float default_value, float offset, float scale) {
+    const auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    const auto transformed_value = raw_value * scale + offset;
+    return transformed_value;
+}
+
+float2 finalize_float2(float2 raw_value, bool has_no_data, float2 no_data, float2 default_value, float2 offset, float2 scale) {
+    const auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    const auto transformed_value = raw_value * scale + offset;
+    return transformed_value;
+}
+
+float3 finalize_float3(float3 raw_value, bool has_no_data, float3 no_data, float3 default_value, float3 offset, float3 scale) {
+    const auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    const auto transformed_value = raw_value * scale + offset;
+    return transformed_value;
+}
+
+float4 finalize_float4(float4 raw_value, bool has_no_data, float4 no_data, float4 default_value, float4 offset, float4 scale) {
+    const auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    const auto transformed_value = raw_value * scale + offset;
+    return transformed_value;
+}
+
+//-----------------------------------
+// Exported functions (public)
+//-----------------------------------
 
 export float4 cesium_lookup_world_texture_float4(
     uniform texture_2d texture = texture_2d(),
@@ -65,8 +351,8 @@ export float4 cesium_lookup_world_texture_float4(
     return tex::lookup_float4(
         tex: texture,
         coord: world_coordinate_2d(min_world, max_world, up_axis),
-        wrap_u: ::tex::wrap_clamp,
-        wrap_v: ::tex::wrap_clamp);
+        wrap_u: tex::wrap_clamp,
+        wrap_v: tex::wrap_clamp);
 }
 
 export float3 cesium_lookup_world_texture_float3(
@@ -84,8 +370,8 @@ export float3 cesium_lookup_world_texture_float3(
     return tex::lookup_float3(
         tex: texture,
         coord: world_coordinate_2d(min_world, max_world, up_axis),
-        wrap_u: ::tex::wrap_clamp,
-        wrap_v: ::tex::wrap_clamp);
+        wrap_u: tex::wrap_clamp,
+        wrap_v: tex::wrap_clamp);
 }
 
 export color cesium_lookup_world_texture_color(
@@ -103,8 +389,8 @@ export color cesium_lookup_world_texture_color(
     return tex::lookup_color(
         tex: texture,
         coord: world_coordinate_2d(min_world, max_world, up_axis),
-        wrap_u: ::tex::wrap_clamp,
-        wrap_v: ::tex::wrap_clamp);
+        wrap_u: tex::wrap_clamp,
+        wrap_v: tex::wrap_clamp);
 }
 
 export float4 cesium_base_color_texture_float4(
@@ -493,7 +779,6 @@ export material cesium_material(
         anno::display_name("Metallic Factor"),
         anno::description("The metalness of the material. Select between dielectric (0.0) and metallic (1.0).")
     ]],
-
     float roughness_factor = 1.0
     [[
         anno::hard_range(0.0, 1.0),
@@ -555,308 +840,47 @@ export material cesium_material(
     geometry: base.geometry
 );
 
-float4 alpha_blend(float4 src, float4 dst) {
-    return src * float4(src.w, src.w, src.w, 1.0) + dst * (1.0 - src.w);
-}
-
-float4 compute_base_color(
-    gltf_texture_lookup_value imagery_layer,
-    float4 tile_color,
-    gltf_texture_lookup_value base_color_texture,
-    color base_color_factor,
-    float base_alpha) {
-
-    auto base_color_factor_float3 = float3(base_color_factor);
-
-    auto base_color = base_color_texture.valid ? base_color_texture.value : float4(1.0);
-    base_color *= float4(base_color_factor_float3.x, base_color_factor_float3.y, base_color_factor_float3.z, base_alpha);
-    base_color *= ::scene::data_lookup_float4("COLOR_0", float4(1.0));
-    base_color = alpha_blend(imagery_layer.value, base_color);
-    base_color *= tile_color;
-
-    return base_color;
-}
-
-// Copied from gltf/pbr.mdl since it's not exported
-float2 khr_texture_transform_apply(
-    float2 coord,
-    float2 offset,
-    float rotation,
-    float2 scale
-)
-{
-    // MDL expects the texture coordinate origin at the bottom left (gltf at top left)
-    // Assuming the renderer follows the MDL specification in which case the coordinates
-    // have been flipped either while loading the glTF geometry or while setting up the state.
-
-    // Undo the flipping for the transformation to get into the original glTF texture space.
-    coord = float2(coord.x, 1.0f - coord.y);
-
-    // first scale
-    coord = coord * scale;
-    // then rotate
-    float cos_rotation = ::math::cos(rotation);
-    float sin_rotation = ::math::sin(rotation);
-    coord = float2(cos_rotation * coord.x + sin_rotation * coord.y, cos_rotation * coord.y - sin_rotation * coord.x);
-    // then translate
-    coord = coord + offset;
-
-    // flip back
-    coord = float2(coord.x, 1.0f - coord.y);
-    return coord;
-}
-
-struct texel_fetch_value
-{
-    bool valid = false;
-    int4 value = int4(0, 0, 0, 0);
-};
-
-int mod(int a, int n) {
-    return (a % n + n) % n;
-}
-
-int mirror(int a) {
-    return a >= 0 ? a : -(1 + a);
-}
-
-int apply_mirrored_repeat(int x, int size) {
-    return (size - 1) - mirror(mod(x, 2 * size) - size);
-}
-
-int apply_clamp_to_edge(int x, int size) {
-    return math::clamp(x, 0, size - 1);
-}
-
-int apply_repeat(int x, int size) {
-    return mod(x, size);
-}
-
-// Modified version of gltf_texture_lookup that uses texel_float4 instead of lookup_float4 to avoid
-// linearly interpolating the texture values which would be incorrect for feature ID tetures. There
-// doesn't seem to be an easier way to do nearest sampling. Unfortunately texel_float4 doesn't do
-// texcoord wrapping so we need to do it ourselves.
-texel_fetch_value texel_fetch(
-    uniform texture_2d texture = texture_2d(),
-    uniform int tex_coord_index = 0,
-    uniform float2 offset = float2(0.0f, 0.0),
-    uniform float rotation = 0.0,
-    uniform float2 scale = float2(1.0f, 1.0f),
-    uniform gltf_wrapping_mode wrap_s = repeat,
-    uniform gltf_wrapping_mode wrap_t = repeat
-)
-{
-    texel_fetch_value tex_ret;
-    if (!tex::texture_isvalid(texture)) {
-        return tex_ret;
-    }
-
-    auto tex_coord3 = state::texture_coordinate(tex_coord_index);
-    auto tex_coord = khr_texture_transform_apply(
-        coord: float2(tex_coord3.x, tex_coord3.y),
-        offset: offset,
-        rotation: rotation,
-        scale: scale);
-
-    auto width = tex::width(texture);
-    auto height = tex::height(texture);
-
-    auto pixel_x = int(tex_coord.x * width);
-    auto pixel_y = int(tex_coord.y * height);
-
-    switch (wrap_s) {
-        case clamp_to_edge:
-            pixel_x = apply_clamp_to_edge(pixel_x, width);
-            break;
-        case mirrored_repeat:
-            pixel_x = apply_mirrored_repeat(pixel_x, width);
-            break;
-        case repeat:
-            pixel_x = apply_repeat(pixel_x, width);
-            break;
-    }
-
-    switch (wrap_t) {
-        case clamp_to_edge:
-            pixel_y = apply_clamp_to_edge(pixel_y, height);
-            break;
-        case mirrored_repeat:
-            pixel_y = apply_mirrored_repeat(pixel_y, height);
-            break;
-        case repeat:
-            pixel_y = apply_repeat(pixel_y, height);
-            break;
-    }
-
-    auto value = tex::texel_float4(
-        tex: texture,
-        coord: int2(pixel_x, pixel_y));
-
-    tex_ret.value = int4(math::round(value * 255.0));
-    tex_ret.valid = true;
-    return tex_ret;
-}
+//-----------------------------------
+// Exported functions (private)
+//-----------------------------------
 
 export int cesium_internal_feature_id_texture_lookup(
-    uniform int4 channels = int4(0),
-    uniform int channel_count = 1,
-    uniform int null_feature_id = DEFAULT_NULL_FEATURE_ID,
-    // gltf_texture_lookup inputs below
-    uniform texture_2d texture = texture_2d(),
-    uniform int tex_coord_index = 0,
-    uniform float2 offset = float2(0.0, 0.0),
-    uniform float rotation = 0.0,
-    uniform float2 scale = float2(1.0, 1.0),
-    uniform gltf_wrapping_mode wrap_s = repeat,
-    uniform gltf_wrapping_mode wrap_t = repeat
+    uniform texture_2d texture,
+    uniform int tex_coord_index,
+    uniform float2 tex_coord_offset,
+    uniform float tex_coord_rotation,
+    uniform float2 tex_coord_scale,
+    uniform gltf_wrapping_mode wrap_s,
+    uniform gltf_wrapping_mode wrap_t,
+    uniform int4 channels,
+    uniform int channel_count,
+    uniform int null_feature_id
 ) [[ anno::hidden() ]] {
-    auto texel_value = texel_fetch(
-        texture: texture,
-        tex_coord_index: tex_coord_index,
-        offset: offset,
-        rotation: rotation,
-        scale: scale,
-        wrap_s: wrap_s,
-        wrap_t: wrap_t
-    );
+    auto texel_value = texel_fetch(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
 
     if (!texel_value.valid) {
         return DEFAULT_NULL_FEATURE_ID;
     }
 
-    // Feature IDs can be in multiple channels of the texture to form a single uint32
-    auto feature_id = 0;
-    for (int i = 0; i < channel_count; i++) {
-        feature_id |= (texel_value.value[channels[i]] << (i * 8));
-    }
-
+    // Feature IDs can be packed in multiple channels of the texture
+    auto feature_id = unpack_channels(texel_value.value, channels, channel_count);
     return feature_id == null_feature_id ? DEFAULT_NULL_FEATURE_ID : feature_id;
 }
 
 export int cesium_internal_feature_id_attribute_lookup(
     uniform string primvar_name,
-    uniform int null_feature_id = DEFAULT_NULL_FEATURE_ID
+    uniform int null_feature_id
 ) [[ anno::hidden() ]] {
+    if (!scene::data_is_valid(primvar_name)) {
+        return DEFAULT_NULL_FEATURE_ID;
+    }
+
     // Even if all feature ids in a triangle are the same value, the primvar interpolation math can yield non integer
     // results (e.g. 0.99999999 or 1.00000001), which when accessed as ints (i.e. floored) can cause variance across
     // the triangle surface. The fix is to read the primvar as a float, round the value, and cast to int.
     auto feature_id = int(::math::round(::scene::data_lookup_float(primvar_name)));
     return feature_id == null_feature_id ? DEFAULT_NULL_FEATURE_ID : feature_id;
 }
-
-// The normalize functions work for both signed and unsigned ints
-float normalize_int(int value, int maximum_value) {
-    return max(float(value) / float(maximum_value), -1.0);
-}
-
-float2 normalize_int2(int2 value, int2 maximum_value) {
-    return max(float2(value) / float2(maximum_value), float2(-1.0));
-}
-
-float3 normalize_int3(int3 value, int3 maximum_value) {
-    return max(float3(value) / float3(maximum_value), float3(-1.0));
-}
-
-float4 normalize_int4(int4 value, int4 maximum_value) {
-    return max(float4(value) / float4(maximum_value), float4(-1.0));
-}
-
-int finalize_int(int raw_value, bool has_no_data, int no_data, int default_value) {
-    const auto is_no_data = has_no_data && raw_value == no_data;
-    return is_no_data ? default_value : raw_value;
-}
-
-int finalize_int2(int2 raw_value, bool has_no_data, int2 no_data, int2 default_value) {
-    const auto is_no_data = has_no_data && raw_value == no_data;
-    return is_no_data ? default_value : raw_value;
-}
-
-int finalize_int3(int3 raw_value, bool has_no_data, int3 no_data, int3 default_value) {
-    const auto is_no_data = has_no_data && raw_value == no_data;
-    return is_no_data ? default_value : raw_value;
-}
-
-int finalize_int4(int4 raw_value, bool has_no_data, int4 no_data, int4 default_value) {
-    const auto is_no_data = has_no_data && raw_value == no_data;
-    return is_no_data ? default_value : raw_value;
-}
-
-float finalize_normalized_int(int raw_value, bool has_no_data, int no_data, float default_value, float offset, float scale, int maximum_value) {
-    const auto is_no_data = has_no_data && raw_value == no_data;
-    if (is_no_data) {
-        return default_value;
-    }
-    const auto normalized_value = normalize_int(raw_value, maximum_value);
-    const auto transformed_value = normalized_value * scale + offset;
-    return transformed_value;
-}
-
-float2 finalize_normalized_int2(int2 raw_value, bool has_no_data, int2 no_data, float2 default_value, float2 offset, float2 scale, int2 maximum_value) {
-    const auto is_no_data = has_no_data && raw_value == no_data;
-    if (is_no_data) {
-        return default_value;
-    }
-    const auto normalized_value = normalize_int2(raw_value, maximum_value);
-    const auto transformed_value = normalized_value * scale + offset;
-    return transformed_value;
-}
-
-float3 finalize_normalized_int3(int3 raw_value, bool has_no_data, int3 no_data, float3 default_value, float3 offset, float3 scale, int3 maximum_value) {
-    const auto is_no_data = has_no_data && raw_value == no_data;
-    if (is_no_data) {
-        return default_value;
-    }
-    const auto normalized_value = normalize_int3(raw_value, maximum_value);
-    const auto transformed_value = normalized_value * scale + offset;
-    return transformed_value;
-}
-
-float4 finalize_normalized_int4(int4 raw_value, bool has_no_data, int4 no_data, float4 default_value, float4 offset, float4 scale, int4 maximum_value) {
-    const auto is_no_data = has_no_data && raw_value == no_data;
-    if (is_no_data) {
-        return default_value;
-    }
-    const auto normalized_value = normalize_int4(raw_value, maximum_value);
-    const auto transformed_value = normalized_value * scale + offset;
-    return transformed_value;
-}
-
-float finalize_float(float raw_value, bool has_no_data, float no_data, float default_value, float offset, float scale) {
-    const auto is_no_data = has_no_data && raw_value == no_data;
-    if (is_no_data) {
-        return default_value;
-    }
-    const auto transformed_value = raw_value * scale + offset;
-    return transformed_value;
-}
-
-float2 finalize_float2(float2 raw_value, bool has_no_data, float2 no_data, float2 default_value, float2 offset, float2 scale) {
-    const auto is_no_data = has_no_data && raw_value == no_data;
-    if (is_no_data) {
-        return default_value;
-    }
-    const auto transformed_value = raw_value * scale + offset;
-    return transformed_value;
-}
-
-float3 finalize_float3(float3 raw_value, bool has_no_data, float3 no_data, float3 default_value, float3 offset, float3 scale) {
-    const auto is_no_data = has_no_data && raw_value == no_data;
-    if (is_no_data) {
-        return default_value;
-    }
-    const auto transformed_value = raw_value * scale + offset;
-    return transformed_value;
-}
-
-float4 finalize_float4(float4 raw_value, bool has_no_data, float4 no_data, float4 default_value, float4 offset, float4 scale) {
-    const auto is_no_data = has_no_data && raw_value == no_data;
-    if (is_no_data) {
-        return default_value;
-    }
-    const auto transformed_value = raw_value * scale + offset;
-    return transformed_value;
-}
-
 
 // See comment in DataType.h for why these are data_lookup_float instead of data_lookup_int
 export int cesium_internal_property_attribute_int_lookup(
@@ -865,6 +889,10 @@ export int cesium_internal_property_attribute_int_lookup(
     uniform int no_data,
     uniform int default_value
 ) [[ anno::hidden() ]] {
+    if (!scene::data_is_valid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_INT;
+    }
+
     const auto raw_value = int(::math::round(::scene::data_lookup_float(primvar_name)));
     return finalize_int(raw_value, has_no_data, no_data, default_value);
 }
@@ -875,6 +903,10 @@ export int2 cesium_internal_property_attribute_int2_lookup(
     uniform int2 no_data,
     uniform int2 default_value
 ) [[ anno::hidden() ]] {
+    if (!scene::data_is_valid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_INT2;
+    }
+
     const auto raw_value = int2(::math::round(::scene::data_lookup_float2(primvar_name)));
     return finalize_int2(raw_value, has_no_data, no_data, default_value);
 }
@@ -885,6 +917,10 @@ export int3 cesium_internal_property_attribute_int3_lookup(
     uniform int3 no_data,
     uniform int3 default_value
 ) [[ anno::hidden() ]] {
+    if (!scene::data_is_valid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_INT3;
+    }
+
     const auto raw_value = int3(::math::round(::scene::data_lookup_float3(primvar_name)));
     return finalize_int3(raw_value, has_no_data, no_data, default_value);
 }
@@ -895,6 +931,10 @@ export int4 cesium_internal_property_attribute_int4_lookup(
     uniform int4 no_data,
     uniform int4 default_value
 ) [[ anno::hidden() ]] {
+    if (!scene::data_is_valid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_INT4;
+    }
+
     const auto raw_value = int4(::math::round(::scene::data_lookup_float4(primvar_name)));
     return finalize_int4(raw_value, has_no_data, no_data, default_value);
 }
@@ -908,6 +948,10 @@ export float cesium_internal_property_attribute_normalized_int_lookup(
     uniform float scale,
     uniform int maximum_value
 ) [[ anno::hidden() ]] {
+    if (!scene::data_is_valid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT;
+    }
+
     const auto raw_value = int(::math::round(::scene::data_lookup_float(primvar_name)));
     return finalize_normalized_int(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
 }
@@ -921,6 +965,10 @@ export float2 cesium_internal_property_attribute_normalized_int2_lookup(
     uniform float2 scale,
     uniform int2 maximum_value
 ) [[ anno::hidden() ]] {
+    if (!scene::data_is_valid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT2;
+    }
+
     const auto raw_value = int2(::math::round(::scene::data_lookup_float2(primvar_name)));
     return finalize_normalized_int2(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
 }
@@ -934,6 +982,10 @@ export float3 cesium_internal_property_attribute_normalized_int3_lookup(
     uniform float3 scale,
     uniform int3 maximum_value
 ) [[ anno::hidden() ]] {
+    if (!scene::data_is_valid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT3;
+    }
+
     const auto raw_value = int3(::math::round(::scene::data_lookup_float3(primvar_name)));
     return finalize_normalized_int3(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
 }
@@ -947,6 +999,10 @@ export float4 cesium_internal_property_attribute_normalized_int4_lookup(
     uniform float4 scale,
     uniform int4 maximum_value
 ) [[ anno::hidden() ]] {
+    if (!scene::data_is_valid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT4;
+    }
+
     const auto raw_value = int4(::math::round(::scene::data_lookup_float4(primvar_name)));
     return finalize_normalized_int4(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
 }
@@ -959,7 +1015,11 @@ export float cesium_internal_property_attribute_float_lookup(
     uniform float offset,
     uniform float scale
 ) [[ anno::hidden() ]] {
-    const auto raw_value = ::scene::data_lookup_float(primvar_name);
+    if (!scene::data_is_valid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT;
+    }
+
+    const auto raw_value = scene::data_lookup_float(primvar_name);
     return finalize_float(raw_value, has_no_data, no_data, default_value, offset, scale);
 }
 
@@ -971,7 +1031,11 @@ export float2 cesium_internal_property_attribute_float2_lookup(
     uniform float2 offset,
     uniform float2 scale
 ) [[ anno::hidden() ]] {
-    const auto raw_value = ::scene::data_lookup_float2(primvar_name);
+    if (!scene::data_is_valid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT2;
+    }
+
+    const auto raw_value = scene::data_lookup_float2(primvar_name);
     return finalize_float2(raw_value, has_no_data, no_data, default_value, offset, scale);
 }
 
@@ -983,7 +1047,11 @@ export float3 cesium_internal_property_attribute_float3_lookup(
     uniform float3 offset,
     uniform float3 scale
 ) [[ anno::hidden() ]] {
-    const auto raw_value = ::scene::data_lookup_float3(primvar_name);
+    if (!scene::data_is_valid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT3;
+    }
+
+    const auto raw_value = scene::data_lookup_float3(primvar_name);
     return finalize_float3(raw_value, has_no_data, no_data, default_value, offset, scale);
 }
 
@@ -995,59 +1063,221 @@ export float4 cesium_internal_property_attribute_float4_lookup(
     uniform float4 offset,
     uniform float4 scale
 ) [[ anno::hidden() ]] {
-    const auto raw_value = ::scene::data_lookup_float4(primvar_name);
+    if (!scene::data_is_valid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT4;
+    }
+
+    const auto raw_value = scene::data_lookup_float4(primvar_name);
     return finalize_float4(raw_value, has_no_data, no_data, default_value, offset, scale);
 }
 
-// // TODO: support channels properly
-// // TODO: need texel_fetch_int
-// // TODO: need texel_fetch_float
-// export int cesium_internal_property_texture_int_lookup(
-//     uniform int4 channels = int4(0),
-//     uniform int channel_count = 1,
-//     uniform bool has_no_data,
-//     uniform int no_data,
-//     uniform int default_value,
-//     // gltf_texture_lookup inputs below
-//     uniform texture_2d texture = texture_2d(),
-//     uniform int tex_coord_index = 0,
-//     uniform float2 offset = float2(0.0, 0.0),
-//     uniform float rotation = 0.0,
-//     uniform float2 scale = float2(1.0, 1.0),
-//     uniform gltf_wrapping_mode wrap_s = repeat,
-//     uniform gltf_wrapping_mode wrap_t = repeat
-// ) [[ anno::hidden() ]] {
-//     auto texel_value = texel_fetch(
-//         texture: texture,
-//         tex_coord_index: tex_coord_index,
-//         offset: offset,
-//         rotation: rotation,
-//         scale: scale,
-//         wrap_s: wrap_s,
-//         wrap_t: wrap_t
-//     );
+export int cesium_internal_property_texture_int_lookup(
+    uniform texture_2d texture,
+    uniform int tex_coord_index,
+    uniform float2 tex_coord_offset,
+    uniform float tex_coord_rotation,
+    uniform float2 tex_coord_scale,
+    uniform gltf_wrapping_mode wrap_s,
+    uniform gltf_wrapping_mode wrap_t,
+    uniform int channels,
+    uniform bool has_no_data,
+    uniform int no_data,
+    uniform int default_value,
+) [[ anno::hidden() ]] {
+    auto texel_value = texel_fetch(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
 
-//     if (!texel_value.valid) {
-//         return DEFAULT_PROPERTY_VALUE_INT;
-//     }
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_INT;
+    }
 
-//     const auto raw_value = texel_value[channels[0]];
-//     const auto is_no_data = has_no_data && raw_value == no_data;
-//     return is_no_data ? default_value : raw_value;
-// }
+    const auto raw_value = read_channels_int(texel_value.value, channels);
+    return finalize_int(raw_value, has_no_data, no_data, default_value);
+}
+
+export int2 cesium_internal_property_texture_int2_lookup(
+    uniform texture_2d texture,
+    uniform int tex_coord_index,
+    uniform float2 tex_coord_offset,
+    uniform float tex_coord_rotation,
+    uniform float2 tex_coord_scale,
+    uniform gltf_wrapping_mode wrap_s,
+    uniform gltf_wrapping_mode wrap_t,
+    uniform int2 channels,
+    uniform bool has_no_data,
+    uniform int2 no_data,
+    uniform int2 default_value
+) [[ anno::hidden() ]] {
+    auto texel_value = texel_fetch(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_INT2;
+    }
+
+    const auto raw_value = read_channels_int2(texel_value.value, channels);
+    return finalize_int2(raw_value, has_no_data, no_data, default_value);
+}
+
+export int3 cesium_internal_property_texture_int3_lookup(
+    uniform texture_2d texture,
+    uniform int tex_coord_index,
+    uniform float2 tex_coord_offset,
+    uniform float tex_coord_rotation,
+    uniform float2 tex_coord_scale,
+    uniform gltf_wrapping_mode wrap_s,
+    uniform gltf_wrapping_mode wrap_t,
+    uniform int3 channels,
+    uniform bool has_no_data,
+    uniform int3 no_data,
+    uniform int3 default_value
+) [[ anno::hidden() ]] {
+    auto texel_value = texel_fetch(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_INT3;
+    }
+
+    const auto raw_value = read_channels_int3(texel_value.value, channels);
+    return finalize_int3(raw_value, has_no_data, no_data, default_value);
+}
+
+export int4 cesium_internal_property_texture_int4_lookup(
+    uniform texture_2d texture,
+    uniform int tex_coord_index,
+    uniform float2 tex_coord_offset,
+    uniform float tex_coord_rotation,
+    uniform float2 tex_coord_scale,
+    uniform gltf_wrapping_mode wrap_s,
+    uniform gltf_wrapping_mode wrap_t,
+    uniform int4 channels,
+    uniform bool has_no_data,
+    uniform int4 no_data,
+    uniform int4 default_value
+) [[ anno::hidden() ]] {
+    auto texel_value = texel_fetch(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_INT4;
+    }
+
+    const auto raw_value = read_channels_int4(texel_value.value, channels);
+    return finalize_int4(raw_value, has_no_data, no_data, default_value);
+}
+
+export float cesium_internal_property_texture_normalized_int_lookup(
+    uniform texture_2d texture,
+    uniform int tex_coord_index,
+    uniform float2 tex_coord_offset,
+    uniform float tex_coord_rotation,
+    uniform float2 tex_coord_scale,
+    uniform gltf_wrapping_mode wrap_s,
+    uniform gltf_wrapping_mode wrap_t,
+    uniform int channels,
+    uniform bool has_no_data,
+    uniform int no_data,
+    uniform float default_value,
+    uniform float offset,
+    uniform float scale,
+    uniform int maximum_value
+) [[ anno::hidden() ]] {
+    auto texel_value = texel_fetch(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT;
+    }
+
+    const auto raw_value = read_channels_int(texel_value.value, channels);
+    return finalize_normalized_int(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
+}
+
+export float2 cesium_internal_property_texture_normalized_int2_lookup(
+    uniform texture_2d texture,
+    uniform int tex_coord_index,
+    uniform float2 tex_coord_offset,
+    uniform float tex_coord_rotation,
+    uniform float2 tex_coord_scale,
+    uniform gltf_wrapping_mode wrap_s,
+    uniform gltf_wrapping_mode wrap_t,
+    uniform int2 channels,
+    uniform bool has_no_data,
+    uniform int2 no_data,
+    uniform float2 default_value,
+    uniform float2 offset,
+    uniform float2 scale,
+    uniform int2 maximum_value
+) [[ anno::hidden() ]] {
+    auto texel_value = texel_fetch(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT2;
+    }
+
+    const auto raw_value = read_channels_int2(texel_value.value, channels);
+    return finalize_normalized_int2(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
+}
+
+export float3 cesium_internal_property_texture_normalized_int3_lookup(
+    uniform texture_2d texture,
+    uniform int tex_coord_index,
+    uniform float2 tex_coord_offset,
+    uniform float tex_coord_rotation,
+    uniform float2 tex_coord_scale,
+    uniform gltf_wrapping_mode wrap_s,
+    uniform gltf_wrapping_mode wrap_t,
+    uniform int3 channels,
+    uniform bool has_no_data,
+    uniform int3 no_data,
+    uniform float3 default_value,
+    uniform float3 offset,
+    uniform float3 scale,
+    uniform int3 maximum_value
+) [[ anno::hidden() ]] {
+    auto texel_value = texel_fetch(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT3;
+    }
+
+    const auto raw_value = read_channels_int3(texel_value.value, channels);
+    return finalize_normalized_int3(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
+}
+
+export float4 cesium_internal_property_texture_normalized_int4_lookup(
+    uniform texture_2d texture,
+    uniform int tex_coord_index,
+    uniform float2 tex_coord_offset,
+    uniform float tex_coord_rotation,
+    uniform float2 tex_coord_scale,
+    uniform gltf_wrapping_mode wrap_s,
+    uniform gltf_wrapping_mode wrap_t,
+    uniform int4 channels,
+    uniform bool has_no_data,
+    uniform int4 no_data,
+    uniform float4 default_value,
+    uniform float4 offset,
+    uniform float4 scale,
+    uniform int4 maximum_value
+) [[ anno::hidden() ]] {
+    auto texel_value = texel_fetch(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT4;
+    }
+
+    const auto raw_value = read_channels_int4(texel_value.value, channels);
+    return finalize_normalized_int4(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
+}
 
 export gltf_texture_lookup_value cesium_internal_texture_lookup(*) [[ anno::hidden() ]] = gltf_texture_lookup();
 
 export gltf_texture_lookup_value cesium_internal_imagery_layer_lookup(
-    uniform float alpha = 1.0,
-    // gltf_texture_lookup inputs below
-    uniform texture_2d texture = texture_2d(),
-    uniform int tex_coord_index = 0,
-    uniform float2 offset = float2(0.0, 0.0),
-    uniform float rotation = 0.0,
-    uniform float2 scale = float2(1.0, 1.0),
-    uniform gltf_wrapping_mode wrap_s = repeat,
-    uniform gltf_wrapping_mode wrap_t = repeat
+    uniform texture_2d texture,
+    uniform int tex_coord_index,
+    uniform float2 tex_coord_offset,
+    uniform float tex_coord_rotation,
+    uniform float2 tex_coord_scale,
+    uniform gltf_wrapping_mode wrap_s,
+    uniform gltf_wrapping_mode wrap_t,
+    uniform float alpha
 ) [[ anno::hidden() ]] {
     auto imagery_layer = gltf_texture_lookup(
         texture: texture,
@@ -1067,19 +1297,24 @@ export gltf_texture_lookup_value cesium_internal_imagery_layer_lookup(
 }
 
 export material cesium_internal_material(
-    gltf_texture_lookup_value imagery_layer = gltf_texture_lookup_value(true, float4(0.0)),
-    uniform float4 tile_color = float4(1.0),
-    // gltf_material inputs below
+    uniform color base_color_factor,
+    uniform float metallic_factor,
+    uniform float roughness_factor,
+    uniform color emissive_factor,
+    uniform gltf_alpha_mode alpha_mode,
+    uniform float base_alpha,
+    uniform float alpha_cutoff,
     gltf_texture_lookup_value base_color_texture = gltf_texture_lookup_value(),
-    uniform color base_color_factor = color(1.0),
-    uniform float metallic_factor = 1.0,
-    uniform float roughness_factor = 1.0,
-    uniform color emissive_factor = color(0.0),
-    uniform gltf_alpha_mode alpha_mode = opaque,
-    uniform float base_alpha = 1.0,
-    uniform float alpha_cutoff  = 0.5
+    gltf_texture_lookup_value imagery_layer = gltf_texture_lookup_value(),
+    uniform float4 tile_color,
 ) [[ anno::hidden() ]] = let {
-    auto base_color = compute_base_color(imagery_layer, tile_color, base_color_texture, base_color_factor, base_alpha);
+    auto base_color = compute_base_color(
+        base_color_factor,
+        base_alpha,
+        base_color_texture.valid ? base_color_texture.value : float4(1.0),
+        imagery_layer.valid ? imagery_layer.value : float4(0.0),
+        tile_color
+    );
     material base = gltf_material(
         base_color_texture: gltf_texture_lookup_value(true, base_color),
         metallic_factor: metallic_factor,

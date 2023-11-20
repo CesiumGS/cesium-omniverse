@@ -104,23 +104,18 @@ class FabricMaterial {
     void createPropertyTexturePropertyInt(
         const omni::fabric::Path& path,
         const omni::fabric::Token& subidentifier,
+        const omni::fabric::Type& channelsType,
         const omni::fabric::Type& noDataType,
         const omni::fabric::Type& defaultValueType);
     void createPropertyTexturePropertyNormalizedInt(
         const omni::fabric::Path& path,
         const omni::fabric::Token& subidentifier,
+        const omni::fabric::Type& channelsType,
         const omni::fabric::Type& noDataType,
         const omni::fabric::Type& defaultValueType,
         const omni::fabric::Type& offsetType,
         const omni::fabric::Type& scaleType,
         const omni::fabric::Type& maximumValueType);
-    void createPropertyTexturePropertyFloat(
-        const omni::fabric::Path& path,
-        const omni::fabric::Token& subidentifier,
-        const omni::fabric::Type& noDataType,
-        const omni::fabric::Type& defaultValueType,
-        const omni::fabric::Type& offsetType,
-        const omni::fabric::Type& scaleType);
     void reset();
 
     void setShaderValues(

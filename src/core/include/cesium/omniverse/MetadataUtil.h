@@ -288,6 +288,21 @@ void forEachStyleablePropertyTextureProperty(
 
                 const auto textureInfo = GltfUtil::getPropertyTexturePropertyInfo(model, propertyTextureProperty);
 
+                if (textureInfo.channels.size() != GetComponentCount<Type>::ComponentCount) {
+                    CESIUM_LOG_WARN(
+                        "Properties with components that are packed across multiple texture channels are not supported "
+                        "for styling. Property \"{}\" will be ignored.",
+                        propertyId);
+                    return;
+                }
+
+                if (IsFloatingPoint<Type>::value) {
+                    CESIUM_LOG_WARN(
+                        "Float property texture properties are not supported for styling. Property \"{}\" will be "
+                        "ignored.",
+                        propertyId);
+                }
+
                 const auto styleableProperty = StyleablePropertyTexturePropertyInfo<Type>{
                     propertyTexturePropertyView.offset(),
                     propertyTexturePropertyView.scale(),
