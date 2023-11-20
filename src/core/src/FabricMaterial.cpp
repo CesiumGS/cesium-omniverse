@@ -214,14 +214,13 @@ void setTextureValuesWithChannelsCommon(
 }
 
 template <DataType T>
-void setPropertyCommon(
-    const omni::fabric::Path& path,
-    const GetMdlTransformedType<T>& offset,
-    const GetMdlTransformedType<T>& scale,
-    const GetMdlRawType<T>& maximumValue,
-    bool hasNoData,
-    const GetMdlRawType<T>& noData,
-    const GetMdlTransformedType<T>& defaultValue) {
+void setPropertyCommon(const omni::fabric::Path& path, MetadataUtil::StyleablePropertyInfo<T>& propertyInfo) {
+    const auto offset = propertyInfo.offset.value_or(GetTransformedType<T>{DEFAULT_OFFSET});
+    const auto scale = propertyInfo.scale.value_or(GetTransformedType<T>{DEFAULT_SCALE});
+    const auto maximumValue = GetRawType<T>{std::numeric_limits<GetRawComponentType<T>>::max()};
+    const auto hasNoData = propertyInfo.noData.has_value();
+    const auto noData = propertyInfo.noData.value_or(GetRawType<T>{DEFAULT_NO_DATA});
+    const auto defaultValue = propertyInfo.defaultValue.value_or(GetTransformedType<T>{DEFAULT_VALUE});
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
@@ -230,20 +229,20 @@ void setPropertyCommon(
     auto defaultValueFabric = srw.getAttributeWr<GetMdlTransformedType<T>>(path, FabricTokens::inputs_default_value);
 
     *hasNoDataFabric = hasNoData;
-    *noDataFabric = noData;
-    *defaultValueFabric = defaultValue;
+    *noDataFabric = static_cast<GetMdlRawType<T>>(noData);
+    *defaultValueFabric = static_cast<GetMdlTransformedType<T>>(defaultValue);
 
     if constexpr (IsNormalized<T>::value || IsFloatingPoint<T>::value) {
         auto offsetFabric = srw.getAttributeWr<GetMdlTransformedType<T>>(path, FabricTokens::inputs_offset);
         auto scaleFabric = srw.getAttributeWr<GetMdlTransformedType<T>>(path, FabricTokens::inputs_scale);
 
-        *offsetFabric = offset;
-        *scaleFabric = scale;
+        *offsetFabric = static_cast<GetMdlTransformedType<T>>(offset);
+        *scaleFabric = static_cast<GetMdlTransformedType<T>>(scale);
     }
 
     if constexpr (IsNormalized<T>::value) {
         auto maximumValueFabric = srw.getAttributeWr<GetMdlRawType<T>>(path, FabricTokens::inputs_maximum_value);
-        *maximumValueFabric = maximumValue;
+        *maximumValueFabric = static_cast<GetMdlRawType<T>>(maximumValue);
     }
 }
 
@@ -261,16 +260,11 @@ template <DataType T>
 void setPropertyAttributeProperty(
     const omni::fabric::Path& path,
     const std::string& primvarName,
-    const GetMdlTransformedType<T>& offset,
-    const GetMdlTransformedType<T>& scale,
-    const GetMdlRawType<T>& maximumValue,
-    bool hasNoData,
-    const GetMdlRawType<T>& noData,
-    const GetMdlTransformedType<T>& defaultValue) {
+    MetadataUtil::StyleablePropertyInfo<T> propertyInfo) {
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
     setPrimvarName(srw, path, primvarName);
-    setPropertyCommon<T>(path, offset, scale, maximumValue, hasNoData, noData, defaultValue);
+    setPropertyCommon<T>(path, propertyInfo);
 }
 
 template <DataType T>
@@ -279,15 +273,10 @@ void setPropertyTextureProperty(
     const pxr::TfToken& textureAssetPathToken,
     const TextureInfo& textureInfo,
     uint64_t texcoordIndex,
-    const GetMdlTransformedType<T>& offset,
-    const GetMdlTransformedType<T>& scale,
-    const GetMdlRawType<T>& maximumValue,
-    bool hasNoData,
-    const GetMdlRawType<T>& noData,
-    const GetMdlTransformedType<T>& defaultValue) {
+    MetadataUtil::StyleablePropertyInfo<T> propertyInfo) {
 
     setTextureValuesWithChannelsCommon(path, textureAssetPathToken, textureInfo, texcoordIndex);
-    setPropertyCommon<T>(path, offset, scale, maximumValue, hasNoData, noData, defaultValue);
+    setPropertyCommon<T>(path, propertyInfo);
 }
 
 } // namespace
@@ -1042,24 +1031,11 @@ void FabricMaterial::setMaterial(
          &propertyAttributePropertyIndex]([[maybe_unused]] auto propertyAttributePropertyView, auto styleableProperty) {
             constexpr auto Type = decltype(styleableProperty)::Type;
             const auto& primvarName = styleableProperty.attribute;
-            const auto offset = styleableProperty.offset.value_or(GetTransformedType<Type>{DEFAULT_OFFSET});
-            const auto scale = styleableProperty.scale.value_or(GetTransformedType<Type>{DEFAULT_SCALE});
-            const auto maximumValue = GetRawType<Type>{std::numeric_limits<GetRawComponentType<Type>>::max()};
-            const auto hasNoData = styleableProperty.noData.has_value();
-            const auto noData = styleableProperty.noData.value_or(GetRawType<Type>{DEFAULT_NO_DATA});
-            const auto defaultValue = styleableProperty.defaultValue.value_or(GetTransformedType<Type>{DEFAULT_VALUE});
             const auto& propertyAttributePropertyPath =
                 _propertyAttributePropertyPaths[propertyAttributePropertyIndex++];
 
             setPropertyAttributeProperty<Type>(
-                propertyAttributePropertyPath,
-                primvarName,
-                static_cast<GetMdlTransformedType<Type>>(offset),
-                static_cast<GetMdlTransformedType<Type>>(scale),
-                static_cast<GetMdlRawType<Type>>(maximumValue),
-                hasNoData,
-                static_cast<GetMdlRawType<Type>>(noData),
-                static_cast<GetMdlTransformedType<Type>>(defaultValue));
+                propertyAttributePropertyPath, primvarName, styleableProperty.propertyInfo);
         });
 
     // uint64_t propertyTexturePropertyIndex = 0;

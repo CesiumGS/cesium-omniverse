@@ -13,27 +13,26 @@
 
 namespace cesium::omniverse::MetadataUtil {
 
+template <DataType T> struct StyleablePropertyInfo {
+    std::optional<GetTransformedType<T>> offset;
+    std::optional<GetTransformedType<T>> scale;
+    std::optional<GetTransformedType<T>> min;
+    std::optional<GetTransformedType<T>> max;
+    bool required;
+    std::optional<GetRawType<T>> noData;
+    std::optional<GetTransformedType<T>> defaultValue;
+};
+
 template <DataType T> struct StyleablePropertyAttributePropertyInfo {
     static constexpr auto Type = T;
-    std::optional<GetTransformedType<T>> offset;
-    std::optional<GetTransformedType<T>> scale;
-    std::optional<GetTransformedType<T>> min;
-    std::optional<GetTransformedType<T>> max;
-    bool required;
-    std::optional<GetRawType<T>> noData;
-    std::optional<GetTransformedType<T>> defaultValue;
     std::string attribute;
+    StyleablePropertyInfo<T> propertyInfo;
 };
+
 template <DataType T> struct StyleablePropertyTexturePropertyInfo {
     static constexpr auto Type = T;
-    std::optional<GetTransformedType<T>> offset;
-    std::optional<GetTransformedType<T>> scale;
-    std::optional<GetTransformedType<T>> min;
-    std::optional<GetTransformedType<T>> max;
-    bool required;
-    std::optional<GetRawType<T>> noData;
-    std::optional<GetTransformedType<T>> defaultValue;
     TextureInfo textureInfo;
+    StyleablePropertyInfo<T> propertyInfo;
 };
 
 template <typename Callback>
@@ -231,7 +230,7 @@ void forEachStyleablePropertyAttributeProperty(
 
             const auto& attribute = propertyAttributeProperty.attribute;
 
-            const auto styleableProperty = StyleablePropertyAttributePropertyInfo<Type>{
+            const auto propertyInfo = StyleablePropertyInfo<Type>{
                 propertyAttributePropertyView.offset(),
                 propertyAttributePropertyView.scale(),
                 propertyAttributePropertyView.min(),
@@ -239,7 +238,11 @@ void forEachStyleablePropertyAttributeProperty(
                 propertyAttributePropertyView.required(),
                 propertyAttributePropertyView.noData(),
                 propertyAttributePropertyView.defaultValue(),
+            };
+
+            const auto styleableProperty = StyleablePropertyAttributePropertyInfo<Type>{
                 attribute,
+                propertyInfo,
             };
 
             callback(propertyAttributePropertyView, styleableProperty);
@@ -310,7 +313,7 @@ void forEachStyleablePropertyTextureProperty(
                         propertyId);
                 }
 
-                const auto styleableProperty = StyleablePropertyTexturePropertyInfo<Type>{
+                const auto propertyInfo = StyleablePropertyInfo<Type>{
                     propertyTexturePropertyView.offset(),
                     propertyTexturePropertyView.scale(),
                     propertyTexturePropertyView.min(),
@@ -318,7 +321,11 @@ void forEachStyleablePropertyTextureProperty(
                     propertyTexturePropertyView.required(),
                     propertyTexturePropertyView.noData(),
                     propertyTexturePropertyView.defaultValue(),
+                };
+
+                const auto styleableProperty = StyleablePropertyTexturePropertyInfo<Type>{
                     textureInfo,
+                    propertyInfo,
                 };
 
                 callback(propertyTexturePropertyView, styleableProperty);
