@@ -18,6 +18,8 @@ glm::fvec3 lookatUpHost{0.0, 0.0, 0.0};
 CudaRunner cudaRunner;
 double elapsedTime = 0;
 float quadSizeHost = 0;
+bool pointCloudLoaded = false;
+int framesToDelayKernel = 5;
 
 const omni::fabric::Type
     billboardedAttributeFabricType(omni::fabric::BaseDataType::eBool, 1, 0, omni::fabric::AttributeRole::eNone);
@@ -167,11 +169,12 @@ extern "C" __global__ void lookAtMultiquadKernel(quad** quads, double3* lookatPo
 
 int createPrims() {
 
-    createMultiquadFromPtsFile("pointCloudData/simpleTest.pts", 50.0f); // run a simple test of a 3x3 point-cloud grid
+    // createMultiquadFromPtsFile("pointCloudData/simpleTest.pts", 50.0f); // run a simple test of a 3x3 point-cloud grid
     // createMultiquadFromPtsFile("pointCloudData/pump0.pts", 0.125f, 5.0f); // an example with about 175,000  points
-    // createMultiquadFromPtsFile("pointCloudData/StSulpice_000000.pts", 0.125f, 5.0f); // an example with about 1,500,000  points
+    createMultiquadFromPtsFile("pointCloudData/StSulpice_000000.pts", 0.125f, 5.0f); // an example with about 1,500,000  points
 
     // makeInitialReadCall();
+    pointCloudLoaded = true;
 
     return 0;
 }
@@ -199,6 +202,15 @@ int animatePrims(
     float cameraUpX,
     float cameraUpY,
     float cameraUpZ) {
+
+    if (!pointCloudLoaded) {
+        createPrims();
+    }
+
+    if (framesToDelayKernel > 0) {
+        framesToDelayKernel--;
+        return 0;
+    }
 
     elapsedTime += deltaTime;
     lookatPositionHost.x = cameraPositionX;
@@ -425,7 +437,7 @@ void createMultiquadFromPtsFile(const std::string& ptsFile, float quadSize, floa
         std::istringstream ss(line);
         float x, y, z;
         if (!(ss >> x >> y >> z)) {
-            std::cerr << "Error getting points from line: " << line << std::endl;
+            std::cerr << "Issue getting points from line (possibly a header): " << line << std::endl;
             continue;
         }
         points.emplace_back(x * scale, y * scale, z * scale);
