@@ -203,15 +203,15 @@ int unpack_channels(int4 value, int4 channels, int channel_count) {
     }
 }
 
-int read_channels_int(int4 values, int channel) {
-    return values[channel]
+int read_channels_int(int4 values, int4 channels) {
+    return values[channels[0]]
 }
 
-int2 read_channels_int2(int4 values, int2 channels) {
+int2 read_channels_int2(int4 values, int4 channels) {
     return int2(values[channels[0]], values[channels[1]]);
 }
 
-int3 read_channels_int3(int4 values, int3 channels) {
+int3 read_channels_int3(int4 values, int4 channels) {
     return int3(values[channels[0]], values[channels[1]], values[channels[2]]);
 }
 
@@ -1079,7 +1079,7 @@ export int cesium_internal_property_texture_int_lookup(
     uniform float2 tex_coord_scale,
     uniform gltf_wrapping_mode wrap_s,
     uniform gltf_wrapping_mode wrap_t,
-    uniform int channels,
+    uniform int4 channels,
     uniform bool has_no_data,
     uniform int no_data,
     uniform int default_value,
@@ -1102,7 +1102,7 @@ export int2 cesium_internal_property_texture_int2_lookup(
     uniform float2 tex_coord_scale,
     uniform gltf_wrapping_mode wrap_s,
     uniform gltf_wrapping_mode wrap_t,
-    uniform int2 channels,
+    uniform int4 channels,
     uniform bool has_no_data,
     uniform int2 no_data,
     uniform int2 default_value
@@ -1125,7 +1125,7 @@ export int3 cesium_internal_property_texture_int3_lookup(
     uniform float2 tex_coord_scale,
     uniform gltf_wrapping_mode wrap_s,
     uniform gltf_wrapping_mode wrap_t,
-    uniform int3 channels,
+    uniform int4 channels,
     uniform bool has_no_data,
     uniform int3 no_data,
     uniform int3 default_value
@@ -1171,7 +1171,7 @@ export float cesium_internal_property_texture_normalized_int_lookup(
     uniform float2 tex_coord_scale,
     uniform gltf_wrapping_mode wrap_s,
     uniform gltf_wrapping_mode wrap_t,
-    uniform int channels,
+    uniform int4 channels,
     uniform bool has_no_data,
     uniform int no_data,
     uniform float default_value,
@@ -1197,7 +1197,7 @@ export float2 cesium_internal_property_texture_normalized_int2_lookup(
     uniform float2 tex_coord_scale,
     uniform gltf_wrapping_mode wrap_s,
     uniform gltf_wrapping_mode wrap_t,
-    uniform int2 channels,
+    uniform int4 channels,
     uniform bool has_no_data,
     uniform int2 no_data,
     uniform float2 default_value,
@@ -1223,7 +1223,7 @@ export float3 cesium_internal_property_texture_normalized_int3_lookup(
     uniform float2 tex_coord_scale,
     uniform gltf_wrapping_mode wrap_s,
     uniform gltf_wrapping_mode wrap_t,
-    uniform int3 channels,
+    uniform int4 channels,
     uniform bool has_no_data,
     uniform int3 no_data,
     uniform float3 default_value,

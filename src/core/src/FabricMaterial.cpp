@@ -153,10 +153,69 @@ void createAttributes(
     *infoMdlSourceAssetSubIdentifierFabric = subidentifier;
 }
 
-template <DataType T>
-void setPropertyAttributeProperty(
+void setTextureValuesCommon(
     const omni::fabric::Path& path,
-    const std::string& primvarName,
+    const pxr::TfToken& textureAssetPathToken,
+    const TextureInfo& textureInfo,
+    uint64_t texcoordIndex) {
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+
+    auto offset = textureInfo.offset;
+    auto rotation = textureInfo.rotation;
+    auto scale = textureInfo.scale;
+
+    if (!textureInfo.flipVertical) {
+        // gltf/pbr.mdl does texture transform math in glTF coordinates (top-left origin), so we needed to convert
+        // the translation and scale parameters to work in that space. This doesn't handle rotation yet because we
+        // haven't needed it for imagery layers.
+        offset = {offset.x, 1.0 - offset.y - scale.y};
+        scale = {scale.x, scale.y};
+    }
+
+    auto textureFabric = srw.getAttributeWr<omni::fabric::AssetPath>(path, FabricTokens::inputs_texture);
+    auto texCoordIndexFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_tex_coord_index);
+    auto wrapSFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_wrap_s);
+    auto wrapTFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_wrap_t);
+    auto offsetFabric = srw.getAttributeWr<pxr::GfVec2f>(path, FabricTokens::inputs_tex_coord_offset);
+    auto rotationFabric = srw.getAttributeWr<float>(path, FabricTokens::inputs_tex_coord_rotation);
+    auto scaleFabric = srw.getAttributeWr<pxr::GfVec2f>(path, FabricTokens::inputs_tex_coord_scale);
+
+    textureFabric->assetPath = textureAssetPathToken;
+    textureFabric->resolvedPath = pxr::TfToken();
+    *texCoordIndexFabric = static_cast<int>(texcoordIndex);
+    *wrapSFabric = textureInfo.wrapS;
+    *wrapTFabric = textureInfo.wrapT;
+    *offsetFabric = UsdUtil::glmToUsdVector(glm::fvec2(offset));
+    *rotationFabric = static_cast<float>(rotation);
+    *scaleFabric = UsdUtil::glmToUsdVector(glm::fvec2(scale));
+}
+
+void setTextureValuesWithChannelsCommon(
+    const omni::fabric::Path& path,
+    const pxr::TfToken& textureAssetPathToken,
+    const TextureInfo& textureInfo,
+    uint64_t texcoordIndex) {
+
+    setTextureValuesCommon(path, textureAssetPathToken, textureInfo, texcoordIndex);
+
+    auto channelCount = glm::min(textureInfo.channels.size(), uint64_t(4));
+    auto channels = glm::u8vec4(0);
+    for (uint64_t i = 0; i < channelCount; i++) {
+        channels[i] = textureInfo.channels[i];
+    }
+    channelCount = glm::max(channelCount, uint64_t(1));
+
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto channelCountFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_channel_count);
+    auto channelsFabric = srw.getAttributeWr<glm::i32vec4>(path, FabricTokens::inputs_channels);
+
+    *channelCountFabric = static_cast<int>(channelCount);
+    *channelsFabric = static_cast<glm::i32vec4>(channels);
+}
+
+template <DataType T>
+void setPropertyCommon(
+    const omni::fabric::Path& path,
     const GetMdlTransformedType<T>& offset,
     const GetMdlTransformedType<T>& scale,
     const GetMdlRawType<T>& maximumValue,
@@ -165,11 +224,6 @@ void setPropertyAttributeProperty(
     const GetMdlTransformedType<T>& defaultValue) {
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
-
-    const auto primvarNameSize = primvarName.size();
-    srw.setArrayAttributeSize(path, FabricTokens::inputs_primvar_name, primvarNameSize);
-    auto primvarNameFabric = srw.getArrayAttributeWr<uint8_t>(path, FabricTokens::inputs_primvar_name);
-    memcpy(primvarNameFabric.data(), primvarName.data(), primvarNameSize);
 
     auto hasNoDataFabric = srw.getAttributeWr<bool>(path, FabricTokens::inputs_has_no_data);
     auto noDataFabric = srw.getAttributeWr<GetMdlRawType<T>>(path, FabricTokens::inputs_no_data);
@@ -193,16 +247,48 @@ void setPropertyAttributeProperty(
     }
 }
 
-// template <DataType T>
-// void setPropertyTextureProperty(
-//     const omni::fabric::Path& path,
-//     const std::string& primvarName,
-//     const GetMdlTransformedType<T>& offset,
-//     const GetMdlTransformedType<T>& scale,
-//     const GetMdlRawType<T>& maximumValue,
-//     bool hasNoData,
-//     const GetMdlRawType<T>& noData,
-//     const GetMdlTransformedType<T>& defaultValue) {}
+void setPrimvarName(
+    omni::fabric::StageReaderWriter& srw,
+    const omni::fabric::Path& path,
+    const std::string& primvarName) {
+    const auto primvarNameSize = primvarName.size();
+    srw.setArrayAttributeSize(path, FabricTokens::inputs_primvar_name, primvarNameSize);
+    auto primvarNameFabric = srw.getArrayAttributeWr<uint8_t>(path, FabricTokens::inputs_primvar_name);
+    memcpy(primvarNameFabric.data(), primvarName.data(), primvarNameSize);
+}
+
+template <DataType T>
+void setPropertyAttributeProperty(
+    const omni::fabric::Path& path,
+    const std::string& primvarName,
+    const GetMdlTransformedType<T>& offset,
+    const GetMdlTransformedType<T>& scale,
+    const GetMdlRawType<T>& maximumValue,
+    bool hasNoData,
+    const GetMdlRawType<T>& noData,
+    const GetMdlTransformedType<T>& defaultValue) {
+
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+    setPrimvarName(srw, path, primvarName);
+    setPropertyCommon<T>(path, offset, scale, maximumValue, hasNoData, noData, defaultValue);
+}
+
+template <DataType T>
+void setPropertyTextureProperty(
+    const omni::fabric::Path& path,
+    const pxr::TfToken& textureAssetPathToken,
+    const TextureInfo& textureInfo,
+    uint64_t texcoordIndex,
+    const GetMdlTransformedType<T>& offset,
+    const GetMdlTransformedType<T>& scale,
+    const GetMdlRawType<T>& maximumValue,
+    bool hasNoData,
+    const GetMdlRawType<T>& noData,
+    const GetMdlTransformedType<T>& defaultValue) {
+
+    setTextureValuesWithChannelsCommon(path, textureAssetPathToken, textureInfo, texcoordIndex);
+    setPropertyCommon<T>(path, offset, scale, maximumValue, hasNoData, noData, defaultValue);
+}
 
 } // namespace
 
@@ -459,7 +545,6 @@ void FabricMaterial::initializeNodes() {
                 createPropertyTexturePropertyInt(
                     propertyTexturePropertyPath,
                     FabricTokens::cesium_internal_property_texture_int_lookup,
-                    FabricTypes::inputs_channels_int,
                     FabricTypes::inputs_no_data_int,
                     FabricTypes::inputs_default_value_int);
                 break;
@@ -467,7 +552,6 @@ void FabricMaterial::initializeNodes() {
                 createPropertyTexturePropertyInt(
                     propertyTexturePropertyPath,
                     FabricTokens::cesium_internal_property_texture_int2_lookup,
-                    FabricTypes::inputs_channels_int2,
                     FabricTypes::inputs_no_data_int2,
                     FabricTypes::inputs_default_value_int2);
                 break;
@@ -475,7 +559,6 @@ void FabricMaterial::initializeNodes() {
                 createPropertyTexturePropertyInt(
                     propertyTexturePropertyPath,
                     FabricTokens::cesium_internal_property_texture_int3_lookup,
-                    FabricTypes::inputs_channels_int3,
                     FabricTypes::inputs_no_data_int3,
                     FabricTypes::inputs_default_value_int3);
                 break;
@@ -483,7 +566,6 @@ void FabricMaterial::initializeNodes() {
                 createPropertyTexturePropertyInt(
                     propertyTexturePropertyPath,
                     FabricTokens::cesium_internal_property_texture_int4_lookup,
-                    FabricTypes::inputs_channels_int4,
                     FabricTypes::inputs_no_data_int4,
                     FabricTypes::inputs_default_value_int4);
                 break;
@@ -491,7 +573,6 @@ void FabricMaterial::initializeNodes() {
                 createPropertyTexturePropertyNormalizedInt(
                     propertyTexturePropertyPath,
                     FabricTokens::cesium_internal_property_texture_normalized_int_lookup,
-                    FabricTypes::inputs_channels_int,
                     FabricTypes::inputs_no_data_int,
                     FabricTypes::inputs_default_value_float,
                     FabricTypes::inputs_offset_float,
@@ -502,7 +583,6 @@ void FabricMaterial::initializeNodes() {
                 createPropertyTexturePropertyNormalizedInt(
                     propertyTexturePropertyPath,
                     FabricTokens::cesium_internal_property_texture_normalized_int2_lookup,
-                    FabricTypes::inputs_channels_int2,
                     FabricTypes::inputs_no_data_int2,
                     FabricTypes::inputs_default_value_float2,
                     FabricTypes::inputs_offset_float2,
@@ -513,7 +593,6 @@ void FabricMaterial::initializeNodes() {
                 createPropertyTexturePropertyNormalizedInt(
                     propertyTexturePropertyPath,
                     FabricTokens::cesium_internal_property_texture_normalized_int3_lookup,
-                    FabricTypes::inputs_channels_int3,
                     FabricTypes::inputs_no_data_int3,
                     FabricTypes::inputs_default_value_float3,
                     FabricTypes::inputs_offset_float3,
@@ -524,7 +603,6 @@ void FabricMaterial::initializeNodes() {
                 createPropertyTexturePropertyNormalizedInt(
                     propertyTexturePropertyPath,
                     FabricTokens::cesium_internal_property_texture_normalized_int4_lookup,
-                    FabricTypes::inputs_channels_int4,
                     FabricTypes::inputs_no_data_int4,
                     FabricTypes::inputs_default_value_float4,
                     FabricTypes::inputs_offset_float4,
@@ -802,11 +880,10 @@ void FabricMaterial::createPropertyAttributePropertyFloat(
 void FabricMaterial::createPropertyTexturePropertyInt(
     const omni::fabric::Path& path,
     const omni::fabric::Token& subidentifier,
-    const omni::fabric::Type& channelsType,
     const omni::fabric::Type& noDataType,
     const omni::fabric::Type& defaultValueType) {
     static const auto additionalAttributes = std::vector<std::pair<omni::fabric::Type, omni::fabric::Token>>{{
-        std::make_pair(channelsType, FabricTokens::inputs_channels),
+        std::make_pair(FabricTypes::inputs_channels, FabricTokens::inputs_channels),
         std::make_pair(FabricTypes::inputs_has_no_data, FabricTokens::inputs_has_no_data),
         std::make_pair(noDataType, FabricTokens::inputs_no_data),
         std::make_pair(defaultValueType, FabricTokens::inputs_default_value),
@@ -817,14 +894,13 @@ void FabricMaterial::createPropertyTexturePropertyInt(
 void FabricMaterial::createPropertyTexturePropertyNormalizedInt(
     const omni::fabric::Path& path,
     const omni::fabric::Token& subidentifier,
-    const omni::fabric::Type& channelsType,
     const omni::fabric::Type& noDataType,
     const omni::fabric::Type& defaultValueType,
     const omni::fabric::Type& offsetType,
     const omni::fabric::Type& scaleType,
     const omni::fabric::Type& maximumValueType) {
     static const auto additionalAttributes = std::vector<std::pair<omni::fabric::Type, omni::fabric::Token>>{{
-        std::make_pair(channelsType, FabricTokens::inputs_channels),
+        std::make_pair(FabricTypes::inputs_channels, FabricTokens::inputs_channels),
         std::make_pair(FabricTypes::inputs_has_no_data, FabricTokens::inputs_has_no_data),
         std::make_pair(noDataType, FabricTokens::inputs_no_data),
         std::make_pair(defaultValueType, FabricTokens::inputs_default_value),
@@ -989,7 +1065,10 @@ void FabricMaterial::setMaterial(
     // uint64_t propertyTexturePropertyIndex = 0;
 
     // MetadataUtil::forEachStyleablePropertyTextureProperty(
-    //     model, primitive, [this, &propertyTexturePropertyIndex]([[maybe_unused]] auto propertyTexturePropertyView, auto styleableProperty) {
+    //     model,
+    //     primitive,
+    //     [this,
+    //      &propertyTexturePropertyIndex]([[maybe_unused]] auto propertyTexturePropertyView, auto styleableProperty) {
     //         constexpr auto Type = decltype(styleableProperty)::Type;
     //         const auto& textureInfo = styleableProperty.textureInfo;
     //         const auto offset = styleableProperty.offset.value_or(GetTransformedType<Type>{DEFAULT_OFFSET});
@@ -1000,9 +1079,10 @@ void FabricMaterial::setMaterial(
     //         const auto defaultValue = styleableProperty.defaultValue.value_or(GetTransformedType<Type>{DEFAULT_VALUE});
     //         const auto& propertyTexturePropertyPath = _propertyTexturePropertyPaths[propertyTexturePropertyIndex++];
 
-    //         setPropertyTexture<Type>(
+    //         setPropertyTextureProperty<Type>(
     //             propertyTexturePropertyPath,
     //             textureInfo,
+    //             0, // TODO
     //             static_cast<GetMdlTransformedType<Type>>(offset),
     //             static_cast<GetMdlTransformedType<Type>>(scale),
     //             static_cast<GetMdlRawType<Type>>(maximumValue),
@@ -1131,43 +1211,6 @@ void FabricMaterial::setShaderValues(
     *roughnessFactorFabric = static_cast<float>(materialInfo.roughnessFactor);
 }
 
-void FabricMaterial::setTextureValuesCommon(
-    const omni::fabric::Path& path,
-    const pxr::TfToken& textureAssetPathToken,
-    const TextureInfo& textureInfo,
-    uint64_t texcoordIndex) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
-
-    auto offset = textureInfo.offset;
-    auto rotation = textureInfo.rotation;
-    auto scale = textureInfo.scale;
-
-    if (!textureInfo.flipVertical) {
-        // gltf/pbr.mdl does texture transform math in glTF coordinates (top-left origin), so we needed to convert
-        // the translation and scale parameters to work in that space. This doesn't handle rotation yet because we
-        // haven't needed it for imagery layers.
-        offset = {offset.x, 1.0 - offset.y - scale.y};
-        scale = {scale.x, scale.y};
-    }
-
-    auto textureFabric = srw.getAttributeWr<omni::fabric::AssetPath>(path, FabricTokens::inputs_texture);
-    auto texCoordIndexFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_tex_coord_index);
-    auto wrapSFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_wrap_s);
-    auto wrapTFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_wrap_t);
-    auto offsetFabric = srw.getAttributeWr<pxr::GfVec2f>(path, FabricTokens::inputs_tex_coord_offset);
-    auto rotationFabric = srw.getAttributeWr<float>(path, FabricTokens::inputs_tex_coord_rotation);
-    auto scaleFabric = srw.getAttributeWr<pxr::GfVec2f>(path, FabricTokens::inputs_tex_coord_scale);
-
-    textureFabric->assetPath = textureAssetPathToken;
-    textureFabric->resolvedPath = pxr::TfToken();
-    *texCoordIndexFabric = static_cast<int>(texcoordIndex);
-    *wrapSFabric = textureInfo.wrapS;
-    *wrapTFabric = textureInfo.wrapT;
-    *offsetFabric = UsdUtil::glmToUsdVector(glm::fvec2(offset));
-    *rotationFabric = static_cast<float>(rotation);
-    *scaleFabric = UsdUtil::glmToUsdVector(glm::fvec2(scale));
-}
-
 void FabricMaterial::setTextureValues(
     const omni::fabric::Path& path,
     const pxr::TfToken& textureAssetPathToken,
@@ -1203,10 +1246,7 @@ void FabricMaterial::setFeatureIdAttributeValues(
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
-    const auto primvarNameSize = primvarName.size();
-    srw.setArrayAttributeSize(path, FabricTokens::inputs_primvar_name, primvarNameSize);
-    auto primvarNameFabric = srw.getArrayAttributeWr<uint8_t>(path, FabricTokens::inputs_primvar_name);
-    memcpy(primvarNameFabric.data(), primvarName.data(), primvarNameSize);
+    setPrimvarName(srw, path, primvarName);
 
     auto nullFeatureIdFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_null_feature_id);
     *nullFeatureIdFabric = nullFeatureId;
@@ -1219,22 +1259,11 @@ void FabricMaterial::setFeatureIdTextureValues(
     uint64_t texcoordIndex,
     int nullFeatureId) {
 
-    setTextureValuesCommon(path, textureAssetPathToken, textureInfo, texcoordIndex);
-
-    auto channelCount = glm::min(textureInfo.channels.size(), uint64_t(4));
-    auto channels = glm::u8vec4(0);
-    for (uint64_t i = 0; i < channelCount; i++) {
-        channels[i] = textureInfo.channels[i];
-    }
-    channelCount = glm::max(channelCount, uint64_t(1));
+    setTextureValuesWithChannelsCommon(path, textureAssetPathToken, textureInfo, texcoordIndex);
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
-    auto channelCountFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_channel_count);
-    auto channelsFabric = srw.getAttributeWr<glm::i32vec4>(path, FabricTokens::inputs_channels);
     auto nullFeatureIdFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_null_feature_id);
 
-    *channelCountFabric = static_cast<int>(channelCount);
-    *channelsFabric = static_cast<glm::i32vec4>(channels);
     *nullFeatureIdFabric = nullFeatureId;
 }
 

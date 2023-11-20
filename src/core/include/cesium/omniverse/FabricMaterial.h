@@ -104,13 +104,11 @@ class FabricMaterial {
     void createPropertyTexturePropertyInt(
         const omni::fabric::Path& path,
         const omni::fabric::Token& subidentifier,
-        const omni::fabric::Type& channelsType,
         const omni::fabric::Type& noDataType,
         const omni::fabric::Type& defaultValueType);
     void createPropertyTexturePropertyNormalizedInt(
         const omni::fabric::Path& path,
         const omni::fabric::Token& subidentifier,
-        const omni::fabric::Type& channelsType,
         const omni::fabric::Type& noDataType,
         const omni::fabric::Type& defaultValueType,
         const omni::fabric::Type& offsetType,
@@ -123,11 +121,6 @@ class FabricMaterial {
         const MaterialInfo& materialInfo,
         const glm::dvec3& displayColor,
         double displayOpacity);
-    void setTextureValuesCommon(
-        const omni::fabric::Path& path,
-        const pxr::TfToken& textureAssetPathToken,
-        const TextureInfo& textureInfo,
-        uint64_t texcoordIndex);
     void setTextureValues(
         const omni::fabric::Path& path,
         const pxr::TfToken& textureAssetPathToken,

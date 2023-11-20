@@ -296,6 +296,13 @@ void forEachStyleablePropertyTextureProperty(
                     return;
                 }
 
+                if (textureInfo.channels.size() > 4) {
+                    CESIUM_LOG_WARN(
+                        "Properties with more than four channels are not supported. Property \"{}\" will be ignored.",
+                        propertyId);
+                    return;
+                }
+
                 if (IsFloatingPoint<Type>::value) {
                     CESIUM_LOG_WARN(
                         "Float property texture properties are not supported for styling. Property \"{}\" will be "
