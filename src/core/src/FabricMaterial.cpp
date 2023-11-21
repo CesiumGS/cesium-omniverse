@@ -392,9 +392,9 @@ void FabricMaterial::createTextureCommon(
 
     FabricAttributesBuilder attributes;
 
-    attributes.addAttribute(FabricTypes::inputs_offset, FabricTokens::inputs_offset);
-    attributes.addAttribute(FabricTypes::inputs_rotation, FabricTokens::inputs_rotation);
-    attributes.addAttribute(FabricTypes::inputs_scale, FabricTokens::inputs_scale);
+    attributes.addAttribute(FabricTypes::inputs_tex_coord_offset, FabricTokens::inputs_tex_coord_offset);
+    attributes.addAttribute(FabricTypes::inputs_tex_coord_rotation, FabricTokens::inputs_tex_coord_rotation);
+    attributes.addAttribute(FabricTypes::inputs_tex_coord_scale, FabricTokens::inputs_tex_coord_scale);
     attributes.addAttribute(FabricTypes::inputs_tex_coord_index, FabricTokens::inputs_tex_coord_index);
     attributes.addAttribute(FabricTypes::inputs_texture, FabricTokens::inputs_texture);
     attributes.addAttribute(FabricTypes::inputs_wrap_s, FabricTokens::inputs_wrap_s);
@@ -450,7 +450,7 @@ void FabricMaterial::createFeatureIdAttribute(const omni::fabric::Path& path) {
 
     FabricAttributesBuilder attributes;
 
-    attributes.addAttribute(FabricTypes::inputs_feature_id_primvar_name, FabricTokens::inputs_feature_id_primvar_name);
+    attributes.addAttribute(FabricTypes::inputs_primvar_name, FabricTokens::inputs_primvar_name);
     attributes.addAttribute(FabricTypes::inputs_null_feature_id, FabricTokens::inputs_null_feature_id);
 
     createAttributes(srw, path, attributes, FabricTokens::cesium_internal_feature_id_attribute_lookup);
@@ -730,9 +730,9 @@ void FabricMaterial::setTextureValuesCommon(
     auto texCoordIndexFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_tex_coord_index);
     auto wrapSFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_wrap_s);
     auto wrapTFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_wrap_t);
-    auto offsetFabric = srw.getAttributeWr<pxr::GfVec2f>(path, FabricTokens::inputs_offset);
-    auto rotationFabric = srw.getAttributeWr<float>(path, FabricTokens::inputs_rotation);
-    auto scaleFabric = srw.getAttributeWr<pxr::GfVec2f>(path, FabricTokens::inputs_scale);
+    auto offsetFabric = srw.getAttributeWr<pxr::GfVec2f>(path, FabricTokens::inputs_tex_coord_offset);
+    auto rotationFabric = srw.getAttributeWr<float>(path, FabricTokens::inputs_tex_coord_rotation);
+    auto scaleFabric = srw.getAttributeWr<pxr::GfVec2f>(path, FabricTokens::inputs_tex_coord_scale);
 
     textureFabric->assetPath = textureAssetPathToken;
     textureFabric->resolvedPath = pxr::TfToken();
@@ -780,8 +780,8 @@ void FabricMaterial::setFeatureIdAttributeValues(
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
     const auto primvarNameSize = primvarName.size();
-    srw.setArrayAttributeSize(path, FabricTokens::inputs_feature_id_primvar_name, primvarNameSize);
-    auto primvarNameFabric = srw.getArrayAttributeWr<uint8_t>(path, FabricTokens::inputs_feature_id_primvar_name);
+    srw.setArrayAttributeSize(path, FabricTokens::inputs_primvar_name, primvarNameSize);
+    auto primvarNameFabric = srw.getArrayAttributeWr<uint8_t>(path, FabricTokens::inputs_primvar_name);
     memcpy(primvarNameFabric.data(), primvarName.data(), primvarNameSize);
 
     auto nullFeatureIdFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_null_feature_id);
