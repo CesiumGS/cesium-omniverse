@@ -102,7 +102,7 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def_readonly("percent_complete", &CesiumIonClient::Asset::percentComplete);
 
     py::class_<CesiumIonClient::Connection>(m, "Connection")
-        // Get pointer to non-static member function. May be able to use py::overload_cast<> in C++ 20
+        // Wrap non-static member function in lambda. May be able to use py::overload_cast<> in C++ 20
         .def("get_api_uri", [](CesiumIonClient::Connection& connection) { return connection.getApiUrl(); })
         .def("get_access_token", &CesiumIonClient::Connection::getAccessToken);
 
