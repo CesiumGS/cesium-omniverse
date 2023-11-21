@@ -2,7 +2,4 @@
   <dependency name="kit_sdk" linkPath="../_build/target-deps/kit-sdk/">
     <package name="kit-sdk" version="105.1+release.127680.dd92291b.tc.${platform}.release"/>
   </dependency>
-  <dependency name="kit_sdk_debug" linkPath="../_build/target-deps/kit-sdk-debug/">
-    <package name="kit-sdk" version="105.1+release.127680.dd92291b.tc.${platform}.debug"/>
-  </dependency>
 </project>

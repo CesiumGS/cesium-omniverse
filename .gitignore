@@ -76,7 +76,10 @@ _testoutput
 tests/include/testUtils.h
 
 # Packman user files
-*.user
+*.packman.xml.user
+*.packman.user.xml
+!extern/nvidia/debug-deps/kit-sdk.packman.user.xml
+!extern/nvidia/debug-deps/target-deps.packman.user.xml
 
 # Tracing files
 cesium-trace-*.json
