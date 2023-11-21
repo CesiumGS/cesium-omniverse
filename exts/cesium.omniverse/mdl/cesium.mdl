@@ -35,7 +35,6 @@ export const auto DEFAULT_PROPERTY_VALUE_FLOAT4x4 = float4x4(0.0);
 // Should match MAX_IMAGERY_LAYERS_COUNT in FabricMaterial.cpp
 const auto MAX_IMAGERY_LAYERS_COUNT = 16;
 
-
 // Should match MAX_IMAGERY_LAYERS_COUNT in FabricMaterial.cpp
 export const auto MAX_IMAGERY_LAYERS_COUNT = 16;
 
@@ -71,10 +70,11 @@ float4 compute_base_color(
 
     auto base_color_factor_float3 = float3(base_color_factor);
 
-    auto base_color = base_color_texture;
+    auto base_color = float4(1.0);
+    base_color = alpha_blend(base_color_texture, base_color);
     base_color *= float4(base_color_factor_float3.x, base_color_factor_float3.y, base_color_factor_float3.z, base_alpha);
     base_color *= scene::data_lookup_float4("COLOR_0", float4(1.0));
-    base_color = alpha_blend(imagery_layer.value, base_color);
+    base_color = alpha_blend(imagery_layer, base_color);
     base_color *= tile_color;
 
     return base_color;
@@ -201,10 +201,11 @@ texel_fetch_value texel_fetch(
 }
 
 int unpack_channels(int4 value, int4 channels, int channel_count) {
-    auto value = 0;
+    auto unpacked_value = 0;
     for (int i = 0; i < channel_count; i++) {
-        value |= (value[channels[i]] << (i * 8));
+        unpacked_value |= (value[channels[i]] << (i * 8));
     }
+    return unpacked_value;
 }
 
 int read_channels_int(int4 values, int4 channels) {
@@ -875,7 +876,7 @@ export int cesium_internal_feature_id_attribute_lookup(
     uniform string primvar_name,
     uniform int null_feature_id
 ) [[ anno::hidden() ]] {
-    if (!scene::data_is_valid(primvar_name)) {
+    if (!scene::data_isvalid(primvar_name)) {
         return DEFAULT_NULL_FEATURE_ID;
     }
 
@@ -1286,9 +1287,9 @@ export gltf_texture_lookup_value cesium_internal_imagery_layer_lookup(
     auto imagery_layer = gltf_texture_lookup(
         texture: texture,
         tex_coord_index: tex_coord_index,
-        offset: offset,
-        rotation: rotation,
-        scale: scale,
+        offset: tex_coord_offset,
+        rotation: tex_coord_rotation,
+        scale: tex_coord_scale,
         wrap_s: wrap_s,
         wrap_t: wrap_t
     );
@@ -1308,14 +1309,14 @@ export material cesium_internal_material(
     uniform gltf_alpha_mode alpha_mode,
     uniform float base_alpha,
     uniform float alpha_cutoff,
-    gltf_texture_lookup_value base_color_texture = gltf_texture_lookup_value(),
-    gltf_texture_lookup_value imagery_layer = gltf_texture_lookup_value(),
     uniform float4 tile_color,
+    gltf_texture_lookup_value base_color_texture = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer = gltf_texture_lookup_value()
 ) [[ anno::hidden() ]] = let {
     auto base_color = compute_base_color(
         base_color_factor,
         base_alpha,
-        base_color_texture.valid ? base_color_texture.value : float4(1.0),
+        base_color_texture.valid ? base_color_texture.value : float4(0.0),
         imagery_layer.valid ? imagery_layer.value : float4(0.0),
         tile_color
     );
