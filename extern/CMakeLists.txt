@@ -8,11 +8,12 @@ add_external_project(
         CesiumIonClient
         Cesium3DTilesSelection
         Cesium3DTilesReader
-        CesiumAsync
+        Cesium3DTilesContent
         CesiumGeospatial
         CesiumGeometry
         CesiumGltf
         CesiumGltfReader
+        CesiumAsync
         CesiumJsonReader
         CesiumUtility
         async++
