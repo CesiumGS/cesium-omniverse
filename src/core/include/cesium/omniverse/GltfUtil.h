@@ -137,8 +137,8 @@ FeaturesInfo getFeaturesInfo(const CesiumGltf::Model& model, const CesiumGltf::M
 std::set<VertexAttributeInfo>
 getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
-MaterialInfo getDefaultMaterialInfo();
-TextureInfo getDefaultTextureInfo();
+const MaterialInfo& getDefaultMaterialInfo();
+const TextureInfo& getDefaultTextureInfo();
 TextureInfo getPropertyTexturePropertyInfo(
     const CesiumGltf::Model& model,
     const CesiumGltf::PropertyTextureProperty& propertyTextureProperty);

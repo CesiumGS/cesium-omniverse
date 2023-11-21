@@ -32,9 +32,6 @@ export const auto DEFAULT_PROPERTY_VALUE_FLOAT2x2 = float2x2(0.0);
 export const auto DEFAULT_PROPERTY_VALUE_FLOAT3x3 = float3x3(0.0);
 export const auto DEFAULT_PROPERTY_VALUE_FLOAT4x4 = float4x4(0.0);
 
-// Should match MAX_IMAGERY_LAYERS_COUNT in FabricMaterial.cpp
-export const auto MAX_IMAGERY_LAYERS_COUNT = 16;
-
 export enum up_axis_mode {
     Y,
     Z
@@ -1353,7 +1350,8 @@ export gltf_texture_lookup_value cesium_internal_imagery_layer_resolver(
     gltf_texture_lookup_value imagery_layer_14 = gltf_texture_lookup_value(),
     gltf_texture_lookup_value imagery_layer_15 = gltf_texture_lookup_value()
 ) [[ anno::hidden() ]] {
-    gltf_texture_lookup_value[MAX_IMAGERY_LAYERS_COUNT] imagery_layers(
+    // The array length should match MAX_IMAGERY_LAYERS_COUNT in FabricMaterial.cpp
+    gltf_texture_lookup_value[] imagery_layers(
         imagery_layer_0,
         imagery_layer_1,
         imagery_layer_2,

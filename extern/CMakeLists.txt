@@ -8,11 +8,12 @@ add_external_project(
         CesiumIonClient
         Cesium3DTilesSelection
         Cesium3DTilesReader
-        CesiumAsync
+        Cesium3DTilesContent
         CesiumGeospatial
         CesiumGeometry
         CesiumGltf
         CesiumGltfReader
+        CesiumAsync
         CesiumJsonReader
         CesiumUtility
         async++
@@ -36,6 +37,10 @@ add_external_project(
     EXPECTED_DEBUG_POSTFIX "d"
 )
 # cmake-format: on
+
+if(NOT ${USE_NVIDIA_RELEASE_LIBRARIES})
+    execute_process(COMMAND "${Python3_EXECUTABLE}" "${SCRIPTS_DIRECTORY}/copy_from_dir.py" "*.user.xml" "${PROJECT_SOURCE_DIR}/extern/nvidia/debug-deps" "${PROJECT_SOURCE_DIR}/extern/nvidia/deps")
+endif()
 
 if(UNIX)
     execute_process(COMMAND bash -c "${PROJECT_SOURCE_DIR}/extern/nvidia/prebuild.sh" RESULT_VARIABLE exit_code)

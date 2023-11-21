@@ -17,7 +17,7 @@
 #undef OPAQUE
 #endif
 
-#include <Cesium3DTilesSelection/GltfUtilities.h>
+#include <Cesium3DTilesContent/GltfUtilities.h>
 #include <Cesium3DTilesSelection/Tile.h>
 #include <Cesium3DTilesSelection/Tileset.h>
 #include <CesiumAsync/AsyncSystem.h>
@@ -91,8 +91,8 @@ gatherMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const 
     const auto ecefToUsdTransform =
         UsdUtil::computeEcefToUsdWorldTransformForPrim(georeferenceOrigin, tileset.getPath());
 
-    auto gltfToEcefTransform = Cesium3DTilesSelection::GltfUtilities::applyRtcCenter(model, tileTransform);
-    gltfToEcefTransform = Cesium3DTilesSelection::GltfUtilities::applyGltfUpAxisTransform(model, gltfToEcefTransform);
+    auto gltfToEcefTransform = Cesium3DTilesContent::GltfUtilities::applyRtcCenter(model, tileTransform);
+    gltfToEcefTransform = Cesium3DTilesContent::GltfUtilities::applyGltfUpAxisTransform(model, gltfToEcefTransform);
 
     std::vector<MeshInfo> meshes;
 

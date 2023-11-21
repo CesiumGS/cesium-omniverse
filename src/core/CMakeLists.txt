@@ -38,6 +38,7 @@ setup_lib(
         CesiumIonClient
         Cesium3DTilesSelection
         Cesium3DTilesReader
+        Cesium3DTilesContent
         CesiumGeospatial
         CesiumGeometry
         CesiumGltf
