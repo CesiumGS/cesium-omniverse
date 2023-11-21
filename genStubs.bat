@@ -23,7 +23,7 @@ set CESIUM_TESTS_STUB_PATH=%PROJECT_ROOT%\exts\cesium.omniverse.cpp.tests\cesium
 set PYTHONPATH=%NVIDIA_USD_PYTHON_LIBS%;%PYTHONPATH%
 
 echo "Ensuring mypy is installed"
-%NVIDIA_PYTHON_EXECUTABLE% -m pip install mypy
+%NVIDIA_PYTHON_EXECUTABLE% -m pip install mypy==1.6.1
 
 echo "Building lib files flat in temp dir"
 cmake -B build
