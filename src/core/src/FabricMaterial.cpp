@@ -19,6 +19,9 @@ namespace cesium::omniverse {
 
 namespace {
 
+// Should match MAX_IMAGERY_LAYERS_COUNT in cesium.mdl
+const uint64_t MAX_IMAGERY_LAYERS_COUNT = 16;
+
 const auto DEFAULT_DEBUG_COLOR = glm::dvec3(1.0, 1.0, 1.0);
 const auto DEFAULT_ALPHA = 1.0f;
 const auto DEFAULT_DISPLAY_COLOR = glm::dvec3(1.0, 1.0, 1.0);
@@ -39,16 +42,6 @@ struct FeatureIdCounts {
 FeatureIdCounts getFeatureIdCounts(const FabricMaterialDefinition& materialDefinition) {
     const auto& featureIdTypes = materialDefinition.getFeatureIdTypes();
     auto featureIdCount = featureIdTypes.size();
-
-    if (featureIdCount > FabricTokens::MAX_FEATURE_ID_COUNT) {
-        CESIUM_LOG_WARN(
-            "Number of feature ID sets ({}) exceeds maximum number of feature ID sets ({}). Excess feature ID sets "
-            "will be ignored.",
-            featureIdCount,
-            FabricTokens::MAX_FEATURE_ID_COUNT);
-    }
-
-    featureIdCount = glm::min(featureIdCount, FabricTokens::MAX_FEATURE_ID_COUNT);
 
     uint64_t indexCount = 0;
     uint64_t attributeCount = 0;
@@ -75,15 +68,15 @@ FeatureIdCounts getFeatureIdCounts(const FabricMaterialDefinition& materialDefin
 uint64_t getImageryLayerCount(const FabricMaterialDefinition& materialDefinition) {
     auto imageryLayerCount = materialDefinition.getImageryLayerCount();
 
-    if (imageryLayerCount > FabricTokens::MAX_IMAGERY_LAYERS_COUNT) {
+    if (imageryLayerCount > MAX_IMAGERY_LAYERS_COUNT) {
         CESIUM_LOG_WARN(
             "Number of imagery layers ({}) exceeds maximum imagery layer count ({}). Excess imagery layers will be "
             "ignored.",
             imageryLayerCount,
-            FabricTokens::MAX_IMAGERY_LAYERS_COUNT);
+            MAX_IMAGERY_LAYERS_COUNT);
     }
 
-    imageryLayerCount = glm::min(imageryLayerCount, FabricTokens::MAX_IMAGERY_LAYERS_COUNT);
+    imageryLayerCount = glm::min(imageryLayerCount, MAX_IMAGERY_LAYERS_COUNT);
 
     return imageryLayerCount;
 }
@@ -236,7 +229,7 @@ void FabricMaterial::initializeNodes() {
     const auto imageryLayerCount = getImageryLayerCount(_materialDefinition);
     _imageryLayerPaths.reserve(imageryLayerCount);
     for (uint64_t i = 0; i < imageryLayerCount; i++) {
-        const auto imageryLayerPath = FabricUtil::joinPaths(_materialPath, FabricTokens::imagery_layer_n[i]);
+        const auto imageryLayerPath = FabricUtil::joinPaths(_materialPath, FabricTokens::imagery_layer_n(i));
         createImageryLayer(imageryLayerPath);
         _imageryLayerPaths.push_back(imageryLayerPath);
         _allPaths.push_back(imageryLayerPath);
@@ -246,12 +239,13 @@ void FabricMaterial::initializeNodes() {
     const auto& featureIdTypes = _materialDefinition.getFeatureIdTypes();
     const auto featureIdCounts = getFeatureIdCounts(_materialDefinition);
     _featureIdPaths.reserve(featureIdCounts.totalCount);
+    _featureIdIndexPaths.reserve(featureIdCounts.indexCount);
     _featureIdAttributePaths.reserve(featureIdCounts.attributeCount);
     _featureIdTexturePaths.reserve(featureIdCounts.textureCount);
 
     for (uint64_t i = 0; i < featureIdCounts.totalCount; i++) {
         const auto featureIdType = featureIdTypes[i];
-        const auto featureIdPath = FabricUtil::joinPaths(_materialPath, FabricTokens::feature_id_n[i]);
+        const auto featureIdPath = FabricUtil::joinPaths(_materialPath, FabricTokens::feature_id_n(i));
         switch (featureIdType) {
             case FeatureIdType::INDEX:
                 createFeatureIdIndex(featureIdPath);
@@ -317,7 +311,7 @@ void FabricMaterial::initializeDefaultMaterial() {
         // Create connections from imagery layers to imagery layer resolver
         for (uint64_t i = 0; i < imageryLayerCount; i++) {
             const auto& imageryLayerPath = _imageryLayerPaths[i];
-            createConnection(srw, imageryLayerPath, _imageryLayerResolverPath, FabricTokens::inputs_imagery_layer_n[i]);
+            createConnection(srw, imageryLayerPath, _imageryLayerResolverPath, FabricTokens::inputs_imagery_layer_n(i));
         }
     }
 }
@@ -715,10 +709,6 @@ void FabricMaterial::setTextureValuesCommon(
     const pxr::TfToken& textureAssetPathToken,
     const TextureInfo& textureInfo,
     uint64_t texcoordIndex) {
-
-    if (texcoordIndex >= FabricTokens::MAX_PRIMVAR_ST_COUNT) {
-        return;
-    }
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
