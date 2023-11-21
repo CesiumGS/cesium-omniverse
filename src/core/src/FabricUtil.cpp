@@ -497,6 +497,12 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
     return TYPE_NOT_SUPPORTED_STRING;
 }
 
+template <VertexAttributeType T> omni::fabric::Type getPrimvarTypeImpl() {
+    const auto baseDataType = GetPrimvarBaseDataType<T>::BaseDataType;
+    const auto componentCount = GetComponentCount<T>::ComponentCount;
+    return {baseDataType, static_cast<uint8_t>(componentCount), 1, omni::fabric::AttributeRole::eNone};
+}
+
 } // namespace
 
 std::string printFabricStage() {
@@ -903,6 +909,10 @@ omni::fabric::Token getMdlIdentifier(const omni::fabric::Path& path) {
         }
     }
     return omni::fabric::Token{};
+}
+
+omni::fabric::Type getPrimvarType(VertexAttributeType type) {
+    return CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_DATA_TYPE_NO_ARGS(getPrimvarTypeImpl, type);
 }
 
 } // namespace cesium::omniverse::FabricUtil

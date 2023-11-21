@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cesium/omniverse/VertexAttributeType.h"
 #include "cesium/omniverse/RenderStatistics.h"
 
 #include <glm/glm.hpp>
@@ -42,5 +43,6 @@ bool materialHasCesiumNodes(const omni::fabric::Path& path);
 bool isCesiumNode(const omni::fabric::Token& mdlIdentifier);
 bool isShaderConnectedToMaterial(const omni::fabric::Path& materialPath, const omni::fabric::Path& shaderPath);
 omni::fabric::Token getMdlIdentifier(const omni::fabric::Path& path);
+omni::fabric::Type getPrimvarType(VertexAttributeType type);
 
 } // namespace cesium::omniverse::FabricUtil
