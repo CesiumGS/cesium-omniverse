@@ -122,11 +122,9 @@ class CesiumGeorefHelperWindow(ui.Window):
 
         for prim_path in selection:
             prim = stage.GetPrimAtPath(prim_path)
-            print("hello")
+
             coords = prim.GetAttribute("cesium:anchor:geographicCoordinates").Get()
             if coords is not None:
-                print(coords)
-
                 cesium_prim.GetAttribute("cesium:georeferenceOrigin:latitude").Set(coords[0])
                 cesium_prim.GetAttribute("cesium:georeferenceOrigin:longitude").Set(coords[1])
                 cesium_prim.GetAttribute("cesium:georeferenceOrigin:height").Set(coords[2])
