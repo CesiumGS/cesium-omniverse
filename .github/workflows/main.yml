@@ -6,6 +6,10 @@ concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  # Packman
+  PM_PACKAGES_ROOT: ${{ github.workspace }}/packman-repo
+
 jobs:
   build:
     name: ${{ matrix.config.name }}
@@ -22,6 +26,7 @@ jobs:
               cxx: "cl",
               build-type: "Release",
               build-code: "Windows",
+              cache-type: "Windows",
               generator: "Ninja Multi-Config",
               coverage: "false",
             }
@@ -33,6 +38,7 @@ jobs:
               cxx: "g++-11",
               build-type: "Release",
               build-code: "Ubuntu",
+              cache-type: "Linux",
               generator: "Unix Makefiles",
               coverage: "false",
             }
@@ -44,6 +50,7 @@ jobs:
               cxx: "g++-11",
               build-type: "Release",
               build-code: "AlmaLinux8",
+              cache-type: "Linux",
               generator: "Unix Makefiles",
               coverage: "false",
             }
@@ -82,6 +89,13 @@ jobs:
           path: ${{ env.CONAN_USER_HOME }}/.conan
           key: conan-${{ matrix.config.name }}-${{ hashFiles('cmake/AddConanDependencies.cmake') }}-v3
 
+      - name: Packman Check cache
+        id: packman-cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.PM_PACKAGES_ROOT }}
+          key: packman-${{ matrix.config.cache-type }}-${{ hashFiles('extern/nvidia/deps/kit-sdk.packman.xml', 'extern/nvidia/deps/target-deps.packman.xml') }}
+
       - name: AlmaLinux Build with Docker
         uses: ./.github/actions
         if: matrix.config.name == 'AlmaLinux 8 - GCC'
@@ -91,9 +105,11 @@ jobs:
       # Change the ownership from root to user for all files created by Docker in
       # the Conan build directory so that the files can be cached without permission
       # denied errors
-      - name: AlmaLinux Change Conan directory permissions
+      - name: AlmaLinux Change Conan & Packman directory permissions
         if: matrix.config.name == 'AlmaLinux 8 - GCC'
-        run: sudo chown -R $USER:$USER $CONAN_USER_HOME/.conan
+        run: |
+          sudo chown -R $USER:$USER $CONAN_USER_HOME/.conan
+          sudo chown -R $USER:$USER $PM_PACKAGES_ROOT
 
       - name: Install Linux dependencies
         if: ${{ runner.os == 'Linux' && matrix.config.name != 'AlmaLinux 8 - GCC' }}

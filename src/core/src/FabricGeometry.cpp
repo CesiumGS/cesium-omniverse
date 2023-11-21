@@ -31,22 +31,6 @@ const auto DEFAULT_SCALE = pxr::GfVec3f(1.0f, 1.0f, 1.0f);
 const auto DEFAULT_MATRIX = pxr::GfMatrix4d(1.0);
 const auto DEFAULT_VISIBILITY = false;
 
-uint64_t getTexcoordSetCount(const FabricGeometryDefinition& geometryDefinition) {
-    auto texcoordSetCount = geometryDefinition.getTexcoordSetCount();
-
-    if (texcoordSetCount > FabricTokens::MAX_PRIMVAR_ST_COUNT) {
-        CESIUM_LOG_WARN(
-            "Number of texcoord sets ({}) exceeds maximum number of texcoord sets ({}). Textures using excess texcoord "
-            "sets will be ignored.",
-            texcoordSetCount,
-            FabricTokens::MAX_PRIMVAR_ST_COUNT);
-    }
-
-    texcoordSetCount = glm::min(texcoordSetCount, FabricTokens::MAX_PRIMVAR_ST_COUNT);
-
-    return texcoordSetCount;
-}
-
 template <VertexAttributeType T>
 void setVertexAttributeValues(
     omni::fabric::StageReaderWriter& srw,
@@ -204,7 +188,7 @@ void FabricGeometry::setMaterial(const omni::fabric::Path& materialPath) {
 void FabricGeometry::initialize() {
     const auto hasNormals = _geometryDefinition.hasNormals();
     const auto hasVertexColors = _geometryDefinition.hasVertexColors();
-    const auto texcoordSetCount = getTexcoordSetCount(_geometryDefinition);
+    const auto texcoordSetCount = _geometryDefinition.getTexcoordSetCount();
     const auto& customVertexAttributes = _geometryDefinition.getCustomVertexAttributes();
     const auto customVertexAttributesCount = customVertexAttributes.size();
     const auto hasVertexIds = _geometryDefinition.hasVertexIds();
@@ -233,7 +217,7 @@ void FabricGeometry::initialize() {
     attributes.addAttribute(FabricTypes::material_binding, FabricTokens::material_binding);
 
     for (uint64_t i = 0; i < texcoordSetCount; i++) {
-        attributes.addAttribute(FabricTypes::primvars_st, FabricTokens::primvars_st_n[i]);
+        attributes.addAttribute(FabricTypes::primvars_st, FabricTokens::primvars_st_n(i));
     }
 
     if (hasNormals) {
@@ -298,7 +282,7 @@ void FabricGeometry::initialize() {
     // clang-format on
 
     for (uint64_t i = 0; i < texcoordSetCount; i++) {
-        primvarsFabric[primvarIndexStArray[i]] = FabricTokens::primvars_st_n[i];
+        primvarsFabric[primvarIndexStArray[i]] = FabricTokens::primvars_st_n(i);
         primvarInterpolationsFabric[primvarIndexStArray[i]] = FabricTokens::vertex;
     }
 
@@ -327,7 +311,7 @@ void FabricGeometry::initialize() {
 void FabricGeometry::reset() {
     const auto hasNormals = _geometryDefinition.hasNormals();
     const auto hasVertexColors = _geometryDefinition.hasVertexColors();
-    const auto texcoordSetCount = getTexcoordSetCount(_geometryDefinition);
+    const auto texcoordSetCount = _geometryDefinition.getTexcoordSetCount();
     const auto& customVertexAttributes = _geometryDefinition.getCustomVertexAttributes();
     const auto hasVertexIds = _geometryDefinition.hasVertexIds();
 
@@ -361,7 +345,7 @@ void FabricGeometry::reset() {
     srw.setArrayAttributeSize(_path, FabricTokens::points, 0);
 
     for (uint64_t i = 0; i < texcoordSetCount; i++) {
-        srw.setArrayAttributeSize(_path, FabricTokens::primvars_st_n[i], 0);
+        srw.setArrayAttributeSize(_path, FabricTokens::primvars_st_n(i), 0);
     }
 
     for (const auto& customVertexAttribute : customVertexAttributes) {
@@ -529,11 +513,7 @@ void FabricGeometry::setGeometry(
         const auto fillTexcoords = [this, &srw](uint64_t texcoordIndex, const TexcoordsAccessor& texcoords) {
             assert(texcoordIndex < _geometryDefinition.getTexcoordSetCount());
 
-            if (texcoordIndex >= FabricTokens::MAX_PRIMVAR_ST_COUNT) {
-                return;
-            }
-
-            const auto& primvarStToken = FabricTokens::primvars_st_n[texcoordIndex];
+            const auto& primvarStToken = FabricTokens::primvars_st_n(texcoordIndex);
             srw.setArrayAttributeSize(_path, primvarStToken, texcoords.size());
             auto stFabric = srw.getArrayAttributeWr<glm::fvec2>(_path, primvarStToken);
             texcoords.fill(stFabric);
