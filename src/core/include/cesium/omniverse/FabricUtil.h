@@ -2,7 +2,6 @@
 
 #include "cesium/omniverse/DataType.h"
 #include "cesium/omniverse/RenderStatistics.h"
-#include "cesium/omniverse/DataType.h"
 
 #include <glm/glm.hpp>
 #include <omni/fabric/IPath.h>

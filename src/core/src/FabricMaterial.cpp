@@ -48,6 +48,7 @@ struct FeatureIdCounts {
 FeatureIdCounts getFeatureIdCounts(const FabricMaterialDefinition& materialDefinition) {
     const auto& featureIdTypes = materialDefinition.getFeatureIdTypes();
     auto featureIdCount = featureIdTypes.size();
+
     uint64_t indexCount = 0;
     uint64_t attributeCount = 0;
     uint64_t textureCount = 0;
@@ -190,7 +191,7 @@ void setTextureValuesCommon(
     *scaleFabric = UsdUtil::glmToUsdVector(glm::fvec2(scale));
 }
 
-void setTextureValuesWithChannelsCommon(
+void setTextureValuesCommonChannels(
     const omni::fabric::Path& path,
     const pxr::TfToken& textureAssetPathToken,
     const TextureInfo& textureInfo,
@@ -275,7 +276,7 @@ void setPropertyTextureProperty(
     uint64_t texcoordIndex,
     MetadataUtil::StyleablePropertyInfo<T> propertyInfo) {
 
-    setTextureValuesWithChannelsCommon(path, textureAssetPathToken, textureInfo, texcoordIndex);
+    setTextureValuesCommonChannels(path, textureAssetPathToken, textureInfo, texcoordIndex);
     setPropertyCommon<T>(path, propertyInfo);
 }
 
@@ -1228,7 +1229,7 @@ void FabricMaterial::setFeatureIdTextureValues(
     uint64_t texcoordIndex,
     int nullFeatureId) {
 
-    setTextureValuesWithChannelsCommon(path, textureAssetPathToken, textureInfo, texcoordIndex);
+    setTextureValuesCommonChannels(path, textureAssetPathToken, textureInfo, texcoordIndex);
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
     auto nullFeatureIdFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_null_feature_id);
