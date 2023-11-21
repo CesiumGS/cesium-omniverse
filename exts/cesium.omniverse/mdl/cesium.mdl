@@ -35,6 +35,10 @@ export const auto DEFAULT_PROPERTY_VALUE_FLOAT4x4 = float4x4(0.0);
 // Should match MAX_IMAGERY_LAYERS_COUNT in FabricMaterial.cpp
 const auto MAX_IMAGERY_LAYERS_COUNT = 16;
 
+
+// Should match MAX_IMAGERY_LAYERS_COUNT in FabricMaterial.cpp
+export const auto MAX_IMAGERY_LAYERS_COUNT = 16;
+
 export enum up_axis_mode {
     Y,
     Z
