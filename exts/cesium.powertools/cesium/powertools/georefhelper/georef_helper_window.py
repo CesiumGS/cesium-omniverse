@@ -128,7 +128,6 @@ class CesiumGeorefHelperWindow(ui.Window):
                 cesium_prim.GetAttribute("cesium:georeferenceOrigin:latitude").Set(coords[0])
                 cesium_prim.GetAttribute("cesium:georeferenceOrigin:longitude").Set(coords[1])
                 cesium_prim.GetAttribute("cesium:georeferenceOrigin:height").Set(coords[2])
-
                 return
 
         logger.error("Please select a prim with a globe anchor")
