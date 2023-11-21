@@ -136,8 +136,8 @@ FeaturesInfo getFeaturesInfo(const CesiumGltf::Model& model, const CesiumGltf::M
 std::set<VertexAttributeInfo>
 getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
-MaterialInfo getDefaultMaterialInfo();
-TextureInfo getDefaultTextureInfo();
+const MaterialInfo& getDefaultMaterialInfo();
+const TextureInfo& getDefaultTextureInfo();
 
 bool hasNormals(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, bool smoothNormals);
 bool hasTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);

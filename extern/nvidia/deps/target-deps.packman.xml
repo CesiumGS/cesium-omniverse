@@ -8,13 +8,9 @@
     <filter include="pybind11"/>
     <filter include="cuda"/>
   </import>
-  <import path="../_build/target-deps/kit-sdk-debug/dev/all-deps.packman.xml">
-    <filter include="nv_usd_py310_debug"/>
-  </import>
   <!-- Override the link paths to point to the correct locations. -->
   <dependency name="python" linkPath="../_build/target-deps/python"/>
   <dependency name="nv_usd_py310_release" linkPath="../_build/target-deps/usd/release"/>
-  <dependency name="nv_usd_py310_debug" linkPath="../_build/target-deps/usd/debug"/>
   <dependency name="usdrt" linkPath="../_build/target-deps/usdrt"/>
   <dependency name="carb_sdk_plugins" linkPath="../_build/target-deps/carb_sdk_plugins"/>
   <dependency name="pybind11" linkPath="../_build/target-deps/pybind11/pybind11"/>
