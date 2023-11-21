@@ -602,7 +602,15 @@ MaterialInfo getMaterialInfo(const CesiumGltf::Model& model, const CesiumGltf::M
         return getDefaultMaterialInfo();
     }
 
+// Ignore uninitialized member warning from gcc 11.2.0. This warning is not reported in gcc 11.4.0
+#ifdef CESIUM_OMNI_GCC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
     auto materialInfo = getDefaultMaterialInfo();
+#ifdef CESIUM_OMNI_GCC
+#pragma GCC diagnostic pop
+#endif
 
     const auto& material = model.materials[static_cast<size_t>(primitive.material)];
 
@@ -720,8 +728,8 @@ getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::Mesh
     return customVertexAttributes;
 }
 
-MaterialInfo getDefaultMaterialInfo() {
-    return {
+const MaterialInfo& getDefaultMaterialInfo() {
+    static const auto defaultInfo = MaterialInfo{
         getDefaultAlphaCutoff(),
         getDefaultAlphaMode(),
         getDefaultBaseAlpha(),
@@ -733,10 +741,12 @@ MaterialInfo getDefaultMaterialInfo() {
         false,
         std::nullopt,
     };
+
+    return defaultInfo;
 }
 
-TextureInfo getDefaultTextureInfo() {
-    return {
+const TextureInfo& getDefaultTextureInfo() {
+    static const auto defaultInfo = TextureInfo{
         getDefaultTexcoordOffset(),
         getDefaultTexcoordRotation(),
         getDefaultTexcoordScale(),
@@ -744,7 +754,10 @@ TextureInfo getDefaultTextureInfo() {
         getDefaultWrapS(),
         getDefaultWrapT(),
         true,
+        {},
     };
+
+    return defaultInfo;
 }
 
 bool hasNormals(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, bool smoothNormals) {
