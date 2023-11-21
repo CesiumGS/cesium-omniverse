@@ -328,7 +328,7 @@ void forEachStyleablePropertyTextureProperty(
                     propertyInfo,
                 };
 
-                callback(propertyTexturePropertyView, styleableProperty);
+                callback(propertyTextureProperty, propertyTexturePropertyView, styleableProperty);
             }
         });
 }
@@ -341,5 +341,8 @@ getMdlPropertyTexturePropertyTypes(const CesiumGltf::Model& model, const CesiumG
 
 std::vector<const CesiumGltf::ImageCesium*>
 getPropertyTextureImages(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
+
+std::unordered_map<uint64_t, uint64_t>
+getPropertyTextureIndexMapping(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
 } // namespace cesium::omniverse::MetadataUtil

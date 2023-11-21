@@ -197,6 +197,9 @@ std::vector<FabricMesh> acquireFabricMeshes(
         fabricMesh.featureIdIndexSetIndexMapping = getSetIndexMapping(featuresInfo, FeatureIdType::INDEX);
         fabricMesh.featureIdAttributeSetIndexMapping = getSetIndexMapping(featuresInfo, FeatureIdType::ATTRIBUTE);
         fabricMesh.featureIdTextureSetIndexMapping = getSetIndexMapping(featuresInfo, FeatureIdType::TEXTURE);
+
+        // Map glTF texture index to property texture index
+        fabricMesh.propertyTextureIndexMapping = MetadataUtil::getPropertyTextureIndexMapping(model, primitive);
     }
 
     return fabricMeshes;
@@ -281,7 +284,8 @@ void setFabricMeshes(
                 mesh.texcoordIndexMapping,
                 mesh.featureIdIndexSetIndexMapping,
                 mesh.featureIdAttributeSetIndexMapping,
-                mesh.featureIdTextureSetIndexMapping);
+                mesh.featureIdTextureSetIndexMapping,
+                mesh.propertyTextureIndexMapping);
 
             geometry->setMaterial(material->getPath());
         } else if (!tilesetMaterialPath.IsEmpty()) {

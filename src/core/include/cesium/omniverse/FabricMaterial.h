@@ -46,7 +46,8 @@ class FabricMaterial {
         const std::unordered_map<uint64_t, uint64_t>& texcoordIndexMapping,
         const std::vector<uint64_t>& featureIdIndexSetIndexMapping,
         const std::vector<uint64_t>& featureIdAttributeSetIndexMapping,
-        const std::vector<uint64_t>& featureIdTextureSetIndexMapping);
+        const std::vector<uint64_t>& featureIdTextureSetIndexMapping,
+        const std::unordered_map<uint64_t, uint64_t>& propertyTextureIndexMapping);
 
     void setImageryLayer(
         const std::shared_ptr<FabricTexture>& texture,

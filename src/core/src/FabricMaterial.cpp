@@ -956,7 +956,8 @@ void FabricMaterial::setMaterial(
     const std::unordered_map<uint64_t, uint64_t>& texcoordIndexMapping,
     const std::vector<uint64_t>& featureIdIndexSetIndexMapping,
     const std::vector<uint64_t>& featureIdAttributeSetIndexMapping,
-    const std::vector<uint64_t>& featureIdTextureSetIndexMapping) {
+    const std::vector<uint64_t>& featureIdTextureSetIndexMapping,
+    const std::unordered_map<uint64_t, uint64_t>& propertyTextureIndexMapping) {
 
     if (stageDestroyed()) {
         return;
@@ -1038,36 +1039,28 @@ void FabricMaterial::setMaterial(
                 propertyAttributePropertyPath, primvarName, styleableProperty.propertyInfo);
         });
 
-    // uint64_t propertyTexturePropertyIndex = 0;
+    uint64_t propertyTexturePropertyIndex = 0;
 
-    // MetadataUtil::forEachStyleablePropertyTextureProperty(
-    //     model,
-    //     primitive,
-    //     [this,
-    //      &propertyTexturePropertyIndex]([[maybe_unused]] auto propertyTexturePropertyView, auto styleableProperty) {
-    //         constexpr auto Type = decltype(styleableProperty)::Type;
-    //         const auto& textureInfo = styleableProperty.textureInfo;
-    //         const auto offset = styleableProperty.offset.value_or(GetTransformedType<Type>{DEFAULT_OFFSET});
-    //         const auto scale = styleableProperty.scale.value_or(GetTransformedType<Type>{DEFAULT_SCALE});
-    //         const auto maximumValue = GetRawType<Type>{std::numeric_limits<GetRawComponentType<Type>>::max()};
-    //         const auto hasNoData = styleableProperty.noData.has_value();
-    //         const auto noData = styleableProperty.noData.value_or(GetRawType<Type>{DEFAULT_NO_DATA});
-    //         const auto defaultValue = styleableProperty.defaultValue.value_or(GetTransformedType<Type>{DEFAULT_VALUE});
-    //         const auto& propertyTexturePropertyPath = _propertyTexturePropertyPaths[propertyTexturePropertyIndex++];
+    MetadataUtil::forEachStyleablePropertyTextureProperty(
+        model,
+        primitive,
+        [this, &propertyTexturePropertyIndex, &propertyTextures, &texcoordIndexMapping, &propertyTextureIndexMapping](
+            auto propertyTextureProperty, [[maybe_unused]] auto propertyTexturePropertyView, auto styleableProperty) {
+            constexpr auto Type = decltype(styleableProperty)::Type;
+            const auto& textureInfo = styleableProperty.textureInfo;
+            const auto& propertyTexturePropertyPath = _propertyTexturePropertyPaths[propertyTexturePropertyIndex++];
+            const auto texcoordIndex = texcoordIndexMapping.at(textureInfo.setIndex);
+            const auto textureIndex = static_cast<uint64_t>(propertyTextureProperty.index);
+            const auto propertyTextureIndex = propertyTextureIndexMapping.at(textureIndex);
+            const auto& textureAssetPath = propertyTextures[propertyTextureIndex]->getAssetPathToken();
 
-    //         setPropertyTextureProperty<Type>(
-    //             propertyTexturePropertyPath,
-    //             textureInfo,
-    //             0, // TODO
-    //             static_cast<GetMdlTransformedType<Type>>(offset),
-    //             static_cast<GetMdlTransformedType<Type>>(scale),
-    //             static_cast<GetMdlRawType<Type>>(maximumValue),
-    //             hasNoData,
-    //             static_cast<GetMdlRawType<Type>>(noData),
-    //             static_cast<GetMdlTransformedType<Type>>(defaultValue));
-    //     });
-
-    (void)propertyTextures;
+            setPropertyTextureProperty<Type>(
+                propertyTexturePropertyPath,
+                textureAssetPath,
+                textureInfo,
+                texcoordIndex,
+                styleableProperty.propertyInfo);
+        });
 
     for (const auto& path : _allPaths) {
         FabricUtil::setTilesetId(path, tilesetId);
