@@ -21,9 +21,9 @@
 #undef OPAQUE
 #endif
 
+#include <Cesium3DTilesContent/registerAllTileContentTypes.h>
 #include <Cesium3DTilesSelection/CreditSystem.h>
 #include <Cesium3DTilesSelection/Tileset.h>
-#include <Cesium3DTilesSelection/registerAllTileContentTypes.h>
 #include <CesiumUsdSchemas/data.h>
 #include <CesiumUsdSchemas/imagery.h>
 #include <CesiumUsdSchemas/tileset.h>
@@ -99,7 +99,7 @@ void Context::initialize(int64_t contextId, const std::filesystem::path& cesiumE
     _session = std::make_shared<CesiumIonSession>(asyncSystem, _httpAssetAccessor, "https://api.cesium.com/");
     _session->resume();
 
-    Cesium3DTilesSelection::registerAllTileContentTypes();
+    Cesium3DTilesContent::registerAllTileContentTypes();
 
 #if CESIUM_TRACING_ENABLED
     const auto timeNow = std::chrono::time_point_cast<std::chrono::microseconds>(std::chrono::steady_clock::now());
