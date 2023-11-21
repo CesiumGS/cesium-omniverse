@@ -96,7 +96,7 @@ void Context::initialize(int64_t contextId, const std::filesystem::path& cesiumE
         });
 
     CesiumAsync::AsyncSystem asyncSystem{_taskProcessor};
-    _session = std::make_shared<CesiumIonSession>(asyncSystem, _httpAssetAccessor);
+    _session = std::make_shared<CesiumIonSession>(asyncSystem, _httpAssetAccessor, "https://api.cesium.com/");
     _session->resume();
 
     Cesium3DTilesContent::registerAllTileContentTypes();
