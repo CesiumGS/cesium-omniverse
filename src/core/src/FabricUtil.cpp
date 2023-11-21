@@ -890,7 +890,13 @@ bool materialHasCesiumNodes(const omni::fabric::Path& path) {
 bool isCesiumNode(const omni::fabric::Token& mdlIdentifier) {
     return mdlIdentifier == FabricTokens::cesium_base_color_texture_float4 ||
            mdlIdentifier == FabricTokens::cesium_imagery_layer_float4 ||
-           mdlIdentifier == FabricTokens::cesium_feature_id_int;
+           mdlIdentifier == FabricTokens::cesium_feature_id_int || mdlIdentifier == FabricTokens::cesium_property_int ||
+           mdlIdentifier == FabricTokens::cesium_property_int2 || mdlIdentifier == FabricTokens::cesium_property_int3 ||
+           mdlIdentifier == FabricTokens::cesium_property_int4 ||
+           mdlIdentifier == FabricTokens::cesium_property_float ||
+           mdlIdentifier == FabricTokens::cesium_property_float2 ||
+           mdlIdentifier == FabricTokens::cesium_property_float3 ||
+           mdlIdentifier == FabricTokens::cesium_property_float4;
 }
 
 bool isShaderConnectedToMaterial(const omni::fabric::Path& materialPath, const omni::fabric::Path& shaderPath) {

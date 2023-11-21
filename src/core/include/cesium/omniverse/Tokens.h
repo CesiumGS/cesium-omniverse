@@ -48,6 +48,14 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     (cesium_internal_property_texture_normalized_int3_lookup) \
     (cesium_internal_property_texture_normalized_int4_lookup) \
     (cesium_internal_texture_lookup) \
+    (cesium_property_int) \
+    (cesium_property_int2) \
+    (cesium_property_int3) \
+    (cesium_property_int4) \
+    (cesium_property_float) \
+    (cesium_property_float2) \
+    (cesium_property_float3) \
+    (cesium_property_float4) \
     (constant) \
     (doubleSided) \
     (extent) \
@@ -210,6 +218,7 @@ const omni::fabric::Type inputs_offset_float2(omni::fabric::BaseDataType::eFloat
 const omni::fabric::Type inputs_offset_float3(omni::fabric::BaseDataType::eFloat, 3, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_offset_float4(omni::fabric::BaseDataType::eFloat, 4, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_primvar_name(omni::fabric::BaseDataType::eUChar, 1, 1, omni::fabric::AttributeRole::eText);
+const omni::fabric::Type inputs_property_id(omni::fabric::BaseDataType::eUChar, 1, 1, omni::fabric::AttributeRole::eText);
 const omni::fabric::Type inputs_roughness_factor(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_scale_float(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_scale_float2(omni::fabric::BaseDataType::eFloat, 2, 0, omni::fabric::AttributeRole::eNone);

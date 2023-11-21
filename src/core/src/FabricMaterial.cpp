@@ -1,6 +1,7 @@
 #include "cesium/omniverse/FabricMaterial.h"
 
 #include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/DataType.h"
 #include "cesium/omniverse/FabricAttributesBuilder.h"
 #include "cesium/omniverse/FabricMaterialDefinition.h"
 #include "cesium/omniverse/FabricResourceManager.h"
@@ -32,7 +33,7 @@ const auto DEFAULT_TEXCOORD_INDEX = uint64_t(0);
 const auto DEFAULT_FEATURE_ID_PRIMVAR_NAME = std::string("_FEATURE_ID_0");
 const auto DEFAULT_NULL_FEATURE_ID = -1;
 const auto DEFAULT_OFFSET = 0;
-const auto DEFAULT_SCALE = 0;
+const auto DEFAULT_SCALE = 1;
 const auto DEFAULT_NO_DATA = 0;
 const auto DEFAULT_VALUE = 0;
 
@@ -213,7 +214,7 @@ void setTextureValuesCommonChannels(
 }
 
 template <DataType T>
-void setPropertyCommon(const omni::fabric::Path& path, MetadataUtil::StyleablePropertyInfo<T>& propertyInfo) {
+void setPropertyCommon(const omni::fabric::Path& path, const MetadataUtil::StyleablePropertyInfo<T>& propertyInfo) {
     const auto offset = propertyInfo.offset.value_or(GetTransformedType<T>{DEFAULT_OFFSET});
     const auto scale = propertyInfo.scale.value_or(GetTransformedType<T>{DEFAULT_SCALE});
     const auto maximumValue = GetRawType<T>{std::numeric_limits<GetRawComponentType<T>>::max()};
@@ -259,7 +260,7 @@ template <DataType T>
 void setPropertyAttributeProperty(
     const omni::fabric::Path& path,
     const std::string& primvarName,
-    MetadataUtil::StyleablePropertyInfo<T> propertyInfo) {
+    const MetadataUtil::StyleablePropertyInfo<T>& propertyInfo) {
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
     setPrimvarName(srw, path, primvarName);
@@ -276,6 +277,22 @@ void setPropertyTextureProperty(
 
     setTextureValuesCommonChannels(path, textureAssetPathToken, textureInfo, texcoordIndex);
     setPropertyCommon<T>(path, propertyInfo);
+}
+
+template <DataType T> void clearPropertyAttributeProperty(const omni::fabric::Path& path) {
+    setPropertyAttributeProperty(path, "", MetadataUtil::StyleablePropertyInfo<T>());
+}
+
+template <DataType T>
+void clearPropertyTextureProperty(
+    const omni::fabric::Path& path,
+    const pxr::TfToken& defaultTransparentTextureAssetPathToken) {
+    setPropertyTextureProperty(
+        path,
+        defaultTransparentTextureAssetPathToken,
+        GltfUtil::getDefaultTextureInfo(),
+        DEFAULT_TEXCOORD_INDEX,
+        MetadataUtil::StyleablePropertyInfo<T>());
 }
 
 } // namespace
@@ -397,7 +414,6 @@ void FabricMaterial::initializeNodes() {
     // Create property attribute properties
     const auto& propertyAttributePropertyTypes = _materialDefinition.getMdlPropertyAttributePropertyTypes();
     const auto propertyAttributePropertiesCount = propertyAttributePropertyTypes.size();
-    _propertyAttributePropertyPaths.reserve(propertyAttributePropertiesCount);
 
     for (uint64_t i = 0; i < propertyAttributePropertiesCount; i++) {
         const auto type = propertyAttributePropertyTypes[i];
@@ -515,13 +531,12 @@ void FabricMaterial::initializeNodes() {
                 break;
         }
 
-        _propertyAttributePropertyPaths.push_back(propertyAttributePropertyPath);
+        _propertyAttributePropertyPaths[type].push_back(propertyAttributePropertyPath);
     }
 
     // Create property textures
     const auto& propertyTexturePropertyTypes = _materialDefinition.getMdlPropertyTexturePropertyTypes();
     const auto propertyTexturePropertiesCount = propertyTexturePropertyTypes.size();
-    _propertyTexturePropertyPaths.reserve(propertyTexturePropertiesCount);
 
     for (uint64_t i = 0; i < propertyTexturePropertiesCount; i++) {
         const auto type = propertyTexturePropertyTypes[i];
@@ -603,7 +618,7 @@ void FabricMaterial::initializeNodes() {
                 break;
         }
 
-        _propertyTexturePropertyPaths.push_back(propertyTexturePropertyPath);
+        _propertyTexturePropertyPaths[type].push_back(propertyTexturePropertyPath);
     }
 }
 
@@ -692,6 +707,13 @@ void FabricMaterial::initializeExistingMaterial(const omni::fabric::Path& path) 
                 createConnection(srw, _featureIdPaths[setIndex], copiedPath, FabricTokens::inputs_feature_id);
             }
         }
+        // else if (mdlIdentifier == FabricTokens::cesium_property_int) {
+        //     const auto propertyIdFabric = srw.getArrayAttributeRd<uint8_t>(path, FabricTokens::inputs_property_id);
+        //     // Try to see if the property id is available....???
+        //     // But we don't have property names at this point...
+        //     // Need to revive that branch? Or include property id names in definition?
+        //     auto primvarNameFabric = srw.getArrayAttributeWr<uint8_t>(path, FabricTokens::inputs_primvar_name);
+        // }
     }
 }
 
@@ -931,6 +953,19 @@ void FabricMaterial::reset() {
             DEFAULT_NULL_FEATURE_ID);
     }
 
+    for (const auto& [type, paths] : _propertyAttributePropertyPaths) {
+        for (const auto& path : paths) {
+            CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_DATA_TYPE(clearPropertyAttributeProperty, type, path);
+        }
+    }
+
+    for (const auto& [type, paths] : _propertyTexturePropertyPaths) {
+        for (const auto& path : paths) {
+            CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_DATA_TYPE(
+                clearPropertyTextureProperty, type, path, _defaultTransparentTextureAssetPathToken);
+        }
+    }
+
     for (const auto& imageryLayerPath : _imageryLayerPaths) {
         setImageryLayerValues(
             imageryLayerPath,
@@ -1026,32 +1061,37 @@ void FabricMaterial::setMaterial(
         setFeatureIdTextureValues(featureIdPath, textureAssetPath, textureInfo, texcoordIndex, nullFeatureId);
     }
 
-    uint64_t propertyAttributePropertyIndex = 0;
+    std::array<uint8_t, DataTypeCount> propertyAttributePropertyTypeCounter{};
 
     MetadataUtil::forEachStyleablePropertyAttributeProperty(
         model,
         primitive,
-        [this,
-         &propertyAttributePropertyIndex]([[maybe_unused]] auto propertyAttributePropertyView, auto styleableProperty) {
+        [this, &propertyAttributePropertyTypeCounter](
+            [[maybe_unused]] auto propertyAttributePropertyView, auto styleableProperty) {
             constexpr auto Type = decltype(styleableProperty)::Type;
             const auto& primvarName = styleableProperty.attribute;
             const auto& propertyAttributePropertyPath =
-                _propertyAttributePropertyPaths[propertyAttributePropertyIndex++];
+                _propertyTexturePropertyPaths[Type][propertyAttributePropertyTypeCounter[Type]++];
 
             setPropertyAttributeProperty<Type>(
                 propertyAttributePropertyPath, primvarName, styleableProperty.propertyInfo);
         });
 
-    uint64_t propertyTexturePropertyIndex = 0;
+    std::array<uint8_t, DataTypeCount> propertyTexturePropertyTypeCounter{};
 
     MetadataUtil::forEachStyleablePropertyTextureProperty(
         model,
         primitive,
-        [this, &propertyTexturePropertyIndex, &propertyTextures, &texcoordIndexMapping, &propertyTextureIndexMapping](
+        [this,
+         &propertyTextures,
+         &texcoordIndexMapping,
+         &propertyTextureIndexMapping,
+         &propertyTexturePropertyTypeCounter](
             auto propertyTextureProperty, [[maybe_unused]] auto propertyTexturePropertyView, auto styleableProperty) {
             constexpr auto Type = decltype(styleableProperty)::Type;
             const auto& textureInfo = styleableProperty.textureInfo;
-            const auto& propertyTexturePropertyPath = _propertyTexturePropertyPaths[propertyTexturePropertyIndex++];
+            const auto& propertyTexturePropertyPath =
+                _propertyTexturePropertyPaths[Type][propertyTexturePropertyTypeCounter[Type]++];
             const auto texcoordIndex = texcoordIndexMapping.at(textureInfo.setIndex);
             const auto textureIndex = static_cast<uint64_t>(propertyTextureProperty.index);
             const auto propertyTextureIndex = propertyTextureIndexMapping.at(textureIndex);
