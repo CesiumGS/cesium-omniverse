@@ -2,7 +2,7 @@
 
 ### v0.14.0 - 2023-12-01
 
-* Added support for custom vertex attributes. Custom attributes can be accessed by their glTF attribute name with the primvar lookup functions in MDL, e.g. `data_lookup_int` and `data_lookup_float`.
+* Added support for custom glTF vertex attributes. Attribute values can by accessed in MDL with `scene::data_lookup_int`, `scene::data_lookup_float`, etc. Values are returned as raw values; `normalized` property has no effect.
 
 ### v0.13.0 - 2023-11-01
 

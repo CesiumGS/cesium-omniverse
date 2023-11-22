@@ -121,12 +121,6 @@ getVertexColors(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive&
 
 VertexIdsAccessor getVertexIds(const PositionsAccessor& positionsAccessor);
 
-template <VertexAttributeType T>
-VertexAttributeAccessor<T> getVertexAttributeValues(
-    const CesiumGltf::Model& model,
-    const CesiumGltf::MeshPrimitive& primitive,
-    const std::string& attributeName);
-
 const CesiumGltf::ImageCesium*
 getBaseColorTextureImage(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
@@ -154,5 +148,30 @@ bool hasMaterial(const CesiumGltf::MeshPrimitive& primitive);
 std::vector<uint64_t> getTexcoordSetIndexes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 std::vector<uint64_t>
 getImageryTexcoordSetIndexes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
+
+template <VertexAttributeType T>
+VertexAttributeAccessor<T> getVertexAttributeValues(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive,
+    const std::string& attributeName) {
+
+    const auto attribute = primitive.attributes.find(attributeName);
+    if (attribute == primitive.attributes.end()) {
+        return {};
+    }
+
+    auto pAccessor = model.getSafe<CesiumGltf::Accessor>(&model.accessors, attribute->second);
+    if (!pAccessor) {
+        return {};
+    }
+
+    auto view = CesiumGltf::AccessorView<GetRawType<T>>(model, *pAccessor);
+
+    if (view.status() != CesiumGltf::AccessorViewStatus::Valid) {
+        return {};
+    }
+
+    return VertexAttributeAccessor<T>(view);
+}
 
 } // namespace cesium::omniverse::GltfUtil
