@@ -435,6 +435,8 @@ void Context::processUsdShaderChanged(const cesium::omniverse::ChangedPrim& chan
             tileset->updateShaderInput(path, name);
         }
     }
+
+    FabricResourceManager::getInstance().updateShaderInput(materialPath, path, name);
 }
 
 void Context::processPrimRemoved(const ChangedPrim& changedPrim) {
