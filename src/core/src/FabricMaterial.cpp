@@ -430,7 +430,7 @@ void FabricMaterial::initializeNodes() {
         _propertyAttributePropertyPaths[type].push_back(propertyAttributePropertyPath);
     }
 
-    // Create property textures
+    // Create property texture properties
     const auto& propertyTexturePropertyTypes = _materialDefinition.getMdlPropertyTexturePropertyTypes();
     const auto propertyTexturePropertiesCount = propertyTexturePropertyTypes.size();
 
@@ -512,13 +512,6 @@ void FabricMaterial::initializeExistingMaterial(const omni::fabric::Path& path) 
         } else if (mdlIdentifier == FabricTokens::cesium_feature_id_int) {
             _copiedFeatureIdPaths.push_back(copiedPath);
         }
-        // else if (mdlIdentifier == FabricTokens::cesium_property_int) {
-        //     const auto propertyIdFabric = srw.getArrayAttributeRd<uint8_t>(path, FabricTokens::inputs_property_id);
-        //     // Try to see if the property id is available....???
-        //     // But we don't have property names at this point...
-        //     // Need to revive that branch? Or include property id names in definition?
-        //     auto primvarNameFabric = srw.getArrayAttributeWr<uint8_t>(path, FabricTokens::inputs_primvar_name);
-        // }
     }
 
     createConnectionsToCopiedPaths();
@@ -1137,6 +1130,14 @@ void FabricMaterial::createConnectionsToCopiedPaths() {
             createConnection(srw, _featureIdPaths[index], copiedPath, FabricTokens::inputs_feature_id);
         }
     }
+
+    // if (mdlIdentifier == FabricTokens::cesium_property_int) {
+    //     const auto propertyIdFabric = srw.getArrayAttributeRd<uint8_t>(path, FabricTokens::inputs_property_id);
+    //     // Try to see if the property id is available....???
+    //     // But we don't have property names at this point...
+    //     // Need to revive that branch? Or include property id names in definition?
+    //     auto primvarNameFabric = srw.getArrayAttributeWr<uint8_t>(path, FabricTokens::inputs_primvar_name);
+    // }
 }
 
 void FabricMaterial::destroyConnectionsToCopiedPaths() {
