@@ -1,5 +1,7 @@
 #include "cesium/omniverse/MetadataUtil.h"
 
+#include "cesium/omniverse/DataType.h"
+
 namespace cesium::omniverse::MetadataUtil {
 
 namespace {
@@ -8,46 +10,47 @@ template <typename T> uint64_t indexOf(const std::vector<T>& vector, const T& va
 }
 } // namespace
 
-std::vector<DataType>
-getMdlPropertyAttributePropertyTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
-    std::vector<DataType> mdlTypes;
+std::vector<MdlInternalPropertyType> getMdlInternalPropertyAttributePropertyTypes(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive) {
+    std::vector<MdlInternalPropertyType> mdlInternalPropertyTypes;
 
     forEachStyleablePropertyAttributeProperty(
         model,
         primitive,
-        [&mdlTypes](
+        [&mdlInternalPropertyTypes](
             [[maybe_unused]] const std::string& propertyId,
             [[maybe_unused]] auto propertyAttributeProperty,
             [[maybe_unused]] auto propertyAttributePropertyView,
             auto styleableProperty) {
-            constexpr auto Type = decltype(styleableProperty)::Type;
-            mdlTypes.push_back(getMdlShaderType<Type>());
+            constexpr auto type = decltype(styleableProperty)::Type;
+            mdlInternalPropertyTypes.push_back(getMdlInternalPropertyType<type>());
         });
 
-    std::sort(mdlTypes.begin(), mdlTypes.end());
+    std::sort(mdlInternalPropertyTypes.begin(), mdlInternalPropertyTypes.end());
 
-    return mdlTypes;
+    return mdlInternalPropertyTypes;
 }
 
-std::vector<DataType>
-getMdlPropertyTexturePropertyTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
-    std::vector<DataType> mdlTypes;
+std::vector<MdlInternalPropertyType>
+getMdlInternalPropertyTexturePropertyTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+    std::vector<MdlInternalPropertyType> mdlInternalPropertyTypes;
 
     forEachStyleablePropertyTextureProperty(
         model,
         primitive,
-        [&mdlTypes](
+        [&mdlInternalPropertyTypes](
             [[maybe_unused]] const std::string& propertyId,
             [[maybe_unused]] auto propertyTextureProperty,
             [[maybe_unused]] auto propertyTexturePropertyView,
             auto styleableProperty) {
-            constexpr auto Type = decltype(styleableProperty)::Type;
-            mdlTypes.push_back(getMdlShaderType<Type>());
+            constexpr auto type = decltype(styleableProperty)::Type;
+            mdlInternalPropertyTypes.push_back(getMdlInternalPropertyType<type>());
         });
 
-    std::sort(mdlTypes.begin(), mdlTypes.end());
+    std::sort(mdlInternalPropertyTypes.begin(), mdlInternalPropertyTypes.end());
 
-    return mdlTypes;
+    return mdlInternalPropertyTypes;
 }
 
 std::vector<const CesiumGltf::ImageCesium*>

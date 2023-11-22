@@ -166,6 +166,48 @@ enum class DataType {
 
 constexpr auto DataTypeCount = static_cast<uint64_t>(DataType::MAT4_INT64_NORM) + 1;
 
+enum class MdlInternalPropertyType {
+    INT32,
+    FLOAT32,
+    INT32_NORM,
+    VEC2_INT32,
+    VEC2_FLOAT32,
+    VEC2_INT32_NORM,
+    VEC3_INT32,
+    VEC3_FLOAT32,
+    VEC3_INT32_NORM,
+    VEC4_INT32,
+    VEC4_FLOAT32,
+    VEC4_INT32_NORM,
+    MAT2_INT32,
+    MAT2_FLOAT32,
+    MAT2_INT32_NORM,
+    MAT3_INT32,
+    MAT3_FLOAT32,
+    MAT3_INT32_NORM,
+    MAT4_INT32,
+    MAT4_FLOAT32,
+    MAT4_INT32_NORM,
+};
+
+constexpr auto MdlInternalPropertyTypeCount = static_cast<uint64_t>(MdlInternalPropertyType::MAT4_INT32_NORM) + 1;
+
+enum class MdlExternalPropertyType {
+    INT32,
+    FLOAT32,
+    VEC2_INT32,
+    VEC2_FLOAT32,
+    VEC3_INT32,
+    VEC3_FLOAT32,
+    VEC4_INT32,
+    VEC4_FLOAT32,
+    MAT2_FLOAT32,
+    MAT3_FLOAT32,
+    MAT4_FLOAT32,
+};
+
+constexpr auto MdlExternalPropertyTypeCount = static_cast<uint64_t>(MdlExternalPropertyType::MAT4_FLOAT32) + 1;
+
 template <DataType T> struct IsNormalizedImpl;
 template <> struct IsNormalizedImpl<DataType::UINT8> : std::false_type {};
 template <> struct IsNormalizedImpl<DataType::INT8> : std::false_type {};
@@ -937,392 +979,186 @@ template <> struct GetTransformedTypeImpl<DataType::MAT4_UINT64_NORM> { using Ty
 template <> struct GetTransformedTypeImpl<DataType::MAT4_INT64_NORM> { using Type = glm::f64mat4; };
 template <DataType T> using GetTransformedType = typename GetTransformedTypeImpl<T>::Type;
 
-template <DataType T> struct GetMdlRawTypeImpl;
-template <> struct GetMdlRawTypeImpl<DataType::UINT8> { using Type = int; };
-template <> struct GetMdlRawTypeImpl<DataType::INT8> { using Type = int; };
-template <> struct GetMdlRawTypeImpl<DataType::UINT16> { using Type = int; };
-template <> struct GetMdlRawTypeImpl<DataType::INT16> { using Type = int; };
-template <> struct GetMdlRawTypeImpl<DataType::UINT32> { using Type = int; };
-template <> struct GetMdlRawTypeImpl<DataType::INT32> { using Type = int; };
-template <> struct GetMdlRawTypeImpl<DataType::UINT64> { using Type = int; };
-template <> struct GetMdlRawTypeImpl<DataType::INT64> { using Type = int; };
-template <> struct GetMdlRawTypeImpl<DataType::FLOAT32> { using Type = float; };
-template <> struct GetMdlRawTypeImpl<DataType::FLOAT64> { using Type = float; };
-template <> struct GetMdlRawTypeImpl<DataType::UINT8_NORM> { using Type = int; };
-template <> struct GetMdlRawTypeImpl<DataType::INT8_NORM> { using Type = int; };
-template <> struct GetMdlRawTypeImpl<DataType::UINT16_NORM> { using Type = int; };
-template <> struct GetMdlRawTypeImpl<DataType::INT16_NORM> { using Type = int; };
-template <> struct GetMdlRawTypeImpl<DataType::UINT32_NORM> { using Type = int; };
-template <> struct GetMdlRawTypeImpl<DataType::INT32_NORM> { using Type = int; };
-template <> struct GetMdlRawTypeImpl<DataType::UINT64_NORM> { using Type = int; };
-template <> struct GetMdlRawTypeImpl<DataType::INT64_NORM> { using Type = int; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC2_UINT8> { using Type = glm::i32vec2; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC2_INT8> { using Type = glm::i32vec2; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC2_UINT16> { using Type = glm::i32vec2; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC2_INT16> { using Type = glm::i32vec2; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC2_UINT32> { using Type = glm::i32vec2; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC2_INT32> { using Type = glm::i32vec2; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC2_UINT64> { using Type = glm::i32vec2; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC2_INT64> { using Type = glm::i32vec2; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC2_FLOAT32> { using Type = glm::f32vec2; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC2_FLOAT64> { using Type = glm::f32vec2; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC2_UINT8_NORM> { using Type = glm::i32vec2; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC2_INT8_NORM> { using Type = glm::i32vec2; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC2_UINT16_NORM> { using Type = glm::i32vec2; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC2_INT16_NORM> { using Type = glm::i32vec2; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC2_UINT32_NORM> { using Type = glm::i32vec2; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC2_INT32_NORM> { using Type = glm::i32vec2; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC2_UINT64_NORM> { using Type = glm::i32vec2; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC2_INT64_NORM> { using Type = glm::i32vec2; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC3_UINT8> { using Type = glm::i32vec3; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC3_INT8> { using Type = glm::i32vec3; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC3_UINT16> { using Type = glm::i32vec3; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC3_INT16> { using Type = glm::i32vec3; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC3_UINT32> { using Type = glm::i32vec3; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC3_INT32> { using Type = glm::i32vec3; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC3_UINT64> { using Type = glm::i32vec3; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC3_INT64> { using Type = glm::i32vec3; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC3_FLOAT32> { using Type = glm::f32vec3; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC3_FLOAT64> { using Type = glm::f32vec3; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC3_UINT8_NORM> { using Type = glm::i32vec3; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC3_INT8_NORM> { using Type = glm::i32vec3; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC3_UINT16_NORM> { using Type = glm::i32vec3; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC3_INT16_NORM> { using Type = glm::i32vec3; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC3_UINT32_NORM> { using Type = glm::i32vec3; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC3_INT32_NORM> { using Type = glm::i32vec3; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC3_UINT64_NORM> { using Type = glm::i32vec3; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC3_INT64_NORM> { using Type = glm::i32vec3; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC4_UINT8> { using Type = glm::i32vec4; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC4_INT8> { using Type = glm::i32vec4; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC4_UINT16> { using Type = glm::i32vec4; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC4_INT16> { using Type = glm::i32vec4; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC4_UINT32> { using Type = glm::i32vec4; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC4_INT32> { using Type = glm::i32vec4; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC4_UINT64> { using Type = glm::i32vec4; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC4_INT64> { using Type = glm::i32vec4; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC4_FLOAT32> { using Type = glm::f32vec4; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC4_FLOAT64> { using Type = glm::f32vec4; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC4_UINT8_NORM> { using Type = glm::i32vec4; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC4_INT8_NORM> { using Type = glm::i32vec4; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC4_UINT16_NORM> { using Type = glm::i32vec4; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC4_INT16_NORM> { using Type = glm::i32vec4; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC4_UINT32_NORM> { using Type = glm::i32vec4; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC4_INT32_NORM> { using Type = glm::i32vec4; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC4_UINT64_NORM> { using Type = glm::i32vec4; };
-template <> struct GetMdlRawTypeImpl<DataType::VEC4_INT64_NORM> { using Type = glm::i32vec4; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT2_UINT8> { using Type = glm::i32mat2; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT2_INT8> { using Type = glm::i32mat2; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT2_UINT16> { using Type = glm::i32mat2; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT2_INT16> { using Type = glm::i32mat2; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT2_UINT32> { using Type = glm::i32mat2; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT2_INT32> { using Type = glm::i32mat2; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT2_UINT64> { using Type = glm::i32mat2; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT2_INT64> { using Type = glm::i32mat2; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT2_FLOAT32> { using Type = glm::f32mat2; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT2_FLOAT64> { using Type = glm::f32mat2; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT2_UINT8_NORM> { using Type = glm::i32mat2; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT2_INT8_NORM> { using Type = glm::i32mat2; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT2_UINT16_NORM> { using Type = glm::i32mat2; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT2_INT16_NORM> { using Type = glm::i32mat2; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT2_UINT32_NORM> { using Type = glm::i32mat2; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT2_INT32_NORM> { using Type = glm::i32mat2; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT2_UINT64_NORM> { using Type = glm::i32mat2; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT2_INT64_NORM> { using Type = glm::i32mat2; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT3_UINT8> { using Type = glm::i32mat3; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT3_INT8> { using Type = glm::i32mat3; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT3_UINT16> { using Type = glm::i32mat3; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT3_INT16> { using Type = glm::i32mat3; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT3_UINT32> { using Type = glm::i32mat3; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT3_INT32> { using Type = glm::i32mat3; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT3_UINT64> { using Type = glm::i32mat3; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT3_INT64> { using Type = glm::i32mat3; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT3_FLOAT32> { using Type = glm::f32mat3; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT3_FLOAT64> { using Type = glm::f32mat3; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT3_UINT8_NORM> { using Type = glm::i32mat3; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT3_INT8_NORM> { using Type = glm::i32mat3; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT3_UINT16_NORM> { using Type = glm::i32mat3; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT3_INT16_NORM> { using Type = glm::i32mat3; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT3_UINT32_NORM> { using Type = glm::i32mat3; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT3_INT32_NORM> { using Type = glm::i32mat3; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT3_UINT64_NORM> { using Type = glm::i32mat3; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT3_INT64_NORM> { using Type = glm::i32mat3; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT4_UINT8> { using Type = glm::i32mat4; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT4_INT8> { using Type = glm::i32mat4; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT4_UINT16> { using Type = glm::i32mat4; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT4_INT16> { using Type = glm::i32mat4; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT4_UINT32> { using Type = glm::i32mat4; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT4_INT32> { using Type = glm::i32mat4; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT4_UINT64> { using Type = glm::i32mat4; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT4_INT64> { using Type = glm::i32mat4; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT4_FLOAT32> { using Type = glm::f32mat4; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT4_FLOAT64> { using Type = glm::f32mat4; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT4_UINT8_NORM> { using Type = glm::i32mat4; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT4_INT8_NORM> { using Type = glm::i32mat4; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT4_UINT16_NORM> { using Type = glm::i32mat4; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT4_INT16_NORM> { using Type = glm::i32mat4; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT4_UINT32_NORM> { using Type = glm::i32mat4; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT4_INT32_NORM> { using Type = glm::i32mat4; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT4_UINT64_NORM> { using Type = glm::i32mat4; };
-template <> struct GetMdlRawTypeImpl<DataType::MAT4_INT64_NORM> { using Type = glm::i32mat4; };
-template <DataType T> using GetMdlRawType = typename GetMdlRawTypeImpl<T>::Type;
-
-template <DataType T> struct GetMdlTransformedTypeImpl;
-template <> struct GetMdlTransformedTypeImpl<DataType::UINT8> { using Type = int; };
-template <> struct GetMdlTransformedTypeImpl<DataType::INT8> { using Type = int; };
-template <> struct GetMdlTransformedTypeImpl<DataType::UINT16> { using Type = int; };
-template <> struct GetMdlTransformedTypeImpl<DataType::INT16> { using Type = int; };
-template <> struct GetMdlTransformedTypeImpl<DataType::UINT32> { using Type = int; };
-template <> struct GetMdlTransformedTypeImpl<DataType::INT32> { using Type = int; };
-template <> struct GetMdlTransformedTypeImpl<DataType::UINT64> { using Type = int; };
-template <> struct GetMdlTransformedTypeImpl<DataType::INT64> { using Type = int; };
-template <> struct GetMdlTransformedTypeImpl<DataType::FLOAT32> { using Type = float; };
-template <> struct GetMdlTransformedTypeImpl<DataType::FLOAT64> { using Type = float; };
-template <> struct GetMdlTransformedTypeImpl<DataType::UINT8_NORM> { using Type = float; };
-template <> struct GetMdlTransformedTypeImpl<DataType::INT8_NORM> { using Type = float; };
-template <> struct GetMdlTransformedTypeImpl<DataType::UINT16_NORM> { using Type = float; };
-template <> struct GetMdlTransformedTypeImpl<DataType::INT16_NORM> { using Type = float; };
-template <> struct GetMdlTransformedTypeImpl<DataType::UINT32_NORM> { using Type = float; };
-template <> struct GetMdlTransformedTypeImpl<DataType::INT32_NORM> { using Type = float; };
-template <> struct GetMdlTransformedTypeImpl<DataType::UINT64_NORM> { using Type = float; };
-template <> struct GetMdlTransformedTypeImpl<DataType::INT64_NORM> { using Type = float; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC2_UINT8> { using Type = glm::i32vec2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC2_INT8> { using Type = glm::i32vec2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC2_UINT16> { using Type = glm::i32vec2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC2_INT16> { using Type = glm::i32vec2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC2_UINT32> { using Type = glm::i32vec2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC2_INT32> { using Type = glm::i32vec2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC2_UINT64> { using Type = glm::i32vec2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC2_INT64> { using Type = glm::i32vec2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC2_FLOAT32> { using Type = glm::f32vec2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC2_FLOAT64> { using Type = glm::f32vec2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC2_UINT8_NORM> { using Type = glm::f32vec2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC2_INT8_NORM> { using Type = glm::f32vec2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC2_UINT16_NORM> { using Type = glm::f32vec2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC2_INT16_NORM> { using Type = glm::f32vec2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC2_UINT32_NORM> { using Type = glm::f32vec2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC2_INT32_NORM> { using Type = glm::f32vec2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC2_UINT64_NORM> { using Type = glm::f32vec2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC2_INT64_NORM> { using Type = glm::f32vec2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC3_UINT8> { using Type = glm::i32vec3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC3_INT8> { using Type = glm::i32vec3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC3_UINT16> { using Type = glm::i32vec3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC3_INT16> { using Type = glm::i32vec3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC3_UINT32> { using Type = glm::i32vec3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC3_INT32> { using Type = glm::i32vec3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC3_UINT64> { using Type = glm::i32vec3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC3_INT64> { using Type = glm::i32vec3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC3_FLOAT32> { using Type = glm::f32vec3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC3_FLOAT64> { using Type = glm::f32vec3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC3_UINT8_NORM> { using Type = glm::f32vec3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC3_INT8_NORM> { using Type = glm::f32vec3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC3_UINT16_NORM> { using Type = glm::f32vec3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC3_INT16_NORM> { using Type = glm::f32vec3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC3_UINT32_NORM> { using Type = glm::f32vec3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC3_INT32_NORM> { using Type = glm::f32vec3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC3_UINT64_NORM> { using Type = glm::f32vec3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC3_INT64_NORM> { using Type = glm::f32vec3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC4_UINT8> { using Type = glm::i32vec4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC4_INT8> { using Type = glm::i32vec4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC4_UINT16> { using Type = glm::i32vec4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC4_INT16> { using Type = glm::i32vec4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC4_UINT32> { using Type = glm::i32vec4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC4_INT32> { using Type = glm::i32vec4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC4_UINT64> { using Type = glm::i32vec4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC4_INT64> { using Type = glm::i32vec4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC4_FLOAT32> { using Type = glm::f32vec4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC4_FLOAT64> { using Type = glm::f32vec4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC4_UINT8_NORM> { using Type = glm::f32vec4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC4_INT8_NORM> { using Type = glm::f32vec4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC4_UINT16_NORM> { using Type = glm::f32vec4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC4_INT16_NORM> { using Type = glm::f32vec4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC4_UINT32_NORM> { using Type = glm::f32vec4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC4_INT32_NORM> { using Type = glm::f32vec4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC4_UINT64_NORM> { using Type = glm::f32vec4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::VEC4_INT64_NORM> { using Type = glm::f32vec4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT2_UINT8> { using Type = glm::i32mat2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT2_INT8> { using Type = glm::i32mat2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT2_UINT16> { using Type = glm::i32mat2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT2_INT16> { using Type = glm::i32mat2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT2_UINT32> { using Type = glm::i32mat2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT2_INT32> { using Type = glm::i32mat2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT2_UINT64> { using Type = glm::i32mat2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT2_INT64> { using Type = glm::i32mat2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT2_FLOAT32> { using Type = glm::f32mat2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT2_FLOAT64> { using Type = glm::f32mat2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT2_UINT8_NORM> { using Type = glm::f32mat2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT2_INT8_NORM> { using Type = glm::f32mat2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT2_UINT16_NORM> { using Type = glm::f32mat2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT2_INT16_NORM> { using Type = glm::f32mat2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT2_UINT32_NORM> { using Type = glm::f32mat2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT2_INT32_NORM> { using Type = glm::f32mat2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT2_UINT64_NORM> { using Type = glm::f32mat2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT2_INT64_NORM> { using Type = glm::f32mat2; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT3_UINT8> { using Type = glm::i32mat3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT3_INT8> { using Type = glm::i32mat3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT3_UINT16> { using Type = glm::i32mat3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT3_INT16> { using Type = glm::i32mat3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT3_UINT32> { using Type = glm::i32mat3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT3_INT32> { using Type = glm::i32mat3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT3_UINT64> { using Type = glm::i32mat3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT3_INT64> { using Type = glm::i32mat3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT3_FLOAT32> { using Type = glm::f32mat3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT3_FLOAT64> { using Type = glm::f32mat3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT3_UINT8_NORM> { using Type = glm::f32mat3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT3_INT8_NORM> { using Type = glm::f32mat3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT3_UINT16_NORM> { using Type = glm::f32mat3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT3_INT16_NORM> { using Type = glm::f32mat3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT3_UINT32_NORM> { using Type = glm::f32mat3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT3_INT32_NORM> { using Type = glm::f32mat3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT3_UINT64_NORM> { using Type = glm::f32mat3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT3_INT64_NORM> { using Type = glm::f32mat3; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT4_UINT8> { using Type = glm::i32mat4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT4_INT8> { using Type = glm::i32mat4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT4_UINT16> { using Type = glm::i32mat4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT4_INT16> { using Type = glm::i32mat4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT4_UINT32> { using Type = glm::i32mat4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT4_INT32> { using Type = glm::i32mat4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT4_UINT64> { using Type = glm::i32mat4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT4_INT64> { using Type = glm::i32mat4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT4_FLOAT32> { using Type = glm::f32mat4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT4_FLOAT64> { using Type = glm::f32mat4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT4_UINT8_NORM> { using Type = glm::f32mat4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT4_INT8_NORM> { using Type = glm::f32mat4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT4_UINT16_NORM> { using Type = glm::f32mat4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT4_INT16_NORM> { using Type = glm::f32mat4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT4_UINT32_NORM> { using Type = glm::f32mat4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT4_INT32_NORM> { using Type = glm::f32mat4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT4_UINT64_NORM> { using Type = glm::f32mat4; };
-template <> struct GetMdlTransformedTypeImpl<DataType::MAT4_INT64_NORM> { using Type = glm::f32mat4; };
-template <DataType T> using GetMdlTransformedType = typename GetMdlTransformedTypeImpl<T>::Type;
+// clang-format off
+template <MdlInternalPropertyType T> struct GetMdlInternalPropertyRawTypeImpl;
+template <> struct GetMdlInternalPropertyRawTypeImpl<MdlInternalPropertyType::INT32> { using Type = int; };
+template <> struct GetMdlInternalPropertyRawTypeImpl<MdlInternalPropertyType::FLOAT32> { using Type = float; };
+template <> struct GetMdlInternalPropertyRawTypeImpl<MdlInternalPropertyType::INT32_NORM> { using Type = int; };
+template <> struct GetMdlInternalPropertyRawTypeImpl<MdlInternalPropertyType::VEC2_INT32> { using Type = glm::i32vec2; };
+template <> struct GetMdlInternalPropertyRawTypeImpl<MdlInternalPropertyType::VEC2_FLOAT32> { using Type = glm::f32vec2; };
+template <> struct GetMdlInternalPropertyRawTypeImpl<MdlInternalPropertyType::VEC2_INT32_NORM> { using Type = glm::i32vec2; };
+template <> struct GetMdlInternalPropertyRawTypeImpl<MdlInternalPropertyType::VEC3_INT32> { using Type = glm::i32vec3; };
+template <> struct GetMdlInternalPropertyRawTypeImpl<MdlInternalPropertyType::VEC3_FLOAT32> { using Type = glm::f32vec3; };
+template <> struct GetMdlInternalPropertyRawTypeImpl<MdlInternalPropertyType::VEC3_INT32_NORM> { using Type = glm::i32vec3; };
+template <> struct GetMdlInternalPropertyRawTypeImpl<MdlInternalPropertyType::VEC4_INT32> { using Type = glm::i32vec4; };
+template <> struct GetMdlInternalPropertyRawTypeImpl<MdlInternalPropertyType::VEC4_FLOAT32> { using Type = glm::f32vec4; };
+template <> struct GetMdlInternalPropertyRawTypeImpl<MdlInternalPropertyType::VEC4_INT32_NORM> { using Type = glm::i32vec4; };
+template <> struct GetMdlInternalPropertyRawTypeImpl<MdlInternalPropertyType::MAT2_INT32> { using Type = glm::i32mat2; };
+template <> struct GetMdlInternalPropertyRawTypeImpl<MdlInternalPropertyType::MAT2_FLOAT32> { using Type = glm::f32mat2; };
+template <> struct GetMdlInternalPropertyRawTypeImpl<MdlInternalPropertyType::MAT2_INT32_NORM> { using Type = glm::i32mat2; };
+template <> struct GetMdlInternalPropertyRawTypeImpl<MdlInternalPropertyType::MAT3_INT32> { using Type = glm::i32mat3; };
+template <> struct GetMdlInternalPropertyRawTypeImpl<MdlInternalPropertyType::MAT3_FLOAT32> { using Type = glm::f32mat3; };
+template <> struct GetMdlInternalPropertyRawTypeImpl<MdlInternalPropertyType::MAT3_INT32_NORM> { using Type = glm::i32mat3; };
+template <> struct GetMdlInternalPropertyRawTypeImpl<MdlInternalPropertyType::MAT4_INT32> { using Type = glm::i32mat4; };
+template <> struct GetMdlInternalPropertyRawTypeImpl<MdlInternalPropertyType::MAT4_FLOAT32> { using Type = glm::f32mat4; };
+template <> struct GetMdlInternalPropertyRawTypeImpl<MdlInternalPropertyType::MAT4_INT32_NORM> { using Type = glm::i32mat4; };
+template <MdlInternalPropertyType T> using GetMdlInternalPropertyRawType = typename GetMdlInternalPropertyRawTypeImpl<T>::Type;
+// clang-format on
 
 // clang-format off
-template <DataType T> struct GetMdlShaderTypeImpl;
-template <> struct GetMdlShaderTypeImpl<DataType::UINT8> { static constexpr auto Type = DataType::INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::INT8> { static constexpr auto Type = DataType::INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::UINT16> { static constexpr auto Type = DataType::INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::INT16> { static constexpr auto Type = DataType::INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::UINT32> { static constexpr auto Type = DataType::INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::INT32> { static constexpr auto Type = DataType::INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::UINT64> { static constexpr auto Type = DataType::INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::INT64> { static constexpr auto Type = DataType::INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::FLOAT32> { static constexpr auto Type = DataType::FLOAT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::FLOAT64> { static constexpr auto Type = DataType::FLOAT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::UINT8_NORM> { static constexpr auto Type = DataType::INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::INT8_NORM> { static constexpr auto Type = DataType::INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::UINT16_NORM> { static constexpr auto Type = DataType::INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::INT16_NORM> { static constexpr auto Type = DataType::INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::UINT32_NORM> { static constexpr auto Type = DataType::INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::INT32_NORM> { static constexpr auto Type = DataType::INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::UINT64_NORM> { static constexpr auto Type = DataType::INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::INT64_NORM> { static constexpr auto Type = DataType::INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC2_UINT8> { static constexpr auto Type = DataType::VEC2_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC2_INT8> { static constexpr auto Type = DataType::VEC2_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC2_UINT16> { static constexpr auto Type = DataType::VEC2_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC2_INT16> { static constexpr auto Type = DataType::VEC2_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC2_UINT32> { static constexpr auto Type = DataType::VEC2_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC2_INT32> { static constexpr auto Type = DataType::VEC2_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC2_UINT64> { static constexpr auto Type = DataType::VEC2_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC2_INT64> { static constexpr auto Type = DataType::VEC2_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC2_FLOAT32> { static constexpr auto Type = DataType::VEC2_FLOAT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC2_FLOAT64> { static constexpr auto Type = DataType::VEC2_FLOAT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC2_UINT8_NORM> { static constexpr auto Type = DataType::VEC2_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC2_INT8_NORM> { static constexpr auto Type = DataType::VEC2_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC2_UINT16_NORM> { static constexpr auto Type = DataType::VEC2_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC2_INT16_NORM> { static constexpr auto Type = DataType::VEC2_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC2_UINT32_NORM> { static constexpr auto Type = DataType::VEC2_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC2_INT32_NORM> { static constexpr auto Type = DataType::VEC2_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC2_UINT64_NORM> { static constexpr auto Type = DataType::VEC2_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC2_INT64_NORM> { static constexpr auto Type = DataType::VEC2_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC3_UINT8> { static constexpr auto Type = DataType::VEC3_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC3_INT8> { static constexpr auto Type = DataType::VEC3_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC3_UINT16> { static constexpr auto Type = DataType::VEC3_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC3_INT16> { static constexpr auto Type = DataType::VEC3_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC3_UINT32> { static constexpr auto Type = DataType::VEC3_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC3_INT32> { static constexpr auto Type = DataType::VEC3_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC3_UINT64> { static constexpr auto Type = DataType::VEC3_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC3_INT64> { static constexpr auto Type = DataType::VEC3_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC3_FLOAT32> { static constexpr auto Type = DataType::VEC3_FLOAT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC3_FLOAT64> { static constexpr auto Type = DataType::VEC3_FLOAT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC3_UINT8_NORM> { static constexpr auto Type = DataType::VEC3_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC3_INT8_NORM> { static constexpr auto Type = DataType::VEC3_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC3_UINT16_NORM> { static constexpr auto Type = DataType::VEC3_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC3_INT16_NORM> { static constexpr auto Type = DataType::VEC3_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC3_UINT32_NORM> { static constexpr auto Type = DataType::VEC3_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC3_INT32_NORM> { static constexpr auto Type = DataType::VEC3_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC3_UINT64_NORM> { static constexpr auto Type = DataType::VEC3_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC3_INT64_NORM> { static constexpr auto Type = DataType::VEC3_INT64_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC4_UINT8> { static constexpr auto Type = DataType::VEC4_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC4_INT8> { static constexpr auto Type = DataType::VEC4_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC4_UINT16> { static constexpr auto Type = DataType::VEC4_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC4_INT16> { static constexpr auto Type = DataType::VEC4_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC4_UINT32> { static constexpr auto Type = DataType::VEC4_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC4_INT32> { static constexpr auto Type = DataType::VEC4_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC4_UINT64> { static constexpr auto Type = DataType::VEC4_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC4_INT64> { static constexpr auto Type = DataType::VEC4_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC4_FLOAT32> { static constexpr auto Type = DataType::VEC4_FLOAT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC4_FLOAT64> { static constexpr auto Type = DataType::VEC4_FLOAT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC4_UINT8_NORM> { static constexpr auto Type = DataType::VEC4_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC4_INT8_NORM> { static constexpr auto Type = DataType::VEC4_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC4_UINT16_NORM> { static constexpr auto Type = DataType::VEC4_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC4_INT16_NORM> { static constexpr auto Type = DataType::VEC4_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC4_UINT32_NORM> { static constexpr auto Type = DataType::VEC4_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC4_INT32_NORM> { static constexpr auto Type = DataType::VEC4_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC4_UINT64_NORM> { static constexpr auto Type = DataType::VEC4_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::VEC4_INT64_NORM> { static constexpr auto Type = DataType::VEC4_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT2_UINT8> { static constexpr auto Type = DataType::MAT2_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT2_INT8> { static constexpr auto Type = DataType::MAT2_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT2_UINT16> { static constexpr auto Type = DataType::MAT2_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT2_INT16> { static constexpr auto Type = DataType::MAT2_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT2_UINT32> { static constexpr auto Type = DataType::MAT2_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT2_INT32> { static constexpr auto Type = DataType::MAT2_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT2_UINT64> { static constexpr auto Type = DataType::MAT2_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT2_INT64> { static constexpr auto Type = DataType::MAT2_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT2_FLOAT32> { static constexpr auto Type = DataType::MAT2_FLOAT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT2_FLOAT64> { static constexpr auto Type = DataType::MAT2_FLOAT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT2_UINT8_NORM> { static constexpr auto Type = DataType::MAT2_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT2_INT8_NORM> { static constexpr auto Type = DataType::MAT2_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT2_UINT16_NORM> { static constexpr auto Type = DataType::MAT2_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT2_INT16_NORM> { static constexpr auto Type = DataType::MAT2_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT2_UINT32_NORM> { static constexpr auto Type = DataType::MAT2_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT2_INT32_NORM> { static constexpr auto Type = DataType::MAT2_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT2_UINT64_NORM> { static constexpr auto Type = DataType::MAT2_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT2_INT64_NORM> { static constexpr auto Type = DataType::MAT2_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT3_UINT8> { static constexpr auto Type = DataType::MAT3_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT3_INT8> { static constexpr auto Type = DataType::MAT3_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT3_UINT16> { static constexpr auto Type = DataType::MAT3_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT3_INT16> { static constexpr auto Type = DataType::MAT3_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT3_UINT32> { static constexpr auto Type = DataType::MAT3_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT3_INT32> { static constexpr auto Type = DataType::MAT3_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT3_UINT64> { static constexpr auto Type = DataType::MAT3_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT3_INT64> { static constexpr auto Type = DataType::MAT3_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT3_FLOAT32> { static constexpr auto Type = DataType::MAT3_FLOAT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT3_FLOAT64> { static constexpr auto Type = DataType::MAT3_FLOAT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT3_UINT8_NORM> { static constexpr auto Type = DataType::MAT3_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT3_INT8_NORM> { static constexpr auto Type = DataType::MAT3_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT3_UINT16_NORM> { static constexpr auto Type = DataType::MAT3_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT3_INT16_NORM> { static constexpr auto Type = DataType::MAT3_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT3_UINT32_NORM> { static constexpr auto Type = DataType::MAT3_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT3_INT32_NORM> { static constexpr auto Type = DataType::MAT3_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT3_UINT64_NORM> { static constexpr auto Type = DataType::MAT3_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT3_INT64_NORM> { static constexpr auto Type = DataType::MAT3_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT4_UINT8> { static constexpr auto Type = DataType::MAT4_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT4_INT8> { static constexpr auto Type = DataType::MAT4_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT4_UINT16> { static constexpr auto Type = DataType::MAT4_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT4_INT16> { static constexpr auto Type = DataType::MAT4_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT4_UINT32> { static constexpr auto Type = DataType::MAT4_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT4_INT32> { static constexpr auto Type = DataType::MAT4_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT4_UINT64> { static constexpr auto Type = DataType::MAT4_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT4_INT64> { static constexpr auto Type = DataType::MAT4_INT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT4_FLOAT32> { static constexpr auto Type = DataType::MAT4_FLOAT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT4_FLOAT64> { static constexpr auto Type = DataType::MAT4_FLOAT32;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT4_UINT8_NORM> { static constexpr auto Type = DataType::MAT4_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT4_INT8_NORM> { static constexpr auto Type = DataType::MAT4_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT4_UINT16_NORM> { static constexpr auto Type = DataType::MAT4_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT4_INT16_NORM> { static constexpr auto Type = DataType::MAT4_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT4_UINT32_NORM> { static constexpr auto Type = DataType::MAT4_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT4_INT32_NORM> { static constexpr auto Type = DataType::MAT4_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT4_UINT64_NORM> { static constexpr auto Type = DataType::MAT4_INT32_NORM;};
-template <> struct GetMdlShaderTypeImpl<DataType::MAT4_INT64_NORM> { static constexpr auto Type = DataType::MAT4_INT32_NORM;};
+template <MdlInternalPropertyType T> struct GetMdlInternalPropertyTransformedTypeImplImpl;
+template <> struct GetMdlInternalPropertyTransformedTypeImplImpl<MdlInternalPropertyType::INT32> { using Type = int; };
+template <> struct GetMdlInternalPropertyTransformedTypeImplImpl<MdlInternalPropertyType::FLOAT32> { using Type = float; };
+template <> struct GetMdlInternalPropertyTransformedTypeImplImpl<MdlInternalPropertyType::INT32_NORM> { using Type = float; };
+template <> struct GetMdlInternalPropertyTransformedTypeImplImpl<MdlInternalPropertyType::VEC2_INT32> { using Type = glm::i32vec2; };
+template <> struct GetMdlInternalPropertyTransformedTypeImplImpl<MdlInternalPropertyType::VEC2_FLOAT32> { using Type = glm::f32vec2; };
+template <> struct GetMdlInternalPropertyTransformedTypeImplImpl<MdlInternalPropertyType::VEC2_INT32_NORM> { using Type = glm::f32vec2; };
+template <> struct GetMdlInternalPropertyTransformedTypeImplImpl<MdlInternalPropertyType::VEC3_INT32> { using Type = glm::i32vec3; };
+template <> struct GetMdlInternalPropertyTransformedTypeImplImpl<MdlInternalPropertyType::VEC3_FLOAT32> { using Type = glm::f32vec3; };
+template <> struct GetMdlInternalPropertyTransformedTypeImplImpl<MdlInternalPropertyType::VEC3_INT32_NORM> { using Type = glm::f32vec3; };
+template <> struct GetMdlInternalPropertyTransformedTypeImplImpl<MdlInternalPropertyType::VEC4_INT32> { using Type = glm::i32vec4; };
+template <> struct GetMdlInternalPropertyTransformedTypeImplImpl<MdlInternalPropertyType::VEC4_FLOAT32> { using Type = glm::f32vec4; };
+template <> struct GetMdlInternalPropertyTransformedTypeImplImpl<MdlInternalPropertyType::VEC4_INT32_NORM> { using Type = glm::f32vec4; };
+template <> struct GetMdlInternalPropertyTransformedTypeImplImpl<MdlInternalPropertyType::MAT2_INT32> { using Type = glm::i32mat2; };
+template <> struct GetMdlInternalPropertyTransformedTypeImplImpl<MdlInternalPropertyType::MAT2_FLOAT32> { using Type = glm::f32mat2; };
+template <> struct GetMdlInternalPropertyTransformedTypeImplImpl<MdlInternalPropertyType::MAT2_INT32_NORM> { using Type = glm::f32mat2; };
+template <> struct GetMdlInternalPropertyTransformedTypeImplImpl<MdlInternalPropertyType::MAT3_INT32> { using Type = glm::i32mat3; };
+template <> struct GetMdlInternalPropertyTransformedTypeImplImpl<MdlInternalPropertyType::MAT3_FLOAT32> { using Type = glm::f32mat3; };
+template <> struct GetMdlInternalPropertyTransformedTypeImplImpl<MdlInternalPropertyType::MAT3_INT32_NORM> { using Type = glm::f32mat3; };
+template <> struct GetMdlInternalPropertyTransformedTypeImplImpl<MdlInternalPropertyType::MAT4_INT32> { using Type = glm::i32mat4; };
+template <> struct GetMdlInternalPropertyTransformedTypeImplImpl<MdlInternalPropertyType::MAT4_FLOAT32> { using Type = glm::f32mat4; };
+template <> struct GetMdlInternalPropertyTransformedTypeImplImpl<MdlInternalPropertyType::MAT4_INT32_NORM> { using Type = glm::f32mat4; };
+template <MdlInternalPropertyType T> using GetMdlInternalPropertyTransformedType = typename GetMdlInternalPropertyTransformedTypeImplImpl<T>::Type;
+// clang-format on
+
+// clang-format off
+template <DataType T> struct GetMdlInternalPropertyTypeImpl;
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::UINT8> { static constexpr auto Type = MdlInternalPropertyType::INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::INT8> { static constexpr auto Type = MdlInternalPropertyType::INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::UINT16> { static constexpr auto Type = MdlInternalPropertyType::INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::INT16> { static constexpr auto Type = MdlInternalPropertyType::INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::UINT32> { static constexpr auto Type = MdlInternalPropertyType::INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::INT32> { static constexpr auto Type = MdlInternalPropertyType::INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::UINT64> { static constexpr auto Type = MdlInternalPropertyType::INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::INT64> { static constexpr auto Type = MdlInternalPropertyType::INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::FLOAT32> { static constexpr auto Type = MdlInternalPropertyType::FLOAT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::FLOAT64> { static constexpr auto Type = MdlInternalPropertyType::FLOAT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::UINT8_NORM> { static constexpr auto Type = MdlInternalPropertyType::INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::INT8_NORM> { static constexpr auto Type = MdlInternalPropertyType::INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::UINT16_NORM> { static constexpr auto Type = MdlInternalPropertyType::INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::INT16_NORM> { static constexpr auto Type = MdlInternalPropertyType::INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::UINT32_NORM> { static constexpr auto Type = MdlInternalPropertyType::INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::INT32_NORM> { static constexpr auto Type = MdlInternalPropertyType::INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::UINT64_NORM> { static constexpr auto Type = MdlInternalPropertyType::INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::INT64_NORM> { static constexpr auto Type = MdlInternalPropertyType::INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC2_UINT8> { static constexpr auto Type = MdlInternalPropertyType::VEC2_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC2_INT8> { static constexpr auto Type = MdlInternalPropertyType::VEC2_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC2_UINT16> { static constexpr auto Type = MdlInternalPropertyType::VEC2_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC2_INT16> { static constexpr auto Type = MdlInternalPropertyType::VEC2_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC2_UINT32> { static constexpr auto Type = MdlInternalPropertyType::VEC2_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC2_INT32> { static constexpr auto Type = MdlInternalPropertyType::VEC2_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC2_UINT64> { static constexpr auto Type = MdlInternalPropertyType::VEC2_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC2_INT64> { static constexpr auto Type = MdlInternalPropertyType::VEC2_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC2_FLOAT32> { static constexpr auto Type = MdlInternalPropertyType::VEC2_FLOAT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC2_FLOAT64> { static constexpr auto Type = MdlInternalPropertyType::VEC2_FLOAT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC2_UINT8_NORM> { static constexpr auto Type = MdlInternalPropertyType::VEC2_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC2_INT8_NORM> { static constexpr auto Type = MdlInternalPropertyType::VEC2_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC2_UINT16_NORM> { static constexpr auto Type = MdlInternalPropertyType::VEC2_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC2_INT16_NORM> { static constexpr auto Type = MdlInternalPropertyType::VEC2_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC2_UINT32_NORM> { static constexpr auto Type = MdlInternalPropertyType::VEC2_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC2_INT32_NORM> { static constexpr auto Type = MdlInternalPropertyType::VEC2_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC2_UINT64_NORM> { static constexpr auto Type = MdlInternalPropertyType::VEC2_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC2_INT64_NORM> { static constexpr auto Type = MdlInternalPropertyType::VEC2_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC3_UINT8> { static constexpr auto Type = MdlInternalPropertyType::VEC3_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC3_INT8> { static constexpr auto Type = MdlInternalPropertyType::VEC3_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC3_UINT16> { static constexpr auto Type = MdlInternalPropertyType::VEC3_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC3_INT16> { static constexpr auto Type = MdlInternalPropertyType::VEC3_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC3_UINT32> { static constexpr auto Type = MdlInternalPropertyType::VEC3_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC3_INT32> { static constexpr auto Type = MdlInternalPropertyType::VEC3_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC3_UINT64> { static constexpr auto Type = MdlInternalPropertyType::VEC3_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC3_INT64> { static constexpr auto Type = MdlInternalPropertyType::VEC3_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC3_FLOAT32> { static constexpr auto Type = MdlInternalPropertyType::VEC3_FLOAT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC3_FLOAT64> { static constexpr auto Type = MdlInternalPropertyType::VEC3_FLOAT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC3_UINT8_NORM> { static constexpr auto Type = MdlInternalPropertyType::VEC3_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC3_INT8_NORM> { static constexpr auto Type = MdlInternalPropertyType::VEC3_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC3_UINT16_NORM> { static constexpr auto Type = MdlInternalPropertyType::VEC3_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC3_INT16_NORM> { static constexpr auto Type = MdlInternalPropertyType::VEC3_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC3_UINT32_NORM> { static constexpr auto Type = MdlInternalPropertyType::VEC3_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC3_INT32_NORM> { static constexpr auto Type = MdlInternalPropertyType::VEC3_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC3_UINT64_NORM> { static constexpr auto Type = MdlInternalPropertyType::VEC3_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC3_INT64_NORM> { static constexpr auto Type = MdlInternalPropertyType::VEC3_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC4_UINT8> { static constexpr auto Type = MdlInternalPropertyType::VEC4_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC4_INT8> { static constexpr auto Type = MdlInternalPropertyType::VEC4_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC4_UINT16> { static constexpr auto Type = MdlInternalPropertyType::VEC4_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC4_INT16> { static constexpr auto Type = MdlInternalPropertyType::VEC4_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC4_UINT32> { static constexpr auto Type = MdlInternalPropertyType::VEC4_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC4_INT32> { static constexpr auto Type = MdlInternalPropertyType::VEC4_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC4_UINT64> { static constexpr auto Type = MdlInternalPropertyType::VEC4_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC4_INT64> { static constexpr auto Type = MdlInternalPropertyType::VEC4_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC4_FLOAT32> { static constexpr auto Type = MdlInternalPropertyType::VEC4_FLOAT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC4_FLOAT64> { static constexpr auto Type = MdlInternalPropertyType::VEC4_FLOAT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC4_UINT8_NORM> { static constexpr auto Type = MdlInternalPropertyType::VEC4_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC4_INT8_NORM> { static constexpr auto Type = MdlInternalPropertyType::VEC4_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC4_UINT16_NORM> { static constexpr auto Type = MdlInternalPropertyType::VEC4_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC4_INT16_NORM> { static constexpr auto Type = MdlInternalPropertyType::VEC4_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC4_UINT32_NORM> { static constexpr auto Type = MdlInternalPropertyType::VEC4_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC4_INT32_NORM> { static constexpr auto Type = MdlInternalPropertyType::VEC4_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC4_UINT64_NORM> { static constexpr auto Type = MdlInternalPropertyType::VEC4_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::VEC4_INT64_NORM> { static constexpr auto Type = MdlInternalPropertyType::VEC4_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT2_UINT8> { static constexpr auto Type = MdlInternalPropertyType::MAT2_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT2_INT8> { static constexpr auto Type = MdlInternalPropertyType::MAT2_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT2_UINT16> { static constexpr auto Type = MdlInternalPropertyType::MAT2_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT2_INT16> { static constexpr auto Type = MdlInternalPropertyType::MAT2_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT2_UINT32> { static constexpr auto Type = MdlInternalPropertyType::MAT2_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT2_INT32> { static constexpr auto Type = MdlInternalPropertyType::MAT2_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT2_UINT64> { static constexpr auto Type = MdlInternalPropertyType::MAT2_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT2_INT64> { static constexpr auto Type = MdlInternalPropertyType::MAT2_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT2_FLOAT32> { static constexpr auto Type = MdlInternalPropertyType::MAT2_FLOAT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT2_FLOAT64> { static constexpr auto Type = MdlInternalPropertyType::MAT2_FLOAT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT2_UINT8_NORM> { static constexpr auto Type = MdlInternalPropertyType::MAT2_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT2_INT8_NORM> { static constexpr auto Type = MdlInternalPropertyType::MAT2_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT2_UINT16_NORM> { static constexpr auto Type = MdlInternalPropertyType::MAT2_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT2_INT16_NORM> { static constexpr auto Type = MdlInternalPropertyType::MAT2_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT2_UINT32_NORM> { static constexpr auto Type = MdlInternalPropertyType::MAT2_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT2_INT32_NORM> { static constexpr auto Type = MdlInternalPropertyType::MAT2_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT2_UINT64_NORM> { static constexpr auto Type = MdlInternalPropertyType::MAT2_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT2_INT64_NORM> { static constexpr auto Type = MdlInternalPropertyType::MAT2_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT3_UINT8> { static constexpr auto Type = MdlInternalPropertyType::MAT3_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT3_INT8> { static constexpr auto Type = MdlInternalPropertyType::MAT3_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT3_UINT16> { static constexpr auto Type = MdlInternalPropertyType::MAT3_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT3_INT16> { static constexpr auto Type = MdlInternalPropertyType::MAT3_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT3_UINT32> { static constexpr auto Type = MdlInternalPropertyType::MAT3_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT3_INT32> { static constexpr auto Type = MdlInternalPropertyType::MAT3_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT3_UINT64> { static constexpr auto Type = MdlInternalPropertyType::MAT3_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT3_INT64> { static constexpr auto Type = MdlInternalPropertyType::MAT3_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT3_FLOAT32> { static constexpr auto Type = MdlInternalPropertyType::MAT3_FLOAT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT3_FLOAT64> { static constexpr auto Type = MdlInternalPropertyType::MAT3_FLOAT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT3_UINT8_NORM> { static constexpr auto Type = MdlInternalPropertyType::MAT3_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT3_INT8_NORM> { static constexpr auto Type = MdlInternalPropertyType::MAT3_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT3_UINT16_NORM> { static constexpr auto Type = MdlInternalPropertyType::MAT3_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT3_INT16_NORM> { static constexpr auto Type = MdlInternalPropertyType::MAT3_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT3_UINT32_NORM> { static constexpr auto Type = MdlInternalPropertyType::MAT3_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT3_INT32_NORM> { static constexpr auto Type = MdlInternalPropertyType::MAT3_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT3_UINT64_NORM> { static constexpr auto Type = MdlInternalPropertyType::MAT3_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT3_INT64_NORM> { static constexpr auto Type = MdlInternalPropertyType::MAT3_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT4_UINT8> { static constexpr auto Type = MdlInternalPropertyType::MAT4_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT4_INT8> { static constexpr auto Type = MdlInternalPropertyType::MAT4_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT4_UINT16> { static constexpr auto Type = MdlInternalPropertyType::MAT4_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT4_INT16> { static constexpr auto Type = MdlInternalPropertyType::MAT4_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT4_UINT32> { static constexpr auto Type = MdlInternalPropertyType::MAT4_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT4_INT32> { static constexpr auto Type = MdlInternalPropertyType::MAT4_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT4_UINT64> { static constexpr auto Type = MdlInternalPropertyType::MAT4_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT4_INT64> { static constexpr auto Type = MdlInternalPropertyType::MAT4_INT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT4_FLOAT32> { static constexpr auto Type = MdlInternalPropertyType::MAT4_FLOAT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT4_FLOAT64> { static constexpr auto Type = MdlInternalPropertyType::MAT4_FLOAT32;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT4_UINT8_NORM> { static constexpr auto Type = MdlInternalPropertyType::MAT4_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT4_INT8_NORM> { static constexpr auto Type = MdlInternalPropertyType::MAT4_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT4_UINT16_NORM> { static constexpr auto Type = MdlInternalPropertyType::MAT4_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT4_INT16_NORM> { static constexpr auto Type = MdlInternalPropertyType::MAT4_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT4_UINT32_NORM> { static constexpr auto Type = MdlInternalPropertyType::MAT4_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT4_INT32_NORM> { static constexpr auto Type = MdlInternalPropertyType::MAT4_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT4_UINT64_NORM> { static constexpr auto Type = MdlInternalPropertyType::MAT4_INT32_NORM;};
+template <> struct GetMdlInternalPropertyTypeImpl<DataType::MAT4_INT64_NORM> { static constexpr auto Type = MdlInternalPropertyType::MAT4_INT32_NORM;};
 // clang-format on
 
 template <DataType T> struct GetComponentCountImpl;
@@ -1847,7 +1683,7 @@ template <> struct GetPrimvarBaseDataTypeImpl<DataType::MAT4_INT64_NORM> { stati
 // clang-format on
 
 template <typename L, std::size_t... I> const auto& dispatchImpl(std::index_sequence<I...>, L lambda) {
-    static decltype(lambda(std::integral_constant<DataType, DataType::UINT8>{})) array[] = {
+    static decltype(lambda(std::integral_constant<DataType, DataType(0)>{})) array[] = {
         lambda(std::integral_constant<DataType, DataType(I)>{})...};
     return array;
 }
@@ -1888,12 +1724,12 @@ inline bool isMatrix(DataType type) {
     return CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_DATA_TYPE_NO_ARGS(isMatrix, type);
 }
 
-template <DataType T> constexpr DataType getMdlShaderType() {
-    return GetMdlShaderTypeImpl<T>::Type;
+template <DataType T> constexpr MdlInternalPropertyType getMdlInternalPropertyType() {
+    return GetMdlInternalPropertyTypeImpl<T>::Type;
 };
 
-inline DataType getMdlShaderType(DataType type) {
-    return CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_DATA_TYPE_NO_ARGS(getMdlShaderType, type);
+inline MdlInternalPropertyType getMdlInternalPropertyType(DataType type) {
+    return CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_DATA_TYPE_NO_ARGS(getMdlInternalPropertyType, type);
 }
 
 template <DataType T> constexpr uint64_t getComponentCount() {

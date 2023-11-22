@@ -1,5 +1,6 @@
 #include "cesium/omniverse/FabricUtil.h"
 
+#include "cesium/omniverse/DataType.h"
 #include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
@@ -920,30 +921,30 @@ omni::fabric::Type getPrimvarType(DataType type) {
     return {baseDataType, static_cast<uint8_t>(componentCount), 1, omni::fabric::AttributeRole::eNone};
 }
 
-DataType getPropertyNodeType(const omni::fabric::Token& mdlIdentifier) {
+MdlExternalPropertyType getMdlExternalPropertyType(const omni::fabric::Token& mdlIdentifier) {
     assert(isCesiumPropertyNode(mdlIdentifier));
 
     if (mdlIdentifier == FabricTokens::cesium_property_int) {
-        return DataType::INT32;
+        return MdlExternalPropertyType::INT32;
     } else if (mdlIdentifier == FabricTokens::cesium_property_int2) {
-        return DataType::VEC2_INT32;
+        return MdlExternalPropertyType::VEC2_INT32;
     } else if (mdlIdentifier == FabricTokens::cesium_property_int3) {
-        return DataType::VEC3_INT32;
+        return MdlExternalPropertyType::VEC3_INT32;
     } else if (mdlIdentifier == FabricTokens::cesium_property_int4) {
-        return DataType::VEC4_INT32;
+        return MdlExternalPropertyType::VEC4_INT32;
     } else if (mdlIdentifier == FabricTokens::cesium_property_float) {
-        return DataType::FLOAT32;
+        return MdlExternalPropertyType::FLOAT32;
     } else if (mdlIdentifier == FabricTokens::cesium_property_float2) {
-        return DataType::VEC2_FLOAT32;
+        return MdlExternalPropertyType::VEC2_FLOAT32;
     } else if (mdlIdentifier == FabricTokens::cesium_property_float3) {
-        return DataType::VEC3_FLOAT32;
+        return MdlExternalPropertyType::VEC3_FLOAT32;
     } else if (mdlIdentifier == FabricTokens::cesium_property_float4) {
-        return DataType::VEC4_FLOAT32;
+        return MdlExternalPropertyType::VEC4_FLOAT32;
     }
 
     // Should never reach here
     assert(false);
-    return DataType::INT32;
+    return MdlExternalPropertyType::INT32;
 }
 
 } // namespace cesium::omniverse::FabricUtil

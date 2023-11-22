@@ -220,16 +220,16 @@ void forEachStyleablePropertyAttributeProperty(
             auto propertyAttributePropertyView) {
             using RawType = decltype(propertyAttributePropertyView.getRaw(0));
             using TransformedType = typename std::decay_t<decltype(propertyAttributePropertyView.get(0))>::value_type;
-            constexpr auto Type = getTypeReverse<RawType, TransformedType>();
+            constexpr auto type = getTypeReverse<RawType, TransformedType>();
 
-            if constexpr (isMatrix<Type>()) {
+            if constexpr (isMatrix<type>()) {
                 CESIUM_LOG_WARN(
                     "Matrix properties are not supported for styling. Property \"{}\" will be ignored.", propertyId);
                 return;
             } else {
                 const auto& attribute = propertyAttributeProperty.attribute;
 
-                const auto propertyInfo = StyleablePropertyInfo<Type>{
+                const auto propertyInfo = StyleablePropertyInfo<type>{
                     propertyAttributePropertyView.offset(),
                     propertyAttributePropertyView.scale(),
                     propertyAttributePropertyView.min(),
@@ -239,7 +239,7 @@ void forEachStyleablePropertyAttributeProperty(
                     propertyAttributePropertyView.defaultValue(),
                 };
 
-                const auto styleableProperty = StyleablePropertyAttributePropertyInfo<Type>{
+                const auto styleableProperty = StyleablePropertyAttributePropertyInfo<type>{
                     attribute,
                     propertyInfo,
                 };
@@ -287,11 +287,11 @@ void forEachStyleablePropertyTextureProperty(
                     "Array properties are not supported for styling. Property \"{}\" will be ignored.", propertyId);
                 return;
             } else {
-                constexpr auto Type = getTypeReverse<RawType, TransformedType>();
+                constexpr auto type = getTypeReverse<RawType, TransformedType>();
 
                 const auto textureInfo = GltfUtil::getPropertyTexturePropertyInfo(model, propertyTextureProperty);
 
-                if (textureInfo.channels.size() != getComponentCount<Type>()) {
+                if (textureInfo.channels.size() != getComponentCount<type>()) {
                     CESIUM_LOG_WARN(
                         "Properties with components that are packed across multiple texture channels are not supported "
                         "for styling. Property \"{}\" will be ignored.",
@@ -306,14 +306,14 @@ void forEachStyleablePropertyTextureProperty(
                     return;
                 }
 
-                if constexpr (isFloatingPoint<Type>()) {
+                if constexpr (isFloatingPoint<type>()) {
                     CESIUM_LOG_WARN(
                         "Float property texture properties are not supported for styling. Property \"{}\" will be "
                         "ignored.",
                         propertyId);
                     return;
                 } else {
-                    const auto propertyInfo = StyleablePropertyInfo<Type>{
+                    const auto propertyInfo = StyleablePropertyInfo<type>{
                         propertyTexturePropertyView.offset(),
                         propertyTexturePropertyView.scale(),
                         propertyTexturePropertyView.min(),
@@ -323,7 +323,7 @@ void forEachStyleablePropertyTextureProperty(
                         propertyTexturePropertyView.defaultValue(),
                     };
 
-                    const auto styleableProperty = StyleablePropertyTexturePropertyInfo<Type>{
+                    const auto styleableProperty = StyleablePropertyTexturePropertyInfo<type>{
                         textureInfo,
                         propertyInfo,
                     };
@@ -334,11 +334,12 @@ void forEachStyleablePropertyTextureProperty(
         });
 }
 
-std::vector<DataType>
-getMdlPropertyAttributePropertyTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
+std::vector<MdlInternalPropertyType> getMdlInternalPropertyAttributePropertyTypes(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive);
 
-std::vector<DataType>
-getMdlPropertyTexturePropertyTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
+std::vector<MdlInternalPropertyType>
+getMdlInternalPropertyTexturePropertyTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
 std::vector<const CesiumGltf::ImageCesium*>
 getPropertyTextureImages(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);

@@ -222,44 +222,50 @@ void setTextureValuesCommonChannels(
 
 template <DataType T>
 void setPropertyCommon(const omni::fabric::Path& path, const MetadataUtil::StyleablePropertyInfo<T>& propertyInfo) {
-    const auto offset = propertyInfo.offset.value_or(GetTransformedType<T>{DEFAULT_OFFSET});
-    const auto scale = propertyInfo.scale.value_or(GetTransformedType<T>{DEFAULT_SCALE});
-    const auto maximumValue = GetRawType<T>{std::numeric_limits<GetRawComponentType<T>>::max()};
+    constexpr auto mdlType = getMdlInternalPropertyType<T>();
+    using RawType = GetRawType<T>;
+    using TransformedType = GetTransformedType<T>;
+    using MdlRawType = GetMdlInternalPropertyRawType<mdlType>;
+    using MdlTransformedType = GetMdlInternalPropertyTransformedType<mdlType>;
+
+    const auto offset = propertyInfo.offset.value_or(TransformedType{DEFAULT_OFFSET});
+    const auto scale = propertyInfo.scale.value_or(TransformedType{DEFAULT_SCALE});
+    const auto maximumValue = RawType{std::numeric_limits<GetRawComponentType<T>>::max()};
     const auto hasNoData = propertyInfo.noData.has_value();
-    const auto noData = propertyInfo.noData.value_or(GetRawType<T>{DEFAULT_NO_DATA});
-    const auto defaultValue = propertyInfo.defaultValue.value_or(GetTransformedType<T>{DEFAULT_VALUE});
+    const auto noData = propertyInfo.noData.value_or(RawType{DEFAULT_NO_DATA});
+    const auto defaultValue = propertyInfo.defaultValue.value_or(TransformedType{DEFAULT_VALUE});
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
     auto hasNoDataFabric = srw.getAttributeWr<bool>(path, FabricTokens::inputs_has_no_data);
-    auto noDataFabric = srw.getAttributeWr<GetMdlRawType<T>>(path, FabricTokens::inputs_no_data);
-    auto defaultValueFabric = srw.getAttributeWr<GetMdlTransformedType<T>>(path, FabricTokens::inputs_default_value);
+    auto noDataFabric = srw.getAttributeWr<MdlRawType>(path, FabricTokens::inputs_no_data);
+    auto defaultValueFabric = srw.getAttributeWr<MdlTransformedType>(path, FabricTokens::inputs_default_value);
 
     *hasNoDataFabric = hasNoData;
-    *noDataFabric = static_cast<GetMdlRawType<T>>(noData);
-    *defaultValueFabric = static_cast<GetMdlTransformedType<T>>(defaultValue);
+    *noDataFabric = static_cast<MdlRawType>(noData);
+    *defaultValueFabric = static_cast<MdlTransformedType>(defaultValue);
 
     if constexpr (isNormalized<T>() || isFloatingPoint<T>()) {
-        auto offsetFabric = srw.getAttributeWr<GetMdlTransformedType<T>>(path, FabricTokens::inputs_offset);
-        auto scaleFabric = srw.getAttributeWr<GetMdlTransformedType<T>>(path, FabricTokens::inputs_scale);
+        auto offsetFabric = srw.getAttributeWr<MdlTransformedType>(path, FabricTokens::inputs_offset);
+        auto scaleFabric = srw.getAttributeWr<MdlTransformedType>(path, FabricTokens::inputs_scale);
 
-        *offsetFabric = static_cast<GetMdlTransformedType<T>>(offset);
-        *scaleFabric = static_cast<GetMdlTransformedType<T>>(scale);
+        *offsetFabric = static_cast<MdlTransformedType>(offset);
+        *scaleFabric = static_cast<MdlTransformedType>(scale);
     }
 
     if constexpr (isNormalized<T>()) {
-        auto maximumValueFabric = srw.getAttributeWr<GetMdlRawType<T>>(path, FabricTokens::inputs_maximum_value);
-        *maximumValueFabric = static_cast<GetMdlRawType<T>>(maximumValue);
+        auto maximumValueFabric = srw.getAttributeWr<MdlRawType>(path, FabricTokens::inputs_maximum_value);
+        *maximumValueFabric = static_cast<MdlRawType>(maximumValue);
     }
 }
 
-std::string getStringFabric(
-    omni::fabric::StageReaderWriter& srw,
-    const omni::fabric::Path& path,
-    omni::fabric::TokenC attributeName) {
-    const auto valueFabric = srw.getArrayAttributeRd<uint8_t>(path, attributeName);
-    return {reinterpret_cast<const char*>(valueFabric.data()), valueFabric.size()};
-}
+// std::string getStringFabric(
+//     omni::fabric::StageReaderWriter& srw,
+//     const omni::fabric::Path& path,
+//     omni::fabric::TokenC attributeName) {
+//     const auto valueFabric = srw.getArrayAttributeRd<uint8_t>(path, attributeName);
+//     return {reinterpret_cast<const char*>(valueFabric.data()), valueFabric.size()};
+// }
 
 void setStringFabric(
     omni::fabric::StageReaderWriter& srw,
@@ -309,6 +315,70 @@ void clearPropertyTextureProperty(
         DEFAULT_TEXCOORD_INDEX,
         MetadataUtil::StyleablePropertyInfo<T>());
 }
+
+// bool typesCompatible(MdlExternalPropertyType externalType, MdlInternalPropertyType internalType) {
+//     // const auto externalTypeFloat = isFloatingPoint(externalType);
+//     // const auto internalTypeFloat = isFloatingPoint(externalType) || isNormalized(internalType);
+//     // if (externalTypeFloat != internalTypeFloat) {
+//     //     return false;
+//     // }
+
+//     // const auto externalComponentCount = getComponentCount(externalType);
+//     // const auto internalComponentCount = getComponentCount(internalType);
+
+//     // return externalComponentCount == internalComponentCount;
+
+//     (void)externalType;
+//     (void)internalType;
+
+//     return true;
+// };
+
+// std::optional<std::pair<omni::fabric::Path, DataType>>
+// getPropertyById(const std::string& propertyId, const FabricMaterial& material) {
+//     auto propertyAttributeProperty =
+//         getPropertyByIdImpl(propertyId, _propertyAttributePropertyPaths, _propertyAttributePropertyIds);
+//     if (propertyAttributeProperty.has_value()) {
+//         return propertyAttributeProperty;
+//     }
+
+//     auto propertyTextureProperty =
+//         getPropertyByIdImpl(propertyId, _propertyTexturePropertyPaths, _propertyTexturePropertyIds);
+//     if (propertyAttributeProperty.has_value()) {
+//         return propertyAttributeProperty;
+//     }
+
+//     return std::nullopt;
+// };
+
+// std::optional<omni::fabric::Path> getPropertyByIdAndType(const std::string& propertyId, DataType type) {
+//     const auto getPropertyByIdImpl =
+//         [](const std::string& propertyId,
+//            const std::unordered_map<DataType, std::vector<omni::fabric::Path>>& propertyPaths,
+//            const std::unordered_map<DataType, std::vector<std::string>>& propertyIds)
+//         -> std::optional<std::pair<omni::fabric::Path, DataType>> {
+//         for (const auto& [type, ids] : propertyIds) {
+//             for (uint64_t i = 0; i < ids.size(); i++) {
+//                 const auto& id = ids[i];
+//                 if (id == propertyId) {
+//                     const auto& propertyPath = propertyPaths.at(type)[i];
+//                     return std::make_pair(propertyPath, type);
+//                 }
+//             }
+//         }
+
+//         return std::nullopt;
+//     };
+
+//     const auto property = getPropertyById(propertyId);
+//     if (!property.has_value()) {
+//         CESIUM_LOG_WARN(
+//             "Could not find property \"{}\" referenced by {}. A default value will be returned instead.",
+//             propertyId,
+//             mdlIdentifier.getText());
+//         return;
+//     }
+// }
 
 } // namespace
 
@@ -427,27 +497,25 @@ void FabricMaterial::initializeNodes() {
     }
 
     // Create property attribute properties
-    const auto& propertyAttributePropertyTypes = _materialDefinition.getMdlPropertyAttributePropertyTypes();
+    const auto& propertyAttributePropertyTypes = _materialDefinition.getMdlInternalPropertyAttributePropertyTypes();
     const auto propertyAttributePropertiesCount = propertyAttributePropertyTypes.size();
 
     for (uint64_t i = 0; i < propertyAttributePropertiesCount; i++) {
         const auto type = propertyAttributePropertyTypes[i];
-        const auto propertyAttributePropertyPath =
-            FabricUtil::joinPaths(_materialPath, FabricTokens::property_attribute_n(i));
-        createPropertyAttributeProperty(propertyAttributePropertyPath, type);
-        _propertyAttributePropertyPaths[type].push_back(propertyAttributePropertyPath);
+        const auto propertyPath = FabricUtil::joinPaths(_materialPath, FabricTokens::property_attribute_n(i));
+        createPropertyAttributeProperty(propertyPath, type);
+        _propertyAttributePropertyPaths[type].push_back(propertyPath);
     }
 
     // Create property texture properties
-    const auto& propertyTexturePropertyTypes = _materialDefinition.getMdlPropertyTexturePropertyTypes();
+    const auto& propertyTexturePropertyTypes = _materialDefinition.getMdlInternalPropertyTexturePropertyTypes();
     const auto propertyTexturePropertiesCount = propertyTexturePropertyTypes.size();
 
     for (uint64_t i = 0; i < propertyTexturePropertiesCount; i++) {
         const auto type = propertyTexturePropertyTypes[i];
-        const auto propertyTexturePropertyPath =
-            FabricUtil::joinPaths(_materialPath, FabricTokens::property_texture_n(i));
-        createPropertyTextureProperty(propertyTexturePropertyPath, type);
-        _propertyTexturePropertyPaths[type].push_back(propertyTexturePropertyPath);
+        const auto propertyPath = FabricUtil::joinPaths(_materialPath, FabricTokens::property_texture_n(i));
+        createPropertyTextureProperty(propertyPath, type);
+        _propertyTexturePropertyPaths[type].push_back(propertyPath);
     }
 }
 
@@ -732,37 +800,37 @@ void FabricMaterial::createPropertyTexturePropertyNormalizedInt(
     return createTextureCommon(path, subidentifier, additionalAttributes);
 }
 
-void FabricMaterial::createPropertyAttributeProperty(const omni::fabric::Path& path, DataType type) {
+void FabricMaterial::createPropertyAttributeProperty(const omni::fabric::Path& path, MdlInternalPropertyType type) {
     switch (type) {
-        case DataType::INT32:
+        case MdlInternalPropertyType::INT32:
             createPropertyAttributePropertyInt(
                 path,
                 FabricTokens::cesium_internal_property_attribute_int_lookup,
                 FabricTypes::inputs_no_data_int,
                 FabricTypes::inputs_default_value_int);
             break;
-        case DataType::VEC2_INT32:
+        case MdlInternalPropertyType::VEC2_INT32:
             createPropertyAttributePropertyInt(
                 path,
                 FabricTokens::cesium_internal_property_attribute_int2_lookup,
                 FabricTypes::inputs_no_data_int2,
                 FabricTypes::inputs_default_value_int2);
             break;
-        case DataType::VEC3_INT32:
+        case MdlInternalPropertyType::VEC3_INT32:
             createPropertyAttributePropertyInt(
                 path,
                 FabricTokens::cesium_internal_property_attribute_int3_lookup,
                 FabricTypes::inputs_no_data_int3,
                 FabricTypes::inputs_default_value_int3);
             break;
-        case DataType::VEC4_INT32:
+        case MdlInternalPropertyType::VEC4_INT32:
             createPropertyAttributePropertyInt(
                 path,
                 FabricTokens::cesium_internal_property_attribute_int4_lookup,
                 FabricTypes::inputs_no_data_int4,
                 FabricTypes::inputs_default_value_int4);
             break;
-        case DataType::INT32_NORM:
+        case MdlInternalPropertyType::INT32_NORM:
             createPropertyAttributePropertyNormalizedInt(
                 path,
                 FabricTokens::cesium_internal_property_attribute_normalized_int_lookup,
@@ -772,7 +840,7 @@ void FabricMaterial::createPropertyAttributeProperty(const omni::fabric::Path& p
                 FabricTypes::inputs_scale_float,
                 FabricTypes::inputs_maximum_value_int);
             break;
-        case DataType::VEC2_INT32_NORM:
+        case MdlInternalPropertyType::VEC2_INT32_NORM:
             createPropertyAttributePropertyNormalizedInt(
                 path,
                 FabricTokens::cesium_internal_property_attribute_normalized_int2_lookup,
@@ -782,7 +850,7 @@ void FabricMaterial::createPropertyAttributeProperty(const omni::fabric::Path& p
                 FabricTypes::inputs_scale_float2,
                 FabricTypes::inputs_maximum_value_int2);
             break;
-        case DataType::VEC3_INT32_NORM:
+        case MdlInternalPropertyType::VEC3_INT32_NORM:
             createPropertyAttributePropertyNormalizedInt(
                 path,
                 FabricTokens::cesium_internal_property_attribute_normalized_int3_lookup,
@@ -792,7 +860,7 @@ void FabricMaterial::createPropertyAttributeProperty(const omni::fabric::Path& p
                 FabricTypes::inputs_scale_float3,
                 FabricTypes::inputs_maximum_value_int3);
             break;
-        case DataType::VEC4_INT32_NORM:
+        case MdlInternalPropertyType::VEC4_INT32_NORM:
             createPropertyAttributePropertyNormalizedInt(
                 path,
                 FabricTokens::cesium_internal_property_attribute_normalized_int4_lookup,
@@ -802,7 +870,7 @@ void FabricMaterial::createPropertyAttributeProperty(const omni::fabric::Path& p
                 FabricTypes::inputs_scale_float4,
                 FabricTypes::inputs_maximum_value_int4);
             break;
-        case DataType::FLOAT32:
+        case MdlInternalPropertyType::FLOAT32:
             createPropertyAttributePropertyFloat(
                 path,
                 FabricTokens::cesium_internal_property_attribute_float_lookup,
@@ -811,7 +879,7 @@ void FabricMaterial::createPropertyAttributeProperty(const omni::fabric::Path& p
                 FabricTypes::inputs_offset_float,
                 FabricTypes::inputs_scale_float);
             break;
-        case DataType::VEC2_FLOAT32:
+        case MdlInternalPropertyType::VEC2_FLOAT32:
             createPropertyAttributePropertyFloat(
                 path,
                 FabricTokens::cesium_internal_property_attribute_float2_lookup,
@@ -820,7 +888,7 @@ void FabricMaterial::createPropertyAttributeProperty(const omni::fabric::Path& p
                 FabricTypes::inputs_offset_float2,
                 FabricTypes::inputs_scale_float2);
             break;
-        case DataType::VEC3_FLOAT32:
+        case MdlInternalPropertyType::VEC3_FLOAT32:
             createPropertyAttributePropertyFloat(
                 path,
                 FabricTokens::cesium_internal_property_attribute_float3_lookup,
@@ -829,7 +897,7 @@ void FabricMaterial::createPropertyAttributeProperty(const omni::fabric::Path& p
                 FabricTypes::inputs_offset_float3,
                 FabricTypes::inputs_scale_float3);
             break;
-        case DataType::VEC4_FLOAT32:
+        case MdlInternalPropertyType::VEC4_FLOAT32:
             createPropertyAttributePropertyFloat(
                 path,
                 FabricTokens::cesium_internal_property_attribute_float4_lookup,
@@ -838,44 +906,51 @@ void FabricMaterial::createPropertyAttributeProperty(const omni::fabric::Path& p
                 FabricTypes::inputs_offset_float4,
                 FabricTypes::inputs_scale_float4);
             break;
-        default:
-            // Invalid property type
+        case MdlInternalPropertyType::MAT2_INT32:
+        case MdlInternalPropertyType::MAT2_FLOAT32:
+        case MdlInternalPropertyType::MAT2_INT32_NORM:
+        case MdlInternalPropertyType::MAT3_INT32:
+        case MdlInternalPropertyType::MAT3_FLOAT32:
+        case MdlInternalPropertyType::MAT3_INT32_NORM:
+        case MdlInternalPropertyType::MAT4_INT32:
+        case MdlInternalPropertyType::MAT4_FLOAT32:
+        case MdlInternalPropertyType::MAT4_INT32_NORM:
             assert(false);
             break;
     }
 }
 
-void FabricMaterial::createPropertyTextureProperty(const omni::fabric::Path& path, DataType type) {
+void FabricMaterial::createPropertyTextureProperty(const omni::fabric::Path& path, MdlInternalPropertyType type) {
     switch (type) {
-        case DataType::INT32:
+        case MdlInternalPropertyType::INT32:
             createPropertyTexturePropertyInt(
                 path,
                 FabricTokens::cesium_internal_property_texture_int_lookup,
                 FabricTypes::inputs_no_data_int,
                 FabricTypes::inputs_default_value_int);
             break;
-        case DataType::VEC2_INT32:
+        case MdlInternalPropertyType::VEC2_INT32:
             createPropertyTexturePropertyInt(
                 path,
                 FabricTokens::cesium_internal_property_texture_int2_lookup,
                 FabricTypes::inputs_no_data_int2,
                 FabricTypes::inputs_default_value_int2);
             break;
-        case DataType::VEC3_INT32:
+        case MdlInternalPropertyType::VEC3_INT32:
             createPropertyTexturePropertyInt(
                 path,
                 FabricTokens::cesium_internal_property_texture_int3_lookup,
                 FabricTypes::inputs_no_data_int3,
                 FabricTypes::inputs_default_value_int3);
             break;
-        case DataType::VEC4_INT32:
+        case MdlInternalPropertyType::VEC4_INT32:
             createPropertyTexturePropertyInt(
                 path,
                 FabricTokens::cesium_internal_property_texture_int4_lookup,
                 FabricTypes::inputs_no_data_int4,
                 FabricTypes::inputs_default_value_int4);
             break;
-        case DataType::INT32_NORM:
+        case MdlInternalPropertyType::INT32_NORM:
             createPropertyTexturePropertyNormalizedInt(
                 path,
                 FabricTokens::cesium_internal_property_texture_normalized_int_lookup,
@@ -885,7 +960,7 @@ void FabricMaterial::createPropertyTextureProperty(const omni::fabric::Path& pat
                 FabricTypes::inputs_scale_float,
                 FabricTypes::inputs_maximum_value_int);
             break;
-        case DataType::VEC2_INT32_NORM:
+        case MdlInternalPropertyType::VEC2_INT32_NORM:
             createPropertyTexturePropertyNormalizedInt(
                 path,
                 FabricTokens::cesium_internal_property_texture_normalized_int2_lookup,
@@ -895,7 +970,7 @@ void FabricMaterial::createPropertyTextureProperty(const omni::fabric::Path& pat
                 FabricTypes::inputs_scale_float2,
                 FabricTypes::inputs_maximum_value_int2);
             break;
-        case DataType::VEC3_INT32_NORM:
+        case MdlInternalPropertyType::VEC3_INT32_NORM:
             createPropertyTexturePropertyNormalizedInt(
                 path,
                 FabricTokens::cesium_internal_property_texture_normalized_int3_lookup,
@@ -905,7 +980,7 @@ void FabricMaterial::createPropertyTextureProperty(const omni::fabric::Path& pat
                 FabricTypes::inputs_scale_float3,
                 FabricTypes::inputs_maximum_value_int3);
             break;
-        case DataType::VEC4_INT32_NORM:
+        case MdlInternalPropertyType::VEC4_INT32_NORM:
             createPropertyTexturePropertyNormalizedInt(
                 path,
                 FabricTokens::cesium_internal_property_texture_normalized_int4_lookup,
@@ -915,8 +990,19 @@ void FabricMaterial::createPropertyTextureProperty(const omni::fabric::Path& pat
                 FabricTypes::inputs_scale_float4,
                 FabricTypes::inputs_maximum_value_int4);
             break;
-        default:
-            // Invalid property type
+        case MdlInternalPropertyType::FLOAT32:
+        case MdlInternalPropertyType::VEC2_FLOAT32:
+        case MdlInternalPropertyType::VEC3_FLOAT32:
+        case MdlInternalPropertyType::VEC4_FLOAT32:
+        case MdlInternalPropertyType::MAT2_INT32:
+        case MdlInternalPropertyType::MAT2_FLOAT32:
+        case MdlInternalPropertyType::MAT2_INT32_NORM:
+        case MdlInternalPropertyType::MAT3_INT32:
+        case MdlInternalPropertyType::MAT3_FLOAT32:
+        case MdlInternalPropertyType::MAT3_INT32_NORM:
+        case MdlInternalPropertyType::MAT4_INT32:
+        case MdlInternalPropertyType::MAT4_FLOAT32:
+        case MdlInternalPropertyType::MAT4_INT32_NORM:
             assert(false);
             break;
     }
@@ -953,21 +1039,21 @@ void FabricMaterial::reset() {
             DEFAULT_NULL_FEATURE_ID);
     }
 
-    for (const auto& [type, paths] : _propertyAttributePropertyPaths) {
-        for (const auto& path : paths) {
-            CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_DATA_TYPE(clearPropertyAttributeProperty, type, path);
-        }
-    }
+    // for (const auto& [type, paths] : _propertyAttributePropertyPaths) {
+    //     for (const auto& path : paths) {
+    //         CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_DATA_TYPE(clearPropertyAttributeProperty, type, path);
+    //     }
+    // }
 
-    for (const auto& [type, paths] : _propertyTexturePropertyPaths) {
-        for (const auto& path : paths) {
-            CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_DATA_TYPE(
-                clearPropertyTextureProperty, type, path, _defaultTransparentTextureAssetPathToken);
-        }
-    }
+    // for (const auto& [type, paths] : _propertyTexturePropertyPaths) {
+    //     for (const auto& path : paths) {
+    //         CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_DATA_TYPE(
+    //             clearPropertyTextureProperty, type, path, _defaultTransparentTextureAssetPathToken);
+    //     }
+    // }
 
-    _propertyIdToPath.clear();
-    _propertyIdToType.clear();
+    // _propertyAttributePropertyIds.clear();
+    // _propertyTexturePropertyIds.clear();
 
     for (const auto& imageryLayerPath : _imageryLayerPaths) {
         setImageryLayerValues(
@@ -1064,7 +1150,8 @@ void FabricMaterial::setMaterial(
         setFeatureIdTextureValues(featureIdPath, textureAssetPath, textureInfo, texcoordIndex, nullFeatureId);
     }
 
-    std::array<uint8_t, DataTypeCount> propertyAttributePropertyTypeCounter{};
+    std::array<uint8_t, MdlInternalPropertyTypeCount> propertyAttributePropertyTypeCounter{};
+    std::array<uint8_t, MdlInternalPropertyTypeCount> propertyTexturePropertyTypeCounter{};
 
     MetadataUtil::forEachStyleablePropertyAttributeProperty(
         model,
@@ -1074,19 +1161,18 @@ void FabricMaterial::setMaterial(
             [[maybe_unused]] auto propertyAttributeProperty,
             [[maybe_unused]] auto propertyAttributePropertyView,
             auto styleableProperty) {
-            constexpr auto Type = decltype(styleableProperty)::Type;
+            constexpr auto type = decltype(styleableProperty)::Type;
+            constexpr auto mdlType = getMdlInternalPropertyType<type>();
             const auto& primvarName = styleableProperty.attribute;
-            const auto pathIndex = propertyAttributePropertyTypeCounter[static_cast<uint64_t>(Type)]++;
-            const auto& propertyAttributePropertyPath = _propertyTexturePropertyPaths[Type][pathIndex];
+            const auto pathIndex = propertyAttributePropertyTypeCounter[static_cast<uint64_t>(mdlType)]++;
+            const auto& propertyAttributePropertyPath = _propertyAttributePropertyPaths.at(mdlType)[pathIndex];
 
-            setPropertyAttributeProperty<Type>(
+            (void)propertyId;
+            // _propertyAttributePropertyIds[Type].push_back(propertyId);
+
+            setPropertyAttributeProperty<type>(
                 propertyAttributePropertyPath, primvarName, styleableProperty.propertyInfo);
-
-            _propertyIdToPath[propertyId] = propertyAttributePropertyPath;
-            _propertyIdToType[propertyId] = Type;
         });
-
-    std::array<uint8_t, DataTypeCount> propertyTexturePropertyTypeCounter{};
 
     MetadataUtil::forEachStyleablePropertyTextureProperty(
         model,
@@ -1100,24 +1186,25 @@ void FabricMaterial::setMaterial(
             auto propertyTextureProperty,
             [[maybe_unused]] auto propertyTexturePropertyView,
             auto styleableProperty) {
-            constexpr auto Type = decltype(styleableProperty)::Type;
+            constexpr auto type = decltype(styleableProperty)::Type;
+            constexpr auto mdlType = getMdlInternalPropertyType<type>();
             const auto& textureInfo = styleableProperty.textureInfo;
-            const auto pathIndex = propertyTexturePropertyTypeCounter[static_cast<uint64_t>(Type)]++;
-            const auto& propertyTexturePropertyPath = _propertyTexturePropertyPaths[Type][pathIndex];
+            const auto pathIndex = propertyTexturePropertyTypeCounter[static_cast<uint64_t>(mdlType)]++;
+            const auto& propertyTexturePropertyPath = _propertyTexturePropertyPaths.at(mdlType)[pathIndex];
             const auto texcoordIndex = texcoordIndexMapping.at(textureInfo.setIndex);
             const auto textureIndex = static_cast<uint64_t>(propertyTextureProperty.index);
             const auto propertyTextureIndex = propertyTextureIndexMapping.at(textureIndex);
             const auto& textureAssetPath = propertyTextures[propertyTextureIndex]->getAssetPathToken();
 
-            setPropertyTextureProperty<Type>(
+            (void)propertyId;
+            // _propertyTexturePropertyIds[Type].push_back(propertyId);
+
+            setPropertyTextureProperty<type>(
                 propertyTexturePropertyPath,
                 textureAssetPath,
                 textureInfo,
                 texcoordIndex,
                 styleableProperty.propertyInfo);
-
-            _propertyIdToPath[propertyId] = propertyTexturePropertyPath;
-            _propertyIdToType[propertyId] = Type;
         });
 
     destroyConnectionsToProperties();
@@ -1160,32 +1247,6 @@ void FabricMaterial::createConnectionsToCopiedPaths() {
     }
 }
 
-void FabricMaterial::createConnectionsToProperties() {
-    // auto srw = UsdUtil::getFabricStageReaderWriter();
-
-    // for (const auto& propertyPathExternal : _copiedPropertyPaths) {
-    //     const auto propertyId = getStringFabric(srw, propertyPathExternal, FabricTokens::inputs_property_id);
-    //     const auto mdlIdentifier = FabricUtil::getMdlIdentifier(propertyPathExternal);
-    //     const auto propertyTypeExternal = FabricUtil::getPropertyNodeType(mdlIdentifier);
-
-    //     const auto it = _propertyIdToPath.find(propertyId);
-
-    //     if (it == _propertyIdToPath.end()) {
-    //         CESIUM_LOG_WARN(
-    //             "Could not find property \"{}\" referenced by {}. A default value will be returned instead.",
-    //             propertyId,
-    //             mdlIdentifier);
-    //         continue;
-    //     }
-
-    //     const auto& propertyPathInternal = it->second;
-    //     const auto propertyTypeInternal = _propertyIdToPath.at(propertyId);
-
-    //     IsFloatingPoint<propertyTypeExternal> &&
-    //         (IsFloatingPoint<propertyTypeInternal> IsNormalizedType<propertyTypeInternal>)
-    // }
-}
-
 void FabricMaterial::destroyConnectionsToCopiedPaths() {
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
@@ -1199,6 +1260,95 @@ void FabricMaterial::destroyConnectionsToCopiedPaths() {
 
     for (const auto& copiedPath : _copiedFeatureIdPaths) {
         destroyConnection(srw, copiedPath, FabricTokens::inputs_feature_id);
+    }
+}
+
+void FabricMaterial::createConnectionsToProperties() {
+    // // Connect cesium_internal_property_x (internal) to cesium_property_x (external)
+    // auto srw = UsdUtil::getFabricStageReaderWriter();
+
+    // const auto getPropertyByIdImpl =
+    //     [](const std::string& propertyId,
+    //        const std::unordered_map<DataType, std::vector<omni::fabric::Path>>& propertyPaths,
+    //        const std::unordered_map<DataType, std::vector<std::string>>& propertyIds)
+    //     -> std::optional<std::pair<omni::fabric::Path, DataType>> {
+    //     for (const auto& [type, ids] : propertyIds) {
+    //         for (uint64_t i = 0; i < ids.size(); i++) {
+    //             const auto& id = ids[i];
+    //             if (id == propertyId) {
+    //                 const auto& propertyPath = propertyPaths.at(type)[i];
+    //                 return std::make_pair(propertyPath, type);
+    //             }
+    //         }
+    //     }
+
+    //     return std::nullopt;
+    // };
+
+    // const auto getPropertyById =
+    //     [this, &getPropertyByIdImpl](
+    //         const std::string& propertyId) -> std::optional<std::pair<omni::fabric::Path, DataType>> {
+    //     auto propertyAttributeProperty =
+    //         getPropertyByIdImpl(propertyId, _propertyAttributePropertyPaths, _propertyAttributePropertyIds);
+    //     if (propertyAttributeProperty.has_value()) {
+    //         return propertyAttributeProperty;
+    //     }
+
+    //     auto propertyTextureProperty =
+    //         getPropertyByIdImpl(propertyId, _propertyTexturePropertyPaths, _propertyTexturePropertyIds);
+    //     if (propertyAttributeProperty.has_value()) {
+    //         return propertyAttributeProperty;
+    //     }
+
+    //     return std::nullopt;
+    // };
+
+    // const auto getPropertyByIdAndType(const std::string& propertyId, DataType type) {
+    //     const auto property = getPropertyById(propertyId);
+    //     if (!property.has_value()) {
+    //         CESIUM_LOG_WARN(
+    //             "Could not find property \"{}\" referenced by {}. A default value will be returned instead.",
+    //             propertyId,
+    //             mdlIdentifier.getText());
+    //         return;
+    //     }
+    // }
+
+    // for (const auto& propertyPathExternal : _copiedPropertyPaths) {
+    //     const auto propertyId = getStringFabric(srw, propertyPathExternal, FabricTokens::inputs_property_id);
+    //     const auto mdlIdentifier = FabricUtil::getMdlIdentifier(propertyPathExternal);
+    //     const auto propertyTypeExternal = FabricUtil::getPropertyNodeType(mdlIdentifier);
+
+    //     const auto propertyInternal = getPropertyById(propertyId);
+
+    //     if (!propertyInternal.has_value()) {
+    //         CESIUM_LOG_WARN(
+    //             "Could not find property \"{}\" referenced by {}. A default value will be returned instead.",
+    //             propertyId,
+    //             mdlIdentifier.getText());
+    //         continue;
+    //     }
+
+    //     const auto& propertyPathInternal = it->second;
+    //     const auto propertyTypeInternal = _propertyIdToType.at(propertyId);
+
+    //     if (!typesCompatible(propertyTypeExternal, propertyTypeInternal)) {
+    //         CESIUM_LOG_WARN(
+    //             "Property \"{}\" referenced by {} has incompatible type. A default value will be returned instead.",
+    //             propertyId,
+    //             mdlIdentifier.getText());
+    //         continue;
+    //     }
+
+    //     createConnection(srw, propertyPathInternal, propertyPathExternal, FabricTokens::inputs_property_value);
+    // }
+}
+
+void FabricMaterial::destroyConnectionsToProperties() {
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+
+    for (const auto& copiedPath : _copiedPropertyPaths) {
+        destroyConnection(srw, copiedPath, FabricTokens::inputs_property_value);
     }
 }
 

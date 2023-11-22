@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cesium/omniverse/DataType.h"
 #include "cesium/omniverse/FabricMaterialDefinition.h"
 #include "cesium/omniverse/GltfUtil.h"
 
@@ -115,8 +116,8 @@ class FabricMaterial {
         const omni::fabric::Type& offsetType,
         const omni::fabric::Type& scaleType,
         const omni::fabric::Type& maximumValueType);
-    void createPropertyAttributeProperty(const omni::fabric::Path& path, DataType type);
-    void createPropertyTextureProperty(const omni::fabric::Path& path, DataType type);
+    void createPropertyAttributeProperty(const omni::fabric::Path& path, MdlInternalPropertyType type);
+    void createPropertyTextureProperty(const omni::fabric::Path& path, MdlInternalPropertyType type);
 
     void reset();
 
@@ -173,11 +174,12 @@ class FabricMaterial {
     std::vector<omni::fabric::Path> _featureIdIndexPaths;
     std::vector<omni::fabric::Path> _featureIdAttributePaths;
     std::vector<omni::fabric::Path> _featureIdTexturePaths;
-    std::unordered_map<DataType, std::vector<omni::fabric::Path>> _propertyAttributePropertyPaths;
-    std::unordered_map<DataType, std::vector<omni::fabric::Path>> _propertyTexturePropertyPaths;
 
-    std::unordered_map<std::string, omni::fabric::Path> _propertyIdToPath;
-    std::unordered_map<std::string, DataType> _propertyIdToType;
+    std::unordered_map<MdlInternalPropertyType, std::vector<omni::fabric::Path>> _propertyAttributePropertyPaths;
+    std::unordered_map<MdlInternalPropertyType, std::vector<omni::fabric::Path>> _propertyTexturePropertyPaths;
+
+    std::unordered_map<MdlInternalPropertyType, std::vector<omni::fabric::Path>> _propertyAttributePropertyInfo;
+    std::unordered_map<MdlInternalPropertyType, std::vector<omni::fabric::Path>> _propertyTexturePropertyInfo;
 
     std::vector<omni::fabric::Path> _copiedBaseColorTexturePaths;
     std::vector<omni::fabric::Path> _copiedImageryLayerPaths;
