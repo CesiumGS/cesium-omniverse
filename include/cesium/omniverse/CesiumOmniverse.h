@@ -178,6 +178,8 @@ class ICesiumOmniverseInterface {
      */
     virtual void addGlobeAnchorToPrim(const char* path, double latitude, double longitude, double height) noexcept = 0;
     virtual bool isTracingEnabled() noexcept = 0;
+    virtual void initializeProfiling(const char* path) noexcept = 0;
+    virtual void shutDownProfiling() noexcept = 0;
 };
 
 } // namespace cesium::omniverse
