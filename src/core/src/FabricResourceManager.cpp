@@ -315,6 +315,18 @@ void FabricResourceManager::setDebugRandomColors(bool debugRandomColors) {
     _debugRandomColors = debugRandomColors;
 }
 
+void FabricResourceManager::updateShaderInput(
+    const pxr::SdfPath& materialPath,
+    const pxr::SdfPath& shaderPath,
+    const pxr::TfToken& attributeName) {
+    for (auto& materialPool : _materialPools) {
+        const auto& tilesetMaterialPath = materialPool->getMaterialDefinition().getTilesetMaterialPath();
+        if (tilesetMaterialPath == materialPath) {
+            materialPool->updateShaderInput(shaderPath, attributeName);
+        }
+    }
+}
+
 void FabricResourceManager::clear() {
     _geometryPools.clear();
     _materialPools.clear();

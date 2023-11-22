@@ -1,5 +1,7 @@
 #include "cesium/omniverse/FabricMaterialPool.h"
 
+#include "cesium/omniverse/FabricUtil.h"
+
 #include <spdlog/fmt/fmt.h>
 
 namespace cesium::omniverse {
@@ -24,6 +26,14 @@ FabricMaterialPool::FabricMaterialPool(
 
 const FabricMaterialDefinition& FabricMaterialPool::getMaterialDefinition() const {
     return _materialDefinition;
+}
+
+void FabricMaterialPool::updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::TfToken& attributeName) {
+    const auto& fabricMaterials = getQueue();
+    for (auto& fabricMaterial : fabricMaterials) {
+        fabricMaterial->updateShaderInput(
+            FabricUtil::toFabricPath(shaderPath), FabricUtil::toFabricToken(attributeName));
+    }
 }
 
 std::shared_ptr<FabricMaterial> FabricMaterialPool::createObject(uint64_t objectId) {

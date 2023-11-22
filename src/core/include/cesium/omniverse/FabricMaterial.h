@@ -143,6 +143,9 @@ class FabricMaterial {
         uint64_t texcoordIndex,
         int nullFeatureId);
 
+    void createConnectionsToCopiedPaths();
+    void destroyConnectionsToCopiedPaths();
+
     bool stageDestroyed();
 
     omni::fabric::Path _materialPath;
@@ -167,6 +170,10 @@ class FabricMaterial {
     std::vector<omni::fabric::Path> _featureIdTexturePaths;
     std::unordered_map<DataType, std::vector<omni::fabric::Path>> _propertyAttributePropertyPaths;
     std::unordered_map<DataType, std::vector<omni::fabric::Path>> _propertyTexturePropertyPaths;
+
+    std::vector<omni::fabric::Path> _copiedBaseColorTexturePaths;
+    std::vector<omni::fabric::Path> _copiedImageryLayerPaths;
+    std::vector<omni::fabric::Path> _copiedFeatureIdPaths;
 
     std::vector<omni::fabric::Path> _allPaths;
 };

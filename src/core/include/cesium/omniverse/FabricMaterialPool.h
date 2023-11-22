@@ -20,6 +20,7 @@ class FabricMaterialPool final : public ObjectPool<FabricMaterial> {
         long stageId);
 
     [[nodiscard]] const FabricMaterialDefinition& getMaterialDefinition() const;
+    void updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::TfToken& attributeName);
 
   protected:
     std::shared_ptr<FabricMaterial> createObject(uint64_t objectId) override;

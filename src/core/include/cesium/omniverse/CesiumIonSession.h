@@ -16,7 +16,8 @@ class CesiumIonSession {
   public:
     CesiumIonSession(
         CesiumAsync::AsyncSystem& asyncSystem,
-        std::shared_ptr<CesiumAsync::IAssetAccessor> pAssetAccessor);
+        std::shared_ptr<CesiumAsync::IAssetAccessor> pAssetAccessor,
+        std::string ionApiUrl);
 
     [[nodiscard]] const std::shared_ptr<CesiumAsync::IAssetAccessor>& getAssetAccessor() const {
         return this->_pAssetAccessor;
@@ -97,20 +98,6 @@ class CesiumIonSession {
     [[nodiscard]] CesiumAsync::Future<CesiumIonClient::Response<CesiumIonClient::Token>>
     findToken(const std::string& token) const;
 
-    /**
-     * Gets the project default token.
-     *
-     * If the project default token exists in the signed-in user's account, full
-     * token details will be included. Otherwise, only the token value itself
-     * (i.e. the `token` property`) will be included, and it may or may not be
-     * valid. In the latter case, the `id` property will be an empty string.
-     *
-     * @return A future that resolves to the project default token.
-     */
-    CesiumAsync::SharedFuture<CesiumIonClient::Token> getProjectDefaultTokenDetails();
-
-    void invalidateProjectDefaultTokenDetails();
-
   private:
     CesiumAsync::AsyncSystem _asyncSystem;
     std::shared_ptr<CesiumAsync::IAssetAccessor> _pAssetAccessor;
@@ -133,5 +120,6 @@ class CesiumIonSession {
     bool _loadTokensQueued;
 
     std::string _authorizeUrl;
+    std::string _ionApiUrl;
 };
 } // namespace cesium::omniverse

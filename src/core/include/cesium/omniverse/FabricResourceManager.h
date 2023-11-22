@@ -88,6 +88,11 @@ class FabricResourceManager {
     void setTexturePoolInitialCapacity(uint64_t texturePoolInitialCapacity);
     void setDebugRandomColors(bool debugRandomColors);
 
+    void updateShaderInput(
+        const pxr::SdfPath& materialPath,
+        const pxr::SdfPath& shaderPath,
+        const pxr::TfToken& attributeName);
+
     void retainPath(const omni::fabric::Path& path);
 
     void clear();
