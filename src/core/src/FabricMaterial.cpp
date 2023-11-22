@@ -1063,8 +1063,8 @@ void FabricMaterial::setMaterial(
             [[maybe_unused]] auto propertyAttributePropertyView, auto styleableProperty) {
             constexpr auto Type = decltype(styleableProperty)::Type;
             const auto& primvarName = styleableProperty.attribute;
-            const auto& propertyAttributePropertyPath =
-                _propertyTexturePropertyPaths[Type][propertyAttributePropertyTypeCounter[Type]++];
+            const auto pathIndex = propertyAttributePropertyTypeCounter[static_cast<uint64_t>(Type)]++;
+            const auto& propertyAttributePropertyPath = _propertyTexturePropertyPaths[Type][pathIndex];
 
             setPropertyAttributeProperty<Type>(
                 propertyAttributePropertyPath, primvarName, styleableProperty.propertyInfo);
@@ -1083,8 +1083,8 @@ void FabricMaterial::setMaterial(
             auto propertyTextureProperty, [[maybe_unused]] auto propertyTexturePropertyView, auto styleableProperty) {
             constexpr auto Type = decltype(styleableProperty)::Type;
             const auto& textureInfo = styleableProperty.textureInfo;
-            const auto& propertyTexturePropertyPath =
-                _propertyTexturePropertyPaths[Type][propertyTexturePropertyTypeCounter[Type]++];
+            const auto pathIndex = propertyTexturePropertyTypeCounter[static_cast<uint64_t>(Type)]++;
+            const auto& propertyTexturePropertyPath = _propertyTexturePropertyPaths[Type][pathIndex];
             const auto texcoordIndex = texcoordIndexMapping.at(textureInfo.setIndex);
             const auto textureIndex = static_cast<uint64_t>(propertyTextureProperty.index);
             const auto propertyTextureIndex = propertyTextureIndexMapping.at(textureIndex);
