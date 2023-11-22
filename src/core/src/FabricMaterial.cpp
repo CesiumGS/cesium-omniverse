@@ -426,118 +426,7 @@ void FabricMaterial::initializeNodes() {
         const auto type = propertyAttributePropertyTypes[i];
         const auto propertyAttributePropertyPath =
             FabricUtil::joinPaths(_materialPath, FabricTokens::property_attribute_n(i));
-
-        switch (type) {
-            case DataType::INT32:
-                createPropertyAttributePropertyInt(
-                    propertyAttributePropertyPath,
-                    FabricTokens::cesium_internal_property_attribute_int_lookup,
-                    FabricTypes::inputs_no_data_int,
-                    FabricTypes::inputs_default_value_int);
-                break;
-            case DataType::VEC2_INT32:
-                createPropertyAttributePropertyInt(
-                    propertyAttributePropertyPath,
-                    FabricTokens::cesium_internal_property_attribute_int2_lookup,
-                    FabricTypes::inputs_no_data_int2,
-                    FabricTypes::inputs_default_value_int2);
-                break;
-            case DataType::VEC3_INT32:
-                createPropertyAttributePropertyInt(
-                    propertyAttributePropertyPath,
-                    FabricTokens::cesium_internal_property_attribute_int3_lookup,
-                    FabricTypes::inputs_no_data_int3,
-                    FabricTypes::inputs_default_value_int3);
-                break;
-            case DataType::VEC4_INT32:
-                createPropertyAttributePropertyInt(
-                    propertyAttributePropertyPath,
-                    FabricTokens::cesium_internal_property_attribute_int4_lookup,
-                    FabricTypes::inputs_no_data_int4,
-                    FabricTypes::inputs_default_value_int4);
-                break;
-            case DataType::INT32_NORM:
-                createPropertyAttributePropertyNormalizedInt(
-                    propertyAttributePropertyPath,
-                    FabricTokens::cesium_internal_property_attribute_normalized_int_lookup,
-                    FabricTypes::inputs_no_data_int,
-                    FabricTypes::inputs_default_value_float,
-                    FabricTypes::inputs_offset_float,
-                    FabricTypes::inputs_scale_float,
-                    FabricTypes::inputs_maximum_value_int);
-                break;
-            case DataType::VEC2_INT32_NORM:
-                createPropertyAttributePropertyNormalizedInt(
-                    propertyAttributePropertyPath,
-                    FabricTokens::cesium_internal_property_attribute_normalized_int2_lookup,
-                    FabricTypes::inputs_no_data_int2,
-                    FabricTypes::inputs_default_value_float2,
-                    FabricTypes::inputs_offset_float2,
-                    FabricTypes::inputs_scale_float2,
-                    FabricTypes::inputs_maximum_value_int2);
-                break;
-            case DataType::VEC3_INT32_NORM:
-                createPropertyAttributePropertyNormalizedInt(
-                    propertyAttributePropertyPath,
-                    FabricTokens::cesium_internal_property_attribute_normalized_int3_lookup,
-                    FabricTypes::inputs_no_data_int3,
-                    FabricTypes::inputs_default_value_float3,
-                    FabricTypes::inputs_offset_float3,
-                    FabricTypes::inputs_scale_float3,
-                    FabricTypes::inputs_maximum_value_int3);
-                break;
-            case DataType::VEC4_INT32_NORM:
-                createPropertyAttributePropertyNormalizedInt(
-                    propertyAttributePropertyPath,
-                    FabricTokens::cesium_internal_property_attribute_normalized_int4_lookup,
-                    FabricTypes::inputs_no_data_int4,
-                    FabricTypes::inputs_default_value_float4,
-                    FabricTypes::inputs_offset_float4,
-                    FabricTypes::inputs_scale_float4,
-                    FabricTypes::inputs_maximum_value_int4);
-                break;
-            case DataType::FLOAT32:
-                createPropertyAttributePropertyFloat(
-                    propertyAttributePropertyPath,
-                    FabricTokens::cesium_internal_property_attribute_float_lookup,
-                    FabricTypes::inputs_no_data_float,
-                    FabricTypes::inputs_default_value_float,
-                    FabricTypes::inputs_offset_float,
-                    FabricTypes::inputs_scale_float);
-                break;
-            case DataType::VEC2_FLOAT32:
-                createPropertyAttributePropertyFloat(
-                    propertyAttributePropertyPath,
-                    FabricTokens::cesium_internal_property_attribute_float2_lookup,
-                    FabricTypes::inputs_no_data_float2,
-                    FabricTypes::inputs_default_value_float2,
-                    FabricTypes::inputs_offset_float2,
-                    FabricTypes::inputs_scale_float2);
-                break;
-            case DataType::VEC3_FLOAT32:
-                createPropertyAttributePropertyFloat(
-                    propertyAttributePropertyPath,
-                    FabricTokens::cesium_internal_property_attribute_float3_lookup,
-                    FabricTypes::inputs_no_data_float3,
-                    FabricTypes::inputs_default_value_float3,
-                    FabricTypes::inputs_offset_float3,
-                    FabricTypes::inputs_scale_float3);
-                break;
-            case DataType::VEC4_FLOAT32:
-                createPropertyAttributePropertyFloat(
-                    propertyAttributePropertyPath,
-                    FabricTokens::cesium_internal_property_attribute_float4_lookup,
-                    FabricTypes::inputs_no_data_float4,
-                    FabricTypes::inputs_default_value_float4,
-                    FabricTypes::inputs_offset_float4,
-                    FabricTypes::inputs_scale_float4);
-                break;
-            default:
-                // Invalid property type
-                assert(false);
-                break;
-        }
-
+        createPropertyAttributeProperty(propertyAttributePropertyPath, type);
         _propertyAttributePropertyPaths[type].push_back(propertyAttributePropertyPath);
     }
 
@@ -549,82 +438,7 @@ void FabricMaterial::initializeNodes() {
         const auto type = propertyTexturePropertyTypes[i];
         const auto propertyTexturePropertyPath =
             FabricUtil::joinPaths(_materialPath, FabricTokens::property_texture_n(i));
-
-        switch (type) {
-            case DataType::INT32:
-                createPropertyTexturePropertyInt(
-                    propertyTexturePropertyPath,
-                    FabricTokens::cesium_internal_property_texture_int_lookup,
-                    FabricTypes::inputs_no_data_int,
-                    FabricTypes::inputs_default_value_int);
-                break;
-            case DataType::VEC2_INT32:
-                createPropertyTexturePropertyInt(
-                    propertyTexturePropertyPath,
-                    FabricTokens::cesium_internal_property_texture_int2_lookup,
-                    FabricTypes::inputs_no_data_int2,
-                    FabricTypes::inputs_default_value_int2);
-                break;
-            case DataType::VEC3_INT32:
-                createPropertyTexturePropertyInt(
-                    propertyTexturePropertyPath,
-                    FabricTokens::cesium_internal_property_texture_int3_lookup,
-                    FabricTypes::inputs_no_data_int3,
-                    FabricTypes::inputs_default_value_int3);
-                break;
-            case DataType::VEC4_INT32:
-                createPropertyTexturePropertyInt(
-                    propertyTexturePropertyPath,
-                    FabricTokens::cesium_internal_property_texture_int4_lookup,
-                    FabricTypes::inputs_no_data_int4,
-                    FabricTypes::inputs_default_value_int4);
-                break;
-            case DataType::INT32_NORM:
-                createPropertyTexturePropertyNormalizedInt(
-                    propertyTexturePropertyPath,
-                    FabricTokens::cesium_internal_property_texture_normalized_int_lookup,
-                    FabricTypes::inputs_no_data_int,
-                    FabricTypes::inputs_default_value_float,
-                    FabricTypes::inputs_offset_float,
-                    FabricTypes::inputs_scale_float,
-                    FabricTypes::inputs_maximum_value_int);
-                break;
-            case DataType::VEC2_INT32_NORM:
-                createPropertyTexturePropertyNormalizedInt(
-                    propertyTexturePropertyPath,
-                    FabricTokens::cesium_internal_property_texture_normalized_int2_lookup,
-                    FabricTypes::inputs_no_data_int2,
-                    FabricTypes::inputs_default_value_float2,
-                    FabricTypes::inputs_offset_float2,
-                    FabricTypes::inputs_scale_float2,
-                    FabricTypes::inputs_maximum_value_int2);
-                break;
-            case DataType::VEC3_INT32_NORM:
-                createPropertyTexturePropertyNormalizedInt(
-                    propertyTexturePropertyPath,
-                    FabricTokens::cesium_internal_property_texture_normalized_int3_lookup,
-                    FabricTypes::inputs_no_data_int3,
-                    FabricTypes::inputs_default_value_float3,
-                    FabricTypes::inputs_offset_float3,
-                    FabricTypes::inputs_scale_float3,
-                    FabricTypes::inputs_maximum_value_int3);
-                break;
-            case DataType::VEC4_INT32_NORM:
-                createPropertyTexturePropertyNormalizedInt(
-                    propertyTexturePropertyPath,
-                    FabricTokens::cesium_internal_property_texture_normalized_int4_lookup,
-                    FabricTypes::inputs_no_data_int4,
-                    FabricTypes::inputs_default_value_float4,
-                    FabricTypes::inputs_offset_float4,
-                    FabricTypes::inputs_scale_float4,
-                    FabricTypes::inputs_maximum_value_int4);
-                break;
-            default:
-                // Invalid property type
-                assert(false);
-                break;
-        }
-
+        createPropertyTextureProperty(propertyTexturePropertyPath, type);
         _propertyTexturePropertyPaths[type].push_back(propertyTexturePropertyPath);
     }
 }
@@ -913,6 +727,196 @@ void FabricMaterial::createPropertyTexturePropertyNormalizedInt(
     }};
 
     return createTextureCommon(path, subidentifier, additionalAttributes);
+}
+
+void FabricMaterial::createPropertyAttributeProperty(const omni::fabric::Path& path, DataType type) {
+    switch (type) {
+        case DataType::INT32:
+            createPropertyAttributePropertyInt(
+                path,
+                FabricTokens::cesium_internal_property_attribute_int_lookup,
+                FabricTypes::inputs_no_data_int,
+                FabricTypes::inputs_default_value_int);
+            break;
+        case DataType::VEC2_INT32:
+            createPropertyAttributePropertyInt(
+                path,
+                FabricTokens::cesium_internal_property_attribute_int2_lookup,
+                FabricTypes::inputs_no_data_int2,
+                FabricTypes::inputs_default_value_int2);
+            break;
+        case DataType::VEC3_INT32:
+            createPropertyAttributePropertyInt(
+                path,
+                FabricTokens::cesium_internal_property_attribute_int3_lookup,
+                FabricTypes::inputs_no_data_int3,
+                FabricTypes::inputs_default_value_int3);
+            break;
+        case DataType::VEC4_INT32:
+            createPropertyAttributePropertyInt(
+                path,
+                FabricTokens::cesium_internal_property_attribute_int4_lookup,
+                FabricTypes::inputs_no_data_int4,
+                FabricTypes::inputs_default_value_int4);
+            break;
+        case DataType::INT32_NORM:
+            createPropertyAttributePropertyNormalizedInt(
+                path,
+                FabricTokens::cesium_internal_property_attribute_normalized_int_lookup,
+                FabricTypes::inputs_no_data_int,
+                FabricTypes::inputs_default_value_float,
+                FabricTypes::inputs_offset_float,
+                FabricTypes::inputs_scale_float,
+                FabricTypes::inputs_maximum_value_int);
+            break;
+        case DataType::VEC2_INT32_NORM:
+            createPropertyAttributePropertyNormalizedInt(
+                path,
+                FabricTokens::cesium_internal_property_attribute_normalized_int2_lookup,
+                FabricTypes::inputs_no_data_int2,
+                FabricTypes::inputs_default_value_float2,
+                FabricTypes::inputs_offset_float2,
+                FabricTypes::inputs_scale_float2,
+                FabricTypes::inputs_maximum_value_int2);
+            break;
+        case DataType::VEC3_INT32_NORM:
+            createPropertyAttributePropertyNormalizedInt(
+                path,
+                FabricTokens::cesium_internal_property_attribute_normalized_int3_lookup,
+                FabricTypes::inputs_no_data_int3,
+                FabricTypes::inputs_default_value_float3,
+                FabricTypes::inputs_offset_float3,
+                FabricTypes::inputs_scale_float3,
+                FabricTypes::inputs_maximum_value_int3);
+            break;
+        case DataType::VEC4_INT32_NORM:
+            createPropertyAttributePropertyNormalizedInt(
+                path,
+                FabricTokens::cesium_internal_property_attribute_normalized_int4_lookup,
+                FabricTypes::inputs_no_data_int4,
+                FabricTypes::inputs_default_value_float4,
+                FabricTypes::inputs_offset_float4,
+                FabricTypes::inputs_scale_float4,
+                FabricTypes::inputs_maximum_value_int4);
+            break;
+        case DataType::FLOAT32:
+            createPropertyAttributePropertyFloat(
+                path,
+                FabricTokens::cesium_internal_property_attribute_float_lookup,
+                FabricTypes::inputs_no_data_float,
+                FabricTypes::inputs_default_value_float,
+                FabricTypes::inputs_offset_float,
+                FabricTypes::inputs_scale_float);
+            break;
+        case DataType::VEC2_FLOAT32:
+            createPropertyAttributePropertyFloat(
+                path,
+                FabricTokens::cesium_internal_property_attribute_float2_lookup,
+                FabricTypes::inputs_no_data_float2,
+                FabricTypes::inputs_default_value_float2,
+                FabricTypes::inputs_offset_float2,
+                FabricTypes::inputs_scale_float2);
+            break;
+        case DataType::VEC3_FLOAT32:
+            createPropertyAttributePropertyFloat(
+                path,
+                FabricTokens::cesium_internal_property_attribute_float3_lookup,
+                FabricTypes::inputs_no_data_float3,
+                FabricTypes::inputs_default_value_float3,
+                FabricTypes::inputs_offset_float3,
+                FabricTypes::inputs_scale_float3);
+            break;
+        case DataType::VEC4_FLOAT32:
+            createPropertyAttributePropertyFloat(
+                path,
+                FabricTokens::cesium_internal_property_attribute_float4_lookup,
+                FabricTypes::inputs_no_data_float4,
+                FabricTypes::inputs_default_value_float4,
+                FabricTypes::inputs_offset_float4,
+                FabricTypes::inputs_scale_float4);
+            break;
+        default:
+            // Invalid property type
+            assert(false);
+            break;
+    }
+}
+
+void FabricMaterial::createPropertyTextureProperty(const omni::fabric::Path& path, DataType type) {
+    switch (type) {
+        case DataType::INT32:
+            createPropertyTexturePropertyInt(
+                path,
+                FabricTokens::cesium_internal_property_texture_int_lookup,
+                FabricTypes::inputs_no_data_int,
+                FabricTypes::inputs_default_value_int);
+            break;
+        case DataType::VEC2_INT32:
+            createPropertyTexturePropertyInt(
+                path,
+                FabricTokens::cesium_internal_property_texture_int2_lookup,
+                FabricTypes::inputs_no_data_int2,
+                FabricTypes::inputs_default_value_int2);
+            break;
+        case DataType::VEC3_INT32:
+            createPropertyTexturePropertyInt(
+                path,
+                FabricTokens::cesium_internal_property_texture_int3_lookup,
+                FabricTypes::inputs_no_data_int3,
+                FabricTypes::inputs_default_value_int3);
+            break;
+        case DataType::VEC4_INT32:
+            createPropertyTexturePropertyInt(
+                path,
+                FabricTokens::cesium_internal_property_texture_int4_lookup,
+                FabricTypes::inputs_no_data_int4,
+                FabricTypes::inputs_default_value_int4);
+            break;
+        case DataType::INT32_NORM:
+            createPropertyTexturePropertyNormalizedInt(
+                path,
+                FabricTokens::cesium_internal_property_texture_normalized_int_lookup,
+                FabricTypes::inputs_no_data_int,
+                FabricTypes::inputs_default_value_float,
+                FabricTypes::inputs_offset_float,
+                FabricTypes::inputs_scale_float,
+                FabricTypes::inputs_maximum_value_int);
+            break;
+        case DataType::VEC2_INT32_NORM:
+            createPropertyTexturePropertyNormalizedInt(
+                path,
+                FabricTokens::cesium_internal_property_texture_normalized_int2_lookup,
+                FabricTypes::inputs_no_data_int2,
+                FabricTypes::inputs_default_value_float2,
+                FabricTypes::inputs_offset_float2,
+                FabricTypes::inputs_scale_float2,
+                FabricTypes::inputs_maximum_value_int2);
+            break;
+        case DataType::VEC3_INT32_NORM:
+            createPropertyTexturePropertyNormalizedInt(
+                path,
+                FabricTokens::cesium_internal_property_texture_normalized_int3_lookup,
+                FabricTypes::inputs_no_data_int3,
+                FabricTypes::inputs_default_value_float3,
+                FabricTypes::inputs_offset_float3,
+                FabricTypes::inputs_scale_float3,
+                FabricTypes::inputs_maximum_value_int3);
+            break;
+        case DataType::VEC4_INT32_NORM:
+            createPropertyTexturePropertyNormalizedInt(
+                path,
+                FabricTokens::cesium_internal_property_texture_normalized_int4_lookup,
+                FabricTypes::inputs_no_data_int4,
+                FabricTypes::inputs_default_value_float4,
+                FabricTypes::inputs_offset_float4,
+                FabricTypes::inputs_scale_float4,
+                FabricTypes::inputs_maximum_value_int4);
+            break;
+        default:
+            // Invalid property type
+            assert(false);
+            break;
+    }
 }
 
 void FabricMaterial::reset() {

@@ -115,6 +115,9 @@ class FabricMaterial {
         const omni::fabric::Type& offsetType,
         const omni::fabric::Type& scaleType,
         const omni::fabric::Type& maximumValueType);
+    void createPropertyAttributeProperty(const omni::fabric::Path& path, DataType type);
+    void createPropertyTextureProperty(const omni::fabric::Path& path, DataType type);
+
     void reset();
 
     void setShaderValues(
