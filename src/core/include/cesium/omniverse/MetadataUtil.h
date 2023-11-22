@@ -32,6 +32,7 @@ template <DataType T> struct StyleablePropertyAttributePropertyInfo {
 template <DataType T> struct StyleablePropertyTexturePropertyInfo {
     static constexpr auto Type = T;
     TextureInfo textureInfo;
+    uint64_t textureIndex;
     StyleablePropertyInfo<T> propertyInfo;
 };
 
@@ -244,7 +245,7 @@ void forEachStyleablePropertyAttributeProperty(
                     propertyInfo,
                 };
 
-                callback(propertyId, propertyAttributeProperty, propertyAttributePropertyView, styleableProperty);
+                callback(propertyId, propertyAttributePropertyView, styleableProperty);
             }
         });
 }
@@ -325,10 +326,11 @@ void forEachStyleablePropertyTextureProperty(
 
                     const auto styleableProperty = StyleablePropertyTexturePropertyInfo<type>{
                         textureInfo,
+                        static_cast<uint64_t>(propertyTextureProperty.index),
                         propertyInfo,
                     };
 
-                    callback(propertyId, propertyTextureProperty, propertyTexturePropertyView, styleableProperty);
+                    callback(propertyId, propertyTexturePropertyView, styleableProperty);
                 }
             }
         });

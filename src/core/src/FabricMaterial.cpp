@@ -1158,7 +1158,6 @@ void FabricMaterial::setMaterial(
         primitive,
         [this, &propertyAttributePropertyTypeCounter](
             const std::string& propertyId,
-            [[maybe_unused]] auto propertyAttributeProperty,
             [[maybe_unused]] auto propertyAttributePropertyView,
             auto styleableProperty) {
             constexpr auto type = decltype(styleableProperty)::Type;
@@ -1183,16 +1182,15 @@ void FabricMaterial::setMaterial(
          &propertyTextureIndexMapping,
          &propertyTexturePropertyTypeCounter](
             const std::string& propertyId,
-            auto propertyTextureProperty,
             [[maybe_unused]] auto propertyTexturePropertyView,
             auto styleableProperty) {
             constexpr auto type = decltype(styleableProperty)::Type;
             constexpr auto mdlType = getMdlInternalPropertyType<type>();
             const auto& textureInfo = styleableProperty.textureInfo;
+            const auto textureIndex = styleableProperty.textureIndex;
             const auto pathIndex = propertyTexturePropertyTypeCounter[static_cast<uint64_t>(mdlType)]++;
             const auto& propertyTexturePropertyPath = _propertyTexturePropertyPaths.at(mdlType)[pathIndex];
             const auto texcoordIndex = texcoordIndexMapping.at(textureInfo.setIndex);
-            const auto textureIndex = static_cast<uint64_t>(propertyTextureProperty.index);
             const auto propertyTextureIndex = propertyTextureIndexMapping.at(textureIndex);
             const auto& textureAssetPath = propertyTextures[propertyTextureIndex]->getAssetPathToken();
 

@@ -20,7 +20,6 @@ std::vector<MdlInternalPropertyType> getMdlInternalPropertyAttributePropertyType
         primitive,
         [&mdlInternalPropertyTypes](
             [[maybe_unused]] const std::string& propertyId,
-            [[maybe_unused]] auto propertyAttributeProperty,
             [[maybe_unused]] auto propertyAttributePropertyView,
             auto styleableProperty) {
             constexpr auto type = decltype(styleableProperty)::Type;
@@ -41,7 +40,6 @@ getMdlInternalPropertyTexturePropertyTypes(const CesiumGltf::Model& model, const
         primitive,
         [&mdlInternalPropertyTypes](
             [[maybe_unused]] const std::string& propertyId,
-            [[maybe_unused]] auto propertyTextureProperty,
             [[maybe_unused]] auto propertyTexturePropertyView,
             auto styleableProperty) {
             constexpr auto type = decltype(styleableProperty)::Type;
@@ -62,7 +60,6 @@ getPropertyTextureImages(const CesiumGltf::Model& model, const CesiumGltf::MeshP
         primitive,
         [&images](
             [[maybe_unused]] const std::string& propertyId,
-            [[maybe_unused]] auto propertyTextureProperty,
             auto propertyTexturePropertyView,
             [[maybe_unused]] auto styleableProperty) {
             const auto pImage = propertyTexturePropertyView.getImage();
@@ -88,7 +85,6 @@ getPropertyTextureIndexMapping(const CesiumGltf::Model& model, const CesiumGltf:
         primitive,
         [&images, &propertyTextureIndexMapping](
             [[maybe_unused]] const std::string& propertyId,
-            auto propertyTextureProperty,
             auto propertyTexturePropertyView,
             [[maybe_unused]] auto styleableProperty) {
             const auto pImage = propertyTexturePropertyView.getImage();
@@ -100,7 +96,7 @@ getPropertyTextureIndexMapping(const CesiumGltf::Model& model, const CesiumGltf:
                 images.push_back(pImage);
             }
 
-            const auto textureIndex = static_cast<uint64_t>(propertyTextureProperty.index);
+            const auto textureIndex = styleableProperty.textureIndex;
             propertyTextureIndexMapping[textureIndex] = imageIndex;
         });
 
