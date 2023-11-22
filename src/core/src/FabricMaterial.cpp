@@ -22,7 +22,7 @@ namespace cesium::omniverse {
 
 namespace {
 
-// Should match MAX_IMAGERY_LAYERS_COUNT in cesium.mdl
+// Should match imagery_layers length in cesium.mdl
 const uint64_t MAX_IMAGERY_LAYERS_COUNT = 16;
 
 const auto DEFAULT_DEBUG_COLOR = glm::dvec3(1.0, 1.0, 1.0);
@@ -239,7 +239,7 @@ void setPropertyCommon(const omni::fabric::Path& path, const MetadataUtil::Style
     *noDataFabric = static_cast<GetMdlRawType<T>>(noData);
     *defaultValueFabric = static_cast<GetMdlTransformedType<T>>(defaultValue);
 
-    if constexpr (IsNormalized<T>::value || IsFloatingPoint<T>::value) {
+    if constexpr (isNormalized<T>() || isFloatingPoint<T>()) {
         auto offsetFabric = srw.getAttributeWr<GetMdlTransformedType<T>>(path, FabricTokens::inputs_offset);
         auto scaleFabric = srw.getAttributeWr<GetMdlTransformedType<T>>(path, FabricTokens::inputs_scale);
 
@@ -247,20 +247,28 @@ void setPropertyCommon(const omni::fabric::Path& path, const MetadataUtil::Style
         *scaleFabric = static_cast<GetMdlTransformedType<T>>(scale);
     }
 
-    if constexpr (IsNormalized<T>::value) {
+    if constexpr (isNormalized<T>()) {
         auto maximumValueFabric = srw.getAttributeWr<GetMdlRawType<T>>(path, FabricTokens::inputs_maximum_value);
         *maximumValueFabric = static_cast<GetMdlRawType<T>>(maximumValue);
     }
 }
 
-void setPrimvarName(
+std::string getStringFabric(
     omni::fabric::StageReaderWriter& srw,
     const omni::fabric::Path& path,
-    const std::string& primvarName) {
-    const auto primvarNameSize = primvarName.size();
-    srw.setArrayAttributeSize(path, FabricTokens::inputs_primvar_name, primvarNameSize);
-    auto primvarNameFabric = srw.getArrayAttributeWr<uint8_t>(path, FabricTokens::inputs_primvar_name);
-    memcpy(primvarNameFabric.data(), primvarName.data(), primvarNameSize);
+    omni::fabric::TokenC attributeName) {
+    const auto valueFabric = srw.getArrayAttributeRd<uint8_t>(path, attributeName);
+    return {reinterpret_cast<const char*>(valueFabric.data()), valueFabric.size()};
+}
+
+void setStringFabric(
+    omni::fabric::StageReaderWriter& srw,
+    const omni::fabric::Path& path,
+    omni::fabric::TokenC attributeName,
+    const std::string& value) {
+    srw.setArrayAttributeSize(path, attributeName, value.size());
+    auto valueFabric = srw.getArrayAttributeWr<uint8_t>(path, attributeName);
+    memcpy(valueFabric.data(), value.data(), value.size());
 }
 
 template <DataType T>
@@ -270,7 +278,7 @@ void setPropertyAttributeProperty(
     const MetadataUtil::StyleablePropertyInfo<T>& propertyInfo) {
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
-    setPrimvarName(srw, path, primvarName);
+    setStringFabric(srw, path, FabricTokens::inputs_primvar_name, primvarName);
     setPropertyCommon<T>(path, propertyInfo);
 }
 
@@ -511,6 +519,8 @@ void FabricMaterial::initializeExistingMaterial(const omni::fabric::Path& path) 
             _copiedImageryLayerPaths.push_back(copiedPath);
         } else if (mdlIdentifier == FabricTokens::cesium_feature_id_int) {
             _copiedFeatureIdPaths.push_back(copiedPath);
+        } else if (FabricUtil::isCesiumPropertyNode(mdlIdentifier)) {
+            _copiedPropertyPaths.push_back(copiedPath);
         }
     }
 
@@ -956,6 +966,9 @@ void FabricMaterial::reset() {
         }
     }
 
+    _propertyIdToPath.clear();
+    _propertyIdToType.clear();
+
     for (const auto& imageryLayerPath : _imageryLayerPaths) {
         setImageryLayerValues(
             imageryLayerPath,
@@ -1057,7 +1070,10 @@ void FabricMaterial::setMaterial(
         model,
         primitive,
         [this, &propertyAttributePropertyTypeCounter](
-            [[maybe_unused]] auto propertyAttributePropertyView, auto styleableProperty) {
+            const std::string& propertyId,
+            [[maybe_unused]] auto propertyAttributeProperty,
+            [[maybe_unused]] auto propertyAttributePropertyView,
+            auto styleableProperty) {
             constexpr auto Type = decltype(styleableProperty)::Type;
             const auto& primvarName = styleableProperty.attribute;
             const auto pathIndex = propertyAttributePropertyTypeCounter[static_cast<uint64_t>(Type)]++;
@@ -1065,6 +1081,9 @@ void FabricMaterial::setMaterial(
 
             setPropertyAttributeProperty<Type>(
                 propertyAttributePropertyPath, primvarName, styleableProperty.propertyInfo);
+
+            _propertyIdToPath[propertyId] = propertyAttributePropertyPath;
+            _propertyIdToType[propertyId] = Type;
         });
 
     std::array<uint8_t, DataTypeCount> propertyTexturePropertyTypeCounter{};
@@ -1077,7 +1096,10 @@ void FabricMaterial::setMaterial(
          &texcoordIndexMapping,
          &propertyTextureIndexMapping,
          &propertyTexturePropertyTypeCounter](
-            auto propertyTextureProperty, [[maybe_unused]] auto propertyTexturePropertyView, auto styleableProperty) {
+            const std::string& propertyId,
+            auto propertyTextureProperty,
+            [[maybe_unused]] auto propertyTexturePropertyView,
+            auto styleableProperty) {
             constexpr auto Type = decltype(styleableProperty)::Type;
             const auto& textureInfo = styleableProperty.textureInfo;
             const auto pathIndex = propertyTexturePropertyTypeCounter[static_cast<uint64_t>(Type)]++;
@@ -1093,7 +1115,13 @@ void FabricMaterial::setMaterial(
                 textureInfo,
                 texcoordIndex,
                 styleableProperty.propertyInfo);
+
+            _propertyIdToPath[propertyId] = propertyTexturePropertyPath;
+            _propertyIdToType[propertyId] = Type;
         });
+
+    destroyConnectionsToProperties();
+    createConnectionsToProperties();
 
     for (const auto& path : _allPaths) {
         FabricUtil::setTilesetId(path, tilesetId);
@@ -1130,13 +1158,31 @@ void FabricMaterial::createConnectionsToCopiedPaths() {
             createConnection(srw, _featureIdPaths[index], copiedPath, FabricTokens::inputs_feature_id);
         }
     }
+}
 
-    // if (mdlIdentifier == FabricTokens::cesium_property_int) {
-    //     const auto propertyIdFabric = srw.getArrayAttributeRd<uint8_t>(path, FabricTokens::inputs_property_id);
-    //     // Try to see if the property id is available....???
-    //     // But we don't have property names at this point...
-    //     // Need to revive that branch? Or include property id names in definition?
-    //     auto primvarNameFabric = srw.getArrayAttributeWr<uint8_t>(path, FabricTokens::inputs_primvar_name);
+void FabricMaterial::createConnectionsToProperties() {
+    // auto srw = UsdUtil::getFabricStageReaderWriter();
+
+    // for (const auto& propertyPathExternal : _copiedPropertyPaths) {
+    //     const auto propertyId = getStringFabric(srw, propertyPathExternal, FabricTokens::inputs_property_id);
+    //     const auto mdlIdentifier = FabricUtil::getMdlIdentifier(propertyPathExternal);
+    //     const auto propertyTypeExternal = FabricUtil::getPropertyNodeType(mdlIdentifier);
+
+    //     const auto it = _propertyIdToPath.find(propertyId);
+
+    //     if (it == _propertyIdToPath.end()) {
+    //         CESIUM_LOG_WARN(
+    //             "Could not find property \"{}\" referenced by {}. A default value will be returned instead.",
+    //             propertyId,
+    //             mdlIdentifier);
+    //         continue;
+    //     }
+
+    //     const auto& propertyPathInternal = it->second;
+    //     const auto propertyTypeInternal = _propertyIdToPath.at(propertyId);
+
+    //     IsFloatingPoint<propertyTypeExternal> &&
+    //         (IsFloatingPoint<propertyTypeInternal> IsNormalizedType<propertyTypeInternal>)
     // }
 }
 
@@ -1227,6 +1273,8 @@ void FabricMaterial::updateShaderInput(const omni::fabric::Path& path, const omn
         attributeName == FabricTokens::inputs_feature_id_set_index) {
         destroyConnectionsToCopiedPaths();
         createConnectionsToCopiedPaths();
+        destroyConnectionsToProperties();
+        createConnectionsToProperties();
     }
 }
 
@@ -1309,7 +1357,7 @@ void FabricMaterial::setFeatureIdAttributeValues(
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
-    setPrimvarName(srw, path, primvarName);
+    setStringFabric(srw, path, FabricTokens::inputs_primvar_name, primvarName);
 
     auto nullFeatureIdFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_null_feature_id);
     *nullFeatureIdFabric = nullFeatureId;

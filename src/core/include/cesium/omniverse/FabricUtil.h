@@ -41,8 +41,10 @@ std::vector<omni::fabric::Path>
 copyMaterial(const omni::fabric::Path& srcMaterialPath, const omni::fabric::Path& dstMaterialPath);
 bool materialHasCesiumNodes(const omni::fabric::Path& path);
 bool isCesiumNode(const omni::fabric::Token& mdlIdentifier);
+bool isCesiumPropertyNode(const omni::fabric::Token& mdlIdentifier);
 bool isShaderConnectedToMaterial(const omni::fabric::Path& materialPath, const omni::fabric::Path& shaderPath);
 omni::fabric::Token getMdlIdentifier(const omni::fabric::Path& path);
 omni::fabric::Type getPrimvarType(DataType type);
+DataType getPropertyNodeType(const omni::fabric::Token& mdlIdentifier);
 
 } // namespace cesium::omniverse::FabricUtil

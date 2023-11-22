@@ -148,6 +148,8 @@ class FabricMaterial {
 
     void createConnectionsToCopiedPaths();
     void destroyConnectionsToCopiedPaths();
+    void createConnectionsToProperties();
+    void destroyConnectionsToProperties();
 
     bool stageDestroyed();
 
@@ -174,9 +176,13 @@ class FabricMaterial {
     std::unordered_map<DataType, std::vector<omni::fabric::Path>> _propertyAttributePropertyPaths;
     std::unordered_map<DataType, std::vector<omni::fabric::Path>> _propertyTexturePropertyPaths;
 
+    std::unordered_map<std::string, omni::fabric::Path> _propertyIdToPath;
+    std::unordered_map<std::string, DataType> _propertyIdToType;
+
     std::vector<omni::fabric::Path> _copiedBaseColorTexturePaths;
     std::vector<omni::fabric::Path> _copiedImageryLayerPaths;
     std::vector<omni::fabric::Path> _copiedFeatureIdPaths;
+    std::vector<omni::fabric::Path> _copiedPropertyPaths;
 
     std::vector<omni::fabric::Path> _allPaths;
 };

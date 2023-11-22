@@ -497,12 +497,6 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
     return TYPE_NOT_SUPPORTED_STRING;
 }
 
-template <DataType T> omni::fabric::Type getPrimvarTypeImpl() {
-    const auto baseDataType = GetPrimvarBaseDataType<T>::BaseDataType;
-    const auto componentCount = GetComponentCount<T>::ComponentCount;
-    return {baseDataType, static_cast<uint8_t>(componentCount), 1, omni::fabric::AttributeRole::eNone};
-}
-
 } // namespace
 
 std::string printFabricStage() {
@@ -890,9 +884,12 @@ bool materialHasCesiumNodes(const omni::fabric::Path& path) {
 bool isCesiumNode(const omni::fabric::Token& mdlIdentifier) {
     return mdlIdentifier == FabricTokens::cesium_base_color_texture_float4 ||
            mdlIdentifier == FabricTokens::cesium_imagery_layer_float4 ||
-           mdlIdentifier == FabricTokens::cesium_feature_id_int || mdlIdentifier == FabricTokens::cesium_property_int ||
-           mdlIdentifier == FabricTokens::cesium_property_int2 || mdlIdentifier == FabricTokens::cesium_property_int3 ||
-           mdlIdentifier == FabricTokens::cesium_property_int4 ||
+           mdlIdentifier == FabricTokens::cesium_feature_id_int || isCesiumPropertyNode(mdlIdentifier);
+}
+
+bool isCesiumPropertyNode(const omni::fabric::Token& mdlIdentifier) {
+    return mdlIdentifier == FabricTokens::cesium_property_int || mdlIdentifier == FabricTokens::cesium_property_int2 ||
+           mdlIdentifier == FabricTokens::cesium_property_int3 || mdlIdentifier == FabricTokens::cesium_property_int4 ||
            mdlIdentifier == FabricTokens::cesium_property_float ||
            mdlIdentifier == FabricTokens::cesium_property_float2 ||
            mdlIdentifier == FabricTokens::cesium_property_float3 ||
@@ -918,7 +915,35 @@ omni::fabric::Token getMdlIdentifier(const omni::fabric::Path& path) {
 }
 
 omni::fabric::Type getPrimvarType(DataType type) {
-    return CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_DATA_TYPE_NO_ARGS(getPrimvarTypeImpl, type);
+    const auto baseDataType = getPrimvarBaseDataType(type);
+    const auto componentCount = getComponentCount(type);
+    return {baseDataType, static_cast<uint8_t>(componentCount), 1, omni::fabric::AttributeRole::eNone};
+}
+
+DataType getPropertyNodeType(const omni::fabric::Token& mdlIdentifier) {
+    assert(isCesiumPropertyNode(mdlIdentifier));
+
+    if (mdlIdentifier == FabricTokens::cesium_property_int) {
+        return DataType::INT32;
+    } else if (mdlIdentifier == FabricTokens::cesium_property_int2) {
+        return DataType::VEC2_INT32;
+    } else if (mdlIdentifier == FabricTokens::cesium_property_int3) {
+        return DataType::VEC3_INT32;
+    } else if (mdlIdentifier == FabricTokens::cesium_property_int4) {
+        return DataType::VEC4_INT32;
+    } else if (mdlIdentifier == FabricTokens::cesium_property_float) {
+        return DataType::FLOAT32;
+    } else if (mdlIdentifier == FabricTokens::cesium_property_float2) {
+        return DataType::VEC2_FLOAT32;
+    } else if (mdlIdentifier == FabricTokens::cesium_property_float3) {
+        return DataType::VEC3_FLOAT32;
+    } else if (mdlIdentifier == FabricTokens::cesium_property_float4) {
+        return DataType::VEC4_FLOAT32;
+    }
+
+    // Should never reach here
+    assert(false);
+    return DataType::INT32;
 }
 
 } // namespace cesium::omniverse::FabricUtil

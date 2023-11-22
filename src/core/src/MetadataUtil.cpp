@@ -13,9 +13,15 @@ getMdlPropertyAttributePropertyTypes(const CesiumGltf::Model& model, const Cesiu
     std::vector<DataType> mdlTypes;
 
     forEachStyleablePropertyAttributeProperty(
-        model, primitive, [&mdlTypes]([[maybe_unused]] auto propertyAttributePropertyView, auto styleableProperty) {
+        model,
+        primitive,
+        [&mdlTypes](
+            [[maybe_unused]] const std::string& propertyId,
+            [[maybe_unused]] auto propertyAttributeProperty,
+            [[maybe_unused]] auto propertyAttributePropertyView,
+            auto styleableProperty) {
             constexpr auto Type = decltype(styleableProperty)::Type;
-            mdlTypes.push_back(GetMdlShaderType<Type>::Type);
+            mdlTypes.push_back(getMdlShaderType<Type>());
         });
 
     std::sort(mdlTypes.begin(), mdlTypes.end());
@@ -31,11 +37,12 @@ getMdlPropertyTexturePropertyTypes(const CesiumGltf::Model& model, const CesiumG
         model,
         primitive,
         [&mdlTypes](
+            [[maybe_unused]] const std::string& propertyId,
             [[maybe_unused]] auto propertyTextureProperty,
             [[maybe_unused]] auto propertyTexturePropertyView,
             auto styleableProperty) {
             constexpr auto Type = decltype(styleableProperty)::Type;
-            mdlTypes.push_back(GetMdlShaderType<Type>::Type);
+            mdlTypes.push_back(getMdlShaderType<Type>());
         });
 
     std::sort(mdlTypes.begin(), mdlTypes.end());
@@ -51,6 +58,7 @@ getPropertyTextureImages(const CesiumGltf::Model& model, const CesiumGltf::MeshP
         model,
         primitive,
         [&images](
+            [[maybe_unused]] const std::string& propertyId,
             [[maybe_unused]] auto propertyTextureProperty,
             auto propertyTexturePropertyView,
             [[maybe_unused]] auto styleableProperty) {
@@ -76,7 +84,10 @@ getPropertyTextureIndexMapping(const CesiumGltf::Model& model, const CesiumGltf:
         model,
         primitive,
         [&images, &propertyTextureIndexMapping](
-            auto propertyTextureProperty, auto propertyTexturePropertyView, [[maybe_unused]] auto styleableProperty) {
+            [[maybe_unused]] const std::string& propertyId,
+            auto propertyTextureProperty,
+            auto propertyTexturePropertyView,
+            [[maybe_unused]] auto styleableProperty) {
             const auto pImage = propertyTexturePropertyView.getImage();
             assert(pImage);
 

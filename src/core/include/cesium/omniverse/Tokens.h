@@ -108,6 +108,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((inputs_null_feature_id, "inputs:null_feature_id")) \
     ((inputs_offset, "inputs:offset")) \
     ((inputs_primvar_name, "inputs:primvar_name")) \
+    ((inputs_property_id, "inputs:property_id")) \
     ((inputs_roughness_factor, "inputs:roughness_factor")) \
     ((inputs_scale, "inputs:scale")) \
     ((inputs_tex_coord_offset, "inputs:tex_coord_offset")) \

@@ -220,32 +220,32 @@ void forEachStyleablePropertyAttributeProperty(
             auto propertyAttributePropertyView) {
             using RawType = decltype(propertyAttributePropertyView.getRaw(0));
             using TransformedType = typename std::decay_t<decltype(propertyAttributePropertyView.get(0))>::value_type;
-            constexpr auto Type = GetTypeReverse<RawType, TransformedType>::Type;
+            constexpr auto Type = getTypeReverse<RawType, TransformedType>();
 
-            if (IsMatrix<Type>::value) {
+            if constexpr (isMatrix<Type>()) {
                 CESIUM_LOG_WARN(
                     "Matrix properties are not supported for styling. Property \"{}\" will be ignored.", propertyId);
                 return;
+            } else {
+                const auto& attribute = propertyAttributeProperty.attribute;
+
+                const auto propertyInfo = StyleablePropertyInfo<Type>{
+                    propertyAttributePropertyView.offset(),
+                    propertyAttributePropertyView.scale(),
+                    propertyAttributePropertyView.min(),
+                    propertyAttributePropertyView.max(),
+                    propertyAttributePropertyView.required(),
+                    propertyAttributePropertyView.noData(),
+                    propertyAttributePropertyView.defaultValue(),
+                };
+
+                const auto styleableProperty = StyleablePropertyAttributePropertyInfo<Type>{
+                    attribute,
+                    propertyInfo,
+                };
+
+                callback(propertyId, propertyAttributeProperty, propertyAttributePropertyView, styleableProperty);
             }
-
-            const auto& attribute = propertyAttributeProperty.attribute;
-
-            const auto propertyInfo = StyleablePropertyInfo<Type>{
-                propertyAttributePropertyView.offset(),
-                propertyAttributePropertyView.scale(),
-                propertyAttributePropertyView.min(),
-                propertyAttributePropertyView.max(),
-                propertyAttributePropertyView.required(),
-                propertyAttributePropertyView.noData(),
-                propertyAttributePropertyView.defaultValue(),
-            };
-
-            const auto styleableProperty = StyleablePropertyAttributePropertyInfo<Type>{
-                attribute,
-                propertyInfo,
-            };
-
-            callback(propertyAttributePropertyView, styleableProperty);
         });
 }
 
@@ -287,11 +287,11 @@ void forEachStyleablePropertyTextureProperty(
                     "Array properties are not supported for styling. Property \"{}\" will be ignored.", propertyId);
                 return;
             } else {
-                constexpr auto Type = GetTypeReverse<RawType, TransformedType>::Type;
+                constexpr auto Type = getTypeReverse<RawType, TransformedType>();
 
                 const auto textureInfo = GltfUtil::getPropertyTexturePropertyInfo(model, propertyTextureProperty);
 
-                if (textureInfo.channels.size() != GetComponentCount<Type>::ComponentCount) {
+                if (textureInfo.channels.size() != getComponentCount<Type>()) {
                     CESIUM_LOG_WARN(
                         "Properties with components that are packed across multiple texture channels are not supported "
                         "for styling. Property \"{}\" will be ignored.",
@@ -306,29 +306,30 @@ void forEachStyleablePropertyTextureProperty(
                     return;
                 }
 
-                if (IsFloatingPoint<Type>::value) {
+                if constexpr (isFloatingPoint<Type>()) {
                     CESIUM_LOG_WARN(
                         "Float property texture properties are not supported for styling. Property \"{}\" will be "
                         "ignored.",
                         propertyId);
+                    return;
+                } else {
+                    const auto propertyInfo = StyleablePropertyInfo<Type>{
+                        propertyTexturePropertyView.offset(),
+                        propertyTexturePropertyView.scale(),
+                        propertyTexturePropertyView.min(),
+                        propertyTexturePropertyView.max(),
+                        propertyTexturePropertyView.required(),
+                        propertyTexturePropertyView.noData(),
+                        propertyTexturePropertyView.defaultValue(),
+                    };
+
+                    const auto styleableProperty = StyleablePropertyTexturePropertyInfo<Type>{
+                        textureInfo,
+                        propertyInfo,
+                    };
+
+                    callback(propertyId, propertyTextureProperty, propertyTexturePropertyView, styleableProperty);
                 }
-
-                const auto propertyInfo = StyleablePropertyInfo<Type>{
-                    propertyTexturePropertyView.offset(),
-                    propertyTexturePropertyView.scale(),
-                    propertyTexturePropertyView.min(),
-                    propertyTexturePropertyView.max(),
-                    propertyTexturePropertyView.required(),
-                    propertyTexturePropertyView.noData(),
-                    propertyTexturePropertyView.defaultValue(),
-                };
-
-                const auto styleableProperty = StyleablePropertyTexturePropertyInfo<Type>{
-                    textureInfo,
-                    propertyInfo,
-                };
-
-                callback(propertyTextureProperty, propertyTexturePropertyView, styleableProperty);
             }
         });
 }
