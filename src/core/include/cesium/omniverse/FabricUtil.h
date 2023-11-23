@@ -45,6 +45,7 @@ bool isCesiumPropertyNode(const omni::fabric::Token& mdlIdentifier);
 bool isShaderConnectedToMaterial(const omni::fabric::Path& materialPath, const omni::fabric::Path& shaderPath);
 omni::fabric::Token getMdlIdentifier(const omni::fabric::Path& path);
 omni::fabric::Type getPrimvarType(DataType type);
-DataType getPropertyNodeType(const omni::fabric::Token& mdlIdentifier);
+MdlExternalPropertyType getMdlExternalPropertyType(const omni::fabric::Token& mdlIdentifier);
+bool typesCompatible(MdlExternalPropertyType externalType, MdlInternalPropertyType internalType);
 
 } // namespace cesium::omniverse::FabricUtil

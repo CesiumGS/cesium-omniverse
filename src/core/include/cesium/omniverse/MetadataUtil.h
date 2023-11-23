@@ -290,30 +290,31 @@ void forEachStyleablePropertyTextureProperty(
             } else {
                 constexpr auto type = getTypeReverse<RawType, TransformedType>();
 
-                const auto textureInfo = GltfUtil::getPropertyTexturePropertyInfo(model, propertyTextureProperty);
-
-                if (textureInfo.channels.size() != getComponentCount<type>()) {
+                if constexpr (sizeof(RawType) > 1) {
                     CESIUM_LOG_WARN(
-                        "Properties with components that are packed across multiple texture channels are not supported "
-                        "for styling. Property \"{}\" will be ignored.",
-                        propertyId);
-                    return;
-                }
-
-                if (textureInfo.channels.size() > 4) {
-                    CESIUM_LOG_WARN(
-                        "Properties with more than four channels are not supported. Property \"{}\" will be ignored.",
-                        propertyId);
-                    return;
-                }
-
-                if constexpr (isFloatingPoint<type>()) {
-                    CESIUM_LOG_WARN(
-                        "Float property texture properties are not supported for styling. Property \"{}\" will be "
-                        "ignored.",
+                        "Only 8-bit per-component property texture properties are not supported for styling. Property "
+                        "\"{}\" will be ignored.",
                         propertyId);
                     return;
                 } else {
+                    const auto textureInfo = GltfUtil::getPropertyTexturePropertyInfo(model, propertyTextureProperty);
+
+                    if (textureInfo.channels.size() != getComponentCount<type>()) {
+                        CESIUM_LOG_WARN(
+                            "Properties with components that are packed across multiple texture channels are not "
+                            "supported for styling. Property \"{}\" will be ignored.",
+                            propertyId);
+                        return;
+                    }
+
+                    if (textureInfo.channels.size() > 4) {
+                        CESIUM_LOG_WARN(
+                            "Properties with more than four channels are not supported for styling. Property \"{}\" "
+                            "will be ignored.",
+                            propertyId);
+                        return;
+                    }
+
                     const auto propertyInfo = StyleablePropertyInfo<type>{
                         propertyTexturePropertyView.offset(),
                         propertyTexturePropertyView.scale(),

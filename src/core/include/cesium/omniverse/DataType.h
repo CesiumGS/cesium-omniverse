@@ -1700,6 +1700,23 @@ template <typename L, typename... P> auto dispatch(L lambda, DataType n, P&&... 
 #define CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_DATA_TYPE_NO_ARGS(FUNCTION_NAME, TYPE) \
     dispatch([](auto i) { return FUNCTION_NAME<i.value>; }, TYPE)
 
+// TODO: avoid duplicating
+template <typename L, std::size_t... I> const auto& dispatchMdlImpl(std::index_sequence<I...>, L lambda) {
+    static decltype(lambda(std::integral_constant<MdlInternalPropertyType, MdlInternalPropertyType(0)>{})) array[] = {
+        lambda(std::integral_constant<MdlInternalPropertyType, MdlInternalPropertyType(I)>{})...};
+    return array;
+}
+template <typename L, typename... P> auto dispatchMdl(L lambda, MdlInternalPropertyType n, P&&... p) {
+    const auto& array = dispatchMdlImpl(std::make_index_sequence<MdlInternalPropertyTypeCount>{}, lambda);
+    return array[static_cast<size_t>(n)](std::forward<P>(p)...);
+}
+
+#define CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_MDL_TYPE(FUNCTION_NAME, TYPE, ...) \
+    dispatchMdl([](auto i) { return FUNCTION_NAME<i.value>; }, TYPE, __VA_ARGS__)
+
+#define CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_MDL_TYPE_NO_ARGS(FUNCTION_NAME, TYPE) \
+    dispatchMdl([](auto i) { return FUNCTION_NAME<i.value>; }, TYPE)
+
 template <DataType T> constexpr bool isNormalized() {
     return IsNormalizedImpl<T>::value;
 };

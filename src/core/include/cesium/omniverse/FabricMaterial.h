@@ -178,8 +178,13 @@ class FabricMaterial {
     std::unordered_map<MdlInternalPropertyType, std::vector<omni::fabric::Path>> _propertyAttributePropertyPaths;
     std::unordered_map<MdlInternalPropertyType, std::vector<omni::fabric::Path>> _propertyTexturePropertyPaths;
 
-    std::unordered_map<MdlInternalPropertyType, std::vector<omni::fabric::Path>> _propertyAttributePropertyInfo;
-    std::unordered_map<MdlInternalPropertyType, std::vector<omni::fabric::Path>> _propertyTexturePropertyInfo;
+    struct PropertyInfo {
+        omni::fabric::Path path;
+        std::string propertyId;
+        MdlInternalPropertyType type;
+    };
+
+    std::vector<PropertyInfo> _properties;
 
     std::vector<omni::fabric::Path> _copiedBaseColorTexturePaths;
     std::vector<omni::fabric::Path> _copiedImageryLayerPaths;

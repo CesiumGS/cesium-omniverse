@@ -947,4 +947,100 @@ MdlExternalPropertyType getMdlExternalPropertyType(const omni::fabric::Token& md
     return MdlExternalPropertyType::INT32;
 }
 
+bool typesCompatible(MdlExternalPropertyType externalType, MdlInternalPropertyType internalType) {
+    switch (externalType) {
+        case MdlExternalPropertyType::INT32:
+            switch (internalType) {
+                case MdlInternalPropertyType::INT32:
+                    return true;
+                default:
+                    return false;
+            }
+        case MdlExternalPropertyType::FLOAT32:
+            switch (internalType) {
+                case MdlInternalPropertyType::FLOAT32:
+                case MdlInternalPropertyType::INT32_NORM:
+                    return true;
+                default:
+                    return false;
+            }
+        case MdlExternalPropertyType::VEC2_INT32:
+            switch (internalType) {
+                case MdlInternalPropertyType::VEC2_INT32:
+                    return true;
+                default:
+                    return false;
+            }
+        case MdlExternalPropertyType::VEC2_FLOAT32:
+            switch (internalType) {
+                case MdlInternalPropertyType::VEC2_FLOAT32:
+                case MdlInternalPropertyType::VEC2_INT32_NORM:
+                    return true;
+                default:
+                    return false;
+            }
+        case MdlExternalPropertyType::VEC3_INT32:
+            switch (internalType) {
+                case MdlInternalPropertyType::VEC3_INT32:
+                    return true;
+                default:
+                    return false;
+            }
+        case MdlExternalPropertyType::VEC3_FLOAT32:
+            switch (internalType) {
+                case MdlInternalPropertyType::VEC3_FLOAT32:
+                case MdlInternalPropertyType::VEC3_INT32_NORM:
+                    return true;
+                default:
+                    return false;
+            }
+        case MdlExternalPropertyType::VEC4_INT32:
+            switch (internalType) {
+                case MdlInternalPropertyType::VEC4_INT32:
+                    return true;
+                default:
+                    return false;
+            }
+        case MdlExternalPropertyType::VEC4_FLOAT32:
+            switch (internalType) {
+                case MdlInternalPropertyType::VEC4_FLOAT32:
+                case MdlInternalPropertyType::VEC4_INT32_NORM:
+                    return true;
+                default:
+                    return false;
+            }
+        case MdlExternalPropertyType::MAT2_FLOAT32:
+            switch (internalType) {
+                case MdlInternalPropertyType::MAT2_INT32:
+                case MdlInternalPropertyType::MAT2_FLOAT32:
+                case MdlInternalPropertyType::MAT2_INT32_NORM:
+                    return true;
+                default:
+                    return false;
+            }
+        case MdlExternalPropertyType::MAT3_FLOAT32:
+            switch (internalType) {
+                case MdlInternalPropertyType::MAT3_INT32:
+                case MdlInternalPropertyType::MAT3_FLOAT32:
+                case MdlInternalPropertyType::MAT3_INT32_NORM:
+                    return true;
+                default:
+                    return false;
+            }
+        case MdlExternalPropertyType::MAT4_FLOAT32:
+            switch (internalType) {
+                case MdlInternalPropertyType::MAT4_INT32:
+                case MdlInternalPropertyType::MAT4_FLOAT32:
+                case MdlInternalPropertyType::MAT4_INT32_NORM:
+                    return true;
+                default:
+                    return false;
+            }
+    }
+
+    // Shouldn't reach here. All cases handled above.
+    assert(false);
+    return false;
+}
+
 } // namespace cesium::omniverse::FabricUtil
