@@ -213,11 +213,14 @@ void setTextureValuesCommonChannels(
     channelCount = glm::max(channelCount, uint64_t(1));
 
     auto srw = UsdUtil::getFabricStageReaderWriter();
-    auto channelCountFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_channel_count);
-    auto channelsFabric = srw.getAttributeWr<glm::i32vec4>(path, FabricTokens::inputs_channels);
 
-    *channelCountFabric = static_cast<int>(channelCount);
+    auto channelsFabric = srw.getAttributeWr<glm::i32vec4>(path, FabricTokens::inputs_channels);
     *channelsFabric = static_cast<glm::i32vec4>(channels);
+
+    if (srw.attributeExists(path, FabricTokens::inputs_channel_count)) {
+        auto channelCountFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_channel_count);
+        *channelCountFabric = static_cast<int>(channelCount);
+    }
 }
 
 std::string getStringFabric(
