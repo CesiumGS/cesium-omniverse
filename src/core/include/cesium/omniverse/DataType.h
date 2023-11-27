@@ -206,8 +206,6 @@ enum class MdlExternalPropertyType {
     MAT4_FLOAT32,
 };
 
-constexpr auto MdlExternalPropertyTypeCount = static_cast<uint64_t>(MdlExternalPropertyType::MAT4_FLOAT32) + 1;
-
 template <DataType T> struct IsNormalizedImpl;
 template <> struct IsNormalizedImpl<DataType::UINT8> : std::false_type {};
 template <> struct IsNormalizedImpl<DataType::INT8> : std::false_type {};
@@ -1683,39 +1681,27 @@ template <> struct GetPrimvarBaseDataTypeImpl<DataType::MAT4_INT64_NORM> { stati
 // clang-format on
 
 template <typename T, typename L, std::size_t... I> const auto& dispatchImpl(std::index_sequence<I...>, L lambda) {
-    static decltype(lambda(std::integral_constant<T, T(0)>{})) array[] = {
-        lambda(std::integral_constant<T, T(I)>{})...};
+    static decltype(lambda(std::integral_constant<T, T(0)>{})) array[] = {lambda(std::integral_constant<T, T(I)>{})...};
     return array;
 }
-template <typename T, typename L, typename... P> auto dispatch(L lambda, T n, P&&... p) {
-    const auto& array = dispatchImpl<T>(std::make_index_sequence<DataTypeCount>{}, lambda);
+template <uint64_t T_COUNT, typename T, typename L, typename... P> auto dispatch(L lambda, T n, P&&... p) {
+    const auto& array = dispatchImpl<T>(std::make_index_sequence<T_COUNT>{}, lambda);
     return array[static_cast<size_t>(n)](std::forward<P>(p)...);
 }
 
 // This allows us to call an enum templated function based on a runtime enum value
 #define CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_DATA_TYPE(FUNCTION_NAME, TYPE, ...) \
-    dispatch([](auto i) { return FUNCTION_NAME<i.value>; }, TYPE, __VA_ARGS__)
+    dispatch<DataTypeCount>([](auto i) { return FUNCTION_NAME<i.value>; }, TYPE, __VA_ARGS__)
 
 // In C++ 20 we don't need this second define
 #define CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_DATA_TYPE_NO_ARGS(FUNCTION_NAME, TYPE) \
-    dispatch([](auto i) { return FUNCTION_NAME<i.value>; }, TYPE)
-
-// TODO: avoid duplicating
-template <typename L, std::size_t... I> const auto& dispatchMdlImpl(std::index_sequence<I...>, L lambda) {
-    static decltype(lambda(std::integral_constant<MdlInternalPropertyType, MdlInternalPropertyType(0)>{})) array[] = {
-        lambda(std::integral_constant<MdlInternalPropertyType, MdlInternalPropertyType(I)>{})...};
-    return array;
-}
-template <typename L, typename... P> auto dispatchMdl(L lambda, MdlInternalPropertyType n, P&&... p) {
-    const auto& array = dispatchMdlImpl(std::make_index_sequence<MdlInternalPropertyTypeCount>{}, lambda);
-    return array[static_cast<size_t>(n)](std::forward<P>(p)...);
-}
+    dispatch<DataTypeCount>([](auto i) { return FUNCTION_NAME<i.value>; }, TYPE)
 
 #define CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_MDL_TYPE(FUNCTION_NAME, TYPE, ...) \
-    dispatchMdl([](auto i) { return FUNCTION_NAME<i.value>; }, TYPE, __VA_ARGS__)
+    dispatch<MdlInternalPropertyTypeCount>([](auto i) { return FUNCTION_NAME<i.value>; }, TYPE, __VA_ARGS__)
 
 #define CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_MDL_TYPE_NO_ARGS(FUNCTION_NAME, TYPE) \
-    dispatchMdl([](auto i) { return FUNCTION_NAME<i.value>; }, TYPE)
+    dispatch<MdlInternalPropertyTypeCount>([](auto i) { return FUNCTION_NAME<i.value>; }, TYPE)
 
 template <DataType T> constexpr bool isNormalized() {
     return IsNormalizedImpl<T>::value;
