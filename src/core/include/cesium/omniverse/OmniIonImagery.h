@@ -7,6 +7,6 @@
 namespace cesium::omniverse {
 class OmniIonImagery : public OmniImagery {
 public:
-    OmniIonImagery(const pxr::SdfPath& path) : OmniImagery(path) {}
+    OmniIonImagery(const pxr::SdfPath& path);
 };
 } // namespace cesium::omniverse
