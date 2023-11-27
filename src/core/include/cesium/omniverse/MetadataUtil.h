@@ -136,7 +136,8 @@ void forEachStyleablePropertyAttributeProperty(
             } else {
                 const auto& attribute = propertyAttributeProperty.attribute;
 
-                const auto propertyInfo = StyleablePropertyInfo<type>{
+                // For some reason the static cast is needed in MSVC
+                const auto propertyInfo = StyleablePropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
                     propertyAttributePropertyView.offset(),
                     propertyAttributePropertyView.scale(),
                     propertyAttributePropertyView.min(),
@@ -146,10 +147,11 @@ void forEachStyleablePropertyAttributeProperty(
                     propertyAttributePropertyView.defaultValue(),
                 };
 
-                const auto styleableProperty = StyleablePropertyAttributePropertyInfo<type>{
-                    attribute,
-                    propertyInfo,
-                };
+                const auto styleableProperty =
+                    StyleablePropertyAttributePropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
+                        attribute,
+                        propertyInfo,
+                    };
 
                 callback(propertyId, propertyAttributePropertyView, styleableProperty);
             }
