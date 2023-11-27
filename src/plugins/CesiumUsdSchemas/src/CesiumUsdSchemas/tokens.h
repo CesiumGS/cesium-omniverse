@@ -159,6 +159,14 @@ struct CesiumTokensType {
     /// 
     /// CesiumImagery, CesiumTileset
     const TfToken cesiumIonAssetId;
+    /// \brief "cesium:ionServerBinding"
+    /// 
+    /// CesiumTileset
+    const TfToken cesiumIonServerBinding;
+    /// \brief "cesium:ionServerUrl"
+    /// 
+    /// CesiumIonServer
+    const TfToken cesiumIonServerUrl;
     /// \brief "cesium:loadingDescendantLimit"
     /// 
     /// CesiumTileset
@@ -189,11 +197,11 @@ struct CesiumTokensType {
     const TfToken cesiumPreloadSiblings;
     /// \brief "cesium:projectDefaultIonAccessToken"
     /// 
-    /// CesiumData
+    /// CesiumIonServer, CesiumData
     const TfToken cesiumProjectDefaultIonAccessToken;
     /// \brief "cesium:projectDefaultIonAccessTokenId"
     /// 
-    /// CesiumData
+    /// CesiumIonServer, CesiumData
     const TfToken cesiumProjectDefaultIonAccessTokenId;
     /// \brief "cesium:showCreditsOnScreen"
     /// 

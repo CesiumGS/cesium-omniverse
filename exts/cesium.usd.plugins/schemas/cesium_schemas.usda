@@ -139,6 +139,38 @@ class CesiumSessionPrim "CesiumSessionPrim" (
     )
 }
 
+class CesiumIonServerPrim "CesiumIonServerPrim" (
+    doc = """Stores metadata related to Cesium ion server connections for tilesets."""
+    inherits = </Typed>
+    customData = {
+        string className = "IonServer"
+    }
+) {
+    string cesium:ionServerUrl (
+        customData = {
+            string apiName = "ionServerUrl"
+        }
+        displayName = "Cesium ion Server URL"
+        doc = "The hostname URL for the Cesium ion Server."
+    )
+
+    string cesium:projectDefaultIonAccessToken = "" (
+        customData = {
+            string apiName = "projectDefaultIonAccessToken"
+        }
+        displayName = "Project default ion Access Token"
+        doc = "A string representing the token for accessing Cesium ion assets."
+    )
+
+    string cesium:projectDefaultIonAccessTokenId = "" (
+        customData = {
+            string apiName = "projectDefaultIonAccessTokenId"
+        }
+        displayName = "Project default ion Access Token ID"
+        doc = "A string representing the token ID for accessing Cesium ion assets."
+    )
+}
+
 class CesiumGeoreferencePrim "CesiumGeoreferencePrim" (
     doc = """Stores Georeference data for Cesium for Omniverse. Every stage should have at least one of these."""
     inherits = </Typed>
@@ -338,6 +370,14 @@ class CesiumTilesetPrim "CesiumTilesetPrim" (
         }
         displayName = "Georeference Binding"
         doc = "Specifies which Cesium Georeference object to use for this tileset."
+    )
+
+    rel cesium:ionServerBinding (
+        customData = {
+            string apiName = "ionServerBinding"
+        }
+        displayName = "Cesium ion Server Binding"
+        doc = "Specifies which Cesium ion Server prim to use for this tileset."
     )
 }
 
