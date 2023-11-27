@@ -11,12 +11,10 @@ class OmniImagery {
   public:
     [[nodiscard]] pxr::SdfPath getPath() const;
     [[nodiscard]] std::string getName() const;
-    [[nodiscard]] int64_t getIonAssetId() const;
-    [[nodiscard]] std::optional<CesiumIonClient::Token> getIonAccessToken() const;
     [[nodiscard]] bool getShowCreditsOnScreen() const;
     [[nodiscard]] double getAlpha() const;
 
-  private:
+  protected:
     pxr::SdfPath _path;
 };
 } // namespace cesium::omniverse
