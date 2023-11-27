@@ -8,6 +8,7 @@
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GeospatialUtil.h"
 #include "cesium/omniverse/GltfUtil.h"
+#include "cesium/omniverse/MetadataUtil.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/UsdUtil.h"
 
@@ -139,7 +140,14 @@ std::vector<FabricMesh> acquireFabricMeshes(
             const auto materialInfo = GltfUtil::getMaterialInfo(model, primitive);
 
             const auto fabricMaterial = fabricResourceManager.acquireMaterial(
-                materialInfo, featuresInfo, imageryLayerCount, stageId, tileset.getTilesetId(), tilesetMaterialPath);
+                model,
+                primitive,
+                materialInfo,
+                featuresInfo,
+                imageryLayerCount,
+                stageId,
+                tileset.getTilesetId(),
+                tilesetMaterialPath);
 
             fabricMesh.material = fabricMaterial;
             fabricMesh.materialInfo = materialInfo;
@@ -237,6 +245,8 @@ void setFabricMeshes(
 
         if (material != nullptr) {
             material->setMaterial(
+                model,
+                primitive,
                 meshInfo.tilesetId,
                 mesh.materialInfo,
                 mesh.featuresInfo,

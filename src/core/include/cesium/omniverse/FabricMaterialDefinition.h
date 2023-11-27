@@ -12,6 +12,8 @@ namespace cesium::omniverse {
 class FabricMaterialDefinition {
   public:
     FabricMaterialDefinition(
+        const CesiumGltf::Model& model,
+        const CesiumGltf::MeshPrimitive& primitive,
         const MaterialInfo& materialInfo,
         const FeaturesInfo& featuresInfo,
         uint64_t imageryLayerCount,
@@ -24,6 +26,7 @@ class FabricMaterialDefinition {
     [[nodiscard]] uint64_t getImageryLayerCount() const;
     [[nodiscard]] bool hasTilesetMaterial() const;
     [[nodiscard]] const pxr::SdfPath& getTilesetMaterialPath() const;
+    [[nodiscard]] const std::vector<MdlInternalPropertyType>& getMdlInternalPropertyAttributePropertyTypes() const;
 
     // Make sure to update this function when adding new fields to the class
     bool operator==(const FabricMaterialDefinition& other) const;
@@ -34,6 +37,7 @@ class FabricMaterialDefinition {
     std::vector<FeatureIdType> _featureIdTypes;
     uint64_t _imageryLayerCount;
     pxr::SdfPath _tilesetMaterialPath;
+    std::vector<MdlInternalPropertyType> _mdlInternalPropertyAttributePropertyTypes;
 };
 
 } // namespace cesium::omniverse

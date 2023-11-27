@@ -1,7 +1,7 @@
 #pragma once
 
+#include "cesium/omniverse/DataType.h"
 #include "cesium/omniverse/GltfAccessors.h"
-#include "cesium/omniverse/VertexAttributeType.h"
 
 #include <CesiumGltf/Accessor.h>
 #include <glm/glm.hpp>
@@ -78,7 +78,7 @@ std::vector<uint64_t> getSetIndexMapping(const FeaturesInfo& featuresInfo, Featu
 bool hasFeatureIdType(const FeaturesInfo& featuresInfo, FeatureIdType type);
 
 struct VertexAttributeInfo {
-    VertexAttributeType type;
+    DataType type;
     omni::fabric::Token fabricAttributeName;
     std::string gltfAttributeName;
 
@@ -149,7 +149,7 @@ std::vector<uint64_t> getTexcoordSetIndexes(const CesiumGltf::Model& model, cons
 std::vector<uint64_t>
 getImageryTexcoordSetIndexes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
-template <VertexAttributeType T>
+template <DataType T>
 VertexAttributeAccessor<T> getVertexAttributeValues(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,

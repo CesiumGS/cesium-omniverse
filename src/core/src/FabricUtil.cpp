@@ -1,5 +1,6 @@
 #include "cesium/omniverse/FabricUtil.h"
 
+#include "cesium/omniverse/DataType.h"
 #include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
@@ -497,12 +498,6 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
     return TYPE_NOT_SUPPORTED_STRING;
 }
 
-template <VertexAttributeType T> omni::fabric::Type getPrimvarTypeImpl() {
-    const auto baseDataType = GetPrimvarBaseDataType<T>::BaseDataType;
-    const auto componentCount = GetComponentCount<T>::ComponentCount;
-    return {baseDataType, static_cast<uint8_t>(componentCount), 1, omni::fabric::AttributeRole::eNone};
-}
-
 } // namespace
 
 std::string printFabricStage() {
@@ -890,7 +885,16 @@ bool materialHasCesiumNodes(const omni::fabric::Path& path) {
 bool isCesiumNode(const omni::fabric::Token& mdlIdentifier) {
     return mdlIdentifier == FabricTokens::cesium_base_color_texture_float4 ||
            mdlIdentifier == FabricTokens::cesium_imagery_layer_float4 ||
-           mdlIdentifier == FabricTokens::cesium_feature_id_int;
+           mdlIdentifier == FabricTokens::cesium_feature_id_int || isCesiumPropertyNode(mdlIdentifier);
+}
+
+bool isCesiumPropertyNode(const omni::fabric::Token& mdlIdentifier) {
+    return mdlIdentifier == FabricTokens::cesium_property_int || mdlIdentifier == FabricTokens::cesium_property_int2 ||
+           mdlIdentifier == FabricTokens::cesium_property_int3 || mdlIdentifier == FabricTokens::cesium_property_int4 ||
+           mdlIdentifier == FabricTokens::cesium_property_float ||
+           mdlIdentifier == FabricTokens::cesium_property_float2 ||
+           mdlIdentifier == FabricTokens::cesium_property_float3 ||
+           mdlIdentifier == FabricTokens::cesium_property_float4;
 }
 
 bool isShaderConnectedToMaterial(const omni::fabric::Path& materialPath, const omni::fabric::Path& shaderPath) {
@@ -911,8 +915,132 @@ omni::fabric::Token getMdlIdentifier(const omni::fabric::Path& path) {
     return omni::fabric::Token{};
 }
 
-omni::fabric::Type getPrimvarType(VertexAttributeType type) {
-    return CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_DATA_TYPE_NO_ARGS(getPrimvarTypeImpl, type);
+omni::fabric::Type getPrimvarType(DataType type) {
+    const auto baseDataType = getPrimvarBaseDataType(type);
+    const auto componentCount = getComponentCount(type);
+    return {baseDataType, static_cast<uint8_t>(componentCount), 1, omni::fabric::AttributeRole::eNone};
+}
+
+MdlExternalPropertyType getMdlExternalPropertyType(const omni::fabric::Token& mdlIdentifier) {
+    assert(isCesiumPropertyNode(mdlIdentifier));
+
+    if (mdlIdentifier == FabricTokens::cesium_property_int) {
+        return MdlExternalPropertyType::INT32;
+    } else if (mdlIdentifier == FabricTokens::cesium_property_int2) {
+        return MdlExternalPropertyType::VEC2_INT32;
+    } else if (mdlIdentifier == FabricTokens::cesium_property_int3) {
+        return MdlExternalPropertyType::VEC3_INT32;
+    } else if (mdlIdentifier == FabricTokens::cesium_property_int4) {
+        return MdlExternalPropertyType::VEC4_INT32;
+    } else if (mdlIdentifier == FabricTokens::cesium_property_float) {
+        return MdlExternalPropertyType::FLOAT32;
+    } else if (mdlIdentifier == FabricTokens::cesium_property_float2) {
+        return MdlExternalPropertyType::VEC2_FLOAT32;
+    } else if (mdlIdentifier == FabricTokens::cesium_property_float3) {
+        return MdlExternalPropertyType::VEC3_FLOAT32;
+    } else if (mdlIdentifier == FabricTokens::cesium_property_float4) {
+        return MdlExternalPropertyType::VEC4_FLOAT32;
+    }
+
+    // Should never reach here
+    assert(false);
+    return MdlExternalPropertyType::INT32;
+}
+
+bool typesCompatible(MdlExternalPropertyType externalType, MdlInternalPropertyType internalType) {
+    switch (externalType) {
+        case MdlExternalPropertyType::INT32:
+            switch (internalType) {
+                case MdlInternalPropertyType::INT32:
+                    return true;
+                default:
+                    return false;
+            }
+        case MdlExternalPropertyType::FLOAT32:
+            switch (internalType) {
+                case MdlInternalPropertyType::FLOAT32:
+                case MdlInternalPropertyType::INT32_NORM:
+                    return true;
+                default:
+                    return false;
+            }
+        case MdlExternalPropertyType::VEC2_INT32:
+            switch (internalType) {
+                case MdlInternalPropertyType::VEC2_INT32:
+                    return true;
+                default:
+                    return false;
+            }
+        case MdlExternalPropertyType::VEC2_FLOAT32:
+            switch (internalType) {
+                case MdlInternalPropertyType::VEC2_FLOAT32:
+                case MdlInternalPropertyType::VEC2_INT32_NORM:
+                    return true;
+                default:
+                    return false;
+            }
+        case MdlExternalPropertyType::VEC3_INT32:
+            switch (internalType) {
+                case MdlInternalPropertyType::VEC3_INT32:
+                    return true;
+                default:
+                    return false;
+            }
+        case MdlExternalPropertyType::VEC3_FLOAT32:
+            switch (internalType) {
+                case MdlInternalPropertyType::VEC3_FLOAT32:
+                case MdlInternalPropertyType::VEC3_INT32_NORM:
+                    return true;
+                default:
+                    return false;
+            }
+        case MdlExternalPropertyType::VEC4_INT32:
+            switch (internalType) {
+                case MdlInternalPropertyType::VEC4_INT32:
+                    return true;
+                default:
+                    return false;
+            }
+        case MdlExternalPropertyType::VEC4_FLOAT32:
+            switch (internalType) {
+                case MdlInternalPropertyType::VEC4_FLOAT32:
+                case MdlInternalPropertyType::VEC4_INT32_NORM:
+                    return true;
+                default:
+                    return false;
+            }
+        case MdlExternalPropertyType::MAT2_FLOAT32:
+            switch (internalType) {
+                case MdlInternalPropertyType::MAT2_INT32:
+                case MdlInternalPropertyType::MAT2_FLOAT32:
+                case MdlInternalPropertyType::MAT2_INT32_NORM:
+                    return true;
+                default:
+                    return false;
+            }
+        case MdlExternalPropertyType::MAT3_FLOAT32:
+            switch (internalType) {
+                case MdlInternalPropertyType::MAT3_INT32:
+                case MdlInternalPropertyType::MAT3_FLOAT32:
+                case MdlInternalPropertyType::MAT3_INT32_NORM:
+                    return true;
+                default:
+                    return false;
+            }
+        case MdlExternalPropertyType::MAT4_FLOAT32:
+            switch (internalType) {
+                case MdlInternalPropertyType::MAT4_INT32:
+                case MdlInternalPropertyType::MAT4_FLOAT32:
+                case MdlInternalPropertyType::MAT4_INT32_NORM:
+                    return true;
+                default:
+                    return false;
+            }
+    }
+
+    // Shouldn't reach here. All cases handled above.
+    assert(false);
+    return false;
 }
 
 } // namespace cesium::omniverse::FabricUtil

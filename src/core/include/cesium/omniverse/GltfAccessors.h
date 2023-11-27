@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cesium/omniverse/VertexAttributeType.h"
+#include "cesium/omniverse/DataType.h"
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
@@ -136,7 +136,7 @@ class FaceVertexCountsAccessor {
     uint64_t _size;
 };
 
-template <VertexAttributeType T> class VertexAttributeAccessor {
+template <DataType T> class VertexAttributeAccessor {
   public:
     VertexAttributeAccessor()
         : _size(0){};

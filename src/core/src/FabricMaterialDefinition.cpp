@@ -1,6 +1,7 @@
 #include "cesium/omniverse/FabricMaterialDefinition.h"
 
 #include "cesium/omniverse/GltfUtil.h"
+#include "cesium/omniverse/MetadataUtil.h"
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
@@ -25,6 +26,8 @@ std::vector<FeatureIdType> filterFeatureIdTypes(const FeaturesInfo& featuresInfo
 } // namespace
 
 FabricMaterialDefinition::FabricMaterialDefinition(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive,
     const MaterialInfo& materialInfo,
     const FeaturesInfo& featuresInfo,
     uint64_t imageryLayerCount,
@@ -34,7 +37,9 @@ FabricMaterialDefinition::FabricMaterialDefinition(
     , _hasBaseColorTexture(disableTextures ? false : materialInfo.baseColorTexture.has_value())
     , _featureIdTypes(filterFeatureIdTypes(featuresInfo, disableTextures))
     , _imageryLayerCount(disableTextures ? 0 : imageryLayerCount)
-    , _tilesetMaterialPath(tilesetMaterialPath) {}
+    , _tilesetMaterialPath(tilesetMaterialPath)
+    , _mdlInternalPropertyAttributePropertyTypes(
+          MetadataUtil::getMdlInternalPropertyAttributePropertyTypes(model, primitive)) {}
 
 bool FabricMaterialDefinition::hasVertexColors() const {
     return _hasVertexColors;
@@ -60,11 +65,17 @@ const pxr::SdfPath& FabricMaterialDefinition::getTilesetMaterialPath() const {
     return _tilesetMaterialPath;
 }
 
+const std::vector<MdlInternalPropertyType>&
+FabricMaterialDefinition::getMdlInternalPropertyAttributePropertyTypes() const {
+    return _mdlInternalPropertyAttributePropertyTypes;
+}
+
 // In C++ 20 we can use the default equality comparison (= default)
 bool FabricMaterialDefinition::operator==(const FabricMaterialDefinition& other) const {
     return _hasVertexColors == other._hasVertexColors && _hasBaseColorTexture == other._hasBaseColorTexture &&
            _featureIdTypes == other._featureIdTypes && _imageryLayerCount == other._imageryLayerCount &&
-           _tilesetMaterialPath == other._tilesetMaterialPath;
+           _tilesetMaterialPath == other._tilesetMaterialPath &&
+           _mdlInternalPropertyAttributePropertyTypes == other._mdlInternalPropertyAttributePropertyTypes;
 }
 
 } // namespace cesium::omniverse
