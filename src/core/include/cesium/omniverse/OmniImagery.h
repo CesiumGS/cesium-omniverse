@@ -5,9 +5,10 @@
 
 namespace cesium::omniverse {
 class OmniImagery {
-  public:
+  protected:
     OmniImagery(const pxr::SdfPath& path);
 
+  public:
     [[nodiscard]] pxr::SdfPath getPath() const;
     [[nodiscard]] std::string getName() const;
     [[nodiscard]] int64_t getIonAssetId() const;
