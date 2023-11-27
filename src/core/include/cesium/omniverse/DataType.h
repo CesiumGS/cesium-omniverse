@@ -1682,13 +1682,13 @@ template <> struct GetPrimvarBaseDataTypeImpl<DataType::MAT4_UINT64_NORM> { stat
 template <> struct GetPrimvarBaseDataTypeImpl<DataType::MAT4_INT64_NORM> { static constexpr auto BaseDataType = omni::fabric::BaseDataType::eFloat; };
 // clang-format on
 
-template <typename L, std::size_t... I> const auto& dispatchImpl(std::index_sequence<I...>, L lambda) {
-    static decltype(lambda(std::integral_constant<DataType, DataType(0)>{})) array[] = {
-        lambda(std::integral_constant<DataType, DataType(I)>{})...};
+template <typename T, typename L, std::size_t... I> const auto& dispatchImpl(std::index_sequence<I...>, L lambda) {
+    static decltype(lambda(std::integral_constant<T, T(0)>{})) array[] = {
+        lambda(std::integral_constant<T, T(I)>{})...};
     return array;
 }
-template <typename L, typename... P> auto dispatch(L lambda, DataType n, P&&... p) {
-    const auto& array = dispatchImpl(std::make_index_sequence<DataTypeCount>{}, lambda);
+template <typename T, typename L, typename... P> auto dispatch(L lambda, T n, P&&... p) {
+    const auto& array = dispatchImpl<T>(std::make_index_sequence<DataTypeCount>{}, lambda);
     return array[static_cast<size_t>(n)](std::forward<P>(p)...);
 }
 
