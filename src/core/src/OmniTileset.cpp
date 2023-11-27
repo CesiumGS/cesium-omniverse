@@ -9,7 +9,7 @@
 #include "cesium/omniverse/GeospatialUtil.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
-#include "cesium/omniverse/OmniImagery.h"
+#include "cesium/omniverse/OmniIonImagery.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/UsdUtil.h"
 #include "cesium/omniverse/Viewport.h"
