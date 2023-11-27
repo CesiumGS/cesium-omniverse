@@ -1,6 +1,6 @@
 #include "cesium/omniverse/AssetRegistry.h"
 
-#include "cesium/omniverse/OmniImagery.h"
+#include "cesium/omniverse/OmniIonImagery.h"
 #include "cesium/omniverse/OmniTileset.h"
 
 namespace cesium::omniverse {
@@ -37,7 +37,7 @@ const std::list<std::shared_ptr<OmniTileset>>& AssetRegistry::getAllTilesets() c
     return _tilesets;
 }
 
-const std::list<std::shared_ptr<OmniImagery>>& AssetRegistry::getAllImageries() const {
+const std::list<std::shared_ptr<OmniIonImagery>>& AssetRegistry::getAllImageries() const {
     return _imageries;
 }
 
@@ -53,14 +53,14 @@ std::vector<pxr::SdfPath> AssetRegistry::getAllTilesetPaths() const {
 }
 
 void AssetRegistry::addImagery(const pxr::SdfPath& path) {
-    _imageries.insert(_imageries.end(), std::make_shared<OmniImagery>(path));
+    _imageries.insert(_imageries.end(), std::make_shared<OmniIonImagery>(path));
 }
 
 void AssetRegistry::removeImagery(const pxr::SdfPath& path) {
     _imageries.remove_if([path](const auto& imagery) { return imagery->getPath() == path; });
 }
 
-std::optional<std::shared_ptr<OmniImagery>> AssetRegistry::getImageryByPath(const pxr::SdfPath& path) const {
+std::optional<std::shared_ptr<OmniIonImagery>> AssetRegistry::getImageryByPath(const pxr::SdfPath& path) const {
     for (const auto& imagery : _imageries) {
         if (imagery->getPath() == path) {
             return imagery;
@@ -70,7 +70,7 @@ std::optional<std::shared_ptr<OmniImagery>> AssetRegistry::getImageryByPath(cons
     return std::nullopt;
 }
 
-std::optional<std::shared_ptr<OmniImagery>> AssetRegistry::getImageryByIonAssetId(int64_t ionAssetId) const {
+std::optional<std::shared_ptr<OmniIonImagery>> AssetRegistry::getImageryByIonAssetId(int64_t ionAssetId) const {
     for (const auto& imagery : _imageries) {
         if (imagery->getIonAssetId() == ionAssetId) {
             return imagery;
