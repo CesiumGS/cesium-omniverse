@@ -10,7 +10,7 @@
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/OmniGlobeAnchor.h"
-#include "cesium/omniverse/OmniImagery.h"
+#include "cesium/omniverse/OmniIonImagery.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/Tokens.h"
@@ -25,7 +25,7 @@
 #include <Cesium3DTilesSelection/CreditSystem.h>
 #include <Cesium3DTilesSelection/Tileset.h>
 #include <CesiumUsdSchemas/data.h>
-#include <CesiumUsdSchemas/imagery.h>
+#include <CesiumUsdSchemas/ionImagery.h>
 #include <CesiumUsdSchemas/tileset.h>
 #include <CesiumUsdSchemas/tokens.h>
 #include <pxr/usd/sdf/path.h>
