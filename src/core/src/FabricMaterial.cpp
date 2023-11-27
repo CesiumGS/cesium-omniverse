@@ -296,23 +296,6 @@ void setPropertyAttributePropertyValues(
     setPropertyValues<T>(path, offset, scale, maximumValue, hasNoData, noData, defaultValue);
 }
 
-template <MdlInternalPropertyType T>
-void setPropertyTexturePropertyValues(
-    const omni::fabric::Path& path,
-    const pxr::TfToken& textureAssetPathToken,
-    const TextureInfo& textureInfo,
-    uint64_t texcoordIndex,
-    const GetMdlInternalPropertyTransformedType<T>& offset,
-    const GetMdlInternalPropertyTransformedType<T>& scale,
-    const GetMdlInternalPropertyRawType<T>& maximumValue,
-    bool hasNoData,
-    const GetMdlInternalPropertyRawType<T>& noData,
-    const GetMdlInternalPropertyTransformedType<T>& defaultValue) {
-
-    setTextureValuesCommonChannels(path, textureAssetPathToken, textureInfo, texcoordIndex);
-    setPropertyValues<T>(path, offset, scale, maximumValue, hasNoData, noData, defaultValue);
-}
-
 template <MdlInternalPropertyType T> void clearPropertyAttributeProperty(const omni::fabric::Path& path) {
     using MdlRawType = GetMdlInternalPropertyRawType<T>;
     using MdlTransformedType = GetMdlInternalPropertyTransformedType<T>;
@@ -320,26 +303,6 @@ template <MdlInternalPropertyType T> void clearPropertyAttributeProperty(const o
     setPropertyAttributePropertyValues<T>(
         path,
         "",
-        MdlTransformedType{0},
-        MdlTransformedType{0},
-        MdlRawType{0},
-        false,
-        MdlRawType{0},
-        MdlTransformedType{0});
-}
-
-template <MdlInternalPropertyType T>
-void clearPropertyTextureProperty(
-    const omni::fabric::Path& path,
-    const pxr::TfToken& defaultTransparentTextureAssetPathToken) {
-    using MdlRawType = GetMdlInternalPropertyRawType<T>;
-    using MdlTransformedType = GetMdlInternalPropertyTransformedType<T>;
-
-    setPropertyTexturePropertyValues<T>(
-        path,
-        defaultTransparentTextureAssetPathToken,
-        GltfUtil::getDefaultTextureInfo(),
-        DEFAULT_TEXCOORD_INDEX,
         MdlTransformedType{0},
         MdlTransformedType{0},
         MdlRawType{0},
@@ -473,17 +436,6 @@ void FabricMaterial::initializeNodes() {
         const auto propertyPath = FabricUtil::joinPaths(_materialPath, FabricTokens::property_attribute_n(i));
         createPropertyAttributeProperty(propertyPath, type);
         _propertyAttributePropertyPaths[type].push_back(propertyPath);
-    }
-
-    // Create property texture properties
-    const auto& propertyTexturePropertyTypes = _materialDefinition.getMdlInternalPropertyTexturePropertyTypes();
-    const auto propertyTexturePropertiesCount = propertyTexturePropertyTypes.size();
-
-    for (uint64_t i = 0; i < propertyTexturePropertiesCount; i++) {
-        const auto type = propertyTexturePropertyTypes[i];
-        const auto propertyPath = FabricUtil::joinPaths(_materialPath, FabricTokens::property_texture_n(i));
-        createPropertyTextureProperty(propertyPath, type);
-        _propertyTexturePropertyPaths[type].push_back(propertyPath);
     }
 }
 
@@ -733,41 +685,6 @@ void FabricMaterial::createPropertyAttributePropertyFloat(
     createAttributes(srw, path, attributes, subidentifier);
 }
 
-void FabricMaterial::createPropertyTexturePropertyInt(
-    const omni::fabric::Path& path,
-    const omni::fabric::Token& subidentifier,
-    const omni::fabric::Type& noDataType,
-    const omni::fabric::Type& defaultValueType) {
-    static const auto additionalAttributes = std::vector<std::pair<omni::fabric::Type, omni::fabric::Token>>{{
-        std::make_pair(FabricTypes::inputs_channels, FabricTokens::inputs_channels),
-        std::make_pair(FabricTypes::inputs_has_no_data, FabricTokens::inputs_has_no_data),
-        std::make_pair(noDataType, FabricTokens::inputs_no_data),
-        std::make_pair(defaultValueType, FabricTokens::inputs_default_value),
-    }};
-    return createTextureCommon(path, subidentifier, additionalAttributes);
-}
-
-void FabricMaterial::createPropertyTexturePropertyNormalizedInt(
-    const omni::fabric::Path& path,
-    const omni::fabric::Token& subidentifier,
-    const omni::fabric::Type& noDataType,
-    const omni::fabric::Type& defaultValueType,
-    const omni::fabric::Type& offsetType,
-    const omni::fabric::Type& scaleType,
-    const omni::fabric::Type& maximumValueType) {
-    static const auto additionalAttributes = std::vector<std::pair<omni::fabric::Type, omni::fabric::Token>>{{
-        std::make_pair(FabricTypes::inputs_channels, FabricTokens::inputs_channels),
-        std::make_pair(FabricTypes::inputs_has_no_data, FabricTokens::inputs_has_no_data),
-        std::make_pair(noDataType, FabricTokens::inputs_no_data),
-        std::make_pair(defaultValueType, FabricTokens::inputs_default_value),
-        std::make_pair(offsetType, FabricTokens::inputs_offset),
-        std::make_pair(scaleType, FabricTokens::inputs_scale),
-        std::make_pair(maximumValueType, FabricTokens::inputs_maximum_value),
-    }};
-
-    return createTextureCommon(path, subidentifier, additionalAttributes);
-}
-
 void FabricMaterial::createPropertyAttributeProperty(const omni::fabric::Path& path, MdlInternalPropertyType type) {
     switch (type) {
         case MdlInternalPropertyType::INT32:
@@ -888,94 +805,6 @@ void FabricMaterial::createPropertyAttributeProperty(const omni::fabric::Path& p
     }
 }
 
-void FabricMaterial::createPropertyTextureProperty(const omni::fabric::Path& path, MdlInternalPropertyType type) {
-    switch (type) {
-        case MdlInternalPropertyType::INT32:
-            createPropertyTexturePropertyInt(
-                path,
-                FabricTokens::cesium_internal_property_texture_int_lookup,
-                FabricTypes::inputs_no_data_int,
-                FabricTypes::inputs_default_value_int);
-            break;
-        case MdlInternalPropertyType::VEC2_INT32:
-            createPropertyTexturePropertyInt(
-                path,
-                FabricTokens::cesium_internal_property_texture_int2_lookup,
-                FabricTypes::inputs_no_data_int2,
-                FabricTypes::inputs_default_value_int2);
-            break;
-        case MdlInternalPropertyType::VEC3_INT32:
-            createPropertyTexturePropertyInt(
-                path,
-                FabricTokens::cesium_internal_property_texture_int3_lookup,
-                FabricTypes::inputs_no_data_int3,
-                FabricTypes::inputs_default_value_int3);
-            break;
-        case MdlInternalPropertyType::VEC4_INT32:
-            createPropertyTexturePropertyInt(
-                path,
-                FabricTokens::cesium_internal_property_texture_int4_lookup,
-                FabricTypes::inputs_no_data_int4,
-                FabricTypes::inputs_default_value_int4);
-            break;
-        case MdlInternalPropertyType::INT32_NORM:
-            createPropertyTexturePropertyNormalizedInt(
-                path,
-                FabricTokens::cesium_internal_property_texture_normalized_int_lookup,
-                FabricTypes::inputs_no_data_int,
-                FabricTypes::inputs_default_value_float,
-                FabricTypes::inputs_offset_float,
-                FabricTypes::inputs_scale_float,
-                FabricTypes::inputs_maximum_value_int);
-            break;
-        case MdlInternalPropertyType::VEC2_INT32_NORM:
-            createPropertyTexturePropertyNormalizedInt(
-                path,
-                FabricTokens::cesium_internal_property_texture_normalized_int2_lookup,
-                FabricTypes::inputs_no_data_int2,
-                FabricTypes::inputs_default_value_float2,
-                FabricTypes::inputs_offset_float2,
-                FabricTypes::inputs_scale_float2,
-                FabricTypes::inputs_maximum_value_int2);
-            break;
-        case MdlInternalPropertyType::VEC3_INT32_NORM:
-            createPropertyTexturePropertyNormalizedInt(
-                path,
-                FabricTokens::cesium_internal_property_texture_normalized_int3_lookup,
-                FabricTypes::inputs_no_data_int3,
-                FabricTypes::inputs_default_value_float3,
-                FabricTypes::inputs_offset_float3,
-                FabricTypes::inputs_scale_float3,
-                FabricTypes::inputs_maximum_value_int3);
-            break;
-        case MdlInternalPropertyType::VEC4_INT32_NORM:
-            createPropertyTexturePropertyNormalizedInt(
-                path,
-                FabricTokens::cesium_internal_property_texture_normalized_int4_lookup,
-                FabricTypes::inputs_no_data_int4,
-                FabricTypes::inputs_default_value_float4,
-                FabricTypes::inputs_offset_float4,
-                FabricTypes::inputs_scale_float4,
-                FabricTypes::inputs_maximum_value_int4);
-            break;
-        case MdlInternalPropertyType::FLOAT32:
-        case MdlInternalPropertyType::VEC2_FLOAT32:
-        case MdlInternalPropertyType::VEC3_FLOAT32:
-        case MdlInternalPropertyType::VEC4_FLOAT32:
-        case MdlInternalPropertyType::MAT2_INT32:
-        case MdlInternalPropertyType::MAT2_FLOAT32:
-        case MdlInternalPropertyType::MAT2_INT32_NORM:
-        case MdlInternalPropertyType::MAT3_INT32:
-        case MdlInternalPropertyType::MAT3_FLOAT32:
-        case MdlInternalPropertyType::MAT3_INT32_NORM:
-        case MdlInternalPropertyType::MAT4_INT32:
-        case MdlInternalPropertyType::MAT4_FLOAT32:
-        case MdlInternalPropertyType::MAT4_INT32_NORM:
-            assert(false);
-            break;
-    }
-}
-
 void FabricMaterial::reset() {
     if (_usesDefaultMaterial) {
         setShaderValues(
@@ -1013,13 +842,6 @@ void FabricMaterial::reset() {
         }
     }
 
-    for (const auto& [type, paths] : _propertyTexturePropertyPaths) {
-        for (const auto& path : paths) {
-            CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_MDL_TYPE(
-                clearPropertyTextureProperty, type, path, _defaultTransparentTextureAssetPathToken);
-        }
-    }
-
     _properties.clear();
 
     for (const auto& imageryLayerPath : _imageryLayerPaths) {
@@ -1044,14 +866,12 @@ void FabricMaterial::setMaterial(
     const FeaturesInfo& featuresInfo,
     const std::shared_ptr<FabricTexture>& baseColorTexture,
     const std::vector<std::shared_ptr<FabricTexture>>& featureIdTextures,
-    const std::vector<std::shared_ptr<FabricTexture>>& propertyTextures,
     const glm::dvec3& displayColor,
     double displayOpacity,
     const std::unordered_map<uint64_t, uint64_t>& texcoordIndexMapping,
     const std::vector<uint64_t>& featureIdIndexSetIndexMapping,
     const std::vector<uint64_t>& featureIdAttributeSetIndexMapping,
-    const std::vector<uint64_t>& featureIdTextureSetIndexMapping,
-    const std::unordered_map<uint64_t, uint64_t>& propertyTextureIndexMapping) {
+    const std::vector<uint64_t>& featureIdTextureSetIndexMapping) {
 
     if (stageDestroyed()) {
         return;
@@ -1118,7 +938,6 @@ void FabricMaterial::setMaterial(
     }
 
     std::array<uint8_t, MdlInternalPropertyTypeCount> propertyAttributePropertyTypeCounter{};
-    std::array<uint8_t, MdlInternalPropertyTypeCount> propertyTexturePropertyTypeCounter{};
 
     MetadataUtil::forEachStyleablePropertyAttributeProperty(
         model,
@@ -1156,58 +975,6 @@ void FabricMaterial::setMaterial(
             setPropertyAttributePropertyValues<mdlType>(
                 propertyAttributePropertyPath,
                 primvarName,
-                offset,
-                scale,
-                maximumValue,
-                hasNoData,
-                noData,
-                defaultValue);
-        });
-
-    MetadataUtil::forEachStyleablePropertyTextureProperty(
-        model,
-        primitive,
-        [this,
-         &propertyTextures,
-         &texcoordIndexMapping,
-         &propertyTextureIndexMapping,
-         &propertyTexturePropertyTypeCounter](
-            const std::string& propertyId, [[maybe_unused]] auto propertyTexturePropertyView, auto styleableProperty) {
-            constexpr auto type = decltype(styleableProperty)::Type;
-            constexpr auto mdlType = getMdlInternalPropertyType<type>();
-            using RawType = GetRawType<type>;
-            using TransformedType = GetTransformedType<type>;
-            using MdlRawType = GetMdlInternalPropertyRawType<mdlType>;
-            using MdlTransformedType = GetMdlInternalPropertyTransformedType<mdlType>;
-            const auto& textureInfo = styleableProperty.textureInfo;
-            const auto textureIndex = styleableProperty.textureIndex;
-            const auto pathIndex = propertyTexturePropertyTypeCounter[static_cast<uint64_t>(mdlType)]++;
-            const auto& propertyTexturePropertyPath = _propertyTexturePropertyPaths.at(mdlType)[pathIndex];
-            const auto texcoordIndex = texcoordIndexMapping.at(textureInfo.setIndex);
-            const auto propertyTextureIndex = propertyTextureIndexMapping.at(textureIndex);
-            const auto& textureAssetPath = propertyTextures[propertyTextureIndex]->getAssetPathToken();
-            const auto& propertyInfo = styleableProperty.propertyInfo;
-            const auto offset =
-                static_cast<MdlTransformedType>(propertyInfo.offset.value_or(TransformedType{DEFAULT_OFFSET}));
-            const auto scale =
-                static_cast<MdlTransformedType>(propertyInfo.scale.value_or(TransformedType{DEFAULT_SCALE}));
-            constexpr auto maximumValue = RawType{std::numeric_limits<GetRawComponentType<type>>::max()};
-            const auto hasNoData = propertyInfo.noData.has_value();
-            const auto noData = static_cast<MdlRawType>(propertyInfo.noData.value_or(RawType{DEFAULT_NO_DATA}));
-            const auto defaultValue =
-                static_cast<MdlTransformedType>(propertyInfo.defaultValue.value_or(TransformedType{DEFAULT_VALUE}));
-
-            _properties.emplace_back(PropertyInfo{
-                propertyTexturePropertyPath,
-                propertyId,
-                mdlType,
-            });
-
-            setPropertyTexturePropertyValues<mdlType>(
-                propertyTexturePropertyPath,
-                textureAssetPath,
-                textureInfo,
-                texcoordIndex,
                 offset,
                 scale,
                 maximumValue,

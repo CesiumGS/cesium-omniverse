@@ -22,7 +22,6 @@ struct FabricMesh {
     std::shared_ptr<FabricMaterial> material;
     std::shared_ptr<FabricTexture> baseColorTexture;
     std::vector<std::shared_ptr<FabricTexture>> featureIdTextures;
-    std::vector<std::shared_ptr<FabricTexture>> propertyTextures;
     MaterialInfo materialInfo;
     FeaturesInfo featuresInfo;
     std::unordered_map<uint64_t, uint64_t> texcoordIndexMapping;
@@ -30,7 +29,6 @@ struct FabricMesh {
     std::vector<uint64_t> featureIdIndexSetIndexMapping;
     std::vector<uint64_t> featureIdAttributeSetIndexMapping;
     std::vector<uint64_t> featureIdTextureSetIndexMapping;
-    std::unordered_map<uint64_t, uint64_t> propertyTextureIndexMapping;
 };
 
 struct TileRenderResources {

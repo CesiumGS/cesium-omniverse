@@ -35,18 +35,6 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     (cesium_internal_property_attribute_normalized_int2_lookup) \
     (cesium_internal_property_attribute_normalized_int3_lookup) \
     (cesium_internal_property_attribute_normalized_int4_lookup) \
-    (cesium_internal_property_texture_int_lookup) \
-    (cesium_internal_property_texture_int2_lookup) \
-    (cesium_internal_property_texture_int3_lookup) \
-    (cesium_internal_property_texture_int4_lookup) \
-    (cesium_internal_property_texture_float_lookup) \
-    (cesium_internal_property_texture_float2_lookup) \
-    (cesium_internal_property_texture_float3_lookup) \
-    (cesium_internal_property_texture_float4_lookup) \
-    (cesium_internal_property_texture_normalized_int_lookup) \
-    (cesium_internal_property_texture_normalized_int2_lookup) \
-    (cesium_internal_property_texture_normalized_int3_lookup) \
-    (cesium_internal_property_texture_normalized_int4_lookup) \
     (cesium_internal_texture_lookup) \
     (cesium_property_int) \
     (cesium_property_int2) \
@@ -169,7 +157,6 @@ const omni::fabric::TokenC imagery_layer_n(uint64_t index);
 const omni::fabric::TokenC inputs_imagery_layer_n(uint64_t index);
 const omni::fabric::TokenC feature_id_n(uint64_t index);
 const omni::fabric::TokenC property_attribute_n(uint64_t index);
-const omni::fabric::TokenC property_texture_n(uint64_t index);
 
 }
 

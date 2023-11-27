@@ -27,7 +27,6 @@ class FabricMaterialDefinition {
     [[nodiscard]] bool hasTilesetMaterial() const;
     [[nodiscard]] const pxr::SdfPath& getTilesetMaterialPath() const;
     [[nodiscard]] const std::vector<MdlInternalPropertyType>& getMdlInternalPropertyAttributePropertyTypes() const;
-    [[nodiscard]] const std::vector<MdlInternalPropertyType>& getMdlInternalPropertyTexturePropertyTypes() const;
 
     // Make sure to update this function when adding new fields to the class
     bool operator==(const FabricMaterialDefinition& other) const;
@@ -39,7 +38,6 @@ class FabricMaterialDefinition {
     uint64_t _imageryLayerCount;
     pxr::SdfPath _tilesetMaterialPath;
     std::vector<MdlInternalPropertyType> _mdlInternalPropertyAttributePropertyTypes;
-    std::vector<MdlInternalPropertyType> _mdlInternalPropertyTexturePropertyTypes;
 };
 
 } // namespace cesium::omniverse
