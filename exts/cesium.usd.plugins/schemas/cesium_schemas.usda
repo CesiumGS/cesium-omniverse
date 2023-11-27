@@ -342,12 +342,28 @@ class CesiumTilesetPrim "CesiumTilesetPrim" (
 }
 
 class CesiumImageryPrim "CesiumImageryPrim" (
-    doc = """Adds a prim for representing an imagery layer. Should be a child of a tileset."""
+    doc = """Base class for adding a prim for representing an imagery layer."""
     inherits = </Typed>
     customData = {
         string className = "Imagery"
     }
 ) {
+    bool cesium:showCreditsOnScreen = false (
+        customData = {
+            string apiName = "showCreditsOnScreen"
+        }
+        displayName = "Show Credits On Screen"
+        doc = "Whether or not to show this imagery layer's credits on screen."
+    )
+
+   float cesium:alpha = 1.0 (
+        customData = {
+            string apiName = "alpha"
+        }
+        displayName = "Alpha"
+        doc = "The alpha blending value, from 0.0 to 1.0, where 1.0 is fully opaque."
+    )
+
     int64 cesium:ionAssetId = 0 (
         customData = {
             string apiName = "ionAssetId"
@@ -363,22 +379,15 @@ class CesiumImageryPrim "CesiumImageryPrim" (
         displayName = "ion Access Token"
         doc = "The access token to use to access the Cesium ion resource. Overrides the default token. Blank if using URL."
     )
+}
 
-    bool cesium:showCreditsOnScreen = false (
-        customData = {
-            string apiName = "showCreditsOnScreen"
-        }
-        displayName = "Show Credits On Screen"
-        doc = "Whether or not to show this imagery layer's credits on screen."
-    )
-
-    float cesium:alpha = 1.0 (
-        customData = {
-            string apiName = "alpha"
-        }
-        displayName = "Alpha"
-        doc = "The alpha blending value, from 0.0 to 1.0, where 1.0 is fully opaque."
-    )
+class CesiumIonImageryPrim "CesiumIonImageryPrim" (
+    doc = """Adds a prim for representing an imagery layer. Should be a child of a tileset."""
+    inherits = </CesiumImageryPrim>
+    customData = {
+        string className = "IonImagery"
+    }
+) {
 }
 
 class "CesiumGlobeAnchorSchemaAPI" (

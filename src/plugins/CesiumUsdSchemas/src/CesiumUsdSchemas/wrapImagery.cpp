@@ -27,20 +27,6 @@ WRAP_CUSTOM;
 
         
 static UsdAttribute
-_CreateIonAssetIdAttr(CesiumImagery &self,
-                                      object defaultVal, bool writeSparsely) {
-    return self.CreateIonAssetIdAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int64), writeSparsely);
-}
-        
-static UsdAttribute
-_CreateIonAccessTokenAttr(CesiumImagery &self,
-                                      object defaultVal, bool writeSparsely) {
-    return self.CreateIonAccessTokenAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
-}
-        
-static UsdAttribute
 _CreateShowCreditsOnScreenAttr(CesiumImagery &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateShowCreditsOnScreenAttr(
@@ -52,6 +38,20 @@ _CreateAlphaAttr(CesiumImagery &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateAlphaAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Float), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateIonAssetIdAttr(CesiumImagery &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateIonAssetIdAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int64), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateIonAccessTokenAttr(CesiumImagery &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateIonAccessTokenAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
 
 static std::string
@@ -96,20 +96,6 @@ void wrapCesiumImagery()
         .def(!self)
 
         
-        .def("GetIonAssetIdAttr",
-             &This::GetIonAssetIdAttr)
-        .def("CreateIonAssetIdAttr",
-             &_CreateIonAssetIdAttr,
-             (arg("defaultValue")=object(),
-              arg("writeSparsely")=false))
-        
-        .def("GetIonAccessTokenAttr",
-             &This::GetIonAccessTokenAttr)
-        .def("CreateIonAccessTokenAttr",
-             &_CreateIonAccessTokenAttr,
-             (arg("defaultValue")=object(),
-              arg("writeSparsely")=false))
-        
         .def("GetShowCreditsOnScreenAttr",
              &This::GetShowCreditsOnScreenAttr)
         .def("CreateShowCreditsOnScreenAttr",
@@ -121,6 +107,20 @@ void wrapCesiumImagery()
              &This::GetAlphaAttr)
         .def("CreateAlphaAttr",
              &_CreateAlphaAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetIonAssetIdAttr",
+             &This::GetIonAssetIdAttr)
+        .def("CreateIonAssetIdAttr",
+             &_CreateIonAssetIdAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetIonAccessTokenAttr",
+             &This::GetIonAccessTokenAttr)
+        .def("CreateIonAccessTokenAttr",
+             &_CreateIonAccessTokenAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 
