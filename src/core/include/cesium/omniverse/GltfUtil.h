@@ -4,6 +4,7 @@
 #include "cesium/omniverse/GltfAccessors.h"
 
 #include <CesiumGltf/Accessor.h>
+#include <CesiumGltf/PropertyTextureProperty.h>
 #include <glm/glm.hpp>
 #include <omni/fabric/core/FabricTypes.h>
 
@@ -138,6 +139,9 @@ getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::Mesh
 
 const MaterialInfo& getDefaultMaterialInfo();
 const TextureInfo& getDefaultTextureInfo();
+TextureInfo getPropertyTexturePropertyInfo(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::PropertyTextureProperty& propertyTextureProperty);
 
 bool hasNormals(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, bool smoothNormals);
 bool hasTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);
