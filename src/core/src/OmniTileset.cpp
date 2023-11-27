@@ -23,7 +23,7 @@
 #include <Cesium3DTilesSelection/Tileset.h>
 #include <Cesium3DTilesSelection/ViewState.h>
 #include <Cesium3DTilesSelection/ViewUpdateResult.h>
-#include <CesiumUsdSchemas/imagery.h>
+#include <CesiumUsdSchemas/ionImagery.h>
 #include <CesiumUsdSchemas/tileset.h>
 #include <pxr/usd/usd/prim.h>
 #include <pxr/usd/usd/stage.h>
@@ -419,7 +419,7 @@ void OmniTileset::reload() {
 }
 
 void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
-    const OmniImagery imagery(imageryPath);
+    const OmniIonImagery imagery(imageryPath);
     const auto imageryIonAssetId = imagery.getIonAssetId();
     const auto imageryIonAccessToken = imagery.getIonAccessToken();
 
@@ -546,7 +546,7 @@ void OmniTileset::updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::T
 double OmniTileset::getImageryLayerAlpha(uint64_t imageryLayerIndex) const {
     assert(imageryLayerIndex < _imageryPaths.size());
 
-    auto alpha = OmniImagery(_imageryPaths[imageryLayerIndex]).getAlpha();
+    auto alpha = OmniIonImagery(_imageryPaths[imageryLayerIndex]).getAlpha();
     alpha = glm::clamp(alpha, 0.0, 1.0);
 
     return alpha;
