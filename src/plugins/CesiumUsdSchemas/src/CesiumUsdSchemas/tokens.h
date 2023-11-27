@@ -161,7 +161,7 @@ struct CesiumTokensType {
     const TfToken cesiumIonAssetId;
     /// \brief "cesium:ionServerBinding"
     /// 
-    /// CesiumTileset
+    /// CesiumImagery, CesiumTileset
     const TfToken cesiumIonServerBinding;
     /// \brief "cesium:ionServerUrl"
     /// 

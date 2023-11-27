@@ -419,6 +419,14 @@ class CesiumImageryPrim "CesiumImageryPrim" (
         displayName = "Alpha"
         doc = "The alpha blending value, from 0.0 to 1.0, where 1.0 is fully opaque."
     )
+
+    rel cesium:ionServerBinding (
+        customData = {
+            string apiName = "ionServerBinding"
+        }
+        displayName = "Cesium ion Server Binding"
+        doc = "Specifies which Cesium ion Server prim to use for this tileset."
+    )
 }
 
 class "CesiumGlobeAnchorSchemaAPI" (

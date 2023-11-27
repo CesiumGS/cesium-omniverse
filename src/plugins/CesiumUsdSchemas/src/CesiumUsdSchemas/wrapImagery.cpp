@@ -124,6 +124,11 @@ void wrapCesiumImagery()
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 
+        
+        .def("GetIonServerBindingRel",
+             &This::GetIonServerBindingRel)
+        .def("CreateIonServerBindingRel",
+             &This::CreateIonServerBindingRel)
         .def("__repr__", ::_Repr)
     ;
 

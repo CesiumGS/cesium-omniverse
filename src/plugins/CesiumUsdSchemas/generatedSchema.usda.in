@@ -319,6 +319,10 @@ class CesiumImageryPrim "CesiumImageryPrim" (
         displayName = "ion Asset ID"
         doc = "The ID of the Cesium ion asset to use."
     )
+    rel cesium:ionServerBinding (
+        displayName = "Cesium ion Server Binding"
+        doc = "Specifies which Cesium ion Server prim to use for this tileset."
+    )
     bool cesium:showCreditsOnScreen = 0 (
         displayName = "Show Credits On Screen"
         doc = "Whether or not to show this imagery layer's credits on screen."

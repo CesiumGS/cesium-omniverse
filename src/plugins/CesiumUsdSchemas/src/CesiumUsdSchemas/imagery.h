@@ -214,6 +214,20 @@ public:
     UsdAttribute CreateAlphaAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
+    // --------------------------------------------------------------------- //
+    // IONSERVERBINDING 
+    // --------------------------------------------------------------------- //
+    /// Specifies which Cesium ion Server prim to use for this tileset.
+    ///
+    CESIUMUSDSCHEMAS_API
+    UsdRelationship GetIonServerBindingRel() const;
+
+    /// See GetIonServerBindingRel(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create
+    CESIUMUSDSCHEMAS_API
+    UsdRelationship CreateIonServerBindingRel() const;
+
+public:
     // ===================================================================== //
     // Feel free to add custom code below this line, it will be preserved by 
     // the code generator. 
