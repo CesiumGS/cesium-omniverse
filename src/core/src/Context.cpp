@@ -136,10 +136,10 @@ void Context::setProjectDefaultToken(const CesiumIonClient::Token& token) {
         return;
     }
 
-    const auto cesiumDataUsd = UsdUtil::getOrCreateCesiumData();
+    const auto currentIonServer = UsdUtil::getOrCreateCurrentIonServer();
 
-    cesiumDataUsd.GetProjectDefaultIonAccessTokenAttr().Set<std::string>(token.token);
-    cesiumDataUsd.GetProjectDefaultIonAccessTokenIdAttr().Set<std::string>(token.id);
+    currentIonServer.GetProjectDefaultIonAccessTokenAttr().Set<std::string>(token.token);
+    currentIonServer.GetProjectDefaultIonAccessTokenIdAttr().Set<std::string>(token.id);
 }
 
 void Context::reloadTileset(const pxr::SdfPath& tilesetPath) {
@@ -616,13 +616,13 @@ std::optional<std::shared_ptr<CesiumIonSession>> Context::getSession() {
 }
 
 std::optional<CesiumIonClient::Token> Context::getDefaultToken() const {
-    const auto cesiumDataUsd = UsdUtil::getOrCreateCesiumData();
+    const auto currentIonServer = UsdUtil::getOrCreateCurrentIonServer();
 
     std::string projectDefaultToken;
     std::string projectDefaultTokenId;
 
-    cesiumDataUsd.GetProjectDefaultIonAccessTokenAttr().Get(&projectDefaultToken);
-    cesiumDataUsd.GetProjectDefaultIonAccessTokenIdAttr().Get(&projectDefaultTokenId);
+    currentIonServer.GetProjectDefaultIonAccessTokenAttr().Get(&projectDefaultToken);
+    currentIonServer.GetProjectDefaultIonAccessTokenIdAttr().Get(&projectDefaultTokenId);
 
     if (projectDefaultToken.empty()) {
         return std::nullopt;
