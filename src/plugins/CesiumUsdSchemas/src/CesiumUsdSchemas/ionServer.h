@@ -1,7 +1,7 @@
-#ifndef CESIUMUSDSCHEMAS_GENERATED_IMAGERY_H
-#define CESIUMUSDSCHEMAS_GENERATED_IMAGERY_H
+#ifndef CESIUMUSDSCHEMAS_GENERATED_IONSERVER_H
+#define CESIUMUSDSCHEMAS_GENERATED_IONSERVER_H
 
-/// \file CesiumUsdSchemas/imagery.h
+/// \file CesiumUsdSchemas/ionServer.h
 
 #include "pxr/pxr.h"
 #include ".//api.h"
@@ -24,14 +24,14 @@ PXR_NAMESPACE_OPEN_SCOPE
 class SdfAssetPath;
 
 // -------------------------------------------------------------------------- //
-// CESIUMIMAGERYPRIM                                                          //
+// CESIUMIONSERVERPRIM                                                        //
 // -------------------------------------------------------------------------- //
 
-/// \class CesiumImagery
+/// \class CesiumIonServer
 ///
-/// Adds a prim for representing an imagery layer. Should be a child of a tileset.
+/// Stores metadata related to Cesium ion server connections for tilesets.
 ///
-class CesiumImagery : public UsdTyped
+class CesiumIonServer : public UsdTyped
 {
 public:
     /// Compile time constant representing what kind of schema this class is.
@@ -39,26 +39,26 @@ public:
     /// \sa UsdSchemaKind
     static const UsdSchemaKind schemaKind = UsdSchemaKind::ConcreteTyped;
 
-    /// Construct a CesiumImagery on UsdPrim \p prim .
-    /// Equivalent to CesiumImagery::Get(prim.GetStage(), prim.GetPath())
+    /// Construct a CesiumIonServer on UsdPrim \p prim .
+    /// Equivalent to CesiumIonServer::Get(prim.GetStage(), prim.GetPath())
     /// for a \em valid \p prim, but will not immediately throw an error for
     /// an invalid \p prim
-    explicit CesiumImagery(const UsdPrim& prim=UsdPrim())
+    explicit CesiumIonServer(const UsdPrim& prim=UsdPrim())
         : UsdTyped(prim)
     {
     }
 
-    /// Construct a CesiumImagery on the prim held by \p schemaObj .
-    /// Should be preferred over CesiumImagery(schemaObj.GetPrim()),
+    /// Construct a CesiumIonServer on the prim held by \p schemaObj .
+    /// Should be preferred over CesiumIonServer(schemaObj.GetPrim()),
     /// as it preserves SchemaBase state.
-    explicit CesiumImagery(const UsdSchemaBase& schemaObj)
+    explicit CesiumIonServer(const UsdSchemaBase& schemaObj)
         : UsdTyped(schemaObj)
     {
     }
 
     /// Destructor.
     CESIUMUSDSCHEMAS_API
-    virtual ~CesiumImagery();
+    virtual ~CesiumIonServer();
 
     /// Return a vector of names of all pre-declared attributes for this schema
     /// class and all its ancestor classes.  Does not include attributes that
@@ -67,17 +67,17 @@ public:
     static const TfTokenVector &
     GetSchemaAttributeNames(bool includeInherited=true);
 
-    /// Return a CesiumImagery holding the prim adhering to this
+    /// Return a CesiumIonServer holding the prim adhering to this
     /// schema at \p path on \p stage.  If no prim exists at \p path on
     /// \p stage, or if the prim at that path does not adhere to this schema,
     /// return an invalid schema object.  This is shorthand for the following:
     ///
     /// \code
-    /// CesiumImagery(stage->GetPrimAtPath(path));
+    /// CesiumIonServer(stage->GetPrimAtPath(path));
     /// \endcode
     ///
     CESIUMUSDSCHEMAS_API
-    static CesiumImagery
+    static CesiumIonServer
     Get(const UsdStagePtr &stage, const SdfPath &path);
 
     /// Attempt to ensure a \a UsdPrim adhering to this schema at \p path
@@ -103,7 +103,7 @@ public:
     /// the opinion at the current EditTarget.
     ///
     CESIUMUSDSCHEMAS_API
-    static CesiumImagery
+    static CesiumIonServer
     Define(const UsdStagePtr &stage, const SdfPath &path);
 
 protected:
@@ -127,105 +127,69 @@ private:
 
 public:
     // --------------------------------------------------------------------- //
-    // IONASSETID 
+    // IONSERVERURL 
     // --------------------------------------------------------------------- //
-    /// The ID of the Cesium ion asset to use.
+    /// The hostname URL for the Cesium ion Server.
     ///
     /// | ||
     /// | -- | -- |
-    /// | Declaration | `int64 cesium:ionAssetId = 0` |
-    /// | C++ Type | int64_t |
-    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Int64 |
-    CESIUMUSDSCHEMAS_API
-    UsdAttribute GetIonAssetIdAttr() const;
-
-    /// See GetIonAssetIdAttr(), and also 
-    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
-    /// If specified, author \p defaultValue as the attribute's default,
-    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
-    /// the default for \p writeSparsely is \c false.
-    CESIUMUSDSCHEMAS_API
-    UsdAttribute CreateIonAssetIdAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
-
-public:
-    // --------------------------------------------------------------------- //
-    // IONACCESSTOKEN 
-    // --------------------------------------------------------------------- //
-    /// The access token to use to access the Cesium ion resource. Overrides the default token. Blank if using URL.
-    ///
-    /// | ||
-    /// | -- | -- |
-    /// | Declaration | `string cesium:ionAccessToken = ""` |
+    /// | Declaration | `string cesium:ionServerUrl` |
     /// | C++ Type | std::string |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
     CESIUMUSDSCHEMAS_API
-    UsdAttribute GetIonAccessTokenAttr() const;
+    UsdAttribute GetIonServerUrlAttr() const;
 
-    /// See GetIonAccessTokenAttr(), and also 
+    /// See GetIonServerUrlAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
     CESIUMUSDSCHEMAS_API
-    UsdAttribute CreateIonAccessTokenAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+    UsdAttribute CreateIonServerUrlAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // --------------------------------------------------------------------- //
-    // SHOWCREDITSONSCREEN 
+    // PROJECTDEFAULTIONACCESSTOKEN 
     // --------------------------------------------------------------------- //
-    /// Whether or not to show this imagery layer's credits on screen.
+    /// A string representing the token for accessing Cesium ion assets.
     ///
     /// | ||
     /// | -- | -- |
-    /// | Declaration | `bool cesium:showCreditsOnScreen = 0` |
-    /// | C++ Type | bool |
-    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
+    /// | Declaration | `string cesium:projectDefaultIonAccessToken = ""` |
+    /// | C++ Type | std::string |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
     CESIUMUSDSCHEMAS_API
-    UsdAttribute GetShowCreditsOnScreenAttr() const;
+    UsdAttribute GetProjectDefaultIonAccessTokenAttr() const;
 
-    /// See GetShowCreditsOnScreenAttr(), and also 
+    /// See GetProjectDefaultIonAccessTokenAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
     CESIUMUSDSCHEMAS_API
-    UsdAttribute CreateShowCreditsOnScreenAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+    UsdAttribute CreateProjectDefaultIonAccessTokenAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // --------------------------------------------------------------------- //
-    // ALPHA 
+    // PROJECTDEFAULTIONACCESSTOKENID 
     // --------------------------------------------------------------------- //
-    /// The alpha blending value, from 0.0 to 1.0, where 1.0 is fully opaque.
+    /// A string representing the token ID for accessing Cesium ion assets.
     ///
     /// | ||
     /// | -- | -- |
-    /// | Declaration | `float cesium:alpha = 1` |
-    /// | C++ Type | float |
-    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Float |
+    /// | Declaration | `string cesium:projectDefaultIonAccessTokenId = ""` |
+    /// | C++ Type | std::string |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
     CESIUMUSDSCHEMAS_API
-    UsdAttribute GetAlphaAttr() const;
+    UsdAttribute GetProjectDefaultIonAccessTokenIdAttr() const;
 
-    /// See GetAlphaAttr(), and also 
+    /// See GetProjectDefaultIonAccessTokenIdAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
     CESIUMUSDSCHEMAS_API
-    UsdAttribute CreateAlphaAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
-
-public:
-    // --------------------------------------------------------------------- //
-    // IONSERVERBINDING 
-    // --------------------------------------------------------------------- //
-    /// Specifies which Cesium ion Server prim to use for this tileset.
-    ///
-    CESIUMUSDSCHEMAS_API
-    UsdRelationship GetIonServerBindingRel() const;
-
-    /// See GetIonServerBindingRel(), and also 
-    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create
-    CESIUMUSDSCHEMAS_API
-    UsdRelationship CreateIonServerBindingRel() const;
+    UsdAttribute CreateProjectDefaultIonAccessTokenIdAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // ===================================================================== //
