@@ -80,13 +80,64 @@ CesiumIonImagery::_GetTfType() const
     return _GetStaticTfType();
 }
 
+UsdAttribute
+CesiumIonImagery::GetIonAssetIdAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumIonAssetId);
+}
+
+UsdAttribute
+CesiumIonImagery::CreateIonAssetIdAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumIonAssetId,
+                       SdfValueTypeNames->Int64,
+                       /* custom = */ false,
+                       SdfVariabilityVarying,
+                       defaultValue,
+                       writeSparsely);
+}
+
+UsdAttribute
+CesiumIonImagery::GetIonAccessTokenAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumIonAccessToken);
+}
+
+UsdAttribute
+CesiumIonImagery::CreateIonAccessTokenAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumIonAccessToken,
+                       SdfValueTypeNames->String,
+                       /* custom = */ false,
+                       SdfVariabilityVarying,
+                       defaultValue,
+                       writeSparsely);
+}
+
+namespace {
+static inline TfTokenVector
+_ConcatenateAttributeNames(const TfTokenVector& left,const TfTokenVector& right)
+{
+    TfTokenVector result;
+    result.reserve(left.size() + right.size());
+    result.insert(result.end(), left.begin(), left.end());
+    result.insert(result.end(), right.begin(), right.end());
+    return result;
+}
+}
+
 /*static*/
 const TfTokenVector&
 CesiumIonImagery::GetSchemaAttributeNames(bool includeInherited)
 {
-    static TfTokenVector localNames;
+    static TfTokenVector localNames = {
+        CesiumTokens->cesiumIonAssetId,
+        CesiumTokens->cesiumIonAccessToken,
+    };
     static TfTokenVector allNames =
-        CesiumImagery::GetSchemaAttributeNames(true);
+        _ConcatenateAttributeNames(
+            CesiumImagery::GetSchemaAttributeNames(true),
+            localNames);
 
     if (includeInherited)
         return allNames;

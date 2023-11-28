@@ -170,50 +170,6 @@ public:
     UsdAttribute CreateAlphaAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
-    // --------------------------------------------------------------------- //
-    // IONASSETID 
-    // --------------------------------------------------------------------- //
-    /// The ID of the Cesium ion asset to use.
-    ///
-    /// | ||
-    /// | -- | -- |
-    /// | Declaration | `int64 cesium:ionAssetId = 0` |
-    /// | C++ Type | int64_t |
-    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Int64 |
-    CESIUMUSDSCHEMAS_API
-    UsdAttribute GetIonAssetIdAttr() const;
-
-    /// See GetIonAssetIdAttr(), and also 
-    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
-    /// If specified, author \p defaultValue as the attribute's default,
-    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
-    /// the default for \p writeSparsely is \c false.
-    CESIUMUSDSCHEMAS_API
-    UsdAttribute CreateIonAssetIdAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
-
-public:
-    // --------------------------------------------------------------------- //
-    // IONACCESSTOKEN 
-    // --------------------------------------------------------------------- //
-    /// The access token to use to access the Cesium ion resource. Overrides the default token. Blank if using URL.
-    ///
-    /// | ||
-    /// | -- | -- |
-    /// | Declaration | `string cesium:ionAccessToken = ""` |
-    /// | C++ Type | std::string |
-    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
-    CESIUMUSDSCHEMAS_API
-    UsdAttribute GetIonAccessTokenAttr() const;
-
-    /// See GetIonAccessTokenAttr(), and also 
-    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
-    /// If specified, author \p defaultValue as the attribute's default,
-    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
-    /// the default for \p writeSparsely is \c false.
-    CESIUMUSDSCHEMAS_API
-    UsdAttribute CreateIonAccessTokenAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
-
-public:
     // ===================================================================== //
     // Feel free to add custom code below this line, it will be preserved by 
     // the code generator. 

@@ -330,9 +330,9 @@ pxr::CesiumTileset defineCesiumTileset(const pxr::SdfPath& path) {
     return tileset;
 }
 
-pxr::CesiumImagery defineCesiumImagery(const pxr::SdfPath& path) {
+pxr::CesiumIonImagery defineCesiumIonImagery(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
-    auto imagery = pxr::CesiumImagery::Define(stage, path);
+    auto imagery = pxr::CesiumIonImagery::Define(stage, path);
     assert(imagery.GetPrim().IsValid());
 
     return imagery;
@@ -410,15 +410,22 @@ pxr::CesiumImagery getCesiumImagery(const pxr::SdfPath& path) {
     return imagery;
 }
 
-std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& path) {
+pxr::CesiumIonImagery getCesiumIonImagery(const pxr::SdfPath& path) {
+    auto stage = UsdUtil::getUsdStage();
+    auto imagery = pxr::CesiumIonImagery::Get(stage, path);
+    assert(imagery.GetPrim().IsValid());
+    return imagery;
+}
+
+std::vector<pxr::CesiumIonImagery> getChildCesiumIonImageryPrims(const pxr::SdfPath& path) {
     auto stage = UsdUtil::getUsdStage();
     auto prim = stage->GetPrimAtPath(path);
     assert(prim.IsValid());
 
-    std::vector<pxr::CesiumImagery> result;
+    std::vector<pxr::CesiumIonImagery> result;
 
     for (const auto& childPrim : prim.GetChildren()) {
-        if (childPrim.IsA<pxr::CesiumImagery>()) {
+        if (childPrim.IsA<pxr::CesiumIonImagery>()) {
             result.emplace_back(childPrim);
         }
     }
@@ -480,14 +487,14 @@ bool isCesiumTileset(const pxr::SdfPath& path) {
     return prim.IsA<pxr::CesiumTileset>();
 }
 
-bool isCesiumImagery(const pxr::SdfPath& path) {
+bool isCesiumIonImagery(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto prim = stage->GetPrimAtPath(path);
     if (!prim.IsValid()) {
         return false;
     }
 
-    return prim.IsA<pxr::CesiumImagery>();
+    return prim.IsA<pxr::CesiumIonImagery>();
 }
 
 bool hasCesiumGlobeAnchor(const pxr::SdfPath& path) {

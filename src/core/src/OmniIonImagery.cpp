@@ -11,7 +11,7 @@ OmniIonImagery::OmniIonImagery(const pxr::SdfPath& path)
     : OmniImagery(path) {}
 
 int64_t OmniIonImagery::getIonAssetId() const {
-    auto imagery = UsdUtil::getCesiumImagery(_path);
+    auto imagery = UsdUtil::getCesiumIonImagery(_path);
 
     int64_t ionAssetId;
     imagery.GetIonAssetIdAttr().Get<int64_t>(&ionAssetId);
@@ -20,7 +20,7 @@ int64_t OmniIonImagery::getIonAssetId() const {
 }
 
 std::optional<CesiumIonClient::Token> OmniIonImagery::getIonAccessToken() const {
-    auto imagery = UsdUtil::getCesiumImagery(_path);
+    auto imagery = UsdUtil::getCesiumIonImagery(_path);
 
     std::string ionAccessToken;
     imagery.GetIonAccessTokenAttr().Get<std::string>(&ionAccessToken);

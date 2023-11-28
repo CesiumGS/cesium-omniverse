@@ -180,7 +180,7 @@ void Context::reloadStage() {
         const auto& path = prim.GetPath();
         if (UsdUtil::isCesiumTileset(path)) {
             AssetRegistry::getInstance().addTileset(path, UsdUtil::GEOREFERENCE_PATH);
-        } else if (UsdUtil::isCesiumImagery(path)) {
+        } else if (UsdUtil::isCesiumIonImagery(path)) {
             AssetRegistry::getInstance().addImagery(path);
         } else if (UsdUtil::hasCesiumGlobeAnchor(path)) {
             auto origin = UsdUtil::getCartographicOriginForAnchor(path);
@@ -921,7 +921,7 @@ RenderStatistics Context::getRenderStatistics() const {
 }
 
 void Context::addGlobeAnchorToPrim(const pxr::SdfPath& path) {
-    if (UsdUtil::isCesiumData(path) || UsdUtil::isCesiumGeoreference(path) || UsdUtil::isCesiumImagery(path) ||
+    if (UsdUtil::isCesiumData(path) || UsdUtil::isCesiumGeoreference(path) || UsdUtil::isCesiumIonImagery(path) ||
         UsdUtil::isCesiumSession(path) || UsdUtil::isCesiumTileset(path)) {
         _logger->warn("Cannot attach Globe Anchor to Cesium Tilesets, Imagery, Georeference, Session, or Data prims.");
         return;
@@ -936,7 +936,7 @@ void Context::addGlobeAnchorToPrim(const pxr::SdfPath& path) {
 }
 
 void Context::addGlobeAnchorToPrim(const pxr::SdfPath& path, double latitude, double longitude, double height) {
-    if (UsdUtil::isCesiumData(path) || UsdUtil::isCesiumGeoreference(path) || UsdUtil::isCesiumImagery(path) ||
+    if (UsdUtil::isCesiumData(path) || UsdUtil::isCesiumGeoreference(path) || UsdUtil::isCesiumIonImagery(path) ||
         UsdUtil::isCesiumSession(path) || UsdUtil::isCesiumTileset(path)) {
         _logger->warn("Cannot attach Globe Anchor to Cesium Tilesets, Imagery, Georeference, Session, or Data prims.");
         return;

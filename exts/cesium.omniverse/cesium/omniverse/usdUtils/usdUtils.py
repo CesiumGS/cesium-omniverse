@@ -2,7 +2,7 @@ import omni.usd
 import omni.kit
 import re
 from cesium.usd.plugins.CesiumUsdSchemas import (
-    Imagery as CesiumImagery,
+    IonImagery as CesiumIonImagery,
     Tileset as CesiumTileset,
     Tokens as CesiumTokens,
 )
@@ -38,7 +38,7 @@ def add_imagery_ion(tileset_path: str, name: str, asset_id: int, token: str = ""
     # get_stage_next_free_path will increment the path name if there is a colllision
     imagery_path: str = Sdf.Path(omni.usd.get_stage_next_free_path(stage, imagery_path, False))
 
-    imagery = CesiumImagery.Define(stage, imagery_path)
+    imagery = CesiumIonImagery.Define(stage, imagery_path)
     assert imagery.GetPrim().IsValid()
     parent = imagery.GetPrim().GetParent()
     assert parent.IsA(CesiumTileset)

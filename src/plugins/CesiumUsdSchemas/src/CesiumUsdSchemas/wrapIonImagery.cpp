@@ -25,6 +25,20 @@ namespace {
 // fwd decl.
 WRAP_CUSTOM;
 
+        
+static UsdAttribute
+_CreateIonAssetIdAttr(CesiumIonImagery &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateIonAssetIdAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int64), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateIonAccessTokenAttr(CesiumIonImagery &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateIonAccessTokenAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+}
 
 static std::string
 _Repr(const CesiumIonImagery &self)
@@ -67,6 +81,20 @@ void wrapCesiumIonImagery()
 
         .def(!self)
 
+        
+        .def("GetIonAssetIdAttr",
+             &This::GetIonAssetIdAttr)
+        .def("CreateIonAssetIdAttr",
+             &_CreateIonAssetIdAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetIonAccessTokenAttr",
+             &This::GetIonAccessTokenAttr)
+        .def("CreateIonAccessTokenAttr",
+             &_CreateIonAccessTokenAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
 
         .def("__repr__", ::_Repr)
     ;

@@ -18,7 +18,7 @@ ChangedPrimType getType(const pxr::SdfPath& path) {
             return ChangedPrimType::CESIUM_DATA;
         } else if (UsdUtil::isCesiumTileset(path)) {
             return ChangedPrimType::CESIUM_TILESET;
-        } else if (UsdUtil::isCesiumImagery(path)) {
+        } else if (UsdUtil::isCesiumIonImagery(path)) {
             return ChangedPrimType::CESIUM_IMAGERY;
         } else if (UsdUtil::isCesiumGeoreference(path)) {
             return ChangedPrimType::CESIUM_GEOREFERENCE;

@@ -413,7 +413,7 @@ void OmniTileset::reload() {
     }
 
     // Add imagery
-    for (const auto& imagery : UsdUtil::getChildCesiumImageryPrims(_tilesetPath)) {
+    for (const auto& imagery : UsdUtil::getChildCesiumIonImageryPrims(_tilesetPath)) {
         addImageryIon(imagery.GetPath());
     }
 }
