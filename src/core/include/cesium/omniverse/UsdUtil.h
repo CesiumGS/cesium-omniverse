@@ -5,6 +5,7 @@
 #include <CesiumUsdSchemas/georeference.h>
 #include <CesiumUsdSchemas/globeAnchorAPI.h>
 #include <CesiumUsdSchemas/ionImagery.h>
+#include <CesiumUsdSchemas/ionServer.h>
 #include <CesiumUsdSchemas/session.h>
 #include <CesiumUsdSchemas/tileset.h>
 #include <glm/glm.hpp>
@@ -98,6 +99,7 @@ pxr::GfRange3d computeWorldExtent(const pxr::GfRange3d& localExtent, const glm::
 pxr::GfVec3f getEulerAnglesFromQuaternion(const pxr::GfQuatf& quaternion);
 
 pxr::CesiumData defineCesiumData(const pxr::SdfPath& path);
+pxr::CesiumIonServer defineCesiumIonServer(const pxr::SdfPath& path);
 pxr::CesiumSession defineCesiumSession(const pxr::SdfPath& path);
 pxr::CesiumGeoreference defineCesiumGeoreference(const pxr::SdfPath& path);
 pxr::CesiumTileset defineCesiumTileset(const pxr::SdfPath& path);
@@ -105,6 +107,9 @@ pxr::CesiumIonImagery defineCesiumIonImagery(const pxr::SdfPath& path);
 pxr::CesiumGlobeAnchorAPI defineGlobeAnchor(const pxr::SdfPath& path);
 
 pxr::CesiumData getOrCreateCesiumData();
+pxr::SdfPath getPathToCurrentIonServer();
+pxr::CesiumIonServer getOrCreateCurrentIonServer();
+[[maybe_unused]] std::vector<pxr::CesiumIonServer> getAllIonServerPrims();
 pxr::CesiumSession getOrCreateCesiumSession();
 pxr::CesiumGeoreference getOrCreateCesiumGeoreference();
 pxr::CesiumGeoreference getCesiumGeoreference(const pxr::SdfPath& path);
@@ -116,6 +121,7 @@ pxr::CesiumGlobeAnchorAPI getCesiumGlobeAnchor(const pxr::SdfPath& path);
 pxr::UsdShadeShader getUsdShader(const pxr::SdfPath& path);
 
 bool isCesiumData(const pxr::SdfPath& path);
+bool isCesiumIonServer(const pxr::SdfPath& path);
 bool isCesiumSession(const pxr::SdfPath& path);
 bool isCesiumGeoreference(const pxr::SdfPath& path);
 bool isCesiumTileset(const pxr::SdfPath& path);
