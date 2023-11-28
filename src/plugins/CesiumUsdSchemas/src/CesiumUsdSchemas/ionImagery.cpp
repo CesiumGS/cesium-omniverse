@@ -114,6 +114,19 @@ CesiumIonImagery::CreateIonAccessTokenAttr(VtValue const &defaultValue, bool wri
                        writeSparsely);
 }
 
+UsdRelationship
+CesiumIonImagery::GetIonServerBindingRel() const
+{
+    return GetPrim().GetRelationship(CesiumTokens->cesiumIonServerBinding);
+}
+
+UsdRelationship
+CesiumIonImagery::CreateIonServerBindingRel() const
+{
+    return GetPrim().CreateRelationship(CesiumTokens->cesiumIonServerBinding,
+                       /* custom = */ false);
+}
+
 namespace {
 static inline TfTokenVector
 _ConcatenateAttributeNames(const TfTokenVector& left,const TfTokenVector& right)

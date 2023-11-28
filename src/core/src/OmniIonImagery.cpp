@@ -1,9 +1,9 @@
 #include "cesium/omniverse/OmniIonImagery.h"
 
-#include <CesiumUsdSchemas/ionImagery.h>
-#include "cesium/omniverse/UsdUtil.h"
 #include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/UsdUtil.h"
 
+#include <CesiumUsdSchemas/ionImagery.h>
 
 namespace cesium::omniverse {
 

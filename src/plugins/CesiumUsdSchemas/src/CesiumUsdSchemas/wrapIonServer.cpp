@@ -1,4 +1,4 @@
-#include ".//ionImagery.h"
+#include ".//ionServer.h"
 #include "pxr/usd/usd/schemaBase.h"
 
 #include "pxr/usd/sdf/primSpec.h"
@@ -27,36 +27,43 @@ WRAP_CUSTOM;
 
         
 static UsdAttribute
-_CreateIonAssetIdAttr(CesiumIonImagery &self,
+_CreateIonServerUrlAttr(CesiumIonServer &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateIonAssetIdAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int64), writeSparsely);
+    return self.CreateIonServerUrlAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
-_CreateIonAccessTokenAttr(CesiumIonImagery &self,
+_CreateProjectDefaultIonAccessTokenAttr(CesiumIonServer &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateIonAccessTokenAttr(
+    return self.CreateProjectDefaultIonAccessTokenAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateProjectDefaultIonAccessTokenIdAttr(CesiumIonServer &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateProjectDefaultIonAccessTokenIdAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
 
 static std::string
-_Repr(const CesiumIonImagery &self)
+_Repr(const CesiumIonServer &self)
 {
     std::string primRepr = TfPyRepr(self.GetPrim());
     return TfStringPrintf(
-        "CesiumUsdSchemas.IonImagery(%s)",
+        "CesiumUsdSchemas.IonServer(%s)",
         primRepr.c_str());
 }
 
 } // anonymous namespace
 
-void wrapCesiumIonImagery()
+void wrapCesiumIonServer()
 {
-    typedef CesiumIonImagery This;
+    typedef CesiumIonServer This;
 
-    class_<This, bases<CesiumImagery> >
-        cls("IonImagery");
+    class_<This, bases<UsdTyped> >
+        cls("IonServer");
 
     cls
         .def(init<UsdPrim>(arg("prim")))
@@ -82,25 +89,27 @@ void wrapCesiumIonImagery()
         .def(!self)
 
         
-        .def("GetIonAssetIdAttr",
-             &This::GetIonAssetIdAttr)
-        .def("CreateIonAssetIdAttr",
-             &_CreateIonAssetIdAttr,
+        .def("GetIonServerUrlAttr",
+             &This::GetIonServerUrlAttr)
+        .def("CreateIonServerUrlAttr",
+             &_CreateIonServerUrlAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetIonAccessTokenAttr",
-             &This::GetIonAccessTokenAttr)
-        .def("CreateIonAccessTokenAttr",
-             &_CreateIonAccessTokenAttr,
+        .def("GetProjectDefaultIonAccessTokenAttr",
+             &This::GetProjectDefaultIonAccessTokenAttr)
+        .def("CreateProjectDefaultIonAccessTokenAttr",
+             &_CreateProjectDefaultIonAccessTokenAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetProjectDefaultIonAccessTokenIdAttr",
+             &This::GetProjectDefaultIonAccessTokenIdAttr)
+        .def("CreateProjectDefaultIonAccessTokenIdAttr",
+             &_CreateProjectDefaultIonAccessTokenIdAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 
-        
-        .def("GetIonServerBindingRel",
-             &This::GetIonServerBindingRel)
-        .def("CreateIonServerBindingRel",
-             &This::CreateIonServerBindingRel)
         .def("__repr__", ::_Repr)
     ;
 

@@ -67,6 +67,24 @@ class CesiumSessionPrim "CesiumSessionPrim" (
     )
 }
 
+class CesiumIonServerPrim "CesiumIonServerPrim" (
+    doc = "Stores metadata related to Cesium ion server connections for tilesets."
+)
+{
+    string cesium:ionServerUrl (
+        displayName = "Cesium ion Server URL"
+        doc = "The hostname URL for the Cesium ion Server."
+    )
+    string cesium:projectDefaultIonAccessToken = "" (
+        displayName = "Project default ion Access Token"
+        doc = "A string representing the token for accessing Cesium ion assets."
+    )
+    string cesium:projectDefaultIonAccessTokenId = "" (
+        displayName = "Project default ion Access Token ID"
+        doc = "A string representing the token ID for accessing Cesium ion assets."
+    )
+}
+
 class CesiumGeoreferencePrim "CesiumGeoreferencePrim" (
     doc = "Stores Georeference data for Cesium for Omniverse. Every stage should have at least one of these."
 )
@@ -120,6 +138,10 @@ class CesiumTilesetPrim "CesiumTilesetPrim" (
     int64 cesium:ionAssetId = 0 (
         displayName = "ion Asset ID"
         doc = "The ID of the Cesium ion asset to use. Usually blank if using URL."
+    )
+    rel cesium:ionServerBinding (
+        displayName = "Cesium ion Server Binding"
+        doc = "Specifies which Cesium ion Server prim to use for this tileset."
     )
     uint cesium:loadingDescendantLimit = 20 (
         displayName = "Loading Descendant Limit"
@@ -310,6 +332,10 @@ class CesiumIonImageryPrim "CesiumIonImageryPrim" (
     int64 cesium:ionAssetId = 0 (
         displayName = "ion Asset ID"
         doc = "The ID of the Cesium ion asset to use."
+    )
+    rel cesium:ionServerBinding (
+        displayName = "Cesium ion Server Binding"
+        doc = "Specifies which Cesium ion Server prim to use for this tileset."
     )
     bool cesium:showCreditsOnScreen = 0 (
         displayName = "Show Credits On Screen"
