@@ -303,8 +303,8 @@ class CesiumTilesetPrim "CesiumTilesetPrim" (
     )
 }
 
-class CesiumImageryPrim "CesiumImageryPrim" (
-    doc = "Base class for adding a prim for representing an imagery layer."
+class "CesiumImageryPrim" (
+    doc = "Abstract base class for prims that represent an imagery layer."
 )
 {
     float cesium:alpha = 1 (

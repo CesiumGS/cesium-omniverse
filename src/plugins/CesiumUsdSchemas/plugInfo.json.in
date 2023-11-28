@@ -44,7 +44,7 @@
                         "bases": [
                             "UsdTyped"
                         ], 
-                        "schemaKind": "concreteTyped"
+                        "schemaKind": "abstractTyped"
                     }, 
                     "CesiumIonImagery": {
                         "alias": {
