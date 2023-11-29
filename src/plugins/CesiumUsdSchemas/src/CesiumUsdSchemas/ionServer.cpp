@@ -98,6 +98,40 @@ CesiumIonServer::CreateIonServerUrlAttr(VtValue const &defaultValue, bool writeS
 }
 
 UsdAttribute
+CesiumIonServer::GetIonServerApiUrlAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumIonServerApiUrl);
+}
+
+UsdAttribute
+CesiumIonServer::CreateIonServerApiUrlAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumIonServerApiUrl,
+                       SdfValueTypeNames->String,
+                       /* custom = */ false,
+                       SdfVariabilityVarying,
+                       defaultValue,
+                       writeSparsely);
+}
+
+UsdAttribute
+CesiumIonServer::GetIonServerApplicationIdAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumIonServerApplicationId);
+}
+
+UsdAttribute
+CesiumIonServer::CreateIonServerApplicationIdAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumIonServerApplicationId,
+                       SdfValueTypeNames->String,
+                       /* custom = */ false,
+                       SdfVariabilityVarying,
+                       defaultValue,
+                       writeSparsely);
+}
+
+UsdAttribute
 CesiumIonServer::GetProjectDefaultIonAccessTokenAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumProjectDefaultIonAccessToken);
@@ -149,6 +183,8 @@ CesiumIonServer::GetSchemaAttributeNames(bool includeInherited)
 {
     static TfTokenVector localNames = {
         CesiumTokens->cesiumIonServerUrl,
+        CesiumTokens->cesiumIonServerApiUrl,
+        CesiumTokens->cesiumIonServerApplicationId,
         CesiumTokens->cesiumProjectDefaultIonAccessToken,
         CesiumTokens->cesiumProjectDefaultIonAccessTokenId,
     };

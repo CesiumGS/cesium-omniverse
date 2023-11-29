@@ -151,7 +151,23 @@ class CesiumIonServerPrim "CesiumIonServerPrim" (
             string apiName = "ionServerUrl"
         }
         displayName = "Cesium ion Server URL"
-        doc = "The hostname URL for the Cesium ion Server."
+        doc = "The base URL for the Cesium ion Server."
+    )
+
+    string cesium:ionServerApiUrl (
+        customData = {
+            string apiName = "ionServerApiUrl"
+        }
+        displayName = "Cesium ion Server API URL"
+        doc = "The base URL for the Cesium ion Server API."
+    )
+
+    string cesium:ionServerApplicationId (
+        customData = {
+            string apiName = "ionServerApplicationId"
+        }
+        displayName = "Cesium ion Server Application ID"
+        doc = "The application ID for the Cesium ion Server connection."
     )
 
     string cesium:projectDefaultIonAccessToken = "" (

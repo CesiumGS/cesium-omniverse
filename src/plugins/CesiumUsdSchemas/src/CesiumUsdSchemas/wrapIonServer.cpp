@@ -34,6 +34,20 @@ _CreateIonServerUrlAttr(CesiumIonServer &self,
 }
         
 static UsdAttribute
+_CreateIonServerApiUrlAttr(CesiumIonServer &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateIonServerApiUrlAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateIonServerApplicationIdAttr(CesiumIonServer &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateIonServerApplicationIdAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+}
+        
+static UsdAttribute
 _CreateProjectDefaultIonAccessTokenAttr(CesiumIonServer &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateProjectDefaultIonAccessTokenAttr(
@@ -93,6 +107,20 @@ void wrapCesiumIonServer()
              &This::GetIonServerUrlAttr)
         .def("CreateIonServerUrlAttr",
              &_CreateIonServerUrlAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetIonServerApiUrlAttr",
+             &This::GetIonServerApiUrlAttr)
+        .def("CreateIonServerApiUrlAttr",
+             &_CreateIonServerApiUrlAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetIonServerApplicationIdAttr",
+             &This::GetIonServerApplicationIdAttr)
+        .def("CreateIonServerApplicationIdAttr",
+             &_CreateIonServerApplicationIdAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
