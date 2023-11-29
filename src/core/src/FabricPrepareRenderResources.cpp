@@ -85,7 +85,7 @@ uint64_t getPropertyTableTextureCount(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive) {
     if (fabricMesh.material == nullptr) {
-        return {};
+        return 0;
     }
 
     return MetadataUtil::getMdlInternalPropertyTablePropertyTypes(model, primitive).size();
