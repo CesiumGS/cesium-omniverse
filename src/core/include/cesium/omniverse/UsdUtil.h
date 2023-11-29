@@ -116,7 +116,7 @@ pxr::CesiumGeoreference getCesiumGeoreference(const pxr::SdfPath& path);
 pxr::CesiumTileset getCesiumTileset(const pxr::SdfPath& path);
 pxr::CesiumImagery getCesiumImagery(const pxr::SdfPath& path);
 pxr::CesiumIonImagery getCesiumIonImagery(const pxr::SdfPath& path);
-std::vector<pxr::CesiumIonImagery> getChildCesiumIonImageryPrims(const pxr::SdfPath& path);
+std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& path);
 pxr::CesiumGlobeAnchorAPI getCesiumGlobeAnchor(const pxr::SdfPath& path);
 pxr::UsdShadeShader getUsdShader(const pxr::SdfPath& path);
 

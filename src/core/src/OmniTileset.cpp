@@ -10,9 +10,13 @@
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/OmniIonImagery.h"
+#include "cesium/omniverse/OmniPolygonImagery.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/UsdUtil.h"
 #include "cesium/omniverse/Viewport.h"
+#include <Cesium3DTilesSelection/RasterOverlay.h>
+#include <Cesium3DTilesSelection/RasterizedPolygonsOverlay.h>
+#include <CesiumGeospatial/Ellipsoid.h>
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
@@ -29,6 +33,8 @@
 #include <pxr/usd/usd/stage.h>
 #include <pxr/usd/usdGeom/boundable.h>
 #include <pxr/usd/usdShade/materialBindingAPI.h>
+
+#include <iostream> // DEVEL
 
 namespace cesium::omniverse {
 
@@ -413,8 +419,12 @@ void OmniTileset::reload() {
     }
 
     // Add imagery
-    for (const auto& imagery : UsdUtil::getChildCesiumIonImageryPrims(_tilesetPath)) {
-        addImageryIon(imagery.GetPath());
+    for (const auto& imagery : UsdUtil::getChildCesiumImageryPrims(_tilesetPath)) {
+        if (imagery.GetPrim().IsA<pxr::CesiumIonImagery>()) {
+            addImageryIon(imagery.GetPath());
+        } else {
+            std::cout << "Imagery type not yet supported" << std::endl;
+        }
     }
 }
 
@@ -459,6 +469,21 @@ void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
         uniqueName, imageryIonAssetId, imageryIonAccessToken.value().token, options);
     _tileset->getOverlays().add(ionRasterOverlay);
     _imageryPaths.push_back(imageryPath);
+}
+
+void OmniTileset::addImageryPolygon(const pxr::SdfPath& imageryPath) {
+    const OmniPolygonImagery imagery(imageryPath);
+
+    const auto uniqueName = "imagery_polygon_test"; // DEVEL
+    std::vector<CesiumGeospatial::CartographicPolygon> polygons; // DEVEL
+    auto invertSelection = false; // DEVEL
+    CesiumGeospatial::Ellipsoid ellipsoid(glm::dvec3(1.0, 1.0, 1.0)); // DEVEL
+    CesiumGeospatial::Projection projection; // DEVEL
+    Cesium3DTilesSelection::RasterOverlayOptions rasterOverlayOptions;
+    const auto polygonRasterOverlay =
+        new Cesium3DTilesSelection::RasterizedPolygonsOverlay(uniqueName, polygons, invertSelection, ellipsoid, projection, rasterOverlayOptions);
+    _tileset->getOverlays().add(polygonRasterOverlay);
+    _imageryPaths.push_back((imageryPath));
 }
 
 std::optional<uint64_t> OmniTileset::findImageryLayerIndex(const Cesium3DTilesSelection::RasterOverlay& overlay) const {

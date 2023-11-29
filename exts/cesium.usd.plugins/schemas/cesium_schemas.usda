@@ -416,7 +416,7 @@ class CesiumIonImageryPrim "CesiumIonImageryPrim" (
         customData = {
             string apiName = "ionAssetId"
         }
-        displayName = "ion Asset ID"
+        displayName = "Ion Asset ID"
         doc = "The ID of the Cesium ion asset to use."
     )
 
@@ -432,8 +432,24 @@ class CesiumIonImageryPrim "CesiumIonImageryPrim" (
         customData = {
             string apiName = "ionServerBinding"
         }
-        displayName = "Cesium ion Server Binding"
+        displayName = "Cesium Ion Server Binding"
         doc = "Specifies which Cesium ion Server prim to use for this tileset."
+    )
+}
+
+class CesiumPolygonImageryPrim "CesiumPolygonImageryPrim" (
+    doc = """Adds a prim for representing a polygon imagery layer. Should be a child of a tileset."""
+    inherits = </CesiumImageryPrim>
+    customData = {
+        string className = "PolygonImagery"
+    }
+) {
+    rel cesium:basicCurvesBinding (
+        customData = {
+            string apiName = "basisCurvesBinding"
+        }
+        displayName = "BasisCurves Binding"
+        doc = "Specifies which BasicCurves are used to create the polygons"
     )
 }
 

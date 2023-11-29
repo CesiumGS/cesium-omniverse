@@ -445,15 +445,15 @@ pxr::CesiumIonImagery getCesiumIonImagery(const pxr::SdfPath& path) {
     return imagery;
 }
 
-std::vector<pxr::CesiumIonImagery> getChildCesiumIonImageryPrims(const pxr::SdfPath& path) {
+std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& path) {
     auto stage = UsdUtil::getUsdStage();
     auto prim = stage->GetPrimAtPath(path);
     assert(prim.IsValid());
 
-    std::vector<pxr::CesiumIonImagery> result;
+    std::vector<pxr::CesiumImagery> result;
 
     for (const auto& childPrim : prim.GetChildren()) {
-        if (childPrim.IsA<pxr::CesiumIonImagery>()) {
+        if (childPrim.IsA<pxr::CesiumImagery>()) {
             result.emplace_back(childPrim);
         }
     }
