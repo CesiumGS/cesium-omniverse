@@ -222,6 +222,7 @@ if(MSVC)
         /W4 # enable all warnings
         /WX # error on warnings
         /Zc:__cplusplus # make __cplusplus defined correctly
+        /bigobj
     )
     set(CESIUM_OMNI_CXX_DEFINES
         ${CESIUM_OMNI_CXX_DEFINES}

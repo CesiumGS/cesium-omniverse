@@ -35,6 +35,18 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     (cesium_internal_property_attribute_normalized_int2_lookup) \
     (cesium_internal_property_attribute_normalized_int3_lookup) \
     (cesium_internal_property_attribute_normalized_int4_lookup) \
+    (cesium_internal_property_table_int_lookup) \
+    (cesium_internal_property_table_int2_lookup) \
+    (cesium_internal_property_table_int3_lookup) \
+    (cesium_internal_property_table_int4_lookup) \
+    (cesium_internal_property_table_float_lookup) \
+    (cesium_internal_property_table_float2_lookup) \
+    (cesium_internal_property_table_float3_lookup) \
+    (cesium_internal_property_table_float4_lookup) \
+    (cesium_internal_property_table_normalized_int_lookup) \
+    (cesium_internal_property_table_normalized_int2_lookup) \
+    (cesium_internal_property_table_normalized_int3_lookup) \
+    (cesium_internal_property_table_normalized_int4_lookup) \
     (cesium_internal_property_texture_int_lookup) \
     (cesium_internal_property_texture_int2_lookup) \
     (cesium_internal_property_texture_int3_lookup) \
@@ -105,6 +117,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((inputs_offset, "inputs:offset")) \
     ((inputs_primvar_name, "inputs:primvar_name")) \
     ((inputs_property_id, "inputs:property_id")) \
+    ((inputs_property_table_texture, "inputs:property_table_texture")) \
     ((inputs_property_value, "inputs:property_value")) \
     ((inputs_roughness_factor, "inputs:roughness_factor")) \
     ((inputs_scale, "inputs:scale")) \
@@ -166,6 +179,7 @@ const omni::fabric::TokenC inputs_imagery_layer_n(uint64_t index);
 const omni::fabric::TokenC feature_id_n(uint64_t index);
 const omni::fabric::TokenC property_attribute_n(uint64_t index);
 const omni::fabric::TokenC property_texture_n(uint64_t index);
+const omni::fabric::TokenC property_table_n(uint64_t index);
 
 }
 
@@ -196,6 +210,7 @@ const omni::fabric::Type inputs_default_value_float4(omni::fabric::BaseDataType:
 const omni::fabric::Type inputs_tile_color(omni::fabric::BaseDataType::eFloat, 4, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_emissive_factor(omni::fabric::BaseDataType::eFloat, 3, 0, omni::fabric::AttributeRole::eColor);
 const omni::fabric::Type inputs_excludeFromWhiteMode(omni::fabric::BaseDataType::eBool, 1, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type inputs_feature_id(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_has_no_data(omni::fabric::BaseDataType::eBool, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_maximum_value_int(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_maximum_value_int2(omni::fabric::BaseDataType::eInt, 2, 0, omni::fabric::AttributeRole::eNone);
@@ -217,6 +232,7 @@ const omni::fabric::Type inputs_offset_float3(omni::fabric::BaseDataType::eFloat
 const omni::fabric::Type inputs_offset_float4(omni::fabric::BaseDataType::eFloat, 4, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_primvar_name(omni::fabric::BaseDataType::eUChar, 1, 1, omni::fabric::AttributeRole::eText);
 const omni::fabric::Type inputs_property_id(omni::fabric::BaseDataType::eUChar, 1, 1, omni::fabric::AttributeRole::eText);
+const omni::fabric::Type inputs_property_table_texture(omni::fabric::BaseDataType::eAsset, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_roughness_factor(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_scale_float(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_scale_float2(omni::fabric::BaseDataType::eFloat, 2, 0, omni::fabric::AttributeRole::eNone);

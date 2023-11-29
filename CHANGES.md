@@ -2,7 +2,10 @@
 
 ### v0.14.0 - 2023-12-01
 
-* Added support for custom glTF vertex attributes. Attribute values can by accessed in MDL with `scene::data_lookup_int`, `scene::data_lookup_float`, etc. Values are returned as raw values; `normalized` property has no effect.
+* Added support for `EXT_structural_metadata`. Property values can be accessed in material graph with the `cesium_property` nodes.
+* Added support for `EXT_mesh_features`. Feature ID values can be accessed in material graph with the `cesium_feature_id_int` node.
+* Added support for custom glTF vertex attributes. Attribute values can by accessed in material graph with the `data_lookup` nodes.
+* Added support for changing a tileset's imagery layer dynamically in material graph.
 
 ### v0.13.0 - 2023-11-01
 

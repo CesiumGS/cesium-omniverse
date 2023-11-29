@@ -25,6 +25,8 @@ export const auto DEFAULT_PROPERTY_VALUE_FLOAT2 = float2(0.0);
 export const auto DEFAULT_PROPERTY_VALUE_FLOAT3 = float3(0.0);
 export const auto DEFAULT_PROPERTY_VALUE_FLOAT4 = float4(0.0);
 
+const auto DEFAULT_CHANNELS = int4(0, 1, 2, 3);
+
 export enum up_axis_mode {
     Y,
     Z
@@ -116,16 +118,64 @@ int apply_repeat(int x, int size) {
     return mod(x, size);
 }
 
-struct texel_fetch_value
+struct texel_fetch_value_int
 {
     bool valid = false;
     int4 value = int4(0, 0, 0, 0);
 };
 
+texel_fetch_value_int texel_fetch_int(
+    uniform texture_2d texture,
+    int2 pixel_index,
+)
+{
+    texel_fetch_value_int tex_ret;
+    if (!tex::texture_isvalid(texture)) {
+        return tex_ret;
+    }
+
+    // texel_int4 doesn't exist in MDL so use texel_float4 instead.
+    // texel_float4 only works with float or unorm texture formats, so integer values
+    // must be converted to one of these formats. This causes precision loss for
+    // values above 2^24 which can't be accuracutely represented with float32.
+    auto value = tex::texel_float4(
+        tex: texture,
+        coord: pixel_index);
+
+    tex_ret.value = int4(math::round(value));
+    tex_ret.valid = true;
+    return tex_ret;
+}
+
+struct texel_fetch_value_float
+{
+    bool valid = false;
+    float4 value = float4(0.0, 0.0, 0.0, 0.0);
+};
+
+texel_fetch_value_float texel_fetch_float(
+    uniform texture_2d texture,
+    int2 pixel_index,
+)
+{
+    texel_fetch_value_float tex_ret;
+    if (!tex::texture_isvalid(texture)) {
+        return tex_ret;
+    }
+
+    auto value = tex::texel_float4(
+        tex: texture,
+        coord: pixel_index);
+
+    tex_ret.value = value;
+    tex_ret.valid = true;
+    return tex_ret;
+}
+
 // Modified version of gltf_texture_lookup that uses texel_float4 instead of lookup_float4 to avoid
 // linearly interpolating texture values which would be incorrect for feature ID textures and
 // property textures. Unfortunately texel_float4 doesn't do texcoord wrapping so we need to do it ourselves.
-texel_fetch_value texel_fetch(
+texel_fetch_value_int texel_fetch_int_rgba8_unorm(
     uniform texture_2d texture,
     uniform int tex_coord_index,
     uniform float2 tex_coord_offset,
@@ -135,7 +185,7 @@ texel_fetch_value texel_fetch(
     uniform gltf_wrapping_mode wrap_t
 )
 {
-    texel_fetch_value tex_ret;
+    texel_fetch_value_int tex_ret;
     if (!tex::texture_isvalid(texture)) {
         return tex_ret;
     }
@@ -209,6 +259,22 @@ int3 read_channels_int3(int4 values, int4 channels) {
 
 int4 read_channels_int4(int4 values, int4 channels) {
     return int4(values[channels[0]], values[channels[1]], values[channels[2]], values[channels[3]]);
+}
+
+float read_channels_float(float4 values, int4 channels) {
+    return values[channels[0]];
+}
+
+float2 read_channels_float2(float4 values, int4 channels) {
+    return float2(values[channels[0]], values[channels[1]]);
+}
+
+float3 read_channels_float3(float4 values, int4 channels) {
+    return float3(values[channels[0]], values[channels[1]], values[channels[2]]);
+}
+
+float4 read_channels_float4(float4 values, int4 channels) {
+    return float4(values[channels[0]], values[channels[1]], values[channels[2]], values[channels[3]]);
 }
 
 // The normalize functions work for both signed and unsigned ints
@@ -322,6 +388,13 @@ float4 finalize_float4(float4 raw_value, bool has_no_data, float4 no_data, float
     }
     auto transformed_value = raw_value * scale + offset;
     return transformed_value;
+}
+
+int2 get_property_table_pixel_index(int feature_id, uniform texture_2d property_table_texture) {
+    auto width = tex::width(property_table_texture);
+    auto pixel_x = feature_id % width;
+    auto pixel_y = feature_id / width;
+    return int2(pixel_x, pixel_y);
 }
 
 //-----------------------------------
@@ -701,7 +774,7 @@ export int cesium_internal_feature_id_texture_lookup(
     uniform int channel_count,
     uniform int null_feature_id
 ) [[ anno::hidden() ]] {
-    auto texel_value = texel_fetch(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
+    auto texel_value = texel_fetch_int_rgba8_unorm(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
 
     if (!texel_value.valid) {
         return DEFAULT_NULL_FEATURE_ID;
@@ -929,7 +1002,7 @@ export int cesium_internal_property_texture_int_lookup(
     uniform int no_data,
     uniform int default_value,
 ) [[ anno::hidden() ]] {
-    auto texel_value = texel_fetch(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
+    auto texel_value = texel_fetch_int_rgba8_unorm(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
 
     if (!texel_value.valid) {
         return DEFAULT_PROPERTY_VALUE_INT;
@@ -952,7 +1025,7 @@ export int2 cesium_internal_property_texture_int2_lookup(
     uniform int2 no_data,
     uniform int2 default_value
 ) [[ anno::hidden() ]] {
-    auto texel_value = texel_fetch(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
+    auto texel_value = texel_fetch_int_rgba8_unorm(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
 
     if (!texel_value.valid) {
         return DEFAULT_PROPERTY_VALUE_INT2;
@@ -975,7 +1048,7 @@ export int3 cesium_internal_property_texture_int3_lookup(
     uniform int3 no_data,
     uniform int3 default_value
 ) [[ anno::hidden() ]] {
-    auto texel_value = texel_fetch(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
+    auto texel_value = texel_fetch_int_rgba8_unorm(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
 
     if (!texel_value.valid) {
         return DEFAULT_PROPERTY_VALUE_INT3;
@@ -998,7 +1071,7 @@ export int4 cesium_internal_property_texture_int4_lookup(
     uniform int4 no_data,
     uniform int4 default_value
 ) [[ anno::hidden() ]] {
-    auto texel_value = texel_fetch(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
+    auto texel_value = texel_fetch_int_rgba8_unorm(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
 
     if (!texel_value.valid) {
         return DEFAULT_PROPERTY_VALUE_INT4;
@@ -1024,7 +1097,7 @@ export float cesium_internal_property_texture_normalized_int_lookup(
     uniform float scale,
     uniform int maximum_value
 ) [[ anno::hidden() ]] {
-    auto texel_value = texel_fetch(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
+    auto texel_value = texel_fetch_int_rgba8_unorm(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
 
     if (!texel_value.valid) {
         return DEFAULT_PROPERTY_VALUE_FLOAT;
@@ -1050,7 +1123,7 @@ export float2 cesium_internal_property_texture_normalized_int2_lookup(
     uniform float2 scale,
     uniform int2 maximum_value
 ) [[ anno::hidden() ]] {
-    auto texel_value = texel_fetch(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
+    auto texel_value = texel_fetch_int_rgba8_unorm(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
 
     if (!texel_value.valid) {
         return DEFAULT_PROPERTY_VALUE_FLOAT2;
@@ -1076,7 +1149,7 @@ export float3 cesium_internal_property_texture_normalized_int3_lookup(
     uniform float3 scale,
     uniform int3 maximum_value
 ) [[ anno::hidden() ]] {
-    auto texel_value = texel_fetch(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
+    auto texel_value = texel_fetch_int_rgba8_unorm(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
 
     if (!texel_value.valid) {
         return DEFAULT_PROPERTY_VALUE_FLOAT3;
@@ -1102,7 +1175,7 @@ export float4 cesium_internal_property_texture_normalized_int4_lookup(
     uniform float4 scale,
     uniform int4 maximum_value
 ) [[ anno::hidden() ]] {
-    auto texel_value = texel_fetch(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
+    auto texel_value = texel_fetch_int_rgba8_unorm(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
 
     if (!texel_value.valid) {
         return DEFAULT_PROPERTY_VALUE_FLOAT4;
@@ -1110,6 +1183,290 @@ export float4 cesium_internal_property_texture_normalized_int4_lookup(
 
     auto raw_value = read_channels_int4(texel_value.value, channels);
     return finalize_normalized_int4(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
+}
+
+export int cesium_internal_property_table_int_lookup(
+    uniform texture_2d property_table_texture,
+    uniform bool has_no_data,
+    uniform int no_data,
+    uniform int default_value,
+    int feature_id = DEFAULT_NULL_FEATURE_ID
+) [[ anno::hidden() ]] {
+    if (feature_id == DEFAULT_NULL_FEATURE_ID) {
+        return DEFAULT_PROPERTY_VALUE_INT;
+    }
+
+    auto pixel_index = get_property_table_pixel_index(feature_id, property_table_texture);
+    auto texel_value = texel_fetch_int(property_table_texture, pixel_index);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_INT;
+    }
+
+    auto raw_value = read_channels_int(texel_value.value, DEFAULT_CHANNELS);
+    return finalize_int(raw_value, has_no_data, no_data, default_value);
+}
+
+export int2 cesium_internal_property_table_int2_lookup(
+    uniform texture_2d property_table_texture,
+    uniform bool has_no_data,
+    uniform int2 no_data,
+    uniform int2 default_value,
+    int feature_id = DEFAULT_NULL_FEATURE_ID
+) [[ anno::hidden() ]] {
+    if (feature_id == DEFAULT_NULL_FEATURE_ID) {
+        return DEFAULT_PROPERTY_VALUE_INT2;
+    }
+
+    auto pixel_index = get_property_table_pixel_index(feature_id, property_table_texture);
+    auto texel_value = texel_fetch_int(property_table_texture, pixel_index);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_INT2;
+    }
+
+    auto raw_value = read_channels_int2(texel_value.value, DEFAULT_CHANNELS);
+    return finalize_int2(raw_value, has_no_data, no_data, default_value);
+}
+
+export int3 cesium_internal_property_table_int3_lookup(
+    uniform texture_2d property_table_texture,
+    uniform bool has_no_data,
+    uniform int3 no_data,
+    uniform int3 default_value,
+    int feature_id = DEFAULT_NULL_FEATURE_ID
+) [[ anno::hidden() ]] {
+    if (feature_id == DEFAULT_NULL_FEATURE_ID) {
+        return DEFAULT_PROPERTY_VALUE_INT3;
+    }
+
+    auto pixel_index = get_property_table_pixel_index(feature_id, property_table_texture);
+    auto texel_value = texel_fetch_int(property_table_texture, pixel_index);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_INT3;
+    }
+
+    auto raw_value = read_channels_int3(texel_value.value, DEFAULT_CHANNELS);
+    return finalize_int3(raw_value, has_no_data, no_data, default_value);
+}
+
+export int4 cesium_internal_property_table_int4_lookup(
+    uniform texture_2d property_table_texture,
+    uniform bool has_no_data,
+    uniform int4 no_data,
+    uniform int4 default_value,
+    int feature_id = DEFAULT_NULL_FEATURE_ID
+) [[ anno::hidden() ]] {
+    if (feature_id == DEFAULT_NULL_FEATURE_ID) {
+        return DEFAULT_PROPERTY_VALUE_INT4;
+    }
+
+    auto pixel_index = get_property_table_pixel_index(feature_id, property_table_texture);
+    auto texel_value = texel_fetch_int(property_table_texture, pixel_index);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_INT4;
+    }
+
+    auto raw_value = read_channels_int4(texel_value.value, DEFAULT_CHANNELS);
+    return finalize_int4(raw_value, has_no_data, no_data, default_value);
+}
+
+export float cesium_internal_property_table_normalized_int_lookup(
+    uniform texture_2d property_table_texture,
+    uniform bool has_no_data,
+    uniform int no_data,
+    uniform float default_value,
+    uniform float offset,
+    uniform float scale,
+    uniform int maximum_value,
+    int feature_id = DEFAULT_NULL_FEATURE_ID
+) [[ anno::hidden() ]] {
+    if (feature_id == DEFAULT_NULL_FEATURE_ID) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT;
+    }
+
+    auto pixel_index = get_property_table_pixel_index(feature_id, property_table_texture);
+    auto texel_value = texel_fetch_int(property_table_texture, pixel_index);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT;
+    }
+
+    auto raw_value = read_channels_int(texel_value.value, DEFAULT_CHANNELS);
+    return finalize_normalized_int(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
+}
+
+export float2 cesium_internal_property_table_normalized_int2_lookup(
+    uniform texture_2d property_table_texture,
+    uniform bool has_no_data,
+    uniform int2 no_data,
+    uniform float2 default_value,
+    uniform float2 offset,
+    uniform float2 scale,
+    uniform int2 maximum_value,
+    int feature_id = DEFAULT_NULL_FEATURE_ID
+) [[ anno::hidden() ]] {
+    if (feature_id == DEFAULT_NULL_FEATURE_ID) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT2;
+    }
+
+    auto pixel_index = get_property_table_pixel_index(feature_id, property_table_texture);
+    auto texel_value = texel_fetch_int(property_table_texture, pixel_index);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT2;
+    }
+
+    auto raw_value = read_channels_int2(texel_value.value, DEFAULT_CHANNELS);
+    return finalize_normalized_int2(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
+}
+
+export float3 cesium_internal_property_table_normalized_int3_lookup(
+    uniform texture_2d property_table_texture,
+    uniform bool has_no_data,
+    uniform int3 no_data,
+    uniform float3 default_value,
+    uniform float3 offset,
+    uniform float3 scale,
+    uniform int3 maximum_value,
+    int feature_id = DEFAULT_NULL_FEATURE_ID
+) [[ anno::hidden() ]] {
+    if (feature_id == DEFAULT_NULL_FEATURE_ID) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT3;
+    }
+
+    auto pixel_index = get_property_table_pixel_index(feature_id, property_table_texture);
+    auto texel_value = texel_fetch_int(property_table_texture, pixel_index);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT3;
+    }
+
+    auto raw_value = read_channels_int3(texel_value.value, DEFAULT_CHANNELS);
+    return finalize_normalized_int3(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
+}
+
+export float4 cesium_internal_property_table_normalized_int4_lookup(
+    uniform texture_2d property_table_texture,
+    uniform bool has_no_data,
+    uniform int4 no_data,
+    uniform float4 default_value,
+    uniform float4 offset,
+    uniform float4 scale,
+    uniform int4 maximum_value,
+    int feature_id = DEFAULT_NULL_FEATURE_ID
+) [[ anno::hidden() ]] {
+    if (feature_id == DEFAULT_NULL_FEATURE_ID) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT4;
+    }
+
+    auto pixel_index = get_property_table_pixel_index(feature_id, property_table_texture);
+    auto texel_value = texel_fetch_int(property_table_texture, pixel_index);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT4;
+    }
+
+    auto raw_value = read_channels_int4(texel_value.value, DEFAULT_CHANNELS);
+    return finalize_normalized_int4(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
+}
+
+export float cesium_internal_property_table_float_lookup(
+    uniform texture_2d property_table_texture,
+    uniform bool has_no_data,
+    uniform float no_data,
+    uniform float default_value,
+    uniform float offset,
+    uniform float scale,
+    int feature_id = DEFAULT_NULL_FEATURE_ID
+) [[ anno::hidden() ]] {
+    if (feature_id == DEFAULT_NULL_FEATURE_ID) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT;
+    }
+
+    auto pixel_index = get_property_table_pixel_index(feature_id, property_table_texture);
+    auto texel_value = texel_fetch_float(property_table_texture, pixel_index);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT;
+    }
+
+    auto raw_value = read_channels_float(texel_value.value, DEFAULT_CHANNELS);
+    return finalize_float(raw_value, has_no_data, no_data, default_value, offset, scale);
+}
+
+export float2 cesium_internal_property_table_float2_lookup(
+    uniform texture_2d property_table_texture,
+    uniform bool has_no_data,
+    uniform float2 no_data,
+    uniform float2 default_value,
+    uniform float2 offset,
+    uniform float2 scale,
+    int feature_id = DEFAULT_NULL_FEATURE_ID
+) [[ anno::hidden() ]] {
+    if (feature_id == DEFAULT_NULL_FEATURE_ID) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT2;
+    }
+
+    auto pixel_index = get_property_table_pixel_index(feature_id, property_table_texture);
+    auto texel_value = texel_fetch_float(property_table_texture, pixel_index);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT2;
+    }
+
+    auto raw_value = read_channels_float2(texel_value.value, DEFAULT_CHANNELS);
+    return finalize_float2(raw_value, has_no_data, no_data, default_value, offset, scale);
+}
+
+export float3 cesium_internal_property_table_float3_lookup(
+    uniform texture_2d property_table_texture,
+    uniform bool has_no_data,
+    uniform float3 no_data,
+    uniform float3 default_value,
+    uniform float3 offset,
+    uniform float3 scale,
+    int feature_id = DEFAULT_NULL_FEATURE_ID
+) [[ anno::hidden() ]] {
+    if (feature_id == DEFAULT_NULL_FEATURE_ID) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT3;
+    }
+
+    auto pixel_index = get_property_table_pixel_index(feature_id, property_table_texture);
+    auto texel_value = texel_fetch_float(property_table_texture, pixel_index);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT3;
+    }
+
+    auto raw_value = read_channels_float3(texel_value.value, DEFAULT_CHANNELS);
+    return finalize_float3(raw_value, has_no_data, no_data, default_value, offset, scale);
+}
+
+export float4 cesium_internal_property_table_float4_lookup(
+    uniform texture_2d property_table_texture,
+    uniform bool has_no_data,
+    uniform float4 no_data,
+    uniform float4 default_value,
+    uniform float4 offset,
+    uniform float4 scale,
+    int feature_id = DEFAULT_NULL_FEATURE_ID
+) [[ anno::hidden() ]] {
+    if (feature_id == DEFAULT_NULL_FEATURE_ID) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT4;
+    }
+
+    auto pixel_index = get_property_table_pixel_index(feature_id, property_table_texture);
+    auto texel_value = texel_fetch_float(property_table_texture, pixel_index);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT4;
+    }
+
+    auto raw_value = read_channels_float4(texel_value.value, DEFAULT_CHANNELS);
+    return finalize_float4(raw_value, has_no_data, no_data, default_value, offset, scale);
 }
 
 export gltf_texture_lookup_value cesium_internal_texture_lookup(*) [[ anno::hidden() ]] = gltf_texture_lookup();

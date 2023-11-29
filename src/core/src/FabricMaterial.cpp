@@ -361,6 +361,25 @@ void setPropertyTexturePropertyValues(
     setPropertyValues<T>(path, offset, scale, maximumValue, hasNoData, noData, defaultValue);
 }
 
+template <MdlInternalPropertyType T>
+void setPropertyTablePropertyValues(
+    const omni::fabric::Path& path,
+    const pxr::TfToken& propertyTableTextureAssetPathToken,
+    const GetMdlInternalPropertyTransformedType<T>& offset,
+    const GetMdlInternalPropertyTransformedType<T>& scale,
+    const GetMdlInternalPropertyRawType<T>& maximumValue,
+    bool hasNoData,
+    const GetMdlInternalPropertyRawType<T>& noData,
+    const GetMdlInternalPropertyTransformedType<T>& defaultValue) {
+
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto textureFabric = srw.getAttributeWr<omni::fabric::AssetPath>(path, FabricTokens::inputs_property_table_texture);
+    textureFabric->assetPath = propertyTableTextureAssetPathToken;
+    textureFabric->resolvedPath = pxr::TfToken();
+
+    setPropertyValues<T>(path, offset, scale, maximumValue, hasNoData, noData, defaultValue);
+}
+
 template <MdlInternalPropertyType T> void clearPropertyAttributeProperty(const omni::fabric::Path& path) {
     using MdlRawType = GetMdlInternalPropertyRawType<T>;
     using MdlTransformedType = GetMdlInternalPropertyTransformedType<T>;
@@ -388,6 +407,24 @@ void clearPropertyTextureProperty(
         defaultTransparentTextureAssetPathToken,
         GltfUtil::getDefaultTextureInfo(),
         DEFAULT_TEXCOORD_INDEX,
+        MdlTransformedType{0},
+        MdlTransformedType{0},
+        MdlRawType{0},
+        false,
+        MdlRawType{0},
+        MdlTransformedType{0});
+}
+
+template <MdlInternalPropertyType T>
+void clearPropertyTableProperty(
+    const omni::fabric::Path& path,
+    const pxr::TfToken& defaultTransparentTextureAssetPathToken) {
+    using MdlRawType = GetMdlInternalPropertyRawType<T>;
+    using MdlTransformedType = GetMdlInternalPropertyTransformedType<T>;
+
+    setPropertyTablePropertyValues<T>(
+        path,
+        defaultTransparentTextureAssetPathToken,
         MdlTransformedType{0},
         MdlTransformedType{0},
         MdlRawType{0},
@@ -532,6 +569,17 @@ void FabricMaterial::initializeNodes() {
         const auto propertyPath = FabricUtil::joinPaths(_materialPath, FabricTokens::property_texture_n(i));
         createPropertyTextureProperty(propertyPath, type);
         _propertyTexturePropertyPaths[type].push_back(propertyPath);
+    }
+
+    // Create property table properties
+    const auto& propertyTablePropertyTypes = _materialDefinition.getMdlInternalPropertyTablePropertyTypes();
+    const auto propertyTablePropertiesCount = propertyTablePropertyTypes.size();
+
+    for (uint64_t i = 0; i < propertyTablePropertiesCount; i++) {
+        const auto type = propertyTablePropertyTypes[i];
+        const auto propertyPath = FabricUtil::joinPaths(_materialPath, FabricTokens::property_table_n(i));
+        createPropertyTableProperty(propertyPath, type);
+        _propertyTablePropertyPaths[type].push_back(propertyPath);
     }
 }
 
@@ -1024,6 +1072,181 @@ void FabricMaterial::createPropertyTextureProperty(const omni::fabric::Path& pat
     }
 }
 
+void FabricMaterial::createPropertyTablePropertyInt(
+    const omni::fabric::Path& path,
+    const omni::fabric::Token& subidentifier,
+    const omni::fabric::Type& noDataType,
+    const omni::fabric::Type& defaultValueType) {
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+    srw.createPrim(path);
+    FabricAttributesBuilder attributes;
+    attributes.addAttribute(FabricTypes::inputs_property_table_texture, FabricTokens::inputs_property_table_texture);
+    attributes.addAttribute(FabricTypes::inputs_has_no_data, FabricTokens::inputs_has_no_data);
+    attributes.addAttribute(noDataType, FabricTokens::inputs_no_data);
+    attributes.addAttribute(defaultValueType, FabricTokens::inputs_default_value);
+    createAttributes(srw, path, attributes, subidentifier);
+}
+
+void FabricMaterial::createPropertyTablePropertyNormalizedInt(
+    const omni::fabric::Path& path,
+    const omni::fabric::Token& subidentifier,
+    const omni::fabric::Type& noDataType,
+    const omni::fabric::Type& defaultValueType,
+    const omni::fabric::Type& offsetType,
+    const omni::fabric::Type& scaleType,
+    const omni::fabric::Type& maximumValueType) {
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+    srw.createPrim(path);
+    FabricAttributesBuilder attributes;
+    attributes.addAttribute(FabricTypes::inputs_property_table_texture, FabricTokens::inputs_property_table_texture);
+    attributes.addAttribute(FabricTypes::inputs_has_no_data, FabricTokens::inputs_has_no_data);
+    attributes.addAttribute(noDataType, FabricTokens::inputs_no_data);
+    attributes.addAttribute(defaultValueType, FabricTokens::inputs_default_value);
+    attributes.addAttribute(offsetType, FabricTokens::inputs_offset);
+    attributes.addAttribute(scaleType, FabricTokens::inputs_scale);
+    attributes.addAttribute(maximumValueType, FabricTokens::inputs_maximum_value);
+    createAttributes(srw, path, attributes, subidentifier);
+}
+
+void FabricMaterial::createPropertyTablePropertyFloat(
+    const omni::fabric::Path& path,
+    const omni::fabric::Token& subidentifier,
+    const omni::fabric::Type& noDataType,
+    const omni::fabric::Type& defaultValueType,
+    const omni::fabric::Type& offsetType,
+    const omni::fabric::Type& scaleType) {
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+    srw.createPrim(path);
+    FabricAttributesBuilder attributes;
+    attributes.addAttribute(FabricTypes::inputs_property_table_texture, FabricTokens::inputs_property_table_texture);
+    attributes.addAttribute(FabricTypes::inputs_has_no_data, FabricTokens::inputs_has_no_data);
+    attributes.addAttribute(noDataType, FabricTokens::inputs_no_data);
+    attributes.addAttribute(defaultValueType, FabricTokens::inputs_default_value);
+    attributes.addAttribute(offsetType, FabricTokens::inputs_offset);
+    attributes.addAttribute(scaleType, FabricTokens::inputs_scale);
+    createAttributes(srw, path, attributes, subidentifier);
+}
+
+void FabricMaterial::createPropertyTableProperty(const omni::fabric::Path& path, MdlInternalPropertyType type) {
+    switch (type) {
+        case MdlInternalPropertyType::INT32:
+            createPropertyTablePropertyInt(
+                path,
+                FabricTokens::cesium_internal_property_table_int_lookup,
+                FabricTypes::inputs_no_data_int,
+                FabricTypes::inputs_default_value_int);
+            break;
+        case MdlInternalPropertyType::VEC2_INT32:
+            createPropertyTablePropertyInt(
+                path,
+                FabricTokens::cesium_internal_property_table_int2_lookup,
+                FabricTypes::inputs_no_data_int2,
+                FabricTypes::inputs_default_value_int2);
+            break;
+        case MdlInternalPropertyType::VEC3_INT32:
+            createPropertyTablePropertyInt(
+                path,
+                FabricTokens::cesium_internal_property_table_int3_lookup,
+                FabricTypes::inputs_no_data_int3,
+                FabricTypes::inputs_default_value_int3);
+            break;
+        case MdlInternalPropertyType::VEC4_INT32:
+            createPropertyTablePropertyInt(
+                path,
+                FabricTokens::cesium_internal_property_table_int4_lookup,
+                FabricTypes::inputs_no_data_int4,
+                FabricTypes::inputs_default_value_int4);
+            break;
+        case MdlInternalPropertyType::INT32_NORM:
+            createPropertyTablePropertyNormalizedInt(
+                path,
+                FabricTokens::cesium_internal_property_table_normalized_int_lookup,
+                FabricTypes::inputs_no_data_int,
+                FabricTypes::inputs_default_value_float,
+                FabricTypes::inputs_offset_float,
+                FabricTypes::inputs_scale_float,
+                FabricTypes::inputs_maximum_value_int);
+            break;
+        case MdlInternalPropertyType::VEC2_INT32_NORM:
+            createPropertyTablePropertyNormalizedInt(
+                path,
+                FabricTokens::cesium_internal_property_table_normalized_int2_lookup,
+                FabricTypes::inputs_no_data_int2,
+                FabricTypes::inputs_default_value_float2,
+                FabricTypes::inputs_offset_float2,
+                FabricTypes::inputs_scale_float2,
+                FabricTypes::inputs_maximum_value_int2);
+            break;
+        case MdlInternalPropertyType::VEC3_INT32_NORM:
+            createPropertyTablePropertyNormalizedInt(
+                path,
+                FabricTokens::cesium_internal_property_table_normalized_int3_lookup,
+                FabricTypes::inputs_no_data_int3,
+                FabricTypes::inputs_default_value_float3,
+                FabricTypes::inputs_offset_float3,
+                FabricTypes::inputs_scale_float3,
+                FabricTypes::inputs_maximum_value_int3);
+            break;
+        case MdlInternalPropertyType::VEC4_INT32_NORM:
+            createPropertyTablePropertyNormalizedInt(
+                path,
+                FabricTokens::cesium_internal_property_table_normalized_int4_lookup,
+                FabricTypes::inputs_no_data_int4,
+                FabricTypes::inputs_default_value_float4,
+                FabricTypes::inputs_offset_float4,
+                FabricTypes::inputs_scale_float4,
+                FabricTypes::inputs_maximum_value_int4);
+            break;
+        case MdlInternalPropertyType::FLOAT32:
+            createPropertyTablePropertyFloat(
+                path,
+                FabricTokens::cesium_internal_property_table_float_lookup,
+                FabricTypes::inputs_no_data_float,
+                FabricTypes::inputs_default_value_float,
+                FabricTypes::inputs_offset_float,
+                FabricTypes::inputs_scale_float);
+            break;
+        case MdlInternalPropertyType::VEC2_FLOAT32:
+            createPropertyTablePropertyFloat(
+                path,
+                FabricTokens::cesium_internal_property_table_float2_lookup,
+                FabricTypes::inputs_no_data_float2,
+                FabricTypes::inputs_default_value_float2,
+                FabricTypes::inputs_offset_float2,
+                FabricTypes::inputs_scale_float2);
+            break;
+        case MdlInternalPropertyType::VEC3_FLOAT32:
+            createPropertyTablePropertyFloat(
+                path,
+                FabricTokens::cesium_internal_property_table_float3_lookup,
+                FabricTypes::inputs_no_data_float3,
+                FabricTypes::inputs_default_value_float3,
+                FabricTypes::inputs_offset_float3,
+                FabricTypes::inputs_scale_float3);
+            break;
+        case MdlInternalPropertyType::VEC4_FLOAT32:
+            createPropertyTablePropertyFloat(
+                path,
+                FabricTokens::cesium_internal_property_table_float4_lookup,
+                FabricTypes::inputs_no_data_float4,
+                FabricTypes::inputs_default_value_float4,
+                FabricTypes::inputs_offset_float4,
+                FabricTypes::inputs_scale_float4);
+            break;
+        case MdlInternalPropertyType::MAT2_INT32:
+        case MdlInternalPropertyType::MAT2_FLOAT32:
+        case MdlInternalPropertyType::MAT2_INT32_NORM:
+        case MdlInternalPropertyType::MAT3_INT32:
+        case MdlInternalPropertyType::MAT3_FLOAT32:
+        case MdlInternalPropertyType::MAT3_INT32_NORM:
+        case MdlInternalPropertyType::MAT4_INT32:
+        case MdlInternalPropertyType::MAT4_FLOAT32:
+        case MdlInternalPropertyType::MAT4_INT32_NORM:
+            assert(false);
+            break;
+    }
+}
+
 void FabricMaterial::reset() {
     if (_usesDefaultMaterial) {
         setShaderValues(
@@ -1068,6 +1291,15 @@ void FabricMaterial::reset() {
         }
     }
 
+    for (const auto& [type, paths] : _propertyTablePropertyPaths) {
+        for (const auto& path : paths) {
+            CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_MDL_TYPE(
+                clearPropertyTableProperty, type, path, _defaultTransparentTextureAssetPathToken);
+            auto srw = UsdUtil::getFabricStageReaderWriter();
+            destroyConnection(srw, path, FabricTokens::inputs_feature_id);
+        }
+    }
+
     _properties.clear();
 
     destroyConnectionsToProperties();
@@ -1095,6 +1327,7 @@ void FabricMaterial::setMaterial(
     const std::shared_ptr<FabricTexture>& baseColorTexture,
     const std::vector<std::shared_ptr<FabricTexture>>& featureIdTextures,
     const std::vector<std::shared_ptr<FabricTexture>>& propertyTextures,
+    const std::vector<std::shared_ptr<FabricTexture>>& propertyTableTextures,
     const glm::dvec3& displayColor,
     double displayOpacity,
     const std::unordered_map<uint64_t, uint64_t>& texcoordIndexMapping,
@@ -1169,6 +1402,8 @@ void FabricMaterial::setMaterial(
 
     std::array<uint8_t, MdlInternalPropertyTypeCount> propertyAttributePropertyTypeCounter{};
     std::array<uint8_t, MdlInternalPropertyTypeCount> propertyTexturePropertyTypeCounter{};
+    std::array<uint8_t, MdlInternalPropertyTypeCount> propertyTablePropertyTypeCounter{};
+    uint64_t propertyTablePropertyCounter = 0;
 
     MetadataUtil::forEachStyleablePropertyAttributeProperty(
         model,
@@ -1250,6 +1485,48 @@ void FabricMaterial::setMaterial(
                 hasNoData,
                 noData,
                 defaultValue);
+        });
+
+    MetadataUtil::forEachStyleablePropertyTableProperty(
+        model,
+        primitive,
+        [this, &propertyTableTextures, &propertyTablePropertyCounter, &propertyTablePropertyTypeCounter](
+            const std::string& propertyId, [[maybe_unused]] auto propertyTablePropertyView, auto styleableProperty) {
+            constexpr auto type = decltype(styleableProperty)::Type;
+            constexpr auto mdlType = getMdlInternalPropertyType<type>();
+            const auto featureIdSetIndex = styleableProperty.featureIdSetIndex;
+            const auto& featureIdPath = _featureIdPaths[featureIdSetIndex];
+            const auto textureIndex = propertyTablePropertyCounter++;
+            const auto& textureAssetPath = propertyTableTextures[textureIndex]->getAssetPathToken();
+            const auto pathIndex = propertyTablePropertyTypeCounter[static_cast<uint64_t>(mdlType)]++;
+            const auto& propertyTablePropertyPath = _propertyTablePropertyPaths.at(mdlType)[pathIndex];
+            const auto& propertyInfo = styleableProperty.propertyInfo;
+            const auto hasNoData = propertyInfo.noData.has_value();
+            const auto offset = getOffset(propertyInfo);
+            const auto scale = getScale(propertyInfo);
+            const auto noData = getNoData(propertyInfo);
+            const auto defaultValue = getDefaultValue(propertyInfo);
+            constexpr auto maximumValue = getMaximumValue<type>();
+
+            _properties.emplace_back(PropertyInfo{
+                propertyTablePropertyPath,
+                propertyId,
+                mdlType,
+            });
+
+            setPropertyTablePropertyValues<mdlType>(
+                propertyTablePropertyPath,
+                textureAssetPath,
+                offset,
+                scale,
+                maximumValue,
+                hasNoData,
+                noData,
+                defaultValue);
+
+            // Create connection from the feature id node to the property table property node
+            auto srw = UsdUtil::getFabricStageReaderWriter();
+            createConnection(srw, featureIdPath, propertyTablePropertyPath, FabricTokens::inputs_feature_id);
         });
 
     createConnectionsToProperties();
