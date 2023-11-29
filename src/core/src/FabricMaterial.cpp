@@ -1252,7 +1252,6 @@ void FabricMaterial::setMaterial(
                 defaultValue);
         });
 
-    destroyConnectionsToProperties();
     createConnectionsToProperties();
 
     for (const auto& path : _allPaths) {
