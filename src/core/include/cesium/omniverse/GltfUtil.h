@@ -169,7 +169,7 @@ VertexAttributeAccessor<T> getVertexAttributeValues(
         return {};
     }
 
-    auto view = CesiumGltf::AccessorView<GetRawType<T>>(model, *pAccessor);
+    auto view = CesiumGltf::AccessorView<GetNativeType<T>>(model, *pAccessor);
 
     if (view.status() != CesiumGltf::AccessorViewStatus::Valid) {
         return {};

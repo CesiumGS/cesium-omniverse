@@ -44,7 +44,8 @@ void setVertexAttributeValues(
     const auto accessor = GltfUtil::getVertexAttributeValues<T>(model, primitive, attribute.gltfAttributeName);
     assert(accessor.size() > 0);
     srw.setArrayAttributeSize(path, attribute.fabricAttributeName, accessor.size() * repeat);
-    auto fabricValues = srw.getArrayAttributeWr<GetPrimvarType<T>>(path, attribute.fabricAttributeName);
+    auto fabricValues =
+        srw.getArrayAttributeWr<GetNativeType<getPrimvarType<T>()>>(path, attribute.fabricAttributeName);
     accessor.fill(fabricValues, repeat);
 }
 

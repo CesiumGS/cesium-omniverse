@@ -140,16 +140,16 @@ template <DataType T> class VertexAttributeAccessor {
   public:
     VertexAttributeAccessor()
         : _size(0){};
-    VertexAttributeAccessor(const CesiumGltf::AccessorView<GetRawType<T>>& view)
+    VertexAttributeAccessor(const CesiumGltf::AccessorView<GetNativeType<T>>& view)
         : _view(view)
         , _size(static_cast<uint64_t>(view.size())) {}
 
-    void fill(const gsl::span<GetPrimvarType<T>>& values, uint64_t repeat = 1) const {
+    void fill(const gsl::span<GetNativeType<getPrimvarType<T>()>>& values, uint64_t repeat = 1) const {
         const auto size = values.size();
         assert(size == _size * repeat);
 
         for (uint64_t i = 0; i < size; i++) {
-            values[i] = static_cast<GetPrimvarType<T>>(_view[static_cast<int64_t>(i / repeat)]);
+            values[i] = static_cast<GetNativeType<getPrimvarType<T>()>>(_view[static_cast<int64_t>(i / repeat)]);
         }
     }
 
@@ -158,7 +158,7 @@ template <DataType T> class VertexAttributeAccessor {
     }
 
   private:
-    CesiumGltf::AccessorView<GetRawType<T>> _view;
+    CesiumGltf::AccessorView<GetNativeType<T>> _view;
     uint64_t _size;
 };
 
