@@ -1,4 +1,5 @@
 #include "cesium/omniverse/OmniTileset.h"
+#include "CesiumUsdSchemas/polygonImagery.h"
 
 #include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/Context.h"
@@ -17,6 +18,7 @@
 #include <Cesium3DTilesSelection/RasterOverlay.h>
 #include <Cesium3DTilesSelection/RasterizedPolygonsOverlay.h>
 #include <CesiumGeospatial/Ellipsoid.h>
+#include <CesiumGeospatial/Projection.h>
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
@@ -423,7 +425,7 @@ void OmniTileset::reload() {
         if (imagery.GetPrim().IsA<pxr::CesiumIonImagery>()) {
             addImageryIon(imagery.GetPath());
         } else {
-            std::cout << "Imagery type not yet supported" << std::endl;
+            addImageryPolygon((imagery.GetPath()));
         }
     }
 }
@@ -475,13 +477,29 @@ void OmniTileset::addImageryPolygon(const pxr::SdfPath& imageryPath) {
     const OmniPolygonImagery imagery(imageryPath);
 
     const auto uniqueName = "imagery_polygon_test"; // DEVEL
+
     std::vector<CesiumGeospatial::CartographicPolygon> polygons; // DEVEL
-    auto invertSelection = false; // DEVEL
-    CesiumGeospatial::Ellipsoid ellipsoid(glm::dvec3(1.0, 1.0, 1.0)); // DEVEL
-    CesiumGeospatial::Projection projection; // DEVEL
-    Cesium3DTilesSelection::RasterOverlayOptions rasterOverlayOptions;
+    auto polygonImagery = UsdUtil::getCesiumPolygonImagery(imageryPath);
+    auto basisCurvesRel = polygonImagery.GetBasisCurvesBindingRel();
+    pxr::SdfPathVector targets;
+    basisCurvesRel.GetTargets(&targets);
+    //TODO: get more than the first BasicCurves object, handle none
+    auto basisCurves = targets[0];
+
+
+    // auto rel = prim.GetRelationship(pxr::TfToken("cesium:basisCurvesBinding"));
+    // auto x = prim.Get
+
+    auto invertSelection = false; // DEVEL: pull from UI
+    auto ellipsoid = CesiumGeospatial::Ellipsoid::WGS84;
+    auto projection = CesiumGeospatial::GeographicProjection(ellipsoid);
+    Cesium3DTilesSelection::RasterOverlayOptions rasterOverlayOptions; // DEVEL: pull from UI
+    Cesium3DTilesSelection::RasterOverlayOptions options;
+    options.showCreditsOnScreen = imagery.getShowCreditsOnScreen();
+
     const auto polygonRasterOverlay =
-        new Cesium3DTilesSelection::RasterizedPolygonsOverlay(uniqueName, polygons, invertSelection, ellipsoid, projection, rasterOverlayOptions);
+        new Cesium3DTilesSelection::RasterizedPolygonsOverlay(uniqueName, polygons, invertSelection, ellipsoid,
+        projection, rasterOverlayOptions);
     _tileset->getOverlays().add(polygonRasterOverlay);
     _imageryPaths.push_back((imageryPath));
 }

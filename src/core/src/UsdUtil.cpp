@@ -445,6 +445,14 @@ pxr::CesiumIonImagery getCesiumIonImagery(const pxr::SdfPath& path) {
     return imagery;
 }
 
+pxr::CesiumPolygonImagery getCesiumPolygonImagery(const pxr::SdfPath& path) {
+    auto stage = UsdUtil::getUsdStage();
+    auto imagery = pxr::CesiumPolygonImagery::Get(stage, path);
+    assert(imagery.GetPrim().IsValid());
+    return imagery;
+}
+
+
 std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& path) {
     auto stage = UsdUtil::getUsdStage();
     auto prim = stage->GetPrimAtPath(path);

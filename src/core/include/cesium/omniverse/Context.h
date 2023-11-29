@@ -6,7 +6,7 @@
 #include "cesium/omniverse/UsdNotificationHandler.h"
 
 #include <CesiumGeospatial/Cartographic.h>
-#include <CesiumGeospatial/Ellipsoid.h>
+// #include <CesiumGeospatial/Ellipsoid.h>
 #include <CesiumGeospatial/GlobeAnchor.h>
 #include <CesiumGeospatial/LocalHorizontalCoordinateSystem.h>
 #include <glm/glm.hpp>
