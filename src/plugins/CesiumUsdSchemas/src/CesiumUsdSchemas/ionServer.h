@@ -129,7 +129,7 @@ public:
     // --------------------------------------------------------------------- //
     // IONSERVERURL 
     // --------------------------------------------------------------------- //
-    /// The hostname URL for the Cesium ion Server.
+    /// The base URL for the Cesium ion Server.
     ///
     /// | ||
     /// | -- | -- |
@@ -146,6 +146,50 @@ public:
     /// the default for \p writeSparsely is \c false.
     CESIUMUSDSCHEMAS_API
     UsdAttribute CreateIonServerUrlAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
+    // IONSERVERAPIURL 
+    // --------------------------------------------------------------------- //
+    /// The base URL for the Cesium ion Server API.
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `string cesium:ionServerApiUrl` |
+    /// | C++ Type | std::string |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute GetIonServerApiUrlAttr() const;
+
+    /// See GetIonServerApiUrlAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute CreateIonServerApiUrlAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
+    // IONSERVERAPPLICATIONID 
+    // --------------------------------------------------------------------- //
+    /// The application ID for the Cesium ion Server connection.
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `string cesium:ionServerApplicationId` |
+    /// | C++ Type | std::string |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute GetIonServerApplicationIdAttr() const;
+
+    /// See GetIonServerApplicationIdAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute CreateIonServerApplicationIdAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // --------------------------------------------------------------------- //

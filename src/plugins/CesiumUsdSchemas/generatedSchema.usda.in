@@ -71,9 +71,17 @@ class CesiumIonServerPrim "CesiumIonServerPrim" (
     doc = "Stores metadata related to Cesium ion server connections for tilesets."
 )
 {
+    string cesium:ionServerApiUrl (
+        displayName = "Cesium ion Server API URL"
+        doc = "The base URL for the Cesium ion Server API."
+    )
+    string cesium:ionServerApplicationId (
+        displayName = "Cesium ion Server Application ID"
+        doc = "The application ID for the Cesium ion Server connection."
+    )
     string cesium:ionServerUrl (
         displayName = "Cesium ion Server URL"
-        doc = "The hostname URL for the Cesium ion Server."
+        doc = "The base URL for the Cesium ion Server."
     )
     string cesium:projectDefaultIonAccessToken = "" (
         displayName = "Project default ion Access Token"

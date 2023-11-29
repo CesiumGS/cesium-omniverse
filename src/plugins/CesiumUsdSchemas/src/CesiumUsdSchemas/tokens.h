@@ -159,6 +159,14 @@ struct CesiumTokensType {
     /// 
     /// CesiumImagery, CesiumTileset
     const TfToken cesiumIonAssetId;
+    /// \brief "cesium:ionServerApiUrl"
+    /// 
+    /// CesiumIonServer
+    const TfToken cesiumIonServerApiUrl;
+    /// \brief "cesium:ionServerApplicationId"
+    /// 
+    /// CesiumIonServer
+    const TfToken cesiumIonServerApplicationId;
     /// \brief "cesium:ionServerBinding"
     /// 
     /// CesiumImagery, CesiumTileset

@@ -71,6 +71,8 @@ void wrapCesiumTokens()
     _AddToken(cls, "cesiumGeoreferenceOriginLongitude", CesiumTokens->cesiumGeoreferenceOriginLongitude);
     _AddToken(cls, "cesiumIonAccessToken", CesiumTokens->cesiumIonAccessToken);
     _AddToken(cls, "cesiumIonAssetId", CesiumTokens->cesiumIonAssetId);
+    _AddToken(cls, "cesiumIonServerApiUrl", CesiumTokens->cesiumIonServerApiUrl);
+    _AddToken(cls, "cesiumIonServerApplicationId", CesiumTokens->cesiumIonServerApplicationId);
     _AddToken(cls, "cesiumIonServerBinding", CesiumTokens->cesiumIonServerBinding);
     _AddToken(cls, "cesiumIonServerUrl", CesiumTokens->cesiumIonServerUrl);
     _AddToken(cls, "cesiumLoadingDescendantLimit", CesiumTokens->cesiumLoadingDescendantLimit);
