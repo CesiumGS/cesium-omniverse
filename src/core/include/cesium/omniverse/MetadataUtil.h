@@ -506,7 +506,7 @@ void forEachStyleablePropertyTableProperty(
                             propertyId);
                     }
 
-                    const auto propertyInfo = StyleablePropertyInfo<type>{
+                    const auto propertyInfo = StyleablePropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
                         propertyTablePropertyView.offset(),
                         propertyTablePropertyView.scale(),
                         propertyTablePropertyView.min(),
@@ -516,10 +516,11 @@ void forEachStyleablePropertyTableProperty(
                         propertyTablePropertyView.defaultValue(),
                     };
 
-                    const auto styleableProperty = StyleablePropertyTablePropertyInfo<type>{
-                        featureIdSetIndex,
-                        propertyInfo,
-                    };
+                    const auto styleableProperty =
+                        StyleablePropertyTablePropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
+                            featureIdSetIndex,
+                            propertyInfo,
+                        };
 
                     callback(propertyId, propertyTablePropertyView, styleableProperty);
                 }
