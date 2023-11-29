@@ -809,6 +809,14 @@ const TextureInfo& getDefaultTextureInfo() {
     return defaultInfo;
 }
 
+TextureInfo getPropertyTexturePropertyInfo(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::PropertyTextureProperty& propertyTextureProperty) {
+    TextureInfo textureInfo = getTextureInfo(model, propertyTextureProperty);
+    textureInfo.channels = getChannels(propertyTextureProperty);
+    return textureInfo;
+}
+
 bool hasNormals(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, bool smoothNormals) {
     return smoothNormals || getNormalsView(model, primitive).status() == CesiumGltf::AccessorViewStatus::Valid;
 }

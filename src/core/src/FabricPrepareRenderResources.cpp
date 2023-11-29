@@ -69,6 +69,17 @@ uint64_t getFeatureIdTextureCount(const FabricMesh& fabricMesh) {
     return static_cast<uint64_t>(std::count(featureIdTypes.begin(), featureIdTypes.end(), FeatureIdType::TEXTURE));
 }
 
+std::vector<const CesiumGltf::ImageCesium*> getPropertyTextureImages(
+    const FabricMesh& fabricMesh,
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive) {
+    if (fabricMesh.material == nullptr) {
+        return {};
+    }
+
+    return MetadataUtil::getPropertyTextureImages(model, primitive);
+}
+
 std::vector<MeshInfo>
 gatherMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const CesiumGltf::Model& model) {
     CESIUM_TRACE("FabricPrepareRenderResources::gatherMeshes");
@@ -162,6 +173,12 @@ std::vector<FabricMesh> acquireFabricMeshes(
             for (uint64_t i = 0; i < featureIdTextureCount; i++) {
                 fabricMesh.featureIdTextures.emplace_back(fabricResourceManager.acquireTexture());
             }
+
+            const auto propertyTextureCount = getPropertyTextureImages(fabricMesh, model, primitive).size();
+            fabricMesh.propertyTextures.reserve(propertyTextureCount);
+            for (uint64_t i = 0; i < propertyTextureCount; i++) {
+                fabricMesh.propertyTextures.emplace_back(fabricResourceManager.acquireTexture());
+            }
         }
 
         // Map glTF texcoord set index to primvar st index
@@ -180,6 +197,9 @@ std::vector<FabricMesh> acquireFabricMeshes(
         fabricMesh.featureIdIndexSetIndexMapping = getSetIndexMapping(featuresInfo, FeatureIdType::INDEX);
         fabricMesh.featureIdAttributeSetIndexMapping = getSetIndexMapping(featuresInfo, FeatureIdType::ATTRIBUTE);
         fabricMesh.featureIdTextureSetIndexMapping = getSetIndexMapping(featuresInfo, FeatureIdType::TEXTURE);
+
+        // Map glTF texture index to property texture index
+        fabricMesh.propertyTextureIndexMapping = MetadataUtil::getPropertyTextureIndexMapping(model, primitive);
     }
 
     return fabricMeshes;
@@ -208,6 +228,12 @@ void setFabricTextures(
             const auto featureIdTextureImage = GltfUtil::getFeatureIdTextureImage(model, primitive, featureIdSetIndex);
             assert(featureIdTextureImage);
             mesh.featureIdTextures[j]->setImage(*featureIdTextureImage, TransferFunction::LINEAR);
+        }
+
+        const auto propertyTextureImages = getPropertyTextureImages(mesh, model, primitive);
+        const auto propertyTextureCount = propertyTextureImages.size();
+        for (uint64_t j = 0; j < propertyTextureCount; j++) {
+            mesh.propertyTextures[j]->setImage(*propertyTextureImages[j], TransferFunction::LINEAR);
         }
     }
 }
@@ -252,12 +278,14 @@ void setFabricMeshes(
                 mesh.featuresInfo,
                 mesh.baseColorTexture,
                 mesh.featureIdTextures,
+                mesh.propertyTextures,
                 displayColor,
                 displayOpacity,
                 mesh.texcoordIndexMapping,
                 mesh.featureIdIndexSetIndexMapping,
                 mesh.featureIdAttributeSetIndexMapping,
-                mesh.featureIdTextureSetIndexMapping);
+                mesh.featureIdTextureSetIndexMapping,
+                mesh.propertyTextureIndexMapping);
 
             geometry->setMaterial(material->getPath());
         } else if (!tilesetMaterialPath.IsEmpty()) {

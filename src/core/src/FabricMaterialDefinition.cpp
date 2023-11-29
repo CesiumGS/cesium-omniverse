@@ -39,7 +39,9 @@ FabricMaterialDefinition::FabricMaterialDefinition(
     , _imageryLayerCount(disableTextures ? 0 : imageryLayerCount)
     , _tilesetMaterialPath(tilesetMaterialPath)
     , _mdlInternalPropertyAttributePropertyTypes(
-          MetadataUtil::getMdlInternalPropertyAttributePropertyTypes(model, primitive)) {}
+          MetadataUtil::getMdlInternalPropertyAttributePropertyTypes(model, primitive))
+    , _mdlInternalPropertyTexturePropertyTypes(
+          MetadataUtil::getMdlInternalPropertyTexturePropertyTypes(model, primitive)) {}
 
 bool FabricMaterialDefinition::hasVertexColors() const {
     return _hasVertexColors;
@@ -70,12 +72,18 @@ FabricMaterialDefinition::getMdlInternalPropertyAttributePropertyTypes() const {
     return _mdlInternalPropertyAttributePropertyTypes;
 }
 
+const std::vector<MdlInternalPropertyType>&
+FabricMaterialDefinition::getMdlInternalPropertyTexturePropertyTypes() const {
+    return _mdlInternalPropertyTexturePropertyTypes;
+}
+
 // In C++ 20 we can use the default equality comparison (= default)
 bool FabricMaterialDefinition::operator==(const FabricMaterialDefinition& other) const {
     return _hasVertexColors == other._hasVertexColors && _hasBaseColorTexture == other._hasBaseColorTexture &&
            _featureIdTypes == other._featureIdTypes && _imageryLayerCount == other._imageryLayerCount &&
            _tilesetMaterialPath == other._tilesetMaterialPath &&
-           _mdlInternalPropertyAttributePropertyTypes == other._mdlInternalPropertyAttributePropertyTypes;
+           _mdlInternalPropertyAttributePropertyTypes == other._mdlInternalPropertyAttributePropertyTypes &&
+           _mdlInternalPropertyTexturePropertyTypes == other._mdlInternalPropertyTexturePropertyTypes;
 }
 
 } // namespace cesium::omniverse
