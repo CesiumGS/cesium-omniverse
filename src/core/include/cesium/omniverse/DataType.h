@@ -1387,9 +1387,9 @@ inline bool isMatrix(DataType type) {
 template <DataType T> constexpr uint64_t getComponentCount() {
     if constexpr (isMatrix<T>() || isVector<T>()) {
         return GetNativeType<T>::length();
+    } else {
+        return 1;
     }
-
-    return 1;
 };
 
 inline uint64_t getComponentCount(DataType type) {
