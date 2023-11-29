@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cesium/omniverse/DataType.h"
 #include "cesium/omniverse/FabricMaterialDefinition.h"
 #include "cesium/omniverse/GltfUtil.h"
 
@@ -33,6 +34,8 @@ class FabricMaterial {
     ~FabricMaterial();
 
     void setMaterial(
+        const CesiumGltf::Model& model,
+        const CesiumGltf::MeshPrimitive& primitive,
         int64_t tilesetId,
         const MaterialInfo& materialInfo,
         const FeaturesInfo& featuresInfo,
@@ -78,6 +81,27 @@ class FabricMaterial {
     void createFeatureIdIndex(const omni::fabric::Path& path);
     void createFeatureIdAttribute(const omni::fabric::Path& path);
     void createFeatureIdTexture(const omni::fabric::Path& path);
+    void createPropertyAttributePropertyInt(
+        const omni::fabric::Path& path,
+        const omni::fabric::Token& subidentifier,
+        const omni::fabric::Type& noDataType,
+        const omni::fabric::Type& defaultValueType);
+    void createPropertyAttributePropertyNormalizedInt(
+        const omni::fabric::Path& path,
+        const omni::fabric::Token& subidentifier,
+        const omni::fabric::Type& noDataType,
+        const omni::fabric::Type& defaultValueType,
+        const omni::fabric::Type& offsetType,
+        const omni::fabric::Type& scaleType,
+        const omni::fabric::Type& maximumValueType);
+    void createPropertyAttributePropertyFloat(
+        const omni::fabric::Path& path,
+        const omni::fabric::Token& subidentifier,
+        const omni::fabric::Type& noDataType,
+        const omni::fabric::Type& defaultValueType,
+        const omni::fabric::Type& offsetType,
+        const omni::fabric::Type& scaleType);
+    void createPropertyAttributeProperty(const omni::fabric::Path& path, MdlInternalPropertyType type);
 
     void reset();
 
@@ -86,11 +110,6 @@ class FabricMaterial {
         const MaterialInfo& materialInfo,
         const glm::dvec3& displayColor,
         double displayOpacity);
-    void setTextureValuesCommon(
-        const omni::fabric::Path& path,
-        const pxr::TfToken& textureAssetPathToken,
-        const TextureInfo& textureInfo,
-        uint64_t texcoordIndex);
     void setTextureValues(
         const omni::fabric::Path& path,
         const pxr::TfToken& textureAssetPathToken,
@@ -104,8 +123,7 @@ class FabricMaterial {
         double alpha);
     void setImageryLayerAlphaValue(const omni::fabric::Path& path, double alpha);
     void setFeatureIdIndexValues(const omni::fabric::Path& path, int nullFeatureId);
-    void
-    setFeatureIdAttributeValues(const omni::fabric::Path& path, const std::string& attributeName, int nullFeatureId);
+    void setFeatureIdAttributeValues(const omni::fabric::Path& path, const std::string& primvarName, int nullFeatureId);
     void setFeatureIdTextureValues(
         const omni::fabric::Path& path,
         const pxr::TfToken& textureAssetPathToken,
@@ -115,6 +133,8 @@ class FabricMaterial {
 
     void createConnectionsToCopiedPaths();
     void destroyConnectionsToCopiedPaths();
+    void createConnectionsToProperties();
+    void destroyConnectionsToProperties();
 
     bool stageDestroyed();
 
@@ -139,9 +159,20 @@ class FabricMaterial {
     std::vector<omni::fabric::Path> _featureIdAttributePaths;
     std::vector<omni::fabric::Path> _featureIdTexturePaths;
 
+    std::unordered_map<MdlInternalPropertyType, std::vector<omni::fabric::Path>> _propertyAttributePropertyPaths;
+
+    struct PropertyInfo {
+        omni::fabric::Path path;
+        std::string propertyId;
+        MdlInternalPropertyType type;
+    };
+
+    std::vector<PropertyInfo> _properties;
+
     std::vector<omni::fabric::Path> _copiedBaseColorTexturePaths;
     std::vector<omni::fabric::Path> _copiedImageryLayerPaths;
     std::vector<omni::fabric::Path> _copiedFeatureIdPaths;
+    std::vector<omni::fabric::Path> _copiedPropertyPaths;
 
     std::vector<omni::fabric::Path> _allPaths;
 };

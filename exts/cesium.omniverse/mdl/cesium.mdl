@@ -16,6 +16,14 @@ module [[
 annotation annotation_not_connectable();
 
 export const auto DEFAULT_NULL_FEATURE_ID = -1;
+export const auto DEFAULT_PROPERTY_VALUE_INT = 0;
+export const auto DEFAULT_PROPERTY_VALUE_INT2 = int2(0);
+export const auto DEFAULT_PROPERTY_VALUE_INT3 = int3(0);
+export const auto DEFAULT_PROPERTY_VALUE_INT4 = int4(0);
+export const auto DEFAULT_PROPERTY_VALUE_FLOAT = 0.0;
+export const auto DEFAULT_PROPERTY_VALUE_FLOAT2 = float2(0.0);
+export const auto DEFAULT_PROPERTY_VALUE_FLOAT3 = float3(0.0);
+export const auto DEFAULT_PROPERTY_VALUE_FLOAT4 = float4(0.0);
 
 export enum up_axis_mode {
     Y,
@@ -187,6 +195,119 @@ int unpack_channels(int4 value, int4 channels, int channel_count) {
     return unpacked_value;
 }
 
+// The normalize functions work for both signed and unsigned ints
+float normalize_int(int value, int maximum_value) {
+    return math::max(float(value) / float(maximum_value), -1.0);
+}
+
+float2 normalize_int2(int2 value, int2 maximum_value) {
+    return math::max(float2(value) / float2(maximum_value), float2(-1.0));
+}
+
+float3 normalize_int3(int3 value, int3 maximum_value) {
+    return math::max(float3(value) / float3(maximum_value), float3(-1.0));
+}
+
+float4 normalize_int4(int4 value, int4 maximum_value) {
+    return math::max(float4(value) / float4(maximum_value), float4(-1.0));
+}
+
+int finalize_int(int raw_value, bool has_no_data, int no_data, int default_value) {
+    auto is_no_data = has_no_data && raw_value == no_data;
+    return is_no_data ? default_value : raw_value;
+}
+
+int2 finalize_int2(int2 raw_value, bool has_no_data, int2 no_data, int2 default_value) {
+    auto is_no_data = has_no_data && raw_value == no_data;
+    return is_no_data ? default_value : raw_value;
+}
+
+int3 finalize_int3(int3 raw_value, bool has_no_data, int3 no_data, int3 default_value) {
+    auto is_no_data = has_no_data && raw_value == no_data;
+    return is_no_data ? default_value : raw_value;
+}
+
+int4 finalize_int4(int4 raw_value, bool has_no_data, int4 no_data, int4 default_value) {
+    auto is_no_data = has_no_data && raw_value == no_data;
+    return is_no_data ? default_value : raw_value;
+}
+
+float finalize_normalized_int(int raw_value, bool has_no_data, int no_data, float default_value, float offset, float scale, int maximum_value) {
+    auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    auto normalized_value = normalize_int(raw_value, maximum_value);
+    auto transformed_value = normalized_value * scale + offset;
+    return transformed_value;
+}
+
+float2 finalize_normalized_int2(int2 raw_value, bool has_no_data, int2 no_data, float2 default_value, float2 offset, float2 scale, int2 maximum_value) {
+    auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    auto normalized_value = normalize_int2(raw_value, maximum_value);
+    auto transformed_value = normalized_value * scale + offset;
+    return transformed_value;
+}
+
+float3 finalize_normalized_int3(int3 raw_value, bool has_no_data, int3 no_data, float3 default_value, float3 offset, float3 scale, int3 maximum_value) {
+    auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    auto normalized_value = normalize_int3(raw_value, maximum_value);
+    auto transformed_value = normalized_value * scale + offset;
+    return transformed_value;
+}
+
+float4 finalize_normalized_int4(int4 raw_value, bool has_no_data, int4 no_data, float4 default_value, float4 offset, float4 scale, int4 maximum_value) {
+    auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    auto normalized_value = normalize_int4(raw_value, maximum_value);
+    auto transformed_value = normalized_value * scale + offset;
+    return transformed_value;
+}
+
+float finalize_float(float raw_value, bool has_no_data, float no_data, float default_value, float offset, float scale) {
+    auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    auto transformed_value = raw_value * scale + offset;
+    return transformed_value;
+}
+
+float2 finalize_float2(float2 raw_value, bool has_no_data, float2 no_data, float2 default_value, float2 offset, float2 scale) {
+    auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    auto transformed_value = raw_value * scale + offset;
+    return transformed_value;
+}
+
+float3 finalize_float3(float3 raw_value, bool has_no_data, float3 no_data, float3 default_value, float3 offset, float3 scale) {
+    auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    auto transformed_value = raw_value * scale + offset;
+    return transformed_value;
+}
+
+float4 finalize_float4(float4 raw_value, bool has_no_data, float4 no_data, float4 default_value, float4 offset, float4 scale) {
+    auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    auto transformed_value = raw_value * scale + offset;
+    return transformed_value;
+}
+
 //-----------------------------------
 // Exported functions (public)
 //-----------------------------------
@@ -307,6 +428,174 @@ export int cesium_feature_id_int(
     return feature_id;
 }
 
+export int cesium_property_int(
+    int property_value = DEFAULT_PROPERTY_VALUE_INT
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup int"),
+    anno::description("Returns the property value. Returns 0 if the property does not exist or is an incompatible type. Must be a scalar unnormalized integer type. Values that exceed the 32-bit signed integer range are clamped."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
+export int2 cesium_property_int2(
+    int2 property_value = DEFAULT_PROPERTY_VALUE_INT2
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup int2"),
+    anno::description("Returns the property value. Returns int2(0) if the property does not exist or is an incompatible type. Must be a 2-component unnormalized integer. Values that exceed the 32-bit signed integer range are clamped."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
+export int3 cesium_property_int3(
+    int3 property_value = DEFAULT_PROPERTY_VALUE_INT3
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup int3"),
+    anno::description("Returns the property value. Returns int3(0) if the property does not exist or is an incompatible type. Must be a 3-component unnormalized integer. Values that exceed the 32-bit signed integer range are clamped."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
+export int4 cesium_property_int4(
+    int4 property_value = DEFAULT_PROPERTY_VALUE_INT4
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup int4"),
+    anno::description("Returns the property value. Returns int4(0) if the property does not exist or is an incompatible type. Must be a 4-component unnormalized integer. Values that exceed the 32-bit signed integer range are clamped."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
+export float cesium_property_float(
+    float property_value = DEFAULT_PROPERTY_VALUE_FLOAT
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup float"),
+    anno::description("Returns the property value. Returns 0.0 if the property does not exist or is an incompatible type. Must be a scalar floating point or normalized integer type. 64-bit floating point values are converted to 32-bit floating point values."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
+export float2 cesium_property_float2(
+    float2 property_value = DEFAULT_PROPERTY_VALUE_FLOAT2
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup float2"),
+    anno::description("Returns the property value. Returns float2(0.0) if the property does not exist or is an incompatible type. Must be a 2-component floating point or normalized integer type. 64-bit floating point values are converted to 32-bit floating point values."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
+export float3 cesium_property_float3(
+    float3 property_value = DEFAULT_PROPERTY_VALUE_FLOAT3
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup float3"),
+    anno::description("Returns the property value. Returns float3(0.0) if the property does not exist or is an incompatible type. Must be a 3-component floating point or normalized integer type. 64-bit floating point values are converted to 32-bit floating point values."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
+export float4 cesium_property_float4(
+    float4 property_value = DEFAULT_PROPERTY_VALUE_FLOAT4
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup float4"),
+    anno::description("Returns the property value. Returns float4(0.0) if the property does not exist or is an incompatible type. Must be a 4-component floating point or normalized integer type. 64-bit floating point values are converted to 32-bit floating point values."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
 export material cesium_material(
     color base_color_factor = color(1.0)
     [[
@@ -420,6 +709,195 @@ export int cesium_internal_feature_id_attribute_lookup(
     // the triangle surface. The fix is to read the primvar as a float, round the value, and cast to int.
     auto feature_id = int(::math::round(::scene::data_lookup_float(primvar_name)));
     return feature_id == null_feature_id ? DEFAULT_NULL_FEATURE_ID : feature_id;
+}
+
+// See comment in DataType.h for why these are data_lookup_float instead of data_lookup_int
+export int cesium_internal_property_attribute_int_lookup(
+    uniform string primvar_name,
+    uniform bool has_no_data,
+    uniform int no_data,
+    uniform int default_value
+) [[ anno::hidden() ]] {
+    if (!scene::data_isvalid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_INT;
+    }
+
+    auto raw_value = int(::math::round(::scene::data_lookup_float(primvar_name)));
+    return finalize_int(raw_value, has_no_data, no_data, default_value);
+}
+
+export int2 cesium_internal_property_attribute_int2_lookup(
+    uniform string primvar_name,
+    uniform bool has_no_data,
+    uniform int2 no_data,
+    uniform int2 default_value
+) [[ anno::hidden() ]] {
+    if (!scene::data_isvalid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_INT2;
+    }
+
+    auto raw_value = int2(::math::round(::scene::data_lookup_float2(primvar_name)));
+    return finalize_int2(raw_value, has_no_data, no_data, default_value);
+}
+
+export int3 cesium_internal_property_attribute_int3_lookup(
+    uniform string primvar_name,
+    uniform bool has_no_data,
+    uniform int3 no_data,
+    uniform int3 default_value
+) [[ anno::hidden() ]] {
+    if (!scene::data_isvalid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_INT3;
+    }
+
+    auto raw_value = int3(::math::round(::scene::data_lookup_float3(primvar_name)));
+    return finalize_int3(raw_value, has_no_data, no_data, default_value);
+}
+
+export int4 cesium_internal_property_attribute_int4_lookup(
+    uniform string primvar_name,
+    uniform bool has_no_data,
+    uniform int4 no_data,
+    uniform int4 default_value
+) [[ anno::hidden() ]] {
+    if (!scene::data_isvalid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_INT4;
+    }
+
+    auto raw_value = int4(::math::round(::scene::data_lookup_float4(primvar_name)));
+    return finalize_int4(raw_value, has_no_data, no_data, default_value);
+}
+
+export float cesium_internal_property_attribute_normalized_int_lookup(
+    uniform string primvar_name,
+    uniform bool has_no_data,
+    uniform int no_data,
+    uniform float default_value,
+    uniform float offset,
+    uniform float scale,
+    uniform int maximum_value
+) [[ anno::hidden() ]] {
+    if (!scene::data_isvalid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT;
+    }
+
+    auto raw_value = int(::math::round(::scene::data_lookup_float(primvar_name)));
+    return finalize_normalized_int(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
+}
+
+export float2 cesium_internal_property_attribute_normalized_int2_lookup(
+    uniform string primvar_name,
+    uniform bool has_no_data,
+    uniform int2 no_data,
+    uniform float2 default_value,
+    uniform float2 offset,
+    uniform float2 scale,
+    uniform int2 maximum_value
+) [[ anno::hidden() ]] {
+    if (!scene::data_isvalid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT2;
+    }
+
+    auto raw_value = int2(::math::round(::scene::data_lookup_float2(primvar_name)));
+    return finalize_normalized_int2(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
+}
+
+export float3 cesium_internal_property_attribute_normalized_int3_lookup(
+    uniform string primvar_name,
+    uniform bool has_no_data,
+    uniform int3 no_data,
+    uniform float3 default_value,
+    uniform float3 offset,
+    uniform float3 scale,
+    uniform int3 maximum_value
+) [[ anno::hidden() ]] {
+    if (!scene::data_isvalid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT3;
+    }
+
+    auto raw_value = int3(::math::round(::scene::data_lookup_float3(primvar_name)));
+    return finalize_normalized_int3(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
+}
+
+export float4 cesium_internal_property_attribute_normalized_int4_lookup(
+    uniform string primvar_name,
+    uniform bool has_no_data,
+    uniform int4 no_data,
+    uniform float4 default_value,
+    uniform float4 offset,
+    uniform float4 scale,
+    uniform int4 maximum_value
+) [[ anno::hidden() ]] {
+    if (!scene::data_isvalid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT4;
+    }
+
+    auto raw_value = int4(::math::round(::scene::data_lookup_float4(primvar_name)));
+    return finalize_normalized_int4(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
+}
+
+export float cesium_internal_property_attribute_float_lookup(
+    uniform string primvar_name,
+    uniform bool has_no_data,
+    uniform float no_data,
+    uniform float default_value,
+    uniform float offset,
+    uniform float scale
+) [[ anno::hidden() ]] {
+    if (!scene::data_isvalid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT;
+    }
+
+    auto raw_value = scene::data_lookup_float(primvar_name);
+    return finalize_float(raw_value, has_no_data, no_data, default_value, offset, scale);
+}
+
+export float2 cesium_internal_property_attribute_float2_lookup(
+    uniform string primvar_name,
+    uniform bool has_no_data,
+    uniform float2 no_data,
+    uniform float2 default_value,
+    uniform float2 offset,
+    uniform float2 scale
+) [[ anno::hidden() ]] {
+    if (!scene::data_isvalid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT2;
+    }
+
+    auto raw_value = scene::data_lookup_float2(primvar_name);
+    return finalize_float2(raw_value, has_no_data, no_data, default_value, offset, scale);
+}
+
+export float3 cesium_internal_property_attribute_float3_lookup(
+    uniform string primvar_name,
+    uniform bool has_no_data,
+    uniform float3 no_data,
+    uniform float3 default_value,
+    uniform float3 offset,
+    uniform float3 scale
+) [[ anno::hidden() ]] {
+    if (!scene::data_isvalid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT3;
+    }
+
+    auto raw_value = scene::data_lookup_float3(primvar_name);
+    return finalize_float3(raw_value, has_no_data, no_data, default_value, offset, scale);
+}
+
+export float4 cesium_internal_property_attribute_float4_lookup(
+    uniform string primvar_name,
+    uniform bool has_no_data,
+    uniform float4 no_data,
+    uniform float4 default_value,
+    uniform float4 offset,
+    uniform float4 scale
+) [[ anno::hidden() ]] {
+    if (!scene::data_isvalid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT4;
+    }
+
+    auto raw_value = scene::data_lookup_float4(primvar_name);
+    return finalize_float4(raw_value, has_no_data, no_data, default_value, offset, scale);
 }
 
 export gltf_texture_lookup_value cesium_internal_texture_lookup(*) [[ anno::hidden() ]] = gltf_texture_lookup();
