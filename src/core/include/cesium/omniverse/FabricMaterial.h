@@ -42,6 +42,7 @@ class FabricMaterial {
         const std::shared_ptr<FabricTexture>& baseColorTexture,
         const std::vector<std::shared_ptr<FabricTexture>>& featureIdTextures,
         const std::vector<std::shared_ptr<FabricTexture>>& propertyTextures,
+        const std::vector<std::shared_ptr<FabricTexture>>& propertyTableTextures,
         const glm::dvec3& displayColor,
         double displayOpacity,
         const std::unordered_map<uint64_t, uint64_t>& texcoordIndexMapping,
@@ -118,6 +119,27 @@ class FabricMaterial {
         const omni::fabric::Type& scaleType,
         const omni::fabric::Type& maximumValueType);
     void createPropertyTextureProperty(const omni::fabric::Path& path, MdlInternalPropertyType type);
+    void createPropertyTablePropertyInt(
+        const omni::fabric::Path& path,
+        const omni::fabric::Token& subidentifier,
+        const omni::fabric::Type& noDataType,
+        const omni::fabric::Type& defaultValueType);
+    void createPropertyTablePropertyNormalizedInt(
+        const omni::fabric::Path& path,
+        const omni::fabric::Token& subidentifier,
+        const omni::fabric::Type& noDataType,
+        const omni::fabric::Type& defaultValueType,
+        const omni::fabric::Type& offsetType,
+        const omni::fabric::Type& scaleType,
+        const omni::fabric::Type& maximumValueType);
+    void createPropertyTablePropertyFloat(
+        const omni::fabric::Path& path,
+        const omni::fabric::Token& subidentifier,
+        const omni::fabric::Type& noDataType,
+        const omni::fabric::Type& defaultValueType,
+        const omni::fabric::Type& offsetType,
+        const omni::fabric::Type& scaleType);
+    void createPropertyTableProperty(const omni::fabric::Path& path, MdlInternalPropertyType type);
 
     void reset();
 
@@ -177,6 +199,7 @@ class FabricMaterial {
 
     std::unordered_map<MdlInternalPropertyType, std::vector<omni::fabric::Path>> _propertyAttributePropertyPaths;
     std::unordered_map<MdlInternalPropertyType, std::vector<omni::fabric::Path>> _propertyTexturePropertyPaths;
+    std::unordered_map<MdlInternalPropertyType, std::vector<omni::fabric::Path>> _propertyTablePropertyPaths;
 
     struct PropertyInfo {
         omni::fabric::Path path;

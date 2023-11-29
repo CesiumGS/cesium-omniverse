@@ -94,7 +94,8 @@ bool useSharedMaterial(const FabricMaterialDefinition& materialDefinition) {
     if (materialDefinition.hasBaseColorTexture() || materialDefinition.getImageryLayerCount() > 0 ||
         !materialDefinition.getFeatureIdTypes().empty() ||
         !materialDefinition.getMdlInternalPropertyAttributePropertyTypes().empty() ||
-        !materialDefinition.getMdlInternalPropertyTexturePropertyTypes().empty()) {
+        !materialDefinition.getMdlInternalPropertyTexturePropertyTypes().empty() ||
+        !materialDefinition.getMdlInternalPropertyTablePropertyTypes().empty()) {
         return false;
     }
 

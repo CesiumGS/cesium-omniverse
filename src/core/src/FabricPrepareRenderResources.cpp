@@ -80,6 +80,28 @@ std::vector<const CesiumGltf::ImageCesium*> getPropertyTextureImages(
     return MetadataUtil::getPropertyTextureImages(model, primitive);
 }
 
+uint64_t getPropertyTableTextureCount(
+    const FabricMesh& fabricMesh,
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive) {
+    if (fabricMesh.material == nullptr) {
+        return {};
+    }
+
+    return MetadataUtil::getMdlInternalPropertyTablePropertyTypes(model, primitive).size();
+}
+
+std::vector<TextureData> encodePropertyTables(
+    const FabricMesh& fabricMesh,
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive) {
+    if (fabricMesh.material == nullptr) {
+        return {};
+    }
+
+    return MetadataUtil::encodePropertyTables(model, primitive);
+}
+
 std::vector<MeshInfo>
 gatherMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const CesiumGltf::Model& model) {
     CESIUM_TRACE("FabricPrepareRenderResources::gatherMeshes");
@@ -179,6 +201,12 @@ std::vector<FabricMesh> acquireFabricMeshes(
             for (uint64_t i = 0; i < propertyTextureCount; i++) {
                 fabricMesh.propertyTextures.emplace_back(fabricResourceManager.acquireTexture());
             }
+
+            const auto propertyTableTextureCount = getPropertyTableTextureCount(fabricMesh, model, primitive);
+            fabricMesh.propertyTableTextures.reserve(propertyTableTextureCount);
+            for (uint64_t i = 0; i < propertyTableTextureCount; i++) {
+                fabricMesh.propertyTableTextures.emplace_back(fabricResourceManager.acquireTexture());
+            }
         }
 
         // Map glTF texcoord set index to primvar st index
@@ -235,6 +263,12 @@ void setFabricTextures(
         for (uint64_t j = 0; j < propertyTextureCount; j++) {
             mesh.propertyTextures[j]->setImage(*propertyTextureImages[j], TransferFunction::LINEAR);
         }
+
+        const auto propertyTableTextures = encodePropertyTables(mesh, model, primitive);
+        const auto propertyTableTextureCount = propertyTableTextures.size();
+        for (uint64_t j = 0; j < propertyTableTextureCount; j++) {
+            mesh.propertyTableTextures[j]->setTexture(propertyTableTextures[j]);
+        }
     }
 }
 
@@ -279,6 +313,7 @@ void setFabricMeshes(
                 mesh.baseColorTexture,
                 mesh.featureIdTextures,
                 mesh.propertyTextures,
+                mesh.propertyTableTextures,
                 displayColor,
                 displayOpacity,
                 mesh.texcoordIndexMapping,

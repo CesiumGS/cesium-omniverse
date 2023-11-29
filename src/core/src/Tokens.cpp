@@ -32,6 +32,7 @@ std::vector<omni::fabric::Token> inputs_imagery_layer_tokens;
 std::vector<omni::fabric::Token> feature_id_tokens;
 std::vector<omni::fabric::Token> property_attribute_tokens;
 std::vector<omni::fabric::Token> property_texture_tokens;
+std::vector<omni::fabric::Token> property_table_tokens;
 
 const omni::fabric::TokenC getToken(std::vector<omni::fabric::Token>& tokens, uint64_t index, std::string_view prefix) {
     const auto lock = std::scoped_lock<std::mutex>(tokenMutex);
@@ -74,6 +75,10 @@ const omni::fabric::TokenC property_attribute_n(uint64_t index) {
 
 const omni::fabric::TokenC property_texture_n(uint64_t index) {
     return getToken(property_texture_tokens, index, "property_texture");
+}
+
+const omni::fabric::TokenC property_table_n(uint64_t index) {
+    return getToken(property_table_tokens, index, "property_table");
 }
 
 } // namespace cesium::omniverse::FabricTokens
