@@ -123,6 +123,54 @@ template <typename T, typename U> T defaultValue(const std::optional<U>& optiona
     return optional.has_value() ? static_cast<T>(optional.value()) : defaultValue;
 }
 
+template <DataType T>
+constexpr GetMdlInternalPropertyTransformedType<getMdlInternalPropertyType<T>()>
+getOffset(const MetadataUtil::StyleablePropertyInfo<T>& info) {
+    constexpr auto mdlType = getMdlInternalPropertyType<T>();
+    using TransformedType = GetNativeType<getTransformedType<T>()>;
+    using MdlTransformedType = GetMdlInternalPropertyTransformedType<mdlType>;
+    return static_cast<MdlTransformedType>(info.offset.value_or(TransformedType{DEFAULT_OFFSET}));
+}
+
+template <DataType T>
+constexpr GetMdlInternalPropertyTransformedType<getMdlInternalPropertyType<T>()>
+getScale(const MetadataUtil::StyleablePropertyInfo<T>& info) {
+    constexpr auto mdlType = getMdlInternalPropertyType<T>();
+    using TransformedType = GetNativeType<getTransformedType<T>()>;
+    using MdlTransformedType = GetMdlInternalPropertyTransformedType<mdlType>;
+    return static_cast<MdlTransformedType>(info.scale.value_or(TransformedType{DEFAULT_SCALE}));
+}
+
+template <DataType T>
+constexpr GetMdlInternalPropertyRawType<getMdlInternalPropertyType<T>()>
+getNoData(const MetadataUtil::StyleablePropertyInfo<T>& info) {
+    constexpr auto mdlType = getMdlInternalPropertyType<T>();
+    using RawType = GetNativeType<T>;
+    using MdlRawType = GetMdlInternalPropertyRawType<mdlType>;
+    return static_cast<MdlRawType>(info.noData.value_or(RawType{DEFAULT_NO_DATA}));
+}
+
+template <DataType T>
+constexpr GetMdlInternalPropertyTransformedType<getMdlInternalPropertyType<T>()>
+getDefaultValue(const MetadataUtil::StyleablePropertyInfo<T>& info) {
+    constexpr auto mdlType = getMdlInternalPropertyType<T>();
+    using TransformedType = GetNativeType<getTransformedType<T>()>;
+    using MdlTransformedType = GetMdlInternalPropertyTransformedType<mdlType>;
+    return static_cast<MdlTransformedType>(info.defaultValue.value_or(TransformedType{DEFAULT_VALUE}));
+}
+
+template <DataType T> constexpr GetMdlInternalPropertyRawType<getMdlInternalPropertyType<T>()> getMaximumValue() {
+    constexpr auto mdlType = getMdlInternalPropertyType<T>();
+    using RawComponentType = GetNativeType<getComponentType<T>()>;
+    using MdlRawType = GetMdlInternalPropertyRawType<mdlType>;
+
+    if constexpr (isNormalized<T>()) {
+        return MdlRawType{std::numeric_limits<RawComponentType>::max()};
+    }
+
+    return MdlRawType{0};
+}
+
 void createAttributes(
     omni::fabric::StageReaderWriter& srw,
     const omni::fabric::Path& path,
@@ -1022,6 +1070,8 @@ void FabricMaterial::reset() {
 
     _properties.clear();
 
+    destroyConnectionsToProperties();
+
     for (const auto& imageryLayerPath : _imageryLayerPaths) {
         setImageryLayerValues(
             imageryLayerPath,
@@ -1129,23 +1179,16 @@ void FabricMaterial::setMaterial(
             auto styleableProperty) {
             constexpr auto type = decltype(styleableProperty)::Type;
             constexpr auto mdlType = getMdlInternalPropertyType<type>();
-            using RawType = GetRawType<type>;
-            using TransformedType = GetTransformedType<type>;
-            using MdlRawType = GetMdlInternalPropertyRawType<mdlType>;
-            using MdlTransformedType = GetMdlInternalPropertyTransformedType<mdlType>;
             const auto& primvarName = styleableProperty.attribute;
             const auto pathIndex = propertyAttributePropertyTypeCounter[static_cast<uint64_t>(mdlType)]++;
             const auto& propertyAttributePropertyPath = _propertyAttributePropertyPaths.at(mdlType)[pathIndex];
             const auto& propertyInfo = styleableProperty.propertyInfo;
-            const auto offset =
-                static_cast<MdlTransformedType>(propertyInfo.offset.value_or(TransformedType{DEFAULT_OFFSET}));
-            const auto scale =
-                static_cast<MdlTransformedType>(propertyInfo.scale.value_or(TransformedType{DEFAULT_SCALE}));
-            constexpr auto maximumValue = MdlRawType{std::numeric_limits<GetRawComponentType<type>>::max()};
             const auto hasNoData = propertyInfo.noData.has_value();
-            const auto noData = static_cast<MdlRawType>(propertyInfo.noData.value_or(RawType{DEFAULT_NO_DATA}));
-            const auto defaultValue =
-                static_cast<MdlTransformedType>(propertyInfo.defaultValue.value_or(TransformedType{DEFAULT_VALUE}));
+            const auto offset = getOffset(propertyInfo);
+            const auto scale = getScale(propertyInfo);
+            const auto noData = getNoData(propertyInfo);
+            const auto defaultValue = getDefaultValue(propertyInfo);
+            constexpr auto maximumValue = getMaximumValue<type>();
 
             _properties.emplace_back(PropertyInfo{
                 propertyAttributePropertyPath,
@@ -1175,10 +1218,6 @@ void FabricMaterial::setMaterial(
             const std::string& propertyId, [[maybe_unused]] auto propertyTexturePropertyView, auto styleableProperty) {
             constexpr auto type = decltype(styleableProperty)::Type;
             constexpr auto mdlType = getMdlInternalPropertyType<type>();
-            using RawType = GetRawType<type>;
-            using TransformedType = GetTransformedType<type>;
-            using MdlRawType = GetMdlInternalPropertyRawType<mdlType>;
-            using MdlTransformedType = GetMdlInternalPropertyTransformedType<mdlType>;
             const auto& textureInfo = styleableProperty.textureInfo;
             const auto textureIndex = styleableProperty.textureIndex;
             const auto pathIndex = propertyTexturePropertyTypeCounter[static_cast<uint64_t>(mdlType)]++;
@@ -1187,15 +1226,12 @@ void FabricMaterial::setMaterial(
             const auto propertyTextureIndex = propertyTextureIndexMapping.at(textureIndex);
             const auto& textureAssetPath = propertyTextures[propertyTextureIndex]->getAssetPathToken();
             const auto& propertyInfo = styleableProperty.propertyInfo;
-            const auto offset =
-                static_cast<MdlTransformedType>(propertyInfo.offset.value_or(TransformedType{DEFAULT_OFFSET}));
-            const auto scale =
-                static_cast<MdlTransformedType>(propertyInfo.scale.value_or(TransformedType{DEFAULT_SCALE}));
-            constexpr auto maximumValue = RawType{std::numeric_limits<GetRawComponentType<type>>::max()};
             const auto hasNoData = propertyInfo.noData.has_value();
-            const auto noData = static_cast<MdlRawType>(propertyInfo.noData.value_or(RawType{DEFAULT_NO_DATA}));
-            const auto defaultValue =
-                static_cast<MdlTransformedType>(propertyInfo.defaultValue.value_or(TransformedType{DEFAULT_VALUE}));
+            const auto offset = getOffset(propertyInfo);
+            const auto scale = getScale(propertyInfo);
+            const auto noData = getNoData(propertyInfo);
+            const auto defaultValue = getDefaultValue(propertyInfo);
+            constexpr auto maximumValue = getMaximumValue<type>();
 
             _properties.emplace_back(PropertyInfo{
                 propertyTexturePropertyPath,
@@ -1388,6 +1424,9 @@ void FabricMaterial::updateShaderInput(const omni::fabric::Path& path, const omn
         attributeName == FabricTokens::inputs_feature_id_set_index) {
         destroyConnectionsToCopiedPaths();
         createConnectionsToCopiedPaths();
+    }
+
+    if (FabricUtil::isCesiumPropertyNode(attributeName)) {
         destroyConnectionsToProperties();
         createConnectionsToProperties();
     }

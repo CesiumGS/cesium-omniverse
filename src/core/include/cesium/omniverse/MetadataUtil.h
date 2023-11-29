@@ -14,13 +14,13 @@
 namespace cesium::omniverse::MetadataUtil {
 
 template <DataType T> struct StyleablePropertyInfo {
-    std::optional<GetTransformedType<T>> offset;
-    std::optional<GetTransformedType<T>> scale;
-    std::optional<GetTransformedType<T>> min;
-    std::optional<GetTransformedType<T>> max;
+    std::optional<GetNativeType<getTransformedType<T>()>> offset;
+    std::optional<GetNativeType<getTransformedType<T>()>> scale;
+    std::optional<GetNativeType<getTransformedType<T>()>> min;
+    std::optional<GetNativeType<getTransformedType<T>()>> max;
     bool required;
-    std::optional<GetRawType<T>> noData;
-    std::optional<GetTransformedType<T>> defaultValue;
+    std::optional<GetNativeType<T>> noData;
+    std::optional<GetNativeType<getTransformedType<T>()>> defaultValue;
 };
 
 template <DataType T> struct StyleablePropertyAttributePropertyInfo {
@@ -272,7 +272,7 @@ void forEachStyleablePropertyTextureProperty(
         model,
         primitive,
         [callback = std::forward<Callback>(callback), &model](
-            [[maybe_unused]] const std::string& propertyId,
+            const std::string& propertyId,
             [[maybe_unused]] const CesiumGltf::Schema& schema,
             [[maybe_unused]] const CesiumGltf::Class& classDefinition,
             [[maybe_unused]] const CesiumGltf::ClassProperty& classProperty,
@@ -283,7 +283,7 @@ void forEachStyleablePropertyTextureProperty(
             using RawType = decltype(propertyTexturePropertyView.getRaw(0.0, 0.0));
             using TransformedType =
                 typename std::decay_t<decltype(propertyTexturePropertyView.get(0.0, 0.0))>::value_type;
-            constexpr bool IsArray = HAS_MEMBER(RawType, size());
+            constexpr auto IsArray = HAS_MEMBER(RawType, size());
 
             if constexpr (IsArray) {
                 CESIUM_LOG_WARN(
@@ -292,7 +292,7 @@ void forEachStyleablePropertyTextureProperty(
             } else {
                 constexpr auto type = getTypeReverse<RawType, TransformedType>();
 
-                if constexpr (sizeof(RawType) > 1) {
+                if constexpr (getComponentByteLength<type>() > 1) {
                     CESIUM_LOG_WARN(
                         "Only 8-bit per-component property texture properties are supported for styling. Property "
                         "\"{}\" will be ignored.",
