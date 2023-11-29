@@ -148,6 +148,19 @@ CesiumImagery::CreateAlphaAttr(VtValue const &defaultValue, bool writeSparsely) 
                        writeSparsely);
 }
 
+UsdRelationship
+CesiumImagery::GetIonServerBindingRel() const
+{
+    return GetPrim().GetRelationship(CesiumTokens->cesiumIonServerBinding);
+}
+
+UsdRelationship
+CesiumImagery::CreateIonServerBindingRel() const
+{
+    return GetPrim().CreateRelationship(CesiumTokens->cesiumIonServerBinding,
+                       /* custom = */ false);
+}
+
 namespace {
 static inline TfTokenVector
 _ConcatenateAttributeNames(const TfTokenVector& left,const TfTokenVector& right)

@@ -1,4 +1,4 @@
-#include ".//imagery.h"
+#include ".//ionServer.h"
 #include "pxr/usd/usd/schemaBase.h"
 
 #include "pxr/usd/sdf/primSpec.h"
@@ -27,50 +27,57 @@ WRAP_CUSTOM;
 
         
 static UsdAttribute
-_CreateIonAssetIdAttr(CesiumImagery &self,
+_CreateIonServerUrlAttr(CesiumIonServer &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateIonAssetIdAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int64), writeSparsely);
-}
-        
-static UsdAttribute
-_CreateIonAccessTokenAttr(CesiumImagery &self,
-                                      object defaultVal, bool writeSparsely) {
-    return self.CreateIonAccessTokenAttr(
+    return self.CreateIonServerUrlAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
-_CreateShowCreditsOnScreenAttr(CesiumImagery &self,
+_CreateIonServerApiUrlAttr(CesiumIonServer &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateShowCreditsOnScreenAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+    return self.CreateIonServerApiUrlAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
-_CreateAlphaAttr(CesiumImagery &self,
+_CreateIonServerApplicationIdAttr(CesiumIonServer &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateAlphaAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Float), writeSparsely);
+    return self.CreateIonServerApplicationIdAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateProjectDefaultIonAccessTokenAttr(CesiumIonServer &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateProjectDefaultIonAccessTokenAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateProjectDefaultIonAccessTokenIdAttr(CesiumIonServer &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateProjectDefaultIonAccessTokenIdAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
 
 static std::string
-_Repr(const CesiumImagery &self)
+_Repr(const CesiumIonServer &self)
 {
     std::string primRepr = TfPyRepr(self.GetPrim());
     return TfStringPrintf(
-        "CesiumUsdSchemas.Imagery(%s)",
+        "CesiumUsdSchemas.IonServer(%s)",
         primRepr.c_str());
 }
 
 } // anonymous namespace
 
-void wrapCesiumImagery()
+void wrapCesiumIonServer()
 {
-    typedef CesiumImagery This;
+    typedef CesiumIonServer This;
 
     class_<This, bases<UsdTyped> >
-        cls("Imagery");
+        cls("IonServer");
 
     cls
         .def(init<UsdPrim>(arg("prim")))
@@ -96,39 +103,41 @@ void wrapCesiumImagery()
         .def(!self)
 
         
-        .def("GetIonAssetIdAttr",
-             &This::GetIonAssetIdAttr)
-        .def("CreateIonAssetIdAttr",
-             &_CreateIonAssetIdAttr,
+        .def("GetIonServerUrlAttr",
+             &This::GetIonServerUrlAttr)
+        .def("CreateIonServerUrlAttr",
+             &_CreateIonServerUrlAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetIonAccessTokenAttr",
-             &This::GetIonAccessTokenAttr)
-        .def("CreateIonAccessTokenAttr",
-             &_CreateIonAccessTokenAttr,
+        .def("GetIonServerApiUrlAttr",
+             &This::GetIonServerApiUrlAttr)
+        .def("CreateIonServerApiUrlAttr",
+             &_CreateIonServerApiUrlAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetShowCreditsOnScreenAttr",
-             &This::GetShowCreditsOnScreenAttr)
-        .def("CreateShowCreditsOnScreenAttr",
-             &_CreateShowCreditsOnScreenAttr,
+        .def("GetIonServerApplicationIdAttr",
+             &This::GetIonServerApplicationIdAttr)
+        .def("CreateIonServerApplicationIdAttr",
+             &_CreateIonServerApplicationIdAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetAlphaAttr",
-             &This::GetAlphaAttr)
-        .def("CreateAlphaAttr",
-             &_CreateAlphaAttr,
+        .def("GetProjectDefaultIonAccessTokenAttr",
+             &This::GetProjectDefaultIonAccessTokenAttr)
+        .def("CreateProjectDefaultIonAccessTokenAttr",
+             &_CreateProjectDefaultIonAccessTokenAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetProjectDefaultIonAccessTokenIdAttr",
+             &This::GetProjectDefaultIonAccessTokenIdAttr)
+        .def("CreateProjectDefaultIonAccessTokenIdAttr",
+             &_CreateProjectDefaultIonAccessTokenIdAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 
-        
-        .def("GetIonServerBindingRel",
-             &This::GetIonServerBindingRel)
-        .def("CreateIonServerBindingRel",
-             &This::CreateIonServerBindingRel)
         .def("__repr__", ::_Repr)
     ;
 
