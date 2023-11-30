@@ -49,11 +49,15 @@ class CesiumDataPrim "CesiumDataPrim" (
     )
     string cesium:projectDefaultIonAccessToken = "" (
         displayName = "Project default ion Access Token"
-        doc = "A string representing the token for accessing Cesium ion assets."
+        doc = "DEPRECATED: A string representing the token for accessing Cesium ion assets. Will be removed in a future version."
     )
     string cesium:projectDefaultIonAccessTokenId = "" (
         displayName = "Project default ion Access Token ID"
-        doc = "A string representing the token ID for accessing Cesium ion assets."
+        doc = "DEPRECATED: A string representing the token ID for accessing Cesium ion assets. Will be removed in a future version."
+    )
+    rel cesium:selectedIonServer (
+        displayName = "Selected ion Server context"
+        doc = "The current ion Server prim used in the Cesium for Omniverse UI."
     )
 }
 
@@ -75,7 +79,7 @@ class CesiumIonServerPrim "CesiumIonServerPrim" (
         displayName = "Cesium ion Server API URL"
         doc = "The base URL for the Cesium ion Server API."
     )
-    string cesium:ionServerApplicationId (
+    int64 cesium:ionServerApplicationId (
         displayName = "Cesium ion Server Application ID"
         doc = "The application ID for the Cesium ion Server connection."
     )

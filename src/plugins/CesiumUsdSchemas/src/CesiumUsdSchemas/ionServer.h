@@ -177,9 +177,9 @@ public:
     ///
     /// | ||
     /// | -- | -- |
-    /// | Declaration | `string cesium:ionServerApplicationId` |
-    /// | C++ Type | std::string |
-    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
+    /// | Declaration | `int64 cesium:ionServerApplicationId` |
+    /// | C++ Type | int64_t |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Int64 |
     CESIUMUSDSCHEMAS_API
     UsdAttribute GetIonServerApplicationIdAttr() const;
 

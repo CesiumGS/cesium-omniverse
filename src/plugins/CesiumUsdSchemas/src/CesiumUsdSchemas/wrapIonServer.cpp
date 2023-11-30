@@ -44,7 +44,7 @@ static UsdAttribute
 _CreateIonServerApplicationIdAttr(CesiumIonServer &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateIonServerApplicationIdAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int64), writeSparsely);
 }
         
 static UsdAttribute
