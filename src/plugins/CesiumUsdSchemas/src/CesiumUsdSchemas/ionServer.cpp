@@ -124,7 +124,7 @@ UsdAttribute
 CesiumIonServer::CreateIonServerApplicationIdAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumIonServerApplicationId,
-                       SdfValueTypeNames->String,
+                       SdfValueTypeNames->Int64,
                        /* custom = */ false,
                        SdfVariabilityVarying,
                        defaultValue,

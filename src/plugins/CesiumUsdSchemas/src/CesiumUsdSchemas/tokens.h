@@ -211,6 +211,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumIonServer, CesiumData
     const TfToken cesiumProjectDefaultIonAccessTokenId;
+    /// \brief "cesium:selectedIonServer"
+    /// 
+    /// CesiumData
+    const TfToken cesiumSelectedIonServer;
     /// \brief "cesium:showCreditsOnScreen"
     /// 
     /// CesiumImagery, CesiumTileset
