@@ -552,6 +552,7 @@ void FabricMaterial::initializeNodes() {
     // Create properties
     const auto& properties = _materialDefinition.getProperties();
     const auto propertiesCount = properties.size();
+
     for (uint64_t i = 0; i < propertiesCount; i++) {
         const auto& property = properties[i];
         const auto storageType = property.storageType;
@@ -1663,7 +1664,7 @@ void FabricMaterial::updateShaderInput(const omni::fabric::Path& path, const omn
         createConnectionsToCopiedPaths();
     }
 
-    if (FabricUtil::isCesiumPropertyNode(attributeName)) {
+    if (attributeName == FabricTokens::inputs_property_id) {
         destroyConnectionsToProperties();
         createConnectionsToProperties();
     }
