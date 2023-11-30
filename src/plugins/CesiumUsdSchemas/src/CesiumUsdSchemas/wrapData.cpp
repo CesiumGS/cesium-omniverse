@@ -236,6 +236,11 @@ void wrapCesiumData()
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 
+        
+        .def("GetSelectedIonServerRel",
+             &This::GetSelectedIonServerRel)
+        .def("CreateSelectedIonServerRel",
+             &This::CreateSelectedIonServerRel)
         .def("__repr__", ::_Repr)
     ;
 

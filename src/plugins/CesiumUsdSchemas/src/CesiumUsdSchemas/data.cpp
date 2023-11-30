@@ -284,6 +284,19 @@ CesiumData::CreateDebugDisableGeoreferencingAttr(VtValue const &defaultValue, bo
                        writeSparsely);
 }
 
+UsdRelationship
+CesiumData::GetSelectedIonServerRel() const
+{
+    return GetPrim().GetRelationship(CesiumTokens->cesiumSelectedIonServer);
+}
+
+UsdRelationship
+CesiumData::CreateSelectedIonServerRel() const
+{
+    return GetPrim().CreateRelationship(CesiumTokens->cesiumSelectedIonServer,
+                       /* custom = */ false);
+}
+
 namespace {
 static inline TfTokenVector
 _ConcatenateAttributeNames(const TfTokenVector& left,const TfTokenVector& right)
