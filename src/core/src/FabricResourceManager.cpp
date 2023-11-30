@@ -92,10 +92,7 @@ std::shared_ptr<FabricGeometry> FabricResourceManager::acquireGeometry(
 
 bool useSharedMaterial(const FabricMaterialDefinition& materialDefinition) {
     if (materialDefinition.hasBaseColorTexture() || materialDefinition.getImageryLayerCount() > 0 ||
-        !materialDefinition.getFeatureIdTypes().empty() ||
-        !materialDefinition.getMdlInternalPropertyAttributePropertyTypes().empty() ||
-        !materialDefinition.getMdlInternalPropertyTexturePropertyTypes().empty() ||
-        !materialDefinition.getMdlInternalPropertyTablePropertyTypes().empty()) {
+        !materialDefinition.getFeatureIdTypes().empty() || !materialDefinition.getProperties().empty()) {
         return false;
     }
 

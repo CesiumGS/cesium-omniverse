@@ -177,9 +177,7 @@ const omni::fabric::TokenC primvars_st_n(uint64_t index);
 const omni::fabric::TokenC imagery_layer_n(uint64_t index);
 const omni::fabric::TokenC inputs_imagery_layer_n(uint64_t index);
 const omni::fabric::TokenC feature_id_n(uint64_t index);
-const omni::fabric::TokenC property_attribute_n(uint64_t index);
-const omni::fabric::TokenC property_texture_n(uint64_t index);
-const omni::fabric::TokenC property_table_n(uint64_t index);
+const omni::fabric::TokenC property_n(uint64_t index);
 
 }
 

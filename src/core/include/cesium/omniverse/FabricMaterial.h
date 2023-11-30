@@ -3,6 +3,7 @@
 #include "cesium/omniverse/DataType.h"
 #include "cesium/omniverse/FabricMaterialDefinition.h"
 #include "cesium/omniverse/GltfUtil.h"
+#include "cesium/omniverse/MetadataUtil.h"
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
@@ -197,17 +198,12 @@ class FabricMaterial {
     std::vector<omni::fabric::Path> _featureIdAttributePaths;
     std::vector<omni::fabric::Path> _featureIdTexturePaths;
 
+    std::vector<omni::fabric::Path> _propertyPaths;
     std::unordered_map<MdlInternalPropertyType, std::vector<omni::fabric::Path>> _propertyAttributePropertyPaths;
     std::unordered_map<MdlInternalPropertyType, std::vector<omni::fabric::Path>> _propertyTexturePropertyPaths;
     std::unordered_map<MdlInternalPropertyType, std::vector<omni::fabric::Path>> _propertyTablePropertyPaths;
 
-    struct PropertyInfo {
-        omni::fabric::Path path;
-        std::string propertyId;
-        MdlInternalPropertyType type;
-    };
-
-    std::vector<PropertyInfo> _properties;
+    std::vector<MetadataUtil::PropertyDefinition> _properties;
 
     std::vector<omni::fabric::Path> _copiedBaseColorTexturePaths;
     std::vector<omni::fabric::Path> _copiedImageryLayerPaths;

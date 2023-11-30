@@ -38,12 +38,7 @@ FabricMaterialDefinition::FabricMaterialDefinition(
     , _featureIdTypes(filterFeatureIdTypes(featuresInfo, disableTextures))
     , _imageryLayerCount(disableTextures ? 0 : imageryLayerCount)
     , _tilesetMaterialPath(tilesetMaterialPath)
-    , _mdlInternalPropertyAttributePropertyTypes(
-          MetadataUtil::getMdlInternalPropertyAttributePropertyTypes(model, primitive))
-    , _mdlInternalPropertyTexturePropertyTypes(
-          MetadataUtil::getMdlInternalPropertyTexturePropertyTypes(model, primitive))
-    , _mdlInternalPropertyTablePropertyTypes(MetadataUtil::getMdlInternalPropertyTablePropertyTypes(model, primitive)) {
-}
+    , _properties(MetadataUtil::getStyleableProperties(model, primitive)) {}
 
 bool FabricMaterialDefinition::hasVertexColors() const {
     return _hasVertexColors;
@@ -69,28 +64,15 @@ const pxr::SdfPath& FabricMaterialDefinition::getTilesetMaterialPath() const {
     return _tilesetMaterialPath;
 }
 
-const std::vector<MdlInternalPropertyType>&
-FabricMaterialDefinition::getMdlInternalPropertyAttributePropertyTypes() const {
-    return _mdlInternalPropertyAttributePropertyTypes;
-}
-
-const std::vector<MdlInternalPropertyType>&
-FabricMaterialDefinition::getMdlInternalPropertyTexturePropertyTypes() const {
-    return _mdlInternalPropertyTexturePropertyTypes;
-}
-
-const std::vector<MdlInternalPropertyType>& FabricMaterialDefinition::getMdlInternalPropertyTablePropertyTypes() const {
-    return _mdlInternalPropertyTablePropertyTypes;
+const std::vector<MetadataUtil::PropertyDefinition>& FabricMaterialDefinition::getProperties() const {
+    return _properties;
 }
 
 // In C++ 20 we can use the default equality comparison (= default)
 bool FabricMaterialDefinition::operator==(const FabricMaterialDefinition& other) const {
     return _hasVertexColors == other._hasVertexColors && _hasBaseColorTexture == other._hasBaseColorTexture &&
            _featureIdTypes == other._featureIdTypes && _imageryLayerCount == other._imageryLayerCount &&
-           _tilesetMaterialPath == other._tilesetMaterialPath &&
-           _mdlInternalPropertyAttributePropertyTypes == other._mdlInternalPropertyAttributePropertyTypes &&
-           _mdlInternalPropertyTexturePropertyTypes == other._mdlInternalPropertyTexturePropertyTypes &&
-           _mdlInternalPropertyTablePropertyTypes == other._mdlInternalPropertyTablePropertyTypes;
+           _tilesetMaterialPath == other._tilesetMaterialPath && _properties == other._properties;
 }
 
 } // namespace cesium::omniverse
