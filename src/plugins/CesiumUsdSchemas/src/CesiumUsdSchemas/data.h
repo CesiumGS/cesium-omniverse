@@ -129,7 +129,7 @@ public:
     // --------------------------------------------------------------------- //
     // PROJECTDEFAULTIONACCESSTOKEN 
     // --------------------------------------------------------------------- //
-    /// A string representing the token for accessing Cesium ion assets.
+    /// DEPRECATED: A string representing the token for accessing Cesium ion assets. Will be removed in a future version.
     ///
     /// | ||
     /// | -- | -- |
@@ -151,7 +151,7 @@ public:
     // --------------------------------------------------------------------- //
     // PROJECTDEFAULTIONACCESSTOKENID 
     // --------------------------------------------------------------------- //
-    /// A string representing the token ID for accessing Cesium ion assets.
+    /// DEPRECATED: A string representing the token ID for accessing Cesium ion assets. Will be removed in a future version.
     ///
     /// | ||
     /// | -- | -- |
@@ -388,6 +388,20 @@ public:
     /// the default for \p writeSparsely is \c false.
     CESIUMUSDSCHEMAS_API
     UsdAttribute CreateDebugDisableGeoreferencingAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
+    // SELECTEDIONSERVER 
+    // --------------------------------------------------------------------- //
+    /// The current ion Server prim used in the Cesium for Omniverse UI.
+    ///
+    CESIUMUSDSCHEMAS_API
+    UsdRelationship GetSelectedIonServerRel() const;
+
+    /// See GetSelectedIonServerRel(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create
+    CESIUMUSDSCHEMAS_API
+    UsdRelationship CreateSelectedIonServerRel() const;
 
 public:
     // ===================================================================== //
