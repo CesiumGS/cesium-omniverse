@@ -32,6 +32,7 @@ class CesiumTilesetAttributesWidget(SchemaPropertiesWidget):
                 CustomLayoutProperty("cesium:sourceType")
                 CustomLayoutProperty("cesium:ionAssetId")
                 CustomLayoutProperty("cesium:ionAccessToken")
+                CustomLayoutProperty("cesium:ionServerBinding")
                 CustomLayoutProperty("cesium:url")
             with CustomLayoutGroup("Level of Detail"):
                 CustomLayoutProperty("cesium:maximumScreenSpaceError")
