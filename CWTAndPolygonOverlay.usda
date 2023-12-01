@@ -8,7 +8,7 @@
             }
             dictionary Perspective = {
                 double3 position = (263237.1409587038, 224813.0172890784, 298728.38405786373)
-                double3 target = (-23521.788619170722, 55678.02421456104, -23615.196677637927)
+                double3 target = (-23521.78861917078, 55678.02421456107, -23615.196677637927)
             }
             dictionary Right = {
                 double3 position = (-50000, 0, 0)
@@ -72,6 +72,11 @@
 
 def Xform "World"
 {
+    def CesiumCartographicPolygonPrim "CartographicPolygonPrim"
+    {
+        rel cesium:basisCurvesBinding = </World/BasisCurves/BasisCurves>
+    }
+
     def Scope "BasicCurvesMarker"
     {
         def Mesh "Cylinder" (
@@ -843,7 +848,7 @@ def CesiumTilesetPrim "Cesium_World_Terrain"
 
     def CesiumPolygonImageryPrim "Test_Polygon_Raster_Overlay"
     {
-        rel cesium:basicCurvesBinding = </World/BasisCurves/BasisCurves>
+        rel cesium:cartographicPolygonBinding = </World/CartographicPolygonPrim>
     }
 }
 

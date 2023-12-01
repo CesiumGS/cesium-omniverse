@@ -1,11 +1,11 @@
-#ifndef CESIUMUSDSCHEMAS_GENERATED_POLYGONIMAGERY_H
-#define CESIUMUSDSCHEMAS_GENERATED_POLYGONIMAGERY_H
+#ifndef CESIUMUSDSCHEMAS_GENERATED_CARTOGRAPHICPOLYGON_H
+#define CESIUMUSDSCHEMAS_GENERATED_CARTOGRAPHICPOLYGON_H
 
-/// \file CesiumUsdSchemas/polygonImagery.h
+/// \file CesiumUsdSchemas/cartographicPolygon.h
 
 #include "pxr/pxr.h"
 #include ".//api.h"
-#include ".//imagery.h"
+#include "pxr/usd/usdGeom/basisCurves.h"
 #include "pxr/usd/usd/prim.h"
 #include "pxr/usd/usd/stage.h"
 #include ".//tokens.h"
@@ -24,14 +24,14 @@ PXR_NAMESPACE_OPEN_SCOPE
 class SdfAssetPath;
 
 // -------------------------------------------------------------------------- //
-// CESIUMPOLYGONIMAGERYPRIM                                                   //
+// CESIUMCARTOGRAPHICPOLYGONPRIM                                              //
 // -------------------------------------------------------------------------- //
 
-/// \class CesiumPolygonImagery
+/// \class CesiumCartographicPolygon
 ///
-/// Adds a prim for representing a polygon imagery layer. Should be a child of a tileset.
+/// Adds a prim that represents a Cesium CartographicPolygon
 ///
-class CesiumPolygonImagery : public CesiumImagery
+class CesiumCartographicPolygon : public UsdGeomBasisCurves
 {
 public:
     /// Compile time constant representing what kind of schema this class is.
@@ -39,26 +39,26 @@ public:
     /// \sa UsdSchemaKind
     static const UsdSchemaKind schemaKind = UsdSchemaKind::ConcreteTyped;
 
-    /// Construct a CesiumPolygonImagery on UsdPrim \p prim .
-    /// Equivalent to CesiumPolygonImagery::Get(prim.GetStage(), prim.GetPath())
+    /// Construct a CesiumCartographicPolygon on UsdPrim \p prim .
+    /// Equivalent to CesiumCartographicPolygon::Get(prim.GetStage(), prim.GetPath())
     /// for a \em valid \p prim, but will not immediately throw an error for
     /// an invalid \p prim
-    explicit CesiumPolygonImagery(const UsdPrim& prim=UsdPrim())
-        : CesiumImagery(prim)
+    explicit CesiumCartographicPolygon(const UsdPrim& prim=UsdPrim())
+        : UsdGeomBasisCurves(prim)
     {
     }
 
-    /// Construct a CesiumPolygonImagery on the prim held by \p schemaObj .
-    /// Should be preferred over CesiumPolygonImagery(schemaObj.GetPrim()),
+    /// Construct a CesiumCartographicPolygon on the prim held by \p schemaObj .
+    /// Should be preferred over CesiumCartographicPolygon(schemaObj.GetPrim()),
     /// as it preserves SchemaBase state.
-    explicit CesiumPolygonImagery(const UsdSchemaBase& schemaObj)
-        : CesiumImagery(schemaObj)
+    explicit CesiumCartographicPolygon(const UsdSchemaBase& schemaObj)
+        : UsdGeomBasisCurves(schemaObj)
     {
     }
 
     /// Destructor.
     CESIUMUSDSCHEMAS_API
-    virtual ~CesiumPolygonImagery();
+    virtual ~CesiumCartographicPolygon();
 
     /// Return a vector of names of all pre-declared attributes for this schema
     /// class and all its ancestor classes.  Does not include attributes that
@@ -67,17 +67,17 @@ public:
     static const TfTokenVector &
     GetSchemaAttributeNames(bool includeInherited=true);
 
-    /// Return a CesiumPolygonImagery holding the prim adhering to this
+    /// Return a CesiumCartographicPolygon holding the prim adhering to this
     /// schema at \p path on \p stage.  If no prim exists at \p path on
     /// \p stage, or if the prim at that path does not adhere to this schema,
     /// return an invalid schema object.  This is shorthand for the following:
     ///
     /// \code
-    /// CesiumPolygonImagery(stage->GetPrimAtPath(path));
+    /// CesiumCartographicPolygon(stage->GetPrimAtPath(path));
     /// \endcode
     ///
     CESIUMUSDSCHEMAS_API
-    static CesiumPolygonImagery
+    static CesiumCartographicPolygon
     Get(const UsdStagePtr &stage, const SdfPath &path);
 
     /// Attempt to ensure a \a UsdPrim adhering to this schema at \p path
@@ -103,7 +103,7 @@ public:
     /// the opinion at the current EditTarget.
     ///
     CESIUMUSDSCHEMAS_API
-    static CesiumPolygonImagery
+    static CesiumCartographicPolygon
     Define(const UsdStagePtr &stage, const SdfPath &path);
 
 protected:
@@ -127,17 +127,17 @@ private:
 
 public:
     // --------------------------------------------------------------------- //
-    // CARTOGRAPHICPOLYGONBINDING 
+    // BASISCURVESBINDING 
     // --------------------------------------------------------------------- //
-    /// Specifies which Cartraphic Polygons to use in the imagery layer
+    /// Specifies which BasisCurves are used used to create the polygons
     ///
     CESIUMUSDSCHEMAS_API
-    UsdRelationship GetCartographicPolygonBindingRel() const;
+    UsdRelationship GetBasisCurvesBindingRel() const;
 
-    /// See GetCartographicPolygonBindingRel(), and also 
+    /// See GetBasisCurvesBindingRel(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create
     CESIUMUSDSCHEMAS_API
-    UsdRelationship CreateCartographicPolygonBindingRel() const;
+    UsdRelationship CreateBasisCurvesBindingRel() const;
 
 public:
     // ===================================================================== //

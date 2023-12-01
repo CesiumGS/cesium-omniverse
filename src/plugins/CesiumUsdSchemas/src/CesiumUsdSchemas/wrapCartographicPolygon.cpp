@@ -1,4 +1,4 @@
-#include ".//polygonImagery.h"
+#include ".//cartographicPolygon.h"
 #include "pxr/usd/usd/schemaBase.h"
 
 #include "pxr/usd/sdf/primSpec.h"
@@ -27,22 +27,22 @@ WRAP_CUSTOM;
 
 
 static std::string
-_Repr(const CesiumPolygonImagery &self)
+_Repr(const CesiumCartographicPolygon &self)
 {
     std::string primRepr = TfPyRepr(self.GetPrim());
     return TfStringPrintf(
-        "CesiumUsdSchemas.PolygonImagery(%s)",
+        "CesiumUsdSchemas.CartographicPolygon(%s)",
         primRepr.c_str());
 }
 
 } // anonymous namespace
 
-void wrapCesiumPolygonImagery()
+void wrapCesiumCartographicPolygon()
 {
-    typedef CesiumPolygonImagery This;
+    typedef CesiumCartographicPolygon This;
 
-    class_<This, bases<CesiumImagery> >
-        cls("PolygonImagery");
+    class_<This, bases<UsdGeomBasisCurves> >
+        cls("CartographicPolygon");
 
     cls
         .def(init<UsdPrim>(arg("prim")))
@@ -69,10 +69,10 @@ void wrapCesiumPolygonImagery()
 
 
         
-        .def("GetCartographicPolygonBindingRel",
-             &This::GetCartographicPolygonBindingRel)
-        .def("CreateCartographicPolygonBindingRel",
-             &This::CreateCartographicPolygonBindingRel)
+        .def("GetBasisCurvesBindingRel",
+             &This::GetBasisCurvesBindingRel)
+        .def("CreateBasisCurvesBindingRel",
+             &This::CreateBasisCurvesBindingRel)
         .def("__repr__", ::_Repr)
     ;
 

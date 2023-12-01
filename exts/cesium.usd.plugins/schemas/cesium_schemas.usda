@@ -444,12 +444,28 @@ class CesiumPolygonImageryPrim "CesiumPolygonImageryPrim" (
         string className = "PolygonImagery"
     }
 ) {
-    rel cesium:basicCurvesBinding (
+    rel cesium:cartographicPolygonBinding (
+        customData = {
+            string apiName = "cartographicPolygonBinding"
+        }
+        displayName = "Cartographic Polygon Binding"
+        doc = "Specifies which Cartraphic Polygons to use in the imagery layer"
+    )
+}
+
+class CesiumCartographicPolygonPrim "CesiumCartographicPolygonPrim" (
+    doc = """Adds a prim that represents a Cesium CartographicPolygon"""
+    inherits = </BasisCurves>
+    customData = {
+        string className = "CartographicPolygon"
+    }
+) {
+    rel cesium:basisCurvesBinding (
         customData = {
             string apiName = "basisCurvesBinding"
         }
         displayName = "BasisCurves Binding"
-        doc = "Specifies which BasicCurves are used to create the polygons"
+        doc = "Specifies which BasisCurves are used used to create the polygons"
     )
 }
 

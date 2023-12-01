@@ -17,6 +17,7 @@
 #include "cesium/omniverse/Viewport.h"
 #include <Cesium3DTilesSelection/RasterOverlay.h>
 #include <Cesium3DTilesSelection/RasterizedPolygonsOverlay.h>
+#include <CesiumGeospatial/Cartographic.h>
 #include <CesiumGeospatial/Ellipsoid.h>
 #include <CesiumGeospatial/Projection.h>
 
@@ -481,9 +482,9 @@ void OmniTileset::addImageryPolygon(const pxr::SdfPath& imageryPath) {
     const auto uniqueName = "imagery_polygon_test"; // DEVEL
 
     auto polygonImagery = UsdUtil::getCesiumPolygonImagery(imageryPath);
-    auto basisCurvesRel = polygonImagery.GetBasisCurvesBindingRel();
+    auto cartographicPolygonsRel = polygonImagery.GetCartographicPolygonBindingRel();
     pxr::SdfPathVector targets;
-    basisCurvesRel.GetTargets(&targets);
+    cartographicPolygonsRel.GetTargets(&targets);
     std::vector<CesiumGeospatial::CartographicPolygon> polygons; // DEVEL
     for (const auto& target : targets) {
         // auto basisCurves = UsdUtil::getTypedPrim<pxr::UsdGeomBasisCurves>(target);
@@ -491,10 +492,20 @@ void OmniTileset::addImageryPolygon(const pxr::SdfPath& imageryPath) {
         auto pointsAttr = basisCurves.GetPointsAttr();
         pxr::VtArray<pxr::GfVec3f> points;
         pointsAttr.Get(&points);
-        std::cout << "points size: " << points.size() << std::endl;
+        // Take every 3rd point starting at index 0. The other points are the control points off the curve of the spline.
+        std::vector<glm::dvec3> pointsOnCurve;
+        for (size_t i = 0; i < points.size(); i += 3) {
+            pointsOnCurve.emplace_back(points[i][0], points[i][1], points[i][2]);
+        }
+
+        std::vector<std::optional<CesiumGeospatial::Cartographic>> cartographicPositions;
+        // auto xform = computeUsdLocalToEcefTransformForPrim()
+        for (auto & curvePoint : pointsOnCurve) {
+            std::optional<CesiumGeospatial::Cartographic> cartographicPosition =
+                CesiumGeospatial::Ellipsoid::WGS84.cartesianToCartographic(curvePoint);
+            cartographicPositions.push_back(cartographicPosition);
+        }
     }
-
-
 
     auto invertSelection = false; // DEVEL: pull from UI
     auto ellipsoid = CesiumGeospatial::Ellipsoid::WGS84;

@@ -1,4 +1,4 @@
-#include ".//polygonImagery.h"
+#include ".//cartographicPolygon.h"
 #include "pxr/usd/usd/schemaRegistry.h"
 #include "pxr/usd/usd/typed.h"
 
@@ -10,64 +10,64 @@ PXR_NAMESPACE_OPEN_SCOPE
 // Register the schema with the TfType system.
 TF_REGISTRY_FUNCTION(TfType)
 {
-    TfType::Define<CesiumPolygonImagery,
-        TfType::Bases< CesiumImagery > >();
+    TfType::Define<CesiumCartographicPolygon,
+        TfType::Bases< UsdGeomBasisCurves > >();
     
     // Register the usd prim typename as an alias under UsdSchemaBase. This
     // enables one to call
-    // TfType::Find<UsdSchemaBase>().FindDerivedByName("CesiumPolygonImageryPrim")
-    // to find TfType<CesiumPolygonImagery>, which is how IsA queries are
+    // TfType::Find<UsdSchemaBase>().FindDerivedByName("CesiumCartographicPolygonPrim")
+    // to find TfType<CesiumCartographicPolygon>, which is how IsA queries are
     // answered.
-    TfType::AddAlias<UsdSchemaBase, CesiumPolygonImagery>("CesiumPolygonImageryPrim");
+    TfType::AddAlias<UsdSchemaBase, CesiumCartographicPolygon>("CesiumCartographicPolygonPrim");
 }
 
 /* virtual */
-CesiumPolygonImagery::~CesiumPolygonImagery()
+CesiumCartographicPolygon::~CesiumCartographicPolygon()
 {
 }
 
 /* static */
-CesiumPolygonImagery
-CesiumPolygonImagery::Get(const UsdStagePtr &stage, const SdfPath &path)
+CesiumCartographicPolygon
+CesiumCartographicPolygon::Get(const UsdStagePtr &stage, const SdfPath &path)
 {
     if (!stage) {
         TF_CODING_ERROR("Invalid stage");
-        return CesiumPolygonImagery();
+        return CesiumCartographicPolygon();
     }
-    return CesiumPolygonImagery(stage->GetPrimAtPath(path));
+    return CesiumCartographicPolygon(stage->GetPrimAtPath(path));
 }
 
 /* static */
-CesiumPolygonImagery
-CesiumPolygonImagery::Define(
+CesiumCartographicPolygon
+CesiumCartographicPolygon::Define(
     const UsdStagePtr &stage, const SdfPath &path)
 {
-    static TfToken usdPrimTypeName("CesiumPolygonImageryPrim");
+    static TfToken usdPrimTypeName("CesiumCartographicPolygonPrim");
     if (!stage) {
         TF_CODING_ERROR("Invalid stage");
-        return CesiumPolygonImagery();
+        return CesiumCartographicPolygon();
     }
-    return CesiumPolygonImagery(
+    return CesiumCartographicPolygon(
         stage->DefinePrim(path, usdPrimTypeName));
 }
 
 /* virtual */
-UsdSchemaKind CesiumPolygonImagery::_GetSchemaKind() const
+UsdSchemaKind CesiumCartographicPolygon::_GetSchemaKind() const
 {
-    return CesiumPolygonImagery::schemaKind;
+    return CesiumCartographicPolygon::schemaKind;
 }
 
 /* static */
 const TfType &
-CesiumPolygonImagery::_GetStaticTfType()
+CesiumCartographicPolygon::_GetStaticTfType()
 {
-    static TfType tfType = TfType::Find<CesiumPolygonImagery>();
+    static TfType tfType = TfType::Find<CesiumCartographicPolygon>();
     return tfType;
 }
 
 /* static */
 bool 
-CesiumPolygonImagery::_IsTypedSchema()
+CesiumCartographicPolygon::_IsTypedSchema()
 {
     static bool isTyped = _GetStaticTfType().IsA<UsdTyped>();
     return isTyped;
@@ -75,31 +75,31 @@ CesiumPolygonImagery::_IsTypedSchema()
 
 /* virtual */
 const TfType &
-CesiumPolygonImagery::_GetTfType() const
+CesiumCartographicPolygon::_GetTfType() const
 {
     return _GetStaticTfType();
 }
 
 UsdRelationship
-CesiumPolygonImagery::GetCartographicPolygonBindingRel() const
+CesiumCartographicPolygon::GetBasisCurvesBindingRel() const
 {
-    return GetPrim().GetRelationship(CesiumTokens->cesiumCartographicPolygonBinding);
+    return GetPrim().GetRelationship(CesiumTokens->cesiumBasisCurvesBinding);
 }
 
 UsdRelationship
-CesiumPolygonImagery::CreateCartographicPolygonBindingRel() const
+CesiumCartographicPolygon::CreateBasisCurvesBindingRel() const
 {
-    return GetPrim().CreateRelationship(CesiumTokens->cesiumCartographicPolygonBinding,
+    return GetPrim().CreateRelationship(CesiumTokens->cesiumBasisCurvesBinding,
                        /* custom = */ false);
 }
 
 /*static*/
 const TfTokenVector&
-CesiumPolygonImagery::GetSchemaAttributeNames(bool includeInherited)
+CesiumCartographicPolygon::GetSchemaAttributeNames(bool includeInherited)
 {
     static TfTokenVector localNames;
     static TfTokenVector allNames =
-        CesiumImagery::GetSchemaAttributeNames(true);
+        UsdGeomBasisCurves::GetSchemaAttributeNames(true);
 
     if (includeInherited)
         return allNames;

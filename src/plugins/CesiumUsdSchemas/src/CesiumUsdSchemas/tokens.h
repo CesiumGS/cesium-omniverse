@@ -71,10 +71,14 @@ struct CesiumTokensType {
     /// 
     /// CesiumGlobeAnchorAPI
     const TfToken cesiumAnchorScale;
-    /// \brief "cesium:basicCurvesBinding"
+    /// \brief "cesium:basisCurvesBinding"
+    /// 
+    /// CesiumCartographicPolygon
+    const TfToken cesiumBasisCurvesBinding;
+    /// \brief "cesium:cartographicPolygonBinding"
     /// 
     /// CesiumPolygonImagery
-    const TfToken cesiumBasicCurvesBinding;
+    const TfToken cesiumCartographicPolygonBinding;
     /// \brief "cesium:culledScreenSpaceError"
     /// 
     /// CesiumTileset

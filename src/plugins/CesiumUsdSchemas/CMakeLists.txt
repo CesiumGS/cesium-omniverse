@@ -1,6 +1,7 @@
 include(Macros)
 
 set(SOURCES
+    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/cartographicPolygon.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/data.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/globeAnchorAPI.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/georeference.cpp"
@@ -15,6 +16,7 @@ set(SOURCES
 set(PY_BINDING_SOURCES
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/module.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/moduleDeps.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapCartographicPolygon.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapData.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapGlobeAnchorAPI.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapGeoreference.cpp"

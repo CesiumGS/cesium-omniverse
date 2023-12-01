@@ -323,6 +323,10 @@ def CesiumTilesetPrim "Cesium_World_Terrain"
 
     def CesiumPolygonImageryPrim "Test_Polygon_Raster_Overlay"
     {
-        rel cesium:basicCurvesBinding = </World/BasisCurves>
+
+    }
+
+    def CesiumCartographicPolygonPrim "CartographicPolygonPrim" {
+
     }
 }
