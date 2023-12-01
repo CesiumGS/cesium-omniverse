@@ -1,13 +1,19 @@
 import omni.usd
 import omni.kit
 import re
+from typing import Optional
+
 from cesium.usd.plugins.CesiumUsdSchemas import (
     Imagery as CesiumImagery,
     Tileset as CesiumTileset,
     Tokens as CesiumTokens,
+    Data as CesiumData,
+    IonServer as CesiumIonServer,
 )
 from pxr import Sdf
 from pxr.UsdGeom import Gprim
+
+CESIUM_DATA_PRIM_PATH = "/Cesium"
 
 
 def add_tileset_ion(name: str, tileset_id: int, token: str = "") -> str:
@@ -24,6 +30,10 @@ def add_tileset_ion(name: str, tileset_id: int, token: str = "") -> str:
     tileset.GetIonAssetIdAttr().Set(tileset_id)
     tileset.GetIonAccessTokenAttr().Set(token)
     tileset.GetSourceTypeAttr().Set(CesiumTokens.ion)
+
+    server_prim_path = get_path_to_current_ion_server()
+    if server_prim_path != Sdf.Path.emptyPath:
+        tileset.GetIonServerBindingRel().AddTarget(server_prim_path)
 
     return tileset_path
 
@@ -46,6 +56,10 @@ def add_imagery_ion(tileset_path: str, name: str, asset_id: int, token: str = ""
     imagery.GetIonAssetIdAttr().Set(asset_id)
     imagery.GetIonAccessTokenAttr().Set(token)
 
+    server_prim_path = get_path_to_current_ion_server()
+    if server_prim_path != Sdf.Path.emptyPath:
+        imagery.GetIonServerBindingRel().AddTarget(server_prim_path)
+
     return imagery_path
 
 
@@ -57,3 +71,29 @@ def remove_tileset(tileset_path: str) -> None:
     stage = omni.usd.get_context().get_stage()
 
     stage.RemovePrim(Sdf.Path(tileset_path))
+
+
+def get_path_to_current_ion_server() -> Sdf.Path:
+    stage = omni.usd.get_context().get_stage()
+
+    data: CesiumData = CesiumData.Get(stage, CESIUM_DATA_PRIM_PATH)
+
+    if not data.GetPrim().IsValid():
+        return Sdf.Path()
+
+    rel = data.GetSelectedIonServerRel()
+    targets = rel.GetForwardedTargets()
+
+    return targets[0]
+
+
+def get_current_ion_server_prim() -> Optional[CesiumIonServer]:
+    stage = omni.usd.get_context().get_stage()
+
+    path = get_current_ion_server_prim()
+
+    prim: CesiumIonServer = CesiumIonServer.Get(stage, path)
+    if not prim.GetPrim().IsValid():
+        return None
+
+    return prim

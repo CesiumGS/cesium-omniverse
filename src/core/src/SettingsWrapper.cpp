@@ -4,8 +4,6 @@
 #include <carb/settings/ISettings.h>
 #include <spdlog/fmt/bundled/format.h>
 
-#include <optional>
-
 namespace cesium::omniverse::Settings {
 
 namespace {

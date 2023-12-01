@@ -452,6 +452,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         CesiumFabricModal()
 
     def _setup_ion_server_prims(self):
+        # TODO: Move a lot of this to usdUtils.py
         stage = omni.usd.get_context().get_stage()
         server_prims: List[CesiumIonServer] = [x for x in stage.Traverse() if x.IsA(CesiumIonServer)]
 
