@@ -77,7 +77,26 @@ std::vector<const CesiumGltf::ImageCesium*> getPropertyTextureImages(
         return {};
     }
 
+    if (fabricMesh.material->getMaterialDefinition().getProperties().empty()) {
+        return {};
+    }
+
     return MetadataUtil::getPropertyTextureImages(model, primitive);
+}
+
+std::unordered_map<uint64_t, uint64_t> getPropertyTextureIndexMapping(
+    const FabricMesh& fabricMesh,
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive) {
+    if (fabricMesh.material == nullptr) {
+        return {};
+    }
+
+    if (fabricMesh.material->getMaterialDefinition().getProperties().empty()) {
+        return {};
+    }
+
+    return MetadataUtil::getPropertyTextureIndexMapping(model, primitive);
 }
 
 uint64_t getPropertyTableTextureCount(
@@ -85,6 +104,10 @@ uint64_t getPropertyTableTextureCount(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive) {
     if (fabricMesh.material == nullptr) {
+        return 0;
+    }
+
+    if (fabricMesh.material->getMaterialDefinition().getProperties().empty()) {
         return 0;
     }
 
@@ -96,6 +119,10 @@ std::vector<TextureData> encodePropertyTables(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive) {
     if (fabricMesh.material == nullptr) {
+        return {};
+    }
+
+    if (fabricMesh.material->getMaterialDefinition().getProperties().empty()) {
         return {};
     }
 
@@ -227,7 +254,7 @@ std::vector<FabricMesh> acquireFabricMeshes(
         fabricMesh.featureIdTextureSetIndexMapping = getSetIndexMapping(featuresInfo, FeatureIdType::TEXTURE);
 
         // Map glTF texture index to property texture index
-        fabricMesh.propertyTextureIndexMapping = MetadataUtil::getPropertyTextureIndexMapping(model, primitive);
+        fabricMesh.propertyTextureIndexMapping = getPropertyTextureIndexMapping(fabricMesh, model, primitive);
     }
 
     return fabricMeshes;
