@@ -21,7 +21,8 @@ const char* browserCommandBase = "xdg-open";
 CesiumIonSession::CesiumIonSession(
     CesiumAsync::AsyncSystem& asyncSystem,
     std::shared_ptr<CesiumAsync::IAssetAccessor> pAssetAccessor,
-    std::string ionApiUrl)
+    std::string ionApiUrl,
+    int64_t ionApplicationId)
     : _asyncSystem(asyncSystem)
     , _pAssetAccessor(std::move(pAssetAccessor))
     , _connection(std::nullopt)
@@ -37,7 +38,8 @@ CesiumIonSession::CesiumIonSession(
     , _loadAssetsQueued(false)
     , _loadTokensQueued(false)
     , _authorizeUrl()
-    , _ionApiUrl(std::move(ionApiUrl)) {}
+    , _ionApiUrl(std::move(ionApiUrl))
+    , _ionApplicationId(ionApplicationId) {}
 
 void CesiumIonSession::connect() {
     if (this->isConnecting() || this->isConnected() || this->isResuming()) {
@@ -50,7 +52,7 @@ void CesiumIonSession::connect() {
         this->_asyncSystem,
         this->_pAssetAccessor,
         "Cesium for Omniverse",
-        413,
+        _ionApplicationId,
         "/cesium-for-omniverse/oauth2/callback",
         {"assets:list", "assets:read", "profile:read", "tokens:read", "tokens:write", "geocode"},
         [this](const std::string& url) {

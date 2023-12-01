@@ -25,6 +25,9 @@ import omni.usd
 import os
 from typing import List, Optional, Callable
 from .ui.credits_viewport_controller import CreditsViewportController
+from cesium.usd.plugins.CesiumUsdSchemas import Data as CesiumData, IonServer as CesiumIonServer
+
+CESIUM_DATA_PRIM_PATH = "/Cesium"
 
 cesium_extension_location = os.path.join(os.path.dirname(__file__), "../../")
 
@@ -256,6 +259,8 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             fabric_enabled = omni_settings.get_settings().get_as_bool("/app/useFabricSceneDelegate")
             if not fabric_enabled:
                 asyncio.ensure_future(perform_action_after_n_frames_async(15, CesiumOmniverseExtension._open_modal))
+
+            self._setup_ion_server_prims()
         elif event.type == int(omni.usd.StageEventType.CLOSED):
             _cesium_omniverse_interface.on_stage_change(0)
             if self._attributes_widget_controller is not None:
@@ -445,3 +450,18 @@ class CesiumOmniverseExtension(omni.ext.IExt):
     @staticmethod
     def _open_modal():
         CesiumFabricModal()
+
+    def _setup_ion_server_prims(self):
+        stage = omni.usd.get_context().get_stage()
+        server_prims: List[CesiumIonServer] = [x for x in stage.Traverse() if x.IsA(CesiumIonServer)]
+
+        if len(server_prims) < 1:
+            # If we have no ion server prims, lets add a default one for the official ion servers.
+            path = "/CesiumServers/IonOfficial"
+            prim: CesiumIonServer = CesiumIonServer.Define(stage, path)
+            prim.GetIonServerUrlAttr().Set("https://ion.cesium.com/")
+            prim.GetIonServerApiUrlAttr().Set("https://api.cesium.com/")
+            prim.GetIonServerApplicationIdAttr().Set(413)
+
+            data_prim: CesiumData = CesiumData.Get(stage, CESIUM_DATA_PRIM_PATH)
+            data_prim.GetSelectedIonServerRel().AddTarget(path)

@@ -367,20 +367,31 @@ pxr::CesiumData getOrCreateCesiumData() {
     return defineCesiumData(CesiumDataPath);
 }
 
-pxr::SdfPath getPathToCurrentIonServer() {
+pxr::SdfPath getPathToOfficialIonServer() {
     return pxr::SdfPath("/CesiumServers/IonOfficial");
 }
 
-pxr::CesiumIonServer getOrCreateCurrentIonServer() {
-    const auto currentIonServerPath = getPathToCurrentIonServer();
+pxr::SdfPath getPathToCurrentIonServer() {
+    auto dataPrim = getOrCreateCesiumData();
 
-    if (isCesiumIonServer(currentIonServerPath)) {
+    pxr::SdfPathVector targets;
+    dataPrim.GetSelectedIonServerRel().GetForwardedTargets(&targets);
+
+    if (targets.empty()) {
+        return {};
+    }
+
+    return targets[0];
+}
+
+pxr::CesiumIonServer getOrCreateIonServer(const pxr::SdfPath& path) {
+    if (isCesiumIonServer(path)) {
         auto stage = getUsdStage();
-        auto currentIonServer = pxr::CesiumIonServer::Get(stage, currentIonServerPath);
+        auto currentIonServer = pxr::CesiumIonServer::Get(stage, path);
         return currentIonServer;
     }
 
-    return defineCesiumIonServer(currentIonServerPath);
+    return defineCesiumIonServer(path);
 }
 
 [[maybe_unused]] std::vector<pxr::CesiumIonServer> getAllIonServerPrims() {
