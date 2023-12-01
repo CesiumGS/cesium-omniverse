@@ -50,6 +50,7 @@ class OmniTileset {
     [[nodiscard]] std::string getUrl() const;
     [[nodiscard]] int64_t getIonAssetId() const;
     [[nodiscard]] std::optional<CesiumIonClient::Token> getIonAccessToken() const;
+    [[nodiscard]] std::string getIonApiUrl() const;
     [[nodiscard]] double getMaximumScreenSpaceError() const;
     [[nodiscard]] bool getPreloadAncestors() const;
     [[nodiscard]] bool getPreloadSiblings() const;
