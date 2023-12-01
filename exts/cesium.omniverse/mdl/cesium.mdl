@@ -1469,7 +1469,25 @@ export float4 cesium_internal_property_table_float4_lookup(
     return finalize_float4(raw_value, has_no_data, no_data, default_value, offset, scale);
 }
 
-export gltf_texture_lookup_value cesium_internal_texture_lookup(*) [[ anno::hidden() ]] = gltf_texture_lookup();
+export gltf_texture_lookup_value cesium_internal_texture_lookup(
+    uniform texture_2d texture,
+    uniform int tex_coord_index,
+    uniform float2 tex_coord_offset,
+    uniform float tex_coord_rotation,
+    uniform float2 tex_coord_scale,
+    uniform gltf_wrapping_mode wrap_s,
+    uniform gltf_wrapping_mode wrap_t
+) [[ anno::hidden() ]] {
+    return gltf_texture_lookup(
+        texture: texture,
+        tex_coord_index: tex_coord_index,
+        offset: tex_coord_offset,
+        rotation: tex_coord_rotation,
+        scale: tex_coord_scale,
+        wrap_s: wrap_s,
+        wrap_t: wrap_t
+    );
+}
 
 export gltf_texture_lookup_value cesium_internal_imagery_layer_lookup(
     uniform texture_2d texture,
