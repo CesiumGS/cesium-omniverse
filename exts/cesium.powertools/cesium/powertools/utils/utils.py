@@ -5,7 +5,15 @@ import json
 import carb.settings
 import os
 from cesium.omniverse.utils.cesium_interface import CesiumInterfaceManager
+from cesium.usd.plugins.CesiumUsdSchemas import (
+    Data as CesiumData,
+    Georeference as CesiumGeoreference,
+    Imagery as CesiumImagery,
+    Tileset as CesiumTileset,
+    Tokens as CesiumTokens,
+)
 
+CESIUM_GEOREFERENCE_PRIM_PATH = "/CesiumGeoreference"
 
 # Modified version of ScopedEdit in _build_viewport_cameras in omni.kit.widget.viewport
 class ScopedEdit:
@@ -79,3 +87,17 @@ def set_sunstudy_from_georef():
 
     north_attr = get_or_create_attribute(environment_prim, "location:north_orientation", Sdf.ValueTypeNames.Float)
     north_attr.Set(90.0)  # Always set to 90, otherwise the sun is at the wrong angle
+
+def _set_georeference(longitude: float, latitude: float, height: float):
+    stage = omni.usd.get_context().get_stage()
+    cesium_georeference = CesiumGeoreference.Get(stage, CESIUM_GEOREFERENCE_PRIM_PATH)
+    assert cesium_georeference.GetPrim().IsValid()
+    cesium_georeference.GetGeoreferenceOriginLongitudeAttr().Set(longitude)
+    cesium_georeference.GetGeoreferenceOriginLatitudeAttr().Set(latitude)
+    cesium_georeference.GetGeoreferenceOriginHeightAttr().Set(height)
+
+def visit_ferry_building():
+    _set_georeference(-122.39448965963896, 37.79412362348321, 45.0)
+
+def visit_muscatatuck():
+    _set_georeference(-85.53101210608398, 39.03783818107996, 879.7555767316513)

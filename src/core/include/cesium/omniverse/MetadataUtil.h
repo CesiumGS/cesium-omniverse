@@ -334,8 +334,8 @@ void forEachStyleablePropertyAttributeProperty(
             constexpr auto type = getTypeReverse<RawType, TransformedType>();
 
             if constexpr (isMatrix<type>()) {
-                CESIUM_LOG_WARN(
-                    "Matrix properties are not supported for styling. Property \"{}\" will be ignored.", propertyId);
+                // CESIUM_LOG_WARN(
+                //     "Matrix properties are not supported for styling. Property \"{}\" will be ignored.", propertyId);
                 return;
             } else {
                 const auto& attribute = propertyAttributeProperty.attribute;
@@ -395,34 +395,34 @@ void forEachStyleablePropertyTextureProperty(
             constexpr auto IsArray = HAS_MEMBER(RawType, size());
 
             if constexpr (IsArray) {
-                CESIUM_LOG_WARN(
-                    "Array properties are not supported for styling. Property \"{}\" will be ignored.", propertyId);
+                // CESIUM_LOG_WARN(
+                //     "Array properties are not supported for styling. Property \"{}\" will be ignored.", propertyId);
                 return;
             } else {
                 constexpr auto type = getTypeReverse<RawType, TransformedType>();
 
                 if constexpr (getComponentByteLength<type>() > 1) {
-                    CESIUM_LOG_WARN(
-                        "Only 8-bit per-component property texture properties are supported for styling. Property "
-                        "\"{}\" will be ignored.",
-                        propertyId);
+                    // CESIUM_LOG_WARN(
+                    //     "Only 8-bit per-component property texture properties are supported for styling. Property "
+                    //     "\"{}\" will be ignored.",
+                    //     propertyId);
                     return;
                 } else {
                     const auto textureInfo = GltfUtil::getPropertyTexturePropertyInfo(model, propertyTextureProperty);
 
                     if (textureInfo.channels.size() != getComponentCount<type>()) {
-                        CESIUM_LOG_WARN(
-                            "Properties with components that are packed across multiple texture channels are not "
-                            "supported for styling. Property \"{}\" will be ignored.",
-                            propertyId);
+                        // CESIUM_LOG_WARN(
+                        //     "Properties with components that are packed across multiple texture channels are not "
+                        //     "supported for styling. Property \"{}\" will be ignored.",
+                        //     propertyId);
                         return;
                     }
 
                     if (textureInfo.channels.size() > 4) {
-                        CESIUM_LOG_WARN(
-                            "Properties with more than four channels are not supported for styling. Property \"{}\" "
-                            "will be ignored.",
-                            propertyId);
+                        // CESIUM_LOG_WARN(
+                        //     "Properties with more than four channels are not supported for styling. Property \"{}\" "
+                        //     "will be ignored.",
+                        //     propertyId);
                         return;
                     }
 
@@ -474,50 +474,50 @@ void forEachStyleablePropertyTableProperty(
             constexpr auto IsString = std::is_same_v<RawType, std::string_view>;
 
             if constexpr (IsArray) {
-                CESIUM_LOG_WARN(
-                    "Array properties are not supported for styling. Property \"{}\" will be ignored.", propertyId);
+                // CESIUM_LOG_WARN(
+                //     "Array properties are not supported for styling. Property \"{}\" will be ignored.", propertyId);
                 return;
             } else if constexpr (IsBoolean) {
-                CESIUM_LOG_WARN(
-                    "Boolean properties are not supported for styling. Property \"{}\" will be ignored.", propertyId);
+                // CESIUM_LOG_WARN(
+                //     "Boolean properties are not supported for styling. Property \"{}\" will be ignored.", propertyId);
                 return;
             } else if constexpr (IsString) {
-                CESIUM_LOG_WARN(
-                    "String properties are not supported for styling. Property \"{}\" will be ignored.", propertyId);
+                // CESIUM_LOG_WARN(
+                //     "String properties are not supported for styling. Property \"{}\" will be ignored.", propertyId);
                 return;
             } else {
                 constexpr auto type = getTypeReverse<RawType, TransformedType>();
                 constexpr auto unnormalizedComponentType = getUnnormalizedComponentType<type>();
 
                 if constexpr (isMatrix<type>()) {
-                    CESIUM_LOG_WARN(
-                        "Matrix properties are not supported for styling. Property \"{}\" will be ignored.",
-                        propertyId);
+                    // CESIUM_LOG_WARN(
+                    //     "Matrix properties are not supported for styling. Property \"{}\" will be ignored.",
+                    //     propertyId);
                     return;
                 } else if constexpr (unnormalizedComponentType == DataType::UINT32) {
-                    CESIUM_LOG_WARN(
-                        "UINT32 properties are not supported for styling due to potential precision loss. Property "
-                        "\"{}\" will be ignored.",
-                        propertyId);
+                    // CESIUM_LOG_WARN(
+                    //     "UINT32 properties are not supported for styling due to potential precision loss. Property "
+                    //     "\"{}\" will be ignored.",
+                    //     propertyId);
                     return;
                 } else if constexpr (unnormalizedComponentType == DataType::UINT64) {
-                    CESIUM_LOG_WARN(
-                        "UINT64 properties are not supported for styling due to potential precision loss. Property "
-                        "\"{}\" will be ignored.",
-                        propertyId);
+                    // CESIUM_LOG_WARN(
+                    //     "UINT64 properties are not supported for styling due to potential precision loss. Property "
+                    //     "\"{}\" will be ignored.",
+                    //     propertyId);
                     return;
                 } else if constexpr (unnormalizedComponentType == DataType::INT64) {
-                    CESIUM_LOG_WARN(
-                        "INT64 properties are not supported for styling due to potential precision loss. Property "
-                        "\"{}\" will be ignored.",
-                        propertyId);
+                    // CESIUM_LOG_WARN(
+                    //     "INT64 properties are not supported for styling due to potential precision loss. Property "
+                    //     "\"{}\" will be ignored.",
+                    //     propertyId);
                     return;
                 } else {
                     if constexpr (unnormalizedComponentType == DataType::FLOAT64) {
-                        CESIUM_LOG_WARN(
-                            "64-bit float properties are converted to 32-bit floats for styling. Some precision loss "
-                            "may occur for property \"{}\".",
-                            propertyId);
+                        // CESIUM_LOG_WARN(
+                        //     "64-bit float properties are converted to 32-bit floats for styling. Some precision loss "
+                        //     "may occur for property \"{}\".",
+                        //     propertyId);
                     }
 
                     const auto propertyInfo = PropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
