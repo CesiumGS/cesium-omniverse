@@ -64,11 +64,9 @@ void CesiumIonSession::connect() {
             this->_connection = std::move(connection);
 
             Settings::UserAccessToken token;
-            token.ionUrl = _ionApiUrl;
+            token.ionApiUrl = _ionApiUrl;
             token.token = this->_connection.value().getAccessToken();
-            std::vector<Settings::UserAccessToken> tokens;
-            tokens.emplace_back(token);
-            Settings::setAccessTokens(tokens);
+            Settings::setAccessToken(token);
 
             Broadcast::connectionUpdated();
         })
@@ -92,7 +90,13 @@ void CesiumIonSession::resume() {
         return;
     }
 
-    std::string userAccessToken = tokens[0].token;
+    std::string userAccessToken;
+    for (const auto& token : tokens) {
+        if (token.ionApiUrl == _ionApiUrl) {
+            userAccessToken = token.token;
+            break;
+        }
+    }
 
     this->_isResuming = true;
 
@@ -121,7 +125,7 @@ void CesiumIonSession::disconnect() {
     this->_assets.reset();
     this->_tokens.reset();
 
-    Settings::clearTokens();
+    Settings::removeAccessToken(_ionApiUrl);
 
     Broadcast::connectionUpdated();
     Broadcast::profileUpdated();
