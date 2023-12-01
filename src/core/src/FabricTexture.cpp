@@ -58,14 +58,15 @@ getCompressedImageFormat(CesiumGltf::GpuCompressedPixelFormat pixelFormat, Trans
 carb::Format getUncompressedPixelFormat(TransferFunction transferFunction) {
     switch (transferFunction) {
         case TransferFunction::LINEAR:
-            return carb::Format::eRGBA8_UNORM;
+            return carb::Format::eR8_UNORM;
+            break;
         case TransferFunction::SRGB:
-            return carb::Format::eRGBA8_SRGB;
+            return carb::Format::eR8_UNORM;
+            break;
+        default:
+            assert(false);
+            return carb::Format::eUnknown;
     }
-
-    // Unreachable code. All enum cases are handled above.
-    assert(false);
-    return carb::Format::eUnknown;
 }
 
 } // namespace

@@ -18,6 +18,7 @@
 #include <pxr/usd/usd/prim.h>
 #include <pxr/usd/usd/stage.h>
 #include <pxr/usd/usd/timeCode.h>
+#include <pxr/usd/usdGeom/basisCurves.h>
 #include <pxr/usd/usdGeom/metrics.h>
 #include <pxr/usd/usdGeom/xform.h>
 #include <pxr/usd/usdGeom/xformCommonAPI.h>
@@ -481,6 +482,21 @@ pxr::UsdShadeShader getUsdShader(const pxr::SdfPath& path) {
     auto shader = pxr::UsdShadeShader::Get(stage, path);
     assert(shader.GetPrim().IsValid());
     return shader;
+}
+
+pxr::UsdGeomBasisCurves getUsdBasisCurves(const pxr::SdfPath& path) {
+    auto stage = getUsdStage();
+    auto basisCurves = pxr::UsdGeomBasisCurves::Get(stage, path);
+    assert(basisCurves.GetPrim().IsValid());
+    return basisCurves;
+}
+
+template <typename T>
+T getTypedPrim(const pxr::SdfPath& path) {
+    auto stage = getUsdStage();
+    auto object = T::Get(stage, path);
+    assert(object.GetPrim().IsValid());
+    return object;
 }
 
 bool isCesiumData(const pxr::SdfPath& path) {

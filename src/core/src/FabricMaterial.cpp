@@ -15,6 +15,8 @@
 #include <omni/fabric/FabricUSD.h>
 #include <spdlog/fmt/fmt.h>
 
+#include <iostream>
+
 namespace cesium::omniverse {
 
 namespace {

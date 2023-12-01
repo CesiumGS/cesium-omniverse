@@ -33,8 +33,10 @@
 #include <CesiumUsdSchemas/tileset.h>
 #include <pxr/usd/usd/prim.h>
 #include <pxr/usd/usd/stage.h>
+#include <pxr/usd/usdGeom/basisCurves.h>
 #include <pxr/usd/usdGeom/boundable.h>
 #include <pxr/usd/usdShade/materialBindingAPI.h>
+
 
 #include <iostream> // DEVEL
 
@@ -478,17 +480,21 @@ void OmniTileset::addImageryPolygon(const pxr::SdfPath& imageryPath) {
 
     const auto uniqueName = "imagery_polygon_test"; // DEVEL
 
-    std::vector<CesiumGeospatial::CartographicPolygon> polygons; // DEVEL
     auto polygonImagery = UsdUtil::getCesiumPolygonImagery(imageryPath);
     auto basisCurvesRel = polygonImagery.GetBasisCurvesBindingRel();
     pxr::SdfPathVector targets;
     basisCurvesRel.GetTargets(&targets);
-    //TODO: get more than the first BasicCurves object, handle none
-    auto basisCurves = targets[0];
+    std::vector<CesiumGeospatial::CartographicPolygon> polygons; // DEVEL
+    for (const auto& target : targets) {
+        // auto basisCurves = UsdUtil::getTypedPrim<pxr::UsdGeomBasisCurves>(target);
+        auto basisCurves = UsdUtil::getUsdBasisCurves(target);
+        auto pointsAttr = basisCurves.GetPointsAttr();
+        pxr::VtArray<pxr::GfVec3f> points;
+        pointsAttr.Get(&points);
+        std::cout << "points size: " << points.size() << std::endl;
+    }
 
 
-    // auto rel = prim.GetRelationship(pxr::TfToken("cesium:basisCurvesBinding"));
-    // auto x = prim.Get
 
     auto invertSelection = false; // DEVEL: pull from UI
     auto ellipsoid = CesiumGeospatial::Ellipsoid::WGS84;

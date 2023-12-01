@@ -18,6 +18,8 @@
 #include <pxr/usd/sdf/path.h>
 #include <pxr/usd/usd/common.h>
 #include <pxr/usd/usdShade/shader.h>
+#include <pxr/usd/usdGeom/basisCurves.h>
+
 
 namespace CesiumGeospatial {
 class Cartographic;
@@ -121,6 +123,8 @@ pxr::CesiumPolygonImagery getCesiumPolygonImagery(const pxr::SdfPath& path);
 std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& path);
 pxr::CesiumGlobeAnchorAPI getCesiumGlobeAnchor(const pxr::SdfPath& path);
 pxr::UsdShadeShader getUsdShader(const pxr::SdfPath& path);
+pxr::UsdGeomBasisCurves getUsdBasisCurves(const pxr::SdfPath& path);
+template <typename T> [[nodiscard]] T getTypedPrim(const pxr::SdfPath& path);
 
 bool isCesiumData(const pxr::SdfPath& path);
 bool isCesiumIonServer(const pxr::SdfPath& path);
