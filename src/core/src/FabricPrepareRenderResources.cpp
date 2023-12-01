@@ -88,7 +88,7 @@ uint64_t getPropertyTableTextureCount(
         return 0;
     }
 
-    return MetadataUtil::getMdlInternalPropertyTablePropertyTypes(model, primitive).size();
+    return MetadataUtil::getPropertyTableTextureCount(model, primitive);
 }
 
 std::vector<TextureData> encodePropertyTables(

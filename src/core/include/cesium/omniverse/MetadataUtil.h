@@ -16,7 +16,23 @@
 
 namespace cesium::omniverse::MetadataUtil {
 
-template <DataType T> struct StyleablePropertyInfo {
+enum class PropertyStorageType {
+    ATTRIBUTE,
+    TEXTURE,
+    TABLE,
+};
+
+struct PropertyDefinition {
+    PropertyStorageType storageType;
+    MdlInternalPropertyType type;
+    std::string propertyId;
+    uint64_t featureIdSetIndex; // Only relevant for property tables
+
+    // Make sure to update this function when adding new fields to the struct
+    bool operator==(const PropertyDefinition& other) const;
+};
+
+template <DataType T> struct PropertyInfo {
     std::optional<GetNativeType<getTransformedType<T>()>> offset;
     std::optional<GetNativeType<getTransformedType<T>()>> scale;
     std::optional<GetNativeType<getTransformedType<T>()>> min;
@@ -26,23 +42,23 @@ template <DataType T> struct StyleablePropertyInfo {
     std::optional<GetNativeType<getTransformedType<T>()>> defaultValue;
 };
 
-template <DataType T> struct StyleablePropertyAttributePropertyInfo {
+template <DataType T> struct PropertyAttributePropertyInfo {
     static constexpr auto Type = T;
     std::string attribute;
-    StyleablePropertyInfo<T> propertyInfo;
+    PropertyInfo<T> propertyInfo;
 };
 
-template <DataType T> struct StyleablePropertyTexturePropertyInfo {
+template <DataType T> struct PropertyTexturePropertyInfo {
     static constexpr auto Type = T;
     TextureInfo textureInfo;
     uint64_t textureIndex;
-    StyleablePropertyInfo<T> propertyInfo;
+    PropertyInfo<T> propertyInfo;
 };
 
-template <DataType T> struct StyleablePropertyTablePropertyInfo {
+template <DataType T> struct PropertyTablePropertyInfo {
     static constexpr auto Type = T;
     uint64_t featureIdSetIndex;
-    StyleablePropertyInfo<T> propertyInfo;
+    PropertyInfo<T> propertyInfo;
 };
 
 template <typename Callback>
@@ -83,7 +99,7 @@ void forEachPropertyAttributeProperty(
             [callback = std::forward<Callback>(callback),
              &propertyAttributeView,
              &pStructuralMetadataModel,
-             &pPropertyAttribute](const std::string& propertyId, auto propertyAttributePropertyView) {
+             &pPropertyAttribute](const std::string& propertyId, const auto& propertyAttributePropertyView) {
                 if (propertyAttributePropertyView.status() != CesiumGltf::PropertyAttributePropertyViewStatus::Valid) {
                     CESIUM_LOG_WARN(
                         "Property \"{}\" is invalid and will be ignored. Status code: {}",
@@ -163,7 +179,7 @@ void forEachPropertyTextureProperty(
             [callback = std::forward<Callback>(callback),
              &propertyTextureView,
              &pStructuralMetadataModel,
-             &pPropertyTexture](const std::string& propertyId, auto propertyTexturePropertyView) {
+             &pPropertyTexture](const std::string& propertyId, const auto& propertyTexturePropertyView) {
                 if (propertyTexturePropertyView.status() != CesiumGltf::PropertyTexturePropertyViewStatus::Valid) {
                     CESIUM_LOG_WARN(
                         "Property \"{}\" is invalid and will be ignored. Status code: {}",
@@ -251,7 +267,7 @@ void forEachPropertyTableProperty(
                  &propertyTableView,
                  &pStructuralMetadataModel,
                  &pPropertyTable,
-                 featureIdSetIndex](const std::string& propertyId, auto propertyTablePropertyView) {
+                 featureIdSetIndex](const std::string& propertyId, const auto& propertyTablePropertyView) {
                     if (propertyTablePropertyView.status() != CesiumGltf::PropertyTablePropertyViewStatus::Valid) {
                         CESIUM_LOG_WARN(
                             "Property \"{}\" is invalid and will be ignored. Status code: {}",
@@ -312,7 +328,7 @@ void forEachStyleablePropertyAttributeProperty(
             [[maybe_unused]] const CesiumGltf::PropertyAttribute& propertyAttribute,
             const CesiumGltf::PropertyAttributeProperty& propertyAttributeProperty,
             [[maybe_unused]] const CesiumGltf::PropertyAttributeView& propertyAttributeView,
-            auto propertyAttributePropertyView) {
+            const auto& propertyAttributePropertyView) {
             using RawType = decltype(propertyAttributePropertyView.getRaw(0));
             using TransformedType = typename std::decay_t<decltype(propertyAttributePropertyView.get(0))>::value_type;
             constexpr auto type = getTypeReverse<RawType, TransformedType>();
@@ -325,7 +341,7 @@ void forEachStyleablePropertyAttributeProperty(
                 const auto& attribute = propertyAttributeProperty.attribute;
 
                 // For some reason the static cast is needed in MSVC
-                const auto propertyInfo = StyleablePropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
+                const auto propertyInfo = PropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
                     propertyAttributePropertyView.offset(),
                     propertyAttributePropertyView.scale(),
                     propertyAttributePropertyView.min(),
@@ -335,13 +351,12 @@ void forEachStyleablePropertyAttributeProperty(
                     propertyAttributePropertyView.defaultValue(),
                 };
 
-                const auto styleableProperty =
-                    StyleablePropertyAttributePropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
-                        attribute,
-                        propertyInfo,
-                    };
+                const auto property = PropertyAttributePropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
+                    attribute,
+                    propertyInfo,
+                };
 
-                callback(propertyId, propertyAttributePropertyView, styleableProperty);
+                callback(propertyId, propertyAttributePropertyView, property);
             }
         });
 }
@@ -373,7 +388,7 @@ void forEachStyleablePropertyTextureProperty(
             [[maybe_unused]] const CesiumGltf::PropertyTexture& propertyTexture,
             const CesiumGltf::PropertyTextureProperty& propertyTextureProperty,
             [[maybe_unused]] const CesiumGltf::PropertyTextureView& propertyTextureView,
-            auto propertyTexturePropertyView) {
+            const auto& propertyTexturePropertyView) {
             using RawType = decltype(propertyTexturePropertyView.getRaw(0.0, 0.0));
             using TransformedType =
                 typename std::decay_t<decltype(propertyTexturePropertyView.get(0.0, 0.0))>::value_type;
@@ -411,7 +426,7 @@ void forEachStyleablePropertyTextureProperty(
                         return;
                     }
 
-                    const auto propertyInfo = StyleablePropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
+                    const auto propertyInfo = PropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
                         propertyTexturePropertyView.offset(),
                         propertyTexturePropertyView.scale(),
                         propertyTexturePropertyView.min(),
@@ -421,14 +436,13 @@ void forEachStyleablePropertyTextureProperty(
                         propertyTexturePropertyView.defaultValue(),
                     };
 
-                    const auto styleableProperty =
-                        StyleablePropertyTexturePropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
-                            textureInfo,
-                            static_cast<uint64_t>(propertyTextureProperty.index),
-                            propertyInfo,
-                        };
+                    const auto property = PropertyTexturePropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
+                        textureInfo,
+                        static_cast<uint64_t>(propertyTextureProperty.index),
+                        propertyInfo,
+                    };
 
-                    callback(propertyId, propertyTexturePropertyView, styleableProperty);
+                    callback(propertyId, propertyTexturePropertyView, property);
                 }
             }
         });
@@ -451,7 +465,7 @@ void forEachStyleablePropertyTableProperty(
             [[maybe_unused]] const CesiumGltf::PropertyTable& propertyTable,
             [[maybe_unused]] const CesiumGltf::PropertyTableProperty& propertyTableProperty,
             [[maybe_unused]] const CesiumGltf::PropertyTableView& propertyTableView,
-            auto propertyTablePropertyView,
+            const auto& propertyTablePropertyView,
             uint64_t featureIdSetIndex) {
             using RawType = decltype(propertyTablePropertyView.getRaw(0));
             using TransformedType = typename std::decay_t<decltype(propertyTablePropertyView.get(0))>::value_type;
@@ -506,7 +520,7 @@ void forEachStyleablePropertyTableProperty(
                             propertyId);
                     }
 
-                    const auto propertyInfo = StyleablePropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
+                    const auto propertyInfo = PropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
                         propertyTablePropertyView.offset(),
                         propertyTablePropertyView.scale(),
                         propertyTablePropertyView.min(),
@@ -516,30 +530,19 @@ void forEachStyleablePropertyTableProperty(
                         propertyTablePropertyView.defaultValue(),
                     };
 
-                    const auto styleableProperty =
-                        StyleablePropertyTablePropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
-                            featureIdSetIndex,
-                            propertyInfo,
-                        };
+                    const auto property = PropertyTablePropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
+                        featureIdSetIndex,
+                        propertyInfo,
+                    };
 
-                    callback(propertyId, propertyTablePropertyView, styleableProperty);
+                    callback(propertyId, propertyTablePropertyView, property);
                 }
             }
         });
 }
 
-std::vector<MdlInternalPropertyType> getMdlInternalPropertyAttributePropertyTypes(
-    const CesiumGltf::Model& model,
-    const CesiumGltf::MeshPrimitive& primitive);
-
-std::vector<MdlInternalPropertyType>
-getMdlInternalPropertyTexturePropertyTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
-
-std::vector<MdlInternalPropertyType>
-getMdlInternalPropertyTexturePropertyTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
-
-std::vector<MdlInternalPropertyType>
-getMdlInternalPropertyTablePropertyTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
+std::vector<MetadataUtil::PropertyDefinition>
+getStyleableProperties(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
 std::vector<const CesiumGltf::ImageCesium*>
 getPropertyTextureImages(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
@@ -549,5 +552,7 @@ getPropertyTextureIndexMapping(const CesiumGltf::Model& model, const CesiumGltf:
 
 std::vector<TextureData>
 encodePropertyTables(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
+
+uint64_t getPropertyTableTextureCount(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
 } // namespace cesium::omniverse::MetadataUtil

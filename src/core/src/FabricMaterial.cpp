@@ -125,7 +125,7 @@ template <typename T, typename U> T defaultValue(const std::optional<U>& optiona
 
 template <DataType T>
 constexpr GetMdlInternalPropertyTransformedType<getMdlInternalPropertyType<T>()>
-getOffset(const MetadataUtil::StyleablePropertyInfo<T>& info) {
+getOffset(const MetadataUtil::PropertyInfo<T>& info) {
     constexpr auto mdlType = getMdlInternalPropertyType<T>();
     using TransformedType = GetNativeType<getTransformedType<T>()>;
     using MdlTransformedType = GetMdlInternalPropertyTransformedType<mdlType>;
@@ -134,7 +134,7 @@ getOffset(const MetadataUtil::StyleablePropertyInfo<T>& info) {
 
 template <DataType T>
 constexpr GetMdlInternalPropertyTransformedType<getMdlInternalPropertyType<T>()>
-getScale(const MetadataUtil::StyleablePropertyInfo<T>& info) {
+getScale(const MetadataUtil::PropertyInfo<T>& info) {
     constexpr auto mdlType = getMdlInternalPropertyType<T>();
     using TransformedType = GetNativeType<getTransformedType<T>()>;
     using MdlTransformedType = GetMdlInternalPropertyTransformedType<mdlType>;
@@ -143,7 +143,7 @@ getScale(const MetadataUtil::StyleablePropertyInfo<T>& info) {
 
 template <DataType T>
 constexpr GetMdlInternalPropertyRawType<getMdlInternalPropertyType<T>()>
-getNoData(const MetadataUtil::StyleablePropertyInfo<T>& info) {
+getNoData(const MetadataUtil::PropertyInfo<T>& info) {
     constexpr auto mdlType = getMdlInternalPropertyType<T>();
     using RawType = GetNativeType<T>;
     using MdlRawType = GetMdlInternalPropertyRawType<mdlType>;
@@ -152,7 +152,7 @@ getNoData(const MetadataUtil::StyleablePropertyInfo<T>& info) {
 
 template <DataType T>
 constexpr GetMdlInternalPropertyTransformedType<getMdlInternalPropertyType<T>()>
-getDefaultValue(const MetadataUtil::StyleablePropertyInfo<T>& info) {
+getDefaultValue(const MetadataUtil::PropertyInfo<T>& info) {
     constexpr auto mdlType = getMdlInternalPropertyType<T>();
     using TransformedType = GetNativeType<getTransformedType<T>()>;
     using MdlTransformedType = GetMdlInternalPropertyTransformedType<mdlType>;
@@ -549,38 +549,39 @@ void FabricMaterial::initializeNodes() {
         _allPaths.push_back(featureIdPath);
     }
 
-    // Create property attribute properties
-    const auto& propertyAttributePropertyTypes = _materialDefinition.getMdlInternalPropertyAttributePropertyTypes();
-    const auto propertyAttributePropertiesCount = propertyAttributePropertyTypes.size();
+    // Create properties
+    const auto& properties = _materialDefinition.getProperties();
+    const auto propertiesCount = properties.size();
 
-    for (uint64_t i = 0; i < propertyAttributePropertiesCount; i++) {
-        const auto type = propertyAttributePropertyTypes[i];
-        const auto propertyPath = FabricUtil::joinPaths(_materialPath, FabricTokens::property_attribute_n(i));
-        createPropertyAttributeProperty(propertyPath, type);
-        _propertyAttributePropertyPaths[type].push_back(propertyPath);
+    for (uint64_t i = 0; i < propertiesCount; i++) {
+        const auto& property = properties[i];
+        const auto storageType = property.storageType;
+        const auto type = property.type;
+        const auto& propertyPath = FabricUtil::joinPaths(_materialPath, FabricTokens::property_n(i));
+        switch (storageType) {
+            case MetadataUtil::PropertyStorageType::ATTRIBUTE:
+                createPropertyAttributeProperty(propertyPath, type);
+                _propertyAttributePropertyPaths[type].push_back(propertyPath);
+                break;
+            case MetadataUtil::PropertyStorageType::TEXTURE:
+                createPropertyTextureProperty(propertyPath, type);
+                _propertyTexturePropertyPaths[type].push_back(propertyPath);
+                break;
+            case MetadataUtil::PropertyStorageType::TABLE:
+                createPropertyTableProperty(propertyPath, type);
+                _propertyTablePropertyPaths[type].push_back(propertyPath);
+                // Create connection from the feature id node to the property table property node
+                const auto featureIdSetIndex = property.featureIdSetIndex;
+                const auto& featureIdPath = _featureIdPaths[featureIdSetIndex];
+                createConnection(srw, featureIdPath, propertyPath, FabricTokens::inputs_feature_id);
+                break;
+        }
+
+        _propertyPaths.push_back(propertyPath);
+        _allPaths.push_back(propertyPath);
     }
 
-    // Create property texture properties
-    const auto& propertyTexturePropertyTypes = _materialDefinition.getMdlInternalPropertyTexturePropertyTypes();
-    const auto propertyTexturePropertiesCount = propertyTexturePropertyTypes.size();
-
-    for (uint64_t i = 0; i < propertyTexturePropertiesCount; i++) {
-        const auto type = propertyTexturePropertyTypes[i];
-        const auto propertyPath = FabricUtil::joinPaths(_materialPath, FabricTokens::property_texture_n(i));
-        createPropertyTextureProperty(propertyPath, type);
-        _propertyTexturePropertyPaths[type].push_back(propertyPath);
-    }
-
-    // Create property table properties
-    const auto& propertyTablePropertyTypes = _materialDefinition.getMdlInternalPropertyTablePropertyTypes();
-    const auto propertyTablePropertiesCount = propertyTablePropertyTypes.size();
-
-    for (uint64_t i = 0; i < propertyTablePropertiesCount; i++) {
-        const auto type = propertyTablePropertyTypes[i];
-        const auto propertyPath = FabricUtil::joinPaths(_materialPath, FabricTokens::property_table_n(i));
-        createPropertyTableProperty(propertyPath, type);
-        _propertyTablePropertyPaths[type].push_back(propertyPath);
-    }
+    _properties = properties;
 }
 
 void FabricMaterial::initializeDefaultMaterial() {
@@ -657,6 +658,7 @@ void FabricMaterial::initializeExistingMaterial(const omni::fabric::Path& path) 
     }
 
     createConnectionsToCopiedPaths();
+    createConnectionsToProperties();
 }
 
 void FabricMaterial::createMaterial(const omni::fabric::Path& path) {
@@ -1295,14 +1297,8 @@ void FabricMaterial::reset() {
         for (const auto& path : paths) {
             CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_MDL_TYPE(
                 clearPropertyTableProperty, type, path, _defaultTransparentTextureAssetPathToken);
-            auto srw = UsdUtil::getFabricStageReaderWriter();
-            destroyConnection(srw, path, FabricTokens::inputs_feature_id);
         }
     }
-
-    _properties.clear();
-
-    destroyConnectionsToProperties();
 
     for (const auto& imageryLayerPath : _imageryLayerPaths) {
         setImageryLayerValues(
@@ -1400,24 +1396,29 @@ void FabricMaterial::setMaterial(
         setFeatureIdTextureValues(featureIdPath, textureAssetPath, textureInfo, texcoordIndex, nullFeatureId);
     }
 
-    std::array<uint8_t, MdlInternalPropertyTypeCount> propertyAttributePropertyTypeCounter{};
-    std::array<uint8_t, MdlInternalPropertyTypeCount> propertyTexturePropertyTypeCounter{};
-    std::array<uint8_t, MdlInternalPropertyTypeCount> propertyTablePropertyTypeCounter{};
-    uint64_t propertyTablePropertyCounter = 0;
+    const auto getPropertyPath = [this](const std::string& propertyId) {
+        const auto iter = std::find_if(
+            _properties.begin(), _properties.end(), [&propertyId](const MetadataUtil::PropertyDefinition& property) {
+                return property.propertyId == propertyId;
+            });
+
+        const auto index = static_cast<uint64_t>(std::distance(_properties.begin(), iter));
+        assert(index != _properties.size());
+        return _propertyPaths[index];
+    };
 
     MetadataUtil::forEachStyleablePropertyAttributeProperty(
         model,
         primitive,
-        [this, &propertyAttributePropertyTypeCounter](
+        [&getPropertyPath](
             const std::string& propertyId,
-            [[maybe_unused]] auto propertyAttributePropertyView,
-            auto styleableProperty) {
-            constexpr auto type = decltype(styleableProperty)::Type;
+            [[maybe_unused]] const auto& propertyAttributePropertyView,
+            const auto& property) {
+            constexpr auto type = std::decay_t<decltype(property)>::Type;
             constexpr auto mdlType = getMdlInternalPropertyType<type>();
-            const auto& primvarName = styleableProperty.attribute;
-            const auto pathIndex = propertyAttributePropertyTypeCounter[static_cast<uint64_t>(mdlType)]++;
-            const auto& propertyAttributePropertyPath = _propertyAttributePropertyPaths.at(mdlType)[pathIndex];
-            const auto& propertyInfo = styleableProperty.propertyInfo;
+            const auto& primvarName = property.attribute;
+            const auto& propertyPath = getPropertyPath(propertyId);
+            const auto& propertyInfo = property.propertyInfo;
             const auto hasNoData = propertyInfo.noData.has_value();
             const auto offset = getOffset(propertyInfo);
             const auto scale = getScale(propertyInfo);
@@ -1425,42 +1426,26 @@ void FabricMaterial::setMaterial(
             const auto defaultValue = getDefaultValue(propertyInfo);
             constexpr auto maximumValue = getMaximumValue<type>();
 
-            _properties.emplace_back(PropertyInfo{
-                propertyAttributePropertyPath,
-                propertyId,
-                mdlType,
-            });
-
             setPropertyAttributePropertyValues<mdlType>(
-                propertyAttributePropertyPath,
-                primvarName,
-                offset,
-                scale,
-                maximumValue,
-                hasNoData,
-                noData,
-                defaultValue);
+                propertyPath, primvarName, offset, scale, maximumValue, hasNoData, noData, defaultValue);
         });
 
     MetadataUtil::forEachStyleablePropertyTextureProperty(
         model,
         primitive,
-        [this,
-         &propertyTextures,
-         &texcoordIndexMapping,
-         &propertyTextureIndexMapping,
-         &propertyTexturePropertyTypeCounter](
-            const std::string& propertyId, [[maybe_unused]] auto propertyTexturePropertyView, auto styleableProperty) {
-            constexpr auto type = decltype(styleableProperty)::Type;
+        [&propertyTextures, &texcoordIndexMapping, &propertyTextureIndexMapping, &getPropertyPath](
+            const std::string& propertyId,
+            [[maybe_unused]] const auto& propertyTexturePropertyView,
+            const auto& property) {
+            constexpr auto type = std::decay_t<decltype(property)>::Type;
             constexpr auto mdlType = getMdlInternalPropertyType<type>();
-            const auto& textureInfo = styleableProperty.textureInfo;
-            const auto textureIndex = styleableProperty.textureIndex;
-            const auto pathIndex = propertyTexturePropertyTypeCounter[static_cast<uint64_t>(mdlType)]++;
-            const auto& propertyTexturePropertyPath = _propertyTexturePropertyPaths.at(mdlType)[pathIndex];
+            const auto& textureInfo = property.textureInfo;
+            const auto textureIndex = property.textureIndex;
+            const auto& propertyPath = getPropertyPath(propertyId);
             const auto texcoordIndex = texcoordIndexMapping.at(textureInfo.setIndex);
             const auto propertyTextureIndex = propertyTextureIndexMapping.at(textureIndex);
             const auto& textureAssetPath = propertyTextures[propertyTextureIndex]->getAssetPathToken();
-            const auto& propertyInfo = styleableProperty.propertyInfo;
+            const auto& propertyInfo = property.propertyInfo;
             const auto hasNoData = propertyInfo.noData.has_value();
             const auto offset = getOffset(propertyInfo);
             const auto scale = getScale(propertyInfo);
@@ -1468,14 +1453,8 @@ void FabricMaterial::setMaterial(
             const auto defaultValue = getDefaultValue(propertyInfo);
             constexpr auto maximumValue = getMaximumValue<type>();
 
-            _properties.emplace_back(PropertyInfo{
-                propertyTexturePropertyPath,
-                propertyId,
-                mdlType,
-            });
-
             setPropertyTexturePropertyValues<mdlType>(
-                propertyTexturePropertyPath,
+                propertyPath,
                 textureAssetPath,
                 textureInfo,
                 texcoordIndex,
@@ -1487,20 +1466,21 @@ void FabricMaterial::setMaterial(
                 defaultValue);
         });
 
+    uint64_t propertyTablePropertyCounter = 0;
+
     MetadataUtil::forEachStyleablePropertyTableProperty(
         model,
         primitive,
-        [this, &propertyTableTextures, &propertyTablePropertyCounter, &propertyTablePropertyTypeCounter](
-            const std::string& propertyId, [[maybe_unused]] auto propertyTablePropertyView, auto styleableProperty) {
-            constexpr auto type = decltype(styleableProperty)::Type;
+        [&propertyTableTextures, &propertyTablePropertyCounter, &getPropertyPath](
+            const std::string& propertyId,
+            [[maybe_unused]] const auto& propertyTablePropertyView,
+            const auto& property) {
+            constexpr auto type = std::decay_t<decltype(property)>::Type;
             constexpr auto mdlType = getMdlInternalPropertyType<type>();
-            const auto featureIdSetIndex = styleableProperty.featureIdSetIndex;
-            const auto& featureIdPath = _featureIdPaths[featureIdSetIndex];
+            const auto& propertyPath = getPropertyPath(propertyId);
             const auto textureIndex = propertyTablePropertyCounter++;
             const auto& textureAssetPath = propertyTableTextures[textureIndex]->getAssetPathToken();
-            const auto pathIndex = propertyTablePropertyTypeCounter[static_cast<uint64_t>(mdlType)]++;
-            const auto& propertyTablePropertyPath = _propertyTablePropertyPaths.at(mdlType)[pathIndex];
-            const auto& propertyInfo = styleableProperty.propertyInfo;
+            const auto& propertyInfo = property.propertyInfo;
             const auto hasNoData = propertyInfo.noData.has_value();
             const auto offset = getOffset(propertyInfo);
             const auto scale = getScale(propertyInfo);
@@ -1508,28 +1488,9 @@ void FabricMaterial::setMaterial(
             const auto defaultValue = getDefaultValue(propertyInfo);
             constexpr auto maximumValue = getMaximumValue<type>();
 
-            _properties.emplace_back(PropertyInfo{
-                propertyTablePropertyPath,
-                propertyId,
-                mdlType,
-            });
-
             setPropertyTablePropertyValues<mdlType>(
-                propertyTablePropertyPath,
-                textureAssetPath,
-                offset,
-                scale,
-                maximumValue,
-                hasNoData,
-                noData,
-                defaultValue);
-
-            // Create connection from the feature id node to the property table property node
-            auto srw = UsdUtil::getFabricStageReaderWriter();
-            createConnection(srw, featureIdPath, propertyTablePropertyPath, FabricTokens::inputs_feature_id);
+                propertyPath, textureAssetPath, offset, scale, maximumValue, hasNoData, noData, defaultValue);
         });
-
-    createConnectionsToProperties();
 
     for (const auto& path : _allPaths) {
         FabricUtil::setTilesetId(path, tilesetId);
@@ -1592,8 +1553,8 @@ void FabricMaterial::createConnectionsToProperties() {
         const auto mdlIdentifier = FabricUtil::getMdlIdentifier(propertyPathExternal);
         const auto propertyTypeExternal = FabricUtil::getMdlExternalPropertyType(mdlIdentifier);
 
-        const auto iter =
-            std::find_if(_properties.begin(), _properties.end(), [&propertyId](const PropertyInfo& property) {
+        const auto iter = std::find_if(
+            _properties.begin(), _properties.end(), [&propertyId](const MetadataUtil::PropertyDefinition& property) {
                 return property.propertyId == propertyId;
             });
 
@@ -1615,7 +1576,8 @@ void FabricMaterial::createConnectionsToProperties() {
             continue;
         }
 
-        const auto& propertyPathInternal = iter->path;
+        const auto index = static_cast<uint64_t>(std::distance(_properties.begin(), iter));
+        const auto& propertyPathInternal = _propertyPaths[index];
 
         createConnection(srw, propertyPathInternal, propertyPathExternal, FabricTokens::inputs_property_value);
     }
@@ -1702,7 +1664,7 @@ void FabricMaterial::updateShaderInput(const omni::fabric::Path& path, const omn
         createConnectionsToCopiedPaths();
     }
 
-    if (FabricUtil::isCesiumPropertyNode(attributeName)) {
+    if (attributeName == FabricTokens::inputs_property_id) {
         destroyConnectionsToProperties();
         createConnectionsToProperties();
     }

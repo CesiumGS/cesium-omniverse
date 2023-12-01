@@ -10,65 +10,65 @@ template <typename T> uint64_t indexOf(const std::vector<T>& vector, const T& va
 }
 } // namespace
 
-std::vector<MdlInternalPropertyType> getMdlInternalPropertyAttributePropertyTypes(
-    const CesiumGltf::Model& model,
-    const CesiumGltf::MeshPrimitive& primitive) {
-    std::vector<MdlInternalPropertyType> mdlInternalPropertyTypes;
+std::vector<MetadataUtil::PropertyDefinition>
+getStyleableProperties(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+    std::vector<MetadataUtil::PropertyDefinition> properties;
 
     forEachStyleablePropertyAttributeProperty(
         model,
         primitive,
-        [&mdlInternalPropertyTypes](
-            [[maybe_unused]] const std::string& propertyId,
-            [[maybe_unused]] auto propertyAttributePropertyView,
-            auto styleableProperty) {
-            constexpr auto type = decltype(styleableProperty)::Type;
-            mdlInternalPropertyTypes.push_back(getMdlInternalPropertyType<type>());
+        [&properties](
+            const std::string& propertyId,
+            [[maybe_unused]] const auto& propertyAttributePropertyView,
+            const auto& property) {
+            constexpr auto type = std::decay_t<decltype(property)>::Type;
+            properties.emplace_back(MetadataUtil::PropertyDefinition{
+                PropertyStorageType::ATTRIBUTE,
+                getMdlInternalPropertyType<type>(),
+                propertyId,
+                0, // featureIdSetIndex not relevant for property attributes
+            });
         });
-
-    std::sort(mdlInternalPropertyTypes.begin(), mdlInternalPropertyTypes.end());
-
-    return mdlInternalPropertyTypes;
-}
-
-std::vector<MdlInternalPropertyType>
-getMdlInternalPropertyTexturePropertyTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
-    std::vector<MdlInternalPropertyType> mdlInternalPropertyTypes;
 
     forEachStyleablePropertyTextureProperty(
         model,
         primitive,
-        [&mdlInternalPropertyTypes](
-            [[maybe_unused]] const std::string& propertyId,
-            [[maybe_unused]] auto propertyTexturePropertyView,
-            auto styleableProperty) {
-            constexpr auto type = decltype(styleableProperty)::Type;
-            mdlInternalPropertyTypes.push_back(getMdlInternalPropertyType<type>());
+        [&properties](
+            const std::string& propertyId,
+            [[maybe_unused]] const auto& propertyTexturePropertyView,
+            const auto& property) {
+            constexpr auto type = std::decay_t<decltype(property)>::Type;
+            properties.emplace_back(MetadataUtil::PropertyDefinition{
+                PropertyStorageType::TEXTURE,
+                getMdlInternalPropertyType<type>(),
+                propertyId,
+                0, // featureIdSetIndex not relevant for property textures
+            });
         });
-
-    std::sort(mdlInternalPropertyTypes.begin(), mdlInternalPropertyTypes.end());
-
-    return mdlInternalPropertyTypes;
-}
-
-std::vector<MdlInternalPropertyType>
-getMdlInternalPropertyTablePropertyTypes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
-    std::vector<MdlInternalPropertyType> mdlInternalPropertyTypes;
 
     forEachStyleablePropertyTableProperty(
         model,
         primitive,
-        [&mdlInternalPropertyTypes](
-            [[maybe_unused]] const std::string& propertyId,
-            [[maybe_unused]] auto propertyTexturePropertyView,
-            auto styleableProperty) {
-            constexpr auto type = decltype(styleableProperty)::Type;
-            mdlInternalPropertyTypes.push_back(getMdlInternalPropertyType<type>());
+        [&properties](
+            const std::string& propertyId,
+            [[maybe_unused]] const auto& propertyTablePropertyView,
+            const auto& property) {
+            constexpr auto type = std::decay_t<decltype(property)>::Type;
+            properties.emplace_back(MetadataUtil::PropertyDefinition{
+                PropertyStorageType::TABLE,
+                getMdlInternalPropertyType<type>(),
+                propertyId,
+                property.featureIdSetIndex,
+            });
         });
 
-    std::sort(mdlInternalPropertyTypes.begin(), mdlInternalPropertyTypes.end());
+    // Sorting is important for checking FabricMaterialDefinition equality
+    std::sort(
+        properties.begin(), properties.end(), [](const PropertyDefinition& lhs, const PropertyDefinition& rhs) -> bool {
+            return lhs.propertyId > rhs.propertyId;
+        });
 
-    return mdlInternalPropertyTypes;
+    return properties;
 }
 
 std::vector<const CesiumGltf::ImageCesium*>
@@ -80,8 +80,8 @@ getPropertyTextureImages(const CesiumGltf::Model& model, const CesiumGltf::MeshP
         primitive,
         [&images](
             [[maybe_unused]] const std::string& propertyId,
-            auto propertyTexturePropertyView,
-            [[maybe_unused]] auto styleableProperty) {
+            const auto& propertyTexturePropertyView,
+            [[maybe_unused]] const auto& property) {
             const auto pImage = propertyTexturePropertyView.getImage();
             assert(pImage);
 
@@ -105,8 +105,8 @@ getPropertyTextureIndexMapping(const CesiumGltf::Model& model, const CesiumGltf:
         primitive,
         [&images, &propertyTextureIndexMapping](
             [[maybe_unused]] const std::string& propertyId,
-            auto propertyTexturePropertyView,
-            [[maybe_unused]] auto styleableProperty) {
+            const auto& propertyTexturePropertyView,
+            [[maybe_unused]] const auto& property) {
             const auto pImage = propertyTexturePropertyView.getImage();
             assert(pImage);
 
@@ -116,7 +116,7 @@ getPropertyTextureIndexMapping(const CesiumGltf::Model& model, const CesiumGltf:
                 images.push_back(pImage);
             }
 
-            const auto textureIndex = styleableProperty.textureIndex;
+            const auto textureIndex = property.textureIndex;
             propertyTextureIndexMapping[textureIndex] = imageIndex;
         });
 
@@ -131,8 +131,10 @@ encodePropertyTables(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimi
         model,
         primitive,
         [&textures](
-            [[maybe_unused]] const std::string& propertyId, auto propertyTablePropertyView, auto styleableProperty) {
-            constexpr auto type = decltype(styleableProperty)::Type;
+            [[maybe_unused]] const std::string& propertyId,
+            const auto& propertyTablePropertyView,
+            const auto& property) {
+            constexpr auto type = std::decay_t<decltype(property)>::Type;
             constexpr auto textureType = getPropertyTableTextureType<type>();
             constexpr auto textureFormat = getTextureFormat<textureType>();
             using TextureType = GetNativeType<textureType>;
@@ -180,6 +182,26 @@ encodePropertyTables(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimi
         });
 
     return textures;
+}
+
+uint64_t getPropertyTableTextureCount(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+    uint64_t count = 0;
+
+    forEachStyleablePropertyTableProperty(
+        model,
+        primitive,
+        [&count](
+            [[maybe_unused]] const std::string& propertyId,
+            [[maybe_unused]] const auto& propertyTablePropertyView,
+            [[maybe_unused]] const auto& property) { count++; });
+
+    return count;
+}
+
+// In C++ 20 we can use the default equality comparison (= default)
+bool PropertyDefinition::operator==(const PropertyDefinition& other) const {
+    return storageType == other.storageType && type == other.type && propertyId == other.propertyId &&
+           featureIdSetIndex == other.featureIdSetIndex;
 }
 
 } // namespace cesium::omniverse::MetadataUtil
