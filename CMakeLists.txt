@@ -31,11 +31,13 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Find Python for Conan and scripts
-find_package(
-    Python3
-    COMPONENTS Interpreter
-    REQUIRED)
+if (NOT Python3_EXECUTABLE)
+    # Find Python for Conan and scripts
+    find_package(
+        Python3
+        COMPONENTS Interpreter
+        REQUIRED)
+endif()
 
 # Options:
 option(CESIUM_OMNI_ENABLE_TESTS "Unit tests" ON)
