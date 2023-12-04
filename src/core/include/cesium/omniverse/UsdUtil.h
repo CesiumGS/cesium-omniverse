@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Cesium3DTilesSelection/ViewState.h>
+#include <CesiumUsdSchemas/cartographicPolygon.h>
 #include <CesiumUsdSchemas/data.h>
 #include <CesiumUsdSchemas/georeference.h>
 #include <CesiumUsdSchemas/globeAnchorAPI.h>
@@ -124,6 +125,7 @@ std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& p
 pxr::CesiumGlobeAnchorAPI getCesiumGlobeAnchor(const pxr::SdfPath& path);
 pxr::UsdShadeShader getUsdShader(const pxr::SdfPath& path);
 pxr::UsdGeomBasisCurves getUsdBasisCurves(const pxr::SdfPath& path);
+pxr::CesiumCartographicPolygon getCesiumCartographicPolygon(const pxr::SdfPath& path);
 template <typename T> [[nodiscard]] T getTypedPrim(const pxr::SdfPath& path);
 
 bool isCesiumData(const pxr::SdfPath& path);

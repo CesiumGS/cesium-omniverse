@@ -1,4 +1,5 @@
 #include "cesium/omniverse/OmniTileset.h"
+#include "CesiumUsdSchemas/cartographicPolygon.h"
 #include "CesiumUsdSchemas/polygonImagery.h"
 
 #include "cesium/omniverse/Broadcast.h"
@@ -483,12 +484,18 @@ void OmniTileset::addImageryPolygon(const pxr::SdfPath& imageryPath) {
 
     auto polygonImagery = UsdUtil::getCesiumPolygonImagery(imageryPath);
     auto cartographicPolygonsRel = polygonImagery.GetCartographicPolygonBindingRel();
-    pxr::SdfPathVector targets;
-    cartographicPolygonsRel.GetTargets(&targets);
+    pxr::SdfPathVector cartographicPolygonTargets;
+    cartographicPolygonsRel.GetTargets(&cartographicPolygonTargets);
     std::vector<CesiumGeospatial::CartographicPolygon> polygons; // DEVEL
-    for (const auto& target : targets) {
-        // auto basisCurves = UsdUtil::getTypedPrim<pxr::UsdGeomBasisCurves>(target);
-        auto basisCurves = UsdUtil::getUsdBasisCurves(target);
+    for (const auto& cartographicPolygonTarget : cartographicPolygonTargets) {
+        auto cartographicPolygon = UsdUtil::getCesiumCartographicPolygon(cartographicPolygonTarget);
+
+        auto basisCurvesRel = cartographicPolygon.GetBasisCurvesBindingRel();
+        pxr::SdfPathVector basisCurvesTargets;
+        basisCurvesRel.GetTargets(&basisCurvesTargets);
+
+        // currently only suporting one BasisCurves per CartographicPolygon
+        auto basisCurves = UsdUtil::getUsdBasisCurves(basisCurvesTargets[0]);
         auto pointsAttr = basisCurves.GetPointsAttr();
         pxr::VtArray<pxr::GfVec3f> points;
         pointsAttr.Get(&points);
@@ -499,6 +506,7 @@ void OmniTileset::addImageryPolygon(const pxr::SdfPath& imageryPath) {
         }
 
         std::vector<std::optional<CesiumGeospatial::Cartographic>> cartographicPositions;
+        // auto transform = computeUsdLocalToEcefTransformForPrim();
         // auto xform = computeUsdLocalToEcefTransformForPrim()
         for (auto & curvePoint : pointsOnCurve) {
             std::optional<CesiumGeospatial::Cartographic> cartographicPosition =

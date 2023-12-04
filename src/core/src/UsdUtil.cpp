@@ -1,4 +1,5 @@
 #include "cesium/omniverse/UsdUtil.h"
+#include "CesiumUsdSchemas/cartographicPolygon.h"
 
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/GeospatialUtil.h"
@@ -453,6 +454,12 @@ pxr::CesiumPolygonImagery getCesiumPolygonImagery(const pxr::SdfPath& path) {
     return imagery;
 }
 
+pxr::CesiumCartographicPolygon getCesiumCartographicPolygon(const pxr::SdfPath& path) {
+    auto stage = UsdUtil::getUsdStage();
+    auto cartographicPolygon = pxr::CesiumCartographicPolygon::Get(stage, path);
+    assert(cartographicPolygon.GetPrim().IsValid());
+    return cartographicPolygon;
+}
 
 std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& path) {
     auto stage = UsdUtil::getUsdStage();
