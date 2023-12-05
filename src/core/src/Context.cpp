@@ -136,9 +136,7 @@ void Context::setProjectDefaultToken(const CesiumIonClient::Token& token) {
         return;
     }
 
-    // Backing out for the release.
-    //const auto currentIonServer = UsdUtil::getOrCreateCurrentIonServer();
-    const auto currentIonServer = UsdUtil::getOrCreateCesiumData();
+    const auto currentIonServer = UsdUtil::getOrCreateCurrentIonServer();
 
     currentIonServer.GetProjectDefaultIonAccessTokenAttr().Set<std::string>(token.token);
     currentIonServer.GetProjectDefaultIonAccessTokenIdAttr().Set<std::string>(token.id);
@@ -618,9 +616,7 @@ std::optional<std::shared_ptr<CesiumIonSession>> Context::getSession() {
 }
 
 std::optional<CesiumIonClient::Token> Context::getDefaultToken() const {
-    // Backing out for the release.
-    //const auto currentIonServer = UsdUtil::getOrCreateCurrentIonServer();
-    const auto currentIonServer = UsdUtil::getOrCreateCesiumData();
+    const auto currentIonServer = UsdUtil::getOrCreateCurrentIonServer();
 
     std::string projectDefaultToken;
     std::string projectDefaultTokenId;
