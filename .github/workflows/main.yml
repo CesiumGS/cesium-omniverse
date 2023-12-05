@@ -135,7 +135,7 @@ jobs:
       # Note: CMAKE_CONFIGURATION_TYPES is used by Windows to generate a single configuration for Release since we don't need Debug, RelWithDebugInfo, and MinSizeRel on CI. It is ignored for Linux.
       - name: Configure
         if: matrix.config.name != 'AlmaLinux 8 - GCC'
-        run: cmake -B build -D CESIUM_OMNI_ENABLE_COVERAGE=${{ matrix.config.coverage}} -D CMAKE_C_COMPILER=${{ matrix.config.cc }} -D CMAKE_CXX_COMPILER=${{ matrix.config.cxx }} -D CMAKE_BUILD_TYPE=${{ matrix.config.build-type }} -D CMAKE_CONFIGURATION_TYPES=${{ matrix.config.build-type }} -G "${{ matrix.config.generator }}"
+        run: cmake -B build -D Python3_EXECUTABLE=python3 -D CESIUM_OMNI_ENABLE_COVERAGE=${{ matrix.config.coverage}} -D CMAKE_C_COMPILER=${{ matrix.config.cc }} -D CMAKE_CXX_COMPILER=${{ matrix.config.cxx }} -D CMAKE_BUILD_TYPE=${{ matrix.config.build-type }} -D CMAKE_CONFIGURATION_TYPES=${{ matrix.config.build-type }} -G "${{ matrix.config.generator }}"
 
       # Change the ownership from root to user for all files in the Conan cache so
       # that DLLs can be used without permission denied errors

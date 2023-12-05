@@ -23,6 +23,19 @@ std::vector<FeatureIdType> filterFeatureIdTypes(const FeaturesInfo& featuresInfo
 
     return featureIdTypes;
 }
+
+std::vector<MetadataUtil::PropertyDefinition> getStyleableProperties(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive,
+    const pxr::SdfPath& tilesetMaterialPath) {
+
+    if (tilesetMaterialPath.IsEmpty()) {
+        // Ignore properties if there's no tileset material
+        return {};
+    }
+
+    return MetadataUtil::getStyleableProperties(model, primitive);
+}
 } // namespace
 
 FabricMaterialDefinition::FabricMaterialDefinition(
@@ -38,7 +51,7 @@ FabricMaterialDefinition::FabricMaterialDefinition(
     , _featureIdTypes(filterFeatureIdTypes(featuresInfo, disableTextures))
     , _imageryLayerCount(disableTextures ? 0 : imageryLayerCount)
     , _tilesetMaterialPath(tilesetMaterialPath)
-    , _properties(MetadataUtil::getStyleableProperties(model, primitive)) {}
+    , _properties(getStyleableProperties(model, primitive, tilesetMaterialPath)) {}
 
 bool FabricMaterialDefinition::hasVertexColors() const {
     return _hasVertexColors;
