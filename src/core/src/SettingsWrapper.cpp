@@ -50,12 +50,12 @@ const std::vector<UserAccessToken> getAccessTokens() {
 void setAccessToken(const UserAccessToken& userAccessToken) {
     auto settings = carb::getCachedInterface<carb::settings::ISettings>();
 
-    auto accessTokens = getAccessTokens();
+    const auto accessTokens = getAccessTokens();
 
     std::vector<UserAccessToken> newAccessTokens;
     newAccessTokens.reserve(accessTokens.size() + 1); // Worst case we'll be growing by 1, so preempt that.
 
-    for (auto& accessToken : accessTokens) {
+    for (const auto& accessToken : accessTokens) {
         if (accessToken.ionApiUrl == userAccessToken.ionApiUrl) {
             continue;
         }
@@ -76,7 +76,7 @@ void setAccessToken(const UserAccessToken& userAccessToken) {
     }
 }
 
-void removeAccessToken(const std::string ionApiUrl) {
+void removeAccessToken(const std::string& ionApiUrl) {
     auto settings = carb::getCachedInterface<carb::settings::ISettings>();
 
     auto accessTokens = getAccessTokens();

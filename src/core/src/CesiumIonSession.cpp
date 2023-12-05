@@ -98,6 +98,11 @@ void CesiumIonSession::resume() {
         }
     }
 
+    if (userAccessToken.empty()) {
+        // No existing session to resume.
+        return;
+    }
+
     this->_isResuming = true;
 
     this->_connection = Connection(this->_asyncSystem, this->_pAssetAccessor, userAccessToken);

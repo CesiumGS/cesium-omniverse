@@ -39,7 +39,7 @@ class CesiumDataPrim "CesiumDataPrim" (
             string apiName = "projectDefaultIonAccessToken"
         }
         displayName = "Project default ion Access Token"
-        doc = "DEPRECATED: A string representing the token for accessing Cesium ion assets. Will be removed in a future version."
+        doc = "DEPRECATED: A string representing the token for accessing Cesium ion assets. Moved to CesiumIonServerPrim. Will be removed in a future version."
     )
 
     string cesium:projectDefaultIonAccessTokenId = "" (
@@ -47,7 +47,7 @@ class CesiumDataPrim "CesiumDataPrim" (
             string apiName = "projectDefaultIonAccessTokenId"
         }
         displayName = "Project default ion Access Token ID"
-        doc = "DEPRECATED: A string representing the token ID for accessing Cesium ion assets. Will be removed in a future version."
+        doc = "DEPRECATED: A string representing the token ID for accessing Cesium ion assets. Moved to CesiumIonServerPrim. Will be removed in a future version."
     )
 
     bool cesium:debug:disableMaterials = false (

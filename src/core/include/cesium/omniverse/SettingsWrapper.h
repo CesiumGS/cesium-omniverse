@@ -15,7 +15,7 @@ std::string getIonServerSettingPath(const size_t index);
 std::string getUserAccessTokenSettingPath(const size_t index);
 const std::vector<UserAccessToken> getAccessTokens();
 void setAccessToken(const UserAccessToken& userAccessToken);
-void removeAccessToken(const std::string ionApiUrl);
+void removeAccessToken(const std::string& ionApiUrl);
 void clearTokens();
 
 } // namespace cesium::omniverse::Settings
