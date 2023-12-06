@@ -49,6 +49,11 @@ class CesiumOmniverseQuickAddWidget(ui.Frame):
         add_blank_asset_event = carb.events.type_from_string("cesium.omniverse.ADD_BLANK_ASSET")
         app.get_app().get_message_bus_event_stream().push(add_blank_asset_event, payload=asset_to_add.to_dict())
 
+    @staticmethod
+    def _add_cartographic_polygon_button_clicked():
+        add_cartographic_polygon_event = carb.events.type_from_string("cesium.omniverse.ADD_CARTOGRAPHIC_POLYGON")
+        app.get_app().get_message_bus_event_stream().push(add_cartographic_polygon_event, payload={})
+
     def _photorealistic_tiles_button_clicked(self):
         self._add_ion_assets(AssetToAdd("Google Photorealistic 3D Tiles", 2275207))
 
@@ -85,6 +90,12 @@ class CesiumOmniverseQuickAddWidget(ui.Frame):
                         "Blank 3D Tiles Tileset",
                         style=CesiumOmniverseUiStyles.quick_add_button,
                         clicked_fn=self._add_blank_button_clicked,
+                        height=BUTTON_HEIGHT,
+                    )
+                    ui.Button(
+                        "Cesium Cartographic Polygon",
+                        style=CesiumOmniverseUiStyles.quick_add_button,
+                        clicked_fn=self._add_cartographic_polygon_button_clicked,
                         height=BUTTON_HEIGHT,
                     )
                 self._ion_quick_add_frame = ui.Frame(visible=False, height=0)
