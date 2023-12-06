@@ -12,6 +12,8 @@ class OmniImagery {
     [[nodiscard]] std::string getName() const;
     [[nodiscard]] int64_t getIonAssetId() const;
     [[nodiscard]] std::optional<CesiumIonClient::Token> getIonAccessToken() const;
+    [[nodiscard]] std::string getIonApiUrl() const;
+    [[nodiscard]] pxr::SdfPath getIonServerPath() const;
     [[nodiscard]] bool getShowCreditsOnScreen() const;
     [[nodiscard]] double getAlpha() const;
 

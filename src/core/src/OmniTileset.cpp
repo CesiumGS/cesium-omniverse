@@ -101,6 +101,21 @@ std::optional<CesiumIonClient::Token> OmniTileset::getIonAccessToken() const {
 }
 
 std::string OmniTileset::getIonApiUrl() const {
+    const auto ionServerPath = getIonServerPath();
+
+    if (ionServerPath.IsEmpty()) {
+        return {};
+    }
+
+    auto ionServerPrim = UsdUtil::getOrCreateIonServer(ionServerPath);
+
+    std::string ionApiUrl;
+    ionServerPrim.GetIonServerApiUrlAttr().Get(&ionApiUrl);
+
+    return ionApiUrl;
+}
+
+pxr::SdfPath OmniTileset::getIonServerPath() const {
     auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     pxr::SdfPathVector targets;
@@ -110,12 +125,7 @@ std::string OmniTileset::getIonApiUrl() const {
         return {};
     }
 
-    auto ionServerPrim = UsdUtil::getOrCreateIonServer(targets[0]);
-
-    std::string ionApiUrl;
-    ionServerPrim.GetIonServerApiUrlAttr().Get(&ionApiUrl);
-
-    return ionApiUrl;
+    return targets[0];
 }
 
 double OmniTileset::getMaximumScreenSpaceError() const {
@@ -453,7 +463,7 @@ void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
     const auto tilesetIonAssetId = getIonAssetId();
     const auto tilesetName = getName();
 
-    const auto ionApiUrl = getIonApiUrl();
+    const auto ionApiUrl = imagery.getIonApiUrl();
 
     Cesium3DTilesSelection::RasterOverlayOptions options;
     options.showCreditsOnScreen = imagery.getShowCreditsOnScreen();

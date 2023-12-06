@@ -48,6 +48,7 @@ ChangedPrimType getType(const pxr::SdfPath& path) {
             return ChangedPrimType::CESIUM_GLOBE_ANCHOR;
         }
 
+        // If we still haven't found the prim type, it could be a Cesium ion session, and we should check if it exists in the session registry
         if (SessionRegistry::getInstance().sessionExists(path)) {
             return ChangedPrimType::CESIUM_ION_SERVER;
         }

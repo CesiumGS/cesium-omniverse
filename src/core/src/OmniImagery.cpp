@@ -44,6 +44,34 @@ std::optional<CesiumIonClient::Token> OmniImagery::getIonAccessToken() const {
     return t;
 }
 
+std::string OmniImagery::getIonApiUrl() const {
+    const auto ionServerPath = getIonServerPath();
+
+    if (ionServerPath.IsEmpty()) {
+        return {};
+    }
+
+    auto ionServerPrim = UsdUtil::getOrCreateIonServer(ionServerPath);
+
+    std::string ionApiUrl;
+    ionServerPrim.GetIonServerApiUrlAttr().Get(&ionApiUrl);
+
+    return ionApiUrl;
+}
+
+pxr::SdfPath OmniImagery::getIonServerPath() const {
+    auto imagery = UsdUtil::getCesiumImagery(_path);
+
+    pxr::SdfPathVector targets;
+    imagery.GetIonServerBindingRel().GetForwardedTargets(&targets);
+
+    if (targets.size() < 1) {
+        return {};
+    }
+
+    return targets[0];
+}
+
 bool OmniImagery::getShowCreditsOnScreen() const {
     auto imagery = UsdUtil::getCesiumImagery(_path);
 

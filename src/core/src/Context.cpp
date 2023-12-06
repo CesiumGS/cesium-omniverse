@@ -171,6 +171,15 @@ void Context::reloadStage() {
     // Repopulate the asset registry. We need to do this manually because USD doesn't notify us about
     // resynced paths when the stage is loaded.
     const auto stage = UsdUtil::getUsdStage();
+
+    // Add sessions first since they can be referenced by tilesets and imagery layers
+    for (const auto& prim : stage->Traverse()) {
+        const auto& path = prim.GetPath();
+        if (UsdUtil::isCesiumIonServer(path)) {
+            SessionRegistry::getInstance().addSession(*_asyncSystem, _httpAssetAccessor, path);
+        }
+    }
+
     for (const auto& prim : stage->Traverse()) {
         const auto& path = prim.GetPath();
         if (UsdUtil::isCesiumTileset(path)) {
@@ -225,6 +234,8 @@ void Context::processPropertyChanged(const ChangedPrim& changedPrim) {
             return processCesiumGeoreferenceChanged(changedPrim);
         case ChangedPrimType::CESIUM_GLOBE_ANCHOR:
             return processCesiumGlobeAnchorChanged(changedPrim);
+        case ChangedPrimType::CESIUM_ION_SERVER:
+            return processCesiumIonServerChanged(changedPrim);
         case ChangedPrimType::USD_SHADER:
             return processUsdShaderChanged(changedPrim);
         default:
@@ -235,19 +246,7 @@ void Context::processPropertyChanged(const ChangedPrim& changedPrim) {
 void Context::processCesiumDataChanged(const ChangedPrim& changedPrim) {
     const auto& [path, name, primType, changeType] = changedPrim;
 
-    if (name == pxr::CesiumTokens->cesiumProjectDefaultIonAccessToken) {
-        // Reload tilesets that use the project default token
-        const auto& tilesets = AssetRegistry::getInstance().getAllTilesets();
-        for (const auto& tileset : tilesets) {
-            const auto tilesetToken = tileset->getIonAccessToken();
-            const auto defaultToken = Context::instance().getDefaultToken();
-            if (!tilesetToken.has_value() ||
-                (defaultToken.has_value() && tilesetToken.value().token == defaultToken.value().token)) {
-                tileset->reload();
-            }
-        }
-    } else if (
-        name == pxr::CesiumTokens->cesiumDebugDisableMaterials ||
+    if (name == pxr::CesiumTokens->cesiumDebugDisableMaterials ||
         name == pxr::CesiumTokens->cesiumDebugDisableTextures ||
         name == pxr::CesiumTokens->cesiumDebugDisableGeometryPool ||
         name == pxr::CesiumTokens->cesiumDebugDisableMaterialPool ||
@@ -289,6 +288,7 @@ void Context::processCesiumTilesetChanged(const ChangedPrim& changedPrim) {
         name == pxr::CesiumTokens->cesiumUrl ||
         name == pxr::CesiumTokens->cesiumIonAssetId ||
         name == pxr::CesiumTokens->cesiumIonAccessToken ||
+        name == pxr::CesiumTokens->cesiumIonServerBinding ||
         name == pxr::CesiumTokens->cesiumSmoothNormals ||
         name == pxr::CesiumTokens->cesiumShowCreditsOnScreen ||
         name == pxr::UsdTokens->material_binding) {
@@ -309,6 +309,7 @@ void Context::processCesiumImageryChanged(const ChangedPrim& changedPrim) {
     // clang-format off
     if (name == pxr::CesiumTokens->cesiumIonAssetId ||
         name == pxr::CesiumTokens->cesiumIonAccessToken ||
+        name == pxr::CesiumTokens->cesiumIonServerBinding ||
         name == pxr::CesiumTokens->cesiumShowCreditsOnScreen) {
         // Reload the tileset that the imagery is attached to
         tileset.value()->reload();
@@ -379,9 +380,30 @@ void Context::processCesiumGlobeAnchorChanged(const cesium::omniverse::ChangedPr
     }
 }
 
-[[maybe_unused]] void
-Context::processCesiumIonServerChanged([[maybe_unused]] const cesium::omniverse::ChangedPrim& changedPrim) {
-    // TODO: I have no idea what to do here.
+void Context::processCesiumIonServerChanged([[maybe_unused]] const cesium::omniverse::ChangedPrim& changedPrim) {
+    const auto& [path, name, primType, changeType] = changedPrim;
+
+    // Reload tilesets that use this ion server
+    const auto& tilesets = AssetRegistry::getInstance().getAllTilesets();
+    for (const auto& tileset : tilesets) {
+        const auto ionServerPath = tileset->getIonServerPath();
+        if (ionServerPath == path) {
+            tileset->reload();
+        }
+    }
+
+    // Reload tilesets whose imagery layers use this ion server
+    const auto& imageries = AssetRegistry::getInstance().getAllImageries();
+    for (const auto& imagery : imageries) {
+        const auto ionServerPath = imagery->getIonServerPath();
+        if (ionServerPath == path) {
+            const auto tilesetPath = path.GetParentPath();
+            const auto tileset = AssetRegistry::getInstance().getTilesetByPath(tilesetPath);
+            if (tileset.has_value()) {
+                tileset.value()->reload();
+            }
+        }
+    }
 }
 
 void Context::processUsdShaderChanged(const cesium::omniverse::ChangedPrim& changedPrim) {
