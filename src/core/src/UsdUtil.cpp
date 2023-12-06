@@ -367,10 +367,6 @@ pxr::CesiumData getOrCreateCesiumData() {
     return defineCesiumData(CesiumDataPath);
 }
 
-pxr::SdfPath getPathToOfficialIonServer() {
-    return pxr::SdfPath("/CesiumServers/IonOfficial");
-}
-
 pxr::SdfPath getPathToCurrentIonServer() {
     auto dataPrim = getOrCreateCesiumData();
 
@@ -392,11 +388,6 @@ pxr::CesiumIonServer getOrCreateIonServer(const pxr::SdfPath& path) {
     }
 
     return defineCesiumIonServer(path);
-}
-
-[[maybe_unused]] std::vector<pxr::CesiumIonServer> getAllIonServerPrims() {
-    // TODO
-    return {};
 }
 
 pxr::CesiumSession getOrCreateCesiumSession() {

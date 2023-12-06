@@ -107,10 +107,8 @@ pxr::CesiumImagery defineCesiumImagery(const pxr::SdfPath& path);
 pxr::CesiumGlobeAnchorAPI defineGlobeAnchor(const pxr::SdfPath& path);
 
 pxr::CesiumData getOrCreateCesiumData();
-pxr::SdfPath getPathToOfficialIonServer();
 pxr::SdfPath getPathToCurrentIonServer();
 pxr::CesiumIonServer getOrCreateIonServer(const pxr::SdfPath& path);
-[[maybe_unused]] std::vector<pxr::CesiumIonServer> getAllIonServerPrims();
 pxr::CesiumSession getOrCreateCesiumSession();
 pxr::CesiumGeoreference getOrCreateCesiumGeoreference();
 pxr::CesiumGeoreference getCesiumGeoreference(const pxr::SdfPath& path);
