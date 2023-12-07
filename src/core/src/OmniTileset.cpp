@@ -484,10 +484,8 @@ void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
         CESIUM_LOG_ERROR(error.message);
     };
 
-    // The name passed to IonRasterOverlay needs to uniquely identify this imagery otherwise texture caching may break
-    const auto uniqueName = fmt::format("imagery_ion_{}", imageryIonAssetId);
     const auto ionRasterOverlay = new Cesium3DTilesSelection::IonRasterOverlay(
-        uniqueName, imageryIonAssetId, imageryIonAccessToken.value().token, options, ionApiUrl);
+        imageryName, imageryIonAssetId, imageryIonAccessToken.value().token, options, ionApiUrl);
     _tileset->getOverlays().add(ionRasterOverlay);
     _imageryPaths.push_back(imageryPath);
 }
