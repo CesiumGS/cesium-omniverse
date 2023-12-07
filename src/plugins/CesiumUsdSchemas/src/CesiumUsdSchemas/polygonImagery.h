@@ -140,6 +140,20 @@ public:
     UsdRelationship CreateCartographicPolygonBindingRel() const;
 
 public:
+    // --------------------------------------------------------------------- //
+    // GLOBEANCHORBINDING 
+    // --------------------------------------------------------------------- //
+    /// TODO
+    ///
+    CESIUMUSDSCHEMAS_API
+    UsdRelationship GetGlobeAnchorBindingRel() const;
+
+    /// See GetGlobeAnchorBindingRel(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create
+    CESIUMUSDSCHEMAS_API
+    UsdRelationship CreateGlobeAnchorBindingRel() const;
+
+public:
     // ===================================================================== //
     // Feel free to add custom code below this line, it will be preserved by 
     // the code generator. 

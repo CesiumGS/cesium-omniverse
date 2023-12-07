@@ -73,6 +73,11 @@ void wrapCesiumPolygonImagery()
              &This::GetCartographicPolygonBindingRel)
         .def("CreateCartographicPolygonBindingRel",
              &This::CreateCartographicPolygonBindingRel)
+        
+        .def("GetGlobeAnchorBindingRel",
+             &This::GetGlobeAnchorBindingRel)
+        .def("CreateGlobeAnchorBindingRel",
+             &This::CreateGlobeAnchorBindingRel)
         .def("__repr__", ::_Repr)
     ;
 

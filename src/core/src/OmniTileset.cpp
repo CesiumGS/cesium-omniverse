@@ -19,8 +19,10 @@
 #include <Cesium3DTilesSelection/RasterOverlay.h>
 #include <Cesium3DTilesSelection/RasterizedPolygonsOverlay.h>
 #include <CesiumGeospatial/Cartographic.h>
+#include <CesiumGeospatial/CartographicPolygon.h>
 #include <CesiumGeospatial/Ellipsoid.h>
 #include <CesiumGeospatial/Projection.h>
+#include <glm/ext/vector_double3.hpp>
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
@@ -486,16 +488,12 @@ void OmniTileset::addImageryPolygon(const pxr::SdfPath& imageryPath) {
     auto cartographicPolygonsRel = polygonImagery.GetCartographicPolygonBindingRel();
     pxr::SdfPathVector cartographicPolygonTargets;
     cartographicPolygonsRel.GetTargets(&cartographicPolygonTargets);
-    std::vector<CesiumGeospatial::CartographicPolygon> polygons; // DEVEL
+    std::vector<CesiumGeospatial::CartographicPolygon> polygons;
     for (const auto& cartographicPolygonTarget : cartographicPolygonTargets) {
         auto cartographicPolygon = UsdUtil::getCesiumCartographicPolygon(cartographicPolygonTarget);
 
-        auto basisCurvesRel = cartographicPolygon.GetBasisCurvesBindingRel();
-        pxr::SdfPathVector basisCurvesTargets;
-        basisCurvesRel.GetTargets(&basisCurvesTargets);
-
         // currently only suporting one BasisCurves per CartographicPolygon
-        auto basisCurves = UsdUtil::getUsdBasisCurves(basisCurvesTargets[0]);
+        auto basisCurves = UsdUtil::getUsdBasisCurves(cartographicPolygonTarget);
         auto pointsAttr = basisCurves.GetPointsAttr();
         pxr::VtArray<pxr::GfVec3f> points;
         pointsAttr.Get(&points);
@@ -504,15 +502,36 @@ void OmniTileset::addImageryPolygon(const pxr::SdfPath& imageryPath) {
         for (size_t i = 0; i < points.size(); i += 3) {
             pointsOnCurve.emplace_back(points[i][0], points[i][1], points[i][2]);
         }
+        auto anchor = UsdUtil::getCesiumGlobeAnchor(cartographicPolygonTarget);
+        auto origin = UsdUtil::getCartographicOriginForAnchor(anchor.GetPath());
+        // try (0, 0, 0) origin
+        // origin = CesiumGeospatial::Ellipsoid::WGS84.cartesianToCartographic(glm::dvec3(0, 0, 0));
 
         std::vector<std::optional<CesiumGeospatial::Cartographic>> cartographicPositions;
-        // auto transform = computeUsdLocalToEcefTransformForPrim();
-        // auto xform = computeUsdLocalToEcefTransformForPrim()
+
+        // auto transform = UsdUtil::computeUsdLocalToEcefTransformForPrim(basisCurves.GetPrim(),
+
+        auto transform = UsdUtil::computeUsdLocalToEcefTransformForPrim(origin.value(), cartographicPolygonTarget);
+
+        int counter = 0; // DEBUG
+        std::vector<glm::dvec2> polygon;
         for (auto & curvePoint : pointsOnCurve) {
+            auto homogenous= glm::dvec4(curvePoint.x, curvePoint.y, curvePoint.z, 1.0);
+            auto cartesianHomogenous = transform * homogenous;
+            auto cartesian = glm::dvec3(cartesianHomogenous.x, cartesianHomogenous.y, cartesianHomogenous.z);
             std::optional<CesiumGeospatial::Cartographic> cartographicPosition =
-                CesiumGeospatial::Ellipsoid::WGS84.cartesianToCartographic(curvePoint);
+                CesiumGeospatial::Ellipsoid::WGS84.cartesianToCartographic(cartesian);
+
+            if (counter++ == 0) {
+                auto lat = cartographicPosition->latitude;
+                auto lon = cartographicPosition->longitude;
+                printf("lat: %lf, lon: %lf\n", lat, lon);
+            }
+
             cartographicPositions.push_back(cartographicPosition);
+            polygon.emplace_back(glm::dvec2(cartographicPosition->longitude, cartographicPosition->latitude));
         }
+        polygons.emplace_back(polygon);
     }
 
     auto invertSelection = false; // DEVEL: pull from UI

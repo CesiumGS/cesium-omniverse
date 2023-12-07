@@ -80,19 +80,6 @@ CesiumCartographicPolygon::_GetTfType() const
     return _GetStaticTfType();
 }
 
-UsdRelationship
-CesiumCartographicPolygon::GetBasisCurvesBindingRel() const
-{
-    return GetPrim().GetRelationship(CesiumTokens->cesiumBasisCurvesBinding);
-}
-
-UsdRelationship
-CesiumCartographicPolygon::CreateBasisCurvesBindingRel() const
-{
-    return GetPrim().CreateRelationship(CesiumTokens->cesiumBasisCurvesBinding,
-                       /* custom = */ false);
-}
-
 /*static*/
 const TfTokenVector&
 CesiumCartographicPolygon::GetSchemaAttributeNames(bool includeInherited)

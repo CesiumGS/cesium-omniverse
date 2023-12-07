@@ -8,7 +8,6 @@
 #include "pxr/usd/usdGeom/basisCurves.h"
 #include "pxr/usd/usd/prim.h"
 #include "pxr/usd/usd/stage.h"
-#include ".//tokens.h"
 
 #include "pxr/base/vt/value.h"
 
@@ -124,20 +123,6 @@ private:
     // override SchemaBase virtuals.
     CESIUMUSDSCHEMAS_API
     const TfType &_GetTfType() const override;
-
-public:
-    // --------------------------------------------------------------------- //
-    // BASISCURVESBINDING 
-    // --------------------------------------------------------------------- //
-    /// Specifies which BasisCurves are used used to create the polygons
-    ///
-    CESIUMUSDSCHEMAS_API
-    UsdRelationship GetBasisCurvesBindingRel() const;
-
-    /// See GetBasisCurvesBindingRel(), and also 
-    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create
-    CESIUMUSDSCHEMAS_API
-    UsdRelationship CreateBasisCurvesBindingRel() const;
 
 public:
     // ===================================================================== //

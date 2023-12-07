@@ -49,7 +49,6 @@ void wrapCesiumTokens()
     _AddToken(cls, "cesiumAnchorPosition", CesiumTokens->cesiumAnchorPosition);
     _AddToken(cls, "cesiumAnchorRotation", CesiumTokens->cesiumAnchorRotation);
     _AddToken(cls, "cesiumAnchorScale", CesiumTokens->cesiumAnchorScale);
-    _AddToken(cls, "cesiumBasisCurvesBinding", CesiumTokens->cesiumBasisCurvesBinding);
     _AddToken(cls, "cesiumCartographicPolygonBinding", CesiumTokens->cesiumCartographicPolygonBinding);
     _AddToken(cls, "cesiumCulledScreenSpaceError", CesiumTokens->cesiumCulledScreenSpaceError);
     _AddToken(cls, "cesiumDebugDisableGeometryPool", CesiumTokens->cesiumDebugDisableGeometryPool);
@@ -71,6 +70,7 @@ void wrapCesiumTokens()
     _AddToken(cls, "cesiumGeoreferenceOriginHeight", CesiumTokens->cesiumGeoreferenceOriginHeight);
     _AddToken(cls, "cesiumGeoreferenceOriginLatitude", CesiumTokens->cesiumGeoreferenceOriginLatitude);
     _AddToken(cls, "cesiumGeoreferenceOriginLongitude", CesiumTokens->cesiumGeoreferenceOriginLongitude);
+    _AddToken(cls, "cesiumGlobeAnchorBinding", CesiumTokens->cesiumGlobeAnchorBinding);
     _AddToken(cls, "cesiumIonAccessToken", CesiumTokens->cesiumIonAccessToken);
     _AddToken(cls, "cesiumIonAssetId", CesiumTokens->cesiumIonAssetId);
     _AddToken(cls, "cesiumIonServerBinding", CesiumTokens->cesiumIonServerBinding);

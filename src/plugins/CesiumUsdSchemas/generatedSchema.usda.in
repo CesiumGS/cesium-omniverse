@@ -355,6 +355,10 @@ class CesiumPolygonImageryPrim "CesiumPolygonImageryPrim" (
         displayName = "Cartographic Polygon Binding"
         doc = "Specifies which Cartraphic Polygons to use in the imagery layer"
     )
+    rel cesium:globeAnchorBinding (
+        displayName = "Globle Anchor Binding"
+        doc = "TODO"
+    )
     bool cesium:showCreditsOnScreen = 0 (
         displayName = "Show Credits On Screen"
         doc = "Whether or not to show this imagery layer's credits on screen."
@@ -379,10 +383,6 @@ class CesiumCartographicPolygonPrim "CesiumCartographicPolygonPrim" (
         interpolation.  \\note The 'hermite' and 'power' tokens have been
         removed. We've provided UsdGeomHermiteCurves
         as an alternative for the 'hermite' basis."""
-    )
-    rel cesium:basisCurvesBinding (
-        displayName = "BasisCurves Binding"
-        doc = "Specifies which BasisCurves are used used to create the polygons"
     )
     int[] curveVertexCounts (
         doc = """Curves-derived primitives can represent multiple distinct,

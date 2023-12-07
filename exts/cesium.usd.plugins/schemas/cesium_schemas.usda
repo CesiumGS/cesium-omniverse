@@ -460,13 +460,6 @@ class CesiumCartographicPolygonPrim "CesiumCartographicPolygonPrim" (
         string className = "CartographicPolygon"
     }
 ) {
-    rel cesium:basisCurvesBinding (
-        customData = {
-            string apiName = "basisCurvesBinding"
-        }
-        displayName = "BasisCurves Binding"
-        doc = "Specifies which BasisCurves are used used to create the polygons"
-    )
 }
 
 class "CesiumGlobeAnchorSchemaAPI" (

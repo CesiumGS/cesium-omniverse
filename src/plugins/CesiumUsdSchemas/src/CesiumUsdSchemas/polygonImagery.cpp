@@ -93,6 +93,19 @@ CesiumPolygonImagery::CreateCartographicPolygonBindingRel() const
                        /* custom = */ false);
 }
 
+UsdRelationship
+CesiumPolygonImagery::GetGlobeAnchorBindingRel() const
+{
+    return GetPrim().GetRelationship(CesiumTokens->cesiumGlobeAnchorBinding);
+}
+
+UsdRelationship
+CesiumPolygonImagery::CreateGlobeAnchorBindingRel() const
+{
+    return GetPrim().CreateRelationship(CesiumTokens->cesiumGlobeAnchorBinding,
+                       /* custom = */ false);
+}
+
 /*static*/
 const TfTokenVector&
 CesiumPolygonImagery::GetSchemaAttributeNames(bool includeInherited)

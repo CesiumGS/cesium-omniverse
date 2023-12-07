@@ -68,11 +68,6 @@ void wrapCesiumCartographicPolygon()
         .def(!self)
 
 
-        
-        .def("GetBasisCurvesBindingRel",
-             &This::GetBasisCurvesBindingRel)
-        .def("CreateBasisCurvesBindingRel",
-             &This::CreateBasisCurvesBindingRel)
         .def("__repr__", ::_Repr)
     ;
 
