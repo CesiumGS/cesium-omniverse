@@ -413,7 +413,7 @@ void* FabricPrepareRenderResources::prepareRasterInLoadThread(
 
 
     auto texture = FabricResourceManager::getInstance().acquireTexture();
-    texture->setImage(image, TransferFunction::SRGB);
+    texture->setImage(image, TransferFunction::SRGB, rendererOptions);
     return new ImageryLoadThreadResult{texture};
 }
 

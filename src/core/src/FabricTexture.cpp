@@ -122,9 +122,12 @@ void FabricTexture::setImage(
     } else {
         // As of Kit 105.1, omni::ui::kAutoCalculateStride doesn't work for compressed textures. This value somehow works.
         auto stride = 4ULL * static_cast<uint64_t>(image.width);
-        if (rendererOptions.has_value() && std::any_cast<OverlayType>(rendererOptions) == OverlayType::POLYGON) {
-            stride = static_cast<uint64_t>(image.width);
+        if (rendererOptions.has_value() && rendererOptions.type() == typeid(OverlayType)) {
+            if (std::any_cast<OverlayType>(rendererOptions) == OverlayType::POLYGON) {
+                stride = static_cast<uint64_t>(image.width);
+            }
         }
+
         const auto data = reinterpret_cast<const uint8_t*>(image.pixelData.data());
         const auto dimensions = carb::Uint2{static_cast<uint32_t>(image.width), static_cast<uint32_t>(image.height)};
 
