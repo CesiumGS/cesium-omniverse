@@ -100,6 +100,34 @@ std::optional<CesiumIonClient::Token> OmniTileset::getIonAccessToken() const {
     return t;
 }
 
+std::string OmniTileset::getIonApiUrl() const {
+    const auto ionServerPath = getIonServerPath();
+
+    if (ionServerPath.IsEmpty()) {
+        return {};
+    }
+
+    auto ionServerPrim = UsdUtil::getOrCreateIonServer(ionServerPath);
+
+    std::string ionApiUrl;
+    ionServerPrim.GetIonServerApiUrlAttr().Get(&ionApiUrl);
+
+    return ionApiUrl;
+}
+
+pxr::SdfPath OmniTileset::getIonServerPath() const {
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+
+    pxr::SdfPathVector targets;
+    tileset.GetIonServerBindingRel().GetForwardedTargets(&targets);
+
+    if (targets.size() < 1) {
+        return {};
+    }
+
+    return targets[0];
+}
+
 double OmniTileset::getMaximumScreenSpaceError() const {
     auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
@@ -346,6 +374,7 @@ void OmniTileset::reload() {
     const auto tilesetPath = getPath();
     const auto ionAssetId = getIonAssetId();
     const auto ionAccessToken = getIonAccessToken();
+    const auto ionApiUrl = getIonApiUrl();
     const auto name = getName();
 
     Cesium3DTilesSelection::TilesetOptions options;
@@ -404,12 +433,12 @@ void OmniTileset::reload() {
 
     if (getSourceType() == TilesetSourceType::URL) {
         _tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(externals, url, options);
-    } else if (!ionAccessToken.has_value()) {
-        // This happens when adding a blank tileset.
-        _tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(externals, 0, "", options);
+    } else if (!ionAccessToken.has_value() || ionApiUrl.empty()) {
+        // This happens when adding a blank tileset or a tileset that references a non-existent server
+        _tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(externals, 0, "", options, ionApiUrl);
     } else {
         _tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(
-            externals, ionAssetId, ionAccessToken.value().token, options);
+            externals, ionAssetId, ionAccessToken.value().token, options, ionApiUrl);
     }
 
     // Add imagery
@@ -434,6 +463,8 @@ void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
     const auto tilesetIonAssetId = getIonAssetId();
     const auto tilesetName = getName();
 
+    const auto ionApiUrl = imagery.getIonApiUrl();
+
     Cesium3DTilesSelection::RasterOverlayOptions options;
     options.showCreditsOnScreen = imagery.getShowCreditsOnScreen();
 
@@ -453,10 +484,8 @@ void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
         CESIUM_LOG_ERROR(error.message);
     };
 
-    // The name passed to IonRasterOverlay needs to uniquely identify this imagery otherwise texture caching may break
-    const auto uniqueName = fmt::format("imagery_ion_{}", imageryIonAssetId);
     const auto ionRasterOverlay = new Cesium3DTilesSelection::IonRasterOverlay(
-        uniqueName, imageryIonAssetId, imageryIonAccessToken.value().token, options);
+        imageryName, imageryIonAssetId, imageryIonAccessToken.value().token, options, ionApiUrl);
     _tileset->getOverlays().add(ionRasterOverlay);
     _imageryPaths.push_back(imageryPath);
 }

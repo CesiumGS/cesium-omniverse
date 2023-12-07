@@ -4,8 +4,6 @@
 #include <carb/settings/ISettings.h>
 #include <spdlog/fmt/bundled/format.h>
 
-#include <optional>
-
 namespace cesium::omniverse::Settings {
 
 namespace {
@@ -39,7 +37,7 @@ const std::vector<UserAccessToken> getAccessTokens() {
             const auto uatSetting = settings->getStringBuffer(tokenKey.c_str());
 
             UserAccessToken token;
-            token.ionUrl = ionUrlSetting;
+            token.ionApiUrl = ionUrlSetting;
             token.token = uatSetting;
 
             tokens.emplace_back(token);
@@ -49,17 +47,59 @@ const std::vector<UserAccessToken> getAccessTokens() {
     return tokens;
 }
 
-void setAccessTokens(const std::vector<UserAccessToken>& accessTokens) {
+void setAccessToken(const UserAccessToken& userAccessToken) {
     auto settings = carb::getCachedInterface<carb::settings::ISettings>();
+
+    const auto accessTokens = getAccessTokens();
+
+    std::vector<UserAccessToken> newAccessTokens;
+    newAccessTokens.reserve(accessTokens.size() + 1); // Worst case we'll be growing by 1, so preempt that.
+
+    for (const auto& accessToken : accessTokens) {
+        if (accessToken.ionApiUrl == userAccessToken.ionApiUrl) {
+            continue;
+        }
+
+        newAccessTokens.emplace_back(accessToken);
+    }
+
+    newAccessTokens.emplace_back(userAccessToken);
 
     clearTokens();
 
-    for (size_t i = 0; i < accessTokens.size(); ++i) {
+    for (size_t i = 0; i < newAccessTokens.size(); ++i) {
         const auto serverKey = getIonServerSettingPath(i);
         const auto tokenKey = getUserAccessTokenSettingPath(i);
 
-        settings->set(serverKey.c_str(), accessTokens[i].ionUrl.c_str());
-        settings->set(tokenKey.c_str(), accessTokens[i].token.c_str());
+        settings->set(serverKey.c_str(), newAccessTokens[i].ionApiUrl.c_str());
+        settings->set(tokenKey.c_str(), newAccessTokens[i].token.c_str());
+    }
+}
+
+void removeAccessToken(const std::string& ionApiUrl) {
+    auto settings = carb::getCachedInterface<carb::settings::ISettings>();
+
+    auto accessTokens = getAccessTokens();
+
+    std::vector<UserAccessToken> newAccessTokens;
+    newAccessTokens.reserve(accessTokens.size());
+
+    for (auto& accessToken : accessTokens) {
+        if (accessToken.ionApiUrl == ionApiUrl) {
+            continue;
+        }
+
+        newAccessTokens.emplace_back(accessToken);
+    }
+
+    clearTokens();
+
+    for (size_t i = 0; i < newAccessTokens.size(); ++i) {
+        const auto serverKey = getIonServerSettingPath(i);
+        const auto tokenKey = getUserAccessTokenSettingPath(i);
+
+        settings->set(serverKey.c_str(), newAccessTokens[i].ionApiUrl.c_str());
+        settings->set(tokenKey.c_str(), newAccessTokens[i].token.c_str());
     }
 }
 

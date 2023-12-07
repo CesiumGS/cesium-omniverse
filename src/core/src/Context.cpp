@@ -12,6 +12,7 @@
 #include "cesium/omniverse/OmniGlobeAnchor.h"
 #include "cesium/omniverse/OmniImagery.h"
 #include "cesium/omniverse/OmniTileset.h"
+#include "cesium/omniverse/SessionRegistry.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
@@ -24,13 +25,9 @@
 #include <Cesium3DTilesContent/registerAllTileContentTypes.h>
 #include <Cesium3DTilesSelection/CreditSystem.h>
 #include <Cesium3DTilesSelection/Tileset.h>
-#include <CesiumUsdSchemas/data.h>
-#include <CesiumUsdSchemas/imagery.h>
-#include <CesiumUsdSchemas/tileset.h>
 #include <CesiumUsdSchemas/tokens.h>
 #include <pxr/usd/sdf/path.h>
 #include <pxr/usd/usd/primRange.h>
-#include <pxr/usd/usdGeom/xform.h>
 #include <pxr/usd/usdUtils/stageCache.h>
 
 #if CESIUM_TRACING_ENABLED
@@ -82,6 +79,7 @@ void Context::initialize(int64_t contextId, const std::filesystem::path& cesiumE
     _cesiumMdlPathToken = pxr::TfToken(cesiumMdlPath.generic_string());
 
     _taskProcessor = std::make_shared<TaskProcessor>();
+    _asyncSystem = std::make_shared<CesiumAsync::AsyncSystem>(_taskProcessor);
     _httpAssetAccessor = std::make_shared<HttpAssetAccessor>(_certificatePath);
     _creditSystem = std::make_shared<Cesium3DTilesSelection::CreditSystem>();
 
@@ -94,10 +92,6 @@ void Context::initialize(int64_t contextId, const std::filesystem::path& cesiumE
             std::make_shared<LoggerSink>(omni::log::Level::eError),
             std::make_shared<LoggerSink>(omni::log::Level::eFatal),
         });
-
-    CesiumAsync::AsyncSystem asyncSystem{_taskProcessor};
-    _session = std::make_shared<CesiumIonSession>(asyncSystem, _httpAssetAccessor, "https://api.cesium.com/");
-    _session->resume();
 
     Cesium3DTilesContent::registerAllTileContentTypes();
 
@@ -136,7 +130,7 @@ void Context::setProjectDefaultToken(const CesiumIonClient::Token& token) {
         return;
     }
 
-    const auto currentIonServer = UsdUtil::getOrCreateCurrentIonServer();
+    const auto currentIonServer = UsdUtil::getOrCreateIonServer(UsdUtil::getPathToCurrentIonServer());
 
     currentIonServer.GetProjectDefaultIonAccessTokenAttr().Set<std::string>(token.token);
     currentIonServer.GetProjectDefaultIonAccessTokenIdAttr().Set<std::string>(token.id);
@@ -157,6 +151,7 @@ void Context::clearStage() {
     AssetRegistry::getInstance().clear();
     FabricResourceManager::getInstance().clear();
     GlobeAnchorRegistry::getInstance().clear();
+    SessionRegistry::getInstance().clear();
 }
 
 void Context::reloadStage() {
@@ -176,6 +171,15 @@ void Context::reloadStage() {
     // Repopulate the asset registry. We need to do this manually because USD doesn't notify us about
     // resynced paths when the stage is loaded.
     const auto stage = UsdUtil::getUsdStage();
+
+    // Add sessions first since they can be referenced by tilesets and imagery layers
+    for (const auto& prim : stage->Traverse()) {
+        const auto& path = prim.GetPath();
+        if (UsdUtil::isCesiumIonServer(path)) {
+            SessionRegistry::getInstance().addSession(*_asyncSystem, _httpAssetAccessor, path);
+        }
+    }
+
     for (const auto& prim : stage->Traverse()) {
         const auto& path = prim.GetPath();
         if (UsdUtil::isCesiumTileset(path)) {
@@ -230,6 +234,8 @@ void Context::processPropertyChanged(const ChangedPrim& changedPrim) {
             return processCesiumGeoreferenceChanged(changedPrim);
         case ChangedPrimType::CESIUM_GLOBE_ANCHOR:
             return processCesiumGlobeAnchorChanged(changedPrim);
+        case ChangedPrimType::CESIUM_ION_SERVER:
+            return processCesiumIonServerChanged(changedPrim);
         case ChangedPrimType::USD_SHADER:
             return processUsdShaderChanged(changedPrim);
         default:
@@ -240,19 +246,7 @@ void Context::processPropertyChanged(const ChangedPrim& changedPrim) {
 void Context::processCesiumDataChanged(const ChangedPrim& changedPrim) {
     const auto& [path, name, primType, changeType] = changedPrim;
 
-    if (name == pxr::CesiumTokens->cesiumProjectDefaultIonAccessToken) {
-        // Reload tilesets that use the project default token
-        const auto& tilesets = AssetRegistry::getInstance().getAllTilesets();
-        for (const auto& tileset : tilesets) {
-            const auto tilesetToken = tileset->getIonAccessToken();
-            const auto defaultToken = Context::instance().getDefaultToken();
-            if (!tilesetToken.has_value() ||
-                (defaultToken.has_value() && tilesetToken.value().token == defaultToken.value().token)) {
-                tileset->reload();
-            }
-        }
-    } else if (
-        name == pxr::CesiumTokens->cesiumDebugDisableMaterials ||
+    if (name == pxr::CesiumTokens->cesiumDebugDisableMaterials ||
         name == pxr::CesiumTokens->cesiumDebugDisableTextures ||
         name == pxr::CesiumTokens->cesiumDebugDisableGeometryPool ||
         name == pxr::CesiumTokens->cesiumDebugDisableMaterialPool ||
@@ -294,6 +288,7 @@ void Context::processCesiumTilesetChanged(const ChangedPrim& changedPrim) {
         name == pxr::CesiumTokens->cesiumUrl ||
         name == pxr::CesiumTokens->cesiumIonAssetId ||
         name == pxr::CesiumTokens->cesiumIonAccessToken ||
+        name == pxr::CesiumTokens->cesiumIonServerBinding ||
         name == pxr::CesiumTokens->cesiumSmoothNormals ||
         name == pxr::CesiumTokens->cesiumShowCreditsOnScreen ||
         name == pxr::UsdTokens->material_binding) {
@@ -314,6 +309,7 @@ void Context::processCesiumImageryChanged(const ChangedPrim& changedPrim) {
     // clang-format off
     if (name == pxr::CesiumTokens->cesiumIonAssetId ||
         name == pxr::CesiumTokens->cesiumIonAccessToken ||
+        name == pxr::CesiumTokens->cesiumIonServerBinding ||
         name == pxr::CesiumTokens->cesiumShowCreditsOnScreen) {
         // Reload the tileset that the imagery is attached to
         tileset.value()->reload();
@@ -382,6 +378,35 @@ void Context::processCesiumGlobeAnchorChanged(const cesium::omniverse::ChangedPr
 
         return;
     }
+}
+
+namespace {
+void reloadIonServerAssets(const pxr::SdfPath& ionServerPath) {
+    // Reload tilesets that reference this ion server
+    const auto& tilesets = AssetRegistry::getInstance().getAllTilesets();
+    for (const auto& tileset : tilesets) {
+        if (tileset->getIonServerPath() == ionServerPath) {
+            tileset->reload();
+        }
+    }
+
+    // Reload tilesets whose imagery layers reference this ion server
+    const auto& imageries = AssetRegistry::getInstance().getAllImageries();
+    for (const auto& imagery : imageries) {
+        if (imagery->getIonServerPath() == ionServerPath) {
+            const auto tilesetPath = imagery->getPath();
+            const auto tileset = AssetRegistry::getInstance().getTilesetByPath(tilesetPath);
+            if (tileset.has_value()) {
+                tileset.value()->reload();
+            }
+        }
+    }
+}
+} // namespace
+
+void Context::processCesiumIonServerChanged([[maybe_unused]] const cesium::omniverse::ChangedPrim& changedPrim) {
+    const auto& [path, name, primType, changeType] = changedPrim;
+    reloadIonServerAssets(path);
 }
 
 void Context::processUsdShaderChanged(const cesium::omniverse::ChangedPrim& changedPrim) {
@@ -458,6 +483,10 @@ void Context::processPrimRemoved(const ChangedPrim& changedPrim) {
                 CESIUM_LOG_ERROR("Failed to remove anchor from registry: {}", changedPrim.path.GetString());
             }
         } break;
+        case ChangedPrimType::CESIUM_ION_SERVER: {
+            SessionRegistry::getInstance().removeSession(changedPrim.path);
+            reloadIonServerAssets(changedPrim.path);
+        } break;
         case ChangedPrimType::CESIUM_GEOREFERENCE:
         case ChangedPrimType::CESIUM_DATA:
         case ChangedPrimType::USD_SHADER:
@@ -491,6 +520,9 @@ void Context::processPrimAdded(const ChangedPrim& changedPrim) {
             // Provided geo coordinates. Place at correct location.
             GeospatialUtil::updateAnchorByLatLongHeight(origin.value(), anchorApi);
         }
+    } else if (changedPrim.primType == ChangedPrimType::CESIUM_ION_SERVER) {
+        SessionRegistry::getInstance().addSession(*_asyncSystem, _httpAssetAccessor, changedPrim.path);
+        reloadIonServerAssets(changedPrim.path);
     }
 }
 
@@ -515,11 +547,19 @@ void Context::processUsdNotifications() {
 }
 
 void Context::onUpdateUi() {
-    if (_session == nullptr) {
+    // A lot of UI code will end up calling the session prior to us actually having a stage. The user won't see this
+    // but some major segfaults will occur without this check.
+    if (!UsdUtil::hasStage()) {
         return;
     }
 
-    _session->tick();
+    const auto session = SessionRegistry::getInstance().getSession(UsdUtil::getPathToCurrentIonServer());
+
+    if (session == nullptr) {
+        return;
+    }
+
+    session->tick();
 }
 
 pxr::UsdStageRefPtr Context::getStage() const {
@@ -600,23 +640,33 @@ void Context::setGeoreferenceOrigin(const CesiumGeospatial::Cartographic& origin
 }
 
 void Context::connectToIon() {
-    if (_session == nullptr) {
+    const auto session = SessionRegistry::getInstance().getSession(UsdUtil::getPathToCurrentIonServer());
+
+    if (session == nullptr) {
         return;
     }
 
-    _session->connect();
+    session->connect();
 }
 
 std::optional<std::shared_ptr<CesiumIonSession>> Context::getSession() {
-    if (_session == nullptr) {
+    // A lot of UI code will end up calling the session prior to us actually having a stage. The user won't see this
+    // but some major segfaults will occur without this check.
+    if (!UsdUtil::hasStage()) {
         return std::nullopt;
     }
 
-    return std::optional<std::shared_ptr<CesiumIonSession>>{_session};
+    const auto session = SessionRegistry::getInstance().getSession(UsdUtil::getPathToCurrentIonServer());
+
+    if (session == nullptr) {
+        return std::nullopt;
+    }
+
+    return std::optional<std::shared_ptr<CesiumIonSession>>{session};
 }
 
 std::optional<CesiumIonClient::Token> Context::getDefaultToken() const {
-    const auto currentIonServer = UsdUtil::getOrCreateCurrentIonServer();
+    const auto currentIonServer = UsdUtil::getOrCreateIonServer(UsdUtil::getPathToCurrentIonServer());
 
     std::string projectDefaultToken;
     std::string projectDefaultTokenId;
@@ -640,7 +690,8 @@ bool Context::isDefaultTokenSet() const {
 }
 
 void Context::createToken(const std::string& name) {
-    auto connection = _session->getConnection();
+    const auto session = SessionRegistry::getInstance().getSession(UsdUtil::getPathToCurrentIonServer());
+    auto connection = session->getConnection();
 
     if (!connection.has_value()) {
         _lastSetTokenResult = SetDefaultTokenResult{
@@ -669,7 +720,8 @@ void Context::createToken(const std::string& name) {
         });
 }
 void Context::selectToken(const CesiumIonClient::Token& token) {
-    auto connection = _session->getConnection();
+    const auto session = SessionRegistry::getInstance().getSession(UsdUtil::getPathToCurrentIonServer());
+    auto connection = session->getConnection();
 
     if (!connection.has_value()) {
         _lastSetTokenResult = SetDefaultTokenResult{
@@ -685,7 +737,8 @@ void Context::selectToken(const CesiumIonClient::Token& token) {
     Broadcast::setDefaultTokenComplete();
 }
 void Context::specifyToken(const std::string& token) {
-    _session->findToken(token).thenInMainThread(
+    const auto session = SessionRegistry::getInstance().getSession(UsdUtil::getPathToCurrentIonServer());
+    session->findToken(token).thenInMainThread(
         [this, token](CesiumIonClient::Response<CesiumIonClient::Token>&& response) {
             if (response.value) {
                 setProjectDefaultToken(response.value.value());

@@ -17,7 +17,8 @@ class CesiumIonSession {
     CesiumIonSession(
         CesiumAsync::AsyncSystem& asyncSystem,
         std::shared_ptr<CesiumAsync::IAssetAccessor> pAssetAccessor,
-        std::string ionApiUrl);
+        std::string ionApiUrl,
+        int64_t ionApplicationId);
 
     [[nodiscard]] const std::shared_ptr<CesiumAsync::IAssetAccessor>& getAssetAccessor() const {
         return this->_pAssetAccessor;
@@ -121,5 +122,6 @@ class CesiumIonSession {
 
     std::string _authorizeUrl;
     std::string _ionApiUrl;
+    int64_t _ionApplicationId;
 };
 } // namespace cesium::omniverse

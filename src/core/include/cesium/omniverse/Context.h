@@ -5,6 +5,7 @@
 #include "cesium/omniverse/TokenTroubleshooter.h"
 #include "cesium/omniverse/UsdNotificationHandler.h"
 
+#include <CesiumAsync/AsyncSystem.h>
 #include <CesiumGeospatial/Cartographic.h>
 #include <CesiumGeospatial/Ellipsoid.h>
 #include <CesiumGeospatial/GlobeAnchor.h>
@@ -127,6 +128,7 @@ class Context {
     void processCesiumImageryChanged(const ChangedPrim& changedPrim);
     void processCesiumGeoreferenceChanged(const ChangedPrim& changedPrim);
     void processCesiumGlobeAnchorChanged(const ChangedPrim& changedPrim);
+    void processCesiumIonServerChanged(const ChangedPrim& changedPrim);
     void processUsdShaderChanged(const ChangedPrim& changedPrim);
     void processPrimRemoved(const ChangedPrim& changedPrim);
     void processPrimAdded(const ChangedPrim& changedPrim);
@@ -143,11 +145,11 @@ class Context {
     bool getDebugRandomColors() const;
 
     std::shared_ptr<TaskProcessor> _taskProcessor;
+    std::shared_ptr<CesiumAsync::AsyncSystem> _asyncSystem;
     std::shared_ptr<HttpAssetAccessor> _httpAssetAccessor;
     std::shared_ptr<Cesium3DTilesSelection::CreditSystem> _creditSystem;
     std::shared_ptr<spdlog::logger> _logger;
 
-    std::shared_ptr<CesiumIonSession> _session;
     SetDefaultTokenResult _lastSetTokenResult;
 
     std::optional<AssetTroubleshootingDetails> _assetTroubleshootingDetails = std::nullopt;

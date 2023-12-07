@@ -5,6 +5,7 @@
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/OmniImagery.h"
 #include "cesium/omniverse/OmniTileset.h"
+#include "cesium/omniverse/SessionRegistry.h"
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <pxr/usd/usd/primRange.h>
@@ -24,6 +25,8 @@ ChangedPrimType getType(const pxr::SdfPath& path) {
             return ChangedPrimType::CESIUM_GEOREFERENCE;
         } else if (UsdUtil::hasCesiumGlobeAnchor(path)) {
             return ChangedPrimType::CESIUM_GLOBE_ANCHOR;
+        } else if (UsdUtil::isCesiumIonServer(path)) {
+            return ChangedPrimType::CESIUM_ION_SERVER;
         } else if (UsdUtil::isUsdShader(path)) {
             return ChangedPrimType::USD_SHADER;
         }
@@ -43,6 +46,11 @@ ChangedPrimType getType(const pxr::SdfPath& path) {
         // If we still haven't found the prim type, it could be a globe anchor, and we should check if it exists in the anchor registry
         if (GlobeAnchorRegistry::getInstance().anchorExists(path)) {
             return ChangedPrimType::CESIUM_GLOBE_ANCHOR;
+        }
+
+        // If we still haven't found the prim type, it could be a Cesium ion session, and we should check if it exists in the session registry
+        if (SessionRegistry::getInstance().sessionExists(path)) {
+            return ChangedPrimType::CESIUM_ION_SERVER;
         }
     }
 
@@ -175,6 +183,17 @@ void UsdNotificationHandler::onPrimRemoved(const pxr::SdfPath& primPath) {
         const auto& path = pxr::SdfPath(anchorPath);
         const auto& type = getType(path);
         if (type == ChangedPrimType::CESIUM_GLOBE_ANCHOR) {
+            if (inSubtree(primPath, path)) {
+                _changedPrims.emplace_back(ChangedPrim{path, pxr::TfToken(), type, ChangeType::PRIM_REMOVED});
+                CESIUM_LOG_INFO("Removed prim: {}", path.GetText());
+            }
+        }
+    }
+
+    const auto& sessions = SessionRegistry::getInstance().getAllSessionPaths();
+    for (const auto& path : sessions) {
+        const auto& type = getType(path);
+        if (type == ChangedPrimType::CESIUM_ION_SERVER) {
             if (inSubtree(primPath, path)) {
                 _changedPrims.emplace_back(ChangedPrim{path, pxr::TfToken(), type, ChangeType::PRIM_REMOVED});
                 CESIUM_LOG_INFO("Removed prim: {}", path.GetText());
