@@ -23,6 +23,7 @@ struct Model;
 
 namespace cesium::omniverse {
 enum TilesetSourceType { ION = 0, URL = 1 };
+enum class OverlayType { IMAGERY = 0, POLYGON = 1 };
 
 class FabricPrepareRenderResources;
 struct Viewport;

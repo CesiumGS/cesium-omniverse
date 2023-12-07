@@ -3,6 +3,7 @@
 #include <pxr/base/tf/token.h>
 #include <pxr/usd/sdf/assetPath.h>
 
+#include <any>
 #include <memory>
 #include <string>
 
@@ -26,7 +27,10 @@ class FabricTexture {
     FabricTexture(const std::string& name);
     ~FabricTexture();
 
-    void setImage(const CesiumGltf::ImageCesium& image, TransferFunction transferFunction);
+    void setImage(
+      const CesiumGltf::ImageCesium& image,
+      TransferFunction transferFunction,
+      [[maybe_unused]] const std::any& rendererOptions = nullptr);
 
     void setActive(bool active);
 

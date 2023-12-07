@@ -453,6 +453,7 @@ void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
     const auto tilesetName = getName();
 
     Cesium3DTilesSelection::RasterOverlayOptions options;
+    options.rendererOptions = OverlayType::IMAGERY;
     options.showCreditsOnScreen = imagery.getShowCreditsOnScreen();
 
     options.loadErrorCallback = [tilesetPath, tilesetIonAssetId, tilesetName, imageryIonAssetId, imageryName](
@@ -538,6 +539,8 @@ void OmniTileset::addImageryPolygon(const pxr::SdfPath& imageryPath) {
     auto ellipsoid = CesiumGeospatial::Ellipsoid::WGS84;
     auto projection = CesiumGeospatial::GeographicProjection(ellipsoid);
     Cesium3DTilesSelection::RasterOverlayOptions rasterOverlayOptions; // DEVEL: pull from UI
+    rasterOverlayOptions.rendererOptions = OverlayType::POLYGON;
+
     Cesium3DTilesSelection::RasterOverlayOptions options;
     options.showCreditsOnScreen = imagery.getShowCreditsOnScreen();
 
