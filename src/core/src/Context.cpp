@@ -380,30 +380,33 @@ void Context::processCesiumGlobeAnchorChanged(const cesium::omniverse::ChangedPr
     }
 }
 
-void Context::processCesiumIonServerChanged([[maybe_unused]] const cesium::omniverse::ChangedPrim& changedPrim) {
-    const auto& [path, name, primType, changeType] = changedPrim;
-
-    // Reload tilesets that use this ion server
+namespace {
+void reloadIonServerAssets(const pxr::SdfPath& ionServerPath) {
+    // Reload tilesets that reference this ion server
     const auto& tilesets = AssetRegistry::getInstance().getAllTilesets();
     for (const auto& tileset : tilesets) {
-        const auto ionServerPath = tileset->getIonServerPath();
-        if (ionServerPath == path) {
+        if (tileset->getIonServerPath() == ionServerPath) {
             tileset->reload();
         }
     }
 
-    // Reload tilesets whose imagery layers use this ion server
+    // Reload tilesets whose imagery layers reference this ion server
     const auto& imageries = AssetRegistry::getInstance().getAllImageries();
     for (const auto& imagery : imageries) {
-        const auto ionServerPath = imagery->getIonServerPath();
-        if (ionServerPath == path) {
-            const auto tilesetPath = path.GetParentPath();
+        if (imagery->getIonServerPath() == ionServerPath) {
+            const auto tilesetPath = imagery->getPath();
             const auto tileset = AssetRegistry::getInstance().getTilesetByPath(tilesetPath);
             if (tileset.has_value()) {
                 tileset.value()->reload();
             }
         }
     }
+}
+} // namespace
+
+void Context::processCesiumIonServerChanged([[maybe_unused]] const cesium::omniverse::ChangedPrim& changedPrim) {
+    const auto& [path, name, primType, changeType] = changedPrim;
+    reloadIonServerAssets(path);
 }
 
 void Context::processUsdShaderChanged(const cesium::omniverse::ChangedPrim& changedPrim) {
@@ -482,6 +485,7 @@ void Context::processPrimRemoved(const ChangedPrim& changedPrim) {
         } break;
         case ChangedPrimType::CESIUM_ION_SERVER: {
             SessionRegistry::getInstance().removeSession(changedPrim.path);
+            reloadIonServerAssets(changedPrim.path);
         } break;
         case ChangedPrimType::CESIUM_GEOREFERENCE:
         case ChangedPrimType::CESIUM_DATA:
@@ -518,6 +522,7 @@ void Context::processPrimAdded(const ChangedPrim& changedPrim) {
         }
     } else if (changedPrim.primType == ChangedPrimType::CESIUM_ION_SERVER) {
         SessionRegistry::getInstance().addSession(*_asyncSystem, _httpAssetAccessor, changedPrim.path);
+        reloadIonServerAssets(changedPrim.path);
     }
 }
 

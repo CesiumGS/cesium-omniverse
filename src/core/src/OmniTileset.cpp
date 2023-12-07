@@ -433,8 +433,8 @@ void OmniTileset::reload() {
 
     if (getSourceType() == TilesetSourceType::URL) {
         _tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(externals, url, options);
-    } else if (!ionAccessToken.has_value()) {
-        // This happens when adding a blank tileset.
+    } else if (!ionAccessToken.has_value() || ionApiUrl.empty()) {
+        // This happens when adding a blank tileset or a tileset that references a non-existent server
         _tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(externals, 0, "", options, ionApiUrl);
     } else {
         _tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(
