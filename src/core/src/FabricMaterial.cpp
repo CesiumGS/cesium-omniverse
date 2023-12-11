@@ -1,6 +1,7 @@
 #include "cesium/omniverse/FabricMaterial.h"
 
 #include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/CppUtil.h"
 #include "cesium/omniverse/DataType.h"
 #include "cesium/omniverse/FabricAttributesBuilder.h"
 #include "cesium/omniverse/FabricMaterialDefinition.h"
@@ -113,14 +114,6 @@ void destroyConnection(
     const omni::fabric::Path& inputPath,
     const omni::fabric::Token& inputName) {
     srw.destroyConnection(inputPath, inputName);
-}
-
-template <typename T> const T& defaultValue(const T* value, const T& defaultValue) {
-    return value == nullptr ? defaultValue : *value;
-}
-
-template <typename T, typename U> T defaultValue(const std::optional<U>& optional, const T& defaultValue) {
-    return optional.has_value() ? static_cast<T>(optional.value()) : defaultValue;
 }
 
 template <DataType T>
@@ -1366,7 +1359,7 @@ void FabricMaterial::setMaterial(
         const auto featureId = featuresInfo.featureIds[featureIdSetIndex];
         assert(std::holds_alternative<std::monostate>(featureId.featureIdStorage));
         const auto& featureIdPath = _featureIdPaths[featureIdSetIndex];
-        const auto nullFeatureId = defaultValue(featureId.nullFeatureId, DEFAULT_NULL_FEATURE_ID);
+        const auto nullFeatureId = CppUtil::defaultValue(featureId.nullFeatureId, DEFAULT_NULL_FEATURE_ID);
 
         setFeatureIdIndexValues(featureIdPath, nullFeatureId);
     }
@@ -1378,7 +1371,7 @@ void FabricMaterial::setMaterial(
         const auto attributeSetIndex = std::get<uint64_t>(featureId.featureIdStorage);
         const auto attributeName = fmt::format("_FEATURE_ID_{}", attributeSetIndex);
         const auto& featureIdPath = _featureIdPaths[featureIdSetIndex];
-        const auto nullFeatureId = defaultValue(featureId.nullFeatureId, DEFAULT_NULL_FEATURE_ID);
+        const auto nullFeatureId = CppUtil::defaultValue(featureId.nullFeatureId, DEFAULT_NULL_FEATURE_ID);
 
         setFeatureIdAttributeValues(featureIdPath, attributeName, nullFeatureId);
     }
@@ -1391,7 +1384,7 @@ void FabricMaterial::setMaterial(
         const auto& textureAssetPath = featureIdTextures[i]->getAssetPathToken();
         const auto texcoordIndex = texcoordIndexMapping.at(textureInfo.setIndex);
         const auto& featureIdPath = _featureIdPaths[featureIdSetIndex];
-        const auto nullFeatureId = defaultValue(featureId.nullFeatureId, DEFAULT_NULL_FEATURE_ID);
+        const auto nullFeatureId = CppUtil::defaultValue(featureId.nullFeatureId, DEFAULT_NULL_FEATURE_ID);
 
         setFeatureIdTextureValues(featureIdPath, textureAssetPath, textureInfo, texcoordIndex, nullFeatureId);
     }
@@ -1518,7 +1511,7 @@ void FabricMaterial::createConnectionsToCopiedPaths() {
 
     for (const auto& copiedPath : _copiedImageryLayerPaths) {
         const auto indexFabric = srw.getAttributeRd<int>(copiedPath, FabricTokens::inputs_imagery_layer_index);
-        const auto index = static_cast<uint64_t>(defaultValue(indexFabric, 0));
+        const auto index = static_cast<uint64_t>(CppUtil::defaultValue(indexFabric, 0));
 
         if (index < imageryLayerCount) {
             createConnection(srw, _imageryLayerPaths[index], copiedPath, FabricTokens::inputs_imagery_layer);
@@ -1527,7 +1520,7 @@ void FabricMaterial::createConnectionsToCopiedPaths() {
 
     for (const auto& copiedPath : _copiedFeatureIdPaths) {
         const auto indexFabric = srw.getAttributeRd<int>(copiedPath, FabricTokens::inputs_feature_id_set_index);
-        const auto index = static_cast<uint64_t>(defaultValue(indexFabric, 0));
+        const auto index = static_cast<uint64_t>(CppUtil::defaultValue(indexFabric, 0));
 
         if (index < featureIdCount) {
             createConnection(srw, _featureIdPaths[index], copiedPath, FabricTokens::inputs_feature_id);

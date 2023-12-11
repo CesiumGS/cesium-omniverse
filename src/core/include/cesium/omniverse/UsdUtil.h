@@ -58,8 +58,6 @@ class ScopedEdit {
     pxr::UsdEditTarget _originalEditTarget;
 };
 
-static const auto GEOREFERENCE_PATH = pxr::SdfPath("/CesiumGeoreference");
-
 pxr::UsdStageRefPtr getUsdStage();
 long getUsdStageId();
 omni::fabric::StageReaderWriter getFabricStageReaderWriter();
@@ -111,9 +109,13 @@ pxr::SdfPath getPathToCurrentIonServer();
 pxr::CesiumIonServer getOrCreateIonServer(const pxr::SdfPath& path);
 pxr::CesiumSession getOrCreateCesiumSession();
 pxr::CesiumGeoreference getOrCreateCesiumGeoreference();
-pxr::CesiumGeoreference getCesiumGeoreference(const pxr::SdfPath& path);
+
+pxr::CesiumData getCesiumData(const pxr::SdfPath& path);
 pxr::CesiumTileset getCesiumTileset(const pxr::SdfPath& path);
 pxr::CesiumImagery getCesiumImagery(const pxr::SdfPath& path);
+pxr::CesiumGeoreference getCesiumGeoreference(const pxr::SdfPath& path);
+pxr::CesiumIonServer getCesiumIonServer(const pxr::SdfPath& path);
+
 std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& path);
 pxr::CesiumGlobeAnchorAPI getCesiumGlobeAnchor(const pxr::SdfPath& path);
 pxr::UsdShadeShader getUsdShader(const pxr::SdfPath& path);

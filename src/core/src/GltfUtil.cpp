@@ -1,5 +1,6 @@
 #include "cesium/omniverse/GltfUtil.h"
 
+#include "cesium/omniverse/CppUtil.h"
 #include "cesium/omniverse/DataType.h"
 #include "cesium/omniverse/LoggerSink.h"
 
@@ -34,10 +35,6 @@ const CesiumGltf::MaterialPBRMetallicRoughness defaultPbrMetallicRoughness;
 const CesiumGltf::Sampler defaultSampler;
 const CesiumGltf::ExtensionKhrTextureTransform defaultTextureTransform;
 const CesiumGltf::TextureInfo defaultTextureInfo;
-
-template <typename T, typename U> std::optional<T> castOptional(const std::optional<U>& optional) {
-    return optional.has_value() ? std::make_optional(static_cast<T>(optional.value())) : std::nullopt;
-}
 
 template <typename IndexType>
 IndicesAccessor getIndicesAccessor(
@@ -704,7 +701,7 @@ FeaturesInfo getFeaturesInfo(const CesiumGltf::Model& model, const CesiumGltf::M
     featuresInfo.featureIds.reserve(featureIds.size());
 
     for (const auto& featureId : featureIds) {
-        const auto nullFeatureId = castOptional<uint64_t>(featureId.nullFeatureId);
+        const auto nullFeatureId = CppUtil::castOptional<uint64_t>(featureId.nullFeatureId);
         const auto featureCount = static_cast<uint64_t>(featureId.featureCount);
 
         auto featureIdStorage = std::variant<std::monostate, uint64_t, TextureInfo>();

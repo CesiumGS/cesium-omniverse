@@ -48,7 +48,7 @@ class Context {
     static void onShutdown();
     static Context& instance();
 
-    Context() = default;
+    Context();
     ~Context() = default;
     Context(const Context&) = delete;
     Context(Context&&) = delete;
@@ -59,6 +59,7 @@ class Context {
     void destroy();
 
     std::shared_ptr<TaskProcessor> getTaskProcessor();
+    std::shared_ptr<CesiumAsync::AsyncSystem> getAsyncSystem();
     std::shared_ptr<HttpAssetAccessor> getHttpAssetAccessor();
     std::shared_ptr<Cesium3DTilesSelection::CreditSystem> getCreditSystem();
     std::shared_ptr<spdlog::logger> getLogger();
@@ -80,7 +81,7 @@ class Context {
     int64_t getContextId() const;
     int64_t getNextTilesetId() const;
 
-    const CesiumGeospatial::Cartographic getGeoreferenceOrigin() const;
+    CesiumGeospatial::Cartographic getGeoreferenceOrigin() const;
     void setGeoreferenceOrigin(const CesiumGeospatial::Cartographic& origin);
 
     void connectToIon();
@@ -122,27 +123,7 @@ class Context {
     void addGlobeAnchorToPrim(const pxr::SdfPath& path, double latitude, double longitude, double height);
 
   private:
-    void processPropertyChanged(const ChangedPrim& changedPrim);
-    void processCesiumDataChanged(const ChangedPrim& changedPrim);
-    void processCesiumTilesetChanged(const ChangedPrim& changedPrim);
-    void processCesiumImageryChanged(const ChangedPrim& changedPrim);
-    void processCesiumGeoreferenceChanged(const ChangedPrim& changedPrim);
-    void processCesiumGlobeAnchorChanged(const ChangedPrim& changedPrim);
-    void processCesiumIonServerChanged(const ChangedPrim& changedPrim);
-    void processUsdShaderChanged(const ChangedPrim& changedPrim);
-    void processPrimRemoved(const ChangedPrim& changedPrim);
-    void processPrimAdded(const ChangedPrim& changedPrim);
     void processUsdNotifications();
-
-    bool getDebugDisableMaterials() const;
-    bool getDebugDisableTextures() const;
-    bool getDebugDisableGeometryPool() const;
-    bool getDebugDisableMaterialPool() const;
-    bool getDebugDisableTexturePool() const;
-    uint64_t getDebugGeometryPoolInitialCapacity() const;
-    uint64_t getDebugMaterialPoolInitialCapacity() const;
-    uint64_t getDebugTexturePoolInitialCapacity() const;
-    bool getDebugRandomColors() const;
 
     std::shared_ptr<TaskProcessor> _taskProcessor;
     std::shared_ptr<CesiumAsync::AsyncSystem> _asyncSystem;

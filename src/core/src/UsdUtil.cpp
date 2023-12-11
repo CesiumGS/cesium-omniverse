@@ -2,6 +2,8 @@
 
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/GeospatialUtil.h"
+#include "cesium/omniverse/OmniData.h"
+#include "cesium/omniverse/OmniGeoreference.h"
 #include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/Viewport.h"
 
@@ -368,16 +370,9 @@ pxr::CesiumData getOrCreateCesiumData() {
 }
 
 pxr::SdfPath getPathToCurrentIonServer() {
-    auto dataPrim = getOrCreateCesiumData();
-
-    pxr::SdfPathVector targets;
-    dataPrim.GetSelectedIonServerRel().GetForwardedTargets(&targets);
-
-    if (targets.empty()) {
-        return {};
-    }
-
-    return targets[0];
+    const auto dataPath = getOrCreateCesiumData().GetPath();
+    const auto dataPrim = OmniData(dataPath);
+    return dataPrim.getSelectedIonServer();
 }
 
 pxr::CesiumIonServer getOrCreateIonServer(const pxr::SdfPath& path) {
@@ -413,11 +408,19 @@ pxr::CesiumSession getOrCreateCesiumSession() {
 }
 
 pxr::CesiumGeoreference getOrCreateCesiumGeoreference() {
-    if (isCesiumGeoreference(GEOREFERENCE_PATH)) {
-        return pxr::CesiumGeoreference::Get(getUsdStage(), GEOREFERENCE_PATH);
+    static const auto CesiumGeoreferencePath = pxr::SdfPath("/CesiumGeoreference");
+
+    if (isCesiumGeoreference(CesiumGeoreferencePath)) {
+        return pxr::CesiumGeoreference::Get(getUsdStage(), CesiumGeoreferencePath);
     }
 
-    return defineCesiumGeoreference(GEOREFERENCE_PATH);
+    return defineCesiumGeoreference(CesiumGeoreferencePath);
+}
+
+pxr::CesiumData getCesiumData(const pxr::SdfPath& path) {
+    auto data = pxr::CesiumData::Get(getUsdStage(), path);
+    assert(data.GetPrim().IsValid());
+    return data;
 }
 
 pxr::CesiumGeoreference getCesiumGeoreference(const pxr::SdfPath& path) {
@@ -649,8 +652,8 @@ std::optional<CesiumGeospatial::Cartographic> getCartographicOriginForAnchor(con
         return std::nullopt;
     }
 
-    auto georeferenceOrigin = UsdUtil::getCesiumGeoreference(anchorGeoreferencePath.value());
-    return GeospatialUtil::convertGeoreferenceToCartographic(georeferenceOrigin);
+    auto georeference = OmniGeoreference(anchorGeoreferencePath.value());
+    return georeference.getCartographic();
 }
 
 } // namespace cesium::omniverse::UsdUtil

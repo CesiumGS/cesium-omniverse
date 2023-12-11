@@ -1,6 +1,7 @@
 #include "cesium/omniverse/OmniImagery.h"
 
 #include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/OmniIonServer.h"
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <CesiumUsdSchemas/imagery.h>
@@ -51,12 +52,9 @@ std::string OmniImagery::getIonApiUrl() const {
         return {};
     }
 
-    auto ionServerPrim = UsdUtil::getOrCreateIonServer(ionServerPath);
+    auto ionServer = OmniIonServer(ionServerPath);
 
-    std::string ionApiUrl;
-    ionServerPrim.GetIonServerApiUrlAttr().Get(&ionApiUrl);
-
-    return ionApiUrl;
+    return ionServer.getIonServerApiUrl();
 }
 
 pxr::SdfPath OmniImagery::getIonServerPath() const {

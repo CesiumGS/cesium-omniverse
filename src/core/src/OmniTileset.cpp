@@ -10,6 +10,7 @@
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/OmniImagery.h"
+#include "cesium/omniverse/OmniIonServer.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/UsdUtil.h"
 #include "cesium/omniverse/Viewport.h"
@@ -107,12 +108,9 @@ std::string OmniTileset::getIonApiUrl() const {
         return {};
     }
 
-    auto ionServerPrim = UsdUtil::getOrCreateIonServer(ionServerPath);
+    auto ionServer = OmniIonServer(ionServerPath);
 
-    std::string ionApiUrl;
-    ionServerPrim.GetIonServerApiUrlAttr().Get(&ionApiUrl);
-
-    return ionApiUrl;
+    return ionServer.getIonServerApiUrl();
 }
 
 pxr::SdfPath OmniTileset::getIonServerPath() const {
@@ -339,7 +337,7 @@ TilesetStatistics OmniTileset::getStatistics() const {
     return statistics;
 }
 
-void OmniTileset::updateTilesetOptionsFromProperties() {
+void OmniTileset::updateTilesetOptions() {
     auto& options = _tileset->getOptions();
     options.maximumScreenSpaceError = getMaximumScreenSpaceError();
     options.preloadAncestors = getPreloadAncestors();

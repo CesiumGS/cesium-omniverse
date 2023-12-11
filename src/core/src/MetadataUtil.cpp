@@ -1,14 +1,9 @@
 #include "cesium/omniverse/MetadataUtil.h"
 
+#include "cesium/omniverse/CppUtil.h"
 #include "cesium/omniverse/DataType.h"
 
 namespace cesium::omniverse::MetadataUtil {
-
-namespace {
-template <typename T> uint64_t indexOf(const std::vector<T>& vector, const T& value) {
-    return static_cast<uint64_t>(std::distance(vector.begin(), std::find(vector.begin(), vector.end(), value)));
-}
-} // namespace
 
 std::vector<MetadataUtil::PropertyDefinition>
 getStyleableProperties(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
@@ -85,7 +80,7 @@ getPropertyTextureImages(const CesiumGltf::Model& model, const CesiumGltf::MeshP
             const auto pImage = propertyTexturePropertyView.getImage();
             assert(pImage);
 
-            const auto imageIndex = indexOf(images, pImage);
+            const auto imageIndex = CppUtil::indexOf(images, pImage);
 
             if (imageIndex == images.size()) {
                 images.push_back(pImage);
@@ -110,7 +105,7 @@ getPropertyTextureIndexMapping(const CesiumGltf::Model& model, const CesiumGltf:
             const auto pImage = propertyTexturePropertyView.getImage();
             assert(pImage);
 
-            const auto imageIndex = indexOf(images, pImage);
+            const auto imageIndex = CppUtil::indexOf(images, pImage);
 
             if (imageIndex == images.size()) {
                 images.push_back(pImage);

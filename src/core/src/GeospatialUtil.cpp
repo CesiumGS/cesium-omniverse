@@ -10,17 +10,6 @@
 
 namespace cesium::omniverse::GeospatialUtil {
 
-CesiumGeospatial::Cartographic convertGeoreferenceToCartographic(const pxr::CesiumGeoreference& georeference) {
-    double longitude;
-    double latitude;
-    double height;
-    georeference.GetGeoreferenceOriginLongitudeAttr().Get<double>(&longitude);
-    georeference.GetGeoreferenceOriginLatitudeAttr().Get<double>(&latitude);
-    georeference.GetGeoreferenceOriginHeightAttr().Get<double>(&height);
-
-    return {glm::radians(longitude), glm::radians(latitude), height};
-}
-
 CesiumGeospatial::LocalHorizontalCoordinateSystem getCoordinateSystem(const CesiumGeospatial::Cartographic& origin) {
     const auto upAxis = UsdUtil::getUsdUpAxis();
     const auto scaleInMeters = UsdUtil::getUsdMetersPerUnit();

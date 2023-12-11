@@ -1,5 +1,7 @@
 #pragma once
 
+#include "cesium/omniverse/CppUtil.h"
+
 #include <CesiumGltf/PropertyTypeTraits.h>
 #include <carb/RenderingTypes.h>
 #include <glm/glm.hpp>
@@ -1543,28 +1545,19 @@ template <> struct GetMdlInternalPropertyTransformedTypeImplImpl<MdlInternalProp
 template <MdlInternalPropertyType T> using GetMdlInternalPropertyTransformedType = typename GetMdlInternalPropertyTransformedTypeImplImpl<T>::Type;
 // clang-format on
 
-template <typename T, typename L, std::size_t... I> const auto& dispatchImpl(std::index_sequence<I...>, L lambda) {
-    static decltype(lambda(std::integral_constant<T, T(0)>{})) array[] = {lambda(std::integral_constant<T, T(I)>{})...};
-    return array;
-}
-template <uint64_t T_COUNT, typename T, typename L, typename... P> auto dispatch(L lambda, T n, P&&... p) {
-    const auto& array = dispatchImpl<T>(std::make_index_sequence<T_COUNT>{}, lambda);
-    return array[static_cast<size_t>(n)](std::forward<P>(p)...);
-}
-
 // This allows us to call an enum templated function based on a runtime enum value
 #define CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_DATA_TYPE(FUNCTION_NAME, TYPE, ...) \
-    dispatch<DataTypeCount>([](auto i) { return FUNCTION_NAME<i.value>; }, TYPE, __VA_ARGS__)
+    CppUtil::dispatch<DataTypeCount>([](auto i) { return FUNCTION_NAME<i.value>; }, TYPE, __VA_ARGS__)
 
 // In C++ 20 we don't need this second define
 #define CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_DATA_TYPE_NO_ARGS(FUNCTION_NAME, TYPE) \
-    dispatch<DataTypeCount>([](auto i) { return FUNCTION_NAME<i.value>; }, TYPE)
+    CppUtil::dispatch<DataTypeCount>([](auto i) { return FUNCTION_NAME<i.value>; }, TYPE)
 
 #define CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_MDL_TYPE(FUNCTION_NAME, TYPE, ...) \
-    dispatch<MdlInternalPropertyTypeCount>([](auto i) { return FUNCTION_NAME<i.value>; }, TYPE, __VA_ARGS__)
+    CppUtil::dispatch<MdlInternalPropertyTypeCount>([](auto i) { return FUNCTION_NAME<i.value>; }, TYPE, __VA_ARGS__)
 
 #define CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_MDL_TYPE_NO_ARGS(FUNCTION_NAME, TYPE) \
-    dispatch<MdlInternalPropertyTypeCount>([](auto i) { return FUNCTION_NAME<i.value>; }, TYPE)
+    CppUtil::dispatch<MdlInternalPropertyTypeCount>([](auto i) { return FUNCTION_NAME<i.value>; }, TYPE)
 
 template <typename RawType, typename TransformedType> constexpr DataType getTypeReverse() {
     return GetTypeReverseImpl<RawType, TransformedType>::Type;

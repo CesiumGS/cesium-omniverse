@@ -1,6 +1,7 @@
 #include "cesium/omniverse/FabricPrepareRenderResources.h"
 
 #include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/CppUtil.h"
 #include "cesium/omniverse/FabricGeometry.h"
 #include "cesium/omniverse/FabricMaterial.h"
 #include "cesium/omniverse/FabricResourceManager.h"
@@ -27,10 +28,6 @@
 namespace cesium::omniverse {
 
 namespace {
-
-template <typename T> size_t getIndexFromRef(const std::vector<T>& vector, const T& item) {
-    return static_cast<size_t>(&item - vector.data());
-};
 
 struct ImageryLoadThreadResult {
     std::shared_ptr<FabricTexture> texture;
@@ -153,8 +150,8 @@ gatherMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const 
             const CesiumGltf::Mesh& mesh,
             const CesiumGltf::MeshPrimitive& primitive,
             const glm::dmat4& transform) {
-            const auto meshId = getIndexFromRef(gltf.meshes, mesh);
-            const auto primitiveId = getIndexFromRef(mesh.primitives, primitive);
+            const auto meshId = CppUtil::getIndexFromRef(gltf.meshes, mesh);
+            const auto primitiveId = CppUtil::getIndexFromRef(mesh.primitives, primitive);
             meshes.emplace_back(MeshInfo{
                 tilesetId,
                 ecefToUsdTransform,
