@@ -369,12 +369,6 @@ pxr::CesiumData getOrCreateCesiumData() {
     return defineCesiumData(CesiumDataPath);
 }
 
-pxr::SdfPath getPathToCurrentIonServer() {
-    const auto dataPath = getOrCreateCesiumData().GetPath();
-    const auto dataPrim = OmniData(dataPath);
-    return dataPrim.getSelectedIonServer();
-}
-
 pxr::CesiumIonServer getOrCreateIonServer(const pxr::SdfPath& path) {
     if (isCesiumIonServer(path)) {
         auto stage = getUsdStage();

@@ -48,7 +48,7 @@ class Context {
     static void onShutdown();
     static Context& instance();
 
-    Context();
+    Context() = default;
     ~Context() = default;
     Context(const Context&) = delete;
     Context(Context&&) = delete;
@@ -64,21 +64,22 @@ class Context {
     std::shared_ptr<Cesium3DTilesSelection::CreditSystem> getCreditSystem();
     std::shared_ptr<spdlog::logger> getLogger();
 
-    void setProjectDefaultToken(const CesiumIonClient::Token& token);
-    void reloadTileset(const pxr::SdfPath& tilesetPath);
+    const std::filesystem::path& getCesiumExtensionLocation() const;
+    const std::filesystem::path& getCertificatePath() const;
+    const pxr::TfToken& getCesiumMdlPathToken() const;
+
     void clearStage();
     void reloadStage();
+    pxr::UsdStageRefPtr getStage() const;
+    omni::fabric::StageReaderWriter getFabricStageReaderWriter() const;
+    long getStageId() const;
+    void setStageId(long stageId);
 
     void onUpdateFrame(const std::vector<Viewport>& viewports);
     void onUpdateUi();
 
-    pxr::UsdStageRefPtr getStage() const;
-    omni::fabric::StageReaderWriter getFabricStageReaderWriter() const;
-    long getStageId() const;
+    void reloadTileset(const pxr::SdfPath& tilesetPath);
 
-    void setStageId(long stageId);
-
-    int64_t getContextId() const;
     int64_t getNextTilesetId() const;
 
     CesiumGeospatial::Cartographic getGeoreferenceOrigin() const;
@@ -87,9 +88,11 @@ class Context {
     void connectToIon();
     std::optional<std::shared_ptr<CesiumIonSession>> getSession();
 
+    void setDefaultToken(const CesiumIonClient::Token& token);
     std::optional<CesiumIonClient::Token> getDefaultToken() const;
     SetDefaultTokenResult getSetDefaultTokenResult() const;
     bool isDefaultTokenSet() const;
+
     void createToken(const std::string& name);
     void selectToken(const CesiumIonClient::Token& token);
     void specifyToken(const std::string& token);
@@ -108,10 +111,6 @@ class Context {
         int64_t imageryIonAssetId,
         uint64_t tokenEventId,
         uint64_t assetEventId);
-
-    const std::filesystem::path& getCesiumExtensionLocation() const;
-    const std::filesystem::path& getCertificatePath() const;
-    const pxr::TfToken& getCesiumMdlPathToken() const;
 
     bool creditsAvailable() const;
     std::vector<std::pair<std::string, bool>> getCredits() const;

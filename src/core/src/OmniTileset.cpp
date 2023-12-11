@@ -91,14 +91,26 @@ std::optional<CesiumIonClient::Token> OmniTileset::getIonAccessToken() const {
     std::string ionAccessToken;
     tileset.GetIonAccessTokenAttr().Get<std::string>(&ionAccessToken);
 
-    if (ionAccessToken.empty()) {
-        return Context::instance().getDefaultToken();
+    if (!ionAccessToken.empty()) {
+        // TODO: should this be combined with the server token id?
+        return CesiumIonClient::Token{"", "", ionAccessToken};
     }
 
-    CesiumIonClient::Token t;
-    t.token = ionAccessToken;
+    const auto ionServerPath = getIonServerPath();
 
-    return t;
+    if (ionServerPath.IsEmpty()) {
+        return std::nullopt;
+    }
+
+    auto ionServer = OmniIonServer(ionServerPath);
+
+    const auto token = ionServer.getToken();
+
+    if (token.token.empty()) {
+        return std::nullopt;
+    }
+
+    return token;
 }
 
 std::string OmniTileset::getIonApiUrl() const {

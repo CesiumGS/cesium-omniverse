@@ -12,9 +12,8 @@ class OmniIonServer {
     [[nodiscard]] std::string getIonServerUrl() const;
     [[nodiscard]] std::string getIonServerApiUrl() const;
     [[nodiscard]] int64_t getIonServerApplicationId() const;
-    [[nodiscard]] std::string getProjectDefaultIonAccessToken() const;
-    [[nodiscard]] std::string getProjectDefaultIonAccessTokenId() const;
 
+    [[nodiscard]] CesiumIonClient::Token getToken() const;
     void setToken(const CesiumIonClient::Token& token);
 
   private:

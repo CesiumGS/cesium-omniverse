@@ -40,22 +40,16 @@ int64_t OmniIonServer::getIonServerApplicationId() const {
     return ionServerApplicationId;
 }
 
-std::string OmniIonServer::getProjectDefaultIonAccessToken() const {
+CesiumIonClient::Token OmniIonServer::getToken() const {
     const auto ionServer = UsdUtil::getCesiumIonServer(_path);
 
     std::string projectDefaultIonAccessToken;
-    ionServer.GetProjectDefaultIonAccessTokenAttr().Get(&projectDefaultIonAccessToken);
-
-    return projectDefaultIonAccessToken;
-}
-
-std::string OmniIonServer::getProjectDefaultIonAccessTokenId() const {
-    const auto ionServer = UsdUtil::getCesiumIonServer(_path);
-
     std::string projectDefaultIonAccessTokenId;
+
+    ionServer.GetProjectDefaultIonAccessTokenAttr().Get(&projectDefaultIonAccessToken);
     ionServer.GetProjectDefaultIonAccessTokenIdAttr().Get(&projectDefaultIonAccessTokenId);
 
-    return projectDefaultIonAccessTokenId;
+    return CesiumIonClient::Token{projectDefaultIonAccessTokenId, "", projectDefaultIonAccessToken};
 }
 
 void OmniIonServer::setToken(const CesiumIonClient::Token& token) {

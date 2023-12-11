@@ -31,6 +31,7 @@ class SessionRegistry {
         const pxr::SdfPath& ionServerPath);
     std::vector<pxr::SdfPath> getAllSessionPaths();
     std::shared_ptr<CesiumIonSession> getSession(const pxr::SdfPath& ionServerPath);
+    std::shared_ptr<CesiumIonSession> getCurrentSession();
     void removeSession(const pxr::SdfPath& ionServerPath);
     bool sessionExists(const pxr::SdfPath& ionServerPath);
 

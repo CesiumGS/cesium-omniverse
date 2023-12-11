@@ -47,6 +47,28 @@ namespace {
 
 std::unique_ptr<Context> context;
 
+std::optional<OmniIonServer> getCurrentIonServer() {
+    const auto data = OmniData(UsdUtil::getOrCreateCesiumData().GetPath());
+    const auto selectedIonServerPath = data.getSelectedIonServer();
+
+    if (selectedIonServerPath.IsEmpty()) {
+        return std::nullopt;
+    }
+
+    return OmniIonServer(selectedIonServerPath);
+}
+
+std::shared_ptr<CesiumIonSession> getCurrentSession() {
+    const auto data = OmniData(UsdUtil::getOrCreateCesiumData().GetPath());
+    const auto selectedIonServerPath = data.getSelectedIonServer();
+
+    if (selectedIonServerPath.IsEmpty()) {
+        return nullptr;
+    }
+
+    return SessionRegistry::getInstance().getSession(selectedIonServerPath);
+}
+
 } // namespace
 
 void Context::onStartup(const std::filesystem::path& cesiumExtensionLocation) {
@@ -136,20 +158,16 @@ std::shared_ptr<spdlog::logger> Context::getLogger() {
     return _logger;
 }
 
-void Context::setProjectDefaultToken(const CesiumIonClient::Token& token) {
-    if (token.token.empty()) {
-        return;
-    }
+const std::filesystem::path& Context::getCesiumExtensionLocation() const {
+    return _cesiumExtensionLocation;
+}
 
-    const auto currentIonServerPath = UsdUtil::getPathToCurrentIonServer();
+const std::filesystem::path& Context::getCertificatePath() const {
+    return _certificatePath;
+}
 
-    if (currentIonServerPath.IsEmpty()) {
-        return;
-    }
-
-    auto currentIonServer = OmniIonServer(currentIonServerPath);
-
-    currentIonServer.setToken(token);
+const pxr::TfToken& Context::getCesiumMdlPathToken() const {
+    return _cesiumMdlPathToken;
 }
 
 void Context::reloadTileset(const pxr::SdfPath& tilesetPath) {
@@ -187,44 +205,6 @@ void Context::reloadStage() {
     fabricResourceManager.setDebugRandomColors(data.getDebugRandomColors());
 
     _usdNotificationHandler.onStageLoaded();
-}
-
-void Context::onUpdateFrame(const std::vector<Viewport>& viewports) {
-    _usdNotificationHandler.onUpdateFrame();
-
-    const auto georeferenceOrigin = Context::instance().getGeoreferenceOrigin();
-    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdLocalTransform(georeferenceOrigin);
-
-    // Check if the ecefToUsd transform has changed and update CesiumSession
-    if (ecefToUsdTransform != _ecefToUsdTransform) {
-        _ecefToUsdTransform = ecefToUsdTransform;
-
-        const auto stage = UsdUtil::getUsdStage();
-        const UsdUtil::ScopedEdit scopedEdit(stage);
-        auto cesiumSession = UsdUtil::getOrCreateCesiumSession();
-        cesiumSession.GetEcefToUsdTransformAttr().Set(pxr::VtValue(UsdUtil::glmToUsdMatrix(ecefToUsdTransform)));
-    }
-
-    const auto& tilesets = AssetRegistry::getInstance().getAllTilesets();
-    for (const auto& tileset : tilesets) {
-        tileset->onUpdateFrame(viewports);
-    }
-}
-
-void Context::onUpdateUi() {
-    // A lot of UI code will end up calling the session prior to us actually having a stage. The user won't see this
-    // but some major segfaults will occur without this check.
-    if (!UsdUtil::hasStage()) {
-        return;
-    }
-
-    const auto session = SessionRegistry::getInstance().getSession(UsdUtil::getPathToCurrentIonServer());
-
-    if (session == nullptr) {
-        return;
-    }
-
-    session->tick();
 }
 
 pxr::UsdStageRefPtr Context::getStage() const {
@@ -282,8 +262,42 @@ void Context::setStageId(long stageId) {
     _stageId = stageId;
 }
 
-int64_t Context::getContextId() const {
-    return _contextId;
+void Context::onUpdateFrame(const std::vector<Viewport>& viewports) {
+    _usdNotificationHandler.onUpdateFrame();
+
+    const auto georeferenceOrigin = getGeoreferenceOrigin();
+    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdLocalTransform(georeferenceOrigin);
+
+    // Check if the ecefToUsd transform has changed and update CesiumSession
+    if (ecefToUsdTransform != _ecefToUsdTransform) {
+        _ecefToUsdTransform = ecefToUsdTransform;
+
+        const auto stage = UsdUtil::getUsdStage();
+        const UsdUtil::ScopedEdit scopedEdit(stage);
+        auto cesiumSession = UsdUtil::getOrCreateCesiumSession();
+        cesiumSession.GetEcefToUsdTransformAttr().Set(pxr::VtValue(UsdUtil::glmToUsdMatrix(ecefToUsdTransform)));
+    }
+
+    const auto& tilesets = AssetRegistry::getInstance().getAllTilesets();
+    for (const auto& tileset : tilesets) {
+        tileset->onUpdateFrame(viewports);
+    }
+}
+
+void Context::onUpdateUi() {
+    // A lot of UI code will end up calling the session prior to us actually having a stage. The user won't see this
+    // but some major segfaults will occur without this check.
+    if (!UsdUtil::hasStage()) {
+        return;
+    }
+
+    const auto session = getCurrentSession();
+
+    if (session == nullptr) {
+        return;
+    }
+
+    session->tick();
 }
 
 int64_t Context::getNextTilesetId() const {
@@ -300,8 +314,37 @@ void Context::setGeoreferenceOrigin(const CesiumGeospatial::Cartographic& origin
     georeference.setCartographic(origin);
 }
 
+std::optional<CesiumIonClient::Token> Context::getProjectDefaultToken() const {
+    auto currentIonServer = getCurrentIonServer();
+
+    if (!currentIonServer.has_value()) {
+        return std::nullopt;
+    }
+
+    const auto token = currentIonServer.value().getToken();
+
+    if (token.token.empty()) {
+        return std::nullopt;
+    }
+
+    return token;
+}
+
+void Context::setProjectDefaultToken(const CesiumIonClient::Token& token) {
+    if (token.token.empty()) {
+        return;
+    }
+
+    auto currentIonServer = getCurrentIonServer();
+    if (!currentIonServer.has_value()) {
+        return;
+    }
+
+    currentIonServer.value().setToken(token);
+}
+
 void Context::connectToIon() {
-    const auto session = SessionRegistry::getInstance().getSession(UsdUtil::getPathToCurrentIonServer());
+    const auto session = getCurrentSession();
 
     if (session == nullptr) {
         return;
@@ -317,43 +360,26 @@ std::optional<std::shared_ptr<CesiumIonSession>> Context::getSession() {
         return std::nullopt;
     }
 
-    const auto session = SessionRegistry::getInstance().getSession(UsdUtil::getPathToCurrentIonServer());
+    const auto currentSession = getCurrentSession();
 
-    if (session == nullptr) {
+    if (currentSession == nullptr) {
         return std::nullopt;
     }
 
-    return std::optional<std::shared_ptr<CesiumIonSession>>{session};
-}
-
-std::optional<CesiumIonClient::Token> Context::getDefaultToken() const {
-    const auto currentIonServer = UsdUtil::getOrCreateIonServer(UsdUtil::getPathToCurrentIonServer());
-
-    std::string projectDefaultToken;
-    std::string projectDefaultTokenId;
-
-    // TODO: use helper object
-    currentIonServer.GetProjectDefaultIonAccessTokenAttr().Get(&projectDefaultToken);
-    currentIonServer.GetProjectDefaultIonAccessTokenIdAttr().Get(&projectDefaultTokenId);
-
-    if (projectDefaultToken.empty()) {
-        return std::nullopt;
-    }
-
-    return CesiumIonClient::Token{projectDefaultTokenId, "", projectDefaultToken};
+    return currentSession;
 }
 
 SetDefaultTokenResult Context::getSetDefaultTokenResult() const {
     return _lastSetTokenResult;
 }
 
-bool Context::isDefaultTokenSet() const {
-    return getDefaultToken().has_value();
+bool Context::isProjectDefaultTokenSet() const {
+    return getProjectDefaultToken().has_value();
 }
 
 void Context::createToken(const std::string& name) {
-    const auto session = SessionRegistry::getInstance().getSession(UsdUtil::getPathToCurrentIonServer());
-    auto connection = session->getConnection();
+    const auto session = getCurrentSession();
+    const auto& connection = session->getConnection();
 
     if (!connection.has_value()) {
         _lastSetTokenResult = SetDefaultTokenResult{
@@ -382,8 +408,8 @@ void Context::createToken(const std::string& name) {
         });
 }
 void Context::selectToken(const CesiumIonClient::Token& token) {
-    const auto session = SessionRegistry::getInstance().getSession(UsdUtil::getPathToCurrentIonServer());
-    auto connection = session->getConnection();
+    const auto session = getCurrentSession();
+    const auto& connection = session->getConnection();
 
     if (!connection.has_value()) {
         _lastSetTokenResult = SetDefaultTokenResult{
@@ -399,7 +425,7 @@ void Context::selectToken(const CesiumIonClient::Token& token) {
     Broadcast::setDefaultTokenComplete();
 }
 void Context::specifyToken(const std::string& token) {
-    const auto session = SessionRegistry::getInstance().getSession(UsdUtil::getPathToCurrentIonServer());
+    const auto session = getCurrentSession();
     session->findToken(token).thenInMainThread(
         [this, token](CesiumIonClient::Response<CesiumIonClient::Token>&& response) {
             if (response.value) {
@@ -507,18 +533,6 @@ void Context::updateTroubleshootingDetails(
     }
 }
 
-const std::filesystem::path& Context::getCesiumExtensionLocation() const {
-    return _cesiumExtensionLocation;
-}
-
-const std::filesystem::path& Context::getCertificatePath() const {
-    return _certificatePath;
-}
-
-const pxr::TfToken& Context::getCesiumMdlPathToken() const {
-    return _cesiumMdlPathToken;
-}
-
 bool Context::creditsAvailable() const {
     const auto& credits = _creditSystem->getCreditsToShowThisFrame();
 
@@ -575,7 +589,8 @@ RenderStatistics Context::getRenderStatistics() const {
 void Context::addGlobeAnchorToPrim(const pxr::SdfPath& path) {
     if (UsdUtil::isCesiumData(path) || UsdUtil::isCesiumGeoreference(path) || UsdUtil::isCesiumImagery(path) ||
         UsdUtil::isCesiumSession(path) || UsdUtil::isCesiumTileset(path)) {
-        _logger->warn("Cannot attach Globe Anchor to Cesium Tilesets, Imagery, Georeference, Session, or Data prims.");
+        CESIUM_LOG_WARN(
+            "Cannot attach Globe Anchor to Cesium Tilesets, Imagery, Georeference, Session, or Data prims.");
         return;
     }
 
@@ -590,7 +605,8 @@ void Context::addGlobeAnchorToPrim(const pxr::SdfPath& path) {
 void Context::addGlobeAnchorToPrim(const pxr::SdfPath& path, double latitude, double longitude, double height) {
     if (UsdUtil::isCesiumData(path) || UsdUtil::isCesiumGeoreference(path) || UsdUtil::isCesiumImagery(path) ||
         UsdUtil::isCesiumSession(path) || UsdUtil::isCesiumTileset(path)) {
-        _logger->warn("Cannot attach Globe Anchor to Cesium Tilesets, Imagery, Georeference, Session, or Data prims.");
+        CESIUM_LOG_WARN(
+            "Cannot attach Globe Anchor to Cesium Tilesets, Imagery, Georeference, Session, or Data prims.");
         return;
     }
 
