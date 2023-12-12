@@ -8,7 +8,7 @@ void SessionRegistry::addSession(
     CesiumAsync::AsyncSystem& asyncSystem,
     const std::shared_ptr<HttpAssetAccessor>& httpAssetAccessor,
     const pxr::SdfPath& ionServerPath) {
-    auto prim = UsdUtil::getOrCreateIonServer(ionServerPath);
+    auto prim = UsdUtil::getCesiumIonServer(ionServerPath);
 
     std::string url;
     prim.GetIonServerApiUrlAttr().Get(&url);

@@ -47,8 +47,16 @@ namespace {
 
 std::unique_ptr<Context> context;
 
+OmniData getOrCreateCesiumData() {
+    return {UsdUtil::getOrCreateCesiumData().GetPath()};
+}
+
+OmniGeoreference getOrCreateCesiumGeoreference() {
+    return {UsdUtil::getOrCreateCesiumGeoreference().GetPath()};
+}
+
 std::optional<OmniIonServer> getCurrentIonServer() {
-    const auto data = OmniData(UsdUtil::getOrCreateCesiumData().GetPath());
+    const auto data = getOrCreateCesiumData();
     const auto selectedIonServerPath = data.getSelectedIonServer();
 
     if (selectedIonServerPath.IsEmpty()) {
@@ -59,7 +67,7 @@ std::optional<OmniIonServer> getCurrentIonServer() {
 }
 
 std::shared_ptr<CesiumIonSession> getCurrentSession() {
-    const auto data = OmniData(UsdUtil::getOrCreateCesiumData().GetPath());
+    const auto data = getOrCreateCesiumData();
     const auto selectedIonServerPath = data.getSelectedIonServer();
 
     if (selectedIonServerPath.IsEmpty()) {
@@ -138,6 +146,18 @@ void Context::destroy() {
     CESIUM_TRACE_SHUTDOWN();
 }
 
+const std::filesystem::path& Context::getCesiumExtensionLocation() const {
+    return _cesiumExtensionLocation;
+}
+
+const std::filesystem::path& Context::getCertificatePath() const {
+    return _certificatePath;
+}
+
+const pxr::TfToken& Context::getCesiumMdlPathToken() const {
+    return _cesiumMdlPathToken;
+}
+
 std::shared_ptr<TaskProcessor> Context::getTaskProcessor() {
     return _taskProcessor;
 }
@@ -158,28 +178,6 @@ std::shared_ptr<spdlog::logger> Context::getLogger() {
     return _logger;
 }
 
-const std::filesystem::path& Context::getCesiumExtensionLocation() const {
-    return _cesiumExtensionLocation;
-}
-
-const std::filesystem::path& Context::getCertificatePath() const {
-    return _certificatePath;
-}
-
-const pxr::TfToken& Context::getCesiumMdlPathToken() const {
-    return _cesiumMdlPathToken;
-}
-
-void Context::reloadTileset(const pxr::SdfPath& tilesetPath) {
-    const auto tileset = AssetRegistry::getInstance().getTilesetByPath(tilesetPath);
-
-    if (!tileset.has_value()) {
-        return;
-    }
-
-    tileset.value()->reload();
-}
-
 void Context::clearStage() {
     // The order is important. Clear tilesets first so that Fabric resources are released back into the pool. Then clear the pools.
     AssetRegistry::getInstance().clear();
@@ -191,8 +189,14 @@ void Context::clearStage() {
 void Context::reloadStage() {
     clearStage();
 
-    const auto data = OmniData(UsdUtil::getOrCreateCesiumData().GetPath());
+    // Ensure that top level prims exist
+    UsdUtil::getOrCreateCesiumData();
+    UsdUtil::getOrCreateCesiumGeoreference();
+    UsdUtil::getOrCreateCesiumSession();
 
+    const auto data = getOrCreateCesiumData();
+
+    // Update fabric related settings
     auto& fabricResourceManager = FabricResourceManager::getInstance();
     fabricResourceManager.setDisableMaterials(data.getDebugDisableMaterials());
     fabricResourceManager.setDisableTextures(data.getDebugDisableTextures());
@@ -204,16 +208,18 @@ void Context::reloadStage() {
     fabricResourceManager.setTexturePoolInitialCapacity(data.getDebugTexturePoolInitialCapacity());
     fabricResourceManager.setDebugRandomColors(data.getDebugRandomColors());
 
+    // Repopulate the stage on the next frame
+    // We need to call this manually since USD does not send prim added notifications when loading a stage
     _usdNotificationHandler.onStageLoaded();
 }
 
-pxr::UsdStageRefPtr Context::getStage() const {
+pxr::UsdStageRefPtr Context::getStage() {
     return _stage;
 }
 
-omni::fabric::StageReaderWriter Context::getFabricStageReaderWriter() const {
-    assert(_fabricStageReaderWriter.has_value());
-    return _fabricStageReaderWriter.value(); // NOLINT(bugprone-unchecked-optional-access)
+omni::fabric::StageReaderWriter& Context::getFabricStage() {
+    assert(_fabricStage.has_value());
+    return _fabricStage.value(); // NOLINT(bugprone-unchecked-optional-access)
 }
 
 long Context::getStageId() const {
@@ -232,7 +238,7 @@ void Context::setStageId(long stageId) {
     if (oldStage > 0) {
         // Remove references to the old stage
         _stage.Reset();
-        _fabricStageReaderWriter.reset();
+        _fabricStage.reset();
         _stageId = 0;
 
         // Now it's safe to clear anything else that references the stage
@@ -247,15 +253,9 @@ void Context::setStageId(long stageId) {
         const auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
         const auto stageReaderWriterId =
             iStageReaderWriter->get(omni::fabric::UsdStageId{static_cast<uint64_t>(stageId)});
-        _fabricStageReaderWriter = omni::fabric::StageReaderWriter(stageReaderWriterId);
+        _fabricStage = omni::fabric::StageReaderWriter(stageReaderWriterId);
 
-        // Ensure that the CesiumData prim exists so that we can set the georeference
-        // and other top-level properties without waiting for an ion session to start
-        UsdUtil::getOrCreateCesiumData();
-        UsdUtil::getOrCreateCesiumGeoreference();
-        UsdUtil::getOrCreateCesiumSession();
-
-        // Repopulate the asset registry
+        // Reload the stage
         reloadStage();
     }
 
@@ -300,21 +300,31 @@ void Context::onUpdateUi() {
     session->tick();
 }
 
+void Context::reloadTileset(const pxr::SdfPath& tilesetPath) {
+    const auto tileset = AssetRegistry::getInstance().getTilesetByPath(tilesetPath);
+
+    if (!tileset.has_value()) {
+        return;
+    }
+
+    tileset.value()->reload();
+}
+
 int64_t Context::getNextTilesetId() const {
     return _tilesetId++;
 }
 
 CesiumGeospatial::Cartographic Context::getGeoreferenceOrigin() const {
-    auto georeference = OmniGeoreference(UsdUtil::getOrCreateCesiumGeoreference().GetPath());
+    auto georeference = getOrCreateCesiumGeoreference();
     return georeference.getCartographic();
 }
 
 void Context::setGeoreferenceOrigin(const CesiumGeospatial::Cartographic& origin) {
-    auto georeference = OmniGeoreference(UsdUtil::getOrCreateCesiumGeoreference().GetPath());
+    auto georeference = getOrCreateCesiumGeoreference();
     georeference.setCartographic(origin);
 }
 
-std::optional<CesiumIonClient::Token> Context::getProjectDefaultToken() const {
+std::optional<CesiumIonClient::Token> Context::getDefaultToken() const {
     auto currentIonServer = getCurrentIonServer();
 
     if (!currentIonServer.has_value()) {
@@ -330,7 +340,7 @@ std::optional<CesiumIonClient::Token> Context::getProjectDefaultToken() const {
     return token;
 }
 
-void Context::setProjectDefaultToken(const CesiumIonClient::Token& token) {
+void Context::setDefaultToken(const CesiumIonClient::Token& token) {
     if (token.token.empty()) {
         return;
     }
@@ -341,6 +351,80 @@ void Context::setProjectDefaultToken(const CesiumIonClient::Token& token) {
     }
 
     currentIonServer.value().setToken(token);
+}
+
+bool Context::isDefaultTokenSet() const {
+    return getDefaultToken().has_value();
+}
+
+void Context::createToken(const std::string& name) {
+    const auto session = getCurrentSession();
+    const auto& connection = session->getConnection();
+
+    if (!connection.has_value()) {
+        _lastSetTokenResult = SetDefaultTokenResult{
+            SetDefaultTokenResultCode::NOT_CONNECTED_TO_ION,
+            SetDefaultTokenResultMessages::NOT_CONNECTED_TO_ION_MESSAGE};
+        return;
+    }
+
+    connection->createToken(name, {"assets:read"}, std::vector<int64_t>{1}, std::nullopt)
+        .thenInMainThread([this](CesiumIonClient::Response<CesiumIonClient::Token>&& response) {
+            if (response.value) {
+                setDefaultToken(response.value.value());
+
+                _lastSetTokenResult =
+                    SetDefaultTokenResult{SetDefaultTokenResultCode::OK, SetDefaultTokenResultMessages::OK_MESSAGE};
+            } else {
+                _lastSetTokenResult = SetDefaultTokenResult{
+                    SetDefaultTokenResultCode::CREATE_FAILED,
+                    fmt::format(
+                        SetDefaultTokenResultMessages::CREATE_FAILED_MESSAGE_BASE,
+                        response.errorMessage,
+                        response.errorCode)};
+            }
+
+            Broadcast::setDefaultTokenComplete();
+        });
+}
+void Context::selectToken(const CesiumIonClient::Token& token) {
+    const auto session = getCurrentSession();
+    const auto& connection = session->getConnection();
+
+    if (!connection.has_value()) {
+        _lastSetTokenResult = SetDefaultTokenResult{
+            SetDefaultTokenResultCode::NOT_CONNECTED_TO_ION,
+            SetDefaultTokenResultMessages::NOT_CONNECTED_TO_ION_MESSAGE};
+    } else {
+        setDefaultToken(token);
+
+        _lastSetTokenResult =
+            SetDefaultTokenResult{SetDefaultTokenResultCode::OK, SetDefaultTokenResultMessages::OK_MESSAGE};
+    }
+
+    Broadcast::setDefaultTokenComplete();
+}
+void Context::specifyToken(const std::string& token) {
+    const auto session = getCurrentSession();
+    session->findToken(token).thenInMainThread(
+        [this, token](CesiumIonClient::Response<CesiumIonClient::Token>&& response) {
+            if (response.value) {
+                setDefaultToken(response.value.value());
+            } else {
+                CesiumIonClient::Token t;
+                t.token = token;
+                setDefaultToken(t);
+            }
+            // We assume the user knows what they're doing if they specify a token not on their account.
+            _lastSetTokenResult =
+                SetDefaultTokenResult{SetDefaultTokenResultCode::OK, SetDefaultTokenResultMessages::OK_MESSAGE};
+
+            Broadcast::setDefaultTokenComplete();
+        });
+}
+
+SetDefaultTokenResult Context::getSetDefaultTokenResult() const {
+    return _lastSetTokenResult;
 }
 
 void Context::connectToIon() {
@@ -367,80 +451,6 @@ std::optional<std::shared_ptr<CesiumIonSession>> Context::getSession() {
     }
 
     return currentSession;
-}
-
-SetDefaultTokenResult Context::getSetDefaultTokenResult() const {
-    return _lastSetTokenResult;
-}
-
-bool Context::isProjectDefaultTokenSet() const {
-    return getProjectDefaultToken().has_value();
-}
-
-void Context::createToken(const std::string& name) {
-    const auto session = getCurrentSession();
-    const auto& connection = session->getConnection();
-
-    if (!connection.has_value()) {
-        _lastSetTokenResult = SetDefaultTokenResult{
-            SetDefaultTokenResultCode::NOT_CONNECTED_TO_ION,
-            SetDefaultTokenResultMessages::NOT_CONNECTED_TO_ION_MESSAGE};
-        return;
-    }
-
-    connection->createToken(name, {"assets:read"}, std::vector<int64_t>{1}, std::nullopt)
-        .thenInMainThread([this](CesiumIonClient::Response<CesiumIonClient::Token>&& response) {
-            if (response.value) {
-                setProjectDefaultToken(response.value.value());
-
-                _lastSetTokenResult =
-                    SetDefaultTokenResult{SetDefaultTokenResultCode::OK, SetDefaultTokenResultMessages::OK_MESSAGE};
-            } else {
-                _lastSetTokenResult = SetDefaultTokenResult{
-                    SetDefaultTokenResultCode::CREATE_FAILED,
-                    fmt::format(
-                        SetDefaultTokenResultMessages::CREATE_FAILED_MESSAGE_BASE,
-                        response.errorMessage,
-                        response.errorCode)};
-            }
-
-            Broadcast::setDefaultTokenComplete();
-        });
-}
-void Context::selectToken(const CesiumIonClient::Token& token) {
-    const auto session = getCurrentSession();
-    const auto& connection = session->getConnection();
-
-    if (!connection.has_value()) {
-        _lastSetTokenResult = SetDefaultTokenResult{
-            SetDefaultTokenResultCode::NOT_CONNECTED_TO_ION,
-            SetDefaultTokenResultMessages::NOT_CONNECTED_TO_ION_MESSAGE};
-    } else {
-        setProjectDefaultToken(token);
-
-        _lastSetTokenResult =
-            SetDefaultTokenResult{SetDefaultTokenResultCode::OK, SetDefaultTokenResultMessages::OK_MESSAGE};
-    }
-
-    Broadcast::setDefaultTokenComplete();
-}
-void Context::specifyToken(const std::string& token) {
-    const auto session = getCurrentSession();
-    session->findToken(token).thenInMainThread(
-        [this, token](CesiumIonClient::Response<CesiumIonClient::Token>&& response) {
-            if (response.value) {
-                setProjectDefaultToken(response.value.value());
-            } else {
-                CesiumIonClient::Token t;
-                t.token = token;
-                setProjectDefaultToken(t);
-            }
-            // We assume the user knows what they're doing if they specify a token not on their account.
-            _lastSetTokenResult =
-                SetDefaultTokenResult{SetDefaultTokenResultCode::OK, SetDefaultTokenResultMessages::OK_MESSAGE};
-
-            Broadcast::setDefaultTokenComplete();
-        });
 }
 
 std::optional<AssetTroubleshootingDetails> Context::getAssetTroubleshootingDetails() {
@@ -595,7 +605,7 @@ void Context::addGlobeAnchorToPrim(const pxr::SdfPath& path) {
     }
 
     auto prim = UsdUtil::getUsdStage()->GetPrimAtPath(path);
-    auto globeAnchor = UsdUtil::defineGlobeAnchor(path);
+    auto globeAnchor = UsdUtil::defineCesiumGlobeAnchor(path);
 
     // Until we support multiple georeference points, we should just use the default georeference object.
     auto georeferenceOrigin = UsdUtil::getOrCreateCesiumGeoreference();
@@ -611,7 +621,7 @@ void Context::addGlobeAnchorToPrim(const pxr::SdfPath& path, double latitude, do
     }
 
     auto prim = UsdUtil::getUsdStage()->GetPrimAtPath(path);
-    auto globeAnchor = UsdUtil::defineGlobeAnchor(path);
+    auto globeAnchor = UsdUtil::defineCesiumGlobeAnchor(path);
 
     // Until we support multiple georeference points, we should just use the default georeference object.
     auto georeferenceOrigin = UsdUtil::getOrCreateCesiumGeoreference();

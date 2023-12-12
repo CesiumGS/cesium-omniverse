@@ -1,6 +1,5 @@
 #include "cesium/omniverse/OmniGeoreference.h"
 
-#include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <CesiumGeospatial/Cartographic.h>
@@ -26,10 +25,7 @@ CesiumGeospatial::Cartographic OmniGeoreference::getCartographic() const {
     georeference.GetGeoreferenceOriginLatitudeAttr().Get<double>(&latitude);
     georeference.GetGeoreferenceOriginHeightAttr().Get<double>(&height);
 
-    longitude = glm::radians(longitude);
-    latitude = glm::radians(latitude);
-
-    return {longitude, latitude, height};
+    return {glm::radians(longitude), glm::radians(latitude), height};
 }
 
 void OmniGeoreference::setCartographic(const CesiumGeospatial::Cartographic& cartographic) const {

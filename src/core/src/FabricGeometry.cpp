@@ -91,7 +91,7 @@ void FabricGeometry::setVisibility(bool visible) {
         return;
     }
 
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
 
     auto worldVisibilityFabric = srw.getAttributeWr<bool>(_path, FabricTokens::_worldVisibility);
     *worldVisibilityFabric = visible;
@@ -110,7 +110,7 @@ void FabricGeometry::setMaterial(const omni::fabric::Path& materialPath) {
         return;
     }
 
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
     srw.setArrayAttributeSize(_path, FabricTokens::material_binding, 1);
     auto materialBindingFabric = srw.getArrayAttributeWr<omni::fabric::PathC>(_path, FabricTokens::material_binding);
     materialBindingFabric[0] = materialPath;
@@ -124,7 +124,7 @@ void FabricGeometry::initialize() {
     const auto customVertexAttributesCount = customVertexAttributes.size();
     const auto hasVertexIds = _geometryDefinition.hasVertexIds();
 
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
 
     srw.createPrim(_path);
 
@@ -247,7 +247,7 @@ void FabricGeometry::reset() {
     const auto& customVertexAttributes = _geometryDefinition.getCustomVertexAttributes();
     const auto hasVertexIds = _geometryDefinition.hasVertexIds();
 
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
 
     // clang-format off
     auto doubleSidedFabric = srw.getAttributeWr<bool>(_path, FabricTokens::doubleSided);
@@ -318,7 +318,7 @@ void FabricGeometry::setGeometry(
     const auto& customVertexAttributes = _geometryDefinition.getCustomVertexAttributes();
     const auto hasVertexIds = _geometryDefinition.hasVertexIds();
 
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
 
     const auto positions = GltfUtil::getPositions(model, primitive);
     const auto indices = GltfUtil::getIndices(model, primitive, positions);

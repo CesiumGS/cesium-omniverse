@@ -90,7 +90,7 @@ UsdNotificationHandler::~UsdNotificationHandler() {
 void UsdNotificationHandler::onStageLoaded() {
     const auto stage = UsdUtil::getUsdStage();
 
-    // Add sessions first since they can be referenced by tilesets and imagery layers
+    // Add servers first since they can be referenced by tilesets and imagery layers
     for (const auto& prim : stage->Traverse()) {
         const auto& path = prim.GetPath();
         if (getType(path) == PrimType::CESIUM_ION_SERVER) {
@@ -508,8 +508,9 @@ void processCesiumGlobeAnchorAdded(const pxr::SdfPath& globeAnchorPath) {
 
 void processCesiumIonServerAdded(const pxr::SdfPath& ionServerPath) {
     // Add the server to the session registry
-    SessionRegistry::getInstance().addSession(
-        *Context::instance().getAsyncSystem().get(), Context::instance().getHttpAssetAccessor(), ionServerPath);
+    auto& asyncSystem = *Context::instance().getAsyncSystem().get();
+    const auto httpAssetAccessor = Context::instance().getHttpAssetAccessor();
+    SessionRegistry::getInstance().addSession(asyncSystem, httpAssetAccessor, ionServerPath);
     reloadIonServerAssets(ionServerPath);
 }
 

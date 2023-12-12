@@ -133,7 +133,7 @@ gatherMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const 
 
     const auto smoothNormals = tileset.getSmoothNormals();
 
-    const auto georeferenceOrigin = GeospatialUtil::convertGeoreferenceToCartographic(tileset.getGeoreference());
+    const auto georeferenceOrigin = tileset.getGeoreference().getCartographic();
     const auto ecefToUsdTransform =
         UsdUtil::computeEcefToUsdWorldTransformForPrim(georeferenceOrigin, tileset.getPath());
 

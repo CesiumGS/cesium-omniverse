@@ -112,7 +112,7 @@ std::string printAttributeValue(
 
     using ElementType = std::array<BaseType, ComponentCount>;
 
-    auto stageReaderWriter = UsdUtil::getFabricStageReaderWriter();
+    auto stageReaderWriter = UsdUtil::getFabricStage();
 
     if constexpr (IsArray) {
         const auto values = stageReaderWriter.getArrayAttributeRd<ElementType>(primPath, attributeName);
@@ -141,7 +141,7 @@ std::string printAttributeValue(
 }
 
 std::string printConnection(const omni::fabric::Path& primPath, const omni::fabric::Token& attributeName) {
-    auto stageReaderWriter = UsdUtil::getFabricStageReaderWriter();
+    auto stageReaderWriter = UsdUtil::getFabricStage();
     const auto connection = stageReaderWriter.getConnection(primPath, attributeName);
     if (connection == nullptr) {
         return NO_DATA_STRING;
@@ -154,7 +154,7 @@ std::string printConnection(const omni::fabric::Path& primPath, const omni::fabr
 }
 
 std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::fabric::AttrNameAndType& attribute) {
-    auto stageReaderWriter = UsdUtil::getFabricStageReaderWriter();
+    auto stageReaderWriter = UsdUtil::getFabricStage();
 
     const auto attributeType = attribute.type;
     const auto baseType = attributeType.baseType;
@@ -503,7 +503,7 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
 std::string printFabricStage() {
     std::stringstream stream;
 
-    auto stageReaderWriter = UsdUtil::getFabricStageReaderWriter();
+    auto stageReaderWriter = UsdUtil::getFabricStage();
 
     // For extra debugging. This gets printed to the console.
     stageReaderWriter.printBucketNames();
@@ -548,7 +548,7 @@ FabricStatistics getStatistics() {
         return statistics;
     }
 
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
 
     const auto geometryBuckets = srw.findPrims(
         {omni::fabric::AttrNameAndType(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId)},
@@ -608,7 +608,7 @@ FabricStatistics getStatistics() {
 }
 
 void destroyPrim(const omni::fabric::Path& path) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
     srw.destroyPrim(path);
 
     // Prims removed from Fabric need special handling for their removal to be reflected in the Hydra render index
@@ -628,7 +628,7 @@ void destroyPrim(const omni::fabric::Path& path) {
 }
 
 void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
 
     const auto buckets = srw.findPrims(
         {omni::fabric::AttrNameAndType(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId)},
@@ -666,7 +666,7 @@ void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform
 }
 
 void setTilesetId(const omni::fabric::Path& path, int64_t tilesetId) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
 
     auto tilesetIdFabric = srw.getAttributeWr<int64_t>(path, FabricTokens::_cesium_tilesetId);
 
@@ -701,7 +701,7 @@ struct FabricConnection {
 std::vector<FabricConnection> getConnections(const omni::fabric::Path& path) {
     std::vector<FabricConnection> connections;
 
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
     const auto attributes = srw.getAttributeNamesAndTypes(path);
     const auto& names = attributes.first;
     const auto& types = attributes.second;
@@ -732,7 +732,7 @@ bool isEmptyToken(
     const omni::fabric::Path& path,
     const omni::fabric::Token& attributeName,
     const omni::fabric::Type& attributeType) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
     if (attributeType.baseType == omni::fabric::BaseDataType::eToken) {
         const auto attributeValue = srw.getAttributeRd<omni::fabric::Token>(path, attributeName);
         if (attributeValue == nullptr || (*attributeValue).size() == 0) {
@@ -746,7 +746,7 @@ bool isEmptyToken(
 std::vector<omni::fabric::TokenC> getAttributesToCopy(const omni::fabric::Path& path) {
     std::vector<omni::fabric::TokenC> attributeNames;
 
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
 
     const auto attributes = srw.getAttributeNamesAndTypes(path);
     const auto& names = attributes.first;
@@ -772,7 +772,7 @@ struct FabricAttribute {
 std::vector<FabricAttribute> getAttributesToCreate(const omni::fabric::Path& path) {
     std::vector<FabricAttribute> attributeNames;
 
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
 
     const auto attributes = srw.getAttributeNamesAndTypes(path);
     const auto& names = attributes.first;
@@ -802,7 +802,7 @@ void getConnectedPrimsRecursive(const omni::fabric::Path& path, std::vector<omni
 }
 
 std::vector<omni::fabric::Path> getPrimsInMaterialNetwork(const omni::fabric::Path& path) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
     std::vector<omni::fabric::Path> paths;
     paths.push_back(path);
     getConnectedPrimsRecursive(path, paths);
@@ -813,7 +813,7 @@ std::vector<omni::fabric::Path> getPrimsInMaterialNetwork(const omni::fabric::Pa
 
 std::vector<omni::fabric::Path>
 copyMaterial(const omni::fabric::Path& srcMaterialPath, const omni::fabric::Path& dstMaterialPath) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
     const auto isrw = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
 
     const auto srcPaths = getPrimsInMaterialNetwork(srcMaterialPath);
@@ -869,7 +869,7 @@ copyMaterial(const omni::fabric::Path& srcMaterialPath, const omni::fabric::Path
 }
 
 bool materialHasCesiumNodes(const omni::fabric::Path& path) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
     const auto paths = getPrimsInMaterialNetwork(path);
 
     for (const auto& p : paths) {
@@ -898,13 +898,13 @@ bool isCesiumPropertyNode(const omni::fabric::Token& mdlIdentifier) {
 }
 
 bool isShaderConnectedToMaterial(const omni::fabric::Path& materialPath, const omni::fabric::Path& shaderPath) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
     const auto paths = getPrimsInMaterialNetwork(materialPath);
     return std::find(paths.begin(), paths.end(), shaderPath) != paths.end();
 }
 
 omni::fabric::Token getMdlIdentifier(const omni::fabric::Path& path) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
     if (srw.attributeExists(path, FabricTokens::info_mdl_sourceAsset_subIdentifier)) {
         const auto infoMdlSourceAssetSubIdentifierFabric =
             srw.getAttributeRd<omni::fabric::Token>(path, FabricTokens::info_mdl_sourceAsset_subIdentifier);

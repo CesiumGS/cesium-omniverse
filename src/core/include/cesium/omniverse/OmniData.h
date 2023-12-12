@@ -1,6 +1,5 @@
 #pragma once
 
-#include <CesiumIonClient/Token.h>
 #include <pxr/usd/sdf/path.h>
 
 namespace cesium::omniverse {

@@ -14,7 +14,7 @@ void FabricAttributesBuilder::createAttributes(const omni::fabric::Path& path) c
     // have texture coordinates or materials. This class allows attributes to be added dynamically up to a hardcoded maximum
     // count (MAX_ATTRIBUTES) and avoids heap allocations. The downside is that we need this ugly if/else chain below.
 
-    auto stageReaderWriter = UsdUtil::getFabricStageReaderWriter();
+    auto stageReaderWriter = UsdUtil::getFabricStage();
 
     // clang-format off
     if (_size == 0) stageReaderWriter.createAttributes<0>(path, *reinterpret_cast<const std::array<omni::fabric::AttrNameAndType, 0>*>(_attributes.data()));

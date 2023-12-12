@@ -16,12 +16,12 @@ pxr::SdfPath OmniImagery::getPath() const {
 }
 
 std::string OmniImagery::getName() const {
-    auto imagery = UsdUtil::getCesiumImagery(_path);
+    const auto imagery = UsdUtil::getCesiumImagery(_path);
     return imagery.GetPrim().GetName().GetString();
 }
 
 int64_t OmniImagery::getIonAssetId() const {
-    auto imagery = UsdUtil::getCesiumImagery(_path);
+    const auto imagery = UsdUtil::getCesiumImagery(_path);
 
     int64_t ionAssetId;
     imagery.GetIonAssetIdAttr().Get<int64_t>(&ionAssetId);
@@ -30,14 +30,15 @@ int64_t OmniImagery::getIonAssetId() const {
 }
 
 std::optional<CesiumIonClient::Token> OmniImagery::getIonAccessToken() const {
-    auto imagery = UsdUtil::getCesiumImagery(_path);
+    const auto imagery = UsdUtil::getCesiumImagery(_path);
 
     std::string ionAccessToken;
     imagery.GetIonAccessTokenAttr().Get<std::string>(&ionAccessToken);
 
     if (!ionAccessToken.empty()) {
-        // TODO: should this be combined with the server token id?
-        return CesiumIonClient::Token{"", "", ionAccessToken};
+        CesiumIonClient::Token t;
+        t.token = ionAccessToken;
+        return t;
     }
 
     const auto ionServerPath = getIonServerPath();
@@ -46,7 +47,7 @@ std::optional<CesiumIonClient::Token> OmniImagery::getIonAccessToken() const {
         return std::nullopt;
     }
 
-    auto ionServer = OmniIonServer(ionServerPath);
+    const auto ionServer = OmniIonServer(ionServerPath);
 
     const auto token = ionServer.getToken();
 
@@ -64,13 +65,13 @@ std::string OmniImagery::getIonApiUrl() const {
         return {};
     }
 
-    auto ionServer = OmniIonServer(ionServerPath);
+    const auto ionServer = OmniIonServer(ionServerPath);
 
     return ionServer.getIonServerApiUrl();
 }
 
 pxr::SdfPath OmniImagery::getIonServerPath() const {
-    auto imagery = UsdUtil::getCesiumImagery(_path);
+    const auto imagery = UsdUtil::getCesiumImagery(_path);
 
     pxr::SdfPathVector targets;
     imagery.GetIonServerBindingRel().GetForwardedTargets(&targets);
@@ -83,7 +84,7 @@ pxr::SdfPath OmniImagery::getIonServerPath() const {
 }
 
 bool OmniImagery::getShowCreditsOnScreen() const {
-    auto imagery = UsdUtil::getCesiumImagery(_path);
+    const auto imagery = UsdUtil::getCesiumImagery(_path);
 
     bool showCreditsOnScreen;
     imagery.GetShowCreditsOnScreenAttr().Get<bool>(&showCreditsOnScreen);
@@ -92,7 +93,7 @@ bool OmniImagery::getShowCreditsOnScreen() const {
 }
 
 double OmniImagery::getAlpha() const {
-    auto imagery = UsdUtil::getCesiumImagery(_path);
+    const auto imagery = UsdUtil::getCesiumImagery(_path);
 
     float alpha;
     imagery.GetAlphaAttr().Get<float>(&alpha);

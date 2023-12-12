@@ -58,20 +58,20 @@ class Context {
     void initialize(int64_t contextId, const std::filesystem::path& cesiumExtensionLocation);
     void destroy();
 
+    const std::filesystem::path& getCesiumExtensionLocation() const;
+    const std::filesystem::path& getCertificatePath() const;
+    const pxr::TfToken& getCesiumMdlPathToken() const;
+
     std::shared_ptr<TaskProcessor> getTaskProcessor();
     std::shared_ptr<CesiumAsync::AsyncSystem> getAsyncSystem();
     std::shared_ptr<HttpAssetAccessor> getHttpAssetAccessor();
     std::shared_ptr<Cesium3DTilesSelection::CreditSystem> getCreditSystem();
     std::shared_ptr<spdlog::logger> getLogger();
 
-    const std::filesystem::path& getCesiumExtensionLocation() const;
-    const std::filesystem::path& getCertificatePath() const;
-    const pxr::TfToken& getCesiumMdlPathToken() const;
-
     void clearStage();
     void reloadStage();
-    pxr::UsdStageRefPtr getStage() const;
-    omni::fabric::StageReaderWriter getFabricStageReaderWriter() const;
+    pxr::UsdStageRefPtr getStage();
+    omni::fabric::StageReaderWriter& getFabricStage();
     long getStageId() const;
     void setStageId(long stageId);
 
@@ -85,17 +85,16 @@ class Context {
     CesiumGeospatial::Cartographic getGeoreferenceOrigin() const;
     void setGeoreferenceOrigin(const CesiumGeospatial::Cartographic& origin);
 
-    void connectToIon();
-    std::optional<std::shared_ptr<CesiumIonSession>> getSession();
-
-    void setDefaultToken(const CesiumIonClient::Token& token);
     std::optional<CesiumIonClient::Token> getDefaultToken() const;
-    SetDefaultTokenResult getSetDefaultTokenResult() const;
+    void setDefaultToken(const CesiumIonClient::Token& token);
     bool isDefaultTokenSet() const;
-
     void createToken(const std::string& name);
     void selectToken(const CesiumIonClient::Token& token);
     void specifyToken(const std::string& token);
+    SetDefaultTokenResult getSetDefaultTokenResult() const;
+
+    void connectToIon();
+    std::optional<std::shared_ptr<CesiumIonSession>> getSession();
 
     std::optional<AssetTroubleshootingDetails> getAssetTroubleshootingDetails();
     std::optional<TokenTroubleshootingDetails> getAssetTokenTroubleshootingDetails();
@@ -122,7 +121,9 @@ class Context {
     void addGlobeAnchorToPrim(const pxr::SdfPath& path, double latitude, double longitude, double height);
 
   private:
-    void processUsdNotifications();
+    std::filesystem::path _cesiumExtensionLocation;
+    std::filesystem::path _certificatePath;
+    pxr::TfToken _cesiumMdlPathToken;
 
     std::shared_ptr<TaskProcessor> _taskProcessor;
     std::shared_ptr<CesiumAsync::AsyncSystem> _asyncSystem;
@@ -137,17 +138,13 @@ class Context {
     std::optional<TokenTroubleshootingDetails> _defaultTokenTroubleshootingDetails = std::nullopt;
 
     pxr::UsdStageRefPtr _stage;
-    std::optional<omni::fabric::StageReaderWriter> _fabricStageReaderWriter;
+    std::optional<omni::fabric::StageReaderWriter> _fabricStage;
     long _stageId{0};
     UsdNotificationHandler _usdNotificationHandler;
 
     int64_t _contextId;
 
     mutable std::atomic<int64_t> _tilesetId{};
-
-    std::filesystem::path _cesiumExtensionLocation;
-    std::filesystem::path _certificatePath;
-    pxr::TfToken _cesiumMdlPathToken;
 
     glm::dmat4 _ecefToUsdTransform;
 };

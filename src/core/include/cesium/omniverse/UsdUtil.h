@@ -60,8 +60,8 @@ class ScopedEdit {
 
 pxr::UsdStageRefPtr getUsdStage();
 long getUsdStageId();
-omni::fabric::StageReaderWriter getFabricStageReaderWriter();
-omni::fabric::StageReaderWriterId getFabricStageReaderWriterId();
+omni::fabric::StageReaderWriter getFabricStage();
+omni::fabric::StageReaderWriterId getFabricStageId();
 
 bool hasStage();
 glm::dvec3 usdToGlmVector(const pxr::GfVec3d& vector);
@@ -102,10 +102,9 @@ pxr::CesiumSession defineCesiumSession(const pxr::SdfPath& path);
 pxr::CesiumGeoreference defineCesiumGeoreference(const pxr::SdfPath& path);
 pxr::CesiumTileset defineCesiumTileset(const pxr::SdfPath& path);
 pxr::CesiumImagery defineCesiumImagery(const pxr::SdfPath& path);
-pxr::CesiumGlobeAnchorAPI defineGlobeAnchor(const pxr::SdfPath& path);
+pxr::CesiumGlobeAnchorAPI defineCesiumGlobeAnchor(const pxr::SdfPath& path);
 
 pxr::CesiumData getOrCreateCesiumData();
-pxr::CesiumIonServer getOrCreateIonServer(const pxr::SdfPath& path);
 pxr::CesiumSession getOrCreateCesiumSession();
 pxr::CesiumGeoreference getOrCreateCesiumGeoreference();
 

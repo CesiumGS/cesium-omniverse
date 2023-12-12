@@ -39,11 +39,11 @@ long getUsdStageId() {
     return Context::instance().getStageId();
 }
 
-omni::fabric::StageReaderWriter getFabricStageReaderWriter() {
-    return Context::instance().getFabricStageReaderWriter();
+omni::fabric::StageReaderWriter getFabricStage() {
+    return Context::instance().getFabricStage();
 }
 
-omni::fabric::StageReaderWriterId getFabricStageReaderWriterId() {
+omni::fabric::StageReaderWriterId getFabricStageId() {
     const auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
     const auto stageId = getUsdStageId();
     const auto stageReaderWriterId = iStageReaderWriter->get(omni::fabric::UsdStageId{static_cast<uint64_t>(stageId)});
@@ -347,7 +347,7 @@ pxr::CesiumImagery defineCesiumImagery(const pxr::SdfPath& path) {
     return imagery;
 }
 
-pxr::CesiumGlobeAnchorAPI defineGlobeAnchor(const pxr::SdfPath& path) {
+pxr::CesiumGlobeAnchorAPI defineCesiumGlobeAnchor(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto prim = stage->GetPrimAtPath(path);
 
@@ -435,6 +435,13 @@ pxr::CesiumImagery getCesiumImagery(const pxr::SdfPath& path) {
     auto imagery = pxr::CesiumImagery::Get(stage, path);
     assert(imagery.GetPrim().IsValid());
     return imagery;
+}
+
+pxr::CesiumIonServer getCesiumIonServer(const pxr::SdfPath& path) {
+    auto stage = UsdUtil::getUsdStage();
+    auto ionServer = pxr::CesiumIonServer::Get(stage, path);
+    assert(ionServer.GetPrim().IsValid());
+    return ionServer;
 }
 
 std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& path) {

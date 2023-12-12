@@ -49,7 +49,11 @@ CesiumIonClient::Token OmniIonServer::getToken() const {
     ionServer.GetProjectDefaultIonAccessTokenAttr().Get(&projectDefaultIonAccessToken);
     ionServer.GetProjectDefaultIonAccessTokenIdAttr().Get(&projectDefaultIonAccessTokenId);
 
-    return CesiumIonClient::Token{projectDefaultIonAccessTokenId, "", projectDefaultIonAccessToken};
+    CesiumIonClient::Token t;
+    t.id = projectDefaultIonAccessTokenId;
+    t.token = projectDefaultIonAccessToken;
+
+    return t;
 }
 
 void OmniIonServer::setToken(const CesiumIonClient::Token& token) {

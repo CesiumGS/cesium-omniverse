@@ -12,12 +12,6 @@ using namespace CesiumIonClient;
 
 using namespace cesium::omniverse;
 
-#ifdef CESIUM_OMNI_WINDOWS
-const char* browserCommandBase = "start";
-#else
-const char* browserCommandBase = "xdg-open";
-#endif
-
 CesiumIonSession::CesiumIonSession(
     CesiumAsync::AsyncSystem& asyncSystem,
     std::shared_ptr<CesiumAsync::IAssetAccessor> pAssetAccessor,

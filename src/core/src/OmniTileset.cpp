@@ -50,12 +50,12 @@ pxr::SdfPath OmniTileset::getPath() const {
 }
 
 std::string OmniTileset::getName() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
     return tileset.GetPrim().GetName().GetString();
 }
 
 TilesetSourceType OmniTileset::getSourceType() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     pxr::TfToken sourceType;
     tileset.GetSourceTypeAttr().Get<pxr::TfToken>(&sourceType);
@@ -68,7 +68,7 @@ TilesetSourceType OmniTileset::getSourceType() const {
 }
 
 std::string OmniTileset::getUrl() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     std::string url;
     tileset.GetUrlAttr().Get<std::string>(&url);
@@ -77,7 +77,7 @@ std::string OmniTileset::getUrl() const {
 }
 
 int64_t OmniTileset::getIonAssetId() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     int64_t ionAssetId;
     tileset.GetIonAssetIdAttr().Get<int64_t>(&ionAssetId);
@@ -86,14 +86,15 @@ int64_t OmniTileset::getIonAssetId() const {
 }
 
 std::optional<CesiumIonClient::Token> OmniTileset::getIonAccessToken() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     std::string ionAccessToken;
     tileset.GetIonAccessTokenAttr().Get<std::string>(&ionAccessToken);
 
     if (!ionAccessToken.empty()) {
-        // TODO: should this be combined with the server token id?
-        return CesiumIonClient::Token{"", "", ionAccessToken};
+        CesiumIonClient::Token t;
+        t.token = ionAccessToken;
+        return t;
     }
 
     const auto ionServerPath = getIonServerPath();
@@ -102,7 +103,7 @@ std::optional<CesiumIonClient::Token> OmniTileset::getIonAccessToken() const {
         return std::nullopt;
     }
 
-    auto ionServer = OmniIonServer(ionServerPath);
+    const auto ionServer = OmniIonServer(ionServerPath);
 
     const auto token = ionServer.getToken();
 
@@ -120,13 +121,13 @@ std::string OmniTileset::getIonApiUrl() const {
         return {};
     }
 
-    auto ionServer = OmniIonServer(ionServerPath);
+    const auto ionServer = OmniIonServer(ionServerPath);
 
     return ionServer.getIonServerApiUrl();
 }
 
 pxr::SdfPath OmniTileset::getIonServerPath() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     pxr::SdfPathVector targets;
     tileset.GetIonServerBindingRel().GetForwardedTargets(&targets);
@@ -139,7 +140,7 @@ pxr::SdfPath OmniTileset::getIonServerPath() const {
 }
 
 double OmniTileset::getMaximumScreenSpaceError() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     float maximumScreenSpaceError;
     tileset.GetMaximumScreenSpaceErrorAttr().Get<float>(&maximumScreenSpaceError);
@@ -148,7 +149,7 @@ double OmniTileset::getMaximumScreenSpaceError() const {
 }
 
 bool OmniTileset::getPreloadAncestors() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     bool preloadAncestors;
     tileset.GetPreloadAncestorsAttr().Get<bool>(&preloadAncestors);
@@ -157,7 +158,7 @@ bool OmniTileset::getPreloadAncestors() const {
 }
 
 bool OmniTileset::getPreloadSiblings() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     bool preloadSiblings;
     tileset.GetPreloadSiblingsAttr().Get<bool>(&preloadSiblings);
@@ -166,7 +167,7 @@ bool OmniTileset::getPreloadSiblings() const {
 }
 
 bool OmniTileset::getForbidHoles() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     bool forbidHoles;
     tileset.GetForbidHolesAttr().Get<bool>(&forbidHoles);
@@ -175,7 +176,7 @@ bool OmniTileset::getForbidHoles() const {
 }
 
 uint32_t OmniTileset::getMaximumSimultaneousTileLoads() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     uint32_t maximumSimultaneousTileLoads;
     tileset.GetMaximumSimultaneousTileLoadsAttr().Get<uint32_t>(&maximumSimultaneousTileLoads);
@@ -184,7 +185,7 @@ uint32_t OmniTileset::getMaximumSimultaneousTileLoads() const {
 }
 
 uint64_t OmniTileset::getMaximumCachedBytes() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     uint64_t maximumCachedBytes;
     tileset.GetMaximumCachedBytesAttr().Get<uint64_t>(&maximumCachedBytes);
@@ -193,7 +194,7 @@ uint64_t OmniTileset::getMaximumCachedBytes() const {
 }
 
 uint32_t OmniTileset::getLoadingDescendantLimit() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     uint32_t loadingDescendantLimit;
     tileset.GetLoadingDescendantLimitAttr().Get<uint32_t>(&loadingDescendantLimit);
@@ -202,7 +203,7 @@ uint32_t OmniTileset::getLoadingDescendantLimit() const {
 }
 
 bool OmniTileset::getEnableFrustumCulling() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     bool enableFrustumCulling;
     tileset.GetEnableFrustumCullingAttr().Get<bool>(&enableFrustumCulling);
@@ -211,7 +212,7 @@ bool OmniTileset::getEnableFrustumCulling() const {
 }
 
 bool OmniTileset::getEnableFogCulling() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     bool enableFogCulling;
     tileset.GetEnableFogCullingAttr().Get<bool>(&enableFogCulling);
@@ -220,7 +221,7 @@ bool OmniTileset::getEnableFogCulling() const {
 }
 
 bool OmniTileset::getEnforceCulledScreenSpaceError() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     bool enforceCulledScreenSpaceError;
     tileset.GetEnforceCulledScreenSpaceErrorAttr().Get<bool>(&enforceCulledScreenSpaceError);
@@ -229,7 +230,7 @@ bool OmniTileset::getEnforceCulledScreenSpaceError() const {
 }
 
 double OmniTileset::getCulledScreenSpaceError() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     float culledScreenSpaceError;
     tileset.GetCulledScreenSpaceErrorAttr().Get<float>(&culledScreenSpaceError);
@@ -238,7 +239,7 @@ double OmniTileset::getCulledScreenSpaceError() const {
 }
 
 bool OmniTileset::getSuspendUpdate() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     bool suspendUpdate;
     tileset.GetSuspendUpdateAttr().Get<bool>(&suspendUpdate);
@@ -247,7 +248,7 @@ bool OmniTileset::getSuspendUpdate() const {
 }
 
 bool OmniTileset::getSmoothNormals() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     bool smoothNormals;
     tileset.GetSmoothNormalsAttr().Get<bool>(&smoothNormals);
@@ -256,7 +257,7 @@ bool OmniTileset::getSmoothNormals() const {
 }
 
 bool OmniTileset::getShowCreditsOnScreen() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     bool showCreditsOnScreen;
     tileset.GetShowCreditsOnScreenAttr().Get<bool>(&showCreditsOnScreen);
@@ -265,7 +266,7 @@ bool OmniTileset::getShowCreditsOnScreen() const {
 }
 
 double OmniTileset::getMainThreadLoadingTimeLimit() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     float mainThreadLoadingTimeLimit;
     tileset.GetMainThreadLoadingTimeLimitAttr().Get<float>(&mainThreadLoadingTimeLimit);
@@ -273,8 +274,8 @@ double OmniTileset::getMainThreadLoadingTimeLimit() const {
     return static_cast<double>(mainThreadLoadingTimeLimit);
 }
 
-pxr::CesiumGeoreference OmniTileset::getGeoreference() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+OmniGeoreference OmniTileset::getGeoreference() const {
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     pxr::SdfPathVector targets;
     tileset.GetGeoreferenceBindingRel().GetTargets(&targets);
@@ -282,11 +283,11 @@ pxr::CesiumGeoreference OmniTileset::getGeoreference() const {
 
     // We only care about the first target.
     const auto georeferencePath = targets[0];
-    return UsdUtil::getCesiumGeoreference(georeferencePath);
+    return {georeferencePath};
 }
 
 pxr::SdfPath OmniTileset::getMaterialPath() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     const auto materialBindingApi = pxr::UsdShadeMaterialBindingAPI(tileset);
     const auto materialBinding = materialBindingApi.GetDirectBinding();
@@ -296,7 +297,7 @@ pxr::SdfPath OmniTileset::getMaterialPath() const {
 }
 
 glm::dvec3 OmniTileset::getDisplayColor() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     pxr::VtVec3fArray displayColorArray;
     tileset.GetDisplayColorAttr().Get(&displayColorArray);
@@ -314,7 +315,7 @@ glm::dvec3 OmniTileset::getDisplayColor() const {
 }
 
 double OmniTileset::getDisplayOpacity() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     pxr::VtFloatArray displayOpacityArray;
     tileset.GetDisplayOpacityAttr().Get(&displayOpacityArray);
@@ -618,7 +619,7 @@ void OmniTileset::updateTransform() {
     // about changes to the current prim and not its ancestor prims. Also Tf::Notice may notify us in a thread other
     // than the main thread and we would have to be careful to synchronize updates to Fabric in the main thread.
 
-    const auto georeferenceOrigin = GeospatialUtil::convertGeoreferenceToCartographic(getGeoreference());
+    const auto georeferenceOrigin = getGeoreference().getCartographic();
     const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdWorldTransformForPrim(georeferenceOrigin, _tilesetPath);
 
     // Check for transform changes and update prims accordingly
@@ -634,7 +635,7 @@ void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
 
     if (visible && !getSuspendUpdate()) {
         // Go ahead and select some tiles
-        const auto& georeferenceOrigin = GeospatialUtil::convertGeoreferenceToCartographic(getGeoreference());
+        const auto georeferenceOrigin = getGeoreference().getCartographic();
 
         _viewStates.clear();
         for (const auto& viewport : viewports) {
@@ -707,7 +708,7 @@ bool OmniTileset::updateExtent() {
     extent.push_back(pxr::GfVec3f(-xLengthHalf, -yLengthHalf, -zLengthHalf) + centerGf);
     extent.push_back(pxr::GfVec3f(xLengthHalf, yLengthHalf, zLengthHalf) + centerGf);
 
-    auto boundable = pxr::UsdGeomBoundable(tileset);
+    const auto boundable = pxr::UsdGeomBoundable(tileset);
     boundable.GetExtentAttr().Set(extent);
     return true;
 }

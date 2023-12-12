@@ -53,6 +53,8 @@ class UsdNotificationHandler final : public pxr::TfWeakBase {
 
     pxr::TfNotice::Key _noticeListenerKey;
 
+    // Insertion order is important, so avoid data structures that would
+    // reorganize elements like std::unordered_map or std::map
     std::vector<AddedPrim> _addedPrims;
     std::vector<RemovedPrim> _removedPrims;
     std::vector<PropertyChangedPrim> _propertyChangedPrims;

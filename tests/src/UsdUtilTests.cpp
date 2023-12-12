@@ -21,7 +21,7 @@ pxr::SdfPath defineCesiumSessionPath;
 pxr::SdfPath defineCesiumGeoreferencePath;
 pxr::SdfPath defineCesiumTilesetPath;
 pxr::SdfPath defineCesiumImageryPath;
-pxr::SdfPath defineGlobeAnchorPath;
+pxr::SdfPath defineCesiumGlobeAnchorPath;
 pxr::CesiumData getOrCreateCesiumDataPrim;
 pxr::CesiumSession getOrCreateCesiumSessionPrim;
 pxr::CesiumGeoreference getOrCreateCesiumGeoreferencePrim;
@@ -34,14 +34,14 @@ void setUpUsdUtilTests(const pxr::SdfPath& rootPath) {
     defineCesiumGeoreferencePath = rootPath.AppendChild(pxr::TfToken("defineCesiumGeoreference"));
     defineCesiumImageryPath = rootPath.AppendChild(pxr::TfToken("defineCesiumImagery"));
     defineCesiumTilesetPath = rootPath.AppendChild(pxr::TfToken("defineCesiumTileset"));
-    defineGlobeAnchorPath = rootPath.AppendChild(pxr::TfToken("defineGlobeAnchor"));
+    defineCesiumGlobeAnchorPath = rootPath.AppendChild(pxr::TfToken("defineCesiumGlobeAnchor"));
 
     defineCesiumData(defineCesiumDataPath);
     defineCesiumSession(defineCesiumSessionPath);
     defineCesiumGeoreference(defineCesiumGeoreferencePath);
     defineCesiumTileset(defineCesiumTilesetPath);
     defineCesiumImagery(defineCesiumImageryPath);
-    // defineGlobeAnchor(globeAnchorPath);
+    // defineCesiumGlobeAnchor(globeAnchorPath);
 
     getOrCreateCesiumDataPrim = getOrCreateCesiumData();
     getOrCreateCesiumSessionPrim = getOrCreateCesiumSession();
@@ -56,7 +56,7 @@ void cleanUpUsdUtilTests(const pxr::UsdStageRefPtr& stage) {
     stage->RemovePrim(defineCesiumGeoreferencePath);
     stage->RemovePrim(defineCesiumImageryPath);
     stage->RemovePrim(defineCesiumTilesetPath);
-    stage->RemovePrim(defineGlobeAnchorPath);
+    stage->RemovePrim(defineCesiumGlobeAnchorPath);
 
     // stage->RemovePrim(globeAnchorPath);
 
@@ -155,8 +155,8 @@ TEST_SUITE("UsdUtil tests") {
         // functions for which we do not yet have better tests,
         // but we can at least verify they don't throw
         CHECK_NOTHROW(getDynamicTextureProviderAssetPathToken("foo"));
-        CHECK_NOTHROW(getFabricStageReaderWriter());
-        CHECK_NOTHROW(getFabricStageReaderWriterId());
+        CHECK_NOTHROW(getFabricStage());
+        CHECK_NOTHROW(getFabricStageId());
         CHECK_NOTHROW(getUsdUpAxis());
         CHECK(getUsdMetersPerUnit() > 0);
 

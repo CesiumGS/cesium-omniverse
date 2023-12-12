@@ -18,8 +18,6 @@ class OmniGlobeAnchor;
 
 namespace GeospatialUtil {
 
-CesiumGeospatial::Cartographic convertGeoreferenceToCartographic(const pxr::CesiumGeoreference& georeference);
-
 CesiumGeospatial::LocalHorizontalCoordinateSystem getCoordinateSystem(const CesiumGeospatial::Cartographic& origin);
 
 void updateAnchorByUsdTransform(

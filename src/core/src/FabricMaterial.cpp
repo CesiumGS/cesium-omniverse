@@ -206,7 +206,7 @@ void setTextureValuesCommon(
     const pxr::TfToken& textureAssetPathToken,
     const TextureInfo& textureInfo,
     uint64_t texcoordIndex) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
 
     auto offset = textureInfo.offset;
     auto rotation = textureInfo.rotation;
@@ -253,7 +253,7 @@ void setTextureValuesCommonChannels(
     }
     channelCount = glm::max(channelCount, uint64_t(1));
 
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
 
     auto channelsFabric = srw.getAttributeWr<glm::i32vec4>(path, FabricTokens::inputs_channels);
     *channelsFabric = static_cast<glm::i32vec4>(channels);
@@ -295,7 +295,7 @@ void setPropertyValues(
     using MdlRawType = GetMdlInternalPropertyRawType<T>;
     using MdlTransformedType = GetMdlInternalPropertyTransformedType<T>;
 
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
 
     auto hasNoDataFabric = srw.getAttributeWr<bool>(path, FabricTokens::inputs_has_no_data);
     auto noDataFabric = srw.getAttributeWr<MdlRawType>(path, FabricTokens::inputs_no_data);
@@ -332,7 +332,7 @@ void setPropertyAttributePropertyValues(
     const GetMdlInternalPropertyRawType<T>& noData,
     const GetMdlInternalPropertyTransformedType<T>& defaultValue) {
 
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
     setStringFabric(srw, path, FabricTokens::inputs_primvar_name, primvarName);
     setPropertyValues<T>(path, offset, scale, maximumValue, hasNoData, noData, defaultValue);
 }
@@ -365,7 +365,7 @@ void setPropertyTablePropertyValues(
     const GetMdlInternalPropertyRawType<T>& noData,
     const GetMdlInternalPropertyTransformedType<T>& defaultValue) {
 
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
     auto textureFabric = srw.getAttributeWr<omni::fabric::AssetPath>(path, FabricTokens::inputs_property_table_texture);
     textureFabric->assetPath = propertyTableTextureAssetPathToken;
     textureFabric->resolvedPath = pxr::TfToken();
@@ -492,7 +492,7 @@ const FabricMaterialDefinition& FabricMaterial::getMaterialDefinition() const {
 }
 
 void FabricMaterial::initializeNodes() {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
 
     // Create base color texture
     const auto hasBaseColorTexture = _materialDefinition.hasBaseColorTexture();
@@ -578,7 +578,7 @@ void FabricMaterial::initializeNodes() {
 }
 
 void FabricMaterial::initializeDefaultMaterial() {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
 
     const auto imageryLayerCount = getImageryLayerCount(_materialDefinition);
     const auto hasBaseColorTexture = _materialDefinition.hasBaseColorTexture();
@@ -629,7 +629,7 @@ void FabricMaterial::initializeDefaultMaterial() {
 }
 
 void FabricMaterial::initializeExistingMaterial(const omni::fabric::Path& path) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
 
     const auto copiedPaths = FabricUtil::copyMaterial(path, _materialPath);
 
@@ -655,7 +655,7 @@ void FabricMaterial::initializeExistingMaterial(const omni::fabric::Path& path) 
 }
 
 void FabricMaterial::createMaterial(const omni::fabric::Path& path) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
     srw.createPrim(path);
 
     FabricAttributesBuilder attributes;
@@ -667,7 +667,7 @@ void FabricMaterial::createMaterial(const omni::fabric::Path& path) {
 }
 
 void FabricMaterial::createShader(const omni::fabric::Path& path) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
 
     srw.createPrim(path);
 
@@ -689,7 +689,7 @@ void FabricMaterial::createTextureCommon(
     const omni::fabric::Path& path,
     const omni::fabric::Token& subIdentifier,
     const std::vector<std::pair<omni::fabric::Type, omni::fabric::Token>>& additionalAttributes) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
 
     srw.createPrim(path);
 
@@ -728,7 +728,7 @@ void FabricMaterial::createImageryLayer(const omni::fabric::Path& path) {
 }
 
 void FabricMaterial::createImageryLayerResolver(const omni::fabric::Path& path, uint64_t imageryLayerCount) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
 
     srw.createPrim(path);
 
@@ -747,7 +747,7 @@ void FabricMaterial::createFeatureIdIndex(const omni::fabric::Path& path) {
 }
 
 void FabricMaterial::createFeatureIdAttribute(const omni::fabric::Path& path) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
 
     srw.createPrim(path);
 
@@ -774,7 +774,7 @@ void FabricMaterial::createPropertyAttributePropertyInt(
     const omni::fabric::Token& subidentifier,
     const omni::fabric::Type& noDataType,
     const omni::fabric::Type& defaultValueType) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
     srw.createPrim(path);
     FabricAttributesBuilder attributes;
     attributes.addAttribute(FabricTypes::inputs_primvar_name, FabricTokens::inputs_primvar_name);
@@ -792,7 +792,7 @@ void FabricMaterial::createPropertyAttributePropertyNormalizedInt(
     const omni::fabric::Type& offsetType,
     const omni::fabric::Type& scaleType,
     const omni::fabric::Type& maximumValueType) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
     srw.createPrim(path);
     FabricAttributesBuilder attributes;
     attributes.addAttribute(FabricTypes::inputs_primvar_name, FabricTokens::inputs_primvar_name);
@@ -812,7 +812,7 @@ void FabricMaterial::createPropertyAttributePropertyFloat(
     const omni::fabric::Type& defaultValueType,
     const omni::fabric::Type& offsetType,
     const omni::fabric::Type& scaleType) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
     srw.createPrim(path);
     FabricAttributesBuilder attributes;
     attributes.addAttribute(FabricTypes::inputs_primvar_name, FabricTokens::inputs_primvar_name);
@@ -1072,7 +1072,7 @@ void FabricMaterial::createPropertyTablePropertyInt(
     const omni::fabric::Token& subidentifier,
     const omni::fabric::Type& noDataType,
     const omni::fabric::Type& defaultValueType) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
     srw.createPrim(path);
     FabricAttributesBuilder attributes;
     attributes.addAttribute(FabricTypes::inputs_property_table_texture, FabricTokens::inputs_property_table_texture);
@@ -1090,7 +1090,7 @@ void FabricMaterial::createPropertyTablePropertyNormalizedInt(
     const omni::fabric::Type& offsetType,
     const omni::fabric::Type& scaleType,
     const omni::fabric::Type& maximumValueType) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
     srw.createPrim(path);
     FabricAttributesBuilder attributes;
     attributes.addAttribute(FabricTypes::inputs_property_table_texture, FabricTokens::inputs_property_table_texture);
@@ -1110,7 +1110,7 @@ void FabricMaterial::createPropertyTablePropertyFloat(
     const omni::fabric::Type& defaultValueType,
     const omni::fabric::Type& offsetType,
     const omni::fabric::Type& scaleType) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
     srw.createPrim(path);
     FabricAttributesBuilder attributes;
     attributes.addAttribute(FabricTypes::inputs_property_table_texture, FabricTokens::inputs_property_table_texture);
@@ -1497,7 +1497,7 @@ void FabricMaterial::setMaterial(
 }
 
 void FabricMaterial::createConnectionsToCopiedPaths() {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
 
     const auto hasBaseColorTexture = _materialDefinition.hasBaseColorTexture();
     const auto imageryLayerCount = getImageryLayerCount(_materialDefinition);
@@ -1529,7 +1529,7 @@ void FabricMaterial::createConnectionsToCopiedPaths() {
 }
 
 void FabricMaterial::destroyConnectionsToCopiedPaths() {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
 
     for (const auto& copiedPath : _copiedBaseColorTexturePaths) {
         destroyConnection(srw, copiedPath, FabricTokens::inputs_base_color_texture);
@@ -1545,7 +1545,7 @@ void FabricMaterial::destroyConnectionsToCopiedPaths() {
 }
 
 void FabricMaterial::createConnectionsToProperties() {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
 
     for (const auto& propertyPathExternal : _copiedPropertyPaths) {
         const auto propertyId = getStringFabric(srw, propertyPathExternal, FabricTokens::inputs_property_id);
@@ -1583,7 +1583,7 @@ void FabricMaterial::createConnectionsToProperties() {
 }
 
 void FabricMaterial::destroyConnectionsToProperties() {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
 
     for (const auto& copiedPath : _copiedPropertyPaths) {
         destroyConnection(srw, copiedPath, FabricTokens::inputs_property_value);
@@ -1632,7 +1632,7 @@ void FabricMaterial::setDisplayColorAndOpacity(const glm::dvec3& displayColor, d
         return;
     }
 
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
 
     auto tileColorFabric = srw.getAttributeWr<pxr::GfVec4f>(_shaderPath, FabricTokens::inputs_tile_color);
     auto alphaModeFabric = srw.getAttributeWr<int>(_shaderPath, FabricTokens::inputs_alpha_mode);
@@ -1646,7 +1646,7 @@ void FabricMaterial::updateShaderInput(const omni::fabric::Path& path, const omn
         return;
     }
 
-    const auto srw = UsdUtil::getFabricStageReaderWriter();
+    const auto srw = UsdUtil::getFabricStage();
     const auto isrw = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
 
     const auto copiedShaderPath = FabricUtil::getCopiedShaderPath(_materialPath, path);
@@ -1692,7 +1692,7 @@ void FabricMaterial::setShaderValues(
     const MaterialInfo& materialInfo,
     const glm::dvec3& displayColor,
     double displayOpacity) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
 
     auto tileColorFabric = srw.getAttributeWr<pxr::GfVec4f>(path, FabricTokens::inputs_tile_color);
     auto alphaCutoffFabric = srw.getAttributeWr<float>(path, FabricTokens::inputs_alpha_cutoff);
@@ -1732,7 +1732,7 @@ void FabricMaterial::setImageryLayerValues(
 }
 
 void FabricMaterial::setImageryLayerAlphaValue(const omni::fabric::Path& path, double alpha) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
     auto alphaFabric = srw.getAttributeWr<float>(path, FabricTokens::inputs_alpha);
     *alphaFabric = static_cast<float>(alpha);
 }
@@ -1746,7 +1746,7 @@ void FabricMaterial::setFeatureIdAttributeValues(
     const std::string& primvarName,
     int nullFeatureId) {
 
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
 
     setStringFabric(srw, path, FabricTokens::inputs_primvar_name, primvarName);
 
@@ -1763,7 +1763,7 @@ void FabricMaterial::setFeatureIdTextureValues(
 
     setTextureValuesCommonChannels(path, textureAssetPathToken, textureInfo, texcoordIndex);
 
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+    auto srw = UsdUtil::getFabricStage();
     auto nullFeatureIdFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_null_feature_id);
 
     *nullFeatureIdFabric = nullFeatureId;

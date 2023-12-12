@@ -82,7 +82,10 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
     }
 
     void selectToken(const char* id, const char* token) noexcept override {
-        CesiumIonClient::Token t{id, "", token};
+        CesiumIonClient::Token t;
+        t.id = id;
+        t.token = token;
+
         Context::instance().selectToken(t);
     }
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "cesium/omniverse/OmniGeoreference.h"
+
 #include <CesiumIonClient/Token.h>
 #include <CesiumUsdSchemas/georeference.h>
 #include <glm/glm.hpp>
@@ -67,7 +69,7 @@ class OmniTileset {
     [[nodiscard]] bool getSmoothNormals() const;
     [[nodiscard]] double getMainThreadLoadingTimeLimit() const;
     [[nodiscard]] bool getShowCreditsOnScreen() const;
-    [[nodiscard]] pxr::CesiumGeoreference getGeoreference() const;
+    [[nodiscard]] OmniGeoreference getGeoreference() const;
     [[nodiscard]] pxr::SdfPath getMaterialPath() const;
     [[nodiscard]] glm::dvec3 getDisplayColor() const;
     [[nodiscard]] double getDisplayOpacity() const;
