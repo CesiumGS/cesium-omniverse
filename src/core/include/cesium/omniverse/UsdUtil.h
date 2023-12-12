@@ -61,9 +61,8 @@ class ScopedEdit {
 pxr::UsdStageRefPtr getUsdStage();
 long getUsdStageId();
 omni::fabric::StageReaderWriter getFabricStage();
-omni::fabric::StageReaderWriterId getFabricStageId();
-
 bool hasStage();
+
 glm::dvec3 usdToGlmVector(const pxr::GfVec3d& vector);
 glm::dmat4 usdToGlmMatrix(const pxr::GfMatrix4d& matrix);
 pxr::GfVec3d glmToUsdVector(const glm::dvec3& vector);
@@ -93,45 +92,42 @@ glm::dmat4
 computeUsdLocalToEcefTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath);
 Cesium3DTilesSelection::ViewState
 computeViewState(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath, const Viewport& viewport);
-pxr::GfRange3d computeWorldExtent(const pxr::GfRange3d& localExtent, const glm::dmat4& localToUsdTransform);
+pxr::GfRange3d computeWorldExtent(const pxr::GfRange3d& localExtent, const glm::dmat4& usdLocalToWorldTransform);
 pxr::GfVec3f getEulerAnglesFromQuaternion(const pxr::GfQuatf& quaternion);
 
 pxr::CesiumData defineCesiumData(const pxr::SdfPath& path);
-pxr::CesiumIonServer defineCesiumIonServer(const pxr::SdfPath& path);
-pxr::CesiumSession defineCesiumSession(const pxr::SdfPath& path);
-pxr::CesiumGeoreference defineCesiumGeoreference(const pxr::SdfPath& path);
 pxr::CesiumTileset defineCesiumTileset(const pxr::SdfPath& path);
 pxr::CesiumImagery defineCesiumImagery(const pxr::SdfPath& path);
+pxr::CesiumGeoreference defineCesiumGeoreference(const pxr::SdfPath& path);
+pxr::CesiumIonServer defineCesiumIonServer(const pxr::SdfPath& path);
+pxr::CesiumSession defineCesiumSession(const pxr::SdfPath& path);
 pxr::CesiumGlobeAnchorAPI defineCesiumGlobeAnchor(const pxr::SdfPath& path);
-
-pxr::CesiumData getOrCreateCesiumData();
-pxr::CesiumSession getOrCreateCesiumSession();
-pxr::CesiumGeoreference getOrCreateCesiumGeoreference();
 
 pxr::CesiumData getCesiumData(const pxr::SdfPath& path);
 pxr::CesiumTileset getCesiumTileset(const pxr::SdfPath& path);
 pxr::CesiumImagery getCesiumImagery(const pxr::SdfPath& path);
 pxr::CesiumGeoreference getCesiumGeoreference(const pxr::SdfPath& path);
 pxr::CesiumIonServer getCesiumIonServer(const pxr::SdfPath& path);
-
-std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& path);
 pxr::CesiumGlobeAnchorAPI getCesiumGlobeAnchor(const pxr::SdfPath& path);
 pxr::UsdShadeShader getUsdShader(const pxr::SdfPath& path);
 
+pxr::CesiumData getOrCreateCesiumData();
+pxr::CesiumGeoreference getOrCreateCesiumGeoreference();
+pxr::CesiumSession getOrCreateCesiumSession();
+
+std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& path);
+
 bool isCesiumData(const pxr::SdfPath& path);
-bool isCesiumIonServer(const pxr::SdfPath& path);
-bool isCesiumSession(const pxr::SdfPath& path);
-bool isCesiumGeoreference(const pxr::SdfPath& path);
 bool isCesiumTileset(const pxr::SdfPath& path);
 bool isCesiumImagery(const pxr::SdfPath& path);
+bool isCesiumGeoreference(const pxr::SdfPath& path);
+bool isCesiumIonServer(const pxr::SdfPath& path);
+bool isCesiumSession(const pxr::SdfPath& path);
 bool hasCesiumGlobeAnchor(const pxr::SdfPath& path);
-
 bool isUsdShader(const pxr::SdfPath& path);
 bool isUsdMaterial(const pxr::SdfPath& path);
 
 bool primExists(const pxr::SdfPath& path);
-
-void setGeoreferenceForTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPath& georeferencePath);
 
 void addOrUpdateTransformOpForAnchor(const pxr::SdfPath& path, const glm::dmat4& transform);
 std::optional<pxr::GfMatrix4d> getCesiumTransformOpValueForPathIfExists(const pxr::SdfPath& path);

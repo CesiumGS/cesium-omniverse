@@ -38,7 +38,8 @@ OmniTileset::OmniTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPath& ge
     , _tilesetId(Context::instance().getNextTilesetId()) {
     reload();
 
-    UsdUtil::setGeoreferenceForTileset(tilesetPath, georeferencePath);
+    const auto tilesetPrim = UsdUtil::getCesiumTileset(_tilesetPath);
+    tilesetPrim.GetGeoreferenceBindingRel().AddTarget(georeferencePath);
 }
 
 OmniTileset::~OmniTileset() {

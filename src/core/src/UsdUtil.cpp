@@ -43,13 +43,6 @@ omni::fabric::StageReaderWriter getFabricStage() {
     return Context::instance().getFabricStage();
 }
 
-omni::fabric::StageReaderWriterId getFabricStageId() {
-    const auto iStageReaderWriter = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
-    const auto stageId = getUsdStageId();
-    const auto stageReaderWriterId = iStageReaderWriter->get(omni::fabric::UsdStageId{static_cast<uint64_t>(stageId)});
-    return stageReaderWriterId;
-}
-
 bool hasStage() {
     return getUsdStageId() != 0;
 }
@@ -90,16 +83,16 @@ pxr::GfVec2f glmToUsdVector(const glm::fvec2& vector) {
     return {vector.x, vector.y};
 }
 
-pxr::GfQuatd glmToUsdQuat(const glm::dquat& quat) {
-    return {quat.w, quat.x, quat.y, quat.z};
-}
-
 pxr::GfVec3f glmToUsdVector(const glm::fvec3& vector) {
     return {vector.x, vector.y, vector.z};
 }
 
 pxr::GfRange3d glmToUsdRange(const std::array<glm::dvec3, 2>& extent) {
     return {glmToUsdVector(extent[0]), glmToUsdVector(extent[1])};
+}
+
+pxr::GfQuatd glmToUsdQuat(const glm::dquat& quat) {
+    return {quat.w, quat.x, quat.y, quat.z};
 }
 
 pxr::GfMatrix4d glmToUsdMatrix(const glm::dmat4& matrix) {
@@ -127,17 +120,17 @@ pxr::GfMatrix4d glmToUsdMatrix(const glm::dmat4& matrix) {
 }
 
 Decomposed glmToUsdMatrixDecomposed(const glm::dmat4& matrix) {
-    glm::dvec3 scale{};
-    glm::dquat rotation{};
-    glm::dvec3 translation{};
-    glm::dvec3 skew{};
-    glm::dvec4 perspective{};
+    glm::dvec3 scale;
+    glm::dquat rotation;
+    glm::dvec3 translation;
+    glm::dvec3 skew;
+    glm::dvec4 perspective;
 
     [[maybe_unused]] const auto decomposable = glm::decompose(matrix, scale, rotation, translation, skew, perspective);
     assert(decomposable);
 
-    const glm::fquat rotationF32(rotation);
-    const glm::fvec3 scaleF32(scale);
+    const auto rotationF32 = static_cast<glm::fquat>(rotation);
+    const auto scaleF32 = static_cast<glm::fvec3>(scale);
 
     return {
         pxr::GfVec3d(translation.x, translation.y, translation.z),
@@ -174,7 +167,7 @@ bool isPrimVisible(const pxr::SdfPath& path) {
 
 pxr::TfToken getUsdUpAxis() {
     const auto stage = getUsdStage();
-    auto upAxis = pxr::UsdGeomGetStageUpAxis(stage);
+    const auto upAxis = pxr::UsdGeomGetStageUpAxis(stage);
     return upAxis;
 }
 
@@ -217,11 +210,9 @@ pxr::TfToken getDynamicTextureProviderAssetPathToken(const std::string& name) {
 }
 
 glm::dmat4 computeEcefToUsdLocalTransform(const CesiumGeospatial::Cartographic& origin) {
-    const auto cesiumDataUsd = UsdUtil::getOrCreateCesiumData();
-    bool disableGeoreferencing;
-    cesiumDataUsd.GetDebugDisableGeoreferencingAttr().Get(&disableGeoreferencing);
+    const auto data = OmniData(UsdUtil::getOrCreateCesiumData().GetPath());
 
-    if (disableGeoreferencing) {
+    if (data.getDebugDisableGeoreferencing()) {
         const auto scale = 1.0 / getUsdMetersPerUnit();
         return glm::scale(glm::dmat4(1.0), glm::dvec3(scale));
     }
@@ -279,16 +270,16 @@ computeViewState(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPat
         cameraPosition, cameraFwd, cameraUp, glm::dvec2(width, height), horizontalFov, verticalFov);
 }
 
-pxr::GfRange3d computeWorldExtent(const pxr::GfRange3d& localExtent, const glm::dmat4& localToUsdTransform) {
+pxr::GfRange3d computeWorldExtent(const pxr::GfRange3d& localExtent, const glm::dmat4& usdLocalToWorldTransform) {
     const auto min = std::numeric_limits<double>::lowest();
     const auto max = std::numeric_limits<double>::max();
 
     glm::dvec3 worldMin(max);
     glm::dvec3 worldMax(min);
 
-    for (int i = 0; i < 8; i++) {
+    for (size_t i = 0; i < 8; i++) {
         const auto localPosition = usdToGlmVector(localExtent.GetCorner(i));
-        const auto worldPosition = glm::dvec3(localToUsdTransform * glm::dvec4(localPosition, 1.0));
+        const auto worldPosition = glm::dvec3(usdLocalToWorldTransform * glm::dvec4(localPosition, 1.0));
 
         worldMin = glm::min(worldMin, worldPosition);
         worldMax = glm::max(worldMax, worldPosition);
@@ -304,88 +295,140 @@ pxr::GfVec3f getEulerAnglesFromQuaternion(const pxr::GfQuatf& quaternion) {
 }
 
 pxr::CesiumData defineCesiumData(const pxr::SdfPath& path) {
-    auto stage = getUsdStage();
-    auto cesiumData = pxr::CesiumData::Define(stage, path);
+    const auto stage = getUsdStage();
+    const auto cesiumData = pxr::CesiumData::Define(stage, path);
+    assert(cesiumData.GetPrim().IsValid());
 
     return cesiumData;
 }
 
-pxr::CesiumIonServer defineCesiumIonServer(const pxr::SdfPath& path) {
-    auto stage = getUsdStage();
-    auto cesiumIonServer = pxr::CesiumIonServer::Define(stage, path);
-
-    return cesiumIonServer;
-}
-
-pxr::CesiumSession defineCesiumSession(const pxr::SdfPath& path) {
-    auto stage = getUsdStage();
-    auto cesiumSession = pxr::CesiumSession::Define(stage, path);
-
-    return cesiumSession;
-}
-
-pxr::CesiumGeoreference defineCesiumGeoreference(const pxr::SdfPath& path) {
-    auto stage = getUsdStage();
-    auto georeference = pxr::CesiumGeoreference::Define(stage, path);
-
-    return georeference;
-}
-
 pxr::CesiumTileset defineCesiumTileset(const pxr::SdfPath& path) {
-    auto stage = getUsdStage();
-    auto tileset = pxr::CesiumTileset::Define(stage, path);
-
+    const auto stage = getUsdStage();
+    const auto tileset = pxr::CesiumTileset::Define(stage, path);
     assert(tileset.GetPrim().IsValid());
+
     return tileset;
 }
 
 pxr::CesiumImagery defineCesiumImagery(const pxr::SdfPath& path) {
-    auto stage = getUsdStage();
-    auto imagery = pxr::CesiumImagery::Define(stage, path);
+    const auto stage = getUsdStage();
+    const auto imagery = pxr::CesiumImagery::Define(stage, path);
     assert(imagery.GetPrim().IsValid());
 
     return imagery;
 }
 
-pxr::CesiumGlobeAnchorAPI defineCesiumGlobeAnchor(const pxr::SdfPath& path) {
-    auto stage = getUsdStage();
-    auto prim = stage->GetPrimAtPath(path);
+pxr::CesiumGeoreference defineCesiumGeoreference(const pxr::SdfPath& path) {
+    const auto stage = getUsdStage();
+    const auto georeference = pxr::CesiumGeoreference::Define(stage, path);
+    assert(georeference.GetPrim().IsValid());
 
-    auto globeAnchor = pxr::CesiumGlobeAnchorAPI::Apply(prim);
+    return georeference;
+}
+
+pxr::CesiumIonServer defineCesiumIonServer(const pxr::SdfPath& path) {
+    const auto stage = getUsdStage();
+    const auto cesiumIonServer = pxr::CesiumIonServer::Define(stage, path);
+    assert(cesiumIonServer.GetPrim().IsValid());
+
+    return cesiumIonServer;
+}
+
+pxr::CesiumSession defineCesiumSession(const pxr::SdfPath& path) {
+    const auto stage = getUsdStage();
+    const auto cesiumSession = pxr::CesiumSession::Define(stage, path);
+    assert(cesiumSession.GetPrim().IsValid());
+
+    return cesiumSession;
+}
+
+pxr::CesiumGlobeAnchorAPI defineCesiumGlobeAnchor(const pxr::SdfPath& path) {
+    const auto stage = getUsdStage();
+    const auto prim = stage->GetPrimAtPath(path);
+
+    const auto globeAnchor = pxr::CesiumGlobeAnchorAPI::Apply(prim);
     assert(globeAnchor.GetPrim().IsValid());
 
     return globeAnchor;
+}
+
+pxr::CesiumData getCesiumData(const pxr::SdfPath& path) {
+    const auto stage = UsdUtil::getUsdStage();
+    const auto data = pxr::CesiumData::Get(stage, path);
+    assert(data.GetPrim().IsValid());
+    return data;
+}
+
+pxr::CesiumTileset getCesiumTileset(const pxr::SdfPath& path) {
+    const auto stage = getUsdStage();
+    const auto tileset = pxr::CesiumTileset::Get(stage, path);
+    assert(tileset.GetPrim().IsValid());
+    return tileset;
+}
+
+pxr::CesiumImagery getCesiumImagery(const pxr::SdfPath& path) {
+    const auto stage = UsdUtil::getUsdStage();
+    const auto imagery = pxr::CesiumImagery::Get(stage, path);
+    assert(imagery.GetPrim().IsValid());
+    return imagery;
+}
+
+pxr::CesiumGeoreference getCesiumGeoreference(const pxr::SdfPath& path) {
+    const auto georeference = pxr::CesiumGeoreference::Get(getUsdStage(), path);
+    assert(georeference.GetPrim().IsValid());
+    return georeference;
+}
+
+pxr::CesiumIonServer getCesiumIonServer(const pxr::SdfPath& path) {
+    const auto stage = UsdUtil::getUsdStage();
+    const auto ionServer = pxr::CesiumIonServer::Get(stage, path);
+    assert(ionServer.GetPrim().IsValid());
+    return ionServer;
+}
+
+pxr::CesiumGlobeAnchorAPI getCesiumGlobeAnchor(const pxr::SdfPath& path) {
+    const auto stage = UsdUtil::getUsdStage();
+    const auto globeAnchor = pxr::CesiumGlobeAnchorAPI::Get(stage, path);
+    assert(globeAnchor.GetPrim().IsValid());
+    return globeAnchor;
+}
+
+pxr::UsdShadeShader getUsdShader(const pxr::SdfPath& path) {
+    const auto stage = getUsdStage();
+    const auto shader = pxr::UsdShadeShader::Get(stage, path);
+    assert(shader.GetPrim().IsValid());
+    return shader;
 }
 
 pxr::CesiumData getOrCreateCesiumData() {
     static const auto CesiumDataPath = pxr::SdfPath("/Cesium");
 
     if (isCesiumData(CesiumDataPath)) {
-        auto stage = getUsdStage();
-        auto cesiumData = pxr::CesiumData::Get(stage, CesiumDataPath);
+        const auto stage = getUsdStage();
+        const auto cesiumData = pxr::CesiumData::Get(stage, CesiumDataPath);
         return cesiumData;
     }
 
     return defineCesiumData(CesiumDataPath);
 }
 
-pxr::CesiumIonServer getOrCreateIonServer(const pxr::SdfPath& path) {
-    if (isCesiumIonServer(path)) {
-        auto stage = getUsdStage();
-        auto currentIonServer = pxr::CesiumIonServer::Get(stage, path);
-        return currentIonServer;
+pxr::CesiumGeoreference getOrCreateCesiumGeoreference() {
+    static const auto CesiumGeoreferencePath = pxr::SdfPath("/CesiumGeoreference");
+
+    if (isCesiumGeoreference(CesiumGeoreferencePath)) {
+        return pxr::CesiumGeoreference::Get(getUsdStage(), CesiumGeoreferencePath);
     }
 
-    return defineCesiumIonServer(path);
+    return defineCesiumGeoreference(CesiumGeoreferencePath);
 }
 
 pxr::CesiumSession getOrCreateCesiumSession() {
     static const auto CesiumSessionPath = pxr::SdfPath("/CesiumSession");
 
-    auto stage = getUsdStage();
+    const auto stage = getUsdStage();
 
     if (isCesiumSession(CesiumSessionPath)) {
-        auto cesiumSession = pxr::CesiumSession::Get(stage, CesiumSessionPath);
+        const auto cesiumSession = pxr::CesiumSession::Get(stage, CesiumSessionPath);
         return cesiumSession;
     }
 
@@ -401,52 +444,9 @@ pxr::CesiumSession getOrCreateCesiumSession() {
     return cesiumSession;
 }
 
-pxr::CesiumGeoreference getOrCreateCesiumGeoreference() {
-    static const auto CesiumGeoreferencePath = pxr::SdfPath("/CesiumGeoreference");
-
-    if (isCesiumGeoreference(CesiumGeoreferencePath)) {
-        return pxr::CesiumGeoreference::Get(getUsdStage(), CesiumGeoreferencePath);
-    }
-
-    return defineCesiumGeoreference(CesiumGeoreferencePath);
-}
-
-pxr::CesiumData getCesiumData(const pxr::SdfPath& path) {
-    auto data = pxr::CesiumData::Get(getUsdStage(), path);
-    assert(data.GetPrim().IsValid());
-    return data;
-}
-
-pxr::CesiumGeoreference getCesiumGeoreference(const pxr::SdfPath& path) {
-    auto georeference = pxr::CesiumGeoreference::Get(getUsdStage(), path);
-    assert(georeference.GetPrim().IsValid());
-    return georeference;
-}
-
-pxr::CesiumTileset getCesiumTileset(const pxr::SdfPath& path) {
-    auto stage = getUsdStage();
-    auto tileset = pxr::CesiumTileset::Get(stage, path);
-    assert(tileset.GetPrim().IsValid());
-    return tileset;
-}
-
-pxr::CesiumImagery getCesiumImagery(const pxr::SdfPath& path) {
-    auto stage = UsdUtil::getUsdStage();
-    auto imagery = pxr::CesiumImagery::Get(stage, path);
-    assert(imagery.GetPrim().IsValid());
-    return imagery;
-}
-
-pxr::CesiumIonServer getCesiumIonServer(const pxr::SdfPath& path) {
-    auto stage = UsdUtil::getUsdStage();
-    auto ionServer = pxr::CesiumIonServer::Get(stage, path);
-    assert(ionServer.GetPrim().IsValid());
-    return ionServer;
-}
-
 std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& path) {
-    auto stage = UsdUtil::getUsdStage();
-    auto prim = stage->GetPrimAtPath(path);
+    const auto stage = UsdUtil::getUsdStage();
+    const auto prim = stage->GetPrimAtPath(path);
     assert(prim.IsValid());
 
     std::vector<pxr::CesiumImagery> result;
@@ -460,23 +460,9 @@ std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& p
     return result;
 }
 
-pxr::CesiumGlobeAnchorAPI getCesiumGlobeAnchor(const pxr::SdfPath& path) {
-    auto stage = UsdUtil::getUsdStage();
-    auto globeAnchor = pxr::CesiumGlobeAnchorAPI::Get(stage, path);
-    assert(globeAnchor.GetPrim().IsValid());
-    return globeAnchor;
-}
-
-pxr::UsdShadeShader getUsdShader(const pxr::SdfPath& path) {
-    auto stage = getUsdStage();
-    auto shader = pxr::UsdShadeShader::Get(stage, path);
-    assert(shader.GetPrim().IsValid());
-    return shader;
-}
-
 bool isCesiumData(const pxr::SdfPath& path) {
-    auto stage = getUsdStage();
-    auto prim = stage->GetPrimAtPath(path);
+    const auto stage = getUsdStage();
+    const auto prim = stage->GetPrimAtPath(path);
     if (!prim.IsValid()) {
         return false;
     }
@@ -484,39 +470,9 @@ bool isCesiumData(const pxr::SdfPath& path) {
     return prim.IsA<pxr::CesiumData>();
 }
 
-bool isCesiumIonServer(const pxr::SdfPath& path) {
-    auto stage = getUsdStage();
-    auto prim = stage->GetPrimAtPath(path);
-    if (!prim.IsValid()) {
-        return false;
-    }
-
-    return prim.IsA<pxr::CesiumIonServer>();
-}
-
-bool isCesiumSession(const pxr::SdfPath& path) {
-    auto stage = getUsdStage();
-    auto prim = stage->GetPrimAtPath(path);
-    if (!prim.IsValid()) {
-        return false;
-    }
-
-    return prim.IsA<pxr::CesiumSession>();
-}
-
-bool isCesiumGeoreference(const pxr::SdfPath& path) {
-    auto stage = getUsdStage();
-    auto prim = stage->GetPrimAtPath(path);
-    if (!prim.IsValid()) {
-        return false;
-    }
-
-    return prim.IsA<pxr::CesiumGeoreference>();
-}
-
 bool isCesiumTileset(const pxr::SdfPath& path) {
-    auto stage = getUsdStage();
-    auto prim = stage->GetPrimAtPath(path);
+    const auto stage = getUsdStage();
+    const auto prim = stage->GetPrimAtPath(path);
     if (!prim.IsValid()) {
         return false;
     }
@@ -525,8 +481,8 @@ bool isCesiumTileset(const pxr::SdfPath& path) {
 }
 
 bool isCesiumImagery(const pxr::SdfPath& path) {
-    auto stage = getUsdStage();
-    auto prim = stage->GetPrimAtPath(path);
+    const auto stage = getUsdStage();
+    const auto prim = stage->GetPrimAtPath(path);
     if (!prim.IsValid()) {
         return false;
     }
@@ -534,9 +490,39 @@ bool isCesiumImagery(const pxr::SdfPath& path) {
     return prim.IsA<pxr::CesiumImagery>();
 }
 
+bool isCesiumGeoreference(const pxr::SdfPath& path) {
+    const auto stage = getUsdStage();
+    const auto prim = stage->GetPrimAtPath(path);
+    if (!prim.IsValid()) {
+        return false;
+    }
+
+    return prim.IsA<pxr::CesiumGeoreference>();
+}
+
+bool isCesiumIonServer(const pxr::SdfPath& path) {
+    const auto stage = getUsdStage();
+    const auto prim = stage->GetPrimAtPath(path);
+    if (!prim.IsValid()) {
+        return false;
+    }
+
+    return prim.IsA<pxr::CesiumIonServer>();
+}
+
+bool isCesiumSession(const pxr::SdfPath& path) {
+    const auto stage = getUsdStage();
+    const auto prim = stage->GetPrimAtPath(path);
+    if (!prim.IsValid()) {
+        return false;
+    }
+
+    return prim.IsA<pxr::CesiumSession>();
+}
+
 bool hasCesiumGlobeAnchor(const pxr::SdfPath& path) {
-    auto stage = getUsdStage();
-    auto prim = stage->GetPrimAtPath(path);
+    const auto stage = getUsdStage();
+    const auto prim = stage->GetPrimAtPath(path);
     if (!prim.IsValid()) {
         return false;
     }
@@ -545,8 +531,8 @@ bool hasCesiumGlobeAnchor(const pxr::SdfPath& path) {
 }
 
 bool isUsdShader(const pxr::SdfPath& path) {
-    auto stage = getUsdStage();
-    auto prim = stage->GetPrimAtPath(path);
+    const auto stage = getUsdStage();
+    const auto prim = stage->GetPrimAtPath(path);
     if (!prim.IsValid()) {
         return false;
     }
@@ -555,8 +541,8 @@ bool isUsdShader(const pxr::SdfPath& path) {
 }
 
 bool isUsdMaterial(const pxr::SdfPath& path) {
-    auto stage = getUsdStage();
-    auto prim = stage->GetPrimAtPath(path);
+    const auto stage = getUsdStage();
+    const auto prim = stage->GetPrimAtPath(path);
     if (!prim.IsValid()) {
         return false;
     }
@@ -565,34 +551,24 @@ bool isUsdMaterial(const pxr::SdfPath& path) {
 }
 
 bool primExists(const pxr::SdfPath& path) {
-    auto stage = getUsdStage();
-    auto prim = stage->GetPrimAtPath(path);
+    const auto stage = getUsdStage();
+    const auto prim = stage->GetPrimAtPath(path);
     return prim.IsValid();
 }
 
-void setGeoreferenceForTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPath& georeferencePath) {
-    auto stage = getUsdStage();
-
-    if (isCesiumTileset(tilesetPath)) {
-        auto tileset = getCesiumTileset(tilesetPath);
-
-        tileset.GetGeoreferenceBindingRel().AddTarget(georeferencePath);
-    }
-}
-
 void addOrUpdateTransformOpForAnchor(const pxr::SdfPath& path, const glm::dmat4& transform) {
-    auto prim = getUsdStage()->GetPrimAtPath(path);
+    const auto prim = getUsdStage()->GetPrimAtPath(path);
 
     if (!hasCesiumGlobeAnchor(path)) {
         return;
     }
 
-    auto xform = pxr::UsdGeomXform(prim);
+    const auto xform = pxr::UsdGeomXform(prim);
     auto resetXformStack = xform.GetResetXformStack();
-    auto xformOps = xform.GetOrderedXformOps(&resetXformStack);
+    const auto xformOps = xform.GetOrderedXformOps(&resetXformStack);
 
-    auto hasCesiumSuffix = [](auto op) { return op.HasSuffix(pxr::UsdTokens->cesium); };
-    auto transformOp = std::find_if(xformOps.begin(), xformOps.end(), hasCesiumSuffix);
+    const auto hasCesiumSuffix = [](auto op) { return op.HasSuffix(pxr::UsdTokens->cesium); };
+    const auto transformOp = std::find_if(xformOps.begin(), xformOps.end(), hasCesiumSuffix);
 
     if (transformOp != xformOps.end()) {
         transformOp->Set(UsdUtil::glmToUsdMatrix(transform));
@@ -603,7 +579,7 @@ void addOrUpdateTransformOpForAnchor(const pxr::SdfPath& path, const glm::dmat4&
         // We reset the TRS values to defaults, so they can be used as an offset.
         //   This has the side effect of "baking" the transform at the time that the anchor is added
         //   to the into the anchor transform. Maybe we can fix that later.
-        auto xformCommonApi = pxr::UsdGeomXformCommonAPI(prim);
+        const auto xformCommonApi = pxr::UsdGeomXformCommonAPI(prim);
         xformCommonApi.SetTranslate(pxr::GfVec3d(0., 0., 0.));
         xformCommonApi.SetRotate(pxr::GfVec3f(0.f, 0.f, 0.f));
         xformCommonApi.SetScale(pxr::GfVec3f(1.f, 1.f, 1.f));
@@ -614,13 +590,13 @@ void addOrUpdateTransformOpForAnchor(const pxr::SdfPath& path, const glm::dmat4&
 }
 
 std::optional<pxr::GfMatrix4d> getCesiumTransformOpValueForPathIfExists(const pxr::SdfPath& path) {
-    auto prim = getUsdStage()->GetPrimAtPath(path);
-    auto xform = pxr::UsdGeomXform(prim);
+    const auto prim = getUsdStage()->GetPrimAtPath(path);
+    const auto xform = pxr::UsdGeomXform(prim);
     auto resetXformStack = xform.GetResetXformStack();
-    auto xformOps = xform.GetOrderedXformOps(&resetXformStack);
+    const auto xformOps = xform.GetOrderedXformOps(&resetXformStack);
 
-    auto hasCesiumSuffix = [](auto op) { return op.HasSuffix(pxr::UsdTokens->cesium); };
-    auto transformOp = std::find_if(xformOps.begin(), xformOps.end(), hasCesiumSuffix);
+    const auto hasCesiumSuffix = [](auto op) { return op.HasSuffix(pxr::UsdTokens->cesium); };
+    const auto transformOp = std::find_if(xformOps.begin(), xformOps.end(), hasCesiumSuffix);
 
     if (transformOp != xformOps.end()) {
         pxr::GfMatrix4d transform;
@@ -637,7 +613,7 @@ std::optional<pxr::SdfPath> getAnchorGeoreferencePath(const pxr::SdfPath& path) 
         return std::nullopt;
     }
 
-    auto globeAnchor = getCesiumGlobeAnchor(path);
+    const auto globeAnchor = getCesiumGlobeAnchor(path);
     pxr::SdfPathVector targets;
     if (!globeAnchor.GetGeoreferenceBindingRel().GetForwardedTargets(&targets)) {
         return std::nullopt;
@@ -647,13 +623,13 @@ std::optional<pxr::SdfPath> getAnchorGeoreferencePath(const pxr::SdfPath& path) 
 }
 
 std::optional<CesiumGeospatial::Cartographic> getCartographicOriginForAnchor(const pxr::SdfPath& path) {
-    auto anchorGeoreferencePath = getAnchorGeoreferencePath(path);
+    const auto anchorGeoreferencePath = getAnchorGeoreferencePath(path);
 
     if (!anchorGeoreferencePath.has_value()) {
         return std::nullopt;
     }
 
-    auto georeference = OmniGeoreference(anchorGeoreferencePath.value());
+    const auto georeference = OmniGeoreference(anchorGeoreferencePath.value());
     return georeference.getCartographic();
 }
 

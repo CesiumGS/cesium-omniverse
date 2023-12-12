@@ -156,7 +156,6 @@ TEST_SUITE("UsdUtil tests") {
         // but we can at least verify they don't throw
         CHECK_NOTHROW(getDynamicTextureProviderAssetPathToken("foo"));
         CHECK_NOTHROW(getFabricStage());
-        CHECK_NOTHROW(getFabricStageId());
         CHECK_NOTHROW(getUsdUpAxis());
         CHECK(getUsdMetersPerUnit() > 0);
 
@@ -182,7 +181,6 @@ TEST_SUITE("UsdUtil tests") {
         //     const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath, const Viewport& viewport);
         // computeWorldExtent(const pxr::GfRange3d& localExtent, const glm::dmat4& localToUsdTransform);
         // getEulerAnglesFromQuaternion(const pxr::GfQuatf& quaternion);
-        // setGeoreferenceForTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPath& georeferencePath);
         // addOrUpdateTransformOpForAnchor(const pxr::SdfPath& path, const glm::dmat4& transform);
         // getCesiumTransformOpValueForPathIfExists(const pxr::SdfPath& path);
         // getAnchorGeoreferencePath(const pxr::SdfPath& path);
