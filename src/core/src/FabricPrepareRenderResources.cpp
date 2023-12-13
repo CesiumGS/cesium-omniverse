@@ -7,7 +7,6 @@
 #include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricTexture.h"
 #include "cesium/omniverse/FabricUtil.h"
-#include "cesium/omniverse/GeospatialUtil.h"
 #include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/MetadataUtil.h"
 #include "cesium/omniverse/OmniTileset.h"

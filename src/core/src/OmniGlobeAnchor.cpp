@@ -1,12 +1,16 @@
 #include "cesium/omniverse/OmniGlobeAnchor.h"
 
 #include "cesium/omniverse/Context.h"
-#include "cesium/omniverse/GeospatialUtil.h"
+#include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/OmniGeoreference.h"
 #include "cesium/omniverse/UsdUtil.h"
 
+#include <CesiumGeospatial/Cartographic.h>
+#include <CesiumGeospatial/Ellipsoid.h>
+#include <CesiumUtility/Math.h>
 #include <glm/ext/matrix_relational.hpp>
 #include <glm/ext/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 
@@ -14,66 +18,141 @@
 
 namespace cesium::omniverse {
 
-OmniGlobeAnchor::OmniGlobeAnchor(const pxr::SdfPath& primPath)
-    : _primPath(primPath) {
+namespace {
+const auto DEFAULT_GEOGRAPHIC_COORDINATES = CesiumGeospatial::Cartographic(0.0, 0.0, 10.0);
+}
+
+bool equal(const CesiumGeospatial::Cartographic& a, const CesiumGeospatial::Cartographic& b) {
+    const auto& aVec = *reinterpret_cast<const glm::dvec3*>(&a);
+    const auto& bVec = *reinterpret_cast<const glm::dvec3*>(&b);
+    return aVec == bVec;
+}
+
+bool epsilonEqual(const CesiumGeospatial::Cartographic& a, const CesiumGeospatial::Cartographic& b, double epsilon) {
+    const auto& aVec = *reinterpret_cast<const glm::dvec3*>(&a);
+    const auto& bVec = *reinterpret_cast<const glm::dvec3*>(&b);
+    return glm::all(glm::epsilonEqual(aVec, bVec, epsilon));
+}
+
+bool epsilonEqual(const glm::dmat4& a, const glm::dmat4& b, double epsilon) {
+    return glm::all(glm::epsilonEqual(a[0], b[0], epsilon)) && glm::all(glm::epsilonEqual(a[1], b[1], epsilon)) &&
+           glm::all(glm::epsilonEqual(a[2], b[2], epsilon)) && glm::all(glm::epsilonEqual(a[3], b[3], epsilon));
+}
+
+bool epsilonEqual(const glm::dvec3& a, const glm::dvec3& b, double epsilon) {
+    return glm::all(glm::epsilonEqual(a, b, epsilon));
+}
+
+struct Decomposed {
+    glm::dvec3 translation;
+    glm::dvec3 rotation;
+    glm::dvec3 scale;
+};
+
+Decomposed decompose(const glm::dmat4& matrix) {
+    glm::dvec3 scale;
+    glm::dquat rotation;
+    glm::dvec3 translation;
+    glm::dvec3 skew;
+    glm::dvec4 perspective;
+
+    [[maybe_unused]] const auto decomposable = glm::decompose(matrix, scale, rotation, translation, skew, perspective);
+    assert(decomposable);
+
+    return {translation, glm::eulerAngles(rotation), scale};
+}
+
+OmniGlobeAnchor::OmniGlobeAnchor(const pxr::SdfPath& primPath, const CesiumGeospatial::Ellipsoid& ellipsoid)
+    : _primPath(primPath)
+    , _ellipsoid(ellipsoid) {
 
     const auto georeferencePath = getGeoreferencePath();
-    assert(!georeferencePath.IsEmpty());
-    const auto georeference = OmniGeoreference(georeferencePath);
-    const auto origin = georeference.getCartographic();
+    const auto anchorToFixed = UsdUtil::computeUsdLocalToEcefTransformForPrim(georeferencePath, _primPath);
+    _anchor = std::make_shared<CesiumGeospatial::GlobeAnchor>(anchorToFixed);
 
-    const auto geographicCoordinates = getGeographicCoordinates();
+    updateCachedValues();
 
-    if (geographicCoordinates == glm::dvec3(0.0, 0.0, 10.0)) {
+    if (equal(getGeographicCoordinates(), DEFAULT_GEOGRAPHIC_COORDINATES)) {
         // Default geo coordinates. Place based on current USD position.
-        const auto anchorToFixed = UsdUtil::computeUsdLocalToEcefTransformForPrim(georeferencePath, _primPath);
-        _anchor = std::make_shared<CesiumGeospatial::GlobeAnchor>(anchorToFixed);
-
-        const auto fixedTransform = UsdUtil::glmToUsdMatrixDecomposed(_anchor->getAnchorToFixedTransform());
-        const auto localTransform = _anchor->getAnchorToLocalTransform(GeospatialUtil::getCoordinateSystem(origin));
-
-        UsdUtil::addOrUpdateTransformOpForAnchor(_primPath, localTransform);
-
-        const auto globeAnchorApi = UsdUtil::getCesiumGlobeAnchor(_primPath);
-
-        globeAnchorApi.GetPositionAttr().Set(fixedTransform.position);
-        globeAnchorApi.GetRotationAttr().Set(
-            pxr::GfVec3d(UsdUtil::getEulerAnglesFromQuaternion(fixedTransform.orientation)));
-        globeAnchorApi.GetScaleAttr().Set(pxr::GfVec3d(fixedTransform.scale));
-
-        const auto cartographicPosition = Context::instance().getEllipsoid().cartesianToCartographic(
-            UsdUtil::usdToGlmVector(fixedTransform.position));
-
-        if (cartographicPosition) {
-            auto geographicPosition = pxr::GfVec3d{
-                glm::degrees(cartographicPosition->latitude),
-                glm::degrees(cartographicPosition->longitude),
-                cartographicPosition->height};
-
-            anchorApi.GetGeographicCoordinateAttr().Set(geographicPosition);
-        } else {
-            anchorApi.GetGeographicCoordinateAttr().Set(pxr::GfVec3d{0.0, 0.0, 0.0});
-            CESIUM_LOG_WARN("Invalid cartographic position for Anchor. Reset to 0, 0, 0.");
-        }
-
-        globeAnchor->updateCachedValues();
+        updateTransformOp();
+        updateEcefPositionRotationScale();
+        updateGeographicCoordinates();
+        updateCachedValues();
 
     } else {
         // Provided geo coordinates. Place at correct location.
-        const auto anchorToFixed = UsdUtil::computeUsdLocalToEcefTransformForPrim(georeferencePath, _primPath);
-        _anchor = std::make_shared<CesiumGeospatial::GlobeAnchor>(anchorToFixed);
-
-        updateAnchorByLatLongHeight(origin);
+        updateEcefPositionRotationScale();
+        updateByGeographicCoordinatesInternal();
+        updateTransformOp();
+        updateEcefPositionRotationScale();
+        updateCachedValues();
     }
 }
 
-bool OmniGlobeAnchor::getAdjustOrientationForGlobeWhenMoving() const {
+void OmniGlobeAnchor::updateByGeographicCoordinates() {
+    const auto geographicCoordinates = getGeographicCoordinates();
+
+    const auto tolerance = CesiumUtility::Math::Epsilon7;
+    if (epsilonEqual(geographicCoordinates, _cachedGeographicCoordinates, tolerance)) {
+        // Short circuit if we don't need to do an actual update.
+        return;
+    }
+
+    updateByGeographicCoordinatesInternal();
+    updateTransformOp();
+    updateEcefPositionRotationScale();
+    updateCachedValues();
+}
+
+void OmniGlobeAnchor::updateByLocalTransform() {
+    const auto localTransform = UsdUtil::getCesiumTransformOpValueForPathIfExists(_primPath);
+
+    const auto tolerance = CesiumUtility::Math::Epsilon2;
+    if (localTransform.has_value() &&
+        epsilonEqual(UsdUtil::usdToGlmMatrix(localTransform.value()), _cachedLocalTransform, tolerance)) {
+        // Short circuit if we don't need to do an actual update.
+        return;
+    }
+
+    updateByLocalTransformInternal();
+    updateEcefPositionRotationScale();
+    updateGeographicCoordinates();
+    updateCachedValues();
+}
+
+void OmniGlobeAnchor::updateByFixedTransform() {
+    const auto ecefPosition = getEcefPosition();
+    const auto ecefRotation = getEcefRotation();
+    const auto ecefScale = getEcefScale();
+
+    const auto tolerance = CesiumUtility::Math::Epsilon4;
+    if (epsilonEqual(ecefPosition, _cachedEcefPosition, tolerance) &&
+        epsilonEqual(ecefRotation, _cachedEcefRotation, tolerance) &&
+        epsilonEqual(ecefScale, _cachedEcefScale, tolerance)) {
+
+        // Short circuit if we don't need to do an actual update.
+        return;
+    }
+
+    updateByFixedTransformInternal(ecefPosition, ecefRotation, ecefScale);
+    updateTransformOp();
+    updateGeographicCoordinates();
+    updateCachedValues();
+}
+
+void OmniGlobeAnchor::updateOrigin() {
+    const auto anchorToLocal = getAnchorToLocalTransform();
+    UsdUtil::addOrUpdateTransformOpForAnchor(_primPath, anchorToLocal);
+    updateCachedValues();
+}
+
+bool OmniGlobeAnchor::getAdjustOrientation() const {
     const auto globeAnchor = UsdUtil::getCesiumGlobeAnchor(_primPath);
 
-    bool shouldReorient;
-    globeAnchor.GetAdjustOrientationForGlobeWhenMovingAttr().Get(&shouldReorient);
+    bool adjustOrientation;
+    globeAnchor.GetAdjustOrientationForGlobeWhenMovingAttr().Get(&adjustOrientation);
 
-    return shouldReorient;
+    return adjustOrientation;
 }
 
 bool OmniGlobeAnchor::getDetectTransformChanges() const {
@@ -83,6 +162,46 @@ bool OmniGlobeAnchor::getDetectTransformChanges() const {
     globeAnchor.GetDetectTransformChangesAttr().Get(&detectTransformChanges);
 
     return detectTransformChanges;
+}
+
+CesiumGeospatial::Cartographic OmniGlobeAnchor::getGeographicCoordinates() const {
+    const auto globeAnchor = UsdUtil::getCesiumGlobeAnchor(_primPath);
+
+    pxr::GfVec3d coordinates;
+    globeAnchor.GetGeographicCoordinateAttr().Get(&coordinates);
+
+    const auto longitude = glm::radians(coordinates[1]);
+    const auto latitude = glm::radians(coordinates[0]);
+    const auto height = coordinates[2];
+
+    return {longitude, latitude, height};
+}
+
+glm::dvec3 OmniGlobeAnchor::getEcefPosition() const {
+    const auto globeAnchor = UsdUtil::getCesiumGlobeAnchor(_primPath);
+
+    pxr::GfVec3d positionEcef;
+    globeAnchor.GetPositionAttr().Get(&positionEcef);
+
+    return UsdUtil::usdToGlmVector(positionEcef);
+}
+
+glm::dvec3 OmniGlobeAnchor::getEcefRotation() const {
+    const auto globeAnchor = UsdUtil::getCesiumGlobeAnchor(_primPath);
+
+    pxr::GfVec3d rotationEcef;
+    globeAnchor.GetRotationAttr().Get(&rotationEcef);
+
+    return UsdUtil::usdToGlmVector(rotationEcef);
+}
+
+glm::dvec3 OmniGlobeAnchor::getEcefScale() const {
+    const auto globeAnchor = UsdUtil::getCesiumGlobeAnchor(_primPath);
+
+    pxr::GfVec3d scaleEcef;
+    globeAnchor.GetScaleAttr().Get(&scaleEcef);
+
+    return UsdUtil::usdToGlmVector(scaleEcef);
 }
 
 pxr::SdfPath OmniGlobeAnchor::getGeoreferencePath() const {
@@ -104,102 +223,82 @@ pxr::SdfPath OmniGlobeAnchor::getGeoreferencePath() const {
     return georeferencePath;
 }
 
-const pxr::GfMatrix4d& OmniGlobeAnchor::getCachedTransformation() const {
-    return _valueCache.transformation;
+void OmniGlobeAnchor::updateGeographicCoordinates() {
+    const auto globeAnchor = UsdUtil::getCesiumGlobeAnchor(_primPath);
+
+    const auto& anchorToFixed = _anchor->getAnchorToFixedTransform();
+    const auto ecefPosition = glm::dvec3(anchorToFixed[3]);
+    const auto cartographic = _ellipsoid.cartesianToCartographic(ecefPosition).value_or(DEFAULT_GEOGRAPHIC_COORDINATES);
+
+    globeAnchor.GetGeographicCoordinateAttr().Set(
+        pxr::GfVec3d(glm::degrees(cartographic.latitude), glm::degrees(cartographic.longitude), cartographic.height));
 }
 
-const pxr::GfVec3d& OmniGlobeAnchor::getCachedGeographicCoordinate() const {
-    return _valueCache.geographicCoordinate;
+void OmniGlobeAnchor::updateEcefPositionRotationScale() {
+    const auto globeAnchor = UsdUtil::getCesiumGlobeAnchor(_primPath);
+
+    const auto decomposed = decompose(_anchor->getAnchorToFixedTransform());
+    globeAnchor.GetPositionAttr().Set(UsdUtil::glmToUsdVector(decomposed.translation));
+    globeAnchor.GetRotationAttr().Set(UsdUtil::glmToUsdVector(decomposed.rotation));
+    globeAnchor.GetScaleAttr().Set(UsdUtil::glmToUsdVector(decomposed.scale));
 }
 
-const pxr::GfVec3d& OmniGlobeAnchor::getCachedEcefPosition() const {
-    return _valueCache.ecefPosition;
-}
-
-const pxr::GfVec3d& OmniGlobeAnchor::getCachedEcefRotation() const {
-    return _valueCache.ecefRotation;
-}
-
-const pxr::GfVec3d& OmniGlobeAnchor::getCachedEcefScale() const {
-    return _valueCache.ecefScale;
+void OmniGlobeAnchor::updateTransformOp() {
+    UsdUtil::addOrUpdateTransformOpForAnchor(_primPath, getAnchorToLocalTransform());
 }
 
 void OmniGlobeAnchor::updateCachedValues() {
-    auto globeAnchorAPI = UsdUtil::getCesiumGlobeAnchor(_primPath);
+    _cachedGeographicCoordinates = getGeographicCoordinates();
+    _cachedEcefPosition = getEcefPosition();
+    _cachedEcefRotation = getEcefRotation();
+    _cachedEcefScale = getEcefScale();
 
-    pxr::GfVec3d newGeographicCoordinate;
-    globeAnchorAPI.GetGeographicCoordinateAttr().Get(&newGeographicCoordinate);
-    _valueCache.geographicCoordinate = newGeographicCoordinate;
-
-    pxr::GfVec3d newEcefPosition;
-    globeAnchorAPI.GetPositionAttr().Get(&newEcefPosition);
-    _valueCache.ecefPosition = newEcefPosition;
-
-    pxr::GfVec3d newEcefRotation;
-    globeAnchorAPI.GetRotationAttr().Get(&newEcefRotation);
-    _valueCache.ecefRotation = newEcefRotation;
-
-    pxr::GfVec3d newEcefScale;
-    globeAnchorAPI.GetScaleAttr().Get(&newEcefScale);
-    _valueCache.ecefScale = newEcefScale;
-
-    auto maybeNewTransform = UsdUtil::getCesiumTransformOpValueForPathIfExists(_primPath);
+    const auto maybeNewTransform = UsdUtil::getCesiumTransformOpValueForPathIfExists(_primPath);
     if (maybeNewTransform.has_value()) {
-        _valueCache.transformation = maybeNewTransform.value();
+        _cachedLocalTransform = UsdUtil::usdToGlmMatrix(maybeNewTransform.value());
     }
 }
 
-const glm::dmat4& OmniGlobeAnchor::getAnchorToFixedTransform() const {
-    return _anchor->getAnchorToFixedTransform();
+void OmniGlobeAnchor::updateByGeographicCoordinatesInternal() {
+    const auto newEcefPosition = _ellipsoid.cartographicToCartesian(getGeographicCoordinates());
+    updateByFixedTransformInternal(newEcefPosition, _cachedEcefRotation, _cachedEcefScale);
 }
 
-const glm::dmat4 OmniGlobeAnchor::getAnchorToLocalTransform(const CesiumGeospatial::Cartographic& origin) {
-    return _anchor->getAnchorToLocalTransform(GeospatialUtil::getCoordinateSystem(origin));
+void OmniGlobeAnchor::updateByLocalTransformInternal() {
+    const auto adjustOrientation = getAdjustOrientation();
+    const auto anchorToFixed = UsdUtil::computeUsdLocalToEcefTransformForPrim(getGeoreferencePath(), _primPath);
+    _anchor->setAnchorToFixedTransform(anchorToFixed, adjustOrientation, _ellipsoid);
 }
 
-std::optional<CesiumGeospatial::Cartographic> OmniGlobeAnchor::getCartographicPosition() {
-    glm::dvec3 fs{};
-    glm::dquat fr{};
-    glm::dvec3 ft{};
-    glm::dvec3 fskew{};
-    glm::dvec4 fperspective{};
+void OmniGlobeAnchor::updateByFixedTransformInternal(
+    const glm::dvec3& ecefPosition,
+    const glm::dvec3& ecefRotation,
+    const glm::dvec3& ecefScale) {
+    const auto translation = glm::translate(glm::dmat4(1.0), ecefPosition);
+    const auto rotation = glm::eulerAngleXYZ<double>(ecefRotation.x, ecefRotation.y, ecefRotation.z);
+    const auto scale = glm::scale(glm::dmat4(1.0), ecefScale);
+    const auto newAnchorToFixed = translation * rotation * scale;
 
-    [[maybe_unused]] auto fixedTransform = glm::decompose(getAnchorToFixedTransform(), fs, fr, ft, fskew, fperspective);
-    assert(fixedTransform);
-
-    return CesiumGeospatial::Ellipsoid::WGS84.cartesianToCartographic(ft);
+    const auto adjustOrientation = getAdjustOrientation();
+    _anchor->setAnchorToFixedTransform(newAnchorToFixed, adjustOrientation, _ellipsoid);
 }
 
-const pxr::SdfPath& OmniGlobeAnchor::getPrimPath() const {
-    return _primPath;
+glm::dmat4 OmniGlobeAnchor::getAnchorToLocalTransform() const {
+    const auto origin = getOrigin();
+    const auto localCoordinateSystem = UsdUtil::getLocalCoordinateSystem(origin, _ellipsoid);
+    return _anchor->getAnchorToLocalTransform(localCoordinateSystem);
 }
 
-void OmniGlobeAnchor::updateByFixedTransform(
-    const glm::dvec3& ecefPositionVec,
-    const glm::dvec3& ecefRotationRadVec,
-    const glm::dvec3& ecefScaleVec,
-    bool shouldReorient) {
-    auto translation = glm::translate(glm::dmat4(1.0), ecefPositionVec);
-    auto rotation = glm::eulerAngleXYZ<double>(ecefRotationRadVec.x, ecefRotationRadVec.y, ecefRotationRadVec.z);
-    auto scale = glm::scale(glm::dmat4(1.0), ecefScaleVec);
-    auto newAnchorToFixed = translation * rotation * scale;
+CesiumGeospatial::Cartographic OmniGlobeAnchor::getOrigin() const {
+    const auto georeferencePath = getGeoreferencePath();
+    auto origin = DEFAULT_GEOGRAPHIC_COORDINATES;
 
-    _anchor->setAnchorToFixedTransform(newAnchorToFixed, shouldReorient, Context::instance().getEllipsoid());
-}
+    if (!georeferencePath.IsEmpty()) {
+        const auto georeference = OmniGeoreference(georeferencePath);
+        origin = georeference.getOrigin();
+    }
 
-void OmniGlobeAnchor::updateByGeographicCoordinates(CesiumGeospatial::Cartographic& cartographic, bool shouldReorient) {
-    auto newEcefPositionVec = CesiumGeospatial::Ellipsoid::WGS84.cartographicToCartesian(cartographic);
-
-    auto ecefRotationDegVec = UsdUtil::usdToGlmVector(_valueCache.ecefRotation);
-    auto ecefScaleVec = UsdUtil::usdToGlmVector(_valueCache.ecefScale);
-
-    updateByFixedTransform(newEcefPositionVec, glm::radians(ecefRotationDegVec), ecefScaleVec, shouldReorient);
-}
-
-void OmniGlobeAnchor::updateByUsdTransform(const CesiumGeospatial::Cartographic& origin, bool shouldReorient) {
-    const auto newAnchorToFixed = UsdUtil::computeUsdLocalToEcefTransformForPrim(origin, _primPath);
-
-    _anchor->setAnchorToFixedTransform(newAnchorToFixed, shouldReorient, Context::instance().getEllipsoid());
+    return origin;
 }
 
 } // namespace cesium::omniverse

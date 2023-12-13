@@ -9,8 +9,8 @@ class OmniGeoreference {
     OmniGeoreference(const pxr::SdfPath& path);
 
     [[nodiscard]] pxr::SdfPath getPath() const;
-    [[nodiscard]] CesiumGeospatial::Cartographic getCartographic() const;
-    void setCartographic(const CesiumGeospatial::Cartographic& cartographic) const;
+    [[nodiscard]] CesiumGeospatial::Cartographic getOrigin() const;
+    void setOrigin(const CesiumGeospatial::Cartographic& origin) const;
 
   private:
     pxr::SdfPath _path;

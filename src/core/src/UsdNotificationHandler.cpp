@@ -4,7 +4,6 @@
 #include "cesium/omniverse/CppUtil.h"
 #include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricUtil.h"
-#include "cesium/omniverse/GeospatialUtil.h"
 #include "cesium/omniverse/GlobeAnchorRegistry.h"
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/OmniGlobeAnchor.h"
@@ -335,14 +334,11 @@ void processCesiumImageryChanged(const pxr::SdfPath& imageryPath, const pxr::TfT
 void processCesiumGeoreferenceChanged(const pxr::SdfPath& georeferencePath) {
     const auto globeAnchors = GlobeAnchorRegistry::getInstance().getAllAnchors();
     for (const auto& globeAnchor : globeAnchors) {
-        const auto& globeAnchorGeoreferencePath = globeAnchor->getGeoreferencePath();
-        if (georeferencePath != globeAnchorGeoreferencePath) {
+        if (georeferencePath != globeAnchor->getGeoreferencePath()) {
             continue;
         }
 
-        const auto georeference = OmniGeoreference(georeferencePath);
-        const auto origin = georeference.getCartographic();
-        globeAnchor->updateOrigin(origin);
+        globeAnchor->updateOrigin();
     }
 }
 
@@ -352,23 +348,18 @@ void processCesiumGlobeAnchorChanged(const pxr::SdfPath& globeAnchorPath, const 
         return;
     }
 
-    const auto georeferencePath = globeAnchor.value()->getGeoreferencePath();
-    if (georeferencePath.IsEmpty()) {
-        return;
-    }
-
     const auto detectTransformChanges = globeAnchor.value()->getDetectTransformChanges();
 
     if (detectTransformChanges && (propertyName == pxr::CesiumTokens->cesiumAnchorDetectTransformChanges ||
                                    propertyName == pxr::UsdTokens->xformOp_transform_cesium)) {
-        globeAnchor->updateByUsdTransform();
+        globeAnchor.value()->updateByLocalTransform();
     } else if (propertyName == pxr::CesiumTokens->cesiumAnchorGeographicCoordinates) {
-        globeAnchor->updateByLatLongHeight();
+        globeAnchor.value()->updateByGeographicCoordinates();
     } else if (
         propertyName == pxr::CesiumTokens->cesiumAnchorPosition ||
         propertyName == pxr::CesiumTokens->cesiumAnchorRotation ||
         propertyName == pxr::CesiumTokens->cesiumAnchorScale) {
-        globeAnchor->updateByFixedTransform();
+        globeAnchor.value()->updateByFixedTransform();
     }
 
     // TODO: what if georeference changes?
@@ -483,7 +474,7 @@ void processCesiumImageryAdded(const pxr::SdfPath& imageryPath) {
 void processCesiumGlobeAnchorAdded(const pxr::SdfPath& globeAnchorPath) {
     // TODO: what if it doesn't have a georeference?
     const auto globeAnchor = UsdUtil::getCesiumGlobeAnchor(globeAnchorPath);
-    GlobeAnchorRegistry::getInstance().createAnchor(globeAnchorPath);
+    GlobeAnchorRegistry::getInstance().createAnchor(globeAnchorPath, Context::instance().getEllipsoid());
 }
 
 void processCesiumIonServerAdded(const pxr::SdfPath& ionServerPath) {

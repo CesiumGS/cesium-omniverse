@@ -14,7 +14,7 @@ pxr::SdfPath OmniGeoreference::getPath() const {
     return _path;
 }
 
-CesiumGeospatial::Cartographic OmniGeoreference::getCartographic() const {
+CesiumGeospatial::Cartographic OmniGeoreference::getOrigin() const {
     auto georeference = UsdUtil::getCesiumGeoreference(_path);
 
     double longitude;
@@ -28,12 +28,12 @@ CesiumGeospatial::Cartographic OmniGeoreference::getCartographic() const {
     return {glm::radians(longitude), glm::radians(latitude), height};
 }
 
-void OmniGeoreference::setCartographic(const CesiumGeospatial::Cartographic& cartographic) const {
+void OmniGeoreference::setOrigin(const CesiumGeospatial::Cartographic& origin) const {
     auto georeference = UsdUtil::getCesiumGeoreference(_path);
 
-    georeference.GetGeoreferenceOriginLongitudeAttr().Set<double>(glm::degrees(cartographic.longitude));
-    georeference.GetGeoreferenceOriginLatitudeAttr().Set<double>(glm::degrees(cartographic.latitude));
-    georeference.GetGeoreferenceOriginHeightAttr().Set<double>(cartographic.height);
+    georeference.GetGeoreferenceOriginLongitudeAttr().Set<double>(glm::degrees(origin.longitude));
+    georeference.GetGeoreferenceOriginLatitudeAttr().Set<double>(glm::degrees(origin.latitude));
+    georeference.GetGeoreferenceOriginHeightAttr().Set<double>(origin.height);
 }
 
 } // namespace cesium::omniverse

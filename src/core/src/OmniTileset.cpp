@@ -6,7 +6,6 @@
 #include "cesium/omniverse/FabricMaterial.h"
 #include "cesium/omniverse/FabricPrepareRenderResources.h"
 #include "cesium/omniverse/FabricUtil.h"
-#include "cesium/omniverse/GeospatialUtil.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/OmniImagery.h"
@@ -659,11 +658,11 @@ void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
 
     if (visible && !getSuspendUpdate()) {
         // Go ahead and select some tiles
-        const auto georeferenceOrigin = getGeoreference().getCartographic();
+        const auto georeferencePath = getGeoreferencePath();
 
         _viewStates.clear();
         for (const auto& viewport : viewports) {
-            _viewStates.emplace_back(UsdUtil::computeViewState(georeferenceOrigin, _tilesetPath, viewport));
+            _viewStates.emplace_back(UsdUtil::computeViewState(georeferencePath, _tilesetPath, viewport));
         }
 
         _pViewUpdateResult = &_tileset->updateView(_viewStates);
@@ -716,8 +715,8 @@ bool OmniTileset::updateExtent() {
     const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
     const auto& bounding_volume = rootTile->getBoundingVolume();
     const auto oriented = Cesium3DTilesSelection::getOrientedBoundingBoxFromBoundingVolume(bounding_volume);
-    const auto georeferenceOrigin = Context::instance().getGeoreferenceOrigin();
-    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdWorldTransformForPrim(georeferenceOrigin, _tilesetPath);
+    const auto georeferencePath = UsdUtil::getOrCreateCesiumGeoreference().GetPath();
+    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdWorldTransformForPrim(georeferencePath, _tilesetPath);
     const auto usdOriented = oriented.transform(ecefToUsdTransform);
     const auto& center = usdOriented.getCenter();
 

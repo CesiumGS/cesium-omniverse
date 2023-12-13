@@ -1,7 +1,6 @@
 #include "cesium/omniverse/UsdUtil.h"
 
 #include "cesium/omniverse/Context.h"
-#include "cesium/omniverse/GeospatialUtil.h"
 #include "cesium/omniverse/OmniData.h"
 #include "cesium/omniverse/OmniGeoreference.h"
 #include "cesium/omniverse/Tokens.h"
@@ -9,6 +8,7 @@
 
 #include <CesiumGeometry/Transforms.h>
 #include <CesiumGeospatial/Cartographic.h>
+#include <CesiumGeospatial/Ellipsoid.h>
 #include <CesiumGeospatial/GlobeAnchor.h>
 #include <CesiumGeospatial/GlobeTransforms.h>
 #include <glm/gtc/matrix_access.hpp>
@@ -155,7 +155,7 @@ glm::dmat4 computeUsdWorldToLocalTransform(const pxr::SdfPath& path) {
 }
 
 CesiumGeospatial::LocalHorizontalCoordinateSystem
-getLocalHorizontalCoordinateSystem(const CesiumGeospatial::Cartographic& origin) {
+getLocalCoordinateSystem(const CesiumGeospatial::Cartographic& origin, const CesiumGeospatial::Ellipsoid& ellipsoid) {
     const auto upAxis = UsdUtil::getUsdUpAxis();
     const auto scaleInMeters = UsdUtil::getUsdMetersPerUnit();
 
@@ -166,7 +166,7 @@ getLocalHorizontalCoordinateSystem(const CesiumGeospatial::Cartographic& origin)
             CesiumGeospatial::LocalDirection::North,
             CesiumGeospatial::LocalDirection::Up,
             scaleInMeters,
-            Context::instance().getEllipsoid(),
+            ellipsoid,
         };
     }
 
@@ -176,7 +176,7 @@ getLocalHorizontalCoordinateSystem(const CesiumGeospatial::Cartographic& origin)
         CesiumGeospatial::LocalDirection::Up,
         CesiumGeospatial::LocalDirection::South,
         scaleInMeters,
-        Context::instance().getEllipsoid(),
+        ellipsoid,
     };
 }
 
@@ -244,9 +244,12 @@ glm::dmat4 computeEcefToUsdLocalTransform(const pxr::SdfPath& georeferencePath) 
     }
 
     const auto georeference = OmniGeoreference(georeferencePath);
-    const auto georeferenceOrigin = georeference.getCartographic();
+    const auto georeferenceOrigin = georeference.getOrigin();
 
-    return getLocalHorizontalCoordinateSystem(georeferenceOrigin).getEcefToLocalTransformation();
+    // In the future the ellipsoid could be specified on the CesiumGeoreference prim instead
+    const auto& ellipsoid = Context::instance().getEllipsoid();
+
+    return getLocalCoordinateSystem(georeferenceOrigin, ellipsoid).getEcefToLocalTransformation();
 }
 
 glm::dmat4 computeEcefToUsdWorldTransformForPrim(const pxr::SdfPath& georeferencePath, const pxr::SdfPath& primPath) {

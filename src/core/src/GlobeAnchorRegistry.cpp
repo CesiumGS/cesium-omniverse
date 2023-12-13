@@ -16,10 +16,8 @@ void GlobeAnchorRegistry::clear() {
 }
 
 std::shared_ptr<OmniGlobeAnchor>
-GlobeAnchorRegistry::createAnchor(const pxr::SdfPath& path, const glm::dmat4& anchorToFixed) {
-    auto anchor = std::make_shared<OmniGlobeAnchor>(path, anchorToFixed);
-
-    anchor->updateCachedValues();
+GlobeAnchorRegistry::createAnchor(const pxr::SdfPath& path, const CesiumGeospatial::Ellipsoid& ellipsoid) {
+    auto anchor = std::make_shared<OmniGlobeAnchor>(path, ellipsoid);
 
     _anchors.emplace(path.GetString(), anchor);
 

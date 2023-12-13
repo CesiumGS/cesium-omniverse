@@ -75,8 +75,9 @@ pxr::GfMatrix4d glmToUsdMatrix(const glm::dmat4& matrix);
 Decomposed glmToUsdMatrixDecomposed(const glm::dmat4& matrix);
 glm::dmat4 computeUsdLocalToWorldTransform(const pxr::SdfPath& path);
 glm::dmat4 computeUsdWorldToLocalTransform(const pxr::SdfPath& path);
-CesiumGeospatial::LocalHorizontalCoordinateSystem
-getLocalHorizontalCoordinateSystem(const CesiumGeospatial::Cartographic& origin);
+CesiumGeospatial::LocalHorizontalCoordinateSystem getLocalCoordinateSystem(
+    const CesiumGeospatial::Cartographic& origin,
+    const CesiumGeospatial::Ellipsoid& ellipsoid);
 
 bool isPrimVisible(const pxr::SdfPath& path);
 pxr::TfToken getUsdUpAxis();

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <CesiumGeospatial/Ellipsoid.h>
 #include <glm/ext/matrix_double4x4.hpp>
 #include <pxr/usd/sdf/path.h>
 
@@ -30,7 +31,7 @@ class GlobeAnchorRegistry {
 
     void clear();
     bool anchorExists(pxr::SdfPath path) const;
-    std::shared_ptr<OmniGlobeAnchor> createAnchor(const pxr::SdfPath& path, const glm::dmat4& anchorToFixed);
+    std::shared_ptr<OmniGlobeAnchor> createAnchor(const pxr::SdfPath& path, const CesiumGeospatial::Ellipsoid& ellipsoid);
     std::optional<std::shared_ptr<OmniGlobeAnchor>> getAnchor(const pxr::SdfPath& path) const;
     std::vector<std::shared_ptr<OmniGlobeAnchor>> getAllAnchors() const;
     std::vector<std::string> getAllAnchorPaths() const;

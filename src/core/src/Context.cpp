@@ -5,7 +5,6 @@
 #include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricUtil.h"
-#include "cesium/omniverse/GeospatialUtil.h"
 #include "cesium/omniverse/GlobeAnchorRegistry.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
@@ -266,8 +265,8 @@ void Context::setStageId(long stageId) {
 void Context::onUpdateFrame(const std::vector<Viewport>& viewports) {
     _usdNotificationHandler.onUpdateFrame();
 
-    const auto georeferenceOrigin = getGeoreferenceOrigin();
-    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdLocalTransform(georeferenceOrigin);
+    const auto georeferencePath = getOrCreateCesiumGeoreference().getPath();
+    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdLocalTransform(georeferencePath);
 
     // Check if the ecefToUsd transform has changed and update CesiumSession
     if (ecefToUsdTransform != _ecefToUsdTransform) {
@@ -317,12 +316,12 @@ int64_t Context::getNextTilesetId() const {
 
 CesiumGeospatial::Cartographic Context::getGeoreferenceOrigin() const {
     auto georeference = getOrCreateCesiumGeoreference();
-    return georeference.getCartographic();
+    return georeference.getOrigin();
 }
 
 void Context::setGeoreferenceOrigin(const CesiumGeospatial::Cartographic& origin) {
     auto georeference = getOrCreateCesiumGeoreference();
-    georeference.setCartographic(origin);
+    georeference.setOrigin(origin);
 }
 
 std::optional<CesiumIonClient::Token> Context::getDefaultToken() const {
