@@ -23,6 +23,7 @@
 
 #include <CesiumAsync/AsyncSystem.h>
 #include <CesiumGeospatial/Cartographic.h>
+#include <CesiumGeospatial/Ellipsoid.h>
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
@@ -57,7 +58,7 @@ OmniGeoreference getOrCreateCesiumGeoreference() {
 
 std::optional<OmniIonServer> getCurrentIonServer() {
     const auto data = getOrCreateCesiumData();
-    const auto selectedIonServerPath = data.getSelectedIonServer();
+    const auto selectedIonServerPath = data.getSelectedIonServerPath();
 
     if (selectedIonServerPath.IsEmpty()) {
         return std::nullopt;
@@ -68,7 +69,7 @@ std::optional<OmniIonServer> getCurrentIonServer() {
 
 std::shared_ptr<CesiumIonSession> getCurrentSession() {
     const auto data = getOrCreateCesiumData();
-    const auto selectedIonServerPath = data.getSelectedIonServer();
+    const auto selectedIonServerPath = data.getSelectedIonServerPath();
 
     if (selectedIonServerPath.IsEmpty()) {
         return nullptr;
@@ -629,6 +630,10 @@ void Context::addGlobeAnchorToPrim(const pxr::SdfPath& path, double latitude, do
 
     pxr::GfVec3d coordinates{latitude, longitude, height};
     globeAnchor.GetGeographicCoordinateAttr().Set(coordinates);
+}
+
+const CesiumGeospatial::Ellipsoid& Context::getEllipsoid() const {
+    return CesiumGeospatial::Ellipsoid::WGS84;
 }
 
 } // namespace cesium::omniverse

@@ -37,9 +37,7 @@ OmniTileset::OmniTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPath& ge
     : _tilesetPath(tilesetPath)
     , _tilesetId(Context::instance().getNextTilesetId()) {
     reload();
-
-    const auto tilesetPrim = UsdUtil::getCesiumTileset(_tilesetPath);
-    tilesetPrim.GetGeoreferenceBindingRel().AddTarget(georeferencePath);
+    setGeoreferencePath(georeferencePath);
 }
 
 OmniTileset::~OmniTileset() {
@@ -133,11 +131,17 @@ pxr::SdfPath OmniTileset::getIonServerPath() const {
     pxr::SdfPathVector targets;
     tileset.GetIonServerBindingRel().GetForwardedTargets(&targets);
 
-    if (targets.size() < 1) {
+    if (targets.empty()) {
         return {};
     }
 
-    return targets[0];
+    auto ionServerPath = targets.front();
+
+    if (!UsdUtil::isCesiumIonServer(ionServerPath)) {
+        return {};
+    }
+
+    return ionServerPath;
 }
 
 double OmniTileset::getMaximumScreenSpaceError() const {
@@ -275,16 +279,23 @@ double OmniTileset::getMainThreadLoadingTimeLimit() const {
     return static_cast<double>(mainThreadLoadingTimeLimit);
 }
 
-OmniGeoreference OmniTileset::getGeoreference() const {
+pxr::SdfPath OmniTileset::getGeoreferencePath() const {
     const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     pxr::SdfPathVector targets;
     tileset.GetGeoreferenceBindingRel().GetTargets(&targets);
-    assert(!targets.empty());
 
-    // We only care about the first target.
-    const auto georeferencePath = targets[0];
-    return {georeferencePath};
+    if (targets.empty()) {
+        return {};
+    }
+
+    auto georeferencePath = targets.front();
+
+    if (!UsdUtil::isCesiumGeoreference(georeferencePath)) {
+        return {};
+    }
+
+    return georeferencePath;
 }
 
 pxr::SdfPath OmniTileset::getMaterialPath() const {
@@ -326,6 +337,19 @@ double OmniTileset::getDisplayOpacity() const {
     }
 
     return static_cast<double>(displayOpacityArray[0]);
+}
+
+void OmniTileset::setGeoreferencePath(const pxr::SdfPath& georeferencePath) {
+    if (georeferencePath.IsEmpty()) {
+        return;
+    }
+
+    if (!UsdUtil::isCesiumGeoreference(georeferencePath)) {
+        return;
+    }
+
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+    tileset.GetGeoreferenceBindingRel().SetTargets({georeferencePath});
 }
 
 int64_t OmniTileset::getTilesetId() const {
@@ -610,7 +634,7 @@ void OmniTileset::onUpdateFrame(const std::vector<Viewport>& viewports) {
 }
 
 void OmniTileset::updateTransform() {
-    // computeEcefToUsdTransformForPrim is slightly expensive operations to do every frame but it is simple
+    // computeEcefToUsdWorldTransform is slightly expensive operations to do every frame but it is simple
     // and exhaustive. E.g. it reacts to USD scene graph changes, up-axis changes, meters-per-unit changes, and georeference origin changes
     // without us needing to subscribe to any events.
     //
@@ -619,9 +643,8 @@ void OmniTileset::updateTransform() {
     // Alternatively, we could register a listener with Tf::Notice but this has the downside of only notifying us
     // about changes to the current prim and not its ancestor prims. Also Tf::Notice may notify us in a thread other
     // than the main thread and we would have to be careful to synchronize updates to Fabric in the main thread.
-
-    const auto georeferenceOrigin = getGeoreference().getCartographic();
-    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdWorldTransformForPrim(georeferenceOrigin, _tilesetPath);
+    const auto georeferencePath = getGeoreferencePath();
+    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdWorldTransformForPrim(georeferencePath, _tilesetPath);
 
     // Check for transform changes and update prims accordingly
     if (ecefToUsdTransform != _ecefToUsdTransform) {

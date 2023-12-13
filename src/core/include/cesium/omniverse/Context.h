@@ -120,6 +120,8 @@ class Context {
     void addGlobeAnchorToPrim(const pxr::SdfPath& path);
     void addGlobeAnchorToPrim(const pxr::SdfPath& path, double latitude, double longitude, double height);
 
+    const CesiumGeospatial::Ellipsoid& getEllipsoid() const;
+
   private:
     std::filesystem::path _cesiumExtensionLocation;
     std::filesystem::path _certificatePath;

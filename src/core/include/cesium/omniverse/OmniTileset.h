@@ -69,10 +69,12 @@ class OmniTileset {
     [[nodiscard]] bool getSmoothNormals() const;
     [[nodiscard]] double getMainThreadLoadingTimeLimit() const;
     [[nodiscard]] bool getShowCreditsOnScreen() const;
-    [[nodiscard]] OmniGeoreference getGeoreference() const;
+    [[nodiscard]] pxr::SdfPath getGeoreferencePath() const;
     [[nodiscard]] pxr::SdfPath getMaterialPath() const;
     [[nodiscard]] glm::dvec3 getDisplayColor() const;
     [[nodiscard]] double getDisplayOpacity() const;
+
+    void setGeoreferencePath(const pxr::SdfPath& georeferencePath);
 
     [[nodiscard]] int64_t getTilesetId() const;
     [[nodiscard]] TilesetStatistics getStatistics() const;

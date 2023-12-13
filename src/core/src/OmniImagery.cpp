@@ -76,11 +76,17 @@ pxr::SdfPath OmniImagery::getIonServerPath() const {
     pxr::SdfPathVector targets;
     imagery.GetIonServerBindingRel().GetForwardedTargets(&targets);
 
-    if (targets.size() < 1) {
+    if (targets.empty()) {
         return {};
     }
 
-    return targets[0];
+    auto ionServerPath = targets.front();
+
+    if (!UsdUtil::isCesiumIonServer(ionServerPath)) {
+        return {};
+    }
+
+    return ionServerPath;
 }
 
 bool OmniImagery::getShowCreditsOnScreen() const {

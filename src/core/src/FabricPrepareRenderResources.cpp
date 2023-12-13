@@ -130,12 +130,10 @@ std::vector<MeshInfo>
 gatherMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const CesiumGltf::Model& model) {
     CESIUM_TRACE("FabricPrepareRenderResources::gatherMeshes");
     const auto tilesetId = tileset.getTilesetId();
-
     const auto smoothNormals = tileset.getSmoothNormals();
 
-    const auto georeferenceOrigin = tileset.getGeoreference().getCartographic();
-    const auto ecefToUsdTransform =
-        UsdUtil::computeEcefToUsdWorldTransformForPrim(georeferenceOrigin, tileset.getPath());
+    const auto georeferencePath = tileset.getGeoreferencePath();
+    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdWorldTransformForPrim(georeferencePath, tileset.getPath());
 
     auto gltfToEcefTransform = Cesium3DTilesContent::GltfUtilities::applyRtcCenter(model, tileTransform);
     gltfToEcefTransform = Cesium3DTilesContent::GltfUtilities::applyGltfUpAxisTransform(model, gltfToEcefTransform);

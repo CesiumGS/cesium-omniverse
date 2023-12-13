@@ -13,17 +13,23 @@ pxr::SdfPath OmniData::getPath() const {
     return _path;
 }
 
-pxr::SdfPath OmniData::getSelectedIonServer() const {
+pxr::SdfPath OmniData::getSelectedIonServerPath() const {
     const auto data = UsdUtil::getCesiumData(_path);
 
     pxr::SdfPathVector targets;
     data.GetSelectedIonServerRel().GetForwardedTargets(&targets);
 
-    if (targets.size() < 1) {
+    if (targets.empty()) {
         return {};
     }
 
-    return targets[0];
+    auto ionServerPath = targets.front();
+
+    if (!UsdUtil::isCesiumIonServer(ionServerPath)) {
+        return {};
+    }
+
+    return ionServerPath;
 }
 
 bool OmniData::getDebugDisableMaterials() const {

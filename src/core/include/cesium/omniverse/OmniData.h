@@ -8,7 +8,7 @@ class OmniData {
     OmniData(const pxr::SdfPath& path);
 
     [[nodiscard]] pxr::SdfPath getPath() const;
-    [[nodiscard]] pxr::SdfPath getSelectedIonServer() const;
+    [[nodiscard]] pxr::SdfPath getSelectedIonServerPath() const;
     [[nodiscard]] bool getDebugDisableMaterials() const;
     [[nodiscard]] bool getDebugDisableTextures() const;
     [[nodiscard]] bool getDebugDisableGeometryPool() const;

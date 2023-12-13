@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Cesium3DTilesSelection/ViewState.h>
+#include <CesiumGeospatial/LocalHorizontalCoordinateSystem.h>
 #include <CesiumUsdSchemas/data.h>
 #include <CesiumUsdSchemas/georeference.h>
 #include <CesiumUsdSchemas/globeAnchorAPI.h>
@@ -74,6 +75,9 @@ pxr::GfMatrix4d glmToUsdMatrix(const glm::dmat4& matrix);
 Decomposed glmToUsdMatrixDecomposed(const glm::dmat4& matrix);
 glm::dmat4 computeUsdLocalToWorldTransform(const pxr::SdfPath& path);
 glm::dmat4 computeUsdWorldToLocalTransform(const pxr::SdfPath& path);
+CesiumGeospatial::LocalHorizontalCoordinateSystem
+getLocalHorizontalCoordinateSystem(const CesiumGeospatial::Cartographic& origin);
+
 bool isPrimVisible(const pxr::SdfPath& path);
 pxr::TfToken getUsdUpAxis();
 double getUsdMetersPerUnit();
@@ -81,17 +85,13 @@ pxr::SdfPath getRootPath();
 pxr::SdfPath getPathUnique(const pxr::SdfPath& parentPath, const std::string& name);
 std::string getSafeName(const std::string& name);
 pxr::TfToken getDynamicTextureProviderAssetPathToken(const std::string& name);
-glm::dmat4 computeEcefToUsdLocalTransform(const CesiumGeospatial::Cartographic& origin);
-glm::dmat4
-computeEcefToUsdWorldTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath);
-glm::dmat4
-computeUsdWorldToEcefTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath);
-glm::dmat4
-computeEcefToUsdLocalTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath);
-glm::dmat4
-computeUsdLocalToEcefTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath);
+glm::dmat4 computeEcefToUsdLocalTransform(const pxr::SdfPath& georeferencePath);
+glm::dmat4 computeEcefToUsdWorldTransformForPrim(const pxr::SdfPath& georeferencePath, const pxr::SdfPath& primPath);
+glm::dmat4 computeUsdWorldToEcefTransformForPrim(const pxr::SdfPath& georeferencePath, const pxr::SdfPath& primPath);
+glm::dmat4 computeEcefToUsdLocalTransformForPrim(const pxr::SdfPath& georeferencePath, const pxr::SdfPath& primPath);
+glm::dmat4 computeUsdLocalToEcefTransformForPrim(const pxr::SdfPath& georeferencePath, const pxr::SdfPath& primPath);
 Cesium3DTilesSelection::ViewState
-computeViewState(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath, const Viewport& viewport);
+computeViewState(const pxr::SdfPath& georeferencePath, const pxr::SdfPath& primPath, const Viewport& viewport);
 pxr::GfRange3d computeWorldExtent(const pxr::GfRange3d& localExtent, const glm::dmat4& usdLocalToWorldTransform);
 pxr::GfVec3f getEulerAnglesFromQuaternion(const pxr::GfQuatf& quaternion);
 
@@ -131,7 +131,5 @@ bool primExists(const pxr::SdfPath& path);
 
 void addOrUpdateTransformOpForAnchor(const pxr::SdfPath& path, const glm::dmat4& transform);
 std::optional<pxr::GfMatrix4d> getCesiumTransformOpValueForPathIfExists(const pxr::SdfPath& path);
-std::optional<pxr::SdfPath> getAnchorGeoreferencePath(const pxr::SdfPath& path);
-std::optional<CesiumGeospatial::Cartographic> getCartographicOriginForAnchor(const pxr::SdfPath& path);
 
 }; // namespace cesium::omniverse::UsdUtil

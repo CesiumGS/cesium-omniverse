@@ -323,9 +323,7 @@ void processCesiumImageryChanged(const pxr::SdfPath& imageryPath, const pxr::TfT
         propertyName == pxr::CesiumTokens->cesiumShowCreditsOnScreen) {
         // Reload the tileset that the imagery is attached to
         tileset.value()->reload();
-    }
-
-    if (propertyName == pxr::CesiumTokens->cesiumAlpha) {
+    } else if (propertyName == pxr::CesiumTokens->cesiumAlpha) {
         // Update the imagery layer alpha
         const auto imageryLayerIndex = tileset.value()->findImageryLayerIndex(imageryPath);
         if (imageryLayerIndex.has_value()) {
@@ -337,51 +335,43 @@ void processCesiumImageryChanged(const pxr::SdfPath& imageryPath, const pxr::TfT
 void processCesiumGeoreferenceChanged(const pxr::SdfPath& georeferencePath) {
     const auto globeAnchors = GlobeAnchorRegistry::getInstance().getAllAnchors();
     for (const auto& globeAnchor : globeAnchors) {
-
-        // We only want to update an anchor if we are updating its related Georeference Prim.
-        if (georeferencePath !=
-            UsdUtil::getAnchorGeoreferencePath(globeAnchor->getPrimPath()).value_or(pxr::SdfPath::EmptyPath())) {
+        const auto& globeAnchorGeoreferencePath = globeAnchor->getGeoreferencePath();
+        if (georeferencePath != globeAnchorGeoreferencePath) {
             continue;
         }
 
-        const auto origin = UsdUtil::getCartographicOriginForAnchor(globeAnchor->getPrimPath());
-        if (!origin.has_value()) {
-            continue;
-        }
-
-        const auto anchorApi = UsdUtil::getCesiumGlobeAnchor(globeAnchor->getPrimPath());
-        GeospatialUtil::updateAnchorOrigin(origin.value(), anchorApi, globeAnchor);
+        const auto georeference = OmniGeoreference(georeferencePath);
+        const auto origin = georeference.getCartographic();
+        globeAnchor->updateOrigin(origin);
     }
 }
 
 void processCesiumGlobeAnchorChanged(const pxr::SdfPath& globeAnchorPath, const pxr::TfToken& propertyName) {
-    const auto globeAnchor = UsdUtil::getCesiumGlobeAnchor(globeAnchorPath);
-
-    const auto origin = UsdUtil::getCartographicOriginForAnchor(globeAnchorPath);
-    if (!origin.has_value()) {
+    const auto globeAnchor = GlobeAnchorRegistry::getInstance().getAnchor(globeAnchorPath);
+    if (!globeAnchor.has_value()) {
         return;
     }
 
-    bool detectTransformChanges;
-    globeAnchor.GetDetectTransformChangesAttr().Get(&detectTransformChanges);
+    const auto georeferencePath = globeAnchor.value()->getGeoreferencePath();
+    if (georeferencePath.IsEmpty()) {
+        return;
+    }
+
+    const auto detectTransformChanges = globeAnchor.value()->getDetectTransformChanges();
 
     if (detectTransformChanges && (propertyName == pxr::CesiumTokens->cesiumAnchorDetectTransformChanges ||
                                    propertyName == pxr::UsdTokens->xformOp_transform_cesium)) {
-        GeospatialUtil::updateAnchorByUsdTransform(origin.value(), globeAnchor);
-        return;
-    }
-
-    if (propertyName == pxr::CesiumTokens->cesiumAnchorGeographicCoordinates) {
-        GeospatialUtil::updateAnchorByLatLongHeight(origin.value(), globeAnchor);
-        return;
-    }
-
-    if (propertyName == pxr::CesiumTokens->cesiumAnchorPosition ||
+        globeAnchor->updateByUsdTransform();
+    } else if (propertyName == pxr::CesiumTokens->cesiumAnchorGeographicCoordinates) {
+        globeAnchor->updateByLatLongHeight();
+    } else if (
+        propertyName == pxr::CesiumTokens->cesiumAnchorPosition ||
         propertyName == pxr::CesiumTokens->cesiumAnchorRotation ||
         propertyName == pxr::CesiumTokens->cesiumAnchorScale) {
-        GeospatialUtil::updateAnchorByFixedTransform(origin.value(), globeAnchor);
-        return;
+        globeAnchor->updateByFixedTransform();
     }
+
+    // TODO: what if georeference changes?
 }
 
 void processCesiumIonServerChanged(const pxr::SdfPath& ionServerPath) {
@@ -491,19 +481,9 @@ void processCesiumImageryAdded(const pxr::SdfPath& imageryPath) {
 }
 
 void processCesiumGlobeAnchorAdded(const pxr::SdfPath& globeAnchorPath) {
-    const auto anchorApi = UsdUtil::getCesiumGlobeAnchor(globeAnchorPath);
-    const auto origin = UsdUtil::getCartographicOriginForAnchor(globeAnchorPath);
-    assert(origin.has_value());
-    pxr::GfVec3d coordinates;
-    anchorApi.GetGeographicCoordinateAttr().Get(&coordinates);
-
-    if (coordinates == pxr::GfVec3d(0.0, 0.0, 10.0)) {
-        // Default geo coordinates. Place based on current USD position.
-        GeospatialUtil::updateAnchorByUsdTransform(origin.value(), anchorApi);
-    } else {
-        // Provided geo coordinates. Place at correct location.
-        GeospatialUtil::updateAnchorByLatLongHeight(origin.value(), anchorApi);
-    }
+    // TODO: what if it doesn't have a georeference?
+    const auto globeAnchor = UsdUtil::getCesiumGlobeAnchor(globeAnchorPath);
+    GlobeAnchorRegistry::getInstance().createAnchor(globeAnchorPath);
 }
 
 void processCesiumIonServerAdded(const pxr::SdfPath& ionServerPath) {

@@ -154,6 +154,32 @@ glm::dmat4 computeUsdWorldToLocalTransform(const pxr::SdfPath& path) {
     return glm::affineInverse(computeUsdLocalToWorldTransform(path));
 }
 
+CesiumGeospatial::LocalHorizontalCoordinateSystem
+getLocalHorizontalCoordinateSystem(const CesiumGeospatial::Cartographic& origin) {
+    const auto upAxis = UsdUtil::getUsdUpAxis();
+    const auto scaleInMeters = UsdUtil::getUsdMetersPerUnit();
+
+    if (upAxis == pxr::UsdGeomTokens->z) {
+        return {
+            origin,
+            CesiumGeospatial::LocalDirection::East,
+            CesiumGeospatial::LocalDirection::North,
+            CesiumGeospatial::LocalDirection::Up,
+            scaleInMeters,
+            Context::instance().getEllipsoid(),
+        };
+    }
+
+    return {
+        origin,
+        CesiumGeospatial::LocalDirection::East,
+        CesiumGeospatial::LocalDirection::Up,
+        CesiumGeospatial::LocalDirection::South,
+        scaleInMeters,
+        Context::instance().getEllipsoid(),
+    };
+}
+
 bool isPrimVisible(const pxr::SdfPath& path) {
     // This is similar to isPrimVisible in kit-sdk/dev/include/omni/usd/UsdUtils.h
     const auto stage = getUsdStage();
@@ -209,51 +235,51 @@ pxr::TfToken getDynamicTextureProviderAssetPathToken(const std::string& name) {
     return pxr::TfToken(pxr::SdfAssetPath(fmt::format("dynamic://{}", name)).GetAssetPath());
 }
 
-glm::dmat4 computeEcefToUsdLocalTransform(const CesiumGeospatial::Cartographic& origin) {
+glm::dmat4 computeEcefToUsdLocalTransform(const pxr::SdfPath& georeferencePath) {
     const auto data = OmniData(UsdUtil::getOrCreateCesiumData().GetPath());
 
-    if (data.getDebugDisableGeoreferencing()) {
+    if (georeferencePath.IsEmpty() || data.getDebugDisableGeoreferencing()) {
         const auto scale = 1.0 / getUsdMetersPerUnit();
         return glm::scale(glm::dmat4(1.0), glm::dvec3(scale));
     }
 
-    return GeospatialUtil::getCoordinateSystem(origin).getEcefToLocalTransformation();
+    const auto georeference = OmniGeoreference(georeferencePath);
+    const auto georeferenceOrigin = georeference.getCartographic();
+
+    return getLocalHorizontalCoordinateSystem(georeferenceOrigin).getEcefToLocalTransformation();
 }
 
-glm::dmat4
-computeEcefToUsdWorldTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath) {
-    const auto ecefToUsdTransform = computeEcefToUsdLocalTransform(origin);
+glm::dmat4 computeEcefToUsdWorldTransformForPrim(const pxr::SdfPath& georeferencePath, const pxr::SdfPath& primPath) {
+    const auto ecefToUsdTransform = computeEcefToUsdLocalTransform(georeferencePath);
     const auto primUsdWorldTransform = computeUsdLocalToWorldTransform(primPath);
     const auto primEcefToUsdTransform = primUsdWorldTransform * ecefToUsdTransform;
     return primEcefToUsdTransform;
 }
 
-glm::dmat4
-computeUsdWorldToEcefTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath) {
-    return glm::affineInverse(computeEcefToUsdWorldTransformForPrim(origin, primPath));
+glm::dmat4 computeUsdWorldToEcefTransformForPrim(const pxr::SdfPath& georeferencePath, const pxr::SdfPath& primPath) {
+    return glm::affineInverse(computeEcefToUsdWorldTransformForPrim(georeferencePath, primPath));
 }
 
-glm::dmat4
-computeEcefToUsdLocalTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath) {
-    const auto ecefToUsdTransform = computeEcefToUsdLocalTransform(origin);
+glm::dmat4 computeEcefToUsdLocalTransformForPrim(const pxr::SdfPath& georeferencePath, const pxr::SdfPath& primPath) {
+    // TODO: don't understand the math here
+    const auto ecefToUsdTransform = computeEcefToUsdLocalTransform(georeferencePath);
     const auto usdWorldToLocalTransform = UsdUtil::computeUsdWorldToLocalTransform(primPath);
     const auto primEcefToUsdTransform = usdWorldToLocalTransform * ecefToUsdTransform;
     return primEcefToUsdTransform;
 }
 
-glm::dmat4
-computeUsdLocalToEcefTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath) {
-    return glm::affineInverse(computeEcefToUsdLocalTransformForPrim(origin, primPath));
+glm::dmat4 computeUsdLocalToEcefTransformForPrim(const pxr::SdfPath& georeferencePath, const pxr::SdfPath& primPath) {
+    return glm::affineInverse(computeEcefToUsdLocalTransformForPrim(georeferencePath, primPath));
 }
 
 Cesium3DTilesSelection::ViewState
-computeViewState(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath, const Viewport& viewport) {
+computeViewState(const pxr::SdfPath& georeferencePath, const pxr::SdfPath& primPath, const Viewport& viewport) {
     const auto viewMatrix = usdToGlmMatrix(viewport.viewMatrix);
     const auto projMatrix = usdToGlmMatrix(viewport.projMatrix);
     const auto width = viewport.width;
     const auto height = viewport.height;
 
-    const auto usdToEcef = UsdUtil::computeUsdWorldToEcefTransformForPrim(origin, primPath);
+    const auto usdToEcef = UsdUtil::computeUsdWorldToEcefTransformForPrim(georeferencePath, primPath);
     const auto inverseView = glm::inverse(viewMatrix);
     const auto omniCameraUp = glm::dvec3(inverseView[1]);
     const auto omniCameraFwd = glm::dvec3(-inverseView[2]);
@@ -606,31 +632,6 @@ std::optional<pxr::GfMatrix4d> getCesiumTransformOpValueForPathIfExists(const px
     }
 
     return std::nullopt;
-}
-
-std::optional<pxr::SdfPath> getAnchorGeoreferencePath(const pxr::SdfPath& path) {
-    if (!hasCesiumGlobeAnchor(path)) {
-        return std::nullopt;
-    }
-
-    const auto globeAnchor = getCesiumGlobeAnchor(path);
-    pxr::SdfPathVector targets;
-    if (!globeAnchor.GetGeoreferenceBindingRel().GetForwardedTargets(&targets)) {
-        return std::nullopt;
-    }
-
-    return targets[0];
-}
-
-std::optional<CesiumGeospatial::Cartographic> getCartographicOriginForAnchor(const pxr::SdfPath& path) {
-    const auto anchorGeoreferencePath = getAnchorGeoreferencePath(path);
-
-    if (!anchorGeoreferencePath.has_value()) {
-        return std::nullopt;
-    }
-
-    const auto georeference = OmniGeoreference(anchorGeoreferencePath.value());
-    return georeference.getCartographic();
 }
 
 } // namespace cesium::omniverse::UsdUtil

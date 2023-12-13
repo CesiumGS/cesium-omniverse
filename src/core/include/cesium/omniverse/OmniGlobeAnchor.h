@@ -1,5 +1,7 @@
 #pragma once
 
+#include "cesium/omniverse/OmniGeoreference.h"
+
 #include <CesiumGeospatial/Cartographic.h>
 #include <CesiumGeospatial/GlobeAnchor.h>
 #include <glm/ext/matrix_double4x4.hpp>
@@ -19,6 +21,10 @@ struct OmniGlobeAnchorValueCache {
 class OmniGlobeAnchor {
   public:
     OmniGlobeAnchor(pxr::SdfPath anchorPrimPath, const glm::dmat4& anchorToFixed);
+
+    [[nodiscard]] bool getAdjustOrientationForGlobeWhenMoving() const;
+    [[nodiscard]] bool getDetectTransformChanges() const;
+    [[nodiscard]] pxr::SdfPath getGeoreferencePath() const;
 
     [[nodiscard]] const pxr::GfMatrix4d& getCachedTransformation() const;
     [[nodiscard]] const pxr::GfVec3d& getCachedGeographicCoordinate() const;
@@ -42,8 +48,13 @@ class OmniGlobeAnchor {
     void updateByGeographicCoordinates(CesiumGeospatial::Cartographic& cartographic, bool shouldReorient);
     void updateByUsdTransform(const CesiumGeospatial::Cartographic& origin, bool shouldReorient);
 
+    void updateOrigin(const CesiumGeospatial::Cartographic& origin); // TODO
+    void updateByUsdTransform();                                     // TODO
+    void updateByLatLongHeight();                                    // TODO
+    void updateByFixedTransform();                                   // TODO
+
   private:
-    pxr::SdfPath _anchorPrimPath;
+    pxr::SdfPath _primPath;
     std::shared_ptr<CesiumGeospatial::GlobeAnchor> _anchor;
 
     // This is used for quick comparisons, so we can short circuit successive updates.
