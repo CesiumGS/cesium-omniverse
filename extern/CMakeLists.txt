@@ -5,16 +5,18 @@ add_external_project(
     PROJECT_NAME
         cesium-native
     LIBRARIES
-        CesiumIonClient
         Cesium3DTilesSelection
         Cesium3DTilesReader
         Cesium3DTilesContent
+        CesiumRasterOverlays
+        CesiumGltfReader
+        CesiumGltfContent
+        CesiumGltf
+        CesiumJsonReader
         CesiumGeospatial
         CesiumGeometry
-        CesiumGltf
-        CesiumGltfReader
+        CesiumIonClient
         CesiumAsync
-        CesiumJsonReader
         CesiumUtility
         async++
         csprng

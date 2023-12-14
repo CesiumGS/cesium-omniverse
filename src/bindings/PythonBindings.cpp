@@ -4,7 +4,7 @@
 #include "cesium/omniverse/TokenTroubleshooter.h"
 #include "cesium/omniverse/Viewport.h"
 
-#include <Cesium3DTilesSelection/CreditSystem.h>
+#include <CesiumUtility/CreditSystem.h>
 #include <carb/BindingsPythonUtils.h>
 #include <pxr/base/gf/matrix4d.h>
 #include <pxr/base/gf/vec4d.h>

@@ -57,17 +57,17 @@ class FabricPrepareRenderResources final : public Cesium3DTilesSelection::IPrepa
     void* prepareRasterInLoadThread(CesiumGltf::ImageCesium& image, const std::any& rendererOptions) override;
 
     void*
-    prepareRasterInMainThread(Cesium3DTilesSelection::RasterOverlayTile& rasterTile, void* pLoadThreadResult) override;
+    prepareRasterInMainThread(CesiumRasterOverlays::RasterOverlayTile& rasterTile, void* pLoadThreadResult) override;
 
     void freeRaster(
-        const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
+        const CesiumRasterOverlays::RasterOverlayTile& rasterTile,
         void* pLoadThreadResult,
         void* pMainThreadResult) noexcept override;
 
     void attachRasterInMainThread(
         const Cesium3DTilesSelection::Tile& tile,
         int32_t overlayTextureCoordinateID,
-        const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
+        const CesiumRasterOverlays::RasterOverlayTile& rasterTile,
         void* pMainThreadRendererResources,
         const glm::dvec2& translation,
         const glm::dvec2& scale) override;
@@ -75,7 +75,7 @@ class FabricPrepareRenderResources final : public Cesium3DTilesSelection::IPrepa
     void detachRasterInMainThread(
         const Cesium3DTilesSelection::Tile& tile,
         int32_t overlayTextureCoordinateID,
-        const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
+        const CesiumRasterOverlays::RasterOverlayTile& rasterTile,
         void* pMainThreadRendererResources) noexcept override;
 
     [[nodiscard]] bool tilesetExists() const;

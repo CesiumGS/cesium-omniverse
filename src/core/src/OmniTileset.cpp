@@ -19,10 +19,10 @@
 #undef OPAQUE
 #endif
 
-#include <Cesium3DTilesSelection/IonRasterOverlay.h>
 #include <Cesium3DTilesSelection/Tileset.h>
 #include <Cesium3DTilesSelection/ViewState.h>
 #include <Cesium3DTilesSelection/ViewUpdateResult.h>
+#include <CesiumRasterOverlays/IonRasterOverlay.h>
 #include <CesiumUsdSchemas/imagery.h>
 #include <CesiumUsdSchemas/tileset.h>
 #include <pxr/usd/usd/prim.h>
@@ -465,17 +465,17 @@ void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
 
     const auto ionApiUrl = imagery.getIonApiUrl();
 
-    Cesium3DTilesSelection::RasterOverlayOptions options;
+    CesiumRasterOverlays::RasterOverlayOptions options;
     options.showCreditsOnScreen = imagery.getShowCreditsOnScreen();
 
     options.loadErrorCallback = [tilesetPath, tilesetIonAssetId, tilesetName, imageryIonAssetId, imageryName](
-                                    const Cesium3DTilesSelection::RasterOverlayLoadFailureDetails& error) {
+                                    const CesiumRasterOverlays::RasterOverlayLoadFailureDetails& error) {
         // Check for a 401 connecting to Cesium ion, which means the token is invalid
         // (or perhaps the asset ID is). Also check for a 404, because ion returns 404
         // when the token is valid but not authorized for the asset.
         auto statusCode = error.pRequest && error.pRequest->response() ? error.pRequest->response()->statusCode() : 0;
 
-        if (error.type == Cesium3DTilesSelection::RasterOverlayLoadType::CesiumIon &&
+        if (error.type == CesiumRasterOverlays::RasterOverlayLoadType::CesiumIon &&
             (statusCode == 401 || statusCode == 404)) {
             Broadcast::showTroubleshooter(
                 tilesetPath, tilesetIonAssetId, tilesetName, imageryIonAssetId, imageryName, error.message);
@@ -484,13 +484,13 @@ void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
         CESIUM_LOG_ERROR(error.message);
     };
 
-    const auto ionRasterOverlay = new Cesium3DTilesSelection::IonRasterOverlay(
+    const auto ionRasterOverlay = new CesiumRasterOverlays::IonRasterOverlay(
         imageryName, imageryIonAssetId, imageryIonAccessToken.value().token, options, ionApiUrl);
     _tileset->getOverlays().add(ionRasterOverlay);
     _imageryPaths.push_back(imageryPath);
 }
 
-std::optional<uint64_t> OmniTileset::findImageryLayerIndex(const Cesium3DTilesSelection::RasterOverlay& overlay) const {
+std::optional<uint64_t> OmniTileset::findImageryLayerIndex(const CesiumRasterOverlays::RasterOverlay& overlay) const {
     uint64_t imageryLayerIndex = 0;
     for (const auto& pOverlay : _tileset->getOverlays()) {
         if (&overlay == pOverlay.get()) {

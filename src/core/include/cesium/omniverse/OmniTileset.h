@@ -11,11 +11,14 @@
 #include <vector>
 
 namespace Cesium3DTilesSelection {
-class RasterOverlay;
 class Tileset;
 class ViewState;
 class ViewUpdateResult;
 } // namespace Cesium3DTilesSelection
+
+namespace CesiumRasterOverlays {
+class RasterOverlay;
+} // namespace CesiumRasterOverlays
 
 namespace CesiumGltf {
 struct Model;
@@ -80,7 +83,7 @@ class OmniTileset {
     void reload();
     void addImageryIon(const pxr::SdfPath& imageryPath);
     [[nodiscard]] std::optional<uint64_t>
-    findImageryLayerIndex(const Cesium3DTilesSelection::RasterOverlay& overlay) const;
+    findImageryLayerIndex(const CesiumRasterOverlays::RasterOverlay& overlay) const;
     [[nodiscard]] std::optional<uint64_t> findImageryLayerIndex(const pxr::SdfPath& imageryPath) const;
     [[nodiscard]] uint64_t getImageryLayerCount() const;
     [[nodiscard]] double getImageryLayerAlpha(uint64_t imageryLayerIndex) const;
