@@ -10,19 +10,33 @@ void SessionRegistry::addSession(
     const pxr::SdfPath& ionServerPath) {
     auto prim = UsdUtil::getOrCreateIonServer(ionServerPath);
 
-    std::string url;
-    prim.GetIonServerApiUrlAttr().Get(&url);
+    std::string serverUrl;
+    prim.GetIonServerUrlAttr().Get(&serverUrl);
+
+    std::string apiUrl;
+    prim.GetIonServerApiUrlAttr().Get(&apiUrl);
 
     int64_t applicationId;
     prim.GetIonServerApplicationIdAttr().Get(&applicationId);
 
-    auto session = std::make_shared<CesiumIonSession>(asyncSystem, httpAssetAccessor, url, applicationId);
+    auto session = std::make_shared<CesiumIonSession>(asyncSystem, httpAssetAccessor, serverUrl, apiUrl, applicationId);
     session->resume();
 
     _sessions.insert({ionServerPath, std::move(session)});
 }
 
-std::vector<pxr::SdfPath> SessionRegistry::getAllSessionPaths() {
+std::vector<std::shared_ptr<CesiumIonSession>> SessionRegistry::getAllSessions() {
+    std::vector<std::shared_ptr<CesiumIonSession>> sessions;
+    sessions.reserve(_sessions.size());
+
+    for (const auto& item : _sessions) {
+        sessions.emplace_back(item.second);
+    }
+
+    return sessions;
+}
+
+std::vector<pxr::SdfPath> SessionRegistry::getAllServerPaths() {
     std::vector<pxr::SdfPath> paths;
     paths.reserve(_sessions.size());
 

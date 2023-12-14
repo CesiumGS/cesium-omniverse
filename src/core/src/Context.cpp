@@ -406,7 +406,20 @@ void reloadIonServerAssets(const pxr::SdfPath& ionServerPath) {
 
 void Context::processCesiumIonServerChanged([[maybe_unused]] const cesium::omniverse::ChangedPrim& changedPrim) {
     const auto& [path, name, primType, changeType] = changedPrim;
-    reloadIonServerAssets(path);
+
+    if (name == pxr::CesiumTokens->cesiumIonServerUrl || name == pxr::CesiumTokens->cesiumIonServerApiUrl ||
+        name == pxr::CesiumTokens->cesiumIonServerApplicationId) {
+        // Reload the session
+        SessionRegistry::getInstance().removeSession(path);
+        SessionRegistry::getInstance().addSession(*_asyncSystem, _httpAssetAccessor, path);
+        // Reload assets that references this server
+        reloadIonServerAssets(path);
+    } else if (
+        name == pxr::CesiumTokens->cesiumProjectDefaultIonAccessToken ||
+        name == pxr::CesiumTokens->cesiumProjectDefaultIonAccessTokenId) {
+        // Reload assets that references this server, in particular those that don't specify an access token
+        reloadIonServerAssets(path);
+    }
 }
 
 void Context::processUsdShaderChanged(const cesium::omniverse::ChangedPrim& changedPrim) {
@@ -553,13 +566,11 @@ void Context::onUpdateUi() {
         return;
     }
 
-    const auto session = SessionRegistry::getInstance().getSession(UsdUtil::getPathToCurrentIonServer());
+    const auto sessions = SessionRegistry::getInstance().getAllSessions();
 
-    if (session == nullptr) {
-        return;
+    for (const auto& session : sessions) {
+        session->tick();
     }
-
-    session->tick();
 }
 
 pxr::UsdStageRefPtr Context::getStage() const {
@@ -663,6 +674,16 @@ std::optional<std::shared_ptr<CesiumIonSession>> Context::getSession() {
     }
 
     return std::optional<std::shared_ptr<CesiumIonSession>>{session};
+}
+
+std::vector<std::shared_ptr<CesiumIonSession>> Context::getAllSessions() {
+    // A lot of UI code will end up calling the session prior to us actually having a stage. The user won't see this
+    // but some major segfaults will occur without this check.
+    if (!UsdUtil::hasStage()) {
+        return {};
+    }
+
+    return SessionRegistry::getInstance().getAllSessions();
 }
 
 std::optional<CesiumIonClient::Token> Context::getDefaultToken() const {

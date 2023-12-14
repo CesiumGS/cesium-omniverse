@@ -2,10 +2,12 @@ import logging
 import carb.events
 import omni.kit.app as app
 import omni.ui as ui
+import omni.usd
 from typing import List, Optional
 from ..bindings import ICesiumOmniverseInterface
 from ..models import AssetToAdd
 from .styles import CesiumOmniverseUiStyles
+from cesium.usd.plugins.CesiumUsdSchemas import IonServer as CesiumIonServer
 
 LABEL_HEIGHT = 24
 BUTTON_HEIGHT = 40
@@ -38,10 +40,22 @@ class CesiumOmniverseQuickAddWidget(ui.Frame):
         if self._ion_quick_add_frame is None:
             return
 
+        if omni.usd.get_context().get_stage_state() != omni.usd.StageState.OPENED:
+            return
+
         session = self._cesium_omniverse_interface.get_session()
 
         if session is not None:
-            self._ion_quick_add_frame.visible = session.is_connected()
+            stage = omni.usd.get_context().get_stage()
+            current_server_path = self._cesium_omniverse_interface.get_server_path()
+            current_server = CesiumIonServer.Get(stage, current_server_path)
+            current_server_url = current_server.GetIonServerUrlAttr().Get()
+
+            # Temporary workaround to only show quick add assets for official ion server
+            # until quick add route is implemented
+            self._ion_quick_add_frame.visible = (
+                session.is_connected() and current_server_url == "https://ion.cesium.com/"
+            )
 
     @staticmethod
     def _add_blank_button_clicked():

@@ -1,14 +1,12 @@
 import omni.usd
 import omni.kit
 import re
-from typing import Optional
 
 from cesium.usd.plugins.CesiumUsdSchemas import (
     Imagery as CesiumImagery,
     Tileset as CesiumTileset,
     Tokens as CesiumTokens,
     Data as CesiumData,
-    IonServer as CesiumIonServer,
 )
 from pxr import Sdf
 from pxr.UsdGeom import Gprim
@@ -87,13 +85,13 @@ def get_path_to_current_ion_server() -> Sdf.Path:
     return targets[0]
 
 
-def get_current_ion_server_prim() -> Optional[CesiumIonServer]:
+def set_path_to_current_ion_server(server_path: str):
     stage = omni.usd.get_context().get_stage()
 
-    path = get_current_ion_server_prim()
+    data = CesiumData.Get(stage, CESIUM_DATA_PRIM_PATH)
 
-    prim: CesiumIonServer = CesiumIonServer.Get(stage, path)
-    if not prim.GetPrim().IsValid():
-        return None
+    if not data.GetPrim().IsValid():
+        return
 
-    return prim
+    rel = data.GetSelectedIonServerRel()
+    rel.SetTargets([server_path])

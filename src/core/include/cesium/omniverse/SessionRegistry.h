@@ -29,7 +29,8 @@ class SessionRegistry {
         CesiumAsync::AsyncSystem& asyncSystem,
         const std::shared_ptr<HttpAssetAccessor>& httpAssetAccessor,
         const pxr::SdfPath& ionServerPath);
-    std::vector<pxr::SdfPath> getAllSessionPaths();
+    std::vector<std::shared_ptr<CesiumIonSession>> getAllSessions();
+    std::vector<pxr::SdfPath> getAllServerPaths();
     std::shared_ptr<CesiumIonSession> getSession(const pxr::SdfPath& ionServerPath);
     void removeSession(const pxr::SdfPath& ionServerPath);
     bool sessionExists(const pxr::SdfPath& ionServerPath);

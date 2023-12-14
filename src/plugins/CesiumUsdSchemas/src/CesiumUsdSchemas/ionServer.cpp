@@ -81,6 +81,23 @@ CesiumIonServer::_GetTfType() const
 }
 
 UsdAttribute
+CesiumIonServer::GetDisplayNameAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumDisplayName);
+}
+
+UsdAttribute
+CesiumIonServer::CreateDisplayNameAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumDisplayName,
+                       SdfValueTypeNames->String,
+                       /* custom = */ false,
+                       SdfVariabilityVarying,
+                       defaultValue,
+                       writeSparsely);
+}
+
+UsdAttribute
 CesiumIonServer::GetIonServerUrlAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumIonServerUrl);
@@ -182,6 +199,7 @@ const TfTokenVector&
 CesiumIonServer::GetSchemaAttributeNames(bool includeInherited)
 {
     static TfTokenVector localNames = {
+        CesiumTokens->cesiumDisplayName,
         CesiumTokens->cesiumIonServerUrl,
         CesiumTokens->cesiumIonServerApiUrl,
         CesiumTokens->cesiumIonServerApplicationId,

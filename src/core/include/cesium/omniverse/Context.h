@@ -85,6 +85,7 @@ class Context {
 
     void connectToIon();
     std::optional<std::shared_ptr<CesiumIonSession>> getSession();
+    std::vector<std::shared_ptr<CesiumIonSession>> getAllSessions();
 
     std::optional<CesiumIonClient::Token> getDefaultToken() const;
     SetDefaultTokenResult getSetDefaultTokenResult() const;

@@ -190,8 +190,8 @@ void UsdNotificationHandler::onPrimRemoved(const pxr::SdfPath& primPath) {
         }
     }
 
-    const auto& sessions = SessionRegistry::getInstance().getAllSessionPaths();
-    for (const auto& path : sessions) {
+    const auto& servers = SessionRegistry::getInstance().getAllServerPaths();
+    for (const auto& path : servers) {
         const auto& type = getType(path);
         if (type == ChangedPrimType::CESIUM_ION_SERVER) {
             if (inSubtree(primPath, path)) {

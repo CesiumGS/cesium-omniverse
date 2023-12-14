@@ -49,11 +49,11 @@ class CesiumDataPrim "CesiumDataPrim" (
     )
     string cesium:projectDefaultIonAccessToken = "" (
         displayName = "Project default ion Access Token"
-        doc = "DEPRECATED: A string representing the token for accessing Cesium ion assets. Will be removed in a future version."
+        doc = "DEPRECATED: A string representing the token for accessing Cesium ion assets. Moved to CesiumIonServerPrim. Will be removed in a future version."
     )
     string cesium:projectDefaultIonAccessTokenId = "" (
         displayName = "Project default ion Access Token ID"
-        doc = "DEPRECATED: A string representing the token ID for accessing Cesium ion assets. Will be removed in a future version."
+        doc = "DEPRECATED: A string representing the token ID for accessing Cesium ion assets. Moved to CesiumIonServerPrim. Will be removed in a future version."
     )
     rel cesium:selectedIonServer (
         displayName = "Selected ion Server context"
@@ -75,24 +75,28 @@ class CesiumIonServerPrim "CesiumIonServerPrim" (
     doc = "Stores metadata related to Cesium ion server connections for tilesets."
 )
 {
+    string cesium:displayName (
+        displayName = "Display Name"
+        doc = "The name to display for this server."
+    )
     string cesium:ionServerApiUrl (
-        displayName = "Cesium ion Server API URL"
+        displayName = "API URL"
         doc = "The base URL for the Cesium ion Server API."
     )
     int64 cesium:ionServerApplicationId (
-        displayName = "Cesium ion Server Application ID"
+        displayName = "OAuth Application ID"
         doc = "The application ID for the Cesium ion Server connection."
     )
     string cesium:ionServerUrl (
-        displayName = "Cesium ion Server URL"
+        displayName = "Server URL"
         doc = "The base URL for the Cesium ion Server."
     )
     string cesium:projectDefaultIonAccessToken = "" (
-        displayName = "Project default ion Access Token"
+        displayName = "Default Cesium ion Access Token"
         doc = "A string representing the token for accessing Cesium ion assets."
     )
     string cesium:projectDefaultIonAccessTokenId = "" (
-        displayName = "Project default ion Access Token ID"
+        displayName = "Default Cesium ion Access Token ID"
         doc = "A string representing the token ID for accessing Cesium ion assets."
     )
 }
