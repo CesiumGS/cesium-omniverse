@@ -22,6 +22,8 @@ class FabricMaterialDefinition {
     [[nodiscard]] bool hasBaseColorTexture() const;
     [[nodiscard]] const std::vector<FeatureIdType>& getFeatureIdTypes() const;
     [[nodiscard]] uint64_t getImageryLayerCount() const;
+    [[nodiscard]] uint64_t getPolygonImageryCount() const;
+    [[nodiscard]] uint64_t getIonImageryCount() const;
     [[nodiscard]] bool hasTilesetMaterial() const;
     [[nodiscard]] const pxr::SdfPath& getTilesetMaterialPath() const;
 
@@ -33,6 +35,8 @@ class FabricMaterialDefinition {
     bool _hasBaseColorTexture;
     std::vector<FeatureIdType> _featureIdTypes;
     uint64_t _imageryLayerCount;
+    uint64_t _polygonImageryLayerCount = 0;
+    uint64_t _ionImageryLayerCount = 0;
     pxr::SdfPath _tilesetMaterialPath;
 };
 

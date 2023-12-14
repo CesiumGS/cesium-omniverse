@@ -643,6 +643,10 @@ double OmniTileset::getImageryLayerAlpha(uint64_t imageryLayerIndex) const {
     return alpha;
 }
 
+pxr::SdfPath OmniTileset::getImageryLayerPath(uint64_t imageryLayerIndex) const {
+    return _imageryPaths[imageryLayerIndex];
+}
+
 void OmniTileset::onUpdateFrame(const std::vector<Viewport>& viewports) {
     if (!UsdUtil::primExists(_tilesetPath)) {
         // TfNotice can be slow, and sometimes we get a frame or two before we actually get a chance to react on it.

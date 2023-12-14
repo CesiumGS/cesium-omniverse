@@ -23,7 +23,6 @@ struct Model;
 
 namespace cesium::omniverse {
 enum TilesetSourceType { ION = 0, URL = 1 };
-enum class OverlayType { IMAGERY = 0, POLYGON = 1 };
 
 class FabricPrepareRenderResources;
 struct Viewport;
@@ -82,6 +81,7 @@ class OmniTileset {
     [[nodiscard]] std::optional<uint64_t> findImageryLayerIndex(const pxr::SdfPath& imageryPath) const;
     [[nodiscard]] uint64_t getImageryLayerCount() const;
     [[nodiscard]] double getImageryLayerAlpha(uint64_t imageryLayerIndex) const;
+    [[nodiscard]] pxr::SdfPath getImageryLayerPath(uint64_t imageryLayerIndex) const;
     void updateImageryLayerAlpha(uint64_t imageryLayerIndex);
     void updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::TfToken& attributeName);
     void updateDisplayColorAndOpacity();

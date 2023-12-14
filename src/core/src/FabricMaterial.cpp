@@ -14,6 +14,7 @@
 #include <glm/gtc/random.hpp>
 #include <omni/fabric/FabricUSD.h>
 #include <spdlog/fmt/fmt.h>
+#include <stdint.h>
 
 #include <iostream>
 
@@ -275,8 +276,11 @@ void FabricMaterial::initializeNodes() {
 void FabricMaterial::initializeDefaultMaterial() {
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
-    const auto imageryLayerCount = getImageryLayerCount(_materialDefinition);
+    // const auto imageryLayerCount = getImageryLayerCount(_materialDefinition);
+    const uint64_t ionImageryLayerCount = _materialDefinition.getIonImageryCount();
+    const uint64_t polygonImageryCount = _materialDefinition.getPolygonImageryCount();
     const auto hasBaseColorTexture = _materialDefinition.hasBaseColorTexture();
+
 
     // Create material
     const auto& materialPath = _materialPath;
@@ -290,9 +294,9 @@ void FabricMaterial::initializeDefaultMaterial() {
     _allPaths.push_back(shaderPath);
 
     // Create imagery layer resolver if there are multiple imagery layers
-    if (imageryLayerCount > 1) {
+    if (ionImageryLayerCount > 1) {
         const auto imageryLayerResolverPath = FabricUtil::joinPaths(materialPath, FabricTokens::imagery_layer_resolver);
-        createImageryLayerResolver(imageryLayerResolverPath, imageryLayerCount);
+        createImageryLayerResolver(imageryLayerResolverPath, ionImageryLayerCount);
         _imageryLayerResolverPath = imageryLayerResolverPath;
         _allPaths.push_back(imageryLayerResolverPath);
     }
@@ -307,19 +311,27 @@ void FabricMaterial::initializeDefaultMaterial() {
         createConnection(srw, _baseColorTexturePath, shaderPath, FabricTokens::inputs_base_color_texture);
     }
 
-    if (imageryLayerCount == 1) {
+    if (ionImageryLayerCount == 1) {
         // Create connection from imagery layer to shader
         const auto& imageryLayerPath = _imageryLayerPaths.front();
         createConnection(srw, imageryLayerPath, shaderPath, FabricTokens::inputs_imagery_layer);
-    } else if (imageryLayerCount > 1) {
+    } else if (ionImageryLayerCount > 1) {
         // Create connection from imagery layer resolver to shader
         createConnection(srw, _imageryLayerResolverPath, shaderPath, FabricTokens::inputs_imagery_layer);
 
         // Create connections from imagery layers to imagery layer resolver
-        for (uint64_t i = 0; i < imageryLayerCount; i++) {
+        for (uint64_t i = 0; i < ionImageryLayerCount; i++) {
             const auto& imageryLayerPath = _imageryLayerPaths[i];
             createConnection(srw, imageryLayerPath, _imageryLayerResolverPath, FabricTokens::inputs_imagery_layer_n(i));
         }
+    }
+
+    if (polygonImageryCount == 1) {
+        // TODO
+        std::cout << "polygonImageryCount: 1" << std::endl;
+    } else if (polygonImageryCount > 1) {
+        // TODO
+        std::cout << "polygonImageryCount: " << polygonImageryCount << std::endl;
     }
 }
 

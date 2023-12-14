@@ -35,7 +35,22 @@ FabricMaterialDefinition::FabricMaterialDefinition(
     , _featureIdTypes(filterFeatureIdTypes(featuresInfo, disableTextures))
     , _tilesetMaterialPath(tilesetMaterialPath) {
         _imageryLayerCount = imageryLayersInfo.imageryLayerCount;
-        if (disableTextures) _imageryLayerCount = 0;
+        for (auto layerType : imageryLayersInfo.overlayTypes) {
+            switch (layerType) {
+                case OverlayType::IMAGERY:
+                    _ionImageryLayerCount++;
+                break;
+                case OverlayType::POLYGON:
+                    _polygonImageryLayerCount++;
+                break;
+            }
+        }
+
+        if (disableTextures) {
+            _imageryLayerCount = 0;
+            _ionImageryLayerCount = 0;
+        }
+
     }
 
 bool FabricMaterialDefinition::hasVertexColors() const {
@@ -52,6 +67,14 @@ const std::vector<FeatureIdType>& FabricMaterialDefinition::getFeatureIdTypes() 
 
 uint64_t FabricMaterialDefinition::getImageryLayerCount() const {
     return _imageryLayerCount;
+}
+
+uint64_t FabricMaterialDefinition::getPolygonImageryCount() const {
+    return _polygonImageryLayerCount;
+}
+
+uint64_t FabricMaterialDefinition::getIonImageryCount() const {
+    return _ionImageryLayerCount;
 }
 
 bool FabricMaterialDefinition::hasTilesetMaterial() const {
