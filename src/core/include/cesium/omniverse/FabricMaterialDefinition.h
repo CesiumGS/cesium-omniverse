@@ -14,7 +14,7 @@ class FabricMaterialDefinition {
     FabricMaterialDefinition(
         const MaterialInfo& materialInfo,
         const FeaturesInfo& featuresInfo,
-        uint64_t imageryLayerCount,
+        const ImageryLayersInfo& imageryLayersInfo,
         bool disableTextures,
         const pxr::SdfPath& tilesetMaterialPath);
 

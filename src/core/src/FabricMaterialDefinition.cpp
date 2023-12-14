@@ -27,14 +27,16 @@ std::vector<FeatureIdType> filterFeatureIdTypes(const FeaturesInfo& featuresInfo
 FabricMaterialDefinition::FabricMaterialDefinition(
     const MaterialInfo& materialInfo,
     const FeaturesInfo& featuresInfo,
-    uint64_t imageryLayerCount,
+    const ImageryLayersInfo& imageryLayersInfo,
     bool disableTextures,
     const pxr::SdfPath& tilesetMaterialPath)
     : _hasVertexColors(materialInfo.hasVertexColors)
     , _hasBaseColorTexture(disableTextures ? false : materialInfo.baseColorTexture.has_value())
     , _featureIdTypes(filterFeatureIdTypes(featuresInfo, disableTextures))
-    , _imageryLayerCount(disableTextures ? 0 : imageryLayerCount)
-    , _tilesetMaterialPath(tilesetMaterialPath) {}
+    , _tilesetMaterialPath(tilesetMaterialPath) {
+        _imageryLayerCount = imageryLayersInfo.imageryLayerCount;
+        if (disableTextures) _imageryLayerCount = 0;
+    }
 
 bool FabricMaterialDefinition::hasVertexColors() const {
     return _hasVertexColors;

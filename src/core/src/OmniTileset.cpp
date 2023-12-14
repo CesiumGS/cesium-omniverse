@@ -636,6 +636,7 @@ void OmniTileset::updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::T
 double OmniTileset::getImageryLayerAlpha(uint64_t imageryLayerIndex) const {
     assert(imageryLayerIndex < _imageryPaths.size());
 
+    // TODO: is alpha unique to Ion Imagery?
     auto alpha = OmniIonImagery(_imageryPaths[imageryLayerIndex]).getAlpha();
     alpha = glm::clamp(alpha, 0.0, 1.0);
 

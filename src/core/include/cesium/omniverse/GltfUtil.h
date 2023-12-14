@@ -72,6 +72,10 @@ struct FeaturesInfo {
     std::vector<FeatureId> featureIds;
 };
 
+struct ImageryLayersInfo {
+    uint64_t imageryLayerCount;
+};
+
 FeatureIdType getFeatureIdType(const FeatureId& featureId);
 std::vector<FeatureIdType> getFeatureIdTypes(const FeaturesInfo& featuresInfo);
 std::vector<uint64_t> getSetIndexMapping(const FeaturesInfo& featuresInfo, FeatureIdType type);

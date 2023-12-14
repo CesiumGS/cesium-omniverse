@@ -65,7 +65,7 @@ class FabricResourceManager {
     std::shared_ptr<FabricMaterial> acquireMaterial(
         const MaterialInfo& materialInfo,
         const FeaturesInfo& featuresInfo,
-        uint64_t imageryLayerCount,
+        ImageryLayersInfo& imageryLayersInfo,
         long stageId,
         int64_t tilesetId,
         const pxr::SdfPath& tilesetMaterialPath);
