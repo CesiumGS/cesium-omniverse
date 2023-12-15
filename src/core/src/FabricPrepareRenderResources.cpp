@@ -17,10 +17,10 @@
 #undef OPAQUE
 #endif
 
-#include <Cesium3DTilesContent/GltfUtilities.h>
 #include <Cesium3DTilesSelection/Tile.h>
 #include <Cesium3DTilesSelection/Tileset.h>
 #include <CesiumAsync/AsyncSystem.h>
+#include <CesiumGltfContent/GltfUtilities.h>
 #include <omni/fabric/FabricUSD.h>
 #include <omni/ui/ImageProvider/DynamicTextureProvider.h>
 
@@ -140,8 +140,8 @@ gatherMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const 
     const auto ecefToUsdTransform =
         UsdUtil::computeEcefToUsdWorldTransformForPrim(georeferenceOrigin, tileset.getPath());
 
-    auto gltfToEcefTransform = Cesium3DTilesContent::GltfUtilities::applyRtcCenter(model, tileTransform);
-    gltfToEcefTransform = Cesium3DTilesContent::GltfUtilities::applyGltfUpAxisTransform(model, gltfToEcefTransform);
+    auto gltfToEcefTransform = CesiumGltfContent::GltfUtilities::applyRtcCenter(model, tileTransform);
+    gltfToEcefTransform = CesiumGltfContent::GltfUtilities::applyGltfUpAxisTransform(model, gltfToEcefTransform);
 
     std::vector<MeshInfo> meshes;
 
@@ -517,7 +517,7 @@ void* FabricPrepareRenderResources::prepareRasterInLoadThread(
 }
 
 void* FabricPrepareRenderResources::prepareRasterInMainThread(
-    [[maybe_unused]] Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
+    [[maybe_unused]] CesiumRasterOverlays::RasterOverlayTile& rasterTile,
     void* pLoadThreadResult) {
     if (!pLoadThreadResult) {
         return nullptr;
@@ -537,7 +537,7 @@ void* FabricPrepareRenderResources::prepareRasterInMainThread(
 }
 
 void FabricPrepareRenderResources::freeRaster(
-    [[maybe_unused]] const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
+    [[maybe_unused]] const CesiumRasterOverlays::RasterOverlayTile& rasterTile,
     void* pLoadThreadResult,
     void* pMainThreadResult) noexcept {
 
@@ -559,7 +559,7 @@ void FabricPrepareRenderResources::freeRaster(
 void FabricPrepareRenderResources::attachRasterInMainThread(
     const Cesium3DTilesSelection::Tile& tile,
     int32_t overlayTextureCoordinateID,
-    [[maybe_unused]] const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
+    [[maybe_unused]] const CesiumRasterOverlays::RasterOverlayTile& rasterTile,
     void* pMainThreadRendererResources,
     const glm::dvec2& translation,
     const glm::dvec2& scale) {
@@ -615,7 +615,7 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
 void FabricPrepareRenderResources::detachRasterInMainThread(
     const Cesium3DTilesSelection::Tile& tile,
     [[maybe_unused]] int32_t overlayTextureCoordinateID,
-    const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
+    const CesiumRasterOverlays::RasterOverlayTile& rasterTile,
     [[maybe_unused]] void* pMainThreadRendererResources) noexcept {
 
     auto& content = tile.getContent();

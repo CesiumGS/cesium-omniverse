@@ -20,9 +20,9 @@
 #include <memory>
 #include <vector>
 
-namespace Cesium3DTilesSelection {
+namespace CesiumUtility {
 class CreditSystem;
-} // namespace Cesium3DTilesSelection
+} // namespace CesiumUtility
 
 namespace CesiumGeospatial {
 class Cartographic;
@@ -60,7 +60,7 @@ class Context {
 
     std::shared_ptr<TaskProcessor> getTaskProcessor();
     std::shared_ptr<HttpAssetAccessor> getHttpAssetAccessor();
-    std::shared_ptr<Cesium3DTilesSelection::CreditSystem> getCreditSystem();
+    std::shared_ptr<CesiumUtility::CreditSystem> getCreditSystem();
     std::shared_ptr<spdlog::logger> getLogger();
 
     void setProjectDefaultToken(const CesiumIonClient::Token& token);
@@ -147,7 +147,7 @@ class Context {
     std::shared_ptr<TaskProcessor> _taskProcessor;
     std::shared_ptr<CesiumAsync::AsyncSystem> _asyncSystem;
     std::shared_ptr<HttpAssetAccessor> _httpAssetAccessor;
-    std::shared_ptr<Cesium3DTilesSelection::CreditSystem> _creditSystem;
+    std::shared_ptr<CesiumUtility::CreditSystem> _creditSystem;
     std::shared_ptr<spdlog::logger> _logger;
 
     SetDefaultTokenResult _lastSetTokenResult;

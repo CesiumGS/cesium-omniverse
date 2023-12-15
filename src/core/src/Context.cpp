@@ -23,9 +23,9 @@
 #endif
 
 #include <Cesium3DTilesContent/registerAllTileContentTypes.h>
-#include <Cesium3DTilesSelection/CreditSystem.h>
 #include <Cesium3DTilesSelection/Tileset.h>
 #include <CesiumUsdSchemas/tokens.h>
+#include <CesiumUtility/CreditSystem.h>
 #include <pxr/usd/sdf/path.h>
 #include <pxr/usd/usd/primRange.h>
 #include <pxr/usd/usdUtils/stageCache.h>
@@ -81,7 +81,7 @@ void Context::initialize(int64_t contextId, const std::filesystem::path& cesiumE
     _taskProcessor = std::make_shared<TaskProcessor>();
     _asyncSystem = std::make_shared<CesiumAsync::AsyncSystem>(_taskProcessor);
     _httpAssetAccessor = std::make_shared<HttpAssetAccessor>(_certificatePath);
-    _creditSystem = std::make_shared<Cesium3DTilesSelection::CreditSystem>();
+    _creditSystem = std::make_shared<CesiumUtility::CreditSystem>();
 
     _logger = std::make_shared<spdlog::logger>(
         std::string("cesium-omniverse"),
@@ -117,7 +117,7 @@ std::shared_ptr<HttpAssetAccessor> Context::getHttpAssetAccessor() {
     return _httpAssetAccessor;
 }
 
-std::shared_ptr<Cesium3DTilesSelection::CreditSystem> Context::getCreditSystem() {
+std::shared_ptr<CesiumUtility::CreditSystem> Context::getCreditSystem() {
     return _creditSystem;
 }
 
