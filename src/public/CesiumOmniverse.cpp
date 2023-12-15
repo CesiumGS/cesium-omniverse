@@ -28,19 +28,6 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
         Context::onShutdown();
     }
 
-    std::vector<std::string> getAllTilesetPaths() noexcept override {
-        const auto paths = AssetRegistry::getInstance().getAllTilesetPaths();
-
-        std::vector<std::string> result;
-        result.reserve(paths.size());
-
-        for (const auto& path : paths) {
-            result.emplace_back(path.GetString());
-        }
-
-        return result;
-    }
-
     void reloadTileset(const char* tilesetPath) noexcept override {
         Context::instance().reloadTileset(pxr::SdfPath(tilesetPath));
     }

@@ -34,7 +34,6 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         m, "ICesiumOmniverseInterface", "acquire_cesium_omniverse_interface", "release_cesium_omniverse_interface")
         .def("on_startup", &ICesiumOmniverseInterface::onStartup)
         .def("on_shutdown", &ICesiumOmniverseInterface::onShutdown)
-        .def("get_all_tileset_paths", &ICesiumOmniverseInterface::getAllTilesetPaths)
         .def("reload_tileset", &ICesiumOmniverseInterface::reloadTileset)
         .def("on_update_frame", &ICesiumOmniverseInterface::onUpdateFrame)
         .def("on_update_ui", &ICesiumOmniverseInterface::onUpdateUi)
