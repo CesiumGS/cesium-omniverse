@@ -180,12 +180,34 @@ void Context::reloadStage() {
         }
     }
 
+    const auto defaultIonServerPath = pxr::SdfPath("/CesiumServers/IonOfficial");
+
     for (const auto& prim : stage->Traverse()) {
         const auto& path = prim.GetPath();
         if (UsdUtil::isCesiumTileset(path)) {
             AssetRegistry::getInstance().addTileset(path, UsdUtil::GEOREFERENCE_PATH);
+
+            // For backwards compatibility. Add default ion server to tilesets without a server.
+            const auto tileset = AssetRegistry::getInstance().getTilesetByPath(path);
+            if (tileset.has_value()) {
+                const auto ionServerPath = tileset.value()->getIonServerPath();
+                if (ionServerPath.IsEmpty()) {
+                    const auto tilesetPrim = UsdUtil::getCesiumTileset(path);
+                    tilesetPrim.GetIonServerBindingRel().SetTargets({defaultIonServerPath});
+                }
+            }
         } else if (UsdUtil::isCesiumImagery(path)) {
             AssetRegistry::getInstance().addImagery(path);
+
+            // For backwards compatibility. Add default ion server to imagery without a server.
+            const auto imagery = AssetRegistry::getInstance().getImageryByPath(path);
+            if (imagery.has_value()) {
+                const auto ionServerPath = imagery.value()->getIonServerPath();
+                if (ionServerPath.IsEmpty()) {
+                    const auto imageryPrim = UsdUtil::getCesiumImagery(path);
+                    imageryPrim.GetIonServerBindingRel().SetTargets({defaultIonServerPath});
+                }
+            }
         } else if (UsdUtil::hasCesiumGlobeAnchor(path)) {
             auto origin = UsdUtil::getCartographicOriginForAnchor(path);
 
