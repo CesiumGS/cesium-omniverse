@@ -467,3 +467,10 @@ class CesiumOmniverseExtension(omni.ext.IExt):
 
             data_prim: CesiumData = CesiumData.Get(stage, CESIUM_DATA_PRIM_PATH)
             data_prim.GetSelectedIonServerRel().AddTarget(path)
+
+            # For backwards compatibility. Add access token from CesiumData prim.
+            defaultAccessToken = data_prim.GetProjectDefaultIonAccessTokenAttr().Get()
+            defaultAccessTokenId = data_prim.GetProjectDefaultIonAccessTokenIdAttr().Get()
+
+            prim.GetProjectDefaultIonAccessTokenAttr().Set(defaultAccessToken)
+            prim.GetProjectDefaultIonAccessTokenIdAttr().Set(defaultAccessTokenId)
