@@ -21,6 +21,7 @@ class CesiumIonServerAttributesWidget(SchemaPropertiesWidget):
 
         with frame:
             with CustomLayoutGroup("ion Server"):
+                CustomLayoutProperty("cesium:displayName")
                 CustomLayoutProperty("cesium:ionServerUrl")
                 CustomLayoutProperty("cesium:ionServerApiUrl")
                 CustomLayoutProperty("cesium:ionServerApplicationId")

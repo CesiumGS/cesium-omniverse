@@ -60,6 +60,7 @@ void wrapCesiumTokens()
     _AddToken(cls, "cesiumDebugMaterialPoolInitialCapacity", CesiumTokens->cesiumDebugMaterialPoolInitialCapacity);
     _AddToken(cls, "cesiumDebugRandomColors", CesiumTokens->cesiumDebugRandomColors);
     _AddToken(cls, "cesiumDebugTexturePoolInitialCapacity", CesiumTokens->cesiumDebugTexturePoolInitialCapacity);
+    _AddToken(cls, "cesiumDisplayName", CesiumTokens->cesiumDisplayName);
     _AddToken(cls, "cesiumEcefToUsdTransform", CesiumTokens->cesiumEcefToUsdTransform);
     _AddToken(cls, "cesiumEnableFogCulling", CesiumTokens->cesiumEnableFogCulling);
     _AddToken(cls, "cesiumEnableFrustumCulling", CesiumTokens->cesiumEnableFrustumCulling);

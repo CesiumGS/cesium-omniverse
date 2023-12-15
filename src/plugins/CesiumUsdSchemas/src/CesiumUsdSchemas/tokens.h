@@ -115,6 +115,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumData
     const TfToken cesiumDebugTexturePoolInitialCapacity;
+    /// \brief "cesium:displayName"
+    /// 
+    /// CesiumIonServer
+    const TfToken cesiumDisplayName;
     /// \brief "cesium:ecefToUsdTransform"
     /// 
     /// CesiumSession

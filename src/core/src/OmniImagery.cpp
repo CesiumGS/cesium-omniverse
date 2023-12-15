@@ -29,19 +29,36 @@ int64_t OmniImagery::getIonAssetId() const {
 }
 
 std::optional<CesiumIonClient::Token> OmniImagery::getIonAccessToken() const {
-    auto imagery = UsdUtil::getCesiumImagery(_path);
+    const auto imagery = UsdUtil::getCesiumImagery(_path);
 
     std::string ionAccessToken;
     imagery.GetIonAccessTokenAttr().Get<std::string>(&ionAccessToken);
 
-    if (ionAccessToken.empty()) {
-        return Context::instance().getDefaultToken();
+    if (!ionAccessToken.empty()) {
+        CesiumIonClient::Token t;
+        t.token = ionAccessToken;
+        return t;
     }
 
-    CesiumIonClient::Token t;
-    t.token = ionAccessToken;
+    const auto ionServerPath = getIonServerPath();
 
-    return t;
+    if (ionServerPath.IsEmpty()) {
+        return std::nullopt;
+    }
+
+    const auto ionServer = UsdUtil::getOrCreateIonServer(ionServerPath);
+
+    std::string projectDefaultToken;
+    std::string projectDefaultTokenId;
+
+    ionServer.GetProjectDefaultIonAccessTokenAttr().Get(&projectDefaultToken);
+    ionServer.GetProjectDefaultIonAccessTokenIdAttr().Get(&projectDefaultTokenId);
+
+    if (projectDefaultToken.empty()) {
+        return std::nullopt;
+    }
+
+    return CesiumIonClient::Token{projectDefaultTokenId, "", projectDefaultToken};
 }
 
 std::string OmniImagery::getIonApiUrl() const {

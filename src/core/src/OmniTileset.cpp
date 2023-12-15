@@ -1,6 +1,7 @@
 #include "cesium/omniverse/OmniTileset.h"
 
 #include "cesium/omniverse/Broadcast.h"
+#include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/FabricGeometry.h"
 #include "cesium/omniverse/FabricMaterial.h"
@@ -10,6 +11,7 @@
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/OmniImagery.h"
+#include "cesium/omniverse/SessionRegistry.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/UsdUtil.h"
 #include "cesium/omniverse/Viewport.h"
@@ -85,19 +87,36 @@ int64_t OmniTileset::getIonAssetId() const {
 }
 
 std::optional<CesiumIonClient::Token> OmniTileset::getIonAccessToken() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     std::string ionAccessToken;
     tileset.GetIonAccessTokenAttr().Get<std::string>(&ionAccessToken);
 
-    if (ionAccessToken.empty()) {
-        return Context::instance().getDefaultToken();
+    if (!ionAccessToken.empty()) {
+        CesiumIonClient::Token t;
+        t.token = ionAccessToken;
+        return t;
     }
 
-    CesiumIonClient::Token t;
-    t.token = ionAccessToken;
+    const auto ionServerPath = getIonServerPath();
 
-    return t;
+    if (ionServerPath.IsEmpty()) {
+        return std::nullopt;
+    }
+
+    const auto ionServer = UsdUtil::getOrCreateIonServer(ionServerPath);
+
+    std::string projectDefaultToken;
+    std::string projectDefaultTokenId;
+
+    ionServer.GetProjectDefaultIonAccessTokenAttr().Get(&projectDefaultToken);
+    ionServer.GetProjectDefaultIonAccessTokenIdAttr().Get(&projectDefaultTokenId);
+
+    if (projectDefaultToken.empty()) {
+        return std::nullopt;
+    }
+
+    return CesiumIonClient::Token{projectDefaultTokenId, "", projectDefaultToken};
 }
 
 std::string OmniTileset::getIonApiUrl() const {

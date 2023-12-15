@@ -154,11 +154,19 @@ class CesiumIonServerPrim "CesiumIonServerPrim" (
         string className = "IonServer"
     }
 ) {
+    string cesium:displayName (
+        customData = {
+            string apiName = "displayName"
+        }
+        displayName = "Display Name"
+        doc = "The name to display for this server."
+    )
+
     string cesium:ionServerUrl (
         customData = {
             string apiName = "ionServerUrl"
         }
-        displayName = "Cesium ion Server URL"
+        displayName = "Server URL"
         doc = "The base URL for the Cesium ion Server."
     )
 
@@ -166,7 +174,7 @@ class CesiumIonServerPrim "CesiumIonServerPrim" (
         customData = {
             string apiName = "ionServerApiUrl"
         }
-        displayName = "Cesium ion Server API URL"
+        displayName = "API URL"
         doc = "The base URL for the Cesium ion Server API."
     )
 
@@ -174,7 +182,7 @@ class CesiumIonServerPrim "CesiumIonServerPrim" (
         customData = {
             string apiName = "ionServerApplicationId"
         }
-        displayName = "Cesium ion Server Application ID"
+        displayName = "OAuth Application ID"
         doc = "The application ID for the Cesium ion Server connection."
     )
 
@@ -182,7 +190,7 @@ class CesiumIonServerPrim "CesiumIonServerPrim" (
         customData = {
             string apiName = "projectDefaultIonAccessToken"
         }
-        displayName = "Project default ion Access Token"
+        displayName = "Default Cesium ion Access Token"
         doc = "A string representing the token for accessing Cesium ion assets."
     )
 
@@ -190,7 +198,7 @@ class CesiumIonServerPrim "CesiumIonServerPrim" (
         customData = {
             string apiName = "projectDefaultIonAccessTokenId"
         }
-        displayName = "Project default ion Access Token ID"
+        displayName = "Default Cesium ion Access Token ID"
         doc = "A string representing the token ID for accessing Cesium ion assets."
     )
 }

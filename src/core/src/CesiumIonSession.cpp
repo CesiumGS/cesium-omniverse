@@ -5,6 +5,8 @@
 #include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/SettingsWrapper.h"
 
+#include <CesiumUtility/Uri.h>
+
 #include <utility>
 
 using namespace CesiumAsync;
@@ -21,6 +23,7 @@ const char* browserCommandBase = "xdg-open";
 CesiumIonSession::CesiumIonSession(
     CesiumAsync::AsyncSystem& asyncSystem,
     std::shared_ptr<CesiumAsync::IAssetAccessor> pAssetAccessor,
+    std::string ionServerUrl,
     std::string ionApiUrl,
     int64_t ionApplicationId)
     : _asyncSystem(asyncSystem)
@@ -38,6 +41,7 @@ CesiumIonSession::CesiumIonSession(
     , _loadAssetsQueued(false)
     , _loadTokensQueued(false)
     , _authorizeUrl()
+    , _ionServerUrl(std::move(ionServerUrl))
     , _ionApiUrl(std::move(ionApiUrl))
     , _ionApplicationId(ionApplicationId) {}
 
@@ -58,7 +62,9 @@ void CesiumIonSession::connect() {
         [this](const std::string& url) {
             // NOTE: We open the browser in the Python code. Check in the sign in widget's on_update_frame function.
             this->_authorizeUrl = url;
-        })
+        },
+        _ionApiUrl,
+        CesiumUtility::Uri::resolve(_ionServerUrl, "oauth"))
         .thenInMainThread([this](CesiumIonClient::Connection&& connection) {
             this->_isConnecting = false;
             this->_connection = std::move(connection);

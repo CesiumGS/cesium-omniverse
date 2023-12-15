@@ -85,9 +85,24 @@ class ICesiumOmniverseInterface {
     virtual void connectToIon() noexcept = 0;
 
     /**
-     * @brief Gets the Cesium ion session.
+     * @brief Gets the active Cesium ion session.
      */
     virtual std::optional<std::shared_ptr<CesiumIonSession>> getSession() noexcept = 0;
+
+    /**
+     * @brief Get the path of the active Cesium ion server.
+     */
+    virtual std::string getServerPath() noexcept = 0;
+
+    /**
+     * @brief Gets all Cesium ion sessions.
+     */
+    virtual std::vector<std::shared_ptr<CesiumIonSession>> getAllSessions() noexcept = 0;
+
+    /**
+     * @brief Get all Cesium ion server paths.
+     */
+    virtual std::vector<std::string> getAllServerPaths() noexcept = 0;
 
     /**
      * @brief Gets the last result with code and message of setting the default token.

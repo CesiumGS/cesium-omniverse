@@ -151,14 +151,24 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> HttpAssetAccess
 
     if (verb == "GET") {
         session->GetCallback([promise, url, headers](cpr::Response&& response) mutable {
-            promise.resolve(std::make_shared<HttpAssetRequest>("GET", url, headers, std::move(response)));
+            if (response.error) {
+                promise.reject(std::runtime_error(
+                    fmt::format("Request to {} failed with error: {}", url, response.error.message)));
+            } else {
+                promise.resolve(std::make_shared<HttpAssetRequest>("GET", url, headers, std::move(response)));
+            }
         });
 
         return promise.getFuture();
     } else if (verb == "POST") {
         session->SetBody(cpr::Body{reinterpret_cast<const char*>(contentPayload.data()), contentPayload.size()});
         session->PostCallback([promise, url, headers](cpr::Response&& response) mutable {
-            promise.resolve(std::make_shared<HttpAssetRequest>("POST", url, headers, std::move(response)));
+            if (response.error) {
+                promise.reject(std::runtime_error(
+                    fmt::format("Request to {} failed with error: {}", url, response.error.message)));
+            } else {
+                promise.resolve(std::make_shared<HttpAssetRequest>("POST", url, headers, std::move(response)));
+            }
         });
 
         return promise.getFuture();

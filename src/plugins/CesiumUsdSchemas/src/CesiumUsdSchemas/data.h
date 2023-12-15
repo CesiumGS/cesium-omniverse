@@ -129,7 +129,7 @@ public:
     // --------------------------------------------------------------------- //
     // PROJECTDEFAULTIONACCESSTOKEN 
     // --------------------------------------------------------------------- //
-    /// DEPRECATED: A string representing the token for accessing Cesium ion assets. Will be removed in a future version.
+    /// DEPRECATED: A string representing the token for accessing Cesium ion assets. Moved to CesiumIonServerPrim. Will be removed in a future version.
     ///
     /// | ||
     /// | -- | -- |
@@ -151,7 +151,7 @@ public:
     // --------------------------------------------------------------------- //
     // PROJECTDEFAULTIONACCESSTOKENID 
     // --------------------------------------------------------------------- //
-    /// DEPRECATED: A string representing the token ID for accessing Cesium ion assets. Will be removed in a future version.
+    /// DEPRECATED: A string representing the token ID for accessing Cesium ion assets. Moved to CesiumIonServerPrim. Will be removed in a future version.
     ///
     /// | ||
     /// | -- | -- |

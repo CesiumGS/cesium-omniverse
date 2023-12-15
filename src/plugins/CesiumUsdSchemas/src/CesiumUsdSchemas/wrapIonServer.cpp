@@ -27,6 +27,13 @@ WRAP_CUSTOM;
 
         
 static UsdAttribute
+_CreateDisplayNameAttr(CesiumIonServer &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateDisplayNameAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+}
+        
+static UsdAttribute
 _CreateIonServerUrlAttr(CesiumIonServer &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateIonServerUrlAttr(
@@ -102,6 +109,13 @@ void wrapCesiumIonServer()
 
         .def(!self)
 
+        
+        .def("GetDisplayNameAttr",
+             &This::GetDisplayNameAttr)
+        .def("CreateDisplayNameAttr",
+             &_CreateDisplayNameAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
         
         .def("GetIonServerUrlAttr",
              &This::GetIonServerUrlAttr)

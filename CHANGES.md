@@ -1,5 +1,9 @@
 # Change Log
 
+### v0.15.0 - 2023-12-14
+
+* Added support for multiple Cesium ion servers by creating `CesiumIonServerPrim` prims.
+
 ### v0.14.0 - 2023-12-01
 
 * Added support for `EXT_structural_metadata`. Property values can be accessed in material graph with the `cesium_property` nodes.

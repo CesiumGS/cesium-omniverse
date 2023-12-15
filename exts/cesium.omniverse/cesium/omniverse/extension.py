@@ -460,6 +460,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             # If we have no ion server prims, lets add a default one for the official ion servers.
             path = "/CesiumServers/IonOfficial"
             prim: CesiumIonServer = CesiumIonServer.Define(stage, path)
+            prim.GetDisplayNameAttr().Set("ion.cesium.com")
             prim.GetIonServerUrlAttr().Set("https://ion.cesium.com/")
             prim.GetIonServerApiUrlAttr().Set("https://api.cesium.com/")
             prim.GetIonServerApplicationIdAttr().Set(413)

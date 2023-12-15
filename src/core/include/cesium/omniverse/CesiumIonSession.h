@@ -17,6 +17,7 @@ class CesiumIonSession {
     CesiumIonSession(
         CesiumAsync::AsyncSystem& asyncSystem,
         std::shared_ptr<CesiumAsync::IAssetAccessor> pAssetAccessor,
+        std::string ionServerUrl,
         std::string ionApiUrl,
         int64_t ionApplicationId);
 
@@ -121,6 +122,7 @@ class CesiumIonSession {
     bool _loadTokensQueued;
 
     std::string _authorizeUrl;
+    std::string _ionServerUrl;
     std::string _ionApiUrl;
     int64_t _ionApplicationId;
 };
