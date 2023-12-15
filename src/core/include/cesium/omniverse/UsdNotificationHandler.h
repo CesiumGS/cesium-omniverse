@@ -7,9 +7,9 @@ namespace cesium::omniverse {
 class AssetRegistry;
 
 enum class ChangedPrimType {
+    CESIUM_DATA,
     CESIUM_TILESET,
     CESIUM_IMAGERY,
-    CESIUM_DATA,
     CESIUM_GEOREFERENCE,
     CESIUM_GLOBE_ANCHOR,
     CESIUM_ION_SERVER,
@@ -24,8 +24,8 @@ enum class ChangeType {
 };
 
 struct ChangedPrim {
-    pxr::SdfPath path;
-    pxr::TfToken propertyName;
+    pxr::SdfPath primPath;
+    std::vector<pxr::TfToken> properties;
     ChangedPrimType primType;
     ChangeType changeType;
 };
@@ -35,13 +35,19 @@ class UsdNotificationHandler final : public pxr::TfWeakBase {
     UsdNotificationHandler();
     ~UsdNotificationHandler();
 
-    std::vector<ChangedPrim> popChangedPrims();
+    void onStageLoaded();
+    void onUpdateFrame();
 
   private:
     void onObjectsChanged(const pxr::UsdNotice::ObjectsChanged& objectsChanged);
     void onPrimAdded(const pxr::SdfPath& path);
     void onPrimRemoved(const pxr::SdfPath& path);
     void onPropertyChanged(const pxr::SdfPath& path);
+
+    void insertAddedPrim(const pxr::SdfPath& primPath, ChangedPrimType primType);
+    void insertRemovedPrim(const pxr::SdfPath& primPath, ChangedPrimType primType);
+    void
+    insertPropertyChanged(const pxr::SdfPath& primPath, ChangedPrimType primType, const pxr::TfToken& propertyName);
 
     pxr::TfNotice::Key _noticeListenerKey;
     std::vector<ChangedPrim> _changedPrims;

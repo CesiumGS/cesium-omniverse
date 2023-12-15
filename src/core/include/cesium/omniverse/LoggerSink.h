@@ -12,7 +12,7 @@
 
 namespace cesium::omniverse {
 
-#define CESIUM_LOG_VERBOSE(...) Context::instance().getLogger()->verbose(__VA_ARGS__)
+#define CESIUM_LOG_TRACE(...) Context::instance().getLogger()->trace(__VA_ARGS__)
 #define CESIUM_LOG_INFO(...) Context::instance().getLogger()->info(__VA_ARGS__)
 #define CESIUM_LOG_WARN(...) Context::instance().getLogger()->warn(__VA_ARGS__)
 #define CESIUM_LOG_ERROR(...) Context::instance().getLogger()->error(__VA_ARGS__)

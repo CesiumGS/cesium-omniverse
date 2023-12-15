@@ -59,6 +59,7 @@ class Context {
     void destroy();
 
     std::shared_ptr<TaskProcessor> getTaskProcessor();
+    std::shared_ptr<CesiumAsync::AsyncSystem> getAsyncSystem();
     std::shared_ptr<HttpAssetAccessor> getHttpAssetAccessor();
     std::shared_ptr<CesiumUtility::CreditSystem> getCreditSystem();
     std::shared_ptr<spdlog::logger> getLogger();
@@ -123,18 +124,6 @@ class Context {
     void addGlobeAnchorToPrim(const pxr::SdfPath& path, double latitude, double longitude, double height);
 
   private:
-    void processPropertyChanged(const ChangedPrim& changedPrim);
-    void processCesiumDataChanged(const ChangedPrim& changedPrim);
-    void processCesiumTilesetChanged(const ChangedPrim& changedPrim);
-    void processCesiumImageryChanged(const ChangedPrim& changedPrim);
-    void processCesiumGeoreferenceChanged(const ChangedPrim& changedPrim);
-    void processCesiumGlobeAnchorChanged(const ChangedPrim& changedPrim);
-    void processCesiumIonServerChanged(const ChangedPrim& changedPrim);
-    void processUsdShaderChanged(const ChangedPrim& changedPrim);
-    void processPrimRemoved(const ChangedPrim& changedPrim);
-    void processPrimAdded(const ChangedPrim& changedPrim);
-    void processUsdNotifications();
-
     bool getDebugDisableMaterials() const;
     bool getDebugDisableTextures() const;
     bool getDebugDisableGeometryPool() const;
