@@ -1,6 +1,7 @@
 import omni.usd
 import omni.kit
 import re
+from typing import List
 
 from cesium.usd.plugins.CesiumUsdSchemas import (
     Imagery as CesiumImagery,
@@ -95,3 +96,9 @@ def set_path_to_current_ion_server(server_path: str):
 
     rel = data.GetSelectedIonServerRel()
     rel.SetTargets([server_path])
+
+
+def get_all_tileset_paths() -> List[str]:
+    stage = omni.usd.get_context().get_stage()
+    tileset_paths = [x.GetPath().pathString for x in stage.Traverse() if x.IsA(CesiumTileset)]
+    return tileset_paths
