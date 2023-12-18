@@ -48,7 +48,7 @@ float4 compute_base_color(
     float4 tile_color,
     float alpha_clip) {
 
-    if (alpha_clip < 0.5) return float4(0.0);
+    if (alpha_clip > 0.5) return float4(0.0);
 
     auto base_color_factor_float3 = float3(base_color_factor);
 
