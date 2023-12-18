@@ -337,13 +337,11 @@ void FabricMaterial::initializeDefaultMaterial() {
     }
 
 
-    if (polygonImageryLayerCount == 0) {
-        // create a
-    }
-    else if (polygonImageryLayerCount == 1) {
+    if (polygonImageryLayerCount == 1) {
         uint64_t polygonStart = ionImageryLayerCount;
         const auto& polygonImageryLayerPath = _imageryLayerPaths[polygonStart];
-        createConnection(srw, polygonImageryLayerPath, shaderPath, FabricTokens::inputs_polygon_imagery_layer);
+        // createConnection(srw, polygonImageryLayerPath, shaderPath, FabricTokens::inputs_polygon_imagery_layer);
+        createConnection(srw, polygonImageryLayerPath, shaderPath, FabricTokens::inputs_alpha_clip);
     }
     // TODO
     // else if (polygonImageryLayerCount > 1) {

@@ -57,6 +57,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((info_mdl_sourceAsset, "info:mdl:sourceAsset")) \
     ((info_mdl_sourceAsset_subIdentifier, "info:mdl:sourceAsset:subIdentifier")) \
     ((inputs_alpha, "inputs:alpha")) \
+    ((inputs_alpha_clip, "inputs:alpha_clip")) \
     ((inputs_alpha_cutoff, "inputs:alpha_cutoff")) \
     ((inputs_alpha_mode, "inputs:alpha_mode")) \
     ((inputs_base_alpha, "inputs:base_alpha")) \
