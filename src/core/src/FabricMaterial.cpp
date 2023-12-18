@@ -278,7 +278,7 @@ void FabricMaterial::initializeDefaultMaterial() {
 
     // const auto imageryLayerCount = getImageryLayerCount(_materialDefinition);
     const uint64_t ionImageryLayerCount = _materialDefinition.getIonImageryCount();
-    const uint64_t polygonImageryCount = _materialDefinition.getPolygonImageryCount();
+    const uint64_t polygonImageryLayerCount = _materialDefinition.getPolygonImageryCount();
     const auto hasBaseColorTexture = _materialDefinition.hasBaseColorTexture();
 
 
@@ -293,13 +293,23 @@ void FabricMaterial::initializeDefaultMaterial() {
     _shaderPath = shaderPath;
     _allPaths.push_back(shaderPath);
 
-    // Create imagery layer resolver if there are multiple imagery layers
+    // Create ion imagery layer resolver if there are multiple ion imagery layers
     if (ionImageryLayerCount > 1) {
         const auto imageryLayerResolverPath = FabricUtil::joinPaths(materialPath, FabricTokens::imagery_layer_resolver);
         createImageryLayerResolver(imageryLayerResolverPath, ionImageryLayerCount);
         _imageryLayerResolverPath = imageryLayerResolverPath;
         _allPaths.push_back(imageryLayerResolverPath);
     }
+
+    // Create polygon imagery layer resolver if there are multiple polygon imagery layers
+    // TODO
+    // if (polygonImageryLayerCount > 1) {
+    //     const auto imageryLayerResolverPath = FabricUtil::joinPaths(materialPath, FabricTokens::imagery_layer_resolver);
+    //     createImageryLayerResolver(imageryLayerResolverPath, ionImageryLayerCount);
+    //     _imageryLayerResolverPath = imageryLayerResolverPath;
+    //     _allPaths.push_back(imageryLayerResolverPath);
+    // }
+
 
     // Create connection from shader to material
     createConnection(srw, shaderPath, materialPath, FabricTokens::outputs_mdl_surface);
@@ -326,13 +336,20 @@ void FabricMaterial::initializeDefaultMaterial() {
         }
     }
 
-    if (polygonImageryCount == 1) {
-        // TODO
-        std::cout << "polygonImageryCount: 1" << std::endl;
-    } else if (polygonImageryCount > 1) {
-        // TODO
-        std::cout << "polygonImageryCount: " << polygonImageryCount << std::endl;
+
+    if (polygonImageryLayerCount == 0) {
+        // create a
     }
+    else if (polygonImageryLayerCount == 1) {
+        uint64_t polygonStart = ionImageryLayerCount;
+        const auto& polygonImageryLayerPath = _imageryLayerPaths[polygonStart];
+        createConnection(srw, polygonImageryLayerPath, shaderPath, FabricTokens::inputs_polygon_imagery_layer);
+    }
+    // TODO
+    // else if (polygonImageryLayerCount > 1) {
+    //     // TODO
+    //     std::cout << "polygonImageryCount: " << polygonImageryLayerCount << std::endl;
+    // }
 }
 
 void FabricMaterial::initializeExistingMaterial(const omni::fabric::Path& path) {

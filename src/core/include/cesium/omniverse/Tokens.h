@@ -79,6 +79,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((inputs_texture, "inputs:texture")) \
     ((inputs_tile_color, "inputs:tile_color")) \
     ((inputs_imagery_layer, "inputs:imagery_layer")) \
+    ((inputs_polygon_imagery_layer, "inputs:polygon_imagery_layer")) \
     ((inputs_imagery_layers_count, "inputs:imagery_layers_count")) \
     ((inputs_imagery_layer_index, "inputs:imagery_layer_index")) \
     ((inputs_wrap_s, "inputs:wrap_s")) \
@@ -127,6 +128,7 @@ FABRIC_DECLARE_TOKENS(USD_TOKENS);
 const omni::fabric::TokenC primvars_st_n(uint64_t index);
 const omni::fabric::TokenC imagery_layer_n(uint64_t index);
 const omni::fabric::TokenC inputs_imagery_layer_n(uint64_t index);
+const omni::fabric::TokenC inputs_polygon_imagery_layer_n(uint64_t index);
 const omni::fabric::TokenC feature_id_n(uint64_t index);
 
 }
