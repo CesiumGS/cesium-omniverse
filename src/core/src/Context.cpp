@@ -141,13 +141,13 @@ void Context::setProjectDefaultToken(const CesiumIonClient::Token& token) {
 }
 
 void Context::reloadTileset(const pxr::SdfPath& tilesetPath) {
-    const auto tileset = AssetRegistry::getInstance().getTilesetByPath(tilesetPath);
+    const auto tileset = AssetRegistry::getInstance().getTileset(tilesetPath);
 
-    if (!tileset.has_value()) {
+    if (!tileset) {
         return;
     }
 
-    tileset.value()->reload();
+    tileset->reload();
 }
 
 void Context::clearStage() {
@@ -452,9 +452,9 @@ void Context::updateTroubleshootingDetails(
     int64_t tilesetIonAssetId,
     uint64_t tokenEventId,
     uint64_t assetEventId) {
-    const auto tileset = AssetRegistry::getInstance().getTilesetByPath(tilesetPath);
+    const auto tileset = AssetRegistry::getInstance().getTileset(tilesetPath);
 
-    if (!tileset.has_value()) {
+    if (!tileset) {
         return;
     }
 
@@ -475,7 +475,7 @@ void Context::updateTroubleshootingDetails(
 
     _assetTokenTroubleshootingDetails = TokenTroubleshootingDetails();
 
-    auto tilesetIonAccessToken = tileset.value()->getIonAccessToken();
+    auto tilesetIonAccessToken = tileset->getIonAccessToken();
     if (tilesetIonAccessToken.has_value()) {
         troubleshooter.updateTokenTroubleshootingDetails(
             tilesetIonAssetId,
@@ -491,13 +491,13 @@ void Context::updateTroubleshootingDetails(
     uint64_t tokenEventId,
     uint64_t assetEventId) {
     auto& registry = AssetRegistry::getInstance();
-    const auto tileset = registry.getTilesetByPath(tilesetPath);
-    if (!tileset.has_value()) {
+    const auto tileset = registry.getTileset(tilesetPath);
+    if (!tileset) {
         return;
     }
 
     const auto imagery = registry.getImageryByIonAssetId(imageryIonAssetId);
-    if (!imagery.has_value()) {
+    if (!imagery) {
         return;
     }
 
@@ -518,7 +518,7 @@ void Context::updateTroubleshootingDetails(
 
     _assetTokenTroubleshootingDetails = TokenTroubleshootingDetails();
 
-    auto imageryIonAccessToken = imagery.value()->getIonAccessToken();
+    auto imageryIonAccessToken = imagery->getIonAccessToken();
     if (imageryIonAccessToken.has_value()) {
         troubleshooter.updateTokenTroubleshootingDetails(
             imageryIonAssetId,

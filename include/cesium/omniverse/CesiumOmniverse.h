@@ -38,13 +38,6 @@ class ICesiumOmniverseInterface {
     virtual void onShutdown() noexcept = 0;
 
     /**
-     * @brief Gets all the tileset paths on the stage.
-     *
-     * @return The tileset sdf paths.
-     */
-    virtual std::vector<std::string> getAllTilesetPaths() noexcept = 0;
-
-    /**
      * @brief Reloads a tileset.
      *
      * @param tilesetPath The tileset sdf path. If there's no tileset with this path nothing happens.

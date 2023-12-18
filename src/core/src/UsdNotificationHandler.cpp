@@ -91,9 +91,9 @@ void reloadIonServerAssets(const pxr::SdfPath& ionServerPath) {
     for (const auto& imagery : imageries) {
         if (imagery->getIonServerPath() == ionServerPath) {
             const auto tilesetPath = imagery->getPath().GetParentPath();
-            const auto tileset = AssetRegistry::getInstance().getTilesetByPath(tilesetPath);
-            if (tileset.has_value()) {
-                tileset.value()->reload();
+            const auto tileset = AssetRegistry::getInstance().getTileset(tilesetPath);
+            if (tileset) {
+                tileset->reload();
             }
         }
     }
@@ -128,8 +128,8 @@ void processCesiumDataChanged(const std::vector<pxr::TfToken>& properties) {
 }
 
 void processCesiumTilesetChanged(const pxr::SdfPath& tilesetPath, const std::vector<pxr::TfToken>& properties) {
-    const auto tileset = AssetRegistry::getInstance().getTilesetByPath(tilesetPath);
-    if (!tileset.has_value()) {
+    const auto tileset = AssetRegistry::getInstance().getTileset(tilesetPath);
+    if (!tileset) {
         return;
     }
 
@@ -175,23 +175,23 @@ void processCesiumTilesetChanged(const pxr::SdfPath& tilesetPath, const std::vec
     // clang-format on
 
     if (reloadTileset) {
-        tileset.value()->reload();
+        tileset->reload();
         return; // Skip other updates
     }
 
     if (updateTilesetOptions) {
-        tileset.value()->updateTilesetOptionsFromProperties();
+        tileset->updateTilesetOptionsFromProperties();
     }
 
     if (updateDisplayColorAndOpacity) {
-        tileset.value()->updateDisplayColorAndOpacity();
+        tileset->updateDisplayColorAndOpacity();
     }
 }
 
 void processCesiumImageryChanged(const pxr::SdfPath& imageryPath, const std::vector<pxr::TfToken>& properties) {
     const auto tilesetPath = imageryPath.GetParentPath();
-    const auto tileset = AssetRegistry::getInstance().getTilesetByPath(tilesetPath);
-    if (!tileset.has_value()) {
+    const auto tileset = AssetRegistry::getInstance().getTileset(tilesetPath);
+    if (!tileset) {
         return;
     }
 
@@ -212,14 +212,14 @@ void processCesiumImageryChanged(const pxr::SdfPath& imageryPath, const std::vec
     // clang-format on
 
     if (reloadTileset) {
-        tileset.value()->reload();
+        tileset->reload();
         return; // Skip other updates
     }
 
     if (updateImageryLayerAlpha) {
-        const auto imageryLayerIndex = tileset.value()->findImageryLayerIndex(imageryPath);
+        const auto imageryLayerIndex = tileset->findImageryLayerIndex(imageryPath);
         if (imageryLayerIndex.has_value()) {
-            tileset.value()->updateImageryLayerAlpha(imageryLayerIndex.value());
+            tileset->updateImageryLayerAlpha(imageryLayerIndex.value());
         }
     }
 }
@@ -393,10 +393,10 @@ void processCesiumImageryRemoved(const pxr::SdfPath& imageryPath) {
     AssetRegistry::getInstance().removeImagery(imageryPath);
 
     const auto tilesetPath = imageryPath.GetParentPath();
-    const auto tileset = AssetRegistry::getInstance().getTilesetByPath(tilesetPath);
+    const auto tileset = AssetRegistry::getInstance().getTileset(tilesetPath);
 
-    if (tileset.has_value()) {
-        tileset.value()->reload();
+    if (tileset) {
+        tileset->reload();
     }
 }
 
@@ -422,10 +422,10 @@ void processCesiumImageryAdded(const pxr::SdfPath& imageryPath) {
     AssetRegistry::getInstance().addImagery(imageryPath);
 
     const auto tilesetPath = imageryPath.GetParentPath();
-    const auto tileset = AssetRegistry::getInstance().getTilesetByPath(tilesetPath);
+    const auto tileset = AssetRegistry::getInstance().getTileset(tilesetPath);
 
-    if (tileset.has_value()) {
-        tileset.value()->reload();
+    if (tileset) {
+        tileset->reload();
     }
 }
 
@@ -598,7 +598,7 @@ void UsdNotificationHandler::onObjectsChanged(const pxr::UsdNotice::ObjectsChang
         if (path.IsPrimPath()) {
             if (UsdUtil::primExists(path)) {
                 const auto isTileset = getType(path) == ChangedPrimType::CESIUM_TILESET;
-                const auto isTilesetAlreadyRegistered = AssetRegistry::getInstance().getTilesetByPath(path).has_value();
+                const auto isTilesetAlreadyRegistered = AssetRegistry::getInstance().getTileset(path) != nullptr;
 
                 if (isTileset && isTilesetAlreadyRegistered) {
                     // A prim may be resynced even if its path doesn't change, like when an API Schema is applied to it.
