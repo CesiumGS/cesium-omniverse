@@ -336,6 +336,10 @@ void FabricMaterial::initializeDefaultMaterial() {
         }
     }
 
+    // if (polygonImageryLayerCount > 0) {
+    //     auto enableOpacityFabric = srw.getAttributeWr<float>(shaderPath, FabricTokens::inputs_enable_opacity);
+    //     *enableOpacityFabric = static_cast<float>(1.0);
+    // }
 
     if (polygonImageryLayerCount == 1) {
         uint64_t polygonStart = ionImageryLayerCount;
@@ -400,6 +404,8 @@ void FabricMaterial::createShader(const omni::fabric::Path& path) {
     attributes.addAttribute(FabricTypes::inputs_emissive_factor, FabricTokens::inputs_emissive_factor);
     attributes.addAttribute(FabricTypes::inputs_metallic_factor, FabricTokens::inputs_metallic_factor);
     attributes.addAttribute(FabricTypes::inputs_roughness_factor, FabricTokens::inputs_roughness_factor);
+    // inputs:enable_opacity
+    // attributes.addAttribute(FabricTypes::inputs_enable_opacity, FabricTokens::inputs_enable_opacity);
 
     createAttributes(srw, path, attributes, FabricTokens::cesium_internal_material);
 }
@@ -552,6 +558,7 @@ void FabricMaterial::setMaterial(
 
     if (_usesDefaultMaterial) {
         _alphaMode = materialInfo.alphaMode;
+        _alphaMode = cesium::omniverse::AlphaMode::MASK;
 
         if (_debugRandomColors) {
             const auto r = glm::linearRand(0.0, 1.0);
