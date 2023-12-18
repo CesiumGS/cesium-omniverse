@@ -561,25 +561,26 @@ FabricStatistics getStatistics() {
     for (size_t bucketId = 0; bucketId < geometryBuckets.bucketCount(); bucketId++) {
         auto paths = srw.getPathArray(geometryBuckets, bucketId);
 
-        // clang-format off
-        auto worldVisibilityFabric = srw.getAttributeArrayRd<bool>(geometryBuckets, bucketId, FabricTokens::_worldVisibility);
-        auto faceVertexCountsFabric = srw.getArrayAttributeArrayRd<int>(geometryBuckets, bucketId, FabricTokens::faceVertexCounts);
-        auto tilesetIdFabric = srw.getAttributeArrayRd<int64_t>(geometryBuckets, bucketId, FabricTokens::_cesium_tilesetId);
-        // clang-format on
-
         statistics.geometriesCapacity += paths.size();
 
-        for (size_t i = 0; i < paths.size(); i++) {
-            if (tilesetIdFabric[i] == NO_TILESET_ID) {
+        for (const auto& path : paths) {
+            const auto worldVisibilityFabric = srw.getAttributeRd<bool>(path, FabricTokens::_worldVisibility);
+            const auto faceVertexCountsFabric = srw.getArrayAttributeRd<int>(path, FabricTokens::faceVertexCounts);
+            const auto tilesetIdFabric = srw.getAttributeRd<int64_t>(path, FabricTokens::_cesium_tilesetId);
+
+            assert(worldVisibilityFabric);
+            assert(tilesetIdFabric);
+
+            if (*tilesetIdFabric == NO_TILESET_ID) {
                 continue;
             }
 
             statistics.geometriesLoaded++;
 
-            const auto triangleCount = faceVertexCountsFabric[i].size();
+            const auto triangleCount = faceVertexCountsFabric.size();
             statistics.trianglesLoaded += triangleCount;
 
-            if (worldVisibilityFabric[i]) {
+            if (*worldVisibilityFabric) {
                 statistics.geometriesRendered++;
                 statistics.trianglesRendered += triangleCount;
             }
