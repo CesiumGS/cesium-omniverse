@@ -183,6 +183,7 @@ void Context::reloadStage() {
         if (ionServerPath.IsEmpty()) {
             const auto tilesetPrim = UsdUtil::getCesiumTileset(tileset->getPath());
             tilesetPrim.GetIonServerBindingRel().SetTargets({defaultIonServerPath});
+            CESIUM_LOG_WARN("Tileset does not specify an ion server. Assigning to the default Cesium ion server.");
         }
     }
 
@@ -193,6 +194,7 @@ void Context::reloadStage() {
         if (ionServerPath.IsEmpty()) {
             const auto imageryPrim = UsdUtil::getCesiumImagery(imagery->getPath());
             imageryPrim.GetIonServerBindingRel().SetTargets({defaultIonServerPath});
+            CESIUM_LOG_WARN("Imagery does not specify an ion server. Assigning to the default Cesium ion server.");
         }
     }
 }
