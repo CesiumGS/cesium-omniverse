@@ -473,7 +473,7 @@ export material cesium_internal_material(
         base_color_texture.valid ? base_color_texture.value : float4(0.0),
         imagery_layer.valid ? imagery_layer.value : float4(0.0),
         tile_color,
-        alpha_clip.valid ? alpha_clip.value.x : 1.0
+        alpha_clip.valid ? alpha_clip.value.x : 0.0
     );
     material base = gltf_material(
         base_color_texture: gltf_texture_lookup_value(true, base_color),
