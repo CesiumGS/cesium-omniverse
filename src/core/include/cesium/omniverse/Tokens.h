@@ -23,6 +23,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     (cesium_internal_imagery_layer_lookup) \
     (cesium_internal_imagery_layer_resolver) \
     (cesium_internal_material) \
+    (cesium_internal_polygon_imagery_layer_resolver) \
     (cesium_internal_texture_lookup) \
     (constant) \
     (doubleSided) \
@@ -35,6 +36,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     (Mesh) \
     (none) \
     (points) \
+    (polygon_imagery_layer_resolver) \
     (primvarInterpolations) \
     (primvars) \
     (Shader) \
@@ -83,6 +85,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((inputs_imagery_layer, "inputs:imagery_layer")) \
     ((inputs_polygon_imagery_layer, "inputs:polygon_imagery_layer")) \
     ((inputs_imagery_layers_count, "inputs:imagery_layers_count")) \
+    ((inputs_polygon_imagery_layers_count, "inputs:polygon_imagery_layers_count")) \
     ((inputs_imagery_layer_index, "inputs:imagery_layer_index")) \
     ((inputs_wrap_s, "inputs:wrap_s")) \
     ((inputs_wrap_t, "inputs:wrap_t")) \
@@ -165,6 +168,7 @@ const omni::fabric::Type inputs_tex_coord_scale(omni::fabric::BaseDataType::eFlo
 const omni::fabric::Type inputs_tex_coord_index(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_texture(omni::fabric::BaseDataType::eAsset, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_imagery_layers_count(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type inputs_polygon_imagery_layers_count(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_wrap_s(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_wrap_t(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type Material(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName);

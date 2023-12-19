@@ -302,14 +302,12 @@ void FabricMaterial::initializeDefaultMaterial() {
     }
 
     // Create polygon imagery layer resolver if there are multiple polygon imagery layers
-    // TODO
-    // if (polygonImageryLayerCount > 1) {
-    //     const auto imageryLayerResolverPath = FabricUtil::joinPaths(materialPath, FabricTokens::imagery_layer_resolver);
-    //     createImageryLayerResolver(imageryLayerResolverPath, ionImageryLayerCount);
-    //     _imageryLayerResolverPath = imageryLayerResolverPath;
-    //     _allPaths.push_back(imageryLayerResolverPath);
-    // }
-
+    if (polygonImageryLayerCount > 1) {
+        const auto polygonImageryLayerResolverPath = FabricUtil::joinPaths(materialPath, FabricTokens::polygon_imagery_layer_resolver);
+        createPolygonImageryLayerResolver(polygonImageryLayerResolverPath, polygonImageryLayerCount);
+        _polygonImageryLayerResolverPath = polygonImageryLayerResolverPath;
+        _allPaths.push_back(_polygonImageryLayerResolverPath);
+    }
 
     // Create connection from shader to material
     createConnection(srw, shaderPath, materialPath, FabricTokens::outputs_mdl_surface);
@@ -336,6 +334,7 @@ void FabricMaterial::initializeDefaultMaterial() {
         }
     }
 
+    // TODO: change blend mode here
     // if (polygonImageryLayerCount > 0) {
     //     auto enableOpacityFabric = srw.getAttributeWr<float>(shaderPath, FabricTokens::inputs_enable_opacity);
     //     *enableOpacityFabric = static_cast<float>(1.0);
@@ -347,11 +346,17 @@ void FabricMaterial::initializeDefaultMaterial() {
         // createConnection(srw, polygonImageryLayerPath, shaderPath, FabricTokens::inputs_polygon_imagery_layer);
         createConnection(srw, polygonImageryLayerPath, shaderPath, FabricTokens::inputs_alpha_clip);
     }
-    // TODO
-    // else if (polygonImageryLayerCount > 1) {
-    //     // TODO
-    //     std::cout << "polygonImageryCount: " << polygonImageryLayerCount << std::endl;
-    // }
+    else if (polygonImageryLayerCount > 1) {
+        // Create connection from imagery layer resolver to shader
+        createConnection(srw, _polygonImageryLayerResolverPath, shaderPath, FabricTokens::inputs_alpha_clip);
+
+        // Create connections from imagery layers to imagery layer resolver
+        uint64_t polygonStart = ionImageryLayerCount;
+        for (uint64_t i = polygonStart; i < polygonStart + polygonImageryLayerCount; i++) {
+            const auto& imageryLayerPath = _imageryLayerPaths[i];
+            createConnection(srw, imageryLayerPath, _polygonImageryLayerResolverPath, FabricTokens::inputs_imagery_layer_n(i - polygonStart));
+        }
+    }
 }
 
 void FabricMaterial::initializeExistingMaterial(const omni::fabric::Path& path) {
@@ -466,6 +471,22 @@ void FabricMaterial::createImageryLayerResolver(const omni::fabric::Path& path, 
     auto imageryLayerCountFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_imagery_layers_count);
     *imageryLayerCountFabric = static_cast<int>(imageryLayerCount);
 }
+
+void FabricMaterial::createPolygonImageryLayerResolver(const omni::fabric::Path& path, uint64_t polygonImageryLayerCount) {
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+
+    srw.createPrim(path);
+
+    FabricAttributesBuilder attributes;
+
+    attributes.addAttribute(FabricTypes::inputs_polygon_imagery_layers_count, FabricTokens::inputs_polygon_imagery_layers_count);
+
+    createAttributes(srw, path, attributes, FabricTokens::cesium_internal_polygon_imagery_layer_resolver);
+
+    auto polygonImageryLayerCountFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_polygon_imagery_layers_count);
+    *polygonImageryLayerCountFabric = static_cast<int>(polygonImageryLayerCount);
+}
+
 
 void FabricMaterial::createFeatureIdIndex(const omni::fabric::Path& path) {
     createFeatureIdAttribute(path);

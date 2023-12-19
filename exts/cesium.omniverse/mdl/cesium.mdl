@@ -542,3 +542,54 @@ export gltf_texture_lookup_value cesium_internal_imagery_layer_resolver(
 
     return gltf_texture_lookup_value(true, resolved_value);
 }
+
+export gltf_texture_lookup_value cesium_internal_polygon_imagery_layer_resolver(
+    uniform int polygon_imagery_layers_count = 0,
+    gltf_texture_lookup_value imagery_layer_0 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_1 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_2 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_3 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_4 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_5 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_6 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_7 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_8 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_9 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_10 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_11 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_12 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_13 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_14 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value imagery_layer_15 = gltf_texture_lookup_value()
+) [[ anno::hidden() ]] {
+    // The array length should match MAX_IMAGERY_LAYERS_COUNT in FabricMaterial.cpp
+    gltf_texture_lookup_value[] imagery_layers(
+        imagery_layer_0,
+        imagery_layer_1,
+        imagery_layer_2,
+        imagery_layer_3,
+        imagery_layer_4,
+        imagery_layer_5,
+        imagery_layer_6,
+        imagery_layer_7,
+        imagery_layer_8,
+        imagery_layer_9,
+        imagery_layer_10,
+        imagery_layer_11,
+        imagery_layer_12,
+        imagery_layer_13,
+        imagery_layer_14,
+        imagery_layer_15,
+    );
+
+    auto resolved_value = float4(0.0);
+
+    for (int i = 0; i < polygon_imagery_layers_count; i++) {
+        auto imagery_layer = imagery_layers[i];
+        if (imagery_layer.valid) {
+            resolved_value += imagery_layer.value;
+        }
+    }
+
+    return gltf_texture_lookup_value(true, resolved_value);
+}
