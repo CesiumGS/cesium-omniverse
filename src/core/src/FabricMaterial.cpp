@@ -579,7 +579,7 @@ void FabricMaterial::setMaterial(
 
     if (_usesDefaultMaterial) {
         _alphaMode = materialInfo.alphaMode;
-        _alphaMode = cesium::omniverse::AlphaMode::MASK;
+        _alphaMode = cesium::omniverse::AlphaMode::BLEND;
 
         if (_debugRandomColors) {
             const auto r = glm::linearRand(0.0, 1.0);
