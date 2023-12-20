@@ -7,6 +7,7 @@
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/OmniTileset.h"
+#include "cesium/omniverse/SessionRegistry.h"
 #include "cesium/omniverse/UsdUtil.h"
 #include "cesium/omniverse/Viewport.h"
 
@@ -25,19 +26,6 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
 
     void onShutdown() noexcept override {
         Context::onShutdown();
-    }
-
-    std::vector<std::string> getAllTilesetPaths() noexcept override {
-        const auto paths = AssetRegistry::getInstance().getAllTilesetPaths();
-
-        std::vector<std::string> result;
-        result.reserve(paths.size());
-
-        for (const auto& path : paths) {
-            result.emplace_back(path.GetString());
-        }
-
-        return result;
     }
 
     void reloadTileset(const char* tilesetPath) noexcept override {
@@ -67,6 +55,27 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
 
     std::optional<std::shared_ptr<CesiumIonSession>> getSession() noexcept override {
         return Context::instance().getSession();
+    }
+
+    std::string getServerPath() noexcept override {
+        return UsdUtil::getPathToCurrentIonServer().GetString();
+    }
+
+    std::vector<std::shared_ptr<CesiumIonSession>> getAllSessions() noexcept override {
+        return Context::instance().getAllSessions();
+    }
+
+    std::vector<std::string> getAllServerPaths() noexcept override {
+        const auto paths = SessionRegistry::getInstance().getAllServerPaths();
+
+        std::vector<std::string> result;
+        result.reserve(paths.size());
+
+        for (const auto& path : paths) {
+            result.emplace_back(path.GetString());
+        }
+
+        return result;
     }
 
     SetDefaultTokenResult getSetDefaultTokenResult() noexcept override {

@@ -11,11 +11,14 @@
 #include <vector>
 
 namespace Cesium3DTilesSelection {
-class RasterOverlay;
 class Tileset;
 class ViewState;
 class ViewUpdateResult;
 } // namespace Cesium3DTilesSelection
+
+namespace CesiumRasterOverlays {
+class RasterOverlay;
+} // namespace CesiumRasterOverlays
 
 namespace CesiumGltf {
 struct Model;
@@ -50,6 +53,8 @@ class OmniTileset {
     [[nodiscard]] std::string getUrl() const;
     [[nodiscard]] int64_t getIonAssetId() const;
     [[nodiscard]] std::optional<CesiumIonClient::Token> getIonAccessToken() const;
+    [[nodiscard]] std::string getIonApiUrl() const;
+    [[nodiscard]] pxr::SdfPath getIonServerPath() const;
     [[nodiscard]] double getMaximumScreenSpaceError() const;
     [[nodiscard]] bool getPreloadAncestors() const;
     [[nodiscard]] bool getPreloadSiblings() const;
@@ -77,7 +82,7 @@ class OmniTileset {
 
     void reload();
     [[nodiscard]] std::optional<uint64_t>
-    findImageryLayerIndex(const Cesium3DTilesSelection::RasterOverlay& overlay) const;
+    findImageryLayerIndex(const CesiumRasterOverlays::RasterOverlay& overlay) const;
     [[nodiscard]] std::optional<uint64_t> findImageryLayerIndex(const pxr::SdfPath& imageryPath) const;
     [[nodiscard]] uint64_t getImageryLayerCount() const;
     [[nodiscard]] double getImageryLayerAlpha(uint64_t imageryLayerIndex) const;

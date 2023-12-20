@@ -1,9 +1,10 @@
 #pragma once
 
+#include "cesium/omniverse/DataType.h"
 #include "cesium/omniverse/GltfAccessors.h"
-#include "cesium/omniverse/VertexAttributeType.h"
 
 #include <CesiumGltf/Accessor.h>
+#include <CesiumGltf/PropertyTextureProperty.h>
 #include <glm/glm.hpp>
 #include <omni/fabric/core/FabricTypes.h>
 
@@ -85,7 +86,7 @@ std::vector<uint64_t> getSetIndexMapping(const FeaturesInfo& featuresInfo, Featu
 bool hasFeatureIdType(const FeaturesInfo& featuresInfo, FeatureIdType type);
 
 struct VertexAttributeInfo {
-    VertexAttributeType type;
+    DataType type;
     omni::fabric::Token fabricAttributeName;
     std::string gltfAttributeName;
 
@@ -145,6 +146,9 @@ getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::Mesh
 
 const MaterialInfo& getDefaultMaterialInfo();
 const TextureInfo& getDefaultTextureInfo();
+TextureInfo getPropertyTexturePropertyInfo(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::PropertyTextureProperty& propertyTextureProperty);
 
 bool hasNormals(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, bool smoothNormals);
 bool hasTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);
@@ -156,7 +160,7 @@ std::vector<uint64_t> getTexcoordSetIndexes(const CesiumGltf::Model& model, cons
 std::vector<uint64_t>
 getImageryTexcoordSetIndexes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
-template <VertexAttributeType T>
+template <DataType T>
 VertexAttributeAccessor<T> getVertexAttributeValues(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
@@ -172,7 +176,7 @@ VertexAttributeAccessor<T> getVertexAttributeValues(
         return {};
     }
 
-    auto view = CesiumGltf::AccessorView<GetRawType<T>>(model, *pAccessor);
+    auto view = CesiumGltf::AccessorView<GetNativeType<T>>(model, *pAccessor);
 
     if (view.status() != CesiumGltf::AccessorViewStatus::Valid) {
         return {};

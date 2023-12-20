@@ -1,6 +1,7 @@
 #include "cesium/omniverse/FabricMaterialDefinition.h"
 
 #include "cesium/omniverse/GltfUtil.h"
+#include "cesium/omniverse/MetadataUtil.h"
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
@@ -22,9 +23,24 @@ std::vector<FeatureIdType> filterFeatureIdTypes(const FeaturesInfo& featuresInfo
 
     return featureIdTypes;
 }
+
+std::vector<MetadataUtil::PropertyDefinition> getStyleableProperties(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive,
+    const pxr::SdfPath& tilesetMaterialPath) {
+
+    if (tilesetMaterialPath.IsEmpty()) {
+        // Ignore properties if there's no tileset material
+        return {};
+    }
+
+    return MetadataUtil::getStyleableProperties(model, primitive);
+}
 } // namespace
 
 FabricMaterialDefinition::FabricMaterialDefinition(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive,
     const MaterialInfo& materialInfo,
     const FeaturesInfo& featuresInfo,
     const ImageryLayersInfo& imageryLayersInfo,
@@ -33,7 +49,8 @@ FabricMaterialDefinition::FabricMaterialDefinition(
     : _hasVertexColors(materialInfo.hasVertexColors)
     , _hasBaseColorTexture(disableTextures ? false : materialInfo.baseColorTexture.has_value())
     , _featureIdTypes(filterFeatureIdTypes(featuresInfo, disableTextures))
-    , _tilesetMaterialPath(tilesetMaterialPath) {
+    , _tilesetMaterialPath(tilesetMaterialPath)
+    , _properties(getStyleableProperties(model, primitive, tilesetMaterialPath)) {
     _imageryLayerCount = imageryLayersInfo.imageryLayerCount;
     for (auto layerType : imageryLayersInfo.overlayTypes) {
         switch (layerType) {
@@ -84,11 +101,15 @@ const pxr::SdfPath& FabricMaterialDefinition::getTilesetMaterialPath() const {
     return _tilesetMaterialPath;
 }
 
+const std::vector<MetadataUtil::PropertyDefinition>& FabricMaterialDefinition::getProperties() const {
+    return _properties;
+}
+
 // In C++ 20 we can use the default equality comparison (= default)
 bool FabricMaterialDefinition::operator==(const FabricMaterialDefinition& other) const {
     return _hasVertexColors == other._hasVertexColors && _hasBaseColorTexture == other._hasBaseColorTexture &&
            _featureIdTypes == other._featureIdTypes && _imageryLayerCount == other._imageryLayerCount &&
-           _tilesetMaterialPath == other._tilesetMaterialPath;
+           _tilesetMaterialPath == other._tilesetMaterialPath && _properties == other._properties;
 }
 
 } // namespace cesium::omniverse

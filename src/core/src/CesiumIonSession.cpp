@@ -5,6 +5,8 @@
 #include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/SettingsWrapper.h"
 
+#include <CesiumUtility/Uri.h>
+
 #include <utility>
 
 using namespace CesiumAsync;
@@ -21,7 +23,9 @@ const char* browserCommandBase = "xdg-open";
 CesiumIonSession::CesiumIonSession(
     CesiumAsync::AsyncSystem& asyncSystem,
     std::shared_ptr<CesiumAsync::IAssetAccessor> pAssetAccessor,
-    std::string ionApiUrl)
+    std::string ionServerUrl,
+    std::string ionApiUrl,
+    int64_t ionApplicationId)
     : _asyncSystem(asyncSystem)
     , _pAssetAccessor(std::move(pAssetAccessor))
     , _connection(std::nullopt)
@@ -37,7 +41,9 @@ CesiumIonSession::CesiumIonSession(
     , _loadAssetsQueued(false)
     , _loadTokensQueued(false)
     , _authorizeUrl()
-    , _ionApiUrl(std::move(ionApiUrl)) {}
+    , _ionServerUrl(std::move(ionServerUrl))
+    , _ionApiUrl(std::move(ionApiUrl))
+    , _ionApplicationId(ionApplicationId) {}
 
 void CesiumIonSession::connect() {
     if (this->isConnecting() || this->isConnected() || this->isResuming()) {
@@ -50,23 +56,23 @@ void CesiumIonSession::connect() {
         this->_asyncSystem,
         this->_pAssetAccessor,
         "Cesium for Omniverse",
-        413,
+        _ionApplicationId,
         "/cesium-for-omniverse/oauth2/callback",
         {"assets:list", "assets:read", "profile:read", "tokens:read", "tokens:write", "geocode"},
         [this](const std::string& url) {
             // NOTE: We open the browser in the Python code. Check in the sign in widget's on_update_frame function.
             this->_authorizeUrl = url;
-        })
+        },
+        _ionApiUrl,
+        CesiumUtility::Uri::resolve(_ionServerUrl, "oauth"))
         .thenInMainThread([this](CesiumIonClient::Connection&& connection) {
             this->_isConnecting = false;
             this->_connection = std::move(connection);
 
             Settings::UserAccessToken token;
-            token.ionUrl = _ionApiUrl;
+            token.ionApiUrl = _ionApiUrl;
             token.token = this->_connection.value().getAccessToken();
-            std::vector<Settings::UserAccessToken> tokens;
-            tokens.emplace_back(token);
-            Settings::setAccessTokens(tokens);
+            Settings::setAccessToken(token);
 
             Broadcast::connectionUpdated();
         })
@@ -90,7 +96,18 @@ void CesiumIonSession::resume() {
         return;
     }
 
-    std::string userAccessToken = tokens[0].token;
+    std::string userAccessToken;
+    for (const auto& token : tokens) {
+        if (token.ionApiUrl == _ionApiUrl) {
+            userAccessToken = token.token;
+            break;
+        }
+    }
+
+    if (userAccessToken.empty()) {
+        // No existing session to resume.
+        return;
+    }
 
     this->_isResuming = true;
 
@@ -119,7 +136,7 @@ void CesiumIonSession::disconnect() {
     this->_assets.reset();
     this->_tokens.reset();
 
-    Settings::clearTokens();
+    Settings::removeAccessToken(_ionApiUrl);
 
     Broadcast::connectionUpdated();
     Broadcast::profileUpdated();

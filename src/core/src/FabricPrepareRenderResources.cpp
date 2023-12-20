@@ -11,6 +11,7 @@
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GeospatialUtil.h"
 #include "cesium/omniverse/GltfUtil.h"
+#include "cesium/omniverse/MetadataUtil.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/UsdUtil.h"
 
@@ -19,10 +20,10 @@
 #undef OPAQUE
 #endif
 
-#include <Cesium3DTilesContent/GltfUtilities.h>
 #include <Cesium3DTilesSelection/Tile.h>
 #include <Cesium3DTilesSelection/Tileset.h>
 #include <CesiumAsync/AsyncSystem.h>
+#include <CesiumGltfContent/GltfUtilities.h>
 #include <omni/fabric/FabricUSD.h>
 #include <omni/ui/ImageProvider/DynamicTextureProvider.h>
 
@@ -71,6 +72,66 @@ uint64_t getFeatureIdTextureCount(const FabricMesh& fabricMesh) {
     return static_cast<uint64_t>(std::count(featureIdTypes.begin(), featureIdTypes.end(), FeatureIdType::TEXTURE));
 }
 
+std::vector<const CesiumGltf::ImageCesium*> getPropertyTextureImages(
+    const FabricMesh& fabricMesh,
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive) {
+    if (fabricMesh.material == nullptr) {
+        return {};
+    }
+
+    if (fabricMesh.material->getMaterialDefinition().getProperties().empty()) {
+        return {};
+    }
+
+    return MetadataUtil::getPropertyTextureImages(model, primitive);
+}
+
+std::unordered_map<uint64_t, uint64_t> getPropertyTextureIndexMapping(
+    const FabricMesh& fabricMesh,
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive) {
+    if (fabricMesh.material == nullptr) {
+        return {};
+    }
+
+    if (fabricMesh.material->getMaterialDefinition().getProperties().empty()) {
+        return {};
+    }
+
+    return MetadataUtil::getPropertyTextureIndexMapping(model, primitive);
+}
+
+uint64_t getPropertyTableTextureCount(
+    const FabricMesh& fabricMesh,
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive) {
+    if (fabricMesh.material == nullptr) {
+        return 0;
+    }
+
+    if (fabricMesh.material->getMaterialDefinition().getProperties().empty()) {
+        return 0;
+    }
+
+    return MetadataUtil::getPropertyTableTextureCount(model, primitive);
+}
+
+std::vector<TextureData> encodePropertyTables(
+    const FabricMesh& fabricMesh,
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive) {
+    if (fabricMesh.material == nullptr) {
+        return {};
+    }
+
+    if (fabricMesh.material->getMaterialDefinition().getProperties().empty()) {
+        return {};
+    }
+
+    return MetadataUtil::encodePropertyTables(model, primitive);
+}
+
 std::vector<MeshInfo>
 gatherMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const CesiumGltf::Model& model) {
     CESIUM_TRACE("FabricPrepareRenderResources::gatherMeshes");
@@ -82,8 +143,8 @@ gatherMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const 
     const auto ecefToUsdTransform =
         UsdUtil::computeEcefToUsdWorldTransformForPrim(georeferenceOrigin, tileset.getPath());
 
-    auto gltfToEcefTransform = Cesium3DTilesContent::GltfUtilities::applyRtcCenter(model, tileTransform);
-    gltfToEcefTransform = Cesium3DTilesContent::GltfUtilities::applyGltfUpAxisTransform(model, gltfToEcefTransform);
+    auto gltfToEcefTransform = CesiumGltfContent::GltfUtilities::applyRtcCenter(model, tileTransform);
+    gltfToEcefTransform = CesiumGltfContent::GltfUtilities::applyGltfUpAxisTransform(model, gltfToEcefTransform);
 
     std::vector<MeshInfo> meshes;
 
@@ -142,7 +203,14 @@ std::vector<FabricMesh> acquireFabricMeshes(
             const auto materialInfo = GltfUtil::getMaterialInfo(model, primitive);
 
             const auto fabricMaterial = fabricResourceManager.acquireMaterial(
-                materialInfo, featuresInfo, imageryLayersInfo, stageId, tileset.getTilesetId(), tilesetMaterialPath);
+                model,
+                primitive,
+                materialInfo,
+                featuresInfo,
+                imageryLayersInfo,
+                stageId,
+                tileset.getTilesetId(),
+                tilesetMaterialPath);
 
             fabricMesh.material = fabricMaterial;
             fabricMesh.materialInfo = materialInfo;
@@ -156,6 +224,18 @@ std::vector<FabricMesh> acquireFabricMeshes(
             fabricMesh.featureIdTextures.reserve(featureIdTextureCount);
             for (uint64_t i = 0; i < featureIdTextureCount; i++) {
                 fabricMesh.featureIdTextures.emplace_back(fabricResourceManager.acquireTexture());
+            }
+
+            const auto propertyTextureCount = getPropertyTextureImages(fabricMesh, model, primitive).size();
+            fabricMesh.propertyTextures.reserve(propertyTextureCount);
+            for (uint64_t i = 0; i < propertyTextureCount; i++) {
+                fabricMesh.propertyTextures.emplace_back(fabricResourceManager.acquireTexture());
+            }
+
+            const auto propertyTableTextureCount = getPropertyTableTextureCount(fabricMesh, model, primitive);
+            fabricMesh.propertyTableTextures.reserve(propertyTableTextureCount);
+            for (uint64_t i = 0; i < propertyTableTextureCount; i++) {
+                fabricMesh.propertyTableTextures.emplace_back(fabricResourceManager.acquireTexture());
             }
         }
 
@@ -175,6 +255,9 @@ std::vector<FabricMesh> acquireFabricMeshes(
         fabricMesh.featureIdIndexSetIndexMapping = getSetIndexMapping(featuresInfo, FeatureIdType::INDEX);
         fabricMesh.featureIdAttributeSetIndexMapping = getSetIndexMapping(featuresInfo, FeatureIdType::ATTRIBUTE);
         fabricMesh.featureIdTextureSetIndexMapping = getSetIndexMapping(featuresInfo, FeatureIdType::TEXTURE);
+
+        // Map glTF texture index to property texture index
+        fabricMesh.propertyTextureIndexMapping = getPropertyTextureIndexMapping(fabricMesh, model, primitive);
     }
 
     return fabricMeshes;
@@ -203,6 +286,18 @@ void setFabricTextures(
             const auto featureIdTextureImage = GltfUtil::getFeatureIdTextureImage(model, primitive, featureIdSetIndex);
             assert(featureIdTextureImage);
             mesh.featureIdTextures[j]->setImage(*featureIdTextureImage, TransferFunction::LINEAR);
+        }
+
+        const auto propertyTextureImages = getPropertyTextureImages(mesh, model, primitive);
+        const auto propertyTextureCount = propertyTextureImages.size();
+        for (uint64_t j = 0; j < propertyTextureCount; j++) {
+            mesh.propertyTextures[j]->setImage(*propertyTextureImages[j], TransferFunction::LINEAR);
+        }
+
+        const auto propertyTableTextures = encodePropertyTables(mesh, model, primitive);
+        const auto propertyTableTextureCount = propertyTableTextures.size();
+        for (uint64_t j = 0; j < propertyTableTextureCount; j++) {
+            mesh.propertyTableTextures[j]->setTexture(propertyTableTextures[j]);
         }
     }
 }
@@ -240,17 +335,22 @@ void setFabricMeshes(
 
         if (material != nullptr) {
             material->setMaterial(
+                model,
+                primitive,
                 meshInfo.tilesetId,
                 mesh.materialInfo,
                 mesh.featuresInfo,
                 mesh.baseColorTexture,
                 mesh.featureIdTextures,
+                mesh.propertyTextures,
+                mesh.propertyTableTextures,
                 displayColor,
                 displayOpacity,
                 mesh.texcoordIndexMapping,
                 mesh.featureIdIndexSetIndexMapping,
                 mesh.featureIdAttributeSetIndexMapping,
-                mesh.featureIdTextureSetIndexMapping);
+                mesh.featureIdTextureSetIndexMapping,
+                mesh.propertyTextureIndexMapping);
 
             geometry->setMaterial(material->getPath());
         } else if (!tilesetMaterialPath.IsEmpty()) {
@@ -432,7 +532,7 @@ void* FabricPrepareRenderResources::prepareRasterInLoadThread(
 }
 
 void* FabricPrepareRenderResources::prepareRasterInMainThread(
-    [[maybe_unused]] Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
+    [[maybe_unused]] CesiumRasterOverlays::RasterOverlayTile& rasterTile,
     void* pLoadThreadResult) {
     if (!pLoadThreadResult) {
         return nullptr;
@@ -452,7 +552,7 @@ void* FabricPrepareRenderResources::prepareRasterInMainThread(
 }
 
 void FabricPrepareRenderResources::freeRaster(
-    [[maybe_unused]] const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
+    [[maybe_unused]] const CesiumRasterOverlays::RasterOverlayTile& rasterTile,
     void* pLoadThreadResult,
     void* pMainThreadResult) noexcept {
 
@@ -474,7 +574,7 @@ void FabricPrepareRenderResources::freeRaster(
 void FabricPrepareRenderResources::attachRasterInMainThread(
     const Cesium3DTilesSelection::Tile& tile,
     int32_t overlayTextureCoordinateID,
-    [[maybe_unused]] const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
+    [[maybe_unused]] const CesiumRasterOverlays::RasterOverlayTile& rasterTile,
     void* pMainThreadRendererResources,
     const glm::dvec2& translation,
     const glm::dvec2& scale) {
@@ -530,7 +630,7 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
 void FabricPrepareRenderResources::detachRasterInMainThread(
     const Cesium3DTilesSelection::Tile& tile,
     [[maybe_unused]] int32_t overlayTextureCoordinateID,
-    const Cesium3DTilesSelection::RasterOverlayTile& rasterTile,
+    const CesiumRasterOverlays::RasterOverlayTile& rasterTile,
     [[maybe_unused]] void* pMainThreadRendererResources) noexcept {
 
     auto& content = tile.getContent();

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <carb/RenderingTypes.h>
 #include <pxr/base/tf/token.h>
 #include <pxr/usd/sdf/assetPath.h>
 
@@ -22,6 +23,13 @@ enum class TransferFunction {
     SRGB,
 };
 
+struct TextureData {
+    std::vector<std::byte> bytes;
+    uint64_t width;
+    uint64_t height;
+    carb::Format format;
+};
+
 class FabricTexture {
   public:
     FabricTexture(const std::string& name);
@@ -31,6 +39,7 @@ class FabricTexture {
         const CesiumGltf::ImageCesium& image,
         TransferFunction transferFunction,
         [[maybe_unused]] const std::any& rendererOptions = nullptr);
+    void setTexture(const TextureData& texture);
 
     void setActive(bool active);
 

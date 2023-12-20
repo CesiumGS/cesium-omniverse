@@ -119,6 +119,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumData
     const TfToken cesiumDebugTexturePoolInitialCapacity;
+    /// \brief "cesium:displayName"
+    /// 
+    /// CesiumIonServer
+    const TfToken cesiumDisplayName;
     /// \brief "cesium:ecefToUsdTransform"
     /// 
     /// CesiumSession
@@ -167,6 +171,14 @@ struct CesiumTokensType {
     /// 
     /// CesiumIonImagery, CesiumTileset
     const TfToken cesiumIonAssetId;
+    /// \brief "cesium:ionServerApiUrl"
+    /// 
+    /// CesiumIonServer
+    const TfToken cesiumIonServerApiUrl;
+    /// \brief "cesium:ionServerApplicationId"
+    /// 
+    /// CesiumIonServer
+    const TfToken cesiumIonServerApplicationId;
     /// \brief "cesium:ionServerBinding"
     /// 
     /// CesiumIonImagery, CesiumTileset
@@ -211,6 +223,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumIonServer, CesiumData
     const TfToken cesiumProjectDefaultIonAccessTokenId;
+    /// \brief "cesium:selectedIonServer"
+    /// 
+    /// CesiumData
+    const TfToken cesiumSelectedIonServer;
     /// \brief "cesium:showCreditsOnScreen"
     /// 
     /// CesiumImagery, CesiumTileset

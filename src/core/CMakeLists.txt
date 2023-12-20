@@ -35,16 +35,18 @@ setup_lib(
         "${CMAKE_CURRENT_LIST_DIR}/include"
     LIBRARIES
         CesiumUsdSchemas
-        CesiumIonClient
         Cesium3DTilesSelection
         Cesium3DTilesReader
         Cesium3DTilesContent
+        CesiumRasterOverlays
+        CesiumGltfReader
+        CesiumGltfContent
+        CesiumGltf
+        CesiumJsonReader
         CesiumGeospatial
         CesiumGeometry
-        CesiumGltf
-        CesiumGltfReader
+        CesiumIonClient
         CesiumAsync
-        CesiumJsonReader
         CesiumUtility
         async++
         csprng

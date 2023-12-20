@@ -136,4 +136,10 @@ void FabricTexture::setImage(
     }
 }
 
+void FabricTexture::setTexture(const TextureData& texture) {
+    const auto data = reinterpret_cast<const uint8_t*>(texture.bytes.data());
+    const auto dimensions = carb::Uint2{static_cast<uint32_t>(texture.width), static_cast<uint32_t>(texture.height)};
+    _texture->setBytesData(data, dimensions, omni::ui::kAutoCalculateStride, texture.format);
+}
+
 } // namespace cesium::omniverse

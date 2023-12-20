@@ -17,8 +17,6 @@ class CesiumDataSchemaAttributesWidget(SchemaPropertiesWidget):
         frame = CustomLayoutFrame(hide_extra=True)
 
         with frame:
-            with CustomLayoutGroup("Access Tokens"):
-                CustomLayoutProperty("cesium:projectDefaultIonAccessToken")
             with CustomLayoutGroup("Debug Options", collapsed=True):
                 CustomLayoutProperty("cesium:debug:disableMaterials")
                 CustomLayoutProperty("cesium:debug:disableTextures")

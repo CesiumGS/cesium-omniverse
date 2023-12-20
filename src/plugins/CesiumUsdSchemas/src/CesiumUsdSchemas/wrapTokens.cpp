@@ -61,6 +61,7 @@ void wrapCesiumTokens()
     _AddToken(cls, "cesiumDebugMaterialPoolInitialCapacity", CesiumTokens->cesiumDebugMaterialPoolInitialCapacity);
     _AddToken(cls, "cesiumDebugRandomColors", CesiumTokens->cesiumDebugRandomColors);
     _AddToken(cls, "cesiumDebugTexturePoolInitialCapacity", CesiumTokens->cesiumDebugTexturePoolInitialCapacity);
+    _AddToken(cls, "cesiumDisplayName", CesiumTokens->cesiumDisplayName);
     _AddToken(cls, "cesiumEcefToUsdTransform", CesiumTokens->cesiumEcefToUsdTransform);
     _AddToken(cls, "cesiumEnableFogCulling", CesiumTokens->cesiumEnableFogCulling);
     _AddToken(cls, "cesiumEnableFrustumCulling", CesiumTokens->cesiumEnableFrustumCulling);
@@ -73,6 +74,8 @@ void wrapCesiumTokens()
     _AddToken(cls, "cesiumGlobeAnchorBinding", CesiumTokens->cesiumGlobeAnchorBinding);
     _AddToken(cls, "cesiumIonAccessToken", CesiumTokens->cesiumIonAccessToken);
     _AddToken(cls, "cesiumIonAssetId", CesiumTokens->cesiumIonAssetId);
+    _AddToken(cls, "cesiumIonServerApiUrl", CesiumTokens->cesiumIonServerApiUrl);
+    _AddToken(cls, "cesiumIonServerApplicationId", CesiumTokens->cesiumIonServerApplicationId);
     _AddToken(cls, "cesiumIonServerBinding", CesiumTokens->cesiumIonServerBinding);
     _AddToken(cls, "cesiumIonServerUrl", CesiumTokens->cesiumIonServerUrl);
     _AddToken(cls, "cesiumLoadingDescendantLimit", CesiumTokens->cesiumLoadingDescendantLimit);
@@ -84,6 +87,7 @@ void wrapCesiumTokens()
     _AddToken(cls, "cesiumPreloadSiblings", CesiumTokens->cesiumPreloadSiblings);
     _AddToken(cls, "cesiumProjectDefaultIonAccessToken", CesiumTokens->cesiumProjectDefaultIonAccessToken);
     _AddToken(cls, "cesiumProjectDefaultIonAccessTokenId", CesiumTokens->cesiumProjectDefaultIonAccessTokenId);
+    _AddToken(cls, "cesiumSelectedIonServer", CesiumTokens->cesiumSelectedIonServer);
     _AddToken(cls, "cesiumShowCreditsOnScreen", CesiumTokens->cesiumShowCreditsOnScreen);
     _AddToken(cls, "cesiumSmoothNormals", CesiumTokens->cesiumSmoothNormals);
     _AddToken(cls, "cesiumSourceType", CesiumTokens->cesiumSourceType);

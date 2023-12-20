@@ -27,10 +27,31 @@ WRAP_CUSTOM;
 
         
 static UsdAttribute
+_CreateDisplayNameAttr(CesiumIonServer &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateDisplayNameAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+}
+        
+static UsdAttribute
 _CreateIonServerUrlAttr(CesiumIonServer &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateIonServerUrlAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateIonServerApiUrlAttr(CesiumIonServer &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateIonServerApiUrlAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateIonServerApplicationIdAttr(CesiumIonServer &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateIonServerApplicationIdAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int64), writeSparsely);
 }
         
 static UsdAttribute
@@ -89,10 +110,31 @@ void wrapCesiumIonServer()
         .def(!self)
 
         
+        .def("GetDisplayNameAttr",
+             &This::GetDisplayNameAttr)
+        .def("CreateDisplayNameAttr",
+             &_CreateDisplayNameAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
         .def("GetIonServerUrlAttr",
              &This::GetIonServerUrlAttr)
         .def("CreateIonServerUrlAttr",
              &_CreateIonServerUrlAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetIonServerApiUrlAttr",
+             &This::GetIonServerApiUrlAttr)
+        .def("CreateIonServerApiUrlAttr",
+             &_CreateIonServerApiUrlAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetIonServerApplicationIdAttr",
+             &This::GetIonServerApplicationIdAttr)
+        .def("CreateIonServerApplicationIdAttr",
+             &_CreateIonServerApplicationIdAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         

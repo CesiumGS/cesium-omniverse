@@ -190,6 +190,8 @@ class CesiumOmniverseMainWindow(ui.Window):
         with ui.VStack(spacing=0):
             button_style = CesiumOmniverseUiStyles.top_bar_button_style
 
+            self._profile_widget = CesiumOmniverseProfileWidget(self._cesium_omniverse_interface, height=20)
+
             with ui.HStack(height=ui.Length(80, ui.UnitType.PIXEL)):
                 self._add_button = ui.Button(
                     "Add",
@@ -233,8 +235,6 @@ class CesiumOmniverseMainWindow(ui.Window):
                 )
             self._quick_add_widget = CesiumOmniverseQuickAddWidget(self._cesium_omniverse_interface)
             self._sign_in_widget = CesiumOmniverseSignInWidget(self._cesium_omniverse_interface, visible=False)
-            ui.Spacer()
-            self._profile_widget = CesiumOmniverseProfileWidget(self._cesium_omniverse_interface, height=20)
 
     def _add_button_clicked(self) -> None:
         if not self._add_button or not self._add_button.enabled:

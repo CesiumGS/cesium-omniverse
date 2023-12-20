@@ -63,6 +63,8 @@ class FabricResourceManager {
         long stageId);
 
     std::shared_ptr<FabricMaterial> acquireMaterial(
+        const CesiumGltf::Model& model,
+        const CesiumGltf::MeshPrimitive& primitive,
         const MaterialInfo& materialInfo,
         const FeaturesInfo& featuresInfo,
         ImageryLayersInfo& imageryLayersInfo,

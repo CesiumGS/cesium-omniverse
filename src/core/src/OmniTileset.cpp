@@ -4,6 +4,7 @@
 #include "CesiumUsdSchemas/polygonImagery.h"
 
 #include "cesium/omniverse/Broadcast.h"
+#include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/FabricGeometry.h"
 #include "cesium/omniverse/FabricMaterial.h"
@@ -14,12 +15,14 @@
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/OmniIonImagery.h"
 #include "cesium/omniverse/OmniPolygonImagery.h"
+#include "cesium/omniverse/SessionRegistry.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/UsdUtil.h"
 #include "cesium/omniverse/Viewport.h"
 
-#include <Cesium3DTilesSelection/RasterOverlay.h>
-#include <Cesium3DTilesSelection/RasterizedPolygonsOverlay.h>
+#include <CesiumRasterOverlays/IonRasterOverlay.h>
+// #include <Cesium3DTilesSelection/RasterizedPolygonsOverlay.h>
+#include <CesiumRasterOverlays/RasterizedPolygonsOverlay.h>
 #include <CesiumGeospatial/Cartographic.h>
 #include <CesiumGeospatial/CartographicPolygon.h>
 #include <CesiumGeospatial/Ellipsoid.h>
@@ -31,10 +34,10 @@
 #undef OPAQUE
 #endif
 
-#include <Cesium3DTilesSelection/IonRasterOverlay.h>
 #include <Cesium3DTilesSelection/Tileset.h>
 #include <Cesium3DTilesSelection/ViewState.h>
 #include <Cesium3DTilesSelection/ViewUpdateResult.h>
+#include <CesiumRasterOverlays/IonRasterOverlay.h>
 #include <CesiumUsdSchemas/ionImagery.h>
 #include <CesiumUsdSchemas/tileset.h>
 #include <pxr/usd/usd/prim.h>
@@ -98,19 +101,64 @@ int64_t OmniTileset::getIonAssetId() const {
 }
 
 std::optional<CesiumIonClient::Token> OmniTileset::getIonAccessToken() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
 
     std::string ionAccessToken;
     tileset.GetIonAccessTokenAttr().Get<std::string>(&ionAccessToken);
 
-    if (ionAccessToken.empty()) {
-        return Context::instance().getDefaultToken();
+    if (!ionAccessToken.empty()) {
+        CesiumIonClient::Token t;
+        t.token = ionAccessToken;
+        return t;
     }
 
-    CesiumIonClient::Token t;
-    t.token = ionAccessToken;
+    const auto ionServerPath = getIonServerPath();
 
-    return t;
+    if (ionServerPath.IsEmpty()) {
+        return std::nullopt;
+    }
+
+    const auto ionServer = UsdUtil::getOrCreateIonServer(ionServerPath);
+
+    std::string projectDefaultToken;
+    std::string projectDefaultTokenId;
+
+    ionServer.GetProjectDefaultIonAccessTokenAttr().Get(&projectDefaultToken);
+    ionServer.GetProjectDefaultIonAccessTokenIdAttr().Get(&projectDefaultTokenId);
+
+    if (projectDefaultToken.empty()) {
+        return std::nullopt;
+    }
+
+    return CesiumIonClient::Token{projectDefaultTokenId, "", projectDefaultToken};
+}
+
+std::string OmniTileset::getIonApiUrl() const {
+    const auto ionServerPath = getIonServerPath();
+
+    if (ionServerPath.IsEmpty()) {
+        return {};
+    }
+
+    auto ionServerPrim = UsdUtil::getOrCreateIonServer(ionServerPath);
+
+    std::string ionApiUrl;
+    ionServerPrim.GetIonServerApiUrlAttr().Get(&ionApiUrl);
+
+    return ionApiUrl;
+}
+
+pxr::SdfPath OmniTileset::getIonServerPath() const {
+    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
+
+    pxr::SdfPathVector targets;
+    tileset.GetIonServerBindingRel().GetForwardedTargets(&targets);
+
+    if (targets.size() < 1) {
+        return {};
+    }
+
+    return targets[0];
 }
 
 double OmniTileset::getMaximumScreenSpaceError() const {
@@ -359,6 +407,7 @@ void OmniTileset::reload() {
     const auto tilesetPath = getPath();
     const auto ionAssetId = getIonAssetId();
     const auto ionAccessToken = getIonAccessToken();
+    const auto ionApiUrl = getIonApiUrl();
     const auto name = getName();
 
     Cesium3DTilesSelection::TilesetOptions options;
@@ -417,12 +466,12 @@ void OmniTileset::reload() {
 
     if (getSourceType() == TilesetSourceType::URL) {
         _tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(externals, url, options);
-    } else if (!ionAccessToken.has_value()) {
-        // This happens when adding a blank tileset.
-        _tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(externals, 0, "", options);
+    } else if (!ionAccessToken.has_value() || ionApiUrl.empty()) {
+        // This happens when adding a blank tileset or a tileset that references a non-existent server
+        _tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(externals, 0, "", options, ionApiUrl);
     } else {
         _tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(
-            externals, ionAssetId, ionAccessToken.value().token, options);
+            externals, ionAssetId, ionAccessToken.value().token, options, ionApiUrl);
     }
 
     // Add imagery
@@ -451,18 +500,20 @@ void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
     const auto tilesetIonAssetId = getIonAssetId();
     const auto tilesetName = getName();
 
-    Cesium3DTilesSelection::RasterOverlayOptions options;
+    const auto ionApiUrl = imagery.getIonApiUrl();
+
+    CesiumRasterOverlays::RasterOverlayOptions options;
     options.rendererOptions = OverlayType::IMAGERY;
     options.showCreditsOnScreen = imagery.getShowCreditsOnScreen();
 
     options.loadErrorCallback = [tilesetPath, tilesetIonAssetId, tilesetName, imageryIonAssetId, imageryName](
-                                    const Cesium3DTilesSelection::RasterOverlayLoadFailureDetails& error) {
+                                    const CesiumRasterOverlays::RasterOverlayLoadFailureDetails& error) {
         // Check for a 401 connecting to Cesium ion, which means the token is invalid
         // (or perhaps the asset ID is). Also check for a 404, because ion returns 404
         // when the token is valid but not authorized for the asset.
         auto statusCode = error.pRequest && error.pRequest->response() ? error.pRequest->response()->statusCode() : 0;
 
-        if (error.type == Cesium3DTilesSelection::RasterOverlayLoadType::CesiumIon &&
+        if (error.type == CesiumRasterOverlays::RasterOverlayLoadType::CesiumIon &&
             (statusCode == 401 || statusCode == 404)) {
             Broadcast::showTroubleshooter(
                 tilesetPath, tilesetIonAssetId, tilesetName, imageryIonAssetId, imageryName, error.message);
@@ -471,10 +522,8 @@ void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
         CESIUM_LOG_ERROR(error.message);
     };
 
-    // The name passed to IonRasterOverlay needs to uniquely identify this imagery otherwise texture caching may break
-    const auto uniqueName = fmt::format("imagery_ion_{}", imageryIonAssetId);
-    const auto ionRasterOverlay = new Cesium3DTilesSelection::IonRasterOverlay(
-        uniqueName, imageryIonAssetId, imageryIonAccessToken.value().token, options);
+    const auto ionRasterOverlay = new CesiumRasterOverlays::IonRasterOverlay(
+        imageryName, imageryIonAssetId, imageryIonAccessToken.value().token, options, ionApiUrl);
     _tileset->getOverlays().add(ionRasterOverlay);
     _imageryPaths.push_back(imageryPath);
 }
@@ -523,19 +572,19 @@ void OmniTileset::addImageryPolygon(const pxr::SdfPath& imageryPath) {
     auto invertSelection = false; // TODO: pull from UI
     auto ellipsoid = CesiumGeospatial::Ellipsoid::WGS84;
     auto projection = CesiumGeospatial::GeographicProjection(ellipsoid);
-    Cesium3DTilesSelection::RasterOverlayOptions rasterOverlayOptions; // TODO: pull from UI
+    CesiumRasterOverlays::RasterOverlayOptions rasterOverlayOptions; // TODO: pull from UI
     rasterOverlayOptions.rendererOptions = OverlayType::POLYGON;
 
-    Cesium3DTilesSelection::RasterOverlayOptions options;
+    CesiumRasterOverlays::RasterOverlayOptions options;
     options.showCreditsOnScreen = imagery.getShowCreditsOnScreen();
 
-    const auto polygonRasterOverlay = new Cesium3DTilesSelection::RasterizedPolygonsOverlay(
+    const auto polygonRasterOverlay = new CesiumRasterOverlays::RasterizedPolygonsOverlay(
         uniqueName, polygons, invertSelection, ellipsoid, projection, rasterOverlayOptions);
     _tileset->getOverlays().add(polygonRasterOverlay);
     _imageryPaths.push_back((imageryPath));
 }
 
-std::optional<uint64_t> OmniTileset::findImageryLayerIndex(const Cesium3DTilesSelection::RasterOverlay& overlay) const {
+std::optional<uint64_t> OmniTileset::findImageryLayerIndex(const CesiumRasterOverlays::RasterOverlay& overlay) const {
     uint64_t imageryLayerIndex = 0;
     for (const auto& pOverlay : _tileset->getOverlays()) {
         if (&overlay == pOverlay.get()) {

@@ -4,7 +4,7 @@
 #include "cesium/omniverse/TokenTroubleshooter.h"
 #include "cesium/omniverse/Viewport.h"
 
-#include <Cesium3DTilesSelection/CreditSystem.h>
+#include <CesiumUtility/CreditSystem.h>
 #include <carb/BindingsPythonUtils.h>
 #include <pxr/base/gf/matrix4d.h>
 #include <pxr/base/gf/vec4d.h>
@@ -34,7 +34,6 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         m, "ICesiumOmniverseInterface", "acquire_cesium_omniverse_interface", "release_cesium_omniverse_interface")
         .def("on_startup", &ICesiumOmniverseInterface::onStartup)
         .def("on_shutdown", &ICesiumOmniverseInterface::onShutdown)
-        .def("get_all_tileset_paths", &ICesiumOmniverseInterface::getAllTilesetPaths)
         .def("reload_tileset", &ICesiumOmniverseInterface::reloadTileset)
         .def("on_update_frame", &ICesiumOmniverseInterface::onUpdateFrame)
         .def("on_update_ui", &ICesiumOmniverseInterface::onUpdateUi)
@@ -42,6 +41,9 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("set_georeference_origin", &ICesiumOmniverseInterface::setGeoreferenceOrigin)
         .def("connect_to_ion", &ICesiumOmniverseInterface::connectToIon)
         .def("get_session", &ICesiumOmniverseInterface::getSession)
+        .def("get_server_path", &ICesiumOmniverseInterface::getServerPath)
+        .def("get_all_sessions", &ICesiumOmniverseInterface::getAllSessions)
+        .def("get_all_server_paths", &ICesiumOmniverseInterface::getAllServerPaths)
         .def("get_set_default_token_result", &ICesiumOmniverseInterface::getSetDefaultTokenResult)
         .def("is_default_token_set", &ICesiumOmniverseInterface::isDefaultTokenSet)
         .def("create_token", &ICesiumOmniverseInterface::createToken)

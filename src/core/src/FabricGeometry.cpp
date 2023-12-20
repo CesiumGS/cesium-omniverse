@@ -1,5 +1,6 @@
 #include "cesium/omniverse/FabricGeometry.h"
 
+#include "cesium/omniverse/DataType.h"
 #include "cesium/omniverse/FabricAttributesBuilder.h"
 #include "cesium/omniverse/FabricMaterial.h"
 #include "cesium/omniverse/FabricResourceManager.h"
@@ -31,7 +32,7 @@ const auto DEFAULT_SCALE = pxr::GfVec3f(1.0f, 1.0f, 1.0f);
 const auto DEFAULT_MATRIX = pxr::GfMatrix4d(1.0);
 const auto DEFAULT_VISIBILITY = false;
 
-template <VertexAttributeType T>
+template <DataType T>
 void setVertexAttributeValues(
     omni::fabric::StageReaderWriter& srw,
     const omni::fabric::Path& path,
@@ -43,7 +44,8 @@ void setVertexAttributeValues(
     const auto accessor = GltfUtil::getVertexAttributeValues<T>(model, primitive, attribute.gltfAttributeName);
     assert(accessor.size() > 0);
     srw.setArrayAttributeSize(path, attribute.fabricAttributeName, accessor.size() * repeat);
-    auto fabricValues = srw.getArrayAttributeWr<GetPrimvarType<T>>(path, attribute.fabricAttributeName);
+    auto fabricValues =
+        srw.getArrayAttributeWr<GetNativeType<getPrimvarType<T>()>>(path, attribute.fabricAttributeName);
     accessor.fill(fabricValues, repeat);
 }
 
