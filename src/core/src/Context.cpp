@@ -202,7 +202,6 @@ void Context::reloadStage() {
     }
 }
 
-
 void Context::onUpdateFrame(const std::vector<Viewport>& viewports) {
     _usdNotificationHandler.onUpdateFrame();
 

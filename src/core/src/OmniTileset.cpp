@@ -22,11 +22,11 @@
 
 #include <CesiumRasterOverlays/IonRasterOverlay.h>
 // #include <Cesium3DTilesSelection/RasterizedPolygonsOverlay.h>
-#include <CesiumRasterOverlays/RasterizedPolygonsOverlay.h>
 #include <CesiumGeospatial/Cartographic.h>
 #include <CesiumGeospatial/CartographicPolygon.h>
 #include <CesiumGeospatial/Ellipsoid.h>
 #include <CesiumGeospatial/Projection.h>
+#include <CesiumRasterOverlays/RasterizedPolygonsOverlay.h>
 #include <glm/ext/vector_double3.hpp>
 
 #ifdef CESIUM_OMNI_MSVC

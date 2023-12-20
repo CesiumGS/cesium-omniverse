@@ -47,7 +47,6 @@ pxr::SdfPath OmniIonImagery::getIonServerPath() const {
     return targets[0];
 }
 
-
 std::optional<CesiumIonClient::Token> OmniIonImagery::getIonAccessToken() const {
     const auto imagery = UsdUtil::getCesiumIonImagery(_path);
 
@@ -80,6 +79,5 @@ std::optional<CesiumIonClient::Token> OmniIonImagery::getIonAccessToken() const 
 
     return CesiumIonClient::Token{projectDefaultTokenId, "", projectDefaultToken};
 }
-
 
 } // namespace cesium::omniverse
