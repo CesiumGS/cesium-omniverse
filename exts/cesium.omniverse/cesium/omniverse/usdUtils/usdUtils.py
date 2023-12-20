@@ -5,7 +5,7 @@ from cesium.usd.plugins.CesiumUsdSchemas import (
     IonImagery as CesiumIonImagery,
     Tileset as CesiumTileset,
     Tokens as CesiumTokens,
-    CartographicPolygon as CesiumCartographicPolygon
+    CartographicPolygon as CesiumCartographicPolygon,
 )
 from pxr import Sdf
 from pxr.UsdGeom import Gprim

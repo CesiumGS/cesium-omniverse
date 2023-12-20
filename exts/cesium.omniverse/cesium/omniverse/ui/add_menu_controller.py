@@ -30,14 +30,18 @@ class CesiumAddMenuController:
             ),
             PrimPathWidget.add_button_menu_entry(
                 "Cesium/Ion Imagery Layer",
-                show_fn=partial(self._show_add_polygon_imagery, context_menu=context_menu, usd_type=UsdGeom.Xformable),
+                show_fn=partial(
+                    self._show_add_polygon_imagery, context_menu=context_menu, usd_type=UsdGeom.Xformable
+                ),
                 onclick_fn=self._add_ion_imagery,
             ),
             PrimPathWidget.add_button_menu_entry(
                 "Cesium/Polygon Imagery Layer",
-                show_fn=partial(self._show_add_polygon_imagery, context_menu=context_menu, usd_type=UsdGeom.Xformable),
+                show_fn=partial(
+                    self._show_add_polygon_imagery, context_menu=context_menu, usd_type=UsdGeom.Xformable
+                ),
                 onclick_fn=self._add_polygon_imagery,
-            )
+            ),
         ]
 
     def destroy(self):
@@ -74,4 +78,6 @@ class CesiumAddMenuController:
 
     @staticmethod
     def _show_add_polygon_imagery(objects: dict, context_menu: omni.kit.context_menu, usd_type: Tf.Type) -> bool:
-        return context_menu.prim_is_type(objects, type=usd_type) and context_menu.prim_is_type(objects, type=CesiumTileset)
+        return context_menu.prim_is_type(objects, type=usd_type) and context_menu.prim_is_type(
+            objects, type=CesiumTileset
+        )
