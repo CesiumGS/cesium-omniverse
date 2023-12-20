@@ -42,8 +42,6 @@
 #include <pxr/usd/usdShade/materialBindingAPI.h>
 
 
-#include <iostream> // DEVEL
-
 namespace cesium::omniverse {
 
 OmniTileset::OmniTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPath& georeferencePath)
@@ -492,8 +490,6 @@ void OmniTileset::addImageryPolygon(const pxr::SdfPath& imageryPath) {
     std::vector<CesiumGeospatial::CartographicPolygon> polygons;
     for (const auto& cartographicPolygonTarget : cartographicPolygonTargets) {
         auto cartographicPolygon = UsdUtil::getCesiumCartographicPolygon(cartographicPolygonTarget);
-
-        // currently only suporting one BasisCurves per CartographicPolygon
         auto basisCurves = UsdUtil::getUsdBasisCurves(cartographicPolygonTarget);
         auto pointsAttr = basisCurves.GetPointsAttr();
         pxr::VtArray<pxr::GfVec3f> points;
@@ -505,16 +501,10 @@ void OmniTileset::addImageryPolygon(const pxr::SdfPath& imageryPath) {
         }
         auto anchor = UsdUtil::getCesiumGlobeAnchor(cartographicPolygonTarget);
         auto origin = UsdUtil::getCartographicOriginForAnchor(anchor.GetPath());
-        // try (0, 0, 0) origin
-        // origin = CesiumGeospatial::Ellipsoid::WGS84.cartesianToCartographic(glm::dvec3(0, 0, 0));
 
         std::vector<std::optional<CesiumGeospatial::Cartographic>> cartographicPositions;
-
-        // auto transform = UsdUtil::computeUsdLocalToEcefTransformForPrim(basisCurves.GetPrim(),
-
         auto transform = UsdUtil::computeUsdLocalToEcefTransformForPrim(origin.value(), cartographicPolygonTarget);
 
-        int counter = 0; // DEBUG
         std::vector<glm::dvec2> polygon;
         for (auto & curvePoint : pointsOnCurve) {
             auto homogenous= glm::dvec4(curvePoint.x, curvePoint.y, curvePoint.z, 1.0);
@@ -523,22 +513,16 @@ void OmniTileset::addImageryPolygon(const pxr::SdfPath& imageryPath) {
             std::optional<CesiumGeospatial::Cartographic> cartographicPosition =
                 CesiumGeospatial::Ellipsoid::WGS84.cartesianToCartographic(cartesian);
 
-            if (counter++ == 0) {
-                auto lat = cartographicPosition->latitude;
-                auto lon = cartographicPosition->longitude;
-                printf("lat: %lf, lon: %lf\n", lat, lon);
-            }
-
             cartographicPositions.push_back(cartographicPosition);
             polygon.emplace_back(glm::dvec2(cartographicPosition->longitude, cartographicPosition->latitude));
         }
         polygons.emplace_back(polygon);
     }
 
-    auto invertSelection = false; // DEVEL: pull from UI
+    auto invertSelection = false; // TODO: pull from UI
     auto ellipsoid = CesiumGeospatial::Ellipsoid::WGS84;
     auto projection = CesiumGeospatial::GeographicProjection(ellipsoid);
-    Cesium3DTilesSelection::RasterOverlayOptions rasterOverlayOptions; // DEVEL: pull from UI
+    Cesium3DTilesSelection::RasterOverlayOptions rasterOverlayOptions; // TODO: pull from UI
     rasterOverlayOptions.rendererOptions = OverlayType::POLYGON;
 
     Cesium3DTilesSelection::RasterOverlayOptions options;

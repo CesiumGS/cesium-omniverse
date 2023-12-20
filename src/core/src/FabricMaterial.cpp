@@ -16,8 +16,6 @@
 #include <spdlog/fmt/fmt.h>
 #include <stdint.h>
 
-#include <iostream>
-
 namespace cesium::omniverse {
 
 namespace {
@@ -409,8 +407,6 @@ void FabricMaterial::createShader(const omni::fabric::Path& path) {
     attributes.addAttribute(FabricTypes::inputs_emissive_factor, FabricTokens::inputs_emissive_factor);
     attributes.addAttribute(FabricTypes::inputs_metallic_factor, FabricTokens::inputs_metallic_factor);
     attributes.addAttribute(FabricTypes::inputs_roughness_factor, FabricTokens::inputs_roughness_factor);
-    // inputs:enable_opacity
-    // attributes.addAttribute(FabricTypes::inputs_enable_opacity, FabricTokens::inputs_enable_opacity);
 
     createAttributes(srw, path, attributes, FabricTokens::cesium_internal_material);
 }
@@ -579,6 +575,7 @@ void FabricMaterial::setMaterial(
 
     if (_usesDefaultMaterial) {
         _alphaMode = materialInfo.alphaMode;
+        // TODO: find alternative to overriding
         _alphaMode = cesium::omniverse::AlphaMode::BLEND;
 
         if (_debugRandomColors) {

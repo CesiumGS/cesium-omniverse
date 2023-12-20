@@ -67,7 +67,6 @@ const omni::fabric::TokenC inputs_polygon_imagery_layer_n(uint64_t index) {
     return getToken(inputs_polygon_imagery_layer_tokens, index, "inputs:polygon_imagery_layer");
 }
 
-
 const omni::fabric::TokenC feature_id_n(uint64_t index) {
     return getToken(feature_id_tokens, index, "feature_id");
 }

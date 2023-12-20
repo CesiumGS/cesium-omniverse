@@ -126,7 +126,6 @@ pxr::CesiumGlobeAnchorAPI getCesiumGlobeAnchor(const pxr::SdfPath& path);
 pxr::UsdShadeShader getUsdShader(const pxr::SdfPath& path);
 pxr::UsdGeomBasisCurves getUsdBasisCurves(const pxr::SdfPath& path);
 pxr::CesiumCartographicPolygon getCesiumCartographicPolygon(const pxr::SdfPath& path);
-template <typename T> [[nodiscard]] T getTypedPrim(const pxr::SdfPath& path);
 
 bool isCesiumData(const pxr::SdfPath& path);
 bool isCesiumIonServer(const pxr::SdfPath& path);

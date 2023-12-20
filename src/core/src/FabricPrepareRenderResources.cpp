@@ -25,8 +25,6 @@
 #include <omni/fabric/FabricUSD.h>
 #include <omni/ui/ImageProvider/DynamicTextureProvider.h>
 
-#include <iostream> // DEVEL
-
 namespace cesium::omniverse {
 
 namespace {
@@ -308,7 +306,6 @@ FabricPrepareRenderResources::prepareInLoadThread(
     // but at least we have an upper bound. Unused texture slots are initialized with a 1x1 transparent pixel so
     // blending still works.
     const auto overlapsImagery = tileLoadResult.rasterOverlayDetails.has_value();
-    // const auto imageryLayerCount = overlapsImagery ? _tileset->getImageryLayerCount() : 0;
     ImageryLayersInfo imageryLayersInfo;
     imageryLayersInfo.imageryLayerCount = overlapsImagery ? _tileset->getImageryLayerCount() : 0;
     auto stage = Context::instance().getStage();

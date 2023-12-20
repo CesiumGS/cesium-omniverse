@@ -50,7 +50,6 @@ FabricMaterialDefinition::FabricMaterialDefinition(
             _imageryLayerCount = 0;
             _ionImageryLayerCount = 0;
         }
-
     }
 
 bool FabricMaterialDefinition::hasVertexColors() const {

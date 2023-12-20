@@ -498,14 +498,6 @@ pxr::UsdGeomBasisCurves getUsdBasisCurves(const pxr::SdfPath& path) {
     return basisCurves;
 }
 
-template <typename T>
-T getTypedPrim(const pxr::SdfPath& path) {
-    auto stage = getUsdStage();
-    auto object = T::Get(stage, path);
-    assert(object.GetPrim().IsValid());
-    return object;
-}
-
 bool isCesiumData(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto prim = stage->GetPrimAtPath(path);

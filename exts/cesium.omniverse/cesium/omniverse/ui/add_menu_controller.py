@@ -29,14 +29,14 @@ class CesiumAddMenuController:
                 onclick_fn=self._add_globe_anchor_api,
             ),
             PrimPathWidget.add_button_menu_entry(
-                "Cesium/Ion Imagery Layer",  # TODO: "Layer?"
+                "Cesium/Ion Imagery Layer",
                 show_fn=partial(self._show_add_polygon_imagery, context_menu=context_menu, usd_type=UsdGeom.Xformable),
-                onclick_fn=self._add_ion_imagery_api,
+                onclick_fn=self._add_ion_imagery,
             ),
             PrimPathWidget.add_button_menu_entry(
-                "Cesium/Polygon Imagery Layer",  # TODO: "Layer?"
+                "Cesium/Polygon Imagery Layer",
                 show_fn=partial(self._show_add_polygon_imagery, context_menu=context_menu, usd_type=UsdGeom.Xformable),
-                onclick_fn=self._add_polygon_imagery_api,
+                onclick_fn=self._add_polygon_imagery,
             )
         ]
 
@@ -50,7 +50,7 @@ class CesiumAddMenuController:
             anchor_xform_at_path(path)
             get_property_window().request_rebuild()
 
-    def _add_ion_imagery_api(self, payload: PrimSelectionPayload):  # TODO: not an API
+    def _add_ion_imagery(self, payload: PrimSelectionPayload):
         stage = omni.usd.get_context().get_stage()
         for path in payload:
             child_path = Sdf.Path(path).AppendPath("ion_imagery")
@@ -58,7 +58,7 @@ class CesiumAddMenuController:
             CesiumIonImagery.Define(stage, ion_imagery_path)
             get_property_window().request_rebuild()
 
-    def _add_polygon_imagery_api(self, payload: PrimSelectionPayload):  # TODO: not an API
+    def _add_polygon_imagery(self, payload: PrimSelectionPayload):
         stage = omni.usd.get_context().get_stage()
         for path in payload:
             child_path = Sdf.Path(path).AppendPath("polygon_imagery")
