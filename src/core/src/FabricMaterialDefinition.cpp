@@ -34,23 +34,23 @@ FabricMaterialDefinition::FabricMaterialDefinition(
     , _hasBaseColorTexture(disableTextures ? false : materialInfo.baseColorTexture.has_value())
     , _featureIdTypes(filterFeatureIdTypes(featuresInfo, disableTextures))
     , _tilesetMaterialPath(tilesetMaterialPath) {
-        _imageryLayerCount = imageryLayersInfo.imageryLayerCount;
-        for (auto layerType : imageryLayersInfo.overlayTypes) {
-            switch (layerType) {
-                case OverlayType::IMAGERY:
-                    _ionImageryLayerCount++;
+    _imageryLayerCount = imageryLayersInfo.imageryLayerCount;
+    for (auto layerType : imageryLayersInfo.overlayTypes) {
+        switch (layerType) {
+            case OverlayType::IMAGERY:
+                _ionImageryLayerCount++;
                 break;
-                case OverlayType::POLYGON:
-                    _polygonImageryLayerCount++;
+            case OverlayType::POLYGON:
+                _polygonImageryLayerCount++;
                 break;
-            }
-        }
-
-        if (disableTextures) {
-            _imageryLayerCount = 0;
-            _ionImageryLayerCount = 0;
         }
     }
+
+    if (disableTextures) {
+        _imageryLayerCount = 0;
+        _ionImageryLayerCount = 0;
+    }
+}
 
 bool FabricMaterialDefinition::hasVertexColors() const {
     return _hasVertexColors;

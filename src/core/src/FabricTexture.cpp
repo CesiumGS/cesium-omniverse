@@ -57,8 +57,9 @@ getCompressedImageFormat(CesiumGltf::GpuCompressedPixelFormat pixelFormat, Trans
     }
 }
 
-carb::Format getUncompressedPixelFormat(TransferFunction transferFunction,
-      [[maybe_unused]] const std::any& rendererOptions = nullptr) {
+carb::Format getUncompressedPixelFormat(
+    TransferFunction transferFunction,
+    [[maybe_unused]] const std::any& rendererOptions = nullptr) {
 
     if (rendererOptions.has_value() && rendererOptions.type() == typeid(OverlayType)) {
         OverlayType value = std::any_cast<OverlayType>(rendererOptions);
@@ -106,9 +107,9 @@ void FabricTexture::reset() {
 }
 
 void FabricTexture::setImage(
-        const CesiumGltf::ImageCesium& image,
-        TransferFunction transferFunction,
-        [[maybe_unused]] const std::any& rendererOptions) {
+    const CesiumGltf::ImageCesium& image,
+    TransferFunction transferFunction,
+    [[maybe_unused]] const std::any& rendererOptions) {
     carb::Format imageFormat;
 
     if (image.compressedPixelFormat == CesiumGltf::GpuCompressedPixelFormat::NONE) {

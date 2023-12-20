@@ -1,4 +1,5 @@
 #include "cesium/omniverse/FabricPrepareRenderResources.h"
+
 #include "CesiumUsdSchemas/ionImagery.h"
 #include "CesiumUsdSchemas/polygonImagery.h"
 
@@ -424,7 +425,6 @@ void* FabricPrepareRenderResources::prepareRasterInLoadThread(
     if (!tilesetExists()) {
         return nullptr;
     }
-
 
     auto texture = FabricResourceManager::getInstance().acquireTexture();
     texture->setImage(image, TransferFunction::SRGB, rendererOptions);

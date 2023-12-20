@@ -18,9 +18,8 @@
 #include <pxr/base/gf/vec3f.h>
 #include <pxr/usd/sdf/path.h>
 #include <pxr/usd/usd/common.h>
-#include <pxr/usd/usdShade/shader.h>
 #include <pxr/usd/usdGeom/basisCurves.h>
-
+#include <pxr/usd/usdShade/shader.h>
 
 namespace CesiumGeospatial {
 class Cartographic;

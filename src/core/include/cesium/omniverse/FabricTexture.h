@@ -28,9 +28,9 @@ class FabricTexture {
     ~FabricTexture();
 
     void setImage(
-      const CesiumGltf::ImageCesium& image,
-      TransferFunction transferFunction,
-      [[maybe_unused]] const std::any& rendererOptions = nullptr);
+        const CesiumGltf::ImageCesium& image,
+        TransferFunction transferFunction,
+        [[maybe_unused]] const std::any& rendererOptions = nullptr);
 
     void setActive(bool active);
 

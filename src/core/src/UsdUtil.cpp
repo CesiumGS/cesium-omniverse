@@ -1,4 +1,5 @@
 #include "cesium/omniverse/UsdUtil.h"
+
 #include "CesiumUsdSchemas/cartographicPolygon.h"
 
 #include "cesium/omniverse/Context.h"

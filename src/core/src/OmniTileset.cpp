@@ -1,4 +1,5 @@
 #include "cesium/omniverse/OmniTileset.h"
+
 #include "CesiumUsdSchemas/cartographicPolygon.h"
 #include "CesiumUsdSchemas/polygonImagery.h"
 
@@ -16,6 +17,7 @@
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/UsdUtil.h"
 #include "cesium/omniverse/Viewport.h"
+
 #include <Cesium3DTilesSelection/RasterOverlay.h>
 #include <Cesium3DTilesSelection/RasterizedPolygonsOverlay.h>
 #include <CesiumGeospatial/Cartographic.h>
@@ -40,7 +42,6 @@
 #include <pxr/usd/usdGeom/basisCurves.h>
 #include <pxr/usd/usdGeom/boundable.h>
 #include <pxr/usd/usdShade/materialBindingAPI.h>
-
 
 namespace cesium::omniverse {
 
@@ -506,8 +507,8 @@ void OmniTileset::addImageryPolygon(const pxr::SdfPath& imageryPath) {
         auto transform = UsdUtil::computeUsdLocalToEcefTransformForPrim(origin.value(), cartographicPolygonTarget);
 
         std::vector<glm::dvec2> polygon;
-        for (auto & curvePoint : pointsOnCurve) {
-            auto homogenous= glm::dvec4(curvePoint.x, curvePoint.y, curvePoint.z, 1.0);
+        for (auto& curvePoint : pointsOnCurve) {
+            auto homogenous = glm::dvec4(curvePoint.x, curvePoint.y, curvePoint.z, 1.0);
             auto cartesianHomogenous = transform * homogenous;
             auto cartesian = glm::dvec3(cartesianHomogenous.x, cartesianHomogenous.y, cartesianHomogenous.z);
             std::optional<CesiumGeospatial::Cartographic> cartographicPosition =
@@ -528,9 +529,8 @@ void OmniTileset::addImageryPolygon(const pxr::SdfPath& imageryPath) {
     Cesium3DTilesSelection::RasterOverlayOptions options;
     options.showCreditsOnScreen = imagery.getShowCreditsOnScreen();
 
-    const auto polygonRasterOverlay =
-        new Cesium3DTilesSelection::RasterizedPolygonsOverlay(uniqueName, polygons, invertSelection, ellipsoid,
-        projection, rasterOverlayOptions);
+    const auto polygonRasterOverlay = new Cesium3DTilesSelection::RasterizedPolygonsOverlay(
+        uniqueName, polygons, invertSelection, ellipsoid, projection, rasterOverlayOptions);
     _tileset->getOverlays().add(polygonRasterOverlay);
     _imageryPaths.push_back((imageryPath));
 }
