@@ -191,11 +191,11 @@ void Context::reloadStage() {
     }
 
     // For backwards compatibility. Add default ion server to imagery without a server.
-    const auto& imageries = AssetRegistry::getInstance().getAllImageries();
-    for (const auto& imagery : imageries) {
-        const auto ionServerPath = imagery->getIonServerPath();
+    const auto& ionImageries = AssetRegistry::getInstance().getAllIonImageries();
+    for (const auto& ionImagery : ionImageries) {
+        const auto ionServerPath = ionImagery->getIonServerPath();
         if (ionServerPath.IsEmpty()) {
-            const auto imageryPrim = UsdUtil::getCesiumIonImagery(imagery->getPath());
+            const auto imageryPrim = UsdUtil::getCesiumIonImagery(ionImagery->getPath());
             imageryPrim.GetIonServerBindingRel().SetTargets({defaultIonServerPath});
             CESIUM_LOG_WARN("Imagery does not specify an ion server. Assigning to the default Cesium ion server.");
         }
@@ -234,7 +234,7 @@ void Context::onUpdateUi() {
     const auto sessions = SessionRegistry::getInstance().getAllSessions();
 
     for (const auto& session : sessions) {
-        session->tick();
+        if (session) session->tick();
     }
 }
 

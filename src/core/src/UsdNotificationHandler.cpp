@@ -87,10 +87,10 @@ void reloadIonServerAssets(const pxr::SdfPath& ionServerPath) {
     }
 
     // Reload tilesets whose imagery layers reference this ion server
-    const auto& imageries = AssetRegistry::getInstance().getAllImageries();
-    for (const auto& imagery : imageries) {
-        if (imagery->getIonServerPath() == ionServerPath) {
-            const auto tilesetPath = imagery->getPath().GetParentPath();
+    const auto& ionImageries = AssetRegistry::getInstance().getAllIonImageries();
+    for (const auto& ionImagery : ionImageries) {
+        if (ionImagery->getIonServerPath() == ionServerPath) {
+            const auto tilesetPath = ionImagery->getPath().GetParentPath();
             const auto tileset = AssetRegistry::getInstance().getTileset(tilesetPath);
             if (tileset) {
                 tileset->reload();
