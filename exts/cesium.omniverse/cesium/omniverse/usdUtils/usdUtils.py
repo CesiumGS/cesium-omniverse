@@ -65,7 +65,7 @@ def add_imagery_ion(tileset_path: str, name: str, asset_id: int, token: str = ""
 
 def add_cartographic_polygon() -> None:
     stage = omni.usd.get_context().get_stage()
-    safe_name = "cartographic_polygon"  # TODO
+    # safe_name = "cartographic_polygon"  # TODO
     # cartographic_polygon_path: str = Sdf.Path("/CesiumCartographicPolygon").AppendPath(safe_name)
     # cartographic_polygon_path = Sdf.Path(omni.usd.get_stage_next_free_path(stage, cartographic_polygon_path, False))
     cartographic_polygon_path: str = Sdf.Path("/CesiumCartographicPolygon")
