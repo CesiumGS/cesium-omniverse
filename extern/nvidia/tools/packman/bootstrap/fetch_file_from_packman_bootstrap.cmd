@@ -4,7 +4,7 @@
 :: you may not use this file except in compliance with the License.
 :: You may obtain a copy of the License at
 ::
-::    http://www.apache.org/licenses/LICENSE-2.0
+::    https://www.apache.org/licenses/LICENSE-2.0
 ::
 :: Unless required by applicable law or agreed to in writing, software
 :: distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,7 +20,7 @@
 @echo Fetching %PACKAGE_NAME% ...
 
 @powershell -ExecutionPolicy ByPass -NoLogo -NoProfile -File "%~dp0download_file_from_url.ps1" ^
-    -source "http://bootstrap.packman.nvidia.com/%PACKAGE_NAME%" -output %TARGET_PATH%
+    -source "https://bootstrap.packman.nvidia.com/%PACKAGE_NAME%" -output %TARGET_PATH%
 :: A bug in powershell prevents the errorlevel code from being set when using the -File execution option
 :: We must therefore do our own failure analysis, basically make sure the file exists:
 @if not exist %TARGET_PATH% goto ERROR_DOWNLOAD_FAILED
