@@ -44,10 +44,18 @@ if(NOT ${USE_NVIDIA_RELEASE_LIBRARIES})
     execute_process(COMMAND "${Python3_EXECUTABLE}" "${SCRIPTS_DIRECTORY}/copy_from_dir.py" "*.user.xml" "${PROJECT_SOURCE_DIR}/extern/nvidia/debug-deps" "${PROJECT_SOURCE_DIR}/extern/nvidia/deps")
 endif()
 
+if(WIN32)
+    set(NVIDIA_PLATFORM_NAME "windows-x86_64")
+elseif(UNIX AND NOT APPLE)
+    set(NVIDIA_PLATFORM_NAME "linux-x86_64")
+else()
+    message(FATAL_ERROR "Only Windows and Linux are supported")
+endif()
+
 if(UNIX)
-    execute_process(COMMAND bash -c "${PROJECT_SOURCE_DIR}/extern/nvidia/prebuild.sh" RESULT_VARIABLE exit_code)
+    execute_process(COMMAND bash -c "${PROJECT_SOURCE_DIR}/extern/nvidia/build.sh --platform ${NVIDIA_PLATFORM_NAME}" RESULT_VARIABLE exit_code)
 elseif(WIN32)
-    execute_process(COMMAND cmd /C "${PROJECT_SOURCE_DIR}/extern/nvidia/prebuild.bat" RESULT_VARIABLE exit_code)
+    execute_process(COMMAND cmd /C "${PROJECT_SOURCE_DIR}/extern/nvidia/build.bat --platform ${NVIDIA_PLATFORM_NAME}" RESULT_VARIABLE exit_code)
 endif()
 
 # cmake-format: off
@@ -70,14 +78,6 @@ if(exit_code AND NOT exit_code EQUAL 0)
     message(WARNING "Could not find USD Composer which contains the material graph extension needed by cesium.omniverse.dev.kit. While Cesium for Omniverse will still build fine, running cesium.omniverse.dev.kit will fail.")
 endif()
 # cmake-format: on
-
-if(WIN32)
-    set(NVIDIA_PLATFORM_NAME "windows-x86_64")
-elseif(UNIX AND NOT APPLE)
-    set(NVIDIA_PLATFORM_NAME "linux-x86_64")
-else()
-    message(FATAL_ERROR "Only Windows and Linux are supported")
-endif()
 
 set(NVIDIA_RELEASE_FOLDER_NAME "release")
 
