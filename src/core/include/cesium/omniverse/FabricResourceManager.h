@@ -93,8 +93,6 @@ class FabricResourceManager {
         const pxr::SdfPath& shaderPath,
         const pxr::TfToken& attributeName);
 
-    void retainPath(const omni::fabric::Path& path);
-
     void clear();
 
   protected:
@@ -156,8 +154,6 @@ class FabricResourceManager {
     std::unique_ptr<omni::ui::DynamicTextureProvider> _defaultTransparentTexture;
     pxr::TfToken _defaultTextureAssetPathToken;
     pxr::TfToken _defaultTransparentTextureAssetPathToken;
-
-    std::vector<omni::fabric::Path> _retainedPaths;
 
     std::vector<SharedMaterial> _sharedMaterials;
 };
