@@ -33,7 +33,7 @@ python = false
 
 # Which extensions this extension depends on
 [dependencies]
-"cesium.usd.plugins" = {}
+"cesium.usd.plugins" = { version = "0.2.0" }
 "usdrt.scenegraph" = {}
 "omni.ui" = {}
 "omni.usd" = {}

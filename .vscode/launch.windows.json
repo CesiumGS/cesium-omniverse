@@ -8,6 +8,7 @@
       "args": [
         "${workspaceFolder}/apps/cesium.omniverse.dev.kit"
       ],
+      "console": "integratedTerminal",
       "cwd": "${workspaceFolder}",
       "type": "cppvsdbg",
       "request": "launch"
@@ -19,6 +20,7 @@
       "args": [
         "${workspaceFolder}/apps/cesium.omniverse.dev.kit"
       ],
+      "console": "integratedTerminal",
       "cwd": "${workspaceFolder}",
       "type": "cppvsdbg",
       "request": "launch"
@@ -30,6 +32,7 @@
       "args": [
         "${workspaceFolder}/apps/cesium.omniverse.dev.python.debug.kit"
       ],
+      "console": "integratedTerminal",
       "cwd": "${workspaceFolder}",
       "type": "cppvsdbg",
       "request": "launch"
@@ -48,6 +51,7 @@
       "args": [
         "${workspaceFolder}/apps/cesium.omniverse.cpp.tests.runner.kit"
       ],
+      "console": "integratedTerminal",
       "cwd": "${workspaceFolder}",
       "type": "cppvsdbg",
       "request": "launch"
