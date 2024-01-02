@@ -158,6 +158,10 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
         return Context::instance().addGlobeAnchorToPrim(pxr::SdfPath(path), latitude, longitude, height);
     }
 
+    void addCartographicPolygonPrim(const char* path) noexcept override {
+        Context::instance().addCartographicPolygonPrim(pxr::SdfPath(path));
+    }
+
     bool isTracingEnabled() noexcept override {
 #if CESIUM_TRACING_ENABLED
         return true;

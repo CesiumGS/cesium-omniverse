@@ -60,6 +60,7 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("get_credits", &ICesiumOmniverseInterface::getCredits)
         .def("credits_start_next_frame", &ICesiumOmniverseInterface::creditsStartNextFrame)
         .def("is_tracing_enabled", &ICesiumOmniverseInterface::isTracingEnabled)
+        .def("add_cartographic_polygon_prim", &ICesiumOmniverseInterface::addCartographicPolygonPrim)
         .def("add_global_anchor_to_prim", py::overload_cast<const char*>(&ICesiumOmniverseInterface::addGlobeAnchorToPrim))
         .def("add_global_anchor_to_prim", py::overload_cast<const char*, double, double, double>(&ICesiumOmniverseInterface::addGlobeAnchorToPrim));
     // clang-format on

@@ -122,6 +122,7 @@ class Context {
 
     void addGlobeAnchorToPrim(const pxr::SdfPath& path);
     void addGlobeAnchorToPrim(const pxr::SdfPath& path, double latitude, double longitude, double height);
+    void addCartographicPolygonPrim(const pxr::SdfPath& path);
 
   private:
     bool getDebugDisableMaterials() const;

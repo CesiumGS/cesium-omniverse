@@ -1,4 +1,6 @@
 #include "cesium/omniverse/Context.h"
+#include "CesiumUsdSchemas/cartographicPolygon.h"
+#include "CesiumUsdSchemas/globeAnchorAPI.h"
 
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/Broadcast.h"
@@ -691,5 +693,19 @@ void Context::addGlobeAnchorToPrim(const pxr::SdfPath& path, double latitude, do
     pxr::GfVec3d coordinates{latitude, longitude, height};
     globeAnchor.GetGeographicCoordinateAttr().Set(coordinates);
 }
+
+void Context::addCartographicPolygonPrim(const pxr::SdfPath& path) {
+    auto stage = Context::instance().getStage();
+    auto cartographicPolygon = pxr::CesiumCartographicPolygon::Define(stage, path);
+
+    // Until we support multiple georeference points, we should just use the default georeference object.
+    auto georeferenceOrigin = UsdUtil::getOrCreateCesiumGeoreference();
+
+    if (cartographicPolygon) {
+        pxr::CesiumGlobeAnchorAPI globeAnchorAPI(cartographicPolygon.GetPrim());
+        globeAnchorAPI.GetGeoreferenceBindingRel().AddTarget(georeferenceOrigin.GetPath());
+    }
+}
+
 
 } // namespace cesium::omniverse

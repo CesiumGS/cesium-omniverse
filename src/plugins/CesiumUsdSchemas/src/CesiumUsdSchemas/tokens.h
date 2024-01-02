@@ -159,10 +159,6 @@ struct CesiumTokensType {
     /// 
     /// CesiumGeoreference
     const TfToken cesiumGeoreferenceOriginLongitude;
-    /// \brief "cesium:globeAnchorBinding"
-    /// 
-    /// CesiumPolygonImagery
-    const TfToken cesiumGlobeAnchorBinding;
     /// \brief "cesium:ionAccessToken"
     /// 
     /// CesiumIonImagery, CesiumTileset

@@ -371,10 +371,6 @@ class CesiumPolygonImageryPrim "CesiumPolygonImageryPrim" (
         displayName = "Cartographic Polygon Binding"
         doc = "Specifies which Cartraphic Polygons to use in the imagery layer"
     )
-    rel cesium:globeAnchorBinding (
-        displayName = "Globle Anchor Binding"
-        doc = "TODO"
-    )
     bool cesium:showCreditsOnScreen = 0 (
         displayName = "Show Credits On Screen"
         doc = "Whether or not to show this imagery layer's credits on screen."
@@ -382,6 +378,7 @@ class CesiumPolygonImageryPrim "CesiumPolygonImageryPrim" (
 }
 
 class CesiumCartographicPolygonPrim "CesiumCartographicPolygonPrim" (
+    apiSchemas = ["CesiumGlobeAnchorSchemaAPI"]
     doc = "Adds a prim that represents a Cesium CartographicPolygon"
 )
 {

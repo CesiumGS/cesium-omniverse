@@ -488,6 +488,7 @@ class CesiumPolygonImageryPrim "CesiumPolygonImageryPrim" (
 class CesiumCartographicPolygonPrim "CesiumCartographicPolygonPrim" (
     doc = """Adds a prim that represents a Cesium CartographicPolygon"""
     inherits = </BasisCurves>
+    prepend apiSchemas = ["CesiumGlobeAnchorSchemaAPI"]
     customData = {
         string className = "CartographicPolygon"
     }

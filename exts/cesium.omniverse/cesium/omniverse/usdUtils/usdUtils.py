@@ -2,13 +2,14 @@ import omni.usd
 import omni.kit
 import re
 from typing import List
+from ..utils.cesium_interface import CesiumInterfaceManager
+
 
 from cesium.usd.plugins.CesiumUsdSchemas import (
     IonImagery as CesiumIonImagery,
     Tileset as CesiumTileset,
     Tokens as CesiumTokens,
     Data as CesiumData,
-    CartographicPolygon as CesiumCartographicPolygon,
 )
 from pxr import Sdf
 from pxr.UsdGeom import Gprim
@@ -70,8 +71,9 @@ def add_cartographic_polygon() -> None:
     # cartographic_polygon_path = Sdf.Path(omni.usd.get_stage_next_free_path(stage, cartographic_polygon_path, False))
     cartographic_polygon_path: str = Sdf.Path("/CesiumCartographicPolygon")
 
-    cartographic_polygon = CesiumCartographicPolygon.Define(stage, cartographic_polygon_path)
-    assert cartographic_polygon.GetPrim().IsValid()
+    print(f"Defining CartographicPolygon at path {cartographic_polygon_path}")
+    with CesiumInterfaceManager() as interface:
+        interface.add_cartographic_polygon_prim("/CesiumCartographicPolygon")
 
 
 def is_tileset(maybe_tileset: Gprim) -> bool:
