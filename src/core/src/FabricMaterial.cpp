@@ -646,11 +646,9 @@ void FabricMaterial::initializeDefaultMaterial() {
         }
     }
 
-    // TODO: change blend mode here
-    // if (polygonImageryLayerCount > 0) {
-    //     auto enableOpacityFabric = srw.getAttributeWr<float>(shaderPath, FabricTokens::inputs_enable_opacity);
-    //     *enableOpacityFabric = static_cast<float>(1.0);
-    // }
+    if (polygonImageryLayerCount > 0) {
+        _polygonClippingEnabled = true;
+    }
 
     if (polygonImageryLayerCount == 1) {
         uint64_t polygonStart = ionImageryLayerCount;
@@ -1395,9 +1393,7 @@ void FabricMaterial::setMaterial(
     }
 
     if (_usesDefaultMaterial) {
-        _alphaMode = materialInfo.alphaMode;
-        // TODO: find alternative to overriding
-        _alphaMode = cesium::omniverse::AlphaMode::BLEND;
+        _alphaMode = _polygonClippingEnabled ? cesium::omniverse::AlphaMode::BLEND : materialInfo.alphaMode;
 
         if (_debugRandomColors) {
             const auto r = glm::linearRand(0.0, 1.0);
