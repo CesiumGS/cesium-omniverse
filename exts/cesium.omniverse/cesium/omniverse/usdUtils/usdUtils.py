@@ -65,15 +65,13 @@ def add_imagery_ion(tileset_path: str, name: str, asset_id: int, token: str = ""
 
 
 def add_cartographic_polygon() -> None:
+    safe_name = "cartographic_polygon"
+    cartographic_polygon_path: str = Sdf.Path("/CesiumCartographicPolygons").AppendPath(safe_name)
     stage = omni.usd.get_context().get_stage()
-    # safe_name = "cartographic_polygon"  # TODO
-    # cartographic_polygon_path: str = Sdf.Path("/CesiumCartographicPolygon").AppendPath(safe_name)
-    # cartographic_polygon_path = Sdf.Path(omni.usd.get_stage_next_free_path(stage, cartographic_polygon_path, False))
-    cartographic_polygon_path: str = Sdf.Path("/CesiumCartographicPolygon")
+    cartographic_polygon_path = Sdf.Path(omni.usd.get_stage_next_free_path(stage, cartographic_polygon_path, False))
 
-    print(f"Defining CartographicPolygon at path {cartographic_polygon_path}")
     with CesiumInterfaceManager() as interface:
-        interface.add_cartographic_polygon_prim("/CesiumCartographicPolygon")
+        interface.add_cartographic_polygon_prim(str(cartographic_polygon_path))
 
 
 def is_tileset(maybe_tileset: Gprim) -> bool:
