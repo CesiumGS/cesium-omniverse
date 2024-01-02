@@ -62,8 +62,6 @@ FabricGeometry::FabricGeometry(
         return;
     }
 
-    FabricResourceManager::getInstance().retainPath(path);
-
     initialize();
     reset();
 }
