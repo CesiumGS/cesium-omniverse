@@ -544,10 +544,9 @@ void OmniTileset::addImageryPolygon(const pxr::SdfPath& imageryPath) {
         auto pointsAttr = basisCurves.GetPointsAttr();
         pxr::VtArray<pxr::GfVec3f> points;
         pointsAttr.Get(&points);
-        // Take every 3rd point starting at index 0. The other points are the control points off the curve of the spline.
         std::vector<glm::dvec3> pointsOnCurve;
-        for (size_t i = 0; i < points.size(); i += 3) {
-            pointsOnCurve.emplace_back(points[i][0], points[i][1], points[i][2]);
+        for (auto & point : points) {
+            pointsOnCurve.emplace_back(point[0], point[1], point[2]);
         }
         auto anchor = UsdUtil::getCesiumGlobeAnchor(cartographicPolygonTarget);
         auto origin = UsdUtil::getCartographicOriginForAnchor(anchor.GetPath());
@@ -569,10 +568,10 @@ void OmniTileset::addImageryPolygon(const pxr::SdfPath& imageryPath) {
         polygons.emplace_back(polygon);
     }
 
-    auto invertSelection = false; // TODO: pull from UI
+    auto invertSelection = false;
     auto ellipsoid = CesiumGeospatial::Ellipsoid::WGS84;
     auto projection = CesiumGeospatial::GeographicProjection(ellipsoid);
-    CesiumRasterOverlays::RasterOverlayOptions rasterOverlayOptions; // TODO: pull from UI
+    CesiumRasterOverlays::RasterOverlayOptions rasterOverlayOptions;
     rasterOverlayOptions.rendererOptions = OverlayType::POLYGON;
 
     CesiumRasterOverlays::RasterOverlayOptions options;
