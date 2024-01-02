@@ -545,7 +545,7 @@ void OmniTileset::addImageryPolygon(const pxr::SdfPath& imageryPath) {
         pxr::VtArray<pxr::GfVec3f> points;
         pointsAttr.Get(&points);
         std::vector<glm::dvec3> pointsOnCurve;
-        for (auto & point : points) {
+        for (auto& point : points) {
             pointsOnCurve.emplace_back(point[0], point[1], point[2]);
         }
         auto anchor = UsdUtil::getCesiumGlobeAnchor(cartographicPolygonTarget);

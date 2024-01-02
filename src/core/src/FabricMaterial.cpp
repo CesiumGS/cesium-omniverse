@@ -584,7 +584,6 @@ void FabricMaterial::initializeNodes() {
 void FabricMaterial::initializeDefaultMaterial() {
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
-    // const auto imageryLayerCount = getImageryLayerCount(_materialDefinition);
     const uint64_t ionImageryLayerCount = _materialDefinition.getIonImageryCount();
     const uint64_t polygonImageryLayerCount = _materialDefinition.getPolygonImageryCount();
     const auto hasBaseColorTexture = _materialDefinition.hasBaseColorTexture();
@@ -649,7 +648,6 @@ void FabricMaterial::initializeDefaultMaterial() {
     if (polygonImageryLayerCount == 1) {
         uint64_t polygonStart = ionImageryLayerCount;
         const auto& polygonImageryLayerPath = _imageryLayerPaths[polygonStart];
-        // createConnection(srw, polygonImageryLayerPath, shaderPath, FabricTokens::inputs_polygon_imagery_layer);
         createConnection(srw, polygonImageryLayerPath, shaderPath, FabricTokens::inputs_alpha_clip);
     } else if (polygonImageryLayerCount > 1) {
         // Create connection from imagery layer resolver to shader
