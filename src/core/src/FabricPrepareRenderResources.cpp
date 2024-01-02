@@ -417,8 +417,7 @@ FabricPrepareRenderResources::prepareInLoadThread(
             imageryLayersInfo.overlayTypes.emplace_back(OverlayType::IMAGERY);
         } else if (prim.IsA<pxr::CesiumPolygonImagery>()) {
             imageryLayersInfo.overlayTypes.emplace_back(OverlayType::POLYGON);
-        }
-        else {
+        } else {
             Context::instance().getLogger()->error("Attempting to prepare resources for unknown imagery layer type");
         }
     }

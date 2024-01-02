@@ -2,6 +2,7 @@
 
 #include "cesium/omniverse/OmniIonImagery.h"
 #include "cesium/omniverse/OmniTileset.h"
+
 #include <memory>
 
 namespace cesium::omniverse {
@@ -63,7 +64,7 @@ const std::list<std::shared_ptr<OmniImagery>>& AssetRegistry::getAllImageries() 
 
 const std::list<std::shared_ptr<OmniIonImagery>> AssetRegistry::getAllIonImageries() const {
     std::list<std::shared_ptr<OmniIonImagery>> ionImageries;
-    for (const auto& imagery: _imageries) {
+    for (const auto& imagery : _imageries) {
         auto ionImagery = std::dynamic_pointer_cast<OmniIonImagery>(imagery);
         if (ionImagery) {
             ionImageries.emplace_back(ionImagery);

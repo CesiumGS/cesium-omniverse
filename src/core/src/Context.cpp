@@ -1,4 +1,5 @@
 #include "cesium/omniverse/Context.h"
+
 #include "CesiumUsdSchemas/cartographicPolygon.h"
 #include "CesiumUsdSchemas/globeAnchorAPI.h"
 
@@ -236,7 +237,8 @@ void Context::onUpdateUi() {
     const auto sessions = SessionRegistry::getInstance().getAllSessions();
 
     for (const auto& session : sessions) {
-        if (session) session->tick();
+        if (session)
+            session->tick();
     }
 }
 
@@ -706,6 +708,5 @@ void Context::addCartographicPolygonPrim(const pxr::SdfPath& path) {
         globeAnchorAPI.GetGeoreferenceBindingRel().AddTarget(georeferenceOrigin.GetPath());
     }
 }
-
 
 } // namespace cesium::omniverse

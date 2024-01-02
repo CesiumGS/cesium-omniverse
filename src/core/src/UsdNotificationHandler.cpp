@@ -433,7 +433,7 @@ void processCesiumGlobeAnchorAdded(const pxr::SdfPath& globeAnchorPath) {
     const auto anchorApi = UsdUtil::getCesiumGlobeAnchor(globeAnchorPath);
     const auto origin = UsdUtil::getCartographicOriginForAnchor(globeAnchorPath);
     assert(origin.has_value());
-        pxr::GfVec3d coordinates;
+    pxr::GfVec3d coordinates;
     anchorApi.GetGeographicCoordinateAttr().Get(&coordinates);
 
     if (coordinates == pxr::GfVec3d{0.0, 0.0, 10.0}) {
