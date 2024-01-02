@@ -8,18 +8,21 @@ This is the process we follow when releasing a new version of Cesium for Omniver
 4. Verify that the Linux package loads in USD Composer (see instructions below).
 5. Verify that the Windows package loads in USD Composer (see instructions below).
 6. Update the project `VERSION` in [CMakeLists.txt](../../CMakeLists.txt).
-7. Update the extension `version` in [extension.toml](../../exts/cesium.omniverse/config/extension.toml). This should be the same version as above.
-8. Update [`CHANGES.md`](../../CHANGES.md).
-9. Update `ION_ACCESS_TOKEN` in [`extension.py`](../../apps/exts/cesium.performance.app/cesium/performance/app/extension.py) within `cesium.performance.app` using the newly generated keys.
-10. Create a branch, e.g. `git checkout -b release-0.0.0`.
-11. Commit the changes, e.g. `git commit -am "0.0.0 release"`.
-12. Push the commit, e.g. `git push origin release-0.0.0`.
-13. Open a PR and merge the branch with "Rebase and merge".
-14. Tag the release, e.g. `git tag -a v0.0.0 -m "0.0.0 release"`.
-15. Push the tag, e.g. `git push origin v0.0.0`.
-16. Wait for CI to pass.
-17. Download the latest build from S3. In the AWS management console (InternalServices AWS account), go to the bucket [`cesium-builds/cesium-omniverse`](https://s3.console.aws.amazon.com/s3/buckets/cesium-builds?prefix=cesium-omniverse/&region=us-east-1), find the folder with the new tag and download the AlmaLinux and Windows zip files (e.g. `CesiumGS-cesium-omniverse-linux-x86_64-v0.0.0.zip` and `CesiumGS-cesium-omniverse-windows-x86_64-v0.0.0.zip` )
-18. Create a new release on GitHub: https://github.com/CesiumGS/cesium-omniverse/releases/new.
+7. Update the extension `version` in [cesium.omniverse/config/extension.toml](../../exts/cesium.omniverse/config/extension.toml). This should be the same version as above.
+8. If any changes have been made to the Cesium USD schemas since last release:
+    * Update the extension `version` in [cesium.usd.plugins/config/extension.toml](../../exts/cesium.usd.plugins/config/extension.toml)
+    * Update the `cesium.usd.plugins` dependency version in [cesium.omniverse/config/extension.toml](../../exts/cesium.omniverse/config/extension.toml)
+9. Update [`CHANGES.md`](../../CHANGES.md).
+10. Update `ION_ACCESS_TOKEN` in [`extension.py`](../../apps/exts/cesium.performance.app/cesium/performance/app/extension.py) within `cesium.performance.app` using the newly generated keys.
+11. Create a branch, e.g. `git checkout -b release-0.0.0`.
+12. Commit the changes, e.g. `git commit -am "0.0.0 release"`.
+13. Push the commit, e.g. `git push origin release-0.0.0`.
+14. Open a PR and merge the branch with "Rebase and merge".
+15. Tag the release, e.g. `git tag -a v0.0.0 -m "0.0.0 release"`.
+16. Push the tag, e.g. `git push origin v0.0.0`.
+17. Wait for CI to pass.
+18. Download the latest build from S3. In the AWS management console (InternalServices AWS account), go to the bucket [`cesium-builds/cesium-omniverse`](https://s3.console.aws.amazon.com/s3/buckets/cesium-builds?prefix=cesium-omniverse/&region=us-east-1), find the folder with the new tag and download the AlmaLinux and Windows zip files (e.g. `CesiumGS-cesium-omniverse-linux-x86_64-v0.0.0.zip` and `CesiumGS-cesium-omniverse-windows-x86_64-v0.0.0.zip` )
+19. Create a new release on GitHub: https://github.com/CesiumGS/cesium-omniverse/releases/new.
     * Chose the new tag.
     * Copy the changelog into the description. Follow the format used in previous releases.
     * Upload the Linux and Windows release zip files.
