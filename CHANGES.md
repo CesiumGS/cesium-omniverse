@@ -1,5 +1,10 @@
 # Change Log
 
+### v0.16.0 - 2024-01-02
+
+* Fixed issue where the current ion session would be signed out on reload.
+* Fixed crash in Cesium Debugging window.
+
 ### v0.15.0 - 2023-12-14
 
 * Added support for multiple Cesium ion servers by creating `CesiumIonServerPrim` prims.
