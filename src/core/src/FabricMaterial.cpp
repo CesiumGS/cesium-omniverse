@@ -464,10 +464,6 @@ FabricMaterial::FabricMaterial(
         initializeExistingMaterial(existingMaterialPath);
     }
 
-    for (const auto& nodePath : _allPaths) {
-        FabricResourceManager::getInstance().retainPath(nodePath);
-    }
-
     reset();
 }
 

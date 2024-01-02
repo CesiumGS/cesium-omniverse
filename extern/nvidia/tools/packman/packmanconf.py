@@ -34,9 +34,9 @@ def init():
     """
     major = sys.version_info[0]
     minor = sys.version_info[1]
-    if major != 3 or minor != 7:
+    if major != 3 or minor != 10:
         raise RuntimeError(
-            f"This version of packman requires Python 3.7.x, but {major}.{minor} was provided"
+            f"This version of packman requires Python 3.10.x, but {major}.{minor} was provided"
         )
     conf_dir = os.path.dirname(os.path.abspath(__file__))
     os.environ["PM_INSTALL_PATH"] = conf_dir
@@ -55,9 +55,15 @@ def get_packages_root(conf_dir: str) -> str:
             root = os.path.join(drive, "packman-repo")
         elif platform_name == "Darwin":
             # macOS
-            root = "/Library/Caches/packman"
+            root = os.path.join(
+                os.path.expanduser("~"), "/Library/Application Support/packman-cache"
+            )
         elif platform_name == "Linux":
-            root = "/var/tmp/packman"
+            try:
+                cache_root = os.environ["XDG_HOME_CACHE"]
+            except KeyError:
+                cache_root = os.path.join(os.path.expanduser("~"), ".cache")
+            return os.path.join(cache_root, "packman")
         else:
             raise RuntimeError(f"Unsupported platform '{platform_name}'")
     # make sure the path exists:
@@ -73,7 +79,7 @@ def get_module_dir(conf_dir, packages_root: str, version: str) -> str:
         tf = tempfile.NamedTemporaryFile(delete=False)
         target_name = tf.name
         tf.close()
-        url = f"http://bootstrap.packman.nvidia.com/packman-common@{version}.zip"
+        url = f"https://bootstrap.packman.nvidia.com/packman-common@{version}.zip"
         print(f"Downloading '{url}' ...")
         import urllib.request
 
