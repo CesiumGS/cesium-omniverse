@@ -544,10 +544,6 @@ void OmniTileset::addImageryPolygon(const pxr::SdfPath& imageryPath) {
         auto pointsAttr = basisCurves.GetPointsAttr();
         pxr::VtArray<pxr::GfVec3f> points;
         pointsAttr.Get(&points);
-        std::vector<glm::dvec3> pointsOnCurve;
-        for (auto& point : points) {
-            pointsOnCurve.emplace_back(point[0], point[1], point[2]);
-        }
         auto anchor = UsdUtil::getCesiumGlobeAnchor(cartographicPolygonTarget);
         auto origin = UsdUtil::getCartographicOriginForAnchor(anchor.GetPath());
 
@@ -555,8 +551,8 @@ void OmniTileset::addImageryPolygon(const pxr::SdfPath& imageryPath) {
         auto transform = UsdUtil::computeUsdLocalToEcefTransformForPrim(origin.value(), cartographicPolygonTarget);
 
         std::vector<glm::dvec2> polygon;
-        for (auto& curvePoint : pointsOnCurve) {
-            auto homogenous = glm::dvec4(curvePoint.x, curvePoint.y, curvePoint.z, 1.0);
+        for (auto& curvePoint : points) {
+            auto homogenous = glm::dvec4(curvePoint[0], curvePoint[1], curvePoint[2], 1.0);
             auto cartesianHomogenous = transform * homogenous;
             auto cartesian = glm::dvec3(cartesianHomogenous.x, cartesianHomogenous.y, cartesianHomogenous.z);
             std::optional<CesiumGeospatial::Cartographic> cartographicPosition =
