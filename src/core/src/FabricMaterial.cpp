@@ -641,7 +641,8 @@ void FabricMaterial::initializeDefaultMaterial() {
         int layerCounter = 0;
         for (auto i : ionImageryLayerIndices) {
             const auto& imageryLayerPath = _imageryLayerPaths[i];
-            createConnection(srw, imageryLayerPath, _imageryLayerResolverPath, FabricTokens::inputs_imagery_layer_n(layerCounter++));
+            createConnection(
+                srw, imageryLayerPath, _imageryLayerResolverPath, FabricTokens::inputs_imagery_layer_n(layerCounter++));
         }
     }
 

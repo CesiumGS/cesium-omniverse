@@ -2,6 +2,7 @@
 
 #include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/MetadataUtil.h"
+
 #include <vector>
 
 #ifdef CESIUM_OMNI_MSVC

@@ -7,6 +7,7 @@
 #include <pxr/base/gf/vec2f.h>
 #include <pxr/base/gf/vec3f.h>
 #include <pxr/usd/sdf/path.h>
+
 #include <vector>
 
 namespace cesium::omniverse {
