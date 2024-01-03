@@ -584,8 +584,11 @@ void FabricMaterial::initializeNodes() {
 void FabricMaterial::initializeDefaultMaterial() {
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
-    const uint64_t ionImageryLayerCount = _materialDefinition.getIonImageryCount();
-    const uint64_t polygonImageryLayerCount = _materialDefinition.getPolygonImageryCount();
+    const auto ionImageryLayerIndices = _materialDefinition.getIonImageryLayerIndices();
+    const auto polygonImageryLayerIndices = _materialDefinition.getPolygonImageryLayerIndices();
+
+    const uint64_t ionImageryLayerCount = ionImageryLayerIndices.size();
+    const uint64_t polygonImageryLayerCount = polygonImageryLayerIndices.size();
     const auto hasBaseColorTexture = _materialDefinition.hasBaseColorTexture();
 
     // Create material
@@ -628,16 +631,17 @@ void FabricMaterial::initializeDefaultMaterial() {
 
     if (ionImageryLayerCount == 1) {
         // Create connection from imagery layer to shader
-        const auto& imageryLayerPath = _imageryLayerPaths.front();
+        const auto& imageryLayerPath = _imageryLayerPaths[ionImageryLayerIndices[0]];
         createConnection(srw, imageryLayerPath, shaderPath, FabricTokens::inputs_imagery_layer);
     } else if (ionImageryLayerCount > 1) {
         // Create connection from imagery layer resolver to shader
         createConnection(srw, _imageryLayerResolverPath, shaderPath, FabricTokens::inputs_imagery_layer);
 
         // Create connections from imagery layers to imagery layer resolver
-        for (uint64_t i = 0; i < ionImageryLayerCount; i++) {
+        int layerCounter = 0;
+        for (auto i : ionImageryLayerIndices) {
             const auto& imageryLayerPath = _imageryLayerPaths[i];
-            createConnection(srw, imageryLayerPath, _imageryLayerResolverPath, FabricTokens::inputs_imagery_layer_n(i));
+            createConnection(srw, imageryLayerPath, _imageryLayerResolverPath, FabricTokens::inputs_imagery_layer_n(layerCounter++));
         }
     }
 
@@ -646,22 +650,21 @@ void FabricMaterial::initializeDefaultMaterial() {
     }
 
     if (polygonImageryLayerCount == 1) {
-        uint64_t polygonStart = ionImageryLayerCount;
-        const auto& polygonImageryLayerPath = _imageryLayerPaths[polygonStart];
+        const auto& polygonImageryLayerPath = _imageryLayerPaths[polygonImageryLayerIndices[0]];
         createConnection(srw, polygonImageryLayerPath, shaderPath, FabricTokens::inputs_alpha_clip);
     } else if (polygonImageryLayerCount > 1) {
         // Create connection from imagery layer resolver to shader
         createConnection(srw, _polygonImageryLayerResolverPath, shaderPath, FabricTokens::inputs_alpha_clip);
 
         // Create connections from imagery layers to imagery layer resolver
-        uint64_t polygonStart = ionImageryLayerCount;
-        for (uint64_t i = polygonStart; i < polygonStart + polygonImageryLayerCount; i++) {
+        int layerCounter = 0;
+        for (auto i : polygonImageryLayerIndices) {
             const auto& imageryLayerPath = _imageryLayerPaths[i];
             createConnection(
                 srw,
                 imageryLayerPath,
                 _polygonImageryLayerResolverPath,
-                FabricTokens::inputs_imagery_layer_n(i - polygonStart));
+                FabricTokens::inputs_imagery_layer_n(layerCounter++));
         }
     }
 }

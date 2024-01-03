@@ -2,6 +2,7 @@
 
 #include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/MetadataUtil.h"
+#include <vector>
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
@@ -52,15 +53,20 @@ FabricMaterialDefinition::FabricMaterialDefinition(
     , _tilesetMaterialPath(tilesetMaterialPath)
     , _properties(getStyleableProperties(model, primitive, tilesetMaterialPath)) {
     _imageryLayerCount = imageryLayersInfo.imageryLayerCount;
+
+    int layerNum = 0;
     for (auto layerType : imageryLayersInfo.overlayTypes) {
         switch (layerType) {
             case OverlayType::IMAGERY:
                 _ionImageryLayerCount++;
+                _ionImageryLayerIndices.push_back(layerNum);
                 break;
             case OverlayType::POLYGON:
                 _polygonImageryLayerCount++;
+                _polygonImageryLayerIndices.push_back(layerNum);
                 break;
         }
+        layerNum++;
     }
 
     if (disableTextures) {
@@ -91,6 +97,13 @@ uint64_t FabricMaterialDefinition::getPolygonImageryCount() const {
 
 uint64_t FabricMaterialDefinition::getIonImageryCount() const {
     return _ionImageryLayerCount;
+}
+
+std::vector<int> FabricMaterialDefinition::getIonImageryLayerIndices() const {
+    return _ionImageryLayerIndices;
+}
+std::vector<int> FabricMaterialDefinition::getPolygonImageryLayerIndices() const {
+    return _polygonImageryLayerIndices;
 }
 
 bool FabricMaterialDefinition::hasTilesetMaterial() const {
