@@ -17,7 +17,7 @@
 #include <glm/gtc/random.hpp>
 #include <omni/fabric/FabricUSD.h>
 #include <spdlog/fmt/fmt.h>
-#include <stdint.h>
+#include <cstdint>
 
 namespace cesium::omniverse {
 
