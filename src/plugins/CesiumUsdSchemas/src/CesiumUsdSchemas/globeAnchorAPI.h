@@ -191,7 +191,7 @@ public:
     ///
     /// | ||
     /// | -- | -- |
-    /// | Declaration | `double3 cesium:anchor:geographicCoordinates = (0, 0, 10)` |
+    /// | Declaration | `double3 cesium:anchor:geographicCoordinates = (0, 0, 0)` |
     /// | C++ Type | GfVec3d |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double3 |
     CESIUMUSDSCHEMAS_API

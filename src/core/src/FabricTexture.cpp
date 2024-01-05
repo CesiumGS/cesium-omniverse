@@ -1,8 +1,8 @@
 #include "cesium/omniverse/FabricTexture.h"
 
-#include "cesium/omniverse/FabricPrepareRenderResources.h"
-#include "cesium/omniverse/LoggerSink.h"
-#include "cesium/omniverse/OmniTileset.h"
+#include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/FabricTextureInfo.h"
+#include "cesium/omniverse/Logger.h"
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <CesiumGltf/ImageCesium.h>
@@ -14,6 +14,7 @@
 namespace cesium::omniverse {
 
 namespace {
+
 carb::Format
 getCompressedImageFormat(CesiumGltf::GpuCompressedPixelFormat pixelFormat, TransferFunction transferFunction) {
     switch (pixelFormat) {
@@ -24,8 +25,6 @@ getCompressedImageFormat(CesiumGltf::GpuCompressedPixelFormat pixelFormat, Trans
                 case TransferFunction::SRGB:
                     return carb::Format::eBC1_RGBA_SRGB;
             }
-            // Unreachable code. All enum cases are handled above.
-            assert(false);
             return carb::Format::eUnknown;
         case CesiumGltf::GpuCompressedPixelFormat::BC3_RGBA:
             switch (transferFunction) {
@@ -34,8 +33,6 @@ getCompressedImageFormat(CesiumGltf::GpuCompressedPixelFormat pixelFormat, Trans
                 case TransferFunction::SRGB:
                     return carb::Format::eBC3_RGBA_SRGB;
             }
-            // Unreachable code. All enum cases are handled above.
-            assert(false);
             return carb::Format::eUnknown;
         case CesiumGltf::GpuCompressedPixelFormat::BC4_R:
             return carb::Format::eBC4_R_UNORM;
@@ -48,8 +45,6 @@ getCompressedImageFormat(CesiumGltf::GpuCompressedPixelFormat pixelFormat, Trans
                 case TransferFunction::SRGB:
                     return carb::Format::eBC7_RGBA_SRGB;
             }
-            // Unreachable code. All enum cases are handled above.
-            assert(false);
             return carb::Format::eUnknown;
         default:
             // Unsupported compressed texture format.
@@ -57,38 +52,89 @@ getCompressedImageFormat(CesiumGltf::GpuCompressedPixelFormat pixelFormat, Trans
     }
 }
 
-carb::Format getUncompressedPixelFormat(
-    TransferFunction transferFunction,
-    [[maybe_unused]] const std::any& rendererOptions = nullptr) {
-
-    if (rendererOptions.has_value() && rendererOptions.type() == typeid(OverlayType)) {
-        OverlayType value = std::any_cast<OverlayType>(rendererOptions);
-        if (value == OverlayType::POLYGON) {
-            return carb::Format::eR8_UNORM;
-        }
+carb::Format
+getUncompressedImageFormat(uint64_t channels, uint64_t bytesPerChannel, TransferFunction transferFunction) {
+    switch (channels) {
+        case 1:
+            switch (bytesPerChannel) {
+                case 1:
+                    return carb::Format::eR8_UNORM;
+                case 2:
+                    return carb::Format::eR16_UNORM;
+            }
+            break;
+        case 2:
+            switch (bytesPerChannel) {
+                case 1:
+                    return carb::Format::eRG8_UNORM;
+                case 2:
+                    return carb::Format::eRG16_UNORM;
+            }
+            break;
+        case 4:
+            switch (bytesPerChannel) {
+                case 1:
+                    switch (transferFunction) {
+                        case TransferFunction::LINEAR:
+                            return carb::Format::eRGBA8_UNORM;
+                        case TransferFunction::SRGB:
+                            return carb::Format::eRGBA8_SRGB;
+                    }
+                    break;
+                case 2:
+                    return carb::Format::eRGBA16_UNORM;
+            }
+            break;
     }
 
-    switch (transferFunction) {
-        case TransferFunction::LINEAR:
-            return carb::Format::eRGBA8_UNORM;
-        case TransferFunction::SRGB:
-            return carb::Format::eRGBA8_SRGB;
-    }
-
-    // Unreachable code. All enum cases are handled above.
-    assert(false);
     return carb::Format::eUnknown;
 }
 
 } // namespace
 
-FabricTexture::FabricTexture(const std::string& name)
-    : _texture(std::make_unique<omni::ui::DynamicTextureProvider>(name))
-    , _assetPathToken(UsdUtil::getDynamicTextureProviderAssetPathToken(name)) {
+FabricTexture::FabricTexture(Context* pContext, const std::string& name, int64_t poolId)
+    : _pContext(pContext)
+    , _pTexture(std::make_unique<omni::ui::DynamicTextureProvider>(name))
+    , _assetPathToken(UsdUtil::getDynamicTextureProviderAssetPathToken(name))
+    , _poolId(poolId) {
     reset();
 }
 
 FabricTexture::~FabricTexture() = default;
+
+void FabricTexture::setImage(const CesiumGltf::ImageCesium& image, TransferFunction transferFunction) {
+    carb::Format imageFormat;
+
+    const auto isCompressed = image.compressedPixelFormat != CesiumGltf::GpuCompressedPixelFormat::NONE;
+
+    if (isCompressed) {
+        imageFormat = getCompressedImageFormat(image.compressedPixelFormat, transferFunction);
+    } else {
+        imageFormat = getUncompressedImageFormat(
+            static_cast<uint64_t>(image.channels), static_cast<uint64_t>(image.bytesPerChannel), transferFunction);
+    }
+
+    if (imageFormat == carb::Format::eUnknown) {
+        _pContext->getLogger()->warn("Invalid image format");
+    } else {
+        // As of Kit 105.1, omni::ui::kAutoCalculateStride doesn't work for compressed textures. This value somehow works.
+        const auto stride = isCompressed ? 4ULL * static_cast<uint64_t>(image.width) : omni::ui::kAutoCalculateStride;
+        const auto data = reinterpret_cast<const uint8_t*>(image.pixelData.data());
+        const auto dimensions = carb::Uint2{static_cast<uint32_t>(image.width), static_cast<uint32_t>(image.height)};
+
+        _pTexture->setBytesData(data, dimensions, stride, imageFormat);
+    }
+}
+
+void FabricTexture::setBytes(
+    const std::vector<std::byte>& bytes,
+    uint64_t width,
+    uint64_t height,
+    carb::Format format) {
+    const auto data = reinterpret_cast<const uint8_t*>(bytes.data());
+    const auto dimensions = carb::Uint2{static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
+    _pTexture->setBytesData(data, dimensions, omni::ui::kAutoCalculateStride, format);
+}
 
 void FabricTexture::setActive(bool active) {
     if (!active) {
@@ -96,50 +142,18 @@ void FabricTexture::setActive(bool active) {
     }
 }
 
-const pxr::TfToken& FabricTexture::getAssetPathToken() const {
+const PXR_NS::TfToken& FabricTexture::getAssetPathToken() const {
     return _assetPathToken;
+}
+
+int64_t FabricTexture::getPoolId() const {
+    return _poolId;
 }
 
 void FabricTexture::reset() {
     const auto bytes = std::array<uint8_t, 4>{{255, 255, 255, 255}};
     const auto size = carb::Uint2{1, 1};
-    _texture->setBytesData(bytes.data(), size, omni::ui::kAutoCalculateStride, carb::Format::eRGBA8_SRGB);
-}
-
-void FabricTexture::setImage(
-    const CesiumGltf::ImageCesium& image,
-    TransferFunction transferFunction,
-    [[maybe_unused]] const std::any& rendererOptions) {
-    carb::Format imageFormat;
-
-    if (image.compressedPixelFormat == CesiumGltf::GpuCompressedPixelFormat::NONE) {
-        imageFormat = getUncompressedPixelFormat(transferFunction, rendererOptions);
-    } else {
-        imageFormat = getCompressedImageFormat(image.compressedPixelFormat, transferFunction);
-    }
-
-    if (imageFormat == carb::Format::eUnknown) {
-        CESIUM_LOG_WARN("Invalid image format");
-    } else {
-        // As of Kit 105.1, omni::ui::kAutoCalculateStride doesn't work for compressed textures. This value somehow works.
-        auto stride = 4ULL * static_cast<uint64_t>(image.width);
-        if (rendererOptions.has_value() && rendererOptions.type() == typeid(OverlayType)) {
-            if (std::any_cast<OverlayType>(rendererOptions) == OverlayType::POLYGON) {
-                stride = static_cast<uint64_t>(image.width);
-            }
-        }
-
-        const auto data = reinterpret_cast<const uint8_t*>(image.pixelData.data());
-        const auto dimensions = carb::Uint2{static_cast<uint32_t>(image.width), static_cast<uint32_t>(image.height)};
-
-        _texture->setBytesData(data, dimensions, stride, imageFormat);
-    }
-}
-
-void FabricTexture::setTexture(const TextureData& texture) {
-    const auto data = reinterpret_cast<const uint8_t*>(texture.bytes.data());
-    const auto dimensions = carb::Uint2{static_cast<uint32_t>(texture.width), static_cast<uint32_t>(texture.height)};
-    _texture->setBytesData(data, dimensions, omni::ui::kAutoCalculateStride, texture.format);
+    _pTexture->setBytesData(bytes.data(), size, omni::ui::kAutoCalculateStride, carb::Format::eRGBA8_SRGB);
 }
 
 } // namespace cesium::omniverse

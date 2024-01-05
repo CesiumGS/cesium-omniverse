@@ -1,5 +1,11 @@
 # Change Log
 
+### v0.17.0 - 2024-02-01
+
+* **Breaking change:** Removed `cesium.omniverse.api.globe_anchor`. Globe anchor prims can now be created directly in USD.
+* **Breaking change:** Globe anchors no longer add a `cesium:transform` op to the attached prim. Instead they modify the `translate`, `rotate` (all variants), and `scale` ops directly.
+* Tilesets are no longer required to supply a `cesium:georeferenceBinding` target if they are meant to be rendered in a local coordinate system
+
 ### v0.16.0 - 2024-01-02
 
 * Fixed issue where the current ion session would be signed out on reload.

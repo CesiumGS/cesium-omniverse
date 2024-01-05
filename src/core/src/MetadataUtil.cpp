@@ -1,20 +1,18 @@
 #include "cesium/omniverse/MetadataUtil.h"
 
+#include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/DataType.h"
+#include "cesium/omniverse/FabricPropertyDescriptor.h"
+#include "cesium/omniverse/FabricTextureData.h"
 
 namespace cesium::omniverse::MetadataUtil {
 
-namespace {
-template <typename T> uint64_t indexOf(const std::vector<T>& vector, const T& value) {
-    return static_cast<uint64_t>(std::distance(vector.begin(), std::find(vector.begin(), vector.end(), value)));
-}
-} // namespace
-
-std::vector<MetadataUtil::PropertyDefinition>
-getStyleableProperties(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
-    std::vector<MetadataUtil::PropertyDefinition> properties;
+std::vector<FabricPropertyDescriptor>
+getStyleableProperties(Context* pContext, const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+    std::vector<FabricPropertyDescriptor> properties;
 
     forEachStyleablePropertyAttributeProperty(
+        pContext,
         model,
         primitive,
         [&properties](
@@ -22,15 +20,18 @@ getStyleableProperties(const CesiumGltf::Model& model, const CesiumGltf::MeshPri
             [[maybe_unused]] const auto& propertyAttributePropertyView,
             const auto& property) {
             constexpr auto type = std::decay_t<decltype(property)>::Type;
-            properties.emplace_back(MetadataUtil::PropertyDefinition{
-                PropertyStorageType::ATTRIBUTE,
-                getMdlInternalPropertyType<type>(),
+
+            // In C++ 20 this can be emplace_back without the {}
+            properties.push_back({
+                FabricPropertyStorageType::ATTRIBUTE,
+                DataTypeUtil::getMdlInternalPropertyType<type>(),
                 propertyId,
                 0, // featureIdSetIndex not relevant for property attributes
             });
         });
 
     forEachStyleablePropertyTextureProperty(
+        pContext,
         model,
         primitive,
         [&properties](
@@ -38,15 +39,18 @@ getStyleableProperties(const CesiumGltf::Model& model, const CesiumGltf::MeshPri
             [[maybe_unused]] const auto& propertyTexturePropertyView,
             const auto& property) {
             constexpr auto type = std::decay_t<decltype(property)>::Type;
-            properties.emplace_back(MetadataUtil::PropertyDefinition{
-                PropertyStorageType::TEXTURE,
-                getMdlInternalPropertyType<type>(),
+
+            // In C++ 20 this can be emplace_back without the {}
+            properties.push_back({
+                FabricPropertyStorageType::TEXTURE,
+                DataTypeUtil::getMdlInternalPropertyType<type>(),
                 propertyId,
                 0, // featureIdSetIndex not relevant for property textures
             });
         });
 
     forEachStyleablePropertyTableProperty(
+        pContext,
         model,
         primitive,
         [&properties](
@@ -54,28 +58,30 @@ getStyleableProperties(const CesiumGltf::Model& model, const CesiumGltf::MeshPri
             [[maybe_unused]] const auto& propertyTablePropertyView,
             const auto& property) {
             constexpr auto type = std::decay_t<decltype(property)>::Type;
-            properties.emplace_back(MetadataUtil::PropertyDefinition{
-                PropertyStorageType::TABLE,
-                getMdlInternalPropertyType<type>(),
+
+            // In C++ 20 this can be emplace_back without the {}
+            properties.push_back({
+                FabricPropertyStorageType::TABLE,
+                DataTypeUtil::getMdlInternalPropertyType<type>(),
                 propertyId,
                 property.featureIdSetIndex,
             });
         });
 
-    // Sorting is important for checking FabricMaterialDefinition equality
-    std::sort(
-        properties.begin(), properties.end(), [](const PropertyDefinition& lhs, const PropertyDefinition& rhs) -> bool {
-            return lhs.propertyId > rhs.propertyId;
-        });
+    // Sorting is important for checking FabricMaterialDescriptor equality
+    CppUtil::sort(properties, [](const auto& lhs, const auto& rhs) { return lhs.propertyId > rhs.propertyId; });
 
     return properties;
 }
 
-std::vector<const CesiumGltf::ImageCesium*>
-getPropertyTextureImages(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+std::vector<const CesiumGltf::ImageCesium*> getPropertyTextureImages(
+    Context* pContext,
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive) {
     std::vector<const CesiumGltf::ImageCesium*> images;
 
     forEachStyleablePropertyTextureProperty(
+        pContext,
         model,
         primitive,
         [&images](
@@ -83,10 +89,9 @@ getPropertyTextureImages(const CesiumGltf::Model& model, const CesiumGltf::MeshP
             const auto& propertyTexturePropertyView,
             [[maybe_unused]] const auto& property) {
             const auto pImage = propertyTexturePropertyView.getImage();
-            assert(pImage);
+            assert(pImage); // Shouldn't have gotten this far if image is invalid
 
-            const auto imageIndex = indexOf(images, pImage);
-
+            const auto imageIndex = CppUtil::indexOf(images, pImage);
             if (imageIndex == images.size()) {
                 images.push_back(pImage);
             }
@@ -95,12 +100,15 @@ getPropertyTextureImages(const CesiumGltf::Model& model, const CesiumGltf::MeshP
     return images;
 }
 
-std::unordered_map<uint64_t, uint64_t>
-getPropertyTextureIndexMapping(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+std::unordered_map<uint64_t, uint64_t> getPropertyTextureIndexMapping(
+    Context* pContext,
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive) {
     std::vector<const CesiumGltf::ImageCesium*> images;
     std::unordered_map<uint64_t, uint64_t> propertyTextureIndexMapping;
 
     forEachStyleablePropertyTextureProperty(
+        pContext,
         model,
         primitive,
         [&images, &propertyTextureIndexMapping](
@@ -108,10 +116,9 @@ getPropertyTextureIndexMapping(const CesiumGltf::Model& model, const CesiumGltf:
             const auto& propertyTexturePropertyView,
             [[maybe_unused]] const auto& property) {
             const auto pImage = propertyTexturePropertyView.getImage();
-            assert(pImage);
+            assert(pImage); // Shouldn't have gotten this far if image is invalid
 
-            const auto imageIndex = indexOf(images, pImage);
-
+            const auto imageIndex = CppUtil::indexOf(images, pImage);
             if (imageIndex == images.size()) {
                 images.push_back(pImage);
             }
@@ -123,11 +130,12 @@ getPropertyTextureIndexMapping(const CesiumGltf::Model& model, const CesiumGltf:
     return propertyTextureIndexMapping;
 }
 
-std::vector<TextureData>
-encodePropertyTables(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
-    std::vector<TextureData> textures;
+std::vector<FabricTextureData>
+encodePropertyTables(Context* pContext, const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+    std::vector<FabricTextureData> textures;
 
     forEachStyleablePropertyTableProperty(
+        pContext,
         model,
         primitive,
         [&textures](
@@ -135,16 +143,16 @@ encodePropertyTables(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimi
             const auto& propertyTablePropertyView,
             const auto& property) {
             constexpr auto type = std::decay_t<decltype(property)>::Type;
-            constexpr auto textureType = getPropertyTableTextureType<type>();
-            constexpr auto textureFormat = getTextureFormat<textureType>();
-            using TextureType = GetNativeType<textureType>;
-            using TextureComponentType = GetNativeType<getComponentType<textureType>()>;
+            constexpr auto textureType = DataTypeUtil::getPropertyTableTextureType<type>();
+            constexpr auto textureFormat = DataTypeUtil::getTextureFormat<textureType>();
+            using TextureType = DataTypeUtil::GetNativeType<textureType>;
+            using TextureComponentType = DataTypeUtil::GetNativeType<DataTypeUtil::getComponentType<textureType>()>;
 
             // The texture type should always be the same or larger type
-            static_assert(getComponentCount<type>() <= getComponentCount<textureType>());
+            static_assert(DataTypeUtil::getComponentCount<type>() <= DataTypeUtil::getComponentCount<textureType>());
 
             // Matrix packing not implemented yet
-            static_assert(!isMatrix<type>());
+            static_assert(!DataTypeUtil::isMatrix<type>());
 
             const auto size = static_cast<uint64_t>(propertyTablePropertyView.size());
             assert(size > 0);
@@ -153,19 +161,19 @@ encodePropertyTables(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimi
             const auto width = glm::min(maximumTextureWidth, size);
             const auto height = ((size - 1) / maximumTextureWidth) + 1;
 
-            constexpr auto texelByteLength = getByteLength<textureType>();
+            constexpr auto texelByteLength = DataTypeUtil::getByteLength<textureType>();
             const auto textureByteLength = width * height * texelByteLength;
 
             std::vector<std::byte> texelBytes(textureByteLength, std::byte(0));
             gsl::span<TextureType> texelValues(
                 reinterpret_cast<TextureType*>(texelBytes.data()), texelBytes.size() / texelByteLength);
 
-            for (uint64_t i = 0; i < size; i++) {
+            for (uint64_t i = 0; i < size; ++i) {
                 auto& texelValue = texelValues[i];
-                const auto& rawValue = propertyTablePropertyView.getRaw(i);
+                const auto& rawValue = propertyTablePropertyView.getRaw(static_cast<int64_t>(i));
 
-                if constexpr (isVector<type>()) {
-                    for (uint64_t j = 0; j < getComponentCount<type>(); j++) {
+                if constexpr (DataTypeUtil::isVector<type>()) {
+                    for (uint64_t j = 0; j < DataTypeUtil::getComponentCount<type>(); ++j) {
                         texelValue[j] = static_cast<TextureComponentType>(rawValue[j]);
                     }
                 } else {
@@ -173,7 +181,8 @@ encodePropertyTables(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimi
                 }
             }
 
-            textures.emplace_back(TextureData{
+            // In C++ 20 this can be push_back without the {}
+            textures.push_back({
                 std::move(texelBytes),
                 width,
                 height,
@@ -184,24 +193,22 @@ encodePropertyTables(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimi
     return textures;
 }
 
-uint64_t getPropertyTableTextureCount(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+uint64_t getPropertyTableTextureCount(
+    Context* pContext,
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive) {
     uint64_t count = 0;
 
     forEachStyleablePropertyTableProperty(
+        pContext,
         model,
         primitive,
         [&count](
             [[maybe_unused]] const std::string& propertyId,
             [[maybe_unused]] const auto& propertyTablePropertyView,
-            [[maybe_unused]] const auto& property) { count++; });
+            [[maybe_unused]] const auto& property) { ++count; });
 
     return count;
-}
-
-// In C++ 20 we can use the default equality comparison (= default)
-bool PropertyDefinition::operator==(const PropertyDefinition& other) const {
-    return storageType == other.storageType && type == other.type && propertyId == other.propertyId &&
-           featureIdSetIndex == other.featureIdSetIndex;
 }
 
 } // namespace cesium::omniverse::MetadataUtil

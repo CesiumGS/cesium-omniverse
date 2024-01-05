@@ -1,76 +1,31 @@
 #include "cesium/omniverse/UsdNotificationHandler.h"
 
-#include "CesiumUsdSchemas/tokens.h"
-
 #include "cesium/omniverse/AssetRegistry.h"
+#include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/CppUtil.h"
 #include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricUtil.h"
-#include "cesium/omniverse/GeospatialUtil.h"
-#include "cesium/omniverse/GlobeAnchorRegistry.h"
-#include "cesium/omniverse/LoggerSink.h"
+#include "cesium/omniverse/OmniCartographicPolygon.h"
+#include "cesium/omniverse/OmniGeoreference.h"
 #include "cesium/omniverse/OmniGlobeAnchor.h"
+#include "cesium/omniverse/OmniImagery.h"
 #include "cesium/omniverse/OmniIonImagery.h"
+#include "cesium/omniverse/OmniIonServer.h"
+#include "cesium/omniverse/OmniPolygonImagery.h"
 #include "cesium/omniverse/OmniTileset.h"
-#include "cesium/omniverse/SessionRegistry.h"
-#include "cesium/omniverse/Tokens.h"
+#include "cesium/omniverse/UsdTokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
+#include <CesiumUsdSchemas/tokens.h>
 #include <pxr/usd/usd/primRange.h>
+#include <pxr/usd/usdShade/shader.h>
 
 namespace cesium::omniverse {
 
 namespace {
 
-ChangedPrimType getType(const pxr::SdfPath& path) {
-    if (UsdUtil::primExists(path)) {
-        if (UsdUtil::isCesiumData(path)) {
-            return ChangedPrimType::CESIUM_DATA;
-        } else if (UsdUtil::isCesiumTileset(path)) {
-            return ChangedPrimType::CESIUM_TILESET;
-        } else if (UsdUtil::isCesiumIonImagery(path)) {
-            return ChangedPrimType::CESIUM_ION_IMAGERY;
-        } else if (UsdUtil::isCesiumPolygonImagery(path)) {
-            return ChangedPrimType::CESIUM_POLYGON_IMAGERY;
-        } else if (UsdUtil::isCesiumGeoreference(path)) {
-            return ChangedPrimType::CESIUM_GEOREFERENCE;
-        } else if (UsdUtil::hasCesiumGlobeAnchor(path)) {
-            return ChangedPrimType::CESIUM_GLOBE_ANCHOR;
-        } else if (UsdUtil::isCesiumIonServer(path)) {
-            return ChangedPrimType::CESIUM_ION_SERVER;
-        } else if (UsdUtil::isUsdShader(path)) {
-            return ChangedPrimType::USD_SHADER;
-        }
-    } else {
-        // If the prim doesn't exist, because it was removed from the stage already, we can get the type from the asset registry
-        const auto assetType = AssetRegistry::getInstance().getAssetType(path);
-
-        switch (assetType) {
-            case AssetType::TILESET:
-                return ChangedPrimType::CESIUM_TILESET;
-            case AssetType::ION_IMAGERY:
-                return ChangedPrimType::CESIUM_ION_IMAGERY;
-            case AssetType::POLYGON_IMAGERY:
-                return ChangedPrimType::CESIUM_POLYGON_IMAGERY;
-            default:
-                break;
-        }
-
-        // If we still haven't found the prim type, it could be a globe anchor, and we should check if it exists in the globe anchor registry
-        if (GlobeAnchorRegistry::getInstance().anchorExists(path)) {
-            return ChangedPrimType::CESIUM_GLOBE_ANCHOR;
-        }
-
-        // If we still haven't found the prim type, it could be a Cesium ion session, and we should check if it exists in the session registry
-        if (SessionRegistry::getInstance().sessionExists(path)) {
-            return ChangedPrimType::CESIUM_ION_SERVER;
-        }
-    }
-
-    return ChangedPrimType::OTHER;
-}
-
-bool inSubtree(const pxr::SdfPath& path, const pxr::SdfPath& descendantPath) {
-    if (path == descendantPath) {
+bool isPrimOrDescendant(const PXR_NS::SdfPath& descendantPath, const PXR_NS::SdfPath& path) {
+    if (descendantPath == path) {
         return true;
     }
 
@@ -83,30 +38,105 @@ bool inSubtree(const pxr::SdfPath& path, const pxr::SdfPath& descendantPath) {
     return false;
 }
 
-void reloadIonServerAssets(const pxr::SdfPath& ionServerPath) {
-    // Reload tilesets that reference this ion server
-    const auto& tilesets = AssetRegistry::getInstance().getAllTilesets();
-    for (const auto& tileset : tilesets) {
-        if (tileset->getIonServerPath() == ionServerPath) {
-            tileset->reload();
-        }
-    }
+void updateImageryBindings(Context* pContext, const PXR_NS::SdfPath& imageryPath) {
+    const auto& tilesets = pContext->getAssetRegistry().getAllTilesets();
 
-    // Reload tilesets whose imagery layers reference this ion server
-    const auto& ionImageries = AssetRegistry::getInstance().getAllIonImageries();
-    for (const auto& ionImagery : ionImageries) {
-        if (ionImagery->getIonServerPath() == ionServerPath) {
-            const auto tilesetPath = ionImagery->getPath().GetParentPath();
-            const auto tileset = AssetRegistry::getInstance().getTileset(tilesetPath);
-            if (tileset) {
-                tileset->reload();
+    // Update tilesets that reference this imagery
+    for (const auto& pTileset : tilesets) {
+        const auto imageryLayerCount = pTileset->getImageryLayerCount();
+        for (uint64_t i = 0; i < imageryLayerCount; ++i) {
+            const auto imageryLayerPath = pTileset->getImageryLayerPath(i);
+            if (imageryLayerPath == imageryPath) {
+                pTileset->reload();
             }
         }
     }
 }
 
-void processCesiumDataChanged(const std::vector<pxr::TfToken>& properties) {
+void updateImageryBindingsAlpha(Context* pContext, const PXR_NS::SdfPath& imageryPath) {
+    const auto& tilesets = pContext->getAssetRegistry().getAllTilesets();
+
+    // Update tilesets that reference this imagery
+    for (const auto& pTileset : tilesets) {
+        const auto imageryLayerCount = pTileset->getImageryLayerCount();
+        for (uint64_t i = 0; i < imageryLayerCount; ++i) {
+            const auto imageryLayerPath = pTileset->getImageryLayerPath(i);
+            if (imageryLayerPath == imageryPath) {
+                pTileset->updateImageryLayerAlpha(i);
+            }
+        }
+    }
+}
+
+void updateIonServerBindings(Context* pContext, const PXR_NS::SdfPath& ionServerPath) {
+    // Update tilesets that reference this ion server
+    const auto& tilesets = pContext->getAssetRegistry().getAllTilesets();
+    for (const auto& pTileset : tilesets) {
+        if (pTileset->getIonServerPath() == ionServerPath) {
+            pTileset->reload();
+        }
+    }
+
+    // Update imageries that reference this ion server
+    const auto& ionImageries = pContext->getAssetRegistry().getAllIonImageries();
+    for (const auto& pIonImagery : ionImageries) {
+        if (pIonImagery->getIonServerPath() == ionServerPath) {
+            pIonImagery->reload();
+            updateImageryBindings(pContext, pIonImagery->getPath());
+        }
+    }
+}
+
+void updateCartographicPolygonBindings(Context* pContext, const PXR_NS::SdfPath& cartographicPolygonPath) {
+    // Update polygon imageries that reference this cartographic polygon
+    const auto& polygonImageries = pContext->getAssetRegistry().getAllPolygonImageries();
+    for (const auto& pPolygonImagery : polygonImageries) {
+        const auto paths = pPolygonImagery->getCartographicPolygonPaths();
+        if (CppUtil::contains(paths, cartographicPolygonPath)) {
+            pPolygonImagery->reload();
+            updateImageryBindings(pContext, pPolygonImagery->getPath());
+        }
+    }
+}
+
+void updateGlobeAnchorBindings(Context* pContext, const PXR_NS::SdfPath& globeAnchorPath) {
+    if (pContext->getAssetRegistry().getCartographicPolygon(globeAnchorPath)) {
+        // Update cartographic polygon that this globe anchor is attached to
+        updateCartographicPolygonBindings(pContext, globeAnchorPath);
+    }
+}
+
+void updateGeoreferenceBindings(Context* pContext, const PXR_NS::SdfPath& georeferencePath) {
+    // Don't need to update tilesets. Georeference changes are handled automatically in the update loop.
+
+    // Update globe anchors that reference this georeference
+    const auto& globeAnchors = pContext->getAssetRegistry().getAllGlobeAnchors();
+    for (const auto& pGlobeAnchor : globeAnchors) {
+        if (pGlobeAnchor->getGeoreferencePath() == georeferencePath) {
+            pGlobeAnchor->updateByGeoreference();
+            updateGlobeAnchorBindings(pContext, pGlobeAnchor->getPath());
+        }
+    }
+}
+
+bool isFirstData(Context* pContext, const PXR_NS::SdfPath& dataPath) {
+    const auto pData = pContext->getAssetRegistry().getData(dataPath);
+    const auto pFirstData = pContext->getAssetRegistry().getFirstData();
+
+    return pData && pData == pFirstData;
+}
+
+[[nodiscard]] bool processCesiumDataChanged(
+    Context* pContext,
+    const PXR_NS::SdfPath& dataPath,
+    const std::vector<PXR_NS::TfToken>& properties) {
+
+    if (!isFirstData(pContext, dataPath)) {
+        return false;
+    }
+
     auto reloadStage = false;
+    auto updateGeoreference = false;
 
     // No change tracking needed for
     // * selectedIonServer
@@ -114,269 +144,347 @@ void processCesiumDataChanged(const std::vector<pxr::TfToken>& properties) {
     // * projectDefaultIonAccessTokenId (deprecated)
 
     for (const auto& property : properties) {
-        if (property == pxr::CesiumTokens->cesiumDebugDisableMaterials ||
-            property == pxr::CesiumTokens->cesiumDebugDisableTextures ||
-            property == pxr::CesiumTokens->cesiumDebugDisableGeometryPool ||
-            property == pxr::CesiumTokens->cesiumDebugDisableMaterialPool ||
-            property == pxr::CesiumTokens->cesiumDebugDisableTexturePool ||
-            property == pxr::CesiumTokens->cesiumDebugGeometryPoolInitialCapacity ||
-            property == pxr::CesiumTokens->cesiumDebugMaterialPoolInitialCapacity ||
-            property == pxr::CesiumTokens->cesiumDebugTexturePoolInitialCapacity ||
-            property == pxr::CesiumTokens->cesiumDebugRandomColors ||
-            property == pxr::CesiumTokens->cesiumDebugDisableGeoreferencing) {
+        if (property == PXR_NS::CesiumTokens->cesiumDebugDisableMaterials ||
+            property == PXR_NS::CesiumTokens->cesiumDebugDisableTextures ||
+            property == PXR_NS::CesiumTokens->cesiumDebugDisableGeometryPool ||
+            property == PXR_NS::CesiumTokens->cesiumDebugDisableMaterialPool ||
+            property == PXR_NS::CesiumTokens->cesiumDebugDisableTexturePool ||
+            property == PXR_NS::CesiumTokens->cesiumDebugGeometryPoolInitialCapacity ||
+            property == PXR_NS::CesiumTokens->cesiumDebugMaterialPoolInitialCapacity ||
+            property == PXR_NS::CesiumTokens->cesiumDebugTexturePoolInitialCapacity ||
+            property == PXR_NS::CesiumTokens->cesiumDebugRandomColors) {
             reloadStage = true;
+        } else if (property == PXR_NS::CesiumTokens->cesiumDebugDisableGeoreferencing) {
+            updateGeoreference = true;
         }
     }
 
-    if (reloadStage) {
-        Context::instance().reloadStage();
+    if (updateGeoreference) {
+        const auto& georeferences = pContext->getAssetRegistry().getAllGeoreferences();
+        for (const auto& pGeoreference : georeferences) {
+            updateGeoreferenceBindings(pContext, pGeoreference->getPath());
+        }
     }
+
+    return reloadStage;
 }
 
-void processCesiumTilesetChanged(const pxr::SdfPath& tilesetPath, const std::vector<pxr::TfToken>& properties) {
-    const auto tileset = AssetRegistry::getInstance().getTileset(tilesetPath);
-    if (!tileset) {
+void processCesiumTilesetChanged(
+    Context* pContext,
+    const PXR_NS::SdfPath& tilesetPath,
+    const std::vector<PXR_NS::TfToken>& properties) {
+    const auto pTileset = pContext->getAssetRegistry().getTileset(tilesetPath);
+    if (!pTileset) {
         return;
     }
 
-    auto reloadTileset = false;
+    auto reload = false;
     auto updateTilesetOptions = false;
     auto updateDisplayColorAndOpacity = false;
 
     // No change tracking needed for
-    // * cesiumSuspendUpdate
+    // * suspendUpdate
     // * georeferenceBinding
+    // * Transform changes (handled automatically in update loop)
 
     // clang-format off
     for (const auto& property : properties) {
-        if (property == pxr::CesiumTokens->cesiumSourceType ||
-            property == pxr::CesiumTokens->cesiumUrl ||
-            property == pxr::CesiumTokens->cesiumIonAssetId ||
-            property == pxr::CesiumTokens->cesiumIonAccessToken ||
-            property == pxr::CesiumTokens->cesiumIonServerBinding ||
-            property == pxr::CesiumTokens->cesiumSmoothNormals ||
-            property == pxr::CesiumTokens->cesiumShowCreditsOnScreen ||
-            property == pxr::UsdTokens->material_binding) {
-            reloadTileset = true;
+        if (property == PXR_NS::CesiumTokens->cesiumSourceType ||
+            property == PXR_NS::CesiumTokens->cesiumUrl ||
+            property == PXR_NS::CesiumTokens->cesiumIonAssetId ||
+            property == PXR_NS::CesiumTokens->cesiumIonAccessToken ||
+            property == PXR_NS::CesiumTokens->cesiumIonServerBinding ||
+            property == PXR_NS::CesiumTokens->cesiumSmoothNormals ||
+            property == PXR_NS::CesiumTokens->cesiumShowCreditsOnScreen ||
+            property == PXR_NS::UsdTokens->material_binding) {
+            reload = true;
         } else if (
-            property == pxr::CesiumTokens->cesiumMaximumScreenSpaceError ||
-            property == pxr::CesiumTokens->cesiumPreloadAncestors ||
-            property == pxr::CesiumTokens->cesiumPreloadSiblings ||
-            property == pxr::CesiumTokens->cesiumForbidHoles ||
-            property == pxr::CesiumTokens->cesiumMaximumSimultaneousTileLoads ||
-            property == pxr::CesiumTokens->cesiumMaximumCachedBytes ||
-            property == pxr::CesiumTokens->cesiumLoadingDescendantLimit ||
-            property == pxr::CesiumTokens->cesiumEnableFrustumCulling ||
-            property == pxr::CesiumTokens->cesiumEnableFogCulling ||
-            property == pxr::CesiumTokens->cesiumEnforceCulledScreenSpaceError ||
-            property == pxr::CesiumTokens->cesiumCulledScreenSpaceError ||
-            property == pxr::CesiumTokens->cesiumMainThreadLoadingTimeLimit) {
+            property == PXR_NS::CesiumTokens->cesiumMaximumScreenSpaceError ||
+            property == PXR_NS::CesiumTokens->cesiumPreloadAncestors ||
+            property == PXR_NS::CesiumTokens->cesiumPreloadSiblings ||
+            property == PXR_NS::CesiumTokens->cesiumForbidHoles ||
+            property == PXR_NS::CesiumTokens->cesiumMaximumSimultaneousTileLoads ||
+            property == PXR_NS::CesiumTokens->cesiumMaximumCachedBytes ||
+            property == PXR_NS::CesiumTokens->cesiumLoadingDescendantLimit ||
+            property == PXR_NS::CesiumTokens->cesiumEnableFrustumCulling ||
+            property == PXR_NS::CesiumTokens->cesiumEnableFogCulling ||
+            property == PXR_NS::CesiumTokens->cesiumEnforceCulledScreenSpaceError ||
+            property == PXR_NS::CesiumTokens->cesiumCulledScreenSpaceError ||
+            property == PXR_NS::CesiumTokens->cesiumMainThreadLoadingTimeLimit) {
             updateTilesetOptions = true;
         } else if (
-            property == pxr::UsdTokens->primvars_displayColor ||
-            property == pxr::UsdTokens->primvars_displayOpacity) {
+            property == PXR_NS::UsdTokens->primvars_displayColor ||
+            property == PXR_NS::UsdTokens->primvars_displayOpacity) {
             updateDisplayColorAndOpacity = true;
         }
     }
     // clang-format on
 
-    if (reloadTileset) {
-        tileset->reload();
-        return; // Skip other updates
+    if (reload) {
+        pTileset->reload();
     }
 
     if (updateTilesetOptions) {
-        tileset->updateTilesetOptionsFromProperties();
+        pTileset->updateTilesetOptions();
     }
 
     if (updateDisplayColorAndOpacity) {
-        tileset->updateDisplayColorAndOpacity();
+        pTileset->updateDisplayColorAndOpacity();
     }
 }
 
-void processCesiumIonImageryChanged(const pxr::SdfPath& imageryPath, const std::vector<pxr::TfToken>& properties) {
-    const auto tilesetPath = imageryPath.GetParentPath();
-    const auto tileset = AssetRegistry::getInstance().getTileset(tilesetPath);
-    if (!tileset) {
+void processCesiumImageryChanged(
+    Context* pContext,
+    const PXR_NS::SdfPath& imageryPath,
+    const std::vector<PXR_NS::TfToken>& properties) {
+    const auto pImagery = pContext->getAssetRegistry().getImagery(imageryPath);
+    if (!pImagery) {
         return;
     }
 
-    auto reloadTileset = false;
+    auto reload = false;
+    auto updateBindings = false;
     auto updateImageryLayerAlpha = false;
 
-    // clang-format off
     for (const auto& property : properties) {
-        if (property == pxr::CesiumTokens->cesiumIonAssetId ||
-            property == pxr::CesiumTokens->cesiumIonAccessToken ||
-            property == pxr::CesiumTokens->cesiumIonServerBinding ||
-            property == pxr::CesiumTokens->cesiumShowCreditsOnScreen) {
-            reloadTileset = true;
-        } else if (property == pxr::CesiumTokens->cesiumAlpha) {
+        if (property == PXR_NS::CesiumTokens->cesiumShowCreditsOnScreen) {
+            reload = true;
+            updateBindings = true;
+        } else if (property == PXR_NS::CesiumTokens->cesiumOverlayRenderMethod) {
+            updateBindings = true;
+        } else if (property == PXR_NS::CesiumTokens->cesiumAlpha) {
             updateImageryLayerAlpha = true;
         }
     }
-    // clang-format on
 
-    if (reloadTileset) {
-        tileset->reload();
-        return; // Skip other updates
+    if (reload) {
+        pImagery->reload();
+    }
+
+    if (updateBindings) {
+        updateImageryBindings(pContext, imageryPath);
     }
 
     if (updateImageryLayerAlpha) {
-        const auto imageryLayerIndex = tileset->findImageryLayerIndex(imageryPath);
-        if (imageryLayerIndex.has_value()) {
-            tileset->updateImageryLayerAlpha(imageryLayerIndex.value());
-        }
+        updateImageryBindingsAlpha(pContext, imageryPath);
     }
 }
 
-void processCesiumPolygonImageryChanged(const pxr::SdfPath& imageryPath, const std::vector<pxr::TfToken>& properties) {
-    const auto tilesetPath = imageryPath.GetParentPath();
-    const auto tileset = AssetRegistry::getInstance().getTileset(tilesetPath);
-    if (!tileset) {
+void processCesiumIonImageryChanged(
+    Context* pContext,
+    const PXR_NS::SdfPath& ionImageryPath,
+    const std::vector<PXR_NS::TfToken>& properties) {
+    const auto pIonImagery = pContext->getAssetRegistry().getIonImagery(ionImageryPath);
+    if (!pIonImagery) {
         return;
     }
 
-    auto reloadTileset = false;
-    auto updateImageryLayerAlpha = false;
+    // Process base class first
+    processCesiumImageryChanged(pContext, ionImageryPath, properties);
 
-    // clang-format off
+    auto reload = false;
+    auto updateBindings = false;
+
     for (const auto& property : properties) {
-        if (property == pxr::CesiumTokens->cesiumCartographicPolygonBinding ||
-            property == pxr::CesiumTokens->cesiumShowCreditsOnScreen) {
-            reloadTileset = true;
-        } else if (property == pxr::CesiumTokens->cesiumAlpha) {
-            updateImageryLayerAlpha = true;
+        if (property == PXR_NS::CesiumTokens->cesiumIonAssetId ||
+            property == PXR_NS::CesiumTokens->cesiumIonAccessToken ||
+            property == PXR_NS::CesiumTokens->cesiumIonServerBinding) {
+            reload = true;
+            updateBindings = true;
         }
     }
-    // clang-format on
 
-    if (reloadTileset) {
-        tileset->reload();
-        return; // Skip other updates
+    if (reload) {
+        pIonImagery->reload();
     }
 
-    if (updateImageryLayerAlpha) {
-        const auto imageryLayerIndex = tileset->findImageryLayerIndex(imageryPath);
-        if (imageryLayerIndex.has_value()) {
-            tileset->updateImageryLayerAlpha(imageryLayerIndex.value());
+    if (updateBindings) {
+        updateImageryBindings(pContext, ionImageryPath);
+    }
+}
+
+void processCesiumPolygonImageryChanged(
+    Context* pContext,
+    const PXR_NS::SdfPath& polygonImageryPath,
+    const std::vector<PXR_NS::TfToken>& properties) {
+    const auto pPolygonImagery = pContext->getAssetRegistry().getPolygonImagery(polygonImageryPath);
+    if (!pPolygonImagery) {
+        return;
+    }
+
+    // Process base class first
+    processCesiumImageryChanged(pContext, polygonImageryPath, properties);
+
+    auto reload = false;
+    auto updateBindings = false;
+
+    for (const auto& property : properties) {
+        if (property == PXR_NS::CesiumTokens->cesiumCartographicPolygonBinding) {
+            reload = true;
+            updateBindings = true;
         }
+    }
+
+    if (reload) {
+        pPolygonImagery->reload();
+    }
+
+    if (updateBindings) {
+        updateImageryBindings(pContext, polygonImageryPath);
     }
 }
 
 void processCesiumGeoreferenceChanged(
-    const pxr::SdfPath& georeferencePath,
-    const std::vector<pxr::TfToken>& properties) {
-    auto updateGlobeAnchors = false;
+    Context* pContext,
+    const PXR_NS::SdfPath& georeferencePath,
+    const std::vector<PXR_NS::TfToken>& properties) {
+
+    auto updateBindings = false;
 
     // clang-format off
     for (const auto& property : properties) {
-        if (property == pxr::CesiumTokens->cesiumGeoreferenceOriginLongitude ||
-            property == pxr::CesiumTokens->cesiumGeoreferenceOriginLatitude ||
-            property == pxr::CesiumTokens->cesiumGeoreferenceOriginHeight) {
-            updateGlobeAnchors = true;
+        if (property == PXR_NS::CesiumTokens->cesiumGeoreferenceOriginLongitude ||
+            property == PXR_NS::CesiumTokens->cesiumGeoreferenceOriginLatitude ||
+            property == PXR_NS::CesiumTokens->cesiumGeoreferenceOriginHeight) {
+            updateBindings = true;
         }
     }
     // clang-format on
 
-    if (updateGlobeAnchors) {
-        const auto anchors = GlobeAnchorRegistry::getInstance().getAllAnchors();
-        for (const auto& globeAnchor : anchors) {
-            const auto anchorApi = UsdUtil::getCesiumGlobeAnchor(globeAnchor->getPrimPath());
-
-            // We only want to update an anchor if we are updating its related Georeference Prim.
-            if (georeferencePath !=
-                UsdUtil::getAnchorGeoreferencePath(globeAnchor->getPrimPath()).value_or(pxr::SdfPath::EmptyPath())) {
-                continue;
-            }
-
-            const auto origin = UsdUtil::getCartographicOriginForAnchor(globeAnchor->getPrimPath());
-            if (!origin.has_value()) {
-                continue;
-            }
-
-            GeospatialUtil::updateAnchorOrigin(origin.value(), anchorApi, globeAnchor);
-        }
+    if (updateBindings) {
+        updateGeoreferenceBindings(pContext, georeferencePath);
     }
 }
 
-void processCesiumGlobeAnchorChanged(const pxr::SdfPath& globeAnchorPath, const std::vector<pxr::TfToken>& properties) {
-    const auto globeAnchor = UsdUtil::getCesiumGlobeAnchor(globeAnchorPath);
-    const auto origin = UsdUtil::getCartographicOriginForAnchor(globeAnchorPath);
-
-    if (!origin.has_value()) {
+void processCesiumGlobeAnchorChanged(
+    Context* pContext,
+    const PXR_NS::SdfPath& globeAnchorPath,
+    const std::vector<PXR_NS::TfToken>& properties) {
+    const auto pGlobeAnchor = pContext->getAssetRegistry().getGlobeAnchor(globeAnchorPath);
+    if (!pGlobeAnchor) {
         return;
     }
 
-    auto updateByUsdTransform = false;
-    auto updateByLatLongHeight = false;
-    auto updateByFixedTransform = false;
+    auto updateByPrimLocalTransform = false;
+    auto updateByGeographicCoordinates = false;
+    auto updateByPrimLocalToEcefTransform = false;
+    auto updateByGeoreference = false;
+    auto updateBindings = false;
 
-    bool detectTransformChanges;
-    globeAnchor.GetDetectTransformChangesAttr().Get(&detectTransformChanges);
+    const auto detectTransformChanges = pGlobeAnchor->getDetectTransformChanges();
+    const auto adjustOrientation = pGlobeAnchor->getAdjustOrientation();
 
-    // clang-format off
     for (const auto& property : properties) {
-        if (detectTransformChanges && (property == pxr::CesiumTokens->cesiumAnchorDetectTransformChanges ||
-                                       property == pxr::UsdTokens->xformOp_transform_cesium)) {
-            updateByUsdTransform = true;
-        } else if (property == pxr::CesiumTokens->cesiumAnchorGeographicCoordinates) {
-            updateByLatLongHeight = true;
+        if (detectTransformChanges &&
+            (property == PXR_NS::CesiumTokens->cesiumAnchorDetectTransformChanges ||
+             property == PXR_NS::UsdTokens->xformOp_translate || property == PXR_NS::UsdTokens->xformOp_rotateXYZ ||
+             property == PXR_NS::UsdTokens->xformOp_scale)) {
+            updateByPrimLocalTransform = true;
+            updateBindings = true;
+        } else if (property == PXR_NS::CesiumTokens->cesiumAnchorGeographicCoordinates) {
+            updateByGeographicCoordinates = true;
+            updateBindings = true;
         } else if (
-            property == pxr::CesiumTokens->cesiumAnchorPosition ||
-            property == pxr::CesiumTokens->cesiumAnchorRotation ||
-            property == pxr::CesiumTokens->cesiumAnchorScale) {
-            updateByFixedTransform = true;
+            (adjustOrientation && property == PXR_NS::CesiumTokens->cesiumAnchorAdjustOrientationForGlobeWhenMoving) ||
+            property == PXR_NS::CesiumTokens->cesiumAnchorPosition ||
+            property == PXR_NS::CesiumTokens->cesiumAnchorRotation ||
+            property == PXR_NS::CesiumTokens->cesiumAnchorScale) {
+            updateByPrimLocalToEcefTransform = true;
+            updateBindings = true;
+        } else if (property == PXR_NS::CesiumTokens->cesiumAnchorGeoreferenceBinding) {
+            updateByGeoreference = true;
+            updateBindings = true;
         }
     }
-    // clang-format on
 
-    if (updateByUsdTransform) {
-        GeospatialUtil::updateAnchorByUsdTransform(origin.value(), globeAnchor);
-    } else if (updateByLatLongHeight) {
-        GeospatialUtil::updateAnchorByLatLongHeight(origin.value(), globeAnchor);
-    } else if (updateByFixedTransform) {
-        GeospatialUtil::updateAnchorByFixedTransform(origin.value(), globeAnchor);
+    if (updateByPrimLocalTransform) {
+        pGlobeAnchor->updateByPrimLocalTransform();
+    }
+
+    if (updateByGeographicCoordinates) {
+        pGlobeAnchor->updateByGeographicCoordinates();
+    }
+
+    if (updateByPrimLocalToEcefTransform) {
+        pGlobeAnchor->updateByPrimLocalToEcefTransform();
+    }
+
+    if (updateByGeoreference) {
+        pGlobeAnchor->updateByGeoreference();
+    }
+
+    if (updateBindings) {
+        updateGlobeAnchorBindings(pContext, globeAnchorPath);
     }
 }
 
-void processCesiumIonServerChanged(const pxr::SdfPath& ionServerPath, const std::vector<pxr::TfToken>& properties) {
+void processCesiumIonServerChanged(
+    Context* pContext,
+    const PXR_NS::SdfPath& ionServerPath,
+    const std::vector<PXR_NS::TfToken>& properties) {
+
     auto reloadSession = false;
-    auto reloadAssets = false;
+    auto updateBindings = false;
+
+    // No change tracking needed for
+    // * displayName
 
     // clang-format off
     for (const auto& property : properties) {
-        if (property == pxr::CesiumTokens->cesiumIonServerUrl ||
-            property == pxr::CesiumTokens->cesiumIonServerApiUrl ||
-            property == pxr::CesiumTokens->cesiumIonServerApplicationId) {
+        if (property == PXR_NS::CesiumTokens->cesiumIonServerUrl ||
+            property == PXR_NS::CesiumTokens->cesiumIonServerApiUrl ||
+            property == PXR_NS::CesiumTokens->cesiumIonServerApplicationId) {
             reloadSession = true;
-            reloadAssets = true;
+            updateBindings = true;
         } else if (
-            property == pxr::CesiumTokens->cesiumProjectDefaultIonAccessToken ||
-            property == pxr::CesiumTokens->cesiumProjectDefaultIonAccessTokenId) {
-            reloadAssets = true;
+            property == PXR_NS::CesiumTokens->cesiumProjectDefaultIonAccessToken ||
+            property == PXR_NS::CesiumTokens->cesiumProjectDefaultIonAccessTokenId) {
+            updateBindings = true;
         }
     }
     // clang-format on
 
     if (reloadSession) {
-        SessionRegistry::getInstance().removeSession(ionServerPath);
-        SessionRegistry::getInstance().addSession(
-            *Context::instance().getAsyncSystem().get(), Context::instance().getHttpAssetAccessor(), ionServerPath);
+        pContext->getAssetRegistry().removeIonServer(ionServerPath);
+        pContext->getAssetRegistry().addIonServer(ionServerPath);
     }
 
-    if (reloadAssets) {
-        reloadIonServerAssets(ionServerPath);
+    if (updateBindings) {
+        updateIonServerBindings(pContext, ionServerPath);
     }
 }
 
-void processUsdShaderChanged(const pxr::SdfPath& shaderPath, const std::vector<pxr::TfToken>& properties) {
-    const auto shader = UsdUtil::getUsdShader(shaderPath);
+void processCesiumCartographicPolygonChanged(
+    Context* pContext,
+    const PXR_NS::SdfPath& cartographicPolygonPath,
+    const std::vector<PXR_NS::TfToken>& properties) {
+
+    // Process globe anchor API schema first
+    processCesiumGlobeAnchorChanged(pContext, cartographicPolygonPath, properties);
+
+    auto updateBindings = false;
+
+    for (const auto& property : properties) {
+        if (property == PXR_NS::UsdTokens->points) {
+            updateBindings = true;
+        }
+    }
+
+    if (updateBindings) {
+        updateCartographicPolygonBindings(pContext, cartographicPolygonPath);
+    }
+}
+
+void processUsdShaderChanged(
+    Context* pContext,
+    const PXR_NS::SdfPath& shaderPath,
+    const std::vector<PXR_NS::TfToken>& properties) {
+    const auto usdShader = UsdUtil::getUsdShader(pContext->getUsdStage(), shaderPath);
     const auto shaderPathFabric = FabricUtil::toFabricPath(shaderPath);
     const auto materialPath = shaderPath.GetParentPath();
     const auto materialPathFabric = FabricUtil::toFabricPath(materialPath);
 
-    if (!UsdUtil::isUsdMaterial(materialPath)) {
+    if (!UsdUtil::isUsdMaterial(pContext->getUsdStage(), materialPath)) {
         // Skip if parent path is not a material
         return;
     }
@@ -391,9 +499,9 @@ void processUsdShaderChanged(const pxr::SdfPath& shaderPath, const std::vector<p
             return;
         }
 
-        const auto inputName = pxr::TfToken(attributeName.substr(inputNamespace.size()));
+        const auto inputName = PXR_NS::TfToken(attributeName.substr(inputNamespace.size()));
 
-        auto shaderInput = shader.GetInput(inputName);
+        const auto shaderInput = usdShader.GetInput(inputName);
         if (!shaderInput.IsDefined()) {
             // Skip if changed attribute is not a shader input
             return;
@@ -404,277 +512,317 @@ void processUsdShaderChanged(const pxr::SdfPath& shaderPath, const std::vector<p
             return;
         }
 
-        if (!FabricUtil::materialHasCesiumNodes(materialPathFabric)) {
+        if (!FabricUtil::materialHasCesiumNodes(pContext->getFabricStage(), materialPathFabric)) {
             // Simple materials can be skipped. We only need to handle materials that have been copied to each tile.
             return;
         }
 
-        if (!FabricUtil::isShaderConnectedToMaterial(materialPathFabric, shaderPathFabric)) {
+        if (!FabricUtil::isShaderConnectedToMaterial(
+                pContext->getFabricStage(), materialPathFabric, shaderPathFabric)) {
             // Skip if shader is not connected to the material
             return;
         }
 
-        const auto& tilesets = AssetRegistry::getInstance().getAllTilesets();
-        for (const auto& tileset : tilesets) {
-            if (tileset->getMaterialPath() == materialPath) {
-                tileset->updateShaderInput(shaderPath, property);
+        const auto& tilesets = pContext->getAssetRegistry().getAllTilesets();
+        for (const auto& pTileset : tilesets) {
+            if (pTileset->getMaterialPath() == materialPath) {
+                pTileset->updateShaderInput(shaderPath, property);
             }
         }
 
-        FabricResourceManager::getInstance().updateShaderInput(materialPath, shaderPath, property);
+        pContext->getFabricResourceManager().updateShaderInput(materialPath, shaderPath, property);
     }
 }
 
-void processCesiumTilesetRemoved(const pxr::SdfPath& tilesetPath) {
-    AssetRegistry::getInstance().removeTileset(tilesetPath);
+[[nodiscard]] bool processCesiumDataRemoved(Context* pContext, const PXR_NS::SdfPath& dataPath) {
+    const auto reloadStage = isFirstData(pContext, dataPath);
+    pContext->getAssetRegistry().removeData(dataPath);
+    return reloadStage;
 }
 
-void processCesiumIonImageryRemoved(const pxr::SdfPath& imageryPath) {
-    AssetRegistry::getInstance().removeIonImagery(imageryPath);
-
-    const auto tilesetPath = imageryPath.GetParentPath();
-    const auto tileset = AssetRegistry::getInstance().getTileset(tilesetPath);
-
-    if (tileset) {
-        tileset->reload();
-    }
+void processCesiumTilesetRemoved(Context* pContext, const PXR_NS::SdfPath& tilesetPath) {
+    pContext->getAssetRegistry().removeTileset(tilesetPath);
 }
 
-void processCesiumPolygonImageryRemoved(const pxr::SdfPath& imageryPath) {
-    AssetRegistry::getInstance().removePolygonImagery(imageryPath);
-
-    const auto tilesetPath = imageryPath.GetParentPath();
-    const auto tileset = AssetRegistry::getInstance().getTileset(tilesetPath);
-
-    if (tileset) {
-        tileset->reload();
-    }
+void processCesiumIonImageryRemoved(Context* pContext, const PXR_NS::SdfPath& ionImageryPath) {
+    pContext->getAssetRegistry().removeIonImagery(ionImageryPath);
+    updateImageryBindings(pContext, ionImageryPath);
 }
 
-void processCesiumGlobeAnchorRemoved(const pxr::SdfPath& globeAnchorPath) {
-    const auto removed = GlobeAnchorRegistry::getInstance().removeAnchor(globeAnchorPath);
-
-    if (!removed) {
-        CESIUM_LOG_ERROR("Failed to remove anchor from registry: {}", globeAnchorPath.GetString());
-    }
+void processCesiumPolygonImageryRemoved(Context* pContext, const PXR_NS::SdfPath& polygonImageryPath) {
+    pContext->getAssetRegistry().removePolygonImagery(polygonImageryPath);
+    updateImageryBindings(pContext, polygonImageryPath);
 }
 
-void processCesiumIonServerRemoved(const pxr::SdfPath& ionServerPath) {
-    SessionRegistry::getInstance().removeSession(ionServerPath);
-    reloadIonServerAssets(ionServerPath);
+void processCesiumGeoreferenceRemoved(Context* pContext, const PXR_NS::SdfPath& georeferencePath) {
+    pContext->getAssetRegistry().removeGeoreference(georeferencePath);
+    updateGeoreferenceBindings(pContext, georeferencePath);
 }
 
-void processCesiumTilesetAdded(const pxr::SdfPath& tilesetPath) {
-    const auto georeferencePath = UsdUtil::getOrCreateCesiumGeoreference().GetPath();
-    AssetRegistry::getInstance().addTileset(tilesetPath, georeferencePath);
+void processCesiumGlobeAnchorRemoved(Context* pContext, const PXR_NS::SdfPath& globeAnchorPath) {
+    pContext->getAssetRegistry().removeGlobeAnchor(globeAnchorPath);
+    updateGlobeAnchorBindings(pContext, globeAnchorPath);
 }
 
-void processCesiumIonImageryAdded(const pxr::SdfPath& imageryPath) {
-    AssetRegistry::getInstance().addIonImagery(imageryPath);
-
-    const auto tilesetPath = imageryPath.GetParentPath();
-    const auto tileset = AssetRegistry::getInstance().getTileset(tilesetPath);
-
-    if (tileset) {
-        tileset->reload();
-    }
+void processCesiumIonServerRemoved(Context* pContext, const PXR_NS::SdfPath& ionServerPath) {
+    pContext->getAssetRegistry().removeIonServer(ionServerPath);
+    updateIonServerBindings(pContext, ionServerPath);
 }
 
-void processCesiumPolygonImageryAdded(const pxr::SdfPath& imageryPath) {
-    AssetRegistry::getInstance().addPolygonImagery(imageryPath);
-
-    const auto tilesetPath = imageryPath.GetParentPath();
-    const auto tileset = AssetRegistry::getInstance().getTileset(tilesetPath);
-
-    if (tileset) {
-        tileset->reload();
-    }
+void processCesiumCartographicPolygonRemoved(Context* pContext, const PXR_NS::SdfPath& cartographicPolygonPath) {
+    pContext->getAssetRegistry().removeCartographicPolygon(cartographicPolygonPath);
+    processCesiumGlobeAnchorRemoved(pContext, cartographicPolygonPath);
+    updateCartographicPolygonBindings(pContext, cartographicPolygonPath);
 }
 
-void processCesiumGlobeAnchorAdded(const pxr::SdfPath& globeAnchorPath) {
-    const auto anchorApi = UsdUtil::getCesiumGlobeAnchor(globeAnchorPath);
-    const auto origin = UsdUtil::getCartographicOriginForAnchor(globeAnchorPath);
-    assert(origin.has_value());
-    pxr::GfVec3d coordinates;
-    anchorApi.GetGeographicCoordinateAttr().Get(&coordinates);
-
-    if (coordinates == pxr::GfVec3d{0.0, 0.0, 10.0}) {
-        // Default geo coordinates. Place based on current USD position.
-        GeospatialUtil::updateAnchorByUsdTransform(origin.value(), anchorApi);
-    } else {
-        // Provided geo coordinates. Place at correct location.
-        GeospatialUtil::updateAnchorByLatLongHeight(origin.value(), anchorApi);
-    }
+[[nodiscard]] bool processCesiumDataAdded(Context* pContext, const PXR_NS::SdfPath& dataPath) {
+    pContext->getAssetRegistry().addData(dataPath);
+    return isFirstData(pContext, dataPath);
 }
 
-void processCesiumIonServerAdded(const pxr::SdfPath& ionServerPath) {
-    SessionRegistry::getInstance().addSession(
-        *Context::instance().getAsyncSystem().get(), Context::instance().getHttpAssetAccessor(), ionServerPath);
-    reloadIonServerAssets(ionServerPath);
+void processCesiumTilesetAdded(Context* pContext, const PXR_NS::SdfPath& tilesetPath) {
+    pContext->getAssetRegistry().addTileset(tilesetPath);
 }
 
-std::vector<ChangedPrim> consolidateChangedPrims(const std::vector<ChangedPrim>& changedPrims) {
-    // Consolidate changes while preserving original insertion order
-    std::vector<ChangedPrim> consolidated;
+void processCesiumIonImageryAdded(Context* pContext, const PXR_NS::SdfPath& ionImageryPath) {
+    pContext->getAssetRegistry().addIonImagery(ionImageryPath);
+    updateImageryBindings(pContext, ionImageryPath);
+}
 
-    ChangedPrim* previous = nullptr;
+void processCesiumPolygonImageryAdded(Context* pContext, const PXR_NS::SdfPath& polygonImageryPath) {
+    pContext->getAssetRegistry().addPolygonImagery(polygonImageryPath);
+    updateImageryBindings(pContext, polygonImageryPath);
+}
 
-    for (const auto& changedPrim : changedPrims) {
-        if (previous != nullptr && changedPrim.primPath == previous->primPath) {
-            if (previous->changeType == ChangeType::PRIM_ADDED &&
-                changedPrim.changeType == ChangeType::PROPERTY_CHANGED) {
-                // Ignore property changes that occur immediately after the prim is added. This avoids unecessary churn.
-                continue;
-            }
+void processCesiumGeoreferenceAdded(Context* pContext, const PXR_NS::SdfPath& georeferencePath) {
+    pContext->getAssetRegistry().addGeoreference(georeferencePath);
+    updateGeoreferenceBindings(pContext, georeferencePath);
+}
 
-            if (previous->changeType == ChangeType::PROPERTY_CHANGED &&
-                changedPrim.changeType == ChangeType::PROPERTY_CHANGED) {
-                // Consolidate property changes so that they can be processed together
-                previous->properties.insert(
-                    previous->properties.end(), changedPrim.properties.begin(), changedPrim.properties.end());
-                continue;
-            }
-        }
+void processCesiumGlobeAnchorAdded(Context* pContext, const PXR_NS::SdfPath& globeAnchorPath) {
+    pContext->getAssetRegistry().addGlobeAnchor(globeAnchorPath);
+    updateGlobeAnchorBindings(pContext, globeAnchorPath);
+}
 
-        consolidated.push_back(changedPrim);
+void processCesiumIonServerAdded(Context* pContext, const PXR_NS::SdfPath& ionServerPath) {
+    pContext->getAssetRegistry().addIonServer(ionServerPath);
+    updateIonServerBindings(pContext, ionServerPath);
+}
 
-        previous = &consolidated.back();
-    }
-
-    return consolidated;
+void processCesiumCartographicPolygonAdded(Context* pContext, const PXR_NS::SdfPath& cartographicPolygonPath) {
+    processCesiumGlobeAnchorAdded(pContext, cartographicPolygonPath);
+    pContext->getAssetRegistry().addCartographicPolygon(cartographicPolygonPath);
+    updateCartographicPolygonBindings(pContext, cartographicPolygonPath);
 }
 
 } // namespace
 
-UsdNotificationHandler::UsdNotificationHandler() {
-    _noticeListenerKey = pxr::TfNotice::Register(pxr::TfCreateWeakPtr(this), &UsdNotificationHandler::onObjectsChanged);
-}
+UsdNotificationHandler::UsdNotificationHandler(Context* pContext)
+    : _pContext(pContext)
+    , _noticeListenerKey(
+          PXR_NS::TfNotice::Register(PXR_NS::TfCreateWeakPtr(this), &UsdNotificationHandler::onObjectsChanged)) {}
 
 UsdNotificationHandler::~UsdNotificationHandler() {
-    pxr::TfNotice::Revoke(_noticeListenerKey);
+    PXR_NS::TfNotice::Revoke(_noticeListenerKey);
 }
 
 void UsdNotificationHandler::onStageLoaded() {
-    const auto stage = UsdUtil::getUsdStage();
-
-    // We need to add prims manually because USD doesn't notify us about resynced paths when the stage is loaded
-    for (const auto& prim : stage->Traverse()) {
-        const auto type = getType(prim.GetPath());
+    // Insert prims manually since USD doesn't notify us about changes when the stage is first loaded
+    for (const auto& prim : _pContext->getUsdStage()->Traverse()) {
+        const auto type = getTypeFromStage(prim.GetPath());
         if (type != ChangedPrimType::OTHER) {
             insertAddedPrim(prim.GetPath(), type);
         }
     }
 
     // Process changes immediately
-    onUpdateFrame();
+    processChangedPrims();
 }
 
 void UsdNotificationHandler::onUpdateFrame() {
-    const auto changedPrims = consolidateChangedPrims(_changedPrims);
+    const auto reloadStage = processChangedPrims();
 
-    // Reset for next frame
-    _changedPrims.clear();
-
-    for (const auto& changedPrim : changedPrims) {
-        switch (changedPrim.changeType) {
-            case ChangeType::PROPERTY_CHANGED:
-                switch (changedPrim.primType) {
-                    case ChangedPrimType::CESIUM_DATA:
-                        processCesiumDataChanged(changedPrim.properties);
-                        break;
-                    case ChangedPrimType::CESIUM_TILESET:
-                        processCesiumTilesetChanged(changedPrim.primPath, changedPrim.properties);
-                        break;
-                    case ChangedPrimType::CESIUM_ION_IMAGERY:
-                        processCesiumIonImageryChanged(changedPrim.primPath, changedPrim.properties);
-                        break;
-                    case ChangedPrimType::CESIUM_POLYGON_IMAGERY:
-                        processCesiumPolygonImageryChanged(changedPrim.primPath, changedPrim.properties);
-                        break;
-                    case ChangedPrimType::CESIUM_GEOREFERENCE:
-                        processCesiumGeoreferenceChanged(changedPrim.primPath, changedPrim.properties);
-                        break;
-                    case ChangedPrimType::CESIUM_GLOBE_ANCHOR:
-                        processCesiumGlobeAnchorChanged(changedPrim.primPath, changedPrim.properties);
-                        break;
-                    case ChangedPrimType::CESIUM_ION_SERVER:
-                        processCesiumIonServerChanged(changedPrim.primPath, changedPrim.properties);
-                        break;
-                    case ChangedPrimType::USD_SHADER:
-                        processUsdShaderChanged(changedPrim.primPath, changedPrim.properties);
-                        break;
-                    case ChangedPrimType::OTHER:
-                        break;
-                }
-                break;
-            case ChangeType::PRIM_ADDED:
-                switch (changedPrim.primType) {
-                    case ChangedPrimType::CESIUM_TILESET:
-                        processCesiumTilesetAdded(changedPrim.primPath);
-                        break;
-                    case ChangedPrimType::CESIUM_ION_IMAGERY:
-                        processCesiumIonImageryAdded(changedPrim.primPath);
-                        break;
-                    case ChangedPrimType::CESIUM_POLYGON_IMAGERY:
-                        processCesiumPolygonImageryAdded(changedPrim.primPath);
-                        break;
-                    case ChangedPrimType::CESIUM_GLOBE_ANCHOR:
-                        processCesiumGlobeAnchorAdded(changedPrim.primPath);
-                        break;
-                    case ChangedPrimType::CESIUM_ION_SERVER:
-                        processCesiumIonServerAdded(changedPrim.primPath);
-                        break;
-                    case ChangedPrimType::CESIUM_DATA:
-                    case ChangedPrimType::CESIUM_GEOREFERENCE:
-                    case ChangedPrimType::USD_SHADER:
-                    case ChangedPrimType::OTHER:
-                        break;
-                }
-                break;
-            case ChangeType::PRIM_REMOVED:
-                switch (changedPrim.primType) {
-                    case ChangedPrimType::CESIUM_TILESET:
-                        processCesiumTilesetRemoved(changedPrim.primPath);
-                        break;
-                    case ChangedPrimType::CESIUM_ION_IMAGERY:
-                        processCesiumIonImageryRemoved(changedPrim.primPath);
-                        break;
-                    case ChangedPrimType::CESIUM_POLYGON_IMAGERY:
-                        processCesiumPolygonImageryRemoved(changedPrim.primPath);
-                        break;
-                    case ChangedPrimType::CESIUM_GLOBE_ANCHOR:
-                        processCesiumGlobeAnchorRemoved(changedPrim.primPath);
-                        break;
-                    case ChangedPrimType::CESIUM_ION_SERVER:
-                        processCesiumIonServerRemoved(changedPrim.primPath);
-                        break;
-                    case ChangedPrimType::CESIUM_DATA:
-                    case ChangedPrimType::CESIUM_GEOREFERENCE:
-                    case ChangedPrimType::USD_SHADER:
-                    case ChangedPrimType::OTHER:
-                        break;
-                }
-                break;
-        }
+    if (reloadStage) {
+        _pContext->reloadStage();
     }
 }
 
-void UsdNotificationHandler::onObjectsChanged(const pxr::UsdNotice::ObjectsChanged& objectsChanged) {
-    if (!UsdUtil::hasStage()) {
+void UsdNotificationHandler::clear() {
+    _changedPrims.clear();
+}
+
+bool UsdNotificationHandler::processChangedPrims() {
+    std::vector<ChangedPrim> consolidatedChangedPrims;
+
+    ChangedPrim* pPrevious = nullptr;
+
+    for (const auto& changedPrim : _changedPrims) {
+        if (pPrevious && changedPrim.primPath == pPrevious->primPath) {
+            if (pPrevious->changedType == ChangedType::PRIM_ADDED &&
+                changedPrim.changedType == ChangedType::PROPERTY_CHANGED) {
+                // Ignore property changes that occur immediately after the prim is added. This avoids unecessary churn.
+                continue;
+            }
+
+            if (pPrevious->changedType == ChangedType::PROPERTY_CHANGED &&
+                changedPrim.changedType == ChangedType::PROPERTY_CHANGED) {
+                // Consolidate property changes so that they can be processed together
+                CppUtil::append(pPrevious->properties, changedPrim.properties);
+                continue;
+            }
+        }
+
+        consolidatedChangedPrims.push_back(changedPrim);
+
+        pPrevious = &consolidatedChangedPrims.back();
+    }
+
+    _changedPrims.clear();
+
+    auto reloadStage = false;
+
+    for (const auto& changedPrim : consolidatedChangedPrims) {
+        reloadStage = processChangedPrim(changedPrim) || reloadStage;
+    }
+
+    // Process newly added changes
+    if (!_changedPrims.empty()) {
+        reloadStage = processChangedPrims() || reloadStage;
+    }
+
+    return reloadStage;
+}
+
+bool UsdNotificationHandler::processChangedPrim(const ChangedPrim& changedPrim) const {
+    auto reloadStage = false;
+
+    switch (changedPrim.changedType) {
+        case ChangedType::PROPERTY_CHANGED:
+            switch (changedPrim.primType) {
+                case ChangedPrimType::CESIUM_DATA:
+                    reloadStage = processCesiumDataChanged(_pContext, changedPrim.primPath, changedPrim.properties);
+                    break;
+                case ChangedPrimType::CESIUM_TILESET:
+                    processCesiumTilesetChanged(_pContext, changedPrim.primPath, changedPrim.properties);
+                    break;
+                case ChangedPrimType::CESIUM_ION_IMAGERY:
+                    processCesiumIonImageryChanged(_pContext, changedPrim.primPath, changedPrim.properties);
+                    break;
+                case ChangedPrimType::CESIUM_POLYGON_IMAGERY:
+                    processCesiumPolygonImageryChanged(_pContext, changedPrim.primPath, changedPrim.properties);
+                    break;
+                case ChangedPrimType::CESIUM_GEOREFERENCE:
+                    processCesiumGeoreferenceChanged(_pContext, changedPrim.primPath, changedPrim.properties);
+                    break;
+                case ChangedPrimType::CESIUM_GLOBE_ANCHOR:
+                    processCesiumGlobeAnchorChanged(_pContext, changedPrim.primPath, changedPrim.properties);
+                    break;
+                case ChangedPrimType::CESIUM_ION_SERVER:
+                    processCesiumIonServerChanged(_pContext, changedPrim.primPath, changedPrim.properties);
+                    break;
+                case ChangedPrimType::CESIUM_CARTOGRAPHIC_POLYGON:
+                    processCesiumCartographicPolygonChanged(_pContext, changedPrim.primPath, changedPrim.properties);
+                    break;
+                case ChangedPrimType::USD_SHADER:
+                    processUsdShaderChanged(_pContext, changedPrim.primPath, changedPrim.properties);
+                    break;
+                case ChangedPrimType::OTHER:
+                    break;
+            }
+            break;
+        case ChangedType::PRIM_ADDED:
+            switch (changedPrim.primType) {
+                case ChangedPrimType::CESIUM_DATA:
+                    reloadStage = processCesiumDataAdded(_pContext, changedPrim.primPath);
+                    break;
+                case ChangedPrimType::CESIUM_TILESET:
+                    processCesiumTilesetAdded(_pContext, changedPrim.primPath);
+                    break;
+                case ChangedPrimType::CESIUM_ION_IMAGERY:
+                    processCesiumIonImageryAdded(_pContext, changedPrim.primPath);
+                    break;
+                case ChangedPrimType::CESIUM_POLYGON_IMAGERY:
+                    processCesiumPolygonImageryAdded(_pContext, changedPrim.primPath);
+                    break;
+                case ChangedPrimType::CESIUM_GEOREFERENCE:
+                    processCesiumGeoreferenceAdded(_pContext, changedPrim.primPath);
+                    break;
+                case ChangedPrimType::CESIUM_GLOBE_ANCHOR:
+                    processCesiumGlobeAnchorAdded(_pContext, changedPrim.primPath);
+                    break;
+                case ChangedPrimType::CESIUM_ION_SERVER:
+                    processCesiumIonServerAdded(_pContext, changedPrim.primPath);
+                    break;
+                case ChangedPrimType::CESIUM_CARTOGRAPHIC_POLYGON:
+                    processCesiumCartographicPolygonAdded(_pContext, changedPrim.primPath);
+                    break;
+                case ChangedPrimType::USD_SHADER:
+                case ChangedPrimType::OTHER:
+                    break;
+            }
+            break;
+        case ChangedType::PRIM_REMOVED:
+            switch (changedPrim.primType) {
+                case ChangedPrimType::CESIUM_DATA:
+                    reloadStage = processCesiumDataRemoved(_pContext, changedPrim.primPath);
+                    break;
+                case ChangedPrimType::CESIUM_TILESET:
+                    processCesiumTilesetRemoved(_pContext, changedPrim.primPath);
+                    break;
+                case ChangedPrimType::CESIUM_ION_IMAGERY:
+                    processCesiumIonImageryRemoved(_pContext, changedPrim.primPath);
+                    break;
+                case ChangedPrimType::CESIUM_POLYGON_IMAGERY:
+                    processCesiumPolygonImageryRemoved(_pContext, changedPrim.primPath);
+                    break;
+                case ChangedPrimType::CESIUM_GEOREFERENCE:
+                    processCesiumGeoreferenceRemoved(_pContext, changedPrim.primPath);
+                    break;
+                case ChangedPrimType::CESIUM_GLOBE_ANCHOR:
+                    processCesiumGlobeAnchorRemoved(_pContext, changedPrim.primPath);
+                    break;
+                case ChangedPrimType::CESIUM_ION_SERVER:
+                    processCesiumIonServerRemoved(_pContext, changedPrim.primPath);
+                    break;
+                case ChangedPrimType::CESIUM_CARTOGRAPHIC_POLYGON:
+                    processCesiumCartographicPolygonRemoved(_pContext, changedPrim.primPath);
+                    break;
+                case ChangedPrimType::USD_SHADER:
+                case ChangedPrimType::OTHER:
+                    break;
+            }
+            break;
+    }
+
+    return reloadStage;
+}
+
+bool UsdNotificationHandler::alreadyRegistered(const PXR_NS::SdfPath& path) {
+    const auto alreadyAdded = [&path](const auto& changedPrim) {
+        return changedPrim.primPath == path && changedPrim.changedType == ChangedType::PRIM_ADDED;
+    };
+
+    if (CppUtil::containsIf(_changedPrims, alreadyAdded)) {
+        return true;
+    }
+
+    return _pContext->getAssetRegistry().hasAsset(path);
+}
+
+void UsdNotificationHandler::onObjectsChanged(const PXR_NS::UsdNotice::ObjectsChanged& objectsChanged) {
+    if (!_pContext->hasUsdStage()) {
         return;
     }
 
-    const auto& resyncedPaths = objectsChanged.GetResyncedPaths();
+    const auto resyncedPaths = objectsChanged.GetResyncedPaths();
     for (const auto& path : resyncedPaths) {
         if (path.IsPrimPath()) {
-            if (UsdUtil::primExists(path)) {
-                const auto isTileset = getType(path) == ChangedPrimType::CESIUM_TILESET;
-                const auto isTilesetAlreadyRegistered = AssetRegistry::getInstance().getTileset(path) != nullptr;
-
-                if (isTileset && isTilesetAlreadyRegistered) {
-                    // A prim may be resynced even if its path doesn't change, like when an API Schema is applied to it.
-                    // This happens when a material is assigned to a tileset for the first time.
-                    // We don't want to add the prim again if it's already registered.
+            if (UsdUtil::primExists(_pContext->getUsdStage(), path)) {
+                if (alreadyRegistered(path)) {
+                    // A prim may be resynced even if its path doesn't change, like when an API schema is applied to
+                    //it, e.g. when a material is assigned to a tileset for the first time. Do nothing for now. In the
+                    // future if we support attaching globe anchors to tilesets this will have to change so that the
+                    // notification doesn't get lost.
                     continue;
                 }
 
@@ -685,7 +833,7 @@ void UsdNotificationHandler::onObjectsChanged(const pxr::UsdNotice::ObjectsChang
         }
     }
 
-    const auto& changedPaths = objectsChanged.GetChangedInfoOnlyPaths();
+    const auto changedPaths = objectsChanged.GetChangedInfoOnlyPaths();
     for (const auto& path : changedPaths) {
         if (path.IsPropertyPath()) {
             onPropertyChanged(path);
@@ -693,108 +841,176 @@ void UsdNotificationHandler::onObjectsChanged(const pxr::UsdNotice::ObjectsChang
     }
 }
 
-void UsdNotificationHandler::onPrimAdded(const pxr::SdfPath& primPath) {
-    const auto type = getType(primPath);
+void UsdNotificationHandler::onPrimAdded(const PXR_NS::SdfPath& primPath) {
+    const auto type = getTypeFromStage(primPath);
     if (type != ChangedPrimType::OTHER) {
         insertAddedPrim(primPath, type);
     }
 
-    // USD only notifies us about the top-most prim. Traverse over descendant prims and add those as well.
-    // This comes up when a tileset with imagery is moved or renamed.
-    const auto stage = UsdUtil::getUsdStage();
-    const auto prim = stage->GetPrimAtPath(primPath);
+    // USD only notifies us about the top-most prim being added. Find all descendant prims
+    // and add those as well (recursively)
+    const auto prim = _pContext->getUsdStage()->GetPrimAtPath(primPath);
     for (const auto& child : prim.GetAllChildren()) {
         onPrimAdded(child.GetPath());
     }
 }
 
-void UsdNotificationHandler::onPrimRemoved(const pxr::SdfPath& primPath) {
-    // USD only notifies us about the top-most prim. This prim may have tileset / imagery descendants that need to
-    // be removed as well. Unlike onPrimAdded we can't traverse the stage because these prims no longer exist. Instead
-    // loop through items in the asset registry.
-    const auto& tilesets = AssetRegistry::getInstance().getAllTilesets();
-    for (const auto& tileset : tilesets) {
-        const auto tilesetPath = tileset->getPath();
-        const auto type = getType(tilesetPath);
-        if (type == ChangedPrimType::CESIUM_TILESET) {
-            if (inSubtree(primPath, tilesetPath)) {
-                insertRemovedPrim(primPath, type);
+void UsdNotificationHandler::onPrimRemoved(const PXR_NS::SdfPath& primPath) {
+    // USD only notifies us about the top-most prim being removed. Find all descendant prims
+    // and remove those as well. Since the prims no longer exist on the stage we need
+    // to look the paths in _changedPrims and the asset registry.
+
+    // Remove prims that haven't been added to asset registry yet
+    // This needs to be an index-based for loop since _changedPrims can grow in size
+    const auto changedPrimsCount = _changedPrims.size();
+    for (uint64_t i = 0; i < changedPrimsCount; ++i) {
+        if (_changedPrims[i].changedType == ChangedType::PRIM_ADDED) {
+            if (isPrimOrDescendant(_changedPrims[i].primPath, primPath)) {
+                insertRemovedPrim(_changedPrims[i].primPath, _changedPrims[i].primType);
             }
         }
     }
 
-    const auto& ionImageries = AssetRegistry::getInstance().getAllIonImageries();
-    for (const auto& ionImagery : ionImageries) {
-        const auto imageryPath = ionImagery->getPath();
-        const auto type = getType(imageryPath);
-        if (type == ChangedPrimType::CESIUM_ION_IMAGERY) {
-            if (inSubtree(primPath, imageryPath)) {
-                insertRemovedPrim(primPath, type);
-            }
+    // Remove prims in the asset registry
+    const auto& tilesets = _pContext->getAssetRegistry().getAllTilesets();
+    for (const auto& pTileset : tilesets) {
+        const auto tilesetPath = pTileset->getPath();
+        if (isPrimOrDescendant(tilesetPath, primPath)) {
+            insertRemovedPrim(tilesetPath, ChangedPrimType::CESIUM_TILESET);
         }
     }
 
-    const auto& polygonImageries = AssetRegistry::getInstance().getAllPolygonImageries();
-    for (const auto& imagery : polygonImageries) {
-        const auto imageryPath = imagery->getPath();
-        const auto type = getType(imageryPath);
-        if (type == ChangedPrimType::CESIUM_POLYGON_IMAGERY) {
-            if (inSubtree(primPath, imageryPath)) {
-                insertRemovedPrim(primPath, type);
-            }
+    const auto& ionImageries = _pContext->getAssetRegistry().getAllIonImageries();
+    for (const auto& pIonImagery : ionImageries) {
+        const auto ionImageryPath = pIonImagery->getPath();
+        if (isPrimOrDescendant(ionImageryPath, primPath)) {
+            insertRemovedPrim(ionImageryPath, ChangedPrimType::CESIUM_ION_IMAGERY);
         }
     }
 
-    const auto& anchors = GlobeAnchorRegistry::getInstance().getAllAnchorPaths();
-    for (const auto& anchorPath : anchors) {
-        const auto& path = pxr::SdfPath(anchorPath);
-        const auto& type = getType(path);
+    const auto& polygonImageries = _pContext->getAssetRegistry().getAllPolygonImageries();
+    for (const auto& pPolygonImagery : polygonImageries) {
+        const auto polygonImageryPath = pPolygonImagery->getPath();
+        if (isPrimOrDescendant(polygonImageryPath, primPath)) {
+            insertRemovedPrim(polygonImageryPath, ChangedPrimType::CESIUM_POLYGON_IMAGERY);
+        }
+    }
+
+    const auto& georeferences = _pContext->getAssetRegistry().getAllGeoreferences();
+    for (const auto& pGeoreference : georeferences) {
+        const auto georeferencePath = pGeoreference->getPath();
+        if (isPrimOrDescendant(georeferencePath, primPath)) {
+            insertRemovedPrim(georeferencePath, ChangedPrimType::CESIUM_GEOREFERENCE);
+        }
+    }
+
+    const auto& ionServers = _pContext->getAssetRegistry().getAllIonServers();
+    for (const auto& pIonServer : ionServers) {
+        const auto ionServerPath = pIonServer->getPath();
+        if (isPrimOrDescendant(ionServerPath, primPath)) {
+            insertRemovedPrim(ionServerPath, ChangedPrimType::CESIUM_ION_SERVER);
+        }
+    }
+
+    const auto& cartographicPolygons = _pContext->getAssetRegistry().getAllCartographicPolygons();
+    for (const auto& pCartographicPolygon : cartographicPolygons) {
+        const auto cartographicPolygonPath = pCartographicPolygon->getPath();
+        if (isPrimOrDescendant(cartographicPolygonPath, primPath)) {
+            insertRemovedPrim(cartographicPolygonPath, ChangedPrimType::CESIUM_CARTOGRAPHIC_POLYGON);
+        }
+    }
+
+    const auto& globeAnchors = _pContext->getAssetRegistry().getAllGlobeAnchors();
+    for (const auto& pGlobeAnchor : globeAnchors) {
+        const auto globeAnchorPath = pGlobeAnchor->getPath();
+        const auto type = getTypeFromAssetRegistry(globeAnchorPath);
         if (type == ChangedPrimType::CESIUM_GLOBE_ANCHOR) {
-            if (inSubtree(primPath, path)) {
-                insertRemovedPrim(primPath, type);
-            }
-        }
-    }
-
-    const auto& servers = SessionRegistry::getInstance().getAllServerPaths();
-    for (const auto& path : servers) {
-        const auto& type = getType(path);
-        if (type == ChangedPrimType::CESIUM_ION_SERVER) {
-            if (inSubtree(primPath, path)) {
-                insertRemovedPrim(primPath, type);
+            // Make sure it's not one of the types previously handled (e.g. cartographic polygon)
+            if (isPrimOrDescendant(globeAnchorPath, primPath)) {
+                insertRemovedPrim(globeAnchorPath, ChangedPrimType::CESIUM_GLOBE_ANCHOR);
             }
         }
     }
 }
 
-void UsdNotificationHandler::onPropertyChanged(const pxr::SdfPath& propertyPath) {
+void UsdNotificationHandler::onPropertyChanged(const PXR_NS::SdfPath& propertyPath) {
     const auto& propertyName = propertyPath.GetNameToken();
     const auto primPath = propertyPath.GetPrimPath();
-    const auto type = getType(primPath);
+    const auto type = getTypeFromStage(primPath);
     if (type != ChangedPrimType::OTHER) {
         insertPropertyChanged(primPath, type, propertyName);
     }
 }
 
-void UsdNotificationHandler::insertAddedPrim(const pxr::SdfPath& primPath, ChangedPrimType primType) {
-    // In C++ 20 the ChangePrim{} wrapper can be removed
-    _changedPrims.emplace_back(ChangedPrim{primPath, {}, primType, ChangeType::PRIM_ADDED});
-    CESIUM_LOG_TRACE("Added prim: {}", primPath.GetText());
+void UsdNotificationHandler::insertAddedPrim(const PXR_NS::SdfPath& primPath, ChangedPrimType primType) {
+    // In C++ 20 this can be emplace_back without the {}
+    _changedPrims.push_back({primPath, {}, primType, ChangedType::PRIM_ADDED});
 }
 
-void UsdNotificationHandler::insertRemovedPrim(const pxr::SdfPath& primPath, ChangedPrimType primType) {
-    // In C++ 20 the ChangePrim{} wrapper can be removed
-    _changedPrims.emplace_back(ChangedPrim{primPath, {}, primType, ChangeType::PRIM_REMOVED});
-    CESIUM_LOG_TRACE("Removed prim: {}", primPath.GetText());
+void UsdNotificationHandler::insertRemovedPrim(const PXR_NS::SdfPath& primPath, ChangedPrimType primType) {
+    // In C++ 20 this can be emplace_back without the {}
+    _changedPrims.push_back({primPath, {}, primType, ChangedType::PRIM_REMOVED});
 }
 
 void UsdNotificationHandler::insertPropertyChanged(
-    const pxr::SdfPath& primPath,
+    const PXR_NS::SdfPath& primPath,
     ChangedPrimType primType,
-    const pxr::TfToken& propertyName) {
-    // In C++ 20 the ChangePrim{} wrapper can be removed
-    _changedPrims.emplace_back(ChangedPrim{primPath, {propertyName}, primType, ChangeType::PROPERTY_CHANGED});
-    CESIUM_LOG_TRACE("Property changed: {} {}", primPath.GetText(), propertyName.GetText());
+    const PXR_NS::TfToken& propertyName) {
+    // In C++ 20 this can be emplace_back without the {}
+    _changedPrims.push_back({primPath, {propertyName}, primType, ChangedType::PROPERTY_CHANGED});
+}
+
+UsdNotificationHandler::ChangedPrimType UsdNotificationHandler::getTypeFromStage(const PXR_NS::SdfPath& path) const {
+    if (UsdUtil::isCesiumData(_pContext->getUsdStage(), path)) {
+        return ChangedPrimType::CESIUM_DATA;
+    } else if (UsdUtil::isCesiumTileset(_pContext->getUsdStage(), path)) {
+        return ChangedPrimType::CESIUM_TILESET;
+    } else if (UsdUtil::isCesiumIonImagery(_pContext->getUsdStage(), path)) {
+        return ChangedPrimType::CESIUM_ION_IMAGERY;
+    } else if (UsdUtil::isCesiumPolygonImagery(_pContext->getUsdStage(), path)) {
+        return ChangedPrimType::CESIUM_POLYGON_IMAGERY;
+    } else if (UsdUtil::isCesiumGeoreference(_pContext->getUsdStage(), path)) {
+        return ChangedPrimType::CESIUM_GEOREFERENCE;
+    } else if (UsdUtil::isCesiumIonServer(_pContext->getUsdStage(), path)) {
+        return ChangedPrimType::CESIUM_ION_SERVER;
+    } else if (UsdUtil::isCesiumCartographicPolygon(_pContext->getUsdStage(), path)) {
+        return ChangedPrimType::CESIUM_CARTOGRAPHIC_POLYGON;
+    } else if (UsdUtil::isUsdShader(_pContext->getUsdStage(), path)) {
+        return ChangedPrimType::USD_SHADER;
+    } else if (UsdUtil::hasCesiumGlobeAnchor(_pContext->getUsdStage(), path)) {
+        // Globe anchor needs to be checked last since prim types take precedence over API schemas
+        return ChangedPrimType::CESIUM_GLOBE_ANCHOR;
+    }
+
+    return ChangedPrimType::OTHER;
+}
+
+UsdNotificationHandler::ChangedPrimType
+UsdNotificationHandler::getTypeFromAssetRegistry(const PXR_NS::SdfPath& path) const {
+    const auto assetType = _pContext->getAssetRegistry().getAssetType(path);
+
+    switch (assetType) {
+        case AssetType::DATA:
+            return ChangedPrimType::CESIUM_DATA;
+        case AssetType::TILESET:
+            return ChangedPrimType::CESIUM_TILESET;
+        case AssetType::ION_IMAGERY:
+            return ChangedPrimType::CESIUM_ION_IMAGERY;
+        case AssetType::POLYGON_IMAGERY:
+            return ChangedPrimType::CESIUM_POLYGON_IMAGERY;
+        case AssetType::GEOREFERENCE:
+            return ChangedPrimType::CESIUM_GEOREFERENCE;
+        case AssetType::GLOBE_ANCHOR:
+            return ChangedPrimType::CESIUM_GLOBE_ANCHOR;
+        case AssetType::ION_SERVER:
+            return ChangedPrimType::CESIUM_ION_SERVER;
+        case AssetType::CARTOGRAPHIC_POLYGON:
+            return ChangedPrimType::CESIUM_CARTOGRAPHIC_POLYGON;
+        case AssetType::OTHER:
+            return ChangedPrimType::OTHER;
+    }
+
+    return ChangedPrimType::OTHER;
 }
 
 } // namespace cesium::omniverse

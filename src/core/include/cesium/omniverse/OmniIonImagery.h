@@ -2,17 +2,35 @@
 
 #include "cesium/omniverse/OmniImagery.h"
 
-#include <CesiumIonClient/Token.h>
-#include <pxr/usd/sdf/path.h>
+#include <CesiumRasterOverlays/IonRasterOverlay.h>
+#include <CesiumUtility/IntrusivePointer.h>
+
+namespace CesiumIonClient {
+struct Token;
+}
 
 namespace cesium::omniverse {
-class OmniIonImagery : public OmniImagery {
-  public:
-    OmniIonImagery(const pxr::SdfPath& path);
 
-    [[nodiscard]] std::string getIonApiUrl() const;
-    [[nodiscard]] pxr::SdfPath getIonServerPath() const;
+class OmniIonImagery final : public OmniImagery {
+  public:
+    OmniIonImagery(Context* pContext, const PXR_NS::SdfPath& path);
+    ~OmniIonImagery() override = default;
+    OmniIonImagery(const OmniIonImagery&) = delete;
+    OmniIonImagery& operator=(const OmniIonImagery&) = delete;
+    OmniIonImagery(OmniIonImagery&&) noexcept = default;
+    OmniIonImagery& operator=(OmniIonImagery&&) noexcept = default;
+
     [[nodiscard]] int64_t getIonAssetId() const;
-    [[nodiscard]] std::optional<CesiumIonClient::Token> getIonAccessToken() const;
+    [[nodiscard]] CesiumIonClient::Token getIonAccessToken() const;
+    [[nodiscard]] std::string getIonApiUrl() const;
+    [[nodiscard]] PXR_NS::SdfPath getIonServerPath() const;
+
+    [[nodiscard]] CesiumRasterOverlays::RasterOverlay* getRasterOverlay() const override;
+    void reload() override;
+
+    void setIonServerPath(const PXR_NS::SdfPath& ionServerPath);
+
+  private:
+    CesiumUtility::IntrusivePointer<CesiumRasterOverlays::IonRasterOverlay> _pIonRasterOverlay;
 };
 } // namespace cesium::omniverse

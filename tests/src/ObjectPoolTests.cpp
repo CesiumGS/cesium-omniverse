@@ -28,10 +28,10 @@ class MockObject {
 
 class MockObjectPool final : public cesium::omniverse::ObjectPool<MockObject> {
   protected:
-    std::shared_ptr<MockObject> createObject(uint64_t objectId) override {
+    std::shared_ptr<MockObject> createObject(uint64_t objectId) const override {
         return std::make_shared<MockObject>(objectId);
     };
-    void setActive(const std::shared_ptr<MockObject> obj, bool active) override {
+    void setActive(MockObject* obj, bool active) const override {
         obj->active = active;
     };
 };
@@ -46,7 +46,7 @@ void testRandomSequenceOfCmds(MockObjectPool& opl, int numEvents, bool setCap) {
 
     // Perform a random sequence of acquires/releases while
     // ensuring we only release what we've acquired
-    for (int i = 0; i < numEvents; i++) {
+    for (int i = 0; i < numEvents; ++i) {
         if (!activeObjects.empty() && rand() % 2 == 0) {
             opl.release(activeObjects.front());
             activeObjects.pop();
@@ -119,7 +119,7 @@ TEST_SUITE("Test ObjectPool") {
         SUBCASE("Test repeated acquires") {
             DOCTEST_VALUE_PARAMETERIZED_DATA(numEvents, randEventCounts);
 
-            for (int i = 0; i < numEvents; i++) {
+            for (int i = 0; i < numEvents; ++i) {
                 opl.acquire();
             }
 

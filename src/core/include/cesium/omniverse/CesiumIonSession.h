@@ -1,27 +1,34 @@
 #pragma once
 
 #include <CesiumAsync/AsyncSystem.h>
-#include <CesiumAsync/IAssetAccessor.h>
 #include <CesiumAsync/SharedFuture.h>
 #include <CesiumIonClient/Connection.h>
-#include <carb/settings/SettingsUtils.h>
 
 #include <memory>
 #include <optional>
 #include <vector>
+
+namespace CesiumAsync {
+class IAssetAccessor;
+}
 
 namespace cesium::omniverse {
 
 class CesiumIonSession {
   public:
     CesiumIonSession(
-        CesiumAsync::AsyncSystem& asyncSystem,
+        const CesiumAsync::AsyncSystem& asyncSystem,
         std::shared_ptr<CesiumAsync::IAssetAccessor> pAssetAccessor,
         std::string ionServerUrl,
         std::string ionApiUrl,
         int64_t ionApplicationId);
+    ~CesiumIonSession() = default;
+    CesiumIonSession(const CesiumIonSession&) = delete;
+    CesiumIonSession& operator=(const CesiumIonSession&) = delete;
+    CesiumIonSession(CesiumIonSession&&) noexcept = default;
+    CesiumIonSession& operator=(CesiumIonSession&&) noexcept = default;
 
-    [[nodiscard]] const std::shared_ptr<CesiumAsync::IAssetAccessor>& getAssetAccessor() const {
+    [[nodiscard]] std::shared_ptr<CesiumAsync::IAssetAccessor> getAssetAccessor() const {
         return this->_pAssetAccessor;
     }
     [[nodiscard]] const CesiumAsync::AsyncSystem& getAsyncSystem() const {
@@ -126,4 +133,5 @@ class CesiumIonSession {
     std::string _ionApiUrl;
     int64_t _ionApplicationId;
 };
+
 } // namespace cesium::omniverse

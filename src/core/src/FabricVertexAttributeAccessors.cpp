@@ -1,4 +1,4 @@
-#include "cesium/omniverse/GltfAccessors.h"
+#include "cesium/omniverse/FabricVertexAttributeAccessors.h"
 
 namespace cesium::omniverse {
 PositionsAccessor::PositionsAccessor()
@@ -9,7 +9,7 @@ PositionsAccessor::PositionsAccessor(const CesiumGltf::AccessorView<glm::fvec3>&
     , _size(static_cast<uint64_t>(view.size())) {}
 
 void PositionsAccessor::fill(const gsl::span<glm::fvec3>& values) const {
-    for (uint64_t i = 0; i < _size; i++) {
+    for (uint64_t i = 0; i < _size; ++i) {
         values[i] = _view[static_cast<int64_t>(i)];
     }
 }
@@ -44,7 +44,7 @@ template <typename T> IndicesAccessor IndicesAccessor::FromTriangleStrips(const 
     auto indices = std::vector<uint32_t>();
     indices.reserve(static_cast<uint64_t>(view.size() - 2) * 3);
 
-    for (auto i = 0; i < view.size() - 2; i++) {
+    for (auto i = 0; i < view.size() - 2; ++i) {
         if (i % 2) {
             indices.push_back(static_cast<uint32_t>(view[i]));
             indices.push_back(static_cast<uint32_t>(view[i + 2]));
@@ -71,7 +71,7 @@ template <typename T> IndicesAccessor IndicesAccessor::FromTriangleFans(const Ce
     auto indices = std::vector<uint32_t>();
     indices.reserve(static_cast<uint64_t>(view.size() - 2) * 3);
 
-    for (auto i = 0; i < view.size() - 2; i++) {
+    for (auto i = 0; i < view.size() - 2; ++i) {
         indices.push_back(static_cast<uint32_t>(view[0]));
         indices.push_back(static_cast<uint32_t>(view[i + 1]));
         indices.push_back(static_cast<uint32_t>(view[i + 2]));
@@ -93,23 +93,23 @@ void IndicesAccessor::fill(const gsl::span<int>& values) const {
     assert(size == _size);
 
     if (!_computed.empty()) {
-        for (uint64_t i = 0; i < size; i++) {
+        for (uint64_t i = 0; i < size; ++i) {
             values[i] = static_cast<int>(_computed[i]);
         }
     } else if (_uint8View.status() == CesiumGltf::AccessorViewStatus::Valid) {
-        for (uint64_t i = 0; i < size; i++) {
+        for (uint64_t i = 0; i < size; ++i) {
             values[i] = static_cast<int>(_uint8View[static_cast<int64_t>(i)]);
         }
     } else if (_uint16View.status() == CesiumGltf::AccessorViewStatus::Valid) {
-        for (uint64_t i = 0; i < size; i++) {
+        for (uint64_t i = 0; i < size; ++i) {
             values[i] = static_cast<int>(_uint16View[static_cast<int64_t>(i)]);
         }
     } else if (_uint32View.status() == CesiumGltf::AccessorViewStatus::Valid) {
-        for (uint64_t i = 0; i < size; i++) {
+        for (uint64_t i = 0; i < size; ++i) {
             values[i] = static_cast<int>(_uint32View[static_cast<int64_t>(i)]);
         }
     } else {
-        for (uint64_t i = 0; i < size; i++) {
+        for (uint64_t i = 0; i < size; ++i) {
             values[i] = static_cast<int>(i);
         }
     }
@@ -144,9 +144,9 @@ NormalsAccessor NormalsAccessor::GenerateSmooth(const PositionsAccessor& positio
     auto normals = std::vector<glm::fvec3>(positions.size(), glm::fvec3(0.0f));
 
     for (uint64_t i = 0; i < indices.size(); i += 3) {
-        auto idx0 = static_cast<uint64_t>(indices.get(i));
-        auto idx1 = static_cast<uint64_t>(indices.get(i + 1));
-        auto idx2 = static_cast<uint64_t>(indices.get(i + 2));
+        const auto idx0 = static_cast<uint64_t>(indices.get(i));
+        const auto idx1 = static_cast<uint64_t>(indices.get(i + 1));
+        const auto idx2 = static_cast<uint64_t>(indices.get(i + 2));
 
         const auto& p0 = positions.get(idx0);
         const auto& p1 = positions.get(idx1);
@@ -173,11 +173,11 @@ void NormalsAccessor::fill(const gsl::span<glm::fvec3>& values) const {
     assert(size == _size);
 
     if (!_computed.empty()) {
-        for (uint64_t i = 0; i < size; i++) {
+        for (uint64_t i = 0; i < size; ++i) {
             values[i] = _computed[i];
         }
     } else {
-        for (uint64_t i = 0; i < size; i++) {
+        for (uint64_t i = 0; i < size; ++i) {
             values[i] = _view[static_cast<int64_t>(i)];
         }
     }
@@ -199,12 +199,12 @@ void TexcoordsAccessor::fill(const gsl::span<glm::fvec2>& values) const {
     const auto size = values.size();
     assert(size == _size);
 
-    for (uint64_t i = 0; i < size; i++) {
+    for (uint64_t i = 0; i < size; ++i) {
         values[i] = _view[static_cast<int64_t>(i)];
     }
 
     if (_flipVertical) {
-        for (uint64_t i = 0; i < size; i++) {
+        for (uint64_t i = 0; i < size; ++i) {
             values[i][1] = 1.0f - values[i][1];
         }
     }
@@ -249,7 +249,7 @@ void VertexColorsAccessor::fill(const gsl::span<glm::fvec4>& values, uint64_t re
     assert(size == _size * repeat);
 
     if (_uint8Vec3View.status() == CesiumGltf::AccessorViewStatus::Valid) {
-        for (uint64_t i = 0; i < size; i++) {
+        for (uint64_t i = 0; i < size; ++i) {
             values[i] = glm::fvec4(
                 static_cast<float>(_uint8Vec3View[static_cast<int64_t>(i / repeat)].x) / MAX_UINT8,
                 static_cast<float>(_uint8Vec3View[static_cast<int64_t>(i / repeat)].y) / MAX_UINT8,
@@ -257,7 +257,7 @@ void VertexColorsAccessor::fill(const gsl::span<glm::fvec4>& values, uint64_t re
                 1.0);
         }
     } else if (_uint8Vec4View.status() == CesiumGltf::AccessorViewStatus::Valid) {
-        for (uint64_t i = 0; i < size; i++) {
+        for (uint64_t i = 0; i < size; ++i) {
             values[i] = glm::fvec4(
                 static_cast<float>(_uint8Vec4View[static_cast<int64_t>(i / repeat)].x) / MAX_UINT8,
                 static_cast<float>(_uint8Vec4View[static_cast<int64_t>(i / repeat)].y) / MAX_UINT8,
@@ -265,7 +265,7 @@ void VertexColorsAccessor::fill(const gsl::span<glm::fvec4>& values, uint64_t re
                 static_cast<float>(_uint8Vec4View[static_cast<int64_t>(i / repeat)].w) / MAX_UINT8);
         }
     } else if (_uint16Vec3View.status() == CesiumGltf::AccessorViewStatus::Valid) {
-        for (uint64_t i = 0; i < size; i++) {
+        for (uint64_t i = 0; i < size; ++i) {
             values[i] = glm::fvec4(
                 static_cast<float>(_uint16Vec3View[static_cast<int64_t>(i / repeat)].x) / MAX_UINT16,
                 static_cast<float>(_uint16Vec3View[static_cast<int64_t>(i / repeat)].y) / MAX_UINT16,
@@ -273,7 +273,7 @@ void VertexColorsAccessor::fill(const gsl::span<glm::fvec4>& values, uint64_t re
                 1.0);
         }
     } else if (_uint16Vec4View.status() == CesiumGltf::AccessorViewStatus::Valid) {
-        for (uint64_t i = 0; i < size; i++) {
+        for (uint64_t i = 0; i < size; ++i) {
             values[i] = glm::fvec4(
                 static_cast<float>(_uint16Vec4View[static_cast<int64_t>(i / repeat)].x) / MAX_UINT16,
                 static_cast<float>(_uint16Vec4View[static_cast<int64_t>(i / repeat)].y) / MAX_UINT16,
@@ -281,12 +281,12 @@ void VertexColorsAccessor::fill(const gsl::span<glm::fvec4>& values, uint64_t re
                 static_cast<float>(_uint16Vec4View[static_cast<int64_t>(i / repeat)].w) / MAX_UINT16);
         }
     } else if (_float32Vec3View.status() == CesiumGltf::AccessorViewStatus::Valid) {
-        for (uint64_t i = 0; i < size; i++) {
+        for (uint64_t i = 0; i < size; ++i) {
             values[i] = glm::fvec4(_float32Vec3View[static_cast<int64_t>(i / repeat)], 1.0f);
         }
 
     } else if (_float32Vec4View.status() == CesiumGltf::AccessorViewStatus::Valid) {
-        for (uint64_t i = 0; i < size; i++) {
+        for (uint64_t i = 0; i < size; ++i) {
             values[i] = _float32Vec4View[static_cast<int64_t>(i / repeat)];
         }
     }
@@ -306,7 +306,8 @@ void VertexIdsAccessor::fill(const gsl::span<float>& values, uint64_t repeat) co
     const auto size = values.size();
     assert(size == _size * repeat);
 
-    for (uint64_t i = 0; i < size; i++) {
+    for (uint64_t i = 0; i < size; ++i) {
+        // NOLINTNEXTLINE(bugprone-integer-division)
         values[i] = static_cast<float>(i / repeat);
     }
 }
@@ -325,7 +326,7 @@ void FaceVertexCountsAccessor::fill(const gsl::span<int>& values) const {
     const auto size = values.size();
     assert(size == _size);
 
-    for (uint64_t i = 0; i < size; i++) {
+    for (uint64_t i = 0; i < size; ++i) {
         values[i] = 3;
     }
 }

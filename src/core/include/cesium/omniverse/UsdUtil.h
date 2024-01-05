@@ -1,149 +1,149 @@
 #pragma once
 
-#include <Cesium3DTilesSelection/ViewState.h>
-#include <CesiumUsdSchemas/cartographicPolygon.h>
-#include <CesiumUsdSchemas/data.h>
-#include <CesiumUsdSchemas/georeference.h>
-#include <CesiumUsdSchemas/globeAnchorAPI.h>
-#include <CesiumUsdSchemas/ionImagery.h>
-#include <CesiumUsdSchemas/ionServer.h>
-#include <CesiumUsdSchemas/polygonImagery.h>
-#include <CesiumUsdSchemas/session.h>
-#include <CesiumUsdSchemas/tileset.h>
-#include <glm/glm.hpp>
-#include <omni/fabric/SimStageWithHistory.h>
-#include <pxr/base/gf/matrix4d.h>
-#include <pxr/base/gf/quatf.h>
-#include <pxr/base/gf/vec3d.h>
-#include <pxr/base/gf/vec3f.h>
-#include <pxr/usd/sdf/path.h>
+#include <glm/fwd.hpp>
+#include <pxr/base/gf/declare.h>
 #include <pxr/usd/usd/common.h>
-#include <pxr/usd/usdGeom/basisCurves.h>
-#include <pxr/usd/usdShade/shader.h>
+
+PXR_NAMESPACE_OPEN_SCOPE
+class CesiumCartographicPolygon;
+class CesiumData;
+class CesiumGeoreference;
+class CesiumGlobeAnchorAPI;
+class CesiumImagery;
+class CesiumIonImagery;
+class CesiumIonServer;
+class CesiumPolygonImagery;
+class CesiumSession;
+class CesiumTileset;
+class UsdGeomBasisCurves;
+class UsdGeomXformable;
+class UsdGeomXformOp;
+class UsdShadeShader;
+PXR_NAMESPACE_CLOSE_SCOPE
+
+namespace Cesium3DTilesSelection {
+class ViewState;
+}
 
 namespace CesiumGeospatial {
 class Cartographic;
-}
+class Ellipsoid;
+class LocalHorizontalCoordinateSystem;
+} // namespace CesiumGeospatial
 
 namespace cesium::omniverse {
+class Context;
 struct Viewport;
+} // namespace cesium::omniverse
+
+namespace cesium::omniverse::MathUtil {
+enum class EulerAngleOrder;
 }
 
 namespace cesium::omniverse::UsdUtil {
 
-struct Decomposed {
-    pxr::GfVec3d position;
-    pxr::GfQuatf orientation;
-    pxr::GfVec3f scale;
-};
+glm::dvec3 usdToGlmVector(const PXR_NS::GfVec3d& vector);
+glm::fvec3 usdToGlmVector(const PXR_NS::GfVec3f& vector);
+glm::dmat4 usdToGlmMatrix(const PXR_NS::GfMatrix4d& matrix);
+std::array<glm::dvec3, 2> usdToGlmExtent(const PXR_NS::GfRange3d& extent);
 
-class ScopedEdit {
-  public:
-    ScopedEdit(const pxr::UsdStageRefPtr& stage)
-        : _stage(stage)
-        , _sessionLayer(_stage->GetSessionLayer())
-        , _sessionLayerWasEditable(_sessionLayer->PermissionToEdit())
-        , _originalEditTarget(_stage->GetEditTarget()) {
+PXR_NS::GfVec3d glmToUsdVector(const glm::dvec3& vector);
+PXR_NS::GfVec2f glmToUsdVector(const glm::fvec2& vector);
+PXR_NS::GfVec3f glmToUsdVector(const glm::fvec3& vector);
+PXR_NS::GfVec4f glmToUsdVector(const glm::fvec4& vector);
+PXR_NS::GfRange3d glmToUsdExtent(const std::array<glm::dvec3, 2>& extent);
+PXR_NS::GfQuatd glmToUsdQuat(const glm::dquat& quat);
+PXR_NS::GfQuatf glmToUsdQuat(const glm::fquat& quat);
+PXR_NS::GfMatrix4d glmToUsdMatrix(const glm::dmat4& matrix);
 
-        _sessionLayer->SetPermissionToEdit(true);
-        _stage->SetEditTarget(pxr::UsdEditTarget(_sessionLayer));
-    }
+glm::dmat4 computePrimLocalToWorldTransform(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+glm::dmat4 computePrimWorldToLocalTransform(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+glm::dmat4 computeEcefToStageTransform(Context* pContext, const PXR_NS::SdfPath& georeferencePath);
+glm::dmat4 computeEcefToPrimWorldTransform(
+    Context* pContext,
+    const PXR_NS::SdfPath& georeferencePath,
+    const PXR_NS::SdfPath& primPath);
+glm::dmat4 computePrimWorldToEcefTransform(
+    Context* pContext,
+    const PXR_NS::SdfPath& georeferencePath,
+    const PXR_NS::SdfPath& primPath);
+glm::dmat4 computeEcefToPrimLocalTransform(
+    Context* pContext,
+    const PXR_NS::SdfPath& georeferencePath,
+    const PXR_NS::SdfPath& primPath);
+glm::dmat4 computePrimLocalToEcefTransform(
+    Context* pContext,
+    const PXR_NS::SdfPath& georeferencePath,
+    const PXR_NS::SdfPath& primPath);
+CesiumGeospatial::LocalHorizontalCoordinateSystem computeLocalCoordinateSystem(
+    const PXR_NS::UsdStageWeakPtr& pStage,
+    const CesiumGeospatial::Cartographic& origin,
+    const CesiumGeospatial::Ellipsoid& ellipsoid);
 
-    ~ScopedEdit() {
-        _sessionLayer->SetPermissionToEdit(_sessionLayerWasEditable);
-        _stage->SetEditTarget(_originalEditTarget);
-    }
+Cesium3DTilesSelection::ViewState computeViewState(
+    Context* pContext,
+    const PXR_NS::SdfPath& georeferencePath,
+    const PXR_NS::SdfPath& primPath,
+    const Viewport& viewport);
 
-  private:
-    pxr::UsdStageRefPtr _stage;
-    pxr::SdfLayerHandle _sessionLayer;
-    bool _sessionLayerWasEditable;
-    pxr::UsdEditTarget _originalEditTarget;
-};
+bool primExists(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+bool isPrimVisible(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+const std::string& getName(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
 
-static const auto GEOREFERENCE_PATH = pxr::SdfPath("/CesiumGeoreference");
-
-pxr::UsdStageRefPtr getUsdStage();
-long getUsdStageId();
-omni::fabric::StageReaderWriter getFabricStageReaderWriter();
-omni::fabric::StageReaderWriterId getFabricStageReaderWriterId();
-
-bool hasStage();
-glm::dvec3 usdToGlmVector(const pxr::GfVec3d& vector);
-glm::dmat4 usdToGlmMatrix(const pxr::GfMatrix4d& matrix);
-pxr::GfVec3d glmToUsdVector(const glm::dvec3& vector);
-pxr::GfVec2f glmToUsdVector(const glm::fvec2& vector);
-pxr::GfVec3f glmToUsdVector(const glm::fvec3& vector);
-pxr::GfRange3d glmToUsdRange(const std::array<glm::dvec3, 2>& range);
-pxr::GfQuatd glmToUsdQuat(const glm::dquat& quat);
-pxr::GfMatrix4d glmToUsdMatrix(const glm::dmat4& matrix);
-Decomposed glmToUsdMatrixDecomposed(const glm::dmat4& matrix);
-glm::dmat4 computeUsdLocalToWorldTransform(const pxr::SdfPath& path);
-glm::dmat4 computeUsdWorldToLocalTransform(const pxr::SdfPath& path);
-bool isPrimVisible(const pxr::SdfPath& path);
-pxr::TfToken getUsdUpAxis();
-double getUsdMetersPerUnit();
-pxr::SdfPath getRootPath();
-pxr::SdfPath getPathUnique(const pxr::SdfPath& parentPath, const std::string& name);
+PXR_NS::TfToken getUsdUpAxis(const PXR_NS::UsdStageWeakPtr& pStage);
+double getUsdMetersPerUnit(const PXR_NS::UsdStageWeakPtr& pStage);
+PXR_NS::SdfPath getRootPath(const PXR_NS::UsdStageWeakPtr& pStage);
+PXR_NS::SdfPath
+makeUniquePath(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& parentPath, const std::string& name);
 std::string getSafeName(const std::string& name);
-pxr::TfToken getDynamicTextureProviderAssetPathToken(const std::string& name);
-glm::dmat4 computeEcefToUsdLocalTransform(const CesiumGeospatial::Cartographic& origin);
-glm::dmat4
-computeEcefToUsdWorldTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath);
-glm::dmat4
-computeUsdWorldToEcefTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath);
-glm::dmat4
-computeEcefToUsdLocalTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath);
-glm::dmat4
-computeUsdLocalToEcefTransformForPrim(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath);
-Cesium3DTilesSelection::ViewState
-computeViewState(const CesiumGeospatial::Cartographic& origin, const pxr::SdfPath& primPath, const Viewport& viewport);
-pxr::GfRange3d computeWorldExtent(const pxr::GfRange3d& localExtent, const glm::dmat4& localToUsdTransform);
-pxr::GfVec3f getEulerAnglesFromQuaternion(const pxr::GfQuatf& quaternion);
+PXR_NS::TfToken getDynamicTextureProviderAssetPathToken(const std::string_view& name);
 
-pxr::CesiumData defineCesiumData(const pxr::SdfPath& path);
-pxr::CesiumIonServer defineCesiumIonServer(const pxr::SdfPath& path);
-pxr::CesiumSession defineCesiumSession(const pxr::SdfPath& path);
-pxr::CesiumGeoreference defineCesiumGeoreference(const pxr::SdfPath& path);
-pxr::CesiumTileset defineCesiumTileset(const pxr::SdfPath& path);
-pxr::CesiumIonImagery defineCesiumIonImagery(const pxr::SdfPath& path);
-pxr::CesiumGlobeAnchorAPI defineGlobeAnchor(const pxr::SdfPath& path);
+PXR_NS::CesiumData defineCesiumData(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+PXR_NS::CesiumTileset defineCesiumTileset(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+PXR_NS::CesiumIonImagery defineCesiumIonImagery(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+PXR_NS::CesiumPolygonImagery
+defineCesiumPolygonImagery(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+PXR_NS::CesiumGeoreference defineCesiumGeoreference(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+PXR_NS::CesiumIonServer defineCesiumIonServer(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+PXR_NS::CesiumGlobeAnchorAPI applyCesiumGlobeAnchor(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+PXR_NS::CesiumSession defineCesiumSession(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
 
-pxr::CesiumData getOrCreateCesiumData();
-pxr::SdfPath getPathToCurrentIonServer();
-pxr::CesiumIonServer getOrCreateIonServer(const pxr::SdfPath& path);
-pxr::CesiumSession getOrCreateCesiumSession();
-pxr::CesiumGeoreference getOrCreateCesiumGeoreference();
-pxr::CesiumGeoreference getCesiumGeoreference(const pxr::SdfPath& path);
-pxr::CesiumTileset getCesiumTileset(const pxr::SdfPath& path);
-pxr::CesiumImagery getCesiumImagery(const pxr::SdfPath& path);
-pxr::CesiumIonImagery getCesiumIonImagery(const pxr::SdfPath& path);
-pxr::CesiumPolygonImagery getCesiumPolygonImagery(const pxr::SdfPath& path);
-std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& path);
-pxr::CesiumGlobeAnchorAPI getCesiumGlobeAnchor(const pxr::SdfPath& path);
-pxr::UsdShadeShader getUsdShader(const pxr::SdfPath& path);
-pxr::UsdGeomBasisCurves getUsdBasisCurves(const pxr::SdfPath& path);
-pxr::CesiumCartographicPolygon getCesiumCartographicPolygon(const pxr::SdfPath& path);
+PXR_NS::CesiumData getCesiumData(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+PXR_NS::CesiumTileset getCesiumTileset(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+PXR_NS::CesiumImagery getCesiumImagery(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+PXR_NS::CesiumIonImagery getCesiumIonImagery(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+PXR_NS::CesiumPolygonImagery
+getCesiumPolygonImagery(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+PXR_NS::CesiumGeoreference getCesiumGeoreference(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+PXR_NS::CesiumGlobeAnchorAPI getCesiumGlobeAnchor(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+PXR_NS::CesiumIonServer getCesiumIonServer(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+PXR_NS::CesiumCartographicPolygon
+getCesiumCartographicPolygon(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+PXR_NS::UsdShadeShader getUsdShader(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+PXR_NS::UsdGeomBasisCurves getUsdBasisCurves(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
 
-bool isCesiumData(const pxr::SdfPath& path);
-bool isCesiumIonServer(const pxr::SdfPath& path);
-bool isCesiumSession(const pxr::SdfPath& path);
-bool isCesiumGeoreference(const pxr::SdfPath& path);
-bool isCesiumTileset(const pxr::SdfPath& path);
-bool isCesiumIonImagery(const pxr::SdfPath& path);
-bool isCesiumPolygonImagery(const pxr::SdfPath& path);
-bool hasCesiumGlobeAnchor(const pxr::SdfPath& path);
+PXR_NS::CesiumSession getOrCreateCesiumSession(const PXR_NS::UsdStageWeakPtr& pStage);
 
-bool isUsdShader(const pxr::SdfPath& path);
-bool isUsdMaterial(const pxr::SdfPath& path);
+bool isCesiumData(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+bool isCesiumTileset(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+bool isCesiumImagery(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+bool isCesiumIonImagery(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+bool isCesiumPolygonImagery(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+bool isCesiumGeoreference(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+bool isCesiumIonServer(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+bool isCesiumCartographicPolygon(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+bool isCesiumSession(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+bool hasCesiumGlobeAnchor(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+bool isUsdShader(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
+bool isUsdMaterial(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
 
-bool primExists(const pxr::SdfPath& path);
+struct TranslateRotateScaleOps {
+    const PXR_NS::UsdGeomXformOp* pTranslateOp;
+    const PXR_NS::UsdGeomXformOp* pRotateOp;
+    const PXR_NS::UsdGeomXformOp* pScaleOp;
+    MathUtil::EulerAngleOrder eulerAngleOrder;
+};
 
-void setGeoreferenceForTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPath& georeferencePath);
-
-void addOrUpdateTransformOpForAnchor(const pxr::SdfPath& path, const glm::dmat4& transform);
-std::optional<pxr::GfMatrix4d> getCesiumTransformOpValueForPathIfExists(const pxr::SdfPath& path);
-std::optional<pxr::SdfPath> getAnchorGeoreferencePath(const pxr::SdfPath& path);
-std::optional<CesiumGeospatial::Cartographic> getCartographicOriginForAnchor(const pxr::SdfPath& path);
+std::optional<TranslateRotateScaleOps> getTranslateRotateScaleOps(const PXR_NS::UsdGeomXformable& xformable);
 
 }; // namespace cesium::omniverse::UsdUtil

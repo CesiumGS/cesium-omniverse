@@ -4,53 +4,70 @@
 
 namespace cesium::omniverse {
 
-class AssetRegistry;
+class Context;
 
-enum class ChangedPrimType {
-    CESIUM_DATA,
-    CESIUM_TILESET,
-    CESIUM_ION_IMAGERY,
-    CESIUM_POLYGON_IMAGERY,
-    CESIUM_GEOREFERENCE,
-    CESIUM_GLOBE_ANCHOR,
-    CESIUM_ION_SERVER,
-    USD_SHADER,
-    OTHER,
-};
-
-enum class ChangeType {
-    PROPERTY_CHANGED,
-    PRIM_ADDED,
-    PRIM_REMOVED,
-};
-
-struct ChangedPrim {
-    pxr::SdfPath primPath;
-    std::vector<pxr::TfToken> properties;
-    ChangedPrimType primType;
-    ChangeType changeType;
-};
-
-class UsdNotificationHandler final : public pxr::TfWeakBase {
+class UsdNotificationHandler final : public PXR_NS::TfWeakBase {
   public:
-    UsdNotificationHandler();
+    UsdNotificationHandler(Context* pContext);
     ~UsdNotificationHandler();
+    UsdNotificationHandler(const UsdNotificationHandler&) = delete;
+    UsdNotificationHandler& operator=(const UsdNotificationHandler&) = delete;
+    UsdNotificationHandler(UsdNotificationHandler&&) noexcept = delete;
+    UsdNotificationHandler& operator=(UsdNotificationHandler&&) noexcept = delete;
 
     void onStageLoaded();
     void onUpdateFrame();
+    void clear();
 
   private:
-    void onObjectsChanged(const pxr::UsdNotice::ObjectsChanged& objectsChanged);
-    void onPrimAdded(const pxr::SdfPath& path);
-    void onPrimRemoved(const pxr::SdfPath& path);
-    void onPropertyChanged(const pxr::SdfPath& path);
+    enum class ChangedPrimType {
+        CESIUM_DATA,
+        CESIUM_TILESET,
+        CESIUM_ION_IMAGERY,
+        CESIUM_POLYGON_IMAGERY,
+        CESIUM_GEOREFERENCE,
+        CESIUM_GLOBE_ANCHOR,
+        CESIUM_ION_SERVER,
+        CESIUM_CARTOGRAPHIC_POLYGON,
+        USD_SHADER,
+        OTHER,
+    };
 
-    void insertAddedPrim(const pxr::SdfPath& primPath, ChangedPrimType primType);
-    void insertRemovedPrim(const pxr::SdfPath& primPath, ChangedPrimType primType);
-    void
-    insertPropertyChanged(const pxr::SdfPath& primPath, ChangedPrimType primType, const pxr::TfToken& propertyName);
+    enum class ChangedType {
+        PROPERTY_CHANGED,
+        PRIM_ADDED,
+        PRIM_REMOVED,
+    };
 
-    pxr::TfNotice::Key _noticeListenerKey;
+    struct ChangedPrim {
+        PXR_NS::SdfPath primPath;
+        std::vector<PXR_NS::TfToken> properties;
+        ChangedPrimType primType;
+        ChangedType changedType;
+    };
+
+    bool processChangedPrims();
+    [[nodiscard]] bool processChangedPrim(const ChangedPrim& changedPrim) const;
+
+    bool alreadyRegistered(const PXR_NS::SdfPath& path);
+
+    void onObjectsChanged(const PXR_NS::UsdNotice::ObjectsChanged& objectsChanged);
+    void onPrimAdded(const PXR_NS::SdfPath& path);
+    void onPrimRemoved(const PXR_NS::SdfPath& path);
+    void onPropertyChanged(const PXR_NS::SdfPath& path);
+
+    void insertAddedPrim(const PXR_NS::SdfPath& primPath, ChangedPrimType primType);
+    void insertRemovedPrim(const PXR_NS::SdfPath& primPath, ChangedPrimType primType);
+    void insertPropertyChanged(
+        const PXR_NS::SdfPath& primPath,
+        ChangedPrimType primType,
+        const PXR_NS::TfToken& propertyName);
+
+    ChangedPrimType getTypeFromStage(const PXR_NS::SdfPath& path) const;
+    ChangedPrimType getTypeFromAssetRegistry(const PXR_NS::SdfPath& path) const;
+
+    Context* _pContext;
+    PXR_NS::TfNotice::Key _noticeListenerKey;
     std::vector<ChangedPrim> _changedPrims;
 };
 

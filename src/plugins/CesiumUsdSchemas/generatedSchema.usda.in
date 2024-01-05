@@ -591,7 +591,7 @@ class "CesiumGlobeAnchorSchemaAPI" (
         displayName = "Detect Transform Changes"
         doc = "Gets or sets whether to automatically detect changes in the Prim's transform and update the precise globe coordinates accordingly."
     )
-    double3 cesium:anchor:geographicCoordinates = (0, 0, 10) (
+    double3 cesium:anchor:geographicCoordinates = (0, 0, 0) (
         displayName = "Geographic Coordinate (Latitude, Longitude, Height)"
         doc = "The position of the globally anchored prim as a Latitude, Longitude, Height coordinate."
     )

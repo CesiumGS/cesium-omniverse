@@ -1,10 +1,9 @@
 #pragma once
 
-#include "cesium/omniverse/FabricGeometryDefinition.h"
+#include "cesium/omniverse/FabricGeometryDescriptor.h"
 
-#include <glm/glm.hpp>
+#include <glm/fwd.hpp>
 #include <omni/fabric/IPath.h>
-#include <pxr/usd/sdf/path.h>
 
 namespace CesiumGltf {
 struct MeshPrimitive;
@@ -13,21 +12,29 @@ struct Model;
 
 namespace cesium::omniverse {
 
-struct MaterialInfo;
+class Context;
+struct FabricMaterialInfo;
 
 class FabricGeometry {
   public:
-    FabricGeometry(const omni::fabric::Path& path, const FabricGeometryDefinition& geometryDefinition, long stageId);
+    FabricGeometry(
+        Context* pContext,
+        const omni::fabric::Path& path,
+        const FabricGeometryDescriptor& geometryDescriptor,
+        int64_t poolId);
     ~FabricGeometry();
+    FabricGeometry(const FabricGeometry&) = delete;
+    FabricGeometry& operator=(const FabricGeometry&) = delete;
+    FabricGeometry(FabricGeometry&&) noexcept = default;
+    FabricGeometry& operator=(FabricGeometry&&) noexcept = default;
 
     void setGeometry(
         int64_t tilesetId,
-        const glm::dmat4& ecefToUsdTransform,
-        const glm::dmat4& gltfToEcefTransform,
-        const glm::dmat4& nodeTransform,
+        const glm::dmat4& ecefToPrimWorldTransform,
+        const glm::dmat4& gltfLocalToEcefTransform,
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
-        const MaterialInfo& materialInfo,
+        const FabricMaterialInfo& materialInfo,
         bool smoothNormals,
         const std::unordered_map<uint64_t, uint64_t>& texcoordIndexMapping,
         const std::unordered_map<uint64_t, uint64_t>& imageryTexcoordIndexMapping);
@@ -36,7 +43,8 @@ class FabricGeometry {
     void setVisibility(bool visible);
 
     [[nodiscard]] const omni::fabric::Path& getPath() const;
-    [[nodiscard]] const FabricGeometryDefinition& getGeometryDefinition() const;
+    [[nodiscard]] const FabricGeometryDescriptor& getGeometryDescriptor() const;
+    [[nodiscard]] int64_t getPoolId() const;
 
     void setMaterial(const omni::fabric::Path& materialPath);
 
@@ -45,9 +53,11 @@ class FabricGeometry {
     void reset();
     bool stageDestroyed();
 
-    const omni::fabric::Path _path;
-    const FabricGeometryDefinition _geometryDefinition;
-    const long _stageId;
+    Context* _pContext;
+    omni::fabric::Path _path;
+    FabricGeometryDescriptor _geometryDescriptor;
+    int64_t _poolId;
+    int64_t _stageId;
 };
 
 } // namespace cesium::omniverse

@@ -1,6 +1,7 @@
 #include "testUtils.h"
 
-#include "cesium/omniverse/GltfAccessors.h"
+#include "cesium/omniverse/FabricMaterialInfo.h"
+#include "cesium/omniverse/FabricVertexAttributeAccessors.h"
 #include "cesium/omniverse/GltfUtil.h"
 
 #include <CesiumGltf/Material.h>
@@ -41,11 +42,12 @@ TEST_SUITE("Test GltfUtil") {
         auto gltfFileLength = gltfStream.tellg();
         gltfStream.seekg(0, std::ios::beg);
 
-        std::vector<std::byte> gltfBuf(gltfFileLength);
+        std::vector<std::byte> gltfBuf(static_cast<uint64_t>(gltfFileLength));
         gltfStream.read((char*)&gltfBuf[0], gltfFileLength);
 
         CesiumGltfReader::GltfReader reader;
-        auto gltf = reader.readGltf(gsl::span(reinterpret_cast<const std::byte*>(gltfBuf.data()), gltfFileLength));
+        auto gltf = reader.readGltf(
+            gsl::span(reinterpret_cast<const std::byte*>(gltfBuf.data()), static_cast<uint64_t>(gltfFileLength)));
 
         if (!gltf.errors.empty()) {
             for (const auto& err : gltf.errors) {
@@ -73,7 +75,7 @@ TEST_SUITE("Test GltfUtil") {
         if (GltfUtil::hasMaterial(prim)) {
             const auto& matInfo = GltfUtil::getMaterialInfo(model, prim);
             CHECK(matInfo.alphaCutoff == expectedResults["alphaCutoff"].as<double>());
-            CHECK(matInfo.alphaMode == static_cast<AlphaMode>(expectedResults["alphaMode"].as<int32_t>()));
+            CHECK(matInfo.alphaMode == static_cast<FabricAlphaMode>(expectedResults["alphaMode"].as<int32_t>()));
             CHECK(matInfo.baseAlpha == expectedResults["baseAlpha"].as<double>());
             CHECK(matInfo.baseColorFactor == expectedResults["baseColorFactor"].as<std::vector<double>>());
             CHECK(matInfo.emissiveFactor == expectedResults["emissiveFactor"].as<std::vector<double>>());

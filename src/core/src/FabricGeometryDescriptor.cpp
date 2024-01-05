@@ -1,5 +1,8 @@
-#include "cesium/omniverse/FabricGeometryDefinition.h"
+#include "cesium/omniverse/FabricGeometryDescriptor.h"
 
+#include "cesium/omniverse/FabricFeaturesInfo.h"
+#include "cesium/omniverse/FabricFeaturesUtil.h"
+#include "cesium/omniverse/FabricVertexAttributeDescriptor.h"
 #include "cesium/omniverse/GltfUtil.h"
 
 #ifdef CESIUM_OMNI_MSVC
@@ -11,40 +14,40 @@
 
 namespace cesium::omniverse {
 
-FabricGeometryDefinition::FabricGeometryDefinition(
+FabricGeometryDescriptor::FabricGeometryDescriptor(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
-    const FeaturesInfo& featuresInfo,
+    const FabricFeaturesInfo& featuresInfo,
     bool smoothNormals)
     : _hasNormals(GltfUtil::hasNormals(model, primitive, smoothNormals))
     , _hasVertexColors(GltfUtil::hasVertexColors(model, primitive, 0))
-    , _hasVertexIds(hasFeatureIdType(featuresInfo, FeatureIdType::INDEX))
+    , _hasVertexIds(FabricFeaturesUtil::hasFeatureIdType(featuresInfo, FabricFeatureIdType::INDEX))
     , _texcoordSetCount(
           GltfUtil::getTexcoordSetIndexes(model, primitive).size() +
           GltfUtil::getImageryTexcoordSetIndexes(model, primitive).size())
     , _customVertexAttributes(GltfUtil::getCustomVertexAttributes(model, primitive)) {}
 
-bool FabricGeometryDefinition::hasNormals() const {
+bool FabricGeometryDescriptor::hasNormals() const {
     return _hasNormals;
 }
 
-bool FabricGeometryDefinition::hasVertexColors() const {
+bool FabricGeometryDescriptor::hasVertexColors() const {
     return _hasVertexColors;
 }
 
-bool FabricGeometryDefinition::hasVertexIds() const {
+bool FabricGeometryDescriptor::hasVertexIds() const {
     return _hasVertexIds;
 }
 
-uint64_t FabricGeometryDefinition::getTexcoordSetCount() const {
+uint64_t FabricGeometryDescriptor::getTexcoordSetCount() const {
     return _texcoordSetCount;
 }
 
-const std::set<VertexAttributeInfo>& FabricGeometryDefinition::getCustomVertexAttributes() const {
+const std::set<FabricVertexAttributeDescriptor>& FabricGeometryDescriptor::getCustomVertexAttributes() const {
     return _customVertexAttributes;
 }
 
-bool FabricGeometryDefinition::operator==(const FabricGeometryDefinition& other) const {
+bool FabricGeometryDescriptor::operator==(const FabricGeometryDescriptor& other) const {
     return _hasNormals == other._hasNormals && _hasVertexColors == other._hasVertexColors &&
            _hasVertexIds == other._hasVertexIds && _texcoordSetCount == other._texcoordSetCount &&
            _customVertexAttributes == other._customVertexAttributes;

@@ -1,8 +1,7 @@
 #pragma once
 
 #include <carb/events/IEvents.h>
-#include <omni/kit/IApp.h>
-#include <pxr/usd/sdf/path.h>
+#include <pxr/usd/usd/common.h>
 
 namespace cesium::omniverse::Broadcast {
 
@@ -11,14 +10,15 @@ void connectionUpdated();
 void profileUpdated();
 void tokensUpdated();
 void showTroubleshooter(
-    const pxr::SdfPath& tilesetPath,
+    const PXR_NS::SdfPath& tilesetPath,
     int64_t tilesetIonAssetId,
     const std::string& tilesetName,
     int64_t imageryIonAssetId,
     const std::string& imageryName,
     const std::string& message);
 void setDefaultTokenComplete();
-void tilesetLoaded(const pxr::SdfPath& tilesetPath);
+void tilesetLoaded(const PXR_NS::SdfPath& tilesetPath);
 void sendMessageToBus(carb::events::EventType eventType);
-void sendMessageToBus(const char* eventKey);
+void sendMessageToBus(const std::string_view& eventKey);
+
 } // namespace cesium::omniverse::Broadcast
