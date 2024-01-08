@@ -531,7 +531,7 @@ void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
 void OmniTileset::addImageryPolygon(const pxr::SdfPath& imageryPath) {
     const OmniPolygonImagery imagery(imageryPath);
 
-    const auto uniqueName = "imagery_polygon_test"; // DEVEL
+    const auto imageryName = imagery.getName();
 
     auto polygonImagery = UsdUtil::getCesiumPolygonImagery(imageryPath);
     auto cartographicPolygonsRel = polygonImagery.GetCartographicPolygonBindingRel();
@@ -574,7 +574,7 @@ void OmniTileset::addImageryPolygon(const pxr::SdfPath& imageryPath) {
     options.showCreditsOnScreen = imagery.getShowCreditsOnScreen();
 
     const auto polygonRasterOverlay = new CesiumRasterOverlays::RasterizedPolygonsOverlay(
-        uniqueName, polygons, invertSelection, ellipsoid, projection, rasterOverlayOptions);
+        imageryName, polygons, invertSelection, ellipsoid, projection, rasterOverlayOptions);
     _tileset->getOverlays().add(polygonRasterOverlay);
     _imageryPaths.push_back((imageryPath));
 }
