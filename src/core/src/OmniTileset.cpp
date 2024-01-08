@@ -479,7 +479,7 @@ void OmniTileset::reload() {
         if (imagery.GetPrim().IsA<pxr::CesiumIonImagery>()) {
             addImageryIon(imagery.GetPath());
         } else {
-            addImageryPolygon((imagery.GetPath()));
+            addImageryPolygon(imagery.GetPath());
         }
     }
 }
