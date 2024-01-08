@@ -664,10 +664,11 @@ void OmniTileset::updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::T
 double OmniTileset::getImageryLayerAlpha(uint64_t imageryLayerIndex) const {
     assert(imageryLayerIndex < _imageryPaths.size());
 
-    auto alpha = OmniIonImagery(_imageryPaths[imageryLayerIndex]).getAlpha();
-    alpha = glm::clamp(alpha, 0.0, 1.0);
-
-    return alpha;
+    auto imagery = UsdUtil::getCesiumImagery(_imageryPaths[imageryLayerIndex]);
+    float alpha;
+    imagery.GetAlphaAttr().Get<float>(&alpha);
+    alpha = glm::clamp(alpha, 0.0f, 1.0f);
+    return static_cast<double>(alpha);
 }
 
 pxr::SdfPath OmniTileset::getImageryLayerPath(uint64_t imageryLayerIndex) const {
