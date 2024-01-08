@@ -17,6 +17,7 @@
 #include <glm/gtc/random.hpp>
 #include <omni/fabric/FabricUSD.h>
 #include <spdlog/fmt/fmt.h>
+
 #include <cstdint>
 #include <vector>
 
@@ -1404,7 +1405,9 @@ void FabricMaterial::setMaterial(
     }
 
     if (_usesDefaultMaterial) {
-        _alphaMode = (materialInfo.alphaMode == AlphaMode::BLEND) ? materialInfo.alphaMode : (_polygonClippingEnabled ? AlphaMode::MASK : materialInfo.alphaMode);
+        _alphaMode = (materialInfo.alphaMode == AlphaMode::BLEND)
+                         ? materialInfo.alphaMode
+                         : (_polygonClippingEnabled ? AlphaMode::MASK : materialInfo.alphaMode);
 
         if (_debugRandomColors) {
             const auto r = glm::linearRand(0.0, 1.0);
