@@ -12,70 +12,46 @@
                 "RelWithDebInfo",
                 "MinSizeRel"
             ]
-        },
-        {
-            "id": "compiler",
-            "type": "pickString",
-            "description": "Compiler",
-            "default": "default",
-            "options": [
-                "default",
-                "clang-14",
-                "gcc-9"
-            ]
         }
     ],
     "tasks": [
         {
-            "label": "Configure",
+            "label": "Configure (debug)",
             "type": "shell",
             "group": "build",
             "problemMatcher": "$gcc",
             "windows": {
                 "problemMatcher": "$msCompile",
-                "command": "scripts/vscode_build_launcher.bat configure ${input:build-type} ${input:compiler}"
+                "command": "scripts/vscode_build_launcher.bat configure Debug"
             },
             "linux": {
-                "command": "python3 scripts/vscode_build.py configure ${input:build-type} ${input:compiler}"
+                "command": "python3 scripts/vscode_build.py configure Debug"
             }
         },
         {
-            "label": "Build (advanced)",
+            "label": "Configure (release)",
             "type": "shell",
             "group": "build",
             "problemMatcher": "$gcc",
             "windows": {
                 "problemMatcher": "$msCompile",
-                "command": "scripts/vscode_build_launcher.bat build ${input:build-type} ${input:compiler}"
+                "command": "scripts/vscode_build_launcher.bat configure ${input:build-type}"
             },
             "linux": {
-                "command": "python3 scripts/vscode_build.py build ${input:build-type} ${input:compiler}"
+                "command": "python3 scripts/vscode_build.py configure ${input:build-type}"
             }
         },
         {
-            "label": "Build (tracing)",
+            "label": "Configure (advanced)",
             "type": "shell",
             "group": "build",
             "problemMatcher": "$gcc",
             "windows": {
                 "problemMatcher": "$msCompile",
-                "command": "scripts/vscode_build_launcher.bat build Release default --tracing"
+                "command": "scripts/vscode_build_launcher.bat configure ${input:build-type} ${input:kit-build-type} ${input:verbose}"
             },
             "linux": {
-                "command": "python3 scripts/vscode_build.py build Release default --tracing"
-            }
-        },
-        {
-            "label": "Build (verbose)",
-            "type": "shell",
-            "group": "build",
-            "problemMatcher": "$gcc",
-            "windows": {
-                "problemMatcher": "$msCompile",
-                "command": "scripts/vscode_build_launcher.bat build ${input:build-type} ${input:compiler} --verbose --no-parallel"
-            },
-            "linux": {
-                "command": "python3 scripts/vscode_build.py build ${input:build-type} ${input:compiler} --verbose --no-parallel"
+                "command": "python3 scripts/vscode_build.py configure Release"
             }
         },
         {
@@ -85,23 +61,10 @@
             "problemMatcher": "$gcc",
             "windows": {
                 "problemMatcher": "$msCompile",
-                "command": "scripts/vscode_build_launcher.bat build Debug default"
+                "command": "scripts/vscode_build_launcher.bat build Debug"
             },
             "linux": {
-                "command": "python3 scripts/vscode_build.py build Debug default",
-            }
-        },
-        {
-            "label": "Build (kit debug)",
-            "type": "shell",
-            "group": "build",
-            "problemMatcher": "$gcc",
-            "windows": {
-                "problemMatcher": "$msCompile",
-                "command": "scripts/vscode_build_launcher.bat build Debug default --kit-debug"
-            },
-            "linux": {
-                "command": "python3 scripts/vscode_build.py build Debug default --kit-debug",
+                "command": "python3 scripts/vscode_build.py build Debug"
             }
         },
         {
@@ -111,10 +74,75 @@
             "problemMatcher": "$gcc",
             "windows": {
                 "problemMatcher": "$msCompile",
-                "command": "scripts/vscode_build_launcher.bat build Release default"
+                "command": "scripts/vscode_build_launcher.bat build Release"
             },
             "linux": {
-                "command": "python3 scripts/vscode_build.py build Release default"
+                "command": "python3 scripts/vscode_build.py build Release"
+            }
+        },
+        {
+            "label": "Build (tracing)",
+            "type": "shell",
+            "group": "build",
+            "problemMatcher": "$gcc",
+            "windows": {
+                "problemMatcher": "$msCompile",
+                "command": "scripts/vscode_build_launcher.bat build Release --tracing"
+            },
+            "linux": {
+                "command": "python3 scripts/vscode_build.py build Release --tracing"
+            }
+        },
+        {
+            "label": "Build (verbose)",
+            "type": "shell",
+            "group": "build",
+            "problemMatcher": "$gcc",
+            "windows": {
+                "problemMatcher": "$msCompile",
+                "command": "scripts/vscode_build_launcher.bat build ${input:build-type} --verbose --no-parallel"
+            },
+            "linux": {
+                "command": "python3 scripts/vscode_build.py build ${input:build-type} --verbose --no-parallel"
+            }
+        },
+        {
+            "label": "Build (debug)",
+            "type": "shell",
+            "group": "build",
+            "problemMatcher": "$gcc",
+            "windows": {
+                "problemMatcher": "$msCompile",
+                "command": "scripts/vscode_build_launcher.bat build Debug"
+            },
+            "linux": {
+                "command": "python3 scripts/vscode_build.py build Debug",
+            }
+        },
+        {
+            "label": "Build (kit debug)",
+            "type": "shell",
+            "group": "build",
+            "problemMatcher": "$gcc",
+            "windows": {
+                "problemMatcher": "$msCompile",
+                "command": "scripts/vscode_build_launcher.bat build Debug --kit-debug"
+            },
+            "linux": {
+                "command": "python3 scripts/vscode_build.py build Debug --kit-debug",
+            }
+        },
+        {
+            "label": "Build (release)",
+            "type": "shell",
+            "group": "build",
+            "problemMatcher": "$gcc",
+            "windows": {
+                "problemMatcher": "$msCompile",
+                "command": "scripts/vscode_build_launcher.bat build Release"
+            },
+            "linux": {
+                "command": "python3 scripts/vscode_build.py build Release"
             }
         },
         {
@@ -124,10 +152,10 @@
             "problemMatcher": "$gcc",
             "windows": {
                 "problemMatcher": "$msCompile",
-                "command": "scripts/vscode_build_launcher.bat build Debug default --build-only"
+                "command": "scripts/vscode_build_launcher.bat build Debug --build-only"
             },
             "linux": {
-                "command": "python3 scripts/vscode_build.py build Debug default --build-only"
+                "command": "python3 scripts/vscode_build.py build Debug --build-only"
             }
         },
         {
@@ -137,10 +165,10 @@
             "problemMatcher": "$gcc",
             "windows": {
                 "problemMatcher": "$msCompile",
-                "command": "scripts/vscode_build_launcher.bat build Release default --build-only"
+                "command": "scripts/vscode_build_launcher.bat build Release --build-only"
             },
             "linux": {
-                "command": "python3 scripts/vscode_build.py build Release default --build-only"
+                "command": "python3 scripts/vscode_build.py build Release --build-only"
             }
         },
         {
@@ -150,10 +178,10 @@
             "problemMatcher": "$gcc",
             "windows": {
                 "problemMatcher": "$msCompile",
-                "command": "scripts/vscode_build_launcher.bat clean ${input:build-type} ${input:compiler}"
+                "command": "scripts/vscode_build_launcher.bat clean ${input:build-type}"
             },
             "linux": {
-                "command": "python3 scripts/vscode_build.py clean ${input:build-type} ${input:compiler}"
+                "command": "python3 scripts/vscode_build.py clean ${input:build-type}"
             }
         },
         {
@@ -176,10 +204,10 @@
             "problemMatcher": "$gcc",
             "windows": {
                 "problemMatcher": "$msCompile",
-                "command": "scripts/vscode_build_launcher.bat documentation ${input:build-type} ${input:compiler}"
+                "command": "scripts/vscode_build_launcher.bat documentation ${input:build-type}"
             },
             "linux": {
-                "command": "python3 scripts/vscode_build.py documentation ${input:build-type} ${input:compiler}"
+                "command": "python3 scripts/vscode_build.py documentation ${input:build-type}"
             }
         },
         {
@@ -189,10 +217,10 @@
             "problemMatcher": "$gcc",
             "windows": {
                 "problemMatcher": "$msCompile",
-                "command": "scripts/vscode_build_launcher.bat format ${input:build-type} ${input:compiler}"
+                "command": "scripts/vscode_build_launcher.bat format ${input:build-type}"
             },
             "linux": {
-                "command": "python3 scripts/vscode_build.py format ${input:build-type} ${input:compiler}"
+                "command": "python3 scripts/vscode_build.py format ${input:build-type}"
             }
         },
         {
@@ -202,10 +230,10 @@
             "problemMatcher": "$gcc",
             "windows": {
                 "problemMatcher": "$msCompile",
-                "command": "scripts/vscode_build_launcher.bat lint ${input:build-type} ${input:compiler}"
+                "command": "scripts/vscode_build_launcher.bat lint ${input:build-type}"
             },
             "linux": {
-                "command": "python3 scripts/vscode_build.py lint ${input:build-type} ${input:compiler}"
+                "command": "python3 scripts/vscode_build.py lint ${input:build-type}"
             }
         },
         {
@@ -215,10 +243,10 @@
             "problemMatcher": "$gcc",
             "windows": {
                 "problemMatcher": "$msCompile",
-                "command": "scripts/vscode_build_launcher.bat lint-fix ${input:build-type} ${input:compiler}"
+                "command": "scripts/vscode_build_launcher.bat lint-fix ${input:build-type}"
             },
             "linux": {
-                "command": "python3 scripts/vscode_build.py lint-fix ${input:build-type} ${input:compiler}"
+                "command": "python3 scripts/vscode_build.py lint-fix ${input:build-type}"
             }
         },
         {
@@ -228,10 +256,10 @@
             "problemMatcher": "$gcc",
             "windows": {
                 "problemMatcher": "$msCompile",
-                "command": "scripts/vscode_build_launcher.bat dependency-graph ${input:build-type} ${input:compiler}"
+                "command": "scripts/vscode_build_launcher.bat dependency-graph ${input:build-type}"
             },
             "linux": {
-                "command": "python3 scripts/vscode_build.py dependency-graph ${input:build-type} ${input:compiler}"
+                "command": "python3 scripts/vscode_build.py dependency-graph ${input:build-type}"
             }
         }
     ]

@@ -49,7 +49,6 @@ class Args(NamedTuple):
     task: str
     build_folder: str
     build_type: str
-    compiler_name: str
     tracing: bool
     verbose: bool
     kit_debug: bool
@@ -57,19 +56,10 @@ class Args(NamedTuple):
     build_only: bool
 
 
-def c_compiler_to_cpp_compiler(compiler_name: str):
-    cpp = compiler_name
-    cpp = cpp.replace("gcc", "g++")
-    cpp = cpp.replace("clang", "clang++")
-    return cpp
-
-
 def get_cmake_configure_command(args: Args):
     cmd = ["cmake", "-B", args.build_folder]
 
-    # Release is the default build type, so no need to pass CMAKE_BUILD_TYPE
-    if args.build_type != "Release":
-        cmd.extend(("-D", "CMAKE_BUILD_TYPE={}".format(args.build_type)))
+    cmd.extend(("-D", "CMAKE_BUILD_TYPE={}".format(args.build_type)))
 
     if args.tracing:
         cmd.extend(("-D", "CESIUM_OMNI_ENABLE_TRACING=ON"))
@@ -80,15 +70,6 @@ def get_cmake_configure_command(args: Args):
     if is_windows():
         cmd.extend(("-G", "Ninja Multi-Config", "-D", "CMAKE_C_COMPILER=cl", "-D", "CMAKE_CXX_COMPILER=cl"))
         return cmd
-
-    if args.compiler_name == "default":
-        return cmd
-
-    c_compiler = args.compiler_name
-    cpp_compiler = c_compiler_to_cpp_compiler(args.compiler_name)
-
-    cmd.extend(("-D", "CMAKE_C_COMPILER={}".format(c_compiler)))
-    cmd.extend(("-D", "CMAKE_CXX_COMPILER={}".format(cpp_compiler)))
 
     return cmd
 
@@ -201,7 +182,7 @@ def dependency_graph(args: Args):
     open_browser(dependency_html)
 
 
-def get_build_folder_name(build_type: str, compiler_name: str):
+def get_build_folder_name(build_type: str):
     folder_name = "build"
 
     if is_windows():
@@ -210,14 +191,11 @@ def get_build_folder_name(build_type: str, compiler_name: str):
     if build_type != "Release":
         folder_name += "-{}".format(build_type.lower())
 
-    if compiler_name != "default":
-        folder_name += "-{}".format(compiler_name)
-
     return folder_name
 
 
-def get_bin_folder_name(build_type: str, compiler_name: str):
-    build_folder_name = get_build_folder_name(build_type, compiler_name)
+def get_bin_folder_name(build_type: str):
+    build_folder_name = get_build_folder_name(build_type)
 
     if is_windows():
         bin_folder_name = "{}/bin/{}".format(build_folder_name, build_type)
@@ -231,14 +209,13 @@ def main(av: List[str]):
     print(av)
     task = av[0]
     build_type = av[1] if len(av) >= 2 else "Release"
-    compiler_name = av[2] if len(av) >= 3 else "default"
-    build_folder = get_build_folder_name(build_type, compiler_name)
-    tracing = True if len(av) >= 4 and av[3] == "--tracing" else False
-    verbose = True if len(av) >= 4 and av[3] == "--verbose" else False
-    kit_debug = True if len(av) >= 4 and av[3] == "--kit-debug" else False
-    parallel = False if len(av) >= 5 and av[4] == "--no-parallel" else True
-    build_only = True if len(av) >= 4 and av[3] == "--build-only" else False
-    args = Args(task, build_folder, build_type, compiler_name, tracing, verbose, kit_debug, parallel, build_only)
+    build_folder = get_build_folder_name(build_type)
+    tracing = True if len(av) >= 3 and av[2] == "--tracing" else False
+    verbose = True if len(av) >= 3 and av[2] == "--verbose" else False
+    kit_debug = True if len(av) >= 3 and av[2] == "--kit-debug" else False
+    parallel = False if len(av) >= 4 and av[3] == "--no-parallel" else True
+    build_only = True if len(av) >= 3 and av[2] == "--build-only" else False
+    args = Args(task, build_folder, build_type, tracing, verbose, kit_debug, parallel, build_only)
 
     if task == "configure":
         configure(args)
