@@ -51,29 +51,9 @@ FabricMaterialDefinition::FabricMaterialDefinition(
     : _hasVertexColors(materialInfo.hasVertexColors)
     , _hasBaseColorTexture(disableTextures ? false : materialInfo.baseColorTexture.has_value())
     , _featureIdTypes(filterFeatureIdTypes(featuresInfo, disableTextures))
+    , _imageryOverlayTypes(imageryLayersInfo.overlayTypes)
     , _tilesetMaterialPath(tilesetMaterialPath)
     , _properties(getStyleableProperties(model, primitive, tilesetMaterialPath)) {
-    _imageryLayerCount = imageryLayersInfo.imageryLayerCount;
-
-    int layerNum = 0;
-    for (auto layerType : imageryLayersInfo.overlayTypes) {
-        switch (layerType) {
-            case OverlayType::IMAGERY:
-                _ionImageryLayerCount++;
-                _ionImageryLayerIndices.push_back(layerNum);
-                break;
-            case OverlayType::POLYGON:
-                _polygonImageryLayerCount++;
-                _polygonImageryLayerIndices.push_back(layerNum);
-                break;
-        }
-        layerNum++;
-    }
-
-    if (disableTextures) {
-        _imageryLayerCount = 0;
-        _ionImageryLayerCount = 0;
-    }
 }
 
 bool FabricMaterialDefinition::hasVertexColors() const {
@@ -88,23 +68,8 @@ const std::vector<FeatureIdType>& FabricMaterialDefinition::getFeatureIdTypes() 
     return _featureIdTypes;
 }
 
-uint64_t FabricMaterialDefinition::getImageryLayerCount() const {
-    return _imageryLayerCount;
-}
-
-uint64_t FabricMaterialDefinition::getPolygonImageryCount() const {
-    return _polygonImageryLayerCount;
-}
-
-uint64_t FabricMaterialDefinition::getIonImageryCount() const {
-    return _ionImageryLayerCount;
-}
-
-std::vector<int> FabricMaterialDefinition::getIonImageryLayerIndices() const {
-    return _ionImageryLayerIndices;
-}
-std::vector<int> FabricMaterialDefinition::getPolygonImageryLayerIndices() const {
-    return _polygonImageryLayerIndices;
+const std::vector<OverlayType>& FabricMaterialDefinition::getImageryOverlayTypes() const {
+    return _imageryOverlayTypes;
 }
 
 bool FabricMaterialDefinition::hasTilesetMaterial() const {
@@ -121,8 +86,17 @@ const std::vector<MetadataUtil::PropertyDefinition>& FabricMaterialDefinition::g
 
 // In C++ 20 we can use the default equality comparison (= default)
 bool FabricMaterialDefinition::operator==(const FabricMaterialDefinition& other) const {
+    bool overlaysMatch = getImageryOverlayTypes().size() == other.getImageryOverlayTypes().size();
+    if (overlaysMatch) {
+        for (size_t i = 0; i < getImageryOverlayTypes().size(); i++) {
+            if (getImageryOverlayTypes()[i] != other.getImageryOverlayTypes()[i])
+            overlaysMatch = false;
+            continue;
+        }
+    }
+
     return _hasVertexColors == other._hasVertexColors && _hasBaseColorTexture == other._hasBaseColorTexture &&
-           _featureIdTypes == other._featureIdTypes && _imageryLayerCount == other._imageryLayerCount &&
+           _featureIdTypes == other._featureIdTypes && overlaysMatch &&
            _tilesetMaterialPath == other._tilesetMaterialPath && _properties == other._properties;
 }
 

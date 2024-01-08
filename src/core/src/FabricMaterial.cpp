@@ -18,6 +18,7 @@
 #include <omni/fabric/FabricUSD.h>
 #include <spdlog/fmt/fmt.h>
 #include <cstdint>
+#include <vector>
 
 namespace cesium::omniverse {
 
@@ -72,7 +73,7 @@ FeatureIdCounts getFeatureIdCounts(const FabricMaterialDefinition& materialDefin
 }
 
 uint64_t getImageryLayerCount(const FabricMaterialDefinition& materialDefinition) {
-    auto imageryLayerCount = materialDefinition.getImageryLayerCount();
+    auto imageryLayerCount = materialDefinition.getImageryOverlayTypes().size();
 
     if (imageryLayerCount > MAX_IMAGERY_LAYERS_COUNT) {
         CESIUM_LOG_WARN(
@@ -584,11 +585,23 @@ void FabricMaterial::initializeNodes() {
 void FabricMaterial::initializeDefaultMaterial() {
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
-    const auto ionImageryLayerIndices = _materialDefinition.getIonImageryLayerIndices();
-    const auto polygonImageryLayerIndices = _materialDefinition.getPolygonImageryLayerIndices();
+    int ionImageryLayerCount = 0, polygonImageryLayerCount = 0;
+    std::vector<int> ionImageryLayerIndices, polygonImageryLayerIndices;
+    int layerNum = 0;
+    for (auto layerType : _materialDefinition.getImageryOverlayTypes()) {
+        switch (layerType) {
+            case OverlayType::IMAGERY:
+                ionImageryLayerCount++;
+                ionImageryLayerIndices.push_back(layerNum);
+                break;
+            case OverlayType::POLYGON:
+                polygonImageryLayerCount++;
+                polygonImageryLayerIndices.push_back(layerNum);
+                break;
+        }
+        layerNum++;
+    }
 
-    const uint64_t ionImageryLayerCount = ionImageryLayerIndices.size();
-    const uint64_t polygonImageryLayerCount = polygonImageryLayerIndices.size();
     const auto hasBaseColorTexture = _materialDefinition.hasBaseColorTexture();
 
     // Create material
