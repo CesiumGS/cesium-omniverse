@@ -586,8 +586,8 @@ void FabricMaterial::initializeDefaultMaterial() {
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
     int ionImageryLayerCount = 0, polygonImageryLayerCount = 0;
-    std::vector<int> ionImageryLayerIndices, polygonImageryLayerIndices;
-    int layerNum = 0;
+    std::vector<uint64_t> ionImageryLayerIndices, polygonImageryLayerIndices;
+    uint64_t layerNum = 0;
     for (auto layerType : _materialDefinition.getImageryOverlayTypes()) {
         switch (layerType) {
             case OverlayType::IMAGERY:
@@ -651,7 +651,7 @@ void FabricMaterial::initializeDefaultMaterial() {
         createConnection(srw, _imageryLayerResolverPath, shaderPath, FabricTokens::inputs_imagery_layer);
 
         // Create connections from imagery layers to imagery layer resolver
-        int layerCounter = 0;
+        uint64_t layerCounter = 0;
         for (auto i : ionImageryLayerIndices) {
             const auto& imageryLayerPath = _imageryLayerPaths[i];
             createConnection(
@@ -671,7 +671,7 @@ void FabricMaterial::initializeDefaultMaterial() {
         createConnection(srw, _polygonImageryLayerResolverPath, shaderPath, FabricTokens::inputs_alpha_clip);
 
         // Create connections from imagery layers to imagery layer resolver
-        int layerCounter = 0;
+        uint64_t layerCounter = 0;
         for (auto i : polygonImageryLayerIndices) {
             const auto& imageryLayerPath = _imageryLayerPaths[i];
             createConnection(
@@ -1404,7 +1404,7 @@ void FabricMaterial::setMaterial(
     }
 
     if (_usesDefaultMaterial) {
-        _alphaMode = _polygonClippingEnabled ? cesium::omniverse::AlphaMode::BLEND : materialInfo.alphaMode;
+        _alphaMode = (materialInfo.alphaMode == AlphaMode::BLEND) ? materialInfo.alphaMode : (_polygonClippingEnabled ? AlphaMode::MASK : materialInfo.alphaMode);
 
         if (_debugRandomColors) {
             const auto r = glm::linearRand(0.0, 1.0);

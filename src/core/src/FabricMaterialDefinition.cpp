@@ -53,8 +53,7 @@ FabricMaterialDefinition::FabricMaterialDefinition(
     , _featureIdTypes(filterFeatureIdTypes(featuresInfo, disableTextures))
     , _imageryOverlayTypes(imageryLayersInfo.overlayTypes)
     , _tilesetMaterialPath(tilesetMaterialPath)
-    , _properties(getStyleableProperties(model, primitive, tilesetMaterialPath)) {
-}
+    , _properties(getStyleableProperties(model, primitive, tilesetMaterialPath)) {}
 
 bool FabricMaterialDefinition::hasVertexColors() const {
     return _hasVertexColors;
@@ -90,7 +89,7 @@ bool FabricMaterialDefinition::operator==(const FabricMaterialDefinition& other)
     if (overlaysMatch) {
         for (size_t i = 0; i < getImageryOverlayTypes().size(); i++) {
             if (getImageryOverlayTypes()[i] != other.getImageryOverlayTypes()[i])
-            overlaysMatch = false;
+                overlaysMatch = false;
             continue;
         }
     }

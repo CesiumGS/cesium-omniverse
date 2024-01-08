@@ -184,7 +184,7 @@ std::shared_ptr<FabricMaterial> FabricResourceManager::acquireMaterial(
     const CesiumGltf::MeshPrimitive& primitive,
     const MaterialInfo& materialInfo,
     const FeaturesInfo& featuresInfo,
-    ImageryLayersInfo& imageryLayersInfo,
+    const ImageryLayersInfo& imageryLayersInfo,
     long stageId,
     int64_t tilesetId,
     const pxr::SdfPath& tilesetMaterialPath) {
