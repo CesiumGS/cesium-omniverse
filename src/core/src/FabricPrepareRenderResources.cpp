@@ -197,7 +197,7 @@ std::vector<FabricMesh> acquireFabricMeshes(
         fabricMesh.geometry = fabricGeometry;
 
         const auto shouldAcquireMaterial = FabricResourceManager::getInstance().shouldAcquireMaterial(
-            primitive, imageryLayersInfo.imageryLayerCount > 0, tilesetMaterialPath);
+            primitive, imageryLayersInfo.overlayTypes.size() > 0, tilesetMaterialPath);
 
         if (shouldAcquireMaterial) {
             const auto materialInfo = GltfUtil::getMaterialInfo(model, primitive);
@@ -408,27 +408,30 @@ FabricPrepareRenderResources::prepareInLoadThread(
     // blending still works.
     const auto overlapsImagery = tileLoadResult.rasterOverlayDetails.has_value();
     ImageryLayersInfo imageryLayersInfo;
-    imageryLayersInfo.imageryLayerCount = overlapsImagery ? _tileset->getImageryLayerCount() : 0;
-    auto stage = Context::instance().getStage();
-    for (uint64_t i = 0; i < imageryLayersInfo.imageryLayerCount; i++) {
-        auto imageryLayerPath = _tileset->getImageryLayerPath(static_cast<int>(i));
-        auto prim = stage->GetPrimAtPath(imageryLayerPath);
+    auto imageryLayerCount = overlapsImagery ? _tileset->getImageryLayerCount() : 0;
+    if (imageryLayerCount > 0) {
+        auto stage = Context::instance().getStage();
+        for (uint64_t i = 0; i < imageryLayerCount; i++) {
+            auto imageryLayerPath = _tileset->getImageryLayerPath(static_cast<int>(i));
+            auto prim = stage->GetPrimAtPath(imageryLayerPath);
 
-        if (prim.IsA<pxr::CesiumIonImagery>()) {
-            imageryLayersInfo.overlayTypes.emplace_back(OverlayType::ION);
-        } else if (prim.IsA<pxr::CesiumPolygonImagery>()) {
-            imageryLayersInfo.overlayTypes.emplace_back(OverlayType::POLYGON);
-        } else {
-            Context::instance().getLogger()->error("Attempting to prepare resources for unknown imagery layer type");
-        }
+            if (prim.IsA<pxr::CesiumIonImagery>()) {
+                imageryLayersInfo.overlayTypes.emplace_back(OverlayType::ION);
+            } else if (prim.IsA<pxr::CesiumPolygonImagery>()) {
+                imageryLayersInfo.overlayTypes.emplace_back(OverlayType::POLYGON);
+            } else {
+                Context::instance().getLogger()->error(
+                    "Attempting to prepare resources for unknown imagery layer type");
+            }
 
-        auto imageryLayer = UsdUtil::getCesiumImagery(imageryLayerPath);
-        pxr::TfToken overlayRenderPipe;
-        imageryLayer.GetOverlayRenderPipeAttr().Get<pxr::TfToken>(&overlayRenderPipe);
-        if (overlayRenderPipe == pxr::CesiumTokens->overlay) {
-            imageryLayersInfo.overlayRenderPipes.emplace_back(OverlayRenderPipe::OVERLAY);
-        } else if (overlayRenderPipe == pxr::CesiumTokens->clip) {
-            imageryLayersInfo.overlayRenderPipes.emplace_back(OverlayRenderPipe::CLIPPING);
+            auto imageryLayer = UsdUtil::getCesiumImagery(imageryLayerPath);
+            pxr::TfToken overlayRenderPipe;
+            imageryLayer.GetOverlayRenderPipeAttr().Get<pxr::TfToken>(&overlayRenderPipe);
+            if (overlayRenderPipe == pxr::CesiumTokens->overlay) {
+                imageryLayersInfo.overlayRenderPipes.emplace_back(OverlayRenderPipe::OVERLAY);
+            } else if (overlayRenderPipe == pxr::CesiumTokens->clip) {
+                imageryLayersInfo.overlayRenderPipes.emplace_back(OverlayRenderPipe::CLIPPING);
+            }
         }
     }
 

@@ -77,7 +77,6 @@ struct FeaturesInfo {
 };
 
 struct ImageryLayersInfo {
-    uint64_t imageryLayerCount;
     std::vector<OverlayType> overlayTypes;
     std::vector<OverlayRenderPipe> overlayRenderPipes;
 };
