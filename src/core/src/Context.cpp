@@ -237,8 +237,7 @@ void Context::onUpdateUi() {
     const auto sessions = SessionRegistry::getInstance().getAllSessions();
 
     for (const auto& session : sessions) {
-        if (session)
-            session->tick();
+        session->tick();
     }
 }
 
