@@ -630,8 +630,8 @@ void FabricMaterial::initializeDefaultMaterial() {
         const auto polygonImageryLayerResolverPath =
             FabricUtil::joinPaths(materialPath, FabricTokens::polygon_imagery_layer_resolver);
         createPolygonImageryLayerResolver(polygonImageryLayerResolverPath, clipImageryLayerCount);
-        _clipImageryLayerResolverPath = polygonImageryLayerResolverPath;
-        _allPaths.push_back(_clipImageryLayerResolverPath);
+        _clippingImageryLayerResolverPath = polygonImageryLayerResolverPath;
+        _allPaths.push_back(_clippingImageryLayerResolverPath);
     }
 
     // Create connection from shader to material
@@ -669,7 +669,7 @@ void FabricMaterial::initializeDefaultMaterial() {
         createConnection(srw, polygonImageryLayerPath, shaderPath, FabricTokens::inputs_alpha_clip);
     } else if (clipImageryLayerCount > 1) {
         // Create connection from imagery layer resolver to shader
-        createConnection(srw, _clipImageryLayerResolverPath, shaderPath, FabricTokens::inputs_alpha_clip);
+        createConnection(srw, _clippingImageryLayerResolverPath, shaderPath, FabricTokens::inputs_alpha_clip);
 
         // Create connections from imagery layers to imagery layer resolver
         uint64_t layerCounter = 0;
@@ -678,7 +678,7 @@ void FabricMaterial::initializeDefaultMaterial() {
             createConnection(
                 srw,
                 imageryLayerPath,
-                _clipImageryLayerResolverPath,
+                _clippingImageryLayerResolverPath,
                 FabricTokens::inputs_imagery_layer_n(layerCounter++));
         }
     }
