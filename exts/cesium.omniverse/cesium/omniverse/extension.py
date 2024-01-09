@@ -54,6 +54,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._add_ion_asset_subscription: Optional[carb.events.ISubscription] = None
         self._add_blank_asset_subscription: Optional[carb.events.ISubscription] = None
         self._add_imagery_subscription: Optional[carb.events.ISubscription] = None
+        self._add_cartographic_polygon_subscription: Optional[carb.events.ISubscription] = None
         self._assets_to_add_after_token_set: List[AssetToAdd] = []
         self._imagery_to_add_after_token_set: List[ImageryToAdd] = []
         self._adding_assets = False
@@ -211,6 +212,10 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         if self._add_imagery_subscription is not None:
             self._add_imagery_subscription.unsubscribe()
             self._add_imagery_subscription = None
+
+        if self._add_cartographic_polygon_subscription is not None:
+            self._add_cartographic_polygon_subscription.unsubscribe()
+            self._add_cartographic_polygon_subscription = None
 
         if self._show_asset_window_subscription is not None:
             self._show_asset_window_subscription.unsubscribe()
