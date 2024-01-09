@@ -186,7 +186,6 @@ class FabricMaterial {
     const long _stageId;
 
     bool _usesDefaultMaterial;
-    bool _polygonClippingEnabled = false;
 
     AlphaMode _alphaMode{AlphaMode::OPAQUE};
     glm::dvec3 _debugColor{1.0, 1.0, 1.0};

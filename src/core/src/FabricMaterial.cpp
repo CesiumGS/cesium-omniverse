@@ -664,10 +664,6 @@ void FabricMaterial::initializeDefaultMaterial() {
         }
     }
 
-    if (clipImageryLayerCount > 0) {
-        _polygonClippingEnabled = true;
-    }
-
     if (clipImageryLayerCount == 1) {
         const auto& polygonImageryLayerPath = _imageryLayerPaths[clipImageryLayerIndices[0]];
         createConnection(srw, polygonImageryLayerPath, shaderPath, FabricTokens::inputs_alpha_clip);
@@ -1409,9 +1405,17 @@ void FabricMaterial::setMaterial(
     }
 
     if (_usesDefaultMaterial) {
+        bool polygonClippingEnabled = false;
+        for (auto pipeType : _materialDefinition.getImageryOverlayRenderPipes()) {
+            if (pipeType == OverlayRenderPipe::CLIP) {
+                polygonClippingEnabled = true;
+                break;
+            }
+        }
+
         _alphaMode = (materialInfo.alphaMode == AlphaMode::BLEND)
                          ? materialInfo.alphaMode
-                         : (_polygonClippingEnabled ? AlphaMode::MASK : materialInfo.alphaMode);
+                         : (polygonClippingEnabled ? AlphaMode::MASK : materialInfo.alphaMode);
 
         if (_debugRandomColors) {
             const auto r = glm::linearRand(0.0, 1.0);
