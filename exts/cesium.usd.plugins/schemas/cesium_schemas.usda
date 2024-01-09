@@ -457,7 +457,7 @@ class CesiumIonImageryPrim "CesiumIonImageryPrim" (
         customData = {
             string apiName = "ionAssetId"
         }
-        displayName = "Ion Asset ID"
+        displayName = "ion Asset ID"
         doc = "The ID of the Cesium ion asset to use."
     )
 
