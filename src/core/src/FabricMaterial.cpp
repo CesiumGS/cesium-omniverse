@@ -596,7 +596,7 @@ void FabricMaterial::initializeDefaultMaterial() {
                 overlayImageryLayerIndices.push_back(layerNum);
                 overlayImageryLayerCount++;
                 break;
-            case OverlayRenderPipe::CLIP:
+            case OverlayRenderPipe::CLIPPING:
                 clipImageryLayerIndices.push_back(layerNum);
                 clipImageryLayerCount++;
                 break;
@@ -1407,7 +1407,7 @@ void FabricMaterial::setMaterial(
     if (_usesDefaultMaterial) {
         bool polygonClippingEnabled = false;
         for (auto pipeType : _materialDefinition.getImageryOverlayRenderPipes()) {
-            if (pipeType == OverlayRenderPipe::CLIP) {
+            if (pipeType == OverlayRenderPipe::CLIPPING) {
                 polygonClippingEnabled = true;
                 break;
             }

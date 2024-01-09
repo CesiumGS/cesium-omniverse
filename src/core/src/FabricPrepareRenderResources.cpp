@@ -428,7 +428,7 @@ FabricPrepareRenderResources::prepareInLoadThread(
         if (overlayRenderPipe == pxr::CesiumTokens->overlay) {
             imageryLayersInfo.overlayRenderPipes.emplace_back(OverlayRenderPipe::OVERLAY);
         } else if (overlayRenderPipe == pxr::CesiumTokens->clip) {
-            imageryLayersInfo.overlayRenderPipes.emplace_back(OverlayRenderPipe::CLIP);
+            imageryLayersInfo.overlayRenderPipes.emplace_back(OverlayRenderPipe::CLIPPING);
         }
     }
 
