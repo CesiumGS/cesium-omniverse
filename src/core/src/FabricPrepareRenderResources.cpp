@@ -415,7 +415,7 @@ FabricPrepareRenderResources::prepareInLoadThread(
         auto prim = stage->GetPrimAtPath(imageryLayerPath);
 
         if (prim.IsA<pxr::CesiumIonImagery>()) {
-            imageryLayersInfo.overlayTypes.emplace_back(OverlayType::IMAGERY);
+            imageryLayersInfo.overlayTypes.emplace_back(OverlayType::ION);
         } else if (prim.IsA<pxr::CesiumPolygonImagery>()) {
             imageryLayersInfo.overlayTypes.emplace_back(OverlayType::POLYGON);
         } else {

@@ -503,7 +503,7 @@ void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
     const auto ionApiUrl = imagery.getIonApiUrl();
 
     CesiumRasterOverlays::RasterOverlayOptions options;
-    options.rendererOptions = OverlayType::IMAGERY;
+    options.rendererOptions = OverlayType::ION;
     options.showCreditsOnScreen = imagery.getShowCreditsOnScreen();
 
     options.loadErrorCallback = [tilesetPath, tilesetIonAssetId, tilesetName, imageryIonAssetId, imageryName](

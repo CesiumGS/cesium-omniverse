@@ -27,7 +27,7 @@ enum class AlphaMode : int {
     BLEND = 2,
 };
 
-enum class OverlayType { IMAGERY = 0, POLYGON = 1 };
+enum class OverlayType { ION = 0, POLYGON = 1 };
 enum class OverlayRenderPipe { OVERLAY = 0, CLIP = 1 };
 
 struct TextureInfo {
