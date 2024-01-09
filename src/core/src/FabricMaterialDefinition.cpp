@@ -52,6 +52,7 @@ FabricMaterialDefinition::FabricMaterialDefinition(
     , _hasBaseColorTexture(disableTextures ? false : materialInfo.baseColorTexture.has_value())
     , _featureIdTypes(filterFeatureIdTypes(featuresInfo, disableTextures))
     , _imageryOverlayTypes(imageryLayersInfo.overlayTypes)
+    , _imageryOverlayRenderPipes(imageryLayersInfo.overlayRenderPipes)
     , _tilesetMaterialPath(tilesetMaterialPath)
     , _properties(getStyleableProperties(model, primitive, tilesetMaterialPath)) {}
 
@@ -69,6 +70,10 @@ const std::vector<FeatureIdType>& FabricMaterialDefinition::getFeatureIdTypes() 
 
 const std::vector<OverlayType>& FabricMaterialDefinition::getImageryOverlayTypes() const {
     return _imageryOverlayTypes;
+}
+
+const std::vector<OverlayRenderPipe>& FabricMaterialDefinition::getImageryOverlayRenderPipes() const {
+    return _imageryOverlayRenderPipes;
 }
 
 bool FabricMaterialDefinition::hasTilesetMaterial() const {

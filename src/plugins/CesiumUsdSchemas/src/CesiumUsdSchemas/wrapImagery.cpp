@@ -39,6 +39,13 @@ _CreateAlphaAttr(CesiumImagery &self,
     return self.CreateAlphaAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Float), writeSparsely);
 }
+        
+static UsdAttribute
+_CreateOverlayRenderPipeAttr(CesiumImagery &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateOverlayRenderPipeAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Token), writeSparsely);
+}
 
 static std::string
 _Repr(const CesiumImagery &self)
@@ -90,6 +97,13 @@ void wrapCesiumImagery()
              &This::GetAlphaAttr)
         .def("CreateAlphaAttr",
              &_CreateAlphaAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetOverlayRenderPipeAttr",
+             &This::GetOverlayRenderPipeAttr)
+        .def("CreateOverlayRenderPipeAttr",
+             &_CreateOverlayRenderPipeAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 

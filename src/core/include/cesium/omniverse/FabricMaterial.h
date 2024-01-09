@@ -194,8 +194,8 @@ class FabricMaterial {
     omni::fabric::Path _shaderPath;
     omni::fabric::Path _baseColorTexturePath;
     std::vector<omni::fabric::Path> _imageryLayerPaths;
-    omni::fabric::Path _imageryLayerResolverPath;
-    omni::fabric::Path _polygonImageryLayerResolverPath;
+    omni::fabric::Path _overlayImageryLayerResolverPath;
+    omni::fabric::Path _clipImageryLayerResolverPath;
     std::vector<omni::fabric::Path> _featureIdPaths;
     std::vector<omni::fabric::Path> _featureIdIndexPaths;
     std::vector<omni::fabric::Path> _featureIdAttributePaths;

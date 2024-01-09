@@ -435,6 +435,15 @@ class "CesiumImageryPrim" (
         displayName = "Alpha"
         doc = "The alpha blending value, from 0.0 to 1.0, where 1.0 is fully opaque."
     )
+
+    uniform token cesium:overlayRenderPipe = "overlay" (
+        customData = {
+            string apiName = "overlayRenderPipe"
+        }
+        allowedTokens = ["overlay", "clip"]
+        displayName = "Overlay Render Pipe"
+        doc = "The Cesium default material will send the data down a given pipe with a different rendering treatment based on this selection."
+    )
 }
 
 class CesiumIonImageryPrim "CesiumIonImageryPrim" (

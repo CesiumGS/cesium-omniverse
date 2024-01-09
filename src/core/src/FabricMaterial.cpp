@@ -586,19 +586,21 @@ void FabricMaterial::initializeNodes() {
 void FabricMaterial::initializeDefaultMaterial() {
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
-    int ionImageryLayerCount = 0, polygonImageryLayerCount = 0;
-    std::vector<uint64_t> ionImageryLayerIndices, polygonImageryLayerIndices;
+    int overlayImageryLayerCount = 0, clipImageryLayerCount = 0;
     uint64_t layerNum = 0;
-    for (auto layerType : _materialDefinition.getImageryOverlayTypes()) {
-        switch (layerType) {
-            case OverlayType::IMAGERY:
-                ionImageryLayerCount++;
-                ionImageryLayerIndices.push_back(layerNum);
+    std::vector<uint64_t> overlayImageryLayerIndices, clipImageryLayerIndices;
+
+    for (auto pipeType: _materialDefinition.getImageryOverlayRenderPipes()) {
+        switch (pipeType) {
+            case OverlayRenderPipe::OVERLAY:
+                overlayImageryLayerIndices.push_back(layerNum);
+                overlayImageryLayerCount++;
                 break;
-            case OverlayType::POLYGON:
-                polygonImageryLayerCount++;
-                polygonImageryLayerIndices.push_back(layerNum);
+            case OverlayRenderPipe::CLIP:
+                clipImageryLayerIndices.push_back(layerNum);
+                clipImageryLayerCount++;
                 break;
+
         }
         layerNum++;
     }
@@ -617,20 +619,20 @@ void FabricMaterial::initializeDefaultMaterial() {
     _allPaths.push_back(shaderPath);
 
     // Create ion imagery layer resolver if there are multiple ion imagery layers
-    if (ionImageryLayerCount > 1) {
+    if (overlayImageryLayerCount > 1) {
         const auto imageryLayerResolverPath = FabricUtil::joinPaths(materialPath, FabricTokens::imagery_layer_resolver);
-        createImageryLayerResolver(imageryLayerResolverPath, ionImageryLayerCount);
-        _imageryLayerResolverPath = imageryLayerResolverPath;
+        createImageryLayerResolver(imageryLayerResolverPath, overlayImageryLayerCount);
+        _overlayImageryLayerResolverPath = imageryLayerResolverPath;
         _allPaths.push_back(imageryLayerResolverPath);
     }
 
     // Create polygon imagery layer resolver if there are multiple polygon imagery layers
-    if (polygonImageryLayerCount > 1) {
+    if (clipImageryLayerCount > 1) {
         const auto polygonImageryLayerResolverPath =
             FabricUtil::joinPaths(materialPath, FabricTokens::polygon_imagery_layer_resolver);
-        createPolygonImageryLayerResolver(polygonImageryLayerResolverPath, polygonImageryLayerCount);
-        _polygonImageryLayerResolverPath = polygonImageryLayerResolverPath;
-        _allPaths.push_back(_polygonImageryLayerResolverPath);
+        createPolygonImageryLayerResolver(polygonImageryLayerResolverPath, clipImageryLayerCount);
+        _clipImageryLayerResolverPath = polygonImageryLayerResolverPath;
+        _allPaths.push_back(_clipImageryLayerResolverPath);
     }
 
     // Create connection from shader to material
@@ -643,42 +645,42 @@ void FabricMaterial::initializeDefaultMaterial() {
         createConnection(srw, _baseColorTexturePath, shaderPath, FabricTokens::inputs_base_color_texture);
     }
 
-    if (ionImageryLayerCount == 1) {
+    if (overlayImageryLayerCount == 1) {
         // Create connection from imagery layer to shader
-        const auto& imageryLayerPath = _imageryLayerPaths[ionImageryLayerIndices[0]];
+        const auto& imageryLayerPath = _imageryLayerPaths[overlayImageryLayerIndices[0]];
         createConnection(srw, imageryLayerPath, shaderPath, FabricTokens::inputs_imagery_layer);
-    } else if (ionImageryLayerCount > 1) {
+    } else if (overlayImageryLayerCount > 1) {
         // Create connection from imagery layer resolver to shader
-        createConnection(srw, _imageryLayerResolverPath, shaderPath, FabricTokens::inputs_imagery_layer);
+        createConnection(srw, _overlayImageryLayerResolverPath, shaderPath, FabricTokens::inputs_imagery_layer);
 
         // Create connections from imagery layers to imagery layer resolver
         uint64_t layerCounter = 0;
-        for (auto i : ionImageryLayerIndices) {
+        for (auto i : overlayImageryLayerIndices) {
             const auto& imageryLayerPath = _imageryLayerPaths[i];
             createConnection(
-                srw, imageryLayerPath, _imageryLayerResolverPath, FabricTokens::inputs_imagery_layer_n(layerCounter++));
+                srw, imageryLayerPath, _overlayImageryLayerResolverPath, FabricTokens::inputs_imagery_layer_n(layerCounter++));
         }
     }
 
-    if (polygonImageryLayerCount > 0) {
+    if (clipImageryLayerCount > 0) {
         _polygonClippingEnabled = true;
     }
 
-    if (polygonImageryLayerCount == 1) {
-        const auto& polygonImageryLayerPath = _imageryLayerPaths[polygonImageryLayerIndices[0]];
+    if (clipImageryLayerCount == 1) {
+        const auto& polygonImageryLayerPath = _imageryLayerPaths[clipImageryLayerIndices[0]];
         createConnection(srw, polygonImageryLayerPath, shaderPath, FabricTokens::inputs_alpha_clip);
-    } else if (polygonImageryLayerCount > 1) {
+    } else if (clipImageryLayerCount > 1) {
         // Create connection from imagery layer resolver to shader
-        createConnection(srw, _polygonImageryLayerResolverPath, shaderPath, FabricTokens::inputs_alpha_clip);
+        createConnection(srw, _clipImageryLayerResolverPath, shaderPath, FabricTokens::inputs_alpha_clip);
 
         // Create connections from imagery layers to imagery layer resolver
         uint64_t layerCounter = 0;
-        for (auto i : polygonImageryLayerIndices) {
+        for (auto i : clipImageryLayerIndices) {
             const auto& imageryLayerPath = _imageryLayerPaths[i];
             createConnection(
                 srw,
                 imageryLayerPath,
-                _polygonImageryLayerResolverPath,
+                _clipImageryLayerResolverPath,
                 FabricTokens::inputs_imagery_layer_n(layerCounter++));
         }
     }

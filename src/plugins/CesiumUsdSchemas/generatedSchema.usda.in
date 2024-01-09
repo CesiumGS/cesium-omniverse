@@ -327,6 +327,11 @@ class "CesiumImageryPrim" (
         displayName = "Alpha"
         doc = "The alpha blending value, from 0.0 to 1.0, where 1.0 is fully opaque."
     )
+    uniform token cesium:overlayRenderPipe = "overlay" (
+        allowedTokens = ["overlay", "clip"]
+        displayName = "Overlay Render Pipe"
+        doc = "The Cesium default material will send the data down a given pipe with a different rendering treatment based on this selection."
+    )
     bool cesium:showCreditsOnScreen = 0 (
         displayName = "Show Credits On Screen"
         doc = "Whether or not to show this imagery layer's credits on screen."
@@ -353,6 +358,11 @@ class CesiumIonImageryPrim "CesiumIonImageryPrim" (
         displayName = "Cesium Ion Server Binding"
         doc = "Specifies which Cesium ion Server prim to use for this tileset."
     )
+    uniform token cesium:overlayRenderPipe = "overlay" (
+        allowedTokens = ["overlay", "clip"]
+        displayName = "Overlay Render Pipe"
+        doc = "The Cesium default material will send the data down a given pipe with a different rendering treatment based on this selection."
+    )
     bool cesium:showCreditsOnScreen = 0 (
         displayName = "Show Credits On Screen"
         doc = "Whether or not to show this imagery layer's credits on screen."
@@ -370,6 +380,11 @@ class CesiumPolygonImageryPrim "CesiumPolygonImageryPrim" (
     rel cesium:cartographicPolygonBinding (
         displayName = "Cartographic Polygon Binding"
         doc = "Specifies which Cartraphic Polygons to use in the imagery layer"
+    )
+    uniform token cesium:overlayRenderPipe = "overlay" (
+        allowedTokens = ["overlay", "clip"]
+        displayName = "Overlay Render Pipe"
+        doc = "The Cesium default material will send the data down a given pipe with a different rendering treatment based on this selection."
     )
     bool cesium:showCreditsOnScreen = 0 (
         displayName = "Show Credits On Screen"

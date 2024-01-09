@@ -44,6 +44,7 @@ CesiumTokensType::CesiumTokensType() :
     cesiumMaximumCachedBytes("cesium:maximumCachedBytes", TfToken::Immortal),
     cesiumMaximumScreenSpaceError("cesium:maximumScreenSpaceError", TfToken::Immortal),
     cesiumMaximumSimultaneousTileLoads("cesium:maximumSimultaneousTileLoads", TfToken::Immortal),
+    cesiumOverlayRenderPipe("cesium:overlayRenderPipe", TfToken::Immortal),
     cesiumPreloadAncestors("cesium:preloadAncestors", TfToken::Immortal),
     cesiumPreloadSiblings("cesium:preloadSiblings", TfToken::Immortal),
     cesiumProjectDefaultIonAccessToken("cesium:projectDefaultIonAccessToken", TfToken::Immortal),
@@ -54,7 +55,9 @@ CesiumTokensType::CesiumTokensType() :
     cesiumSourceType("cesium:sourceType", TfToken::Immortal),
     cesiumSuspendUpdate("cesium:suspendUpdate", TfToken::Immortal),
     cesiumUrl("cesium:url", TfToken::Immortal),
+    clip("clip", TfToken::Immortal),
     ion("ion", TfToken::Immortal),
+    overlay("overlay", TfToken::Immortal),
     url("url", TfToken::Immortal),
     allTokens({
         cesiumAlpha,
@@ -98,6 +101,7 @@ CesiumTokensType::CesiumTokensType() :
         cesiumMaximumCachedBytes,
         cesiumMaximumScreenSpaceError,
         cesiumMaximumSimultaneousTileLoads,
+        cesiumOverlayRenderPipe,
         cesiumPreloadAncestors,
         cesiumPreloadSiblings,
         cesiumProjectDefaultIonAccessToken,
@@ -108,7 +112,9 @@ CesiumTokensType::CesiumTokensType() :
         cesiumSourceType,
         cesiumSuspendUpdate,
         cesiumUrl,
+        clip,
         ion,
+        overlay,
         url
     })
 {

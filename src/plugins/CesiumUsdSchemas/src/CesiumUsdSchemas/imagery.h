@@ -31,6 +31,11 @@ class SdfAssetPath;
 ///
 /// Abstract base class for prims that represent an imagery layer.
 ///
+/// For any described attribute \em Fallback \em Value or \em Allowed \em Values below
+/// that are text/tokens, the actual token is published and defined in \ref CesiumTokens.
+/// So to set an attribute to the value "rightHanded", use CesiumTokens->rightHanded
+/// as the value.
+///
 class CesiumImagery : public UsdTyped
 {
 public:
@@ -143,6 +148,30 @@ public:
     /// the default for \p writeSparsely is \c false.
     CESIUMUSDSCHEMAS_API
     UsdAttribute CreateAlphaAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
+    // OVERLAYRENDERPIPE 
+    // --------------------------------------------------------------------- //
+    /// The Cesium default material will send the data down a given pipe with a different rendering treatment based on this selection.
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `uniform token cesium:overlayRenderPipe = "overlay"` |
+    /// | C++ Type | TfToken |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Token |
+    /// | \ref SdfVariability "Variability" | SdfVariabilityUniform |
+    /// | \ref CesiumTokens "Allowed Values" | overlay, clip |
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute GetOverlayRenderPipeAttr() const;
+
+    /// See GetOverlayRenderPipeAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute CreateOverlayRenderPipeAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // ===================================================================== //
