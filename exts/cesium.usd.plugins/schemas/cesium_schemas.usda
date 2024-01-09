@@ -473,7 +473,7 @@ class CesiumIonImageryPrim "CesiumIonImageryPrim" (
         customData = {
             string apiName = "ionServerBinding"
         }
-        displayName = "Cesium Ion Server Binding"
+        displayName = "Cesium ion Server Binding"
         doc = "Specifies which Cesium ion Server prim to use for this tileset."
     )
 }
@@ -490,12 +490,12 @@ class CesiumPolygonImageryPrim "CesiumPolygonImageryPrim" (
             string apiName = "cartographicPolygonBinding"
         }
         displayName = "Cartographic Polygon Binding"
-        doc = "Specifies which Cartraphic Polygons to use in the imagery layer"
+        doc = "Specifies which Cartographic Polygons to use in the imagery layer"
     )
 }
 
 class CesiumCartographicPolygonPrim "CesiumCartographicPolygonPrim" (
-    doc = """Adds a prim that represents a Cesium CartographicPolygon"""
+    doc = """Adds a prim that represents a globe-anchored polygon"""
     inherits = </BasisCurves>
     prepend apiSchemas = ["CesiumGlobeAnchorSchemaAPI"]
     customData = {
