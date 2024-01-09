@@ -21,7 +21,6 @@
 #include "cesium/omniverse/Viewport.h"
 
 #include <CesiumRasterOverlays/IonRasterOverlay.h>
-// #include <Cesium3DTilesSelection/RasterizedPolygonsOverlay.h>
 #include <CesiumGeospatial/Cartographic.h>
 #include <CesiumGeospatial/CartographicPolygon.h>
 #include <CesiumGeospatial/Ellipsoid.h>
