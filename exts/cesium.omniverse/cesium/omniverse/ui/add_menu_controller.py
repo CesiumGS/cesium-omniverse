@@ -32,16 +32,12 @@ class CesiumAddMenuController:
             ),
             PrimPathWidget.add_button_menu_entry(
                 "Cesium/Ion Imagery Layer",
-                show_fn=partial(
-                    self._show_add_imagery, context_menu=context_menu, usd_type=CesiumTileset
-                ),
+                show_fn=partial(self._show_add_imagery, context_menu=context_menu, usd_type=CesiumTileset),
                 onclick_fn=self._add_ion_imagery,
             ),
             PrimPathWidget.add_button_menu_entry(
                 "Cesium/Polygon Imagery Layer",
-                show_fn=partial(
-                    self._show_add_imagery, context_menu=context_menu, usd_type=CesiumTileset
-                ),
+                show_fn=partial(self._show_add_imagery, context_menu=context_menu, usd_type=CesiumTileset),
                 onclick_fn=self._add_polygon_imagery,
             ),
         ]
