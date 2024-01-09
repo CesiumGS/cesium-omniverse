@@ -586,9 +586,9 @@ void FabricMaterial::initializeNodes() {
 void FabricMaterial::initializeDefaultMaterial() {
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
-    int overlayImageryLayerCount = 0, clipImageryLayerCount = 0;
+    int overlayImageryLayerCount = 0, clippingImageryLayerCount = 0;
     uint64_t layerNum = 0;
-    std::vector<uint64_t> overlayImageryLayerIndices, clipImageryLayerIndices;
+    std::vector<uint64_t> overlayImageryLayerIndices, clippingImageryLayerIndices;
 
     for (auto pipeType : _materialDefinition.getImageryOverlayRenderPipes()) {
         switch (pipeType) {
@@ -597,8 +597,8 @@ void FabricMaterial::initializeDefaultMaterial() {
                 overlayImageryLayerCount++;
                 break;
             case OverlayRenderPipe::CLIPPING:
-                clipImageryLayerIndices.push_back(layerNum);
-                clipImageryLayerCount++;
+                clippingImageryLayerIndices.push_back(layerNum);
+                clippingImageryLayerCount++;
                 break;
         }
         layerNum++;
@@ -626,10 +626,10 @@ void FabricMaterial::initializeDefaultMaterial() {
     }
 
     // Create polygon imagery layer resolver if there are multiple polygon imagery layers
-    if (clipImageryLayerCount > 1) {
+    if (clippingImageryLayerCount > 1) {
         const auto polygonImageryLayerResolverPath =
             FabricUtil::joinPaths(materialPath, FabricTokens::polygon_imagery_layer_resolver);
-        createPolygonImageryLayerResolver(polygonImageryLayerResolverPath, clipImageryLayerCount);
+        createPolygonImageryLayerResolver(polygonImageryLayerResolverPath, clippingImageryLayerCount);
         _clippingImageryLayerResolverPath = polygonImageryLayerResolverPath;
         _allPaths.push_back(_clippingImageryLayerResolverPath);
     }
@@ -664,16 +664,16 @@ void FabricMaterial::initializeDefaultMaterial() {
         }
     }
 
-    if (clipImageryLayerCount == 1) {
-        const auto& polygonImageryLayerPath = _imageryLayerPaths[clipImageryLayerIndices[0]];
+    if (clippingImageryLayerCount == 1) {
+        const auto& polygonImageryLayerPath = _imageryLayerPaths[clippingImageryLayerIndices[0]];
         createConnection(srw, polygonImageryLayerPath, shaderPath, FabricTokens::inputs_alpha_clip);
-    } else if (clipImageryLayerCount > 1) {
+    } else if (clippingImageryLayerCount > 1) {
         // Create connection from imagery layer resolver to shader
         createConnection(srw, _clippingImageryLayerResolverPath, shaderPath, FabricTokens::inputs_alpha_clip);
 
         // Create connections from imagery layers to imagery layer resolver
         uint64_t layerCounter = 0;
-        for (auto i : clipImageryLayerIndices) {
+        for (auto i : clippingImageryLayerIndices) {
             const auto& imageryLayerPath = _imageryLayerPaths[i];
             createConnection(
                 srw,
