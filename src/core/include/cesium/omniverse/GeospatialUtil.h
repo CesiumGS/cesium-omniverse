@@ -1,10 +1,9 @@
 #pragma once
 
-#include "CesiumUsdSchemas/globeAnchorAPI.h"
-
 #include <CesiumGeospatial/Cartographic.h>
 #include <CesiumGeospatial/LocalHorizontalCoordinateSystem.h>
 #include <CesiumUsdSchemas/georeference.h>
+#include <CesiumUsdSchemas/globeAnchorAPI.h>
 #include <glm/glm.hpp>
 
 namespace CesiumGeospatial {

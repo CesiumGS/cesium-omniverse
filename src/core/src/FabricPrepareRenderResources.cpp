@@ -1,8 +1,5 @@
 #include "cesium/omniverse/FabricPrepareRenderResources.h"
 
-#include "CesiumUsdSchemas/ionImagery.h"
-#include "CesiumUsdSchemas/polygonImagery.h"
-
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/FabricGeometry.h"
 #include "cesium/omniverse/FabricMaterial.h"
@@ -14,6 +11,9 @@
 #include "cesium/omniverse/MetadataUtil.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/UsdUtil.h"
+
+#include <CesiumUsdSchemas/ionImagery.h>
+#include <CesiumUsdSchemas/polygonImagery.h>
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")

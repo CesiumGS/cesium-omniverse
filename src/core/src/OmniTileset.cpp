@@ -1,8 +1,5 @@
 #include "cesium/omniverse/OmniTileset.h"
 
-#include "CesiumUsdSchemas/cartographicPolygon.h"
-#include "CesiumUsdSchemas/polygonImagery.h"
-
 #include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/Context.h"
@@ -26,6 +23,8 @@
 #include <CesiumGeospatial/Projection.h>
 #include <CesiumRasterOverlays/IonRasterOverlay.h>
 #include <CesiumRasterOverlays/RasterizedPolygonsOverlay.h>
+#include <CesiumUsdSchemas/cartographicPolygon.h>
+#include <CesiumUsdSchemas/polygonImagery.h>
 #include <glm/ext/vector_double3.hpp>
 
 #ifdef CESIUM_OMNI_MSVC

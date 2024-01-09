@@ -1,7 +1,5 @@
 #include "cesium/omniverse/UsdUtil.h"
 
-#include "CesiumUsdSchemas/cartographicPolygon.h"
-
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/GeospatialUtil.h"
 #include "cesium/omniverse/Tokens.h"
@@ -11,6 +9,7 @@
 #include <CesiumGeospatial/Cartographic.h>
 #include <CesiumGeospatial/GlobeAnchor.h>
 #include <CesiumGeospatial/GlobeTransforms.h>
+#include <CesiumUsdSchemas/cartographicPolygon.h>
 #include <glm/gtc/matrix_access.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtx/matrix_decompose.hpp>

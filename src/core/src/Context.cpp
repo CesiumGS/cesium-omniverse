@@ -1,8 +1,5 @@
 #include "cesium/omniverse/Context.h"
 
-#include "CesiumUsdSchemas/cartographicPolygon.h"
-#include "CesiumUsdSchemas/globeAnchorAPI.h"
-
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/CesiumIonSession.h"
@@ -19,6 +16,9 @@
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
+
+#include <CesiumUsdSchemas/cartographicPolygon.h>
+#include <CesiumUsdSchemas/globeAnchorAPI.h>
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")

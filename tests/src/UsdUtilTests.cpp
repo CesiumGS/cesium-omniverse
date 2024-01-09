@@ -1,13 +1,13 @@
 #include "UsdUtilTests.h"
 
-#include "CesiumUsdSchemas/data.h"
-#include "CesiumUsdSchemas/georeference.h"
 #include "testUtils.h"
 
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/UsdUtil.h"
 
+#include <CesiumUsdSchemas/data.h>
+#include <CesiumUsdSchemas/georeference.h>
 #include <doctest/doctest.h>
 #include <glm/ext/matrix_double4x4.hpp>
 #include <pxr/usd/usdGeom/cube.h>
