@@ -602,6 +602,9 @@ void FabricMaterial::initializeDefaultMaterial() {
                 break;
         }
         layerNum++;
+        if (layerNum == MAX_IMAGERY_LAYERS_COUNT) {
+            break;
+        }
     }
 
     const auto hasBaseColorTexture = _materialDefinition.hasBaseColorTexture();
