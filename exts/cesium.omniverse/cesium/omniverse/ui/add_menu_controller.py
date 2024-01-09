@@ -5,9 +5,11 @@ from omni.kit.property.usd import PrimPathWidget, PrimSelectionPayload
 from omni.kit.window.property import get_window as get_property_window
 import omni.usd
 from pxr import Sdf, Tf, UsdGeom
-from cesium.usd.plugins.CesiumUsdSchemas import Tileset as CesiumTileset
-from cesium.usd.plugins.CesiumUsdSchemas import PolygonImagery as CesiumPolygonImagery
-from cesium.usd.plugins.CesiumUsdSchemas import IonImagery as CesiumIonImagery
+from cesium.usd.plugins.CesiumUsdSchemas import (
+    Tileset as CesiumTileset,
+    PolygonImagery as CesiumPolygonImagery,
+    IonImagery as CesiumIonImagery,
+)
 from ..api.globe_anchor import anchor_xform_at_path
 from ..bindings import ICesiumOmniverseInterface
 
