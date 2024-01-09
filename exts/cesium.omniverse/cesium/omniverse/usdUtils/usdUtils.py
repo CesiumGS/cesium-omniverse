@@ -75,7 +75,7 @@ def add_cartographic_polygon() -> None:
 
 
 def is_tileset(maybe_tileset: Gprim) -> bool:
-    return maybe_tileset.isA(CesiumTileset)
+    return maybe_tileset.IsA(CesiumTileset)
 
 
 def remove_tileset(tileset_path: str) -> None:
