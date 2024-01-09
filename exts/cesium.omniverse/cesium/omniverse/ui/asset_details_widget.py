@@ -76,7 +76,7 @@ class CesiumAssetDetailsWidget(ui.ScrollingFrame):
         selection = context.get_selection().get_selected_prim_paths()
         tileset_path: Optional[str] = None
 
-        if len(selection) > 0 and is_tileset(selection[0]):
+        if len(selection) > 0 and is_tileset(context.get_stage().GetPrimAtPath(selection[0])):
             tileset_path = selection[0]
 
         if tileset_path is None:

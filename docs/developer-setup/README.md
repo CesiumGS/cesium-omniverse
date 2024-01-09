@@ -34,7 +34,7 @@
 See [Linux](#linux) or [Windows](#windows) for step-by-step installation instructions
 
 - Linux (Ubuntu 22.04+ or equivalent) or Windows
-- Clang 14+, GCC 9+, or Visual Studio 2022+
+- Clang 15+, GCC 9+, or Visual Studio 2022+
 - Python 3.10+ - For Conan and scripts
 - CMake 3.22+ - Build system generator
 - Make - Build system (Linux only)
@@ -52,7 +52,7 @@ See [Linux](#linux) or [Windows](#windows) for step-by-step installation instruc
   ```
 - Install dependencies (for Ubuntu 22.04 - other Linux distributions should be similar)
   ```sh
-  sudo apt install -y gcc-9 g++-9 clang-14 python3 python3-pip cmake make git doxygen clang-format-14 clang-tidy-14 clangd-14 gcovr
+  sudo apt install -y gcc-9 g++-9 clang-15 python3 python3-pip cmake make git doxygen clang-format-15 clang-tidy-15 clangd-15 gcovr
   ```
 - Install Conan with pip because Conan is not in Ubuntu's package manager
   ```sh
@@ -66,15 +66,15 @@ See [Linux](#linux) or [Windows](#windows) for step-by-step installation instruc
   ```sh
   pip3 install black==23.1.0 flake8==6.0.0
   ```
-- Add symlinks the clang-14 tools so that the correct version is chosen when running `clang-format`, `clang-tidy`, etc
+- Add symlinks the clang-15 tools so that the correct version is chosen when running `clang-format`, `clang-tidy`, etc
   ```sh
-  sudo ln -s /usr/bin/clang-14 /usr/bin/clang
-  sudo ln -s /usr/bin/clang++-14 /usr/bin/clang++
-  sudo ln -s /usr/bin/clang-format-14 /usr/bin/clang-format
-  sudo ln -s /usr/bin/clang-tidy-14 /usr/bin/clang-tidy
-  sudo ln -s /usr/bin/run-clang-tidy-14 /usr/bin/run-clang-tidy
-  sudo ln -s /usr/bin/llvm-cov-14 /usr/bin/llvm-cov
-  sudo ln -s /usr/bin/clangd-14 /usr/bin/clangd
+  sudo ln -s /usr/bin/clang-15 /usr/bin/clang
+  sudo ln -s /usr/bin/clang++-15 /usr/bin/clang++
+  sudo ln -s /usr/bin/clang-format-15 /usr/bin/clang-format
+  sudo ln -s /usr/bin/clang-tidy-15 /usr/bin/clang-tidy
+  sudo ln -s /usr/bin/run-clang-tidy-15 /usr/bin/run-clang-tidy
+  sudo ln -s /usr/bin/llvm-cov-15 /usr/bin/llvm-cov
+  sudo ln -s /usr/bin/clangd-15 /usr/bin/clangd
   ```
 - Then refresh the shell so that newly added dependencies are available in the path.
   ```sh
@@ -92,7 +92,7 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
   - Select `Desktop Development with C++` and use the default components
 - Install Git: https://git-scm.com/downloads
   - Use defaults
-- Install LLVM 14.0.6: https://llvm.org/builds
+- Install LLVM 15.0.7: https://llvm.org/builds
   - When prompted, select `Add LLVM to the system PATH for all users`
 - Install CMake: https://cmake.org/download
   - When prompted, select `Add CMake to the system PATH for all users`
@@ -146,7 +146,7 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
   choco install -y visualstudio2022professional visualstudio2022-workload-nativedesktop python cmake ninja git doxygen.install vswhere --installargs 'ADD_CMAKE_TO_PATH=System'
   ```
   ```sh
-  choco install -y llvm --version=14.0.6
+  choco install -y llvm --version=15.0.7
   ```
   ```sh
   choco install -y conan --version 1.58.0
@@ -257,7 +257,7 @@ cmake --build build --parallel 8
 To use a specific C/C++ compiler, set `CMAKE_CXX_COMPILER` and `CMAKE_C_COMPILER`
 
 ```sh
-cmake -B build -D CMAKE_CXX_COMPILER=clang++-14 -D CMAKE_C_COMPILER=clang-14
+cmake -B build -D CMAKE_CXX_COMPILER=clang++-15 -D CMAKE_C_COMPILER=clang-15
 cmake --build build
 ```
 
