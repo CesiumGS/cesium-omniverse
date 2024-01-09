@@ -590,7 +590,7 @@ void FabricMaterial::initializeDefaultMaterial() {
     uint64_t layerNum = 0;
     std::vector<uint64_t> overlayImageryLayerIndices, clipImageryLayerIndices;
 
-    for (auto pipeType: _materialDefinition.getImageryOverlayRenderPipes()) {
+    for (auto pipeType : _materialDefinition.getImageryOverlayRenderPipes()) {
         switch (pipeType) {
             case OverlayRenderPipe::OVERLAY:
                 overlayImageryLayerIndices.push_back(layerNum);
@@ -600,7 +600,6 @@ void FabricMaterial::initializeDefaultMaterial() {
                 clipImageryLayerIndices.push_back(layerNum);
                 clipImageryLayerCount++;
                 break;
-
         }
         layerNum++;
     }
@@ -658,7 +657,10 @@ void FabricMaterial::initializeDefaultMaterial() {
         for (auto i : overlayImageryLayerIndices) {
             const auto& imageryLayerPath = _imageryLayerPaths[i];
             createConnection(
-                srw, imageryLayerPath, _overlayImageryLayerResolverPath, FabricTokens::inputs_imagery_layer_n(layerCounter++));
+                srw,
+                imageryLayerPath,
+                _overlayImageryLayerResolverPath,
+                FabricTokens::inputs_imagery_layer_n(layerCounter++));
         }
     }
 
