@@ -109,7 +109,6 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((inputs_channels, "inputs:channels")) \
     ((inputs_default_value, "inputs:default_value")) \
     ((inputs_emissive_factor, "inputs:emissive_factor")) \
-    ((inputs_enable_opacity, "inputs:enable_opacity")) \
     ((inputs_excludeFromWhiteMode, "inputs:excludeFromWhiteMode")) \
     ((inputs_feature_id, "inputs:feature_id")) \
     ((inputs_feature_id_set_index, "inputs:feature_id_set_index")) \
@@ -214,7 +213,6 @@ const omni::fabric::Type inputs_default_value_float3(omni::fabric::BaseDataType:
 const omni::fabric::Type inputs_default_value_float4(omni::fabric::BaseDataType::eFloat, 4, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_tile_color(omni::fabric::BaseDataType::eFloat, 4, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_emissive_factor(omni::fabric::BaseDataType::eFloat, 3, 0, omni::fabric::AttributeRole::eColor);
-const omni::fabric::Type inputs_enable_opacity(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_excludeFromWhiteMode(omni::fabric::BaseDataType::eBool, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_feature_id(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_has_no_data(omni::fabric::BaseDataType::eBool, 1, 0, omni::fabric::AttributeRole::eNone);
