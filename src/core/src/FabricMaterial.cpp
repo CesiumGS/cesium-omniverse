@@ -586,25 +586,25 @@ void FabricMaterial::initializeNodes() {
 void FabricMaterial::initializeDefaultMaterial() {
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
-    int overlayImageryLayerCount = 0, clippingImageryLayerCount = 0;
+    uint64_t overlayImageryLayerCount = 0, clippingImageryLayerCount = 0;
     uint64_t layerNum = 0;
     std::vector<uint64_t> overlayImageryLayerIndices, clippingImageryLayerIndices;
-
     for (auto methodType : _materialDefinition.getImageryOverlayRenderMethods()) {
         switch (methodType) {
             case OverlayRenderMethod::OVERLAY:
-                overlayImageryLayerIndices.push_back(layerNum);
+                if (overlayImageryLayerCount < MAX_IMAGERY_LAYERS_COUNT) {
+                    overlayImageryLayerIndices.push_back(layerNum);
+                }
                 overlayImageryLayerCount++;
                 break;
             case OverlayRenderMethod::CLIPPING:
-                clippingImageryLayerIndices.push_back(layerNum);
+                if (clippingImageryLayerCount < MAX_IMAGERY_LAYERS_COUNT) {
+                    clippingImageryLayerIndices.push_back(layerNum);
+                }
                 clippingImageryLayerCount++;
                 break;
         }
         layerNum++;
-        if (layerNum == MAX_IMAGERY_LAYERS_COUNT) {
-            break;
-        }
     }
 
     const auto hasBaseColorTexture = _materialDefinition.hasBaseColorTexture();
