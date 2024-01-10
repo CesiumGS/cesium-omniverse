@@ -28,11 +28,6 @@ class FabricMaterialDefinition {
     [[nodiscard]] const std::vector<FeatureIdType>& getFeatureIdTypes() const;
     [[nodiscard]] const std::vector<OverlayType>& getImageryOverlayTypes() const;
     [[nodiscard]] const std::vector<OverlayRenderMethod>& getImageryOverlayRenderMethods() const;
-    [[nodiscard]] uint64_t getImageryLayerCount() const;
-    [[nodiscard]] uint64_t getPolygonImageryCount() const;
-    [[nodiscard]] uint64_t getIonImageryCount() const;
-    [[nodiscard]] std::vector<int> getIonImageryLayerIndices() const;
-    [[nodiscard]] std::vector<int> getPolygonImageryLayerIndices() const;
     [[nodiscard]] bool hasTilesetMaterial() const;
     [[nodiscard]] const pxr::SdfPath& getTilesetMaterialPath() const;
     [[nodiscard]] const std::vector<MetadataUtil::PropertyDefinition>& getProperties() const;
