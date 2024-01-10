@@ -1,4 +1,4 @@
-#include ".//imagery.h"
+#include ".//ionImagery.h"
 #include "pxr/usd/usd/schemaBase.h"
 
 #include "pxr/usd/sdf/primSpec.h"
@@ -27,43 +27,36 @@ WRAP_CUSTOM;
 
         
 static UsdAttribute
-_CreateShowCreditsOnScreenAttr(CesiumImagery &self,
+_CreateIonAssetIdAttr(CesiumIonImagery &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateShowCreditsOnScreenAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+    return self.CreateIonAssetIdAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int64), writeSparsely);
 }
         
 static UsdAttribute
-_CreateAlphaAttr(CesiumImagery &self,
+_CreateIonAccessTokenAttr(CesiumIonImagery &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateAlphaAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Float), writeSparsely);
-}
-        
-static UsdAttribute
-_CreateOverlayRenderMethodAttr(CesiumImagery &self,
-                                      object defaultVal, bool writeSparsely) {
-    return self.CreateOverlayRenderMethodAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Token), writeSparsely);
+    return self.CreateIonAccessTokenAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
 
 static std::string
-_Repr(const CesiumImagery &self)
+_Repr(const CesiumIonImagery &self)
 {
     std::string primRepr = TfPyRepr(self.GetPrim());
     return TfStringPrintf(
-        "CesiumUsdSchemas.Imagery(%s)",
+        "CesiumUsdSchemas.IonImagery(%s)",
         primRepr.c_str());
 }
 
 } // anonymous namespace
 
-void wrapCesiumImagery()
+void wrapCesiumIonImagery()
 {
-    typedef CesiumImagery This;
+    typedef CesiumIonImagery This;
 
-    class_<This, bases<UsdTyped> >
-        cls("Imagery");
+    class_<This, bases<CesiumImagery> >
+        cls("IonImagery");
 
     cls
         .def(init<UsdPrim>(arg("prim")))
@@ -72,6 +65,9 @@ void wrapCesiumImagery()
 
         .def("Get", &This::Get, (arg("stage"), arg("path")))
         .staticmethod("Get")
+
+        .def("Define", &This::Define, (arg("stage"), arg("path")))
+        .staticmethod("Define")
 
         .def("GetSchemaAttributeNames",
              &This::GetSchemaAttributeNames,
@@ -86,27 +82,25 @@ void wrapCesiumImagery()
         .def(!self)
 
         
-        .def("GetShowCreditsOnScreenAttr",
-             &This::GetShowCreditsOnScreenAttr)
-        .def("CreateShowCreditsOnScreenAttr",
-             &_CreateShowCreditsOnScreenAttr,
+        .def("GetIonAssetIdAttr",
+             &This::GetIonAssetIdAttr)
+        .def("CreateIonAssetIdAttr",
+             &_CreateIonAssetIdAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetAlphaAttr",
-             &This::GetAlphaAttr)
-        .def("CreateAlphaAttr",
-             &_CreateAlphaAttr,
-             (arg("defaultValue")=object(),
-              arg("writeSparsely")=false))
-        
-        .def("GetOverlayRenderMethodAttr",
-             &This::GetOverlayRenderMethodAttr)
-        .def("CreateOverlayRenderMethodAttr",
-             &_CreateOverlayRenderMethodAttr,
+        .def("GetIonAccessTokenAttr",
+             &This::GetIonAccessTokenAttr)
+        .def("CreateIonAccessTokenAttr",
+             &_CreateIonAccessTokenAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 
+        
+        .def("GetIonServerBindingRel",
+             &This::GetIonServerBindingRel)
+        .def("CreateIonServerBindingRel",
+             &This::CreateIonServerBindingRel)
         .def("__repr__", ::_Repr)
     ;
 

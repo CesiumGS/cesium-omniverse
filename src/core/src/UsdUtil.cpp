@@ -9,6 +9,7 @@
 #include <CesiumGeospatial/Cartographic.h>
 #include <CesiumGeospatial/GlobeAnchor.h>
 #include <CesiumGeospatial/GlobeTransforms.h>
+#include <CesiumUsdSchemas/cartographicPolygon.h>
 #include <glm/gtc/matrix_access.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
@@ -18,6 +19,7 @@
 #include <pxr/usd/usd/prim.h>
 #include <pxr/usd/usd/stage.h>
 #include <pxr/usd/usd/timeCode.h>
+#include <pxr/usd/usdGeom/basisCurves.h>
 #include <pxr/usd/usdGeom/metrics.h>
 #include <pxr/usd/usdGeom/xform.h>
 #include <pxr/usd/usdGeom/xformCommonAPI.h>
@@ -337,9 +339,9 @@ pxr::CesiumTileset defineCesiumTileset(const pxr::SdfPath& path) {
     return tileset;
 }
 
-pxr::CesiumImagery defineCesiumImagery(const pxr::SdfPath& path) {
+pxr::CesiumIonImagery defineCesiumIonImagery(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
-    auto imagery = pxr::CesiumImagery::Define(stage, path);
+    auto imagery = pxr::CesiumIonImagery::Define(stage, path);
     assert(imagery.GetPrim().IsValid());
 
     return imagery;
@@ -440,6 +442,27 @@ pxr::CesiumImagery getCesiumImagery(const pxr::SdfPath& path) {
     return imagery;
 }
 
+pxr::CesiumIonImagery getCesiumIonImagery(const pxr::SdfPath& path) {
+    auto stage = UsdUtil::getUsdStage();
+    auto imagery = pxr::CesiumIonImagery::Get(stage, path);
+    assert(imagery.GetPrim().IsValid());
+    return imagery;
+}
+
+pxr::CesiumPolygonImagery getCesiumPolygonImagery(const pxr::SdfPath& path) {
+    auto stage = UsdUtil::getUsdStage();
+    auto imagery = pxr::CesiumPolygonImagery::Get(stage, path);
+    assert(imagery.GetPrim().IsValid());
+    return imagery;
+}
+
+pxr::CesiumCartographicPolygon getCesiumCartographicPolygon(const pxr::SdfPath& path) {
+    auto stage = UsdUtil::getUsdStage();
+    auto cartographicPolygon = pxr::CesiumCartographicPolygon::Get(stage, path);
+    assert(cartographicPolygon.GetPrim().IsValid());
+    return cartographicPolygon;
+}
+
 std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& path) {
     auto stage = UsdUtil::getUsdStage();
     auto prim = stage->GetPrimAtPath(path);
@@ -468,6 +491,13 @@ pxr::UsdShadeShader getUsdShader(const pxr::SdfPath& path) {
     auto shader = pxr::UsdShadeShader::Get(stage, path);
     assert(shader.GetPrim().IsValid());
     return shader;
+}
+
+pxr::UsdGeomBasisCurves getUsdBasisCurves(const pxr::SdfPath& path) {
+    auto stage = getUsdStage();
+    auto basisCurves = pxr::UsdGeomBasisCurves::Get(stage, path);
+    assert(basisCurves.GetPrim().IsValid());
+    return basisCurves;
 }
 
 bool isCesiumData(const pxr::SdfPath& path) {
@@ -520,14 +550,24 @@ bool isCesiumTileset(const pxr::SdfPath& path) {
     return prim.IsA<pxr::CesiumTileset>();
 }
 
-bool isCesiumImagery(const pxr::SdfPath& path) {
+bool isCesiumIonImagery(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto prim = stage->GetPrimAtPath(path);
     if (!prim.IsValid()) {
         return false;
     }
 
-    return prim.IsA<pxr::CesiumImagery>();
+    return prim.IsA<pxr::CesiumIonImagery>();
+}
+
+bool isCesiumPolygonImagery(const pxr::SdfPath& path) {
+    auto stage = getUsdStage();
+    auto prim = stage->GetPrimAtPath(path);
+    if (!prim.IsValid()) {
+        return false;
+    }
+
+    return prim.IsA<pxr::CesiumPolygonImagery>();
 }
 
 bool hasCesiumGlobeAnchor(const pxr::SdfPath& path) {

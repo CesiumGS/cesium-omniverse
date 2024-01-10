@@ -1,13 +1,13 @@
 #include "UsdUtilTests.h"
 
-#include "CesiumUsdSchemas/data.h"
-#include "CesiumUsdSchemas/georeference.h"
 #include "testUtils.h"
 
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/UsdUtil.h"
 
+#include <CesiumUsdSchemas/data.h>
+#include <CesiumUsdSchemas/georeference.h>
 #include <doctest/doctest.h>
 #include <glm/ext/matrix_double4x4.hpp>
 #include <pxr/usd/usdGeom/cube.h>
@@ -20,7 +20,7 @@ pxr::SdfPath defineCesiumDataPath;
 pxr::SdfPath defineCesiumSessionPath;
 pxr::SdfPath defineCesiumGeoreferencePath;
 pxr::SdfPath defineCesiumTilesetPath;
-pxr::SdfPath defineCesiumImageryPath;
+pxr::SdfPath defineCesiumIonImageryPath;
 pxr::SdfPath defineGlobeAnchorPath;
 pxr::CesiumData getOrCreateCesiumDataPrim;
 pxr::CesiumSession getOrCreateCesiumSessionPrim;
@@ -32,7 +32,7 @@ void setUpUsdUtilTests(const pxr::SdfPath& rootPath) {
     defineCesiumDataPath = rootPath.AppendChild(pxr::TfToken("defineCesiumData"));
     defineCesiumSessionPath = rootPath.AppendChild(pxr::TfToken("defineCesiumSession"));
     defineCesiumGeoreferencePath = rootPath.AppendChild(pxr::TfToken("defineCesiumGeoreference"));
-    defineCesiumImageryPath = rootPath.AppendChild(pxr::TfToken("defineCesiumImagery"));
+    defineCesiumIonImageryPath = rootPath.AppendChild(pxr::TfToken("defineCesiumIonImagery"));
     defineCesiumTilesetPath = rootPath.AppendChild(pxr::TfToken("defineCesiumTileset"));
     defineGlobeAnchorPath = rootPath.AppendChild(pxr::TfToken("defineGlobeAnchor"));
 
@@ -40,7 +40,7 @@ void setUpUsdUtilTests(const pxr::SdfPath& rootPath) {
     defineCesiumSession(defineCesiumSessionPath);
     defineCesiumGeoreference(defineCesiumGeoreferencePath);
     defineCesiumTileset(defineCesiumTilesetPath);
-    defineCesiumImagery(defineCesiumImageryPath);
+    defineCesiumIonImagery(defineCesiumIonImageryPath);
     // defineGlobeAnchor(globeAnchorPath);
 
     getOrCreateCesiumDataPrim = getOrCreateCesiumData();
@@ -54,7 +54,7 @@ void cleanUpUsdUtilTests(const pxr::UsdStageRefPtr& stage) {
     stage->RemovePrim(defineCesiumDataPath);
     stage->RemovePrim(defineCesiumSessionPath);
     stage->RemovePrim(defineCesiumGeoreferencePath);
-    stage->RemovePrim(defineCesiumImageryPath);
+    stage->RemovePrim(defineCesiumIonImageryPath);
     stage->RemovePrim(defineCesiumTilesetPath);
     stage->RemovePrim(defineGlobeAnchorPath);
 
@@ -143,7 +143,7 @@ TEST_SUITE("UsdUtil tests") {
         CHECK(isCesiumSession(defineCesiumSessionPath));
         CHECK(isCesiumGeoreference(defineCesiumGeoreferencePath));
         CHECK(isCesiumTileset(defineCesiumTilesetPath));
-        CHECK(isCesiumImagery(defineCesiumImageryPath));
+        CHECK(isCesiumIonImagery(defineCesiumIonImageryPath));
         // CHECK(hasCesiumGlobeAnchor(globeAnchorPath));
 
         CHECK(isCesiumData(getOrCreateCesiumDataPrim.GetPath()));

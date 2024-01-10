@@ -1,3 +1,4 @@
+import logging
 import omni.usd
 from omni.kit.viewport.utility import get_active_viewport
 from pxr import Gf, UsdGeom, Sdf
@@ -5,6 +6,9 @@ import json
 import carb.settings
 import os
 from cesium.omniverse.utils.cesium_interface import CesiumInterfaceManager
+from cesium.omniverse.api.globe_anchor import anchor_xform_at_path
+from cesium.usd.plugins.CesiumUsdSchemas import CartographicPolygon
+from asyncio import ensure_future
 
 
 # Modified version of ScopedEdit in _build_viewport_cameras in omni.kit.widget.viewport
@@ -79,3 +83,45 @@ def set_sunstudy_from_georef():
 
     north_attr = get_or_create_attribute(environment_prim, "location:north_orientation", Sdf.ValueTypeNames.Float)
     north_attr.Set(90.0)  # Always set to 90, otherwise the sun is at the wrong angle
+
+
+async def convert():
+    ctx = omni.usd.get_context()
+    stage = ctx.get_stage()
+    logger = logging.getLogger(__name__)
+
+    selection = ctx.get_selection().get_selected_prim_paths()
+    for curve_path in selection:
+        curve_prim = stage.GetPrimAtPath(curve_path)
+
+        if curve_prim.GetTypeName() != "BasisCurves":
+            continue
+
+        polygon_path = curve_path + "_Cesium"
+
+        if stage.GetPrimAtPath(polygon_path).IsValid():
+            logger.warning(f"{polygon_path} already exists, skipping")
+            continue
+
+        # Create a new cartographic polygon
+        polygon = CartographicPolygon.Define(stage, polygon_path)
+        polygon_prim = polygon.GetPrim()
+
+        # Add a globe anchor
+        anchor_xform_at_path(polygon_path)
+
+        # Await after globe anchor, otherwise we'll experience a crash
+        await omni.kit.app.get_app().next_update_async()
+
+        # Iterate through the curve attributes and copy them to the new polygon
+        curve_attributes = curve_prim.GetAttributes()
+        for attrib in curve_attributes:
+            value = attrib.Get()
+            if value is not None:
+                polygon_prim.GetAttribute(attrib.GetName()).Set(attrib.Get())
+            else:
+                polygon_prim.GetAttribute(attrib.GetName()).Clear()
+
+
+def convert_curves_to_polygons():
+    ensure_future(convert())

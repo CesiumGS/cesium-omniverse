@@ -18,6 +18,9 @@
 #include <omni/fabric/FabricUSD.h>
 #include <spdlog/fmt/fmt.h>
 
+#include <cstdint>
+#include <vector>
+
 namespace cesium::omniverse {
 
 namespace {
@@ -71,7 +74,7 @@ FeatureIdCounts getFeatureIdCounts(const FabricMaterialDefinition& materialDefin
 }
 
 uint64_t getImageryLayerCount(const FabricMaterialDefinition& materialDefinition) {
-    auto imageryLayerCount = materialDefinition.getImageryLayerCount();
+    auto imageryLayerCount = materialDefinition.getImageryOverlayRenderMethods().size();
 
     if (imageryLayerCount > MAX_IMAGERY_LAYERS_COUNT) {
         CESIUM_LOG_WARN(
@@ -583,7 +586,27 @@ void FabricMaterial::initializeNodes() {
 void FabricMaterial::initializeDefaultMaterial() {
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
-    const auto imageryLayerCount = getImageryLayerCount(_materialDefinition);
+    uint64_t overlayImageryLayerCount = 0, clippingImageryLayerCount = 0;
+    uint64_t layerNum = 0;
+    std::vector<uint64_t> overlayImageryLayerIndices, clippingImageryLayerIndices;
+    for (auto methodType : _materialDefinition.getImageryOverlayRenderMethods()) {
+        switch (methodType) {
+            case OverlayRenderMethod::OVERLAY:
+                if (overlayImageryLayerCount < MAX_IMAGERY_LAYERS_COUNT) {
+                    overlayImageryLayerIndices.push_back(layerNum);
+                }
+                overlayImageryLayerCount++;
+                break;
+            case OverlayRenderMethod::CLIPPING:
+                if (clippingImageryLayerCount < MAX_IMAGERY_LAYERS_COUNT) {
+                    clippingImageryLayerIndices.push_back(layerNum);
+                }
+                clippingImageryLayerCount++;
+                break;
+        }
+        layerNum++;
+    }
+
     const auto hasBaseColorTexture = _materialDefinition.hasBaseColorTexture();
 
     // Create material
@@ -597,12 +620,21 @@ void FabricMaterial::initializeDefaultMaterial() {
     _shaderPath = shaderPath;
     _allPaths.push_back(shaderPath);
 
-    // Create imagery layer resolver if there are multiple imagery layers
-    if (imageryLayerCount > 1) {
+    // Create ion imagery layer resolver if there are multiple ion imagery layers
+    if (overlayImageryLayerCount > 1) {
         const auto imageryLayerResolverPath = FabricUtil::joinPaths(materialPath, FabricTokens::imagery_layer_resolver);
-        createImageryLayerResolver(imageryLayerResolverPath, imageryLayerCount);
-        _imageryLayerResolverPath = imageryLayerResolverPath;
+        createImageryLayerResolver(imageryLayerResolverPath, overlayImageryLayerCount);
+        _overlayImageryLayerResolverPath = imageryLayerResolverPath;
         _allPaths.push_back(imageryLayerResolverPath);
+    }
+
+    // Create clipping imagery layer resolver if there are multiple clipping imagery layers
+    if (clippingImageryLayerCount > 1) {
+        const auto clippingImageryLayerResolverPath =
+            FabricUtil::joinPaths(materialPath, FabricTokens::clipping_imagery_layer_resolver);
+        createClippingImageryLayerResolver(clippingImageryLayerResolverPath, clippingImageryLayerCount);
+        _clippingImageryLayerResolverPath = clippingImageryLayerResolverPath;
+        _allPaths.push_back(_clippingImageryLayerResolverPath);
     }
 
     // Create connection from shader to material
@@ -615,18 +647,42 @@ void FabricMaterial::initializeDefaultMaterial() {
         createConnection(srw, _baseColorTexturePath, shaderPath, FabricTokens::inputs_base_color_texture);
     }
 
-    if (imageryLayerCount == 1) {
+    if (overlayImageryLayerCount == 1) {
         // Create connection from imagery layer to shader
-        const auto& imageryLayerPath = _imageryLayerPaths.front();
+        const auto& imageryLayerPath = _imageryLayerPaths[overlayImageryLayerIndices[0]];
         createConnection(srw, imageryLayerPath, shaderPath, FabricTokens::inputs_imagery_layer);
-    } else if (imageryLayerCount > 1) {
+    } else if (overlayImageryLayerCount > 1) {
         // Create connection from imagery layer resolver to shader
-        createConnection(srw, _imageryLayerResolverPath, shaderPath, FabricTokens::inputs_imagery_layer);
+        createConnection(srw, _overlayImageryLayerResolverPath, shaderPath, FabricTokens::inputs_imagery_layer);
 
         // Create connections from imagery layers to imagery layer resolver
-        for (uint64_t i = 0; i < imageryLayerCount; i++) {
+        uint64_t layerCounter = 0;
+        for (auto i : overlayImageryLayerIndices) {
             const auto& imageryLayerPath = _imageryLayerPaths[i];
-            createConnection(srw, imageryLayerPath, _imageryLayerResolverPath, FabricTokens::inputs_imagery_layer_n(i));
+            createConnection(
+                srw,
+                imageryLayerPath,
+                _overlayImageryLayerResolverPath,
+                FabricTokens::inputs_imagery_layer_n(layerCounter++));
+        }
+    }
+
+    if (clippingImageryLayerCount == 1) {
+        const auto& clippingImageryLayerPath = _imageryLayerPaths[clippingImageryLayerIndices[0]];
+        createConnection(srw, clippingImageryLayerPath, shaderPath, FabricTokens::inputs_alpha_clip);
+    } else if (clippingImageryLayerCount > 1) {
+        // Create connection from imagery layer resolver to shader
+        createConnection(srw, _clippingImageryLayerResolverPath, shaderPath, FabricTokens::inputs_alpha_clip);
+
+        // Create connections from imagery layers to imagery layer resolver
+        uint64_t layerCounter = 0;
+        for (auto i : clippingImageryLayerIndices) {
+            const auto& imageryLayerPath = _imageryLayerPaths[i];
+            createConnection(
+                srw,
+                imageryLayerPath,
+                _clippingImageryLayerResolverPath,
+                FabricTokens::inputs_imagery_layer_n(layerCounter++));
         }
     }
 }
@@ -743,6 +799,25 @@ void FabricMaterial::createImageryLayerResolver(const omni::fabric::Path& path, 
 
     auto imageryLayerCountFabric = srw.getAttributeWr<int>(path, FabricTokens::inputs_imagery_layers_count);
     *imageryLayerCountFabric = static_cast<int>(imageryLayerCount);
+}
+
+void FabricMaterial::createClippingImageryLayerResolver(
+    const omni::fabric::Path& path,
+    uint64_t clippingImageryLayerCount) {
+    auto srw = UsdUtil::getFabricStageReaderWriter();
+
+    srw.createPrim(path);
+
+    FabricAttributesBuilder attributes;
+
+    attributes.addAttribute(
+        FabricTypes::inputs_clipping_imagery_layers_count, FabricTokens::inputs_clipping_imagery_layers_count);
+
+    createAttributes(srw, path, attributes, FabricTokens::cesium_internal_clipping_imagery_layer_resolver);
+
+    auto clippingImageryLayerCountFabric =
+        srw.getAttributeWr<int>(path, FabricTokens::inputs_clipping_imagery_layers_count);
+    *clippingImageryLayerCountFabric = static_cast<int>(clippingImageryLayerCount);
 }
 
 void FabricMaterial::createFeatureIdIndex(const omni::fabric::Path& path) {
@@ -1333,7 +1408,17 @@ void FabricMaterial::setMaterial(
     }
 
     if (_usesDefaultMaterial) {
-        _alphaMode = materialInfo.alphaMode;
+        bool clippingEnabled = false;
+        for (auto methodType : _materialDefinition.getImageryOverlayRenderMethods()) {
+            if (methodType == OverlayRenderMethod::CLIPPING) {
+                clippingEnabled = true;
+                break;
+            }
+        }
+
+        _alphaMode = (materialInfo.alphaMode == AlphaMode::BLEND)
+                         ? materialInfo.alphaMode
+                         : (clippingEnabled ? AlphaMode::MASK : materialInfo.alphaMode);
 
         if (_debugRandomColors) {
             const auto r = glm::linearRand(0.0, 1.0);

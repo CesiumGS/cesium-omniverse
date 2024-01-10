@@ -10,11 +10,22 @@
 #include "cesium/omniverse/GeospatialUtil.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
-#include "cesium/omniverse/OmniImagery.h"
+#include "cesium/omniverse/OmniIonImagery.h"
+#include "cesium/omniverse/OmniPolygonImagery.h"
 #include "cesium/omniverse/SessionRegistry.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/UsdUtil.h"
 #include "cesium/omniverse/Viewport.h"
+
+#include <CesiumGeospatial/Cartographic.h>
+#include <CesiumGeospatial/CartographicPolygon.h>
+#include <CesiumGeospatial/Ellipsoid.h>
+#include <CesiumGeospatial/Projection.h>
+#include <CesiumRasterOverlays/IonRasterOverlay.h>
+#include <CesiumRasterOverlays/RasterizedPolygonsOverlay.h>
+#include <CesiumUsdSchemas/cartographicPolygon.h>
+#include <CesiumUsdSchemas/polygonImagery.h>
+#include <glm/ext/vector_double3.hpp>
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
@@ -25,10 +36,11 @@
 #include <Cesium3DTilesSelection/ViewState.h>
 #include <Cesium3DTilesSelection/ViewUpdateResult.h>
 #include <CesiumRasterOverlays/IonRasterOverlay.h>
-#include <CesiumUsdSchemas/imagery.h>
+#include <CesiumUsdSchemas/ionImagery.h>
 #include <CesiumUsdSchemas/tileset.h>
 #include <pxr/usd/usd/prim.h>
 #include <pxr/usd/usd/stage.h>
+#include <pxr/usd/usdGeom/basisCurves.h>
 #include <pxr/usd/usdGeom/boundable.h>
 #include <pxr/usd/usdShade/materialBindingAPI.h>
 
@@ -462,12 +474,16 @@ void OmniTileset::reload() {
 
     // Add imagery
     for (const auto& imagery : UsdUtil::getChildCesiumImageryPrims(_tilesetPath)) {
-        addImageryIon(imagery.GetPath());
+        if (imagery.GetPrim().IsA<pxr::CesiumIonImagery>()) {
+            addImageryIon(imagery.GetPath());
+        } else {
+            addImageryPolygon(imagery.GetPath());
+        }
     }
 }
 
 void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
-    const OmniImagery imagery(imageryPath);
+    const OmniIonImagery imagery(imageryPath);
     const auto imageryIonAssetId = imagery.getIonAssetId();
     const auto imageryIonAccessToken = imagery.getIonAccessToken();
 
@@ -485,6 +501,7 @@ void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
     const auto ionApiUrl = imagery.getIonApiUrl();
 
     CesiumRasterOverlays::RasterOverlayOptions options;
+    options.rendererOptions = OverlayType::ION;
     options.showCreditsOnScreen = imagery.getShowCreditsOnScreen();
 
     options.loadErrorCallback = [tilesetPath, tilesetIonAssetId, tilesetName, imageryIonAssetId, imageryName](
@@ -507,6 +524,57 @@ void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
         imageryName, imageryIonAssetId, imageryIonAccessToken.value().token, options, ionApiUrl);
     _tileset->getOverlays().add(ionRasterOverlay);
     _imageryPaths.push_back(imageryPath);
+}
+
+void OmniTileset::addImageryPolygon(const pxr::SdfPath& imageryPath) {
+    const OmniPolygonImagery imagery(imageryPath);
+
+    const auto imageryName = imagery.getName();
+
+    auto polygonImagery = UsdUtil::getCesiumPolygonImagery(imageryPath);
+    auto cartographicPolygonsRel = polygonImagery.GetCartographicPolygonBindingRel();
+    pxr::SdfPathVector cartographicPolygonTargets;
+    cartographicPolygonsRel.GetTargets(&cartographicPolygonTargets);
+    std::vector<CesiumGeospatial::CartographicPolygon> polygons;
+    for (const auto& cartographicPolygonTarget : cartographicPolygonTargets) {
+        auto cartographicPolygon = UsdUtil::getCesiumCartographicPolygon(cartographicPolygonTarget);
+        auto basisCurves = UsdUtil::getUsdBasisCurves(cartographicPolygonTarget);
+        auto pointsAttr = basisCurves.GetPointsAttr();
+        pxr::VtArray<pxr::GfVec3f> points;
+        pointsAttr.Get(&points);
+        auto anchor = UsdUtil::getCesiumGlobeAnchor(cartographicPolygonTarget);
+        auto origin = UsdUtil::getCartographicOriginForAnchor(anchor.GetPath());
+
+        std::vector<std::optional<CesiumGeospatial::Cartographic>> cartographicPositions;
+        auto transform = UsdUtil::computeUsdLocalToEcefTransformForPrim(origin.value(), cartographicPolygonTarget);
+
+        std::vector<glm::dvec2> polygon;
+        for (auto& curvePoint : points) {
+            auto homogenous = glm::dvec4(curvePoint[0], curvePoint[1], curvePoint[2], 1.0);
+            auto cartesianHomogenous = transform * homogenous;
+            auto cartesian = glm::dvec3(cartesianHomogenous.x, cartesianHomogenous.y, cartesianHomogenous.z);
+            std::optional<CesiumGeospatial::Cartographic> cartographicPosition =
+                CesiumGeospatial::Ellipsoid::WGS84.cartesianToCartographic(cartesian);
+
+            cartographicPositions.push_back(cartographicPosition);
+            polygon.emplace_back(glm::dvec2(cartographicPosition->longitude, cartographicPosition->latitude));
+        }
+        polygons.emplace_back(polygon);
+    }
+
+    auto invertSelection = false;
+    auto ellipsoid = CesiumGeospatial::Ellipsoid::WGS84;
+    auto projection = CesiumGeospatial::GeographicProjection(ellipsoid);
+    CesiumRasterOverlays::RasterOverlayOptions rasterOverlayOptions;
+    rasterOverlayOptions.rendererOptions = OverlayType::POLYGON;
+
+    CesiumRasterOverlays::RasterOverlayOptions options;
+    options.showCreditsOnScreen = imagery.getShowCreditsOnScreen();
+
+    const auto polygonRasterOverlay = new CesiumRasterOverlays::RasterizedPolygonsOverlay(
+        imageryName, polygons, invertSelection, ellipsoid, projection, rasterOverlayOptions);
+    _tileset->getOverlays().add(polygonRasterOverlay);
+    _imageryPaths.push_back((imageryPath));
 }
 
 std::optional<uint64_t> OmniTileset::findImageryLayerIndex(const CesiumRasterOverlays::RasterOverlay& overlay) const {
@@ -594,10 +662,15 @@ void OmniTileset::updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::T
 double OmniTileset::getImageryLayerAlpha(uint64_t imageryLayerIndex) const {
     assert(imageryLayerIndex < _imageryPaths.size());
 
-    auto alpha = OmniImagery(_imageryPaths[imageryLayerIndex]).getAlpha();
-    alpha = glm::clamp(alpha, 0.0, 1.0);
+    auto imagery = UsdUtil::getCesiumImagery(_imageryPaths[imageryLayerIndex]);
+    float alpha;
+    imagery.GetAlphaAttr().Get<float>(&alpha);
+    alpha = glm::clamp(alpha, 0.0f, 1.0f);
+    return static_cast<double>(alpha);
+}
 
-    return alpha;
+pxr::SdfPath OmniTileset::getImageryLayerPath(uint64_t imageryLayerIndex) const {
+    return _imageryPaths[imageryLayerIndex];
 }
 
 void OmniTileset::onUpdateFrame(const std::vector<Viewport>& viewports) {

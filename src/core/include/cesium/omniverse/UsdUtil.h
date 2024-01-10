@@ -1,11 +1,13 @@
 #pragma once
 
 #include <Cesium3DTilesSelection/ViewState.h>
+#include <CesiumUsdSchemas/cartographicPolygon.h>
 #include <CesiumUsdSchemas/data.h>
 #include <CesiumUsdSchemas/georeference.h>
 #include <CesiumUsdSchemas/globeAnchorAPI.h>
-#include <CesiumUsdSchemas/imagery.h>
+#include <CesiumUsdSchemas/ionImagery.h>
 #include <CesiumUsdSchemas/ionServer.h>
+#include <CesiumUsdSchemas/polygonImagery.h>
 #include <CesiumUsdSchemas/session.h>
 #include <CesiumUsdSchemas/tileset.h>
 #include <glm/glm.hpp>
@@ -16,6 +18,7 @@
 #include <pxr/base/gf/vec3f.h>
 #include <pxr/usd/sdf/path.h>
 #include <pxr/usd/usd/common.h>
+#include <pxr/usd/usdGeom/basisCurves.h>
 #include <pxr/usd/usdShade/shader.h>
 
 namespace CesiumGeospatial {
@@ -103,7 +106,7 @@ pxr::CesiumIonServer defineCesiumIonServer(const pxr::SdfPath& path);
 pxr::CesiumSession defineCesiumSession(const pxr::SdfPath& path);
 pxr::CesiumGeoreference defineCesiumGeoreference(const pxr::SdfPath& path);
 pxr::CesiumTileset defineCesiumTileset(const pxr::SdfPath& path);
-pxr::CesiumImagery defineCesiumImagery(const pxr::SdfPath& path);
+pxr::CesiumIonImagery defineCesiumIonImagery(const pxr::SdfPath& path);
 pxr::CesiumGlobeAnchorAPI defineGlobeAnchor(const pxr::SdfPath& path);
 
 pxr::CesiumData getOrCreateCesiumData();
@@ -114,16 +117,21 @@ pxr::CesiumGeoreference getOrCreateCesiumGeoreference();
 pxr::CesiumGeoreference getCesiumGeoreference(const pxr::SdfPath& path);
 pxr::CesiumTileset getCesiumTileset(const pxr::SdfPath& path);
 pxr::CesiumImagery getCesiumImagery(const pxr::SdfPath& path);
+pxr::CesiumIonImagery getCesiumIonImagery(const pxr::SdfPath& path);
+pxr::CesiumPolygonImagery getCesiumPolygonImagery(const pxr::SdfPath& path);
 std::vector<pxr::CesiumImagery> getChildCesiumImageryPrims(const pxr::SdfPath& path);
 pxr::CesiumGlobeAnchorAPI getCesiumGlobeAnchor(const pxr::SdfPath& path);
 pxr::UsdShadeShader getUsdShader(const pxr::SdfPath& path);
+pxr::UsdGeomBasisCurves getUsdBasisCurves(const pxr::SdfPath& path);
+pxr::CesiumCartographicPolygon getCesiumCartographicPolygon(const pxr::SdfPath& path);
 
 bool isCesiumData(const pxr::SdfPath& path);
 bool isCesiumIonServer(const pxr::SdfPath& path);
 bool isCesiumSession(const pxr::SdfPath& path);
 bool isCesiumGeoreference(const pxr::SdfPath& path);
 bool isCesiumTileset(const pxr::SdfPath& path);
-bool isCesiumImagery(const pxr::SdfPath& path);
+bool isCesiumIonImagery(const pxr::SdfPath& path);
+bool isCesiumPolygonImagery(const pxr::SdfPath& path);
 bool hasCesiumGlobeAnchor(const pxr::SdfPath& path);
 
 bool isUsdShader(const pxr::SdfPath& path);

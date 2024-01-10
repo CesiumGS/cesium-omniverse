@@ -1,11 +1,14 @@
 include(Macros)
 
 set(SOURCES
+    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/cartographicPolygon.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/data.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/globeAnchorAPI.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/georeference.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/ionServer.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/imagery.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/ionImagery.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/polygonImagery.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/session.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/tileset.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/tokens.cpp")
@@ -13,11 +16,14 @@ set(SOURCES
 set(PY_BINDING_SOURCES
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/module.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/moduleDeps.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapCartographicPolygon.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapData.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapGlobeAnchorAPI.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapGeoreference.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapIonServer.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapImagery.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapIonImagery.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapPolygonImagery.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapSession.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapTileset.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapTokens.cpp")

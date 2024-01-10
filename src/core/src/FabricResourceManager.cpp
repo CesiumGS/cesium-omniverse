@@ -91,7 +91,7 @@ std::shared_ptr<FabricGeometry> FabricResourceManager::acquireGeometry(
 }
 
 bool useSharedMaterial(const FabricMaterialDefinition& materialDefinition) {
-    if (materialDefinition.hasBaseColorTexture() || materialDefinition.getImageryLayerCount() > 0 ||
+    if (materialDefinition.hasBaseColorTexture() || materialDefinition.getImageryOverlayRenderMethods().size() > 0 ||
         !materialDefinition.getFeatureIdTypes().empty() || !materialDefinition.getProperties().empty()) {
         return false;
     }
@@ -184,12 +184,12 @@ std::shared_ptr<FabricMaterial> FabricResourceManager::acquireMaterial(
     const CesiumGltf::MeshPrimitive& primitive,
     const MaterialInfo& materialInfo,
     const FeaturesInfo& featuresInfo,
-    uint64_t imageryLayerCount,
+    const ImageryLayersInfo& imageryLayersInfo,
     long stageId,
     int64_t tilesetId,
     const pxr::SdfPath& tilesetMaterialPath) {
     FabricMaterialDefinition materialDefinition(
-        model, primitive, materialInfo, featuresInfo, imageryLayerCount, _disableTextures, tilesetMaterialPath);
+        model, primitive, materialInfo, featuresInfo, imageryLayersInfo, _disableTextures, tilesetMaterialPath);
 
     if (useSharedMaterial(materialDefinition)) {
         return acquireSharedMaterial(materialInfo, materialDefinition, stageId, tilesetId);

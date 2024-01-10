@@ -3,6 +3,8 @@
 #include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/MetadataUtil.h"
 
+#include <vector>
+
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
 #undef OPAQUE
@@ -43,13 +45,13 @@ FabricMaterialDefinition::FabricMaterialDefinition(
     const CesiumGltf::MeshPrimitive& primitive,
     const MaterialInfo& materialInfo,
     const FeaturesInfo& featuresInfo,
-    uint64_t imageryLayerCount,
+    const ImageryLayersInfo& imageryLayersInfo,
     bool disableTextures,
     const pxr::SdfPath& tilesetMaterialPath)
     : _hasVertexColors(materialInfo.hasVertexColors)
     , _hasBaseColorTexture(disableTextures ? false : materialInfo.baseColorTexture.has_value())
     , _featureIdTypes(filterFeatureIdTypes(featuresInfo, disableTextures))
-    , _imageryLayerCount(disableTextures ? 0 : imageryLayerCount)
+    , _imageryOverlayRenderMethods(imageryLayersInfo.overlayRenderMethods)
     , _tilesetMaterialPath(tilesetMaterialPath)
     , _properties(getStyleableProperties(model, primitive, tilesetMaterialPath)) {}
 
@@ -65,8 +67,8 @@ const std::vector<FeatureIdType>& FabricMaterialDefinition::getFeatureIdTypes() 
     return _featureIdTypes;
 }
 
-uint64_t FabricMaterialDefinition::getImageryLayerCount() const {
-    return _imageryLayerCount;
+const std::vector<OverlayRenderMethod>& FabricMaterialDefinition::getImageryOverlayRenderMethods() const {
+    return _imageryOverlayRenderMethods;
 }
 
 bool FabricMaterialDefinition::hasTilesetMaterial() const {
@@ -83,8 +85,10 @@ const std::vector<MetadataUtil::PropertyDefinition>& FabricMaterialDefinition::g
 
 // In C++ 20 we can use the default equality comparison (= default)
 bool FabricMaterialDefinition::operator==(const FabricMaterialDefinition& other) const {
+    bool overlaysMatch = _imageryOverlayRenderMethods == other.getImageryOverlayRenderMethods();
+
     return _hasVertexColors == other._hasVertexColors && _hasBaseColorTexture == other._hasBaseColorTexture &&
-           _featureIdTypes == other._featureIdTypes && _imageryLayerCount == other._imageryLayerCount &&
+           _featureIdTypes == other._featureIdTypes && overlaysMatch &&
            _tilesetMaterialPath == other._tilesetMaterialPath && _properties == other._properties;
 }
 

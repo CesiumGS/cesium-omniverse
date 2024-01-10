@@ -1,6 +1,6 @@
 #include "cesium/omniverse/OmniImagery.h"
 
-#include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <CesiumUsdSchemas/imagery.h>
@@ -19,76 +19,6 @@ std::string OmniImagery::getName() const {
     return imagery.GetPrim().GetName().GetString();
 }
 
-int64_t OmniImagery::getIonAssetId() const {
-    auto imagery = UsdUtil::getCesiumImagery(_path);
-
-    int64_t ionAssetId;
-    imagery.GetIonAssetIdAttr().Get<int64_t>(&ionAssetId);
-
-    return ionAssetId;
-}
-
-std::optional<CesiumIonClient::Token> OmniImagery::getIonAccessToken() const {
-    const auto imagery = UsdUtil::getCesiumImagery(_path);
-
-    std::string ionAccessToken;
-    imagery.GetIonAccessTokenAttr().Get<std::string>(&ionAccessToken);
-
-    if (!ionAccessToken.empty()) {
-        CesiumIonClient::Token t;
-        t.token = ionAccessToken;
-        return t;
-    }
-
-    const auto ionServerPath = getIonServerPath();
-
-    if (ionServerPath.IsEmpty()) {
-        return std::nullopt;
-    }
-
-    const auto ionServer = UsdUtil::getOrCreateIonServer(ionServerPath);
-
-    std::string projectDefaultToken;
-    std::string projectDefaultTokenId;
-
-    ionServer.GetProjectDefaultIonAccessTokenAttr().Get(&projectDefaultToken);
-    ionServer.GetProjectDefaultIonAccessTokenIdAttr().Get(&projectDefaultTokenId);
-
-    if (projectDefaultToken.empty()) {
-        return std::nullopt;
-    }
-
-    return CesiumIonClient::Token{projectDefaultTokenId, "", projectDefaultToken};
-}
-
-std::string OmniImagery::getIonApiUrl() const {
-    const auto ionServerPath = getIonServerPath();
-
-    if (ionServerPath.IsEmpty()) {
-        return {};
-    }
-
-    auto ionServerPrim = UsdUtil::getOrCreateIonServer(ionServerPath);
-
-    std::string ionApiUrl;
-    ionServerPrim.GetIonServerApiUrlAttr().Get(&ionApiUrl);
-
-    return ionApiUrl;
-}
-
-pxr::SdfPath OmniImagery::getIonServerPath() const {
-    auto imagery = UsdUtil::getCesiumImagery(_path);
-
-    pxr::SdfPathVector targets;
-    imagery.GetIonServerBindingRel().GetForwardedTargets(&targets);
-
-    if (targets.size() < 1) {
-        return {};
-    }
-
-    return targets[0];
-}
-
 bool OmniImagery::getShowCreditsOnScreen() const {
     auto imagery = UsdUtil::getCesiumImagery(_path);
 
@@ -105,6 +35,19 @@ double OmniImagery::getAlpha() const {
     imagery.GetAlphaAttr().Get<float>(&alpha);
 
     return static_cast<double>(alpha);
+}
+
+OverlayRenderMethod OmniImagery::getOverlayRenderMethod() const {
+    auto imageryLayer = UsdUtil::getCesiumImagery(getPath());
+    pxr::TfToken overlayRenderMethod;
+    imageryLayer.GetOverlayRenderMethodAttr().Get<pxr::TfToken>(&overlayRenderMethod);
+    if (overlayRenderMethod == pxr::CesiumTokens->overlay) {
+        return OverlayRenderMethod::OVERLAY;
+    } else if (overlayRenderMethod == pxr::CesiumTokens->clip) {
+        return OverlayRenderMethod::CLIPPING;
+    } else {
+        throw std::runtime_error("Invalid overlay render method encountered.");
+    }
 }
 
 } // namespace cesium::omniverse

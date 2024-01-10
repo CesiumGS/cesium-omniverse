@@ -18,7 +18,7 @@ from cesium.omniverse.utils import wait_n_frames, dock_window_async
 from cesium.usd.plugins.CesiumUsdSchemas import (
     Data as CesiumData,
     Georeference as CesiumGeoreference,
-    Imagery as CesiumImagery,
+    IonImagery as CesiumIonImagery,
     Tileset as CesiumTileset,
     Tokens as CesiumTokens,
 )
@@ -261,7 +261,7 @@ class CesiumPerformanceExtension(omni.ext.IExt):
     def _create_imagery_ion(path: str, asset_id: int, access_token: str) -> str:
         stage = omni.usd.get_context().get_stage()
         imagery_path = omni.usd.get_stage_next_free_path(stage, path, False)
-        imagery = CesiumImagery.Define(stage, imagery_path)
+        imagery = CesiumIonImagery.Define(stage, imagery_path)
         assert imagery.GetPrim().IsValid()
         parent = imagery.GetPrim().GetParent()
         assert parent.IsA(CesiumTileset)

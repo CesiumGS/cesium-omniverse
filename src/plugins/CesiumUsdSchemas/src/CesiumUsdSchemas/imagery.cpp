@@ -13,12 +13,6 @@ TF_REGISTRY_FUNCTION(TfType)
     TfType::Define<CesiumImagery,
         TfType::Bases< UsdTyped > >();
     
-    // Register the usd prim typename as an alias under UsdSchemaBase. This
-    // enables one to call
-    // TfType::Find<UsdSchemaBase>().FindDerivedByName("CesiumImageryPrim")
-    // to find TfType<CesiumImagery>, which is how IsA queries are
-    // answered.
-    TfType::AddAlias<UsdSchemaBase, CesiumImagery>("CesiumImageryPrim");
 }
 
 /* virtual */
@@ -37,19 +31,6 @@ CesiumImagery::Get(const UsdStagePtr &stage, const SdfPath &path)
     return CesiumImagery(stage->GetPrimAtPath(path));
 }
 
-/* static */
-CesiumImagery
-CesiumImagery::Define(
-    const UsdStagePtr &stage, const SdfPath &path)
-{
-    static TfToken usdPrimTypeName("CesiumImageryPrim");
-    if (!stage) {
-        TF_CODING_ERROR("Invalid stage");
-        return CesiumImagery();
-    }
-    return CesiumImagery(
-        stage->DefinePrim(path, usdPrimTypeName));
-}
 
 /* virtual */
 UsdSchemaKind CesiumImagery::_GetSchemaKind() const
@@ -78,40 +59,6 @@ const TfType &
 CesiumImagery::_GetTfType() const
 {
     return _GetStaticTfType();
-}
-
-UsdAttribute
-CesiumImagery::GetIonAssetIdAttr() const
-{
-    return GetPrim().GetAttribute(CesiumTokens->cesiumIonAssetId);
-}
-
-UsdAttribute
-CesiumImagery::CreateIonAssetIdAttr(VtValue const &defaultValue, bool writeSparsely) const
-{
-    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumIonAssetId,
-                       SdfValueTypeNames->Int64,
-                       /* custom = */ false,
-                       SdfVariabilityVarying,
-                       defaultValue,
-                       writeSparsely);
-}
-
-UsdAttribute
-CesiumImagery::GetIonAccessTokenAttr() const
-{
-    return GetPrim().GetAttribute(CesiumTokens->cesiumIonAccessToken);
-}
-
-UsdAttribute
-CesiumImagery::CreateIonAccessTokenAttr(VtValue const &defaultValue, bool writeSparsely) const
-{
-    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumIonAccessToken,
-                       SdfValueTypeNames->String,
-                       /* custom = */ false,
-                       SdfVariabilityVarying,
-                       defaultValue,
-                       writeSparsely);
 }
 
 UsdAttribute
@@ -148,17 +95,21 @@ CesiumImagery::CreateAlphaAttr(VtValue const &defaultValue, bool writeSparsely) 
                        writeSparsely);
 }
 
-UsdRelationship
-CesiumImagery::GetIonServerBindingRel() const
+UsdAttribute
+CesiumImagery::GetOverlayRenderMethodAttr() const
 {
-    return GetPrim().GetRelationship(CesiumTokens->cesiumIonServerBinding);
+    return GetPrim().GetAttribute(CesiumTokens->cesiumOverlayRenderMethod);
 }
 
-UsdRelationship
-CesiumImagery::CreateIonServerBindingRel() const
+UsdAttribute
+CesiumImagery::CreateOverlayRenderMethodAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
-    return GetPrim().CreateRelationship(CesiumTokens->cesiumIonServerBinding,
-                       /* custom = */ false);
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumOverlayRenderMethod,
+                       SdfValueTypeNames->Token,
+                       /* custom = */ false,
+                       SdfVariabilityUniform,
+                       defaultValue,
+                       writeSparsely);
 }
 
 namespace {
@@ -178,10 +129,9 @@ const TfTokenVector&
 CesiumImagery::GetSchemaAttributeNames(bool includeInherited)
 {
     static TfTokenVector localNames = {
-        CesiumTokens->cesiumIonAssetId,
-        CesiumTokens->cesiumIonAccessToken,
         CesiumTokens->cesiumShowCreditsOnScreen,
         CesiumTokens->cesiumAlpha,
+        CesiumTokens->cesiumOverlayRenderMethod,
     };
     static TfTokenVector allNames =
         _ConcatenateAttributeNames(

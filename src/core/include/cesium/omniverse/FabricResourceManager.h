@@ -67,7 +67,7 @@ class FabricResourceManager {
         const CesiumGltf::MeshPrimitive& primitive,
         const MaterialInfo& materialInfo,
         const FeaturesInfo& featuresInfo,
-        uint64_t imageryLayerCount,
+        const ImageryLayersInfo& imageryLayersInfo,
         long stageId,
         int64_t tilesetId,
         const pxr::SdfPath& tilesetMaterialPath);

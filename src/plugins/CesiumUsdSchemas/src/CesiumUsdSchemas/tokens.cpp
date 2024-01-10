@@ -11,6 +11,7 @@ CesiumTokensType::CesiumTokensType() :
     cesiumAnchorPosition("cesium:anchor:position", TfToken::Immortal),
     cesiumAnchorRotation("cesium:anchor:rotation", TfToken::Immortal),
     cesiumAnchorScale("cesium:anchor:scale", TfToken::Immortal),
+    cesiumCartographicPolygonBinding("cesium:cartographicPolygonBinding", TfToken::Immortal),
     cesiumCulledScreenSpaceError("cesium:culledScreenSpaceError", TfToken::Immortal),
     cesiumDebugDisableGeometryPool("cesium:debug:disableGeometryPool", TfToken::Immortal),
     cesiumDebugDisableGeoreferencing("cesium:debug:disableGeoreferencing", TfToken::Immortal),
@@ -43,6 +44,7 @@ CesiumTokensType::CesiumTokensType() :
     cesiumMaximumCachedBytes("cesium:maximumCachedBytes", TfToken::Immortal),
     cesiumMaximumScreenSpaceError("cesium:maximumScreenSpaceError", TfToken::Immortal),
     cesiumMaximumSimultaneousTileLoads("cesium:maximumSimultaneousTileLoads", TfToken::Immortal),
+    cesiumOverlayRenderMethod("cesium:overlayRenderMethod", TfToken::Immortal),
     cesiumPreloadAncestors("cesium:preloadAncestors", TfToken::Immortal),
     cesiumPreloadSiblings("cesium:preloadSiblings", TfToken::Immortal),
     cesiumProjectDefaultIonAccessToken("cesium:projectDefaultIonAccessToken", TfToken::Immortal),
@@ -53,7 +55,9 @@ CesiumTokensType::CesiumTokensType() :
     cesiumSourceType("cesium:sourceType", TfToken::Immortal),
     cesiumSuspendUpdate("cesium:suspendUpdate", TfToken::Immortal),
     cesiumUrl("cesium:url", TfToken::Immortal),
+    clip("clip", TfToken::Immortal),
     ion("ion", TfToken::Immortal),
+    overlay("overlay", TfToken::Immortal),
     url("url", TfToken::Immortal),
     allTokens({
         cesiumAlpha,
@@ -64,6 +68,7 @@ CesiumTokensType::CesiumTokensType() :
         cesiumAnchorPosition,
         cesiumAnchorRotation,
         cesiumAnchorScale,
+        cesiumCartographicPolygonBinding,
         cesiumCulledScreenSpaceError,
         cesiumDebugDisableGeometryPool,
         cesiumDebugDisableGeoreferencing,
@@ -96,6 +101,7 @@ CesiumTokensType::CesiumTokensType() :
         cesiumMaximumCachedBytes,
         cesiumMaximumScreenSpaceError,
         cesiumMaximumSimultaneousTileLoads,
+        cesiumOverlayRenderMethod,
         cesiumPreloadAncestors,
         cesiumPreloadSiblings,
         cesiumProjectDefaultIonAccessToken,
@@ -106,7 +112,9 @@ CesiumTokensType::CesiumTokensType() :
         cesiumSourceType,
         cesiumSuspendUpdate,
         cesiumUrl,
+        clip,
         ion,
+        overlay,
         url
     })
 {

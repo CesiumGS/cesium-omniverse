@@ -10,12 +10,15 @@
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/OmniGlobeAnchor.h"
-#include "cesium/omniverse/OmniImagery.h"
+#include "cesium/omniverse/OmniIonImagery.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/SessionRegistry.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/Tokens.h"
 #include "cesium/omniverse/UsdUtil.h"
+
+#include <CesiumUsdSchemas/cartographicPolygon.h>
+#include <CesiumUsdSchemas/globeAnchorAPI.h>
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
@@ -24,6 +27,9 @@
 
 #include <Cesium3DTilesContent/registerAllTileContentTypes.h>
 #include <Cesium3DTilesSelection/Tileset.h>
+#include <CesiumUsdSchemas/data.h>
+#include <CesiumUsdSchemas/ionImagery.h>
+#include <CesiumUsdSchemas/tileset.h>
 #include <CesiumUsdSchemas/tokens.h>
 #include <CesiumUtility/CreditSystem.h>
 #include <pxr/usd/sdf/path.h>
@@ -188,11 +194,11 @@ void Context::reloadStage() {
     }
 
     // For backwards compatibility. Add default ion server to imagery without a server.
-    const auto& imageries = AssetRegistry::getInstance().getAllImageries();
-    for (const auto& imagery : imageries) {
-        const auto ionServerPath = imagery->getIonServerPath();
+    const auto& ionImageries = AssetRegistry::getInstance().getAllIonImageries();
+    for (const auto& ionImagery : ionImageries) {
+        const auto ionServerPath = ionImagery->getIonServerPath();
         if (ionServerPath.IsEmpty()) {
-            const auto imageryPrim = UsdUtil::getCesiumImagery(imagery->getPath());
+            const auto imageryPrim = UsdUtil::getCesiumIonImagery(ionImagery->getPath());
             imageryPrim.GetIonServerBindingRel().SetTargets({defaultIonServerPath});
             CESIUM_LOG_WARN("Imagery does not specify an ion server. Assigning to the default Cesium ion server.");
         }
@@ -657,7 +663,7 @@ RenderStatistics Context::getRenderStatistics() const {
 }
 
 void Context::addGlobeAnchorToPrim(const pxr::SdfPath& path) {
-    if (UsdUtil::isCesiumData(path) || UsdUtil::isCesiumGeoreference(path) || UsdUtil::isCesiumImagery(path) ||
+    if (UsdUtil::isCesiumData(path) || UsdUtil::isCesiumGeoreference(path) || UsdUtil::isCesiumIonImagery(path) ||
         UsdUtil::isCesiumSession(path) || UsdUtil::isCesiumTileset(path)) {
         _logger->warn("Cannot attach Globe Anchor to Cesium Tilesets, Imagery, Georeference, Session, or Data prims.");
         return;
@@ -672,7 +678,7 @@ void Context::addGlobeAnchorToPrim(const pxr::SdfPath& path) {
 }
 
 void Context::addGlobeAnchorToPrim(const pxr::SdfPath& path, double latitude, double longitude, double height) {
-    if (UsdUtil::isCesiumData(path) || UsdUtil::isCesiumGeoreference(path) || UsdUtil::isCesiumImagery(path) ||
+    if (UsdUtil::isCesiumData(path) || UsdUtil::isCesiumGeoreference(path) || UsdUtil::isCesiumIonImagery(path) ||
         UsdUtil::isCesiumSession(path) || UsdUtil::isCesiumTileset(path)) {
         _logger->warn("Cannot attach Globe Anchor to Cesium Tilesets, Imagery, Georeference, Session, or Data prims.");
         return;
@@ -687,6 +693,19 @@ void Context::addGlobeAnchorToPrim(const pxr::SdfPath& path, double latitude, do
 
     pxr::GfVec3d coordinates{latitude, longitude, height};
     globeAnchor.GetGeographicCoordinateAttr().Set(coordinates);
+}
+
+void Context::addCartographicPolygonPrim(const pxr::SdfPath& path) {
+    auto stage = Context::instance().getStage();
+    auto cartographicPolygon = pxr::CesiumCartographicPolygon::Define(stage, path);
+
+    // Until we support multiple georeference points, we should just use the default georeference object.
+    auto georeferenceOrigin = UsdUtil::getOrCreateCesiumGeoreference();
+
+    if (cartographicPolygon) {
+        pxr::CesiumGlobeAnchorAPI globeAnchorAPI(cartographicPolygon.GetPrim());
+        globeAnchorAPI.GetGeoreferenceBindingRel().AddTarget(georeferenceOrigin.GetPath());
+    }
 }
 
 } // namespace cesium::omniverse

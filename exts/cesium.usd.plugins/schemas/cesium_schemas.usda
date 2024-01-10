@@ -413,11 +413,44 @@ class CesiumTilesetPrim "CesiumTilesetPrim" (
     )
 }
 
-class CesiumImageryPrim "CesiumImageryPrim" (
-    doc = """Adds a prim for representing an imagery layer. Should be a child of a tileset."""
+class "CesiumImageryPrim" (
+    doc = """Abstract base class for prims that represent an imagery layer."""
     inherits = </Typed>
     customData = {
         string className = "Imagery"
+    }
+) {
+    bool cesium:showCreditsOnScreen = false (
+        customData = {
+            string apiName = "showCreditsOnScreen"
+        }
+        displayName = "Show Credits On Screen"
+        doc = "Whether or not to show this imagery layer's credits on screen."
+    )
+
+   float cesium:alpha = 1.0 (
+        customData = {
+            string apiName = "alpha"
+        }
+        displayName = "Alpha"
+        doc = "The alpha blending value, from 0.0 to 1.0, where 1.0 is fully opaque."
+    )
+
+    uniform token cesium:overlayRenderMethod = "overlay" (
+        customData = {
+            string apiName = "overlayRenderMethod"
+        }
+        allowedTokens = ["overlay", "clip"]
+        displayName = "Overlay Render Method"
+        doc = "The Cesium default material will give the imagery a different rendering treatment based on this selection."
+    )
+}
+
+class CesiumIonImageryPrim "CesiumIonImageryPrim" (
+    doc = """Adds a prim for representing an Ion imagery layer. Should be a child of a tileset."""
+    inherits = </CesiumImageryPrim>
+    customData = {
+        string className = "IonImagery"
     }
 ) {
     int64 cesium:ionAssetId = 0 (
@@ -436,22 +469,6 @@ class CesiumImageryPrim "CesiumImageryPrim" (
         doc = "The access token to use to access the Cesium ion resource. Overrides the default token. Blank if using URL."
     )
 
-    bool cesium:showCreditsOnScreen = false (
-        customData = {
-            string apiName = "showCreditsOnScreen"
-        }
-        displayName = "Show Credits On Screen"
-        doc = "Whether or not to show this imagery layer's credits on screen."
-    )
-
-    float cesium:alpha = 1.0 (
-        customData = {
-            string apiName = "alpha"
-        }
-        displayName = "Alpha"
-        doc = "The alpha blending value, from 0.0 to 1.0, where 1.0 is fully opaque."
-    )
-
     rel cesium:ionServerBinding (
         customData = {
             string apiName = "ionServerBinding"
@@ -459,6 +476,32 @@ class CesiumImageryPrim "CesiumImageryPrim" (
         displayName = "Cesium ion Server Binding"
         doc = "Specifies which Cesium ion Server prim to use for this tileset."
     )
+}
+
+class CesiumPolygonImageryPrim "CesiumPolygonImageryPrim" (
+    doc = """Adds a prim for representing a polygon imagery layer. Should be a child of a tileset."""
+    inherits = </CesiumImageryPrim>
+    customData = {
+        string className = "PolygonImagery"
+    }
+) {
+    rel cesium:cartographicPolygonBinding (
+        customData = {
+            string apiName = "cartographicPolygonBinding"
+        }
+        displayName = "Cartographic Polygon Binding"
+        doc = "Specifies which Cartographic Polygons to use in the imagery layer"
+    )
+}
+
+class CesiumCartographicPolygonPrim "CesiumCartographicPolygonPrim" (
+    doc = """Adds a prim that represents a globe-anchored polygon"""
+    inherits = </BasisCurves>
+    prepend apiSchemas = ["CesiumGlobeAnchorSchemaAPI"]
+    customData = {
+        string className = "CartographicPolygon"
+    }
+) {
 }
 
 class "CesiumGlobeAnchorSchemaAPI" (

@@ -1,4 +1,4 @@
-#include ".//imagery.h"
+#include ".//polygonImagery.h"
 #include "pxr/usd/usd/schemaBase.h"
 
 #include "pxr/usd/sdf/primSpec.h"
@@ -25,45 +25,24 @@ namespace {
 // fwd decl.
 WRAP_CUSTOM;
 
-        
-static UsdAttribute
-_CreateShowCreditsOnScreenAttr(CesiumImagery &self,
-                                      object defaultVal, bool writeSparsely) {
-    return self.CreateShowCreditsOnScreenAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
-}
-        
-static UsdAttribute
-_CreateAlphaAttr(CesiumImagery &self,
-                                      object defaultVal, bool writeSparsely) {
-    return self.CreateAlphaAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Float), writeSparsely);
-}
-        
-static UsdAttribute
-_CreateOverlayRenderMethodAttr(CesiumImagery &self,
-                                      object defaultVal, bool writeSparsely) {
-    return self.CreateOverlayRenderMethodAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Token), writeSparsely);
-}
 
 static std::string
-_Repr(const CesiumImagery &self)
+_Repr(const CesiumPolygonImagery &self)
 {
     std::string primRepr = TfPyRepr(self.GetPrim());
     return TfStringPrintf(
-        "CesiumUsdSchemas.Imagery(%s)",
+        "CesiumUsdSchemas.PolygonImagery(%s)",
         primRepr.c_str());
 }
 
 } // anonymous namespace
 
-void wrapCesiumImagery()
+void wrapCesiumPolygonImagery()
 {
-    typedef CesiumImagery This;
+    typedef CesiumPolygonImagery This;
 
-    class_<This, bases<UsdTyped> >
-        cls("Imagery");
+    class_<This, bases<CesiumImagery> >
+        cls("PolygonImagery");
 
     cls
         .def(init<UsdPrim>(arg("prim")))
@@ -72,6 +51,9 @@ void wrapCesiumImagery()
 
         .def("Get", &This::Get, (arg("stage"), arg("path")))
         .staticmethod("Get")
+
+        .def("Define", &This::Define, (arg("stage"), arg("path")))
+        .staticmethod("Define")
 
         .def("GetSchemaAttributeNames",
              &This::GetSchemaAttributeNames,
@@ -85,28 +67,12 @@ void wrapCesiumImagery()
 
         .def(!self)
 
-        
-        .def("GetShowCreditsOnScreenAttr",
-             &This::GetShowCreditsOnScreenAttr)
-        .def("CreateShowCreditsOnScreenAttr",
-             &_CreateShowCreditsOnScreenAttr,
-             (arg("defaultValue")=object(),
-              arg("writeSparsely")=false))
-        
-        .def("GetAlphaAttr",
-             &This::GetAlphaAttr)
-        .def("CreateAlphaAttr",
-             &_CreateAlphaAttr,
-             (arg("defaultValue")=object(),
-              arg("writeSparsely")=false))
-        
-        .def("GetOverlayRenderMethodAttr",
-             &This::GetOverlayRenderMethodAttr)
-        .def("CreateOverlayRenderMethodAttr",
-             &_CreateOverlayRenderMethodAttr,
-             (arg("defaultValue")=object(),
-              arg("writeSparsely")=false))
 
+        
+        .def("GetCartographicPolygonBindingRel",
+             &This::GetCartographicPolygonBindingRel)
+        .def("CreateCartographicPolygonBindingRel",
+             &This::CreateCartographicPolygonBindingRel)
         .def("__repr__", ::_Repr)
     ;
 

@@ -2,9 +2,11 @@ import omni.usd
 import omni.kit
 import re
 from typing import List
+from ..utils.cesium_interface import CesiumInterfaceManager
+
 
 from cesium.usd.plugins.CesiumUsdSchemas import (
-    Imagery as CesiumImagery,
+    IonImagery as CesiumIonImagery,
     Tileset as CesiumTileset,
     Tokens as CesiumTokens,
     Data as CesiumData,
@@ -47,7 +49,7 @@ def add_imagery_ion(tileset_path: str, name: str, asset_id: int, token: str = ""
     # get_stage_next_free_path will increment the path name if there is a colllision
     imagery_path: str = Sdf.Path(omni.usd.get_stage_next_free_path(stage, imagery_path, False))
 
-    imagery = CesiumImagery.Define(stage, imagery_path)
+    imagery = CesiumIonImagery.Define(stage, imagery_path)
     assert imagery.GetPrim().IsValid()
     parent = imagery.GetPrim().GetParent()
     assert parent.IsA(CesiumTileset)
@@ -60,6 +62,16 @@ def add_imagery_ion(tileset_path: str, name: str, asset_id: int, token: str = ""
         imagery.GetIonServerBindingRel().AddTarget(server_prim_path)
 
     return imagery_path
+
+
+def add_cartographic_polygon() -> None:
+    safe_name = "cartographic_polygon"
+    cartographic_polygon_path: str = Sdf.Path("/CesiumCartographicPolygons").AppendPath(safe_name)
+    stage = omni.usd.get_context().get_stage()
+    cartographic_polygon_path = Sdf.Path(omni.usd.get_stage_next_free_path(stage, cartographic_polygon_path, False))
+
+    with CesiumInterfaceManager() as interface:
+        interface.add_cartographic_polygon_prim(str(cartographic_polygon_path))
 
 
 def is_tileset(maybe_tileset: Gprim) -> bool:

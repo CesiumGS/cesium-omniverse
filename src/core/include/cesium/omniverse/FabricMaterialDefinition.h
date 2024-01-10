@@ -8,6 +8,8 @@
 #include <pxr/base/gf/vec3f.h>
 #include <pxr/usd/sdf/path.h>
 
+#include <vector>
+
 namespace cesium::omniverse {
 
 class FabricMaterialDefinition {
@@ -17,14 +19,14 @@ class FabricMaterialDefinition {
         const CesiumGltf::MeshPrimitive& primitive,
         const MaterialInfo& materialInfo,
         const FeaturesInfo& featuresInfo,
-        uint64_t imageryLayerCount,
+        const ImageryLayersInfo& imageryLayersInfo,
         bool disableTextures,
         const pxr::SdfPath& tilesetMaterialPath);
 
     [[nodiscard]] bool hasVertexColors() const;
     [[nodiscard]] bool hasBaseColorTexture() const;
     [[nodiscard]] const std::vector<FeatureIdType>& getFeatureIdTypes() const;
-    [[nodiscard]] uint64_t getImageryLayerCount() const;
+    [[nodiscard]] const std::vector<OverlayRenderMethod>& getImageryOverlayRenderMethods() const;
     [[nodiscard]] bool hasTilesetMaterial() const;
     [[nodiscard]] const pxr::SdfPath& getTilesetMaterialPath() const;
     [[nodiscard]] const std::vector<MetadataUtil::PropertyDefinition>& getProperties() const;
@@ -36,7 +38,7 @@ class FabricMaterialDefinition {
     bool _hasVertexColors;
     bool _hasBaseColorTexture;
     std::vector<FeatureIdType> _featureIdTypes;
-    uint64_t _imageryLayerCount;
+    std::vector<OverlayRenderMethod> _imageryOverlayRenderMethods;
     pxr::SdfPath _tilesetMaterialPath;
     std::vector<MetadataUtil::PropertyDefinition> _properties;
 };

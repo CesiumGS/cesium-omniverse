@@ -18,6 +18,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     (cesium_base_color_texture_float4) \
     (cesium_feature_id_int) \
     (cesium_imagery_layer_float4) \
+    (cesium_internal_clipping_imagery_layer_resolver) \
     (cesium_internal_feature_id_attribute_lookup) \
     (cesium_internal_feature_id_texture_lookup) \
     (cesium_internal_imagery_layer_lookup) \
@@ -75,6 +76,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     (Mesh) \
     (none) \
     (points) \
+    (clipping_imagery_layer_resolver) \
     (primvarInterpolations) \
     (primvars) \
     (Shader) \
@@ -97,6 +99,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((info_mdl_sourceAsset, "info:mdl:sourceAsset")) \
     ((info_mdl_sourceAsset_subIdentifier, "info:mdl:sourceAsset:subIdentifier")) \
     ((inputs_alpha, "inputs:alpha")) \
+    ((inputs_alpha_clip, "inputs:alpha_clip")) \
     ((inputs_alpha_cutoff, "inputs:alpha_cutoff")) \
     ((inputs_alpha_mode, "inputs:alpha_mode")) \
     ((inputs_base_alpha, "inputs:base_alpha")) \
@@ -128,7 +131,9 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((inputs_texture, "inputs:texture")) \
     ((inputs_tile_color, "inputs:tile_color")) \
     ((inputs_imagery_layer, "inputs:imagery_layer")) \
+    ((inputs_clipping_imagery_layer, "inputs:clipping_imagery_layer")) \
     ((inputs_imagery_layers_count, "inputs:imagery_layers_count")) \
+    ((inputs_clipping_imagery_layers_count, "inputs:clipping_imagery_layers_count")) \
     ((inputs_imagery_layer_index, "inputs:imagery_layer_index")) \
     ((inputs_wrap_s, "inputs:wrap_s")) \
     ((inputs_wrap_t, "inputs:wrap_t")) \
@@ -176,6 +181,7 @@ FABRIC_DECLARE_TOKENS(USD_TOKENS);
 const omni::fabric::TokenC primvars_st_n(uint64_t index);
 const omni::fabric::TokenC imagery_layer_n(uint64_t index);
 const omni::fabric::TokenC inputs_imagery_layer_n(uint64_t index);
+const omni::fabric::TokenC inputs_clipping_imagery_layer_n(uint64_t index);
 const omni::fabric::TokenC feature_id_n(uint64_t index);
 const omni::fabric::TokenC property_n(uint64_t index);
 
@@ -210,6 +216,7 @@ const omni::fabric::Type inputs_emissive_factor(omni::fabric::BaseDataType::eFlo
 const omni::fabric::Type inputs_excludeFromWhiteMode(omni::fabric::BaseDataType::eBool, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_feature_id(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_has_no_data(omni::fabric::BaseDataType::eBool, 1, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type inputs_imagery_layers_count(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_maximum_value_int(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_maximum_value_int2(omni::fabric::BaseDataType::eInt, 2, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_maximum_value_int3(omni::fabric::BaseDataType::eInt, 3, 0, omni::fabric::AttributeRole::eNone);
@@ -228,6 +235,7 @@ const omni::fabric::Type inputs_offset_float(omni::fabric::BaseDataType::eFloat,
 const omni::fabric::Type inputs_offset_float2(omni::fabric::BaseDataType::eFloat, 2, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_offset_float3(omni::fabric::BaseDataType::eFloat, 3, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_offset_float4(omni::fabric::BaseDataType::eFloat, 4, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type inputs_clipping_imagery_layers_count(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_primvar_name(omni::fabric::BaseDataType::eUChar, 1, 1, omni::fabric::AttributeRole::eText);
 const omni::fabric::Type inputs_property_id(omni::fabric::BaseDataType::eUChar, 1, 1, omni::fabric::AttributeRole::eText);
 const omni::fabric::Type inputs_property_table_texture(omni::fabric::BaseDataType::eAsset, 1, 0, omni::fabric::AttributeRole::eNone);
@@ -241,7 +249,6 @@ const omni::fabric::Type inputs_tex_coord_offset(omni::fabric::BaseDataType::eFl
 const omni::fabric::Type inputs_tex_coord_rotation(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_tex_coord_scale(omni::fabric::BaseDataType::eFloat, 2, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_texture(omni::fabric::BaseDataType::eAsset, 1, 0, omni::fabric::AttributeRole::eNone);
-const omni::fabric::Type inputs_imagery_layers_count(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_wrap_s(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_wrap_t(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type Material(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName);

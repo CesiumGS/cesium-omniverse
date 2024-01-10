@@ -1,7 +1,9 @@
 #include "cesium/omniverse/AssetRegistry.h"
 
-#include "cesium/omniverse/OmniImagery.h"
+#include "cesium/omniverse/OmniIonImagery.h"
 #include "cesium/omniverse/OmniTileset.h"
+
+#include <memory>
 
 namespace cesium::omniverse {
 
@@ -27,16 +29,24 @@ const std::list<std::shared_ptr<OmniTileset>>& AssetRegistry::getAllTilesets() c
     return _tilesets;
 }
 
-void AssetRegistry::addImagery(const pxr::SdfPath& path) {
-    _imageries.insert(_imageries.end(), std::make_shared<OmniImagery>(path));
+void AssetRegistry::addIonImagery(const pxr::SdfPath& path) {
+    _ionImageries.insert(_ionImageries.end(), std::make_shared<OmniIonImagery>(path));
 }
 
-void AssetRegistry::removeImagery(const pxr::SdfPath& path) {
-    _imageries.remove_if([&path](const auto& imagery) { return imagery->getPath() == path; });
+void AssetRegistry::addPolygonImagery(const pxr::SdfPath& path) {
+    _polygonImageries.insert(_polygonImageries.end(), std::make_shared<OmniPolygonImagery>(path));
 }
 
-std::shared_ptr<OmniImagery> AssetRegistry::getImagery(const pxr::SdfPath& path) const {
-    for (const auto& imagery : _imageries) {
+void AssetRegistry::removeIonImagery(const pxr::SdfPath& path) {
+    _ionImageries.remove_if([&path](const auto& imagery) { return imagery->getPath() == path; });
+}
+
+void AssetRegistry::removePolygonImagery(const pxr::SdfPath& path) {
+    _polygonImageries.remove_if([&path](const auto& imagery) { return imagery->getPath() == path; });
+}
+
+std::shared_ptr<OmniIonImagery> AssetRegistry::getIonImagery(const pxr::SdfPath& path) const {
+    for (const auto& imagery : _ionImageries) {
         if (imagery->getPath() == path) {
             return imagery;
         }
@@ -45,9 +55,9 @@ std::shared_ptr<OmniImagery> AssetRegistry::getImagery(const pxr::SdfPath& path)
     return nullptr;
 }
 
-std::shared_ptr<OmniImagery> AssetRegistry::getImageryByIonAssetId(int64_t ionAssetId) const {
-    for (const auto& imagery : _imageries) {
-        if (imagery->getIonAssetId() == ionAssetId) {
+std::shared_ptr<OmniPolygonImagery> AssetRegistry::getPolygonImagery(const pxr::SdfPath& path) const {
+    for (const auto& imagery : _polygonImageries) {
+        if (imagery->getPath() == path) {
             return imagery;
         }
     }
@@ -55,8 +65,22 @@ std::shared_ptr<OmniImagery> AssetRegistry::getImageryByIonAssetId(int64_t ionAs
     return nullptr;
 }
 
-const std::list<std::shared_ptr<OmniImagery>>& AssetRegistry::getAllImageries() const {
-    return _imageries;
+std::shared_ptr<OmniIonImagery> AssetRegistry::getImageryByIonAssetId(int64_t ionAssetId) const {
+    for (const auto& ionImagery : _ionImageries) {
+        if (ionImagery->getIonAssetId() == ionAssetId) {
+            return ionImagery;
+        }
+    }
+
+    return nullptr;
+}
+
+const std::list<std::shared_ptr<OmniIonImagery>> AssetRegistry::getAllIonImageries() const {
+    return _ionImageries;
+}
+
+const std::list<std::shared_ptr<OmniPolygonImagery>> AssetRegistry::getAllPolygonImageries() const {
+    return _polygonImageries;
 }
 
 AssetType AssetRegistry::getAssetType(const pxr::SdfPath& path) const {
@@ -64,8 +88,12 @@ AssetType AssetRegistry::getAssetType(const pxr::SdfPath& path) const {
         return AssetType::TILESET;
     }
 
-    if (getImagery(path) != nullptr) {
-        return AssetType::IMAGERY;
+    if (getIonImagery(path) != nullptr) {
+        return AssetType::ION_IMAGERY;
+    }
+
+    if (getPolygonImagery(path) != nullptr) {
+        return AssetType::POLYGON_IMAGERY;
     }
 
     return AssetType::OTHER;
@@ -73,7 +101,8 @@ AssetType AssetRegistry::getAssetType(const pxr::SdfPath& path) const {
 
 void AssetRegistry::clear() {
     _tilesets.clear();
-    _imageries.clear();
+    _ionImageries.clear();
+    _polygonImageries.clear();
 }
 
 } // namespace cesium::omniverse

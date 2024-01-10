@@ -9,8 +9,12 @@
 #include "cesium/omniverse/GeospatialUtil.h"
 #include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/MetadataUtil.h"
+#include "cesium/omniverse/OmniImagery.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/UsdUtil.h"
+
+#include <CesiumUsdSchemas/ionImagery.h>
+#include <CesiumUsdSchemas/polygonImagery.h>
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
@@ -172,7 +176,7 @@ gatherMeshes(const OmniTileset& tileset, const glm::dmat4& tileTransform, const 
 std::vector<FabricMesh> acquireFabricMeshes(
     const CesiumGltf::Model& model,
     const std::vector<MeshInfo>& meshes,
-    uint64_t imageryLayerCount,
+    const ImageryLayersInfo& imageryLayersInfo,
     const OmniTileset& tileset) {
     CESIUM_TRACE("FabricPrepareRenderResources::acquireFabricMeshes");
     std::vector<FabricMesh> fabricMeshes;
@@ -194,7 +198,7 @@ std::vector<FabricMesh> acquireFabricMeshes(
         fabricMesh.geometry = fabricGeometry;
 
         const auto shouldAcquireMaterial = FabricResourceManager::getInstance().shouldAcquireMaterial(
-            primitive, imageryLayerCount > 0, tilesetMaterialPath);
+            primitive, imageryLayersInfo.overlayRenderMethods.size() > 0, tilesetMaterialPath);
 
         if (shouldAcquireMaterial) {
             const auto materialInfo = GltfUtil::getMaterialInfo(model, primitive);
@@ -204,7 +208,7 @@ std::vector<FabricMesh> acquireFabricMeshes(
                 primitive,
                 materialInfo,
                 featuresInfo,
-                imageryLayerCount,
+                imageryLayersInfo,
                 stageId,
                 tileset.getTilesetId(),
                 tilesetMaterialPath);
@@ -404,7 +408,17 @@ FabricPrepareRenderResources::prepareInLoadThread(
     // but at least we have an upper bound. Unused texture slots are initialized with a 1x1 transparent pixel so
     // blending still works.
     const auto overlapsImagery = tileLoadResult.rasterOverlayDetails.has_value();
-    const auto imageryLayerCount = overlapsImagery ? _tileset->getImageryLayerCount() : 0;
+    ImageryLayersInfo imageryLayersInfo;
+    auto imageryLayerCount = overlapsImagery ? _tileset->getImageryLayerCount() : 0;
+    if (imageryLayerCount > 0) {
+        auto stage = Context::instance().getStage();
+        for (uint64_t i = 0; i < imageryLayerCount; i++) {
+            auto imageryLayerPath = _tileset->getImageryLayerPath(static_cast<int>(i));
+            OmniImagery omniImagery(imageryLayerPath);
+            const auto overlayRenderMethod = omniImagery.getOverlayRenderMethod();
+            imageryLayersInfo.overlayRenderMethods.emplace_back(overlayRenderMethod);
+        }
+    }
 
     auto meshes = gatherMeshes(*_tileset, transform, *pModel);
 
@@ -416,7 +430,7 @@ FabricPrepareRenderResources::prepareInLoadThread(
 
     return asyncSystem
         .runInMainThread([this,
-                          imageryLayerCount,
+                          imageryLayersInfo,
                           meshes = std::move(meshes),
                           tileLoadResult = std::move(tileLoadResult)]() mutable {
             if (!tilesetExists()) {
@@ -428,7 +442,7 @@ FabricPrepareRenderResources::prepareInLoadThread(
             }
 
             const auto pModel = std::get_if<CesiumGltf::Model>(&tileLoadResult.contentKind);
-            auto fabricMeshes = acquireFabricMeshes(*pModel, meshes, imageryLayerCount, *_tileset);
+            auto fabricMeshes = acquireFabricMeshes(*pModel, meshes, imageryLayersInfo, *_tileset);
             return IntermediateLoadThreadResult{
                 std::move(tileLoadResult),
                 std::move(meshes),
@@ -512,7 +526,7 @@ void* FabricPrepareRenderResources::prepareRasterInLoadThread(
     }
 
     auto texture = FabricResourceManager::getInstance().acquireTexture();
-    texture->setImage(image, TransferFunction::SRGB);
+    texture->setImage(image, TransferFunction::SRGB, rendererOptions);
     return new ImageryLoadThreadResult{texture};
 }
 

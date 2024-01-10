@@ -1,6 +1,8 @@
 #include "cesium/omniverse/FabricTexture.h"
 
+#include "cesium/omniverse/FabricPrepareRenderResources.h"
 #include "cesium/omniverse/LoggerSink.h"
+#include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <CesiumGltf/ImageCesium.h>
@@ -55,7 +57,17 @@ getCompressedImageFormat(CesiumGltf::GpuCompressedPixelFormat pixelFormat, Trans
     }
 }
 
-carb::Format getUncompressedPixelFormat(TransferFunction transferFunction) {
+carb::Format getUncompressedPixelFormat(
+    TransferFunction transferFunction,
+    [[maybe_unused]] const std::any& rendererOptions = nullptr) {
+
+    if (rendererOptions.has_value() && rendererOptions.type() == typeid(OverlayType)) {
+        OverlayType value = std::any_cast<OverlayType>(rendererOptions);
+        if (value == OverlayType::POLYGON) {
+            return carb::Format::eR8_UNORM;
+        }
+    }
+
     switch (transferFunction) {
         case TransferFunction::LINEAR:
             return carb::Format::eRGBA8_UNORM;
@@ -94,11 +106,14 @@ void FabricTexture::reset() {
     _texture->setBytesData(bytes.data(), size, omni::ui::kAutoCalculateStride, carb::Format::eRGBA8_SRGB);
 }
 
-void FabricTexture::setImage(const CesiumGltf::ImageCesium& image, TransferFunction transferFunction) {
+void FabricTexture::setImage(
+    const CesiumGltf::ImageCesium& image,
+    TransferFunction transferFunction,
+    [[maybe_unused]] const std::any& rendererOptions) {
     carb::Format imageFormat;
 
     if (image.compressedPixelFormat == CesiumGltf::GpuCompressedPixelFormat::NONE) {
-        imageFormat = getUncompressedPixelFormat(transferFunction);
+        imageFormat = getUncompressedPixelFormat(transferFunction, rendererOptions);
     } else {
         imageFormat = getCompressedImageFormat(image.compressedPixelFormat, transferFunction);
     }
@@ -107,7 +122,13 @@ void FabricTexture::setImage(const CesiumGltf::ImageCesium& image, TransferFunct
         CESIUM_LOG_WARN("Invalid image format");
     } else {
         // As of Kit 105.1, omni::ui::kAutoCalculateStride doesn't work for compressed textures. This value somehow works.
-        const auto stride = 4ULL * static_cast<uint64_t>(image.width);
+        auto stride = 4ULL * static_cast<uint64_t>(image.width);
+        if (rendererOptions.has_value() && rendererOptions.type() == typeid(OverlayType)) {
+            if (std::any_cast<OverlayType>(rendererOptions) == OverlayType::POLYGON) {
+                stride = static_cast<uint64_t>(image.width);
+            }
+        }
+
         const auto data = reinterpret_cast<const uint8_t*>(image.pixelData.data());
         const auto dimensions = carb::Uint2{static_cast<uint32_t>(image.width), static_cast<uint32_t>(image.height)};
 

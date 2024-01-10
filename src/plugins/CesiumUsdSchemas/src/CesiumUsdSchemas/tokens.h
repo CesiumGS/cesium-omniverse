@@ -71,6 +71,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumGlobeAnchorAPI
     const TfToken cesiumAnchorScale;
+    /// \brief "cesium:cartographicPolygonBinding"
+    /// 
+    /// CesiumPolygonImagery
+    const TfToken cesiumCartographicPolygonBinding;
     /// \brief "cesium:culledScreenSpaceError"
     /// 
     /// CesiumTileset
@@ -157,11 +161,11 @@ struct CesiumTokensType {
     const TfToken cesiumGeoreferenceOriginLongitude;
     /// \brief "cesium:ionAccessToken"
     /// 
-    /// CesiumImagery, CesiumTileset
+    /// CesiumIonImagery, CesiumTileset
     const TfToken cesiumIonAccessToken;
     /// \brief "cesium:ionAssetId"
     /// 
-    /// CesiumImagery, CesiumTileset
+    /// CesiumIonImagery, CesiumTileset
     const TfToken cesiumIonAssetId;
     /// \brief "cesium:ionServerApiUrl"
     /// 
@@ -173,7 +177,7 @@ struct CesiumTokensType {
     const TfToken cesiumIonServerApplicationId;
     /// \brief "cesium:ionServerBinding"
     /// 
-    /// CesiumImagery, CesiumTileset
+    /// CesiumIonImagery, CesiumTileset
     const TfToken cesiumIonServerBinding;
     /// \brief "cesium:ionServerUrl"
     /// 
@@ -199,6 +203,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumTileset
     const TfToken cesiumMaximumSimultaneousTileLoads;
+    /// \brief "cesium:overlayRenderMethod"
+    /// 
+    /// CesiumImagery
+    const TfToken cesiumOverlayRenderMethod;
     /// \brief "cesium:preloadAncestors"
     /// 
     /// CesiumTileset
@@ -239,10 +247,18 @@ struct CesiumTokensType {
     /// 
     /// CesiumTileset
     const TfToken cesiumUrl;
+    /// \brief "clip"
+    /// 
+    /// Possible value for CesiumImagery::GetOverlayRenderMethodAttr()
+    const TfToken clip;
     /// \brief "ion"
     /// 
     /// Possible value for CesiumTileset::GetSourceTypeAttr(), Default value for CesiumTileset::GetSourceTypeAttr()
     const TfToken ion;
+    /// \brief "overlay"
+    /// 
+    /// Possible value for CesiumImagery::GetOverlayRenderMethodAttr(), Default value for CesiumImagery::GetOverlayRenderMethodAttr()
+    const TfToken overlay;
     /// \brief "url"
     /// 
     /// Possible value for CesiumTileset::GetSourceTypeAttr()

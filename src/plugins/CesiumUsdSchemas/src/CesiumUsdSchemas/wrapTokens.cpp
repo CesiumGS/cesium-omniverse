@@ -49,6 +49,7 @@ void wrapCesiumTokens()
     _AddToken(cls, "cesiumAnchorPosition", CesiumTokens->cesiumAnchorPosition);
     _AddToken(cls, "cesiumAnchorRotation", CesiumTokens->cesiumAnchorRotation);
     _AddToken(cls, "cesiumAnchorScale", CesiumTokens->cesiumAnchorScale);
+    _AddToken(cls, "cesiumCartographicPolygonBinding", CesiumTokens->cesiumCartographicPolygonBinding);
     _AddToken(cls, "cesiumCulledScreenSpaceError", CesiumTokens->cesiumCulledScreenSpaceError);
     _AddToken(cls, "cesiumDebugDisableGeometryPool", CesiumTokens->cesiumDebugDisableGeometryPool);
     _AddToken(cls, "cesiumDebugDisableGeoreferencing", CesiumTokens->cesiumDebugDisableGeoreferencing);
@@ -81,6 +82,7 @@ void wrapCesiumTokens()
     _AddToken(cls, "cesiumMaximumCachedBytes", CesiumTokens->cesiumMaximumCachedBytes);
     _AddToken(cls, "cesiumMaximumScreenSpaceError", CesiumTokens->cesiumMaximumScreenSpaceError);
     _AddToken(cls, "cesiumMaximumSimultaneousTileLoads", CesiumTokens->cesiumMaximumSimultaneousTileLoads);
+    _AddToken(cls, "cesiumOverlayRenderMethod", CesiumTokens->cesiumOverlayRenderMethod);
     _AddToken(cls, "cesiumPreloadAncestors", CesiumTokens->cesiumPreloadAncestors);
     _AddToken(cls, "cesiumPreloadSiblings", CesiumTokens->cesiumPreloadSiblings);
     _AddToken(cls, "cesiumProjectDefaultIonAccessToken", CesiumTokens->cesiumProjectDefaultIonAccessToken);
@@ -91,6 +93,8 @@ void wrapCesiumTokens()
     _AddToken(cls, "cesiumSourceType", CesiumTokens->cesiumSourceType);
     _AddToken(cls, "cesiumSuspendUpdate", CesiumTokens->cesiumSuspendUpdate);
     _AddToken(cls, "cesiumUrl", CesiumTokens->cesiumUrl);
+    _AddToken(cls, "clip", CesiumTokens->clip);
     _AddToken(cls, "ion", CesiumTokens->ion);
+    _AddToken(cls, "overlay", CesiumTokens->overlay);
     _AddToken(cls, "url", CesiumTokens->url);
 }

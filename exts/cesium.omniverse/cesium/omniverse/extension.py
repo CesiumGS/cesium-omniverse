@@ -2,7 +2,7 @@ from .bindings import acquire_cesium_omniverse_interface, release_cesium_omniver
 from .ui.add_menu_controller import CesiumAddMenuController
 from .install import perform_vendor_install
 from .utils import wait_n_frames, dock_window_async, perform_action_after_n_frames_async
-from .usdUtils import add_tileset_ion, add_imagery_ion
+from .usdUtils import add_tileset_ion, add_imagery_ion, add_cartographic_polygon
 from .ui.asset_window import CesiumOmniverseAssetWindow
 from .ui.debug_window import CesiumOmniverseDebugWindow
 from .ui.main_window import CesiumOmniverseMainWindow
@@ -54,6 +54,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._add_ion_asset_subscription: Optional[carb.events.ISubscription] = None
         self._add_blank_asset_subscription: Optional[carb.events.ISubscription] = None
         self._add_imagery_subscription: Optional[carb.events.ISubscription] = None
+        self._add_cartographic_polygon_subscription: Optional[carb.events.ISubscription] = None
         self._assets_to_add_after_token_set: List[AssetToAdd] = []
         self._imagery_to_add_after_token_set: List[ImageryToAdd] = []
         self._adding_assets = False
@@ -154,6 +155,11 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             add_blank_asset_event, self._on_add_blank_asset_event
         )
 
+        add_cartographic_polygon_event = carb.events.type_from_string("cesium.omniverse.ADD_CARTOGRAPHIC_POLYGON")
+        self._add_cartographic_polygon_subscription = bus.create_subscription_to_pop_by_type(
+            add_cartographic_polygon_event, self._on_add_cartographic_polygon_event
+        )
+
         add_imagery_event = carb.events.type_from_string("cesium.omniverse.ADD_IMAGERY")
         self._add_imagery_subscription = bus.create_subscription_to_pop_by_type(
             add_imagery_event, self._on_add_imagery_to_tileset
@@ -206,6 +212,10 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         if self._add_imagery_subscription is not None:
             self._add_imagery_subscription.unsubscribe()
             self._add_imagery_subscription = None
+
+        if self._add_cartographic_polygon_subscription is not None:
+            self._add_cartographic_polygon_subscription.unsubscribe()
+            self._add_cartographic_polygon_subscription = None
 
         if self._show_asset_window_subscription is not None:
             self._show_asset_window_subscription.unsubscribe()
@@ -296,6 +306,9 @@ class CesiumOmniverseExtension(omni.ext.IExt):
 
         self._add_ion_assets(asset_to_add, skip_ion_checks=True)
 
+    def _on_add_cartographic_polygon_event(self, event: carb.events.IEvent):
+        self._add_cartographic_polygon_assets()
+
     def _add_ion_assets(self, asset_to_add: Optional[AssetToAdd], skip_ion_checks=False):
         if asset_to_add is None:
             self._logger.warning("Insufficient information to add asset.")
@@ -323,6 +336,9 @@ class CesiumOmniverseExtension(omni.ext.IExt):
 
         if tileset_path == "":
             self._logger.warning("Error adding tileset and imagery to stage")
+
+    def _add_cartographic_polygon_assets(self):
+        add_cartographic_polygon()
 
     def _on_add_imagery_to_tileset(self, event: carb.events.IEvent):
         imagery_to_add = ImageryToAdd.from_event(event)

@@ -25,5 +25,6 @@ class CesiumImageryAttributesWidget(SchemaPropertiesWidget):
                 CustomLayoutProperty("cesium:ionServerBinding")
             with CustomLayoutGroup("Rendering"):
                 CustomLayoutProperty("cesium:alpha")
+                CustomLayoutProperty("cesium:overlayRenderMethod")
 
         return frame.apply(props)
