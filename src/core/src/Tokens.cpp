@@ -29,7 +29,7 @@ std::mutex tokenMutex;
 std::vector<omni::fabric::Token> primvars_st_tokens;
 std::vector<omni::fabric::Token> imagery_layer_tokens;
 std::vector<omni::fabric::Token> inputs_imagery_layer_tokens;
-std::vector<omni::fabric::Token> inputs_polygon_imagery_layer_tokens;
+std::vector<omni::fabric::Token> inputs_clipping_imagery_layer_tokens;
 std::vector<omni::fabric::Token> feature_id_tokens;
 std::vector<omni::fabric::Token> property_tokens;
 
@@ -64,8 +64,8 @@ const omni::fabric::TokenC inputs_imagery_layer_n(uint64_t index) {
     return getToken(inputs_imagery_layer_tokens, index, "inputs:imagery_layer");
 }
 
-const omni::fabric::TokenC inputs_polygon_imagery_layer_n(uint64_t index) {
-    return getToken(inputs_polygon_imagery_layer_tokens, index, "inputs:polygon_imagery_layer");
+const omni::fabric::TokenC inputs_clipping_imagery_layer_n(uint64_t index) {
+    return getToken(inputs_clipping_imagery_layer_tokens, index, "inputs:clipping_imagery_layer");
 }
 
 const omni::fabric::TokenC feature_id_n(uint64_t index) {

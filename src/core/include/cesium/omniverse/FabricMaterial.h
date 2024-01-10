@@ -82,7 +82,7 @@ class FabricMaterial {
     void createTexture(const omni::fabric::Path& path);
     void createImageryLayer(const omni::fabric::Path& path);
     void createImageryLayerResolver(const omni::fabric::Path& path, uint64_t textureCount);
-    void createPolygonImageryLayerResolver(const omni::fabric::Path& path, uint64_t textureCount);
+    void createClippingImageryLayerResolver(const omni::fabric::Path& path, uint64_t textureCount);
     void createFeatureIdIndex(const omni::fabric::Path& path);
     void createFeatureIdAttribute(const omni::fabric::Path& path);
     void createFeatureIdTexture(const omni::fabric::Path& path);

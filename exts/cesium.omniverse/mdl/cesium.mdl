@@ -1608,8 +1608,8 @@ export gltf_texture_lookup_value cesium_internal_imagery_layer_resolver(
     return gltf_texture_lookup_value(true, resolved_value);
 }
 
-export gltf_texture_lookup_value cesium_internal_polygon_imagery_layer_resolver(
-    uniform int polygon_imagery_layers_count = 0,
+export gltf_texture_lookup_value cesium_internal_clipping_imagery_layer_resolver(
+    uniform int clipping_imagery_layers_count = 0,
     gltf_texture_lookup_value imagery_layer_0 = gltf_texture_lookup_value(),
     gltf_texture_lookup_value imagery_layer_1 = gltf_texture_lookup_value(),
     gltf_texture_lookup_value imagery_layer_2 = gltf_texture_lookup_value(),
@@ -1649,7 +1649,7 @@ export gltf_texture_lookup_value cesium_internal_polygon_imagery_layer_resolver(
 
     auto resolved_value = float4(0.0);
 
-    for (int i = 0; i < polygon_imagery_layers_count; i++) {
+    for (int i = 0; i < clipping_imagery_layers_count; i++) {
         auto imagery_layer = imagery_layers[i];
         if (imagery_layer.valid) {
             resolved_value += imagery_layer.value;

@@ -18,6 +18,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     (cesium_base_color_texture_float4) \
     (cesium_feature_id_int) \
     (cesium_imagery_layer_float4) \
+    (cesium_internal_clipping_imagery_layer_resolver) \
     (cesium_internal_feature_id_attribute_lookup) \
     (cesium_internal_feature_id_texture_lookup) \
     (cesium_internal_imagery_layer_lookup) \
@@ -55,7 +56,6 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     (cesium_internal_property_texture_normalized_int2_lookup) \
     (cesium_internal_property_texture_normalized_int3_lookup) \
     (cesium_internal_property_texture_normalized_int4_lookup) \
-    (cesium_internal_polygon_imagery_layer_resolver) \
     (cesium_internal_texture_lookup) \
     (cesium_property_int) \
     (cesium_property_int2) \
@@ -76,7 +76,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     (Mesh) \
     (none) \
     (points) \
-    (polygon_imagery_layer_resolver) \
+    (clipping_imagery_layer_resolver) \
     (primvarInterpolations) \
     (primvars) \
     (Shader) \
@@ -131,9 +131,9 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((inputs_texture, "inputs:texture")) \
     ((inputs_tile_color, "inputs:tile_color")) \
     ((inputs_imagery_layer, "inputs:imagery_layer")) \
-    ((inputs_polygon_imagery_layer, "inputs:polygon_imagery_layer")) \
+    ((inputs_clipping_imagery_layer, "inputs:clipping_imagery_layer")) \
     ((inputs_imagery_layers_count, "inputs:imagery_layers_count")) \
-    ((inputs_polygon_imagery_layers_count, "inputs:polygon_imagery_layers_count")) \
+    ((inputs_clipping_imagery_layers_count, "inputs:clipping_imagery_layers_count")) \
     ((inputs_imagery_layer_index, "inputs:imagery_layer_index")) \
     ((inputs_wrap_s, "inputs:wrap_s")) \
     ((inputs_wrap_t, "inputs:wrap_t")) \
@@ -181,7 +181,7 @@ FABRIC_DECLARE_TOKENS(USD_TOKENS);
 const omni::fabric::TokenC primvars_st_n(uint64_t index);
 const omni::fabric::TokenC imagery_layer_n(uint64_t index);
 const omni::fabric::TokenC inputs_imagery_layer_n(uint64_t index);
-const omni::fabric::TokenC inputs_polygon_imagery_layer_n(uint64_t index);
+const omni::fabric::TokenC inputs_clipping_imagery_layer_n(uint64_t index);
 const omni::fabric::TokenC feature_id_n(uint64_t index);
 const omni::fabric::TokenC property_n(uint64_t index);
 
@@ -235,7 +235,7 @@ const omni::fabric::Type inputs_offset_float(omni::fabric::BaseDataType::eFloat,
 const omni::fabric::Type inputs_offset_float2(omni::fabric::BaseDataType::eFloat, 2, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_offset_float3(omni::fabric::BaseDataType::eFloat, 3, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_offset_float4(omni::fabric::BaseDataType::eFloat, 4, 0, omni::fabric::AttributeRole::eNone);
-const omni::fabric::Type inputs_polygon_imagery_layers_count(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type inputs_clipping_imagery_layers_count(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_primvar_name(omni::fabric::BaseDataType::eUChar, 1, 1, omni::fabric::AttributeRole::eText);
 const omni::fabric::Type inputs_property_id(omni::fabric::BaseDataType::eUChar, 1, 1, omni::fabric::AttributeRole::eText);
 const omni::fabric::Type inputs_property_table_texture(omni::fabric::BaseDataType::eAsset, 1, 0, omni::fabric::AttributeRole::eNone);

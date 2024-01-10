@@ -628,12 +628,12 @@ void FabricMaterial::initializeDefaultMaterial() {
         _allPaths.push_back(imageryLayerResolverPath);
     }
 
-    // Create polygon imagery layer resolver if there are multiple polygon imagery layers
+    // Create clipping imagery layer resolver if there are multiple clipping imagery layers
     if (clippingImageryLayerCount > 1) {
-        const auto polygonImageryLayerResolverPath =
-            FabricUtil::joinPaths(materialPath, FabricTokens::polygon_imagery_layer_resolver);
-        createPolygonImageryLayerResolver(polygonImageryLayerResolverPath, clippingImageryLayerCount);
-        _clippingImageryLayerResolverPath = polygonImageryLayerResolverPath;
+        const auto clippingImageryLayerResolverPath =
+            FabricUtil::joinPaths(materialPath, FabricTokens::clipping_imagery_layer_resolver);
+        createClippingImageryLayerResolver(clippingImageryLayerResolverPath, clippingImageryLayerCount);
+        _clippingImageryLayerResolverPath = clippingImageryLayerResolverPath;
         _allPaths.push_back(_clippingImageryLayerResolverPath);
     }
 
@@ -668,8 +668,8 @@ void FabricMaterial::initializeDefaultMaterial() {
     }
 
     if (clippingImageryLayerCount == 1) {
-        const auto& polygonImageryLayerPath = _imageryLayerPaths[clippingImageryLayerIndices[0]];
-        createConnection(srw, polygonImageryLayerPath, shaderPath, FabricTokens::inputs_alpha_clip);
+        const auto& clippingImageryLayerPath = _imageryLayerPaths[clippingImageryLayerIndices[0]];
+        createConnection(srw, clippingImageryLayerPath, shaderPath, FabricTokens::inputs_alpha_clip);
     } else if (clippingImageryLayerCount > 1) {
         // Create connection from imagery layer resolver to shader
         createConnection(srw, _clippingImageryLayerResolverPath, shaderPath, FabricTokens::inputs_alpha_clip);
@@ -801,9 +801,9 @@ void FabricMaterial::createImageryLayerResolver(const omni::fabric::Path& path, 
     *imageryLayerCountFabric = static_cast<int>(imageryLayerCount);
 }
 
-void FabricMaterial::createPolygonImageryLayerResolver(
+void FabricMaterial::createClippingImageryLayerResolver(
     const omni::fabric::Path& path,
-    uint64_t polygonImageryLayerCount) {
+    uint64_t clippingImageryLayerCount) {
     auto srw = UsdUtil::getFabricStageReaderWriter();
 
     srw.createPrim(path);
@@ -811,13 +811,13 @@ void FabricMaterial::createPolygonImageryLayerResolver(
     FabricAttributesBuilder attributes;
 
     attributes.addAttribute(
-        FabricTypes::inputs_polygon_imagery_layers_count, FabricTokens::inputs_polygon_imagery_layers_count);
+        FabricTypes::inputs_clipping_imagery_layers_count, FabricTokens::inputs_clipping_imagery_layers_count);
 
-    createAttributes(srw, path, attributes, FabricTokens::cesium_internal_polygon_imagery_layer_resolver);
+    createAttributes(srw, path, attributes, FabricTokens::cesium_internal_clipping_imagery_layer_resolver);
 
-    auto polygonImageryLayerCountFabric =
-        srw.getAttributeWr<int>(path, FabricTokens::inputs_polygon_imagery_layers_count);
-    *polygonImageryLayerCountFabric = static_cast<int>(polygonImageryLayerCount);
+    auto clippingImageryLayerCountFabric =
+        srw.getAttributeWr<int>(path, FabricTokens::inputs_clipping_imagery_layers_count);
+    *clippingImageryLayerCountFabric = static_cast<int>(clippingImageryLayerCount);
 }
 
 void FabricMaterial::createFeatureIdIndex(const omni::fabric::Path& path) {
@@ -1408,17 +1408,17 @@ void FabricMaterial::setMaterial(
     }
 
     if (_usesDefaultMaterial) {
-        bool polygonClippingEnabled = false;
+        bool clippingEnabled = false;
         for (auto methodType : _materialDefinition.getImageryOverlayRenderMethods()) {
             if (methodType == OverlayRenderMethod::CLIPPING) {
-                polygonClippingEnabled = true;
+                clippingEnabled = true;
                 break;
             }
         }
 
         _alphaMode = (materialInfo.alphaMode == AlphaMode::BLEND)
                          ? materialInfo.alphaMode
-                         : (polygonClippingEnabled ? AlphaMode::MASK : materialInfo.alphaMode);
+                         : (clippingEnabled ? AlphaMode::MASK : materialInfo.alphaMode);
 
         if (_debugRandomColors) {
             const auto r = glm::linearRand(0.0, 1.0);
