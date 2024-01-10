@@ -85,14 +85,7 @@ const std::vector<MetadataUtil::PropertyDefinition>& FabricMaterialDefinition::g
 
 // In C++ 20 we can use the default equality comparison (= default)
 bool FabricMaterialDefinition::operator==(const FabricMaterialDefinition& other) const {
-    bool overlaysMatch = getImageryOverlayRenderMethods().size() == other.getImageryOverlayRenderMethods().size();
-    if (overlaysMatch) {
-        for (size_t i = 0; i < getImageryOverlayRenderMethods().size(); i++) {
-            if (getImageryOverlayRenderMethods()[i] != other.getImageryOverlayRenderMethods()[i])
-                overlaysMatch = false;
-            continue;
-        }
-    }
+    bool overlaysMatch = _imageryOverlayRenderMethods == other.getImageryOverlayRenderMethods();
 
     return _hasVertexColors == other._hasVertexColors && _hasBaseColorTexture == other._hasBaseColorTexture &&
            _featureIdTypes == other._featureIdTypes && overlaysMatch &&
