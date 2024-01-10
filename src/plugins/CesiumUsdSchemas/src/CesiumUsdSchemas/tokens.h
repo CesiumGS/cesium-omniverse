@@ -203,10 +203,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumTileset
     const TfToken cesiumMaximumSimultaneousTileLoads;
-    /// \brief "cesium:overlayRenderPipe"
+    /// \brief "cesium:overlayRenderMethod"
     /// 
     /// CesiumImagery
-    const TfToken cesiumOverlayRenderPipe;
+    const TfToken cesiumOverlayRenderMethod;
     /// \brief "cesium:preloadAncestors"
     /// 
     /// CesiumTileset
@@ -249,7 +249,7 @@ struct CesiumTokensType {
     const TfToken cesiumUrl;
     /// \brief "clip"
     /// 
-    /// Possible value for CesiumImagery::GetOverlayRenderPipeAttr()
+    /// Possible value for CesiumImagery::GetOverlayRenderMethodAttr()
     const TfToken clip;
     /// \brief "ion"
     /// 
@@ -257,7 +257,7 @@ struct CesiumTokensType {
     const TfToken ion;
     /// \brief "overlay"
     /// 
-    /// Possible value for CesiumImagery::GetOverlayRenderPipeAttr(), Default value for CesiumImagery::GetOverlayRenderPipeAttr()
+    /// Possible value for CesiumImagery::GetOverlayRenderMethodAttr(), Default value for CesiumImagery::GetOverlayRenderMethodAttr()
     const TfToken overlay;
     /// \brief "url"
     /// 

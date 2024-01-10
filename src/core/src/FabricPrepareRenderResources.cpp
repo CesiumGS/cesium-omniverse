@@ -425,12 +425,12 @@ FabricPrepareRenderResources::prepareInLoadThread(
             }
 
             auto imageryLayer = UsdUtil::getCesiumImagery(imageryLayerPath);
-            pxr::TfToken overlayRenderPipe;
-            imageryLayer.GetOverlayRenderPipeAttr().Get<pxr::TfToken>(&overlayRenderPipe);
-            if (overlayRenderPipe == pxr::CesiumTokens->overlay) {
-                imageryLayersInfo.overlayRenderPipes.emplace_back(OverlayRenderPipe::OVERLAY);
-            } else if (overlayRenderPipe == pxr::CesiumTokens->clip) {
-                imageryLayersInfo.overlayRenderPipes.emplace_back(OverlayRenderPipe::CLIPPING);
+            pxr::TfToken overlayRenderMethod;
+            imageryLayer.GetOverlayRenderMethodAttr().Get<pxr::TfToken>(&overlayRenderMethod);
+            if (overlayRenderMethod == pxr::CesiumTokens->overlay) {
+                imageryLayersInfo.overlayRenderMethods.emplace_back(OverlayRenderMethod::OVERLAY);
+            } else if (overlayRenderMethod == pxr::CesiumTokens->clip) {
+                imageryLayersInfo.overlayRenderMethods.emplace_back(OverlayRenderMethod::CLIPPING);
             }
         }
     }

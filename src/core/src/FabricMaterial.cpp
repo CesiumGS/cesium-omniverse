@@ -590,13 +590,13 @@ void FabricMaterial::initializeDefaultMaterial() {
     uint64_t layerNum = 0;
     std::vector<uint64_t> overlayImageryLayerIndices, clippingImageryLayerIndices;
 
-    for (auto pipeType : _materialDefinition.getImageryOverlayRenderPipes()) {
-        switch (pipeType) {
-            case OverlayRenderPipe::OVERLAY:
+    for (auto methodType : _materialDefinition.getImageryOverlayRenderMethods()) {
+        switch (methodType) {
+            case OverlayRenderMethod::OVERLAY:
                 overlayImageryLayerIndices.push_back(layerNum);
                 overlayImageryLayerCount++;
                 break;
-            case OverlayRenderPipe::CLIPPING:
+            case OverlayRenderMethod::CLIPPING:
                 clippingImageryLayerIndices.push_back(layerNum);
                 clippingImageryLayerCount++;
                 break;
@@ -1409,8 +1409,8 @@ void FabricMaterial::setMaterial(
 
     if (_usesDefaultMaterial) {
         bool polygonClippingEnabled = false;
-        for (auto pipeType : _materialDefinition.getImageryOverlayRenderPipes()) {
-            if (pipeType == OverlayRenderPipe::CLIPPING) {
+        for (auto methodType : _materialDefinition.getImageryOverlayRenderMethods()) {
+            if (methodType == OverlayRenderMethod::CLIPPING) {
                 polygonClippingEnabled = true;
                 break;
             }

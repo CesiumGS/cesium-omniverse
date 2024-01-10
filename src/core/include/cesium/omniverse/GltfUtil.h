@@ -28,7 +28,7 @@ enum class AlphaMode : int {
 };
 
 enum class OverlayType { ION = 0, POLYGON = 1 };
-enum class OverlayRenderPipe { OVERLAY = 0, CLIPPING = 1 };
+enum class OverlayRenderMethod { OVERLAY = 0, CLIPPING = 1 };
 
 struct TextureInfo {
     glm::dvec2 offset;
@@ -78,7 +78,7 @@ struct FeaturesInfo {
 
 struct ImageryLayersInfo {
     std::vector<OverlayType> overlayTypes;
-    std::vector<OverlayRenderPipe> overlayRenderPipes;
+    std::vector<OverlayRenderMethod> overlayRenderMethods;
 };
 
 FeatureIdType getFeatureIdType(const FeatureId& featureId);

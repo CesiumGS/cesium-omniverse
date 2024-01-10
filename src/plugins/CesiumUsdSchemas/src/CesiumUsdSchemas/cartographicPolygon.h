@@ -28,7 +28,7 @@ class SdfAssetPath;
 
 /// \class CesiumCartographicPolygon
 ///
-/// Adds a prim that represents a Cesium CartographicPolygon
+/// Adds a prim that represents a globe-anchored polygon
 ///
 class CesiumCartographicPolygon : public UsdGeomBasisCurves
 {

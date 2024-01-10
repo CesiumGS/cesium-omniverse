@@ -327,10 +327,10 @@ class "CesiumImageryPrim" (
         displayName = "Alpha"
         doc = "The alpha blending value, from 0.0 to 1.0, where 1.0 is fully opaque."
     )
-    uniform token cesium:overlayRenderPipe = "overlay" (
+    uniform token cesium:overlayRenderMethod = "overlay" (
         allowedTokens = ["overlay", "clip"]
-        displayName = "Overlay Render Pipe"
-        doc = "The Cesium default material will send the data down a given pipe with a different rendering treatment based on this selection."
+        displayName = "Overlay Render Method"
+        doc = "The Cesium default material will give the imagery a different rendering treatment based on this selection."
     )
     bool cesium:showCreditsOnScreen = 0 (
         displayName = "Show Credits On Screen"
@@ -351,17 +351,17 @@ class CesiumIonImageryPrim "CesiumIonImageryPrim" (
         doc = "The access token to use to access the Cesium ion resource. Overrides the default token. Blank if using URL."
     )
     int64 cesium:ionAssetId = 0 (
-        displayName = "Ion Asset ID"
+        displayName = "ion Asset ID"
         doc = "The ID of the Cesium ion asset to use."
     )
     rel cesium:ionServerBinding (
-        displayName = "Cesium Ion Server Binding"
+        displayName = "Cesium ion Server Binding"
         doc = "Specifies which Cesium ion Server prim to use for this tileset."
     )
-    uniform token cesium:overlayRenderPipe = "overlay" (
+    uniform token cesium:overlayRenderMethod = "overlay" (
         allowedTokens = ["overlay", "clip"]
-        displayName = "Overlay Render Pipe"
-        doc = "The Cesium default material will send the data down a given pipe with a different rendering treatment based on this selection."
+        displayName = "Overlay Render Method"
+        doc = "The Cesium default material will give the imagery a different rendering treatment based on this selection."
     )
     bool cesium:showCreditsOnScreen = 0 (
         displayName = "Show Credits On Screen"
@@ -379,12 +379,12 @@ class CesiumPolygonImageryPrim "CesiumPolygonImageryPrim" (
     )
     rel cesium:cartographicPolygonBinding (
         displayName = "Cartographic Polygon Binding"
-        doc = "Specifies which Cartraphic Polygons to use in the imagery layer"
+        doc = "Specifies which Cartographic Polygons to use in the imagery layer"
     )
-    uniform token cesium:overlayRenderPipe = "overlay" (
+    uniform token cesium:overlayRenderMethod = "overlay" (
         allowedTokens = ["overlay", "clip"]
-        displayName = "Overlay Render Pipe"
-        doc = "The Cesium default material will send the data down a given pipe with a different rendering treatment based on this selection."
+        displayName = "Overlay Render Method"
+        doc = "The Cesium default material will give the imagery a different rendering treatment based on this selection."
     )
     bool cesium:showCreditsOnScreen = 0 (
         displayName = "Show Credits On Screen"
@@ -394,7 +394,7 @@ class CesiumPolygonImageryPrim "CesiumPolygonImageryPrim" (
 
 class CesiumCartographicPolygonPrim "CesiumCartographicPolygonPrim" (
     apiSchemas = ["CesiumGlobeAnchorSchemaAPI"]
-    doc = "Adds a prim that represents a Cesium CartographicPolygon"
+    doc = "Adds a prim that represents a globe-anchored polygon"
 )
 {
     vector3f[] accelerations (

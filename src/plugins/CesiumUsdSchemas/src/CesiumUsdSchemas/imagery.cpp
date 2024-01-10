@@ -96,15 +96,15 @@ CesiumImagery::CreateAlphaAttr(VtValue const &defaultValue, bool writeSparsely) 
 }
 
 UsdAttribute
-CesiumImagery::GetOverlayRenderPipeAttr() const
+CesiumImagery::GetOverlayRenderMethodAttr() const
 {
-    return GetPrim().GetAttribute(CesiumTokens->cesiumOverlayRenderPipe);
+    return GetPrim().GetAttribute(CesiumTokens->cesiumOverlayRenderMethod);
 }
 
 UsdAttribute
-CesiumImagery::CreateOverlayRenderPipeAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumImagery::CreateOverlayRenderMethodAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
-    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumOverlayRenderPipe,
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumOverlayRenderMethod,
                        SdfValueTypeNames->Token,
                        /* custom = */ false,
                        SdfVariabilityUniform,
@@ -131,7 +131,7 @@ CesiumImagery::GetSchemaAttributeNames(bool includeInherited)
     static TfTokenVector localNames = {
         CesiumTokens->cesiumShowCreditsOnScreen,
         CesiumTokens->cesiumAlpha,
-        CesiumTokens->cesiumOverlayRenderPipe,
+        CesiumTokens->cesiumOverlayRenderMethod,
     };
     static TfTokenVector allNames =
         _ConcatenateAttributeNames(

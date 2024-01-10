@@ -151,27 +151,27 @@ public:
 
 public:
     // --------------------------------------------------------------------- //
-    // OVERLAYRENDERPIPE 
+    // OVERLAYRENDERMETHOD 
     // --------------------------------------------------------------------- //
-    /// The Cesium default material will send the data down a given pipe with a different rendering treatment based on this selection.
+    /// The Cesium default material will give the imagery a different rendering treatment based on this selection.
     ///
     /// | ||
     /// | -- | -- |
-    /// | Declaration | `uniform token cesium:overlayRenderPipe = "overlay"` |
+    /// | Declaration | `uniform token cesium:overlayRenderMethod = "overlay"` |
     /// | C++ Type | TfToken |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Token |
     /// | \ref SdfVariability "Variability" | SdfVariabilityUniform |
     /// | \ref CesiumTokens "Allowed Values" | overlay, clip |
     CESIUMUSDSCHEMAS_API
-    UsdAttribute GetOverlayRenderPipeAttr() const;
+    UsdAttribute GetOverlayRenderMethodAttr() const;
 
-    /// See GetOverlayRenderPipeAttr(), and also 
+    /// See GetOverlayRenderMethodAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
     CESIUMUSDSCHEMAS_API
-    UsdAttribute CreateOverlayRenderPipeAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+    UsdAttribute CreateOverlayRenderMethodAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // ===================================================================== //

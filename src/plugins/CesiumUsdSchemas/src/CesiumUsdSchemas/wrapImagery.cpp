@@ -41,9 +41,9 @@ _CreateAlphaAttr(CesiumImagery &self,
 }
         
 static UsdAttribute
-_CreateOverlayRenderPipeAttr(CesiumImagery &self,
+_CreateOverlayRenderMethodAttr(CesiumImagery &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateOverlayRenderPipeAttr(
+    return self.CreateOverlayRenderMethodAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Token), writeSparsely);
 }
 
@@ -100,10 +100,10 @@ void wrapCesiumImagery()
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetOverlayRenderPipeAttr",
-             &This::GetOverlayRenderPipeAttr)
-        .def("CreateOverlayRenderPipeAttr",
-             &_CreateOverlayRenderPipeAttr,
+        .def("GetOverlayRenderMethodAttr",
+             &This::GetOverlayRenderMethodAttr)
+        .def("CreateOverlayRenderMethodAttr",
+             &_CreateOverlayRenderMethodAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 

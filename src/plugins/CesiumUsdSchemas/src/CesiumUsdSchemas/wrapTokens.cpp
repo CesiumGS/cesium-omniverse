@@ -82,7 +82,7 @@ void wrapCesiumTokens()
     _AddToken(cls, "cesiumMaximumCachedBytes", CesiumTokens->cesiumMaximumCachedBytes);
     _AddToken(cls, "cesiumMaximumScreenSpaceError", CesiumTokens->cesiumMaximumScreenSpaceError);
     _AddToken(cls, "cesiumMaximumSimultaneousTileLoads", CesiumTokens->cesiumMaximumSimultaneousTileLoads);
-    _AddToken(cls, "cesiumOverlayRenderPipe", CesiumTokens->cesiumOverlayRenderPipe);
+    _AddToken(cls, "cesiumOverlayRenderMethod", CesiumTokens->cesiumOverlayRenderMethod);
     _AddToken(cls, "cesiumPreloadAncestors", CesiumTokens->cesiumPreloadAncestors);
     _AddToken(cls, "cesiumPreloadSiblings", CesiumTokens->cesiumPreloadSiblings);
     _AddToken(cls, "cesiumProjectDefaultIonAccessToken", CesiumTokens->cesiumProjectDefaultIonAccessToken);

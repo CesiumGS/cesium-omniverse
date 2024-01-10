@@ -129,7 +129,7 @@ public:
     // --------------------------------------------------------------------- //
     // CARTOGRAPHICPOLYGONBINDING 
     // --------------------------------------------------------------------- //
-    /// Specifies which Cartraphic Polygons to use in the imagery layer
+    /// Specifies which Cartographic Polygons to use in the imagery layer
     ///
     CESIUMUSDSCHEMAS_API
     UsdRelationship GetCartographicPolygonBindingRel() const;
