@@ -1,4 +1,5 @@
 #include "cesium/omniverse/UsdNotificationHandler.h"
+
 #include "CesiumUsdSchemas/tokens.h"
 
 #include "cesium/omniverse/AssetRegistry.h"

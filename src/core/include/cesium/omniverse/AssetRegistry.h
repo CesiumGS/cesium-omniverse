@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cesium/omniverse/OmniPolygonImagery.h"
+
 #include <pxr/usd/sdf/path.h>
 
 #include <list>
