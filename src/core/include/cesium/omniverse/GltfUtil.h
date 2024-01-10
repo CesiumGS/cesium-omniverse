@@ -27,8 +27,14 @@ enum class AlphaMode : int {
     BLEND = 2,
 };
 
-enum class OverlayType { ION = 0, POLYGON = 1 };
-enum class OverlayRenderMethod { OVERLAY = 0, CLIPPING = 1 };
+enum class OverlayType {
+    ION = 0,
+    POLYGON = 1,
+};
+enum class OverlayRenderMethod {
+    OVERLAY = 0,
+    CLIPPING = 1,
+};
 
 struct TextureInfo {
     glm::dvec2 offset;
