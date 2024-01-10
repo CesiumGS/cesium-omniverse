@@ -560,6 +560,16 @@ bool isCesiumIonImagery(const pxr::SdfPath& path) {
     return prim.IsA<pxr::CesiumIonImagery>();
 }
 
+bool isCesiumPolygonImagery(const pxr::SdfPath& path) {
+    auto stage = getUsdStage();
+    auto prim = stage->GetPrimAtPath(path);
+    if (!prim.IsValid()) {
+        return false;
+    }
+
+    return prim.IsA<pxr::CesiumPolygonImagery>();
+}
+
 bool hasCesiumGlobeAnchor(const pxr::SdfPath& path) {
     auto stage = getUsdStage();
     auto prim = stage->GetPrimAtPath(path);

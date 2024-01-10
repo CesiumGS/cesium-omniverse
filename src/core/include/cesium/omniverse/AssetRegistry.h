@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cesium/omniverse/OmniPolygonImagery.h"
 #include <pxr/usd/sdf/path.h>
 
 #include <list>
@@ -9,10 +10,12 @@ namespace cesium::omniverse {
 class OmniTileset;
 class OmniImagery;
 class OmniIonImagery;
+class OmniPolygonImagery;
 
 enum AssetType {
     TILESET,
-    IMAGERY,
+    ION_IMAGERY,
+    POLYGON_IMAGERY,
     OTHER,
 };
 
@@ -34,12 +37,15 @@ class AssetRegistry {
     [[nodiscard]] std::shared_ptr<OmniTileset> getTileset(const pxr::SdfPath& path) const;
     [[nodiscard]] const std::list<std::shared_ptr<OmniTileset>>& getAllTilesets() const;
 
-    void addImagery(const pxr::SdfPath& path);
-    void removeImagery(const pxr::SdfPath& path);
-    [[nodiscard]] std::shared_ptr<OmniImagery> getImagery(const pxr::SdfPath& path) const;
+    void addIonImagery(const pxr::SdfPath& path);
+    void addPolygonImagery(const pxr::SdfPath& path);
+    void removeIonImagery(const pxr::SdfPath& path);
+    void removePolygonImagery(const pxr::SdfPath& path);
+    [[nodiscard]] std::shared_ptr<OmniIonImagery> getIonImagery(const pxr::SdfPath& path) const;
+    [[nodiscard]] std::shared_ptr<OmniPolygonImagery> getPolygonImagery(const pxr::SdfPath& path) const;
     [[nodiscard]] std::shared_ptr<OmniIonImagery> getImageryByIonAssetId(int64_t ionAssetId) const;
-    [[nodiscard]] const std::list<std::shared_ptr<OmniImagery>>& getAllImageries() const;
     [[nodiscard]] const std::list<std::shared_ptr<OmniIonImagery>> getAllIonImageries() const;
+    [[nodiscard]] const std::list<std::shared_ptr<OmniPolygonImagery>> getAllPolygonImageries() const;
 
     [[nodiscard]] AssetType getAssetType(const pxr::SdfPath& path) const;
 
@@ -51,7 +57,8 @@ class AssetRegistry {
 
   private:
     std::list<std::shared_ptr<OmniTileset>> _tilesets;
-    std::list<std::shared_ptr<OmniImagery>> _imageries;
+    std::list<std::shared_ptr<OmniIonImagery>> _ionImageries;
+    std::list<std::shared_ptr<OmniPolygonImagery>> _polygonImageries;
 };
 
 } // namespace cesium::omniverse

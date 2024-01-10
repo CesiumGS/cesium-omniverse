@@ -1,4 +1,5 @@
 #include "cesium/omniverse/UsdNotificationHandler.h"
+#include "CesiumUsdSchemas/tokens.h"
 
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/FabricResourceManager.h"
@@ -26,7 +27,9 @@ ChangedPrimType getType(const pxr::SdfPath& path) {
         } else if (UsdUtil::isCesiumTileset(path)) {
             return ChangedPrimType::CESIUM_TILESET;
         } else if (UsdUtil::isCesiumIonImagery(path)) {
-            return ChangedPrimType::CESIUM_IMAGERY;
+            return ChangedPrimType::CESIUM_ION_IMAGERY;
+        } else if (UsdUtil::isCesiumPolygonImagery(path)) {
+            return ChangedPrimType::CESIUM_POLYGON_IMAGERY;
         } else if (UsdUtil::isCesiumGeoreference(path)) {
             return ChangedPrimType::CESIUM_GEOREFERENCE;
         } else if (UsdUtil::hasCesiumGlobeAnchor(path)) {
@@ -43,8 +46,10 @@ ChangedPrimType getType(const pxr::SdfPath& path) {
         switch (assetType) {
             case AssetType::TILESET:
                 return ChangedPrimType::CESIUM_TILESET;
-            case AssetType::IMAGERY:
-                return ChangedPrimType::CESIUM_IMAGERY;
+            case AssetType::ION_IMAGERY:
+                return ChangedPrimType::CESIUM_ION_IMAGERY;
+            case AssetType::POLYGON_IMAGERY:
+                return ChangedPrimType::CESIUM_POLYGON_IMAGERY;
             default:
                 break;
         }
@@ -188,7 +193,7 @@ void processCesiumTilesetChanged(const pxr::SdfPath& tilesetPath, const std::vec
     }
 }
 
-void processCesiumImageryChanged(const pxr::SdfPath& imageryPath, const std::vector<pxr::TfToken>& properties) {
+void processCesiumIonImageryChanged(const pxr::SdfPath& imageryPath, const std::vector<pxr::TfToken>& properties) {
     const auto tilesetPath = imageryPath.GetParentPath();
     const auto tileset = AssetRegistry::getInstance().getTileset(tilesetPath);
     if (!tileset) {
@@ -203,6 +208,40 @@ void processCesiumImageryChanged(const pxr::SdfPath& imageryPath, const std::vec
         if (property == pxr::CesiumTokens->cesiumIonAssetId ||
             property == pxr::CesiumTokens->cesiumIonAccessToken ||
             property == pxr::CesiumTokens->cesiumIonServerBinding ||
+            property == pxr::CesiumTokens->cesiumShowCreditsOnScreen) {
+            reloadTileset = true;
+        } else if (property == pxr::CesiumTokens->cesiumAlpha) {
+            updateImageryLayerAlpha = true;
+        }
+    }
+    // clang-format on
+
+    if (reloadTileset) {
+        tileset->reload();
+        return; // Skip other updates
+    }
+
+    if (updateImageryLayerAlpha) {
+        const auto imageryLayerIndex = tileset->findImageryLayerIndex(imageryPath);
+        if (imageryLayerIndex.has_value()) {
+            tileset->updateImageryLayerAlpha(imageryLayerIndex.value());
+        }
+    }
+}
+
+void processCesiumPolygonImageryChanged(const pxr::SdfPath& imageryPath, const std::vector<pxr::TfToken>& properties) {
+    const auto tilesetPath = imageryPath.GetParentPath();
+    const auto tileset = AssetRegistry::getInstance().getTileset(tilesetPath);
+    if (!tileset) {
+        return;
+    }
+
+    auto reloadTileset = false;
+    auto updateImageryLayerAlpha = false;
+
+    // clang-format off
+    for (const auto& property : properties) {
+        if (property == pxr::CesiumTokens->cesiumCartographicPolygonBinding ||
             property == pxr::CesiumTokens->cesiumShowCreditsOnScreen) {
             reloadTileset = true;
         } else if (property == pxr::CesiumTokens->cesiumAlpha) {
@@ -389,8 +428,19 @@ void processCesiumTilesetRemoved(const pxr::SdfPath& tilesetPath) {
     AssetRegistry::getInstance().removeTileset(tilesetPath);
 }
 
-void processCesiumImageryRemoved(const pxr::SdfPath& imageryPath) {
-    AssetRegistry::getInstance().removeImagery(imageryPath);
+void processCesiumIonImageryRemoved(const pxr::SdfPath& imageryPath) {
+    AssetRegistry::getInstance().removeIonImagery(imageryPath);
+
+    const auto tilesetPath = imageryPath.GetParentPath();
+    const auto tileset = AssetRegistry::getInstance().getTileset(tilesetPath);
+
+    if (tileset) {
+        tileset->reload();
+    }
+}
+
+void processCesiumPolygonImageryRemoved(const pxr::SdfPath& imageryPath) {
+    AssetRegistry::getInstance().removePolygonImagery(imageryPath);
 
     const auto tilesetPath = imageryPath.GetParentPath();
     const auto tileset = AssetRegistry::getInstance().getTileset(tilesetPath);
@@ -418,8 +468,19 @@ void processCesiumTilesetAdded(const pxr::SdfPath& tilesetPath) {
     AssetRegistry::getInstance().addTileset(tilesetPath, georeferencePath);
 }
 
-void processCesiumImageryAdded(const pxr::SdfPath& imageryPath) {
-    AssetRegistry::getInstance().addImagery(imageryPath);
+void processCesiumIonImageryAdded(const pxr::SdfPath& imageryPath) {
+    AssetRegistry::getInstance().addIonImagery(imageryPath);
+
+    const auto tilesetPath = imageryPath.GetParentPath();
+    const auto tileset = AssetRegistry::getInstance().getTileset(tilesetPath);
+
+    if (tileset) {
+        tileset->reload();
+    }
+}
+
+void processCesiumPolygonImageryAdded(const pxr::SdfPath& imageryPath) {
+    AssetRegistry::getInstance().addPolygonImagery(imageryPath);
 
     const auto tilesetPath = imageryPath.GetParentPath();
     const auto tileset = AssetRegistry::getInstance().getTileset(tilesetPath);
@@ -523,8 +584,11 @@ void UsdNotificationHandler::onUpdateFrame() {
                     case ChangedPrimType::CESIUM_TILESET:
                         processCesiumTilesetChanged(changedPrim.primPath, changedPrim.properties);
                         break;
-                    case ChangedPrimType::CESIUM_IMAGERY:
-                        processCesiumImageryChanged(changedPrim.primPath, changedPrim.properties);
+                    case ChangedPrimType::CESIUM_ION_IMAGERY:
+                        processCesiumIonImageryChanged(changedPrim.primPath, changedPrim.properties);
+                        break;
+                    case ChangedPrimType::CESIUM_POLYGON_IMAGERY:
+                        processCesiumPolygonImageryChanged(changedPrim.primPath, changedPrim.properties);
                         break;
                     case ChangedPrimType::CESIUM_GEOREFERENCE:
                         processCesiumGeoreferenceChanged(changedPrim.primPath, changedPrim.properties);
@@ -547,8 +611,11 @@ void UsdNotificationHandler::onUpdateFrame() {
                     case ChangedPrimType::CESIUM_TILESET:
                         processCesiumTilesetAdded(changedPrim.primPath);
                         break;
-                    case ChangedPrimType::CESIUM_IMAGERY:
-                        processCesiumImageryAdded(changedPrim.primPath);
+                    case ChangedPrimType::CESIUM_ION_IMAGERY:
+                        processCesiumIonImageryAdded(changedPrim.primPath);
+                        break;
+                    case ChangedPrimType::CESIUM_POLYGON_IMAGERY:
+                        processCesiumPolygonImageryAdded(changedPrim.primPath);
                         break;
                     case ChangedPrimType::CESIUM_GLOBE_ANCHOR:
                         processCesiumGlobeAnchorAdded(changedPrim.primPath);
@@ -568,8 +635,11 @@ void UsdNotificationHandler::onUpdateFrame() {
                     case ChangedPrimType::CESIUM_TILESET:
                         processCesiumTilesetRemoved(changedPrim.primPath);
                         break;
-                    case ChangedPrimType::CESIUM_IMAGERY:
-                        processCesiumImageryRemoved(changedPrim.primPath);
+                    case ChangedPrimType::CESIUM_ION_IMAGERY:
+                        processCesiumIonImageryRemoved(changedPrim.primPath);
+                        break;
+                    case ChangedPrimType::CESIUM_POLYGON_IMAGERY:
+                        processCesiumPolygonImageryRemoved(changedPrim.primPath);
                         break;
                     case ChangedPrimType::CESIUM_GLOBE_ANCHOR:
                         processCesiumGlobeAnchorRemoved(changedPrim.primPath);
@@ -652,11 +722,22 @@ void UsdNotificationHandler::onPrimRemoved(const pxr::SdfPath& primPath) {
         }
     }
 
-    const auto& imageries = AssetRegistry::getInstance().getAllImageries();
-    for (const auto& imagery : imageries) {
+    const auto& ionImageries = AssetRegistry::getInstance().getAllIonImageries();
+    for (const auto& ionImagery : ionImageries) {
+        const auto imageryPath = ionImagery->getPath();
+        const auto type = getType(imageryPath);
+        if (type == ChangedPrimType::CESIUM_ION_IMAGERY) {
+            if (inSubtree(primPath, imageryPath)) {
+                insertRemovedPrim(primPath, type);
+            }
+        }
+    }
+
+    const auto& polygonImageries = AssetRegistry::getInstance().getAllPolygonImageries();
+    for (const auto& imagery : polygonImageries) {
         const auto imageryPath = imagery->getPath();
         const auto type = getType(imageryPath);
-        if (type == ChangedPrimType::CESIUM_IMAGERY) {
+        if (type == ChangedPrimType::CESIUM_POLYGON_IMAGERY) {
             if (inSubtree(primPath, imageryPath)) {
                 insertRemovedPrim(primPath, type);
             }
