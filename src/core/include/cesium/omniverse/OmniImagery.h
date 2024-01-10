@@ -13,7 +13,6 @@ class OmniImagery {
     [[nodiscard]] std::string getName() const;
     [[nodiscard]] bool getShowCreditsOnScreen() const;
     [[nodiscard]] double getAlpha() const;
-    virtual ~OmniImagery() = default;
 
   protected:
     pxr::SdfPath _path;
