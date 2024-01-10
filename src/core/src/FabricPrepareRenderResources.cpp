@@ -9,6 +9,7 @@
 #include "cesium/omniverse/GeospatialUtil.h"
 #include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/MetadataUtil.h"
+#include "cesium/omniverse/OmniImagery.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/UsdUtil.h"
 
@@ -413,16 +414,9 @@ FabricPrepareRenderResources::prepareInLoadThread(
         auto stage = Context::instance().getStage();
         for (uint64_t i = 0; i < imageryLayerCount; i++) {
             auto imageryLayerPath = _tileset->getImageryLayerPath(static_cast<int>(i));
-            auto prim = stage->GetPrimAtPath(imageryLayerPath);
-
-            auto imageryLayer = UsdUtil::getCesiumImagery(imageryLayerPath);
-            pxr::TfToken overlayRenderMethod;
-            imageryLayer.GetOverlayRenderMethodAttr().Get<pxr::TfToken>(&overlayRenderMethod);
-            if (overlayRenderMethod == pxr::CesiumTokens->overlay) {
-                imageryLayersInfo.overlayRenderMethods.emplace_back(OverlayRenderMethod::OVERLAY);
-            } else if (overlayRenderMethod == pxr::CesiumTokens->clip) {
-                imageryLayersInfo.overlayRenderMethods.emplace_back(OverlayRenderMethod::CLIPPING);
-            }
+            OmniImagery omniImagery(imageryLayerPath);
+            const auto overlayRenderMethod = omniImagery.getOverlayRenderMethod();
+            imageryLayersInfo.overlayRenderMethods.emplace_back(overlayRenderMethod);
         }
     }
 
