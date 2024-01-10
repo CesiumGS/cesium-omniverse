@@ -83,7 +83,6 @@ struct FeaturesInfo {
 };
 
 struct ImageryLayersInfo {
-    std::vector<OverlayType> overlayTypes;
     std::vector<OverlayRenderMethod> overlayRenderMethods;
 };
 

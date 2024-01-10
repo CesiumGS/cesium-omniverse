@@ -74,7 +74,7 @@ FeatureIdCounts getFeatureIdCounts(const FabricMaterialDefinition& materialDefin
 }
 
 uint64_t getImageryLayerCount(const FabricMaterialDefinition& materialDefinition) {
-    auto imageryLayerCount = materialDefinition.getImageryOverlayTypes().size();
+    auto imageryLayerCount = materialDefinition.getImageryOverlayRenderMethods().size();
 
     if (imageryLayerCount > MAX_IMAGERY_LAYERS_COUNT) {
         CESIUM_LOG_WARN(

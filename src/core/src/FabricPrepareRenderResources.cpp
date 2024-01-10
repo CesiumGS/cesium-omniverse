@@ -197,7 +197,7 @@ std::vector<FabricMesh> acquireFabricMeshes(
         fabricMesh.geometry = fabricGeometry;
 
         const auto shouldAcquireMaterial = FabricResourceManager::getInstance().shouldAcquireMaterial(
-            primitive, imageryLayersInfo.overlayTypes.size() > 0, tilesetMaterialPath);
+            primitive, imageryLayersInfo.overlayRenderMethods.size() > 0, tilesetMaterialPath);
 
         if (shouldAcquireMaterial) {
             const auto materialInfo = GltfUtil::getMaterialInfo(model, primitive);
@@ -414,15 +414,6 @@ FabricPrepareRenderResources::prepareInLoadThread(
         for (uint64_t i = 0; i < imageryLayerCount; i++) {
             auto imageryLayerPath = _tileset->getImageryLayerPath(static_cast<int>(i));
             auto prim = stage->GetPrimAtPath(imageryLayerPath);
-
-            if (prim.IsA<pxr::CesiumIonImagery>()) {
-                imageryLayersInfo.overlayTypes.emplace_back(OverlayType::ION);
-            } else if (prim.IsA<pxr::CesiumPolygonImagery>()) {
-                imageryLayersInfo.overlayTypes.emplace_back(OverlayType::POLYGON);
-            } else {
-                Context::instance().getLogger()->error(
-                    "Attempting to prepare resources for unknown imagery layer type");
-            }
 
             auto imageryLayer = UsdUtil::getCesiumImagery(imageryLayerPath);
             pxr::TfToken overlayRenderMethod;

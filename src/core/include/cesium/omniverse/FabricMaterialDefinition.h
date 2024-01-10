@@ -26,7 +26,6 @@ class FabricMaterialDefinition {
     [[nodiscard]] bool hasVertexColors() const;
     [[nodiscard]] bool hasBaseColorTexture() const;
     [[nodiscard]] const std::vector<FeatureIdType>& getFeatureIdTypes() const;
-    [[nodiscard]] const std::vector<OverlayType>& getImageryOverlayTypes() const;
     [[nodiscard]] const std::vector<OverlayRenderMethod>& getImageryOverlayRenderMethods() const;
     [[nodiscard]] bool hasTilesetMaterial() const;
     [[nodiscard]] const pxr::SdfPath& getTilesetMaterialPath() const;
@@ -39,7 +38,6 @@ class FabricMaterialDefinition {
     bool _hasVertexColors;
     bool _hasBaseColorTexture;
     std::vector<FeatureIdType> _featureIdTypes;
-    std::vector<OverlayType> _imageryOverlayTypes;
     std::vector<OverlayRenderMethod> _imageryOverlayRenderMethods;
     pxr::SdfPath _tilesetMaterialPath;
     std::vector<MetadataUtil::PropertyDefinition> _properties;

@@ -51,7 +51,6 @@ FabricMaterialDefinition::FabricMaterialDefinition(
     : _hasVertexColors(materialInfo.hasVertexColors)
     , _hasBaseColorTexture(disableTextures ? false : materialInfo.baseColorTexture.has_value())
     , _featureIdTypes(filterFeatureIdTypes(featuresInfo, disableTextures))
-    , _imageryOverlayTypes(imageryLayersInfo.overlayTypes)
     , _imageryOverlayRenderMethods(imageryLayersInfo.overlayRenderMethods)
     , _tilesetMaterialPath(tilesetMaterialPath)
     , _properties(getStyleableProperties(model, primitive, tilesetMaterialPath)) {}
@@ -66,10 +65,6 @@ bool FabricMaterialDefinition::hasBaseColorTexture() const {
 
 const std::vector<FeatureIdType>& FabricMaterialDefinition::getFeatureIdTypes() const {
     return _featureIdTypes;
-}
-
-const std::vector<OverlayType>& FabricMaterialDefinition::getImageryOverlayTypes() const {
-    return _imageryOverlayTypes;
 }
 
 const std::vector<OverlayRenderMethod>& FabricMaterialDefinition::getImageryOverlayRenderMethods() const {
@@ -90,10 +85,10 @@ const std::vector<MetadataUtil::PropertyDefinition>& FabricMaterialDefinition::g
 
 // In C++ 20 we can use the default equality comparison (= default)
 bool FabricMaterialDefinition::operator==(const FabricMaterialDefinition& other) const {
-    bool overlaysMatch = getImageryOverlayTypes().size() == other.getImageryOverlayTypes().size();
+    bool overlaysMatch = getImageryOverlayRenderMethods().size() == other.getImageryOverlayRenderMethods().size();
     if (overlaysMatch) {
-        for (size_t i = 0; i < getImageryOverlayTypes().size(); i++) {
-            if (getImageryOverlayTypes()[i] != other.getImageryOverlayTypes()[i])
+        for (size_t i = 0; i < getImageryOverlayRenderMethods().size(); i++) {
+            if (getImageryOverlayRenderMethods()[i] != other.getImageryOverlayRenderMethods()[i])
                 overlaysMatch = false;
             continue;
         }
