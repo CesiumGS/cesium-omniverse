@@ -21,7 +21,7 @@ jobs:
           - {
               name: "Windows - MSVC",
               artifact: "windows-msvc.tar.xz",
-              os: windows-latest-l,
+              os: windows-latest,
               cc: "cl",
               cxx: "cl",
               build-type: "Release",
@@ -33,7 +33,7 @@ jobs:
           - {
               name: "Ubuntu - GCC",
               artifact: "linux-gcc.tar.xz",
-              os: ubuntu-latest-m,
+              os: ubuntu-latest,
               cc: "gcc-11",
               cxx: "g++-11",
               build-type: "Release",
@@ -45,7 +45,7 @@ jobs:
           - {
               name: "AlmaLinux 8 - GCC",
               artifact: "linux-gcc.tar.xz",
-              os: ubuntu-latest-m,
+              os: ubuntu-latest,
               cc: "gcc-11",
               cxx: "g++-11",
               build-type: "Release",
