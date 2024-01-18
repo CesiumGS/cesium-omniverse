@@ -1,11 +1,13 @@
 #pragma once
 
+// clang-format off
 // carb/events/IObject.h should include this
 #include <utility>
 
 #include <carb/events/IEvents.h>
 #include <omni/kit/IApp.h>
 #include <pxr/usd/sdf/path.h>
+// clang-format on
 
 namespace cesium::omniverse::Broadcast {
 
