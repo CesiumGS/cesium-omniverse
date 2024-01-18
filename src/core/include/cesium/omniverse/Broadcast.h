@@ -1,5 +1,8 @@
 #pragma once
 
+// carb/events/IObject.h should include this
+#include <utility>
+
 #include <carb/events/IEvents.h>
 #include <omni/kit/IApp.h>
 #include <pxr/usd/sdf/path.h>
