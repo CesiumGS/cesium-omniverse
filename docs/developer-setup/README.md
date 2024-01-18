@@ -56,7 +56,7 @@ See [Linux](#linux) or [Windows](#windows) for step-by-step installation instruc
   ```
 - Install Conan with pip because Conan is not in Ubuntu's package manager
   ```sh
-  sudo pip3 install conan==1.58.0
+  sudo pip3 install conan==1.60.0
   ```
 - Install `cmake-format`
   ```sh
@@ -75,6 +75,19 @@ See [Linux](#linux) or [Windows](#windows) for step-by-step installation instruc
   sudo ln -s /usr/bin/run-clang-tidy-15 /usr/bin/run-clang-tidy
   sudo ln -s /usr/bin/llvm-cov-15 /usr/bin/llvm-cov
   sudo ln -s /usr/bin/clangd-15 /usr/bin/clangd
+  ```
+- Or, you can use the `update-alternatives` program to create the
+  links and manage versions. This is an approach you can use in
+  a script or on the command line:
+  ```sh
+  clangprogs="/usr/bin/clang*-15 /usr/bin/run-clang-tidy-15 /usr/bin/llvm-cov-15"
+
+  for prog in $clangprogs
+  do
+      linked=${prog%%-15}
+      generic=${linked##*/}
+      update-alternatives --install $linked $generic $prog 15
+  done
   ```
 - Then refresh the shell so that newly added dependencies are available in the path.
   ```sh
