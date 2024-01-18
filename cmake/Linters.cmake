@@ -115,14 +115,17 @@ function(setup_linters)
 
     if(CLANG_TIDY_RUNNER_PATH)
         add_custom_target(
-            clang-tidy COMMAND ${Python3_EXECUTABLE} ${CLANG_TIDY_RUNNER_PATH} -clang-tidy-binary ${CLANG_TIDY_PATH} -p
-                               ${_PROJECT_BUILD_DIRECTORY} # path that contains a compile_commands.json
-        )
+            clang-tidy
+            COMMAND
+                ${Python3_EXECUTABLE} ${CLANG_TIDY_RUNNER_PATH} -clang-tidy-binary ${CLANG_TIDY_PATH} -p
+                ${_PROJECT_BUILD_DIRECTORY} # path that contains a compile_commands.json
+                ${all_source_files})
         add_custom_target(
             clang-tidy-fix
-            COMMAND ${Python3_EXECUTABLE} ${CLANG_TIDY_RUNNER_PATH} -fix -clang-tidy-binary ${CLANG_TIDY_PATH} -p
-                    ${_PROJECT_BUILD_DIRECTORY} # path that contains a compile_commands.json
-        )
+            COMMAND
+                ${Python3_EXECUTABLE} ${CLANG_TIDY_RUNNER_PATH} -fix -clang-tidy-binary ${CLANG_TIDY_PATH} -p
+                ${_PROJECT_BUILD_DIRECTORY} # path that contains a compile_commands.json
+                ${all_source_files})
     else()
         # run-clang-tidy was not found, so call clang-tidy directly.
         # this takes a lot longer because it's not parallelized.
