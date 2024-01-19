@@ -1,5 +1,10 @@
 #pragma once
 
+// clang-format off
+// carb/events/IObject.h should include this
+#include <utility>
+// clang-format on
+
 #include <carb/events/IEvents.h>
 #include <pxr/usd/usd/common.h>
 
