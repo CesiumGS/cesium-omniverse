@@ -18,6 +18,10 @@ completely, you can "relogin" in the same shell by typing:
 su - $USER
 ```
 
+Note: this creates a new login shell and may behave differently from
+your expectations in a windowed environment e.g., GNOME. In
+particular, `ssh` logins and `git` may not work anymore.
+
 ## Building the container
 
 Confirm that you have push access to the [container repo](https://hub.docker.com/r/cesiumgs/omniverse-almalinux8-build).
