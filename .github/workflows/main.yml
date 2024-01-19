@@ -116,7 +116,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y doxygen clang-tidy-15 gcovr nvidia-driver-535
-          sudo pip3 install conan==1.58.0 black==23.1.0 flake8==6.0.0
+          sudo pip3 install conan==1.60.0 black==23.1.0 flake8==6.0.0
 
       # Could not figure out how to add Chocolatey libraries to the PATH automatically with refreshenv, so
       # hardcoding their locations instead. Followed these instructions for adding to the PATH on PowerShell:
@@ -126,7 +126,7 @@ jobs:
       - name: Install Windows dependencies
         if: runner.os == 'Windows'
         run: |
-          choco install -y conan --version 1.58.0
+          choco install -y conan --version 1.60.0
           choco install -y llvm --version=15.0.7 --allow-downgrade
           pip3 install black==23.1.0 flake8==6.0.0 requests
           echo "C:/Program Files/conan/conan" >> $env:GITHUB_PATH
