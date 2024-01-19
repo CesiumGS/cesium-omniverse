@@ -12,8 +12,8 @@
 namespace cesium::omniverse::CppUtil {
 
 template <typename T, typename L, uint64_t... I> const auto& dispatchImpl(std::index_sequence<I...>, L lambda) {
-    // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-    static decltype(lambda(std::integral_constant<T, T(0)>{})) array[] = {lambda(std::integral_constant<T, T(I)>{})...};
+    static std::array<decltype(lambda(std::integral_constant<T, T(0)>{})), sizeof...(I)> array = {
+        lambda(std::integral_constant<T, T(I)>{})...};
     return array;
 }
 
