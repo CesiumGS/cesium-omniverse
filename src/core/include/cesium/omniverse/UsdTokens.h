@@ -143,6 +143,11 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((primvars_normals, "primvars:normals")) \
     ((primvars_vertexId, "primvars:vertexId")) \
     ((xformOp_rotateXYZ, "xformOp:rotateXYZ")) \
+    ((xformOp_rotateXZY, "xformOp:rotateXZY")) \
+    ((xformOp_rotateYXZ, "xformOp:rotateYXZ")) \
+    ((xformOp_rotateYZX, "xformOp:rotateYZX")) \
+    ((xformOp_rotateZXY, "xformOp:rotateZXY")) \
+    ((xformOp_rotateZYX, "xformOp:rotateZYX")) \
     ((xformOp_scale, "xformOp:scale")) \
     ((xformOp_translate, "xformOp:translate")) \
     ((_auto, "auto"))

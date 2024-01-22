@@ -27,9 +27,9 @@ class OmniGlobeAnchor {
     [[nodiscard]] bool getAdjustOrientation() const;
     [[nodiscard]] PXR_NS::SdfPath getGeoreferencePath() const;
 
-    void updateByGeographicCoordinates();
-    void updateByPrimLocalTransform();
-    void updateByPrimLocalToEcefTransform();
+    void updateByGeographicCoordinates(bool force);
+    void updateByPrimLocalTransform(bool force);
+    void updateByPrimLocalToEcefTransform(bool force);
     void updateByGeoreference();
 
   private:
@@ -37,7 +37,9 @@ class OmniGlobeAnchor {
     [[nodiscard]] bool initialize();
     void finalize();
 
-    [[nodiscard]] glm::dmat4 getPrimLocalTransform() const;
+    [[nodiscard]] glm::dvec3 getPrimLocalTranslation() const;
+    [[nodiscard]] glm::dvec3 getPrimLocalRotation() const;
+    [[nodiscard]] glm::dvec3 getPrimLocalScale() const;
     [[nodiscard]] CesiumGeospatial::Cartographic getGeographicCoordinates() const;
     [[nodiscard]] glm::dvec3 getPrimLocalToEcefTranslation() const;
     [[nodiscard]] glm::dvec3 getPrimLocalToEcefRotation() const;
@@ -52,7 +54,9 @@ class OmniGlobeAnchor {
     std::unique_ptr<CesiumGeospatial::GlobeAnchor> _pAnchor;
 
     // These are used for quick comparisons, so we can short circuit successive updates.
-    glm::dmat4 _cachedPrimLocalTransform{0.0};
+    glm::dvec3 _cachedPrimLocalTranslation{0.0};
+    glm::dvec3 _cachedPrimLocalRotation{0.0, 0.0, 0.0};
+    glm::dvec3 _cachedPrimLocalScale{1.0};
     CesiumGeospatial::Cartographic _cachedGeographicCoordinates{0.0, 0.0, 0.0};
     glm::dvec3 _cachedPrimLocalToEcefTranslation{0.0};
     glm::dvec3 _cachedPrimLocalToEcefRotation{0.0};

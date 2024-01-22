@@ -55,10 +55,37 @@ Decomposed decompose(const glm::dmat4& matrix) {
     return {translation, rotation, scale};
 }
 
-glm::dmat4 composeEuler(const glm::dvec3& translation, const glm::dvec3& rotation, const glm::dvec3& scale) {
+glm::dmat4 composeEuler(
+    const glm::dvec3& translation,
+    const glm::dvec3& rotation,
+    const glm::dvec3& scale,
+    EulerAngleOrder eulerAngleOrder) {
     const auto translationMatrix = glm::translate(glm::dmat4(1.0), translation);
-    const auto rotationMatrix = glm::eulerAngleXYZ(rotation.x, rotation.y, rotation.z);
     const auto scaleMatrix = glm::scale(glm::dmat4(1.0), scale);
+
+    auto rotationMatrix = glm::dmat4(1.0);
+
+    switch (eulerAngleOrder) {
+        case EulerAngleOrder::XYZ:
+            rotationMatrix = glm::eulerAngleXYZ(rotation.x, rotation.y, rotation.z);
+            break;
+        case EulerAngleOrder::XZY:
+            rotationMatrix = glm::eulerAngleXZY(rotation.x, rotation.y, rotation.z);
+            break;
+        case EulerAngleOrder::YXZ:
+            rotationMatrix = glm::eulerAngleYXZ(rotation.x, rotation.y, rotation.z);
+            break;
+        case EulerAngleOrder::YZX:
+            rotationMatrix = glm::eulerAngleYZX(rotation.x, rotation.y, rotation.z);
+            break;
+        case EulerAngleOrder::ZXY:
+            rotationMatrix = glm::eulerAngleZXY(rotation.x, rotation.y, rotation.z);
+            break;
+        case EulerAngleOrder::ZYX:
+            rotationMatrix = glm::eulerAngleZYX(rotation.x, rotation.y, rotation.z);
+            break;
+    }
+
     return translationMatrix * rotationMatrix * scaleMatrix;
 }
 

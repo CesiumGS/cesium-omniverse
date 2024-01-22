@@ -35,7 +35,11 @@ struct Decomposed {
 DecomposedEuler decomposeEuler(const glm::dmat4& matrix, EulerAngleOrder eulerAngleOrder);
 Decomposed decompose(const glm::dmat4& matrix);
 
-glm::dmat4 composeEuler(const glm::dvec3& translation, const glm::dvec3& rotation, const glm::dvec3& scale);
+glm::dmat4 composeEuler(
+    const glm::dvec3& translation,
+    const glm::dvec3& rotation,
+    const glm::dvec3& scale,
+    EulerAngleOrder eulerAngleOrder);
 bool equal(const CesiumGeospatial::Cartographic& a, const CesiumGeospatial::Cartographic& b);
 bool epsilonEqual(const CesiumGeospatial::Cartographic& a, const CesiumGeospatial::Cartographic& b, double epsilon);
 bool epsilonEqual(const glm::dmat4& a, const glm::dmat4& b, double epsilon);

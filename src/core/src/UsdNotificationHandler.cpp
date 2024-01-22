@@ -378,7 +378,9 @@ void processCesiumGlobeAnchorChanged(
         if (detectTransformChanges &&
             (property == PXR_NS::CesiumTokens->cesiumAnchorDetectTransformChanges ||
              property == PXR_NS::UsdTokens->xformOp_translate || property == PXR_NS::UsdTokens->xformOp_rotateXYZ ||
-             property == PXR_NS::UsdTokens->xformOp_scale)) {
+             property == PXR_NS::UsdTokens->xformOp_rotateXZY || property == PXR_NS::UsdTokens->xformOp_rotateYXZ ||
+             property == PXR_NS::UsdTokens->xformOp_rotateYZX || property == PXR_NS::UsdTokens->xformOp_rotateZXY ||
+             property == PXR_NS::UsdTokens->xformOp_rotateZYX || property == PXR_NS::UsdTokens->xformOp_scale)) {
             updateByPrimLocalTransform = true;
             updateBindings = true;
         } else if (property == PXR_NS::CesiumTokens->cesiumAnchorGeographicCoordinates) {
@@ -398,15 +400,15 @@ void processCesiumGlobeAnchorChanged(
     }
 
     if (updateByPrimLocalTransform) {
-        pGlobeAnchor->updateByPrimLocalTransform();
+        pGlobeAnchor->updateByPrimLocalTransform(false);
     }
 
     if (updateByGeographicCoordinates) {
-        pGlobeAnchor->updateByGeographicCoordinates();
+        pGlobeAnchor->updateByGeographicCoordinates(false);
     }
 
     if (updateByPrimLocalToEcefTransform) {
-        pGlobeAnchor->updateByPrimLocalToEcefTransform();
+        pGlobeAnchor->updateByPrimLocalToEcefTransform(false);
     }
 
     if (updateByGeoreference) {
