@@ -7,8 +7,10 @@
 
 namespace cesium::omniverse::MetadataUtil {
 
-std::vector<FabricPropertyDescriptor>
-getStyleableProperties(const Context& context, const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+std::vector<FabricPropertyDescriptor> getStyleableProperties(
+    const Context& context,
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive) {
     std::vector<FabricPropertyDescriptor> properties;
 
     forEachStyleablePropertyAttributeProperty(
@@ -130,8 +132,10 @@ std::unordered_map<uint64_t, uint64_t> getPropertyTextureIndexMapping(
     return propertyTextureIndexMapping;
 }
 
-std::vector<FabricTextureData>
-encodePropertyTables(const Context& context, const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+std::vector<FabricTextureData> encodePropertyTables(
+    const Context& context,
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive) {
     std::vector<FabricTextureData> textures;
 
     forEachStyleablePropertyTableProperty(
