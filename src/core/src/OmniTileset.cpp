@@ -481,7 +481,7 @@ void OmniTileset::reload() {
     }
 
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
-    for (const auto& child : cesiumTileset.GetPrim().GetChildren()) {
+    for (const auto& child : cesiumTileset.GetPrim().GetAllChildren()) {
         const auto imageryPath = child.GetPath();
         if (UsdUtil::isCesiumImagery(_pContext->getUsdStage(), imageryPath)) {
             _imageryPaths.push_back(imageryPath);

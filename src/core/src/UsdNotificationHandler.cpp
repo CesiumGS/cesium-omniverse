@@ -39,7 +39,7 @@ bool isPrimOrDescendant(const PXR_NS::SdfPath& descendantPath, const PXR_NS::Sdf
 }
 
 void updateImageryBindings(Context* pContext, const PXR_NS::SdfPath& imageryPath) {
-    const auto& tilesets = pContext->getAssetRegistry().getAllTilesets();
+    const auto& tilesets = pContext->getAssetRegistry().getTilesets();
 
     // Update tilesets that reference this imagery
     for (const auto& pTileset : tilesets) {
@@ -54,7 +54,7 @@ void updateImageryBindings(Context* pContext, const PXR_NS::SdfPath& imageryPath
 }
 
 void updateImageryBindingsAlpha(Context* pContext, const PXR_NS::SdfPath& imageryPath) {
-    const auto& tilesets = pContext->getAssetRegistry().getAllTilesets();
+    const auto& tilesets = pContext->getAssetRegistry().getTilesets();
 
     // Update tilesets that reference this imagery
     for (const auto& pTileset : tilesets) {
@@ -70,7 +70,7 @@ void updateImageryBindingsAlpha(Context* pContext, const PXR_NS::SdfPath& imager
 
 void updateIonServerBindings(Context* pContext, const PXR_NS::SdfPath& ionServerPath) {
     // Update tilesets that reference this ion server
-    const auto& tilesets = pContext->getAssetRegistry().getAllTilesets();
+    const auto& tilesets = pContext->getAssetRegistry().getTilesets();
     for (const auto& pTileset : tilesets) {
         if (pTileset->getIonServerPath() == ionServerPath) {
             pTileset->reload();
@@ -78,7 +78,7 @@ void updateIonServerBindings(Context* pContext, const PXR_NS::SdfPath& ionServer
     }
 
     // Update imageries that reference this ion server
-    const auto& ionImageries = pContext->getAssetRegistry().getAllIonImageries();
+    const auto& ionImageries = pContext->getAssetRegistry().getIonImageries();
     for (const auto& pIonImagery : ionImageries) {
         if (pIonImagery->getIonServerPath() == ionServerPath) {
             pIonImagery->reload();
@@ -89,7 +89,7 @@ void updateIonServerBindings(Context* pContext, const PXR_NS::SdfPath& ionServer
 
 void updateCartographicPolygonBindings(Context* pContext, const PXR_NS::SdfPath& cartographicPolygonPath) {
     // Update polygon imageries that reference this cartographic polygon
-    const auto& polygonImageries = pContext->getAssetRegistry().getAllPolygonImageries();
+    const auto& polygonImageries = pContext->getAssetRegistry().getPolygonImageries();
     for (const auto& pPolygonImagery : polygonImageries) {
         const auto paths = pPolygonImagery->getCartographicPolygonPaths();
         if (CppUtil::contains(paths, cartographicPolygonPath)) {
@@ -110,7 +110,7 @@ void updateGeoreferenceBindings(Context* pContext, const PXR_NS::SdfPath& georef
     // Don't need to update tilesets. Georeference changes are handled automatically in the update loop.
 
     // Update globe anchors that reference this georeference
-    const auto& globeAnchors = pContext->getAssetRegistry().getAllGlobeAnchors();
+    const auto& globeAnchors = pContext->getAssetRegistry().getGlobeAnchors();
     for (const auto& pGlobeAnchor : globeAnchors) {
         if (pGlobeAnchor->getGeoreferencePath() == georeferencePath) {
             pGlobeAnchor->updateByGeoreference();
@@ -160,7 +160,7 @@ bool isFirstData(Context* pContext, const PXR_NS::SdfPath& dataPath) {
     }
 
     if (updateGeoreference) {
-        const auto& georeferences = pContext->getAssetRegistry().getAllGeoreferences();
+        const auto& georeferences = pContext->getAssetRegistry().getGeoreferences();
         for (const auto& pGeoreference : georeferences) {
             updateGeoreferenceBindings(pContext, pGeoreference->getPath());
         }
@@ -523,7 +523,7 @@ void processUsdShaderChanged(
             return;
         }
 
-        const auto& tilesets = pContext->getAssetRegistry().getAllTilesets();
+        const auto& tilesets = pContext->getAssetRegistry().getTilesets();
         for (const auto& pTileset : tilesets) {
             if (pTileset->getMaterialPath() == materialPath) {
                 pTileset->updateShaderInput(shaderPath, property);
@@ -872,7 +872,7 @@ void UsdNotificationHandler::onPrimRemoved(const PXR_NS::SdfPath& primPath) {
     }
 
     // Remove prims in the asset registry
-    const auto& tilesets = _pContext->getAssetRegistry().getAllTilesets();
+    const auto& tilesets = _pContext->getAssetRegistry().getTilesets();
     for (const auto& pTileset : tilesets) {
         const auto tilesetPath = pTileset->getPath();
         if (isPrimOrDescendant(tilesetPath, primPath)) {
@@ -880,7 +880,7 @@ void UsdNotificationHandler::onPrimRemoved(const PXR_NS::SdfPath& primPath) {
         }
     }
 
-    const auto& ionImageries = _pContext->getAssetRegistry().getAllIonImageries();
+    const auto& ionImageries = _pContext->getAssetRegistry().getIonImageries();
     for (const auto& pIonImagery : ionImageries) {
         const auto ionImageryPath = pIonImagery->getPath();
         if (isPrimOrDescendant(ionImageryPath, primPath)) {
@@ -888,7 +888,7 @@ void UsdNotificationHandler::onPrimRemoved(const PXR_NS::SdfPath& primPath) {
         }
     }
 
-    const auto& polygonImageries = _pContext->getAssetRegistry().getAllPolygonImageries();
+    const auto& polygonImageries = _pContext->getAssetRegistry().getPolygonImageries();
     for (const auto& pPolygonImagery : polygonImageries) {
         const auto polygonImageryPath = pPolygonImagery->getPath();
         if (isPrimOrDescendant(polygonImageryPath, primPath)) {
@@ -896,7 +896,7 @@ void UsdNotificationHandler::onPrimRemoved(const PXR_NS::SdfPath& primPath) {
         }
     }
 
-    const auto& georeferences = _pContext->getAssetRegistry().getAllGeoreferences();
+    const auto& georeferences = _pContext->getAssetRegistry().getGeoreferences();
     for (const auto& pGeoreference : georeferences) {
         const auto georeferencePath = pGeoreference->getPath();
         if (isPrimOrDescendant(georeferencePath, primPath)) {
@@ -904,7 +904,7 @@ void UsdNotificationHandler::onPrimRemoved(const PXR_NS::SdfPath& primPath) {
         }
     }
 
-    const auto& ionServers = _pContext->getAssetRegistry().getAllIonServers();
+    const auto& ionServers = _pContext->getAssetRegistry().getIonServers();
     for (const auto& pIonServer : ionServers) {
         const auto ionServerPath = pIonServer->getPath();
         if (isPrimOrDescendant(ionServerPath, primPath)) {
@@ -912,7 +912,7 @@ void UsdNotificationHandler::onPrimRemoved(const PXR_NS::SdfPath& primPath) {
         }
     }
 
-    const auto& cartographicPolygons = _pContext->getAssetRegistry().getAllCartographicPolygons();
+    const auto& cartographicPolygons = _pContext->getAssetRegistry().getCartographicPolygons();
     for (const auto& pCartographicPolygon : cartographicPolygons) {
         const auto cartographicPolygonPath = pCartographicPolygon->getPath();
         if (isPrimOrDescendant(cartographicPolygonPath, primPath)) {
@@ -920,7 +920,7 @@ void UsdNotificationHandler::onPrimRemoved(const PXR_NS::SdfPath& primPath) {
         }
     }
 
-    const auto& globeAnchors = _pContext->getAssetRegistry().getAllGlobeAnchors();
+    const auto& globeAnchors = _pContext->getAssetRegistry().getGlobeAnchors();
     for (const auto& pGlobeAnchor : globeAnchors) {
         const auto globeAnchorPath = pGlobeAnchor->getPath();
         const auto type = getTypeFromAssetRegistry(globeAnchorPath);

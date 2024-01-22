@@ -78,12 +78,12 @@ class ICesiumOmniverseInterface {
     /**
      * @brief Gets all Cesium ion sessions.
      */
-    virtual std::vector<std::shared_ptr<CesiumIonSession>> getAllSessions() noexcept = 0;
+    virtual std::vector<std::shared_ptr<CesiumIonSession>> getSessions() noexcept = 0;
 
     /**
      * @brief Get all Cesium ion server paths.
      */
-    virtual std::vector<std::string> getAllServerPaths() noexcept = 0;
+    virtual std::vector<std::string> getServerPaths() noexcept = 0;
 
     /**
      * @brief Gets the last result with code and message of setting the default token.

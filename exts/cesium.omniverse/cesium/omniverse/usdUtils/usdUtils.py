@@ -36,7 +36,7 @@ def get_or_create_cesium_data() -> CesiumData:
 def get_or_create_cesium_georeference() -> CesiumGeoreference:
     stage = omni.usd.get_context().get_stage()
 
-    georeference_paths = get_all_georeference_paths()
+    georeference_paths = get_georeference_paths()
 
     if len(georeference_paths) < 1:
         return CesiumGeoreference.Define(stage, CESIUM_GEOREFERENCE_PRIM_PATH)
@@ -134,13 +134,13 @@ def set_path_to_current_ion_server(path: str) -> None:
     rel.SetTargets([path])
 
 
-def get_all_tileset_paths() -> List[str]:
+def get_tileset_paths() -> List[str]:
     stage = omni.usd.get_context().get_stage()
     paths = [x.GetPath().pathString for x in stage.Traverse() if x.IsA(CesiumTileset)]
     return paths
 
 
-def get_all_georeference_paths() -> List[str]:
+def get_georeference_paths() -> List[str]:
     stage = omni.usd.get_context().get_stage()
     paths = [x.GetPath().pathString for x in stage.Traverse() if x.IsA(CesiumGeoreference)]
     return paths

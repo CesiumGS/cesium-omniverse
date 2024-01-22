@@ -70,7 +70,7 @@ OmniTileset* AssetRegistry::getTileset(const PXR_NS::SdfPath& path) const {
     return nullptr;
 }
 
-const std::vector<std::unique_ptr<OmniTileset>>& AssetRegistry::getAllTilesets() const {
+const std::vector<std::unique_ptr<OmniTileset>>& AssetRegistry::getTilesets() const {
     return _tilesets;
 }
 
@@ -102,7 +102,7 @@ OmniIonImagery* AssetRegistry::getIonImageryByIonAssetId(int64_t ionAssetId) con
     return nullptr;
 }
 
-const std::vector<std::unique_ptr<OmniIonImagery>>& AssetRegistry::getAllIonImageries() const {
+const std::vector<std::unique_ptr<OmniIonImagery>>& AssetRegistry::getIonImageries() const {
     return _ionImageries;
 }
 
@@ -126,7 +126,7 @@ OmniPolygonImagery* AssetRegistry::getPolygonImagery(const PXR_NS::SdfPath& path
     return nullptr;
 }
 
-const std::vector<std::unique_ptr<OmniPolygonImagery>>& AssetRegistry::getAllPolygonImageries() const {
+const std::vector<std::unique_ptr<OmniPolygonImagery>>& AssetRegistry::getPolygonImageries() const {
     return _polygonImageries;
 }
 
@@ -164,7 +164,7 @@ OmniGeoreference* AssetRegistry::getGeoreference(const PXR_NS::SdfPath& path) co
     return nullptr;
 }
 
-const std::vector<std::unique_ptr<OmniGeoreference>>& AssetRegistry::getAllGeoreferences() const {
+const std::vector<std::unique_ptr<OmniGeoreference>>& AssetRegistry::getGeoreferences() const {
     return _georeferences;
 }
 
@@ -185,7 +185,7 @@ OmniGlobeAnchor* AssetRegistry::getGlobeAnchor(const PXR_NS::SdfPath& path) cons
 
     return nullptr;
 }
-const std::vector<std::unique_ptr<OmniGlobeAnchor>>& AssetRegistry::getAllGlobeAnchors() const {
+const std::vector<std::unique_ptr<OmniGlobeAnchor>>& AssetRegistry::getGlobeAnchors() const {
     return _globeAnchors;
 }
 
@@ -207,7 +207,7 @@ OmniIonServer* AssetRegistry::getIonServer(const PXR_NS::SdfPath& path) const {
     return nullptr;
 }
 
-const std::vector<std::unique_ptr<OmniIonServer>>& AssetRegistry::getAllIonServers() const {
+const std::vector<std::unique_ptr<OmniIonServer>>& AssetRegistry::getIonServers() const {
     return _ionServers;
 }
 
@@ -241,7 +241,7 @@ OmniCartographicPolygon* AssetRegistry::getCartographicPolygon(const PXR_NS::Sdf
     return nullptr;
 }
 
-const std::vector<std::unique_ptr<OmniCartographicPolygon>>& AssetRegistry::getAllCartographicPolygons() const {
+const std::vector<std::unique_ptr<OmniCartographicPolygon>>& AssetRegistry::getCartographicPolygons() const {
     return _cartographicPolygons;
 }
 

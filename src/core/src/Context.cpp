@@ -151,7 +151,7 @@ void Context::reloadStage() {
     }
 
     // For backwards compatibility. Add default ion server to tilesets without a server.
-    const auto& tilesets = _pAssetRegistry->getAllTilesets();
+    const auto& tilesets = _pAssetRegistry->getTilesets();
     for (const auto& pTileset : tilesets) {
         const auto sourceType = pTileset->getSourceType();
         const auto ionServerPath = pTileset->getIonServerPath();
@@ -162,7 +162,7 @@ void Context::reloadStage() {
     }
 
     // For backwards compatibility. Add default ion server to imagery without a server.
-    const auto& ionImageries = _pAssetRegistry->getAllIonImageries();
+    const auto& ionImageries = _pAssetRegistry->getIonImageries();
     for (const auto& pIonImagery : ionImageries) {
         const auto ionServerPath = pIonImagery->getIonServerPath();
         if (ionServerPath.IsEmpty()) {
@@ -241,7 +241,7 @@ RenderStatistics Context::getRenderStatistics() const {
     renderStatistics.trianglesLoaded = fabricStatistics.trianglesLoaded;
     renderStatistics.trianglesRendered = fabricStatistics.trianglesRendered;
 
-    const auto& tilesets = _pAssetRegistry->getAllTilesets();
+    const auto& tilesets = _pAssetRegistry->getTilesets();
     for (const auto& pTileset : tilesets) {
         const auto tilesetStatistics = pTileset->getStatistics();
         renderStatistics.tilesetCachedBytes += tilesetStatistics.tilesetCachedBytes;

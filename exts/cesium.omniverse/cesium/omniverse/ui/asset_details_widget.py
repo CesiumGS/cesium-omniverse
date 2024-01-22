@@ -7,7 +7,7 @@ from ..bindings import ICesiumOmniverseInterface
 from .models import IonAssetItem
 from ..models import AssetToAdd, ImageryToAdd
 from .styles import CesiumOmniverseUiStyles
-from ..usdUtils import is_tileset, get_all_tileset_paths
+from ..usdUtils import is_tileset, get_tileset_paths
 
 
 class CesiumAssetDetailsWidget(ui.ScrollingFrame):
@@ -80,7 +80,7 @@ class CesiumAssetDetailsWidget(ui.ScrollingFrame):
             tileset_path = selection[0]
 
         if tileset_path is None:
-            all_tileset_paths = get_all_tileset_paths()
+            all_tileset_paths = get_tileset_paths()
 
             if len(all_tileset_paths) > 0:
                 tileset_path = all_tileset_paths[0]

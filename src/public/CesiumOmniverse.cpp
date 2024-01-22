@@ -68,8 +68,8 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
         return pIonServer->getPath().GetString();
     }
 
-    std::vector<std::shared_ptr<CesiumIonSession>> getAllSessions() noexcept override {
-        const auto& ionServers = _pContext->getAssetRegistry().getAllIonServers();
+    std::vector<std::shared_ptr<CesiumIonSession>> getSessions() noexcept override {
+        const auto& ionServers = _pContext->getAssetRegistry().getIonServers();
 
         std::vector<std::shared_ptr<CesiumIonSession>> result;
         result.reserve(ionServers.size());
@@ -81,8 +81,8 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
         return result;
     }
 
-    std::vector<std::string> getAllServerPaths() noexcept override {
-        const auto& ionServers = _pContext->getAssetRegistry().getAllIonServers();
+    std::vector<std::string> getServerPaths() noexcept override {
+        const auto& ionServers = _pContext->getAssetRegistry().getIonServers();
 
         std::vector<std::string> result;
         result.reserve(ionServers.size());

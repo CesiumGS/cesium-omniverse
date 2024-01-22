@@ -19,7 +19,7 @@ CesiumIonServerManager::CesiumIonServerManager(Context* pContext)
     : _pContext(pContext) {}
 
 void CesiumIonServerManager::onUpdateFrame() {
-    const auto& ionServers = _pContext->getAssetRegistry().getAllIonServers();
+    const auto& ionServers = _pContext->getAssetRegistry().getIonServers();
 
     for (const auto& pIonServer : ionServers) {
         pIonServer->getSession()->tick();
