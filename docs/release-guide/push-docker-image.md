@@ -12,6 +12,16 @@ On Linux, docker is run as root. To avoid the requirement for `sudo`, you should
 sudo usermod -aG docker $USER
 ```
 
+To use the new group membership without logging out of your session
+completely, you can "relogin" in the same shell by typing:
+```shell
+su - $USER
+```
+
+Note: this creates a new login shell and may behave differently from
+your expectations in a windowed environment e.g., GNOME. In
+particular, `ssh` logins and `git` may not work anymore.
+
 ## Building the container
 
 Confirm that you have push access to the [container repo](https://hub.docker.com/r/cesiumgs/omniverse-almalinux8-build).

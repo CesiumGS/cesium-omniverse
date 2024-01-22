@@ -1,4 +1,4 @@
-FROM cesiumgs/omniverse-almalinux8-build:2023-11-02
+FROM cesiumgs/omniverse-almalinux8-build:2024-01-19
 
 WORKDIR /var/app
 
