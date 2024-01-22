@@ -19,7 +19,7 @@ namespace cesium::omniverse {
 
 namespace {
 std::vector<FabricPropertyDescriptor> getStyleableProperties(
-    Context* pContext,
+    const Context& context,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     const PXR_NS::SdfPath& tilesetMaterialPath) {
@@ -31,12 +31,12 @@ std::vector<FabricPropertyDescriptor> getStyleableProperties(
         return {};
     }
 
-    return MetadataUtil::getStyleableProperties(pContext, model, primitive);
+    return MetadataUtil::getStyleableProperties(context, model, primitive);
 }
 } // namespace
 
 FabricMaterialDescriptor::FabricMaterialDescriptor(
-    Context* pContext,
+    const Context& context,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     const FabricMaterialInfo& materialInfo,
@@ -49,7 +49,7 @@ FabricMaterialDescriptor::FabricMaterialDescriptor(
     , _imageryOverlayRenderMethods(imageryLayersInfo.overlayRenderMethods)
     , _tilesetMaterialPath(tilesetMaterialPath)
     , _styleableProperties(
-          ::cesium::omniverse::getStyleableProperties(pContext, model, primitive, tilesetMaterialPath)) {}
+          ::cesium::omniverse::getStyleableProperties(context, model, primitive, tilesetMaterialPath)) {}
 
 bool FabricMaterialDescriptor::hasVertexColors() const {
     return _hasVertexColors;

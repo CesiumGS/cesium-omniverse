@@ -82,7 +82,7 @@ struct ImageryLayerIndices {
     std::vector<uint64_t> clippingImageryLayerIndices;
 };
 
-ImageryLayerIndices getImageryLayerIndices(Context* pContext, const FabricMaterialDescriptor& materialDescriptor) {
+ImageryLayerIndices getImageryLayerIndices(const Context& context, const FabricMaterialDescriptor& materialDescriptor) {
     uint64_t overlayImageryLayerCount = 0;
     uint64_t clippingImageryLayerCount = 0;
     uint64_t totalImageryLayerCount = 0;
@@ -109,7 +109,7 @@ ImageryLayerIndices getImageryLayerIndices(Context* pContext, const FabricMateri
     }
 
     if (overlayImageryLayerCount > MAX_IMAGERY_LAYERS_COUNT) {
-        pContext->getLogger()->warn(
+        context.getLogger()->warn(
             "Number of overlay imagery layers ({}) exceeds maximum imagery layer count ({}). Excess imagery layers "
             "will be ignored.",
             overlayImageryLayerCount,
@@ -117,7 +117,7 @@ ImageryLayerIndices getImageryLayerIndices(Context* pContext, const FabricMateri
     }
 
     if (clippingImageryLayerCount > MAX_IMAGERY_LAYERS_COUNT) {
-        pContext->getLogger()->warn(
+        context.getLogger()->warn(
             "Number of clipping imagery layers ({}) exceeds maximum imagery layer count ({}). Excess imagery layers "
             "will be ignored.",
             clippingImageryLayerCount,
@@ -221,7 +221,7 @@ constexpr DataTypeUtil::GetMdlInternalPropertyRawType<DataTypeUtil::getMdlIntern
 }
 
 void createAttributes(
-    Context* pContext,
+    const Context& context,
     omni::fabric::StageReaderWriter& fabricStage,
     const omni::fabric::Path& path,
     FabricAttributesBuilder& attributes,
@@ -239,7 +239,7 @@ void createAttributes(
     attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
     // clang-format on
 
-    attributes.createAttributes(pContext->getFabricStage(), path);
+    attributes.createAttributes(context.getFabricStage(), path);
 
     // clang-format off
     const auto inputsExcludeFromWhiteModeFabric = fabricStage.getAttributeWr<bool>(path, FabricTokens::inputs_excludeFromWhiteMode);
@@ -253,7 +253,7 @@ void createAttributes(
 
     *inputsExcludeFromWhiteModeFabric = false;
     *infoImplementationSourceFabric = FabricTokens::sourceAsset;
-    infoMdlSourceAssetFabric->assetPath = pContext->getCesiumMdlPathToken();
+    infoMdlSourceAssetFabric->assetPath = context.getCesiumMdlPathToken();
     infoMdlSourceAssetFabric->resolvedPath = PXR_NS::TfToken();
     *infoMdlSourceAssetSubIdentifierFabric = subidentifier;
 }
@@ -643,7 +643,7 @@ void FabricMaterial::initializeNodes() {
 void FabricMaterial::initializeDefaultMaterial() {
     auto& fabricStage = _pContext->getFabricStage();
 
-    const auto imageryLayerIndices = getImageryLayerIndices(_pContext, _materialDescriptor);
+    const auto imageryLayerIndices = getImageryLayerIndices(*_pContext, _materialDescriptor);
     const auto hasBaseColorTexture = _materialDescriptor.hasBaseColorTexture();
 
     // Create material
@@ -782,7 +782,7 @@ void FabricMaterial::createShader(const omni::fabric::Path& path) {
     attributes.addAttribute(FabricTypes::inputs_metallic_factor, FabricTokens::inputs_metallic_factor);
     attributes.addAttribute(FabricTypes::inputs_roughness_factor, FabricTokens::inputs_roughness_factor);
 
-    createAttributes(_pContext, fabricStage, path, attributes, FabricTokens::cesium_internal_material);
+    createAttributes(*_pContext, fabricStage, path, attributes, FabricTokens::cesium_internal_material);
 }
 
 void FabricMaterial::createTextureCommon(
@@ -807,7 +807,7 @@ void FabricMaterial::createTextureCommon(
         attributes.addAttribute(additionalAttribute.first, additionalAttribute.second);
     }
 
-    createAttributes(_pContext, fabricStage, path, attributes, subIdentifier);
+    createAttributes(*_pContext, fabricStage, path, attributes, subIdentifier);
 
     // _paramColorSpace is an array of pairs: [texture_parameter_token, color_space_enum], [texture_parameter_token, color_space_enum], ...
     fabricStage.setArrayAttributeSize(path, FabricTokens::_paramColorSpace, 2);
@@ -840,7 +840,7 @@ void FabricMaterial::createImageryLayerResolverCommon(
 
     attributes.addAttribute(FabricTypes::inputs_imagery_layers_count, FabricTokens::inputs_imagery_layers_count);
 
-    createAttributes(_pContext, fabricStage, path, attributes, subidentifier);
+    createAttributes(*_pContext, fabricStage, path, attributes, subidentifier);
 
     const auto imageryLayerCountFabric =
         fabricStage.getAttributeWr<int>(path, FabricTokens::inputs_imagery_layers_count);
@@ -873,7 +873,7 @@ void FabricMaterial::createFeatureIdAttribute(const omni::fabric::Path& path) {
     attributes.addAttribute(FabricTypes::inputs_null_feature_id, FabricTokens::inputs_null_feature_id);
 
     createAttributes(
-        _pContext, fabricStage, path, attributes, FabricTokens::cesium_internal_feature_id_attribute_lookup);
+        *_pContext, fabricStage, path, attributes, FabricTokens::cesium_internal_feature_id_attribute_lookup);
 }
 
 void FabricMaterial::createFeatureIdTexture(const omni::fabric::Path& path) {
@@ -898,7 +898,7 @@ void FabricMaterial::createPropertyAttributePropertyInt(
     attributes.addAttribute(FabricTypes::inputs_has_no_data, FabricTokens::inputs_has_no_data);
     attributes.addAttribute(noDataType, FabricTokens::inputs_no_data);
     attributes.addAttribute(defaultValueType, FabricTokens::inputs_default_value);
-    createAttributes(_pContext, fabricStage, path, attributes, subidentifier);
+    createAttributes(*_pContext, fabricStage, path, attributes, subidentifier);
 }
 
 void FabricMaterial::createPropertyAttributePropertyNormalizedInt(
@@ -919,7 +919,7 @@ void FabricMaterial::createPropertyAttributePropertyNormalizedInt(
     attributes.addAttribute(offsetType, FabricTokens::inputs_offset);
     attributes.addAttribute(scaleType, FabricTokens::inputs_scale);
     attributes.addAttribute(maximumValueType, FabricTokens::inputs_maximum_value);
-    createAttributes(_pContext, fabricStage, path, attributes, subidentifier);
+    createAttributes(*_pContext, fabricStage, path, attributes, subidentifier);
 }
 
 void FabricMaterial::createPropertyAttributePropertyFloat(
@@ -938,7 +938,7 @@ void FabricMaterial::createPropertyAttributePropertyFloat(
     attributes.addAttribute(defaultValueType, FabricTokens::inputs_default_value);
     attributes.addAttribute(offsetType, FabricTokens::inputs_offset);
     attributes.addAttribute(scaleType, FabricTokens::inputs_scale);
-    createAttributes(_pContext, fabricStage, path, attributes, subidentifier);
+    createAttributes(*_pContext, fabricStage, path, attributes, subidentifier);
 }
 
 void FabricMaterial::createPropertyAttributeProperty(const omni::fabric::Path& path, MdlInternalPropertyType type) {
@@ -1194,7 +1194,7 @@ void FabricMaterial::createPropertyTablePropertyInt(
     attributes.addAttribute(FabricTypes::inputs_has_no_data, FabricTokens::inputs_has_no_data);
     attributes.addAttribute(noDataType, FabricTokens::inputs_no_data);
     attributes.addAttribute(defaultValueType, FabricTokens::inputs_default_value);
-    createAttributes(_pContext, fabricStage, path, attributes, subidentifier);
+    createAttributes(*_pContext, fabricStage, path, attributes, subidentifier);
 }
 
 void FabricMaterial::createPropertyTablePropertyNormalizedInt(
@@ -1215,7 +1215,7 @@ void FabricMaterial::createPropertyTablePropertyNormalizedInt(
     attributes.addAttribute(offsetType, FabricTokens::inputs_offset);
     attributes.addAttribute(scaleType, FabricTokens::inputs_scale);
     attributes.addAttribute(maximumValueType, FabricTokens::inputs_maximum_value);
-    createAttributes(_pContext, fabricStage, path, attributes, subidentifier);
+    createAttributes(*_pContext, fabricStage, path, attributes, subidentifier);
 }
 
 void FabricMaterial::createPropertyTablePropertyFloat(
@@ -1234,7 +1234,7 @@ void FabricMaterial::createPropertyTablePropertyFloat(
     attributes.addAttribute(defaultValueType, FabricTokens::inputs_default_value);
     attributes.addAttribute(offsetType, FabricTokens::inputs_offset);
     attributes.addAttribute(scaleType, FabricTokens::inputs_scale);
-    createAttributes(_pContext, fabricStage, path, attributes, subidentifier);
+    createAttributes(*_pContext, fabricStage, path, attributes, subidentifier);
 }
 
 void FabricMaterial::createPropertyTableProperty(const omni::fabric::Path& path, MdlInternalPropertyType type) {
@@ -1521,7 +1521,7 @@ void FabricMaterial::setMaterial(
         };
 
         MetadataUtil::forEachStyleablePropertyAttributeProperty(
-            _pContext,
+            *_pContext,
             model,
             primitive,
             [this, &getPropertyPath](
@@ -1553,7 +1553,7 @@ void FabricMaterial::setMaterial(
             });
 
         MetadataUtil::forEachStyleablePropertyTextureProperty(
-            _pContext,
+            *_pContext,
             model,
             primitive,
             [this, &propertyTextures, &texcoordIndexMapping, &propertyTextureIndexMapping, &getPropertyPath](
@@ -1593,7 +1593,7 @@ void FabricMaterial::setMaterial(
         uint64_t propertyTablePropertyCounter = 0;
 
         MetadataUtil::forEachStyleablePropertyTableProperty(
-            _pContext,
+            *_pContext,
             model,
             primitive,
             [this, &propertyTableTextures, &propertyTablePropertyCounter, &getPropertyPath](

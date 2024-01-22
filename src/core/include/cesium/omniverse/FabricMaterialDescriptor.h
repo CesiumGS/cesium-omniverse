@@ -31,7 +31,7 @@ struct FabricPropertyDescriptor;
 class FabricMaterialDescriptor {
   public:
     FabricMaterialDescriptor(
-        Context* pContext,
+        const Context& context,
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
         const FabricMaterialInfo& materialInfo,

@@ -48,7 +48,7 @@ std::vector<CesiumGeospatial::Cartographic> OmniCartographicPolygon::getCartogra
         positionsLocal.push_back(glm::dvec3(UsdUtil::usdToGlmVector(point)));
     }
 
-    const auto primLocalToEcefTransform = UsdUtil::computePrimLocalToEcefTransform(_pContext, georeferencePath, _path);
+    const auto primLocalToEcefTransform = UsdUtil::computePrimLocalToEcefTransform(*_pContext, georeferencePath, _path);
 
     std::vector<CesiumGeospatial::Cartographic> cartographics;
     cartographics.reserve(positionsLocal.size());

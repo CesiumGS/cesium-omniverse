@@ -582,7 +582,7 @@ void OmniTileset::updateTransform() {
     // about changes to the current prim and not its ancestor prims. Also Tf::Notice may notify us in a thread other
     // than the main thread and we would have to be careful to synchronize updates to Fabric in the main thread.
     const auto georeferencePath = getGeoreferencePath();
-    const auto ecefToPrimWorldTransform = UsdUtil::computeEcefToPrimWorldTransform(_pContext, georeferencePath, _path);
+    const auto ecefToPrimWorldTransform = UsdUtil::computeEcefToPrimWorldTransform(*_pContext, georeferencePath, _path);
 
     // Check for transform changes and update prims accordingly
     if (ecefToPrimWorldTransform != _ecefToPrimWorldTransform) {
@@ -601,7 +601,7 @@ void OmniTileset::updateView(const gsl::span<const Viewport>& viewports) {
 
         _viewStates.clear();
         for (const auto& viewport : viewports) {
-            _viewStates.push_back(UsdUtil::computeViewState(_pContext, georeferencePath, _path, viewport));
+            _viewStates.push_back(UsdUtil::computeViewState(*_pContext, georeferencePath, _path, viewport));
         }
 
         _pViewUpdateResult = &_pTileset->updateView(_viewStates);
@@ -655,7 +655,7 @@ bool OmniTileset::updateExtent() {
     const auto& boundingVolume = pRootTile->getBoundingVolume();
     const auto ecefObb = Cesium3DTilesSelection::getOrientedBoundingBoxFromBoundingVolume(boundingVolume);
     const auto georeferencePath = getGeoreferencePath();
-    const auto ecefToPrimWorldTransform = UsdUtil::computeEcefToPrimWorldTransform(_pContext, georeferencePath, _path);
+    const auto ecefToPrimWorldTransform = UsdUtil::computeEcefToPrimWorldTransform(*_pContext, georeferencePath, _path);
     const auto primObb = ecefObb.transform(ecefToPrimWorldTransform);
     const auto primAabb = primObb.toAxisAligned();
 

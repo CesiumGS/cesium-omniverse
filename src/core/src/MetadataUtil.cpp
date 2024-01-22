@@ -8,11 +8,11 @@
 namespace cesium::omniverse::MetadataUtil {
 
 std::vector<FabricPropertyDescriptor>
-getStyleableProperties(Context* pContext, const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+getStyleableProperties(const Context& context, const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
     std::vector<FabricPropertyDescriptor> properties;
 
     forEachStyleablePropertyAttributeProperty(
-        pContext,
+        context,
         model,
         primitive,
         [&properties](
@@ -31,7 +31,7 @@ getStyleableProperties(Context* pContext, const CesiumGltf::Model& model, const 
         });
 
     forEachStyleablePropertyTextureProperty(
-        pContext,
+        context,
         model,
         primitive,
         [&properties](
@@ -50,7 +50,7 @@ getStyleableProperties(Context* pContext, const CesiumGltf::Model& model, const 
         });
 
     forEachStyleablePropertyTableProperty(
-        pContext,
+        context,
         model,
         primitive,
         [&properties](
@@ -75,13 +75,13 @@ getStyleableProperties(Context* pContext, const CesiumGltf::Model& model, const 
 }
 
 std::vector<const CesiumGltf::ImageCesium*> getPropertyTextureImages(
-    Context* pContext,
+    const Context& context,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive) {
     std::vector<const CesiumGltf::ImageCesium*> images;
 
     forEachStyleablePropertyTextureProperty(
-        pContext,
+        context,
         model,
         primitive,
         [&images](
@@ -101,14 +101,14 @@ std::vector<const CesiumGltf::ImageCesium*> getPropertyTextureImages(
 }
 
 std::unordered_map<uint64_t, uint64_t> getPropertyTextureIndexMapping(
-    Context* pContext,
+    const Context& context,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive) {
     std::vector<const CesiumGltf::ImageCesium*> images;
     std::unordered_map<uint64_t, uint64_t> propertyTextureIndexMapping;
 
     forEachStyleablePropertyTextureProperty(
-        pContext,
+        context,
         model,
         primitive,
         [&images, &propertyTextureIndexMapping](
@@ -131,11 +131,11 @@ std::unordered_map<uint64_t, uint64_t> getPropertyTextureIndexMapping(
 }
 
 std::vector<FabricTextureData>
-encodePropertyTables(Context* pContext, const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+encodePropertyTables(const Context& context, const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
     std::vector<FabricTextureData> textures;
 
     forEachStyleablePropertyTableProperty(
-        pContext,
+        context,
         model,
         primitive,
         [&textures](
@@ -194,13 +194,13 @@ encodePropertyTables(Context* pContext, const CesiumGltf::Model& model, const Ce
 }
 
 uint64_t getPropertyTableTextureCount(
-    Context* pContext,
+    const Context& context,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive) {
     uint64_t count = 0;
 
     forEachStyleablePropertyTableProperty(
-        pContext,
+        context,
         model,
         primitive,
         [&count](

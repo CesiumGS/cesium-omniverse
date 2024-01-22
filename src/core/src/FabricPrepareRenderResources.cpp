@@ -94,7 +94,7 @@ std::vector<LoadingMesh> getLoadingMeshes(const glm::dmat4& tileToEcefTransform,
 }
 
 std::vector<FabricMesh> acquireFabricMeshes(
-    Context* pContext,
+    Context& context,
     const CesiumGltf::Model& model,
     const std::vector<LoadingMesh>& loadingMeshes,
     const FabricImageryLayersInfo& imageryLayersInfo,
@@ -103,7 +103,7 @@ std::vector<FabricMesh> acquireFabricMeshes(
     std::vector<FabricMesh> fabricMeshes;
     fabricMeshes.reserve(loadingMeshes.size());
 
-    auto& fabricResourceManager = pContext->getFabricResourceManager();
+    auto& fabricResourceManager = context.getFabricResourceManager();
     const auto tilesetMaterialPath = tileset.getMaterialPath();
 
     for (const auto& loadingMesh : loadingMeshes) {
@@ -144,13 +144,13 @@ std::vector<FabricMesh> acquireFabricMeshes(
             fabricMesh.featureIdTextures.push_back(fabricResourceManager.acquireTexture());
         }
 
-        const auto propertyTextureCount = MetadataUtil::getPropertyTextureImages(pContext, model, primitive).size();
+        const auto propertyTextureCount = MetadataUtil::getPropertyTextureImages(context, model, primitive).size();
         fabricMesh.propertyTextures.reserve(propertyTextureCount);
         for (uint64_t i = 0; i < propertyTextureCount; ++i) {
             fabricMesh.propertyTextures.push_back(fabricResourceManager.acquireTexture());
         }
 
-        const auto propertyTableTextureCount = MetadataUtil::getPropertyTableTextureCount(pContext, model, primitive);
+        const auto propertyTableTextureCount = MetadataUtil::getPropertyTableTextureCount(context, model, primitive);
         fabricMesh.propertyTableTextures.reserve(propertyTableTextureCount);
         for (uint64_t i = 0; i < propertyTableTextureCount; ++i) {
             fabricMesh.propertyTableTextures.push_back(fabricResourceManager.acquireTexture());
@@ -178,14 +178,14 @@ std::vector<FabricMesh> acquireFabricMeshes(
 
         // Map glTF texture index to property texture (FabricTexture) index
         fabricMesh.propertyTextureIndexMapping =
-            MetadataUtil::getPropertyTextureIndexMapping(pContext, model, primitive);
+            MetadataUtil::getPropertyTextureIndexMapping(context, model, primitive);
     }
 
     return fabricMeshes;
 }
 
 void setFabricTextures(
-    Context* pContext,
+    const Context& context,
     const CesiumGltf::Model& model,
     const std::vector<LoadingMesh>& loadingMeshes,
     std::vector<FabricMesh>& fabricMeshes) {
@@ -197,7 +197,7 @@ void setFabricTextures(
 
         if (fabricMesh.pBaseColorTexture) {
             const auto pBaseColorTextureImage = GltfUtil::getBaseColorTextureImage(model, primitive);
-            if (!pBaseColorTextureImage || pContext->getFabricResourceManager().getDisableTextures()) {
+            if (!pBaseColorTextureImage || context.getFabricResourceManager().getDisableTextures()) {
                 fabricMesh.pBaseColorTexture->setBytes(
                     {std::byte(255), std::byte(255), std::byte(255), std::byte(255)}, 1, 1, carb::Format::eRGBA8_SRGB);
             } else {
@@ -217,13 +217,13 @@ void setFabricTextures(
             }
         }
 
-        const auto propertyTextureImages = MetadataUtil::getPropertyTextureImages(pContext, model, primitive);
+        const auto propertyTextureImages = MetadataUtil::getPropertyTextureImages(context, model, primitive);
         const auto propertyTextureCount = fabricMesh.propertyTextures.size();
         for (uint64_t j = 0; j < propertyTextureCount; ++j) {
             fabricMesh.propertyTextures[j]->setImage(*propertyTextureImages[j], TransferFunction::LINEAR);
         }
 
-        const auto propertyTableTextures = MetadataUtil::encodePropertyTables(pContext, model, primitive);
+        const auto propertyTableTextures = MetadataUtil::encodePropertyTables(context, model, primitive);
         const auto propertyTableTextureCount = fabricMesh.propertyTableTextures.size();
         for (uint64_t j = 0; j < propertyTableTextureCount; ++j) {
             const auto& texture = propertyTableTextures[j];
@@ -233,7 +233,7 @@ void setFabricTextures(
 }
 
 void setFabricMeshes(
-    Context* pContext,
+    const Context& context,
     const CesiumGltf::Model& model,
     const std::vector<LoadingMesh>& loadingMeshes,
     std::vector<FabricMesh>& fabricMeshes,
@@ -245,7 +245,7 @@ void setFabricMeshes(
     const auto displayOpacity = tileset.getDisplayOpacity();
 
     const auto ecefToPrimWorldTransform =
-        UsdUtil::computeEcefToPrimWorldTransform(pContext, tileset.getGeoreferencePath(), tileset.getPath());
+        UsdUtil::computeEcefToPrimWorldTransform(context, tileset.getGeoreferencePath(), tileset.getPath());
 
     const auto tilesetId = tileset.getTilesetId();
     const auto smoothNormals = tileset.getSmoothNormals();
@@ -295,8 +295,8 @@ void setFabricMeshes(
     }
 }
 
-void freeFabricMeshes(Context* pContext, const std::vector<FabricMesh>& fabricMeshes) {
-    auto& fabricResourceManager = pContext->getFabricResourceManager();
+void freeFabricMeshes(Context& context, const std::vector<FabricMesh>& fabricMeshes) {
+    auto& fabricResourceManager = context.getFabricResourceManager();
 
     for (const auto& fabricMesh : fabricMeshes) {
         if (fabricMesh.pGeometry) {
@@ -387,7 +387,7 @@ FabricPrepareRenderResources::prepareInLoadThread(
             }
 
             const auto pModel = std::get_if<CesiumGltf::Model>(&tileLoadResult.contentKind);
-            auto fabricMeshes = acquireFabricMeshes(_pContext, *pModel, loadingMeshes, imageryLayersInfo, *_pTileset);
+            auto fabricMeshes = acquireFabricMeshes(*_pContext, *pModel, loadingMeshes, imageryLayersInfo, *_pTileset);
             return IntermediateLoadThreadResult{
                 std::move(tileLoadResult),
                 std::move(loadingMeshes),
@@ -401,7 +401,7 @@ FabricPrepareRenderResources::prepareInLoadThread(
             const auto pModel = std::get_if<CesiumGltf::Model>(&tileLoadResult.contentKind);
 
             if (tilesetExists()) {
-                setFabricTextures(_pContext, *pModel, loadingMeshes, fabricMeshes);
+                setFabricTextures(*_pContext, *pModel, loadingMeshes, fabricMeshes);
             }
 
             return Cesium3DTilesSelection::TileLoadResultAndRenderResources{
@@ -434,7 +434,7 @@ void* FabricPrepareRenderResources::prepareInMainThread(Cesium3DTilesSelection::
     const auto& model = pRenderContent->getModel();
 
     if (tilesetExists()) {
-        setFabricMeshes(_pContext, model, loadingMeshes, fabricMeshes, *_pTileset);
+        setFabricMeshes(*_pContext, model, loadingMeshes, fabricMeshes, *_pTileset);
     }
 
     return new FabricRenderResources{
@@ -448,13 +448,13 @@ void FabricPrepareRenderResources::free(
     void* pMainThreadResult) noexcept {
     if (pLoadThreadResult) {
         const auto pTileLoadThreadResult = static_cast<TileLoadThreadResult*>(pLoadThreadResult);
-        freeFabricMeshes(_pContext, pTileLoadThreadResult->fabricMeshes);
+        freeFabricMeshes(*_pContext, pTileLoadThreadResult->fabricMeshes);
         delete pTileLoadThreadResult;
     }
 
     if (pMainThreadResult) {
         const auto pFabricRenderResources = static_cast<FabricRenderResources*>(pMainThreadResult);
-        freeFabricMeshes(_pContext, pFabricRenderResources->fabricMeshes);
+        freeFabricMeshes(*_pContext, pFabricRenderResources->fabricMeshes);
         delete pFabricRenderResources;
     }
 }

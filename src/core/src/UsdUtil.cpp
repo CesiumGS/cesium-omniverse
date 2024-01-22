@@ -76,8 +76,8 @@ class ScopedEdit {
     PXR_NS::UsdEditTarget _originalEditTarget;
 };
 
-bool getDebugDisableGeoreferencing(Context* pContext) {
-    const auto pData = pContext->getAssetRegistry().getFirstData();
+bool getDebugDisableGeoreferencing(const Context& context) {
+    const auto pData = context.getAssetRegistry().getFirstData();
     if (!pData) {
         return false;
     }
@@ -192,14 +192,14 @@ glm::dmat4 computePrimWorldToLocalTransform(const PXR_NS::UsdStageWeakPtr& pStag
     return glm::affineInverse(computePrimLocalToWorldTransform(pStage, path));
 }
 
-glm::dmat4 computeEcefToStageTransform(Context* pContext, const PXR_NS::SdfPath& georeferencePath) {
-    const auto disableGeoreferencing = getDebugDisableGeoreferencing(pContext);
-    const auto pGeoreference = pContext->getAssetRegistry().getGeoreference(georeferencePath);
+glm::dmat4 computeEcefToStageTransform(const Context& context, const PXR_NS::SdfPath& georeferencePath) {
+    const auto disableGeoreferencing = getDebugDisableGeoreferencing(context);
+    const auto pGeoreference = context.getAssetRegistry().getGeoreference(georeferencePath);
 
     if (disableGeoreferencing || !pGeoreference) {
-        const auto zUp = getUsdUpAxis(pContext->getUsdStage()) == PXR_NS::UsdGeomTokens->z;
+        const auto zUp = getUsdUpAxis(context.getUsdStage()) == PXR_NS::UsdGeomTokens->z;
         const auto axisConversion = zUp ? glm::dmat4(1.0) : CesiumGeometry::Transforms::Z_UP_TO_Y_UP;
-        const auto scale = glm::scale(glm::dmat4(1.0), glm::dvec3(1.0 / getUsdMetersPerUnit(pContext->getUsdStage())));
+        const auto scale = glm::scale(glm::dmat4(1.0), glm::dvec3(1.0 / getUsdMetersPerUnit(context.getUsdStage())));
         return scale * axisConversion;
     }
 
@@ -207,39 +207,39 @@ glm::dmat4 computeEcefToStageTransform(Context* pContext, const PXR_NS::SdfPath&
 }
 
 glm::dmat4 computeEcefToPrimWorldTransform(
-    Context* pContext,
+    const Context& context,
     const PXR_NS::SdfPath& georeferencePath,
     const PXR_NS::SdfPath& primPath) {
-    const auto ecefToStageTransform = computeEcefToStageTransform(pContext, georeferencePath);
-    const auto primLocalToWorldTransform = computePrimLocalToWorldTransform(pContext->getUsdStage(), primPath);
+    const auto ecefToStageTransform = computeEcefToStageTransform(context, georeferencePath);
+    const auto primLocalToWorldTransform = computePrimLocalToWorldTransform(context.getUsdStage(), primPath);
     return primLocalToWorldTransform * ecefToStageTransform;
 }
 
 glm::dmat4 computePrimWorldToEcefTransform(
-    Context* pContext,
+    const Context& context,
     const PXR_NS::SdfPath& georeferencePath,
     const PXR_NS::SdfPath& primPath) {
-    return glm::affineInverse(computeEcefToPrimWorldTransform(pContext, georeferencePath, primPath));
+    return glm::affineInverse(computeEcefToPrimWorldTransform(context, georeferencePath, primPath));
 }
 
 glm::dmat4 computeEcefToPrimLocalTransform(
-    Context* pContext,
+    const Context& context,
     const PXR_NS::SdfPath& georeferencePath,
     const PXR_NS::SdfPath& primPath) {
-    const auto ecefToStageTransform = computeEcefToStageTransform(pContext, georeferencePath);
-    const auto primWorldToLocalTransform = computePrimWorldToLocalTransform(pContext->getUsdStage(), primPath);
+    const auto ecefToStageTransform = computeEcefToStageTransform(context, georeferencePath);
+    const auto primWorldToLocalTransform = computePrimWorldToLocalTransform(context.getUsdStage(), primPath);
     return primWorldToLocalTransform * ecefToStageTransform;
 }
 
 glm::dmat4 computePrimLocalToEcefTransform(
-    Context* pContext,
+    const Context& context,
     const PXR_NS::SdfPath& georeferencePath,
     const PXR_NS::SdfPath& primPath) {
-    return glm::affineInverse(computeEcefToPrimLocalTransform(pContext, georeferencePath, primPath));
+    return glm::affineInverse(computeEcefToPrimLocalTransform(context, georeferencePath, primPath));
 }
 
 Cesium3DTilesSelection::ViewState computeViewState(
-    Context* pContext,
+    const Context& context,
     const PXR_NS::SdfPath& georeferencePath,
     const PXR_NS::SdfPath& primPath,
     const Viewport& viewport) {
@@ -248,7 +248,7 @@ Cesium3DTilesSelection::ViewState computeViewState(
     const auto width = viewport.width;
     const auto height = viewport.height;
 
-    const auto primWorldToEcefTransform = computePrimWorldToEcefTransform(pContext, georeferencePath, primPath);
+    const auto primWorldToEcefTransform = computePrimWorldToEcefTransform(context, georeferencePath, primPath);
     const auto inverseView = glm::affineInverse(viewMatrix);
     const auto usdCameraUp = glm::dvec3(inverseView[1]);
     const auto usdCameraFwd = glm::dvec3(-inverseView[2]);

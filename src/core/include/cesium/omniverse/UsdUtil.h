@@ -58,21 +58,21 @@ PXR_NS::GfMatrix4d glmToUsdMatrix(const glm::dmat4& matrix);
 
 glm::dmat4 computePrimLocalToWorldTransform(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
 glm::dmat4 computePrimWorldToLocalTransform(const PXR_NS::UsdStageWeakPtr& pStage, const PXR_NS::SdfPath& path);
-glm::dmat4 computeEcefToStageTransform(Context* pContext, const PXR_NS::SdfPath& georeferencePath);
+glm::dmat4 computeEcefToStageTransform(const Context& context, const PXR_NS::SdfPath& georeferencePath);
 glm::dmat4 computeEcefToPrimWorldTransform(
-    Context* pContext,
+    const Context& context,
     const PXR_NS::SdfPath& georeferencePath,
     const PXR_NS::SdfPath& primPath);
 glm::dmat4 computePrimWorldToEcefTransform(
-    Context* pContext,
+    const Context& context,
     const PXR_NS::SdfPath& georeferencePath,
     const PXR_NS::SdfPath& primPath);
 glm::dmat4 computeEcefToPrimLocalTransform(
-    Context* pContext,
+    const Context& context,
     const PXR_NS::SdfPath& georeferencePath,
     const PXR_NS::SdfPath& primPath);
 glm::dmat4 computePrimLocalToEcefTransform(
-    Context* pContext,
+    const Context& context,
     const PXR_NS::SdfPath& georeferencePath,
     const PXR_NS::SdfPath& primPath);
 CesiumGeospatial::LocalHorizontalCoordinateSystem computeLocalCoordinateSystem(
@@ -81,7 +81,7 @@ CesiumGeospatial::LocalHorizontalCoordinateSystem computeLocalCoordinateSystem(
     const CesiumGeospatial::Ellipsoid& ellipsoid);
 
 Cesium3DTilesSelection::ViewState computeViewState(
-    Context* pContext,
+    const Context& context,
     const PXR_NS::SdfPath& georeferencePath,
     const PXR_NS::SdfPath& primPath,
     const Viewport& viewport);

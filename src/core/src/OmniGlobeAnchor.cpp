@@ -70,7 +70,7 @@ bool OmniGlobeAnchor::initialize() {
     }
 
     if (!_pAnchor) {
-        const auto anchorToFixed = UsdUtil::computePrimLocalToEcefTransform(_pContext, getGeoreferencePath(), _path);
+        const auto anchorToFixed = UsdUtil::computePrimLocalToEcefTransform(*_pContext, getGeoreferencePath(), _path);
         _pAnchor = std::make_unique<CesiumGeospatial::GlobeAnchor>(anchorToFixed);
     }
 

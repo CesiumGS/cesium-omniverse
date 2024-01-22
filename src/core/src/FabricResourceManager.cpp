@@ -105,7 +105,7 @@ std::shared_ptr<FabricMaterial> FabricResourceManager::acquireMaterial(
     int64_t tilesetId,
     const PXR_NS::SdfPath& tilesetMaterialPath) {
     FabricMaterialDescriptor materialDescriptor(
-        _pContext, model, primitive, materialInfo, featuresInfo, imageryLayersInfo, tilesetMaterialPath);
+        *_pContext, model, primitive, materialInfo, featuresInfo, imageryLayersInfo, tilesetMaterialPath);
 
     if (shouldAcquireSharedMaterial(materialDescriptor)) {
         return acquireSharedMaterial(materialInfo, materialDescriptor, tilesetId);
