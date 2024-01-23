@@ -38,55 +38,10 @@ OmniGlobeAnchor::OmniGlobeAnchor(Context* pContext, const PXR_NS::SdfPath& path)
     : _pContext(pContext)
     , _path(path) {
 
-    // Use the geographic coordinates (if set) or ecef transform (if set) to initialize the globe anchor.
-    // If neither are set, initialize the globe anchor from the prim's local transform.
-    updateByGeographicCoordinates(false);
-    updateByPrimLocalToEcefTransform(false);
-    updateByPrimLocalTransform(true);
+    initialize();
 }
 
 OmniGlobeAnchor::~OmniGlobeAnchor() = default;
-
-bool OmniGlobeAnchor::isGeoreferenceValid() const {
-    const auto georeferencePath = getGeoreferencePath();
-
-    if (georeferencePath.IsEmpty()) {
-        return false;
-    }
-
-    const auto pGeoreference = _pContext->getAssetRegistry().getGeoreference(georeferencePath);
-
-    if (!pGeoreference) {
-        return false;
-    }
-
-    return true;
-}
-
-bool OmniGlobeAnchor::initialize() {
-    if (!isGeoreferenceValid()) {
-        _pAnchor = nullptr;
-        return false;
-    }
-
-    const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
-    const auto xformable = PXR_NS::UsdGeomXformable(cesiumGlobeAnchor.GetPrim());
-    const auto xformOps = UsdUtil::getTranslateRotateScaleOps(xformable);
-
-    if (!xformOps) {
-        _pContext->getLogger()->oneTimeWarning(fmt::format(
-            "Globe anchor xform op order must [translate, rotate, scale] without additional transforms.",
-            _path.GetText()));
-        return false;
-    }
-
-    if (!_pAnchor) {
-        const auto anchorToFixed = UsdUtil::computePrimLocalToEcefTransform(*_pContext, getGeoreferencePath(), _path);
-        _pAnchor = std::make_unique<CesiumGeospatial::GlobeAnchor>(anchorToFixed);
-    }
-
-    return true;
-}
 
 const PXR_NS::SdfPath& OmniGlobeAnchor::getPath() const {
     return _path;
@@ -99,6 +54,15 @@ bool OmniGlobeAnchor::getDetectTransformChanges() const {
     cesiumGlobeAnchor.GetDetectTransformChangesAttr().Get(&detectTransformChanges);
 
     return detectTransformChanges;
+}
+
+bool OmniGlobeAnchor::getAdjustOrientation() const {
+    const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
+
+    bool adjustOrientation;
+    cesiumGlobeAnchor.GetAdjustOrientationForGlobeWhenMovingAttr().Get(&adjustOrientation);
+
+    return adjustOrientation;
 }
 
 PXR_NS::SdfPath OmniGlobeAnchor::getGeoreferencePath() const {
@@ -114,71 +78,8 @@ PXR_NS::SdfPath OmniGlobeAnchor::getGeoreferencePath() const {
     return targets.front();
 }
 
-void OmniGlobeAnchor::updateByGeographicCoordinates(bool force) {
-    if (!initialize()) {
-        return;
-    }
-
-    const auto geographicCoordinates = getGeographicCoordinates();
-
-    const auto tolerance = CesiumUtility::Math::Epsilon7;
-    if (!force && MathUtil::epsilonEqual(geographicCoordinates, _cachedGeographicCoordinates, tolerance)) {
-        // Short circuit if we don't need to do an actual update.
-        return;
-    }
-
-    const auto pGeoreference = _pContext->getAssetRegistry().getGeoreference(getGeoreferencePath());
-    const auto& ellipsoid = pGeoreference->getEllipsoid();
-
-    const auto primLocalToEcefTranslation = ellipsoid.cartographicToCartesian(geographicCoordinates);
-    const auto primLocalToEcefRotation = getPrimLocalToEcefRotation();
-    const auto primLocalToEcefScale = getPrimLocalToEcefScale();
-
-    const auto primLocalToEcefTransform = MathUtil::composeEuler(
-        primLocalToEcefTranslation, primLocalToEcefRotation, primLocalToEcefScale, MathUtil::EulerAngleOrder::XYZ);
-
-    _pAnchor->setAnchorToFixedTransform(primLocalToEcefTransform, getAdjustOrientation(), ellipsoid);
-
-    finalize();
-}
-
-void OmniGlobeAnchor::updateByPrimLocalTransform(bool force) {
-    if (!initialize()) {
-        return;
-    }
-
-    const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
-    const auto xformable = PXR_NS::UsdGeomXformable(cesiumGlobeAnchor.GetPrim());
-    const auto xformOps = UsdUtil::getTranslateRotateScaleOps(xformable);
-    const auto eulerAngleOrder = xformOps->eulerAngleOrder;
-
-    const auto primLocalTranslation = getPrimLocalTranslation();
-    const auto primLocalRotation = getPrimLocalRotation();
-    const auto primLocalScale = getPrimLocalScale();
-    const auto primLocalTransform =
-        MathUtil::composeEuler(primLocalTranslation, primLocalRotation, primLocalScale, eulerAngleOrder);
-
-    const auto tolerance = CesiumUtility::Math::Epsilon4;
-    if (!force && MathUtil::epsilonEqual(primLocalTranslation, _cachedPrimLocalTranslation, tolerance) &&
-        MathUtil::epsilonEqual(primLocalRotation, _cachedPrimLocalRotation, tolerance) &&
-        MathUtil::epsilonEqual(primLocalScale, _cachedPrimLocalScale, tolerance)) {
-        // Short circuit if we don't need to do an actual update.
-        return;
-    }
-
-    const auto pGeoreference = _pContext->getAssetRegistry().getGeoreference(getGeoreferencePath());
-
-    _pAnchor->setAnchorToLocalTransform(
-        pGeoreference->getLocalCoordinateSystem(),
-        primLocalTransform,
-        getAdjustOrientation(),
-        pGeoreference->getEllipsoid());
-
-    finalize();
-}
-
-void OmniGlobeAnchor::updateByPrimLocalToEcefTransform(bool force) {
-    if (!initialize()) {
+void OmniGlobeAnchor::updateByPrimLocalToEcefTransform() {
+    if (!isAnchorValid()) {
         return;
     }
 
@@ -187,7 +88,7 @@ void OmniGlobeAnchor::updateByPrimLocalToEcefTransform(bool force) {
     const auto primLocalToEcefScale = getPrimLocalToEcefScale();
 
     const auto tolerance = CesiumUtility::Math::Epsilon4;
-    if (!force && MathUtil::epsilonEqual(primLocalToEcefTranslation, _cachedPrimLocalToEcefTranslation, tolerance) &&
+    if (MathUtil::epsilonEqual(primLocalToEcefTranslation, _cachedPrimLocalToEcefTranslation, tolerance) &&
         MathUtil::epsilonEqual(primLocalToEcefRotation, _cachedPrimLocalToEcefRotation, tolerance) &&
         MathUtil::epsilonEqual(primLocalToEcefScale, _cachedPrimLocalToEcefScale, tolerance)) {
         // Short circuit if we don't need to do an actual update.
@@ -205,39 +106,162 @@ void OmniGlobeAnchor::updateByPrimLocalToEcefTransform(bool force) {
     finalize();
 }
 
-void OmniGlobeAnchor::updateByGeoreference() {
-    if (!initialize()) {
+void OmniGlobeAnchor::updateByGeographicCoordinates() {
+    if (!isAnchorValid()) {
         return;
     }
 
-    const auto primLocalToEcefTranslation = getPrimLocalToEcefTranslation();
-    const auto primLocalToEcefRotation = getPrimLocalToEcefRotation();
-    const auto primLocalToEcefScale = getPrimLocalToEcefScale();
+    const auto geographicCoordinates = getGeographicCoordinates();
 
-    const auto primLocalToEcefTransform = MathUtil::composeEuler(
-        primLocalToEcefTranslation, primLocalToEcefRotation, primLocalToEcefScale, MathUtil::EulerAngleOrder::XYZ);
+    const auto tolerance = CesiumUtility::Math::Epsilon7;
+    if (MathUtil::epsilonEqual(geographicCoordinates, _cachedGeographicCoordinates, tolerance)) {
+        // Short circuit if we don't need to do an actual update.
+        return;
+    }
+
+    const auto pGeoreference = _pContext->getAssetRegistry().getGeoreference(getGeoreferencePath());
+    const auto& ellipsoid = pGeoreference->getEllipsoid();
+
+    const auto primLocalToEcefTranslation = ellipsoid.cartographicToCartesian(geographicCoordinates);
+
+    auto primLocalToEcefTransform = _pAnchor->getAnchorToFixedTransform();
+    primLocalToEcefTransform[3] = glm::dvec4(primLocalToEcefTranslation, 1.0);
+
+    _pAnchor->setAnchorToFixedTransform(primLocalToEcefTransform, getAdjustOrientation(), ellipsoid);
+
+    finalize();
+}
+
+void OmniGlobeAnchor::updateByPrimLocalTransform() {
+    if (!isAnchorValid()) {
+        return;
+    }
+
+    const auto primLocalTranslation = getPrimLocalTranslation();
+    const auto primLocalRotation = getPrimLocalRotation();
+    const auto primLocalScale = getPrimLocalScale();
+
+    const auto tolerance = CesiumUtility::Math::Epsilon4;
+    if (MathUtil::epsilonEqual(primLocalTranslation, _cachedPrimLocalTranslation, tolerance) &&
+        MathUtil::epsilonEqual(primLocalRotation, _cachedPrimLocalRotation, tolerance) &&
+        MathUtil::epsilonEqual(primLocalScale, _cachedPrimLocalScale, tolerance)) {
+        // Short circuit if we don't need to do an actual update.
+        return;
+    }
+
+    const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
+    const auto xformable = PXR_NS::UsdGeomXformable(cesiumGlobeAnchor.GetPrim());
+    const auto xformOps = UsdUtil::getTranslateRotateScaleOps(xformable);
+    const auto eulerAngleOrder = xformOps->eulerAngleOrder;
+
+    // xform ops are applied right to left, so xformOp:rotateXYZ actually applies a z-axis, then y-axis, then x-axis
+    // rotation. To compensate for that, we need to compose euler angles in the reverse order.
+    const auto primLocalTransform = MathUtil::composeEuler(
+        primLocalTranslation, primLocalRotation, primLocalScale, getReversedEulerAngleOrder(eulerAngleOrder));
 
     const auto pGeoreference = _pContext->getAssetRegistry().getGeoreference(getGeoreferencePath());
 
-    _pAnchor->setAnchorToFixedTransform(
-        primLocalToEcefTransform, getAdjustOrientation(), pGeoreference->getEllipsoid());
+    _pAnchor->setAnchorToLocalTransform(
+        pGeoreference->getLocalCoordinateSystem(),
+        primLocalTransform,
+        getAdjustOrientation(),
+        pGeoreference->getEllipsoid());
+
+    finalize();
+}
+
+void OmniGlobeAnchor::updateByGeoreference() {
+    // Initialize the globe anchor in case the georeference is set for first time
+    initialize();
+
+    if (!isAnchorValid()) {
+        return;
+    }
+
+    finalize();
+}
+
+bool OmniGlobeAnchor::isAnchorValid() const {
+    const auto georeferencePath = getGeoreferencePath();
+
+    if (georeferencePath.IsEmpty()) {
+        return false;
+    }
+
+    const auto pGeoreference = _pContext->getAssetRegistry().getGeoreference(georeferencePath);
+
+    if (!pGeoreference) {
+        return false;
+    }
+
+    const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
+    const auto xformable = PXR_NS::UsdGeomXformable(cesiumGlobeAnchor.GetPrim());
+    const auto xformOps = UsdUtil::getTranslateRotateScaleOps(xformable);
+
+    if (!xformOps) {
+        _pContext->getLogger()->oneTimeWarning(fmt::format(
+            "Globe anchor xform op order must [translate, rotate, scale] without additional transforms.",
+            _path.GetText()));
+        return false;
+    }
+
+    return true;
+}
+
+void OmniGlobeAnchor::initialize() {
+    if (!isAnchorValid()) {
+        _pAnchor = nullptr;
+        return;
+    }
+
+    if (_pAnchor) {
+        return;
+    }
+
+    const auto primLocalToEcefTransform =
+        UsdUtil::computePrimLocalToEcefTransform(*_pContext, getGeoreferencePath(), _path);
+
+    // Initialize the globe anchor from the prim's local transform
+    _pAnchor = std::make_unique<CesiumGeospatial::GlobeAnchor>(primLocalToEcefTransform);
+
+    // Use the ecef transform (if set) or geographic coordinates (if set) to reposition the globe anchor.
+    updateByPrimLocalToEcefTransform();
+    updateByGeographicCoordinates();
 
     finalize();
 }
 
 void OmniGlobeAnchor::finalize() {
-    saveGeographicCoordinates();
     savePrimLocalToEcefTransform();
+    saveGeographicCoordinates();
     savePrimLocalTransform();
 }
 
-bool OmniGlobeAnchor::getAdjustOrientation() const {
+glm::dvec3 OmniGlobeAnchor::getPrimLocalToEcefTranslation() const {
     const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
 
-    bool adjustOrientation;
-    cesiumGlobeAnchor.GetAdjustOrientationForGlobeWhenMovingAttr().Get(&adjustOrientation);
+    PXR_NS::GfVec3d primLocalToEcefTranslation;
+    cesiumGlobeAnchor.GetPositionAttr().Get(&primLocalToEcefTranslation);
 
-    return adjustOrientation;
+    return UsdUtil::usdToGlmVector(primLocalToEcefTranslation);
+}
+
+glm::dvec3 OmniGlobeAnchor::getPrimLocalToEcefRotation() const {
+    const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
+
+    PXR_NS::GfVec3d primLocalToEcefRotation;
+    cesiumGlobeAnchor.GetRotationAttr().Get(&primLocalToEcefRotation);
+
+    return glm::radians(UsdUtil::usdToGlmVector(primLocalToEcefRotation));
+}
+
+glm::dvec3 OmniGlobeAnchor::getPrimLocalToEcefScale() const {
+    const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
+
+    PXR_NS::GfVec3d primLocalToEcefScale;
+    cesiumGlobeAnchor.GetScaleAttr().Get(&primLocalToEcefScale);
+
+    return UsdUtil::usdToGlmVector(primLocalToEcefScale);
 }
 
 CesiumGeospatial::Cartographic OmniGlobeAnchor::getGeographicCoordinates() const {
@@ -310,38 +334,25 @@ glm::dvec3 OmniGlobeAnchor::getPrimLocalScale() const {
     return glm::dvec3(1.0);
 }
 
-glm::dvec3 OmniGlobeAnchor::getPrimLocalToEcefTranslation() const {
+void OmniGlobeAnchor::savePrimLocalToEcefTransform() {
+    const auto& primLocalToEcefTransform = _pAnchor->getAnchorToFixedTransform();
+    const auto decomposed = MathUtil::decomposeEuler(primLocalToEcefTransform, MathUtil::EulerAngleOrder::XYZ);
+
+    _cachedPrimLocalToEcefTranslation = decomposed.translation;
+    _cachedPrimLocalToEcefRotation = decomposed.rotation;
+    _cachedPrimLocalToEcefScale = decomposed.scale;
+
     const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
-
-    PXR_NS::GfVec3d primLocalToEcefTranslation;
-    cesiumGlobeAnchor.GetPositionAttr().Get(&primLocalToEcefTranslation);
-
-    return UsdUtil::usdToGlmVector(primLocalToEcefTranslation);
-}
-
-glm::dvec3 OmniGlobeAnchor::getPrimLocalToEcefRotation() const {
-    const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
-
-    PXR_NS::GfVec3d primLocalToEcefRotation;
-    cesiumGlobeAnchor.GetRotationAttr().Get(&primLocalToEcefRotation);
-
-    return UsdUtil::usdToGlmVector(primLocalToEcefRotation);
-}
-
-glm::dvec3 OmniGlobeAnchor::getPrimLocalToEcefScale() const {
-    const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
-
-    PXR_NS::GfVec3d primLocalToEcefScale;
-    cesiumGlobeAnchor.GetScaleAttr().Get(&primLocalToEcefScale);
-
-    return UsdUtil::usdToGlmVector(primLocalToEcefScale);
+    cesiumGlobeAnchor.GetPositionAttr().Set(UsdUtil::glmToUsdVector(decomposed.translation));
+    cesiumGlobeAnchor.GetRotationAttr().Set(UsdUtil::glmToUsdVector(glm::degrees(decomposed.rotation)));
+    cesiumGlobeAnchor.GetScaleAttr().Set(UsdUtil::glmToUsdVector(decomposed.scale));
 }
 
 void OmniGlobeAnchor::saveGeographicCoordinates() {
     const auto pGeoreference = _pContext->getAssetRegistry().getGeoreference(getGeoreferencePath());
-    const auto& anchorToFixed = _pAnchor->getAnchorToFixedTransform();
-    const auto ecefPosition = glm::dvec3(anchorToFixed[3]);
-    const auto cartographic = pGeoreference->getEllipsoid().cartesianToCartographic(ecefPosition);
+    const auto& primLocalToEcefTransform = _pAnchor->getAnchorToFixedTransform();
+    const auto primLocalToEcefTranslation = glm::dvec3(primLocalToEcefTransform[3]);
+    const auto cartographic = pGeoreference->getEllipsoid().cartesianToCartographic(primLocalToEcefTranslation);
 
     if (!cartographic) {
         return;
@@ -354,33 +365,25 @@ void OmniGlobeAnchor::saveGeographicCoordinates() {
         glm::degrees(cartographic->latitude), glm::degrees(cartographic->longitude), cartographic->height));
 }
 
-void OmniGlobeAnchor::savePrimLocalToEcefTransform() {
-    const auto& primLocalToEcefTransform = _pAnchor->getAnchorToFixedTransform();
-    const auto decomposed = MathUtil::decomposeEuler(primLocalToEcefTransform, MathUtil::EulerAngleOrder::XYZ);
-
-    _cachedPrimLocalToEcefTranslation = decomposed.translation;
-    _cachedPrimLocalToEcefRotation = decomposed.rotation;
-    _cachedPrimLocalToEcefScale = decomposed.scale;
-
-    const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
-    cesiumGlobeAnchor.GetPositionAttr().Set(UsdUtil::glmToUsdVector(decomposed.translation));
-    cesiumGlobeAnchor.GetRotationAttr().Set(UsdUtil::glmToUsdVector(decomposed.rotation));
-    cesiumGlobeAnchor.GetScaleAttr().Set(UsdUtil::glmToUsdVector(decomposed.scale));
-}
-
 void OmniGlobeAnchor::savePrimLocalTransform() {
     // Ideally we would just use UsdGeomXformableAPI to set translation, rotation, scale, but this doesn't
     // work when rotation and scale properties are double precision, which is common in Omniverse.
 
-    const auto pGeoreference = _pContext->getAssetRegistry().getGeoreference(getGeoreferencePath());
-    const auto anchorToLocalTransform = _pAnchor->getAnchorToLocalTransform(pGeoreference->getLocalCoordinateSystem());
     const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
     const auto xformable = PXR_NS::UsdGeomXformable(cesiumGlobeAnchor.GetPrim());
     const auto xformOps = UsdUtil::getTranslateRotateScaleOps(xformable);
 
     const auto& [pTranslateOp, pRotateOp, pScaleOp, eulerAngleOrder] = xformOps.value();
 
-    const auto decomposed = MathUtil::decomposeEuler(anchorToLocalTransform, eulerAngleOrder);
+    const auto pGeoreference = _pContext->getAssetRegistry().getGeoreference(getGeoreferencePath());
+
+    const auto primLocalToWorldTransform =
+        _pAnchor->getAnchorToLocalTransform(pGeoreference->getLocalCoordinateSystem());
+
+    // xform ops are applied right to left, so xformOp:rotateXYZ actually applies a z-axis, then y-axis, then x-axis
+    // rotation. To compensate for that, we need to decompose euler angles in the reverse order.
+    const auto decomposed =
+        MathUtil::decomposeEuler(primLocalToWorldTransform, getReversedEulerAngleOrder(eulerAngleOrder));
 
     _cachedPrimLocalTranslation = decomposed.translation;
     _cachedPrimLocalRotation = decomposed.rotation;

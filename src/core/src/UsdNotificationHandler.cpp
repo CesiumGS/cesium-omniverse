@@ -399,16 +399,16 @@ void processCesiumGlobeAnchorChanged(
         }
     }
 
-    if (updateByPrimLocalTransform) {
-        pGlobeAnchor->updateByPrimLocalTransform(false);
+    if (updateByPrimLocalToEcefTransform) {
+        pGlobeAnchor->updateByPrimLocalToEcefTransform();
     }
 
     if (updateByGeographicCoordinates) {
-        pGlobeAnchor->updateByGeographicCoordinates(false);
+        pGlobeAnchor->updateByGeographicCoordinates();
     }
 
-    if (updateByPrimLocalToEcefTransform) {
-        pGlobeAnchor->updateByPrimLocalToEcefTransform(false);
+    if (updateByPrimLocalTransform) {
+        pGlobeAnchor->updateByPrimLocalTransform();
     }
 
     if (updateByGeoreference) {

@@ -32,6 +32,7 @@ struct Decomposed {
     glm::dvec3 scale;
 };
 
+EulerAngleOrder getReversedEulerAngleOrder(EulerAngleOrder eulerAngleOrder);
 DecomposedEuler decomposeEuler(const glm::dmat4& matrix, EulerAngleOrder eulerAngleOrder);
 Decomposed decompose(const glm::dmat4& matrix);
 

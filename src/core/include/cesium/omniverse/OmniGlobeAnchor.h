@@ -27,26 +27,26 @@ class OmniGlobeAnchor {
     [[nodiscard]] bool getAdjustOrientation() const;
     [[nodiscard]] PXR_NS::SdfPath getGeoreferencePath() const;
 
-    void updateByGeographicCoordinates(bool force);
-    void updateByPrimLocalTransform(bool force);
-    void updateByPrimLocalToEcefTransform(bool force);
+    void updateByPrimLocalToEcefTransform();
+    void updateByGeographicCoordinates();
+    void updateByPrimLocalTransform();
     void updateByGeoreference();
 
   private:
-    [[nodiscard]] bool isGeoreferenceValid() const;
-    [[nodiscard]] bool initialize();
+    [[nodiscard]] bool isAnchorValid() const;
+    void initialize();
     void finalize();
 
-    [[nodiscard]] glm::dvec3 getPrimLocalTranslation() const;
-    [[nodiscard]] glm::dvec3 getPrimLocalRotation() const;
-    [[nodiscard]] glm::dvec3 getPrimLocalScale() const;
-    [[nodiscard]] CesiumGeospatial::Cartographic getGeographicCoordinates() const;
     [[nodiscard]] glm::dvec3 getPrimLocalToEcefTranslation() const;
     [[nodiscard]] glm::dvec3 getPrimLocalToEcefRotation() const;
     [[nodiscard]] glm::dvec3 getPrimLocalToEcefScale() const;
+    [[nodiscard]] CesiumGeospatial::Cartographic getGeographicCoordinates() const;
+    [[nodiscard]] glm::dvec3 getPrimLocalTranslation() const;
+    [[nodiscard]] glm::dvec3 getPrimLocalRotation() const;
+    [[nodiscard]] glm::dvec3 getPrimLocalScale() const;
 
-    void saveGeographicCoordinates();
     void savePrimLocalToEcefTransform();
+    void saveGeographicCoordinates();
     void savePrimLocalTransform();
 
     Context* _pContext;
@@ -54,13 +54,13 @@ class OmniGlobeAnchor {
     std::unique_ptr<CesiumGeospatial::GlobeAnchor> _pAnchor;
 
     // These are used for quick comparisons, so we can short circuit successive updates.
-    glm::dvec3 _cachedPrimLocalTranslation{0.0};
-    glm::dvec3 _cachedPrimLocalRotation{0.0, 0.0, 0.0};
-    glm::dvec3 _cachedPrimLocalScale{1.0};
-    CesiumGeospatial::Cartographic _cachedGeographicCoordinates{0.0, 0.0, 0.0};
     glm::dvec3 _cachedPrimLocalToEcefTranslation{0.0};
     glm::dvec3 _cachedPrimLocalToEcefRotation{0.0};
     glm::dvec3 _cachedPrimLocalToEcefScale{1.0};
+    CesiumGeospatial::Cartographic _cachedGeographicCoordinates{0.0, 0.0, 0.0};
+    glm::dvec3 _cachedPrimLocalTranslation{0.0};
+    glm::dvec3 _cachedPrimLocalRotation{0.0, 0.0, 0.0};
+    glm::dvec3 _cachedPrimLocalScale{1.0};
 };
 
 } // namespace cesium::omniverse

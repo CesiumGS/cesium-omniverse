@@ -5,6 +5,25 @@
 
 namespace cesium::omniverse::MathUtil {
 
+EulerAngleOrder getReversedEulerAngleOrder(EulerAngleOrder eulerAngleOrder) {
+    switch (eulerAngleOrder) {
+        case EulerAngleOrder::XYZ:
+            return EulerAngleOrder::ZYX;
+        case EulerAngleOrder::XZY:
+            return EulerAngleOrder::YZX;
+        case EulerAngleOrder::YXZ:
+            return EulerAngleOrder::ZXY;
+        case EulerAngleOrder::YZX:
+            return EulerAngleOrder::XZY;
+        case EulerAngleOrder::ZXY:
+            return EulerAngleOrder::YXZ;
+        case EulerAngleOrder::ZYX:
+            return EulerAngleOrder::XYZ;
+    }
+
+    return EulerAngleOrder::XYZ;
+}
+
 DecomposedEuler decomposeEuler(const glm::dmat4& matrix, EulerAngleOrder eulerAngleOrder) {
     glm::dvec3 scale;
     glm::dquat rotation;
@@ -23,19 +42,19 @@ DecomposedEuler decomposeEuler(const glm::dmat4& matrix, EulerAngleOrder eulerAn
             glm::extractEulerAngleXYZ(rotationMatrix, rotationEuler.x, rotationEuler.y, rotationEuler.z);
             break;
         case EulerAngleOrder::XZY:
-            glm::extractEulerAngleXZY(rotationMatrix, rotationEuler.x, rotationEuler.y, rotationEuler.z);
+            glm::extractEulerAngleXZY(rotationMatrix, rotationEuler.x, rotationEuler.z, rotationEuler.y);
             break;
         case EulerAngleOrder::YXZ:
-            glm::extractEulerAngleYXZ(rotationMatrix, rotationEuler.x, rotationEuler.y, rotationEuler.z);
+            glm::extractEulerAngleYXZ(rotationMatrix, rotationEuler.y, rotationEuler.x, rotationEuler.z);
             break;
         case EulerAngleOrder::YZX:
-            glm::extractEulerAngleYZX(rotationMatrix, rotationEuler.x, rotationEuler.y, rotationEuler.z);
+            glm::extractEulerAngleYZX(rotationMatrix, rotationEuler.y, rotationEuler.z, rotationEuler.x);
             break;
         case EulerAngleOrder::ZXY:
-            glm::extractEulerAngleZXY(rotationMatrix, rotationEuler.x, rotationEuler.y, rotationEuler.z);
+            glm::extractEulerAngleZXY(rotationMatrix, rotationEuler.z, rotationEuler.x, rotationEuler.y);
             break;
         case EulerAngleOrder::ZYX:
-            glm::extractEulerAngleZYX(rotationMatrix, rotationEuler.x, rotationEuler.y, rotationEuler.z);
+            glm::extractEulerAngleZYX(rotationMatrix, rotationEuler.z, rotationEuler.y, rotationEuler.x);
             break;
     }
 
@@ -70,19 +89,19 @@ glm::dmat4 composeEuler(
             rotationMatrix = glm::eulerAngleXYZ(rotation.x, rotation.y, rotation.z);
             break;
         case EulerAngleOrder::XZY:
-            rotationMatrix = glm::eulerAngleXZY(rotation.x, rotation.y, rotation.z);
+            rotationMatrix = glm::eulerAngleXZY(rotation.x, rotation.z, rotation.y);
             break;
         case EulerAngleOrder::YXZ:
-            rotationMatrix = glm::eulerAngleYXZ(rotation.x, rotation.y, rotation.z);
+            rotationMatrix = glm::eulerAngleYXZ(rotation.y, rotation.x, rotation.z);
             break;
         case EulerAngleOrder::YZX:
-            rotationMatrix = glm::eulerAngleYZX(rotation.x, rotation.y, rotation.z);
+            rotationMatrix = glm::eulerAngleYZX(rotation.y, rotation.z, rotation.x);
             break;
         case EulerAngleOrder::ZXY:
-            rotationMatrix = glm::eulerAngleZXY(rotation.x, rotation.y, rotation.z);
+            rotationMatrix = glm::eulerAngleZXY(rotation.z, rotation.x, rotation.y);
             break;
         case EulerAngleOrder::ZYX:
-            rotationMatrix = glm::eulerAngleZYX(rotation.x, rotation.y, rotation.z);
+            rotationMatrix = glm::eulerAngleZYX(rotation.z, rotation.y, rotation.x);
             break;
     }
 
