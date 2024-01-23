@@ -8,7 +8,7 @@ import omni.kit.ui
 from .powertools_window import CesiumPowertoolsWindow
 from cesium.omniverse.utils import wait_n_frames, dock_window_async
 from cesium.omniverse.install import WheelInfo, WheelInstaller
-
+from .context_menu import ContextMenu
 
 class CesiumPowertoolsExtension(omni.ext.IExt):
     def __init__(self):
@@ -25,9 +25,11 @@ class CesiumPowertoolsExtension(omni.ext.IExt):
 
         self._setup_menus()
         self._show_and_dock_startup_windows()
+        ContextMenu.startup()
 
     def on_shutdown(self):
         self._destroy_powertools_window()
+        ContextMenu.shutdown()
 
     def _setup_menus(self):
         ui.Workspace.set_show_window_fn(

@@ -85,13 +85,13 @@ def set_sunstudy_from_georef():
     north_attr.Set(90.0)  # Always set to 90, otherwise the sun is at the wrong angle
 
 
-async def convert():
+async def convert(prim_path_list):
     ctx = omni.usd.get_context()
     stage = ctx.get_stage()
     logger = logging.getLogger(__name__)
 
-    selection = ctx.get_selection().get_selected_prim_paths()
-    for curve_path in selection:
+    # selection = ctx.get_selection().get_selected_prim_paths()
+    for curve_path in prim_path_list:
         curve_prim = stage.GetPrimAtPath(curve_path)
 
         if curve_prim.GetTypeName() != "BasisCurves":
@@ -123,5 +123,5 @@ async def convert():
                 polygon_prim.GetAttribute(attrib.GetName()).Clear()
 
 
-def convert_curves_to_polygons():
-    ensure_future(convert())
+def convert_curves_to_polygons(prim_path_list):
+    ensure_future(convert(prim_path_list))
