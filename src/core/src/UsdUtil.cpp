@@ -553,7 +553,19 @@ std::optional<TranslateRotateScaleOps> getTranslateRotateScaleOps(const PXR_NS::
     auto opIndex = 0;
 
     bool resetsXformStack;
-    const auto xformOps = xformable.GetOrderedXformOps(&resetsXformStack);
+    auto xformOps = xformable.GetOrderedXformOps(&resetsXformStack);
+
+    if (xformOps.empty()) {
+        xformable.ClearXformOpOrder();
+        xformable.AddTranslateOp(pxr::UsdGeomXformOp::PrecisionDouble, pxr::UsdTokens->xformOp_translate)
+            .Set(UsdUtil::glmToUsdVector(glm::dvec3(0.0)));
+        xformable.AddRotateXYZOp(pxr::UsdGeomXformOp::PrecisionDouble, pxr::UsdTokens->xformOp_rotateXYZ)
+            .Set(UsdUtil::glmToUsdVector(glm::dvec3(0.0)));
+        xformable.AddScaleOp(pxr::UsdGeomXformOp::PrecisionDouble, pxr::UsdTokens->xformOp_scale)
+            .Set(UsdUtil::glmToUsdVector(glm::dvec3(1.0)));
+        xformOps = xformable.GetOrderedXformOps(&resetsXformStack);
+    }
+
     auto eulerAngleOrder = MathUtil::EulerAngleOrder::XYZ;
 
     for (const auto& xformOp : xformOps) {
