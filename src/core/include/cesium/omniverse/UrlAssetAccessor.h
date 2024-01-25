@@ -30,6 +30,7 @@ SOFTWARE.
 #include <curl/curl.h>
 
 #include <cstddef>
+#include <filesystem>
 #include <memory>
 #include <mutex>
 #include <vector>
@@ -79,7 +80,7 @@ struct CurlCache {
 // Simple implementation of AssetAcessor that can make network and local requests
 class UrlAssetAccessor : public CesiumAsync::IAssetAccessor {
   public:
-    UrlAssetAccessor();
+    UrlAssetAccessor(const std::filesystem::path& certificatePath);
     ~UrlAssetAccessor() override;
 
     CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>>
@@ -97,6 +98,10 @@ class UrlAssetAccessor : public CesiumAsync::IAssetAccessor {
     void tick() noexcept override;
     CurlCache curlCache;
     std::string userAgent;
+
+  protected:
+    curl_slist* setCommonOptions(CURL* curl, const std::string& url, const CesiumAsync::HttpHeaders& headers);
+    std::string _certificatePath;
 };
 
 // RAII wrapper for the CurlCache.

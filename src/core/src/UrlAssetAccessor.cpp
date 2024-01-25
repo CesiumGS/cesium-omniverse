@@ -169,8 +169,9 @@ void UrlAssetResponse::setCallbacks(CURL* curl) {
     curl_easy_setopt(curl, CURLOPT_HEADERDATA, this);
 }
 
-UrlAssetAccessor::UrlAssetAccessor()
-    : userAgent("Mozilla/5.0 Cesium for Omniverse") {
+UrlAssetAccessor::UrlAssetAccessor(const std::filesystem::path& certificatePath)
+    : userAgent("Mozilla/5.0 Cesium for Omniverse")
+    , _certificatePath(certificatePath.generic_string()) {
     // XXX Do we need to worry about the thread safety problems with this?
     curl_global_init(CURL_GLOBAL_ALL);
 }
@@ -179,14 +180,15 @@ UrlAssetAccessor::~UrlAssetAccessor() {
     curl_global_cleanup();
 }
 
-template <typename TC>
-curl_slist* setCommonOptions(CURL* curl, const std::string& url, const std::string& userAgent, const TC& headers) {
+curl_slist*
+UrlAssetAccessor::setCommonOptions(CURL* curl, const std::string& url, const CesiumAsync::HttpHeaders& headers) {
     curl_easy_setopt(curl, CURLOPT_USERAGENT, userAgent.c_str());
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+    curl_easy_setopt(curl, CURLOPT_CAINFO, _certificatePath.c_str());
     curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "");
     // curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
     curl_slist* list = nullptr;
-    for (const typename TC::value_type& header : headers) {
+    for (const auto& header : headers) {
         std::string fullHeader = header.first + ":" + header.second;
         list = curl_slist_append(list, fullHeader.c_str());
     }
@@ -206,7 +208,7 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> UrlAssetAccesso
         asyncSystem.runInWorkerThread([promise, request, this]() {
             VSGCS_ZONESCOPEDN("UrlAssetAccessor::get inner");
             CurlHandle curl(this);
-            curl_slist* list = setCommonOptions(curl(), request->url(), userAgent, request->headers());
+            curl_slist* list = setCommonOptions(curl(), request->url(), request->headers());
             std::unique_ptr<UrlAssetResponse> response = std::make_unique<UrlAssetResponse>();
             response->setCallbacks(curl());
             CURLcode responseCode = curl_easy_perform(curl());
@@ -248,7 +250,7 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> UrlAssetAccesso
             VSGCS_ZONESCOPEDN("UrlAssetAccessor::request inner");
             CurlHandle curl(this);
 
-            curl_slist* list = setCommonOptions(curl(), request->url(), userAgent, request->headers());
+            curl_slist* list = setCommonOptions(curl(), request->url(), request->headers());
             if (payloadCopy->size() > 1UL << 31) {
                 curl_easy_setopt(curl(), CURLOPT_POSTFIELDSIZE_LARGE, payloadCopy->size());
             } else {

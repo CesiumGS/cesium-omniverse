@@ -7,7 +7,6 @@
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GeospatialUtil.h"
 #include "cesium/omniverse/GlobeAnchorRegistry.h"
-#include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/OmniGlobeAnchor.h"
 #include "cesium/omniverse/OmniIonImagery.h"
@@ -15,6 +14,7 @@
 #include "cesium/omniverse/SessionRegistry.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/Tokens.h"
+#include "cesium/omniverse/UrlAssetAccessor.h"
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <CesiumUsdSchemas/cartographicPolygon.h>
@@ -86,7 +86,7 @@ void Context::initialize(int64_t contextId, const std::filesystem::path& cesiumE
 
     _taskProcessor = std::make_shared<TaskProcessor>();
     _asyncSystem = std::make_shared<CesiumAsync::AsyncSystem>(_taskProcessor);
-    _httpAssetAccessor = std::make_shared<HttpAssetAccessor>(_certificatePath);
+    _httpAssetAccessor = std::make_shared<UrlAssetAccessor>(_certificatePath);
     _creditSystem = std::make_shared<CesiumUtility::CreditSystem>();
 
     _logger = std::make_shared<spdlog::logger>(
