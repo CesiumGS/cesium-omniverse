@@ -44,7 +44,7 @@ CesiumIonClient::Token OmniIonImagery::getIonAccessToken() const {
         return t;
     }
 
-    const auto ionServerPath = getIonServerPath();
+    const auto ionServerPath = getResolvedIonServerPath();
 
     if (ionServerPath.IsEmpty()) {
         return {};
@@ -60,7 +60,7 @@ CesiumIonClient::Token OmniIonImagery::getIonAccessToken() const {
 }
 
 std::string OmniIonImagery::getIonApiUrl() const {
-    const auto ionServerPath = getIonServerPath();
+    const auto ionServerPath = getResolvedIonServerPath();
 
     if (ionServerPath.IsEmpty()) {
         return {};
@@ -75,17 +75,23 @@ std::string OmniIonImagery::getIonApiUrl() const {
     return pIonServer->getIonServerApiUrl();
 }
 
-pxr::SdfPath OmniIonImagery::getIonServerPath() const {
+pxr::SdfPath OmniIonImagery::getResolvedIonServerPath() const {
     const auto cesiumIonImagery = UsdUtil::getCesiumIonImagery(_pContext->getUsdStage(), _path);
 
     pxr::SdfPathVector targets;
     cesiumIonImagery.GetIonServerBindingRel().GetForwardedTargets(&targets);
 
-    if (targets.empty()) {
-        return {};
+    if (!targets.empty()) {
+        return targets.front();
     }
 
-    return targets.front();
+    // Fall back to using the first ion server if there's no explicit binding
+    const auto pIonServer = _pContext->getAssetRegistry().getFirstIonServer();
+    if (pIonServer) {
+        return pIonServer->getPath();
+    }
+
+    return {};
 }
 
 CesiumRasterOverlays::RasterOverlay* OmniIonImagery::getRasterOverlay() const {
@@ -126,15 +132,6 @@ void OmniIonImagery::reload() {
 
     _pIonRasterOverlay = new CesiumRasterOverlays::IonRasterOverlay(
         imageryName, imageryIonAssetId, imageryIonAccessToken.token, options, imageryIonApiUrl);
-}
-
-void OmniIonImagery::setIonServerPath(const pxr::SdfPath& ionServerPath) {
-    if (ionServerPath.IsEmpty()) {
-        return;
-    }
-
-    const auto cesiumIonImagery = UsdUtil::getCesiumIonImagery(_pContext->getUsdStage(), _path);
-    cesiumIonImagery.GetIonServerBindingRel().SetTargets({ionServerPath});
 }
 
 } // namespace cesium::omniverse

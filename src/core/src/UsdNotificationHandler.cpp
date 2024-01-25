@@ -72,7 +72,7 @@ void updateIonServerBindings(const Context& context, const pxr::SdfPath& ionServ
     // Update tilesets that reference this ion server
     const auto& tilesets = context.getAssetRegistry().getTilesets();
     for (const auto& pTileset : tilesets) {
-        if (pTileset->getIonServerPath() == ionServerPath) {
+        if (pTileset->getResolvedIonServerPath() == ionServerPath) {
             pTileset->reload();
         }
     }
@@ -80,7 +80,7 @@ void updateIonServerBindings(const Context& context, const pxr::SdfPath& ionServ
     // Update imageries that reference this ion server
     const auto& ionImageries = context.getAssetRegistry().getIonImageries();
     for (const auto& pIonImagery : ionImageries) {
-        if (pIonImagery->getIonServerPath() == ionServerPath) {
+        if (pIonImagery->getResolvedIonServerPath() == ionServerPath) {
             pIonImagery->reload();
             updateImageryBindings(context, pIonImagery->getPath());
         }

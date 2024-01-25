@@ -153,7 +153,7 @@ CesiumIonClient::Token OmniTileset::getIonAccessToken() const {
         return t;
     }
 
-    const auto ionServerPath = getIonServerPath();
+    const auto ionServerPath = getResolvedIonServerPath();
 
     if (ionServerPath.IsEmpty()) {
         return {};
@@ -169,7 +169,7 @@ CesiumIonClient::Token OmniTileset::getIonAccessToken() const {
 }
 
 std::string OmniTileset::getIonApiUrl() const {
-    const auto ionServerPath = getIonServerPath();
+    const auto ionServerPath = getResolvedIonServerPath();
 
     if (ionServerPath.IsEmpty()) {
         return {};
@@ -184,17 +184,23 @@ std::string OmniTileset::getIonApiUrl() const {
     return pIonServer->getIonServerApiUrl();
 }
 
-pxr::SdfPath OmniTileset::getIonServerPath() const {
+pxr::SdfPath OmniTileset::getResolvedIonServerPath() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
 
     pxr::SdfPathVector targets;
     cesiumTileset.GetIonServerBindingRel().GetForwardedTargets(&targets);
 
-    if (targets.empty()) {
-        return {};
+    if (!targets.empty()) {
+        return targets.front();
     }
 
-    return targets.front();
+    // Fall back to using the first ion server if there's no explicit binding
+    const auto pIonServer = _pContext->getAssetRegistry().getFirstIonServer();
+    if (pIonServer) {
+        return pIonServer->getPath();
+    }
+
+    return {};
 }
 
 double OmniTileset::getMaximumScreenSpaceError() const {
@@ -390,15 +396,6 @@ double OmniTileset::getDisplayOpacity() const {
     }
 
     return static_cast<double>(displayOpacityArray[0]);
-}
-
-void OmniTileset::setIonServerPath(const pxr::SdfPath& ionServerPath) {
-    if (ionServerPath.IsEmpty()) {
-        return;
-    }
-
-    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
-    cesiumTileset.GetIonServerBindingRel().SetTargets({ionServerPath});
 }
 
 void OmniTileset::updateTilesetOptions() {

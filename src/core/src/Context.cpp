@@ -148,27 +148,6 @@ void Context::reloadStage() {
         _pFabricResourceManager->setTexturePoolInitialCapacity(pData->getDebugTexturePoolInitialCapacity());
         _pFabricResourceManager->setDebugRandomColors(pData->getDebugRandomColors());
     }
-
-    // For backwards compatibility. Add default ion server to tilesets without a server.
-    const auto& tilesets = _pAssetRegistry->getTilesets();
-    for (const auto& pTileset : tilesets) {
-        const auto sourceType = pTileset->getSourceType();
-        const auto ionServerPath = pTileset->getIonServerPath();
-        if (sourceType == TilesetSourceType::ION && ionServerPath.IsEmpty()) {
-            pTileset->setIonServerPath(defaultIonServerPath);
-            _pLogger->warn("Tileset does not specify an ion server. Assigning the default Cesium ion server.");
-        }
-    }
-
-    // For backwards compatibility. Add default ion server to imagery without a server.
-    const auto& ionImageries = _pAssetRegistry->getIonImageries();
-    for (const auto& pIonImagery : ionImageries) {
-        const auto ionServerPath = pIonImagery->getIonServerPath();
-        if (ionServerPath.IsEmpty()) {
-            pIonImagery->setIonServerPath(defaultIonServerPath);
-            _pLogger->warn("Imagery does not specify an ion server. Assigning the default Cesium ion server.");
-        }
-    }
 }
 
 void Context::onUpdateFrame(const gsl::span<const Viewport>& viewports) {

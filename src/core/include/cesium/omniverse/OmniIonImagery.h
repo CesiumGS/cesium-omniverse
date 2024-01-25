@@ -23,12 +23,10 @@ class OmniIonImagery final : public OmniImagery {
     [[nodiscard]] int64_t getIonAssetId() const;
     [[nodiscard]] CesiumIonClient::Token getIonAccessToken() const;
     [[nodiscard]] std::string getIonApiUrl() const;
-    [[nodiscard]] pxr::SdfPath getIonServerPath() const;
+    [[nodiscard]] pxr::SdfPath getResolvedIonServerPath() const;
 
     [[nodiscard]] CesiumRasterOverlays::RasterOverlay* getRasterOverlay() const override;
     void reload() override;
-
-    void setIonServerPath(const pxr::SdfPath& ionServerPath);
 
   private:
     CesiumUtility::IntrusivePointer<CesiumRasterOverlays::IonRasterOverlay> _pIonRasterOverlay;

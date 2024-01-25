@@ -57,7 +57,7 @@ class OmniTileset {
     [[nodiscard]] int64_t getIonAssetId() const;
     [[nodiscard]] CesiumIonClient::Token getIonAccessToken() const;
     [[nodiscard]] std::string getIonApiUrl() const;
-    [[nodiscard]] pxr::SdfPath getIonServerPath() const;
+    [[nodiscard]] pxr::SdfPath getResolvedIonServerPath() const;
     [[nodiscard]] double getMaximumScreenSpaceError() const;
     [[nodiscard]] bool getPreloadAncestors() const;
     [[nodiscard]] bool getPreloadSiblings() const;
@@ -77,8 +77,6 @@ class OmniTileset {
     [[nodiscard]] pxr::SdfPath getMaterialPath() const;
     [[nodiscard]] glm::dvec3 getDisplayColor() const;
     [[nodiscard]] double getDisplayOpacity() const;
-
-    void setIonServerPath(const pxr::SdfPath& ionServerPath);
 
     void updateTilesetOptions();
 
