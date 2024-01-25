@@ -3,7 +3,7 @@ from omni.kit.property.usd.custom_layout_helper import CustomLayoutFrame, Custom
 from omni.kit.property.usd.usd_property_widget import SchemaPropertiesWidget
 import omni.ui as ui
 from ...bindings import ICesiumOmniverseInterface
-from cesium.usd.plugins.CesiumUsdSchemas import Tileset as CesiumTileset, IonServer as CesiumIonServer
+from cesium.usd.plugins.CesiumUsdSchemas import Tileset as CesiumTileset, IonServer as CesiumIonServer, Georeference as CesiumGeoreference
 
 
 class CesiumTilesetAttributesWidget(SchemaPropertiesWidget):
@@ -52,15 +52,20 @@ class CesiumTilesetAttributesWidget(SchemaPropertiesWidget):
             with CustomLayoutGroup("Rendering"):
                 CustomLayoutProperty("cesium:suspendUpdate")
                 CustomLayoutProperty("cesium:smoothNormals")
+            with CustomLayoutGroup("Georeference"):
+                CustomLayoutProperty("cesium:georeferenceBinding")
 
         return frame.apply(props)
 
     def _filter_props_to_build(self, props):
         filtered_props = super()._filter_props_to_build(props)
-        filtered_props.extend(prop for prop in props if prop.GetName() == "cesium:ionServerBinding")
+        filtered_props.extend(prop for prop in props if prop.GetName() == "cesium:ionServerBinding" or prop.GetName() == "cesium:georeferenceBinding")
         return filtered_props
 
     def get_additional_kwargs(self, ui_attr):
         if ui_attr.prop_name == "cesium:ionServerBinding":
             return None, {"target_picker_filter_type_list": [CesiumIonServer], "targets_limit": 1}
+        elif ui_attr.prop_name == "cesium:georeferenceBinding":
+            return None, {"target_picker_filter_type_list": [CesiumGeoreference], "targets_limit": 1}
+
         return None, {"targets_limit": 0}

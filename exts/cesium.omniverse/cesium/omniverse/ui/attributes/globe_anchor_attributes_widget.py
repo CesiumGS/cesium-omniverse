@@ -2,7 +2,7 @@ import logging
 from omni.kit.property.usd.custom_layout_helper import CustomLayoutFrame, CustomLayoutGroup, CustomLayoutProperty
 from omni.kit.property.usd.usd_property_widget import SchemaPropertiesWidget
 from ...bindings import ICesiumOmniverseInterface
-from cesium.usd.plugins.CesiumUsdSchemas import GlobeAnchorAPI as CesiumGlobeAnchorAPI
+from cesium.usd.plugins.CesiumUsdSchemas import GlobeAnchorAPI as CesiumGlobeAnchorAPI, Georeference as CesiumGeoreference
 
 
 class CesiumGlobeAnchorAttributesWidget(SchemaPropertiesWidget):
@@ -23,6 +23,7 @@ class CesiumGlobeAnchorAttributesWidget(SchemaPropertiesWidget):
             with CustomLayoutGroup("Options"):
                 CustomLayoutProperty("cesium:anchor:adjustOrientationForGlobeWhenMoving")
                 CustomLayoutProperty("cesium:anchor:detectTransformChanges")
+                CustomLayoutProperty("cesium:anchor:georeferenceBinding")
             with CustomLayoutGroup("Global Positioning"):
                 CustomLayoutProperty("cesium:anchor:latitude")
                 CustomLayoutProperty("cesium:anchor:longitude")
@@ -31,3 +32,14 @@ class CesiumGlobeAnchorAttributesWidget(SchemaPropertiesWidget):
                 CustomLayoutProperty("cesium:anchor:position")
 
         return frame.apply(props)
+
+    def _filter_props_to_build(self, props):
+        filtered_props = super()._filter_props_to_build(props)
+        filtered_props.extend(prop for prop in props if prop.GetName() == "cesium:anchor:georeferenceBinding")
+        return filtered_props
+
+    def get_additional_kwargs(self, ui_attr):
+        if ui_attr.prop_name == "cesium:anchor:georeferenceBinding":
+            return None, {"target_picker_filter_type_list": [CesiumGeoreference], "targets_limit": 1}
+
+        return None, {"targets_limit": 0}
