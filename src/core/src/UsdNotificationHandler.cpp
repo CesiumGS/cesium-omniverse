@@ -364,37 +364,51 @@ void processCesiumGlobeAnchorChanged(
         return;
     }
 
+    // No change tracking needed for
+    // * adjustOrientation
+
+    auto updateByGeoreference = false;
     auto updateByPrimLocalTransform = false;
     auto updateByGeographicCoordinates = false;
     auto updateByPrimLocalToEcefTransform = false;
-    auto updateByGeoreference = false;
     auto updateBindings = false;
 
     const auto detectTransformChanges = pGlobeAnchor->getDetectTransformChanges();
-    const auto adjustOrientation = pGlobeAnchor->getAdjustOrientation();
 
+    // clang-format off
     for (const auto& property : properties) {
         if (detectTransformChanges &&
             (property == pxr::CesiumTokens->cesiumAnchorDetectTransformChanges ||
-             property == pxr::UsdTokens->xformOp_translate || property == pxr::UsdTokens->xformOp_rotateXYZ ||
-             property == pxr::UsdTokens->xformOp_rotateXZY || property == pxr::UsdTokens->xformOp_rotateYXZ ||
-             property == pxr::UsdTokens->xformOp_rotateYZX || property == pxr::UsdTokens->xformOp_rotateZXY ||
-             property == pxr::UsdTokens->xformOp_rotateZYX || property == pxr::UsdTokens->xformOp_scale)) {
+             property == pxr::UsdTokens->xformOp_translate ||
+             property == pxr::UsdTokens->xformOp_rotateXYZ ||
+             property == pxr::UsdTokens->xformOp_rotateXZY ||
+             property == pxr::UsdTokens->xformOp_rotateYXZ ||
+             property == pxr::UsdTokens->xformOp_rotateYZX ||
+             property == pxr::UsdTokens->xformOp_rotateZXY ||
+             property == pxr::UsdTokens->xformOp_rotateZYX ||
+             property == pxr::UsdTokens->xformOp_scale)) {
             updateByPrimLocalTransform = true;
             updateBindings = true;
         } else if (property == pxr::CesiumTokens->cesiumAnchorGeographicCoordinates) {
             updateByGeographicCoordinates = true;
             updateBindings = true;
         } else if (
-            (adjustOrientation && property == pxr::CesiumTokens->cesiumAnchorAdjustOrientationForGlobeWhenMoving) ||
             property == pxr::CesiumTokens->cesiumAnchorPosition ||
-            property == pxr::CesiumTokens->cesiumAnchorRotation || property == pxr::CesiumTokens->cesiumAnchorScale) {
+            property == pxr::CesiumTokens->cesiumAnchorRotation ||
+            property == pxr::CesiumTokens->cesiumAnchorScale) {
             updateByPrimLocalToEcefTransform = true;
             updateBindings = true;
         } else if (property == pxr::CesiumTokens->cesiumAnchorGeoreferenceBinding) {
             updateByGeoreference = true;
             updateBindings = true;
         }
+    }
+    // clang-format on
+
+    if (updateByGeoreference) {
+        // This needs to go first so that globe anchor is in proper valid / invalid state
+        // before doing other updates
+        pGlobeAnchor->updateByGeoreference();
     }
 
     if (updateByPrimLocalToEcefTransform) {
@@ -407,10 +421,6 @@ void processCesiumGlobeAnchorChanged(
 
     if (updateByPrimLocalTransform) {
         pGlobeAnchor->updateByPrimLocalTransform();
-    }
-
-    if (updateByGeoreference) {
-        pGlobeAnchor->updateByGeoreference();
     }
 
     if (updateBindings) {

@@ -79,6 +79,8 @@ pxr::SdfPath OmniGlobeAnchor::getGeoreferencePath() const {
 }
 
 void OmniGlobeAnchor::updateByPrimLocalToEcefTransform() {
+    initialize();
+
     if (!isAnchorValid()) {
         return;
     }
@@ -107,6 +109,8 @@ void OmniGlobeAnchor::updateByPrimLocalToEcefTransform() {
 }
 
 void OmniGlobeAnchor::updateByGeographicCoordinates() {
+    initialize();
+
     if (!isAnchorValid()) {
         return;
     }
@@ -133,6 +137,8 @@ void OmniGlobeAnchor::updateByGeographicCoordinates() {
 }
 
 void OmniGlobeAnchor::updateByPrimLocalTransform() {
+    initialize();
+
     if (!isAnchorValid()) {
         return;
     }
@@ -171,7 +177,6 @@ void OmniGlobeAnchor::updateByPrimLocalTransform() {
 }
 
 void OmniGlobeAnchor::updateByGeoreference() {
-    // Initialize the globe anchor in case the georeference is set for first time
     initialize();
 
     if (!isAnchorValid()) {
