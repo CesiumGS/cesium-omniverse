@@ -123,7 +123,7 @@ std::shared_ptr<CesiumAsync::AsyncSystem> Context::getAsyncSystem() {
     return _asyncSystem;
 }
 
-std::shared_ptr<HttpAssetAccessor> Context::getHttpAssetAccessor() {
+std::shared_ptr<CesiumAsync::IAssetAccessor> Context::getHttpAssetAccessor() {
     return _httpAssetAccessor;
 }
 

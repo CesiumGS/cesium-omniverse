@@ -1,9 +1,9 @@
 #pragma once
 
-#include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <CesiumAsync/AsyncSystem.h>
+#include <CesiumAsync/IAssetAccessor.h>
 #include <pxr/usd/sdf/path.h>
 
 #include <unordered_set>
@@ -27,7 +27,7 @@ class SessionRegistry {
 
     void addSession(
         CesiumAsync::AsyncSystem& asyncSystem,
-        const std::shared_ptr<HttpAssetAccessor>& httpAssetAccessor,
+        const std::shared_ptr<CesiumAsync::IAssetAccessor>& httpAssetAccessor,
         const pxr::SdfPath& ionServerPath);
     std::vector<std::shared_ptr<CesiumIonSession>> getAllSessions();
     std::vector<pxr::SdfPath> getAllServerPaths();

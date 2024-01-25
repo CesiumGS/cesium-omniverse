@@ -6,7 +6,7 @@ namespace cesium::omniverse {
 
 void SessionRegistry::addSession(
     CesiumAsync::AsyncSystem& asyncSystem,
-    const std::shared_ptr<HttpAssetAccessor>& httpAssetAccessor,
+    const std::shared_ptr<CesiumAsync::IAssetAccessor>& httpAssetAccessor,
     const pxr::SdfPath& ionServerPath) {
     auto prim = UsdUtil::getOrCreateIonServer(ionServerPath);
 

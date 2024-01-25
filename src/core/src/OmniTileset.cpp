@@ -8,7 +8,6 @@
 #include "cesium/omniverse/FabricPrepareRenderResources.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GeospatialUtil.h"
-#include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/LoggerSink.h"
 #include "cesium/omniverse/OmniIonImagery.h"
 #include "cesium/omniverse/OmniPolygonImagery.h"
@@ -17,6 +16,7 @@
 #include "cesium/omniverse/UsdUtil.h"
 #include "cesium/omniverse/Viewport.h"
 
+#include <CesiumAsync/IAssetResponse.h>
 #include <CesiumGeospatial/Cartographic.h>
 #include <CesiumGeospatial/CartographicPolygon.h>
 #include <CesiumGeospatial/Ellipsoid.h>

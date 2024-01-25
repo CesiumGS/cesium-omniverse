@@ -6,6 +6,7 @@
 #include "cesium/omniverse/UsdNotificationHandler.h"
 
 #include <CesiumAsync/AsyncSystem.h>
+#include <CesiumAsync/IAssetAccessor.h>
 #include <CesiumGeospatial/Cartographic.h>
 #include <CesiumGeospatial/Ellipsoid.h>
 #include <CesiumGeospatial/GlobeAnchor.h>
@@ -37,7 +38,6 @@ struct Token;
 namespace cesium::omniverse {
 
 class CesiumIonSession;
-class HttpAssetAccessor;
 class OmniTileset;
 class TaskProcessor;
 struct Viewport;
@@ -60,7 +60,7 @@ class Context {
 
     std::shared_ptr<TaskProcessor> getTaskProcessor();
     std::shared_ptr<CesiumAsync::AsyncSystem> getAsyncSystem();
-    std::shared_ptr<HttpAssetAccessor> getHttpAssetAccessor();
+    std::shared_ptr<CesiumAsync::IAssetAccessor> getHttpAssetAccessor();
     std::shared_ptr<CesiumUtility::CreditSystem> getCreditSystem();
     std::shared_ptr<spdlog::logger> getLogger();
 
@@ -137,7 +137,7 @@ class Context {
 
     std::shared_ptr<TaskProcessor> _taskProcessor;
     std::shared_ptr<CesiumAsync::AsyncSystem> _asyncSystem;
-    std::shared_ptr<HttpAssetAccessor> _httpAssetAccessor;
+    std::shared_ptr<CesiumAsync::IAssetAccessor> _httpAssetAccessor;
     std::shared_ptr<CesiumUtility::CreditSystem> _creditSystem;
     std::shared_ptr<spdlog::logger> _logger;
 
