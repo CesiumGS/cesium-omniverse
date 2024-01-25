@@ -1,9 +1,7 @@
 import omni.kit.commands
 import omni.kit.context_menu
 from pxr import UsdGeom
-from .utils import (
-    convert_curves_to_polygons,
-)
+from .clipping import CesiumCartographicPolygonUtility
 from cesium.usd.plugins.CesiumUsdSchemas import CartographicPolygon
 
 
@@ -30,7 +28,7 @@ class ContextMenu:
     @classmethod
     def _add_convert_curve_menu_impl(cls, extension: str):
         menu = {
-            "name": "Convert to Cesium Cartographic Polygon",
+            "name": "Create Cesium Cartographic Polygon from BasisCurve",
             "glyph": "copy.svg",
             "show_fn": cls._is_selected_all_curve,
             "onclick_fn": cls._convert_curves,
@@ -38,20 +36,34 @@ class ContextMenu:
         return omni.kit.context_menu.add_menu(menu, "MENU", extension)
 
     @classmethod
+    def _add_create_footprint_menu_impl(cls, extension: str):
+        menu = {
+            "name": "Create BasisCurves from Prim footprint",
+            "glyph": "copy.svg",
+            "show_fn": cls._selected_have_mesh,  # Show for all prims
+            "onclick_fn": cls._create_footprints,
+        }
+        return omni.kit.context_menu.add_menu(menu, "MENU", extension)
+
+    @classmethod
     def _register_viewport_context_menu(cls):
         cls._convert_curve_viewport_entry = cls._add_convert_curve_menu_impl("omni.kit.window.viewport")
+        cls._create_footprint_viewport_entry = cls._add_create_footprint_menu_impl("omni.kit.window.viewport")
 
     @classmethod
     def _unregister_viewport_context_menu(cls):
         cls._convert_curve_viewport_entry = None
+        cls._create_footprint_viewport_entry = None
 
     @classmethod
     def _register_stage_context_menu(cls):
         cls._convert_curve_stage_entry = cls._add_convert_curve_menu_impl("omni.kit.widget.stage")
+        cls._create_footprint_stage_entry = cls._add_create_footprint_menu_impl("omni.kit.widget.stage")
 
     @classmethod
     def _unregister_stage_context_menu(cls):
         cls._convert_curve_stage_entry = None
+        cls._create_footprint_stage_entry = None
 
     @staticmethod
     def _is_selected_all_curve(object: dict):
@@ -67,8 +79,38 @@ class ContextMenu:
 
         return True
 
+    @staticmethod
+    def find_mesh_in_children(parent_prim):
+        if parent_prim.IsA(UsdGeom.Mesh):
+            return True
+
+        for child_prim in parent_prim.GetAllChildren():
+            if ContextMenu.find_mesh_in_children(child_prim):
+                return True
+
+        return False
+
+    @staticmethod
+    def _selected_have_mesh(object: dict):
+        prim_list = object.get("prim_list", [])
+        if not prim_list:
+            return False
+
+        for prim in prim_list:
+            if not ContextMenu.find_mesh_in_children(prim):
+                return False
+
+        return True
+
     @classmethod
     def _convert_curves(cls, object: dict):
         prim_list = object.get("prim_list", [])
         prim_list_str = [prim.GetPath().pathString for prim in prim_list if prim.IsA(UsdGeom.BasisCurves)]
-        convert_curves_to_polygons(prim_list_str)
+        CesiumCartographicPolygonUtility.create_cartographic_polygons_from_curves(prim_list_str)
+
+    @classmethod
+    def _create_footprints(cls, object: dict):
+        prim_list = object.get("prim_list", [])
+        prim_list_str = [prim.GetPath().pathString for prim in prim_list]
+        # create_prim_footprints(prim_list_str)
+        CesiumCartographicPolygonUtility.create_prim_footprints(prim_list_str)
