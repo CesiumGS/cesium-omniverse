@@ -112,7 +112,7 @@ void updateGeoreferenceBindings(const Context& context, const pxr::SdfPath& geor
     // Update globe anchors that reference this georeference
     const auto& globeAnchors = context.getAssetRegistry().getGlobeAnchors();
     for (const auto& pGlobeAnchor : globeAnchors) {
-        if (pGlobeAnchor->getGeoreferencePath() == georeferencePath) {
+        if (pGlobeAnchor->getResolvedGeoreferencePath() == georeferencePath) {
             pGlobeAnchor->updateByGeoreference();
             updateGlobeAnchorBindings(context, pGlobeAnchor->getPath());
         }
@@ -406,8 +406,6 @@ void processCesiumGlobeAnchorChanged(
     // clang-format on
 
     if (updateByGeoreference) {
-        // This needs to go first so that globe anchor is in proper valid / invalid state
-        // before doing other updates
         pGlobeAnchor->updateByGeoreference();
     }
 

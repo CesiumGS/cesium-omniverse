@@ -50,7 +50,7 @@ void OmniPolygonImagery::reload() {
             continue;
         }
 
-        const auto georeferencePath = pGlobeAnchor->getGeoreferencePath();
+        const auto georeferencePath = pGlobeAnchor->getResolvedGeoreferencePath();
         if (georeferencePath.IsEmpty()) {
             continue;
         }

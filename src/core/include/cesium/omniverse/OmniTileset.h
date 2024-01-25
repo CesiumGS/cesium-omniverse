@@ -73,7 +73,7 @@ class OmniTileset {
     [[nodiscard]] bool getSuspendUpdate() const;
     [[nodiscard]] bool getSmoothNormals() const;
     [[nodiscard]] bool getShowCreditsOnScreen() const;
-    [[nodiscard]] pxr::SdfPath getGeoreferencePath() const;
+    [[nodiscard]] pxr::SdfPath getResolvedGeoreferencePath() const;
     [[nodiscard]] pxr::SdfPath getMaterialPath() const;
     [[nodiscard]] glm::dvec3 getDisplayColor() const;
     [[nodiscard]] double getDisplayOpacity() const;

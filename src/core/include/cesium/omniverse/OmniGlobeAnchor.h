@@ -25,7 +25,7 @@ class OmniGlobeAnchor {
     [[nodiscard]] const pxr::SdfPath& getPath() const;
     [[nodiscard]] bool getDetectTransformChanges() const;
     [[nodiscard]] bool getAdjustOrientation() const;
-    [[nodiscard]] pxr::SdfPath getGeoreferencePath() const;
+    [[nodiscard]] pxr::SdfPath getResolvedGeoreferencePath() const;
 
     void updateByPrimLocalToEcefTransform();
     void updateByGeographicCoordinates();

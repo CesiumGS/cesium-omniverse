@@ -65,17 +65,23 @@ bool OmniGlobeAnchor::getAdjustOrientation() const {
     return adjustOrientation;
 }
 
-pxr::SdfPath OmniGlobeAnchor::getGeoreferencePath() const {
+pxr::SdfPath OmniGlobeAnchor::getResolvedGeoreferencePath() const {
     const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
 
     pxr::SdfPathVector targets;
     cesiumGlobeAnchor.GetGeoreferenceBindingRel().GetForwardedTargets(&targets);
 
-    if (targets.empty()) {
-        return {};
+    if (!targets.empty()) {
+        return targets.front();
     }
 
-    return targets.front();
+    // Fall back to using the first georeference if there's no explicit binding
+    const auto pGeoreference = _pContext->getAssetRegistry().getFirstGeoreference();
+    if (pGeoreference) {
+        return pGeoreference->getPath();
+    }
+
+    return {};
 }
 
 void OmniGlobeAnchor::updateByPrimLocalToEcefTransform() {
@@ -100,7 +106,7 @@ void OmniGlobeAnchor::updateByPrimLocalToEcefTransform() {
     const auto primLocalToEcefTransform = MathUtil::composeEuler(
         primLocalToEcefTranslation, primLocalToEcefRotation, primLocalToEcefScale, MathUtil::EulerAngleOrder::XYZ);
 
-    const auto pGeoreference = _pContext->getAssetRegistry().getGeoreference(getGeoreferencePath());
+    const auto pGeoreference = _pContext->getAssetRegistry().getGeoreference(getResolvedGeoreferencePath());
 
     _pAnchor->setAnchorToFixedTransform(
         primLocalToEcefTransform, getAdjustOrientation(), pGeoreference->getEllipsoid());
@@ -123,7 +129,7 @@ void OmniGlobeAnchor::updateByGeographicCoordinates() {
         return;
     }
 
-    const auto pGeoreference = _pContext->getAssetRegistry().getGeoreference(getGeoreferencePath());
+    const auto pGeoreference = _pContext->getAssetRegistry().getGeoreference(getResolvedGeoreferencePath());
     const auto& ellipsoid = pGeoreference->getEllipsoid();
 
     const auto primLocalToEcefTranslation = ellipsoid.cartographicToCartesian(geographicCoordinates);
@@ -165,7 +171,7 @@ void OmniGlobeAnchor::updateByPrimLocalTransform() {
     const auto primLocalTransform = MathUtil::composeEuler(
         primLocalTranslation, primLocalRotation, primLocalScale, getReversedEulerAngleOrder(eulerAngleOrder));
 
-    const auto pGeoreference = _pContext->getAssetRegistry().getGeoreference(getGeoreferencePath());
+    const auto pGeoreference = _pContext->getAssetRegistry().getGeoreference(getResolvedGeoreferencePath());
 
     _pAnchor->setAnchorToLocalTransform(
         pGeoreference->getLocalCoordinateSystem(),
@@ -187,7 +193,7 @@ void OmniGlobeAnchor::updateByGeoreference() {
 }
 
 bool OmniGlobeAnchor::isAnchorValid() const {
-    const auto georeferencePath = getGeoreferencePath();
+    const auto georeferencePath = getResolvedGeoreferencePath();
 
     if (georeferencePath.IsEmpty()) {
         return false;
@@ -224,7 +230,7 @@ void OmniGlobeAnchor::initialize() {
     }
 
     const auto primLocalToEcefTransform =
-        UsdUtil::computePrimLocalToEcefTransform(*_pContext, getGeoreferencePath(), _path);
+        UsdUtil::computePrimLocalToEcefTransform(*_pContext, getResolvedGeoreferencePath(), _path);
 
     // Initialize the globe anchor from the prim's local transform
     _pAnchor = std::make_unique<CesiumGeospatial::GlobeAnchor>(primLocalToEcefTransform);
@@ -354,7 +360,7 @@ void OmniGlobeAnchor::savePrimLocalToEcefTransform() {
 }
 
 void OmniGlobeAnchor::saveGeographicCoordinates() {
-    const auto pGeoreference = _pContext->getAssetRegistry().getGeoreference(getGeoreferencePath());
+    const auto pGeoreference = _pContext->getAssetRegistry().getGeoreference(getResolvedGeoreferencePath());
     const auto& primLocalToEcefTransform = _pAnchor->getAnchorToFixedTransform();
     const auto primLocalToEcefTranslation = glm::dvec3(primLocalToEcefTransform[3]);
     const auto cartographic = pGeoreference->getEllipsoid().cartesianToCartographic(primLocalToEcefTranslation);
@@ -380,7 +386,7 @@ void OmniGlobeAnchor::savePrimLocalTransform() {
 
     const auto& [pTranslateOp, pRotateOp, pScaleOp, eulerAngleOrder] = xformOps.value();
 
-    const auto pGeoreference = _pContext->getAssetRegistry().getGeoreference(getGeoreferencePath());
+    const auto pGeoreference = _pContext->getAssetRegistry().getGeoreference(getResolvedGeoreferencePath());
 
     const auto primLocalToWorldTransform =
         _pAnchor->getAnchorToLocalTransform(pGeoreference->getLocalCoordinateSystem());

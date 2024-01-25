@@ -245,7 +245,7 @@ void setFabricMeshes(
     const auto displayOpacity = tileset.getDisplayOpacity();
 
     const auto ecefToPrimWorldTransform =
-        UsdUtil::computeEcefToPrimWorldTransform(context, tileset.getGeoreferencePath(), tileset.getPath());
+        UsdUtil::computeEcefToPrimWorldTransform(context, tileset.getResolvedGeoreferencePath(), tileset.getPath());
 
     const auto tilesetId = tileset.getTilesetId();
     const auto smoothNormals = tileset.getSmoothNormals();

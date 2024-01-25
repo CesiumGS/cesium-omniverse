@@ -14,6 +14,7 @@
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/Logger.h"
 #include "cesium/omniverse/OmniCartographicPolygon.h"
+#include "cesium/omniverse/OmniGeoreference.h"
 #include "cesium/omniverse/OmniGlobeAnchor.h"
 #include "cesium/omniverse/OmniIonImagery.h"
 #include "cesium/omniverse/OmniIonServer.h"
@@ -331,17 +332,23 @@ bool OmniTileset::getShowCreditsOnScreen() const {
     return showCreditsOnScreen;
 }
 
-pxr::SdfPath OmniTileset::getGeoreferencePath() const {
+pxr::SdfPath OmniTileset::getResolvedGeoreferencePath() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
 
     pxr::SdfPathVector targets;
     cesiumTileset.GetGeoreferenceBindingRel().GetForwardedTargets(&targets);
 
-    if (targets.empty()) {
-        return {};
+    if (!targets.empty()) {
+        return targets.front();
     }
 
-    return targets.front();
+    // Fall back to using the first georeference if there's no explicit binding
+    const auto pGeoreference = _pContext->getAssetRegistry().getFirstGeoreference();
+    if (pGeoreference) {
+        return pGeoreference->getPath();
+    }
+
+    return {};
 }
 
 pxr::SdfPath OmniTileset::getMaterialPath() const {
@@ -581,7 +588,7 @@ void OmniTileset::updateTransform() {
     // Alternatively, we could register a listener with Tf::Notice but this has the downside of only notifying us
     // about changes to the current prim and not its ancestor prims. Also Tf::Notice may notify us in a thread other
     // than the main thread and we would have to be careful to synchronize updates to Fabric in the main thread.
-    const auto georeferencePath = getGeoreferencePath();
+    const auto georeferencePath = getResolvedGeoreferencePath();
     const auto ecefToPrimWorldTransform = UsdUtil::computeEcefToPrimWorldTransform(*_pContext, georeferencePath, _path);
 
     // Check for transform changes and update prims accordingly
@@ -597,7 +604,7 @@ void OmniTileset::updateView(const gsl::span<const Viewport>& viewports) {
 
     if (visible && !getSuspendUpdate()) {
         // Go ahead and select some tiles
-        const auto georeferencePath = getGeoreferencePath();
+        const auto georeferencePath = getResolvedGeoreferencePath();
 
         _viewStates.clear();
         for (const auto& viewport : viewports) {
@@ -654,7 +661,7 @@ bool OmniTileset::updateExtent() {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
     const auto& boundingVolume = pRootTile->getBoundingVolume();
     const auto ecefObb = Cesium3DTilesSelection::getOrientedBoundingBoxFromBoundingVolume(boundingVolume);
-    const auto georeferencePath = getGeoreferencePath();
+    const auto georeferencePath = getResolvedGeoreferencePath();
     const auto ecefToPrimWorldTransform = UsdUtil::computeEcefToPrimWorldTransform(*_pContext, georeferencePath, _path);
     const auto primObb = ecefObb.transform(ecefToPrimWorldTransform);
     const auto primAabb = primObb.toAxisAligned();

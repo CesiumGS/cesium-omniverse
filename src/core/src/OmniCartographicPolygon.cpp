@@ -27,7 +27,7 @@ std::vector<CesiumGeospatial::Cartographic> OmniCartographicPolygon::getCartogra
         return {};
     }
 
-    const auto georeferencePath = pGlobeAnchor->getGeoreferencePath();
+    const auto georeferencePath = pGlobeAnchor->getResolvedGeoreferencePath();
     if (georeferencePath.IsEmpty()) {
         return {};
     }

@@ -168,6 +168,14 @@ const std::vector<std::unique_ptr<OmniGeoreference>>& AssetRegistry::getGeorefer
     return _georeferences;
 }
 
+OmniGeoreference* AssetRegistry::getFirstGeoreference() const {
+    if (_georeferences.empty()) {
+        return nullptr;
+    }
+
+    return _georeferences.front().get();
+}
+
 OmniGlobeAnchor& AssetRegistry::addGlobeAnchor(const pxr::SdfPath& path) {
     return *_globeAnchors.insert(_globeAnchors.end(), std::make_unique<OmniGlobeAnchor>(_pContext, path))->get();
 }

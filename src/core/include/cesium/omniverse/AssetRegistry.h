@@ -70,6 +70,7 @@ class AssetRegistry {
     void removeGeoreference(const pxr::SdfPath& path);
     [[nodiscard]] OmniGeoreference* getGeoreference(const pxr::SdfPath& path) const;
     [[nodiscard]] const std::vector<std::unique_ptr<OmniGeoreference>>& getGeoreferences() const;
+    [[nodiscard]] OmniGeoreference* getFirstGeoreference() const;
 
     OmniGlobeAnchor& addGlobeAnchor(const pxr::SdfPath& path);
     void removeGlobeAnchor(const pxr::SdfPath& path);
