@@ -120,16 +120,50 @@ CesiumGlobeAnchorAPI::CreateDetectTransformChangesAttr(VtValue const &defaultVal
 }
 
 UsdAttribute
-CesiumGlobeAnchorAPI::GetGeographicCoordinateAttr() const
+CesiumGlobeAnchorAPI::GetAnchorLongitudeAttr() const
 {
-    return GetPrim().GetAttribute(CesiumTokens->cesiumAnchorGeographicCoordinates);
+    return GetPrim().GetAttribute(CesiumTokens->cesiumAnchorLongitude);
 }
 
 UsdAttribute
-CesiumGlobeAnchorAPI::CreateGeographicCoordinateAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumGlobeAnchorAPI::CreateAnchorLongitudeAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
-    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumAnchorGeographicCoordinates,
-                       SdfValueTypeNames->Double3,
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumAnchorLongitude,
+                       SdfValueTypeNames->Double,
+                       /* custom = */ false,
+                       SdfVariabilityVarying,
+                       defaultValue,
+                       writeSparsely);
+}
+
+UsdAttribute
+CesiumGlobeAnchorAPI::GetAnchorLatitudeAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumAnchorLatitude);
+}
+
+UsdAttribute
+CesiumGlobeAnchorAPI::CreateAnchorLatitudeAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumAnchorLatitude,
+                       SdfValueTypeNames->Double,
+                       /* custom = */ false,
+                       SdfVariabilityVarying,
+                       defaultValue,
+                       writeSparsely);
+}
+
+UsdAttribute
+CesiumGlobeAnchorAPI::GetAnchorHeightAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumAnchorHeight);
+}
+
+UsdAttribute
+CesiumGlobeAnchorAPI::CreateAnchorHeightAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumAnchorHeight,
+                       SdfValueTypeNames->Double,
                        /* custom = */ false,
                        SdfVariabilityVarying,
                        defaultValue,
@@ -219,7 +253,9 @@ CesiumGlobeAnchorAPI::GetSchemaAttributeNames(bool includeInherited)
     static TfTokenVector localNames = {
         CesiumTokens->cesiumAnchorAdjustOrientationForGlobeWhenMoving,
         CesiumTokens->cesiumAnchorDetectTransformChanges,
-        CesiumTokens->cesiumAnchorGeographicCoordinates,
+        CesiumTokens->cesiumAnchorLongitude,
+        CesiumTokens->cesiumAnchorLatitude,
+        CesiumTokens->cesiumAnchorHeight,
         CesiumTokens->cesiumAnchorPosition,
         CesiumTokens->cesiumAnchorRotation,
         CesiumTokens->cesiumAnchorScale,

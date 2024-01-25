@@ -123,11 +123,14 @@ class CesiumGeorefHelperWindow(ui.Window):
         for prim_path in selection:
             prim = stage.GetPrimAtPath(prim_path)
 
-            coords = prim.GetAttribute("cesium:anchor:geographicCoordinates").Get()
-            if coords is not None:
-                cesium_prim.GetAttribute("cesium:georeferenceOrigin:latitude").Set(coords[0])
-                cesium_prim.GetAttribute("cesium:georeferenceOrigin:longitude").Set(coords[1])
-                cesium_prim.GetAttribute("cesium:georeferenceOrigin:height").Set(coords[2])
+            latitude = prim.GetAttribute("cesium:anchor:latitude").Get()
+            longitude = prim.GetAttribute("cesium:anchor:longitude").Get()
+            height = prim.GetAttribute("cesium:anchor:height").Get()
+
+            if latitude is not None and longitude is not None and height is not None:
+                cesium_prim.GetAttribute("cesium:georeferenceOrigin:latitude").Set(latitude)
+                cesium_prim.GetAttribute("cesium:georeferenceOrigin:longitude").Set(longitude)
+                cesium_prim.GetAttribute("cesium:georeferenceOrigin:height").Set(height)
                 return
 
         logger.error("Please select a prim with a globe anchor")

@@ -3,7 +3,15 @@
 ### v0.17.0 - 2024-02-01
 
 * **Breaking change:** Removed `cesium.omniverse.api.globe_anchor`. Globe anchor prims can now be created directly in USD.
-* **Breaking change:** Globe anchors no longer add a `cesium:transform` op to the attached prim. Instead they modify the `translate`, `rotate` (all variants), and `scale` ops directly.
+* **Breaking change:** Split `cesium:anchor:geographicCoordinates` into separate properties: `cesium:anchor:latitude`, `cesium:anchor:longitude`, `cesium:anchor:height`
+* **Breaking change:** Globe anchors no longer add a `transform:cesium` op to the attached prim. Instead the `translate`, `rotate` (all variants), and `scale` ops are modified directly.
+
+```python
+globe_anchor = CesiumGlobeAnchorAPI.Apply(anchor_prim)
+globe_anchor.GetAnchorLatitudeAttr().Set(30)
+globe_anchor.GetAnchorLongitudeAttr().Set(45)
+globe_anchor.GetAnchorHeightAttr().Set(0)
+```
 
 ### v0.16.0 - 2024-01-02
 

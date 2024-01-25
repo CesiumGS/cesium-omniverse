@@ -42,10 +42,24 @@ _CreateDetectTransformChangesAttr(CesiumGlobeAnchorAPI &self,
 }
         
 static UsdAttribute
-_CreateGeographicCoordinateAttr(CesiumGlobeAnchorAPI &self,
+_CreateAnchorLongitudeAttr(CesiumGlobeAnchorAPI &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateGeographicCoordinateAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double3), writeSparsely);
+    return self.CreateAnchorLongitudeAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateAnchorLatitudeAttr(CesiumGlobeAnchorAPI &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateAnchorLatitudeAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateAnchorHeightAttr(CesiumGlobeAnchorAPI &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateAnchorHeightAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
 }
         
 static UsdAttribute
@@ -146,10 +160,24 @@ void wrapCesiumGlobeAnchorAPI()
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetGeographicCoordinateAttr",
-             &This::GetGeographicCoordinateAttr)
-        .def("CreateGeographicCoordinateAttr",
-             &_CreateGeographicCoordinateAttr,
+        .def("GetAnchorLongitudeAttr",
+             &This::GetAnchorLongitudeAttr)
+        .def("CreateAnchorLongitudeAttr",
+             &_CreateAnchorLongitudeAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetAnchorLatitudeAttr",
+             &This::GetAnchorLatitudeAttr)
+        .def("CreateAnchorLatitudeAttr",
+             &_CreateAnchorLatitudeAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetAnchorHeightAttr",
+             &This::GetAnchorHeightAttr)
+        .def("CreateAnchorHeightAttr",
+             &_CreateAnchorHeightAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         

@@ -278,14 +278,15 @@ glm::dvec3 OmniGlobeAnchor::getPrimLocalToEcefScale() const {
 CesiumGeospatial::Cartographic OmniGlobeAnchor::getGeographicCoordinates() const {
     const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
 
-    pxr::GfVec3d coordinates;
-    cesiumGlobeAnchor.GetGeographicCoordinateAttr().Get(&coordinates);
+    double longitude;
+    double latitude;
+    double height;
 
-    const auto longitude = glm::radians(coordinates[1]);
-    const auto latitude = glm::radians(coordinates[0]);
-    const auto height = coordinates[2];
+    cesiumGlobeAnchor.GetAnchorLongitudeAttr().Get(&longitude);
+    cesiumGlobeAnchor.GetAnchorLatitudeAttr().Get(&latitude);
+    cesiumGlobeAnchor.GetAnchorHeightAttr().Get(&height);
 
-    return {longitude, latitude, height};
+    return {glm::radians(longitude), glm::radians(latitude), height};
 }
 
 glm::dvec3 OmniGlobeAnchor::getPrimLocalTranslation() const {
@@ -372,8 +373,9 @@ void OmniGlobeAnchor::saveGeographicCoordinates() {
     _cachedGeographicCoordinates = *cartographic;
 
     const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
-    cesiumGlobeAnchor.GetGeographicCoordinateAttr().Set(pxr::GfVec3d(
-        glm::degrees(cartographic->latitude), glm::degrees(cartographic->longitude), cartographic->height));
+    cesiumGlobeAnchor.GetAnchorLongitudeAttr().Set(glm::degrees(cartographic->longitude));
+    cesiumGlobeAnchor.GetAnchorLatitudeAttr().Set(glm::degrees(cartographic->latitude));
+    cesiumGlobeAnchor.GetAnchorHeightAttr().Set(cartographic->height);
 }
 
 void OmniGlobeAnchor::savePrimLocalTransform() {

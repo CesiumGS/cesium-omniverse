@@ -389,7 +389,9 @@ void processCesiumGlobeAnchorChanged(
              property == pxr::UsdTokens->xformOp_scale)) {
             updateByPrimLocalTransform = true;
             updateBindings = true;
-        } else if (property == pxr::CesiumTokens->cesiumAnchorGeographicCoordinates) {
+        } else if (property == pxr::CesiumTokens->cesiumAnchorLongitude ||
+            property == pxr::CesiumTokens->cesiumAnchorLatitude ||
+            property == pxr::CesiumTokens->cesiumAnchorHeight) {
             updateByGeographicCoordinates = true;
             updateBindings = true;
         } else if (
