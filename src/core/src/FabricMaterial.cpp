@@ -239,7 +239,7 @@ void createAttributes(
     attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
     // clang-format on
 
-    attributes.createAttributes(context.getFabricStage(), path);
+    attributes.createAttributes(path);
 
     // clang-format off
     const auto inputsExcludeFromWhiteModeFabric = fabricStage.getAttributeWr<bool>(path, FabricTokens::inputs_excludeFromWhiteMode);
@@ -758,12 +758,12 @@ void FabricMaterial::createMaterial(const omni::fabric::Path& path) {
     auto& fabricStage = _pContext->getFabricStage();
     fabricStage.createPrim(path);
 
-    FabricAttributesBuilder attributes;
+    FabricAttributesBuilder attributes(_pContext);
 
     attributes.addAttribute(FabricTypes::Material, FabricTokens::Material);
     attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
 
-    attributes.createAttributes(fabricStage, path);
+    attributes.createAttributes(path);
 }
 
 void FabricMaterial::createShader(const omni::fabric::Path& path) {
@@ -771,7 +771,7 @@ void FabricMaterial::createShader(const omni::fabric::Path& path) {
 
     fabricStage.createPrim(path);
 
-    FabricAttributesBuilder attributes;
+    FabricAttributesBuilder attributes(_pContext);
 
     attributes.addAttribute(FabricTypes::inputs_tile_color, FabricTokens::inputs_tile_color);
     attributes.addAttribute(FabricTypes::inputs_alpha_cutoff, FabricTokens::inputs_alpha_cutoff);
@@ -793,7 +793,7 @@ void FabricMaterial::createTextureCommon(
 
     fabricStage.createPrim(path);
 
-    FabricAttributesBuilder attributes;
+    FabricAttributesBuilder attributes(_pContext);
 
     attributes.addAttribute(FabricTypes::inputs_tex_coord_offset, FabricTokens::inputs_tex_coord_offset);
     attributes.addAttribute(FabricTypes::inputs_tex_coord_rotation, FabricTokens::inputs_tex_coord_rotation);
@@ -836,7 +836,7 @@ void FabricMaterial::createImageryLayerResolverCommon(
 
     fabricStage.createPrim(path);
 
-    FabricAttributesBuilder attributes;
+    FabricAttributesBuilder attributes(_pContext);
 
     attributes.addAttribute(FabricTypes::inputs_imagery_layers_count, FabricTokens::inputs_imagery_layers_count);
 
@@ -867,7 +867,7 @@ void FabricMaterial::createFeatureIdAttribute(const omni::fabric::Path& path) {
 
     fabricStage.createPrim(path);
 
-    FabricAttributesBuilder attributes;
+    FabricAttributesBuilder attributes(_pContext);
 
     attributes.addAttribute(FabricTypes::inputs_primvar_name, FabricTokens::inputs_primvar_name);
     attributes.addAttribute(FabricTypes::inputs_null_feature_id, FabricTokens::inputs_null_feature_id);
@@ -893,7 +893,7 @@ void FabricMaterial::createPropertyAttributePropertyInt(
     const omni::fabric::Type& defaultValueType) {
     auto& fabricStage = _pContext->getFabricStage();
     fabricStage.createPrim(path);
-    FabricAttributesBuilder attributes;
+    FabricAttributesBuilder attributes(_pContext);
     attributes.addAttribute(FabricTypes::inputs_primvar_name, FabricTokens::inputs_primvar_name);
     attributes.addAttribute(FabricTypes::inputs_has_no_data, FabricTokens::inputs_has_no_data);
     attributes.addAttribute(noDataType, FabricTokens::inputs_no_data);
@@ -911,7 +911,7 @@ void FabricMaterial::createPropertyAttributePropertyNormalizedInt(
     const omni::fabric::Type& maximumValueType) {
     auto& fabricStage = _pContext->getFabricStage();
     fabricStage.createPrim(path);
-    FabricAttributesBuilder attributes;
+    FabricAttributesBuilder attributes(_pContext);
     attributes.addAttribute(FabricTypes::inputs_primvar_name, FabricTokens::inputs_primvar_name);
     attributes.addAttribute(FabricTypes::inputs_has_no_data, FabricTokens::inputs_has_no_data);
     attributes.addAttribute(noDataType, FabricTokens::inputs_no_data);
@@ -931,7 +931,7 @@ void FabricMaterial::createPropertyAttributePropertyFloat(
     const omni::fabric::Type& scaleType) {
     auto& fabricStage = _pContext->getFabricStage();
     fabricStage.createPrim(path);
-    FabricAttributesBuilder attributes;
+    FabricAttributesBuilder attributes(_pContext);
     attributes.addAttribute(FabricTypes::inputs_primvar_name, FabricTokens::inputs_primvar_name);
     attributes.addAttribute(FabricTypes::inputs_has_no_data, FabricTokens::inputs_has_no_data);
     attributes.addAttribute(noDataType, FabricTokens::inputs_no_data);
@@ -1189,7 +1189,7 @@ void FabricMaterial::createPropertyTablePropertyInt(
     const omni::fabric::Type& defaultValueType) {
     auto& fabricStage = _pContext->getFabricStage();
     fabricStage.createPrim(path);
-    FabricAttributesBuilder attributes;
+    FabricAttributesBuilder attributes(_pContext);
     attributes.addAttribute(FabricTypes::inputs_property_table_texture, FabricTokens::inputs_property_table_texture);
     attributes.addAttribute(FabricTypes::inputs_has_no_data, FabricTokens::inputs_has_no_data);
     attributes.addAttribute(noDataType, FabricTokens::inputs_no_data);
@@ -1207,7 +1207,7 @@ void FabricMaterial::createPropertyTablePropertyNormalizedInt(
     const omni::fabric::Type& maximumValueType) {
     auto& fabricStage = _pContext->getFabricStage();
     fabricStage.createPrim(path);
-    FabricAttributesBuilder attributes;
+    FabricAttributesBuilder attributes(_pContext);
     attributes.addAttribute(FabricTypes::inputs_property_table_texture, FabricTokens::inputs_property_table_texture);
     attributes.addAttribute(FabricTypes::inputs_has_no_data, FabricTokens::inputs_has_no_data);
     attributes.addAttribute(noDataType, FabricTokens::inputs_no_data);
@@ -1227,7 +1227,7 @@ void FabricMaterial::createPropertyTablePropertyFloat(
     const omni::fabric::Type& scaleType) {
     auto& fabricStage = _pContext->getFabricStage();
     fabricStage.createPrim(path);
-    FabricAttributesBuilder attributes;
+    FabricAttributesBuilder attributes(_pContext);
     attributes.addAttribute(FabricTypes::inputs_property_table_texture, FabricTokens::inputs_property_table_texture);
     attributes.addAttribute(FabricTypes::inputs_has_no_data, FabricTokens::inputs_has_no_data);
     attributes.addAttribute(noDataType, FabricTokens::inputs_no_data);

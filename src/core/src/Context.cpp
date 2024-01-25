@@ -22,7 +22,6 @@
 #endif
 
 #include <Cesium3DTilesContent/registerAllTileContentTypes.h>
-#include <CesiumUsdSchemas/data.h>
 #include <CesiumUtility/CreditSystem.h>
 #include <omni/fabric/SimStageWithHistory.h>
 #include <pxr/usd/sdf/path.h>

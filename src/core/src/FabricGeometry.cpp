@@ -139,7 +139,7 @@ void FabricGeometry::initialize() {
     fabricStage.createPrim(_path);
 
     // clang-format off
-    FabricAttributesBuilder attributes;
+    FabricAttributesBuilder attributes(_pContext);
     attributes.addAttribute(FabricTypes::faceVertexCounts, FabricTokens::faceVertexCounts);
     attributes.addAttribute(FabricTypes::faceVertexIndices, FabricTokens::faceVertexIndices);
     attributes.addAttribute(FabricTypes::points, FabricTokens::points);
@@ -180,7 +180,7 @@ void FabricGeometry::initialize() {
             FabricUtil::getPrimvarType(customVertexAttribute.type), customVertexAttribute.fabricAttributeName);
     }
 
-    attributes.createAttributes(fabricStage, _path);
+    attributes.createAttributes(_path);
 
     const auto subdivisionSchemeFabric =
         fabricStage.getAttributeWr<omni::fabric::TokenC>(_path, FabricTokens::subdivisionScheme);

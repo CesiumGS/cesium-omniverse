@@ -11,6 +11,7 @@
 namespace omni::fabric {
 class StageReaderWriter;
 }
+
 namespace CesiumUtility {
 class CreditSystem;
 }

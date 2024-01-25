@@ -7,18 +7,21 @@
 
 namespace cesium::omniverse {
 
+FabricAttributesBuilder::FabricAttributesBuilder(Context* pContext)
+    : _pContext(pContext) {}
+
 void FabricAttributesBuilder::addAttribute(const omni::fabric::Type& type, const omni::fabric::Token& name) {
     assert(_size < MAX_ATTRIBUTES);
     _attributes[_size++] = omni::fabric::AttrNameAndType(type, name);
 }
 
-void FabricAttributesBuilder::createAttributes(
-    omni::fabric::StageReaderWriter& fabricStage,
-    const omni::fabric::Path& path) const {
+void FabricAttributesBuilder::createAttributes(const omni::fabric::Path& path) const {
     // Somewhat annoyingly, fabricStage.createAttributes takes an std::array instead of a gsl::span. This is fine if
     // you know exactly which set of attributes to create at compile time but we don't. For example, not all prims will
     // have texture coordinates or materials. This class allows attributes to be added dynamically up to a hardcoded maximum
     // count (MAX_ATTRIBUTES) and avoids heap allocations. The downside is that we need this ugly if/else chain below.
+
+    auto& fabricStage = _pContext->getFabricStage();
 
     // clang-format off
     if (_size == 0) fabricStage.createAttributes<0>(path, *reinterpret_cast<const std::array<omni::fabric::AttrNameAndType, 0>*>(_attributes.data()));
