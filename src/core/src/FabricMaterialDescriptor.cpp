@@ -17,24 +17,6 @@
 
 namespace cesium::omniverse {
 
-namespace {
-std::vector<FabricPropertyDescriptor> getStyleableProperties(
-    const Context& context,
-    const CesiumGltf::Model& model,
-    const CesiumGltf::MeshPrimitive& primitive,
-    const pxr::SdfPath& tilesetMaterialPath) {
-
-    if (tilesetMaterialPath.IsEmpty()) {
-        // Return early, don't call getStyleableProperties because it logs
-        // warnings for unsupported properties. Those warnings don't matter
-        // if you're not using a tileset material.
-        return {};
-    }
-
-    return MetadataUtil::getStyleableProperties(context, model, primitive);
-}
-} // namespace
-
 FabricMaterialDescriptor::FabricMaterialDescriptor(
     const Context& context,
     const CesiumGltf::Model& model,
@@ -49,7 +31,8 @@ FabricMaterialDescriptor::FabricMaterialDescriptor(
     , _imageryOverlayRenderMethods(imageryLayersInfo.overlayRenderMethods)
     , _tilesetMaterialPath(tilesetMaterialPath)
     , _styleableProperties(
-          ::cesium::omniverse::getStyleableProperties(context, model, primitive, tilesetMaterialPath)) {}
+          // Only log warnings for unsupported properties if the tileset has a material that could potentially reference properties
+          MetadataUtil::getStyleableProperties(context, model, primitive, !tilesetMaterialPath.IsEmpty())) {}
 
 bool FabricMaterialDescriptor::hasVertexColors() const {
     return _hasVertexColors;

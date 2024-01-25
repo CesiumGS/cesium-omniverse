@@ -144,13 +144,15 @@ std::vector<FabricMesh> acquireFabricMeshes(
             fabricMesh.featureIdTextures.push_back(fabricResourceManager.acquireTexture());
         }
 
-        const auto propertyTextureCount = MetadataUtil::getPropertyTextureImages(context, model, primitive).size();
+        const auto propertyTextureCount =
+            MetadataUtil::getPropertyTextureImages(context, model, primitive, false).size();
         fabricMesh.propertyTextures.reserve(propertyTextureCount);
         for (uint64_t i = 0; i < propertyTextureCount; ++i) {
             fabricMesh.propertyTextures.push_back(fabricResourceManager.acquireTexture());
         }
 
-        const auto propertyTableTextureCount = MetadataUtil::getPropertyTableTextureCount(context, model, primitive);
+        const auto propertyTableTextureCount =
+            MetadataUtil::getPropertyTableTextureCount(context, model, primitive, false);
         fabricMesh.propertyTableTextures.reserve(propertyTableTextureCount);
         for (uint64_t i = 0; i < propertyTableTextureCount; ++i) {
             fabricMesh.propertyTableTextures.push_back(fabricResourceManager.acquireTexture());
@@ -178,7 +180,7 @@ std::vector<FabricMesh> acquireFabricMeshes(
 
         // Map glTF texture index to property texture (FabricTexture) index
         fabricMesh.propertyTextureIndexMapping =
-            MetadataUtil::getPropertyTextureIndexMapping(context, model, primitive);
+            MetadataUtil::getPropertyTextureIndexMapping(context, model, primitive, false);
     }
 
     return fabricMeshes;
@@ -217,13 +219,13 @@ void setFabricTextures(
             }
         }
 
-        const auto propertyTextureImages = MetadataUtil::getPropertyTextureImages(context, model, primitive);
+        const auto propertyTextureImages = MetadataUtil::getPropertyTextureImages(context, model, primitive, false);
         const auto propertyTextureCount = fabricMesh.propertyTextures.size();
         for (uint64_t j = 0; j < propertyTextureCount; ++j) {
             fabricMesh.propertyTextures[j]->setImage(*propertyTextureImages[j], TransferFunction::LINEAR);
         }
 
-        const auto propertyTableTextures = MetadataUtil::encodePropertyTables(context, model, primitive);
+        const auto propertyTableTextures = MetadataUtil::encodePropertyTables(context, model, primitive, false);
         const auto propertyTableTextureCount = fabricMesh.propertyTableTextures.size();
         for (uint64_t j = 0; j < propertyTableTextureCount; ++j) {
             const auto& texture = propertyTableTextures[j];

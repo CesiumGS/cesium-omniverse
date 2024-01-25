@@ -27,6 +27,7 @@ void forEachPropertyAttributeProperty(
     const Context& context,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
+    bool logWarnings,
     Callback&& callback) {
 
     const auto pStructuralMetadataModel = model.getExtension<CesiumGltf::ExtensionModelExtStructuralMetadata>();
@@ -44,52 +45,65 @@ void forEachPropertyAttributeProperty(
         const auto pPropertyAttribute =
             model.getSafe(&pStructuralMetadataModel->propertyAttributes, static_cast<int32_t>(propertyAttributeIndex));
         if (!pPropertyAttribute) {
-            context.getLogger()->oneTimeWarning(
-                fmt::format("Property attribute index {} is out of range.", propertyAttributeIndex));
+            if (logWarnings) {
+                context.getLogger()->oneTimeWarning(
+                    fmt::format("Property attribute index {} is out of range.", propertyAttributeIndex));
+            }
             continue;
         }
 
         const auto propertyAttributeView = CesiumGltf::PropertyAttributeView(model, *pPropertyAttribute);
         if (propertyAttributeView.status() != CesiumGltf::PropertyAttributeViewStatus::Valid) {
-            context.getLogger()->oneTimeWarning(fmt::format(
-                "Property attribute is invalid and will be ignored. Status code: {}",
-                static_cast<int>(propertyAttributeView.status())));
+            if (logWarnings) {
+                context.getLogger()->oneTimeWarning(fmt::format(
+                    "Property attribute is invalid and will be ignored. Status code: {}",
+                    static_cast<int>(propertyAttributeView.status())));
+            }
             continue;
         }
 
         propertyAttributeView.forEachProperty(
             primitive,
             [&context,
+             logWarnings,
              callback = std::forward<Callback>(callback),
              &propertyAttributeView,
              &pStructuralMetadataModel,
              &pPropertyAttribute](const std::string& propertyId, const auto& propertyAttributePropertyView) {
                 if (propertyAttributePropertyView.status() != CesiumGltf::PropertyAttributePropertyViewStatus::Valid) {
-                    context.getLogger()->oneTimeWarning(fmt::format(
-                        "Property \"{}\" is invalid and will be ignored. Status code: {}",
-                        propertyId,
-                        static_cast<int>(propertyAttributePropertyView.status())));
+                    if (logWarnings) {
+                        context.getLogger()->oneTimeWarning(fmt::format(
+                            "Property \"{}\" is invalid and will be ignored. Status code: {}",
+                            propertyId,
+                            static_cast<int>(propertyAttributePropertyView.status())));
+                    }
                     return;
                 }
 
                 const auto& schema = pStructuralMetadataModel->schema;
                 if (!schema.has_value()) {
-                    context.getLogger()->oneTimeWarning(
-                        fmt::format("No schema found. Property \"{}\" will be ignored.", propertyId));
+                    if (logWarnings) {
+                        context.getLogger()->oneTimeWarning(
+                            fmt::format("No schema found. Property \"{}\" will be ignored.", propertyId));
+                    }
                     return;
                 }
 
                 const auto pClassDefinition = propertyAttributeView.getClass();
                 if (!pClassDefinition) {
-                    context.getLogger()->oneTimeWarning(
-                        fmt::format("No class found. Property \"{}\" will be ignored.", propertyId));
+                    if (logWarnings) {
+                        context.getLogger()->oneTimeWarning(
+                            fmt::format("No class found. Property \"{}\" will be ignored.", propertyId));
+                    }
                     return;
                 }
 
                 const auto pClassProperty = propertyAttributeView.getClassProperty(propertyId);
                 if (!pClassProperty) {
-                    context.getLogger()->oneTimeWarning(
-                        fmt::format("No class property found. Property \"{}\" will be ignored.", propertyId));
+                    if (logWarnings) {
+                        context.getLogger()->oneTimeWarning(
+                            fmt::format("No class property found. Property \"{}\" will be ignored.", propertyId));
+                    }
                     return;
                 }
 
@@ -113,6 +127,7 @@ void forEachPropertyTextureProperty(
     const Context& context,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
+    bool logWarnings,
     Callback&& callback) {
 
     const auto pStructuralMetadataModel = model.getExtension<CesiumGltf::ExtensionModelExtStructuralMetadata>();
@@ -130,58 +145,72 @@ void forEachPropertyTextureProperty(
         const auto pPropertyTexture =
             model.getSafe(&pStructuralMetadataModel->propertyTextures, static_cast<int32_t>(propertyTextureIndex));
         if (!pPropertyTexture) {
-            context.getLogger()->oneTimeWarning(
-                fmt::format("Property texture index {} is out of range.", propertyTextureIndex));
+            if (logWarnings) {
+                context.getLogger()->oneTimeWarning(
+                    fmt::format("Property texture index {} is out of range.", propertyTextureIndex));
+            }
             continue;
         }
 
         const auto propertyTextureView = CesiumGltf::PropertyTextureView(model, *pPropertyTexture);
         if (propertyTextureView.status() != CesiumGltf::PropertyTextureViewStatus::Valid) {
-            context.getLogger()->oneTimeWarning(fmt::format(
-                "Property texture is invalid and will be ignored. Status code: {}",
-                static_cast<int>(propertyTextureView.status())));
-
+            if (logWarnings) {
+                context.getLogger()->oneTimeWarning(fmt::format(
+                    "Property texture is invalid and will be ignored. Status code: {}",
+                    static_cast<int>(propertyTextureView.status())));
+            }
             continue;
         }
 
         propertyTextureView.forEachProperty(
             [&context,
+             logWarnings,
              callback = std::forward<Callback>(callback),
              &propertyTextureView,
              &pStructuralMetadataModel,
              &pPropertyTexture](const std::string& propertyId, const auto& propertyTexturePropertyView) {
                 if (propertyTexturePropertyView.status() != CesiumGltf::PropertyTexturePropertyViewStatus::Valid) {
-                    context.getLogger()->oneTimeWarning(fmt::format(
-                        "Property \"{}\" is invalid and will be ignored. Status code: {}",
-                        propertyId,
-                        static_cast<int>(propertyTexturePropertyView.status())));
+                    if (logWarnings) {
+                        context.getLogger()->oneTimeWarning(fmt::format(
+                            "Property \"{}\" is invalid and will be ignored. Status code: {}",
+                            propertyId,
+                            static_cast<int>(propertyTexturePropertyView.status())));
+                    }
                     return;
                 }
 
                 const auto& schema = pStructuralMetadataModel->schema;
                 if (!schema.has_value()) {
-                    context.getLogger()->oneTimeWarning(
-                        fmt::format("No schema found. Property \"{}\" will be ignored.", propertyId));
+                    if (logWarnings) {
+                        context.getLogger()->oneTimeWarning(
+                            fmt::format("No schema found. Property \"{}\" will be ignored.", propertyId));
+                    }
                     return;
                 }
 
                 const auto pClassDefinition = propertyTextureView.getClass();
                 if (!pClassDefinition) {
-                    context.getLogger()->oneTimeWarning(
-                        fmt::format("No class found. Property \"{}\" will be ignored.", propertyId));
+                    if (logWarnings) {
+                        context.getLogger()->oneTimeWarning(
+                            fmt::format("No class found. Property \"{}\" will be ignored.", propertyId));
+                    }
                     return;
                 }
 
                 const auto pClassProperty = propertyTextureView.getClassProperty(propertyId);
                 if (!pClassProperty) {
-                    context.getLogger()->oneTimeWarning(
-                        fmt::format("No class property found. Property \"{}\" will be ignored.", propertyId));
+                    if (logWarnings) {
+                        context.getLogger()->oneTimeWarning(
+                            fmt::format("No class property found. Property \"{}\" will be ignored.", propertyId));
+                    }
                     return;
                 }
 
                 if (!propertyTexturePropertyView.getImage()) {
-                    context.getLogger()->oneTimeWarning(
-                        fmt::format("No image found. Property \"{}\" will be ignored.", propertyId));
+                    if (logWarnings) {
+                        context.getLogger()->oneTimeWarning(
+                            fmt::format("No image found. Property \"{}\" will be ignored.", propertyId));
+                    }
                     return;
                 }
 
@@ -205,6 +234,7 @@ void forEachPropertyTableProperty(
     const Context& context,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
+    bool logWarnings,
     Callback&& callback) {
 
     const auto pStructuralMetadataModel = model.getExtension<CesiumGltf::ExtensionModelExtStructuralMetadata>();
@@ -224,53 +254,65 @@ void forEachPropertyTableProperty(
             const auto pPropertyTable = model.getSafe(
                 &pStructuralMetadataModel->propertyTables, static_cast<int32_t>(featureId.propertyTable.value()));
             if (!pPropertyTable) {
-                context.getLogger()->oneTimeWarning(
-                    fmt::format("Property table index {} is out of range.", featureId.propertyTable.value()));
+                if (logWarnings) {
+                    context.getLogger()->oneTimeWarning(
+                        fmt::format("Property table index {} is out of range.", featureId.propertyTable.value()));
+                }
                 continue;
             }
 
             const auto propertyTableView = CesiumGltf::PropertyTableView(model, *pPropertyTable);
             if (propertyTableView.status() != CesiumGltf::PropertyTableViewStatus::Valid) {
-                context.getLogger()->oneTimeWarning(fmt::format(
-                    "Property table is invalid and will be ignored. Status code: {}",
-                    static_cast<int>(propertyTableView.status())));
-
+                if (logWarnings) {
+                    context.getLogger()->oneTimeWarning(fmt::format(
+                        "Property table is invalid and will be ignored. Status code: {}",
+                        static_cast<int>(propertyTableView.status())));
+                }
                 continue;
             }
 
             propertyTableView.forEachProperty(
                 [&context,
+                 logWarnings,
                  callback = std::forward<Callback>(callback),
                  &propertyTableView,
                  &pStructuralMetadataModel,
                  &pPropertyTable,
                  featureIdSetIndex](const std::string& propertyId, const auto& propertyTablePropertyView) {
                     if (propertyTablePropertyView.status() != CesiumGltf::PropertyTablePropertyViewStatus::Valid) {
-                        context.getLogger()->oneTimeWarning(fmt::format(
-                            "Property \"{}\" is invalid and will be ignored. Status code: {}",
-                            propertyId,
-                            static_cast<int>(propertyTablePropertyView.status())));
+                        if (logWarnings) {
+                            context.getLogger()->oneTimeWarning(fmt::format(
+                                "Property \"{}\" is invalid and will be ignored. Status code: {}",
+                                propertyId,
+                                static_cast<int>(propertyTablePropertyView.status())));
+                        }
                         return;
                     }
 
                     const auto& schema = pStructuralMetadataModel->schema;
                     if (!schema.has_value()) {
-                        context.getLogger()->oneTimeWarning(
-                            fmt::format("No schema found. Property \"{}\" will be ignored.", propertyId));
+                        if (logWarnings) {
+                            context.getLogger()->oneTimeWarning(
+                                fmt::format("No schema found. Property \"{}\" will be ignored.", propertyId));
+                        }
                         return;
                     }
 
                     const auto pClassDefinition = propertyTableView.getClass();
                     if (!pClassDefinition) {
-                        context.getLogger()->oneTimeWarning(
-                            fmt::format("No class found. Property \"{}\" will be ignored.", propertyId));
+                        if (logWarnings) {
+                            context.getLogger()->oneTimeWarning(
+                                fmt::format("No class found. Property \"{}\" will be ignored.", propertyId));
+                        }
                         return;
                     }
 
                     const auto pClassProperty = propertyTableView.getClassProperty(propertyId);
                     if (!pClassProperty) {
-                        context.getLogger()->oneTimeWarning(
-                            fmt::format("No class property found. Property \"{}\" will be ignored.", propertyId));
+                        if (logWarnings) {
+                            context.getLogger()->oneTimeWarning(
+                                fmt::format("No class property found. Property \"{}\" will be ignored.", propertyId));
+                        }
                         return;
                     }
 
@@ -296,13 +338,15 @@ void forEachStyleablePropertyAttributeProperty(
     const Context& context,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
+    bool logWarnings,
     Callback&& callback) {
 
     forEachPropertyAttributeProperty(
         context,
         model,
         primitive,
-        [&context, callback = std::forward<Callback>(callback)](
+        logWarnings,
+        [&context, logWarnings, callback = std::forward<Callback>(callback)](
             const std::string& propertyId,
             [[maybe_unused]] const CesiumGltf::Schema& schema,
             [[maybe_unused]] const CesiumGltf::Class& classDefinition,
@@ -316,8 +360,11 @@ void forEachStyleablePropertyAttributeProperty(
             constexpr auto type = DataTypeUtil::getTypeReverse<RawType, TransformedType>();
 
             if constexpr (DataTypeUtil::isMatrix<type>()) {
-                context.getLogger()->oneTimeWarning(fmt::format(
-                    "Matrix properties are not supported for styling. Property \"{}\" will be ignored.", propertyId));
+                if (logWarnings) {
+                    context.getLogger()->oneTimeWarning(fmt::format(
+                        "Matrix properties are not supported for styling. Property \"{}\" will be ignored.",
+                        propertyId));
+                }
                 return;
             } else {
                 const auto& attribute = propertyAttributeProperty.attribute;
@@ -349,13 +396,15 @@ void forEachStyleablePropertyTextureProperty(
     const Context& context,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
+    bool logWarnings,
     Callback&& callback) {
 
     forEachPropertyTextureProperty(
         context,
         model,
         primitive,
-        [&context, callback = std::forward<Callback>(callback), &model](
+        logWarnings,
+        [&context, logWarnings, callback = std::forward<Callback>(callback), &model](
             const std::string& propertyId,
             [[maybe_unused]] const CesiumGltf::Schema& schema,
             [[maybe_unused]] const CesiumGltf::Class& classDefinition,
@@ -370,34 +419,44 @@ void forEachStyleablePropertyTextureProperty(
             constexpr auto IsArray = HAS_MEMBER(RawType, size());
 
             if constexpr (IsArray) {
-                context.getLogger()->oneTimeWarning(fmt::format(
-                    "Array properties are not supported for styling. Property \"{}\" will be ignored.", propertyId));
+                if (logWarnings) {
+                    context.getLogger()->oneTimeWarning(fmt::format(
+                        "Array properties are not supported for styling. Property \"{}\" will be ignored.",
+                        propertyId));
+                }
                 return;
             } else {
                 constexpr auto type = DataTypeUtil::getTypeReverse<RawType, TransformedType>();
 
                 if constexpr (DataTypeUtil::getComponentByteLength<type>() > 1) {
-                    context.getLogger()->oneTimeWarning(fmt::format(
-                        "Only 8-bit per-component property texture properties are supported for styling. Property "
-                        "\"{}\" will be ignored.",
-                        propertyId));
+                    if (logWarnings) {
+                        context.getLogger()->oneTimeWarning(fmt::format(
+                            "Only 8-bit per-component property texture properties are supported for styling. Property "
+                            "\"{}\" will be ignored.",
+                            propertyId));
+                    }
                     return;
                 } else {
                     const auto textureInfo = GltfUtil::getPropertyTexturePropertyInfo(model, propertyTextureProperty);
 
                     if (textureInfo.channels.size() != DataTypeUtil::getComponentCount<type>()) {
-                        context.getLogger()->oneTimeWarning(fmt::format(
-                            "Properties with components that are packed across multiple texture channels are not "
-                            "supported for styling. Property \"{}\" will be ignored.",
-                            propertyId));
+                        if (logWarnings) {
+                            context.getLogger()->oneTimeWarning(fmt::format(
+                                "Properties with components that are packed across multiple texture channels are not "
+                                "supported for styling. Property \"{}\" will be ignored.",
+                                propertyId));
+                        }
                         return;
                     }
 
                     if (textureInfo.channels.size() > 4) {
-                        context.getLogger()->oneTimeWarning(fmt::format(
-                            "Properties with more than four channels are not supported for styling. Property \"{}\" "
-                            "will be ignored.",
-                            propertyId));
+                        if (logWarnings) {
+                            context.getLogger()->oneTimeWarning(fmt::format(
+                                "Properties with more than four channels are not supported for styling. Property "
+                                "\"{}\" "
+                                "will be ignored.",
+                                propertyId));
+                        }
                         return;
                     }
 
@@ -429,13 +488,15 @@ void forEachStyleablePropertyTableProperty(
     const Context& context,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
+    bool logWarnings,
     Callback&& callback) {
 
     forEachPropertyTableProperty(
         context,
         model,
         primitive,
-        [&context, callback = std::forward<Callback>(callback)](
+        logWarnings,
+        [&context, logWarnings, callback = std::forward<Callback>(callback)](
             const std::string& propertyId,
             [[maybe_unused]] const CesiumGltf::Schema& schema,
             [[maybe_unused]] const CesiumGltf::Class& classDefinition,
@@ -452,50 +513,70 @@ void forEachStyleablePropertyTableProperty(
             constexpr auto IsString = std::is_same_v<RawType, std::string_view>;
 
             if constexpr (IsArray) {
-                context.getLogger()->oneTimeWarning(fmt::format(
-                    "Array properties are not supported for styling. Property \"{}\" will be ignored.", propertyId));
+                if (logWarnings) {
+                    context.getLogger()->oneTimeWarning(fmt::format(
+                        "Array properties are not supported for styling. Property \"{}\" will be ignored.",
+                        propertyId));
+                }
                 return;
             } else if constexpr (IsBoolean) {
-                context.getLogger()->oneTimeWarning(fmt::format(
-                    "Boolean properties are not supported for styling. Property \"{}\" will be ignored.", propertyId));
+                if (logWarnings) {
+                    context.getLogger()->oneTimeWarning(fmt::format(
+                        "Boolean properties are not supported for styling. Property \"{}\" will be ignored.",
+                        propertyId));
+                }
                 return;
             } else if constexpr (IsString) {
-                context.getLogger()->oneTimeWarning(fmt::format(
-                    "String properties are not supported for styling. Property \"{}\" will be ignored.", propertyId));
+                if (logWarnings) {
+                    context.getLogger()->oneTimeWarning(fmt::format(
+                        "String properties are not supported for styling. Property \"{}\" will be ignored.",
+                        propertyId));
+                }
                 return;
             } else {
                 constexpr auto type = DataTypeUtil::getTypeReverse<RawType, TransformedType>();
                 constexpr auto unnormalizedComponentType = DataTypeUtil::getUnnormalizedComponentType<type>();
 
                 if constexpr (DataTypeUtil::isMatrix<type>()) {
-                    context.getLogger()->oneTimeWarning(fmt::format(
-                        "Matrix properties are not supported for styling. Property \"{}\" will be ignored.",
-                        propertyId));
+                    if (logWarnings) {
+                        context.getLogger()->oneTimeWarning(fmt::format(
+                            "Matrix properties are not supported for styling. Property \"{}\" will be ignored.",
+                            propertyId));
+                    }
                     return;
                 } else if constexpr (unnormalizedComponentType == DataType::UINT32) {
-                    context.getLogger()->oneTimeWarning(fmt::format(
-                        "UINT32 properties are not supported for styling due to potential precision loss. Property "
-                        "\"{}\" will be ignored.",
-                        propertyId));
+                    if (logWarnings) {
+                        context.getLogger()->oneTimeWarning(fmt::format(
+                            "UINT32 properties are not supported for styling due to potential precision loss. Property "
+                            "\"{}\" will be ignored.",
+                            propertyId));
+                    }
                     return;
                 } else if constexpr (unnormalizedComponentType == DataType::UINT64) {
-                    context.getLogger()->oneTimeWarning(fmt::format(
-                        "UINT64 properties are not supported for styling due to potential precision loss. Property "
-                        "\"{}\" will be ignored.",
-                        propertyId));
+                    if (logWarnings) {
+                        context.getLogger()->oneTimeWarning(fmt::format(
+                            "UINT64 properties are not supported for styling due to potential precision loss. Property "
+                            "\"{}\" will be ignored.",
+                            propertyId));
+                    }
                     return;
                 } else if constexpr (unnormalizedComponentType == DataType::INT64) {
-                    context.getLogger()->oneTimeWarning(fmt::format(
-                        "INT64 properties are not supported for styling due to potential precision loss. Property "
-                        "\"{}\" will be ignored.",
-                        propertyId));
+                    if (logWarnings) {
+                        context.getLogger()->oneTimeWarning(fmt::format(
+                            "INT64 properties are not supported for styling due to potential precision loss. Property "
+                            "\"{}\" will be ignored.",
+                            propertyId));
+                    }
                     return;
                 } else {
                     if constexpr (unnormalizedComponentType == DataType::FLOAT64) {
-                        context.getLogger()->oneTimeWarning(fmt::format(
-                            "64-bit float properties are converted to 32-bit floats for styling. Some precision loss "
-                            "may occur for property \"{}\".",
-                            propertyId));
+                        if (logWarnings) {
+                            context.getLogger()->oneTimeWarning(fmt::format(
+                                "64-bit float properties are converted to 32-bit floats for styling. Some precision "
+                                "loss "
+                                "may occur for property \"{}\".",
+                                propertyId));
+                        }
                     }
 
                     const auto propertyInfo = FabricPropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
@@ -523,26 +604,31 @@ void forEachStyleablePropertyTableProperty(
 std::vector<FabricPropertyDescriptor> getStyleableProperties(
     const Context& context,
     const CesiumGltf::Model& model,
-    const CesiumGltf::MeshPrimitive& primitive);
+    const CesiumGltf::MeshPrimitive& primitive,
+    bool logWarnings);
 
 std::vector<const CesiumGltf::ImageCesium*> getPropertyTextureImages(
     const Context& context,
     const CesiumGltf::Model& model,
-    const CesiumGltf::MeshPrimitive& primitive);
+    const CesiumGltf::MeshPrimitive& primitive,
+    bool logWarnings);
 
 std::unordered_map<uint64_t, uint64_t> getPropertyTextureIndexMapping(
     const Context& context,
     const CesiumGltf::Model& model,
-    const CesiumGltf::MeshPrimitive& primitive);
+    const CesiumGltf::MeshPrimitive& primitive,
+    bool logWarnings);
 
 std::vector<FabricTextureData> encodePropertyTables(
     const Context& context,
     const CesiumGltf::Model& model,
-    const CesiumGltf::MeshPrimitive& primitive);
+    const CesiumGltf::MeshPrimitive& primitive,
+    bool logWarnings);
 
 uint64_t getPropertyTableTextureCount(
     const Context& context,
     const CesiumGltf::Model& model,
-    const CesiumGltf::MeshPrimitive& primitive);
+    const CesiumGltf::MeshPrimitive& primitive,
+    bool logWarnings);
 
 } // namespace cesium::omniverse::MetadataUtil
