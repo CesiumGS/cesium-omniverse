@@ -11,6 +11,8 @@ class CesiumCartographicPolygonUtility:
     _stage = None
     _up_axis = None
     _logger = None
+    _buffer = None
+    _width_m = 0.01 # width of the BasisCurve in meters
 
     @classmethod
     def _prepare(cls):
@@ -18,6 +20,7 @@ class CesiumCartographicPolygonUtility:
         cls._stage = ctx.get_stage()
         cls._up_axis = UsdGeom.GetStageUpAxis(cls._stage)
         cls._logger = logging.getLogger(__name__)
+        cls._buffer = 0.01 / UsdGeom.GetStageMetersPerUnit(cls._stage)  # 1cm buffer for polygons
 
     @classmethod
     def create_prim_footprints(cls, prim_list_str):
@@ -61,7 +64,11 @@ class CesiumCartographicPolygonUtility:
             count = 0
             for polygon in polygons:
                 polygon_path = f"/CesiumCartographicPolygons/{prim.GetName()}_polygon_{count}"
-                curves.append(cls._convert_polygon_to_basis_curve(polygon, polygon_path, up_value))
+
+                # Simplify the polygon
+                simple_polygon = polygon.simplify(0.01)
+
+                curves.append(cls._convert_polygon_to_basis_curve(simple_polygon, polygon_path, up_value))
                 count += 1
 
         end_time = datetime.now()
@@ -234,7 +241,8 @@ class CesiumCartographicPolygonUtility:
 
                 # Only add valid polygons
                 if polygon.is_valid:
-                    polygons.append(Polygon(face_coords))
+                    # Buffer the polygons to reduce minor mesh precision errors
+                    polygons.append(polygon.buffer(cls._buffer, join_style="bevel"))
 
         return cls._combine_polygons(polygons)
 
@@ -252,7 +260,7 @@ class CesiumCartographicPolygonUtility:
         """
         curve: Usd.Prim = cls._stage.DefinePrim(path, "BasisCurves")
 
-        width = 0.1 / UsdGeom.GetStageMetersPerUnit(cls._stage)  # Set the width of the curve
+        width = cls._width_m / UsdGeom.GetStageMetersPerUnit(cls._stage)  # Set the width of the curve
 
         points = []
         widths = []
