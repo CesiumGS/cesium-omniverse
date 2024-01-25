@@ -29,7 +29,7 @@ class OmniGlobeAnchor {
 
     void updateByPrimLocalToEcefTransform();
     void updateByGeographicCoordinates();
-    void updateByPrimLocalTransform();
+    void updateByPrimLocalTransform(bool resetOrientation);
     void updateByGeoreference();
 
   private:

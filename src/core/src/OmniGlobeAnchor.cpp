@@ -142,7 +142,7 @@ void OmniGlobeAnchor::updateByGeographicCoordinates() {
     finalize();
 }
 
-void OmniGlobeAnchor::updateByPrimLocalTransform() {
+void OmniGlobeAnchor::updateByPrimLocalTransform(bool resetOrientation) {
     initialize();
 
     if (!isAnchorValid()) {
@@ -176,7 +176,7 @@ void OmniGlobeAnchor::updateByPrimLocalTransform() {
     _pAnchor->setAnchorToLocalTransform(
         pGeoreference->getLocalCoordinateSystem(),
         primLocalTransform,
-        getAdjustOrientation(),
+        !resetOrientation && getAdjustOrientation(),
         pGeoreference->getEllipsoid());
 
     finalize();
