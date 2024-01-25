@@ -80,7 +80,7 @@ struct CurlCache {
 // Simple implementation of AssetAcessor that can make network and local requests
 class UrlAssetAccessor : public CesiumAsync::IAssetAccessor {
   public:
-    UrlAssetAccessor(const std::filesystem::path& certificatePath);
+    UrlAssetAccessor(const std::filesystem::path& certificatePath = {});
     ~UrlAssetAccessor() override;
 
     CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>>
