@@ -264,13 +264,13 @@ void FabricGeometry::reset() {
 
     // clang-format off
     const auto doubleSidedFabric = fabricStage.getAttributeWr<bool>(_path, FabricTokens::doubleSided);
-    const auto extentFabric = fabricStage.getAttributeWr<PXR_NS::GfRange3d>(_path, FabricTokens::extent);
-    const auto worldExtentFabric = fabricStage.getAttributeWr<PXR_NS::GfRange3d>(_path, FabricTokens::_worldExtent);
+    const auto extentFabric = fabricStage.getAttributeWr<pxr::GfRange3d>(_path, FabricTokens::extent);
+    const auto worldExtentFabric = fabricStage.getAttributeWr<pxr::GfRange3d>(_path, FabricTokens::_worldExtent);
     const auto worldVisibilityFabric = fabricStage.getAttributeWr<bool>(_path, FabricTokens::_worldVisibility);
-    const auto gltfLocalToEcefTransformFabric = fabricStage.getAttributeWr<PXR_NS::GfMatrix4d>(_path, FabricTokens::_cesium_gltfLocalToEcefTransform);
-    const auto worldPositionFabric = fabricStage.getAttributeWr<PXR_NS::GfVec3d>(_path, FabricTokens::_worldPosition);
-    const auto worldOrientationFabric = fabricStage.getAttributeWr<PXR_NS::GfQuatf>(_path, FabricTokens::_worldOrientation);
-    const auto worldScaleFabric = fabricStage.getAttributeWr<PXR_NS::GfVec3f>(_path, FabricTokens::_worldScale);
+    const auto gltfLocalToEcefTransformFabric = fabricStage.getAttributeWr<pxr::GfMatrix4d>(_path, FabricTokens::_cesium_gltfLocalToEcefTransform);
+    const auto worldPositionFabric = fabricStage.getAttributeWr<pxr::GfVec3d>(_path, FabricTokens::_worldPosition);
+    const auto worldOrientationFabric = fabricStage.getAttributeWr<pxr::GfQuatf>(_path, FabricTokens::_worldOrientation);
+    const auto worldScaleFabric = fabricStage.getAttributeWr<pxr::GfVec3f>(_path, FabricTokens::_worldScale);
     const auto tilesetIdFabric = fabricStage.getAttributeWr<int64_t>(_path, FabricTokens::_cesium_tilesetId);
     // clang-format on
 
@@ -523,12 +523,12 @@ void FabricGeometry::setGeometry(
 
     // clang-format off
     const auto doubleSidedFabric = fabricStage.getAttributeWr<bool>(_path, FabricTokens::doubleSided);
-    const auto extentFabric = fabricStage.getAttributeWr<PXR_NS::GfRange3d>(_path, FabricTokens::extent);
-    const auto worldExtentFabric = fabricStage.getAttributeWr<PXR_NS::GfRange3d>(_path, FabricTokens::_worldExtent);
-    const auto gltfLocalToEcefTransformFabric = fabricStage.getAttributeWr<PXR_NS::GfMatrix4d>(_path, FabricTokens::_cesium_gltfLocalToEcefTransform);
-    const auto worldPositionFabric = fabricStage.getAttributeWr<PXR_NS::GfVec3d>(_path, FabricTokens::_worldPosition);
-    const auto worldOrientationFabric = fabricStage.getAttributeWr<PXR_NS::GfQuatf>(_path, FabricTokens::_worldOrientation);
-    const auto worldScaleFabric = fabricStage.getAttributeWr<PXR_NS::GfVec3f>(_path, FabricTokens::_worldScale);
+    const auto extentFabric = fabricStage.getAttributeWr<pxr::GfRange3d>(_path, FabricTokens::extent);
+    const auto worldExtentFabric = fabricStage.getAttributeWr<pxr::GfRange3d>(_path, FabricTokens::_worldExtent);
+    const auto gltfLocalToEcefTransformFabric = fabricStage.getAttributeWr<pxr::GfMatrix4d>(_path, FabricTokens::_cesium_gltfLocalToEcefTransform);
+    const auto worldPositionFabric = fabricStage.getAttributeWr<pxr::GfVec3d>(_path, FabricTokens::_worldPosition);
+    const auto worldOrientationFabric = fabricStage.getAttributeWr<pxr::GfQuatf>(_path, FabricTokens::_worldOrientation);
+    const auto worldScaleFabric = fabricStage.getAttributeWr<pxr::GfVec3f>(_path, FabricTokens::_worldScale);
     const auto tilesetIdFabric = fabricStage.getAttributeWr<int64_t>(_path, FabricTokens::_cesium_tilesetId);
     // clang-format on
 

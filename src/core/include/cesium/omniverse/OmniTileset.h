@@ -41,14 +41,14 @@ enum TilesetSourceType {
 
 class OmniTileset {
   public:
-    OmniTileset(Context* pContext, const PXR_NS::SdfPath& path, int64_t tilesetId);
+    OmniTileset(Context* pContext, const pxr::SdfPath& path, int64_t tilesetId);
     ~OmniTileset();
     OmniTileset(const OmniTileset&) = delete;
     OmniTileset& operator=(const OmniTileset&) = delete;
     OmniTileset(OmniTileset&&) noexcept = default;
     OmniTileset& operator=(OmniTileset&&) noexcept = default;
 
-    [[nodiscard]] const PXR_NS::SdfPath& getPath() const;
+    [[nodiscard]] const pxr::SdfPath& getPath() const;
     [[nodiscard]] int64_t getTilesetId() const;
     [[nodiscard]] TilesetStatistics getStatistics() const;
 
@@ -57,7 +57,7 @@ class OmniTileset {
     [[nodiscard]] int64_t getIonAssetId() const;
     [[nodiscard]] CesiumIonClient::Token getIonAccessToken() const;
     [[nodiscard]] std::string getIonApiUrl() const;
-    [[nodiscard]] PXR_NS::SdfPath getIonServerPath() const;
+    [[nodiscard]] pxr::SdfPath getIonServerPath() const;
     [[nodiscard]] double getMaximumScreenSpaceError() const;
     [[nodiscard]] bool getPreloadAncestors() const;
     [[nodiscard]] bool getPreloadSiblings() const;
@@ -73,12 +73,12 @@ class OmniTileset {
     [[nodiscard]] bool getSuspendUpdate() const;
     [[nodiscard]] bool getSmoothNormals() const;
     [[nodiscard]] bool getShowCreditsOnScreen() const;
-    [[nodiscard]] PXR_NS::SdfPath getGeoreferencePath() const;
-    [[nodiscard]] PXR_NS::SdfPath getMaterialPath() const;
+    [[nodiscard]] pxr::SdfPath getGeoreferencePath() const;
+    [[nodiscard]] pxr::SdfPath getMaterialPath() const;
     [[nodiscard]] glm::dvec3 getDisplayColor() const;
     [[nodiscard]] double getDisplayOpacity() const;
 
-    void setIonServerPath(const PXR_NS::SdfPath& ionServerPath);
+    void setIonServerPath(const pxr::SdfPath& ionServerPath);
 
     void updateTilesetOptions();
 
@@ -87,9 +87,9 @@ class OmniTileset {
     getImageryLayerIndex(const CesiumRasterOverlays::RasterOverlay& overlay) const;
     [[nodiscard]] uint64_t getImageryLayerCount() const;
     [[nodiscard]] double getImageryLayerAlpha(uint64_t imageryLayerIndex) const;
-    [[nodiscard]] PXR_NS::SdfPath getImageryLayerPath(uint64_t imageryLayerIndex) const;
+    [[nodiscard]] pxr::SdfPath getImageryLayerPath(uint64_t imageryLayerIndex) const;
     void updateImageryLayerAlpha(uint64_t imageryLayerIndex);
-    void updateShaderInput(const PXR_NS::SdfPath& shaderPath, const PXR_NS::TfToken& attributeName);
+    void updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::TfToken& attributeName);
     void updateDisplayColorAndOpacity();
 
     void onUpdateFrame(const gsl::span<const Viewport>& viewports);
@@ -107,13 +107,13 @@ class OmniTileset {
     const Cesium3DTilesSelection::ViewUpdateResult* _pViewUpdateResult;
 
     Context* _pContext;
-    PXR_NS::SdfPath _path;
+    pxr::SdfPath _path;
     int64_t _tilesetId;
     glm::dmat4 _ecefToPrimWorldTransform{};
     std::vector<Cesium3DTilesSelection::ViewState> _viewStates;
     bool _extentSet{false};
     bool _activeLoading{false};
-    std::vector<PXR_NS::SdfPath> _imageryPaths;
+    std::vector<pxr::SdfPath> _imageryPaths;
 };
 
 } // namespace cesium::omniverse

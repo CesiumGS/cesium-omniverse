@@ -15,21 +15,21 @@ class Context;
 
 class OmniGeoreference {
   public:
-    OmniGeoreference(Context* pContext, const PXR_NS::SdfPath& path);
+    OmniGeoreference(Context* pContext, const pxr::SdfPath& path);
     ~OmniGeoreference() = default;
     OmniGeoreference(const OmniGeoreference&) = delete;
     OmniGeoreference& operator=(const OmniGeoreference&) = delete;
     OmniGeoreference(OmniGeoreference&&) noexcept = default;
     OmniGeoreference& operator=(OmniGeoreference&&) noexcept = default;
 
-    [[nodiscard]] const PXR_NS::SdfPath& getPath() const;
+    [[nodiscard]] const pxr::SdfPath& getPath() const;
     [[nodiscard]] CesiumGeospatial::Cartographic getOrigin() const;
     [[nodiscard]] const CesiumGeospatial::Ellipsoid& getEllipsoid() const;
     [[nodiscard]] CesiumGeospatial::LocalHorizontalCoordinateSystem getLocalCoordinateSystem() const;
 
   private:
     Context* _pContext;
-    PXR_NS::SdfPath _path;
+    pxr::SdfPath _path;
     CesiumGeospatial::Ellipsoid _ellipsoid;
 };
 } // namespace cesium::omniverse

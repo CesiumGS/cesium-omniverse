@@ -7,18 +7,18 @@
 
 namespace cesium::omniverse {
 
-OmniData::OmniData(Context* pContext, const PXR_NS::SdfPath& path)
+OmniData::OmniData(Context* pContext, const pxr::SdfPath& path)
     : _pContext(pContext)
     , _path(path) {}
 
-const PXR_NS::SdfPath& OmniData::getPath() const {
+const pxr::SdfPath& OmniData::getPath() const {
     return _path;
 }
 
-PXR_NS::SdfPath OmniData::getSelectedIonServerPath() const {
+pxr::SdfPath OmniData::getSelectedIonServerPath() const {
     const auto cesiumData = UsdUtil::getCesiumData(_pContext->getUsdStage(), _path);
 
-    PXR_NS::SdfPathVector targets;
+    pxr::SdfPathVector targets;
     cesiumData.GetSelectedIonServerRel().GetForwardedTargets(&targets);
 
     if (targets.empty()) {

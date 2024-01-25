@@ -8,15 +8,15 @@ class Context;
 
 class OmniData {
   public:
-    OmniData(Context* pContext, const PXR_NS::SdfPath& path);
+    OmniData(Context* pContext, const pxr::SdfPath& path);
     ~OmniData() = default;
     OmniData(const OmniData&) = delete;
     OmniData& operator=(const OmniData&) = delete;
     OmniData(OmniData&&) noexcept = default;
     OmniData& operator=(OmniData&&) noexcept = default;
 
-    [[nodiscard]] const PXR_NS::SdfPath& getPath() const;
-    [[nodiscard]] PXR_NS::SdfPath getSelectedIonServerPath() const;
+    [[nodiscard]] const pxr::SdfPath& getPath() const;
+    [[nodiscard]] pxr::SdfPath getSelectedIonServerPath() const;
     [[nodiscard]] bool getDebugDisableMaterials() const;
     [[nodiscard]] bool getDebugDisableTextures() const;
     [[nodiscard]] bool getDebugDisableGeometryPool() const;
@@ -30,6 +30,6 @@ class OmniData {
 
   private:
     Context* _pContext;
-    PXR_NS::SdfPath _path;
+    pxr::SdfPath _path;
 };
 } // namespace cesium::omniverse

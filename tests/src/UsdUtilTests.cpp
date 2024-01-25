@@ -20,27 +20,27 @@
 
 // define prim paths globally to cut down on repeated definitions
 // name the paths after the function to be tested so they can easily be paired up later
-PXR_NS::SdfPath defineCesiumDataPath;
-PXR_NS::SdfPath defineCesiumSessionPath;
-PXR_NS::SdfPath defineCesiumGeoreferencePath;
-PXR_NS::SdfPath defineCesiumTilesetPath;
-PXR_NS::SdfPath defineCesiumIonImageryPath;
-PXR_NS::SdfPath defineGlobeAnchorPath;
-PXR_NS::CesiumSession getOrCreateCesiumSessionPrim;
+pxr::SdfPath defineCesiumDataPath;
+pxr::SdfPath defineCesiumSessionPath;
+pxr::SdfPath defineCesiumGeoreferencePath;
+pxr::SdfPath defineCesiumTilesetPath;
+pxr::SdfPath defineCesiumIonImageryPath;
+pxr::SdfPath defineGlobeAnchorPath;
+pxr::CesiumSession getOrCreateCesiumSessionPrim;
 
 using namespace cesium::omniverse;
 using namespace cesium::omniverse::UsdUtil;
 
 const Context* pContext;
 
-void setUpUsdUtilTests(cesium::omniverse::Context* context, const PXR_NS::SdfPath& rootPath) {
+void setUpUsdUtilTests(cesium::omniverse::Context* context, const pxr::SdfPath& rootPath) {
     // might as well name the prims after the function as well, to ensure uniqueness and clarity
-    defineCesiumDataPath = rootPath.AppendChild(PXR_NS::TfToken("defineCesiumData"));
-    defineCesiumSessionPath = rootPath.AppendChild(PXR_NS::TfToken("defineCesiumSession"));
-    defineCesiumGeoreferencePath = rootPath.AppendChild(PXR_NS::TfToken("defineCesiumGeoreference"));
-    defineCesiumIonImageryPath = rootPath.AppendChild(PXR_NS::TfToken("defineCesiumIonImagery"));
-    defineCesiumTilesetPath = rootPath.AppendChild(PXR_NS::TfToken("defineCesiumTileset"));
-    defineGlobeAnchorPath = rootPath.AppendChild(PXR_NS::TfToken("defineGlobeAnchor"));
+    defineCesiumDataPath = rootPath.AppendChild(pxr::TfToken("defineCesiumData"));
+    defineCesiumSessionPath = rootPath.AppendChild(pxr::TfToken("defineCesiumSession"));
+    defineCesiumGeoreferencePath = rootPath.AppendChild(pxr::TfToken("defineCesiumGeoreference"));
+    defineCesiumIonImageryPath = rootPath.AppendChild(pxr::TfToken("defineCesiumIonImagery"));
+    defineCesiumTilesetPath = rootPath.AppendChild(pxr::TfToken("defineCesiumTileset"));
+    defineGlobeAnchorPath = rootPath.AppendChild(pxr::TfToken("defineGlobeAnchor"));
 
     defineCesiumData(context->getUsdStage(), defineCesiumDataPath);
     defineCesiumSession(context->getUsdStage(), defineCesiumSessionPath);
@@ -54,7 +54,7 @@ void setUpUsdUtilTests(cesium::omniverse::Context* context, const PXR_NS::SdfPat
     pContext = context;
 }
 
-void cleanUpUsdUtilTests(const PXR_NS::UsdStageRefPtr& stage) {
+void cleanUpUsdUtilTests(const pxr::UsdStageRefPtr& stage) {
 
     // might as well name the prims after the function as well, to ensure uniqueness and clarity
     stage->RemovePrim(defineCesiumDataPath);
@@ -72,7 +72,7 @@ void cleanUpUsdUtilTests(const PXR_NS::UsdStageRefPtr& stage) {
 TEST_SUITE("UsdUtil tests") {
 
     TEST_CASE("Check expected initial state") {
-        auto cesiumObjPath = PXR_NS::SdfPath("/Cesium");
+        auto cesiumObjPath = pxr::SdfPath("/Cesium");
         CHECK(primExists(pContext->getUsdStage(), cesiumObjPath));
         // TODO can we check something invisible here too?
         CHECK(isPrimVisible(pContext->getUsdStage(), cesiumObjPath));
@@ -94,16 +94,16 @@ TEST_SUITE("UsdUtil tests") {
         // Tests makeUniquePath actually returns unique paths
         CHECK(primPath.GetPrimPath() != cubePath.GetPrimPath());
 
-        auto cube = PXR_NS::UsdGeomCube::Define(pContext->getUsdStage(), cubePath);
+        auto cube = pxr::UsdGeomCube::Define(pContext->getUsdStage(), cubePath);
 
-        auto xformApiCube = PXR_NS::UsdGeomXformCommonAPI(cube);
+        auto xformApiCube = pxr::UsdGeomXformCommonAPI(cube);
         xformApiCube.SetRotate({30, 60, 90});
         xformApiCube.SetScale({5, 12, 13});
         xformApiCube.SetTranslate({3, 4, 5});
 
-        auto xformableCube = PXR_NS::UsdGeomXformable(cube);
+        auto xformableCube = pxr::UsdGeomXformable(cube);
 
-        PXR_NS::GfMatrix4d cubeXform;
+        pxr::GfMatrix4d cubeXform;
         bool xformStackResetNeeded [[maybe_unused]];
 
         xformableCube.GetLocalTransformation(&cubeXform, &xformStackResetNeeded);

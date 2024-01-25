@@ -46,7 +46,7 @@ void tokensUpdated() {
 }
 
 void showTroubleshooter(
-    const PXR_NS::SdfPath& tilesetPath,
+    const pxr::SdfPath& tilesetPath,
     int64_t tilesetIonAssetId,
     const std::string& tilesetName,
     int64_t imageryIonAssetId,
@@ -66,7 +66,7 @@ void setDefaultTokenComplete() {
     sendMessageToBus(SET_DEFAULT_PROJECT_TOKEN_COMPLETE_KEY);
 }
 
-void tilesetLoaded(const PXR_NS::SdfPath& tilesetPath) {
+void tilesetLoaded(const pxr::SdfPath& tilesetPath) {
     sendMessageToBusWithPayload(TILESET_LOADED_KEY, std::make_pair("tilesetPath", tilesetPath.GetText()));
 }
 

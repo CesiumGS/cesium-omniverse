@@ -277,7 +277,7 @@ std::optional<TokenTroubleshootingDetails> CesiumIonServerManager::getDefaultTok
     return _defaultTokenTroubleshootingDetails;
 }
 void CesiumIonServerManager::updateTroubleshootingDetails(
-    const PXR_NS::SdfPath& tilesetPath,
+    const pxr::SdfPath& tilesetPath,
     int64_t tilesetIonAssetId,
     uint64_t tokenEventId,
     uint64_t assetEventId) {
@@ -308,7 +308,7 @@ void CesiumIonServerManager::updateTroubleshootingDetails(
     }
 }
 void CesiumIonServerManager::updateTroubleshootingDetails(
-    const PXR_NS::SdfPath& tilesetPath,
+    const pxr::SdfPath& tilesetPath,
     [[maybe_unused]] int64_t tilesetIonAssetId,
     int64_t imageryIonAssetId,
     uint64_t tokenEventId,

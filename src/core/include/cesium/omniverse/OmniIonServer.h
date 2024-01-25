@@ -13,14 +13,14 @@ class Context;
 
 class OmniIonServer {
   public:
-    OmniIonServer(Context* pContext, const PXR_NS::SdfPath& path);
+    OmniIonServer(Context* pContext, const pxr::SdfPath& path);
     ~OmniIonServer() = default;
     OmniIonServer(const OmniIonServer&) = delete;
     OmniIonServer& operator=(const OmniIonServer&) = delete;
     OmniIonServer(OmniIonServer&&) noexcept = default;
     OmniIonServer& operator=(OmniIonServer&&) noexcept = default;
 
-    [[nodiscard]] const PXR_NS::SdfPath& getPath() const;
+    [[nodiscard]] const pxr::SdfPath& getPath() const;
     [[nodiscard]] std::string getIonServerUrl() const;
     [[nodiscard]] std::string getIonServerApiUrl() const;
     [[nodiscard]] int64_t getIonServerApplicationId() const;
@@ -32,7 +32,7 @@ class OmniIonServer {
 
   private:
     Context* _pContext;
-    PXR_NS::SdfPath _path;
+    pxr::SdfPath _path;
     std::shared_ptr<CesiumIonSession> _session;
 };
 } // namespace cesium::omniverse

@@ -12,7 +12,7 @@
 
 namespace pybind11::detail {
 
-PYBOOST11_TYPE_CASTER(PXR_NS::GfMatrix4d, _("Matrix4d"));
+PYBOOST11_TYPE_CASTER(pxr::GfMatrix4d, _("Matrix4d"));
 
 }
 
@@ -30,8 +30,8 @@ CARB_BINDINGS("cesium.omniverse.python")
 DISABLE_PYBIND11_DYNAMIC_CAST(cesium::omniverse::ICesiumOmniverseInterface)
 
 struct ViewportPythonBinding {
-    PXR_NS::GfMatrix4d viewMatrix;
-    PXR_NS::GfMatrix4d projMatrix;
+    pxr::GfMatrix4d viewMatrix;
+    pxr::GfMatrix4d projMatrix;
     double width;
     double height;
 };

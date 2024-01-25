@@ -13,7 +13,7 @@ namespace cesium::omniverse {
 
 class OmniIonImagery final : public OmniImagery {
   public:
-    OmniIonImagery(Context* pContext, const PXR_NS::SdfPath& path);
+    OmniIonImagery(Context* pContext, const pxr::SdfPath& path);
     ~OmniIonImagery() override = default;
     OmniIonImagery(const OmniIonImagery&) = delete;
     OmniIonImagery& operator=(const OmniIonImagery&) = delete;
@@ -23,12 +23,12 @@ class OmniIonImagery final : public OmniImagery {
     [[nodiscard]] int64_t getIonAssetId() const;
     [[nodiscard]] CesiumIonClient::Token getIonAccessToken() const;
     [[nodiscard]] std::string getIonApiUrl() const;
-    [[nodiscard]] PXR_NS::SdfPath getIonServerPath() const;
+    [[nodiscard]] pxr::SdfPath getIonServerPath() const;
 
     [[nodiscard]] CesiumRasterOverlays::RasterOverlay* getRasterOverlay() const override;
     void reload() override;
 
-    void setIonServerPath(const PXR_NS::SdfPath& ionServerPath);
+    void setIonServerPath(const pxr::SdfPath& ionServerPath);
 
   private:
     CesiumUtility::IntrusivePointer<CesiumRasterOverlays::IonRasterOverlay> _pIonRasterOverlay;

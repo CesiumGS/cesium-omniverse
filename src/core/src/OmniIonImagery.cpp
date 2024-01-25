@@ -18,7 +18,7 @@ namespace cesium::omniverse {
 
 namespace {} // namespace
 
-OmniIonImagery::OmniIonImagery(Context* pContext, const PXR_NS::SdfPath& path)
+OmniIonImagery::OmniIonImagery(Context* pContext, const pxr::SdfPath& path)
     : OmniImagery(pContext, path) {
     reload();
 }
@@ -75,10 +75,10 @@ std::string OmniIonImagery::getIonApiUrl() const {
     return pIonServer->getIonServerApiUrl();
 }
 
-PXR_NS::SdfPath OmniIonImagery::getIonServerPath() const {
+pxr::SdfPath OmniIonImagery::getIonServerPath() const {
     const auto cesiumIonImagery = UsdUtil::getCesiumIonImagery(_pContext->getUsdStage(), _path);
 
-    PXR_NS::SdfPathVector targets;
+    pxr::SdfPathVector targets;
     cesiumIonImagery.GetIonServerBindingRel().GetForwardedTargets(&targets);
 
     if (targets.empty()) {
@@ -128,7 +128,7 @@ void OmniIonImagery::reload() {
         imageryName, imageryIonAssetId, imageryIonAccessToken.token, options, imageryIonApiUrl);
 }
 
-void OmniIonImagery::setIonServerPath(const PXR_NS::SdfPath& ionServerPath) {
+void OmniIonImagery::setIonServerPath(const pxr::SdfPath& ionServerPath) {
     if (ionServerPath.IsEmpty()) {
         return;
     }

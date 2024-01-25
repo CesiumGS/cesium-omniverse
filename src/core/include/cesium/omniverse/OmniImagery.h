@@ -13,14 +13,14 @@ enum class FabricOverlayRenderMethod;
 
 class OmniImagery {
   public:
-    OmniImagery(Context* pContext, const PXR_NS::SdfPath& path);
+    OmniImagery(Context* pContext, const pxr::SdfPath& path);
     virtual ~OmniImagery() = default;
     OmniImagery(const OmniImagery&) = delete;
     OmniImagery& operator=(const OmniImagery&) = delete;
     OmniImagery(OmniImagery&&) noexcept = default;
     OmniImagery& operator=(OmniImagery&&) noexcept = default;
 
-    [[nodiscard]] const PXR_NS::SdfPath& getPath() const;
+    [[nodiscard]] const pxr::SdfPath& getPath() const;
     [[nodiscard]] bool getShowCreditsOnScreen() const;
     [[nodiscard]] double getAlpha() const;
     [[nodiscard]] FabricOverlayRenderMethod getOverlayRenderMethod() const;
@@ -30,6 +30,6 @@ class OmniImagery {
 
   protected:
     Context* _pContext;
-    PXR_NS::SdfPath _path;
+    pxr::SdfPath _path;
 };
 } // namespace cesium::omniverse

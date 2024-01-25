@@ -44,7 +44,7 @@ class FabricResourceManager {
     bool shouldAcquireMaterial(
         const CesiumGltf::MeshPrimitive& primitive,
         bool hasImagery,
-        const PXR_NS::SdfPath& tilesetMaterialPath) const;
+        const pxr::SdfPath& tilesetMaterialPath) const;
 
     bool getDisableTextures() const;
 
@@ -61,7 +61,7 @@ class FabricResourceManager {
         const FabricFeaturesInfo& featuresInfo,
         const FabricImageryLayersInfo& imageryLayersInfo,
         int64_t tilesetId,
-        const PXR_NS::SdfPath& tilesetMaterialPath);
+        const pxr::SdfPath& tilesetMaterialPath);
 
     std::shared_ptr<FabricTexture> acquireTexture();
 
@@ -80,9 +80,9 @@ class FabricResourceManager {
     void setDebugRandomColors(bool debugRandomColors);
 
     void updateShaderInput(
-        const PXR_NS::SdfPath& materialPath,
-        const PXR_NS::SdfPath& shaderPath,
-        const PXR_NS::TfToken& attributeName) const;
+        const pxr::SdfPath& materialPath,
+        const pxr::SdfPath& shaderPath,
+        const pxr::TfToken& attributeName) const;
 
     void clear();
 
@@ -153,8 +153,8 @@ class FabricResourceManager {
     Context* _pContext;
     std::unique_ptr<omni::ui::DynamicTextureProvider> _defaultWhiteTexture;
     std::unique_ptr<omni::ui::DynamicTextureProvider> _defaultTransparentTexture;
-    PXR_NS::TfToken _defaultWhiteTextureAssetPathToken;
-    PXR_NS::TfToken _defaultTransparentTextureAssetPathToken;
+    pxr::TfToken _defaultWhiteTextureAssetPathToken;
+    pxr::TfToken _defaultTransparentTextureAssetPathToken;
 
     std::vector<SharedMaterial> _sharedMaterials;
 };

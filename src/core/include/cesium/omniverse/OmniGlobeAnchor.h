@@ -15,17 +15,17 @@ class Context;
 
 class OmniGlobeAnchor {
   public:
-    OmniGlobeAnchor(Context* pContext, const PXR_NS::SdfPath& path);
+    OmniGlobeAnchor(Context* pContext, const pxr::SdfPath& path);
     ~OmniGlobeAnchor();
     OmniGlobeAnchor(const OmniGlobeAnchor&) = delete;
     OmniGlobeAnchor& operator=(const OmniGlobeAnchor&) = delete;
     OmniGlobeAnchor(OmniGlobeAnchor&&) noexcept = default;
     OmniGlobeAnchor& operator=(OmniGlobeAnchor&&) noexcept = default;
 
-    [[nodiscard]] const PXR_NS::SdfPath& getPath() const;
+    [[nodiscard]] const pxr::SdfPath& getPath() const;
     [[nodiscard]] bool getDetectTransformChanges() const;
     [[nodiscard]] bool getAdjustOrientation() const;
-    [[nodiscard]] PXR_NS::SdfPath getGeoreferencePath() const;
+    [[nodiscard]] pxr::SdfPath getGeoreferencePath() const;
 
     void updateByPrimLocalToEcefTransform();
     void updateByGeographicCoordinates();
@@ -50,7 +50,7 @@ class OmniGlobeAnchor {
     void savePrimLocalTransform();
 
     Context* _pContext;
-    PXR_NS::SdfPath _path;
+    pxr::SdfPath _path;
     std::unique_ptr<CesiumGeospatial::GlobeAnchor> _pAnchor;
 
     // These are used for quick comparisons, so we can short circuit successive updates.

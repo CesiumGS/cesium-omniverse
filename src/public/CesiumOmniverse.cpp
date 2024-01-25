@@ -34,7 +34,7 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
     }
 
     void reloadTileset(const char* tilesetPath) noexcept override {
-        const auto pTileset = _pContext->getAssetRegistry().getTileset(PXR_NS::SdfPath(tilesetPath));
+        const auto pTileset = _pContext->getAssetRegistry().getTileset(pxr::SdfPath(tilesetPath));
 
         if (pTileset) {
             pTileset->reload();
@@ -133,7 +133,7 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
         uint64_t tokenEventId,
         uint64_t assetEventId) noexcept override {
         return _pContext->getCesiumIonServerManager().updateTroubleshootingDetails(
-            PXR_NS::SdfPath(tilesetPath), tilesetIonAssetId, tokenEventId, assetEventId);
+            pxr::SdfPath(tilesetPath), tilesetIonAssetId, tokenEventId, assetEventId);
     }
 
     void updateTroubleshootingDetails(
@@ -143,7 +143,7 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
         uint64_t tokenEventId,
         uint64_t assetEventId) noexcept override {
         return _pContext->getCesiumIonServerManager().updateTroubleshootingDetails(
-            PXR_NS::SdfPath(tilesetPath), tilesetIonAssetId, imageryIonAssetId, tokenEventId, assetEventId);
+            pxr::SdfPath(tilesetPath), tilesetIonAssetId, imageryIonAssetId, tokenEventId, assetEventId);
     }
 
     std::string printFabricStage() noexcept override {

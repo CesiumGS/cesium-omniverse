@@ -13,18 +13,18 @@ class Context;
 
 class OmniCartographicPolygon {
   public:
-    OmniCartographicPolygon(Context* pContext, const PXR_NS::SdfPath& path);
+    OmniCartographicPolygon(Context* pContext, const pxr::SdfPath& path);
     ~OmniCartographicPolygon() = default;
     OmniCartographicPolygon(const OmniCartographicPolygon&) = delete;
     OmniCartographicPolygon& operator=(const OmniCartographicPolygon&) = delete;
     OmniCartographicPolygon(OmniCartographicPolygon&&) noexcept = default;
     OmniCartographicPolygon& operator=(OmniCartographicPolygon&&) noexcept = default;
 
-    [[nodiscard]] const PXR_NS::SdfPath& getPath() const;
+    [[nodiscard]] const pxr::SdfPath& getPath() const;
     [[nodiscard]] std::vector<CesiumGeospatial::Cartographic> getCartographics() const;
 
   private:
     Context* _pContext;
-    PXR_NS::SdfPath _path;
+    pxr::SdfPath _path;
 };
 } // namespace cesium::omniverse

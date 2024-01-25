@@ -13,11 +13,11 @@
 
 namespace cesium::omniverse {
 
-OmniCartographicPolygon::OmniCartographicPolygon(Context* pContext, const PXR_NS::SdfPath& path)
+OmniCartographicPolygon::OmniCartographicPolygon(Context* pContext, const pxr::SdfPath& path)
     : _pContext(pContext)
     , _path(path) {}
 
-const PXR_NS::SdfPath& OmniCartographicPolygon::getPath() const {
+const pxr::SdfPath& OmniCartographicPolygon::getPath() const {
     return _path;
 }
 
@@ -39,7 +39,7 @@ std::vector<CesiumGeospatial::Cartographic> OmniCartographicPolygon::getCartogra
 
     const auto cesiumCartographicPolygon = UsdUtil::getCesiumCartographicPolygon(_pContext->getUsdStage(), _path);
 
-    PXR_NS::VtArray<PXR_NS::GfVec3f> points;
+    pxr::VtArray<pxr::GfVec3f> points;
     cesiumCartographicPolygon.GetPointsAttr().Get(&points);
 
     std::vector<glm::dvec3> positionsLocal;

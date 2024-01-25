@@ -42,7 +42,7 @@ class Context {
 
     [[nodiscard]] const std::filesystem::path& getCesiumExtensionLocation() const;
     [[nodiscard]] const std::filesystem::path& getCertificatePath() const;
-    [[nodiscard]] const PXR_NS::TfToken& getCesiumMdlPathToken() const;
+    [[nodiscard]] const pxr::TfToken& getCesiumMdlPathToken() const;
 
     [[nodiscard]] std::shared_ptr<TaskProcessor> getTaskProcessor() const;
     [[nodiscard]] const CesiumAsync::AsyncSystem& getAsyncSystem() const;
@@ -62,8 +62,8 @@ class Context {
     void onUpdateFrame(const gsl::span<const Viewport>& viewports);
     void onUsdStageChanged(int64_t stageId);
 
-    [[nodiscard]] const PXR_NS::UsdStageWeakPtr& getUsdStage() const;
-    [[nodiscard]] PXR_NS::UsdStageWeakPtr& getUsdStage();
+    [[nodiscard]] const pxr::UsdStageWeakPtr& getUsdStage() const;
+    [[nodiscard]] pxr::UsdStageWeakPtr& getUsdStage();
     [[nodiscard]] int64_t getUsdStageId() const;
     [[nodiscard]] bool hasUsdStage() const;
     [[nodiscard]] omni::fabric::StageReaderWriter& getFabricStage() const;
@@ -73,7 +73,7 @@ class Context {
   private:
     std::filesystem::path _cesiumExtensionLocation;
     std::filesystem::path _certificatePath;
-    PXR_NS::TfToken _cesiumMdlPathToken;
+    pxr::TfToken _cesiumMdlPathToken;
 
     std::shared_ptr<TaskProcessor> _pTaskProcessor;
     std::unique_ptr<CesiumAsync::AsyncSystem> _pAsyncSystem;
@@ -85,7 +85,7 @@ class Context {
     std::unique_ptr<CesiumIonServerManager> _pCesiumIonServerManager;
     std::unique_ptr<UsdNotificationHandler> _pUsdNotificationHandler;
 
-    PXR_NS::UsdStageWeakPtr _pUsdStage;
+    pxr::UsdStageWeakPtr _pUsdStage;
     std::unique_ptr<omni::fabric::StageReaderWriter> _pFabricStage;
     int64_t _usdStageId{0};
 };

@@ -9,7 +9,7 @@
 
 namespace cesium::omniverse {
 
-OmniIonServer::OmniIonServer(Context* pContext, const PXR_NS::SdfPath& path)
+OmniIonServer::OmniIonServer(Context* pContext, const pxr::SdfPath& path)
     : _pContext(pContext)
     , _path(path)
     , _session(std::make_shared<CesiumIonSession>(
@@ -19,7 +19,7 @@ OmniIonServer::OmniIonServer(Context* pContext, const PXR_NS::SdfPath& path)
           getIonServerApiUrl(),
           getIonServerApplicationId())) {}
 
-const PXR_NS::SdfPath& OmniIonServer::getPath() const {
+const pxr::SdfPath& OmniIonServer::getPath() const {
     return _path;
 }
 

@@ -15,8 +15,8 @@ class FabricMaterialPool final : public ObjectPool<FabricMaterial> {
         int64_t poolId,
         const FabricMaterialDescriptor& materialDescriptor,
         uint64_t initialCapacity,
-        const PXR_NS::TfToken& defaultWhiteTextureAssetPathToken,
-        const PXR_NS::TfToken& defaultTransparentTextureAssetPathToken,
+        const pxr::TfToken& defaultWhiteTextureAssetPathToken,
+        const pxr::TfToken& defaultTransparentTextureAssetPathToken,
         bool debugRandomColors);
     ~FabricMaterialPool() override = default;
     FabricMaterialPool(const FabricMaterialPool&) = delete;
@@ -27,7 +27,7 @@ class FabricMaterialPool final : public ObjectPool<FabricMaterial> {
     [[nodiscard]] const FabricMaterialDescriptor& getMaterialDescriptor() const;
     [[nodiscard]] int64_t getPoolId() const;
 
-    void updateShaderInput(const PXR_NS::SdfPath& shaderPath, const PXR_NS::TfToken& attributeName);
+    void updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::TfToken& attributeName);
 
   protected:
     std::shared_ptr<FabricMaterial> createObject(uint64_t objectId) const override;
@@ -37,8 +37,8 @@ class FabricMaterialPool final : public ObjectPool<FabricMaterial> {
     Context* _pContext;
     int64_t _poolId;
     FabricMaterialDescriptor _materialDescriptor;
-    PXR_NS::TfToken _defaultWhiteTextureAssetPathToken;
-    PXR_NS::TfToken _defaultTransparentTextureAssetPathToken;
+    pxr::TfToken _defaultWhiteTextureAssetPathToken;
+    pxr::TfToken _defaultTransparentTextureAssetPathToken;
     bool _debugRandomColors;
 };
 

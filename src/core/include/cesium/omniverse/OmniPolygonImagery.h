@@ -9,14 +9,14 @@ namespace cesium::omniverse {
 
 class OmniPolygonImagery final : public OmniImagery {
   public:
-    OmniPolygonImagery(Context* pContext, const PXR_NS::SdfPath& path);
+    OmniPolygonImagery(Context* pContext, const pxr::SdfPath& path);
     ~OmniPolygonImagery() override = default;
     OmniPolygonImagery(const OmniPolygonImagery&) = delete;
     OmniPolygonImagery& operator=(const OmniPolygonImagery&) = delete;
     OmniPolygonImagery(OmniPolygonImagery&&) noexcept = default;
     OmniPolygonImagery& operator=(OmniPolygonImagery&&) noexcept = default;
 
-    [[nodiscard]] std::vector<PXR_NS::SdfPath> getCartographicPolygonPaths() const;
+    [[nodiscard]] std::vector<pxr::SdfPath> getCartographicPolygonPaths() const;
 
     [[nodiscard]] CesiumRasterOverlays::RasterOverlay* getRasterOverlay() const override;
     void reload() override;

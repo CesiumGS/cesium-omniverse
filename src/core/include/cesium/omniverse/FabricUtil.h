@@ -33,8 +33,8 @@ void setTilesetTransform(
     omni::fabric::StageReaderWriter& fabricStage,
     int64_t tilesetId,
     const glm::dmat4& ecefToPrimWorldTransform);
-omni::fabric::Path toFabricPath(const PXR_NS::SdfPath& path);
-omni::fabric::Token toFabricToken(const PXR_NS::TfToken& token);
+omni::fabric::Path toFabricPath(const pxr::SdfPath& path);
+omni::fabric::Token toFabricToken(const pxr::TfToken& token);
 omni::fabric::Path joinPaths(const omni::fabric::Path& absolutePath, const omni::fabric::Token& relativePath);
 omni::fabric::Path getCopiedShaderPath(const omni::fabric::Path& materialPath, const omni::fabric::Path& shaderPath);
 std::vector<omni::fabric::Path> copyMaterial(

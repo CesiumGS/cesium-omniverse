@@ -142,7 +142,7 @@ void FabricTexture::setActive(bool active) {
     }
 }
 
-const PXR_NS::TfToken& FabricTexture::getAssetPathToken() const {
+const pxr::TfToken& FabricTexture::getAssetPathToken() const {
     return _assetPathToken;
 }
 

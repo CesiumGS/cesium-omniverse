@@ -60,7 +60,7 @@ FabricResourceManager::~FabricResourceManager() = default;
 bool FabricResourceManager::shouldAcquireMaterial(
     const CesiumGltf::MeshPrimitive& primitive,
     bool hasImagery,
-    const PXR_NS::SdfPath& tilesetMaterialPath) const {
+    const pxr::SdfPath& tilesetMaterialPath) const {
     if (_disableMaterials) {
         return false;
     }
@@ -103,7 +103,7 @@ std::shared_ptr<FabricMaterial> FabricResourceManager::acquireMaterial(
     const FabricFeaturesInfo& featuresInfo,
     const FabricImageryLayersInfo& imageryLayersInfo,
     int64_t tilesetId,
-    const PXR_NS::SdfPath& tilesetMaterialPath) {
+    const pxr::SdfPath& tilesetMaterialPath) {
     FabricMaterialDescriptor materialDescriptor(
         *_pContext, model, primitive, materialInfo, featuresInfo, imageryLayersInfo, tilesetMaterialPath);
 
@@ -221,9 +221,9 @@ void FabricResourceManager::setDebugRandomColors(bool debugRandomColors) {
 }
 
 void FabricResourceManager::updateShaderInput(
-    const PXR_NS::SdfPath& materialPath,
-    const PXR_NS::SdfPath& shaderPath,
-    const PXR_NS::TfToken& attributeName) const {
+    const pxr::SdfPath& materialPath,
+    const pxr::SdfPath& shaderPath,
+    const pxr::TfToken& attributeName) const {
     for (const auto& pMaterialPool : _materialPools) {
         const auto& tilesetMaterialPath = pMaterialPool->getMaterialDescriptor().getTilesetMaterialPath();
         if (tilesetMaterialPath == materialPath) {

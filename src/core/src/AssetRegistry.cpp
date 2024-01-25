@@ -26,15 +26,15 @@ void AssetRegistry::onUpdateFrame(const gsl::span<const Viewport>& viewports) {
     }
 }
 
-OmniData& AssetRegistry::addData(const PXR_NS::SdfPath& path) {
+OmniData& AssetRegistry::addData(const pxr::SdfPath& path) {
     return *_datas.insert(_datas.end(), std::make_unique<OmniData>(_pContext, path))->get();
 }
 
-void AssetRegistry::removeData(const PXR_NS::SdfPath& path) {
+void AssetRegistry::removeData(const pxr::SdfPath& path) {
     CppUtil::eraseIf(_datas, [&path](const auto& pData) { return pData->getPath() == path; });
 }
 
-OmniData* AssetRegistry::getData(const PXR_NS::SdfPath& path) const {
+OmniData* AssetRegistry::getData(const pxr::SdfPath& path) const {
     for (const auto& pData : _datas) {
         if (pData->getPath() == path) {
             return pData.get();
@@ -52,15 +52,15 @@ OmniData* AssetRegistry::getFirstData() const {
     return _datas.front().get();
 }
 
-OmniTileset& AssetRegistry::addTileset(const PXR_NS::SdfPath& path) {
+OmniTileset& AssetRegistry::addTileset(const pxr::SdfPath& path) {
     return *_tilesets.insert(_tilesets.end(), std::make_unique<OmniTileset>(_pContext, path, _tilesetId++))->get();
 }
 
-void AssetRegistry::removeTileset(const PXR_NS::SdfPath& path) {
+void AssetRegistry::removeTileset(const pxr::SdfPath& path) {
     CppUtil::eraseIf(_tilesets, [&path](const auto& pTileset) { return pTileset->getPath() == path; });
 }
 
-OmniTileset* AssetRegistry::getTileset(const PXR_NS::SdfPath& path) const {
+OmniTileset* AssetRegistry::getTileset(const pxr::SdfPath& path) const {
     for (const auto& pTileset : _tilesets) {
         if (pTileset->getPath() == path) {
             return pTileset.get();
@@ -74,15 +74,15 @@ const std::vector<std::unique_ptr<OmniTileset>>& AssetRegistry::getTilesets() co
     return _tilesets;
 }
 
-OmniIonImagery& AssetRegistry::addIonImagery(const PXR_NS::SdfPath& path) {
+OmniIonImagery& AssetRegistry::addIonImagery(const pxr::SdfPath& path) {
     return *_ionImageries.insert(_ionImageries.end(), std::make_unique<OmniIonImagery>(_pContext, path))->get();
 }
 
-void AssetRegistry::removeIonImagery(const PXR_NS::SdfPath& path) {
+void AssetRegistry::removeIonImagery(const pxr::SdfPath& path) {
     CppUtil::eraseIf(_ionImageries, [&path](const auto& pIonImagery) { return pIonImagery->getPath() == path; });
 }
 
-OmniIonImagery* AssetRegistry::getIonImagery(const PXR_NS::SdfPath& path) const {
+OmniIonImagery* AssetRegistry::getIonImagery(const pxr::SdfPath& path) const {
     for (const auto& pIonImagery : _ionImageries) {
         if (pIonImagery->getPath() == path) {
             return pIonImagery.get();
@@ -106,17 +106,17 @@ const std::vector<std::unique_ptr<OmniIonImagery>>& AssetRegistry::getIonImageri
     return _ionImageries;
 }
 
-OmniPolygonImagery& AssetRegistry::addPolygonImagery(const PXR_NS::SdfPath& path) {
+OmniPolygonImagery& AssetRegistry::addPolygonImagery(const pxr::SdfPath& path) {
     return *_polygonImageries.insert(_polygonImageries.end(), std::make_unique<OmniPolygonImagery>(_pContext, path))
                 ->get();
 }
 
-void AssetRegistry::removePolygonImagery(const PXR_NS::SdfPath& path) {
+void AssetRegistry::removePolygonImagery(const pxr::SdfPath& path) {
     CppUtil::eraseIf(
         _polygonImageries, [&path](const auto& pPolygonImagery) { return pPolygonImagery->getPath() == path; });
 }
 
-OmniPolygonImagery* AssetRegistry::getPolygonImagery(const PXR_NS::SdfPath& path) const {
+OmniPolygonImagery* AssetRegistry::getPolygonImagery(const pxr::SdfPath& path) const {
     for (const auto& pPolygonImagery : _polygonImageries) {
         if (pPolygonImagery->getPath() == path) {
             return pPolygonImagery.get();
@@ -130,7 +130,7 @@ const std::vector<std::unique_ptr<OmniPolygonImagery>>& AssetRegistry::getPolygo
     return _polygonImageries;
 }
 
-OmniImagery* AssetRegistry::getImagery(const PXR_NS::SdfPath& path) const {
+OmniImagery* AssetRegistry::getImagery(const pxr::SdfPath& path) const {
     const auto pIonImagery = getIonImagery(path);
 
     if (pIonImagery) {
@@ -146,15 +146,15 @@ OmniImagery* AssetRegistry::getImagery(const PXR_NS::SdfPath& path) const {
     return nullptr;
 }
 
-OmniGeoreference& AssetRegistry::addGeoreference(const PXR_NS::SdfPath& path) {
+OmniGeoreference& AssetRegistry::addGeoreference(const pxr::SdfPath& path) {
     return *_georeferences.insert(_georeferences.end(), std::make_unique<OmniGeoreference>(_pContext, path))->get();
 }
 
-void AssetRegistry::removeGeoreference(const PXR_NS::SdfPath& path) {
+void AssetRegistry::removeGeoreference(const pxr::SdfPath& path) {
     CppUtil::eraseIf(_georeferences, [&path](const auto& pGeoreference) { return pGeoreference->getPath() == path; });
 }
 
-OmniGeoreference* AssetRegistry::getGeoreference(const PXR_NS::SdfPath& path) const {
+OmniGeoreference* AssetRegistry::getGeoreference(const pxr::SdfPath& path) const {
     for (const auto& pGeoreference : _georeferences) {
         if (pGeoreference->getPath() == path) {
             return pGeoreference.get();
@@ -168,15 +168,15 @@ const std::vector<std::unique_ptr<OmniGeoreference>>& AssetRegistry::getGeorefer
     return _georeferences;
 }
 
-OmniGlobeAnchor& AssetRegistry::addGlobeAnchor(const PXR_NS::SdfPath& path) {
+OmniGlobeAnchor& AssetRegistry::addGlobeAnchor(const pxr::SdfPath& path) {
     return *_globeAnchors.insert(_globeAnchors.end(), std::make_unique<OmniGlobeAnchor>(_pContext, path))->get();
 }
 
-void AssetRegistry::removeGlobeAnchor(const PXR_NS::SdfPath& path) {
+void AssetRegistry::removeGlobeAnchor(const pxr::SdfPath& path) {
     CppUtil::eraseIf(_globeAnchors, [&path](const auto& pGlobeAnchor) { return pGlobeAnchor->getPath() == path; });
 }
 
-OmniGlobeAnchor* AssetRegistry::getGlobeAnchor(const PXR_NS::SdfPath& path) const {
+OmniGlobeAnchor* AssetRegistry::getGlobeAnchor(const pxr::SdfPath& path) const {
     for (const auto& pGlobeAnchor : _globeAnchors) {
         if (pGlobeAnchor->getPath() == path) {
             return pGlobeAnchor.get();
@@ -189,15 +189,15 @@ const std::vector<std::unique_ptr<OmniGlobeAnchor>>& AssetRegistry::getGlobeAnch
     return _globeAnchors;
 }
 
-OmniIonServer& AssetRegistry::addIonServer(const PXR_NS::SdfPath& path) {
+OmniIonServer& AssetRegistry::addIonServer(const pxr::SdfPath& path) {
     return *_ionServers.insert(_ionServers.end(), std::make_unique<OmniIonServer>(_pContext, path))->get();
 }
 
-void AssetRegistry::removeIonServer(const PXR_NS::SdfPath& path) {
+void AssetRegistry::removeIonServer(const pxr::SdfPath& path) {
     CppUtil::eraseIf(_ionServers, [&path](const auto& pIonServer) { return pIonServer->getPath() == path; });
 }
 
-OmniIonServer* AssetRegistry::getIonServer(const PXR_NS::SdfPath& path) const {
+OmniIonServer* AssetRegistry::getIonServer(const pxr::SdfPath& path) const {
     for (const auto& pIonServer : _ionServers) {
         if (pIonServer->getPath() == path) {
             return pIonServer.get();
@@ -219,19 +219,19 @@ OmniIonServer* AssetRegistry::getFirstIonServer() const {
     return _ionServers.front().get();
 }
 
-OmniCartographicPolygon& AssetRegistry::addCartographicPolygon(const PXR_NS::SdfPath& path) {
+OmniCartographicPolygon& AssetRegistry::addCartographicPolygon(const pxr::SdfPath& path) {
     return *_cartographicPolygons
                 .insert(_cartographicPolygons.end(), std::make_unique<OmniCartographicPolygon>(_pContext, path))
                 ->get();
 }
 
-void AssetRegistry::removeCartographicPolygon(const PXR_NS::SdfPath& path) {
+void AssetRegistry::removeCartographicPolygon(const pxr::SdfPath& path) {
     CppUtil::eraseIf(_cartographicPolygons, [&path](const auto& pCartographicPolygon) {
         return pCartographicPolygon->getPath() == path;
     });
 }
 
-OmniCartographicPolygon* AssetRegistry::getCartographicPolygon(const PXR_NS::SdfPath& path) const {
+OmniCartographicPolygon* AssetRegistry::getCartographicPolygon(const pxr::SdfPath& path) const {
     for (const auto& pCartographicPolygon : _cartographicPolygons) {
         if (pCartographicPolygon->getPath() == path) {
             return pCartographicPolygon.get();
@@ -245,7 +245,7 @@ const std::vector<std::unique_ptr<OmniCartographicPolygon>>& AssetRegistry::getC
     return _cartographicPolygons;
 }
 
-AssetType AssetRegistry::getAssetType(const PXR_NS::SdfPath& path) const {
+AssetType AssetRegistry::getAssetType(const pxr::SdfPath& path) const {
     if (getData(path)) {
         return AssetType::DATA;
     } else if (getTileset(path)) {
@@ -268,7 +268,7 @@ AssetType AssetRegistry::getAssetType(const PXR_NS::SdfPath& path) const {
     }
 }
 
-bool AssetRegistry::hasAsset(const PXR_NS::SdfPath& path) const {
+bool AssetRegistry::hasAsset(const pxr::SdfPath& path) const {
     return getAssetType(path) != AssetType::OTHER;
 }
 

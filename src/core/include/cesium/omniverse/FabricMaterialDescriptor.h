@@ -37,14 +37,14 @@ class FabricMaterialDescriptor {
         const FabricMaterialInfo& materialInfo,
         const FabricFeaturesInfo& featuresInfo,
         const FabricImageryLayersInfo& imageryLayersInfo,
-        const PXR_NS::SdfPath& tilesetMaterialPath);
+        const pxr::SdfPath& tilesetMaterialPath);
 
     [[nodiscard]] bool hasVertexColors() const;
     [[nodiscard]] bool hasBaseColorTexture() const;
     [[nodiscard]] const std::vector<FabricFeatureIdType>& getFeatureIdTypes() const;
     [[nodiscard]] const std::vector<FabricOverlayRenderMethod>& getImageryOverlayRenderMethods() const;
     [[nodiscard]] bool hasTilesetMaterial() const;
-    [[nodiscard]] const PXR_NS::SdfPath& getTilesetMaterialPath() const;
+    [[nodiscard]] const pxr::SdfPath& getTilesetMaterialPath() const;
     [[nodiscard]] const std::vector<FabricPropertyDescriptor>& getStyleableProperties() const;
 
     bool operator==(const FabricMaterialDescriptor& other) const;
@@ -54,7 +54,7 @@ class FabricMaterialDescriptor {
     bool _hasBaseColorTexture;
     std::vector<FabricFeatureIdType> _featureIdTypes;
     std::vector<FabricOverlayRenderMethod> _imageryOverlayRenderMethods;
-    PXR_NS::SdfPath _tilesetMaterialPath;
+    pxr::SdfPath _tilesetMaterialPath;
     std::vector<FabricPropertyDescriptor> _styleableProperties;
 };
 

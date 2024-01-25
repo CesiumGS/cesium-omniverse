@@ -547,12 +547,12 @@ void setTilesetTransform(
     for (uint64_t bucketId = 0; bucketId < buckets.bucketCount(); ++bucketId) {
         // clang-format off
         const auto tilesetIdFabric = fabricStage.getAttributeArrayRd<int64_t>(buckets, bucketId, FabricTokens::_cesium_tilesetId);
-        const auto gltfLocalToEcefTransformFabric = fabricStage.getAttributeArrayRd<PXR_NS::GfMatrix4d>(buckets, bucketId, FabricTokens::_cesium_gltfLocalToEcefTransform);
-        const auto extentFabric = fabricStage.getAttributeArrayRd<PXR_NS::GfRange3d>(buckets, bucketId, FabricTokens::extent);
-        const auto worldPositionFabric = fabricStage.getAttributeArrayWr<PXR_NS::GfVec3d>(buckets, bucketId, FabricTokens::_worldPosition);
-        const auto worldOrientationFabric = fabricStage.getAttributeArrayWr<PXR_NS::GfQuatf>(buckets, bucketId, FabricTokens::_worldOrientation);
-        const auto worldScaleFabric = fabricStage.getAttributeArrayWr<PXR_NS::GfVec3f>(buckets, bucketId, FabricTokens::_worldScale);
-        const auto worldExtentFabric = fabricStage.getAttributeArrayWr<PXR_NS::GfRange3d>(buckets, bucketId, FabricTokens::_worldExtent);
+        const auto gltfLocalToEcefTransformFabric = fabricStage.getAttributeArrayRd<pxr::GfMatrix4d>(buckets, bucketId, FabricTokens::_cesium_gltfLocalToEcefTransform);
+        const auto extentFabric = fabricStage.getAttributeArrayRd<pxr::GfRange3d>(buckets, bucketId, FabricTokens::extent);
+        const auto worldPositionFabric = fabricStage.getAttributeArrayWr<pxr::GfVec3d>(buckets, bucketId, FabricTokens::_worldPosition);
+        const auto worldOrientationFabric = fabricStage.getAttributeArrayWr<pxr::GfQuatf>(buckets, bucketId, FabricTokens::_worldOrientation);
+        const auto worldScaleFabric = fabricStage.getAttributeArrayWr<pxr::GfVec3f>(buckets, bucketId, FabricTokens::_worldScale);
+        const auto worldExtentFabric = fabricStage.getAttributeArrayWr<pxr::GfRange3d>(buckets, bucketId, FabricTokens::_worldExtent);
         // clang-format on
 
         for (uint64_t i = 0; i < tilesetIdFabric.size(); ++i) {
@@ -573,11 +573,11 @@ void setTilesetTransform(
     }
 }
 
-omni::fabric::Path toFabricPath(const PXR_NS::SdfPath& path) {
+omni::fabric::Path toFabricPath(const pxr::SdfPath& path) {
     return {omni::fabric::asInt(path)};
 }
 
-omni::fabric::Token toFabricToken(const PXR_NS::TfToken& token) {
+omni::fabric::Token toFabricToken(const pxr::TfToken& token) {
     return {omni::fabric::asInt(token)};
 }
 

@@ -37,7 +37,7 @@ class FabricTexture {
 
     void setActive(bool active);
 
-    [[nodiscard]] const PXR_NS::TfToken& getAssetPathToken() const;
+    [[nodiscard]] const pxr::TfToken& getAssetPathToken() const;
     [[nodiscard]] int64_t getPoolId() const;
 
   private:
@@ -45,7 +45,7 @@ class FabricTexture {
 
     Context* _pContext;
     std::unique_ptr<omni::ui::DynamicTextureProvider> _pTexture;
-    PXR_NS::TfToken _assetPathToken;
+    pxr::TfToken _assetPathToken;
     int64_t _poolId;
 };
 } // namespace cesium::omniverse

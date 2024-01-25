@@ -43,52 +43,52 @@ class AssetRegistry {
 
     void onUpdateFrame(const gsl::span<const Viewport>& viewports);
 
-    OmniData& addData(const PXR_NS::SdfPath& path);
-    void removeData(const PXR_NS::SdfPath& path);
-    [[nodiscard]] OmniData* getData(const PXR_NS::SdfPath& path) const;
+    OmniData& addData(const pxr::SdfPath& path);
+    void removeData(const pxr::SdfPath& path);
+    [[nodiscard]] OmniData* getData(const pxr::SdfPath& path) const;
     [[nodiscard]] OmniData* getFirstData() const;
 
-    OmniTileset& addTileset(const PXR_NS::SdfPath& path);
-    void removeTileset(const PXR_NS::SdfPath& path);
-    [[nodiscard]] OmniTileset* getTileset(const PXR_NS::SdfPath& path) const;
+    OmniTileset& addTileset(const pxr::SdfPath& path);
+    void removeTileset(const pxr::SdfPath& path);
+    [[nodiscard]] OmniTileset* getTileset(const pxr::SdfPath& path) const;
     [[nodiscard]] const std::vector<std::unique_ptr<OmniTileset>>& getTilesets() const;
 
-    OmniIonImagery& addIonImagery(const PXR_NS::SdfPath& path);
-    void removeIonImagery(const PXR_NS::SdfPath& path);
-    [[nodiscard]] OmniIonImagery* getIonImagery(const PXR_NS::SdfPath& path) const;
+    OmniIonImagery& addIonImagery(const pxr::SdfPath& path);
+    void removeIonImagery(const pxr::SdfPath& path);
+    [[nodiscard]] OmniIonImagery* getIonImagery(const pxr::SdfPath& path) const;
     [[nodiscard]] OmniIonImagery* getIonImageryByIonAssetId(int64_t ionAssetId) const;
     [[nodiscard]] const std::vector<std::unique_ptr<OmniIonImagery>>& getIonImageries() const;
 
-    OmniPolygonImagery& addPolygonImagery(const PXR_NS::SdfPath& path);
-    void removePolygonImagery(const PXR_NS::SdfPath& path);
-    [[nodiscard]] OmniPolygonImagery* getPolygonImagery(const PXR_NS::SdfPath& path) const;
+    OmniPolygonImagery& addPolygonImagery(const pxr::SdfPath& path);
+    void removePolygonImagery(const pxr::SdfPath& path);
+    [[nodiscard]] OmniPolygonImagery* getPolygonImagery(const pxr::SdfPath& path) const;
     [[nodiscard]] const std::vector<std::unique_ptr<OmniPolygonImagery>>& getPolygonImageries() const;
 
-    [[nodiscard]] OmniImagery* getImagery(const PXR_NS::SdfPath& path) const;
+    [[nodiscard]] OmniImagery* getImagery(const pxr::SdfPath& path) const;
 
-    OmniGeoreference& addGeoreference(const PXR_NS::SdfPath& path);
-    void removeGeoreference(const PXR_NS::SdfPath& path);
-    [[nodiscard]] OmniGeoreference* getGeoreference(const PXR_NS::SdfPath& path) const;
+    OmniGeoreference& addGeoreference(const pxr::SdfPath& path);
+    void removeGeoreference(const pxr::SdfPath& path);
+    [[nodiscard]] OmniGeoreference* getGeoreference(const pxr::SdfPath& path) const;
     [[nodiscard]] const std::vector<std::unique_ptr<OmniGeoreference>>& getGeoreferences() const;
 
-    OmniGlobeAnchor& addGlobeAnchor(const PXR_NS::SdfPath& path);
-    void removeGlobeAnchor(const PXR_NS::SdfPath& path);
-    [[nodiscard]] OmniGlobeAnchor* getGlobeAnchor(const PXR_NS::SdfPath& path) const;
+    OmniGlobeAnchor& addGlobeAnchor(const pxr::SdfPath& path);
+    void removeGlobeAnchor(const pxr::SdfPath& path);
+    [[nodiscard]] OmniGlobeAnchor* getGlobeAnchor(const pxr::SdfPath& path) const;
     [[nodiscard]] const std::vector<std::unique_ptr<OmniGlobeAnchor>>& getGlobeAnchors() const;
 
-    OmniIonServer& addIonServer(const PXR_NS::SdfPath& path);
-    void removeIonServer(const PXR_NS::SdfPath& path);
-    [[nodiscard]] OmniIonServer* getIonServer(const PXR_NS::SdfPath& path) const;
+    OmniIonServer& addIonServer(const pxr::SdfPath& path);
+    void removeIonServer(const pxr::SdfPath& path);
+    [[nodiscard]] OmniIonServer* getIonServer(const pxr::SdfPath& path) const;
     [[nodiscard]] const std::vector<std::unique_ptr<OmniIonServer>>& getIonServers() const;
     [[nodiscard]] OmniIonServer* getFirstIonServer() const;
 
-    OmniCartographicPolygon& addCartographicPolygon(const PXR_NS::SdfPath& path);
-    void removeCartographicPolygon(const PXR_NS::SdfPath& path);
-    [[nodiscard]] OmniCartographicPolygon* getCartographicPolygon(const PXR_NS::SdfPath& path) const;
+    OmniCartographicPolygon& addCartographicPolygon(const pxr::SdfPath& path);
+    void removeCartographicPolygon(const pxr::SdfPath& path);
+    [[nodiscard]] OmniCartographicPolygon* getCartographicPolygon(const pxr::SdfPath& path) const;
     [[nodiscard]] const std::vector<std::unique_ptr<OmniCartographicPolygon>>& getCartographicPolygons() const;
 
-    [[nodiscard]] AssetType getAssetType(const PXR_NS::SdfPath& path) const;
-    [[nodiscard]] bool hasAsset(const PXR_NS::SdfPath& path) const;
+    [[nodiscard]] AssetType getAssetType(const pxr::SdfPath& path) const;
+    [[nodiscard]] bool hasAsset(const pxr::SdfPath& path) const;
 
     void clear();
 

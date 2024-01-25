@@ -254,14 +254,14 @@ void createAttributes(
     *inputsExcludeFromWhiteModeFabric = false;
     *infoImplementationSourceFabric = FabricTokens::sourceAsset;
     infoMdlSourceAssetFabric->assetPath = context.getCesiumMdlPathToken();
-    infoMdlSourceAssetFabric->resolvedPath = PXR_NS::TfToken();
+    infoMdlSourceAssetFabric->resolvedPath = pxr::TfToken();
     *infoMdlSourceAssetSubIdentifierFabric = subidentifier;
 }
 
 void setTextureValuesCommon(
     omni::fabric::StageReaderWriter& fabricStage,
     const omni::fabric::Path& path,
-    const PXR_NS::TfToken& textureAssetPathToken,
+    const pxr::TfToken& textureAssetPathToken,
     const FabricTextureInfo& textureInfo,
     uint64_t texcoordIndex) {
 
@@ -281,12 +281,12 @@ void setTextureValuesCommon(
     const auto texCoordIndexFabric = fabricStage.getAttributeWr<int>(path, FabricTokens::inputs_tex_coord_index);
     const auto wrapSFabric = fabricStage.getAttributeWr<int>(path, FabricTokens::inputs_wrap_s);
     const auto wrapTFabric = fabricStage.getAttributeWr<int>(path, FabricTokens::inputs_wrap_t);
-    const auto offsetFabric = fabricStage.getAttributeWr<PXR_NS::GfVec2f>(path, FabricTokens::inputs_tex_coord_offset);
+    const auto offsetFabric = fabricStage.getAttributeWr<pxr::GfVec2f>(path, FabricTokens::inputs_tex_coord_offset);
     const auto rotationFabric = fabricStage.getAttributeWr<float>(path, FabricTokens::inputs_tex_coord_rotation);
-    const auto scaleFabric = fabricStage.getAttributeWr<PXR_NS::GfVec2f>(path, FabricTokens::inputs_tex_coord_scale);
+    const auto scaleFabric = fabricStage.getAttributeWr<pxr::GfVec2f>(path, FabricTokens::inputs_tex_coord_scale);
 
     textureFabric->assetPath = textureAssetPathToken;
-    textureFabric->resolvedPath = PXR_NS::TfToken();
+    textureFabric->resolvedPath = pxr::TfToken();
     *texCoordIndexFabric = static_cast<int>(texcoordIndex);
     *wrapSFabric = textureInfo.wrapS;
     *wrapTFabric = textureInfo.wrapT;
@@ -298,7 +298,7 @@ void setTextureValuesCommon(
 void setTextureValuesCommonChannels(
     omni::fabric::StageReaderWriter& fabricStage,
     const omni::fabric::Path& path,
-    const PXR_NS::TfToken& textureAssetPathToken,
+    const pxr::TfToken& textureAssetPathToken,
     const FabricTextureInfo& textureInfo,
     uint64_t texcoordIndex) {
 
@@ -398,7 +398,7 @@ template <MdlInternalPropertyType T>
 void setPropertyTexturePropertyValues(
     omni::fabric::StageReaderWriter& fabricStage,
     const omni::fabric::Path& path,
-    const PXR_NS::TfToken& textureAssetPathToken,
+    const pxr::TfToken& textureAssetPathToken,
     const FabricTextureInfo& textureInfo,
     uint64_t texcoordIndex,
     const DataTypeUtil::GetMdlInternalPropertyTransformedType<T>& offset,
@@ -416,7 +416,7 @@ template <MdlInternalPropertyType T>
 void setPropertyTablePropertyValues(
     omni::fabric::StageReaderWriter& fabricStage,
     const omni::fabric::Path& path,
-    const PXR_NS::TfToken& propertyTableTextureAssetPathToken,
+    const pxr::TfToken& propertyTableTextureAssetPathToken,
     const DataTypeUtil::GetMdlInternalPropertyTransformedType<T>& offset,
     const DataTypeUtil::GetMdlInternalPropertyTransformedType<T>& scale,
     const DataTypeUtil::GetMdlInternalPropertyRawType<T>& maximumValue,
@@ -427,7 +427,7 @@ void setPropertyTablePropertyValues(
     const auto textureFabric =
         fabricStage.getAttributeWr<omni::fabric::AssetPath>(path, FabricTokens::inputs_property_table_texture);
     textureFabric->assetPath = propertyTableTextureAssetPathToken;
-    textureFabric->resolvedPath = PXR_NS::TfToken();
+    textureFabric->resolvedPath = pxr::TfToken();
 
     setPropertyValues<T>(fabricStage, path, offset, scale, maximumValue, hasNoData, noData, defaultValue);
 }
@@ -453,7 +453,7 @@ template <MdlInternalPropertyType T>
 void clearPropertyTextureProperty(
     omni::fabric::StageReaderWriter& fabricStage,
     const omni::fabric::Path& path,
-    const PXR_NS::TfToken& defaultTransparentTextureAssetPathToken) {
+    const pxr::TfToken& defaultTransparentTextureAssetPathToken) {
     using MdlRawType = DataTypeUtil::GetMdlInternalPropertyRawType<T>;
     using MdlTransformedType = DataTypeUtil::GetMdlInternalPropertyTransformedType<T>;
 
@@ -475,7 +475,7 @@ template <MdlInternalPropertyType T>
 void clearPropertyTableProperty(
     omni::fabric::StageReaderWriter& fabricStage,
     const omni::fabric::Path& path,
-    const PXR_NS::TfToken& defaultTransparentTextureAssetPathToken) {
+    const pxr::TfToken& defaultTransparentTextureAssetPathToken) {
     using MdlRawType = DataTypeUtil::GetMdlInternalPropertyRawType<T>;
     using MdlTransformedType = DataTypeUtil::GetMdlInternalPropertyTransformedType<T>;
 
@@ -497,8 +497,8 @@ FabricMaterial::FabricMaterial(
     Context* pContext,
     const omni::fabric::Path& path,
     const FabricMaterialDescriptor& materialDescriptor,
-    const PXR_NS::TfToken& defaultWhiteTextureAssetPathToken,
-    const PXR_NS::TfToken& defaultTransparentTextureAssetPathToken,
+    const pxr::TfToken& defaultWhiteTextureAssetPathToken,
+    const pxr::TfToken& defaultTransparentTextureAssetPathToken,
     bool debugRandomColors,
     int64_t poolId)
     : _pContext(pContext)
@@ -1833,14 +1833,14 @@ void FabricMaterial::setShaderValues(
     double displayOpacity) {
     auto& fabricStage = _pContext->getFabricStage();
 
-    const auto tileColorFabric = fabricStage.getAttributeWr<PXR_NS::GfVec4f>(path, FabricTokens::inputs_tile_color);
+    const auto tileColorFabric = fabricStage.getAttributeWr<pxr::GfVec4f>(path, FabricTokens::inputs_tile_color);
     const auto alphaCutoffFabric = fabricStage.getAttributeWr<float>(path, FabricTokens::inputs_alpha_cutoff);
     const auto alphaModeFabric = fabricStage.getAttributeWr<int>(path, FabricTokens::inputs_alpha_mode);
     const auto baseAlphaFabric = fabricStage.getAttributeWr<float>(path, FabricTokens::inputs_base_alpha);
     const auto baseColorFactorFabric =
-        fabricStage.getAttributeWr<PXR_NS::GfVec3f>(path, FabricTokens::inputs_base_color_factor);
+        fabricStage.getAttributeWr<pxr::GfVec3f>(path, FabricTokens::inputs_base_color_factor);
     const auto emissiveFactorFabric =
-        fabricStage.getAttributeWr<PXR_NS::GfVec3f>(path, FabricTokens::inputs_emissive_factor);
+        fabricStage.getAttributeWr<pxr::GfVec3f>(path, FabricTokens::inputs_emissive_factor);
     const auto metallicFactorFabric = fabricStage.getAttributeWr<float>(path, FabricTokens::inputs_metallic_factor);
     const auto roughnessFactorFabric = fabricStage.getAttributeWr<float>(path, FabricTokens::inputs_roughness_factor);
 
@@ -1856,7 +1856,7 @@ void FabricMaterial::setShaderValues(
 
 void FabricMaterial::setTextureValues(
     const omni::fabric::Path& path,
-    const PXR_NS::TfToken& textureAssetPathToken,
+    const pxr::TfToken& textureAssetPathToken,
     const FabricTextureInfo& textureInfo,
     uint64_t texcoordIndex) {
     setTextureValuesCommon(_pContext->getFabricStage(), path, textureAssetPathToken, textureInfo, texcoordIndex);
@@ -1864,7 +1864,7 @@ void FabricMaterial::setTextureValues(
 
 void FabricMaterial::setImageryLayerValues(
     const omni::fabric::Path& path,
-    const PXR_NS::TfToken& textureAssetPathToken,
+    const pxr::TfToken& textureAssetPathToken,
     const FabricTextureInfo& textureInfo,
     uint64_t texcoordIndex,
     double alpha) {
@@ -1878,7 +1878,7 @@ void FabricMaterial::setImageryLayerAlphaValue(const omni::fabric::Path& path, d
 }
 
 void FabricMaterial::setFeatureIdIndexValues(const omni::fabric::Path& path, int nullFeatureId) {
-    setFeatureIdAttributeValues(path, PXR_NS::UsdTokens->vertexId.GetString(), nullFeatureId);
+    setFeatureIdAttributeValues(path, pxr::UsdTokens->vertexId.GetString(), nullFeatureId);
 }
 
 void FabricMaterial::setFeatureIdAttributeValues(
@@ -1896,7 +1896,7 @@ void FabricMaterial::setFeatureIdAttributeValues(
 
 void FabricMaterial::setFeatureIdTextureValues(
     const omni::fabric::Path& path,
-    const PXR_NS::TfToken& textureAssetPathToken,
+    const pxr::TfToken& textureAssetPathToken,
     const FabricTextureInfo& textureInfo,
     uint64_t texcoordIndex,
     int nullFeatureId) {

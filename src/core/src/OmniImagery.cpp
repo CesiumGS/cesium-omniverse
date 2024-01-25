@@ -12,11 +12,11 @@
 
 namespace cesium::omniverse {
 
-OmniImagery::OmniImagery(Context* pContext, const PXR_NS::SdfPath& path)
+OmniImagery::OmniImagery(Context* pContext, const pxr::SdfPath& path)
     : _pContext(pContext)
     , _path(path) {}
 
-const PXR_NS::SdfPath& OmniImagery::getPath() const {
+const pxr::SdfPath& OmniImagery::getPath() const {
     return _path;
 }
 
@@ -41,12 +41,12 @@ double OmniImagery::getAlpha() const {
 FabricOverlayRenderMethod OmniImagery::getOverlayRenderMethod() const {
     const auto cesiumImagery = UsdUtil::getCesiumImagery(_pContext->getUsdStage(), _path);
 
-    PXR_NS::TfToken overlayRenderMethod;
+    pxr::TfToken overlayRenderMethod;
     cesiumImagery.GetOverlayRenderMethodAttr().Get(&overlayRenderMethod);
 
-    if (overlayRenderMethod == PXR_NS::CesiumTokens->overlay) {
+    if (overlayRenderMethod == pxr::CesiumTokens->overlay) {
         return FabricOverlayRenderMethod::OVERLAY;
-    } else if (overlayRenderMethod == PXR_NS::CesiumTokens->clip) {
+    } else if (overlayRenderMethod == pxr::CesiumTokens->clip) {
         return FabricOverlayRenderMethod::CLIPPING;
     }
 

@@ -37,7 +37,7 @@ namespace cesium::omniverse {
 Context::Context(const std::filesystem::path& cesiumExtensionLocation)
     : _cesiumExtensionLocation(cesiumExtensionLocation.lexically_normal())
     , _certificatePath(_cesiumExtensionLocation / "certs" / "cacert.pem")
-    , _cesiumMdlPathToken(PXR_NS::TfToken((_cesiumExtensionLocation / "mdl" / "cesium.mdl").generic_string()))
+    , _cesiumMdlPathToken(pxr::TfToken((_cesiumExtensionLocation / "mdl" / "cesium.mdl").generic_string()))
     , _pTaskProcessor(std::make_shared<TaskProcessor>())
     , _pAsyncSystem(std::make_unique<CesiumAsync::AsyncSystem>(_pTaskProcessor))
     , _pHttpAssetAccessor(std::make_shared<HttpAssetAccessor>(this, _certificatePath))
@@ -72,7 +72,7 @@ const std::filesystem::path& Context::getCertificatePath() const {
     return _certificatePath;
 }
 
-const PXR_NS::TfToken& Context::getCesiumMdlPathToken() const {
+const pxr::TfToken& Context::getCesiumMdlPathToken() const {
     return _cesiumMdlPathToken;
 }
 
@@ -129,7 +129,7 @@ void Context::clearStage() {
 }
 
 void Context::reloadStage() {
-    const auto defaultIonServerPath = PXR_NS::SdfPath("/CesiumServers/IonOfficial");
+    const auto defaultIonServerPath = pxr::SdfPath("/CesiumServers/IonOfficial");
 
     clearStage();
 
@@ -192,8 +192,8 @@ void Context::onUsdStageChanged(int64_t usdStageId) {
     clearStage();
 
     if (usdStageId > 0) {
-        _pUsdStage = PXR_NS::UsdUtilsStageCache::Get().Find(
-            PXR_NS::UsdStageCache::Id::FromLongInt(static_cast<long>(usdStageId)));
+        _pUsdStage =
+            pxr::UsdUtilsStageCache::Get().Find(pxr::UsdStageCache::Id::FromLongInt(static_cast<long>(usdStageId)));
 
         const auto iFabricStage = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
         const auto fabricStageId = iFabricStage->get(omni::fabric::UsdStageId(static_cast<uint64_t>(usdStageId)));
@@ -205,11 +205,11 @@ void Context::onUsdStageChanged(int64_t usdStageId) {
     }
 }
 
-const PXR_NS::UsdStageWeakPtr& Context::getUsdStage() const {
+const pxr::UsdStageWeakPtr& Context::getUsdStage() const {
     return _pUsdStage;
 }
 
-PXR_NS::UsdStageWeakPtr& Context::getUsdStage() {
+pxr::UsdStageWeakPtr& Context::getUsdStage() {
     return _pUsdStage;
 }
 

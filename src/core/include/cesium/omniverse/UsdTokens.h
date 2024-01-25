@@ -163,7 +163,7 @@ TF_DECLARE_PUBLIC_TOKENS(UsdTokens, USD_TOKENS);
 #pragma clang diagnostic pop
 #endif
 
-#define FABRIC_DEFINE_TOKEN_ELEM(elem) const omni::fabric::TokenC elem = omni::fabric::asInt(PXR_NS::UsdTokens->elem);
+#define FABRIC_DEFINE_TOKEN_ELEM(elem) const omni::fabric::TokenC elem = omni::fabric::asInt(pxr::UsdTokens->elem);
 
 #define FABRIC_DEFINE_TOKEN(r, data, elem) \
     BOOST_PP_TUPLE_ELEM(1, 0, BOOST_PP_IIF(TF_PP_IS_TUPLE(elem), \

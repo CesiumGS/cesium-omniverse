@@ -15,7 +15,7 @@
 
 #include <memory>
 
-PXR_NS::SdfPath endToEndTilesetPath;
+pxr::SdfPath endToEndTilesetPath;
 bool endToEndTilesetLoaded = false;
 carb::events::ISubscriptionPtr endToEndTilesetSubscriptionPtr;
 class TilesetLoadListener;
@@ -37,7 +37,7 @@ class TilesetLoadListener final : public carb::events::IEventListener {
     };
 };
 
-void setUpTilesetTests(Context* pContext, const PXR_NS::SdfPath& rootPath) {
+void setUpTilesetTests(Context* pContext, const pxr::SdfPath& rootPath) {
     // Create a listener for tileset load events
     auto app = carb::getCachedInterface<omni::kit::IApp>();
     auto bus = app->getMessageBusEventStream();
@@ -50,10 +50,10 @@ void setUpTilesetTests(Context* pContext, const PXR_NS::SdfPath& rootPath) {
     auto endToEndTileset = UsdUtil::defineCesiumTileset(pContext->getUsdStage(), endToEndTilesetPath);
     std::string tilesetFilePath = "file://" TEST_WORKING_DIRECTORY "/tests/testAssets/tilesets/Tileset/tileset.json";
 
-    endToEndTileset.GetSourceTypeAttr().Set(PXR_NS::TfToken("url"));
+    endToEndTileset.GetSourceTypeAttr().Set(pxr::TfToken("url"));
     endToEndTileset.GetUrlAttr().Set(tilesetFilePath);
 }
-void cleanUpTilesetTests(const PXR_NS::UsdStageRefPtr& stage) {
+void cleanUpTilesetTests(const pxr::UsdStageRefPtr& stage) {
     endToEndTilesetSubscriptionPtr->unsubscribe();
     stage->RemovePrim(endToEndTilesetPath);
     tilesetLoadListener.reset();

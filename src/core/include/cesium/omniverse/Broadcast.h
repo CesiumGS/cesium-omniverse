@@ -15,14 +15,14 @@ void connectionUpdated();
 void profileUpdated();
 void tokensUpdated();
 void showTroubleshooter(
-    const PXR_NS::SdfPath& tilesetPath,
+    const pxr::SdfPath& tilesetPath,
     int64_t tilesetIonAssetId,
     const std::string& tilesetName,
     int64_t imageryIonAssetId,
     const std::string& imageryName,
     const std::string& message);
 void setDefaultTokenComplete();
-void tilesetLoaded(const PXR_NS::SdfPath& tilesetPath);
+void tilesetLoaded(const pxr::SdfPath& tilesetPath);
 void sendMessageToBus(carb::events::EventType eventType);
 void sendMessageToBus(const std::string_view& eventKey);
 

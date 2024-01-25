@@ -22,7 +22,7 @@ std::vector<FabricPropertyDescriptor> getStyleableProperties(
     const Context& context,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
-    const PXR_NS::SdfPath& tilesetMaterialPath) {
+    const pxr::SdfPath& tilesetMaterialPath) {
 
     if (tilesetMaterialPath.IsEmpty()) {
         // Return early, don't call getStyleableProperties because it logs
@@ -42,7 +42,7 @@ FabricMaterialDescriptor::FabricMaterialDescriptor(
     const FabricMaterialInfo& materialInfo,
     const FabricFeaturesInfo& featuresInfo,
     const FabricImageryLayersInfo& imageryLayersInfo,
-    const PXR_NS::SdfPath& tilesetMaterialPath)
+    const pxr::SdfPath& tilesetMaterialPath)
     : _hasVertexColors(materialInfo.hasVertexColors)
     , _hasBaseColorTexture(materialInfo.baseColorTexture.has_value())
     , _featureIdTypes(FabricFeaturesUtil::getFeatureIdTypes(featuresInfo))
@@ -71,7 +71,7 @@ bool FabricMaterialDescriptor::hasTilesetMaterial() const {
     return !_tilesetMaterialPath.IsEmpty();
 }
 
-const PXR_NS::SdfPath& FabricMaterialDescriptor::getTilesetMaterialPath() const {
+const pxr::SdfPath& FabricMaterialDescriptor::getTilesetMaterialPath() const {
     return _tilesetMaterialPath;
 }
 

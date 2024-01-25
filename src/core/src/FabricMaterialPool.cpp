@@ -13,8 +13,8 @@ FabricMaterialPool::FabricMaterialPool(
     int64_t poolId,
     const FabricMaterialDescriptor& materialDescriptor,
     uint64_t initialCapacity,
-    const PXR_NS::TfToken& defaultWhiteTextureAssetPathToken,
-    const PXR_NS::TfToken& defaultTransparentTextureAssetPathToken,
+    const pxr::TfToken& defaultWhiteTextureAssetPathToken,
+    const pxr::TfToken& defaultTransparentTextureAssetPathToken,
     bool debugRandomColors)
     : ObjectPool<FabricMaterial>()
     , _pContext(pContext)
@@ -34,7 +34,7 @@ int64_t FabricMaterialPool::getPoolId() const {
     return _poolId;
 }
 
-void FabricMaterialPool::updateShaderInput(const PXR_NS::SdfPath& shaderPath, const PXR_NS::TfToken& attributeName) {
+void FabricMaterialPool::updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::TfToken& attributeName) {
     const auto& materials = getQueue();
     for (auto& pMaterial : materials) {
         pMaterial->updateShaderInput(FabricUtil::toFabricPath(shaderPath), FabricUtil::toFabricToken(attributeName));

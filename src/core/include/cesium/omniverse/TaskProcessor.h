@@ -18,7 +18,7 @@ class TaskProcessor final : public CesiumAsync::ITaskProcessor {
 
   private:
     // TODO: should we being using something in Carbonite instead?
-    PXR_NS::WorkDispatcher _dispatcher;
+    pxr::WorkDispatcher _dispatcher;
 };
 
 } // namespace cesium::omniverse

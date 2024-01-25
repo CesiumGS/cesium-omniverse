@@ -34,7 +34,7 @@
 
 namespace cesium::omniverse {
 
-OmniGlobeAnchor::OmniGlobeAnchor(Context* pContext, const PXR_NS::SdfPath& path)
+OmniGlobeAnchor::OmniGlobeAnchor(Context* pContext, const pxr::SdfPath& path)
     : _pContext(pContext)
     , _path(path) {
 
@@ -43,7 +43,7 @@ OmniGlobeAnchor::OmniGlobeAnchor(Context* pContext, const PXR_NS::SdfPath& path)
 
 OmniGlobeAnchor::~OmniGlobeAnchor() = default;
 
-const PXR_NS::SdfPath& OmniGlobeAnchor::getPath() const {
+const pxr::SdfPath& OmniGlobeAnchor::getPath() const {
     return _path;
 }
 
@@ -65,10 +65,10 @@ bool OmniGlobeAnchor::getAdjustOrientation() const {
     return adjustOrientation;
 }
 
-PXR_NS::SdfPath OmniGlobeAnchor::getGeoreferencePath() const {
+pxr::SdfPath OmniGlobeAnchor::getGeoreferencePath() const {
     const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
 
-    PXR_NS::SdfPathVector targets;
+    pxr::SdfPathVector targets;
     cesiumGlobeAnchor.GetGeoreferenceBindingRel().GetForwardedTargets(&targets);
 
     if (targets.empty()) {
@@ -150,7 +150,7 @@ void OmniGlobeAnchor::updateByPrimLocalTransform() {
     }
 
     const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
-    const auto xformable = PXR_NS::UsdGeomXformable(cesiumGlobeAnchor.GetPrim());
+    const auto xformable = pxr::UsdGeomXformable(cesiumGlobeAnchor.GetPrim());
     const auto xformOps = UsdUtil::getTranslateRotateScaleOps(xformable);
     const auto eulerAngleOrder = xformOps->eulerAngleOrder;
 
@@ -195,7 +195,7 @@ bool OmniGlobeAnchor::isAnchorValid() const {
     }
 
     const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
-    const auto xformable = PXR_NS::UsdGeomXformable(cesiumGlobeAnchor.GetPrim());
+    const auto xformable = pxr::UsdGeomXformable(cesiumGlobeAnchor.GetPrim());
     const auto xformOps = UsdUtil::getTranslateRotateScaleOps(xformable);
 
     if (!xformOps) {
@@ -240,7 +240,7 @@ void OmniGlobeAnchor::finalize() {
 glm::dvec3 OmniGlobeAnchor::getPrimLocalToEcefTranslation() const {
     const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
 
-    PXR_NS::GfVec3d primLocalToEcefTranslation;
+    pxr::GfVec3d primLocalToEcefTranslation;
     cesiumGlobeAnchor.GetPositionAttr().Get(&primLocalToEcefTranslation);
 
     return UsdUtil::usdToGlmVector(primLocalToEcefTranslation);
@@ -249,7 +249,7 @@ glm::dvec3 OmniGlobeAnchor::getPrimLocalToEcefTranslation() const {
 glm::dvec3 OmniGlobeAnchor::getPrimLocalToEcefRotation() const {
     const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
 
-    PXR_NS::GfVec3d primLocalToEcefRotation;
+    pxr::GfVec3d primLocalToEcefRotation;
     cesiumGlobeAnchor.GetRotationAttr().Get(&primLocalToEcefRotation);
 
     return glm::radians(UsdUtil::usdToGlmVector(primLocalToEcefRotation));
@@ -258,7 +258,7 @@ glm::dvec3 OmniGlobeAnchor::getPrimLocalToEcefRotation() const {
 glm::dvec3 OmniGlobeAnchor::getPrimLocalToEcefScale() const {
     const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
 
-    PXR_NS::GfVec3d primLocalToEcefScale;
+    pxr::GfVec3d primLocalToEcefScale;
     cesiumGlobeAnchor.GetScaleAttr().Get(&primLocalToEcefScale);
 
     return UsdUtil::usdToGlmVector(primLocalToEcefScale);
@@ -267,7 +267,7 @@ glm::dvec3 OmniGlobeAnchor::getPrimLocalToEcefScale() const {
 CesiumGeospatial::Cartographic OmniGlobeAnchor::getGeographicCoordinates() const {
     const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
 
-    PXR_NS::GfVec3d coordinates;
+    pxr::GfVec3d coordinates;
     cesiumGlobeAnchor.GetGeographicCoordinateAttr().Get(&coordinates);
 
     const auto longitude = glm::radians(coordinates[1]);
@@ -279,16 +279,16 @@ CesiumGeospatial::Cartographic OmniGlobeAnchor::getGeographicCoordinates() const
 
 glm::dvec3 OmniGlobeAnchor::getPrimLocalTranslation() const {
     const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
-    const auto xformable = PXR_NS::UsdGeomXformable(cesiumGlobeAnchor.GetPrim());
+    const auto xformable = pxr::UsdGeomXformable(cesiumGlobeAnchor.GetPrim());
     const auto xformOps = UsdUtil::getTranslateRotateScaleOps(xformable);
     const auto pTranslateOp = xformOps.value().pTranslateOp;
 
-    if (pTranslateOp->GetPrecision() == PXR_NS::UsdGeomXformOp::PrecisionDouble) {
-        PXR_NS::GfVec3d translation;
+    if (pTranslateOp->GetPrecision() == pxr::UsdGeomXformOp::PrecisionDouble) {
+        pxr::GfVec3d translation;
         pTranslateOp->Get(&translation);
         return UsdUtil::usdToGlmVector(translation);
-    } else if (pTranslateOp->GetPrecision() == PXR_NS::UsdGeomXformOp::PrecisionFloat) {
-        PXR_NS::GfVec3f translation;
+    } else if (pTranslateOp->GetPrecision() == pxr::UsdGeomXformOp::PrecisionFloat) {
+        pxr::GfVec3f translation;
         pTranslateOp->Get(&translation);
         return glm::dvec3(UsdUtil::usdToGlmVector(translation));
     }
@@ -298,16 +298,16 @@ glm::dvec3 OmniGlobeAnchor::getPrimLocalTranslation() const {
 
 glm::dvec3 OmniGlobeAnchor::getPrimLocalRotation() const {
     const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
-    const auto xformable = PXR_NS::UsdGeomXformable(cesiumGlobeAnchor.GetPrim());
+    const auto xformable = pxr::UsdGeomXformable(cesiumGlobeAnchor.GetPrim());
     const auto xformOps = UsdUtil::getTranslateRotateScaleOps(xformable);
     const auto pRotateOp = xformOps.value().pRotateOp;
 
-    if (pRotateOp->GetPrecision() == PXR_NS::UsdGeomXformOp::PrecisionDouble) {
-        PXR_NS::GfVec3d rotation;
+    if (pRotateOp->GetPrecision() == pxr::UsdGeomXformOp::PrecisionDouble) {
+        pxr::GfVec3d rotation;
         pRotateOp->Get(&rotation);
         return glm::radians(UsdUtil::usdToGlmVector(rotation));
-    } else if (pRotateOp->GetPrecision() == PXR_NS::UsdGeomXformOp::PrecisionFloat) {
-        PXR_NS::GfVec3f rotation;
+    } else if (pRotateOp->GetPrecision() == pxr::UsdGeomXformOp::PrecisionFloat) {
+        pxr::GfVec3f rotation;
         pRotateOp->Get(&rotation);
         return glm::radians(glm::dvec3(UsdUtil::usdToGlmVector(rotation)));
     }
@@ -317,16 +317,16 @@ glm::dvec3 OmniGlobeAnchor::getPrimLocalRotation() const {
 
 glm::dvec3 OmniGlobeAnchor::getPrimLocalScale() const {
     const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
-    const auto xformable = PXR_NS::UsdGeomXformable(cesiumGlobeAnchor.GetPrim());
+    const auto xformable = pxr::UsdGeomXformable(cesiumGlobeAnchor.GetPrim());
     const auto xformOps = UsdUtil::getTranslateRotateScaleOps(xformable);
     const auto pScaleOp = xformOps.value().pScaleOp;
 
-    if (pScaleOp->GetPrecision() == PXR_NS::UsdGeomXformOp::PrecisionDouble) {
-        PXR_NS::GfVec3d scale;
+    if (pScaleOp->GetPrecision() == pxr::UsdGeomXformOp::PrecisionDouble) {
+        pxr::GfVec3d scale;
         pScaleOp->Get(&scale);
         return UsdUtil::usdToGlmVector(scale);
-    } else if (pScaleOp->GetPrecision() == PXR_NS::UsdGeomXformOp::PrecisionFloat) {
-        PXR_NS::GfVec3f scale;
+    } else if (pScaleOp->GetPrecision() == pxr::UsdGeomXformOp::PrecisionFloat) {
+        pxr::GfVec3f scale;
         pScaleOp->Get(&scale);
         return glm::dvec3(UsdUtil::usdToGlmVector(scale));
     }
@@ -361,7 +361,7 @@ void OmniGlobeAnchor::saveGeographicCoordinates() {
     _cachedGeographicCoordinates = *cartographic;
 
     const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
-    cesiumGlobeAnchor.GetGeographicCoordinateAttr().Set(PXR_NS::GfVec3d(
+    cesiumGlobeAnchor.GetGeographicCoordinateAttr().Set(pxr::GfVec3d(
         glm::degrees(cartographic->latitude), glm::degrees(cartographic->longitude), cartographic->height));
 }
 
@@ -370,7 +370,7 @@ void OmniGlobeAnchor::savePrimLocalTransform() {
     // work when rotation and scale properties are double precision, which is common in Omniverse.
 
     const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
-    const auto xformable = PXR_NS::UsdGeomXformable(cesiumGlobeAnchor.GetPrim());
+    const auto xformable = pxr::UsdGeomXformable(cesiumGlobeAnchor.GetPrim());
     const auto xformOps = UsdUtil::getTranslateRotateScaleOps(xformable);
 
     const auto& [pTranslateOp, pRotateOp, pScaleOp, eulerAngleOrder] = xformOps.value();
@@ -389,21 +389,21 @@ void OmniGlobeAnchor::savePrimLocalTransform() {
     _cachedPrimLocalRotation = decomposed.rotation;
     _cachedPrimLocalScale = decomposed.scale;
 
-    if (pTranslateOp->GetPrecision() == PXR_NS::UsdGeomXformOp::PrecisionDouble) {
+    if (pTranslateOp->GetPrecision() == pxr::UsdGeomXformOp::PrecisionDouble) {
         pTranslateOp->Set(UsdUtil::glmToUsdVector(decomposed.translation));
-    } else if (pTranslateOp->GetPrecision() == PXR_NS::UsdGeomXformOp::PrecisionFloat) {
+    } else if (pTranslateOp->GetPrecision() == pxr::UsdGeomXformOp::PrecisionFloat) {
         pTranslateOp->Set(UsdUtil::glmToUsdVector(glm::fvec3(decomposed.translation)));
     }
 
-    if (pRotateOp->GetPrecision() == PXR_NS::UsdGeomXformOp::PrecisionDouble) {
+    if (pRotateOp->GetPrecision() == pxr::UsdGeomXformOp::PrecisionDouble) {
         pRotateOp->Set(UsdUtil::glmToUsdVector(glm::degrees(decomposed.rotation)));
-    } else if (pRotateOp->GetPrecision() == PXR_NS::UsdGeomXformOp::PrecisionFloat) {
+    } else if (pRotateOp->GetPrecision() == pxr::UsdGeomXformOp::PrecisionFloat) {
         pRotateOp->Set(UsdUtil::glmToUsdVector(glm::fvec3(glm::degrees(decomposed.rotation))));
     }
 
-    if (pScaleOp->GetPrecision() == PXR_NS::UsdGeomXformOp::PrecisionDouble) {
+    if (pScaleOp->GetPrecision() == pxr::UsdGeomXformOp::PrecisionDouble) {
         pScaleOp->Set(UsdUtil::glmToUsdVector(decomposed.scale));
-    } else if (pScaleOp->GetPrecision() == PXR_NS::UsdGeomXformOp::PrecisionFloat) {
+    } else if (pScaleOp->GetPrecision() == pxr::UsdGeomXformOp::PrecisionFloat) {
         pScaleOp->Set(UsdUtil::glmToUsdVector(glm::fvec3(decomposed.scale)));
     }
 }

@@ -15,13 +15,13 @@
 
 namespace cesium::omniverse {
 
-OmniPolygonImagery::OmniPolygonImagery(Context* pContext, const PXR_NS::SdfPath& path)
+OmniPolygonImagery::OmniPolygonImagery(Context* pContext, const pxr::SdfPath& path)
     : OmniImagery(pContext, path) {}
 
-std::vector<PXR_NS::SdfPath> OmniPolygonImagery::getCartographicPolygonPaths() const {
+std::vector<pxr::SdfPath> OmniPolygonImagery::getCartographicPolygonPaths() const {
     const auto cesiumPolygonImagery = UsdUtil::getCesiumPolygonImagery(_pContext->getUsdStage(), _path);
 
-    PXR_NS::SdfPathVector targets;
+    pxr::SdfPathVector targets;
     cesiumPolygonImagery.GetCartographicPolygonBindingRel().GetForwardedTargets(&targets);
 
     return targets;

@@ -71,7 +71,7 @@ void forEachFabricMaterial(
 
 } // namespace
 
-OmniTileset::OmniTileset(Context* pContext, const PXR_NS::SdfPath& path, int64_t tilesetId)
+OmniTileset::OmniTileset(Context* pContext, const pxr::SdfPath& path, int64_t tilesetId)
     : _pContext(pContext)
     , _path(path)
     , _tilesetId(tilesetId) {
@@ -82,7 +82,7 @@ OmniTileset::~OmniTileset() {
     destroyNativeTileset();
 }
 
-const PXR_NS::SdfPath& OmniTileset::getPath() const {
+const pxr::SdfPath& OmniTileset::getPath() const {
     return _path;
 }
 
@@ -112,10 +112,10 @@ TilesetStatistics OmniTileset::getStatistics() const {
 TilesetSourceType OmniTileset::getSourceType() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
 
-    PXR_NS::TfToken sourceType;
+    pxr::TfToken sourceType;
     cesiumTileset.GetSourceTypeAttr().Get(&sourceType);
 
-    if (sourceType == PXR_NS::CesiumTokens->url) {
+    if (sourceType == pxr::CesiumTokens->url) {
         return TilesetSourceType::URL;
     }
 
@@ -183,10 +183,10 @@ std::string OmniTileset::getIonApiUrl() const {
     return pIonServer->getIonServerApiUrl();
 }
 
-PXR_NS::SdfPath OmniTileset::getIonServerPath() const {
+pxr::SdfPath OmniTileset::getIonServerPath() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
 
-    PXR_NS::SdfPathVector targets;
+    pxr::SdfPathVector targets;
     cesiumTileset.GetIonServerBindingRel().GetForwardedTargets(&targets);
 
     if (targets.empty()) {
@@ -331,10 +331,10 @@ bool OmniTileset::getShowCreditsOnScreen() const {
     return showCreditsOnScreen;
 }
 
-PXR_NS::SdfPath OmniTileset::getGeoreferencePath() const {
+pxr::SdfPath OmniTileset::getGeoreferencePath() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
 
-    PXR_NS::SdfPathVector targets;
+    pxr::SdfPathVector targets;
     cesiumTileset.GetGeoreferenceBindingRel().GetForwardedTargets(&targets);
 
     if (targets.empty()) {
@@ -344,10 +344,10 @@ PXR_NS::SdfPath OmniTileset::getGeoreferencePath() const {
     return targets.front();
 }
 
-PXR_NS::SdfPath OmniTileset::getMaterialPath() const {
+pxr::SdfPath OmniTileset::getMaterialPath() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
 
-    const auto materialBindingApi = PXR_NS::UsdShadeMaterialBindingAPI(cesiumTileset);
+    const auto materialBindingApi = pxr::UsdShadeMaterialBindingAPI(cesiumTileset);
     const auto materialBinding = materialBindingApi.GetDirectBinding();
     const auto& materialPath = materialBinding.GetMaterialPath();
 
@@ -357,7 +357,7 @@ PXR_NS::SdfPath OmniTileset::getMaterialPath() const {
 glm::dvec3 OmniTileset::getDisplayColor() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
 
-    PXR_NS::VtVec3fArray displayColorArray;
+    pxr::VtVec3fArray displayColorArray;
     cesiumTileset.GetDisplayColorAttr().Get(&displayColorArray);
 
     if (displayColorArray.size() == 0) {
@@ -375,7 +375,7 @@ glm::dvec3 OmniTileset::getDisplayColor() const {
 double OmniTileset::getDisplayOpacity() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
 
-    PXR_NS::VtFloatArray displayOpacityArray;
+    pxr::VtFloatArray displayOpacityArray;
     cesiumTileset.GetDisplayOpacityAttr().Get(&displayOpacityArray);
 
     if (displayOpacityArray.size() == 0) {
@@ -385,7 +385,7 @@ double OmniTileset::getDisplayOpacity() const {
     return static_cast<double>(displayOpacityArray[0]);
 }
 
-void OmniTileset::setIonServerPath(const PXR_NS::SdfPath& ionServerPath) {
+void OmniTileset::setIonServerPath(const pxr::SdfPath& ionServerPath) {
     if (ionServerPath.IsEmpty()) {
         return;
     }
@@ -533,7 +533,7 @@ void OmniTileset::updateDisplayColorAndOpacity() {
     });
 }
 
-void OmniTileset::updateShaderInput(const PXR_NS::SdfPath& shaderPath, const PXR_NS::TfToken& attributeName) {
+void OmniTileset::updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::TfToken& attributeName) {
     forEachFabricMaterial(_pTileset.get(), [&shaderPath, &attributeName](FabricMaterial& fabricMaterial) {
         fabricMaterial.updateShaderInput(
             FabricUtil::toFabricPath(shaderPath), FabricUtil::toFabricToken(attributeName));
@@ -551,7 +551,7 @@ double OmniTileset::getImageryLayerAlpha(uint64_t imageryLayerIndex) const {
     return glm::clamp(pImagery->getAlpha(), 0.0, 1.0);
 }
 
-PXR_NS::SdfPath OmniTileset::getImageryLayerPath(uint64_t imageryLayerIndex) const {
+pxr::SdfPath OmniTileset::getImageryLayerPath(uint64_t imageryLayerIndex) const {
     return _imageryPaths[imageryLayerIndex];
 }
 
@@ -662,12 +662,12 @@ bool OmniTileset::updateExtent() {
     const auto bottomLeft = glm::dvec3(primAabb.minimumX, primAabb.minimumY, primAabb.minimumZ);
     const auto topRight = glm::dvec3(primAabb.maximumX, primAabb.maximumY, primAabb.maximumZ);
 
-    PXR_NS::VtArray<PXR_NS::GfVec3f> extent = {
+    pxr::VtArray<pxr::GfVec3f> extent = {
         UsdUtil::glmToUsdVector(glm::fvec3(bottomLeft)),
         UsdUtil::glmToUsdVector(glm::fvec3(topRight)),
     };
 
-    const auto boundable = PXR_NS::UsdGeomBoundable(cesiumTileset);
+    const auto boundable = pxr::UsdGeomBoundable(cesiumTileset);
     boundable.GetExtentAttr().Set(extent);
     return true;
 }

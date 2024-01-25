@@ -11,12 +11,12 @@
 
 namespace cesium::omniverse {
 
-OmniGeoreference::OmniGeoreference(Context* pContext, const PXR_NS::SdfPath& path)
+OmniGeoreference::OmniGeoreference(Context* pContext, const pxr::SdfPath& path)
     : _pContext(pContext)
     , _path(path)
     , _ellipsoid(CesiumGeospatial::Ellipsoid::WGS84) {}
 
-const PXR_NS::SdfPath& OmniGeoreference::getPath() const {
+const pxr::SdfPath& OmniGeoreference::getPath() const {
     return _path;
 }
 
@@ -44,7 +44,7 @@ CesiumGeospatial::LocalHorizontalCoordinateSystem OmniGeoreference::getLocalCoor
     const auto upAxis = UsdUtil::getUsdUpAxis(_pContext->getUsdStage());
     const auto scaleInMeters = UsdUtil::getUsdMetersPerUnit(_pContext->getUsdStage());
 
-    if (upAxis == PXR_NS::UsdGeomTokens->z) {
+    if (upAxis == pxr::UsdGeomTokens->z) {
         return {
             origin,
             CesiumGeospatial::LocalDirection::East,

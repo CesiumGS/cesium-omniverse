@@ -43,12 +43,12 @@ class CesiumIonServerManager {
     [[nodiscard]] std::optional<TokenTroubleshootingDetails> getAssetTokenTroubleshootingDetails() const;
     [[nodiscard]] std::optional<TokenTroubleshootingDetails> getDefaultTokenTroubleshootingDetails() const;
     void updateTroubleshootingDetails(
-        const PXR_NS::SdfPath& tilesetPath,
+        const pxr::SdfPath& tilesetPath,
         int64_t tilesetIonAssetId,
         uint64_t tokenEventId,
         uint64_t assetEventId);
     void updateTroubleshootingDetails(
-        const PXR_NS::SdfPath& tilesetPath,
+        const pxr::SdfPath& tilesetPath,
         [[maybe_unused]] int64_t tilesetIonAssetId,
         int64_t imageryIonAssetId,
         uint64_t tokenEventId,

@@ -5,5 +5,5 @@ namespace cesium::omniverse {
 class Context;
 }
 
-void setUpUsdUtilTests(cesium::omniverse::Context* pContext, const PXR_NS::SdfPath& rootPath);
-void cleanUpUsdUtilTests(const PXR_NS::UsdStageRefPtr& stage);
+void setUpUsdUtilTests(cesium::omniverse::Context* pContext, const pxr::SdfPath& rootPath);
+void cleanUpUsdUtilTests(const pxr::UsdStageRefPtr& stage);
