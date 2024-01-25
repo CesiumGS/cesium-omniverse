@@ -29,7 +29,5 @@ class CesiumGlobeAnchorAttributesWidget(SchemaPropertiesWidget):
                 CustomLayoutProperty("cesium:anchor:height")
             with CustomLayoutGroup("Advanced Positioning", collapsed=True):
                 CustomLayoutProperty("cesium:anchor:position")
-                CustomLayoutProperty("cesium:anchor:rotation")
-                CustomLayoutProperty("cesium:anchor:scale")
 
         return frame.apply(props)

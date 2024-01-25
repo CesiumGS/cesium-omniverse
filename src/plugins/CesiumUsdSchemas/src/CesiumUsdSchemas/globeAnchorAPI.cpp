@@ -187,40 +187,6 @@ CesiumGlobeAnchorAPI::CreatePositionAttr(VtValue const &defaultValue, bool write
                        writeSparsely);
 }
 
-UsdAttribute
-CesiumGlobeAnchorAPI::GetRotationAttr() const
-{
-    return GetPrim().GetAttribute(CesiumTokens->cesiumAnchorRotation);
-}
-
-UsdAttribute
-CesiumGlobeAnchorAPI::CreateRotationAttr(VtValue const &defaultValue, bool writeSparsely) const
-{
-    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumAnchorRotation,
-                       SdfValueTypeNames->Double3,
-                       /* custom = */ false,
-                       SdfVariabilityVarying,
-                       defaultValue,
-                       writeSparsely);
-}
-
-UsdAttribute
-CesiumGlobeAnchorAPI::GetScaleAttr() const
-{
-    return GetPrim().GetAttribute(CesiumTokens->cesiumAnchorScale);
-}
-
-UsdAttribute
-CesiumGlobeAnchorAPI::CreateScaleAttr(VtValue const &defaultValue, bool writeSparsely) const
-{
-    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumAnchorScale,
-                       SdfValueTypeNames->Double3,
-                       /* custom = */ false,
-                       SdfVariabilityVarying,
-                       defaultValue,
-                       writeSparsely);
-}
-
 UsdRelationship
 CesiumGlobeAnchorAPI::GetGeoreferenceBindingRel() const
 {
@@ -257,8 +223,6 @@ CesiumGlobeAnchorAPI::GetSchemaAttributeNames(bool includeInherited)
         CesiumTokens->cesiumAnchorLatitude,
         CesiumTokens->cesiumAnchorHeight,
         CesiumTokens->cesiumAnchorPosition,
-        CesiumTokens->cesiumAnchorRotation,
-        CesiumTokens->cesiumAnchorScale,
     };
     static TfTokenVector allNames =
         _ConcatenateAttributeNames(

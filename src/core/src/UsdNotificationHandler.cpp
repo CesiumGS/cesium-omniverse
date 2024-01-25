@@ -370,7 +370,7 @@ void processCesiumGlobeAnchorChanged(
     auto updateByGeoreference = false;
     auto updateByPrimLocalTransform = false;
     auto updateByGeographicCoordinates = false;
-    auto updateByPrimLocalToEcefTransform = false;
+    auto updateByEcefPosition = false;
     auto updateBindings = false;
     auto resetOrientation = false;
 
@@ -394,11 +394,8 @@ void processCesiumGlobeAnchorChanged(
             property == pxr::CesiumTokens->cesiumAnchorHeight) {
             updateByGeographicCoordinates = true;
             updateBindings = true;
-        } else if (
-            property == pxr::CesiumTokens->cesiumAnchorPosition ||
-            property == pxr::CesiumTokens->cesiumAnchorRotation ||
-            property == pxr::CesiumTokens->cesiumAnchorScale) {
-            updateByPrimLocalToEcefTransform = true;
+        } else if (property == pxr::CesiumTokens->cesiumAnchorPosition) {
+            updateByEcefPosition = true;
             updateBindings = true;
         } else if (property == pxr::CesiumTokens->cesiumAnchorGeoreferenceBinding) {
             updateByGeoreference = true;
@@ -415,8 +412,8 @@ void processCesiumGlobeAnchorChanged(
         pGlobeAnchor->updateByGeoreference();
     }
 
-    if (updateByPrimLocalToEcefTransform) {
-        pGlobeAnchor->updateByPrimLocalToEcefTransform();
+    if (updateByEcefPosition) {
+        pGlobeAnchor->updateByEcefPosition();
     }
 
     if (updateByGeographicCoordinates) {

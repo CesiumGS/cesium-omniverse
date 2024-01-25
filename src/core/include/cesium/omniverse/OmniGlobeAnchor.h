@@ -27,7 +27,7 @@ class OmniGlobeAnchor {
     [[nodiscard]] bool getAdjustOrientation() const;
     [[nodiscard]] pxr::SdfPath getResolvedGeoreferencePath() const;
 
-    void updateByPrimLocalToEcefTransform();
+    void updateByEcefPosition();
     void updateByGeographicCoordinates();
     void updateByPrimLocalTransform(bool resetOrientation);
     void updateByGeoreference();
@@ -38,14 +38,12 @@ class OmniGlobeAnchor {
     void finalize();
 
     [[nodiscard]] glm::dvec3 getPrimLocalToEcefTranslation() const;
-    [[nodiscard]] glm::dvec3 getPrimLocalToEcefRotation() const;
-    [[nodiscard]] glm::dvec3 getPrimLocalToEcefScale() const;
     [[nodiscard]] CesiumGeospatial::Cartographic getGeographicCoordinates() const;
     [[nodiscard]] glm::dvec3 getPrimLocalTranslation() const;
     [[nodiscard]] glm::dvec3 getPrimLocalRotation() const;
     [[nodiscard]] glm::dvec3 getPrimLocalScale() const;
 
-    void savePrimLocalToEcefTransform();
+    void savePrimLocalToEcefTranslation();
     void saveGeographicCoordinates();
     void savePrimLocalTransform();
 

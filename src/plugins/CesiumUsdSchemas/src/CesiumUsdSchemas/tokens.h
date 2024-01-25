@@ -71,14 +71,6 @@ struct CesiumTokensType {
     /// 
     /// CesiumGlobeAnchorAPI
     const TfToken cesiumAnchorPosition;
-    /// \brief "cesium:anchor:rotation"
-    /// 
-    /// CesiumGlobeAnchorAPI
-    const TfToken cesiumAnchorRotation;
-    /// \brief "cesium:anchor:scale"
-    /// 
-    /// CesiumGlobeAnchorAPI
-    const TfToken cesiumAnchorScale;
     /// \brief "cesium:cartographicPolygonBinding"
     /// 
     /// CesiumPolygonImagery

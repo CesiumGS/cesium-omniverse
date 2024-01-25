@@ -68,20 +68,6 @@ _CreatePositionAttr(CesiumGlobeAnchorAPI &self,
     return self.CreatePositionAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double3), writeSparsely);
 }
-        
-static UsdAttribute
-_CreateRotationAttr(CesiumGlobeAnchorAPI &self,
-                                      object defaultVal, bool writeSparsely) {
-    return self.CreateRotationAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double3), writeSparsely);
-}
-        
-static UsdAttribute
-_CreateScaleAttr(CesiumGlobeAnchorAPI &self,
-                                      object defaultVal, bool writeSparsely) {
-    return self.CreateScaleAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double3), writeSparsely);
-}
 
 static std::string
 _Repr(const CesiumGlobeAnchorAPI &self)
@@ -185,20 +171,6 @@ void wrapCesiumGlobeAnchorAPI()
              &This::GetPositionAttr)
         .def("CreatePositionAttr",
              &_CreatePositionAttr,
-             (arg("defaultValue")=object(),
-              arg("writeSparsely")=false))
-        
-        .def("GetRotationAttr",
-             &This::GetRotationAttr)
-        .def("CreateRotationAttr",
-             &_CreateRotationAttr,
-             (arg("defaultValue")=object(),
-              arg("writeSparsely")=false))
-        
-        .def("GetScaleAttr",
-             &This::GetScaleAttr)
-        .def("CreateScaleAttr",
-             &_CreateScaleAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 

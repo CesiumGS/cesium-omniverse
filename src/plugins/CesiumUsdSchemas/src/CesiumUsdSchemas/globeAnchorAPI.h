@@ -273,50 +273,6 @@ public:
 
 public:
     // --------------------------------------------------------------------- //
-    // ROTATION 
-    // --------------------------------------------------------------------- //
-    /// The actual rotation of the globally anchored prim oriented to the ECEF coordinate system.
-    ///
-    /// | ||
-    /// | -- | -- |
-    /// | Declaration | `double3 cesium:anchor:rotation = (0, 0, 0)` |
-    /// | C++ Type | GfVec3d |
-    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double3 |
-    CESIUMUSDSCHEMAS_API
-    UsdAttribute GetRotationAttr() const;
-
-    /// See GetRotationAttr(), and also 
-    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
-    /// If specified, author \p defaultValue as the attribute's default,
-    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
-    /// the default for \p writeSparsely is \c false.
-    CESIUMUSDSCHEMAS_API
-    UsdAttribute CreateRotationAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
-
-public:
-    // --------------------------------------------------------------------- //
-    // SCALE 
-    // --------------------------------------------------------------------- //
-    /// The local scaling of the prim.
-    ///
-    /// | ||
-    /// | -- | -- |
-    /// | Declaration | `double3 cesium:anchor:scale = (1, 1, 1)` |
-    /// | C++ Type | GfVec3d |
-    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double3 |
-    CESIUMUSDSCHEMAS_API
-    UsdAttribute GetScaleAttr() const;
-
-    /// See GetScaleAttr(), and also 
-    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
-    /// If specified, author \p defaultValue as the attribute's default,
-    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
-    /// the default for \p writeSparsely is \c false.
-    CESIUMUSDSCHEMAS_API
-    UsdAttribute CreateScaleAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
-
-public:
-    // --------------------------------------------------------------------- //
     // GEOREFERENCEBINDING 
     // --------------------------------------------------------------------- //
     /// The Georeference Origin prim used for the globe anchor calculations.

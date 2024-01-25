@@ -556,24 +556,8 @@ class "CesiumGlobeAnchorSchemaAPI" (
         customData = {
             string apiName = "position"
         }
-        displayName = "Position (Earth-Centered, Earth-Fixed)"
+        displayName = "Position (ECEF)"
         doc = "The actual position of the globally anchored prim in the ECEF coordinate system."
-    )
-
-    double3 cesium:anchor:rotation = (0.0, 0.0, 0.0) (
-        customData = {
-            string apiName = "rotation"
-        }
-        displayName = "Rotation (East-Up-North)"
-        doc = "The actual rotation of the globally anchored prim oriented to the ECEF coordinate system."
-    )
-
-    double3 cesium:anchor:scale = (1.0, 1.0, 1.0) (
-        customData = {
-            string apiName = "scale"
-        }
-        displayName = "Scale"
-        doc = "The local scaling of the prim."
     )
 
     rel cesium:anchor:georeferenceBinding (

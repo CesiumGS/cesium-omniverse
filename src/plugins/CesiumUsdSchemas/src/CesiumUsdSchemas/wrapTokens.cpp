@@ -49,8 +49,6 @@ void wrapCesiumTokens()
     _AddToken(cls, "cesiumAnchorLatitude", CesiumTokens->cesiumAnchorLatitude);
     _AddToken(cls, "cesiumAnchorLongitude", CesiumTokens->cesiumAnchorLongitude);
     _AddToken(cls, "cesiumAnchorPosition", CesiumTokens->cesiumAnchorPosition);
-    _AddToken(cls, "cesiumAnchorRotation", CesiumTokens->cesiumAnchorRotation);
-    _AddToken(cls, "cesiumAnchorScale", CesiumTokens->cesiumAnchorScale);
     _AddToken(cls, "cesiumCartographicPolygonBinding", CesiumTokens->cesiumCartographicPolygonBinding);
     _AddToken(cls, "cesiumCulledScreenSpaceError", CesiumTokens->cesiumCulledScreenSpaceError);
     _AddToken(cls, "cesiumDebugDisableGeometryPool", CesiumTokens->cesiumDebugDisableGeometryPool);

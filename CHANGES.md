@@ -6,13 +6,7 @@
 * **Breaking change:** Split `cesium:anchor:geographicCoordinates` into separate properties: `cesium:anchor:latitude`, `cesium:anchor:longitude`, `cesium:anchor:height`
 * **Breaking change:** Globe anchors no longer add a `transform:cesium` op to the attached prim. Instead the `translate`, `rotate` (all variants), and `scale` ops are modified directly.
 * **Breaking change:** Globe anchors now use a default georeference if `cesium:anchor:georeferenceBinding` is empty.
-
-```python
-globe_anchor = CesiumGlobeAnchorAPI.Apply(anchor_prim)
-globe_anchor.GetAnchorLatitudeAttr().Set(30)
-globe_anchor.GetAnchorLongitudeAttr().Set(45)
-globe_anchor.GetAnchorHeightAttr().Set(0)
-```
+* **Breaking change:** Removed `cesium:anchor:rotation` and `cesium:anchor:scale`. The prim's local rotation and scale should be set instead.
 
 ### v0.16.0 - 2024-01-02
 

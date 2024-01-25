@@ -608,16 +608,8 @@ class "CesiumGlobeAnchorSchemaAPI" (
         doc = "The longitude in degrees, in the range [-180, 180]."
     )
     double3 cesium:anchor:position = (0, 0, 0) (
-        displayName = "Position (Earth-Centered, Earth-Fixed)"
+        displayName = "Position (ECEF)"
         doc = "The actual position of the globally anchored prim in the ECEF coordinate system."
-    )
-    double3 cesium:anchor:rotation = (0, 0, 0) (
-        displayName = "Rotation (East-Up-North)"
-        doc = "The actual rotation of the globally anchored prim oriented to the ECEF coordinate system."
-    )
-    double3 cesium:anchor:scale = (1, 1, 1) (
-        displayName = "Scale"
-        doc = "The local scaling of the prim."
     )
 }
 
