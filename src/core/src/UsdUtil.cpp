@@ -7,6 +7,7 @@
 #include "cesium/omniverse/MathUtil.h"
 #include "cesium/omniverse/OmniData.h"
 #include "cesium/omniverse/OmniGeoreference.h"
+#include "cesium/omniverse/UsdScopedEdit.h"
 #include "cesium/omniverse/UsdTokens.h"
 #include "cesium/omniverse/Viewport.h"
 
@@ -48,33 +49,6 @@
 namespace cesium::omniverse::UsdUtil {
 
 namespace {
-
-class ScopedEdit {
-  public:
-    ScopedEdit(const pxr::UsdStageWeakPtr& pStage)
-        : _pStage(pStage)
-        , _sessionLayer(_pStage->GetSessionLayer())
-        , _sessionLayerWasEditable(_sessionLayer->PermissionToEdit())
-        , _originalEditTarget(_pStage->GetEditTarget()) {
-
-        _sessionLayer->SetPermissionToEdit(true);
-        _pStage->SetEditTarget(pxr::UsdEditTarget(_sessionLayer));
-    }
-    ~ScopedEdit() {
-        _sessionLayer->SetPermissionToEdit(_sessionLayerWasEditable);
-        _pStage->SetEditTarget(_originalEditTarget);
-    }
-    ScopedEdit(const ScopedEdit&) = delete;
-    ScopedEdit& operator=(const ScopedEdit&) = delete;
-    ScopedEdit(ScopedEdit&&) noexcept = delete;
-    ScopedEdit& operator=(ScopedEdit&&) noexcept = delete;
-
-  private:
-    pxr::UsdStageWeakPtr _pStage;
-    pxr::SdfLayerHandle _sessionLayer;
-    bool _sessionLayerWasEditable;
-    pxr::UsdEditTarget _originalEditTarget;
-};
 
 bool getDebugDisableGeoreferencing(const Context& context) {
     const auto pData = context.getAssetRegistry().getFirstData();
@@ -418,7 +392,7 @@ pxr::CesiumSession getOrCreateCesiumSession(const pxr::UsdStageWeakPtr& pStage) 
     }
 
     // Ensures that CesiumSession is created in the session layer
-    const ScopedEdit scopedEdit(pStage);
+    const UsdScopedEdit scopedEdit(pStage);
 
     // Create the CesiumSession
     const auto cesiumSession = defineCesiumSession(pStage, CesiumSessionPath);
