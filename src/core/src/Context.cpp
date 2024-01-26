@@ -86,7 +86,7 @@ void Context::initialize(int64_t contextId, const std::filesystem::path& cesiumE
 
     _taskProcessor = std::make_shared<TaskProcessor>();
     _asyncSystem = std::make_shared<CesiumAsync::AsyncSystem>(_taskProcessor);
-    _httpAssetAccessor = std::make_shared<UrlAssetAccessor>();
+    _httpAssetAccessor = std::make_shared<UrlAssetAccessor>(_certificatePath);
     _creditSystem = std::make_shared<CesiumUtility::CreditSystem>();
 
     _logger = std::make_shared<spdlog::logger>(
