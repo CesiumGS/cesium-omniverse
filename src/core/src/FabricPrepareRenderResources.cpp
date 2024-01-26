@@ -360,7 +360,7 @@ FabricPrepareRenderResources::prepareInLoadThread(
     if (imageryLayerCount > 0) {
         for (uint64_t i = 0; i < imageryLayerCount; i++) {
             const auto& imageryLayerPath = _pTileset->getImageryLayerPath(i);
-            const auto& pImagery = _pContext->getAssetRegistry().getImagery(imageryLayerPath);
+            const auto& pImagery = _pContext->getAssetRegistry().getRasterOverlay(imageryLayerPath);
             const auto overlayRenderMethod =
                 pImagery ? pImagery->getOverlayRenderMethod() : FabricOverlayRenderMethod::OVERLAY;
             imageryLayersInfo.overlayRenderMethods.push_back(overlayRenderMethod);

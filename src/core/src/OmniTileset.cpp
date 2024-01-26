@@ -491,7 +491,7 @@ void OmniTileset::reload() {
             _imageryPaths.push_back(imageryPath);
         }
 
-        const auto pImagery = _pContext->getAssetRegistry().getImagery(imageryPath);
+        const auto pImagery = _pContext->getAssetRegistry().getRasterOverlay(imageryPath);
         if (pImagery) {
             const auto pRasterOverlay = pImagery->getRasterOverlay();
             if (pRasterOverlay) {
@@ -547,7 +547,7 @@ void OmniTileset::updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::T
 double OmniTileset::getImageryLayerAlpha(uint64_t imageryLayerIndex) const {
     assert(imageryLayerIndex < _imageryPaths.size());
 
-    const auto pImagery = _pContext->getAssetRegistry().getImagery(_imageryPaths[imageryLayerIndex]);
+    const auto pImagery = _pContext->getAssetRegistry().getRasterOverlay(_imageryPaths[imageryLayerIndex]);
     if (!pImagery) {
         return 1.0;
     }

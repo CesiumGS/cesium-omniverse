@@ -318,7 +318,7 @@ void CesiumIonServerManager::updateTroubleshootingDetails(
         return;
     }
 
-    const auto pIonImagery = _pContext->getAssetRegistry().getIonImageryByIonAssetId(imageryIonAssetId);
+    const auto pIonImagery = _pContext->getAssetRegistry().getIonRasterOverlayByIonAssetId(imageryIonAssetId);
     if (!pIonImagery) {
         return;
     }

@@ -73,7 +73,7 @@ void updateIonServerBindings(const Context& context) {
     }
 
     // Update all imageries. Some imageries may have referenced this ion server implicitly.
-    const auto& ionImageries = context.getAssetRegistry().getIonImageries();
+    const auto& ionImageries = context.getAssetRegistry().getIonRasterOverlays();
     for (const auto& pIonImagery : ionImageries) {
         pIonImagery->reload();
         updateImageryBindings(context, pIonImagery->getPath());
@@ -82,7 +82,7 @@ void updateIonServerBindings(const Context& context) {
 
 void updateCartographicPolygonBindings(const Context& context, const pxr::SdfPath& cartographicPolygonPath) {
     // Update polygon imageries that reference this cartographic polygon
-    const auto& polygonImageries = context.getAssetRegistry().getPolygonImageries();
+    const auto& polygonImageries = context.getAssetRegistry().getPolygonRasterOverlays();
     for (const auto& pPolygonImagery : polygonImageries) {
         const auto paths = pPolygonImagery->getCartographicPolygonPaths();
         if (CppUtil::contains(paths, cartographicPolygonPath)) {
@@ -225,7 +225,7 @@ void processCesiumRasterOverlayChanged(
     const Context& context,
     const pxr::SdfPath& imageryPath,
     const std::vector<pxr::TfToken>& properties) {
-    const auto pImagery = context.getAssetRegistry().getImagery(imageryPath);
+    const auto pImagery = context.getAssetRegistry().getRasterOverlay(imageryPath);
     if (!pImagery) {
         return;
     }
@@ -262,7 +262,7 @@ void processCesiumIonImageryChanged(
     const Context& context,
     const pxr::SdfPath& ionImageryPath,
     const std::vector<pxr::TfToken>& properties) {
-    const auto pIonImagery = context.getAssetRegistry().getIonImagery(ionImageryPath);
+    const auto pIonImagery = context.getAssetRegistry().getIonRasterOverlay(ionImageryPath);
     if (!pIonImagery) {
         return;
     }
@@ -294,7 +294,7 @@ void processCesiumPolygonImageryChanged(
     const Context& context,
     const pxr::SdfPath& polygonImageryPath,
     const std::vector<pxr::TfToken>& properties) {
-    const auto pPolygonImagery = context.getAssetRegistry().getPolygonImagery(polygonImageryPath);
+    const auto pPolygonImagery = context.getAssetRegistry().getPolygonRasterOverlay(polygonImageryPath);
     if (!pPolygonImagery) {
         return;
     }
@@ -540,12 +540,12 @@ void processCesiumTilesetRemoved(Context& context, const pxr::SdfPath& tilesetPa
 }
 
 void processCesiumIonImageryRemoved(Context& context, const pxr::SdfPath& ionImageryPath) {
-    context.getAssetRegistry().removeIonImagery(ionImageryPath);
+    context.getAssetRegistry().removeIonRasterOverlay(ionImageryPath);
     updateImageryBindings(context, ionImageryPath);
 }
 
 void processCesiumPolygonImageryRemoved(Context& context, const pxr::SdfPath& polygonImageryPath) {
-    context.getAssetRegistry().removePolygonImagery(polygonImageryPath);
+    context.getAssetRegistry().removePolygonRasterOverlay(polygonImageryPath);
     updateImageryBindings(context, polygonImageryPath);
 }
 
@@ -580,12 +580,12 @@ void processCesiumTilesetAdded(Context& context, const pxr::SdfPath& tilesetPath
 }
 
 void processCesiumIonImageryAdded(Context& context, const pxr::SdfPath& ionImageryPath) {
-    context.getAssetRegistry().addIonImagery(ionImageryPath);
+    context.getAssetRegistry().addIonRasterOverlay(ionImageryPath);
     updateImageryBindings(context, ionImageryPath);
 }
 
 void processCesiumPolygonImageryAdded(Context& context, const pxr::SdfPath& polygonImageryPath) {
-    context.getAssetRegistry().addPolygonImagery(polygonImageryPath);
+    context.getAssetRegistry().addPolygonRasterOverlay(polygonImageryPath);
     updateImageryBindings(context, polygonImageryPath);
 }
 
@@ -875,7 +875,7 @@ void UsdNotificationHandler::onPrimRemoved(const pxr::SdfPath& primPath) {
         }
     }
 
-    const auto& ionImageries = _pContext->getAssetRegistry().getIonImageries();
+    const auto& ionImageries = _pContext->getAssetRegistry().getIonRasterOverlays();
     for (const auto& pIonImagery : ionImageries) {
         const auto ionImageryPath = pIonImagery->getPath();
         if (isPrimOrDescendant(ionImageryPath, primPath)) {
@@ -883,7 +883,7 @@ void UsdNotificationHandler::onPrimRemoved(const pxr::SdfPath& primPath) {
         }
     }
 
-    const auto& polygonImageries = _pContext->getAssetRegistry().getPolygonImageries();
+    const auto& polygonImageries = _pContext->getAssetRegistry().getPolygonRasterOverlays();
     for (const auto& pPolygonImagery : polygonImageries) {
         const auto polygonImageryPath = pPolygonImagery->getPath();
         if (isPrimOrDescendant(polygonImageryPath, primPath)) {
@@ -989,9 +989,9 @@ UsdNotificationHandler::getTypeFromAssetRegistry(const pxr::SdfPath& path) const
             return ChangedPrimType::CESIUM_DATA;
         case AssetType::TILESET:
             return ChangedPrimType::CESIUM_TILESET;
-        case AssetType::ION_IMAGERY:
+        case AssetType::ION_RASTER_OVERLAY:
             return ChangedPrimType::CESIUM_ION_IMAGERY;
-        case AssetType::POLYGON_IMAGERY:
+        case AssetType::POLYGON_RASTER_OVERLAY:
             return ChangedPrimType::CESIUM_POLYGON_IMAGERY;
         case AssetType::GEOREFERENCE:
             return ChangedPrimType::CESIUM_GEOREFERENCE;
