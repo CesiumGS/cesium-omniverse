@@ -10,9 +10,9 @@ TF_WRAP_MODULE
   TF_WRAP(CesiumGeoreference);
   TF_WRAP(CesiumGlobeAnchorAPI);
   TF_WRAP(CesiumIonServer);
-  TF_WRAP(CesiumImagery);
-  TF_WRAP(CesiumIonImagery);
-  TF_WRAP(CesiumPolygonImagery);
+  TF_WRAP(CesiumRasterOverlay);
+  TF_WRAP(CesiumIonRasterOverlay);
+  TF_WRAP(CesiumPolygonRasterOverlay);
   TF_WRAP(CesiumSession);
   TF_WRAP(CesiumTileset);
   TF_WRAP(CesiumTokens);

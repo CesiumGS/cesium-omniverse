@@ -8,41 +8,41 @@
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <CesiumIonClient/Token.h>
-#include <CesiumUsdSchemas/imagery.h>
+#include <CesiumUsdSchemas/rasterOverlay.h>
 
 namespace cesium::omniverse {
 
-OmniImagery::OmniImagery(Context* pContext, const pxr::SdfPath& path)
+OmniRasterOverlay::OmniRasterOverlay(Context* pContext, const pxr::SdfPath& path)
     : _pContext(pContext)
     , _path(path) {}
 
-const pxr::SdfPath& OmniImagery::getPath() const {
+const pxr::SdfPath& OmniRasterOverlay::getPath() const {
     return _path;
 }
 
-bool OmniImagery::getShowCreditsOnScreen() const {
-    const auto cesiumImagery = UsdUtil::getCesiumImagery(_pContext->getUsdStage(), _path);
+bool OmniRasterOverlay::getShowCreditsOnScreen() const {
+    const auto cesiumRasterOverlay = UsdUtil::getCesiumRasterOverlay(_pContext->getUsdStage(), _path);
 
     bool showCreditsOnScreen;
-    cesiumImagery.GetShowCreditsOnScreenAttr().Get(&showCreditsOnScreen);
+    cesiumRasterOverlay.GetShowCreditsOnScreenAttr().Get(&showCreditsOnScreen);
 
     return showCreditsOnScreen;
 }
 
-double OmniImagery::getAlpha() const {
-    const auto cesiumImagery = UsdUtil::getCesiumImagery(_pContext->getUsdStage(), _path);
+double OmniRasterOverlay::getAlpha() const {
+    const auto cesiumRasterOverlay = UsdUtil::getCesiumRasterOverlay(_pContext->getUsdStage(), _path);
 
     float alpha;
-    cesiumImagery.GetAlphaAttr().Get(&alpha);
+    cesiumRasterOverlay.GetAlphaAttr().Get(&alpha);
 
     return static_cast<double>(alpha);
 }
 
-FabricOverlayRenderMethod OmniImagery::getOverlayRenderMethod() const {
-    const auto cesiumImagery = UsdUtil::getCesiumImagery(_pContext->getUsdStage(), _path);
+FabricOverlayRenderMethod OmniRasterOverlay::getOverlayRenderMethod() const {
+    const auto cesiumRasterOverlay = UsdUtil::getCesiumRasterOverlay(_pContext->getUsdStage(), _path);
 
     pxr::TfToken overlayRenderMethod;
-    cesiumImagery.GetOverlayRenderMethodAttr().Get(&overlayRenderMethod);
+    cesiumRasterOverlay.GetOverlayRenderMethodAttr().Get(&overlayRenderMethod);
 
     if (overlayRenderMethod == pxr::CesiumTokens->overlay) {
         return FabricOverlayRenderMethod::OVERLAY;

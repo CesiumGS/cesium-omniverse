@@ -233,7 +233,7 @@ void processCesiumTilesetChanged(
     }
 }
 
-void processCesiumImageryChanged(
+void processCesiumRasterOverlayChanged(
     const Context& context,
     const pxr::SdfPath& imageryPath,
     const std::vector<pxr::TfToken>& properties) {
@@ -280,7 +280,7 @@ void processCesiumIonImageryChanged(
     }
 
     // Process base class first
-    processCesiumImageryChanged(context, ionImageryPath, properties);
+    processCesiumRasterOverlayChanged(context, ionImageryPath, properties);
 
     auto reload = false;
     auto updateBindings = false;
@@ -312,7 +312,7 @@ void processCesiumPolygonImageryChanged(
     }
 
     // Process base class first
-    processCesiumImageryChanged(context, polygonImageryPath, properties);
+    processCesiumRasterOverlayChanged(context, polygonImageryPath, properties);
 
     auto reload = false;
     auto updateBindings = false;
@@ -977,7 +977,7 @@ UsdNotificationHandler::ChangedPrimType UsdNotificationHandler::getTypeFromStage
         return ChangedPrimType::CESIUM_TILESET;
     } else if (UsdUtil::isCesiumIonImagery(_pContext->getUsdStage(), path)) {
         return ChangedPrimType::CESIUM_ION_IMAGERY;
-    } else if (UsdUtil::isCesiumPolygonImagery(_pContext->getUsdStage(), path)) {
+    } else if (UsdUtil::isCesiumPolygonRasterOverlay(_pContext->getUsdStage(), path)) {
         return ChangedPrimType::CESIUM_POLYGON_IMAGERY;
     } else if (UsdUtil::isCesiumGeoreference(_pContext->getUsdStage(), path)) {
         return ChangedPrimType::CESIUM_GEOREFERENCE;

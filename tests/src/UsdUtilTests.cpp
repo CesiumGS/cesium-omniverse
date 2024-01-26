@@ -8,7 +8,7 @@
 #include <CesiumUsdSchemas/data.h>
 #include <CesiumUsdSchemas/georeference.h>
 #include <CesiumUsdSchemas/globeAnchorAPI.h>
-#include <CesiumUsdSchemas/ionImagery.h>
+#include <CesiumUsdSchemas/ionRasterOverlay.h>
 #include <CesiumUsdSchemas/ionServer.h>
 #include <CesiumUsdSchemas/session.h>
 #include <CesiumUsdSchemas/tileset.h>

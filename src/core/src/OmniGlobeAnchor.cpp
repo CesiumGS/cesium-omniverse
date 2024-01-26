@@ -16,7 +16,7 @@
 #include <CesiumUsdSchemas/data.h>
 #include <CesiumUsdSchemas/georeference.h>
 #include <CesiumUsdSchemas/globeAnchorAPI.h>
-#include <CesiumUsdSchemas/imagery.h>
+#include <CesiumUsdSchemas/rasterOverlay.h>
 #include <CesiumUsdSchemas/ionServer.h>
 #include <CesiumUsdSchemas/session.h>
 #include <CesiumUsdSchemas/tileset.h>

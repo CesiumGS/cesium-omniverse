@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CesiumUsdSchemas/rasterOverlay.h"
 #include <glm/fwd.hpp>
 #include <pxr/base/gf/declare.h>
 #include <pxr/usd/usd/common.h>
@@ -9,10 +10,10 @@ class CesiumCartographicPolygon;
 class CesiumData;
 class CesiumGeoreference;
 class CesiumGlobeAnchorAPI;
-class CesiumImagery;
-class CesiumIonImagery;
+class CesiumRasterOverlay;
+class CesiumIonRasterOverlay;
 class CesiumIonServer;
-class CesiumPolygonImagery;
+class CesiumPolygonRasterOverlay;
 class CesiumSession;
 class CesiumTileset;
 class UsdGeomBasisCurves;
@@ -100,8 +101,8 @@ pxr::TfToken getDynamicTextureProviderAssetPathToken(const std::string_view& nam
 
 pxr::CesiumData defineCesiumData(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::CesiumTileset defineCesiumTileset(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
-pxr::CesiumIonImagery defineCesiumIonImagery(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
-pxr::CesiumPolygonImagery defineCesiumPolygonImagery(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
+pxr::CesiumIonRasterOverlay defineCesiumIonImagery(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
+pxr::CesiumPolygonRasterOverlay defineCesiumPolygonImagery(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::CesiumGeoreference defineCesiumGeoreference(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::CesiumIonServer defineCesiumIonServer(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::CesiumGlobeAnchorAPI applyCesiumGlobeAnchor(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
@@ -109,9 +110,9 @@ pxr::CesiumSession defineCesiumSession(const pxr::UsdStageWeakPtr& pStage, const
 
 pxr::CesiumData getCesiumData(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::CesiumTileset getCesiumTileset(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
-pxr::CesiumImagery getCesiumImagery(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
-pxr::CesiumIonImagery getCesiumIonImagery(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
-pxr::CesiumPolygonImagery getCesiumPolygonImagery(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
+pxr::CesiumRasterOverlay getCesiumRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
+pxr::CesiumIonRasterOverlay getCesiumIonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
+pxr::CesiumPolygonRasterOverlay getCesiumPolygonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::CesiumGeoreference getCesiumGeoreference(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::CesiumGlobeAnchorAPI getCesiumGlobeAnchor(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::CesiumIonServer getCesiumIonServer(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
@@ -124,9 +125,9 @@ pxr::CesiumSession getOrCreateCesiumSession(const pxr::UsdStageWeakPtr& pStage);
 
 bool isCesiumData(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool isCesiumTileset(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
-bool isCesiumImagery(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
+bool isCesiumRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool isCesiumIonImagery(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
-bool isCesiumPolygonImagery(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
+bool isCesiumPolygonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool isCesiumGeoreference(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool isCesiumIonServer(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool isCesiumCartographicPolygon(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);

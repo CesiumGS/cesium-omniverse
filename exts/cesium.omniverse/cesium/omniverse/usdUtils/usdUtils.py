@@ -7,7 +7,7 @@ from cesium.usd.plugins.CesiumUsdSchemas import (
     CartographicPolygon as CesiumCartographicPolygon,
     Data as CesiumData,
     Tileset as CesiumTileset,
-    IonImagery as CesiumIonImagery,
+    IonRasterOverlay as CesiumIonImagery,
     Georeference as CesiumGeoreference,
     GlobeAnchorAPI as CesiumGlobeAnchorAPI,
     Tokens as CesiumTokens,

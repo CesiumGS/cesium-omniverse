@@ -7,8 +7,8 @@ import omni.usd
 from pxr import Sdf, Tf, UsdGeom
 from cesium.usd.plugins.CesiumUsdSchemas import (
     Tileset as CesiumTileset,
-    PolygonImagery as CesiumPolygonImagery,
-    IonImagery as CesiumIonImagery,
+    PolygonRasterOverlay as CesiumPolygonImagery,
+    IonRasterOverlay as CesiumIonImagery,
 )
 from ..usdUtils import add_globe_anchor_to_prim
 from ..bindings import ICesiumOmniverseInterface

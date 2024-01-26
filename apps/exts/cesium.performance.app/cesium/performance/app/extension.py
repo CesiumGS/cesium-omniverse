@@ -18,7 +18,7 @@ from cesium.omniverse.utils import wait_n_frames, dock_window_async
 from cesium.usd.plugins.CesiumUsdSchemas import (
     Data as CesiumData,
     Georeference as CesiumGeoreference,
-    IonImagery as CesiumIonImagery,
+    IonRasterOverlay as CesiumIonImagery,
     Tileset as CesiumTileset,
     Tokens as CesiumTokens,
 )

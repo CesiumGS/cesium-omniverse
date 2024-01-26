@@ -1,12 +1,12 @@
 import logging
 from omni.kit.property.usd.custom_layout_helper import CustomLayoutFrame, CustomLayoutGroup, CustomLayoutProperty
 from omni.kit.property.usd.usd_property_widget import SchemaPropertiesWidget
-from cesium.usd.plugins.CesiumUsdSchemas import Imagery as CesiumImagery, IonServer as CesiumIonServer
+from cesium.usd.plugins.CesiumUsdSchemas import RasterOverlay as CesiumRasterOverlay, IonServer as CesiumIonServer
 
 
-class CesiumImageryAttributesWidget(SchemaPropertiesWidget):
+class CesiumRasterOverlayAttributesWidget(SchemaPropertiesWidget):
     def __init__(self):
-        super().__init__("Cesium Imagery Settings", CesiumImagery, include_inherited=False)
+        super().__init__("Cesium Raster Overlay Settings", CesiumRasterOverlay, include_inherited=False)
 
         self._logger = logging.getLogger(__name__)
 

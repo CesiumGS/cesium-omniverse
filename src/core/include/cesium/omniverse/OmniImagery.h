@@ -11,14 +11,14 @@ namespace cesium::omniverse {
 class Context;
 enum class FabricOverlayRenderMethod;
 
-class OmniImagery {
+class OmniRasterOverlay {
   public:
-    OmniImagery(Context* pContext, const pxr::SdfPath& path);
-    virtual ~OmniImagery() = default;
-    OmniImagery(const OmniImagery&) = delete;
-    OmniImagery& operator=(const OmniImagery&) = delete;
-    OmniImagery(OmniImagery&&) noexcept = default;
-    OmniImagery& operator=(OmniImagery&&) noexcept = default;
+    OmniRasterOverlay(Context* pContext, const pxr::SdfPath& path);
+    virtual ~OmniRasterOverlay() = default;
+    OmniRasterOverlay(const OmniRasterOverlay&) = delete;
+    OmniRasterOverlay& operator=(const OmniRasterOverlay&) = delete;
+    OmniRasterOverlay(OmniRasterOverlay&&) noexcept = default;
+    OmniRasterOverlay& operator=(OmniRasterOverlay&&) noexcept = default;
 
     [[nodiscard]] const pxr::SdfPath& getPath() const;
     [[nodiscard]] bool getShowCreditsOnScreen() const;

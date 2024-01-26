@@ -11,32 +11,32 @@
 #include <CesiumAsync/IAssetResponse.h>
 #include <CesiumIonClient/Token.h>
 #include <CesiumRasterOverlays/IonRasterOverlay.h>
-#include <CesiumUsdSchemas/ionImagery.h>
+#include <CesiumUsdSchemas/ionRasterOverlay.h>
 #include <CesiumUtility/IntrusivePointer.h>
 
 namespace cesium::omniverse {
 
 namespace {} // namespace
 
-OmniIonImagery::OmniIonImagery(Context* pContext, const pxr::SdfPath& path)
-    : OmniImagery(pContext, path) {
+OmniIonRasterOverlay::OmniIonRasterOverlay(Context* pContext, const pxr::SdfPath& path)
+    : OmniRasterOverlay(pContext, path) {
     reload();
 }
 
-int64_t OmniIonImagery::getIonAssetId() const {
-    const auto cesiumIonImagery = UsdUtil::getCesiumIonImagery(_pContext->getUsdStage(), _path);
+int64_t OmniIonRasterOverlay::getIonAssetId() const {
+    const auto cesiumIonRasterOverlay = UsdUtil::getCesiumIonRasterOverlay(_pContext->getUsdStage(), _path);
 
     int64_t ionAssetId;
-    cesiumIonImagery.GetIonAssetIdAttr().Get(&ionAssetId);
+    cesiumIonRasterOverlay.GetIonAssetIdAttr().Get(&ionAssetId);
 
     return ionAssetId;
 }
 
-CesiumIonClient::Token OmniIonImagery::getIonAccessToken() const {
-    const auto cesiumIonImagery = UsdUtil::getCesiumIonImagery(_pContext->getUsdStage(), _path);
+CesiumIonClient::Token OmniIonRasterOverlay::getIonAccessToken() const {
+    const auto cesiumIonRasterOverlay = UsdUtil::getCesiumIonRasterOverlay(_pContext->getUsdStage(), _path);
 
     std::string ionAccessToken;
-    cesiumIonImagery.GetIonAccessTokenAttr().Get(&ionAccessToken);
+    cesiumIonRasterOverlay.GetIonAccessTokenAttr().Get(&ionAccessToken);
 
     if (!ionAccessToken.empty()) {
         CesiumIonClient::Token t;
@@ -59,7 +59,7 @@ CesiumIonClient::Token OmniIonImagery::getIonAccessToken() const {
     return pIonServer->getToken();
 }
 
-std::string OmniIonImagery::getIonApiUrl() const {
+std::string OmniIonRasterOverlay::getIonApiUrl() const {
     const auto ionServerPath = getResolvedIonServerPath();
 
     if (ionServerPath.IsEmpty()) {
@@ -75,11 +75,11 @@ std::string OmniIonImagery::getIonApiUrl() const {
     return pIonServer->getIonServerApiUrl();
 }
 
-pxr::SdfPath OmniIonImagery::getResolvedIonServerPath() const {
-    const auto cesiumIonImagery = UsdUtil::getCesiumIonImagery(_pContext->getUsdStage(), _path);
+pxr::SdfPath OmniIonRasterOverlay::getResolvedIonServerPath() const {
+    const auto cesiumIonRasterOverlay = UsdUtil::getCesiumIonRasterOverlay(_pContext->getUsdStage(), _path);
 
     pxr::SdfPathVector targets;
-    cesiumIonImagery.GetIonServerBindingRel().GetForwardedTargets(&targets);
+    cesiumIonRasterOverlay.GetIonServerBindingRel().GetForwardedTargets(&targets);
 
     if (!targets.empty()) {
         return targets.front();
@@ -94,27 +94,27 @@ pxr::SdfPath OmniIonImagery::getResolvedIonServerPath() const {
     return {};
 }
 
-CesiumRasterOverlays::RasterOverlay* OmniIonImagery::getRasterOverlay() const {
+CesiumRasterOverlays::RasterOverlay* OmniIonRasterOverlay::getRasterOverlay() const {
     return _pIonRasterOverlay.get();
 }
 
-void OmniIonImagery::reload() {
-    const auto imageryIonAssetId = getIonAssetId();
-    const auto imageryIonAccessToken = getIonAccessToken();
-    const auto imageryIonApiUrl = getIonApiUrl();
+void OmniIonRasterOverlay::reload() {
+    const auto rasterOverlayIonAssetId = getIonAssetId();
+    const auto rasterOverlayIonAccessToken = getIonAccessToken();
+    const auto rasterOverlayIonApiUrl = getIonApiUrl();
 
-    if (imageryIonAssetId <= 0 || imageryIonAccessToken.token.empty() || imageryIonApiUrl.empty()) {
+    if (rasterOverlayIonAssetId <= 0 || rasterOverlayIonAccessToken.token.empty() || rasterOverlayIonApiUrl.empty()) {
         return;
     }
 
-    const auto imageryName = UsdUtil::getName(_pContext->getUsdStage(), _path);
+    const auto rasterOverlayName = UsdUtil::getName(_pContext->getUsdStage(), _path);
 
     CesiumRasterOverlays::RasterOverlayOptions options;
     options.showCreditsOnScreen = getShowCreditsOnScreen();
     options.ktx2TranscodeTargets = GltfUtil::getKtx2TranscodeTargets();
 
     options.loadErrorCallback =
-        [this, imageryIonAssetId, imageryName](const CesiumRasterOverlays::RasterOverlayLoadFailureDetails& error) {
+        [this, rasterOverlayIonAssetId, rasterOverlayName](const CesiumRasterOverlays::RasterOverlayLoadFailureDetails& error) {
             // Check for a 401 connecting to Cesium ion, which means the token is invalid
             // (or perhaps the asset ID is). Also check for a 404, because ion returns 404
             // when the token is valid but not authorized for the asset.
@@ -124,14 +124,14 @@ void OmniIonImagery::reload() {
             if (error.type == CesiumRasterOverlays::RasterOverlayLoadType::CesiumIon &&
                 (statusCode == 401 || statusCode == 404)) {
                 // TODO: this probably doesn't work without tileset info
-                Broadcast::showTroubleshooter({}, 0, "", imageryIonAssetId, imageryName, error.message);
+                Broadcast::showTroubleshooter({}, 0, "", rasterOverlayIonAssetId, rasterOverlayName, error.message);
             }
 
             _pContext->getLogger()->error(error.message);
         };
 
     _pIonRasterOverlay = new CesiumRasterOverlays::IonRasterOverlay(
-        imageryName, imageryIonAssetId, imageryIonAccessToken.token, options, imageryIonApiUrl);
+        rasterOverlayName, rasterOverlayIonAssetId, rasterOverlayIonAccessToken.token, options, rasterOverlayIonApiUrl);
 }
 
 } // namespace cesium::omniverse

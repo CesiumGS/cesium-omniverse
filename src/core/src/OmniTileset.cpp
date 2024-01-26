@@ -35,7 +35,7 @@
 #include <CesiumGeospatial/CartographicPolygon.h>
 #include <CesiumRasterOverlays/IonRasterOverlay.h>
 #include <CesiumRasterOverlays/RasterizedPolygonsOverlay.h>
-#include <CesiumUsdSchemas/imagery.h>
+#include <CesiumUsdSchemas/rasterOverlay.h>
 #include <CesiumUsdSchemas/tileset.h>
 #include <pxr/usd/usd/prim.h>
 #include <pxr/usd/usd/stage.h>
@@ -487,7 +487,7 @@ void OmniTileset::reload() {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
     for (const auto& child : cesiumTileset.GetPrim().GetAllChildren()) {
         const auto imageryPath = child.GetPath();
-        if (UsdUtil::isCesiumImagery(_pContext->getUsdStage(), imageryPath)) {
+        if (UsdUtil::isCesiumRasterOverlay(_pContext->getUsdStage(), imageryPath)) {
             _imageryPaths.push_back(imageryPath);
         }
 
