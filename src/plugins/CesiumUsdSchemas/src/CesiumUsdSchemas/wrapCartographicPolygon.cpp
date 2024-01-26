@@ -25,6 +25,20 @@ namespace {
 // fwd decl.
 WRAP_CUSTOM;
 
+        
+static UsdAttribute
+_CreateTypeAttr(CesiumCartographicPolygon &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateTypeAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Token), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateWrapAttr(CesiumCartographicPolygon &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateWrapAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Token), writeSparsely);
+}
 
 static std::string
 _Repr(const CesiumCartographicPolygon &self)
@@ -67,6 +81,20 @@ void wrapCesiumCartographicPolygon()
 
         .def(!self)
 
+        
+        .def("GetTypeAttr",
+             &This::GetTypeAttr)
+        .def("CreateTypeAttr",
+             &_CreateTypeAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetWrapAttr",
+             &This::GetWrapAttr)
+        .def("CreateWrapAttr",
+             &_CreateWrapAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
 
         .def("__repr__", ::_Repr)
     ;

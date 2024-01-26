@@ -57,8 +57,12 @@ CesiumTokensType::CesiumTokensType() :
     cesiumUrl("cesium:url", TfToken::Immortal),
     clip("clip", TfToken::Immortal),
     ion("ion", TfToken::Immortal),
+    linear("linear", TfToken::Immortal),
     overlay("overlay", TfToken::Immortal),
+    periodic("periodic", TfToken::Immortal),
+    type("type", TfToken::Immortal),
     url("url", TfToken::Immortal),
+    wrap("wrap", TfToken::Immortal),
     allTokens({
         cesiumAlpha,
         cesiumAnchorAdjustOrientationForGlobeWhenMoving,
@@ -114,8 +118,12 @@ CesiumTokensType::CesiumTokensType() :
         cesiumUrl,
         clip,
         ion,
+        linear,
         overlay,
-        url
+        periodic,
+        type,
+        url,
+        wrap
     })
 {
 }

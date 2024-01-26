@@ -157,7 +157,7 @@ public:
     ///
     /// | ||
     /// | -- | -- |
-    /// | Declaration | `uniform token cesium:overlayRenderMethod = "overlay"` |
+    /// | Declaration | `uniform token cesium:overlayRenderMethod = "clip"` |
     /// | C++ Type | TfToken |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Token |
     /// | \ref SdfVariability "Variability" | SdfVariabilityUniform |

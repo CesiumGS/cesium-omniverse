@@ -80,13 +80,64 @@ CesiumCartographicPolygon::_GetTfType() const
     return _GetStaticTfType();
 }
 
+UsdAttribute
+CesiumCartographicPolygon::GetTypeAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->type);
+}
+
+UsdAttribute
+CesiumCartographicPolygon::CreateTypeAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->type,
+                       SdfValueTypeNames->Token,
+                       /* custom = */ false,
+                       SdfVariabilityUniform,
+                       defaultValue,
+                       writeSparsely);
+}
+
+UsdAttribute
+CesiumCartographicPolygon::GetWrapAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->wrap);
+}
+
+UsdAttribute
+CesiumCartographicPolygon::CreateWrapAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->wrap,
+                       SdfValueTypeNames->Token,
+                       /* custom = */ false,
+                       SdfVariabilityUniform,
+                       defaultValue,
+                       writeSparsely);
+}
+
+namespace {
+static inline TfTokenVector
+_ConcatenateAttributeNames(const TfTokenVector& left,const TfTokenVector& right)
+{
+    TfTokenVector result;
+    result.reserve(left.size() + right.size());
+    result.insert(result.end(), left.begin(), left.end());
+    result.insert(result.end(), right.begin(), right.end());
+    return result;
+}
+}
+
 /*static*/
 const TfTokenVector&
 CesiumCartographicPolygon::GetSchemaAttributeNames(bool includeInherited)
 {
-    static TfTokenVector localNames;
+    static TfTokenVector localNames = {
+        CesiumTokens->type,
+        CesiumTokens->wrap,
+    };
     static TfTokenVector allNames =
-        UsdGeomBasisCurves::GetSchemaAttributeNames(true);
+        _ConcatenateAttributeNames(
+            UsdGeomBasisCurves::GetSchemaAttributeNames(true),
+            localNames);
 
     if (includeInherited)
         return allNames;

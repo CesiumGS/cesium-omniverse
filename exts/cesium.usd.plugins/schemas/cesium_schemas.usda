@@ -436,7 +436,7 @@ class "CesiumImageryPrim" (
         doc = "The alpha blending value, from 0.0 to 1.0, where 1.0 is fully opaque."
     )
 
-    uniform token cesium:overlayRenderMethod = "overlay" (
+    uniform token cesium:overlayRenderMethod = "clip" (
         customData = {
             string apiName = "overlayRenderMethod"
         }
@@ -502,6 +502,8 @@ class CesiumCartographicPolygonPrim "CesiumCartographicPolygonPrim" (
         string className = "CartographicPolygon"
     }
 ) {
+    uniform token type = "linear"
+    uniform token wrap = "periodic"
 }
 
 class "CesiumGlobeAnchorSchemaAPI" (

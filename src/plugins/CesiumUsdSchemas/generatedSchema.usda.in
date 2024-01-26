@@ -327,7 +327,7 @@ class "CesiumImageryPrim" (
         displayName = "Alpha"
         doc = "The alpha blending value, from 0.0 to 1.0, where 1.0 is fully opaque."
     )
-    uniform token cesium:overlayRenderMethod = "overlay" (
+    uniform token cesium:overlayRenderMethod = "clip" (
         allowedTokens = ["overlay", "clip"]
         displayName = "Overlay Render Method"
         doc = "The Cesium default material will give the imagery a different rendering treatment based on this selection."
@@ -358,7 +358,7 @@ class CesiumIonImageryPrim "CesiumIonImageryPrim" (
         displayName = "Cesium ion Server Binding"
         doc = "Specifies which Cesium ion Server prim to use for this tileset."
     )
-    uniform token cesium:overlayRenderMethod = "overlay" (
+    uniform token cesium:overlayRenderMethod = "clip" (
         allowedTokens = ["overlay", "clip"]
         displayName = "Overlay Render Method"
         doc = "The Cesium default material will give the imagery a different rendering treatment based on this selection."
@@ -381,7 +381,7 @@ class CesiumPolygonImageryPrim "CesiumPolygonImageryPrim" (
         displayName = "Cartographic Polygon Binding"
         doc = "Specifies which Cartographic Polygons to use in the imagery layer"
     )
-    uniform token cesium:overlayRenderMethod = "overlay" (
+    uniform token cesium:overlayRenderMethod = "clip" (
         allowedTokens = ["overlay", "clip"]
         displayName = "Overlay Render Method"
         doc = "The Cesium default material will give the imagery a different rendering treatment based on this selection."
@@ -521,7 +521,7 @@ class CesiumCartographicPolygonPrim "CesiumCartographicPolygonPrim" (
         See for more detail about how 
         purpose is computed and used."""
     )
-    uniform token type = "cubic" (
+    uniform token type = "linear" (
         allowedTokens = ["linear", "cubic"]
         doc = """Linear curves interpolate linearly between two vertices.  
         Cubic curves use a basis matrix with four vertices to interpolate a segment."""
@@ -558,7 +558,7 @@ class CesiumCartographicPolygonPrim "CesiumCartographicPolygonPrim" (
         its 'interpolation'.  See .  If 'widths'
         and 'primvars:widths' are both specified, the latter has precedence."""
     )
-    uniform token wrap = "nonperiodic" (
+    uniform token wrap = "periodic" (
         allowedTokens = ["nonperiodic", "periodic", "pinned"]
         doc = """If wrap is set to periodic, the curve when rendered will 
         repeat the initial vertices (dependent on the vstep) to close the

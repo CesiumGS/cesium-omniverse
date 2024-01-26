@@ -95,6 +95,10 @@ void wrapCesiumTokens()
     _AddToken(cls, "cesiumUrl", CesiumTokens->cesiumUrl);
     _AddToken(cls, "clip", CesiumTokens->clip);
     _AddToken(cls, "ion", CesiumTokens->ion);
+    _AddToken(cls, "linear", CesiumTokens->linear);
     _AddToken(cls, "overlay", CesiumTokens->overlay);
+    _AddToken(cls, "periodic", CesiumTokens->periodic);
+    _AddToken(cls, "type", CesiumTokens->type);
     _AddToken(cls, "url", CesiumTokens->url);
+    _AddToken(cls, "wrap", CesiumTokens->wrap);
 }

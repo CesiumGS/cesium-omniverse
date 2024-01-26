@@ -8,6 +8,7 @@
 #include "pxr/usd/usdGeom/basisCurves.h"
 #include "pxr/usd/usd/prim.h"
 #include "pxr/usd/usd/stage.h"
+#include ".//tokens.h"
 
 #include "pxr/base/vt/value.h"
 
@@ -29,6 +30,11 @@ class SdfAssetPath;
 /// \class CesiumCartographicPolygon
 ///
 /// Adds a prim that represents a globe-anchored polygon
+///
+/// For any described attribute \em Fallback \em Value or \em Allowed \em Values below
+/// that are text/tokens, the actual token is published and defined in \ref CesiumTokens.
+/// So to set an attribute to the value "rightHanded", use CesiumTokens->rightHanded
+/// as the value.
 ///
 class CesiumCartographicPolygon : public UsdGeomBasisCurves
 {
@@ -123,6 +129,52 @@ private:
     // override SchemaBase virtuals.
     CESIUMUSDSCHEMAS_API
     const TfType &_GetTfType() const override;
+
+public:
+    // --------------------------------------------------------------------- //
+    // TYPE 
+    // --------------------------------------------------------------------- //
+    /// 
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `uniform token type = "linear"` |
+    /// | C++ Type | TfToken |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Token |
+    /// | \ref SdfVariability "Variability" | SdfVariabilityUniform |
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute GetTypeAttr() const;
+
+    /// See GetTypeAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute CreateTypeAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
+    // WRAP 
+    // --------------------------------------------------------------------- //
+    /// 
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `uniform token wrap = "periodic"` |
+    /// | C++ Type | TfToken |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Token |
+    /// | \ref SdfVariability "Variability" | SdfVariabilityUniform |
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute GetWrapAttr() const;
+
+    /// See GetWrapAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute CreateWrapAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // ===================================================================== //

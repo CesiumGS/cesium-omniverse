@@ -249,20 +249,36 @@ struct CesiumTokensType {
     const TfToken cesiumUrl;
     /// \brief "clip"
     /// 
-    /// Possible value for CesiumImagery::GetOverlayRenderMethodAttr()
+    /// Possible value for CesiumImagery::GetOverlayRenderMethodAttr(), Default value for CesiumImagery::GetOverlayRenderMethodAttr()
     const TfToken clip;
     /// \brief "ion"
     /// 
     /// Possible value for CesiumTileset::GetSourceTypeAttr(), Default value for CesiumTileset::GetSourceTypeAttr()
     const TfToken ion;
+    /// \brief "linear"
+    /// 
+    /// Default value for CesiumCartographicPolygon::GetTypeAttr()
+    const TfToken linear;
     /// \brief "overlay"
     /// 
-    /// Possible value for CesiumImagery::GetOverlayRenderMethodAttr(), Default value for CesiumImagery::GetOverlayRenderMethodAttr()
+    /// Possible value for CesiumImagery::GetOverlayRenderMethodAttr()
     const TfToken overlay;
+    /// \brief "periodic"
+    /// 
+    /// Default value for CesiumCartographicPolygon::GetWrapAttr()
+    const TfToken periodic;
+    /// \brief "type"
+    /// 
+    /// CesiumCartographicPolygon
+    const TfToken type;
     /// \brief "url"
     /// 
     /// Possible value for CesiumTileset::GetSourceTypeAttr()
     const TfToken url;
+    /// \brief "wrap"
+    /// 
+    /// CesiumCartographicPolygon
+    const TfToken wrap;
     /// A vector of all of the tokens listed above.
     const std::vector<TfToken> allTokens;
 };
