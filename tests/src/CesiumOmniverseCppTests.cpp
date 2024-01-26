@@ -16,6 +16,7 @@
 #include <cesium/omniverse/UsdUtil.h>
 #include <doctest/doctest.h>
 #include <omni/fabric/IFabric.h>
+#include <omni/kit/IApp.h>
 #include <pxr/usd/sdf/path.h>
 #include <pxr/usd/usd/stage.h>
 
@@ -98,6 +99,7 @@ const struct carb::PluginImplDesc pluginImplDesc = {
 #endif
 
 CARB_PLUGIN_IMPL(pluginImplDesc, cesium::omniverse::tests::CesiumOmniverseCppTestsPlugin)
+CARB_PLUGIN_IMPL_DEPS(omni::fabric::IFabric, omni::kit::IApp, carb::settings::ISettings)
 
 #ifdef CESIUM_OMNI_CLANG
 #pragma clang diagnostic pop
