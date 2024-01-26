@@ -41,16 +41,13 @@ bool isPrimOrDescendant(const pxr::SdfPath& descendantPath, const pxr::SdfPath& 
 void updateImageryBindings(const Context& context, const pxr::SdfPath& imageryPath) {
     const auto& tilesets = context.getAssetRegistry().getTilesets();
 
-    // Update tilesets that reference this imagery
+    // Update all tilesets since they reference imagery layers implicitly
+    // In the future this should only update tilesets that have a rel to the imagery
     for (const auto& pTileset : tilesets) {
-        const auto imageryLayerCount = pTileset->getImageryLayerCount();
-        for (uint64_t i = 0; i < imageryLayerCount; ++i) {
-            const auto imageryLayerPath = pTileset->getImageryLayerPath(i);
-            if (imageryLayerPath == imageryPath) {
-                pTileset->reload();
-            }
-        }
+        pTileset->reload();
     }
+
+    (void)imageryPath;
 }
 
 void updateImageryBindingsAlpha(const Context& context, const pxr::SdfPath& imageryPath) {
