@@ -160,7 +160,7 @@ std::vector<FabricMesh> acquireFabricMeshes(
 
         // Map glTF texcoord set index to primvar st index
         const auto texcoordSetIndexes = GltfUtil::getTexcoordSetIndexes(model, primitive);
-        const auto imageryTexcoordSetIndexes = GltfUtil::getImageryTexcoordSetIndexes(model, primitive);
+        const auto imageryTexcoordSetIndexes = GltfUtil::getRasterOverlayTexcoordSetIndexes(model, primitive);
 
         uint64_t primvarStIndex = 0;
         for (const auto gltfSetIndex : texcoordSetIndexes) {

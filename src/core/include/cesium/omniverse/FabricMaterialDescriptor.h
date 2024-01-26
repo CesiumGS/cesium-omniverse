@@ -42,7 +42,7 @@ class FabricMaterialDescriptor {
     [[nodiscard]] bool hasVertexColors() const;
     [[nodiscard]] bool hasBaseColorTexture() const;
     [[nodiscard]] const std::vector<FabricFeatureIdType>& getFeatureIdTypes() const;
-    [[nodiscard]] const std::vector<FabricOverlayRenderMethod>& getImageryOverlayRenderMethods() const;
+    [[nodiscard]] const std::vector<FabricOverlayRenderMethod>& getRasterOverlayRenderMethods() const;
     [[nodiscard]] bool hasTilesetMaterial() const;
     [[nodiscard]] const pxr::SdfPath& getTilesetMaterialPath() const;
     [[nodiscard]] const std::vector<FabricPropertyDescriptor>& getStyleableProperties() const;

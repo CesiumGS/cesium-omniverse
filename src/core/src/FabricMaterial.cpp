@@ -30,7 +30,7 @@ namespace cesium::omniverse {
 namespace {
 
 // Should match imagery_layers length in cesium.mdl
-const uint64_t MAX_IMAGERY_LAYERS_COUNT = 16;
+const uint64_t MAX_RASTER_OVERLAY_LAYERS_COUNT = 16;
 
 const auto DEFAULT_DEBUG_COLOR = glm::dvec3(1.0, 1.0, 1.0);
 const auto DEFAULT_ALPHA = 1.0f;
@@ -77,62 +77,62 @@ FeatureIdCounts getFeatureIdCounts(const FabricMaterialDescriptor& materialDescr
     return FeatureIdCounts{indexCount, attributeCount, textureCount, featureIdCount};
 }
 
-struct ImageryLayerIndices {
-    std::vector<uint64_t> overlayImageryLayerIndices;
-    std::vector<uint64_t> clippingImageryLayerIndices;
+struct RasterOverlayLayerIndices {
+    std::vector<uint64_t> overlayRasterOverlayLayerIndices;
+    std::vector<uint64_t> clippingRasterOverlayLayerIndices;
 };
 
-ImageryLayerIndices getImageryLayerIndices(const Context& context, const FabricMaterialDescriptor& materialDescriptor) {
-    uint64_t overlayImageryLayerCount = 0;
-    uint64_t clippingImageryLayerCount = 0;
-    uint64_t totalImageryLayerCount = 0;
+RasterOverlayLayerIndices getRasterOverlayLayerIndices(const Context& context, const FabricMaterialDescriptor& materialDescriptor) {
+    uint64_t overlayRasterOverlayLayerCount = 0;
+    uint64_t clippingRasterOverlayLayerCount = 0;
+    uint64_t totalRasterOverlayLayerCount = 0;
 
-    std::vector<uint64_t> overlayImageryLayerIndices;
-    std::vector<uint64_t> clippingImageryLayerIndices;
+    std::vector<uint64_t> overlayRasterOverlayLayerIndices;
+    std::vector<uint64_t> clippingRasterOverlayLayerIndices;
 
-    for (const auto& method : materialDescriptor.getImageryOverlayRenderMethods()) {
+    for (const auto& method : materialDescriptor.getRasterOverlayRenderMethods()) {
         switch (method) {
             case FabricOverlayRenderMethod::OVERLAY:
-                if (overlayImageryLayerCount < MAX_IMAGERY_LAYERS_COUNT) {
-                    overlayImageryLayerIndices.push_back(totalImageryLayerCount);
+                if (overlayRasterOverlayLayerCount < MAX_RASTER_OVERLAY_LAYERS_COUNT) {
+                    overlayRasterOverlayLayerIndices.push_back(totalRasterOverlayLayerCount);
                 }
-                ++overlayImageryLayerCount;
+                ++overlayRasterOverlayLayerCount;
                 break;
             case FabricOverlayRenderMethod::CLIPPING:
-                if (clippingImageryLayerCount < MAX_IMAGERY_LAYERS_COUNT) {
-                    clippingImageryLayerIndices.push_back(totalImageryLayerCount);
+                if (clippingRasterOverlayLayerCount < MAX_RASTER_OVERLAY_LAYERS_COUNT) {
+                    clippingRasterOverlayLayerIndices.push_back(totalRasterOverlayLayerCount);
                 }
-                ++clippingImageryLayerCount;
+                ++clippingRasterOverlayLayerCount;
                 break;
         }
-        ++totalImageryLayerCount;
+        ++totalRasterOverlayLayerCount;
     }
 
-    if (overlayImageryLayerCount > MAX_IMAGERY_LAYERS_COUNT) {
+    if (overlayRasterOverlayLayerCount > MAX_RASTER_OVERLAY_LAYERS_COUNT) {
         context.getLogger()->warn(
             "Number of overlay imagery layers ({}) exceeds maximum imagery layer count ({}). Excess imagery layers "
             "will be ignored.",
-            overlayImageryLayerCount,
-            MAX_IMAGERY_LAYERS_COUNT);
+            overlayRasterOverlayLayerCount,
+            MAX_RASTER_OVERLAY_LAYERS_COUNT);
     }
 
-    if (clippingImageryLayerCount > MAX_IMAGERY_LAYERS_COUNT) {
+    if (clippingRasterOverlayLayerCount > MAX_RASTER_OVERLAY_LAYERS_COUNT) {
         context.getLogger()->warn(
             "Number of clipping imagery layers ({}) exceeds maximum imagery layer count ({}). Excess imagery layers "
             "will be ignored.",
-            clippingImageryLayerCount,
-            MAX_IMAGERY_LAYERS_COUNT);
+            clippingRasterOverlayLayerCount,
+            MAX_RASTER_OVERLAY_LAYERS_COUNT);
     }
 
-    return ImageryLayerIndices{std::move(overlayImageryLayerIndices), std::move(clippingImageryLayerIndices)};
+    return RasterOverlayLayerIndices{std::move(overlayRasterOverlayLayerIndices), std::move(clippingRasterOverlayLayerIndices)};
 }
 
-uint64_t getImageryLayerCount(const FabricMaterialDescriptor& materialDescriptor) {
-    return materialDescriptor.getImageryOverlayRenderMethods().size();
+uint64_t getRasterOverlayLayerCount(const FabricMaterialDescriptor& materialDescriptor) {
+    return materialDescriptor.getRasterOverlayRenderMethods().size();
 }
 
 bool isClippingEnabled(const FabricMaterialDescriptor& materialDescriptor) {
-    return CppUtil::contains(materialDescriptor.getImageryOverlayRenderMethods(), FabricOverlayRenderMethod::CLIPPING);
+    return CppUtil::contains(materialDescriptor.getRasterOverlayRenderMethods(), FabricOverlayRenderMethod::CLIPPING);
 }
 
 FabricAlphaMode
@@ -571,13 +571,13 @@ void FabricMaterial::initializeNodes() {
     }
 
     // Create imagery layers
-    const auto imageryLayerCount = getImageryLayerCount(_materialDescriptor);
-    _imageryLayerPaths.reserve(imageryLayerCount);
-    for (uint64_t i = 0; i < imageryLayerCount; ++i) {
-        const auto imageryLayerPath = FabricUtil::joinPaths(_materialPath, FabricTokens::imagery_layer_n(i));
-        createImageryLayer(imageryLayerPath);
-        _imageryLayerPaths.push_back(imageryLayerPath);
-        _allPaths.push_back(imageryLayerPath);
+    const auto rasterOverlayLayerCount = getRasterOverlayLayerCount(_materialDescriptor);
+    _rasterOverlayLayerPaths.reserve(rasterOverlayLayerCount);
+    for (uint64_t i = 0; i < rasterOverlayLayerCount; ++i) {
+        const auto rasterOverlayLayerPath = FabricUtil::joinPaths(_materialPath, FabricTokens::imagery_layer_n(i));
+        createRasterOverlayLayer(rasterOverlayLayerPath);
+        _rasterOverlayLayerPaths.push_back(rasterOverlayLayerPath);
+        _allPaths.push_back(rasterOverlayLayerPath);
     }
 
     // Create feature ids
@@ -643,7 +643,7 @@ void FabricMaterial::initializeNodes() {
 void FabricMaterial::initializeDefaultMaterial() {
     auto& fabricStage = _pContext->getFabricStage();
 
-    const auto imageryLayerIndices = getImageryLayerIndices(*_pContext, _materialDescriptor);
+    const auto rasterOverlayLayerIndices = getRasterOverlayLayerIndices(*_pContext, _materialDescriptor);
     const auto hasBaseColorTexture = _materialDescriptor.hasBaseColorTexture();
 
     // Create material
@@ -657,26 +657,26 @@ void FabricMaterial::initializeDefaultMaterial() {
     _shaderPath = shaderPath;
     _allPaths.push_back(shaderPath);
 
-    const auto& overlayImageryLayerIndices = imageryLayerIndices.overlayImageryLayerIndices;
-    const auto& clippingImageryLayerIndices = imageryLayerIndices.clippingImageryLayerIndices;
-    const auto overlayImageryLayerCount = overlayImageryLayerIndices.size();
-    const auto clippingImageryLayerCount = clippingImageryLayerIndices.size();
+    const auto& overlayRasterOverlayLayerIndices = rasterOverlayLayerIndices.overlayRasterOverlayLayerIndices;
+    const auto& clippingRasterOverlayLayerIndices = rasterOverlayLayerIndices.clippingRasterOverlayLayerIndices;
+    const auto overlayRasterOverlayLayerCount = overlayRasterOverlayLayerIndices.size();
+    const auto clippingRasterOverlayLayerCount = clippingRasterOverlayLayerIndices.size();
 
     // Create overlay imagery layer resolver if there are multiple overlay imagery layers
-    if (overlayImageryLayerCount > 1) {
-        const auto imageryLayerResolverPath = FabricUtil::joinPaths(materialPath, FabricTokens::imagery_layer_resolver);
-        createImageryLayerResolver(imageryLayerResolverPath, overlayImageryLayerCount);
-        _overlayImageryLayerResolverPath = imageryLayerResolverPath;
-        _allPaths.push_back(imageryLayerResolverPath);
+    if (overlayRasterOverlayLayerCount > 1) {
+        const auto rasterOverlayLayerResolverPath = FabricUtil::joinPaths(materialPath, FabricTokens::imagery_layer_resolver);
+        createRasterOverlayLayerResolver(rasterOverlayLayerResolverPath, overlayRasterOverlayLayerCount);
+        _overlayRasterOverlayLayerResolverPath = rasterOverlayLayerResolverPath;
+        _allPaths.push_back(rasterOverlayLayerResolverPath);
     }
 
     // Create clipping imagery layer resolver if there are multiple clipping imagery layers
-    if (clippingImageryLayerCount > 1) {
-        const auto clippingImageryLayerResolverPath =
+    if (clippingRasterOverlayLayerCount > 1) {
+        const auto clippingRasterOverlayLayerResolverPath =
             FabricUtil::joinPaths(materialPath, FabricTokens::clipping_imagery_layer_resolver);
-        createClippingImageryLayerResolver(clippingImageryLayerResolverPath, clippingImageryLayerCount);
-        _clippingImageryLayerResolverPath = clippingImageryLayerResolverPath;
-        _allPaths.push_back(_clippingImageryLayerResolverPath);
+        createClippingRasterOverlayLayerResolver(clippingRasterOverlayLayerResolverPath, clippingRasterOverlayLayerCount);
+        _clippingRasterOverlayLayerResolverPath = clippingRasterOverlayLayerResolverPath;
+        _allPaths.push_back(_clippingRasterOverlayLayerResolverPath);
     }
 
     // Create connection from shader to material
@@ -689,40 +689,40 @@ void FabricMaterial::initializeDefaultMaterial() {
         createConnection(fabricStage, _baseColorTexturePath, shaderPath, FabricTokens::inputs_base_color_texture);
     }
 
-    if (overlayImageryLayerCount == 1) {
+    if (overlayRasterOverlayLayerCount == 1) {
         // Create connection from imagery layer to shader
-        const auto& imageryLayerPath = _imageryLayerPaths[overlayImageryLayerIndices.front()];
+        const auto& imageryLayerPath = _rasterOverlayLayerPaths[overlayRasterOverlayLayerIndices.front()];
         createConnection(fabricStage, imageryLayerPath, shaderPath, FabricTokens::inputs_imagery_layer);
-    } else if (overlayImageryLayerCount > 1) {
+    } else if (overlayRasterOverlayLayerCount > 1) {
         // Create connection from imagery layer resolver to shader
-        createConnection(fabricStage, _overlayImageryLayerResolverPath, shaderPath, FabricTokens::inputs_imagery_layer);
+        createConnection(fabricStage, _overlayRasterOverlayLayerResolverPath, shaderPath, FabricTokens::inputs_imagery_layer);
 
         // Create connections from imagery layers to imagery layer resolver
-        for (uint64_t i = 0; i < overlayImageryLayerCount; ++i) {
-            const auto& imageryLayerPath = _imageryLayerPaths[overlayImageryLayerIndices[i]];
+        for (uint64_t i = 0; i < overlayRasterOverlayLayerCount; ++i) {
+            const auto& imageryLayerPath = _rasterOverlayLayerPaths[overlayRasterOverlayLayerIndices[i]];
             createConnection(
                 fabricStage,
                 imageryLayerPath,
-                _overlayImageryLayerResolverPath,
+                _overlayRasterOverlayLayerResolverPath,
                 FabricTokens::inputs_imagery_layer_n(i));
         }
     }
 
-    if (clippingImageryLayerCount == 1) {
+    if (clippingRasterOverlayLayerCount == 1) {
         // Create connection from imagery layer to shader
-        const auto& imageryLayerPath = _imageryLayerPaths[clippingImageryLayerIndices.front()];
+        const auto& imageryLayerPath = _rasterOverlayLayerPaths[clippingRasterOverlayLayerIndices.front()];
         createConnection(fabricStage, imageryLayerPath, shaderPath, FabricTokens::inputs_alpha_clip);
-    } else if (clippingImageryLayerCount > 1) {
+    } else if (clippingRasterOverlayLayerCount > 1) {
         // Create connection from imagery layer resolver to shader
-        createConnection(fabricStage, _clippingImageryLayerResolverPath, shaderPath, FabricTokens::inputs_alpha_clip);
+        createConnection(fabricStage, _clippingRasterOverlayLayerResolverPath, shaderPath, FabricTokens::inputs_alpha_clip);
 
         // Create connections from imagery layers to imagery layer resolver
-        for (uint64_t i = 0; i < clippingImageryLayerCount; ++i) {
-            const auto& imageryLayerPath = _imageryLayerPaths[clippingImageryLayerIndices[i]];
+        for (uint64_t i = 0; i < clippingRasterOverlayLayerCount; ++i) {
+            const auto& imageryLayerPath = _rasterOverlayLayerPaths[clippingRasterOverlayLayerIndices[i]];
             createConnection(
                 fabricStage,
                 imageryLayerPath,
-                _clippingImageryLayerResolverPath,
+                _clippingRasterOverlayLayerResolverPath,
                 FabricTokens::inputs_imagery_layer_n(i));
         }
     }
@@ -821,7 +821,7 @@ void FabricMaterial::createTexture(const omni::fabric::Path& path) {
     return createTextureCommon(path, FabricTokens::cesium_internal_texture_lookup);
 }
 
-void FabricMaterial::createImageryLayer(const omni::fabric::Path& path) {
+void FabricMaterial::createRasterOverlayLayer(const omni::fabric::Path& path) {
     static const auto additionalAttributes = std::vector<std::pair<omni::fabric::Type, omni::fabric::Token>>{{
         std::make_pair(FabricTypes::inputs_alpha, FabricTokens::inputs_alpha),
     }};
@@ -847,11 +847,11 @@ void FabricMaterial::createImageryLayerResolverCommon(
     *imageryLayerCountFabric = static_cast<int>(imageryLayerCount);
 }
 
-void FabricMaterial::createImageryLayerResolver(const omni::fabric::Path& path, uint64_t imageryLayerCount) {
+void FabricMaterial::createRasterOverlayLayerResolver(const omni::fabric::Path& path, uint64_t imageryLayerCount) {
     createImageryLayerResolverCommon(path, imageryLayerCount, FabricTokens::cesium_internal_imagery_layer_resolver);
 }
 
-void FabricMaterial::createClippingImageryLayerResolver(
+void FabricMaterial::createClippingRasterOverlayLayerResolver(
     const omni::fabric::Path& path,
     uint64_t clippingImageryLayerCount) {
     createImageryLayerResolverCommon(
@@ -1416,7 +1416,7 @@ void FabricMaterial::reset() {
         }
     }
 
-    for (const auto& imageryLayerPath : _imageryLayerPaths) {
+    for (const auto& imageryLayerPath : _rasterOverlayLayerPaths) {
         setImageryLayerValues(
             imageryLayerPath,
             _defaultTransparentTextureAssetPathToken,
@@ -1638,7 +1638,7 @@ void FabricMaterial::createConnectionsToCopiedPaths() {
     auto& fabricStage = _pContext->getFabricStage();
 
     const auto hasBaseColorTexture = _materialDescriptor.hasBaseColorTexture();
-    const auto imageryLayerCount = getImageryLayerCount(_materialDescriptor);
+    const auto imageryLayerCount = getRasterOverlayLayerCount(_materialDescriptor);
     const auto featureIdCount = getFeatureIdCounts(_materialDescriptor).totalCount;
 
     for (const auto& copiedPath : _copiedBaseColorTexturePaths) {
@@ -1652,7 +1652,7 @@ void FabricMaterial::createConnectionsToCopiedPaths() {
         const auto index = static_cast<uint64_t>(CppUtil::defaultValue(indexFabric, 0));
 
         if (index < imageryLayerCount) {
-            createConnection(fabricStage, _imageryLayerPaths[index], copiedPath, FabricTokens::inputs_imagery_layer);
+            createConnection(fabricStage, _rasterOverlayLayerPaths[index], copiedPath, FabricTokens::inputs_imagery_layer);
         }
     }
 
@@ -1735,13 +1735,13 @@ void FabricMaterial::setImageryLayer(
         return;
     }
 
-    if (imageryLayerIndex >= _imageryLayerPaths.size()) {
+    if (imageryLayerIndex >= _rasterOverlayLayerPaths.size()) {
         return;
     }
 
     const auto& textureAssetPath = pTexture->getAssetPathToken();
     const auto texcoordIndex = imageryTexcoordIndexMapping.at(textureInfo.setIndex);
-    const auto& imageryLayerPath = _imageryLayerPaths[imageryLayerIndex];
+    const auto& imageryLayerPath = _rasterOverlayLayerPaths[imageryLayerIndex];
     setImageryLayerValues(imageryLayerPath, textureAssetPath, textureInfo, texcoordIndex, alpha);
 }
 
@@ -1750,11 +1750,11 @@ void FabricMaterial::setImageryLayerAlpha(uint64_t imageryLayerIndex, double alp
         return;
     }
 
-    if (imageryLayerIndex >= _imageryLayerPaths.size()) {
+    if (imageryLayerIndex >= _rasterOverlayLayerPaths.size()) {
         return;
     }
 
-    const auto& imageryLayerPath = _imageryLayerPaths[imageryLayerIndex];
+    const auto& imageryLayerPath = _rasterOverlayLayerPaths[imageryLayerIndex];
     setImageryLayerAlphaValue(imageryLayerPath, alpha);
 }
 
@@ -1814,11 +1814,11 @@ void FabricMaterial::clearImageryLayer(uint64_t imageryLayerIndex) {
         return;
     }
 
-    if (imageryLayerIndex >= _imageryLayerPaths.size()) {
+    if (imageryLayerIndex >= _rasterOverlayLayerPaths.size()) {
         return;
     }
 
-    const auto& imageryLayerPath = _imageryLayerPaths[imageryLayerIndex];
+    const auto& imageryLayerPath = _rasterOverlayLayerPaths[imageryLayerIndex];
     setImageryLayerValues(
         imageryLayerPath,
         _defaultTransparentTextureAssetPathToken,

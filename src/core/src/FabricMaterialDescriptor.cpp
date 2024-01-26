@@ -46,7 +46,7 @@ const std::vector<FabricFeatureIdType>& FabricMaterialDescriptor::getFeatureIdTy
     return _featureIdTypes;
 }
 
-const std::vector<FabricOverlayRenderMethod>& FabricMaterialDescriptor::getImageryOverlayRenderMethods() const {
+const std::vector<FabricOverlayRenderMethod>& FabricMaterialDescriptor::getRasterOverlayRenderMethods() const {
     return _imageryOverlayRenderMethods;
 }
 

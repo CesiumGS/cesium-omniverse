@@ -24,7 +24,7 @@ FabricGeometryDescriptor::FabricGeometryDescriptor(
     , _hasVertexIds(FabricFeaturesUtil::hasFeatureIdType(featuresInfo, FabricFeatureIdType::INDEX))
     , _texcoordSetCount(
           GltfUtil::getTexcoordSetIndexes(model, primitive).size() +
-          GltfUtil::getImageryTexcoordSetIndexes(model, primitive).size())
+          GltfUtil::getRasterOverlayTexcoordSetIndexes(model, primitive).size())
     , _customVertexAttributes(GltfUtil::getCustomVertexAttributes(model, primitive)) {}
 
 bool FabricGeometryDescriptor::hasNormals() const {

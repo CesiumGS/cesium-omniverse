@@ -102,7 +102,7 @@ TEST_SUITE("Test GltfUtil") {
             CHECK(GltfUtil::getTexcoords(model, prim, 0).size() > 0);
         }
         if (GltfUtil::hasImageryTexcoords(model, prim, 0)) {
-            CHECK(GltfUtil::getImageryTexcoords(model, prim, 0).size() > 0);
+            CHECK(GltfUtil::getRasterOverlayTexcoords(model, prim, 0).size() > 0);
         }
         CHECK(GltfUtil::getExtent(model, prim) != std::nullopt);
     }

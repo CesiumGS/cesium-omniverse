@@ -86,13 +86,13 @@ class FabricMaterial {
         const omni::fabric::Token& subIdentifier,
         const std::vector<std::pair<omni::fabric::Type, omni::fabric::Token>>& additionalAttributes = {});
     void createTexture(const omni::fabric::Path& path);
-    void createImageryLayer(const omni::fabric::Path& path);
+    void createRasterOverlayLayer(const omni::fabric::Path& path);
     void createImageryLayerResolverCommon(
         const omni::fabric::Path& path,
         uint64_t textureCount,
         const omni::fabric::Token& subidentifier);
-    void createImageryLayerResolver(const omni::fabric::Path& path, uint64_t textureCount);
-    void createClippingImageryLayerResolver(const omni::fabric::Path& path, uint64_t textureCount);
+    void createRasterOverlayLayerResolver(const omni::fabric::Path& path, uint64_t textureCount);
+    void createClippingRasterOverlayLayerResolver(const omni::fabric::Path& path, uint64_t textureCount);
     void createFeatureIdIndex(const omni::fabric::Path& path);
     void createFeatureIdAttribute(const omni::fabric::Path& path);
     void createFeatureIdTexture(const omni::fabric::Path& path);
@@ -204,9 +204,9 @@ class FabricMaterial {
     omni::fabric::Path _shaderPath;
     omni::fabric::Path _baseColorTexturePath;
 
-    std::vector<omni::fabric::Path> _imageryLayerPaths;
-    omni::fabric::Path _overlayImageryLayerResolverPath;
-    omni::fabric::Path _clippingImageryLayerResolverPath;
+    std::vector<omni::fabric::Path> _rasterOverlayLayerPaths;
+    omni::fabric::Path _overlayRasterOverlayLayerResolverPath;
+    omni::fabric::Path _clippingRasterOverlayLayerResolverPath;
 
     std::vector<omni::fabric::Path> _featureIdPaths;
     std::vector<omni::fabric::Path> _featureIdIndexPaths;

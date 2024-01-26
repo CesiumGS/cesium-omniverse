@@ -35,7 +35,7 @@ createSinglePixelTexture(const std::string_view& name, const std::array<uint8_t,
 }
 
 bool shouldAcquireSharedMaterial(const FabricMaterialDescriptor& materialDescriptor) {
-    if (materialDescriptor.hasBaseColorTexture() || materialDescriptor.getImageryOverlayRenderMethods().size() > 0 ||
+    if (materialDescriptor.hasBaseColorTexture() || materialDescriptor.getRasterOverlayRenderMethods().size() > 0 ||
         !materialDescriptor.getFeatureIdTypes().empty() || !materialDescriptor.getStyleableProperties().empty()) {
         return false;
     }

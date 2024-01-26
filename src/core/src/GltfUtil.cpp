@@ -557,7 +557,7 @@ getTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& pr
 }
 
 TexcoordsAccessor
-getImageryTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex) {
+getRasterOverlayTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex) {
     return getTexcoords(model, primitive, "_CESIUMOVERLAY", setIndex, false);
 }
 
@@ -868,7 +868,7 @@ getTexcoordSetIndexes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrim
 }
 
 std::vector<uint64_t>
-getImageryTexcoordSetIndexes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+getRasterOverlayTexcoordSetIndexes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
     auto setIndexes = std::vector<uint64_t>();
 
     for (const auto& attribute : primitive.attributes) {
