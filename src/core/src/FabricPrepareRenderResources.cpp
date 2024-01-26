@@ -35,11 +35,11 @@ namespace cesium::omniverse {
 
 namespace {
 
-struct ImageryLoadThreadResult {
+struct RasterOverlayLoadThreadResult {
     std::shared_ptr<FabricTexture> pTexture;
 };
 
-struct ImageryRenderResources {
+struct RasterOverlayRenderResources {
     std::shared_ptr<FabricTexture> pTexture;
 };
 
@@ -97,7 +97,7 @@ std::vector<FabricMesh> acquireFabricMeshes(
     Context& context,
     const CesiumGltf::Model& model,
     const std::vector<LoadingMesh>& loadingMeshes,
-    const FabricImageryLayersInfo& imageryLayersInfo,
+    const FabricRasterOverlayLayersInfo& rasterOverlayLayersInfo,
     const OmniTileset& tileset) {
     CESIUM_TRACE("FabricPrepareRenderResources::acquireFabricMeshes");
     std::vector<FabricMesh> fabricMeshes;
@@ -115,7 +115,7 @@ std::vector<FabricMesh> acquireFabricMeshes(
         const auto featuresInfo = GltfUtil::getFeaturesInfo(model, primitive);
 
         const auto shouldAcquireMaterial = fabricResourceManager.shouldAcquireMaterial(
-            primitive, imageryLayersInfo.overlayRenderMethods.size() > 0, tilesetMaterialPath);
+            primitive, rasterOverlayLayersInfo.overlayRenderMethods.size() > 0, tilesetMaterialPath);
 
         fabricMesh.materialInfo = materialInfo;
         fabricMesh.featuresInfo = featuresInfo;
@@ -129,7 +129,7 @@ std::vector<FabricMesh> acquireFabricMeshes(
                 primitive,
                 materialInfo,
                 featuresInfo,
-                imageryLayersInfo,
+                rasterOverlayLayersInfo,
                 tileset.getTilesetId(),
                 tilesetMaterialPath);
         }
@@ -353,16 +353,16 @@ FabricPrepareRenderResources::prepareInLoadThread(
     // We don't know how many imagery layers actually overlap this tile until attachRasterInMainThread is called
     // but at least we have an upper bound. Unused texture slots are initialized with a 1x1 transparent pixel so
     // blending still works.
-    const auto overlapsImagery = tileLoadResult.rasterOverlayDetails.has_value();
+    const auto overlapsRasterOverlay = tileLoadResult.rasterOverlayDetails.has_value();
 
-    FabricImageryLayersInfo imageryLayersInfo;
-    const auto imageryLayerCount = overlapsImagery ? _pTileset->getImageryLayerCount() : 0;
+    FabricRasterOverlayLayersInfo imageryLayersInfo;
+    const auto imageryLayerCount = overlapsRasterOverlay ? _pTileset->getRasterOverlayLayerCount() : 0;
     if (imageryLayerCount > 0) {
         for (uint64_t i = 0; i < imageryLayerCount; i++) {
-            const auto& imageryLayerPath = _pTileset->getImageryLayerPath(i);
-            const auto& pImagery = _pContext->getAssetRegistry().getRasterOverlay(imageryLayerPath);
+            const auto& imageryLayerPath = _pTileset->getRasterOverlayLayerPath(i);
+            const auto& pRasterOverlay = _pContext->getAssetRegistry().getRasterOverlay(imageryLayerPath);
             const auto overlayRenderMethod =
-                pImagery ? pImagery->getOverlayRenderMethod() : FabricOverlayRenderMethod::OVERLAY;
+                pRasterOverlay ? pRasterOverlay->getOverlayRenderMethod() : FabricOverlayRenderMethod::OVERLAY;
             imageryLayersInfo.overlayRenderMethods.push_back(overlayRenderMethod);
         }
     }
@@ -471,7 +471,7 @@ void* FabricPrepareRenderResources::prepareRasterInLoadThread(
 
     const auto pTexture = _pContext->getFabricResourceManager().acquireTexture();
     pTexture->setImage(image, TransferFunction::SRGB);
-    return new ImageryLoadThreadResult{pTexture};
+    return new RasterOverlayLoadThreadResult{pTexture};
 }
 
 void* FabricPrepareRenderResources::prepareRasterInMainThread(
@@ -482,14 +482,14 @@ void* FabricPrepareRenderResources::prepareRasterInMainThread(
     }
 
     // Wrap in a unique_ptr so that pLoadThreadResult gets freed when this function returns
-    std::unique_ptr<ImageryLoadThreadResult> pImageryLoadThreadResult(
-        static_cast<ImageryLoadThreadResult*>(pLoadThreadResult));
+    std::unique_ptr<RasterOverlayLoadThreadResult> pRasterOverlayLoadThreadResult(
+        static_cast<RasterOverlayLoadThreadResult*>(pLoadThreadResult));
 
     if (!tilesetExists()) {
         return nullptr;
     }
 
-    return new ImageryRenderResources{pImageryLoadThreadResult->pTexture};
+    return new RasterOverlayRenderResources{pRasterOverlayLoadThreadResult->pTexture};
 }
 
 void FabricPrepareRenderResources::freeRaster(
@@ -498,15 +498,15 @@ void FabricPrepareRenderResources::freeRaster(
     void* pMainThreadResult) noexcept {
 
     if (pLoadThreadResult) {
-        const auto pImageryLoadThreadResult = static_cast<ImageryLoadThreadResult*>(pLoadThreadResult);
-        _pContext->getFabricResourceManager().releaseTexture(pImageryLoadThreadResult->pTexture);
-        delete pImageryLoadThreadResult;
+        const auto pRasterOverlayLoadThreadResult = static_cast<RasterOverlayLoadThreadResult*>(pLoadThreadResult);
+        _pContext->getFabricResourceManager().releaseTexture(pRasterOverlayLoadThreadResult->pTexture);
+        delete pRasterOverlayLoadThreadResult;
     }
 
     if (pMainThreadResult) {
-        const auto pImageryRenderResources = static_cast<ImageryRenderResources*>(pMainThreadResult);
-        _pContext->getFabricResourceManager().releaseTexture(pImageryRenderResources->pTexture);
-        delete pImageryRenderResources;
+        const auto pRasterOverlayRenderResources = static_cast<RasterOverlayRenderResources*>(pMainThreadResult);
+        _pContext->getFabricResourceManager().releaseTexture(pRasterOverlayRenderResources->pTexture);
+        delete pRasterOverlayRenderResources;
     }
 }
 
@@ -518,8 +518,8 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
     const glm::dvec2& translation,
     const glm::dvec2& scale) {
 
-    auto pImageryRenderResources = static_cast<ImageryRenderResources*>(pMainThreadRendererResources);
-    if (!pImageryRenderResources) {
+    auto pRasterOverlayRenderResources = static_cast<RasterOverlayRenderResources*>(pMainThreadRendererResources);
+    if (!pRasterOverlayRenderResources) {
         return;
     }
 
@@ -527,7 +527,7 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
         return;
     }
 
-    const auto pTexture = pImageryRenderResources->pTexture.get();
+    const auto pTexture = pRasterOverlayRenderResources->pTexture.get();
 
     const auto& content = tile.getContent();
     const auto pRenderContent = content.getRenderContent();
@@ -540,12 +540,12 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
         return;
     }
 
-    const auto imageryLayerIndex = _pTileset->getImageryLayerIndex(rasterTile.getOverlay());
+    const auto imageryLayerIndex = _pTileset->getRasterOverlayLayerIndex(rasterTile.getOverlay());
     if (!imageryLayerIndex.has_value()) {
         return;
     }
 
-    const auto alpha = _pTileset->getImageryLayerAlpha(imageryLayerIndex.value());
+    const auto alpha = _pTileset->getRasterOverlayLayerAlpha(imageryLayerIndex.value());
 
     for (const auto& fabricMesh : pFabricRenderResources->fabricMeshes) {
         const auto pMaterial = fabricMesh.pMaterial;
@@ -588,7 +588,7 @@ void FabricPrepareRenderResources::detachRasterInMainThread(
         return;
     }
 
-    const auto imageryLayerIndex = _pTileset->getImageryLayerIndex(rasterTile.getOverlay());
+    const auto imageryLayerIndex = _pTileset->getRasterOverlayLayerIndex(rasterTile.getOverlay());
     if (!imageryLayerIndex.has_value()) {
         return;
     }

@@ -30,7 +30,7 @@ class FabricMaterialDescriptor;
 class FabricTexture;
 class FabricTexturePool;
 struct FabricFeaturesInfo;
-struct FabricImageryLayersInfo;
+struct FabricRasterOverlayLayersInfo;
 
 class FabricResourceManager {
   public:
@@ -59,7 +59,7 @@ class FabricResourceManager {
         const CesiumGltf::MeshPrimitive& primitive,
         const FabricMaterialInfo& materialInfo,
         const FabricFeaturesInfo& featuresInfo,
-        const FabricImageryLayersInfo& imageryLayersInfo,
+        const FabricRasterOverlayLayersInfo& imageryLayersInfo,
         int64_t tilesetId,
         const pxr::SdfPath& tilesetMaterialPath);
 

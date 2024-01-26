@@ -82,11 +82,11 @@ class OmniTileset {
 
     void reload();
     [[nodiscard]] std::optional<uint64_t>
-    getImageryLayerIndex(const CesiumRasterOverlays::RasterOverlay& overlay) const;
-    [[nodiscard]] uint64_t getImageryLayerCount() const;
-    [[nodiscard]] double getImageryLayerAlpha(uint64_t imageryLayerIndex) const;
-    [[nodiscard]] pxr::SdfPath getImageryLayerPath(uint64_t imageryLayerIndex) const;
-    void updateImageryLayerAlpha(uint64_t imageryLayerIndex);
+    getRasterOverlayLayerIndex(const CesiumRasterOverlays::RasterOverlay& overlay) const;
+    [[nodiscard]] uint64_t getRasterOverlayLayerCount() const;
+    [[nodiscard]] double getRasterOverlayLayerAlpha(uint64_t imageryLayerIndex) const;
+    [[nodiscard]] pxr::SdfPath getRasterOverlayLayerPath(uint64_t imageryLayerIndex) const;
+    void updateRasterOverlayLayerAlpha(uint64_t imageryLayerIndex);
     void updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::TfToken& attributeName);
     void updateDisplayColorAndOpacity();
 

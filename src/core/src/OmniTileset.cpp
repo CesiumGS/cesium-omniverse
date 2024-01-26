@@ -491,17 +491,17 @@ void OmniTileset::reload() {
             _imageryPaths.push_back(imageryPath);
         }
 
-        const auto pImagery = _pContext->getAssetRegistry().getRasterOverlay(imageryPath);
-        if (pImagery) {
-            const auto pRasterOverlay = pImagery->getRasterOverlay();
-            if (pRasterOverlay) {
-                _pTileset->getOverlays().add(pRasterOverlay);
+        const auto pRasterOverlay = _pContext->getAssetRegistry().getRasterOverlay(imageryPath);
+        if (pRasterOverlay) {
+            const auto pCesiumRasterOverlay = pRasterOverlay->getRasterOverlay();
+            if (pCesiumRasterOverlay) {
+                _pTileset->getOverlays().add(pCesiumRasterOverlay);
             }
         }
     }
 }
 
-std::optional<uint64_t> OmniTileset::getImageryLayerIndex(const CesiumRasterOverlays::RasterOverlay& overlay) const {
+std::optional<uint64_t> OmniTileset::getRasterOverlayLayerIndex(const CesiumRasterOverlays::RasterOverlay& overlay) const {
     uint64_t imageryLayerIndex = 0;
     for (const auto& pOverlay : _pTileset->getOverlays()) {
         if (pOverlay.get() == &overlay) {
@@ -514,14 +514,14 @@ std::optional<uint64_t> OmniTileset::getImageryLayerIndex(const CesiumRasterOver
     return std::nullopt;
 }
 
-uint64_t OmniTileset::getImageryLayerCount() const {
+uint64_t OmniTileset::getRasterOverlayLayerCount() const {
     return _imageryPaths.size();
 }
 
-void OmniTileset::updateImageryLayerAlpha(uint64_t imageryLayerIndex) {
+void OmniTileset::updateRasterOverlayLayerAlpha(uint64_t imageryLayerIndex) {
     assert(imageryLayerIndex < _imageryPaths.size());
 
-    const auto alpha = getImageryLayerAlpha(imageryLayerIndex);
+    const auto alpha = getRasterOverlayLayerAlpha(imageryLayerIndex);
 
     forEachFabricMaterial(_pTileset.get(), [imageryLayerIndex, alpha](FabricMaterial& fabricMaterial) {
         fabricMaterial.setRasterOverlayLayerAlpha(imageryLayerIndex, alpha);
@@ -544,18 +544,18 @@ void OmniTileset::updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::T
     });
 }
 
-double OmniTileset::getImageryLayerAlpha(uint64_t imageryLayerIndex) const {
+double OmniTileset::getRasterOverlayLayerAlpha(uint64_t imageryLayerIndex) const {
     assert(imageryLayerIndex < _imageryPaths.size());
 
-    const auto pImagery = _pContext->getAssetRegistry().getRasterOverlay(_imageryPaths[imageryLayerIndex]);
-    if (!pImagery) {
+    const auto pRasterOverlay = _pContext->getAssetRegistry().getRasterOverlay(_imageryPaths[imageryLayerIndex]);
+    if (!pRasterOverlay) {
         return 1.0;
     }
 
-    return glm::clamp(pImagery->getAlpha(), 0.0, 1.0);
+    return glm::clamp(pRasterOverlay->getAlpha(), 0.0, 1.0);
 }
 
-pxr::SdfPath OmniTileset::getImageryLayerPath(uint64_t imageryLayerIndex) const {
+pxr::SdfPath OmniTileset::getRasterOverlayLayerPath(uint64_t imageryLayerIndex) const {
     return _imageryPaths[imageryLayerIndex];
 }
 

@@ -835,7 +835,7 @@ bool hasTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitiv
     return getTexcoordsView(model, primitive, "TEXCOORD", setIndex).status() == CesiumGltf::AccessorViewStatus::Valid;
 }
 
-bool hasImageryTexcoords(
+bool hasRasterOverlayTexcoords(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     uint64_t setIndex) {
@@ -874,7 +874,7 @@ getRasterOverlayTexcoordSetIndexes(const CesiumGltf::Model& model, const CesiumG
     for (const auto& attribute : primitive.attributes) {
         const auto [semantic, setIndex] = parseAttributeName(attribute.first);
         if (semantic == "_CESIUMOVERLAY") {
-            if (hasImageryTexcoords(model, primitive, setIndex)) {
+            if (hasRasterOverlayTexcoords(model, primitive, setIndex)) {
                 setIndexes.push_back(setIndex);
             }
         }

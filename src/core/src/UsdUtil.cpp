@@ -430,7 +430,7 @@ bool isCesiumRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPat
     return prim.IsA<pxr::CesiumRasterOverlay>();
 }
 
-bool isCesiumIonImagery(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
+bool isCesiumIonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
     const auto prim = pStage->GetPrimAtPath(path);
     if (!prim.IsValid()) {
         return false;

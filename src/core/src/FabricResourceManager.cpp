@@ -59,7 +59,7 @@ FabricResourceManager::~FabricResourceManager() = default;
 
 bool FabricResourceManager::shouldAcquireMaterial(
     const CesiumGltf::MeshPrimitive& primitive,
-    bool hasImagery,
+    bool hasRasterOverlay,
     const pxr::SdfPath& tilesetMaterialPath) const {
     if (_disableMaterials) {
         return false;
@@ -70,7 +70,7 @@ bool FabricResourceManager::shouldAcquireMaterial(
             _pContext->getFabricStage(), FabricUtil::toFabricPath(tilesetMaterialPath));
     }
 
-    return hasImagery || GltfUtil::hasMaterial(primitive);
+    return hasRasterOverlay || GltfUtil::hasMaterial(primitive);
 }
 
 bool FabricResourceManager::getDisableTextures() const {
@@ -101,7 +101,7 @@ std::shared_ptr<FabricMaterial> FabricResourceManager::acquireMaterial(
     const CesiumGltf::MeshPrimitive& primitive,
     const FabricMaterialInfo& materialInfo,
     const FabricFeaturesInfo& featuresInfo,
-    const FabricImageryLayersInfo& imageryLayersInfo,
+    const FabricRasterOverlayLayersInfo& imageryLayersInfo,
     int64_t tilesetId,
     const pxr::SdfPath& tilesetMaterialPath) {
     FabricMaterialDescriptor materialDescriptor(

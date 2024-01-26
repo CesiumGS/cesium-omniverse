@@ -67,7 +67,7 @@ TEST_SUITE("Test GltfUtil") {
 
         CHECK(GltfUtil::hasNormals(model, prim, false) == expectedResults["hasNormals"].as<bool>());
         CHECK(GltfUtil::hasTexcoords(model, prim, 0) == expectedResults["hasTexcoords"].as<bool>());
-        CHECK(GltfUtil::hasImageryTexcoords(model, prim, 0) == expectedResults["hasImageryTexcoords"].as<bool>());
+        CHECK(GltfUtil::hasRasterOverlayTexcoords(model, prim, 0) == expectedResults["hasImageryTexcoords"].as<bool>());
         CHECK(GltfUtil::hasVertexColors(model, prim, 0) == expectedResults["hasVertexColors"].as<bool>());
         CHECK(GltfUtil::hasMaterial(prim) == expectedResults["hasMaterial"].as<bool>());
 
@@ -101,7 +101,7 @@ TEST_SUITE("Test GltfUtil") {
         if (GltfUtil::hasTexcoords(model, prim, 0)) {
             CHECK(GltfUtil::getTexcoords(model, prim, 0).size() > 0);
         }
-        if (GltfUtil::hasImageryTexcoords(model, prim, 0)) {
+        if (GltfUtil::hasRasterOverlayTexcoords(model, prim, 0)) {
             CHECK(GltfUtil::getRasterOverlayTexcoords(model, prim, 0).size() > 0);
         }
         CHECK(GltfUtil::getExtent(model, prim) != std::nullopt);

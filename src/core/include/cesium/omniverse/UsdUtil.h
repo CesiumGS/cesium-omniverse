@@ -126,7 +126,7 @@ pxr::CesiumSession getOrCreateCesiumSession(const pxr::UsdStageWeakPtr& pStage);
 bool isCesiumData(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool isCesiumTileset(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool isCesiumRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
-bool isCesiumIonImagery(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
+bool isCesiumIonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool isCesiumPolygonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool isCesiumGeoreference(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool isCesiumIonServer(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);

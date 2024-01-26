@@ -23,7 +23,7 @@ FabricMaterialDescriptor::FabricMaterialDescriptor(
     const CesiumGltf::MeshPrimitive& primitive,
     const FabricMaterialInfo& materialInfo,
     const FabricFeaturesInfo& featuresInfo,
-    const FabricImageryLayersInfo& imageryLayersInfo,
+    const FabricRasterOverlayLayersInfo& imageryLayersInfo,
     const pxr::SdfPath& tilesetMaterialPath)
     : _hasVertexColors(materialInfo.hasVertexColors)
     , _hasBaseColorTexture(materialInfo.baseColorTexture.has_value())

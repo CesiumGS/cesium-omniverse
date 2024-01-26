@@ -143,7 +143,7 @@ TEST_SUITE("UsdUtil tests") {
         CHECK(isCesiumSession(pContext->getUsdStage(), defineCesiumSessionPath));
         CHECK(isCesiumGeoreference(pContext->getUsdStage(), defineCesiumGeoreferencePath));
         CHECK(isCesiumTileset(pContext->getUsdStage(), defineCesiumTilesetPath));
-        CHECK(isCesiumIonImagery(pContext->getUsdStage(), defineCesiumIonImageryPath));
+        CHECK(isCesiumIonRasterOverlay(pContext->getUsdStage(), defineCesiumIonImageryPath));
         // CHECK(hasCesiumGlobeAnchor(pContext->getUsdStage(), globeAnchorPath));
 
         CHECK(isCesiumSession(pContext->getUsdStage(), getOrCreateCesiumSessionPrim.GetPath()));
