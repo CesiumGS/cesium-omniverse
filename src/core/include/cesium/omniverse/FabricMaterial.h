@@ -57,17 +57,17 @@ class FabricMaterial {
         const std::vector<uint64_t>& featureIdTextureSetIndexMapping,
         const std::unordered_map<uint64_t, uint64_t>& propertyTextureIndexMapping);
 
-    void setImageryLayer(
+    void setRasterOverlayLayer(
         FabricTexture* pTexture,
         const FabricTextureInfo& textureInfo,
         uint64_t imageryLayerIndex,
         double alpha,
         const std::unordered_map<uint64_t, uint64_t>& imageryTexcoordIndexMapping);
 
-    void setImageryLayerAlpha(uint64_t imageryLayerIndex, double alpha);
+    void setRasterOverlayLayerAlpha(uint64_t imageryLayerIndex, double alpha);
     void setDisplayColorAndOpacity(const glm::dvec3& displayColor, double displayOpacity);
     void updateShaderInput(const omni::fabric::Path& shaderPath, const omni::fabric::Token& attributeName);
-    void clearImageryLayer(uint64_t imageryLayerIndex);
+    void clearRasterOverlayLayer(uint64_t imageryLayerIndex);
     void setActive(bool active);
 
     [[nodiscard]] const omni::fabric::Path& getPath() const;
@@ -87,7 +87,7 @@ class FabricMaterial {
         const std::vector<std::pair<omni::fabric::Type, omni::fabric::Token>>& additionalAttributes = {});
     void createTexture(const omni::fabric::Path& path);
     void createRasterOverlayLayer(const omni::fabric::Path& path);
-    void createImageryLayerResolverCommon(
+    void createRasterOverlayLayerResolverCommon(
         const omni::fabric::Path& path,
         uint64_t textureCount,
         const omni::fabric::Token& subidentifier);
@@ -165,13 +165,13 @@ class FabricMaterial {
         const pxr::TfToken& textureAssetPathToken,
         const FabricTextureInfo& textureInfo,
         uint64_t texcoordIndex);
-    void setImageryLayerValues(
+    void setRasterOverlayLayerValues(
         const omni::fabric::Path& path,
         const pxr::TfToken& textureAssetPathToken,
         const FabricTextureInfo& textureInfo,
         uint64_t texcoordIndex,
         double alpha);
-    void setImageryLayerAlphaValue(const omni::fabric::Path& path, double alpha);
+    void setRasterOverlayLayerAlphaValue(const omni::fabric::Path& path, double alpha);
     void setFeatureIdIndexValues(const omni::fabric::Path& path, int nullFeatureId);
     void setFeatureIdAttributeValues(const omni::fabric::Path& path, const std::string& primvarName, int nullFeatureId);
     void setFeatureIdTextureValues(
@@ -219,7 +219,7 @@ class FabricMaterial {
     std::unordered_map<MdlInternalPropertyType, std::vector<omni::fabric::Path>> _propertyTablePropertyPaths;
 
     std::vector<omni::fabric::Path> _copiedBaseColorTexturePaths;
-    std::vector<omni::fabric::Path> _copiedImageryLayerPaths;
+    std::vector<omni::fabric::Path> _copiedRasterOverlayLayerPaths;
     std::vector<omni::fabric::Path> _copiedFeatureIdPaths;
     std::vector<omni::fabric::Path> _copiedPropertyPaths;
 

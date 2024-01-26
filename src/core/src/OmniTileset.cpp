@@ -524,7 +524,7 @@ void OmniTileset::updateImageryLayerAlpha(uint64_t imageryLayerIndex) {
     const auto alpha = getImageryLayerAlpha(imageryLayerIndex);
 
     forEachFabricMaterial(_pTileset.get(), [imageryLayerIndex, alpha](FabricMaterial& fabricMaterial) {
-        fabricMaterial.setImageryLayerAlpha(imageryLayerIndex, alpha);
+        fabricMaterial.setRasterOverlayLayerAlpha(imageryLayerIndex, alpha);
     });
 }
 

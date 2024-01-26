@@ -561,7 +561,7 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
                 false,
                 {},
             };
-            pMaterial->setImageryLayer(
+            pMaterial->setRasterOverlayLayer(
                 pTexture, textureInfo, imageryLayerIndex.value(), alpha, fabricMesh.imageryTexcoordIndexMapping);
         }
     }
@@ -596,7 +596,7 @@ void FabricPrepareRenderResources::detachRasterInMainThread(
     for (const auto& fabricMesh : pFabricRenderResources->fabricMeshes) {
         const auto pMaterial = fabricMesh.pMaterial;
         if (pMaterial) {
-            pMaterial->clearImageryLayer(imageryLayerIndex.value());
+            pMaterial->clearRasterOverlayLayer(imageryLayerIndex.value());
         }
     }
 }

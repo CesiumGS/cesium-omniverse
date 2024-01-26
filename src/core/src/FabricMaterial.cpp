@@ -742,7 +742,7 @@ void FabricMaterial::initializeExistingMaterial(const omni::fabric::Path& path) 
         if (mdlIdentifier == FabricTokens::cesium_base_color_texture_float4) {
             _copiedBaseColorTexturePaths.push_back(copiedPath);
         } else if (mdlIdentifier == FabricTokens::cesium_imagery_layer_float4) {
-            _copiedImageryLayerPaths.push_back(copiedPath);
+            _copiedRasterOverlayLayerPaths.push_back(copiedPath);
         } else if (mdlIdentifier == FabricTokens::cesium_feature_id_int) {
             _copiedFeatureIdPaths.push_back(copiedPath);
         } else if (FabricUtil::isCesiumPropertyNode(mdlIdentifier)) {
@@ -828,9 +828,9 @@ void FabricMaterial::createRasterOverlayLayer(const omni::fabric::Path& path) {
     return createTextureCommon(path, FabricTokens::cesium_internal_imagery_layer_lookup, additionalAttributes);
 }
 
-void FabricMaterial::createImageryLayerResolverCommon(
+void FabricMaterial::createRasterOverlayLayerResolverCommon(
     const omni::fabric::Path& path,
-    uint64_t imageryLayerCount,
+    uint64_t rasterOverlayLayerCount,
     const omni::fabric::Token& subidentifier) {
     auto& fabricStage = _pContext->getFabricStage();
 
@@ -842,20 +842,20 @@ void FabricMaterial::createImageryLayerResolverCommon(
 
     createAttributes(*_pContext, fabricStage, path, attributes, subidentifier);
 
-    const auto imageryLayerCountFabric =
+    const auto rasterOverlayLayerCountFabric =
         fabricStage.getAttributeWr<int>(path, FabricTokens::inputs_imagery_layers_count);
-    *imageryLayerCountFabric = static_cast<int>(imageryLayerCount);
+    *rasterOverlayLayerCountFabric = static_cast<int>(rasterOverlayLayerCount);
 }
 
-void FabricMaterial::createRasterOverlayLayerResolver(const omni::fabric::Path& path, uint64_t imageryLayerCount) {
-    createImageryLayerResolverCommon(path, imageryLayerCount, FabricTokens::cesium_internal_imagery_layer_resolver);
+void FabricMaterial::createRasterOverlayLayerResolver(const omni::fabric::Path& path, uint64_t rasterOverlayLayerCount) {
+    createRasterOverlayLayerResolverCommon(path, rasterOverlayLayerCount, FabricTokens::cesium_internal_imagery_layer_resolver);
 }
 
 void FabricMaterial::createClippingRasterOverlayLayerResolver(
     const omni::fabric::Path& path,
-    uint64_t clippingImageryLayerCount) {
-    createImageryLayerResolverCommon(
-        path, clippingImageryLayerCount, FabricTokens::cesium_internal_clipping_imagery_layer_resolver);
+    uint64_t clippingRasterOverlayLayerCount) {
+    createRasterOverlayLayerResolverCommon(
+        path, clippingRasterOverlayLayerCount, FabricTokens::cesium_internal_clipping_imagery_layer_resolver);
 }
 
 void FabricMaterial::createFeatureIdIndex(const omni::fabric::Path& path) {
@@ -1416,9 +1416,9 @@ void FabricMaterial::reset() {
         }
     }
 
-    for (const auto& imageryLayerPath : _rasterOverlayLayerPaths) {
-        setImageryLayerValues(
-            imageryLayerPath,
+    for (const auto& rasterOverlayLayerPath : _rasterOverlayLayerPaths) {
+        setRasterOverlayLayerValues(
+            rasterOverlayLayerPath,
             _defaultTransparentTextureAssetPathToken,
             GltfUtil::getDefaultTextureInfo(),
             DEFAULT_TEXCOORD_INDEX,
@@ -1638,7 +1638,7 @@ void FabricMaterial::createConnectionsToCopiedPaths() {
     auto& fabricStage = _pContext->getFabricStage();
 
     const auto hasBaseColorTexture = _materialDescriptor.hasBaseColorTexture();
-    const auto imageryLayerCount = getRasterOverlayLayerCount(_materialDescriptor);
+    const auto rasterOverlay = getRasterOverlayLayerCount(_materialDescriptor);
     const auto featureIdCount = getFeatureIdCounts(_materialDescriptor).totalCount;
 
     for (const auto& copiedPath : _copiedBaseColorTexturePaths) {
@@ -1647,11 +1647,11 @@ void FabricMaterial::createConnectionsToCopiedPaths() {
         }
     }
 
-    for (const auto& copiedPath : _copiedImageryLayerPaths) {
+    for (const auto& copiedPath : _copiedRasterOverlayLayerPaths) {
         const auto indexFabric = fabricStage.getAttributeRd<int>(copiedPath, FabricTokens::inputs_imagery_layer_index);
         const auto index = static_cast<uint64_t>(CppUtil::defaultValue(indexFabric, 0));
 
-        if (index < imageryLayerCount) {
+        if (index < rasterOverlay) {
             createConnection(fabricStage, _rasterOverlayLayerPaths[index], copiedPath, FabricTokens::inputs_imagery_layer);
         }
     }
@@ -1673,7 +1673,7 @@ void FabricMaterial::destroyConnectionsToCopiedPaths() {
         destroyConnection(fabricStage, copiedPath, FabricTokens::inputs_base_color_texture);
     }
 
-    for (const auto& copiedPath : _copiedImageryLayerPaths) {
+    for (const auto& copiedPath : _copiedRasterOverlayLayerPaths) {
         destroyConnection(fabricStage, copiedPath, FabricTokens::inputs_imagery_layer);
     }
 
@@ -1725,37 +1725,37 @@ void FabricMaterial::destroyConnectionsToProperties() {
     }
 }
 
-void FabricMaterial::setImageryLayer(
+void FabricMaterial::setRasterOverlayLayer(
     FabricTexture* pTexture,
     const FabricTextureInfo& textureInfo,
-    uint64_t imageryLayerIndex,
+    uint64_t rasterOverlayLayerIndex,
     double alpha,
-    const std::unordered_map<uint64_t, uint64_t>& imageryTexcoordIndexMapping) {
+    const std::unordered_map<uint64_t, uint64_t>& rasterOverlayTexcoordIndexMapping) {
     if (stageDestroyed()) {
         return;
     }
 
-    if (imageryLayerIndex >= _rasterOverlayLayerPaths.size()) {
+    if (rasterOverlayLayerIndex >= _rasterOverlayLayerPaths.size()) {
         return;
     }
 
     const auto& textureAssetPath = pTexture->getAssetPathToken();
-    const auto texcoordIndex = imageryTexcoordIndexMapping.at(textureInfo.setIndex);
-    const auto& imageryLayerPath = _rasterOverlayLayerPaths[imageryLayerIndex];
-    setImageryLayerValues(imageryLayerPath, textureAssetPath, textureInfo, texcoordIndex, alpha);
+    const auto texcoordIndex = rasterOverlayTexcoordIndexMapping.at(textureInfo.setIndex);
+    const auto& rasterOverlay = _rasterOverlayLayerPaths[rasterOverlayLayerIndex];
+    setRasterOverlayLayerValues(rasterOverlay, textureAssetPath, textureInfo, texcoordIndex, alpha);
 }
 
-void FabricMaterial::setImageryLayerAlpha(uint64_t imageryLayerIndex, double alpha) {
+void FabricMaterial::setRasterOverlayLayerAlpha(uint64_t rasterOverlayLayerIndex, double alpha) {
     if (stageDestroyed()) {
         return;
     }
 
-    if (imageryLayerIndex >= _rasterOverlayLayerPaths.size()) {
+    if (rasterOverlayLayerIndex >= _rasterOverlayLayerPaths.size()) {
         return;
     }
 
-    const auto& imageryLayerPath = _rasterOverlayLayerPaths[imageryLayerIndex];
-    setImageryLayerAlphaValue(imageryLayerPath, alpha);
+    const auto& rasterOverlayLayerPath = _rasterOverlayLayerPaths[rasterOverlayLayerIndex];
+    setRasterOverlayLayerAlphaValue(rasterOverlayLayerPath, alpha);
 }
 
 void FabricMaterial::setDisplayColorAndOpacity(const glm::dvec3& displayColor, double displayOpacity) {
@@ -1809,18 +1809,18 @@ void FabricMaterial::updateShaderInput(const omni::fabric::Path& path, const omn
     }
 }
 
-void FabricMaterial::clearImageryLayer(uint64_t imageryLayerIndex) {
+void FabricMaterial::clearRasterOverlayLayer(uint64_t rasterOverlayLayerIndex) {
     if (stageDestroyed()) {
         return;
     }
 
-    if (imageryLayerIndex >= _rasterOverlayLayerPaths.size()) {
+    if (rasterOverlayLayerIndex >= _rasterOverlayLayerPaths.size()) {
         return;
     }
 
-    const auto& imageryLayerPath = _rasterOverlayLayerPaths[imageryLayerIndex];
-    setImageryLayerValues(
-        imageryLayerPath,
+    const auto& rasterOverlayLayerPath = _rasterOverlayLayerPaths[rasterOverlayLayerIndex];
+    setRasterOverlayLayerValues(
+        rasterOverlayLayerPath,
         _defaultTransparentTextureAssetPathToken,
         GltfUtil::getDefaultTextureInfo(),
         DEFAULT_TEXCOORD_INDEX,
@@ -1863,17 +1863,17 @@ void FabricMaterial::setTextureValues(
     setTextureValuesCommon(_pContext->getFabricStage(), path, textureAssetPathToken, textureInfo, texcoordIndex);
 }
 
-void FabricMaterial::setImageryLayerValues(
+void FabricMaterial::setRasterOverlayLayerValues(
     const omni::fabric::Path& path,
     const pxr::TfToken& textureAssetPathToken,
     const FabricTextureInfo& textureInfo,
     uint64_t texcoordIndex,
     double alpha) {
     setTextureValuesCommon(_pContext->getFabricStage(), path, textureAssetPathToken, textureInfo, texcoordIndex);
-    setImageryLayerAlphaValue(path, alpha);
+    setRasterOverlayLayerAlphaValue(path, alpha);
 }
 
-void FabricMaterial::setImageryLayerAlphaValue(const omni::fabric::Path& path, double alpha) {
+void FabricMaterial::setRasterOverlayLayerAlphaValue(const omni::fabric::Path& path, double alpha) {
     const auto alphaFabric = _pContext->getFabricStage().getAttributeWr<float>(path, FabricTokens::inputs_alpha);
     *alphaFabric = static_cast<float>(alpha);
 }
