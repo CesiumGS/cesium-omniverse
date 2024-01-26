@@ -85,6 +85,12 @@ class CesiumPowertoolsExtension(omni.ext.IExt):
                 linux_aarch_whl="pyproj-3.6.0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl",
             ),
             WheelInfo(
+                module="numpy",
+                windows_whl="numpy-1.26.3-cp310-cp310-win_amd64",
+                linux_x64_whl="numpy-1.26.3-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64",
+                linux_aarch_whl="numpy-1.26.3-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64",
+            ),
+            WheelInfo(
                 module="shapely",
                 windows_whl="shapely-2.0.2-cp310-cp310-win_amd64.whl",
                 linux_x64_whl="shapely-2.0.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
