@@ -68,22 +68,18 @@ void updateImageryBindingsAlpha(const Context& context, const pxr::SdfPath& imag
     }
 }
 
-void updateIonServerBindings(const Context& context, const pxr::SdfPath& ionServerPath) {
-    // Update tilesets that reference this ion server
+void updateIonServerBindings(const Context& context) {
+    // Update all tilesets. Some tilesets may have referenced this ion server implicitly.
     const auto& tilesets = context.getAssetRegistry().getTilesets();
     for (const auto& pTileset : tilesets) {
-        if (pTileset->getResolvedIonServerPath() == ionServerPath) {
-            pTileset->reload();
-        }
+        pTileset->reload();
     }
 
-    // Update imageries that reference this ion server
+    // Update all imageries. Some imageries may have referenced this ion server implicitly.
     const auto& ionImageries = context.getAssetRegistry().getIonImageries();
     for (const auto& pIonImagery : ionImageries) {
-        if (pIonImagery->getResolvedIonServerPath() == ionServerPath) {
-            pIonImagery->reload();
-            updateImageryBindings(context, pIonImagery->getPath());
-        }
+        pIonImagery->reload();
+        updateImageryBindings(context, pIonImagery->getPath());
     }
 }
 
@@ -106,16 +102,14 @@ void updateGlobeAnchorBindings(const Context& context, const pxr::SdfPath& globe
     }
 }
 
-void updateGeoreferenceBindings(const Context& context, const pxr::SdfPath& georeferencePath) {
+void updateGeoreferenceBindings(const Context& context) {
     // Don't need to update tilesets. Georeference changes are handled automatically in the update loop.
 
-    // Update globe anchors that reference this georeference
+    // Update all globe anchors. Some globe anchors may have referenced this georeference implicitly.
     const auto& globeAnchors = context.getAssetRegistry().getGlobeAnchors();
     for (const auto& pGlobeAnchor : globeAnchors) {
-        if (pGlobeAnchor->getResolvedGeoreferencePath() == georeferencePath) {
-            pGlobeAnchor->updateByGeoreference();
-            updateGlobeAnchorBindings(context, pGlobeAnchor->getPath());
-        }
+        pGlobeAnchor->updateByGeoreference();
+        updateGlobeAnchorBindings(context, pGlobeAnchor->getPath());
     }
 }
 
@@ -160,10 +154,7 @@ bool isFirstData(const Context& context, const pxr::SdfPath& dataPath) {
     }
 
     if (updateGeoreference) {
-        const auto& georeferences = context.getAssetRegistry().getGeoreferences();
-        for (const auto& pGeoreference : georeferences) {
-            updateGeoreferenceBindings(context, pGeoreference->getPath());
-        }
+        updateGeoreferenceBindings(context);
     }
 
     return reloadStage;
@@ -333,10 +324,7 @@ void processCesiumPolygonImageryChanged(
     }
 }
 
-void processCesiumGeoreferenceChanged(
-    const Context& context,
-    const pxr::SdfPath& georeferencePath,
-    const std::vector<pxr::TfToken>& properties) {
+void processCesiumGeoreferenceChanged(const Context& context, const std::vector<pxr::TfToken>& properties) {
 
     auto updateBindings = false;
 
@@ -351,7 +339,7 @@ void processCesiumGeoreferenceChanged(
     // clang-format on
 
     if (updateBindings) {
-        updateGeoreferenceBindings(context, georeferencePath);
+        updateGeoreferenceBindings(context);
     }
 }
 
@@ -461,7 +449,7 @@ void processCesiumIonServerChanged(
     }
 
     if (updateBindings) {
-        updateIonServerBindings(context, ionServerPath);
+        updateIonServerBindings(context);
     }
 }
 
@@ -566,7 +554,7 @@ void processCesiumPolygonImageryRemoved(Context& context, const pxr::SdfPath& po
 
 void processCesiumGeoreferenceRemoved(Context& context, const pxr::SdfPath& georeferencePath) {
     context.getAssetRegistry().removeGeoreference(georeferencePath);
-    updateGeoreferenceBindings(context, georeferencePath);
+    updateGeoreferenceBindings(context);
 }
 
 void processCesiumGlobeAnchorRemoved(Context& context, const pxr::SdfPath& globeAnchorPath) {
@@ -576,7 +564,7 @@ void processCesiumGlobeAnchorRemoved(Context& context, const pxr::SdfPath& globe
 
 void processCesiumIonServerRemoved(Context& context, const pxr::SdfPath& ionServerPath) {
     context.getAssetRegistry().removeIonServer(ionServerPath);
-    updateIonServerBindings(context, ionServerPath);
+    updateIonServerBindings(context);
 }
 
 void processCesiumCartographicPolygonRemoved(Context& context, const pxr::SdfPath& cartographicPolygonPath) {
@@ -606,7 +594,7 @@ void processCesiumPolygonImageryAdded(Context& context, const pxr::SdfPath& poly
 
 void processCesiumGeoreferenceAdded(Context& context, const pxr::SdfPath& georeferencePath) {
     context.getAssetRegistry().addGeoreference(georeferencePath);
-    updateGeoreferenceBindings(context, georeferencePath);
+    updateGeoreferenceBindings(context);
 }
 
 void processCesiumGlobeAnchorAdded(Context& context, const pxr::SdfPath& globeAnchorPath) {
@@ -616,7 +604,7 @@ void processCesiumGlobeAnchorAdded(Context& context, const pxr::SdfPath& globeAn
 
 void processCesiumIonServerAdded(Context& context, const pxr::SdfPath& ionServerPath) {
     context.getAssetRegistry().addIonServer(ionServerPath);
-    updateIonServerBindings(context, ionServerPath);
+    updateIonServerBindings(context);
 }
 
 void processCesiumCartographicPolygonAdded(Context& context, const pxr::SdfPath& cartographicPolygonPath) {
@@ -722,7 +710,7 @@ bool UsdNotificationHandler::processChangedPrim(const ChangedPrim& changedPrim) 
                     processCesiumPolygonImageryChanged(*_pContext, changedPrim.primPath, changedPrim.properties);
                     break;
                 case ChangedPrimType::CESIUM_GEOREFERENCE:
-                    processCesiumGeoreferenceChanged(*_pContext, changedPrim.primPath, changedPrim.properties);
+                    processCesiumGeoreferenceChanged(*_pContext, changedPrim.properties);
                     break;
                 case ChangedPrimType::CESIUM_GLOBE_ANCHOR:
                     processCesiumGlobeAnchorChanged(*_pContext, changedPrim.primPath, changedPrim.properties);
