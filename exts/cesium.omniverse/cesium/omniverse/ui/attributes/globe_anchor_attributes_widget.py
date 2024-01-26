@@ -2,7 +2,10 @@ import logging
 from omni.kit.property.usd.custom_layout_helper import CustomLayoutFrame, CustomLayoutGroup, CustomLayoutProperty
 from omni.kit.property.usd.usd_property_widget import SchemaPropertiesWidget
 from ...bindings import ICesiumOmniverseInterface
-from cesium.usd.plugins.CesiumUsdSchemas import GlobeAnchorAPI as CesiumGlobeAnchorAPI, Georeference as CesiumGeoreference
+from cesium.usd.plugins.CesiumUsdSchemas import (
+    GlobeAnchorAPI as CesiumGlobeAnchorAPI,
+    Georeference as CesiumGeoreference,
+)
 
 
 class CesiumGlobeAnchorAttributesWidget(SchemaPropertiesWidget):
