@@ -24,19 +24,16 @@ SOFTWARE.
 
 #include "cesium/omniverse/UrlAssetAccessor.h"
 
-#if 0
-#include "Tracing.h"
-#else
-#define VSGCS_ZONESCOPEDN(message)
-#endif
-
 #include <CesiumAsync/IAssetResponse.h>
+#include <CesiumUtility/Tracing.h>
 #include <omni/kit/IApp.h>
 
 #include <algorithm>
 #include <cstring>
 
 namespace cesium::omniverse {
+const auto CURL_BUFFERSIZE = 3145728L; // 3 MiB
+
 class UrlAssetResponse : public CesiumAsync::IAssetResponse {
   public:
     uint16_t statusCode() const override {
@@ -188,6 +185,9 @@ UrlAssetAccessor::setCommonOptions(CURL* curl, const std::string& url, const Ces
         curl_easy_setopt(curl, CURLOPT_CAINFO, _certificatePath.c_str());
     }
     curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "");
+    curl_easy_setopt(curl, CURLOPT_BUFFERSIZE, CURL_BUFFERSIZE);
+    curl_easy_setopt(curl, CURLOPT_MAXCONNECTS, 20L);
+    curl_easy_setopt(curl, CURLOPT_DNS_CACHE_TIMEOUT, 300L);
     // curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
     curl_slist* list = nullptr;
     for (const auto& header : headers) {
@@ -208,7 +208,7 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> UrlAssetAccesso
     return asyncSystem.createFuture<std::shared_ptr<CesiumAsync::IAssetRequest>>([&](const auto& promise) {
         std::shared_ptr<UrlAssetRequest> request = std::make_shared<UrlAssetRequest>("GET", url, headers);
         asyncSystem.runInWorkerThread([promise, request, this]() {
-            VSGCS_ZONESCOPEDN("UrlAssetAccessor::get inner");
+            CESIUM_TRACE("UrlAssetAccessor::get");
             CurlHandle curl(this);
             curl_slist* list = setCommonOptions(curl(), request->url(), request->headers());
             std::unique_ptr<UrlAssetResponse> response = std::make_unique<UrlAssetResponse>();
@@ -249,7 +249,7 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> UrlAssetAccesso
         auto request = std::make_shared<UrlAssetRequest>(verb, url, headers);
         auto payloadCopy = std::make_shared<std::vector<std::byte>>(contentPayload.begin(), contentPayload.end());
         asyncSystem.runInWorkerThread([promise, request, payloadCopy, this]() {
-            VSGCS_ZONESCOPEDN("UrlAssetAccessor::request inner");
+            CESIUM_TRACE("UrlAssetAccessor::request");
             CurlHandle curl(this);
 
             curl_slist* list = setCommonOptions(curl(), request->url(), request->headers());
