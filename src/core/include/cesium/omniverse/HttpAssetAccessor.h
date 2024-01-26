@@ -6,13 +6,15 @@
 #include <cpr/cpr.h>
 
 #include <filesystem>
-#include <utility>
 
 namespace cesium::omniverse {
+
+class Context;
+
 class HttpAssetResponse final : public CesiumAsync::IAssetResponse {
   public:
     HttpAssetResponse(cpr::Response&& response)
-        : _response{std::move(response)} {
+        : _response(std::move(response)) {
         for (const auto& header : _response.header) {
             _headers.insert({header.first, header.second});
         }
@@ -23,7 +25,7 @@ class HttpAssetResponse final : public CesiumAsync::IAssetResponse {
     }
 
     [[nodiscard]] std::string contentType() const override {
-        auto it = _response.header.find("content-type");
+        const auto it = _response.header.find("content-type");
         if (it != _response.header.end()) {
             return it->second;
         }
@@ -48,13 +50,13 @@ class HttpAssetRequest final : public CesiumAsync::IAssetRequest {
   public:
     HttpAssetRequest(
         std::string&& method,
-        std::string url,
+        const std::string& url,
         const std::vector<CesiumAsync::IAssetAccessor::THeader>& headers,
         cpr::Response&& response)
-        : _method{std::move(method)}
-        , _url{std::move(url)}
-        , _headers{headers.begin(), headers.end()}
-        , _response{std::move(response)} {}
+        : _method(std::move(method))
+        , _url(url)
+        , _headers(headers.begin(), headers.end())
+        , _response(std::move(response)) {}
 
     [[nodiscard]] const std::string& method() const override {
         return _method;
@@ -81,7 +83,7 @@ class HttpAssetRequest final : public CesiumAsync::IAssetRequest {
 
 class HttpAssetAccessor final : public CesiumAsync::IAssetAccessor {
   public:
-    HttpAssetAccessor(const std::filesystem::path& certificatePath);
+    HttpAssetAccessor(Context* pContext, const std::filesystem::path& certificatePath);
 
     CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>>
     get(const CesiumAsync::AsyncSystem& asyncSystem,

@@ -66,7 +66,7 @@ class FailedFile(NamedTuple):
     diff: str
 
 
-def get_all_source_files(source_directories: List[str], modeIsAll: bool) -> List[SourceFile]:
+def get_source_files(source_directories: List[str], modeIsAll: bool) -> List[SourceFile]:
     project_root = get_project_root()
     staged_rel_paths = get_staged_rel_paths()
     source_files = []

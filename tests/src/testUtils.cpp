@@ -11,7 +11,7 @@
 
 void fillWithRandomInts(std::list<int>& lst, int min, int max, int n) {
 
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n; ++i) {
         // The odd order here is to avoid issues with rollover
         int x = (rand() % (max - min)) + min;
         lst.push_back(x);
@@ -23,13 +23,13 @@ ConfigMap getScenarioConfig(const std::string& scenario, YAML::Node configRoot) 
 
     const auto& defaultConfig = configRoot["scenarios"]["default"];
 
-    for (YAML::const_iterator it = defaultConfig.begin(); it != defaultConfig.end(); it++) {
+    for (YAML::const_iterator it = defaultConfig.begin(); it != defaultConfig.end(); ++it) {
         sConfig[it->first.as<std::string>()] = it->second;
     }
 
     const auto& overrides = configRoot["scenarios"][scenario];
 
-    for (auto it = overrides.begin(); it != overrides.end(); it++) {
+    for (auto it = overrides.begin(); it != overrides.end(); ++it) {
         sConfig[it->first.as<std::string>()] = it->second;
     }
 

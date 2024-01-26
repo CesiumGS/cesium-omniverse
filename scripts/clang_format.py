@@ -64,7 +64,7 @@ def main(av: List[str]):
     source_directories = args.source_directories
 
     # Generate list of source_files to check / fix.
-    source_files: List[utils.SourceFile] = utils.get_all_source_files(source_directories, args.all)
+    source_files: List[utils.SourceFile] = utils.get_source_files(source_directories, args.all)
     failed_files: List[utils.FailedFile] = []
 
     # Fix or check formatting for each file

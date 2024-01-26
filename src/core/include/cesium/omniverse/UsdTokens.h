@@ -4,7 +4,7 @@
 #include <pxr/base/tf/staticTokens.h>
 
 // clang-format off
-namespace pxr {
+PXR_NAMESPACE_OPEN_SCOPE
 
 #ifdef CESIUM_OMNI_MSVC
 __pragma(warning(push)) __pragma(warning(disable : 4003))
@@ -14,7 +14,6 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
 
 #define USD_TOKENS \
     (base_color_texture) \
-    (cesium) \
     (cesium_base_color_texture_float4) \
     (cesium_feature_id_int) \
     (cesium_imagery_layer_float4) \
@@ -24,26 +23,26 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     (cesium_internal_imagery_layer_lookup) \
     (cesium_internal_imagery_layer_resolver) \
     (cesium_internal_material) \
-    (cesium_internal_property_attribute_int_lookup) \
-    (cesium_internal_property_attribute_int2_lookup) \
-    (cesium_internal_property_attribute_int3_lookup) \
-    (cesium_internal_property_attribute_int4_lookup) \
     (cesium_internal_property_attribute_float_lookup) \
     (cesium_internal_property_attribute_float2_lookup) \
     (cesium_internal_property_attribute_float3_lookup) \
     (cesium_internal_property_attribute_float4_lookup) \
+    (cesium_internal_property_attribute_int_lookup) \
+    (cesium_internal_property_attribute_int2_lookup) \
+    (cesium_internal_property_attribute_int3_lookup) \
+    (cesium_internal_property_attribute_int4_lookup) \
     (cesium_internal_property_attribute_normalized_int_lookup) \
     (cesium_internal_property_attribute_normalized_int2_lookup) \
     (cesium_internal_property_attribute_normalized_int3_lookup) \
     (cesium_internal_property_attribute_normalized_int4_lookup) \
-    (cesium_internal_property_table_int_lookup) \
-    (cesium_internal_property_table_int2_lookup) \
-    (cesium_internal_property_table_int3_lookup) \
-    (cesium_internal_property_table_int4_lookup) \
     (cesium_internal_property_table_float_lookup) \
     (cesium_internal_property_table_float2_lookup) \
     (cesium_internal_property_table_float3_lookup) \
     (cesium_internal_property_table_float4_lookup) \
+    (cesium_internal_property_table_int_lookup) \
+    (cesium_internal_property_table_int2_lookup) \
+    (cesium_internal_property_table_int3_lookup) \
+    (cesium_internal_property_table_int4_lookup) \
     (cesium_internal_property_table_normalized_int_lookup) \
     (cesium_internal_property_table_normalized_int2_lookup) \
     (cesium_internal_property_table_normalized_int3_lookup) \
@@ -57,15 +56,15 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     (cesium_internal_property_texture_normalized_int3_lookup) \
     (cesium_internal_property_texture_normalized_int4_lookup) \
     (cesium_internal_texture_lookup) \
-    (cesium_property_int) \
-    (cesium_property_int2) \
-    (cesium_property_int3) \
-    (cesium_property_int4) \
     (cesium_property_float) \
     (cesium_property_float2) \
     (cesium_property_float3) \
     (cesium_property_float4) \
-    (constant) \
+    (cesium_property_int) \
+    (cesium_property_int2) \
+    (cesium_property_int3) \
+    (cesium_property_int4) \
+    (clipping_imagery_layer_resolver) \
     (doubleSided) \
     (extent) \
     (faceVertexCounts) \
@@ -76,7 +75,6 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     (Mesh) \
     (none) \
     (points) \
-    (clipping_imagery_layer_resolver) \
     (primvarInterpolations) \
     (primvars) \
     (Shader) \
@@ -84,7 +82,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     (subdivisionScheme) \
     (vertex) \
     (vertexId) \
-    (_cesium_localToEcefTransform) \
+    (_cesium_gltfLocalToEcefTransform) \
     (_cesium_tilesetId) \
     (_deletedPrims) \
     (_paramColorSpace) \
@@ -94,7 +92,6 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     (_worldPosition) \
     (_worldScale) \
     (_worldVisibility) \
-    ((_auto, "auto")) \
     ((info_implementationSource, "info:implementationSource")) \
     ((info_mdl_sourceAsset, "info:mdl:sourceAsset")) \
     ((info_mdl_sourceAsset_subIdentifier, "info:mdl:sourceAsset:subIdentifier")) \
@@ -105,14 +102,17 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((inputs_base_alpha, "inputs:base_alpha")) \
     ((inputs_base_color_factor, "inputs:base_color_factor")) \
     ((inputs_base_color_texture, "inputs:base_color_texture")) \
-    ((inputs_channel_count, "inputs:channel_count")) \
     ((inputs_channels, "inputs:channels")) \
+    ((inputs_channel_count, "inputs:channel_count")) \
     ((inputs_default_value, "inputs:default_value")) \
     ((inputs_emissive_factor, "inputs:emissive_factor")) \
     ((inputs_excludeFromWhiteMode, "inputs:excludeFromWhiteMode")) \
     ((inputs_feature_id, "inputs:feature_id")) \
     ((inputs_feature_id_set_index, "inputs:feature_id_set_index")) \
     ((inputs_has_no_data, "inputs:has_no_data")) \
+    ((inputs_imagery_layer, "inputs:imagery_layer")) \
+    ((inputs_imagery_layers_count, "inputs:imagery_layers_count")) \
+    ((inputs_imagery_layer_index, "inputs:imagery_layer_index")) \
     ((inputs_maximum_value, "inputs:maximum_value")) \
     ((inputs_metallic_factor, "inputs:metallic_factor")) \
     ((inputs_no_data, "inputs:no_data")) \
@@ -124,17 +124,12 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((inputs_property_value, "inputs:property_value")) \
     ((inputs_roughness_factor, "inputs:roughness_factor")) \
     ((inputs_scale, "inputs:scale")) \
+    ((inputs_texture, "inputs:texture")) \
+    ((inputs_tex_coord_index, "inputs:tex_coord_index")) \
     ((inputs_tex_coord_offset, "inputs:tex_coord_offset")) \
     ((inputs_tex_coord_rotation, "inputs:tex_coord_rotation")) \
     ((inputs_tex_coord_scale, "inputs:tex_coord_scale")) \
-    ((inputs_tex_coord_index, "inputs:tex_coord_index")) \
-    ((inputs_texture, "inputs:texture")) \
     ((inputs_tile_color, "inputs:tile_color")) \
-    ((inputs_imagery_layer, "inputs:imagery_layer")) \
-    ((inputs_clipping_imagery_layer, "inputs:clipping_imagery_layer")) \
-    ((inputs_imagery_layers_count, "inputs:imagery_layers_count")) \
-    ((inputs_clipping_imagery_layers_count, "inputs:clipping_imagery_layers_count")) \
-    ((inputs_imagery_layer_index, "inputs:imagery_layer_index")) \
     ((inputs_wrap_s, "inputs:wrap_s")) \
     ((inputs_wrap_t, "inputs:wrap_t")) \
     ((material_binding, "material:binding")) \
@@ -142,14 +137,31 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((outputs_mdl_surface, "outputs:mdl:surface")) \
     ((outputs_mdl_volume, "outputs:mdl:volume")) \
     ((outputs_out, "outputs:out")) \
+    ((primvars_COLOR_0, "primvars:COLOR_0")) \
     ((primvars_displayColor, "primvars:displayColor")) \
     ((primvars_displayOpacity, "primvars:displayOpacity")) \
     ((primvars_normals, "primvars:normals")) \
-    ((primvars_COLOR_0, "primvars:COLOR_0")) \
     ((primvars_vertexId, "primvars:vertexId")) \
-    ((xformOp_transform_cesium, "xformOp:transform:cesium"))
+    ((xformOp_rotateXYZ, "xformOp:rotateXYZ")) \
+    ((xformOp_rotateXZY, "xformOp:rotateXZY")) \
+    ((xformOp_rotateYXZ, "xformOp:rotateYXZ")) \
+    ((xformOp_rotateYZX, "xformOp:rotateYZX")) \
+    ((xformOp_rotateZXY, "xformOp:rotateZXY")) \
+    ((xformOp_rotateZYX, "xformOp:rotateZYX")) \
+    ((xformOp_scale, "xformOp:scale")) \
+    ((xformOp_translate, "xformOp:translate")) \
+    ((_auto, "auto"))
+
+#ifdef CESIUM_OMNI_CLANG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
 
 TF_DECLARE_PUBLIC_TOKENS(UsdTokens, USD_TOKENS);
+
+#ifdef CESIUM_OMNI_CLANG
+#pragma clang diagnostic pop
+#endif
 
 #define FABRIC_DEFINE_TOKEN_ELEM(elem) const omni::fabric::TokenC elem = omni::fabric::asInt(pxr::UsdTokens->elem);
 
@@ -173,16 +185,15 @@ TF_DECLARE_PUBLIC_TOKENS(UsdTokens, USD_TOKENS);
 __pragma(warning(pop))
 #endif
 
-}
+PXR_NAMESPACE_CLOSE_SCOPE
 
 namespace cesium::omniverse::FabricTokens {
 FABRIC_DECLARE_TOKENS(USD_TOKENS);
 
-const omni::fabric::TokenC primvars_st_n(uint64_t index);
+const omni::fabric::TokenC feature_id_n(uint64_t index);
 const omni::fabric::TokenC imagery_layer_n(uint64_t index);
 const omni::fabric::TokenC inputs_imagery_layer_n(uint64_t index);
-const omni::fabric::TokenC inputs_clipping_imagery_layer_n(uint64_t index);
-const omni::fabric::TokenC feature_id_n(uint64_t index);
+const omni::fabric::TokenC primvars_st_n(uint64_t index);
 const omni::fabric::TokenC property_n(uint64_t index);
 
 }
@@ -201,20 +212,18 @@ const omni::fabric::Type inputs_alpha_cutoff(omni::fabric::BaseDataType::eFloat,
 const omni::fabric::Type inputs_alpha_mode(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_base_alpha(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_base_color_factor(omni::fabric::BaseDataType::eFloat, 3, 0, omni::fabric::AttributeRole::eColor);
-const omni::fabric::Type inputs_channel_count(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_channels(omni::fabric::BaseDataType::eInt, 4, 0, omni::fabric::AttributeRole::eNone);
-const omni::fabric::Type inputs_default_value_int(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
-const omni::fabric::Type inputs_default_value_int2(omni::fabric::BaseDataType::eInt, 2, 0, omni::fabric::AttributeRole::eNone);
-const omni::fabric::Type inputs_default_value_int3(omni::fabric::BaseDataType::eInt, 3, 0, omni::fabric::AttributeRole::eNone);
-const omni::fabric::Type inputs_default_value_int4(omni::fabric::BaseDataType::eInt, 4, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type inputs_channel_count(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_default_value_float(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_default_value_float2(omni::fabric::BaseDataType::eFloat, 2, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_default_value_float3(omni::fabric::BaseDataType::eFloat, 3, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_default_value_float4(omni::fabric::BaseDataType::eFloat, 4, 0, omni::fabric::AttributeRole::eNone);
-const omni::fabric::Type inputs_tile_color(omni::fabric::BaseDataType::eFloat, 4, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type inputs_default_value_int(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type inputs_default_value_int2(omni::fabric::BaseDataType::eInt, 2, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type inputs_default_value_int3(omni::fabric::BaseDataType::eInt, 3, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type inputs_default_value_int4(omni::fabric::BaseDataType::eInt, 4, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_emissive_factor(omni::fabric::BaseDataType::eFloat, 3, 0, omni::fabric::AttributeRole::eColor);
 const omni::fabric::Type inputs_excludeFromWhiteMode(omni::fabric::BaseDataType::eBool, 1, 0, omni::fabric::AttributeRole::eNone);
-const omni::fabric::Type inputs_feature_id(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_has_no_data(omni::fabric::BaseDataType::eBool, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_imagery_layers_count(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_maximum_value_int(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
@@ -222,33 +231,32 @@ const omni::fabric::Type inputs_maximum_value_int2(omni::fabric::BaseDataType::e
 const omni::fabric::Type inputs_maximum_value_int3(omni::fabric::BaseDataType::eInt, 3, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_maximum_value_int4(omni::fabric::BaseDataType::eInt, 4, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_metallic_factor(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
-const omni::fabric::Type inputs_no_data_int(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
-const omni::fabric::Type inputs_no_data_int2(omni::fabric::BaseDataType::eInt, 2, 0, omni::fabric::AttributeRole::eNone);
-const omni::fabric::Type inputs_no_data_int3(omni::fabric::BaseDataType::eInt, 3, 0, omni::fabric::AttributeRole::eNone);
-const omni::fabric::Type inputs_no_data_int4(omni::fabric::BaseDataType::eInt, 4, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_no_data_float(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_no_data_float2(omni::fabric::BaseDataType::eFloat, 2, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_no_data_float3(omni::fabric::BaseDataType::eFloat, 3, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_no_data_float4(omni::fabric::BaseDataType::eFloat, 4, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type inputs_no_data_int(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type inputs_no_data_int2(omni::fabric::BaseDataType::eInt, 2, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type inputs_no_data_int3(omni::fabric::BaseDataType::eInt, 3, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type inputs_no_data_int4(omni::fabric::BaseDataType::eInt, 4, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_null_feature_id(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_offset_float(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_offset_float2(omni::fabric::BaseDataType::eFloat, 2, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_offset_float3(omni::fabric::BaseDataType::eFloat, 3, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_offset_float4(omni::fabric::BaseDataType::eFloat, 4, 0, omni::fabric::AttributeRole::eNone);
-const omni::fabric::Type inputs_clipping_imagery_layers_count(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_primvar_name(omni::fabric::BaseDataType::eUChar, 1, 1, omni::fabric::AttributeRole::eText);
-const omni::fabric::Type inputs_property_id(omni::fabric::BaseDataType::eUChar, 1, 1, omni::fabric::AttributeRole::eText);
 const omni::fabric::Type inputs_property_table_texture(omni::fabric::BaseDataType::eAsset, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_roughness_factor(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_scale_float(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_scale_float2(omni::fabric::BaseDataType::eFloat, 2, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_scale_float3(omni::fabric::BaseDataType::eFloat, 3, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_scale_float4(omni::fabric::BaseDataType::eFloat, 4, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type inputs_texture(omni::fabric::BaseDataType::eAsset, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_tex_coord_index(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_tex_coord_offset(omni::fabric::BaseDataType::eFloat, 2, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_tex_coord_rotation(omni::fabric::BaseDataType::eFloat, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_tex_coord_scale(omni::fabric::BaseDataType::eFloat, 2, 0, omni::fabric::AttributeRole::eNone);
-const omni::fabric::Type inputs_texture(omni::fabric::BaseDataType::eAsset, 1, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type inputs_tile_color(omni::fabric::BaseDataType::eFloat, 4, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_wrap_s(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_wrap_t(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type Material(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName);
@@ -258,13 +266,13 @@ const omni::fabric::Type outputs_out(omni::fabric::BaseDataType::eToken, 1, 0, o
 const omni::fabric::Type points(omni::fabric::BaseDataType::eFloat, 3, 1, omni::fabric::AttributeRole::ePosition);
 const omni::fabric::Type primvarInterpolations(omni::fabric::BaseDataType::eToken, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type primvars(omni::fabric::BaseDataType::eToken, 1, 1, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type primvars_COLOR_0(omni::fabric::BaseDataType::eFloat, 4, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type primvars_normals(omni::fabric::BaseDataType::eFloat, 3, 1, omni::fabric::AttributeRole::eNormal);
 const omni::fabric::Type primvars_st(omni::fabric::BaseDataType::eFloat, 2, 1, omni::fabric::AttributeRole::eTexCoord);
-const omni::fabric::Type primvars_COLOR_0(omni::fabric::BaseDataType::eFloat, 4, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type primvars_vertexId(omni::fabric::BaseDataType::eFloat, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type Shader(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName);
 const omni::fabric::Type subdivisionScheme(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
-const omni::fabric::Type _cesium_localToEcefTransform(omni::fabric::BaseDataType::eDouble, 16, 0, omni::fabric::AttributeRole::eMatrix);
+const omni::fabric::Type _cesium_gltfLocalToEcefTransform(omni::fabric::BaseDataType::eDouble, 16, 0, omni::fabric::AttributeRole::eMatrix);
 const omni::fabric::Type _cesium_tilesetId(omni::fabric::BaseDataType::eInt64, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _paramColorSpace(omni::fabric::BaseDataType::eToken, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _sdrMetadata(omni::fabric::BaseDataType::eToken, 1, 1, omni::fabric::AttributeRole::eNone);

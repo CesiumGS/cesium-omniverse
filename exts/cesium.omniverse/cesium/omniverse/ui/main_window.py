@@ -132,8 +132,6 @@ class CesiumOmniverseMainWindow(ui.Window):
         )
 
     def _on_update_frame(self, _e: carb.events.IEvent):
-        self._cesium_omniverse_interface.on_update_ui()
-
         session: CesiumIonSession = self._cesium_omniverse_interface.get_session()
 
         if session is not None and self._sign_in_widget is not None:

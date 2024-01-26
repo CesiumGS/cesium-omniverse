@@ -140,8 +140,8 @@ class CesiumOmniverseProfileWidget(ui.Frame):
 
         stage = omni.usd.get_context().get_stage()
 
-        sessions = self._cesium_omniverse_interface.get_all_sessions()
-        server_paths = self._cesium_omniverse_interface.get_all_server_paths()
+        sessions = self._cesium_omniverse_interface.get_sessions()
+        server_paths = self._cesium_omniverse_interface.get_server_paths()
         servers = [CesiumIonServer.Get(stage, server_path) for server_path in server_paths]
         server_names = [server.GetDisplayNameAttr().Get() for server in servers]
         current_server_path = self._cesium_omniverse_interface.get_server_path()

@@ -591,25 +591,25 @@ class "CesiumGlobeAnchorSchemaAPI" (
         displayName = "Detect Transform Changes"
         doc = "Gets or sets whether to automatically detect changes in the Prim's transform and update the precise globe coordinates accordingly."
     )
-    double3 cesium:anchor:geographicCoordinates = (0, 0, 10) (
-        displayName = "Geographic Coordinate (Latitude, Longitude, Height)"
-        doc = "The position of the globally anchored prim as a Latitude, Longitude, Height coordinate."
-    )
     rel cesium:anchor:georeferenceBinding (
         displayName = "Georeference Origin Binding"
         doc = "The Georeference Origin prim used for the globe anchor calculations."
     )
+    double cesium:anchor:height = 0 (
+        displayName = "Height"
+        doc = "The height in meters above the ellipsoid."
+    )
+    double cesium:anchor:latitude = 0 (
+        displayName = "Latitude"
+        doc = "The latitude in degrees, in the range [-90, 90]."
+    )
+    double cesium:anchor:longitude = 0 (
+        displayName = "Longitude"
+        doc = "The longitude in degrees, in the range [-180, 180]."
+    )
     double3 cesium:anchor:position = (0, 0, 0) (
-        displayName = "Position (Earth-Centered, Earth-Fixed)"
+        displayName = "Position (ECEF)"
         doc = "The actual position of the globally anchored prim in the ECEF coordinate system."
-    )
-    double3 cesium:anchor:rotation = (0, 0, 0) (
-        displayName = "Rotation (East-Up-North)"
-        doc = "The actual rotation of the globally anchored prim oriented to the ECEF coordinate system."
-    )
-    double3 cesium:anchor:scale = (1, 1, 1) (
-        displayName = "Scale"
-        doc = "The local scaling of the prim."
     )
 }
 

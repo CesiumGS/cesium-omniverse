@@ -10,7 +10,7 @@ from cesium.usd.plugins.CesiumUsdSchemas import (
     PolygonImagery as CesiumPolygonImagery,
     IonImagery as CesiumIonImagery,
 )
-from ..api.globe_anchor import anchor_xform_at_path
+from ..usdUtils import add_globe_anchor_to_prim
 from ..bindings import ICesiumOmniverseInterface
 
 
@@ -49,7 +49,7 @@ class CesiumAddMenuController:
 
     def _add_globe_anchor_api(self, payload: PrimSelectionPayload):
         for path in payload:
-            anchor_xform_at_path(path)
+            add_globe_anchor_to_prim(path)
             get_property_window().request_rebuild()
 
     def _add_ion_imagery(self, payload: PrimSelectionPayload):

@@ -2,8 +2,17 @@
 
 #include <carb/BindingsPythonUtils.h>
 
-// NOLINTNEXTLINE
+#ifdef CESIUM_OMNI_CLANG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
+
 CARB_BINDINGS("cesium.omniverse.cpp.tests.python")
+
+#ifdef CESIUM_OMNI_CLANG
+#pragma clang diagnostic pop
+#endif
+
 DISABLE_PYBIND11_DYNAMIC_CAST(cesium::omniverse::tests::ICesiumOmniverseCppTestsInterface)
 
 PYBIND11_MODULE(CesiumOmniverseCppTestsPythonBindings, m) {

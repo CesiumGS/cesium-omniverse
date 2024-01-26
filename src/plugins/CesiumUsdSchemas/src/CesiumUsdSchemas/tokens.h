@@ -51,26 +51,26 @@ struct CesiumTokensType {
     /// 
     /// CesiumGlobeAnchorAPI
     const TfToken cesiumAnchorDetectTransformChanges;
-    /// \brief "cesium:anchor:geographicCoordinates"
-    /// 
-    /// CesiumGlobeAnchorAPI
-    const TfToken cesiumAnchorGeographicCoordinates;
     /// \brief "cesium:anchor:georeferenceBinding"
     /// 
     /// CesiumGlobeAnchorAPI
     const TfToken cesiumAnchorGeoreferenceBinding;
+    /// \brief "cesium:anchor:height"
+    /// 
+    /// CesiumGlobeAnchorAPI
+    const TfToken cesiumAnchorHeight;
+    /// \brief "cesium:anchor:latitude"
+    /// 
+    /// CesiumGlobeAnchorAPI
+    const TfToken cesiumAnchorLatitude;
+    /// \brief "cesium:anchor:longitude"
+    /// 
+    /// CesiumGlobeAnchorAPI
+    const TfToken cesiumAnchorLongitude;
     /// \brief "cesium:anchor:position"
     /// 
     /// CesiumGlobeAnchorAPI
     const TfToken cesiumAnchorPosition;
-    /// \brief "cesium:anchor:rotation"
-    /// 
-    /// CesiumGlobeAnchorAPI
-    const TfToken cesiumAnchorRotation;
-    /// \brief "cesium:anchor:scale"
-    /// 
-    /// CesiumGlobeAnchorAPI
-    const TfToken cesiumAnchorScale;
     /// \brief "cesium:cartographicPolygonBinding"
     /// 
     /// CesiumPolygonImagery

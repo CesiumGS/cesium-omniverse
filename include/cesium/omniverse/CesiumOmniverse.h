@@ -1,25 +1,27 @@
 #pragma once
 
+#include "cesium/omniverse/AssetTroubleshootingDetails.h"
 #include "cesium/omniverse/RenderStatistics.h"
 #include "cesium/omniverse/SetDefaultTokenResult.h"
-#include "cesium/omniverse/TokenTroubleshooter.h"
+#include "cesium/omniverse/TokenTroubleshootingDetails.h"
 
 #include <carb/Interface.h>
-#include <pxr/pxr.h>
 
 #include <cstdint>
 #include <memory>
 #include <optional>
 #include <vector>
 
-PXR_NAMESPACE_OPEN_SCOPE
-class GfMatrix4d;
-PXR_NAMESPACE_CLOSE_SCOPE
-
 namespace cesium::omniverse {
 
 class CesiumIonSession;
-struct Viewport;
+
+struct ViewportApi {
+    double viewMatrix[16]; // NOLINT(modernize-avoid-c-arrays)
+    double projMatrix[16]; // NOLINT(modernize-avoid-c-arrays)
+    double width;
+    double height;
+};
 
 class ICesiumOmniverseInterface {
   public:
@@ -49,28 +51,14 @@ class ICesiumOmniverseInterface {
      *
      * @param viewports A list of viewports.
      */
-    virtual void onUpdateFrame(const std::vector<Viewport>& viewports) noexcept = 0;
-
-    /**
-     * @brief Updates the UI.
-     */
-    virtual void onUpdateUi() noexcept = 0;
+    virtual void onUpdateFrame(const ViewportApi* viewports, uint64_t count) noexcept = 0;
 
     /**
      * @brief Updates the reference to the USD stage for the C++ layer.
      *
      * @param stageId The id of the current stage.
      */
-    virtual void onStageChange(long stageId) noexcept = 0;
-
-    /**
-     * @brief Sets the georeference origin based on the WGS84 ellipsoid.
-     *
-     * @param longitude The longitude in degrees.
-     * @param latitude The latitude in degrees.
-     * @param height The height in meters.
-     */
-    virtual void setGeoreferenceOrigin(double longitude, double latitude, double height) noexcept = 0;
+    virtual void onUsdStageChanged(long stageId) noexcept = 0;
 
     /**
      * @brief Connects to Cesium ion.
@@ -90,12 +78,12 @@ class ICesiumOmniverseInterface {
     /**
      * @brief Gets all Cesium ion sessions.
      */
-    virtual std::vector<std::shared_ptr<CesiumIonSession>> getAllSessions() noexcept = 0;
+    virtual std::vector<std::shared_ptr<CesiumIonSession>> getSessions() noexcept = 0;
 
     /**
      * @brief Get all Cesium ion server paths.
      */
-    virtual std::vector<std::string> getAllServerPaths() noexcept = 0;
+    virtual std::vector<std::string> getServerPaths() noexcept = 0;
 
     /**
      * @brief Gets the last result with code and message of setting the default token.
@@ -169,24 +157,7 @@ class ICesiumOmniverseInterface {
     virtual std::vector<std::pair<std::string, bool>> getCredits() noexcept = 0;
     virtual void creditsStartNextFrame() noexcept = 0;
 
-    /**
-     * @brief Given the provided sdf path (as a charstring), add a globe anchor API to it and set it up.
-     *
-     * @param path A sdf path in the USD stage provided as a charstring.
-     */
-    virtual void addGlobeAnchorToPrim(const char* path) noexcept = 0;
-
-    /**
-     * @brief Given the provided sdf path (as a charstring) and latitude, longitude, and height, add a globe anchor API to it and set it up.
-     *
-     * @param path A sdf path in the USD stage provided as a charstring.
-     * @param latitude The latitude provided as a double.
-     * @param longitude The longitude provided as a double.
-     * @param height The height provided as a double.
-     */
-    virtual void addGlobeAnchorToPrim(const char* path, double latitude, double longitude, double height) noexcept = 0;
     virtual bool isTracingEnabled() noexcept = 0;
-    virtual void addCartographicPolygonPrim(const char* path) noexcept = 0;
 };
 
 } // namespace cesium::omniverse

@@ -5,29 +5,23 @@ namespace cesium::omniverse {
 LoggerSink::LoggerSink(omni::log::Level logLevel)
     : _logLevel(logLevel) {
     switch (logLevel) {
-        case omni::log::Level::eVerbose: {
+        case omni::log::Level::eVerbose:
             set_level(spdlog::level::trace);
             break;
-        }
-        case omni::log::Level::eInfo: {
+        case omni::log::Level::eInfo:
             set_level(spdlog::level::info);
             break;
-        }
-        case omni::log::Level::eWarn: {
+        case omni::log::Level::eWarn:
             set_level(spdlog::level::warn);
             break;
-        }
-        case omni::log::Level::eError: {
+        case omni::log::Level::eError:
             set_level(spdlog::level::err);
             break;
-        }
-        case omni::log::Level::eFatal: {
+        case omni::log::Level::eFatal:
             set_level(spdlog::level::critical);
             break;
-        }
-        default: {
+        default:
             break;
-        }
     }
 }
 
@@ -37,34 +31,23 @@ void LoggerSink::sink_it_([[maybe_unused]] const spdlog::details::log_msg& msg) 
     // name to our plugin name: cesium.omniverse.plugin
 
     switch (_logLevel) {
-        case omni::log::Level::eVerbose: {
-            const std::string message = formatMessage(msg);
-            OMNI_LOG_VERBOSE("%s", message.c_str());
+        case omni::log::Level::eVerbose:
+            OMNI_LOG_VERBOSE("%s", formatMessage(msg).c_str());
             break;
-        }
-        case omni::log::Level::eInfo: {
-            const std::string message = formatMessage(msg);
-            OMNI_LOG_INFO("%s", message.c_str());
+        case omni::log::Level::eInfo:
+            OMNI_LOG_INFO("%s", formatMessage(msg).c_str());
             break;
-        }
-        case omni::log::Level::eWarn: {
-            const std::string message = formatMessage(msg);
-            OMNI_LOG_WARN("%s", message.c_str());
+        case omni::log::Level::eWarn:
+            OMNI_LOG_WARN("%s", formatMessage(msg).c_str());
             break;
-        }
-        case omni::log::Level::eError: {
-            const std::string message = formatMessage(msg);
-            OMNI_LOG_ERROR("%s", message.c_str());
+        case omni::log::Level::eError:
+            OMNI_LOG_ERROR("%s", formatMessage(msg).c_str());
             break;
-        }
-        case omni::log::Level::eFatal: {
-            const std::string message = formatMessage(msg);
-            OMNI_LOG_FATAL("%s", message.c_str());
+        case omni::log::Level::eFatal:
+            OMNI_LOG_FATAL("%s", formatMessage(msg).c_str());
             break;
-        }
-        default: {
+        default:
             break;
-        }
     }
 }
 

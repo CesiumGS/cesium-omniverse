@@ -1,5 +1,9 @@
 #pragma once
 #include <pxr/usd/usd/common.h>
 
-void setUpUsdUtilTests(const pxr::SdfPath& rootPath);
+namespace cesium::omniverse {
+class Context;
+}
+
+void setUpUsdUtilTests(cesium::omniverse::Context* pContext, const pxr::SdfPath& rootPath);
 void cleanUpUsdUtilTests(const pxr::UsdStageRefPtr& stage);

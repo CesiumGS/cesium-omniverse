@@ -14,14 +14,8 @@ using namespace CesiumIonClient;
 
 using namespace cesium::omniverse;
 
-#ifdef CESIUM_OMNI_WINDOWS
-const char* browserCommandBase = "start";
-#else
-const char* browserCommandBase = "xdg-open";
-#endif
-
 CesiumIonSession::CesiumIonSession(
-    CesiumAsync::AsyncSystem& asyncSystem,
+    const CesiumAsync::AsyncSystem& asyncSystem,
     std::shared_ptr<CesiumAsync::IAssetAccessor> pAssetAccessor,
     std::string ionServerUrl,
     std::string ionApiUrl,
@@ -69,9 +63,9 @@ void CesiumIonSession::connect() {
             this->_isConnecting = false;
             this->_connection = std::move(connection);
 
-            Settings::UserAccessToken token;
+            Settings::AccessToken token;
             token.ionApiUrl = _ionApiUrl;
-            token.token = this->_connection.value().getAccessToken();
+            token.accessToken = this->_connection.value().getAccessToken();
             Settings::setAccessToken(token);
 
             Broadcast::connectionUpdated();
@@ -96,22 +90,22 @@ void CesiumIonSession::resume() {
         return;
     }
 
-    std::string userAccessToken;
+    std::string accessToken;
     for (const auto& token : tokens) {
         if (token.ionApiUrl == _ionApiUrl) {
-            userAccessToken = token.token;
+            accessToken = token.accessToken;
             break;
         }
     }
 
-    if (userAccessToken.empty()) {
+    if (accessToken.empty()) {
         // No existing session to resume.
         return;
     }
 
     this->_isResuming = true;
 
-    this->_connection = Connection(this->_asyncSystem, this->_pAssetAccessor, userAccessToken);
+    this->_connection = Connection(this->_asyncSystem, this->_pAssetAccessor, accessToken);
 
     // Verify that the connection actually works.
     this->_connection.value()
@@ -206,7 +200,7 @@ void CesiumIonSession::refreshTokens() {
     this->_connection->tokens()
         .thenInMainThread([this](Response<TokenList>&& tokens) {
             this->_isLoadingTokens = false;
-            this->_tokens = tokens.value ? std::make_optional(std::move(tokens.value->items)) : std::nullopt;
+            this->_tokens = tokens.value ? std::make_optional(std::move(tokens.value.value().items)) : std::nullopt;
             Broadcast::tokensUpdated();
             this->refreshTokensIfNeeded();
         })
@@ -275,15 +269,13 @@ bool CesiumIonSession::refreshTokensIfNeeded() {
 
 Future<Response<Token>> CesiumIonSession::findToken(const std::string& token) const {
     if (!this->_connection) {
-        return this->getAsyncSystem().createResolvedFuture(
-            Response<Token>(0, "NOTCONNECTED", "Not connected to Cesium ion."));
+        return _asyncSystem.createResolvedFuture(Response<Token>(0, "NOTCONNECTED", "Not connected to Cesium ion."));
     }
 
     std::optional<std::string> maybeTokenID = Connection::getIdFromToken(token);
 
     if (!maybeTokenID) {
-        return this->getAsyncSystem().createResolvedFuture(
-            Response<Token>(0, "INVALIDTOKEN", "The token is not valid."));
+        return _asyncSystem.createResolvedFuture(Response<Token>(0, "INVALIDTOKEN", "The token is not valid."));
     }
 
     return this->_connection->token(*maybeTokenID);

@@ -1,19 +1,16 @@
 #pragma once
 
-#include "cesium/omniverse/DataType.h"
-#include "cesium/omniverse/FabricMaterialDefinition.h"
-#include "cesium/omniverse/GltfUtil.h"
-#include "cesium/omniverse/MetadataUtil.h"
+#include "cesium/omniverse/FabricMaterialDescriptor.h"
+#include "cesium/omniverse/FabricMaterialInfo.h"
 
-#ifdef CESIUM_OMNI_MSVC
-#pragma push_macro("OPAQUE")
-#undef OPAQUE
-#endif
-
+#include <glm/glm.hpp>
 #include <omni/fabric/IPath.h>
-#include <omni/fabric/Type.h>
-#include <pxr/usd/sdf/assetPath.h>
-#include <pxr/usd/sdf/path.h>
+
+#include <unordered_map>
+
+namespace omni::fabric {
+struct Type;
+}
 
 namespace omni::ui {
 class DynamicTextureProvider;
@@ -22,25 +19,33 @@ class DynamicTextureProvider;
 namespace cesium::omniverse {
 
 class FabricTexture;
+enum class MdlInternalPropertyType;
+struct FabricPropertyDescriptor;
+struct FabricTextureInfo;
 
 class FabricMaterial {
   public:
     FabricMaterial(
+        Context* pContext,
         const omni::fabric::Path& path,
-        const FabricMaterialDefinition& materialDefinition,
-        const pxr::TfToken& defaultTextureAssetPathToken,
+        const FabricMaterialDescriptor& materialDescriptor,
+        const pxr::TfToken& defaultWhiteTextureAssetPathToken,
         const pxr::TfToken& defaultTransparentTextureAssetPathToken,
         bool debugRandomColors,
-        long stageId);
+        int64_t poolId);
     ~FabricMaterial();
+    FabricMaterial(const FabricMaterial&) = delete;
+    FabricMaterial& operator=(const FabricMaterial&) = delete;
+    FabricMaterial(FabricMaterial&&) noexcept = default;
+    FabricMaterial& operator=(FabricMaterial&&) noexcept = default;
 
     void setMaterial(
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
         int64_t tilesetId,
-        const MaterialInfo& materialInfo,
-        const FeaturesInfo& featuresInfo,
-        const std::shared_ptr<FabricTexture>& baseColorTexture,
+        const FabricMaterialInfo& materialInfo,
+        const FabricFeaturesInfo& featuresInfo,
+        FabricTexture* pBaseColorTexture,
         const std::vector<std::shared_ptr<FabricTexture>>& featureIdTextures,
         const std::vector<std::shared_ptr<FabricTexture>>& propertyTextures,
         const std::vector<std::shared_ptr<FabricTexture>>& propertyTableTextures,
@@ -53,8 +58,8 @@ class FabricMaterial {
         const std::unordered_map<uint64_t, uint64_t>& propertyTextureIndexMapping);
 
     void setImageryLayer(
-        const std::shared_ptr<FabricTexture>& texture,
-        const TextureInfo& textureInfo,
+        FabricTexture* pTexture,
+        const FabricTextureInfo& textureInfo,
         uint64_t imageryLayerIndex,
         double alpha,
         const std::unordered_map<uint64_t, uint64_t>& imageryTexcoordIndexMapping);
@@ -66,7 +71,8 @@ class FabricMaterial {
     void setActive(bool active);
 
     [[nodiscard]] const omni::fabric::Path& getPath() const;
-    [[nodiscard]] const FabricMaterialDefinition& getMaterialDefinition() const;
+    [[nodiscard]] const FabricMaterialDescriptor& getMaterialDescriptor() const;
+    [[nodiscard]] int64_t getPoolId() const;
 
   private:
     void initializeNodes();
@@ -81,6 +87,10 @@ class FabricMaterial {
         const std::vector<std::pair<omni::fabric::Type, omni::fabric::Token>>& additionalAttributes = {});
     void createTexture(const omni::fabric::Path& path);
     void createImageryLayer(const omni::fabric::Path& path);
+    void createImageryLayerResolverCommon(
+        const omni::fabric::Path& path,
+        uint64_t textureCount,
+        const omni::fabric::Token& subidentifier);
     void createImageryLayerResolver(const omni::fabric::Path& path, uint64_t textureCount);
     void createClippingImageryLayerResolver(const omni::fabric::Path& path, uint64_t textureCount);
     void createFeatureIdIndex(const omni::fabric::Path& path);
@@ -147,18 +157,18 @@ class FabricMaterial {
 
     void setShaderValues(
         const omni::fabric::Path& path,
-        const MaterialInfo& materialInfo,
+        const FabricMaterialInfo& materialInfo,
         const glm::dvec3& displayColor,
         double displayOpacity);
     void setTextureValues(
         const omni::fabric::Path& path,
         const pxr::TfToken& textureAssetPathToken,
-        const TextureInfo& textureInfo,
+        const FabricTextureInfo& textureInfo,
         uint64_t texcoordIndex);
     void setImageryLayerValues(
         const omni::fabric::Path& path,
         const pxr::TfToken& textureAssetPathToken,
-        const TextureInfo& textureInfo,
+        const FabricTextureInfo& textureInfo,
         uint64_t texcoordIndex,
         double alpha);
     void setImageryLayerAlphaValue(const omni::fabric::Path& path, double alpha);
@@ -167,7 +177,7 @@ class FabricMaterial {
     void setFeatureIdTextureValues(
         const omni::fabric::Path& path,
         const pxr::TfToken& textureAssetPathToken,
-        const TextureInfo& textureInfo,
+        const FabricTextureInfo& textureInfo,
         uint64_t texcoordIndex,
         int nullFeatureId);
 
@@ -178,23 +188,26 @@ class FabricMaterial {
 
     bool stageDestroyed();
 
+    Context* _pContext;
     omni::fabric::Path _materialPath;
-    const FabricMaterialDefinition _materialDefinition;
-    const pxr::TfToken _defaultTextureAssetPathToken;
-    const pxr::TfToken _defaultTransparentTextureAssetPathToken;
-    const bool _debugRandomColors;
-    const long _stageId;
-
+    FabricMaterialDescriptor _materialDescriptor;
+    pxr::TfToken _defaultWhiteTextureAssetPathToken;
+    pxr::TfToken _defaultTransparentTextureAssetPathToken;
+    bool _debugRandomColors;
+    int64_t _poolId;
+    int64_t _stageId;
     bool _usesDefaultMaterial;
 
-    AlphaMode _alphaMode{AlphaMode::OPAQUE};
+    FabricAlphaMode _alphaMode{FabricAlphaMode::OPAQUE};
     glm::dvec3 _debugColor{1.0, 1.0, 1.0};
 
     omni::fabric::Path _shaderPath;
     omni::fabric::Path _baseColorTexturePath;
+
     std::vector<omni::fabric::Path> _imageryLayerPaths;
     omni::fabric::Path _overlayImageryLayerResolverPath;
     omni::fabric::Path _clippingImageryLayerResolverPath;
+
     std::vector<omni::fabric::Path> _featureIdPaths;
     std::vector<omni::fabric::Path> _featureIdIndexPaths;
     std::vector<omni::fabric::Path> _featureIdAttributePaths;
@@ -204,8 +217,6 @@ class FabricMaterial {
     std::unordered_map<MdlInternalPropertyType, std::vector<omni::fabric::Path>> _propertyAttributePropertyPaths;
     std::unordered_map<MdlInternalPropertyType, std::vector<omni::fabric::Path>> _propertyTexturePropertyPaths;
     std::unordered_map<MdlInternalPropertyType, std::vector<omni::fabric::Path>> _propertyTablePropertyPaths;
-
-    std::vector<MetadataUtil::PropertyDefinition> _properties;
 
     std::vector<omni::fabric::Path> _copiedBaseColorTexturePaths;
     std::vector<omni::fabric::Path> _copiedImageryLayerPaths;

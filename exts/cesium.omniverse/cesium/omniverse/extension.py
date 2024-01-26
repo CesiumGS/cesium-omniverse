@@ -2,7 +2,7 @@ from .bindings import acquire_cesium_omniverse_interface, release_cesium_omniver
 from .ui.add_menu_controller import CesiumAddMenuController
 from .install import perform_vendor_install
 from .utils import wait_n_frames, dock_window_async, perform_action_after_n_frames_async
-from .usdUtils import add_tileset_ion, add_imagery_ion, add_cartographic_polygon
+from .usdUtils import add_tileset_ion, add_imagery_ion, add_cartographic_polygon, get_or_create_cesium_data
 from .ui.asset_window import CesiumOmniverseAssetWindow
 from .ui.debug_window import CesiumOmniverseDebugWindow
 from .ui.main_window import CesiumOmniverseMainWindow
@@ -269,6 +269,8 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             fabric_enabled = omni_settings.get_settings().get_as_bool("/app/useFabricSceneDelegate")
             if not fabric_enabled:
                 asyncio.ensure_future(perform_action_after_n_frames_async(15, CesiumOmniverseExtension._open_modal))
+
+            get_or_create_cesium_data()
 
             self._setup_ion_server_prims()
         elif event.type == int(omni.usd.StageEventType.CLOSED):
