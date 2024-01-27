@@ -77,16 +77,13 @@ class OmniTileset {
     [[nodiscard]] pxr::SdfPath getMaterialPath() const;
     [[nodiscard]] glm::dvec3 getDisplayColor() const;
     [[nodiscard]] double getDisplayOpacity() const;
+    [[nodiscard]] std::vector<pxr::SdfPath> getRasterOverlayPaths() const;
 
     void updateTilesetOptions();
 
     void reload();
-    [[nodiscard]] std::optional<uint64_t>
-    getRasterOverlayLayerIndex(const CesiumRasterOverlays::RasterOverlay& overlay) const;
-    [[nodiscard]] uint64_t getRasterOverlayLayerCount() const;
-    [[nodiscard]] double getRasterOverlayLayerAlpha(uint64_t rasterOverlayLayerIndex) const;
-    [[nodiscard]] pxr::SdfPath getRasterOverlayLayerPath(uint64_t rasterOverlayLayerIndex) const;
-    void updateRasterOverlayLayerAlpha(uint64_t rasterOverlayLayerIndex);
+    [[nodiscard]] pxr::SdfPath getRasterOverlayPath(const CesiumRasterOverlays::RasterOverlay& rasterOverlay) const;
+    void updateRasterOverlayAlpha(const pxr::SdfPath& rasterOverlayPath);
     void updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::TfToken& attributeName);
     void updateDisplayColorAndOpacity();
 
@@ -111,7 +108,6 @@ class OmniTileset {
     std::vector<Cesium3DTilesSelection::ViewState> _viewStates;
     bool _extentSet{false};
     bool _activeLoading{false};
-    std::vector<pxr::SdfPath> _rasterOverlayPaths;
 };
 
 } // namespace cesium::omniverse
