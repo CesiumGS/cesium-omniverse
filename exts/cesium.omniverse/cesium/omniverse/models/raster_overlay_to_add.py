@@ -22,5 +22,7 @@ class RasterOverlayToAdd:
             return None
 
         return RasterOverlayToAdd(
-            event.payload["tileset_path"], event.payload["raster_overlay_ion_asset_id"], event.payload["raster_overlay_name"]
+            event.payload["tileset_path"],
+            event.payload["raster_overlay_ion_asset_id"],
+            event.payload["raster_overlay_name"],
         )

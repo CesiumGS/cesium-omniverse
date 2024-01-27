@@ -332,7 +332,9 @@ class CesiumOmniverseExtension(omni.ext.IExt):
 
         if asset_to_add.raster_overlay_name is not None and asset_to_add.raster_overlay_ion_asset_id is not None:
             tileset_path = add_tileset_ion(asset_to_add.tileset_name, asset_to_add.tileset_ion_asset_id)
-            add_raster_overlay_ion(tileset_path, asset_to_add.raster_overlay_name, asset_to_add.raster_overlay_ion_asset_id)
+            add_raster_overlay_ion(
+                tileset_path, asset_to_add.raster_overlay_name, asset_to_add.raster_overlay_ion_asset_id
+            )
         else:
             tileset_path = add_tileset_ion(asset_to_add.tileset_name, asset_to_add.tileset_ion_asset_id)
 
@@ -364,7 +366,11 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             self._raster_overlay_to_add_after_token_set.append(raster_overlay_to_add)
             return
 
-        add_raster_overlay_ion(raster_overlay_to_add.tileset_path, raster_overlay_to_add.raster_overlay_name, raster_overlay_to_add.raster_overlay_ion_asset_id)
+        add_raster_overlay_ion(
+            raster_overlay_to_add.tileset_path,
+            raster_overlay_to_add.raster_overlay_name,
+            raster_overlay_to_add.raster_overlay_ion_asset_id,
+        )
         _cesium_omniverse_interface.reload_tileset(raster_overlay_to_add.tileset_path)
 
     def _add_to_menu(self, path, callback: Callable[[bool], None], show_on_startup):

@@ -91,7 +91,9 @@ class CesiumAssetDetailsWidget(ui.ScrollingFrame):
         raster_overlay_to_add = RasterOverlayToAdd(tileset_path, self._id, self._name)
 
         add_raster_overlay_event = carb.events.type_from_string("cesium.omniverse.ADD_RASTER_OVERLAY")
-        app.get_app().get_message_bus_event_stream().push(add_raster_overlay_event, payload=raster_overlay_to_add.to_dict())
+        app.get_app().get_message_bus_event_stream().push(
+            add_raster_overlay_event, payload=raster_overlay_to_add.to_dict()
+        )
 
     def _build_fn(self):
         with self:
