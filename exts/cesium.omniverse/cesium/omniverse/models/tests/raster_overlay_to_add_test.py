@@ -8,8 +8,8 @@ IMAGERY_NAME = "fake_imagery_name"
 IMAGERY_ION_ASSET_ID = 2
 PAYLOAD_DICT = {
     "tileset_path": TILESET_PATH,
-    "imagery_name": IMAGERY_NAME,
-    "imagery_ion_asset_id": IMAGERY_ION_ASSET_ID,
+    "raster_overlay_name": IMAGERY_NAME,
+    "raster_overlay_ion_asset_id": IMAGERY_ION_ASSET_ID,
 }
 
 
@@ -21,16 +21,16 @@ class RasterOverlayToAddTest(omni.kit.test.AsyncTestCase):
         pass
 
     async def test_convert_imagery_to_add_to_dict(self):
-        imagery_to_add = RasterOverlayToAdd(
+        raster_overlay_to_add = RasterOverlayToAdd(
             tileset_path=TILESET_PATH,
-            imagery_ion_asset_id=IMAGERY_ION_ASSET_ID,
-            imagery_name=IMAGERY_NAME,
+            raster_overlay_ion_asset_id=IMAGERY_ION_ASSET_ID,
+            raster_overlay_name=IMAGERY_NAME,
         )
 
-        result = imagery_to_add.to_dict()
+        result = raster_overlay_to_add.to_dict()
         self.assertEqual(result["tileset_path"], TILESET_PATH)
-        self.assertEqual(result["imagery_name"], IMAGERY_NAME)
-        self.assertEqual(result["imagery_ion_asset_id"], IMAGERY_ION_ASSET_ID)
+        self.assertEqual(result["raster_overlay_name"], IMAGERY_NAME)
+        self.assertEqual(result["raster_overlay_ion_asset_id"], IMAGERY_ION_ASSET_ID)
 
     async def test_create_imagery_to_add_from_event(self):
         mock_event = MagicMock(spec=carb.events.IEvent)
@@ -38,8 +38,8 @@ class RasterOverlayToAddTest(omni.kit.test.AsyncTestCase):
         imagery_to_add = RasterOverlayToAdd.from_event(mock_event)
         self.assertIsNotNone(imagery_to_add)
         self.assertEqual(imagery_to_add.tileset_path, TILESET_PATH)
-        self.assertEqual(imagery_to_add.imagery_name, IMAGERY_NAME)
-        self.assertEqual(imagery_to_add.imagery_ion_asset_id, IMAGERY_ION_ASSET_ID)
+        self.assertEqual(imagery_to_add.raster_overlay_name, IMAGERY_NAME)
+        self.assertEqual(imagery_to_add.raster_overlay_ion_asset_id, IMAGERY_ION_ASSET_ID)
 
     async def test_create_imagery_to_add_from_empty_event(self):
         mock_event = MagicMock(spec=carb.events.IEvent)

@@ -71,7 +71,7 @@ def add_tileset_ion(name: str, asset_id: int, token: str = "") -> str:
     return tileset_path
 
 
-def add_imagery_ion(tileset_path: str, name: str, asset_id: int, token: str = "") -> str:
+def add_raster_overlay_ion(tileset_path: str, name: str, asset_id: int, token: str = "") -> str:
     stage = omni.usd.get_context().get_stage()
 
     safe_name = get_safe_name(name)
