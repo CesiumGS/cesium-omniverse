@@ -7,7 +7,7 @@ from cesium.usd.plugins.CesiumUsdSchemas import (
     CartographicPolygon as CesiumCartographicPolygon,
     Data as CesiumData,
     Tileset as CesiumTileset,
-    IonRasterOverlay as CesiumIonImagery,
+    IonRasterOverlay as CesiumIonRasterOverlay,
     Georeference as CesiumGeoreference,
     GlobeAnchorAPI as CesiumGlobeAnchorAPI,
     Tokens as CesiumTokens,
@@ -81,7 +81,7 @@ def add_imagery_ion(tileset_path: str, name: str, asset_id: int, token: str = ""
     # get_stage_next_free_path will increment the path name if there is a collision
     imagery_path = omni.usd.get_stage_next_free_path(stage, imagery_path, False)
 
-    imagery = CesiumIonImagery.Define(stage, imagery_path)
+    imagery = CesiumIonRasterOverlay.Define(stage, imagery_path)
 
     imagery.GetIonAssetIdAttr().Set(asset_id)
     imagery.GetIonAccessTokenAttr().Set(token)

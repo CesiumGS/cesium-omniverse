@@ -3,7 +3,7 @@ from typing import Optional
 import carb.events
 
 
-class ImageryToAdd:
+class RasterOverlayToAdd:
     def __init__(self, tileset_path: str, imagery_ion_asset_id: int, imagery_name: str):
         self.tileset_path = tileset_path
         self.imagery_ion_asset_id = imagery_ion_asset_id
@@ -17,10 +17,10 @@ class ImageryToAdd:
         }
 
     @staticmethod
-    def from_event(event: carb.events.IEvent) -> Optional[ImageryToAdd]:
+    def from_event(event: carb.events.IEvent) -> Optional[RasterOverlayToAdd]:
         if event.payload is None or len(event.payload) == 0:
             return None
 
-        return ImageryToAdd(
+        return RasterOverlayToAdd(
             event.payload["tileset_path"], event.payload["imagery_ion_asset_id"], event.payload["imagery_name"]
         )

@@ -7,8 +7,8 @@ import omni.usd
 from pxr import Sdf, Tf, UsdGeom
 from cesium.usd.plugins.CesiumUsdSchemas import (
     Tileset as CesiumTileset,
-    PolygonRasterOverlay as CesiumPolygonImagery,
-    IonRasterOverlay as CesiumIonImagery,
+    PolygonRasterOverlay as CesiumPolygonRasterOverlay,
+    IonRasterOverlay as CesiumIonRasterOverlay,
 )
 from ..usdUtils import add_globe_anchor_to_prim
 from ..bindings import ICesiumOmniverseInterface
@@ -31,12 +31,12 @@ class CesiumAddMenuController:
                 onclick_fn=self._add_globe_anchor_api,
             ),
             PrimPathWidget.add_button_menu_entry(
-                "Cesium/Ion Imagery Layer",
+                "Cesium/Ion Raster Overlay",
                 show_fn=partial(self._show_add_imagery, context_menu=context_menu, usd_type=CesiumTileset),
                 onclick_fn=self._add_ion_imagery,
             ),
             PrimPathWidget.add_button_menu_entry(
-                "Cesium/Polygon Imagery Layer",
+                "Cesium/Polygon Raster Overlay",
                 show_fn=partial(self._show_add_imagery, context_menu=context_menu, usd_type=CesiumTileset),
                 onclick_fn=self._add_polygon_imagery,
             ),
@@ -57,7 +57,7 @@ class CesiumAddMenuController:
         for path in payload:
             child_path = Sdf.Path(path).AppendPath("ion_imagery")
             ion_imagery_path: str = omni.usd.get_stage_next_free_path(stage, child_path, False)
-            CesiumIonImagery.Define(stage, ion_imagery_path)
+            CesiumIonRasterOverlay.Define(stage, ion_imagery_path)
             get_property_window().request_rebuild()
 
     def _add_polygon_imagery(self, payload: PrimSelectionPayload):
@@ -65,7 +65,7 @@ class CesiumAddMenuController:
         for path in payload:
             child_path = Sdf.Path(path).AppendPath("polygon_imagery")
             polygon_imagery_path: str = omni.usd.get_stage_next_free_path(stage, child_path, False)
-            CesiumPolygonImagery.Define(stage, polygon_imagery_path)
+            CesiumPolygonRasterOverlay.Define(stage, polygon_imagery_path)
             get_property_window().request_rebuild()
 
     @staticmethod

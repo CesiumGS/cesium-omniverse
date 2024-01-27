@@ -5,7 +5,7 @@ import omni.ui as ui
 import omni.usd as usd
 from ..bindings import ICesiumOmniverseInterface
 from .models import IonAssetItem
-from ..models import AssetToAdd, ImageryToAdd
+from ..models import AssetToAdd, RasterOverlayToAdd
 from .styles import CesiumOmniverseUiStyles
 from ..usdUtils import is_tileset, get_tileset_paths
 
@@ -88,7 +88,7 @@ class CesiumAssetDetailsWidget(ui.ScrollingFrame):
                 self._add_overlay_with_tileset()
                 return
 
-        imagery_to_add = ImageryToAdd(tileset_path, self._id, self._name)
+        imagery_to_add = RasterOverlayToAdd(tileset_path, self._id, self._name)
 
         add_imagery_event = carb.events.type_from_string("cesium.omniverse.ADD_IMAGERY")
         app.get_app().get_message_bus_event_stream().push(add_imagery_event, payload=imagery_to_add.to_dict())

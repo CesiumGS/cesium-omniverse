@@ -8,7 +8,7 @@ from .ui.debug_window import CesiumOmniverseDebugWindow
 from .ui.main_window import CesiumOmniverseMainWindow
 from .ui.credits_viewport_frame import CesiumCreditsViewportFrame
 from .ui.fabric_modal import CesiumFabricModal
-from .models import AssetToAdd, ImageryToAdd
+from .models import AssetToAdd, RasterOverlayToAdd
 from .ui import CesiumAttributesWidgetController
 import asyncio
 from functools import partial
@@ -56,7 +56,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._add_imagery_subscription: Optional[carb.events.ISubscription] = None
         self._add_cartographic_polygon_subscription: Optional[carb.events.ISubscription] = None
         self._assets_to_add_after_token_set: List[AssetToAdd] = []
-        self._imagery_to_add_after_token_set: List[ImageryToAdd] = []
+        self._imagery_to_add_after_token_set: List[RasterOverlayToAdd] = []
         self._adding_assets = False
         self._attributes_widget_controller: Optional[CesiumAttributesWidgetController] = None
         self._credits_viewport_controller: Optional[CreditsViewportController] = None
@@ -343,14 +343,14 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         add_cartographic_polygon()
 
     def _on_add_imagery_to_tileset(self, event: carb.events.IEvent):
-        imagery_to_add = ImageryToAdd.from_event(event)
+        imagery_to_add = RasterOverlayToAdd.from_event(event)
 
         if imagery_to_add is None:
             self._logger.warning("Insufficient information to add imagery.")
 
         self._add_imagery_to_tileset(imagery_to_add)
 
-    def _add_imagery_to_tileset(self, imagery_to_add: ImageryToAdd):
+    def _add_imagery_to_tileset(self, imagery_to_add: RasterOverlayToAdd):
         session = _cesium_omniverse_interface.get_session()
 
         if not session.is_connected():
