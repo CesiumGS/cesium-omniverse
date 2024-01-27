@@ -223,6 +223,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumIonServer, CesiumData
     const TfToken cesiumProjectDefaultIonAccessTokenId;
+    /// \brief "cesium:rasterOverlayBinding"
+    /// 
+    /// CesiumTileset
+    const TfToken cesiumRasterOverlayBinding;
     /// \brief "cesium:selectedIonServer"
     /// 
     /// CesiumData
