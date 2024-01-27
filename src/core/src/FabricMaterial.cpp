@@ -691,18 +691,18 @@ void FabricMaterial::initializeDefaultMaterial() {
 
     if (overlayRasterOverlayLayerCount == 1) {
         // Create connection from imagery layer to shader
-        const auto& imageryLayerPath = _rasterOverlayLayerPaths[overlayRasterOverlayLayerIndices.front()];
-        createConnection(fabricStage, imageryLayerPath, shaderPath, FabricTokens::inputs_imagery_layer);
+        const auto& rasterOverlayLayerPath = _rasterOverlayLayerPaths[overlayRasterOverlayLayerIndices.front()];
+        createConnection(fabricStage, rasterOverlayLayerPath, shaderPath, FabricTokens::inputs_imagery_layer);
     } else if (overlayRasterOverlayLayerCount > 1) {
         // Create connection from imagery layer resolver to shader
         createConnection(fabricStage, _overlayRasterOverlayLayerResolverPath, shaderPath, FabricTokens::inputs_imagery_layer);
 
         // Create connections from imagery layers to imagery layer resolver
         for (uint64_t i = 0; i < overlayRasterOverlayLayerCount; ++i) {
-            const auto& imageryLayerPath = _rasterOverlayLayerPaths[overlayRasterOverlayLayerIndices[i]];
+            const auto& rasterOverlayLayerPath = _rasterOverlayLayerPaths[overlayRasterOverlayLayerIndices[i]];
             createConnection(
                 fabricStage,
-                imageryLayerPath,
+                rasterOverlayLayerPath,
                 _overlayRasterOverlayLayerResolverPath,
                 FabricTokens::inputs_imagery_layer_n(i));
         }
@@ -710,18 +710,18 @@ void FabricMaterial::initializeDefaultMaterial() {
 
     if (clippingRasterOverlayLayerCount == 1) {
         // Create connection from imagery layer to shader
-        const auto& imageryLayerPath = _rasterOverlayLayerPaths[clippingRasterOverlayLayerIndices.front()];
-        createConnection(fabricStage, imageryLayerPath, shaderPath, FabricTokens::inputs_alpha_clip);
+        const auto& rasterOverlayLayerPath = _rasterOverlayLayerPaths[clippingRasterOverlayLayerIndices.front()];
+        createConnection(fabricStage, rasterOverlayLayerPath, shaderPath, FabricTokens::inputs_alpha_clip);
     } else if (clippingRasterOverlayLayerCount > 1) {
         // Create connection from imagery layer resolver to shader
         createConnection(fabricStage, _clippingRasterOverlayLayerResolverPath, shaderPath, FabricTokens::inputs_alpha_clip);
 
         // Create connections from imagery layers to imagery layer resolver
         for (uint64_t i = 0; i < clippingRasterOverlayLayerCount; ++i) {
-            const auto& imageryLayerPath = _rasterOverlayLayerPaths[clippingRasterOverlayLayerIndices[i]];
+            const auto& rasterOverlayLayerPath = _rasterOverlayLayerPaths[clippingRasterOverlayLayerIndices[i]];
             createConnection(
                 fabricStage,
-                imageryLayerPath,
+                rasterOverlayLayerPath,
                 _clippingRasterOverlayLayerResolverPath,
                 FabricTokens::inputs_imagery_layer_n(i));
         }

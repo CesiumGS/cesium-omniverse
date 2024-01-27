@@ -23,12 +23,12 @@ FabricMaterialDescriptor::FabricMaterialDescriptor(
     const CesiumGltf::MeshPrimitive& primitive,
     const FabricMaterialInfo& materialInfo,
     const FabricFeaturesInfo& featuresInfo,
-    const FabricRasterOverlayLayersInfo& imageryLayersInfo,
+    const FabricRasterOverlayLayersInfo& rasterOverlayLayersInfo,
     const pxr::SdfPath& tilesetMaterialPath)
     : _hasVertexColors(materialInfo.hasVertexColors)
     , _hasBaseColorTexture(materialInfo.baseColorTexture.has_value())
     , _featureIdTypes(FabricFeaturesUtil::getFeatureIdTypes(featuresInfo))
-    , _imageryOverlayRenderMethods(imageryLayersInfo.overlayRenderMethods)
+    , _rasterOverlayRenderMethods(rasterOverlayLayersInfo.overlayRenderMethods)
     , _tilesetMaterialPath(tilesetMaterialPath)
     , _styleableProperties(
           // Only log warnings for unsupported properties if the tileset has a material that could potentially reference properties
@@ -47,7 +47,7 @@ const std::vector<FabricFeatureIdType>& FabricMaterialDescriptor::getFeatureIdTy
 }
 
 const std::vector<FabricOverlayRenderMethod>& FabricMaterialDescriptor::getRasterOverlayRenderMethods() const {
-    return _imageryOverlayRenderMethods;
+    return _rasterOverlayRenderMethods;
 }
 
 bool FabricMaterialDescriptor::hasTilesetMaterial() const {
@@ -69,7 +69,7 @@ bool FabricMaterialDescriptor::operator==(const FabricMaterialDescriptor& other)
     return _hasVertexColors == other._hasVertexColors &&
            _hasBaseColorTexture == other._hasBaseColorTexture &&
            _featureIdTypes == other._featureIdTypes &&
-           _imageryOverlayRenderMethods == other._imageryOverlayRenderMethods &&
+           _rasterOverlayRenderMethods == other._rasterOverlayRenderMethods &&
            _tilesetMaterialPath == other._tilesetMaterialPath &&
            _styleableProperties == other._styleableProperties;
     // clang-format on

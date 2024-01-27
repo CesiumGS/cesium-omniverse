@@ -101,8 +101,8 @@ pxr::TfToken getDynamicTextureProviderAssetPathToken(const std::string_view& nam
 
 pxr::CesiumData defineCesiumData(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::CesiumTileset defineCesiumTileset(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
-pxr::CesiumIonRasterOverlay defineCesiumIonImagery(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
-pxr::CesiumPolygonRasterOverlay defineCesiumPolygonImagery(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
+pxr::CesiumIonRasterOverlay defineCesiumIonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
+pxr::CesiumPolygonRasterOverlay defineCesiumPolygonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::CesiumGeoreference defineCesiumGeoreference(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::CesiumIonServer defineCesiumIonServer(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::CesiumGlobeAnchorAPI applyCesiumGlobeAnchor(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);

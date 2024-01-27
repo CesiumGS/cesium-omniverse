@@ -313,11 +313,11 @@ pxr::CesiumTileset defineCesiumTileset(const pxr::UsdStageWeakPtr& pStage, const
     return pxr::CesiumTileset::Define(pStage, path);
 }
 
-pxr::CesiumIonRasterOverlay defineCesiumIonImagery(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
+pxr::CesiumIonRasterOverlay defineCesiumIonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
     return pxr::CesiumIonRasterOverlay::Define(pStage, path);
 }
 
-pxr::CesiumPolygonRasterOverlay defineCesiumPolygonImagery(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
+pxr::CesiumPolygonRasterOverlay defineCesiumPolygonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
     return pxr::CesiumPolygonRasterOverlay::Define(pStage, path);
 }
 

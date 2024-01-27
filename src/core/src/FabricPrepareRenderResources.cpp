@@ -160,14 +160,14 @@ std::vector<FabricMesh> acquireFabricMeshes(
 
         // Map glTF texcoord set index to primvar st index
         const auto texcoordSetIndexes = GltfUtil::getTexcoordSetIndexes(model, primitive);
-        const auto imageryTexcoordSetIndexes = GltfUtil::getRasterOverlayTexcoordSetIndexes(model, primitive);
+        const auto rasterOverlayTexcoordSetIndexes = GltfUtil::getRasterOverlayTexcoordSetIndexes(model, primitive);
 
         uint64_t primvarStIndex = 0;
         for (const auto gltfSetIndex : texcoordSetIndexes) {
             fabricMesh.texcoordIndexMapping[gltfSetIndex] = primvarStIndex++;
         }
-        for (const auto gltfSetIndex : imageryTexcoordSetIndexes) {
-            fabricMesh.imageryTexcoordIndexMapping[gltfSetIndex] = primvarStIndex++;
+        for (const auto gltfSetIndex : rasterOverlayTexcoordSetIndexes) {
+            fabricMesh.rasterOverlayTexcoordIndexMapping[gltfSetIndex] = primvarStIndex++;
         }
 
         // Map feature id types to set indexes
@@ -269,7 +269,7 @@ void setFabricMeshes(
             fabricMesh.materialInfo,
             smoothNormals,
             fabricMesh.texcoordIndexMapping,
-            fabricMesh.imageryTexcoordIndexMapping);
+            fabricMesh.rasterOverlayTexcoordIndexMapping);
 
         if (pMaterial) {
             pMaterial->setMaterial(
@@ -355,15 +355,15 @@ FabricPrepareRenderResources::prepareInLoadThread(
     // blending still works.
     const auto overlapsRasterOverlay = tileLoadResult.rasterOverlayDetails.has_value();
 
-    FabricRasterOverlayLayersInfo imageryLayersInfo;
-    const auto imageryLayerCount = overlapsRasterOverlay ? _pTileset->getRasterOverlayLayerCount() : 0;
-    if (imageryLayerCount > 0) {
-        for (uint64_t i = 0; i < imageryLayerCount; i++) {
-            const auto& imageryLayerPath = _pTileset->getRasterOverlayLayerPath(i);
-            const auto& pRasterOverlay = _pContext->getAssetRegistry().getRasterOverlay(imageryLayerPath);
+    FabricRasterOverlayLayersInfo rasterOverlayLayersInfo;
+    const auto rasterOverlayLayerCount = overlapsRasterOverlay ? _pTileset->getRasterOverlayLayerCount() : 0;
+    if (rasterOverlayLayerCount > 0) {
+        for (uint64_t i = 0; i < rasterOverlayLayerCount; i++) {
+            const auto& rasterOverlayLayerPath = _pTileset->getRasterOverlayLayerPath(i);
+            const auto& pRasterOverlay = _pContext->getAssetRegistry().getRasterOverlay(rasterOverlayLayerPath);
             const auto overlayRenderMethod =
                 pRasterOverlay ? pRasterOverlay->getOverlayRenderMethod() : FabricOverlayRenderMethod::OVERLAY;
-            imageryLayersInfo.overlayRenderMethods.push_back(overlayRenderMethod);
+            rasterOverlayLayersInfo.overlayRenderMethods.push_back(overlayRenderMethod);
         }
     }
 
@@ -377,7 +377,7 @@ FabricPrepareRenderResources::prepareInLoadThread(
 
     return asyncSystem
         .runInMainThread([this,
-                          imageryLayersInfo = std::move(imageryLayersInfo),
+                          rasterOverlayLayersInfo = std::move(rasterOverlayLayersInfo),
                           loadingMeshes = std::move(loadingMeshes),
                           tileLoadResult = std::move(tileLoadResult)]() mutable {
             if (!tilesetExists()) {
@@ -389,7 +389,7 @@ FabricPrepareRenderResources::prepareInLoadThread(
             }
 
             const auto pModel = std::get_if<CesiumGltf::Model>(&tileLoadResult.contentKind);
-            auto fabricMeshes = acquireFabricMeshes(*_pContext, *pModel, loadingMeshes, imageryLayersInfo, *_pTileset);
+            auto fabricMeshes = acquireFabricMeshes(*_pContext, *pModel, loadingMeshes, rasterOverlayLayersInfo, *_pTileset);
             return IntermediateLoadThreadResult{
                 std::move(tileLoadResult),
                 std::move(loadingMeshes),
@@ -540,12 +540,12 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
         return;
     }
 
-    const auto imageryLayerIndex = _pTileset->getRasterOverlayLayerIndex(rasterTile.getOverlay());
-    if (!imageryLayerIndex.has_value()) {
+    const auto rasterOverlayLayerIndex = _pTileset->getRasterOverlayLayerIndex(rasterTile.getOverlay());
+    if (!rasterOverlayLayerIndex.has_value()) {
         return;
     }
 
-    const auto alpha = _pTileset->getRasterOverlayLayerAlpha(imageryLayerIndex.value());
+    const auto alpha = _pTileset->getRasterOverlayLayerAlpha(rasterOverlayLayerIndex.value());
 
     for (const auto& fabricMesh : pFabricRenderResources->fabricMeshes) {
         const auto pMaterial = fabricMesh.pMaterial;
@@ -562,7 +562,7 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
                 {},
             };
             pMaterial->setRasterOverlayLayer(
-                pTexture, textureInfo, imageryLayerIndex.value(), alpha, fabricMesh.imageryTexcoordIndexMapping);
+                pTexture, textureInfo, rasterOverlayLayerIndex.value(), alpha, fabricMesh.rasterOverlayTexcoordIndexMapping);
         }
     }
 }
@@ -588,15 +588,15 @@ void FabricPrepareRenderResources::detachRasterInMainThread(
         return;
     }
 
-    const auto imageryLayerIndex = _pTileset->getRasterOverlayLayerIndex(rasterTile.getOverlay());
-    if (!imageryLayerIndex.has_value()) {
+    const auto rasterOverlayLayerIndex = _pTileset->getRasterOverlayLayerIndex(rasterTile.getOverlay());
+    if (!rasterOverlayLayerIndex.has_value()) {
         return;
     }
 
     for (const auto& fabricMesh : pFabricRenderResources->fabricMeshes) {
         const auto pMaterial = fabricMesh.pMaterial;
         if (pMaterial) {
-            pMaterial->clearRasterOverlayLayer(imageryLayerIndex.value());
+            pMaterial->clearRasterOverlayLayer(rasterOverlayLayerIndex.value());
         }
     }
 }

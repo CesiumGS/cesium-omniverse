@@ -67,7 +67,7 @@ TEST_SUITE("Test GltfUtil") {
 
         CHECK(GltfUtil::hasNormals(model, prim, false) == expectedResults["hasNormals"].as<bool>());
         CHECK(GltfUtil::hasTexcoords(model, prim, 0) == expectedResults["hasTexcoords"].as<bool>());
-        CHECK(GltfUtil::hasRasterOverlayTexcoords(model, prim, 0) == expectedResults["hasImageryTexcoords"].as<bool>());
+        CHECK(GltfUtil::hasRasterOverlayTexcoords(model, prim, 0) == expectedResults["hasRasterOverlayTexcoords"].as<bool>());
         CHECK(GltfUtil::hasVertexColors(model, prim, 0) == expectedResults["hasVertexColors"].as<bool>());
         CHECK(GltfUtil::hasMaterial(prim) == expectedResults["hasMaterial"].as<bool>());
 
