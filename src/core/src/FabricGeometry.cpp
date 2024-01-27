@@ -319,7 +319,7 @@ void FabricGeometry::setGeometry(
     const FabricMaterialInfo& materialInfo,
     bool smoothNormals,
     const std::unordered_map<uint64_t, uint64_t>& texcoordIndexMapping,
-    const std::unordered_map<uint64_t, uint64_t>& imageryTexcoordIndexMapping) {
+    const std::unordered_map<uint64_t, uint64_t>& rasterOverlayTexcoordIndexMapping) {
 
     if (stageDestroyed()) {
         return;
@@ -477,8 +477,8 @@ void FabricGeometry::setGeometry(
             fillTexcoords(primvarStIndex, texcoords);
         }
 
-        for (const auto& [gltfSetIndex, primvarStIndex] : imageryTexcoordIndexMapping) {
-            const auto texcoords = GltfUtil::getImageryTexcoords(model, primitive, gltfSetIndex);
+        for (const auto& [gltfSetIndex, primvarStIndex] : rasterOverlayTexcoordIndexMapping) {
+            const auto texcoords = GltfUtil::getRasterOverlayTexcoords(model, primitive, gltfSetIndex);
             fillTexcoords(primvarStIndex, texcoords);
         }
 

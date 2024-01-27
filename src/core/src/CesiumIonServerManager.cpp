@@ -6,7 +6,7 @@
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/CppUtil.h"
 #include "cesium/omniverse/OmniData.h"
-#include "cesium/omniverse/OmniIonImagery.h"
+#include "cesium/omniverse/OmniIonRasterOverlay.h"
 #include "cesium/omniverse/OmniIonServer.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/TokenTroubleshootingDetails.h"
@@ -310,7 +310,7 @@ void CesiumIonServerManager::updateTroubleshootingDetails(
 void CesiumIonServerManager::updateTroubleshootingDetails(
     const pxr::SdfPath& tilesetPath,
     [[maybe_unused]] int64_t tilesetIonAssetId,
-    int64_t imageryIonAssetId,
+    int64_t rasterOverlayIonAssetId,
     uint64_t tokenEventId,
     uint64_t assetEventId) {
     const auto pTileset = _pContext->getAssetRegistry().getTileset(tilesetPath);
@@ -318,13 +318,14 @@ void CesiumIonServerManager::updateTroubleshootingDetails(
         return;
     }
 
-    const auto pIonImagery = _pContext->getAssetRegistry().getIonImageryByIonAssetId(imageryIonAssetId);
-    if (!pIonImagery) {
+    const auto pIonRasterOverlay =
+        _pContext->getAssetRegistry().getIonRasterOverlayByIonAssetId(rasterOverlayIonAssetId);
+    if (!pIonRasterOverlay) {
         return;
     }
 
     _assetTroubleshootingDetails = AssetTroubleshootingDetails();
-    updateAssetTroubleshootingDetails(imageryIonAssetId, assetEventId, _assetTroubleshootingDetails.value());
+    updateAssetTroubleshootingDetails(rasterOverlayIonAssetId, assetEventId, _assetTroubleshootingDetails.value());
 
     _defaultTokenTroubleshootingDetails = TokenTroubleshootingDetails();
 
@@ -332,15 +333,18 @@ void CesiumIonServerManager::updateTroubleshootingDetails(
     if (defaultToken.has_value()) {
         const auto& token = defaultToken.value().token;
         updateTokenTroubleshootingDetails(
-            imageryIonAssetId, token, tokenEventId, _defaultTokenTroubleshootingDetails.value());
+            rasterOverlayIonAssetId, token, tokenEventId, _defaultTokenTroubleshootingDetails.value());
     }
 
     _assetTokenTroubleshootingDetails = TokenTroubleshootingDetails();
 
-    auto imageryIonAccessToken = pIonImagery->getIonAccessToken();
-    if (!imageryIonAccessToken.token.empty()) {
+    auto rasterOverlayIonAccessToken = pIonRasterOverlay->getIonAccessToken();
+    if (!rasterOverlayIonAccessToken.token.empty()) {
         updateTokenTroubleshootingDetails(
-            imageryIonAssetId, imageryIonAccessToken.token, tokenEventId, _assetTokenTroubleshootingDetails.value());
+            rasterOverlayIonAssetId,
+            rasterOverlayIonAccessToken.token,
+            tokenEventId,
+            _assetTokenTroubleshootingDetails.value());
     }
 }
 

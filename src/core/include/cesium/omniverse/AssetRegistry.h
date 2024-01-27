@@ -13,18 +13,18 @@ class OmniCartographicPolygon;
 class OmniData;
 class OmniGeoreference;
 class OmniGlobeAnchor;
-class OmniImagery;
-class OmniIonImagery;
+class OmniRasterOverlay;
+class OmniIonRasterOverlay;
 class OmniIonServer;
-class OmniPolygonImagery;
+class OmniPolygonRasterOverlay;
 class OmniTileset;
 struct Viewport;
 
 enum AssetType {
     DATA,
     TILESET,
-    ION_IMAGERY,
-    POLYGON_IMAGERY,
+    ION_RASTER_OVERLAY,
+    POLYGON_RASTER_OVERLAY,
     GEOREFERENCE,
     GLOBE_ANCHOR,
     ION_SERVER,
@@ -53,18 +53,18 @@ class AssetRegistry {
     [[nodiscard]] OmniTileset* getTileset(const pxr::SdfPath& path) const;
     [[nodiscard]] const std::vector<std::unique_ptr<OmniTileset>>& getTilesets() const;
 
-    OmniIonImagery& addIonImagery(const pxr::SdfPath& path);
-    void removeIonImagery(const pxr::SdfPath& path);
-    [[nodiscard]] OmniIonImagery* getIonImagery(const pxr::SdfPath& path) const;
-    [[nodiscard]] OmniIonImagery* getIonImageryByIonAssetId(int64_t ionAssetId) const;
-    [[nodiscard]] const std::vector<std::unique_ptr<OmniIonImagery>>& getIonImageries() const;
+    OmniIonRasterOverlay& addIonRasterOverlay(const pxr::SdfPath& path);
+    void removeIonRasterOverlay(const pxr::SdfPath& path);
+    [[nodiscard]] OmniIonRasterOverlay* getIonRasterOverlay(const pxr::SdfPath& path) const;
+    [[nodiscard]] OmniIonRasterOverlay* getIonRasterOverlayByIonAssetId(int64_t ionAssetId) const;
+    [[nodiscard]] const std::vector<std::unique_ptr<OmniIonRasterOverlay>>& getIonRasterOverlays() const;
 
-    OmniPolygonImagery& addPolygonImagery(const pxr::SdfPath& path);
-    void removePolygonImagery(const pxr::SdfPath& path);
-    [[nodiscard]] OmniPolygonImagery* getPolygonImagery(const pxr::SdfPath& path) const;
-    [[nodiscard]] const std::vector<std::unique_ptr<OmniPolygonImagery>>& getPolygonImageries() const;
+    OmniPolygonRasterOverlay& addPolygonRasterOverlay(const pxr::SdfPath& path);
+    void removePolygonRasterOverlay(const pxr::SdfPath& path);
+    [[nodiscard]] OmniPolygonRasterOverlay* getPolygonRasterOverlay(const pxr::SdfPath& path) const;
+    [[nodiscard]] const std::vector<std::unique_ptr<OmniPolygonRasterOverlay>>& getPolygonRasterOverlays() const;
 
-    [[nodiscard]] OmniImagery* getImagery(const pxr::SdfPath& path) const;
+    [[nodiscard]] OmniRasterOverlay* getRasterOverlay(const pxr::SdfPath& path) const;
 
     OmniGeoreference& addGeoreference(const pxr::SdfPath& path);
     void removeGeoreference(const pxr::SdfPath& path);
@@ -97,8 +97,8 @@ class AssetRegistry {
     Context* _pContext;
     std::vector<std::unique_ptr<OmniData>> _datas;
     std::vector<std::unique_ptr<OmniTileset>> _tilesets;
-    std::vector<std::unique_ptr<OmniIonImagery>> _ionImageries;
-    std::vector<std::unique_ptr<OmniPolygonImagery>> _polygonImageries;
+    std::vector<std::unique_ptr<OmniIonRasterOverlay>> _ionRasterOverlays;
+    std::vector<std::unique_ptr<OmniPolygonRasterOverlay>> _polygonRasterOverlays;
     std::vector<std::unique_ptr<OmniGeoreference>> _georeferences;
     std::vector<std::unique_ptr<OmniGlobeAnchor>> _globeAnchors;
     std::vector<std::unique_ptr<OmniIonServer>> _ionServers;

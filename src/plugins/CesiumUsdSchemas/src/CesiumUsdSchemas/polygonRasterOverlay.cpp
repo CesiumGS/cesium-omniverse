@@ -1,4 +1,4 @@
-#include ".//polygonImagery.h"
+#include ".//polygonRasterOverlay.h"
 #include "pxr/usd/usd/schemaRegistry.h"
 #include "pxr/usd/usd/typed.h"
 
@@ -10,64 +10,64 @@ PXR_NAMESPACE_OPEN_SCOPE
 // Register the schema with the TfType system.
 TF_REGISTRY_FUNCTION(TfType)
 {
-    TfType::Define<CesiumPolygonImagery,
-        TfType::Bases< CesiumImagery > >();
+    TfType::Define<CesiumPolygonRasterOverlay,
+        TfType::Bases< CesiumRasterOverlay > >();
     
     // Register the usd prim typename as an alias under UsdSchemaBase. This
     // enables one to call
-    // TfType::Find<UsdSchemaBase>().FindDerivedByName("CesiumPolygonImageryPrim")
-    // to find TfType<CesiumPolygonImagery>, which is how IsA queries are
+    // TfType::Find<UsdSchemaBase>().FindDerivedByName("CesiumPolygonRasterOverlayPrim")
+    // to find TfType<CesiumPolygonRasterOverlay>, which is how IsA queries are
     // answered.
-    TfType::AddAlias<UsdSchemaBase, CesiumPolygonImagery>("CesiumPolygonImageryPrim");
+    TfType::AddAlias<UsdSchemaBase, CesiumPolygonRasterOverlay>("CesiumPolygonRasterOverlayPrim");
 }
 
 /* virtual */
-CesiumPolygonImagery::~CesiumPolygonImagery()
+CesiumPolygonRasterOverlay::~CesiumPolygonRasterOverlay()
 {
 }
 
 /* static */
-CesiumPolygonImagery
-CesiumPolygonImagery::Get(const UsdStagePtr &stage, const SdfPath &path)
+CesiumPolygonRasterOverlay
+CesiumPolygonRasterOverlay::Get(const UsdStagePtr &stage, const SdfPath &path)
 {
     if (!stage) {
         TF_CODING_ERROR("Invalid stage");
-        return CesiumPolygonImagery();
+        return CesiumPolygonRasterOverlay();
     }
-    return CesiumPolygonImagery(stage->GetPrimAtPath(path));
+    return CesiumPolygonRasterOverlay(stage->GetPrimAtPath(path));
 }
 
 /* static */
-CesiumPolygonImagery
-CesiumPolygonImagery::Define(
+CesiumPolygonRasterOverlay
+CesiumPolygonRasterOverlay::Define(
     const UsdStagePtr &stage, const SdfPath &path)
 {
-    static TfToken usdPrimTypeName("CesiumPolygonImageryPrim");
+    static TfToken usdPrimTypeName("CesiumPolygonRasterOverlayPrim");
     if (!stage) {
         TF_CODING_ERROR("Invalid stage");
-        return CesiumPolygonImagery();
+        return CesiumPolygonRasterOverlay();
     }
-    return CesiumPolygonImagery(
+    return CesiumPolygonRasterOverlay(
         stage->DefinePrim(path, usdPrimTypeName));
 }
 
 /* virtual */
-UsdSchemaKind CesiumPolygonImagery::_GetSchemaKind() const
+UsdSchemaKind CesiumPolygonRasterOverlay::_GetSchemaKind() const
 {
-    return CesiumPolygonImagery::schemaKind;
+    return CesiumPolygonRasterOverlay::schemaKind;
 }
 
 /* static */
 const TfType &
-CesiumPolygonImagery::_GetStaticTfType()
+CesiumPolygonRasterOverlay::_GetStaticTfType()
 {
-    static TfType tfType = TfType::Find<CesiumPolygonImagery>();
+    static TfType tfType = TfType::Find<CesiumPolygonRasterOverlay>();
     return tfType;
 }
 
 /* static */
 bool 
-CesiumPolygonImagery::_IsTypedSchema()
+CesiumPolygonRasterOverlay::_IsTypedSchema()
 {
     static bool isTyped = _GetStaticTfType().IsA<UsdTyped>();
     return isTyped;
@@ -75,19 +75,19 @@ CesiumPolygonImagery::_IsTypedSchema()
 
 /* virtual */
 const TfType &
-CesiumPolygonImagery::_GetTfType() const
+CesiumPolygonRasterOverlay::_GetTfType() const
 {
     return _GetStaticTfType();
 }
 
 UsdRelationship
-CesiumPolygonImagery::GetCartographicPolygonBindingRel() const
+CesiumPolygonRasterOverlay::GetCartographicPolygonBindingRel() const
 {
     return GetPrim().GetRelationship(CesiumTokens->cesiumCartographicPolygonBinding);
 }
 
 UsdRelationship
-CesiumPolygonImagery::CreateCartographicPolygonBindingRel() const
+CesiumPolygonRasterOverlay::CreateCartographicPolygonBindingRel() const
 {
     return GetPrim().CreateRelationship(CesiumTokens->cesiumCartographicPolygonBinding,
                        /* custom = */ false);
@@ -95,11 +95,11 @@ CesiumPolygonImagery::CreateCartographicPolygonBindingRel() const
 
 /*static*/
 const TfTokenVector&
-CesiumPolygonImagery::GetSchemaAttributeNames(bool includeInherited)
+CesiumPolygonRasterOverlay::GetSchemaAttributeNames(bool includeInherited)
 {
     static TfTokenVector localNames;
     static TfTokenVector allNames =
-        CesiumImagery::GetSchemaAttributeNames(true);
+        CesiumRasterOverlay::GetSchemaAttributeNames(true);
 
     if (includeInherited)
         return allNames;

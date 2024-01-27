@@ -8,10 +8,10 @@
 #include "cesium/omniverse/OmniCartographicPolygon.h"
 #include "cesium/omniverse/OmniGeoreference.h"
 #include "cesium/omniverse/OmniGlobeAnchor.h"
-#include "cesium/omniverse/OmniImagery.h"
-#include "cesium/omniverse/OmniIonImagery.h"
+#include "cesium/omniverse/OmniIonRasterOverlay.h"
 #include "cesium/omniverse/OmniIonServer.h"
-#include "cesium/omniverse/OmniPolygonImagery.h"
+#include "cesium/omniverse/OmniPolygonRasterOverlay.h"
+#include "cesium/omniverse/OmniRasterOverlay.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/UsdTokens.h"
 #include "cesium/omniverse/UsdUtil.h"
@@ -38,28 +38,28 @@ bool isPrimOrDescendant(const pxr::SdfPath& descendantPath, const pxr::SdfPath& 
     return false;
 }
 
-void updateImageryBindings(const Context& context, const pxr::SdfPath& imageryPath) {
+void updateRasterOverlayBindings(const Context& context, const pxr::SdfPath& rasterOverlayPath) {
     const auto& tilesets = context.getAssetRegistry().getTilesets();
 
-    // Update all tilesets since they reference imagery layers implicitly
-    // In the future this should only update tilesets that have a rel to the imagery
+    // Update all tilesets since they reference raster overlay layers implicitly
+    // In the future this should only update tilesets that have a rel to the raster overlay
     for (const auto& pTileset : tilesets) {
         pTileset->reload();
     }
 
-    (void)imageryPath;
+    (void)rasterOverlayPath;
 }
 
-void updateImageryBindingsAlpha(const Context& context, const pxr::SdfPath& imageryPath) {
+void updateRasterOverlayBindingsAlpha(const Context& context, const pxr::SdfPath& rasterOverlayPath) {
     const auto& tilesets = context.getAssetRegistry().getTilesets();
 
-    // Update tilesets that reference this imagery
+    // Update tilesets that reference this raster overlay
     for (const auto& pTileset : tilesets) {
-        const auto imageryLayerCount = pTileset->getImageryLayerCount();
-        for (uint64_t i = 0; i < imageryLayerCount; ++i) {
-            const auto imageryLayerPath = pTileset->getImageryLayerPath(i);
-            if (imageryLayerPath == imageryPath) {
-                pTileset->updateImageryLayerAlpha(i);
+        const auto rasterOverlayLayerCount = pTileset->getRasterOverlayLayerCount();
+        for (uint64_t i = 0; i < rasterOverlayLayerCount; ++i) {
+            const auto rasterOverlayLayerPath = pTileset->getRasterOverlayLayerPath(i);
+            if (rasterOverlayLayerPath == rasterOverlayPath) {
+                pTileset->updateRasterOverlayLayerAlpha(i);
             }
         }
     }
@@ -72,22 +72,22 @@ void updateIonServerBindings(const Context& context) {
         pTileset->reload();
     }
 
-    // Update all imageries. Some imageries may have referenced this ion server implicitly.
-    const auto& ionImageries = context.getAssetRegistry().getIonImageries();
-    for (const auto& pIonImagery : ionImageries) {
-        pIonImagery->reload();
-        updateImageryBindings(context, pIonImagery->getPath());
+    // Update all raster overlays. Some raster overlays may have referenced this ion server implicitly.
+    const auto& ionRasterOverlays = context.getAssetRegistry().getIonRasterOverlays();
+    for (const auto& pIonRasterOverlay : ionRasterOverlays) {
+        pIonRasterOverlay->reload();
+        updateRasterOverlayBindings(context, pIonRasterOverlay->getPath());
     }
 }
 
 void updateCartographicPolygonBindings(const Context& context, const pxr::SdfPath& cartographicPolygonPath) {
-    // Update polygon imageries that reference this cartographic polygon
-    const auto& polygonImageries = context.getAssetRegistry().getPolygonImageries();
-    for (const auto& pPolygonImagery : polygonImageries) {
-        const auto paths = pPolygonImagery->getCartographicPolygonPaths();
+    // Update polygon raster overlays that reference this cartographic polygon
+    const auto& polygonRasterOverlays = context.getAssetRegistry().getPolygonRasterOverlays();
+    for (const auto& pPolygonRasterOverlay : polygonRasterOverlays) {
+        const auto paths = pPolygonRasterOverlay->getCartographicPolygonPaths();
         if (CppUtil::contains(paths, cartographicPolygonPath)) {
-            pPolygonImagery->reload();
-            updateImageryBindings(context, pPolygonImagery->getPath());
+            pPolygonRasterOverlay->reload();
+            updateRasterOverlayBindings(context, pPolygonRasterOverlay->getPath());
         }
     }
 }
@@ -221,18 +221,18 @@ void processCesiumTilesetChanged(
     }
 }
 
-void processCesiumImageryChanged(
+void processCesiumRasterOverlayChanged(
     const Context& context,
-    const pxr::SdfPath& imageryPath,
+    const pxr::SdfPath& rasterOverlayPath,
     const std::vector<pxr::TfToken>& properties) {
-    const auto pImagery = context.getAssetRegistry().getImagery(imageryPath);
-    if (!pImagery) {
+    const auto pRasterOverlay = context.getAssetRegistry().getRasterOverlay(rasterOverlayPath);
+    if (!pRasterOverlay) {
         return;
     }
 
     auto reload = false;
     auto updateBindings = false;
-    auto updateImageryLayerAlpha = false;
+    auto updateRasterOverlayLayerAlpha = false;
 
     for (const auto& property : properties) {
         if (property == pxr::CesiumTokens->cesiumShowCreditsOnScreen) {
@@ -241,34 +241,34 @@ void processCesiumImageryChanged(
         } else if (property == pxr::CesiumTokens->cesiumOverlayRenderMethod) {
             updateBindings = true;
         } else if (property == pxr::CesiumTokens->cesiumAlpha) {
-            updateImageryLayerAlpha = true;
+            updateRasterOverlayLayerAlpha = true;
         }
     }
 
     if (reload) {
-        pImagery->reload();
+        pRasterOverlay->reload();
     }
 
     if (updateBindings) {
-        updateImageryBindings(context, imageryPath);
+        updateRasterOverlayBindings(context, rasterOverlayPath);
     }
 
-    if (updateImageryLayerAlpha) {
-        updateImageryBindingsAlpha(context, imageryPath);
+    if (updateRasterOverlayLayerAlpha) {
+        updateRasterOverlayBindingsAlpha(context, rasterOverlayPath);
     }
 }
 
-void processCesiumIonImageryChanged(
+void processCesiumIonRasterOverlayChanged(
     const Context& context,
-    const pxr::SdfPath& ionImageryPath,
+    const pxr::SdfPath& ionRasterOverlayPath,
     const std::vector<pxr::TfToken>& properties) {
-    const auto pIonImagery = context.getAssetRegistry().getIonImagery(ionImageryPath);
-    if (!pIonImagery) {
+    const auto pIonRasterOverlay = context.getAssetRegistry().getIonRasterOverlay(ionRasterOverlayPath);
+    if (!pIonRasterOverlay) {
         return;
     }
 
     // Process base class first
-    processCesiumImageryChanged(context, ionImageryPath, properties);
+    processCesiumRasterOverlayChanged(context, ionRasterOverlayPath, properties);
 
     auto reload = false;
     auto updateBindings = false;
@@ -282,25 +282,25 @@ void processCesiumIonImageryChanged(
     }
 
     if (reload) {
-        pIonImagery->reload();
+        pIonRasterOverlay->reload();
     }
 
     if (updateBindings) {
-        updateImageryBindings(context, ionImageryPath);
+        updateRasterOverlayBindings(context, ionRasterOverlayPath);
     }
 }
 
-void processCesiumPolygonImageryChanged(
+void processCesiumPolygonRasterOverlayChanged(
     const Context& context,
-    const pxr::SdfPath& polygonImageryPath,
+    const pxr::SdfPath& polygonRasterOverlayPath,
     const std::vector<pxr::TfToken>& properties) {
-    const auto pPolygonImagery = context.getAssetRegistry().getPolygonImagery(polygonImageryPath);
-    if (!pPolygonImagery) {
+    const auto pPolygonRasterOverlay = context.getAssetRegistry().getPolygonRasterOverlay(polygonRasterOverlayPath);
+    if (!pPolygonRasterOverlay) {
         return;
     }
 
     // Process base class first
-    processCesiumImageryChanged(context, polygonImageryPath, properties);
+    processCesiumRasterOverlayChanged(context, polygonRasterOverlayPath, properties);
 
     auto reload = false;
     auto updateBindings = false;
@@ -313,11 +313,11 @@ void processCesiumPolygonImageryChanged(
     }
 
     if (reload) {
-        pPolygonImagery->reload();
+        pPolygonRasterOverlay->reload();
     }
 
     if (updateBindings) {
-        updateImageryBindings(context, polygonImageryPath);
+        updateRasterOverlayBindings(context, polygonRasterOverlayPath);
     }
 }
 
@@ -539,14 +539,14 @@ void processCesiumTilesetRemoved(Context& context, const pxr::SdfPath& tilesetPa
     context.getAssetRegistry().removeTileset(tilesetPath);
 }
 
-void processCesiumIonImageryRemoved(Context& context, const pxr::SdfPath& ionImageryPath) {
-    context.getAssetRegistry().removeIonImagery(ionImageryPath);
-    updateImageryBindings(context, ionImageryPath);
+void processCesiumIonRasterOverlayRemoved(Context& context, const pxr::SdfPath& ionRasterOverlayPath) {
+    context.getAssetRegistry().removeIonRasterOverlay(ionRasterOverlayPath);
+    updateRasterOverlayBindings(context, ionRasterOverlayPath);
 }
 
-void processCesiumPolygonImageryRemoved(Context& context, const pxr::SdfPath& polygonImageryPath) {
-    context.getAssetRegistry().removePolygonImagery(polygonImageryPath);
-    updateImageryBindings(context, polygonImageryPath);
+void processCesiumPolygonRasterOverlayRemoved(Context& context, const pxr::SdfPath& polygonRasterOverlayPath) {
+    context.getAssetRegistry().removePolygonRasterOverlay(polygonRasterOverlayPath);
+    updateRasterOverlayBindings(context, polygonRasterOverlayPath);
 }
 
 void processCesiumGeoreferenceRemoved(Context& context, const pxr::SdfPath& georeferencePath) {
@@ -579,14 +579,14 @@ void processCesiumTilesetAdded(Context& context, const pxr::SdfPath& tilesetPath
     context.getAssetRegistry().addTileset(tilesetPath);
 }
 
-void processCesiumIonImageryAdded(Context& context, const pxr::SdfPath& ionImageryPath) {
-    context.getAssetRegistry().addIonImagery(ionImageryPath);
-    updateImageryBindings(context, ionImageryPath);
+void processCesiumIonRasterOverlayAdded(Context& context, const pxr::SdfPath& ionRasterOverlayPath) {
+    context.getAssetRegistry().addIonRasterOverlay(ionRasterOverlayPath);
+    updateRasterOverlayBindings(context, ionRasterOverlayPath);
 }
 
-void processCesiumPolygonImageryAdded(Context& context, const pxr::SdfPath& polygonImageryPath) {
-    context.getAssetRegistry().addPolygonImagery(polygonImageryPath);
-    updateImageryBindings(context, polygonImageryPath);
+void processCesiumPolygonRasterOverlayAdded(Context& context, const pxr::SdfPath& polygonRasterOverlayPath) {
+    context.getAssetRegistry().addPolygonRasterOverlay(polygonRasterOverlayPath);
+    updateRasterOverlayBindings(context, polygonRasterOverlayPath);
 }
 
 void processCesiumGeoreferenceAdded(Context& context, const pxr::SdfPath& georeferencePath) {
@@ -700,11 +700,11 @@ bool UsdNotificationHandler::processChangedPrim(const ChangedPrim& changedPrim) 
                 case ChangedPrimType::CESIUM_TILESET:
                     processCesiumTilesetChanged(*_pContext, changedPrim.primPath, changedPrim.properties);
                     break;
-                case ChangedPrimType::CESIUM_ION_IMAGERY:
-                    processCesiumIonImageryChanged(*_pContext, changedPrim.primPath, changedPrim.properties);
+                case ChangedPrimType::CESIUM_ION_RASTER_OVERLAY:
+                    processCesiumIonRasterOverlayChanged(*_pContext, changedPrim.primPath, changedPrim.properties);
                     break;
-                case ChangedPrimType::CESIUM_POLYGON_IMAGERY:
-                    processCesiumPolygonImageryChanged(*_pContext, changedPrim.primPath, changedPrim.properties);
+                case ChangedPrimType::CESIUM_POLYGON_RASTER_OVERLAY:
+                    processCesiumPolygonRasterOverlayChanged(*_pContext, changedPrim.primPath, changedPrim.properties);
                     break;
                 case ChangedPrimType::CESIUM_GEOREFERENCE:
                     processCesiumGeoreferenceChanged(*_pContext, changedPrim.properties);
@@ -733,11 +733,11 @@ bool UsdNotificationHandler::processChangedPrim(const ChangedPrim& changedPrim) 
                 case ChangedPrimType::CESIUM_TILESET:
                     processCesiumTilesetAdded(*_pContext, changedPrim.primPath);
                     break;
-                case ChangedPrimType::CESIUM_ION_IMAGERY:
-                    processCesiumIonImageryAdded(*_pContext, changedPrim.primPath);
+                case ChangedPrimType::CESIUM_ION_RASTER_OVERLAY:
+                    processCesiumIonRasterOverlayAdded(*_pContext, changedPrim.primPath);
                     break;
-                case ChangedPrimType::CESIUM_POLYGON_IMAGERY:
-                    processCesiumPolygonImageryAdded(*_pContext, changedPrim.primPath);
+                case ChangedPrimType::CESIUM_POLYGON_RASTER_OVERLAY:
+                    processCesiumPolygonRasterOverlayAdded(*_pContext, changedPrim.primPath);
                     break;
                 case ChangedPrimType::CESIUM_GEOREFERENCE:
                     processCesiumGeoreferenceAdded(*_pContext, changedPrim.primPath);
@@ -764,11 +764,11 @@ bool UsdNotificationHandler::processChangedPrim(const ChangedPrim& changedPrim) 
                 case ChangedPrimType::CESIUM_TILESET:
                     processCesiumTilesetRemoved(*_pContext, changedPrim.primPath);
                     break;
-                case ChangedPrimType::CESIUM_ION_IMAGERY:
-                    processCesiumIonImageryRemoved(*_pContext, changedPrim.primPath);
+                case ChangedPrimType::CESIUM_ION_RASTER_OVERLAY:
+                    processCesiumIonRasterOverlayRemoved(*_pContext, changedPrim.primPath);
                     break;
-                case ChangedPrimType::CESIUM_POLYGON_IMAGERY:
-                    processCesiumPolygonImageryRemoved(*_pContext, changedPrim.primPath);
+                case ChangedPrimType::CESIUM_POLYGON_RASTER_OVERLAY:
+                    processCesiumPolygonRasterOverlayRemoved(*_pContext, changedPrim.primPath);
                     break;
                 case ChangedPrimType::CESIUM_GEOREFERENCE:
                     processCesiumGeoreferenceRemoved(*_pContext, changedPrim.primPath);
@@ -875,19 +875,19 @@ void UsdNotificationHandler::onPrimRemoved(const pxr::SdfPath& primPath) {
         }
     }
 
-    const auto& ionImageries = _pContext->getAssetRegistry().getIonImageries();
-    for (const auto& pIonImagery : ionImageries) {
-        const auto ionImageryPath = pIonImagery->getPath();
-        if (isPrimOrDescendant(ionImageryPath, primPath)) {
-            insertRemovedPrim(ionImageryPath, ChangedPrimType::CESIUM_ION_IMAGERY);
+    const auto& ionRasterOverlays = _pContext->getAssetRegistry().getIonRasterOverlays();
+    for (const auto& pIonRasterOverlay : ionRasterOverlays) {
+        const auto ionRasterOverlayPath = pIonRasterOverlay->getPath();
+        if (isPrimOrDescendant(ionRasterOverlayPath, primPath)) {
+            insertRemovedPrim(ionRasterOverlayPath, ChangedPrimType::CESIUM_ION_RASTER_OVERLAY);
         }
     }
 
-    const auto& polygonImageries = _pContext->getAssetRegistry().getPolygonImageries();
-    for (const auto& pPolygonImagery : polygonImageries) {
-        const auto polygonImageryPath = pPolygonImagery->getPath();
-        if (isPrimOrDescendant(polygonImageryPath, primPath)) {
-            insertRemovedPrim(polygonImageryPath, ChangedPrimType::CESIUM_POLYGON_IMAGERY);
+    const auto& polygonRasterOverlays = _pContext->getAssetRegistry().getPolygonRasterOverlays();
+    for (const auto& pPolygonRasterOverlay : polygonRasterOverlays) {
+        const auto polygonRasterOverlayPath = pPolygonRasterOverlay->getPath();
+        if (isPrimOrDescendant(polygonRasterOverlayPath, primPath)) {
+            insertRemovedPrim(polygonRasterOverlayPath, ChangedPrimType::CESIUM_POLYGON_RASTER_OVERLAY);
         }
     }
 
@@ -960,10 +960,10 @@ UsdNotificationHandler::ChangedPrimType UsdNotificationHandler::getTypeFromStage
         return ChangedPrimType::CESIUM_DATA;
     } else if (UsdUtil::isCesiumTileset(_pContext->getUsdStage(), path)) {
         return ChangedPrimType::CESIUM_TILESET;
-    } else if (UsdUtil::isCesiumIonImagery(_pContext->getUsdStage(), path)) {
-        return ChangedPrimType::CESIUM_ION_IMAGERY;
-    } else if (UsdUtil::isCesiumPolygonImagery(_pContext->getUsdStage(), path)) {
-        return ChangedPrimType::CESIUM_POLYGON_IMAGERY;
+    } else if (UsdUtil::isCesiumIonRasterOverlay(_pContext->getUsdStage(), path)) {
+        return ChangedPrimType::CESIUM_ION_RASTER_OVERLAY;
+    } else if (UsdUtil::isCesiumPolygonRasterOverlay(_pContext->getUsdStage(), path)) {
+        return ChangedPrimType::CESIUM_POLYGON_RASTER_OVERLAY;
     } else if (UsdUtil::isCesiumGeoreference(_pContext->getUsdStage(), path)) {
         return ChangedPrimType::CESIUM_GEOREFERENCE;
     } else if (UsdUtil::isCesiumIonServer(_pContext->getUsdStage(), path)) {
@@ -989,10 +989,10 @@ UsdNotificationHandler::getTypeFromAssetRegistry(const pxr::SdfPath& path) const
             return ChangedPrimType::CESIUM_DATA;
         case AssetType::TILESET:
             return ChangedPrimType::CESIUM_TILESET;
-        case AssetType::ION_IMAGERY:
-            return ChangedPrimType::CESIUM_ION_IMAGERY;
-        case AssetType::POLYGON_IMAGERY:
-            return ChangedPrimType::CESIUM_POLYGON_IMAGERY;
+        case AssetType::ION_RASTER_OVERLAY:
+            return ChangedPrimType::CESIUM_ION_RASTER_OVERLAY;
+        case AssetType::POLYGON_RASTER_OVERLAY:
+            return ChangedPrimType::CESIUM_POLYGON_RASTER_OVERLAY;
         case AssetType::GEOREFERENCE:
             return ChangedPrimType::CESIUM_GEOREFERENCE;
         case AssetType::GLOBE_ANCHOR:

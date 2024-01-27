@@ -8,7 +8,7 @@
 #include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/Logger.h"
 #include "cesium/omniverse/OmniData.h"
-#include "cesium/omniverse/OmniIonImagery.h"
+#include "cesium/omniverse/OmniIonRasterOverlay.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/RenderStatistics.h"
 #include "cesium/omniverse/TaskProcessor.h"

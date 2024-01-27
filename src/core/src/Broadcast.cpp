@@ -49,16 +49,16 @@ void showTroubleshooter(
     const pxr::SdfPath& tilesetPath,
     int64_t tilesetIonAssetId,
     const std::string& tilesetName,
-    int64_t imageryIonAssetId,
-    const std::string& imageryName,
+    int64_t rasterOverlayIonAssetId,
+    const std::string& rasterOverlayName,
     const std::string& message) {
     sendMessageToBusWithPayload(
         SHOW_TROUBLESHOOTER_EVENT_KEY,
         std::make_pair("tilesetPath", tilesetPath.GetText()),
         std::make_pair("tilesetIonAssetId", tilesetIonAssetId),
         std::make_pair("tilesetName", tilesetName.c_str()),
-        std::make_pair("imageryIonAssetId", imageryIonAssetId),
-        std::make_pair("imageryName", imageryName.c_str()),
+        std::make_pair("rasterOverlayIonAssetId", rasterOverlayIonAssetId),
+        std::make_pair("rasterOverlayName", rasterOverlayName.c_str()),
         std::make_pair("message", message.c_str()));
 }
 

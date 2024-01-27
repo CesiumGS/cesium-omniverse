@@ -30,7 +30,7 @@ struct FabricMesh {
     FabricMaterialInfo materialInfo;
     FabricFeaturesInfo featuresInfo;
     std::unordered_map<uint64_t, uint64_t> texcoordIndexMapping;
-    std::unordered_map<uint64_t, uint64_t> imageryTexcoordIndexMapping;
+    std::unordered_map<uint64_t, uint64_t> rasterOverlayTexcoordIndexMapping;
     std::vector<uint64_t> featureIdIndexSetIndexMapping;
     std::vector<uint64_t> featureIdAttributeSetIndexMapping;
     std::vector<uint64_t> featureIdTextureSetIndexMapping;

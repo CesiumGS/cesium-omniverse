@@ -1,11 +1,11 @@
-#ifndef CESIUMUSDSCHEMAS_GENERATED_POLYGONIMAGERY_H
-#define CESIUMUSDSCHEMAS_GENERATED_POLYGONIMAGERY_H
+#ifndef CESIUMUSDSCHEMAS_GENERATED_POLYGONRASTEROVERLAY_H
+#define CESIUMUSDSCHEMAS_GENERATED_POLYGONRASTEROVERLAY_H
 
-/// \file CesiumUsdSchemas/polygonImagery.h
+/// \file CesiumUsdSchemas/polygonRasterOverlay.h
 
 #include "pxr/pxr.h"
 #include ".//api.h"
-#include ".//imagery.h"
+#include ".//rasterOverlay.h"
 #include "pxr/usd/usd/prim.h"
 #include "pxr/usd/usd/stage.h"
 #include ".//tokens.h"
@@ -24,14 +24,14 @@ PXR_NAMESPACE_OPEN_SCOPE
 class SdfAssetPath;
 
 // -------------------------------------------------------------------------- //
-// CESIUMPOLYGONIMAGERYPRIM                                                   //
+// CESIUMPOLYGONRASTEROVERLAYPRIM                                             //
 // -------------------------------------------------------------------------- //
 
-/// \class CesiumPolygonImagery
+/// \class CesiumPolygonRasterOverlay
 ///
-/// Adds a prim for representing a polygon imagery layer. Should be a child of a tileset.
+/// Adds a prim for representing a polygon raster overlay. Should be a child of a tileset.
 ///
-class CesiumPolygonImagery : public CesiumImagery
+class CesiumPolygonRasterOverlay : public CesiumRasterOverlay
 {
 public:
     /// Compile time constant representing what kind of schema this class is.
@@ -39,26 +39,26 @@ public:
     /// \sa UsdSchemaKind
     static const UsdSchemaKind schemaKind = UsdSchemaKind::ConcreteTyped;
 
-    /// Construct a CesiumPolygonImagery on UsdPrim \p prim .
-    /// Equivalent to CesiumPolygonImagery::Get(prim.GetStage(), prim.GetPath())
+    /// Construct a CesiumPolygonRasterOverlay on UsdPrim \p prim .
+    /// Equivalent to CesiumPolygonRasterOverlay::Get(prim.GetStage(), prim.GetPath())
     /// for a \em valid \p prim, but will not immediately throw an error for
     /// an invalid \p prim
-    explicit CesiumPolygonImagery(const UsdPrim& prim=UsdPrim())
-        : CesiumImagery(prim)
+    explicit CesiumPolygonRasterOverlay(const UsdPrim& prim=UsdPrim())
+        : CesiumRasterOverlay(prim)
     {
     }
 
-    /// Construct a CesiumPolygonImagery on the prim held by \p schemaObj .
-    /// Should be preferred over CesiumPolygonImagery(schemaObj.GetPrim()),
+    /// Construct a CesiumPolygonRasterOverlay on the prim held by \p schemaObj .
+    /// Should be preferred over CesiumPolygonRasterOverlay(schemaObj.GetPrim()),
     /// as it preserves SchemaBase state.
-    explicit CesiumPolygonImagery(const UsdSchemaBase& schemaObj)
-        : CesiumImagery(schemaObj)
+    explicit CesiumPolygonRasterOverlay(const UsdSchemaBase& schemaObj)
+        : CesiumRasterOverlay(schemaObj)
     {
     }
 
     /// Destructor.
     CESIUMUSDSCHEMAS_API
-    virtual ~CesiumPolygonImagery();
+    virtual ~CesiumPolygonRasterOverlay();
 
     /// Return a vector of names of all pre-declared attributes for this schema
     /// class and all its ancestor classes.  Does not include attributes that
@@ -67,17 +67,17 @@ public:
     static const TfTokenVector &
     GetSchemaAttributeNames(bool includeInherited=true);
 
-    /// Return a CesiumPolygonImagery holding the prim adhering to this
+    /// Return a CesiumPolygonRasterOverlay holding the prim adhering to this
     /// schema at \p path on \p stage.  If no prim exists at \p path on
     /// \p stage, or if the prim at that path does not adhere to this schema,
     /// return an invalid schema object.  This is shorthand for the following:
     ///
     /// \code
-    /// CesiumPolygonImagery(stage->GetPrimAtPath(path));
+    /// CesiumPolygonRasterOverlay(stage->GetPrimAtPath(path));
     /// \endcode
     ///
     CESIUMUSDSCHEMAS_API
-    static CesiumPolygonImagery
+    static CesiumPolygonRasterOverlay
     Get(const UsdStagePtr &stage, const SdfPath &path);
 
     /// Attempt to ensure a \a UsdPrim adhering to this schema at \p path
@@ -103,7 +103,7 @@ public:
     /// the opinion at the current EditTarget.
     ///
     CESIUMUSDSCHEMAS_API
-    static CesiumPolygonImagery
+    static CesiumPolygonRasterOverlay
     Define(const UsdStagePtr &stage, const SdfPath &path);
 
 protected:
@@ -129,7 +129,7 @@ public:
     // --------------------------------------------------------------------- //
     // CARTOGRAPHICPOLYGONBINDING 
     // --------------------------------------------------------------------- //
-    /// Specifies which Cartographic Polygons to use in the imagery layer
+    /// Specifies which Cartographic Polygons to use in the raster overlay
     ///
     CESIUMUSDSCHEMAS_API
     UsdRelationship GetCartographicPolygonBindingRel() const;

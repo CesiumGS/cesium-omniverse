@@ -1,4 +1,4 @@
-#include "cesium/omniverse/OmniPolygonImagery.h"
+#include "cesium/omniverse/OmniPolygonRasterOverlay.h"
 
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/Context.h"
@@ -11,28 +11,28 @@
 
 #include <CesiumGeospatial/Ellipsoid.h>
 #include <CesiumRasterOverlays/RasterizedPolygonsOverlay.h>
-#include <CesiumUsdSchemas/polygonImagery.h>
+#include <CesiumUsdSchemas/polygonRasterOverlay.h>
 
 namespace cesium::omniverse {
 
-OmniPolygonImagery::OmniPolygonImagery(Context* pContext, const pxr::SdfPath& path)
-    : OmniImagery(pContext, path) {}
+OmniPolygonRasterOverlay::OmniPolygonRasterOverlay(Context* pContext, const pxr::SdfPath& path)
+    : OmniRasterOverlay(pContext, path) {}
 
-std::vector<pxr::SdfPath> OmniPolygonImagery::getCartographicPolygonPaths() const {
-    const auto cesiumPolygonImagery = UsdUtil::getCesiumPolygonImagery(_pContext->getUsdStage(), _path);
+std::vector<pxr::SdfPath> OmniPolygonRasterOverlay::getCartographicPolygonPaths() const {
+    const auto cesiumPolygonRasterOverlay = UsdUtil::getCesiumPolygonRasterOverlay(_pContext->getUsdStage(), _path);
 
     pxr::SdfPathVector targets;
-    cesiumPolygonImagery.GetCartographicPolygonBindingRel().GetForwardedTargets(&targets);
+    cesiumPolygonRasterOverlay.GetCartographicPolygonBindingRel().GetForwardedTargets(&targets);
 
     return targets;
 }
 
-CesiumRasterOverlays::RasterOverlay* OmniPolygonImagery::getRasterOverlay() const {
+CesiumRasterOverlays::RasterOverlay* OmniPolygonRasterOverlay::getRasterOverlay() const {
     return _pPolygonRasterOverlay.get();
 }
 
-void OmniPolygonImagery::reload() {
-    const auto imageryName = UsdUtil::getName(_pContext->getUsdStage(), _path);
+void OmniPolygonRasterOverlay::reload() {
+    const auto rasterOverlayName = UsdUtil::getName(_pContext->getUsdStage(), _path);
 
     const auto cartographicPolygonPaths = getCartographicPolygonPaths();
     std::vector<CesiumGeospatial::CartographicPolygon> polygons;
@@ -97,7 +97,7 @@ void OmniPolygonImagery::reload() {
     };
 
     _pPolygonRasterOverlay = new CesiumRasterOverlays::RasterizedPolygonsOverlay(
-        imageryName, polygons, invertSelection, *pEllipsoid, projection, options);
+        rasterOverlayName, polygons, invertSelection, *pEllipsoid, projection, options);
 }
 
 } // namespace cesium::omniverse

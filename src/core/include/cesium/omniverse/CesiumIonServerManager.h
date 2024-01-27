@@ -50,7 +50,7 @@ class CesiumIonServerManager {
     void updateTroubleshootingDetails(
         const pxr::SdfPath& tilesetPath,
         [[maybe_unused]] int64_t tilesetIonAssetId,
-        int64_t imageryIonAssetId,
+        int64_t rasterOverlayIonAssetId,
         uint64_t tokenEventId,
         uint64_t assetEventId);
     void updateTokenTroubleshootingDetails(
