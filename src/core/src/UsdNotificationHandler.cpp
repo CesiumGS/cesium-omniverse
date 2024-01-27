@@ -72,7 +72,7 @@ void updateIonServerBindings(const Context& context) {
         pTileset->reload();
     }
 
-    // Update all imageries. Some imageries may have referenced this ion server implicitly.
+    // Update all raster overlays. Some raster overlays may have referenced this ion server implicitly.
     const auto& ionRasterOverlays = context.getAssetRegistry().getIonRasterOverlays();
     for (const auto& pIonRasterOverlay : ionRasterOverlays) {
         pIonRasterOverlay->reload();
@@ -81,7 +81,7 @@ void updateIonServerBindings(const Context& context) {
 }
 
 void updateCartographicPolygonBindings(const Context& context, const pxr::SdfPath& cartographicPolygonPath) {
-    // Update polygon imageries that reference this cartographic polygon
+    // Update polygon raster overlays that reference this cartographic polygon
     const auto& polygonRasterOverlays = context.getAssetRegistry().getPolygonRasterOverlays();
     for (const auto& pPolygonRasterOverlay : polygonRasterOverlays) {
         const auto paths = pPolygonRasterOverlay->getCartographicPolygonPaths();
