@@ -43,7 +43,7 @@ class FabricResourceManager {
 
     bool shouldAcquireMaterial(
         const CesiumGltf::MeshPrimitive& primitive,
-        bool hasImagery,
+        bool hasRasterOverlay,
         const pxr::SdfPath& tilesetMaterialPath) const;
 
     bool getDisableTextures() const;
@@ -59,7 +59,7 @@ class FabricResourceManager {
         const CesiumGltf::MeshPrimitive& primitive,
         const FabricMaterialInfo& materialInfo,
         const FabricFeaturesInfo& featuresInfo,
-        const FabricRasterOverlayLayersInfo& imageryLayersInfo,
+        const FabricRasterOverlayLayersInfo& rasterOverlayLayersInfo,
         int64_t tilesetId,
         const pxr::SdfPath& tilesetMaterialPath);
 

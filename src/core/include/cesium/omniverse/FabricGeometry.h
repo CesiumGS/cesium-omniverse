@@ -37,7 +37,7 @@ class FabricGeometry {
         const FabricMaterialInfo& materialInfo,
         bool smoothNormals,
         const std::unordered_map<uint64_t, uint64_t>& texcoordIndexMapping,
-        const std::unordered_map<uint64_t, uint64_t>& imageryTexcoordIndexMapping);
+        const std::unordered_map<uint64_t, uint64_t>& rasterOverlayTexcoordIndexMapping);
 
     void setActive(bool active);
     void setVisibility(bool visible);

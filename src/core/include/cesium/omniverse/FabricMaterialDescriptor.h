@@ -36,7 +36,7 @@ class FabricMaterialDescriptor {
         const CesiumGltf::MeshPrimitive& primitive,
         const FabricMaterialInfo& materialInfo,
         const FabricFeaturesInfo& featuresInfo,
-        const FabricRasterOverlayLayersInfo& imageryLayersInfo,
+        const FabricRasterOverlayLayersInfo& rasterOverlayLayersInfo,
         const pxr::SdfPath& tilesetMaterialPath);
 
     [[nodiscard]] bool hasVertexColors() const;

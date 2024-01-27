@@ -18,8 +18,8 @@ void showTroubleshooter(
     const pxr::SdfPath& tilesetPath,
     int64_t tilesetIonAssetId,
     const std::string& tilesetName,
-    int64_t imageryIonAssetId,
-    const std::string& imageryName,
+    int64_t rasterOverlayIonAssetId,
+    const std::string& rasterOverlayName,
     const std::string& message);
 void setDefaultTokenComplete();
 void tilesetLoaded(const pxr::SdfPath& tilesetPath);

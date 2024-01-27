@@ -60,14 +60,14 @@ class FabricMaterial {
     void setRasterOverlayLayer(
         FabricTexture* pTexture,
         const FabricTextureInfo& textureInfo,
-        uint64_t imageryLayerIndex,
+        uint64_t rasterOverlayLayerIndex,
         double alpha,
-        const std::unordered_map<uint64_t, uint64_t>& imageryTexcoordIndexMapping);
+        const std::unordered_map<uint64_t, uint64_t>& rasterOverlayTexcoordIndexMapping);
 
-    void setRasterOverlayLayerAlpha(uint64_t imageryLayerIndex, double alpha);
+    void setRasterOverlayLayerAlpha(uint64_t rasterOverlayLayerIndex, double alpha);
     void setDisplayColorAndOpacity(const glm::dvec3& displayColor, double displayOpacity);
     void updateShaderInput(const omni::fabric::Path& shaderPath, const omni::fabric::Token& attributeName);
-    void clearRasterOverlayLayer(uint64_t imageryLayerIndex);
+    void clearRasterOverlayLayer(uint64_t rasterOverlayLayerIndex);
     void setActive(bool active);
 
     [[nodiscard]] const omni::fabric::Path& getPath() const;
