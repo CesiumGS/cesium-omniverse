@@ -2,7 +2,7 @@
 
 #include "cesium/omniverse/FabricFeaturesInfo.h"
 #include "cesium/omniverse/FabricFeaturesUtil.h"
-#include "cesium/omniverse/FabricImageryLayersInfo.h"
+#include "cesium/omniverse/FabricRasterOverlayLayersInfo.h"
 #include "cesium/omniverse/FabricMaterialInfo.h"
 #include "cesium/omniverse/FabricPropertyDescriptor.h"
 #include "cesium/omniverse/GltfUtil.h"

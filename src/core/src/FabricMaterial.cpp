@@ -5,7 +5,7 @@
 #include "cesium/omniverse/DataType.h"
 #include "cesium/omniverse/FabricAttributesBuilder.h"
 #include "cesium/omniverse/FabricFeaturesInfo.h"
-#include "cesium/omniverse/FabricImageryLayersInfo.h"
+#include "cesium/omniverse/FabricRasterOverlayLayersInfo.h"
 #include "cesium/omniverse/FabricMaterialDescriptor.h"
 #include "cesium/omniverse/FabricMaterialInfo.h"
 #include "cesium/omniverse/FabricPropertyDescriptor.h"
