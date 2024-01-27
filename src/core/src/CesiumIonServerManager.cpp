@@ -6,7 +6,7 @@
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/CppUtil.h"
 #include "cesium/omniverse/OmniData.h"
-#include "cesium/omniverse/OmniIonImagery.h"
+#include "cesium/omniverse/OmniIonRasterOverlay.h"
 #include "cesium/omniverse/OmniIonServer.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/TokenTroubleshootingDetails.h"

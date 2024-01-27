@@ -15,7 +15,7 @@
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/MetadataUtil.h"
-#include "cesium/omniverse/OmniImagery.h"
+#include "cesium/omniverse/OmniRasterOverlay.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/UsdUtil.h"
 

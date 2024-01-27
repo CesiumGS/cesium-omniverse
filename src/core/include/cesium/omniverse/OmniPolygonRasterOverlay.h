@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cesium/omniverse/OmniImagery.h"
+#include "cesium/omniverse/OmniRasterOverlay.h"
 
 #include <CesiumRasterOverlays/RasterizedPolygonsOverlay.h>
 #include <CesiumUtility/IntrusivePointer.h>

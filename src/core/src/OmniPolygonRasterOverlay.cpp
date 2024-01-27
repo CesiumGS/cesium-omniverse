@@ -1,4 +1,4 @@
-#include "cesium/omniverse/OmniPolygonImagery.h"
+#include "cesium/omniverse/OmniPolygonRasterOverlay.h"
 
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/Context.h"
