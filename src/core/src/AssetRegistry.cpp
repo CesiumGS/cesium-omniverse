@@ -75,11 +75,14 @@ const std::vector<std::unique_ptr<OmniTileset>>& AssetRegistry::getTilesets() co
 }
 
 OmniIonRasterOverlay& AssetRegistry::addIonRasterOverlay(const pxr::SdfPath& path) {
-    return *_ionRasterOverlays.insert(_ionRasterOverlays.end(), std::make_unique<OmniIonRasterOverlay>(_pContext, path))->get();
+    return *_ionRasterOverlays
+                .insert(_ionRasterOverlays.end(), std::make_unique<OmniIonRasterOverlay>(_pContext, path))
+                ->get();
 }
 
 void AssetRegistry::removeIonRasterOverlay(const pxr::SdfPath& path) {
-    CppUtil::eraseIf(_ionRasterOverlays, [&path](const auto& pIonRasterOverlay) { return pIonRasterOverlay->getPath() == path; });
+    CppUtil::eraseIf(
+        _ionRasterOverlays, [&path](const auto& pIonRasterOverlay) { return pIonRasterOverlay->getPath() == path; });
 }
 
 OmniIonRasterOverlay* AssetRegistry::getIonRasterOverlay(const pxr::SdfPath& path) const {
@@ -107,13 +110,15 @@ const std::vector<std::unique_ptr<OmniIonRasterOverlay>>& AssetRegistry::getIonR
 }
 
 OmniPolygonRasterOverlay& AssetRegistry::addPolygonRasterOverlay(const pxr::SdfPath& path) {
-    return *_polygonRasterOverlays.insert(_polygonRasterOverlays.end(), std::make_unique<OmniPolygonRasterOverlay>(_pContext, path))
+    return *_polygonRasterOverlays
+                .insert(_polygonRasterOverlays.end(), std::make_unique<OmniPolygonRasterOverlay>(_pContext, path))
                 ->get();
 }
 
 void AssetRegistry::removePolygonRasterOverlay(const pxr::SdfPath& path) {
-    CppUtil::eraseIf(
-        _polygonRasterOverlays, [&path](const auto& pPolygonRasterOverlay) { return pPolygonRasterOverlay->getPath() == path; });
+    CppUtil::eraseIf(_polygonRasterOverlays, [&path](const auto& pPolygonRasterOverlay) {
+        return pPolygonRasterOverlay->getPath() == path;
+    });
 }
 
 OmniPolygonRasterOverlay* AssetRegistry::getPolygonRasterOverlay(const pxr::SdfPath& path) const {

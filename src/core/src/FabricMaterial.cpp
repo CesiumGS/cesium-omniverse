@@ -5,10 +5,10 @@
 #include "cesium/omniverse/DataType.h"
 #include "cesium/omniverse/FabricAttributesBuilder.h"
 #include "cesium/omniverse/FabricFeaturesInfo.h"
-#include "cesium/omniverse/FabricRasterOverlayLayersInfo.h"
 #include "cesium/omniverse/FabricMaterialDescriptor.h"
 #include "cesium/omniverse/FabricMaterialInfo.h"
 #include "cesium/omniverse/FabricPropertyDescriptor.h"
+#include "cesium/omniverse/FabricRasterOverlayLayersInfo.h"
 #include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricTexture.h"
 #include "cesium/omniverse/FabricTextureInfo.h"
@@ -82,7 +82,8 @@ struct RasterOverlayLayerIndices {
     std::vector<uint64_t> clippingRasterOverlayLayerIndices;
 };
 
-RasterOverlayLayerIndices getRasterOverlayLayerIndices(const Context& context, const FabricMaterialDescriptor& materialDescriptor) {
+RasterOverlayLayerIndices
+getRasterOverlayLayerIndices(const Context& context, const FabricMaterialDescriptor& materialDescriptor) {
     uint64_t overlayRasterOverlayLayerCount = 0;
     uint64_t clippingRasterOverlayLayerCount = 0;
     uint64_t totalRasterOverlayLayerCount = 0;
@@ -110,7 +111,8 @@ RasterOverlayLayerIndices getRasterOverlayLayerIndices(const Context& context, c
 
     if (overlayRasterOverlayLayerCount > MAX_RASTER_OVERLAY_LAYERS_COUNT) {
         context.getLogger()->warn(
-            "Number of overlay raster overlay layers ({}) exceeds maximum raster overlay layer count ({}). Excess raster overlay layers "
+            "Number of overlay raster overlay layers ({}) exceeds maximum raster overlay layer count ({}). Excess "
+            "raster overlay layers "
             "will be ignored.",
             overlayRasterOverlayLayerCount,
             MAX_RASTER_OVERLAY_LAYERS_COUNT);
@@ -118,13 +120,15 @@ RasterOverlayLayerIndices getRasterOverlayLayerIndices(const Context& context, c
 
     if (clippingRasterOverlayLayerCount > MAX_RASTER_OVERLAY_LAYERS_COUNT) {
         context.getLogger()->warn(
-            "Number of clipping raster overlay layers ({}) exceeds maximum raster overlay layer count ({}). Excess raster overlay layers "
+            "Number of clipping raster overlay layers ({}) exceeds maximum raster overlay layer count ({}). Excess "
+            "raster overlay layers "
             "will be ignored.",
             clippingRasterOverlayLayerCount,
             MAX_RASTER_OVERLAY_LAYERS_COUNT);
     }
 
-    return RasterOverlayLayerIndices{std::move(overlayRasterOverlayLayerIndices), std::move(clippingRasterOverlayLayerIndices)};
+    return RasterOverlayLayerIndices{
+        std::move(overlayRasterOverlayLayerIndices), std::move(clippingRasterOverlayLayerIndices)};
 }
 
 uint64_t getRasterOverlayLayerCount(const FabricMaterialDescriptor& materialDescriptor) {
@@ -664,7 +668,8 @@ void FabricMaterial::initializeDefaultMaterial() {
 
     // Create overlay raster overlay layer resolver if there are multiple overlay raster overlay layers
     if (overlayRasterOverlayLayerCount > 1) {
-        const auto rasterOverlayLayerResolverPath = FabricUtil::joinPaths(materialPath, FabricTokens::imagery_layer_resolver);
+        const auto rasterOverlayLayerResolverPath =
+            FabricUtil::joinPaths(materialPath, FabricTokens::imagery_layer_resolver);
         createRasterOverlayLayerResolver(rasterOverlayLayerResolverPath, overlayRasterOverlayLayerCount);
         _overlayRasterOverlayLayerResolverPath = rasterOverlayLayerResolverPath;
         _allPaths.push_back(rasterOverlayLayerResolverPath);
@@ -674,7 +679,8 @@ void FabricMaterial::initializeDefaultMaterial() {
     if (clippingRasterOverlayLayerCount > 1) {
         const auto clippingRasterOverlayLayerResolverPath =
             FabricUtil::joinPaths(materialPath, FabricTokens::clipping_imagery_layer_resolver);
-        createClippingRasterOverlayLayerResolver(clippingRasterOverlayLayerResolverPath, clippingRasterOverlayLayerCount);
+        createClippingRasterOverlayLayerResolver(
+            clippingRasterOverlayLayerResolverPath, clippingRasterOverlayLayerCount);
         _clippingRasterOverlayLayerResolverPath = clippingRasterOverlayLayerResolverPath;
         _allPaths.push_back(_clippingRasterOverlayLayerResolverPath);
     }
@@ -695,7 +701,8 @@ void FabricMaterial::initializeDefaultMaterial() {
         createConnection(fabricStage, rasterOverlayLayerPath, shaderPath, FabricTokens::inputs_imagery_layer);
     } else if (overlayRasterOverlayLayerCount > 1) {
         // Create connection from raster overlay layer resolver to shader
-        createConnection(fabricStage, _overlayRasterOverlayLayerResolverPath, shaderPath, FabricTokens::inputs_imagery_layer);
+        createConnection(
+            fabricStage, _overlayRasterOverlayLayerResolverPath, shaderPath, FabricTokens::inputs_imagery_layer);
 
         // Create connections from raster overlay layers to raster overlay layer resolver
         for (uint64_t i = 0; i < overlayRasterOverlayLayerCount; ++i) {
@@ -714,7 +721,8 @@ void FabricMaterial::initializeDefaultMaterial() {
         createConnection(fabricStage, rasterOverlayLayerPath, shaderPath, FabricTokens::inputs_alpha_clip);
     } else if (clippingRasterOverlayLayerCount > 1) {
         // Create connection from raster overlay layer resolver to shader
-        createConnection(fabricStage, _clippingRasterOverlayLayerResolverPath, shaderPath, FabricTokens::inputs_alpha_clip);
+        createConnection(
+            fabricStage, _clippingRasterOverlayLayerResolverPath, shaderPath, FabricTokens::inputs_alpha_clip);
 
         // Create connections from raster overlay layers to raster overlay layer resolver
         for (uint64_t i = 0; i < clippingRasterOverlayLayerCount; ++i) {
@@ -847,8 +855,11 @@ void FabricMaterial::createRasterOverlayLayerResolverCommon(
     *rasterOverlayLayerCountFabric = static_cast<int>(rasterOverlayLayerCount);
 }
 
-void FabricMaterial::createRasterOverlayLayerResolver(const omni::fabric::Path& path, uint64_t rasterOverlayLayerCount) {
-    createRasterOverlayLayerResolverCommon(path, rasterOverlayLayerCount, FabricTokens::cesium_internal_imagery_layer_resolver);
+void FabricMaterial::createRasterOverlayLayerResolver(
+    const omni::fabric::Path& path,
+    uint64_t rasterOverlayLayerCount) {
+    createRasterOverlayLayerResolverCommon(
+        path, rasterOverlayLayerCount, FabricTokens::cesium_internal_imagery_layer_resolver);
 }
 
 void FabricMaterial::createClippingRasterOverlayLayerResolver(
@@ -1652,7 +1663,8 @@ void FabricMaterial::createConnectionsToCopiedPaths() {
         const auto index = static_cast<uint64_t>(CppUtil::defaultValue(indexFabric, 0));
 
         if (index < rasterOverlay) {
-            createConnection(fabricStage, _rasterOverlayLayerPaths[index], copiedPath, FabricTokens::inputs_imagery_layer);
+            createConnection(
+                fabricStage, _rasterOverlayLayerPaths[index], copiedPath, FabricTokens::inputs_imagery_layer);
         }
     }
 

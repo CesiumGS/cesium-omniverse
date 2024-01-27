@@ -556,8 +556,10 @@ getTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& pr
     return getTexcoords(model, primitive, "TEXCOORD", setIndex, true);
 }
 
-TexcoordsAccessor
-getRasterOverlayTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex) {
+TexcoordsAccessor getRasterOverlayTexcoords(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive,
+    uint64_t setIndex) {
     return getTexcoords(model, primitive, "_CESIUMOVERLAY", setIndex, false);
 }
 

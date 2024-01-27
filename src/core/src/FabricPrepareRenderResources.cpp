@@ -5,9 +5,9 @@
 #include "cesium/omniverse/FabricFeaturesInfo.h"
 #include "cesium/omniverse/FabricFeaturesUtil.h"
 #include "cesium/omniverse/FabricGeometry.h"
-#include "cesium/omniverse/FabricRasterOverlayLayersInfo.h"
 #include "cesium/omniverse/FabricMaterial.h"
 #include "cesium/omniverse/FabricMesh.h"
+#include "cesium/omniverse/FabricRasterOverlayLayersInfo.h"
 #include "cesium/omniverse/FabricRenderResources.h"
 #include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricTexture.h"
@@ -389,7 +389,8 @@ FabricPrepareRenderResources::prepareInLoadThread(
             }
 
             const auto pModel = std::get_if<CesiumGltf::Model>(&tileLoadResult.contentKind);
-            auto fabricMeshes = acquireFabricMeshes(*_pContext, *pModel, loadingMeshes, rasterOverlayLayersInfo, *_pTileset);
+            auto fabricMeshes =
+                acquireFabricMeshes(*_pContext, *pModel, loadingMeshes, rasterOverlayLayersInfo, *_pTileset);
             return IntermediateLoadThreadResult{
                 std::move(tileLoadResult),
                 std::move(loadingMeshes),
@@ -562,7 +563,11 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
                 {},
             };
             pMaterial->setRasterOverlayLayer(
-                pTexture, textureInfo, rasterOverlayLayerIndex.value(), alpha, fabricMesh.rasterOverlayTexcoordIndexMapping);
+                pTexture,
+                textureInfo,
+                rasterOverlayLayerIndex.value(),
+                alpha,
+                fabricMesh.rasterOverlayTexcoordIndexMapping);
         }
     }
 }

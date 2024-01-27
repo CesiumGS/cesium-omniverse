@@ -48,8 +48,10 @@ NormalsAccessor getNormals(
 TexcoordsAccessor
 getTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);
 
-TexcoordsAccessor
-getRasterOverlayTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);
+TexcoordsAccessor getRasterOverlayTexcoords(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive,
+    uint64_t setIndex);
 
 VertexColorsAccessor
 getVertexColors(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);
@@ -79,7 +81,10 @@ FabricTextureInfo getPropertyTexturePropertyInfo(
 
 bool hasNormals(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, bool smoothNormals);
 bool hasTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);
-bool hasRasterOverlayTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);
+bool hasRasterOverlayTexcoords(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive,
+    uint64_t setIndex);
 bool hasVertexColors(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);
 bool hasMaterial(const CesiumGltf::MeshPrimitive& primitive);
 

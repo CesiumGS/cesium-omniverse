@@ -317,7 +317,8 @@ pxr::CesiumIonRasterOverlay defineCesiumIonRasterOverlay(const pxr::UsdStageWeak
     return pxr::CesiumIonRasterOverlay::Define(pStage, path);
 }
 
-pxr::CesiumPolygonRasterOverlay defineCesiumPolygonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
+pxr::CesiumPolygonRasterOverlay
+defineCesiumPolygonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
     return pxr::CesiumPolygonRasterOverlay::Define(pStage, path);
 }
 
@@ -355,7 +356,8 @@ pxr::CesiumIonRasterOverlay getCesiumIonRasterOverlay(const pxr::UsdStageWeakPtr
     return pxr::CesiumIonRasterOverlay::Get(pStage, path);
 }
 
-pxr::CesiumPolygonRasterOverlay getCesiumPolygonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
+pxr::CesiumPolygonRasterOverlay
+getCesiumPolygonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
     return pxr::CesiumPolygonRasterOverlay::Get(pStage, path);
 }
 

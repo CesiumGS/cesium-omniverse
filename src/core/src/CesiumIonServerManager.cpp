@@ -318,7 +318,8 @@ void CesiumIonServerManager::updateTroubleshootingDetails(
         return;
     }
 
-    const auto pIonRasterOverlay = _pContext->getAssetRegistry().getIonRasterOverlayByIonAssetId(rasterOverlayIonAssetId);
+    const auto pIonRasterOverlay =
+        _pContext->getAssetRegistry().getIonRasterOverlayByIonAssetId(rasterOverlayIonAssetId);
     if (!pIonRasterOverlay) {
         return;
     }
@@ -340,7 +341,10 @@ void CesiumIonServerManager::updateTroubleshootingDetails(
     auto rasterOverlayIonAccessToken = pIonRasterOverlay->getIonAccessToken();
     if (!rasterOverlayIonAccessToken.token.empty()) {
         updateTokenTroubleshootingDetails(
-            rasterOverlayIonAssetId, rasterOverlayIonAccessToken.token, tokenEventId, _assetTokenTroubleshootingDetails.value());
+            rasterOverlayIonAssetId,
+            rasterOverlayIonAccessToken.token,
+            tokenEventId,
+            _assetTokenTroubleshootingDetails.value());
     }
 }
 

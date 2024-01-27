@@ -113,22 +113,22 @@ void OmniIonRasterOverlay::reload() {
     options.showCreditsOnScreen = getShowCreditsOnScreen();
     options.ktx2TranscodeTargets = GltfUtil::getKtx2TranscodeTargets();
 
-    options.loadErrorCallback =
-        [this, rasterOverlayIonAssetId, rasterOverlayName](const CesiumRasterOverlays::RasterOverlayLoadFailureDetails& error) {
-            // Check for a 401 connecting to Cesium ion, which means the token is invalid
-            // (or perhaps the asset ID is). Also check for a 404, because ion returns 404
-            // when the token is valid but not authorized for the asset.
-            const auto statusCode =
-                error.pRequest && error.pRequest->response() ? error.pRequest->response()->statusCode() : 0;
+    options.loadErrorCallback = [this, rasterOverlayIonAssetId, rasterOverlayName](
+                                    const CesiumRasterOverlays::RasterOverlayLoadFailureDetails& error) {
+        // Check for a 401 connecting to Cesium ion, which means the token is invalid
+        // (or perhaps the asset ID is). Also check for a 404, because ion returns 404
+        // when the token is valid but not authorized for the asset.
+        const auto statusCode =
+            error.pRequest && error.pRequest->response() ? error.pRequest->response()->statusCode() : 0;
 
-            if (error.type == CesiumRasterOverlays::RasterOverlayLoadType::CesiumIon &&
-                (statusCode == 401 || statusCode == 404)) {
-                // TODO: this probably doesn't work without tileset info
-                Broadcast::showTroubleshooter({}, 0, "", rasterOverlayIonAssetId, rasterOverlayName, error.message);
-            }
+        if (error.type == CesiumRasterOverlays::RasterOverlayLoadType::CesiumIon &&
+            (statusCode == 401 || statusCode == 404)) {
+            // TODO: this probably doesn't work without tileset info
+            Broadcast::showTroubleshooter({}, 0, "", rasterOverlayIonAssetId, rasterOverlayName, error.message);
+        }
 
-            _pContext->getLogger()->error(error.message);
-        };
+        _pContext->getLogger()->error(error.message);
+    };
 
     _pIonRasterOverlay = new CesiumRasterOverlays::IonRasterOverlay(
         rasterOverlayName, rasterOverlayIonAssetId, rasterOverlayIonAccessToken.token, options, rasterOverlayIonApiUrl);
