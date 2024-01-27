@@ -76,21 +76,21 @@ def add_raster_overlay_ion(tileset_path: str, name: str, asset_id: int, token: s
 
     safe_name = get_safe_name(name)
 
-    imagery_path = Sdf.Path(tileset_path).AppendPath(safe_name).pathString
+    raster_overlay_path = Sdf.Path(tileset_path).AppendPath(safe_name).pathString
 
     # get_stage_next_free_path will increment the path name if there is a collision
-    imagery_path = omni.usd.get_stage_next_free_path(stage, imagery_path, False)
+    raster_overlay_path = omni.usd.get_stage_next_free_path(stage, raster_overlay_path, False)
 
-    imagery = CesiumIonRasterOverlay.Define(stage, imagery_path)
+    raster_overlay = CesiumIonRasterOverlay.Define(stage, raster_overlay_path)
 
-    imagery.GetIonAssetIdAttr().Set(asset_id)
-    imagery.GetIonAccessTokenAttr().Set(token)
+    raster_overlay.GetIonAssetIdAttr().Set(asset_id)
+    raster_overlay.GetIonAccessTokenAttr().Set(token)
 
     server_prim_path = get_path_to_current_ion_server()
     if server_prim_path != "":
-        imagery.GetIonServerBindingRel().AddTarget(server_prim_path)
+        raster_overlay.GetIonServerBindingRel().AddTarget(server_prim_path)
 
-    return imagery_path
+    return raster_overlay_path
 
 
 def add_cartographic_polygon() -> str:

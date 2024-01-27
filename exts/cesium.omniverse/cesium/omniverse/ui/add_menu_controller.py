@@ -32,13 +32,13 @@ class CesiumAddMenuController:
             ),
             PrimPathWidget.add_button_menu_entry(
                 "Cesium/Ion Raster Overlay",
-                show_fn=partial(self._show_add_imagery, context_menu=context_menu, usd_type=CesiumTileset),
-                onclick_fn=self._add_ion_imagery,
+                show_fn=partial(self._show_add_raster_overlay, context_menu=context_menu, usd_type=CesiumTileset),
+                onclick_fn=self._add_ion_raster_overlay,
             ),
             PrimPathWidget.add_button_menu_entry(
                 "Cesium/Polygon Raster Overlay",
-                show_fn=partial(self._show_add_imagery, context_menu=context_menu, usd_type=CesiumTileset),
-                onclick_fn=self._add_polygon_imagery,
+                show_fn=partial(self._show_add_raster_overlay, context_menu=context_menu, usd_type=CesiumTileset),
+                onclick_fn=self._add_polygon_raster_overlay,
             ),
         ]
 
@@ -52,20 +52,20 @@ class CesiumAddMenuController:
             add_globe_anchor_to_prim(path)
             get_property_window().request_rebuild()
 
-    def _add_ion_imagery(self, payload: PrimSelectionPayload):
+    def _add_ion_raster_overlay(self, payload: PrimSelectionPayload):
         stage = omni.usd.get_context().get_stage()
         for path in payload:
-            child_path = Sdf.Path(path).AppendPath("ion_imagery")
-            ion_imagery_path: str = omni.usd.get_stage_next_free_path(stage, child_path, False)
-            CesiumIonRasterOverlay.Define(stage, ion_imagery_path)
+            child_path = Sdf.Path(path).AppendPath("ion_raster_overlay")
+            ion_raster_overlay_path: str = omni.usd.get_stage_next_free_path(stage, child_path, False)
+            CesiumIonRasterOverlay.Define(stage, ion_raster_overlay_path)
             get_property_window().request_rebuild()
 
-    def _add_polygon_imagery(self, payload: PrimSelectionPayload):
+    def _add_polygon_raster_overlay(self, payload: PrimSelectionPayload):
         stage = omni.usd.get_context().get_stage()
         for path in payload:
-            child_path = Sdf.Path(path).AppendPath("polygon_imagery")
-            polygon_imagery_path: str = omni.usd.get_stage_next_free_path(stage, child_path, False)
-            CesiumPolygonRasterOverlay.Define(stage, polygon_imagery_path)
+            child_path = Sdf.Path(path).AppendPath("polygon_raster_overlay")
+            polygon_raster_overlay_path: str = omni.usd.get_stage_next_free_path(stage, child_path, False)
+            CesiumPolygonRasterOverlay.Define(stage, polygon_raster_overlay_path)
             get_property_window().request_rebuild()
 
     @staticmethod
@@ -75,5 +75,5 @@ class CesiumAddMenuController:
         )
 
     @staticmethod
-    def _show_add_imagery(objects: dict, context_menu: omni.kit.context_menu, usd_type: Tf.Type) -> bool:
+    def _show_add_raster_overlay(objects: dict, context_menu: omni.kit.context_menu, usd_type: Tf.Type) -> bool:
         return context_menu.prim_is_type(objects, type=usd_type)

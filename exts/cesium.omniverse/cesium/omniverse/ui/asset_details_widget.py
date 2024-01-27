@@ -71,7 +71,7 @@ class CesiumAssetDetailsWidget(ui.ScrollingFrame):
         add_asset_event = carb.events.type_from_string("cesium.omniverse.ADD_ION_ASSET")
         app.get_app().get_message_bus_event_stream().push(add_asset_event, payload=asset_to_add.to_dict())
 
-    def _add_imagery_button_clicked(self):
+    def _add_raster_overlay_button_clicked(self):
         context = usd.get_context()
         selection = context.get_selection().get_selected_prim_paths()
         tileset_path: Optional[str] = None
@@ -88,10 +88,10 @@ class CesiumAssetDetailsWidget(ui.ScrollingFrame):
                 self._add_overlay_with_tileset()
                 return
 
-        imagery_to_add = RasterOverlayToAdd(tileset_path, self._id, self._name)
+        raster_overlay_to_add = RasterOverlayToAdd(tileset_path, self._id, self._name)
 
         add_raster_overlay_event = carb.events.type_from_string("cesium.omniverse.ADD_RASTER_OVERLAY")
-        app.get_app().get_message_bus_event_stream().push(add_raster_overlay_event, payload=imagery_to_add.to_dict())
+        app.get_app().get_message_bus_event_stream().push(add_raster_overlay_event, payload=raster_overlay_to_add.to_dict())
 
     def _build_fn(self):
         with self:
@@ -120,13 +120,13 @@ class CesiumAssetDetailsWidget(ui.ScrollingFrame):
                                 style=CesiumOmniverseUiStyles.blue_button_style,
                                 clicked_fn=self._add_tileset_button_clicked,
                             )
-                        elif self._asset_type == "IMAGERY":
+                        elif self._asset_type == "RASTER_OVERLAY":
                             ui.Button(
                                 "Use as Terrain Tileset Base Layer",
                                 width=0,
                                 height=0,
                                 style=CesiumOmniverseUiStyles.blue_button_style,
-                                clicked_fn=self._add_imagery_button_clicked,
+                                clicked_fn=self._add_raster_overlay_button_clicked,
                             )
                         else:
                             # Skipping adding a button for things we cannot add for now.
