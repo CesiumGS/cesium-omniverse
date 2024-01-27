@@ -350,7 +350,7 @@ FabricPrepareRenderResources::prepareInLoadThread(
             Cesium3DTilesSelection::TileLoadResultAndRenderResources{std::move(tileLoadResult), nullptr});
     }
 
-    // We don't know how many imagery layers actually overlap this tile until attachRasterInMainThread is called
+    // We don't know how many raster overlay layers actually overlap this tile until attachRasterInMainThread is called
     // but at least we have an upper bound. Unused texture slots are initialized with a 1x1 transparent pixel so
     // blending still works.
     const auto overlapsRasterOverlay = tileLoadResult.rasterOverlayDetails.has_value();

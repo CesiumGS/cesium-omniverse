@@ -110,7 +110,7 @@ RasterOverlayLayerIndices getRasterOverlayLayerIndices(const Context& context, c
 
     if (overlayRasterOverlayLayerCount > MAX_RASTER_OVERLAY_LAYERS_COUNT) {
         context.getLogger()->warn(
-            "Number of overlay imagery layers ({}) exceeds maximum imagery layer count ({}). Excess imagery layers "
+            "Number of overlay raster overlay layers ({}) exceeds maximum raster overlay layer count ({}). Excess raster overlay layers "
             "will be ignored.",
             overlayRasterOverlayLayerCount,
             MAX_RASTER_OVERLAY_LAYERS_COUNT);
@@ -118,7 +118,7 @@ RasterOverlayLayerIndices getRasterOverlayLayerIndices(const Context& context, c
 
     if (clippingRasterOverlayLayerCount > MAX_RASTER_OVERLAY_LAYERS_COUNT) {
         context.getLogger()->warn(
-            "Number of clipping imagery layers ({}) exceeds maximum imagery layer count ({}). Excess imagery layers "
+            "Number of clipping raster overlay layers ({}) exceeds maximum raster overlay layer count ({}). Excess raster overlay layers "
             "will be ignored.",
             clippingRasterOverlayLayerCount,
             MAX_RASTER_OVERLAY_LAYERS_COUNT);
@@ -272,7 +272,7 @@ void setTextureValuesCommon(
     if (!textureInfo.flipVertical) {
         // gltf/pbr.mdl does texture transform math in glTF coordinates (top-left origin), so we needed to convert
         // the translation and scale parameters to work in that space. This doesn't handle rotation yet because we
-        // haven't needed it for imagery layers.
+        // haven't needed it for raster overlay layers.
         offset = {offset.x, 1.0 - offset.y - scale.y};
         scale = {scale.x, scale.y};
     }
@@ -570,7 +570,7 @@ void FabricMaterial::initializeNodes() {
         _allPaths.push_back(baseColorTexturePath);
     }
 
-    // Create imagery layers
+    // Create raster overlay layers
     const auto rasterOverlayLayerCount = getRasterOverlayLayerCount(_materialDescriptor);
     _rasterOverlayLayerPaths.reserve(rasterOverlayLayerCount);
     for (uint64_t i = 0; i < rasterOverlayLayerCount; ++i) {
@@ -662,7 +662,7 @@ void FabricMaterial::initializeDefaultMaterial() {
     const auto overlayRasterOverlayLayerCount = overlayRasterOverlayLayerIndices.size();
     const auto clippingRasterOverlayLayerCount = clippingRasterOverlayLayerIndices.size();
 
-    // Create overlay imagery layer resolver if there are multiple overlay imagery layers
+    // Create overlay raster overlay layer resolver if there are multiple overlay raster overlay layers
     if (overlayRasterOverlayLayerCount > 1) {
         const auto rasterOverlayLayerResolverPath = FabricUtil::joinPaths(materialPath, FabricTokens::imagery_layer_resolver);
         createRasterOverlayLayerResolver(rasterOverlayLayerResolverPath, overlayRasterOverlayLayerCount);
@@ -670,7 +670,7 @@ void FabricMaterial::initializeDefaultMaterial() {
         _allPaths.push_back(rasterOverlayLayerResolverPath);
     }
 
-    // Create clipping imagery layer resolver if there are multiple clipping imagery layers
+    // Create clipping raster overlay layer resolver if there are multiple clipping raster overlay layers
     if (clippingRasterOverlayLayerCount > 1) {
         const auto clippingRasterOverlayLayerResolverPath =
             FabricUtil::joinPaths(materialPath, FabricTokens::clipping_imagery_layer_resolver);
@@ -690,14 +690,14 @@ void FabricMaterial::initializeDefaultMaterial() {
     }
 
     if (overlayRasterOverlayLayerCount == 1) {
-        // Create connection from imagery layer to shader
+        // Create connection from raster overlay layer to shader
         const auto& rasterOverlayLayerPath = _rasterOverlayLayerPaths[overlayRasterOverlayLayerIndices.front()];
         createConnection(fabricStage, rasterOverlayLayerPath, shaderPath, FabricTokens::inputs_imagery_layer);
     } else if (overlayRasterOverlayLayerCount > 1) {
-        // Create connection from imagery layer resolver to shader
+        // Create connection from raster overlay layer resolver to shader
         createConnection(fabricStage, _overlayRasterOverlayLayerResolverPath, shaderPath, FabricTokens::inputs_imagery_layer);
 
-        // Create connections from imagery layers to imagery layer resolver
+        // Create connections from raster overlay layers to raster overlay layer resolver
         for (uint64_t i = 0; i < overlayRasterOverlayLayerCount; ++i) {
             const auto& rasterOverlayLayerPath = _rasterOverlayLayerPaths[overlayRasterOverlayLayerIndices[i]];
             createConnection(
@@ -709,14 +709,14 @@ void FabricMaterial::initializeDefaultMaterial() {
     }
 
     if (clippingRasterOverlayLayerCount == 1) {
-        // Create connection from imagery layer to shader
+        // Create connection from raster overlay layer to shader
         const auto& rasterOverlayLayerPath = _rasterOverlayLayerPaths[clippingRasterOverlayLayerIndices.front()];
         createConnection(fabricStage, rasterOverlayLayerPath, shaderPath, FabricTokens::inputs_alpha_clip);
     } else if (clippingRasterOverlayLayerCount > 1) {
-        // Create connection from imagery layer resolver to shader
+        // Create connection from raster overlay layer resolver to shader
         createConnection(fabricStage, _clippingRasterOverlayLayerResolverPath, shaderPath, FabricTokens::inputs_alpha_clip);
 
-        // Create connections from imagery layers to imagery layer resolver
+        // Create connections from raster overlay layers to raster overlay layer resolver
         for (uint64_t i = 0; i < clippingRasterOverlayLayerCount; ++i) {
             const auto& rasterOverlayLayerPath = _rasterOverlayLayerPaths[clippingRasterOverlayLayerIndices[i]];
             createConnection(

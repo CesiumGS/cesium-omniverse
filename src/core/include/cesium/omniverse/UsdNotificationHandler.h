@@ -23,8 +23,8 @@ class UsdNotificationHandler final : public pxr::TfWeakBase {
     enum class ChangedPrimType {
         CESIUM_DATA,
         CESIUM_TILESET,
-        CESIUM_ION_IMAGERY,
-        CESIUM_POLYGON_IMAGERY,
+        CESIUM_ION_RASTER_OVERLAY,
+        CESIUM_POLYGON_RASTER_OVERLAY,
         CESIUM_GEOREFERENCE,
         CESIUM_GLOBE_ANCHOR,
         CESIUM_ION_SERVER,

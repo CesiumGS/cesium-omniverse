@@ -57,8 +57,8 @@ void showTroubleshooter(
         std::make_pair("tilesetPath", tilesetPath.GetText()),
         std::make_pair("tilesetIonAssetId", tilesetIonAssetId),
         std::make_pair("tilesetName", tilesetName.c_str()),
-        std::make_pair("imageryIonAssetId", rasterOverlayIonAssetId),
-        std::make_pair("imageryName", rasterOverlayName.c_str()),
+        std::make_pair("rasterOverlayIonAssetId", rasterOverlayIonAssetId),
+        std::make_pair("rasterOverlayName", rasterOverlayName.c_str()),
         std::make_pair("message", message.c_str()));
 }
 

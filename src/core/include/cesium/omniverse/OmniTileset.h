@@ -111,7 +111,7 @@ class OmniTileset {
     std::vector<Cesium3DTilesSelection::ViewState> _viewStates;
     bool _extentSet{false};
     bool _activeLoading{false};
-    std::vector<pxr::SdfPath> _imageryPaths;
+    std::vector<pxr::SdfPath> _rasterOverlayPaths;
 };
 
 } // namespace cesium::omniverse
