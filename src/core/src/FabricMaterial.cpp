@@ -578,7 +578,8 @@ void FabricMaterial::initializeNodes() {
     const auto rasterOverlayLayerCount = getRasterOverlayLayerCount(_materialDescriptor);
     _rasterOverlayLayerPaths.reserve(rasterOverlayLayerCount);
     for (uint64_t i = 0; i < rasterOverlayLayerCount; ++i) {
-        const auto rasterOverlayLayerPath = FabricUtil::joinPaths(_materialPath, FabricTokens::raster_overlay_layer_n(i));
+        const auto rasterOverlayLayerPath =
+            FabricUtil::joinPaths(_materialPath, FabricTokens::raster_overlay_layer_n(i));
         createRasterOverlayLayer(rasterOverlayLayerPath);
         _rasterOverlayLayerPaths.push_back(rasterOverlayLayerPath);
         _allPaths.push_back(rasterOverlayLayerPath);
@@ -846,7 +847,8 @@ void FabricMaterial::createRasterOverlayLayerResolverCommon(
 
     FabricAttributesBuilder attributes(_pContext);
 
-    attributes.addAttribute(FabricTypes::inputs_raster_overlay_layers_count, FabricTokens::inputs_raster_overlay_layers_count);
+    attributes.addAttribute(
+        FabricTypes::inputs_raster_overlay_layers_count, FabricTokens::inputs_raster_overlay_layers_count);
 
     createAttributes(*_pContext, fabricStage, path, attributes, subidentifier);
 
@@ -1659,7 +1661,8 @@ void FabricMaterial::createConnectionsToCopiedPaths() {
     }
 
     for (const auto& copiedPath : _copiedRasterOverlayLayerPaths) {
-        const auto indexFabric = fabricStage.getAttributeRd<int>(copiedPath, FabricTokens::inputs_raster_overlay_layer_index);
+        const auto indexFabric =
+            fabricStage.getAttributeRd<int>(copiedPath, FabricTokens::inputs_raster_overlay_layer_index);
         const auto index = static_cast<uint64_t>(CppUtil::defaultValue(indexFabric, 0));
 
         if (index < rasterOverlay) {
