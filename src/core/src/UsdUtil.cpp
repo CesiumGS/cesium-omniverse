@@ -513,104 +513,181 @@ bool isUsdMaterial(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path)
     return prim.IsA<pxr::UsdShadeMaterial>();
 }
 
-std::optional<TranslateRotateScaleOps> getTranslateRotateScaleOps(const pxr::UsdGeomXformable& xformable) {
-    const pxr::UsdGeomXformOp* pTranslateOp = nullptr;
-    const pxr::UsdGeomXformOp* pRotateOp = nullptr;
-    const pxr::UsdGeomXformOp* pScaleOp = nullptr;
+glm::dvec3 getTranslate(const pxr::UsdGeomXformOp& translateOp) {
+    if (translateOp.GetPrecision() == pxr::UsdGeomXformOp::PrecisionDouble) {
+        pxr::GfVec3d translation;
+        translateOp.Get(&translation);
+        return UsdUtil::usdToGlmVector(translation);
+    } else if (translateOp.GetPrecision() == pxr::UsdGeomXformOp::PrecisionFloat) {
+        pxr::GfVec3f translation;
+        translateOp.Get(&translation);
+        return glm::dvec3(UsdUtil::usdToGlmVector(translation));
+    }
 
-    auto translateOpIndex = 0;
-    auto rotateOpIndex = 0;
-    auto scaleOpIndex = 0;
+    return glm::dvec3(0.0);
+}
 
-    auto opIndex = 0;
+glm::dvec3 getRotate(const pxr::UsdGeomXformOp& rotateOp) {
+    if (rotateOp.GetPrecision() == pxr::UsdGeomXformOp::PrecisionDouble) {
+        pxr::GfVec3d rotation;
+        rotateOp.Get(&rotation);
+        return UsdUtil::usdToGlmVector(rotation);
+    } else if (rotateOp.GetPrecision() == pxr::UsdGeomXformOp::PrecisionFloat) {
+        pxr::GfVec3f rotation;
+        rotateOp.Get(&rotation);
+        return glm::dvec3(UsdUtil::usdToGlmVector(rotation));
+    }
+
+    return glm::dvec3(0.0);
+}
+
+glm::dvec3 getScale(const pxr::UsdGeomXformOp& scaleOp) {
+    if (scaleOp.GetPrecision() == pxr::UsdGeomXformOp::PrecisionDouble) {
+        pxr::GfVec3d scale;
+        scaleOp.Get(&scale);
+        return UsdUtil::usdToGlmVector(scale);
+    } else if (scaleOp.GetPrecision() == pxr::UsdGeomXformOp::PrecisionFloat) {
+        pxr::GfVec3f scale;
+        scaleOp.Get(&scale);
+        return glm::dvec3(UsdUtil::usdToGlmVector(scale));
+    }
+
+    return glm::dvec3(1.0);
+}
+
+void setTranslate(pxr::UsdGeomXformOp& translateOp, const glm::dvec3& translate) {
+    if (translateOp.GetPrecision() == pxr::UsdGeomXformOp::PrecisionDouble) {
+        translateOp.Set(UsdUtil::glmToUsdVector(translate));
+    } else if (translateOp.GetPrecision() == pxr::UsdGeomXformOp::PrecisionFloat) {
+        translateOp.Set(UsdUtil::glmToUsdVector(glm::fvec3(translate)));
+    }
+}
+
+void setRotate(pxr::UsdGeomXformOp& rotateOp, const glm::dvec3& rotate) {
+    if (rotateOp.GetPrecision() == pxr::UsdGeomXformOp::PrecisionDouble) {
+        rotateOp.Set(UsdUtil::glmToUsdVector(rotate));
+    } else if (rotateOp.GetPrecision() == pxr::UsdGeomXformOp::PrecisionFloat) {
+        rotateOp.Set(UsdUtil::glmToUsdVector(glm::fvec3(rotate)));
+    }
+}
+
+void setScale(pxr::UsdGeomXformOp& scaleOp, const glm::dvec3& scale) {
+    if (scaleOp.GetPrecision() == pxr::UsdGeomXformOp::PrecisionDouble) {
+        scaleOp.Set(UsdUtil::glmToUsdVector(scale));
+    } else if (scaleOp.GetPrecision() == pxr::UsdGeomXformOp::PrecisionFloat) {
+        scaleOp.Set(UsdUtil::glmToUsdVector(glm::fvec3(scale)));
+    }
+}
+
+std::optional<TranslateRotateScaleOps> getOrCreateTranslateRotateScaleOps(const pxr::UsdGeomXformable& xformable) {
+    pxr::UsdGeomXformOp translateOp;
+    pxr::UsdGeomXformOp rotateOp;
+    pxr::UsdGeomXformOp scaleOp;
+
+    uint64_t translateOpIndex = 0;
+    uint64_t rotateOpIndex = 0;
+    uint64_t scaleOpIndex = 0;
+
+    uint64_t opCount = 0;
 
     bool resetsXformStack;
-    auto xformOps = xformable.GetOrderedXformOps(&resetsXformStack);
-
-    if (xformOps.empty()) {
-        xformable.ClearXformOpOrder();
-        xformable.AddTranslateOp(pxr::UsdGeomXformOp::PrecisionDouble, pxr::UsdTokens->xformOp_translate)
-            .Set(UsdUtil::glmToUsdVector(glm::dvec3(0.0)));
-        xformable.AddRotateXYZOp(pxr::UsdGeomXformOp::PrecisionDouble, pxr::UsdTokens->xformOp_rotateXYZ)
-            .Set(UsdUtil::glmToUsdVector(glm::dvec3(0.0)));
-        xformable.AddScaleOp(pxr::UsdGeomXformOp::PrecisionDouble, pxr::UsdTokens->xformOp_scale)
-            .Set(UsdUtil::glmToUsdVector(glm::dvec3(1.0)));
-        xformOps = xformable.GetOrderedXformOps(&resetsXformStack);
-    }
+    const auto xformOps = xformable.GetOrderedXformOps(&resetsXformStack);
 
     auto eulerAngleOrder = MathUtil::EulerAngleOrder::XYZ;
 
     for (const auto& xformOp : xformOps) {
         switch (xformOp.GetOpType()) {
             case pxr::UsdGeomXformOp::TypeTranslate:
-                pTranslateOp = &xformOp;
-                translateOpIndex = opIndex;
+                translateOp = xformOp;
+                translateOpIndex = opCount;
                 break;
             case pxr::UsdGeomXformOp::TypeRotateXYZ:
                 eulerAngleOrder = MathUtil::EulerAngleOrder::XYZ;
-                pRotateOp = &xformOp;
-                rotateOpIndex = opIndex;
+                rotateOp = xformOp;
+                rotateOpIndex = opCount;
                 break;
             case pxr::UsdGeomXformOp::TypeRotateXZY:
                 eulerAngleOrder = MathUtil::EulerAngleOrder::XZY;
-                pRotateOp = &xformOp;
-                rotateOpIndex = opIndex;
+                rotateOp = xformOp;
+                rotateOpIndex = opCount;
                 break;
             case pxr::UsdGeomXformOp::TypeRotateYXZ:
                 eulerAngleOrder = MathUtil::EulerAngleOrder::YXZ;
-                pRotateOp = &xformOp;
-                rotateOpIndex = opIndex;
+                rotateOp = xformOp;
+                rotateOpIndex = opCount;
                 break;
             case pxr::UsdGeomXformOp::TypeRotateYZX:
                 eulerAngleOrder = MathUtil::EulerAngleOrder::YZX;
-                pRotateOp = &xformOp;
-                rotateOpIndex = opIndex;
+                rotateOp = xformOp;
+                rotateOpIndex = opCount;
                 break;
             case pxr::UsdGeomXformOp::TypeRotateZXY:
                 eulerAngleOrder = MathUtil::EulerAngleOrder::ZXY;
-                pRotateOp = &xformOp;
-                rotateOpIndex = opIndex;
+                rotateOp = xformOp;
+                rotateOpIndex = opCount;
                 break;
             case pxr::UsdGeomXformOp::TypeRotateZYX:
                 eulerAngleOrder = MathUtil::EulerAngleOrder::ZYX;
-                pRotateOp = &xformOp;
-                rotateOpIndex = opIndex;
+                rotateOp = xformOp;
+                rotateOpIndex = opCount;
                 break;
             case pxr::UsdGeomXformOp::TypeScale:
-                pScaleOp = &xformOp;
-                scaleOpIndex = opIndex;
+                scaleOp = xformOp;
+                scaleOpIndex = opCount;
                 break;
             default:
                 break;
         }
-        ++opIndex;
+
+        ++opCount;
     }
 
-    if (!pTranslateOp || !pRotateOp || !pScaleOp) {
+    if (opCount > 3) {
         return std::nullopt;
     }
 
-    if (translateOpIndex != 0 || rotateOpIndex != 1 || scaleOpIndex != 2) {
-        return std::nullopt;
-    }
-
-    if (opIndex != 3) {
-        return std::nullopt;
-    }
+    const auto translateOpDefined = translateOp.IsDefined();
+    const auto rotateOpDefined = rotateOp.IsDefined();
+    const auto scaleOpDefined = scaleOp.IsDefined();
 
     const auto isPrecisionSupported = [](pxr::UsdGeomXformOp::Precision precision) {
         return precision == pxr::UsdGeomXformOp::PrecisionDouble || precision == pxr::UsdGeomXformOp::PrecisionFloat;
     };
 
-    const auto translatePrecisionSupported = isPrecisionSupported(pTranslateOp->GetPrecision());
-    const auto rotatePrecisionSupported = isPrecisionSupported(pRotateOp->GetPrecision());
-    const auto scalePrecisionSupported = isPrecisionSupported(pScaleOp->GetPrecision());
-
-    if (!translatePrecisionSupported || !rotatePrecisionSupported || !scalePrecisionSupported) {
+    if (translateOpDefined && !isPrecisionSupported(translateOp.GetPrecision())) {
         return std::nullopt;
     }
 
-    return TranslateRotateScaleOps{pTranslateOp, pRotateOp, pScaleOp, eulerAngleOrder};
+    if (rotateOpDefined && !isPrecisionSupported(rotateOp.GetPrecision())) {
+        return std::nullopt;
+    }
+
+    if (scaleOpDefined && !isPrecisionSupported(scaleOp.GetPrecision())) {
+        return std::nullopt;
+    }
+
+    if (!translateOpDefined) {
+        translateOp = xformable.AddTranslateOp(pxr::UsdGeomXformOp::PrecisionDouble);
+        translateOp.Set(UsdUtil::glmToUsdVector(glm::dvec3(0.0)));
+    }
+
+    if (!rotateOpDefined) {
+        rotateOp = xformable.AddRotateXYZOp(pxr::UsdGeomXformOp::PrecisionDouble);
+        rotateOp.Set(UsdUtil::glmToUsdVector(glm::dvec3(0.0)));
+    }
+
+    if (!scaleOpDefined) {
+        scaleOp = xformable.AddScaleOp(pxr::UsdGeomXformOp::PrecisionDouble);
+        scaleOp.Set(UsdUtil::glmToUsdVector(glm::dvec3(1.0)));
+    }
+
+    const auto ordered = translateOpIndex == 0 && rotateOpIndex == 1 && scaleOpIndex == 2;
+
+    if (!translateOpDefined || !rotateOpDefined || !scaleOpDefined || !ordered) {
+        xformable.SetXformOpOrder({translateOp, rotateOp, scaleOp});
+    }
+
+    return TranslateRotateScaleOps{translateOp, rotateOp, scaleOp, eulerAngleOrder};
 }
 
 } // namespace cesium::omniverse::UsdUtil
