@@ -85,6 +85,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     (_cesium_gltfLocalToEcefTransform) \
     (_cesium_tilesetId) \
     (_deletedPrims) \
+    (_materialSource) \
     (_paramColorSpace) \
     (_sdrMetadata) \
     (_worldExtent) \
@@ -274,6 +275,7 @@ const omni::fabric::Type Shader(omni::fabric::BaseDataType::eTag, 1, 0, omni::fa
 const omni::fabric::Type subdivisionScheme(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _cesium_gltfLocalToEcefTransform(omni::fabric::BaseDataType::eDouble, 16, 0, omni::fabric::AttributeRole::eMatrix);
 const omni::fabric::Type _cesium_tilesetId(omni::fabric::BaseDataType::eInt64, 1, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type _materialSource(omni::fabric::BaseDataType::eRelationship, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _paramColorSpace(omni::fabric::BaseDataType::eToken, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _sdrMetadata(omni::fabric::BaseDataType::eToken, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _worldExtent(omni::fabric::BaseDataType::eDouble, 6, 0, omni::fabric::AttributeRole::eNone);
