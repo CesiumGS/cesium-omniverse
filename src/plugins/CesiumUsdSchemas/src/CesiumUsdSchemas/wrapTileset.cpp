@@ -344,6 +344,11 @@ void wrapCesiumTileset()
              &This::GetIonServerBindingRel)
         .def("CreateIonServerBindingRel",
              &This::CreateIonServerBindingRel)
+        
+        .def("GetRasterOverlayBindingRel",
+             &This::GetRasterOverlayBindingRel)
+        .def("CreateRasterOverlayBindingRel",
+             &This::CreateRasterOverlayBindingRel)
         .def("__repr__", ::_Repr)
     ;
 

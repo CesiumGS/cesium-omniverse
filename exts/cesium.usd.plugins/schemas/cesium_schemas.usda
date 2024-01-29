@@ -411,6 +411,14 @@ class CesiumTilesetPrim "CesiumTilesetPrim" (
         displayName = "Cesium ion Server Binding"
         doc = "Specifies which Cesium ion Server prim to use for this tileset."
     )
+
+    rel cesium:rasterOverlayBinding (
+        customData = {
+            string apiName = "rasterOverlayBinding"
+        }
+        displayName = "Raster Overlay Binding"
+        doc = "Specifies which raster overlays to use for this tileset."
+    )
 }
 
 class "CesiumRasterOverlayPrim" (

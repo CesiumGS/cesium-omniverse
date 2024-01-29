@@ -265,6 +265,8 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         assert raster_overlay.GetPrim().IsValid()
         parent = raster_overlay.GetPrim().GetParent()
         assert parent.IsA(CesiumTileset)
+        tileset_prim = CesiumTileset.Get(stage, parent.GetPath())
+        tileset_prim.GetRasterOverlayBindingRel().AddTarget(raster_overlay_path)
 
         raster_overlay.GetIonAssetIdAttr().Set(asset_id)
         raster_overlay.GetIonAccessTokenAttr().Set(access_token)

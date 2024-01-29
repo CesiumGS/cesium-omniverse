@@ -83,6 +83,9 @@ def add_raster_overlay_ion(tileset_path: str, name: str, asset_id: int, token: s
 
     raster_overlay = CesiumIonRasterOverlay.Define(stage, raster_overlay_path)
 
+    tileset_prim = CesiumTileset.Get(stage, tileset_path)
+    tileset_prim.GetRasterOverlayBindingRel().AddTarget(raster_overlay_path)
+
     raster_overlay.GetIonAssetIdAttr().Set(asset_id)
     raster_overlay.GetIonAccessTokenAttr().Set(token)
 

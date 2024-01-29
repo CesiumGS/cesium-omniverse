@@ -87,6 +87,7 @@ void wrapCesiumTokens()
     _AddToken(cls, "cesiumPreloadSiblings", CesiumTokens->cesiumPreloadSiblings);
     _AddToken(cls, "cesiumProjectDefaultIonAccessToken", CesiumTokens->cesiumProjectDefaultIonAccessToken);
     _AddToken(cls, "cesiumProjectDefaultIonAccessTokenId", CesiumTokens->cesiumProjectDefaultIonAccessTokenId);
+    _AddToken(cls, "cesiumRasterOverlayBinding", CesiumTokens->cesiumRasterOverlayBinding);
     _AddToken(cls, "cesiumSelectedIonServer", CesiumTokens->cesiumSelectedIonServer);
     _AddToken(cls, "cesiumShowCreditsOnScreen", CesiumTokens->cesiumShowCreditsOnScreen);
     _AddToken(cls, "cesiumSmoothNormals", CesiumTokens->cesiumSmoothNormals);

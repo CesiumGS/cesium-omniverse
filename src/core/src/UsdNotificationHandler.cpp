@@ -41,13 +41,12 @@ bool isPrimOrDescendant(const pxr::SdfPath& descendantPath, const pxr::SdfPath& 
 void updateRasterOverlayBindings(const Context& context, const pxr::SdfPath& rasterOverlayPath) {
     const auto& tilesets = context.getAssetRegistry().getTilesets();
 
-    // Update all tilesets since they reference raster overlay layers implicitly
-    // In the future this should only update tilesets that have a rel to the raster overlay
+    // Update tilesets that reference this raster overlay
     for (const auto& pTileset : tilesets) {
-        pTileset->reload();
+        if (CppUtil::contains(pTileset->getRasterOverlayPaths(), rasterOverlayPath)) {
+            pTileset->reload();
+        }
     }
-
-    (void)rasterOverlayPath;
 }
 
 void updateRasterOverlayBindingsAlpha(const Context& context, const pxr::SdfPath& rasterOverlayPath) {
@@ -55,12 +54,8 @@ void updateRasterOverlayBindingsAlpha(const Context& context, const pxr::SdfPath
 
     // Update tilesets that reference this raster overlay
     for (const auto& pTileset : tilesets) {
-        const auto rasterOverlayLayerCount = pTileset->getRasterOverlayLayerCount();
-        for (uint64_t i = 0; i < rasterOverlayLayerCount; ++i) {
-            const auto rasterOverlayLayerPath = pTileset->getRasterOverlayLayerPath(i);
-            if (rasterOverlayLayerPath == rasterOverlayPath) {
-                pTileset->updateRasterOverlayLayerAlpha(i);
-            }
+        if (CppUtil::contains(pTileset->getRasterOverlayPaths(), rasterOverlayPath)) {
+            pTileset->updateRasterOverlayAlpha(rasterOverlayPath);
         }
     }
 }
@@ -184,6 +179,7 @@ void processCesiumTilesetChanged(
             property == pxr::CesiumTokens->cesiumIonServerBinding ||
             property == pxr::CesiumTokens->cesiumSmoothNormals ||
             property == pxr::CesiumTokens->cesiumShowCreditsOnScreen ||
+            property == pxr::CesiumTokens->cesiumRasterOverlayBinding ||
             property == pxr::UsdTokens->material_binding) {
             reload = true;
         } else if (
@@ -815,7 +811,7 @@ void UsdNotificationHandler::onObjectsChanged(const pxr::UsdNotice::ObjectsChang
             if (UsdUtil::primExists(_pContext->getUsdStage(), path)) {
                 if (alreadyRegistered(path)) {
                     // A prim may be resynced even if its path doesn't change, like when an API schema is applied to
-                    //it, e.g. when a material is assigned to a tileset for the first time. Do nothing for now. In the
+                    // it, e.g. when a material is assigned to a tileset for the first time. Do nothing for now. In the
                     // future if we support attaching globe anchors to tilesets this will have to change so that the
                     // notification doesn't get lost.
                     continue;
@@ -825,6 +821,8 @@ void UsdNotificationHandler::onObjectsChanged(const pxr::UsdNotice::ObjectsChang
             } else {
                 onPrimRemoved(path);
             }
+        } else if (path.IsPropertyPath()) {
+            onPropertyChanged(path);
         }
     }
 
