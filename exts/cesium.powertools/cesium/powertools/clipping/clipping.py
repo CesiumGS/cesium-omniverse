@@ -2,7 +2,6 @@ import omni.usd
 from pxr import Gf, UsdGeom, Usd
 from datetime import datetime
 from asyncio import ensure_future
-from cesium.omniverse.api.globe_anchor import anchor_xform_at_path
 from cesium.usd.plugins.CesiumUsdSchemas import CartographicPolygon
 import logging
 
@@ -12,7 +11,7 @@ class CesiumCartographicPolygonUtility:
     _up_axis = None
     _logger = None
     _buffer = None
-    _width_m = 0.01 # width of the BasisCurve in meters
+    _width_m = 0.01  # width of the BasisCurve in meters
 
     @classmethod
     def _prepare(cls):
@@ -89,7 +88,6 @@ class CesiumCartographicPolygonUtility:
         Returns:
             None
         """
-        cls._prepare()
 
         for curve_path in prim_path_list:
             curve_prim = cls._stage.GetPrimAtPath(curve_path)
@@ -107,20 +105,22 @@ class CesiumCartographicPolygonUtility:
             polygon = CartographicPolygon.Define(cls._stage, polygon_path)
             polygon_prim = polygon.GetPrim()
 
-            # Add a globe anchor
-            anchor_xform_at_path(polygon_path)
-
-            # Await after globe anchor, otherwise we'll experience a crash
+            # Await, otherwise the transform attribute on the polygon is not available
             await omni.kit.app.get_app().next_update_async()
 
             # Iterate through the curve attributes and copy them to the new polygon
             curve_attributes = curve_prim.GetAttributes()
             for attrib in curve_attributes:
                 value = attrib.Get()
-                if value is not None:
-                    polygon_prim.GetAttribute(attrib.GetName()).Set(attrib.Get())
+                target_attrib = polygon_prim.GetAttribute(attrib.GetName())
+
+                if target_attrib.IsValid():
+                    if value is not None:
+                        target_attrib.Set(attrib.Get())
+                    else:
+                        target_attrib.Clear()
                 else:
-                    polygon_prim.GetAttribute(attrib.GetName()).Clear()
+                    cls._logger.warning(f"Missing attribute {attrib.GetName()} on prim {polygon_prim.GetPath()}")
 
     @classmethod
     def create_cartographic_polygons_from_curves(cls, prim_path_list):
