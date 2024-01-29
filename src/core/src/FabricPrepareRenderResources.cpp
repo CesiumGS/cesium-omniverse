@@ -8,7 +8,7 @@
 #include "cesium/omniverse/FabricGeometry.h"
 #include "cesium/omniverse/FabricMaterial.h"
 #include "cesium/omniverse/FabricMesh.h"
-#include "cesium/omniverse/FabricRasterOverlayLayersInfo.h"
+#include "cesium/omniverse/FabricRasterOverlaysInfo.h"
 #include "cesium/omniverse/FabricRenderResources.h"
 #include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricTexture.h"
@@ -98,7 +98,7 @@ std::vector<FabricMesh> acquireFabricMeshes(
     Context& context,
     const CesiumGltf::Model& model,
     const std::vector<LoadingMesh>& loadingMeshes,
-    const FabricRasterOverlayLayersInfo& rasterOverlayLayersInfo,
+    const FabricRasterOverlaysInfo& rasterOverlaysInfo,
     const OmniTileset& tileset) {
     CESIUM_TRACE("FabricPrepareRenderResources::acquireFabricMeshes");
     std::vector<FabricMesh> fabricMeshes;
@@ -116,7 +116,7 @@ std::vector<FabricMesh> acquireFabricMeshes(
         const auto featuresInfo = GltfUtil::getFeaturesInfo(model, primitive);
 
         const auto shouldAcquireMaterial = fabricResourceManager.shouldAcquireMaterial(
-            primitive, rasterOverlayLayersInfo.overlayRenderMethods.size() > 0, tilesetMaterialPath);
+            primitive, rasterOverlaysInfo.overlayRenderMethods.size() > 0, tilesetMaterialPath);
 
         fabricMesh.materialInfo = materialInfo;
         fabricMesh.featuresInfo = featuresInfo;
@@ -130,7 +130,7 @@ std::vector<FabricMesh> acquireFabricMeshes(
                 primitive,
                 materialInfo,
                 featuresInfo,
-                rasterOverlayLayersInfo,
+                rasterOverlaysInfo,
                 tileset.getTilesetId(),
                 tilesetMaterialPath);
         }
@@ -351,19 +351,19 @@ FabricPrepareRenderResources::prepareInLoadThread(
             Cesium3DTilesSelection::TileLoadResultAndRenderResources{std::move(tileLoadResult), nullptr});
     }
 
-    // We don't know how many raster overlay layers actually overlap this tile until attachRasterInMainThread is called
+    // We don't know how many raster overlays actually overlap this tile until attachRasterInMainThread is called
     // but at least we have an upper bound. Unused texture slots are initialized with a 1x1 transparent pixel so
     // blending still works.
     const auto overlapsRasterOverlay = tileLoadResult.rasterOverlayDetails.has_value();
 
-    FabricRasterOverlayLayersInfo rasterOverlayLayersInfo;
+    FabricRasterOverlaysInfo rasterOverlaysInfo;
 
     if (overlapsRasterOverlay) {
         for (const auto& rasterOverlayPath : _pTileset->getRasterOverlayPaths()) {
             const auto& pRasterOverlay = _pContext->getAssetRegistry().getRasterOverlay(rasterOverlayPath);
             const auto overlayRenderMethod =
                 pRasterOverlay ? pRasterOverlay->getOverlayRenderMethod() : FabricOverlayRenderMethod::OVERLAY;
-            rasterOverlayLayersInfo.overlayRenderMethods.push_back(overlayRenderMethod);
+            rasterOverlaysInfo.overlayRenderMethods.push_back(overlayRenderMethod);
         }
     }
 
@@ -377,7 +377,7 @@ FabricPrepareRenderResources::prepareInLoadThread(
 
     return asyncSystem
         .runInMainThread([this,
-                          rasterOverlayLayersInfo = std::move(rasterOverlayLayersInfo),
+                          rasterOverlaysInfo = std::move(rasterOverlaysInfo),
                           loadingMeshes = std::move(loadingMeshes),
                           tileLoadResult = std::move(tileLoadResult)]() mutable {
             if (!tilesetExists()) {
@@ -389,8 +389,7 @@ FabricPrepareRenderResources::prepareInLoadThread(
             }
 
             const auto pModel = std::get_if<CesiumGltf::Model>(&tileLoadResult.contentKind);
-            auto fabricMeshes =
-                acquireFabricMeshes(*_pContext, *pModel, loadingMeshes, rasterOverlayLayersInfo, *_pTileset);
+            auto fabricMeshes = acquireFabricMeshes(*_pContext, *pModel, loadingMeshes, rasterOverlaysInfo, *_pTileset);
             return IntermediateLoadThreadResult{
                 std::move(tileLoadResult),
                 std::move(loadingMeshes),
@@ -576,7 +575,7 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
                 false,
                 {},
             };
-            pMaterial->setRasterOverlayLayer(
+            pMaterial->setRasterOverlay(
                 pTexture, textureInfo, rasterOverlayIndex, alpha, fabricMesh.rasterOverlayTexcoordIndexMapping);
         }
     }
@@ -619,7 +618,7 @@ void FabricPrepareRenderResources::detachRasterInMainThread(
     for (const auto& fabricMesh : pFabricRenderResources->fabricMeshes) {
         const auto pMaterial = fabricMesh.pMaterial;
         if (pMaterial) {
-            pMaterial->clearRasterOverlayLayer(rasterOverlayIndex);
+            pMaterial->clearRasterOverlay(rasterOverlayIndex);
         }
     }
 }

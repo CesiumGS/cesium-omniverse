@@ -9,7 +9,7 @@ enum class FabricOverlayRenderMethod {
     CLIPPING = 1,
 };
 
-struct FabricRasterOverlayLayersInfo {
+struct FabricRasterOverlaysInfo {
     std::vector<FabricOverlayRenderMethod> overlayRenderMethods;
 };
 

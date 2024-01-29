@@ -36,8 +36,8 @@ PXR_NAMESPACE_CLOSE_SCOPE
     namespace {
     std::mutex tokenMutex;
     std::vector<omni::fabric::Token> feature_id_tokens;
-    std::vector<omni::fabric::Token> raster_overlay_layer_tokens;
-    std::vector<omni::fabric::Token> inputs_raster_overlay_layer_tokens;
+    std::vector<omni::fabric::Token> raster_overlay_tokens;
+    std::vector<omni::fabric::Token> inputs_raster_overlay_tokens;
     std::vector<omni::fabric::Token> primvars_st_tokens;
     std::vector<omni::fabric::Token> property_tokens;
 
@@ -65,12 +65,12 @@ PXR_NAMESPACE_CLOSE_SCOPE
         return getToken(feature_id_tokens, index, "feature_id");
     }
 
-    const omni::fabric::TokenC raster_overlay_layer_n(uint64_t index) {
-        return getToken(raster_overlay_layer_tokens, index, "raster_overlay_layer");
+    const omni::fabric::TokenC raster_overlay_n(uint64_t index) {
+        return getToken(raster_overlay_tokens, index, "raster_overlay");
     }
 
-    const omni::fabric::TokenC inputs_raster_overlay_layer_n(uint64_t index) {
-        return getToken(inputs_raster_overlay_layer_tokens, index, "inputs:raster_overlay_layer");
+    const omni::fabric::TokenC inputs_raster_overlay_n(uint64_t index) {
+        return getToken(inputs_raster_overlay_tokens, index, "inputs:raster_overlay");
     }
 
     const omni::fabric::TokenC primvars_st_n(uint64_t index) {

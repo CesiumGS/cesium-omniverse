@@ -2,7 +2,7 @@
 
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/Context.h"
-#include "cesium/omniverse/FabricRasterOverlayLayersInfo.h"
+#include "cesium/omniverse/FabricRasterOverlaysInfo.h"
 #include "cesium/omniverse/Logger.h"
 #include "cesium/omniverse/OmniIonServer.h"
 #include "cesium/omniverse/UsdUtil.h"
