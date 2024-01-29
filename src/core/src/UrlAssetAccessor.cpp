@@ -184,6 +184,7 @@ UrlAssetAccessor::setCommonOptions(CURL* curl, const std::string& url, const Ces
     if (!_certificatePath.empty()) {
         curl_easy_setopt(curl, CURLOPT_CAINFO, _certificatePath.c_str());
     }
+    curl_easy_setopt(curl, CURLOPT_SSL_OPTIONS, CURLSSLOPT_NATIVE_CA);
     curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "");
     curl_easy_setopt(curl, CURLOPT_BUFFERSIZE, CURL_BUFFERSIZE);
     curl_easy_setopt(curl, CURLOPT_MAXCONNECTS, 20L);
