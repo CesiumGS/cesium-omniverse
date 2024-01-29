@@ -527,12 +527,9 @@ std::optional<TranslateRotateScaleOps> getTranslateRotateScaleOps(const pxr::Usd
 
     if (xformOps.empty()) {
         xformable.ClearXformOpOrder();
-        xformable.AddTranslateOp(pxr::UsdGeomXformOp::PrecisionDouble, pxr::UsdTokens->xformOp_translate)
-            .Set(UsdUtil::glmToUsdVector(glm::dvec3(0.0)));
-        xformable.AddRotateXYZOp(pxr::UsdGeomXformOp::PrecisionDouble, pxr::UsdTokens->xformOp_rotateXYZ)
-            .Set(UsdUtil::glmToUsdVector(glm::dvec3(0.0)));
-        xformable.AddScaleOp(pxr::UsdGeomXformOp::PrecisionDouble, pxr::UsdTokens->xformOp_scale)
-            .Set(UsdUtil::glmToUsdVector(glm::dvec3(1.0)));
+        xformable.AddTranslateOp(pxr::UsdGeomXformOp::PrecisionDouble).Set(UsdUtil::glmToUsdVector(glm::dvec3(0.0)));
+        xformable.AddRotateXYZOp(pxr::UsdGeomXformOp::PrecisionDouble).Set(UsdUtil::glmToUsdVector(glm::dvec3(0.0)));
+        xformable.AddScaleOp(pxr::UsdGeomXformOp::PrecisionDouble).Set(UsdUtil::glmToUsdVector(glm::dvec3(1.0)));
         xformOps = xformable.GetOrderedXformOps(&resetsXformStack);
     }
 
