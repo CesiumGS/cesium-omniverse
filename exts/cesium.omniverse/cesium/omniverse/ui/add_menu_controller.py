@@ -58,6 +58,8 @@ class CesiumAddMenuController:
             child_path = Sdf.Path(path).AppendPath("ion_raster_overlay")
             ion_raster_overlay_path: str = omni.usd.get_stage_next_free_path(stage, child_path, False)
             CesiumIonRasterOverlay.Define(stage, ion_raster_overlay_path)
+            tileset_prim = CesiumTileset.Get(stage, path)
+            tileset_prim.GetRasterOverlayBindingRel().AddTarget(ion_raster_overlay_path)
             get_property_window().request_rebuild()
 
     def _add_polygon_raster_overlay(self, payload: PrimSelectionPayload):
@@ -66,6 +68,8 @@ class CesiumAddMenuController:
             child_path = Sdf.Path(path).AppendPath("polygon_raster_overlay")
             polygon_raster_overlay_path: str = omni.usd.get_stage_next_free_path(stage, child_path, False)
             CesiumPolygonRasterOverlay.Define(stage, polygon_raster_overlay_path)
+            tileset_prim = CesiumTileset.Get(stage, path)
+            tileset_prim.GetRasterOverlayBindingRel().AddTarget(polygon_raster_overlay_path)
             get_property_window().request_rebuild()
 
     @staticmethod

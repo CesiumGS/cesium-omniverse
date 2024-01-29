@@ -2,6 +2,7 @@
 
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/CppUtil.h"
 #include "cesium/omniverse/FabricFeaturesInfo.h"
 #include "cesium/omniverse/FabricFeaturesUtil.h"
 #include "cesium/omniverse/FabricGeometry.h"
@@ -356,11 +357,10 @@ FabricPrepareRenderResources::prepareInLoadThread(
     const auto overlapsRasterOverlay = tileLoadResult.rasterOverlayDetails.has_value();
 
     FabricRasterOverlayLayersInfo rasterOverlayLayersInfo;
-    const auto rasterOverlayLayerCount = overlapsRasterOverlay ? _pTileset->getRasterOverlayLayerCount() : 0;
-    if (rasterOverlayLayerCount > 0) {
-        for (uint64_t i = 0; i < rasterOverlayLayerCount; i++) {
-            const auto& rasterOverlayLayerPath = _pTileset->getRasterOverlayLayerPath(i);
-            const auto& pRasterOverlay = _pContext->getAssetRegistry().getRasterOverlay(rasterOverlayLayerPath);
+
+    if (overlapsRasterOverlay) {
+        for (const auto& rasterOverlayPath : _pTileset->getRasterOverlayPaths()) {
+            const auto& pRasterOverlay = _pContext->getAssetRegistry().getRasterOverlay(rasterOverlayPath);
             const auto overlayRenderMethod =
                 pRasterOverlay ? pRasterOverlay->getOverlayRenderMethod() : FabricOverlayRenderMethod::OVERLAY;
             rasterOverlayLayersInfo.overlayRenderMethods.push_back(overlayRenderMethod);
@@ -541,12 +541,26 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
         return;
     }
 
-    const auto rasterOverlayLayerIndex = _pTileset->getRasterOverlayLayerIndex(rasterTile.getOverlay());
-    if (!rasterOverlayLayerIndex.has_value()) {
+    const auto rasterOverlayPath = _pTileset->getRasterOverlayPath(rasterTile.getOverlay());
+
+    if (rasterOverlayPath.IsEmpty()) {
         return;
     }
 
-    const auto alpha = _pTileset->getRasterOverlayLayerAlpha(rasterOverlayLayerIndex.value());
+    const auto rasterOverlayPaths = _pTileset->getRasterOverlayPaths();
+    const auto rasterOverlayIndex = CppUtil::indexOf(_pTileset->getRasterOverlayPaths(), rasterOverlayPath);
+
+    if (rasterOverlayIndex == rasterOverlayPaths.size()) {
+        return;
+    }
+
+    const auto pRasterOverlay = _pContext->getAssetRegistry().getRasterOverlay(rasterOverlayPath);
+
+    if (!pRasterOverlay) {
+        return;
+    }
+
+    const auto alpha = glm::clamp(pRasterOverlay->getAlpha(), 0.0, 1.0);
 
     for (const auto& fabricMesh : pFabricRenderResources->fabricMeshes) {
         const auto pMaterial = fabricMesh.pMaterial;
@@ -563,11 +577,7 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
                 {},
             };
             pMaterial->setRasterOverlayLayer(
-                pTexture,
-                textureInfo,
-                rasterOverlayLayerIndex.value(),
-                alpha,
-                fabricMesh.rasterOverlayTexcoordIndexMapping);
+                pTexture, textureInfo, rasterOverlayIndex, alpha, fabricMesh.rasterOverlayTexcoordIndexMapping);
         }
     }
 }
@@ -593,15 +603,23 @@ void FabricPrepareRenderResources::detachRasterInMainThread(
         return;
     }
 
-    const auto rasterOverlayLayerIndex = _pTileset->getRasterOverlayLayerIndex(rasterTile.getOverlay());
-    if (!rasterOverlayLayerIndex.has_value()) {
+    const auto rasterOverlayPath = _pTileset->getRasterOverlayPath(rasterTile.getOverlay());
+
+    if (rasterOverlayPath.IsEmpty()) {
+        return;
+    }
+
+    const auto rasterOverlayPaths = _pTileset->getRasterOverlayPaths();
+    const auto rasterOverlayIndex = CppUtil::indexOf(rasterOverlayPaths, rasterOverlayPath);
+
+    if (rasterOverlayIndex == rasterOverlayPaths.size()) {
         return;
     }
 
     for (const auto& fabricMesh : pFabricRenderResources->fabricMeshes) {
         const auto pMaterial = fabricMesh.pMaterial;
         if (pMaterial) {
-            pMaterial->clearRasterOverlayLayer(rasterOverlayLayerIndex.value());
+            pMaterial->clearRasterOverlayLayer(rasterOverlayIndex);
         }
     }
 }

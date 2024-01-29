@@ -711,6 +711,18 @@ getPrimsInMaterialNetwork(omni::fabric::StageReaderWriter& fabricStage, const om
     return paths;
 }
 
+omni::fabric::Path getMaterialSource(omni::fabric::StageReaderWriter& fabricStage, const omni::fabric::Path& path) {
+    if (fabricStage.attributeExistsWithType(path, FabricTokens::_materialSource, FabricTypes::_materialSource)) {
+        const auto materialSourceFabric =
+            fabricStage.getArrayAttributeRd<omni::fabric::PathC>(path, FabricTokens::_materialSource);
+        if (!materialSourceFabric.empty()) {
+            return *materialSourceFabric.begin();
+        }
+    }
+
+    return path;
+}
+
 } // namespace
 
 std::vector<omni::fabric::Path> copyMaterial(
@@ -719,7 +731,9 @@ std::vector<omni::fabric::Path> copyMaterial(
     const omni::fabric::Path& dstMaterialPath) {
     const auto iFabricStage = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
 
-    const auto srcPaths = getPrimsInMaterialNetwork(fabricStage, srcMaterialPath);
+    const auto materialSourcePath = getMaterialSource(fabricStage, srcMaterialPath);
+
+    const auto srcPaths = getPrimsInMaterialNetwork(fabricStage, materialSourcePath);
 
     std::vector<omni::fabric::Path> dstPaths;
     dstPaths.reserve(srcPaths.size());
@@ -727,7 +741,7 @@ std::vector<omni::fabric::Path> copyMaterial(
     for (const auto& srcPath : srcPaths) {
         auto dstPath = omni::fabric::Path();
 
-        if (srcPath == srcMaterialPath) {
+        if (srcPath == materialSourcePath) {
             dstPath = dstMaterialPath;
         } else {
             dstPath = FabricUtil::getCopiedShaderPath(dstMaterialPath, srcPath);
@@ -775,11 +789,13 @@ std::vector<omni::fabric::Path> copyMaterial(
     return dstPaths;
 }
 
-bool materialHasCesiumNodes(omni::fabric::StageReaderWriter& fabricStage, const omni::fabric::Path& path) {
-    const auto paths = getPrimsInMaterialNetwork(fabricStage, path);
+bool materialHasCesiumNodes(omni::fabric::StageReaderWriter& fabricStage, const omni::fabric::Path& materialPath) {
+    const auto materialSourcePath = getMaterialSource(fabricStage, materialPath);
 
-    for (const auto& p : paths) {
-        const auto mdlIdentifier = getMdlIdentifier(fabricStage, p);
+    const auto paths = getPrimsInMaterialNetwork(fabricStage, materialSourcePath);
+
+    for (const auto& path : paths) {
+        const auto mdlIdentifier = getMdlIdentifier(fabricStage, path);
         if (isCesiumNode(mdlIdentifier)) {
             return true;
         }
@@ -807,7 +823,10 @@ bool isShaderConnectedToMaterial(
     omni::fabric::StageReaderWriter& fabricStage,
     const omni::fabric::Path& materialPath,
     const omni::fabric::Path& shaderPath) {
-    const auto paths = getPrimsInMaterialNetwork(fabricStage, materialPath);
+
+    const auto materialSourcePath = getMaterialSource(fabricStage, materialPath);
+
+    const auto paths = getPrimsInMaterialNetwork(fabricStage, materialSourcePath);
     return CppUtil::contains(paths, shaderPath);
 }
 

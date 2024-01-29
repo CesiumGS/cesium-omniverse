@@ -41,7 +41,7 @@ std::vector<omni::fabric::Path> copyMaterial(
     omni::fabric::StageReaderWriter& fabricStage,
     const omni::fabric::Path& srcMaterialPath,
     const omni::fabric::Path& dstMaterialPath);
-bool materialHasCesiumNodes(omni::fabric::StageReaderWriter& fabricStage, const omni::fabric::Path& path);
+bool materialHasCesiumNodes(omni::fabric::StageReaderWriter& fabricStage, const omni::fabric::Path& materialPath);
 bool isCesiumNode(const omni::fabric::Token& mdlIdentifier);
 bool isCesiumPropertyNode(const omni::fabric::Token& mdlIdentifier);
 bool isShaderConnectedToMaterial(

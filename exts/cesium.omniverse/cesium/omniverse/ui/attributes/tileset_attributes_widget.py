@@ -7,6 +7,7 @@ from cesium.usd.plugins.CesiumUsdSchemas import (
     Tileset as CesiumTileset,
     IonServer as CesiumIonServer,
     Georeference as CesiumGeoreference,
+    RasterOverlay as CesiumRasterOverlay,
 )
 
 
@@ -38,6 +39,8 @@ class CesiumTilesetAttributesWidget(SchemaPropertiesWidget):
                 CustomLayoutProperty("cesium:ionAccessToken")
                 CustomLayoutProperty("cesium:ionServerBinding")
                 CustomLayoutProperty("cesium:url")
+            with CustomLayoutGroup("Raster Overlays"):
+                CustomLayoutProperty("cesium:rasterOverlayBinding")
             with CustomLayoutGroup("Level of Detail"):
                 CustomLayoutProperty("cesium:maximumScreenSpaceError")
             with CustomLayoutGroup("Tile Loading"):
@@ -66,7 +69,9 @@ class CesiumTilesetAttributesWidget(SchemaPropertiesWidget):
         filtered_props.extend(
             prop
             for prop in props
-            if prop.GetName() == "cesium:ionServerBinding" or prop.GetName() == "cesium:georeferenceBinding"
+            if prop.GetName() == "cesium:ionServerBinding"
+            or prop.GetName() == "cesium:georeferenceBinding"
+            or prop.GetName() == "cesium:rasterOverlayBinding"
         )
         return filtered_props
 
@@ -75,5 +80,7 @@ class CesiumTilesetAttributesWidget(SchemaPropertiesWidget):
             return None, {"target_picker_filter_type_list": [CesiumIonServer], "targets_limit": 1}
         elif ui_attr.prop_name == "cesium:georeferenceBinding":
             return None, {"target_picker_filter_type_list": [CesiumGeoreference], "targets_limit": 1}
+        elif ui_attr.prop_name == "cesium:rasterOverlayBinding":
+            return None, {"target_picker_filter_type_list": [CesiumRasterOverlay]}
 
         return None, {"targets_limit": 0}
