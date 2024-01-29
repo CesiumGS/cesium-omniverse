@@ -8,7 +8,7 @@ import omni.kit.ui
 from .powertools_window import CesiumPowertoolsWindow
 from cesium.omniverse.utils import wait_n_frames, dock_window_async
 from cesium.omniverse.install import WheelInfo, WheelInstaller
-
+from .context_menu import ContextMenu
 
 class CesiumPowertoolsExtension(omni.ext.IExt):
     def __init__(self):
@@ -25,9 +25,11 @@ class CesiumPowertoolsExtension(omni.ext.IExt):
 
         self._setup_menus()
         self._show_and_dock_startup_windows()
+        ContextMenu.startup()
 
     def on_shutdown(self):
         self._destroy_powertools_window()
+        ContextMenu.shutdown()
 
     def _setup_menus(self):
         ui.Workspace.set_show_window_fn(
@@ -81,6 +83,18 @@ class CesiumPowertoolsExtension(omni.ext.IExt):
                 windows_whl="pyproj-3.6.0-cp310-cp310-win_amd64.whl",
                 linux_x64_whl="pyproj-3.6.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
                 linux_aarch_whl="pyproj-3.6.0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl",
+            ),
+            WheelInfo(
+                module="numpy",
+                windows_whl="numpy-1.26.3-cp310-cp310-win_amd64",
+                linux_x64_whl="numpy-1.26.3-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64",
+                linux_aarch_whl="numpy-1.26.3-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64",
+            ),
+            WheelInfo(
+                module="shapely",
+                windows_whl="shapely-2.0.2-cp310-cp310-win_amd64.whl",
+                linux_x64_whl="shapely-2.0.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+                linux_aarch_whl="shapely-2.0.2-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl",
             )
         ]
 
