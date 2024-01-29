@@ -5,6 +5,7 @@
 #include <glm/fwd.hpp>
 #include <pxr/base/gf/declare.h>
 #include <pxr/usd/usd/common.h>
+#include <pxr/usd/usdGeom/xformOp.h>
 
 PXR_NAMESPACE_OPEN_SCOPE
 class CesiumCartographicPolygon;
@@ -139,13 +140,20 @@ bool hasCesiumGlobeAnchor(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath
 bool isUsdShader(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool isUsdMaterial(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 
+glm::dvec3 getTranslate(const pxr::UsdGeomXformOp& translateOp);
+glm::dvec3 getRotate(const pxr::UsdGeomXformOp& rotateOp);
+glm::dvec3 getScale(const pxr::UsdGeomXformOp& scaleOp);
+void setTranslate(pxr::UsdGeomXformOp& translateOp, const glm::dvec3& translate);
+void setRotate(pxr::UsdGeomXformOp& rotateOp, const glm::dvec3& rotate);
+void setScale(pxr::UsdGeomXformOp& scaleOp, const glm::dvec3& scale);
+
 struct TranslateRotateScaleOps {
-    const pxr::UsdGeomXformOp* pTranslateOp;
-    const pxr::UsdGeomXformOp* pRotateOp;
-    const pxr::UsdGeomXformOp* pScaleOp;
+    pxr::UsdGeomXformOp translateOp;
+    pxr::UsdGeomXformOp rotateOp;
+    pxr::UsdGeomXformOp scaleOp;
     MathUtil::EulerAngleOrder eulerAngleOrder;
 };
 
-std::optional<TranslateRotateScaleOps> getTranslateRotateScaleOps(const pxr::UsdGeomXformable& xformable);
+std::optional<TranslateRotateScaleOps> getOrCreateTranslateRotateScaleOps(const pxr::UsdGeomXformable& xformable);
 
 }; // namespace cesium::omniverse::UsdUtil
