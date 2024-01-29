@@ -139,11 +139,11 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
     void updateTroubleshootingDetails(
         const char* tilesetPath,
         int64_t tilesetIonAssetId,
-        int64_t imageryIonAssetId,
+        int64_t rasterOverlayIonAssetId,
         uint64_t tokenEventId,
         uint64_t assetEventId) noexcept override {
         return _pContext->getCesiumIonServerManager().updateTroubleshootingDetails(
-            pxr::SdfPath(tilesetPath), tilesetIonAssetId, imageryIonAssetId, tokenEventId, assetEventId);
+            pxr::SdfPath(tilesetPath), tilesetIonAssetId, rasterOverlayIonAssetId, tokenEventId, assetEventId);
     }
 
     std::string printFabricStage() noexcept override {

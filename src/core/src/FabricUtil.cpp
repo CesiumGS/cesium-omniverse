@@ -790,7 +790,7 @@ bool materialHasCesiumNodes(omni::fabric::StageReaderWriter& fabricStage, const 
 
 bool isCesiumNode(const omni::fabric::Token& mdlIdentifier) {
     return mdlIdentifier == FabricTokens::cesium_base_color_texture_float4 ||
-           mdlIdentifier == FabricTokens::cesium_imagery_layer_float4 ||
+           mdlIdentifier == FabricTokens::cesium_raster_overlay_layer_float4 ||
            mdlIdentifier == FabricTokens::cesium_feature_id_int || isCesiumPropertyNode(mdlIdentifier);
 }
 

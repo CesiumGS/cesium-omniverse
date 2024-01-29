@@ -16,9 +16,9 @@
 #include "cesium/omniverse/OmniCartographicPolygon.h"
 #include "cesium/omniverse/OmniGeoreference.h"
 #include "cesium/omniverse/OmniGlobeAnchor.h"
-#include "cesium/omniverse/OmniIonImagery.h"
+#include "cesium/omniverse/OmniIonRasterOverlay.h"
 #include "cesium/omniverse/OmniIonServer.h"
-#include "cesium/omniverse/OmniPolygonImagery.h"
+#include "cesium/omniverse/OmniPolygonRasterOverlay.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/TilesetStatistics.h"
 #include "cesium/omniverse/UsdUtil.h"
@@ -35,7 +35,7 @@
 #include <CesiumGeospatial/CartographicPolygon.h>
 #include <CesiumRasterOverlays/IonRasterOverlay.h>
 #include <CesiumRasterOverlays/RasterizedPolygonsOverlay.h>
-#include <CesiumUsdSchemas/imagery.h>
+#include <CesiumUsdSchemas/rasterOverlay.h>
 #include <CesiumUsdSchemas/tileset.h>
 #include <pxr/usd/usd/prim.h>
 #include <pxr/usd/usd/stage.h>
@@ -468,7 +468,7 @@ void OmniTileset::reload() {
     _pViewUpdateResult = nullptr;
     _extentSet = false;
     _activeLoading = false;
-    _imageryPaths.clear();
+    _rasterOverlayPaths.clear();
 
     switch (sourceType) {
         case TilesetSourceType::ION:
@@ -486,45 +486,46 @@ void OmniTileset::reload() {
 
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
     for (const auto& child : cesiumTileset.GetPrim().GetAllChildren()) {
-        const auto imageryPath = child.GetPath();
-        if (UsdUtil::isCesiumImagery(_pContext->getUsdStage(), imageryPath)) {
-            _imageryPaths.push_back(imageryPath);
+        const auto rasterOverlayPath = child.GetPath();
+        if (UsdUtil::isCesiumRasterOverlay(_pContext->getUsdStage(), rasterOverlayPath)) {
+            _rasterOverlayPaths.push_back(rasterOverlayPath);
         }
 
-        const auto pImagery = _pContext->getAssetRegistry().getImagery(imageryPath);
-        if (pImagery) {
-            const auto pRasterOverlay = pImagery->getRasterOverlay();
-            if (pRasterOverlay) {
-                _pTileset->getOverlays().add(pRasterOverlay);
+        const auto pRasterOverlay = _pContext->getAssetRegistry().getRasterOverlay(rasterOverlayPath);
+        if (pRasterOverlay) {
+            const auto pCesiumRasterOverlay = pRasterOverlay->getRasterOverlay();
+            if (pCesiumRasterOverlay) {
+                _pTileset->getOverlays().add(pCesiumRasterOverlay);
             }
         }
     }
 }
 
-std::optional<uint64_t> OmniTileset::getImageryLayerIndex(const CesiumRasterOverlays::RasterOverlay& overlay) const {
-    uint64_t imageryLayerIndex = 0;
+std::optional<uint64_t>
+OmniTileset::getRasterOverlayLayerIndex(const CesiumRasterOverlays::RasterOverlay& overlay) const {
+    uint64_t rasterOverlayLayerIndex = 0;
     for (const auto& pOverlay : _pTileset->getOverlays()) {
         if (pOverlay.get() == &overlay) {
-            return imageryLayerIndex;
+            return rasterOverlayLayerIndex;
         }
 
-        ++imageryLayerIndex;
+        ++rasterOverlayLayerIndex;
     }
 
     return std::nullopt;
 }
 
-uint64_t OmniTileset::getImageryLayerCount() const {
-    return _imageryPaths.size();
+uint64_t OmniTileset::getRasterOverlayLayerCount() const {
+    return _rasterOverlayPaths.size();
 }
 
-void OmniTileset::updateImageryLayerAlpha(uint64_t imageryLayerIndex) {
-    assert(imageryLayerIndex < _imageryPaths.size());
+void OmniTileset::updateRasterOverlayLayerAlpha(uint64_t rasterOverlayLayerIndex) {
+    assert(rasterOverlayLayerIndex < _rasterOverlayPaths.size());
 
-    const auto alpha = getImageryLayerAlpha(imageryLayerIndex);
+    const auto alpha = getRasterOverlayLayerAlpha(rasterOverlayLayerIndex);
 
-    forEachFabricMaterial(_pTileset.get(), [imageryLayerIndex, alpha](FabricMaterial& fabricMaterial) {
-        fabricMaterial.setImageryLayerAlpha(imageryLayerIndex, alpha);
+    forEachFabricMaterial(_pTileset.get(), [rasterOverlayLayerIndex, alpha](FabricMaterial& fabricMaterial) {
+        fabricMaterial.setRasterOverlayLayerAlpha(rasterOverlayLayerIndex, alpha);
     });
 }
 
@@ -544,19 +545,20 @@ void OmniTileset::updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::T
     });
 }
 
-double OmniTileset::getImageryLayerAlpha(uint64_t imageryLayerIndex) const {
-    assert(imageryLayerIndex < _imageryPaths.size());
+double OmniTileset::getRasterOverlayLayerAlpha(uint64_t rasterOverlayLayerIndex) const {
+    assert(rasterOverlayLayerIndex < _rasterOverlayPaths.size());
 
-    const auto pImagery = _pContext->getAssetRegistry().getImagery(_imageryPaths[imageryLayerIndex]);
-    if (!pImagery) {
+    const auto pRasterOverlay =
+        _pContext->getAssetRegistry().getRasterOverlay(_rasterOverlayPaths[rasterOverlayLayerIndex]);
+    if (!pRasterOverlay) {
         return 1.0;
     }
 
-    return glm::clamp(pImagery->getAlpha(), 0.0, 1.0);
+    return glm::clamp(pRasterOverlay->getAlpha(), 0.0, 1.0);
 }
 
-pxr::SdfPath OmniTileset::getImageryLayerPath(uint64_t imageryLayerIndex) const {
-    return _imageryPaths[imageryLayerIndex];
+pxr::SdfPath OmniTileset::getRasterOverlayLayerPath(uint64_t rasterOverlayLayerIndex) const {
+    return _rasterOverlayPaths[rasterOverlayLayerIndex];
 }
 
 void OmniTileset::onUpdateFrame(const gsl::span<const Viewport>& viewports) {

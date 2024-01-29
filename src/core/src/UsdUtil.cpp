@@ -22,9 +22,9 @@
 #include <CesiumUsdSchemas/data.h>
 #include <CesiumUsdSchemas/georeference.h>
 #include <CesiumUsdSchemas/globeAnchorAPI.h>
-#include <CesiumUsdSchemas/ionImagery.h>
+#include <CesiumUsdSchemas/ionRasterOverlay.h>
 #include <CesiumUsdSchemas/ionServer.h>
-#include <CesiumUsdSchemas/polygonImagery.h>
+#include <CesiumUsdSchemas/polygonRasterOverlay.h>
 #include <CesiumUsdSchemas/session.h>
 #include <CesiumUsdSchemas/tileset.h>
 #include <glm/gtc/matrix_access.hpp>
@@ -313,12 +313,13 @@ pxr::CesiumTileset defineCesiumTileset(const pxr::UsdStageWeakPtr& pStage, const
     return pxr::CesiumTileset::Define(pStage, path);
 }
 
-pxr::CesiumIonImagery defineCesiumIonImagery(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
-    return pxr::CesiumIonImagery::Define(pStage, path);
+pxr::CesiumIonRasterOverlay defineCesiumIonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
+    return pxr::CesiumIonRasterOverlay::Define(pStage, path);
 }
 
-pxr::CesiumPolygonImagery defineCesiumPolygonImagery(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
-    return pxr::CesiumPolygonImagery::Define(pStage, path);
+pxr::CesiumPolygonRasterOverlay
+defineCesiumPolygonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
+    return pxr::CesiumPolygonRasterOverlay::Define(pStage, path);
 }
 
 pxr::CesiumGeoreference defineCesiumGeoreference(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
@@ -347,16 +348,17 @@ pxr::CesiumTileset getCesiumTileset(const pxr::UsdStageWeakPtr& pStage, const px
     return pxr::CesiumTileset::Get(pStage, path);
 }
 
-pxr::CesiumImagery getCesiumImagery(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
-    return pxr::CesiumImagery::Get(pStage, path);
+pxr::CesiumRasterOverlay getCesiumRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
+    return pxr::CesiumRasterOverlay::Get(pStage, path);
 }
 
-pxr::CesiumIonImagery getCesiumIonImagery(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
-    return pxr::CesiumIonImagery::Get(pStage, path);
+pxr::CesiumIonRasterOverlay getCesiumIonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
+    return pxr::CesiumIonRasterOverlay::Get(pStage, path);
 }
 
-pxr::CesiumPolygonImagery getCesiumPolygonImagery(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
-    return pxr::CesiumPolygonImagery::Get(pStage, path);
+pxr::CesiumPolygonRasterOverlay
+getCesiumPolygonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
+    return pxr::CesiumPolygonRasterOverlay::Get(pStage, path);
 }
 
 pxr::CesiumGeoreference getCesiumGeoreference(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
@@ -421,31 +423,31 @@ bool isCesiumTileset(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& pat
     return prim.IsA<pxr::CesiumTileset>();
 }
 
-bool isCesiumImagery(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
+bool isCesiumRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
     const auto prim = pStage->GetPrimAtPath(path);
     if (!prim.IsValid()) {
         return false;
     }
 
-    return prim.IsA<pxr::CesiumImagery>();
+    return prim.IsA<pxr::CesiumRasterOverlay>();
 }
 
-bool isCesiumIonImagery(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
+bool isCesiumIonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
     const auto prim = pStage->GetPrimAtPath(path);
     if (!prim.IsValid()) {
         return false;
     }
 
-    return prim.IsA<pxr::CesiumIonImagery>();
+    return prim.IsA<pxr::CesiumIonRasterOverlay>();
 }
 
-bool isCesiumPolygonImagery(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
+bool isCesiumPolygonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
     const auto prim = pStage->GetPrimAtPath(path);
     if (!prim.IsValid()) {
         return false;
     }
 
-    return prim.IsA<pxr::CesiumPolygonImagery>();
+    return prim.IsA<pxr::CesiumPolygonRasterOverlay>();
 }
 
 bool isCesiumGeoreference(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {

@@ -135,7 +135,7 @@ class ICesiumOmniverseInterface {
     virtual void updateTroubleshootingDetails(
         const char* tilesetPath,
         int64_t tilesetIonAssetId,
-        int64_t imageryIonAssetId,
+        int64_t rasterOverlayIonAssetId,
         uint64_t tokenEventId,
         uint64_t assetEventId) noexcept = 0;
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cesium/omniverse/OmniImagery.h"
+#include "cesium/omniverse/OmniRasterOverlay.h"
 
 #include <CesiumRasterOverlays/IonRasterOverlay.h>
 #include <CesiumUtility/IntrusivePointer.h>
@@ -11,14 +11,14 @@ struct Token;
 
 namespace cesium::omniverse {
 
-class OmniIonImagery final : public OmniImagery {
+class OmniIonRasterOverlay final : public OmniRasterOverlay {
   public:
-    OmniIonImagery(Context* pContext, const pxr::SdfPath& path);
-    ~OmniIonImagery() override = default;
-    OmniIonImagery(const OmniIonImagery&) = delete;
-    OmniIonImagery& operator=(const OmniIonImagery&) = delete;
-    OmniIonImagery(OmniIonImagery&&) noexcept = default;
-    OmniIonImagery& operator=(OmniIonImagery&&) noexcept = default;
+    OmniIonRasterOverlay(Context* pContext, const pxr::SdfPath& path);
+    ~OmniIonRasterOverlay() override = default;
+    OmniIonRasterOverlay(const OmniIonRasterOverlay&) = delete;
+    OmniIonRasterOverlay& operator=(const OmniIonRasterOverlay&) = delete;
+    OmniIonRasterOverlay(OmniIonRasterOverlay&&) noexcept = default;
+    OmniIonRasterOverlay& operator=(OmniIonRasterOverlay&&) noexcept = default;
 
     [[nodiscard]] int64_t getIonAssetId() const;
     [[nodiscard]] CesiumIonClient::Token getIonAccessToken() const;

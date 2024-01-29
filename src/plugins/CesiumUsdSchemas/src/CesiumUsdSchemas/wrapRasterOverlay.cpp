@@ -1,4 +1,4 @@
-#include ".//polygonImagery.h"
+#include ".//rasterOverlay.h"
 #include "pxr/usd/usd/schemaBase.h"
 
 #include "pxr/usd/sdf/primSpec.h"
@@ -25,24 +25,45 @@ namespace {
 // fwd decl.
 WRAP_CUSTOM;
 
+        
+static UsdAttribute
+_CreateShowCreditsOnScreenAttr(CesiumRasterOverlay &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateShowCreditsOnScreenAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateAlphaAttr(CesiumRasterOverlay &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateAlphaAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Float), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateOverlayRenderMethodAttr(CesiumRasterOverlay &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateOverlayRenderMethodAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Token), writeSparsely);
+}
 
 static std::string
-_Repr(const CesiumPolygonImagery &self)
+_Repr(const CesiumRasterOverlay &self)
 {
     std::string primRepr = TfPyRepr(self.GetPrim());
     return TfStringPrintf(
-        "CesiumUsdSchemas.PolygonImagery(%s)",
+        "CesiumUsdSchemas.RasterOverlay(%s)",
         primRepr.c_str());
 }
 
 } // anonymous namespace
 
-void wrapCesiumPolygonImagery()
+void wrapCesiumRasterOverlay()
 {
-    typedef CesiumPolygonImagery This;
+    typedef CesiumRasterOverlay This;
 
-    class_<This, bases<CesiumImagery> >
-        cls("PolygonImagery");
+    class_<This, bases<UsdTyped> >
+        cls("RasterOverlay");
 
     cls
         .def(init<UsdPrim>(arg("prim")))
@@ -51,9 +72,6 @@ void wrapCesiumPolygonImagery()
 
         .def("Get", &This::Get, (arg("stage"), arg("path")))
         .staticmethod("Get")
-
-        .def("Define", &This::Define, (arg("stage"), arg("path")))
-        .staticmethod("Define")
 
         .def("GetSchemaAttributeNames",
              &This::GetSchemaAttributeNames,
@@ -67,12 +85,28 @@ void wrapCesiumPolygonImagery()
 
         .def(!self)
 
-
         
-        .def("GetCartographicPolygonBindingRel",
-             &This::GetCartographicPolygonBindingRel)
-        .def("CreateCartographicPolygonBindingRel",
-             &This::CreateCartographicPolygonBindingRel)
+        .def("GetShowCreditsOnScreenAttr",
+             &This::GetShowCreditsOnScreenAttr)
+        .def("CreateShowCreditsOnScreenAttr",
+             &_CreateShowCreditsOnScreenAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetAlphaAttr",
+             &This::GetAlphaAttr)
+        .def("CreateAlphaAttr",
+             &_CreateAlphaAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetOverlayRenderMethodAttr",
+             &This::GetOverlayRenderMethodAttr)
+        .def("CreateOverlayRenderMethodAttr",
+             &_CreateOverlayRenderMethodAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+
         .def("__repr__", ::_Repr)
     ;
 

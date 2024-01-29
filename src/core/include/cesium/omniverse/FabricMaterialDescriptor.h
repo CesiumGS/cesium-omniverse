@@ -13,7 +13,7 @@ class Context;
 enum class FabricFeatureIdType;
 enum class FabricOverlayRenderMethod;
 struct FabricFeaturesInfo;
-struct FabricImageryLayersInfo;
+struct FabricRasterOverlayLayersInfo;
 struct FabricMaterialInfo;
 struct FabricPropertyDescriptor;
 
@@ -36,13 +36,13 @@ class FabricMaterialDescriptor {
         const CesiumGltf::MeshPrimitive& primitive,
         const FabricMaterialInfo& materialInfo,
         const FabricFeaturesInfo& featuresInfo,
-        const FabricImageryLayersInfo& imageryLayersInfo,
+        const FabricRasterOverlayLayersInfo& rasterOverlayLayersInfo,
         const pxr::SdfPath& tilesetMaterialPath);
 
     [[nodiscard]] bool hasVertexColors() const;
     [[nodiscard]] bool hasBaseColorTexture() const;
     [[nodiscard]] const std::vector<FabricFeatureIdType>& getFeatureIdTypes() const;
-    [[nodiscard]] const std::vector<FabricOverlayRenderMethod>& getImageryOverlayRenderMethods() const;
+    [[nodiscard]] const std::vector<FabricOverlayRenderMethod>& getRasterOverlayRenderMethods() const;
     [[nodiscard]] bool hasTilesetMaterial() const;
     [[nodiscard]] const pxr::SdfPath& getTilesetMaterialPath() const;
     [[nodiscard]] const std::vector<FabricPropertyDescriptor>& getStyleableProperties() const;
@@ -53,7 +53,7 @@ class FabricMaterialDescriptor {
     bool _hasVertexColors;
     bool _hasBaseColorTexture;
     std::vector<FabricFeatureIdType> _featureIdTypes;
-    std::vector<FabricOverlayRenderMethod> _imageryOverlayRenderMethods;
+    std::vector<FabricOverlayRenderMethod> _rasterOverlayRenderMethods;
     pxr::SdfPath _tilesetMaterialPath;
     std::vector<FabricPropertyDescriptor> _styleableProperties;
 };

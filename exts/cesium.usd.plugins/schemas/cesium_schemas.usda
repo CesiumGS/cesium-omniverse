@@ -413,11 +413,11 @@ class CesiumTilesetPrim "CesiumTilesetPrim" (
     )
 }
 
-class "CesiumImageryPrim" (
-    doc = """Abstract base class for prims that represent an imagery layer."""
+class "CesiumRasterOverlayPrim" (
+    doc = """Abstract base class for prims that represent a raster overlay."""
     inherits = </Typed>
     customData = {
-        string className = "Imagery"
+        string className = "RasterOverlay"
     }
 ) {
     bool cesium:showCreditsOnScreen = false (
@@ -425,7 +425,7 @@ class "CesiumImageryPrim" (
             string apiName = "showCreditsOnScreen"
         }
         displayName = "Show Credits On Screen"
-        doc = "Whether or not to show this imagery layer's credits on screen."
+        doc = "Whether or not to show this raster overlay's credits on screen."
     )
 
    float cesium:alpha = 1.0 (
@@ -442,15 +442,15 @@ class "CesiumImageryPrim" (
         }
         allowedTokens = ["overlay", "clip"]
         displayName = "Overlay Render Method"
-        doc = "The Cesium default material will give the imagery a different rendering treatment based on this selection."
+        doc = "The Cesium default material will give the raster overlay a different rendering treatment based on this selection."
     )
 }
 
-class CesiumIonImageryPrim "CesiumIonImageryPrim" (
-    doc = """Adds a prim for representing an Ion imagery layer. Should be a child of a tileset."""
-    inherits = </CesiumImageryPrim>
+class CesiumIonRasterOverlayPrim "CesiumIonRasterOverlayPrim" (
+    doc = """Adds a prim for representing an Ion raster overlay. Should be a child of a tileset."""
+    inherits = </CesiumRasterOverlayPrim>
     customData = {
-        string className = "IonImagery"
+        string className = "IonRasterOverlay"
     }
 ) {
     int64 cesium:ionAssetId = 0 (
@@ -478,11 +478,11 @@ class CesiumIonImageryPrim "CesiumIonImageryPrim" (
     )
 }
 
-class CesiumPolygonImageryPrim "CesiumPolygonImageryPrim" (
-    doc = """Adds a prim for representing a polygon imagery layer. Should be a child of a tileset."""
-    inherits = </CesiumImageryPrim>
+class CesiumPolygonRasterOverlayPrim "CesiumPolygonRasterOverlayPrim" (
+    doc = """Adds a prim for representing a polygon raster overlay. Should be a child of a tileset."""
+    inherits = </CesiumRasterOverlayPrim>
     customData = {
-        string className = "PolygonImagery"
+        string className = "PolygonRasterOverlay"
     }
 ) {
     rel cesium:cartographicPolygonBinding (
@@ -490,7 +490,7 @@ class CesiumPolygonImageryPrim "CesiumPolygonImageryPrim" (
             string apiName = "cartographicPolygonBinding"
         }
         displayName = "Cartographic Polygon Binding"
-        doc = "Specifies which Cartographic Polygons to use in the imagery layer"
+        doc = "Specifies which Cartographic Polygons to use in the raster overlay"
     )
 }
 

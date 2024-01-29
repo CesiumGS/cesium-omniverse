@@ -556,8 +556,10 @@ getTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& pr
     return getTexcoords(model, primitive, "TEXCOORD", setIndex, true);
 }
 
-TexcoordsAccessor
-getImageryTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex) {
+TexcoordsAccessor getRasterOverlayTexcoords(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive,
+    uint64_t setIndex) {
     return getTexcoords(model, primitive, "_CESIUMOVERLAY", setIndex, false);
 }
 
@@ -835,7 +837,7 @@ bool hasTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitiv
     return getTexcoordsView(model, primitive, "TEXCOORD", setIndex).status() == CesiumGltf::AccessorViewStatus::Valid;
 }
 
-bool hasImageryTexcoords(
+bool hasRasterOverlayTexcoords(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     uint64_t setIndex) {
@@ -868,13 +870,13 @@ getTexcoordSetIndexes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrim
 }
 
 std::vector<uint64_t>
-getImageryTexcoordSetIndexes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+getRasterOverlayTexcoordSetIndexes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
     auto setIndexes = std::vector<uint64_t>();
 
     for (const auto& attribute : primitive.attributes) {
         const auto [semantic, setIndex] = parseAttributeName(attribute.first);
         if (semantic == "_CESIUMOVERLAY") {
-            if (hasImageryTexcoords(model, primitive, setIndex)) {
+            if (hasRasterOverlayTexcoords(model, primitive, setIndex)) {
                 setIndexes.push_back(setIndex);
             }
         }

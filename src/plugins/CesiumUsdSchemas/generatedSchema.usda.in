@@ -319,8 +319,8 @@ class CesiumTilesetPrim "CesiumTilesetPrim" (
     )
 }
 
-class "CesiumImageryPrim" (
-    doc = "Abstract base class for prims that represent an imagery layer."
+class "CesiumRasterOverlayPrim" (
+    doc = "Abstract base class for prims that represent a raster overlay."
 )
 {
     float cesium:alpha = 1 (
@@ -330,16 +330,16 @@ class "CesiumImageryPrim" (
     uniform token cesium:overlayRenderMethod = "overlay" (
         allowedTokens = ["overlay", "clip"]
         displayName = "Overlay Render Method"
-        doc = "The Cesium default material will give the imagery a different rendering treatment based on this selection."
+        doc = "The Cesium default material will give the raster overlay a different rendering treatment based on this selection."
     )
     bool cesium:showCreditsOnScreen = 0 (
         displayName = "Show Credits On Screen"
-        doc = "Whether or not to show this imagery layer's credits on screen."
+        doc = "Whether or not to show this raster overlay's credits on screen."
     )
 }
 
-class CesiumIonImageryPrim "CesiumIonImageryPrim" (
-    doc = "Adds a prim for representing an Ion imagery layer. Should be a child of a tileset."
+class CesiumIonRasterOverlayPrim "CesiumIonRasterOverlayPrim" (
+    doc = "Adds a prim for representing an Ion raster overlay. Should be a child of a tileset."
 )
 {
     float cesium:alpha = 1 (
@@ -361,16 +361,16 @@ class CesiumIonImageryPrim "CesiumIonImageryPrim" (
     uniform token cesium:overlayRenderMethod = "overlay" (
         allowedTokens = ["overlay", "clip"]
         displayName = "Overlay Render Method"
-        doc = "The Cesium default material will give the imagery a different rendering treatment based on this selection."
+        doc = "The Cesium default material will give the raster overlay a different rendering treatment based on this selection."
     )
     bool cesium:showCreditsOnScreen = 0 (
         displayName = "Show Credits On Screen"
-        doc = "Whether or not to show this imagery layer's credits on screen."
+        doc = "Whether or not to show this raster overlay's credits on screen."
     )
 }
 
-class CesiumPolygonImageryPrim "CesiumPolygonImageryPrim" (
-    doc = "Adds a prim for representing a polygon imagery layer. Should be a child of a tileset."
+class CesiumPolygonRasterOverlayPrim "CesiumPolygonRasterOverlayPrim" (
+    doc = "Adds a prim for representing a polygon raster overlay. Should be a child of a tileset."
 )
 {
     float cesium:alpha = 1 (
@@ -379,16 +379,16 @@ class CesiumPolygonImageryPrim "CesiumPolygonImageryPrim" (
     )
     rel cesium:cartographicPolygonBinding (
         displayName = "Cartographic Polygon Binding"
-        doc = "Specifies which Cartographic Polygons to use in the imagery layer"
+        doc = "Specifies which Cartographic Polygons to use in the raster overlay"
     )
     uniform token cesium:overlayRenderMethod = "overlay" (
         allowedTokens = ["overlay", "clip"]
         displayName = "Overlay Render Method"
-        doc = "The Cesium default material will give the imagery a different rendering treatment based on this selection."
+        doc = "The Cesium default material will give the raster overlay a different rendering treatment based on this selection."
     )
     bool cesium:showCreditsOnScreen = 0 (
         displayName = "Show Credits On Screen"
-        doc = "Whether or not to show this imagery layer's credits on screen."
+        doc = "Whether or not to show this raster overlay's credits on screen."
     )
 }
 

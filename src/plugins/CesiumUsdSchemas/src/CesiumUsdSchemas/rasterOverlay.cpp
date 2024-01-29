@@ -1,4 +1,4 @@
-#include ".//imagery.h"
+#include ".//rasterOverlay.h"
 #include "pxr/usd/usd/schemaRegistry.h"
 #include "pxr/usd/usd/typed.h"
 
@@ -10,45 +10,45 @@ PXR_NAMESPACE_OPEN_SCOPE
 // Register the schema with the TfType system.
 TF_REGISTRY_FUNCTION(TfType)
 {
-    TfType::Define<CesiumImagery,
+    TfType::Define<CesiumRasterOverlay,
         TfType::Bases< UsdTyped > >();
     
 }
 
 /* virtual */
-CesiumImagery::~CesiumImagery()
+CesiumRasterOverlay::~CesiumRasterOverlay()
 {
 }
 
 /* static */
-CesiumImagery
-CesiumImagery::Get(const UsdStagePtr &stage, const SdfPath &path)
+CesiumRasterOverlay
+CesiumRasterOverlay::Get(const UsdStagePtr &stage, const SdfPath &path)
 {
     if (!stage) {
         TF_CODING_ERROR("Invalid stage");
-        return CesiumImagery();
+        return CesiumRasterOverlay();
     }
-    return CesiumImagery(stage->GetPrimAtPath(path));
+    return CesiumRasterOverlay(stage->GetPrimAtPath(path));
 }
 
 
 /* virtual */
-UsdSchemaKind CesiumImagery::_GetSchemaKind() const
+UsdSchemaKind CesiumRasterOverlay::_GetSchemaKind() const
 {
-    return CesiumImagery::schemaKind;
+    return CesiumRasterOverlay::schemaKind;
 }
 
 /* static */
 const TfType &
-CesiumImagery::_GetStaticTfType()
+CesiumRasterOverlay::_GetStaticTfType()
 {
-    static TfType tfType = TfType::Find<CesiumImagery>();
+    static TfType tfType = TfType::Find<CesiumRasterOverlay>();
     return tfType;
 }
 
 /* static */
 bool 
-CesiumImagery::_IsTypedSchema()
+CesiumRasterOverlay::_IsTypedSchema()
 {
     static bool isTyped = _GetStaticTfType().IsA<UsdTyped>();
     return isTyped;
@@ -56,19 +56,19 @@ CesiumImagery::_IsTypedSchema()
 
 /* virtual */
 const TfType &
-CesiumImagery::_GetTfType() const
+CesiumRasterOverlay::_GetTfType() const
 {
     return _GetStaticTfType();
 }
 
 UsdAttribute
-CesiumImagery::GetShowCreditsOnScreenAttr() const
+CesiumRasterOverlay::GetShowCreditsOnScreenAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumShowCreditsOnScreen);
 }
 
 UsdAttribute
-CesiumImagery::CreateShowCreditsOnScreenAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumRasterOverlay::CreateShowCreditsOnScreenAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumShowCreditsOnScreen,
                        SdfValueTypeNames->Bool,
@@ -79,13 +79,13 @@ CesiumImagery::CreateShowCreditsOnScreenAttr(VtValue const &defaultValue, bool w
 }
 
 UsdAttribute
-CesiumImagery::GetAlphaAttr() const
+CesiumRasterOverlay::GetAlphaAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumAlpha);
 }
 
 UsdAttribute
-CesiumImagery::CreateAlphaAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumRasterOverlay::CreateAlphaAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumAlpha,
                        SdfValueTypeNames->Float,
@@ -96,13 +96,13 @@ CesiumImagery::CreateAlphaAttr(VtValue const &defaultValue, bool writeSparsely) 
 }
 
 UsdAttribute
-CesiumImagery::GetOverlayRenderMethodAttr() const
+CesiumRasterOverlay::GetOverlayRenderMethodAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumOverlayRenderMethod);
 }
 
 UsdAttribute
-CesiumImagery::CreateOverlayRenderMethodAttr(VtValue const &defaultValue, bool writeSparsely) const
+CesiumRasterOverlay::CreateOverlayRenderMethodAttr(VtValue const &defaultValue, bool writeSparsely) const
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumOverlayRenderMethod,
                        SdfValueTypeNames->Token,
@@ -126,7 +126,7 @@ _ConcatenateAttributeNames(const TfTokenVector& left,const TfTokenVector& right)
 
 /*static*/
 const TfTokenVector&
-CesiumImagery::GetSchemaAttributeNames(bool includeInherited)
+CesiumRasterOverlay::GetSchemaAttributeNames(bool includeInherited)
 {
     static TfTokenVector localNames = {
         CesiumTokens->cesiumShowCreditsOnScreen,

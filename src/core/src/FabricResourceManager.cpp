@@ -35,7 +35,7 @@ createSinglePixelTexture(const std::string_view& name, const std::array<uint8_t,
 }
 
 bool shouldAcquireSharedMaterial(const FabricMaterialDescriptor& materialDescriptor) {
-    if (materialDescriptor.hasBaseColorTexture() || materialDescriptor.getImageryOverlayRenderMethods().size() > 0 ||
+    if (materialDescriptor.hasBaseColorTexture() || materialDescriptor.getRasterOverlayRenderMethods().size() > 0 ||
         !materialDescriptor.getFeatureIdTypes().empty() || !materialDescriptor.getStyleableProperties().empty()) {
         return false;
     }
@@ -59,7 +59,7 @@ FabricResourceManager::~FabricResourceManager() = default;
 
 bool FabricResourceManager::shouldAcquireMaterial(
     const CesiumGltf::MeshPrimitive& primitive,
-    bool hasImagery,
+    bool hasRasterOverlay,
     const pxr::SdfPath& tilesetMaterialPath) const {
     if (_disableMaterials) {
         return false;
@@ -70,7 +70,7 @@ bool FabricResourceManager::shouldAcquireMaterial(
             _pContext->getFabricStage(), FabricUtil::toFabricPath(tilesetMaterialPath));
     }
 
-    return hasImagery || GltfUtil::hasMaterial(primitive);
+    return hasRasterOverlay || GltfUtil::hasMaterial(primitive);
 }
 
 bool FabricResourceManager::getDisableTextures() const {
@@ -101,11 +101,11 @@ std::shared_ptr<FabricMaterial> FabricResourceManager::acquireMaterial(
     const CesiumGltf::MeshPrimitive& primitive,
     const FabricMaterialInfo& materialInfo,
     const FabricFeaturesInfo& featuresInfo,
-    const FabricImageryLayersInfo& imageryLayersInfo,
+    const FabricRasterOverlayLayersInfo& rasterOverlayLayersInfo,
     int64_t tilesetId,
     const pxr::SdfPath& tilesetMaterialPath) {
     FabricMaterialDescriptor materialDescriptor(
-        *_pContext, model, primitive, materialInfo, featuresInfo, imageryLayersInfo, tilesetMaterialPath);
+        *_pContext, model, primitive, materialInfo, featuresInfo, rasterOverlayLayersInfo, tilesetMaterialPath);
 
     if (shouldAcquireSharedMaterial(materialDescriptor)) {
         return acquireSharedMaterial(materialInfo, materialDescriptor, tilesetId);
