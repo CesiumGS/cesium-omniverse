@@ -1,31 +1,28 @@
 #include "cesium/omniverse/OmniTileset.h"
 
+#include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/FabricGeometry.h"
 #include "cesium/omniverse/FabricMaterial.h"
+#include "cesium/omniverse/FabricMesh.h"
 #include "cesium/omniverse/FabricPrepareRenderResources.h"
+#include "cesium/omniverse/FabricRenderResources.h"
 #include "cesium/omniverse/FabricUtil.h"
-#include "cesium/omniverse/GeospatialUtil.h"
+#include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/HttpAssetAccessor.h"
-#include "cesium/omniverse/LoggerSink.h"
-#include "cesium/omniverse/OmniIonImagery.h"
-#include "cesium/omniverse/OmniPolygonImagery.h"
-#include "cesium/omniverse/SessionRegistry.h"
+#include "cesium/omniverse/Logger.h"
+#include "cesium/omniverse/OmniCartographicPolygon.h"
+#include "cesium/omniverse/OmniGeoreference.h"
+#include "cesium/omniverse/OmniGlobeAnchor.h"
+#include "cesium/omniverse/OmniIonRasterOverlay.h"
+#include "cesium/omniverse/OmniIonServer.h"
+#include "cesium/omniverse/OmniPolygonRasterOverlay.h"
 #include "cesium/omniverse/TaskProcessor.h"
+#include "cesium/omniverse/TilesetStatistics.h"
 #include "cesium/omniverse/UsdUtil.h"
 #include "cesium/omniverse/Viewport.h"
-
-#include <CesiumGeospatial/Cartographic.h>
-#include <CesiumGeospatial/CartographicPolygon.h>
-#include <CesiumGeospatial/Ellipsoid.h>
-#include <CesiumGeospatial/Projection.h>
-#include <CesiumRasterOverlays/IonRasterOverlay.h>
-#include <CesiumRasterOverlays/RasterizedPolygonsOverlay.h>
-#include <CesiumUsdSchemas/cartographicPolygon.h>
-#include <CesiumUsdSchemas/polygonImagery.h>
-#include <glm/ext/vector_double3.hpp>
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
@@ -35,316 +32,59 @@
 #include <Cesium3DTilesSelection/Tileset.h>
 #include <Cesium3DTilesSelection/ViewState.h>
 #include <Cesium3DTilesSelection/ViewUpdateResult.h>
+#include <CesiumGeospatial/CartographicPolygon.h>
 #include <CesiumRasterOverlays/IonRasterOverlay.h>
-#include <CesiumUsdSchemas/ionImagery.h>
+#include <CesiumRasterOverlays/RasterizedPolygonsOverlay.h>
+#include <CesiumUsdSchemas/rasterOverlay.h>
 #include <CesiumUsdSchemas/tileset.h>
 #include <pxr/usd/usd/prim.h>
 #include <pxr/usd/usd/stage.h>
-#include <pxr/usd/usdGeom/basisCurves.h>
 #include <pxr/usd/usdGeom/boundable.h>
 #include <pxr/usd/usdShade/materialBindingAPI.h>
 
 namespace cesium::omniverse {
 
-OmniTileset::OmniTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPath& georeferencePath)
-    : _tilesetPath(tilesetPath)
-    , _tilesetId(Context::instance().getNextTilesetId()) {
-    reload();
+namespace {
 
-    UsdUtil::setGeoreferenceForTileset(tilesetPath, georeferencePath);
+void forEachFabricMaterial(
+    Cesium3DTilesSelection::Tileset* pTileset,
+    const std::function<void(FabricMaterial& fabricMaterial)>& callback) {
+    pTileset->forEachLoadedTile([&callback](Cesium3DTilesSelection::Tile& tile) {
+        if (tile.getState() != Cesium3DTilesSelection::TileLoadState::Done) {
+            return;
+        }
+        const auto& content = tile.getContent();
+        const auto pRenderContent = content.getRenderContent();
+        if (!pRenderContent) {
+            return;
+        }
+        const auto pFabricRenderResources = static_cast<FabricRenderResources*>(pRenderContent->getRenderResources());
+        if (!pFabricRenderResources) {
+            return;
+        }
+        for (const auto& fabricMesh : pFabricRenderResources->fabricMeshes) {
+            if (fabricMesh.pMaterial) {
+                callback(*fabricMesh.pMaterial.get());
+            }
+        }
+    });
+}
+
+} // namespace
+
+OmniTileset::OmniTileset(Context* pContext, const pxr::SdfPath& path, int64_t tilesetId)
+    : _pContext(pContext)
+    , _path(path)
+    , _tilesetId(tilesetId) {
+    reload();
 }
 
 OmniTileset::~OmniTileset() {
-    _renderResourcesPreparer->detachTileset();
+    destroyNativeTileset();
 }
 
-pxr::SdfPath OmniTileset::getPath() const {
-    return _tilesetPath;
-}
-
-std::string OmniTileset::getName() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
-    return tileset.GetPrim().GetName().GetString();
-}
-
-TilesetSourceType OmniTileset::getSourceType() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
-
-    pxr::TfToken sourceType;
-    tileset.GetSourceTypeAttr().Get<pxr::TfToken>(&sourceType);
-
-    if (sourceType == pxr::CesiumTokens->url) {
-        return TilesetSourceType::URL;
-    }
-
-    return TilesetSourceType::ION;
-}
-
-std::string OmniTileset::getUrl() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
-
-    std::string url;
-    tileset.GetUrlAttr().Get<std::string>(&url);
-
-    return url;
-}
-
-int64_t OmniTileset::getIonAssetId() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
-
-    int64_t ionAssetId;
-    tileset.GetIonAssetIdAttr().Get<int64_t>(&ionAssetId);
-
-    return ionAssetId;
-}
-
-std::optional<CesiumIonClient::Token> OmniTileset::getIonAccessToken() const {
-    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
-
-    std::string ionAccessToken;
-    tileset.GetIonAccessTokenAttr().Get<std::string>(&ionAccessToken);
-
-    if (!ionAccessToken.empty()) {
-        CesiumIonClient::Token t;
-        t.token = ionAccessToken;
-        return t;
-    }
-
-    const auto ionServerPath = getIonServerPath();
-
-    if (ionServerPath.IsEmpty()) {
-        return std::nullopt;
-    }
-
-    const auto ionServer = UsdUtil::getOrCreateIonServer(ionServerPath);
-
-    std::string projectDefaultToken;
-    std::string projectDefaultTokenId;
-
-    ionServer.GetProjectDefaultIonAccessTokenAttr().Get(&projectDefaultToken);
-    ionServer.GetProjectDefaultIonAccessTokenIdAttr().Get(&projectDefaultTokenId);
-
-    if (projectDefaultToken.empty()) {
-        return std::nullopt;
-    }
-
-    return CesiumIonClient::Token{projectDefaultTokenId, "", projectDefaultToken};
-}
-
-std::string OmniTileset::getIonApiUrl() const {
-    const auto ionServerPath = getIonServerPath();
-
-    if (ionServerPath.IsEmpty()) {
-        return {};
-    }
-
-    auto ionServerPrim = UsdUtil::getOrCreateIonServer(ionServerPath);
-
-    std::string ionApiUrl;
-    ionServerPrim.GetIonServerApiUrlAttr().Get(&ionApiUrl);
-
-    return ionApiUrl;
-}
-
-pxr::SdfPath OmniTileset::getIonServerPath() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
-
-    pxr::SdfPathVector targets;
-    tileset.GetIonServerBindingRel().GetForwardedTargets(&targets);
-
-    if (targets.size() < 1) {
-        return {};
-    }
-
-    return targets[0];
-}
-
-double OmniTileset::getMaximumScreenSpaceError() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
-
-    float maximumScreenSpaceError;
-    tileset.GetMaximumScreenSpaceErrorAttr().Get<float>(&maximumScreenSpaceError);
-
-    return static_cast<double>(maximumScreenSpaceError);
-}
-
-bool OmniTileset::getPreloadAncestors() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
-
-    bool preloadAncestors;
-    tileset.GetPreloadAncestorsAttr().Get<bool>(&preloadAncestors);
-
-    return preloadAncestors;
-}
-
-bool OmniTileset::getPreloadSiblings() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
-
-    bool preloadSiblings;
-    tileset.GetPreloadSiblingsAttr().Get<bool>(&preloadSiblings);
-
-    return preloadSiblings;
-}
-
-bool OmniTileset::getForbidHoles() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
-
-    bool forbidHoles;
-    tileset.GetForbidHolesAttr().Get<bool>(&forbidHoles);
-
-    return forbidHoles;
-}
-
-uint32_t OmniTileset::getMaximumSimultaneousTileLoads() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
-
-    uint32_t maximumSimultaneousTileLoads;
-    tileset.GetMaximumSimultaneousTileLoadsAttr().Get<uint32_t>(&maximumSimultaneousTileLoads);
-
-    return maximumSimultaneousTileLoads;
-}
-
-uint64_t OmniTileset::getMaximumCachedBytes() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
-
-    uint64_t maximumCachedBytes;
-    tileset.GetMaximumCachedBytesAttr().Get<uint64_t>(&maximumCachedBytes);
-
-    return maximumCachedBytes;
-}
-
-uint32_t OmniTileset::getLoadingDescendantLimit() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
-
-    uint32_t loadingDescendantLimit;
-    tileset.GetLoadingDescendantLimitAttr().Get<uint32_t>(&loadingDescendantLimit);
-
-    return loadingDescendantLimit;
-}
-
-bool OmniTileset::getEnableFrustumCulling() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
-
-    bool enableFrustumCulling;
-    tileset.GetEnableFrustumCullingAttr().Get<bool>(&enableFrustumCulling);
-
-    return enableFrustumCulling;
-}
-
-bool OmniTileset::getEnableFogCulling() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
-
-    bool enableFogCulling;
-    tileset.GetEnableFogCullingAttr().Get<bool>(&enableFogCulling);
-
-    return enableFogCulling;
-}
-
-bool OmniTileset::getEnforceCulledScreenSpaceError() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
-
-    bool enforceCulledScreenSpaceError;
-    tileset.GetEnforceCulledScreenSpaceErrorAttr().Get<bool>(&enforceCulledScreenSpaceError);
-
-    return enforceCulledScreenSpaceError;
-}
-
-double OmniTileset::getCulledScreenSpaceError() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
-
-    float culledScreenSpaceError;
-    tileset.GetCulledScreenSpaceErrorAttr().Get<float>(&culledScreenSpaceError);
-
-    return static_cast<double>(culledScreenSpaceError);
-}
-
-bool OmniTileset::getSuspendUpdate() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
-
-    bool suspendUpdate;
-    tileset.GetSuspendUpdateAttr().Get<bool>(&suspendUpdate);
-
-    return suspendUpdate;
-}
-
-bool OmniTileset::getSmoothNormals() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
-
-    bool smoothNormals;
-    tileset.GetSmoothNormalsAttr().Get<bool>(&smoothNormals);
-
-    return smoothNormals;
-}
-
-bool OmniTileset::getShowCreditsOnScreen() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
-
-    bool showCreditsOnScreen;
-    tileset.GetShowCreditsOnScreenAttr().Get<bool>(&showCreditsOnScreen);
-
-    return showCreditsOnScreen;
-}
-
-double OmniTileset::getMainThreadLoadingTimeLimit() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
-
-    float mainThreadLoadingTimeLimit;
-    tileset.GetMainThreadLoadingTimeLimitAttr().Get<float>(&mainThreadLoadingTimeLimit);
-
-    return static_cast<double>(mainThreadLoadingTimeLimit);
-}
-
-pxr::CesiumGeoreference OmniTileset::getGeoreference() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
-
-    pxr::SdfPathVector targets;
-    tileset.GetGeoreferenceBindingRel().GetTargets(&targets);
-    assert(!targets.empty());
-
-    // We only care about the first target.
-    const auto georeferencePath = targets[0];
-    return UsdUtil::getCesiumGeoreference(georeferencePath);
-}
-
-pxr::SdfPath OmniTileset::getMaterialPath() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
-
-    const auto materialBindingApi = pxr::UsdShadeMaterialBindingAPI(tileset);
-    const auto materialBinding = materialBindingApi.GetDirectBinding();
-    const auto& materialPath = materialBinding.GetMaterialPath();
-
-    return materialPath;
-}
-
-glm::dvec3 OmniTileset::getDisplayColor() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
-
-    pxr::VtVec3fArray displayColorArray;
-    tileset.GetDisplayColorAttr().Get(&displayColorArray);
-
-    if (displayColorArray.size() == 0) {
-        return {1.0, 1.0, 1.0};
-    }
-
-    const auto& displayColor = displayColorArray[0];
-    return {
-        static_cast<double>(displayColor[0]),
-        static_cast<double>(displayColor[1]),
-        static_cast<double>(displayColor[2]),
-    };
-}
-
-double OmniTileset::getDisplayOpacity() const {
-    auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
-
-    pxr::VtFloatArray displayOpacityArray;
-    tileset.GetDisplayOpacityAttr().Get(&displayOpacityArray);
-
-    if (displayOpacityArray.size() == 0) {
-        return 1.0;
-    }
-
-    return static_cast<double>(displayOpacityArray[0]);
+const pxr::SdfPath& OmniTileset::getPath() const {
+    return _path;
 }
 
 int64_t OmniTileset::getTilesetId() const {
@@ -354,8 +94,8 @@ int64_t OmniTileset::getTilesetId() const {
 TilesetStatistics OmniTileset::getStatistics() const {
     TilesetStatistics statistics;
 
-    statistics.tilesetCachedBytes = static_cast<uint64_t>(_tileset->getTotalDataBytes());
-    statistics.tilesLoaded = static_cast<uint64_t>(_tileset->getNumberOfTilesLoaded());
+    statistics.tilesetCachedBytes = static_cast<uint64_t>(_pTileset->getTotalDataBytes());
+    statistics.tilesLoaded = static_cast<uint64_t>(_pTileset->getNumberOfTilesLoaded());
 
     if (_pViewUpdateResult) {
         statistics.tilesVisited = static_cast<uint64_t>(_pViewUpdateResult->tilesVisited);
@@ -370,8 +110,296 @@ TilesetStatistics OmniTileset::getStatistics() const {
     return statistics;
 }
 
-void OmniTileset::updateTilesetOptionsFromProperties() {
-    auto& options = _tileset->getOptions();
+TilesetSourceType OmniTileset::getSourceType() const {
+    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+
+    pxr::TfToken sourceType;
+    cesiumTileset.GetSourceTypeAttr().Get(&sourceType);
+
+    if (sourceType == pxr::CesiumTokens->url) {
+        return TilesetSourceType::URL;
+    }
+
+    return TilesetSourceType::ION;
+}
+
+std::string OmniTileset::getUrl() const {
+    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+
+    std::string url;
+    cesiumTileset.GetUrlAttr().Get(&url);
+
+    return url;
+}
+
+int64_t OmniTileset::getIonAssetId() const {
+    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+
+    int64_t ionAssetId;
+    cesiumTileset.GetIonAssetIdAttr().Get(&ionAssetId);
+
+    return ionAssetId;
+}
+
+CesiumIonClient::Token OmniTileset::getIonAccessToken() const {
+    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+
+    std::string ionAccessToken;
+    cesiumTileset.GetIonAccessTokenAttr().Get(&ionAccessToken);
+
+    if (!ionAccessToken.empty()) {
+        CesiumIonClient::Token t;
+        t.token = ionAccessToken;
+        return t;
+    }
+
+    const auto ionServerPath = getResolvedIonServerPath();
+
+    if (ionServerPath.IsEmpty()) {
+        return {};
+    }
+
+    const auto pIonServer = _pContext->getAssetRegistry().getIonServer(ionServerPath);
+
+    if (!pIonServer) {
+        return {};
+    }
+
+    return pIonServer->getToken();
+}
+
+std::string OmniTileset::getIonApiUrl() const {
+    const auto ionServerPath = getResolvedIonServerPath();
+
+    if (ionServerPath.IsEmpty()) {
+        return {};
+    }
+
+    const auto pIonServer = _pContext->getAssetRegistry().getIonServer(ionServerPath);
+
+    if (!pIonServer) {
+        return {};
+    }
+
+    return pIonServer->getIonServerApiUrl();
+}
+
+pxr::SdfPath OmniTileset::getResolvedIonServerPath() const {
+    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+
+    pxr::SdfPathVector targets;
+    cesiumTileset.GetIonServerBindingRel().GetForwardedTargets(&targets);
+
+    if (!targets.empty()) {
+        return targets.front();
+    }
+
+    // Fall back to using the first ion server if there's no explicit binding
+    const auto pIonServer = _pContext->getAssetRegistry().getFirstIonServer();
+    if (pIonServer) {
+        return pIonServer->getPath();
+    }
+
+    return {};
+}
+
+double OmniTileset::getMaximumScreenSpaceError() const {
+    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+
+    float maximumScreenSpaceError;
+    cesiumTileset.GetMaximumScreenSpaceErrorAttr().Get(&maximumScreenSpaceError);
+
+    return static_cast<double>(maximumScreenSpaceError);
+}
+
+bool OmniTileset::getPreloadAncestors() const {
+    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+
+    bool preloadAncestors;
+    cesiumTileset.GetPreloadAncestorsAttr().Get(&preloadAncestors);
+
+    return preloadAncestors;
+}
+
+bool OmniTileset::getPreloadSiblings() const {
+    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+
+    bool preloadSiblings;
+    cesiumTileset.GetPreloadSiblingsAttr().Get(&preloadSiblings);
+
+    return preloadSiblings;
+}
+
+bool OmniTileset::getForbidHoles() const {
+    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+
+    bool forbidHoles;
+    cesiumTileset.GetForbidHolesAttr().Get(&forbidHoles);
+
+    return forbidHoles;
+}
+
+uint32_t OmniTileset::getMaximumSimultaneousTileLoads() const {
+    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+
+    uint32_t maximumSimultaneousTileLoads;
+    cesiumTileset.GetMaximumSimultaneousTileLoadsAttr().Get(&maximumSimultaneousTileLoads);
+
+    return maximumSimultaneousTileLoads;
+}
+
+uint64_t OmniTileset::getMaximumCachedBytes() const {
+    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+
+    uint64_t maximumCachedBytes;
+    cesiumTileset.GetMaximumCachedBytesAttr().Get(&maximumCachedBytes);
+
+    return maximumCachedBytes;
+}
+
+uint32_t OmniTileset::getLoadingDescendantLimit() const {
+    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+
+    uint32_t loadingDescendantLimit;
+    cesiumTileset.GetLoadingDescendantLimitAttr().Get(&loadingDescendantLimit);
+
+    return loadingDescendantLimit;
+}
+
+bool OmniTileset::getEnableFrustumCulling() const {
+    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+
+    bool enableFrustumCulling;
+    cesiumTileset.GetEnableFrustumCullingAttr().Get(&enableFrustumCulling);
+
+    return enableFrustumCulling;
+}
+
+bool OmniTileset::getEnableFogCulling() const {
+    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+
+    bool enableFogCulling;
+    cesiumTileset.GetEnableFogCullingAttr().Get(&enableFogCulling);
+
+    return enableFogCulling;
+}
+
+bool OmniTileset::getEnforceCulledScreenSpaceError() const {
+    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+
+    bool enforceCulledScreenSpaceError;
+    cesiumTileset.GetEnforceCulledScreenSpaceErrorAttr().Get(&enforceCulledScreenSpaceError);
+
+    return enforceCulledScreenSpaceError;
+}
+
+double OmniTileset::getMainThreadLoadingTimeLimit() const {
+    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+
+    float mainThreadLoadingTimeLimit;
+    cesiumTileset.GetMainThreadLoadingTimeLimitAttr().Get(&mainThreadLoadingTimeLimit);
+
+    return static_cast<double>(mainThreadLoadingTimeLimit);
+}
+
+double OmniTileset::getCulledScreenSpaceError() const {
+    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+
+    float culledScreenSpaceError;
+    cesiumTileset.GetCulledScreenSpaceErrorAttr().Get(&culledScreenSpaceError);
+
+    return static_cast<double>(culledScreenSpaceError);
+}
+
+bool OmniTileset::getSuspendUpdate() const {
+    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+
+    bool suspendUpdate;
+    cesiumTileset.GetSuspendUpdateAttr().Get(&suspendUpdate);
+
+    return suspendUpdate;
+}
+
+bool OmniTileset::getSmoothNormals() const {
+    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+
+    bool smoothNormals;
+    cesiumTileset.GetSmoothNormalsAttr().Get(&smoothNormals);
+
+    return smoothNormals;
+}
+
+bool OmniTileset::getShowCreditsOnScreen() const {
+    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+
+    bool showCreditsOnScreen;
+    cesiumTileset.GetShowCreditsOnScreenAttr().Get(&showCreditsOnScreen);
+
+    return showCreditsOnScreen;
+}
+
+pxr::SdfPath OmniTileset::getResolvedGeoreferencePath() const {
+    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+
+    pxr::SdfPathVector targets;
+    cesiumTileset.GetGeoreferenceBindingRel().GetForwardedTargets(&targets);
+
+    if (!targets.empty()) {
+        return targets.front();
+    }
+
+    // Fall back to using the first georeference if there's no explicit binding
+    const auto pGeoreference = _pContext->getAssetRegistry().getFirstGeoreference();
+    if (pGeoreference) {
+        return pGeoreference->getPath();
+    }
+
+    return {};
+}
+
+pxr::SdfPath OmniTileset::getMaterialPath() const {
+    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+
+    const auto materialBindingApi = pxr::UsdShadeMaterialBindingAPI(cesiumTileset);
+    const auto materialBinding = materialBindingApi.GetDirectBinding();
+    const auto& materialPath = materialBinding.GetMaterialPath();
+
+    return materialPath;
+}
+
+glm::dvec3 OmniTileset::getDisplayColor() const {
+    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+
+    pxr::VtVec3fArray displayColorArray;
+    cesiumTileset.GetDisplayColorAttr().Get(&displayColorArray);
+
+    if (displayColorArray.size() == 0) {
+        return {1.0, 1.0, 1.0};
+    }
+
+    const auto& displayColor = displayColorArray[0];
+    return {
+        static_cast<double>(displayColor[0]),
+        static_cast<double>(displayColor[1]),
+        static_cast<double>(displayColor[2]),
+    };
+}
+
+double OmniTileset::getDisplayOpacity() const {
+    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+
+    pxr::VtFloatArray displayOpacityArray;
+    cesiumTileset.GetDisplayOpacityAttr().Get(&displayOpacityArray);
+
+    if (displayOpacityArray.size() == 0) {
+        return 1.0;
+    }
+
+    return static_cast<double>(displayOpacityArray[0]);
+}
+
+void OmniTileset::updateTilesetOptions() {
+    auto& options = _pTileset->getOptions();
     options.maximumScreenSpaceError = getMaximumScreenSpaceError();
     options.preloadAncestors = getPreloadAncestors();
     options.preloadSiblings = getPreloadSiblings();
@@ -384,29 +412,27 @@ void OmniTileset::updateTilesetOptionsFromProperties() {
     options.enforceCulledScreenSpaceError = getEnforceCulledScreenSpaceError();
     options.culledScreenSpaceError = getCulledScreenSpaceError();
     options.mainThreadLoadingTimeLimit = getMainThreadLoadingTimeLimit();
+    options.showCreditsOnScreen = getShowCreditsOnScreen();
 }
 
 void OmniTileset::reload() {
-    if (_renderResourcesPreparer != nullptr) {
-        _renderResourcesPreparer->detachTileset();
-    }
+    destroyNativeTileset();
 
-    _renderResourcesPreparer = std::make_shared<FabricPrepareRenderResources>(*this);
-    auto& context = Context::instance();
-    auto asyncSystem = CesiumAsync::AsyncSystem(context.getTaskProcessor());
+    _pRenderResourcesPreparer = std::make_shared<FabricPrepareRenderResources>(_pContext, this);
     const auto externals = Cesium3DTilesSelection::TilesetExternals{
-        context.getHttpAssetAccessor(),
-        _renderResourcesPreparer,
-        std::move(asyncSystem),
-        context.getCreditSystem(),
-        context.getLogger()};
+        _pContext->getHttpAssetAccessor(),
+        _pRenderResourcesPreparer,
+        _pContext->getAsyncSystem(),
+        _pContext->getCreditSystem(),
+        _pContext->getLogger()};
 
+    const auto sourceType = getSourceType();
     const auto url = getUrl();
     const auto tilesetPath = getPath();
     const auto ionAssetId = getIonAssetId();
     const auto ionAccessToken = getIonAccessToken();
     const auto ionApiUrl = getIonApiUrl();
-    const auto name = getName();
+    const auto name = UsdUtil::getName(_pContext->getUsdStage(), _path);
 
     Cesium3DTilesSelection::TilesetOptions options;
 
@@ -421,11 +447,11 @@ void OmniTileset::reload() {
     options.enableFogCulling = getEnableFogCulling();
     options.enforceCulledScreenSpaceError = getEnforceCulledScreenSpaceError();
     options.culledScreenSpaceError = getCulledScreenSpaceError();
-    options.showCreditsOnScreen = getShowCreditsOnScreen();
     options.mainThreadLoadingTimeLimit = getMainThreadLoadingTimeLimit();
+    options.showCreditsOnScreen = getShowCreditsOnScreen();
 
     options.loadErrorCallback =
-        [tilesetPath, ionAssetId, name](const Cesium3DTilesSelection::TilesetLoadFailureDetails& error) {
+        [this, tilesetPath, ionAssetId, name](const Cesium3DTilesSelection::TilesetLoadFailureDetails& error) {
             // Check for a 401 connecting to Cesium ion, which means the token is invalid
             // (or perhaps the asset ID is). Also check for a 404, because ion returns 404
             // when the token is valid but not authorized for the asset.
@@ -434,212 +460,72 @@ void OmniTileset::reload() {
                 Broadcast::showTroubleshooter(tilesetPath, ionAssetId, name, 0, "", error.message);
             }
 
-            CESIUM_LOG_ERROR(error.message);
+            _pContext->getLogger()->error(error.message);
         };
 
-    CesiumGltf::SupportedGpuCompressedPixelFormats supportedFormats;
-
-    // Only BCN compressed texture formats are supported in Omniverse
-    supportedFormats.ETC1_RGB = false;
-    supportedFormats.ETC2_RGBA = false;
-    supportedFormats.BC1_RGB = true;
-    supportedFormats.BC3_RGBA = true;
-    supportedFormats.BC4_R = true;
-    supportedFormats.BC5_RG = true;
-    supportedFormats.BC7_RGBA = true;
-    supportedFormats.PVRTC1_4_RGB = false;
-    supportedFormats.PVRTC1_4_RGBA = false;
-    supportedFormats.ASTC_4x4_RGBA = false;
-    supportedFormats.PVRTC2_4_RGB = false;
-    supportedFormats.PVRTC2_4_RGBA = false;
-    supportedFormats.ETC2_EAC_R11 = false;
-    supportedFormats.ETC2_EAC_RG11 = false;
-
-    options.contentOptions.ktx2TranscodeTargets = CesiumGltf::Ktx2TranscodeTargets(supportedFormats, false);
+    options.contentOptions.ktx2TranscodeTargets = GltfUtil::getKtx2TranscodeTargets();
 
     _pViewUpdateResult = nullptr;
     _extentSet = false;
     _activeLoading = false;
-    _imageryPaths.clear();
+    _rasterOverlayPaths.clear();
 
-    if (getSourceType() == TilesetSourceType::URL) {
-        _tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(externals, url, options);
-    } else if (!ionAccessToken.has_value() || ionApiUrl.empty()) {
-        // This happens when adding a blank tileset or a tileset that references a non-existent server
-        _tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(externals, 0, "", options, ionApiUrl);
-    } else {
-        _tileset = std::make_unique<Cesium3DTilesSelection::Tileset>(
-            externals, ionAssetId, ionAccessToken.value().token, options, ionApiUrl);
+    switch (sourceType) {
+        case TilesetSourceType::ION:
+            if (ionAssetId <= 0 || ionAccessToken.token.empty() || ionApiUrl.empty()) {
+                _pTileset = std::make_unique<Cesium3DTilesSelection::Tileset>(externals, 0, "", options);
+            } else {
+                _pTileset = std::make_unique<Cesium3DTilesSelection::Tileset>(
+                    externals, ionAssetId, ionAccessToken.token, options, ionApiUrl);
+            }
+            break;
+        case TilesetSourceType::URL:
+            _pTileset = std::make_unique<Cesium3DTilesSelection::Tileset>(externals, url, options);
+            break;
     }
 
-    // Add imagery
-    for (const auto& imagery : UsdUtil::getChildCesiumImageryPrims(_tilesetPath)) {
-        if (imagery.GetPrim().IsA<pxr::CesiumIonImagery>()) {
-            addImageryIon(imagery.GetPath());
-        } else {
-            addImageryPolygon(imagery.GetPath());
-        }
-    }
-}
-
-void OmniTileset::addImageryIon(const pxr::SdfPath& imageryPath) {
-    const OmniIonImagery imagery(imageryPath);
-    const auto imageryIonAssetId = imagery.getIonAssetId();
-    const auto imageryIonAccessToken = imagery.getIonAccessToken();
-
-    if (!imageryIonAccessToken.has_value()) {
-        // If we don't have an access token available there's no point in adding the imagery.
-        return;
-    }
-
-    const auto imageryName = imagery.getName();
-
-    const auto tilesetPath = getPath();
-    const auto tilesetIonAssetId = getIonAssetId();
-    const auto tilesetName = getName();
-
-    const auto ionApiUrl = imagery.getIonApiUrl();
-
-    CesiumRasterOverlays::RasterOverlayOptions options;
-    options.rendererOptions = OverlayType::ION;
-    options.showCreditsOnScreen = imagery.getShowCreditsOnScreen();
-
-    options.loadErrorCallback = [tilesetPath, tilesetIonAssetId, tilesetName, imageryIonAssetId, imageryName](
-                                    const CesiumRasterOverlays::RasterOverlayLoadFailureDetails& error) {
-        // Check for a 401 connecting to Cesium ion, which means the token is invalid
-        // (or perhaps the asset ID is). Also check for a 404, because ion returns 404
-        // when the token is valid but not authorized for the asset.
-        auto statusCode = error.pRequest && error.pRequest->response() ? error.pRequest->response()->statusCode() : 0;
-
-        if (error.type == CesiumRasterOverlays::RasterOverlayLoadType::CesiumIon &&
-            (statusCode == 401 || statusCode == 404)) {
-            Broadcast::showTroubleshooter(
-                tilesetPath, tilesetIonAssetId, tilesetName, imageryIonAssetId, imageryName, error.message);
+    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+    for (const auto& child : cesiumTileset.GetPrim().GetAllChildren()) {
+        const auto rasterOverlayPath = child.GetPath();
+        if (UsdUtil::isCesiumRasterOverlay(_pContext->getUsdStage(), rasterOverlayPath)) {
+            _rasterOverlayPaths.push_back(rasterOverlayPath);
         }
 
-        CESIUM_LOG_ERROR(error.message);
-    };
-
-    const auto ionRasterOverlay = new CesiumRasterOverlays::IonRasterOverlay(
-        imageryName, imageryIonAssetId, imageryIonAccessToken.value().token, options, ionApiUrl);
-    _tileset->getOverlays().add(ionRasterOverlay);
-    _imageryPaths.push_back(imageryPath);
-}
-
-void OmniTileset::addImageryPolygon(const pxr::SdfPath& imageryPath) {
-    const OmniPolygonImagery imagery(imageryPath);
-
-    const auto imageryName = imagery.getName();
-
-    auto polygonImagery = UsdUtil::getCesiumPolygonImagery(imageryPath);
-    auto cartographicPolygonsRel = polygonImagery.GetCartographicPolygonBindingRel();
-    pxr::SdfPathVector cartographicPolygonTargets;
-    cartographicPolygonsRel.GetTargets(&cartographicPolygonTargets);
-    std::vector<CesiumGeospatial::CartographicPolygon> polygons;
-    for (const auto& cartographicPolygonTarget : cartographicPolygonTargets) {
-        auto cartographicPolygon = UsdUtil::getCesiumCartographicPolygon(cartographicPolygonTarget);
-        auto basisCurves = UsdUtil::getUsdBasisCurves(cartographicPolygonTarget);
-        auto pointsAttr = basisCurves.GetPointsAttr();
-        pxr::VtArray<pxr::GfVec3f> points;
-        pointsAttr.Get(&points);
-        auto anchor = UsdUtil::getCesiumGlobeAnchor(cartographicPolygonTarget);
-        auto origin = UsdUtil::getCartographicOriginForAnchor(anchor.GetPath());
-
-        std::vector<std::optional<CesiumGeospatial::Cartographic>> cartographicPositions;
-        auto transform = UsdUtil::computeUsdLocalToEcefTransformForPrim(origin.value(), cartographicPolygonTarget);
-
-        std::vector<glm::dvec2> polygon;
-        for (auto& curvePoint : points) {
-            auto homogenous = glm::dvec4(curvePoint[0], curvePoint[1], curvePoint[2], 1.0);
-            auto cartesianHomogenous = transform * homogenous;
-            auto cartesian = glm::dvec3(cartesianHomogenous.x, cartesianHomogenous.y, cartesianHomogenous.z);
-            std::optional<CesiumGeospatial::Cartographic> cartographicPosition =
-                CesiumGeospatial::Ellipsoid::WGS84.cartesianToCartographic(cartesian);
-
-            cartographicPositions.push_back(cartographicPosition);
-            polygon.emplace_back(glm::dvec2(cartographicPosition->longitude, cartographicPosition->latitude));
-        }
-        polygons.emplace_back(polygon);
-    }
-
-    auto invertSelection = false;
-    auto ellipsoid = CesiumGeospatial::Ellipsoid::WGS84;
-    auto projection = CesiumGeospatial::GeographicProjection(ellipsoid);
-    CesiumRasterOverlays::RasterOverlayOptions rasterOverlayOptions;
-    rasterOverlayOptions.rendererOptions = OverlayType::POLYGON;
-
-    CesiumRasterOverlays::RasterOverlayOptions options;
-    options.showCreditsOnScreen = imagery.getShowCreditsOnScreen();
-
-    const auto polygonRasterOverlay = new CesiumRasterOverlays::RasterizedPolygonsOverlay(
-        imageryName, polygons, invertSelection, ellipsoid, projection, rasterOverlayOptions);
-    _tileset->getOverlays().add(polygonRasterOverlay);
-    _imageryPaths.push_back((imageryPath));
-}
-
-std::optional<uint64_t> OmniTileset::findImageryLayerIndex(const CesiumRasterOverlays::RasterOverlay& overlay) const {
-    uint64_t imageryLayerIndex = 0;
-    for (const auto& pOverlay : _tileset->getOverlays()) {
-        if (&overlay == pOverlay.get()) {
-            return imageryLayerIndex;
-        }
-
-        imageryLayerIndex++;
-    }
-
-    return std::nullopt;
-}
-
-std::optional<uint64_t> OmniTileset::findImageryLayerIndex(const pxr::SdfPath& imageryPath) const {
-    uint64_t imageryLayerIndex = 0;
-    for (const auto& _imageryPath : _imageryPaths) {
-        if (_imageryPath == imageryPath) {
-            return imageryLayerIndex;
-        }
-
-        imageryLayerIndex++;
-    }
-
-    return std::nullopt;
-}
-
-uint64_t OmniTileset::getImageryLayerCount() const {
-    return _tileset->getOverlays().size();
-}
-
-namespace {
-void forEachFabricMaterial(
-    const std::unique_ptr<Cesium3DTilesSelection::Tileset>& tileset,
-    const std::function<void(FabricMaterial& fabricMaterial)>& callback) {
-    tileset->forEachLoadedTile([&callback](Cesium3DTilesSelection::Tile& tile) {
-        if (tile.getState() != Cesium3DTilesSelection::TileLoadState::Done) {
-            return;
-        }
-        const auto& content = tile.getContent();
-        const auto pRenderContent = content.getRenderContent();
-        if (!pRenderContent) {
-            return;
-        }
-        const auto pTileRenderResources = static_cast<TileRenderResources*>(pRenderContent->getRenderResources());
-        if (!pTileRenderResources) {
-            return;
-        }
-        for (const auto& fabricMesh : pTileRenderResources->fabricMeshes) {
-            if (fabricMesh.material) {
-                callback(*fabricMesh.material.get());
+        const auto pRasterOverlay = _pContext->getAssetRegistry().getRasterOverlay(rasterOverlayPath);
+        if (pRasterOverlay) {
+            const auto pCesiumRasterOverlay = pRasterOverlay->getRasterOverlay();
+            if (pCesiumRasterOverlay) {
+                _pTileset->getOverlays().add(pCesiumRasterOverlay);
             }
         }
-    });
+    }
 }
-} // namespace
 
-void OmniTileset::updateImageryLayerAlpha(uint64_t imageryLayerIndex) {
-    assert(imageryLayerIndex < _imageryPaths.size());
+std::optional<uint64_t>
+OmniTileset::getRasterOverlayLayerIndex(const CesiumRasterOverlays::RasterOverlay& overlay) const {
+    uint64_t rasterOverlayLayerIndex = 0;
+    for (const auto& pOverlay : _pTileset->getOverlays()) {
+        if (pOverlay.get() == &overlay) {
+            return rasterOverlayLayerIndex;
+        }
 
-    const auto alpha = getImageryLayerAlpha(imageryLayerIndex);
+        ++rasterOverlayLayerIndex;
+    }
 
-    forEachFabricMaterial(_tileset, [imageryLayerIndex, alpha](FabricMaterial& fabricMaterial) {
-        fabricMaterial.setImageryLayerAlpha(imageryLayerIndex, alpha);
+    return std::nullopt;
+}
+
+uint64_t OmniTileset::getRasterOverlayLayerCount() const {
+    return _rasterOverlayPaths.size();
+}
+
+void OmniTileset::updateRasterOverlayLayerAlpha(uint64_t rasterOverlayLayerIndex) {
+    assert(rasterOverlayLayerIndex < _rasterOverlayPaths.size());
+
+    const auto alpha = getRasterOverlayLayerAlpha(rasterOverlayLayerIndex);
+
+    forEachFabricMaterial(_pTileset.get(), [rasterOverlayLayerIndex, alpha](FabricMaterial& fabricMaterial) {
+        fabricMaterial.setRasterOverlayLayerAlpha(rasterOverlayLayerIndex, alpha);
     });
 }
 
@@ -647,36 +533,38 @@ void OmniTileset::updateDisplayColorAndOpacity() {
     const auto displayColor = getDisplayColor();
     const auto displayOpacity = getDisplayOpacity();
 
-    forEachFabricMaterial(_tileset, [&displayColor, &displayOpacity](FabricMaterial& fabricMaterial) {
+    forEachFabricMaterial(_pTileset.get(), [&displayColor, &displayOpacity](FabricMaterial& fabricMaterial) {
         fabricMaterial.setDisplayColorAndOpacity(displayColor, displayOpacity);
     });
 }
 
 void OmniTileset::updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::TfToken& attributeName) {
-    forEachFabricMaterial(_tileset, [&shaderPath, &attributeName](FabricMaterial& fabricMaterial) {
+    forEachFabricMaterial(_pTileset.get(), [&shaderPath, &attributeName](FabricMaterial& fabricMaterial) {
         fabricMaterial.updateShaderInput(
             FabricUtil::toFabricPath(shaderPath), FabricUtil::toFabricToken(attributeName));
     });
 }
 
-double OmniTileset::getImageryLayerAlpha(uint64_t imageryLayerIndex) const {
-    assert(imageryLayerIndex < _imageryPaths.size());
+double OmniTileset::getRasterOverlayLayerAlpha(uint64_t rasterOverlayLayerIndex) const {
+    assert(rasterOverlayLayerIndex < _rasterOverlayPaths.size());
 
-    auto imagery = UsdUtil::getCesiumImagery(_imageryPaths[imageryLayerIndex]);
-    float alpha;
-    imagery.GetAlphaAttr().Get<float>(&alpha);
-    alpha = glm::clamp(alpha, 0.0f, 1.0f);
-    return static_cast<double>(alpha);
+    const auto pRasterOverlay =
+        _pContext->getAssetRegistry().getRasterOverlay(_rasterOverlayPaths[rasterOverlayLayerIndex]);
+    if (!pRasterOverlay) {
+        return 1.0;
+    }
+
+    return glm::clamp(pRasterOverlay->getAlpha(), 0.0, 1.0);
 }
 
-pxr::SdfPath OmniTileset::getImageryLayerPath(uint64_t imageryLayerIndex) const {
-    return _imageryPaths[imageryLayerIndex];
+pxr::SdfPath OmniTileset::getRasterOverlayLayerPath(uint64_t rasterOverlayLayerIndex) const {
+    return _rasterOverlayPaths[rasterOverlayLayerIndex];
 }
 
-void OmniTileset::onUpdateFrame(const std::vector<Viewport>& viewports) {
-    if (!UsdUtil::primExists(_tilesetPath)) {
+void OmniTileset::onUpdateFrame(const gsl::span<const Viewport>& viewports) {
+    if (!UsdUtil::primExists(_pContext->getUsdStage(), _path)) {
         // TfNotice can be slow, and sometimes we get a frame or two before we actually get a chance to react on it.
-        //   This guard prevents us from crashing if the prim no longer exists.
+        // This guard prevents us from crashing if the prim no longer exists.
         return;
     }
 
@@ -686,44 +574,43 @@ void OmniTileset::onUpdateFrame(const std::vector<Viewport>& viewports) {
     if (!_extentSet) {
         _extentSet = updateExtent();
     }
+
     updateLoadStatus();
 }
 
 void OmniTileset::updateTransform() {
-    // computeEcefToUsdTransformForPrim is slightly expensive operations to do every frame but it is simple
-    // and exhaustive. E.g. it reacts to USD scene graph changes, up-axis changes, meters-per-unit changes, and georeference origin changes
-    // without us needing to subscribe to any events.
+    // computeEcefToPrimWorldTransform is a slightly expensive operation to do every frame but it is simple
+    // and exhaustive; it reacts to USD scene graph changes, up-axis changes, meters-per-unit changes, and georeference
+    // origin changes without us needing to subscribe to any events.
     //
-    // The faster approach would be to load the tileset USD prim into Fabric (via usdrt::UsdStage::GetPrimAtPath)
-    // and subscribe to change events for _worldPosition, _worldOrientation, _worldScale.
+    // The faster approach would be to subscribe to change events for _worldPosition, _worldOrientation, _worldScale.
     // Alternatively, we could register a listener with Tf::Notice but this has the downside of only notifying us
     // about changes to the current prim and not its ancestor prims. Also Tf::Notice may notify us in a thread other
     // than the main thread and we would have to be careful to synchronize updates to Fabric in the main thread.
-
-    const auto georeferenceOrigin = GeospatialUtil::convertGeoreferenceToCartographic(getGeoreference());
-    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdWorldTransformForPrim(georeferenceOrigin, _tilesetPath);
+    const auto georeferencePath = getResolvedGeoreferencePath();
+    const auto ecefToPrimWorldTransform = UsdUtil::computeEcefToPrimWorldTransform(*_pContext, georeferencePath, _path);
 
     // Check for transform changes and update prims accordingly
-    if (ecefToUsdTransform != _ecefToUsdTransform) {
-        _ecefToUsdTransform = ecefToUsdTransform;
-        FabricUtil::setTilesetTransform(_tilesetId, ecefToUsdTransform);
-        updateExtent();
+    if (ecefToPrimWorldTransform != _ecefToPrimWorldTransform) {
+        _ecefToPrimWorldTransform = ecefToPrimWorldTransform;
+        FabricUtil::setTilesetTransform(_pContext->getFabricStage(), _tilesetId, ecefToPrimWorldTransform);
+        _extentSet = updateExtent();
     }
 }
 
-void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
-    const auto visible = UsdUtil::isPrimVisible(_tilesetPath);
+void OmniTileset::updateView(const gsl::span<const Viewport>& viewports) {
+    const auto visible = UsdUtil::isPrimVisible(_pContext->getUsdStage(), _path);
 
     if (visible && !getSuspendUpdate()) {
         // Go ahead and select some tiles
-        const auto& georeferenceOrigin = GeospatialUtil::convertGeoreferenceToCartographic(getGeoreference());
+        const auto georeferencePath = getResolvedGeoreferencePath();
 
         _viewStates.clear();
         for (const auto& viewport : viewports) {
-            _viewStates.emplace_back(UsdUtil::computeViewState(georeferenceOrigin, _tilesetPath, viewport));
+            _viewStates.push_back(UsdUtil::computeViewState(*_pContext, georeferencePath, _path, viewport));
         }
 
-        _pViewUpdateResult = &_tileset->updateView(_viewStates);
+        _pViewUpdateResult = &_pTileset->updateView(_viewStates);
     }
 
     if (!_pViewUpdateResult) {
@@ -732,15 +619,15 @@ void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
     }
 
     // Hide tiles that we no longer need
-    for (const auto tile : _pViewUpdateResult->tilesFadingOut) {
-        if (tile->getState() == Cesium3DTilesSelection::TileLoadState::Done) {
-            const auto pRenderContent = tile->getContent().getRenderContent();
+    for (const auto pTile : _pViewUpdateResult->tilesFadingOut) {
+        if (pTile->getState() == Cesium3DTilesSelection::TileLoadState::Done) {
+            const auto pRenderContent = pTile->getContent().getRenderContent();
             if (pRenderContent) {
-                const auto pRenderResources = pRenderContent->getRenderResources();
+                const auto pRenderResources =
+                    static_cast<const FabricRenderResources*>(pRenderContent->getRenderResources());
                 if (pRenderResources) {
-                    const auto pTileRenderResources = reinterpret_cast<TileRenderResources*>(pRenderResources);
-                    for (const auto& fabricMesh : pTileRenderResources->fabricMeshes) {
-                        fabricMesh.geometry->setVisibility(false);
+                    for (const auto& fabricMesh : pRenderResources->fabricMeshes) {
+                        fabricMesh.pGeometry->setVisibility(false);
                     }
                 }
             }
@@ -748,15 +635,15 @@ void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
     }
 
     // Update visibility for selected tiles
-    for (const auto tile : _pViewUpdateResult->tilesToRenderThisFrame) {
-        if (tile->getState() == Cesium3DTilesSelection::TileLoadState::Done) {
-            const auto pRenderContent = tile->getContent().getRenderContent();
+    for (const auto pTile : _pViewUpdateResult->tilesToRenderThisFrame) {
+        if (pTile->getState() == Cesium3DTilesSelection::TileLoadState::Done) {
+            const auto pRenderContent = pTile->getContent().getRenderContent();
             if (pRenderContent) {
-                const auto pRenderResources = pRenderContent->getRenderResources();
+                const auto pRenderResources =
+                    static_cast<const FabricRenderResources*>(pRenderContent->getRenderResources());
                 if (pRenderResources) {
-                    const auto pTileRenderResources = reinterpret_cast<TileRenderResources*>(pRenderResources);
-                    for (const auto& fabricMesh : pTileRenderResources->fabricMeshes) {
-                        fabricMesh.geometry->setVisibility(visible);
+                    for (const auto& fabricMesh : pRenderResources->fabricMeshes) {
+                        fabricMesh.pGeometry->setVisibility(visible);
                     }
                 }
             }
@@ -765,44 +652,58 @@ void OmniTileset::updateView(const std::vector<Viewport>& viewports) {
 }
 
 bool OmniTileset::updateExtent() {
-    auto rootTile = _tileset->getRootTile();
-    if (rootTile == nullptr) {
+    const auto pRootTile = _pTileset->getRootTile();
+    if (!pRootTile) {
         return false;
     }
 
-    const auto tileset = UsdUtil::getCesiumTileset(_tilesetPath);
-    const auto& bounding_volume = rootTile->getBoundingVolume();
-    const auto oriented = Cesium3DTilesSelection::getOrientedBoundingBoxFromBoundingVolume(bounding_volume);
-    const auto georeferenceOrigin = Context::instance().getGeoreferenceOrigin();
-    const auto ecefToUsdTransform = UsdUtil::computeEcefToUsdWorldTransformForPrim(georeferenceOrigin, _tilesetPath);
-    const auto usdOriented = oriented.transform(ecefToUsdTransform);
-    const auto& center = usdOriented.getCenter();
+    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+    const auto& boundingVolume = pRootTile->getBoundingVolume();
+    const auto ecefObb = Cesium3DTilesSelection::getOrientedBoundingBoxFromBoundingVolume(boundingVolume);
+    const auto georeferencePath = getResolvedGeoreferencePath();
+    const auto ecefToPrimWorldTransform = UsdUtil::computeEcefToPrimWorldTransform(*_pContext, georeferencePath, _path);
+    const auto primObb = ecefObb.transform(ecefToPrimWorldTransform);
+    const auto primAabb = primObb.toAxisAligned();
 
-    const auto& halfAxes = usdOriented.getHalfAxes();
-    const auto xLengthHalf = static_cast<float>(glm::length(halfAxes[0]));
-    const auto yLengthHalf = static_cast<float>(glm::length(halfAxes[1]));
-    const auto zLengthHalf = static_cast<float>(glm::length(halfAxes[2]));
+    const auto bottomLeft = glm::dvec3(primAabb.minimumX, primAabb.minimumY, primAabb.minimumZ);
+    const auto topRight = glm::dvec3(primAabb.maximumX, primAabb.maximumY, primAabb.maximumZ);
 
-    pxr::VtArray<pxr::GfVec3f> extent;
-    const auto centerGf =
-        pxr::GfVec3f(static_cast<float>(center.x), static_cast<float>(center.y), static_cast<float>(center.z));
-    extent.push_back(pxr::GfVec3f(-xLengthHalf, -yLengthHalf, -zLengthHalf) + centerGf);
-    extent.push_back(pxr::GfVec3f(xLengthHalf, yLengthHalf, zLengthHalf) + centerGf);
+    pxr::VtArray<pxr::GfVec3f> extent = {
+        UsdUtil::glmToUsdVector(glm::fvec3(bottomLeft)),
+        UsdUtil::glmToUsdVector(glm::fvec3(topRight)),
+    };
 
-    auto boundable = pxr::UsdGeomBoundable(tileset);
+    const auto boundable = pxr::UsdGeomBoundable(cesiumTileset);
     boundable.GetExtentAttr().Set(extent);
     return true;
 }
 
 void OmniTileset::updateLoadStatus() {
-    const auto loadProgress = _tileset->computeLoadProgress();
+    const auto loadProgress = _pTileset->computeLoadProgress();
 
     if (loadProgress < 100.0f) {
         _activeLoading = true;
     } else if (_activeLoading) {
-        Broadcast::tilesetLoaded(_tilesetPath);
+        Broadcast::tilesetLoaded(_path);
         _activeLoading = false;
     }
+}
+
+void OmniTileset::destroyNativeTileset() {
+    if (_pTileset) {
+        // Remove raster overlays before the native tileset is destroyed
+        // See comment above _pLoadedTiles in RasterOverlayCollection.h
+        while (_pTileset->getOverlays().size() > 0) {
+            _pTileset->getOverlays().remove(*_pTileset->getOverlays().begin());
+        }
+    }
+
+    if (_pRenderResourcesPreparer) {
+        _pRenderResourcesPreparer->detachTileset();
+    }
+
+    _pTileset = nullptr;
+    _pRenderResourcesPreparer = nullptr;
 }
 
 } // namespace cesium::omniverse

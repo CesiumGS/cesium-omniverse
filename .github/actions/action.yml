@@ -18,7 +18,7 @@ runs:
     # Linters are turned off because there is no pre-compiled C++20-capable LLVM toolset for CentOS 7. It won't affect the build, it just means there won't be code formatting or linting. It will build fine with GCC.
     # Make sure to configure without sanitizers and any other development options
     - "git config --global --add safe.directory '*' &&
-      cmake -B build -D CMAKE_BUILD_TYPE=${{ inputs.build-type }} -D CESIUM_OMNI_ENABLE_LINTERS=OFF -D CESIUM_OMNI_ENABLE_SANITIZERS=OFF &&
+      cmake -B build -D CMAKE_BUILD_TYPE=${{ inputs.build-type }} -D CESIUM_OMNI_ENABLE_TESTS=OFF -D CESIUM_OMNI_ENABLE_LINTERS=OFF -D CESIUM_OMNI_ENABLE_SANITIZERS=OFF &&
       cmake --build build --parallel 2 &&
       cmake --build build --target install &&
       cmake --build build --target package"

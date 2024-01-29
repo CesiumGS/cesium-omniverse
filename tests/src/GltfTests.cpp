@@ -1,6 +1,7 @@
 #include "testUtils.h"
 
-#include "cesium/omniverse/GltfAccessors.h"
+#include "cesium/omniverse/FabricMaterialInfo.h"
+#include "cesium/omniverse/FabricVertexAttributeAccessors.h"
 #include "cesium/omniverse/GltfUtil.h"
 
 #include <CesiumGltf/Material.h>
@@ -41,11 +42,12 @@ TEST_SUITE("Test GltfUtil") {
         auto gltfFileLength = gltfStream.tellg();
         gltfStream.seekg(0, std::ios::beg);
 
-        std::vector<std::byte> gltfBuf(gltfFileLength);
+        std::vector<std::byte> gltfBuf(static_cast<uint64_t>(gltfFileLength));
         gltfStream.read((char*)&gltfBuf[0], gltfFileLength);
 
         CesiumGltfReader::GltfReader reader;
-        auto gltf = reader.readGltf(gsl::span(reinterpret_cast<const std::byte*>(gltfBuf.data()), gltfFileLength));
+        auto gltf = reader.readGltf(
+            gsl::span(reinterpret_cast<const std::byte*>(gltfBuf.data()), static_cast<uint64_t>(gltfFileLength)));
 
         if (!gltf.errors.empty()) {
             for (const auto& err : gltf.errors) {
@@ -65,7 +67,9 @@ TEST_SUITE("Test GltfUtil") {
 
         CHECK(GltfUtil::hasNormals(model, prim, false) == expectedResults["hasNormals"].as<bool>());
         CHECK(GltfUtil::hasTexcoords(model, prim, 0) == expectedResults["hasTexcoords"].as<bool>());
-        CHECK(GltfUtil::hasImageryTexcoords(model, prim, 0) == expectedResults["hasImageryTexcoords"].as<bool>());
+        CHECK(
+            GltfUtil::hasRasterOverlayTexcoords(model, prim, 0) ==
+            expectedResults["hasRasterOverlayTexcoords"].as<bool>());
         CHECK(GltfUtil::hasVertexColors(model, prim, 0) == expectedResults["hasVertexColors"].as<bool>());
         CHECK(GltfUtil::hasMaterial(prim) == expectedResults["hasMaterial"].as<bool>());
 
@@ -73,7 +77,7 @@ TEST_SUITE("Test GltfUtil") {
         if (GltfUtil::hasMaterial(prim)) {
             const auto& matInfo = GltfUtil::getMaterialInfo(model, prim);
             CHECK(matInfo.alphaCutoff == expectedResults["alphaCutoff"].as<double>());
-            CHECK(matInfo.alphaMode == static_cast<AlphaMode>(expectedResults["alphaMode"].as<int32_t>()));
+            CHECK(matInfo.alphaMode == static_cast<FabricAlphaMode>(expectedResults["alphaMode"].as<int32_t>()));
             CHECK(matInfo.baseAlpha == expectedResults["baseAlpha"].as<double>());
             CHECK(matInfo.baseColorFactor == expectedResults["baseColorFactor"].as<std::vector<double>>());
             CHECK(matInfo.emissiveFactor == expectedResults["emissiveFactor"].as<std::vector<double>>());
@@ -99,8 +103,8 @@ TEST_SUITE("Test GltfUtil") {
         if (GltfUtil::hasTexcoords(model, prim, 0)) {
             CHECK(GltfUtil::getTexcoords(model, prim, 0).size() > 0);
         }
-        if (GltfUtil::hasImageryTexcoords(model, prim, 0)) {
-            CHECK(GltfUtil::getImageryTexcoords(model, prim, 0).size() > 0);
+        if (GltfUtil::hasRasterOverlayTexcoords(model, prim, 0)) {
+            CHECK(GltfUtil::getRasterOverlayTexcoords(model, prim, 0).size() > 0);
         }
         CHECK(GltfUtil::getExtent(model, prim) != std::nullopt);
     }

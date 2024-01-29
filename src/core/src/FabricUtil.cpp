@@ -1,10 +1,15 @@
 #include "cesium/omniverse/FabricUtil.h"
 
+#include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/DataType.h"
-#include "cesium/omniverse/Tokens.h"
+#include "cesium/omniverse/DataTypeUtil.h"
+#include "cesium/omniverse/FabricStatistics.h"
+#include "cesium/omniverse/MathUtil.h"
+#include "cesium/omniverse/UsdTokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <omni/fabric/FabricUSD.h>
+#include <omni/fabric/SimStageWithHistory.h>
 #include <pxr/base/gf/matrix4d.h>
 #include <pxr/base/gf/quatf.h>
 #include <pxr/base/gf/range3d.h>
@@ -18,8 +23,8 @@ namespace cesium::omniverse::FabricUtil {
 
 namespace {
 
-const char* const NO_DATA_STRING = "[No Data]";
-const char* const TYPE_NOT_SUPPORTED_STRING = "[Type Not Supported]";
+const std::string_view NO_DATA_STRING = "[No Data]";
+const std::string_view TYPE_NOT_SUPPORTED_STRING = "[Type Not Supported]";
 
 // Wraps the token type so that we can define a custom stream insertion operator
 class TokenWrapper {
@@ -76,12 +81,12 @@ std::string printAttributeValue(const T* values, uint64_t elementCount, uint64_t
         stream << "[";
     }
 
-    for (uint64_t i = 0; i < elementCount; i++) {
+    for (uint64_t i = 0; i < elementCount; ++i) {
         if (componentCount > 1) {
             stream << "[";
         }
 
-        for (uint64_t j = 0; j < componentCount; j++) {
+        for (uint64_t j = 0; j < componentCount; ++j) {
             stream << values[i * componentCount + j];
             if (j < componentCount - 1) {
                 stream << ",";
@@ -106,20 +111,19 @@ std::string printAttributeValue(const T* values, uint64_t elementCount, uint64_t
 
 template <bool IsArray, typename BaseType, uint64_t ComponentCount>
 std::string printAttributeValue(
+    omni::fabric::StageReaderWriter& fabricStage,
     const omni::fabric::Path& primPath,
     const omni::fabric::Token& attributeName,
     const omni::fabric::AttributeRole& role) {
 
     using ElementType = std::array<BaseType, ComponentCount>;
 
-    auto stageReaderWriter = UsdUtil::getFabricStageReaderWriter();
-
     if constexpr (IsArray) {
-        const auto values = stageReaderWriter.getArrayAttributeRd<ElementType>(primPath, attributeName);
+        const auto values = fabricStage.getArrayAttributeRd<ElementType>(primPath, attributeName);
         const auto elementCount = values.size();
 
         if (elementCount == 0) {
-            return NO_DATA_STRING;
+            return std::string(NO_DATA_STRING);
         }
 
         const auto valuesPtr = values.front().data();
@@ -130,32 +134,35 @@ std::string printAttributeValue(
 
         return printAttributeValue<BaseType>(valuesPtr, elementCount, ComponentCount, true);
     } else {
-        const auto value = stageReaderWriter.getAttributeRd<ElementType>(primPath, attributeName);
+        const auto pValue = fabricStage.getAttributeRd<ElementType>(primPath, attributeName);
 
-        if (value == nullptr) {
-            return NO_DATA_STRING;
+        if (!pValue) {
+            return std::string(NO_DATA_STRING);
         }
 
-        return printAttributeValue<BaseType>(value->data(), 1, ComponentCount, false);
+        return printAttributeValue<BaseType>(pValue->data(), 1, ComponentCount, false);
     }
 }
 
-std::string printConnection(const omni::fabric::Path& primPath, const omni::fabric::Token& attributeName) {
-    auto stageReaderWriter = UsdUtil::getFabricStageReaderWriter();
-    const auto connection = stageReaderWriter.getConnection(primPath, attributeName);
-    if (connection == nullptr) {
-        return NO_DATA_STRING;
+std::string printConnection(
+    omni::fabric::StageReaderWriter& fabricStage,
+    const omni::fabric::Path& primPath,
+    const omni::fabric::Token& attributeName) {
+    const auto pConnection = fabricStage.getConnection(primPath, attributeName);
+    if (!pConnection) {
+        return std::string(NO_DATA_STRING);
     }
 
-    const auto path = omni::fabric::Path(connection->path).getText();
-    const auto attrName = omni::fabric::Token(connection->attrName).getText();
+    const auto path = omni::fabric::Path(pConnection->path).getText();
+    const auto attrName = omni::fabric::Token(pConnection->attrName).getText();
 
     return fmt::format("Path: {}, Attribute Name: {}", path, attrName);
 }
 
-std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::fabric::AttrNameAndType& attribute) {
-    auto stageReaderWriter = UsdUtil::getFabricStageReaderWriter();
-
+std::string printAttributeValue(
+    omni::fabric::StageReaderWriter& fabricStage,
+    const omni::fabric::Path& primPath,
+    const omni::fabric::AttrNameAndType& attribute) {
     const auto attributeType = attribute.type;
     const auto baseType = attributeType.baseType;
     const auto componentCount = attributeType.componentCount;
@@ -168,356 +175,263 @@ std::string printAttributeValue(const omni::fabric::Path& primPath, const omni::
     // We can add more as needed.
     if (arrayDepth == 0) {
         switch (baseType) {
-            case omni::fabric::BaseDataType::eAsset: {
+            case omni::fabric::BaseDataType::eAsset:
                 switch (componentCount) {
-                    case 1: {
-                        return printAttributeValue<false, AssetWrapper, 1>(primPath, name, role);
-                    }
-                    default: {
+                    case 1:
+                        return printAttributeValue<false, AssetWrapper, 1>(fabricStage, primPath, name, role);
+                    default:
                         break;
-                    }
                 }
                 break;
-            }
-            case omni::fabric::BaseDataType::eConnection: {
+            case omni::fabric::BaseDataType::eConnection:
                 switch (componentCount) {
-                    case 1: {
-                        return printConnection(primPath, name);
-                    }
-                    default: {
+                    case 1:
+                        return printConnection(fabricStage, primPath, name);
+                    default:
                         break;
-                    }
                 }
                 break;
-            }
-            case omni::fabric::BaseDataType::eToken: {
+            case omni::fabric::BaseDataType::eToken:
                 switch (componentCount) {
-                    case 1: {
-                        return printAttributeValue<false, TokenWrapper, 1>(primPath, name, role);
-                    }
-                    default: {
+                    case 1:
+                        return printAttributeValue<false, TokenWrapper, 1>(fabricStage, primPath, name, role);
+                    default:
                         break;
-                    }
                 }
                 break;
-            }
-            case omni::fabric::BaseDataType::eBool: {
+            case omni::fabric::BaseDataType::eBool:
                 switch (componentCount) {
-                    case 1: {
-                        return printAttributeValue<false, BoolWrapper, 1>(primPath, name, role);
-                    }
-                    default: {
+                    case 1:
+                        return printAttributeValue<false, BoolWrapper, 1>(fabricStage, primPath, name, role);
+                    default:
                         break;
-                    }
                 }
                 break;
-            }
-            case omni::fabric::BaseDataType::eUChar: {
+            case omni::fabric::BaseDataType::eUChar:
                 switch (componentCount) {
-                    case 1: {
-                        return printAttributeValue<false, uint8_t, 1>(primPath, name, role);
-                    }
-                    default: {
+                    case 1:
+                        return printAttributeValue<false, uint8_t, 1>(fabricStage, primPath, name, role);
+                    default:
                         break;
-                    }
                 }
                 break;
-            }
-            case omni::fabric::BaseDataType::eInt: {
+            case omni::fabric::BaseDataType::eInt:
                 switch (componentCount) {
-                    case 1: {
-                        return printAttributeValue<false, int32_t, 1>(primPath, name, role);
-                    }
-                    case 2: {
-                        return printAttributeValue<false, int32_t, 2>(primPath, name, role);
-                    }
-                    case 3: {
-                        return printAttributeValue<false, int32_t, 3>(primPath, name, role);
-                    }
-                    case 4: {
-                        return printAttributeValue<false, int32_t, 4>(primPath, name, role);
-                    }
-                    default: {
+                    case 1:
+                        return printAttributeValue<false, int32_t, 1>(fabricStage, primPath, name, role);
+                    case 2:
+                        return printAttributeValue<false, int32_t, 2>(fabricStage, primPath, name, role);
+                    case 3:
+                        return printAttributeValue<false, int32_t, 3>(fabricStage, primPath, name, role);
+                    case 4:
+                        return printAttributeValue<false, int32_t, 4>(fabricStage, primPath, name, role);
+                    default:
                         break;
-                    }
                 }
                 break;
-            }
-            case omni::fabric::BaseDataType::eUInt: {
+            case omni::fabric::BaseDataType::eUInt:
                 switch (componentCount) {
-                    case 1: {
-                        return printAttributeValue<false, uint32_t, 1>(primPath, name, role);
-                    }
-                    default: {
+                    case 1:
+                        return printAttributeValue<false, uint32_t, 1>(fabricStage, primPath, name, role);
+                    default:
                         break;
-                    }
                 }
                 break;
-            }
-            case omni::fabric::BaseDataType::eInt64: {
+            case omni::fabric::BaseDataType::eInt64:
                 switch (componentCount) {
-                    case 1: {
-                        return printAttributeValue<false, int64_t, 1>(primPath, name, role);
-                    }
-                    default: {
+                    case 1:
+                        return printAttributeValue<false, int64_t, 1>(fabricStage, primPath, name, role);
+                    default:
                         break;
-                    }
                 }
                 break;
-            }
-            case omni::fabric::BaseDataType::eUInt64: {
+            case omni::fabric::BaseDataType::eUInt64:
                 switch (componentCount) {
-                    case 1: {
-                        return printAttributeValue<false, uint64_t, 1>(primPath, name, role);
-                    }
-                    default: {
+                    case 1:
+                        return printAttributeValue<false, uint64_t, 1>(fabricStage, primPath, name, role);
+                    default:
                         break;
-                    }
                 }
                 break;
-            }
-            case omni::fabric::BaseDataType::eFloat: {
+            case omni::fabric::BaseDataType::eFloat:
                 switch (componentCount) {
-                    case 1: {
-                        return printAttributeValue<false, float, 1>(primPath, name, role);
-                    }
-                    case 2: {
-                        return printAttributeValue<false, float, 2>(primPath, name, role);
-                    }
-                    case 3: {
-                        return printAttributeValue<false, float, 3>(primPath, name, role);
-                    }
-                    case 4: {
-                        return printAttributeValue<false, float, 4>(primPath, name, role);
-                    }
-                    default: {
+                    case 1:
+                        return printAttributeValue<false, float, 1>(fabricStage, primPath, name, role);
+                    case 2:
+                        return printAttributeValue<false, float, 2>(fabricStage, primPath, name, role);
+                    case 3:
+                        return printAttributeValue<false, float, 3>(fabricStage, primPath, name, role);
+                    case 4:
+                        return printAttributeValue<false, float, 4>(fabricStage, primPath, name, role);
+                    default:
                         break;
-                    }
                 }
                 break;
-            }
-            case omni::fabric::BaseDataType::eDouble: {
+            case omni::fabric::BaseDataType::eDouble:
                 switch (componentCount) {
-                    case 1: {
-                        return printAttributeValue<false, double, 1>(primPath, name, role);
-                    }
-                    case 2: {
-                        return printAttributeValue<false, double, 2>(primPath, name, role);
-                    }
-                    case 3: {
-                        return printAttributeValue<false, double, 3>(primPath, name, role);
-                    }
-                    case 4: {
-                        return printAttributeValue<false, double, 4>(primPath, name, role);
-                    }
-                    case 6: {
-                        return printAttributeValue<false, double, 6>(primPath, name, role);
-                    }
-                    case 9: {
-                        return printAttributeValue<false, double, 9>(primPath, name, role);
-                    }
-                    case 16: {
-                        return printAttributeValue<false, double, 16>(primPath, name, role);
-                    }
-                    default: {
+                    case 1:
+                        return printAttributeValue<false, double, 1>(fabricStage, primPath, name, role);
+                    case 2:
+                        return printAttributeValue<false, double, 2>(fabricStage, primPath, name, role);
+                    case 3:
+                        return printAttributeValue<false, double, 3>(fabricStage, primPath, name, role);
+                    case 4:
+                        return printAttributeValue<false, double, 4>(fabricStage, primPath, name, role);
+                    case 6:
+                        return printAttributeValue<false, double, 6>(fabricStage, primPath, name, role);
+                    case 9:
+                        return printAttributeValue<false, double, 9>(fabricStage, primPath, name, role);
+                    case 16:
+                        return printAttributeValue<false, double, 16>(fabricStage, primPath, name, role);
+                    default:
                         break;
-                    }
                 }
                 break;
-            }
             // Due to legacy support the eRelationship type is defined as a scalar value but is secretly an array
-            case omni::fabric::BaseDataType::eRelationship: {
+            case omni::fabric::BaseDataType::eRelationship:
                 switch (componentCount) {
-                    case 1: {
-                        return printAttributeValue<true, uint64_t, 1>(primPath, name, role);
-                    }
-                    default: {
+                    case 1:
+                        return printAttributeValue<true, uint64_t, 1>(fabricStage, primPath, name, role);
+                    default:
                         break;
-                    }
                 }
                 break;
-            }
-            default: {
+            default:
                 break;
-            }
         }
     } else if (arrayDepth == 1) {
         switch (baseType) {
-            case omni::fabric::BaseDataType::eAsset: {
+            case omni::fabric::BaseDataType::eAsset:
                 switch (componentCount) {
-                    case 1: {
-                        return printAttributeValue<true, AssetWrapper, 1>(primPath, name, role);
-                    }
-                    default: {
+                    case 1:
+                        return printAttributeValue<true, AssetWrapper, 1>(fabricStage, primPath, name, role);
+                    default:
                         break;
-                    }
                 }
                 break;
-            }
-            case omni::fabric::BaseDataType::eToken: {
+            case omni::fabric::BaseDataType::eToken:
                 switch (componentCount) {
-                    case 1: {
-                        return printAttributeValue<true, TokenWrapper, 1>(primPath, name, role);
-                    }
-                    default: {
+                    case 1:
+                        return printAttributeValue<true, TokenWrapper, 1>(fabricStage, primPath, name, role);
+                    default:
                         break;
-                    }
                 }
                 break;
-            }
-            case omni::fabric::BaseDataType::eBool: {
+            case omni::fabric::BaseDataType::eBool:
                 switch (componentCount) {
-                    case 1: {
-                        return printAttributeValue<true, BoolWrapper, 1>(primPath, name, role);
-                    }
-                    default: {
+                    case 1:
+                        return printAttributeValue<true, BoolWrapper, 1>(fabricStage, primPath, name, role);
+                    default:
                         break;
-                    }
                 }
                 break;
-            }
-            case omni::fabric::BaseDataType::eUChar: {
+            case omni::fabric::BaseDataType::eUChar:
                 switch (componentCount) {
-                    case 1: {
-                        return printAttributeValue<true, uint8_t, 1>(primPath, name, role);
-                    }
-                    default: {
+                    case 1:
+                        return printAttributeValue<true, uint8_t, 1>(fabricStage, primPath, name, role);
+                    default:
                         break;
-                    }
                 }
                 break;
-            }
-            case omni::fabric::BaseDataType::eInt: {
+            case omni::fabric::BaseDataType::eInt:
                 switch (componentCount) {
-                    case 1: {
-                        return printAttributeValue<true, int32_t, 1>(primPath, name, role);
-                    }
-                    case 2: {
-                        return printAttributeValue<true, int32_t, 2>(primPath, name, role);
-                    }
-                    case 3: {
-                        return printAttributeValue<true, int32_t, 3>(primPath, name, role);
-                    }
-                    case 4: {
-                        return printAttributeValue<true, int32_t, 4>(primPath, name, role);
-                    }
-                    default: {
+                    case 1:
+                        return printAttributeValue<true, int32_t, 1>(fabricStage, primPath, name, role);
+                    case 2:
+                        return printAttributeValue<true, int32_t, 2>(fabricStage, primPath, name, role);
+                    case 3:
+                        return printAttributeValue<true, int32_t, 3>(fabricStage, primPath, name, role);
+                    case 4:
+                        return printAttributeValue<true, int32_t, 4>(fabricStage, primPath, name, role);
+                    default:
                         break;
-                    }
                 }
                 break;
-            }
-            case omni::fabric::BaseDataType::eUInt: {
+            case omni::fabric::BaseDataType::eUInt:
                 switch (componentCount) {
-                    case 1: {
-                        return printAttributeValue<true, uint32_t, 1>(primPath, name, role);
-                    }
-                    default: {
+                    case 1:
+                        return printAttributeValue<true, uint32_t, 1>(fabricStage, primPath, name, role);
+                    default:
                         break;
-                    }
                 }
                 break;
-            }
-            case omni::fabric::BaseDataType::eInt64: {
+            case omni::fabric::BaseDataType::eInt64:
                 switch (componentCount) {
-                    case 1: {
-                        return printAttributeValue<true, int64_t, 1>(primPath, name, role);
-                    }
-                    default: {
+                    case 1:
+                        return printAttributeValue<true, int64_t, 1>(fabricStage, primPath, name, role);
+                    default:
                         break;
-                    }
                 }
                 break;
-            }
-            case omni::fabric::BaseDataType::eUInt64: {
+            case omni::fabric::BaseDataType::eUInt64:
                 switch (componentCount) {
-                    case 1: {
-                        return printAttributeValue<true, uint64_t, 1>(primPath, name, role);
-                    }
-                    default: {
+                    case 1:
+                        return printAttributeValue<true, uint64_t, 1>(fabricStage, primPath, name, role);
+
+                    default:
                         break;
-                    }
                 }
                 break;
-            }
-            case omni::fabric::BaseDataType::eFloat: {
+            case omni::fabric::BaseDataType::eFloat:
                 switch (componentCount) {
-                    case 1: {
-                        return printAttributeValue<true, float, 1>(primPath, name, role);
-                    }
-                    case 2: {
-                        return printAttributeValue<true, float, 2>(primPath, name, role);
-                    }
-                    case 3: {
-                        return printAttributeValue<true, float, 3>(primPath, name, role);
-                    }
-                    case 4: {
-                        return printAttributeValue<true, float, 4>(primPath, name, role);
-                    }
-                    default: {
+                    case 1:
+                        return printAttributeValue<true, float, 1>(fabricStage, primPath, name, role);
+                    case 2:
+                        return printAttributeValue<true, float, 2>(fabricStage, primPath, name, role);
+                    case 3:
+                        return printAttributeValue<true, float, 3>(fabricStage, primPath, name, role);
+                    case 4:
+                        return printAttributeValue<true, float, 4>(fabricStage, primPath, name, role);
+                    default:
                         break;
-                    }
                 }
                 break;
-            }
-            case omni::fabric::BaseDataType::eDouble: {
+            case omni::fabric::BaseDataType::eDouble:
                 switch (componentCount) {
-                    case 1: {
-                        return printAttributeValue<true, double, 1>(primPath, name, role);
-                    }
-                    case 2: {
-                        return printAttributeValue<true, double, 2>(primPath, name, role);
-                    }
-                    case 3: {
-                        return printAttributeValue<true, double, 3>(primPath, name, role);
-                    }
-                    case 4: {
-                        return printAttributeValue<true, double, 4>(primPath, name, role);
-                    }
-                    case 6: {
-                        return printAttributeValue<true, double, 6>(primPath, name, role);
-                    }
-                    case 9: {
-                        return printAttributeValue<true, double, 9>(primPath, name, role);
-                    }
-                    case 16: {
-                        return printAttributeValue<true, double, 16>(primPath, name, role);
-                    }
-                    default: {
+                    case 1:
+                        return printAttributeValue<true, double, 1>(fabricStage, primPath, name, role);
+                    case 2:
+                        return printAttributeValue<true, double, 2>(fabricStage, primPath, name, role);
+                    case 3:
+                        return printAttributeValue<true, double, 3>(fabricStage, primPath, name, role);
+                    case 4:
+                        return printAttributeValue<true, double, 4>(fabricStage, primPath, name, role);
+                    case 6:
+                        return printAttributeValue<true, double, 6>(fabricStage, primPath, name, role);
+                    case 9:
+                        return printAttributeValue<true, double, 9>(fabricStage, primPath, name, role);
+                    case 16:
+                        return printAttributeValue<true, double, 16>(fabricStage, primPath, name, role);
+                    default:
                         break;
-                    }
                 }
                 break;
-            }
-            default: {
+            default:
                 break;
-            }
         }
     }
 
-    return TYPE_NOT_SUPPORTED_STRING;
+    return std::string(TYPE_NOT_SUPPORTED_STRING);
 }
 
 } // namespace
 
-std::string printFabricStage() {
+std::string printFabricStage(omni::fabric::StageReaderWriter& fabricStage) {
     std::stringstream stream;
 
-    auto stageReaderWriter = UsdUtil::getFabricStageReaderWriter();
-
     // For extra debugging. This gets printed to the console.
-    stageReaderWriter.printBucketNames();
+    fabricStage.printBucketNames();
 
     // This returns ALL the buckets
-    const auto& buckets = stageReaderWriter.findPrims({});
+    const auto& buckets = fabricStage.findPrims({});
 
-    for (size_t bucketId = 0; bucketId < buckets.bucketCount(); bucketId++) {
-        const auto& attributes = stageReaderWriter.getAttributeNamesAndTypes(buckets, bucketId);
-        const auto& primPaths = stageReaderWriter.getPathArray(buckets, bucketId);
+    for (uint64_t bucketId = 0; bucketId < buckets.bucketCount(); ++bucketId) {
+        const auto& attributes = fabricStage.getAttributeNamesAndTypes(buckets, bucketId);
+        const auto& primPaths = fabricStage.getPathArray(buckets, bucketId);
 
         for (const auto& primPath : primPaths) {
             const auto primPathString = primPath.getText();
-            const auto primPathUint64 = omni::fabric::PathC(primPath).path;
+            const auto primPathUint64 = primPath.asPathC().path;
 
             stream << fmt::format("Prim: {} ({})\n", primPathString, primPathUint64);
             stream << fmt::format("  Attributes:\n");
@@ -526,7 +440,7 @@ std::string printFabricStage() {
                 const auto attributeName = attribute.name.getText();
                 const auto attributeType = attribute.type.getTypeName();
                 const auto attributeBaseType = attribute.type.baseType;
-                const auto attributeValue = printAttributeValue(primPath, attribute);
+                const auto attributeValue = printAttributeValue(fabricStage, primPath, attribute);
 
                 stream << fmt::format("    Attribute: {}\n", attributeName);
                 stream << fmt::format("      Type: {}\n", attributeType);
@@ -541,32 +455,27 @@ std::string printFabricStage() {
     return stream.str();
 }
 
-FabricStatistics getStatistics() {
+FabricStatistics getStatistics(omni::fabric::StageReaderWriter& fabricStage) {
     FabricStatistics statistics;
 
-    if (!UsdUtil::hasStage()) {
-        return statistics;
-    }
-
-    auto srw = UsdUtil::getFabricStageReaderWriter();
-
-    const auto geometryBuckets = srw.findPrims(
+    const auto geometryBuckets = fabricStage.findPrims(
         {omni::fabric::AttrNameAndType(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId)},
         {omni::fabric::AttrNameAndType(FabricTypes::Mesh, FabricTokens::Mesh)});
 
-    const auto materialBuckets = srw.findPrims(
+    const auto materialBuckets = fabricStage.findPrims(
         {omni::fabric::AttrNameAndType(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId)},
         {omni::fabric::AttrNameAndType(FabricTypes::Material, FabricTokens::Material)});
 
-    for (size_t bucketId = 0; bucketId < geometryBuckets.bucketCount(); bucketId++) {
-        auto paths = srw.getPathArray(geometryBuckets, bucketId);
+    for (uint64_t bucketId = 0; bucketId < geometryBuckets.bucketCount(); ++bucketId) {
+        const auto paths = fabricStage.getPathArray(geometryBuckets, bucketId);
 
         statistics.geometriesCapacity += paths.size();
 
         for (const auto& path : paths) {
-            const auto worldVisibilityFabric = srw.getAttributeRd<bool>(path, FabricTokens::_worldVisibility);
-            const auto faceVertexCountsFabric = srw.getArrayAttributeRd<int>(path, FabricTokens::faceVertexCounts);
-            const auto tilesetIdFabric = srw.getAttributeRd<int64_t>(path, FabricTokens::_cesium_tilesetId);
+            const auto worldVisibilityFabric = fabricStage.getAttributeRd<bool>(path, FabricTokens::_worldVisibility);
+            const auto faceVertexCountsFabric =
+                fabricStage.getArrayAttributeRd<int>(path, FabricTokens::faceVertexCounts);
+            const auto tilesetIdFabric = fabricStage.getAttributeRd<int64_t>(path, FabricTokens::_cesium_tilesetId);
 
             assert(worldVisibilityFabric);
             assert(tilesetIdFabric);
@@ -575,103 +484,93 @@ FabricStatistics getStatistics() {
                 continue;
             }
 
-            statistics.geometriesLoaded++;
+            ++statistics.geometriesLoaded;
 
             const auto triangleCount = faceVertexCountsFabric.size();
             statistics.trianglesLoaded += triangleCount;
 
             if (*worldVisibilityFabric) {
-                statistics.geometriesRendered++;
+                ++statistics.geometriesRendered;
                 statistics.trianglesRendered += triangleCount;
             }
         }
     }
 
-    for (size_t bucketId = 0; bucketId < materialBuckets.bucketCount(); bucketId++) {
-        auto paths = srw.getPathArray(materialBuckets, bucketId);
+    for (uint64_t bucketId = 0; bucketId < materialBuckets.bucketCount(); ++bucketId) {
+        auto paths = fabricStage.getPathArray(materialBuckets, bucketId);
 
-        // clang-format off
-        auto tilesetIdFabric = srw.getAttributeArrayRd<int64_t>(materialBuckets, bucketId, FabricTokens::_cesium_tilesetId);
-        // clang-format on
+        const auto tilesetIdFabric =
+            fabricStage.getAttributeArrayRd<int64_t>(materialBuckets, bucketId, FabricTokens::_cesium_tilesetId);
 
         statistics.materialsCapacity += paths.size();
 
-        for (size_t i = 0; i < paths.size(); i++) {
+        for (uint64_t i = 0; i < paths.size(); ++i) {
             if (tilesetIdFabric[i] == NO_TILESET_ID) {
                 continue;
             }
 
-            statistics.materialsLoaded++;
+            ++statistics.materialsLoaded;
         }
     }
 
     return statistics;
 }
 
-void destroyPrim(const omni::fabric::Path& path) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
-    srw.destroyPrim(path);
+void destroyPrim(omni::fabric::StageReaderWriter& fabricStage, const omni::fabric::Path& path) {
+    fabricStage.destroyPrim(path);
 
     // Prims removed from Fabric need special handling for their removal to be reflected in the Hydra render index
     // This workaround may not be needed in future Kit versions, but is needed as of Kit 105.0
     const omni::fabric::Path changeTrackingPath("/TempChangeTracking");
 
-    if (srw.getAttributeRd<omni::fabric::PathC>(changeTrackingPath, FabricTokens::_deletedPrims) == nullptr) {
+    if (!fabricStage.getAttributeRd<omni::fabric::PathC>(changeTrackingPath, FabricTokens::_deletedPrims)) {
         return;
     }
 
-    const auto deletedPrimsSize = srw.getArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims);
-    srw.setArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims, deletedPrimsSize + 1);
-    auto deletedPrimsFabric =
-        srw.getArrayAttributeWr<omni::fabric::PathC>(changeTrackingPath, FabricTokens::_deletedPrims);
+    const auto deletedPrimsSize = fabricStage.getArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims);
+    fabricStage.setArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims, deletedPrimsSize + 1);
+    const auto deletedPrimsFabric =
+        fabricStage.getArrayAttributeWr<omni::fabric::PathC>(changeTrackingPath, FabricTokens::_deletedPrims);
 
     deletedPrimsFabric[deletedPrimsSize] = path;
 }
 
-void setTilesetTransform(int64_t tilesetId, const glm::dmat4& ecefToUsdTransform) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
-
-    const auto buckets = srw.findPrims(
+void setTilesetTransform(
+    omni::fabric::StageReaderWriter& fabricStage,
+    int64_t tilesetId,
+    const glm::dmat4& ecefToPrimWorldTransform) {
+    const auto buckets = fabricStage.findPrims(
         {omni::fabric::AttrNameAndType(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId)},
         {omni::fabric::AttrNameAndType(
-            FabricTypes::_cesium_localToEcefTransform, FabricTokens::_cesium_localToEcefTransform)});
+            FabricTypes::_cesium_gltfLocalToEcefTransform, FabricTokens::_cesium_gltfLocalToEcefTransform)});
 
-    for (size_t bucketId = 0; bucketId < buckets.bucketCount(); bucketId++) {
+    for (uint64_t bucketId = 0; bucketId < buckets.bucketCount(); ++bucketId) {
         // clang-format off
-        auto tilesetIdFabric = srw.getAttributeArrayRd<int64_t>(buckets, bucketId, FabricTokens::_cesium_tilesetId);
-        auto localToEcefTransformFabric = srw.getAttributeArrayRd<pxr::GfMatrix4d>(buckets, bucketId, FabricTokens::_cesium_localToEcefTransform);
-        auto extentFabric = srw.getAttributeArrayRd<pxr::GfRange3d>(buckets, bucketId, FabricTokens::extent);
-
-        auto worldPositionFabric = srw.getAttributeArrayWr<pxr::GfVec3d>(buckets, bucketId, FabricTokens::_worldPosition);
-        auto worldOrientationFabric = srw.getAttributeArrayWr<pxr::GfQuatf>(buckets, bucketId, FabricTokens::_worldOrientation);
-        auto worldScaleFabric = srw.getAttributeArrayWr<pxr::GfVec3f>(buckets, bucketId, FabricTokens::_worldScale);
-        auto worldExtentFabric = srw.getAttributeArrayWr<pxr::GfRange3d>(buckets, bucketId, FabricTokens::_worldExtent);
+        const auto tilesetIdFabric = fabricStage.getAttributeArrayRd<int64_t>(buckets, bucketId, FabricTokens::_cesium_tilesetId);
+        const auto gltfLocalToEcefTransformFabric = fabricStage.getAttributeArrayRd<pxr::GfMatrix4d>(buckets, bucketId, FabricTokens::_cesium_gltfLocalToEcefTransform);
+        const auto extentFabric = fabricStage.getAttributeArrayRd<pxr::GfRange3d>(buckets, bucketId, FabricTokens::extent);
+        const auto worldPositionFabric = fabricStage.getAttributeArrayWr<pxr::GfVec3d>(buckets, bucketId, FabricTokens::_worldPosition);
+        const auto worldOrientationFabric = fabricStage.getAttributeArrayWr<pxr::GfQuatf>(buckets, bucketId, FabricTokens::_worldOrientation);
+        const auto worldScaleFabric = fabricStage.getAttributeArrayWr<pxr::GfVec3f>(buckets, bucketId, FabricTokens::_worldScale);
+        const auto worldExtentFabric = fabricStage.getAttributeArrayWr<pxr::GfRange3d>(buckets, bucketId, FabricTokens::_worldExtent);
         // clang-format on
 
-        for (size_t i = 0; i < tilesetIdFabric.size(); i++) {
+        for (uint64_t i = 0; i < tilesetIdFabric.size(); ++i) {
             if (tilesetIdFabric[i] == tilesetId) {
-                const auto localToEcefTransform = UsdUtil::usdToGlmMatrix(localToEcefTransformFabric[i]);
-                const auto localToUsdTransform = ecefToUsdTransform * localToEcefTransform;
-                const auto extent = extentFabric[i];
-                const auto [worldPosition, worldOrientation, worldScale] =
-                    UsdUtil::glmToUsdMatrixDecomposed(localToUsdTransform);
-                const auto worldExtent = UsdUtil::computeWorldExtent(extent, localToUsdTransform);
+                const auto gltfLocalToEcefTransform = UsdUtil::usdToGlmMatrix(gltfLocalToEcefTransformFabric[i]);
+                const auto gltfLocalToPrimWorldTransform = ecefToPrimWorldTransform * gltfLocalToEcefTransform;
+                const auto gltfLocalExtent = UsdUtil::usdToGlmExtent(extentFabric[i]);
+                const auto [primWorldPosition, primWorldOrientation, primWorldScale] =
+                    MathUtil::decompose(gltfLocalToPrimWorldTransform);
+                const auto primWorldExtent = MathUtil::transformExtent(gltfLocalExtent, gltfLocalToPrimWorldTransform);
 
-                worldPositionFabric[i] = worldPosition;
-                worldOrientationFabric[i] = worldOrientation;
-                worldScaleFabric[i] = worldScale;
-                worldExtentFabric[i] = worldExtent;
+                worldPositionFabric[i] = UsdUtil::glmToUsdVector(primWorldPosition);
+                worldOrientationFabric[i] = UsdUtil::glmToUsdQuat(glm::fquat(primWorldOrientation));
+                worldScaleFabric[i] = UsdUtil::glmToUsdVector(glm::fvec3(primWorldScale));
+                worldExtentFabric[i] = UsdUtil::glmToUsdExtent(primWorldExtent);
             }
         }
     }
-}
-
-void setTilesetId(const omni::fabric::Path& path, int64_t tilesetId) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
-
-    auto tilesetIdFabric = srw.getAttributeWr<int64_t>(path, FabricTokens::_cesium_tilesetId);
-
-    *tilesetIdFabric = tilesetId;
 }
 
 omni::fabric::Path toFabricPath(const pxr::SdfPath& path) {
@@ -695,25 +594,26 @@ omni::fabric::Path getCopiedShaderPath(const omni::fabric::Path& materialPath, c
 namespace {
 
 struct FabricConnection {
-    omni::fabric::Connection* connection;
+    omni::fabric::Connection* pConnection;
     omni::fabric::Token attributeName;
 };
 
-std::vector<FabricConnection> getConnections(const omni::fabric::Path& path) {
+std::vector<FabricConnection>
+getConnections(omni::fabric::StageReaderWriter& fabricStage, const omni::fabric::Path& path) {
     std::vector<FabricConnection> connections;
 
-    auto srw = UsdUtil::getFabricStageReaderWriter();
-    const auto attributes = srw.getAttributeNamesAndTypes(path);
+    const auto attributes = fabricStage.getAttributeNamesAndTypes(path);
     const auto& names = attributes.first;
     const auto& types = attributes.second;
 
-    for (size_t i = 0; i < names.size(); i++) {
+    for (uint64_t i = 0; i < names.size(); ++i) {
         const auto& name = names[i];
         const auto& type = types[i];
         if (type.baseType == omni::fabric::BaseDataType::eConnection) {
-            const auto connection = srw.getConnection(path, name);
-            if (connection != nullptr) {
-                connections.emplace_back(FabricConnection{connection, name});
+            const auto pConnection = fabricStage.getConnection(path, name);
+            if (pConnection) {
+                // In C++ 20 this can be emplace_back without the {}
+                connections.push_back({pConnection, name});
             }
         }
     }
@@ -730,13 +630,13 @@ bool isConnection(const omni::fabric::Type& attributeType) {
 }
 
 bool isEmptyToken(
+    omni::fabric::StageReaderWriter& fabricStage,
     const omni::fabric::Path& path,
     const omni::fabric::Token& attributeName,
     const omni::fabric::Type& attributeType) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
     if (attributeType.baseType == omni::fabric::BaseDataType::eToken) {
-        const auto attributeValue = srw.getAttributeRd<omni::fabric::Token>(path, attributeName);
-        if (attributeValue == nullptr || (*attributeValue).size() == 0) {
+        const auto pAttributeValue = fabricStage.getAttributeRd<omni::fabric::Token>(path, attributeName);
+        if (!pAttributeValue || pAttributeValue->size() == 0) {
             return true;
         }
     }
@@ -744,21 +644,20 @@ bool isEmptyToken(
     return false;
 }
 
-std::vector<omni::fabric::TokenC> getAttributesToCopy(const omni::fabric::Path& path) {
+std::vector<omni::fabric::TokenC>
+getAttributesToCopy(omni::fabric::StageReaderWriter& fabricStage, const omni::fabric::Path& path) {
     std::vector<omni::fabric::TokenC> attributeNames;
 
-    auto srw = UsdUtil::getFabricStageReaderWriter();
-
-    const auto attributes = srw.getAttributeNamesAndTypes(path);
+    const auto attributes = fabricStage.getAttributeNamesAndTypes(path);
     const auto& names = attributes.first;
     const auto& types = attributes.second;
 
-    for (size_t i = 0; i < names.size(); i++) {
+    for (uint64_t i = 0; i < names.size(); ++i) {
         const auto& name = names[i];
         const auto& type = types[i];
 
-        if (!isOutput(name) && !isConnection(type) && !isEmptyToken(path, name, type)) {
-            attributeNames.emplace_back(omni::fabric::TokenC(name));
+        if (!isOutput(name) && !isConnection(type) && !isEmptyToken(fabricStage, path, name, type)) {
+            attributeNames.push_back(name.asTokenC());
         }
     }
 
@@ -770,54 +669,57 @@ struct FabricAttribute {
     omni::fabric::Type type;
 };
 
-std::vector<FabricAttribute> getAttributesToCreate(const omni::fabric::Path& path) {
+std::vector<FabricAttribute>
+getAttributesToCreate(omni::fabric::StageReaderWriter& fabricStage, const omni::fabric::Path& path) {
     std::vector<FabricAttribute> attributeNames;
 
-    auto srw = UsdUtil::getFabricStageReaderWriter();
-
-    const auto attributes = srw.getAttributeNamesAndTypes(path);
+    const auto attributes = fabricStage.getAttributeNamesAndTypes(path);
     const auto& names = attributes.first;
     const auto& types = attributes.second;
 
-    for (size_t i = 0; i < names.size(); i++) {
+    for (uint64_t i = 0; i < names.size(); ++i) {
         const auto& name = names[i];
         const auto& type = types[i];
 
-        if (isOutput(name) || isEmptyToken(path, name, type)) {
-            attributeNames.emplace_back(FabricAttribute{name, type});
+        if (isOutput(name) || isEmptyToken(fabricStage, path, name, type)) {
+            // In C++ 20 this can be emplace_back without the {}
+            attributeNames.push_back({name, type});
         }
     }
 
     return attributeNames;
 }
 
-void getConnectedPrimsRecursive(const omni::fabric::Path& path, std::vector<omni::fabric::Path>& connectedPaths) {
-    const auto connections = getConnections(path);
+void getConnectedPrimsRecursive(
+    omni::fabric::StageReaderWriter& fabricStage,
+    const omni::fabric::Path& path,
+    std::vector<omni::fabric::Path>& connectedPaths) {
+    const auto connections = getConnections(fabricStage, path);
     for (const auto& connection : connections) {
-        const auto it = std::find(connectedPaths.begin(), connectedPaths.end(), connection.connection->path);
-        if (it == connectedPaths.end()) {
-            connectedPaths.emplace_back(connection.connection->path);
-            getConnectedPrimsRecursive(connection.connection->path, connectedPaths);
+        if (!CppUtil::contains(connectedPaths, connection.pConnection->path)) {
+            connectedPaths.push_back(connection.pConnection->path);
+            getConnectedPrimsRecursive(fabricStage, connection.pConnection->path, connectedPaths);
         }
     }
 }
 
-std::vector<omni::fabric::Path> getPrimsInMaterialNetwork(const omni::fabric::Path& path) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
+std::vector<omni::fabric::Path>
+getPrimsInMaterialNetwork(omni::fabric::StageReaderWriter& fabricStage, const omni::fabric::Path& path) {
     std::vector<omni::fabric::Path> paths;
     paths.push_back(path);
-    getConnectedPrimsRecursive(path, paths);
+    getConnectedPrimsRecursive(fabricStage, path, paths);
     return paths;
 }
 
 } // namespace
 
-std::vector<omni::fabric::Path>
-copyMaterial(const omni::fabric::Path& srcMaterialPath, const omni::fabric::Path& dstMaterialPath) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
-    const auto isrw = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
+std::vector<omni::fabric::Path> copyMaterial(
+    omni::fabric::StageReaderWriter& fabricStage,
+    const omni::fabric::Path& srcMaterialPath,
+    const omni::fabric::Path& dstMaterialPath) {
+    const auto iFabricStage = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
 
-    const auto srcPaths = getPrimsInMaterialNetwork(srcMaterialPath);
+    const auto srcPaths = getPrimsInMaterialNetwork(fabricStage, srcMaterialPath);
 
     std::vector<omni::fabric::Path> dstPaths;
     dstPaths.reserve(srcPaths.size());
@@ -833,48 +735,51 @@ copyMaterial(const omni::fabric::Path& srcMaterialPath, const omni::fabric::Path
 
         dstPaths.push_back(dstPath);
 
-        srw.createPrim(dstPath);
+        fabricStage.createPrim(dstPath);
 
         // This excludes connections, outputs, and empty tokens
         // The material network will be reconnected later once all the prims have been copied
         // The reason for excluding outputs and empty tokens is so that Omniverse doesn't print the warning
         //   [Warning] [omni.fabric.plugin] Warning: input has no valid data
-        const auto attributesToCopy = getAttributesToCopy(srcPath);
+        const auto attributesToCopy = getAttributesToCopy(fabricStage, srcPath);
 
-        isrw->copySpecifiedAttributes(
-            srw.getId(), srcPath, attributesToCopy.data(), dstPath, attributesToCopy.data(), attributesToCopy.size());
+        iFabricStage->copySpecifiedAttributes(
+            fabricStage.getId(),
+            srcPath,
+            attributesToCopy.data(),
+            dstPath,
+            attributesToCopy.data(),
+            attributesToCopy.size());
 
         // Add the outputs and empty tokens back. This doesn't print a warning.
-        const auto attributesToCreate = getAttributesToCreate(srcPath);
+        const auto attributesToCreate = getAttributesToCreate(fabricStage, srcPath);
         for (const auto& attribute : attributesToCreate) {
-            srw.createAttribute(dstPath, attribute.name, attribute.type);
+            fabricStage.createAttribute(dstPath, attribute.name, attribute.type);
         }
     }
 
     // Reconnect the prims
-    for (size_t i = 0; i < srcPaths.size(); i++) {
+    for (uint64_t i = 0; i < srcPaths.size(); ++i) {
         const auto& srcPath = srcPaths[i];
         const auto& dstPath = dstPaths[i];
-        const auto connections = getConnections(srcPath);
+        const auto connections = getConnections(fabricStage, srcPath);
         for (const auto& connection : connections) {
-            const auto it = std::find(srcPaths.begin(), srcPaths.end(), connection.connection->path);
-            assert(it != srcPaths.end()); // Ensure that all connections are part of the material network
-            const auto index = it - srcPaths.begin();
+            const auto index = CppUtil::indexOf(srcPaths, connection.pConnection->path);
+            assert(index != srcPaths.size()); // Ensure that all connections are part of the material network
             const auto dstConnection =
-                omni::fabric::Connection{omni::fabric::PathC(dstPaths[index]), connection.connection->attrName};
-            srw.createConnection(dstPath, connection.attributeName, dstConnection);
+                omni::fabric::Connection{dstPaths[index].asPathC(), connection.pConnection->attrName};
+            fabricStage.createConnection(dstPath, connection.attributeName, dstConnection);
         }
     }
 
     return dstPaths;
 }
 
-bool materialHasCesiumNodes(const omni::fabric::Path& path) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
-    const auto paths = getPrimsInMaterialNetwork(path);
+bool materialHasCesiumNodes(omni::fabric::StageReaderWriter& fabricStage, const omni::fabric::Path& path) {
+    const auto paths = getPrimsInMaterialNetwork(fabricStage, path);
 
     for (const auto& p : paths) {
-        const auto mdlIdentifier = getMdlIdentifier(p);
+        const auto mdlIdentifier = getMdlIdentifier(fabricStage, p);
         if (isCesiumNode(mdlIdentifier)) {
             return true;
         }
@@ -885,7 +790,7 @@ bool materialHasCesiumNodes(const omni::fabric::Path& path) {
 
 bool isCesiumNode(const omni::fabric::Token& mdlIdentifier) {
     return mdlIdentifier == FabricTokens::cesium_base_color_texture_float4 ||
-           mdlIdentifier == FabricTokens::cesium_imagery_layer_float4 ||
+           mdlIdentifier == FabricTokens::cesium_raster_overlay_layer_float4 ||
            mdlIdentifier == FabricTokens::cesium_feature_id_int || isCesiumPropertyNode(mdlIdentifier);
 }
 
@@ -898,27 +803,28 @@ bool isCesiumPropertyNode(const omni::fabric::Token& mdlIdentifier) {
            mdlIdentifier == FabricTokens::cesium_property_float4;
 }
 
-bool isShaderConnectedToMaterial(const omni::fabric::Path& materialPath, const omni::fabric::Path& shaderPath) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
-    const auto paths = getPrimsInMaterialNetwork(materialPath);
-    return std::find(paths.begin(), paths.end(), shaderPath) != paths.end();
+bool isShaderConnectedToMaterial(
+    omni::fabric::StageReaderWriter& fabricStage,
+    const omni::fabric::Path& materialPath,
+    const omni::fabric::Path& shaderPath) {
+    const auto paths = getPrimsInMaterialNetwork(fabricStage, materialPath);
+    return CppUtil::contains(paths, shaderPath);
 }
 
-omni::fabric::Token getMdlIdentifier(const omni::fabric::Path& path) {
-    auto srw = UsdUtil::getFabricStageReaderWriter();
-    if (srw.attributeExists(path, FabricTokens::info_mdl_sourceAsset_subIdentifier)) {
-        const auto infoMdlSourceAssetSubIdentifierFabric =
-            srw.getAttributeRd<omni::fabric::Token>(path, FabricTokens::info_mdl_sourceAsset_subIdentifier);
-        if (infoMdlSourceAssetSubIdentifierFabric != nullptr) {
-            return *infoMdlSourceAssetSubIdentifierFabric;
+omni::fabric::Token getMdlIdentifier(omni::fabric::StageReaderWriter& fabricStage, const omni::fabric::Path& path) {
+    if (fabricStage.attributeExists(path, FabricTokens::info_mdl_sourceAsset_subIdentifier)) {
+        const auto pInfoMdlSourceAssetSubIdentifierFabric =
+            fabricStage.getAttributeRd<omni::fabric::Token>(path, FabricTokens::info_mdl_sourceAsset_subIdentifier);
+        if (pInfoMdlSourceAssetSubIdentifierFabric) {
+            return *pInfoMdlSourceAssetSubIdentifierFabric;
         }
     }
-    return omni::fabric::Token{};
+    return {};
 }
 
 omni::fabric::Type getPrimvarType(DataType type) {
-    const auto baseDataType = getPrimvarBaseDataType(type);
-    const auto componentCount = getComponentCount(type);
+    const auto baseDataType = DataTypeUtil::getPrimvarBaseDataType(type);
+    const auto componentCount = DataTypeUtil::getComponentCount(type);
     return {baseDataType, static_cast<uint8_t>(componentCount), 1, omni::fabric::AttributeRole::eNone};
 }
 
@@ -943,8 +849,6 @@ MdlExternalPropertyType getMdlExternalPropertyType(const omni::fabric::Token& md
         return MdlExternalPropertyType::VEC4_FLOAT32;
     }
 
-    // Should never reach here
-    assert(false);
     return MdlExternalPropertyType::INT32;
 }
 
@@ -1039,8 +943,6 @@ bool typesCompatible(MdlExternalPropertyType externalType, MdlInternalPropertyTy
             }
     }
 
-    // Shouldn't reach here. All cases handled above.
-    assert(false);
     return false;
 }
 

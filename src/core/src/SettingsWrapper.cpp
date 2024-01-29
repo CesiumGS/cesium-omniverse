@@ -7,111 +7,109 @@
 namespace cesium::omniverse::Settings {
 
 namespace {
-const size_t MAX_SESSIONS = 10;
-const char* PERSISTENT_SETTINGS_PREFIX = "/persistent";
-const char* SESSION_ION_SERVER_URL_BASE = "/exts/cesium.omniverse/sessions/session{}/ionServerUrl";
-const char* SESSION_USER_ACCESS_TOKEN_BASE = "/exts/cesium.omniverse/sessions/session{}/userAccessToken";
+const uint64_t MAX_SESSIONS = 10;
+const std::string_view SESSION_ION_SERVER_URL_BASE =
+    "/persistent/exts/cesium.omniverse/sessions/session{}/ionServerUrl";
+const std::string_view SESSION_USER_ACCESS_TOKEN_BASE =
+    "/persistent/exts/cesium.omniverse/sessions/session{}/userAccessToken";
+
+std::string getIonApiUrlSettingPath(const uint64_t index) {
+    return fmt::format(SESSION_ION_SERVER_URL_BASE, index);
+}
+
+std::string getAccessTokenSettingPath(const uint64_t index) {
+    return fmt::format(SESSION_USER_ACCESS_TOKEN_BASE, index);
+}
+
 } // namespace
 
-std::string getIonServerSettingPath(const size_t index) {
-    return std::string(PERSISTENT_SETTINGS_PREFIX).append(fmt::format(SESSION_ION_SERVER_URL_BASE, index));
-}
+std::vector<AccessToken> getAccessTokens() {
+    const auto iSettings = carb::getCachedInterface<carb::settings::ISettings>();
 
-std::string getUserAccessTokenSettingPath(const size_t index) {
-    return std::string(PERSISTENT_SETTINGS_PREFIX).append(fmt::format(SESSION_USER_ACCESS_TOKEN_BASE, index));
-}
+    std::vector<AccessToken> accessTokens;
+    accessTokens.reserve(MAX_SESSIONS);
 
-const std::vector<UserAccessToken> getAccessTokens() {
-    auto settings = carb::getCachedInterface<carb::settings::ISettings>();
+    for (uint64_t i = 0; i < MAX_SESSIONS; ++i) {
+        const auto ionApiUrlKey = getIonApiUrlSettingPath(i);
+        const auto accessTokenKey = getAccessTokenSettingPath(i);
 
-    std::vector<UserAccessToken> tokens;
-    tokens.reserve(MAX_SESSIONS);
+        const auto ionApiUrlValue = iSettings->getStringBuffer(ionApiUrlKey.c_str());
+        const auto accessTokenValue = iSettings->getStringBuffer(accessTokenKey.c_str());
 
-    // I hate everything about this. -Adam
-    for (size_t i = 0; i < MAX_SESSIONS; ++i) {
-        const auto serverKey = getIonServerSettingPath(i);
-        const auto ionUrlSetting = settings->getStringBuffer(serverKey.c_str());
-
-        if (ionUrlSetting != nullptr) {
-            const auto tokenKey = getUserAccessTokenSettingPath(i);
-            const auto uatSetting = settings->getStringBuffer(tokenKey.c_str());
-
-            UserAccessToken token;
-            token.ionApiUrl = ionUrlSetting;
-            token.token = uatSetting;
-
-            tokens.emplace_back(token);
+        if (ionApiUrlValue && accessTokenValue) {
+            // In C++ 20 this can be emplace_back without the {}
+            accessTokens.push_back({ionApiUrlValue, accessTokenValue});
         }
     }
 
-    return tokens;
+    return accessTokens;
 }
 
-void setAccessToken(const UserAccessToken& userAccessToken) {
-    auto settings = carb::getCachedInterface<carb::settings::ISettings>();
+void setAccessToken(const AccessToken& accessToken) {
+    const auto iSettings = carb::getCachedInterface<carb::settings::ISettings>();
 
-    const auto accessTokens = getAccessTokens();
+    const auto oldAccessTokens = getAccessTokens();
 
-    std::vector<UserAccessToken> newAccessTokens;
-    newAccessTokens.reserve(accessTokens.size() + 1); // Worst case we'll be growing by 1, so preempt that.
+    std::vector<AccessToken> newAccessTokens;
+    newAccessTokens.reserve(oldAccessTokens.size() + 1); // Worst case we'll be growing by 1, so preempt that.
 
-    for (const auto& accessToken : accessTokens) {
-        if (accessToken.ionApiUrl == userAccessToken.ionApiUrl) {
+    for (const auto& oldAccessToken : oldAccessTokens) {
+        if (oldAccessToken.ionApiUrl == accessToken.ionApiUrl) {
             continue;
         }
 
-        newAccessTokens.emplace_back(accessToken);
+        newAccessTokens.push_back(oldAccessToken);
     }
 
-    newAccessTokens.emplace_back(userAccessToken);
+    newAccessTokens.push_back(accessToken);
 
     clearTokens();
 
-    for (size_t i = 0; i < newAccessTokens.size(); ++i) {
-        const auto serverKey = getIonServerSettingPath(i);
-        const auto tokenKey = getUserAccessTokenSettingPath(i);
+    for (uint64_t i = 0; i < newAccessTokens.size(); ++i) {
+        const auto ionApiUrlKey = getIonApiUrlSettingPath(i);
+        const auto accessTokenKey = getAccessTokenSettingPath(i);
 
-        settings->set(serverKey.c_str(), newAccessTokens[i].ionApiUrl.c_str());
-        settings->set(tokenKey.c_str(), newAccessTokens[i].token.c_str());
+        iSettings->set(ionApiUrlKey.c_str(), newAccessTokens[i].ionApiUrl.c_str());
+        iSettings->set(accessTokenKey.c_str(), newAccessTokens[i].accessToken.c_str());
     }
 }
 
 void removeAccessToken(const std::string& ionApiUrl) {
-    auto settings = carb::getCachedInterface<carb::settings::ISettings>();
+    const auto iSettings = carb::getCachedInterface<carb::settings::ISettings>();
 
-    auto accessTokens = getAccessTokens();
+    const auto oldAccessTokens = getAccessTokens();
 
-    std::vector<UserAccessToken> newAccessTokens;
-    newAccessTokens.reserve(accessTokens.size());
+    std::vector<AccessToken> newAccessTokens;
+    newAccessTokens.reserve(oldAccessTokens.size());
 
-    for (auto& accessToken : accessTokens) {
-        if (accessToken.ionApiUrl == ionApiUrl) {
+    for (auto& oldAccessToken : oldAccessTokens) {
+        if (oldAccessToken.ionApiUrl == ionApiUrl) {
             continue;
         }
 
-        newAccessTokens.emplace_back(accessToken);
+        newAccessTokens.push_back(oldAccessToken);
     }
 
     clearTokens();
 
-    for (size_t i = 0; i < newAccessTokens.size(); ++i) {
-        const auto serverKey = getIonServerSettingPath(i);
-        const auto tokenKey = getUserAccessTokenSettingPath(i);
+    for (uint64_t i = 0; i < newAccessTokens.size(); ++i) {
+        const auto ionApiUrlKey = getIonApiUrlSettingPath(i);
+        const auto accessTokenKey = getAccessTokenSettingPath(i);
 
-        settings->set(serverKey.c_str(), newAccessTokens[i].ionApiUrl.c_str());
-        settings->set(tokenKey.c_str(), newAccessTokens[i].token.c_str());
+        iSettings->set(ionApiUrlKey.c_str(), newAccessTokens[i].ionApiUrl.c_str());
+        iSettings->set(accessTokenKey.c_str(), newAccessTokens[i].accessToken.c_str());
     }
 }
 
 void clearTokens() {
-    auto settings = carb::getCachedInterface<carb::settings::ISettings>();
+    const auto iSettings = carb::getCachedInterface<carb::settings::ISettings>();
 
-    for (size_t i = 0; i < MAX_SESSIONS; ++i) {
-        const auto serverKey = getIonServerSettingPath(i);
-        const auto tokenKey = getUserAccessTokenSettingPath(i);
+    for (uint64_t i = 0; i < MAX_SESSIONS; ++i) {
+        const auto serverKey = getIonApiUrlSettingPath(i);
+        const auto tokenKey = getAccessTokenSettingPath(i);
 
-        settings->destroyItem(serverKey.c_str());
-        settings->destroyItem(tokenKey.c_str());
+        iSettings->destroyItem(serverKey.c_str());
+        iSettings->destroyItem(tokenKey.c_str());
     }
 }
 

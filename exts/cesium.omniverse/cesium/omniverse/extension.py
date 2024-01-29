@@ -2,13 +2,13 @@ from .bindings import acquire_cesium_omniverse_interface, release_cesium_omniver
 from .ui.add_menu_controller import CesiumAddMenuController
 from .install import perform_vendor_install
 from .utils import wait_n_frames, dock_window_async, perform_action_after_n_frames_async
-from .usdUtils import add_tileset_ion, add_imagery_ion, add_cartographic_polygon
+from .usdUtils import add_tileset_ion, add_raster_overlay_ion, add_cartographic_polygon, get_or_create_cesium_data
 from .ui.asset_window import CesiumOmniverseAssetWindow
 from .ui.debug_window import CesiumOmniverseDebugWindow
 from .ui.main_window import CesiumOmniverseMainWindow
 from .ui.credits_viewport_frame import CesiumCreditsViewportFrame
 from .ui.fabric_modal import CesiumFabricModal
-from .models import AssetToAdd, ImageryToAdd
+from .models import AssetToAdd, RasterOverlayToAdd
 from .ui import CesiumAttributesWidgetController
 import asyncio
 from functools import partial
@@ -53,10 +53,10 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._token_set_subscription: Optional[carb.events.ISubscription] = None
         self._add_ion_asset_subscription: Optional[carb.events.ISubscription] = None
         self._add_blank_asset_subscription: Optional[carb.events.ISubscription] = None
-        self._add_imagery_subscription: Optional[carb.events.ISubscription] = None
+        self._add_raster_overlay_subscription: Optional[carb.events.ISubscription] = None
         self._add_cartographic_polygon_subscription: Optional[carb.events.ISubscription] = None
         self._assets_to_add_after_token_set: List[AssetToAdd] = []
-        self._imagery_to_add_after_token_set: List[ImageryToAdd] = []
+        self._raster_overlay_to_add_after_token_set: List[RasterOverlayToAdd] = []
         self._adding_assets = False
         self._attributes_widget_controller: Optional[CesiumAttributesWidgetController] = None
         self._credits_viewport_controller: Optional[CreditsViewportController] = None
@@ -160,9 +160,9 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             add_cartographic_polygon_event, self._on_add_cartographic_polygon_event
         )
 
-        add_imagery_event = carb.events.type_from_string("cesium.omniverse.ADD_IMAGERY")
-        self._add_imagery_subscription = bus.create_subscription_to_pop_by_type(
-            add_imagery_event, self._on_add_imagery_to_tileset
+        add_raster_overlay_event = carb.events.type_from_string("cesium.omniverse.ADD_RASTER_OVERLAY")
+        self._add_raster_overlay_subscription = bus.create_subscription_to_pop_by_type(
+            add_raster_overlay_event, self._on_add_raster_overlay_to_tileset
         )
 
     def on_shutdown(self):
@@ -209,9 +209,9 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             self._add_blank_asset_subscription.unsubscribe()
             self._add_blank_asset_subscription = None
 
-        if self._add_imagery_subscription is not None:
-            self._add_imagery_subscription.unsubscribe()
-            self._add_imagery_subscription = None
+        if self._add_raster_overlay_subscription is not None:
+            self._add_raster_overlay_subscription.unsubscribe()
+            self._add_raster_overlay_subscription = None
 
         if self._add_cartographic_polygon_subscription is not None:
             self._add_cartographic_polygon_subscription.unsubscribe()
@@ -270,6 +270,8 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             if not fabric_enabled:
                 asyncio.ensure_future(perform_action_after_n_frames_async(15, CesiumOmniverseExtension._open_modal))
 
+            get_or_create_cesium_data()
+
             self._setup_ion_server_prims()
         elif event.type == int(omni.usd.StageEventType.CLOSED):
             _cesium_omniverse_interface.on_stage_change(0)
@@ -290,9 +292,9 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             self._add_ion_assets(asset)
         self._assets_to_add_after_token_set.clear()
 
-        for imagery in self._imagery_to_add_after_token_set:
-            self._add_imagery_to_tileset(imagery)
-        self._imagery_to_add_after_token_set.clear()
+        for raster_overlay in self._raster_overlay_to_add_after_token_set:
+            self._add_raster_overlay_to_tileset(raster_overlay)
+        self._raster_overlay_to_add_after_token_set.clear()
 
         self._adding_assets = False
 
@@ -328,27 +330,29 @@ class CesiumOmniverseExtension(omni.ext.IExt):
                 self._assets_to_add_after_token_set.append(asset_to_add)
                 return
 
-        if asset_to_add.imagery_name is not None and asset_to_add.imagery_ion_asset_id is not None:
+        if asset_to_add.raster_overlay_name is not None and asset_to_add.raster_overlay_ion_asset_id is not None:
             tileset_path = add_tileset_ion(asset_to_add.tileset_name, asset_to_add.tileset_ion_asset_id)
-            add_imagery_ion(tileset_path, asset_to_add.imagery_name, asset_to_add.imagery_ion_asset_id)
+            add_raster_overlay_ion(
+                tileset_path, asset_to_add.raster_overlay_name, asset_to_add.raster_overlay_ion_asset_id
+            )
         else:
             tileset_path = add_tileset_ion(asset_to_add.tileset_name, asset_to_add.tileset_ion_asset_id)
 
         if tileset_path == "":
-            self._logger.warning("Error adding tileset and imagery to stage")
+            self._logger.warning("Error adding tileset and raster overlay to stage")
 
     def _add_cartographic_polygon_assets(self):
         add_cartographic_polygon()
 
-    def _on_add_imagery_to_tileset(self, event: carb.events.IEvent):
-        imagery_to_add = ImageryToAdd.from_event(event)
+    def _on_add_raster_overlay_to_tileset(self, event: carb.events.IEvent):
+        raster_overlay_to_add = RasterOverlayToAdd.from_event(event)
 
-        if imagery_to_add is None:
-            self._logger.warning("Insufficient information to add imagery.")
+        if raster_overlay_to_add is None:
+            self._logger.warning("Insufficient information to add raster overlay.")
 
-        self._add_imagery_to_tileset(imagery_to_add)
+        self._add_raster_overlay_to_tileset(raster_overlay_to_add)
 
-    def _add_imagery_to_tileset(self, imagery_to_add: ImageryToAdd):
+    def _add_raster_overlay_to_tileset(self, raster_overlay_to_add: RasterOverlayToAdd):
         session = _cesium_omniverse_interface.get_session()
 
         if not session.is_connected():
@@ -359,11 +363,15 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             bus = omni_app.get_app().get_message_bus_event_stream()
             show_token_window_event = carb.events.type_from_string("cesium.omniverse.SHOW_TOKEN_WINDOW")
             bus.push(show_token_window_event)
-            self._imagery_to_add_after_token_set.append(imagery_to_add)
+            self._raster_overlay_to_add_after_token_set.append(raster_overlay_to_add)
             return
 
-        add_imagery_ion(imagery_to_add.tileset_path, imagery_to_add.imagery_name, imagery_to_add.imagery_ion_asset_id)
-        _cesium_omniverse_interface.reload_tileset(imagery_to_add.tileset_path)
+        add_raster_overlay_ion(
+            raster_overlay_to_add.tileset_path,
+            raster_overlay_to_add.raster_overlay_name,
+            raster_overlay_to_add.raster_overlay_ion_asset_id,
+        )
+        _cesium_omniverse_interface.reload_tileset(raster_overlay_to_add.tileset_path)
 
     def _add_to_menu(self, path, callback: Callable[[bool], None], show_on_startup):
         editor_menu = omni.kit.ui.get_editor_menu()

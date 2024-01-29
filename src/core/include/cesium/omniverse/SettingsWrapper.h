@@ -1,20 +1,17 @@
 #pragma once
 
-#include <optional>
 #include <string>
 #include <vector>
 
 namespace cesium::omniverse::Settings {
 
-struct UserAccessToken {
+struct AccessToken {
     std::string ionApiUrl;
-    std::string token;
+    std::string accessToken;
 };
 
-std::string getIonServerSettingPath(const size_t index);
-std::string getUserAccessTokenSettingPath(const size_t index);
-const std::vector<UserAccessToken> getAccessTokens();
-void setAccessToken(const UserAccessToken& userAccessToken);
+std::vector<AccessToken> getAccessTokens();
+void setAccessToken(const AccessToken& accessToken);
 void removeAccessToken(const std::string& ionApiUrl);
 void clearTokens();
 

@@ -7,14 +7,22 @@ namespace cesium::omniverse {
 
 class FabricTexturePool final : public ObjectPool<FabricTexture> {
   public:
-    FabricTexturePool(int64_t poolId, uint64_t initialCapacity);
+    FabricTexturePool(Context* pContext, int64_t poolId, uint64_t initialCapacity);
+    ~FabricTexturePool() override = default;
+    FabricTexturePool(const FabricTexturePool&) = delete;
+    FabricTexturePool& operator=(const FabricTexturePool&) = delete;
+    FabricTexturePool(FabricTexturePool&&) noexcept = default;
+    FabricTexturePool& operator=(FabricTexturePool&&) noexcept = default;
+
+    [[nodiscard]] int64_t getPoolId() const;
 
   protected:
-    std::shared_ptr<FabricTexture> createObject(uint64_t objectId) override;
-    void setActive(std::shared_ptr<FabricTexture> texture, bool active) override;
+    [[nodiscard]] std::shared_ptr<FabricTexture> createObject(uint64_t objectId) const override;
+    void setActive(FabricTexture* pTexture, bool active) const override;
 
   private:
-    const int64_t _poolId;
+    Context* _pContext;
+    int64_t _poolId;
 };
 
 } // namespace cesium::omniverse

@@ -1,12 +1,12 @@
 #pragma once
 
-#include <pxr/base/gf/matrix4d.h>
+#include <glm/glm.hpp>
 
 namespace cesium::omniverse {
 
 struct Viewport {
-    pxr::GfMatrix4d viewMatrix;
-    pxr::GfMatrix4d projMatrix;
+    glm::dmat4 viewMatrix;
+    glm::dmat4 projMatrix;
     double width;
     double height;
 };

@@ -3,6 +3,7 @@
 #include <string>
 
 namespace cesium::omniverse {
+
 enum SetDefaultTokenResultCode {
     NOT_SET_IN_SESSION = -1,
     OK = 0,
@@ -11,10 +12,10 @@ enum SetDefaultTokenResultCode {
 };
 
 namespace SetDefaultTokenResultMessages {
-inline const char* NOT_SET_IN_SESSION_MESSAGE = "Default token has not been set this session.";
-inline const char* OK_MESSAGE = "OK";
-inline const char* NOT_CONNECTED_TO_ION_MESSAGE = "Not connected to ion.";
-inline const char* CREATE_FAILED_MESSAGE_BASE = "Create failed: {1} ({2})";
+inline const std::string_view NOT_SET_IN_SESSION_MESSAGE = "Default token has not been set this session.";
+inline const std::string_view OK_MESSAGE = "OK";
+inline const std::string_view NOT_CONNECTED_TO_ION_MESSAGE = "Not connected to ion.";
+inline const std::string_view CREATE_FAILED_MESSAGE_BASE = "Create failed: {1} ({2})";
 } // namespace SetDefaultTokenResultMessages
 
 /**
