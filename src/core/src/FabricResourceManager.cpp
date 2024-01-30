@@ -101,11 +101,11 @@ std::shared_ptr<FabricMaterial> FabricResourceManager::acquireMaterial(
     const CesiumGltf::MeshPrimitive& primitive,
     const FabricMaterialInfo& materialInfo,
     const FabricFeaturesInfo& featuresInfo,
-    const FabricRasterOverlayLayersInfo& rasterOverlayLayersInfo,
+    const FabricRasterOverlaysInfo& rasterOverlaysInfo,
     int64_t tilesetId,
     const pxr::SdfPath& tilesetMaterialPath) {
     FabricMaterialDescriptor materialDescriptor(
-        *_pContext, model, primitive, materialInfo, featuresInfo, rasterOverlayLayersInfo, tilesetMaterialPath);
+        *_pContext, model, primitive, materialInfo, featuresInfo, rasterOverlaysInfo, tilesetMaterialPath);
 
     if (shouldAcquireSharedMaterial(materialDescriptor)) {
         return acquireSharedMaterial(materialInfo, materialDescriptor, tilesetId);

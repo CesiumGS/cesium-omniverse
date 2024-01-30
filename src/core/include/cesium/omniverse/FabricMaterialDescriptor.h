@@ -13,7 +13,7 @@ class Context;
 enum class FabricFeatureIdType;
 enum class FabricOverlayRenderMethod;
 struct FabricFeaturesInfo;
-struct FabricRasterOverlayLayersInfo;
+struct FabricRasterOverlaysInfo;
 struct FabricMaterialInfo;
 struct FabricPropertyDescriptor;
 
@@ -36,7 +36,7 @@ class FabricMaterialDescriptor {
         const CesiumGltf::MeshPrimitive& primitive,
         const FabricMaterialInfo& materialInfo,
         const FabricFeaturesInfo& featuresInfo,
-        const FabricRasterOverlayLayersInfo& rasterOverlayLayersInfo,
+        const FabricRasterOverlaysInfo& rasterOverlaysInfo,
         const pxr::SdfPath& tilesetMaterialPath);
 
     [[nodiscard]] bool hasVertexColors() const;

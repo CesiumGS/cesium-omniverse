@@ -16,12 +16,12 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     (base_color_texture) \
     (cesium_base_color_texture_float4) \
     (cesium_feature_id_int) \
-    (cesium_raster_overlay_layer_float4) \
-    (cesium_internal_clipping_raster_overlay_layer_resolver) \
+    (cesium_raster_overlay_float4) \
+    (cesium_internal_clipping_raster_overlay_resolver) \
     (cesium_internal_feature_id_attribute_lookup) \
     (cesium_internal_feature_id_texture_lookup) \
-    (cesium_internal_raster_overlay_layer_lookup) \
-    (cesium_internal_raster_overlay_layer_resolver) \
+    (cesium_internal_raster_overlay_lookup) \
+    (cesium_internal_raster_overlay_resolver) \
     (cesium_internal_material) \
     (cesium_internal_property_attribute_float_lookup) \
     (cesium_internal_property_attribute_float2_lookup) \
@@ -64,13 +64,13 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     (cesium_property_int2) \
     (cesium_property_int3) \
     (cesium_property_int4) \
-    (clipping_raster_overlay_layer_resolver) \
+    (clipping_raster_overlay_resolver) \
     (doubleSided) \
     (extent) \
     (faceVertexCounts) \
     (faceVertexIndices) \
-    (raster_overlay_layer) \
-    (raster_overlay_layer_resolver) \
+    (raster_overlay) \
+    (raster_overlay_resolver) \
     (Material) \
     (Mesh) \
     (none) \
@@ -111,9 +111,9 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((inputs_feature_id, "inputs:feature_id")) \
     ((inputs_feature_id_set_index, "inputs:feature_id_set_index")) \
     ((inputs_has_no_data, "inputs:has_no_data")) \
-    ((inputs_raster_overlay_layer, "inputs:raster_overlay_layer")) \
-    ((inputs_raster_overlay_layers_count, "inputs:raster_overlay_layers_count")) \
-    ((inputs_raster_overlay_layer_index, "inputs:raster_overlay_layer_index")) \
+    ((inputs_raster_overlay, "inputs:raster_overlay")) \
+    ((inputs_raster_overlay_count, "inputs:raster_overlay_count")) \
+    ((inputs_raster_overlay_index, "inputs:raster_overlay_index")) \
     ((inputs_maximum_value, "inputs:maximum_value")) \
     ((inputs_metallic_factor, "inputs:metallic_factor")) \
     ((inputs_no_data, "inputs:no_data")) \
@@ -192,8 +192,8 @@ namespace cesium::omniverse::FabricTokens {
 FABRIC_DECLARE_TOKENS(USD_TOKENS);
 
 const omni::fabric::TokenC feature_id_n(uint64_t index);
-const omni::fabric::TokenC raster_overlay_layer_n(uint64_t index);
-const omni::fabric::TokenC inputs_raster_overlay_layer_n(uint64_t index);
+const omni::fabric::TokenC raster_overlay_n(uint64_t index);
+const omni::fabric::TokenC inputs_raster_overlay_n(uint64_t index);
 const omni::fabric::TokenC primvars_st_n(uint64_t index);
 const omni::fabric::TokenC property_n(uint64_t index);
 
@@ -226,7 +226,7 @@ const omni::fabric::Type inputs_default_value_int4(omni::fabric::BaseDataType::e
 const omni::fabric::Type inputs_emissive_factor(omni::fabric::BaseDataType::eFloat, 3, 0, omni::fabric::AttributeRole::eColor);
 const omni::fabric::Type inputs_excludeFromWhiteMode(omni::fabric::BaseDataType::eBool, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_has_no_data(omni::fabric::BaseDataType::eBool, 1, 0, omni::fabric::AttributeRole::eNone);
-const omni::fabric::Type inputs_raster_overlay_layers_count(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type inputs_raster_overlay_count(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_maximum_value_int(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_maximum_value_int2(omni::fabric::BaseDataType::eInt, 2, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_maximum_value_int3(omni::fabric::BaseDataType::eInt, 3, 0, omni::fabric::AttributeRole::eNone);

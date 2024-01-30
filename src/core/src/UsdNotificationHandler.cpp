@@ -228,7 +228,7 @@ void processCesiumRasterOverlayChanged(
 
     auto reload = false;
     auto updateBindings = false;
-    auto updateRasterOverlayLayerAlpha = false;
+    auto updateRasterOverlayAlpha = false;
 
     for (const auto& property : properties) {
         if (property == pxr::CesiumTokens->cesiumShowCreditsOnScreen) {
@@ -237,7 +237,7 @@ void processCesiumRasterOverlayChanged(
         } else if (property == pxr::CesiumTokens->cesiumOverlayRenderMethod) {
             updateBindings = true;
         } else if (property == pxr::CesiumTokens->cesiumAlpha) {
-            updateRasterOverlayLayerAlpha = true;
+            updateRasterOverlayAlpha = true;
         }
     }
 
@@ -249,7 +249,7 @@ void processCesiumRasterOverlayChanged(
         updateRasterOverlayBindings(context, rasterOverlayPath);
     }
 
-    if (updateRasterOverlayLayerAlpha) {
+    if (updateRasterOverlayAlpha) {
         updateRasterOverlayBindingsAlpha(context, rasterOverlayPath);
     }
 }

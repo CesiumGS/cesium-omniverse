@@ -539,7 +539,7 @@ void OmniTileset::updateRasterOverlayAlpha(const pxr::SdfPath& rasterOverlayPath
     const auto alpha = glm::clamp(pRasterOverlay->getAlpha(), 0.0, 1.0);
 
     forEachFabricMaterial(_pTileset.get(), [rasterOverlayIndex, alpha](FabricMaterial& fabricMaterial) {
-        fabricMaterial.setRasterOverlayLayerAlpha(rasterOverlayIndex, alpha);
+        fabricMaterial.setRasterOverlayAlpha(rasterOverlayIndex, alpha);
     });
 }
 

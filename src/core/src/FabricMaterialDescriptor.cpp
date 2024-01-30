@@ -4,7 +4,7 @@
 #include "cesium/omniverse/FabricFeaturesUtil.h"
 #include "cesium/omniverse/FabricMaterialInfo.h"
 #include "cesium/omniverse/FabricPropertyDescriptor.h"
-#include "cesium/omniverse/FabricRasterOverlayLayersInfo.h"
+#include "cesium/omniverse/FabricRasterOverlaysInfo.h"
 #include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/MetadataUtil.h"
 
@@ -23,12 +23,12 @@ FabricMaterialDescriptor::FabricMaterialDescriptor(
     const CesiumGltf::MeshPrimitive& primitive,
     const FabricMaterialInfo& materialInfo,
     const FabricFeaturesInfo& featuresInfo,
-    const FabricRasterOverlayLayersInfo& rasterOverlayLayersInfo,
+    const FabricRasterOverlaysInfo& rasterOverlaysInfo,
     const pxr::SdfPath& tilesetMaterialPath)
     : _hasVertexColors(materialInfo.hasVertexColors)
     , _hasBaseColorTexture(materialInfo.baseColorTexture.has_value())
     , _featureIdTypes(FabricFeaturesUtil::getFeatureIdTypes(featuresInfo))
-    , _rasterOverlayRenderMethods(rasterOverlayLayersInfo.overlayRenderMethods)
+    , _rasterOverlayRenderMethods(rasterOverlaysInfo.overlayRenderMethods)
     , _tilesetMaterialPath(tilesetMaterialPath)
     , _styleableProperties(
           // Only log warnings for unsupported properties if the tileset has a material that could potentially reference properties
