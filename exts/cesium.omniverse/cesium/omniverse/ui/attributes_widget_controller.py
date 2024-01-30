@@ -3,7 +3,6 @@ import omni.kit.window.property
 from .attributes import (
     CesiumDataSchemaAttributesWidget,
     CesiumGeoreferenceSchemaAttributesWidget,
-    CesiumRasterOverlayAttributesWidget,
     CesiumTilesetAttributesWidget,
     CesiumGlobeAnchorAttributesWidget,
     CesiumIonServerAttributesWidget,
