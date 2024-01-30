@@ -97,6 +97,23 @@ CesiumPolygonRasterOverlay::CreateInvertSelectionAttr(VtValue const &defaultValu
                        writeSparsely);
 }
 
+UsdAttribute
+CesiumPolygonRasterOverlay::GetCesiumOverlayRenderMethodAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumOverlayRenderMethod);
+}
+
+UsdAttribute
+CesiumPolygonRasterOverlay::CreateCesiumOverlayRenderMethodAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumOverlayRenderMethod,
+                       SdfValueTypeNames->Token,
+                       /* custom = */ false,
+                       SdfVariabilityUniform,
+                       defaultValue,
+                       writeSparsely);
+}
+
 UsdRelationship
 CesiumPolygonRasterOverlay::GetCartographicPolygonBindingRel() const
 {
@@ -128,6 +145,7 @@ CesiumPolygonRasterOverlay::GetSchemaAttributeNames(bool includeInherited)
 {
     static TfTokenVector localNames = {
         CesiumTokens->cesiumInvertSelection,
+        CesiumTokens->cesiumOverlayRenderMethod,
     };
     static TfTokenVector allNames =
         _ConcatenateAttributeNames(

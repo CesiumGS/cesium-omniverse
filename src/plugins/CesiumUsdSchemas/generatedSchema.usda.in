@@ -389,7 +389,7 @@ class CesiumPolygonRasterOverlayPrim "CesiumPolygonRasterOverlayPrim" (
         displayName = "Invert Selection"
         doc = "Whether to invert the selection specified by the polygons. If this is true, only the areas outside of the polygons will be rasterized."
     )
-    uniform token cesium:overlayRenderMethod = "overlay" (
+    uniform token cesium:overlayRenderMethod = "clip" (
         allowedTokens = ["overlay", "clip"]
         displayName = "Overlay Render Method"
         doc = "The Cesium default material will give the raster overlay a different rendering treatment based on this selection."
