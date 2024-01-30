@@ -8,7 +8,7 @@ from .attributes import (
     CesiumGlobeAnchorAttributesWidget,
     CesiumIonServerAttributesWidget,
     CesiumIonRasterOverlayAttributesWidget,
-    CesiumPolygonRasterOverlayAttributesWidget
+    CesiumPolygonRasterOverlayAttributesWidget,
 )
 from ..bindings import ICesiumOmniverseInterface
 
