@@ -502,16 +502,6 @@ class CesiumPolygonRasterOverlayPrim "CesiumPolygonRasterOverlayPrim" (
     )
 }
 
-class CesiumCartographicPolygonPrim "CesiumCartographicPolygonPrim" (
-    doc = """Adds a prim that represents a globe-anchored polygon"""
-    inherits = </BasisCurves>
-    prepend apiSchemas = ["CesiumGlobeAnchorSchemaAPI"]
-    customData = {
-        string className = "CartographicPolygon"
-    }
-) {
-}
-
 class "CesiumGlobeAnchorSchemaAPI" (
     doc = """Adds Globe Anchoring information to a Prim for use with Cesium for Omniverse."""
     inherits = </APISchemaBase>
