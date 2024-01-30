@@ -20,8 +20,8 @@ class CesiumIonRasterOverlayAttributesWidget(SchemaPropertiesWidget):
         frame = CustomLayoutFrame(hide_extra=True)
 
         with frame:
-            def update_range(stage, prim_paths):
 
+            def update_range(stage, prim_paths):
                 for path in prim_paths:
                     prim = stage.GetPrimAtPath(path)
                     attr = prim.GetAttribute("cesium:alpha") if prim else None
