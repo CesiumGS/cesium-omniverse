@@ -6,6 +6,7 @@ from omni.kit.property.usd.usd_property_widget import SchemaPropertiesWidget
 from cesium.usd.plugins.CesiumUsdSchemas import (
     IonRasterOverlay as CesiumIonRasterOverlay,
     IonServer as CesiumIonServer,
+    RasterOverlay as CesiumRasterOverlay
 )
 from pxr import Sdf
 
@@ -26,12 +27,11 @@ class CesiumIonRasterOverlayAttributesWidget(SchemaPropertiesWidget):
 
             def update_range(stage, prim_paths):
                 for path in prim_paths:
-                    prim = stage.GetPrimAtPath(path)
-                    attr = prim.GetAttribute("cesium:alpha") if prim else None
-                    if prim and attr:
-                        current_value = attr.Get()
-                        new_value = max(0, min(current_value, 1.0))
-                        attr.Set(new_value)
+                    rasterOverlay = CesiumRasterOverlay.Get(stage, path)
+                    attr = rasterOverlay.GetAlphaAttr()
+                    current_value = attr.Get()
+                    new_value = max(0, min(current_value, 1.0))
+                    attr.Set(new_value)
 
             def _build_slider(
                 stage,
