@@ -370,11 +370,9 @@ pxr::CesiumIonServer getCesiumIonServer(const pxr::UsdStageWeakPtr& pStage, cons
     return pxr::CesiumIonServer::Get(pStage, path);
 }
 
-
 // This is currently a pass-through to getUsdBasisCurves until
 // issue with crashes in prims that inherit from BasisCurves is resolved
-pxr::UsdGeomBasisCurves
-getCesiumCartographicPolygon(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
+pxr::UsdGeomBasisCurves getCesiumCartographicPolygon(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
     return getUsdBasisCurves(pStage, path);
 }
 
