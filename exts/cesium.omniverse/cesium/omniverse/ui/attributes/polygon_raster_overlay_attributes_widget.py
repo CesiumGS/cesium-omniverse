@@ -20,7 +20,7 @@ class CesiumPolygonRasterOverlayAttributesWidget(SchemaPropertiesWidget):
         frame = CustomLayoutFrame(hide_extra=True)
 
         with frame:
-            def update_bounds(stage, prim_paths):
+            def update_range(stage, prim_paths):
 
                 for path in prim_paths:
                     prim = stage.GetPrimAtPath(path)
@@ -69,7 +69,7 @@ class CesiumPolygonRasterOverlayAttributesWidget(SchemaPropertiesWidget):
                     UsdPropertiesWidgetBuilder.create_control_state(
                         value_widget=value_widget, mixed_overlay=mixed_overlay, **widget_kwargs
                     )
-                    model.add_value_changed_fn(lambda m, s=stage, p=prim_paths: update_bounds(s, p))
+                    model.add_value_changed_fn(lambda m, s=stage, p=prim_paths: update_range(s, p))
 
                     return model
 
