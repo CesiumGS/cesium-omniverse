@@ -159,6 +159,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumGeoreference
     const TfToken cesiumGeoreferenceOriginLongitude;
+    /// \brief "cesium:invertSelection"
+    /// 
+    /// CesiumPolygonRasterOverlay
+    const TfToken cesiumInvertSelection;
     /// \brief "cesium:ionAccessToken"
     /// 
     /// CesiumIonRasterOverlay, CesiumTileset

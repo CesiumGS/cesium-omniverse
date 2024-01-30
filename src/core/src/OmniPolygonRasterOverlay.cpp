@@ -85,7 +85,20 @@ void OmniPolygonRasterOverlay::reload() {
         return;
     }
 
-    const auto invertSelection = false;
+    auto invertSelection = false;
+    auto& path = getPath();
+    auto& usdStage = _pContext->getUsdStage();
+    const auto prim = usdStage->GetPrimAtPath(path);
+    if (prim.IsValid()) {
+        const auto cesiumPolygonRasterOverlay = UsdUtil::getCesiumPolygonRasterOverlay(_pContext->getUsdStage(), _path);
+        auto attr = cesiumPolygonRasterOverlay.GetInvertSelectionAttr();
+        if (attr.IsValid()) {
+            bool value;
+            attr.Get(&value);
+            invertSelection = value;
+        }
+    }
+
     const auto projection = CesiumGeospatial::GeographicProjection(*pEllipsoid);
 
     CesiumRasterOverlays::RasterOverlayOptions options;

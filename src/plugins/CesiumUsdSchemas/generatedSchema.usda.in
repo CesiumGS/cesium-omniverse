@@ -385,6 +385,10 @@ class CesiumPolygonRasterOverlayPrim "CesiumPolygonRasterOverlayPrim" (
         displayName = "Cartographic Polygon Binding"
         doc = "Specifies which Cartographic Polygons to use in the raster overlay"
     )
+    bool cesium:invertSelection = 0 (
+        displayName = "Invert Selection"
+        doc = "Whether to invert the selection specified by the polygons. If this is true, only the areas outside of the polygons will be rasterized."
+    )
     uniform token cesium:overlayRenderMethod = "overlay" (
         allowedTokens = ["overlay", "clip"]
         displayName = "Overlay Render Method"

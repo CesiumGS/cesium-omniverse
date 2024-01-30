@@ -4,3 +4,5 @@ from .tileset_attributes_widget import CesiumTilesetAttributesWidget  # noqa: F4
 from .raster_overlay_attributes_widget import CesiumRasterOverlayAttributesWidget  # noqa: F401
 from .globe_anchor_attributes_widget import CesiumGlobeAnchorAttributesWidget  # noqa: F401
 from .ion_server_attributes_widget import CesiumIonServerAttributesWidget  # noqa: F401
+from .ion_raster_overlay_attributes_widget import CesiumIonRasterOverlayAttributesWidget  # noqa: F401
+from .polygon_raster_overlay_attributes_widget import CesiumPolygonRasterOverlayAttributesWidget  # noqa: F401

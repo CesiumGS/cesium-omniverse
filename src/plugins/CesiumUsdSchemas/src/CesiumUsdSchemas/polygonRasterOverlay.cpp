@@ -80,6 +80,23 @@ CesiumPolygonRasterOverlay::_GetTfType() const
     return _GetStaticTfType();
 }
 
+UsdAttribute
+CesiumPolygonRasterOverlay::GetInvertSelectionAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumInvertSelection);
+}
+
+UsdAttribute
+CesiumPolygonRasterOverlay::CreateInvertSelectionAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumInvertSelection,
+                       SdfValueTypeNames->Bool,
+                       /* custom = */ false,
+                       SdfVariabilityVarying,
+                       defaultValue,
+                       writeSparsely);
+}
+
 UsdRelationship
 CesiumPolygonRasterOverlay::GetCartographicPolygonBindingRel() const
 {
@@ -93,13 +110,29 @@ CesiumPolygonRasterOverlay::CreateCartographicPolygonBindingRel() const
                        /* custom = */ false);
 }
 
+namespace {
+static inline TfTokenVector
+_ConcatenateAttributeNames(const TfTokenVector& left,const TfTokenVector& right)
+{
+    TfTokenVector result;
+    result.reserve(left.size() + right.size());
+    result.insert(result.end(), left.begin(), left.end());
+    result.insert(result.end(), right.begin(), right.end());
+    return result;
+}
+}
+
 /*static*/
 const TfTokenVector&
 CesiumPolygonRasterOverlay::GetSchemaAttributeNames(bool includeInherited)
 {
-    static TfTokenVector localNames;
+    static TfTokenVector localNames = {
+        CesiumTokens->cesiumInvertSelection,
+    };
     static TfTokenVector allNames =
-        CesiumRasterOverlay::GetSchemaAttributeNames(true);
+        _ConcatenateAttributeNames(
+            CesiumRasterOverlay::GetSchemaAttributeNames(true),
+            localNames);
 
     if (includeInherited)
         return allNames;

@@ -127,6 +127,28 @@ private:
 
 public:
     // --------------------------------------------------------------------- //
+    // INVERTSELECTION 
+    // --------------------------------------------------------------------- //
+    /// Whether to invert the selection specified by the polygons. If this is true, only the areas outside of the polygons will be rasterized.
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `bool cesium:invertSelection = 0` |
+    /// | C++ Type | bool |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute GetInvertSelectionAttr() const;
+
+    /// See GetInvertSelectionAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute CreateInvertSelectionAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
     // CARTOGRAPHICPOLYGONBINDING 
     // --------------------------------------------------------------------- //
     /// Specifies which Cartographic Polygons to use in the raster overlay
