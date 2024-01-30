@@ -4,7 +4,7 @@ from typing import List
 from omni.kit.property.usd.custom_layout_helper import CustomLayoutFrame, CustomLayoutGroup, CustomLayoutProperty
 from omni.kit.property.usd.usd_property_widget import SchemaPropertiesWidget
 from cesium.usd.plugins.CesiumUsdSchemas import PolygonRasterOverlay as CesiumPolygonRasterOverlay
-from pxr import Sdf
+from pxr import Sdf, UsdGeom
 
 
 class CesiumPolygonRasterOverlayAttributesWidget(SchemaPropertiesWidget):
@@ -80,5 +80,22 @@ class CesiumPolygonRasterOverlayAttributesWidget(SchemaPropertiesWidget):
                 CustomLayoutProperty("cesium:overlayRenderMethod")
             with CustomLayoutGroup("Invert Selection"):
                 CustomLayoutProperty("cesium:invertSelection")
+            with CustomLayoutGroup("Cartographic Polygons"):
+                CustomLayoutProperty("cesium:cartographicPolygonBinding")
 
         return frame.apply(props)
+
+    def _filter_props_to_build(self, props):
+        filtered_props = super()._filter_props_to_build(props)
+        filtered_props.extend(
+            prop
+            for prop in props
+            if prop.GetName() == "cesium:cartographicPolygonBinding"
+        )
+        return filtered_props
+
+    def get_additional_kwargs(self, ui_attr):
+        if ui_attr.prop_name == "cesium:cartographicPolygonBinding":
+            return None, {"target_picker_filter_type_list": [UsdGeom.BasisCurves]}
+
+        return None, {"targets_limit": 0}
