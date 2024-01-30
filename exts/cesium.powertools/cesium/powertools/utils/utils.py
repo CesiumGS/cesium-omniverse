@@ -5,8 +5,8 @@ from pxr import Gf, UsdGeom, Sdf
 import json
 import carb.settings
 import os
+from cesium.omniverse.usdUtils import add_globe_anchor_to_prim
 from cesium.omniverse.utils.cesium_interface import CesiumInterfaceManager
-from cesium.omniverse.api.globe_anchor import anchor_xform_at_path
 from cesium.usd.plugins.CesiumUsdSchemas import CartographicPolygon
 from asyncio import ensure_future
 
@@ -108,10 +108,7 @@ async def convert():
         polygon_prim = polygon.GetPrim()
 
         # Add a globe anchor
-        anchor_xform_at_path(polygon_path)
-
-        # Await after globe anchor, otherwise we'll experience a crash
-        await omni.kit.app.get_app().next_update_async()
+        add_globe_anchor_to_prim(polygon_path)
 
         # Iterate through the curve attributes and copy them to the new polygon
         curve_attributes = curve_prim.GetAttributes()

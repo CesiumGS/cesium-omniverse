@@ -5,7 +5,7 @@ scenarios:
   default:
     hasNormals : True
     hasTexcoords : True
-    hasImageryTexcoords : False
+    hasRasterOverlayTexcoords : False
     hasVertexColors : False
     doubleSided : False
     # Material Attributes

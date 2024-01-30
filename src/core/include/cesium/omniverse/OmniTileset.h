@@ -1,14 +1,13 @@
 #pragma once
 
-#include <CesiumIonClient/Token.h>
-#include <CesiumUsdSchemas/georeference.h>
+#include "cesium/omniverse/OmniTileset.h"
+
 #include <glm/glm.hpp>
 #include <pxr/usd/sdf/path.h>
 
-#include <atomic>
-#include <memory>
-#include <string>
-#include <vector>
+#include <optional>
+
+#include <gsl/span>
 
 namespace Cesium3DTilesSelection {
 class Tileset;
@@ -18,43 +17,47 @@ class ViewUpdateResult;
 
 namespace CesiumRasterOverlays {
 class RasterOverlay;
-} // namespace CesiumRasterOverlays
+}
 
 namespace CesiumGltf {
 struct Model;
-} // namespace CesiumGltf
+}
+
+namespace CesiumIonClient {
+struct Token;
+}
 
 namespace cesium::omniverse {
-enum TilesetSourceType { ION = 0, URL = 1 };
 
+class Context;
 class FabricPrepareRenderResources;
+struct TilesetStatistics;
 struct Viewport;
 
-struct TilesetStatistics {
-    uint64_t tilesetCachedBytes{0};
-    uint64_t tilesVisited{0};
-    uint64_t culledTilesVisited{0};
-    uint64_t tilesRendered{0};
-    uint64_t tilesCulled{0};
-    uint64_t maxDepthVisited{0};
-    uint64_t tilesLoadingWorker{0};
-    uint64_t tilesLoadingMain{0};
-    uint64_t tilesLoaded{0};
+enum TilesetSourceType {
+    ION,
+    URL,
 };
 
 class OmniTileset {
   public:
-    OmniTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPath& georeferencePath);
+    OmniTileset(Context* pContext, const pxr::SdfPath& path, int64_t tilesetId);
     ~OmniTileset();
+    OmniTileset(const OmniTileset&) = delete;
+    OmniTileset& operator=(const OmniTileset&) = delete;
+    OmniTileset(OmniTileset&&) noexcept = default;
+    OmniTileset& operator=(OmniTileset&&) noexcept = default;
 
-    [[nodiscard]] pxr::SdfPath getPath() const;
-    [[nodiscard]] std::string getName() const;
+    [[nodiscard]] const pxr::SdfPath& getPath() const;
+    [[nodiscard]] int64_t getTilesetId() const;
+    [[nodiscard]] TilesetStatistics getStatistics() const;
+
     [[nodiscard]] TilesetSourceType getSourceType() const;
     [[nodiscard]] std::string getUrl() const;
     [[nodiscard]] int64_t getIonAssetId() const;
-    [[nodiscard]] std::optional<CesiumIonClient::Token> getIonAccessToken() const;
+    [[nodiscard]] CesiumIonClient::Token getIonAccessToken() const;
     [[nodiscard]] std::string getIonApiUrl() const;
-    [[nodiscard]] pxr::SdfPath getIonServerPath() const;
+    [[nodiscard]] pxr::SdfPath getResolvedIonServerPath() const;
     [[nodiscard]] double getMaximumScreenSpaceError() const;
     [[nodiscard]] bool getPreloadAncestors() const;
     [[nodiscard]] bool getPreloadSiblings() const;
@@ -65,52 +68,46 @@ class OmniTileset {
     [[nodiscard]] bool getEnableFrustumCulling() const;
     [[nodiscard]] bool getEnableFogCulling() const;
     [[nodiscard]] bool getEnforceCulledScreenSpaceError() const;
+    [[nodiscard]] double getMainThreadLoadingTimeLimit() const;
     [[nodiscard]] double getCulledScreenSpaceError() const;
     [[nodiscard]] bool getSuspendUpdate() const;
     [[nodiscard]] bool getSmoothNormals() const;
-    [[nodiscard]] double getMainThreadLoadingTimeLimit() const;
     [[nodiscard]] bool getShowCreditsOnScreen() const;
-    [[nodiscard]] pxr::CesiumGeoreference getGeoreference() const;
+    [[nodiscard]] pxr::SdfPath getResolvedGeoreferencePath() const;
     [[nodiscard]] pxr::SdfPath getMaterialPath() const;
     [[nodiscard]] glm::dvec3 getDisplayColor() const;
     [[nodiscard]] double getDisplayOpacity() const;
+    [[nodiscard]] std::vector<pxr::SdfPath> getRasterOverlayPaths() const;
 
-    [[nodiscard]] int64_t getTilesetId() const;
-    [[nodiscard]] TilesetStatistics getStatistics() const;
-
-    void updateTilesetOptionsFromProperties();
+    void updateTilesetOptions();
 
     void reload();
-    [[nodiscard]] std::optional<uint64_t>
-    findImageryLayerIndex(const CesiumRasterOverlays::RasterOverlay& overlay) const;
-    [[nodiscard]] std::optional<uint64_t> findImageryLayerIndex(const pxr::SdfPath& imageryPath) const;
-    [[nodiscard]] uint64_t getImageryLayerCount() const;
-    [[nodiscard]] double getImageryLayerAlpha(uint64_t imageryLayerIndex) const;
-    [[nodiscard]] pxr::SdfPath getImageryLayerPath(uint64_t imageryLayerIndex) const;
-    void updateImageryLayerAlpha(uint64_t imageryLayerIndex);
+    [[nodiscard]] pxr::SdfPath getRasterOverlayPath(const CesiumRasterOverlays::RasterOverlay& rasterOverlay) const;
+    void updateRasterOverlayAlpha(const pxr::SdfPath& rasterOverlayPath);
     void updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::TfToken& attributeName);
     void updateDisplayColorAndOpacity();
 
-    void onUpdateFrame(const std::vector<Viewport>& viewports);
+    void onUpdateFrame(const gsl::span<const Viewport>& viewports);
 
   private:
-    void addImageryIon(const pxr::SdfPath& imageryPath);
-    void addImageryPolygon(const pxr::SdfPath& imageryPath);
     void updateTransform();
-    void updateView(const std::vector<Viewport>& viewports);
-    bool updateExtent();
+    void updateView(const gsl::span<const Viewport>& viewports);
+    [[nodiscard]] bool updateExtent();
     void updateLoadStatus();
 
-    std::unique_ptr<Cesium3DTilesSelection::Tileset> _tileset;
-    std::shared_ptr<FabricPrepareRenderResources> _renderResourcesPreparer;
+    void destroyNativeTileset();
+
+    std::unique_ptr<Cesium3DTilesSelection::Tileset> _pTileset;
+    std::shared_ptr<FabricPrepareRenderResources> _pRenderResourcesPreparer;
     const Cesium3DTilesSelection::ViewUpdateResult* _pViewUpdateResult;
 
-    pxr::SdfPath _tilesetPath;
+    Context* _pContext;
+    pxr::SdfPath _path;
     int64_t _tilesetId;
-    glm::dmat4 _ecefToUsdTransform;
+    glm::dmat4 _ecefToPrimWorldTransform{};
     std::vector<Cesium3DTilesSelection::ViewState> _viewStates;
-    bool _extentSet = false;
+    bool _extentSet{false};
     bool _activeLoading{false};
-    std::vector<pxr::SdfPath> _imageryPaths;
 };
+
 } // namespace cesium::omniverse

@@ -132,8 +132,6 @@ class CesiumOmniverseMainWindow(ui.Window):
         )
 
     def _on_update_frame(self, _e: carb.events.IEvent):
-        self._cesium_omniverse_interface.on_update_ui()
-
         session: CesiumIonSession = self._cesium_omniverse_interface.get_session()
 
         if session is not None and self._sign_in_widget is not None:
@@ -161,10 +159,10 @@ class CesiumOmniverseMainWindow(ui.Window):
     def _on_show_troubleshooter_window(self, _e: carb.events.IEvent):
         tileset_path = _e.payload["tilesetPath"]
         tileset_ion_asset_id = _e.payload["tilesetIonAssetId"]
-        imagery_ion_asset_id = _e.payload["imageryIonAssetId"]
+        raster_overlay_ion_asset_id = _e.payload["rasterOverlayIonAssetId"]
         message = _e.payload["message"]
 
-        name = _e.payload["imageryName"] if _e.payload["imageryName"] else _e.payload["tilesetName"]
+        name = _e.payload["rasterOverlayName"] if _e.payload["rasterOverlayName"] else _e.payload["tilesetName"]
 
         if self._troubleshooter_window:
             self._troubleshooter_window.destroy()
@@ -175,7 +173,7 @@ class CesiumOmniverseMainWindow(ui.Window):
             name,
             tileset_path,
             tileset_ion_asset_id,
-            imagery_ion_asset_id,
+            raster_overlay_ion_asset_id,
             message,
         )
 

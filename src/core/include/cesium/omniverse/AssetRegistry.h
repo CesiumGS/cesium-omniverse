@@ -1,65 +1,110 @@
 #pragma once
 
-#include "cesium/omniverse/OmniPolygonImagery.h"
+#include <pxr/usd/usd/common.h>
 
-#include <pxr/usd/sdf/path.h>
+#include <vector>
 
-#include <list>
+#include <gsl/span>
 
 namespace cesium::omniverse {
 
+class Context;
+class OmniCartographicPolygon;
+class OmniData;
+class OmniGeoreference;
+class OmniGlobeAnchor;
+class OmniRasterOverlay;
+class OmniIonRasterOverlay;
+class OmniIonServer;
+class OmniPolygonRasterOverlay;
 class OmniTileset;
-class OmniImagery;
-class OmniIonImagery;
-class OmniPolygonImagery;
+struct Viewport;
 
 enum AssetType {
+    DATA,
     TILESET,
-    ION_IMAGERY,
-    POLYGON_IMAGERY,
+    ION_RASTER_OVERLAY,
+    POLYGON_RASTER_OVERLAY,
+    GEOREFERENCE,
+    GLOBE_ANCHOR,
+    ION_SERVER,
+    CARTOGRAPHIC_POLYGON,
     OTHER,
 };
 
 class AssetRegistry {
   public:
+    AssetRegistry(Context* pContext);
+    ~AssetRegistry();
     AssetRegistry(const AssetRegistry&) = delete;
-    AssetRegistry(AssetRegistry&&) = delete;
-
-    static AssetRegistry& getInstance() {
-        static AssetRegistry instance;
-        return instance;
-    }
-
     AssetRegistry& operator=(const AssetRegistry&) = delete;
-    AssetRegistry& operator=(AssetRegistry) = delete;
+    AssetRegistry(AssetRegistry&&) noexcept = delete;
+    AssetRegistry& operator=(AssetRegistry&&) noexcept = delete;
 
-    void addTileset(const pxr::SdfPath& tilesetPath, const pxr::SdfPath& georeferencePath);
+    void onUpdateFrame(const gsl::span<const Viewport>& viewports);
+
+    OmniData& addData(const pxr::SdfPath& path);
+    void removeData(const pxr::SdfPath& path);
+    [[nodiscard]] OmniData* getData(const pxr::SdfPath& path) const;
+    [[nodiscard]] OmniData* getFirstData() const;
+
+    OmniTileset& addTileset(const pxr::SdfPath& path);
     void removeTileset(const pxr::SdfPath& path);
-    [[nodiscard]] std::shared_ptr<OmniTileset> getTileset(const pxr::SdfPath& path) const;
-    [[nodiscard]] const std::list<std::shared_ptr<OmniTileset>>& getAllTilesets() const;
+    [[nodiscard]] OmniTileset* getTileset(const pxr::SdfPath& path) const;
+    [[nodiscard]] const std::vector<std::unique_ptr<OmniTileset>>& getTilesets() const;
 
-    void addIonImagery(const pxr::SdfPath& path);
-    void addPolygonImagery(const pxr::SdfPath& path);
-    void removeIonImagery(const pxr::SdfPath& path);
-    void removePolygonImagery(const pxr::SdfPath& path);
-    [[nodiscard]] std::shared_ptr<OmniIonImagery> getIonImagery(const pxr::SdfPath& path) const;
-    [[nodiscard]] std::shared_ptr<OmniPolygonImagery> getPolygonImagery(const pxr::SdfPath& path) const;
-    [[nodiscard]] std::shared_ptr<OmniIonImagery> getImageryByIonAssetId(int64_t ionAssetId) const;
-    [[nodiscard]] const std::list<std::shared_ptr<OmniIonImagery>> getAllIonImageries() const;
-    [[nodiscard]] const std::list<std::shared_ptr<OmniPolygonImagery>> getAllPolygonImageries() const;
+    OmniIonRasterOverlay& addIonRasterOverlay(const pxr::SdfPath& path);
+    void removeIonRasterOverlay(const pxr::SdfPath& path);
+    [[nodiscard]] OmniIonRasterOverlay* getIonRasterOverlay(const pxr::SdfPath& path) const;
+    [[nodiscard]] OmniIonRasterOverlay* getIonRasterOverlayByIonAssetId(int64_t ionAssetId) const;
+    [[nodiscard]] const std::vector<std::unique_ptr<OmniIonRasterOverlay>>& getIonRasterOverlays() const;
+
+    OmniPolygonRasterOverlay& addPolygonRasterOverlay(const pxr::SdfPath& path);
+    void removePolygonRasterOverlay(const pxr::SdfPath& path);
+    [[nodiscard]] OmniPolygonRasterOverlay* getPolygonRasterOverlay(const pxr::SdfPath& path) const;
+    [[nodiscard]] const std::vector<std::unique_ptr<OmniPolygonRasterOverlay>>& getPolygonRasterOverlays() const;
+
+    [[nodiscard]] OmniRasterOverlay* getRasterOverlay(const pxr::SdfPath& path) const;
+
+    OmniGeoreference& addGeoreference(const pxr::SdfPath& path);
+    void removeGeoreference(const pxr::SdfPath& path);
+    [[nodiscard]] OmniGeoreference* getGeoreference(const pxr::SdfPath& path) const;
+    [[nodiscard]] const std::vector<std::unique_ptr<OmniGeoreference>>& getGeoreferences() const;
+    [[nodiscard]] OmniGeoreference* getFirstGeoreference() const;
+
+    OmniGlobeAnchor& addGlobeAnchor(const pxr::SdfPath& path);
+    void removeGlobeAnchor(const pxr::SdfPath& path);
+    [[nodiscard]] OmniGlobeAnchor* getGlobeAnchor(const pxr::SdfPath& path) const;
+    [[nodiscard]] const std::vector<std::unique_ptr<OmniGlobeAnchor>>& getGlobeAnchors() const;
+
+    OmniIonServer& addIonServer(const pxr::SdfPath& path);
+    void removeIonServer(const pxr::SdfPath& path);
+    [[nodiscard]] OmniIonServer* getIonServer(const pxr::SdfPath& path) const;
+    [[nodiscard]] const std::vector<std::unique_ptr<OmniIonServer>>& getIonServers() const;
+    [[nodiscard]] OmniIonServer* getFirstIonServer() const;
+
+    OmniCartographicPolygon& addCartographicPolygon(const pxr::SdfPath& path);
+    void removeCartographicPolygon(const pxr::SdfPath& path);
+    [[nodiscard]] OmniCartographicPolygon* getCartographicPolygon(const pxr::SdfPath& path) const;
+    [[nodiscard]] const std::vector<std::unique_ptr<OmniCartographicPolygon>>& getCartographicPolygons() const;
 
     [[nodiscard]] AssetType getAssetType(const pxr::SdfPath& path) const;
+    [[nodiscard]] bool hasAsset(const pxr::SdfPath& path) const;
 
     void clear();
 
-  protected:
-    AssetRegistry() = default;
-    ~AssetRegistry() = default;
-
   private:
-    std::list<std::shared_ptr<OmniTileset>> _tilesets;
-    std::list<std::shared_ptr<OmniIonImagery>> _ionImageries;
-    std::list<std::shared_ptr<OmniPolygonImagery>> _polygonImageries;
+    Context* _pContext;
+    std::vector<std::unique_ptr<OmniData>> _datas;
+    std::vector<std::unique_ptr<OmniTileset>> _tilesets;
+    std::vector<std::unique_ptr<OmniIonRasterOverlay>> _ionRasterOverlays;
+    std::vector<std::unique_ptr<OmniPolygonRasterOverlay>> _polygonRasterOverlays;
+    std::vector<std::unique_ptr<OmniGeoreference>> _georeferences;
+    std::vector<std::unique_ptr<OmniGlobeAnchor>> _globeAnchors;
+    std::vector<std::unique_ptr<OmniIonServer>> _ionServers;
+    std::vector<std::unique_ptr<OmniCartographicPolygon>> _cartographicPolygons;
+
+    int64_t _tilesetId{0};
 };
 
 } // namespace cesium::omniverse

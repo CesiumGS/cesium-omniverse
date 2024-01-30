@@ -41,7 +41,7 @@ struct CesiumTokensType {
     CESIUMUSDSCHEMAS_API CesiumTokensType();
     /// \brief "cesium:alpha"
     /// 
-    /// CesiumImagery
+    /// CesiumRasterOverlay
     const TfToken cesiumAlpha;
     /// \brief "cesium:anchor:adjustOrientationForGlobeWhenMoving"
     /// 
@@ -51,29 +51,29 @@ struct CesiumTokensType {
     /// 
     /// CesiumGlobeAnchorAPI
     const TfToken cesiumAnchorDetectTransformChanges;
-    /// \brief "cesium:anchor:geographicCoordinates"
-    /// 
-    /// CesiumGlobeAnchorAPI
-    const TfToken cesiumAnchorGeographicCoordinates;
     /// \brief "cesium:anchor:georeferenceBinding"
     /// 
     /// CesiumGlobeAnchorAPI
     const TfToken cesiumAnchorGeoreferenceBinding;
+    /// \brief "cesium:anchor:height"
+    /// 
+    /// CesiumGlobeAnchorAPI
+    const TfToken cesiumAnchorHeight;
+    /// \brief "cesium:anchor:latitude"
+    /// 
+    /// CesiumGlobeAnchorAPI
+    const TfToken cesiumAnchorLatitude;
+    /// \brief "cesium:anchor:longitude"
+    /// 
+    /// CesiumGlobeAnchorAPI
+    const TfToken cesiumAnchorLongitude;
     /// \brief "cesium:anchor:position"
     /// 
     /// CesiumGlobeAnchorAPI
     const TfToken cesiumAnchorPosition;
-    /// \brief "cesium:anchor:rotation"
-    /// 
-    /// CesiumGlobeAnchorAPI
-    const TfToken cesiumAnchorRotation;
-    /// \brief "cesium:anchor:scale"
-    /// 
-    /// CesiumGlobeAnchorAPI
-    const TfToken cesiumAnchorScale;
     /// \brief "cesium:cartographicPolygonBinding"
     /// 
-    /// CesiumPolygonImagery
+    /// CesiumPolygonRasterOverlay
     const TfToken cesiumCartographicPolygonBinding;
     /// \brief "cesium:culledScreenSpaceError"
     /// 
@@ -161,11 +161,11 @@ struct CesiumTokensType {
     const TfToken cesiumGeoreferenceOriginLongitude;
     /// \brief "cesium:ionAccessToken"
     /// 
-    /// CesiumIonImagery, CesiumTileset
+    /// CesiumIonRasterOverlay, CesiumTileset
     const TfToken cesiumIonAccessToken;
     /// \brief "cesium:ionAssetId"
     /// 
-    /// CesiumIonImagery, CesiumTileset
+    /// CesiumIonRasterOverlay, CesiumTileset
     const TfToken cesiumIonAssetId;
     /// \brief "cesium:ionServerApiUrl"
     /// 
@@ -177,7 +177,7 @@ struct CesiumTokensType {
     const TfToken cesiumIonServerApplicationId;
     /// \brief "cesium:ionServerBinding"
     /// 
-    /// CesiumIonImagery, CesiumTileset
+    /// CesiumIonRasterOverlay, CesiumTileset
     const TfToken cesiumIonServerBinding;
     /// \brief "cesium:ionServerUrl"
     /// 
@@ -205,7 +205,7 @@ struct CesiumTokensType {
     const TfToken cesiumMaximumSimultaneousTileLoads;
     /// \brief "cesium:overlayRenderMethod"
     /// 
-    /// CesiumImagery
+    /// CesiumRasterOverlay
     const TfToken cesiumOverlayRenderMethod;
     /// \brief "cesium:preloadAncestors"
     /// 
@@ -223,13 +223,17 @@ struct CesiumTokensType {
     /// 
     /// CesiumIonServer, CesiumData
     const TfToken cesiumProjectDefaultIonAccessTokenId;
+    /// \brief "cesium:rasterOverlayBinding"
+    /// 
+    /// CesiumTileset
+    const TfToken cesiumRasterOverlayBinding;
     /// \brief "cesium:selectedIonServer"
     /// 
     /// CesiumData
     const TfToken cesiumSelectedIonServer;
     /// \brief "cesium:showCreditsOnScreen"
     /// 
-    /// CesiumImagery, CesiumTileset
+    /// CesiumRasterOverlay, CesiumTileset
     const TfToken cesiumShowCreditsOnScreen;
     /// \brief "cesium:smoothNormals"
     /// 
@@ -249,7 +253,7 @@ struct CesiumTokensType {
     const TfToken cesiumUrl;
     /// \brief "clip"
     /// 
-    /// Possible value for CesiumImagery::GetOverlayRenderMethodAttr()
+    /// Possible value for CesiumRasterOverlay::GetOverlayRenderMethodAttr()
     const TfToken clip;
     /// \brief "ion"
     /// 
@@ -257,7 +261,7 @@ struct CesiumTokensType {
     const TfToken ion;
     /// \brief "overlay"
     /// 
-    /// Possible value for CesiumImagery::GetOverlayRenderMethodAttr(), Default value for CesiumImagery::GetOverlayRenderMethodAttr()
+    /// Possible value for CesiumRasterOverlay::GetOverlayRenderMethodAttr(), Default value for CesiumRasterOverlay::GetOverlayRenderMethodAttr()
     const TfToken overlay;
     /// \brief "url"
     /// 

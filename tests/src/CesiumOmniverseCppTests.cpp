@@ -10,12 +10,15 @@
 #include "tilesetTests.h"
 
 #include "cesium/omniverse/Context.h"
-#include "cesium/omniverse/LoggerSink.h"
+#include "cesium/omniverse/Logger.h"
 
 #include <carb/PluginUtils.h>
 #include <cesium/omniverse/UsdUtil.h>
 #include <doctest/doctest.h>
 #include <omni/fabric/IFabric.h>
+#include <omni/kit/IApp.h>
+#include <pxr/usd/sdf/path.h>
+#include <pxr/usd/usd/stage.h>
 
 #include <iostream>
 
@@ -24,11 +27,11 @@ namespace cesium::omniverse::tests {
 class CesiumOmniverseCppTestsPlugin final : public ICesiumOmniverseCppTestsInterface {
   public:
     void onStartup(const char* cesiumExtensionLocation) noexcept override {
-        Context::onStartup(cesiumExtensionLocation);
+        _pContext = std::make_unique<Context>(cesiumExtensionLocation);
     }
 
     void onShutdown() noexcept override {
-        Context::onShutdown();
+        _pContext = nullptr;
     }
 
     void setUpTests(long int stage_id) noexcept override {
@@ -36,18 +39,18 @@ class CesiumOmniverseCppTestsPlugin final : public ICesiumOmniverseCppTestsInter
         // before runAllTests. This is to allow time for USD notifications to
         // propogate, as prims cannot be created and used on the same frame.
 
-        CESIUM_LOG_INFO("Setting up Cesium Omniverse Tests with stage id: {}", stage_id);
+        _pContext->getLogger()->info("Setting up Cesium Omniverse Tests with stage id: {}", stage_id);
 
-        Context::instance().setStageId(stage_id);
+        _pContext->onUsdStageChanged(stage_id);
 
-        auto rootPath = cesium::omniverse::UsdUtil::getRootPath();
+        auto rootPath = cesium::omniverse::UsdUtil::getRootPath(_pContext->getUsdStage());
 
-        setUpUsdUtilTests(rootPath);
-        setUpTilesetTests(rootPath);
+        setUpUsdUtilTests(_pContext.get(), rootPath);
+        setUpTilesetTests(_pContext.get(), rootPath);
     }
 
     void runAllTests() noexcept override {
-        CESIUM_LOG_INFO("Running Cesium Omniverse Tests");
+        _pContext->getLogger()->info("Running Cesium Omniverse Tests");
 
         // construct a doctest context
         doctest::Context context;
@@ -63,19 +66,22 @@ class CesiumOmniverseCppTestsPlugin final : public ICesiumOmniverseCppTestsInter
         // restore the previous working directory
         std::filesystem::current_path(oldWorkingDir);
 
-        CESIUM_LOG_INFO("Cesium Omniverse tests complete");
+        _pContext->getLogger()->info("Cesium Omniverse tests complete");
 
-        CESIUM_LOG_INFO("Cleaning up after tests");
+        _pContext->getLogger()->info("Cleaning up after tests");
         cleanUpAfterTests();
-        CESIUM_LOG_INFO("Cesium Omniverse test prims removed");
+        _pContext->getLogger()->info("Cesium Omniverse test prims removed");
     }
 
     void cleanUpAfterTests() noexcept {
         // delete any test related prims here
-        auto stage = cesium::omniverse::UsdUtil::getUsdStage();
-        cleanUpUsdUtilTests(stage);
-        cleanUpTilesetTests(stage);
+        auto pUsdStage = _pContext->getUsdStage();
+        cleanUpUsdUtilTests(pUsdStage);
+        cleanUpTilesetTests(pUsdStage);
     }
+
+  private:
+    std::unique_ptr<Context> _pContext;
 };
 
 } // namespace cesium::omniverse::tests
@@ -87,8 +93,16 @@ const struct carb::PluginImplDesc pluginImplDesc = {
     carb::PluginHotReload::eDisabled,
     "dev"};
 
-// NOLINTBEGIN
+#ifdef CESIUM_OMNI_CLANG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
+
 CARB_PLUGIN_IMPL(pluginImplDesc, cesium::omniverse::tests::CesiumOmniverseCppTestsPlugin)
-// NOLINTEND
+CARB_PLUGIN_IMPL_DEPS(omni::fabric::IFabric, omni::kit::IApp, carb::settings::ISettings)
+
+#ifdef CESIUM_OMNI_CLANG
+#pragma clang diagnostic pop
+#endif
 
 void fillInterface([[maybe_unused]] cesium::omniverse::tests::CesiumOmniverseCppTestsPlugin& iface) {}

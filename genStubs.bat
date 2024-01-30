@@ -26,9 +26,9 @@ echo "Ensuring mypy is installed"
 %NVIDIA_PYTHON_EXECUTABLE% -m pip install mypy==1.6.1
 
 echo "Building lib files flat in temp dir"
-cmake -B build
-cmake --build build --config Release --parallel 8
-cmake --install build --config Release --component library --prefix %FLAT_LIBRARIES_DIR%
+cmake -B build-stubs
+cmake --build build-stubs --config Release --parallel 8
+cmake --install build-stubs --config Release --component library --prefix %FLAT_LIBRARIES_DIR%
 
 :: To find the imports mypy has to be run from the same dir as the object files
 cd %FLAT_LIBRARIES_DIR%\lib
