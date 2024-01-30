@@ -87,11 +87,7 @@ class CesiumPolygonRasterOverlayAttributesWidget(SchemaPropertiesWidget):
 
     def _filter_props_to_build(self, props):
         filtered_props = super()._filter_props_to_build(props)
-        filtered_props.extend(
-            prop
-            for prop in props
-            if prop.GetName() == "cesium:cartographicPolygonBinding"
-        )
+        filtered_props.extend(prop for prop in props if prop.GetName() == "cesium:cartographicPolygonBinding")
         return filtered_props
 
     def get_additional_kwargs(self, ui_attr):
