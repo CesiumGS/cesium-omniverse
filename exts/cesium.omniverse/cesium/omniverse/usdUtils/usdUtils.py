@@ -2,9 +2,9 @@ import omni.usd
 import re
 from pxr import Sdf
 from typing import List, Optional
+from pxr import UsdGeom
 
 from cesium.usd.plugins.CesiumUsdSchemas import (
-    CartographicPolygon as CesiumCartographicPolygon,
     Data as CesiumData,
     Tileset as CesiumTileset,
     IonRasterOverlay as CesiumIonRasterOverlay,
@@ -103,7 +103,7 @@ def add_cartographic_polygon() -> str:
     cartographic_polygon_path = Sdf.Path("/CesiumCartographicPolygons").AppendPath(name).pathString
     cartographic_polygon_path = omni.usd.get_stage_next_free_path(stage, cartographic_polygon_path, False)
 
-    CesiumCartographicPolygon.Define(stage, cartographic_polygon_path)
+    UsdGeom.BasisCurves.Define(stage, cartographic_polygon_path)
     add_globe_anchor_to_prim(cartographic_polygon_path)
 
     return cartographic_polygon_path

@@ -1,7 +1,5 @@
 #include "cesium/omniverse/UsdUtil.h"
 
-#include "CesiumUsdSchemas/cartographicPolygon.h"
-
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/MathUtil.h"
@@ -18,7 +16,6 @@
 #include <CesiumGeospatial/GlobeAnchor.h>
 #include <CesiumGeospatial/GlobeTransforms.h>
 #include <CesiumGeospatial/LocalHorizontalCoordinateSystem.h>
-#include <CesiumUsdSchemas/cartographicPolygon.h>
 #include <CesiumUsdSchemas/data.h>
 #include <CesiumUsdSchemas/georeference.h>
 #include <CesiumUsdSchemas/globeAnchorAPI.h>
@@ -373,9 +370,12 @@ pxr::CesiumIonServer getCesiumIonServer(const pxr::UsdStageWeakPtr& pStage, cons
     return pxr::CesiumIonServer::Get(pStage, path);
 }
 
-pxr::CesiumCartographicPolygon
+
+// This is currently a pass-through to getUsdBasisCurves until
+// issue with crashes in prims that inherit from BasisCurves is resolved
+pxr::UsdGeomBasisCurves
 getCesiumCartographicPolygon(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
-    return pxr::CesiumCartographicPolygon::Get(pStage, path);
+    return getUsdBasisCurves(pStage, path);
 }
 
 pxr::UsdShadeShader getUsdShader(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
@@ -473,8 +473,10 @@ bool isCesiumCartographicPolygon(const pxr::UsdStageWeakPtr& pStage, const pxr::
     if (!prim.IsValid()) {
         return false;
     }
-
-    return prim.IsA<pxr::CesiumCartographicPolygon>();
+    if (!prim.IsA<pxr::UsdGeomBasisCurves>()) {
+        return false;
+    }
+    return prim.HasAPI<pxr::CesiumGlobeAnchorAPI>();
 }
 
 bool isCesiumSession(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {

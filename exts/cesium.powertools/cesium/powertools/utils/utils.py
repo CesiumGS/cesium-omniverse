@@ -5,9 +5,7 @@ from pxr import Gf, UsdGeom, Sdf
 import json
 import carb.settings
 import os
-from cesium.omniverse.usdUtils import add_globe_anchor_to_prim
 from cesium.omniverse.utils.cesium_interface import CesiumInterfaceManager
-from cesium.usd.plugins.CesiumUsdSchemas import CartographicPolygon
 from asyncio import ensure_future
 
 
@@ -84,41 +82,3 @@ def set_sunstudy_from_georef():
     north_attr = get_or_create_attribute(environment_prim, "location:north_orientation", Sdf.ValueTypeNames.Float)
     north_attr.Set(90.0)  # Always set to 90, otherwise the sun is at the wrong angle
 
-
-async def convert():
-    ctx = omni.usd.get_context()
-    stage = ctx.get_stage()
-    logger = logging.getLogger(__name__)
-
-    selection = ctx.get_selection().get_selected_prim_paths()
-    for curve_path in selection:
-        curve_prim = stage.GetPrimAtPath(curve_path)
-
-        if curve_prim.GetTypeName() != "BasisCurves":
-            continue
-
-        polygon_path = curve_path + "_Cesium"
-
-        if stage.GetPrimAtPath(polygon_path).IsValid():
-            logger.warning(f"{polygon_path} already exists, skipping")
-            continue
-
-        # Create a new cartographic polygon
-        polygon = CartographicPolygon.Define(stage, polygon_path)
-        polygon_prim = polygon.GetPrim()
-
-        # Add a globe anchor
-        add_globe_anchor_to_prim(polygon_path)
-
-        # Iterate through the curve attributes and copy them to the new polygon
-        curve_attributes = curve_prim.GetAttributes()
-        for attrib in curve_attributes:
-            value = attrib.Get()
-            if value is not None:
-                polygon_prim.GetAttribute(attrib.GetName()).Set(attrib.Get())
-            else:
-                polygon_prim.GetAttribute(attrib.GetName()).Clear()
-
-
-def convert_curves_to_polygons():
-    ensure_future(convert())
