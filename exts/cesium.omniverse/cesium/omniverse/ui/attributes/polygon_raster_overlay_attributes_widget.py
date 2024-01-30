@@ -73,15 +73,15 @@ class CesiumPolygonRasterOverlayAttributesWidget(SchemaPropertiesWidget):
 
                     return model
 
-            with CustomLayoutGroup("Credit Display"):
-                CustomLayoutProperty("cesium:showCreditsOnScreen")
+            with CustomLayoutGroup("Cartographic Polygons"):
+                CustomLayoutProperty("cesium:cartographicPolygonBinding")
+            with CustomLayoutGroup("Invert Selection"):
+                CustomLayoutProperty("cesium:invertSelection")
             with CustomLayoutGroup("Rendering"):
                 CustomLayoutProperty("cesium:alpha", build_fn=_build_slider)
                 CustomLayoutProperty("cesium:overlayRenderMethod")
-            with CustomLayoutGroup("Invert Selection"):
-                CustomLayoutProperty("cesium:invertSelection")
-            with CustomLayoutGroup("Cartographic Polygons"):
-                CustomLayoutProperty("cesium:cartographicPolygonBinding")
+            with CustomLayoutGroup("Credit Display"):
+                CustomLayoutProperty("cesium:showCreditsOnScreen")
 
         return frame.apply(props)
 
