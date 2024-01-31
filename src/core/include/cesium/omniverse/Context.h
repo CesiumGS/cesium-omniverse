@@ -19,7 +19,7 @@ class CreditSystem;
 namespace CesiumAsync {
 class AsyncSystem;
 class IAssetAccessor;
-}
+} // namespace CesiumAsync
 
 namespace cesium::omniverse {
 
