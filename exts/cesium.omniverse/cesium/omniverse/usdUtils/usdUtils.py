@@ -107,6 +107,7 @@ def add_cartographic_polygon() -> str:
     basis_curves.GetTypeAttr().Set("linear")
     basis_curves.GetWrapAttr().Set("periodic")
     basis_curves.GetPointsAttr().Set([(-1000, 0, -1000), (-1000, 0, 1000), (1000, 0, 1000), (1000, 0, -1000)])
+    basis_curves.GetCurveVertexCountsAttr().Set([4])
 
     add_globe_anchor_to_prim(cartographic_polygon_path)
 
