@@ -41,7 +41,7 @@ def _build_slider(
             **model_kwargs,
         )
         UsdPropertiesWidgetBuilder.create_label(attr_name, metadata, additional_label_kwargs)
-        widget_kwargs = {"model": model, "min": 0.0, "max": 1.0}
+        widget_kwargs = {"model": model}
         widget_kwargs.update(UsdPropertiesWidgetBuilder.get_attr_value_soft_range_kwargs(metadata))
 
         if additional_widget_kwargs:
