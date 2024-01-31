@@ -22,12 +22,12 @@ struct FabricTextureData;
 
 namespace cesium::omniverse::MetadataUtil {
 
-template <typename SupportedCallback, typename UnsupportedCallback>
+template <typename Callback, typename UnsupportedCallback>
 void forEachPropertyAttributeProperty(
     const Context& context,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
-    const SupportedCallback& supportedCallback,
+    Callback&& callback,
     const UnsupportedCallback& unsupportedCallback) {
 
     const auto pStructuralMetadataModel = model.getExtension<CesiumGltf::ExtensionModelExtStructuralMetadata>();
@@ -60,7 +60,7 @@ void forEachPropertyAttributeProperty(
         propertyAttributeView.forEachProperty(
             primitive,
             [&context,
-             &supportedCallback,
+             callback = std::forward<Callback>(callback),
              &unsupportedCallback,
              &propertyAttributeView,
              &pStructuralMetadataModel,
@@ -99,7 +99,7 @@ void forEachPropertyAttributeProperty(
 
                 const auto& propertyAttributeProperty = pPropertyAttribute->properties.at(propertyId);
 
-                supportedCallback(
+                callback(
                     propertyId,
                     schema.value(),
                     *pClassDefinition,
@@ -112,12 +112,12 @@ void forEachPropertyAttributeProperty(
     }
 }
 
-template <typename SupportedCallback, typename UnsupportedCallback>
+template <typename Callback, typename UnsupportedCallback>
 void forEachPropertyTextureProperty(
     const Context& context,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
-    const SupportedCallback& supportedCallback,
+    Callback&& callback,
     const UnsupportedCallback& unsupportedCallback) {
 
     const auto pStructuralMetadataModel = model.getExtension<CesiumGltf::ExtensionModelExtStructuralMetadata>();
@@ -149,7 +149,7 @@ void forEachPropertyTextureProperty(
 
         propertyTextureView.forEachProperty(
             [&context,
-             &supportedCallback,
+             callback = std::forward<Callback>(callback),
              &unsupportedCallback,
              &propertyTextureView,
              &pStructuralMetadataModel,
@@ -194,7 +194,7 @@ void forEachPropertyTextureProperty(
 
                 const auto& propertyTextureProperty = pPropertyTexture->properties.at(propertyId);
 
-                supportedCallback(
+                callback(
                     propertyId,
                     schema.value(),
                     *pClassDefinition,
@@ -207,12 +207,12 @@ void forEachPropertyTextureProperty(
     }
 }
 
-template <typename SupportedCallback, typename UnsupportedCallback>
+template <typename Callback, typename UnsupportedCallback>
 void forEachPropertyTableProperty(
     const Context& context,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
-    const SupportedCallback& supportedCallback,
+    Callback&& callback,
     const UnsupportedCallback& unsupportedCallback) {
 
     const auto pStructuralMetadataModel = model.getExtension<CesiumGltf::ExtensionModelExtStructuralMetadata>();
@@ -247,7 +247,7 @@ void forEachPropertyTableProperty(
 
             propertyTableView.forEachProperty(
                 [&context,
-                 &supportedCallback,
+                 callback = std::forward<Callback>(callback),
                  &unsupportedCallback,
                  &propertyTableView,
                  &pStructuralMetadataModel,
@@ -287,7 +287,7 @@ void forEachPropertyTableProperty(
 
                     const auto& propertyTableProperty = pPropertyTable->properties.at(propertyId);
 
-                    supportedCallback(
+                    callback(
                         propertyId,
                         schema.value(),
                         *pClassDefinition,
@@ -302,19 +302,19 @@ void forEachPropertyTableProperty(
     }
 }
 
-template <typename SupportedCallback, typename UnsupportedCallback>
+template <typename Callback, typename UnsupportedCallback>
 void forEachStyleablePropertyAttributeProperty(
     const Context& context,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
-    const SupportedCallback& supportedCallback,
+    Callback&& callback,
     const UnsupportedCallback& unsupportedCallback) {
 
     forEachPropertyAttributeProperty(
         context,
         model,
         primitive,
-        [&context, &supportedCallback, &unsupportedCallback](
+        [&context, callback = std::forward<Callback>(callback), &unsupportedCallback](
             const std::string& propertyId,
             [[maybe_unused]] const CesiumGltf::Schema& schema,
             [[maybe_unused]] const CesiumGltf::Class& classDefinition,
@@ -354,25 +354,25 @@ void forEachStyleablePropertyAttributeProperty(
                         propertyInfo,
                     };
 
-                supportedCallback(propertyId, propertyAttributePropertyView, property);
+                callback(propertyId, propertyAttributePropertyView, property);
             }
         },
         unsupportedCallback);
 }
 
-template <typename SupportedCallback, typename UnsupportedCallback>
+template <typename Callback, typename UnsupportedCallback>
 void forEachStyleablePropertyTextureProperty(
     const Context& context,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
-    const SupportedCallback& supportedCallback,
+    Callback&& callback,
     const UnsupportedCallback& unsupportedCallback) {
 
     forEachPropertyTextureProperty(
         context,
         model,
         primitive,
-        [&context, &supportedCallback, &unsupportedCallback, &model](
+        [&context, callback = std::forward<Callback>(callback), &unsupportedCallback, &model](
             const std::string& propertyId,
             [[maybe_unused]] const CesiumGltf::Schema& schema,
             [[maybe_unused]] const CesiumGltf::Class& classDefinition,
@@ -444,26 +444,26 @@ void forEachStyleablePropertyTextureProperty(
                             propertyInfo,
                         };
 
-                    supportedCallback(propertyId, propertyTexturePropertyView, property);
+                    callback(propertyId, propertyTexturePropertyView, property);
                 }
             }
         },
         unsupportedCallback);
 }
 
-template <typename SupportedCallback, typename UnsupportedCallback>
+template <typename Callback, typename UnsupportedCallback>
 void forEachStyleablePropertyTableProperty(
     const Context& context,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
-    const SupportedCallback& supportedCallback,
+    Callback&& callback,
     const UnsupportedCallback& unsupportedCallback) {
 
     forEachPropertyTableProperty(
         context,
         model,
         primitive,
-        [&context, &supportedCallback, &unsupportedCallback](
+        [&context, callback = std::forward<Callback>(callback), &unsupportedCallback](
             const std::string& propertyId,
             [[maybe_unused]] const CesiumGltf::Schema& schema,
             [[maybe_unused]] const CesiumGltf::Class& classDefinition,
@@ -562,7 +562,7 @@ void forEachStyleablePropertyTableProperty(
                             propertyInfo,
                         };
 
-                    supportedCallback(propertyId, propertyTablePropertyView, property);
+                    callback(propertyId, propertyTablePropertyView, property);
                 }
             }
         },

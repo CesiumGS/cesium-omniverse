@@ -14,6 +14,11 @@ std::tuple<std::vector<FabricPropertyDescriptor>, std::map<std::string, std::str
     std::vector<FabricPropertyDescriptor> properties;
     std::map<std::string, std::string> unsupportedPropertyWarnings;
 
+    const auto unsupportedPropertyCallback =
+        [&unsupportedPropertyWarnings](const std::string& propertyId, const std::string& warning) {
+            unsupportedPropertyWarnings.insert({propertyId, warning});
+        };
+
     forEachStyleablePropertyAttributeProperty(
         context,
         model,
@@ -32,9 +37,7 @@ std::tuple<std::vector<FabricPropertyDescriptor>, std::map<std::string, std::str
                 0, // featureIdSetIndex not relevant for property attributes
             });
         },
-        [&unsupportedPropertyWarnings](const std::string& propertyId, const std::string& warning) {
-            unsupportedPropertyWarnings.insert({propertyId, warning});
-        });
+        unsupportedPropertyCallback);
 
     forEachStyleablePropertyTextureProperty(
         context,
@@ -54,9 +57,7 @@ std::tuple<std::vector<FabricPropertyDescriptor>, std::map<std::string, std::str
                 0, // featureIdSetIndex not relevant for property textures
             });
         },
-        [&unsupportedPropertyWarnings](const std::string& propertyId, const std::string& warning) {
-            unsupportedPropertyWarnings.insert({propertyId, warning});
-        });
+        unsupportedPropertyCallback);
 
     forEachStyleablePropertyTableProperty(
         context,
@@ -76,9 +77,7 @@ std::tuple<std::vector<FabricPropertyDescriptor>, std::map<std::string, std::str
                 property.featureIdSetIndex,
             });
         },
-        [&unsupportedPropertyWarnings](const std::string& propertyId, const std::string& warning) {
-            unsupportedPropertyWarnings.insert({propertyId, warning});
-        });
+        unsupportedPropertyCallback);
 
     // Sorting is important for checking FabricMaterialDescriptor equality
     CppUtil::sort(properties, [](const auto& lhs, const auto& rhs) { return lhs.propertyId > rhs.propertyId; });

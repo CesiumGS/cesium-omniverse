@@ -1524,6 +1524,9 @@ void FabricMaterial::setMaterial(
         return _propertyPaths[index];
     };
 
+    const auto unsupportedCallback = []([[maybe_unused]] const std::string& propertyId,
+                                        [[maybe_unused]] const std::string& warning) {};
+
     MetadataUtil::forEachStyleablePropertyAttributeProperty(
         *_pContext,
         model,
@@ -1555,7 +1558,7 @@ void FabricMaterial::setMaterial(
                 noData,
                 defaultValue);
         },
-        []([[maybe_unused]] const std::string& propertyId, [[maybe_unused]] const std::string& warning) {});
+        unsupportedCallback);
 
     MetadataUtil::forEachStyleablePropertyTextureProperty(
         *_pContext,
@@ -1594,7 +1597,7 @@ void FabricMaterial::setMaterial(
                 noData,
                 defaultValue);
         },
-        []([[maybe_unused]] const std::string& propertyId, [[maybe_unused]] const std::string& warning) {});
+        unsupportedCallback);
 
     uint64_t propertyTablePropertyCounter = 0;
 
@@ -1630,7 +1633,7 @@ void FabricMaterial::setMaterial(
                 noData,
                 defaultValue);
         },
-        []([[maybe_unused]] const std::string& propertyId, [[maybe_unused]] const std::string& warning) {});
+        unsupportedCallback);
 
     for (const auto& path : _allPaths) {
         auto& fabricStage = _pContext->getFabricStage();

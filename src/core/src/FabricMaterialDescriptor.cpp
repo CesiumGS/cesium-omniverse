@@ -67,7 +67,6 @@ const std::map<std::string, std::string>& FabricMaterialDescriptor::getUnsupport
 }
 
 // Make sure to update this function when adding new fields to the class
-// In C++ 20 we can use the default equality comparison (= default)
 bool FabricMaterialDescriptor::operator==(const FabricMaterialDescriptor& other) const {
     // clang-format off
     return _hasVertexColors == other._hasVertexColors &&
@@ -75,8 +74,9 @@ bool FabricMaterialDescriptor::operator==(const FabricMaterialDescriptor& other)
            _featureIdTypes == other._featureIdTypes &&
            _rasterOverlayRenderMethods == other._rasterOverlayRenderMethods &&
            _tilesetMaterialPath == other._tilesetMaterialPath &&
-           _styleableProperties == other._styleableProperties &&
-           _unsupportedPropertyWarnings == other._unsupportedPropertyWarnings;
+           _styleableProperties == other._styleableProperties;
+           // _unsupportedPropertyWarnings is intentionally not checked
+
     // clang-format on
 }
 
