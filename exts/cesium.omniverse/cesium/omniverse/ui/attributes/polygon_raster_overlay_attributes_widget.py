@@ -25,6 +25,8 @@ class CesiumPolygonRasterOverlayAttributesWidget(SchemaPropertiesWidget):
                 CustomLayoutProperty("cesium:cartographicPolygonBinding")
             with CustomLayoutGroup("Invert Selection"):
                 CustomLayoutProperty("cesium:invertSelection")
+            with CustomLayoutGroup("Exclude Selected Tiles"):
+                CustomLayoutProperty("cesium:excludeSelectedTiles")
             with CustomLayoutGroup("Rendering"):
                 CustomLayoutProperty("cesium:alpha", build_fn=build_slider(0, 1))
                 CustomLayoutProperty("cesium:overlayRenderMethod")

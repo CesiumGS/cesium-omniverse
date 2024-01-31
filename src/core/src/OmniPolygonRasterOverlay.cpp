@@ -13,10 +13,13 @@
 #include <CesiumRasterOverlays/RasterizedPolygonsOverlay.h>
 #include <CesiumUsdSchemas/polygonRasterOverlay.h>
 
+#include <memory>
+
 namespace cesium::omniverse {
 
 OmniPolygonRasterOverlay::OmniPolygonRasterOverlay(Context* pContext, const pxr::SdfPath& path)
-    : OmniRasterOverlay(pContext, path) {}
+    : OmniRasterOverlay(pContext, path)
+    , _rasterizedPolygonsTileExcluder(nullptr) {}
 
 std::vector<pxr::SdfPath> OmniPolygonRasterOverlay::getCartographicPolygonPaths() const {
     const auto cesiumPolygonRasterOverlay = UsdUtil::getCesiumPolygonRasterOverlay(_pContext->getUsdStage(), _path);
@@ -38,6 +41,13 @@ bool OmniPolygonRasterOverlay::getInvertSelection() const {
     return invertSelection;
 }
 
+bool OmniPolygonRasterOverlay::getExcludeSelectedTiles() const {
+    auto cesiumPolygonRasterOverlay = UsdUtil::getCesiumPolygonRasterOverlay(_pContext->getUsdStage(), _path);
+    bool excludeSelectedTiles;
+    cesiumPolygonRasterOverlay.GetExcludeSelectedTilesAttr().Get(&excludeSelectedTiles);
+    return excludeSelectedTiles;
+}
+
 void OmniPolygonRasterOverlay::reload() {
     const auto rasterOverlayName = UsdUtil::getName(_pContext->getUsdStage(), _path);
 
@@ -45,6 +55,7 @@ void OmniPolygonRasterOverlay::reload() {
     std::vector<CesiumGeospatial::CartographicPolygon> polygons;
 
     const CesiumGeospatial::Ellipsoid* pEllipsoid = nullptr;
+    _rasterizedPolygonsTileExcluder = nullptr;
 
     for (const auto& cartographicPolygonPath : cartographicPolygonPaths) {
         const auto pCartographicPolygon = _pContext->getAssetRegistry().getCartographicPolygon(cartographicPolygonPath);
@@ -90,6 +101,12 @@ void OmniPolygonRasterOverlay::reload() {
 
     if (!pEllipsoid) {
         return;
+    }
+
+    if (getExcludeSelectedTiles()) {
+        _rasterizedPolygonsTileExcluder =
+            std::make_shared<Cesium3DTilesSelection::RasterizedPolygonsTileExcluder>(_pPolygonRasterOverlay);
+        // pTileset->getOptions().excluders.push_back(this->_pExcluder);
     }
 
     const auto projection = CesiumGeospatial::GeographicProjection(*pEllipsoid);

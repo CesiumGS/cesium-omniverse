@@ -154,6 +154,28 @@ public:
 
 public:
     // --------------------------------------------------------------------- //
+    // EXCLUDESELECTEDTILES 
+    // --------------------------------------------------------------------- //
+    /// Whether tiles that fall entirely within the rasterized selection should be excluded from loading and rendering. For better performance, this should be enabled when this overlay will be used for clipping. But when this overlay is used for other effects, this option should be disabled to avoid missing tiles. Note that if InvertSelection is true, this will cull tiles that are outside of all the polygons. If it is false, this will cull tiles that are completely inside at least one polygon.
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `bool cesium:excludeSelectedTiles = 1` |
+    /// | C++ Type | bool |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute GetExcludeSelectedTilesAttr() const;
+
+    /// See GetExcludeSelectedTilesAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute CreateExcludeSelectedTilesAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
     // CESIUMOVERLAYRENDERMETHOD 
     // --------------------------------------------------------------------- //
     /// 
