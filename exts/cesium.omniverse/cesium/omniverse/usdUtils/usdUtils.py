@@ -109,6 +109,10 @@ def add_cartographic_polygon() -> str:
     basis_curves.GetPointsAttr().Set([(-1000, 0, -1000), (-1000, 0, 1000), (1000, 0, 1000), (1000, 0, -1000)])
     basis_curves.GetCurveVertexCountsAttr().Set([4])
 
+    # Set curve to a 0.5m width
+    curve_width = 0.5 / UsdGeom.GetStageMetersPerUnit(stage)
+    basis_curves.GetWidthsAttr().Set([curve_width, curve_width, curve_width, curve_width])
+
     add_globe_anchor_to_prim(cartographic_polygon_path)
 
     return cartographic_polygon_path
