@@ -46,6 +46,7 @@ class FabricMaterialDescriptor {
     [[nodiscard]] bool hasTilesetMaterial() const;
     [[nodiscard]] const pxr::SdfPath& getTilesetMaterialPath() const;
     [[nodiscard]] const std::vector<FabricPropertyDescriptor>& getStyleableProperties() const;
+    [[nodiscard]] const std::map<std::string, std::string>& getUnsupportedPropertyWarnings() const;
 
     bool operator==(const FabricMaterialDescriptor& other) const;
 
@@ -56,6 +57,7 @@ class FabricMaterialDescriptor {
     std::vector<FabricOverlayRenderMethod> _rasterOverlayRenderMethods;
     pxr::SdfPath _tilesetMaterialPath;
     std::vector<FabricPropertyDescriptor> _styleableProperties;
+    std::map<std::string, std::string> _unsupportedPropertyWarnings;
 };
 
 } // namespace cesium::omniverse
