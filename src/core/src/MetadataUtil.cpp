@@ -7,6 +7,11 @@
 
 namespace cesium::omniverse::MetadataUtil {
 
+namespace {
+const auto unsupportedPropertyCallbackNoop = []([[maybe_unused]] const std::string& propertyId,
+                                                [[maybe_unused]] const std::string& warning) {};
+}
+
 std::tuple<std::vector<FabricPropertyDescriptor>, std::map<std::string, std::string>> getStyleableProperties(
     const Context& context,
     const CesiumGltf::Model& model,
@@ -107,7 +112,7 @@ std::vector<const CesiumGltf::ImageCesium*> getPropertyTextureImages(
                 images.push_back(pImage);
             }
         },
-        []([[maybe_unused]] const std::string& propertyId, [[maybe_unused]] const std::string& warning) {});
+        unsupportedPropertyCallbackNoop);
 
     return images;
 }
@@ -138,7 +143,7 @@ std::unordered_map<uint64_t, uint64_t> getPropertyTextureIndexMapping(
             const auto textureIndex = property.textureIndex;
             propertyTextureIndexMapping[textureIndex] = imageIndex;
         },
-        []([[maybe_unused]] const std::string& propertyId, [[maybe_unused]] const std::string& warning) {});
+        unsupportedPropertyCallbackNoop);
 
     return propertyTextureIndexMapping;
 }
@@ -204,7 +209,7 @@ std::vector<FabricTextureData> encodePropertyTables(
                 textureFormat,
             });
         },
-        []([[maybe_unused]] const std::string& propertyId, [[maybe_unused]] const std::string& warning) {});
+        unsupportedPropertyCallbackNoop);
 
     return textures;
 }
@@ -223,7 +228,7 @@ uint64_t getPropertyTableTextureCount(
             [[maybe_unused]] const std::string& propertyId,
             [[maybe_unused]] const auto& propertyTablePropertyView,
             [[maybe_unused]] const auto& property) { ++count; },
-        []([[maybe_unused]] const std::string& propertyId, [[maybe_unused]] const std::string& warning) {});
+        unsupportedPropertyCallbackNoop);
 
     return count;
 }

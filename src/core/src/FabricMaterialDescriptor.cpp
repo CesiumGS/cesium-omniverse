@@ -75,7 +75,7 @@ bool FabricMaterialDescriptor::operator==(const FabricMaterialDescriptor& other)
            _rasterOverlayRenderMethods == other._rasterOverlayRenderMethods &&
            _tilesetMaterialPath == other._tilesetMaterialPath &&
            _styleableProperties == other._styleableProperties;
-           // _unsupportedPropertyWarnings is intentionally not checked
+           // _unsupportedPropertyWarnings is intentionally not checked because it adds unecessary overhead
 
     // clang-format on
 }
