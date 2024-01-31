@@ -102,8 +102,9 @@ void OmniPolygonRasterOverlay::reload() {
         _pContext->getLogger()->error(error.message);
     };
 
+    auto debugInvert = getInvertSelection();
     _pPolygonRasterOverlay = new CesiumRasterOverlays::RasterizedPolygonsOverlay(
-        rasterOverlayName, polygons, getInvertSelection(), *pEllipsoid, projection, options);
+        rasterOverlayName, polygons, debugInvert, *pEllipsoid, projection, options);
 }
 
 } // namespace cesium::omniverse
