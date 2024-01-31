@@ -7,18 +7,17 @@
 
 namespace cesium::omniverse::MetadataUtil {
 
-std::vector<FabricPropertyDescriptor> getStyleableProperties(
+std::tuple<std::vector<FabricPropertyDescriptor>, std::map<std::string, std::string>> getStyleableProperties(
     const Context& context,
     const CesiumGltf::Model& model,
-    const CesiumGltf::MeshPrimitive& primitive,
-    bool logWarnings) {
+    const CesiumGltf::MeshPrimitive& primitive) {
     std::vector<FabricPropertyDescriptor> properties;
+    std::map<std::string, std::string> unsupportedPropertyWarnings;
 
     forEachStyleablePropertyAttributeProperty(
         context,
         model,
         primitive,
-        logWarnings,
         [&properties](
             const std::string& propertyId,
             [[maybe_unused]] const auto& propertyAttributePropertyView,
@@ -32,13 +31,15 @@ std::vector<FabricPropertyDescriptor> getStyleableProperties(
                 propertyId,
                 0, // featureIdSetIndex not relevant for property attributes
             });
+        },
+        [&unsupportedPropertyWarnings](const std::string& propertyId, const std::string& warning) {
+            unsupportedPropertyWarnings.insert({propertyId, warning});
         });
 
     forEachStyleablePropertyTextureProperty(
         context,
         model,
         primitive,
-        logWarnings,
         [&properties](
             const std::string& propertyId,
             [[maybe_unused]] const auto& propertyTexturePropertyView,
@@ -52,13 +53,15 @@ std::vector<FabricPropertyDescriptor> getStyleableProperties(
                 propertyId,
                 0, // featureIdSetIndex not relevant for property textures
             });
+        },
+        [&unsupportedPropertyWarnings](const std::string& propertyId, const std::string& warning) {
+            unsupportedPropertyWarnings.insert({propertyId, warning});
         });
 
     forEachStyleablePropertyTableProperty(
         context,
         model,
         primitive,
-        logWarnings,
         [&properties](
             const std::string& propertyId,
             [[maybe_unused]] const auto& propertyTablePropertyView,
@@ -72,26 +75,27 @@ std::vector<FabricPropertyDescriptor> getStyleableProperties(
                 propertyId,
                 property.featureIdSetIndex,
             });
+        },
+        [&unsupportedPropertyWarnings](const std::string& propertyId, const std::string& warning) {
+            unsupportedPropertyWarnings.insert({propertyId, warning});
         });
 
     // Sorting is important for checking FabricMaterialDescriptor equality
     CppUtil::sort(properties, [](const auto& lhs, const auto& rhs) { return lhs.propertyId > rhs.propertyId; });
 
-    return properties;
+    return {std::move(properties), std::move(unsupportedPropertyWarnings)};
 }
 
 std::vector<const CesiumGltf::ImageCesium*> getPropertyTextureImages(
     const Context& context,
     const CesiumGltf::Model& model,
-    const CesiumGltf::MeshPrimitive& primitive,
-    bool logWarnings) {
+    const CesiumGltf::MeshPrimitive& primitive) {
     std::vector<const CesiumGltf::ImageCesium*> images;
 
     forEachStyleablePropertyTextureProperty(
         context,
         model,
         primitive,
-        logWarnings,
         [&images](
             [[maybe_unused]] const std::string& propertyId,
             const auto& propertyTexturePropertyView,
@@ -103,7 +107,8 @@ std::vector<const CesiumGltf::ImageCesium*> getPropertyTextureImages(
             if (imageIndex == images.size()) {
                 images.push_back(pImage);
             }
-        });
+        },
+        []([[maybe_unused]] const std::string& propertyId, [[maybe_unused]] const std::string& warning) {});
 
     return images;
 }
@@ -111,8 +116,7 @@ std::vector<const CesiumGltf::ImageCesium*> getPropertyTextureImages(
 std::unordered_map<uint64_t, uint64_t> getPropertyTextureIndexMapping(
     const Context& context,
     const CesiumGltf::Model& model,
-    const CesiumGltf::MeshPrimitive& primitive,
-    bool logWarnings) {
+    const CesiumGltf::MeshPrimitive& primitive) {
     std::vector<const CesiumGltf::ImageCesium*> images;
     std::unordered_map<uint64_t, uint64_t> propertyTextureIndexMapping;
 
@@ -120,7 +124,6 @@ std::unordered_map<uint64_t, uint64_t> getPropertyTextureIndexMapping(
         context,
         model,
         primitive,
-        logWarnings,
         [&images, &propertyTextureIndexMapping](
             [[maybe_unused]] const std::string& propertyId,
             const auto& propertyTexturePropertyView,
@@ -135,7 +138,8 @@ std::unordered_map<uint64_t, uint64_t> getPropertyTextureIndexMapping(
 
             const auto textureIndex = property.textureIndex;
             propertyTextureIndexMapping[textureIndex] = imageIndex;
-        });
+        },
+        []([[maybe_unused]] const std::string& propertyId, [[maybe_unused]] const std::string& warning) {});
 
     return propertyTextureIndexMapping;
 }
@@ -143,15 +147,13 @@ std::unordered_map<uint64_t, uint64_t> getPropertyTextureIndexMapping(
 std::vector<FabricTextureData> encodePropertyTables(
     const Context& context,
     const CesiumGltf::Model& model,
-    const CesiumGltf::MeshPrimitive& primitive,
-    bool logWarnings) {
+    const CesiumGltf::MeshPrimitive& primitive) {
     std::vector<FabricTextureData> textures;
 
     forEachStyleablePropertyTableProperty(
         context,
         model,
         primitive,
-        logWarnings,
         [&textures](
             [[maybe_unused]] const std::string& propertyId,
             const auto& propertyTablePropertyView,
@@ -202,7 +204,8 @@ std::vector<FabricTextureData> encodePropertyTables(
                 height,
                 textureFormat,
             });
-        });
+        },
+        []([[maybe_unused]] const std::string& propertyId, [[maybe_unused]] const std::string& warning) {});
 
     return textures;
 }
@@ -210,19 +213,18 @@ std::vector<FabricTextureData> encodePropertyTables(
 uint64_t getPropertyTableTextureCount(
     const Context& context,
     const CesiumGltf::Model& model,
-    const CesiumGltf::MeshPrimitive& primitive,
-    bool logWarnings) {
+    const CesiumGltf::MeshPrimitive& primitive) {
     uint64_t count = 0;
 
     forEachStyleablePropertyTableProperty(
         context,
         model,
         primitive,
-        logWarnings,
         [&count](
             [[maybe_unused]] const std::string& propertyId,
             [[maybe_unused]] const auto& propertyTablePropertyView,
-            [[maybe_unused]] const auto& property) { ++count; });
+            [[maybe_unused]] const auto& property) { ++count; },
+        []([[maybe_unused]] const std::string& propertyId, [[maybe_unused]] const std::string& warning) {});
 
     return count;
 }

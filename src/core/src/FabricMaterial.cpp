@@ -1528,7 +1528,6 @@ void FabricMaterial::setMaterial(
         *_pContext,
         model,
         primitive,
-        false,
         [this, &getPropertyPath](
             const std::string& propertyId,
             [[maybe_unused]] const auto& propertyAttributePropertyView,
@@ -1555,13 +1554,13 @@ void FabricMaterial::setMaterial(
                 hasNoData,
                 noData,
                 defaultValue);
-        });
+        },
+        []([[maybe_unused]] const std::string& propertyId, [[maybe_unused]] const std::string& warning) {});
 
     MetadataUtil::forEachStyleablePropertyTextureProperty(
         *_pContext,
         model,
         primitive,
-        false,
         [this, &propertyTextures, &texcoordIndexMapping, &propertyTextureIndexMapping, &getPropertyPath](
             const std::string& propertyId,
             [[maybe_unused]] const auto& propertyTexturePropertyView,
@@ -1594,7 +1593,8 @@ void FabricMaterial::setMaterial(
                 hasNoData,
                 noData,
                 defaultValue);
-        });
+        },
+        []([[maybe_unused]] const std::string& propertyId, [[maybe_unused]] const std::string& warning) {});
 
     uint64_t propertyTablePropertyCounter = 0;
 
@@ -1602,7 +1602,6 @@ void FabricMaterial::setMaterial(
         *_pContext,
         model,
         primitive,
-        false,
         [this, &propertyTableTextures, &propertyTablePropertyCounter, &getPropertyPath](
             const std::string& propertyId,
             [[maybe_unused]] const auto& propertyTablePropertyView,
@@ -1630,7 +1629,8 @@ void FabricMaterial::setMaterial(
                 hasNoData,
                 noData,
                 defaultValue);
-        });
+        },
+        []([[maybe_unused]] const std::string& propertyId, [[maybe_unused]] const std::string& warning) {});
 
     for (const auto& path : _allPaths) {
         auto& fabricStage = _pContext->getFabricStage();
@@ -1690,6 +1690,7 @@ void FabricMaterial::destroyConnectionsToCopiedPaths() {
 void FabricMaterial::createConnectionsToProperties() {
     auto& fabricStage = _pContext->getFabricStage();
     const auto& properties = _materialDescriptor.getStyleableProperties();
+    const auto& unsupportedPropertyWarnings = _materialDescriptor.getUnsupportedPropertyWarnings();
 
     for (const auto& propertyPathExternal : _copiedPropertyPaths) {
         const auto propertyId = getStringFabric(fabricStage, propertyPathExternal, FabricTokens::inputs_property_id);
@@ -1699,10 +1700,15 @@ void FabricMaterial::createConnectionsToProperties() {
         const auto index = CppUtil::indexOfByMember(properties, &FabricPropertyDescriptor::propertyId, propertyId);
 
         if (index == properties.size()) {
-            _pContext->getLogger()->oneTimeWarning(
-                "Could not find property \"{}\" referenced by {}. A default value will be returned instead.",
-                propertyId,
-                mdlIdentifier.getText());
+            if (CppUtil::contains(unsupportedPropertyWarnings, propertyId)) {
+                _pContext->getLogger()->oneTimeWarning(unsupportedPropertyWarnings.at(propertyId));
+            } else {
+                _pContext->getLogger()->oneTimeWarning(
+                    "Could not find property \"{}\" referenced by {}. A default value will be returned instead.",
+                    propertyId,
+                    mdlIdentifier.getText());
+            }
+
             continue;
         }
 
