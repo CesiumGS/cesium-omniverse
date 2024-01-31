@@ -26,7 +26,7 @@ class CesiumPolygonRasterOverlayAttributesWidget(SchemaPropertiesWidget):
             with CustomLayoutGroup("Invert Selection"):
                 CustomLayoutProperty("cesium:invertSelection")
             with CustomLayoutGroup("Rendering"):
-                CustomLayoutProperty("cesium:alpha", build_fn=build_slider)
+                CustomLayoutProperty("cesium:alpha", build_fn=build_slider(0, 1))
                 CustomLayoutProperty("cesium:overlayRenderMethod")
             with CustomLayoutGroup("Credit Display"):
                 CustomLayoutProperty("cesium:showCreditsOnScreen")

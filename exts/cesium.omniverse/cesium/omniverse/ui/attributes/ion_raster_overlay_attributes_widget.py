@@ -26,7 +26,7 @@ class CesiumIonRasterOverlayAttributesWidget(SchemaPropertiesWidget):
                 CustomLayoutProperty("cesium:ionAccessToken")
                 CustomLayoutProperty("cesium:ionServerBinding")
             with CustomLayoutGroup("Rendering"):
-                CustomLayoutProperty("cesium:alpha", build_fn=build_slider)
+                CustomLayoutProperty("cesium:alpha", build_fn=build_slider(0, 1))
                 CustomLayoutProperty("cesium:overlayRenderMethod")
             with CustomLayoutGroup("Credit Display"):
                 CustomLayoutProperty("cesium:showCreditsOnScreen")

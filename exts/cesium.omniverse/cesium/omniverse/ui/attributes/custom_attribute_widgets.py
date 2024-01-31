@@ -6,7 +6,7 @@ from cesium.usd.plugins.CesiumUsdSchemas import (
 )
 
 
-def update_range(stage, prim_paths):
+def _update_range(stage, prim_paths):
     for path in prim_paths:
         rasterOverlay = CesiumRasterOverlay.Get(stage, path)
         attr = rasterOverlay.GetAlphaAttr()
@@ -15,7 +15,7 @@ def update_range(stage, prim_paths):
         attr.Set(new_value)
 
 
-def build_slider(
+def _build_slider(
     stage,
     attr_name,
     metadata,
@@ -54,6 +54,17 @@ def build_slider(
         UsdPropertiesWidgetBuilder.create_control_state(
             value_widget=value_widget, mixed_overlay=mixed_overlay, **widget_kwargs
         )
-        model.add_value_changed_fn(lambda m, s=stage, p=prim_paths: update_range(s, p))
+        model.add_value_changed_fn(lambda m, s=stage, p=prim_paths: _update_range(s, p))
 
         return model
+
+
+def build_slider(min_value, max_value):
+    def custom_slider(stage, attr_name, metadata, property_type, prim_paths, *args, **kwargs):
+        additional_widget_kwargs = {"min": min_value, "max": max_value}
+        additional_widget_kwargs.update(kwargs)
+        return _build_slider(
+            stage, attr_name, metadata, property_type, prim_paths, additional_widget_kwargs=additional_widget_kwargs
+        )
+
+    return custom_slider
