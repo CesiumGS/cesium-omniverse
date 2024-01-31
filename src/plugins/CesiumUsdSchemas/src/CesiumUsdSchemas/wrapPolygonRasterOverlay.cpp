@@ -25,6 +25,20 @@ namespace {
 // fwd decl.
 WRAP_CUSTOM;
 
+        
+static UsdAttribute
+_CreateInvertSelectionAttr(CesiumPolygonRasterOverlay &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateInvertSelectionAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateCesiumOverlayRenderMethodAttr(CesiumPolygonRasterOverlay &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateCesiumOverlayRenderMethodAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Token), writeSparsely);
+}
 
 static std::string
 _Repr(const CesiumPolygonRasterOverlay &self)
@@ -67,6 +81,20 @@ void wrapCesiumPolygonRasterOverlay()
 
         .def(!self)
 
+        
+        .def("GetInvertSelectionAttr",
+             &This::GetInvertSelectionAttr)
+        .def("CreateInvertSelectionAttr",
+             &_CreateInvertSelectionAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetCesiumOverlayRenderMethodAttr",
+             &This::GetCesiumOverlayRenderMethodAttr)
+        .def("CreateCesiumOverlayRenderMethodAttr",
+             &_CreateCesiumOverlayRenderMethodAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
 
         
         .def("GetCartographicPolygonBindingRel",

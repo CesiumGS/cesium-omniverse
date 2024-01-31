@@ -103,7 +103,12 @@ def add_cartographic_polygon() -> str:
     cartographic_polygon_path = Sdf.Path("/CesiumCartographicPolygons").AppendPath(name).pathString
     cartographic_polygon_path = omni.usd.get_stage_next_free_path(stage, cartographic_polygon_path, False)
 
-    UsdGeom.BasisCurves.Define(stage, cartographic_polygon_path)
+    basis_curves = UsdGeom.BasisCurves.Define(stage, cartographic_polygon_path)
+    basis_curves.GetTypeAttr().Set("linear")
+    basis_curves.GetWrapAttr().Set("periodic")
+    basis_curves.GetPointsAttr().Set([(-1000, 0, -1000), (-1000, 0, 1000), (1000, 0, 1000), (1000, 0, -1000)])
+    basis_curves.GetCurveVertexCountsAttr().Set([4])
+
     add_globe_anchor_to_prim(cartographic_polygon_path)
 
     return cartographic_polygon_path
