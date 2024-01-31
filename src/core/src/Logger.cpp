@@ -16,13 +16,4 @@ Logger::Logger()
               std::make_shared<LoggerSink>(omni::log::Level::eFatal),
           }) {}
 
-void Logger::oneTimeWarning(const std::string& warning) {
-    if (CppUtil::contains(_oneTimeWarnings, warning)) {
-        return;
-    }
-
-    _oneTimeWarnings.insert(warning);
-    warn(warning);
-}
-
 } // namespace cesium::omniverse

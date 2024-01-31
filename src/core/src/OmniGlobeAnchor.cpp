@@ -206,9 +206,9 @@ bool OmniGlobeAnchor::isAnchorValid() const {
     const auto xformOps = UsdUtil::getOrCreateTranslateRotateScaleOps(xformable);
 
     if (!xformOps) {
-        _pContext->getLogger()->oneTimeWarning(fmt::format(
+        _pContext->getLogger()->oneTimeWarning(
             "Globe anchor xform op order must [translate, rotate, scale] without additional transforms.",
-            _path.GetText()));
+            _path.GetText());
         return false;
     }
 

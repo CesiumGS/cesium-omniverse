@@ -47,7 +47,7 @@ void forEachPropertyAttributeProperty(
         if (!pPropertyAttribute) {
             if (logWarnings) {
                 context.getLogger()->oneTimeWarning(
-                    fmt::format("Property attribute index {} is out of range.", propertyAttributeIndex));
+                    "Property attribute index {} is out of range.", propertyAttributeIndex);
             }
             continue;
         }
@@ -55,9 +55,9 @@ void forEachPropertyAttributeProperty(
         const auto propertyAttributeView = CesiumGltf::PropertyAttributeView(model, *pPropertyAttribute);
         if (propertyAttributeView.status() != CesiumGltf::PropertyAttributeViewStatus::Valid) {
             if (logWarnings) {
-                context.getLogger()->oneTimeWarning(fmt::format(
+                context.getLogger()->oneTimeWarning(
                     "Property attribute is invalid and will be ignored. Status code: {}",
-                    static_cast<int>(propertyAttributeView.status())));
+                    static_cast<int>(propertyAttributeView.status()));
             }
             continue;
         }
@@ -72,10 +72,10 @@ void forEachPropertyAttributeProperty(
              &pPropertyAttribute](const std::string& propertyId, const auto& propertyAttributePropertyView) {
                 if (propertyAttributePropertyView.status() != CesiumGltf::PropertyAttributePropertyViewStatus::Valid) {
                     if (logWarnings) {
-                        context.getLogger()->oneTimeWarning(fmt::format(
+                        context.getLogger()->oneTimeWarning(
                             "Property \"{}\" is invalid and will be ignored. Status code: {}",
                             propertyId,
-                            static_cast<int>(propertyAttributePropertyView.status())));
+                            static_cast<int>(propertyAttributePropertyView.status()));
                     }
                     return;
                 }
@@ -155,9 +155,9 @@ void forEachPropertyTextureProperty(
         const auto propertyTextureView = CesiumGltf::PropertyTextureView(model, *pPropertyTexture);
         if (propertyTextureView.status() != CesiumGltf::PropertyTextureViewStatus::Valid) {
             if (logWarnings) {
-                context.getLogger()->oneTimeWarning(fmt::format(
+                context.getLogger()->oneTimeWarning(
                     "Property texture is invalid and will be ignored. Status code: {}",
-                    static_cast<int>(propertyTextureView.status())));
+                    static_cast<int>(propertyTextureView.status()));
             }
             continue;
         }
@@ -171,10 +171,10 @@ void forEachPropertyTextureProperty(
              &pPropertyTexture](const std::string& propertyId, const auto& propertyTexturePropertyView) {
                 if (propertyTexturePropertyView.status() != CesiumGltf::PropertyTexturePropertyViewStatus::Valid) {
                     if (logWarnings) {
-                        context.getLogger()->oneTimeWarning(fmt::format(
+                        context.getLogger()->oneTimeWarning(
                             "Property \"{}\" is invalid and will be ignored. Status code: {}",
                             propertyId,
-                            static_cast<int>(propertyTexturePropertyView.status())));
+                            static_cast<int>(propertyTexturePropertyView.status()));
                     }
                     return;
                 }
@@ -264,9 +264,9 @@ void forEachPropertyTableProperty(
             const auto propertyTableView = CesiumGltf::PropertyTableView(model, *pPropertyTable);
             if (propertyTableView.status() != CesiumGltf::PropertyTableViewStatus::Valid) {
                 if (logWarnings) {
-                    context.getLogger()->oneTimeWarning(fmt::format(
+                    context.getLogger()->oneTimeWarning(
                         "Property table is invalid and will be ignored. Status code: {}",
-                        static_cast<int>(propertyTableView.status())));
+                        static_cast<int>(propertyTableView.status()));
                 }
                 continue;
             }
@@ -281,10 +281,10 @@ void forEachPropertyTableProperty(
                  featureIdSetIndex](const std::string& propertyId, const auto& propertyTablePropertyView) {
                     if (propertyTablePropertyView.status() != CesiumGltf::PropertyTablePropertyViewStatus::Valid) {
                         if (logWarnings) {
-                            context.getLogger()->oneTimeWarning(fmt::format(
+                            context.getLogger()->oneTimeWarning(
                                 "Property \"{}\" is invalid and will be ignored. Status code: {}",
                                 propertyId,
-                                static_cast<int>(propertyTablePropertyView.status())));
+                                static_cast<int>(propertyTablePropertyView.status()));
                         }
                         return;
                     }
@@ -361,9 +361,9 @@ void forEachStyleablePropertyAttributeProperty(
 
             if constexpr (DataTypeUtil::isMatrix<type>()) {
                 if (logWarnings) {
-                    context.getLogger()->oneTimeWarning(fmt::format(
+                    context.getLogger()->oneTimeWarning(
                         "Matrix properties are not supported for styling. Property \"{}\" will be ignored.",
-                        propertyId));
+                        propertyId);
                 }
                 return;
             } else {
@@ -420,9 +420,8 @@ void forEachStyleablePropertyTextureProperty(
 
             if constexpr (IsArray) {
                 if (logWarnings) {
-                    context.getLogger()->oneTimeWarning(fmt::format(
-                        "Array properties are not supported for styling. Property \"{}\" will be ignored.",
-                        propertyId));
+                    context.getLogger()->oneTimeWarning(
+                        "Array properties are not supported for styling. Property \"{}\" will be ignored.", propertyId);
                 }
                 return;
             } else {
@@ -430,10 +429,10 @@ void forEachStyleablePropertyTextureProperty(
 
                 if constexpr (DataTypeUtil::getComponentByteLength<type>() > 1) {
                     if (logWarnings) {
-                        context.getLogger()->oneTimeWarning(fmt::format(
+                        context.getLogger()->oneTimeWarning(
                             "Only 8-bit per-component property texture properties are supported for styling. Property "
                             "\"{}\" will be ignored.",
-                            propertyId));
+                            propertyId);
                     }
                     return;
                 } else {
@@ -441,21 +440,21 @@ void forEachStyleablePropertyTextureProperty(
 
                     if (textureInfo.channels.size() != DataTypeUtil::getComponentCount<type>()) {
                         if (logWarnings) {
-                            context.getLogger()->oneTimeWarning(fmt::format(
+                            context.getLogger()->oneTimeWarning(
                                 "Properties with components that are packed across multiple texture channels are not "
                                 "supported for styling. Property \"{}\" will be ignored.",
-                                propertyId));
+                                propertyId);
                         }
                         return;
                     }
 
                     if (textureInfo.channels.size() > 4) {
                         if (logWarnings) {
-                            context.getLogger()->oneTimeWarning(fmt::format(
+                            context.getLogger()->oneTimeWarning(
                                 "Properties with more than four channels are not supported for styling. Property "
                                 "\"{}\" "
                                 "will be ignored.",
-                                propertyId));
+                                propertyId);
                         }
                         return;
                     }
@@ -514,23 +513,22 @@ void forEachStyleablePropertyTableProperty(
 
             if constexpr (IsArray) {
                 if (logWarnings) {
-                    context.getLogger()->oneTimeWarning(fmt::format(
-                        "Array properties are not supported for styling. Property \"{}\" will be ignored.",
-                        propertyId));
+                    context.getLogger()->oneTimeWarning(
+                        "Array properties are not supported for styling. Property \"{}\" will be ignored.", propertyId);
                 }
                 return;
             } else if constexpr (IsBoolean) {
                 if (logWarnings) {
-                    context.getLogger()->oneTimeWarning(fmt::format(
+                    context.getLogger()->oneTimeWarning(
                         "Boolean properties are not supported for styling. Property \"{}\" will be ignored.",
-                        propertyId));
+                        propertyId);
                 }
                 return;
             } else if constexpr (IsString) {
                 if (logWarnings) {
-                    context.getLogger()->oneTimeWarning(fmt::format(
+                    context.getLogger()->oneTimeWarning(
                         "String properties are not supported for styling. Property \"{}\" will be ignored.",
-                        propertyId));
+                        propertyId);
                 }
                 return;
             } else {
@@ -539,43 +537,43 @@ void forEachStyleablePropertyTableProperty(
 
                 if constexpr (DataTypeUtil::isMatrix<type>()) {
                     if (logWarnings) {
-                        context.getLogger()->oneTimeWarning(fmt::format(
+                        context.getLogger()->oneTimeWarning(
                             "Matrix properties are not supported for styling. Property \"{}\" will be ignored.",
-                            propertyId));
+                            propertyId);
                     }
                     return;
                 } else if constexpr (unnormalizedComponentType == DataType::UINT32) {
                     if (logWarnings) {
-                        context.getLogger()->oneTimeWarning(fmt::format(
+                        context.getLogger()->oneTimeWarning(
                             "UINT32 properties are not supported for styling due to potential precision loss. Property "
                             "\"{}\" will be ignored.",
-                            propertyId));
+                            propertyId);
                     }
                     return;
                 } else if constexpr (unnormalizedComponentType == DataType::UINT64) {
                     if (logWarnings) {
-                        context.getLogger()->oneTimeWarning(fmt::format(
+                        context.getLogger()->oneTimeWarning(
                             "UINT64 properties are not supported for styling due to potential precision loss. Property "
                             "\"{}\" will be ignored.",
-                            propertyId));
+                            propertyId);
                     }
                     return;
                 } else if constexpr (unnormalizedComponentType == DataType::INT64) {
                     if (logWarnings) {
-                        context.getLogger()->oneTimeWarning(fmt::format(
+                        context.getLogger()->oneTimeWarning(
                             "INT64 properties are not supported for styling due to potential precision loss. Property "
                             "\"{}\" will be ignored.",
-                            propertyId));
+                            propertyId);
                     }
                     return;
                 } else {
                     if constexpr (unnormalizedComponentType == DataType::FLOAT64) {
                         if (logWarnings) {
-                            context.getLogger()->oneTimeWarning(fmt::format(
+                            context.getLogger()->oneTimeWarning(
                                 "64-bit float properties are converted to 32-bit floats for styling. Some precision "
                                 "loss "
                                 "may occur for property \"{}\".",
-                                propertyId));
+                                propertyId);
                         }
                     }
 
