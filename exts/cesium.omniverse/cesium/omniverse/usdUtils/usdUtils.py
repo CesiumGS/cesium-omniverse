@@ -106,7 +106,18 @@ def add_cartographic_polygon() -> str:
     basis_curves = UsdGeom.BasisCurves.Define(stage, cartographic_polygon_path)
     basis_curves.GetTypeAttr().Set("linear")
     basis_curves.GetWrapAttr().Set("periodic")
-    basis_curves.GetPointsAttr().Set([(-1000, 0, -1000), (-1000, 0, 1000), (1000, 0, 1000), (1000, 0, -1000)])
+
+    # Set curve to have 10m edge lengths
+    curve_size = 10 / UsdGeom.GetStageMetersPerUnit(stage)
+    basis_curves.GetPointsAttr().Set(
+        [
+            (-curve_size, 0, -curve_size),
+            (-curve_size, 0, curve_size),
+            (curve_size, 0, curve_size),
+            (curve_size, 0, -curve_size),
+        ]
+    )
+
     basis_curves.GetCurveVertexCountsAttr().Set([4])
 
     # Set curve to a 0.5m width
