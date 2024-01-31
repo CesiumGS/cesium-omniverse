@@ -6,7 +6,7 @@ from omni.kit.property.usd.usd_property_widget import SchemaPropertiesWidget
 from cesium.usd.plugins.CesiumUsdSchemas import (
     IonRasterOverlay as CesiumIonRasterOverlay,
     IonServer as CesiumIonServer,
-    RasterOverlay as CesiumRasterOverlay
+    RasterOverlay as CesiumRasterOverlay,
 )
 from pxr import Sdf
 
