@@ -1699,7 +1699,7 @@ void FabricMaterial::createConnectionsToProperties() {
         const auto index = CppUtil::indexOfByMember(properties, &FabricPropertyDescriptor::propertyId, propertyId);
 
         if (index == properties.size()) {
-            _pContext->getLogger()->warn(
+            _pContext->getLogger()->oneTimeWarning(
                 "Could not find property \"{}\" referenced by {}. A default value will be returned instead.",
                 propertyId,
                 mdlIdentifier.getText());
@@ -1709,7 +1709,7 @@ void FabricMaterial::createConnectionsToProperties() {
         const auto propertyTypeInternal = properties[index].type;
 
         if (!FabricUtil::typesCompatible(propertyTypeExternal, propertyTypeInternal)) {
-            _pContext->getLogger()->warn(
+            _pContext->getLogger()->oneTimeWarning(
                 "Property \"{}\" referenced by {} has incompatible type. A default value will be returned instead.",
                 propertyId,
                 mdlIdentifier.getText());
