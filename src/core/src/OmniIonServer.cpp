@@ -2,7 +2,6 @@
 
 #include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/Context.h"
-#include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <CesiumUsdSchemas/ionServer.h>
@@ -14,7 +13,7 @@ OmniIonServer::OmniIonServer(Context* pContext, const pxr::SdfPath& path)
     , _path(path)
     , _session(std::make_shared<CesiumIonSession>(
           pContext->getAsyncSystem(),
-          pContext->getHttpAssetAccessor(),
+          pContext->getAssetAccessor(),
           getIonServerUrl(),
           getIonServerApiUrl(),
           getIonServerApplicationId())) {}

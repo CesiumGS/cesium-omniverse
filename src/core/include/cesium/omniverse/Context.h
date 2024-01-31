@@ -47,7 +47,7 @@ class Context {
 
     [[nodiscard]] std::shared_ptr<TaskProcessor> getTaskProcessor() const;
     [[nodiscard]] const CesiumAsync::AsyncSystem& getAsyncSystem() const;
-    [[nodiscard]] std::shared_ptr<CesiumAsync::IAssetAccessor> getHttpAssetAccessor() const;
+    [[nodiscard]] std::shared_ptr<CesiumAsync::IAssetAccessor> getAssetAccessor() const;
     [[nodiscard]] std::shared_ptr<CesiumUtility::CreditSystem> getCreditSystem() const;
     [[nodiscard]] std::shared_ptr<Logger> getLogger() const;
     [[nodiscard]] const AssetRegistry& getAssetRegistry() const;
@@ -73,12 +73,11 @@ class Context {
 
   private:
     std::filesystem::path _cesiumExtensionLocation;
-    std::filesystem::path _certificatePath;
     pxr::TfToken _cesiumMdlPathToken;
 
     std::shared_ptr<TaskProcessor> _pTaskProcessor;
     std::unique_ptr<CesiumAsync::AsyncSystem> _pAsyncSystem;
-    std::shared_ptr<CesiumAsync::IAssetAccessor> _pHttpAssetAccessor;
+    std::shared_ptr<CesiumAsync::IAssetAccessor> _pAssetAccessor;
     std::shared_ptr<CesiumUtility::CreditSystem> _pCreditSystem;
     std::shared_ptr<Logger> _pLogger;
     std::unique_ptr<AssetRegistry> _pAssetRegistry;

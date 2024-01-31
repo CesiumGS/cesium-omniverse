@@ -35,11 +35,10 @@ namespace cesium::omniverse {
 
 Context::Context(const std::filesystem::path& cesiumExtensionLocation)
     : _cesiumExtensionLocation(cesiumExtensionLocation.lexically_normal())
-    , _certificatePath(_cesiumExtensionLocation / "certs" / "cacert.pem")
     , _cesiumMdlPathToken(pxr::TfToken((_cesiumExtensionLocation / "mdl" / "cesium.mdl").generic_string()))
     , _pTaskProcessor(std::make_shared<TaskProcessor>())
     , _pAsyncSystem(std::make_unique<CesiumAsync::AsyncSystem>(_pTaskProcessor))
-    , _pHttpAssetAccessor(std::make_shared<UrlAssetAccessor>())
+    , _pAssetAccessor(std::make_shared<UrlAssetAccessor>())
     , _pCreditSystem(std::make_shared<CesiumUtility::CreditSystem>())
     , _pLogger(std::make_shared<Logger>())
     , _pAssetRegistry(std::make_unique<AssetRegistry>(this))
@@ -67,10 +66,6 @@ const std::filesystem::path& Context::getCesiumExtensionLocation() const {
     return _cesiumExtensionLocation;
 }
 
-const std::filesystem::path& Context::getCertificatePath() const {
-    return _certificatePath;
-}
-
 const pxr::TfToken& Context::getCesiumMdlPathToken() const {
     return _cesiumMdlPathToken;
 }
@@ -83,8 +78,8 @@ const CesiumAsync::AsyncSystem& Context::getAsyncSystem() const {
     return *_pAsyncSystem.get();
 }
 
-std::shared_ptr<CesiumAsync::IAssetAccessor> Context::getHttpAssetAccessor() const {
-    return _pHttpAssetAccessor;
+std::shared_ptr<CesiumAsync::IAssetAccessor> Context::getAssetAccessor() const {
+    return _pAssetAccessor;
 }
 
 std::shared_ptr<CesiumUtility::CreditSystem> Context::getCreditSystem() const {
