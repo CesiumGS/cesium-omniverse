@@ -17,8 +17,8 @@ class OmniPolygonRasterOverlay final : public OmniRasterOverlay {
     OmniPolygonRasterOverlay& operator=(OmniPolygonRasterOverlay&&) noexcept = default;
 
     [[nodiscard]] std::vector<pxr::SdfPath> getCartographicPolygonPaths() const;
-
     [[nodiscard]] CesiumRasterOverlays::RasterOverlay* getRasterOverlay() const override;
+    [[nodiscard]] bool getInvertSelection() const;
     void reload() override;
 
   private:

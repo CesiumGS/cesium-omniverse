@@ -1,12 +1,16 @@
 import logging
 from omni.kit.property.usd.custom_layout_helper import CustomLayoutFrame, CustomLayoutGroup, CustomLayoutProperty
 from omni.kit.property.usd.usd_property_widget import SchemaPropertiesWidget
-from cesium.usd.plugins.CesiumUsdSchemas import RasterOverlay as CesiumRasterOverlay, IonServer as CesiumIonServer
+from cesium.usd.plugins.CesiumUsdSchemas import (
+    IonRasterOverlay as CesiumIonRasterOverlay,
+    IonServer as CesiumIonServer,
+)
+from .custom_attribute_widgets import build_slider
 
 
-class CesiumRasterOverlayAttributesWidget(SchemaPropertiesWidget):
+class CesiumIonRasterOverlayAttributesWidget(SchemaPropertiesWidget):
     def __init__(self):
-        super().__init__("Cesium Raster Overlay Settings", CesiumRasterOverlay, include_inherited=False)
+        super().__init__("Cesium Ion Raster Overlay Settings", CesiumIonRasterOverlay, include_inherited=True)
 
         self._logger = logging.getLogger(__name__)
 
@@ -17,15 +21,15 @@ class CesiumRasterOverlayAttributesWidget(SchemaPropertiesWidget):
         frame = CustomLayoutFrame(hide_extra=True)
 
         with frame:
-            with CustomLayoutGroup("Credit Display"):
-                CustomLayoutProperty("cesium:showCreditsOnScreen")
             with CustomLayoutGroup("Source"):
                 CustomLayoutProperty("cesium:ionAssetId")
                 CustomLayoutProperty("cesium:ionAccessToken")
                 CustomLayoutProperty("cesium:ionServerBinding")
             with CustomLayoutGroup("Rendering"):
-                CustomLayoutProperty("cesium:alpha")
+                CustomLayoutProperty("cesium:alpha", build_fn=build_slider(0, 1))
                 CustomLayoutProperty("cesium:overlayRenderMethod")
+            with CustomLayoutGroup("Credit Display"):
+                CustomLayoutProperty("cesium:showCreditsOnScreen")
 
         return frame.apply(props)
 

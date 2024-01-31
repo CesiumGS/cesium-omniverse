@@ -29,10 +29,10 @@ FabricMaterialDescriptor::FabricMaterialDescriptor(
     , _hasBaseColorTexture(materialInfo.baseColorTexture.has_value())
     , _featureIdTypes(FabricFeaturesUtil::getFeatureIdTypes(featuresInfo))
     , _rasterOverlayRenderMethods(rasterOverlaysInfo.overlayRenderMethods)
-    , _tilesetMaterialPath(tilesetMaterialPath)
-    , _styleableProperties(
-          // Only log warnings for unsupported properties if the tileset has a material that could potentially reference properties
-          MetadataUtil::getStyleableProperties(context, model, primitive, !tilesetMaterialPath.IsEmpty())) {}
+    , _tilesetMaterialPath(tilesetMaterialPath) {
+    std::tie(_styleableProperties, _unsupportedPropertyWarnings) =
+        MetadataUtil::getStyleableProperties(context, model, primitive);
+}
 
 bool FabricMaterialDescriptor::hasVertexColors() const {
     return _hasVertexColors;
@@ -62,8 +62,11 @@ const std::vector<FabricPropertyDescriptor>& FabricMaterialDescriptor::getStylea
     return _styleableProperties;
 }
 
+const std::map<std::string, std::string>& FabricMaterialDescriptor::getUnsupportedPropertyWarnings() const {
+    return _unsupportedPropertyWarnings;
+}
+
 // Make sure to update this function when adding new fields to the class
-// In C++ 20 we can use the default equality comparison (= default)
 bool FabricMaterialDescriptor::operator==(const FabricMaterialDescriptor& other) const {
     // clang-format off
     return _hasVertexColors == other._hasVertexColors &&
@@ -72,6 +75,8 @@ bool FabricMaterialDescriptor::operator==(const FabricMaterialDescriptor& other)
            _rasterOverlayRenderMethods == other._rasterOverlayRenderMethods &&
            _tilesetMaterialPath == other._tilesetMaterialPath &&
            _styleableProperties == other._styleableProperties;
+           // _unsupportedPropertyWarnings is intentionally not checked because it adds unecessary overhead
+
     // clang-format on
 }
 

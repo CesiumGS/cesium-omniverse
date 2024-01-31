@@ -4,6 +4,7 @@
 #include <array>
 #include <cstdint>
 #include <functional>
+#include <map>
 #include <optional>
 #include <set>
 #include <unordered_set>
@@ -60,6 +61,10 @@ template <typename T, size_t C, typename U> bool contains(const std::array<T, C>
 
 template <typename T, typename U> bool contains(const std::unordered_set<T>& set, const U& value) {
     return set.find(value) != set.end();
+}
+
+template <typename T, typename U> bool contains(const std::map<T, U>& map, const U& value) {
+    return map.find(value) != map.end();
 }
 
 template <typename T, typename U> bool containsByMember(const std::vector<T>& vector, U T::*member, const U& value) {

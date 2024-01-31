@@ -31,6 +31,13 @@ CesiumRasterOverlays::RasterOverlay* OmniPolygonRasterOverlay::getRasterOverlay(
     return _pPolygonRasterOverlay.get();
 }
 
+bool OmniPolygonRasterOverlay::getInvertSelection() const {
+    auto cesiumPolygonRasterOverlay = UsdUtil::getCesiumPolygonRasterOverlay(_pContext->getUsdStage(), _path);
+    bool invertSelection;
+    cesiumPolygonRasterOverlay.GetInvertSelectionAttr().Get(&invertSelection);
+    return invertSelection;
+}
+
 void OmniPolygonRasterOverlay::reload() {
     const auto rasterOverlayName = UsdUtil::getName(_pContext->getUsdStage(), _path);
 
@@ -74,7 +81,7 @@ void OmniPolygonRasterOverlay::reload() {
         for (const auto& cartographic : cartographics) {
             polygon.emplace_back(cartographic.longitude, cartographic.latitude);
         }
-        polygons.push_back(polygon);
+        polygons.emplace_back(polygon);
     }
 
     if (polygons.empty()) {
@@ -85,7 +92,6 @@ void OmniPolygonRasterOverlay::reload() {
         return;
     }
 
-    const auto invertSelection = false;
     const auto projection = CesiumGeospatial::GeographicProjection(*pEllipsoid);
 
     CesiumRasterOverlays::RasterOverlayOptions options;
@@ -97,7 +103,7 @@ void OmniPolygonRasterOverlay::reload() {
     };
 
     _pPolygonRasterOverlay = new CesiumRasterOverlays::RasterizedPolygonsOverlay(
-        rasterOverlayName, polygons, invertSelection, *pEllipsoid, projection, options);
+        rasterOverlayName, polygons, getInvertSelection(), *pEllipsoid, projection, options);
 }
 
 } // namespace cesium::omniverse

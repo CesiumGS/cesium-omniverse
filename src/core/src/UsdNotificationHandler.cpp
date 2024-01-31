@@ -302,7 +302,8 @@ void processCesiumPolygonRasterOverlayChanged(
     auto updateBindings = false;
 
     for (const auto& property : properties) {
-        if (property == pxr::CesiumTokens->cesiumCartographicPolygonBinding) {
+        if (property == pxr::CesiumTokens->cesiumCartographicPolygonBinding ||
+            property == pxr::CesiumTokens->cesiumInvertSelection) {
             reload = true;
             updateBindings = true;
         }
