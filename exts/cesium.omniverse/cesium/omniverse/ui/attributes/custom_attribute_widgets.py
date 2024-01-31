@@ -1,18 +1,6 @@
 from typing import List
 import omni.ui as ui
 from pxr import Sdf
-from cesium.usd.plugins.CesiumUsdSchemas import (
-    RasterOverlay as CesiumRasterOverlay,
-)
-
-
-def _update_range(stage, prim_paths):
-    for path in prim_paths:
-        rasterOverlay = CesiumRasterOverlay.Get(stage, path)
-        attr = rasterOverlay.GetAlphaAttr()
-        current_value = attr.Get()
-        new_value = max(0, min(current_value, 1.0))
-        attr.Set(new_value)
 
 
 def _build_slider(
@@ -54,7 +42,6 @@ def _build_slider(
         UsdPropertiesWidgetBuilder.create_control_state(
             value_widget=value_widget, mixed_overlay=mixed_overlay, **widget_kwargs
         )
-        model.add_value_changed_fn(lambda m, s=stage, p=prim_paths: _update_range(s, p))
 
         return model
 
