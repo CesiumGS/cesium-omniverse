@@ -11,7 +11,7 @@
   * For migrating existing USD files, see https://github.com/CesiumGS/cesium-omniverse-samples/pull/13
 * **Breaking changes for imagery layers:**
   * `CesiumImagery` was renamed to `CesiumRasterOverlay` and is now an abstract class. To create ion raster overlays, use `CesiumIonRasterOverlay`.
-  * MDL changes: `cesium_imagery_layer_float4` was renamed to `cesium_raster_overlay_layer_float4` and `imagery_layer_index` was renamed to `raster_overlay_index`.
+  * MDL changes: `cesium_imagery_layer_float4` was renamed to `cesium_raster_overlay_float4` and `imagery_layer_index` was renamed to `raster_overlay_index`.
   * ion raster overlays now use the scene's default ion server if `cesium:ionServerBinding` is empty.
 * **Breaking change for tilesets:**
   * Tilesets must now reference raster overlays with `cesium:rasterOverlayBinding`.
