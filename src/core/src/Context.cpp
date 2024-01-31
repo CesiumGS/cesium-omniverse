@@ -12,9 +12,9 @@
 #include "cesium/omniverse/RenderStatistics.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/TilesetStatistics.h"
+#include "cesium/omniverse/UrlAssetAccessor.h"
 #include "cesium/omniverse/UsdNotificationHandler.h"
 #include "cesium/omniverse/UsdUtil.h"
-#include "cesium/omniverse/UrlAssetAccessor.h"
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
@@ -83,7 +83,7 @@ const CesiumAsync::AsyncSystem& Context::getAsyncSystem() const {
     return *_pAsyncSystem.get();
 }
 
-    std::shared_ptr<CesiumAsync::IAssetAccessor> Context::getHttpAssetAccessor() const {
+std::shared_ptr<CesiumAsync::IAssetAccessor> Context::getHttpAssetAccessor() const {
     return _pHttpAssetAccessor;
 }
 
