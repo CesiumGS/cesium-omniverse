@@ -42,13 +42,6 @@ bool OmniPolygonRasterOverlay::getInvertSelection() const {
     return invertSelection;
 }
 
-bool OmniPolygonRasterOverlay::getExcludeSelectedTiles() const {
-    auto cesiumPolygonRasterOverlay = UsdUtil::getCesiumPolygonRasterOverlay(_pContext->getUsdStage(), _path);
-    bool excludeSelectedTiles;
-    cesiumPolygonRasterOverlay.GetExcludeSelectedTilesAttr().Get(&excludeSelectedTiles);
-    return excludeSelectedTiles;
-}
-
 void OmniPolygonRasterOverlay::reload() {
     const auto rasterOverlayName = UsdUtil::getName(_pContext->getUsdStage(), _path);
 
@@ -117,7 +110,10 @@ void OmniPolygonRasterOverlay::reload() {
         return;
     }
 
-    if (getExcludeSelectedTiles()) {
+    auto cesiumPolygonRasterOverlay = UsdUtil::getCesiumPolygonRasterOverlay(_pContext->getUsdStage(), _path);
+    bool excludeSelectedTiles;
+    cesiumPolygonRasterOverlay.GetExcludeSelectedTilesAttr().Get(&excludeSelectedTiles);
+    if (excludeSelectedTiles) {
         _pExcluder = std::make_shared<Cesium3DTilesSelection::RasterizedPolygonsTileExcluder>(_pPolygonRasterOverlay);
         const auto& tilesets = _pContext->getAssetRegistry().getTilesets();
         for (const auto& pTileset : tilesets) {
