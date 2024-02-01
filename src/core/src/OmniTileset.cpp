@@ -24,9 +24,6 @@
 #include "cesium/omniverse/UsdUtil.h"
 #include "cesium/omniverse/Viewport.h"
 
-#include <Cesium3DTilesSelection/ITileExcluder.h>
-#include <Cesium3DTilesSelection/RasterizedPolygonsTileExcluder.h>
-
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
 #undef OPAQUE

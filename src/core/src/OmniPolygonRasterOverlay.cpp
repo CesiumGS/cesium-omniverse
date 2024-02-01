@@ -49,11 +49,6 @@ bool OmniPolygonRasterOverlay::getExcludeSelectedTiles() const {
     return excludeSelectedTiles;
 }
 
-std::shared_ptr<Cesium3DTilesSelection::RasterizedPolygonsTileExcluder>
-OmniPolygonRasterOverlay::getRasterizedPolygonsTileExcluder() {
-    return _pExcluder;
-}
-
 void OmniPolygonRasterOverlay::reload() {
     const auto rasterOverlayName = UsdUtil::getName(_pContext->getUsdStage(), _path);
 

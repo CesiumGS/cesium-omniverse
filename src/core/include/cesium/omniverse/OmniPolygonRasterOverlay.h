@@ -21,8 +21,6 @@ class OmniPolygonRasterOverlay final : public OmniRasterOverlay {
     [[nodiscard]] CesiumRasterOverlays::RasterOverlay* getRasterOverlay() const override;
     [[nodiscard]] bool getInvertSelection() const;
     [[nodiscard]] bool getExcludeSelectedTiles() const;
-    [[nodiscard]] std::shared_ptr<Cesium3DTilesSelection::RasterizedPolygonsTileExcluder>
-    getRasterizedPolygonsTileExcluder();
     void reload() override;
 
   private:
