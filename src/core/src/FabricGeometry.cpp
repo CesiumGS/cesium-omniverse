@@ -24,6 +24,8 @@
 #include <omni/fabric/SimStageWithHistory.h>
 #include <pxr/base/gf/range3d.h>
 
+#include <iostream>
+
 namespace cesium::omniverse {
 
 namespace {
@@ -69,6 +71,7 @@ FabricGeometry::FabricGeometry(
         return;
     }
 
+    std::cout << "Constructing FabricGeometry at " << _path.getText() << std::endl;
     initialize();
     reset();
 }

@@ -42,6 +42,8 @@
 #include <pxr/usd/usdGeom/boundable.h>
 #include <pxr/usd/usdShade/materialBindingAPI.h>
 
+#include <iostream>
+
 namespace cesium::omniverse {
 
 namespace {
@@ -429,6 +431,7 @@ void OmniTileset::updateTilesetOptions() {
 }
 
 void OmniTileset::reload() {
+    std::cout << "tileset reloading" << std::endl;
     destroyNativeTileset();
 
     _pRenderResourcesPreparer = std::make_shared<FabricPrepareRenderResources>(_pContext, this);
@@ -509,6 +512,20 @@ void OmniTileset::reload() {
             }
         }
     }
+
+    const auto& polygonRasterOverlays = _pContext->getAssetRegistry().getPolygonRasterOverlays();
+    for (const auto& pPolygonRasterOverlay : polygonRasterOverlays) {
+        bool exclude = pPolygonRasterOverlay->getExcludeSelectedTiles();
+        if (exclude) {
+            auto excluder = pPolygonRasterOverlay->getExcluder();
+            if (excluder) {
+                _pTileset->getOptions().excluders.push_back(excluder);
+                std::cout << "added excluder to tileset options" << std::endl;
+            }
+        }
+    }
+
+    std::cout << "tileset done reloading" << std::endl;
 }
 
 pxr::SdfPath OmniTileset::getRasterOverlayPath(const CesiumRasterOverlays::RasterOverlay& rasterOverlay) const {

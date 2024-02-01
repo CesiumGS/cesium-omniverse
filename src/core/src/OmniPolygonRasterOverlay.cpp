@@ -15,6 +15,7 @@
 #include <CesiumUsdSchemas/polygonRasterOverlay.h>
 
 #include <memory>
+#include <iostream>
 
 namespace cesium::omniverse {
 
@@ -42,7 +43,23 @@ bool OmniPolygonRasterOverlay::getInvertSelection() const {
     return invertSelection;
 }
 
+bool OmniPolygonRasterOverlay::getExcludeSelectedTiles() const {
+    auto cesiumPolygonRasterOverlay = UsdUtil::getCesiumPolygonRasterOverlay(_pContext->getUsdStage(), _path);
+    bool val;
+    cesiumPolygonRasterOverlay.GetExcludeSelectedTilesAttr().Get(&val);
+    return val;
+}
+
+std::shared_ptr<Cesium3DTilesSelection::RasterizedPolygonsTileExcluder> OmniPolygonRasterOverlay::getExcluder() {
+    return _pExcluder;
+}
+
+CesiumUtility::IntrusivePointer<CesiumRasterOverlays::RasterizedPolygonsOverlay> OmniPolygonRasterOverlay::getIntrusivePointer() {
+    return _pPolygonRasterOverlay;
+}
+
 void OmniPolygonRasterOverlay::reload() {
+    std::cout << "polygon raster overlay reloading" << std::endl;
     const auto rasterOverlayName = UsdUtil::getName(_pContext->getUsdStage(), _path);
 
     const auto cartographicPolygonPaths = getCartographicPolygonPaths();
@@ -58,6 +75,7 @@ void OmniPolygonRasterOverlay::reload() {
             auto it = std::find(excluders.begin(), excluders.end(), _pExcluder);
             if (it != excluders.end()) {
                 excluders.erase(it);
+                std::cout << "erasing excluder" << std::endl;
             }
         }
 
@@ -114,12 +132,20 @@ void OmniPolygonRasterOverlay::reload() {
     bool excludeSelectedTiles;
     cesiumPolygonRasterOverlay.GetExcludeSelectedTilesAttr().Get(&excludeSelectedTiles);
     if (excludeSelectedTiles) {
-        _pExcluder = std::make_shared<Cesium3DTilesSelection::RasterizedPolygonsTileExcluder>(_pPolygonRasterOverlay);
-        const auto& tilesets = _pContext->getAssetRegistry().getTilesets();
-        for (const auto& pTileset : tilesets) {
-            auto& excluders = pTileset->getExcluders();
-            excluders.push_back(_pExcluder);
-        }
+        // _pExcluder = std::make_shared<Cesium3DTilesSelection::RasterizedPolygonsTileExcluder>(_pPolygonRasterOverlay);
+        // CesiumRasterOverlays::RasterizedPolygonsOverlay
+
+        CesiumRasterOverlays::RasterizedPolygonsOverlay* pPolygons =  _pPolygonRasterOverlay.get();
+        // RasterizedPolygonsOverlay* pPolygons = static_cast<RasterizedPolygonsOverlay*>(pOverlay);
+        _pExcluder = std::make_shared<Cesium3DTilesSelection::RasterizedPolygonsTileExcluder>(pPolygons);
+        std::cout << "created excluder" << std::endl;
+
+
+        // const auto& tilesets = _pContext->getAssetRegistry().getTilesets();
+        // for (const auto& pTileset : tilesets) {
+        //     auto& excluders = pTileset->getExcluders();
+        //     excluders.push_back(_pExcluder);
+        // }
     }
 
     const auto projection = CesiumGeospatial::GeographicProjection(*pEllipsoid);
@@ -134,6 +160,8 @@ void OmniPolygonRasterOverlay::reload() {
 
     _pPolygonRasterOverlay = new CesiumRasterOverlays::RasterizedPolygonsOverlay(
         rasterOverlayName, polygons, getInvertSelection(), *pEllipsoid, projection, options);
+
+    std::cout << "polygon raster overlay done reloading" << std::endl;
 }
 
 } // namespace cesium::omniverse
