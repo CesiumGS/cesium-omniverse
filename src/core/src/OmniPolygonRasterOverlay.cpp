@@ -128,26 +128,6 @@ void OmniPolygonRasterOverlay::reload() {
         return;
     }
 
-    auto cesiumPolygonRasterOverlay = UsdUtil::getCesiumPolygonRasterOverlay(_pContext->getUsdStage(), _path);
-    bool excludeSelectedTiles;
-    cesiumPolygonRasterOverlay.GetExcludeSelectedTilesAttr().Get(&excludeSelectedTiles);
-    if (excludeSelectedTiles) {
-        // _pExcluder = std::make_shared<Cesium3DTilesSelection::RasterizedPolygonsTileExcluder>(_pPolygonRasterOverlay);
-        // CesiumRasterOverlays::RasterizedPolygonsOverlay
-
-        CesiumRasterOverlays::RasterizedPolygonsOverlay* pPolygons =  _pPolygonRasterOverlay.get();
-        // RasterizedPolygonsOverlay* pPolygons = static_cast<RasterizedPolygonsOverlay*>(pOverlay);
-        _pExcluder = std::make_shared<Cesium3DTilesSelection::RasterizedPolygonsTileExcluder>(pPolygons);
-        std::cout << "created excluder" << std::endl;
-
-
-        // const auto& tilesets = _pContext->getAssetRegistry().getTilesets();
-        // for (const auto& pTileset : tilesets) {
-        //     auto& excluders = pTileset->getExcluders();
-        //     excluders.push_back(_pExcluder);
-        // }
-    }
-
     const auto projection = CesiumGeospatial::GeographicProjection(*pEllipsoid);
 
     CesiumRasterOverlays::RasterOverlayOptions options;
@@ -160,6 +140,15 @@ void OmniPolygonRasterOverlay::reload() {
 
     _pPolygonRasterOverlay = new CesiumRasterOverlays::RasterizedPolygonsOverlay(
         rasterOverlayName, polygons, getInvertSelection(), *pEllipsoid, projection, options);
+
+    auto cesiumPolygonRasterOverlay = UsdUtil::getCesiumPolygonRasterOverlay(_pContext->getUsdStage(), _path);
+    bool excludeSelectedTiles;
+    cesiumPolygonRasterOverlay.GetExcludeSelectedTilesAttr().Get(&excludeSelectedTiles);
+    if (excludeSelectedTiles) {
+        CesiumRasterOverlays::RasterizedPolygonsOverlay* pPolygons =  _pPolygonRasterOverlay.get();
+        _pExcluder = std::make_shared<Cesium3DTilesSelection::RasterizedPolygonsTileExcluder>(pPolygons);
+        std::cout << "created excluder" << std::endl;
+    }
 
     std::cout << "polygon raster overlay done reloading" << std::endl;
 }
