@@ -24,6 +24,9 @@
 #include "cesium/omniverse/UsdUtil.h"
 #include "cesium/omniverse/Viewport.h"
 
+#include <Cesium3DTilesSelection/ITileExcluder.h>
+#include <Cesium3DTilesSelection/RasterizedPolygonsTileExcluder.h>
+
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
 #undef OPAQUE
@@ -89,6 +92,10 @@ const pxr::SdfPath& OmniTileset::getPath() const {
 
 int64_t OmniTileset::getTilesetId() const {
     return _tilesetId;
+}
+
+std::vector<std::shared_ptr<Cesium3DTilesSelection::ITileExcluder>>& OmniTileset::getExcluders() {
+    return _pTileset->getOptions().excluders;
 }
 
 TilesetStatistics OmniTileset::getStatistics() const {
@@ -458,6 +465,7 @@ void OmniTileset::reload() {
     options.culledScreenSpaceError = getCulledScreenSpaceError();
     options.mainThreadLoadingTimeLimit = getMainThreadLoadingTimeLimit();
     options.showCreditsOnScreen = getShowCreditsOnScreen();
+    options.excluders = std::vector<std::shared_ptr<Cesium3DTilesSelection::ITileExcluder>>();
 
     options.loadErrorCallback =
         [this, tilesetPath, ionAssetId, name](const Cesium3DTilesSelection::TilesetLoadFailureDetails& error) {

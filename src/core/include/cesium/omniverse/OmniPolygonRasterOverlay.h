@@ -21,11 +21,12 @@ class OmniPolygonRasterOverlay final : public OmniRasterOverlay {
     [[nodiscard]] CesiumRasterOverlays::RasterOverlay* getRasterOverlay() const override;
     [[nodiscard]] bool getInvertSelection() const;
     [[nodiscard]] bool getExcludeSelectedTiles() const;
+    [[nodiscard]] std::shared_ptr<Cesium3DTilesSelection::RasterizedPolygonsTileExcluder> getRasterizedPolygonsTileExcluder();
     void reload() override;
 
   private:
     CesiumUtility::IntrusivePointer<CesiumRasterOverlays::RasterizedPolygonsOverlay> _pPolygonRasterOverlay;
-    std::shared_ptr<Cesium3DTilesSelection::RasterizedPolygonsTileExcluder> _rasterizedPolygonsTileExcluder;
+    std::shared_ptr<Cesium3DTilesSelection::RasterizedPolygonsTileExcluder> _pExcluder;
 
 };
 } // namespace cesium::omniverse
