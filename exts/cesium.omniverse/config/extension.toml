@@ -1,5 +1,5 @@
 [package]
-version = "0.16.0"
+version = "0.17.0"
 category = "simulation"
 feature = false
 app = false
@@ -33,7 +33,7 @@ python = false
 
 # Which extensions this extension depends on
 [dependencies]
-"cesium.usd.plugins" = { version = "0.2.0" }
+"cesium.usd.plugins" = { version = "0.3.0" }
 "usdrt.scenegraph" = {}
 "omni.ui" = {}
 "omni.usd" = {}
