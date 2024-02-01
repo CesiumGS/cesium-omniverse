@@ -42,7 +42,6 @@ class Context {
     Context& operator=(Context&&) noexcept = delete;
 
     [[nodiscard]] const std::filesystem::path& getCesiumExtensionLocation() const;
-    [[nodiscard]] const std::filesystem::path& getCertificatePath() const;
     [[nodiscard]] const pxr::TfToken& getCesiumMdlPathToken() const;
 
     [[nodiscard]] std::shared_ptr<TaskProcessor> getTaskProcessor() const;

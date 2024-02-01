@@ -45,9 +45,9 @@ struct CurlCache {
         CacheEntry()
             : curl(nullptr)
             , free(false) {}
-        CacheEntry(CURL* in_curl, bool in_free)
-            : curl(in_curl)
-            , free(in_free) {}
+        CacheEntry(CURL* curl_, bool free_)
+            : curl(curl_)
+            , free(free_) {}
         CURL* curl;
         bool free;
     };
@@ -78,7 +78,7 @@ struct CurlCache {
 };
 
 // Simple implementation of AssetAcessor that can make network and local requests
-class UrlAssetAccessor : public CesiumAsync::IAssetAccessor {
+class UrlAssetAccessor final : public CesiumAsync::IAssetAccessor {
   public:
     UrlAssetAccessor(const std::filesystem::path& certificatePath = {});
     ~UrlAssetAccessor() override;
@@ -96,35 +96,12 @@ class UrlAssetAccessor : public CesiumAsync::IAssetAccessor {
         const gsl::span<const std::byte>& contentPayload) override;
 
     void tick() noexcept override;
-    CurlCache curlCache;
-    std::string userAgent;
-
-  protected:
-    curl_slist* setCommonOptions(CURL* curl, const std::string& url, const CesiumAsync::HttpHeaders& headers);
-    std::string _certificatePath;
-};
-
-// RAII wrapper for the CurlCache.
-
-class CurlHandle {
-  public:
-    CurlHandle(UrlAssetAccessor* in_accessor)
-        : _accessor(in_accessor)
-
-    {
-        _curl = _accessor->curlCache.get();
-    }
-
-    ~CurlHandle() {
-        _accessor->curlCache.release(_curl);
-    }
-
-    CURL* operator()() const {
-        return _curl;
-    }
+    friend class CurlHandle;
 
   private:
-    UrlAssetAccessor* _accessor;
-    CURL* _curl;
+    CurlCache curlCache;
+    std::string userAgent;
+    curl_slist* setCommonOptions(CURL* curl, const std::string& url, const CesiumAsync::HttpHeaders& headers);
+    std::string _certificatePath;
 };
 } // namespace cesium::omniverse

@@ -13,7 +13,7 @@
 namespace cesium::omniverse {
 const auto CURL_BUFFERSIZE = 3145728L; // 3 MiB
 
-class UrlAssetResponse : public CesiumAsync::IAssetResponse {
+class UrlAssetResponse final : public CesiumAsync::IAssetResponse {
   public:
     uint16_t statusCode() const override {
         return _statusCode;
@@ -40,7 +40,7 @@ class UrlAssetResponse : public CesiumAsync::IAssetResponse {
     std::vector<std::byte> _result;
 };
 
-class UrlAssetRequest : public CesiumAsync::IAssetRequest {
+class UrlAssetRequest final : public CesiumAsync::IAssetRequest {
   public:
     UrlAssetRequest(std::string method, std::string url, CesiumAsync::HttpHeaders headers)
         : _method(std::move(method))
@@ -67,11 +67,11 @@ class UrlAssetRequest : public CesiumAsync::IAssetRequest {
     }
 
     const std::string& method() const override {
-        return this->_method;
+        return _method;
     }
 
     const std::string& url() const override {
-        return this->_url;
+        return _url;
     }
 
     const CesiumAsync::HttpHeaders& headers() const override {
@@ -79,7 +79,7 @@ class UrlAssetRequest : public CesiumAsync::IAssetRequest {
     }
 
     const CesiumAsync::IAssetResponse* response() const override {
-        return this->_response.get();
+        return _response.get();
     }
 
     void setResponse(std::unique_ptr<UrlAssetResponse> response) {
@@ -180,6 +180,29 @@ UrlAssetAccessor::setCommonOptions(CURL* curl, const std::string& url, const Ces
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
     return list;
 }
+
+// RAII wrapper for the CurlCache.
+class CurlHandle {
+  public:
+    CurlHandle(UrlAssetAccessor* accessor_)
+        : _accessor(accessor_)
+
+    {
+        _curl = _accessor->curlCache.get();
+    }
+
+    ~CurlHandle() {
+        _accessor->curlCache.release(_curl);
+    }
+
+    CURL* operator()() const {
+        return _curl;
+    }
+
+  private:
+    UrlAssetAccessor* _accessor;
+    CURL* _curl;
+};
 
 CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> UrlAssetAccessor::get(
     const CesiumAsync::AsyncSystem& asyncSystem,
