@@ -7,8 +7,8 @@
 #include "cesium/omniverse/OmniCartographicPolygon.h"
 #include "cesium/omniverse/OmniGeoreference.h"
 #include "cesium/omniverse/OmniGlobeAnchor.h"
-#include "cesium/omniverse/UsdUtil.h"
 #include "cesium/omniverse/OmniTileset.h"
+#include "cesium/omniverse/UsdUtil.h"
 
 #include <CesiumGeospatial/Ellipsoid.h>
 #include <CesiumRasterOverlays/RasterizedPolygonsOverlay.h>
@@ -49,7 +49,8 @@ bool OmniPolygonRasterOverlay::getExcludeSelectedTiles() const {
     return excludeSelectedTiles;
 }
 
-std::shared_ptr<Cesium3DTilesSelection::RasterizedPolygonsTileExcluder> OmniPolygonRasterOverlay::getRasterizedPolygonsTileExcluder() {
+std::shared_ptr<Cesium3DTilesSelection::RasterizedPolygonsTileExcluder>
+OmniPolygonRasterOverlay::getRasterizedPolygonsTileExcluder() {
     return _pExcluder;
 }
 
@@ -122,13 +123,12 @@ void OmniPolygonRasterOverlay::reload() {
     }
 
     if (getExcludeSelectedTiles()) {
-        _pExcluder =
-            std::make_shared<Cesium3DTilesSelection::RasterizedPolygonsTileExcluder>(_pPolygonRasterOverlay);
-            const auto& tilesets = _pContext->getAssetRegistry().getTilesets();
-            for (const auto& pTileset : tilesets) {
-                auto& excluders = pTileset->getExcluders();
-                excluders.push_back(_pExcluder);
-            }
+        _pExcluder = std::make_shared<Cesium3DTilesSelection::RasterizedPolygonsTileExcluder>(_pPolygonRasterOverlay);
+        const auto& tilesets = _pContext->getAssetRegistry().getTilesets();
+        for (const auto& pTileset : tilesets) {
+            auto& excluders = pTileset->getExcluders();
+            excluders.push_back(_pExcluder);
+        }
     }
 
     const auto projection = CesiumGeospatial::GeographicProjection(*pEllipsoid);

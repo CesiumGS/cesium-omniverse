@@ -2,13 +2,13 @@
 
 #include "cesium/omniverse/OmniTileset.h"
 
+#include <Cesium3DTilesSelection/ITileExcluder.h>
 #include <glm/glm.hpp>
 #include <pxr/usd/sdf/path.h>
 
 #include <optional>
 
 #include <gsl/span>
-#include <Cesium3DTilesSelection/ITileExcluder.h>
 
 namespace Cesium3DTilesSelection {
 class Tileset;
