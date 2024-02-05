@@ -4,7 +4,6 @@
 
 #include <Cesium3DTilesSelection/RasterizedPolygonsTileExcluder.h>
 #include <CesiumRasterOverlays/RasterizedPolygonsOverlay.h>
-#include <CesiumUtility/IntrusivePointer.h>
 
 namespace cesium::omniverse {
 
@@ -22,7 +21,6 @@ class OmniPolygonRasterOverlay final : public OmniRasterOverlay {
     [[nodiscard]] bool getInvertSelection() const;
     [[nodiscard]] bool getExcludeSelectedTiles() const;
     [[nodiscard]] std::shared_ptr<Cesium3DTilesSelection::RasterizedPolygonsTileExcluder> getExcluder();
-    [[nodiscard]] CesiumUtility::IntrusivePointer<CesiumRasterOverlays::RasterizedPolygonsOverlay> getIntrusivePointer();
     void reload() override;
 
   private:

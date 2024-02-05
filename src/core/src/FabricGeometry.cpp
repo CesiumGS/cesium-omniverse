@@ -71,7 +71,6 @@ FabricGeometry::FabricGeometry(
         return;
     }
 
-    std::cout << "Constructing FabricGeometry at " << _path.getText() << std::endl;
     initialize();
     reset();
 }

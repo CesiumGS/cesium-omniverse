@@ -520,12 +520,10 @@ void OmniTileset::reload() {
             auto excluder = pPolygonRasterOverlay->getExcluder();
             if (excluder) {
                 _pTileset->getOptions().excluders.push_back(excluder);
-                std::cout << "added excluder to tileset options" << std::endl;
             }
         }
     }
 
-    std::cout << "tileset done reloading" << std::endl;
 }
 
 pxr::SdfPath OmniTileset::getRasterOverlayPath(const CesiumRasterOverlays::RasterOverlay& rasterOverlay) const {
