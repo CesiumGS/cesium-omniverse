@@ -166,7 +166,8 @@ glm::dmat4 computePrimWorldToLocalTransform(const pxr::UsdStageWeakPtr& pStage, 
 
 glm::dmat4 computeEcefToStageTransform(const Context& context, const pxr::SdfPath& georeferencePath) {
     const auto disableGeoreferencing = getDebugDisableGeoreferencing(context);
-    const auto pGeoreference = context.getAssetRegistry().getGeoreference(georeferencePath);
+    const auto pGeoreference =
+        georeferencePath.IsEmpty() ? nullptr : context.getAssetRegistry().getGeoreference(georeferencePath);
 
     if (disableGeoreferencing || !pGeoreference) {
         const auto zUp = getUsdUpAxis(context.getUsdStage()) == pxr::UsdGeomTokens->z;
