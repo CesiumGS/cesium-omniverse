@@ -121,7 +121,7 @@ void OmniPolygonRasterOverlay::reload() {
     bool excludeSelectedTiles;
     cesiumPolygonRasterOverlay.GetExcludeSelectedTilesAttr().Get(&excludeSelectedTiles);
     if (excludeSelectedTiles) {
-        CesiumRasterOverlays::RasterizedPolygonsOverlay* pPolygons = _pPolygonRasterOverlay.get();
+        auto pPolygons = _pPolygonRasterOverlay.get();
         _pExcluder = std::make_shared<Cesium3DTilesSelection::RasterizedPolygonsTileExcluder>(pPolygons);
     }
 }

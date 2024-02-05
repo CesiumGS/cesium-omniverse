@@ -2,7 +2,6 @@
 
 #include "cesium/omniverse/OmniTileset.h"
 
-#include <Cesium3DTilesSelection/ITileExcluder.h>
 #include <glm/glm.hpp>
 #include <pxr/usd/sdf/path.h>
 
