@@ -24,8 +24,6 @@
 #include <omni/fabric/SimStageWithHistory.h>
 #include <pxr/base/gf/range3d.h>
 
-#include <iostream>
-
 namespace cesium::omniverse {
 
 namespace {

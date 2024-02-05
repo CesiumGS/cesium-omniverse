@@ -24,8 +24,6 @@
 #include "cesium/omniverse/UsdUtil.h"
 #include "cesium/omniverse/Viewport.h"
 
-#include <Cesium3DTilesSelection/RasterOverlayCollection.h>
-
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
 #undef OPAQUE
@@ -43,8 +41,6 @@
 #include <pxr/usd/usd/stage.h>
 #include <pxr/usd/usdGeom/boundable.h>
 #include <pxr/usd/usdShade/materialBindingAPI.h>
-
-#include <iostream>
 
 namespace cesium::omniverse {
 
@@ -429,7 +425,6 @@ void OmniTileset::updateTilesetOptions() {
 }
 
 void OmniTileset::reload() {
-    std::cout << "tileset reloading" << std::endl;
     destroyNativeTileset();
 
     _pRenderResourcesPreparer = std::make_shared<FabricPrepareRenderResources>(_pContext, this);
