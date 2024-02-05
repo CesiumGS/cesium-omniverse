@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -14,5 +15,7 @@ std::vector<AccessToken> getAccessTokens();
 void setAccessToken(const AccessToken& accessToken);
 void removeAccessToken(const std::string& ionApiUrl);
 void clearTokens();
+
+uint64_t getMaxCacheItems();
 
 } // namespace cesium::omniverse::Settings

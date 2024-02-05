@@ -10,6 +10,7 @@
 #include "cesium/omniverse/OmniIonRasterOverlay.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/RenderStatistics.h"
+#include "cesium/omniverse/SettingsWrapper.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/TilesetStatistics.h"
 #include "cesium/omniverse/UrlAssetAccessor.h"
@@ -80,11 +81,14 @@ std::string getCacheDatabaseName() {
 }
 
 std::shared_ptr<CesiumAsync::ICacheDatabase>& getCacheDatabase(const std::shared_ptr<Logger>& logger) {
-    // XXX Get max items from UI
-    const int MaxCacheItems = 4096;
+    // lambda is used here so that real code can be run when the static is initialized.
     static auto pCacheDatabase = [&]() -> std::shared_ptr<CesiumAsync::ICacheDatabase> {
-        if (auto dbName = getCacheDatabaseName(); !dbName.empty()) {
-            return std::make_shared<CesiumAsync::SqliteCache>(logger, getCacheDatabaseName(), MaxCacheItems);
+        uint64_t maxCacheItems = Settings::getMaxCacheItems();
+        if (maxCacheItems == 0) {
+            logger->oneTimeWarning("maxCacheItems set to 0, so disabling accessor cache");
+            return {};
+        } else if (auto dbName = getCacheDatabaseName(); !dbName.empty()) {
+            return std::make_shared<CesiumAsync::SqliteCache>(logger, getCacheDatabaseName(), maxCacheItems);
         }
         logger->oneTimeWarning("could not get name for cache database");
         return {};
