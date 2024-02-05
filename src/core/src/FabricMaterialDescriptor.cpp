@@ -30,8 +30,11 @@ FabricMaterialDescriptor::FabricMaterialDescriptor(
     , _featureIdTypes(FabricFeaturesUtil::getFeatureIdTypes(featuresInfo))
     , _rasterOverlayRenderMethods(rasterOverlaysInfo.overlayRenderMethods)
     , _tilesetMaterialPath(tilesetMaterialPath) {
-    std::tie(_styleableProperties, _unsupportedPropertyWarnings) =
-        MetadataUtil::getStyleableProperties(context, model, primitive);
+    // Ignore styleable properties unless the tileset has a material
+    if (!_tilesetMaterialPath.IsEmpty()) {
+        std::tie(_styleableProperties, _unsupportedPropertyWarnings) =
+            MetadataUtil::getStyleableProperties(context, model, primitive);
+    }
 }
 
 bool FabricMaterialDescriptor::hasVertexColors() const {
