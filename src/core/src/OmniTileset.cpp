@@ -93,10 +93,6 @@ int64_t OmniTileset::getTilesetId() const {
     return _tilesetId;
 }
 
-std::vector<std::shared_ptr<Cesium3DTilesSelection::ITileExcluder>>& OmniTileset::getExcluders() {
-    return _pTileset->getOptions().excluders;
-}
-
 TilesetStatistics OmniTileset::getStatistics() const {
     TilesetStatistics statistics;
 

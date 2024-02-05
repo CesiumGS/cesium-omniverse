@@ -79,7 +79,6 @@ class OmniTileset {
     [[nodiscard]] glm::dvec3 getDisplayColor() const;
     [[nodiscard]] double getDisplayOpacity() const;
     [[nodiscard]] std::vector<pxr::SdfPath> getRasterOverlayPaths() const;
-    [[nodiscard]] std::vector<std::shared_ptr<Cesium3DTilesSelection::ITileExcluder>>& getExcluders();
 
     void updateTilesetOptions();
 

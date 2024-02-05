@@ -4,6 +4,7 @@
 
 #include <Cesium3DTilesSelection/RasterizedPolygonsTileExcluder.h>
 #include <CesiumRasterOverlays/RasterizedPolygonsOverlay.h>
+#include <CesiumUtility/IntrusivePointer.h>
 
 namespace cesium::omniverse {
 
