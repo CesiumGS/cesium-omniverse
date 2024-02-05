@@ -22,6 +22,8 @@
 #endif
 
 #include <Cesium3DTilesContent/registerAllTileContentTypes.h>
+#include <CesiumAsync/CachingAssetAccessor.h>
+#include <CesiumAsync/SqliteCache.h>
 #include <CesiumUtility/CreditSystem.h>
 #include <omni/fabric/SimStageWithHistory.h>
 #include <pxr/usd/sdf/path.h>
@@ -31,21 +33,85 @@
 #include <chrono>
 #endif
 
+#include <cstdlib>
+
+#if defined(__linux__)
+#include <pwd.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#include <cerrno>
+#endif
+
 namespace cesium::omniverse {
+
+namespace {
+// Quite a lot of ceremony to get the home directory
+std::string getCacheDatabaseName() {
+    std::string homeDir;
+#if defined(__linux__)
+    if (char* cString = std::getenv("HOME")) {
+        homeDir = cString;
+    } else {
+        passwd pwd;
+        long bufsize = sysconf(_SC_GETPW_R_SIZE_MAX);
+        if (bufsize == -1) {
+            bufsize = 16384;
+        }
+        char* buf = new char[static_cast<size_t>(bufsize)];
+        passwd* result = nullptr;
+        int getResult = getpwuid_r(getuid(), &pwd, buf, static_cast<size_t>(bufsize), &result);
+        if (getResult == 0) {
+            homeDir = pwd.pw_dir;
+        }
+        delete[] buf;
+    }
+#elif defined(_WIN32)
+    if (char* cString = getenv("USERPROFILE")) {
+        homeDir = cString;
+    }
+#endif
+    if (!homeDir.empty()) {
+        std::filesystem::path homeDirPath(homeDir);
+        auto cacheFilePath = homeDirPath / ".nvidia-omniverse" / "cesium-request-cache.sqlite";
+        return cacheFilePath.generic_string();
+    }
+    return {};
+}
+
+std::shared_ptr<CesiumAsync::ICacheDatabase>& getCacheDatabase(const std::shared_ptr<Logger>& logger) {
+    // XXX Get max items from UI
+    const int MaxCacheItems = 4096;
+    static auto pCacheDatabase = [&]() -> std::shared_ptr<CesiumAsync::ICacheDatabase> {
+        if (auto dbName = getCacheDatabaseName(); !dbName.empty()) {
+            return std::make_shared<CesiumAsync::SqliteCache>(logger, getCacheDatabaseName(), MaxCacheItems);
+        }
+        logger->oneTimeWarning("could not get name for cache database");
+        return {};
+    }();
+    return pCacheDatabase;
+}
+} // namespace
 
 Context::Context(const std::filesystem::path& cesiumExtensionLocation)
     : _cesiumExtensionLocation(cesiumExtensionLocation.lexically_normal())
     , _cesiumMdlPathToken(pxr::TfToken((_cesiumExtensionLocation / "mdl" / "cesium.mdl").generic_string()))
     , _pTaskProcessor(std::make_shared<TaskProcessor>())
     , _pAsyncSystem(std::make_unique<CesiumAsync::AsyncSystem>(_pTaskProcessor))
-    , _pAssetAccessor(std::make_shared<UrlAssetAccessor>())
     , _pCreditSystem(std::make_shared<CesiumUtility::CreditSystem>())
     , _pLogger(std::make_shared<Logger>())
     , _pAssetRegistry(std::make_unique<AssetRegistry>(this))
     , _pFabricResourceManager(std::make_unique<FabricResourceManager>(this))
     , _pCesiumIonServerManager(std::make_unique<CesiumIonServerManager>(this))
     , _pUsdNotificationHandler(std::make_unique<UsdNotificationHandler>(this)) {
+    auto database = getCacheDatabase(_pLogger);
+    if (database) {
+        _pAssetAccessor = std::make_shared<CesiumAsync::CachingAssetAccessor>(
+            _pLogger, std::make_shared<UrlAssetAccessor>(), database);
 
+    } else {
+        _pAssetAccessor = std::make_shared<UrlAssetAccessor>();
+    }
     Cesium3DTilesContent::registerAllTileContentTypes();
 
 #if CESIUM_TRACING_ENABLED
