@@ -24,6 +24,8 @@
 #include "cesium/omniverse/UsdUtil.h"
 #include "cesium/omniverse/Viewport.h"
 
+#include <Cesium3DTilesSelection/RasterOverlayCollection.h>
+
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
 #undef OPAQUE
@@ -509,17 +511,29 @@ void OmniTileset::reload() {
         }
     }
 
-    const auto& polygonRasterOverlays = _pContext->getAssetRegistry().getPolygonRasterOverlays();
-    for (const auto& pPolygonRasterOverlay : polygonRasterOverlays) {
-        bool exclude = pPolygonRasterOverlay->getExcludeSelectedTiles();
+    const auto& allOmniPolygonRasterOverlays = _pContext->getAssetRegistry().getPolygonRasterOverlays();
+    const auto& boundNativeRasterOverlays =
+        _pTileset->getOverlays().getOverlays(); // get RasterOverlays from RasterOverlayCollection
+    for (const auto& pOmniPolygonRasterOverlay : allOmniPolygonRasterOverlays) {
+        const auto& pNativeOverlay = pOmniPolygonRasterOverlay->getRasterOverlay();
+
+        auto matchIterator = std::find_if(
+            boundNativeRasterOverlays.begin(),
+            boundNativeRasterOverlays.end(),
+            [&pNativeOverlay](const auto& possibleMatch) { return possibleMatch.get() == pNativeOverlay; });
+
+        if (matchIterator == boundNativeRasterOverlays.end()) {
+            continue;
+        }
+
+        const auto exclude = pOmniPolygonRasterOverlay->getExcludeSelectedTiles();
         if (exclude) {
-            auto excluder = pPolygonRasterOverlay->getExcluder();
+            const auto excluder = pOmniPolygonRasterOverlay->getExcluder();
             if (excluder) {
                 _pTileset->getOptions().excluders.push_back(excluder);
             }
         }
     }
-
 }
 
 pxr::SdfPath OmniTileset::getRasterOverlayPath(const CesiumRasterOverlays::RasterOverlay& rasterOverlay) const {
