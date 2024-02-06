@@ -88,6 +88,8 @@ void updateCartographicPolygonBindings(const Context& context, const pxr::SdfPat
 }
 
 void updateGlobeAnchorBindings(const Context& context, const pxr::SdfPath& globeAnchorPath) {
+    // Don't need to update tilesets. Globe anchor changes are handled automatically in the update loop.
+
     if (context.getAssetRegistry().getCartographicPolygon(globeAnchorPath)) {
         // Update cartographic polygon that this globe anchor is attached to
         updateCartographicPolygonBindings(context, globeAnchorPath);
@@ -152,6 +154,80 @@ bool isFirstData(const Context& context, const pxr::SdfPath& dataPath) {
     return reloadStage;
 }
 
+void processCesiumGlobeAnchorChanged(
+    const Context& context,
+    const pxr::SdfPath& globeAnchorPath,
+    const std::vector<pxr::TfToken>& properties) {
+    const auto pGlobeAnchor = context.getAssetRegistry().getGlobeAnchor(globeAnchorPath);
+    if (!pGlobeAnchor) {
+        return;
+    }
+
+    // No change tracking needed for
+    // * adjustOrientation
+
+    auto updateByGeoreference = false;
+    auto updateByPrimLocalTransform = false;
+    auto updateByGeographicCoordinates = false;
+    auto updateByEcefPosition = false;
+    auto updateBindings = false;
+    auto resetOrientation = false;
+
+    const auto detectTransformChanges = pGlobeAnchor->getDetectTransformChanges();
+
+    // clang-format off
+    for (const auto& property : properties) {
+        if (detectTransformChanges &&
+            (property == pxr::UsdTokens->xformOp_translate ||
+             property == pxr::UsdTokens->xformOp_rotateXYZ ||
+             property == pxr::UsdTokens->xformOp_rotateXZY ||
+             property == pxr::UsdTokens->xformOp_rotateYXZ ||
+             property == pxr::UsdTokens->xformOp_rotateYZX ||
+             property == pxr::UsdTokens->xformOp_rotateZXY ||
+             property == pxr::UsdTokens->xformOp_rotateZYX ||
+             property == pxr::UsdTokens->xformOp_scale)) {
+            updateByPrimLocalTransform = true;
+            updateBindings = true;
+        } else if (property == pxr::CesiumTokens->cesiumAnchorLongitude ||
+            property == pxr::CesiumTokens->cesiumAnchorLatitude ||
+            property == pxr::CesiumTokens->cesiumAnchorHeight) {
+            updateByGeographicCoordinates = true;
+            updateBindings = true;
+        } else if (property == pxr::CesiumTokens->cesiumAnchorPosition) {
+            updateByEcefPosition = true;
+            updateBindings = true;
+        } else if (property == pxr::CesiumTokens->cesiumAnchorGeoreferenceBinding) {
+            updateByGeoreference = true;
+            updateBindings = true;
+        } else if (detectTransformChanges && property == pxr::CesiumTokens->cesiumAnchorDetectTransformChanges) {
+            updateByPrimLocalTransform = true;
+            updateBindings = true;
+            resetOrientation = true;
+        }
+    }
+    // clang-format on
+
+    if (updateByGeoreference) {
+        pGlobeAnchor->updateByGeoreference();
+    }
+
+    if (updateByEcefPosition) {
+        pGlobeAnchor->updateByEcefPosition();
+    }
+
+    if (updateByGeographicCoordinates) {
+        pGlobeAnchor->updateByGeographicCoordinates();
+    }
+
+    if (updateByPrimLocalTransform) {
+        pGlobeAnchor->updateByPrimLocalTransform(resetOrientation);
+    }
+
+    if (updateBindings) {
+        updateGlobeAnchorBindings(context, globeAnchorPath);
+    }
+}
+
 void processCesiumTilesetChanged(
     const Context& context,
     const pxr::SdfPath& tilesetPath,
@@ -160,6 +236,9 @@ void processCesiumTilesetChanged(
     if (!pTileset) {
         return;
     }
+
+    // Process globe anchor API schema first
+    processCesiumGlobeAnchorChanged(context, tilesetPath, properties);
 
     auto reload = false;
     auto updateTilesetOptions = false;
@@ -337,80 +416,6 @@ void processCesiumGeoreferenceChanged(const Context& context, const std::vector<
     }
 }
 
-void processCesiumGlobeAnchorChanged(
-    const Context& context,
-    const pxr::SdfPath& globeAnchorPath,
-    const std::vector<pxr::TfToken>& properties) {
-    const auto pGlobeAnchor = context.getAssetRegistry().getGlobeAnchor(globeAnchorPath);
-    if (!pGlobeAnchor) {
-        return;
-    }
-
-    // No change tracking needed for
-    // * adjustOrientation
-
-    auto updateByGeoreference = false;
-    auto updateByPrimLocalTransform = false;
-    auto updateByGeographicCoordinates = false;
-    auto updateByEcefPosition = false;
-    auto updateBindings = false;
-    auto resetOrientation = false;
-
-    const auto detectTransformChanges = pGlobeAnchor->getDetectTransformChanges();
-
-    // clang-format off
-    for (const auto& property : properties) {
-        if (detectTransformChanges &&
-            (property == pxr::UsdTokens->xformOp_translate ||
-             property == pxr::UsdTokens->xformOp_rotateXYZ ||
-             property == pxr::UsdTokens->xformOp_rotateXZY ||
-             property == pxr::UsdTokens->xformOp_rotateYXZ ||
-             property == pxr::UsdTokens->xformOp_rotateYZX ||
-             property == pxr::UsdTokens->xformOp_rotateZXY ||
-             property == pxr::UsdTokens->xformOp_rotateZYX ||
-             property == pxr::UsdTokens->xformOp_scale)) {
-            updateByPrimLocalTransform = true;
-            updateBindings = true;
-        } else if (property == pxr::CesiumTokens->cesiumAnchorLongitude ||
-            property == pxr::CesiumTokens->cesiumAnchorLatitude ||
-            property == pxr::CesiumTokens->cesiumAnchorHeight) {
-            updateByGeographicCoordinates = true;
-            updateBindings = true;
-        } else if (property == pxr::CesiumTokens->cesiumAnchorPosition) {
-            updateByEcefPosition = true;
-            updateBindings = true;
-        } else if (property == pxr::CesiumTokens->cesiumAnchorGeoreferenceBinding) {
-            updateByGeoreference = true;
-            updateBindings = true;
-        } else if (detectTransformChanges && property == pxr::CesiumTokens->cesiumAnchorDetectTransformChanges) {
-            updateByPrimLocalTransform = true;
-            updateBindings = true;
-            resetOrientation = true;
-        }
-    }
-    // clang-format on
-
-    if (updateByGeoreference) {
-        pGlobeAnchor->updateByGeoreference();
-    }
-
-    if (updateByEcefPosition) {
-        pGlobeAnchor->updateByEcefPosition();
-    }
-
-    if (updateByGeographicCoordinates) {
-        pGlobeAnchor->updateByGeographicCoordinates();
-    }
-
-    if (updateByPrimLocalTransform) {
-        pGlobeAnchor->updateByPrimLocalTransform(resetOrientation);
-    }
-
-    if (updateBindings) {
-        updateGlobeAnchorBindings(context, globeAnchorPath);
-    }
-}
-
 void processCesiumIonServerChanged(
     Context& context,
     const pxr::SdfPath& ionServerPath,
@@ -568,41 +573,80 @@ void processCesiumCartographicPolygonRemoved(Context& context, const pxr::SdfPat
 }
 
 [[nodiscard]] bool processCesiumDataAdded(Context& context, const pxr::SdfPath& dataPath) {
+    if (context.getAssetRegistry().getData(dataPath)) {
+        return false;
+    }
+
     context.getAssetRegistry().addData(dataPath);
     return isFirstData(context, dataPath);
 }
 
+void processCesiumGlobeAnchorAdded(Context& context, const pxr::SdfPath& globeAnchorPath) {
+    if (context.getAssetRegistry().getGlobeAnchor(globeAnchorPath)) {
+        return;
+    }
+
+    context.getAssetRegistry().addGlobeAnchor(globeAnchorPath);
+    updateGlobeAnchorBindings(context, globeAnchorPath);
+}
+
 void processCesiumTilesetAdded(Context& context, const pxr::SdfPath& tilesetPath) {
+    if (UsdUtil::hasCesiumGlobeAnchor(context.getUsdStage(), tilesetPath)) {
+        processCesiumGlobeAnchorAdded(context, tilesetPath);
+    }
+
+    if (context.getAssetRegistry().getTileset(tilesetPath)) {
+        return;
+    }
+
     context.getAssetRegistry().addTileset(tilesetPath);
 }
 
 void processCesiumIonRasterOverlayAdded(Context& context, const pxr::SdfPath& ionRasterOverlayPath) {
+    if (context.getAssetRegistry().getIonRasterOverlay(ionRasterOverlayPath)) {
+        return;
+    }
+
     context.getAssetRegistry().addIonRasterOverlay(ionRasterOverlayPath);
     updateRasterOverlayBindings(context, ionRasterOverlayPath);
 }
 
 void processCesiumPolygonRasterOverlayAdded(Context& context, const pxr::SdfPath& polygonRasterOverlayPath) {
+    if (context.getAssetRegistry().getPolygonRasterOverlay(polygonRasterOverlayPath)) {
+        return;
+    }
+
     context.getAssetRegistry().addPolygonRasterOverlay(polygonRasterOverlayPath);
     updateRasterOverlayBindings(context, polygonRasterOverlayPath);
 }
 
 void processCesiumGeoreferenceAdded(Context& context, const pxr::SdfPath& georeferencePath) {
+    if (context.getAssetRegistry().getGeoreference(georeferencePath)) {
+        return;
+    }
+
     context.getAssetRegistry().addGeoreference(georeferencePath);
     updateGeoreferenceBindings(context);
 }
 
-void processCesiumGlobeAnchorAdded(Context& context, const pxr::SdfPath& globeAnchorPath) {
-    context.getAssetRegistry().addGlobeAnchor(globeAnchorPath);
-    updateGlobeAnchorBindings(context, globeAnchorPath);
-}
-
 void processCesiumIonServerAdded(Context& context, const pxr::SdfPath& ionServerPath) {
+    if (context.getAssetRegistry().getIonServer(ionServerPath)) {
+        return;
+    }
+
     context.getAssetRegistry().addIonServer(ionServerPath);
     updateIonServerBindings(context);
 }
 
 void processCesiumCartographicPolygonAdded(Context& context, const pxr::SdfPath& cartographicPolygonPath) {
-    processCesiumGlobeAnchorAdded(context, cartographicPolygonPath);
+    if (UsdUtil::hasCesiumGlobeAnchor(context.getUsdStage(), cartographicPolygonPath)) {
+        processCesiumGlobeAnchorAdded(context, cartographicPolygonPath);
+    }
+
+    if (context.getAssetRegistry().getCartographicPolygon(cartographicPolygonPath)) {
+        return;
+    }
+
     context.getAssetRegistry().addCartographicPolygon(cartographicPolygonPath);
     updateCartographicPolygonBindings(context, cartographicPolygonPath);
 }
@@ -789,18 +833,6 @@ bool UsdNotificationHandler::processChangedPrim(const ChangedPrim& changedPrim) 
     return reloadStage;
 }
 
-bool UsdNotificationHandler::alreadyRegistered(const pxr::SdfPath& path) {
-    const auto alreadyAdded = [&path](const auto& changedPrim) {
-        return changedPrim.primPath == path && changedPrim.changedType == ChangedType::PRIM_ADDED;
-    };
-
-    if (CppUtil::containsIf(_changedPrims, alreadyAdded)) {
-        return true;
-    }
-
-    return _pContext->getAssetRegistry().hasAsset(path);
-}
-
 void UsdNotificationHandler::onObjectsChanged(const pxr::UsdNotice::ObjectsChanged& objectsChanged) {
     if (!_pContext->hasUsdStage()) {
         return;
@@ -810,14 +842,10 @@ void UsdNotificationHandler::onObjectsChanged(const pxr::UsdNotice::ObjectsChang
     for (const auto& path : resyncedPaths) {
         if (path.IsPrimPath()) {
             if (UsdUtil::primExists(_pContext->getUsdStage(), path)) {
-                if (alreadyRegistered(path)) {
-                    // A prim may be resynced even if its path doesn't change, like when an API schema is applied to
-                    // it, e.g. when a material is assigned to a tileset for the first time. Do nothing for now. In the
-                    // future if we support attaching globe anchors to tilesets this will have to change so that the
-                    // notification doesn't get lost.
-                    continue;
-                }
-
+                // A prim is resynced when it is added to the stage or when an API schema is applied to it, e.g. when
+                // a material or globe anchor is assigned to a tileset for the first time. We let onPrimAdded get
+                // called potentially multiple times so that API schemas can be registered. There are checks later
+                // that prevent the prim from being added to the asset registry twice.
                 onPrimAdded(path);
             } else {
                 onPrimRemoved(path);
@@ -919,7 +947,7 @@ void UsdNotificationHandler::onPrimRemoved(const pxr::SdfPath& primPath) {
         const auto globeAnchorPath = pGlobeAnchor->getPath();
         const auto type = getTypeFromAssetRegistry(globeAnchorPath);
         if (type == ChangedPrimType::CESIUM_GLOBE_ANCHOR) {
-            // Make sure it's not one of the types previously handled (e.g. cartographic polygon)
+            // Make sure it's not one of the types previously handled (e.g. cartographic polygon or tileset)
             if (isPrimOrDescendant(globeAnchorPath, primPath)) {
                 insertRemovedPrim(globeAnchorPath, ChangedPrimType::CESIUM_GLOBE_ANCHOR);
             }

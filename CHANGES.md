@@ -1,5 +1,11 @@
 # Change Log
 
+### v0.18.0 - 2024-03-01
+
+* Added support for globe anchors on non-georeferenced tilesets.
+* Fixed zooming to tileset extents when tileset prims have non identity transformation.
+* Fixed crash when updating tilesets shader inputs.
+
 ### v0.17.0 - 2024-02-01
 
 * **Breaking changes for globe anchors:**
