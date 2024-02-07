@@ -744,7 +744,8 @@ std::vector<omni::fabric::Path> copyMaterial(
         if (srcPath == materialSourcePath) {
             dstPath = dstMaterialPath;
         } else {
-            dstPath = FabricUtil::getCopiedShaderPath(dstMaterialPath, srcPath);
+            const auto name = omni::fabric::Token(std::strrchr(srcPath.getText(), '/') + 1);
+            dstPath = FabricUtil::getCopiedShaderPath(dstMaterialPath, srcMaterialPath.appendChild(name));
         }
 
         dstPaths.push_back(dstPath);
