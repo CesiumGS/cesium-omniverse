@@ -4,13 +4,14 @@ from omni.kit.property.usd.usd_property_widget import SchemaPropertiesWidget
 from cesium.usd.plugins.CesiumUsdSchemas import (
     WebMapServiceRasterOverlay as CesiumWebMapServiceRasterOverlay,
 )
-from pxr import UsdGeom
 from .custom_attribute_widgets import build_slider
 
 
 class CesiumWebMapServiceRasterOverlayAttributesWidget(SchemaPropertiesWidget):
     def __init__(self):
-        super().__init__("Cesium Web Map Service Raster Overlay Settings", CesiumWebMapServiceRasterOverlay, include_inherited=True)
+        super().__init__(
+            "Cesium Web Map Service Raster Overlay Settings", CesiumWebMapServiceRasterOverlay, include_inherited=True
+        )
 
         self._logger = logging.getLogger(__name__)
 
