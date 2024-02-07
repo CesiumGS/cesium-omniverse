@@ -9,6 +9,7 @@ def _build_slider(
     metadata,
     property_type,
     prim_paths: List[Sdf.Path],
+    type="float",
     additional_label_kwargs={},
     additional_widget_kwargs={},
 ):
@@ -35,9 +36,14 @@ def _build_slider(
         if additional_widget_kwargs:
             widget_kwargs.update(additional_widget_kwargs)
         with ui.ZStack():
-            value_widget = UsdPropertiesWidgetBuilder.create_drag_or_slider(
-                ui.FloatDrag, ui.FloatSlider, **widget_kwargs
-            )
+            if type == "float":
+                value_widget = UsdPropertiesWidgetBuilder.create_drag_or_slider(
+                    ui.FloatDrag, ui.FloatSlider, **widget_kwargs
+                )
+            else:
+                value_widget = UsdPropertiesWidgetBuilder.create_drag_or_slider(
+                    ui.IntDrag, ui.IntSlider, **widget_kwargs
+                )
             mixed_overlay = UsdPropertiesWidgetBuilder.create_mixed_text_overlay()
         UsdPropertiesWidgetBuilder.create_control_state(
             value_widget=value_widget, mixed_overlay=mixed_overlay, **widget_kwargs
@@ -46,12 +52,21 @@ def _build_slider(
         return model
 
 
-def build_slider(min_value, max_value):
+def build_slider(min_value, max_value, type="float"):
+    if type not in ["int", "float"]:
+        raise ValueError("slider_type must be 'int' or 'float'")
+
     def custom_slider(stage, attr_name, metadata, property_type, prim_paths, *args, **kwargs):
         additional_widget_kwargs = {"min": min_value, "max": max_value}
         additional_widget_kwargs.update(kwargs)
         return _build_slider(
-            stage, attr_name, metadata, property_type, prim_paths, additional_widget_kwargs=additional_widget_kwargs
+            stage,
+            attr_name,
+            metadata,
+            property_type,
+            prim_paths,
+            additional_widget_kwargs=additional_widget_kwargs,
+            type=type,
         )
 
     return custom_slider

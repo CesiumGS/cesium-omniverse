@@ -29,7 +29,7 @@ class SdfAssetPath;
 
 /// \class CesiumPolygonRasterOverlay
 ///
-/// Adds a prim for representing a polygon raster overlay. Should be a child of a tileset.
+/// Adds a prim for representing a polygon raster overlay.
 ///
 /// For any described attribute \em Fallback \em Value or \em Allowed \em Values below
 /// that are text/tokens, the actual token is published and defined in \ref CesiumTokens.

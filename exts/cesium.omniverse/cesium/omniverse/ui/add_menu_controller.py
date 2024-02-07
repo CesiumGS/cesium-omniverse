@@ -9,6 +9,7 @@ from cesium.usd.plugins.CesiumUsdSchemas import (
     Tileset as CesiumTileset,
     PolygonRasterOverlay as CesiumPolygonRasterOverlay,
     IonRasterOverlay as CesiumIonRasterOverlay,
+    WebMapServiceRasterOverlay as CesiumWebMapServiceRasterOverlay,
 )
 from ..usdUtils import add_globe_anchor_to_prim
 from ..bindings import ICesiumOmniverseInterface
@@ -40,6 +41,11 @@ class CesiumAddMenuController:
                 show_fn=partial(self._show_add_raster_overlay, context_menu=context_menu, usd_type=CesiumTileset),
                 onclick_fn=self._add_polygon_raster_overlay,
             ),
+            PrimPathWidget.add_button_menu_entry(
+                "Cesium/Web Map Service Raster Overlay",
+                show_fn=partial(self._show_add_raster_overlay, context_menu=context_menu, usd_type=CesiumTileset),
+                onclick_fn=self._add_web_map_service_raster_overlay,
+            ),
         ]
 
     def destroy(self):
@@ -70,6 +76,16 @@ class CesiumAddMenuController:
             CesiumPolygonRasterOverlay.Define(stage, polygon_raster_overlay_path)
             tileset_prim = CesiumTileset.Get(stage, path)
             tileset_prim.GetRasterOverlayBindingRel().AddTarget(polygon_raster_overlay_path)
+            get_property_window().request_rebuild()
+
+    def _add_web_map_service_raster_overlay(self, payload: PrimSelectionPayload):
+        stage = omni.usd.get_context().get_stage()
+        for path in payload:
+            child_path = Sdf.Path(path).AppendPath("web_map_service_raster_overlay")
+            raster_overlay_path: str = omni.usd.get_stage_next_free_path(stage, child_path, False)
+            CesiumWebMapServiceRasterOverlay.Define(stage, raster_overlay_path)
+            tileset_prim = CesiumTileset.Get(stage, path)
+            tileset_prim.GetRasterOverlayBindingRel().AddTarget(raster_overlay_path)
             get_property_window().request_rebuild()
 
     @staticmethod

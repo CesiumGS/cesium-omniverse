@@ -455,7 +455,7 @@ class "CesiumRasterOverlayPrim" (
 }
 
 class CesiumIonRasterOverlayPrim "CesiumIonRasterOverlayPrim" (
-    doc = """Adds a prim for representing an Ion raster overlay. Should be a child of a tileset."""
+    doc = """Adds a prim for representing an Ion raster overlay."""
     inherits = </CesiumRasterOverlayPrim>
     customData = {
         string className = "IonRasterOverlay"
@@ -487,7 +487,7 @@ class CesiumIonRasterOverlayPrim "CesiumIonRasterOverlayPrim" (
 }
 
 class CesiumPolygonRasterOverlayPrim "CesiumPolygonRasterOverlayPrim" (
-    doc = """Adds a prim for representing a polygon raster overlay. Should be a child of a tileset."""
+    doc = """Adds a prim for representing a polygon raster overlay."""
     inherits = </CesiumRasterOverlayPrim>
     customData = {
         string className = "PolygonRasterOverlay"
@@ -510,6 +510,63 @@ class CesiumPolygonRasterOverlayPrim "CesiumPolygonRasterOverlayPrim" (
     )
 
     uniform token cesium:overlayRenderMethod = "clip"
+}
+
+class CesiumWebMapServiceRasterOverlayPrim "CesiumWebMapServiceRasterOverlayPrim" (
+    doc = """Adds a prim for representing a Web Map Service raster overlay."""
+    inherits = </CesiumRasterOverlayPrim>
+    customData = {
+        string className = "WebMapServiceRasterOverlay"
+    }
+) {
+
+    string cesium:baseUrl = "" (
+        customData = {
+            string apiName = "baseUrl"
+        }
+        displayName = "Base URL"
+        doc = "The base url of the Web Map Service (WMS). e.g. https://services.ga.gov.au/gis/services/NM_Culture_and_Infrastructure/MapServer/WMSServer"
+    )
+
+    string cesium:layers = "1" (
+        customData = {
+            string apiName = "layers"
+        }
+        displayName = "Layers"
+        doc = "Comma-separated layer names to request from the server."
+    )
+
+    int cesium:tileWidth = 256 (
+        customData = {
+            string apiName = "tileWidth"
+        }
+        displayName = "Tile Width"
+        doc = "Image width"
+    )
+
+    int cesium:tileHeight = 256 (
+        customData = {
+            string apiName = "tileHeight"
+        }
+        displayName = "Tile Height"
+        doc = "Image height"
+    )
+
+    int cesium:minimumLevel = 0 (
+        customData = {
+            string apiName = "minimumLevel"
+        }
+        displayName = "Minimum Level"
+        doc = "Take care when specifying this that the number of tiles at the minimum level is small, such as four or less. A larger number is likely to result in rendering problems."
+    )
+
+    int cesium:maximumLevel = 14 (
+        customData = {
+            string apiName = "maximumLevel"
+        }
+        displayName = "Maximum Level"
+        doc = "Maximum zoom level."
+    )
 }
 
 class "CesiumGlobeAnchorSchemaAPI" (

@@ -16,9 +16,8 @@
 #include "cesium/omniverse/OmniCartographicPolygon.h"
 #include "cesium/omniverse/OmniGeoreference.h"
 #include "cesium/omniverse/OmniGlobeAnchor.h"
-#include "cesium/omniverse/OmniIonRasterOverlay.h"
 #include "cesium/omniverse/OmniIonServer.h"
-#include "cesium/omniverse/OmniPolygonRasterOverlay.h"
+#include "cesium/omniverse/OmniRasterOverlay.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/TilesetStatistics.h"
 #include "cesium/omniverse/UsdUtil.h"
@@ -32,9 +31,6 @@
 #include <Cesium3DTilesSelection/Tileset.h>
 #include <Cesium3DTilesSelection/ViewState.h>
 #include <Cesium3DTilesSelection/ViewUpdateResult.h>
-#include <CesiumGeospatial/CartographicPolygon.h>
-#include <CesiumRasterOverlays/IonRasterOverlay.h>
-#include <CesiumRasterOverlays/RasterizedPolygonsOverlay.h>
 #include <CesiumUsdSchemas/rasterOverlay.h>
 #include <CesiumUsdSchemas/tileset.h>
 #include <pxr/usd/usd/prim.h>

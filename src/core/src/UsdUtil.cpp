@@ -1,5 +1,7 @@
 #include "cesium/omniverse/UsdUtil.h"
 
+#include "CesiumUsdSchemas/webMapServiceRasterOverlay.h"
+
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/CppUtil.h"
@@ -25,6 +27,7 @@
 #include <CesiumUsdSchemas/polygonRasterOverlay.h>
 #include <CesiumUsdSchemas/session.h>
 #include <CesiumUsdSchemas/tileset.h>
+#include <CesiumUsdSchemas/webMapServiceRasterOverlay.h>
 #include <glm/gtc/matrix_access.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -359,6 +362,11 @@ getCesiumPolygonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::Sdf
     return pxr::CesiumPolygonRasterOverlay::Get(pStage, path);
 }
 
+pxr::CesiumWebMapServiceRasterOverlay
+getCesiumWebMapServiceRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
+    return pxr::CesiumWebMapServiceRasterOverlay::Get(pStage, path);
+}
+
 pxr::CesiumGeoreference getCesiumGeoreference(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
     return pxr::CesiumGeoreference::Get(pStage, path);
 }
@@ -447,6 +455,15 @@ bool isCesiumPolygonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr:
     }
 
     return prim.IsA<pxr::CesiumPolygonRasterOverlay>();
+}
+
+bool isCesiumWebMapServiceRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
+    const auto prim = pStage->GetPrimAtPath(path);
+    if (!prim.IsValid()) {
+        return false;
+    }
+
+    return prim.IsA<pxr::CesiumWebMapServiceRasterOverlay>();
 }
 
 bool isCesiumGeoreference(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
