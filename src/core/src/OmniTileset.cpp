@@ -458,7 +458,6 @@ void OmniTileset::reload() {
     options.culledScreenSpaceError = getCulledScreenSpaceError();
     options.mainThreadLoadingTimeLimit = getMainThreadLoadingTimeLimit();
     options.showCreditsOnScreen = getShowCreditsOnScreen();
-    options.excluders = std::vector<std::shared_ptr<Cesium3DTilesSelection::ITileExcluder>>();
 
     options.loadErrorCallback =
         [this, tilesetPath, ionAssetId, name](const Cesium3DTilesSelection::TilesetLoadFailureDetails& error) {
@@ -474,6 +473,17 @@ void OmniTileset::reload() {
         };
 
     options.contentOptions.ktx2TranscodeTargets = GltfUtil::getKtx2TranscodeTargets();
+
+    const auto rasterOverlayPaths = getRasterOverlayPaths();
+    for (const auto& rasterOverlayPath : rasterOverlayPaths) {
+        const auto pPolygonRasterOverlay = _pContext->getAssetRegistry().getPolygonRasterOverlay(rasterOverlayPath);
+        if (pPolygonRasterOverlay) {
+            const auto pExcluder = pPolygonRasterOverlay->getExcluder();
+            if (pExcluder) {
+                options.excluders.push_back(pExcluder);
+            }
+        }
+    }
 
     _pViewUpdateResult = nullptr;
     _extentSet = false;
@@ -494,7 +504,6 @@ void OmniTileset::reload() {
     }
 
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
-    const auto rasterOverlayPaths = getRasterOverlayPaths();
 
     for (const auto& rasterOverlayPath : rasterOverlayPaths) {
         const auto pRasterOverlay = _pContext->getAssetRegistry().getRasterOverlay(rasterOverlayPath);
@@ -502,30 +511,6 @@ void OmniTileset::reload() {
             const auto pNativeRasterOverlay = pRasterOverlay->getRasterOverlay();
             if (pNativeRasterOverlay) {
                 _pTileset->getOverlays().add(pNativeRasterOverlay);
-            }
-        }
-    }
-
-    const auto& allOmniPolygonRasterOverlays = _pContext->getAssetRegistry().getPolygonRasterOverlays();
-    const auto& boundNativeRasterOverlays =
-        _pTileset->getOverlays().getOverlays(); // get RasterOverlays from RasterOverlayCollection
-    for (const auto& pOmniPolygonRasterOverlay : allOmniPolygonRasterOverlays) {
-        const auto& pNativeOverlay = pOmniPolygonRasterOverlay->getRasterOverlay();
-
-        auto matchIterator = std::find_if(
-            boundNativeRasterOverlays.begin(),
-            boundNativeRasterOverlays.end(),
-            [&pNativeOverlay](const auto& possibleMatch) { return possibleMatch.get() == pNativeOverlay; });
-
-        if (matchIterator == boundNativeRasterOverlays.end()) {
-            continue;
-        }
-
-        const auto exclude = pOmniPolygonRasterOverlay->getExcludeSelectedTiles();
-        if (exclude) {
-            const auto excluder = pOmniPolygonRasterOverlay->getExcluder();
-            if (excluder) {
-                _pTileset->getOptions().excluders.push_back(excluder);
             }
         }
     }
