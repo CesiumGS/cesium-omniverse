@@ -11,6 +11,7 @@ from .utils import (
 )
 import os
 from functools import partial
+from .benchmarking.load_timer_window import CesiumLoadTimerWindow
 
 powertools_extension_location = os.path.join(os.path.dirname(__file__), "../../")
 
@@ -47,6 +48,7 @@ class CesiumPowertoolsWindow(ui.Window):
         self._actions: List[PowertoolsAction] = [
             PowertoolsAction("Open Cesium Debugging Window", CesiumOmniverseDebugWindow.show_window),
             PowertoolsAction("Open Cesium Georeference Helper Window", CesiumGeorefHelperWindow.create_window),
+            PowertoolsAction("Open Cesium Load Timer Window", CesiumLoadTimerWindow.create_window),
             PowertoolsAction("Extend Far Plane", extend_far_plane),
             PowertoolsAction("Save Carb Settings", partial(save_carb_settings, powertools_extension_location)),
             PowertoolsAction("Save Fabric Stage", partial(save_fabric_stage, powertools_extension_location)),
