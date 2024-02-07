@@ -5,6 +5,6 @@ from .globe_anchor_attributes_widget import CesiumGlobeAnchorAttributesWidget  #
 from .ion_server_attributes_widget import CesiumIonServerAttributesWidget  # noqa: F401
 from .ion_raster_overlay_attributes_widget import CesiumIonRasterOverlayAttributesWidget  # noqa: F401
 from .polygon_raster_overlay_attributes_widget import CesiumPolygonRasterOverlayAttributesWidget  # noqa: F401
-from .web_map_service_raster_overlay_attributes_widget import (
+from .web_map_service_raster_overlay_attributes_widget import (  # noqa: F401
     CesiumWebMapServiceRasterOverlayAttributesWidget,
-)  # noqa: F401
+)
