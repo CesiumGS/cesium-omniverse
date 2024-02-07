@@ -335,6 +335,14 @@ bool OmniTileset::getShowCreditsOnScreen() const {
 }
 
 pxr::SdfPath OmniTileset::getResolvedGeoreferencePath() const {
+    const auto pGlobeAnchor = _pContext->getAssetRegistry().getGlobeAnchor(_path);
+    if (pGlobeAnchor) {
+        // The georeference math has already happened in OmniGlobeAnchor, so this prevents it from happening again.
+        // By returning an empty path any ecefTo or toEcef conversions are really conversions to and from tile world
+        // space, which for non-georeferenced tilesets is some local coordinate system.
+        return {};
+    }
+
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
 
     pxr::SdfPathVector targets;
@@ -655,8 +663,8 @@ bool OmniTileset::updateExtent() {
     const auto& boundingVolume = pRootTile->getBoundingVolume();
     const auto ecefObb = Cesium3DTilesSelection::getOrientedBoundingBoxFromBoundingVolume(boundingVolume);
     const auto georeferencePath = getResolvedGeoreferencePath();
-    const auto ecefToPrimWorldTransform = UsdUtil::computeEcefToPrimWorldTransform(*_pContext, georeferencePath, _path);
-    const auto primObb = ecefObb.transform(ecefToPrimWorldTransform);
+    const auto ecefToStageTransform = UsdUtil::computeEcefToStageTransform(*_pContext, georeferencePath);
+    const auto primObb = ecefObb.transform(ecefToStageTransform);
     const auto primAabb = primObb.toAxisAligned();
 
     const auto bottomLeft = glm::dvec3(primAabb.minimumX, primAabb.minimumY, primAabb.minimumZ);

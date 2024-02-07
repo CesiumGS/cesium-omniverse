@@ -90,9 +90,7 @@ class CesiumAddMenuController:
 
     @staticmethod
     def _show_add_globe_anchor(objects: dict, context_menu: omni.kit.context_menu, usd_type: Tf.Type) -> bool:
-        return context_menu.prim_is_type(objects, type=usd_type) and not context_menu.prim_is_type(
-            objects, type=CesiumTileset
-        )
+        return context_menu.prim_is_type(objects, type=usd_type)
 
     @staticmethod
     def _show_add_raster_overlay(objects: dict, context_menu: omni.kit.context_menu, usd_type: Tf.Type) -> bool:
