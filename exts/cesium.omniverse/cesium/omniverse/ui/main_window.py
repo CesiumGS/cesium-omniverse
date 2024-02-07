@@ -132,8 +132,6 @@ class CesiumOmniverseMainWindow(ui.Window):
         )
 
     def _on_update_frame(self, _e: carb.events.IEvent):
-        self._cesium_omniverse_interface.on_update_ui()
-
         session: CesiumIonSession = self._cesium_omniverse_interface.get_session()
 
         if session is not None and self._sign_in_widget is not None:
@@ -161,10 +159,10 @@ class CesiumOmniverseMainWindow(ui.Window):
     def _on_show_troubleshooter_window(self, _e: carb.events.IEvent):
         tileset_path = _e.payload["tilesetPath"]
         tileset_ion_asset_id = _e.payload["tilesetIonAssetId"]
-        imagery_ion_asset_id = _e.payload["imageryIonAssetId"]
+        raster_overlay_ion_asset_id = _e.payload["rasterOverlayIonAssetId"]
         message = _e.payload["message"]
 
-        name = _e.payload["imageryName"] if _e.payload["imageryName"] else _e.payload["tilesetName"]
+        name = _e.payload["rasterOverlayName"] if _e.payload["rasterOverlayName"] else _e.payload["tilesetName"]
 
         if self._troubleshooter_window:
             self._troubleshooter_window.destroy()
@@ -175,7 +173,7 @@ class CesiumOmniverseMainWindow(ui.Window):
             name,
             tileset_path,
             tileset_ion_asset_id,
-            imagery_ion_asset_id,
+            raster_overlay_ion_asset_id,
             message,
         )
 
@@ -189,6 +187,8 @@ class CesiumOmniverseMainWindow(ui.Window):
 
         with ui.VStack(spacing=0):
             button_style = CesiumOmniverseUiStyles.top_bar_button_style
+
+            self._profile_widget = CesiumOmniverseProfileWidget(self._cesium_omniverse_interface, height=20)
 
             with ui.HStack(height=ui.Length(80, ui.UnitType.PIXEL)):
                 self._add_button = ui.Button(
@@ -233,8 +233,6 @@ class CesiumOmniverseMainWindow(ui.Window):
                 )
             self._quick_add_widget = CesiumOmniverseQuickAddWidget(self._cesium_omniverse_interface)
             self._sign_in_widget = CesiumOmniverseSignInWidget(self._cesium_omniverse_interface, visible=False)
-            ui.Spacer()
-            self._profile_widget = CesiumOmniverseProfileWidget(self._cesium_omniverse_interface, height=20)
 
     def _add_button_clicked(self) -> None:
         if not self._add_button or not self._add_button.enabled:

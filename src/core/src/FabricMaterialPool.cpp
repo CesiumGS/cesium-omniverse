@@ -1,44 +1,60 @@
 #include "cesium/omniverse/FabricMaterialPool.h"
 
+#include "cesium/omniverse/FabricPropertyDescriptor.h"
+#include "cesium/omniverse/FabricUtil.h"
+#include "cesium/omniverse/MetadataUtil.h"
+
 #include <spdlog/fmt/fmt.h>
 
 namespace cesium::omniverse {
 
 FabricMaterialPool::FabricMaterialPool(
+    Context* pContext,
     int64_t poolId,
-    const FabricMaterialDefinition& materialDefinition,
+    const FabricMaterialDescriptor& materialDescriptor,
     uint64_t initialCapacity,
-    const pxr::TfToken& defaultTextureAssetPathToken,
+    const pxr::TfToken& defaultWhiteTextureAssetPathToken,
     const pxr::TfToken& defaultTransparentTextureAssetPathToken,
-    bool debugRandomColors,
-    long stageId)
+    bool debugRandomColors)
     : ObjectPool<FabricMaterial>()
+    , _pContext(pContext)
     , _poolId(poolId)
-    , _materialDefinition(materialDefinition)
-    , _defaultTextureAssetPathToken(defaultTextureAssetPathToken)
+    , _materialDescriptor(materialDescriptor)
+    , _defaultWhiteTextureAssetPathToken(defaultWhiteTextureAssetPathToken)
     , _defaultTransparentTextureAssetPathToken(defaultTransparentTextureAssetPathToken)
-    , _debugRandomColors(debugRandomColors)
-    , _stageId(stageId) {
+    , _debugRandomColors(debugRandomColors) {
     setCapacity(initialCapacity);
 }
 
-const FabricMaterialDefinition& FabricMaterialPool::getMaterialDefinition() const {
-    return _materialDefinition;
+const FabricMaterialDescriptor& FabricMaterialPool::getMaterialDescriptor() const {
+    return _materialDescriptor;
 }
 
-std::shared_ptr<FabricMaterial> FabricMaterialPool::createObject(uint64_t objectId) {
-    const auto pathStr = fmt::format("/fabric_material_pool_{}_object_{}", _poolId, objectId);
+int64_t FabricMaterialPool::getPoolId() const {
+    return _poolId;
+}
+
+void FabricMaterialPool::updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::TfToken& attributeName) {
+    const auto& materials = getQueue();
+    for (auto& pMaterial : materials) {
+        pMaterial->updateShaderInput(FabricUtil::toFabricPath(shaderPath), FabricUtil::toFabricToken(attributeName));
+    }
+}
+
+std::shared_ptr<FabricMaterial> FabricMaterialPool::createObject(uint64_t objectId) const {
+    const auto pathStr = fmt::format("/cesium_material_pool_{}_object_{}", _poolId, objectId);
     const auto path = omni::fabric::Path(pathStr.c_str());
     return std::make_shared<FabricMaterial>(
+        _pContext,
         path,
-        _materialDefinition,
-        _defaultTextureAssetPathToken,
+        _materialDescriptor,
+        _defaultWhiteTextureAssetPathToken,
         _defaultTransparentTextureAssetPathToken,
         _debugRandomColors,
-        _stageId);
+        _poolId);
 }
 
-void FabricMaterialPool::setActive(std::shared_ptr<FabricMaterial> material, bool active) {
-    material->setActive(active);
+void FabricMaterialPool::setActive(FabricMaterial* pMaterial, bool active) const {
+    pMaterial->setActive(active);
 }
 }; // namespace cesium::omniverse

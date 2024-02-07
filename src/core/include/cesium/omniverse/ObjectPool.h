@@ -1,6 +1,5 @@
 #pragma once
 
-#include <algorithm>
 #include <cassert>
 #include <memory>
 #include <queue>
@@ -22,16 +21,16 @@ template <typename T> class ObjectPool {
             setCapacity(newCapacity);
         }
 
-        const auto object = _queue.front();
-        _queue.pop();
-        setActive(object, true);
+        auto pObject = _queue.front();
+        _queue.pop_front();
+        setActive(pObject.get(), true);
 
-        return object;
+        return pObject;
     }
 
-    void release(std::shared_ptr<T> object) {
-        _queue.push(object);
-        setActive(object, false);
+    void release(std::shared_ptr<T> pObject) {
+        _queue.push_back(pObject);
+        setActive(pObject.get(), false);
     }
 
     [[nodiscard]] uint64_t getCapacity() const {
@@ -74,21 +73,25 @@ template <typename T> class ObjectPool {
 
         const auto count = newCapacity - oldCapacity;
 
-        for (uint64_t i = 0; i < count; i++) {
-            _queue.push(createObject(_objectId++));
-            _capacity++;
+        for (uint64_t i = 0; i < count; ++i) {
+            _queue.push_back(createObject(_objectId++));
+            ++_capacity;
         }
     }
 
   protected:
-    virtual std::shared_ptr<T> createObject(uint64_t objectId) = 0;
-    virtual void setActive(std::shared_ptr<T> object, bool active) = 0;
+    virtual std::shared_ptr<T> createObject(uint64_t objectId) const = 0;
+    virtual void setActive(T* pObject, bool active) const = 0;
+
+    const std::deque<std::shared_ptr<T>>& getQueue() {
+        return _queue;
+    }
 
   private:
-    std::queue<std::shared_ptr<T>> _queue;
-    uint64_t _objectId = 0;
-    uint64_t _capacity = 0;
-    double _doublingThreshold = 0.75;
+    std::deque<std::shared_ptr<T>> _queue;
+    uint64_t _objectId{0};
+    uint64_t _capacity{0};
+    double _doublingThreshold{0.75};
 };
 
 } // namespace cesium::omniverse

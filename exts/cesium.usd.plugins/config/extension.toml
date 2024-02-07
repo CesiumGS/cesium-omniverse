@@ -4,7 +4,7 @@
 order = -100
 
 [package]
-version = "0.1.0"
+version = "0.3.0"
 category = "simulation"
 feature = false
 app = false
@@ -32,6 +32,10 @@ icon = "doc/images/icon.png"
 
 [package.target]
 kit = ["105.1"]
+
+[package.writeTarget]
+kit = true
+python = false
 
 # Which extensions this extension depends on
 [dependencies]

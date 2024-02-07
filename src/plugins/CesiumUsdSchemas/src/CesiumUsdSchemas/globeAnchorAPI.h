@@ -185,25 +185,69 @@ public:
 
 public:
     // --------------------------------------------------------------------- //
-    // GEOGRAPHICCOORDINATE 
+    // ANCHORLONGITUDE 
     // --------------------------------------------------------------------- //
-    /// The position of the globally anchored prim as a Latitude, Longitude, Height coordinate.
+    /// The longitude in degrees, in the range [-180, 180].
     ///
     /// | ||
     /// | -- | -- |
-    /// | Declaration | `double3 cesium:anchor:geographicCoordinates = (0, 0, 10)` |
-    /// | C++ Type | GfVec3d |
-    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double3 |
+    /// | Declaration | `double cesium:anchor:longitude = 0` |
+    /// | C++ Type | double |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double |
     CESIUMUSDSCHEMAS_API
-    UsdAttribute GetGeographicCoordinateAttr() const;
+    UsdAttribute GetAnchorLongitudeAttr() const;
 
-    /// See GetGeographicCoordinateAttr(), and also 
+    /// See GetAnchorLongitudeAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
     CESIUMUSDSCHEMAS_API
-    UsdAttribute CreateGeographicCoordinateAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+    UsdAttribute CreateAnchorLongitudeAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
+    // ANCHORLATITUDE 
+    // --------------------------------------------------------------------- //
+    /// The latitude in degrees, in the range [-90, 90].
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `double cesium:anchor:latitude = 0` |
+    /// | C++ Type | double |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double |
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute GetAnchorLatitudeAttr() const;
+
+    /// See GetAnchorLatitudeAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute CreateAnchorLatitudeAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
+    // ANCHORHEIGHT 
+    // --------------------------------------------------------------------- //
+    /// The height in meters above the ellipsoid.
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `double cesium:anchor:height = 0` |
+    /// | C++ Type | double |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double |
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute GetAnchorHeightAttr() const;
+
+    /// See GetAnchorHeightAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute CreateAnchorHeightAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // --------------------------------------------------------------------- //
@@ -226,50 +270,6 @@ public:
     /// the default for \p writeSparsely is \c false.
     CESIUMUSDSCHEMAS_API
     UsdAttribute CreatePositionAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
-
-public:
-    // --------------------------------------------------------------------- //
-    // ROTATION 
-    // --------------------------------------------------------------------- //
-    /// The actual rotation of the globally anchored prim oriented to the ECEF coordinate system.
-    ///
-    /// | ||
-    /// | -- | -- |
-    /// | Declaration | `double3 cesium:anchor:rotation = (0, 0, 0)` |
-    /// | C++ Type | GfVec3d |
-    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double3 |
-    CESIUMUSDSCHEMAS_API
-    UsdAttribute GetRotationAttr() const;
-
-    /// See GetRotationAttr(), and also 
-    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
-    /// If specified, author \p defaultValue as the attribute's default,
-    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
-    /// the default for \p writeSparsely is \c false.
-    CESIUMUSDSCHEMAS_API
-    UsdAttribute CreateRotationAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
-
-public:
-    // --------------------------------------------------------------------- //
-    // SCALE 
-    // --------------------------------------------------------------------- //
-    /// The local scaling of the prim.
-    ///
-    /// | ||
-    /// | -- | -- |
-    /// | Declaration | `double3 cesium:anchor:scale = (1, 1, 1)` |
-    /// | C++ Type | GfVec3d |
-    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Double3 |
-    CESIUMUSDSCHEMAS_API
-    UsdAttribute GetScaleAttr() const;
-
-    /// See GetScaleAttr(), and also 
-    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
-    /// If specified, author \p defaultValue as the attribute's default,
-    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
-    /// the default for \p writeSparsely is \c false.
-    CESIUMUSDSCHEMAS_API
-    UsdAttribute CreateScaleAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // --------------------------------------------------------------------- //

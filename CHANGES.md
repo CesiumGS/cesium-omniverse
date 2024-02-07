@@ -1,8 +1,52 @@
 # Change Log
 
+### v0.18.0 - 2024-03-01
+
+* Added support for globe anchors on non-georeferenced tilesets.
+* Fixed zooming to tileset extents when tileset prims have non identity transformation.
+* Fixed crash when updating tilesets shader inputs.
+
+### v0.17.0 - 2024-02-01
+
+* **Breaking changes for globe anchors:**
+  * Removed `anchor_xform_at_path`. Globe anchors can now be created directly in USD.
+  * Split `cesium:anchor:geographicCoordinates` into separate properties: `cesium:anchor:latitude`, `cesium:anchor:longitude`, `cesium:anchor:height`.
+  * Globe anchors no longer add a `transform:cesium` op to the attached prim. Instead the `translate`, `rotateXYZ`, and `scale` ops are modified directly.
+  * Removed `cesium:anchor:rotation` and `cesium:anchor:scale`. Instead, use `UsdGeom.XformCommonAPI` to modify the globe anchor's local rotation and scale.
+  * Globe anchors now use the scene's default georeference if `cesium:georeferenceBinding` is empty.
+  * For migrating existing USD files, see https://github.com/CesiumGS/cesium-omniverse-samples/pull/13
+* **Breaking changes for imagery layers:**
+  * `CesiumImagery` was renamed to `CesiumRasterOverlay` and is now an abstract class. To create ion raster overlays, use `CesiumIonRasterOverlay`.
+  * MDL changes: `cesium_imagery_layer_float4` was renamed to `cesium_raster_overlay_float4` and `imagery_layer_index` was renamed to `raster_overlay_index`.
+  * ion raster overlays now use the scene's default ion server if `cesium:ionServerBinding` is empty.
+* **Breaking change for tilesets:**
+  * Tilesets must now reference raster overlays with `cesium:rasterOverlayBinding`.
+  * Tilesets now use the scene's default georeference if `cesium:georeferenceBinding` is empty.
+  * Tilesets now uses the scene's default ion server if `cesium:ionServerBinding` is empty.
+* Added support for polygon-based clipping with `CesiumPolygonRasterOverlay`.
+* Added ability for multiple tilesets referencing the same raster overlay.
+* Added ability to reorder raster overlays in UI.
+* Added context menu options for adding raster overlays to tilesets.
+* Fixed multiple globe anchor related issues.
+* Fixed excessive property warnings when using custom materials.
+* Fixed adding raster overlays to selected tileset in the Add Assets UI.
+* Fixed loading 3D Tiles 1.1 implicit tilesets.
+
+### v0.16.0 - 2024-01-02
+
+* Fixed issue where the current ion session would be signed out on reload.
+* Fixed crash in Cesium Debugging window.
+
+### v0.15.0 - 2023-12-14
+
+* Added support for multiple Cesium ion servers by creating `CesiumIonServerPrim` prims.
+
 ### v0.14.0 - 2023-12-01
 
-* Added support for custom vertex attributes. Custom attributes can be accessed by their glTF attribute name with the primvar lookup functions in MDL, e.g. `data_lookup_int` and `data_lookup_float`.
+* Added support for `EXT_structural_metadata`. Property values can be accessed in material graph with the `cesium_property` nodes.
+* Added support for `EXT_mesh_features`. Feature ID values can be accessed in material graph with the `cesium_feature_id_int` node.
+* Added support for custom glTF vertex attributes. Attribute values can be accessed in material graph with the `data_lookup` nodes.
+* Added support for changing a tileset's imagery layer dynamically in material graph.
 
 ### v0.13.0 - 2023-11-01
 

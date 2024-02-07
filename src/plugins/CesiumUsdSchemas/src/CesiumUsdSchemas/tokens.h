@@ -41,7 +41,7 @@ struct CesiumTokensType {
     CESIUMUSDSCHEMAS_API CesiumTokensType();
     /// \brief "cesium:alpha"
     /// 
-    /// CesiumImagery
+    /// CesiumRasterOverlay
     const TfToken cesiumAlpha;
     /// \brief "cesium:anchor:adjustOrientationForGlobeWhenMoving"
     /// 
@@ -51,26 +51,30 @@ struct CesiumTokensType {
     /// 
     /// CesiumGlobeAnchorAPI
     const TfToken cesiumAnchorDetectTransformChanges;
-    /// \brief "cesium:anchor:geographicCoordinates"
-    /// 
-    /// CesiumGlobeAnchorAPI
-    const TfToken cesiumAnchorGeographicCoordinates;
     /// \brief "cesium:anchor:georeferenceBinding"
     /// 
     /// CesiumGlobeAnchorAPI
     const TfToken cesiumAnchorGeoreferenceBinding;
+    /// \brief "cesium:anchor:height"
+    /// 
+    /// CesiumGlobeAnchorAPI
+    const TfToken cesiumAnchorHeight;
+    /// \brief "cesium:anchor:latitude"
+    /// 
+    /// CesiumGlobeAnchorAPI
+    const TfToken cesiumAnchorLatitude;
+    /// \brief "cesium:anchor:longitude"
+    /// 
+    /// CesiumGlobeAnchorAPI
+    const TfToken cesiumAnchorLongitude;
     /// \brief "cesium:anchor:position"
     /// 
     /// CesiumGlobeAnchorAPI
     const TfToken cesiumAnchorPosition;
-    /// \brief "cesium:anchor:rotation"
+    /// \brief "cesium:cartographicPolygonBinding"
     /// 
-    /// CesiumGlobeAnchorAPI
-    const TfToken cesiumAnchorRotation;
-    /// \brief "cesium:anchor:scale"
-    /// 
-    /// CesiumGlobeAnchorAPI
-    const TfToken cesiumAnchorScale;
+    /// CesiumPolygonRasterOverlay
+    const TfToken cesiumCartographicPolygonBinding;
     /// \brief "cesium:culledScreenSpaceError"
     /// 
     /// CesiumTileset
@@ -115,6 +119,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumData
     const TfToken cesiumDebugTexturePoolInitialCapacity;
+    /// \brief "cesium:displayName"
+    /// 
+    /// CesiumIonServer
+    const TfToken cesiumDisplayName;
     /// \brief "cesium:ecefToUsdTransform"
     /// 
     /// CesiumSession
@@ -151,14 +159,34 @@ struct CesiumTokensType {
     /// 
     /// CesiumGeoreference
     const TfToken cesiumGeoreferenceOriginLongitude;
+    /// \brief "cesium:invertSelection"
+    /// 
+    /// CesiumPolygonRasterOverlay
+    const TfToken cesiumInvertSelection;
     /// \brief "cesium:ionAccessToken"
     /// 
-    /// CesiumImagery, CesiumTileset
+    /// CesiumIonRasterOverlay, CesiumTileset
     const TfToken cesiumIonAccessToken;
     /// \brief "cesium:ionAssetId"
     /// 
-    /// CesiumImagery, CesiumTileset
+    /// CesiumIonRasterOverlay, CesiumTileset
     const TfToken cesiumIonAssetId;
+    /// \brief "cesium:ionServerApiUrl"
+    /// 
+    /// CesiumIonServer
+    const TfToken cesiumIonServerApiUrl;
+    /// \brief "cesium:ionServerApplicationId"
+    /// 
+    /// CesiumIonServer
+    const TfToken cesiumIonServerApplicationId;
+    /// \brief "cesium:ionServerBinding"
+    /// 
+    /// CesiumIonRasterOverlay, CesiumTileset
+    const TfToken cesiumIonServerBinding;
+    /// \brief "cesium:ionServerUrl"
+    /// 
+    /// CesiumIonServer
+    const TfToken cesiumIonServerUrl;
     /// \brief "cesium:loadingDescendantLimit"
     /// 
     /// CesiumTileset
@@ -179,6 +207,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumTileset
     const TfToken cesiumMaximumSimultaneousTileLoads;
+    /// \brief "cesium:overlayRenderMethod"
+    /// 
+    /// CesiumPolygonRasterOverlay, CesiumRasterOverlay
+    const TfToken cesiumOverlayRenderMethod;
     /// \brief "cesium:preloadAncestors"
     /// 
     /// CesiumTileset
@@ -189,15 +221,23 @@ struct CesiumTokensType {
     const TfToken cesiumPreloadSiblings;
     /// \brief "cesium:projectDefaultIonAccessToken"
     /// 
-    /// CesiumData
+    /// CesiumIonServer, CesiumData
     const TfToken cesiumProjectDefaultIonAccessToken;
     /// \brief "cesium:projectDefaultIonAccessTokenId"
     /// 
-    /// CesiumData
+    /// CesiumIonServer, CesiumData
     const TfToken cesiumProjectDefaultIonAccessTokenId;
+    /// \brief "cesium:rasterOverlayBinding"
+    /// 
+    /// CesiumTileset
+    const TfToken cesiumRasterOverlayBinding;
+    /// \brief "cesium:selectedIonServer"
+    /// 
+    /// CesiumData
+    const TfToken cesiumSelectedIonServer;
     /// \brief "cesium:showCreditsOnScreen"
     /// 
-    /// CesiumImagery, CesiumTileset
+    /// CesiumRasterOverlay, CesiumTileset
     const TfToken cesiumShowCreditsOnScreen;
     /// \brief "cesium:smoothNormals"
     /// 
@@ -215,10 +255,18 @@ struct CesiumTokensType {
     /// 
     /// CesiumTileset
     const TfToken cesiumUrl;
+    /// \brief "clip"
+    /// 
+    /// Default value for CesiumPolygonRasterOverlay::GetCesiumOverlayRenderMethodAttr(), Possible value for CesiumRasterOverlay::GetOverlayRenderMethodAttr()
+    const TfToken clip;
     /// \brief "ion"
     /// 
     /// Possible value for CesiumTileset::GetSourceTypeAttr(), Default value for CesiumTileset::GetSourceTypeAttr()
     const TfToken ion;
+    /// \brief "overlay"
+    /// 
+    /// Possible value for CesiumRasterOverlay::GetOverlayRenderMethodAttr(), Default value for CesiumRasterOverlay::GetOverlayRenderMethodAttr()
+    const TfToken overlay;
     /// \brief "url"
     /// 
     /// Possible value for CesiumTileset::GetSourceTypeAttr()

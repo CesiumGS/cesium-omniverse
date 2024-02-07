@@ -3,7 +3,7 @@ from typing import Optional
 import omni.ui as ui
 from .statistics_widget import CesiumOmniverseStatisticsWidget
 from ..bindings import ICesiumOmniverseInterface
-from ..usdUtils import remove_tileset
+from ..usdUtils import remove_tileset, get_tileset_paths
 
 
 class CesiumOmniverseDebugWindow(ui.Window):
@@ -44,7 +44,7 @@ class CesiumOmniverseDebugWindow(ui.Window):
         def remove_all_tilesets():
             """Removes all tilesets from the stage."""
 
-            tileset_paths = self._cesium_omniverse_interface.get_all_tileset_paths()
+            tileset_paths = get_tileset_paths()
 
             for tileset_path in tileset_paths:
                 remove_tileset(tileset_path)
@@ -52,7 +52,7 @@ class CesiumOmniverseDebugWindow(ui.Window):
         def reload_all_tilesets():
             """Reloads all tilesets."""
 
-            tileset_paths = self._cesium_omniverse_interface.get_all_tileset_paths()
+            tileset_paths = get_tileset_paths()
 
             for tileset_path in tileset_paths:
                 self._cesium_omniverse_interface.reload_tileset(tileset_path)

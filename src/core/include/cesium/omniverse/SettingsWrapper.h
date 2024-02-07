@@ -1,12 +1,18 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 namespace cesium::omniverse::Settings {
 
-std::string getAccessToken();
-void setAccessToken(const std::string& accessToken);
-std::string getDefaultAccessToken();
-void setDefaultAccessToken(const std::string& accessToken);
+struct AccessToken {
+    std::string ionApiUrl;
+    std::string accessToken;
+};
+
+std::vector<AccessToken> getAccessTokens();
+void setAccessToken(const AccessToken& accessToken);
+void removeAccessToken(const std::string& ionApiUrl);
+void clearTokens();
 
 } // namespace cesium::omniverse::Settings

@@ -1,22 +1,33 @@
 #include "cesium/omniverse/GltfUtil.h"
 
-#include "cesium/omniverse/LoggerSink.h"
-#include "cesium/omniverse/VertexAttributeType.h"
+#include "cesium/omniverse/DataType.h"
+#include "cesium/omniverse/FabricFeaturesInfo.h"
+#include "cesium/omniverse/FabricMaterialInfo.h"
+#include "cesium/omniverse/FabricTextureInfo.h"
+#include "cesium/omniverse/FabricVertexAttributeDescriptor.h"
+
+#include <CesiumGltf/Material.h>
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
 #undef OPAQUE
 #endif
 
+#include <CesiumGltf/Accessor.h>
 #include <CesiumGltf/AccessorView.h>
+#include <CesiumGltf/ExtensionExtMeshFeatures.h>
 #include <CesiumGltf/ExtensionKhrMaterialsUnlit.h>
 #include <CesiumGltf/ExtensionKhrTextureTransform.h>
+#include <CesiumGltf/FeatureIdTexture.h>
+#include <CesiumGltf/FeatureIdTextureView.h>
 #include <CesiumGltf/Model.h>
+#include <CesiumGltf/PropertyTextureProperty.h>
 #include <CesiumGltf/TextureInfo.h>
 #include <spdlog/fmt/fmt.h>
 
 #include <charconv>
 #include <numeric>
+#include <optional>
 
 namespace cesium::omniverse::GltfUtil {
 
@@ -69,18 +80,17 @@ CesiumGltf::AccessorView<glm::fvec2> getTexcoordsView(
     const std::string& semantic,
     uint64_t setIndex) {
 
-    const auto texcoordAttribute = primitive.attributes.find(fmt::format("{}_{}", semantic, setIndex));
-    if (texcoordAttribute == primitive.attributes.end()) {
+    const auto it = primitive.attributes.find(fmt::format("{}_{}", semantic, setIndex));
+    if (it == primitive.attributes.end()) {
         return {};
     }
 
-    auto texcoordAccessor = model.getSafe<CesiumGltf::Accessor>(&model.accessors, texcoordAttribute->second);
-    if (!texcoordAccessor) {
+    const auto pTexcoordAccessor = model.getSafe(&model.accessors, it->second);
+    if (!pTexcoordAccessor) {
         return {};
     }
 
-    auto texcoordsView = CesiumGltf::AccessorView<glm::fvec2>(model, *texcoordAccessor);
-
+    const auto texcoordsView = CesiumGltf::AccessorView<glm::fvec2>(model, *pTexcoordAccessor);
     if (texcoordsView.status() != CesiumGltf::AccessorViewStatus::Valid) {
         return {};
     }
@@ -90,18 +100,17 @@ CesiumGltf::AccessorView<glm::fvec2> getTexcoordsView(
 
 CesiumGltf::AccessorView<glm::fvec3>
 getNormalsView(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
-    auto normalAttribute = primitive.attributes.find("NORMAL");
-    if (normalAttribute == primitive.attributes.end()) {
+    const auto it = primitive.attributes.find("NORMAL");
+    if (it == primitive.attributes.end()) {
         return {};
     }
 
-    auto normalAccessor = model.getSafe<CesiumGltf::Accessor>(&model.accessors, normalAttribute->second);
-    if (!normalAccessor) {
+    const auto pNormalAccessor = model.getSafe(&model.accessors, it->second);
+    if (!pNormalAccessor) {
         return {};
     }
 
-    const auto normalsView = CesiumGltf::AccessorView<glm::fvec3>(model, *normalAccessor);
-
+    const auto normalsView = CesiumGltf::AccessorView<glm::fvec3>(model, *pNormalAccessor);
     if (normalsView.status() != CesiumGltf::AccessorViewStatus::Valid) {
         return {};
     }
@@ -111,17 +120,17 @@ getNormalsView(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& 
 
 CesiumGltf::AccessorView<glm::fvec3>
 getPositionsView(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
-    auto positionAttribute = primitive.attributes.find("POSITION");
-    if (positionAttribute == primitive.attributes.end()) {
+    const auto it = primitive.attributes.find("POSITION");
+    if (it == primitive.attributes.end()) {
         return {};
     }
 
-    auto positionAccessor = model.getSafe<CesiumGltf::Accessor>(&model.accessors, positionAttribute->second);
-    if (!positionAccessor) {
+    const auto pPositionAccessor = model.getSafe(&model.accessors, it->second);
+    if (!pPositionAccessor) {
         return {};
     }
 
-    auto positionsView = CesiumGltf::AccessorView<glm::fvec3>(model, *positionAccessor);
+    const auto positionsView = CesiumGltf::AccessorView<glm::fvec3>(model, *pPositionAccessor);
     if (positionsView.status() != CesiumGltf::AccessorViewStatus::Valid) {
         return {};
     }
@@ -147,7 +156,7 @@ TexcoordsAccessor getTexcoords(
 
 template <typename VertexColorType>
 VertexColorsAccessor getVertexColorsAccessor(const CesiumGltf::Model& model, const CesiumGltf::Accessor& accessor) {
-    CesiumGltf::AccessorView<VertexColorType> view{model, accessor};
+    CesiumGltf::AccessorView<VertexColorType> view(model, accessor);
     if (view.status() == CesiumGltf::AccessorViewStatus::Valid) {
         return VertexColorsAccessor(view);
     }
@@ -158,16 +167,16 @@ double getAlphaCutoff(const CesiumGltf::Material& material) {
     return material.alphaCutoff;
 }
 
-AlphaMode getAlphaMode(const CesiumGltf::Material& material) {
+FabricAlphaMode getAlphaMode(const CesiumGltf::Material& material) {
     if (material.alphaMode == CesiumGltf::Material::AlphaMode::OPAQUE) {
-        return AlphaMode::OPAQUE;
+        return FabricAlphaMode::OPAQUE;
     } else if (material.alphaMode == CesiumGltf::Material::AlphaMode::MASK) {
-        return AlphaMode::MASK;
+        return FabricAlphaMode::MASK;
     } else if (material.alphaMode == CesiumGltf::Material::AlphaMode::BLEND) {
-        return AlphaMode::BLEND;
+        return FabricAlphaMode::BLEND;
     }
 
-    return AlphaMode::OPAQUE;
+    return FabricAlphaMode::OPAQUE;
 }
 
 double getBaseAlpha(const CesiumGltf::MaterialPBRMetallicRoughness& pbrMetallicRoughness) {
@@ -232,7 +241,7 @@ double getDefaultAlphaCutoff() {
     return getAlphaCutoff(defaultMaterial);
 }
 
-AlphaMode getDefaultAlphaMode() {
+FabricAlphaMode getDefaultAlphaMode() {
     return getAlphaMode(defaultMaterial);
 }
 
@@ -284,58 +293,79 @@ int32_t getDefaultWrapT() {
     return getWrapT(defaultSampler);
 }
 
-TextureInfo getTextureInfo(const CesiumGltf::Model& model, const CesiumGltf::TextureInfo& textureInfoGltf) {
-    TextureInfo textureInfo = getDefaultTextureInfo();
+FabricTextureInfo getTextureInfo(const CesiumGltf::Model& model, const CesiumGltf::TextureInfo& textureInfoGltf) {
+    FabricTextureInfo textureInfo = getDefaultTextureInfo();
 
-    textureInfo.setIndex = textureInfoGltf.texCoord;
+    textureInfo.setIndex = static_cast<uint64_t>(textureInfoGltf.texCoord);
 
-    if (textureInfoGltf.hasExtension<CesiumGltf::ExtensionKhrTextureTransform>()) {
-        const auto& textureTransform = *textureInfoGltf.getExtension<CesiumGltf::ExtensionKhrTextureTransform>();
-        textureInfo.offset = getTexcoordOffset(textureTransform);
-        textureInfo.rotation = getTexcoordRotation(textureTransform);
-        textureInfo.scale = getTexcoordScale(textureTransform);
+    const auto pTextureTransform = textureInfoGltf.getExtension<CesiumGltf::ExtensionKhrTextureTransform>();
+    if (pTextureTransform) {
+        textureInfo.offset = getTexcoordOffset(*pTextureTransform);
+        textureInfo.rotation = getTexcoordRotation(*pTextureTransform);
+        textureInfo.scale = getTexcoordScale(*pTextureTransform);
     }
 
-    const auto index = textureInfoGltf.index;
-    if (index >= 0 && static_cast<size_t>(index) < model.textures.size()) {
-        const auto& texture = model.textures[static_cast<size_t>(index)];
-        const auto samplerIndex = texture.sampler;
-        if (samplerIndex != -1) {
-            const auto& sampler = model.samplers[samplerIndex];
-            textureInfo.wrapS = getWrapS(sampler);
-            textureInfo.wrapT = getWrapT(sampler);
+    const auto pTexture = model.getSafe(&model.textures, textureInfoGltf.index);
+    if (pTexture) {
+        const auto pSampler = model.getSafe(&model.samplers, pTexture->sampler);
+        if (pSampler) {
+            textureInfo.wrapS = getWrapS(*pSampler);
+            textureInfo.wrapT = getWrapT(*pSampler);
         }
     }
 
     return textureInfo;
 }
 
-const CesiumGltf::ImageCesium& getImageCesium(const CesiumGltf::Model& model, const CesiumGltf::Texture& texture) {
-    const auto imageId = static_cast<uint64_t>(texture.source);
-    const auto& image = model.images[imageId];
-    return image.cesium;
+template <typename T> std::vector<uint8_t> getChannels(const T& textureInfoWithChannels) {
+    std::vector<uint8_t> channels;
+    channels.reserve(textureInfoWithChannels.channels.size());
+
+    for (const auto channel : textureInfoWithChannels.channels) {
+        channels.push_back(static_cast<uint8_t>(channel));
+    }
+
+    return channels;
+}
+
+FabricTextureInfo
+getFeatureIdTextureInfo(const CesiumGltf::Model& model, const CesiumGltf::FeatureIdTexture& featureIdTexture) {
+    FabricTextureInfo textureInfo = getTextureInfo(model, featureIdTexture);
+    textureInfo.channels = getChannels(featureIdTexture);
+    return textureInfo;
+}
+
+const CesiumGltf::ImageCesium* getImageCesium(const CesiumGltf::Model& model, const CesiumGltf::Texture& texture) {
+    const auto pImage = model.getSafe(&model.images, texture.source);
+
+    if (pImage) {
+        return &pImage->cesium;
+    }
+
+    return nullptr;
 }
 
 std::pair<std::string, uint64_t> parseAttributeName(const std::string& attributeName) {
-    int searchPosition = static_cast<int>(attributeName.size()) - 1;
-    int lastUnderscorePosition{-1};
+    auto searchPosition = static_cast<int>(attributeName.size()) - 1;
+    auto lastUnderscorePosition = -1;
     while (searchPosition > 0) {
-        if (!isdigit(attributeName[searchPosition])) {
-            if (attributeName[searchPosition] == '_') {
+        const auto character = attributeName[static_cast<uint64_t>(searchPosition)];
+        if (!isdigit(character)) {
+            if (character == '_') {
                 lastUnderscorePosition = searchPosition;
             }
 
             break;
         }
-        searchPosition--;
+        --searchPosition;
     }
 
-    std::string semantic{};
-    uint64_t setIndexU64{0};
+    std::string semantic;
+    uint64_t setIndexU64 = 0;
     if (lastUnderscorePosition == -1) {
         semantic = attributeName;
     } else {
-        semantic = attributeName.substr(0, lastUnderscorePosition);
+        semantic = attributeName.substr(0, static_cast<uint64_t>(lastUnderscorePosition));
         std::from_chars(
             attributeName.data() + lastUnderscorePosition + 1,
             attributeName.data() + attributeName.size(),
@@ -343,6 +373,100 @@ std::pair<std::string, uint64_t> parseAttributeName(const std::string& attribute
     }
 
     return std::make_pair(semantic, setIndexU64);
+}
+
+std::optional<DataType> getVertexAttributeTypeFromGltf(const CesiumGltf::Accessor& accessor) {
+    const auto& type = accessor.type;
+    const auto componentType = accessor.componentType;
+    const auto normalized = accessor.normalized;
+
+    if (type == CesiumGltf::Accessor::Type::SCALAR) {
+        if (componentType == CesiumGltf::Accessor::ComponentType::BYTE) {
+            return normalized ? DataType::INT8_NORM : DataType::INT8;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_BYTE) {
+            return normalized ? DataType::UINT8_NORM : DataType::UINT8;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::SHORT) {
+            return normalized ? DataType::INT16_NORM : DataType::INT16;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_SHORT) {
+            return normalized ? DataType::UINT16_NORM : DataType::UINT16;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::FLOAT) {
+            return DataType::FLOAT32;
+        }
+    } else if (type == CesiumGltf::Accessor::Type::VEC2) {
+        if (componentType == CesiumGltf::Accessor::ComponentType::BYTE) {
+            return normalized ? DataType::VEC2_INT8_NORM : DataType::VEC2_INT8;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_BYTE) {
+            return normalized ? DataType::VEC2_UINT8_NORM : DataType::VEC2_UINT8;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::SHORT) {
+            return normalized ? DataType::VEC2_INT16_NORM : DataType::VEC2_INT16;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_SHORT) {
+            return normalized ? DataType::VEC2_UINT16_NORM : DataType::VEC2_UINT16;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::FLOAT) {
+            return DataType::VEC2_FLOAT32;
+        }
+    } else if (type == CesiumGltf::Accessor::Type::VEC3) {
+        if (componentType == CesiumGltf::Accessor::ComponentType::BYTE) {
+            return normalized ? DataType::VEC3_INT8_NORM : DataType::VEC3_INT8;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_BYTE) {
+            return normalized ? DataType::VEC3_UINT8_NORM : DataType::VEC3_UINT8;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::SHORT) {
+            return normalized ? DataType::VEC3_INT16_NORM : DataType::VEC3_INT16;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_SHORT) {
+            return normalized ? DataType::VEC3_UINT16_NORM : DataType::VEC3_UINT16;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::FLOAT) {
+            return DataType::VEC3_FLOAT32;
+        }
+    } else if (type == CesiumGltf::Accessor::Type::VEC4) {
+        if (componentType == CesiumGltf::Accessor::ComponentType::BYTE) {
+            return normalized ? DataType::VEC4_INT8_NORM : DataType::VEC4_INT8;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_BYTE) {
+            return normalized ? DataType::VEC4_UINT8_NORM : DataType::VEC4_UINT8;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::SHORT) {
+            return normalized ? DataType::VEC4_INT16_NORM : DataType::VEC4_INT16;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_SHORT) {
+            return normalized ? DataType::VEC4_UINT16_NORM : DataType::VEC4_UINT16;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::FLOAT) {
+            return DataType::VEC4_FLOAT32;
+        }
+    } else if (type == CesiumGltf::Accessor::Type::MAT2) {
+        if (componentType == CesiumGltf::Accessor::ComponentType::BYTE) {
+            return normalized ? DataType::MAT2_INT8_NORM : DataType::MAT2_INT8;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_BYTE) {
+            return normalized ? DataType::MAT2_UINT8_NORM : DataType::MAT2_UINT8;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::SHORT) {
+            return normalized ? DataType::MAT2_INT16_NORM : DataType::MAT2_INT16;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_SHORT) {
+            return normalized ? DataType::MAT2_UINT16_NORM : DataType::MAT2_UINT16;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::FLOAT) {
+            return DataType::MAT2_FLOAT32;
+        }
+    } else if (type == CesiumGltf::Accessor::Type::MAT3) {
+        if (componentType == CesiumGltf::Accessor::ComponentType::BYTE) {
+            return normalized ? DataType::MAT3_INT8_NORM : DataType::MAT3_INT8;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_BYTE) {
+            return normalized ? DataType::MAT3_UINT8_NORM : DataType::MAT3_UINT8;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::SHORT) {
+            return normalized ? DataType::MAT3_INT16_NORM : DataType::MAT3_INT16;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_SHORT) {
+            return normalized ? DataType::MAT3_UINT16_NORM : DataType::MAT3_UINT16;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::FLOAT) {
+            return DataType::MAT3_FLOAT32;
+        }
+    } else if (type == CesiumGltf::Accessor::Type::MAT4) {
+        if (componentType == CesiumGltf::Accessor::ComponentType::BYTE) {
+            return normalized ? DataType::MAT4_INT8_NORM : DataType::MAT4_INT8;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_BYTE) {
+            return normalized ? DataType::MAT4_UINT8_NORM : DataType::MAT4_UINT8;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::SHORT) {
+            return normalized ? DataType::MAT4_INT16_NORM : DataType::MAT4_INT16;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_SHORT) {
+            return normalized ? DataType::MAT4_UINT16_NORM : DataType::MAT4_UINT16;
+        } else if (componentType == CesiumGltf::Accessor::ComponentType::FLOAT) {
+            return DataType::MAT4_FLOAT32;
+        }
+    }
+
+    return std::nullopt;
 }
 
 } // namespace
@@ -359,18 +483,18 @@ PositionsAccessor getPositions(const CesiumGltf::Model& model, const CesiumGltf:
 
 std::optional<std::array<glm::dvec3, 2>>
 getExtent(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
-    auto positionAttribute = primitive.attributes.find("POSITION");
-    if (positionAttribute == primitive.attributes.end()) {
+    const auto it = primitive.attributes.find("POSITION");
+    if (it == primitive.attributes.end()) {
         return std::nullopt;
     }
 
-    auto positionAccessor = model.getSafe<CesiumGltf::Accessor>(&model.accessors, positionAttribute->second);
-    if (!positionAccessor) {
+    auto pPositionAccessor = model.getSafe(&model.accessors, it->second);
+    if (!pPositionAccessor) {
         return std::nullopt;
     }
 
-    const auto& min = positionAccessor->min;
-    const auto& max = positionAccessor->max;
+    const auto& min = pPositionAccessor->min;
+    const auto& max = pPositionAccessor->max;
 
     if (min.size() != 3 || max.size() != 3) {
         return std::nullopt;
@@ -383,19 +507,19 @@ IndicesAccessor getIndices(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     const PositionsAccessor& positions) {
-    const auto indicesAccessor = model.getSafe<CesiumGltf::Accessor>(&model.accessors, primitive.indices);
-    if (!indicesAccessor) {
+    const auto pIndicesAccessor = model.getSafe(&model.accessors, primitive.indices);
+    if (!pIndicesAccessor) {
         return {positions.size()};
     }
 
-    if (indicesAccessor->componentType == CesiumGltf::AccessorSpec::ComponentType::UNSIGNED_BYTE) {
-        CesiumGltf::AccessorView<uint8_t> view{model, *indicesAccessor};
+    if (pIndicesAccessor->componentType == CesiumGltf::AccessorSpec::ComponentType::UNSIGNED_BYTE) {
+        CesiumGltf::AccessorView<uint8_t> view(model, *pIndicesAccessor);
         return getIndicesAccessor(primitive, view);
-    } else if (indicesAccessor->componentType == CesiumGltf::AccessorSpec::ComponentType::UNSIGNED_SHORT) {
-        CesiumGltf::AccessorView<uint16_t> view{model, *indicesAccessor};
+    } else if (pIndicesAccessor->componentType == CesiumGltf::AccessorSpec::ComponentType::UNSIGNED_SHORT) {
+        CesiumGltf::AccessorView<uint16_t> view(model, *pIndicesAccessor);
         return getIndicesAccessor(primitive, view);
-    } else if (indicesAccessor->componentType == CesiumGltf::AccessorSpec::ComponentType::UNSIGNED_INT) {
-        CesiumGltf::AccessorView<uint32_t> view{model, *indicesAccessor};
+    } else if (pIndicesAccessor->componentType == CesiumGltf::AccessorSpec::ComponentType::UNSIGNED_INT) {
+        CesiumGltf::AccessorView<uint32_t> view(model, *pIndicesAccessor);
         return getIndicesAccessor(primitive, view);
     }
 
@@ -432,8 +556,10 @@ getTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& pr
     return getTexcoords(model, primitive, "TEXCOORD", setIndex, true);
 }
 
-TexcoordsAccessor
-getImageryTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex) {
+TexcoordsAccessor getRasterOverlayTexcoords(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive,
+    uint64_t setIndex) {
     return getTexcoords(model, primitive, "_CESIUMOVERLAY", setIndex, false);
 }
 
@@ -444,81 +570,37 @@ getVertexColors(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive&
         return {};
     }
 
-    auto vertexColorAccessor = model.getSafe<CesiumGltf::Accessor>(&model.accessors, vertexColorAttribute->second);
-    if (!vertexColorAccessor) {
+    const auto pVertexColorAccessor = model.getSafe(&model.accessors, vertexColorAttribute->second);
+    if (!pVertexColorAccessor) {
         return {};
     }
 
-    if (vertexColorAccessor->componentType == CesiumGltf::AccessorSpec::ComponentType::UNSIGNED_BYTE) {
-        if (vertexColorAccessor->type == CesiumGltf::AccessorSpec::Type::VEC3) {
-            return getVertexColorsAccessor<glm::u8vec3>(model, *vertexColorAccessor);
-        } else if (vertexColorAccessor->type == CesiumGltf::AccessorSpec::Type::VEC4) {
-            return getVertexColorsAccessor<glm::u8vec4>(model, *vertexColorAccessor);
+    if (pVertexColorAccessor->componentType == CesiumGltf::AccessorSpec::ComponentType::UNSIGNED_BYTE) {
+        if (pVertexColorAccessor->type == CesiumGltf::AccessorSpec::Type::VEC3) {
+            return getVertexColorsAccessor<glm::u8vec3>(model, *pVertexColorAccessor);
+        } else if (pVertexColorAccessor->type == CesiumGltf::AccessorSpec::Type::VEC4) {
+            return getVertexColorsAccessor<glm::u8vec4>(model, *pVertexColorAccessor);
         }
-    } else if (vertexColorAccessor->componentType == CesiumGltf::AccessorSpec::ComponentType::UNSIGNED_SHORT) {
-        if (vertexColorAccessor->type == CesiumGltf::AccessorSpec::Type::VEC3) {
-            return getVertexColorsAccessor<glm::u16vec3>(model, *vertexColorAccessor);
-        } else if (vertexColorAccessor->type == CesiumGltf::AccessorSpec::Type::VEC4) {
-            return getVertexColorsAccessor<glm::u16vec4>(model, *vertexColorAccessor);
+    } else if (pVertexColorAccessor->componentType == CesiumGltf::AccessorSpec::ComponentType::UNSIGNED_SHORT) {
+        if (pVertexColorAccessor->type == CesiumGltf::AccessorSpec::Type::VEC3) {
+            return getVertexColorsAccessor<glm::u16vec3>(model, *pVertexColorAccessor);
+        } else if (pVertexColorAccessor->type == CesiumGltf::AccessorSpec::Type::VEC4) {
+            return getVertexColorsAccessor<glm::u16vec4>(model, *pVertexColorAccessor);
         }
-    } else if (vertexColorAccessor->componentType == CesiumGltf::AccessorSpec::ComponentType::FLOAT) {
-        if (vertexColorAccessor->type == CesiumGltf::AccessorSpec::Type::VEC3) {
-            return getVertexColorsAccessor<glm::fvec3>(model, *vertexColorAccessor);
-        } else if (vertexColorAccessor->type == CesiumGltf::AccessorSpec::Type::VEC4) {
-            return getVertexColorsAccessor<glm::fvec4>(model, *vertexColorAccessor);
+    } else if (pVertexColorAccessor->componentType == CesiumGltf::AccessorSpec::ComponentType::FLOAT) {
+        if (pVertexColorAccessor->type == CesiumGltf::AccessorSpec::Type::VEC3) {
+            return getVertexColorsAccessor<glm::fvec3>(model, *pVertexColorAccessor);
+        } else if (pVertexColorAccessor->type == CesiumGltf::AccessorSpec::Type::VEC4) {
+            return getVertexColorsAccessor<glm::fvec4>(model, *pVertexColorAccessor);
         }
     }
 
     return {};
 }
 
-template <VertexAttributeType T>
-VertexAttributeAccessor<T> getVertexAttributeValues(
-    const CesiumGltf::Model& model,
-    const CesiumGltf::MeshPrimitive& primitive,
-    const std::string& attributeName) {
-    const auto attribute = primitive.attributes.find(attributeName);
-    if (attribute == primitive.attributes.end()) {
-        return {};
-    }
-
-    auto accessor = model.getSafe<CesiumGltf::Accessor>(&model.accessors, attribute->second);
-    if (!accessor) {
-        return {};
-    }
-
-    auto view = CesiumGltf::AccessorView<GetNativeType<T>>(model, *accessor);
-
-    if (view.status() != CesiumGltf::AccessorViewStatus::Valid) {
-        return {};
-    }
-
-    return VertexAttributeAccessor<T>(view, accessor->normalized);
+VertexIdsAccessor getVertexIds(const PositionsAccessor& positionsAccessor) {
+    return {positionsAccessor.size()};
 }
-
-// Explicit template instantiation
-// clang-format off
-template VertexAttributeAccessor<VertexAttributeType::UINT8> getVertexAttributeValues<VertexAttributeType::UINT8>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::INT8> getVertexAttributeValues<VertexAttributeType::INT8>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::UINT16> getVertexAttributeValues<VertexAttributeType::UINT16>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::INT16> getVertexAttributeValues<VertexAttributeType::INT16>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::FLOAT32> getVertexAttributeValues<VertexAttributeType::FLOAT32>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC2_UINT8> getVertexAttributeValues<VertexAttributeType::VEC2_UINT8>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC2_INT8> getVertexAttributeValues<VertexAttributeType::VEC2_INT8>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC2_UINT16> getVertexAttributeValues<VertexAttributeType::VEC2_UINT16>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC2_INT16> getVertexAttributeValues<VertexAttributeType::VEC2_INT16>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC2_FLOAT32> getVertexAttributeValues<VertexAttributeType::VEC2_FLOAT32>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC3_UINT8> getVertexAttributeValues<VertexAttributeType::VEC3_UINT8>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC3_INT8> getVertexAttributeValues<VertexAttributeType::VEC3_INT8>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC3_UINT16> getVertexAttributeValues<VertexAttributeType::VEC3_UINT16>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC3_INT16> getVertexAttributeValues<VertexAttributeType::VEC3_INT16>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC3_FLOAT32> getVertexAttributeValues<VertexAttributeType::VEC3_FLOAT32>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC4_UINT8> getVertexAttributeValues<VertexAttributeType::VEC4_UINT8>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC4_INT8> getVertexAttributeValues<VertexAttributeType::VEC4_INT8>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC4_UINT16> getVertexAttributeValues<VertexAttributeType::VEC4_UINT16>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC4_INT16> getVertexAttributeValues<VertexAttributeType::VEC4_INT16>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-template VertexAttributeAccessor<VertexAttributeType::VEC4_FLOAT32> getVertexAttributeValues<VertexAttributeType::VEC4_FLOAT32>(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, const std::string& attributeName);
-// clang-format on
 
 const CesiumGltf::ImageCesium*
 getBaseColorTextureImage(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
@@ -526,48 +608,90 @@ getBaseColorTextureImage(const CesiumGltf::Model& model, const CesiumGltf::MeshP
         return nullptr;
     }
 
-    const auto& material = model.materials[static_cast<size_t>(primitive.material)];
+    const auto pMaterial = model.getSafe(&model.materials, primitive.material);
+    if (!pMaterial) {
+        return nullptr;
+    }
 
-    const auto& pbrMetallicRoughness = material.pbrMetallicRoughness;
-    if (pbrMetallicRoughness.has_value() && pbrMetallicRoughness->baseColorTexture.has_value()) {
-        const auto index = pbrMetallicRoughness->baseColorTexture.value().index;
-        if (index >= 0 && static_cast<size_t>(index) < model.textures.size()) {
-            const auto& texture = model.textures[static_cast<size_t>(index)];
-            return &getImageCesium(model, texture);
+    const auto& pbrMetallicRoughness = pMaterial->pbrMetallicRoughness;
+
+    if (pbrMetallicRoughness.has_value() && pbrMetallicRoughness.value().baseColorTexture.has_value()) {
+        const auto index = pbrMetallicRoughness.value().baseColorTexture.value().index;
+        const auto pBaseColorTexture = model.getSafe(&model.textures, index);
+        if (pBaseColorTexture) {
+            return getImageCesium(model, *pBaseColorTexture);
         }
     }
 
     return nullptr;
 }
 
-MaterialInfo getMaterialInfo(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+const CesiumGltf::ImageCesium* getFeatureIdTextureImage(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive,
+    uint64_t featureIdSetIndex) {
+
+    const auto pMeshFeatures = primitive.getExtension<CesiumGltf::ExtensionExtMeshFeatures>();
+    if (!pMeshFeatures) {
+        return nullptr;
+    }
+
+    const auto pFeatureId = model.getSafe(&pMeshFeatures->featureIds, static_cast<int32_t>(featureIdSetIndex));
+    if (!pFeatureId) {
+        return nullptr;
+    }
+
+    if (!pFeatureId->texture.has_value()) {
+        return nullptr;
+    }
+
+    const auto featureIdTextureView = CesiumGltf::FeatureIdTextureView(model, pFeatureId->texture.value());
+    if (featureIdTextureView.status() != CesiumGltf::FeatureIdTextureViewStatus::Valid) {
+        return nullptr;
+    }
+
+    return featureIdTextureView.getImage();
+}
+
+FabricMaterialInfo getMaterialInfo(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
     if (!hasMaterial(primitive)) {
         return getDefaultMaterialInfo();
     }
 
+    const auto pMaterial = model.getSafe(&model.materials, primitive.material);
+    if (!pMaterial) {
+        return getDefaultMaterialInfo();
+    }
+
+// Ignore uninitialized member warning from gcc 11.2.0. This warning is not reported in gcc 11.4.0
+#ifdef CESIUM_OMNI_GCC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
     auto materialInfo = getDefaultMaterialInfo();
+#ifdef CESIUM_OMNI_GCC
+#pragma GCC diagnostic pop
+#endif
 
-    const auto& material = model.materials[static_cast<size_t>(primitive.material)];
+    materialInfo.alphaCutoff = getAlphaCutoff(*pMaterial);
+    materialInfo.alphaMode = getAlphaMode(*pMaterial);
+    materialInfo.emissiveFactor = getEmissiveFactor(*pMaterial);
+    materialInfo.doubleSided = getDoubleSided(*pMaterial);
 
-    materialInfo.alphaCutoff = getAlphaCutoff(material);
-    materialInfo.alphaMode = getAlphaMode(material);
-    materialInfo.emissiveFactor = getEmissiveFactor(material);
-    materialInfo.doubleSided = getDoubleSided(material);
-
-    const auto& pbrMetallicRoughness = material.pbrMetallicRoughness;
+    const auto& pbrMetallicRoughness = pMaterial->pbrMetallicRoughness;
     if (pbrMetallicRoughness.has_value()) {
         materialInfo.baseAlpha = getBaseAlpha(pbrMetallicRoughness.value());
         materialInfo.baseColorFactor = getBaseColorFactor(pbrMetallicRoughness.value());
         materialInfo.metallicFactor = getMetallicFactor(pbrMetallicRoughness.value());
         materialInfo.roughnessFactor = getRoughnessFactor(pbrMetallicRoughness.value());
 
-        if (pbrMetallicRoughness.value().baseColorTexture.has_value()) {
+        if (pbrMetallicRoughness.value().baseColorTexture.has_value() && getBaseColorTextureImage(model, primitive)) {
             materialInfo.baseColorTexture =
                 getTextureInfo(model, pbrMetallicRoughness.value().baseColorTexture.value());
         }
     }
 
-    if (material.hasExtension<CesiumGltf::ExtensionKhrMaterialsUnlit>()) {
+    if (pMaterial->hasExtension<CesiumGltf::ExtensionKhrMaterialsUnlit>()) {
         // Unlit materials aren't supported in Omniverse yet but we can hard code the material values to something reasonable
         materialInfo.metallicFactor = 0.0;
         materialInfo.roughnessFactor = 1.0;
@@ -578,9 +702,41 @@ MaterialInfo getMaterialInfo(const CesiumGltf::Model& model, const CesiumGltf::M
     return materialInfo;
 }
 
-std::set<VertexAttributeInfo>
+FabricFeaturesInfo getFeaturesInfo(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+    const auto& pMeshFeatures = primitive.getExtension<CesiumGltf::ExtensionExtMeshFeatures>();
+    if (!pMeshFeatures) {
+        return {};
+    }
+
+    const auto& featureIds = pMeshFeatures->featureIds;
+
+    FabricFeaturesInfo featuresInfo;
+    featuresInfo.featureIds.reserve(featureIds.size());
+
+    for (const auto& featureId : featureIds) {
+        const auto nullFeatureId = CppUtil::castOptional<uint64_t>(featureId.nullFeatureId);
+        const auto featureCount = static_cast<uint64_t>(featureId.featureCount);
+
+        auto featureIdStorage = std::variant<std::monostate, uint64_t, FabricTextureInfo>();
+
+        if (featureId.attribute.has_value()) {
+            featureIdStorage = static_cast<uint64_t>(featureId.attribute.value());
+        } else if (featureId.texture.has_value()) {
+            featureIdStorage = getFeatureIdTextureInfo(model, featureId.texture.value());
+        } else {
+            featureIdStorage = std::monostate();
+        }
+
+        // In C++ 20 this can be emplace_back without the {}
+        featuresInfo.featureIds.push_back({nullFeatureId, featureCount, featureIdStorage});
+    }
+
+    return featuresInfo;
+}
+
+std::set<FabricVertexAttributeDescriptor>
 getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
-    constexpr std::array<const char*, 8> knownSemantics = {{
+    constexpr std::array<std::string_view, 8> knownSemantics = {{
         "POSITION",
         "NORMAL",
         "TANGENT",
@@ -591,21 +747,21 @@ getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::Mesh
         "_CESIUMOVERLAY",
     }};
 
-    std::set<VertexAttributeInfo> customVertexAttributes;
+    std::set<FabricVertexAttributeDescriptor> customVertexAttributes;
 
     for (const auto& attribute : primitive.attributes) {
         const auto& attributeName = attribute.first;
         const auto [semantic, setIndex] = parseAttributeName(attributeName);
-        if (std::find(knownSemantics.begin(), knownSemantics.end(), semantic) != knownSemantics.end()) {
+        if (CppUtil::contains(knownSemantics, semantic)) {
             continue;
         }
 
-        auto accessor = model.getSafe<CesiumGltf::Accessor>(&model.accessors, static_cast<int32_t>(attribute.second));
-        if (!accessor) {
+        auto pAccessor = model.getSafe(&model.accessors, static_cast<int32_t>(attribute.second));
+        if (!pAccessor) {
             continue;
         }
 
-        const auto valid = createAccessorView(model, *accessor, [](const auto& accessorView) {
+        const auto valid = createAccessorView(model, *pAccessor, [](const auto& accessorView) {
             return accessorView.status() == CesiumGltf::AccessorViewStatus::Valid;
         });
 
@@ -613,7 +769,7 @@ getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::Mesh
             continue;
         }
 
-        const auto type = getVertexAttributeTypeFromGltf(accessor->type, accessor->componentType);
+        const auto type = getVertexAttributeTypeFromGltf(*pAccessor);
 
         if (!type.has_value()) {
             continue;
@@ -622,7 +778,8 @@ getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::Mesh
         const auto fabricAttributeNameStr = fmt::format("primvars:{}", attributeName);
         const auto fabricAttributeName = omni::fabric::Token(fabricAttributeNameStr.c_str());
 
-        customVertexAttributes.insert(VertexAttributeInfo{
+        // In C++ 20 this can be emplace without the {}
+        customVertexAttributes.insert(FabricVertexAttributeDescriptor{
             type.value(),
             fabricAttributeName,
             attributeName,
@@ -632,8 +789,8 @@ getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::Mesh
     return customVertexAttributes;
 }
 
-MaterialInfo getDefaultMaterialInfo() {
-    return {
+const FabricMaterialInfo& getDefaultMaterialInfo() {
+    static const auto defaultInfo = FabricMaterialInfo{
         getDefaultAlphaCutoff(),
         getDefaultAlphaMode(),
         getDefaultBaseAlpha(),
@@ -645,10 +802,12 @@ MaterialInfo getDefaultMaterialInfo() {
         false,
         std::nullopt,
     };
+
+    return defaultInfo;
 }
 
-TextureInfo getDefaultTextureInfo() {
-    return {
+const FabricTextureInfo& getDefaultTextureInfo() {
+    static const auto defaultInfo = FabricTextureInfo{
         getDefaultTexcoordOffset(),
         getDefaultTexcoordRotation(),
         getDefaultTexcoordScale(),
@@ -656,7 +815,18 @@ TextureInfo getDefaultTextureInfo() {
         getDefaultWrapS(),
         getDefaultWrapT(),
         true,
+        {},
     };
+
+    return defaultInfo;
+}
+
+FabricTextureInfo getPropertyTexturePropertyInfo(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::PropertyTextureProperty& propertyTextureProperty) {
+    FabricTextureInfo textureInfo = getTextureInfo(model, propertyTextureProperty);
+    textureInfo.channels = getChannels(propertyTextureProperty);
+    return textureInfo;
 }
 
 bool hasNormals(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, bool smoothNormals) {
@@ -667,12 +837,20 @@ bool hasTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitiv
     return getTexcoordsView(model, primitive, "TEXCOORD", setIndex).status() == CesiumGltf::AccessorViewStatus::Valid;
 }
 
-bool hasImageryTexcoords(
+bool hasRasterOverlayTexcoords(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     uint64_t setIndex) {
     return getTexcoordsView(model, primitive, "_CESIUMOVERLAY", setIndex).status() ==
            CesiumGltf::AccessorViewStatus::Valid;
+}
+
+bool hasVertexColors(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex) {
+    return getVertexColors(model, primitive, setIndex).size() > 0;
+}
+
+bool hasMaterial(const CesiumGltf::MeshPrimitive& primitive) {
+    return primitive.material >= 0;
 }
 
 std::vector<uint64_t>
@@ -692,13 +870,13 @@ getTexcoordSetIndexes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrim
 }
 
 std::vector<uint64_t>
-getImageryTexcoordSetIndexes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+getRasterOverlayTexcoordSetIndexes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
     auto setIndexes = std::vector<uint64_t>();
 
     for (const auto& attribute : primitive.attributes) {
         const auto [semantic, setIndex] = parseAttributeName(attribute.first);
         if (semantic == "_CESIUMOVERLAY") {
-            if (hasImageryTexcoords(model, primitive, setIndex)) {
+            if (hasRasterOverlayTexcoords(model, primitive, setIndex)) {
                 setIndexes.push_back(setIndex);
             }
         }
@@ -707,42 +885,26 @@ getImageryTexcoordSetIndexes(const CesiumGltf::Model& model, const CesiumGltf::M
     return setIndexes;
 }
 
-bool hasVertexColors(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex) {
-    return getVertexColors(model, primitive, setIndex).size() > 0;
-}
+CesiumGltf::Ktx2TranscodeTargets getKtx2TranscodeTargets() {
+    CesiumGltf::SupportedGpuCompressedPixelFormats supportedFormats;
 
-bool hasMaterial(const CesiumGltf::MeshPrimitive& primitive) {
-    return primitive.material >= 0;
+    // Only BCN compressed texture formats are supported in Omniverse
+    supportedFormats.ETC1_RGB = false;
+    supportedFormats.ETC2_RGBA = false;
+    supportedFormats.BC1_RGB = true;
+    supportedFormats.BC3_RGBA = true;
+    supportedFormats.BC4_R = true;
+    supportedFormats.BC5_RG = true;
+    supportedFormats.BC7_RGBA = true;
+    supportedFormats.PVRTC1_4_RGB = false;
+    supportedFormats.PVRTC1_4_RGBA = false;
+    supportedFormats.ASTC_4x4_RGBA = false;
+    supportedFormats.PVRTC2_4_RGB = false;
+    supportedFormats.PVRTC2_4_RGBA = false;
+    supportedFormats.ETC2_EAC_R11 = false;
+    supportedFormats.ETC2_EAC_RG11 = false;
+
+    return {supportedFormats, false};
 }
 
 } // namespace cesium::omniverse::GltfUtil
-
-namespace cesium::omniverse {
-
-// In C++ 20 we can use the default equality comparison (= default)
-bool TextureInfo::operator==(const TextureInfo& other) const {
-    return offset == other.offset && rotation == other.rotation && scale == other.scale && setIndex == other.setIndex &&
-           wrapS == other.wrapS && wrapT == other.wrapT && flipVertical == other.flipVertical;
-}
-
-// In C++ 20 we can use the default equality comparison (= default)
-bool MaterialInfo::operator==(const MaterialInfo& other) const {
-    return alphaCutoff == other.alphaCutoff && alphaMode == other.alphaMode && baseAlpha == other.baseAlpha &&
-           baseColorFactor == other.baseColorFactor && emissiveFactor == other.emissiveFactor &&
-           metallicFactor == other.metallicFactor && roughnessFactor == other.roughnessFactor &&
-           doubleSided == other.doubleSided && hasVertexColors == other.hasVertexColors &&
-           baseColorTexture == other.baseColorTexture;
-}
-
-// In C++ 20 we can use the default equality comparison (= default)
-bool VertexAttributeInfo::operator==(const VertexAttributeInfo& other) const {
-    return type == other.type && fabricAttributeName == other.fabricAttributeName &&
-           gltfAttributeName == other.gltfAttributeName;
-}
-
-// This is needed for std::set to be sorted
-bool VertexAttributeInfo::operator<(const VertexAttributeInfo& other) const {
-    return fabricAttributeName < other.fabricAttributeName;
-}
-
-} // namespace cesium::omniverse

@@ -4,19 +4,24 @@
 
 namespace cesium::omniverse {
 
-FabricTexturePool::FabricTexturePool(int64_t poolId, uint64_t initialCapacity)
+FabricTexturePool::FabricTexturePool(Context* pContext, int64_t poolId, uint64_t initialCapacity)
     : ObjectPool<FabricTexture>()
+    , _pContext(pContext)
     , _poolId(poolId) {
     setCapacity(initialCapacity);
 }
 
-std::shared_ptr<FabricTexture> FabricTexturePool::createObject(uint64_t objectId) {
-    const auto name = fmt::format("/fabric_texture_pool_{}_object_{}", _poolId, objectId);
-    return std::make_shared<FabricTexture>(name);
+int64_t FabricTexturePool::getPoolId() const {
+    return _poolId;
 }
 
-void FabricTexturePool::setActive(std::shared_ptr<FabricTexture> texture, bool active) {
-    texture->setActive(active);
+std::shared_ptr<FabricTexture> FabricTexturePool::createObject(uint64_t objectId) const {
+    const auto name = fmt::format("/cesium_texture_pool_{}_object_{}", _poolId, objectId);
+    return std::make_shared<FabricTexture>(_pContext, name, _poolId);
+}
+
+void FabricTexturePool::setActive(FabricTexture* pTexture, bool active) const {
+    pTexture->setActive(active);
 }
 
 }; // namespace cesium::omniverse

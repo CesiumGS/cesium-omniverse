@@ -1,5 +1,5 @@
 [package]
-version = "0.13.0"
+version = "0.17.0"
 category = "simulation"
 feature = false
 app = false
@@ -27,9 +27,13 @@ icon = "doc/resources/icon.png"
 [package.target]
 kit = ["105.1"]
 
+[package.writeTarget]
+kit = true
+python = false
+
 # Which extensions this extension depends on
 [dependencies]
-"cesium.usd.plugins" = {}
+"cesium.usd.plugins" = { version = "0.3.0" }
 "usdrt.scenegraph" = {}
 "omni.ui" = {}
 "omni.usd" = {}

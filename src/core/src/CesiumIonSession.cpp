@@ -5,20 +5,21 @@
 #include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/SettingsWrapper.h"
 
+#include <CesiumUtility/Uri.h>
+
+#include <utility>
+
 using namespace CesiumAsync;
 using namespace CesiumIonClient;
 
 using namespace cesium::omniverse;
 
-#ifdef CESIUM_OMNI_WINDOWS
-const char* browserCommandBase = "start";
-#else
-const char* browserCommandBase = "xdg-open";
-#endif
-
 CesiumIonSession::CesiumIonSession(
-    CesiumAsync::AsyncSystem& asyncSystem,
-    std::shared_ptr<CesiumAsync::IAssetAccessor> pAssetAccessor)
+    const CesiumAsync::AsyncSystem& asyncSystem,
+    std::shared_ptr<CesiumAsync::IAssetAccessor> pAssetAccessor,
+    std::string ionServerUrl,
+    std::string ionApiUrl,
+    int64_t ionApplicationId)
     : _asyncSystem(asyncSystem)
     , _pAssetAccessor(std::move(pAssetAccessor))
     , _connection(std::nullopt)
@@ -33,7 +34,10 @@ CesiumIonSession::CesiumIonSession(
     , _loadProfileQueued(false)
     , _loadAssetsQueued(false)
     , _loadTokensQueued(false)
-    , _authorizeUrl() {}
+    , _authorizeUrl()
+    , _ionServerUrl(std::move(ionServerUrl))
+    , _ionApiUrl(std::move(ionApiUrl))
+    , _ionApplicationId(ionApplicationId) {}
 
 void CesiumIonSession::connect() {
     if (this->isConnecting() || this->isConnected() || this->isResuming()) {
@@ -46,18 +50,23 @@ void CesiumIonSession::connect() {
         this->_asyncSystem,
         this->_pAssetAccessor,
         "Cesium for Omniverse",
-        413,
+        _ionApplicationId,
         "/cesium-for-omniverse/oauth2/callback",
         {"assets:list", "assets:read", "profile:read", "tokens:read", "tokens:write", "geocode"},
         [this](const std::string& url) {
             // NOTE: We open the browser in the Python code. Check in the sign in widget's on_update_frame function.
             this->_authorizeUrl = url;
-        })
+        },
+        _ionApiUrl,
+        CesiumUtility::Uri::resolve(_ionServerUrl, "oauth"))
         .thenInMainThread([this](CesiumIonClient::Connection&& connection) {
             this->_isConnecting = false;
             this->_connection = std::move(connection);
 
-            Settings::setAccessToken(this->_connection.value().getAccessToken());
+            Settings::AccessToken token;
+            token.ionApiUrl = _ionApiUrl;
+            token.accessToken = this->_connection.value().getAccessToken();
+            Settings::setAccessToken(token);
 
             Broadcast::connectionUpdated();
         })
@@ -74,15 +83,29 @@ void CesiumIonSession::resume() {
         return;
     }
 
-    std::string userAccessToken = Settings::getAccessToken();
-    if (userAccessToken.empty()) {
+    auto tokens = Settings::getAccessTokens();
+
+    if (tokens.size() < 1) {
+        // No existing session to resume.
+        return;
+    }
+
+    std::string accessToken;
+    for (const auto& token : tokens) {
+        if (token.ionApiUrl == _ionApiUrl) {
+            accessToken = token.accessToken;
+            break;
+        }
+    }
+
+    if (accessToken.empty()) {
         // No existing session to resume.
         return;
     }
 
     this->_isResuming = true;
 
-    this->_connection = Connection(this->_asyncSystem, this->_pAssetAccessor, userAccessToken);
+    this->_connection = Connection(this->_asyncSystem, this->_pAssetAccessor, accessToken);
 
     // Verify that the connection actually works.
     this->_connection.value()
@@ -107,7 +130,7 @@ void CesiumIonSession::disconnect() {
     this->_assets.reset();
     this->_tokens.reset();
 
-    Settings::setAccessToken("");
+    Settings::removeAccessToken(_ionApiUrl);
 
     Broadcast::connectionUpdated();
     Broadcast::profileUpdated();
@@ -177,7 +200,7 @@ void CesiumIonSession::refreshTokens() {
     this->_connection->tokens()
         .thenInMainThread([this](Response<TokenList>&& tokens) {
             this->_isLoadingTokens = false;
-            this->_tokens = tokens.value ? std::make_optional(std::move(tokens.value->items)) : std::nullopt;
+            this->_tokens = tokens.value ? std::make_optional(std::move(tokens.value.value().items)) : std::nullopt;
             Broadcast::tokensUpdated();
             this->refreshTokensIfNeeded();
         })
@@ -246,80 +269,14 @@ bool CesiumIonSession::refreshTokensIfNeeded() {
 
 Future<Response<Token>> CesiumIonSession::findToken(const std::string& token) const {
     if (!this->_connection) {
-        return this->getAsyncSystem().createResolvedFuture(
-            Response<Token>(0, "NOTCONNECTED", "Not connected to Cesium ion."));
+        return _asyncSystem.createResolvedFuture(Response<Token>(0, "NOTCONNECTED", "Not connected to Cesium ion."));
     }
 
     std::optional<std::string> maybeTokenID = Connection::getIdFromToken(token);
 
     if (!maybeTokenID) {
-        return this->getAsyncSystem().createResolvedFuture(
-            Response<Token>(0, "INVALIDTOKEN", "The token is not valid."));
+        return _asyncSystem.createResolvedFuture(Response<Token>(0, "INVALIDTOKEN", "The token is not valid."));
     }
 
     return this->_connection->token(*maybeTokenID);
-}
-
-namespace {
-
-Token tokenFromSettings() {
-    Token result;
-    result.token = Settings::getDefaultAccessToken();
-    return result;
-}
-
-Future<Token> getTokenFuture(const CesiumIonSession& session) {
-    std::string defaultIonAccessToken = Settings::getDefaultAccessToken();
-
-    if (!defaultIonAccessToken.empty()) {
-        return session // NOLINT(bugprone-unchecked-optional-access)
-            .getConnection()
-            ->token(defaultIonAccessToken)
-            .thenImmediately([](Response<Token>&& tokenResponse) {
-                if (tokenResponse.value) {
-                    return *tokenResponse.value;
-                } else {
-                    return tokenFromSettings();
-                }
-            });
-    } else if (!defaultIonAccessToken.empty()) {
-        return session.findToken(defaultIonAccessToken).thenImmediately([](Response<Token>&& response) {
-            if (response.value) {
-                return *response.value;
-            } else {
-                return tokenFromSettings();
-            }
-        });
-    } else {
-        return session.getAsyncSystem().createResolvedFuture(tokenFromSettings());
-    }
-}
-
-} // namespace
-
-SharedFuture<Token> CesiumIonSession::getProjectDefaultTokenDetails() {
-    if (this->_projectDefaultTokenDetailsFuture) {
-        std::string defaultIonAccessToken = Settings::getDefaultAccessToken();
-
-        // If the future is resolved but its token doesn't match the designated
-        // default token, do the request again because the user probably specified a
-        // new token.
-        if (this->_projectDefaultTokenDetailsFuture->isReady() &&
-            this->_projectDefaultTokenDetailsFuture->wait().token != defaultIonAccessToken) {
-            this->_projectDefaultTokenDetailsFuture.reset();
-        } else {
-            return *this->_projectDefaultTokenDetailsFuture;
-        }
-    }
-
-    if (!this->isConnected()) {
-        return this->getAsyncSystem().createResolvedFuture(tokenFromSettings()).share();
-    }
-
-    this->_projectDefaultTokenDetailsFuture = getTokenFuture(*this).share();
-    return *this->_projectDefaultTokenDetailsFuture;
-}
-
-void CesiumIonSession::invalidateProjectDefaultTokenDetails() {
-    this->_projectDefaultTokenDetailsFuture.reset();
 }

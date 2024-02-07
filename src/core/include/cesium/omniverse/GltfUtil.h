@@ -1,11 +1,10 @@
 #pragma once
 
-#include "cesium/omniverse/GltfAccessors.h"
-#include "cesium/omniverse/VertexAttributeType.h"
+#include "cesium/omniverse/DataType.h"
+#include "cesium/omniverse/FabricVertexAttributeAccessors.h"
 
 #include <CesiumGltf/Accessor.h>
-#include <glm/glm.hpp>
-#include <omni/fabric/core/FabricTypes.h>
+#include <glm/fwd.hpp>
 
 #include <set>
 
@@ -15,55 +14,14 @@ struct Material;
 struct Model;
 struct MeshPrimitive;
 struct Texture;
+struct PropertyTextureProperty;
 } // namespace CesiumGltf
 
 namespace cesium::omniverse {
-
-enum class AlphaMode : int {
-    OPAQUE = 0,
-    MASK = 1,
-    BLEND = 2,
-};
-
-struct TextureInfo {
-    glm::dvec2 offset;
-    double rotation;
-    glm::dvec2 scale;
-    uint64_t setIndex;
-    int32_t wrapS;
-    int32_t wrapT;
-    bool flipVertical;
-
-    // Make sure to update this function when adding new fields to the struct
-    bool operator==(const TextureInfo& other) const;
-};
-
-struct MaterialInfo {
-    double alphaCutoff;
-    AlphaMode alphaMode;
-    double baseAlpha;
-    glm::dvec3 baseColorFactor;
-    glm::dvec3 emissiveFactor;
-    double metallicFactor;
-    double roughnessFactor;
-    bool doubleSided;
-    bool hasVertexColors;
-    std::optional<TextureInfo> baseColorTexture;
-
-    // Make sure to update this function when adding new fields to the struct
-    bool operator==(const MaterialInfo& other) const;
-};
-
-struct VertexAttributeInfo {
-    VertexAttributeType type;
-    omni::fabric::Token fabricAttributeName;
-    std::string gltfAttributeName;
-
-    // Make sure to update this function when adding new fields to the struct
-    bool operator==(const VertexAttributeInfo& other) const;
-    bool operator<(const VertexAttributeInfo& other) const;
-};
-
+struct FabricFeaturesInfo;
+struct FabricMaterialInfo;
+struct FabricTextureInfo;
+struct FabricVertexAttributeDescriptor;
 } // namespace cesium::omniverse
 
 namespace cesium::omniverse::GltfUtil {
@@ -90,37 +48,75 @@ NormalsAccessor getNormals(
 TexcoordsAccessor
 getTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);
 
-TexcoordsAccessor
-getImageryTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);
+TexcoordsAccessor getRasterOverlayTexcoords(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive,
+    uint64_t setIndex);
 
 VertexColorsAccessor
 getVertexColors(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);
 
-template <VertexAttributeType T>
-VertexAttributeAccessor<T> getVertexAttributeValues(
-    const CesiumGltf::Model& model,
-    const CesiumGltf::MeshPrimitive& primitive,
-    const std::string& attributeName);
+VertexIdsAccessor getVertexIds(const PositionsAccessor& positionsAccessor);
 
 const CesiumGltf::ImageCesium*
 getBaseColorTextureImage(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
-MaterialInfo getMaterialInfo(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
+const CesiumGltf::ImageCesium* getFeatureIdTextureImage(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive,
+    uint64_t featureIdSetIndex);
 
-std::set<VertexAttributeInfo>
+FabricMaterialInfo getMaterialInfo(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
+
+FabricFeaturesInfo getFeaturesInfo(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
+
+std::set<FabricVertexAttributeDescriptor>
 getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
-MaterialInfo getDefaultMaterialInfo();
-TextureInfo getDefaultTextureInfo();
+const FabricMaterialInfo& getDefaultMaterialInfo();
+const FabricTextureInfo& getDefaultTextureInfo();
+FabricTextureInfo getPropertyTexturePropertyInfo(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::PropertyTextureProperty& propertyTextureProperty);
 
 bool hasNormals(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, bool smoothNormals);
 bool hasTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);
-bool hasImageryTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);
+bool hasRasterOverlayTexcoords(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive,
+    uint64_t setIndex);
 bool hasVertexColors(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);
 bool hasMaterial(const CesiumGltf::MeshPrimitive& primitive);
 
 std::vector<uint64_t> getTexcoordSetIndexes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 std::vector<uint64_t>
-getImageryTexcoordSetIndexes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
+getRasterOverlayTexcoordSetIndexes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
+
+CesiumGltf::Ktx2TranscodeTargets getKtx2TranscodeTargets();
+
+template <DataType T>
+VertexAttributeAccessor<T> getVertexAttributeValues(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive,
+    const std::string& attributeName) {
+
+    const auto it = primitive.attributes.find(attributeName);
+    if (it == primitive.attributes.end()) {
+        return {};
+    }
+
+    const auto pAccessor = model.getSafe(&model.accessors, it->second);
+    if (!pAccessor) {
+        return {};
+    }
+
+    const auto view = CesiumGltf::AccessorView<DataTypeUtil::GetNativeType<T>>(model, *pAccessor);
+
+    if (view.status() != CesiumGltf::AccessorViewStatus::Valid) {
+        return {};
+    }
+
+    return VertexAttributeAccessor<T>(view);
+}
 
 } // namespace cesium::omniverse::GltfUtil

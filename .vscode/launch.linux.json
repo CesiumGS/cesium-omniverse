@@ -13,6 +13,7 @@
         "ASAN_OPTIONS": "detect_leaks=0",
         "UBSAN_OPTIONS": "print_stacktrace=1"
       },
+      "console": "integratedTerminal",
       "cwd": "${workspaceFolder}",
       "type": "cppdbg",
       "request": "launch",
@@ -48,6 +49,7 @@
         "ASAN_OPTIONS": "detect_leaks=0",
         "UBSAN_OPTIONS": "print_stacktrace=1"
       },
+      "console": "integratedTerminal",
       "cwd": "${workspaceFolder}",
       "type": "cppdbg",
       "request": "launch",
@@ -79,6 +81,7 @@
         "ASAN_OPTIONS": "detect_leaks=0",
         "UBSAN_OPTIONS": "print_stacktrace=1"
       },
+      "console": "integratedTerminal",
       "cwd": "${workspaceFolder}",
       "type": "cppdbg",
       "request": "launch",
@@ -121,6 +124,7 @@
         "ASAN_OPTIONS": "detect_leaks=0",
         "UBSAN_OPTIONS": "print_stacktrace=1"
       },
+      "console": "integratedTerminal",
       "cwd": "${workspaceFolder}",
       "type": "cppdbg",
       "request": "launch",

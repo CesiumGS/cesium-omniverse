@@ -107,6 +107,34 @@ class CesiumGeorefHelperWindow(ui.Window):
                 "Cannot set CesiumGeoreference as environment prim does not have latitude or longitude attributes"
             )
 
+    @staticmethod
+    def set_georef_from_anchor():
+        logger = logging.getLogger(__name__)
+        stage = omni.usd.get_context().get_stage()
+
+        cesium_prim = stage.GetPrimAtPath("/CesiumGeoreference")
+
+        if not cesium_prim.IsValid():
+            logger.error("No CesiumGeoreference found")
+            return
+
+        selection = omni.usd.get_context().get_selection().get_selected_prim_paths()
+
+        for prim_path in selection:
+            prim = stage.GetPrimAtPath(prim_path)
+
+            latitude = prim.GetAttribute("cesium:anchor:latitude").Get()
+            longitude = prim.GetAttribute("cesium:anchor:longitude").Get()
+            height = prim.GetAttribute("cesium:anchor:height").Get()
+
+            if latitude is not None and longitude is not None and height is not None:
+                cesium_prim.GetAttribute("cesium:georeferenceOrigin:latitude").Set(latitude)
+                cesium_prim.GetAttribute("cesium:georeferenceOrigin:longitude").Set(longitude)
+                cesium_prim.GetAttribute("cesium:georeferenceOrigin:height").Set(height)
+                return
+
+        logger.error("Please select a prim with a globe anchor")
+
     def _build_fn(self):
         """Builds out the UI buttons and their handlers."""
 
@@ -172,6 +200,7 @@ class CesiumGeorefHelperWindow(ui.Window):
             ui.Button(
                 "Set Georeference from Environment Prim", height=20, clicked_fn=self.set_georef_from_environment
             )
+            ui.Button("Set Georef from Selected Anchor", height=20, clicked_fn=self.set_georef_from_anchor)
 
             # Do the first conversion
             self._convert_coordinates()

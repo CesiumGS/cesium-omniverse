@@ -18,12 +18,12 @@ from cesium.omniverse.utils import wait_n_frames, dock_window_async
 from cesium.usd.plugins.CesiumUsdSchemas import (
     Data as CesiumData,
     Georeference as CesiumGeoreference,
-    Imagery as CesiumImagery,
+    IonRasterOverlay as CesiumIonRasterOverlay,
     Tileset as CesiumTileset,
     Tokens as CesiumTokens,
 )
 
-ION_ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmYWViYTA1Yi1kNmY1LTRmZWYtYjk3My1hMmQyZGM3ODI3MzQiLCJpZCI6MjU5LCJpYXQiOjE2OTg4NDQ3NjR9.3vUmixeCI7_QD1nwN5aS_7UI3R36WETMLOunIjFie2E"  # noqa: E501
+ION_ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJhM2EyMmQ4MC05M2JmLTQ2ZGMtOTc2Yi0yZjM4NjlhNThkNGUiLCJpZCI6MjU5LCJpYXQiOjE3MDY4MTMxMTl9.9dHK1knCPu6lY-OFTah2mfH-XaT3mE944S2BBEanod0"  # noqa: E501
 GOOGLE_3D_TILES_ION_ID = 2275207
 
 CESIUM_DATA_PRIM_PATH = "/Cesium"
@@ -258,18 +258,20 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         return tileset_path
 
     @staticmethod
-    def _create_imagery_ion(path: str, asset_id: int, access_token: str) -> str:
+    def _create_raster_overlay_ion(path: str, asset_id: int, access_token: str) -> str:
         stage = omni.usd.get_context().get_stage()
-        imagery_path = omni.usd.get_stage_next_free_path(stage, path, False)
-        imagery = CesiumImagery.Define(stage, imagery_path)
-        assert imagery.GetPrim().IsValid()
-        parent = imagery.GetPrim().GetParent()
+        raster_overlay_path = omni.usd.get_stage_next_free_path(stage, path, False)
+        raster_overlay = CesiumIonRasterOverlay.Define(stage, raster_overlay_path)
+        assert raster_overlay.GetPrim().IsValid()
+        parent = raster_overlay.GetPrim().GetParent()
         assert parent.IsA(CesiumTileset)
+        tileset_prim = CesiumTileset.Get(stage, parent.GetPath())
+        tileset_prim.GetRasterOverlayBindingRel().AddTarget(raster_overlay_path)
 
-        imagery.GetIonAssetIdAttr().Set(asset_id)
-        imagery.GetIonAccessTokenAttr().Set(access_token)
+        raster_overlay.GetIonAssetIdAttr().Set(asset_id)
+        raster_overlay.GetIonAccessTokenAttr().Set(access_token)
 
-        return imagery_path
+        return raster_overlay_path
 
     @staticmethod
     def _create_camera(path: str) -> str:
@@ -285,8 +287,8 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         return path
 
     @staticmethod
-    def _get_imagery_path(tileset_path: str, imagery_name: str) -> str:
-        return Sdf.Path(tileset_path).AppendPath(imagery_name).pathString
+    def _get_raster_overlay_path(tileset_path: str, raster_overlay_name: str) -> str:
+        return Sdf.Path(tileset_path).AppendPath(raster_overlay_name).pathString
 
     @staticmethod
     def _set_georeference(longitude: float, latitude: float, height: float):
@@ -372,8 +374,8 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         self._clear_scene()
         self._setup_location_new_york_city()
         tileset_path = self._create_tileset_ion("/Cesium_World_Terrain", 1, ION_ACCESS_TOKEN)
-        self._create_imagery_ion(
-            self._get_imagery_path(tileset_path, "Bing_Maps_Aerial_Imagery"),
+        self._create_raster_overlay_ion(
+            self._get_raster_overlay_path(tileset_path, "Bing_Maps_Aerial_Imagery"),
             2,
             ION_ACCESS_TOKEN,
         )
@@ -384,8 +386,8 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         self._clear_scene()
         self._setup_location_paris()
         tileset_path = self._create_tileset_ion("/Cesium_World_Terrain", 1, ION_ACCESS_TOKEN)
-        self._create_imagery_ion(
-            self._get_imagery_path(tileset_path, "Bing_Maps_Aerial_Imagery"),
+        self._create_raster_overlay_ion(
+            self._get_raster_overlay_path(tileset_path, "Bing_Maps_Aerial_Imagery"),
             2,
             ION_ACCESS_TOKEN,
         )
@@ -396,8 +398,8 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         self._clear_scene()
         self._setup_location_grand_canyon()
         tileset_path = self._create_tileset_ion("/Cesium_World_Terrain", 1, ION_ACCESS_TOKEN)
-        self._create_imagery_ion(
-            self._get_imagery_path(tileset_path, "Bing_Maps_Aerial_Imagery"),
+        self._create_raster_overlay_ion(
+            self._get_raster_overlay_path(tileset_path, "Bing_Maps_Aerial_Imagery"),
             2,
             ION_ACCESS_TOKEN,
         )
@@ -407,8 +409,8 @@ class CesiumPerformanceExtension(omni.ext.IExt):
         self._logger.warning("View Tour")
         self._clear_scene()
         tileset_path = self._create_tileset_ion("/Cesium_World_Terrain", 1, ION_ACCESS_TOKEN)
-        self._create_imagery_ion(
-            self._get_imagery_path(tileset_path, "Bing_Maps_Aerial_Imagery"),
+        self._create_raster_overlay_ion(
+            self._get_raster_overlay_path(tileset_path, "Bing_Maps_Aerial_Imagery"),
             2,
             ION_ACCESS_TOKEN,
         )

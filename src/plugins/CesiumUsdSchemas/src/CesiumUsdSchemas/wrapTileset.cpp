@@ -339,6 +339,16 @@ void wrapCesiumTileset()
              &This::GetGeoreferenceBindingRel)
         .def("CreateGeoreferenceBindingRel",
              &This::CreateGeoreferenceBindingRel)
+        
+        .def("GetIonServerBindingRel",
+             &This::GetIonServerBindingRel)
+        .def("CreateIonServerBindingRel",
+             &This::CreateIonServerBindingRel)
+        
+        .def("GetRasterOverlayBindingRel",
+             &This::GetRasterOverlayBindingRel)
+        .def("CreateRasterOverlayBindingRel",
+             &This::CreateRasterOverlayBindingRel)
         .def("__repr__", ::_Repr)
     ;
 

@@ -1,3 +1,4 @@
+import logging
 import omni.usd
 from omni.kit.viewport.utility import get_active_viewport
 from pxr import Gf, UsdGeom, Sdf
@@ -5,6 +6,7 @@ import json
 import carb.settings
 import os
 from cesium.omniverse.utils.cesium_interface import CesiumInterfaceManager
+from asyncio import ensure_future
 
 
 # Modified version of ScopedEdit in _build_viewport_cameras in omni.kit.widget.viewport
@@ -79,3 +81,4 @@ def set_sunstudy_from_georef():
 
     north_attr = get_or_create_attribute(environment_prim, "location:north_orientation", Sdf.ValueTypeNames.Float)
     north_attr.Set(90.0)  # Always set to 90, otherwise the sun is at the wrong angle
+

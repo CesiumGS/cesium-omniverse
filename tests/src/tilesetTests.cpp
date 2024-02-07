@@ -3,9 +3,11 @@
 #include "testUtils.h"
 
 #include "cesium/omniverse/AssetRegistry.h"
+#include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/UsdUtil.h"
 
+#include <CesiumUsdSchemas/tileset.h>
 #include <carb/dictionary/DictionaryUtils.h>
 #include <carb/events/IEvents.h>
 #include <doctest/doctest.h>
@@ -23,19 +25,19 @@ using namespace cesium::omniverse;
 
 class TilesetLoadListener final : public carb::events::IEventListener {
   public:
-    size_t refCount = 0;
+    uint64_t refCount = 0;
     void onEvent(carb::events::IEvent* e [[maybe_unused]]) override {
         endToEndTilesetLoaded = true;
     };
-    size_t addRef() override {
+    uint64_t addRef() override {
         return ++refCount;
     };
-    size_t release() override {
+    uint64_t release() override {
         return --refCount;
     };
 };
 
-void setUpTilesetTests(const pxr::SdfPath& rootPath) {
+void setUpTilesetTests(Context* pContext, const pxr::SdfPath& rootPath) {
     // Create a listener for tileset load events
     auto app = carb::getCachedInterface<omni::kit::IApp>();
     auto bus = app->getMessageBusEventStream();
@@ -44,8 +46,8 @@ void setUpTilesetTests(const pxr::SdfPath& rootPath) {
     endToEndTilesetSubscriptionPtr = bus->createSubscriptionToPushByType(tilesetLoadedEvent, tilesetLoadListener.get());
 
     // Load a local test tileset
-    endToEndTilesetPath = UsdUtil::getPathUnique(rootPath, "endToEndTileset");
-    auto endToEndTileset = UsdUtil::defineCesiumTileset(endToEndTilesetPath);
+    endToEndTilesetPath = UsdUtil::makeUniquePath(pContext->getUsdStage(), rootPath, "endToEndTileset");
+    auto endToEndTileset = UsdUtil::defineCesiumTileset(pContext->getUsdStage(), endToEndTilesetPath);
     std::string tilesetFilePath = "file://" TEST_WORKING_DIRECTORY "/tests/testAssets/tilesets/Tileset/tileset.json";
 
     endToEndTileset.GetSourceTypeAttr().Set(pxr::TfToken("url"));

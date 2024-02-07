@@ -9,7 +9,7 @@ endif()
 # Both CXX and C need to be given otherwise Conan may ignore the CMAKE_C_COMPILER flag
 project(
     CesiumOmniverse
-    VERSION 0.13.0
+    VERSION 0.17.0
     DESCRIPTION "Cesium for Omniverse"
     LANGUAGES CXX C)
 
@@ -31,11 +31,13 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Find Python for Conan and scripts
-find_package(
-    Python3
-    COMPONENTS Interpreter
-    REQUIRED)
+if (NOT Python3_EXECUTABLE)
+    # Find Python for Conan and scripts
+    find_package(
+        Python3
+        COMPONENTS Interpreter
+        REQUIRED)
+endif()
 
 # Options:
 option(CESIUM_OMNI_ENABLE_TESTS "Unit tests" ON)
@@ -222,6 +224,7 @@ if(MSVC)
         /W4 # enable all warnings
         /WX # error on warnings
         /Zc:__cplusplus # make __cplusplus defined correctly
+        /bigobj
     )
     set(CESIUM_OMNI_CXX_DEFINES
         ${CESIUM_OMNI_CXX_DEFINES}

@@ -416,6 +416,32 @@ CesiumTileset::CreateGeoreferenceBindingRel() const
                        /* custom = */ false);
 }
 
+UsdRelationship
+CesiumTileset::GetIonServerBindingRel() const
+{
+    return GetPrim().GetRelationship(CesiumTokens->cesiumIonServerBinding);
+}
+
+UsdRelationship
+CesiumTileset::CreateIonServerBindingRel() const
+{
+    return GetPrim().CreateRelationship(CesiumTokens->cesiumIonServerBinding,
+                       /* custom = */ false);
+}
+
+UsdRelationship
+CesiumTileset::GetRasterOverlayBindingRel() const
+{
+    return GetPrim().GetRelationship(CesiumTokens->cesiumRasterOverlayBinding);
+}
+
+UsdRelationship
+CesiumTileset::CreateRasterOverlayBindingRel() const
+{
+    return GetPrim().CreateRelationship(CesiumTokens->cesiumRasterOverlayBinding,
+                       /* custom = */ false);
+}
+
 namespace {
 static inline TfTokenVector
 _ConcatenateAttributeNames(const TfTokenVector& left,const TfTokenVector& right)

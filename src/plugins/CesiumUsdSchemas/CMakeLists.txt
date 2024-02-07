@@ -4,7 +4,10 @@ set(SOURCES
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/data.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/globeAnchorAPI.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/georeference.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/imagery.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/ionServer.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/rasterOverlay.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/ionRasterOverlay.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/polygonRasterOverlay.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/session.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/tileset.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/tokens.cpp")
@@ -15,7 +18,10 @@ set(PY_BINDING_SOURCES
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapData.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapGlobeAnchorAPI.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapGeoreference.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapImagery.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapIonServer.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapRasterOverlay.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapIonRasterOverlay.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapPolygonRasterOverlay.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapSession.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapTileset.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapTokens.cpp")

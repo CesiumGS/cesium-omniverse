@@ -1,10 +1,7 @@
 #include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/CesiumOmniverse.h"
-#include "cesium/omniverse/RenderStatistics.h"
-#include "cesium/omniverse/TokenTroubleshooter.h"
-#include "cesium/omniverse/Viewport.h"
 
-#include <Cesium3DTilesSelection/CreditSystem.h>
+#include <CesiumUtility/CreditSystem.h>
 #include <carb/BindingsPythonUtils.h>
 #include <pxr/base/gf/matrix4d.h>
 #include <pxr/base/gf/vec4d.h>
@@ -17,11 +14,27 @@ namespace pybind11::detail {
 
 PYBOOST11_TYPE_CASTER(pxr::GfMatrix4d, _("Matrix4d"));
 
-} // namespace pybind11::detail
+}
 
-// NOLINTNEXTLINE
+#ifdef CESIUM_OMNI_CLANG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
+
 CARB_BINDINGS("cesium.omniverse.python")
+
+#ifdef CESIUM_OMNI_CLANG
+#pragma clang diagnostic pop
+#endif
+
 DISABLE_PYBIND11_DYNAMIC_CAST(cesium::omniverse::ICesiumOmniverseInterface)
+
+struct ViewportPythonBinding {
+    pxr::GfMatrix4d viewMatrix;
+    pxr::GfMatrix4d projMatrix;
+    double width;
+    double height;
+};
 
 PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
 
@@ -34,14 +47,16 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         m, "ICesiumOmniverseInterface", "acquire_cesium_omniverse_interface", "release_cesium_omniverse_interface")
         .def("on_startup", &ICesiumOmniverseInterface::onStartup)
         .def("on_shutdown", &ICesiumOmniverseInterface::onShutdown)
-        .def("get_all_tileset_paths", &ICesiumOmniverseInterface::getAllTilesetPaths)
         .def("reload_tileset", &ICesiumOmniverseInterface::reloadTileset)
-        .def("on_update_frame", &ICesiumOmniverseInterface::onUpdateFrame)
-        .def("on_update_ui", &ICesiumOmniverseInterface::onUpdateUi)
-        .def("on_stage_change", &ICesiumOmniverseInterface::onStageChange)
-        .def("set_georeference_origin", &ICesiumOmniverseInterface::setGeoreferenceOrigin)
+        .def("on_update_frame", [](ICesiumOmniverseInterface& interface, const std::vector<ViewportPythonBinding>& viewports) {
+            return interface.onUpdateFrame(reinterpret_cast<const ViewportApi*>(viewports.data()), viewports.size());
+        })
+        .def("on_stage_change", &ICesiumOmniverseInterface::onUsdStageChanged)
         .def("connect_to_ion", &ICesiumOmniverseInterface::connectToIon)
         .def("get_session", &ICesiumOmniverseInterface::getSession)
+        .def("get_server_path", &ICesiumOmniverseInterface::getServerPath)
+        .def("get_sessions", &ICesiumOmniverseInterface::getSessions)
+        .def("get_server_paths", &ICesiumOmniverseInterface::getServerPaths)
         .def("get_set_default_token_result", &ICesiumOmniverseInterface::getSetDefaultTokenResult)
         .def("is_default_token_set", &ICesiumOmniverseInterface::isDefaultTokenSet)
         .def("create_token", &ICesiumOmniverseInterface::createToken)
@@ -57,9 +72,7 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("credits_available", &ICesiumOmniverseInterface::creditsAvailable)
         .def("get_credits", &ICesiumOmniverseInterface::getCredits)
         .def("credits_start_next_frame", &ICesiumOmniverseInterface::creditsStartNextFrame)
-        .def("is_tracing_enabled", &ICesiumOmniverseInterface::isTracingEnabled)
-        .def("add_global_anchor_to_prim", py::overload_cast<const char*>(&ICesiumOmniverseInterface::addGlobeAnchorToPrim))
-        .def("add_global_anchor_to_prim", py::overload_cast<const char*, double, double, double>(&ICesiumOmniverseInterface::addGlobeAnchorToPrim));
+        .def("is_tracing_enabled", &ICesiumOmniverseInterface::isTracingEnabled);
     // clang-format on
 
     py::class_<CesiumIonSession, std::shared_ptr<CesiumIonSession>>(m, "CesiumIonSession")
@@ -102,7 +115,8 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def_readonly("percent_complete", &CesiumIonClient::Asset::percentComplete);
 
     py::class_<CesiumIonClient::Connection>(m, "Connection")
-        .def("get_api_url", &CesiumIonClient::Connection::getApiUrl)
+        // Wrap non-static member function in lambda. May be able to use py::overload_cast<> in C++ 20
+        .def("get_api_uri", [](CesiumIonClient::Connection& connection) { return connection.getApiUrl(); })
         .def("get_access_token", &CesiumIonClient::Connection::getAccessToken);
 
     py::class_<CesiumIonClient::Profile>(m, "Profile")
@@ -144,10 +158,10 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def_readonly("tiles_loading_main", &RenderStatistics::tilesLoadingMain)
         .def_readonly("tiles_loaded", &RenderStatistics::tilesLoaded);
 
-    py::class_<Viewport>(m, "Viewport")
+    py::class_<ViewportPythonBinding>(m, "Viewport")
         .def(py::init())
-        .def_readwrite("viewMatrix", &Viewport::viewMatrix)
-        .def_readwrite("projMatrix", &Viewport::projMatrix)
-        .def_readwrite("width", &Viewport::width)
-        .def_readwrite("height", &Viewport::height);
+        .def_readwrite("viewMatrix", &ViewportPythonBinding::viewMatrix)
+        .def_readwrite("projMatrix", &ViewportPythonBinding::projMatrix)
+        .def_readwrite("width", &ViewportPythonBinding::width)
+        .def_readwrite("height", &ViewportPythonBinding::height);
 }

@@ -1,10 +1,8 @@
 #pragma once
 
-#include "cesium/omniverse/GltfUtil.h"
+#include "cesium/omniverse/FabricMaterialInfo.h"
 
-#include <omni/fabric/IPath.h>
-#include <pxr/usd/sdf/assetPath.h>
-#include <pxr/usd/sdf/path.h>
+#include <pxr/usd/usd/common.h>
 
 #include <atomic>
 #include <mutex>
@@ -22,57 +20,54 @@ class DynamicTextureProvider;
 
 namespace cesium::omniverse {
 
+class Context;
 class FabricGeometry;
 class FabricGeometryPool;
 class FabricMaterial;
 class FabricMaterialPool;
-class FabricGeometryDefinition;
-class FabricMaterialDefinition;
+class FabricGeometryDescriptor;
+class FabricMaterialDescriptor;
 class FabricTexture;
 class FabricTexturePool;
-
-struct SharedMaterial {
-    std::shared_ptr<FabricMaterial> material;
-    MaterialInfo materialInfo;
-    int64_t tilesetId;
-    uint64_t referenceCount;
-};
+struct FabricFeaturesInfo;
+struct FabricRasterOverlaysInfo;
 
 class FabricResourceManager {
   public:
+    FabricResourceManager(Context* pContext);
+    ~FabricResourceManager();
     FabricResourceManager(const FabricResourceManager&) = delete;
-    FabricResourceManager(FabricResourceManager&&) = delete;
     FabricResourceManager& operator=(const FabricResourceManager&) = delete;
-    FabricResourceManager& operator=(FabricResourceManager) = delete;
-
-    static FabricResourceManager& getInstance() {
-        static FabricResourceManager instance;
-        return instance;
-    }
+    FabricResourceManager(FabricResourceManager&&) noexcept = delete;
+    FabricResourceManager& operator=(FabricResourceManager&&) noexcept = delete;
 
     bool shouldAcquireMaterial(
         const CesiumGltf::MeshPrimitive& primitive,
-        bool hasImagery,
+        bool hasRasterOverlay,
         const pxr::SdfPath& tilesetMaterialPath) const;
+
+    bool getDisableTextures() const;
 
     std::shared_ptr<FabricGeometry> acquireGeometry(
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
-        bool smoothNormals,
-        long stageId);
+        const FabricFeaturesInfo& featuresInfo,
+        bool smoothNormals);
 
     std::shared_ptr<FabricMaterial> acquireMaterial(
-        const MaterialInfo& materialInfo,
-        uint64_t imageryLayerCount,
-        long stageId,
+        const CesiumGltf::Model& model,
+        const CesiumGltf::MeshPrimitive& primitive,
+        const FabricMaterialInfo& materialInfo,
+        const FabricFeaturesInfo& featuresInfo,
+        const FabricRasterOverlaysInfo& rasterOverlaysInfo,
         int64_t tilesetId,
         const pxr::SdfPath& tilesetMaterialPath);
 
     std::shared_ptr<FabricTexture> acquireTexture();
 
-    void releaseGeometry(const std::shared_ptr<FabricGeometry>& geometry);
-    void releaseMaterial(const std::shared_ptr<FabricMaterial>& material);
-    void releaseTexture(const std::shared_ptr<FabricTexture>& texture);
+    void releaseGeometry(std::shared_ptr<FabricGeometry> pGeometry);
+    void releaseMaterial(std::shared_ptr<FabricMaterial> pMaterial);
+    void releaseTexture(std::shared_ptr<FabricTexture> pTexture);
 
     void setDisableMaterials(bool disableMaterials);
     void setDisableTextures(bool disableTextures);
@@ -84,45 +79,55 @@ class FabricResourceManager {
     void setTexturePoolInitialCapacity(uint64_t texturePoolInitialCapacity);
     void setDebugRandomColors(bool debugRandomColors);
 
-    void retainPath(const omni::fabric::Path& path);
+    void updateShaderInput(
+        const pxr::SdfPath& materialPath,
+        const pxr::SdfPath& shaderPath,
+        const pxr::TfToken& attributeName) const;
 
     void clear();
 
-  protected:
-    FabricResourceManager();
-    ~FabricResourceManager();
-
   private:
-    std::shared_ptr<FabricMaterial> createMaterial(const FabricMaterialDefinition& materialDefinition, long stageId);
+    struct SharedMaterial {
+        SharedMaterial() = default;
+        ~SharedMaterial() = default;
+        SharedMaterial(const SharedMaterial&) = delete;
+        SharedMaterial& operator=(const SharedMaterial&) = delete;
+        SharedMaterial(SharedMaterial&&) noexcept = default;
+        SharedMaterial& operator=(SharedMaterial&&) noexcept = default;
 
-    void removeSharedMaterial(const SharedMaterial& sharedMaterial);
-    SharedMaterial* getSharedMaterial(const MaterialInfo& materialInfo, int64_t tilesetId);
-    SharedMaterial* getSharedMaterial(const std::shared_ptr<FabricMaterial>& material);
+        std::shared_ptr<FabricMaterial> pMaterial;
+        FabricMaterialInfo materialInfo;
+        int64_t tilesetId;
+        uint64_t referenceCount;
+    };
+
+    std::shared_ptr<FabricMaterial> createMaterial(const FabricMaterialDescriptor& materialDescriptor);
+
     std::shared_ptr<FabricMaterial> acquireSharedMaterial(
-        const MaterialInfo& materialInfo,
-        const FabricMaterialDefinition& materialDefinition,
-        long stageId,
+        const FabricMaterialInfo& materialInfo,
+        const FabricMaterialDescriptor& materialDescriptor,
         int64_t tilesetId);
-    void releaseSharedMaterial(const std::shared_ptr<FabricMaterial>& material);
+    void releaseSharedMaterial(const FabricMaterial& material);
+    bool isSharedMaterial(const FabricMaterial& material) const;
 
-    std::shared_ptr<FabricGeometryPool> getGeometryPool(const FabricGeometryDefinition& geometryDefinition);
-    std::shared_ptr<FabricMaterialPool> getMaterialPool(const FabricMaterialDefinition& materialDefinition);
-    std::shared_ptr<FabricTexturePool> getTexturePool();
+    std::shared_ptr<FabricGeometry> acquireGeometryFromPool(const FabricGeometryDescriptor& geometryDescriptor);
+    std::shared_ptr<FabricMaterial> acquireMaterialFromPool(const FabricMaterialDescriptor& materialDescriptor);
+    std::shared_ptr<FabricTexture> acquireTextureFromPool();
 
-    std::shared_ptr<FabricGeometryPool>
-    createGeometryPool(const FabricGeometryDefinition& geometryDefinition, long stageId);
-    std::shared_ptr<FabricMaterialPool>
-    createMaterialPool(const FabricMaterialDefinition& materialDefinition, long stageId);
-    std::shared_ptr<FabricTexturePool> createTexturePool();
+    FabricGeometryPool* getGeometryPool(const FabricGeometry& geometry) const;
+    FabricMaterialPool* getMaterialPool(const FabricMaterial& material) const;
+    FabricTexturePool* getTexturePool(const FabricTexture& texture) const;
 
     int64_t getNextGeometryId();
     int64_t getNextMaterialId();
     int64_t getNextTextureId();
-    int64_t getNextPoolId();
+    int64_t getNextGeometryPoolId();
+    int64_t getNextMaterialPoolId();
+    int64_t getNextTexturePoolId();
 
-    std::vector<std::shared_ptr<FabricGeometryPool>> _geometryPools;
-    std::vector<std::shared_ptr<FabricMaterialPool>> _materialPools;
-    std::vector<std::shared_ptr<FabricTexturePool>> _texturePools;
+    std::vector<std::unique_ptr<FabricGeometryPool>> _geometryPools;
+    std::vector<std::unique_ptr<FabricMaterialPool>> _materialPools;
+    std::vector<std::unique_ptr<FabricTexturePool>> _texturePools;
 
     bool _disableMaterials{false};
     bool _disableTextures{false};
@@ -139,16 +144,17 @@ class FabricResourceManager {
     std::atomic<int64_t> _geometryId{0};
     std::atomic<int64_t> _materialId{0};
     std::atomic<int64_t> _textureId{0};
-    std::atomic<int64_t> _poolId{0};
+    std::atomic<int64_t> _geometryPoolId{0};
+    std::atomic<int64_t> _materialPoolId{0};
+    std::atomic<int64_t> _texturePoolId{0};
 
     std::mutex _poolMutex;
 
-    std::unique_ptr<omni::ui::DynamicTextureProvider> _defaultTexture;
+    Context* _pContext;
+    std::unique_ptr<omni::ui::DynamicTextureProvider> _defaultWhiteTexture;
     std::unique_ptr<omni::ui::DynamicTextureProvider> _defaultTransparentTexture;
-    pxr::TfToken _defaultTextureAssetPathToken;
+    pxr::TfToken _defaultWhiteTextureAssetPathToken;
     pxr::TfToken _defaultTransparentTextureAssetPathToken;
-
-    std::vector<omni::fabric::Path> _retainedPaths;
 
     std::vector<SharedMaterial> _sharedMaterials;
 };

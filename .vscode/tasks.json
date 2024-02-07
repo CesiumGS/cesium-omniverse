@@ -20,7 +20,7 @@
             "default": "default",
             "options": [
                 "default",
-                "clang-14",
+                "clang-15",
                 "gcc-9"
             ]
         }

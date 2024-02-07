@@ -363,11 +363,7 @@
       "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/extsPhysics/omni.usdphysics.ui-105.0.7-5.1"
     ],
     "python.languageServer": "Pylance",
-    "python.formatting.provider": "black",
     "python.analysis.typeCheckingMode": "basic",
-    "python.linting.enabled": true,
-    "python.linting.pylintEnabled": false,
-    "python.linting.flake8Enabled": true,
     "python.defaultInterpreterPath": "${workspaceFolder}/extern/nvidia/_build/target-deps/python/python.exe",
     "[python]": {
       "editor.defaultFormatter": "ms-python.black-formatter"
@@ -376,6 +372,8 @@
   "extensions": {
     "recommendations": [
       "llvm-vs-code-extensions.vscode-clangd",
+      "ms-python.black-formatter",
+      "ms-python.flake8",
       "ms-python.python",
       "ms-python.vscode-pylance",
       "ms-vscode.cpptools",
@@ -383,8 +381,7 @@
       "editorconfig.editorconfig",
       "cheshirekow.cmake-format",
       "redhat.vscode-yaml",
-      "tamasfe.even-better-toml",
-      "ms-python.black-formatter"
+      "tamasfe.even-better-toml"
     ],
     "unwantedRecommendations": []
   }

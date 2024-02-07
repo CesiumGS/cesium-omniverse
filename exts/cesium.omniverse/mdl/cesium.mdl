@@ -4,6 +4,7 @@ import ::anno::*;
 import ::state::*;
 import ::tex::*;
 import ::scene::*;
+import ::math::*;
 
 using ::gltf::pbr import *;
 
@@ -14,10 +15,26 @@ module [[
 
 annotation annotation_not_connectable();
 
+export const auto DEFAULT_NULL_FEATURE_ID = -1;
+export const auto DEFAULT_PROPERTY_VALUE_INT = 0;
+export const auto DEFAULT_PROPERTY_VALUE_INT2 = int2(0);
+export const auto DEFAULT_PROPERTY_VALUE_INT3 = int3(0);
+export const auto DEFAULT_PROPERTY_VALUE_INT4 = int4(0);
+export const auto DEFAULT_PROPERTY_VALUE_FLOAT = 0.0;
+export const auto DEFAULT_PROPERTY_VALUE_FLOAT2 = float2(0.0);
+export const auto DEFAULT_PROPERTY_VALUE_FLOAT3 = float3(0.0);
+export const auto DEFAULT_PROPERTY_VALUE_FLOAT4 = float4(0.0);
+
+const auto DEFAULT_CHANNELS = int4(0, 1, 2, 3);
+
 export enum up_axis_mode {
     Y,
     Z
 };
+
+//-----------------------------------
+// Internal helper functions
+//-----------------------------------
 
 float2 world_coordinate_2d(float2 min_world, float2 max_world, up_axis_mode up_axis)
 {
@@ -28,6 +45,364 @@ float2 world_coordinate_2d(float2 min_world, float2 max_world, up_axis_mode up_a
     // Return 0-1 UVs based on the min/max world coordinates provided
     return (world_pos_horizontal - min_world) / (max_world - min_world);
 }
+
+float4 alpha_blend(float4 src, float4 dst) {
+    return src * float4(src.w, src.w, src.w, 1.0) + dst * (1.0 - src.w);
+}
+
+float4 compute_base_color(
+    color base_color_factor,
+    float base_alpha,
+    float4 base_color_texture,
+    float4 raster_overlay,
+    float4 tile_color,
+    float alpha_clip) {
+
+    if (alpha_clip > 0.5) return float4(0.0);
+
+    auto base_color_factor_float3 = float3(base_color_factor);
+
+    auto base_color = float4(1.0);
+    base_color = alpha_blend(base_color_texture, base_color);
+    base_color *= float4(base_color_factor_float3.x, base_color_factor_float3.y, base_color_factor_float3.z, base_alpha);
+    base_color *= scene::data_lookup_float4("COLOR_0", float4(1.0));
+    base_color = alpha_blend(raster_overlay, base_color);
+    base_color *= tile_color;
+
+    return base_color;
+}
+
+// Copied from gltf/pbr.mdl since it's not exported
+float2 khr_texture_transform_apply(
+    float2 coord,
+    float2 offset,
+    float rotation,
+    float2 scale
+)
+{
+    // MDL expects the texture coordinate origin at the bottom left (gltf at top left)
+    // Assuming the renderer follows the MDL specification in which case the coordinates
+    // have been flipped either while loading the glTF geometry or while setting up the state.
+
+    // Undo the flipping for the transformation to get into the original glTF texture space.
+    coord = float2(coord.x, 1.0f - coord.y);
+
+    // first scale
+    coord = coord * scale;
+    // then rotate
+    float cos_rotation = math::cos(rotation);
+    float sin_rotation = math::sin(rotation);
+    coord = float2(cos_rotation * coord.x + sin_rotation * coord.y, cos_rotation * coord.y - sin_rotation * coord.x);
+    // then translate
+    coord = coord + offset;
+
+    // flip back
+    coord = float2(coord.x, 1.0f - coord.y);
+    return coord;
+}
+
+int mod(int a, int n) {
+    return (a % n + n) % n;
+}
+
+int mirror(int a) {
+    return a >= 0 ? a : -(1 + a);
+}
+
+int apply_mirrored_repeat(int x, int size) {
+    return (size - 1) - mirror(mod(x, 2 * size) - size);
+}
+
+int apply_clamp_to_edge(int x, int size) {
+    return math::clamp(x, 0, size - 1);
+}
+
+int apply_repeat(int x, int size) {
+    return mod(x, size);
+}
+
+struct texel_fetch_value_int
+{
+    bool valid = false;
+    int4 value = int4(0, 0, 0, 0);
+};
+
+texel_fetch_value_int texel_fetch_int(
+    uniform texture_2d texture,
+    int2 pixel_index,
+)
+{
+    texel_fetch_value_int tex_ret;
+    if (!tex::texture_isvalid(texture)) {
+        return tex_ret;
+    }
+
+    // texel_int4 doesn't exist in MDL so use texel_float4 instead.
+    // texel_float4 only works with float or unorm texture formats, so integer values
+    // must be converted to one of these formats. This causes precision loss for
+    // values above 2^24 which can't be accuracutely represented with float32.
+    auto value = tex::texel_float4(
+        tex: texture,
+        coord: pixel_index);
+
+    tex_ret.value = int4(math::round(value));
+    tex_ret.valid = true;
+    return tex_ret;
+}
+
+struct texel_fetch_value_float
+{
+    bool valid = false;
+    float4 value = float4(0.0, 0.0, 0.0, 0.0);
+};
+
+texel_fetch_value_float texel_fetch_float(
+    uniform texture_2d texture,
+    int2 pixel_index,
+)
+{
+    texel_fetch_value_float tex_ret;
+    if (!tex::texture_isvalid(texture)) {
+        return tex_ret;
+    }
+
+    auto value = tex::texel_float4(
+        tex: texture,
+        coord: pixel_index);
+
+    tex_ret.value = value;
+    tex_ret.valid = true;
+    return tex_ret;
+}
+
+// Modified version of gltf_texture_lookup that uses texel_float4 instead of lookup_float4 to avoid
+// linearly interpolating texture values which would be incorrect for feature ID textures and
+// property textures. Unfortunately texel_float4 doesn't do texcoord wrapping so we need to do it ourselves.
+texel_fetch_value_int texel_fetch_int_rgba8_unorm(
+    uniform texture_2d texture,
+    uniform int tex_coord_index,
+    uniform float2 tex_coord_offset,
+    uniform float tex_coord_rotation,
+    uniform float2 tex_coord_scale,
+    uniform gltf_wrapping_mode wrap_s,
+    uniform gltf_wrapping_mode wrap_t
+)
+{
+    texel_fetch_value_int tex_ret;
+    if (!tex::texture_isvalid(texture)) {
+        return tex_ret;
+    }
+
+    auto tex_coord3 = state::texture_coordinate(tex_coord_index);
+    auto tex_coord = khr_texture_transform_apply(
+        coord: float2(tex_coord3.x, tex_coord3.y),
+        offset: tex_coord_offset,
+        rotation: tex_coord_rotation,
+        scale: tex_coord_scale);
+
+    auto width = tex::width(texture);
+    auto height = tex::height(texture);
+
+    auto pixel_x = int(tex_coord.x * width);
+    auto pixel_y = int(tex_coord.y * height);
+
+    switch (wrap_s) {
+        case clamp_to_edge:
+            pixel_x = apply_clamp_to_edge(pixel_x, width);
+            break;
+        case mirrored_repeat:
+            pixel_x = apply_mirrored_repeat(pixel_x, width);
+            break;
+        case repeat:
+            pixel_x = apply_repeat(pixel_x, width);
+            break;
+    }
+
+    switch (wrap_t) {
+        case clamp_to_edge:
+            pixel_y = apply_clamp_to_edge(pixel_y, height);
+            break;
+        case mirrored_repeat:
+            pixel_y = apply_mirrored_repeat(pixel_y, height);
+            break;
+        case repeat:
+            pixel_y = apply_repeat(pixel_y, height);
+            break;
+    }
+
+    auto value = tex::texel_float4(
+        tex: texture,
+        coord: int2(pixel_x, pixel_y));
+
+    // Assumes 8-bit per-channel texture
+    tex_ret.value = int4(math::round(value * 255.0));
+    tex_ret.valid = true;
+    return tex_ret;
+}
+
+int unpack_channels(int4 value, int4 channels, int channel_count) {
+    auto unpacked_value = 0;
+    for (int i = 0; i < channel_count; i++) {
+        unpacked_value |= (value[channels[i]] << (i * 8));
+    }
+    return unpacked_value;
+}
+
+int read_channels_int(int4 values, int4 channels) {
+    return values[channels[0]];
+}
+
+int2 read_channels_int2(int4 values, int4 channels) {
+    return int2(values[channels[0]], values[channels[1]]);
+}
+
+int3 read_channels_int3(int4 values, int4 channels) {
+    return int3(values[channels[0]], values[channels[1]], values[channels[2]]);
+}
+
+int4 read_channels_int4(int4 values, int4 channels) {
+    return int4(values[channels[0]], values[channels[1]], values[channels[2]], values[channels[3]]);
+}
+
+float read_channels_float(float4 values, int4 channels) {
+    return values[channels[0]];
+}
+
+float2 read_channels_float2(float4 values, int4 channels) {
+    return float2(values[channels[0]], values[channels[1]]);
+}
+
+float3 read_channels_float3(float4 values, int4 channels) {
+    return float3(values[channels[0]], values[channels[1]], values[channels[2]]);
+}
+
+float4 read_channels_float4(float4 values, int4 channels) {
+    return float4(values[channels[0]], values[channels[1]], values[channels[2]], values[channels[3]]);
+}
+
+// The normalize functions work for both signed and unsigned ints
+float normalize_int(int value, int maximum_value) {
+    return math::max(float(value) / float(maximum_value), -1.0);
+}
+
+float2 normalize_int2(int2 value, int2 maximum_value) {
+    return math::max(float2(value) / float2(maximum_value), float2(-1.0));
+}
+
+float3 normalize_int3(int3 value, int3 maximum_value) {
+    return math::max(float3(value) / float3(maximum_value), float3(-1.0));
+}
+
+float4 normalize_int4(int4 value, int4 maximum_value) {
+    return math::max(float4(value) / float4(maximum_value), float4(-1.0));
+}
+
+int finalize_int(int raw_value, bool has_no_data, int no_data, int default_value) {
+    auto is_no_data = has_no_data && raw_value == no_data;
+    return is_no_data ? default_value : raw_value;
+}
+
+int2 finalize_int2(int2 raw_value, bool has_no_data, int2 no_data, int2 default_value) {
+    auto is_no_data = has_no_data && raw_value == no_data;
+    return is_no_data ? default_value : raw_value;
+}
+
+int3 finalize_int3(int3 raw_value, bool has_no_data, int3 no_data, int3 default_value) {
+    auto is_no_data = has_no_data && raw_value == no_data;
+    return is_no_data ? default_value : raw_value;
+}
+
+int4 finalize_int4(int4 raw_value, bool has_no_data, int4 no_data, int4 default_value) {
+    auto is_no_data = has_no_data && raw_value == no_data;
+    return is_no_data ? default_value : raw_value;
+}
+
+float finalize_normalized_int(int raw_value, bool has_no_data, int no_data, float default_value, float offset, float scale, int maximum_value) {
+    auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    auto normalized_value = normalize_int(raw_value, maximum_value);
+    auto transformed_value = normalized_value * scale + offset;
+    return transformed_value;
+}
+
+float2 finalize_normalized_int2(int2 raw_value, bool has_no_data, int2 no_data, float2 default_value, float2 offset, float2 scale, int2 maximum_value) {
+    auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    auto normalized_value = normalize_int2(raw_value, maximum_value);
+    auto transformed_value = normalized_value * scale + offset;
+    return transformed_value;
+}
+
+float3 finalize_normalized_int3(int3 raw_value, bool has_no_data, int3 no_data, float3 default_value, float3 offset, float3 scale, int3 maximum_value) {
+    auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    auto normalized_value = normalize_int3(raw_value, maximum_value);
+    auto transformed_value = normalized_value * scale + offset;
+    return transformed_value;
+}
+
+float4 finalize_normalized_int4(int4 raw_value, bool has_no_data, int4 no_data, float4 default_value, float4 offset, float4 scale, int4 maximum_value) {
+    auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    auto normalized_value = normalize_int4(raw_value, maximum_value);
+    auto transformed_value = normalized_value * scale + offset;
+    return transformed_value;
+}
+
+float finalize_float(float raw_value, bool has_no_data, float no_data, float default_value, float offset, float scale) {
+    auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    auto transformed_value = raw_value * scale + offset;
+    return transformed_value;
+}
+
+float2 finalize_float2(float2 raw_value, bool has_no_data, float2 no_data, float2 default_value, float2 offset, float2 scale) {
+    auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    auto transformed_value = raw_value * scale + offset;
+    return transformed_value;
+}
+
+float3 finalize_float3(float3 raw_value, bool has_no_data, float3 no_data, float3 default_value, float3 offset, float3 scale) {
+    auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    auto transformed_value = raw_value * scale + offset;
+    return transformed_value;
+}
+
+float4 finalize_float4(float4 raw_value, bool has_no_data, float4 no_data, float4 default_value, float4 offset, float4 scale) {
+    auto is_no_data = has_no_data && raw_value == no_data;
+    if (is_no_data) {
+        return default_value;
+    }
+    auto transformed_value = raw_value * scale + offset;
+    return transformed_value;
+}
+
+int2 get_property_table_pixel_index(int feature_id, uniform texture_2d property_table_texture) {
+    auto width = tex::width(property_table_texture);
+    auto pixel_x = feature_id % width;
+    auto pixel_y = feature_id / width;
+    return int2(pixel_x, pixel_y);
+}
+
+//-----------------------------------
+// Exported functions (public)
+//-----------------------------------
 
 export float4 cesium_lookup_world_texture_float4(
     uniform texture_2d texture = texture_2d(),
@@ -44,8 +419,8 @@ export float4 cesium_lookup_world_texture_float4(
     return tex::lookup_float4(
         tex: texture,
         coord: world_coordinate_2d(min_world, max_world, up_axis),
-        wrap_u: ::tex::wrap_clamp,
-        wrap_v: ::tex::wrap_clamp);
+        wrap_u: tex::wrap_clamp,
+        wrap_v: tex::wrap_clamp);
 }
 
 export float3 cesium_lookup_world_texture_float3(
@@ -63,8 +438,8 @@ export float3 cesium_lookup_world_texture_float3(
     return tex::lookup_float3(
         tex: texture,
         coord: world_coordinate_2d(min_world, max_world, up_axis),
-        wrap_u: ::tex::wrap_clamp,
-        wrap_v: ::tex::wrap_clamp);
+        wrap_u: tex::wrap_clamp,
+        wrap_v: tex::wrap_clamp);
 }
 
 export color cesium_lookup_world_texture_color(
@@ -82,8 +457,8 @@ export color cesium_lookup_world_texture_color(
     return tex::lookup_color(
         tex: texture,
         coord: world_coordinate_2d(min_world, max_world, up_axis),
-        wrap_u: ::tex::wrap_clamp,
-        wrap_v: ::tex::wrap_clamp);
+        wrap_u: tex::wrap_clamp,
+        wrap_v: tex::wrap_clamp);
 }
 
 export float4 cesium_base_color_texture_float4(
@@ -103,25 +478,214 @@ export float4 cesium_base_color_texture_float4(
     return base_color_texture.valid ? base_color_texture.value : float4(0.0);
 }
 
-export float4 cesium_imagery_layer_float4(
-    gltf_texture_lookup_value imagery_layer = gltf_texture_lookup_value()
+export float4 cesium_raster_overlay_float4(
+    gltf_texture_lookup_value raster_overlay = gltf_texture_lookup_value()
     [[
         anno::hidden(),
         annotation_not_connectable()
     ]],
-    int imagery_layer_index = 0
+    uniform int raster_overlay_index = 0
     [[
         anno::unused()
     ]]
 )
 [[
-    anno::display_name("Cesium imagery layer lookup float4"),
-    anno::description("Returns the imagery layer at the given index as a float4. Returns [0, 0, 0, 0] if the imagery layer does not exist."),
+    anno::display_name("Cesium raster overlay lookup float4"),
+    anno::description("Returns the raster overlay at the given index as a float4. Returns [0, 0, 0, 0] if the raster overlay does not exist."),
     anno::author("Cesium GS Inc."),
     anno::in_group("Cesium")
 ]]
 {
-    return imagery_layer.valid ? imagery_layer.value : float4(0.0);
+    return raster_overlay.valid ? raster_overlay.value : float4(0.0);
+}
+
+export int cesium_feature_id_int(
+    int feature_id = DEFAULT_NULL_FEATURE_ID
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform int feature_id_set_index = 0
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium feature ID lookup int"),
+    anno::description("Returns the feature ID for the given feature ID set. Returns -1 if the feature ID set does not exist or the feature ID is equal to nullFeatureId in the EXT_mesh_features extension."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return feature_id;
+}
+
+export int cesium_property_int(
+    int property_value = DEFAULT_PROPERTY_VALUE_INT
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup int"),
+    anno::description("Returns the property value. Returns 0 if the property does not exist or is an incompatible type. Must be a scalar unnormalized integer type. Values that exceed the 32-bit signed integer range are clamped."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
+export int2 cesium_property_int2(
+    int2 property_value = DEFAULT_PROPERTY_VALUE_INT2
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup int2"),
+    anno::description("Returns the property value. Returns int2(0) if the property does not exist or is an incompatible type. Must be a 2-component unnormalized integer. Values that exceed the 32-bit signed integer range are clamped."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
+export int3 cesium_property_int3(
+    int3 property_value = DEFAULT_PROPERTY_VALUE_INT3
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup int3"),
+    anno::description("Returns the property value. Returns int3(0) if the property does not exist or is an incompatible type. Must be a 3-component unnormalized integer. Values that exceed the 32-bit signed integer range are clamped."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
+export int4 cesium_property_int4(
+    int4 property_value = DEFAULT_PROPERTY_VALUE_INT4
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup int4"),
+    anno::description("Returns the property value. Returns int4(0) if the property does not exist or is an incompatible type. Must be a 4-component unnormalized integer. Values that exceed the 32-bit signed integer range are clamped."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
+export float cesium_property_float(
+    float property_value = DEFAULT_PROPERTY_VALUE_FLOAT
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup float"),
+    anno::description("Returns the property value. Returns 0.0 if the property does not exist or is an incompatible type. Must be a scalar floating point or normalized integer type. 64-bit floating point values are converted to 32-bit floating point values."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
+export float2 cesium_property_float2(
+    float2 property_value = DEFAULT_PROPERTY_VALUE_FLOAT2
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup float2"),
+    anno::description("Returns the property value. Returns float2(0.0) if the property does not exist or is an incompatible type. Must be a 2-component floating point or normalized integer type. 64-bit floating point values are converted to 32-bit floating point values."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
+export float3 cesium_property_float3(
+    float3 property_value = DEFAULT_PROPERTY_VALUE_FLOAT3
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup float3"),
+    anno::description("Returns the property value. Returns float3(0.0) if the property does not exist or is an incompatible type. Must be a 3-component floating point or normalized integer type. 64-bit floating point values are converted to 32-bit floating point values."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
+}
+
+export float4 cesium_property_float4(
+    float4 property_value = DEFAULT_PROPERTY_VALUE_FLOAT4
+    [[
+        anno::hidden(),
+        annotation_not_connectable()
+    ]],
+    uniform string property_id = string("")
+    [[
+        anno::unused()
+    ]]
+)
+[[
+    anno::display_name("Cesium property lookup float4"),
+    anno::description("Returns the property value. Returns float4(0.0) if the property does not exist or is an incompatible type. Must be a 4-component floating point or normalized integer type. 64-bit floating point values are converted to 32-bit floating point values."),
+    anno::author("Cesium GS Inc."),
+    anno::in_group("Cesium")
+]]
+{
+    return property_value;
 }
 
 export material cesium_material(
@@ -136,7 +700,6 @@ export material cesium_material(
         anno::display_name("Metallic Factor"),
         anno::description("The metalness of the material. Select between dielectric (0.0) and metallic (1.0).")
     ]],
-
     float roughness_factor = 1.0
     [[
         anno::hard_range(0.0, 1.0),
@@ -198,72 +761,785 @@ export material cesium_material(
     geometry: base.geometry
 );
 
-float4 alpha_blend(float4 src, float4 dst) {
-    return src * float4(src.w, src.w, src.w, 1.0) + dst * (1.0 - src.w);
-}
+//-----------------------------------
+// Exported functions (private)
+//-----------------------------------
 
-float4 compute_base_color(
-    gltf_texture_lookup_value imagery_layers_texture,
-    float4 tile_color,
-    gltf_texture_lookup_value base_color_texture,
-    color base_color_factor,
-    float base_alpha) {
-
-    auto base_color_factor_float3 = float3(base_color_factor);
-
-    auto base_color = base_color_texture.valid ? base_color_texture.value : float4(1.0);
-    base_color *= float4(base_color_factor_float3.x, base_color_factor_float3.y, base_color_factor_float3.z, base_alpha);
-    base_color *= ::scene::data_lookup_float4("COLOR_0", float4(1.0));
-    base_color = alpha_blend(imagery_layers_texture.value, base_color);
-    base_color *= tile_color;
-
-    return base_color;
-}
-
-export gltf_texture_lookup_value cesium_internal_texture_lookup(*) [[ anno::hidden() ]] = gltf_texture_lookup();
-
-export gltf_texture_lookup_value cesium_internal_imagery_layer_lookup(
-    uniform float alpha = 1.0,
-    // gltf_texture_lookup inputs below
-    uniform texture_2d texture = texture_2d(),
-    uniform int tex_coord_index = 0,
-    uniform float2 offset = float2(0.0, 0.0),
-    uniform float rotation = 0.0,
-    uniform float2 scale = float2(1.0, 1.0),
-    uniform gltf_wrapping_mode wrap_s = repeat,
-    uniform gltf_wrapping_mode wrap_t = repeat
+export int cesium_internal_feature_id_texture_lookup(
+    uniform texture_2d texture,
+    uniform int tex_coord_index,
+    uniform float2 tex_coord_offset,
+    uniform float tex_coord_rotation,
+    uniform float2 tex_coord_scale,
+    uniform gltf_wrapping_mode wrap_s,
+    uniform gltf_wrapping_mode wrap_t,
+    uniform int4 channels,
+    uniform int channel_count,
+    uniform int null_feature_id
 ) [[ anno::hidden() ]] {
-    auto imagery_layer = gltf_texture_lookup(
+    auto texel_value = texel_fetch_int_rgba8_unorm(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
+
+    if (!texel_value.valid) {
+        return DEFAULT_NULL_FEATURE_ID;
+    }
+
+    // Feature IDs can be packed in multiple channels of the texture
+    auto feature_id = unpack_channels(texel_value.value, channels, channel_count);
+    return feature_id == null_feature_id ? DEFAULT_NULL_FEATURE_ID : feature_id;
+}
+
+export int cesium_internal_feature_id_attribute_lookup(
+    uniform string primvar_name,
+    uniform int null_feature_id
+) [[ anno::hidden() ]] {
+    if (!scene::data_isvalid(primvar_name)) {
+        return DEFAULT_NULL_FEATURE_ID;
+    }
+
+    // Even if all feature ids in a triangle are the same value, the primvar interpolation math can yield non integer
+    // results (e.g. 0.99999999 or 1.00000001), which when accessed as ints (i.e. floored) can cause variance across
+    // the triangle surface. The fix is to read the primvar as a float, round the value, and cast to int.
+    auto feature_id = int(::math::round(::scene::data_lookup_float(primvar_name)));
+    return feature_id == null_feature_id ? DEFAULT_NULL_FEATURE_ID : feature_id;
+}
+
+// See comment in DataType.h for why these are data_lookup_float instead of data_lookup_int
+export int cesium_internal_property_attribute_int_lookup(
+    uniform string primvar_name,
+    uniform bool has_no_data,
+    uniform int no_data,
+    uniform int default_value
+) [[ anno::hidden() ]] {
+    if (!scene::data_isvalid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_INT;
+    }
+
+    auto raw_value = int(::math::round(::scene::data_lookup_float(primvar_name)));
+    return finalize_int(raw_value, has_no_data, no_data, default_value);
+}
+
+export int2 cesium_internal_property_attribute_int2_lookup(
+    uniform string primvar_name,
+    uniform bool has_no_data,
+    uniform int2 no_data,
+    uniform int2 default_value
+) [[ anno::hidden() ]] {
+    if (!scene::data_isvalid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_INT2;
+    }
+
+    auto raw_value = int2(::math::round(::scene::data_lookup_float2(primvar_name)));
+    return finalize_int2(raw_value, has_no_data, no_data, default_value);
+}
+
+export int3 cesium_internal_property_attribute_int3_lookup(
+    uniform string primvar_name,
+    uniform bool has_no_data,
+    uniform int3 no_data,
+    uniform int3 default_value
+) [[ anno::hidden() ]] {
+    if (!scene::data_isvalid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_INT3;
+    }
+
+    auto raw_value = int3(::math::round(::scene::data_lookup_float3(primvar_name)));
+    return finalize_int3(raw_value, has_no_data, no_data, default_value);
+}
+
+export int4 cesium_internal_property_attribute_int4_lookup(
+    uniform string primvar_name,
+    uniform bool has_no_data,
+    uniform int4 no_data,
+    uniform int4 default_value
+) [[ anno::hidden() ]] {
+    if (!scene::data_isvalid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_INT4;
+    }
+
+    auto raw_value = int4(::math::round(::scene::data_lookup_float4(primvar_name)));
+    return finalize_int4(raw_value, has_no_data, no_data, default_value);
+}
+
+export float cesium_internal_property_attribute_normalized_int_lookup(
+    uniform string primvar_name,
+    uniform bool has_no_data,
+    uniform int no_data,
+    uniform float default_value,
+    uniform float offset,
+    uniform float scale,
+    uniform int maximum_value
+) [[ anno::hidden() ]] {
+    if (!scene::data_isvalid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT;
+    }
+
+    auto raw_value = int(::math::round(::scene::data_lookup_float(primvar_name)));
+    return finalize_normalized_int(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
+}
+
+export float2 cesium_internal_property_attribute_normalized_int2_lookup(
+    uniform string primvar_name,
+    uniform bool has_no_data,
+    uniform int2 no_data,
+    uniform float2 default_value,
+    uniform float2 offset,
+    uniform float2 scale,
+    uniform int2 maximum_value
+) [[ anno::hidden() ]] {
+    if (!scene::data_isvalid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT2;
+    }
+
+    auto raw_value = int2(::math::round(::scene::data_lookup_float2(primvar_name)));
+    return finalize_normalized_int2(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
+}
+
+export float3 cesium_internal_property_attribute_normalized_int3_lookup(
+    uniform string primvar_name,
+    uniform bool has_no_data,
+    uniform int3 no_data,
+    uniform float3 default_value,
+    uniform float3 offset,
+    uniform float3 scale,
+    uniform int3 maximum_value
+) [[ anno::hidden() ]] {
+    if (!scene::data_isvalid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT3;
+    }
+
+    auto raw_value = int3(::math::round(::scene::data_lookup_float3(primvar_name)));
+    return finalize_normalized_int3(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
+}
+
+export float4 cesium_internal_property_attribute_normalized_int4_lookup(
+    uniform string primvar_name,
+    uniform bool has_no_data,
+    uniform int4 no_data,
+    uniform float4 default_value,
+    uniform float4 offset,
+    uniform float4 scale,
+    uniform int4 maximum_value
+) [[ anno::hidden() ]] {
+    if (!scene::data_isvalid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT4;
+    }
+
+    auto raw_value = int4(::math::round(::scene::data_lookup_float4(primvar_name)));
+    return finalize_normalized_int4(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
+}
+
+export float cesium_internal_property_attribute_float_lookup(
+    uniform string primvar_name,
+    uniform bool has_no_data,
+    uniform float no_data,
+    uniform float default_value,
+    uniform float offset,
+    uniform float scale
+) [[ anno::hidden() ]] {
+    if (!scene::data_isvalid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT;
+    }
+
+    auto raw_value = scene::data_lookup_float(primvar_name);
+    return finalize_float(raw_value, has_no_data, no_data, default_value, offset, scale);
+}
+
+export float2 cesium_internal_property_attribute_float2_lookup(
+    uniform string primvar_name,
+    uniform bool has_no_data,
+    uniform float2 no_data,
+    uniform float2 default_value,
+    uniform float2 offset,
+    uniform float2 scale
+) [[ anno::hidden() ]] {
+    if (!scene::data_isvalid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT2;
+    }
+
+    auto raw_value = scene::data_lookup_float2(primvar_name);
+    return finalize_float2(raw_value, has_no_data, no_data, default_value, offset, scale);
+}
+
+export float3 cesium_internal_property_attribute_float3_lookup(
+    uniform string primvar_name,
+    uniform bool has_no_data,
+    uniform float3 no_data,
+    uniform float3 default_value,
+    uniform float3 offset,
+    uniform float3 scale
+) [[ anno::hidden() ]] {
+    if (!scene::data_isvalid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT3;
+    }
+
+    auto raw_value = scene::data_lookup_float3(primvar_name);
+    return finalize_float3(raw_value, has_no_data, no_data, default_value, offset, scale);
+}
+
+export float4 cesium_internal_property_attribute_float4_lookup(
+    uniform string primvar_name,
+    uniform bool has_no_data,
+    uniform float4 no_data,
+    uniform float4 default_value,
+    uniform float4 offset,
+    uniform float4 scale
+) [[ anno::hidden() ]] {
+    if (!scene::data_isvalid(primvar_name)) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT4;
+    }
+
+    auto raw_value = scene::data_lookup_float4(primvar_name);
+    return finalize_float4(raw_value, has_no_data, no_data, default_value, offset, scale);
+}
+
+export int cesium_internal_property_texture_int_lookup(
+    uniform texture_2d texture,
+    uniform int tex_coord_index,
+    uniform float2 tex_coord_offset,
+    uniform float tex_coord_rotation,
+    uniform float2 tex_coord_scale,
+    uniform gltf_wrapping_mode wrap_s,
+    uniform gltf_wrapping_mode wrap_t,
+    uniform int4 channels,
+    uniform bool has_no_data,
+    uniform int no_data,
+    uniform int default_value,
+) [[ anno::hidden() ]] {
+    auto texel_value = texel_fetch_int_rgba8_unorm(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_INT;
+    }
+
+    auto raw_value = read_channels_int(texel_value.value, channels);
+    return finalize_int(raw_value, has_no_data, no_data, default_value);
+}
+
+export int2 cesium_internal_property_texture_int2_lookup(
+    uniform texture_2d texture,
+    uniform int tex_coord_index,
+    uniform float2 tex_coord_offset,
+    uniform float tex_coord_rotation,
+    uniform float2 tex_coord_scale,
+    uniform gltf_wrapping_mode wrap_s,
+    uniform gltf_wrapping_mode wrap_t,
+    uniform int4 channels,
+    uniform bool has_no_data,
+    uniform int2 no_data,
+    uniform int2 default_value
+) [[ anno::hidden() ]] {
+    auto texel_value = texel_fetch_int_rgba8_unorm(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_INT2;
+    }
+
+    auto raw_value = read_channels_int2(texel_value.value, channels);
+    return finalize_int2(raw_value, has_no_data, no_data, default_value);
+}
+
+export int3 cesium_internal_property_texture_int3_lookup(
+    uniform texture_2d texture,
+    uniform int tex_coord_index,
+    uniform float2 tex_coord_offset,
+    uniform float tex_coord_rotation,
+    uniform float2 tex_coord_scale,
+    uniform gltf_wrapping_mode wrap_s,
+    uniform gltf_wrapping_mode wrap_t,
+    uniform int4 channels,
+    uniform bool has_no_data,
+    uniform int3 no_data,
+    uniform int3 default_value
+) [[ anno::hidden() ]] {
+    auto texel_value = texel_fetch_int_rgba8_unorm(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_INT3;
+    }
+
+    auto raw_value = read_channels_int3(texel_value.value, channels);
+    return finalize_int3(raw_value, has_no_data, no_data, default_value);
+}
+
+export int4 cesium_internal_property_texture_int4_lookup(
+    uniform texture_2d texture,
+    uniform int tex_coord_index,
+    uniform float2 tex_coord_offset,
+    uniform float tex_coord_rotation,
+    uniform float2 tex_coord_scale,
+    uniform gltf_wrapping_mode wrap_s,
+    uniform gltf_wrapping_mode wrap_t,
+    uniform int4 channels,
+    uniform bool has_no_data,
+    uniform int4 no_data,
+    uniform int4 default_value
+) [[ anno::hidden() ]] {
+    auto texel_value = texel_fetch_int_rgba8_unorm(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_INT4;
+    }
+
+    auto raw_value = read_channels_int4(texel_value.value, channels);
+    return finalize_int4(raw_value, has_no_data, no_data, default_value);
+}
+
+export float cesium_internal_property_texture_normalized_int_lookup(
+    uniform texture_2d texture,
+    uniform int tex_coord_index,
+    uniform float2 tex_coord_offset,
+    uniform float tex_coord_rotation,
+    uniform float2 tex_coord_scale,
+    uniform gltf_wrapping_mode wrap_s,
+    uniform gltf_wrapping_mode wrap_t,
+    uniform int4 channels,
+    uniform bool has_no_data,
+    uniform int no_data,
+    uniform float default_value,
+    uniform float offset,
+    uniform float scale,
+    uniform int maximum_value
+) [[ anno::hidden() ]] {
+    auto texel_value = texel_fetch_int_rgba8_unorm(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT;
+    }
+
+    auto raw_value = read_channels_int(texel_value.value, channels);
+    return finalize_normalized_int(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
+}
+
+export float2 cesium_internal_property_texture_normalized_int2_lookup(
+    uniform texture_2d texture,
+    uniform int tex_coord_index,
+    uniform float2 tex_coord_offset,
+    uniform float tex_coord_rotation,
+    uniform float2 tex_coord_scale,
+    uniform gltf_wrapping_mode wrap_s,
+    uniform gltf_wrapping_mode wrap_t,
+    uniform int4 channels,
+    uniform bool has_no_data,
+    uniform int2 no_data,
+    uniform float2 default_value,
+    uniform float2 offset,
+    uniform float2 scale,
+    uniform int2 maximum_value
+) [[ anno::hidden() ]] {
+    auto texel_value = texel_fetch_int_rgba8_unorm(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT2;
+    }
+
+    auto raw_value = read_channels_int2(texel_value.value, channels);
+    return finalize_normalized_int2(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
+}
+
+export float3 cesium_internal_property_texture_normalized_int3_lookup(
+    uniform texture_2d texture,
+    uniform int tex_coord_index,
+    uniform float2 tex_coord_offset,
+    uniform float tex_coord_rotation,
+    uniform float2 tex_coord_scale,
+    uniform gltf_wrapping_mode wrap_s,
+    uniform gltf_wrapping_mode wrap_t,
+    uniform int4 channels,
+    uniform bool has_no_data,
+    uniform int3 no_data,
+    uniform float3 default_value,
+    uniform float3 offset,
+    uniform float3 scale,
+    uniform int3 maximum_value
+) [[ anno::hidden() ]] {
+    auto texel_value = texel_fetch_int_rgba8_unorm(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT3;
+    }
+
+    auto raw_value = read_channels_int3(texel_value.value, channels);
+    return finalize_normalized_int3(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
+}
+
+export float4 cesium_internal_property_texture_normalized_int4_lookup(
+    uniform texture_2d texture,
+    uniform int tex_coord_index,
+    uniform float2 tex_coord_offset,
+    uniform float tex_coord_rotation,
+    uniform float2 tex_coord_scale,
+    uniform gltf_wrapping_mode wrap_s,
+    uniform gltf_wrapping_mode wrap_t,
+    uniform int4 channels,
+    uniform bool has_no_data,
+    uniform int4 no_data,
+    uniform float4 default_value,
+    uniform float4 offset,
+    uniform float4 scale,
+    uniform int4 maximum_value
+) [[ anno::hidden() ]] {
+    auto texel_value = texel_fetch_int_rgba8_unorm(texture, tex_coord_index, tex_coord_offset, tex_coord_rotation, tex_coord_scale, wrap_s, wrap_t);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT4;
+    }
+
+    auto raw_value = read_channels_int4(texel_value.value, channels);
+    return finalize_normalized_int4(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
+}
+
+export int cesium_internal_property_table_int_lookup(
+    uniform texture_2d property_table_texture,
+    uniform bool has_no_data,
+    uniform int no_data,
+    uniform int default_value,
+    int feature_id = DEFAULT_NULL_FEATURE_ID
+) [[ anno::hidden() ]] {
+    if (feature_id == DEFAULT_NULL_FEATURE_ID) {
+        return DEFAULT_PROPERTY_VALUE_INT;
+    }
+
+    auto pixel_index = get_property_table_pixel_index(feature_id, property_table_texture);
+    auto texel_value = texel_fetch_int(property_table_texture, pixel_index);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_INT;
+    }
+
+    auto raw_value = read_channels_int(texel_value.value, DEFAULT_CHANNELS);
+    return finalize_int(raw_value, has_no_data, no_data, default_value);
+}
+
+export int2 cesium_internal_property_table_int2_lookup(
+    uniform texture_2d property_table_texture,
+    uniform bool has_no_data,
+    uniform int2 no_data,
+    uniform int2 default_value,
+    int feature_id = DEFAULT_NULL_FEATURE_ID
+) [[ anno::hidden() ]] {
+    if (feature_id == DEFAULT_NULL_FEATURE_ID) {
+        return DEFAULT_PROPERTY_VALUE_INT2;
+    }
+
+    auto pixel_index = get_property_table_pixel_index(feature_id, property_table_texture);
+    auto texel_value = texel_fetch_int(property_table_texture, pixel_index);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_INT2;
+    }
+
+    auto raw_value = read_channels_int2(texel_value.value, DEFAULT_CHANNELS);
+    return finalize_int2(raw_value, has_no_data, no_data, default_value);
+}
+
+export int3 cesium_internal_property_table_int3_lookup(
+    uniform texture_2d property_table_texture,
+    uniform bool has_no_data,
+    uniform int3 no_data,
+    uniform int3 default_value,
+    int feature_id = DEFAULT_NULL_FEATURE_ID
+) [[ anno::hidden() ]] {
+    if (feature_id == DEFAULT_NULL_FEATURE_ID) {
+        return DEFAULT_PROPERTY_VALUE_INT3;
+    }
+
+    auto pixel_index = get_property_table_pixel_index(feature_id, property_table_texture);
+    auto texel_value = texel_fetch_int(property_table_texture, pixel_index);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_INT3;
+    }
+
+    auto raw_value = read_channels_int3(texel_value.value, DEFAULT_CHANNELS);
+    return finalize_int3(raw_value, has_no_data, no_data, default_value);
+}
+
+export int4 cesium_internal_property_table_int4_lookup(
+    uniform texture_2d property_table_texture,
+    uniform bool has_no_data,
+    uniform int4 no_data,
+    uniform int4 default_value,
+    int feature_id = DEFAULT_NULL_FEATURE_ID
+) [[ anno::hidden() ]] {
+    if (feature_id == DEFAULT_NULL_FEATURE_ID) {
+        return DEFAULT_PROPERTY_VALUE_INT4;
+    }
+
+    auto pixel_index = get_property_table_pixel_index(feature_id, property_table_texture);
+    auto texel_value = texel_fetch_int(property_table_texture, pixel_index);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_INT4;
+    }
+
+    auto raw_value = read_channels_int4(texel_value.value, DEFAULT_CHANNELS);
+    return finalize_int4(raw_value, has_no_data, no_data, default_value);
+}
+
+export float cesium_internal_property_table_normalized_int_lookup(
+    uniform texture_2d property_table_texture,
+    uniform bool has_no_data,
+    uniform int no_data,
+    uniform float default_value,
+    uniform float offset,
+    uniform float scale,
+    uniform int maximum_value,
+    int feature_id = DEFAULT_NULL_FEATURE_ID
+) [[ anno::hidden() ]] {
+    if (feature_id == DEFAULT_NULL_FEATURE_ID) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT;
+    }
+
+    auto pixel_index = get_property_table_pixel_index(feature_id, property_table_texture);
+    auto texel_value = texel_fetch_int(property_table_texture, pixel_index);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT;
+    }
+
+    auto raw_value = read_channels_int(texel_value.value, DEFAULT_CHANNELS);
+    return finalize_normalized_int(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
+}
+
+export float2 cesium_internal_property_table_normalized_int2_lookup(
+    uniform texture_2d property_table_texture,
+    uniform bool has_no_data,
+    uniform int2 no_data,
+    uniform float2 default_value,
+    uniform float2 offset,
+    uniform float2 scale,
+    uniform int2 maximum_value,
+    int feature_id = DEFAULT_NULL_FEATURE_ID
+) [[ anno::hidden() ]] {
+    if (feature_id == DEFAULT_NULL_FEATURE_ID) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT2;
+    }
+
+    auto pixel_index = get_property_table_pixel_index(feature_id, property_table_texture);
+    auto texel_value = texel_fetch_int(property_table_texture, pixel_index);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT2;
+    }
+
+    auto raw_value = read_channels_int2(texel_value.value, DEFAULT_CHANNELS);
+    return finalize_normalized_int2(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
+}
+
+export float3 cesium_internal_property_table_normalized_int3_lookup(
+    uniform texture_2d property_table_texture,
+    uniform bool has_no_data,
+    uniform int3 no_data,
+    uniform float3 default_value,
+    uniform float3 offset,
+    uniform float3 scale,
+    uniform int3 maximum_value,
+    int feature_id = DEFAULT_NULL_FEATURE_ID
+) [[ anno::hidden() ]] {
+    if (feature_id == DEFAULT_NULL_FEATURE_ID) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT3;
+    }
+
+    auto pixel_index = get_property_table_pixel_index(feature_id, property_table_texture);
+    auto texel_value = texel_fetch_int(property_table_texture, pixel_index);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT3;
+    }
+
+    auto raw_value = read_channels_int3(texel_value.value, DEFAULT_CHANNELS);
+    return finalize_normalized_int3(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
+}
+
+export float4 cesium_internal_property_table_normalized_int4_lookup(
+    uniform texture_2d property_table_texture,
+    uniform bool has_no_data,
+    uniform int4 no_data,
+    uniform float4 default_value,
+    uniform float4 offset,
+    uniform float4 scale,
+    uniform int4 maximum_value,
+    int feature_id = DEFAULT_NULL_FEATURE_ID
+) [[ anno::hidden() ]] {
+    if (feature_id == DEFAULT_NULL_FEATURE_ID) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT4;
+    }
+
+    auto pixel_index = get_property_table_pixel_index(feature_id, property_table_texture);
+    auto texel_value = texel_fetch_int(property_table_texture, pixel_index);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT4;
+    }
+
+    auto raw_value = read_channels_int4(texel_value.value, DEFAULT_CHANNELS);
+    return finalize_normalized_int4(raw_value, has_no_data, no_data, default_value, offset, scale, maximum_value);
+}
+
+export float cesium_internal_property_table_float_lookup(
+    uniform texture_2d property_table_texture,
+    uniform bool has_no_data,
+    uniform float no_data,
+    uniform float default_value,
+    uniform float offset,
+    uniform float scale,
+    int feature_id = DEFAULT_NULL_FEATURE_ID
+) [[ anno::hidden() ]] {
+    if (feature_id == DEFAULT_NULL_FEATURE_ID) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT;
+    }
+
+    auto pixel_index = get_property_table_pixel_index(feature_id, property_table_texture);
+    auto texel_value = texel_fetch_float(property_table_texture, pixel_index);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT;
+    }
+
+    auto raw_value = read_channels_float(texel_value.value, DEFAULT_CHANNELS);
+    return finalize_float(raw_value, has_no_data, no_data, default_value, offset, scale);
+}
+
+export float2 cesium_internal_property_table_float2_lookup(
+    uniform texture_2d property_table_texture,
+    uniform bool has_no_data,
+    uniform float2 no_data,
+    uniform float2 default_value,
+    uniform float2 offset,
+    uniform float2 scale,
+    int feature_id = DEFAULT_NULL_FEATURE_ID
+) [[ anno::hidden() ]] {
+    if (feature_id == DEFAULT_NULL_FEATURE_ID) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT2;
+    }
+
+    auto pixel_index = get_property_table_pixel_index(feature_id, property_table_texture);
+    auto texel_value = texel_fetch_float(property_table_texture, pixel_index);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT2;
+    }
+
+    auto raw_value = read_channels_float2(texel_value.value, DEFAULT_CHANNELS);
+    return finalize_float2(raw_value, has_no_data, no_data, default_value, offset, scale);
+}
+
+export float3 cesium_internal_property_table_float3_lookup(
+    uniform texture_2d property_table_texture,
+    uniform bool has_no_data,
+    uniform float3 no_data,
+    uniform float3 default_value,
+    uniform float3 offset,
+    uniform float3 scale,
+    int feature_id = DEFAULT_NULL_FEATURE_ID
+) [[ anno::hidden() ]] {
+    if (feature_id == DEFAULT_NULL_FEATURE_ID) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT3;
+    }
+
+    auto pixel_index = get_property_table_pixel_index(feature_id, property_table_texture);
+    auto texel_value = texel_fetch_float(property_table_texture, pixel_index);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT3;
+    }
+
+    auto raw_value = read_channels_float3(texel_value.value, DEFAULT_CHANNELS);
+    return finalize_float3(raw_value, has_no_data, no_data, default_value, offset, scale);
+}
+
+export float4 cesium_internal_property_table_float4_lookup(
+    uniform texture_2d property_table_texture,
+    uniform bool has_no_data,
+    uniform float4 no_data,
+    uniform float4 default_value,
+    uniform float4 offset,
+    uniform float4 scale,
+    int feature_id = DEFAULT_NULL_FEATURE_ID
+) [[ anno::hidden() ]] {
+    if (feature_id == DEFAULT_NULL_FEATURE_ID) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT4;
+    }
+
+    auto pixel_index = get_property_table_pixel_index(feature_id, property_table_texture);
+    auto texel_value = texel_fetch_float(property_table_texture, pixel_index);
+
+    if (!texel_value.valid) {
+        return DEFAULT_PROPERTY_VALUE_FLOAT4;
+    }
+
+    auto raw_value = read_channels_float4(texel_value.value, DEFAULT_CHANNELS);
+    return finalize_float4(raw_value, has_no_data, no_data, default_value, offset, scale);
+}
+
+export gltf_texture_lookup_value cesium_internal_texture_lookup(
+    uniform texture_2d texture,
+    uniform int tex_coord_index,
+    uniform float2 tex_coord_offset,
+    uniform float tex_coord_rotation,
+    uniform float2 tex_coord_scale,
+    uniform gltf_wrapping_mode wrap_s,
+    uniform gltf_wrapping_mode wrap_t
+) [[ anno::hidden() ]] {
+    return gltf_texture_lookup(
         texture: texture,
         tex_coord_index: tex_coord_index,
-        offset: offset,
-        rotation: rotation,
-        scale: scale,
+        offset: tex_coord_offset,
+        rotation: tex_coord_rotation,
+        scale: tex_coord_scale,
+        wrap_s: wrap_s,
+        wrap_t: wrap_t
+    );
+}
+
+export gltf_texture_lookup_value cesium_internal_raster_overlay_lookup(
+    uniform texture_2d texture,
+    uniform int tex_coord_index,
+    uniform float2 tex_coord_offset,
+    uniform float tex_coord_rotation,
+    uniform float2 tex_coord_scale,
+    uniform gltf_wrapping_mode wrap_s,
+    uniform gltf_wrapping_mode wrap_t,
+    uniform float alpha
+) [[ anno::hidden() ]] {
+    auto raster_overlay = gltf_texture_lookup(
+        texture: texture,
+        tex_coord_index: tex_coord_index,
+        offset: tex_coord_offset,
+        rotation: tex_coord_rotation,
+        scale: tex_coord_scale,
         wrap_s: wrap_s,
         wrap_t: wrap_t
     );
 
-    if (imagery_layer.valid) {
-        imagery_layer.value.w *= alpha;
+    if (raster_overlay.valid) {
+        raster_overlay.value.w *= alpha;
     }
 
-    return imagery_layer;
+    return raster_overlay;
 }
 
 export material cesium_internal_material(
-    gltf_texture_lookup_value imagery_layers_texture = gltf_texture_lookup_value(true, float4(0.0)),
-    uniform float4 tile_color = float4(1.0),
-    // gltf_material inputs below
+    uniform color base_color_factor,
+    uniform float metallic_factor,
+    uniform float roughness_factor,
+    uniform color emissive_factor,
+    uniform gltf_alpha_mode alpha_mode,
+    uniform float base_alpha,
+    uniform float alpha_cutoff,
+    uniform float4 tile_color,
     gltf_texture_lookup_value base_color_texture = gltf_texture_lookup_value(),
-    uniform color base_color_factor = color(1.0),
-    uniform float metallic_factor = 1.0,
-    uniform float roughness_factor = 1.0,
-    uniform color emissive_factor = color(0.0),
-    uniform gltf_alpha_mode alpha_mode = opaque,
-    uniform float base_alpha = 1.0,
-    uniform float alpha_cutoff  = 0.5
+    gltf_texture_lookup_value raster_overlay = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value alpha_clip = gltf_texture_lookup_value()
 ) [[ anno::hidden() ]] = let {
-    auto base_color = compute_base_color(imagery_layers_texture, tile_color, base_color_texture, base_color_factor, base_alpha);
+    auto base_color = compute_base_color(
+        base_color_factor,
+        base_alpha,
+        base_color_texture.valid ? base_color_texture.value : float4(0.0),
+        raster_overlay.valid ? raster_overlay.value : float4(0.0),
+        tile_color,
+        alpha_clip.valid ? alpha_clip.value.x : 0.0
+    );
     material base = gltf_material(
         base_color_texture: gltf_texture_lookup_value(true, base_color),
         metallic_factor: metallic_factor,
@@ -281,51 +1557,102 @@ export material cesium_internal_material(
     geometry: base.geometry
 );
 
-export gltf_texture_lookup_value cesium_internal_imagery_layer_resolver(
-    uniform int imagery_layers_count = 0,
-    gltf_texture_lookup_value imagery_layer_0 = gltf_texture_lookup_value(),
-    gltf_texture_lookup_value imagery_layer_1 = gltf_texture_lookup_value(),
-    gltf_texture_lookup_value imagery_layer_2 = gltf_texture_lookup_value(),
-    gltf_texture_lookup_value imagery_layer_3 = gltf_texture_lookup_value(),
-    gltf_texture_lookup_value imagery_layer_4 = gltf_texture_lookup_value(),
-    gltf_texture_lookup_value imagery_layer_5 = gltf_texture_lookup_value(),
-    gltf_texture_lookup_value imagery_layer_6 = gltf_texture_lookup_value(),
-    gltf_texture_lookup_value imagery_layer_7 = gltf_texture_lookup_value(),
-    gltf_texture_lookup_value imagery_layer_8 = gltf_texture_lookup_value(),
-    gltf_texture_lookup_value imagery_layer_9 = gltf_texture_lookup_value(),
-    gltf_texture_lookup_value imagery_layer_10 = gltf_texture_lookup_value(),
-    gltf_texture_lookup_value imagery_layer_11 = gltf_texture_lookup_value(),
-    gltf_texture_lookup_value imagery_layer_12 = gltf_texture_lookup_value(),
-    gltf_texture_lookup_value imagery_layer_13 = gltf_texture_lookup_value(),
-    gltf_texture_lookup_value imagery_layer_14 = gltf_texture_lookup_value(),
-    gltf_texture_lookup_value imagery_layer_15 = gltf_texture_lookup_value()
+export gltf_texture_lookup_value cesium_internal_raster_overlay_resolver(
+    uniform int raster_overlay_count = 0,
+    gltf_texture_lookup_value raster_overlay_0 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_1 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_2 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_3 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_4 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_5 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_6 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_7 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_8 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_9 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_10 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_11 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_12 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_13 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_14 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_15 = gltf_texture_lookup_value()
 ) [[ anno::hidden() ]] {
-    // The array length should match MAX_IMAGERY_LAYERS_COUNT in Tokens.h
-    gltf_texture_lookup_value[16] imagery_layers(
-        imagery_layer_0,
-        imagery_layer_1,
-        imagery_layer_2,
-        imagery_layer_3,
-        imagery_layer_4,
-        imagery_layer_5,
-        imagery_layer_6,
-        imagery_layer_7,
-        imagery_layer_8,
-        imagery_layer_9,
-        imagery_layer_10,
-        imagery_layer_11,
-        imagery_layer_12,
-        imagery_layer_13,
-        imagery_layer_14,
-        imagery_layer_15,
+    // The array length should match MAX_RASTER_OVERLAY_COUNT in FabricMaterial.cpp
+    gltf_texture_lookup_value[] raster_overlays(
+        raster_overlay_0,
+        raster_overlay_1,
+        raster_overlay_2,
+        raster_overlay_3,
+        raster_overlay_4,
+        raster_overlay_5,
+        raster_overlay_6,
+        raster_overlay_7,
+        raster_overlay_8,
+        raster_overlay_9,
+        raster_overlay_10,
+        raster_overlay_11,
+        raster_overlay_12,
+        raster_overlay_13,
+        raster_overlay_14,
+        raster_overlay_15,
     );
 
     auto resolved_value = float4(0.0);
 
-    for (int i = 0; i < imagery_layers_count; i++) {
-        auto imagery_layer = imagery_layers[i];
-        if (imagery_layer.valid) {
-            resolved_value = alpha_blend(imagery_layer.value, resolved_value);
+    for (int i = 0; i < raster_overlay_count; i++) {
+        auto raster_overlay = raster_overlays[i];
+        if (raster_overlay.valid) {
+            resolved_value = alpha_blend(raster_overlay.value, resolved_value);
+        }
+    }
+
+    return gltf_texture_lookup_value(true, resolved_value);
+}
+
+export gltf_texture_lookup_value cesium_internal_clipping_raster_overlay_resolver(
+    uniform int raster_overlay_count = 0,
+    gltf_texture_lookup_value raster_overlay_0 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_1 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_2 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_3 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_4 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_5 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_6 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_7 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_8 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_9 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_10 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_11 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_12 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_13 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_14 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_15 = gltf_texture_lookup_value()
+) [[ anno::hidden() ]] {
+    // The array length should match MAX_RASTER_OVERLAY_COUNT in FabricMaterial.cpp
+    gltf_texture_lookup_value[] raster_overlays(
+        raster_overlay_0,
+        raster_overlay_1,
+        raster_overlay_2,
+        raster_overlay_3,
+        raster_overlay_4,
+        raster_overlay_5,
+        raster_overlay_6,
+        raster_overlay_7,
+        raster_overlay_8,
+        raster_overlay_9,
+        raster_overlay_10,
+        raster_overlay_11,
+        raster_overlay_12,
+        raster_overlay_13,
+        raster_overlay_14,
+        raster_overlay_15,
+    );
+
+    auto resolved_value = float4(0.0);
+
+    for (int i = 0; i < raster_overlay_count; i++) {
+        auto raster_overlay = raster_overlays[i];
+        if (raster_overlay.valid) {
+            resolved_value += raster_overlay.value;
         }
     }
 
