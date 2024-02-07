@@ -664,6 +664,10 @@ void processCesiumPolygonRasterOverlayAdded(Context& context, const pxr::SdfPath
 void processCesiumWebMapServiceRasterOverlayAdded(
     Context& context,
     const pxr::SdfPath& webMapServiceRasterOverlayPath) {
+    if (context.getAssetRegistry().getWebMapServiceRasterOverlay(webMapServiceRasterOverlayPath)) {
+        return;
+    }
+
     context.getAssetRegistry().addWebMapServiceRasterOverlay(webMapServiceRasterOverlayPath);
     updateRasterOverlayBindings(context, webMapServiceRasterOverlayPath);
 }

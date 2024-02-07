@@ -74,17 +74,17 @@ void OmniWebMapServiceRasterOverlay::reload() {
 
     CesiumRasterOverlays::RasterOverlayOptions options;
     options.showCreditsOnScreen = getShowCreditsOnScreen();
-    // options.ktx2TranscodeTargets = GltfUtil::getKtx2TranscodeTargets();
+    options.ktx2TranscodeTargets = GltfUtil::getKtx2TranscodeTargets();
 
     options.loadErrorCallback = [this](const CesiumRasterOverlays::RasterOverlayLoadFailureDetails& error) {
         _pContext->getLogger()->error(error.message);
     };
 
     CesiumRasterOverlays::WebMapServiceRasterOverlayOptions wmsOptions;
-    int minimumLevel = getMinimumLevel();
-    int maximumLevel = getMaximumLevel();
-    int tileWidth = getTileWidth();
-    int tileHeight = getTileHeight();
+    const auto minimumLevel = getMinimumLevel();
+    const auto maximumLevel = getMaximumLevel();
+    const auto tileWidth = getTileWidth();
+    const auto tileHeight = getTileHeight();
     std::string layers = getLayers();
 
     if (maximumLevel > minimumLevel) {

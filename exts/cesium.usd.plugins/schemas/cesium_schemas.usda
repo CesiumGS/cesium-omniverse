@@ -455,7 +455,7 @@ class "CesiumRasterOverlayPrim" (
 }
 
 class CesiumIonRasterOverlayPrim "CesiumIonRasterOverlayPrim" (
-    doc = """Adds a prim for representing an Ion raster overlay."""
+    doc = """Adds a prim for representing an ion raster overlay."""
     inherits = </CesiumRasterOverlayPrim>
     customData = {
         string className = "IonRasterOverlay"
