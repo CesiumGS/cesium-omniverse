@@ -21,15 +21,20 @@ keywords = [
 
 # Paths are relative to the extension folder
 readme = "doc/README.md"
-icon = "doc/resources/icon.png"
 preview_image = "doc/resources/icon.png"
+icon = "doc/resources/icon.png"
+
+[package.target]
+kit = ["105.*"]
+
+# Which extensions this extension depends on
+[dependencies]
+"cesium.usd.plugins" = {}
+"usdrt.scenegraph" = {}
+
+# Main python module this extension provides, it will be publicly available as "import cesium.omniverse"
+[[python.module]]
+name = "cesium.omniverse.cpp.tests"
 
 [[native.plugin]]
 path = "bin/cesium.omniverse.cpp.tests.plugin"
-
-# Paths are relative to the extension folder
-readme = "doc/README.md"
-icon = "doc/resources/icon.png"
-
-[[python.module]]
-name = "cesium.omniverse.cpp.tests"
