@@ -185,6 +185,10 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
 #endif
     }
 
+    void clearAccessorCache() override {
+        _pContext->clearAccessorCache();
+    }
+
   private:
     std::unique_ptr<Context> _pContext;
 };

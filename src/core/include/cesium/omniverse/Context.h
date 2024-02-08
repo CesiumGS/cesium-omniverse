@@ -19,6 +19,7 @@ class CreditSystem;
 namespace CesiumAsync {
 class AsyncSystem;
 class IAssetAccessor;
+class ICacheDatabase;
 } // namespace CesiumAsync
 
 namespace cesium::omniverse {
@@ -58,6 +59,7 @@ class Context {
 
     void clearStage();
     void reloadStage();
+    void clearAccessorCache();
 
     void onUpdateFrame(const gsl::span<const Viewport>& viewports);
     void onUsdStageChanged(int64_t stageId);
@@ -76,9 +78,10 @@ class Context {
 
     std::shared_ptr<TaskProcessor> _pTaskProcessor;
     std::unique_ptr<CesiumAsync::AsyncSystem> _pAsyncSystem;
-    std::shared_ptr<CesiumAsync::IAssetAccessor> _pAssetAccessor;
-    std::shared_ptr<CesiumUtility::CreditSystem> _pCreditSystem;
     std::shared_ptr<Logger> _pLogger;
+    std::shared_ptr<CesiumAsync::IAssetAccessor> _pAssetAccessor;
+    std::shared_ptr<CesiumAsync::ICacheDatabase> _pCacheDatabase;
+    std::shared_ptr<CesiumUtility::CreditSystem> _pCreditSystem;
     std::unique_ptr<AssetRegistry> _pAssetRegistry;
     std::unique_ptr<FabricResourceManager> _pFabricResourceManager;
     std::unique_ptr<CesiumIonServerManager> _pCesiumIonServerManager;

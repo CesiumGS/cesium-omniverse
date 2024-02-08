@@ -102,16 +102,16 @@ Context::Context(const std::filesystem::path& cesiumExtensionLocation)
     , _cesiumMdlPathToken(pxr::TfToken((_cesiumExtensionLocation / "mdl" / "cesium.mdl").generic_string()))
     , _pTaskProcessor(std::make_shared<TaskProcessor>())
     , _pAsyncSystem(std::make_unique<CesiumAsync::AsyncSystem>(_pTaskProcessor))
-    , _pCreditSystem(std::make_shared<CesiumUtility::CreditSystem>())
     , _pLogger(std::make_shared<Logger>())
+    , _pCacheDatabase(getCacheDatabase(_pLogger))
+    , _pCreditSystem(std::make_shared<CesiumUtility::CreditSystem>())
     , _pAssetRegistry(std::make_unique<AssetRegistry>(this))
     , _pFabricResourceManager(std::make_unique<FabricResourceManager>(this))
     , _pCesiumIonServerManager(std::make_unique<CesiumIonServerManager>(this))
     , _pUsdNotificationHandler(std::make_unique<UsdNotificationHandler>(this)) {
-    auto database = getCacheDatabase(_pLogger);
-    if (database) {
+    if (_pCacheDatabase) {
         _pAssetAccessor = std::make_shared<CesiumAsync::CachingAssetAccessor>(
-            _pLogger, std::make_shared<UrlAssetAccessor>(), database);
+            _pLogger, std::make_shared<UrlAssetAccessor>(), _pCacheDatabase);
 
     } else {
         _pAssetAccessor = std::make_shared<UrlAssetAccessor>();
@@ -212,6 +212,12 @@ void Context::reloadStage() {
         _pFabricResourceManager->setMaterialPoolInitialCapacity(pData->getDebugMaterialPoolInitialCapacity());
         _pFabricResourceManager->setTexturePoolInitialCapacity(pData->getDebugTexturePoolInitialCapacity());
         _pFabricResourceManager->setDebugRandomColors(pData->getDebugRandomColors());
+    }
+}
+
+void Context::clearAccessorCache() {
+    if (_pCacheDatabase) {
+        _pCacheDatabase->clearAll();
     }
 }
 

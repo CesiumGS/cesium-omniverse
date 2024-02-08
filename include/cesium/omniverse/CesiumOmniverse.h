@@ -158,6 +158,10 @@ class ICesiumOmniverseInterface {
     virtual void creditsStartNextFrame() noexcept = 0;
 
     virtual bool isTracingEnabled() noexcept = 0;
+    /**
+     * @brief Clear the asset accessor cache.
+     */
+    virtual void clearAccessorCache() = 0;
 };
 
 } // namespace cesium::omniverse

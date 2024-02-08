@@ -2,6 +2,7 @@ import logging
 import carb.settings
 import omni.ui as ui
 from cesium.omniverse.utils.custom_fields import int_field_with_label
+from cesium.omniverse.utils.cesium_interface import CesiumInterfaceManager
 
 class CesiumAssetCacheWindow(ui.Window):
     WINDOW_NAME = "Cesium Asset Cache"
@@ -33,6 +34,10 @@ class CesiumAssetCacheWindow(ui.Window):
         newval = self._cache_items_model.get_value_as_int()
         carb.settings.get_settings().set(self._cache_items_setting, newval)
 
+    def _clear_cache(self):
+        with CesiumInterfaceManager() as interface:
+            interface.clear_accessor_cache()
+
     def _build_fn(self):
         """Builds out the UI buttons and their handlers."""
 
@@ -42,3 +47,4 @@ class CesiumAssetCacheWindow(ui.Window):
             self._cache_items_model = ui.SimpleIntModel(cache_items)
             int_field_with_label("Maximum cache items", model=self._cache_items_model)
             ui.Button("Set cache parameters", height=20, clicked_fn=self._set_cache_parameters)
+            ui.Button("Clear cache", height = 20, clicked_fn=self._clear_cache)
