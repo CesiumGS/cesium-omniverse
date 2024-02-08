@@ -3,6 +3,7 @@ import omni.ui as ui
 from typing import Callable, Optional, List
 from cesium.omniverse.ui import CesiumOmniverseDebugWindow
 from .georefhelper.georef_helper_window import CesiumGeorefHelperWindow
+from .utils.asset_cache_window import CesiumAssetCacheWindow
 from .utils import (
     extend_far_plane,
     save_carb_settings,
@@ -48,6 +49,7 @@ class CesiumPowertoolsWindow(ui.Window):
         self._actions: List[PowertoolsAction] = [
             PowertoolsAction("Open Cesium Debugging Window", CesiumOmniverseDebugWindow.show_window),
             PowertoolsAction("Open Cesium Georeference Helper Window", CesiumGeorefHelperWindow.create_window),
+            PowertoolsAction("Open Cesium Cache Window", CesiumAssetCacheWindow.create_window),
             PowertoolsAction("Extend Far Plane", extend_far_plane),
             PowertoolsAction("Save Carb Settings", partial(save_carb_settings, powertools_extension_location)),
             PowertoolsAction("Save Fabric Stage", partial(save_fabric_stage, powertools_extension_location)),
