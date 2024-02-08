@@ -500,16 +500,16 @@ class CesiumPolygonRasterOverlayPrim "CesiumPolygonRasterOverlayPrim" (
         displayName = "Cartographic Polygon Binding"
         doc = "Specifies which Cartographic Polygons to use in the raster overlay"
     )
-}
 
-class CesiumCartographicPolygonPrim "CesiumCartographicPolygonPrim" (
-    doc = """Adds a prim that represents a globe-anchored polygon"""
-    inherits = </BasisCurves>
-    prepend apiSchemas = ["CesiumGlobeAnchorSchemaAPI"]
-    customData = {
-        string className = "CartographicPolygon"
-    }
-) {
+    bool cesium:invertSelection = false (
+        customData = {
+            string apiName = "invertSelection"
+        }
+        displayName = "Invert Selection"
+        doc = "Whether to invert the selection specified by the polygons. If this is true, only the areas outside of the polygons will be rasterized."
+    )
+
+    uniform token cesium:overlayRenderMethod = "clip"
 }
 
 class "CesiumGlobeAnchorSchemaAPI" (

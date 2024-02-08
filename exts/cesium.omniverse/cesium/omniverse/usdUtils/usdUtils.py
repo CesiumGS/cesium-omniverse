@@ -2,9 +2,9 @@ import omni.usd
 import re
 from pxr import Sdf
 from typing import List, Optional
+from pxr import UsdGeom
 
 from cesium.usd.plugins.CesiumUsdSchemas import (
-    CartographicPolygon as CesiumCartographicPolygon,
     Data as CesiumData,
     Tileset as CesiumTileset,
     IonRasterOverlay as CesiumIonRasterOverlay,
@@ -103,7 +103,27 @@ def add_cartographic_polygon() -> str:
     cartographic_polygon_path = Sdf.Path("/CesiumCartographicPolygons").AppendPath(name).pathString
     cartographic_polygon_path = omni.usd.get_stage_next_free_path(stage, cartographic_polygon_path, False)
 
-    CesiumCartographicPolygon.Define(stage, cartographic_polygon_path)
+    basis_curves = UsdGeom.BasisCurves.Define(stage, cartographic_polygon_path)
+    basis_curves.GetTypeAttr().Set("linear")
+    basis_curves.GetWrapAttr().Set("periodic")
+
+    # Set curve to have 10m edge lengths
+    curve_size = 10 / UsdGeom.GetStageMetersPerUnit(stage)
+    basis_curves.GetPointsAttr().Set(
+        [
+            (-curve_size, 0, -curve_size),
+            (-curve_size, 0, curve_size),
+            (curve_size, 0, curve_size),
+            (curve_size, 0, -curve_size),
+        ]
+    )
+
+    basis_curves.GetCurveVertexCountsAttr().Set([4])
+
+    # Set curve to a 0.5m width
+    curve_width = 0.5 / UsdGeom.GetStageMetersPerUnit(stage)
+    basis_curves.GetWidthsAttr().Set([curve_width, curve_width, curve_width, curve_width])
+
     add_globe_anchor_to_prim(cartographic_polygon_path)
 
     return cartographic_polygon_path

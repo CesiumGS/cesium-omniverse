@@ -1,9 +1,8 @@
 #include "cesium/omniverse/UsdUtil.h"
 
-#include "CesiumUsdSchemas/cartographicPolygon.h"
-
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/CppUtil.h"
 #include "cesium/omniverse/MathUtil.h"
 #include "cesium/omniverse/OmniData.h"
 #include "cesium/omniverse/OmniGeoreference.h"
@@ -18,7 +17,6 @@
 #include <CesiumGeospatial/GlobeAnchor.h>
 #include <CesiumGeospatial/GlobeTransforms.h>
 #include <CesiumGeospatial/LocalHorizontalCoordinateSystem.h>
-#include <CesiumUsdSchemas/cartographicPolygon.h>
 #include <CesiumUsdSchemas/data.h>
 #include <CesiumUsdSchemas/georeference.h>
 #include <CesiumUsdSchemas/globeAnchorAPI.h>
@@ -168,7 +166,8 @@ glm::dmat4 computePrimWorldToLocalTransform(const pxr::UsdStageWeakPtr& pStage, 
 
 glm::dmat4 computeEcefToStageTransform(const Context& context, const pxr::SdfPath& georeferencePath) {
     const auto disableGeoreferencing = getDebugDisableGeoreferencing(context);
-    const auto pGeoreference = context.getAssetRegistry().getGeoreference(georeferencePath);
+    const auto pGeoreference =
+        georeferencePath.IsEmpty() ? nullptr : context.getAssetRegistry().getGeoreference(georeferencePath);
 
     if (disableGeoreferencing || !pGeoreference) {
         const auto zUp = getUsdUpAxis(context.getUsdStage()) == pxr::UsdGeomTokens->z;
@@ -373,9 +372,10 @@ pxr::CesiumIonServer getCesiumIonServer(const pxr::UsdStageWeakPtr& pStage, cons
     return pxr::CesiumIonServer::Get(pStage, path);
 }
 
-pxr::CesiumCartographicPolygon
-getCesiumCartographicPolygon(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
-    return pxr::CesiumCartographicPolygon::Get(pStage, path);
+// This is currently a pass-through to getUsdBasisCurves until
+// issue with crashes in prims that inherit from BasisCurves is resolved
+pxr::UsdGeomBasisCurves getCesiumCartographicPolygon(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
+    return getUsdBasisCurves(pStage, path);
 }
 
 pxr::UsdShadeShader getUsdShader(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
@@ -473,8 +473,10 @@ bool isCesiumCartographicPolygon(const pxr::UsdStageWeakPtr& pStage, const pxr::
     if (!prim.IsValid()) {
         return false;
     }
-
-    return prim.IsA<pxr::CesiumCartographicPolygon>();
+    if (!prim.IsA<pxr::UsdGeomBasisCurves>()) {
+        return false;
+    }
+    return prim.HasAPI<pxr::CesiumGlobeAnchorAPI>();
 }
 
 bool isCesiumSession(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
@@ -584,11 +586,11 @@ std::optional<TranslateRotateScaleOps> getOrCreateTranslateRotateScaleOps(const 
     pxr::UsdGeomXformOp rotateOp;
     pxr::UsdGeomXformOp scaleOp;
 
-    uint64_t translateOpIndex = 0;
-    uint64_t rotateOpIndex = 0;
-    uint64_t scaleOpIndex = 0;
+    int64_t translateOpIndex = -1;
+    int64_t rotateOpIndex = -1;
+    int64_t scaleOpIndex = -1;
 
-    uint64_t opCount = 0;
+    int64_t opCount = 0;
 
     bool resetsXformStack;
     const auto xformOps = xformable.GetOrderedXformOps(&resetsXformStack);
@@ -598,42 +600,58 @@ std::optional<TranslateRotateScaleOps> getOrCreateTranslateRotateScaleOps(const 
     for (const auto& xformOp : xformOps) {
         switch (xformOp.GetOpType()) {
             case pxr::UsdGeomXformOp::TypeTranslate:
-                translateOp = xformOp;
-                translateOpIndex = opCount;
+                if (translateOpIndex == -1) {
+                    translateOp = xformOp;
+                    translateOpIndex = opCount;
+                }
                 break;
             case pxr::UsdGeomXformOp::TypeRotateXYZ:
-                eulerAngleOrder = MathUtil::EulerAngleOrder::XYZ;
-                rotateOp = xformOp;
-                rotateOpIndex = opCount;
+                if (rotateOpIndex == -1) {
+                    eulerAngleOrder = MathUtil::EulerAngleOrder::XYZ;
+                    rotateOp = xformOp;
+                    rotateOpIndex = opCount;
+                }
                 break;
             case pxr::UsdGeomXformOp::TypeRotateXZY:
-                eulerAngleOrder = MathUtil::EulerAngleOrder::XZY;
-                rotateOp = xformOp;
-                rotateOpIndex = opCount;
+                if (rotateOpIndex == -1) {
+                    eulerAngleOrder = MathUtil::EulerAngleOrder::XZY;
+                    rotateOp = xformOp;
+                    rotateOpIndex = opCount;
+                }
                 break;
             case pxr::UsdGeomXformOp::TypeRotateYXZ:
-                eulerAngleOrder = MathUtil::EulerAngleOrder::YXZ;
-                rotateOp = xformOp;
-                rotateOpIndex = opCount;
+                if (rotateOpIndex == -1) {
+                    eulerAngleOrder = MathUtil::EulerAngleOrder::YXZ;
+                    rotateOp = xformOp;
+                    rotateOpIndex = opCount;
+                }
                 break;
             case pxr::UsdGeomXformOp::TypeRotateYZX:
-                eulerAngleOrder = MathUtil::EulerAngleOrder::YZX;
-                rotateOp = xformOp;
-                rotateOpIndex = opCount;
+                if (rotateOpIndex == -1) {
+                    eulerAngleOrder = MathUtil::EulerAngleOrder::YZX;
+                    rotateOp = xformOp;
+                    rotateOpIndex = opCount;
+                }
                 break;
             case pxr::UsdGeomXformOp::TypeRotateZXY:
-                eulerAngleOrder = MathUtil::EulerAngleOrder::ZXY;
-                rotateOp = xformOp;
-                rotateOpIndex = opCount;
+                if (rotateOpIndex == -1) {
+                    eulerAngleOrder = MathUtil::EulerAngleOrder::ZXY;
+                    rotateOp = xformOp;
+                    rotateOpIndex = opCount;
+                }
                 break;
             case pxr::UsdGeomXformOp::TypeRotateZYX:
-                eulerAngleOrder = MathUtil::EulerAngleOrder::ZYX;
-                rotateOp = xformOp;
-                rotateOpIndex = opCount;
+                if (rotateOpIndex == -1) {
+                    eulerAngleOrder = MathUtil::EulerAngleOrder::ZYX;
+                    rotateOp = xformOp;
+                    rotateOpIndex = opCount;
+                }
                 break;
             case pxr::UsdGeomXformOp::TypeScale:
-                scaleOp = xformOp;
-                scaleOpIndex = opCount;
+                if (scaleOpIndex == -1) {
+                    scaleOp = xformOp;
+                    scaleOpIndex = opCount;
+                }
                 break;
             default:
                 break;
@@ -642,13 +660,23 @@ std::optional<TranslateRotateScaleOps> getOrCreateTranslateRotateScaleOps(const 
         ++opCount;
     }
 
-    if (opCount > 3) {
-        return std::nullopt;
-    }
-
     const auto translateOpDefined = translateOp.IsDefined();
     const auto rotateOpDefined = rotateOp.IsDefined();
     const auto scaleOpDefined = scaleOp.IsDefined();
+
+    opCount = 0;
+
+    if (translateOpDefined && translateOpIndex != opCount++) {
+        return std::nullopt;
+    }
+
+    if (rotateOpDefined && rotateOpIndex != opCount++) {
+        return std::nullopt;
+    }
+
+    if (scaleOpDefined && scaleOpIndex != opCount++) {
+        return std::nullopt;
+    }
 
     const auto isPrecisionSupported = [](pxr::UsdGeomXformOp::Precision precision) {
         return precision == pxr::UsdGeomXformOp::PrecisionDouble || precision == pxr::UsdGeomXformOp::PrecisionFloat;
@@ -681,10 +709,11 @@ std::optional<TranslateRotateScaleOps> getOrCreateTranslateRotateScaleOps(const 
         scaleOp.Set(UsdUtil::glmToUsdVector(glm::dvec3(1.0)));
     }
 
-    const auto ordered = translateOpIndex == 0 && rotateOpIndex == 1 && scaleOpIndex == 2;
-
-    if (!translateOpDefined || !rotateOpDefined || !scaleOpDefined || !ordered) {
-        xformable.SetXformOpOrder({translateOp, rotateOp, scaleOp});
+    if (!translateOpDefined || !rotateOpDefined || !scaleOpDefined) {
+        std::vector<pxr::UsdGeomXformOp> reorderedXformOps = {translateOp, rotateOp, scaleOp};
+        // Add back additional xform ops like xformOp:rotateX:unitsResolve
+        reorderedXformOps.insert(reorderedXformOps.end(), xformOps.begin() + opCount, xformOps.end());
+        xformable.SetXformOpOrder(reorderedXformOps);
     }
 
     return TranslateRotateScaleOps{translateOp, rotateOp, scaleOp, eulerAngleOrder};

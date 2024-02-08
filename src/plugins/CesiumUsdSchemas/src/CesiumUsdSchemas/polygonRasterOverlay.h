@@ -31,6 +31,11 @@ class SdfAssetPath;
 ///
 /// Adds a prim for representing a polygon raster overlay. Should be a child of a tileset.
 ///
+/// For any described attribute \em Fallback \em Value or \em Allowed \em Values below
+/// that are text/tokens, the actual token is published and defined in \ref CesiumTokens.
+/// So to set an attribute to the value "rightHanded", use CesiumTokens->rightHanded
+/// as the value.
+///
 class CesiumPolygonRasterOverlay : public CesiumRasterOverlay
 {
 public:
@@ -124,6 +129,51 @@ private:
     // override SchemaBase virtuals.
     CESIUMUSDSCHEMAS_API
     const TfType &_GetTfType() const override;
+
+public:
+    // --------------------------------------------------------------------- //
+    // INVERTSELECTION 
+    // --------------------------------------------------------------------- //
+    /// Whether to invert the selection specified by the polygons. If this is true, only the areas outside of the polygons will be rasterized.
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `bool cesium:invertSelection = 0` |
+    /// | C++ Type | bool |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute GetInvertSelectionAttr() const;
+
+    /// See GetInvertSelectionAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute CreateInvertSelectionAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
+    // CESIUMOVERLAYRENDERMETHOD 
+    // --------------------------------------------------------------------- //
+    /// 
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `uniform token cesium:overlayRenderMethod = "clip"` |
+    /// | C++ Type | TfToken |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Token |
+    /// | \ref SdfVariability "Variability" | SdfVariabilityUniform |
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute GetCesiumOverlayRenderMethodAttr() const;
+
+    /// See GetCesiumOverlayRenderMethodAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute CreateCesiumOverlayRenderMethodAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // --------------------------------------------------------------------- //

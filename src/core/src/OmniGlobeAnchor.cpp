@@ -206,9 +206,9 @@ bool OmniGlobeAnchor::isAnchorValid() const {
     const auto xformOps = UsdUtil::getOrCreateTranslateRotateScaleOps(xformable);
 
     if (!xformOps) {
-        _pContext->getLogger()->oneTimeWarning(fmt::format(
-            "Globe anchor xform op order must [translate, rotate, scale] without additional transforms.",
-            _path.GetText()));
+        _pContext->getLogger()->oneTimeWarning(
+            "Globe anchor xform op order must be [translate, rotate, scale] followed by any additional transforms.",
+            _path.GetText());
         return false;
     }
 
@@ -225,16 +225,38 @@ void OmniGlobeAnchor::initialize() {
         return;
     }
 
+    // This function has the effect of baking the world transform into the local transform, which is unavoidable
+    // when using globe anchors.
+
+    const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
+    const auto xformable = pxr::UsdGeomXformable(cesiumGlobeAnchor.GetPrim());
+
+    bool resetsXformStack;
+    const auto originalXformOps = xformable.GetOrderedXformOps(&resetsXformStack);
+    const auto translateRotateScaleXformOps = {originalXformOps[0], originalXformOps[1], originalXformOps[2]};
+
+    // Only use translate, rotate, and scale ops when computing the local to ecef transform.
+    // Additional transforms like xformOp:rotateX:unitsResolve are not baked into this transform.
+    xformable.SetXformOpOrder(translateRotateScaleXformOps);
+
+    // Compute the local to ecef transform
     const auto primLocalToEcefTransform =
         UsdUtil::computePrimLocalToEcefTransform(*_pContext, getResolvedGeoreferencePath(), _path);
 
-    // Initialize the globe anchor from the prim's local transform
+    // Now that the transform is computed, switch back to the original ops
+    xformable.SetXformOpOrder(originalXformOps);
+
+    // Disable inheriting parent transforms from now on
+    xformable.SetResetXformStack(true);
+
+    // Initialize the globe anchor
     _pAnchor = std::make_unique<CesiumGeospatial::GlobeAnchor>(primLocalToEcefTransform);
 
     // Use the ecef transform (if set) or geographic coordinates (if set) to reposition the globe anchor.
     updateByEcefPosition();
     updateByGeographicCoordinates();
 
+    // Update ecef position, geographic coordinates, and prim local transform from the globe anchor transform
     finalize();
 }
 

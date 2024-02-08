@@ -7,9 +7,9 @@
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <CesiumGeospatial/Cartographic.h>
-#include <CesiumUsdSchemas/cartographicPolygon.h>
 #include <CesiumUsdSchemas/globeAnchorAPI.h>
 #include <glm/glm.hpp>
+#include <pxr/usd/usdGeom/basisCurves.h>
 
 namespace cesium::omniverse {
 
