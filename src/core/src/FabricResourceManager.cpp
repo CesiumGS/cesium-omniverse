@@ -23,8 +23,8 @@ namespace cesium::omniverse {
 
 namespace {
 
-const std::string_view DEFAULT_WHITE_TEXTURE_NAME = "fabric_default_white_texture";
-const std::string_view DEFAULT_TRANSPARENT_TEXTURE_NAME = "fabric_default_transparent_texture";
+const std::string_view DEFAULT_WHITE_TEXTURE_NAME = "cesium_default_white_texture";
+const std::string_view DEFAULT_TRANSPARENT_TEXTURE_NAME = "cesium_default_transparent_texture";
 
 std::unique_ptr<omni::ui::DynamicTextureProvider>
 createSinglePixelTexture(const std::string_view& name, const std::array<uint8_t, 4>& bytes) {
@@ -86,7 +86,8 @@ std::shared_ptr<FabricGeometry> FabricResourceManager::acquireGeometry(
     FabricGeometryDescriptor geometryDescriptor(model, primitive, featuresInfo, smoothNormals);
 
     if (_disableGeometryPool) {
-        const auto pathStr = fmt::format("/cesium_geometry_{}", getNextGeometryId());
+        const auto contextId = _pContext->getContextId();
+        const auto pathStr = fmt::format("/cesium_geometry_{}_context_{}", getNextGeometryId(), contextId);
         const auto path = omni::fabric::Path(pathStr.c_str());
         return std::make_shared<FabricGeometry>(_pContext, path, geometryDescriptor, -1);
     }
@@ -122,7 +123,8 @@ std::shared_ptr<FabricMaterial> FabricResourceManager::acquireMaterial(
 
 std::shared_ptr<FabricTexture> FabricResourceManager::acquireTexture() {
     if (_disableTexturePool) {
-        const auto name = fmt::format("/cesium_texture_{}", getNextTextureId());
+        const auto contextId = _pContext->getContextId();
+        const auto name = fmt::format("/cesium_texture_{}_context_{}", getNextTextureId(), contextId);
         return std::make_shared<FabricTexture>(_pContext, name, -1);
     }
 
@@ -241,7 +243,8 @@ void FabricResourceManager::clear() {
 
 std::shared_ptr<FabricMaterial>
 FabricResourceManager::createMaterial(const FabricMaterialDescriptor& materialDescriptor) {
-    const auto pathStr = fmt::format("/cesium_material_{}", getNextMaterialId());
+    const auto contextId = _pContext->getContextId();
+    const auto pathStr = fmt::format("/cesium_material_{}_context_{}", getNextMaterialId(), contextId);
     const auto path = omni::fabric::Path(pathStr.c_str());
     return std::make_shared<FabricMaterial>(
         _pContext,

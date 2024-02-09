@@ -71,6 +71,8 @@ class Context {
 
     [[nodiscard]] RenderStatistics getRenderStatistics() const;
 
+    [[nodiscard]] int64_t getContextId() const;
+
   private:
     std::filesystem::path _cesiumExtensionLocation;
     std::filesystem::path _certificatePath;
@@ -85,6 +87,8 @@ class Context {
     std::unique_ptr<FabricResourceManager> _pFabricResourceManager;
     std::unique_ptr<CesiumIonServerManager> _pCesiumIonServerManager;
     std::unique_ptr<UsdNotificationHandler> _pUsdNotificationHandler;
+
+    int64_t _contextId;
 
     pxr::UsdStageWeakPtr _pUsdStage;
     std::unique_ptr<omni::fabric::StageReaderWriter> _pFabricStage;

@@ -23,6 +23,7 @@
 
 #include <Cesium3DTilesContent/registerAllTileContentTypes.h>
 #include <CesiumUtility/CreditSystem.h>
+#include <glm/gtc/random.hpp>
 #include <omni/fabric/SimStageWithHistory.h>
 #include <pxr/usd/sdf/path.h>
 #include <pxr/usd/usdUtils/stageCache.h>
@@ -45,7 +46,8 @@ Context::Context(const std::filesystem::path& cesiumExtensionLocation)
     , _pAssetRegistry(std::make_unique<AssetRegistry>(this))
     , _pFabricResourceManager(std::make_unique<FabricResourceManager>(this))
     , _pCesiumIonServerManager(std::make_unique<CesiumIonServerManager>(this))
-    , _pUsdNotificationHandler(std::make_unique<UsdNotificationHandler>(this)) {
+    , _pUsdNotificationHandler(std::make_unique<UsdNotificationHandler>(this))
+    , _contextId(glm::linearRand<int64_t>(0, 100000)) {
 
     Cesium3DTilesContent::registerAllTileContentTypes();
 
@@ -234,6 +236,12 @@ RenderStatistics Context::getRenderStatistics() const {
     }
 
     return renderStatistics;
+}
+
+int64_t Context::getContextId() const {
+    // Creating a Fabric prim with the same path as a previously destroyed prim causes a crash.
+    // The contextId is randomly generated and ensures that Fabric prim paths are unique even across extension reloads.
+    return _contextId;
 }
 
 } // namespace cesium::omniverse
