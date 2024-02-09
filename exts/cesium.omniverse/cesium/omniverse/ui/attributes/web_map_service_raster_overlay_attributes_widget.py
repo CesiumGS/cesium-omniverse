@@ -30,8 +30,18 @@ class CesiumWebMapServiceRasterOverlayAttributesWidget(SchemaPropertiesWidget):
                 CustomLayoutProperty("cesium:tileWidth", build_fn=build_slider(64, 2048, type="int"))
                 CustomLayoutProperty("cesium:tileHeight", build_fn=build_slider(64, 2048, type="int"))
             with CustomLayoutGroup("Zoom Settings"):
-                CustomLayoutProperty("cesium:minimumLevel", build_fn=build_slider(0, 30, type="int"))
-                CustomLayoutProperty("cesium:maximumLevel", build_fn=build_slider(0, 30, type="int"))
+                CustomLayoutProperty(
+                    "cesium:minimumLevel",
+                    build_fn=build_slider(
+                        0, 30, type="int", constrain={"attr": "cesium:maximumLevel", "type": "maximum"}
+                    ),
+                )
+                CustomLayoutProperty(
+                    "cesium:maximumLevel",
+                    build_fn=build_slider(
+                        0, 30, type="int", constrain={"attr": "cesium:minimumLevel", "type": "minimum"}
+                    ),
+                )
             with CustomLayoutGroup("Rendering"):
                 CustomLayoutProperty("cesium:alpha", build_fn=build_slider(0, 1))
                 CustomLayoutProperty("cesium:overlayRenderMethod")

@@ -87,10 +87,8 @@ void OmniWebMapServiceRasterOverlay::reload() {
     const auto tileHeight = getTileHeight();
     std::string layers = getLayers();
 
-    if (maximumLevel > minimumLevel) {
-        wmsOptions.minimumLevel = minimumLevel;
-        wmsOptions.maximumLevel = maximumLevel;
-    }
+    wmsOptions.minimumLevel = minimumLevel;
+    wmsOptions.maximumLevel = maximumLevel;
     wmsOptions.layers = layers;
     wmsOptions.tileWidth = tileWidth;
     wmsOptions.tileHeight = tileHeight;

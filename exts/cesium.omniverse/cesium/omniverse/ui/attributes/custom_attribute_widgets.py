@@ -1,6 +1,34 @@
 from typing import List
 import omni.ui as ui
 from pxr import Sdf
+from functools import partial
+
+
+def update_range(stage, prim_paths, constrain, attr_name):
+
+    min_val = max_val = None
+
+    for path in prim_paths:
+        prim = stage.GetPrimAtPath(path)
+        attr = prim.GetAttribute(constrain["attr"]) if prim else None
+        if prim and attr:
+            if constrain["type"] == "minimum":
+                min_val = attr.Get()
+            else:
+                max_val = attr.Get()
+            break
+
+    for path in prim_paths:
+        prim = stage.GetPrimAtPath(path)
+        attr = prim.GetAttribute(attr_name) if prim else None
+        if prim and attr:
+            val = attr.Get()
+            if min_val:
+                val = max(min_val, val)
+            elif max_val:
+                val = min(max_val, val)
+            attr.Set(val)
+            break
 
 
 def _build_slider(
@@ -49,15 +77,23 @@ def _build_slider(
             value_widget=value_widget, mixed_overlay=mixed_overlay, **widget_kwargs
         )
 
+        if len(additional_widget_kwargs["constrain"]) == 2:
+            callback = partial(update_range, stage, prim_paths, additional_widget_kwargs["constrain"], attr_name)
+            model.add_value_changed_fn(lambda m: callback())
         return model
 
 
-def build_slider(min_value, max_value, type="float"):
+def build_slider(min_value, max_value, type="float", constrain={}):
     if type not in ["int", "float"]:
-        raise ValueError("slider_type must be 'int' or 'float'")
+        raise ValueError("'type' must be 'int' or 'float'")
+
+    if len(constrain) not in [0, 2]:
+        raise ValueError("'constrain' must be empty or a {'attr': ___, 'type': ___} dictionary")
+        if constrain[1] not in ["minimum", "maximum"]:
+            raise ValueError("constrain['type'] must be 'minimum' or 'maximum'")
 
     def custom_slider(stage, attr_name, metadata, property_type, prim_paths, *args, **kwargs):
-        additional_widget_kwargs = {"min": min_value, "max": max_value}
+        additional_widget_kwargs = {"min": min_value, "max": max_value, "constrain": constrain}
         additional_widget_kwargs.update(kwargs)
         return _build_slider(
             stage,
