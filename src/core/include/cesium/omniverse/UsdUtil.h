@@ -5,10 +5,10 @@
 #include <glm/fwd.hpp>
 #include <pxr/base/gf/declare.h>
 #include <pxr/usd/usd/common.h>
+#include <pxr/usd/usdGeom/basisCurves.h>
 #include <pxr/usd/usdGeom/xformOp.h>
 
 PXR_NAMESPACE_OPEN_SCOPE
-class CesiumCartographicPolygon;
 class CesiumData;
 class CesiumGeoreference;
 class CesiumGlobeAnchorAPI;
@@ -120,8 +120,7 @@ getCesiumPolygonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::Sdf
 pxr::CesiumGeoreference getCesiumGeoreference(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::CesiumGlobeAnchorAPI getCesiumGlobeAnchor(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::CesiumIonServer getCesiumIonServer(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
-pxr::CesiumCartographicPolygon
-getCesiumCartographicPolygon(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
+pxr::UsdGeomBasisCurves getCesiumCartographicPolygon(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::UsdShadeShader getUsdShader(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::UsdGeomBasisCurves getUsdBasisCurves(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 

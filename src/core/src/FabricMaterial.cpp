@@ -1518,119 +1518,124 @@ void FabricMaterial::setMaterial(
 
     const auto& properties = _materialDescriptor.getStyleableProperties();
 
-    const auto getPropertyPath = [this, &properties](const std::string& propertyId) {
-        const auto index = CppUtil::indexOfByMember(properties, &FabricPropertyDescriptor::propertyId, propertyId);
-        assert(index != properties.size());
-        return _propertyPaths[index];
-    };
+    if (!properties.empty()) {
+        const auto getPropertyPath = [this, &properties](const std::string& propertyId) {
+            const auto index = CppUtil::indexOfByMember(properties, &FabricPropertyDescriptor::propertyId, propertyId);
+            assert(index != properties.size());
+            return _propertyPaths[index];
+        };
 
-    MetadataUtil::forEachStyleablePropertyAttributeProperty(
-        *_pContext,
-        model,
-        primitive,
-        false,
-        [this, &getPropertyPath](
-            const std::string& propertyId,
-            [[maybe_unused]] const auto& propertyAttributePropertyView,
-            const auto& property) {
-            constexpr auto type = std::decay_t<decltype(property)>::Type;
-            constexpr auto mdlType = DataTypeUtil::getMdlInternalPropertyType<type>();
-            const auto& primvarName = property.attribute;
-            const auto& propertyPath = getPropertyPath(propertyId);
-            const auto& propertyInfo = property.propertyInfo;
-            const auto hasNoData = propertyInfo.noData.has_value();
-            const auto offset = getOffset(propertyInfo);
-            const auto scale = getScale(propertyInfo);
-            const auto noData = getNoData(propertyInfo);
-            const auto defaultValue = getDefaultValue(propertyInfo);
-            constexpr auto maximumValue = getMaximumValue<type>();
+        const auto unsupportedCallback = []([[maybe_unused]] const std::string& propertyId,
+                                            [[maybe_unused]] const std::string& warning) {};
 
-            setPropertyAttributePropertyValues<mdlType>(
-                _pContext->getFabricStage(),
-                propertyPath,
-                primvarName,
-                offset,
-                scale,
-                maximumValue,
-                hasNoData,
-                noData,
-                defaultValue);
-        });
+        MetadataUtil::forEachStyleablePropertyAttributeProperty(
+            *_pContext,
+            model,
+            primitive,
+            [this, &getPropertyPath](
+                const std::string& propertyId,
+                [[maybe_unused]] const auto& propertyAttributePropertyView,
+                const auto& property) {
+                constexpr auto type = std::decay_t<decltype(property)>::Type;
+                constexpr auto mdlType = DataTypeUtil::getMdlInternalPropertyType<type>();
+                const auto& primvarName = property.attribute;
+                const auto& propertyPath = getPropertyPath(propertyId);
+                const auto& propertyInfo = property.propertyInfo;
+                const auto hasNoData = propertyInfo.noData.has_value();
+                const auto offset = getOffset(propertyInfo);
+                const auto scale = getScale(propertyInfo);
+                const auto noData = getNoData(propertyInfo);
+                const auto defaultValue = getDefaultValue(propertyInfo);
+                constexpr auto maximumValue = getMaximumValue<type>();
 
-    MetadataUtil::forEachStyleablePropertyTextureProperty(
-        *_pContext,
-        model,
-        primitive,
-        false,
-        [this, &propertyTextures, &texcoordIndexMapping, &propertyTextureIndexMapping, &getPropertyPath](
-            const std::string& propertyId,
-            [[maybe_unused]] const auto& propertyTexturePropertyView,
-            const auto& property) {
-            constexpr auto type = std::decay_t<decltype(property)>::Type;
-            constexpr auto mdlType = DataTypeUtil::getMdlInternalPropertyType<type>();
-            const auto& textureInfo = property.textureInfo;
-            const auto textureIndex = property.textureIndex;
-            const auto& propertyPath = getPropertyPath(propertyId);
-            const auto texcoordIndex = texcoordIndexMapping.at(textureInfo.setIndex);
-            const auto propertyTextureIndex = propertyTextureIndexMapping.at(textureIndex);
-            const auto& textureAssetPath = propertyTextures[propertyTextureIndex]->getAssetPathToken();
-            const auto& propertyInfo = property.propertyInfo;
-            const auto hasNoData = propertyInfo.noData.has_value();
-            const auto offset = getOffset(propertyInfo);
-            const auto scale = getScale(propertyInfo);
-            const auto noData = getNoData(propertyInfo);
-            const auto defaultValue = getDefaultValue(propertyInfo);
-            constexpr auto maximumValue = getMaximumValue<type>();
+                setPropertyAttributePropertyValues<mdlType>(
+                    _pContext->getFabricStage(),
+                    propertyPath,
+                    primvarName,
+                    offset,
+                    scale,
+                    maximumValue,
+                    hasNoData,
+                    noData,
+                    defaultValue);
+            },
+            unsupportedCallback);
 
-            setPropertyTexturePropertyValues<mdlType>(
-                _pContext->getFabricStage(),
-                propertyPath,
-                textureAssetPath,
-                textureInfo,
-                texcoordIndex,
-                offset,
-                scale,
-                maximumValue,
-                hasNoData,
-                noData,
-                defaultValue);
-        });
+        MetadataUtil::forEachStyleablePropertyTextureProperty(
+            *_pContext,
+            model,
+            primitive,
+            [this, &propertyTextures, &texcoordIndexMapping, &propertyTextureIndexMapping, &getPropertyPath](
+                const std::string& propertyId,
+                [[maybe_unused]] const auto& propertyTexturePropertyView,
+                const auto& property) {
+                constexpr auto type = std::decay_t<decltype(property)>::Type;
+                constexpr auto mdlType = DataTypeUtil::getMdlInternalPropertyType<type>();
+                const auto& textureInfo = property.textureInfo;
+                const auto textureIndex = property.textureIndex;
+                const auto& propertyPath = getPropertyPath(propertyId);
+                const auto texcoordIndex = texcoordIndexMapping.at(textureInfo.setIndex);
+                const auto propertyTextureIndex = propertyTextureIndexMapping.at(textureIndex);
+                const auto& textureAssetPath = propertyTextures[propertyTextureIndex]->getAssetPathToken();
+                const auto& propertyInfo = property.propertyInfo;
+                const auto hasNoData = propertyInfo.noData.has_value();
+                const auto offset = getOffset(propertyInfo);
+                const auto scale = getScale(propertyInfo);
+                const auto noData = getNoData(propertyInfo);
+                const auto defaultValue = getDefaultValue(propertyInfo);
+                constexpr auto maximumValue = getMaximumValue<type>();
 
-    uint64_t propertyTablePropertyCounter = 0;
+                setPropertyTexturePropertyValues<mdlType>(
+                    _pContext->getFabricStage(),
+                    propertyPath,
+                    textureAssetPath,
+                    textureInfo,
+                    texcoordIndex,
+                    offset,
+                    scale,
+                    maximumValue,
+                    hasNoData,
+                    noData,
+                    defaultValue);
+            },
+            unsupportedCallback);
 
-    MetadataUtil::forEachStyleablePropertyTableProperty(
-        *_pContext,
-        model,
-        primitive,
-        false,
-        [this, &propertyTableTextures, &propertyTablePropertyCounter, &getPropertyPath](
-            const std::string& propertyId,
-            [[maybe_unused]] const auto& propertyTablePropertyView,
-            const auto& property) {
-            constexpr auto type = std::decay_t<decltype(property)>::Type;
-            constexpr auto mdlType = DataTypeUtil::getMdlInternalPropertyType<type>();
-            const auto& propertyPath = getPropertyPath(propertyId);
-            const auto textureIndex = propertyTablePropertyCounter++;
-            const auto& textureAssetPath = propertyTableTextures[textureIndex]->getAssetPathToken();
-            const auto& propertyInfo = property.propertyInfo;
-            const auto hasNoData = propertyInfo.noData.has_value();
-            const auto offset = getOffset(propertyInfo);
-            const auto scale = getScale(propertyInfo);
-            const auto noData = getNoData(propertyInfo);
-            const auto defaultValue = getDefaultValue(propertyInfo);
-            constexpr auto maximumValue = getMaximumValue<type>();
+        uint64_t propertyTablePropertyCounter = 0;
 
-            setPropertyTablePropertyValues<mdlType>(
-                _pContext->getFabricStage(),
-                propertyPath,
-                textureAssetPath,
-                offset,
-                scale,
-                maximumValue,
-                hasNoData,
-                noData,
-                defaultValue);
-        });
+        MetadataUtil::forEachStyleablePropertyTableProperty(
+            *_pContext,
+            model,
+            primitive,
+            [this, &propertyTableTextures, &propertyTablePropertyCounter, &getPropertyPath](
+                const std::string& propertyId,
+                [[maybe_unused]] const auto& propertyTablePropertyView,
+                const auto& property) {
+                constexpr auto type = std::decay_t<decltype(property)>::Type;
+                constexpr auto mdlType = DataTypeUtil::getMdlInternalPropertyType<type>();
+                const auto& propertyPath = getPropertyPath(propertyId);
+                const auto textureIndex = propertyTablePropertyCounter++;
+                const auto& textureAssetPath = propertyTableTextures[textureIndex]->getAssetPathToken();
+                const auto& propertyInfo = property.propertyInfo;
+                const auto hasNoData = propertyInfo.noData.has_value();
+                const auto offset = getOffset(propertyInfo);
+                const auto scale = getScale(propertyInfo);
+                const auto noData = getNoData(propertyInfo);
+                const auto defaultValue = getDefaultValue(propertyInfo);
+                constexpr auto maximumValue = getMaximumValue<type>();
+
+                setPropertyTablePropertyValues<mdlType>(
+                    _pContext->getFabricStage(),
+                    propertyPath,
+                    textureAssetPath,
+                    offset,
+                    scale,
+                    maximumValue,
+                    hasNoData,
+                    noData,
+                    defaultValue);
+            },
+            unsupportedCallback);
+    }
 
     for (const auto& path : _allPaths) {
         auto& fabricStage = _pContext->getFabricStage();
@@ -1690,6 +1695,7 @@ void FabricMaterial::destroyConnectionsToCopiedPaths() {
 void FabricMaterial::createConnectionsToProperties() {
     auto& fabricStage = _pContext->getFabricStage();
     const auto& properties = _materialDescriptor.getStyleableProperties();
+    const auto& unsupportedPropertyWarnings = _materialDescriptor.getUnsupportedPropertyWarnings();
 
     for (const auto& propertyPathExternal : _copiedPropertyPaths) {
         const auto propertyId = getStringFabric(fabricStage, propertyPathExternal, FabricTokens::inputs_property_id);
@@ -1699,17 +1705,22 @@ void FabricMaterial::createConnectionsToProperties() {
         const auto index = CppUtil::indexOfByMember(properties, &FabricPropertyDescriptor::propertyId, propertyId);
 
         if (index == properties.size()) {
-            _pContext->getLogger()->warn(
-                "Could not find property \"{}\" referenced by {}. A default value will be returned instead.",
-                propertyId,
-                mdlIdentifier.getText());
+            if (CppUtil::contains(unsupportedPropertyWarnings, propertyId)) {
+                _pContext->getLogger()->oneTimeWarning(unsupportedPropertyWarnings.at(propertyId));
+            } else {
+                _pContext->getLogger()->oneTimeWarning(
+                    "Could not find property \"{}\" referenced by {}. A default value will be returned instead.",
+                    propertyId,
+                    mdlIdentifier.getText());
+            }
+
             continue;
         }
 
         const auto propertyTypeInternal = properties[index].type;
 
         if (!FabricUtil::typesCompatible(propertyTypeExternal, propertyTypeInternal)) {
-            _pContext->getLogger()->warn(
+            _pContext->getLogger()->oneTimeWarning(
                 "Property \"{}\" referenced by {} has incompatible type. A default value will be returned instead.",
                 propertyId,
                 mdlIdentifier.getText());

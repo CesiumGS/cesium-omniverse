@@ -3,10 +3,11 @@ import omni.kit.window.property
 from .attributes import (
     CesiumDataSchemaAttributesWidget,
     CesiumGeoreferenceSchemaAttributesWidget,
-    CesiumRasterOverlayAttributesWidget,
     CesiumTilesetAttributesWidget,
     CesiumGlobeAnchorAttributesWidget,
     CesiumIonServerAttributesWidget,
+    CesiumIonRasterOverlayAttributesWidget,
+    CesiumPolygonRasterOverlayAttributesWidget,
 )
 from ..bindings import ICesiumOmniverseInterface
 
@@ -24,17 +25,19 @@ class CesiumAttributesWidgetController:
         self._register_data_attributes_widget()
         self._register_georeference_attributes_widget()
         self._register_tileset_attributes_widget()
-        self._register_raster_overlay_attributes_widget()
         self._register_global_anchor_attributes_widget()
         self._register_ion_server_attributes_widget()
+        self._register_ion_raster_overlay_attributes_widget()
+        self._register_polygon_raster_overlay_attributes_widget()
 
     def destroy(self):
         self._unregister_data_attributes_widget()
         self._unregister_georeference_attributes_widget()
         self._unregister_tileset_attributes_widget()
-        self._unregister_raster_overlay_attributes_widget()
         self._unregister_global_anchor_attributes_widget()
         self._unregister_ion_server_attributes_widget()
+        self._unregister_ion_raster_overlay_attributes_widget()
+        self._unregister_polygon_raster_overlay_attributes_widget()
 
     @staticmethod
     def _register_data_attributes_widget():
@@ -74,16 +77,28 @@ class CesiumAttributesWidgetController:
             window.unregister_widget("prim", "cesiumTileset")
 
     @staticmethod
-    def _register_raster_overlay_attributes_widget():
+    def _register_ion_raster_overlay_attributes_widget():
         window = omni.kit.window.property.get_window()
         if window is not None:
-            window.register_widget("prim", "cesiumRasterOverlay", CesiumRasterOverlayAttributesWidget())
+            window.register_widget("prim", "cesiumIonRasterOverlay", CesiumIonRasterOverlayAttributesWidget())
 
     @staticmethod
-    def _unregister_raster_overlay_attributes_widget():
+    def _unregister_ion_raster_overlay_attributes_widget():
         window = omni.kit.window.property.get_window()
         if window is not None:
-            window.unregister_widget("prim", "cesiumRasterOverlay")
+            window.unregister_widget("prim", "cesiumIonRasterOverlay")
+
+    @staticmethod
+    def _register_polygon_raster_overlay_attributes_widget():
+        window = omni.kit.window.property.get_window()
+        if window is not None:
+            window.register_widget("prim", "cesiumPolygonRasterOverlay", CesiumPolygonRasterOverlayAttributesWidget())
+
+    @staticmethod
+    def _unregister_polygon_raster_overlay_attributes_widget():
+        window = omni.kit.window.property.get_window()
+        if window is not None:
+            window.unregister_widget("prim", "cesiumPolygonRasterOverlay")
 
     def _register_global_anchor_attributes_widget(self):
         window = omni.kit.window.property.get_window()

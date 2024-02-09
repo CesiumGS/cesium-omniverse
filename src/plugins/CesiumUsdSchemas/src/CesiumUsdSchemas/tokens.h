@@ -159,6 +159,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumGeoreference
     const TfToken cesiumGeoreferenceOriginLongitude;
+    /// \brief "cesium:invertSelection"
+    /// 
+    /// CesiumPolygonRasterOverlay
+    const TfToken cesiumInvertSelection;
     /// \brief "cesium:ionAccessToken"
     /// 
     /// CesiumIonRasterOverlay, CesiumTileset
@@ -205,7 +209,7 @@ struct CesiumTokensType {
     const TfToken cesiumMaximumSimultaneousTileLoads;
     /// \brief "cesium:overlayRenderMethod"
     /// 
-    /// CesiumRasterOverlay
+    /// CesiumPolygonRasterOverlay, CesiumRasterOverlay
     const TfToken cesiumOverlayRenderMethod;
     /// \brief "cesium:preloadAncestors"
     /// 
@@ -253,7 +257,7 @@ struct CesiumTokensType {
     const TfToken cesiumUrl;
     /// \brief "clip"
     /// 
-    /// Possible value for CesiumRasterOverlay::GetOverlayRenderMethodAttr()
+    /// Default value for CesiumPolygonRasterOverlay::GetCesiumOverlayRenderMethodAttr(), Possible value for CesiumRasterOverlay::GetOverlayRenderMethodAttr()
     const TfToken clip;
     /// \brief "ion"
     /// 

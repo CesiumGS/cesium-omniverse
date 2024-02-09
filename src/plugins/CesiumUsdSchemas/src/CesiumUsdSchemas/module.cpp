@@ -5,7 +5,6 @@ PXR_NAMESPACE_USING_DIRECTIVE
 
 TF_WRAP_MODULE
 {
-  TF_WRAP(CesiumCartographicPolygon);
   TF_WRAP(CesiumData);
   TF_WRAP(CesiumGeoreference);
   TF_WRAP(CesiumGlobeAnchorAPI);
