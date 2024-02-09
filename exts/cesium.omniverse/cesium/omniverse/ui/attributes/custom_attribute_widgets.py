@@ -5,7 +5,6 @@ from functools import partial
 
 
 def update_range(stage, prim_paths, constrain, attr_name):
-
     min_val = max_val = None
 
     for path in prim_paths:
