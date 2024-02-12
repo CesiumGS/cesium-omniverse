@@ -23,16 +23,20 @@
 
 #include <Cesium3DTilesContent/registerAllTileContentTypes.h>
 #include <CesiumUtility/CreditSystem.h>
-#include <glm/gtc/random.hpp>
 #include <omni/fabric/SimStageWithHistory.h>
 #include <pxr/usd/sdf/path.h>
 #include <pxr/usd/usdUtils/stageCache.h>
 
-#if CESIUM_TRACING_ENABLED
 #include <chrono>
-#endif
 
 namespace cesium::omniverse {
+
+namespace {
+uint64_t getSecondsSinceEpoch() {
+    const auto timePoint = std::chrono::system_clock::now();
+    return std::chrono::duration_cast<std::chrono::seconds>(timePoint.time_since_epoch()).count();
+}
+} // namespace
 
 Context::Context(const std::filesystem::path& cesiumExtensionLocation)
     : _cesiumExtensionLocation(cesiumExtensionLocation.lexically_normal())
@@ -47,7 +51,7 @@ Context::Context(const std::filesystem::path& cesiumExtensionLocation)
     , _pFabricResourceManager(std::make_unique<FabricResourceManager>(this))
     , _pCesiumIonServerManager(std::make_unique<CesiumIonServerManager>(this))
     , _pUsdNotificationHandler(std::make_unique<UsdNotificationHandler>(this))
-    , _contextId(glm::linearRand<int64_t>(0, 100000)) {
+    , _contextId(static_cast<int64_t>(getSecondsSinceEpoch())) {
 
     Cesium3DTilesContent::registerAllTileContentTypes();
 
