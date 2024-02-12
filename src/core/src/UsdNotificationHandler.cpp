@@ -44,8 +44,10 @@ void updateRasterOverlayBindings(const Context& context, const pxr::SdfPath& ras
 
     // Update tilesets that reference this raster overlay
     for (const auto& pTileset : tilesets) {
-        if (CppUtil::contains(pTileset->getRasterOverlayPaths(), rasterOverlayPath)) {
-            pTileset->reload();
+        if (UsdUtil::primExists(context.getUsdStage(), pTileset->getPath())) {
+            if (CppUtil::contains(pTileset->getRasterOverlayPaths(), rasterOverlayPath)) {
+                pTileset->reload();
+            }
         }
     }
 }
@@ -55,8 +57,10 @@ void updateRasterOverlayBindingsAlpha(const Context& context, const pxr::SdfPath
 
     // Update tilesets that reference this raster overlay
     for (const auto& pTileset : tilesets) {
-        if (CppUtil::contains(pTileset->getRasterOverlayPaths(), rasterOverlayPath)) {
-            pTileset->updateRasterOverlayAlpha(rasterOverlayPath);
+        if (UsdUtil::primExists(context.getUsdStage(), pTileset->getPath())) {
+            if (CppUtil::contains(pTileset->getRasterOverlayPaths(), rasterOverlayPath)) {
+                pTileset->updateRasterOverlayAlpha(rasterOverlayPath);
+            }
         }
     }
 }
@@ -65,14 +69,18 @@ void updateIonServerBindings(const Context& context) {
     // Update all tilesets. Some tilesets may have referenced this ion server implicitly.
     const auto& tilesets = context.getAssetRegistry().getTilesets();
     for (const auto& pTileset : tilesets) {
-        pTileset->reload();
+        if (UsdUtil::primExists(context.getUsdStage(), pTileset->getPath())) {
+            pTileset->reload();
+        }
     }
 
     // Update all raster overlays. Some raster overlays may have referenced this ion server implicitly.
     const auto& ionRasterOverlays = context.getAssetRegistry().getIonRasterOverlays();
     for (const auto& pIonRasterOverlay : ionRasterOverlays) {
-        pIonRasterOverlay->reload();
-        updateRasterOverlayBindings(context, pIonRasterOverlay->getPath());
+        if (UsdUtil::primExists(context.getUsdStage(), pIonRasterOverlay->getPath())) {
+            pIonRasterOverlay->reload();
+            updateRasterOverlayBindings(context, pIonRasterOverlay->getPath());
+        }
     }
 }
 
@@ -80,10 +88,12 @@ void updateCartographicPolygonBindings(const Context& context, const pxr::SdfPat
     // Update polygon raster overlays that reference this cartographic polygon
     const auto& polygonRasterOverlays = context.getAssetRegistry().getPolygonRasterOverlays();
     for (const auto& pPolygonRasterOverlay : polygonRasterOverlays) {
-        const auto paths = pPolygonRasterOverlay->getCartographicPolygonPaths();
-        if (CppUtil::contains(paths, cartographicPolygonPath)) {
-            pPolygonRasterOverlay->reload();
-            updateRasterOverlayBindings(context, pPolygonRasterOverlay->getPath());
+        if (UsdUtil::primExists(context.getUsdStage(), pPolygonRasterOverlay->getPath())) {
+            const auto paths = pPolygonRasterOverlay->getCartographicPolygonPaths();
+            if (CppUtil::contains(paths, cartographicPolygonPath)) {
+                pPolygonRasterOverlay->reload();
+                updateRasterOverlayBindings(context, pPolygonRasterOverlay->getPath());
+            }
         }
     }
 }
@@ -92,8 +102,10 @@ void updateGlobeAnchorBindings(const Context& context, const pxr::SdfPath& globe
     // Don't need to update tilesets. Globe anchor changes are handled automatically in the update loop.
 
     if (context.getAssetRegistry().getCartographicPolygon(globeAnchorPath)) {
-        // Update cartographic polygon that this globe anchor is attached to
-        updateCartographicPolygonBindings(context, globeAnchorPath);
+        if (UsdUtil::primExists(context.getUsdStage(), globeAnchorPath)) {
+            // Update cartographic polygon that this globe anchor is attached to
+            updateCartographicPolygonBindings(context, globeAnchorPath);
+        }
     }
 }
 
@@ -103,8 +115,10 @@ void updateGeoreferenceBindings(const Context& context) {
     // Update all globe anchors. Some globe anchors may have referenced this georeference implicitly.
     const auto& globeAnchors = context.getAssetRegistry().getGlobeAnchors();
     for (const auto& pGlobeAnchor : globeAnchors) {
-        pGlobeAnchor->updateByGeoreference();
-        updateGlobeAnchorBindings(context, pGlobeAnchor->getPath());
+        if (UsdUtil::primExists(context.getUsdStage(), pGlobeAnchor->getPath())) {
+            pGlobeAnchor->updateByGeoreference();
+            updateGlobeAnchorBindings(context, pGlobeAnchor->getPath());
+        }
     }
 }
 
@@ -161,6 +175,10 @@ void processCesiumGlobeAnchorChanged(
     const std::vector<pxr::TfToken>& properties) {
     const auto pGlobeAnchor = context.getAssetRegistry().getGlobeAnchor(globeAnchorPath);
     if (!pGlobeAnchor) {
+        return;
+    }
+
+    if (!UsdUtil::primExists(context.getUsdStage(), pGlobeAnchor->getPath())) {
         return;
     }
 
@@ -238,6 +256,10 @@ void processCesiumTilesetChanged(
         return;
     }
 
+    if (!UsdUtil::primExists(context.getUsdStage(), pTileset->getPath())) {
+        return;
+    }
+
     // Process globe anchor API schema first
     processCesiumGlobeAnchorChanged(context, tilesetPath, properties);
 
@@ -306,6 +328,10 @@ void processCesiumRasterOverlayChanged(
         return;
     }
 
+    if (!UsdUtil::primExists(context.getUsdStage(), pRasterOverlay->getPath())) {
+        return;
+    }
+
     auto reload = false;
     auto updateBindings = false;
     auto updateRasterOverlayAlpha = false;
@@ -343,6 +369,10 @@ void processCesiumIonRasterOverlayChanged(
         return;
     }
 
+    if (!UsdUtil::primExists(context.getUsdStage(), pIonRasterOverlay->getPath())) {
+        return;
+    }
+
     // Process base class first
     processCesiumRasterOverlayChanged(context, ionRasterOverlayPath, properties);
 
@@ -372,6 +402,10 @@ void processCesiumPolygonRasterOverlayChanged(
     const std::vector<pxr::TfToken>& properties) {
     const auto pPolygonRasterOverlay = context.getAssetRegistry().getPolygonRasterOverlay(polygonRasterOverlayPath);
     if (!pPolygonRasterOverlay) {
+        return;
+    }
+
+    if (!UsdUtil::primExists(context.getUsdStage(), pPolygonRasterOverlay->getPath())) {
         return;
     }
 
@@ -406,6 +440,10 @@ void processCesiumWebMapServiceRasterOverlayChanged(
     const auto pWebMapServiceRasterOverlay =
         context.getAssetRegistry().getWebMapServiceRasterOverlay(webMapServiceRasterOverlayPath);
     if (!pWebMapServiceRasterOverlay) {
+        return;
+    }
+
+    if (!UsdUtil::primExists(context.getUsdStage(), pWebMapServiceRasterOverlay->getPath())) {
         return;
     }
 
@@ -558,8 +596,10 @@ void processUsdShaderChanged(
 
         const auto& tilesets = context.getAssetRegistry().getTilesets();
         for (const auto& pTileset : tilesets) {
-            if (pTileset->getMaterialPath() == materialPath) {
-                pTileset->updateShaderInput(shaderPath, property);
+            if (UsdUtil::primExists(context.getUsdStage(), pTileset->getPath())) {
+                if (pTileset->getMaterialPath() == materialPath) {
+                    pTileset->updateShaderInput(shaderPath, property);
+                }
             }
         }
 
