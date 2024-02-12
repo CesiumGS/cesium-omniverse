@@ -173,7 +173,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             add_raster_overlay_event, self._on_add_raster_overlay_to_tileset
         )
 
-        self._capture_instance = omni.kit.capture.viewport.CaptureExtension.get_instance()
+        self._capture_instance = CaptureExtension.get_instance()
 
     def on_shutdown(self):
         self._menus.clear()
