@@ -5,6 +5,7 @@
 * Added support for globe anchors on non-georeferenced tilesets.
 * Fixed zooming to tileset extents when tileset prims have non identity transformation.
 * Fixed crash when updating tilesets shader inputs.
+* Fixed crash when setting certain `/Cesium` debug options at runtime.
 
 ### v0.17.0 - 2024-02-01
 
