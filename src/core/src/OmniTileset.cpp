@@ -497,12 +497,13 @@ void OmniTileset::reload() {
     }
 
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
-    const auto rasterOverlayPaths = getRasterOverlayPaths();
+    const auto boundRasterOverlayPaths = getRasterOverlayPaths();
 
-    for (const auto& rasterOverlayPath : rasterOverlayPaths) {
-        const auto pRasterOverlay = _pContext->getAssetRegistry().getRasterOverlay(rasterOverlayPath);
-        if (pRasterOverlay) {
-            const auto pNativeRasterOverlay = pRasterOverlay->getRasterOverlay();
+    for (const auto& boundRasterOverlayPath : boundRasterOverlayPaths) {
+        const auto pOmniRasterOverlay = _pContext->getAssetRegistry().getRasterOverlay(boundRasterOverlayPath);
+        if (pOmniRasterOverlay) {
+            pOmniRasterOverlay->reload();
+            const auto pNativeRasterOverlay = pOmniRasterOverlay->getRasterOverlay();
             if (pNativeRasterOverlay) {
                 _pTileset->getOverlays().add(pNativeRasterOverlay);
             }
