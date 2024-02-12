@@ -15,4 +15,5 @@ TF_WRAP_MODULE
   TF_WRAP(CesiumSession);
   TF_WRAP(CesiumTileset);
   TF_WRAP(CesiumTokens);
+  TF_WRAP(CesiumWebMapServiceRasterOverlay);
 }
