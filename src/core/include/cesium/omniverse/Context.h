@@ -60,7 +60,7 @@ class Context {
     void clearStage();
     void reloadStage();
 
-    void onUpdateFrame(const gsl::span<const Viewport>& viewports);
+    void onUpdateFrame(const gsl::span<const Viewport>& viewports, bool waitForLoadingTiles);
     void onUsdStageChanged(int64_t stageId);
 
     [[nodiscard]] const pxr::UsdStageWeakPtr& getUsdStage() const;
