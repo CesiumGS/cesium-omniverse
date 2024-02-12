@@ -416,7 +416,9 @@ void processCesiumWebMapServiceRasterOverlayChanged(
     auto updateBindings = false;
 
     for (const auto& property : properties) {
-        if (property == pxr::CesiumTokens->cesiumBaseUrl || property == pxr::CesiumTokens->cesiumLayers) {
+        if (property == pxr::CesiumTokens->cesiumBaseUrl || property == pxr::CesiumTokens->cesiumLayers ||
+            property == pxr::CesiumTokens->cesiumTileWidth || property == pxr::CesiumTokens->cesiumTileHeight ||
+            property == pxr::CesiumTokens->cesiumMinimumLevel || property == pxr::CesiumTokens->cesiumMaximumLevel) {
             reload = true;
             updateBindings = true;
         }
