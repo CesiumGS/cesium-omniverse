@@ -178,10 +178,6 @@ void processCesiumGlobeAnchorChanged(
         return;
     }
 
-    if (!UsdUtil::primExists(context.getUsdStage(), pGlobeAnchor->getPath())) {
-        return;
-    }
-
     // No change tracking needed for
     // * adjustOrientation
 
@@ -256,10 +252,6 @@ void processCesiumTilesetChanged(
         return;
     }
 
-    if (!UsdUtil::primExists(context.getUsdStage(), pTileset->getPath())) {
-        return;
-    }
-
     // Process globe anchor API schema first
     processCesiumGlobeAnchorChanged(context, tilesetPath, properties);
 
@@ -328,10 +320,6 @@ void processCesiumRasterOverlayChanged(
         return;
     }
 
-    if (!UsdUtil::primExists(context.getUsdStage(), pRasterOverlay->getPath())) {
-        return;
-    }
-
     auto reload = false;
     auto updateBindings = false;
     auto updateRasterOverlayAlpha = false;
@@ -369,10 +357,6 @@ void processCesiumIonRasterOverlayChanged(
         return;
     }
 
-    if (!UsdUtil::primExists(context.getUsdStage(), pIonRasterOverlay->getPath())) {
-        return;
-    }
-
     // Process base class first
     processCesiumRasterOverlayChanged(context, ionRasterOverlayPath, properties);
 
@@ -402,10 +386,6 @@ void processCesiumPolygonRasterOverlayChanged(
     const std::vector<pxr::TfToken>& properties) {
     const auto pPolygonRasterOverlay = context.getAssetRegistry().getPolygonRasterOverlay(polygonRasterOverlayPath);
     if (!pPolygonRasterOverlay) {
-        return;
-    }
-
-    if (!UsdUtil::primExists(context.getUsdStage(), pPolygonRasterOverlay->getPath())) {
         return;
     }
 
@@ -443,10 +423,6 @@ void processCesiumWebMapServiceRasterOverlayChanged(
         return;
     }
 
-    if (!UsdUtil::primExists(context.getUsdStage(), pWebMapServiceRasterOverlay->getPath())) {
-        return;
-    }
-
     // Process base class first
     processCesiumRasterOverlayChanged(context, webMapServiceRasterOverlayPath, properties);
 
@@ -472,7 +448,6 @@ void processCesiumWebMapServiceRasterOverlayChanged(
 }
 
 void processCesiumGeoreferenceChanged(const Context& context, const std::vector<pxr::TfToken>& properties) {
-
     auto updateBindings = false;
 
     // clang-format off
@@ -787,6 +762,12 @@ bool UsdNotificationHandler::processChangedPrims() {
     ChangedPrim* pPrevious = nullptr;
 
     for (const auto& changedPrim : _changedPrims) {
+        if (changedPrim.changedType == ChangedType::PROPERTY_CHANGED &&
+            !UsdUtil::primExists(_pContext->getUsdStage(), changedPrim.primPath)) {
+            // Don't process property changes if the prim is no longer on the stage
+            continue;
+        }
+
         if (pPrevious && changedPrim.primPath == pPrevious->primPath) {
             if (pPrevious->changedType == ChangedType::PRIM_ADDED &&
                 changedPrim.changedType == ChangedType::PROPERTY_CHANGED) {
