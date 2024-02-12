@@ -6,6 +6,7 @@
 * Fixed zooming to tileset extents when tileset prims have non identity transformation.
 * Fixed crash when updating tilesets shader inputs.
 * Fixed crash when setting certain `/Cesium` debug options at runtime.
+* Fixed crash when disabling and re-enabling the extension.
 
 ### v0.17.0 - 2024-02-01
 

@@ -1,5 +1,7 @@
 #include "cesium/omniverse/FabricTexturePool.h"
 
+#include "cesium/omniverse/Context.h"
+
 #include <spdlog/fmt/fmt.h>
 
 namespace cesium::omniverse {
@@ -16,7 +18,8 @@ int64_t FabricTexturePool::getPoolId() const {
 }
 
 std::shared_ptr<FabricTexture> FabricTexturePool::createObject(uint64_t objectId) const {
-    const auto name = fmt::format("/cesium_texture_pool_{}_object_{}", _poolId, objectId);
+    const auto contextId = _pContext->getContextId();
+    const auto name = fmt::format("/cesium_texture_pool_{}_object_{}_context_{}", _poolId, objectId, contextId);
     return std::make_shared<FabricTexture>(_pContext, name, _poolId);
 }
 
