@@ -29,6 +29,9 @@ std::shared_ptr<CesiumIonSession> OmniIonServer::getSession() const {
 
 std::string OmniIonServer::getIonServerUrl() const {
     const auto cesiumIonServer = UsdUtil::getCesiumIonServer(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumIonServer)) {
+        return "";
+    }
 
     std::string ionServerUrl;
     cesiumIonServer.GetIonServerUrlAttr().Get(&ionServerUrl);
@@ -38,6 +41,9 @@ std::string OmniIonServer::getIonServerUrl() const {
 
 std::string OmniIonServer::getIonServerApiUrl() const {
     const auto cesiumIonServer = UsdUtil::getCesiumIonServer(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumIonServer)) {
+        return "";
+    }
 
     std::string ionServerApiUrl;
     cesiumIonServer.GetIonServerApiUrlAttr().Get(&ionServerApiUrl);
@@ -47,6 +53,9 @@ std::string OmniIonServer::getIonServerApiUrl() const {
 
 int64_t OmniIonServer::getIonServerApplicationId() const {
     const auto cesiumIonServer = UsdUtil::getCesiumIonServer(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumIonServer)) {
+        return 0;
+    }
 
     int64_t ionServerApplicationId;
     cesiumIonServer.GetIonServerApplicationIdAttr().Get(&ionServerApplicationId);
@@ -56,6 +65,9 @@ int64_t OmniIonServer::getIonServerApplicationId() const {
 
 CesiumIonClient::Token OmniIonServer::getToken() const {
     const auto cesiumIonServer = UsdUtil::getCesiumIonServer(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumIonServer)) {
+        return {};
+    }
 
     std::string projectDefaultIonAccessToken;
     std::string projectDefaultIonAccessTokenId;
@@ -72,6 +84,9 @@ CesiumIonClient::Token OmniIonServer::getToken() const {
 
 void OmniIonServer::setToken(const CesiumIonClient::Token& token) {
     const auto cesiumIonServer = UsdUtil::getCesiumIonServer(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumIonServer)) {
+        return;
+    }
 
     cesiumIonServer.GetProjectDefaultIonAccessTokenAttr().Set(token.token);
     cesiumIonServer.GetProjectDefaultIonAccessTokenIdAttr().Set(token.id);

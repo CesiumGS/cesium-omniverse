@@ -527,6 +527,10 @@ void processUsdShaderChanged(
     const pxr::SdfPath& shaderPath,
     const std::vector<pxr::TfToken>& properties) {
     const auto usdShader = UsdUtil::getUsdShader(context.getUsdStage(), shaderPath);
+    if (!UsdUtil::isSchemaValid(usdShader)) {
+        return;
+    }
+
     const auto shaderPathFabric = FabricUtil::toFabricPath(shaderPath);
     const auto materialPath = shaderPath.GetParentPath();
     const auto materialPathFabric = FabricUtil::toFabricPath(materialPath);
