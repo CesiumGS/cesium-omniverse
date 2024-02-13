@@ -27,11 +27,16 @@
 #include <pxr/usd/sdf/path.h>
 #include <pxr/usd/usdUtils/stageCache.h>
 
-#if CESIUM_TRACING_ENABLED
 #include <chrono>
-#endif
 
 namespace cesium::omniverse {
+
+namespace {
+uint64_t getSecondsSinceEpoch() {
+    const auto timePoint = std::chrono::system_clock::now();
+    return std::chrono::duration_cast<std::chrono::seconds>(timePoint.time_since_epoch()).count();
+}
+} // namespace
 
 Context::Context(const std::filesystem::path& cesiumExtensionLocation)
     : _cesiumExtensionLocation(cesiumExtensionLocation.lexically_normal())
@@ -45,7 +50,8 @@ Context::Context(const std::filesystem::path& cesiumExtensionLocation)
     , _pAssetRegistry(std::make_unique<AssetRegistry>(this))
     , _pFabricResourceManager(std::make_unique<FabricResourceManager>(this))
     , _pCesiumIonServerManager(std::make_unique<CesiumIonServerManager>(this))
-    , _pUsdNotificationHandler(std::make_unique<UsdNotificationHandler>(this)) {
+    , _pUsdNotificationHandler(std::make_unique<UsdNotificationHandler>(this))
+    , _contextId(static_cast<int64_t>(getSecondsSinceEpoch())) {
 
     Cesium3DTilesContent::registerAllTileContentTypes();
 
@@ -234,6 +240,12 @@ RenderStatistics Context::getRenderStatistics() const {
     }
 
     return renderStatistics;
+}
+
+int64_t Context::getContextId() const {
+    // Creating a Fabric prim with the same path as a previously destroyed prim causes a crash.
+    // The contextId is randomly generated and ensures that Fabric prim paths are unique even across extension reloads.
+    return _contextId;
 }
 
 } // namespace cesium::omniverse

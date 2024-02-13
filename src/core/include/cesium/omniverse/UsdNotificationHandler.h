@@ -25,6 +25,7 @@ class UsdNotificationHandler final : public pxr::TfWeakBase {
         CESIUM_TILESET,
         CESIUM_ION_RASTER_OVERLAY,
         CESIUM_POLYGON_RASTER_OVERLAY,
+        CESIUM_WEB_MAP_SERVICE_RASTER_OVERLAY,
         CESIUM_GEOREFERENCE,
         CESIUM_GLOBE_ANCHOR,
         CESIUM_ION_SERVER,
