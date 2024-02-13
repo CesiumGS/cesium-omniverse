@@ -29,7 +29,7 @@ class SdfAssetPath;
 
 /// \class CesiumIonRasterOverlay
 ///
-/// Adds a prim for representing an Ion raster overlay.
+/// Adds a prim for representing an ion raster overlay.
 ///
 class CesiumIonRasterOverlay : public CesiumRasterOverlay
 {

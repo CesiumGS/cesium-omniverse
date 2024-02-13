@@ -237,11 +237,11 @@ struct CesiumTokensType {
     const TfToken cesiumPreloadSiblings;
     /// \brief "cesium:projectDefaultIonAccessToken"
     /// 
-    /// CesiumIonServer, CesiumData
+    /// CesiumIonServer
     const TfToken cesiumProjectDefaultIonAccessToken;
     /// \brief "cesium:projectDefaultIonAccessTokenId"
     /// 
-    /// CesiumIonServer, CesiumData
+    /// CesiumIonServer
     const TfToken cesiumProjectDefaultIonAccessTokenId;
     /// \brief "cesium:rasterOverlayBinding"
     /// 
