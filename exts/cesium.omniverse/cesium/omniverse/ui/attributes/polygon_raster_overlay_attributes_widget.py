@@ -5,7 +5,7 @@ from cesium.usd.plugins.CesiumUsdSchemas import (
     PolygonRasterOverlay as CesiumPolygonRasterOverlay,
 )
 from pxr import UsdGeom
-from .custom_attribute_widgets import build_common_raster_overlay_properties
+from .attribute_widget_util import build_common_raster_overlay_properties
 
 
 class CesiumPolygonRasterOverlayAttributesWidget(SchemaPropertiesWidget):

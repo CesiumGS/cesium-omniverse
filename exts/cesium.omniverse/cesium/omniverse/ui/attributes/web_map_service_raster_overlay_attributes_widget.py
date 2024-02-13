@@ -4,7 +4,7 @@ from omni.kit.property.usd.usd_property_widget import SchemaPropertiesWidget
 from cesium.usd.plugins.CesiumUsdSchemas import (
     WebMapServiceRasterOverlay as CesiumWebMapServiceRasterOverlay,
 )
-from .custom_attribute_widgets import build_slider, build_common_raster_overlay_properties
+from .attribute_widget_util import build_slider, build_common_raster_overlay_properties
 
 
 class CesiumWebMapServiceRasterOverlayAttributesWidget(SchemaPropertiesWidget):

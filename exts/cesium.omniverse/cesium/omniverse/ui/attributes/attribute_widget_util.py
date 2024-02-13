@@ -108,9 +108,11 @@ def build_slider(min_value, max_value, type="float", constrain={}):
     return custom_slider
 
 
-def build_common_raster_overlay_properties():
+def build_common_raster_overlay_properties(add_overlay_render_method=False):
     with CustomLayoutGroup("Rendering"):
         CustomLayoutProperty("cesium:alpha", build_fn=build_slider(0, 1))
+        if add_overlay_render_method:
+            CustomLayoutProperty("cesium:overlayRenderMethod")
     with CustomLayoutGroup("Maximum Screen Space Error"):
         CustomLayoutProperty("cesium:maximumScreenSpaceError")
     with CustomLayoutGroup("Maximum Texture Size"):
