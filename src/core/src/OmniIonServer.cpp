@@ -17,7 +17,9 @@ OmniIonServer::OmniIonServer(Context* pContext, const pxr::SdfPath& path)
           pContext->getHttpAssetAccessor(),
           getIonServerUrl(),
           getIonServerApiUrl(),
-          getIonServerApplicationId())) {}
+          getIonServerApplicationId())) {
+    _session->resume();
+}
 
 const pxr::SdfPath& OmniIonServer::getPath() const {
     return _path;
