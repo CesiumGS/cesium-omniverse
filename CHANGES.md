@@ -7,6 +7,7 @@
 * Fixed crash when updating tilesets shader inputs.
 * Fixed crash when setting certain `/Cesium` debug options at runtime.
 * Fixed crash when disabling and re-enabling the extension.
+* Fixed a bug where save stage dialog would appear when reloading Fabric stage at startup.
 
 ### v0.17.0 - 2024-02-01
 
