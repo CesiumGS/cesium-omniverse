@@ -31,7 +31,7 @@ import omni.usd
 import os
 from typing import List, Optional, Callable
 from .ui.credits_viewport_controller import CreditsViewportController
-from cesium.usd.plugins.CesiumUsdSchemas import Data as CesiumData, IonServer as CesiumIonServer
+from cesium.omniverse.usd.plugins.CesiumUsdSchemas import Data as CesiumData, IonServer as CesiumIonServer
 
 CESIUM_DATA_PRIM_PATH = "/Cesium"
 

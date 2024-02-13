@@ -4,7 +4,7 @@ from pxr import Sdf
 from typing import List, Optional
 from pxr import UsdGeom
 
-from cesium.usd.plugins.CesiumUsdSchemas import (
+from cesium.omniverse.usd.plugins.CesiumUsdSchemas import (
     Data as CesiumData,
     Tileset as CesiumTileset,
     IonRasterOverlay as CesiumIonRasterOverlay,

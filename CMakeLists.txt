@@ -509,10 +509,10 @@ configure_file("${PROJECT_SOURCE_DIR}/src/plugins/CesiumUsdSchemas/generatedSche
 
 set(KIT_EXTENSION_BIN_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse/bin")
 set(KIT_EXTENSION_CERTS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse/certs/cacert.pem")
-set(KIT_PLUGIN_EXTENSION_BIN_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.usd.plugins/bin")
+set(KIT_PLUGIN_EXTENSION_BIN_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse/bin")
 set(KIT_EXTENSION_BINDINGS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse/cesium/omniverse/bindings")
-set(KIT_PLUGIN_EXTENSION_BINDINGS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.usd.plugins/cesium/usd/plugins")
-set(KIT_EXTENSION_PLUGINS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.usd.plugins/plugins")
+set(KIT_PLUGIN_EXTENSION_BINDINGS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse/cesium/omniverse/usd/plugins")
+set(KIT_EXTENSION_PLUGINS_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse/plugins")
 
 set(KIT_EXTENSION_TESTS_BIN_PATH "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse.cpp.tests/bin")
 set(KIT_EXTENSION_TESTS_BINDINGS_PATH
@@ -739,13 +739,6 @@ install(
 
 install(
     DIRECTORY "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse"
-    DESTINATION .
-    COMPONENT package
-    EXCLUDE_FROM_ALL
-    PATTERN "__pycache__" EXCLUDE)
-
-install(
-    DIRECTORY "${PROJECT_SOURCE_DIR}/exts/cesium.usd.plugins"
     DESTINATION .
     COMPONENT package
     EXCLUDE_FROM_ALL

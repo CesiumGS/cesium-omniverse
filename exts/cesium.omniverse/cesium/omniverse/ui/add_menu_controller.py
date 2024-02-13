@@ -5,7 +5,7 @@ from omni.kit.property.usd import PrimPathWidget, PrimSelectionPayload
 from omni.kit.window.property import get_window as get_property_window
 import omni.usd
 from pxr import Sdf, Tf, UsdGeom
-from cesium.usd.plugins.CesiumUsdSchemas import (
+from cesium.omniverse.usd.plugins.CesiumUsdSchemas import (
     Tileset as CesiumTileset,
     PolygonRasterOverlay as CesiumPolygonRasterOverlay,
     IonRasterOverlay as CesiumIonRasterOverlay,

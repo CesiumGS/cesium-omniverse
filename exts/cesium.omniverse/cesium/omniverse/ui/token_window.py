@@ -8,7 +8,7 @@ from enum import Enum
 from typing import List, Optional
 from ..bindings import ICesiumOmniverseInterface, Token
 from .styles import CesiumOmniverseUiStyles
-from cesium.usd.plugins.CesiumUsdSchemas import Data as CesiumData
+from cesium.omniverse.usd.plugins.CesiumUsdSchemas import Data as CesiumData
 
 SELECT_TOKEN_TEXT = (
     "Cesium for Omniverse embeds a Cesium ion token in your stage in order to allow it "

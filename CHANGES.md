@@ -2,6 +2,7 @@
 
 ### v0.18.0 - 2024-03-01
 
+* **Breaking change:** `cesium.usd.plugins` has been removed and merged into the main `cesium.omniverse` extension. Python bindings for the Cesium USD Schemas are now available in the `cesium.omniverse.usd.plugins` module.
 * Added support for globe anchors on non-georeferenced tilesets.
 * Fixed zooming to tileset extents when tileset prims have non identity transformation.
 * Fixed crash when updating tilesets shader inputs.

@@ -3,7 +3,7 @@ import omni.kit.ui_test as ui_test
 import omni.usd
 import pxr.Usd
 
-import cesium.usd
+import cesium.omniverse
 from typing import Optional
 
 
@@ -44,9 +44,11 @@ class ExtensionTest(omni.kit.test.AsyncTestCase):
         stage: pxr.Usd.Stage = omni.usd.get_context().get_stage()
         self.assertIsNotNone(stage)
 
-        self.assertFalse(any([i.IsA(cesium.usd.plugins.CesiumUsdSchemas.Tileset) for i in stage.Traverse()]))
+        self.assertFalse(
+            any([i.IsA(cesium.omniverse.usd.plugins.CesiumUsdSchemas.Tileset) for i in stage.Traverse()])
+        )
 
         await blankTilesetButton.click()
 
         await ui_test.wait_n_updates(2)  # passes without, but seems prudent
-        self.assertTrue(any([i.IsA(cesium.usd.plugins.CesiumUsdSchemas.Tileset) for i in stage.Traverse()]))
+        self.assertTrue(any([i.IsA(cesium.omniverse.usd.plugins.CesiumUsdSchemas.Tileset) for i in stage.Traverse()]))

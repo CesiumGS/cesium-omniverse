@@ -17,7 +17,7 @@ set NVIDIA_PYTHON_EXECUTABLE=%NVIDIA_PYTHON_ROOT%\python.exe
 
 set FLAT_LIBRARIES_DIR=%TEMP%\CesiumOmniverseFlatLibs
 set CESIUM_OMNI_STUB_PATH=%PROJECT_ROOT%\exts\cesium.omniverse\cesium\omniverse\bindings\CesiumOmniversePythonBindings.pyi
-set CESIUM_USD_STUB_PATH=%PROJECT_ROOT%\exts\cesium.usd.plugins\cesium\usd\plugins\CesiumUsdSchemas\__init__.pyi
+set CESIUM_USD_STUB_PATH=%PROJECT_ROOT%\exts\cesium.omniverse\cesium\omniverse\usd\plugins\CesiumUsdSchemas\__init__.pyi
 set CESIUM_TESTS_STUB_PATH=%PROJECT_ROOT%\exts\cesium.omniverse.cpp.tests\cesium\omniverse\cpp\tests\bindings\CesiumOmniverseCppTestsPythonBindings.pyi
 
 set PYTHONPATH=%NVIDIA_USD_PYTHON_LIBS%;%PYTHONPATH%

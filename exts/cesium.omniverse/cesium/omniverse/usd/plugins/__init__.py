@@ -1,7 +1,7 @@
 import os  # noqa: F401
 from pxr import Plug
 
-pluginsRoot = os.path.join(os.path.dirname(__file__), "../../../plugins")
+pluginsRoot = os.path.join(os.path.dirname(__file__), "../../../../plugins")
 cesiumUsdSchemasPath = pluginsRoot + "/CesiumUsdSchemas/resources"
 
 Plug.Registry().RegisterPlugins(cesiumUsdSchemasPath)

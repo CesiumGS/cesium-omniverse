@@ -29,7 +29,6 @@ kit = ["105.*"]
 
 # Which extensions this extension depends on
 [dependencies]
-"cesium.usd.plugins" = {}
 "usdrt.scenegraph" = {}
 
 # Main python module this extension provides, it will be publicly available as "import cesium.omniverse"

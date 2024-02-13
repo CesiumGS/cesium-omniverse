@@ -6,7 +6,7 @@ import omni.ui as ui
 from typing import List, Optional
 from ..bindings import ICesiumOmniverseInterface, CesiumIonSession
 from enum import Enum
-from cesium.usd.plugins.CesiumUsdSchemas import IonServer as CesiumIonServer
+from cesium.omniverse.usd.plugins.CesiumUsdSchemas import IonServer as CesiumIonServer
 from ..usdUtils import set_path_to_current_ion_server
 
 

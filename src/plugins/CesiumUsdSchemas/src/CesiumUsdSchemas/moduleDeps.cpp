@@ -17,7 +17,7 @@ TF_REGISTRY_FUNCTION(TfScriptModuleLoader) {
         TfToken("usdGeom"),
     };
     TfScriptModuleLoader::GetInstance().
-        RegisterLibrary(TfToken("CesiumUsdSchemas"), TfToken("cesium.usd.plugins.CesiumUsdSchemas"), reqs);
+        RegisterLibrary(TfToken("CesiumUsdSchemas"), TfToken("cesium.omniverse.usd.plugins.CesiumUsdSchemas"), reqs);
 }
 
 PXR_NAMESPACE_CLOSE_SCOPE

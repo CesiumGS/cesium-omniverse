@@ -1,7 +1,7 @@
 import logging
 from omni.kit.property.usd.custom_layout_helper import CustomLayoutFrame, CustomLayoutGroup, CustomLayoutProperty
 from omni.kit.property.usd.usd_property_widget import SchemaPropertiesWidget
-from cesium.usd.plugins.CesiumUsdSchemas import (
+from cesium.omniverse.usd.plugins.CesiumUsdSchemas import (
     WebMapServiceRasterOverlay as CesiumWebMapServiceRasterOverlay,
 )
 from .custom_attribute_widgets import build_slider

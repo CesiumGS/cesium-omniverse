@@ -2,7 +2,7 @@ import logging
 from omni.kit.property.usd.custom_layout_helper import CustomLayoutFrame, CustomLayoutGroup, CustomLayoutProperty
 from omni.kit.property.usd.usd_property_widget import SchemaPropertiesWidget
 from ...bindings import ICesiumOmniverseInterface
-from cesium.usd.plugins.CesiumUsdSchemas import IonServer as CesiumIonServer
+from cesium.omniverse.usd.plugins.CesiumUsdSchemas import IonServer as CesiumIonServer
 
 
 class CesiumIonServerAttributesWidget(SchemaPropertiesWidget):

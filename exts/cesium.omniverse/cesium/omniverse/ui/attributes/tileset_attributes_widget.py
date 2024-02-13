@@ -3,7 +3,7 @@ from omni.kit.property.usd.custom_layout_helper import CustomLayoutFrame, Custom
 from omni.kit.property.usd.usd_property_widget import SchemaPropertiesWidget
 import omni.ui as ui
 from ...bindings import ICesiumOmniverseInterface
-from cesium.usd.plugins.CesiumUsdSchemas import (
+from cesium.omniverse.usd.plugins.CesiumUsdSchemas import (
     Tileset as CesiumTileset,
     IonServer as CesiumIonServer,
     Georeference as CesiumGeoreference,

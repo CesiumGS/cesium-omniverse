@@ -9,7 +9,7 @@ NVIDIA_USD_PYTHON_LIBS="$NVIDIA_USD_ROOT/lib/python"
 NVIDIA_PYTHON_ROOT="$PROJECT_ROOT/extern/nvidia/_build/target-deps/python"
 NVIDIA_PYTHON_EXECUTABLE="$NVIDIA_PYTHON_ROOT/python"
 
-SCHEMA_INPUT_PATH="$PROJECT_ROOT/exts/cesium.usd.plugins/schemas/cesium_schemas.usda"
+SCHEMA_INPUT_PATH="$PROJECT_ROOT/exts/cesium.omniverse/schemas/cesium_schemas.usda"
 SCHEMA_OUTPUT_PATH="$PROJECT_ROOT/src/plugins/CesiumUsdSchemas/src/CesiumUsdSchemas"
 
 export PYTHONPATH="$NVIDIA_USD_PYTHON_LIBS:$PYTHONPATH"

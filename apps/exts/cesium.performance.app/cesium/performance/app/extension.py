@@ -15,7 +15,7 @@ from .performance_window import CesiumPerformanceWindow
 from .fps_sampler import FpsSampler
 from cesium.omniverse.bindings import acquire_cesium_omniverse_interface, release_cesium_omniverse_interface
 from cesium.omniverse.utils import wait_n_frames, dock_window_async
-from cesium.usd.plugins.CesiumUsdSchemas import (
+from cesium.omniverse.usd.plugins.CesiumUsdSchemas import (
     Data as CesiumData,
     Georeference as CesiumGeoreference,
     IonRasterOverlay as CesiumIonRasterOverlay,

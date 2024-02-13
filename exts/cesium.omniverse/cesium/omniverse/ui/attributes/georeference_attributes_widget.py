@@ -1,7 +1,7 @@
 import logging
 from omni.kit.property.usd.custom_layout_helper import CustomLayoutFrame, CustomLayoutGroup, CustomLayoutProperty
 from omni.kit.property.usd.usd_property_widget import SchemaPropertiesWidget
-from cesium.usd.plugins.CesiumUsdSchemas import Georeference as CesiumGeoreference
+from cesium.omniverse.usd.plugins.CesiumUsdSchemas import Georeference as CesiumGeoreference
 
 
 class CesiumGeoreferenceSchemaAttributesWidget(SchemaPropertiesWidget):

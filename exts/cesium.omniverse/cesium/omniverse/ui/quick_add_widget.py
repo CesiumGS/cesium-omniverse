@@ -7,7 +7,7 @@ from typing import List, Optional
 from ..bindings import ICesiumOmniverseInterface
 from ..models import AssetToAdd
 from .styles import CesiumOmniverseUiStyles
-from cesium.usd.plugins.CesiumUsdSchemas import IonServer as CesiumIonServer
+from cesium.omniverse.usd.plugins.CesiumUsdSchemas import IonServer as CesiumIonServer
 
 LABEL_HEIGHT = 24
 BUTTON_HEIGHT = 40
