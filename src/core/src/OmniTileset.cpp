@@ -17,6 +17,7 @@
 #include "cesium/omniverse/OmniGeoreference.h"
 #include "cesium/omniverse/OmniGlobeAnchor.h"
 #include "cesium/omniverse/OmniIonServer.h"
+#include "cesium/omniverse/OmniPolygonRasterOverlay.h"
 #include "cesium/omniverse/OmniRasterOverlay.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/TilesetStatistics.h"
