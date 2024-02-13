@@ -246,7 +246,7 @@ bool primExists(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
 }
 
 bool isSchemaValid(const pxr::UsdSchemaBase& schema) {
-    return schema.GetSchemaKind() != pxr::UsdSchemaKind::Invalid;
+    return schema.GetPrim().IsValid() && schema.GetSchemaKind() != pxr::UsdSchemaKind::Invalid;
 }
 
 bool isPrimVisible(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
