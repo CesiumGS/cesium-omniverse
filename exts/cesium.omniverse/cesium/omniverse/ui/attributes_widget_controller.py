@@ -8,6 +8,7 @@ from .attributes import (
     CesiumIonServerAttributesWidget,
     CesiumIonRasterOverlayAttributesWidget,
     CesiumPolygonRasterOverlayAttributesWidget,
+    CesiumWebMapServiceRasterOverlayAttributesWidget,
 )
 from ..bindings import ICesiumOmniverseInterface
 
@@ -29,6 +30,7 @@ class CesiumAttributesWidgetController:
         self._register_ion_server_attributes_widget()
         self._register_ion_raster_overlay_attributes_widget()
         self._register_polygon_raster_overlay_attributes_widget()
+        self._register_web_map_service_raster_overlay_attributes_widget()
 
     def destroy(self):
         self._unregister_data_attributes_widget()
@@ -38,6 +40,7 @@ class CesiumAttributesWidgetController:
         self._unregister_ion_server_attributes_widget()
         self._unregister_ion_raster_overlay_attributes_widget()
         self._unregister_polygon_raster_overlay_attributes_widget()
+        self._unregister_web_map_service_raster_overlay_attributes_widget()
 
     @staticmethod
     def _register_data_attributes_widget():
@@ -99,6 +102,20 @@ class CesiumAttributesWidgetController:
         window = omni.kit.window.property.get_window()
         if window is not None:
             window.unregister_widget("prim", "cesiumPolygonRasterOverlay")
+
+    @staticmethod
+    def _register_web_map_service_raster_overlay_attributes_widget():
+        window = omni.kit.window.property.get_window()
+        if window is not None:
+            window.register_widget(
+                "prim", "cesiumWebMapServiceRasterOverlay", CesiumWebMapServiceRasterOverlayAttributesWidget()
+            )
+
+    @staticmethod
+    def _unregister_web_map_service_raster_overlay_attributes_widget():
+        window = omni.kit.window.property.get_window()
+        if window is not None:
+            window.unregister_widget("prim", "cesiumWebMapServiceRasterOverlay")
 
     def _register_global_anchor_attributes_widget(self):
         window = omni.kit.window.property.get_window()

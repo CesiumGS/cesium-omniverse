@@ -71,6 +71,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumGlobeAnchorAPI
     const TfToken cesiumAnchorPosition;
+    /// \brief "cesium:baseUrl"
+    /// 
+    /// CesiumWebMapServiceRasterOverlay
+    const TfToken cesiumBaseUrl;
     /// \brief "cesium:cartographicPolygonBinding"
     /// 
     /// CesiumPolygonRasterOverlay
@@ -191,6 +195,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumIonServer
     const TfToken cesiumIonServerUrl;
+    /// \brief "cesium:layers"
+    /// 
+    /// CesiumWebMapServiceRasterOverlay
+    const TfToken cesiumLayers;
     /// \brief "cesium:loadingDescendantLimit"
     /// 
     /// CesiumTileset
@@ -203,6 +211,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumTileset
     const TfToken cesiumMaximumCachedBytes;
+    /// \brief "cesium:maximumLevel"
+    /// 
+    /// CesiumWebMapServiceRasterOverlay
+    const TfToken cesiumMaximumLevel;
     /// \brief "cesium:maximumScreenSpaceError"
     /// 
     /// CesiumTileset
@@ -211,6 +223,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumTileset
     const TfToken cesiumMaximumSimultaneousTileLoads;
+    /// \brief "cesium:minimumLevel"
+    /// 
+    /// CesiumWebMapServiceRasterOverlay
+    const TfToken cesiumMinimumLevel;
     /// \brief "cesium:overlayRenderMethod"
     /// 
     /// CesiumPolygonRasterOverlay, CesiumRasterOverlay
@@ -255,6 +271,14 @@ struct CesiumTokensType {
     /// 
     /// CesiumTileset
     const TfToken cesiumSuspendUpdate;
+    /// \brief "cesium:tileHeight"
+    /// 
+    /// CesiumWebMapServiceRasterOverlay
+    const TfToken cesiumTileHeight;
+    /// \brief "cesium:tileWidth"
+    /// 
+    /// CesiumWebMapServiceRasterOverlay
+    const TfToken cesiumTileWidth;
     /// \brief "cesium:url"
     /// 
     /// CesiumTileset

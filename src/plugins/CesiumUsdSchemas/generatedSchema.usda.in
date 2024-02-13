@@ -343,7 +343,7 @@ class "CesiumRasterOverlayPrim" (
 }
 
 class CesiumIonRasterOverlayPrim "CesiumIonRasterOverlayPrim" (
-    doc = "Adds a prim for representing an Ion raster overlay. Should be a child of a tileset."
+    doc = "Adds a prim for representing an Ion raster overlay."
 )
 {
     float cesium:alpha = 1 (
@@ -374,7 +374,7 @@ class CesiumIonRasterOverlayPrim "CesiumIonRasterOverlayPrim" (
 }
 
 class CesiumPolygonRasterOverlayPrim "CesiumPolygonRasterOverlayPrim" (
-    doc = "Adds a prim for representing a polygon raster overlay. Should be a child of a tileset."
+    doc = "Adds a prim for representing a polygon raster overlay."
 )
 {
     float cesium:alpha = 1 (
@@ -401,6 +401,49 @@ class CesiumPolygonRasterOverlayPrim "CesiumPolygonRasterOverlayPrim" (
     bool cesium:showCreditsOnScreen = 0 (
         displayName = "Show Credits On Screen"
         doc = "Whether or not to show this raster overlay's credits on screen."
+    )
+}
+
+class CesiumWebMapServiceRasterOverlayPrim "CesiumWebMapServiceRasterOverlayPrim" (
+    doc = "Adds a prim for representing a Web Map Service raster overlay."
+)
+{
+    float cesium:alpha = 1 (
+        displayName = "Alpha"
+        doc = "The alpha blending value, from 0.0 to 1.0, where 1.0 is fully opaque."
+    )
+    string cesium:baseUrl = "" (
+        displayName = "Base URL"
+        doc = "The base url of the Web Map Service (WMS). e.g. https://services.ga.gov.au/gis/services/NM_Culture_and_Infrastructure/MapServer/WMSServer"
+    )
+    string cesium:layers = "1" (
+        displayName = "Layers"
+        doc = "Comma-separated layer names to request from the server."
+    )
+    int cesium:maximumLevel = 14 (
+        displayName = "Maximum Level"
+        doc = "Maximum zoom level."
+    )
+    int cesium:minimumLevel = 0 (
+        displayName = "Minimum Level"
+        doc = "Take care when specifying this that the number of tiles at the minimum level is small, such as four or less. A larger number is likely to result in rendering problems."
+    )
+    uniform token cesium:overlayRenderMethod = "overlay" (
+        allowedTokens = ["overlay", "clip"]
+        displayName = "Overlay Render Method"
+        doc = "The Cesium default material will give the raster overlay a different rendering treatment based on this selection."
+    )
+    bool cesium:showCreditsOnScreen = 0 (
+        displayName = "Show Credits On Screen"
+        doc = "Whether or not to show this raster overlay's credits on screen."
+    )
+    int cesium:tileHeight = 256 (
+        displayName = "Tile Height"
+        doc = "Image height"
+    )
+    int cesium:tileWidth = 256 (
+        displayName = "Tile Width"
+        doc = "Image width"
     )
 }
 

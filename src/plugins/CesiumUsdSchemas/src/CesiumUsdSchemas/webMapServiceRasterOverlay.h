@@ -1,7 +1,7 @@
-#ifndef CESIUMUSDSCHEMAS_GENERATED_POLYGONRASTEROVERLAY_H
-#define CESIUMUSDSCHEMAS_GENERATED_POLYGONRASTEROVERLAY_H
+#ifndef CESIUMUSDSCHEMAS_GENERATED_WEBMAPSERVICERASTEROVERLAY_H
+#define CESIUMUSDSCHEMAS_GENERATED_WEBMAPSERVICERASTEROVERLAY_H
 
-/// \file CesiumUsdSchemas/polygonRasterOverlay.h
+/// \file CesiumUsdSchemas/webMapServiceRasterOverlay.h
 
 #include "pxr/pxr.h"
 #include ".//api.h"
@@ -24,19 +24,14 @@ PXR_NAMESPACE_OPEN_SCOPE
 class SdfAssetPath;
 
 // -------------------------------------------------------------------------- //
-// CESIUMPOLYGONRASTEROVERLAYPRIM                                             //
+// CESIUMWEBMAPSERVICERASTEROVERLAYPRIM                                       //
 // -------------------------------------------------------------------------- //
 
-/// \class CesiumPolygonRasterOverlay
+/// \class CesiumWebMapServiceRasterOverlay
 ///
-/// Adds a prim for representing a polygon raster overlay.
+/// Adds a prim for representing a Web Map Service raster overlay.
 ///
-/// For any described attribute \em Fallback \em Value or \em Allowed \em Values below
-/// that are text/tokens, the actual token is published and defined in \ref CesiumTokens.
-/// So to set an attribute to the value "rightHanded", use CesiumTokens->rightHanded
-/// as the value.
-///
-class CesiumPolygonRasterOverlay : public CesiumRasterOverlay
+class CesiumWebMapServiceRasterOverlay : public CesiumRasterOverlay
 {
 public:
     /// Compile time constant representing what kind of schema this class is.
@@ -44,26 +39,26 @@ public:
     /// \sa UsdSchemaKind
     static const UsdSchemaKind schemaKind = UsdSchemaKind::ConcreteTyped;
 
-    /// Construct a CesiumPolygonRasterOverlay on UsdPrim \p prim .
-    /// Equivalent to CesiumPolygonRasterOverlay::Get(prim.GetStage(), prim.GetPath())
+    /// Construct a CesiumWebMapServiceRasterOverlay on UsdPrim \p prim .
+    /// Equivalent to CesiumWebMapServiceRasterOverlay::Get(prim.GetStage(), prim.GetPath())
     /// for a \em valid \p prim, but will not immediately throw an error for
     /// an invalid \p prim
-    explicit CesiumPolygonRasterOverlay(const UsdPrim& prim=UsdPrim())
+    explicit CesiumWebMapServiceRasterOverlay(const UsdPrim& prim=UsdPrim())
         : CesiumRasterOverlay(prim)
     {
     }
 
-    /// Construct a CesiumPolygonRasterOverlay on the prim held by \p schemaObj .
-    /// Should be preferred over CesiumPolygonRasterOverlay(schemaObj.GetPrim()),
+    /// Construct a CesiumWebMapServiceRasterOverlay on the prim held by \p schemaObj .
+    /// Should be preferred over CesiumWebMapServiceRasterOverlay(schemaObj.GetPrim()),
     /// as it preserves SchemaBase state.
-    explicit CesiumPolygonRasterOverlay(const UsdSchemaBase& schemaObj)
+    explicit CesiumWebMapServiceRasterOverlay(const UsdSchemaBase& schemaObj)
         : CesiumRasterOverlay(schemaObj)
     {
     }
 
     /// Destructor.
     CESIUMUSDSCHEMAS_API
-    virtual ~CesiumPolygonRasterOverlay();
+    virtual ~CesiumWebMapServiceRasterOverlay();
 
     /// Return a vector of names of all pre-declared attributes for this schema
     /// class and all its ancestor classes.  Does not include attributes that
@@ -72,17 +67,17 @@ public:
     static const TfTokenVector &
     GetSchemaAttributeNames(bool includeInherited=true);
 
-    /// Return a CesiumPolygonRasterOverlay holding the prim adhering to this
+    /// Return a CesiumWebMapServiceRasterOverlay holding the prim adhering to this
     /// schema at \p path on \p stage.  If no prim exists at \p path on
     /// \p stage, or if the prim at that path does not adhere to this schema,
     /// return an invalid schema object.  This is shorthand for the following:
     ///
     /// \code
-    /// CesiumPolygonRasterOverlay(stage->GetPrimAtPath(path));
+    /// CesiumWebMapServiceRasterOverlay(stage->GetPrimAtPath(path));
     /// \endcode
     ///
     CESIUMUSDSCHEMAS_API
-    static CesiumPolygonRasterOverlay
+    static CesiumWebMapServiceRasterOverlay
     Get(const UsdStagePtr &stage, const SdfPath &path);
 
     /// Attempt to ensure a \a UsdPrim adhering to this schema at \p path
@@ -108,7 +103,7 @@ public:
     /// the opinion at the current EditTarget.
     ///
     CESIUMUSDSCHEMAS_API
-    static CesiumPolygonRasterOverlay
+    static CesiumWebMapServiceRasterOverlay
     Define(const UsdStagePtr &stage, const SdfPath &path);
 
 protected:
@@ -132,84 +127,135 @@ private:
 
 public:
     // --------------------------------------------------------------------- //
-    // INVERTSELECTION 
+    // BASEURL 
     // --------------------------------------------------------------------- //
-    /// Whether to invert the selection specified by the polygons. If this is true, only the areas outside of the polygons will be rasterized.
+    /// The base url of the Web Map Service (WMS). e.g. https://services.ga.gov.au/gis/services/NM_Culture_and_Infrastructure/MapServer/WMSServer
     ///
     /// | ||
     /// | -- | -- |
-    /// | Declaration | `bool cesium:invertSelection = 0` |
-    /// | C++ Type | bool |
-    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
+    /// | Declaration | `string cesium:baseUrl = ""` |
+    /// | C++ Type | std::string |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
     CESIUMUSDSCHEMAS_API
-    UsdAttribute GetInvertSelectionAttr() const;
+    UsdAttribute GetBaseUrlAttr() const;
 
-    /// See GetInvertSelectionAttr(), and also 
+    /// See GetBaseUrlAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
     CESIUMUSDSCHEMAS_API
-    UsdAttribute CreateInvertSelectionAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+    UsdAttribute CreateBaseUrlAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // --------------------------------------------------------------------- //
-    // EXCLUDESELECTEDTILES 
+    // LAYERS 
     // --------------------------------------------------------------------- //
-    /// Whether tiles that fall entirely within the rasterized selection should be excluded from loading and rendering. For better performance, this should be enabled when this overlay will be used for clipping. But when this overlay is used for other effects, this option should be disabled to avoid missing tiles. Note that if InvertSelection is true, this will cull tiles that are outside of all the polygons. If it is false, this will cull tiles that are completely inside at least one polygon.
+    /// Comma-separated layer names to request from the server.
     ///
     /// | ||
     /// | -- | -- |
-    /// | Declaration | `bool cesium:excludeSelectedTiles = 1` |
-    /// | C++ Type | bool |
-    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
+    /// | Declaration | `string cesium:layers = "1"` |
+    /// | C++ Type | std::string |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
     CESIUMUSDSCHEMAS_API
-    UsdAttribute GetExcludeSelectedTilesAttr() const;
+    UsdAttribute GetLayersAttr() const;
 
-    /// See GetExcludeSelectedTilesAttr(), and also 
+    /// See GetLayersAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
     CESIUMUSDSCHEMAS_API
-    UsdAttribute CreateExcludeSelectedTilesAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+    UsdAttribute CreateLayersAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // --------------------------------------------------------------------- //
-    // CESIUMOVERLAYRENDERMETHOD 
+    // TILEWIDTH 
     // --------------------------------------------------------------------- //
-    /// 
+    /// Image width
     ///
     /// | ||
     /// | -- | -- |
-    /// | Declaration | `uniform token cesium:overlayRenderMethod = "clip"` |
-    /// | C++ Type | TfToken |
-    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Token |
-    /// | \ref SdfVariability "Variability" | SdfVariabilityUniform |
+    /// | Declaration | `int cesium:tileWidth = 256` |
+    /// | C++ Type | int |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Int |
     CESIUMUSDSCHEMAS_API
-    UsdAttribute GetCesiumOverlayRenderMethodAttr() const;
+    UsdAttribute GetTileWidthAttr() const;
 
-    /// See GetCesiumOverlayRenderMethodAttr(), and also 
+    /// See GetTileWidthAttr(), and also 
     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
     /// If specified, author \p defaultValue as the attribute's default,
     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
     /// the default for \p writeSparsely is \c false.
     CESIUMUSDSCHEMAS_API
-    UsdAttribute CreateCesiumOverlayRenderMethodAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+    UsdAttribute CreateTileWidthAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // --------------------------------------------------------------------- //
-    // CARTOGRAPHICPOLYGONBINDING 
+    // TILEHEIGHT 
     // --------------------------------------------------------------------- //
-    /// Specifies which Cartographic Polygons to use in the raster overlay
+    /// Image height
     ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `int cesium:tileHeight = 256` |
+    /// | C++ Type | int |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Int |
     CESIUMUSDSCHEMAS_API
-    UsdRelationship GetCartographicPolygonBindingRel() const;
+    UsdAttribute GetTileHeightAttr() const;
 
-    /// See GetCartographicPolygonBindingRel(), and also 
-    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create
+    /// See GetTileHeightAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
     CESIUMUSDSCHEMAS_API
-    UsdRelationship CreateCartographicPolygonBindingRel() const;
+    UsdAttribute CreateTileHeightAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
+    // MINIMUMLEVEL 
+    // --------------------------------------------------------------------- //
+    /// Take care when specifying this that the number of tiles at the minimum level is small, such as four or less. A larger number is likely to result in rendering problems.
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `int cesium:minimumLevel = 0` |
+    /// | C++ Type | int |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Int |
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute GetMinimumLevelAttr() const;
+
+    /// See GetMinimumLevelAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute CreateMinimumLevelAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
+    // MAXIMUMLEVEL 
+    // --------------------------------------------------------------------- //
+    /// Maximum zoom level.
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `int cesium:maximumLevel = 14` |
+    /// | C++ Type | int |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Int |
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute GetMaximumLevelAttr() const;
+
+    /// See GetMaximumLevelAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute CreateMaximumLevelAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // ===================================================================== //

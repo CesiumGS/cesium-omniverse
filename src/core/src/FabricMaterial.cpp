@@ -530,13 +530,20 @@ FabricMaterial::FabricMaterial(
 }
 
 FabricMaterial::~FabricMaterial() {
-    if (stageDestroyed()) {
-        return;
-    }
+    // The code below is temporarily commented out to avoid a crash.
+    // It will cause a leak, but since this only happens when materials
+    // pools are destroyed (which doesn't happen during normal usage) it
+    // shouldn't be a huge concern.
+    //
+    // See https://github.com/CesiumGS/cesium-omniverse/issues/444 for details.
 
-    for (const auto& path : _allPaths) {
-        FabricUtil::destroyPrim(_pContext->getFabricStage(), path);
-    }
+    // if (stageDestroyed()) {
+    //     return;
+    // }
+
+    // for (const auto& path : _allPaths) {
+    //     FabricUtil::destroyPrim(_pContext->getFabricStage(), path);
+    // }
 }
 
 void FabricMaterial::setActive(bool active) {

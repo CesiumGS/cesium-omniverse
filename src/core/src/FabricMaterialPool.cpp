@@ -42,7 +42,8 @@ void FabricMaterialPool::updateShaderInput(const pxr::SdfPath& shaderPath, const
 }
 
 std::shared_ptr<FabricMaterial> FabricMaterialPool::createObject(uint64_t objectId) const {
-    const auto pathStr = fmt::format("/cesium_material_pool_{}_object_{}", _poolId, objectId);
+    const auto contextId = _pContext->getContextId();
+    const auto pathStr = fmt::format("/cesium_material_pool_{}_object_{}_context_{}", _poolId, objectId, contextId);
     const auto path = omni::fabric::Path(pathStr.c_str());
     return std::make_shared<FabricMaterial>(
         _pContext,
