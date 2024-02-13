@@ -22,6 +22,9 @@ const pxr::SdfPath& OmniGeoreference::getPath() const {
 
 CesiumGeospatial::Cartographic OmniGeoreference::getOrigin() const {
     const auto cesiumGeoreference = UsdUtil::getCesiumGeoreference(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumGeoreference)) {
+        return {0.0, 0.0, 0.0};
+    }
 
     double longitude;
     double latitude;
