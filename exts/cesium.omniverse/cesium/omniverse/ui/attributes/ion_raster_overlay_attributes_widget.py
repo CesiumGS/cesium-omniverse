@@ -5,7 +5,7 @@ from cesium.usd.plugins.CesiumUsdSchemas import (
     IonRasterOverlay as CesiumIonRasterOverlay,
     IonServer as CesiumIonServer,
 )
-from .custom_attribute_widgets import build_slider
+from .custom_attribute_widgets import build_common_raster_overlay_properties
 
 
 class CesiumIonRasterOverlayAttributesWidget(SchemaPropertiesWidget):
@@ -25,11 +25,8 @@ class CesiumIonRasterOverlayAttributesWidget(SchemaPropertiesWidget):
                 CustomLayoutProperty("cesium:ionAssetId")
                 CustomLayoutProperty("cesium:ionAccessToken")
                 CustomLayoutProperty("cesium:ionServerBinding")
-            with CustomLayoutGroup("Rendering"):
-                CustomLayoutProperty("cesium:alpha", build_fn=build_slider(0, 1))
                 CustomLayoutProperty("cesium:overlayRenderMethod")
-            with CustomLayoutGroup("Credit Display"):
-                CustomLayoutProperty("cesium:showCreditsOnScreen")
+            build_common_raster_overlay_properties()
 
         return frame.apply(props)
 

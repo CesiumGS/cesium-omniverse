@@ -2,6 +2,7 @@ from typing import List
 import omni.ui as ui
 from pxr import Sdf
 from functools import partial
+from omni.kit.property.usd.custom_layout_helper import CustomLayoutGroup, CustomLayoutProperty
 
 
 def update_range(stage, prim_paths, constrain, attr_name):
@@ -105,3 +106,18 @@ def build_slider(min_value, max_value, type="float", constrain={}):
         )
 
     return custom_slider
+
+
+def build_common_raster_overlay_properties():
+    with CustomLayoutGroup("Rendering"):
+        CustomLayoutProperty("cesium:alpha", build_fn=build_slider(0, 1))
+    with CustomLayoutGroup("Maximum Screen Space Error"):
+        CustomLayoutProperty("cesium:maximumScreenSpaceError")
+    with CustomLayoutGroup("Maximum Texture Size"):
+        CustomLayoutProperty("cesium:maximumTextureSize")
+    with CustomLayoutGroup("Maximum Simultaneous Tile Loads"):
+        CustomLayoutProperty("cesium:maximumSimultaneousTileLoads")
+    with CustomLayoutGroup("Sub Tile Cache Bytes"):
+        CustomLayoutProperty("cesium:subTileCacheBytes")
+    with CustomLayoutGroup("Credit Display"):
+        CustomLayoutProperty("cesium:showCreditsOnScreen")

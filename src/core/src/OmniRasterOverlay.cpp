@@ -3,6 +3,7 @@
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/FabricRasterOverlaysInfo.h"
+#include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/Logger.h"
 #include "cesium/omniverse/OmniIonServer.h"
 #include "cesium/omniverse/UsdUtil.h"
@@ -38,6 +39,32 @@ double OmniRasterOverlay::getAlpha() const {
     return static_cast<double>(alpha);
 }
 
+float OmniRasterOverlay::getMaximumScreenSpaceError() const {
+    const auto cesiumRasterOverlay = UsdUtil::getCesiumRasterOverlay(_pContext->getUsdStage(), _path);
+    float value;
+    cesiumRasterOverlay.GetMaximumScreenSpaceErrorAttr().Get(&value);
+    return static_cast<float>(value);
+}
+
+int OmniRasterOverlay::getMaximumTextureSize() const {
+    const auto cesiumRasterOverlay = UsdUtil::getCesiumRasterOverlay(_pContext->getUsdStage(), _path);
+    int value;
+    cesiumRasterOverlay.GetMaximumTextureSizeAttr().Get(&value);
+    return static_cast<int>(value);
+}
+int OmniRasterOverlay::getMaximumSimultaneousTileLoads() const {
+    const auto cesiumRasterOverlay = UsdUtil::getCesiumRasterOverlay(_pContext->getUsdStage(), _path);
+    int value;
+    cesiumRasterOverlay.GetMaximumSimultaneousTileLoadsAttr().Get(&value);
+    return static_cast<int>(value);
+}
+int OmniRasterOverlay::getSubTileCacheBytes() const {
+    const auto cesiumRasterOverlay = UsdUtil::getCesiumRasterOverlay(_pContext->getUsdStage(), _path);
+    int value;
+    cesiumRasterOverlay.GetSubTileCacheBytesAttr().Get(&value);
+    return static_cast<int>(value);
+}
+
 FabricOverlayRenderMethod OmniRasterOverlay::getOverlayRenderMethod() const {
     const auto cesiumRasterOverlay = UsdUtil::getCesiumRasterOverlay(_pContext->getUsdStage(), _path);
 
@@ -52,6 +79,25 @@ FabricOverlayRenderMethod OmniRasterOverlay::getOverlayRenderMethod() const {
 
     _pContext->getLogger()->warn("Invalid overlay render method encountered {}.", overlayRenderMethod.GetText());
     return FabricOverlayRenderMethod::OVERLAY;
+}
+
+CesiumRasterOverlays::RasterOverlayOptions OmniRasterOverlay::getUsdOptions() {
+    CesiumRasterOverlays::RasterOverlayOptions options;
+    setOptionsFromUsd(options);
+    return options;
+}
+
+void OmniRasterOverlay::updateRasterOverlayOptions(CesiumRasterOverlays::RasterOverlayOptions& options) {
+    setOptionsFromUsd(options);
+}
+
+void OmniRasterOverlay::setOptionsFromUsd(CesiumRasterOverlays::RasterOverlayOptions& options) {
+    options.showCreditsOnScreen = getShowCreditsOnScreen();
+    options.ktx2TranscodeTargets = GltfUtil::getKtx2TranscodeTargets();
+    options.maximumScreenSpaceError = getMaximumScreenSpaceError();
+    options.maximumTextureSize = getMaximumTextureSize();
+    options.maximumSimultaneousTileLoads = getMaximumSimultaneousTileLoads();
+    options.subTileCacheBytes = getSubTileCacheBytes();
 }
 
 } // namespace cesium::omniverse

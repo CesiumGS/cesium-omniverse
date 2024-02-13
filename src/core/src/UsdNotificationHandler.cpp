@@ -309,6 +309,7 @@ void processCesiumRasterOverlayChanged(
     auto reload = false;
     auto updateBindings = false;
     auto updateRasterOverlayAlpha = false;
+    auto updateRasterOverlayOptions = false;
 
     for (const auto& property : properties) {
         if (property == pxr::CesiumTokens->cesiumShowCreditsOnScreen) {
@@ -318,6 +319,12 @@ void processCesiumRasterOverlayChanged(
             updateBindings = true;
         } else if (property == pxr::CesiumTokens->cesiumAlpha) {
             updateRasterOverlayAlpha = true;
+        } else if (
+            property == pxr::CesiumTokens->cesiumMaximumScreenSpaceError ||
+            property == pxr::CesiumTokens->cesiumMaximumTextureSize ||
+            property == pxr::CesiumTokens->cesiumMaximumSimultaneousTileLoads ||
+            property == pxr::CesiumTokens->cesiumSubTileCacheBytes) {
+            updateRasterOverlayOptions = true;
         }
     }
 
@@ -331,6 +338,11 @@ void processCesiumRasterOverlayChanged(
 
     if (updateRasterOverlayAlpha) {
         updateRasterOverlayBindingsAlpha(context, rasterOverlayPath);
+    }
+
+    if (updateRasterOverlayOptions) {
+        auto pNativeOverlay = pRasterOverlay->getRasterOverlay();
+        pRasterOverlay->updateRasterOverlayOptions(pNativeOverlay->getOptions());
     }
 }
 
