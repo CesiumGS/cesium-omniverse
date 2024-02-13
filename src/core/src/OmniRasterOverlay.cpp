@@ -23,6 +23,9 @@ const pxr::SdfPath& OmniRasterOverlay::getPath() const {
 
 bool OmniRasterOverlay::getShowCreditsOnScreen() const {
     const auto cesiumRasterOverlay = UsdUtil::getCesiumRasterOverlay(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumRasterOverlay)) {
+        return false;
+    }
 
     bool showCreditsOnScreen;
     cesiumRasterOverlay.GetShowCreditsOnScreenAttr().Get(&showCreditsOnScreen);
@@ -32,6 +35,9 @@ bool OmniRasterOverlay::getShowCreditsOnScreen() const {
 
 double OmniRasterOverlay::getAlpha() const {
     const auto cesiumRasterOverlay = UsdUtil::getCesiumRasterOverlay(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumRasterOverlay)) {
+        return 1.0;
+    }
 
     float alpha;
     cesiumRasterOverlay.GetAlphaAttr().Get(&alpha);
@@ -67,6 +73,9 @@ int OmniRasterOverlay::getSubTileCacheBytes() const {
 
 FabricOverlayRenderMethod OmniRasterOverlay::getOverlayRenderMethod() const {
     const auto cesiumRasterOverlay = UsdUtil::getCesiumRasterOverlay(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumRasterOverlay)) {
+        return FabricOverlayRenderMethod::OVERLAY;
+    }
 
     pxr::TfToken overlayRenderMethod;
     cesiumRasterOverlay.GetOverlayRenderMethodAttr().Get(&overlayRenderMethod);

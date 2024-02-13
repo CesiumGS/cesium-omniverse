@@ -22,51 +22,75 @@ CesiumRasterOverlays::RasterOverlay* OmniWebMapServiceRasterOverlay::getRasterOv
 }
 
 std::string OmniWebMapServiceRasterOverlay::getBaseUrl() const {
-    auto cesiumWebMapServiceRasterOverlay =
+    const auto cesiumWebMapServiceRasterOverlay =
         UsdUtil::getCesiumWebMapServiceRasterOverlay(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumWebMapServiceRasterOverlay)) {
+        return "";
+    }
+
     std::string baseUrl;
     cesiumWebMapServiceRasterOverlay.GetBaseUrlAttr().Get(&baseUrl);
     return baseUrl;
 }
 
 int OmniWebMapServiceRasterOverlay::getMinimumLevel() const {
-    auto cesiumWebMapServiceRasterOverlay =
+    const auto cesiumWebMapServiceRasterOverlay =
         UsdUtil::getCesiumWebMapServiceRasterOverlay(_pContext->getUsdStage(), _path);
-    int val;
-    cesiumWebMapServiceRasterOverlay.GetMinimumLevelAttr().Get(&val);
-    return val;
+    if (!UsdUtil::isSchemaValid(cesiumWebMapServiceRasterOverlay)) {
+        return 0;
+    }
+
+    int minimumLevel;
+    cesiumWebMapServiceRasterOverlay.GetMinimumLevelAttr().Get(&minimumLevel);
+    return minimumLevel;
 }
 
 int OmniWebMapServiceRasterOverlay::getMaximumLevel() const {
-    auto cesiumWebMapServiceRasterOverlay =
+    const auto cesiumWebMapServiceRasterOverlay =
         UsdUtil::getCesiumWebMapServiceRasterOverlay(_pContext->getUsdStage(), _path);
-    int val;
-    cesiumWebMapServiceRasterOverlay.GetMaximumLevelAttr().Get(&val);
-    return val;
+    if (!UsdUtil::isSchemaValid(cesiumWebMapServiceRasterOverlay)) {
+        return 14;
+    }
+
+    int maximumLevel;
+    cesiumWebMapServiceRasterOverlay.GetMaximumLevelAttr().Get(&maximumLevel);
+    return maximumLevel;
 }
 
 int OmniWebMapServiceRasterOverlay::getTileWidth() const {
-    auto cesiumWebMapServiceRasterOverlay =
+    const auto cesiumWebMapServiceRasterOverlay =
         UsdUtil::getCesiumWebMapServiceRasterOverlay(_pContext->getUsdStage(), _path);
-    int val;
-    cesiumWebMapServiceRasterOverlay.GetTileWidthAttr().Get(&val);
-    return val;
+    if (!UsdUtil::isSchemaValid(cesiumWebMapServiceRasterOverlay)) {
+        return 256;
+    }
+
+    int tileWidth;
+    cesiumWebMapServiceRasterOverlay.GetTileWidthAttr().Get(&tileWidth);
+    return tileWidth;
 }
 
 int OmniWebMapServiceRasterOverlay::getTileHeight() const {
-    auto cesiumWebMapServiceRasterOverlay =
+    const auto cesiumWebMapServiceRasterOverlay =
         UsdUtil::getCesiumWebMapServiceRasterOverlay(_pContext->getUsdStage(), _path);
-    int val;
-    cesiumWebMapServiceRasterOverlay.GetTileHeightAttr().Get(&val);
-    return val;
+    if (!UsdUtil::isSchemaValid(cesiumWebMapServiceRasterOverlay)) {
+        return 256;
+    }
+
+    int tileHeight;
+    cesiumWebMapServiceRasterOverlay.GetTileHeightAttr().Get(&tileHeight);
+    return tileHeight;
 }
 
 std::string OmniWebMapServiceRasterOverlay::getLayers() const {
-    auto cesiumWebMapServiceRasterOverlay =
+    const auto cesiumWebMapServiceRasterOverlay =
         UsdUtil::getCesiumWebMapServiceRasterOverlay(_pContext->getUsdStage(), _path);
-    std::string val;
-    cesiumWebMapServiceRasterOverlay.GetLayersAttr().Get(&val);
-    return val;
+    if (!UsdUtil::isSchemaValid(cesiumWebMapServiceRasterOverlay)) {
+        return "1";
+    }
+
+    std::string layers;
+    cesiumWebMapServiceRasterOverlay.GetLayersAttr().Get(&layers);
+    return layers;
 }
 
 void OmniWebMapServiceRasterOverlay::reload() {

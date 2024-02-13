@@ -7,6 +7,8 @@
 * Fixed crash when updating tilesets shader inputs.
 * Fixed crash when setting certain `/Cesium` debug options at runtime.
 * Fixed crash when disabling and re-enabling the extension.
+* Fixed crash when removing USD prims in certain order.
+* Fixed issue where Cesium ion session would not resume on reload.
 * Added support for WMS raster overlays
 * Added raster overlay options: maximumScreenSpaceError , maximumTextureSize, maximumSimultaneousTileLoads, subTileCacheBytes
 

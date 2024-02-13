@@ -20,6 +20,9 @@ OmniPolygonRasterOverlay::OmniPolygonRasterOverlay(Context* pContext, const pxr:
 
 std::vector<pxr::SdfPath> OmniPolygonRasterOverlay::getCartographicPolygonPaths() const {
     const auto cesiumPolygonRasterOverlay = UsdUtil::getCesiumPolygonRasterOverlay(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumPolygonRasterOverlay)) {
+        return {};
+    }
 
     pxr::SdfPathVector targets;
     cesiumPolygonRasterOverlay.GetCartographicPolygonBindingRel().GetForwardedTargets(&targets);
@@ -32,7 +35,11 @@ CesiumRasterOverlays::RasterOverlay* OmniPolygonRasterOverlay::getRasterOverlay(
 }
 
 bool OmniPolygonRasterOverlay::getInvertSelection() const {
-    auto cesiumPolygonRasterOverlay = UsdUtil::getCesiumPolygonRasterOverlay(_pContext->getUsdStage(), _path);
+    const auto cesiumPolygonRasterOverlay = UsdUtil::getCesiumPolygonRasterOverlay(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumPolygonRasterOverlay)) {
+        return false;
+    }
+
     bool invertSelection;
     cesiumPolygonRasterOverlay.GetInvertSelectionAttr().Get(&invertSelection);
     return invertSelection;

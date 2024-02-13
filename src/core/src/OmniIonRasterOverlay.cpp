@@ -24,6 +24,9 @@ OmniIonRasterOverlay::OmniIonRasterOverlay(Context* pContext, const pxr::SdfPath
 
 int64_t OmniIonRasterOverlay::getIonAssetId() const {
     const auto cesiumIonRasterOverlay = UsdUtil::getCesiumIonRasterOverlay(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumIonRasterOverlay)) {
+        return 0;
+    }
 
     int64_t ionAssetId;
     cesiumIonRasterOverlay.GetIonAssetIdAttr().Get(&ionAssetId);
@@ -33,6 +36,9 @@ int64_t OmniIonRasterOverlay::getIonAssetId() const {
 
 CesiumIonClient::Token OmniIonRasterOverlay::getIonAccessToken() const {
     const auto cesiumIonRasterOverlay = UsdUtil::getCesiumIonRasterOverlay(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumIonRasterOverlay)) {
+        return {};
+    }
 
     std::string ionAccessToken;
     cesiumIonRasterOverlay.GetIonAccessTokenAttr().Get(&ionAccessToken);
@@ -76,6 +82,9 @@ std::string OmniIonRasterOverlay::getIonApiUrl() const {
 
 pxr::SdfPath OmniIonRasterOverlay::getResolvedIonServerPath() const {
     const auto cesiumIonRasterOverlay = UsdUtil::getCesiumIonRasterOverlay(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumIonRasterOverlay)) {
+        return {};
+    }
 
     pxr::SdfPathVector targets;
     cesiumIonRasterOverlay.GetIonServerBindingRel().GetForwardedTargets(&targets);
