@@ -7,6 +7,7 @@
 * Fixed crash when updating tilesets shader inputs.
 * Fixed crash when setting certain `/Cesium` debug options at runtime.
 * Fixed crash when disabling and re-enabling the extension.
+* The movie capture tool now waits for tilesets to complete loading before it captures a frame.
 
 ### v0.17.0 - 2024-02-01
 
