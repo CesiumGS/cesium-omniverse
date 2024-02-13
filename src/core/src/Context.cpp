@@ -5,6 +5,7 @@
 #include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricStatistics.h"
 #include "cesium/omniverse/FabricUtil.h"
+#include "cesium/omniverse/FilesystemUtil.h"
 #include "cesium/omniverse/Logger.h"
 #include "cesium/omniverse/OmniData.h"
 #include "cesium/omniverse/OmniIonRasterOverlay.h"
@@ -34,66 +35,31 @@
 #include <chrono>
 #endif
 
-#include <cstdlib>
-
-#if defined(__linux__)
-#include <pwd.h>
-#include <sys/types.h>
-#include <unistd.h>
-
-#include <cerrno>
-#endif
-
 namespace cesium::omniverse {
 
 namespace {
-// Quite a lot of ceremony to get the home directory
+
 std::string getCacheDatabaseName() {
-    std::string homeDir;
-#if defined(__linux__)
-    if (char* cString = std::getenv("HOME")) {
-        homeDir = cString;
-    } else {
-        passwd pwd;
-        long bufsize = sysconf(_SC_GETPW_R_SIZE_MAX);
-        if (bufsize == -1) {
-            bufsize = 16384;
-        }
-        char* buf = new char[static_cast<size_t>(bufsize)];
-        passwd* result = nullptr;
-        int getResult = getpwuid_r(getuid(), &pwd, buf, static_cast<size_t>(bufsize), &result);
-        if (getResult == 0) {
-            homeDir = pwd.pw_dir;
-        }
-        delete[] buf;
-    }
-#elif defined(_WIN32)
-    if (char* cString = getenv("USERPROFILE")) {
-        homeDir = cString;
-    }
-#endif
-    if (!homeDir.empty()) {
-        std::filesystem::path homeDirPath(homeDir);
-        auto cacheFilePath = homeDirPath / ".nvidia-omniverse" / "cesium-request-cache.sqlite";
+    std::string cacheDir = FilesystemUtil::getCesiumCacheDirectory();
+    if (!cacheDir.empty()) {
+        std::filesystem::path cacheDirPath(cacheDir);
+        auto cacheFilePath = cacheDirPath / "cesium-request-cache.sqlite";
         return cacheFilePath.generic_string();
     }
     return {};
 }
 
-std::shared_ptr<CesiumAsync::ICacheDatabase>& getCacheDatabase(const std::shared_ptr<Logger>& logger) {
-    // lambda is used here so that real code can be run when the static is initialized.
-    static auto pCacheDatabase = [&]() -> std::shared_ptr<CesiumAsync::ICacheDatabase> {
-        uint64_t maxCacheItems = Settings::getMaxCacheItems();
-        if (maxCacheItems == 0) {
-            logger->oneTimeWarning("maxCacheItems set to 0, so disabling accessor cache");
-            return {};
-        } else if (auto dbName = getCacheDatabaseName(); !dbName.empty()) {
-            return std::make_shared<CesiumAsync::SqliteCache>(logger, getCacheDatabaseName(), maxCacheItems);
-        }
-        logger->oneTimeWarning("could not get name for cache database");
+std::shared_ptr<CesiumAsync::ICacheDatabase> makeCacheDatabase(const std::shared_ptr<Logger>& logger) {
+    uint64_t maxCacheItems = Settings::getMaxCacheItems();
+    if (maxCacheItems == 0) {
+        logger->oneTimeWarning("maxCacheItems set to 0, so disabling accessor cache");
         return {};
-    }();
-    return pCacheDatabase;
+    } else if (auto dbName = getCacheDatabaseName(); !dbName.empty()) {
+        logger->oneTimeWarning(fmt::format("Cesium cache file: {}", dbName));
+        return std::make_shared<CesiumAsync::SqliteCache>(logger, getCacheDatabaseName(), maxCacheItems);
+    }
+    logger->oneTimeWarning("could not get name for cache database");
+    return {};
 }
 } // namespace
 
@@ -103,7 +69,7 @@ Context::Context(const std::filesystem::path& cesiumExtensionLocation)
     , _pTaskProcessor(std::make_shared<TaskProcessor>())
     , _pAsyncSystem(std::make_unique<CesiumAsync::AsyncSystem>(_pTaskProcessor))
     , _pLogger(std::make_shared<Logger>())
-    , _pCacheDatabase(getCacheDatabase(_pLogger))
+    , _pCacheDatabase(makeCacheDatabase(_pLogger))
     , _pCreditSystem(std::make_shared<CesiumUtility::CreditSystem>())
     , _pAssetRegistry(std::make_unique<AssetRegistry>(this))
     , _pFabricResourceManager(std::make_unique<FabricResourceManager>(this))
