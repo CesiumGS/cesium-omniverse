@@ -113,13 +113,8 @@ def build_common_raster_overlay_properties(add_overlay_render_method=False):
         CustomLayoutProperty("cesium:alpha", build_fn=build_slider(0, 1))
         if add_overlay_render_method:
             CustomLayoutProperty("cesium:overlayRenderMethod")
-    with CustomLayoutGroup("Maximum Screen Space Error"):
-        CustomLayoutProperty("cesium:maximumScreenSpaceError")
-    with CustomLayoutGroup("Maximum Texture Size"):
-        CustomLayoutProperty("cesium:maximumTextureSize")
-    with CustomLayoutGroup("Maximum Simultaneous Tile Loads"):
-        CustomLayoutProperty("cesium:maximumSimultaneousTileLoads")
-    with CustomLayoutGroup("Sub Tile Cache Bytes"):
-        CustomLayoutProperty("cesium:subTileCacheBytes")
-    with CustomLayoutGroup("Credit Display"):
-        CustomLayoutProperty("cesium:showCreditsOnScreen")
+    CustomLayoutProperty("cesium:maximumScreenSpaceError")
+    CustomLayoutProperty("cesium:maximumTextureSize")
+    CustomLayoutProperty("cesium:maximumSimultaneousTileLoads")
+    CustomLayoutProperty("cesium:subTileCacheBytes")
+    CustomLayoutProperty("cesium:showCreditsOnScreen")

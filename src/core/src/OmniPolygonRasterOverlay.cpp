@@ -94,7 +94,7 @@ void OmniPolygonRasterOverlay::reload() {
 
     const auto projection = CesiumGeospatial::GeographicProjection(*pEllipsoid);
 
-    auto options = getUsdOptions();
+    auto options = createRasterOverlayOptions();
 
     options.loadErrorCallback = [this](const CesiumRasterOverlays::RasterOverlayLoadFailureDetails& error) {
         _pContext->getLogger()->error(error.message);

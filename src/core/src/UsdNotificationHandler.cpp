@@ -341,8 +341,7 @@ void processCesiumRasterOverlayChanged(
     }
 
     if (updateRasterOverlayOptions) {
-        auto pNativeOverlay = pRasterOverlay->getRasterOverlay();
-        pRasterOverlay->updateRasterOverlayOptions(pNativeOverlay->getOptions());
+        pRasterOverlay->updateRasterOverlayOptions();
     }
 }
 

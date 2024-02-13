@@ -81,19 +81,22 @@ FabricOverlayRenderMethod OmniRasterOverlay::getOverlayRenderMethod() const {
     return FabricOverlayRenderMethod::OVERLAY;
 }
 
-CesiumRasterOverlays::RasterOverlayOptions OmniRasterOverlay::getUsdOptions() {
+CesiumRasterOverlays::RasterOverlayOptions OmniRasterOverlay::createRasterOverlayOptions() const {
     CesiumRasterOverlays::RasterOverlayOptions options;
-    setOptionsFromUsd(options);
+    options.ktx2TranscodeTargets = GltfUtil::getKtx2TranscodeTargets();
+    setRasterOverlayOptionsFromUsd(options);
     return options;
 }
 
-void OmniRasterOverlay::updateRasterOverlayOptions(CesiumRasterOverlays::RasterOverlayOptions& options) {
-    setOptionsFromUsd(options);
+void OmniRasterOverlay::updateRasterOverlayOptions() const {
+    const auto pRasterOverlay = getRasterOverlay();
+    if (pRasterOverlay) {
+        setRasterOverlayOptionsFromUsd(pRasterOverlay->getOptions());
+    }
 }
 
-void OmniRasterOverlay::setOptionsFromUsd(CesiumRasterOverlays::RasterOverlayOptions& options) {
+void OmniRasterOverlay::setRasterOverlayOptionsFromUsd(CesiumRasterOverlays::RasterOverlayOptions& options) const {
     options.showCreditsOnScreen = getShowCreditsOnScreen();
-    options.ktx2TranscodeTargets = GltfUtil::getKtx2TranscodeTargets();
     options.maximumScreenSpaceError = getMaximumScreenSpaceError();
     options.maximumTextureSize = getMaximumTextureSize();
     options.maximumSimultaneousTileLoads = getMaximumSimultaneousTileLoads();

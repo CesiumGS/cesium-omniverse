@@ -72,7 +72,7 @@ std::string OmniWebMapServiceRasterOverlay::getLayers() const {
 void OmniWebMapServiceRasterOverlay::reload() {
     const auto rasterOverlayName = UsdUtil::getName(_pContext->getUsdStage(), _path);
 
-    auto options = getUsdOptions();
+    auto options = createRasterOverlayOptions();
 
     options.loadErrorCallback = [this](const CesiumRasterOverlays::RasterOverlayLoadFailureDetails& error) {
         _pContext->getLogger()->error(error.message);

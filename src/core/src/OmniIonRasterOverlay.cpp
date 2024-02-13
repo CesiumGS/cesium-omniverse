@@ -108,7 +108,7 @@ void OmniIonRasterOverlay::reload() {
 
     const auto rasterOverlayName = UsdUtil::getName(_pContext->getUsdStage(), _path);
 
-    auto options = getUsdOptions();
+    auto options = createRasterOverlayOptions();
 
     options.loadErrorCallback = [this, rasterOverlayIonAssetId, rasterOverlayName](
                                     const CesiumRasterOverlays::RasterOverlayLoadFailureDetails& error) {

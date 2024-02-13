@@ -30,10 +30,10 @@ class OmniRasterOverlay {
     [[nodiscard]] int getMaximumSimultaneousTileLoads() const;
     [[nodiscard]] int getSubTileCacheBytes() const;
 
-    [[nodiscard]] CesiumRasterOverlays::RasterOverlayOptions getUsdOptions();
+    [[nodiscard]] CesiumRasterOverlays::RasterOverlayOptions createRasterOverlayOptions() const;
 
     [[nodiscard]] virtual CesiumRasterOverlays::RasterOverlay* getRasterOverlay() const = 0;
-    void updateRasterOverlayOptions(CesiumRasterOverlays::RasterOverlayOptions& options);
+    void updateRasterOverlayOptions() const;
     virtual void reload() = 0;
 
   protected:
@@ -41,6 +41,6 @@ class OmniRasterOverlay {
     pxr::SdfPath _path;
 
   private:
-    void setOptionsFromUsd(CesiumRasterOverlays::RasterOverlayOptions& options);
+    void setRasterOverlayOptionsFromUsd(CesiumRasterOverlays::RasterOverlayOptions& options) const;
 };
 } // namespace cesium::omniverse
