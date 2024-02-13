@@ -3,6 +3,7 @@ from typing import Any, ClassVar
 import Boost.Python
 import pxr.Usd
 import pxr.UsdGeom
+
 __MFB_FULL_PACKAGE_NAME: str
 
 class Data(pxr.Usd.Typed):
