@@ -154,7 +154,11 @@ def get_path_to_current_ion_server() -> Optional[str]:
 def set_path_to_current_ion_server(path: str) -> None:
     data = get_or_create_cesium_data()
     rel = data.GetSelectedIonServerRel()
-    rel.SetTargets([path])
+
+    # This check helps avoid sending unnecessary USD notifications
+    # See https://github.com/CesiumGS/cesium-omniverse/issues/640
+    if get_path_to_current_ion_server() != path:
+        rel.SetTargets([path])
 
 
 def get_tileset_paths() -> List[str]:
