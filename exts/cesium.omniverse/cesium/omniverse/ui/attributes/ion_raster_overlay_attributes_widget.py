@@ -5,7 +5,7 @@ from cesium.usd.plugins.CesiumUsdSchemas import (
     IonRasterOverlay as CesiumIonRasterOverlay,
     IonServer as CesiumIonServer,
 )
-from .attribute_widget_util import build_common_raster_overlay_properties
+from .cesium_properties_widget_builder import build_common_raster_overlay_properties
 
 
 class CesiumIonRasterOverlayAttributesWidget(SchemaPropertiesWidget):
