@@ -1,3 +1,8 @@
+[core]
+# Load after omni.usd.libs (-1000)
+# See https://docs.omniverse.nvidia.com/py/kit/docs/guide/usd_schema.html
+order = -100
+
 [package]
 version = "0.17.0"
 category = "simulation"
@@ -17,6 +22,7 @@ keywords = [
     "earth",
     "simulation",
 ]
+toggleable = false
 
 # Paths are relative to the extension folder
 changelog = "doc/CHANGES.md"
@@ -54,6 +60,9 @@ archiveDirs = ["vendor"]
 
 [[native.plugin]]
 path = "bin/cesium.omniverse.plugin"
+
+[[native.library]]
+path = "bin/${lib_prefix}CesiumUsdSchemas${lib_ext}"
 
 [settings]
 exts."cesium.omniverse".defaultAccessToken = ""
