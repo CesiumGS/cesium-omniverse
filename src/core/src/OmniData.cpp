@@ -17,6 +17,9 @@ const pxr::SdfPath& OmniData::getPath() const {
 
 pxr::SdfPath OmniData::getSelectedIonServerPath() const {
     const auto cesiumData = UsdUtil::getCesiumData(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumData)) {
+        return {};
+    }
 
     pxr::SdfPathVector targets;
     cesiumData.GetSelectedIonServerRel().GetForwardedTargets(&targets);
@@ -30,6 +33,9 @@ pxr::SdfPath OmniData::getSelectedIonServerPath() const {
 
 bool OmniData::getDebugDisableMaterials() const {
     const auto cesiumData = UsdUtil::getCesiumData(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumData)) {
+        return false;
+    }
 
     bool disableMaterials;
     cesiumData.GetDebugDisableMaterialsAttr().Get(&disableMaterials);
@@ -39,6 +45,9 @@ bool OmniData::getDebugDisableMaterials() const {
 
 bool OmniData::getDebugDisableTextures() const {
     const auto cesiumData = UsdUtil::getCesiumData(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumData)) {
+        return false;
+    }
 
     bool disableTextures;
     cesiumData.GetDebugDisableTexturesAttr().Get(&disableTextures);
@@ -48,6 +57,9 @@ bool OmniData::getDebugDisableTextures() const {
 
 bool OmniData::getDebugDisableGeometryPool() const {
     const auto cesiumData = UsdUtil::getCesiumData(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumData)) {
+        return false;
+    }
 
     bool disableGeometryPool;
     cesiumData.GetDebugDisableGeometryPoolAttr().Get(&disableGeometryPool);
@@ -57,6 +69,9 @@ bool OmniData::getDebugDisableGeometryPool() const {
 
 bool OmniData::getDebugDisableMaterialPool() const {
     const auto cesiumData = UsdUtil::getCesiumData(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumData)) {
+        return false;
+    }
 
     bool disableMaterialPool;
     cesiumData.GetDebugDisableMaterialPoolAttr().Get(&disableMaterialPool);
@@ -66,6 +81,9 @@ bool OmniData::getDebugDisableMaterialPool() const {
 
 bool OmniData::getDebugDisableTexturePool() const {
     const auto cesiumData = UsdUtil::getCesiumData(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumData)) {
+        return false;
+    }
 
     bool disableTexturePool;
     cesiumData.GetDebugDisableTexturePoolAttr().Get(&disableTexturePool);
@@ -75,6 +93,9 @@ bool OmniData::getDebugDisableTexturePool() const {
 
 uint64_t OmniData::getDebugGeometryPoolInitialCapacity() const {
     const auto cesiumData = UsdUtil::getCesiumData(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumData)) {
+        return 2048;
+    }
 
     uint64_t geometryPoolInitialCapacity;
     cesiumData.GetDebugGeometryPoolInitialCapacityAttr().Get(&geometryPoolInitialCapacity);
@@ -84,6 +105,9 @@ uint64_t OmniData::getDebugGeometryPoolInitialCapacity() const {
 
 uint64_t OmniData::getDebugMaterialPoolInitialCapacity() const {
     const auto cesiumData = UsdUtil::getCesiumData(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumData)) {
+        return 2048;
+    }
 
     uint64_t materialPoolInitialCapacity;
     cesiumData.GetDebugMaterialPoolInitialCapacityAttr().Get(&materialPoolInitialCapacity);
@@ -93,6 +117,9 @@ uint64_t OmniData::getDebugMaterialPoolInitialCapacity() const {
 
 uint64_t OmniData::getDebugTexturePoolInitialCapacity() const {
     const auto cesiumData = UsdUtil::getCesiumData(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumData)) {
+        return 2048;
+    }
 
     uint64_t texturePoolInitialCapacity;
     cesiumData.GetDebugTexturePoolInitialCapacityAttr().Get(&texturePoolInitialCapacity);
@@ -102,6 +129,9 @@ uint64_t OmniData::getDebugTexturePoolInitialCapacity() const {
 
 bool OmniData::getDebugRandomColors() const {
     const auto cesiumData = UsdUtil::getCesiumData(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumData)) {
+        return false;
+    }
 
     bool debugRandomColors;
     cesiumData.GetDebugRandomColorsAttr().Get(&debugRandomColors);
@@ -111,6 +141,9 @@ bool OmniData::getDebugRandomColors() const {
 
 bool OmniData::getDebugDisableGeoreferencing() const {
     const auto cesiumData = UsdUtil::getCesiumData(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumData)) {
+        return false;
+    }
 
     bool debugDisableGeoreferencing;
     cesiumData.GetDebugDisableGeoreferencingAttr().Get(&debugDisableGeoreferencing);
