@@ -3,11 +3,14 @@
 ### v0.18.0 - 2024-03-01
 
 * **Breaking change:** `cesium.usd.plugins` has been removed and merged into the main `cesium.omniverse` extension. Python bindings for the Cesium USD Schemas are now available in the `cesium.omniverse.usd.plugins` module.
+* **Breaking change:** removed deprecated properties `projectDefaultIonAccessToken` and `projectDefaultIonAccessToken` from `CesiumDataPrim`. `CesiumIonServerPrim` should be used instead.
 * Added support for globe anchors on non-georeferenced tilesets.
 * Fixed zooming to tileset extents when tileset prims have non identity transformation.
 * Fixed crash when updating tilesets shader inputs.
 * Fixed crash when setting certain `/Cesium` debug options at runtime.
 * Fixed crash when disabling and re-enabling the extension.
+* Fixed crash when removing USD prims in certain order.
+* Fixed issue where Cesium ion session would not resume on reload.
 
 ### v0.17.0 - 2024-02-01
 
