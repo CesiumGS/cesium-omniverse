@@ -134,8 +134,6 @@ void Context::clearStage() {
 }
 
 void Context::reloadStage() {
-    const auto defaultIonServerPath = pxr::SdfPath("/CesiumServers/IonOfficial");
-
     clearStage();
 
     // Populate the asset registry from prims already on the stage
