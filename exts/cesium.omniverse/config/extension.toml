@@ -45,6 +45,7 @@ python = false
 "omni.kit.viewport.utility" = {}
 "omni.kit.property.usd" = {}
 "omni.kit.menu.utils" = {}
+"omni.kit.capture.viewport" = {}
 
 # Main python module this extension provides, it will be publicly available as "import cesium.omniverse"
 [[python.module]]
