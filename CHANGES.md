@@ -2,6 +2,7 @@
 
 ### v0.18.0 - 2024-03-01
 
+* **Breaking change:** removed deprecated properties `projectDefaultIonAccessToken` and `projectDefaultIonAccessToken` from `CesiumDataPrim`. `CesiumIonServerPrim` should be used instead.
 * Added support for globe anchors on non-georeferenced tilesets.
 * Fixed zooming to tileset extents when tileset prims have non identity transformation.
 * Fixed crash when updating tilesets shader inputs.
