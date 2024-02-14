@@ -134,8 +134,6 @@ void Context::clearStage() {
 }
 
 void Context::reloadStage() {
-    const auto defaultIonServerPath = pxr::SdfPath("/CesiumServers/IonOfficial");
-
     clearStage();
 
     // Populate the asset registry from prims already on the stage
@@ -156,9 +154,9 @@ void Context::reloadStage() {
     }
 }
 
-void Context::onUpdateFrame(const gsl::span<const Viewport>& viewports) {
+void Context::onUpdateFrame(const gsl::span<const Viewport>& viewports, bool waitForLoadingTiles) {
     _pUsdNotificationHandler->onUpdateFrame();
-    _pAssetRegistry->onUpdateFrame(viewports);
+    _pAssetRegistry->onUpdateFrame(viewports, waitForLoadingTiles);
     _pCesiumIonServerManager->onUpdateFrame();
 }
 

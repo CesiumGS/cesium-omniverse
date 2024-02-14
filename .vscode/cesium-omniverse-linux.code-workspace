@@ -95,6 +95,7 @@
       "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/exts/omni.kit.audio.test.usd",
       "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/exts/omni.kit.autocapture",
       "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/exts/omni.kit.capture",
+      "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/exts/omni.kit.capture.viewport",
       "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/exts/omni.kit.clipboard",
       "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/exts/omni.kit.collaboration.channel_manager",
       "${workspaceFolder}/extern/nvidia/_build/target-deps/kit-sdk/exts/omni.kit.collaboration.presence_layer",

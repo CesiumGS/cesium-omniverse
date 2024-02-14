@@ -9,8 +9,10 @@
 * Fixed crash when updating tilesets shader inputs.
 * Fixed crash when setting certain `/Cesium` debug options at runtime.
 * Fixed crash when disabling and re-enabling the extension.
+* Fixed a bug where save stage dialog would appear when reloading Fabric stage at startup.
 * Fixed crash when removing USD prims in certain order.
 * Fixed issue where Cesium ion session would not resume on reload.
+* The movie capture tool now waits for tilesets to complete loading before it captures a frame.
 
 ### v0.17.0 - 2024-02-01
 
