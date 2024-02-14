@@ -108,6 +108,9 @@ TilesetStatistics OmniTileset::getStatistics() const {
 
 TilesetSourceType OmniTileset::getSourceType() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumTileset)) {
+        return TilesetSourceType::ION;
+    }
 
     pxr::TfToken sourceType;
     cesiumTileset.GetSourceTypeAttr().Get(&sourceType);
@@ -121,6 +124,9 @@ TilesetSourceType OmniTileset::getSourceType() const {
 
 std::string OmniTileset::getUrl() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumTileset)) {
+        return "";
+    }
 
     std::string url;
     cesiumTileset.GetUrlAttr().Get(&url);
@@ -130,6 +136,9 @@ std::string OmniTileset::getUrl() const {
 
 int64_t OmniTileset::getIonAssetId() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumTileset)) {
+        return 0;
+    }
 
     int64_t ionAssetId;
     cesiumTileset.GetIonAssetIdAttr().Get(&ionAssetId);
@@ -139,6 +148,9 @@ int64_t OmniTileset::getIonAssetId() const {
 
 CesiumIonClient::Token OmniTileset::getIonAccessToken() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumTileset)) {
+        return {};
+    }
 
     std::string ionAccessToken;
     cesiumTileset.GetIonAccessTokenAttr().Get(&ionAccessToken);
@@ -182,6 +194,9 @@ std::string OmniTileset::getIonApiUrl() const {
 
 pxr::SdfPath OmniTileset::getResolvedIonServerPath() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumTileset)) {
+        return {};
+    }
 
     pxr::SdfPathVector targets;
     cesiumTileset.GetIonServerBindingRel().GetForwardedTargets(&targets);
@@ -201,6 +216,9 @@ pxr::SdfPath OmniTileset::getResolvedIonServerPath() const {
 
 double OmniTileset::getMaximumScreenSpaceError() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumTileset)) {
+        return 16.0;
+    }
 
     float maximumScreenSpaceError;
     cesiumTileset.GetMaximumScreenSpaceErrorAttr().Get(&maximumScreenSpaceError);
@@ -210,6 +228,9 @@ double OmniTileset::getMaximumScreenSpaceError() const {
 
 bool OmniTileset::getPreloadAncestors() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumTileset)) {
+        return true;
+    }
 
     bool preloadAncestors;
     cesiumTileset.GetPreloadAncestorsAttr().Get(&preloadAncestors);
@@ -219,6 +240,9 @@ bool OmniTileset::getPreloadAncestors() const {
 
 bool OmniTileset::getPreloadSiblings() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumTileset)) {
+        return true;
+    }
 
     bool preloadSiblings;
     cesiumTileset.GetPreloadSiblingsAttr().Get(&preloadSiblings);
@@ -228,6 +252,9 @@ bool OmniTileset::getPreloadSiblings() const {
 
 bool OmniTileset::getForbidHoles() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumTileset)) {
+        return false;
+    }
 
     bool forbidHoles;
     cesiumTileset.GetForbidHolesAttr().Get(&forbidHoles);
@@ -237,6 +264,9 @@ bool OmniTileset::getForbidHoles() const {
 
 uint32_t OmniTileset::getMaximumSimultaneousTileLoads() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumTileset)) {
+        return 20;
+    }
 
     uint32_t maximumSimultaneousTileLoads;
     cesiumTileset.GetMaximumSimultaneousTileLoadsAttr().Get(&maximumSimultaneousTileLoads);
@@ -246,6 +276,9 @@ uint32_t OmniTileset::getMaximumSimultaneousTileLoads() const {
 
 uint64_t OmniTileset::getMaximumCachedBytes() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumTileset)) {
+        return 536870912;
+    }
 
     uint64_t maximumCachedBytes;
     cesiumTileset.GetMaximumCachedBytesAttr().Get(&maximumCachedBytes);
@@ -255,6 +288,9 @@ uint64_t OmniTileset::getMaximumCachedBytes() const {
 
 uint32_t OmniTileset::getLoadingDescendantLimit() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumTileset)) {
+        return 20;
+    }
 
     uint32_t loadingDescendantLimit;
     cesiumTileset.GetLoadingDescendantLimitAttr().Get(&loadingDescendantLimit);
@@ -264,6 +300,9 @@ uint32_t OmniTileset::getLoadingDescendantLimit() const {
 
 bool OmniTileset::getEnableFrustumCulling() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumTileset)) {
+        return true;
+    }
 
     bool enableFrustumCulling;
     cesiumTileset.GetEnableFrustumCullingAttr().Get(&enableFrustumCulling);
@@ -273,6 +312,9 @@ bool OmniTileset::getEnableFrustumCulling() const {
 
 bool OmniTileset::getEnableFogCulling() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumTileset)) {
+        return true;
+    }
 
     bool enableFogCulling;
     cesiumTileset.GetEnableFogCullingAttr().Get(&enableFogCulling);
@@ -282,6 +324,9 @@ bool OmniTileset::getEnableFogCulling() const {
 
 bool OmniTileset::getEnforceCulledScreenSpaceError() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumTileset)) {
+        return true;
+    }
 
     bool enforceCulledScreenSpaceError;
     cesiumTileset.GetEnforceCulledScreenSpaceErrorAttr().Get(&enforceCulledScreenSpaceError);
@@ -291,6 +336,9 @@ bool OmniTileset::getEnforceCulledScreenSpaceError() const {
 
 double OmniTileset::getMainThreadLoadingTimeLimit() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumTileset)) {
+        return 0.0;
+    }
 
     float mainThreadLoadingTimeLimit;
     cesiumTileset.GetMainThreadLoadingTimeLimitAttr().Get(&mainThreadLoadingTimeLimit);
@@ -300,6 +348,9 @@ double OmniTileset::getMainThreadLoadingTimeLimit() const {
 
 double OmniTileset::getCulledScreenSpaceError() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumTileset)) {
+        return 64.0;
+    }
 
     float culledScreenSpaceError;
     cesiumTileset.GetCulledScreenSpaceErrorAttr().Get(&culledScreenSpaceError);
@@ -309,6 +360,9 @@ double OmniTileset::getCulledScreenSpaceError() const {
 
 bool OmniTileset::getSuspendUpdate() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumTileset)) {
+        return false;
+    }
 
     bool suspendUpdate;
     cesiumTileset.GetSuspendUpdateAttr().Get(&suspendUpdate);
@@ -318,6 +372,9 @@ bool OmniTileset::getSuspendUpdate() const {
 
 bool OmniTileset::getSmoothNormals() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumTileset)) {
+        return false;
+    }
 
     bool smoothNormals;
     cesiumTileset.GetSmoothNormalsAttr().Get(&smoothNormals);
@@ -327,6 +384,9 @@ bool OmniTileset::getSmoothNormals() const {
 
 bool OmniTileset::getShowCreditsOnScreen() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumTileset)) {
+        return false;
+    }
 
     bool showCreditsOnScreen;
     cesiumTileset.GetShowCreditsOnScreenAttr().Get(&showCreditsOnScreen);
@@ -344,6 +404,9 @@ pxr::SdfPath OmniTileset::getResolvedGeoreferencePath() const {
     }
 
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumTileset)) {
+        return {};
+    }
 
     pxr::SdfPathVector targets;
     cesiumTileset.GetGeoreferenceBindingRel().GetForwardedTargets(&targets);
@@ -363,8 +426,11 @@ pxr::SdfPath OmniTileset::getResolvedGeoreferencePath() const {
 
 pxr::SdfPath OmniTileset::getMaterialPath() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
-
     const auto materialBindingApi = pxr::UsdShadeMaterialBindingAPI(cesiumTileset);
+    if (!UsdUtil::isSchemaValid(materialBindingApi)) {
+        return {};
+    }
+
     const auto materialBinding = materialBindingApi.GetDirectBinding();
     const auto& materialPath = materialBinding.GetMaterialPath();
 
@@ -373,6 +439,9 @@ pxr::SdfPath OmniTileset::getMaterialPath() const {
 
 glm::dvec3 OmniTileset::getDisplayColor() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumTileset)) {
+        return {1.0, 1.0, 1.0};
+    }
 
     pxr::VtVec3fArray displayColorArray;
     cesiumTileset.GetDisplayColorAttr().Get(&displayColorArray);
@@ -391,6 +460,9 @@ glm::dvec3 OmniTileset::getDisplayColor() const {
 
 double OmniTileset::getDisplayOpacity() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumTileset)) {
+        return 1.0;
+    }
 
     pxr::VtFloatArray displayOpacityArray;
     cesiumTileset.GetDisplayOpacityAttr().Get(&displayOpacityArray);
@@ -404,6 +476,9 @@ double OmniTileset::getDisplayOpacity() const {
 
 std::vector<pxr::SdfPath> OmniTileset::getRasterOverlayPaths() const {
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumTileset)) {
+        return {};
+    }
 
     pxr::SdfPathVector targets;
     cesiumTileset.GetRasterOverlayBindingRel().GetForwardedTargets(&targets);
@@ -496,7 +571,6 @@ void OmniTileset::reload() {
             break;
     }
 
-    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
     const auto boundRasterOverlayPaths = getRasterOverlayPaths();
 
     for (const auto& boundRasterOverlayPath : boundRasterOverlayPaths) {
@@ -665,6 +739,11 @@ bool OmniTileset::updateExtent() {
     }
 
     const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+    const auto boundable = pxr::UsdGeomBoundable(cesiumTileset);
+    if (!UsdUtil::isSchemaValid(boundable)) {
+        return false;
+    }
+
     const auto& boundingVolume = pRootTile->getBoundingVolume();
     const auto ecefObb = Cesium3DTilesSelection::getOrientedBoundingBoxFromBoundingVolume(boundingVolume);
     const auto georeferencePath = getResolvedGeoreferencePath();
@@ -680,7 +759,6 @@ bool OmniTileset::updateExtent() {
         UsdUtil::glmToUsdVector(glm::fvec3(topRight)),
     };
 
-    const auto boundable = pxr::UsdGeomBoundable(cesiumTileset);
     boundable.GetExtentAttr().Set(extent);
     return true;
 }
