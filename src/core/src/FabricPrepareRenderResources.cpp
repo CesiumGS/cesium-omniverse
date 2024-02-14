@@ -538,7 +538,7 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
         return;
     }
 
-    const auto rasterOverlayPath = _pTileset->getRasterOverlayPath(rasterTile.getOverlay());
+    const auto rasterOverlayPath = _pTileset->getRasterOverlayPathIfExists(rasterTile.getOverlay());
 
     if (rasterOverlayPath.IsEmpty()) {
         return;
@@ -600,7 +600,7 @@ void FabricPrepareRenderResources::detachRasterInMainThread(
         return;
     }
 
-    const auto rasterOverlayPath = _pTileset->getRasterOverlayPath(rasterTile.getOverlay());
+    const auto rasterOverlayPath = _pTileset->getRasterOverlayPathIfExists(rasterTile.getOverlay());
 
     if (rasterOverlayPath.IsEmpty()) {
         return;

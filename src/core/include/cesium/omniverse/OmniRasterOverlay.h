@@ -1,5 +1,7 @@
 #pragma once
 
+#include "cesium/omniverse/OmniTileset.h"
+
 #include <CesiumRasterOverlays/RasterOverlay.h>
 #include <pxr/usd/sdf/path.h>
 
@@ -10,9 +12,14 @@ class RasterOverlay;
 namespace cesium::omniverse {
 
 class Context;
+class OmniTileset;
 enum class FabricOverlayRenderMethod;
 
 class OmniRasterOverlay {
+    friend void OmniTileset::addRasterOverlayIfExists(const OmniRasterOverlay* pOverlay);
+    friend pxr::SdfPath
+    OmniTileset::getRasterOverlayPathIfExists(const CesiumRasterOverlays::RasterOverlay& rasterOverlay);
+
   public:
     OmniRasterOverlay(Context* pContext, const pxr::SdfPath& path);
     virtual ~OmniRasterOverlay() = default;
@@ -32,11 +39,11 @@ class OmniRasterOverlay {
 
     [[nodiscard]] CesiumRasterOverlays::RasterOverlayOptions createRasterOverlayOptions() const;
 
-    [[nodiscard]] virtual CesiumRasterOverlays::RasterOverlay* getRasterOverlay() const = 0;
     void updateRasterOverlayOptions() const;
     virtual void reload() = 0;
 
   protected:
+    [[nodiscard]] virtual CesiumRasterOverlays::RasterOverlay* getRasterOverlay() const = 0;
     Context* _pContext;
     pxr::SdfPath _path;
 

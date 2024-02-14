@@ -577,15 +577,12 @@ void OmniTileset::reload() {
         const auto pOmniRasterOverlay = _pContext->getAssetRegistry().getRasterOverlay(boundRasterOverlayPath);
         if (pOmniRasterOverlay) {
             pOmniRasterOverlay->reload();
-            const auto pNativeRasterOverlay = pOmniRasterOverlay->getRasterOverlay();
-            if (pNativeRasterOverlay) {
-                _pTileset->getOverlays().add(pNativeRasterOverlay);
-            }
+            addRasterOverlayIfExists(pOmniRasterOverlay);
         }
     }
 }
 
-pxr::SdfPath OmniTileset::getRasterOverlayPath(const CesiumRasterOverlays::RasterOverlay& rasterOverlay) const {
+pxr::SdfPath OmniTileset::getRasterOverlayPathIfExists(const CesiumRasterOverlays::RasterOverlay& rasterOverlay) {
     const auto rasterOverlayPaths = getRasterOverlayPaths();
 
     for (const auto& rasterOverlayPath : rasterOverlayPaths) {
@@ -785,6 +782,13 @@ void OmniTileset::destroyNativeTileset() {
 
     _pTileset = nullptr;
     _pRenderResourcesPreparer = nullptr;
+}
+
+void OmniTileset::addRasterOverlayIfExists(const OmniRasterOverlay* pOmniRasterOverlay) {
+    const auto pNativeRasterOverlay = pOmniRasterOverlay->getRasterOverlay();
+    if (pNativeRasterOverlay) {
+        _pTileset->getOverlays().add(pNativeRasterOverlay);
+    }
 }
 
 } // namespace cesium::omniverse
