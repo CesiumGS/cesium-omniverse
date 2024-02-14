@@ -86,6 +86,7 @@ void wrapCesiumTokens()
     _AddToken(cls, "cesiumMaximumLevel", CesiumTokens->cesiumMaximumLevel);
     _AddToken(cls, "cesiumMaximumScreenSpaceError", CesiumTokens->cesiumMaximumScreenSpaceError);
     _AddToken(cls, "cesiumMaximumSimultaneousTileLoads", CesiumTokens->cesiumMaximumSimultaneousTileLoads);
+    _AddToken(cls, "cesiumMaximumTextureSize", CesiumTokens->cesiumMaximumTextureSize);
     _AddToken(cls, "cesiumMinimumLevel", CesiumTokens->cesiumMinimumLevel);
     _AddToken(cls, "cesiumOverlayRenderMethod", CesiumTokens->cesiumOverlayRenderMethod);
     _AddToken(cls, "cesiumPreloadAncestors", CesiumTokens->cesiumPreloadAncestors);
@@ -97,6 +98,7 @@ void wrapCesiumTokens()
     _AddToken(cls, "cesiumShowCreditsOnScreen", CesiumTokens->cesiumShowCreditsOnScreen);
     _AddToken(cls, "cesiumSmoothNormals", CesiumTokens->cesiumSmoothNormals);
     _AddToken(cls, "cesiumSourceType", CesiumTokens->cesiumSourceType);
+    _AddToken(cls, "cesiumSubTileCacheBytes", CesiumTokens->cesiumSubTileCacheBytes);
     _AddToken(cls, "cesiumSuspendUpdate", CesiumTokens->cesiumSuspendUpdate);
     _AddToken(cls, "cesiumTileHeight", CesiumTokens->cesiumTileHeight);
     _AddToken(cls, "cesiumTileWidth", CesiumTokens->cesiumTileWidth);

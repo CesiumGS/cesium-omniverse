@@ -101,9 +101,7 @@ void OmniPolygonRasterOverlay::reload() {
 
     const auto projection = CesiumGeospatial::GeographicProjection(*pEllipsoid);
 
-    CesiumRasterOverlays::RasterOverlayOptions options;
-    options.showCreditsOnScreen = getShowCreditsOnScreen();
-    options.ktx2TranscodeTargets = GltfUtil::getKtx2TranscodeTargets();
+    auto options = createRasterOverlayOptions();
 
     options.loadErrorCallback = [this](const CesiumRasterOverlays::RasterOverlayLoadFailureDetails& error) {
         _pContext->getLogger()->error(error.message);

@@ -96,9 +96,7 @@ std::string OmniWebMapServiceRasterOverlay::getLayers() const {
 void OmniWebMapServiceRasterOverlay::reload() {
     const auto rasterOverlayName = UsdUtil::getName(_pContext->getUsdStage(), _path);
 
-    CesiumRasterOverlays::RasterOverlayOptions options;
-    options.showCreditsOnScreen = getShowCreditsOnScreen();
-    options.ktx2TranscodeTargets = GltfUtil::getKtx2TranscodeTargets();
+    auto options = createRasterOverlayOptions();
 
     options.loadErrorCallback = [this](const CesiumRasterOverlays::RasterOverlayLoadFailureDetails& error) {
         _pContext->getLogger()->error(error.message);

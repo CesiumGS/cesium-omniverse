@@ -3,7 +3,6 @@
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/Context.h"
-#include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/Logger.h"
 #include "cesium/omniverse/OmniIonServer.h"
 #include "cesium/omniverse/UsdUtil.h"
@@ -118,9 +117,7 @@ void OmniIonRasterOverlay::reload() {
 
     const auto rasterOverlayName = UsdUtil::getName(_pContext->getUsdStage(), _path);
 
-    CesiumRasterOverlays::RasterOverlayOptions options;
-    options.showCreditsOnScreen = getShowCreditsOnScreen();
-    options.ktx2TranscodeTargets = GltfUtil::getKtx2TranscodeTargets();
+    auto options = createRasterOverlayOptions();
 
     options.loadErrorCallback = [this, rasterOverlayIonAssetId, rasterOverlayName](
                                     const CesiumRasterOverlays::RasterOverlayLoadFailureDetails& error) {
