@@ -635,7 +635,7 @@ void OmniTileset::updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::T
     });
 }
 
-void OmniTileset::onUpdateFrame(const gsl::span<const Viewport>& viewports) {
+void OmniTileset::onUpdateFrame(const gsl::span<const Viewport>& viewports, bool waitForLoadingTiles) {
     if (!UsdUtil::primExists(_pContext->getUsdStage(), _path)) {
         // TfNotice can be slow, and sometimes we get a frame or two before we actually get a chance to react on it.
         // This guard prevents us from crashing if the prim no longer exists.
@@ -643,7 +643,7 @@ void OmniTileset::onUpdateFrame(const gsl::span<const Viewport>& viewports) {
     }
 
     updateTransform();
-    updateView(viewports);
+    updateView(viewports, waitForLoadingTiles);
 
     if (!_extentSet) {
         _extentSet = updateExtent();
@@ -672,7 +672,7 @@ void OmniTileset::updateTransform() {
     }
 }
 
-void OmniTileset::updateView(const gsl::span<const Viewport>& viewports) {
+void OmniTileset::updateView(const gsl::span<const Viewport>& viewports, bool waitForLoadingTiles) {
     const auto visible = UsdUtil::isPrimVisible(_pContext->getUsdStage(), _path);
 
     if (visible && !getSuspendUpdate()) {
@@ -684,7 +684,11 @@ void OmniTileset::updateView(const gsl::span<const Viewport>& viewports) {
             _viewStates.push_back(UsdUtil::computeViewState(*_pContext, georeferencePath, _path, viewport));
         }
 
-        _pViewUpdateResult = &_pTileset->updateView(_viewStates);
+        if (waitForLoadingTiles) {
+            _pViewUpdateResult = &_pTileset->updateViewOffline(_viewStates);
+        } else {
+            _pViewUpdateResult = &_pTileset->updateView(_viewStates);
+        }
     }
 
     if (!_pViewUpdateResult) {

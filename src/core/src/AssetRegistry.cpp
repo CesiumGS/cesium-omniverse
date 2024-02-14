@@ -21,9 +21,9 @@ AssetRegistry::AssetRegistry(Context* pContext)
 
 AssetRegistry::~AssetRegistry() = default;
 
-void AssetRegistry::onUpdateFrame(const gsl::span<const Viewport>& viewports) {
+void AssetRegistry::onUpdateFrame(const gsl::span<const Viewport>& viewports, bool waitForLoadingTiles) {
     for (const auto& pTileset : _tilesets) {
-        pTileset->onUpdateFrame(viewports);
+        pTileset->onUpdateFrame(viewports, waitForLoadingTiles);
     }
 }
 
