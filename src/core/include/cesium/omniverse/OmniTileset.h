@@ -87,11 +87,11 @@ class OmniTileset {
     void updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::TfToken& attributeName);
     void updateDisplayColorAndOpacity();
 
-    void onUpdateFrame(const gsl::span<const Viewport>& viewports);
+    void onUpdateFrame(const gsl::span<const Viewport>& viewports, bool waitForLoadingTiles);
 
   private:
     void updateTransform();
-    void updateView(const gsl::span<const Viewport>& viewports);
+    void updateView(const gsl::span<const Viewport>& viewports, bool waitForLoadingTiles);
     [[nodiscard]] bool updateExtent();
     void updateLoadStatus();
 

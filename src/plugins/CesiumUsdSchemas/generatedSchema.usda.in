@@ -47,14 +47,6 @@ class CesiumDataPrim "CesiumDataPrim" (
         displayName = "Texture Pool Initial Capacity"
         doc = "Debug option that controls the initial capacity of the texture pool."
     )
-    string cesium:projectDefaultIonAccessToken = "" (
-        displayName = "Project default ion Access Token"
-        doc = "DEPRECATED: A string representing the token for accessing Cesium ion assets. Moved to CesiumIonServerPrim. Will be removed in a future version."
-    )
-    string cesium:projectDefaultIonAccessTokenId = "" (
-        displayName = "Project default ion Access Token ID"
-        doc = "DEPRECATED: A string representing the token ID for accessing Cesium ion assets. Moved to CesiumIonServerPrim. Will be removed in a future version."
-    )
     rel cesium:selectedIonServer (
         displayName = "Selected ion Server context"
         doc = "The current ion Server prim used in the Cesium for Omniverse UI."
@@ -343,7 +335,7 @@ class "CesiumRasterOverlayPrim" (
 }
 
 class CesiumIonRasterOverlayPrim "CesiumIonRasterOverlayPrim" (
-    doc = "Adds a prim for representing an Ion raster overlay."
+    doc = "Adds a prim for representing an ion raster overlay."
 )
 {
     float cesium:alpha = 1 (

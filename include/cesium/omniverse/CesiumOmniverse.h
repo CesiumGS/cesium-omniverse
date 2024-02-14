@@ -49,9 +49,11 @@ class ICesiumOmniverseInterface {
     /**
      * @brief Updates all tilesets this frame.
      *
-     * @param viewports A list of viewports.
+     * @param viewports The viewports.
+     * @param count The number of viewports.
+     * @param waitForLoadingTiles Whether to wait for all tiles to load before continuing.
      */
-    virtual void onUpdateFrame(const ViewportApi* viewports, uint64_t count) noexcept = 0;
+    virtual void onUpdateFrame(const ViewportApi* viewports, uint64_t count, bool waitForLoadingTiles) noexcept = 0;
 
     /**
      * @brief Updates the reference to the USD stage for the C++ layer.

@@ -81,40 +81,6 @@ CesiumData::_GetTfType() const
 }
 
 UsdAttribute
-CesiumData::GetProjectDefaultIonAccessTokenAttr() const
-{
-    return GetPrim().GetAttribute(CesiumTokens->cesiumProjectDefaultIonAccessToken);
-}
-
-UsdAttribute
-CesiumData::CreateProjectDefaultIonAccessTokenAttr(VtValue const &defaultValue, bool writeSparsely) const
-{
-    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumProjectDefaultIonAccessToken,
-                       SdfValueTypeNames->String,
-                       /* custom = */ false,
-                       SdfVariabilityVarying,
-                       defaultValue,
-                       writeSparsely);
-}
-
-UsdAttribute
-CesiumData::GetProjectDefaultIonAccessTokenIdAttr() const
-{
-    return GetPrim().GetAttribute(CesiumTokens->cesiumProjectDefaultIonAccessTokenId);
-}
-
-UsdAttribute
-CesiumData::CreateProjectDefaultIonAccessTokenIdAttr(VtValue const &defaultValue, bool writeSparsely) const
-{
-    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumProjectDefaultIonAccessTokenId,
-                       SdfValueTypeNames->String,
-                       /* custom = */ false,
-                       SdfVariabilityVarying,
-                       defaultValue,
-                       writeSparsely);
-}
-
-UsdAttribute
 CesiumData::GetDebugDisableMaterialsAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumDebugDisableMaterials);
@@ -314,8 +280,6 @@ const TfTokenVector&
 CesiumData::GetSchemaAttributeNames(bool includeInherited)
 {
     static TfTokenVector localNames = {
-        CesiumTokens->cesiumProjectDefaultIonAccessToken,
-        CesiumTokens->cesiumProjectDefaultIonAccessTokenId,
         CesiumTokens->cesiumDebugDisableMaterials,
         CesiumTokens->cesiumDebugDisableTextures,
         CesiumTokens->cesiumDebugDisableGeometryPool,

@@ -34,22 +34,6 @@ class CesiumDataPrim "CesiumDataPrim" (
         doc = "The current ion Server prim used in the Cesium for Omniverse UI."
     )
 
-    string cesium:projectDefaultIonAccessToken = "" (
-        customData = {
-            string apiName = "projectDefaultIonAccessToken"
-        }
-        displayName = "Project default ion Access Token"
-        doc = "DEPRECATED: A string representing the token for accessing Cesium ion assets. Moved to CesiumIonServerPrim. Will be removed in a future version."
-    )
-
-    string cesium:projectDefaultIonAccessTokenId = "" (
-        customData = {
-            string apiName = "projectDefaultIonAccessTokenId"
-        }
-        displayName = "Project default ion Access Token ID"
-        doc = "DEPRECATED: A string representing the token ID for accessing Cesium ion assets. Moved to CesiumIonServerPrim. Will be removed in a future version."
-    )
-
     bool cesium:debug:disableMaterials = false (
         customData = {
             string apiName = "debugDisableMaterials"

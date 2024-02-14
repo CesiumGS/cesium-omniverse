@@ -2,6 +2,7 @@
 
 ### v0.18.0 - 2024-03-01
 
+* **Breaking change:** removed deprecated properties `projectDefaultIonAccessToken` and `projectDefaultIonAccessToken` from `CesiumDataPrim`. `CesiumIonServerPrim` should be used instead.
 * Added support for globe anchors on non-georeferenced tilesets.
 * Fixed zooming to tileset extents when tileset prims have non identity transformation.
 * Fixed crash when updating tilesets shader inputs.
@@ -10,6 +11,7 @@
 * Fixed a bug where save stage dialog would appear when reloading Fabric stage at startup.
 * Fixed crash when removing USD prims in certain order.
 * Fixed issue where Cesium ion session would not resume on reload.
+* The movie capture tool now waits for tilesets to complete loading before it captures a frame.
 
 ### v0.17.0 - 2024-02-01
 
