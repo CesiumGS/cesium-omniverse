@@ -252,7 +252,7 @@ public:
     ///
     /// | ||
     /// | -- | -- |
-    /// | Declaration | `uniform int cesium:subTileCacheBytes = 20` |
+    /// | Declaration | `uniform int cesium:subTileCacheBytes = 16777216` |
     /// | C++ Type | int |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Int |
     /// | \ref SdfVariability "Variability" | SdfVariabilityUniform |

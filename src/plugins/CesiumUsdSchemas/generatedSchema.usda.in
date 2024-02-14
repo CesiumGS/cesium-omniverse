@@ -352,7 +352,7 @@ class "CesiumRasterOverlayPrim" (
         displayName = "Show Credits on Screen"
         doc = "Whether or not to show this raster overlay's credits on screen."
     )
-    uniform int cesium:subTileCacheBytes = 20 (
+    uniform int cesium:subTileCacheBytes = 16777216 (
         displayName = "Sub Tile Cache Bytes"
         doc = "The maximum number of bytes to use to cache sub-tiles in memory. This is used by provider types, that have an underlying tiling scheme that may not align with the tiling scheme of the geometry tiles on which the raster overlay tiles are draped. Because a single sub-tile may overlap multiple geometry tiles, it is useful to cache loaded sub-tiles in memory in case they're needed again soon. This property controls the maximum size of that cache."
     )
@@ -399,7 +399,7 @@ class CesiumIonRasterOverlayPrim "CesiumIonRasterOverlayPrim" (
         displayName = "Show Credits on Screen"
         doc = "Whether or not to show this raster overlay's credits on screen."
     )
-    uniform int cesium:subTileCacheBytes = 20 (
+    uniform int cesium:subTileCacheBytes = 16777216 (
         displayName = "Sub Tile Cache Bytes"
         doc = "The maximum number of bytes to use to cache sub-tiles in memory. This is used by provider types, that have an underlying tiling scheme that may not align with the tiling scheme of the geometry tiles on which the raster overlay tiles are draped. Because a single sub-tile may overlap multiple geometry tiles, it is useful to cache loaded sub-tiles in memory in case they're needed again soon. This property controls the maximum size of that cache."
     )
@@ -442,7 +442,7 @@ class CesiumPolygonRasterOverlayPrim "CesiumPolygonRasterOverlayPrim" (
         displayName = "Show Credits on Screen"
         doc = "Whether or not to show this raster overlay's credits on screen."
     )
-    uniform int cesium:subTileCacheBytes = 20 (
+    uniform int cesium:subTileCacheBytes = 16777216 (
         displayName = "Sub Tile Cache Bytes"
         doc = "The maximum number of bytes to use to cache sub-tiles in memory. This is used by provider types, that have an underlying tiling scheme that may not align with the tiling scheme of the geometry tiles on which the raster overlay tiles are draped. Because a single sub-tile may overlap multiple geometry tiles, it is useful to cache loaded sub-tiles in memory in case they're needed again soon. This property controls the maximum size of that cache."
     )
@@ -493,7 +493,7 @@ class CesiumWebMapServiceRasterOverlayPrim "CesiumWebMapServiceRasterOverlayPrim
         displayName = "Show Credits on Screen"
         doc = "Whether or not to show this raster overlay's credits on screen."
     )
-    uniform int cesium:subTileCacheBytes = 20 (
+    uniform int cesium:subTileCacheBytes = 16777216 (
         displayName = "Sub Tile Cache Bytes"
         doc = "The maximum number of bytes to use to cache sub-tiles in memory. This is used by provider types, that have an underlying tiling scheme that may not align with the tiling scheme of the geometry tiles on which the raster overlay tiles are draped. Because a single sub-tile may overlap multiple geometry tiles, it is useful to cache loaded sub-tiles in memory in case they're needed again soon. This property controls the maximum size of that cache."
     )

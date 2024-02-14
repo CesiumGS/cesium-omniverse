@@ -477,7 +477,7 @@ class "CesiumRasterOverlayPrim" (
         doc = "The maximum number of overlay tiles that may simultaneously be in the process of loading."
     )
 
-    uniform int cesium:subTileCacheBytes = 20 (
+    uniform int cesium:subTileCacheBytes = 16777216 (
         customData = {
             string apiName = "subTileCacheBytes"
         }

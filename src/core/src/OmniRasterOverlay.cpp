@@ -47,27 +47,49 @@ double OmniRasterOverlay::getAlpha() const {
 
 float OmniRasterOverlay::getMaximumScreenSpaceError() const {
     const auto cesiumRasterOverlay = UsdUtil::getCesiumRasterOverlay(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumRasterOverlay)) {
+        return 2.0f;
+    }
+
     float value;
     cesiumRasterOverlay.GetMaximumScreenSpaceErrorAttr().Get(&value);
+
     return static_cast<float>(value);
 }
 
 int OmniRasterOverlay::getMaximumTextureSize() const {
     const auto cesiumRasterOverlay = UsdUtil::getCesiumRasterOverlay(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumRasterOverlay)) {
+        return 2048;
+    }
+
     int value;
     cesiumRasterOverlay.GetMaximumTextureSizeAttr().Get(&value);
+
     return static_cast<int>(value);
 }
+
 int OmniRasterOverlay::getMaximumSimultaneousTileLoads() const {
     const auto cesiumRasterOverlay = UsdUtil::getCesiumRasterOverlay(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumRasterOverlay)) {
+        return 20;
+    }
+
     int value;
     cesiumRasterOverlay.GetMaximumSimultaneousTileLoadsAttr().Get(&value);
+
     return static_cast<int>(value);
 }
+
 int OmniRasterOverlay::getSubTileCacheBytes() const {
     const auto cesiumRasterOverlay = UsdUtil::getCesiumRasterOverlay(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumRasterOverlay)) {
+        return 16777216;
+    }
+
     int value;
     cesiumRasterOverlay.GetSubTileCacheBytesAttr().Get(&value);
+
     return static_cast<int>(value);
 }
 
