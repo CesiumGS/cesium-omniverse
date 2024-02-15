@@ -217,12 +217,16 @@ struct CesiumTokensType {
     const TfToken cesiumMaximumLevel;
     /// \brief "cesium:maximumScreenSpaceError"
     /// 
-    /// CesiumTileset
+    /// CesiumRasterOverlay, CesiumTileset
     const TfToken cesiumMaximumScreenSpaceError;
     /// \brief "cesium:maximumSimultaneousTileLoads"
     /// 
-    /// CesiumTileset
+    /// CesiumRasterOverlay, CesiumTileset
     const TfToken cesiumMaximumSimultaneousTileLoads;
+    /// \brief "cesium:maximumTextureSize"
+    /// 
+    /// CesiumRasterOverlay
+    const TfToken cesiumMaximumTextureSize;
     /// \brief "cesium:minimumLevel"
     /// 
     /// CesiumWebMapServiceRasterOverlay
@@ -241,11 +245,11 @@ struct CesiumTokensType {
     const TfToken cesiumPreloadSiblings;
     /// \brief "cesium:projectDefaultIonAccessToken"
     /// 
-    /// CesiumIonServer, CesiumData
+    /// CesiumIonServer
     const TfToken cesiumProjectDefaultIonAccessToken;
     /// \brief "cesium:projectDefaultIonAccessTokenId"
     /// 
-    /// CesiumIonServer, CesiumData
+    /// CesiumIonServer
     const TfToken cesiumProjectDefaultIonAccessTokenId;
     /// \brief "cesium:rasterOverlayBinding"
     /// 
@@ -267,6 +271,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumTileset
     const TfToken cesiumSourceType;
+    /// \brief "cesium:subTileCacheBytes"
+    /// 
+    /// CesiumRasterOverlay
+    const TfToken cesiumSubTileCacheBytes;
     /// \brief "cesium:suspendUpdate"
     /// 
     /// CesiumTileset

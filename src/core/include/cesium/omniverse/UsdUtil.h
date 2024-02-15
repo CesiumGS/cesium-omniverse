@@ -91,6 +91,8 @@ Cesium3DTilesSelection::ViewState computeViewState(
     const Viewport& viewport);
 
 bool primExists(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
+bool isSchemaValid(const pxr::UsdSchemaBase& schema);
+
 bool isPrimVisible(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 const std::string& getName(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 

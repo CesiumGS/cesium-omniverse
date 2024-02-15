@@ -4,7 +4,7 @@ from omni.kit.property.usd.usd_property_widget import SchemaPropertiesWidget
 from cesium.usd.plugins.CesiumUsdSchemas import (
     WebMapServiceRasterOverlay as CesiumWebMapServiceRasterOverlay,
 )
-from .custom_attribute_widgets import build_slider
+from .cesium_properties_widget_builder import build_slider, build_common_raster_overlay_properties
 
 
 class CesiumWebMapServiceRasterOverlayAttributesWidget(SchemaPropertiesWidget):
@@ -42,10 +42,6 @@ class CesiumWebMapServiceRasterOverlayAttributesWidget(SchemaPropertiesWidget):
                         0, 30, type="int", constrain={"attr": "cesium:minimumLevel", "type": "minimum"}
                     ),
                 )
-            with CustomLayoutGroup("Rendering"):
-                CustomLayoutProperty("cesium:alpha", build_fn=build_slider(0, 1))
-                CustomLayoutProperty("cesium:overlayRenderMethod")
-            with CustomLayoutGroup("Credit Display"):
-                CustomLayoutProperty("cesium:showCreditsOnScreen")
+            build_common_raster_overlay_properties()
 
         return frame.apply(props)

@@ -5,7 +5,7 @@ from cesium.usd.plugins.CesiumUsdSchemas import (
     PolygonRasterOverlay as CesiumPolygonRasterOverlay,
 )
 from pxr import UsdGeom
-from .custom_attribute_widgets import build_slider
+from .cesium_properties_widget_builder import build_common_raster_overlay_properties
 
 
 class CesiumPolygonRasterOverlayAttributesWidget(SchemaPropertiesWidget):
@@ -25,13 +25,7 @@ class CesiumPolygonRasterOverlayAttributesWidget(SchemaPropertiesWidget):
                 CustomLayoutProperty("cesium:cartographicPolygonBinding")
             with CustomLayoutGroup("Invert Selection"):
                 CustomLayoutProperty("cesium:invertSelection")
-            with CustomLayoutGroup("Exclude Selected Tiles"):
-                CustomLayoutProperty("cesium:excludeSelectedTiles")
-            with CustomLayoutGroup("Rendering"):
-                CustomLayoutProperty("cesium:alpha", build_fn=build_slider(0, 1))
-                CustomLayoutProperty("cesium:overlayRenderMethod")
-            with CustomLayoutGroup("Credit Display"):
-                CustomLayoutProperty("cesium:showCreditsOnScreen")
+            build_common_raster_overlay_properties()
 
         return frame.apply(props)
 

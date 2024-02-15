@@ -27,20 +27,6 @@ WRAP_CUSTOM;
 
         
 static UsdAttribute
-_CreateProjectDefaultIonAccessTokenAttr(CesiumData &self,
-                                      object defaultVal, bool writeSparsely) {
-    return self.CreateProjectDefaultIonAccessTokenAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
-}
-        
-static UsdAttribute
-_CreateProjectDefaultIonAccessTokenIdAttr(CesiumData &self,
-                                      object defaultVal, bool writeSparsely) {
-    return self.CreateProjectDefaultIonAccessTokenIdAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
-}
-        
-static UsdAttribute
 _CreateDebugDisableMaterialsAttr(CesiumData &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateDebugDisableMaterialsAttr(
@@ -151,20 +137,6 @@ void wrapCesiumData()
 
         .def(!self)
 
-        
-        .def("GetProjectDefaultIonAccessTokenAttr",
-             &This::GetProjectDefaultIonAccessTokenAttr)
-        .def("CreateProjectDefaultIonAccessTokenAttr",
-             &_CreateProjectDefaultIonAccessTokenAttr,
-             (arg("defaultValue")=object(),
-              arg("writeSparsely")=false))
-        
-        .def("GetProjectDefaultIonAccessTokenIdAttr",
-             &This::GetProjectDefaultIonAccessTokenIdAttr)
-        .def("CreateProjectDefaultIonAccessTokenIdAttr",
-             &_CreateProjectDefaultIonAccessTokenIdAttr,
-             (arg("defaultValue")=object(),
-              arg("writeSparsely")=false))
         
         .def("GetDebugDisableMaterialsAttr",
              &This::GetDebugDisableMaterialsAttr)

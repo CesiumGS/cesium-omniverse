@@ -32,6 +32,7 @@ import os
 from typing import List, Optional, Callable
 from .ui.credits_viewport_controller import CreditsViewportController
 from cesium.usd.plugins.CesiumUsdSchemas import Data as CesiumData, IonServer as CesiumIonServer
+from omni.kit.capture.viewport import CaptureExtension
 
 CESIUM_DATA_PRIM_PATH = "/Cesium"
 
@@ -70,6 +71,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._logger: logging.Logger = logging.getLogger(__name__)
         self._menus = []
         self._num_credits_viewport_frames: int = 0
+        self._capture_instance = None
 
         perform_vendor_install()
 
@@ -171,6 +173,8 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             add_raster_overlay_event, self._on_add_raster_overlay_to_tileset
         )
 
+        self._capture_instance = CaptureExtension.get_instance()
+
     def on_shutdown(self):
         self._menus.clear()
 
@@ -235,6 +239,8 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             self._add_menu_controller.destroy()
             self._add_menu_controller = None
 
+        self._capture_instance = None
+
         self._destroy_credits_viewport_frames()
 
         self._logger.info("CesiumOmniverse shutdown")
@@ -261,7 +267,10 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             self._setup_credits_viewport_frames()
             self._num_credits_viewport_frames = len(viewports)
 
-        _cesium_omniverse_interface.on_update_frame(viewports)
+        wait_for_loading_tiles = (
+            self._capture_instance.progress.capture_status == omni.kit.capture.viewport.CaptureStatus.CAPTURING
+        )
+        _cesium_omniverse_interface.on_update_frame(viewports, wait_for_loading_tiles)
 
     def _on_stage_event(self, event):
         if _cesium_omniverse_interface is None:
@@ -498,10 +507,3 @@ class CesiumOmniverseExtension(omni.ext.IExt):
 
             data_prim: CesiumData = CesiumData.Get(stage, CESIUM_DATA_PRIM_PATH)
             data_prim.GetSelectedIonServerRel().AddTarget(path)
-
-            # For backwards compatibility. Add access token from CesiumData prim.
-            defaultAccessToken = data_prim.GetProjectDefaultIonAccessTokenAttr().Get()
-            defaultAccessTokenId = data_prim.GetProjectDefaultIonAccessTokenIdAttr().Get()
-
-            prim.GetProjectDefaultIonAccessTokenAttr().Set(defaultAccessToken)
-            prim.GetProjectDefaultIonAccessTokenIdAttr().Set(defaultAccessTokenId)

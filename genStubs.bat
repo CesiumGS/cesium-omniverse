@@ -22,8 +22,8 @@ set CESIUM_TESTS_STUB_PATH=%PROJECT_ROOT%\exts\cesium.omniverse.cpp.tests\cesium
 
 set PYTHONPATH=%NVIDIA_USD_PYTHON_LIBS%;%PYTHONPATH%
 
-echo "Ensuring mypy is installed"
-%NVIDIA_PYTHON_EXECUTABLE% -m pip install mypy==1.6.1
+echo "Ensuring mypy and black are installed"
+%NVIDIA_PYTHON_EXECUTABLE% -m pip install mypy==1.6.1 black==23.1.0
 
 echo "Building lib files flat in temp dir"
 cmake -B build-stubs
@@ -45,9 +45,9 @@ copy out\_CesiumUsdSchemas.pyi %CESIUM_USD_STUB_PATH%
 copy out\CesiumOmniverseCppTestsPythonBindings.pyi %CESIUM_TESTS_STUB_PATH%
 
 echo "Formatting stubs"
-black %CESIUM_OMNI_STUB_PATH%
-black %CESIUM_USD_STUB_PATH%
-black %CESIUM_TESTS_STUB_PATH%
+%NVIDIA_PYTHON_EXECUTABLE% -m black %CESIUM_OMNI_STUB_PATH%
+%NVIDIA_PYTHON_EXECUTABLE% -m black %CESIUM_USD_STUB_PATH%
+%NVIDIA_PYTHON_EXECUTABLE% -m black %CESIUM_TESTS_STUB_PATH%
 
 echo "Cleaning up temp dir"
 cd %PROJECT_ROOT%

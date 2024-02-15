@@ -43,7 +43,7 @@ class AssetRegistry {
     AssetRegistry(AssetRegistry&&) noexcept = delete;
     AssetRegistry& operator=(AssetRegistry&&) noexcept = delete;
 
-    void onUpdateFrame(const gsl::span<const Viewport>& viewports);
+    void onUpdateFrame(const gsl::span<const Viewport>& viewports, bool waitForLoadingTiles);
 
     OmniData& addData(const pxr::SdfPath& path);
     void removeData(const pxr::SdfPath& path);
