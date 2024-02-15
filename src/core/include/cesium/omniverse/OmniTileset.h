@@ -1,7 +1,5 @@
 #pragma once
 
-#include "cesium/omniverse/OmniTileset.h"
-
 #include <glm/glm.hpp>
 #include <pxr/usd/sdf/path.h>
 
@@ -31,6 +29,7 @@ namespace cesium::omniverse {
 
 class Context;
 class FabricPrepareRenderResources;
+class OmniRasterOverlay;
 struct TilesetStatistics;
 struct Viewport;
 
@@ -82,16 +81,17 @@ class OmniTileset {
     void updateTilesetOptions();
 
     void reload();
-    [[nodiscard]] pxr::SdfPath getRasterOverlayPath(const CesiumRasterOverlays::RasterOverlay& rasterOverlay) const;
+    [[nodiscard]] pxr::SdfPath getRasterOverlayPathIfExists(const CesiumRasterOverlays::RasterOverlay& rasterOverlay);
     void updateRasterOverlayAlpha(const pxr::SdfPath& rasterOverlayPath);
     void updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::TfToken& attributeName);
     void updateDisplayColorAndOpacity();
+    void addRasterOverlayIfExists(const OmniRasterOverlay* overlay);
 
-    void onUpdateFrame(const gsl::span<const Viewport>& viewports);
+    void onUpdateFrame(const gsl::span<const Viewport>& viewports, bool waitForLoadingTiles);
 
   private:
     void updateTransform();
-    void updateView(const gsl::span<const Viewport>& viewports);
+    void updateView(const gsl::span<const Viewport>& viewports, bool waitForLoadingTiles);
     [[nodiscard]] bool updateExtent();
     void updateLoadStatus();
 

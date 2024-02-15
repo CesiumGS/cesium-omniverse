@@ -127,50 +127,6 @@ private:
 
 public:
     // --------------------------------------------------------------------- //
-    // PROJECTDEFAULTIONACCESSTOKEN 
-    // --------------------------------------------------------------------- //
-    /// DEPRECATED: A string representing the token for accessing Cesium ion assets. Moved to CesiumIonServerPrim. Will be removed in a future version.
-    ///
-    /// | ||
-    /// | -- | -- |
-    /// | Declaration | `string cesium:projectDefaultIonAccessToken = ""` |
-    /// | C++ Type | std::string |
-    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
-    CESIUMUSDSCHEMAS_API
-    UsdAttribute GetProjectDefaultIonAccessTokenAttr() const;
-
-    /// See GetProjectDefaultIonAccessTokenAttr(), and also 
-    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
-    /// If specified, author \p defaultValue as the attribute's default,
-    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
-    /// the default for \p writeSparsely is \c false.
-    CESIUMUSDSCHEMAS_API
-    UsdAttribute CreateProjectDefaultIonAccessTokenAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
-
-public:
-    // --------------------------------------------------------------------- //
-    // PROJECTDEFAULTIONACCESSTOKENID 
-    // --------------------------------------------------------------------- //
-    /// DEPRECATED: A string representing the token ID for accessing Cesium ion assets. Moved to CesiumIonServerPrim. Will be removed in a future version.
-    ///
-    /// | ||
-    /// | -- | -- |
-    /// | Declaration | `string cesium:projectDefaultIonAccessTokenId = ""` |
-    /// | C++ Type | std::string |
-    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
-    CESIUMUSDSCHEMAS_API
-    UsdAttribute GetProjectDefaultIonAccessTokenIdAttr() const;
-
-    /// See GetProjectDefaultIonAccessTokenIdAttr(), and also 
-    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
-    /// If specified, author \p defaultValue as the attribute's default,
-    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
-    /// the default for \p writeSparsely is \c false.
-    CESIUMUSDSCHEMAS_API
-    UsdAttribute CreateProjectDefaultIonAccessTokenIdAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
-
-public:
-    // --------------------------------------------------------------------- //
     // DEBUGDISABLEMATERIALS 
     // --------------------------------------------------------------------- //
     /// Debug option that renders tilesets with materials disabled.

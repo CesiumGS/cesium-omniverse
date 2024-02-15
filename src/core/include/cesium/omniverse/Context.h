@@ -59,7 +59,7 @@ class Context {
     void clearStage();
     void reloadStage();
 
-    void onUpdateFrame(const gsl::span<const Viewport>& viewports);
+    void onUpdateFrame(const gsl::span<const Viewport>& viewports, bool waitForLoadingTiles);
     void onUsdStageChanged(int64_t stageId);
 
     [[nodiscard]] const pxr::UsdStageWeakPtr& getUsdStage() const;
@@ -69,6 +69,8 @@ class Context {
     [[nodiscard]] omni::fabric::StageReaderWriter& getFabricStage() const;
 
     [[nodiscard]] RenderStatistics getRenderStatistics() const;
+
+    [[nodiscard]] int64_t getContextId() const;
 
   private:
     std::filesystem::path _cesiumExtensionLocation;
@@ -83,6 +85,8 @@ class Context {
     std::unique_ptr<FabricResourceManager> _pFabricResourceManager;
     std::unique_ptr<CesiumIonServerManager> _pCesiumIonServerManager;
     std::unique_ptr<UsdNotificationHandler> _pUsdNotificationHandler;
+
+    int64_t _contextId;
 
     pxr::UsdStageWeakPtr _pUsdStage;
     std::unique_ptr<omni::fabric::StageReaderWriter> _pFabricStage;

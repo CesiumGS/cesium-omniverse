@@ -10,6 +10,7 @@
 #include "cesium/omniverse/OmniIonServer.h"
 #include "cesium/omniverse/OmniPolygonRasterOverlay.h"
 #include "cesium/omniverse/OmniTileset.h"
+#include "cesium/omniverse/OmniWebMapServiceRasterOverlay.h"
 #include "cesium/omniverse/UsdUtil.h"
 #include "cesium/omniverse/Viewport.h"
 
@@ -20,9 +21,9 @@ AssetRegistry::AssetRegistry(Context* pContext)
 
 AssetRegistry::~AssetRegistry() = default;
 
-void AssetRegistry::onUpdateFrame(const gsl::span<const Viewport>& viewports) {
+void AssetRegistry::onUpdateFrame(const gsl::span<const Viewport>& viewports, bool waitForLoadingTiles) {
     for (const auto& pTileset : _tilesets) {
-        pTileset->onUpdateFrame(viewports);
+        pTileset->onUpdateFrame(viewports, waitForLoadingTiles);
     }
 }
 
@@ -131,21 +132,48 @@ OmniPolygonRasterOverlay* AssetRegistry::getPolygonRasterOverlay(const pxr::SdfP
     return nullptr;
 }
 
+OmniWebMapServiceRasterOverlay& AssetRegistry::addWebMapServiceRasterOverlay(const pxr::SdfPath& path) {
+    return *_webMapServiceRasterOverlays
+                .insert(
+                    _webMapServiceRasterOverlays.end(),
+                    std::make_unique<OmniWebMapServiceRasterOverlay>(_pContext, path))
+                ->get();
+}
+
+void AssetRegistry::removeWebMapServiceRasterOverlay(const pxr::SdfPath& path) {
+    CppUtil::eraseIf(_webMapServiceRasterOverlays, [&path](const auto& pWebMapServiceRasterOverlay) {
+        return pWebMapServiceRasterOverlay->getPath() == path;
+    });
+}
+
+OmniWebMapServiceRasterOverlay* AssetRegistry::getWebMapServiceRasterOverlay(const pxr::SdfPath& path) const {
+    for (const auto& pWebMapServiceRasterOverlay : _webMapServiceRasterOverlays) {
+        if (pWebMapServiceRasterOverlay->getPath() == path) {
+            return pWebMapServiceRasterOverlay.get();
+        }
+    }
+
+    return nullptr;
+}
+
 const std::vector<std::unique_ptr<OmniPolygonRasterOverlay>>& AssetRegistry::getPolygonRasterOverlays() const {
     return _polygonRasterOverlays;
 }
 
 OmniRasterOverlay* AssetRegistry::getRasterOverlay(const pxr::SdfPath& path) const {
     const auto pIonRasterOverlay = getIonRasterOverlay(path);
-
     if (pIonRasterOverlay) {
         return pIonRasterOverlay;
     }
 
     const auto pPolygonRasterOverlay = getPolygonRasterOverlay(path);
-
     if (pPolygonRasterOverlay) {
         return pPolygonRasterOverlay;
+    }
+
+    const auto pWebMapServiceRasterOverlay = getWebMapServiceRasterOverlay(path);
+    if (pWebMapServiceRasterOverlay) {
+        return pWebMapServiceRasterOverlay;
     }
 
     return nullptr;

@@ -10,7 +10,8 @@ set(SOURCES
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/polygonRasterOverlay.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/session.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/tileset.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/tokens.cpp")
+    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/tokens.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/webMapServiceRasterOverlay.cpp")
 
 set(PY_BINDING_SOURCES
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/module.cpp"
@@ -24,7 +25,8 @@ set(PY_BINDING_SOURCES
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapPolygonRasterOverlay.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapSession.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapTileset.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapTokens.cpp")
+    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapTokens.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/CesiumUsdSchemas/wrapWebMapServiceRasterOverlay.cpp")
 
 set(CESIUM_USD_SCHEMAS_CXX_FLAGS ${CESIUM_OMNI_CXX_FLAGS})
 
