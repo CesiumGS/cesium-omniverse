@@ -42,6 +42,7 @@ class OmniWebMapTileServiceRasterOverlay final : public OmniRasterOverlay {
     void reload() override;
 
   private:
-    CesiumUtility::IntrusivePointer<CesiumRasterOverlays::WebMapTileServiceRasterOverlay> _pWebMapTileServiceRasterOverlay;
+    CesiumUtility::IntrusivePointer<CesiumRasterOverlays::WebMapTileServiceRasterOverlay>
+        _pWebMapTileServiceRasterOverlay;
 };
 } // namespace cesium::omniverse

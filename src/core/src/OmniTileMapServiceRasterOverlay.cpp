@@ -83,8 +83,8 @@ void OmniTileMapServiceRasterOverlay::reload() {
     // std::string layers = getLayers();
 
     if (bSpecifyZoomLevels) {
-            const auto minimumLevel = getMinimumZoomLevel();
-            const auto maximumLevel = getMaximumZoomLevel();
+        const auto minimumLevel = getMinimumZoomLevel();
+        const auto maximumLevel = getMaximumZoomLevel();
         // TODO: push to UI check
         if (maximumLevel > minimumLevel) {
             tmsOptions.minimumLevel = minimumLevel;

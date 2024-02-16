@@ -9,6 +9,7 @@
 
 #include <CesiumRasterOverlays/WebMapTileServiceRasterOverlay.h>
 #include <CesiumUsdSchemas/webMapTileServiceRasterOverlay.h>
+
 #include <string>
 
 namespace cesium::omniverse {
@@ -328,9 +329,9 @@ void OmniWebMapTileServiceRasterOverlay::reload() {
         if (!tileMatrixSetLabelPrefix.empty()) {
             std::vector<std::string> labels;
             for (size_t level = 0; level <= 25; ++level) {
-              std::string label{tileMatrixSetLabelPrefix};
-              label.append(std::to_string(level));
-              labels.emplace_back(label);
+                std::string label{tileMatrixSetLabelPrefix};
+                label.append(std::to_string(level));
+                labels.emplace_back(label);
             }
             wmtsOptions.tileMatrixLabels = labels;
         }

@@ -26,9 +26,9 @@
 #include <CesiumUsdSchemas/ionServer.h>
 #include <CesiumUsdSchemas/polygonRasterOverlay.h>
 #include <CesiumUsdSchemas/session.h>
+#include <CesiumUsdSchemas/tileMapServiceRasterOverlay.h>
 #include <CesiumUsdSchemas/tileset.h>
 #include <CesiumUsdSchemas/webMapServiceRasterOverlay.h>
-#include <CesiumUsdSchemas/tileMapServiceRasterOverlay.h>
 #include <CesiumUsdSchemas/webMapTileServiceRasterOverlay.h>
 #include <glm/gtc/matrix_access.hpp>
 #include <glm/gtc/matrix_inverse.hpp>

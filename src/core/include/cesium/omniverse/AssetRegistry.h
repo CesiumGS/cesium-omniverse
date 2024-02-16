@@ -79,7 +79,8 @@ class AssetRegistry {
     OmniTileMapServiceRasterOverlay& addTileMapServiceRasterOverlay(const pxr::SdfPath& path);
     void removeTileMapServiceRasterOverlay(const pxr::SdfPath& path);
     [[nodiscard]] OmniTileMapServiceRasterOverlay* getTileMapServiceRasterOverlay(const pxr::SdfPath& path) const;
-    [[nodiscard]] const std::vector<std::unique_ptr<OmniTileMapServiceRasterOverlay>>& getTileMapServiceRasterOverlays() const;
+    [[nodiscard]] const std::vector<std::unique_ptr<OmniTileMapServiceRasterOverlay>>&
+    getTileMapServiceRasterOverlays() const;
 
     OmniWebMapTileServiceRasterOverlay& addWebMapTileServiceRasterOverlay(const pxr::SdfPath& path);
     void removeWebMapTileServiceRasterOverlay(const pxr::SdfPath& path);
