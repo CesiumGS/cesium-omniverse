@@ -585,6 +585,206 @@ class CesiumWebMapServiceRasterOverlayPrim "CesiumWebMapServiceRasterOverlayPrim
     )
 }
 
+class CesiumTileMapServiceRasterOverlayPrim "CesiumTileMapServiceRasterOverlayPrim" (
+    doc = """Adds a prim for representing a Tile Map Service (TMS) raster overlay."""
+    inherits = </CesiumRasterOverlayPrim>
+    customData = {
+        string className = "TileMapServiceRasterOverlay"
+    }
+) {
+    string cesium:url = "" (
+        customData = {
+            string apiName = "url"
+        }
+        displayName = "Url"
+        doc = "The base url of the Tile Map Service (TMS)."
+    )
+
+    bool cesium:specifyZoomLevels = false (
+        customData = {
+            string apiName = "specifyZoomLevels"
+        }
+        displayName = "Specify Zoom Levels"
+        doc = "True to directly specify minum and maximum zoom levels available from the server, or false to automatically determine the minimum and maximum zoom levels from the server's tilemapresource.xml file."
+    )
+
+    int cesium:minimumZoomLevel = 0 (
+        customData = {
+            string apiName = "minimumZoomLevel"
+        }
+        displayName = "Minimum Zoom Level"
+        doc = "Minimum zoom level"
+    )
+
+    int cesium:maximumZoomLevel = 10 (
+        customData = {
+            string apiName = "maximumZoomLevel"
+        }
+        displayName = "Maximum Zoom Level"
+        doc = "Maximum zoom level"
+    )
+}
+
+class CesiumWebMapTileServiceRasterOverlayPrim "CesiumWebMapTileServiceRasterOverlayPrim" (
+    doc = """Adds a prim for representing a Web Map Tile Service (WMTS) raster overlay."""
+    inherits = </CesiumRasterOverlayPrim>
+    customData = {
+        string className = "WebMapTileServiceRasterOverlay"
+    }
+) {
+    string cesium:url = "" (
+        customData = {
+            string apiName = "url"
+        }
+        displayName = "Url"
+        doc = "The base url of the Web Map Tile Service (WMTS)."
+    )
+
+    string cesium:layer = "" (
+        customData = {
+            string apiName = "layer"
+        }
+        displayName = "Layer"
+        doc = "Layer name."
+    )
+
+    string cesium:style = "" (
+        customData = {
+            string apiName = "style"
+        }
+        displayName = "Style"
+        doc = "Style."
+    )
+
+    string cesium:format = "image/jpeg" (
+        customData = {
+            string apiName = "format"
+        }
+        displayName = "Format"
+        doc = "Format."
+    )
+
+    string cesium:tileMatrixSetId = "" (
+        customData = {
+            string apiName = "tileMatrixSetId"
+        }
+        displayName = "Tile Matrix Set ID"
+        doc = "Tile Matrix Set ID"
+    )
+
+    bool cesium:specifyTileMatrixSetLabels = false (
+        customData = {
+            string apiName = "specifyTileMatrixSetLabels"
+        }
+        displayName = "Specify Tile Matrix Set Labels"
+        doc = "True to specify tile matrix set labels manually, or false to automatically determine from level and prefix."
+    )
+
+    string cesium:tileMatrixSetLabelPrefix = "" (
+        customData = {
+            string apiName = "tileMatrixSetLabelPrefix"
+        }
+        displayName = "Tile Matrix Set Label Prefix"
+        doc = 'Prefix for tile matrix set labels. For instance, setting "EPSG:4326:" as prefix generates label list ["EPSG:4326:0", "EPSG:4326:1", "EPSG:4326:2", ...]'
+    )
+
+    string cesium:tileMatrixSetLabels = "" (
+        customData = {
+            string apiName = "tileMatrixSetLabels"
+        }
+        displayName = "Tile Matrix Set Labels"
+        doc = "Tile Matrix Set Labels."
+    )
+
+    bool cesium:useWebMercatorProjection = true (
+        customData = {
+            string apiName = "useWebMercatorProjection"
+        }
+        displayName = "Use Web Mercator Projection"
+        doc = "False to use geographic projection, true to use webmercator projection. For instance, EPSG:4326 uses geographic and EPSG:3857 uses webmercator."
+    )
+
+    bool cesium:specifyTilingScheme = false (
+        customData = {
+            string apiName = "specifyTilingScheme"
+        }
+        displayName = "Specify Tiling Scheme"
+        doc = "True to specify quadtree tiling scheme according to projection and bounding rectangle, or false to automatically determine from projection."
+    )
+
+    int cesium:rootTilesX = 1 (
+        customData = {
+            string apiName = "rootTilesX"
+        }
+        displayName = "Root Tiles X"
+        doc = "Tile number corresponding to TileCol, also known as TileMatrixWidth"
+    )
+
+    int cesium:rootTilesY = 1 (
+        customData = {
+            string apiName = "rootTilesY"
+        }
+        displayName = "Root Tiles Y"
+        doc = "Tile number corresponding to TileRow, also known as TileMatrixHeight"
+    )
+
+    double cesium:west = -180 (
+        customData = {
+            string apiName = "west"
+        }
+        displayName = "West"
+        doc = "The longitude of the west boundary on globe in degrees, in the range [-180, 180]"
+    )
+
+    double cesium:east = 180 (
+        customData = {
+            string apiName = "east"
+        }
+        displayName = "East"
+        doc = "The longitude of the east boundary on globe in degrees, in the range [-180, 180]"
+    )
+
+    double cesium:south = -90 (
+        customData = {
+            string apiName = "south"
+        }
+        displayName = "South"
+        doc = "The longitude of the south boundary on globe in degrees, in the range [-90, 90]"
+    )
+
+    double cesium:north = 90 (
+        customData = {
+            string apiName = "north"
+        }
+        displayName = "North"
+        doc = "The longitude of the north boundary on globe in degrees, in the range [-90, 90]"
+    )
+
+    bool cesium:specifyZoomLevels = false (
+        customData = {
+            string apiName = "specifyZoomLevels"
+        }
+        displayName = "Specify Zoom Levels"
+        doc = "True to directly specify minum and maximum zoom levels available from the server, or false to automatically determine the minimum and maximum zoom levels from the server's tilemapresource.xml file."
+    )
+
+    int cesium:minimumZoomLevel = 0 (
+        customData = {
+            string apiName = "minimumZoomLevel"
+        }
+        displayName = "Minimum Zoom Level"
+        doc = "Minimum zoom level"
+    )
+
+    int cesium:maximumZoomLevel = 25 (
+        customData = {
+            string apiName = "maximumZoomLevel"
+        }
+        displayName = "Maximum Zoom Level"
+        doc = "Maximum zoom level"
+    )
+}
+
 class "CesiumGlobeAnchorSchemaAPI" (
     doc = """Adds Globe Anchoring information to a Prim for use with Cesium for Omniverse."""
     inherits = </APISchemaBase>

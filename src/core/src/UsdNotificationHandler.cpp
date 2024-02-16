@@ -14,6 +14,8 @@
 #include "cesium/omniverse/OmniRasterOverlay.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/OmniWebMapServiceRasterOverlay.h"
+#include "cesium/omniverse/OmniTileMapServiceRasterOverlay.h"
+#include "cesium/omniverse/OmniWebMapTileServiceRasterOverlay.h"
 #include "cesium/omniverse/UsdTokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
@@ -444,6 +446,74 @@ void processCesiumWebMapServiceRasterOverlayChanged(
     }
 }
 
+void processCesiumTileMapServiceRasterOverlayChanged(
+    const Context& context,
+    const pxr::SdfPath& tileMapServiceRasterOverlayPath,
+    const std::vector<pxr::TfToken>& properties) {
+
+    const auto pTileMapServiceRasterOverlay =
+        context.getAssetRegistry().getTileMapServiceRasterOverlay(tileMapServiceRasterOverlayPath);
+    if (!pTileMapServiceRasterOverlay) {
+        return;
+    }
+
+    // Process base class first
+    processCesiumRasterOverlayChanged(context, tileMapServiceRasterOverlayPath, properties);
+
+    auto reload = false;
+    auto updateBindings = false;
+
+    for (const auto& property : properties) {
+        if (property == pxr::CesiumTokens->cesiumUrl || property == pxr::CesiumTokens->cesiumMinimumZoomLevel ||
+            property == pxr::CesiumTokens->cesiumMaximumZoomLevel) {
+            reload = true;
+            updateBindings = true;
+        }
+    }
+
+    if (reload) {
+        pTileMapServiceRasterOverlay->reload();
+    }
+
+    if (updateBindings) {
+        updateRasterOverlayBindings(context, tileMapServiceRasterOverlayPath);
+    }
+}
+
+void processCesiumWebMapTileServiceRasterOverlayChanged(
+    const Context& context,
+    const pxr::SdfPath& webMapTileServiceRasterOverlayPath,
+    const std::vector<pxr::TfToken>& properties) {
+
+    const auto pWebMapTileServiceRasterOverlay =
+        context.getAssetRegistry().getWebMapServiceRasterOverlay(webMapTileServiceRasterOverlayPath);
+    if (!pWebMapTileServiceRasterOverlay) {
+        return;
+    }
+
+    // Process base class first
+    processCesiumRasterOverlayChanged(context, webMapTileServiceRasterOverlayPath, properties);
+
+    auto reload = false;
+    auto updateBindings = false;
+
+    // TODO: add needed checks
+    for (const auto& property : properties) {
+        if (property == pxr::CesiumTokens->cesiumUrl || property == pxr::CesiumTokens->cesiumLayer) {
+            reload = true;
+            updateBindings = true;
+        }
+    }
+
+    if (reload) {
+        pWebMapTileServiceRasterOverlay->reload();
+    }
+
+    if (updateBindings) {
+        updateRasterOverlayBindings(context, webMapTileServiceRasterOverlayPath);
+    }
+}
+
 void processCesiumGeoreferenceChanged(const Context& context, const std::vector<pxr::TfToken>& properties) {
 
     auto updateBindings = false;
@@ -605,6 +675,20 @@ void processCesiumWebMapServiceRasterOverlayRemoved(
     updateRasterOverlayBindings(context, webMapServiceRasterOverlayPath);
 }
 
+void processCesiumTileMapServiceRasterOverlayRemoved(
+    Context& context,
+    const pxr::SdfPath& tileMapServiceRasterOverlayPath) {
+    context.getAssetRegistry().removeTileMapServiceRasterOverlay(tileMapServiceRasterOverlayPath);
+    updateRasterOverlayBindings(context, tileMapServiceRasterOverlayPath);
+}
+
+void processCesiumWebMapTileServiceRasterOverlayRemoved(
+    Context& context,
+    const pxr::SdfPath& webMapTileServiceRasterOverlayPath) {
+    context.getAssetRegistry().removeWebMapServiceRasterOverlay(webMapTileServiceRasterOverlayPath);
+    updateRasterOverlayBindings(context, webMapTileServiceRasterOverlayPath);
+}
+
 void processCesiumGeoreferenceRemoved(Context& context, const pxr::SdfPath& georeferencePath) {
     context.getAssetRegistry().removeGeoreference(georeferencePath);
     updateGeoreferenceBindings(context);
@@ -683,6 +767,28 @@ void processCesiumWebMapServiceRasterOverlayAdded(
 
     context.getAssetRegistry().addWebMapServiceRasterOverlay(webMapServiceRasterOverlayPath);
     updateRasterOverlayBindings(context, webMapServiceRasterOverlayPath);
+}
+
+void processCesiumTileMapServiceRasterOverlayAdded(
+    Context& context,
+    const pxr::SdfPath& tileMapServiceRasterOverlayPath) {
+    if (context.getAssetRegistry().getTileMapServiceRasterOverlay(tileMapServiceRasterOverlayPath)) {
+        return;
+    }
+
+    context.getAssetRegistry().addTileMapServiceRasterOverlay(tileMapServiceRasterOverlayPath);
+    updateRasterOverlayBindings(context, tileMapServiceRasterOverlayPath);
+}
+
+void processCesiumWebMapTileServiceRasterOverlayAdded(
+    Context& context,
+    const pxr::SdfPath& webMapTileServiceRasterOverlayPath) {
+    if (context.getAssetRegistry().getWebMapTileServiceRasterOverlay(webMapTileServiceRasterOverlayPath)) {
+        return;
+    }
+
+    context.getAssetRegistry().addWebMapTileServiceRasterOverlay(webMapTileServiceRasterOverlayPath);
+    updateRasterOverlayBindings(context, webMapTileServiceRasterOverlayPath);
 }
 
 void processCesiumGeoreferenceAdded(Context& context, const pxr::SdfPath& georeferencePath) {
@@ -816,6 +922,14 @@ bool UsdNotificationHandler::processChangedPrim(const ChangedPrim& changedPrim) 
                     processCesiumWebMapServiceRasterOverlayChanged(
                         *_pContext, changedPrim.primPath, changedPrim.properties);
                     break;
+                case ChangedPrimType::CESIUM_TILE_MAP_SERVICE_RASTER_OVERLAY:
+                    processCesiumTileMapServiceRasterOverlayChanged(
+                        *_pContext, changedPrim.primPath, changedPrim.properties);
+                    break;
+                case ChangedPrimType::CESIUM_WEB_MAP_TILE_SERVICE_RASTER_OVERLAY:
+                    processCesiumWebMapTileServiceRasterOverlayChanged(
+                        *_pContext, changedPrim.primPath, changedPrim.properties);
+                    break;
                 case ChangedPrimType::CESIUM_GEOREFERENCE:
                     processCesiumGeoreferenceChanged(*_pContext, changedPrim.properties);
                     break;
@@ -851,6 +965,12 @@ bool UsdNotificationHandler::processChangedPrim(const ChangedPrim& changedPrim) 
                     break;
                 case ChangedPrimType::CESIUM_WEB_MAP_SERVICE_RASTER_OVERLAY:
                     processCesiumWebMapServiceRasterOverlayAdded(*_pContext, changedPrim.primPath);
+                    break;
+                case ChangedPrimType::CESIUM_TILE_MAP_SERVICE_RASTER_OVERLAY:
+                    processCesiumTileMapServiceRasterOverlayAdded(*_pContext, changedPrim.primPath);
+                    break;
+                case ChangedPrimType::CESIUM_WEB_MAP_TILE_SERVICE_RASTER_OVERLAY:
+                    processCesiumWebMapTileServiceRasterOverlayAdded(*_pContext, changedPrim.primPath);
                     break;
                 case ChangedPrimType::CESIUM_GEOREFERENCE:
                     processCesiumGeoreferenceAdded(*_pContext, changedPrim.primPath);
@@ -1068,6 +1188,10 @@ UsdNotificationHandler::ChangedPrimType UsdNotificationHandler::getTypeFromStage
         return ChangedPrimType::CESIUM_POLYGON_RASTER_OVERLAY;
     } else if (UsdUtil::isCesiumWebMapServiceRasterOverlay(_pContext->getUsdStage(), path)) {
         return ChangedPrimType::CESIUM_WEB_MAP_SERVICE_RASTER_OVERLAY;
+    } else if (UsdUtil::isCesiumTileMapServiceRasterOverlay(_pContext->getUsdStage(), path)) {
+        return ChangedPrimType::CESIUM_TILE_MAP_SERVICE_RASTER_OVERLAY;
+    } else if (UsdUtil::isCesiumWebMapTileServiceRasterOverlay(_pContext->getUsdStage(), path)) {
+        return ChangedPrimType::CESIUM_WEB_MAP_TILE_SERVICE_RASTER_OVERLAY;
     } else if (UsdUtil::isCesiumGeoreference(_pContext->getUsdStage(), path)) {
         return ChangedPrimType::CESIUM_GEOREFERENCE;
     } else if (UsdUtil::isCesiumIonServer(_pContext->getUsdStage(), path)) {
@@ -1099,6 +1223,10 @@ UsdNotificationHandler::getTypeFromAssetRegistry(const pxr::SdfPath& path) const
             return ChangedPrimType::CESIUM_POLYGON_RASTER_OVERLAY;
         case AssetType::WEB_MAP_SERVICE_RASTER_OVERLAY:
             return ChangedPrimType::CESIUM_WEB_MAP_SERVICE_RASTER_OVERLAY;
+        case AssetType::TILE_MAP_SERVICE_RASTER_OVERLAY:
+            return ChangedPrimType::CESIUM_TILE_MAP_SERVICE_RASTER_OVERLAY;
+        case AssetType::WEB_MAP_TILE_SERVICE_RASTER_OVERLAY:
+            return ChangedPrimType::CESIUM_WEB_MAP_TILE_SERVICE_RASTER_OVERLAY;
         case AssetType::GEOREFERENCE:
             return ChangedPrimType::CESIUM_GEOREFERENCE;
         case AssetType::GLOBE_ANCHOR:

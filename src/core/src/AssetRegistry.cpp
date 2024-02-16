@@ -11,6 +11,8 @@
 #include "cesium/omniverse/OmniPolygonRasterOverlay.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/OmniWebMapServiceRasterOverlay.h"
+#include "cesium/omniverse/OmniTileMapServiceRasterOverlay.h"
+#include "cesium/omniverse/OmniWebMapTileServiceRasterOverlay.h"
 #include "cesium/omniverse/UsdUtil.h"
 #include "cesium/omniverse/Viewport.h"
 
@@ -150,6 +152,54 @@ OmniWebMapServiceRasterOverlay* AssetRegistry::getWebMapServiceRasterOverlay(con
     for (const auto& pWebMapServiceRasterOverlay : _webMapServiceRasterOverlays) {
         if (pWebMapServiceRasterOverlay->getPath() == path) {
             return pWebMapServiceRasterOverlay.get();
+        }
+    }
+
+    return nullptr;
+}
+
+OmniTileMapServiceRasterOverlay& AssetRegistry::addTileMapServiceRasterOverlay(const pxr::SdfPath& path) {
+    return *_tileMapServiceRasterOverlays
+                .insert(
+                    _tileMapServiceRasterOverlays.end(),
+                    std::make_unique<OmniTileMapServiceRasterOverlay>(_pContext, path))
+                ->get();
+}
+
+void AssetRegistry::removeTileMapServiceRasterOverlay(const pxr::SdfPath& path) {
+    CppUtil::eraseIf(_tileMapServiceRasterOverlays, [&path](const auto& pTileMapServiceRasterOverlay) {
+        return pTileMapServiceRasterOverlay->getPath() == path;
+    });
+}
+
+OmniTileMapServiceRasterOverlay* AssetRegistry::getTileMapServiceRasterOverlay(const pxr::SdfPath& path) const {
+    for (const auto& pTileMapServiceRasterOverlay : _tileMapServiceRasterOverlays) {
+        if (pTileMapServiceRasterOverlay->getPath() == path) {
+            return pTileMapServiceRasterOverlay.get();
+        }
+    }
+
+    return nullptr;
+}
+
+OmniWebMapTileServiceRasterOverlay& AssetRegistry::addWebMapTileServiceRasterOverlay(const pxr::SdfPath& path) {
+    return *_webMapTileServiceRasterOverlays
+                .insert(
+                    _webMapTileServiceRasterOverlays.end(),
+                    std::make_unique<OmniWebMapTileServiceRasterOverlay>(_pContext, path))
+                ->get();
+}
+
+void AssetRegistry::removeWebMapTileServiceRasterOverlay(const pxr::SdfPath& path) {
+    CppUtil::eraseIf(_webMapTileServiceRasterOverlays, [&path](const auto& pWebMapTileServiceRasterOverlay) {
+        return pWebMapTileServiceRasterOverlay->getPath() == path;
+    });
+}
+
+OmniWebMapTileServiceRasterOverlay* AssetRegistry::getWebMapTileServiceRasterOverlay(const pxr::SdfPath& path) const {
+    for (const auto& pWebMapTileServiceRasterOverlay : _webMapTileServiceRasterOverlays) {
+        if (pWebMapTileServiceRasterOverlay->getPath() == path) {
+            return pWebMapTileServiceRasterOverlay.get();
         }
     }
 

@@ -129,7 +129,6 @@ void OmniIonRasterOverlay::reload() {
 
         if (error.type == CesiumRasterOverlays::RasterOverlayLoadType::CesiumIon &&
             (statusCode == 401 || statusCode == 404)) {
-            // TODO: this probably doesn't work without tileset info
             Broadcast::showTroubleshooter({}, 0, "", rasterOverlayIonAssetId, rasterOverlayName, error.message);
         }
 

@@ -19,6 +19,8 @@ class CesiumPolygonRasterOverlay;
 class CesiumSession;
 class CesiumTileset;
 class CesiumWebMapServiceRasterOverlay;
+class CesiumTileMapServiceRasterOverlay;
+class CesiumWebMapTileServiceRasterOverlay;
 class UsdGeomBasisCurves;
 class UsdGeomXformable;
 class UsdGeomXformOp;
@@ -122,6 +124,10 @@ pxr::CesiumPolygonRasterOverlay
 getCesiumPolygonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::CesiumWebMapServiceRasterOverlay
 getCesiumWebMapServiceRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
+pxr::CesiumTileMapServiceRasterOverlay
+getCesiumTileMapServiceRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
+pxr::CesiumWebMapTileServiceRasterOverlay
+getCesiumWebMapTileServiceRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::CesiumGeoreference getCesiumGeoreference(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::CesiumGlobeAnchorAPI getCesiumGlobeAnchor(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::CesiumIonServer getCesiumIonServer(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
@@ -137,6 +143,8 @@ bool isCesiumRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPat
 bool isCesiumIonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool isCesiumPolygonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool isCesiumWebMapServiceRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
+bool isCesiumTileMapServiceRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
+bool isCesiumWebMapTileServiceRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool isCesiumGeoreference(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool isCesiumIonServer(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool isCesiumCartographicPolygon(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
