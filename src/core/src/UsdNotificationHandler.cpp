@@ -396,7 +396,8 @@ void processCesiumPolygonRasterOverlayChanged(
 
     for (const auto& property : properties) {
         if (property == pxr::CesiumTokens->cesiumCartographicPolygonBinding ||
-            property == pxr::CesiumTokens->cesiumInvertSelection) {
+            property == pxr::CesiumTokens->cesiumInvertSelection ||
+            property == pxr::CesiumTokens->cesiumExcludeSelectedTiles) {
             reload = true;
             updateBindings = true;
         }

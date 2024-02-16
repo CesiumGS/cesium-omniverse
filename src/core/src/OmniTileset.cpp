@@ -17,6 +17,7 @@
 #include "cesium/omniverse/OmniGeoreference.h"
 #include "cesium/omniverse/OmniGlobeAnchor.h"
 #include "cesium/omniverse/OmniIonServer.h"
+#include "cesium/omniverse/OmniPolygonRasterOverlay.h"
 #include "cesium/omniverse/OmniRasterOverlay.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/TilesetStatistics.h"
@@ -552,6 +553,17 @@ void OmniTileset::reload() {
         };
 
     options.contentOptions.ktx2TranscodeTargets = GltfUtil::getKtx2TranscodeTargets();
+
+    const auto rasterOverlayPaths = getRasterOverlayPaths();
+    for (const auto& rasterOverlayPath : rasterOverlayPaths) {
+        const auto pPolygonRasterOverlay = _pContext->getAssetRegistry().getPolygonRasterOverlay(rasterOverlayPath);
+        if (pPolygonRasterOverlay) {
+            const auto pExcluder = pPolygonRasterOverlay->getExcluder();
+            if (pExcluder) {
+                options.excluders.push_back(pExcluder);
+            }
+        }
+    }
 
     _pViewUpdateResult = nullptr;
     _extentSet = false;

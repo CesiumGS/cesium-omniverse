@@ -147,6 +147,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumTileset
     const TfToken cesiumEnforceCulledScreenSpaceError;
+    /// \brief "cesium:excludeSelectedTiles"
+    /// 
+    /// CesiumPolygonRasterOverlay
+    const TfToken cesiumExcludeSelectedTiles;
     /// \brief "cesium:forbidHoles"
     /// 
     /// CesiumTileset

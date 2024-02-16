@@ -34,6 +34,13 @@ _CreateInvertSelectionAttr(CesiumPolygonRasterOverlay &self,
 }
         
 static UsdAttribute
+_CreateExcludeSelectedTilesAttr(CesiumPolygonRasterOverlay &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateExcludeSelectedTilesAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+}
+        
+static UsdAttribute
 _CreateCesiumOverlayRenderMethodAttr(CesiumPolygonRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateCesiumOverlayRenderMethodAttr(
@@ -86,6 +93,13 @@ void wrapCesiumPolygonRasterOverlay()
              &This::GetInvertSelectionAttr)
         .def("CreateInvertSelectionAttr",
              &_CreateInvertSelectionAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetExcludeSelectedTilesAttr",
+             &This::GetExcludeSelectedTilesAttr)
+        .def("CreateExcludeSelectedTilesAttr",
+             &_CreateExcludeSelectedTilesAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
