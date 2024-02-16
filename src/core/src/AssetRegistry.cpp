@@ -226,6 +226,16 @@ OmniRasterOverlay* AssetRegistry::getRasterOverlay(const pxr::SdfPath& path) con
         return pWebMapServiceRasterOverlay;
     }
 
+    const auto pTileMapServiceRasterOverlay = getTileMapServiceRasterOverlay(path);
+    if (pTileMapServiceRasterOverlay) {
+        return pTileMapServiceRasterOverlay;
+    }
+
+    const auto pWebMapTileServiceRasterOverlay = getWebMapTileServiceRasterOverlay(path);
+    if (pWebMapTileServiceRasterOverlay) {
+        return pWebMapTileServiceRasterOverlay;
+    }
+
     return nullptr;
 }
 

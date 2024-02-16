@@ -487,7 +487,7 @@ void processCesiumWebMapTileServiceRasterOverlayChanged(
     const std::vector<pxr::TfToken>& properties) {
 
     const auto pWebMapTileServiceRasterOverlay =
-        context.getAssetRegistry().getWebMapServiceRasterOverlay(webMapTileServiceRasterOverlayPath);
+        context.getAssetRegistry().getWebMapTileServiceRasterOverlay(webMapTileServiceRasterOverlayPath);
     if (!pWebMapTileServiceRasterOverlay) {
         return;
     }
@@ -498,11 +498,27 @@ void processCesiumWebMapTileServiceRasterOverlayChanged(
     auto reload = false;
     auto updateBindings = false;
 
-    // TODO: add needed checks
+    // TODO: UX for which properties need relading, updated bindings, etc
     for (const auto& property : properties) {
-        if (property == pxr::CesiumTokens->cesiumUrl || property == pxr::CesiumTokens->cesiumLayer) {
+        if (property == pxr::CesiumTokens->cesiumUrl || property == pxr::CesiumTokens->cesiumLayer ||
+            property == pxr::CesiumTokens->cesiumStyle || property == pxr::CesiumTokens->cesiumFormat ||
+            property == pxr::CesiumTokens->cesiumTileMatrixSetId ||
+            property == pxr::CesiumTokens->cesiumSpecifyTileMatrixSetLabels ||
+            property == pxr::CesiumTokens->cesiumTileMatrixSetLabelPrefix ||
+            property == pxr::CesiumTokens->cesiumTileMatrixSetLabels ||
+            property == pxr::CesiumTokens->cesiumUseWebMercatorProjection ||
+            property == pxr::CesiumTokens->cesiumSpecifyTilingScheme ||
+            property == pxr::CesiumTokens->cesiumRootTilesX || property == pxr::CesiumTokens->cesiumRootTilesY ||
+            property == pxr::CesiumTokens->cesiumWest || property == pxr::CesiumTokens->cesiumEast ||
+            property == pxr::CesiumTokens->cesiumSouth || property == pxr::CesiumTokens->cesiumNorth ||
+            property == pxr::CesiumTokens->cesiumSpecifyZoomLevels ||
+            property == pxr::CesiumTokens->cesiumMinimumZoomLevel ||
+            property == pxr::CesiumTokens->cesiumMaximumZoomLevel
+
+        ) {
             reload = true;
             updateBindings = true;
+
         }
     }
 
@@ -1006,6 +1022,12 @@ bool UsdNotificationHandler::processChangedPrim(const ChangedPrim& changedPrim) 
                     break;
                 case ChangedPrimType::CESIUM_WEB_MAP_SERVICE_RASTER_OVERLAY:
                     processCesiumWebMapServiceRasterOverlayRemoved(*_pContext, changedPrim.primPath);
+                    break;
+                case ChangedPrimType::CESIUM_TILE_MAP_SERVICE_RASTER_OVERLAY:
+                    processCesiumTileMapServiceRasterOverlayRemoved(*_pContext, changedPrim.primPath);
+                    break;
+                case ChangedPrimType::CESIUM_WEB_MAP_TILE_SERVICE_RASTER_OVERLAY:
+                    processCesiumWebMapTileServiceRasterOverlayRemoved(*_pContext, changedPrim.primPath);
                     break;
                 case ChangedPrimType::CESIUM_GEOREFERENCE:
                     processCesiumGeoreferenceRemoved(*_pContext, changedPrim.primPath);
