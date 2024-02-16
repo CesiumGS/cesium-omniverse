@@ -518,7 +518,6 @@ void processCesiumWebMapTileServiceRasterOverlayChanged(
         ) {
             reload = true;
             updateBindings = true;
-
         }
     }
 
