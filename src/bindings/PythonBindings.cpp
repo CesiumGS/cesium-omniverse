@@ -48,8 +48,8 @@ PYBIND11_MODULE(CesiumOmniversePythonBindings, m) {
         .def("on_startup", &ICesiumOmniverseInterface::onStartup)
         .def("on_shutdown", &ICesiumOmniverseInterface::onShutdown)
         .def("reload_tileset", &ICesiumOmniverseInterface::reloadTileset)
-        .def("on_update_frame", [](ICesiumOmniverseInterface& interface, const std::vector<ViewportPythonBinding>& viewports) {
-            return interface.onUpdateFrame(reinterpret_cast<const ViewportApi*>(viewports.data()), viewports.size());
+        .def("on_update_frame", [](ICesiumOmniverseInterface& interface, const std::vector<ViewportPythonBinding>& viewports, bool waitForLoadingTiles) {
+            return interface.onUpdateFrame(reinterpret_cast<const ViewportApi*>(viewports.data()), viewports.size(), waitForLoadingTiles);
         })
         .def("on_stage_change", &ICesiumOmniverseInterface::onUsdStageChanged)
         .def("connect_to_ion", &ICesiumOmniverseInterface::connectToIon)

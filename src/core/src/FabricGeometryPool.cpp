@@ -1,5 +1,6 @@
 #include "cesium/omniverse/FabricGeometryPool.h"
 
+#include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/FabricVertexAttributeDescriptor.h"
 #include "cesium/omniverse/GltfUtil.h"
 
@@ -28,7 +29,8 @@ int64_t FabricGeometryPool::getPoolId() const {
 }
 
 std::shared_ptr<FabricGeometry> FabricGeometryPool::createObject(uint64_t objectId) const {
-    const auto pathStr = fmt::format("/cesium_geometry_pool_{}_object_{}", _poolId, objectId);
+    const auto contextId = _pContext->getContextId();
+    const auto pathStr = fmt::format("/cesium_geometry_pool_{}_object_{}_context_{}", _poolId, objectId, contextId);
     const auto path = omni::fabric::Path(pathStr.c_str());
     return std::make_shared<FabricGeometry>(_pContext, path, _geometryDescriptor, _poolId);
 }

@@ -41,9 +41,9 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
         }
     }
 
-    void onUpdateFrame(const ViewportApi* viewports, uint64_t count) noexcept override {
+    void onUpdateFrame(const ViewportApi* viewports, uint64_t count, bool waitForLoadingTiles) noexcept override {
         const auto span = gsl::span<const Viewport>(reinterpret_cast<const Viewport*>(viewports), count);
-        _pContext->onUpdateFrame(span);
+        _pContext->onUpdateFrame(span, waitForLoadingTiles);
     }
 
     void onUsdStageChanged(long stageId) noexcept override {

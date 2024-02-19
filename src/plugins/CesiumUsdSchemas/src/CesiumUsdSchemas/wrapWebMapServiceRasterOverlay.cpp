@@ -1,4 +1,4 @@
-#include ".//rasterOverlay.h"
+#include ".//webMapServiceRasterOverlay.h"
 #include "pxr/usd/usd/schemaBase.h"
 
 #include "pxr/usd/sdf/primSpec.h"
@@ -27,71 +27,64 @@ WRAP_CUSTOM;
 
         
 static UsdAttribute
-_CreateShowCreditsOnScreenAttr(CesiumRasterOverlay &self,
+_CreateBaseUrlAttr(CesiumWebMapServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateShowCreditsOnScreenAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+    return self.CreateBaseUrlAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
-_CreateAlphaAttr(CesiumRasterOverlay &self,
+_CreateLayersAttr(CesiumWebMapServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateAlphaAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Float), writeSparsely);
+    return self.CreateLayersAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
-_CreateOverlayRenderMethodAttr(CesiumRasterOverlay &self,
+_CreateTileWidthAttr(CesiumWebMapServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateOverlayRenderMethodAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Token), writeSparsely);
-}
-        
-static UsdAttribute
-_CreateMaximumScreenSpaceErrorAttr(CesiumRasterOverlay &self,
-                                      object defaultVal, bool writeSparsely) {
-    return self.CreateMaximumScreenSpaceErrorAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Float), writeSparsely);
-}
-        
-static UsdAttribute
-_CreateMaximumTextureSizeAttr(CesiumRasterOverlay &self,
-                                      object defaultVal, bool writeSparsely) {
-    return self.CreateMaximumTextureSizeAttr(
+    return self.CreateTileWidthAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int), writeSparsely);
 }
         
 static UsdAttribute
-_CreateMaximumSimultaneousTileLoadsAttr(CesiumRasterOverlay &self,
+_CreateTileHeightAttr(CesiumWebMapServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateMaximumSimultaneousTileLoadsAttr(
+    return self.CreateTileHeightAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int), writeSparsely);
 }
         
 static UsdAttribute
-_CreateSubTileCacheBytesAttr(CesiumRasterOverlay &self,
+_CreateMinimumLevelAttr(CesiumWebMapServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateSubTileCacheBytesAttr(
+    return self.CreateMinimumLevelAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateMaximumLevelAttr(CesiumWebMapServiceRasterOverlay &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateMaximumLevelAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int), writeSparsely);
 }
 
 static std::string
-_Repr(const CesiumRasterOverlay &self)
+_Repr(const CesiumWebMapServiceRasterOverlay &self)
 {
     std::string primRepr = TfPyRepr(self.GetPrim());
     return TfStringPrintf(
-        "CesiumUsdSchemas.RasterOverlay(%s)",
+        "CesiumUsdSchemas.WebMapServiceRasterOverlay(%s)",
         primRepr.c_str());
 }
 
 } // anonymous namespace
 
-void wrapCesiumRasterOverlay()
+void wrapCesiumWebMapServiceRasterOverlay()
 {
-    typedef CesiumRasterOverlay This;
+    typedef CesiumWebMapServiceRasterOverlay This;
 
-    class_<This, bases<UsdTyped> >
-        cls("RasterOverlay");
+    class_<This, bases<CesiumRasterOverlay> >
+        cls("WebMapServiceRasterOverlay");
 
     cls
         .def(init<UsdPrim>(arg("prim")))
@@ -100,6 +93,9 @@ void wrapCesiumRasterOverlay()
 
         .def("Get", &This::Get, (arg("stage"), arg("path")))
         .staticmethod("Get")
+
+        .def("Define", &This::Define, (arg("stage"), arg("path")))
+        .staticmethod("Define")
 
         .def("GetSchemaAttributeNames",
              &This::GetSchemaAttributeNames,
@@ -114,52 +110,45 @@ void wrapCesiumRasterOverlay()
         .def(!self)
 
         
-        .def("GetShowCreditsOnScreenAttr",
-             &This::GetShowCreditsOnScreenAttr)
-        .def("CreateShowCreditsOnScreenAttr",
-             &_CreateShowCreditsOnScreenAttr,
+        .def("GetBaseUrlAttr",
+             &This::GetBaseUrlAttr)
+        .def("CreateBaseUrlAttr",
+             &_CreateBaseUrlAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetAlphaAttr",
-             &This::GetAlphaAttr)
-        .def("CreateAlphaAttr",
-             &_CreateAlphaAttr,
+        .def("GetLayersAttr",
+             &This::GetLayersAttr)
+        .def("CreateLayersAttr",
+             &_CreateLayersAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetOverlayRenderMethodAttr",
-             &This::GetOverlayRenderMethodAttr)
-        .def("CreateOverlayRenderMethodAttr",
-             &_CreateOverlayRenderMethodAttr,
+        .def("GetTileWidthAttr",
+             &This::GetTileWidthAttr)
+        .def("CreateTileWidthAttr",
+             &_CreateTileWidthAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetMaximumScreenSpaceErrorAttr",
-             &This::GetMaximumScreenSpaceErrorAttr)
-        .def("CreateMaximumScreenSpaceErrorAttr",
-             &_CreateMaximumScreenSpaceErrorAttr,
+        .def("GetTileHeightAttr",
+             &This::GetTileHeightAttr)
+        .def("CreateTileHeightAttr",
+             &_CreateTileHeightAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetMaximumTextureSizeAttr",
-             &This::GetMaximumTextureSizeAttr)
-        .def("CreateMaximumTextureSizeAttr",
-             &_CreateMaximumTextureSizeAttr,
+        .def("GetMinimumLevelAttr",
+             &This::GetMinimumLevelAttr)
+        .def("CreateMinimumLevelAttr",
+             &_CreateMinimumLevelAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetMaximumSimultaneousTileLoadsAttr",
-             &This::GetMaximumSimultaneousTileLoadsAttr)
-        .def("CreateMaximumSimultaneousTileLoadsAttr",
-             &_CreateMaximumSimultaneousTileLoadsAttr,
-             (arg("defaultValue")=object(),
-              arg("writeSparsely")=false))
-        
-        .def("GetSubTileCacheBytesAttr",
-             &This::GetSubTileCacheBytesAttr)
-        .def("CreateSubTileCacheBytesAttr",
-             &_CreateSubTileCacheBytesAttr,
+        .def("GetMaximumLevelAttr",
+             &This::GetMaximumLevelAttr)
+        .def("CreateMaximumLevelAttr",
+             &_CreateMaximumLevelAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 

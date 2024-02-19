@@ -38,6 +38,9 @@ std::vector<CesiumGeospatial::Cartographic> OmniCartographicPolygon::getCartogra
     }
 
     const auto cesiumCartographicPolygon = UsdUtil::getCesiumCartographicPolygon(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumCartographicPolygon)) {
+        return {};
+    }
 
     pxr::VtArray<pxr::GfVec3f> points;
     cesiumCartographicPolygon.GetPointsAttr().Get(&points);

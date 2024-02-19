@@ -113,9 +113,10 @@ public:
     ///
     /// | ||
     /// | -- | -- |
-    /// | Declaration | `bool cesium:showCreditsOnScreen = 0` |
+    /// | Declaration | `uniform bool cesium:showCreditsOnScreen = 0` |
     /// | C++ Type | bool |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Bool |
+    /// | \ref SdfVariability "Variability" | SdfVariabilityUniform |
     CESIUMUSDSCHEMAS_API
     UsdAttribute GetShowCreditsOnScreenAttr() const;
 
@@ -135,9 +136,10 @@ public:
     ///
     /// | ||
     /// | -- | -- |
-    /// | Declaration | `float cesium:alpha = 1` |
+    /// | Declaration | `uniform float cesium:alpha = 1` |
     /// | C++ Type | float |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Float |
+    /// | \ref SdfVariability "Variability" | SdfVariabilityUniform |
     CESIUMUSDSCHEMAS_API
     UsdAttribute GetAlphaAttr() const;
 
@@ -172,6 +174,98 @@ public:
     /// the default for \p writeSparsely is \c false.
     CESIUMUSDSCHEMAS_API
     UsdAttribute CreateOverlayRenderMethodAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
+    // MAXIMUMSCREENSPACEERROR 
+    // --------------------------------------------------------------------- //
+    /// The maximum number of pixels of error when rendering this overlay. This is used to select an appropriate level-of-detail. When this property has its default value, 2.0, it means that raster overlay images will be sized so that, when zoomed in closest, a single pixel in the raster overlay maps to approximately 2x2 pixels on the screen.
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `uniform float cesium:maximumScreenSpaceError = 2` |
+    /// | C++ Type | float |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Float |
+    /// | \ref SdfVariability "Variability" | SdfVariabilityUniform |
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute GetMaximumScreenSpaceErrorAttr() const;
+
+    /// See GetMaximumScreenSpaceErrorAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute CreateMaximumScreenSpaceErrorAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
+    // MAXIMUMTEXTURESIZE 
+    // --------------------------------------------------------------------- //
+    /// The maximum texel size of raster overlay textures, in either direction. Images created by this overlay will be no more than this number of texels in either direction. This may result in reduced raster overlay detail in some cases.
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `uniform int cesium:maximumTextureSize = 2048` |
+    /// | C++ Type | int |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Int |
+    /// | \ref SdfVariability "Variability" | SdfVariabilityUniform |
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute GetMaximumTextureSizeAttr() const;
+
+    /// See GetMaximumTextureSizeAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute CreateMaximumTextureSizeAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
+    // MAXIMUMSIMULTANEOUSTILELOADS 
+    // --------------------------------------------------------------------- //
+    /// The maximum number of overlay tiles that may simultaneously be in the process of loading.
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `uniform int cesium:maximumSimultaneousTileLoads = 20` |
+    /// | C++ Type | int |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Int |
+    /// | \ref SdfVariability "Variability" | SdfVariabilityUniform |
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute GetMaximumSimultaneousTileLoadsAttr() const;
+
+    /// See GetMaximumSimultaneousTileLoadsAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute CreateMaximumSimultaneousTileLoadsAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
+    // SUBTILECACHEBYTES 
+    // --------------------------------------------------------------------- //
+    /// The maximum number of bytes to use to cache sub-tiles in memory. This is used by provider types, that have an underlying tiling scheme that may not align with the tiling scheme of the geometry tiles on which the raster overlay tiles are draped. Because a single sub-tile may overlap multiple geometry tiles, it is useful to cache loaded sub-tiles in memory in case they're needed again soon. This property controls the maximum size of that cache.
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `uniform int cesium:subTileCacheBytes = 16777216` |
+    /// | C++ Type | int |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Int |
+    /// | \ref SdfVariability "Variability" | SdfVariabilityUniform |
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute GetSubTileCacheBytesAttr() const;
+
+    /// See GetSubTileCacheBytesAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute CreateSubTileCacheBytesAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
     // ===================================================================== //

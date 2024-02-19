@@ -73,7 +73,7 @@ CesiumRasterOverlay::CreateShowCreditsOnScreenAttr(VtValue const &defaultValue, 
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumShowCreditsOnScreen,
                        SdfValueTypeNames->Bool,
                        /* custom = */ false,
-                       SdfVariabilityVarying,
+                       SdfVariabilityUniform,
                        defaultValue,
                        writeSparsely);
 }
@@ -90,7 +90,7 @@ CesiumRasterOverlay::CreateAlphaAttr(VtValue const &defaultValue, bool writeSpar
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumAlpha,
                        SdfValueTypeNames->Float,
                        /* custom = */ false,
-                       SdfVariabilityVarying,
+                       SdfVariabilityUniform,
                        defaultValue,
                        writeSparsely);
 }
@@ -106,6 +106,74 @@ CesiumRasterOverlay::CreateOverlayRenderMethodAttr(VtValue const &defaultValue, 
 {
     return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumOverlayRenderMethod,
                        SdfValueTypeNames->Token,
+                       /* custom = */ false,
+                       SdfVariabilityUniform,
+                       defaultValue,
+                       writeSparsely);
+}
+
+UsdAttribute
+CesiumRasterOverlay::GetMaximumScreenSpaceErrorAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumMaximumScreenSpaceError);
+}
+
+UsdAttribute
+CesiumRasterOverlay::CreateMaximumScreenSpaceErrorAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumMaximumScreenSpaceError,
+                       SdfValueTypeNames->Float,
+                       /* custom = */ false,
+                       SdfVariabilityUniform,
+                       defaultValue,
+                       writeSparsely);
+}
+
+UsdAttribute
+CesiumRasterOverlay::GetMaximumTextureSizeAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumMaximumTextureSize);
+}
+
+UsdAttribute
+CesiumRasterOverlay::CreateMaximumTextureSizeAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumMaximumTextureSize,
+                       SdfValueTypeNames->Int,
+                       /* custom = */ false,
+                       SdfVariabilityUniform,
+                       defaultValue,
+                       writeSparsely);
+}
+
+UsdAttribute
+CesiumRasterOverlay::GetMaximumSimultaneousTileLoadsAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumMaximumSimultaneousTileLoads);
+}
+
+UsdAttribute
+CesiumRasterOverlay::CreateMaximumSimultaneousTileLoadsAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumMaximumSimultaneousTileLoads,
+                       SdfValueTypeNames->Int,
+                       /* custom = */ false,
+                       SdfVariabilityUniform,
+                       defaultValue,
+                       writeSparsely);
+}
+
+UsdAttribute
+CesiumRasterOverlay::GetSubTileCacheBytesAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumSubTileCacheBytes);
+}
+
+UsdAttribute
+CesiumRasterOverlay::CreateSubTileCacheBytesAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumSubTileCacheBytes,
+                       SdfValueTypeNames->Int,
                        /* custom = */ false,
                        SdfVariabilityUniform,
                        defaultValue,
@@ -132,6 +200,10 @@ CesiumRasterOverlay::GetSchemaAttributeNames(bool includeInherited)
         CesiumTokens->cesiumShowCreditsOnScreen,
         CesiumTokens->cesiumAlpha,
         CesiumTokens->cesiumOverlayRenderMethod,
+        CesiumTokens->cesiumMaximumScreenSpaceError,
+        CesiumTokens->cesiumMaximumTextureSize,
+        CesiumTokens->cesiumMaximumSimultaneousTileLoads,
+        CesiumTokens->cesiumSubTileCacheBytes,
     };
     static TfTokenVector allNames =
         _ConcatenateAttributeNames(

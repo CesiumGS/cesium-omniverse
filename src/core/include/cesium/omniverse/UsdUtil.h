@@ -18,6 +18,7 @@ class CesiumIonServer;
 class CesiumPolygonRasterOverlay;
 class CesiumSession;
 class CesiumTileset;
+class CesiumWebMapServiceRasterOverlay;
 class UsdGeomBasisCurves;
 class UsdGeomXformable;
 class UsdGeomXformOp;
@@ -90,6 +91,8 @@ Cesium3DTilesSelection::ViewState computeViewState(
     const Viewport& viewport);
 
 bool primExists(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
+bool isSchemaValid(const pxr::UsdSchemaBase& schema);
+
 bool isPrimVisible(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 const std::string& getName(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 
@@ -117,6 +120,8 @@ pxr::CesiumRasterOverlay getCesiumRasterOverlay(const pxr::UsdStageWeakPtr& pSta
 pxr::CesiumIonRasterOverlay getCesiumIonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::CesiumPolygonRasterOverlay
 getCesiumPolygonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
+pxr::CesiumWebMapServiceRasterOverlay
+getCesiumWebMapServiceRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::CesiumGeoreference getCesiumGeoreference(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::CesiumGlobeAnchorAPI getCesiumGlobeAnchor(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::CesiumIonServer getCesiumIonServer(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
@@ -131,6 +136,7 @@ bool isCesiumTileset(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& pat
 bool isCesiumRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool isCesiumIonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool isCesiumPolygonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
+bool isCesiumWebMapServiceRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool isCesiumGeoreference(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool isCesiumIonServer(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool isCesiumCartographicPolygon(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
