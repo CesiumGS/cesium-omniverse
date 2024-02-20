@@ -5,7 +5,6 @@
 #include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricStatistics.h"
 #include "cesium/omniverse/FabricUtil.h"
-#include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/Logger.h"
 #include "cesium/omniverse/OmniData.h"
 #include "cesium/omniverse/OmniIonRasterOverlay.h"
@@ -13,6 +12,7 @@
 #include "cesium/omniverse/RenderStatistics.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/TilesetStatistics.h"
+#include "cesium/omniverse/UrlAssetAccessor.h"
 #include "cesium/omniverse/UsdNotificationHandler.h"
 #include "cesium/omniverse/UsdUtil.h"
 
@@ -40,11 +40,10 @@ uint64_t getSecondsSinceEpoch() {
 
 Context::Context(const std::filesystem::path& cesiumExtensionLocation)
     : _cesiumExtensionLocation(cesiumExtensionLocation.lexically_normal())
-    , _certificatePath(_cesiumExtensionLocation / "certs" / "cacert.pem")
     , _cesiumMdlPathToken(pxr::TfToken((_cesiumExtensionLocation / "mdl" / "cesium.mdl").generic_string()))
     , _pTaskProcessor(std::make_shared<TaskProcessor>())
     , _pAsyncSystem(std::make_unique<CesiumAsync::AsyncSystem>(_pTaskProcessor))
-    , _pHttpAssetAccessor(std::make_shared<HttpAssetAccessor>(this, _certificatePath))
+    , _pAssetAccessor(std::make_shared<UrlAssetAccessor>())
     , _pCreditSystem(std::make_shared<CesiumUtility::CreditSystem>())
     , _pLogger(std::make_shared<Logger>())
     , _pAssetRegistry(std::make_unique<AssetRegistry>(this))
@@ -73,10 +72,6 @@ const std::filesystem::path& Context::getCesiumExtensionLocation() const {
     return _cesiumExtensionLocation;
 }
 
-const std::filesystem::path& Context::getCertificatePath() const {
-    return _certificatePath;
-}
-
 const pxr::TfToken& Context::getCesiumMdlPathToken() const {
     return _cesiumMdlPathToken;
 }
@@ -89,8 +84,8 @@ const CesiumAsync::AsyncSystem& Context::getAsyncSystem() const {
     return *_pAsyncSystem.get();
 }
 
-std::shared_ptr<HttpAssetAccessor> Context::getHttpAssetAccessor() const {
-    return _pHttpAssetAccessor;
+std::shared_ptr<CesiumAsync::IAssetAccessor> Context::getAssetAccessor() const {
+    return _pAssetAccessor;
 }
 
 std::shared_ptr<CesiumUtility::CreditSystem> Context::getCreditSystem() const {

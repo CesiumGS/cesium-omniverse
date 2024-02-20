@@ -24,5 +24,14 @@
         "version": "0.6.1",
         "url": "https://github.com/KhronosGroup/glTF-Asset-Generator",
         "notes": "A selection of test models from this generator are used for testing."
+    },
+    {
+        "name": "vsgCs",
+        "license": [
+            "MIT"
+        ],
+        "version": "0.4",
+        "url": "https://github.com/timoore/vsgCs",
+        "notes": "UrlAssetAccessor.{cpp,h} are taken from vsgCs."
     }
 ]

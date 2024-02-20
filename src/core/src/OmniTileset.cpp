@@ -11,7 +11,6 @@
 #include "cesium/omniverse/FabricRenderResources.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GltfUtil.h"
-#include "cesium/omniverse/HttpAssetAccessor.h"
 #include "cesium/omniverse/Logger.h"
 #include "cesium/omniverse/OmniCartographicPolygon.h"
 #include "cesium/omniverse/OmniGeoreference.h"
@@ -509,7 +508,7 @@ void OmniTileset::reload() {
 
     _pRenderResourcesPreparer = std::make_shared<FabricPrepareRenderResources>(_pContext, this);
     const auto externals = Cesium3DTilesSelection::TilesetExternals{
-        _pContext->getHttpAssetAccessor(),
+        _pContext->getAssetAccessor(),
         _pRenderResourcesPreparer,
         _pContext->getAsyncSystem(),
         _pContext->getCreditSystem(),
