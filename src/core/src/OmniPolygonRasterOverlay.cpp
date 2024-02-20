@@ -45,6 +45,17 @@ bool OmniPolygonRasterOverlay::getInvertSelection() const {
     return invertSelection;
 }
 
+bool OmniPolygonRasterOverlay::getExcludeSelectedTiles() const {
+    auto cesiumPolygonRasterOverlay = UsdUtil::getCesiumPolygonRasterOverlay(_pContext->getUsdStage(), _path);
+    bool val;
+    cesiumPolygonRasterOverlay.GetExcludeSelectedTilesAttr().Get(&val);
+    return val;
+}
+
+std::shared_ptr<Cesium3DTilesSelection::RasterizedPolygonsTileExcluder> OmniPolygonRasterOverlay::getExcluder() {
+    return _pExcluder;
+}
+
 void OmniPolygonRasterOverlay::reload() {
     const auto rasterOverlayName = UsdUtil::getName(_pContext->getUsdStage(), _path);
 
@@ -109,6 +120,11 @@ void OmniPolygonRasterOverlay::reload() {
 
     _pPolygonRasterOverlay = new CesiumRasterOverlays::RasterizedPolygonsOverlay(
         rasterOverlayName, polygons, getInvertSelection(), *pEllipsoid, projection, options);
+
+    if (getExcludeSelectedTiles()) {
+        auto pPolygons = _pPolygonRasterOverlay.get();
+        _pExcluder = std::make_shared<Cesium3DTilesSelection::RasterizedPolygonsTileExcluder>(pPolygons);
+    }
 }
 
 } // namespace cesium::omniverse

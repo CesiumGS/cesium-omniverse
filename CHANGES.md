@@ -8,12 +8,14 @@
 * Fixed crash when updating tilesets shader inputs.
 * Fixed crash when setting certain `/Cesium` debug options at runtime.
 * Fixed crash when disabling and re-enabling the extension.
+* Added ability to bypass downloading of tiles clipped by a cartographic polygon raster overlay.
 * Fixed a bug where save stage dialog would appear when reloading Fabric stage at startup.
 * Fixed crash when removing USD prims in certain order.
 * Fixed issue where Cesium ion session would not resume on reload.
 * The movie capture tool now waits for tilesets to complete loading before it captures a frame.
 * Added support for WMS raster overlays.
 * Added raster overlay options: `maximumScreenSpaceError`, `maximumTextureSize`, `maximumSimultaneousTileLoads`, `subTileCacheBytes`.
+* Changed to use UrlAssetAccessor from vsgCs, which does a better job of managing libcurl handles than the existing HttpAssetAccessor.
 
 ### v0.17.0 - 2024-02-01
 

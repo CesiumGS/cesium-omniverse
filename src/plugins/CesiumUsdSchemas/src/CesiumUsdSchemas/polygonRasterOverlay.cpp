@@ -98,6 +98,23 @@ CesiumPolygonRasterOverlay::CreateInvertSelectionAttr(VtValue const &defaultValu
 }
 
 UsdAttribute
+CesiumPolygonRasterOverlay::GetExcludeSelectedTilesAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumExcludeSelectedTiles);
+}
+
+UsdAttribute
+CesiumPolygonRasterOverlay::CreateExcludeSelectedTilesAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumExcludeSelectedTiles,
+                       SdfValueTypeNames->Bool,
+                       /* custom = */ false,
+                       SdfVariabilityVarying,
+                       defaultValue,
+                       writeSparsely);
+}
+
+UsdAttribute
 CesiumPolygonRasterOverlay::GetCesiumOverlayRenderMethodAttr() const
 {
     return GetPrim().GetAttribute(CesiumTokens->cesiumOverlayRenderMethod);
@@ -145,6 +162,7 @@ CesiumPolygonRasterOverlay::GetSchemaAttributeNames(bool includeInherited)
 {
     static TfTokenVector localNames = {
         CesiumTokens->cesiumInvertSelection,
+        CesiumTokens->cesiumExcludeSelectedTiles,
         CesiumTokens->cesiumOverlayRenderMethod,
     };
     static TfTokenVector allNames =

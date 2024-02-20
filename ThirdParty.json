@@ -75,6 +75,15 @@
         "url": "https://github.com/nothings/stb"
     },
     {
+        "name": "vsgCs",
+        "license": [
+            "MIT"
+        ],
+        "version": "0.4",
+        "url": "https://github.com/timoore/vsgCs",
+        "notes": "UrlAssetAccessor.{cpp,h} are taken from vsgCs."
+    },
+    {
         "name": "yaml-cpp",
         "license": [
             "MIT"
