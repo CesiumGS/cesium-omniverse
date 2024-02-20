@@ -2,6 +2,7 @@
 
 #include "cesium/omniverse/OmniRasterOverlay.h"
 
+#include <Cesium3DTilesSelection/RasterizedPolygonsTileExcluder.h>
 #include <CesiumRasterOverlays/RasterizedPolygonsOverlay.h>
 #include <CesiumUtility/IntrusivePointer.h>
 
@@ -19,9 +20,12 @@ class OmniPolygonRasterOverlay final : public OmniRasterOverlay {
     [[nodiscard]] std::vector<pxr::SdfPath> getCartographicPolygonPaths() const;
     [[nodiscard]] CesiumRasterOverlays::RasterOverlay* getRasterOverlay() const override;
     [[nodiscard]] bool getInvertSelection() const;
+    [[nodiscard]] bool getExcludeSelectedTiles() const;
+    [[nodiscard]] std::shared_ptr<Cesium3DTilesSelection::RasterizedPolygonsTileExcluder> getExcluder();
     void reload() override;
 
   private:
     CesiumUtility::IntrusivePointer<CesiumRasterOverlays::RasterizedPolygonsOverlay> _pPolygonRasterOverlay;
+    std::shared_ptr<Cesium3DTilesSelection::RasterizedPolygonsTileExcluder> _pExcluder;
 };
 } // namespace cesium::omniverse
