@@ -283,11 +283,11 @@ public:
     // --------------------------------------------------------------------- //
     // TILEMATRIXSETLABELS 
     // --------------------------------------------------------------------- //
-    /// Tile Matrix Set Labels.
+    /// Comma-separated tile matrix set labels
     ///
     /// | ||
     /// | -- | -- |
-    /// | Declaration | `string cesium:tileMatrixSetLabels = ""` |
+    /// | Declaration | `string cesium:tileMatrixSetLabels` |
     /// | C++ Type | std::string |
     /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->String |
     CESIUMUSDSCHEMAS_API

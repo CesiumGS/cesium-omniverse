@@ -290,12 +290,9 @@ void OmniWebMapTileServiceRasterOverlay::reload() {
         wmtsOptions.format = format;
     }
 
-    // TODO: push this check to UI
-    const auto minimumLevel = getMinimumZoomLevel();
-    const auto maximumLevel = getMaximumZoomLevel();
-    if (maximumLevel > minimumLevel && getSpecifyZoomLevels()) {
-        wmtsOptions.minimumLevel = minimumLevel;
-        wmtsOptions.maximumLevel = maximumLevel;
+    if (getSpecifyZoomLevels()) {
+        wmtsOptions.minimumLevel = getMinimumZoomLevel();
+        wmtsOptions.maximumLevel = getMaximumZoomLevel();
     }
 
     CesiumGeospatial::Projection projection;

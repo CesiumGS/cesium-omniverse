@@ -498,7 +498,6 @@ void processCesiumWebMapTileServiceRasterOverlayChanged(
     auto reload = false;
     auto updateBindings = false;
 
-    // TODO: UX for which properties need relading, updated bindings, etc
     for (const auto& property : properties) {
         if (property == pxr::CesiumTokens->cesiumUrl || property == pxr::CesiumTokens->cesiumLayer ||
             property == pxr::CesiumTokens->cesiumStyle || property == pxr::CesiumTokens->cesiumFormat ||
@@ -513,9 +512,7 @@ void processCesiumWebMapTileServiceRasterOverlayChanged(
             property == pxr::CesiumTokens->cesiumSouth || property == pxr::CesiumTokens->cesiumNorth ||
             property == pxr::CesiumTokens->cesiumSpecifyZoomLevels ||
             property == pxr::CesiumTokens->cesiumMinimumZoomLevel ||
-            property == pxr::CesiumTokens->cesiumMaximumZoomLevel
-
-        ) {
+            property == pxr::CesiumTokens->cesiumMaximumZoomLevel) {
             reload = true;
             updateBindings = true;
         }

@@ -696,12 +696,12 @@ class CesiumWebMapTileServiceRasterOverlayPrim "CesiumWebMapTileServiceRasterOve
         doc = 'Prefix for tile matrix set labels. For instance, setting "EPSG:4326:" as prefix generates label list ["EPSG:4326:0", "EPSG:4326:1", "EPSG:4326:2", ...]'
     )
 
-    string cesium:tileMatrixSetLabels = "" (
+    string cesium:tileMatrixSetLabels (
         customData = {
             string apiName = "tileMatrixSetLabels"
         }
         displayName = "Tile Matrix Set Labels"
-        doc = "Tile Matrix Set Labels."
+        doc = "Comma-separated tile matrix set labels"
     )
 
     bool cesium:useWebMercatorProjection = true (
