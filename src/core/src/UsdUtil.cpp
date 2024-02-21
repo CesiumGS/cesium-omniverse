@@ -26,8 +26,10 @@
 #include <CesiumUsdSchemas/ionServer.h>
 #include <CesiumUsdSchemas/polygonRasterOverlay.h>
 #include <CesiumUsdSchemas/session.h>
+#include <CesiumUsdSchemas/tileMapServiceRasterOverlay.h>
 #include <CesiumUsdSchemas/tileset.h>
 #include <CesiumUsdSchemas/webMapServiceRasterOverlay.h>
+#include <CesiumUsdSchemas/webMapTileServiceRasterOverlay.h>
 #include <glm/gtc/matrix_access.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -372,6 +374,16 @@ getCesiumWebMapServiceRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const px
     return pxr::CesiumWebMapServiceRasterOverlay::Get(pStage, path);
 }
 
+pxr::CesiumTileMapServiceRasterOverlay
+getCesiumTileMapServiceRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
+    return pxr::CesiumTileMapServiceRasterOverlay::Get(pStage, path);
+}
+
+pxr::CesiumWebMapTileServiceRasterOverlay
+getCesiumWebMapTileServiceRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
+    return pxr::CesiumWebMapTileServiceRasterOverlay::Get(pStage, path);
+}
+
 pxr::CesiumGeoreference getCesiumGeoreference(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
     return pxr::CesiumGeoreference::Get(pStage, path);
 }
@@ -469,6 +481,24 @@ bool isCesiumWebMapServiceRasterOverlay(const pxr::UsdStageWeakPtr& pStage, cons
     }
 
     return prim.IsA<pxr::CesiumWebMapServiceRasterOverlay>();
+}
+
+bool isCesiumTileMapServiceRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
+    const auto prim = pStage->GetPrimAtPath(path);
+    if (!prim.IsValid()) {
+        return false;
+    }
+
+    return prim.IsA<pxr::CesiumTileMapServiceRasterOverlay>();
+}
+
+bool isCesiumWebMapTileServiceRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
+    const auto prim = pStage->GetPrimAtPath(path);
+    if (!prim.IsValid()) {
+        return false;
+    }
+
+    return prim.IsA<pxr::CesiumWebMapTileServiceRasterOverlay>();
 }
 
 bool isCesiumGeoreference(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {

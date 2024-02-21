@@ -127,6 +127,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumIonServer
     const TfToken cesiumDisplayName;
+    /// \brief "cesium:east"
+    /// 
+    /// CesiumWebMapTileServiceRasterOverlay
+    const TfToken cesiumEast;
     /// \brief "cesium:ecefToUsdTransform"
     /// 
     /// CesiumSession
@@ -151,6 +155,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumTileset
     const TfToken cesiumForbidHoles;
+    /// \brief "cesium:format"
+    /// 
+    /// CesiumWebMapTileServiceRasterOverlay
+    const TfToken cesiumFormat;
     /// \brief "cesium:georeferenceBinding"
     /// 
     /// CesiumTileset
@@ -195,6 +203,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumIonServer
     const TfToken cesiumIonServerUrl;
+    /// \brief "cesium:layer"
+    /// 
+    /// CesiumWebMapTileServiceRasterOverlay
+    const TfToken cesiumLayer;
     /// \brief "cesium:layers"
     /// 
     /// CesiumWebMapServiceRasterOverlay
@@ -227,10 +239,22 @@ struct CesiumTokensType {
     /// 
     /// CesiumRasterOverlay
     const TfToken cesiumMaximumTextureSize;
+    /// \brief "cesium:maximumZoomLevel"
+    /// 
+    /// CesiumWebMapTileServiceRasterOverlay, CesiumTileMapServiceRasterOverlay
+    const TfToken cesiumMaximumZoomLevel;
     /// \brief "cesium:minimumLevel"
     /// 
     /// CesiumWebMapServiceRasterOverlay
     const TfToken cesiumMinimumLevel;
+    /// \brief "cesium:minimumZoomLevel"
+    /// 
+    /// CesiumWebMapTileServiceRasterOverlay, CesiumTileMapServiceRasterOverlay
+    const TfToken cesiumMinimumZoomLevel;
+    /// \brief "cesium:north"
+    /// 
+    /// CesiumWebMapTileServiceRasterOverlay
+    const TfToken cesiumNorth;
     /// \brief "cesium:overlayRenderMethod"
     /// 
     /// CesiumPolygonRasterOverlay, CesiumRasterOverlay
@@ -255,6 +279,14 @@ struct CesiumTokensType {
     /// 
     /// CesiumTileset
     const TfToken cesiumRasterOverlayBinding;
+    /// \brief "cesium:rootTilesX"
+    /// 
+    /// CesiumWebMapTileServiceRasterOverlay
+    const TfToken cesiumRootTilesX;
+    /// \brief "cesium:rootTilesY"
+    /// 
+    /// CesiumWebMapTileServiceRasterOverlay
+    const TfToken cesiumRootTilesY;
     /// \brief "cesium:selectedIonServer"
     /// 
     /// CesiumData
@@ -271,6 +303,26 @@ struct CesiumTokensType {
     /// 
     /// CesiumTileset
     const TfToken cesiumSourceType;
+    /// \brief "cesium:south"
+    /// 
+    /// CesiumWebMapTileServiceRasterOverlay
+    const TfToken cesiumSouth;
+    /// \brief "cesium:specifyTileMatrixSetLabels"
+    /// 
+    /// CesiumWebMapTileServiceRasterOverlay
+    const TfToken cesiumSpecifyTileMatrixSetLabels;
+    /// \brief "cesium:specifyTilingScheme"
+    /// 
+    /// CesiumWebMapTileServiceRasterOverlay
+    const TfToken cesiumSpecifyTilingScheme;
+    /// \brief "cesium:specifyZoomLevels"
+    /// 
+    /// CesiumWebMapTileServiceRasterOverlay, CesiumTileMapServiceRasterOverlay
+    const TfToken cesiumSpecifyZoomLevels;
+    /// \brief "cesium:style"
+    /// 
+    /// CesiumWebMapTileServiceRasterOverlay
+    const TfToken cesiumStyle;
     /// \brief "cesium:subTileCacheBytes"
     /// 
     /// CesiumRasterOverlay
@@ -283,14 +335,34 @@ struct CesiumTokensType {
     /// 
     /// CesiumWebMapServiceRasterOverlay
     const TfToken cesiumTileHeight;
+    /// \brief "cesium:tileMatrixSetId"
+    /// 
+    /// CesiumWebMapTileServiceRasterOverlay
+    const TfToken cesiumTileMatrixSetId;
+    /// \brief "cesium:tileMatrixSetLabelPrefix"
+    /// 
+    /// CesiumWebMapTileServiceRasterOverlay
+    const TfToken cesiumTileMatrixSetLabelPrefix;
+    /// \brief "cesium:tileMatrixSetLabels"
+    /// 
+    /// CesiumWebMapTileServiceRasterOverlay
+    const TfToken cesiumTileMatrixSetLabels;
     /// \brief "cesium:tileWidth"
     /// 
     /// CesiumWebMapServiceRasterOverlay
     const TfToken cesiumTileWidth;
     /// \brief "cesium:url"
     /// 
-    /// CesiumTileset
+    /// CesiumWebMapTileServiceRasterOverlay, CesiumTileMapServiceRasterOverlay, CesiumTileset
     const TfToken cesiumUrl;
+    /// \brief "cesium:useWebMercatorProjection"
+    /// 
+    /// CesiumWebMapTileServiceRasterOverlay
+    const TfToken cesiumUseWebMercatorProjection;
+    /// \brief "cesium:west"
+    /// 
+    /// CesiumWebMapTileServiceRasterOverlay
+    const TfToken cesiumWest;
     /// \brief "clip"
     /// 
     /// Default value for CesiumPolygonRasterOverlay::GetCesiumOverlayRenderMethodAttr(), Possible value for CesiumRasterOverlay::GetOverlayRenderMethodAttr()
