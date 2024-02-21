@@ -46,7 +46,6 @@ class CesiumTileMapServiceRasterOverlayAttributesWidget(SchemaPropertiesWidget):
             with CustomLayoutGroup("URL"):
                 CustomLayoutProperty("cesium:url")
             with CustomLayoutGroup("Zoom Settings"):
-
                 CustomLayoutProperty(
                     "cesium:specifyZoomLevels",
                 )
