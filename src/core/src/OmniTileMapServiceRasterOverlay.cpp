@@ -79,17 +79,11 @@ void OmniTileMapServiceRasterOverlay::reload() {
     };
 
     CesiumRasterOverlays::TileMapServiceRasterOverlayOptions tmsOptions;
-    const auto bSpecifyZoomLevels = getSpecifyZoomLevels();
-    // std::string layers = getLayers();
+    const auto specifyZoomLevels = getSpecifyZoomLevels();
 
-    if (bSpecifyZoomLevels) {
-        const auto minimumLevel = getMinimumZoomLevel();
-        const auto maximumLevel = getMaximumZoomLevel();
-        // TODO: push to UI check
-        if (maximumLevel > minimumLevel) {
-            tmsOptions.minimumLevel = minimumLevel;
-            tmsOptions.maximumLevel = maximumLevel;
-        }
+    if (specifyZoomLevels) {
+        tmsOptions.minimumLevel = getMinimumZoomLevel();
+        tmsOptions.maximumLevel = getMaximumZoomLevel();
     }
 
     _pTileMapServiceRasterOverlay = new CesiumRasterOverlays::TileMapServiceRasterOverlay(
