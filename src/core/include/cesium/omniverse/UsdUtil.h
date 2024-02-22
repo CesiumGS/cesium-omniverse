@@ -51,6 +51,8 @@ namespace cesium::omniverse::UsdUtil {
 glm::dvec3 usdToGlmVector(const pxr::GfVec3d& vector);
 glm::fvec3 usdToGlmVector(const pxr::GfVec3f& vector);
 glm::dmat4 usdToGlmMatrix(const pxr::GfMatrix4d& matrix);
+glm::dquat usdToGlmQuat(const pxr::GfQuatd& quat);
+glm::fquat usdToGlmQuat(const pxr::GfQuatf& quat);
 std::array<glm::dvec3, 2> usdToGlmExtent(const pxr::GfRange3d& extent);
 
 pxr::GfVec3d glmToUsdVector(const glm::dvec3& vector);
@@ -155,14 +157,16 @@ bool isUsdMaterial(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path)
 
 glm::dvec3 getTranslate(const pxr::UsdGeomXformOp& translateOp);
 glm::dvec3 getRotate(const pxr::UsdGeomXformOp& rotateOp);
+glm::dquat getOrient(const pxr::UsdGeomXformOp& orientOp);
 glm::dvec3 getScale(const pxr::UsdGeomXformOp& scaleOp);
 void setTranslate(pxr::UsdGeomXformOp& translateOp, const glm::dvec3& translate);
 void setRotate(pxr::UsdGeomXformOp& rotateOp, const glm::dvec3& rotate);
+void setOrient(pxr::UsdGeomXformOp& orientOp, const glm::dquat& orient);
 void setScale(pxr::UsdGeomXformOp& scaleOp, const glm::dvec3& scale);
 
 struct TranslateRotateScaleOps {
     pxr::UsdGeomXformOp translateOp;
-    pxr::UsdGeomXformOp rotateOp;
+    pxr::UsdGeomXformOp rotateOrOrientOp;
     pxr::UsdGeomXformOp scaleOp;
     MathUtil::EulerAngleOrder eulerAngleOrder;
 };

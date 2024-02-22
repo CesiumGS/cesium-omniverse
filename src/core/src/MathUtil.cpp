@@ -108,6 +108,14 @@ glm::dmat4 composeEuler(
     return translationMatrix * rotationMatrix * scaleMatrix;
 }
 
+glm::dmat4 compose(const glm::dvec3& translation, const glm::dquat& rotation, const glm::dvec3& scale) {
+    const auto translationMatrix = glm::translate(glm::dmat4(1.0), translation);
+    const auto rotationMatrix = glm::mat4_cast(rotation);
+    const auto scaleMatrix = glm::scale(glm::dmat4(1.0), scale);
+
+    return translationMatrix * rotationMatrix * scaleMatrix;
+}
+
 bool equal(const CesiumGeospatial::Cartographic& a, const CesiumGeospatial::Cartographic& b) {
     const auto& aVec = *reinterpret_cast<const glm::dvec3*>(&a);
     const auto& bVec = *reinterpret_cast<const glm::dvec3*>(&b);
@@ -126,6 +134,10 @@ bool epsilonEqual(const glm::dmat4& a, const glm::dmat4& b, double epsilon) {
 }
 
 bool epsilonEqual(const glm::dvec3& a, const glm::dvec3& b, double epsilon) {
+    return glm::all(glm::epsilonEqual(a, b, epsilon));
+}
+
+bool epsilonEqual(const glm::dquat& a, const glm::dquat& b, double epsilon) {
     return glm::all(glm::epsilonEqual(a, b, epsilon));
 }
 
