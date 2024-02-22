@@ -2,6 +2,7 @@
 
 #include <CesiumGeospatial/Cartographic.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <pxr/usd/sdf/path.h>
 
 namespace CesiumGeospatial {
@@ -41,6 +42,7 @@ class OmniGlobeAnchor {
     [[nodiscard]] CesiumGeospatial::Cartographic getGeographicCoordinates() const;
     [[nodiscard]] glm::dvec3 getPrimLocalTranslation() const;
     [[nodiscard]] glm::dvec3 getPrimLocalRotation() const;
+    [[nodiscard]] glm::dquat getPrimLocalOrientation() const;
     [[nodiscard]] glm::dvec3 getPrimLocalScale() const;
 
     void savePrimLocalToEcefTranslation();
@@ -58,6 +60,7 @@ class OmniGlobeAnchor {
     CesiumGeospatial::Cartographic _cachedGeographicCoordinates{0.0, 0.0, 0.0};
     glm::dvec3 _cachedPrimLocalTranslation{0.0};
     glm::dvec3 _cachedPrimLocalRotation{0.0, 0.0, 0.0};
+    glm::dquat _cachedPrimLocalOrientation{1.0, 0.0, 0.0, 0.0};
     glm::dvec3 _cachedPrimLocalScale{1.0};
 };
 

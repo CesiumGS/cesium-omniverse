@@ -31,8 +31,8 @@ namespace {
 const auto DEFAULT_DOUBLE_SIDED = false;
 const auto DEFAULT_EXTENT = std::array<glm::dvec3, 2>{{glm::dvec3(0.0, 0.0, 0.0), glm::dvec3(0.0, 0.0, 0.0)}};
 const auto DEFAULT_POSITION = glm::dvec3(0.0, 0.0, 0.0);
-const auto DEFAULT_ORIENTATION = glm::dquat(1.0f, 0.0, 0.0, 0.0);
-const auto DEFAULT_SCALE = glm::dvec3(1.0f, 1.0f, 1.0f);
+const auto DEFAULT_ORIENTATION = glm::dquat(1.0, 0.0, 0.0, 0.0);
+const auto DEFAULT_SCALE = glm::dvec3(1.0, 1.0, 1.0);
 const auto DEFAULT_MATRIX = glm::dmat4(1.0);
 const auto DEFAULT_VISIBILITY = false;
 

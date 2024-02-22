@@ -188,6 +188,7 @@ void processCesiumGlobeAnchorChanged(
              property == pxr::UsdTokens->xformOp_rotateYZX ||
              property == pxr::UsdTokens->xformOp_rotateZXY ||
              property == pxr::UsdTokens->xformOp_rotateZYX ||
+             property == pxr::UsdTokens->xformOp_orient ||
              property == pxr::UsdTokens->xformOp_scale)) {
             updateByPrimLocalTransform = true;
             updateBindings = true;

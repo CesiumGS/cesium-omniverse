@@ -41,10 +41,14 @@ glm::dmat4 composeEuler(
     const glm::dvec3& rotation,
     const glm::dvec3& scale,
     EulerAngleOrder eulerAngleOrder);
+
+glm::dmat4 compose(const glm::dvec3& translation, const glm::dquat& rotation, const glm::dvec3& scale);
+
 bool equal(const CesiumGeospatial::Cartographic& a, const CesiumGeospatial::Cartographic& b);
 bool epsilonEqual(const CesiumGeospatial::Cartographic& a, const CesiumGeospatial::Cartographic& b, double epsilon);
 bool epsilonEqual(const glm::dmat4& a, const glm::dmat4& b, double epsilon);
 bool epsilonEqual(const glm::dvec3& a, const glm::dvec3& b, double epsilon);
+bool epsilonEqual(const glm::dquat& a, const glm::dquat& b, double epsilon);
 
 glm::dvec3 getCorner(const std::array<glm::dvec3, 2>& extent, uint64_t index);
 

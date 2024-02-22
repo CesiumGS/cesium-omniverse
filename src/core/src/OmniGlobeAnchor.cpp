@@ -156,11 +156,13 @@ void OmniGlobeAnchor::updateByPrimLocalTransform(bool resetOrientation) {
 
     const auto primLocalTranslation = getPrimLocalTranslation();
     const auto primLocalRotation = getPrimLocalRotation();
+    const auto primLocalOrientation = getPrimLocalOrientation();
     const auto primLocalScale = getPrimLocalScale();
 
     const auto tolerance = CesiumUtility::Math::Epsilon4;
     if (MathUtil::epsilonEqual(primLocalTranslation, _cachedPrimLocalTranslation, tolerance) &&
         MathUtil::epsilonEqual(primLocalRotation, _cachedPrimLocalRotation, tolerance) &&
+        MathUtil::epsilonEqual(primLocalOrientation, _cachedPrimLocalOrientation, tolerance) &&
         MathUtil::epsilonEqual(primLocalScale, _cachedPrimLocalScale, tolerance)) {
         // Short circuit if we don't need to do an actual update.
         return;
@@ -169,12 +171,21 @@ void OmniGlobeAnchor::updateByPrimLocalTransform(bool resetOrientation) {
     const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
     const auto xformable = pxr::UsdGeomXformable(cesiumGlobeAnchor);
     const auto xformOps = UsdUtil::getOrCreateTranslateRotateScaleOps(xformable);
-    const auto eulerAngleOrder = xformOps->eulerAngleOrder;
+    const auto opType = xformOps.value().rotateOrOrientOp.GetOpType();
 
-    // xform ops are applied right to left, so xformOp:rotateXYZ actually applies a z-axis, then y-axis, then x-axis
-    // rotation. To compensate for that, we need to compose euler angles in the reverse order.
-    const auto primLocalTransform = MathUtil::composeEuler(
-        primLocalTranslation, primLocalRotation, primLocalScale, getReversedEulerAngleOrder(eulerAngleOrder));
+    glm::dmat4 primLocalTransform;
+
+    if (opType == pxr::UsdGeomXformOp::TypeOrient) {
+        primLocalTransform = MathUtil::compose(primLocalTranslation, primLocalOrientation, primLocalScale);
+    } else {
+        // xform ops are applied right to left, so xformOp:rotateXYZ actually applies a z-axis, then y-axis, then x-axis
+        // rotation. To compensate for that, we need to compose euler angles in the reverse order.
+        primLocalTransform = MathUtil::composeEuler(
+            primLocalTranslation,
+            primLocalRotation,
+            primLocalScale,
+            getReversedEulerAngleOrder(xformOps->eulerAngleOrder));
+    }
 
     const auto pGeoreference = _pContext->getAssetRegistry().getGeoreference(getResolvedGeoreferencePath());
 
@@ -330,7 +341,32 @@ glm::dvec3 OmniGlobeAnchor::getPrimLocalRotation() const {
     }
 
     const auto xformOps = UsdUtil::getOrCreateTranslateRotateScaleOps(xformable);
-    return glm::radians(UsdUtil::getRotate(xformOps.value().rotateOp));
+    const auto& rotateOrOrientOp = xformOps.value().rotateOrOrientOp;
+    const auto opType = rotateOrOrientOp.GetOpType();
+
+    if (opType == pxr::UsdGeomXformOp::TypeOrient) {
+        return {0.0, 0.0, 0.0};
+    }
+
+    return glm::radians(UsdUtil::getRotate(rotateOrOrientOp));
+}
+
+glm::dquat OmniGlobeAnchor::getPrimLocalOrientation() const {
+    const auto cesiumGlobeAnchor = UsdUtil::getCesiumGlobeAnchor(_pContext->getUsdStage(), _path);
+    const auto xformable = pxr::UsdGeomXformable(cesiumGlobeAnchor);
+    if (!UsdUtil::isSchemaValid(xformable)) {
+        return {1.0, 0.0, 0.0, 0.0};
+    }
+
+    const auto xformOps = UsdUtil::getOrCreateTranslateRotateScaleOps(xformable);
+    const auto& rotateOrOrientOp = xformOps.value().rotateOrOrientOp;
+    const auto opType = rotateOrOrientOp.GetOpType();
+
+    if (opType != pxr::UsdGeomXformOp::TypeOrient) {
+        return {1.0, 0.0, 0.0, 0.0};
+    }
+
+    return UsdUtil::getOrient(rotateOrOrientOp);
 }
 
 glm::dvec3 OmniGlobeAnchor::getPrimLocalScale() const {
@@ -392,25 +428,38 @@ void OmniGlobeAnchor::savePrimLocalTransform() {
 
     auto xformOps = UsdUtil::getOrCreateTranslateRotateScaleOps(xformable);
 
-    auto& [translateOp, rotateOp, scaleOp, eulerAngleOrder] = xformOps.value();
+    auto& [translateOp, rotateOrOrientOp, scaleOp, eulerAngleOrder] = xformOps.value();
+    const auto opType = rotateOrOrientOp.GetOpType();
 
     const auto pGeoreference = _pContext->getAssetRegistry().getGeoreference(getResolvedGeoreferencePath());
 
     const auto primLocalToWorldTransform =
         _pAnchor->getAnchorToLocalTransform(pGeoreference->getLocalCoordinateSystem());
 
-    // xform ops are applied right to left, so xformOp:rotateXYZ actually applies a z-axis, then y-axis, then x-axis
-    // rotation. To compensate for that, we need to decompose euler angles in the reverse order.
-    const auto decomposed =
-        MathUtil::decomposeEuler(primLocalToWorldTransform, getReversedEulerAngleOrder(eulerAngleOrder));
+    if (opType == pxr::UsdGeomXformOp::TypeOrient) {
+        const auto decomposed = MathUtil::decompose(primLocalToWorldTransform);
 
-    _cachedPrimLocalTranslation = decomposed.translation;
-    _cachedPrimLocalRotation = decomposed.rotation;
-    _cachedPrimLocalScale = decomposed.scale;
+        _cachedPrimLocalTranslation = decomposed.translation;
+        _cachedPrimLocalOrientation = decomposed.rotation;
+        _cachedPrimLocalScale = decomposed.scale;
 
-    UsdUtil::setTranslate(translateOp, decomposed.translation);
-    UsdUtil::setRotate(rotateOp, glm::degrees(decomposed.rotation));
-    UsdUtil::setScale(scaleOp, decomposed.scale);
+        UsdUtil::setTranslate(translateOp, decomposed.translation);
+        UsdUtil::setOrient(rotateOrOrientOp, decomposed.rotation);
+        UsdUtil::setScale(scaleOp, decomposed.scale);
+    } else {
+        // xform ops are applied right to left, so xformOp:rotateXYZ actually applies a z-axis, then y-axis, then x-axis
+        // rotation. To compensate for that, we need to decompose euler angles in the reverse order.
+        const auto decomposed =
+            MathUtil::decomposeEuler(primLocalToWorldTransform, getReversedEulerAngleOrder(eulerAngleOrder));
+
+        _cachedPrimLocalTranslation = decomposed.translation;
+        _cachedPrimLocalRotation = decomposed.rotation;
+        _cachedPrimLocalScale = decomposed.scale;
+
+        UsdUtil::setTranslate(translateOp, decomposed.translation);
+        UsdUtil::setRotate(rotateOrOrientOp, glm::degrees(decomposed.rotation));
+        UsdUtil::setScale(scaleOp, decomposed.scale);
+    }
 }
 
 } // namespace cesium::omniverse

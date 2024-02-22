@@ -143,6 +143,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((primvars_displayOpacity, "primvars:displayOpacity")) \
     ((primvars_normals, "primvars:normals")) \
     ((primvars_vertexId, "primvars:vertexId")) \
+    ((xformOp_orient, "xformOp:orient")) \
     ((xformOp_rotateXYZ, "xformOp:rotateXYZ")) \
     ((xformOp_rotateXZY, "xformOp:rotateXZY")) \
     ((xformOp_rotateYXZ, "xformOp:rotateYXZ")) \
