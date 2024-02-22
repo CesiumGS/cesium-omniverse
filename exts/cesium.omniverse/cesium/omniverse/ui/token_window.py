@@ -8,7 +8,8 @@ from enum import Enum
 from typing import List, Optional
 from ..bindings import ICesiumOmniverseInterface, Token
 from .styles import CesiumOmniverseUiStyles
-from cesium.usd.plugins.CesiumUsdSchemas import Data as CesiumData
+from cesium.usd.plugins.CesiumUsdSchemas import IonServer as CesiumIonServer
+from ..usdUtils import get_path_to_current_ion_server
 
 SELECT_TOKEN_TEXT = (
     "Cesium for Omniverse embeds a Cesium ion token in your stage in order to allow it "
@@ -134,10 +135,11 @@ class CesiumOmniverseTokenWindow(ui.Window):
         self._create_new_field_model = ui.SimpleStringModel(DEFAULT_TOKEN_PLACEHOLDER_BASE.format(root_identifier))
         self._use_existing_combo_model = UseExistingComboModel([])
 
-        cesium_prim = CesiumData.Get(stage, "/Cesium")
+        server_prim_path = get_path_to_current_ion_server()
+        server_prim = CesiumIonServer.Get(stage, server_prim_path)
 
-        if cesium_prim.GetPrim().IsValid():
-            current_token = cesium_prim.GetProjectDefaultIonAccessTokenAttr().Get()
+        if server_prim.GetPrim().IsValid():
+            current_token = server_prim.GetProjectDefaultIonAccessTokenAttr().Get()
             self._specify_token_field_model = ui.SimpleStringModel(current_token if current_token is not None else "")
         else:
             self._specify_token_field_model = ui.SimpleStringModel()
