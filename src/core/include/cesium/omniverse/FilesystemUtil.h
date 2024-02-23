@@ -1,8 +1,8 @@
 #pragma once
 
-#include <string>
+#include <filesystem>
 
 namespace cesium::omniverse::FilesystemUtil {
-std::string getCesiumCacheDirectory();
-std::string getUserHomeDirectory();
+std::filesystem::path getCesiumCacheDirectory();
+std::filesystem::path getUserHomeDirectory();
 } // namespace cesium::omniverse::FilesystemUtil

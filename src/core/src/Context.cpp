@@ -38,9 +38,8 @@ namespace cesium::omniverse {
 namespace {
 
 std::string getCacheDatabaseName() {
-    std::string cacheDir = FilesystemUtil::getCesiumCacheDirectory();
-    if (!cacheDir.empty()) {
-        std::filesystem::path cacheDirPath(cacheDir);
+    auto cacheDirPath = FilesystemUtil::getCesiumCacheDirectory();
+    if (!cacheDirPath.empty()) {
         auto cacheFilePath = cacheDirPath / "cesium-request-cache.sqlite";
         return cacheFilePath.generic_string();
     }
@@ -54,7 +53,7 @@ std::shared_ptr<CesiumAsync::ICacheDatabase> makeCacheDatabase(const std::shared
         return {};
     } else if (auto dbName = getCacheDatabaseName(); !dbName.empty()) {
         logger->oneTimeWarning(fmt::format("Cesium cache file: {}", dbName));
-        return std::make_shared<CesiumAsync::SqliteCache>(logger, getCacheDatabaseName(), maxCacheItems);
+        return std::make_shared<CesiumAsync::SqliteCache>(logger, dbName, maxCacheItems);
     }
     logger->oneTimeWarning("could not get name for cache database");
     return {};
