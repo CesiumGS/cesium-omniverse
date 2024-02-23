@@ -12,6 +12,7 @@ from .usdUtils import (
 from .ui.asset_window import CesiumOmniverseAssetWindow
 from .ui.debug_window import CesiumOmniverseDebugWindow
 from .ui.main_window import CesiumOmniverseMainWindow
+from .ui.settings_window import CesiumOmniverseSettingsWindow
 from .ui.credits_viewport_frame import CesiumCreditsViewportFrame
 from .ui.fabric_modal import CesiumFabricModal
 from .models import AssetToAdd, RasterOverlayToAdd
@@ -53,6 +54,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._main_window: Optional[CesiumOmniverseMainWindow] = None
         self._asset_window: Optional[CesiumOmniverseAssetWindow] = None
         self._debug_window: Optional[CesiumOmniverseDebugWindow] = None
+        self._settings_window: Optional[CesiumOmniverseSettingsWindow] = None
         self._credits_viewport_frames: List[CesiumCreditsViewportFrame] = []
         self._on_stage_subscription: Optional[carb.events.ISubscription] = None
         self._on_update_subscription: Optional[carb.events.ISubscription] = None
@@ -81,7 +83,10 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         ui.Workspace.set_show_window_fn(
             CesiumOmniverseAssetWindow.WINDOW_NAME, partial(self.show_assets_window, None)
         )
-        ui.Workspace.set_show_window_fn(CesiumOmniverseDebugWindow.WINDOW_NAME, partial(self.show_debug_window, None))
+        ui.Workspace.set_show_window_fn(
+            CesiumOmniverseDebugWindow.WINDOW_NAME, partial(self.show_debug_window, None))
+        ui.Workspace.set_show_window_fn(
+            CesiumOmniverseSettingsWindow.WINDOW_NAME, partial(self.show_settings_window, None))
 
         settings = omni_settings.get_settings()
         show_on_startup = settings.get_as_bool("/exts/cesium.omniverse/showOnStartup")
@@ -89,6 +94,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         self._add_to_menu(CesiumOmniverseMainWindow.MENU_PATH, self.show_main_window, show_on_startup)
         self._add_to_menu(CesiumOmniverseAssetWindow.MENU_PATH, self.show_assets_window, False)
         self._add_to_menu(CesiumOmniverseDebugWindow.MENU_PATH, self.show_debug_window, False)
+        self._add_to_menu(CesiumOmniverseSettingsWindow.MENU_PATH, self.show_settings_window, False)
 
         self._logger.info("CesiumOmniverse startup")
 
@@ -190,6 +196,10 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             self._debug_window.destroy()
             self._debug_window = None
 
+        if self._settings_window is not None:
+            self._settings_window.destroy()
+            self._settings_window = None
+
         if self._credits_viewport_controller is not None:
             self._credits_viewport_controller.destroy()
             self._credits_viewport_controller = None
@@ -198,6 +208,7 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         ui.Workspace.set_show_window_fn(CesiumOmniverseMainWindow.WINDOW_NAME, None)
         ui.Workspace.set_show_window_fn(CesiumOmniverseAssetWindow.WINDOW_NAME, None)
         ui.Workspace.set_show_window_fn(CesiumOmniverseDebugWindow.WINDOW_NAME, None)
+        ui.Workspace.set_show_window_fn(CesiumOmniverseSettingsWindow.WINDOW_NAME, None)
 
         if self._on_stage_subscription is not None:
             self._on_stage_subscription.unsubscribe()
@@ -411,6 +422,10 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             if self._debug_window is not None:
                 self._debug_window.destroy()
             self._debug_window = None
+        elif path is CesiumOmniverseSettingsWindow.MENU_PATH:
+            if self._settings_window is not None:
+                self._settings_window.destroy()
+            self._settings_window = None
 
     def _visibility_changed_fn(self, path, visible):
         # Called when the user pressed "X"
@@ -469,6 +484,22 @@ class CesiumOmniverseExtension(omni.ext.IExt):
             asyncio.ensure_future(dock_window_async(self._debug_window))
         elif self._debug_window is not None:
             self._debug_window.visible = False
+
+    def show_settings_window(self, _menu, value):
+        if _cesium_omniverse_interface is None:
+            logging.error("Cesium Omniverse Interface is not set.")
+            return
+
+        if value:
+            self._settings_window = CesiumOmniverseSettingsWindow(
+                _cesium_omniverse_interface, CesiumOmniverseSettingsWindow.WINDOW_NAME, width=300, height=365
+            )
+            self._settings_window.set_visibility_changed_fn(
+                partial(self._visibility_changed_fn, CesiumOmniverseSettingsWindow.MENU_PATH)
+            )
+            asyncio.ensure_future(dock_window_async(self._settings_window))
+        elif self._settings_window is not None:
+            self._settings_window.visible = False
 
     def _setup_credits_viewport_frames(self):
         self._destroy_credits_viewport_frames()
