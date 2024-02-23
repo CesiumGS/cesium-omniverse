@@ -30,6 +30,7 @@ add_external_project(
         webpdecoder
         turbojpeg
         meshoptimizer
+        sqlite3
     OPTIONS
         CESIUM_TESTS_ENABLED=OFF
         CESIUM_COVERAGE_ENABLED=OFF
