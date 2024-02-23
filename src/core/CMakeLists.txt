@@ -60,9 +60,7 @@ setup_lib(
         webpdecoder
         turbojpeg
         meshoptimizer
-        cpr::cpr
-        stb::stb
-        ZLIB::ZLIB
+        CURL::libcurl
         fabric
         ar
         arch

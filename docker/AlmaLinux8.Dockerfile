@@ -5,57 +5,49 @@ FROM almalinux:8
 RUN dnf upgrade -y --refresh
 RUN dnf install -y 'dnf-command(config-manager)'
 
-RUN dnf config-manager --add-repo=https://developer.download.nvidia.com/compute/cuda/repos/rhel8/x86_64/cuda-rhel8.repo
-
 # Extra repositories that have newer versions of some packages
 RUN dnf install -y -q epel-release
 RUN dnf config-manager --set-enabled powertools
+RUN dnf config-manager --add-repo=https://developer.download.nvidia.com/compute/cuda/repos/rhel8/x86_64/cuda-rhel8.repo
 
 RUN dnf install -y -q \
     git \
     git-lfs \
     python39 \
-    wget \
     gcc-toolset-11 \
-    gcc-toolset-11-libubsan-devel \
     make \
     doxygen \
-    curl-devel \
-    zlib-devel \
-    perl-Data-Dumper \
-    perl-Thread-Queue \
-    wget \
-    openssl-devel \
-    bzip2-devel \
-    libffi-devel \
-    zlib-devel \
-    sqlite-devel \
-    xz-devel
+    perl
 
 # Install the nvidia driver.
 RUN dnf module install -y -q nvidia-driver:535-dkms
 
-# Enables gcc 11 for use within the docker image.
-RUN echo "source /opt/rh/gcc-toolset-11/enable" >> /etc/bashrc
-SHELL ["/bin/bash", "--login", "-c"]
+# /bin/gcc, /bin/gcov, /bin/ranlib and /bin/ar are old versions and not
+# symbolic links, which prevents update-alternatives from working properly, so
+# rename them
+RUN mv /bin/gcc /bin/gcc-8 && \
+    mv /bin/gcov /bin/gcov-8 && \
+    mv /bin/ranlib /bin/ranlib-2.30 && \
+    mv /bin/ar /bin/ar-2.30
 
-# Install newer version of CMake
-RUN wget https://cmake.org/files/v3.24/cmake-3.24.2.tar.gz && \
-    tar xzf cmake-3.24.2.tar.gz && \
-    cd cmake-3.24.2 && \
-    ./bootstrap --prefix=/usr/local && \
-    make -j$(nproc) && \
-    make install && \
-    cd .. && \
-    rm cmake-3.24.2.tar.gz && \
-    rm -rf cmake-3.24.2 && \
-    ln -sf /usr/local/bin/cmake /usr/bin/cmake && \
-    ln -sf /usr/local/bin/ctest /usr/bin/ctest && \
-    ln -sf /usr/local/bin/cpack /usr/bin/cpack
+# Create links to some of the custom packages
+RUN update-alternatives --install /usr/bin/gcc gcc /opt/rh/gcc-toolset-11/root/usr/bin/gcc 100 && \
+    update-alternatives --install /usr/bin/gcov gcov /opt/rh/gcc-toolset-11/root/usr/bin/gcov 100 && \
+    update-alternatives --install /usr/bin/g++ g++ /opt/rh/gcc-toolset-11/root/usr/bin/g++ 100 && \
+    update-alternatives --install /usr/bin/cc cc /opt/rh/gcc-toolset-11/root/usr/bin/gcc 100 && \
+    update-alternatives --install /usr/bin/c++ c++ /opt/rh/gcc-toolset-11/root/usr/bin/g++ 100 && \
+    update-alternatives --install /usr/bin/ar ar /opt/rh/gcc-toolset-11/root/usr/bin/ar 100 && \
+    update-alternatives --install /usr/bin/ranlib ranlib /opt/rh/gcc-toolset-11/root/usr/bin/ranlib 100
 
+# Alma8's default version of CMake is 3.20.2, which is lower than project's min
+# pip has a much newer version of CMake
 RUN pip3 install conan==1.60.0 && \
-    pip3 install gcovr
+    pip3 install gcovr && \
+    pip3 install cmake
+
+# Prevent git error when building within docker container
+RUN git config --global --add safe.directory /var/app
 
 WORKDIR /var/app
 
-ENTRYPOINT ["/bin/bash", "--login", "-c"]
+ENTRYPOINT ["/bin/bash", "--login"]

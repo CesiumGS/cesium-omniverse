@@ -389,7 +389,7 @@ endif()
 
 # USD is compiled with the old C++ ABI so we need to compile our own code and external libraries
 # with the old ABI. Only relevant for libraries that have std::string or std::list in their
-# public interface, which includes cesium-native and cpr.
+# public interface, which includes cesium-native.
 # See https://gcc.gnu.org/onlinedocs/libstdc++/manual/using_dual_abi.html
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} _GLIBCXX_USE_CXX11_ABI=0)
@@ -424,10 +424,8 @@ set(CMAKE_FIND_PACKAGE_PREFER_CONFIG TRUE)
 find_package(Threads) # System threading library
 
 # Conan libraries
-find_package(cpr)
 find_package(doctest)
-find_package(stb)
-find_package(ZLIB)
+find_package(CURL)
 find_package(yaml-cpp)
 
 # So that the installed libraries can find shared libraries in the same directory

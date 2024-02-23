@@ -11,7 +11,7 @@ container_id=$(docker run -it -d --volume $PWD:/var/app cesiumgs/cesium-omnivers
 
 # Run package commands inside docker container
 package_cmd="
-cmake -B build-package -D CMAKE_BUILD_TYPE=Release CESIUM_OMNI_ENABLE_TESTS=OFF -D CESIUM_OMNI_ENABLE_DOCUMENTATION=OFF -D CESIUM_OMNI_ENABLE_SANITIZERS=OFF -D CESIUM_OMNI_ENABLE_LINTERS=OFF &&
+cmake -B build-package -D CMAKE_BUILD_TYPE=Release -D CESIUM_OMNI_ENABLE_TESTS=OFF -D CESIUM_OMNI_ENABLE_DOCUMENTATION=OFF -D CESIUM_OMNI_ENABLE_SANITIZERS=OFF -D CESIUM_OMNI_ENABLE_LINTERS=OFF &&
 cmake --build build-package --parallel 8 &&
 cmake --build build-package --target install &&
 cmake --build build-package --target package
