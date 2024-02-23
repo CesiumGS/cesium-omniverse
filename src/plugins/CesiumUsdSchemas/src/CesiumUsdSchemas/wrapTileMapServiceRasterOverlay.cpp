@@ -1,4 +1,4 @@
-#include ".//georeference.h"
+#include ".//tileMapServiceRasterOverlay.h"
 #include "pxr/usd/usd/schemaBase.h"
 
 #include "pxr/usd/sdf/primSpec.h"
@@ -27,43 +27,50 @@ WRAP_CUSTOM;
 
         
 static UsdAttribute
-_CreateGeoreferenceOriginLongitudeAttr(CesiumGeoreference &self,
+_CreateUrlAttr(CesiumTileMapServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateGeoreferenceOriginLongitudeAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
+    return self.CreateUrlAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
-_CreateGeoreferenceOriginLatitudeAttr(CesiumGeoreference &self,
+_CreateSpecifyZoomLevelsAttr(CesiumTileMapServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateGeoreferenceOriginLatitudeAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
+    return self.CreateSpecifyZoomLevelsAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
-_CreateGeoreferenceOriginHeightAttr(CesiumGeoreference &self,
+_CreateMinimumZoomLevelAttr(CesiumTileMapServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
-    return self.CreateGeoreferenceOriginHeightAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
+    return self.CreateMinimumZoomLevelAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int), writeSparsely);
+}
+        
+static UsdAttribute
+_CreateMaximumZoomLevelAttr(CesiumTileMapServiceRasterOverlay &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateMaximumZoomLevelAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int), writeSparsely);
 }
 
 static std::string
-_Repr(const CesiumGeoreference &self)
+_Repr(const CesiumTileMapServiceRasterOverlay &self)
 {
     std::string primRepr = TfPyRepr(self.GetPrim());
     return TfStringPrintf(
-        "CesiumUsdSchemas.Georeference(%s)",
+        "CesiumUsdSchemas.TileMapServiceRasterOverlay(%s)",
         primRepr.c_str());
 }
 
 } // anonymous namespace
 
-void wrapCesiumGeoreference()
+void wrapCesiumTileMapServiceRasterOverlay()
 {
-    typedef CesiumGeoreference This;
+    typedef CesiumTileMapServiceRasterOverlay This;
 
-    class_<This, bases<UsdTyped> >
-        cls("Georeference");
+    class_<This, bases<CesiumRasterOverlay> >
+        cls("TileMapServiceRasterOverlay");
 
     cls
         .def(init<UsdPrim>(arg("prim")))
@@ -89,24 +96,31 @@ void wrapCesiumGeoreference()
         .def(!self)
 
         
-        .def("GetGeoreferenceOriginLongitudeAttr",
-             &This::GetGeoreferenceOriginLongitudeAttr)
-        .def("CreateGeoreferenceOriginLongitudeAttr",
-             &_CreateGeoreferenceOriginLongitudeAttr,
+        .def("GetUrlAttr",
+             &This::GetUrlAttr)
+        .def("CreateUrlAttr",
+             &_CreateUrlAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetGeoreferenceOriginLatitudeAttr",
-             &This::GetGeoreferenceOriginLatitudeAttr)
-        .def("CreateGeoreferenceOriginLatitudeAttr",
-             &_CreateGeoreferenceOriginLatitudeAttr,
+        .def("GetSpecifyZoomLevelsAttr",
+             &This::GetSpecifyZoomLevelsAttr)
+        .def("CreateSpecifyZoomLevelsAttr",
+             &_CreateSpecifyZoomLevelsAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
         
-        .def("GetGeoreferenceOriginHeightAttr",
-             &This::GetGeoreferenceOriginHeightAttr)
-        .def("CreateGeoreferenceOriginHeightAttr",
-             &_CreateGeoreferenceOriginHeightAttr,
+        .def("GetMinimumZoomLevelAttr",
+             &This::GetMinimumZoomLevelAttr)
+        .def("CreateMinimumZoomLevelAttr",
+             &_CreateMinimumZoomLevelAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetMaximumZoomLevelAttr",
+             &This::GetMaximumZoomLevelAttr)
+        .def("CreateMaximumZoomLevelAttr",
+             &_CreateMaximumZoomLevelAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 

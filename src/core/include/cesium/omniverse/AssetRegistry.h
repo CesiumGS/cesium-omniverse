@@ -19,6 +19,8 @@ class OmniIonServer;
 class OmniPolygonRasterOverlay;
 class OmniTileset;
 class OmniWebMapServiceRasterOverlay;
+class OmniTileMapServiceRasterOverlay;
+class OmniWebMapTileServiceRasterOverlay;
 struct Viewport;
 
 enum AssetType {
@@ -27,6 +29,8 @@ enum AssetType {
     ION_RASTER_OVERLAY,
     POLYGON_RASTER_OVERLAY,
     WEB_MAP_SERVICE_RASTER_OVERLAY,
+    TILE_MAP_SERVICE_RASTER_OVERLAY,
+    WEB_MAP_TILE_SERVICE_RASTER_OVERLAY,
     GEOREFERENCE,
     GLOBE_ANCHOR,
     ION_SERVER,
@@ -69,8 +73,14 @@ class AssetRegistry {
     OmniWebMapServiceRasterOverlay& addWebMapServiceRasterOverlay(const pxr::SdfPath& path);
     void removeWebMapServiceRasterOverlay(const pxr::SdfPath& path);
     [[nodiscard]] OmniWebMapServiceRasterOverlay* getWebMapServiceRasterOverlay(const pxr::SdfPath& path) const;
-    [[nodiscard]] const std::vector<std::unique_ptr<OmniWebMapServiceRasterOverlay>>&
-    getWebMapServiceRasterOverlays() const;
+
+    OmniTileMapServiceRasterOverlay& addTileMapServiceRasterOverlay(const pxr::SdfPath& path);
+    void removeTileMapServiceRasterOverlay(const pxr::SdfPath& path);
+    [[nodiscard]] OmniTileMapServiceRasterOverlay* getTileMapServiceRasterOverlay(const pxr::SdfPath& path) const;
+
+    OmniWebMapTileServiceRasterOverlay& addWebMapTileServiceRasterOverlay(const pxr::SdfPath& path);
+    void removeWebMapTileServiceRasterOverlay(const pxr::SdfPath& path);
+    [[nodiscard]] OmniWebMapTileServiceRasterOverlay* getWebMapTileServiceRasterOverlay(const pxr::SdfPath& path) const;
 
     [[nodiscard]] OmniRasterOverlay* getRasterOverlay(const pxr::SdfPath& path) const;
 
@@ -108,6 +118,8 @@ class AssetRegistry {
     std::vector<std::unique_ptr<OmniIonRasterOverlay>> _ionRasterOverlays;
     std::vector<std::unique_ptr<OmniPolygonRasterOverlay>> _polygonRasterOverlays;
     std::vector<std::unique_ptr<OmniWebMapServiceRasterOverlay>> _webMapServiceRasterOverlays;
+    std::vector<std::unique_ptr<OmniTileMapServiceRasterOverlay>> _tileMapServiceRasterOverlays;
+    std::vector<std::unique_ptr<OmniWebMapTileServiceRasterOverlay>> _webMapTileServiceRasterOverlays;
     std::vector<std::unique_ptr<OmniGeoreference>> _georeferences;
     std::vector<std::unique_ptr<OmniGlobeAnchor>> _globeAnchors;
     std::vector<std::unique_ptr<OmniIonServer>> _ionServers;
