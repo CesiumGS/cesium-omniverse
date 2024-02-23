@@ -45,7 +45,6 @@ class CesiumOmniverseSettingsWindow(ui.Window):
             self._cesium_omniverse_interface.clear_accessor_cache()
 
         with ui.VStack(spacing=4):
-            label_style = {"Label": {"font_size": 16}}
             cache_items = carb.settings.get_settings().get(self._cache_items_setting)
             self._cache_items_model = ui.SimpleIntModel(cache_items)
             int_field_with_label("Maximum cache items", model=self._cache_items_model)
