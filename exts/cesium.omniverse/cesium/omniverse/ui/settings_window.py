@@ -5,6 +5,7 @@ import omni.ui as ui
 from ..bindings import ICesiumOmniverseInterface
 from cesium.omniverse.utils.custom_fields import int_field_with_label
 
+
 class CesiumOmniverseSettingsWindow(ui.Window):
     WINDOW_NAME = "Cesium Settings"
     MENU_PATH = f"Window/Cesium/{WINDOW_NAME}"
@@ -49,4 +50,4 @@ class CesiumOmniverseSettingsWindow(ui.Window):
             self._cache_items_model = ui.SimpleIntModel(cache_items)
             int_field_with_label("Maximum cache items", model=self._cache_items_model)
             ui.Button("Set cache parameters (requires restart)", height=20, clicked_fn=set_cache_parameters)
-            ui.Button("Clear cache", height = 20, clicked_fn=clear_cache)
+            ui.Button("Clear cache", height=20, clicked_fn=clear_cache)

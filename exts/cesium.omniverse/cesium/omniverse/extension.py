@@ -83,10 +83,10 @@ class CesiumOmniverseExtension(omni.ext.IExt):
         ui.Workspace.set_show_window_fn(
             CesiumOmniverseAssetWindow.WINDOW_NAME, partial(self.show_assets_window, None)
         )
+        ui.Workspace.set_show_window_fn(CesiumOmniverseDebugWindow.WINDOW_NAME, partial(self.show_debug_window, None))
         ui.Workspace.set_show_window_fn(
-            CesiumOmniverseDebugWindow.WINDOW_NAME, partial(self.show_debug_window, None))
-        ui.Workspace.set_show_window_fn(
-            CesiumOmniverseSettingsWindow.WINDOW_NAME, partial(self.show_settings_window, None))
+            CesiumOmniverseSettingsWindow.WINDOW_NAME, partial(self.show_settings_window, None)
+        )
 
         settings = omni_settings.get_settings()
         show_on_startup = settings.get_as_bool("/exts/cesium.omniverse/showOnStartup")
