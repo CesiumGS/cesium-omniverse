@@ -3,22 +3,23 @@
 ### v0.18.0 - 2024-03-01
 
 * **Breaking change:** removed deprecated properties `projectDefaultIonAccessToken` and `projectDefaultIonAccessToken` from `CesiumDataPrim`. `CesiumIonServerPrim` should be used instead.
-* Added support for globe anchors on non-georeferenced tilesets.
-* Fixed zooming to tileset extents when tileset prims have non identity transformation.
-* Fixed crash when updating tilesets shader inputs.
-* Fixed crash when setting certain `/Cesium` debug options at runtime.
-* Fixed crash when disabling and re-enabling the extension.
-* Added ability to bypass downloading of tiles clipped by a cartographic polygon raster overlay.
-* Fixed a bug where save stage dialog would appear when reloading Fabric stage at startup.
-* Fixed crash when removing USD prims in certain order.
-* Fixed issue where Cesium ion session would not resume on reload.
-* The movie capture tool now waits for tilesets to complete loading before it captures a frame.
+* Improved tile streaming performance by 35% by switching to UrlAssetAccessor from vsgCs.
+* Added support for disk tile caching which improves streaming performance by 50% when reloading the same scene.
 * Added support for Web Map Service (WMS) raster overlays.
 * Added support for Tile Map Service (TMS) raster overlays.
 * Added support for Web Map Tile Service (WMTS) raster overlays.
 * Added raster overlay options: `maximumScreenSpaceError`, `maximumTextureSize`, `maximumSimultaneousTileLoads`, `subTileCacheBytes`.
-* Changed to use UrlAssetAccessor from vsgCs, which does a better job of managing libcurl handles than the existing HttpAssetAccessor.
-* Fixed a bug where globe anchors didn't work with `xformOp:orient`
+* Added ability to bypass downloading of tiles clipped by a cartographic polygon raster overlay.
+* Added support for globe anchors on non-georeferenced tilesets.
+* Fixed crash when disabling and re-enabling the extension.
+* Fixed crash when setting certain `/Cesium` debug options at runtime.
+* Fixed crash when updating tilesets shader inputs.
+* Fixed crash when removing USD prims in certain order.
+* Fixed issue where Cesium ion session would not resume on reload.
+* Fixed issue where save stage dialog would appear when reloading Fabric stage at startup.
+* Fixed issue where zooming to tileset extents would not work correctly with non-identity transformation.
+* Fixed issue where globe anchors didn't work with `xformOp:orient`.
+* The movie capture tool now waits for tilesets to complete loading before it captures a frame.
 
 ### v0.17.0 - 2024-02-01
 
