@@ -32,9 +32,8 @@ std::filesystem::path getCesiumCacheDirectory() {
         // Should we create the directory if it doesn't exist? It's hard to believe that Omniverse
         // won't have already created it.
     }
-    std::string homeDir = getUserHomeDirectory();
-    if (!homeDir.empty()) {
-        std::filesystem::path homeDirPath(homeDir);
+    auto homeDirPath = getUserHomeDirectory();
+    if (!homeDirPath.empty()) {
         auto cacheDirPath = homeDirPath / ".nvidia-omniverse";
         if (exists(cacheDirPath)) {
             return cacheDirPath;
