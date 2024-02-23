@@ -5,11 +5,13 @@
 #include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricStatistics.h"
 #include "cesium/omniverse/FabricUtil.h"
+#include "cesium/omniverse/FilesystemUtil.h"
 #include "cesium/omniverse/Logger.h"
 #include "cesium/omniverse/OmniData.h"
 #include "cesium/omniverse/OmniIonRasterOverlay.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/RenderStatistics.h"
+#include "cesium/omniverse/SettingsWrapper.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/TilesetStatistics.h"
 #include "cesium/omniverse/UrlAssetAccessor.h"
@@ -22,6 +24,8 @@
 #endif
 
 #include <Cesium3DTilesContent/registerAllTileContentTypes.h>
+#include <CesiumAsync/CachingAssetAccessor.h>
+#include <CesiumAsync/SqliteCache.h>
 #include <CesiumUtility/CreditSystem.h>
 #include <omni/fabric/SimStageWithHistory.h>
 #include <pxr/usd/sdf/path.h>
@@ -30,6 +34,31 @@
 #include <chrono>
 
 namespace cesium::omniverse {
+
+namespace {
+
+std::string getCacheDatabaseName() {
+    auto cacheDirPath = FilesystemUtil::getCesiumCacheDirectory();
+    if (!cacheDirPath.empty()) {
+        auto cacheFilePath = cacheDirPath / "cesium-request-cache.sqlite";
+        return cacheFilePath.generic_string();
+    }
+    return {};
+}
+
+std::shared_ptr<CesiumAsync::ICacheDatabase> makeCacheDatabase(const std::shared_ptr<Logger>& logger) {
+    uint64_t maxCacheItems = Settings::getMaxCacheItems();
+    if (maxCacheItems == 0) {
+        logger->oneTimeWarning("maxCacheItems set to 0, so disabling accessor cache");
+        return {};
+    } else if (auto dbName = getCacheDatabaseName(); !dbName.empty()) {
+        logger->oneTimeWarning(fmt::format("Cesium cache file: {}", dbName));
+        return std::make_shared<CesiumAsync::SqliteCache>(logger, dbName, maxCacheItems);
+    }
+    logger->oneTimeWarning("could not get name for cache database");
+    return {};
+}
+} // namespace
 
 namespace {
 uint64_t getSecondsSinceEpoch() {
@@ -43,15 +72,21 @@ Context::Context(const std::filesystem::path& cesiumExtensionLocation)
     , _cesiumMdlPathToken(pxr::TfToken((_cesiumExtensionLocation / "mdl" / "cesium.mdl").generic_string()))
     , _pTaskProcessor(std::make_shared<TaskProcessor>())
     , _pAsyncSystem(std::make_unique<CesiumAsync::AsyncSystem>(_pTaskProcessor))
-    , _pAssetAccessor(std::make_shared<UrlAssetAccessor>())
-    , _pCreditSystem(std::make_shared<CesiumUtility::CreditSystem>())
     , _pLogger(std::make_shared<Logger>())
+    , _pCacheDatabase(makeCacheDatabase(_pLogger))
+    , _pCreditSystem(std::make_shared<CesiumUtility::CreditSystem>())
     , _pAssetRegistry(std::make_unique<AssetRegistry>(this))
     , _pFabricResourceManager(std::make_unique<FabricResourceManager>(this))
     , _pCesiumIonServerManager(std::make_unique<CesiumIonServerManager>(this))
     , _pUsdNotificationHandler(std::make_unique<UsdNotificationHandler>(this))
     , _contextId(static_cast<int64_t>(getSecondsSinceEpoch())) {
+    if (_pCacheDatabase) {
+        _pAssetAccessor = std::make_shared<CesiumAsync::CachingAssetAccessor>(
+            _pLogger, std::make_shared<UrlAssetAccessor>(), _pCacheDatabase);
 
+    } else {
+        _pAssetAccessor = std::make_shared<UrlAssetAccessor>();
+    }
     Cesium3DTilesContent::registerAllTileContentTypes();
 
 #if CESIUM_TRACING_ENABLED
@@ -146,6 +181,12 @@ void Context::reloadStage() {
         _pFabricResourceManager->setMaterialPoolInitialCapacity(pData->getDebugMaterialPoolInitialCapacity());
         _pFabricResourceManager->setTexturePoolInitialCapacity(pData->getDebugTexturePoolInitialCapacity());
         _pFabricResourceManager->setDebugRandomColors(pData->getDebugRandomColors());
+    }
+}
+
+void Context::clearAccessorCache() {
+    if (_pCacheDatabase) {
+        _pCacheDatabase->clearAll();
     }
 }
 

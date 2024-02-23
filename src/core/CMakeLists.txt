@@ -60,6 +60,7 @@ setup_lib(
         webpdecoder
         turbojpeg
         meshoptimizer
+        sqlite3
         cpr::cpr
         stb::stb
         ZLIB::ZLIB
