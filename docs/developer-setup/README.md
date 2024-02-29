@@ -117,6 +117,10 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
     cd <first_path_in_list>
     mklink python3.exe python.exe
     ```
+- Install `requests` module for Python
+  ```sh
+  pip3 install requests
+  ```
 - Install `cmake-format`
   ```sh
   pip3 install cmake-format
@@ -166,6 +170,10 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
   where python
   cd <first_path_in_list>
   mklink python3.exe python.exe
+  ```
+- Install `requests`
+  ```sh
+  pip3 install requests
   ```
 - Install `cmake-format`
   ```sh

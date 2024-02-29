@@ -69,6 +69,7 @@ uint64_t getSecondsSinceEpoch() {
 
 Context::Context(const std::filesystem::path& cesiumExtensionLocation)
     : _cesiumExtensionLocation(cesiumExtensionLocation.lexically_normal())
+    , _certificatePath(_cesiumExtensionLocation / "certs" / "cacert.pem")
     , _cesiumMdlPathToken(pxr::TfToken((_cesiumExtensionLocation / "mdl" / "cesium.mdl").generic_string()))
     , _pTaskProcessor(std::make_shared<TaskProcessor>())
     , _pAsyncSystem(std::make_unique<CesiumAsync::AsyncSystem>(_pTaskProcessor))
@@ -82,10 +83,10 @@ Context::Context(const std::filesystem::path& cesiumExtensionLocation)
     , _contextId(static_cast<int64_t>(getSecondsSinceEpoch())) {
     if (_pCacheDatabase) {
         _pAssetAccessor = std::make_shared<CesiumAsync::CachingAssetAccessor>(
-            _pLogger, std::make_shared<UrlAssetAccessor>(), _pCacheDatabase);
+            _pLogger, std::make_shared<UrlAssetAccessor>(_certificatePath), _pCacheDatabase);
 
     } else {
-        _pAssetAccessor = std::make_shared<UrlAssetAccessor>();
+        _pAssetAccessor = std::make_shared<UrlAssetAccessor>(_certificatePath);
     }
     Cesium3DTilesContent::registerAllTileContentTypes();
 
@@ -105,6 +106,10 @@ Context::~Context() {
 
 const std::filesystem::path& Context::getCesiumExtensionLocation() const {
     return _cesiumExtensionLocation;
+}
+
+const std::filesystem::path& Context::getCertificatePath() const {
+    return _certificatePath;
 }
 
 const pxr::TfToken& Context::getCesiumMdlPathToken() const {
