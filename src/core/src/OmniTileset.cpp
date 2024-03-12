@@ -570,7 +570,7 @@ void OmniTileset::reload() {
 
     switch (sourceType) {
         case TilesetSourceType::ION:
-            if (ionAssetId <= 0 || ionAccessToken.token.empty() || ionApiUrl.empty()) {
+            if (ionAssetId <= 0 || ionApiUrl.empty()) {
                 _pTileset = std::make_unique<Cesium3DTilesSelection::Tileset>(externals, 0, "", options);
             } else {
                 _pTileset = std::make_unique<Cesium3DTilesSelection::Tileset>(
