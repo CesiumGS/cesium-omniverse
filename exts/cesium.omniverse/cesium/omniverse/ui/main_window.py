@@ -234,7 +234,9 @@ class CesiumOmniverseMainWindow(ui.Window):
             with ui.ScrollingFrame():
                 with ui.VStack(spacing=0):
                     self._quick_add_widget = CesiumOmniverseQuickAddWidget(self._cesium_omniverse_interface)
-                    self._sign_in_widget = CesiumOmniverseSignInWidget(self._cesium_omniverse_interface, visible=False)
+                    self._sign_in_widget = CesiumOmniverseSignInWidget(
+                        self._cesium_omniverse_interface, visible=False
+                    )
 
     def _add_button_clicked(self) -> None:
         if not self._add_button or not self._add_button.enabled:
