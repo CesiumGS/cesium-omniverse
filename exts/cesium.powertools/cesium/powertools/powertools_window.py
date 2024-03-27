@@ -65,6 +65,7 @@ class CesiumPowertoolsWindow(ui.Window):
         super().destroy()
 
     def _build_fn(self):
-        with ui.VStack(spacing=4):
-            for action in self._actions:
-                action.button()
+        with ui.ScrollingFrame():
+            with ui.VStack(spacing=4):
+                for action in self._actions:
+                    action.button()
