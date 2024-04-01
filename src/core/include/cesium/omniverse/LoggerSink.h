@@ -1,5 +1,10 @@
 #pragma once
 
+// clang-format off
+// Needs to go above Omniverse headers
+#include <cctype>
+// clang-format on
+
 #include <omni/log/ILog.h>
 #include <spdlog/details/null_mutex.h>
 #include <spdlog/sinks/base_sink.h>

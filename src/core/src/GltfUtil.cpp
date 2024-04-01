@@ -646,6 +646,7 @@ const CesiumGltf::ImageCesium* getFeatureIdTextureImage(
     }
 
     const auto featureIdTextureView = CesiumGltf::FeatureIdTextureView(model, pFeatureId->texture.value());
+
     if (featureIdTextureView.status() != CesiumGltf::FeatureIdTextureViewStatus::Valid) {
         return nullptr;
     }

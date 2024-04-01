@@ -9,7 +9,7 @@ endif()
 # Both CXX and C need to be given otherwise Conan may ignore the CMAKE_C_COMPILER flag
 project(
     CesiumOmniverse
-    VERSION 0.18.0
+    VERSION 0.19.0
     DESCRIPTION "Cesium for Omniverse"
     LANGUAGES CXX C)
 
@@ -252,6 +252,7 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
         -Wuninitialized
         -Wconversion
         -Wno-missing-field-initializers
+        -Wno-return-local-addr
         -fstrict-aliasing
         -fstrict-enums)
 

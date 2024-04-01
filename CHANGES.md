@@ -1,5 +1,10 @@
 # Change Log
 
+### v0.19.0 - 2024-04-01
+
+* Added scrollbar to main window UI.
+* Fixed issue when loading tilesets with Cesium ion Self-Hosted in developer mode.
+
 ### v0.18.0 - 2024-03-01
 
 * **Breaking change:** removed deprecated properties `projectDefaultIonAccessToken` and `projectDefaultIonAccessToken` from `CesiumDataPrim`. `CesiumIonServerPrim` should be used instead.
