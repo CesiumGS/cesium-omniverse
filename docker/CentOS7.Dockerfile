@@ -71,7 +71,7 @@ RUN wget https://cmake.org/files/v3.24/cmake-3.24.2.tar.gz && \
     ln -sf /usr/local/bin/ctest /usr/bin/ctest && \
     ln -sf /usr/local/bin/cpack /usr/bin/cpack
 
-RUN pip3 install conan==1.60.0 && \
+RUN pip3 install conan==1.64.0 && \
     pip3 install gcovr
 
 WORKDIR /var/app
