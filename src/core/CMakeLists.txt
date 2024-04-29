@@ -42,6 +42,7 @@ setup_lib(
         CesiumGltfReader
         CesiumGltfContent
         CesiumGltf
+        CesiumQuantizedMeshTerrain
         CesiumJsonReader
         CesiumGeospatial
         CesiumGeometry
@@ -51,7 +52,7 @@ setup_lib(
         async++
         csprng
         draco
-        ktx_read
+        ktx
         modp_b64
         s2geometry
         spdlog

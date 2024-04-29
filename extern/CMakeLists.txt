@@ -12,6 +12,7 @@ add_external_project(
         CesiumGltfReader
         CesiumGltfContent
         CesiumGltf
+        CesiumQuantizedMeshTerrain
         CesiumJsonReader
         CesiumGeospatial
         CesiumGeometry
@@ -21,7 +22,7 @@ add_external_project(
         async++
         csprng
         draco
-        ktx_read
+        ktx
         modp_b64
         s2geometry
         spdlog
