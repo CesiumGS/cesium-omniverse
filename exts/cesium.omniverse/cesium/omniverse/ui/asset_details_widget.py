@@ -76,7 +76,7 @@ class CesiumAssetDetailsWidget(ui.ScrollingFrame):
         selection = context.get_selection().get_selected_prim_paths()
         tileset_path: Optional[str] = None
 
-        if len(selection) > 0 and is_tileset(context.get_stage().GetPrimAtPath(selection[0])):
+        if len(selection) > 0 and is_tileset(selection[0]):
             tileset_path = selection[0]
 
         if tileset_path is None:
@@ -122,7 +122,7 @@ class CesiumAssetDetailsWidget(ui.ScrollingFrame):
                                 style=CesiumOmniverseUiStyles.blue_button_style,
                                 clicked_fn=self._add_tileset_button_clicked,
                             )
-                        elif self._asset_type == "RASTER_OVERLAY":
+                        elif self._asset_type == "IMAGERY":
                             ui.Button(
                                 "Use as Terrain Tileset Base Layer",
                                 width=0,
