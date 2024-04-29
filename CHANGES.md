@@ -1,5 +1,10 @@
 # Change Log
 
+### v0.20.0 - 2024-05-01
+
+* Fix missing button for adding imagery from Asset UI.
+* Updated cesium-native which includes a bug fix for reading GLB files with extra padding bytes.
+
 ### v0.19.0 - 2024-04-01
 
 * Added scrollbar to main window UI.
