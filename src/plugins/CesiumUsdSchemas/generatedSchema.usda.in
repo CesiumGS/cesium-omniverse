@@ -87,6 +87,10 @@ class CesiumGeoreferencePrim "CesiumGeoreferencePrim" (
     doc = "Stores Georeference data for Cesium for Omniverse. Every stage should have at least one of these."
 )
 {
+    matrix4d cesium:ecefToUsdTransform (
+        displayName = "ECEF to USD Transform (read only)"
+        doc = "The 4x4 transformation matrix (row major) from global ECEF coordinates to USD stage coordinates based on the georeference origin (read only)."
+    )
     double cesium:georeferenceOrigin:height = 2250 (
         displayName = "Georeference Origin Height"
         doc = "The height of the origin in meters above the WGS84 ellipsoid. Do not confuse this with a geoid height or height above mean sea level, which can be tens of meters higher or lower depending on where in the world the origin is located."

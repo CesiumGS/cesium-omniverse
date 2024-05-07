@@ -14,7 +14,9 @@ namespace cesium::omniverse {
 OmniGeoreference::OmniGeoreference(Context* pContext, const pxr::SdfPath& path)
     : _pContext(pContext)
     , _path(path)
-    , _ellipsoid(CesiumGeospatial::Ellipsoid::WGS84) {}
+    , _ellipsoid(CesiumGeospatial::Ellipsoid::WGS84) {
+        update();
+    }
 
 const pxr::SdfPath& OmniGeoreference::getPath() const {
     return _path;
@@ -66,6 +68,17 @@ CesiumGeospatial::LocalHorizontalCoordinateSystem OmniGeoreference::getLocalCoor
         scaleInMeters,
         _ellipsoid,
     };
+}
+
+void OmniGeoreference::update() {
+    const auto cesiumGeoreference = UsdUtil::getCesiumGeoreference(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumGeoreference)) {
+        return;
+    }
+
+    const auto ecefToUsdTransform = getLocalCoordinateSystem().getEcefToLocalTransformation();
+
+    cesiumGeoreference.GetEcefToUsdTransformAttr().Set(UsdUtil::glmToUsdMatrix(ecefToUsdTransform));
 }
 
 } // namespace cesium::omniverse

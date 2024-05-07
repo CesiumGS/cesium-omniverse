@@ -46,6 +46,13 @@ _CreateGeoreferenceOriginHeightAttr(CesiumGeoreference &self,
     return self.CreateGeoreferenceOriginHeightAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
 }
+        
+static UsdAttribute
+_CreateEcefToUsdTransformAttr(CesiumGeoreference &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreateEcefToUsdTransformAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Matrix4d), writeSparsely);
+}
 
 static std::string
 _Repr(const CesiumGeoreference &self)
@@ -107,6 +114,13 @@ void wrapCesiumGeoreference()
              &This::GetGeoreferenceOriginHeightAttr)
         .def("CreateGeoreferenceOriginHeightAttr",
              &_CreateGeoreferenceOriginHeightAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetEcefToUsdTransformAttr",
+             &This::GetEcefToUsdTransformAttr)
+        .def("CreateEcefToUsdTransformAttr",
+             &_CreateEcefToUsdTransformAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 
