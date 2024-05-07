@@ -15,8 +15,8 @@ OmniGeoreference::OmniGeoreference(Context* pContext, const pxr::SdfPath& path)
     : _pContext(pContext)
     , _path(path)
     , _ellipsoid(CesiumGeospatial::Ellipsoid::WGS84) {
-        update();
-    }
+    update();
+}
 
 const pxr::SdfPath& OmniGeoreference::getPath() const {
     return _path;

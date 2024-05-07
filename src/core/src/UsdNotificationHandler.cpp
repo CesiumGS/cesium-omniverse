@@ -528,7 +528,10 @@ void processCesiumWebMapTileServiceRasterOverlayChanged(
     }
 }
 
-void processCesiumGeoreferenceChanged(const Context& context, const pxr::SdfPath& georeferencePath, const std::vector<pxr::TfToken>& properties) {
+void processCesiumGeoreferenceChanged(
+    const Context& context,
+    const pxr::SdfPath& georeferencePath,
+    const std::vector<pxr::TfToken>& properties) {
     const auto pGeoreference = context.getAssetRegistry().getGeoreference(georeferencePath);
     if (!pGeoreference) {
         return;
