@@ -50,19 +50,6 @@
 
 namespace cesium::omniverse::UsdUtil {
 
-namespace {
-
-bool getDebugDisableGeoreferencing(const Context& context) {
-    const auto pData = context.getAssetRegistry().getFirstData();
-    if (!pData) {
-        return false;
-    }
-
-    return pData->getDebugDisableGeoreferencing();
-}
-
-} // namespace
-
 glm::dvec3 usdToGlmVector(const pxr::GfVec3d& vector) {
     return {vector[0], vector[1], vector[2]};
 }
@@ -801,6 +788,15 @@ std::optional<TranslateRotateScaleOps> getOrCreateTranslateRotateScaleOps(const 
     }
 
     return TranslateRotateScaleOps{translateOp, rotateOp, scaleOp, eulerAngleOrder};
+}
+
+bool getDebugDisableGeoreferencing(const Context& context) {
+    const auto pData = context.getAssetRegistry().getFirstData();
+    if (!pData) {
+        return false;
+    }
+
+    return pData->getDebugDisableGeoreferencing();
 }
 
 } // namespace cesium::omniverse::UsdUtil

@@ -235,6 +235,10 @@ bool OmniGlobeAnchor::isAnchorValid() const {
         return false;
     }
 
+    if (UsdUtil::getDebugDisableGeoreferencing(*_pContext)) {
+        return false;
+    }
+
     return true;
 }
 

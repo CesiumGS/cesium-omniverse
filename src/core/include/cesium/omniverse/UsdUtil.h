@@ -168,4 +168,6 @@ struct TranslateRotateScaleOps {
 
 std::optional<TranslateRotateScaleOps> getOrCreateTranslateRotateScaleOps(const pxr::UsdGeomXformable& xformable);
 
+bool getDebugDisableGeoreferencing(const Context& context);
+
 }; // namespace cesium::omniverse::UsdUtil
