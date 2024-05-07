@@ -18,7 +18,6 @@
 #include <CesiumUsdSchemas/globeAnchorAPI.h>
 #include <CesiumUsdSchemas/ionServer.h>
 #include <CesiumUsdSchemas/rasterOverlay.h>
-#include <CesiumUsdSchemas/session.h>
 #include <CesiumUsdSchemas/tileset.h>
 #include <CesiumUsdSchemas/tokens.h>
 #include <CesiumUtility/Math.h>

@@ -131,10 +131,6 @@ struct CesiumTokensType {
     /// 
     /// CesiumWebMapTileServiceRasterOverlay
     const TfToken cesiumEast;
-    /// \brief "cesium:ecefToUsdTransform"
-    /// 
-    /// CesiumSession
-    const TfToken cesiumEcefToUsdTransform;
     /// \brief "cesium:enableFogCulling"
     /// 
     /// CesiumTileset

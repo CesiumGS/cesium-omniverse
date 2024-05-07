@@ -64,7 +64,6 @@ void wrapCesiumTokens()
     _AddToken(cls, "cesiumDebugTexturePoolInitialCapacity", CesiumTokens->cesiumDebugTexturePoolInitialCapacity);
     _AddToken(cls, "cesiumDisplayName", CesiumTokens->cesiumDisplayName);
     _AddToken(cls, "cesiumEast", CesiumTokens->cesiumEast);
-    _AddToken(cls, "cesiumEcefToUsdTransform", CesiumTokens->cesiumEcefToUsdTransform);
     _AddToken(cls, "cesiumEnableFogCulling", CesiumTokens->cesiumEnableFogCulling);
     _AddToken(cls, "cesiumEnableFrustumCulling", CesiumTokens->cesiumEnableFrustumCulling);
     _AddToken(cls, "cesiumEnforceCulledScreenSpaceError", CesiumTokens->cesiumEnforceCulledScreenSpaceError);

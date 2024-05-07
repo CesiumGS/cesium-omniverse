@@ -25,7 +25,6 @@
 #include <CesiumUsdSchemas/ionRasterOverlay.h>
 #include <CesiumUsdSchemas/ionServer.h>
 #include <CesiumUsdSchemas/polygonRasterOverlay.h>
-#include <CesiumUsdSchemas/session.h>
 #include <CesiumUsdSchemas/tileMapServiceRasterOverlay.h>
 #include <CesiumUsdSchemas/tileset.h>
 #include <CesiumUsdSchemas/webMapServiceRasterOverlay.h>
@@ -356,10 +355,6 @@ pxr::CesiumGlobeAnchorAPI applyCesiumGlobeAnchor(const pxr::UsdStageWeakPtr& pSt
     return pxr::CesiumGlobeAnchorAPI::Apply(prim);
 }
 
-pxr::CesiumSession defineCesiumSession(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
-    return pxr::CesiumSession::Define(pStage, path);
-}
-
 pxr::CesiumData getCesiumData(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
     return pxr::CesiumData::Get(pStage, path);
 }
@@ -420,25 +415,6 @@ pxr::UsdShadeShader getUsdShader(const pxr::UsdStageWeakPtr& pStage, const pxr::
 
 pxr::UsdGeomBasisCurves getUsdBasisCurves(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
     return pxr::UsdGeomBasisCurves::Get(pStage, path);
-}
-
-pxr::CesiumSession getOrCreateCesiumSession(const pxr::UsdStageWeakPtr& pStage) {
-    static const auto CesiumSessionPath = pxr::SdfPath("/CesiumSession");
-
-    if (isCesiumSession(pStage, CesiumSessionPath)) {
-        return pxr::CesiumSession::Get(pStage, CesiumSessionPath);
-    }
-
-    // Ensures that CesiumSession is created in the session layer
-    const UsdScopedEdit scopedEdit(pStage);
-
-    // Create the CesiumSession
-    const auto cesiumSession = defineCesiumSession(pStage, CesiumSessionPath);
-
-    // Prevent CesiumSession from being traversed and composed into the stage
-    cesiumSession.GetPrim().SetActive(false);
-
-    return cesiumSession;
 }
 
 bool isCesiumData(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
@@ -540,15 +516,6 @@ bool isCesiumCartographicPolygon(const pxr::UsdStageWeakPtr& pStage, const pxr::
         return false;
     }
     return prim.HasAPI<pxr::CesiumGlobeAnchorAPI>();
-}
-
-bool isCesiumSession(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
-    const auto prim = pStage->GetPrimAtPath(path);
-    if (!prim.IsValid()) {
-        return false;
-    }
-
-    return prim.IsA<pxr::CesiumSession>();
 }
 
 bool hasCesiumGlobeAnchor(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
