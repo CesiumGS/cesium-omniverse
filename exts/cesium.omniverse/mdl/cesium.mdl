@@ -395,8 +395,9 @@ float4 finalize_float4(float4 raw_value, bool has_no_data, float4 no_data, float
 
 int2 get_property_table_pixel_index(int feature_id, uniform texture_2d property_table_texture) {
     auto width = tex::width(property_table_texture);
+    auto height = tex::height(property_table_texture);
     auto pixel_x = feature_id % width;
-    auto pixel_y = feature_id / width;
+    auto pixel_y = height - 1 - feature_id / width;
     return int2(pixel_x, pixel_y);
 }
 
