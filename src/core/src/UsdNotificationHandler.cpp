@@ -528,8 +528,16 @@ void processCesiumWebMapTileServiceRasterOverlayChanged(
     }
 }
 
-void processCesiumGeoreferenceChanged(const Context& context, const std::vector<pxr::TfToken>& properties) {
+void processCesiumGeoreferenceChanged(
+    const Context& context,
+    const pxr::SdfPath& georeferencePath,
+    const std::vector<pxr::TfToken>& properties) {
+    const auto pGeoreference = context.getAssetRegistry().getGeoreference(georeferencePath);
+    if (!pGeoreference) {
+        return;
+    }
 
+    auto updateGeoreference = false;
     auto updateBindings = false;
 
     // clang-format off
@@ -537,10 +545,15 @@ void processCesiumGeoreferenceChanged(const Context& context, const std::vector<
         if (property == pxr::CesiumTokens->cesiumGeoreferenceOriginLongitude ||
             property == pxr::CesiumTokens->cesiumGeoreferenceOriginLatitude ||
             property == pxr::CesiumTokens->cesiumGeoreferenceOriginHeight) {
+            updateGeoreference = true;
             updateBindings = true;
         }
     }
     // clang-format on
+
+    if (updateGeoreference) {
+        pGeoreference->update();
+    }
 
     if (updateBindings) {
         updateGeoreferenceBindings(context);
@@ -945,7 +958,7 @@ bool UsdNotificationHandler::processChangedPrim(const ChangedPrim& changedPrim) 
                         *_pContext, changedPrim.primPath, changedPrim.properties);
                     break;
                 case ChangedPrimType::CESIUM_GEOREFERENCE:
-                    processCesiumGeoreferenceChanged(*_pContext, changedPrim.properties);
+                    processCesiumGeoreferenceChanged(*_pContext, changedPrim.primPath, changedPrim.properties);
                     break;
                 case ChangedPrimType::CESIUM_GLOBE_ANCHOR:
                     processCesiumGlobeAnchorChanged(*_pContext, changedPrim.primPath, changedPrim.properties);

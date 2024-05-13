@@ -192,6 +192,28 @@ public:
     UsdAttribute CreateGeoreferenceOriginHeightAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
 
 public:
+    // --------------------------------------------------------------------- //
+    // ECEFTOUSDTRANSFORM 
+    // --------------------------------------------------------------------- //
+    /// The 4x4 transformation matrix (row major) from global ECEF coordinates to USD stage coordinates based on the georeference origin (read only).
+    ///
+    /// | ||
+    /// | -- | -- |
+    /// | Declaration | `matrix4d cesium:ecefToUsdTransform` |
+    /// | C++ Type | GfMatrix4d |
+    /// | \ref Usd_Datatypes "Usd Type" | SdfValueTypeNames->Matrix4d |
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute GetEcefToUsdTransformAttr() const;
+
+    /// See GetEcefToUsdTransformAttr(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.
+    /// If specified, author \p defaultValue as the attribute's default,
+    /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -
+    /// the default for \p writeSparsely is \c false.
+    CESIUMUSDSCHEMAS_API
+    UsdAttribute CreateEcefToUsdTransformAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
     // ===================================================================== //
     // Feel free to add custom code below this line, it will be preserved by 
     // the code generator. 

@@ -26,6 +26,7 @@ class OmniGeoreference {
     [[nodiscard]] CesiumGeospatial::Cartographic getOrigin() const;
     [[nodiscard]] const CesiumGeospatial::Ellipsoid& getEllipsoid() const;
     [[nodiscard]] CesiumGeospatial::LocalHorizontalCoordinateSystem getLocalCoordinateSystem() const;
+    void update();
 
   private:
     Context* _pContext;

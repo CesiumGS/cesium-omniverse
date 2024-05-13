@@ -18,7 +18,6 @@
 #include <CesiumUsdSchemas/globeAnchorAPI.h>
 #include <CesiumUsdSchemas/ionServer.h>
 #include <CesiumUsdSchemas/rasterOverlay.h>
-#include <CesiumUsdSchemas/session.h>
 #include <CesiumUsdSchemas/tileset.h>
 #include <CesiumUsdSchemas/tokens.h>
 #include <CesiumUtility/Math.h>
@@ -233,6 +232,10 @@ bool OmniGlobeAnchor::isAnchorValid() const {
         _pContext->getLogger()->oneTimeWarning(
             "Globe anchor xform op order must be [translate, rotate, scale] followed by any additional transforms.",
             _path.GetText());
+        return false;
+    }
+
+    if (UsdUtil::getDebugDisableGeoreferencing(*_pContext)) {
         return false;
     }
 

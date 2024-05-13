@@ -133,7 +133,7 @@ struct CesiumTokensType {
     const TfToken cesiumEast;
     /// \brief "cesium:ecefToUsdTransform"
     /// 
-    /// CesiumSession
+    /// CesiumGeoreference
     const TfToken cesiumEcefToUsdTransform;
     /// \brief "cesium:enableFogCulling"
     /// 

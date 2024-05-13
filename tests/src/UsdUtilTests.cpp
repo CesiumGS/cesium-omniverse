@@ -10,7 +10,6 @@
 #include <CesiumUsdSchemas/globeAnchorAPI.h>
 #include <CesiumUsdSchemas/ionRasterOverlay.h>
 #include <CesiumUsdSchemas/ionServer.h>
-#include <CesiumUsdSchemas/session.h>
 #include <CesiumUsdSchemas/tileset.h>
 #include <doctest/doctest.h>
 #include <glm/ext/matrix_double4x4.hpp>
@@ -21,12 +20,10 @@
 // define prim paths globally to cut down on repeated definitions
 // name the paths after the function to be tested so they can easily be paired up later
 pxr::SdfPath defineCesiumDataPath;
-pxr::SdfPath defineCesiumSessionPath;
 pxr::SdfPath defineCesiumGeoreferencePath;
 pxr::SdfPath defineCesiumTilesetPath;
 pxr::SdfPath defineCesiumIonRasterOverlayPath;
 pxr::SdfPath defineGlobeAnchorPath;
-pxr::CesiumSession getOrCreateCesiumSessionPrim;
 
 using namespace cesium::omniverse;
 using namespace cesium::omniverse::UsdUtil;
@@ -36,20 +33,15 @@ const Context* pContext;
 void setUpUsdUtilTests(cesium::omniverse::Context* context, const pxr::SdfPath& rootPath) {
     // might as well name the prims after the function as well, to ensure uniqueness and clarity
     defineCesiumDataPath = rootPath.AppendChild(pxr::TfToken("defineCesiumData"));
-    defineCesiumSessionPath = rootPath.AppendChild(pxr::TfToken("defineCesiumSession"));
     defineCesiumGeoreferencePath = rootPath.AppendChild(pxr::TfToken("defineCesiumGeoreference"));
     defineCesiumIonRasterOverlayPath = rootPath.AppendChild(pxr::TfToken("defineCesiumIonRasterOverlay"));
     defineCesiumTilesetPath = rootPath.AppendChild(pxr::TfToken("defineCesiumTileset"));
     defineGlobeAnchorPath = rootPath.AppendChild(pxr::TfToken("defineGlobeAnchor"));
 
     defineCesiumData(context->getUsdStage(), defineCesiumDataPath);
-    defineCesiumSession(context->getUsdStage(), defineCesiumSessionPath);
     defineCesiumGeoreference(context->getUsdStage(), defineCesiumGeoreferencePath);
     defineCesiumTileset(context->getUsdStage(), defineCesiumTilesetPath);
     defineCesiumIonRasterOverlay(context->getUsdStage(), defineCesiumIonRasterOverlayPath);
-    // defineGlobeAnchor(globeAnchorPath);
-
-    getOrCreateCesiumSessionPrim = getOrCreateCesiumSession(context->getUsdStage());
 
     pContext = context;
 }
@@ -58,15 +50,10 @@ void cleanUpUsdUtilTests(const pxr::UsdStageRefPtr& stage) {
 
     // might as well name the prims after the function as well, to ensure uniqueness and clarity
     stage->RemovePrim(defineCesiumDataPath);
-    stage->RemovePrim(defineCesiumSessionPath);
     stage->RemovePrim(defineCesiumGeoreferencePath);
     stage->RemovePrim(defineCesiumIonRasterOverlayPath);
     stage->RemovePrim(defineCesiumTilesetPath);
     stage->RemovePrim(defineGlobeAnchorPath);
-
-    // stage->RemovePrim(globeAnchorPath);
-
-    stage->RemovePrim(getOrCreateCesiumSessionPrim.GetPath());
 }
 
 TEST_SUITE("UsdUtil tests") {
@@ -140,13 +127,9 @@ TEST_SUITE("UsdUtil tests") {
         auto rootPath = getRootPath(pContext->getUsdStage());
 
         CHECK(isCesiumData(pContext->getUsdStage(), defineCesiumDataPath));
-        CHECK(isCesiumSession(pContext->getUsdStage(), defineCesiumSessionPath));
         CHECK(isCesiumGeoreference(pContext->getUsdStage(), defineCesiumGeoreferencePath));
         CHECK(isCesiumTileset(pContext->getUsdStage(), defineCesiumTilesetPath));
         CHECK(isCesiumIonRasterOverlay(pContext->getUsdStage(), defineCesiumIonRasterOverlayPath));
-        // CHECK(hasCesiumGlobeAnchor(pContext->getUsdStage(), globeAnchorPath));
-
-        CHECK(isCesiumSession(pContext->getUsdStage(), getOrCreateCesiumSessionPrim.GetPath()));
     }
 
     TEST_CASE("Smoke tests") {

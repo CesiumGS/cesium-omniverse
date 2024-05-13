@@ -12,7 +12,6 @@ TF_WRAP_MODULE
   TF_WRAP(CesiumRasterOverlay);
   TF_WRAP(CesiumIonRasterOverlay);
   TF_WRAP(CesiumPolygonRasterOverlay);
-  TF_WRAP(CesiumSession);
   TF_WRAP(CesiumTileMapServiceRasterOverlay);
   TF_WRAP(CesiumTileset);
   TF_WRAP(CesiumTokens);

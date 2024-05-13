@@ -16,7 +16,6 @@ class CesiumRasterOverlay;
 class CesiumIonRasterOverlay;
 class CesiumIonServer;
 class CesiumPolygonRasterOverlay;
-class CesiumSession;
 class CesiumTileset;
 class CesiumWebMapServiceRasterOverlay;
 class CesiumTileMapServiceRasterOverlay;
@@ -116,7 +115,6 @@ defineCesiumPolygonRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::
 pxr::CesiumGeoreference defineCesiumGeoreference(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::CesiumIonServer defineCesiumIonServer(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::CesiumGlobeAnchorAPI applyCesiumGlobeAnchor(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
-pxr::CesiumSession defineCesiumSession(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 
 pxr::CesiumData getCesiumData(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::CesiumTileset getCesiumTileset(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
@@ -137,8 +135,6 @@ pxr::UsdGeomBasisCurves getCesiumCartographicPolygon(const pxr::UsdStageWeakPtr&
 pxr::UsdShadeShader getUsdShader(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::UsdGeomBasisCurves getUsdBasisCurves(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 
-pxr::CesiumSession getOrCreateCesiumSession(const pxr::UsdStageWeakPtr& pStage);
-
 bool isCesiumData(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool isCesiumTileset(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool isCesiumRasterOverlay(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
@@ -150,7 +146,6 @@ bool isCesiumWebMapTileServiceRasterOverlay(const pxr::UsdStageWeakPtr& pStage, 
 bool isCesiumGeoreference(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool isCesiumIonServer(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool isCesiumCartographicPolygon(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
-bool isCesiumSession(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool hasCesiumGlobeAnchor(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool isUsdShader(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool isUsdMaterial(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
@@ -172,5 +167,7 @@ struct TranslateRotateScaleOps {
 };
 
 std::optional<TranslateRotateScaleOps> getOrCreateTranslateRotateScaleOps(const pxr::UsdGeomXformable& xformable);
+
+bool getDebugDisableGeoreferencing(const Context& context);
 
 }; // namespace cesium::omniverse::UsdUtil

@@ -131,6 +131,23 @@ CesiumGeoreference::CreateGeoreferenceOriginHeightAttr(VtValue const &defaultVal
                        writeSparsely);
 }
 
+UsdAttribute
+CesiumGeoreference::GetEcefToUsdTransformAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumEcefToUsdTransform);
+}
+
+UsdAttribute
+CesiumGeoreference::CreateEcefToUsdTransformAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumEcefToUsdTransform,
+                       SdfValueTypeNames->Matrix4d,
+                       /* custom = */ false,
+                       SdfVariabilityVarying,
+                       defaultValue,
+                       writeSparsely);
+}
+
 namespace {
 static inline TfTokenVector
 _ConcatenateAttributeNames(const TfTokenVector& left,const TfTokenVector& right)
@@ -151,6 +168,7 @@ CesiumGeoreference::GetSchemaAttributeNames(bool includeInherited)
         CesiumTokens->cesiumGeoreferenceOriginLongitude,
         CesiumTokens->cesiumGeoreferenceOriginLatitude,
         CesiumTokens->cesiumGeoreferenceOriginHeight,
+        CesiumTokens->cesiumEcefToUsdTransform,
     };
     static TfTokenVector allNames =
         _ConcatenateAttributeNames(
