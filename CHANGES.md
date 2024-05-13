@@ -2,6 +2,7 @@
 
 ### v0.21.0 - 2024-06-03
 
+* Fixed point cloud styling.
 * Added read-only attribute `ecefToUsdTransform` to `CesiumGeoreferencePrim`. Previously this was stored in `/CesiumSession` which has since been removed.
 * Fixed crash when updating globe anchor when georeferencing is disabled.
 
