@@ -158,6 +158,13 @@ _CreateMainThreadLoadingTimeLimitAttr(CesiumTileset &self,
     return self.CreateMainThreadLoadingTimeLimitAttr(
         UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Float), writeSparsely);
 }
+        
+static UsdAttribute
+_CreatePointSizeAttr(CesiumTileset &self,
+                                      object defaultVal, bool writeSparsely) {
+    return self.CreatePointSizeAttr(
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Float), writeSparsely);
+}
 
 static std::string
 _Repr(const CesiumTileset &self)
@@ -331,6 +338,13 @@ void wrapCesiumTileset()
              &This::GetMainThreadLoadingTimeLimitAttr)
         .def("CreateMainThreadLoadingTimeLimitAttr",
              &_CreateMainThreadLoadingTimeLimitAttr,
+             (arg("defaultValue")=object(),
+              arg("writeSparsely")=false))
+        
+        .def("GetPointSizeAttr",
+             &This::GetPointSizeAttr)
+        .def("CreatePointSizeAttr",
+             &_CreatePointSizeAttr,
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 

@@ -36,6 +36,7 @@ class FabricGeometry {
         const CesiumGltf::MeshPrimitive& primitive,
         const FabricMaterialInfo& materialInfo,
         bool smoothNormals,
+        double pointSize,
         const std::unordered_map<uint64_t, uint64_t>& texcoordIndexMapping,
         const std::unordered_map<uint64_t, uint64_t>& rasterOverlayTexcoordIndexMapping);
 

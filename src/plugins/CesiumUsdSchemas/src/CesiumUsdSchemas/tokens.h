@@ -259,6 +259,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumPolygonRasterOverlay, CesiumRasterOverlay
     const TfToken cesiumOverlayRenderMethod;
+    /// \brief "cesium:pointSize"
+    /// 
+    /// CesiumTileset
+    const TfToken cesiumPointSize;
     /// \brief "cesium:preloadAncestors"
     /// 
     /// CesiumTileset

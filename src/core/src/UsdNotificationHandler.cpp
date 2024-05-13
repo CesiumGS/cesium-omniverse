@@ -263,6 +263,7 @@ void processCesiumTilesetChanged(
             property == pxr::CesiumTokens->cesiumSmoothNormals ||
             property == pxr::CesiumTokens->cesiumShowCreditsOnScreen ||
             property == pxr::CesiumTokens->cesiumRasterOverlayBinding ||
+            property == pxr::CesiumTokens->cesiumPointSize ||
             property == pxr::UsdTokens->material_binding) {
             reload = true;
         } else if (

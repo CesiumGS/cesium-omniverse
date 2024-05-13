@@ -403,6 +403,23 @@ CesiumTileset::CreateMainThreadLoadingTimeLimitAttr(VtValue const &defaultValue,
                        writeSparsely);
 }
 
+UsdAttribute
+CesiumTileset::GetPointSizeAttr() const
+{
+    return GetPrim().GetAttribute(CesiumTokens->cesiumPointSize);
+}
+
+UsdAttribute
+CesiumTileset::CreatePointSizeAttr(VtValue const &defaultValue, bool writeSparsely) const
+{
+    return UsdSchemaBase::_CreateAttr(CesiumTokens->cesiumPointSize,
+                       SdfValueTypeNames->Float,
+                       /* custom = */ false,
+                       SdfVariabilityVarying,
+                       defaultValue,
+                       writeSparsely);
+}
+
 UsdRelationship
 CesiumTileset::GetGeoreferenceBindingRel() const
 {
@@ -478,6 +495,7 @@ CesiumTileset::GetSchemaAttributeNames(bool includeInherited)
         CesiumTokens->cesiumSmoothNormals,
         CesiumTokens->cesiumShowCreditsOnScreen,
         CesiumTokens->cesiumMainThreadLoadingTimeLimit,
+        CesiumTokens->cesiumPointSize,
     };
     static TfTokenVector allNames =
         _ConcatenateAttributeNames(

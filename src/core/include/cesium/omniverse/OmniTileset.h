@@ -77,6 +77,7 @@ class OmniTileset {
     [[nodiscard]] glm::dvec3 getDisplayColor() const;
     [[nodiscard]] double getDisplayOpacity() const;
     [[nodiscard]] std::vector<pxr::SdfPath> getRasterOverlayPaths() const;
+    [[nodiscard]] double getPointSize() const;
 
     void updateTilesetOptions();
 

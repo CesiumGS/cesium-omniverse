@@ -96,6 +96,7 @@ void wrapCesiumTokens()
     _AddToken(cls, "cesiumMinimumZoomLevel", CesiumTokens->cesiumMinimumZoomLevel);
     _AddToken(cls, "cesiumNorth", CesiumTokens->cesiumNorth);
     _AddToken(cls, "cesiumOverlayRenderMethod", CesiumTokens->cesiumOverlayRenderMethod);
+    _AddToken(cls, "cesiumPointSize", CesiumTokens->cesiumPointSize);
     _AddToken(cls, "cesiumPreloadAncestors", CesiumTokens->cesiumPreloadAncestors);
     _AddToken(cls, "cesiumPreloadSiblings", CesiumTokens->cesiumPreloadSiblings);
     _AddToken(cls, "cesiumProjectDefaultIonAccessToken", CesiumTokens->cesiumProjectDefaultIonAccessToken);
