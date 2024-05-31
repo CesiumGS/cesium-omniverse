@@ -61,6 +61,8 @@ class CesiumTilesetAttributesWidget(SchemaPropertiesWidget):
                 CustomLayoutProperty("cesium:smoothNormals")
             with CustomLayoutGroup("Georeference"):
                 CustomLayoutProperty("cesium:georeferenceBinding")
+            with CustomLayoutGroup("Point Clouds"):
+                CustomLayoutProperty("cesium:pointSize")
 
         return frame.apply(props)
 

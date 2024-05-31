@@ -165,6 +165,10 @@ class CesiumTilesetPrim "CesiumTilesetPrim" (
         displayName = "Maximum Simultaneous Tile Loads"
         doc = "The maximum number of tiles that may be loaded at once. When new parts of the tileset become visible, the tasks to load the corresponding tiles are put into a queue. This value determines how many of these tasks are processed at the same time. A higher value may cause the tiles to be loaded and rendered more quickly, at the cost of a higher network and processing load."
     )
+    float cesium:pointSize = 1 (
+        displayName = "Point Size"
+        doc = "The size in meters to display each point."
+    )
     bool cesium:preloadAncestors = 1 (
         displayName = "Preload Ancestors"
         doc = "Whether to preload ancestor tiles. Setting this to true optimizes the zoom-out experience and provides more detail in newly-exposed areas when panning. The down side is that it requires loading more tiles."

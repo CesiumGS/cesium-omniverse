@@ -2,9 +2,10 @@
 
 ### v0.21.0 - 2024-06-03
 
-* Fixed point cloud styling.
+* Added `pointSize` attribute to `CesiumTilesetPrim` for controlling the size of points.
 * Added read-only attribute `ecefToUsdTransform` to `CesiumGeoreferencePrim`. Previously this was stored in `/CesiumSession` which has since been removed.
 * Fixed crash when updating globe anchor when georeferencing is disabled.
+* Fixed point cloud styling.
 
 ### v0.20.0 - 2024-05-01
 

@@ -486,6 +486,18 @@ std::vector<pxr::SdfPath> OmniTileset::getRasterOverlayPaths() const {
     return targets;
 }
 
+double OmniTileset::getPointSize() const {
+    const auto cesiumTileset = UsdUtil::getCesiumTileset(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumTileset)) {
+        return 1.0;
+    }
+
+    float pointSize;
+    cesiumTileset.GetPointSizeAttr().Get(&pointSize);
+
+    return static_cast<double>(pointSize);
+}
+
 void OmniTileset::updateTilesetOptions() {
     auto& options = _pTileset->getOptions();
     options.maximumScreenSpaceError = getMaximumScreenSpaceError();

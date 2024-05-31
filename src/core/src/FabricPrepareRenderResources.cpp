@@ -250,6 +250,7 @@ void setFabricMeshes(
 
     const auto tilesetId = tileset.getTilesetId();
     const auto smoothNormals = tileset.getSmoothNormals();
+    const auto pointSize = tileset.getPointSize();
 
     for (uint64_t i = 0; i < loadingMeshes.size(); ++i) {
         const auto& loadingMesh = loadingMeshes[i];
@@ -267,6 +268,7 @@ void setFabricMeshes(
             primitive,
             fabricMesh.materialInfo,
             smoothNormals,
+            pointSize,
             fabricMesh.texcoordIndexMapping,
             fabricMesh.rasterOverlayTexcoordIndexMapping);
 

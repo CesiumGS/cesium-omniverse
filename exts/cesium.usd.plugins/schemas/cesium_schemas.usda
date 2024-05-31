@@ -395,6 +395,14 @@ class CesiumTilesetPrim "CesiumTilesetPrim" (
         displayName = "Raster Overlay Binding"
         doc = "Specifies which raster overlays to use for this tileset."
     )
+
+    float cesium:pointSize = 1.0 (
+        customData = {
+            string apiName = "pointSize"
+        }
+        displayName = "Point Size"
+        doc = "The size in meters to display each point."
+    )
 }
 
 class "CesiumRasterOverlayPrim" (

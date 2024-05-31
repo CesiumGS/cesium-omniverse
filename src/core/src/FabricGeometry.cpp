@@ -318,6 +318,7 @@ void FabricGeometry::setGeometry(
     const CesiumGltf::MeshPrimitive& primitive,
     const FabricMaterialInfo& materialInfo,
     bool smoothNormals,
+    double pointSize,
     const std::unordered_map<uint64_t, uint64_t>& texcoordIndexMapping,
     const std::unordered_map<uint64_t, uint64_t>& rasterOverlayTexcoordIndexMapping) {
 
@@ -352,7 +353,7 @@ void FabricGeometry::setGeometry(
 
     if (primitive.mode == CesiumGltf::MeshPrimitive::Mode::POINTS) {
         const auto numVoxels = positions.size();
-        const auto shapeHalfSize = 1.5f;
+        const auto shapeHalfSize = (pointSize <= 0.0 ? 1.0 : pointSize) * 0.5;
         fabricStage.setArrayAttributeSize(_path, FabricTokens::points, numVoxels * 8);
         fabricStage.setArrayAttributeSize(_path, FabricTokens::faceVertexCounts, numVoxels * 2 * 6);
         fabricStage.setArrayAttributeSize(_path, FabricTokens::faceVertexIndices, numVoxels * 6 * 2 * 3);
