@@ -1,5 +1,25 @@
 <project toolsVersion="5.6">
-  <dependency name="kit_sdk" linkPath="../_build/target-deps/kit-sdk/">
-    <package name="kit-sdk" version="105.1.2+release.135279.09b309e7.tc.${platform}.release"/>
+  <dependency name="kit-kernel" linkPath="../_build/target-deps/kit-sdk/">
+    <package name="kit-kernel" version="106.0.0+release.118399.fcefe91f.gl.${platform}.release"/>
+  </dependency>
+  <!-- build-time dependencies -->
+  <!-- the versions MUST correspond to the versions pulled in by kit-kernel during extension precaching-->
+  <!-- you can find the versions by running the dev kit app  ./extern/nvidia/_build/target-deps/kit-sdk/kit apps/cesium.omniverse.dev.kit  -->
+  <!-- which will download the extensions on the first run and log the versions to stdout -->
+  <!--
+  [23.471s] Pulling extension: `omni.ui-2.23.11` from the registry.
+  [omni.kit.registry.nucleus] [tid: 128747226389376] downloading: 'http://d4i3qtqj3r0z5.cloudfront.net/omni.ui-7c6502313c182ec0.zip' -> '/tmp/tmpn5jlkygu/omni.ui-2.23.11+fcefe91f.lx64.r.cp310.zip'...
+
+  [23.286s] Pulling extension: `omni.kit.renderer.imgui-1.0.1` from the registry.
+  [omni.kit.registry.nucleus] [tid: 128747226389376] downloading: 'http://d4i3qtqj3r0z5.cloudfront.net/omni.kit.renderer.imgui-6d3c178f53bf4534.zip' -> '/tmp/tmpp3l_d2ae/omni.kit.renderer.imgui-1.0.1+fcefe91f.lx64.r.cp310.zip'...
+  [23.471s] Extension: `omni.kit.renderer.imgui-1.0.1` was installed.
+  -->
+  <dependency name="omni-ui" linkPath="../_build/target-deps/omni-ui/">
+    <package name="omni.ui" version="7c6502313c182ec0" platforms="linux-x86_64"/>
+    <package name="omni.ui" version="d84e7b34ee8e4433" platforms="windows-x86_64"/>
+  </dependency>
+  <dependency name="omni-kit-renderer-imgui" linkPath="../_build/target-deps/omni-kit-renderer-imgui/">
+    <package name="omni.kit.renderer.imgui" version="6d3c178f53bf4534" platforms="linux-x86_64" />
+    <package name="omni.kit.renderer.imgui" version="9c4244a14d3bef05" platforms="windows-x86_64" />
   </dependency>
 </project>

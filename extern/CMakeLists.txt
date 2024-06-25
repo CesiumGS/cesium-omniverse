@@ -92,9 +92,10 @@ endif()
 set(NVIDIA_BUILD_DIR "${PROJECT_SOURCE_DIR}/extern/nvidia/_build")
 set(NVIDIA_USD_ROOT "${NVIDIA_BUILD_DIR}/target-deps/usd")
 set(PYTHON_ROOT "${NVIDIA_BUILD_DIR}/target-deps/python")
-set(USDRT_ROOT "${NVIDIA_BUILD_DIR}/target-deps/usdrt")
 set(CARB_ROOT "${NVIDIA_BUILD_DIR}/target-deps/carb_sdk_plugins")
 set(KIT_SDK_ROOT "${NVIDIA_BUILD_DIR}/target-deps/kit-sdk")
+set(KIT_OMNI_UI_ROOT "${NVIDIA_BUILD_DIR}/target-deps/omni-ui")
+set(KIT_IMGUI_ROOT "${NVIDIA_BUILD_DIR}/target-deps/omni-kit-renderer-imgui")
 set(PYBIND11_ROOT "${NVIDIA_BUILD_DIR}/target-deps/pybind11")
 set(CUDA_ROOT "${NVIDIA_BUILD_DIR}/target-deps/cuda")
 
@@ -215,20 +216,10 @@ else()
 endif()
 
 # cmake-format: off
-add_prebuilt_project(
-    RELEASE_INCLUDE_DIR
-        "${USDRT_ROOT}/include/usdrt_only"
-    DEBUG_INCLUDE_DIR
-        "${USDRT_ROOT}/include/usdrt_only"
-    RELEASE_LIBRARY_DIR
-        "${USDRT_ROOT}/_build/${NVIDIA_PLATFORM_NAME}/${NVIDIA_RELEASE_FOLDER_NAME}/usdrt_only"
-    DEBUG_LIBRARY_DIR
-        "${USDRT_ROOT}/_build/${NVIDIA_PLATFORM_NAME}/${NVIDIA_DEBUG_FOLDER_NAME}/usdrt_only"
-    RELEASE_LIBRARIES
-        omni.fabric.plugin
-    DEBUG_LIBRARIES
-        omni.fabric.plugin
-    TARGET_NAMES
+add_prebuilt_project_header_only(
+    INCLUDE_DIR
+        "${KIT_SDK_ROOT}/dev/fabric/include"
+    TARGET_NAME
         fabric
 )
 # cmake-format: on
@@ -373,9 +364,9 @@ add_prebuilt_project(
     DEBUG_INCLUDE_DIR
         "${KIT_SDK_ROOT}/dev/include"
     RELEASE_LIBRARY_DIR
-        "${KIT_SDK_ROOT}/exts/omni.ui/bin"
+        "${KIT_OMNI_UI_ROOT}/bin"
     DEBUG_LIBRARY_DIR
-        "${KIT_SDK_ROOT}/exts/omni.ui/bin"
+        "${KIT_OMNI_UI_ROOT}/bin"
     RELEASE_LIBRARIES
         omni.ui
     DEBUG_LIBRARIES
@@ -387,8 +378,8 @@ add_prebuilt_project(
 
 if(WIN32)
     set(NVIDIA_ADDITIONAL_LIBRARIES
-        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/kit-sdk/exts/omni.kit.renderer.imgui/bin/imgui.dll"
-        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/kit-sdk/exts/omni.kit.renderer.imgui/bin/deps/freetype.dll"
+        "${KIT_IMGUI_ROOT}/bin/imgui.dll"
+        "${KIT_IMGUI_ROOT}/bin/deps/freetype.dll"
     )
 
     set_property(GLOBAL PROPERTY NVIDIA_ADDITIONAL_LIBRARIES_PROPERTY "${NVIDIA_ADDITIONAL_LIBRARIES}")
@@ -398,11 +389,11 @@ else()
         "$<TARGET_FILE_DIR:usd>"
         "$<TARGET_FILE_DIR:carb>"
         # This is where freetype is located on Linux
-        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/kit-sdk/exts/omni.kit.renderer.imgui/bin/deps")
+        "${KIT_IMGUI_ROOT}/bin/deps")
 
     set(NVIDIA_ADDITIONAL_LINK_DIRECTORIES
         # This is where freetype is located on Linux. Needed by imgui which doesn't set its rpath properly
-        "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/kit-sdk/exts/omni.kit.renderer.imgui/bin/deps")
+        "${KIT_IMGUI_ROOT}/bin/deps")
 
     set_property(GLOBAL PROPERTY NVIDIA_ADDITIONAL_SEARCH_PATHS_PROPERTY "${NVIDIA_ADDITIONAL_SEARCH_PATHS}")
     set_property(GLOBAL PROPERTY NVIDIA_ADDITIONAL_LINK_DIRECTORIES_PROPERTY "${NVIDIA_ADDITIONAL_LINK_DIRECTORIES}")
