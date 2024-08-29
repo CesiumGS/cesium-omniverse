@@ -5,7 +5,7 @@
 #include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/SettingsWrapper.h"
 
-#include <CesiumIonClient/Connection.h>
+#include <CesiumAsync/SharedFuture.h>
 #include <CesiumUtility/Uri.h>
 
 #include <utility>
@@ -48,24 +48,57 @@ void CesiumIonSession::connect() {
 
     this->_isConnecting = true;
 
-    this->ensureAppDataLoaded();
+    CesiumAsync::Future<std::optional<std::string>> futureApiUrl =
+        !_ionApiUrl.empty()
+            ? this->_asyncSystem.createResolvedFuture<std::optional<std::string>>(_ionApiUrl)
+            : CesiumIonClient::Connection::getApiUrl(this->_asyncSystem, this->_pAssetAccessor, _ionServerUrl);
 
-    Connection::authorize(
-        this->_asyncSystem,
-        this->_pAssetAccessor,
-        "Cesium for Omniverse",
-        _ionApplicationId,
-        "/cesium-for-omniverse/oauth2/callback",
-        {"assets:list", "assets:read", "profile:read", "tokens:read", "tokens:write", "geocode"},
-        [this](const std::string& url) {
-            // NOTE: We open the browser in the Python code. Check in the sign in widget's on_update_frame function.
-            this->_authorizeUrl = url;
-        },
-        this->_appData.value(),
-        CesiumUtility::Uri::resolve(_ionServerUrl, "oauth"))
+    std::move(futureApiUrl)
+        .thenInMainThread([this](std::optional<std::string>&& ionApiUrl) {
+            CesiumAsync::Promise<bool> promise = this->_asyncSystem.createPromise<bool>();
+
+            if (_ionApiUrl.empty()) {
+                _ionApiUrl = ionApiUrl.value();
+            }
+
+            // Make request to /appData to learn the server's authentication mode
+            return this->ensureAppDataLoaded();
+        })
+        .thenInMainThread([this](bool loadedAppData) {
+            if (!loadedAppData || !this->_appData.has_value()) {
+                CesiumAsync::Promise<CesiumIonClient::Connection> promise =
+                    this->_asyncSystem.createPromise<CesiumIonClient::Connection>();
+
+                promise.reject(std::runtime_error("Failed to load _appData, can't create connection"));
+                return promise.getFuture();
+            }
+
+            if (this->_appData->needsOauthAuthentication()) {
+                return CesiumIonClient::Connection::authorize(
+                    this->_asyncSystem,
+                    this->_pAssetAccessor,
+                    "Cesium for Omniverse",
+                    _ionApplicationId,
+                    "/cesium-for-omniverse/oauth2/callback",
+                    {"assets:list", "assets:read", "profile:read", "tokens:read", "tokens:write", "geocode"},
+                    [this](const std::string& url) {
+                        // NOTE: We open the browser in the Python code. Check in the sign in widget's on_update_frame function.
+                        this->_authorizeUrl = url;
+                    },
+                    this->_appData.value(),
+                    _ionServerUrl,
+                    CesiumUtility::Uri::resolve(_ionServerUrl, "oauth"));
+            }
+
+            return this->_asyncSystem.createResolvedFuture<CesiumIonClient::Connection>(CesiumIonClient::Connection(
+                this->_asyncSystem, this->_pAssetAccessor, "", this->_appData.value(), _ionServerUrl));
+        })
         .thenInMainThread([this](CesiumIonClient::Connection&& connection) {
             this->_isConnecting = false;
             this->_connection = std::move(connection);
+
+            // TODO: how to update filed in OmniIonServer?
+            // CesiumForUnity::CesiumIonServer server = session.server();
 
             Settings::AccessToken token;
             token.ionApiUrl = _ionApiUrl;
@@ -80,91 +113,6 @@ void CesiumIonSession::connect() {
 
             Broadcast::connectionUpdated();
         });
-
-    // std::string ionServerUrl = _ionServerUrl;
-    // std::string ionApiUrl = _ionApiUrl;
-
-    // CesiumAsync::Future<std::optional<std::string>> futureApiUrl =
-    //     !ionApiUrl.empty()
-    //         ? this->_asyncSystem.createResolvedFuture<std::optional<std::string>>(ionApiUrl)
-    //         : CesiumIonClient::Connection::getApiUrl(this->_asyncSystem, this->_pAssetAccessor, ionServerUrl);
-
-    // std::move(futureApiUrl)
-    //     .thenInMainThread([ionServerUrl, server, session, this](std::optional<std::string>&& ionApiUrl) {
-    //         CesiumAsync::Promise<bool> promise = this->_asyncSystem.createPromise<bool>();
-
-    //         if (session == nullptr) {
-    //             promise.reject(std::runtime_error("CesiumIonSession unexpectedly nullptr"));
-    //             return promise.getFuture();
-    //         }
-    //         if (server == nullptr) {
-    //             promise.reject(std::runtime_error("CesiumIonServer unexpectedly nullptr"));
-    //             return promise.getFuture();
-    //         }
-
-    //         if (!ionApiUrl) {
-    //             promise.reject(std::runtime_error(fmt::format(
-    //                 "Failed to retrieve API URL from the config.json file at the "
-    //                 "specified Ion server URL: {}",
-    //                 ionServerUrl)));
-    //             return promise.getFuture();
-    //         }
-
-    //         if (System::String::IsNullOrEmpty(server.apiUrl())) {
-    //             server.apiUrl(System::String(*ionApiUrl));
-    //         }
-
-    //         // Make request to /appData to learn the server's authentication mode
-    //         return this->ensureAppDataLoaded(session);
-    //     })
-    //     .thenInMainThread([ionServerUrl, server, session, this](bool loadedAppData) {
-    //         if (!loadedAppData || !this->_appData.has_value()) {
-    //             CesiumAsync::Promise<CesiumIonClient::Connection> promise =
-    //                 this->_asyncSystem.createPromise<CesiumIonClient::Connection>();
-
-    //             promise.reject(std::runtime_error("Failed to load _appData, can't create connection"));
-    //             return promise.getFuture();
-    //         }
-
-    //         if (this->_appData->needsOauthAuthentication()) {
-    //             int64_t clientID = server.oauth2ApplicationID();
-    //             return CesiumIonClient::Connection::authorize(
-    //                 this->_asyncSystem,
-    //                 this->_pAssetAccessor,
-    //                 "Cesium for Unity",
-    //                 clientID,
-    //                 "/cesium-for-unity/oauth2/callback",
-    //                 {"assets:list", "assets:read", "profile:read", "tokens:read", "tokens:write", "geocode"},
-    //                 [this](const std::string& url) {
-    //                     this->_authorizeUrl = url;
-    //                     this->_redirectUrl = CesiumUtility::Uri::getQueryValue(url, "redirect_uri");
-    //                     UnityEngine::Application::OpenURL(url);
-    //                 },
-    //                 this->_appData.value(),
-    //                 server.apiUrl().ToStlString(),
-    //                 CesiumUtility::Uri::resolve(ionServerUrl, "oauth"));
-    //         }
-
-    //         return this->_asyncSystem.createResolvedFuture<CesiumIonClient::Connection>(CesiumIonClient::Connection(
-    //             this->_asyncSystem, this->_pAssetAccessor, "", this->_appData.value(), server.apiUrl().ToStlString()));
-    //     })
-    //     .thenInMainThread([this, session](CesiumIonClient::Connection&& connection) {
-    //         this->_isConnecting = false;
-    //         this->_connection = std::move(connection);
-
-    //         CesiumForUnity::CesiumIonServer server = session.server();
-    //         CesiumForUnity::CesiumIonServerManager::instance().SetUserAccessToken(
-    //             server, this->_connection.value().getAccessToken());
-    //         this->_quickAddItems = nullptr;
-    //         this->broadcastConnectionUpdate();
-    //     })
-    //     .catchInMainThread([this](std::exception&& e) {
-    //         DotNet::UnityEngine::Debug::Log(System::String(e.what()));
-    //         this->_isConnecting = false;
-    //         this->_connection = std::nullopt;
-    //         this->_quickAddItems = nullptr;
-    //         this->broadcastConnectionUpdate();
-    //     });
 }
 
 void CesiumIonSession::resume() {
