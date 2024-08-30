@@ -230,10 +230,8 @@ void forEachPropertyTableProperty(
         const CesiumGltf::FeatureId& featureId = pMeshFeatures->featureIds[featureIdSetIndex];
 
         if (featureId.propertyTable != -1) {
-            const auto pPropertyTable = model.getSafe(
-                &pStructuralMetadataModel->propertyTables, 
-                static_cast<int32_t>(featureId.propertyTable)
-            );
+            const auto pPropertyTable =
+                model.getSafe(&pStructuralMetadataModel->propertyTables, static_cast<int32_t>(featureId.propertyTable));
             if (!pPropertyTable) {
                 context.getLogger()->warn(
                     fmt::format("Property table index {} is out of range.", featureId.propertyTable));

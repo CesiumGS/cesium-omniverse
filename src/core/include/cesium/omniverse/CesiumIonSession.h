@@ -147,7 +147,6 @@ class CesiumIonSession {
     std::string _ionServerUrl;
     std::string _ionApiUrl;
     int64_t _ionApplicationId;
-    // OmniIonServer _server;
 };
 
 } // namespace cesium::omniverse

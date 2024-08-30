@@ -53,8 +53,8 @@ void CesiumIonServerManager::updateTokenTroubleshootingDetails(
 
     details.showDetails = true;
 
-    const auto pConnection =
-        std::make_shared<CesiumIonClient::Connection>(pSession->getAsyncSystem(), pSession->getAssetAccessor(), token, pSession->getApplicationData().value());
+    const auto pConnection = std::make_shared<CesiumIonClient::Connection>(
+        pSession->getAsyncSystem(), pSession->getAssetAccessor(), token, pSession->getApplicationData().value());
 
     pConnection->me()
         .thenInMainThread(
