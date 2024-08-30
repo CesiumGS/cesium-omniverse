@@ -38,8 +38,7 @@ CesiumIonSession::CesiumIonSession(
     , _authorizeUrl()
     , _ionServerUrl(std::move(ionServerUrl))
     , _ionApiUrl(std::move(ionApiUrl))
-    , _ionApplicationId(ionApplicationId) {
-    }
+    , _ionApplicationId(ionApplicationId) {}
 
 void CesiumIonSession::connect() {
     if (this->isConnecting() || this->isConnected() || this->isResuming()) {
@@ -338,10 +337,7 @@ Future<Response<Token>> CesiumIonSession::findToken(const std::string& token) co
 
 CesiumAsync::Future<bool> CesiumIonSession::ensureAppDataLoaded() {
 
-    return CesiumIonClient::Connection::appData(
-               this->_asyncSystem,
-               this->_pAssetAccessor,
-               this->_ionApiUrl)
+    return CesiumIonClient::Connection::appData(this->_asyncSystem, this->_pAssetAccessor, this->_ionApiUrl)
         .thenInMainThread([this](CesiumIonClient::Response<CesiumIonClient::ApplicationData>&& applicationData) {
             CesiumAsync::Promise<bool> promise = this->_asyncSystem.createPromise<bool>();
 
@@ -354,7 +350,6 @@ CesiumAsync::Future<bool> CesiumIonSession::ensureAppDataLoaded() {
 
             return promise.getFuture();
         })
-        .catchInMainThread([this]([[maybe_unused]]std::exception&& e) {
-            return this->_asyncSystem.createResolvedFuture(false);
-        });
+        .catchInMainThread(
+            [this]([[maybe_unused]] std::exception&& e) { return this->_asyncSystem.createResolvedFuture(false); });
 }

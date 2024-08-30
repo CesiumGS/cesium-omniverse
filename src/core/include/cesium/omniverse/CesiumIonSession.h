@@ -1,11 +1,11 @@
 #pragma once
 
+#include "cesium/omniverse/OmniIonServer.h"
+
 #include <CesiumAsync/AsyncSystem.h>
 #include <CesiumAsync/SharedFuture.h>
 #include <CesiumIonClient/ApplicationData.h>
 #include <CesiumIonClient/Connection.h>
-
-#include "cesium/omniverse/OmniIonServer.h"
 
 #include <memory>
 #include <optional>
@@ -43,7 +43,6 @@ class CesiumIonSession {
     [[nodiscard]] const std::optional<CesiumIonClient::ApplicationData>& getApplicationData() const {
         return this->_appData;
     }
-
 
     [[nodiscard]] bool isConnected() const {
         return this->_connection.has_value();
@@ -120,8 +119,7 @@ class CesiumIonSession {
     * @returns A future that resolves to true if _appData is present or false if
     * it couldn't be fetched.
     */
-    CesiumAsync::Future<bool>
-    ensureAppDataLoaded();    
+    CesiumAsync::Future<bool> ensureAppDataLoaded();
 
   private:
     CesiumAsync::AsyncSystem _asyncSystem;

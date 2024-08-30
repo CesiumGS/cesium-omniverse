@@ -5,6 +5,7 @@
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <CesiumUsdSchemas/ionServer.h>
+
 #include <string>
 
 namespace cesium::omniverse {
