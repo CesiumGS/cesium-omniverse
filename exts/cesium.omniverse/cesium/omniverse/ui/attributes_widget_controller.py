@@ -2,6 +2,7 @@ import logging
 import omni.kit.window.property
 from .attributes import (
     CesiumDataSchemaAttributesWidget,
+    CesiumEllipsoidAttributesWidget,
     CesiumGeoreferenceSchemaAttributesWidget,
     CesiumTilesetAttributesWidget,
     CesiumGlobeAnchorAttributesWidget,
@@ -26,6 +27,7 @@ class CesiumAttributesWidgetController:
         self._logger = logging.getLogger(__name__)
 
         self._register_data_attributes_widget()
+        self._register_ellipsoid_attributes_widget()
         self._register_georeference_attributes_widget()
         self._register_tileset_attributes_widget()
         self._register_global_anchor_attributes_widget()
@@ -38,6 +40,7 @@ class CesiumAttributesWidgetController:
 
     def destroy(self):
         self._unregister_data_attributes_widget()
+        self._unregister_ellipsoid_attributes_widget()
         self._unregister_georeference_attributes_widget()
         self._unregister_tileset_attributes_widget()
         self._unregister_global_anchor_attributes_widget()
@@ -59,6 +62,18 @@ class CesiumAttributesWidgetController:
         window = omni.kit.window.property.get_window()
         if window is not None:
             window.unregister_widget("prim", "cesiumData")
+
+    @staticmethod
+    def _register_ellipsoid_attributes_widget():
+        window = omni.kit.window.property.get_window()
+        if window is not None:
+            window.register_widget("prim", "cesiumEllipsoid", CesiumEllipsoidAttributesWidget())
+
+    @staticmethod
+    def _unregister_ellipsoid_attributes_widget():
+        window = omni.kit.window.property.get_window()
+        if window is not None:
+            window.unregister_widget("prim", "cesiumEllipsoid")
 
     @staticmethod
     def _register_georeference_attributes_widget():

@@ -173,7 +173,7 @@ public:
     // --------------------------------------------------------------------- //
     // GEOREFERENCEORIGINHEIGHT 
     // --------------------------------------------------------------------- //
-    /// The height of the origin in meters above the WGS84 ellipsoid. Do not confuse this with a geoid height or height above mean sea level, which can be tens of meters higher or lower depending on where in the world the origin is located.
+    /// The height of the origin in meters above the ellipsoid. Do not confuse this with a geoid height or height above mean sea level, which can be tens of meters higher or lower depending on where in the world the origin is located.
     ///
     /// | ||
     /// | -- | -- |
@@ -212,6 +212,20 @@ public:
     /// the default for \p writeSparsely is \c false.
     CESIUMUSDSCHEMAS_API
     UsdAttribute CreateEcefToUsdTransformAttr(VtValue const &defaultValue = VtValue(), bool writeSparsely=false) const;
+
+public:
+    // --------------------------------------------------------------------- //
+    // ELLIPSOIDBINDING 
+    // --------------------------------------------------------------------- //
+    /// The ellipsoid.
+    ///
+    CESIUMUSDSCHEMAS_API
+    UsdRelationship GetEllipsoidBindingRel() const;
+
+    /// See GetEllipsoidBindingRel(), and also 
+    /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create
+    CESIUMUSDSCHEMAS_API
+    UsdRelationship CreateEllipsoidBindingRel() const;
 
 public:
     // ===================================================================== //

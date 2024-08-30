@@ -11,6 +11,7 @@ namespace cesium::omniverse {
 class Context;
 class OmniCartographicPolygon;
 class OmniData;
+class OmniEllipsoid;
 class OmniGeoreference;
 class OmniGlobeAnchor;
 class OmniRasterOverlay;
@@ -25,6 +26,7 @@ struct Viewport;
 
 enum AssetType {
     DATA,
+    ELLIPSOID,
     TILESET,
     ION_RASTER_OVERLAY,
     POLYGON_RASTER_OVERLAY,
@@ -53,6 +55,11 @@ class AssetRegistry {
     void removeData(const pxr::SdfPath& path);
     [[nodiscard]] OmniData* getData(const pxr::SdfPath& path) const;
     [[nodiscard]] OmniData* getFirstData() const;
+
+    OmniEllipsoid& addEllipsoid(const pxr::SdfPath& path);
+    void removeEllipsoid(const pxr::SdfPath& path);
+    [[nodiscard]] OmniEllipsoid* getEllipsoid(const pxr::SdfPath& path) const;
+    [[nodiscard]] const std::vector<std::unique_ptr<OmniEllipsoid>>& getEllipsoids() const;
 
     OmniTileset& addTileset(const pxr::SdfPath& path);
     void removeTileset(const pxr::SdfPath& path);
@@ -114,6 +121,7 @@ class AssetRegistry {
   private:
     Context* _pContext;
     std::vector<std::unique_ptr<OmniData>> _datas;
+    std::vector<std::unique_ptr<OmniEllipsoid>> _ellipsoids;
     std::vector<std::unique_ptr<OmniTileset>> _tilesets;
     std::vector<std::unique_ptr<OmniIonRasterOverlay>> _ionRasterOverlays;
     std::vector<std::unique_ptr<OmniPolygonRasterOverlay>> _polygonRasterOverlays;

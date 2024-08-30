@@ -4,6 +4,7 @@
 #include "cesium/omniverse/CppUtil.h"
 #include "cesium/omniverse/OmniCartographicPolygon.h"
 #include "cesium/omniverse/OmniData.h"
+#include "cesium/omniverse/OmniEllipsoid.h"
 #include "cesium/omniverse/OmniGeoreference.h"
 #include "cesium/omniverse/OmniGlobeAnchor.h"
 #include "cesium/omniverse/OmniIonRasterOverlay.h"
@@ -53,6 +54,28 @@ OmniData* AssetRegistry::getFirstData() const {
     }
 
     return _datas.front().get();
+}
+
+OmniEllipsoid& AssetRegistry::addEllipsoid(const pxr::SdfPath& path) {
+    return *_ellipsoids.insert(_ellipsoids.end(), std::make_unique<OmniEllipsoid>(_pContext, path))->get();
+}
+
+void AssetRegistry::removeEllipsoid(const pxr::SdfPath& path) {
+    CppUtil::eraseIf(_ellipsoids, [&path](const auto& pEllipsoid) { return pEllipsoid->getPath() == path; });
+}
+
+OmniEllipsoid* AssetRegistry::getEllipsoid(const pxr::SdfPath& path) const {
+    for (const auto& pEllipsoid : _ellipsoids) {
+        if (pEllipsoid->getPath() == path) {
+            return pEllipsoid.get();
+        }
+    }
+
+    return nullptr;
+}
+
+const std::vector<std::unique_ptr<OmniEllipsoid>>& AssetRegistry::getEllipsoids() const {
+    return _ellipsoids;
 }
 
 OmniTileset& AssetRegistry::addTileset(const pxr::SdfPath& path) {
@@ -349,6 +372,8 @@ const std::vector<std::unique_ptr<OmniCartographicPolygon>>& AssetRegistry::getC
 AssetType AssetRegistry::getAssetType(const pxr::SdfPath& path) const {
     if (getData(path)) {
         return AssetType::DATA;
+    } else if (getEllipsoid(path)) {
+        return AssetType::ELLIPSOID;
     } else if (getTileset(path)) {
         return AssetType::TILESET;
     } else if (getIonRasterOverlay(path)) {
@@ -375,6 +400,7 @@ bool AssetRegistry::hasAsset(const pxr::SdfPath& path) const {
 
 void AssetRegistry::clear() {
     _datas.clear();
+    _ellipsoids.clear();
     _tilesets.clear();
     _ionRasterOverlays.clear();
     _polygonRasterOverlays.clear();

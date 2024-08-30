@@ -91,9 +91,13 @@ class CesiumGeoreferencePrim "CesiumGeoreferencePrim" (
         displayName = "ECEF to USD Transform (read only)"
         doc = "The 4x4 transformation matrix (row major) from global ECEF coordinates to USD stage coordinates based on the georeference origin (read only)."
     )
+    rel cesium:ellipsoidBinding (
+        displayName = "Ellipsoid Binding"
+        doc = "The ellipsoid."
+    )
     double cesium:georeferenceOrigin:height = 2250 (
         displayName = "Georeference Origin Height"
-        doc = "The height of the origin in meters above the WGS84 ellipsoid. Do not confuse this with a geoid height or height above mean sea level, which can be tens of meters higher or lower depending on where in the world the origin is located."
+        doc = "The height of the origin in meters above the ellipsoid. Do not confuse this with a geoid height or height above mean sea level, which can be tens of meters higher or lower depending on where in the world the origin is located."
     )
     double cesium:georeferenceOrigin:latitude = 39.736401 (
         displayName = "Georeference Original Latitude"
@@ -694,6 +698,16 @@ class "CesiumGlobeAnchorSchemaAPI" (
     double3 cesium:anchor:position = (0, 0, 0) (
         displayName = "Position (ECEF)"
         doc = "The actual position of the globally anchored prim in the ECEF coordinate system."
+    )
+}
+
+class CesiumEllipsoidPrim "CesiumEllipsoidPrim" (
+    doc = "An ellipsoid."
+)
+{
+    double3 cesium:radii = (0, 0, 0) (
+        displayName = "Radii"
+        doc = "The radii of this ellipsoid. The X coordinate should be the radius of the largest axis and the Z coordinate should be the radius of the smallest axis."
     )
 }
 

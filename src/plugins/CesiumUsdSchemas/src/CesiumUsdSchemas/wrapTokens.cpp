@@ -65,6 +65,7 @@ void wrapCesiumTokens()
     _AddToken(cls, "cesiumDisplayName", CesiumTokens->cesiumDisplayName);
     _AddToken(cls, "cesiumEast", CesiumTokens->cesiumEast);
     _AddToken(cls, "cesiumEcefToUsdTransform", CesiumTokens->cesiumEcefToUsdTransform);
+    _AddToken(cls, "cesiumEllipsoidBinding", CesiumTokens->cesiumEllipsoidBinding);
     _AddToken(cls, "cesiumEnableFogCulling", CesiumTokens->cesiumEnableFogCulling);
     _AddToken(cls, "cesiumEnableFrustumCulling", CesiumTokens->cesiumEnableFrustumCulling);
     _AddToken(cls, "cesiumEnforceCulledScreenSpaceError", CesiumTokens->cesiumEnforceCulledScreenSpaceError);
@@ -101,6 +102,7 @@ void wrapCesiumTokens()
     _AddToken(cls, "cesiumPreloadSiblings", CesiumTokens->cesiumPreloadSiblings);
     _AddToken(cls, "cesiumProjectDefaultIonAccessToken", CesiumTokens->cesiumProjectDefaultIonAccessToken);
     _AddToken(cls, "cesiumProjectDefaultIonAccessTokenId", CesiumTokens->cesiumProjectDefaultIonAccessTokenId);
+    _AddToken(cls, "cesiumRadii", CesiumTokens->cesiumRadii);
     _AddToken(cls, "cesiumRasterOverlayBinding", CesiumTokens->cesiumRasterOverlayBinding);
     _AddToken(cls, "cesiumRootTilesX", CesiumTokens->cesiumRootTilesX);
     _AddToken(cls, "cesiumRootTilesY", CesiumTokens->cesiumRootTilesY);
