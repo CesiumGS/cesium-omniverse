@@ -23,7 +23,7 @@ class CesiumIonSession {
         const CesiumAsync::AsyncSystem& asyncSystem,
         std::shared_ptr<CesiumAsync::IAssetAccessor> pAssetAccessor,
         std::string ionServerUrl,
-        /*std::string ionApiUrl,*/
+        std::string ionApiUrl,
         int64_t ionApplicationId);
     ~CesiumIonSession() = default;
     CesiumIonSession(const CesiumIonSession&) = delete;

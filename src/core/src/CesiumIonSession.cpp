@@ -37,11 +37,11 @@ CesiumIonSession::CesiumIonSession(
     , _loadTokensQueued(false)
     , _authorizeUrl()
     , _ionServerUrl(std::move(ionServerUrl))
-    /* , _ionApiUrl(std::move(ionApiUrl)) */
-    , _ionApplicationId(ionApplicationId) {}
+    , _ionApiUrl(std::move(ionApiUrl))
+    , _ionApplicationId(ionApplicationId) {
+    }
 
 void CesiumIonSession::connect() {
-
     if (this->isConnecting() || this->isConnected() || this->isResuming()) {
         return;
     }
@@ -86,7 +86,7 @@ void CesiumIonSession::connect() {
                         this->_authorizeUrl = url;
                     },
                     this->_appData.value(),
-                    _ionServerUrl,
+                    _ionApiUrl,
                     CesiumUtility::Uri::resolve(_ionServerUrl, "oauth"));
             }
 
@@ -96,9 +96,6 @@ void CesiumIonSession::connect() {
         .thenInMainThread([this](CesiumIonClient::Connection&& connection) {
             this->_isConnecting = false;
             this->_connection = std::move(connection);
-
-            // TODO: how to update filed in OmniIonServer?
-            // CesiumForUnity::CesiumIonServer server = session.server();
 
             Settings::AccessToken token;
             token.ionApiUrl = _ionApiUrl;
@@ -141,8 +138,6 @@ void CesiumIonSession::resume() {
     }
 
     this->_isResuming = true;
-
-    this->_connection.reset(); //DEBUG
 
     // Verify that the connection actually works.
     this->ensureAppDataLoaded()
@@ -346,15 +341,12 @@ CesiumAsync::Future<bool> CesiumIonSession::ensureAppDataLoaded() {
     return CesiumIonClient::Connection::appData(
                this->_asyncSystem,
                this->_pAssetAccessor,
-               this->_ionApiUrl) // .ToStlString()?
+               this->_ionApiUrl)
         .thenInMainThread([this](CesiumIonClient::Response<CesiumIonClient::ApplicationData>&& applicationData) {
             CesiumAsync::Promise<bool> promise = this->_asyncSystem.createPromise<bool>();
 
             this->_appData = applicationData.value;
             if (!applicationData.value.has_value()) {
-                //   UnityEngine::Debug::LogError(System::String(fmt::format(
-                //       "Failed to obtain ion server application data: {}",
-                //       applicationData.errorMessage)));
                 promise.resolve(false);
             } else {
                 promise.resolve(true);
@@ -362,10 +354,7 @@ CesiumAsync::Future<bool> CesiumIonSession::ensureAppDataLoaded() {
 
             return promise.getFuture();
         })
-        .catchInMainThread([this](std::exception&& e) {
-            // logResponseErrors(e);
-            (void)e; // get around unused formal parameter error
-
+        .catchInMainThread([this]([[maybe_unused]]std::exception&& e) {
             return this->_asyncSystem.createResolvedFuture(false);
         });
 }
