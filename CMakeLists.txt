@@ -6,6 +6,15 @@ if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.24.0")
     cmake_policy(SET CMP0132 NEW)
 endif()
 
+include("${CMAKE_SOURCE_DIR}/extern/cesium-native/cmake/detect-vcpkg-triplet.cmake")
+
+# Set the VCPKG_TRIPLET as a cache variable if it's detected
+if(VCPKG_TRIPLET)
+    set(VCPKG_TRIPLET "${VCPKG_TRIPLET}" CACHE STRING "VCPKG triplet" FORCE)
+else()
+    message(FATAL_ERROR "VCPKG_TRIPLET was not detected. Please set it manually.")
+endif()
+
 # Both CXX and C need to be given otherwise Conan may ignore the CMAKE_C_COMPILER flag
 project(
     CesiumOmniverse
