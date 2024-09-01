@@ -2,7 +2,7 @@
 
 #include <carb/InterfaceUtils.h>
 #include <carb/settings/ISettings.h>
-#include <spdlog/fmt/bundled/format.h>
+#include <spdlog/fmt/fmt.h>
 
 namespace cesium::omniverse::Settings {
 

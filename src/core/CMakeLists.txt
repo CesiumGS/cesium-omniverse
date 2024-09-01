@@ -50,15 +50,11 @@ setup_lib(
         CesiumAsync
         CesiumUtility
         async++
-        csprng
         draco
         ktx
-        modp_b64
-        s2geometry
         spdlog
         tinyxml2
         uriparser
-        webpdecoder
         turbojpeg
         meshoptimizer
         sqlite3
