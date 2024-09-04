@@ -85,7 +85,7 @@ class UrlAssetRequest final : public CesiumAsync::IAssetRequest {
         _headers.insert({"X-Cesium-Client", "Cesium for Omniverse"});
         _headers.insert(
             {"X-Cesium-Client-Version", fmt::format("v{} {}", CESIUM_OMNI_VERSION, CESIUM_OMNI_GIT_HASH_ABBREVIATED)});
-        _headers.insert({"X-Cesium-Client-Engine", fmt::format("Kit SDK {}", std::string(buildInfo.kitVersion))});
+        _headers.insert({"X-Cesium-Client-Engine", fmt::format("Kit SDK {}", buildInfo.kitVersion)});
         _headers.insert({"X-Cesium-Client-OS", platformInfo.platform});
     }
 

@@ -20,11 +20,15 @@ add_external_project(
         CesiumAsync
         CesiumUtility
         async++
+        csprng
         draco
         ktx
+        modp_b64
+        s2geometry
         spdlog
         tinyxml2
         uriparser
+        webpdecoder
         turbojpeg
         meshoptimizer
         sqlite3
@@ -34,6 +38,7 @@ add_external_project(
         CESIUM_TRACING_ENABLED=${CESIUM_OMNI_ENABLE_TRACING}
     PROJECT_EXTERN_DIRECTORY
         "${PROJECT_SOURCE_DIR}/extern"
+    EXPECTED_DEBUG_POSTFIX "d"
 )
 # cmake-format: on
 
