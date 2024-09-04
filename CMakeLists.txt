@@ -233,7 +233,8 @@ if(MSVC)
         _UNICODE # tell Windows to use the unicode version of string functions, as opposed to ASCII (https://docs.microsoft.com/en-us/windows/win32/learnwin32/working-with-strings)
         WIN32_LEAN_AND_MEAN # ignore some unnecessary Windows APIs
         NOMINMAX # don't let Windows create macros for MIN and MAX
-        _SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING)
+        _SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING
+        _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR # See https://developercommunity.visualstudio.com/t/Visual-Studio-17100-Update-leads-to-Pr/10669759?sort=newest
 endif()
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
