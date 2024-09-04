@@ -235,6 +235,7 @@ if(MSVC)
         NOMINMAX # don't let Windows create macros for MIN and MAX
         _SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING
         _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR # See https://developercommunity.visualstudio.com/t/Visual-Studio-17100-Update-leads-to-Pr/10669759?sort=newest
+    )
 endif()
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
