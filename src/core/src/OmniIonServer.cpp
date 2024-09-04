@@ -6,8 +6,6 @@
 
 #include <CesiumUsdSchemas/ionServer.h>
 
-#include <string>
-
 namespace cesium::omniverse {
 
 OmniIonServer::OmniIonServer(Context* pContext, const pxr::SdfPath& path)
@@ -19,7 +17,6 @@ OmniIonServer::OmniIonServer(Context* pContext, const pxr::SdfPath& path)
           getIonServerUrl(),
           getIonServerApiUrl(),
           getIonServerApplicationId())) {
-
     _session->resume();
 }
 
