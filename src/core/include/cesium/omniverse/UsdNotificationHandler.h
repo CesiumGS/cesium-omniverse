@@ -22,6 +22,7 @@ class UsdNotificationHandler final : public pxr::TfWeakBase {
   private:
     enum class ChangedPrimType {
         CESIUM_DATA,
+        CESIUM_ELLIPSOID,
         CESIUM_TILESET,
         CESIUM_ION_RASTER_OVERLAY,
         CESIUM_POLYGON_RASTER_OVERLAY,

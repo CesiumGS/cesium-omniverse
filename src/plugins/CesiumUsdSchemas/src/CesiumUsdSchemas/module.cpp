@@ -6,6 +6,7 @@ PXR_NAMESPACE_USING_DIRECTIVE
 TF_WRAP_MODULE
 {
   TF_WRAP(CesiumData);
+  TF_WRAP(CesiumEllipsoid);
   TF_WRAP(CesiumGeoreference);
   TF_WRAP(CesiumGlobeAnchorAPI);
   TF_WRAP(CesiumIonServer);

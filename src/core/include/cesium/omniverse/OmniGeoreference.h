@@ -24,6 +24,7 @@ class OmniGeoreference {
 
     [[nodiscard]] const pxr::SdfPath& getPath() const;
     [[nodiscard]] CesiumGeospatial::Cartographic getOrigin() const;
+    [[nodiscard]] pxr::SdfPath getEllipsoidPath() const;
     [[nodiscard]] const CesiumGeospatial::Ellipsoid& getEllipsoid() const;
     [[nodiscard]] CesiumGeospatial::LocalHorizontalCoordinateSystem getLocalCoordinateSystem() const;
     void update();

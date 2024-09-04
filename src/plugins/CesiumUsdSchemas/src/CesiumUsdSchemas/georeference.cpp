@@ -148,6 +148,19 @@ CesiumGeoreference::CreateEcefToUsdTransformAttr(VtValue const &defaultValue, bo
                        writeSparsely);
 }
 
+UsdRelationship
+CesiumGeoreference::GetEllipsoidBindingRel() const
+{
+    return GetPrim().GetRelationship(CesiumTokens->cesiumEllipsoidBinding);
+}
+
+UsdRelationship
+CesiumGeoreference::CreateEllipsoidBindingRel() const
+{
+    return GetPrim().CreateRelationship(CesiumTokens->cesiumEllipsoidBinding,
+                       /* custom = */ false);
+}
+
 namespace {
 static inline TfTokenVector
 _ConcatenateAttributeNames(const TfTokenVector& left,const TfTokenVector& right)

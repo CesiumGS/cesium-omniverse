@@ -124,6 +124,11 @@ void wrapCesiumGeoreference()
              (arg("defaultValue")=object(),
               arg("writeSparsely")=false))
 
+        
+        .def("GetEllipsoidBindingRel",
+             &This::GetEllipsoidBindingRel)
+        .def("CreateEllipsoidBindingRel",
+             &This::CreateEllipsoidBindingRel)
         .def("__repr__", ::_Repr)
     ;
 

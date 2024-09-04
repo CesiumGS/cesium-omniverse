@@ -1,5 +1,10 @@
 # Change Log
 
+### v0.22.0 - 2024-09-03
+
+* Cesium for Omniverse now supports using non-WGS84 ellipsoids.
+  * A `CesiumEllipsoidPrim` should be specified on the `ellipsoidBinding` field of a `CesiumReferencePrim`.
+
 ### v0.21.0 - 2024-06-03
 
 * Added `pointSize` attribute to `CesiumTilesetPrim` for controlling the size of points.
