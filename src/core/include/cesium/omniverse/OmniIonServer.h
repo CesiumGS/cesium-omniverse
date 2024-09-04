@@ -33,6 +33,5 @@ class OmniIonServer {
   private:
     Context* _pContext;
     pxr::SdfPath _path;
-    std::shared_ptr<CesiumIonSession> _session;
 };
 } // namespace cesium::omniverse

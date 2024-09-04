@@ -2,6 +2,7 @@
 
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/CesiumIonServerManager.h"
+#include "cesium/omniverse/CesiumIonSessionManager.h"
 #include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricStatistics.h"
 #include "cesium/omniverse/FabricUtil.h"
@@ -78,6 +79,7 @@ Context::Context(const std::filesystem::path& cesiumExtensionLocation)
     , _pCreditSystem(std::make_shared<CesiumUtility::CreditSystem>())
     , _pAssetRegistry(std::make_unique<AssetRegistry>(this))
     , _pFabricResourceManager(std::make_unique<FabricResourceManager>(this))
+    , _pCesiumIonSessionManager(std::make_unique<CesiumIonSessionManager>(this))
     , _pCesiumIonServerManager(std::make_unique<CesiumIonServerManager>(this))
     , _pUsdNotificationHandler(std::make_unique<UsdNotificationHandler>(this))
     , _contextId(static_cast<int64_t>(getSecondsSinceEpoch())) {
@@ -150,6 +152,14 @@ const FabricResourceManager& Context::getFabricResourceManager() const {
 
 FabricResourceManager& Context::getFabricResourceManager() {
     return *_pFabricResourceManager.get();
+}
+
+const CesiumIonSessionManager& Context::getCesiumIonSessionManager() const {
+    return *_pCesiumIonSessionManager.get();
+}
+
+CesiumIonSessionManager& Context::getCesiumIonSessionManager() {
+    return *_pCesiumIonSessionManager.get();
 }
 
 const CesiumIonServerManager& Context::getCesiumIonServerManager() const {

@@ -26,6 +26,7 @@ namespace cesium::omniverse {
 
 class AssetRegistry;
 class CesiumIonServerManager;
+class CesiumIonSessionManager;
 class FabricResourceManager;
 class Logger;
 class TaskProcessor;
@@ -55,6 +56,8 @@ class Context {
     [[nodiscard]] AssetRegistry& getAssetRegistry();
     [[nodiscard]] const FabricResourceManager& getFabricResourceManager() const;
     [[nodiscard]] FabricResourceManager& getFabricResourceManager();
+    [[nodiscard]] const CesiumIonSessionManager& getCesiumIonSessionManager() const;
+    [[nodiscard]] CesiumIonSessionManager& getCesiumIonSessionManager();
     [[nodiscard]] const CesiumIonServerManager& getCesiumIonServerManager() const;
     [[nodiscard]] CesiumIonServerManager& getCesiumIonServerManager();
 
@@ -88,6 +91,7 @@ class Context {
     std::shared_ptr<CesiumUtility::CreditSystem> _pCreditSystem;
     std::unique_ptr<AssetRegistry> _pAssetRegistry;
     std::unique_ptr<FabricResourceManager> _pFabricResourceManager;
+    std::unique_ptr<CesiumIonSessionManager> _pCesiumIonSessionManager;
     std::unique_ptr<CesiumIonServerManager> _pCesiumIonServerManager;
     std::unique_ptr<UsdNotificationHandler> _pUsdNotificationHandler;
 
