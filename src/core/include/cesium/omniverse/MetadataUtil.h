@@ -227,13 +227,14 @@ void forEachPropertyTableProperty(
 
     for (uint64_t i = 0; i < pMeshFeatures->featureIds.size(); ++i) {
         const auto featureIdSetIndex = i;
-        const auto& featureId = pMeshFeatures->featureIds[featureIdSetIndex];
-        if (featureId.propertyTable.has_value()) {
-            const auto pPropertyTable = model.getSafe(
-                &pStructuralMetadataModel->propertyTables, static_cast<int32_t>(featureId.propertyTable.value()));
+        const CesiumGltf::FeatureId& featureId = pMeshFeatures->featureIds[featureIdSetIndex];
+
+        if (featureId.propertyTable != -1) {
+            const auto pPropertyTable =
+                model.getSafe(&pStructuralMetadataModel->propertyTables, static_cast<int32_t>(featureId.propertyTable));
             if (!pPropertyTable) {
                 context.getLogger()->warn(
-                    fmt::format("Property table index {} is out of range.", featureId.propertyTable.value()));
+                    fmt::format("Property table index {} is out of range.", featureId.propertyTable));
                 continue;
             }
 

@@ -5,6 +5,7 @@
 #include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/SettingsWrapper.h"
 
+#include <CesiumAsync/SharedFuture.h>
 #include <CesiumUtility/Uri.h>
 
 #include <utility>
@@ -46,19 +47,51 @@ void CesiumIonSession::connect() {
 
     this->_isConnecting = true;
 
-    Connection::authorize(
-        this->_asyncSystem,
-        this->_pAssetAccessor,
-        "Cesium for Omniverse",
-        _ionApplicationId,
-        "/cesium-for-omniverse/oauth2/callback",
-        {"assets:list", "assets:read", "profile:read", "tokens:read", "tokens:write", "geocode"},
-        [this](const std::string& url) {
-            // NOTE: We open the browser in the Python code. Check in the sign in widget's on_update_frame function.
-            this->_authorizeUrl = url;
-        },
-        _ionApiUrl,
-        CesiumUtility::Uri::resolve(_ionServerUrl, "oauth"))
+    CesiumAsync::Future<std::optional<std::string>> futureApiUrl =
+        !_ionApiUrl.empty()
+            ? this->_asyncSystem.createResolvedFuture<std::optional<std::string>>(_ionApiUrl)
+            : CesiumIonClient::Connection::getApiUrl(this->_asyncSystem, this->_pAssetAccessor, _ionServerUrl);
+
+    std::move(futureApiUrl)
+        .thenInMainThread([this](std::optional<std::string>&& ionApiUrl) {
+            CesiumAsync::Promise<bool> promise = this->_asyncSystem.createPromise<bool>();
+
+            if (_ionApiUrl.empty()) {
+                _ionApiUrl = ionApiUrl.value();
+            }
+
+            // Make request to /appData to learn the server's authentication mode
+            return this->ensureAppDataLoaded();
+        })
+        .thenInMainThread([this](bool loadedAppData) {
+            if (!loadedAppData || !this->_appData.has_value()) {
+                CesiumAsync::Promise<CesiumIonClient::Connection> promise =
+                    this->_asyncSystem.createPromise<CesiumIonClient::Connection>();
+
+                promise.reject(std::runtime_error("Failed to load _appData, can't create connection"));
+                return promise.getFuture();
+            }
+
+            if (this->_appData->needsOauthAuthentication()) {
+                return CesiumIonClient::Connection::authorize(
+                    this->_asyncSystem,
+                    this->_pAssetAccessor,
+                    "Cesium for Omniverse",
+                    _ionApplicationId,
+                    "/cesium-for-omniverse/oauth2/callback",
+                    {"assets:list", "assets:read", "profile:read", "tokens:read", "tokens:write", "geocode"},
+                    [this](const std::string& url) {
+                        // NOTE: We open the browser in the Python code. Check in the sign in widget's on_update_frame function.
+                        this->_authorizeUrl = url;
+                    },
+                    this->_appData.value(),
+                    _ionApiUrl,
+                    CesiumUtility::Uri::resolve(_ionServerUrl, "oauth"));
+            }
+
+            return this->_asyncSystem.createResolvedFuture<CesiumIonClient::Connection>(CesiumIonClient::Connection(
+                this->_asyncSystem, this->_pAssetAccessor, "", this->_appData.value(), _ionServerUrl));
+        })
         .thenInMainThread([this](CesiumIonClient::Connection&& connection) {
             this->_isConnecting = false;
             this->_connection = std::move(connection);
@@ -105,17 +138,38 @@ void CesiumIonSession::resume() {
 
     this->_isResuming = true;
 
-    this->_connection = Connection(this->_asyncSystem, this->_pAssetAccessor, accessToken);
-
     // Verify that the connection actually works.
-    this->_connection.value()
-        .me()
-        .thenInMainThread([this](Response<Profile>&& response) {
-            if (!response.value.has_value()) {
-                this->_connection.reset();
+    this->ensureAppDataLoaded()
+        .thenInMainThread([this, accessToken](bool loadedAppData) {
+            CesiumAsync::Promise<void> promise = this->_asyncSystem.createPromise<void>();
+
+            if (!loadedAppData || !this->_appData.has_value()) {
+                promise.reject(std::runtime_error("Failed to obtain _appData, can't resume connection"));
+                return promise.getFuture();
             }
-            this->_isResuming = false;
-            Broadcast::connectionUpdated();
+
+            if (this->_appData->needsOauthAuthentication() && accessToken.empty()) {
+                // No user access token was stored, so there's no existing session to resume.
+                promise.resolve();
+                this->_isResuming = false;
+                return promise.getFuture();
+            }
+
+            std::shared_ptr<CesiumIonClient::Connection> pConnection = std::make_shared<CesiumIonClient::Connection>(
+                this->_asyncSystem, this->_pAssetAccessor, accessToken, this->_appData.value(), _ionApiUrl);
+
+            return pConnection->me().thenInMainThread(
+                [this, pConnection](CesiumIonClient::Response<CesiumIonClient::Profile>&& response) {
+                    if (!response.value.has_value()) {
+                        this->_connection.reset();
+                    }
+                    this->_isResuming = false;
+                    Broadcast::connectionUpdated();
+                    // logResponseErrors(response);
+                    if (response.value.has_value()) {
+                        this->_connection = std::move(*pConnection);
+                    }
+                });
         })
         .catchInMainThread([this]([[maybe_unused]] std::exception&& e) {
             this->_isResuming = false;
@@ -279,4 +333,23 @@ Future<Response<Token>> CesiumIonSession::findToken(const std::string& token) co
     }
 
     return this->_connection->token(*maybeTokenID);
+}
+
+CesiumAsync::Future<bool> CesiumIonSession::ensureAppDataLoaded() {
+
+    return CesiumIonClient::Connection::appData(this->_asyncSystem, this->_pAssetAccessor, this->_ionApiUrl)
+        .thenInMainThread([this](CesiumIonClient::Response<CesiumIonClient::ApplicationData>&& applicationData) {
+            CesiumAsync::Promise<bool> promise = this->_asyncSystem.createPromise<bool>();
+
+            this->_appData = applicationData.value;
+            if (!applicationData.value.has_value()) {
+                promise.resolve(false);
+            } else {
+                promise.resolve(true);
+            }
+
+            return promise.getFuture();
+        })
+        .catchInMainThread(
+            [this]([[maybe_unused]] std::exception&& e) { return this->_asyncSystem.createResolvedFuture(false); });
 }

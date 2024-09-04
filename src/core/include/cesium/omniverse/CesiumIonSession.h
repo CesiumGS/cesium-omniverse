@@ -1,7 +1,10 @@
 #pragma once
 
+#include "cesium/omniverse/OmniIonServer.h"
+
 #include <CesiumAsync/AsyncSystem.h>
 #include <CesiumAsync/SharedFuture.h>
+#include <CesiumIonClient/ApplicationData.h>
 #include <CesiumIonClient/Connection.h>
 
 #include <memory>
@@ -36,6 +39,9 @@ class CesiumIonSession {
     }
     CesiumAsync::AsyncSystem& getAsyncSystem() {
         return this->_asyncSystem;
+    }
+    [[nodiscard]] const std::optional<CesiumIonClient::ApplicationData>& getApplicationData() const {
+        return this->_appData;
     }
 
     [[nodiscard]] bool isConnected() const {
@@ -107,10 +113,19 @@ class CesiumIonSession {
     [[nodiscard]] CesiumAsync::Future<CesiumIonClient::Response<CesiumIonClient::Token>>
     findToken(const std::string& token) const;
 
+    /**
+    * If the {@link _appData} field has no value, this method will request the
+    * ion server's /appData endpoint to obtain its data.
+    * @returns A future that resolves to true if _appData is present or false if
+    * it couldn't be fetched.
+    */
+    CesiumAsync::Future<bool> ensureAppDataLoaded();
+
   private:
     CesiumAsync::AsyncSystem _asyncSystem;
     std::shared_ptr<CesiumAsync::IAssetAccessor> _pAssetAccessor;
 
+    std::optional<CesiumIonClient::ApplicationData> _appData;
     std::optional<CesiumIonClient::Connection> _connection;
     std::optional<CesiumIonClient::Profile> _profile;
     std::optional<CesiumIonClient::Assets> _assets;

@@ -233,7 +233,9 @@ if(MSVC)
         _UNICODE # tell Windows to use the unicode version of string functions, as opposed to ASCII (https://docs.microsoft.com/en-us/windows/win32/learnwin32/working-with-strings)
         WIN32_LEAN_AND_MEAN # ignore some unnecessary Windows APIs
         NOMINMAX # don't let Windows create macros for MIN and MAX
-        _SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING)
+        _SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING
+        _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR # See https://developercommunity.visualstudio.com/t/Visual-Studio-17100-Update-leads-to-Pr/10669759?sort=newest
+    )
 endif()
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
@@ -364,6 +366,7 @@ set(CESIUM_OMNI_CXX_DEFINES
     GLM_FORCE_XYZW_ONLY # Disable .rgba and .stpq to make it easier to view values from debugger
     GLM_FORCE_EXPLICIT_CTOR # Disallow implicit conversions between dvec3 <-> dvec4, dvec3 <-> fvec3, etc
     GLM_FORCE_SIZE_T_LENGTH # Make vec.length() and vec[idx] use size_t instead of int
+    GLM_ENABLE_EXPERIMENTAL
 )
 
 # Boost is a dependency of USD. It is dynamically linked so we need to set this flag.
