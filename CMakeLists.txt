@@ -255,8 +255,13 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
         -Wconversion
         -Wno-missing-field-initializers
         -Wno-return-local-addr
+        -Wno-array-bounds # Ignore false positives in libstdc++ in GCC 13.1.1
         -fstrict-aliasing
         -fstrict-enums)
+
+    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        set(CESIUM_OMNI_CXX_FLAGS ${CESIUM_OMNI_CXX_FLAGS} -Wno-stringop-overflow) # Ignore false positives in libstdc++ in GCC 13.1.1
+    endif()
 
     if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
         set(CESIUM_OMNI_CXX_FLAGS ${CESIUM_OMNI_CXX_FLAGS} -Wno-gnu-anonymous-struct)
@@ -393,7 +398,7 @@ endif()
 
 # USD is compiled with the old C++ ABI so we need to compile our own code and external libraries
 # with the old ABI. Only relevant for libraries that have std::string or std::list in their
-# public interface, which includes cesium-native and cpr.
+# public interface, which includes cesium-native and spdlog.
 # See https://gcc.gnu.org/onlinedocs/libstdc++/manual/using_dual_abi.html
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} _GLIBCXX_USE_CXX11_ABI=0)
@@ -428,7 +433,7 @@ set(CMAKE_FIND_PACKAGE_PREFER_CONFIG TRUE)
 find_package(Threads) # System threading library
 
 # Conan libraries
-find_package(cpr)
+find_package(CURL)
 find_package(doctest)
 find_package(stb)
 find_package(ZLIB)
@@ -465,7 +470,7 @@ endif()
 
 # Generate ThirdParty.json
 execute_process(COMMAND "${Python3_EXECUTABLE}" "${SCRIPTS_DIRECTORY}/generate_third_party_license_json.py" --build-dir
-                        "${PROJECT_BINARY_DIR}" --project-dir "${PROJECT_SOURCE_DIR}" --skip "doctest,strawberryperl")
+                        "${PROJECT_BINARY_DIR}" --project-dir "${PROJECT_SOURCE_DIR}" --skip "doctest")
 
 # Copy docs and related resources to exts folder.
 execute_process(COMMAND "${Python3_EXECUTABLE}" "${SCRIPTS_DIRECTORY}/copy_to_exts.py")

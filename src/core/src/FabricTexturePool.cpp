@@ -2,7 +2,7 @@
 
 #include "cesium/omniverse/Context.h"
 
-#include <spdlog/fmt/fmt.h>
+#include <fmt/format.h>
 
 namespace cesium::omniverse {
 

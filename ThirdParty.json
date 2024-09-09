@@ -17,14 +17,6 @@
         "url": "https://github.com/conan-io/cmake-conan"
     },
     {
-        "name": "cpr",
-        "license": [
-            "MIT"
-        ],
-        "version": "1.10.4",
-        "url": "https://docs.libcpr.org/"
-    },
-    {
         "name": "glTF-Asset-Generator",
         "license": [
             "MIT"
@@ -42,19 +34,11 @@
         "url": "https://curl.se"
     },
     {
-        "name": "nasm",
-        "license": [
-            "BSD-2-Clause"
-        ],
-        "version": "2.15.05",
-        "url": "http://www.nasm.us"
-    },
-    {
         "name": "openssl",
         "license": [
-            "OpenSSL"
+            "Apache-2.0"
         ],
-        "version": "1.1.1w",
+        "version": "3.3.1",
         "url": "https://github.com/openssl/openssl"
     },
     {
