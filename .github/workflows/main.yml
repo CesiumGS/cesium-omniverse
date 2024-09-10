@@ -96,6 +96,28 @@ jobs:
           path: ${{ env.CONAN_USER_HOME }}/.conan
           key: conan-${{ matrix.config.name }}-${{ hashFiles('cmake/AddConanDependencies.cmake') }}-v3
 
+      # Tell ezvcpkg to look for or create its build folder (.ezvcpkg) in the repository's root directory
+      # This is partly done to make the directory easily accessible to Docker builds
+      # We only need a release build of vcpkg dependencies
+      - name: vcpkg Set build directory (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          echo "EZVCPKG_BASEDIR=$GITHUB_WORKSPACE/.ezvcpkg" >> $GITHUB_ENV
+          echo "CESIUM_VCPKG_RELEASE_ONLY=TRUE" >> $GITHUB_ENV
+
+      - name: vcpkg Set build directory (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          echo "EZVCPKG_BASEDIR=$env:GITHUB_WORKSPACE/.ezvcpkg" >> $env:GITHUB_ENV
+          echo "CESIUM_VCPKG_RELEASE_ONLY=TRUE" >> $env:GITHUB_ENV
+
+      - name: vcpkg Check cache
+        id: vcpkg-cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.EZVCPKG_BASEDIR }}
+          key: vcpkg-${{ matrix.config.name }}-${{ hashFiles('vcpkg/ports/**/*', 'vcpkg/triplets/**/*') }}-${{ hashFiles('extern/cesium-native/CMakeLists.txt', 'CMakeLists.txt') }}
+
       - name: Packman Check cache
         id: packman-cache
         uses: actions/cache@v3
@@ -112,11 +134,12 @@ jobs:
       # Change the ownership from root to user for all files created by Docker in
       # the Conan build directory so that the files can be cached without permission
       # denied errors
-      - name: AlmaLinux Change Conan & Packman directory permissions
+      - name: AlmaLinux Change Conan, vcpkg, and Packman directory permissions
         if: matrix.config.name == 'AlmaLinux 8 - GCC'
         run: |
           sudo chown -R $USER:$USER $CONAN_USER_HOME/.conan
           sudo chown -R $USER:$USER $PM_PACKAGES_ROOT
+          sudo chown -R $USER:$USER $EZVCPKG_BASEDIR
 
       - name: Install Linux dependencies
         if: ${{ runner.os == 'Linux' && matrix.config.name != 'AlmaLinux 8 - GCC' }}

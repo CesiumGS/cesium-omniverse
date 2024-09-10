@@ -255,8 +255,13 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
         -Wconversion
         -Wno-missing-field-initializers
         -Wno-return-local-addr
+        -Wno-array-bounds # Ignore false positives in libstdc++ in GCC 13.1.1
         -fstrict-aliasing
         -fstrict-enums)
+
+    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        set(CESIUM_OMNI_CXX_FLAGS ${CESIUM_OMNI_CXX_FLAGS} -Wno-stringop-overflow) # Ignore false positives in libstdc++ in GCC 13.1.1
+    endif()
 
     if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
         set(CESIUM_OMNI_CXX_FLAGS ${CESIUM_OMNI_CXX_FLAGS} -Wno-gnu-anonymous-struct)
@@ -393,7 +398,7 @@ endif()
 
 # USD is compiled with the old C++ ABI so we need to compile our own code and external libraries
 # with the old ABI. Only relevant for libraries that have std::string or std::list in their
-# public interface, which includes cesium-native and cpr.
+# public interface, which includes cesium-native and spdlog.
 # See https://gcc.gnu.org/onlinedocs/libstdc++/manual/using_dual_abi.html
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} _GLIBCXX_USE_CXX11_ABI=0)
@@ -418,6 +423,28 @@ set(CESIUM_OMNI_LINKER_FLAGS_DEBUG
     ${CESIUM_OMNI_LINKER_FLAGS_DEBUG}
     CACHE STRING "Linker flags to use in debug mode." FORCE)
 
+# vcpkg setup
+set(VCPKG_OVERLAY_PORTS "${CMAKE_CURRENT_LIST_DIR}/vcpkg/ports")
+set(VCPKG_OVERLAY_TRIPLETS "${CMAKE_CURRENT_LIST_DIR}/vcpkg/triplets")
+
+include(${CMAKE_CURRENT_SOURCE_DIR}/extern/cesium-native/cmake/detect-vcpkg-triplet.cmake)
+
+if (NOT VCPKG_TRIPLET)
+    if (DEFINED ENV{VCPKG_TRIPLET})
+        set(VCPKG_TRIPLET "$ENV{VCPKG_TRIPLET}")
+    elseif(DETECTED_VCPKG_TRIPLET_ERROR)
+        message(FATAL_ERROR "${DETECTED_VCPKG_TRIPLET_ERROR}")
+    else()
+        set(VCPKG_TRIPLET "${DETECTED_VCPKG_TRIPLET}-omniverse")
+    endif()
+endif()
+
+if (NOT EZVCPKG_BASEDIR)
+    if (DEFINED ENV{EZVCPKG_BASEDIR})
+        set(EZVCPKG_BASEDIR "$ENV{EZVCPKG_BASEDIR}")
+    endif()
+endif()
+
 # Third party dependencies not handled by conan
 add_subdirectory(extern)
 
@@ -428,7 +455,7 @@ set(CMAKE_FIND_PACKAGE_PREFER_CONFIG TRUE)
 find_package(Threads) # System threading library
 
 # Conan libraries
-find_package(cpr)
+find_package(CURL)
 find_package(doctest)
 find_package(stb)
 find_package(ZLIB)

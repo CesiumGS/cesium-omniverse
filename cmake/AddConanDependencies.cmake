@@ -4,7 +4,6 @@
 include(ConfigureConan)
 
 set(REQUIRES
-    "cpr/1.10.4@#860d6cd6d8eb5f893e647c2fb016eb61"
     "doctest/2.4.9@#ea6440e3cd544c9a25bf3a96bcf16f48"
     "openssl/1.1.1w@#42c32b02f62aa987a58201f4c4561d3e"
     "pybind11/2.10.1@#561736204506dad955276aaab438aab4"

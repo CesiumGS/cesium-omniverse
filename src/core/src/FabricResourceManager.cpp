@@ -16,8 +16,8 @@
 #include "cesium/omniverse/MetadataUtil.h"
 #include "cesium/omniverse/UsdUtil.h"
 
+#include <fmt/format.h>
 #include <omni/ui/ImageProvider/DynamicTextureProvider.h>
-#include <spdlog/fmt/fmt.h>
 
 namespace cesium::omniverse {
 

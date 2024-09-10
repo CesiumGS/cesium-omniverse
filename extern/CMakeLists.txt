@@ -1,5 +1,231 @@
 include(Macros)
 
+if(MSVC)
+    set(CESIUM_NATIVE_DEPENDENCIES
+        async++
+        draco
+        glm
+        jpeg
+        ktx
+        libmodpbase64
+        meshoptimizer
+        s2
+        absl_cordz_sample_token
+        absl_die_if_null
+        absl_failure_signal_handler
+        absl_flags_parse
+        absl_log_flags
+        absl_log_initialize
+        absl_periodic_sampler
+        absl_random_internal_distribution_test_util
+        absl_scoped_set_env
+        absl_statusor
+        absl_bad_any_cast_impl
+        absl_log_internal_check_op
+        absl_leak_check
+        absl_flags_usage
+        absl_flags_usage_internal
+        absl_flags_internal
+        absl_flags_reflection
+        absl_flags_config
+        absl_flags_program_name
+        absl_flags_private_handle_accessor
+        absl_flags_commandlineflag
+        absl_flags_commandlineflag_internal
+        absl_flags_marshalling
+        absl_log_internal_conditions
+        absl_log_internal_message
+        absl_examine_stack
+        absl_log_internal_nullguard
+        absl_log_internal_format
+        absl_log_internal_proto
+        absl_log_internal_log_sink_set
+        absl_log_globals
+        absl_vlog_config_internal
+        absl_log_internal_fnmatch
+        absl_log_internal_globals
+        absl_log_sink
+        absl_log_entry
+        absl_raw_hash_set
+        absl_hash
+        absl_city
+        absl_low_level_hash
+        absl_hashtablez_sampler
+        absl_random_distributions
+        absl_random_seed_sequences
+        absl_random_internal_pool_urbg
+        absl_random_internal_randen
+        absl_random_internal_randen_hwaes
+        absl_random_internal_randen_hwaes_impl
+        absl_random_internal_randen_slow
+        absl_random_internal_platform
+        absl_random_internal_seed_material
+        absl_random_seed_gen_exception
+        absl_status
+        absl_cord
+        absl_cordz_info
+        absl_cordz_handle
+        absl_cordz_functions
+        absl_exponential_biased
+        absl_synchronization
+        absl_graphcycles_internal
+        absl_kernel_timeout_internal
+        absl_time
+        absl_civil_time
+        absl_time_zone
+        absl_cord_internal
+        absl_crc_cord_state
+        absl_crc32c
+        absl_crc_internal
+        absl_crc_cpu_detect
+        absl_stacktrace
+        absl_bad_optional_access
+        absl_str_format_internal
+        absl_strerror
+        absl_symbolize
+        absl_strings
+        absl_strings_internal
+        absl_int128
+        absl_string_view
+        absl_throw_delegate
+        absl_debugging_internal
+        absl_malloc_internal
+        absl_demangle_internal
+        absl_base
+        absl_spinlock_wait
+        absl_bad_variant_access
+        absl_raw_logging_internal
+        absl_log_severity
+        libssl
+        libcrypto
+        spdlog
+        fmt
+        sqlite3
+        tinyxml2
+        turbojpeg
+        uriparser
+        libwebp
+        libwebpdecoder
+        libwebpdemux
+        libwebpmux
+        astcenc-avx2-static
+        libsharpyuv
+        zlibstatic-ng
+        zstd)
+else()
+    set(CESIUM_NATIVE_DEPENDENCIES
+        async++
+        draco
+        glm
+        jpeg
+        ktx
+        libmodpbase64
+        meshoptimizer
+        s2
+        absl_cordz_sample_token
+        absl_die_if_null
+        absl_failure_signal_handler
+        absl_flags_parse
+        absl_log_flags
+        absl_log_initialize
+        absl_periodic_sampler
+        absl_random_internal_distribution_test_util
+        absl_scoped_set_env
+        absl_statusor
+        absl_bad_any_cast_impl
+        absl_log_internal_check_op
+        absl_leak_check
+        absl_flags_usage
+        absl_flags_usage_internal
+        absl_flags_internal
+        absl_flags_reflection
+        absl_flags_config
+        absl_flags_program_name
+        absl_flags_private_handle_accessor
+        absl_flags_commandlineflag
+        absl_flags_commandlineflag_internal
+        absl_flags_marshalling
+        absl_log_internal_conditions
+        absl_log_internal_message
+        absl_examine_stack
+        absl_log_internal_nullguard
+        absl_log_internal_format
+        absl_log_internal_proto
+        absl_log_internal_log_sink_set
+        absl_log_globals
+        absl_vlog_config_internal
+        absl_log_internal_fnmatch
+        absl_log_internal_globals
+        absl_log_sink
+        absl_log_entry
+        absl_raw_hash_set
+        absl_hash
+        absl_city
+        absl_low_level_hash
+        absl_hashtablez_sampler
+        absl_random_distributions
+        absl_random_seed_sequences
+        absl_random_internal_pool_urbg
+        absl_random_internal_randen
+        absl_random_internal_randen_hwaes
+        absl_random_internal_randen_hwaes_impl
+        absl_random_internal_randen_slow
+        absl_random_internal_platform
+        absl_random_internal_seed_material
+        absl_random_seed_gen_exception
+        absl_status
+        absl_cord
+        absl_cordz_info
+        absl_cordz_handle
+        absl_cordz_functions
+        absl_exponential_biased
+        absl_synchronization
+        absl_graphcycles_internal
+        absl_kernel_timeout_internal
+        absl_time
+        absl_civil_time
+        absl_time_zone
+        absl_cord_internal
+        absl_crc_cord_state
+        absl_crc32c
+        absl_crc_internal
+        absl_crc_cpu_detect
+        absl_stacktrace
+        absl_bad_optional_access
+        absl_str_format_internal
+        absl_strerror
+        absl_symbolize
+        absl_strings
+        absl_strings_internal
+        absl_int128
+        absl_string_view
+        absl_throw_delegate
+        absl_debugging_internal
+        absl_malloc_internal
+        absl_demangle_internal
+        absl_base
+        absl_spinlock_wait
+        absl_bad_variant_access
+        absl_raw_logging_internal
+        absl_log_severity
+        ssl
+        crypto
+        spdlog
+        fmt
+        sqlite3
+        tinyxml2
+        turbojpeg
+        uriparser
+        webp
+        webpdecoder
+        webpdemux
+        webpmux
+        astcenc-avx2-static
+        sharpyuv
+        z-ng
+        zstd)
+endif()
+
 # cmake-format: off
 add_external_project(
     PROJECT_NAME
@@ -19,31 +245,23 @@ add_external_project(
         CesiumIonClient
         CesiumAsync
         CesiumUtility
-        async++
-        csprng
-        draco
-        ktx
-        modp_b64
-        s2geometry
-        spdlog
-        tinyxml2
-        uriparser
-        webpdecoder
-        turbojpeg
-        meshoptimizer
-        sqlite3
+        ${CESIUM_NATIVE_DEPENDENCIES}
     OPTIONS
         CESIUM_TESTS_ENABLED=OFF
         CESIUM_COVERAGE_ENABLED=OFF
         CESIUM_TRACING_ENABLED=${CESIUM_OMNI_ENABLE_TRACING}
+        VCPKG_OVERLAY_PORTS=${VCPKG_OVERLAY_PORTS}
+        VCPKG_OVERLAY_TRIPLETS=${VCPKG_OVERLAY_TRIPLETS}
+        VCPKG_TRIPLET=${VCPKG_TRIPLET}
+        EZVCPKG_BASEDIR=${EZVCPKG_BASEDIR}
     PROJECT_EXTERN_DIRECTORY
         "${PROJECT_SOURCE_DIR}/extern"
-    EXPECTED_DEBUG_POSTFIX "d"
 )
 # cmake-format: on
 
 if(NOT ${USE_NVIDIA_RELEASE_LIBRARIES})
-    execute_process(COMMAND "${Python3_EXECUTABLE}" "${SCRIPTS_DIRECTORY}/copy_from_dir.py" "*.user.xml" "${PROJECT_SOURCE_DIR}/extern/nvidia/debug-deps" "${PROJECT_SOURCE_DIR}/extern/nvidia/deps")
+    execute_process(COMMAND "${Python3_EXECUTABLE}" "${SCRIPTS_DIRECTORY}/copy_from_dir.py" "*.user.xml"
+                            "${PROJECT_SOURCE_DIR}/extern/nvidia/debug-deps" "${PROJECT_SOURCE_DIR}/extern/nvidia/deps")
 endif()
 
 if(WIN32)
@@ -55,9 +273,11 @@ else()
 endif()
 
 if(UNIX)
-    execute_process(COMMAND bash -c "${PROJECT_SOURCE_DIR}/extern/nvidia/build.sh --platform ${NVIDIA_PLATFORM_NAME}" RESULT_VARIABLE exit_code)
+    execute_process(COMMAND bash -c "${PROJECT_SOURCE_DIR}/extern/nvidia/build.sh --platform ${NVIDIA_PLATFORM_NAME}"
+                    RESULT_VARIABLE exit_code)
 elseif(WIN32)
-    execute_process(COMMAND cmd /C "${PROJECT_SOURCE_DIR}/extern/nvidia/build.bat --platform ${NVIDIA_PLATFORM_NAME}" RESULT_VARIABLE exit_code)
+    execute_process(COMMAND cmd /C "${PROJECT_SOURCE_DIR}/extern/nvidia/build.bat --platform ${NVIDIA_PLATFORM_NAME}"
+                    RESULT_VARIABLE exit_code)
 endif()
 
 # cmake-format: off

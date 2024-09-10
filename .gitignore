@@ -33,9 +33,6 @@ compile_commands.json
 trace.json
 trace.csv
 
-# CI puts Conan in the project directory
-.conan
-
 # Clion Config
 .idea
 

@@ -4,7 +4,7 @@
 #include "cesium/omniverse/FabricVertexAttributeDescriptor.h"
 #include "cesium/omniverse/GltfUtil.h"
 
-#include <spdlog/fmt/fmt.h>
+#include <fmt/format.h>
 
 namespace cesium::omniverse {
 

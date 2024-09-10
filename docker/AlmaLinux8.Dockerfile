@@ -14,7 +14,6 @@ RUN dnf config-manager --set-enabled powertools
 RUN dnf install -y -q \
     git \
     git-lfs \
-    python39 \
     wget \
     gcc-toolset-11 \
     gcc-toolset-11-libubsan-devel \
@@ -24,6 +23,7 @@ RUN dnf install -y -q \
     zlib-devel \
     perl-Data-Dumper \
     perl-Thread-Queue \
+    perl-IPC-Cmd \
     wget \
     openssl-devel \
     bzip2-devel \
@@ -38,6 +38,18 @@ RUN dnf module install -y -q nvidia-driver:535-dkms
 # Enables gcc 11 for use within the docker image.
 RUN echo "source /opt/rh/gcc-toolset-11/enable" >> /etc/bashrc
 SHELL ["/bin/bash", "--login", "-c"]
+
+# Install newer version of Python
+RUN wget https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz && \
+    tar xzf Python-3.9.6.tgz && \
+    cd Python-3.9.6 && \
+    ./configure --enable-optimizations --enable-loadable-sqlite-extensions && \
+    make altinstall && \
+    cd .. && \
+    rm Python-3.9.6.tgz && \
+    rm -rf Python-3.9.6 && \
+    ln -sf /usr/local/bin/python3.9 /usr/bin/python3 && \
+    ln -sf /usr/local/bin/pip3.9 /usr/bin/pip3
 
 # Install newer version of CMake
 RUN wget https://cmake.org/files/v3.24/cmake-3.24.2.tar.gz && \

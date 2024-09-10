@@ -1,6 +1,6 @@
 #include "cesium/omniverse/UsdTokens.h"
 
-#include <spdlog/fmt/fmt.h>
+#include <fmt/format.h>
 
 // clang-format off
 PXR_NAMESPACE_OPEN_SCOPE
