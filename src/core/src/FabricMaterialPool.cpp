@@ -4,7 +4,7 @@
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/MetadataUtil.h"
 
-#include <spdlog/fmt/fmt.h>
+#include <fmt/format.h>
 
 namespace cesium::omniverse {
 
