@@ -424,6 +424,7 @@ set(CESIUM_OMNI_LINKER_FLAGS_DEBUG
     CACHE STRING "Linker flags to use in debug mode." FORCE)
 
 # vcpkg setup
+set(VCPKG_OVERLAY_PORTS "${CMAKE_CURRENT_LIST_DIR}/vcpkg/ports")
 set(VCPKG_OVERLAY_TRIPLETS "${CMAKE_CURRENT_LIST_DIR}/vcpkg/triplets")
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/extern/cesium-native/cmake/detect-vcpkg-triplet.cmake)
