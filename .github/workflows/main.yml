@@ -102,20 +102,20 @@ jobs:
       - name: vcpkg Set build directory (Unix)
         if: runner.os != 'Windows'
         run: |
-          echo "EZVCPKG_BASEDIR=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+          echo "EZVCPKG_BASEDIR=$GITHUB_WORKSPACE/.ezvcpkg" >> $GITHUB_ENV
           echo "CESIUM_VCPKG_RELEASE_ONLY=TRUE" >> $GITHUB_ENV
 
       - name: vcpkg Set build directory (Windows)
         if: runner.os == 'Windows'
         run: |
-          echo "EZVCPKG_BASEDIR=$env:GITHUB_WORKSPACE" >> $env:GITHUB_ENV
+          echo "EZVCPKG_BASEDIR=$env:GITHUB_WORKSPACE/.ezvcpkg" >> $env:GITHUB_ENV
           echo "CESIUM_VCPKG_RELEASE_ONLY=TRUE" >> $env:GITHUB_ENV
 
       - name: vcpkg Check cache
         id: vcpkg-cache
         uses: actions/cache@v3
         with:
-          path: ${{ env.EZVCPKG_BASEDIR }}/.ezvcpkg
+          path: ${{ env.EZVCPKG_BASEDIR }}
           key: vcpkg-${{ matrix.config.name }}-${{ hashFiles('vcpkg/ports/**/*', 'vcpkg/triplets/**/*') }}-${{ hashFiles('extern/cesium-native/CMakeLists.txt', 'CMakeLists.txt') }}
 
       - name: Packman Check cache
@@ -139,7 +139,7 @@ jobs:
         run: |
           sudo chown -R $USER:$USER $CONAN_USER_HOME/.conan
           sudo chown -R $USER:$USER $PM_PACKAGES_ROOT
-          sudo chown -R $USER:$USER $EZVCPKG_BASEDIR/.ezvcpkg
+          sudo chown -R $USER:$USER $EZVCPKG_BASEDIR
 
       - name: Install Linux dependencies
         if: ${{ runner.os == 'Linux' && matrix.config.name != 'AlmaLinux 8 - GCC' }}
