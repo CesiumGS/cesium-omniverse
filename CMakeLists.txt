@@ -486,7 +486,7 @@ endif()
 
 # Generate ThirdParty.json
 execute_process(COMMAND "${Python3_EXECUTABLE}" "${SCRIPTS_DIRECTORY}/generate_third_party_license_json.py" --build-dir
-                        "${PROJECT_BINARY_DIR}" --project-dir "${PROJECT_SOURCE_DIR}" --skip "doctest")
+                        "${PROJECT_BINARY_DIR}" --project-dir "${PROJECT_SOURCE_DIR}" --skip "doctest,strawberryperl")
 
 # Copy docs and related resources to exts folder.
 execute_process(COMMAND "${Python3_EXECUTABLE}" "${SCRIPTS_DIRECTORY}/copy_to_exts.py")

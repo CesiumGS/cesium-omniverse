@@ -96,8 +96,8 @@ if(MSVC)
         absl_bad_variant_access
         absl_raw_logging_internal
         absl_log_severity
-        libcrypto
         libssl
+        libcrypto
         spdlog
         fmt
         sqlite3
@@ -208,8 +208,8 @@ else()
         absl_bad_variant_access
         absl_raw_logging_internal
         absl_log_severity
-        crypto
         ssl
+        crypto
         spdlog
         fmt
         sqlite3
