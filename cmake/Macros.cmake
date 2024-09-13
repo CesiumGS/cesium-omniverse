@@ -321,6 +321,7 @@ $<$<CONFIG:MinSizeRel>:${_EXPECTED_MINSIZEREL_POSTFIX}>")
     if(MSVC)
         # See https://learn.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-1-c4530?view=msvc-170
         set(EXTERN_CXX_FLAGS ${EXTERN_CXX_FLAGS} "/EHsc")
+        set(EXTERN_CXX_FLAGS ${EXTERN_CXX_FLAGS} "-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR=1")
     endif()
 
     # Prepend options with -D
