@@ -439,6 +439,12 @@ if (NOT VCPKG_TRIPLET)
     endif()
 endif()
 
+if (NOT EZVCPKG_BASEDIR)
+    if (DEFINED ENV{EZVCPKG_BASEDIR})
+        set(EZVCPKG_BASEDIR "$ENV{EZVCPKG_BASEDIR}")
+    endif()
+endif()
+
 # Third party dependencies not handled by conan
 add_subdirectory(extern)
 
