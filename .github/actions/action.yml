@@ -12,7 +12,7 @@ runs:
     CONAN_USER_HOME: $GITHUB_WORKSPACE
     PM_PACKAGES_ROOT: $GITHUB_WORKSPACE/packman-repo
     EZVCPKG_BASEDIR: $GITHUB_WORKSPACE
-    VCPKG_TRIPLET: "x64-linux"
+    VCPKG_TRIPLET: "x64-linux-omniverse"
   args:
     # Tell bash to run a command
     - "-c"
