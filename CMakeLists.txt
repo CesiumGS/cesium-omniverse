@@ -445,8 +445,6 @@ if (NOT EZVCPKG_BASEDIR)
     endif()
 endif()
 
-message(FATAL_ERROR ${EZVCPKG_BASEDIR})
-
 # Third party dependencies not handled by conan
 add_subdirectory(extern)
 
