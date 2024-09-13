@@ -109,7 +109,7 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           echo "EZVCPKG_BASEDIR=$env:GITHUB_WORKSPACE" >> $env:GITHUB_ENV
-          echo "CESIUM_VCPKG_RELEASE_ONLY=TRUE" >> $GITHUB_ENV
+          echo "CESIUM_VCPKG_RELEASE_ONLY=TRUE" >> $env:GITHUB_ENV
 
       - name: vcpkg Check cache
         id: vcpkg-cache
