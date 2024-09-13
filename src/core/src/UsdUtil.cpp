@@ -30,6 +30,7 @@
 #include <CesiumUsdSchemas/tileset.h>
 #include <CesiumUsdSchemas/webMapServiceRasterOverlay.h>
 #include <CesiumUsdSchemas/webMapTileServiceRasterOverlay.h>
+#include <fmt/format.h>
 #include <glm/gtc/matrix_access.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -45,7 +46,6 @@
 #include <pxr/usd/usdGeom/xformCommonAPI.h>
 #include <pxr/usd/usdShade/material.h>
 #include <pxr/usd/usdShade/shader.h>
-#include <spdlog/fmt/fmt.h>
 
 #include <cctype>
 

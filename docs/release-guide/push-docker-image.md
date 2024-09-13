@@ -42,7 +42,7 @@ After making your changes to the docker file, execute:
 docker build --tag cesiumgs/omniverse-almalinux8-build:$TAGNAME -f docker/AlmaLinux8.Dockerfile . --no-cache
 ```
 
-You should replace `TAGNAME` with the current date in `YYYY-MM-DD` format. So if it's the 29th of August, 2023, you would use `2023-08-29`.
+You should replace `$TAGNAME` with the current date in `YYYY-MM-DD` format. So if it's the 29th of August, 2023, you would use `2023-08-29`.
 
 ### Push the image to Docker Hub
 

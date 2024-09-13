@@ -17,14 +17,6 @@
         "url": "https://github.com/conan-io/cmake-conan"
     },
     {
-        "name": "cpr",
-        "license": [
-            "MIT"
-        ],
-        "version": "1.10.4",
-        "url": "https://docs.libcpr.org/"
-    },
-    {
         "name": "glTF-Asset-Generator",
         "license": [
             "MIT"

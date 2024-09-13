@@ -21,6 +21,26 @@ glob_files(SOURCES "${CMAKE_CURRENT_LIST_DIR}/src/*.cpp")
 get_property(ADDITIONAL_LIBRARIES GLOBAL PROPERTY NVIDIA_ADDITIONAL_LIBRARIES_PROPERTY)
 get_property(ADDITIONAL_LINK_DIRECTORIES GLOBAL PROPERTY NVIDIA_ADDITIONAL_LINK_DIRECTORIES_PROPERTY)
 
+if(MSVC)
+    set(SSL_LIBRARY_NAME "libssl")
+    set(CRYPTO_LIBRARY_NAME "libcrypto")
+    set(WEBP_LIBRARY_NAME "libwebp")
+    set(WEBPDECODER_LIBRARY_NAME "libwebpdecoder")
+    set(WEBPDEMUX_LIBRARY_NAME "libwebpdemux")
+    set(WEBPMUX_LIBRARY_NAME "libwebpmux")
+    set(SHARPYUV_LIBRARY_NAME "libsharpyuv")
+    set(ZNG_LIBRARY_NAME "zlibstatic-ng")
+else()
+    set(SSL_LIBRARY_NAME "ssl")
+    set(CRYPTO_LIBRARY_NAME "crypto")
+    set(WEBP_LIBRARY_NAME "webp")
+    set(WEBPDECODER_LIBRARY_NAME "webpdecoder")
+    set(WEBPDEMUX_LIBRARY_NAME "webpdemux")
+    set(WEBPMUX_LIBRARY_NAME "webpmux")
+    set(SHARPYUV_LIBRARY_NAME "sharpyuv")
+    set(ZNG_LIBRARY_NAME "z-ng")
+endif()
+
 # cmake-format: off
 setup_lib(
     TARGET_NAME
@@ -50,19 +70,117 @@ setup_lib(
         CesiumAsync
         CesiumUtility
         async++
-        csprng
         draco
+        glm
+        jpeg
         ktx
-        modp_b64
-        s2geometry
-        spdlog
-        tinyxml2
-        uriparser
-        webpdecoder
-        turbojpeg
+        libmodpbase64
         meshoptimizer
+        s2
+        absl_cordz_sample_token
+        absl_die_if_null
+        absl_failure_signal_handler
+        absl_flags_parse
+        absl_log_flags
+        absl_log_initialize
+        absl_periodic_sampler
+        absl_random_internal_distribution_test_util
+        absl_scoped_set_env
+        absl_statusor
+        absl_bad_any_cast_impl
+        absl_log_internal_check_op
+        absl_leak_check
+        absl_flags_usage
+        absl_flags_usage_internal
+        absl_flags_internal
+        absl_flags_reflection
+        absl_flags_config
+        absl_flags_program_name
+        absl_flags_private_handle_accessor
+        absl_flags_commandlineflag
+        absl_flags_commandlineflag_internal
+        absl_flags_marshalling
+        absl_log_internal_conditions
+        absl_log_internal_message
+        absl_examine_stack
+        absl_log_internal_nullguard
+        absl_log_internal_format
+        absl_log_internal_proto
+        absl_log_internal_log_sink_set
+        absl_log_globals
+        absl_vlog_config_internal
+        absl_log_internal_fnmatch
+        absl_log_internal_globals
+        absl_log_sink
+        absl_log_entry
+        absl_raw_hash_set
+        absl_hash
+        absl_city
+        absl_low_level_hash
+        absl_hashtablez_sampler
+        absl_random_distributions
+        absl_random_seed_sequences
+        absl_random_internal_pool_urbg
+        absl_random_internal_randen
+        absl_random_internal_randen_hwaes
+        absl_random_internal_randen_hwaes_impl
+        absl_random_internal_randen_slow
+        absl_random_internal_platform
+        absl_random_internal_seed_material
+        absl_random_seed_gen_exception
+        absl_status
+        absl_cord
+        absl_cordz_info
+        absl_cordz_handle
+        absl_cordz_functions
+        absl_exponential_biased
+        absl_synchronization
+        absl_graphcycles_internal
+        absl_kernel_timeout_internal
+        absl_time
+        absl_civil_time
+        absl_time_zone
+        absl_cord_internal
+        absl_crc_cord_state
+        absl_crc32c
+        absl_crc_internal
+        absl_crc_cpu_detect
+        absl_stacktrace
+        absl_bad_optional_access
+        absl_str_format_internal
+        absl_strerror
+        absl_symbolize
+        absl_strings
+        absl_strings_internal
+        absl_int128
+        absl_string_view
+        absl_throw_delegate
+        absl_debugging_internal
+        absl_malloc_internal
+        absl_demangle_internal
+        absl_base
+        absl_spinlock_wait
+        absl_bad_variant_access
+        absl_raw_logging_internal
+        absl_log_severity
+        # Already linking OpenSSL from CURL (from Conan)
+        # ${SSL_LIBRARY_NAME}
+        # ${CRYPTO_LIBRARY_NAME}
+        spdlog
+        fmt
         sqlite3
-        cpr::cpr
+        tinyxml2
+        turbojpeg
+        uriparser
+        ${WEBP_LIBRARY_NAME}
+        ${WEBPDECODER_LIBRARY_NAME}
+        ${WEBPDEMUX_LIBRARY_NAME}
+        ${WEBPMUX_LIBRARY_NAME}
+        astcenc-avx2-static
+        ${SHARPYUV_LIBRARY_NAME}
+        ${ZNG_LIBRARY_NAME}
+        zstd
+        CURL::libcurl
         stb::stb
         ZLIB::ZLIB
         fabric
