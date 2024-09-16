@@ -6,6 +6,7 @@
 #include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/OmniCartographicPolygon.h"
+#include "cesium/omniverse/OmniEllipsoid.h"
 #include "cesium/omniverse/OmniGeoreference.h"
 #include "cesium/omniverse/OmniGlobeAnchor.h"
 #include "cesium/omniverse/OmniIonRasterOverlay.h"
@@ -110,6 +111,18 @@ void updateGeoreferenceBindings(const Context& context) {
     }
 }
 
+void updateEllipsoidBindings(const Context& context, const pxr::SdfPath& ellipsoidPath) {
+    const auto& georeferences = context.getAssetRegistry().getGeoreferences();
+
+    // Update georeferences that reference this ellipsoid
+    for (const auto& pGeoreference : georeferences) {
+        if (pGeoreference->getEllipsoidPath() == ellipsoidPath) {
+            pGeoreference->update();
+            updateGeoreferenceBindings(context);
+        }
+    }
+}
+
 bool isFirstData(const Context& context, const pxr::SdfPath& dataPath) {
     const auto pData = context.getAssetRegistry().getData(dataPath);
     const auto pFirstData = context.getAssetRegistry().getFirstData();
@@ -155,6 +168,30 @@ bool isFirstData(const Context& context, const pxr::SdfPath& dataPath) {
     }
 
     return reloadStage;
+}
+
+void processCesiumEllipsoidChanged(
+    const Context& context,
+    const pxr::SdfPath& ellipsoidPath,
+    const std::vector<pxr::TfToken>& properties) {
+    const auto pEllipsoid = context.getAssetRegistry().getEllipsoid(ellipsoidPath);
+    if (!pEllipsoid) {
+        return;
+    }
+
+    auto updateBindings = false;
+
+    // clang-format off
+    for (const auto& property : properties) {
+        if (property == pxr::CesiumTokens->cesiumRadii) {
+            updateBindings = true;
+        }
+    }
+    // clang-format on
+
+    if (updateBindings) {
+        updateEllipsoidBindings(context, ellipsoidPath);
+    }
 }
 
 void processCesiumGlobeAnchorChanged(
@@ -682,6 +719,11 @@ void processUsdShaderChanged(
     return reloadStage;
 }
 
+void processCesiumEllipsoidRemoved(Context& context, const pxr::SdfPath& ellipsoidPath) {
+    context.getAssetRegistry().removeEllipsoid(ellipsoidPath);
+    updateEllipsoidBindings(context, ellipsoidPath);
+}
+
 void processCesiumTilesetRemoved(Context& context, const pxr::SdfPath& tilesetPath) {
     context.getAssetRegistry().removeTileset(tilesetPath);
 }
@@ -745,6 +787,15 @@ void processCesiumCartographicPolygonRemoved(Context& context, const pxr::SdfPat
 
     context.getAssetRegistry().addData(dataPath);
     return isFirstData(context, dataPath);
+}
+
+void processCesiumEllipsoidAdded(Context& context, const pxr::SdfPath& ellipsoidPath) {
+    if (context.getAssetRegistry().getEllipsoid(ellipsoidPath)) {
+        return;
+    }
+
+    context.getAssetRegistry().addEllipsoid(ellipsoidPath);
+    updateEllipsoidBindings(context, ellipsoidPath);
 }
 
 void processCesiumGlobeAnchorAdded(Context& context, const pxr::SdfPath& globeAnchorPath) {
@@ -937,6 +988,9 @@ bool UsdNotificationHandler::processChangedPrim(const ChangedPrim& changedPrim) 
                 case ChangedPrimType::CESIUM_DATA:
                     reloadStage = processCesiumDataChanged(*_pContext, changedPrim.primPath, changedPrim.properties);
                     break;
+                case ChangedPrimType::CESIUM_ELLIPSOID:
+                    processCesiumEllipsoidChanged(*_pContext, changedPrim.primPath, changedPrim.properties);
+                    break;
                 case ChangedPrimType::CESIUM_TILESET:
                     processCesiumTilesetChanged(*_pContext, changedPrim.primPath, changedPrim.properties);
                     break;
@@ -982,6 +1036,9 @@ bool UsdNotificationHandler::processChangedPrim(const ChangedPrim& changedPrim) 
                 case ChangedPrimType::CESIUM_DATA:
                     reloadStage = processCesiumDataAdded(*_pContext, changedPrim.primPath);
                     break;
+                case ChangedPrimType::CESIUM_ELLIPSOID:
+                    processCesiumEllipsoidAdded(*_pContext, changedPrim.primPath);
+                    break;
                 case ChangedPrimType::CESIUM_TILESET:
                     processCesiumTilesetAdded(*_pContext, changedPrim.primPath);
                     break;
@@ -1021,6 +1078,9 @@ bool UsdNotificationHandler::processChangedPrim(const ChangedPrim& changedPrim) 
             switch (changedPrim.primType) {
                 case ChangedPrimType::CESIUM_DATA:
                     reloadStage = processCesiumDataRemoved(*_pContext, changedPrim.primPath);
+                    break;
+                case ChangedPrimType::CESIUM_ELLIPSOID:
+                    processCesiumEllipsoidRemoved(*_pContext, changedPrim.primPath);
                     break;
                 case ChangedPrimType::CESIUM_TILESET:
                     processCesiumTilesetRemoved(*_pContext, changedPrim.primPath);
@@ -1123,6 +1183,14 @@ void UsdNotificationHandler::onPrimRemoved(const pxr::SdfPath& primPath) {
     }
 
     // Remove prims in the asset registry
+    const auto& ellipsoids = _pContext->getAssetRegistry().getEllipsoids();
+    for (const auto& pEllipsoid : ellipsoids) {
+        const auto ellipsoidPath = pEllipsoid->getPath();
+        if (isPrimOrDescendant(ellipsoidPath, primPath)) {
+            insertRemovedPrim(ellipsoidPath, ChangedPrimType::CESIUM_ELLIPSOID);
+        }
+    }
+
     const auto& tilesets = _pContext->getAssetRegistry().getTilesets();
     for (const auto& pTileset : tilesets) {
         const auto tilesetPath = pTileset->getPath();
@@ -1214,6 +1282,8 @@ void UsdNotificationHandler::insertPropertyChanged(
 UsdNotificationHandler::ChangedPrimType UsdNotificationHandler::getTypeFromStage(const pxr::SdfPath& path) const {
     if (UsdUtil::isCesiumData(_pContext->getUsdStage(), path)) {
         return ChangedPrimType::CESIUM_DATA;
+    } else if (UsdUtil::isCesiumEllipsoid(_pContext->getUsdStage(), path)) {
+        return ChangedPrimType::CESIUM_ELLIPSOID;
     } else if (UsdUtil::isCesiumTileset(_pContext->getUsdStage(), path)) {
         return ChangedPrimType::CESIUM_TILESET;
     } else if (UsdUtil::isCesiumIonRasterOverlay(_pContext->getUsdStage(), path)) {
@@ -1249,6 +1319,8 @@ UsdNotificationHandler::getTypeFromAssetRegistry(const pxr::SdfPath& path) const
     switch (assetType) {
         case AssetType::DATA:
             return ChangedPrimType::CESIUM_DATA;
+        case AssetType::ELLIPSOID:
+            return ChangedPrimType::CESIUM_ELLIPSOID;
         case AssetType::TILESET:
             return ChangedPrimType::CESIUM_TILESET;
         case AssetType::ION_RASTER_OVERLAY:

@@ -1,6 +1,8 @@
 #include "cesium/omniverse/OmniGeoreference.h"
 
+#include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/OmniEllipsoid.h"
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <CesiumGeospatial/Ellipsoid.h>
@@ -39,6 +41,22 @@ CesiumGeospatial::Cartographic OmniGeoreference::getOrigin() const {
     return {glm::radians(longitude), glm::radians(latitude), height};
 }
 
+pxr::SdfPath OmniGeoreference::getEllipsoidPath() const {
+    const auto cesiumGeoreference = UsdUtil::getCesiumGeoreference(_pContext->getUsdStage(), _path);
+    if (!UsdUtil::isSchemaValid(cesiumGeoreference)) {
+        return {};
+    }
+
+    pxr::SdfPathVector targets;
+    cesiumGeoreference.GetEllipsoidBindingRel().GetForwardedTargets(&targets);
+
+    if (!targets.empty()) {
+        return targets.front();
+    }
+
+    return {};
+}
+
 const CesiumGeospatial::Ellipsoid& OmniGeoreference::getEllipsoid() const {
     return _ellipsoid;
 }
@@ -75,6 +93,9 @@ void OmniGeoreference::update() {
     if (!UsdUtil::isSchemaValid(cesiumGeoreference)) {
         return;
     }
+
+    const auto pEllipsoid = _pContext->getAssetRegistry().getEllipsoid(getEllipsoidPath());
+    _ellipsoid = pEllipsoid ? pEllipsoid->getEllipsoid() : CesiumGeospatial::Ellipsoid::WGS84;
 
     const auto ecefToUsdTransform = getLocalCoordinateSystem().getEcefToLocalTransformation();
 

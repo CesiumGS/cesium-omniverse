@@ -20,10 +20,10 @@
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <CesiumGltf/MeshPrimitive.h>
+#include <fmt/format.h>
 #include <glm/gtc/random.hpp>
 #include <omni/fabric/FabricUSD.h>
 #include <omni/fabric/SimStageWithHistory.h>
-#include <spdlog/fmt/fmt.h>
 
 namespace cesium::omniverse {
 

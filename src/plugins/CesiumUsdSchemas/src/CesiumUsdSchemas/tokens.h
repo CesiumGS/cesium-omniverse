@@ -135,6 +135,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumGeoreference
     const TfToken cesiumEcefToUsdTransform;
+    /// \brief "cesium:ellipsoidBinding"
+    /// 
+    /// CesiumGeoreference
+    const TfToken cesiumEllipsoidBinding;
     /// \brief "cesium:enableFogCulling"
     /// 
     /// CesiumTileset
@@ -279,6 +283,10 @@ struct CesiumTokensType {
     /// 
     /// CesiumIonServer
     const TfToken cesiumProjectDefaultIonAccessTokenId;
+    /// \brief "cesium:radii"
+    /// 
+    /// CesiumEllipsoid
+    const TfToken cesiumRadii;
     /// \brief "cesium:rasterOverlayBinding"
     /// 
     /// CesiumTileset

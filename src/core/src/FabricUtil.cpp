@@ -8,6 +8,7 @@
 #include "cesium/omniverse/UsdTokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
+#include <fmt/format.h>
 #include <omni/fabric/FabricUSD.h>
 #include <omni/fabric/SimStageWithHistory.h>
 #include <pxr/base/gf/matrix4d.h>
@@ -15,7 +16,6 @@
 #include <pxr/base/gf/range3d.h>
 #include <pxr/base/gf/vec2f.h>
 #include <pxr/base/gf/vec3f.h>
-#include <spdlog/fmt/fmt.h>
 
 #include <sstream>
 

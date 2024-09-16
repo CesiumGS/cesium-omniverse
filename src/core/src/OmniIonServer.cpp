@@ -1,6 +1,7 @@
 #include "cesium/omniverse/OmniIonServer.h"
 
 #include "cesium/omniverse/CesiumIonSession.h"
+#include "cesium/omniverse/CesiumIonSessionManager.h"
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/UsdUtil.h"
 
@@ -10,14 +11,8 @@ namespace cesium::omniverse {
 
 OmniIonServer::OmniIonServer(Context* pContext, const pxr::SdfPath& path)
     : _pContext(pContext)
-    , _path(path)
-    , _session(std::make_shared<CesiumIonSession>(
-          pContext->getAsyncSystem(),
-          pContext->getAssetAccessor(),
-          getIonServerUrl(),
-          getIonServerApiUrl(),
-          getIonServerApplicationId())) {
-    _session->resume();
+    , _path(path) {
+    getSession()->resume();
 }
 
 const pxr::SdfPath& OmniIonServer::getPath() const {
@@ -25,7 +20,8 @@ const pxr::SdfPath& OmniIonServer::getPath() const {
 }
 
 std::shared_ptr<CesiumIonSession> OmniIonServer::getSession() const {
-    return _session;
+    return _pContext->getCesiumIonSessionManager().getOrCreateSession(
+        getIonServerUrl(), getIonServerApiUrl(), getIonServerApplicationId());
 }
 
 std::string OmniIonServer::getIonServerUrl() const {

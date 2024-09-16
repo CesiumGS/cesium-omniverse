@@ -9,7 +9,7 @@ endif()
 # Both CXX and C need to be given otherwise Conan may ignore the CMAKE_C_COMPILER flag
 project(
     CesiumOmniverse
-    VERSION 0.21.0
+    VERSION 0.22.0
     DESCRIPTION "Cesium for Omniverse"
     LANGUAGES CXX C)
 
@@ -233,7 +233,9 @@ if(MSVC)
         _UNICODE # tell Windows to use the unicode version of string functions, as opposed to ASCII (https://docs.microsoft.com/en-us/windows/win32/learnwin32/working-with-strings)
         WIN32_LEAN_AND_MEAN # ignore some unnecessary Windows APIs
         NOMINMAX # don't let Windows create macros for MIN and MAX
-        _SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING)
+        _SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING
+        _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR # See https://developercommunity.visualstudio.com/t/Visual-Studio-17100-Update-leads-to-Pr/10669759?sort=newest
+    )
 endif()
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
@@ -253,8 +255,13 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
         -Wconversion
         -Wno-missing-field-initializers
         -Wno-return-local-addr
+        -Wno-array-bounds # Ignore false positives in libstdc++ in GCC 13.1.1
         -fstrict-aliasing
         -fstrict-enums)
+
+    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        set(CESIUM_OMNI_CXX_FLAGS ${CESIUM_OMNI_CXX_FLAGS} -Wno-stringop-overflow) # Ignore false positives in libstdc++ in GCC 13.1.1
+    endif()
 
     if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
         set(CESIUM_OMNI_CXX_FLAGS ${CESIUM_OMNI_CXX_FLAGS} -Wno-gnu-anonymous-struct)
@@ -364,6 +371,7 @@ set(CESIUM_OMNI_CXX_DEFINES
     GLM_FORCE_XYZW_ONLY # Disable .rgba and .stpq to make it easier to view values from debugger
     GLM_FORCE_EXPLICIT_CTOR # Disallow implicit conversions between dvec3 <-> dvec4, dvec3 <-> fvec3, etc
     GLM_FORCE_SIZE_T_LENGTH # Make vec.length() and vec[idx] use size_t instead of int
+    GLM_ENABLE_EXPERIMENTAL
 )
 
 # Boost is a dependency of USD. It is dynamically linked so we need to set this flag.
@@ -390,7 +398,7 @@ endif()
 
 # USD is compiled with the old C++ ABI so we need to compile our own code and external libraries
 # with the old ABI. Only relevant for libraries that have std::string or std::list in their
-# public interface, which includes cesium-native and cpr.
+# public interface, which includes cesium-native and spdlog.
 # See https://gcc.gnu.org/onlinedocs/libstdc++/manual/using_dual_abi.html
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} _GLIBCXX_USE_CXX11_ABI=0)
@@ -415,6 +423,28 @@ set(CESIUM_OMNI_LINKER_FLAGS_DEBUG
     ${CESIUM_OMNI_LINKER_FLAGS_DEBUG}
     CACHE STRING "Linker flags to use in debug mode." FORCE)
 
+# vcpkg setup
+set(VCPKG_OVERLAY_PORTS "${CMAKE_CURRENT_LIST_DIR}/vcpkg/ports")
+set(VCPKG_OVERLAY_TRIPLETS "${CMAKE_CURRENT_LIST_DIR}/vcpkg/triplets")
+
+include(${CMAKE_CURRENT_SOURCE_DIR}/extern/cesium-native/cmake/detect-vcpkg-triplet.cmake)
+
+if (NOT VCPKG_TRIPLET)
+    if (DEFINED ENV{VCPKG_TRIPLET})
+        set(VCPKG_TRIPLET "$ENV{VCPKG_TRIPLET}")
+    elseif(DETECTED_VCPKG_TRIPLET_ERROR)
+        message(FATAL_ERROR "${DETECTED_VCPKG_TRIPLET_ERROR}")
+    else()
+        set(VCPKG_TRIPLET "${DETECTED_VCPKG_TRIPLET}-omniverse")
+    endif()
+endif()
+
+if (NOT EZVCPKG_BASEDIR)
+    if (DEFINED ENV{EZVCPKG_BASEDIR})
+        set(EZVCPKG_BASEDIR "$ENV{EZVCPKG_BASEDIR}")
+    endif()
+endif()
+
 # Third party dependencies not handled by conan
 add_subdirectory(extern)
 
@@ -425,7 +455,7 @@ set(CMAKE_FIND_PACKAGE_PREFER_CONFIG TRUE)
 find_package(Threads) # System threading library
 
 # Conan libraries
-find_package(cpr)
+find_package(CURL)
 find_package(doctest)
 find_package(stb)
 find_package(ZLIB)

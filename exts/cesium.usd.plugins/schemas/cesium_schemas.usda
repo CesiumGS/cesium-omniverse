@@ -199,7 +199,7 @@ class CesiumGeoreferencePrim "CesiumGeoreferencePrim" (
             string apiName = "georeferenceOriginHeight"
         }
         displayName = "Georeference Origin Height"
-        doc = "The height of the origin in meters above the WGS84 ellipsoid. Do not confuse this with a geoid height or height above mean sea level, which can be tens of meters higher or lower depending on where in the world the origin is located."
+        doc = "The height of the origin in meters above the ellipsoid. Do not confuse this with a geoid height or height above mean sea level, which can be tens of meters higher or lower depending on where in the world the origin is located."
     )
 
     matrix4d cesium:ecefToUsdTransform (
@@ -208,6 +208,14 @@ class CesiumGeoreferencePrim "CesiumGeoreferencePrim" (
         }
         displayName = "ECEF to USD Transform (read only)"
         doc = "The 4x4 transformation matrix (row major) from global ECEF coordinates to USD stage coordinates based on the georeference origin (read only)."
+    )
+
+    rel cesium:ellipsoidBinding (
+        customData = {
+            string apiName = "ellipsoidBinding"
+        }
+        displayName = "Ellipsoid Binding"
+        doc = "The ellipsoid."
     )
 }
 
@@ -855,5 +863,21 @@ class "CesiumGlobeAnchorSchemaAPI" (
         }
         displayName = "Georeference Origin Binding"
         doc = "The Georeference Origin prim used for the globe anchor calculations."
+    )
+}
+
+class CesiumEllipsoidPrim "CesiumEllipsoidPrim" (
+    doc = """An ellipsoid."""
+    inherits = </Typed>
+    customData = {
+        string className = "Ellipsoid"
+    }
+) {
+    double3 cesium:radii = (0.0, 0.0, 0.0) (
+        customData = {
+            string apiName = "radii"
+        }
+        displayName = "Radii"
+        doc = "The radii of this ellipsoid. The X coordinate should be the radius of the largest axis and the Z coordinate should be the radius of the smallest axis."
     )
 }

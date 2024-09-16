@@ -20,6 +20,7 @@
 #include <CesiumGeospatial/GlobeTransforms.h>
 #include <CesiumGeospatial/LocalHorizontalCoordinateSystem.h>
 #include <CesiumUsdSchemas/data.h>
+#include <CesiumUsdSchemas/ellipsoid.h>
 #include <CesiumUsdSchemas/georeference.h>
 #include <CesiumUsdSchemas/globeAnchorAPI.h>
 #include <CesiumUsdSchemas/ionRasterOverlay.h>
@@ -29,6 +30,7 @@
 #include <CesiumUsdSchemas/tileset.h>
 #include <CesiumUsdSchemas/webMapServiceRasterOverlay.h>
 #include <CesiumUsdSchemas/webMapTileServiceRasterOverlay.h>
+#include <fmt/format.h>
 #include <glm/gtc/matrix_access.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -44,7 +46,6 @@
 #include <pxr/usd/usdGeom/xformCommonAPI.h>
 #include <pxr/usd/usdShade/material.h>
 #include <pxr/usd/usdShade/shader.h>
-#include <spdlog/fmt/fmt.h>
 
 #include <cctype>
 
@@ -315,6 +316,10 @@ pxr::CesiumData defineCesiumData(const pxr::UsdStageWeakPtr& pStage, const pxr::
     return pxr::CesiumData::Define(pStage, path);
 }
 
+pxr::CesiumEllipsoid defineCesiumEllipsoid(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
+    return pxr::CesiumEllipsoid::Define(pStage, path);
+}
+
 pxr::CesiumTileset defineCesiumTileset(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
     return pxr::CesiumTileset::Define(pStage, path);
 }
@@ -344,6 +349,10 @@ pxr::CesiumGlobeAnchorAPI applyCesiumGlobeAnchor(const pxr::UsdStageWeakPtr& pSt
 
 pxr::CesiumData getCesiumData(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
     return pxr::CesiumData::Get(pStage, path);
+}
+
+pxr::CesiumEllipsoid getCesiumEllipsoid(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
+    return pxr::CesiumEllipsoid::Get(pStage, path);
 }
 
 pxr::CesiumTileset getCesiumTileset(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
@@ -411,6 +420,15 @@ bool isCesiumData(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) 
     }
 
     return prim.IsA<pxr::CesiumData>();
+}
+
+bool isCesiumEllipsoid(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
+    const auto prim = pStage->GetPrimAtPath(path);
+    if (!prim.IsValid()) {
+        return false;
+    }
+
+    return prim.IsA<pxr::CesiumEllipsoid>();
 }
 
 bool isCesiumTileset(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {

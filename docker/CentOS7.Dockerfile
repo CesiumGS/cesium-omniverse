@@ -27,6 +27,7 @@ RUN yum install -y -q \
     zlib-devel \
     perl-Data-Dumper \
     perl-Thread-Queue \
+    perl-IPC-Cmd \
     wget \
     openssl-devel \
     bzip2-devel \
