@@ -130,6 +130,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((inputs_wrap_s, "inputs:wrap_s")) \
     ((inputs_wrap_t, "inputs:wrap_t")) \
     ((material_binding, "material:binding")) \
+    ((omni_fabric_worldMatrix, "omni:fabric:worldMatrix")) \
     ((outputs_mdl_displacement, "outputs:mdl:displacement")) \
     ((outputs_mdl_surface, "outputs:mdl:surface")) \
     ((outputs_mdl_volume, "outputs:mdl:volume")) \
@@ -149,7 +150,6 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((xformOp_scale, "xformOp:scale")) \
     ((xformOp_translate, "xformOp:translate")) \
     ((_localMatrix, "omni:fabric:localMatrix")) \
-    ((_worldMatrix, "omni:fabric:worldMatrix")) \
     ((_auto, "auto"))
 
 #ifdef CESIUM_OMNI_CLANG
@@ -262,6 +262,7 @@ const omni::fabric::Type inputs_wrap_t(omni::fabric::BaseDataType::eInt, 1, 0, o
 const omni::fabric::Type Material(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName);
 const omni::fabric::Type material_binding(omni::fabric::BaseDataType::eRelationship, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type Mesh(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName);
+const omni::fabric::Type omni_fabric_worldMatrix(omni::fabric::BaseDataType::eDouble, 16, 0, omni::fabric::AttributeRole::eMatrix);
 const omni::fabric::Type outputs_out(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type points(omni::fabric::BaseDataType::eFloat, 3, 1, omni::fabric::AttributeRole::ePosition);
 const omni::fabric::Type primvarInterpolations(omni::fabric::BaseDataType::eToken, 1, 1, omni::fabric::AttributeRole::eNone);
@@ -279,7 +280,6 @@ const omni::fabric::Type _sdrMetadata(omni::fabric::BaseDataType::eToken, 1, 1, 
 const omni::fabric::Type _worldExtent(omni::fabric::BaseDataType::eDouble, 6, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _worldVisibility(omni::fabric::BaseDataType::eBool, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _localMatrix(omni::fabric::BaseDataType::eDouble, 16, 0, omni::fabric::AttributeRole::eMatrix);
-const omni::fabric::Type _worldMatrix(omni::fabric::BaseDataType::eDouble, 16, 0, omni::fabric::AttributeRole::eMatrix);
 
 }
 // clang-format on
