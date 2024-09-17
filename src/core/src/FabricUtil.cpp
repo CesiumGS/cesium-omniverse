@@ -542,12 +542,12 @@ void setTilesetTransform(
     const auto buckets = fabricStage.findPrims(
         {omni::fabric::AttrNameAndType(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId)},
         {omni::fabric::AttrNameAndType(
-            FabricTypes::_localMatrix, FabricTokens::_localMatrix)});
+            FabricTypes::_cesium_gltfLocalToEcefTransform, FabricTokens::_cesium_gltfLocalToEcefTransform)});
 
     for (uint64_t bucketId = 0; bucketId < buckets.bucketCount(); ++bucketId) {
         // clang-format off
         const auto tilesetIdFabric = fabricStage.getAttributeArrayRd<int64_t>(buckets, bucketId, FabricTokens::_cesium_tilesetId);
-        const auto gltfLocalToEcefTransformFabric = fabricStage.getAttributeArrayRd<pxr::GfMatrix4d>(buckets, bucketId, FabricTokens::_localMatrix);
+        const auto gltfLocalToEcefTransformFabric = fabricStage.getAttributeArrayRd<pxr::GfMatrix4d>(buckets, bucketId, FabricTokens::_cesium_gltfLocalToEcefTransform);
         const auto extentFabric = fabricStage.getAttributeArrayRd<pxr::GfRange3d>(buckets, bucketId, FabricTokens::extent);
         const auto worldExtentFabric = fabricStage.getAttributeArrayWr<pxr::GfRange3d>(buckets, bucketId, FabricTokens::_worldExtent);
         const auto worldMatrixFabric = fabricStage.getAttributeArrayWr<pxr::GfMatrix4d>(buckets, bucketId, FabricTokens::omni_fabric_worldMatrix);
