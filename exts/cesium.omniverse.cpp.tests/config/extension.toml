@@ -25,7 +25,7 @@ preview_image = "doc/resources/icon.png"
 icon = "doc/resources/icon.png"
 
 [package.target]
-kit = ["105.*"]
+kit = ["106.*"]
 
 # Which extensions this extension depends on
 [dependencies]

@@ -1,5 +1,9 @@
 # Change Log
 
+### v0.23.0 - 2024-10-01
+
+* **Breaking change:** Cesium for Omniverse now requires Kit 106.0 or above (Isaac Sim 4.0.0 or above).
+
 ### v0.22.0 - 2024-09-03
 
 * Cesium for Omniverse now supports using non-WGS84 ellipsoids.

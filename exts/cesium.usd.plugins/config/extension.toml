@@ -31,7 +31,7 @@ preview_image = "doc/images/preview.jpg"
 icon = "doc/images/icon.png"
 
 [package.target]
-kit = ["105.1"]
+kit = ["106.*"]
 
 [package.writeTarget]
 kit = true

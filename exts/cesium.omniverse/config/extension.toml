@@ -25,7 +25,7 @@ preview_image = "doc/resources/preview.jpg"
 icon = "doc/resources/icon.png"
 
 [package.target]
-kit = ["106.0.0"]
+kit = ["106.*"]
 
 [package.writeTarget]
 kit = true
