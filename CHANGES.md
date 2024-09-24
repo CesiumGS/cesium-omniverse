@@ -1,5 +1,9 @@
 # Change Log
 
+### v0.23.0 - 2024-10-01
+
+* Fixed bug where tilesets and raster overlays were not being passed the correct custom ellipsoid.
+
 ### v0.22.0 - 2024-09-03
 
 * Cesium for Omniverse now supports using non-WGS84 ellipsoids.
