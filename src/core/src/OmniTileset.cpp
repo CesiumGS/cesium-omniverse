@@ -31,6 +31,7 @@
 #include <Cesium3DTilesSelection/Tileset.h>
 #include <Cesium3DTilesSelection/ViewState.h>
 #include <Cesium3DTilesSelection/ViewUpdateResult.h>
+#include <CesiumGeospatial/Ellipsoid.h>
 #include <CesiumUsdSchemas/rasterOverlay.h>
 #include <CesiumUsdSchemas/tileset.h>
 #include <pxr/usd/usd/prim.h>
@@ -104,6 +105,20 @@ TilesetStatistics OmniTileset::getStatistics() const {
     }
 
     return statistics;
+}
+
+const CesiumGeospatial::Ellipsoid* OmniTileset::getEllipsoid() const {
+    const auto georeferencePath = getResolvedGeoreferencePath();
+    if (georeferencePath.IsEmpty()) {
+        return nullptr;
+    }
+
+    const auto pGeoreference = _pContext->getAssetRegistry().getGeoreference(georeferencePath);
+    if (!pGeoreference) {
+        return nullptr;
+    }
+
+    return &pGeoreference->getEllipsoid();
 }
 
 TilesetSourceType OmniTileset::getSourceType() const {
@@ -549,6 +564,12 @@ void OmniTileset::reload() {
     options.culledScreenSpaceError = getCulledScreenSpaceError();
     options.mainThreadLoadingTimeLimit = getMainThreadLoadingTimeLimit();
     options.showCreditsOnScreen = getShowCreditsOnScreen();
+
+    const auto pEllipsoid = getEllipsoid();
+
+    if (pEllipsoid) {
+        options.ellipsoid = *pEllipsoid;
+    }
 
     options.loadErrorCallback =
         [this, tilesetPath, ionAssetId, name](const Cesium3DTilesSelection::TilesetLoadFailureDetails& error) {

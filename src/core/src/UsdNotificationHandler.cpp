@@ -100,8 +100,16 @@ void updateGlobeAnchorBindings(const Context& context, const pxr::SdfPath& globe
     }
 }
 
-void updateGeoreferenceBindings(const Context& context) {
-    // Don't need to update tilesets. Georeference changes are handled automatically in the update loop.
+void updateGeoreferenceBindings(const Context& context, bool reloadTilesets) {
+    // reloadTilesets is only true if the ellipsoid changed (or may have changed).
+    // Other georeference changes are handled automatically in the update loop.
+    if (reloadTilesets) {
+        // Update all tilesets. Some tilesets may have referenced this georeference implicitly.
+        const auto& tilesets = context.getAssetRegistry().getTilesets();
+        for (const auto& pTileset : tilesets) {
+            pTileset->reload();
+        }
+    }
 
     // Update all globe anchors. Some globe anchors may have referenced this georeference implicitly.
     const auto& globeAnchors = context.getAssetRegistry().getGlobeAnchors();
@@ -118,7 +126,7 @@ void updateEllipsoidBindings(const Context& context, const pxr::SdfPath& ellipso
     for (const auto& pGeoreference : georeferences) {
         if (pGeoreference->getEllipsoidPath() == ellipsoidPath) {
             pGeoreference->update();
-            updateGeoreferenceBindings(context);
+            updateGeoreferenceBindings(context, true);
         }
     }
 }
@@ -164,7 +172,7 @@ bool isFirstData(const Context& context, const pxr::SdfPath& dataPath) {
     }
 
     if (updateGeoreference) {
-        updateGeoreferenceBindings(context);
+        updateGeoreferenceBindings(context, true);
     }
 
     return reloadStage;
@@ -577,6 +585,7 @@ void processCesiumGeoreferenceChanged(
 
     auto updateGeoreference = false;
     auto updateBindings = false;
+    auto reloadTilesets = false;
 
     // clang-format off
     for (const auto& property : properties) {
@@ -585,6 +594,10 @@ void processCesiumGeoreferenceChanged(
             property == pxr::CesiumTokens->cesiumGeoreferenceOriginHeight) {
             updateGeoreference = true;
             updateBindings = true;
+        } else if (property == pxr::CesiumTokens->cesiumEllipsoidBinding) {
+            updateGeoreference = true;
+            updateBindings = true;
+            reloadTilesets = true;
         }
     }
     // clang-format on
@@ -594,7 +607,7 @@ void processCesiumGeoreferenceChanged(
     }
 
     if (updateBindings) {
-        updateGeoreferenceBindings(context);
+        updateGeoreferenceBindings(context, reloadTilesets);
     }
 }
 
@@ -761,7 +774,7 @@ void processCesiumWebMapTileServiceRasterOverlayRemoved(
 
 void processCesiumGeoreferenceRemoved(Context& context, const pxr::SdfPath& georeferencePath) {
     context.getAssetRegistry().removeGeoreference(georeferencePath);
-    updateGeoreferenceBindings(context);
+    updateGeoreferenceBindings(context, true);
 }
 
 void processCesiumGlobeAnchorRemoved(Context& context, const pxr::SdfPath& globeAnchorPath) {
@@ -876,7 +889,7 @@ void processCesiumGeoreferenceAdded(Context& context, const pxr::SdfPath& georef
     }
 
     context.getAssetRegistry().addGeoreference(georeferencePath);
-    updateGeoreferenceBindings(context);
+    updateGeoreferenceBindings(context, true);
 }
 
 void processCesiumIonServerAdded(Context& context, const pxr::SdfPath& ionServerPath) {

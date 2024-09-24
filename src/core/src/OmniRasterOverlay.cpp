@@ -8,6 +8,7 @@
 #include "cesium/omniverse/OmniIonServer.h"
 #include "cesium/omniverse/UsdUtil.h"
 
+#include <CesiumGeospatial/Ellipsoid.h>
 #include <CesiumIonClient/Token.h>
 #include <CesiumUsdSchemas/rasterOverlay.h>
 
@@ -116,6 +117,13 @@ CesiumRasterOverlays::RasterOverlayOptions OmniRasterOverlay::createRasterOverla
     CesiumRasterOverlays::RasterOverlayOptions options;
     options.ktx2TranscodeTargets = GltfUtil::getKtx2TranscodeTargets();
     setRasterOverlayOptionsFromUsd(options);
+
+    const auto pEllipsoid = getEllipsoid();
+
+    if (pEllipsoid) {
+        options.ellipsoid = *pEllipsoid;
+    }
+
     return options;
 }
 
@@ -124,6 +132,25 @@ void OmniRasterOverlay::updateRasterOverlayOptions() const {
     if (pRasterOverlay) {
         setRasterOverlayOptionsFromUsd(pRasterOverlay->getOptions());
     }
+}
+
+const CesiumGeospatial::Ellipsoid* OmniRasterOverlay::getEllipsoid() const {
+    std::optional<const CesiumGeospatial::Ellipsoid*> maybeEllipsoid;
+
+    const auto& tilesets = _pContext->getAssetRegistry().getTilesets();
+    for (const auto& pTileset : tilesets) {
+        if (CppUtil::contains(pTileset->getRasterOverlayPaths(), _path)) {
+            const auto pEllipsoid = pTileset->getEllipsoid();
+            if (!maybeEllipsoid) {
+                maybeEllipsoid = pEllipsoid;
+            } else if (*maybeEllipsoid != pEllipsoid) {
+                // If not all tilesets that reference this raster overlay use the same ellipsoid then set it to nullptr
+                return nullptr;
+            }
+        }
+    }
+
+    return maybeEllipsoid.value_or(nullptr);
 }
 
 void OmniRasterOverlay::setRasterOverlayOptionsFromUsd(CesiumRasterOverlays::RasterOverlayOptions& options) const {

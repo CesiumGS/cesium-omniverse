@@ -48,6 +48,7 @@ class OmniRasterOverlay {
     pxr::SdfPath _path;
 
   private:
+    [[nodiscard]] const CesiumGeospatial::Ellipsoid* getEllipsoid() const;
     void setRasterOverlayOptionsFromUsd(CesiumRasterOverlays::RasterOverlayOptions& options) const;
 };
 } // namespace cesium::omniverse
