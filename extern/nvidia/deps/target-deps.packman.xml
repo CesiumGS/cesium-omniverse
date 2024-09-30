@@ -6,7 +6,6 @@
     <filter include="usdrt"/>
     <filter include="carb_sdk_plugins"/>
     <filter include="pybind11"/>
-    <filter include="cuda"/>
   </import>
   <!-- Override the link paths to point to the correct locations. -->
   <dependency name="python" linkPath="../_build/target-deps/python"/>
@@ -14,5 +13,4 @@
   <dependency name="usdrt" linkPath="../_build/target-deps/usdrt"/>
   <dependency name="carb_sdk_plugins" linkPath="../_build/target-deps/carb_sdk_plugins"/>
   <dependency name="pybind11" linkPath="../_build/target-deps/pybind11/pybind11"/>
-  <dependency name="cuda" linkPath="../_build/target-deps/cuda/cuda"/>
 </project>

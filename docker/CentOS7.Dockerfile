@@ -4,9 +4,6 @@ FROM centos:7
 
 RUN yum update -y -q
 
-# Add nvidia repository
-RUN yum-config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo
-
 # Extra repositories that have newer versions of some packages
 RUN yum install -y -q \
     epel-release \
@@ -35,7 +32,6 @@ RUN yum install -y -q \
     zlib-devel \
     sqlite-devel \
     xz-devel \
-    nvidia-driver-branch-535.x86_64
 
 # Create links to some of the custom packages
 RUN update-alternatives --install /usr/bin/gcc gcc /opt/rh/devtoolset-11/root/usr/bin/gcc 100 && \

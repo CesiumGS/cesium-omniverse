@@ -3,9 +3,6 @@
 FROM almalinux:8
 
 RUN dnf upgrade -y --refresh
-RUN dnf install -y 'dnf-command(config-manager)'
-
-RUN dnf config-manager --add-repo=https://developer.download.nvidia.com/compute/cuda/repos/rhel8/x86_64/cuda-rhel8.repo
 
 # Extra repositories that have newer versions of some packages
 RUN dnf install -y -q epel-release
@@ -31,9 +28,6 @@ RUN dnf install -y -q \
     zlib-devel \
     sqlite-devel \
     xz-devel
-
-# Install the nvidia driver.
-RUN dnf module install -y -q nvidia-driver:535-dkms
 
 # Enables gcc 11 for use within the docker image.
 RUN echo "source /opt/rh/gcc-toolset-11/enable" >> /etc/bashrc
