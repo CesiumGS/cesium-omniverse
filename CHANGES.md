@@ -3,6 +3,7 @@
 ### v0.23.0 - 2024-10-01
 
 * Fixed bug where tilesets and raster overlays were not being passed the correct custom ellipsoid.
+* Fixed rendering base color textures that contain an alpha channel.
 
 ### v0.22.0 - 2024-09-03
 
