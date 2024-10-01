@@ -53,6 +53,7 @@ float4 alpha_blend(float4 src, float4 dst) {
 float4 compute_base_color(
     color base_color_factor,
     float base_alpha,
+    bool has_base_color_texture,
     float4 base_color_texture,
     float4 raster_overlay,
     float4 tile_color,
@@ -61,10 +62,17 @@ float4 compute_base_color(
     if (alpha_clip > 0.5) return float4(0.0);
 
     auto base_color_factor_float3 = float3(base_color_factor);
+    auto base_color_factor_float4 = float4(base_color_factor_float3.x, base_color_factor_float3.y, base_color_factor_float3.z, base_alpha);
 
-    auto base_color = float4(1.0);
-    base_color = alpha_blend(base_color_texture, base_color);
-    base_color *= float4(base_color_factor_float3.x, base_color_factor_float3.y, base_color_factor_float3.z, base_alpha);
+    float4 base_color;
+
+    if (has_base_color_texture) {
+        base_color = base_color_texture;
+        base_color *= base_color_factor_float4;
+    } else {
+        base_color = base_color_factor_float4;
+    }
+
     base_color *= scene::data_lookup_float4("COLOR_0", float4(1.0));
     base_color = alpha_blend(raster_overlay, base_color);
     base_color *= tile_color;
@@ -1536,7 +1544,8 @@ export material cesium_internal_material(
     auto base_color = compute_base_color(
         base_color_factor,
         base_alpha,
-        base_color_texture.valid ? base_color_texture.value : float4(0.0),
+        base_color_texture.valid,
+        base_color_texture.value,
         raster_overlay.valid ? raster_overlay.value : float4(0.0),
         tile_color,
         alpha_clip.valid ? alpha_clip.value.x : 0.0
