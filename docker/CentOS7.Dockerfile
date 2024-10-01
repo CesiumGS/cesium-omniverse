@@ -32,6 +32,8 @@ RUN yum install -y -q \
     zlib-devel \
     sqlite-devel \
     xz-devel \
+    zip \
+    unzip
 
 # Create links to some of the custom packages
 RUN update-alternatives --install /usr/bin/gcc gcc /opt/rh/devtoolset-13/root/usr/bin/gcc 100 && \

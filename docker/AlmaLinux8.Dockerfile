@@ -27,7 +27,9 @@ RUN dnf install -y -q \
     libffi-devel \
     zlib-devel \
     sqlite-devel \
-    xz-devel
+    xz-devel \
+    zip \
+    unzip
 
 # Enables gcc 13 for use within the docker image.
 RUN echo "source /opt/rh/gcc-toolset-13/enable" >> /etc/bashrc
