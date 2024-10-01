@@ -87,7 +87,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.CONAN_USER_HOME }}/.conan
-          key: conan-${{ matrix.config.name }}-${{ hashFiles('cmake/AddConanDependencies.cmake') }}-v3
+          key: conan-${{ matrix.config.name }}-${{ hashFiles('cmake/AddConanDependencies.cmake') }}-v4
 
       # Tell ezvcpkg to look for or create its build folder (.ezvcpkg) in the repository's root directory
       # This is partly done to make the directory easily accessible to Docker builds
