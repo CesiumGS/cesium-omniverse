@@ -5,12 +5,10 @@
     <filter include="nv_usd_py310_release"/>
     <filter include="carb_sdk_plugins"/>
     <filter include="pybind11"/>
-    <filter include="cuda"/>
   </import>
   <!-- Override the link paths to point to the correct locations. -->
   <dependency name="python" linkPath="../_build/target-deps/python"/>
   <dependency name="nv_usd_py310_release" linkPath="../_build/target-deps/usd/release"/>
   <dependency name="carb_sdk_plugins" linkPath="../_build/target-deps/carb_sdk_plugins"/>
   <dependency name="pybind11" linkPath="../_build/target-deps/pybind11/pybind11"/>
-  <dependency name="cuda" linkPath="../_build/target-deps/cuda/cuda"/>
 </project>

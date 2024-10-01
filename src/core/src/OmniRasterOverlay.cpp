@@ -8,6 +8,7 @@
 #include "cesium/omniverse/OmniIonServer.h"
 #include "cesium/omniverse/UsdUtil.h"
 
+#include <CesiumGeospatial/Ellipsoid.h>
 #include <CesiumIonClient/Token.h>
 #include <CesiumUsdSchemas/rasterOverlay.h>
 
@@ -115,7 +116,9 @@ FabricOverlayRenderMethod OmniRasterOverlay::getOverlayRenderMethod() const {
 CesiumRasterOverlays::RasterOverlayOptions OmniRasterOverlay::createRasterOverlayOptions() const {
     CesiumRasterOverlays::RasterOverlayOptions options;
     options.ktx2TranscodeTargets = GltfUtil::getKtx2TranscodeTargets();
+    options.ellipsoid = getEllipsoid();
     setRasterOverlayOptionsFromUsd(options);
+
     return options;
 }
 
@@ -124,6 +127,18 @@ void OmniRasterOverlay::updateRasterOverlayOptions() const {
     if (pRasterOverlay) {
         setRasterOverlayOptionsFromUsd(pRasterOverlay->getOptions());
     }
+}
+
+const CesiumGeospatial::Ellipsoid& OmniRasterOverlay::getEllipsoid() const {
+    const auto& tilesets = _pContext->getAssetRegistry().getTilesets();
+    for (const auto& pTileset : tilesets) {
+        if (CppUtil::contains(pTileset->getRasterOverlayPaths(), _path)) {
+            // Just use the first tileset's ellipsoid
+            return pTileset->getEllipsoid();
+        }
+    }
+
+    return CesiumGeospatial::Ellipsoid::WGS84;
 }
 
 void OmniRasterOverlay::setRasterOverlayOptionsFromUsd(CesiumRasterOverlays::RasterOverlayOptions& options) const {

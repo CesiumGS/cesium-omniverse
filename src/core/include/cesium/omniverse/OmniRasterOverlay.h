@@ -44,6 +44,8 @@ class OmniRasterOverlay {
 
   protected:
     [[nodiscard]] virtual CesiumRasterOverlays::RasterOverlay* getRasterOverlay() const = 0;
+    [[nodiscard]] const CesiumGeospatial::Ellipsoid& getEllipsoid() const;
+
     Context* _pContext;
     pxr::SdfPath _path;
 

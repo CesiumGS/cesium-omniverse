@@ -4,19 +4,16 @@ FROM centos:7
 
 RUN yum update -y -q
 
-# Add nvidia repository
-RUN yum-config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo
-
 # Extra repositories that have newer versions of some packages
 RUN yum install -y -q \
     epel-release \
     centos-release-scl
 
 RUN yum install -y -q \
-    # for gcc-11
-    devtoolset-11-toolchain \
+    # for gcc-13
+    devtoolset-13-toolchain \
     # for ubsan
-    devtoolset-11-libubsan-devel \
+    devtoolset-13-libubsan-devel \
     # get a newer version of git and git-lfs
     # CentOS 7 comes with version 1.8.3.1 by default, which is from 2013!
     rh-git218 \
@@ -35,14 +32,15 @@ RUN yum install -y -q \
     zlib-devel \
     sqlite-devel \
     xz-devel \
-    nvidia-driver-branch-535.x86_64
+    zip \
+    unzip
 
 # Create links to some of the custom packages
-RUN update-alternatives --install /usr/bin/gcc gcc /opt/rh/devtoolset-11/root/usr/bin/gcc 100 && \
-    update-alternatives --install /usr/bin/g++ g++ /opt/rh/devtoolset-11/root/usr/bin/g++ 100 && \
-    update-alternatives --install /usr/bin/cc cc /opt/rh/devtoolset-11/root/usr/bin/gcc 100 && \
-    update-alternatives --install /usr/bin/c++ c++ /opt/rh/devtoolset-11/root/usr/bin/g++ 100 && \
-    update-alternatives --install /usr/bin/gcov gcov /opt/rh/devtoolset-11/root/usr/bin/gcov 100 && \
+RUN update-alternatives --install /usr/bin/gcc gcc /opt/rh/devtoolset-13/root/usr/bin/gcc 100 && \
+    update-alternatives --install /usr/bin/g++ g++ /opt/rh/devtoolset-13/root/usr/bin/g++ 100 && \
+    update-alternatives --install /usr/bin/cc cc /opt/rh/devtoolset-13/root/usr/bin/gcc 100 && \
+    update-alternatives --install /usr/bin/c++ c++ /opt/rh/devtoolset-13/root/usr/bin/g++ 100 && \
+    update-alternatives --install /usr/bin/gcov gcov /opt/rh/devtoolset-13/root/usr/bin/gcov 100 && \
     update-alternatives --install /usr/bin/git git /opt/rh/rh-git218/root/usr/bin/git 100 && \
     update-alternatives --install /usr/bin/git-lfs git-lfs /opt/rh/rh-git218/root/usr/bin/git-lfs 100
 

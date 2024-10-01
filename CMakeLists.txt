@@ -9,7 +9,7 @@ endif()
 # Both CXX and C need to be given otherwise Conan may ignore the CMAKE_C_COMPILER flag
 project(
     CesiumOmniverse
-    VERSION 0.22.0
+    VERSION 0.23.0
     DESCRIPTION "Cesium for Omniverse"
     LANGUAGES CXX C)
 
@@ -197,6 +197,7 @@ if(CESIUM_OMNI_ENABLE_TRACING)
 endif()
 
 set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} CESIUM_OMNI_VERSION="${PROJECT_VERSION}")
+set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} CESIUM_DISABLE_DEFAULT_ELLIPSOID)
 
 # Add a define CESIUM_OMNI_GIT_HASH_ABBREVIATED
 execute_process(
@@ -571,11 +572,8 @@ execute_process(COMMAND "${Python3_EXECUTABLE}" "${SCRIPTS_DIRECTORY}/update_cer
 get_property(INSTALL_SEARCH_PATHS GLOBAL PROPERTY NVIDIA_ADDITIONAL_SEARCH_PATHS_PROPERTY)
 
 # Skip system libraries when running install
-set(INSTALL_PRE_EXCLUDE_REGEXES "api-ms-*" "ext-ms-*" "cuda")
+set(INSTALL_PRE_EXCLUDE_REGEXES "api-ms-*" "ext-ms-*")
 set(INSTALL_POST_EXCLUDE_REGEXES "system32" "^\/lib")
-
-# Skip all runtime dependencies except nvrtc when installing to exts/cesium-omniverse/bin
-set(INSTALL_PRE_INCLUDE_REGEXES "nvrtc")
 
 install(
     TARGETS CesiumUsdSchemas

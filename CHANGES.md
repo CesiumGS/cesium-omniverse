@@ -1,8 +1,13 @@
 # Change Log
 
-### v0.23.0 - 2024-10-01
+### v0.24.0 - 2024-11-01
 
 * **Breaking change:** Cesium for Omniverse now requires Kit 106.0 or above (Isaac Sim 4.0.0 or above).
+
+### v0.23.0 - 2024-10-01
+
+* Fixed bug where tilesets and raster overlays were not being passed the correct custom ellipsoid.
+* Fixed rendering base color textures that contain an alpha channel.
 
 ### v0.22.0 - 2024-09-03
 

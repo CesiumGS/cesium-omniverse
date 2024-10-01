@@ -17,6 +17,10 @@ namespace CesiumRasterOverlays {
 class RasterOverlay;
 }
 
+namespace CesiumGeospatial {
+class Ellipsoid;
+}
+
 namespace CesiumGltf {
 struct Model;
 }
@@ -50,6 +54,7 @@ class OmniTileset {
     [[nodiscard]] const pxr::SdfPath& getPath() const;
     [[nodiscard]] int64_t getTilesetId() const;
     [[nodiscard]] TilesetStatistics getStatistics() const;
+    [[nodiscard]] const CesiumGeospatial::Ellipsoid& getEllipsoid() const;
 
     [[nodiscard]] TilesetSourceType getSourceType() const;
     [[nodiscard]] std::string getUrl() const;

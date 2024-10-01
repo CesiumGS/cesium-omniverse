@@ -34,8 +34,8 @@ jobs:
               name: "Ubuntu - GCC",
               artifact: "linux-gcc.tar.xz",
               os: ubuntu-latest,
-              cc: "gcc-11",
-              cxx: "g++-11",
+              cc: "gcc-13",
+              cxx: "g++-13",
               build-type: "Release",
               build-code: "Ubuntu",
               cache-type: "Linux",
@@ -46,8 +46,8 @@ jobs:
               name: "AlmaLinux 8 - GCC",
               artifact: "linux-gcc.tar.xz",
               os: ubuntu-latest,
-              cc: "gcc-11",
-              cxx: "g++-11",
+              cc: "gcc-13",
+              cxx: "g++-13",
               build-type: "Release",
               build-code: "AlmaLinux8",
               cache-type: "Linux",
@@ -56,13 +56,6 @@ jobs:
             }
 
     steps:
-      - name: Removed unneeded packages to gain disk space (Unix)
-        if: runner.os != 'Windows'
-        run: |
-          df -h
-          sudo apt-get update
-          sudo apt remove google-chrome-stable x11-common xserver-common aspnetcore-runtime-6.0 aspnetcore-runtime-7.0 aspnetcore-runtime-8.0 aspnetcore-targeting-pack-6.0 aspnetcore-targeting-pack-7.0 aspnetcore-targeting-pack-8.0 dotnet-apphost-pack-6.0 dotnet-apphost-pack-7.0 dotnet-apphost-pack-8.0 dotnet-host dotnet-hostfxr-6.0 dotnet-hostfxr-7.0 dotnet-hostfxr-8.0 dotnet-runtime-6.0 dotnet-runtime-7.0 dotnet-runtime-8.0 dotnet-runtime-deps-6.0 dotnet-runtime-deps-7.0 dotnet-runtime-deps-8.0 dotnet-sdk-6.0 dotnet-sdk-7.0 dotnet-sdk-8.0 dotnet-targeting-pack-6.0 dotnet-targeting-pack-7.0 dotnet-targeting-pack-8.0 eatmydata emacsen-common firebird3.0-common-doc firebird3.0-common firefox kubectl mercurial-common mercurial microsoft-edge-stable mssql-tools mysql-client-8.0 mysql-client-core-8.0 mysql-client mysql-common mysql-server-8.0 php8.1 postgresql-14
-          df -h
       - uses: actions/checkout@v3
         with:
           submodules: recursive
@@ -94,7 +87,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.CONAN_USER_HOME }}/.conan
-          key: conan-${{ matrix.config.name }}-${{ hashFiles('cmake/AddConanDependencies.cmake') }}-v3
+          key: conan-${{ matrix.config.name }}-${{ hashFiles('cmake/AddConanDependencies.cmake') }}-v4
 
       # Tell ezvcpkg to look for or create its build folder (.ezvcpkg) in the repository's root directory
       # This is partly done to make the directory easily accessible to Docker builds
@@ -145,8 +138,8 @@ jobs:
         if: ${{ runner.os == 'Linux' && matrix.config.name != 'AlmaLinux 8 - GCC' }}
         run: |
           sudo apt update
-          sudo apt install -y doxygen clang-tidy-15 gcovr nvidia-driver-535
-          sudo pip3 install conan==1.63.0 black==23.1.0 flake8==6.0.0
+          sudo apt install -y doxygen clang-tidy-15 gcovr
+          sudo pip3 install conan==1.63.0 black==23.1.0 flake8==7.1.1 --break-system-packages --ignore-installed
 
       # Could not figure out how to add Chocolatey libraries to the PATH automatically with refreshenv, so
       # hardcoding their locations instead. Followed these instructions for adding to the PATH on PowerShell:
@@ -158,7 +151,7 @@ jobs:
         run: |
           choco install -y conan --version 1.63.0
           choco install -y llvm --version=15.0.7 --allow-downgrade
-          pip3 install black==23.1.0 flake8==6.0.0 requests
+          pip3 install black==23.1.0 flake8==7.1.1 requests
           echo "C:/Program Files/conan/conan" >> $env:GITHUB_PATH
 
       # Note: CMAKE_BUILD_TYPE is only used by Linux. It is ignored for Windows.
