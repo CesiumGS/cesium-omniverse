@@ -219,7 +219,8 @@ Cesium3DTilesSelection::ViewState computeViewState(
     const Context& context,
     const pxr::SdfPath& georeferencePath,
     const pxr::SdfPath& primPath,
-    const Viewport& viewport) {
+    const Viewport& viewport,
+    const CesiumGeospatial::Ellipsoid& ellipsoid) {
     const auto& viewMatrix = viewport.viewMatrix;
     const auto& projMatrix = viewport.projMatrix;
     const auto width = viewport.width;
@@ -239,7 +240,7 @@ Cesium3DTilesSelection::ViewState computeViewState(
     const auto horizontalFov = 2.0 * glm::atan(glm::tan(verticalFov * 0.5) * aspect);
 
     return Cesium3DTilesSelection::ViewState::create(
-        cameraPosition, cameraFwd, cameraUp, glm::dvec2(width, height), horizontalFov, verticalFov);
+        cameraPosition, cameraFwd, cameraUp, glm::dvec2(width, height), horizontalFov, verticalFov, ellipsoid);
 }
 
 bool primExists(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {

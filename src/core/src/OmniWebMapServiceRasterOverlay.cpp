@@ -114,6 +114,7 @@ void OmniWebMapServiceRasterOverlay::reload() {
     wmsOptions.layers = layers;
     wmsOptions.tileWidth = tileWidth;
     wmsOptions.tileHeight = tileHeight;
+    wmsOptions.ellipsoid = getEllipsoid();
 
     _pWebMapServiceRasterOverlay = new CesiumRasterOverlays::WebMapServiceRasterOverlay(
         rasterOverlayName, getBaseUrl(), std::vector<CesiumAsync::IAssetAccessor::THeader>(), wmsOptions, options);

@@ -116,13 +116,8 @@ FabricOverlayRenderMethod OmniRasterOverlay::getOverlayRenderMethod() const {
 CesiumRasterOverlays::RasterOverlayOptions OmniRasterOverlay::createRasterOverlayOptions() const {
     CesiumRasterOverlays::RasterOverlayOptions options;
     options.ktx2TranscodeTargets = GltfUtil::getKtx2TranscodeTargets();
+    options.ellipsoid = getEllipsoid();
     setRasterOverlayOptionsFromUsd(options);
-
-    const auto pEllipsoid = getEllipsoid();
-
-    if (pEllipsoid) {
-        options.ellipsoid = *pEllipsoid;
-    }
 
     return options;
 }
@@ -134,23 +129,16 @@ void OmniRasterOverlay::updateRasterOverlayOptions() const {
     }
 }
 
-const CesiumGeospatial::Ellipsoid* OmniRasterOverlay::getEllipsoid() const {
-    std::optional<const CesiumGeospatial::Ellipsoid*> maybeEllipsoid;
-
+const CesiumGeospatial::Ellipsoid& OmniRasterOverlay::getEllipsoid() const {
     const auto& tilesets = _pContext->getAssetRegistry().getTilesets();
     for (const auto& pTileset : tilesets) {
         if (CppUtil::contains(pTileset->getRasterOverlayPaths(), _path)) {
-            const auto pEllipsoid = pTileset->getEllipsoid();
-            if (!maybeEllipsoid) {
-                maybeEllipsoid = pEllipsoid;
-            } else if (*maybeEllipsoid != pEllipsoid) {
-                // If not all tilesets that reference this raster overlay use the same ellipsoid then set it to nullptr
-                return nullptr;
-            }
+            // Just use the first tileset's ellipsoid
+            return pTileset->getEllipsoid();
         }
     }
 
-    return maybeEllipsoid.value_or(nullptr);
+    return CesiumGeospatial::Ellipsoid::WGS84;
 }
 
 void OmniRasterOverlay::setRasterOverlayOptionsFromUsd(CesiumRasterOverlays::RasterOverlayOptions& options) const {

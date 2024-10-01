@@ -295,21 +295,22 @@ void OmniWebMapTileServiceRasterOverlay::reload() {
         wmtsOptions.maximumLevel = getMaximumZoomLevel();
     }
 
-    CesiumGeospatial::Projection projection;
+    const auto& ellipsoid = getEllipsoid();
+
+    wmtsOptions.ellipsoid = ellipsoid;
+
     const auto useWebMercatorProjection = getUseWebMercatorProjection();
     if (useWebMercatorProjection) {
-        projection = CesiumGeospatial::WebMercatorProjection();
-        wmtsOptions.projection = projection;
+        wmtsOptions.projection = CesiumGeospatial::WebMercatorProjection(ellipsoid);
     } else {
-        projection = CesiumGeospatial::GeographicProjection();
-        wmtsOptions.projection = projection;
+        wmtsOptions.projection = CesiumGeospatial::GeographicProjection(ellipsoid);
     }
 
     if (getSpecifyTilingScheme()) {
         CesiumGeospatial::GlobeRectangle globeRectangle =
             CesiumGeospatial::GlobeRectangle::fromDegrees(getWest(), getSouth(), getEast(), getNorth());
         CesiumGeometry::Rectangle coverageRectangle =
-            CesiumGeospatial::projectRectangleSimple(projection, globeRectangle);
+            CesiumGeospatial::projectRectangleSimple(wmtsOptions.projection.value(), globeRectangle);
         wmtsOptions.coverageRectangle = coverageRectangle;
         const auto rootTilesX = getRootTilesX();
         const auto rootTilesY = getRootTilesY();

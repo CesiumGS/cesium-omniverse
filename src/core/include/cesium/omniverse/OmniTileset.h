@@ -54,7 +54,7 @@ class OmniTileset {
     [[nodiscard]] const pxr::SdfPath& getPath() const;
     [[nodiscard]] int64_t getTilesetId() const;
     [[nodiscard]] TilesetStatistics getStatistics() const;
-    [[nodiscard]] const CesiumGeospatial::Ellipsoid* getEllipsoid() const;
+    [[nodiscard]] const CesiumGeospatial::Ellipsoid& getEllipsoid() const;
 
     [[nodiscard]] TilesetSourceType getSourceType() const;
     [[nodiscard]] std::string getUrl() const;

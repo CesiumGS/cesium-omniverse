@@ -92,7 +92,8 @@ Cesium3DTilesSelection::ViewState computeViewState(
     const Context& context,
     const pxr::SdfPath& georeferencePath,
     const pxr::SdfPath& primPath,
-    const Viewport& viewport);
+    const Viewport& viewport,
+    const CesiumGeospatial::Ellipsoid& ellipsoid);
 
 bool primExists(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 bool isSchemaValid(const pxr::UsdSchemaBase& schema);
