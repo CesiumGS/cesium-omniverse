@@ -107,18 +107,18 @@ TilesetStatistics OmniTileset::getStatistics() const {
     return statistics;
 }
 
-const CesiumGeospatial::Ellipsoid* OmniTileset::getEllipsoid() const {
+const CesiumGeospatial::Ellipsoid& OmniTileset::getEllipsoid() const {
     const auto georeferencePath = getResolvedGeoreferencePath();
     if (georeferencePath.IsEmpty()) {
-        return nullptr;
+        return CesiumGeospatial::Ellipsoid::WGS84;
     }
 
     const auto pGeoreference = _pContext->getAssetRegistry().getGeoreference(georeferencePath);
     if (!pGeoreference) {
-        return nullptr;
+        return CesiumGeospatial::Ellipsoid::WGS84;
     }
 
-    return &pGeoreference->getEllipsoid();
+    return pGeoreference->getEllipsoid();
 }
 
 TilesetSourceType OmniTileset::getSourceType() const {
@@ -564,12 +564,7 @@ void OmniTileset::reload() {
     options.culledScreenSpaceError = getCulledScreenSpaceError();
     options.mainThreadLoadingTimeLimit = getMainThreadLoadingTimeLimit();
     options.showCreditsOnScreen = getShowCreditsOnScreen();
-
-    const auto pEllipsoid = getEllipsoid();
-
-    if (pEllipsoid) {
-        options.ellipsoid = *pEllipsoid;
-    }
+    options.ellipsoid = getEllipsoid();
 
     options.loadErrorCallback =
         [this, tilesetPath, ionAssetId, name](const Cesium3DTilesSelection::TilesetLoadFailureDetails& error) {
@@ -725,7 +720,8 @@ void OmniTileset::updateView(const gsl::span<const Viewport>& viewports, bool wa
 
         _viewStates.clear();
         for (const auto& viewport : viewports) {
-            _viewStates.push_back(UsdUtil::computeViewState(*_pContext, georeferencePath, _path, viewport));
+            _viewStates.push_back(
+                UsdUtil::computeViewState(*_pContext, georeferencePath, _path, viewport, getEllipsoid()));
         }
 
         if (waitForLoadingTiles) {
@@ -786,7 +782,8 @@ bool OmniTileset::updateExtent() {
     }
 
     const auto& boundingVolume = pRootTile->getBoundingVolume();
-    const auto ecefObb = Cesium3DTilesSelection::getOrientedBoundingBoxFromBoundingVolume(boundingVolume);
+    const auto ecefObb =
+        Cesium3DTilesSelection::getOrientedBoundingBoxFromBoundingVolume(boundingVolume, getEllipsoid());
     const auto georeferencePath = getResolvedGeoreferencePath();
     const auto ecefToStageTransform = UsdUtil::computeEcefToStageTransform(*_pContext, georeferencePath);
     const auto primObb = ecefObb.transform(ecefToStageTransform);

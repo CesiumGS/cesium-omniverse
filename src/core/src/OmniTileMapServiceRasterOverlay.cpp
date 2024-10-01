@@ -86,6 +86,8 @@ void OmniTileMapServiceRasterOverlay::reload() {
         tmsOptions.maximumLevel = getMaximumZoomLevel();
     }
 
+    tmsOptions.ellipsoid = getEllipsoid();
+
     _pTileMapServiceRasterOverlay = new CesiumRasterOverlays::TileMapServiceRasterOverlay(
         rasterOverlayName, getUrl(), std::vector<CesiumAsync::IAssetAccessor::THeader>(), tmsOptions, options);
 }
