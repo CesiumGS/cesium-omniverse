@@ -138,6 +138,7 @@ jobs:
         if: ${{ runner.os == 'Linux' && matrix.config.name != 'AlmaLinux 8 - GCC' }}
         run: |
           sudo apt update
+          sudo apt remove urllib3
           sudo apt install -y doxygen clang-tidy-15 gcovr
           sudo pip3 install conan==1.63.0 black==23.1.0 flake8==6.0.0 --break-system-packages
 
