@@ -12,8 +12,8 @@ RUN dnf install -y -q \
     git \
     git-lfs \
     wget \
-    gcc-toolset-11 \
-    gcc-toolset-11-libubsan-devel \
+    gcc-toolset-13 \
+    gcc-toolset-13-libubsan-devel \
     make \
     doxygen \
     curl-devel \
@@ -29,8 +29,8 @@ RUN dnf install -y -q \
     sqlite-devel \
     xz-devel
 
-# Enables gcc 11 for use within the docker image.
-RUN echo "source /opt/rh/gcc-toolset-11/enable" >> /etc/bashrc
+# Enables gcc 13 for use within the docker image.
+RUN echo "source /opt/rh/gcc-toolset-13/enable" >> /etc/bashrc
 SHELL ["/bin/bash", "--login", "-c"]
 
 # Install newer version of Python
