@@ -64,7 +64,7 @@ See [Linux](#linux) or [Windows](#windows) for step-by-step installation instruc
   ```
 - Install `black` and `flake8`
   ```sh
-  pip3 install black==23.1.0 flake8==6.0.0
+  pip3 install black==23.1.0 flake8==7.1.1
   ```
 - Add symlinks the clang-15 tools so that the correct version is chosen when running `clang-format`, `clang-tidy`, etc
   ```sh
@@ -127,7 +127,7 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
   ```
 - Install `black` and `flake8`
   ```sh
-  pip3 install black==23.1.0 flake8==6.0.0
+  pip3 install black==23.1.0 flake8==7.1.1
   ```
 - Install `colorama` to enable color diff support
   ```sh
@@ -181,7 +181,7 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
   ```
 - Install `black` and `flake8`
   ```sh
-  pip3 install black==23.1.0 flake8==6.0.0
+  pip3 install black==23.1.0 flake8==7.1.1
   ```
 - Install `colorama` to enable color diff support
   ```sh
