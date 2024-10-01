@@ -295,7 +295,6 @@ void processCesiumTilesetChanged(
 
     // No change tracking needed for
     // * suspendUpdate
-    // * georeferenceBinding
     // * Transform changes (handled automatically in update loop)
 
     // clang-format off
@@ -309,6 +308,7 @@ void processCesiumTilesetChanged(
             property == pxr::CesiumTokens->cesiumShowCreditsOnScreen ||
             property == pxr::CesiumTokens->cesiumRasterOverlayBinding ||
             property == pxr::CesiumTokens->cesiumPointSize ||
+            property == pxr::CesiumTokens->cesiumGeoreferenceBinding ||
             property == pxr::UsdTokens->material_binding) {
             reload = true;
         } else if (
