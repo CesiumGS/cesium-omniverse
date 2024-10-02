@@ -6,7 +6,7 @@ app = true
 [dependencies]
 # Include basic configuration (that brings most of basic extensions)
 "omni.app.base" = {}
-"omni.kit.window.material_graph" = {optional = true}
+"omni.kit.window.material_graph" = {}
 "cesium.omniverse" = {}
 "cesium.powertools" = {}
 "omni.curve.manipulator" = {}
@@ -26,5 +26,4 @@ folders.'++' = [
     "${app}", # Find other applications in this folder
     "${app}/exts", # Find extensions in this folder
     "${app}/../exts", # Find cesium.omniverse and cesium.usd.schemas
-    "${app}/../extern/nvidia/app/extscache" # Find omni.kit.window.material_graph
 ]

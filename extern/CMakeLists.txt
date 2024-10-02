@@ -189,21 +189,6 @@ if(exit_code AND NOT exit_code EQUAL 0)
 endif()
 # cmake-format: on
 
-# Add a symlink to USD Composer (create) so that we can use its extensions (e.g. omni.kit.window.material_graph) in our internal applications
-if(UNIX)
-    execute_process(COMMAND bash -c "${PROJECT_SOURCE_DIR}/extern/nvidia/link_app.sh --app create"
-                    RESULT_VARIABLE exit_code)
-elseif(WIN32)
-    execute_process(COMMAND cmd /C "${PROJECT_SOURCE_DIR}/extern/nvidia/link_app.bat --app create"
-                    RESULT_VARIABLE exit_code)
-endif()
-
-# cmake-format: off
-if(exit_code AND NOT exit_code EQUAL 0)
-    message(WARNING "Could not find USD Composer which contains the material graph extension needed by cesium.omniverse.dev.kit. While Cesium for Omniverse will still build fine, running cesium.omniverse.dev.kit will fail.")
-endif()
-# cmake-format: on
-
 set(NVIDIA_RELEASE_FOLDER_NAME "release")
 
 if(${USE_NVIDIA_RELEASE_LIBRARIES})
