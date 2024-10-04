@@ -163,8 +163,8 @@ NormalsAccessor NormalsAccessor::GenerateSmooth(const PositionsAccessor& positio
     }
 
     auto accessor = NormalsAccessor();
+    accessor._size = normals.size();
     accessor._computed = std::move(normals);
-    accessor._size = indices.size();
     return accessor;
 }
 

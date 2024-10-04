@@ -1,5 +1,9 @@
 # Change Log
 
+### v0.24.0 - 2024-11-01
+
+* Fixed bug where smooth normals setting would crash.
+
 ### v0.23.0 - 2024-10-01
 
 * Fixed bug where tilesets and raster overlays were not being passed the correct custom ellipsoid.
