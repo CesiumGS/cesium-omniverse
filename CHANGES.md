@@ -3,6 +3,7 @@
 ### v0.24.0 - 2024-11-01
 
 * **Breaking change:** Cesium for Omniverse now requires Kit 106.0 or above (Isaac Sim 4.0.0 or above).
+* Fixed bug where smooth normals setting would crash.
 
 ### v0.23.0 - 2024-10-01
 
