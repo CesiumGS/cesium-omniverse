@@ -82,16 +82,12 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     (subdivisionScheme) \
     (vertex) \
     (vertexId) \
-    (_cesium_gltfLocalToEcefTransform) \
     (_cesium_tilesetId) \
     (_deletedPrims) \
     (_materialSource) \
     (_paramColorSpace) \
     (_sdrMetadata) \
     (_worldExtent) \
-    (_worldOrientation) \
-    (_worldPosition) \
-    (_worldScale) \
     (_worldVisibility) \
     ((info_implementationSource, "info:implementationSource")) \
     ((info_mdl_sourceAsset, "info:mdl:sourceAsset")) \
@@ -152,6 +148,8 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((xformOp_rotateZYX, "xformOp:rotateZYX")) \
     ((xformOp_scale, "xformOp:scale")) \
     ((xformOp_translate, "xformOp:translate")) \
+    ((_localMatrix, "omni:fabric:localMatrix")) \
+    ((_worldMatrix, "omni:fabric:worldMatrix")) \
     ((_auto, "auto"))
 
 #ifdef CESIUM_OMNI_CLANG
@@ -274,15 +272,14 @@ const omni::fabric::Type primvars_st(omni::fabric::BaseDataType::eFloat, 2, 1, o
 const omni::fabric::Type primvars_vertexId(omni::fabric::BaseDataType::eFloat, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type Shader(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName);
 const omni::fabric::Type subdivisionScheme(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
-const omni::fabric::Type _cesium_gltfLocalToEcefTransform(omni::fabric::BaseDataType::eDouble, 16, 0, omni::fabric::AttributeRole::eMatrix);
 const omni::fabric::Type _cesium_tilesetId(omni::fabric::BaseDataType::eInt64, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _materialSource(omni::fabric::BaseDataType::eRelationship, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _paramColorSpace(omni::fabric::BaseDataType::eToken, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _sdrMetadata(omni::fabric::BaseDataType::eToken, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _worldExtent(omni::fabric::BaseDataType::eDouble, 6, 0, omni::fabric::AttributeRole::eNone);
-const omni::fabric::Type _worldOrientation(omni::fabric::BaseDataType::eFloat, 4, 0, omni::fabric::AttributeRole::eQuaternion);
-const omni::fabric::Type _worldPosition(omni::fabric::BaseDataType::eDouble, 3, 0, omni::fabric::AttributeRole::eNone);
-const omni::fabric::Type _worldScale(omni::fabric::BaseDataType::eFloat, 3, 0, omni::fabric::AttributeRole::eVector);
 const omni::fabric::Type _worldVisibility(omni::fabric::BaseDataType::eBool, 1, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type _localMatrix(omni::fabric::BaseDataType::eDouble, 16, 0, omni::fabric::AttributeRole::eMatrix);
+const omni::fabric::Type _worldMatrix(omni::fabric::BaseDataType::eDouble, 16, 0, omni::fabric::AttributeRole::eMatrix);
+
 }
 // clang-format on

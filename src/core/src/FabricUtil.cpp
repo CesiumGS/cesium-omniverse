@@ -530,9 +530,9 @@ void destroyPrim(omni::fabric::StageReaderWriter& fabricStage, const omni::fabri
     const auto deletedPrimsSize = fabricStage.getArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims);
     fabricStage.setArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims, deletedPrimsSize + 1);
     const auto deletedPrimsFabric =
-        fabricStage.getArrayAttributeWr<omni::fabric::PathC>(changeTrackingPath, FabricTokens::_deletedPrims);
+        fabricStage.getArrayAttributeWr<omni::fabric::Path>(changeTrackingPath, FabricTokens::_deletedPrims);
 
-    deletedPrimsFabric[deletedPrimsSize] = path;
+    new (&deletedPrimsFabric[deletedPrimsSize]) PXR_NS::SdfPath(omni::fabric::toSdfPath(path.asPathC()));
 }
 
 void setTilesetTransform(
@@ -542,17 +542,15 @@ void setTilesetTransform(
     const auto buckets = fabricStage.findPrims(
         {omni::fabric::AttrNameAndType(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId)},
         {omni::fabric::AttrNameAndType(
-            FabricTypes::_cesium_gltfLocalToEcefTransform, FabricTokens::_cesium_gltfLocalToEcefTransform)});
+            FabricTypes::_localMatrix, FabricTokens::_localMatrix)});
 
     for (uint64_t bucketId = 0; bucketId < buckets.bucketCount(); ++bucketId) {
         // clang-format off
         const auto tilesetIdFabric = fabricStage.getAttributeArrayRd<int64_t>(buckets, bucketId, FabricTokens::_cesium_tilesetId);
-        const auto gltfLocalToEcefTransformFabric = fabricStage.getAttributeArrayRd<pxr::GfMatrix4d>(buckets, bucketId, FabricTokens::_cesium_gltfLocalToEcefTransform);
+        const auto gltfLocalToEcefTransformFabric = fabricStage.getAttributeArrayRd<pxr::GfMatrix4d>(buckets, bucketId, FabricTokens::_localMatrix);
         const auto extentFabric = fabricStage.getAttributeArrayRd<pxr::GfRange3d>(buckets, bucketId, FabricTokens::extent);
-        const auto worldPositionFabric = fabricStage.getAttributeArrayWr<pxr::GfVec3d>(buckets, bucketId, FabricTokens::_worldPosition);
-        const auto worldOrientationFabric = fabricStage.getAttributeArrayWr<pxr::GfQuatf>(buckets, bucketId, FabricTokens::_worldOrientation);
-        const auto worldScaleFabric = fabricStage.getAttributeArrayWr<pxr::GfVec3f>(buckets, bucketId, FabricTokens::_worldScale);
         const auto worldExtentFabric = fabricStage.getAttributeArrayWr<pxr::GfRange3d>(buckets, bucketId, FabricTokens::_worldExtent);
+        const auto worldMatrixFabric = fabricStage.getAttributeArrayWr<pxr::GfMatrix4d>(buckets, bucketId, FabricTokens::_worldMatrix);
         // clang-format on
 
         for (uint64_t i = 0; i < tilesetIdFabric.size(); ++i) {
@@ -560,13 +558,9 @@ void setTilesetTransform(
                 const auto gltfLocalToEcefTransform = UsdUtil::usdToGlmMatrix(gltfLocalToEcefTransformFabric[i]);
                 const auto gltfLocalToPrimWorldTransform = ecefToPrimWorldTransform * gltfLocalToEcefTransform;
                 const auto gltfLocalExtent = UsdUtil::usdToGlmExtent(extentFabric[i]);
-                const auto [primWorldPosition, primWorldOrientation, primWorldScale] =
-                    MathUtil::decompose(gltfLocalToPrimWorldTransform);
                 const auto primWorldExtent = MathUtil::transformExtent(gltfLocalExtent, gltfLocalToPrimWorldTransform);
-
-                worldPositionFabric[i] = UsdUtil::glmToUsdVector(primWorldPosition);
-                worldOrientationFabric[i] = UsdUtil::glmToUsdQuat(glm::fquat(primWorldOrientation));
-                worldScaleFabric[i] = UsdUtil::glmToUsdVector(glm::fvec3(primWorldScale));
+                const auto worldMatrix = UsdUtil::glmToUsdMatrix(gltfLocalToPrimWorldTransform);
+                worldMatrixFabric[i] = worldMatrix;
                 worldExtentFabric[i] = UsdUtil::glmToUsdExtent(primWorldExtent);
             }
         }

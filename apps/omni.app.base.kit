@@ -1,0 +1,116 @@
+# This app is a copy of omni.app.dev.kit, minus any extensions that are no longer published.
+
+[package]
+title = "Kit Dev App"
+description = "Default app kit runs. Minimal USD viewer."
+version = "1.0.0"
+keywords = ["app"]
+support_level = "Sample"
+
+[dependencies]
+# The Main UI App. Bring everything needed for UI application.
+"omni.kit.uiapp" = {}
+
+# USD file open/close
+"omni.kit.window.file" = {}
+
+# Basic Menus
+"omni.kit.menu.utils" = {}
+"omni.kit.menu.file" = {}
+"omni.kit.menu.edit" = {}
+"omni.kit.menu.create" = {}
+"omni.kit.menu.common" = {}
+"omni.kit.menu.aov" = {}
+"omni.kit.context_menu" = {}
+"omni.kit.selection" = {}
+
+# Stage Templates
+"omni.kit.stage_templates" = {}
+
+# Some Editing Windows
+"omni.kit.window.title" = {}
+"omni.kit.widget.live" = {}
+"omni.kit.widget.cache_indicator" = {}
+"omni.kit.window.stage" = {}
+"omni.kit.window.toolbar" = {}
+"omni.kit.widget.filebrowser" = {}
+"omni.kit.window.filepicker" = {}
+"omni.kit.window.content_browser" = {}
+"omni.kit.collaboration.channel_manager" = {}
+"omni.kit.collaboration.viewport.camera" = {}
+"omni.kit.collaboration.selection_outline" = {}
+"omni.kit.collaboration.stage_columns" = {}
+"omni.kit.stage_column.active" = {}
+
+# Tools
+"omni.kit.tool.collect" = {}
+
+# Viewport and Renderer
+"omni.kit.viewport.bundle" = {}
+"omni.kit.viewport.rtx" = {}
+"omni.kit.viewport.pxr" = {}
+"omni.kit.viewport.iray" = {}
+"omni.resourcemonitor" = {}
+
+# MDL
+"omni.mdl" = {}
+"omni.mdl.neuraylib" = {}
+
+# RTX Tests
+# "omni.rtx.tests" = {}
+# "omni.kit.renderer.capture" = {}
+
+# Status Bar
+"omni.kit.window.status_bar" = {}
+
+# Graphics Stats
+"omni.stats" = {}
+
+# Render Settings 2.0
+"omni.rtx.settings.core" = {}
+
+# Dev & Utils Windows
+"omni.kit.window.about" = {}
+"omni.kit.window.privacy" = {}
+"omni.kit.window.stats" = { order = 1000 }
+"omni.kit.window.script_editor" = {}
+"omni.kit.window.console" = {}
+"omni.kit.window.preferences" = { order = 1000 } # so the menu is in the correct place
+"omni.kit.window.tests" = {}
+
+# Extensions Manager UI
+"omni.kit.window.extensions" = {}
+
+# Property Widgets and Window
+"omni.kit.window.property" = {}
+"omni.kit.property.bundle" = {}
+
+# Misc
+"omni.kit.primitive.mesh" = {}
+"omni.kit.telemetry" = {}
+
+[settings.app.settings]
+persistent = true
+
+[settings]
+exts."omni.kit.window.file".useNewFilePicker = true
+exts."omni.kit.renderer.core".imgui.enableMips = true
+app.content.emptyStageOnStart = true
+
+app.extensions.enabledDeprecated = []
+
+renderer.enabled='rtx,iray,pxr'
+renderer.active='rtx'
+
+# Fast shutdown by default
+app.fastShutdown = true
+
+exts."omni.kit.viewport.window".startup.dockTabInvisible=true
+
+[settings.app.window]
+saveSizeOnExit = true
+title = "Kit Dev App"
+width = 1920
+height = 1080
+x = -1
+y = -1

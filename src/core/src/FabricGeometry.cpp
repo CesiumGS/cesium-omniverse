@@ -121,8 +121,7 @@ void FabricGeometry::setMaterial(const omni::fabric::Path& materialPath) {
 
     auto& fabricStage = _pContext->getFabricStage();
     fabricStage.setArrayAttributeSize(_path, FabricTokens::material_binding, 1);
-    const auto materialBindingFabric =
-        fabricStage.getArrayAttributeWr<omni::fabric::PathC>(_path, FabricTokens::material_binding);
+    auto materialBindingFabric = fabricStage.getArrayAttributeWr<omni::fabric::Path>(_path, FabricTokens::material_binding);
     materialBindingFabric[0] = materialPath;
 }
 
@@ -150,10 +149,8 @@ void FabricGeometry::initialize() {
     attributes.addAttribute(FabricTypes::primvarInterpolations, FabricTokens::primvarInterpolations);
     attributes.addAttribute(FabricTypes::Mesh, FabricTokens::Mesh);
     attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
-    attributes.addAttribute(FabricTypes::_cesium_gltfLocalToEcefTransform, FabricTokens::_cesium_gltfLocalToEcefTransform);
-    attributes.addAttribute(FabricTypes::_worldPosition, FabricTokens::_worldPosition);
-    attributes.addAttribute(FabricTypes::_worldOrientation, FabricTokens::_worldOrientation);
-    attributes.addAttribute(FabricTypes::_worldScale, FabricTokens::_worldScale);
+    attributes.addAttribute(FabricTypes::_localMatrix, FabricTokens::_localMatrix);
+    attributes.addAttribute(FabricTypes::_worldMatrix, FabricTokens::_worldMatrix);
     attributes.addAttribute(FabricTypes::doubleSided, FabricTokens::doubleSided);
     attributes.addAttribute(FabricTypes::subdivisionScheme, FabricTokens::subdivisionScheme);
     attributes.addAttribute(FabricTypes::material_binding, FabricTokens::material_binding);
@@ -267,10 +264,9 @@ void FabricGeometry::reset() {
     const auto extentFabric = fabricStage.getAttributeWr<pxr::GfRange3d>(_path, FabricTokens::extent);
     const auto worldExtentFabric = fabricStage.getAttributeWr<pxr::GfRange3d>(_path, FabricTokens::_worldExtent);
     const auto worldVisibilityFabric = fabricStage.getAttributeWr<bool>(_path, FabricTokens::_worldVisibility);
-    const auto gltfLocalToEcefTransformFabric = fabricStage.getAttributeWr<pxr::GfMatrix4d>(_path, FabricTokens::_cesium_gltfLocalToEcefTransform);
-    const auto worldPositionFabric = fabricStage.getAttributeWr<pxr::GfVec3d>(_path, FabricTokens::_worldPosition);
-    const auto worldOrientationFabric = fabricStage.getAttributeWr<pxr::GfQuatf>(_path, FabricTokens::_worldOrientation);
-    const auto worldScaleFabric = fabricStage.getAttributeWr<pxr::GfVec3f>(_path, FabricTokens::_worldScale);
+    auto worldMatrixFabric = fabricStage.getAttributeWr<pxr::GfMatrix4d>(_path, FabricTokens::_worldMatrix);
+    auto localMatrixFabric = fabricStage.getAttributeWr<pxr::GfMatrix4d>(_path, FabricTokens::_localMatrix);
+
     const auto tilesetIdFabric = fabricStage.getAttributeWr<int64_t>(_path, FabricTokens::_cesium_tilesetId);
     // clang-format on
 
@@ -278,10 +274,8 @@ void FabricGeometry::reset() {
     *extentFabric = UsdUtil::glmToUsdExtent(DEFAULT_EXTENT);
     *worldExtentFabric = UsdUtil::glmToUsdExtent(DEFAULT_EXTENT);
     *worldVisibilityFabric = DEFAULT_VISIBILITY;
-    *gltfLocalToEcefTransformFabric = UsdUtil::glmToUsdMatrix(DEFAULT_MATRIX);
-    *worldPositionFabric = UsdUtil::glmToUsdVector(DEFAULT_POSITION);
-    *worldOrientationFabric = UsdUtil::glmToUsdQuat(glm::fquat(DEFAULT_ORIENTATION));
-    *worldScaleFabric = UsdUtil::glmToUsdVector(glm::fvec3(DEFAULT_SCALE));
+    *localMatrixFabric = UsdUtil::glmToUsdMatrix(DEFAULT_MATRIX);
+    *worldMatrixFabric = UsdUtil::glmToUsdMatrix(DEFAULT_MATRIX);
     *tilesetIdFabric = FabricUtil::NO_TILESET_ID;
 
     fabricStage.setArrayAttributeSize(_path, FabricTokens::material_binding, 0);
@@ -347,8 +341,7 @@ void FabricGeometry::setGeometry(
 
     const auto doubleSided = materialInfo.doubleSided;
     const auto gltfLocalToPrimWorldTransform = ecefToPrimWorldTransform * gltfLocalToEcefTransform;
-    const auto [primWorldPosition, primWorldOrientation, primWorldScale] =
-        MathUtil::decompose(gltfLocalToPrimWorldTransform);
+    const auto worldMatrix = UsdUtil::glmToUsdMatrix(gltfLocalToPrimWorldTransform);
     const auto primWorldExtent = MathUtil::transformExtent(gltfLocalExtent.value(), gltfLocalToPrimWorldTransform);
 
     if (primitive.mode == CesiumGltf::MeshPrimitive::Mode::POINTS) {
@@ -526,20 +519,18 @@ void FabricGeometry::setGeometry(
     const auto doubleSidedFabric = fabricStage.getAttributeWr<bool>(_path, FabricTokens::doubleSided);
     const auto extentFabric = fabricStage.getAttributeWr<pxr::GfRange3d>(_path, FabricTokens::extent);
     const auto worldExtentFabric = fabricStage.getAttributeWr<pxr::GfRange3d>(_path, FabricTokens::_worldExtent);
-    const auto gltfLocalToEcefTransformFabric = fabricStage.getAttributeWr<pxr::GfMatrix4d>(_path, FabricTokens::_cesium_gltfLocalToEcefTransform);
-    const auto worldPositionFabric = fabricStage.getAttributeWr<pxr::GfVec3d>(_path, FabricTokens::_worldPosition);
-    const auto worldOrientationFabric = fabricStage.getAttributeWr<pxr::GfQuatf>(_path, FabricTokens::_worldOrientation);
-    const auto worldScaleFabric = fabricStage.getAttributeWr<pxr::GfVec3f>(_path, FabricTokens::_worldScale);
+    auto worldMatrixFabric = fabricStage.getAttributeWr<pxr::GfMatrix4d>(_path, FabricTokens::_worldMatrix);
+    auto localMatrixFabric = fabricStage.getAttributeWr<pxr::GfMatrix4d>(_path, FabricTokens::_localMatrix);
     const auto tilesetIdFabric = fabricStage.getAttributeWr<int64_t>(_path, FabricTokens::_cesium_tilesetId);
     // clang-format on
 
     *doubleSidedFabric = doubleSided;
     *extentFabric = UsdUtil::glmToUsdExtent(gltfLocalExtent.value());
     *worldExtentFabric = UsdUtil::glmToUsdExtent(primWorldExtent);
-    *gltfLocalToEcefTransformFabric = UsdUtil::glmToUsdMatrix(gltfLocalToEcefTransform);
-    *worldPositionFabric = UsdUtil::glmToUsdVector(primWorldPosition);
-    *worldOrientationFabric = UsdUtil::glmToUsdQuat(glm::fquat(primWorldOrientation));
-    *worldScaleFabric = UsdUtil::glmToUsdVector(glm::fvec3(primWorldScale));
+    *localMatrixFabric = UsdUtil::glmToUsdMatrix(gltfLocalToEcefTransform);
+    *worldMatrixFabric = worldMatrix;
+
+
     *tilesetIdFabric = tilesetId;
 }
 
