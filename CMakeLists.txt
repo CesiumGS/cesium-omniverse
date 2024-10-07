@@ -31,7 +31,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-if (NOT Python3_EXECUTABLE)
+if(NOT Python3_EXECUTABLE)
     # Find Python for Conan and scripts
     find_package(
         Python3
@@ -225,8 +225,7 @@ if(MSVC)
         /W4 # enable all warnings
         /WX # error on warnings
         /Zc:__cplusplus # make __cplusplus defined correctly
-        /bigobj
-    )
+        /bigobj)
     set(CESIUM_OMNI_CXX_DEFINES
         ${CESIUM_OMNI_CXX_DEFINES}
         _CRT_SECURE_NO_WARNINGS # Avoid erroring on strcpy
@@ -261,7 +260,8 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
         -fstrict-enums)
 
     if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-        set(CESIUM_OMNI_CXX_FLAGS ${CESIUM_OMNI_CXX_FLAGS} -Wno-stringop-overflow) # Ignore false positives in libstdc++ in GCC 13.1.1
+        # Ignore false positives in libstdc++ in GCC 13.1.1
+        set(CESIUM_OMNI_CXX_FLAGS ${CESIUM_OMNI_CXX_FLAGS} -Wno-stringop-overflow)
     endif()
 
     if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
@@ -372,8 +372,7 @@ set(CESIUM_OMNI_CXX_DEFINES
     GLM_FORCE_XYZW_ONLY # Disable .rgba and .stpq to make it easier to view values from debugger
     GLM_FORCE_EXPLICIT_CTOR # Disallow implicit conversions between dvec3 <-> dvec4, dvec3 <-> fvec3, etc
     GLM_FORCE_SIZE_T_LENGTH # Make vec.length() and vec[idx] use size_t instead of int
-    GLM_ENABLE_EXPERIMENTAL
-)
+    GLM_ENABLE_EXPERIMENTAL)
 
 # Boost is a dependency of USD. It is dynamically linked so we need to set this flag.
 set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} BOOST_ALL_DYN_LINK)
@@ -430,18 +429,22 @@ set(VCPKG_OVERLAY_TRIPLETS "${CMAKE_CURRENT_LIST_DIR}/vcpkg/triplets")
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/extern/cesium-native/cmake/detect-vcpkg-triplet.cmake)
 
-if (NOT VCPKG_TRIPLET)
-    if (DEFINED ENV{VCPKG_TRIPLET})
+if(NOT VCPKG_TRIPLET)
+    if(DEFINED ENV{VCPKG_TRIPLET})
         set(VCPKG_TRIPLET "$ENV{VCPKG_TRIPLET}")
     elseif(DETECTED_VCPKG_TRIPLET_ERROR)
         message(FATAL_ERROR "${DETECTED_VCPKG_TRIPLET_ERROR}")
     else()
-        set(VCPKG_TRIPLET "${DETECTED_VCPKG_TRIPLET}-omniverse")
+        if(${USE_NVIDIA_RELEASE_LIBRARIES})
+            set(VCPKG_TRIPLET "${DETECTED_VCPKG_TRIPLET}-omniverse")
+        else()
+            set(VCPKG_TRIPLET "${DETECTED_VCPKG_TRIPLET}-omniverse-kit-debug")
+        endif()
     endif()
 endif()
 
-if (NOT EZVCPKG_BASEDIR)
-    if (DEFINED ENV{EZVCPKG_BASEDIR})
+if(NOT EZVCPKG_BASEDIR)
+    if(DEFINED ENV{EZVCPKG_BASEDIR})
         set(EZVCPKG_BASEDIR "$ENV{EZVCPKG_BASEDIR}")
     endif()
 endif()
