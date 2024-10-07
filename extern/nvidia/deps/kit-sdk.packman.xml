@@ -1,6 +1,6 @@
 <project toolsVersion="5.6">
   <dependency name="kit-kernel" linkPath="../_build/target-deps/kit-sdk/">
-    <package name="kit-kernel" version="106.0.0+release.118399.fcefe91f.gl.${platform}.release"/>
+    <package name="kit-kernel" version="106.1.0+release.140981.10a4b5c0.gl.${platform}.release"/>
   </dependency>
   <!-- build-time dependencies -->
   <!-- the versions MUST correspond to the versions pulled in by kit-kernel during extension precaching-->
