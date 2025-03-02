@@ -149,10 +149,6 @@ add_external_project(
         ${SHARPYUV_LIBRARY_NAME}
         ${ZNG_LIBRARY_NAME}
         zstd
-    LIBRARIES_WITH_POSTFIX
-        fmt
-        spdlog
-        ${ZNG_LIBRARY_NAME}
     OPTIONS
         CESIUM_TESTS_ENABLED=OFF
         CESIUM_COVERAGE_ENABLED=OFF
@@ -163,8 +159,6 @@ add_external_project(
         EZVCPKG_BASEDIR=${EZVCPKG_BASEDIR}
     PROJECT_EXTERN_DIRECTORY
         "${PROJECT_SOURCE_DIR}/extern"
-    EXPECTED_DEBUG_POSTFIX
-        "d"
 )
 # cmake-format: on
 
@@ -395,7 +389,10 @@ add_prebuilt_project(
 # cmake-format: on
 
 if(WIN32)
-    set(NVIDIA_ADDITIONAL_LIBRARIES "${KIT_IMGUI_ROOT}/bin/imgui.dll" "${KIT_IMGUI_ROOT}/bin/deps/freetype.dll")
+    set(NVIDIA_ADDITIONAL_LIBRARIES
+        "${KIT_IMGUI_ROOT}/bin/imgui.dll"
+        "${KIT_IMGUI_ROOT}/bin/deps/freetype.dll"
+    )
 
     set_property(GLOBAL PROPERTY NVIDIA_ADDITIONAL_LIBRARIES_PROPERTY "${NVIDIA_ADDITIONAL_LIBRARIES}")
 else()
