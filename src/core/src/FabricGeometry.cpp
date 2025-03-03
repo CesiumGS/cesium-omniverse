@@ -146,8 +146,6 @@ void FabricGeometry::initialize() {
     attributes.addAttribute(FabricTypes::extent, FabricTokens::extent);
     attributes.addAttribute(FabricTypes::_worldExtent, FabricTokens::_worldExtent);
     attributes.addAttribute(FabricTypes::_worldVisibility, FabricTokens::_worldVisibility);
-    attributes.addAttribute(FabricTypes::primvars, FabricTokens::primvars);
-    attributes.addAttribute(FabricTypes::primvarInterpolations, FabricTokens::primvarInterpolations);
     attributes.addAttribute(FabricTypes::Mesh, FabricTokens::Mesh);
     attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId);
     attributes.addAttribute(FabricTypes::_cesium_gltfLocalToEcefTransform, FabricTokens::_cesium_gltfLocalToEcefTransform);
@@ -160,23 +158,28 @@ void FabricGeometry::initialize() {
 
     for (uint64_t i = 0; i < texcoordSetCount; ++i) {
         attributes.addAttribute(FabricTypes::primvars_st, FabricTokens::primvars_st_n(i));
+        attributes.addAttribute(FabricTypes::primvars_interpolation, FabricTokens::primvars_st_interpolation_n(i));
     }
 
     if (hasNormals) {
-        attributes.addAttribute(FabricTypes::primvars_normals, FabricTokens::primvars_normals);
+        attributes.addAttribute(FabricTypes::normals, FabricTokens::normals);
+        attributes.addAttribute(FabricTypes::primvars_interpolation, FabricTokens::normals_interpolation);
     }
 
     if (hasVertexColors) {
         attributes.addAttribute(FabricTypes::primvars_COLOR_0, FabricTokens::primvars_COLOR_0);
+        attributes.addAttribute(FabricTypes::primvars_interpolation, FabricTokens::primvars_COLOR_0_interpolation);
     }
 
     if (hasVertexIds) {
         attributes.addAttribute(FabricTypes::primvars_vertexId, FabricTokens::primvars_vertexId);
+        attributes.addAttribute(FabricTypes::primvars_interpolation, FabricTokens::primvars_vertexId_interpolation);
     }
 
     for (const auto& customVertexAttribute : customVertexAttributes) {
         attributes.addAttribute(
             FabricUtil::getPrimvarType(customVertexAttribute.type), customVertexAttribute.fabricAttributeName);
+        attributes.addAttribute(FabricTypes::primvars_interpolation, customVertexAttribute.fabricInterpolationName);
     }
 
     attributes.createAttributes(_path);
@@ -189,70 +192,35 @@ void FabricGeometry::initialize() {
         fabricStage.getAttributeWr<pxr::GfMatrix4d>(_path, FabricTokens::omni_fabric_localMatrix);
     *localMatrixFabric = UsdUtil::glmToUsdMatrix(DEFAULT_MATRIX);
 
-    // Initialize primvars
-    uint64_t primvarsCount = 0;
-    uint64_t primvarIndexNormal = 0;
-    uint64_t primvarIndexVertexColor = 0;
-    uint64_t primvarIndexVertexId = 0;
-
-    std::vector<uint64_t> primvarIndexStArray;
-    primvarIndexStArray.reserve(texcoordSetCount);
-
     for (uint64_t i = 0; i < texcoordSetCount; ++i) {
-        primvarIndexStArray.push_back(primvarsCount++);
-    }
-
-    std::vector<uint64_t> primvarIndexCustomVertexAttributesArray;
-    primvarIndexCustomVertexAttributesArray.reserve(customVertexAttributesCount);
-
-    for (uint64_t i = 0; i < customVertexAttributesCount; ++i) {
-        primvarIndexCustomVertexAttributesArray.push_back(primvarsCount++);
-    }
-
-    if (hasNormals) {
-        primvarIndexNormal = primvarsCount++;
-    }
-
-    if (hasVertexColors) {
-        primvarIndexVertexColor = primvarsCount++;
-    }
-
-    if (hasVertexIds) {
-        primvarIndexVertexId = primvarsCount++;
-    }
-
-    fabricStage.setArrayAttributeSize(_path, FabricTokens::primvars, primvarsCount);
-    fabricStage.setArrayAttributeSize(_path, FabricTokens::primvarInterpolations, primvarsCount);
-
-    // clang-format off
-    const auto primvarsFabric = fabricStage.getArrayAttributeWr<omni::fabric::TokenC>(_path, FabricTokens::primvars);
-    const auto primvarInterpolationsFabric = fabricStage.getArrayAttributeWr<omni::fabric::TokenC>(_path, FabricTokens::primvarInterpolations);
-    // clang-format on
-
-    for (uint64_t i = 0; i < texcoordSetCount; ++i) {
-        primvarsFabric[primvarIndexStArray[i]] = FabricTokens::primvars_st_n(i);
-        primvarInterpolationsFabric[primvarIndexStArray[i]] = FabricTokens::vertex;
+        const auto texcoordInterpolationFabric =
+            fabricStage.getAttributeWr<omni::fabric::TokenC>(_path, FabricTokens::primvars_st_interpolation_n(i));
+        *texcoordInterpolationFabric = FabricTokens::vertex;
     }
 
     for (uint64_t i = 0; i < customVertexAttributesCount; ++i) {
         const auto& customVertexAttribute = CppUtil::getElementByIndex(customVertexAttributes, i);
-        primvarsFabric[primvarIndexCustomVertexAttributesArray[i]] = customVertexAttribute.fabricAttributeName;
-        primvarInterpolationsFabric[primvarIndexCustomVertexAttributesArray[i]] = FabricTokens::vertex;
+        const auto customVertexAttributeInterpolationFabric =
+            fabricStage.getAttributeWr<omni::fabric::TokenC>(_path, customVertexAttribute.fabricInterpolationName);
+        *customVertexAttributeInterpolationFabric = FabricTokens::vertex;
     }
 
     if (hasNormals) {
-        primvarsFabric[primvarIndexNormal] = FabricTokens::primvars_normals;
-        primvarInterpolationsFabric[primvarIndexNormal] = FabricTokens::vertex;
+        const auto normalsInterpolationFabric =
+            fabricStage.getAttributeWr<omni::fabric::TokenC>(_path, FabricTokens::normals_interpolation);
+        *normalsInterpolationFabric = FabricTokens::vertex;
     }
 
     if (hasVertexColors) {
-        primvarsFabric[primvarIndexVertexColor] = FabricTokens::primvars_COLOR_0;
-        primvarInterpolationsFabric[primvarIndexVertexColor] = FabricTokens::vertex;
+        const auto vertexColorInterpolationFabric =
+            fabricStage.getAttributeWr<omni::fabric::TokenC>(_path, FabricTokens::primvars_COLOR_0_interpolation);
+        *vertexColorInterpolationFabric = FabricTokens::vertex;
     }
 
     if (hasVertexIds) {
-        primvarsFabric[primvarIndexVertexId] = FabricTokens::primvars_vertexId;
-        primvarInterpolationsFabric[primvarIndexVertexId] = FabricTokens::vertex;
+        const auto vertexIdInterpolationFabric =
+            fabricStage.getAttributeWr<omni::fabric::TokenC>(_path, FabricTokens::primvars_vertexId_interpolation);
+        *vertexIdInterpolationFabric = FabricTokens::vertex;
     }
 }
 
@@ -298,7 +266,7 @@ void FabricGeometry::reset() {
     }
 
     if (hasNormals) {
-        fabricStage.setArrayAttributeSize(_path, FabricTokens::primvars_normals, 0);
+        fabricStage.setArrayAttributeSize(_path, FabricTokens::normals, 0);
     }
 
     if (hasVertexColors) {
@@ -482,10 +450,9 @@ void FabricGeometry::setGeometry(
         }
 
         if (hasNormals) {
-            fabricStage.setArrayAttributeSize(_path, FabricTokens::primvars_normals, normals.size());
+            fabricStage.setArrayAttributeSize(_path, FabricTokens::normals, normals.size());
 
-            const auto normalsFabric =
-                fabricStage.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::primvars_normals);
+            const auto normalsFabric = fabricStage.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::normals);
 
             normals.fill(normalsFabric);
         }

@@ -87,9 +87,7 @@ class FabricMaterial {
         const std::vector<std::pair<omni::fabric::Type, omni::fabric::Token>>& additionalAttributes = {});
     void createTexture(const omni::fabric::Path& path);
     void createRasterOverlay(const omni::fabric::Path& path);
-    void createRasterOverlayResolverCommon(
-        const omni::fabric::Path& path,
-        const omni::fabric::Token& subidentifier);
+    void createRasterOverlayResolverCommon(const omni::fabric::Path& path, const omni::fabric::Token& subidentifier);
     void createRasterOverlayResolver(const omni::fabric::Path& path);
     void createClippingRasterOverlayResolver(const omni::fabric::Path& path);
     void createFeatureIdIndex(const omni::fabric::Path& path);
