@@ -108,6 +108,7 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((inputs_feature_id_set_index, "inputs:feature_id_set_index")) \
     ((inputs_has_no_data, "inputs:has_no_data")) \
     ((inputs_raster_overlay, "inputs:raster_overlay")) \
+    ((inputs_raster_overlay_count, "inputs:raster_overlay_count")) \
     ((inputs_raster_overlay_index, "inputs:raster_overlay_index")) \
     ((inputs_maximum_value, "inputs:maximum_value")) \
     ((inputs_metallic_factor, "inputs:metallic_factor")) \
@@ -227,6 +228,7 @@ const omni::fabric::Type inputs_default_value_int4(omni::fabric::BaseDataType::e
 const omni::fabric::Type inputs_emissive_factor(omni::fabric::BaseDataType::eFloat, 3, 0, omni::fabric::AttributeRole::eColor);
 const omni::fabric::Type inputs_excludeFromWhiteMode(omni::fabric::BaseDataType::eBool, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_has_no_data(omni::fabric::BaseDataType::eBool, 1, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type inputs_raster_overlay_count(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_maximum_value_int(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_maximum_value_int2(omni::fabric::BaseDataType::eInt, 2, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_maximum_value_int3(omni::fabric::BaseDataType::eInt, 3, 0, omni::fabric::AttributeRole::eNone);

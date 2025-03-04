@@ -1568,81 +1568,103 @@ export material cesium_internal_material(
 );
 
 export gltf_texture_lookup_value cesium_internal_raster_overlay_resolver(
-    gltf_texture_lookup_value raster_overlay_0 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_1 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_2 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_3 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_4 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_5 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_6 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_7 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_8 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_9 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_10 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_11 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_12 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_13 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_14 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_15 = gltf_texture_lookup_value(false, float4(0.0))
+    uniform int raster_overlay_count = 0,
+    gltf_texture_lookup_value raster_overlay_0 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_1 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_2 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_3 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_4 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_5 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_6 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_7 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_8 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_9 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_10 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_11 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_12 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_13 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_14 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_15 = gltf_texture_lookup_value()
 ) [[ anno::hidden() ]] {
+    // The array length should match MAX_RASTER_OVERLAY_COUNT in FabricMaterial.cpp
+    gltf_texture_lookup_value[] raster_overlays(
+        raster_overlay_0,
+        raster_overlay_1,
+        raster_overlay_2,
+        raster_overlay_3,
+        raster_overlay_4,
+        raster_overlay_5,
+        raster_overlay_6,
+        raster_overlay_7,
+        raster_overlay_8,
+        raster_overlay_9,
+        raster_overlay_10,
+        raster_overlay_11,
+        raster_overlay_12,
+        raster_overlay_13,
+        raster_overlay_14,
+        raster_overlay_15,
+    );
+
     auto resolved_value = float4(0.0);
 
-    resolved_value = alpha_blend(raster_overlay_0.value, resolved_value);
-    resolved_value = alpha_blend(raster_overlay_1.value, resolved_value);
-    resolved_value = alpha_blend(raster_overlay_2.value, resolved_value);
-    resolved_value = alpha_blend(raster_overlay_3.value, resolved_value);
-    resolved_value = alpha_blend(raster_overlay_4.value, resolved_value);
-    resolved_value = alpha_blend(raster_overlay_5.value, resolved_value);
-    resolved_value = alpha_blend(raster_overlay_6.value, resolved_value);
-    resolved_value = alpha_blend(raster_overlay_7.value, resolved_value);
-    resolved_value = alpha_blend(raster_overlay_8.value, resolved_value);
-    resolved_value = alpha_blend(raster_overlay_9.value, resolved_value);
-    resolved_value = alpha_blend(raster_overlay_10.value, resolved_value);
-    resolved_value = alpha_blend(raster_overlay_11.value, resolved_value);
-    resolved_value = alpha_blend(raster_overlay_12.value, resolved_value);
-    resolved_value = alpha_blend(raster_overlay_13.value, resolved_value);
-    resolved_value = alpha_blend(raster_overlay_14.value, resolved_value);
-    resolved_value = alpha_blend(raster_overlay_15.value, resolved_value);
+    for (int i = 0; i < raster_overlay_count; i++) {
+        auto raster_overlay = raster_overlays[i];
+        if (raster_overlay.valid) {
+            resolved_value = alpha_blend(raster_overlay.value, resolved_value);
+        }
+    }
 
     return gltf_texture_lookup_value(true, resolved_value);
 }
 
 export gltf_texture_lookup_value cesium_internal_clipping_raster_overlay_resolver(
-    gltf_texture_lookup_value raster_overlay_0 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_1 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_2 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_3 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_4 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_5 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_6 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_7 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_8 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_9 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_10 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_11 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_12 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_13 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_14 = gltf_texture_lookup_value(false, float4(0.0)),
-    gltf_texture_lookup_value raster_overlay_15 = gltf_texture_lookup_value(false, float4(0.0))
+    uniform int raster_overlay_count = 0,
+    gltf_texture_lookup_value raster_overlay_0 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_1 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_2 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_3 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_4 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_5 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_6 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_7 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_8 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_9 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_10 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_11 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_12 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_13 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_14 = gltf_texture_lookup_value(),
+    gltf_texture_lookup_value raster_overlay_15 = gltf_texture_lookup_value()
 ) [[ anno::hidden() ]] {
+    // The array length should match MAX_RASTER_OVERLAY_COUNT in FabricMaterial.cpp
+    gltf_texture_lookup_value[] raster_overlays(
+        raster_overlay_0,
+        raster_overlay_1,
+        raster_overlay_2,
+        raster_overlay_3,
+        raster_overlay_4,
+        raster_overlay_5,
+        raster_overlay_6,
+        raster_overlay_7,
+        raster_overlay_8,
+        raster_overlay_9,
+        raster_overlay_10,
+        raster_overlay_11,
+        raster_overlay_12,
+        raster_overlay_13,
+        raster_overlay_14,
+        raster_overlay_15,
+    );
+
     auto resolved_value = float4(0.0);
 
-    resolved_value += raster_overlay_0.value;
-    resolved_value += raster_overlay_1.value;
-    resolved_value += raster_overlay_2.value;
-    resolved_value += raster_overlay_3.value;
-    resolved_value += raster_overlay_4.value;
-    resolved_value += raster_overlay_5.value;
-    resolved_value += raster_overlay_6.value;
-    resolved_value += raster_overlay_7.value;
-    resolved_value += raster_overlay_8.value;
-    resolved_value += raster_overlay_9.value;
-    resolved_value += raster_overlay_10.value;
-    resolved_value += raster_overlay_11.value;
-    resolved_value += raster_overlay_12.value;
-    resolved_value += raster_overlay_13.value;
-    resolved_value += raster_overlay_14.value;
-    resolved_value += raster_overlay_15.value;
+    for (int i = 0; i < raster_overlay_count; i++) {
+        auto raster_overlay = raster_overlays[i];
+        if (raster_overlay.valid) {
+            resolved_value += raster_overlay.value;
+        }
+    }
 
     return gltf_texture_lookup_value(true, resolved_value);
 }

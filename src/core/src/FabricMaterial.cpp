@@ -669,7 +669,7 @@ void FabricMaterial::initializeDefaultMaterial() {
     if (overlayRasterOverlayCount > 1) {
         const auto rasterOverlayResolverPath =
             FabricUtil::joinPaths(materialPath, FabricTokens::raster_overlay_resolver);
-        createRasterOverlayResolver(rasterOverlayResolverPath);
+        createRasterOverlayResolver(rasterOverlayResolverPath, overlayRasterOverlayCount);
         _overlayRasterOverlayResolverPath = rasterOverlayResolverPath;
         _allPaths.push_back(rasterOverlayResolverPath);
     }
@@ -678,7 +678,7 @@ void FabricMaterial::initializeDefaultMaterial() {
     if (clippingRasterOverlayCount > 1) {
         const auto clippingRasterOverlayResolverPath =
             FabricUtil::joinPaths(materialPath, FabricTokens::clipping_raster_overlay_resolver);
-        createClippingRasterOverlayResolver(clippingRasterOverlayResolverPath);
+        createClippingRasterOverlayResolver(clippingRasterOverlayResolverPath, clippingRasterOverlayCount);
         _clippingRasterOverlayResolverPath = clippingRasterOverlayResolverPath;
         _allPaths.push_back(_clippingRasterOverlayResolverPath);
     }
@@ -835,6 +835,7 @@ void FabricMaterial::createRasterOverlay(const omni::fabric::Path& path) {
 
 void FabricMaterial::createRasterOverlayResolverCommon(
     const omni::fabric::Path& path,
+    uint64_t rasterOverlayCount,
     const omni::fabric::Token& subidentifier) {
     auto& fabricStage = _pContext->getFabricStage();
 
@@ -842,15 +843,24 @@ void FabricMaterial::createRasterOverlayResolverCommon(
 
     FabricAttributesBuilder attributes(_pContext);
 
+    attributes.addAttribute(FabricTypes::inputs_raster_overlay_count, FabricTokens::inputs_raster_overlay_count);
+
     createAttributes(*_pContext, fabricStage, path, attributes, subidentifier);
+
+    const auto rasterOverlayCountFabric =
+        fabricStage.getAttributeWr<int>(path, FabricTokens::inputs_raster_overlay_count);
+    *rasterOverlayCountFabric = static_cast<int>(rasterOverlayCount);
 }
 
-void FabricMaterial::createRasterOverlayResolver(const omni::fabric::Path& path) {
-    createRasterOverlayResolverCommon(path, FabricTokens::cesium_internal_raster_overlay_resolver);
+void FabricMaterial::createRasterOverlayResolver(const omni::fabric::Path& path, uint64_t rasterOverlayCount) {
+    createRasterOverlayResolverCommon(path, rasterOverlayCount, FabricTokens::cesium_internal_raster_overlay_resolver);
 }
 
-void FabricMaterial::createClippingRasterOverlayResolver(const omni::fabric::Path& path) {
-    createRasterOverlayResolverCommon(path, FabricTokens::cesium_internal_clipping_raster_overlay_resolver);
+void FabricMaterial::createClippingRasterOverlayResolver(
+    const omni::fabric::Path& path,
+    uint64_t clippingRasterOverlayCount) {
+    createRasterOverlayResolverCommon(
+        path, clippingRasterOverlayCount, FabricTokens::cesium_internal_clipping_raster_overlay_resolver);
 }
 
 void FabricMaterial::createFeatureIdIndex(const omni::fabric::Path& path) {
