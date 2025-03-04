@@ -706,7 +706,6 @@ getPrimsInMaterialNetwork(omni::fabric::StageReaderWriter& fabricStage, const om
 
 omni::fabric::Path getMaterialSource(omni::fabric::StageReaderWriter& fabricStage, const omni::fabric::Path& path) {
     if (fabricStage.attributeExistsWithType(path, FabricTokens::_materialSource, FabricTypes::_materialSource)) {
-        // TODO: check
         const auto materialSourceFabric =
             fabricStage.getArrayAttributeRd<omni::fabric::Path>(path, FabricTokens::_materialSource);
         if (!materialSourceFabric.empty()) {
