@@ -33,7 +33,7 @@ jobs:
           - {
               name: "Ubuntu - GCC",
               artifact: "linux-gcc.tar.xz",
-              os: ubuntu-latest,
+              os: ubuntu-24.04,
               cc: "gcc-13",
               cxx: "g++-13",
               build-type: "Release",
@@ -45,7 +45,7 @@ jobs:
           - {
               name: "AlmaLinux 8 - GCC",
               artifact: "linux-gcc.tar.xz",
-              os: ubuntu-latest,
+              os: ubuntu-24.04,
               cc: "gcc-13",
               cxx: "g++-13",
               build-type: "Release",
@@ -139,7 +139,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y doxygen clang-tidy-15 gcovr
-          sudo pip3 install conan==1.63.0 black==23.1.0 flake8==7.1.1 --break-system-packages --ignore-installed
+          sudo pip3 install conan==1.63.0 black==23.1.0 flake8==7.1.1 --ignore-installed
 
       # Could not figure out how to add Chocolatey libraries to the PATH automatically with refreshenv, so
       # hardcoding their locations instead. Followed these instructions for adding to the PATH on PowerShell:
