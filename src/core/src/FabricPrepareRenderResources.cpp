@@ -396,7 +396,9 @@ FabricPrepareRenderResources::prepareInLoadThread(
                 std::move(fabricMeshes),
             };
         })
-        .thenInWorkerThread([this](IntermediateLoadThreadResult&& workerResult) mutable {
+        // Previously this was thenInWorkerThread, but as of Kit 106.5 it's not safe to set texture data off the main thread
+        // See https://github.com/CesiumGS/cesium-omniverse/pull/721#issuecomment-2697969830
+        .thenImmediately([this](IntermediateLoadThreadResult&& workerResult) mutable {
             auto tileLoadResult = std::move(workerResult.tileLoadResult);
             auto loadingMeshes = std::move(workerResult.loadingMeshes);
             auto fabricMeshes = std::move(workerResult.fabricMeshes);
@@ -462,34 +464,23 @@ void FabricPrepareRenderResources::free(
 }
 
 void* FabricPrepareRenderResources::prepareRasterInLoadThread(
-    CesiumGltf::ImageCesium& image,
+    [[maybe_unused]] CesiumGltf::ImageCesium& image,
     [[maybe_unused]] const std::any& rendererOptions) {
-
-    if (!tilesetExists()) {
-        return nullptr;
-    }
-
-    const auto pTexture = _pContext->getFabricResourceManager().acquireTexture();
-    pTexture->setImage(image, TransferFunction::SRGB);
-    return new RasterOverlayLoadThreadResult{pTexture};
+    return nullptr;
 }
 
 void* FabricPrepareRenderResources::prepareRasterInMainThread(
     [[maybe_unused]] CesiumRasterOverlays::RasterOverlayTile& rasterTile,
-    void* pLoadThreadResult) {
-    if (!pLoadThreadResult) {
-        return nullptr;
-    }
-
-    // Wrap in a unique_ptr so that pLoadThreadResult gets freed when this function returns
-    std::unique_ptr<RasterOverlayLoadThreadResult> pRasterOverlayLoadThreadResult(
-        static_cast<RasterOverlayLoadThreadResult*>(pLoadThreadResult));
-
+    [[maybe_unused]] void* pLoadThreadResult) {
     if (!tilesetExists()) {
         return nullptr;
     }
 
-    return new RasterOverlayRenderResources{pRasterOverlayLoadThreadResult->pTexture};
+    // Previously this was in prepareRasterInLoadThread, but as of Kit 106.5 it's not safe to set texture data off the main thread
+    // See https://github.com/CesiumGS/cesium-omniverse/pull/721#issuecomment-2697969830
+    const auto pTexture = _pContext->getFabricResourceManager().acquireTexture();
+    pTexture->setImage(rasterTile.getImage(), TransferFunction::SRGB);
+    return new RasterOverlayRenderResources{pTexture};
 }
 
 void FabricPrepareRenderResources::freeRaster(
