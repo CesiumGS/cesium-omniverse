@@ -396,7 +396,7 @@ FabricPrepareRenderResources::prepareInLoadThread(
                 std::move(fabricMeshes),
             };
         })
-        .thenInWorkerThread([this](IntermediateLoadThreadResult&& workerResult) mutable {
+        .thenInMainThread([this](IntermediateLoadThreadResult&& workerResult) mutable {
             auto tileLoadResult = std::move(workerResult.tileLoadResult);
             auto loadingMeshes = std::move(workerResult.loadingMeshes);
             auto fabricMeshes = std::move(workerResult.fabricMeshes);
@@ -462,34 +462,37 @@ void FabricPrepareRenderResources::free(
 }
 
 void* FabricPrepareRenderResources::prepareRasterInLoadThread(
-    CesiumGltf::ImageCesium& image,
+    [[maybe_unused]] CesiumGltf::ImageCesium& image,
     [[maybe_unused]] const std::any& rendererOptions) {
+    return nullptr;
+
+    // if (!tilesetExists()) {
+    //     return nullptr;
+    // }
+
+    // const auto pTexture = _pContext->getFabricResourceManager().acquireTexture();
+    // pTexture->setImage(image, TransferFunction::SRGB);
+    // return new RasterOverlayLoadThreadResult{pTexture};
+}
+
+void* FabricPrepareRenderResources::prepareRasterInMainThread(
+    [[maybe_unused]] CesiumRasterOverlays::RasterOverlayTile& rasterTile,
+    [[maybe_unused]] void* pLoadThreadResult) {
+    // if (!pLoadThreadResult) {
+    //     return nullptr;
+    // }
+
+    // // Wrap in a unique_ptr so that pLoadThreadResult gets freed when this function returns
+    // std::unique_ptr<RasterOverlayLoadThreadResult> pRasterOverlayLoadThreadResult(
+    //     static_cast<RasterOverlayLoadThreadResult*>(pLoadThreadResult));
 
     if (!tilesetExists()) {
         return nullptr;
     }
 
     const auto pTexture = _pContext->getFabricResourceManager().acquireTexture();
-    pTexture->setImage(image, TransferFunction::SRGB);
-    return new RasterOverlayLoadThreadResult{pTexture};
-}
-
-void* FabricPrepareRenderResources::prepareRasterInMainThread(
-    [[maybe_unused]] CesiumRasterOverlays::RasterOverlayTile& rasterTile,
-    void* pLoadThreadResult) {
-    if (!pLoadThreadResult) {
-        return nullptr;
-    }
-
-    // Wrap in a unique_ptr so that pLoadThreadResult gets freed when this function returns
-    std::unique_ptr<RasterOverlayLoadThreadResult> pRasterOverlayLoadThreadResult(
-        static_cast<RasterOverlayLoadThreadResult*>(pLoadThreadResult));
-
-    if (!tilesetExists()) {
-        return nullptr;
-    }
-
-    return new RasterOverlayRenderResources{pRasterOverlayLoadThreadResult->pTexture};
+    pTexture->setImage(rasterTile.getImage(), TransferFunction::SRGB);
+    return new RasterOverlayRenderResources{pTexture};
 }
 
 void FabricPrepareRenderResources::freeRaster(
