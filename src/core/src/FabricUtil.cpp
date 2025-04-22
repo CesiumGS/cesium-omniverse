@@ -530,9 +530,9 @@ void destroyPrim(omni::fabric::StageReaderWriter& fabricStage, const omni::fabri
     const auto deletedPrimsSize = fabricStage.getArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims);
     fabricStage.setArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims, deletedPrimsSize + 1);
     const auto deletedPrimsFabric =
-        fabricStage.getArrayAttributeWr<omni::fabric::Path>(changeTrackingPath, FabricTokens::_deletedPrims);
+        fabricStage.getArrayAttributeWr<omni::fabric::PathC>(changeTrackingPath, FabricTokens::_deletedPrims);
 
-    new (&deletedPrimsFabric[deletedPrimsSize]) pxr::SdfPath(omni::fabric::toSdfPath(path.asPathC()));
+    deletedPrimsFabric[deletedPrimsSize] = path;
 }
 
 void setTilesetTransform(
@@ -707,7 +707,7 @@ getPrimsInMaterialNetwork(omni::fabric::StageReaderWriter& fabricStage, const om
 omni::fabric::Path getMaterialSource(omni::fabric::StageReaderWriter& fabricStage, const omni::fabric::Path& path) {
     if (fabricStage.attributeExistsWithType(path, FabricTokens::_materialSource, FabricTypes::_materialSource)) {
         const auto materialSourceFabric =
-            fabricStage.getArrayAttributeRd<omni::fabric::Path>(path, FabricTokens::_materialSource);
+            fabricStage.getArrayAttributeRd<omni::fabric::PathC>(path, FabricTokens::_materialSource);
         if (!materialSourceFabric.empty()) {
             return *materialSourceFabric.begin();
         }

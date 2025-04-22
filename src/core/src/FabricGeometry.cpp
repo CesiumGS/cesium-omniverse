@@ -122,7 +122,7 @@ void FabricGeometry::setMaterial(const omni::fabric::Path& materialPath) {
     auto& fabricStage = _pContext->getFabricStage();
     fabricStage.setArrayAttributeSize(_path, FabricTokens::material_binding, 1);
     const auto materialBindingFabric =
-        fabricStage.getArrayAttributeWr<omni::fabric::Path>(_path, FabricTokens::material_binding);
+        fabricStage.getArrayAttributeWr<omni::fabric::PathC>(_path, FabricTokens::material_binding);
     materialBindingFabric[0] = materialPath;
 }
 
