@@ -777,12 +777,15 @@ getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::Mesh
         }
 
         const auto fabricAttributeNameStr = fmt::format("primvars:{}", attributeName);
+        const auto fabricInterpolationNameStr = fmt::format("primvars:{}:interpolation", attributeName);
         const auto fabricAttributeName = omni::fabric::Token(fabricAttributeNameStr.c_str());
+        const auto fabricInterpolationName = omni::fabric::Token(fabricInterpolationNameStr.c_str());
 
         // In C++ 20 this can be emplace without the {}
         customVertexAttributes.insert(FabricVertexAttributeDescriptor{
             type.value(),
             fabricAttributeName,
+            fabricInterpolationName,
             attributeName,
         });
     }

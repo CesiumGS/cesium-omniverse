@@ -4,9 +4,6 @@
 # Nvidia build folder
 extern/nvidia/_build
 
-# Ignore symlink to Omniverse Code
-extern/nvidia/app
-
 # Python cache
 __pycache__
 

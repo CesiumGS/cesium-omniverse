@@ -549,10 +549,9 @@ void setTilesetTransform(
         const auto tilesetIdFabric = fabricStage.getAttributeArrayRd<int64_t>(buckets, bucketId, FabricTokens::_cesium_tilesetId);
         const auto gltfLocalToEcefTransformFabric = fabricStage.getAttributeArrayRd<pxr::GfMatrix4d>(buckets, bucketId, FabricTokens::_cesium_gltfLocalToEcefTransform);
         const auto extentFabric = fabricStage.getAttributeArrayRd<pxr::GfRange3d>(buckets, bucketId, FabricTokens::extent);
-        const auto worldPositionFabric = fabricStage.getAttributeArrayWr<pxr::GfVec3d>(buckets, bucketId, FabricTokens::_worldPosition);
-        const auto worldOrientationFabric = fabricStage.getAttributeArrayWr<pxr::GfQuatf>(buckets, bucketId, FabricTokens::_worldOrientation);
-        const auto worldScaleFabric = fabricStage.getAttributeArrayWr<pxr::GfVec3f>(buckets, bucketId, FabricTokens::_worldScale);
         const auto worldExtentFabric = fabricStage.getAttributeArrayWr<pxr::GfRange3d>(buckets, bucketId, FabricTokens::_worldExtent);
+        const auto localMatrixFabric = fabricStage.getAttributeArrayWr<pxr::GfMatrix4d>(buckets, bucketId, FabricTokens::omni_fabric_localMatrix);
+        const auto worldMatrixFabric = fabricStage.getAttributeArrayWr<pxr::GfMatrix4d>(buckets, bucketId, FabricTokens::omni_fabric_worldMatrix);
         // clang-format on
 
         for (uint64_t i = 0; i < tilesetIdFabric.size(); ++i) {
@@ -560,13 +559,9 @@ void setTilesetTransform(
                 const auto gltfLocalToEcefTransform = UsdUtil::usdToGlmMatrix(gltfLocalToEcefTransformFabric[i]);
                 const auto gltfLocalToPrimWorldTransform = ecefToPrimWorldTransform * gltfLocalToEcefTransform;
                 const auto gltfLocalExtent = UsdUtil::usdToGlmExtent(extentFabric[i]);
-                const auto [primWorldPosition, primWorldOrientation, primWorldScale] =
-                    MathUtil::decompose(gltfLocalToPrimWorldTransform);
                 const auto primWorldExtent = MathUtil::transformExtent(gltfLocalExtent, gltfLocalToPrimWorldTransform);
-
-                worldPositionFabric[i] = UsdUtil::glmToUsdVector(primWorldPosition);
-                worldOrientationFabric[i] = UsdUtil::glmToUsdQuat(glm::fquat(primWorldOrientation));
-                worldScaleFabric[i] = UsdUtil::glmToUsdVector(glm::fvec3(primWorldScale));
+                localMatrixFabric[i] = UsdUtil::glmToUsdMatrix(gltfLocalToPrimWorldTransform);
+                worldMatrixFabric[i] = UsdUtil::glmToUsdMatrix(gltfLocalToPrimWorldTransform);
                 worldExtentFabric[i] = UsdUtil::glmToUsdExtent(primWorldExtent);
             }
         }

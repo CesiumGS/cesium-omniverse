@@ -9,6 +9,7 @@ namespace cesium::omniverse {
 struct FabricVertexAttributeDescriptor {
     DataType type;
     omni::fabric::Token fabricAttributeName;
+    omni::fabric::Token fabricInterpolationName;
     std::string gltfAttributeName;
 
     // Make sure to update this function when adding new fields to the struct
@@ -17,6 +18,7 @@ struct FabricVertexAttributeDescriptor {
     bool operator==(const FabricVertexAttributeDescriptor& other) const {
         return type == other.type &&
                fabricAttributeName == other.fabricAttributeName &&
+               fabricInterpolationName == other.fabricInterpolationName &&
                gltfAttributeName == other.gltfAttributeName;
     }
     // clang-format on

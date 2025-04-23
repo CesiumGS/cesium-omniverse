@@ -74,9 +74,8 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     (Material) \
     (Mesh) \
     (none) \
+    (normals) \
     (points) \
-    (primvarInterpolations) \
-    (primvars) \
     (Shader) \
     (sourceAsset) \
     (subdivisionScheme) \
@@ -89,9 +88,6 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     (_paramColorSpace) \
     (_sdrMetadata) \
     (_worldExtent) \
-    (_worldOrientation) \
-    (_worldPosition) \
-    (_worldScale) \
     (_worldVisibility) \
     ((info_implementationSource, "info:implementationSource")) \
     ((info_mdl_sourceAsset, "info:mdl:sourceAsset")) \
@@ -134,15 +130,19 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((inputs_wrap_s, "inputs:wrap_s")) \
     ((inputs_wrap_t, "inputs:wrap_t")) \
     ((material_binding, "material:binding")) \
+    ((normals_interpolation, "normals:interpolation")) \
+    ((omni_fabric_localMatrix, "omni:fabric:localMatrix")) \
+    ((omni_fabric_worldMatrix, "omni:fabric:worldMatrix")) \
     ((outputs_mdl_displacement, "outputs:mdl:displacement")) \
     ((outputs_mdl_surface, "outputs:mdl:surface")) \
     ((outputs_mdl_volume, "outputs:mdl:volume")) \
     ((outputs_out, "outputs:out")) \
     ((primvars_COLOR_0, "primvars:COLOR_0")) \
+    ((primvars_COLOR_0_interpolation, "primvars:COLOR_0:interpolation")) \
     ((primvars_displayColor, "primvars:displayColor")) \
     ((primvars_displayOpacity, "primvars:displayOpacity")) \
-    ((primvars_normals, "primvars:normals")) \
     ((primvars_vertexId, "primvars:vertexId")) \
+    ((primvars_vertexId_interpolation, "primvars:vertexId:interpolation")) \
     ((xformOp_orient, "xformOp:orient")) \
     ((xformOp_rotateXYZ, "xformOp:rotateXYZ")) \
     ((xformOp_rotateXZY, "xformOp:rotateXZY")) \
@@ -196,6 +196,7 @@ const omni::fabric::TokenC feature_id_n(uint64_t index);
 const omni::fabric::TokenC raster_overlay_n(uint64_t index);
 const omni::fabric::TokenC inputs_raster_overlay_n(uint64_t index);
 const omni::fabric::TokenC primvars_st_n(uint64_t index);
+const omni::fabric::TokenC primvars_st_interpolation_n(uint64_t index);
 const omni::fabric::TokenC property_n(uint64_t index);
 
 }
@@ -264,12 +265,13 @@ const omni::fabric::Type inputs_wrap_t(omni::fabric::BaseDataType::eInt, 1, 0, o
 const omni::fabric::Type Material(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName);
 const omni::fabric::Type material_binding(omni::fabric::BaseDataType::eRelationship, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type Mesh(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName);
+const omni::fabric::Type normals(omni::fabric::BaseDataType::eFloat, 3, 1, omni::fabric::AttributeRole::eNormal);
+const omni::fabric::Type omni_fabric_localMatrix(omni::fabric::BaseDataType::eDouble, 16, 0, omni::fabric::AttributeRole::eMatrix);
+const omni::fabric::Type omni_fabric_worldMatrix(omni::fabric::BaseDataType::eDouble, 16, 0, omni::fabric::AttributeRole::eMatrix);
 const omni::fabric::Type outputs_out(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type points(omni::fabric::BaseDataType::eFloat, 3, 1, omni::fabric::AttributeRole::ePosition);
-const omni::fabric::Type primvarInterpolations(omni::fabric::BaseDataType::eToken, 1, 1, omni::fabric::AttributeRole::eNone);
-const omni::fabric::Type primvars(omni::fabric::BaseDataType::eToken, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type primvars_COLOR_0(omni::fabric::BaseDataType::eFloat, 4, 1, omni::fabric::AttributeRole::eNone);
-const omni::fabric::Type primvars_normals(omni::fabric::BaseDataType::eFloat, 3, 1, omni::fabric::AttributeRole::eNormal);
+const omni::fabric::Type primvars_interpolation(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type primvars_st(omni::fabric::BaseDataType::eFloat, 2, 1, omni::fabric::AttributeRole::eTexCoord);
 const omni::fabric::Type primvars_vertexId(omni::fabric::BaseDataType::eFloat, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type Shader(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName);
@@ -280,9 +282,6 @@ const omni::fabric::Type _materialSource(omni::fabric::BaseDataType::eRelationsh
 const omni::fabric::Type _paramColorSpace(omni::fabric::BaseDataType::eToken, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _sdrMetadata(omni::fabric::BaseDataType::eToken, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _worldExtent(omni::fabric::BaseDataType::eDouble, 6, 0, omni::fabric::AttributeRole::eNone);
-const omni::fabric::Type _worldOrientation(omni::fabric::BaseDataType::eFloat, 4, 0, omni::fabric::AttributeRole::eQuaternion);
-const omni::fabric::Type _worldPosition(omni::fabric::BaseDataType::eDouble, 3, 0, omni::fabric::AttributeRole::eNone);
-const omni::fabric::Type _worldScale(omni::fabric::BaseDataType::eFloat, 3, 0, omni::fabric::AttributeRole::eVector);
 const omni::fabric::Type _worldVisibility(omni::fabric::BaseDataType::eBool, 1, 0, omni::fabric::AttributeRole::eNone);
 }
 // clang-format on
