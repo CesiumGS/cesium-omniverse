@@ -550,6 +550,7 @@ void setTilesetTransform(
         const auto gltfLocalToEcefTransformFabric = fabricStage.getAttributeArrayRd<pxr::GfMatrix4d>(buckets, bucketId, FabricTokens::_cesium_gltfLocalToEcefTransform);
         const auto extentFabric = fabricStage.getAttributeArrayRd<pxr::GfRange3d>(buckets, bucketId, FabricTokens::extent);
         const auto worldExtentFabric = fabricStage.getAttributeArrayWr<pxr::GfRange3d>(buckets, bucketId, FabricTokens::_worldExtent);
+        const auto localMatrixFabric = fabricStage.getAttributeArrayWr<pxr::GfMatrix4d>(buckets, bucketId, FabricTokens::omni_fabric_localMatrix);
         const auto worldMatrixFabric = fabricStage.getAttributeArrayWr<pxr::GfMatrix4d>(buckets, bucketId, FabricTokens::omni_fabric_worldMatrix);
         // clang-format on
 
@@ -559,6 +560,7 @@ void setTilesetTransform(
                 const auto gltfLocalToPrimWorldTransform = ecefToPrimWorldTransform * gltfLocalToEcefTransform;
                 const auto gltfLocalExtent = UsdUtil::usdToGlmExtent(extentFabric[i]);
                 const auto primWorldExtent = MathUtil::transformExtent(gltfLocalExtent, gltfLocalToPrimWorldTransform);
+                localMatrixFabric[i] = UsdUtil::glmToUsdMatrix(gltfLocalToPrimWorldTransform);
                 worldMatrixFabric[i] = UsdUtil::glmToUsdMatrix(gltfLocalToPrimWorldTransform);
                 worldExtentFabric[i] = UsdUtil::glmToUsdExtent(primWorldExtent);
             }

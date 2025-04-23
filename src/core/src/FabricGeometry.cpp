@@ -188,10 +188,6 @@ void FabricGeometry::initialize() {
         fabricStage.getAttributeWr<omni::fabric::TokenC>(_path, FabricTokens::subdivisionScheme);
     *subdivisionSchemeFabric = FabricTokens::none;
 
-    const auto localMatrixFabric =
-        fabricStage.getAttributeWr<pxr::GfMatrix4d>(_path, FabricTokens::omni_fabric_localMatrix);
-    *localMatrixFabric = UsdUtil::glmToUsdMatrix(DEFAULT_MATRIX);
-
     for (uint64_t i = 0; i < texcoordSetCount; ++i) {
         const auto texcoordInterpolationFabric =
             fabricStage.getAttributeWr<omni::fabric::TokenC>(_path, FabricTokens::primvars_st_interpolation_n(i));
@@ -492,6 +488,7 @@ void FabricGeometry::setGeometry(
     const auto extentFabric = fabricStage.getAttributeWr<pxr::GfRange3d>(_path, FabricTokens::extent);
     const auto worldExtentFabric = fabricStage.getAttributeWr<pxr::GfRange3d>(_path, FabricTokens::_worldExtent);
     const auto gltfLocalToEcefTransformFabric = fabricStage.getAttributeWr<pxr::GfMatrix4d>(_path, FabricTokens::_cesium_gltfLocalToEcefTransform);
+    const auto localMatrixFabric = fabricStage.getAttributeWr<pxr::GfMatrix4d>(_path, FabricTokens::omni_fabric_localMatrix);
     const auto worldMatrixFabric = fabricStage.getAttributeWr<pxr::GfMatrix4d>(_path, FabricTokens::omni_fabric_worldMatrix);
     const auto tilesetIdFabric = fabricStage.getAttributeWr<int64_t>(_path, FabricTokens::_cesium_tilesetId);
     // clang-format on
@@ -500,6 +497,7 @@ void FabricGeometry::setGeometry(
     *extentFabric = UsdUtil::glmToUsdExtent(gltfLocalExtent.value());
     *worldExtentFabric = UsdUtil::glmToUsdExtent(primWorldExtent);
     *gltfLocalToEcefTransformFabric = UsdUtil::glmToUsdMatrix(gltfLocalToEcefTransform);
+    *localMatrixFabric = UsdUtil::glmToUsdMatrix(gltfLocalToPrimWorldTransform);
     *worldMatrixFabric = UsdUtil::glmToUsdMatrix(gltfLocalToPrimWorldTransform);
 
     *tilesetIdFabric = tilesetId;
