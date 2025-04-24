@@ -56,7 +56,7 @@ See [Linux](#linux) or [Windows](#windows) for step-by-step installation instruc
   ```
 - Install Conan with pip because Conan is not in Ubuntu's package manager
   ```sh
-  sudo pip3 install conan==1.63.0
+  sudo pip3 install conan==1.66.0
   ```
 - Install `cmake-format`
   ```sh
@@ -135,7 +135,7 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
   ```
 - Install Conan
   ```sh
-  pip3 install conan==1.63.0
+  pip3 install conan==1.66.0
   ```
 - Install Doxygen: https://www.doxygen.nl/download.html
   - After installation, add the install location to your `PATH`. Open PowerShell as administrator and enter:
@@ -162,7 +162,7 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
   choco install -y llvm --version=15.0.7
   ```
   ```sh
-  choco install -y conan --version 1.63.0
+  choco install -y conan --version 1.66.0
   ```
   > **Note:** If you see a warning like `Chocolatey detected you are not running from an elevated command shell`, reopen Command Prompt as administrator
 - Create a symbolic link called `python3.exe` that points to the actual `python` (version 3.x) executable. This is necessary for some of the scripts to run correctly when `#!/usr/bin/env python3` is at the top of the file.
