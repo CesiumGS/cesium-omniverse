@@ -29,8 +29,8 @@ class FabricMaterial {
         Context* pContext,
         const omni::fabric::Path& path,
         const FabricMaterialDescriptor& materialDescriptor,
-        const pxr::TfToken& defaultWhiteTextureAssetPathToken,
-        const pxr::TfToken& defaultTransparentTextureAssetPathToken,
+        const omni::fabric::Token& defaultWhiteTextureAssetPathToken,
+        const omni::fabric::Token& defaultTransparentTextureAssetPathToken,
         bool debugRandomColors,
         int64_t poolId);
     ~FabricMaterial();
@@ -162,12 +162,12 @@ class FabricMaterial {
         double displayOpacity);
     void setTextureValues(
         const omni::fabric::Path& path,
-        const pxr::TfToken& textureAssetPathToken,
+        const omni::fabric::Token& textureAssetPathToken,
         const FabricTextureInfo& textureInfo,
         uint64_t texcoordIndex);
     void setRasterOverlayValues(
         const omni::fabric::Path& path,
-        const pxr::TfToken& textureAssetPathToken,
+        const omni::fabric::Token& textureAssetPathToken,
         const FabricTextureInfo& textureInfo,
         uint64_t texcoordIndex,
         double alpha);
@@ -176,7 +176,7 @@ class FabricMaterial {
     void setFeatureIdAttributeValues(const omni::fabric::Path& path, const std::string& primvarName, int nullFeatureId);
     void setFeatureIdTextureValues(
         const omni::fabric::Path& path,
-        const pxr::TfToken& textureAssetPathToken,
+        const omni::fabric::Token& textureAssetPathToken,
         const FabricTextureInfo& textureInfo,
         uint64_t texcoordIndex,
         int nullFeatureId);
@@ -191,8 +191,8 @@ class FabricMaterial {
     Context* _pContext;
     omni::fabric::Path _materialPath;
     FabricMaterialDescriptor _materialDescriptor;
-    pxr::TfToken _defaultWhiteTextureAssetPathToken;
-    pxr::TfToken _defaultTransparentTextureAssetPathToken;
+    omni::fabric::Token _defaultWhiteTextureAssetPathToken;
+    omni::fabric::Token _defaultTransparentTextureAssetPathToken;
     bool _debugRandomColors;
     int64_t _poolId;
     int64_t _stageId;

@@ -309,10 +309,6 @@ std::string getSafeName(const std::string& name) {
     return safeName;
 }
 
-pxr::TfToken getDynamicTextureProviderAssetPathToken(const std::string_view& name) {
-    return pxr::TfToken(pxr::SdfAssetPath(fmt::format("dynamic://{}", name)).GetAssetPath());
-}
-
 pxr::CesiumData defineCesiumData(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {
     return pxr::CesiumData::Define(pStage, path);
 }

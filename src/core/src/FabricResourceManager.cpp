@@ -49,9 +49,10 @@ FabricResourceManager::FabricResourceManager(Context* pContext)
     : _pContext(pContext)
     , _defaultWhiteTexture(createSinglePixelTexture(DEFAULT_WHITE_TEXTURE_NAME, {{255, 255, 255, 255}}))
     , _defaultTransparentTexture(createSinglePixelTexture(DEFAULT_TRANSPARENT_TEXTURE_NAME, {{0, 0, 0, 0}}))
-    , _defaultWhiteTextureAssetPathToken(UsdUtil::getDynamicTextureProviderAssetPathToken(DEFAULT_WHITE_TEXTURE_NAME))
+    , _defaultWhiteTextureAssetPathToken(
+          FabricUtil::getDynamicTextureProviderAssetPathToken(DEFAULT_WHITE_TEXTURE_NAME))
     , _defaultTransparentTextureAssetPathToken(
-          UsdUtil::getDynamicTextureProviderAssetPathToken(DEFAULT_TRANSPARENT_TEXTURE_NAME))
+          FabricUtil::getDynamicTextureProviderAssetPathToken(DEFAULT_TRANSPARENT_TEXTURE_NAME))
 
 {}
 

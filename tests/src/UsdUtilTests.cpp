@@ -135,7 +135,6 @@ TEST_SUITE("UsdUtil tests") {
     TEST_CASE("Smoke tests") {
         // functions for which we do not yet have better tests,
         // but we can at least verify they don't throw
-        CHECK_NOTHROW(getDynamicTextureProviderAssetPathToken("foo"));
         CHECK_NOTHROW(getUsdUpAxis(pContext->getUsdStage()));
         CHECK(getUsdMetersPerUnit(pContext->getUsdStage()) > 0);
     }

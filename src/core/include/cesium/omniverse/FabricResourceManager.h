@@ -2,6 +2,7 @@
 
 #include "cesium/omniverse/FabricMaterialInfo.h"
 
+#include <omni/fabric/IToken.h>
 #include <pxr/usd/usd/common.h>
 
 #include <atomic>
@@ -153,8 +154,8 @@ class FabricResourceManager {
     Context* _pContext;
     std::unique_ptr<omni::ui::DynamicTextureProvider> _defaultWhiteTexture;
     std::unique_ptr<omni::ui::DynamicTextureProvider> _defaultTransparentTexture;
-    pxr::TfToken _defaultWhiteTextureAssetPathToken;
-    pxr::TfToken _defaultTransparentTextureAssetPathToken;
+    omni::fabric::Token _defaultWhiteTextureAssetPathToken;
+    omni::fabric::Token _defaultTransparentTextureAssetPathToken;
 
     std::vector<SharedMaterial> _sharedMaterials;
 };

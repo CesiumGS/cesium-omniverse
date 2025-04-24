@@ -167,21 +167,21 @@ TF_DECLARE_PUBLIC_TOKENS(UsdTokens, USD_TOKENS);
 
 #define FABRIC_DEFINE_TOKEN_ELEM(elem) const omni::fabric::TokenC elem = omni::fabric::asInt(pxr::UsdTokens->elem);
 
-#define FABRIC_DEFINE_TOKEN(r, data, elem) \
-    BOOST_PP_TUPLE_ELEM(1, 0, BOOST_PP_IIF(TF_PP_IS_TUPLE(elem), \
-        (FABRIC_DEFINE_TOKEN_ELEM(BOOST_PP_TUPLE_ELEM(2, 0, elem))), \
+#define FABRIC_DEFINE_TOKEN(r, elem) \
+    TF_PP_TUPLE_ELEM(0, _TF_PP_IFF(TF_PP_IS_TUPLE(elem), \
+        (FABRIC_DEFINE_TOKEN_ELEM(TF_PP_TUPLE_ELEM(0, elem))), \
         (FABRIC_DEFINE_TOKEN_ELEM(elem))))
 
-#define FABRIC_DEFINE_TOKENS(seq) BOOST_PP_SEQ_FOR_EACH(FABRIC_DEFINE_TOKEN, ~, seq)
+#define FABRIC_DEFINE_TOKENS(seq) TF_PP_SEQ_FOR_EACH(FABRIC_DEFINE_TOKEN, ~, seq)
 
 #define FABRIC_DECLARE_TOKEN_ELEM(elem) extern const omni::fabric::TokenC elem;
 
-#define FABRIC_DECLARE_TOKEN(r, data, elem) \
-    BOOST_PP_TUPLE_ELEM(1, 0, BOOST_PP_IIF(TF_PP_IS_TUPLE(elem), \
-        (FABRIC_DECLARE_TOKEN_ELEM(BOOST_PP_TUPLE_ELEM(2, 0, elem))), \
+#define FABRIC_DECLARE_TOKEN(r, elem) \
+    TF_PP_TUPLE_ELEM(0, _TF_PP_IFF(TF_PP_IS_TUPLE(elem), \
+        (FABRIC_DECLARE_TOKEN_ELEM(TF_PP_TUPLE_ELEM(0, elem))), \
         (FABRIC_DECLARE_TOKEN_ELEM(elem))))
 
-#define FABRIC_DECLARE_TOKENS(seq) BOOST_PP_SEQ_FOR_EACH(FABRIC_DECLARE_TOKEN, ~, seq)
+#define FABRIC_DECLARE_TOKENS(seq) TF_PP_SEQ_FOR_EACH(FABRIC_DECLARE_TOKEN, ~, seq)
 
 #ifdef CESIUM_OMNI_MSVC
 __pragma(warning(pop))
