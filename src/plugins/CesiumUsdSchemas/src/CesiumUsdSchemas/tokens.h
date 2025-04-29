@@ -185,11 +185,11 @@ struct CesiumTokensType {
     const TfToken cesiumInvertSelection;
     /// \brief "cesium:ionAccessToken"
     /// 
-    /// CesiumIonRasterOverlay, CesiumTileset
+    /// CesiumTileset, CesiumIonRasterOverlay
     const TfToken cesiumIonAccessToken;
     /// \brief "cesium:ionAssetId"
     /// 
-    /// CesiumIonRasterOverlay, CesiumTileset
+    /// CesiumTileset, CesiumIonRasterOverlay
     const TfToken cesiumIonAssetId;
     /// \brief "cesium:ionServerApiUrl"
     /// 
@@ -201,7 +201,7 @@ struct CesiumTokensType {
     const TfToken cesiumIonServerApplicationId;
     /// \brief "cesium:ionServerBinding"
     /// 
-    /// CesiumIonRasterOverlay, CesiumTileset
+    /// CesiumTileset, CesiumIonRasterOverlay
     const TfToken cesiumIonServerBinding;
     /// \brief "cesium:ionServerUrl"
     /// 
@@ -233,11 +233,11 @@ struct CesiumTokensType {
     const TfToken cesiumMaximumLevel;
     /// \brief "cesium:maximumScreenSpaceError"
     /// 
-    /// CesiumRasterOverlay, CesiumTileset
+    /// CesiumTileset, CesiumRasterOverlay
     const TfToken cesiumMaximumScreenSpaceError;
     /// \brief "cesium:maximumSimultaneousTileLoads"
     /// 
-    /// CesiumRasterOverlay, CesiumTileset
+    /// CesiumTileset, CesiumRasterOverlay
     const TfToken cesiumMaximumSimultaneousTileLoads;
     /// \brief "cesium:maximumTextureSize"
     /// 
@@ -245,7 +245,7 @@ struct CesiumTokensType {
     const TfToken cesiumMaximumTextureSize;
     /// \brief "cesium:maximumZoomLevel"
     /// 
-    /// CesiumWebMapTileServiceRasterOverlay, CesiumTileMapServiceRasterOverlay
+    /// CesiumTileMapServiceRasterOverlay, CesiumWebMapTileServiceRasterOverlay
     const TfToken cesiumMaximumZoomLevel;
     /// \brief "cesium:minimumLevel"
     /// 
@@ -253,7 +253,7 @@ struct CesiumTokensType {
     const TfToken cesiumMinimumLevel;
     /// \brief "cesium:minimumZoomLevel"
     /// 
-    /// CesiumWebMapTileServiceRasterOverlay, CesiumTileMapServiceRasterOverlay
+    /// CesiumTileMapServiceRasterOverlay, CesiumWebMapTileServiceRasterOverlay
     const TfToken cesiumMinimumZoomLevel;
     /// \brief "cesium:north"
     /// 
@@ -261,7 +261,7 @@ struct CesiumTokensType {
     const TfToken cesiumNorth;
     /// \brief "cesium:overlayRenderMethod"
     /// 
-    /// CesiumPolygonRasterOverlay, CesiumRasterOverlay
+    /// CesiumRasterOverlay, CesiumPolygonRasterOverlay
     const TfToken cesiumOverlayRenderMethod;
     /// \brief "cesium:pointSize"
     /// 
@@ -305,7 +305,7 @@ struct CesiumTokensType {
     const TfToken cesiumSelectedIonServer;
     /// \brief "cesium:showCreditsOnScreen"
     /// 
-    /// CesiumRasterOverlay, CesiumTileset
+    /// CesiumTileset, CesiumRasterOverlay
     const TfToken cesiumShowCreditsOnScreen;
     /// \brief "cesium:smoothNormals"
     /// 
@@ -329,7 +329,7 @@ struct CesiumTokensType {
     const TfToken cesiumSpecifyTilingScheme;
     /// \brief "cesium:specifyZoomLevels"
     /// 
-    /// CesiumWebMapTileServiceRasterOverlay, CesiumTileMapServiceRasterOverlay
+    /// CesiumTileMapServiceRasterOverlay, CesiumWebMapTileServiceRasterOverlay
     const TfToken cesiumSpecifyZoomLevels;
     /// \brief "cesium:style"
     /// 
@@ -365,7 +365,7 @@ struct CesiumTokensType {
     const TfToken cesiumTileWidth;
     /// \brief "cesium:url"
     /// 
-    /// CesiumWebMapTileServiceRasterOverlay, CesiumTileMapServiceRasterOverlay, CesiumTileset
+    /// CesiumTileset, CesiumTileMapServiceRasterOverlay, CesiumWebMapTileServiceRasterOverlay
     const TfToken cesiumUrl;
     /// \brief "cesium:useWebMercatorProjection"
     /// 
@@ -377,20 +377,68 @@ struct CesiumTokensType {
     const TfToken cesiumWest;
     /// \brief "clip"
     /// 
-    /// Default value for CesiumPolygonRasterOverlay::GetCesiumOverlayRenderMethodAttr(), Possible value for CesiumRasterOverlay::GetOverlayRenderMethodAttr()
+    /// Possible value for CesiumRasterOverlay::GetOverlayRenderMethodAttr(), Fallback value for CesiumPolygonRasterOverlay::GetCesiumOverlayRenderMethodAttr()
     const TfToken clip;
     /// \brief "ion"
     /// 
-    /// Possible value for CesiumTileset::GetSourceTypeAttr(), Default value for CesiumTileset::GetSourceTypeAttr()
+    /// Fallback value for CesiumTileset::GetSourceTypeAttr()
     const TfToken ion;
     /// \brief "overlay"
     /// 
-    /// Possible value for CesiumRasterOverlay::GetOverlayRenderMethodAttr(), Default value for CesiumRasterOverlay::GetOverlayRenderMethodAttr()
+    /// Fallback value for CesiumRasterOverlay::GetOverlayRenderMethodAttr()
     const TfToken overlay;
     /// \brief "url"
     /// 
     /// Possible value for CesiumTileset::GetSourceTypeAttr()
     const TfToken url;
+    /// \brief "CesiumDataPrim"
+    /// 
+    /// Schema identifer and family for CesiumData
+    const TfToken CesiumDataPrim;
+    /// \brief "CesiumEllipsoidPrim"
+    /// 
+    /// Schema identifer and family for CesiumEllipsoid
+    const TfToken CesiumEllipsoidPrim;
+    /// \brief "CesiumGeoreferencePrim"
+    /// 
+    /// Schema identifer and family for CesiumGeoreference
+    const TfToken CesiumGeoreferencePrim;
+    /// \brief "CesiumGlobeAnchorSchemaAPI"
+    /// 
+    /// Schema identifer and family for CesiumGlobeAnchorAPI
+    const TfToken CesiumGlobeAnchorSchemaAPI;
+    /// \brief "CesiumIonRasterOverlayPrim"
+    /// 
+    /// Schema identifer and family for CesiumIonRasterOverlay
+    const TfToken CesiumIonRasterOverlayPrim;
+    /// \brief "CesiumIonServerPrim"
+    /// 
+    /// Schema identifer and family for CesiumIonServer
+    const TfToken CesiumIonServerPrim;
+    /// \brief "CesiumPolygonRasterOverlayPrim"
+    /// 
+    /// Schema identifer and family for CesiumPolygonRasterOverlay
+    const TfToken CesiumPolygonRasterOverlayPrim;
+    /// \brief "CesiumRasterOverlayPrim"
+    /// 
+    /// Schema identifer and family for CesiumRasterOverlay
+    const TfToken CesiumRasterOverlayPrim;
+    /// \brief "CesiumTileMapServiceRasterOverlayPrim"
+    /// 
+    /// Schema identifer and family for CesiumTileMapServiceRasterOverlay
+    const TfToken CesiumTileMapServiceRasterOverlayPrim;
+    /// \brief "CesiumTilesetPrim"
+    /// 
+    /// Schema identifer and family for CesiumTileset
+    const TfToken CesiumTilesetPrim;
+    /// \brief "CesiumWebMapServiceRasterOverlayPrim"
+    /// 
+    /// Schema identifer and family for CesiumWebMapServiceRasterOverlay
+    const TfToken CesiumWebMapServiceRasterOverlayPrim;
+    /// \brief "CesiumWebMapTileServiceRasterOverlayPrim"
+    /// 
+    /// Schema identifer and family for CesiumWebMapTileServiceRasterOverlay
+    const TfToken CesiumWebMapTileServiceRasterOverlayPrim;
     /// A vector of all of the tokens listed above.
     const std::vector<TfToken> allTokens;
 };

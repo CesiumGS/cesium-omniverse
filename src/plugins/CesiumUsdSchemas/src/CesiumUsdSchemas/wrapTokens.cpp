@@ -129,4 +129,16 @@ void wrapCesiumTokens()
     _AddToken(cls, "ion", CesiumTokens->ion);
     _AddToken(cls, "overlay", CesiumTokens->overlay);
     _AddToken(cls, "url", CesiumTokens->url);
+    _AddToken(cls, "CesiumDataPrim", CesiumTokens->CesiumDataPrim);
+    _AddToken(cls, "CesiumEllipsoidPrim", CesiumTokens->CesiumEllipsoidPrim);
+    _AddToken(cls, "CesiumGeoreferencePrim", CesiumTokens->CesiumGeoreferencePrim);
+    _AddToken(cls, "CesiumGlobeAnchorSchemaAPI", CesiumTokens->CesiumGlobeAnchorSchemaAPI);
+    _AddToken(cls, "CesiumIonRasterOverlayPrim", CesiumTokens->CesiumIonRasterOverlayPrim);
+    _AddToken(cls, "CesiumIonServerPrim", CesiumTokens->CesiumIonServerPrim);
+    _AddToken(cls, "CesiumPolygonRasterOverlayPrim", CesiumTokens->CesiumPolygonRasterOverlayPrim);
+    _AddToken(cls, "CesiumRasterOverlayPrim", CesiumTokens->CesiumRasterOverlayPrim);
+    _AddToken(cls, "CesiumTileMapServiceRasterOverlayPrim", CesiumTokens->CesiumTileMapServiceRasterOverlayPrim);
+    _AddToken(cls, "CesiumTilesetPrim", CesiumTokens->CesiumTilesetPrim);
+    _AddToken(cls, "CesiumWebMapServiceRasterOverlayPrim", CesiumTokens->CesiumWebMapServiceRasterOverlayPrim);
+    _AddToken(cls, "CesiumWebMapTileServiceRasterOverlayPrim", CesiumTokens->CesiumWebMapTileServiceRasterOverlayPrim);
 }
