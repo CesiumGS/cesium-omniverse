@@ -225,6 +225,7 @@ if(MSVC)
         /W4 # enable all warnings
         /WX # error on warnings
         /Zc:__cplusplus # make __cplusplus defined correctly
+        # /Zc:preprocessor
         /bigobj
     )
     set(CESIUM_OMNI_CXX_DEFINES
@@ -377,6 +378,8 @@ set(CESIUM_OMNI_CXX_DEFINES
 
 # Boost is a dependency of USD. It is dynamically linked so we need to set this flag.
 set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} BOOST_ALL_DYN_LINK)
+
+set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} BOOST_ALL_NO_LIB)
 
 # Hide USD build warning
 set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} BOOST_BIND_GLOBAL_PLACEHOLDERS)
