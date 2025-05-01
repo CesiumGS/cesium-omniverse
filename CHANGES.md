@@ -1,6 +1,6 @@
 # Change Log
 
-### v0.25.0 - 2024-04-01
+### v0.25.0 - 2025-04-01
 
 * **Breaking change:** Cesium for Omniverse now requires Kit 106.5 or above (Isaac Sim 4.5.0 or above).
 
