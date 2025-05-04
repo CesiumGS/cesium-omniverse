@@ -63,13 +63,13 @@ class AssetWrapper {
 };
 
 std::ostream& operator<<(std::ostream& os, const AssetWrapper& assetWrapper) {
-    if (assetWrapper.asset.assetPath.IsEmpty()) {
+    if (assetWrapper.asset.assetPath == omni::fabric::kUninitializedToken) {
         os << NO_DATA_STRING;
         return os;
     }
 
-    os << "Asset Path: " << assetWrapper.asset.assetPath.GetText()
-       << ", Resolved Path: " << assetWrapper.asset.resolvedPath.GetText();
+    os << "Asset Path: " << omni::fabric::Token(assetWrapper.asset.assetPath).getText()
+       << ", Resolved Path: " << omni::fabric::Token(assetWrapper.asset.resolvedPath).getText();
     return os;
 }
 
@@ -630,8 +630,8 @@ bool isEmptyToken(
     const omni::fabric::Token& attributeName,
     const omni::fabric::Type& attributeType) {
     if (attributeType.baseType == omni::fabric::BaseDataType::eToken) {
-        const auto pAttributeValue = fabricStage.getAttributeRd<omni::fabric::Token>(path, attributeName);
-        if (!pAttributeValue || pAttributeValue->size() == 0) {
+        const auto pAttributeValue = fabricStage.getAttributeRd<omni::fabric::TokenC>(path, attributeName);
+        if (!pAttributeValue || *pAttributeValue == omni::fabric::kUninitializedToken) {
             return true;
         }
     }
@@ -829,7 +829,7 @@ bool isShaderConnectedToMaterial(
 omni::fabric::Token getMdlIdentifier(omni::fabric::StageReaderWriter& fabricStage, const omni::fabric::Path& path) {
     if (fabricStage.attributeExists(path, FabricTokens::info_mdl_sourceAsset_subIdentifier)) {
         const auto pInfoMdlSourceAssetSubIdentifierFabric =
-            fabricStage.getAttributeRd<omni::fabric::Token>(path, FabricTokens::info_mdl_sourceAsset_subIdentifier);
+            fabricStage.getAttributeRd<omni::fabric::TokenC>(path, FabricTokens::info_mdl_sourceAsset_subIdentifier);
         if (pInfoMdlSourceAssetSubIdentifierFabric) {
             return *pInfoMdlSourceAssetSubIdentifierFabric;
         }
@@ -959,6 +959,10 @@ bool typesCompatible(MdlExternalPropertyType externalType, MdlInternalPropertyTy
     }
 
     return false;
+}
+
+omni::fabric::Token getDynamicTextureProviderAssetPathToken(const std::string_view& name) {
+    return omni::fabric::Token(fmt::format("dynamic://{}", name).c_str());
 }
 
 } // namespace cesium::omniverse::FabricUtil

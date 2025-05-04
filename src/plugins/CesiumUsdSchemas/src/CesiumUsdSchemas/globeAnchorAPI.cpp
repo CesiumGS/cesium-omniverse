@@ -1,7 +1,6 @@
 #include ".//globeAnchorAPI.h"
 #include "pxr/usd/usd/schemaRegistry.h"
 #include "pxr/usd/usd/typed.h"
-#include "pxr/usd/usd/tokens.h"
 
 #include "pxr/usd/sdf/types.h"
 #include "pxr/usd/sdf/assetPath.h"
@@ -15,11 +14,6 @@ TF_REGISTRY_FUNCTION(TfType)
         TfType::Bases< UsdAPISchemaBase > >();
     
 }
-
-TF_DEFINE_PRIVATE_TOKENS(
-    _schemaTokens,
-    (CesiumGlobeAnchorSchemaAPI)
-);
 
 /* virtual */
 CesiumGlobeAnchorAPI::~CesiumGlobeAnchorAPI()

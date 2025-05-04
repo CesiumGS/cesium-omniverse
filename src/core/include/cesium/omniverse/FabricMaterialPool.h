@@ -15,8 +15,8 @@ class FabricMaterialPool final : public ObjectPool<FabricMaterial> {
         int64_t poolId,
         const FabricMaterialDescriptor& materialDescriptor,
         uint64_t initialCapacity,
-        const pxr::TfToken& defaultWhiteTextureAssetPathToken,
-        const pxr::TfToken& defaultTransparentTextureAssetPathToken,
+        const omni::fabric::Token& defaultWhiteTextureAssetPathToken,
+        const omni::fabric::Token& defaultTransparentTextureAssetPathToken,
         bool debugRandomColors);
     ~FabricMaterialPool() override = default;
     FabricMaterialPool(const FabricMaterialPool&) = delete;
@@ -37,8 +37,8 @@ class FabricMaterialPool final : public ObjectPool<FabricMaterial> {
     Context* _pContext;
     int64_t _poolId;
     FabricMaterialDescriptor _materialDescriptor;
-    pxr::TfToken _defaultWhiteTextureAssetPathToken;
-    pxr::TfToken _defaultTransparentTextureAssetPathToken;
+    omni::fabric::Token _defaultWhiteTextureAssetPathToken;
+    omni::fabric::Token _defaultTransparentTextureAssetPathToken;
     bool _debugRandomColors;
 };
 

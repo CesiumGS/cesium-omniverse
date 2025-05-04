@@ -2,6 +2,7 @@
 
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/FabricTextureInfo.h"
+#include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/Logger.h"
 #include "cesium/omniverse/UsdUtil.h"
 
@@ -95,7 +96,7 @@ getUncompressedImageFormat(uint64_t channels, uint64_t bytesPerChannel, Transfer
 FabricTexture::FabricTexture(Context* pContext, const std::string& name, int64_t poolId)
     : _pContext(pContext)
     , _pTexture(std::make_unique<omni::ui::DynamicTextureProvider>(name))
-    , _assetPathToken(UsdUtil::getDynamicTextureProviderAssetPathToken(name))
+    , _assetPathToken(FabricUtil::getDynamicTextureProviderAssetPathToken(name))
     , _poolId(poolId) {
     reset();
 }
@@ -142,7 +143,7 @@ void FabricTexture::setActive(bool active) {
     }
 }
 
-const pxr::TfToken& FabricTexture::getAssetPathToken() const {
+const omni::fabric::Token& FabricTexture::getAssetPathToken() const {
     return _assetPathToken;
 }
 

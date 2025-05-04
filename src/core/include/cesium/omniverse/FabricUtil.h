@@ -52,5 +52,6 @@ omni::fabric::Token getMdlIdentifier(omni::fabric::StageReaderWriter& fabricStag
 omni::fabric::Type getPrimvarType(DataType type);
 MdlExternalPropertyType getMdlExternalPropertyType(const omni::fabric::Token& mdlIdentifier);
 bool typesCompatible(MdlExternalPropertyType externalType, MdlInternalPropertyType internalType);
+omni::fabric::Token getDynamicTextureProviderAssetPathToken(const std::string_view& name);
 
 } // namespace cesium::omniverse::FabricUtil

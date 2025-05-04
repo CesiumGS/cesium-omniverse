@@ -107,7 +107,6 @@ pxr::SdfPath getRootPath(const pxr::UsdStageWeakPtr& pStage);
 pxr::SdfPath
 makeUniquePath(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& parentPath, const std::string& name);
 std::string getSafeName(const std::string& name);
-pxr::TfToken getDynamicTextureProviderAssetPathToken(const std::string_view& name);
 
 pxr::CesiumData defineCesiumData(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
 pxr::CesiumEllipsoid defineCesiumEllipsoid(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path);
