@@ -71,7 +71,7 @@ uint64_t getSecondsSinceEpoch() {
 Context::Context(const std::filesystem::path& cesiumExtensionLocation)
     : _cesiumExtensionLocation(cesiumExtensionLocation.lexically_normal())
     , _certificatePath(_cesiumExtensionLocation / "certs" / "cacert.pem")
-    , _cesiumMdlPathToken(pxr::TfToken((_cesiumExtensionLocation / "mdl" / "cesium.mdl").generic_string()))
+    , _cesiumMdlPathToken((_cesiumExtensionLocation / "mdl" / "cesium.mdl").generic_string().c_str())
     , _pTaskProcessor(std::make_shared<TaskProcessor>())
     , _pAsyncSystem(std::make_unique<CesiumAsync::AsyncSystem>(_pTaskProcessor))
     , _pLogger(std::make_shared<Logger>())
@@ -114,7 +114,7 @@ const std::filesystem::path& Context::getCertificatePath() const {
     return _certificatePath;
 }
 
-const pxr::TfToken& Context::getCesiumMdlPathToken() const {
+const omni::fabric::Token& Context::getCesiumMdlPathToken() const {
     return _cesiumMdlPathToken;
 }
 

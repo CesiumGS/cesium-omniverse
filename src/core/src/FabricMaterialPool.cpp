@@ -13,8 +13,8 @@ FabricMaterialPool::FabricMaterialPool(
     int64_t poolId,
     const FabricMaterialDescriptor& materialDescriptor,
     uint64_t initialCapacity,
-    const pxr::TfToken& defaultWhiteTextureAssetPathToken,
-    const pxr::TfToken& defaultTransparentTextureAssetPathToken,
+    const omni::fabric::Token& defaultWhiteTextureAssetPathToken,
+    const omni::fabric::Token& defaultTransparentTextureAssetPathToken,
     bool debugRandomColors)
     : ObjectPool<FabricMaterial>()
     , _pContext(pContext)

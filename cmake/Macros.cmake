@@ -313,11 +313,6 @@ $<$<CONFIG:MinSizeRel>:${_EXPECTED_MINSIZEREL_POSTFIX}>")
 
     set(EXTERN_CXX_FLAGS "")
 
-    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-        # Build with old C++ ABI. See top-level CMakeLists.txt for explanation.
-        set(EXTERN_CXX_FLAGS ${EXTERN_CXX_FLAGS} "-D_GLIBCXX_USE_CXX11_ABI=0")
-    endif()
-
     if(MSVC)
         # See https://learn.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-1-c4530?view=msvc-170
         set(EXTERN_CXX_FLAGS ${EXTERN_CXX_FLAGS} "/EHsc")

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <omni/fabric/IToken.h>
 #include <pxr/usd/usd/common.h>
 
 #include <filesystem>
@@ -45,7 +46,7 @@ class Context {
 
     [[nodiscard]] const std::filesystem::path& getCesiumExtensionLocation() const;
     [[nodiscard]] const std::filesystem::path& getCertificatePath() const;
-    [[nodiscard]] const pxr::TfToken& getCesiumMdlPathToken() const;
+    [[nodiscard]] const omni::fabric::Token& getCesiumMdlPathToken() const;
 
     [[nodiscard]] std::shared_ptr<TaskProcessor> getTaskProcessor() const;
     [[nodiscard]] const CesiumAsync::AsyncSystem& getAsyncSystem() const;
@@ -81,7 +82,7 @@ class Context {
   private:
     std::filesystem::path _cesiumExtensionLocation;
     std::filesystem::path _certificatePath;
-    pxr::TfToken _cesiumMdlPathToken;
+    omni::fabric::Token _cesiumMdlPathToken;
 
     std::shared_ptr<TaskProcessor> _pTaskProcessor;
     std::unique_ptr<CesiumAsync::AsyncSystem> _pAsyncSystem;
