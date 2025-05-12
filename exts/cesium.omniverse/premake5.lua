@@ -8,3 +8,5 @@ repo_build.prebuild_link { "certs", ext.target_dir.."/certs" }
 repo_build.prebuild_link { "cesium", ext.target_dir.."/cesium" }
 repo_build.prebuild_link { "doc", ext.target_dir.."/doc" }
 repo_build.prebuild_link { "images", ext.target_dir.."/images" }
+repo_build.prebuild_link { "mdl", ext.target_dir.."/mdl" }
+repo_build.prebuild_link { "vendor", ext.target_dir.."/vendor" }
