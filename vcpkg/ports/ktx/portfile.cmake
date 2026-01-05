@@ -1,7 +1,7 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO KhronosGroup/KTX-Software
-    REF "v${VERSION}"
+    REF "refs/tags/v${VERSION}"
     SHA512 5a89f8986464705ec36ac1becaddd0ff335e4c3c235468aaef0e963fcfeda4c0d669a086b91e61c16a3ae9e1fa5bf456dccf12cc65720e1a22e7cc0f30552541
     HEAD_REF master
     PATCHES
