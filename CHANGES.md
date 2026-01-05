@@ -1,6 +1,6 @@
 # Change Log
 
-### v0.25.0 - 2025-12-19
+### v0.25.0 - 2026-01-05
 
 * Fixed loading KTX2 textures with mipmaps.
 
