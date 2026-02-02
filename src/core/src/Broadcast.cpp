@@ -2,6 +2,13 @@
 
 #include <omni/kit/IApp.h>
 #include <pxr/usd/sdf/path.h>
+
+// Ignore deprecated declaration of getMessageBusEventStream
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 namespace cesium::omniverse::Broadcast {
 
 namespace {
