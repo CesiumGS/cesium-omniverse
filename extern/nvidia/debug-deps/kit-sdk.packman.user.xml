@@ -1,6 +1,6 @@
 <project toolsVersion="5.6">
   <dependency name="kit-kernel-debug" linkPath="../_build/target-deps/kit-sdk-debug/">
-    <package name="kit-kernel" version="107.0.3+feature.180676.45352709.gl.${platform}.debug"/>
+    <package name="kit-kernel" version="107.3.0+feature.199947.b0a86421.gl.${platform}.release"/>
   </dependency>
   <!-- build-time dependencies -->
   <!-- the versions MUST correspond to the versions pulled in by kit-kernel during extension precaching-->
@@ -15,11 +15,9 @@
   -->
   <!--TODO: update these-->
   <dependency name="omni-ui" linkPath="../_build/target-deps/omni-ui/">
-    <package name="omni.ui" version="0731e3357092fe79" platforms="linux-x86_64"/>
-    <package name="omni.ui" version="8023ee171a9c720f" platforms="windows-x86_64"/>
+    <package name="omni.ui" version="8cfe2dbd9d3266b6" platforms="linux-x86_64 manylinux_2_35_x86_64"/>
   </dependency>
   <dependency name="omni-kit-renderer-imgui" linkPath="../_build/target-deps/omni-kit-renderer-imgui/">
-    <package name="omni.kit.renderer.imgui" version="61a6e663a4d57772" platforms="linux-x86_64" />
-    <package name="omni.kit.renderer.imgui" version="e78ad49422b0302a" platforms="windows-x86_64" />
+    <package name="omni.kit.renderer.imgui" version="617e1ab163fd09a2" platforms="linux-x86_64 manylinux_2_35_x86_64" />
   </dependency>
 </project>
