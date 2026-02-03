@@ -138,7 +138,9 @@ jobs:
         if: ${{ runner.os == 'Linux' && matrix.config.name != 'AlmaLinux 8 - GCC' }}
         run: |
           sudo apt update
-          sudo apt install -y doxygen clang-tidy-15 gcovr
+          sudo apt install -y doxygen clang-tidy-15 clang-format-15 gcovr
+          sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-15 100
+          sudo update-alternatives --set clang-format /usr/bin/clang-format-15
           sudo pip3 install conan==1.63.0 black==23.1.0 flake8==7.1.1 --ignore-installed
 
       # Could not figure out how to add Chocolatey libraries to the PATH automatically with refreshenv, so
@@ -151,6 +153,7 @@ jobs:
         run: |
           choco install -y conan --version 1.63.0
           choco install -y llvm --version=15.0.7 --allow-downgrade
+          echo "C:/Program Files/LLVM/bin" >> $env:GITHUB_PATH
           pip3 install black==23.1.0 flake8==7.1.1 requests
           echo "C:/Program Files/conan/conan" >> $env:GITHUB_PATH
 
