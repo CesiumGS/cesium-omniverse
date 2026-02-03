@@ -208,6 +208,7 @@ setup_lib(
         boost_python311
         tbb
         carb
+        rtx_plugins
         omni_kit
         omni_ui
         pybind11
