@@ -52,6 +52,8 @@ setup_lib(
     SOURCES
         ${SOURCES}
     INCLUDE_DIRS
+        # Stub headers for rtx_plugins (not publicly available)
+        "${CMAKE_CURRENT_LIST_DIR}/include/stubs"
         "${CMAKE_CURRENT_LIST_DIR}/include"
     LIBRARIES
         CesiumUsdSchemas
@@ -208,7 +210,6 @@ setup_lib(
         boost_python311
         tbb
         carb
-        rtx_plugins
         omni_kit
         omni_ui
         pybind11

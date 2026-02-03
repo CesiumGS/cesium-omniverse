@@ -207,7 +207,6 @@ set(KIT_SDK_ROOT "${NVIDIA_BUILD_DIR}/target-deps/kit-sdk")
 set(KIT_OMNI_UI_ROOT "${NVIDIA_BUILD_DIR}/target-deps/omni-ui")
 set(KIT_IMGUI_ROOT "${NVIDIA_BUILD_DIR}/target-deps/omni-kit-renderer-imgui")
 set(PYBIND11_ROOT "${NVIDIA_BUILD_DIR}/target-deps/pybind11")
-set(RTX_PLUGINS_ROOT "${NVIDIA_BUILD_DIR}/target-deps/rtx_plugins")
 
 set(NVIDIA_USD_LIBRARIES
     usd_ar
@@ -350,16 +349,6 @@ add_prebuilt_project(
         carb
     TARGET_NAMES
         carb
-)
-# cmake-format: on
-
-# cmake-format: off
-# rtx_plugins contains carb/imaging headers needed by omni.ui
-add_prebuilt_project_header_only(
-    INCLUDE_DIR
-        "${RTX_PLUGINS_ROOT}/include"
-    TARGET_NAME
-        rtx_plugins
 )
 # cmake-format: on
 

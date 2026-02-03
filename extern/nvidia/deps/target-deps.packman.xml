@@ -5,12 +5,10 @@
     <filter include="usd-release"/>
     <filter include="carb_sdk_plugins"/>
     <filter include="pybind11"/>
-    <filter include="rtx_plugins"/>
   </import>
   <!-- Override the link paths to point to the correct locations. -->
   <dependency name="python" linkPath="../_build/target-deps/python"/>
   <dependency name="usd-release" linkPath="../_build/target-deps/usd/release"/>
   <dependency name="carb_sdk_plugins" linkPath="../_build/target-deps/carb_sdk_plugins"/>
   <dependency name="pybind11" linkPath="../_build/target-deps/pybind11/pybind11"/>
-  <dependency name="rtx_plugins" linkPath="../_build/target-deps/rtx_plugins"/>
 </project>
