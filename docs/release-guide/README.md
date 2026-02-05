@@ -54,7 +54,8 @@ This is the process we follow when releasing a new version of Cesium for Omniver
 After the package is built, verify that the extension loads in USD Composer:
 
 * Open USD Composer
-* Open the extensions window and remove Cesium for Omniverse from the list of search paths (if it exists)
+  * Follow the instructions in https://github.com/NVIDIA-Omniverse/kit-app-template to create a new application from the USD Composer template.
+* Open the extensions window (Developer -> Extensions) and remove Cesium for Omniverse from the list of search paths (if it exists)
 * Close USD Composer
 * Unzip the package to `$USERHOME$/Documents/Kit/Shared/exts`
 * Open USD Composer
