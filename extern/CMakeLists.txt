@@ -404,7 +404,14 @@ else()
     set(NVIDIA_ADDITIONAL_SEARCH_PATHS
         "$<TARGET_FILE_DIR:python311>"
         "$<TARGET_FILE_DIR:usd_usd>"
-        "$<TARGET_FILE_DIR:carb>")
+        "$<TARGET_FILE_DIR:carb>"
+        # This is where freetype is located on Linux
+        "${KIT_IMGUI_ROOT}/bin/deps")
+
+    set(NVIDIA_ADDITIONAL_LINK_DIRECTORIES
+        # This is where freetype is located on Linux. Needed by imgui which doesn't set its rpath properly
+        "${KIT_IMGUI_ROOT}/bin/deps")
 
     set_property(GLOBAL PROPERTY NVIDIA_ADDITIONAL_SEARCH_PATHS_PROPERTY "${NVIDIA_ADDITIONAL_SEARCH_PATHS}")
+    set_property(GLOBAL PROPERTY NVIDIA_ADDITIONAL_LINK_DIRECTORIES_PROPERTY "${NVIDIA_ADDITIONAL_LINK_DIRECTORIES}")
 endif()
