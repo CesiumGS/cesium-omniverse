@@ -52,6 +52,8 @@ setup_lib(
     SOURCES
         ${SOURCES}
     INCLUDE_DIRS
+        # Stub headers for rtx_plugins (not publicly available)
+        "${CMAKE_CURRENT_LIST_DIR}/include/stubs"
         "${CMAKE_CURRENT_LIST_DIR}/include"
     LIBRARIES
         CesiumUsdSchemas
@@ -184,34 +186,34 @@ setup_lib(
         stb::stb
         ZLIB::ZLIB
         fabric
-        ar
-        arch
-        gf
-        js
-        kind
-        ndr
-        pcp
-        plug
-        sdf
-        sdr
-        tf
-        trace
-        usd
-        usdGeom
-        usdLux
-        usdShade
-        usdUI
-        usdUtils
-        usdVol
-        vt
-        work
-        boost_python310
+        usd_ar
+        usd_arch
+        usd_gf
+        usd_js
+        usd_kind
+        usd_ndr
+        usd_pcp
+        usd_plug
+        usd_sdf
+        usd_sdr
+        usd_tf
+        usd_trace
+        usd_usd
+        usd_usdGeom
+        usd_usdLux
+        usd_usdShade
+        usd_usdUI
+        usd_usdUtils
+        usd_usdVol
+        usd_vt
+        usd_work
+        boost_python311
         tbb
         carb
         omni_kit
         omni_ui
         pybind11
-        python310
+        python311
     ADDITIONAL_LIBRARIES
         "${ADDITIONAL_LIBRARIES}"
     ADDITIONAL_LINK_DIRECTORIES

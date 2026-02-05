@@ -256,15 +256,15 @@ void createAttributes(
 
     *inputsExcludeFromWhiteModeFabric = false;
     *infoImplementationSourceFabric = FabricTokens::sourceAsset;
-    infoMdlSourceAssetFabric->assetPath = context.getCesiumMdlPathToken();
-    infoMdlSourceAssetFabric->resolvedPath = pxr::TfToken();
+    infoMdlSourceAssetFabric->assetPath = context.getCesiumMdlPathToken(),
+    infoMdlSourceAssetFabric->resolvedPath = omni::fabric::kUninitializedToken;
     *infoMdlSourceAssetSubIdentifierFabric = subidentifier;
 }
 
 void setTextureValuesCommon(
     omni::fabric::StageReaderWriter& fabricStage,
     const omni::fabric::Path& path,
-    const pxr::TfToken& textureAssetPathToken,
+    const omni::fabric::Token& textureAssetPathToken,
     const FabricTextureInfo& textureInfo,
     uint64_t texcoordIndex) {
 
@@ -289,7 +289,7 @@ void setTextureValuesCommon(
     const auto scaleFabric = fabricStage.getAttributeWr<pxr::GfVec2f>(path, FabricTokens::inputs_tex_coord_scale);
 
     textureFabric->assetPath = textureAssetPathToken;
-    textureFabric->resolvedPath = pxr::TfToken();
+    textureFabric->resolvedPath = omni::fabric::kUninitializedToken;
     *texCoordIndexFabric = static_cast<int>(texcoordIndex);
     *wrapSFabric = textureInfo.wrapS;
     *wrapTFabric = textureInfo.wrapT;
@@ -301,7 +301,7 @@ void setTextureValuesCommon(
 void setTextureValuesCommonChannels(
     omni::fabric::StageReaderWriter& fabricStage,
     const omni::fabric::Path& path,
-    const pxr::TfToken& textureAssetPathToken,
+    const omni::fabric::Token& textureAssetPathToken,
     const FabricTextureInfo& textureInfo,
     uint64_t texcoordIndex) {
 
@@ -401,7 +401,7 @@ template <MdlInternalPropertyType T>
 void setPropertyTexturePropertyValues(
     omni::fabric::StageReaderWriter& fabricStage,
     const omni::fabric::Path& path,
-    const pxr::TfToken& textureAssetPathToken,
+    const omni::fabric::Token& textureAssetPathToken,
     const FabricTextureInfo& textureInfo,
     uint64_t texcoordIndex,
     const DataTypeUtil::GetMdlInternalPropertyTransformedType<T>& offset,
@@ -419,7 +419,7 @@ template <MdlInternalPropertyType T>
 void setPropertyTablePropertyValues(
     omni::fabric::StageReaderWriter& fabricStage,
     const omni::fabric::Path& path,
-    const pxr::TfToken& propertyTableTextureAssetPathToken,
+    const omni::fabric::Token& propertyTableTextureAssetPathToken,
     const DataTypeUtil::GetMdlInternalPropertyTransformedType<T>& offset,
     const DataTypeUtil::GetMdlInternalPropertyTransformedType<T>& scale,
     const DataTypeUtil::GetMdlInternalPropertyRawType<T>& maximumValue,
@@ -430,7 +430,7 @@ void setPropertyTablePropertyValues(
     const auto textureFabric =
         fabricStage.getAttributeWr<omni::fabric::AssetPath>(path, FabricTokens::inputs_property_table_texture);
     textureFabric->assetPath = propertyTableTextureAssetPathToken;
-    textureFabric->resolvedPath = pxr::TfToken();
+    textureFabric->resolvedPath = omni::fabric::kUninitializedToken;
 
     setPropertyValues<T>(fabricStage, path, offset, scale, maximumValue, hasNoData, noData, defaultValue);
 }
@@ -456,7 +456,7 @@ template <MdlInternalPropertyType T>
 void clearPropertyTextureProperty(
     omni::fabric::StageReaderWriter& fabricStage,
     const omni::fabric::Path& path,
-    const pxr::TfToken& defaultTransparentTextureAssetPathToken) {
+    const omni::fabric::Token& defaultTransparentTextureAssetPathToken) {
     using MdlRawType = DataTypeUtil::GetMdlInternalPropertyRawType<T>;
     using MdlTransformedType = DataTypeUtil::GetMdlInternalPropertyTransformedType<T>;
 
@@ -478,7 +478,7 @@ template <MdlInternalPropertyType T>
 void clearPropertyTableProperty(
     omni::fabric::StageReaderWriter& fabricStage,
     const omni::fabric::Path& path,
-    const pxr::TfToken& defaultTransparentTextureAssetPathToken) {
+    const omni::fabric::Token& defaultTransparentTextureAssetPathToken) {
     using MdlRawType = DataTypeUtil::GetMdlInternalPropertyRawType<T>;
     using MdlTransformedType = DataTypeUtil::GetMdlInternalPropertyTransformedType<T>;
 
@@ -500,8 +500,8 @@ FabricMaterial::FabricMaterial(
     Context* pContext,
     const omni::fabric::Path& path,
     const FabricMaterialDescriptor& materialDescriptor,
-    const pxr::TfToken& defaultWhiteTextureAssetPathToken,
-    const pxr::TfToken& defaultTransparentTextureAssetPathToken,
+    const omni::fabric::Token& defaultWhiteTextureAssetPathToken,
+    const omni::fabric::Token& defaultTransparentTextureAssetPathToken,
     bool debugRandomColors,
     int64_t poolId)
     : _pContext(pContext)
@@ -1873,7 +1873,7 @@ void FabricMaterial::setShaderValues(
 
 void FabricMaterial::setTextureValues(
     const omni::fabric::Path& path,
-    const pxr::TfToken& textureAssetPathToken,
+    const omni::fabric::Token& textureAssetPathToken,
     const FabricTextureInfo& textureInfo,
     uint64_t texcoordIndex) {
     setTextureValuesCommon(_pContext->getFabricStage(), path, textureAssetPathToken, textureInfo, texcoordIndex);
@@ -1881,7 +1881,7 @@ void FabricMaterial::setTextureValues(
 
 void FabricMaterial::setRasterOverlayValues(
     const omni::fabric::Path& path,
-    const pxr::TfToken& textureAssetPathToken,
+    const omni::fabric::Token& textureAssetPathToken,
     const FabricTextureInfo& textureInfo,
     uint64_t texcoordIndex,
     double alpha) {
@@ -1895,7 +1895,7 @@ void FabricMaterial::setRasterOverlayAlphaValue(const omni::fabric::Path& path, 
 }
 
 void FabricMaterial::setFeatureIdIndexValues(const omni::fabric::Path& path, int nullFeatureId) {
-    setFeatureIdAttributeValues(path, pxr::UsdTokens->vertexId.GetString(), nullFeatureId);
+    setFeatureIdAttributeValues(path, pxr::UsdTokens2->vertexId.GetString(), nullFeatureId);
 }
 
 void FabricMaterial::setFeatureIdAttributeValues(
@@ -1913,7 +1913,7 @@ void FabricMaterial::setFeatureIdAttributeValues(
 
 void FabricMaterial::setFeatureIdTextureValues(
     const omni::fabric::Path& path,
-    const pxr::TfToken& textureAssetPathToken,
+    const omni::fabric::Token& textureAssetPathToken,
     const FabricTextureInfo& textureInfo,
     uint64_t texcoordIndex,
     int nullFeatureId) {

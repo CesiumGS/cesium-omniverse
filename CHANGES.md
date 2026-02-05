@@ -1,6 +1,10 @@
 # Change Log
 
-### v0.25.0 - 2026-01-05
+### v0.27.0 - 2026-02-05
+
+* **Breaking change:** Cesium for Omniverse now requires Kit 107.3 or above (Isaac Sim 5.1.0 or above).
+
+### v0.26.0 - 2026-01-05
 
 * Fixed loading KTX2 textures with mipmaps.
 

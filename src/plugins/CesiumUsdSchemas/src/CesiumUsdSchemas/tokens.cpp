@@ -91,6 +91,18 @@ CesiumTokensType::CesiumTokensType() :
     ion("ion", TfToken::Immortal),
     overlay("overlay", TfToken::Immortal),
     url("url", TfToken::Immortal),
+    CesiumDataPrim("CesiumDataPrim", TfToken::Immortal),
+    CesiumEllipsoidPrim("CesiumEllipsoidPrim", TfToken::Immortal),
+    CesiumGeoreferencePrim("CesiumGeoreferencePrim", TfToken::Immortal),
+    CesiumGlobeAnchorSchemaAPI("CesiumGlobeAnchorSchemaAPI", TfToken::Immortal),
+    CesiumIonRasterOverlayPrim("CesiumIonRasterOverlayPrim", TfToken::Immortal),
+    CesiumIonServerPrim("CesiumIonServerPrim", TfToken::Immortal),
+    CesiumPolygonRasterOverlayPrim("CesiumPolygonRasterOverlayPrim", TfToken::Immortal),
+    CesiumRasterOverlayPrim("CesiumRasterOverlayPrim", TfToken::Immortal),
+    CesiumTileMapServiceRasterOverlayPrim("CesiumTileMapServiceRasterOverlayPrim", TfToken::Immortal),
+    CesiumTilesetPrim("CesiumTilesetPrim", TfToken::Immortal),
+    CesiumWebMapServiceRasterOverlayPrim("CesiumWebMapServiceRasterOverlayPrim", TfToken::Immortal),
+    CesiumWebMapTileServiceRasterOverlayPrim("CesiumWebMapTileServiceRasterOverlayPrim", TfToken::Immortal),
     allTokens({
         cesiumAlpha,
         cesiumAnchorAdjustOrientationForGlobeWhenMoving,
@@ -179,7 +191,19 @@ CesiumTokensType::CesiumTokensType() :
         clip,
         ion,
         overlay,
-        url
+        url,
+        CesiumDataPrim,
+        CesiumEllipsoidPrim,
+        CesiumGeoreferencePrim,
+        CesiumGlobeAnchorSchemaAPI,
+        CesiumIonRasterOverlayPrim,
+        CesiumIonServerPrim,
+        CesiumPolygonRasterOverlayPrim,
+        CesiumRasterOverlayPrim,
+        CesiumTileMapServiceRasterOverlayPrim,
+        CesiumTilesetPrim,
+        CesiumWebMapServiceRasterOverlayPrim,
+        CesiumWebMapTileServiceRasterOverlayPrim
     })
 {
 }

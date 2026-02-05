@@ -11,6 +11,16 @@
 #include <carb/dictionary/DictionaryUtils.h>
 #include <carb/events/IEvents.h>
 #include <doctest/doctest.h>
+
+// Suppress deprecation warning for getMessageBusEventStream until Events 2.0 migration is complete
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4996)
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 #include <omni/kit/IApp.h>
 
 #include <memory>
@@ -66,3 +76,9 @@ TEST_SUITE("Tileset tests") {
         CHECK(endToEndTilesetLoaded);
     }
 }
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif

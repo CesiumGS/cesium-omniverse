@@ -11,10 +11,10 @@ set(REQUIRES
     "zlib/1.2.13@#13c96f538b52e1600c40b88994de240f"
     "yaml-cpp/0.7.0@#85b409c274a53d226b71f1bdb9cb4f8b"
     "libcurl/8.2.1@#8f62ba7135f5445e5fe6c4bd85143b53"
-    "nasm/2.15.05@#799d63b1672a337584b09635b0f22fc1")
+    "nasm/2.15.05@#058c93b2214a49ca1cfe9f8f26205568")
 
 if(WIN32)
-    set(REQUIRES ${REQUIRES} "strawberryperl/5.32.1.1@#8f83d05a60363a422f9033e52d106b47")
+    set(REQUIRES ${REQUIRES} "strawberryperl/5.32.1.1@#707032463aa0620fa17ec0d887f5fe41")
 endif()
 
 # cmake-format: off

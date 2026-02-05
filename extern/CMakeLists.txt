@@ -169,8 +169,10 @@ endif()
 
 if(WIN32)
     set(NVIDIA_PLATFORM_NAME "windows-x86_64")
+    set(CARB_PLATFORM_NAME "windows-x86_64")
 elseif(UNIX AND NOT APPLE)
-    set(NVIDIA_PLATFORM_NAME "linux-x86_64")
+    set(NVIDIA_PLATFORM_NAME "manylinux_2_35_x86_64")
+    set(CARB_PLATFORM_NAME "linux-x86_64")
 else()
     message(FATAL_ERROR "Only Windows and Linux are supported")
 endif()
@@ -207,27 +209,27 @@ set(KIT_IMGUI_ROOT "${NVIDIA_BUILD_DIR}/target-deps/omni-kit-renderer-imgui")
 set(PYBIND11_ROOT "${NVIDIA_BUILD_DIR}/target-deps/pybind11")
 
 set(NVIDIA_USD_LIBRARIES
-    ar
-    arch
-    gf
-    js
-    kind
-    ndr
-    pcp
-    plug
-    sdf
-    sdr
-    tf
-    trace
-    usd
-    usdGeom
-    usdLux
-    usdShade
-    usdUI
-    usdUtils
-    usdVol
-    vt
-    work)
+    usd_ar
+    usd_arch
+    usd_gf
+    usd_js
+    usd_kind
+    usd_ndr
+    usd_pcp
+    usd_plug
+    usd_sdf
+    usd_sdr
+    usd_tf
+    usd_trace
+    usd_usd
+    usd_usdGeom
+    usd_usdLux
+    usd_usdShade
+    usd_usdUI
+    usd_usdUtils
+    usd_usdVol
+    usd_vt
+    usd_work)
 
 # Add base USD libraries
 set(NVIDIA_USD_TARGET_NAMES ${NVIDIA_USD_LIBRARIES})
@@ -245,14 +247,14 @@ else()
 endif()
 
 # Add boost python
-set(NVIDIA_USD_TARGET_NAMES ${NVIDIA_USD_TARGET_NAMES} boost_python310)
+set(NVIDIA_USD_TARGET_NAMES ${NVIDIA_USD_TARGET_NAMES} boost_python311)
 
 if(WIN32)
-    set(NVIDIA_USD_RELEASE_LIBRARIES ${NVIDIA_USD_RELEASE_LIBRARIES} boost_python310-vc142-mt-x64-1_76)
-    set(NVIDIA_USD_DEBUG_LIBRARIES ${NVIDIA_USD_DEBUG_LIBRARIES} boost_python310-vc142-mt-gd-x64-1_76)
+    set(NVIDIA_USD_RELEASE_LIBRARIES ${NVIDIA_USD_RELEASE_LIBRARIES} boost_python311-vc142-mt-x64-1_82)
+    set(NVIDIA_USD_DEBUG_LIBRARIES ${NVIDIA_USD_DEBUG_LIBRARIES} boost_python311-vc142-mt-x64-1_82)
 else()
-    set(NVIDIA_USD_RELEASE_LIBRARIES ${NVIDIA_USD_RELEASE_LIBRARIES} boost_python310)
-    set(NVIDIA_USD_DEBUG_LIBRARIES ${NVIDIA_USD_DEBUG_LIBRARIES} boost_python310)
+    set(NVIDIA_USD_RELEASE_LIBRARIES ${NVIDIA_USD_RELEASE_LIBRARIES} boost_python311)
+    set(NVIDIA_USD_DEBUG_LIBRARIES ${NVIDIA_USD_DEBUG_LIBRARIES} boost_python311)
 endif()
 
 if(${USE_NVIDIA_RELEASE_LIBRARIES})
@@ -267,14 +269,20 @@ add_prebuilt_project(
         "${NVIDIA_USD_ROOT}/${NVIDIA_DEBUG_FOLDER_NAME}/include"
     RELEASE_LIBRARY_DIR
         "${NVIDIA_USD_ROOT}/${NVIDIA_RELEASE_FOLDER_NAME}/lib"
+    RELEASE_DLL_DIR
+        "${NVIDIA_USD_ROOT}/${NVIDIA_RELEASE_FOLDER_NAME}/bin"
     DEBUG_LIBRARY_DIR
         "${NVIDIA_USD_ROOT}/${NVIDIA_DEBUG_FOLDER_NAME}/lib"
+    DEBUG_DLL_DIR
+        "${NVIDIA_USD_ROOT}/${NVIDIA_DEBUG_FOLDER_NAME}/bin"
     RELEASE_LIBRARIES
         ${NVIDIA_USD_RELEASE_LIBRARIES}
     DEBUG_LIBRARIES
         ${NVIDIA_USD_DEBUG_LIBRARIES}
     TARGET_NAMES
         ${NVIDIA_USD_TARGET_NAMES}
+    TARGETS_IN_DLL_DIR
+        tbb
 )
 # cmake-format: on
 
@@ -294,30 +302,30 @@ if(WIN32)
         DEBUG_DLL_DIR
             "${PYTHON_ROOT}"
         RELEASE_LIBRARIES
-            python310
+            python311
         DEBUG_LIBRARIES
-            python310
+            python311
         TARGET_NAMES
-            python310
+            python311
     )
     # cmake-format: on
 else()
     # cmake-format: off
     add_prebuilt_project(
         RELEASE_INCLUDE_DIR
-            "${PYTHON_ROOT}/include/python3.10"
+            "${PYTHON_ROOT}/include/python3.11"
         DEBUG_INCLUDE_DIR
-            "${PYTHON_ROOT}/include/python3.10"
+            "${PYTHON_ROOT}/include/python3.11"
         RELEASE_LIBRARY_DIR
             "${PYTHON_ROOT}/lib"
         DEBUG_LIBRARY_DIR
             "${PYTHON_ROOT}/lib"
         RELEASE_LIBRARIES
-            python3.10
+            python3.11
         DEBUG_LIBRARIES
-            python3.10
+            python3.11
         TARGET_NAMES
-            python310
+            python311
     )
     # cmake-format: on
 endif()
@@ -338,9 +346,9 @@ add_prebuilt_project(
     DEBUG_INCLUDE_DIR
         "${CARB_ROOT}/include"
     RELEASE_LIBRARY_DIR
-        "${CARB_ROOT}/_build/${NVIDIA_PLATFORM_NAME}/${NVIDIA_RELEASE_FOLDER_NAME}"
+        "${CARB_ROOT}/_build/${CARB_PLATFORM_NAME}/${NVIDIA_RELEASE_FOLDER_NAME}"
     DEBUG_LIBRARY_DIR
-        "${CARB_ROOT}/_build/${NVIDIA_PLATFORM_NAME}/${NVIDIA_DEBUG_FOLDER_NAME}"
+        "${CARB_ROOT}/_build/${CARB_PLATFORM_NAME}/${NVIDIA_DEBUG_FOLDER_NAME}"
     RELEASE_LIBRARIES
         carb
     DEBUG_LIBRARIES
@@ -389,16 +397,13 @@ add_prebuilt_project(
 # cmake-format: on
 
 if(WIN32)
-    set(NVIDIA_ADDITIONAL_LIBRARIES
-        "${KIT_IMGUI_ROOT}/bin/imgui.dll"
-        "${KIT_IMGUI_ROOT}/bin/deps/freetype.dll"
-    )
+    set(NVIDIA_ADDITIONAL_LIBRARIES "${KIT_IMGUI_ROOT}/bin/imgui.dll")
 
     set_property(GLOBAL PROPERTY NVIDIA_ADDITIONAL_LIBRARIES_PROPERTY "${NVIDIA_ADDITIONAL_LIBRARIES}")
 else()
     set(NVIDIA_ADDITIONAL_SEARCH_PATHS
-        "$<TARGET_FILE_DIR:python310>"
-        "$<TARGET_FILE_DIR:usd>"
+        "$<TARGET_FILE_DIR:python311>"
+        "$<TARGET_FILE_DIR:usd_usd>"
         "$<TARGET_FILE_DIR:carb>"
         # This is where freetype is located on Linux
         "${KIT_IMGUI_ROOT}/bin/deps")

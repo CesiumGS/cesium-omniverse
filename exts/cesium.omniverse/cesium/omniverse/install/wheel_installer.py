@@ -14,9 +14,9 @@ class WheelInfo:
     """
 
     module: str
-    windows_whl: str
-    linux_x64_whl: str
-    linux_aarch_whl: str
+    windows_whl: str = ""
+    linux_x64_whl: str = ""
+    linux_aarch_whl: str = ""
 
 
 class WheelInstaller:
@@ -34,19 +34,24 @@ class WheelInstaller:
         :raises ValueError: If any arguments are null or empty strings.
         """
         self._logger = logging.getLogger(__name__)
-
-        if (
-            str_is_empty_or_none(info.windows_whl)
-            or str_is_empty_or_none(info.linux_x64_whl)
-            or str_is_empty_or_none(info.linux_aarch_whl)
-        ):
-            raise ValueError(f"One or more wheels is missing for {info.module}.")
-
         self._info = info
 
         manager = app.get_app().get_extension_manager()
         ext_id = manager.get_extension_id_by_module(extension_module)
         self._vendor_directory_path = Path(manager.get_extension_path(ext_id)).joinpath("vendor")
+
+    def _get_wheel_for_platform(self) -> str:
+        """
+        Gets the appropriate wheel filename for the current platform.
+        """
+        if platform.system() == "Windows":
+            return self._info.windows_whl
+
+        machine = platform.machine()
+        if machine.startswith("arm") or machine.startswith("aarch"):
+            return self._info.linux_aarch_whl
+
+        return self._info.linux_x64_whl
 
     def install(self) -> bool:
         """
@@ -54,14 +59,11 @@ class WheelInstaller:
 
         :return: ``True`` if the installation was successful.
         """
-
-        if platform.system() == "Windows":
-            return self._perform_install(self._info.windows_whl)
-        else:
-            machine = platform.machine()
-            if machine.startswith("arm") or machine.startswith("aarch"):
-                return self._perform_install(self._info.linux_aarch_whl)
-            return self._perform_install(self._info.linux_x64_whl)
+        wheel = self._get_wheel_for_platform()
+        if str_is_empty_or_none(wheel):
+            self._logger.error(f"No wheel available for {self._info.module} on this platform")
+            return False
+        return self._perform_install(wheel)
 
     def _perform_install(self, wheel_file_name: str) -> bool:
         """

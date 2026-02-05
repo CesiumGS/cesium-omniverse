@@ -1,6 +1,7 @@
 #pragma once
 
 #include <carb/RenderingTypes.h>
+#include <omni/fabric/IToken.h>
 #include <pxr/base/tf/token.h>
 
 #include <memory>
@@ -37,7 +38,7 @@ class FabricTexture {
 
     void setActive(bool active);
 
-    [[nodiscard]] const pxr::TfToken& getAssetPathToken() const;
+    [[nodiscard]] const omni::fabric::Token& getAssetPathToken() const;
     [[nodiscard]] int64_t getPoolId() const;
 
   private:
@@ -45,7 +46,7 @@ class FabricTexture {
 
     Context* _pContext;
     std::unique_ptr<omni::ui::DynamicTextureProvider> _pTexture;
-    pxr::TfToken _assetPathToken;
+    omni::fabric::Token _assetPathToken;
     int64_t _poolId;
 };
 } // namespace cesium::omniverse

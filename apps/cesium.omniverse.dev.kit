@@ -3,6 +3,15 @@ title = "Cesium For Omniverse Testing App"
 version = "0.0.0"
 app = true
 
+# List public registries
+# See https://docs.omniverse.nvidia.com/dev-guide/latest/release-notes/107_0.html#known-issues
+[settings.exts."omni.kit.registry.nucleus"]
+registries = [
+    { name = "kit/default", url = "https://ovextensionsprod.blob.core.windows.net/exts/kit/prod/107/shared" },
+    { name = "kit/sdk", url = "https://ovextensionsprod.blob.core.windows.net/exts/kit/prod/sdk/${kit_version_short}/${kit_git_hash}" },
+    { name = "kit/community", url = "https://dw290v42wisod.cloudfront.net/exts/kit/community" },
+]
+
 [dependencies]
 # Include basic configuration (that brings most of basic extensions)
 "omni.app.base" = {}

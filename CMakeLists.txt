@@ -378,6 +378,9 @@ set(CESIUM_OMNI_CXX_DEFINES
 # Boost is a dependency of USD. It is dynamically linked so we need to set this flag.
 set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} BOOST_ALL_DYN_LINK)
 
+# Disable auto-linking
+set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} BOOST_ALL_NO_LIB)
+
 # Hide USD build warning
 set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} BOOST_BIND_GLOBAL_PLACEHOLDERS)
 
@@ -397,13 +400,6 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} _GLIBCXX_PERMIT_BACKWARD_HASH)
 endif()
 
-# USD is compiled with the old C++ ABI so we need to compile our own code and external libraries
-# with the old ABI. Only relevant for libraries that have std::string or std::list in their
-# public interface, which includes cesium-native and spdlog.
-# See https://gcc.gnu.org/onlinedocs/libstdc++/manual/using_dual_abi.html
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} _GLIBCXX_USE_CXX11_ABI=0)
-endif()
 
 set(CESIUM_OMNI_CXX_FLAGS
     ${CESIUM_OMNI_CXX_FLAGS}

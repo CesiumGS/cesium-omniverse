@@ -313,11 +313,6 @@ $<$<CONFIG:MinSizeRel>:${_EXPECTED_MINSIZEREL_POSTFIX}>")
 
     set(EXTERN_CXX_FLAGS "")
 
-    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-        # Build with old C++ ABI. See top-level CMakeLists.txt for explanation.
-        set(EXTERN_CXX_FLAGS ${EXTERN_CXX_FLAGS} "-D_GLIBCXX_USE_CXX11_ABI=0")
-    endif()
-
     if(MSVC)
         # See https://learn.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-1-c4530?view=msvc-170
         set(EXTERN_CXX_FLAGS ${EXTERN_CXX_FLAGS} "/EHsc")
@@ -392,7 +387,7 @@ function(add_prebuilt_project)
         ""
         ""
         "RELEASE_INCLUDE_DIR;DEBUG_INCLUDE_DIR;RELEASE_LIBRARY_DIR;RELEASE_DLL_DIR;DEBUG_LIBRARY_DIR;DEBUG_DLL_DIR"
-        "RELEASE_LIBRARIES;RELEASE_DLL_LIBRARIES;DEBUG_LIBRARIES;DEBUG_DLL_LIBRARIES;TARGET_NAMES"
+        "RELEASE_LIBRARIES;RELEASE_DLL_LIBRARIES;DEBUG_LIBRARIES;DEBUG_DLL_LIBRARIES;TARGET_NAMES;TARGETS_IN_DLL_DIR"
         ${ARGN})
 
     if(NOT DEFINED _RELEASE_DLL_LIBRARIES)
@@ -450,8 +445,25 @@ $<$<CONFIG:MinSizeRel>:${_RELEASE_INCLUDE_DIR}>")
                 PATHS ${_DEBUG_LIBRARY_DIR}
                 NO_DEFAULT_PATH NO_CACHE)
 
-            set(${TARGET_NAME}_LIBRARY_RELEASE "${_RELEASE_DLL_DIR}/${RELEASE_DLL_NAME}.dll")
-            set(${TARGET_NAME}_LIBRARY_DEBUG "${_DEBUG_DLL_DIR}/${DEBUG_DLL_NAME}.dll")
+            # Determine which directory to use for DLLs
+            # If TARGETS_IN_DLL_DIR is empty, default to DLL_DIR for all targets
+            # Otherwise, only targets in TARGETS_IN_DLL_DIR use DLL_DIR; others use LIBRARY_DIR
+            if(NOT _TARGETS_IN_DLL_DIR)
+                # Empty list - default all to DLL_DIR
+                set(RELEASE_DLL_LOCATION "${_RELEASE_DLL_DIR}")
+                set(DEBUG_DLL_LOCATION "${_DEBUG_DLL_DIR}")
+            elseif(TARGET_NAME IN_LIST _TARGETS_IN_DLL_DIR)
+                # Target is in the DLL_DIR list
+                set(RELEASE_DLL_LOCATION "${_RELEASE_DLL_DIR}")
+                set(DEBUG_DLL_LOCATION "${_DEBUG_DLL_DIR}")
+            else()
+                # Target is not in the DLL_DIR list - use LIBRARY_DIR
+                set(RELEASE_DLL_LOCATION "${_RELEASE_LIBRARY_DIR}")
+                set(DEBUG_DLL_LOCATION "${_DEBUG_LIBRARY_DIR}")
+            endif()
+
+            set(${TARGET_NAME}_LIBRARY_RELEASE "${RELEASE_DLL_LOCATION}/${RELEASE_DLL_NAME}.dll")
+            set(${TARGET_NAME}_LIBRARY_DEBUG "${DEBUG_DLL_LOCATION}/${DEBUG_DLL_NAME}.dll")
         else()
             find_library(
                 ${TARGET_NAME}_LIBRARY_RELEASE
