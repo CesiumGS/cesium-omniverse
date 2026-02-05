@@ -52,7 +52,7 @@ See [Linux](#linux) or [Windows](#windows) for step-by-step installation instruc
   ```
 - Install dependencies (for Ubuntu 22.04 - other Linux distributions should be similar)
   ```sh
-  sudo apt install -y gcc-9 g++-9 clang-15 python3 python3-pip cmake make git doxygen clang-format-15 clang-tidy-15 clangd-15 gcovr
+  sudo apt install -y gcc-9 g++-9 clang-15 python3 python3-pip cmake make git git-lfs doxygen clang-format-15 clang-tidy-15 clangd-15 gcovr
   ```
 - Install Conan with pip because Conan is not in Ubuntu's package manager
   ```sh
