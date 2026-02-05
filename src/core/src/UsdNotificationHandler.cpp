@@ -226,15 +226,15 @@ void processCesiumGlobeAnchorChanged(
     // clang-format off
     for (const auto& property : properties) {
         if (detectTransformChanges &&
-            (property == pxr::UsdTokens->xformOp_translate ||
-             property == pxr::UsdTokens->xformOp_rotateXYZ ||
-             property == pxr::UsdTokens->xformOp_rotateXZY ||
-             property == pxr::UsdTokens->xformOp_rotateYXZ ||
-             property == pxr::UsdTokens->xformOp_rotateYZX ||
-             property == pxr::UsdTokens->xformOp_rotateZXY ||
-             property == pxr::UsdTokens->xformOp_rotateZYX ||
-             property == pxr::UsdTokens->xformOp_orient ||
-             property == pxr::UsdTokens->xformOp_scale)) {
+            (property == pxr::UsdTokens3->xformOp_translate ||
+             property == pxr::UsdTokens3->xformOp_rotateXYZ ||
+             property == pxr::UsdTokens3->xformOp_rotateXZY ||
+             property == pxr::UsdTokens3->xformOp_rotateYXZ ||
+             property == pxr::UsdTokens3->xformOp_rotateYZX ||
+             property == pxr::UsdTokens3->xformOp_rotateZXY ||
+             property == pxr::UsdTokens3->xformOp_rotateZYX ||
+             property == pxr::UsdTokens3->xformOp_orient ||
+             property == pxr::UsdTokens3->xformOp_scale)) {
             updateByPrimLocalTransform = true;
             updateBindings = true;
         } else if (property == pxr::CesiumTokens->cesiumAnchorLongitude ||
@@ -309,7 +309,7 @@ void processCesiumTilesetChanged(
             property == pxr::CesiumTokens->cesiumRasterOverlayBinding ||
             property == pxr::CesiumTokens->cesiumPointSize ||
             property == pxr::CesiumTokens->cesiumGeoreferenceBinding ||
-            property == pxr::UsdTokens->material_binding) {
+            property == pxr::UsdTokens3->material_binding) {
             reload = true;
         } else if (
             property == pxr::CesiumTokens->cesiumMaximumScreenSpaceError ||
@@ -326,8 +326,8 @@ void processCesiumTilesetChanged(
             property == pxr::CesiumTokens->cesiumMainThreadLoadingTimeLimit) {
             updateTilesetOptions = true;
         } else if (
-            property == pxr::UsdTokens->primvars_displayColor ||
-            property == pxr::UsdTokens->primvars_displayOpacity) {
+            property == pxr::UsdTokens3->primvars_displayColor ||
+            property == pxr::UsdTokens3->primvars_displayOpacity) {
             updateDisplayColorAndOpacity = true;
         }
     }
@@ -658,7 +658,7 @@ void processCesiumCartographicPolygonChanged(
     auto updateBindings = false;
 
     for (const auto& property : properties) {
-        if (property == pxr::UsdTokens->points) {
+        if (property == pxr::UsdTokens2->points) {
             updateBindings = true;
         }
     }

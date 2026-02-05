@@ -11,8 +11,9 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
 #endif
 
 // Note: variable names should match the USD token names as closely as possible, with special characters converted to underscores
+// Split into multiple sequences to avoid MSVC C1009 "macros nested too deeply" error
 
-#define USD_TOKENS \
+#define USD_TOKENS_1 \
     (base_color_texture) \
     (cesium_base_color_texture_float4) \
     (cesium_feature_id_int) \
@@ -63,7 +64,9 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     (cesium_property_int) \
     (cesium_property_int2) \
     (cesium_property_int3) \
-    (cesium_property_int4) \
+    (cesium_property_int4)
+
+#define USD_TOKENS_2 \
     (clipping_raster_overlay_resolver) \
     (doubleSided) \
     (extent) \
@@ -113,7 +116,9 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
     ((inputs_maximum_value, "inputs:maximum_value")) \
     ((inputs_metallic_factor, "inputs:metallic_factor")) \
     ((inputs_no_data, "inputs:no_data")) \
-    ((inputs_null_feature_id, "inputs:null_feature_id")) \
+    ((inputs_null_feature_id, "inputs:null_feature_id"))
+
+#define USD_TOKENS_3 \
     ((inputs_offset, "inputs:offset")) \
     ((inputs_primvar_name, "inputs:primvar_name")) \
     ((inputs_property_id, "inputs:property_id")) \
@@ -159,20 +164,37 @@ __pragma(warning(push)) __pragma(warning(disable : 4003))
 #pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
 #endif
 
-TF_DECLARE_PUBLIC_TOKENS(UsdTokens, USD_TOKENS);
+TF_DECLARE_PUBLIC_TOKENS(UsdTokens1, USD_TOKENS_1);
+TF_DECLARE_PUBLIC_TOKENS(UsdTokens2, USD_TOKENS_2);
+TF_DECLARE_PUBLIC_TOKENS(UsdTokens3, USD_TOKENS_3);
 
 #ifdef CESIUM_OMNI_CLANG
 #pragma clang diagnostic pop
 #endif
 
-#define FABRIC_DEFINE_TOKEN_ELEM(elem) const omni::fabric::TokenC elem = omni::fabric::asInt(pxr::UsdTokens->elem);
+// Macros for defining FabricTokens from each UsdTokens struct
+#define FABRIC_DEFINE_TOKEN_ELEM_1(elem) const omni::fabric::TokenC elem = omni::fabric::asInt(pxr::UsdTokens1->elem);
+#define FABRIC_DEFINE_TOKEN_ELEM_2(elem) const omni::fabric::TokenC elem = omni::fabric::asInt(pxr::UsdTokens2->elem);
+#define FABRIC_DEFINE_TOKEN_ELEM_3(elem) const omni::fabric::TokenC elem = omni::fabric::asInt(pxr::UsdTokens3->elem);
 
-#define FABRIC_DEFINE_TOKEN(r, elem) \
+#define FABRIC_DEFINE_TOKEN_1(r, elem) \
     TF_PP_TUPLE_ELEM(0, _TF_PP_IFF(TF_PP_IS_TUPLE(elem), \
-        (FABRIC_DEFINE_TOKEN_ELEM(TF_PP_TUPLE_ELEM(0, elem))), \
-        (FABRIC_DEFINE_TOKEN_ELEM(elem))))
+        (FABRIC_DEFINE_TOKEN_ELEM_1(TF_PP_TUPLE_ELEM(0, elem))), \
+        (FABRIC_DEFINE_TOKEN_ELEM_1(elem))))
 
-#define FABRIC_DEFINE_TOKENS(seq) TF_PP_SEQ_FOR_EACH(FABRIC_DEFINE_TOKEN, ~, seq)
+#define FABRIC_DEFINE_TOKEN_2(r, elem) \
+    TF_PP_TUPLE_ELEM(0, _TF_PP_IFF(TF_PP_IS_TUPLE(elem), \
+        (FABRIC_DEFINE_TOKEN_ELEM_2(TF_PP_TUPLE_ELEM(0, elem))), \
+        (FABRIC_DEFINE_TOKEN_ELEM_2(elem))))
+
+#define FABRIC_DEFINE_TOKEN_3(r, elem) \
+    TF_PP_TUPLE_ELEM(0, _TF_PP_IFF(TF_PP_IS_TUPLE(elem), \
+        (FABRIC_DEFINE_TOKEN_ELEM_3(TF_PP_TUPLE_ELEM(0, elem))), \
+        (FABRIC_DEFINE_TOKEN_ELEM_3(elem))))
+
+#define FABRIC_DEFINE_TOKENS_1(seq) TF_PP_SEQ_FOR_EACH(FABRIC_DEFINE_TOKEN_1, ~, seq)
+#define FABRIC_DEFINE_TOKENS_2(seq) TF_PP_SEQ_FOR_EACH(FABRIC_DEFINE_TOKEN_2, ~, seq)
+#define FABRIC_DEFINE_TOKENS_3(seq) TF_PP_SEQ_FOR_EACH(FABRIC_DEFINE_TOKEN_3, ~, seq)
 
 #define FABRIC_DECLARE_TOKEN_ELEM(elem) extern const omni::fabric::TokenC elem;
 
@@ -190,7 +212,9 @@ __pragma(warning(pop))
 PXR_NAMESPACE_CLOSE_SCOPE
 
 namespace cesium::omniverse::FabricTokens {
-FABRIC_DECLARE_TOKENS(USD_TOKENS);
+FABRIC_DECLARE_TOKENS(USD_TOKENS_1);
+FABRIC_DECLARE_TOKENS(USD_TOKENS_2);
+FABRIC_DECLARE_TOKENS(USD_TOKENS_3);
 
 const omni::fabric::TokenC feature_id_n(uint64_t index);
 const omni::fabric::TokenC raster_overlay_n(uint64_t index);

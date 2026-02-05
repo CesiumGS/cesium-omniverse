@@ -269,14 +269,20 @@ add_prebuilt_project(
         "${NVIDIA_USD_ROOT}/${NVIDIA_DEBUG_FOLDER_NAME}/include"
     RELEASE_LIBRARY_DIR
         "${NVIDIA_USD_ROOT}/${NVIDIA_RELEASE_FOLDER_NAME}/lib"
+    RELEASE_DLL_DIR
+        "${NVIDIA_USD_ROOT}/${NVIDIA_RELEASE_FOLDER_NAME}/bin"
     DEBUG_LIBRARY_DIR
         "${NVIDIA_USD_ROOT}/${NVIDIA_DEBUG_FOLDER_NAME}/lib"
+    DEBUG_DLL_DIR
+        "${NVIDIA_USD_ROOT}/${NVIDIA_DEBUG_FOLDER_NAME}/bin"
     RELEASE_LIBRARIES
         ${NVIDIA_USD_RELEASE_LIBRARIES}
     DEBUG_LIBRARIES
         ${NVIDIA_USD_DEBUG_LIBRARIES}
     TARGET_NAMES
         ${NVIDIA_USD_TARGET_NAMES}
+    TARGETS_IN_DLL_DIR
+        tbb
 )
 # cmake-format: on
 
@@ -391,21 +397,14 @@ add_prebuilt_project(
 # cmake-format: on
 
 if(WIN32)
-    set(NVIDIA_ADDITIONAL_LIBRARIES "${KIT_IMGUI_ROOT}/bin/imgui.dll" "${KIT_IMGUI_ROOT}/bin/deps/freetype.dll")
+    set(NVIDIA_ADDITIONAL_LIBRARIES "${KIT_IMGUI_ROOT}/bin/imgui.dll")
 
     set_property(GLOBAL PROPERTY NVIDIA_ADDITIONAL_LIBRARIES_PROPERTY "${NVIDIA_ADDITIONAL_LIBRARIES}")
 else()
     set(NVIDIA_ADDITIONAL_SEARCH_PATHS
         "$<TARGET_FILE_DIR:python311>"
         "$<TARGET_FILE_DIR:usd_usd>"
-        "$<TARGET_FILE_DIR:carb>"
-        # This is where freetype is located on Linux
-        "${KIT_IMGUI_ROOT}/bin/deps")
-
-    set(NVIDIA_ADDITIONAL_LINK_DIRECTORIES
-        # This is where freetype is located on Linux. Needed by imgui which doesn't set its rpath properly
-        "${KIT_IMGUI_ROOT}/bin/deps")
+        "$<TARGET_FILE_DIR:carb>")
 
     set_property(GLOBAL PROPERTY NVIDIA_ADDITIONAL_SEARCH_PATHS_PROPERTY "${NVIDIA_ADDITIONAL_SEARCH_PATHS}")
-    set_property(GLOBAL PROPERTY NVIDIA_ADDITIONAL_LINK_DIRECTORIES_PROPERTY "${NVIDIA_ADDITIONAL_LINK_DIRECTORIES}")
 endif()

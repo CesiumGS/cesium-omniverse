@@ -1895,7 +1895,7 @@ void FabricMaterial::setRasterOverlayAlphaValue(const omni::fabric::Path& path, 
 }
 
 void FabricMaterial::setFeatureIdIndexValues(const omni::fabric::Path& path, int nullFeatureId) {
-    setFeatureIdAttributeValues(path, pxr::UsdTokens->vertexId.GetString(), nullFeatureId);
+    setFeatureIdAttributeValues(path, pxr::UsdTokens2->vertexId.GetString(), nullFeatureId);
 }
 
 void FabricMaterial::setFeatureIdAttributeValues(

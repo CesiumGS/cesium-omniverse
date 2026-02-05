@@ -6,7 +6,7 @@ function(setup_lib)
         ""
         ""
         "TARGET_NAME;TYPE"
-        "SOURCES;INCLUDE_DIRS;PRIVATE_INCLUDE_DIRS;LIBRARIES;ADDITIONAL_LIBRARIES;ADDITIONAL_LINK_DIRECTORIES;DEPENDENCIES;CXX_FLAGS;CXX_FLAGS_DEBUG;CXX_DEFINES;CXX_DEFINES_DEBUG"
+        "SOURCES;INCLUDE_DIRS;PRIVATE_INCLUDE_DIRS;LIBRARIES;ADDITIONAL_LIBRARIES;DEPENDENCIES;CXX_FLAGS;CXX_FLAGS_DEBUG;CXX_DEFINES;CXX_DEFINES_DEBUG"
         ${ARGN})
 
     if(_TYPE)
@@ -42,10 +42,6 @@ function(setup_lib)
 
     if(CESIUM_OMNI_ENABLE_COVERAGE AND NOT WIN32)
         target_link_libraries(${_TARGET_NAME} PUBLIC gcov)
-    endif()
-
-    if(_ADDITIONAL_LINK_DIRECTORIES)
-        target_link_directories(${_TARGET_NAME} PUBLIC ${_ADDITIONAL_LINK_DIRECTORIES})
     endif()
 
     if(WIN32 AND ${TYPE} STREQUAL "SHARED")
@@ -387,7 +383,7 @@ function(add_prebuilt_project)
         ""
         ""
         "RELEASE_INCLUDE_DIR;DEBUG_INCLUDE_DIR;RELEASE_LIBRARY_DIR;RELEASE_DLL_DIR;DEBUG_LIBRARY_DIR;DEBUG_DLL_DIR"
-        "RELEASE_LIBRARIES;RELEASE_DLL_LIBRARIES;DEBUG_LIBRARIES;DEBUG_DLL_LIBRARIES;TARGET_NAMES"
+        "RELEASE_LIBRARIES;RELEASE_DLL_LIBRARIES;DEBUG_LIBRARIES;DEBUG_DLL_LIBRARIES;TARGET_NAMES;TARGETS_IN_DLL_DIR"
         ${ARGN})
 
     if(NOT DEFINED _RELEASE_DLL_LIBRARIES)
@@ -445,8 +441,25 @@ $<$<CONFIG:MinSizeRel>:${_RELEASE_INCLUDE_DIR}>")
                 PATHS ${_DEBUG_LIBRARY_DIR}
                 NO_DEFAULT_PATH NO_CACHE)
 
-            set(${TARGET_NAME}_LIBRARY_RELEASE "${_RELEASE_DLL_DIR}/${RELEASE_DLL_NAME}.dll")
-            set(${TARGET_NAME}_LIBRARY_DEBUG "${_DEBUG_DLL_DIR}/${DEBUG_DLL_NAME}.dll")
+            # Determine which directory to use for DLLs
+            # If TARGETS_IN_DLL_DIR is empty, default to DLL_DIR for all targets
+            # Otherwise, only targets in TARGETS_IN_DLL_DIR use DLL_DIR; others use LIBRARY_DIR
+            if(NOT _TARGETS_IN_DLL_DIR)
+                # Empty list - default all to DLL_DIR
+                set(RELEASE_DLL_LOCATION "${_RELEASE_DLL_DIR}")
+                set(DEBUG_DLL_LOCATION "${_DEBUG_DLL_DIR}")
+            elseif(TARGET_NAME IN_LIST _TARGETS_IN_DLL_DIR)
+                # Target is in the DLL_DIR list
+                set(RELEASE_DLL_LOCATION "${_RELEASE_DLL_DIR}")
+                set(DEBUG_DLL_LOCATION "${_DEBUG_DLL_DIR}")
+            else()
+                # Target is not in the DLL_DIR list - use LIBRARY_DIR
+                set(RELEASE_DLL_LOCATION "${_RELEASE_LIBRARY_DIR}")
+                set(DEBUG_DLL_LOCATION "${_DEBUG_LIBRARY_DIR}")
+            endif()
+
+            set(${TARGET_NAME}_LIBRARY_RELEASE "${RELEASE_DLL_LOCATION}/${RELEASE_DLL_NAME}.dll")
+            set(${TARGET_NAME}_LIBRARY_DEBUG "${DEBUG_DLL_LOCATION}/${DEBUG_DLL_NAME}.dll")
         else()
             find_library(
                 ${TARGET_NAME}_LIBRARY_RELEASE

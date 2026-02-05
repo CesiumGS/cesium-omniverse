@@ -16,8 +16,10 @@
   <!--TODO: update these-->
   <dependency name="omni-ui" linkPath="../_build/target-deps/omni-ui/">
     <package name="omni.ui" version="8cfe2dbd9d3266b6" platforms="linux-x86_64 manylinux_2_35_x86_64"/>
+    <package name="omni.ui" version="1fbb6da913c9dfa8" platforms="windows-x86_64"/>
   </dependency>
   <dependency name="omni-kit-renderer-imgui" linkPath="../_build/target-deps/omni-kit-renderer-imgui/">
     <package name="omni.kit.renderer.imgui" version="617e1ab163fd09a2" platforms="linux-x86_64 manylinux_2_35_x86_64" />
+    <package name="omni.kit.renderer.imgui" version="9bfff9ba25aa72c2" platforms="windows-x86_64" />
   </dependency>
 </project>

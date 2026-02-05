@@ -15,9 +15,9 @@ __pragma(warning(disable: 4003))
 #pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
 #endif
 
-TF_DEFINE_PUBLIC_TOKENS(
-    UsdTokens,
-    USD_TOKENS);
+TF_DEFINE_PUBLIC_TOKENS(UsdTokens1, USD_TOKENS_1);
+TF_DEFINE_PUBLIC_TOKENS(UsdTokens2, USD_TOKENS_2);
+TF_DEFINE_PUBLIC_TOKENS(UsdTokens3, USD_TOKENS_3);
 
 #ifdef CESIUM_OMNI_CLANG
 #pragma clang diagnostic pop
@@ -31,7 +31,9 @@ PXR_NAMESPACE_CLOSE_SCOPE
     // clang-format on
 
     namespace cesium::omniverse::FabricTokens {
-    FABRIC_DEFINE_TOKENS(USD_TOKENS);
+    FABRIC_DEFINE_TOKENS_1(USD_TOKENS_1);
+    FABRIC_DEFINE_TOKENS_2(USD_TOKENS_2);
+    FABRIC_DEFINE_TOKENS_3(USD_TOKENS_3);
 
     namespace {
     std::mutex tokenMutex;
