@@ -13,7 +13,6 @@
   [71.368s] Pulling extension: `omni.kit.renderer.imgui-1.0.2` from the registry.
   [omni.kit.registry.nucleus] [tid: 140737352547200] downloading: 'http://d4i3qtqj3r0z5.cloudfront.net/omni.kit.renderer.imgui-61a6e663a4d57772.zip' -> '/tmp/tmpi1uqvpk1/omni.kit.renderer.imgui-1.0.2+d02c707b.lx64.r.cp310.zip'...
   -->
-  <!--TODO: update these-->
   <dependency name="omni-ui" linkPath="../_build/target-deps/omni-ui/">
     <package name="omni.ui" version="8cfe2dbd9d3266b6" platforms="linux-x86_64 manylinux_2_35_x86_64"/>
     <package name="omni.ui" version="1fbb6da913c9dfa8" platforms="windows-x86_64"/>
