@@ -78,9 +78,9 @@ class CesiumPowertoolsExtension(omni.ext.IExt):
         vendor_wheels: List[WheelInfo] = [
             WheelInfo(
                 module="pyproj",
-                windows_whl="pyproj-3.6.0-cp311-cp311-win_amd64.whl",
-                linux_x64_whl="pyproj-3.6.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
-                linux_aarch_whl="pyproj-3.6.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl",
+                windows_whl="pyproj-3.7.2-cp312-cp312-win_amd64.whl",
+                linux_x64_whl="pyproj-3.7.2-cp312-cp312-manylinux_2_28_x86_64.whl",
+                linux_aarch_whl="pyproj-3.7.2-cp312-cp312-manylinux_2_28_aarch64.whl",
             )
         ]
 

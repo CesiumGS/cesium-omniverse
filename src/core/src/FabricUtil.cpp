@@ -29,14 +29,14 @@ const std::string_view TYPE_NOT_SUPPORTED_STRING = "[Type Not Supported]";
 // Wraps the token type so that we can define a custom stream insertion operator
 class TokenWrapper {
   private:
-    omni::fabric::TokenC token;
+    omni::fabric::Token token;
 
   public:
     friend std::ostream& operator<<(std::ostream& os, const TokenWrapper& tokenWrapper);
 };
 
 std::ostream& operator<<(std::ostream& os, const TokenWrapper& tokenWrapper) {
-    os << omni::fabric::Token(tokenWrapper.token).getString();
+    os << tokenWrapper.token.getString();
     return os;
 }
 
@@ -63,13 +63,13 @@ class AssetWrapper {
 };
 
 std::ostream& operator<<(std::ostream& os, const AssetWrapper& assetWrapper) {
-    if (assetWrapper.asset.assetPath == omni::fabric::kUninitializedToken) {
+    if (assetWrapper.asset.assetPath.isNull()) {
         os << NO_DATA_STRING;
         return os;
     }
 
-    os << "Asset Path: " << omni::fabric::Token(assetWrapper.asset.assetPath).getText()
-       << ", Resolved Path: " << omni::fabric::Token(assetWrapper.asset.resolvedPath).getText();
+    os << "Asset Path: " << assetWrapper.asset.assetPath.getText()
+       << ", Resolved Path: " << assetWrapper.asset.resolvedPath.getText();
     return os;
 }
 
@@ -153,8 +153,8 @@ std::string printConnection(
         return std::string(NO_DATA_STRING);
     }
 
-    const auto path = omni::fabric::Path(pConnection->path).getText();
-    const auto attrName = omni::fabric::Token(pConnection->attrName).getText();
+    const auto path = pConnection->path.getString();
+    const auto attrName = pConnection->attrName.getText();
 
     return fmt::format("Path: {}, Attribute Name: {}", path, attrName);
 }
@@ -430,8 +430,8 @@ std::string printFabricStage(omni::fabric::StageReaderWriter& fabricStage) {
         const auto& primPaths = fabricStage.getPathArray(buckets, bucketId);
 
         for (const auto& primPath : primPaths) {
-            const auto primPathString = primPath.getText();
-            const auto primPathUint64 = primPath.asPathC().path;
+            const auto primPathString = primPath.getString();
+            const auto primPathUint64 = primPath.getHash();
 
             stream << fmt::format("Prim: {} ({})\n", primPathString, primPathUint64);
             stream << fmt::format("  Attributes:\n");
@@ -459,12 +459,12 @@ FabricStatistics getStatistics(omni::fabric::StageReaderWriter& fabricStage) {
     FabricStatistics statistics;
 
     const auto geometryBuckets = fabricStage.findPrims(
-        {omni::fabric::AttrNameAndType(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId)},
-        {omni::fabric::AttrNameAndType(FabricTypes::Mesh, FabricTokens::Mesh)});
+        {omni::fabric::AttrNameAndType(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId())},
+        {omni::fabric::AttrNameAndType(FabricTypes::Mesh, FabricTokens::Mesh())});
 
     const auto materialBuckets = fabricStage.findPrims(
-        {omni::fabric::AttrNameAndType(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId)},
-        {omni::fabric::AttrNameAndType(FabricTypes::Material, FabricTokens::Material)});
+        {omni::fabric::AttrNameAndType(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId())},
+        {omni::fabric::AttrNameAndType(FabricTypes::Material, FabricTokens::Material())});
 
     for (uint64_t bucketId = 0; bucketId < geometryBuckets.bucketCount(); ++bucketId) {
         const auto paths = fabricStage.getPathArray(geometryBuckets, bucketId);
@@ -472,10 +472,10 @@ FabricStatistics getStatistics(omni::fabric::StageReaderWriter& fabricStage) {
         statistics.geometriesCapacity += paths.size();
 
         for (const auto& path : paths) {
-            const auto worldVisibilityFabric = fabricStage.getAttributeRd<bool>(path, FabricTokens::_worldVisibility);
+            const auto worldVisibilityFabric = fabricStage.getAttributeRd<bool>(path, FabricTokens::_worldVisibility());
             const auto faceVertexCountsFabric =
-                fabricStage.getArrayAttributeRd<int>(path, FabricTokens::faceVertexCounts);
-            const auto tilesetIdFabric = fabricStage.getAttributeRd<int64_t>(path, FabricTokens::_cesium_tilesetId);
+                fabricStage.getArrayAttributeRd<int>(path, FabricTokens::faceVertexCounts());
+            const auto tilesetIdFabric = fabricStage.getAttributeRd<int64_t>(path, FabricTokens::_cesium_tilesetId());
 
             assert(worldVisibilityFabric);
             assert(tilesetIdFabric);
@@ -500,7 +500,7 @@ FabricStatistics getStatistics(omni::fabric::StageReaderWriter& fabricStage) {
         auto paths = fabricStage.getPathArray(materialBuckets, bucketId);
 
         const auto tilesetIdFabric =
-            fabricStage.getAttributeArrayRd<int64_t>(materialBuckets, bucketId, FabricTokens::_cesium_tilesetId);
+            fabricStage.getAttributeArrayRd<int64_t>(materialBuckets, bucketId, FabricTokens::_cesium_tilesetId());
 
         statistics.materialsCapacity += paths.size();
 
@@ -521,16 +521,16 @@ void destroyPrim(omni::fabric::StageReaderWriter& fabricStage, const omni::fabri
 
     // Prims removed from Fabric need special handling for their removal to be reflected in the Hydra render index
     // This workaround may not be needed in future Kit versions, but is needed as of Kit 105.0
-    const omni::fabric::Path changeTrackingPath("/TempChangeTracking");
+    const auto changeTrackingPath = omni::fabric::Path::createImmortal("/TempChangeTracking");
 
-    if (!fabricStage.getAttributeRd<omni::fabric::PathC>(changeTrackingPath, FabricTokens::_deletedPrims)) {
+    if (!fabricStage.getAttributeRd<omni::fabric::Path>(changeTrackingPath, FabricTokens::_deletedPrims())) {
         return;
     }
 
-    const auto deletedPrimsSize = fabricStage.getArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims);
-    fabricStage.setArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims, deletedPrimsSize + 1);
+    const auto deletedPrimsSize = fabricStage.getArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims());
+    fabricStage.setArrayAttributeSize(changeTrackingPath, FabricTokens::_deletedPrims(), deletedPrimsSize + 1);
     const auto deletedPrimsFabric =
-        fabricStage.getArrayAttributeWr<omni::fabric::PathC>(changeTrackingPath, FabricTokens::_deletedPrims);
+        fabricStage.getArrayAttributeWr<omni::fabric::Path>(changeTrackingPath, FabricTokens::_deletedPrims());
 
     deletedPrimsFabric[deletedPrimsSize] = path;
 }
@@ -540,18 +540,18 @@ void setTilesetTransform(
     int64_t tilesetId,
     const glm::dmat4& ecefToPrimWorldTransform) {
     const auto buckets = fabricStage.findPrims(
-        {omni::fabric::AttrNameAndType(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId)},
+        {omni::fabric::AttrNameAndType(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId())},
         {omni::fabric::AttrNameAndType(
-            FabricTypes::_cesium_gltfLocalToEcefTransform, FabricTokens::_cesium_gltfLocalToEcefTransform)});
+            FabricTypes::_cesium_gltfLocalToEcefTransform, FabricTokens::_cesium_gltfLocalToEcefTransform())});
 
     for (uint64_t bucketId = 0; bucketId < buckets.bucketCount(); ++bucketId) {
         // clang-format off
-        const auto tilesetIdFabric = fabricStage.getAttributeArrayRd<int64_t>(buckets, bucketId, FabricTokens::_cesium_tilesetId);
-        const auto gltfLocalToEcefTransformFabric = fabricStage.getAttributeArrayRd<pxr::GfMatrix4d>(buckets, bucketId, FabricTokens::_cesium_gltfLocalToEcefTransform);
-        const auto extentFabric = fabricStage.getAttributeArrayRd<pxr::GfRange3d>(buckets, bucketId, FabricTokens::extent);
-        const auto worldExtentFabric = fabricStage.getAttributeArrayWr<pxr::GfRange3d>(buckets, bucketId, FabricTokens::_worldExtent);
-        const auto localMatrixFabric = fabricStage.getAttributeArrayWr<pxr::GfMatrix4d>(buckets, bucketId, FabricTokens::omni_fabric_localMatrix);
-        const auto worldMatrixFabric = fabricStage.getAttributeArrayWr<pxr::GfMatrix4d>(buckets, bucketId, FabricTokens::omni_fabric_worldMatrix);
+        const auto tilesetIdFabric = fabricStage.getAttributeArrayRd<int64_t>(buckets, bucketId, FabricTokens::_cesium_tilesetId());
+        const auto gltfLocalToEcefTransformFabric = fabricStage.getAttributeArrayRd<pxr::GfMatrix4d>(buckets, bucketId, FabricTokens::_cesium_gltfLocalToEcefTransform());
+        const auto extentFabric = fabricStage.getAttributeArrayRd<pxr::GfRange3d>(buckets, bucketId, FabricTokens::extent());
+        const auto worldExtentFabric = fabricStage.getAttributeArrayWr<pxr::GfRange3d>(buckets, bucketId, FabricTokens::_worldExtent());
+        const auto localMatrixFabric = fabricStage.getAttributeArrayWr<pxr::GfMatrix4d>(buckets, bucketId, FabricTokens::omni_fabric_localMatrix());
+        const auto worldMatrixFabric = fabricStage.getAttributeArrayWr<pxr::GfMatrix4d>(buckets, bucketId, FabricTokens::omni_fabric_worldMatrix());
         // clang-format on
 
         for (uint64_t i = 0; i < tilesetIdFabric.size(); ++i) {
@@ -569,21 +569,21 @@ void setTilesetTransform(
 }
 
 omni::fabric::Path toFabricPath(const pxr::SdfPath& path) {
-    return {omni::fabric::asInt(path)};
+    return omni::fabric::getOrCreateImmortalPath(path);
 }
 
 omni::fabric::Token toFabricToken(const pxr::TfToken& token) {
-    return {omni::fabric::asInt(token)};
+    return omni::fabric::Token::createImmortal(token.GetText());
 }
 
 omni::fabric::Path joinPaths(const omni::fabric::Path& absolutePath, const omni::fabric::Token& relativePath) {
-    return {fmt::format("{}/{}", absolutePath.getText(), relativePath.getText()).c_str()};
+    return omni::fabric::Path::createImmortal(fmt::format("{}/{}", absolutePath.getString(), relativePath.getText()).c_str());
 }
 
 omni::fabric::Path getCopiedShaderPath(const omni::fabric::Path& materialPath, const omni::fabric::Path& shaderPath) {
     // materialPath is the FabricMaterial path
     // shaderPath is the USD shader path
-    return FabricUtil::joinPaths(materialPath, omni::fabric::Token(UsdUtil::getSafeName(shaderPath.getText()).c_str()));
+    return FabricUtil::joinPaths(materialPath, omni::fabric::Token::createImmortal(UsdUtil::getSafeName(shaderPath.getString()).c_str()));
 }
 
 namespace {
@@ -617,7 +617,7 @@ getConnections(omni::fabric::StageReaderWriter& fabricStage, const omni::fabric:
 }
 
 bool isOutput(const omni::fabric::Token& attributeName) {
-    return attributeName == FabricTokens::outputs_out;
+    return attributeName == FabricTokens::outputs_out();
 }
 
 bool isConnection(const omni::fabric::Type& attributeType) {
@@ -630,8 +630,8 @@ bool isEmptyToken(
     const omni::fabric::Token& attributeName,
     const omni::fabric::Type& attributeType) {
     if (attributeType.baseType == omni::fabric::BaseDataType::eToken) {
-        const auto pAttributeValue = fabricStage.getAttributeRd<omni::fabric::TokenC>(path, attributeName);
-        if (!pAttributeValue || *pAttributeValue == omni::fabric::kUninitializedToken) {
+        const auto pAttributeValue = fabricStage.getAttributeRd<omni::fabric::Token>(path, attributeName);
+        if (!pAttributeValue || pAttributeValue->isNull()) {
             return true;
         }
     }
@@ -639,9 +639,9 @@ bool isEmptyToken(
     return false;
 }
 
-std::vector<omni::fabric::TokenC>
+std::vector<omni::fabric::Token>
 getAttributesToCopy(omni::fabric::StageReaderWriter& fabricStage, const omni::fabric::Path& path) {
-    std::vector<omni::fabric::TokenC> attributeNames;
+    std::vector<omni::fabric::Token> attributeNames;
 
     const auto attributes = fabricStage.getAttributeNamesAndTypes(path);
     const auto& names = attributes.first;
@@ -652,7 +652,7 @@ getAttributesToCopy(omni::fabric::StageReaderWriter& fabricStage, const omni::fa
         const auto& type = types[i];
 
         if (!isOutput(name) && !isConnection(type) && !isEmptyToken(fabricStage, path, name, type)) {
-            attributeNames.push_back(name.asTokenC());
+            attributeNames.push_back(name);
         }
     }
 
@@ -707,9 +707,9 @@ getPrimsInMaterialNetwork(omni::fabric::StageReaderWriter& fabricStage, const om
 }
 
 omni::fabric::Path getMaterialSource(omni::fabric::StageReaderWriter& fabricStage, const omni::fabric::Path& path) {
-    if (fabricStage.attributeExistsWithType(path, FabricTokens::_materialSource, FabricTypes::_materialSource)) {
+    if (fabricStage.attributeExistsWithType(path, FabricTokens::_materialSource(), FabricTypes::_materialSource)) {
         const auto materialSourceFabric =
-            fabricStage.getArrayAttributeRd<omni::fabric::PathC>(path, FabricTokens::_materialSource);
+            fabricStage.getArrayAttributeRd<omni::fabric::Path>(path, FabricTokens::_materialSource());
         if (!materialSourceFabric.empty()) {
             return *materialSourceFabric.begin();
         }
@@ -739,8 +739,8 @@ std::vector<omni::fabric::Path> copyMaterial(
         if (srcPath == materialSourcePath) {
             dstPath = dstMaterialPath;
         } else {
-            const auto name = omni::fabric::Token(std::strrchr(srcPath.getText(), '/') + 1);
-            dstPath = FabricUtil::getCopiedShaderPath(dstMaterialPath, srcMaterialPath.appendChild(name));
+            const auto name = omni::fabric::Token::createImmortal(std::strrchr(srcPath.getString().c_str(), '/') + 1);
+            dstPath = FabricUtil::getCopiedShaderPath(dstMaterialPath, srcMaterialPath.appendChild(fabricStage.getFabricId(), name));
         }
 
         dstPaths.push_back(dstPath);
@@ -777,7 +777,7 @@ std::vector<omni::fabric::Path> copyMaterial(
             const auto index = CppUtil::indexOf(srcPaths, connection.pConnection->path);
             assert(index != srcPaths.size()); // Ensure that all connections are part of the material network
             const auto dstConnection =
-                omni::fabric::Connection{dstPaths[index].asPathC(), connection.pConnection->attrName};
+                omni::fabric::Connection{dstPaths[index], connection.pConnection->attrName};
             fabricStage.createConnection(dstPath, connection.attributeName, dstConnection);
         }
     }
@@ -801,18 +801,18 @@ bool materialHasCesiumNodes(omni::fabric::StageReaderWriter& fabricStage, const 
 }
 
 bool isCesiumNode(const omni::fabric::Token& mdlIdentifier) {
-    return mdlIdentifier == FabricTokens::cesium_base_color_texture_float4 ||
-           mdlIdentifier == FabricTokens::cesium_raster_overlay_float4 ||
-           mdlIdentifier == FabricTokens::cesium_feature_id_int || isCesiumPropertyNode(mdlIdentifier);
+    return mdlIdentifier == FabricTokens::cesium_base_color_texture_float4() ||
+           mdlIdentifier == FabricTokens::cesium_raster_overlay_float4() ||
+           mdlIdentifier == FabricTokens::cesium_feature_id_int() || isCesiumPropertyNode(mdlIdentifier);
 }
 
 bool isCesiumPropertyNode(const omni::fabric::Token& mdlIdentifier) {
-    return mdlIdentifier == FabricTokens::cesium_property_int || mdlIdentifier == FabricTokens::cesium_property_int2 ||
-           mdlIdentifier == FabricTokens::cesium_property_int3 || mdlIdentifier == FabricTokens::cesium_property_int4 ||
-           mdlIdentifier == FabricTokens::cesium_property_float ||
-           mdlIdentifier == FabricTokens::cesium_property_float2 ||
-           mdlIdentifier == FabricTokens::cesium_property_float3 ||
-           mdlIdentifier == FabricTokens::cesium_property_float4;
+    return mdlIdentifier == FabricTokens::cesium_property_int() || mdlIdentifier == FabricTokens::cesium_property_int2() ||
+           mdlIdentifier == FabricTokens::cesium_property_int3() || mdlIdentifier == FabricTokens::cesium_property_int4() ||
+           mdlIdentifier == FabricTokens::cesium_property_float() ||
+           mdlIdentifier == FabricTokens::cesium_property_float2() ||
+           mdlIdentifier == FabricTokens::cesium_property_float3() ||
+           mdlIdentifier == FabricTokens::cesium_property_float4();
 }
 
 bool isShaderConnectedToMaterial(
@@ -827,9 +827,9 @@ bool isShaderConnectedToMaterial(
 }
 
 omni::fabric::Token getMdlIdentifier(omni::fabric::StageReaderWriter& fabricStage, const omni::fabric::Path& path) {
-    if (fabricStage.attributeExists(path, FabricTokens::info_mdl_sourceAsset_subIdentifier)) {
+    if (fabricStage.attributeExists(path, FabricTokens::info_mdl_sourceAsset_subIdentifier())) {
         const auto pInfoMdlSourceAssetSubIdentifierFabric =
-            fabricStage.getAttributeRd<omni::fabric::TokenC>(path, FabricTokens::info_mdl_sourceAsset_subIdentifier);
+            fabricStage.getAttributeRd<omni::fabric::Token>(path, FabricTokens::info_mdl_sourceAsset_subIdentifier());
         if (pInfoMdlSourceAssetSubIdentifierFabric) {
             return *pInfoMdlSourceAssetSubIdentifierFabric;
         }
@@ -846,21 +846,21 @@ omni::fabric::Type getPrimvarType(DataType type) {
 MdlExternalPropertyType getMdlExternalPropertyType(const omni::fabric::Token& mdlIdentifier) {
     assert(isCesiumPropertyNode(mdlIdentifier));
 
-    if (mdlIdentifier == FabricTokens::cesium_property_int) {
+    if (mdlIdentifier == FabricTokens::cesium_property_int()) {
         return MdlExternalPropertyType::INT32;
-    } else if (mdlIdentifier == FabricTokens::cesium_property_int2) {
+    } else if (mdlIdentifier == FabricTokens::cesium_property_int2()) {
         return MdlExternalPropertyType::VEC2_INT32;
-    } else if (mdlIdentifier == FabricTokens::cesium_property_int3) {
+    } else if (mdlIdentifier == FabricTokens::cesium_property_int3()) {
         return MdlExternalPropertyType::VEC3_INT32;
-    } else if (mdlIdentifier == FabricTokens::cesium_property_int4) {
+    } else if (mdlIdentifier == FabricTokens::cesium_property_int4()) {
         return MdlExternalPropertyType::VEC4_INT32;
-    } else if (mdlIdentifier == FabricTokens::cesium_property_float) {
+    } else if (mdlIdentifier == FabricTokens::cesium_property_float()) {
         return MdlExternalPropertyType::FLOAT32;
-    } else if (mdlIdentifier == FabricTokens::cesium_property_float2) {
+    } else if (mdlIdentifier == FabricTokens::cesium_property_float2()) {
         return MdlExternalPropertyType::VEC2_FLOAT32;
-    } else if (mdlIdentifier == FabricTokens::cesium_property_float3) {
+    } else if (mdlIdentifier == FabricTokens::cesium_property_float3()) {
         return MdlExternalPropertyType::VEC3_FLOAT32;
-    } else if (mdlIdentifier == FabricTokens::cesium_property_float4) {
+    } else if (mdlIdentifier == FabricTokens::cesium_property_float4()) {
         return MdlExternalPropertyType::VEC4_FLOAT32;
     }
 
@@ -962,7 +962,7 @@ bool typesCompatible(MdlExternalPropertyType externalType, MdlInternalPropertyTy
 }
 
 omni::fabric::Token getDynamicTextureProviderAssetPathToken(const std::string_view& name) {
-    return omni::fabric::Token(fmt::format("dynamic://{}", name).c_str());
+    return omni::fabric::Token::createImmortal(fmt::format("dynamic://{}", name).c_str());
 }
 
 } // namespace cesium::omniverse::FabricUtil

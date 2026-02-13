@@ -9,13 +9,13 @@
 #include "pxr/base/tf/pyUtils.h"
 #include "pxr/base/tf/wrapTypeHelpers.h"
 
-#include <boost/python.hpp>
+#include "pxr/external/boost/python.hpp"
 
 #include <string>
 
-using namespace boost::python;
-
 PXR_NAMESPACE_USING_DIRECTIVE
+
+using namespace pxr_boost::python;
 
 namespace {
 
@@ -30,7 +30,7 @@ static UsdAttribute
 _CreateRadiiAttr(CesiumEllipsoid &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateRadiiAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double3), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Double3), writeSparsely);
 }
 
 static std::string
