@@ -9,13 +9,13 @@
 #include "pxr/base/tf/pyUtils.h"
 #include "pxr/base/tf/wrapTypeHelpers.h"
 
-#include <boost/python.hpp>
+#include "pxr/external/boost/python.hpp"
 
 #include <string>
 
-using namespace boost::python;
-
 PXR_NAMESPACE_USING_DIRECTIVE
+
+using namespace pxr_boost::python;
 
 namespace {
 
@@ -30,21 +30,21 @@ static UsdAttribute
 _CreateInvertSelectionAttr(CesiumPolygonRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateInvertSelectionAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
 _CreateExcludeSelectedTilesAttr(CesiumPolygonRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateExcludeSelectedTilesAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
 _CreateCesiumOverlayRenderMethodAttr(CesiumPolygonRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateCesiumOverlayRenderMethodAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Token), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Token), writeSparsely);
 }
 
 static std::string

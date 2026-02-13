@@ -1,8 +1,10 @@
 // GENERATED FILE.  DO NOT EDIT.
-#include <boost/python/class.hpp>
+#include "pxr/external/boost/python/class.hpp"
 #include ".//tokens.h"
 
 PXR_NAMESPACE_USING_DIRECTIVE
+
+using namespace pxr_boost::python;
 
 namespace {
 
@@ -28,19 +30,18 @@ void
 _AddToken(T& cls, const char* name, const TfToken& token)
 {
     cls.add_static_property(name,
-                            boost::python::make_function(
+                            make_function(
                                 _WrapStaticToken(&token),
-                                boost::python::return_value_policy<
-                                    boost::python::return_by_value>(),
-                                boost::mpl::vector1<std::string>()));
+                                return_value_policy<return_by_value>(),
+                                detail::type_list<std::string>()));
 }
 
 } // anonymous
 
 void wrapCesiumTokens()
 {
-    boost::python::class_<CesiumTokensType, boost::noncopyable>
-        cls("Tokens", boost::python::no_init);
+    pxr_boost::python::class_<CesiumTokensType, pxr_boost::python::noncopyable>
+        cls("Tokens", pxr_boost::python::no_init);
     _AddToken(cls, "cesiumAlpha", CesiumTokens->cesiumAlpha);
     _AddToken(cls, "cesiumAnchorAdjustOrientationForGlobeWhenMoving", CesiumTokens->cesiumAnchorAdjustOrientationForGlobeWhenMoving);
     _AddToken(cls, "cesiumAnchorDetectTransformChanges", CesiumTokens->cesiumAnchorDetectTransformChanges);

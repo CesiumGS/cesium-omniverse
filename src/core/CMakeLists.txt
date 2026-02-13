@@ -207,13 +207,13 @@ setup_lib(
         usd_usdVol
         usd_vt
         usd_work
-        boost_python311
+        usd_boost
         tbb
         carb
         omni_kit
         omni_ui
         pybind11
-        python311
+        python312
     ADDITIONAL_LIBRARIES
         "${ADDITIONAL_LIBRARIES}"
     ADDITIONAL_LINK_DIRECTORIES

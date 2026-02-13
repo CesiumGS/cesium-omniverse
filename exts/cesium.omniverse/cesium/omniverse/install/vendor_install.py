@@ -11,13 +11,9 @@ def perform_vendor_install():
     vendor_wheels: List[WheelInfo] = [
         WheelInfo(
             module="lxml",
-            windows_whl="lxml-4.9.2-cp311-cp311-win_amd64.whl",
-            linux_x64_whl=(
-                "lxml-4.9.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux_2_24_x86_64.whl"
-            ),
-            linux_aarch_whl=(
-                "lxml-4.9.2-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.manylinux_2_24_aarch64.whl"
-            ),
+            windows_whl="lxml-6.0.2-cp312-cp312-win_amd64.whl",
+            linux_x64_whl="lxml-6.0.2-cp312-cp312-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl",
+            linux_aarch_whl="lxml-6.0.2-cp312-cp312-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl"
         )
     ]
 

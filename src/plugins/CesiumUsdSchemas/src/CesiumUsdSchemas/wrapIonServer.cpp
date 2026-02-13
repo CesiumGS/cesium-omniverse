@@ -9,13 +9,13 @@
 #include "pxr/base/tf/pyUtils.h"
 #include "pxr/base/tf/wrapTypeHelpers.h"
 
-#include <boost/python.hpp>
+#include "pxr/external/boost/python.hpp"
 
 #include <string>
 
-using namespace boost::python;
-
 PXR_NAMESPACE_USING_DIRECTIVE
+
+using namespace pxr_boost::python;
 
 namespace {
 
@@ -30,42 +30,42 @@ static UsdAttribute
 _CreateDisplayNameAttr(CesiumIonServer &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateDisplayNameAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
 _CreateIonServerUrlAttr(CesiumIonServer &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateIonServerUrlAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
 _CreateIonServerApiUrlAttr(CesiumIonServer &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateIonServerApiUrlAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
 _CreateIonServerApplicationIdAttr(CesiumIonServer &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateIonServerApplicationIdAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int64), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Int64), writeSparsely);
 }
         
 static UsdAttribute
 _CreateProjectDefaultIonAccessTokenAttr(CesiumIonServer &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateProjectDefaultIonAccessTokenAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
 _CreateProjectDefaultIonAccessTokenIdAttr(CesiumIonServer &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateProjectDefaultIonAccessTokenIdAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->String), writeSparsely);
 }
 
 static std::string

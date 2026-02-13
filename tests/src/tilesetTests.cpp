@@ -53,7 +53,7 @@ void setUpTilesetTests(Context* pContext, const pxr::SdfPath& rootPath) {
     auto bus = app->getMessageBusEventStream();
     auto tilesetLoadedEvent = carb::events::typeFromString("cesium.omniverse.TILESET_LOADED");
     tilesetLoadListener = std::make_unique<TilesetLoadListener>();
-    endToEndTilesetSubscriptionPtr = bus->createSubscriptionToPushByType(tilesetLoadedEvent, tilesetLoadListener.get());
+    endToEndTilesetSubscriptionPtr = bus->createSubscriptionToPushByType(tilesetLoadedEvent, tilesetLoadListener.get(), carb::events::kDefaultOrder);
 
     // Load a local test tileset
     endToEndTilesetPath = UsdUtil::makeUniquePath(pContext->getUsdStage(), rootPath, "endToEndTileset");
