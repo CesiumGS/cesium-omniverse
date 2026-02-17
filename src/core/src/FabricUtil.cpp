@@ -577,13 +577,15 @@ omni::fabric::Token toFabricToken(const pxr::TfToken& token) {
 }
 
 omni::fabric::Path joinPaths(const omni::fabric::Path& absolutePath, const omni::fabric::Token& relativePath) {
-    return omni::fabric::Path::createImmortal(fmt::format("{}/{}", absolutePath.getString(), relativePath.getText()).c_str());
+    return omni::fabric::Path::createImmortal(
+        fmt::format("{}/{}", absolutePath.getString(), relativePath.getText()).c_str());
 }
 
 omni::fabric::Path getCopiedShaderPath(const omni::fabric::Path& materialPath, const omni::fabric::Path& shaderPath) {
     // materialPath is the FabricMaterial path
     // shaderPath is the USD shader path
-    return FabricUtil::joinPaths(materialPath, omni::fabric::Token::createImmortal(UsdUtil::getSafeName(shaderPath.getString()).c_str()));
+    return FabricUtil::joinPaths(
+        materialPath, omni::fabric::Token::createImmortal(UsdUtil::getSafeName(shaderPath.getString()).c_str()));
 }
 
 namespace {
@@ -740,7 +742,8 @@ std::vector<omni::fabric::Path> copyMaterial(
             dstPath = dstMaterialPath;
         } else {
             const auto name = omni::fabric::Token::createImmortal(std::strrchr(srcPath.getString().c_str(), '/') + 1);
-            dstPath = FabricUtil::getCopiedShaderPath(dstMaterialPath, srcMaterialPath.appendChild(fabricStage.getFabricId(), name));
+            dstPath = FabricUtil::getCopiedShaderPath(
+                dstMaterialPath, srcMaterialPath.appendChild(fabricStage.getFabricId(), name));
         }
 
         dstPaths.push_back(dstPath);
@@ -776,8 +779,7 @@ std::vector<omni::fabric::Path> copyMaterial(
         for (const auto& connection : connections) {
             const auto index = CppUtil::indexOf(srcPaths, connection.pConnection->path);
             assert(index != srcPaths.size()); // Ensure that all connections are part of the material network
-            const auto dstConnection =
-                omni::fabric::Connection{dstPaths[index], connection.pConnection->attrName};
+            const auto dstConnection = omni::fabric::Connection{dstPaths[index], connection.pConnection->attrName};
             fabricStage.createConnection(dstPath, connection.attributeName, dstConnection);
         }
     }
@@ -807,8 +809,10 @@ bool isCesiumNode(const omni::fabric::Token& mdlIdentifier) {
 }
 
 bool isCesiumPropertyNode(const omni::fabric::Token& mdlIdentifier) {
-    return mdlIdentifier == FabricTokens::cesium_property_int() || mdlIdentifier == FabricTokens::cesium_property_int2() ||
-           mdlIdentifier == FabricTokens::cesium_property_int3() || mdlIdentifier == FabricTokens::cesium_property_int4() ||
+    return mdlIdentifier == FabricTokens::cesium_property_int() ||
+           mdlIdentifier == FabricTokens::cesium_property_int2() ||
+           mdlIdentifier == FabricTokens::cesium_property_int3() ||
+           mdlIdentifier == FabricTokens::cesium_property_int4() ||
            mdlIdentifier == FabricTokens::cesium_property_float() ||
            mdlIdentifier == FabricTokens::cesium_property_float2() ||
            mdlIdentifier == FabricTokens::cesium_property_float3() ||

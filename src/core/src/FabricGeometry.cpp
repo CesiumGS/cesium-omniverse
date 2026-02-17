@@ -321,7 +321,8 @@ void FabricGeometry::setGeometry(
         fabricStage.setArrayAttributeSize(_path, FabricTokens::faceVertexIndices(), numVoxels * 6 * 2 * 3);
 
         const auto pointsFabric = fabricStage.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::points());
-        const auto faceVertexCountsFabric = fabricStage.getArrayAttributeWr<int>(_path, FabricTokens::faceVertexCounts());
+        const auto faceVertexCountsFabric =
+            fabricStage.getArrayAttributeWr<int>(_path, FabricTokens::faceVertexCounts());
         const auto faceVertexIndicesFabric =
             fabricStage.getArrayAttributeWr<int>(_path, FabricTokens::faceVertexIndices());
 
@@ -334,7 +335,8 @@ void FabricGeometry::setGeometry(
 
         if (hasVertexIds) {
             fabricStage.setArrayAttributeSize(_path, FabricTokens::primvars_vertexId(), numVoxels * 8);
-            const auto vertexIdsFabric = fabricStage.getArrayAttributeWr<float>(_path, FabricTokens::primvars_vertexId());
+            const auto vertexIdsFabric =
+                fabricStage.getArrayAttributeWr<float>(_path, FabricTokens::primvars_vertexId());
             vertexIds.fill(vertexIdsFabric, 8);
         }
 
@@ -418,7 +420,8 @@ void FabricGeometry::setGeometry(
         fabricStage.setArrayAttributeSize(_path, FabricTokens::faceVertexIndices(), indices.size());
         fabricStage.setArrayAttributeSize(_path, FabricTokens::points(), positions.size());
 
-        const auto faceVertexCountsFabric = fabricStage.getArrayAttributeWr<int>(_path, FabricTokens::faceVertexCounts());
+        const auto faceVertexCountsFabric =
+            fabricStage.getArrayAttributeWr<int>(_path, FabricTokens::faceVertexCounts());
         const auto faceVertexIndicesFabric =
             fabricStage.getArrayAttributeWr<int>(_path, FabricTokens::faceVertexIndices());
         const auto pointsFabric = fabricStage.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::points());
@@ -465,7 +468,8 @@ void FabricGeometry::setGeometry(
         if (hasVertexIds) {
             fabricStage.setArrayAttributeSize(_path, FabricTokens::primvars_vertexId(), vertexIds.size());
 
-            const auto vertexIdsFabric = fabricStage.getArrayAttributeWr<float>(_path, FabricTokens::primvars_vertexId());
+            const auto vertexIdsFabric =
+                fabricStage.getArrayAttributeWr<float>(_path, FabricTokens::primvars_vertexId());
 
             vertexIds.fill(vertexIdsFabric);
         }

@@ -164,7 +164,8 @@ void createConnection(
     const omni::fabric::Path& outputPath,
     const omni::fabric::Path& inputPath,
     const omni::fabric::Token& inputName) {
-    fabricStage.createConnection(inputPath, inputName, omni::fabric::Connection{outputPath, FabricTokens::outputs_out()});
+    fabricStage.createConnection(
+        inputPath, inputName, omni::fabric::Connection{outputPath, FabricTokens::outputs_out()});
 }
 
 void destroyConnection(
@@ -280,7 +281,8 @@ void setTextureValuesCommon(
         scale = {scale.x, scale.y};
     }
 
-    const auto textureFabric = fabricStage.getAttributeWr<omni::fabric::AssetPath>(path, FabricTokens::inputs_texture());
+    const auto textureFabric =
+        fabricStage.getAttributeWr<omni::fabric::AssetPath>(path, FabricTokens::inputs_texture());
     const auto texCoordIndexFabric = fabricStage.getAttributeWr<int>(path, FabricTokens::inputs_tex_coord_index());
     const auto wrapSFabric = fabricStage.getAttributeWr<int>(path, FabricTokens::inputs_wrap_s());
     const auto wrapTFabric = fabricStage.getAttributeWr<int>(path, FabricTokens::inputs_wrap_t());
@@ -719,7 +721,8 @@ void FabricMaterial::initializeDefaultMaterial() {
         createConnection(fabricStage, rasterOverlayPath, shaderPath, FabricTokens::inputs_alpha_clip());
     } else if (clippingRasterOverlayCount > 1) {
         // Create connection from raster overlay resolver to shader
-        createConnection(fabricStage, _clippingRasterOverlayResolverPath, shaderPath, FabricTokens::inputs_alpha_clip());
+        createConnection(
+            fabricStage, _clippingRasterOverlayResolverPath, shaderPath, FabricTokens::inputs_alpha_clip());
 
         // Create connections from raster overlays to raster overlay resolver
         for (uint64_t i = 0; i < clippingRasterOverlayCount; ++i) {
@@ -853,7 +856,8 @@ void FabricMaterial::createRasterOverlayResolverCommon(
 }
 
 void FabricMaterial::createRasterOverlayResolver(const omni::fabric::Path& path, uint64_t rasterOverlayCount) {
-    createRasterOverlayResolverCommon(path, rasterOverlayCount, FabricTokens::cesium_internal_raster_overlay_resolver());
+    createRasterOverlayResolverCommon(
+        path, rasterOverlayCount, FabricTokens::cesium_internal_raster_overlay_resolver());
 }
 
 void FabricMaterial::createClippingRasterOverlayResolver(
@@ -1658,16 +1662,19 @@ void FabricMaterial::createConnectionsToCopiedPaths() {
     }
 
     for (const auto& copiedPath : _copiedRasterOverlayPaths) {
-        const auto indexFabric = fabricStage.getAttributeRd<int>(copiedPath, FabricTokens::inputs_raster_overlay_index());
+        const auto indexFabric =
+            fabricStage.getAttributeRd<int>(copiedPath, FabricTokens::inputs_raster_overlay_index());
         const auto index = static_cast<uint64_t>(CppUtil::defaultValue(indexFabric, 0));
 
         if (index < rasterOverlay) {
-            createConnection(fabricStage, _rasterOverlayPaths[index], copiedPath, FabricTokens::inputs_raster_overlay());
+            createConnection(
+                fabricStage, _rasterOverlayPaths[index], copiedPath, FabricTokens::inputs_raster_overlay());
         }
     }
 
     for (const auto& copiedPath : _copiedFeatureIdPaths) {
-        const auto indexFabric = fabricStage.getAttributeRd<int>(copiedPath, FabricTokens::inputs_feature_id_set_index());
+        const auto indexFabric =
+            fabricStage.getAttributeRd<int>(copiedPath, FabricTokens::inputs_feature_id_set_index());
         const auto index = static_cast<uint64_t>(CppUtil::defaultValue(indexFabric, 0));
 
         if (index < featureIdCount) {
@@ -1729,7 +1736,8 @@ void FabricMaterial::createConnectionsToProperties() {
 
         const auto& propertyPathInternal = _propertyPaths[index];
 
-        createConnection(fabricStage, propertyPathInternal, propertyPathExternal, FabricTokens::inputs_property_value());
+        createConnection(
+            fabricStage, propertyPathInternal, propertyPathExternal, FabricTokens::inputs_property_value());
     }
 }
 
