@@ -13,7 +13,7 @@ def perform_vendor_install():
             module="lxml",
             windows_whl="lxml-6.0.2-cp312-cp312-win_amd64.whl",
             linux_x64_whl="lxml-6.0.2-cp312-cp312-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl",
-            linux_aarch_whl="lxml-6.0.2-cp312-cp312-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl"
+            linux_aarch_whl="lxml-6.0.2-cp312-cp312-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl",
         )
     ]
 
