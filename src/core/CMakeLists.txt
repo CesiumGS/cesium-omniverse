@@ -188,12 +188,14 @@ setup_lib(
         fabric
         usd_ar
         usd_arch
+        usd_boost
         usd_gf
         usd_js
         usd_kind
         usd_ndr
         usd_pcp
         usd_plug
+        usd_python
         usd_sdf
         usd_sdr
         usd_tf
@@ -207,7 +209,6 @@ setup_lib(
         usd_usdVol
         usd_vt
         usd_work
-        usd_boost
         tbb
         carb
         omni_kit

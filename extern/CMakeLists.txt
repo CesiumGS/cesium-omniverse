@@ -211,12 +211,14 @@ set(PYBIND11_ROOT "${NVIDIA_BUILD_DIR}/target-deps/pybind11")
 set(NVIDIA_USD_LIBRARIES
     usd_ar
     usd_arch
+    usd_boost
     usd_gf
     usd_js
     usd_kind
     usd_ndr
     usd_pcp
     usd_plug
+    usd_python
     usd_sdf
     usd_sdr
     usd_tf
@@ -244,17 +246,6 @@ if(WIN32)
     set(NVIDIA_USD_DEBUG_LIBRARIES ${NVIDIA_USD_DEBUG_LIBRARIES} tbb_debug)
 else()
     set(NVIDIA_USD_DEBUG_LIBRARIES ${NVIDIA_USD_DEBUG_LIBRARIES} tbb)
-endif()
-
-# Add boost python (bundled as usd_boost in Kit SDK 109+)
-set(NVIDIA_USD_TARGET_NAMES ${NVIDIA_USD_TARGET_NAMES} usd_boost)
-
-if(WIN32)
-    set(NVIDIA_USD_RELEASE_LIBRARIES ${NVIDIA_USD_RELEASE_LIBRARIES} usd_boost)
-    set(NVIDIA_USD_DEBUG_LIBRARIES ${NVIDIA_USD_DEBUG_LIBRARIES} usd_boost)
-else()
-    set(NVIDIA_USD_RELEASE_LIBRARIES ${NVIDIA_USD_RELEASE_LIBRARIES} usd_boost)
-    set(NVIDIA_USD_DEBUG_LIBRARIES ${NVIDIA_USD_DEBUG_LIBRARIES} usd_boost)
 endif()
 
 if(${USE_NVIDIA_RELEASE_LIBRARIES})

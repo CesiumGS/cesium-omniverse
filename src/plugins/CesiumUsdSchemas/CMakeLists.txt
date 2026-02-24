@@ -67,12 +67,13 @@ setup_lib(
         ${SOURCES}
     LIBRARIES
         usd_arch
+        usd_boost
+        usd_python
         usd_sdf
         usd_tf
         usd_usd
         usd_usdGeom
         tbb
-        usd_boost
         python312
     CXX_FLAGS
         ${CESIUM_USD_SCHEMAS_CXX_FLAGS}

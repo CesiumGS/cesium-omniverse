@@ -15,10 +15,10 @@
   -->
   <dependency name="omni-ui" linkPath="../_build/target-deps/omni-ui/">
     <package name="omni.ui" version="0e529a493c7b9bf0" platforms="linux-x86_64 manylinux_2_35_x86_64"/>
-    <package name="omni.ui" version="1fbb6da913c9dfa8" platforms="windows-x86_64"/>
+    <package name="omni.ui" version="43dca50bad80e39b" platforms="windows-x86_64"/>
   </dependency>
   <dependency name="omni-kit-renderer-imgui" linkPath="../_build/target-deps/omni-kit-renderer-imgui/">
     <package name="omni.kit.renderer.imgui" version="a5613f69731afb88" platforms="linux-x86_64 manylinux_2_35_x86_64" />
-    <package name="omni.kit.renderer.imgui" version="9bfff9ba25aa72c2" platforms="windows-x86_64" />
+    <package name="omni.kit.renderer.imgui" version="a5caa90b87ca5c10" platforms="windows-x86_64" />
   </dependency>
 </project>
