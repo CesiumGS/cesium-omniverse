@@ -31,42 +31,42 @@ static UsdAttribute
 _CreateAdjustOrientationForGlobeWhenMovingAttr(CesiumGlobeAnchorAPI &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateAdjustOrientationForGlobeWhenMovingAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Bool), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
 _CreateDetectTransformChangesAttr(CesiumGlobeAnchorAPI &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateDetectTransformChangesAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Bool), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
 _CreateAnchorLongitudeAttr(CesiumGlobeAnchorAPI &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateAnchorLongitudeAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Double), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
 }
         
 static UsdAttribute
 _CreateAnchorLatitudeAttr(CesiumGlobeAnchorAPI &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateAnchorLatitudeAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Double), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
 }
         
 static UsdAttribute
 _CreateAnchorHeightAttr(CesiumGlobeAnchorAPI &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateAnchorHeightAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Double), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
 }
         
 static UsdAttribute
 _CreatePositionAttr(CesiumGlobeAnchorAPI &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreatePositionAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Double3), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double3), writeSparsely);
 }
 
 static std::string

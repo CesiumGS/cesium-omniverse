@@ -30,28 +30,28 @@ static UsdAttribute
 _CreateGeoreferenceOriginLongitudeAttr(CesiumGeoreference &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateGeoreferenceOriginLongitudeAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Double), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
 }
         
 static UsdAttribute
 _CreateGeoreferenceOriginLatitudeAttr(CesiumGeoreference &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateGeoreferenceOriginLatitudeAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Double), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
 }
         
 static UsdAttribute
 _CreateGeoreferenceOriginHeightAttr(CesiumGeoreference &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateGeoreferenceOriginHeightAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Double), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
 }
         
 static UsdAttribute
 _CreateEcefToUsdTransformAttr(CesiumGeoreference &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateEcefToUsdTransformAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Matrix4d), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Matrix4d), writeSparsely);
 }
 
 static std::string

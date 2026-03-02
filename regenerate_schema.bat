@@ -31,9 +31,9 @@ del /s /q %SCHEMA_OUTPUT_PATH%\*
 move %SCHEMA_OUTPUT_PATH%\generatedSchema.usda %SCHEMA_OUTPUT_PATH%\..\..\generatedSchema.usda.in
 move %SCHEMA_OUTPUT_PATH%\plugInfo.json %SCHEMA_OUTPUT_PATH%\..\..\plugInfo.json.in
 
-:: Delete the Pixar junk from the first 23 lines of the generated code.
+:: Delete the Pixar junk from the first 6 lines of the generated code.
 for %%f in (%SCHEMA_OUTPUT_PATH%\*.*) do (
-    more +23 "%%f" > "%TEMP%\%%~nf%%~xf"
+    more +6 "%%f" > "%TEMP%\%%~nf%%~xf"
     move /y "%TEMP%\%%~nf%%~xf" "%%f" > nul
 )
 

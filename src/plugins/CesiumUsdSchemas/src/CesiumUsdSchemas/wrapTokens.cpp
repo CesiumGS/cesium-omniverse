@@ -4,142 +4,111 @@
 
 PXR_NAMESPACE_USING_DIRECTIVE
 
-using namespace pxr_boost::python;
-
-namespace {
-
-// Helper to return a static token as a string.  We wrap tokens as Python
-// strings and for some reason simply wrapping the token using def_readonly
-// bypasses to-Python conversion, leading to the error that there's no
-// Python type for the C++ TfToken type.  So we wrap this functor instead.
-class _WrapStaticToken {
-public:
-    _WrapStaticToken(const TfToken* token) : _token(token) { }
-
-    std::string operator()() const
-    {
-        return _token->GetString();
-    }
-
-private:
-    const TfToken* _token;
-};
-
-template <typename T>
-void
-_AddToken(T& cls, const char* name, const TfToken& token)
-{
-    cls.add_static_property(name,
-                            make_function(
-                                _WrapStaticToken(&token),
-                                return_value_policy<return_by_value>(),
-                                detail::type_list<std::string>()));
-}
-
-} // anonymous
+#define _ADD_TOKEN(cls, name) \
+    cls.add_static_property(#name, +[]() { return CesiumTokens->name.GetString(); });
 
 void wrapCesiumTokens()
 {
     pxr_boost::python::class_<CesiumTokensType, pxr_boost::python::noncopyable>
         cls("Tokens", pxr_boost::python::no_init);
-    _AddToken(cls, "cesiumAlpha", CesiumTokens->cesiumAlpha);
-    _AddToken(cls, "cesiumAnchorAdjustOrientationForGlobeWhenMoving", CesiumTokens->cesiumAnchorAdjustOrientationForGlobeWhenMoving);
-    _AddToken(cls, "cesiumAnchorDetectTransformChanges", CesiumTokens->cesiumAnchorDetectTransformChanges);
-    _AddToken(cls, "cesiumAnchorGeoreferenceBinding", CesiumTokens->cesiumAnchorGeoreferenceBinding);
-    _AddToken(cls, "cesiumAnchorHeight", CesiumTokens->cesiumAnchorHeight);
-    _AddToken(cls, "cesiumAnchorLatitude", CesiumTokens->cesiumAnchorLatitude);
-    _AddToken(cls, "cesiumAnchorLongitude", CesiumTokens->cesiumAnchorLongitude);
-    _AddToken(cls, "cesiumAnchorPosition", CesiumTokens->cesiumAnchorPosition);
-    _AddToken(cls, "cesiumBaseUrl", CesiumTokens->cesiumBaseUrl);
-    _AddToken(cls, "cesiumCartographicPolygonBinding", CesiumTokens->cesiumCartographicPolygonBinding);
-    _AddToken(cls, "cesiumCulledScreenSpaceError", CesiumTokens->cesiumCulledScreenSpaceError);
-    _AddToken(cls, "cesiumDebugDisableGeometryPool", CesiumTokens->cesiumDebugDisableGeometryPool);
-    _AddToken(cls, "cesiumDebugDisableGeoreferencing", CesiumTokens->cesiumDebugDisableGeoreferencing);
-    _AddToken(cls, "cesiumDebugDisableMaterialPool", CesiumTokens->cesiumDebugDisableMaterialPool);
-    _AddToken(cls, "cesiumDebugDisableMaterials", CesiumTokens->cesiumDebugDisableMaterials);
-    _AddToken(cls, "cesiumDebugDisableTexturePool", CesiumTokens->cesiumDebugDisableTexturePool);
-    _AddToken(cls, "cesiumDebugDisableTextures", CesiumTokens->cesiumDebugDisableTextures);
-    _AddToken(cls, "cesiumDebugGeometryPoolInitialCapacity", CesiumTokens->cesiumDebugGeometryPoolInitialCapacity);
-    _AddToken(cls, "cesiumDebugMaterialPoolInitialCapacity", CesiumTokens->cesiumDebugMaterialPoolInitialCapacity);
-    _AddToken(cls, "cesiumDebugRandomColors", CesiumTokens->cesiumDebugRandomColors);
-    _AddToken(cls, "cesiumDebugTexturePoolInitialCapacity", CesiumTokens->cesiumDebugTexturePoolInitialCapacity);
-    _AddToken(cls, "cesiumDisplayName", CesiumTokens->cesiumDisplayName);
-    _AddToken(cls, "cesiumEast", CesiumTokens->cesiumEast);
-    _AddToken(cls, "cesiumEcefToUsdTransform", CesiumTokens->cesiumEcefToUsdTransform);
-    _AddToken(cls, "cesiumEllipsoidBinding", CesiumTokens->cesiumEllipsoidBinding);
-    _AddToken(cls, "cesiumEnableFogCulling", CesiumTokens->cesiumEnableFogCulling);
-    _AddToken(cls, "cesiumEnableFrustumCulling", CesiumTokens->cesiumEnableFrustumCulling);
-    _AddToken(cls, "cesiumEnforceCulledScreenSpaceError", CesiumTokens->cesiumEnforceCulledScreenSpaceError);
-    _AddToken(cls, "cesiumExcludeSelectedTiles", CesiumTokens->cesiumExcludeSelectedTiles);
-    _AddToken(cls, "cesiumForbidHoles", CesiumTokens->cesiumForbidHoles);
-    _AddToken(cls, "cesiumFormat", CesiumTokens->cesiumFormat);
-    _AddToken(cls, "cesiumGeoreferenceBinding", CesiumTokens->cesiumGeoreferenceBinding);
-    _AddToken(cls, "cesiumGeoreferenceOriginHeight", CesiumTokens->cesiumGeoreferenceOriginHeight);
-    _AddToken(cls, "cesiumGeoreferenceOriginLatitude", CesiumTokens->cesiumGeoreferenceOriginLatitude);
-    _AddToken(cls, "cesiumGeoreferenceOriginLongitude", CesiumTokens->cesiumGeoreferenceOriginLongitude);
-    _AddToken(cls, "cesiumInvertSelection", CesiumTokens->cesiumInvertSelection);
-    _AddToken(cls, "cesiumIonAccessToken", CesiumTokens->cesiumIonAccessToken);
-    _AddToken(cls, "cesiumIonAssetId", CesiumTokens->cesiumIonAssetId);
-    _AddToken(cls, "cesiumIonServerApiUrl", CesiumTokens->cesiumIonServerApiUrl);
-    _AddToken(cls, "cesiumIonServerApplicationId", CesiumTokens->cesiumIonServerApplicationId);
-    _AddToken(cls, "cesiumIonServerBinding", CesiumTokens->cesiumIonServerBinding);
-    _AddToken(cls, "cesiumIonServerUrl", CesiumTokens->cesiumIonServerUrl);
-    _AddToken(cls, "cesiumLayer", CesiumTokens->cesiumLayer);
-    _AddToken(cls, "cesiumLayers", CesiumTokens->cesiumLayers);
-    _AddToken(cls, "cesiumLoadingDescendantLimit", CesiumTokens->cesiumLoadingDescendantLimit);
-    _AddToken(cls, "cesiumMainThreadLoadingTimeLimit", CesiumTokens->cesiumMainThreadLoadingTimeLimit);
-    _AddToken(cls, "cesiumMaximumCachedBytes", CesiumTokens->cesiumMaximumCachedBytes);
-    _AddToken(cls, "cesiumMaximumLevel", CesiumTokens->cesiumMaximumLevel);
-    _AddToken(cls, "cesiumMaximumScreenSpaceError", CesiumTokens->cesiumMaximumScreenSpaceError);
-    _AddToken(cls, "cesiumMaximumSimultaneousTileLoads", CesiumTokens->cesiumMaximumSimultaneousTileLoads);
-    _AddToken(cls, "cesiumMaximumTextureSize", CesiumTokens->cesiumMaximumTextureSize);
-    _AddToken(cls, "cesiumMaximumZoomLevel", CesiumTokens->cesiumMaximumZoomLevel);
-    _AddToken(cls, "cesiumMinimumLevel", CesiumTokens->cesiumMinimumLevel);
-    _AddToken(cls, "cesiumMinimumZoomLevel", CesiumTokens->cesiumMinimumZoomLevel);
-    _AddToken(cls, "cesiumNorth", CesiumTokens->cesiumNorth);
-    _AddToken(cls, "cesiumOverlayRenderMethod", CesiumTokens->cesiumOverlayRenderMethod);
-    _AddToken(cls, "cesiumPointSize", CesiumTokens->cesiumPointSize);
-    _AddToken(cls, "cesiumPreloadAncestors", CesiumTokens->cesiumPreloadAncestors);
-    _AddToken(cls, "cesiumPreloadSiblings", CesiumTokens->cesiumPreloadSiblings);
-    _AddToken(cls, "cesiumProjectDefaultIonAccessToken", CesiumTokens->cesiumProjectDefaultIonAccessToken);
-    _AddToken(cls, "cesiumProjectDefaultIonAccessTokenId", CesiumTokens->cesiumProjectDefaultIonAccessTokenId);
-    _AddToken(cls, "cesiumRadii", CesiumTokens->cesiumRadii);
-    _AddToken(cls, "cesiumRasterOverlayBinding", CesiumTokens->cesiumRasterOverlayBinding);
-    _AddToken(cls, "cesiumRootTilesX", CesiumTokens->cesiumRootTilesX);
-    _AddToken(cls, "cesiumRootTilesY", CesiumTokens->cesiumRootTilesY);
-    _AddToken(cls, "cesiumSelectedIonServer", CesiumTokens->cesiumSelectedIonServer);
-    _AddToken(cls, "cesiumShowCreditsOnScreen", CesiumTokens->cesiumShowCreditsOnScreen);
-    _AddToken(cls, "cesiumSmoothNormals", CesiumTokens->cesiumSmoothNormals);
-    _AddToken(cls, "cesiumSourceType", CesiumTokens->cesiumSourceType);
-    _AddToken(cls, "cesiumSouth", CesiumTokens->cesiumSouth);
-    _AddToken(cls, "cesiumSpecifyTileMatrixSetLabels", CesiumTokens->cesiumSpecifyTileMatrixSetLabels);
-    _AddToken(cls, "cesiumSpecifyTilingScheme", CesiumTokens->cesiumSpecifyTilingScheme);
-    _AddToken(cls, "cesiumSpecifyZoomLevels", CesiumTokens->cesiumSpecifyZoomLevels);
-    _AddToken(cls, "cesiumStyle", CesiumTokens->cesiumStyle);
-    _AddToken(cls, "cesiumSubTileCacheBytes", CesiumTokens->cesiumSubTileCacheBytes);
-    _AddToken(cls, "cesiumSuspendUpdate", CesiumTokens->cesiumSuspendUpdate);
-    _AddToken(cls, "cesiumTileHeight", CesiumTokens->cesiumTileHeight);
-    _AddToken(cls, "cesiumTileMatrixSetId", CesiumTokens->cesiumTileMatrixSetId);
-    _AddToken(cls, "cesiumTileMatrixSetLabelPrefix", CesiumTokens->cesiumTileMatrixSetLabelPrefix);
-    _AddToken(cls, "cesiumTileMatrixSetLabels", CesiumTokens->cesiumTileMatrixSetLabels);
-    _AddToken(cls, "cesiumTileWidth", CesiumTokens->cesiumTileWidth);
-    _AddToken(cls, "cesiumUrl", CesiumTokens->cesiumUrl);
-    _AddToken(cls, "cesiumUseWebMercatorProjection", CesiumTokens->cesiumUseWebMercatorProjection);
-    _AddToken(cls, "cesiumWest", CesiumTokens->cesiumWest);
-    _AddToken(cls, "clip", CesiumTokens->clip);
-    _AddToken(cls, "ion", CesiumTokens->ion);
-    _AddToken(cls, "overlay", CesiumTokens->overlay);
-    _AddToken(cls, "url", CesiumTokens->url);
-    _AddToken(cls, "CesiumDataPrim", CesiumTokens->CesiumDataPrim);
-    _AddToken(cls, "CesiumEllipsoidPrim", CesiumTokens->CesiumEllipsoidPrim);
-    _AddToken(cls, "CesiumGeoreferencePrim", CesiumTokens->CesiumGeoreferencePrim);
-    _AddToken(cls, "CesiumGlobeAnchorSchemaAPI", CesiumTokens->CesiumGlobeAnchorSchemaAPI);
-    _AddToken(cls, "CesiumIonRasterOverlayPrim", CesiumTokens->CesiumIonRasterOverlayPrim);
-    _AddToken(cls, "CesiumIonServerPrim", CesiumTokens->CesiumIonServerPrim);
-    _AddToken(cls, "CesiumPolygonRasterOverlayPrim", CesiumTokens->CesiumPolygonRasterOverlayPrim);
-    _AddToken(cls, "CesiumRasterOverlayPrim", CesiumTokens->CesiumRasterOverlayPrim);
-    _AddToken(cls, "CesiumTileMapServiceRasterOverlayPrim", CesiumTokens->CesiumTileMapServiceRasterOverlayPrim);
-    _AddToken(cls, "CesiumTilesetPrim", CesiumTokens->CesiumTilesetPrim);
-    _AddToken(cls, "CesiumWebMapServiceRasterOverlayPrim", CesiumTokens->CesiumWebMapServiceRasterOverlayPrim);
-    _AddToken(cls, "CesiumWebMapTileServiceRasterOverlayPrim", CesiumTokens->CesiumWebMapTileServiceRasterOverlayPrim);
+    _ADD_TOKEN(cls, cesiumAlpha);
+    _ADD_TOKEN(cls, cesiumAnchorAdjustOrientationForGlobeWhenMoving);
+    _ADD_TOKEN(cls, cesiumAnchorDetectTransformChanges);
+    _ADD_TOKEN(cls, cesiumAnchorGeoreferenceBinding);
+    _ADD_TOKEN(cls, cesiumAnchorHeight);
+    _ADD_TOKEN(cls, cesiumAnchorLatitude);
+    _ADD_TOKEN(cls, cesiumAnchorLongitude);
+    _ADD_TOKEN(cls, cesiumAnchorPosition);
+    _ADD_TOKEN(cls, cesiumBaseUrl);
+    _ADD_TOKEN(cls, cesiumCartographicPolygonBinding);
+    _ADD_TOKEN(cls, cesiumCulledScreenSpaceError);
+    _ADD_TOKEN(cls, cesiumDebugDisableGeometryPool);
+    _ADD_TOKEN(cls, cesiumDebugDisableGeoreferencing);
+    _ADD_TOKEN(cls, cesiumDebugDisableMaterialPool);
+    _ADD_TOKEN(cls, cesiumDebugDisableMaterials);
+    _ADD_TOKEN(cls, cesiumDebugDisableTexturePool);
+    _ADD_TOKEN(cls, cesiumDebugDisableTextures);
+    _ADD_TOKEN(cls, cesiumDebugGeometryPoolInitialCapacity);
+    _ADD_TOKEN(cls, cesiumDebugMaterialPoolInitialCapacity);
+    _ADD_TOKEN(cls, cesiumDebugRandomColors);
+    _ADD_TOKEN(cls, cesiumDebugTexturePoolInitialCapacity);
+    _ADD_TOKEN(cls, cesiumDisplayName);
+    _ADD_TOKEN(cls, cesiumEast);
+    _ADD_TOKEN(cls, cesiumEcefToUsdTransform);
+    _ADD_TOKEN(cls, cesiumEllipsoidBinding);
+    _ADD_TOKEN(cls, cesiumEnableFogCulling);
+    _ADD_TOKEN(cls, cesiumEnableFrustumCulling);
+    _ADD_TOKEN(cls, cesiumEnforceCulledScreenSpaceError);
+    _ADD_TOKEN(cls, cesiumExcludeSelectedTiles);
+    _ADD_TOKEN(cls, cesiumForbidHoles);
+    _ADD_TOKEN(cls, cesiumFormat);
+    _ADD_TOKEN(cls, cesiumGeoreferenceBinding);
+    _ADD_TOKEN(cls, cesiumGeoreferenceOriginHeight);
+    _ADD_TOKEN(cls, cesiumGeoreferenceOriginLatitude);
+    _ADD_TOKEN(cls, cesiumGeoreferenceOriginLongitude);
+    _ADD_TOKEN(cls, cesiumInvertSelection);
+    _ADD_TOKEN(cls, cesiumIonAccessToken);
+    _ADD_TOKEN(cls, cesiumIonAssetId);
+    _ADD_TOKEN(cls, cesiumIonServerApiUrl);
+    _ADD_TOKEN(cls, cesiumIonServerApplicationId);
+    _ADD_TOKEN(cls, cesiumIonServerBinding);
+    _ADD_TOKEN(cls, cesiumIonServerUrl);
+    _ADD_TOKEN(cls, cesiumLayer);
+    _ADD_TOKEN(cls, cesiumLayers);
+    _ADD_TOKEN(cls, cesiumLoadingDescendantLimit);
+    _ADD_TOKEN(cls, cesiumMainThreadLoadingTimeLimit);
+    _ADD_TOKEN(cls, cesiumMaximumCachedBytes);
+    _ADD_TOKEN(cls, cesiumMaximumLevel);
+    _ADD_TOKEN(cls, cesiumMaximumScreenSpaceError);
+    _ADD_TOKEN(cls, cesiumMaximumSimultaneousTileLoads);
+    _ADD_TOKEN(cls, cesiumMaximumTextureSize);
+    _ADD_TOKEN(cls, cesiumMaximumZoomLevel);
+    _ADD_TOKEN(cls, cesiumMinimumLevel);
+    _ADD_TOKEN(cls, cesiumMinimumZoomLevel);
+    _ADD_TOKEN(cls, cesiumNorth);
+    _ADD_TOKEN(cls, cesiumOverlayRenderMethod);
+    _ADD_TOKEN(cls, cesiumPointSize);
+    _ADD_TOKEN(cls, cesiumPreloadAncestors);
+    _ADD_TOKEN(cls, cesiumPreloadSiblings);
+    _ADD_TOKEN(cls, cesiumProjectDefaultIonAccessToken);
+    _ADD_TOKEN(cls, cesiumProjectDefaultIonAccessTokenId);
+    _ADD_TOKEN(cls, cesiumRadii);
+    _ADD_TOKEN(cls, cesiumRasterOverlayBinding);
+    _ADD_TOKEN(cls, cesiumRootTilesX);
+    _ADD_TOKEN(cls, cesiumRootTilesY);
+    _ADD_TOKEN(cls, cesiumSelectedIonServer);
+    _ADD_TOKEN(cls, cesiumShowCreditsOnScreen);
+    _ADD_TOKEN(cls, cesiumSmoothNormals);
+    _ADD_TOKEN(cls, cesiumSourceType);
+    _ADD_TOKEN(cls, cesiumSouth);
+    _ADD_TOKEN(cls, cesiumSpecifyTileMatrixSetLabels);
+    _ADD_TOKEN(cls, cesiumSpecifyTilingScheme);
+    _ADD_TOKEN(cls, cesiumSpecifyZoomLevels);
+    _ADD_TOKEN(cls, cesiumStyle);
+    _ADD_TOKEN(cls, cesiumSubTileCacheBytes);
+    _ADD_TOKEN(cls, cesiumSuspendUpdate);
+    _ADD_TOKEN(cls, cesiumTileHeight);
+    _ADD_TOKEN(cls, cesiumTileMatrixSetId);
+    _ADD_TOKEN(cls, cesiumTileMatrixSetLabelPrefix);
+    _ADD_TOKEN(cls, cesiumTileMatrixSetLabels);
+    _ADD_TOKEN(cls, cesiumTileWidth);
+    _ADD_TOKEN(cls, cesiumUrl);
+    _ADD_TOKEN(cls, cesiumUseWebMercatorProjection);
+    _ADD_TOKEN(cls, cesiumWest);
+    _ADD_TOKEN(cls, clip);
+    _ADD_TOKEN(cls, ion);
+    _ADD_TOKEN(cls, overlay);
+    _ADD_TOKEN(cls, url);
+    _ADD_TOKEN(cls, CesiumDataPrim);
+    _ADD_TOKEN(cls, CesiumEllipsoidPrim);
+    _ADD_TOKEN(cls, CesiumGeoreferencePrim);
+    _ADD_TOKEN(cls, CesiumGlobeAnchorSchemaAPI);
+    _ADD_TOKEN(cls, CesiumIonRasterOverlayPrim);
+    _ADD_TOKEN(cls, CesiumIonServerPrim);
+    _ADD_TOKEN(cls, CesiumPolygonRasterOverlayPrim);
+    _ADD_TOKEN(cls, CesiumRasterOverlayPrim);
+    _ADD_TOKEN(cls, CesiumTileMapServiceRasterOverlayPrim);
+    _ADD_TOKEN(cls, CesiumTilesetPrim);
+    _ADD_TOKEN(cls, CesiumWebMapServiceRasterOverlayPrim);
+    _ADD_TOKEN(cls, CesiumWebMapTileServiceRasterOverlayPrim);
 }

@@ -30,140 +30,140 @@ static UsdAttribute
 _CreateSourceTypeAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateSourceTypeAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Token), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Token), writeSparsely);
 }
         
 static UsdAttribute
 _CreateUrlAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateUrlAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->String), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
 _CreateIonAssetIdAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateIonAssetIdAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Int64), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int64), writeSparsely);
 }
         
 static UsdAttribute
 _CreateIonAccessTokenAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateIonAccessTokenAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->String), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
 _CreateMaximumScreenSpaceErrorAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateMaximumScreenSpaceErrorAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Float), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Float), writeSparsely);
 }
         
 static UsdAttribute
 _CreatePreloadAncestorsAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreatePreloadAncestorsAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Bool), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
 _CreatePreloadSiblingsAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreatePreloadSiblingsAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Bool), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
 _CreateForbidHolesAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateForbidHolesAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Bool), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
 _CreateMaximumSimultaneousTileLoadsAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateMaximumSimultaneousTileLoadsAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->UInt), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->UInt), writeSparsely);
 }
         
 static UsdAttribute
 _CreateMaximumCachedBytesAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateMaximumCachedBytesAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->UInt64), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->UInt64), writeSparsely);
 }
         
 static UsdAttribute
 _CreateLoadingDescendantLimitAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateLoadingDescendantLimitAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->UInt), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->UInt), writeSparsely);
 }
         
 static UsdAttribute
 _CreateEnableFrustumCullingAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateEnableFrustumCullingAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Bool), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
 _CreateEnableFogCullingAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateEnableFogCullingAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Bool), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
 _CreateEnforceCulledScreenSpaceErrorAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateEnforceCulledScreenSpaceErrorAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Bool), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
 _CreateCulledScreenSpaceErrorAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateCulledScreenSpaceErrorAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Float), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Float), writeSparsely);
 }
         
 static UsdAttribute
 _CreateSuspendUpdateAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateSuspendUpdateAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Bool), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
 _CreateSmoothNormalsAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateSmoothNormalsAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Bool), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
 _CreateShowCreditsOnScreenAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateShowCreditsOnScreenAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Bool), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
 _CreateMainThreadLoadingTimeLimitAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateMainThreadLoadingTimeLimitAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Float), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Float), writeSparsely);
 }
         
 static UsdAttribute
 _CreatePointSizeAttr(CesiumTileset &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreatePointSizeAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Float), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Float), writeSparsely);
 }
 
 static std::string

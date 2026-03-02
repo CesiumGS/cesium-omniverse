@@ -30,42 +30,42 @@ static UsdAttribute
 _CreateBaseUrlAttr(CesiumWebMapServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateBaseUrlAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->String), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
 _CreateLayersAttr(CesiumWebMapServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateLayersAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->String), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
 _CreateTileWidthAttr(CesiumWebMapServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateTileWidthAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Int), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int), writeSparsely);
 }
         
 static UsdAttribute
 _CreateTileHeightAttr(CesiumWebMapServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateTileHeightAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Int), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int), writeSparsely);
 }
         
 static UsdAttribute
 _CreateMinimumLevelAttr(CesiumWebMapServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateMinimumLevelAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Int), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int), writeSparsely);
 }
         
 static UsdAttribute
 _CreateMaximumLevelAttr(CesiumWebMapServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateMaximumLevelAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Int), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int), writeSparsely);
 }
 
 static std::string

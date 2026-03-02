@@ -30,14 +30,14 @@ static UsdAttribute
 _CreateIonAssetIdAttr(CesiumIonRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateIonAssetIdAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Int64), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int64), writeSparsely);
 }
         
 static UsdAttribute
 _CreateIonAccessTokenAttr(CesiumIonRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateIonAccessTokenAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->String), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
 
 static std::string

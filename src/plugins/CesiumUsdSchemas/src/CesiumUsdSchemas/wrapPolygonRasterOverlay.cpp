@@ -30,21 +30,21 @@ static UsdAttribute
 _CreateInvertSelectionAttr(CesiumPolygonRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateInvertSelectionAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Bool), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
 _CreateExcludeSelectedTilesAttr(CesiumPolygonRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateExcludeSelectedTilesAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Bool), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
 _CreateCesiumOverlayRenderMethodAttr(CesiumPolygonRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateCesiumOverlayRenderMethodAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Token), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Token), writeSparsely);
 }
 
 static std::string
