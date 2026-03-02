@@ -173,9 +173,25 @@ TF_DECLARE_PUBLIC_TOKENS(UsdTokens3, USD_TOKENS_3);
 #endif
 
 // Macros for defining FabricTokens from each UsdTokens struct
-#define FABRIC_DEFINE_TOKEN_ELEM_1(elem) const omni::fabric::TokenC elem = omni::fabric::asInt(pxr::UsdTokens1->elem);
-#define FABRIC_DEFINE_TOKEN_ELEM_2(elem) const omni::fabric::TokenC elem = omni::fabric::asInt(pxr::UsdTokens2->elem);
-#define FABRIC_DEFINE_TOKEN_ELEM_3(elem) const omni::fabric::TokenC elem = omni::fabric::asInt(pxr::UsdTokens3->elem);
+// Lazy initialization to avoid calling Token::createImmortal() during static initialization
+// before Fabric is ready
+#define FABRIC_DEFINE_TOKEN_ELEM_1(elem) \
+    const omni::fabric::Token& elem() { \
+        static omni::fabric::Token token = omni::fabric::Token::createImmortal(pxr::UsdTokens1->elem.GetText()); \
+        return token; \
+    }
+
+#define FABRIC_DEFINE_TOKEN_ELEM_2(elem) \
+    const omni::fabric::Token& elem() { \
+        static omni::fabric::Token token = omni::fabric::Token::createImmortal(pxr::UsdTokens2->elem.GetText()); \
+        return token; \
+    }
+
+#define FABRIC_DEFINE_TOKEN_ELEM_3(elem) \
+    const omni::fabric::Token& elem() { \
+        static omni::fabric::Token token = omni::fabric::Token::createImmortal(pxr::UsdTokens3->elem.GetText()); \
+        return token; \
+    }
 
 #define FABRIC_DEFINE_TOKEN_1(r, elem) \
     TF_PP_TUPLE_ELEM(0, _TF_PP_IFF(TF_PP_IS_TUPLE(elem), \
@@ -196,7 +212,7 @@ TF_DECLARE_PUBLIC_TOKENS(UsdTokens3, USD_TOKENS_3);
 #define FABRIC_DEFINE_TOKENS_2(seq) TF_PP_SEQ_FOR_EACH(FABRIC_DEFINE_TOKEN_2, ~, seq)
 #define FABRIC_DEFINE_TOKENS_3(seq) TF_PP_SEQ_FOR_EACH(FABRIC_DEFINE_TOKEN_3, ~, seq)
 
-#define FABRIC_DECLARE_TOKEN_ELEM(elem) extern const omni::fabric::TokenC elem;
+#define FABRIC_DECLARE_TOKEN_ELEM(elem) const omni::fabric::Token& elem();
 
 #define FABRIC_DECLARE_TOKEN(r, elem) \
     TF_PP_TUPLE_ELEM(0, _TF_PP_IFF(TF_PP_IS_TUPLE(elem), \
@@ -216,12 +232,12 @@ FABRIC_DECLARE_TOKENS(USD_TOKENS_1);
 FABRIC_DECLARE_TOKENS(USD_TOKENS_2);
 FABRIC_DECLARE_TOKENS(USD_TOKENS_3);
 
-const omni::fabric::TokenC feature_id_n(uint64_t index);
-const omni::fabric::TokenC raster_overlay_n(uint64_t index);
-const omni::fabric::TokenC inputs_raster_overlay_n(uint64_t index);
-const omni::fabric::TokenC primvars_st_n(uint64_t index);
-const omni::fabric::TokenC primvars_st_interpolation_n(uint64_t index);
-const omni::fabric::TokenC property_n(uint64_t index);
+const omni::fabric::Token feature_id_n(uint64_t index);
+const omni::fabric::Token raster_overlay_n(uint64_t index);
+const omni::fabric::Token inputs_raster_overlay_n(uint64_t index);
+const omni::fabric::Token primvars_st_n(uint64_t index);
+const omni::fabric::Token primvars_st_interpolation_n(uint64_t index);
+const omni::fabric::Token property_n(uint64_t index);
 
 }
 

@@ -44,7 +44,7 @@ PXR_NAMESPACE_CLOSE_SCOPE
     std::vector<omni::fabric::Token> primvars_st_interpolation_tokens;
     std::vector<omni::fabric::Token> property_tokens;
 
-    const omni::fabric::TokenC
+    const omni::fabric::Token
     getToken(std::vector<omni::fabric::Token>& tokens, uint64_t index, const std::string_view& pattern) {
         const auto lock = std::scoped_lock(tokenMutex);
 
@@ -55,36 +55,36 @@ PXR_NAMESPACE_CLOSE_SCOPE
 
         auto& token = tokens[index];
 
-        if (token.asTokenC() == omni::fabric::kUninitializedToken) {
+        if (token.isNull()) {
             const auto tokenStr = fmt::format(pattern, index);
-            token = omni::fabric::Token(tokenStr.c_str());
+            token = omni::fabric::Token::createImmortal(tokenStr.c_str());
         }
 
-        return token.asTokenC();
+        return token;
     }
     } // namespace
 
-    const omni::fabric::TokenC feature_id_n(uint64_t index) {
+    const omni::fabric::Token feature_id_n(uint64_t index) {
         return getToken(feature_id_tokens, index, "feature_id_{}");
     }
 
-    const omni::fabric::TokenC raster_overlay_n(uint64_t index) {
+    const omni::fabric::Token raster_overlay_n(uint64_t index) {
         return getToken(raster_overlay_tokens, index, "raster_overlay_{}");
     }
 
-    const omni::fabric::TokenC inputs_raster_overlay_n(uint64_t index) {
+    const omni::fabric::Token inputs_raster_overlay_n(uint64_t index) {
         return getToken(inputs_raster_overlay_tokens, index, "inputs:raster_overlay_{}");
     }
 
-    const omni::fabric::TokenC primvars_st_n(uint64_t index) {
+    const omni::fabric::Token primvars_st_n(uint64_t index) {
         return getToken(primvars_st_tokens, index, "primvars:st_{}");
     }
 
-    const omni::fabric::TokenC primvars_st_interpolation_n(uint64_t index) {
+    const omni::fabric::Token primvars_st_interpolation_n(uint64_t index) {
         return getToken(primvars_st_interpolation_tokens, index, "primvars:st_{}:interpolation");
     }
 
-    const omni::fabric::TokenC property_n(uint64_t index) {
+    const omni::fabric::Token property_n(uint64_t index) {
         return getToken(property_tokens, index, "property_{}");
     }
 

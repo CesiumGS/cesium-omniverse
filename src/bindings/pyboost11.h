@@ -39,21 +39,23 @@
     #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
-#include <boost/python.hpp>
+#include "pxr/external/boost/python.hpp"
 
 #ifdef CESIUM_OMNI_GCC
     #pragma GCC diagnostic pop
 #endif
 
+PXR_NAMESPACE_USING_DIRECTIVE
+
 namespace pyboost11
 {
 
-// Pybind11 cast by using boost.python.
+// Pybind11 cast by using pxr_boost.python.
 template <typename T> struct caster
 {
 
     caster(pybind11::handle src)
-      : obj(boost::python::handle<>(boost::python::borrowed(src.ptr())))
+      : obj(pxr_boost::python::handle<>(pxr_boost::python::borrowed(src.ptr())))
       , ext(obj)
     {}
 
@@ -66,12 +68,12 @@ template <typename T> struct caster
     // To-Python conversion.
     static pybind11::handle to_python(T & src)
     {
-        namespace bpy = boost::python;
+        namespace bpy = pxr_boost::python;
         return bpy::incref(bpy::object(src).ptr());
     }
 
-    boost::python::object obj;
-    boost::python::extract<T> ext;
+    pxr_boost::python::object obj;
+    pxr_boost::python::extract<T> ext;
 
 };
 
@@ -141,7 +143,7 @@ public:
 namespace pyboost11
 {
 
-// Boost.python convert by using pybind11.
+// pxr_boost.python convert by using pybind11.
 template <typename T> struct converter
 {
 
@@ -154,7 +156,7 @@ public:
         static bool initialized = false;
         if (!initialized)
         {
-            namespace bpy = boost::python;
+            namespace bpy = pxr_boost::python;
             // From-Python conversion.
             bpy::converter::registry::push_back
             (
@@ -188,13 +190,13 @@ public:
     static void construct
     (
         PyObject * objptr
-      , boost::python::converter::rvalue_from_python_stage1_data * data
+      , pxr_boost::python::converter::rvalue_from_python_stage1_data * data
     )
     {
         namespace pyb = pybind11;
         void * storage = reinterpret_cast
         <
-            boost::python::converter::rvalue_from_python_storage<T> *
+            pxr_boost::python::converter::rvalue_from_python_storage<T> *
         >(data)->storage.bytes;
         new (storage) T(pyb::handle(objptr).cast<T>());
         data->convertible = storage;

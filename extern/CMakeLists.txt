@@ -211,16 +211,19 @@ set(PYBIND11_ROOT "${NVIDIA_BUILD_DIR}/target-deps/pybind11")
 set(NVIDIA_USD_LIBRARIES
     usd_ar
     usd_arch
+    usd_boost
     usd_gf
     usd_js
     usd_kind
     usd_ndr
     usd_pcp
     usd_plug
+    usd_python
     usd_sdf
     usd_sdr
     usd_tf
     usd_trace
+    usd_ts
     usd_usd
     usd_usdGeom
     usd_usdLux
@@ -244,17 +247,6 @@ if(WIN32)
     set(NVIDIA_USD_DEBUG_LIBRARIES ${NVIDIA_USD_DEBUG_LIBRARIES} tbb_debug)
 else()
     set(NVIDIA_USD_DEBUG_LIBRARIES ${NVIDIA_USD_DEBUG_LIBRARIES} tbb)
-endif()
-
-# Add boost python
-set(NVIDIA_USD_TARGET_NAMES ${NVIDIA_USD_TARGET_NAMES} boost_python311)
-
-if(WIN32)
-    set(NVIDIA_USD_RELEASE_LIBRARIES ${NVIDIA_USD_RELEASE_LIBRARIES} boost_python311-vc142-mt-x64-1_82)
-    set(NVIDIA_USD_DEBUG_LIBRARIES ${NVIDIA_USD_DEBUG_LIBRARIES} boost_python311-vc142-mt-x64-1_82)
-else()
-    set(NVIDIA_USD_RELEASE_LIBRARIES ${NVIDIA_USD_RELEASE_LIBRARIES} boost_python311)
-    set(NVIDIA_USD_DEBUG_LIBRARIES ${NVIDIA_USD_DEBUG_LIBRARIES} boost_python311)
 endif()
 
 if(${USE_NVIDIA_RELEASE_LIBRARIES})
@@ -302,30 +294,30 @@ if(WIN32)
         DEBUG_DLL_DIR
             "${PYTHON_ROOT}"
         RELEASE_LIBRARIES
-            python311
+            python312
         DEBUG_LIBRARIES
-            python311
+            python312
         TARGET_NAMES
-            python311
+            python312
     )
     # cmake-format: on
 else()
     # cmake-format: off
     add_prebuilt_project(
         RELEASE_INCLUDE_DIR
-            "${PYTHON_ROOT}/include/python3.11"
+            "${PYTHON_ROOT}/include/python3.12"
         DEBUG_INCLUDE_DIR
-            "${PYTHON_ROOT}/include/python3.11"
+            "${PYTHON_ROOT}/include/python3.12"
         RELEASE_LIBRARY_DIR
             "${PYTHON_ROOT}/lib"
         DEBUG_LIBRARY_DIR
             "${PYTHON_ROOT}/lib"
         RELEASE_LIBRARIES
-            python3.11
+            python3.12
         DEBUG_LIBRARIES
-            python3.11
+            python3.12
         TARGET_NAMES
-            python311
+            python312
     )
     # cmake-format: on
 endif()
@@ -402,7 +394,7 @@ if(WIN32)
     set_property(GLOBAL PROPERTY NVIDIA_ADDITIONAL_LIBRARIES_PROPERTY "${NVIDIA_ADDITIONAL_LIBRARIES}")
 else()
     set(NVIDIA_ADDITIONAL_SEARCH_PATHS
-        "$<TARGET_FILE_DIR:python311>"
+        "$<TARGET_FILE_DIR:python312>"
         "$<TARGET_FILE_DIR:usd_usd>"
         "$<TARGET_FILE_DIR:carb>"
         # This is where freetype is located on Linux

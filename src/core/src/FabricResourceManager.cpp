@@ -89,7 +89,7 @@ std::shared_ptr<FabricGeometry> FabricResourceManager::acquireGeometry(
     if (_disableGeometryPool) {
         const auto contextId = _pContext->getContextId();
         const auto pathStr = fmt::format("/cesium_geometry_{}_context_{}", getNextGeometryId(), contextId);
-        const auto path = omni::fabric::Path(pathStr.c_str());
+        const auto path = omni::fabric::Path::createImmortal(pathStr.c_str());
         return std::make_shared<FabricGeometry>(_pContext, path, geometryDescriptor, -1);
     }
 
@@ -246,7 +246,7 @@ std::shared_ptr<FabricMaterial>
 FabricResourceManager::createMaterial(const FabricMaterialDescriptor& materialDescriptor) {
     const auto contextId = _pContext->getContextId();
     const auto pathStr = fmt::format("/cesium_material_{}_context_{}", getNextMaterialId(), contextId);
-    const auto path = omni::fabric::Path(pathStr.c_str());
+    const auto path = omni::fabric::Path::createImmortal(pathStr.c_str());
     return std::make_shared<FabricMaterial>(
         _pContext,
         path,

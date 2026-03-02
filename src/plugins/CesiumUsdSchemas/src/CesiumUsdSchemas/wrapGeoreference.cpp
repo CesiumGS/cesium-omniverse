@@ -9,13 +9,13 @@
 #include "pxr/base/tf/pyUtils.h"
 #include "pxr/base/tf/wrapTypeHelpers.h"
 
-#include <boost/python.hpp>
+#include "pxr/external/boost/python.hpp"
 
 #include <string>
 
-using namespace boost::python;
-
 PXR_NAMESPACE_USING_DIRECTIVE
+
+using namespace pxr_boost::python;
 
 namespace {
 
@@ -30,28 +30,28 @@ static UsdAttribute
 _CreateGeoreferenceOriginLongitudeAttr(CesiumGeoreference &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateGeoreferenceOriginLongitudeAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Double), writeSparsely);
 }
         
 static UsdAttribute
 _CreateGeoreferenceOriginLatitudeAttr(CesiumGeoreference &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateGeoreferenceOriginLatitudeAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Double), writeSparsely);
 }
         
 static UsdAttribute
 _CreateGeoreferenceOriginHeightAttr(CesiumGeoreference &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateGeoreferenceOriginHeightAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Double), writeSparsely);
 }
         
 static UsdAttribute
 _CreateEcefToUsdTransformAttr(CesiumGeoreference &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateEcefToUsdTransformAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Matrix4d), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Matrix4d), writeSparsely);
 }
 
 static std::string

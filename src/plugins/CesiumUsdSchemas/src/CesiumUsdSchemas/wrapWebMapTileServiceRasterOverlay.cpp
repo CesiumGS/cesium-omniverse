@@ -9,13 +9,13 @@
 #include "pxr/base/tf/pyUtils.h"
 #include "pxr/base/tf/wrapTypeHelpers.h"
 
-#include <boost/python.hpp>
+#include "pxr/external/boost/python.hpp"
 
 #include <string>
 
-using namespace boost::python;
-
 PXR_NAMESPACE_USING_DIRECTIVE
+
+using namespace pxr_boost::python;
 
 namespace {
 
@@ -30,133 +30,133 @@ static UsdAttribute
 _CreateUrlAttr(CesiumWebMapTileServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateUrlAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
 _CreateLayerAttr(CesiumWebMapTileServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateLayerAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
 _CreateStyleAttr(CesiumWebMapTileServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateStyleAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
 _CreateFormatAttr(CesiumWebMapTileServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateFormatAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
 _CreateTileMatrixSetIdAttr(CesiumWebMapTileServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateTileMatrixSetIdAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
 _CreateSpecifyTileMatrixSetLabelsAttr(CesiumWebMapTileServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateSpecifyTileMatrixSetLabelsAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
 _CreateTileMatrixSetLabelPrefixAttr(CesiumWebMapTileServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateTileMatrixSetLabelPrefixAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
 _CreateTileMatrixSetLabelsAttr(CesiumWebMapTileServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateTileMatrixSetLabelsAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
 _CreateUseWebMercatorProjectionAttr(CesiumWebMapTileServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateUseWebMercatorProjectionAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
 _CreateSpecifyTilingSchemeAttr(CesiumWebMapTileServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateSpecifyTilingSchemeAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
 _CreateRootTilesXAttr(CesiumWebMapTileServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateRootTilesXAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Int), writeSparsely);
 }
         
 static UsdAttribute
 _CreateRootTilesYAttr(CesiumWebMapTileServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateRootTilesYAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Int), writeSparsely);
 }
         
 static UsdAttribute
 _CreateWestAttr(CesiumWebMapTileServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateWestAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Double), writeSparsely);
 }
         
 static UsdAttribute
 _CreateEastAttr(CesiumWebMapTileServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateEastAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Double), writeSparsely);
 }
         
 static UsdAttribute
 _CreateSouthAttr(CesiumWebMapTileServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateSouthAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Double), writeSparsely);
 }
         
 static UsdAttribute
 _CreateNorthAttr(CesiumWebMapTileServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateNorthAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Double), writeSparsely);
 }
         
 static UsdAttribute
 _CreateSpecifyZoomLevelsAttr(CesiumWebMapTileServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateSpecifyZoomLevelsAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
 _CreateMinimumZoomLevelAttr(CesiumWebMapTileServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateMinimumZoomLevelAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Int), writeSparsely);
 }
         
 static UsdAttribute
 _CreateMaximumZoomLevelAttr(CesiumWebMapTileServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateMaximumZoomLevelAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Int), writeSparsely);
 }
 
 static std::string

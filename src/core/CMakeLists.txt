@@ -188,16 +188,19 @@ setup_lib(
         fabric
         usd_ar
         usd_arch
+        usd_boost
         usd_gf
         usd_js
         usd_kind
         usd_ndr
         usd_pcp
         usd_plug
+        usd_python
         usd_sdf
         usd_sdr
         usd_tf
         usd_trace
+        usd_ts
         usd_usd
         usd_usdGeom
         usd_usdLux
@@ -207,13 +210,12 @@ setup_lib(
         usd_usdVol
         usd_vt
         usd_work
-        boost_python311
         tbb
         carb
         omni_kit
         omni_ui
         pybind11
-        python311
+        python312
     ADDITIONAL_LIBRARIES
         "${ADDITIONAL_LIBRARIES}"
     ADDITIONAL_LINK_DIRECTORIES

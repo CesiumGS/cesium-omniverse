@@ -226,6 +226,7 @@ if(MSVC)
         /WX # error on warnings
         /Zc:__cplusplus # make __cplusplus defined correctly
         /bigobj
+        /utf-8
     )
     set(CESIUM_OMNI_CXX_DEFINES
         ${CESIUM_OMNI_CXX_DEFINES}
@@ -374,15 +375,6 @@ set(CESIUM_OMNI_CXX_DEFINES
     GLM_FORCE_SIZE_T_LENGTH # Make vec.length() and vec[idx] use size_t instead of int
     GLM_ENABLE_EXPERIMENTAL
 )
-
-# Boost is a dependency of USD. It is dynamically linked so we need to set this flag.
-set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} BOOST_ALL_DYN_LINK)
-
-# Disable auto-linking
-set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} BOOST_ALL_NO_LIB)
-
-# Hide USD build warning
-set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} BOOST_BIND_GLOBAL_PLACEHOLDERS)
 
 # TBB is a dependency of USD
 if(NOT ${USE_NVIDIA_RELEASE_LIBRARIES})

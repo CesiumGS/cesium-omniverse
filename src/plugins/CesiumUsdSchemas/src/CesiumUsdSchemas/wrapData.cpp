@@ -9,13 +9,13 @@
 #include "pxr/base/tf/pyUtils.h"
 #include "pxr/base/tf/wrapTypeHelpers.h"
 
-#include <boost/python.hpp>
+#include "pxr/external/boost/python.hpp"
 
 #include <string>
 
-using namespace boost::python;
-
 PXR_NAMESPACE_USING_DIRECTIVE
+
+using namespace pxr_boost::python;
 
 namespace {
 
@@ -30,70 +30,70 @@ static UsdAttribute
 _CreateDebugDisableMaterialsAttr(CesiumData &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateDebugDisableMaterialsAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
 _CreateDebugDisableTexturesAttr(CesiumData &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateDebugDisableTexturesAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
 _CreateDebugDisableGeometryPoolAttr(CesiumData &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateDebugDisableGeometryPoolAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
 _CreateDebugDisableMaterialPoolAttr(CesiumData &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateDebugDisableMaterialPoolAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
 _CreateDebugDisableTexturePoolAttr(CesiumData &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateDebugDisableTexturePoolAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
 _CreateDebugGeometryPoolInitialCapacityAttr(CesiumData &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateDebugGeometryPoolInitialCapacityAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->UInt64), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->UInt64), writeSparsely);
 }
         
 static UsdAttribute
 _CreateDebugMaterialPoolInitialCapacityAttr(CesiumData &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateDebugMaterialPoolInitialCapacityAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->UInt64), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->UInt64), writeSparsely);
 }
         
 static UsdAttribute
 _CreateDebugTexturePoolInitialCapacityAttr(CesiumData &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateDebugTexturePoolInitialCapacityAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->UInt64), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->UInt64), writeSparsely);
 }
         
 static UsdAttribute
 _CreateDebugRandomColorsAttr(CesiumData &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateDebugRandomColorsAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
 _CreateDebugDisableGeoreferencingAttr(CesiumData &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateDebugDisableGeoreferencingAttr(
-        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
+        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Bool), writeSparsely);
 }
 
 static std::string

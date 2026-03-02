@@ -5,7 +5,7 @@ glob_files(SOURCES "${CMAKE_CURRENT_LIST_DIR}/*.cpp")
 # cmake-format: off
 setup_python_module(
     PYTHON_DIR
-        # Use the same Python version as Omniverse (Python 3.11)
+        # Use the same Python version as Omniverse (Python 3.12)
         "${PROJECT_SOURCE_DIR}/extern/nvidia/_build/target-deps/python"
     TARGET_NAME
         CesiumOmniversePythonBindings

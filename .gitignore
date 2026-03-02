@@ -38,13 +38,13 @@ trace.csv
 !.vs/launch.vs.json
 
 # Installed python bindings
-exts/cesium.omniverse/cesium/omniverse/bindings/CesiumOmniversePythonBindings.cpython-311-x86_64-linux-gnu.so
-exts/cesium.omniverse/cesium/omniverse/bindings/CesiumOmniversePythonBindings.cp311-win_amd64.pyd
+exts/cesium.omniverse/cesium/omniverse/bindings/CesiumOmniversePythonBindings.cpython-312-x86_64-linux-gnu.so
+exts/cesium.omniverse/cesium/omniverse/bindings/CesiumOmniversePythonBindings.cp312-win_amd64.pyd
 exts/cesium.usd.plugins/cesium/usd/plugins/CesiumUsdSchemas/_CesiumUsdSchemas.so
 exts/cesium.usd.plugins/cesium/usd/plugins/CesiumUsdSchemas/_CesiumUsdSchemas.pyd
 exts/cesium.usd.plugins/cesium/usd/plugins/CesiumUsdSchemas/_CesiumUsdSchemas.lib
-exts/cesium.omniverse.cpp.tests/cesium/omniverse/cpp/tests/bindings/CesiumOmniverseCppTestsPythonBindings.cpython-311-x86_64-linux-gnu.so
-exts/cesium.omniverse.cpp.tests/cesium/omniverse/cpp/tests/bindings/CesiumOmniverseCppTestsPythonBindings.cp311-win_amd64.pyd
+exts/cesium.omniverse.cpp.tests/cesium/omniverse/cpp/tests/bindings/CesiumOmniverseCppTestsPythonBindings.cpython-312-x86_64-linux-gnu.so
+exts/cesium.omniverse.cpp.tests/cesium/omniverse/cpp/tests/bindings/CesiumOmniverseCppTestsPythonBindings.cp312-win_amd64.pyd
 
 # Installed libraries
 exts/cesium.omniverse/bin/
