@@ -223,6 +223,7 @@ set(NVIDIA_USD_LIBRARIES
     usd_sdr
     usd_tf
     usd_trace
+    usd_ts
     usd_usd
     usd_usdGeom
     usd_usdLux

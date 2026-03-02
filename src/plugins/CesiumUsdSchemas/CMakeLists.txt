@@ -71,6 +71,7 @@ setup_lib(
         usd_python
         usd_sdf
         usd_tf
+        usd_ts
         usd_usd
         usd_usdGeom
         tbb
