@@ -226,6 +226,7 @@ if(MSVC)
         /WX # error on warnings
         /Zc:__cplusplus # make __cplusplus defined correctly
         /bigobj
+        /utf-8
     )
     set(CESIUM_OMNI_CXX_DEFINES
         ${CESIUM_OMNI_CXX_DEFINES}
