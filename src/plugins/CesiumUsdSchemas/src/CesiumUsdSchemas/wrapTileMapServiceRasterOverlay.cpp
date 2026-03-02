@@ -30,28 +30,28 @@ static UsdAttribute
 _CreateUrlAttr(CesiumTileMapServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateUrlAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->String), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
 _CreateSpecifyZoomLevelsAttr(CesiumTileMapServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateSpecifyZoomLevelsAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Bool), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
 _CreateMinimumZoomLevelAttr(CesiumTileMapServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateMinimumZoomLevelAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Int), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int), writeSparsely);
 }
         
 static UsdAttribute
 _CreateMaximumZoomLevelAttr(CesiumTileMapServiceRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateMaximumZoomLevelAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Int), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int), writeSparsely);
 }
 
 static std::string

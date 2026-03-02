@@ -30,42 +30,42 @@ static UsdAttribute
 _CreateDisplayNameAttr(CesiumIonServer &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateDisplayNameAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->String), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
 _CreateIonServerUrlAttr(CesiumIonServer &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateIonServerUrlAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->String), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
 _CreateIonServerApiUrlAttr(CesiumIonServer &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateIonServerApiUrlAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->String), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
 _CreateIonServerApplicationIdAttr(CesiumIonServer &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateIonServerApplicationIdAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Int64), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int64), writeSparsely);
 }
         
 static UsdAttribute
 _CreateProjectDefaultIonAccessTokenAttr(CesiumIonServer &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateProjectDefaultIonAccessTokenAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->String), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
         
 static UsdAttribute
 _CreateProjectDefaultIonAccessTokenIdAttr(CesiumIonServer &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateProjectDefaultIonAccessTokenIdAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->String), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->String), writeSparsely);
 }
 
 static std::string

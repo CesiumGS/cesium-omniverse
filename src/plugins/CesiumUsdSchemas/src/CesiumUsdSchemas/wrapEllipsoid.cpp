@@ -30,7 +30,7 @@ static UsdAttribute
 _CreateRadiiAttr(CesiumEllipsoid &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateRadiiAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Double3), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Double3), writeSparsely);
 }
 
 static std::string

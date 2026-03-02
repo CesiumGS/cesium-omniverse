@@ -33,7 +33,7 @@ mv "$SCHEMA_OUTPUT_PATH/plugInfo.json" "$SCHEMA_OUTPUT_PATH/../../plugInfo.json.
 
 # Delete the Pixar junk from the first 23 lines of the generated code.
 for f in $SCHEMA_OUTPUT_PATH/*; do
-  sed -i '1,23d' "$f"
+  sed -i '1,6d' "$f"
 done
 
 # Move module.cpp and moduleDeps.cpp back.

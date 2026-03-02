@@ -14,6 +14,7 @@
                         "bases": [
                             "UsdTyped"
                         ], 
+                        "schemaIdentifier": "CesiumDataPrim", 
                         "schemaKind": "concreteTyped"
                     }, 
                     "CesiumEllipsoid": {
@@ -24,6 +25,7 @@
                         "bases": [
                             "UsdTyped"
                         ], 
+                        "schemaIdentifier": "CesiumEllipsoidPrim", 
                         "schemaKind": "concreteTyped"
                     }, 
                     "CesiumGeoreference": {
@@ -34,6 +36,7 @@
                         "bases": [
                             "UsdTyped"
                         ], 
+                        "schemaIdentifier": "CesiumGeoreferencePrim", 
                         "schemaKind": "concreteTyped"
                     }, 
                     "CesiumGlobeAnchorAPI": {
@@ -44,6 +47,7 @@
                         "bases": [
                             "UsdAPISchemaBase"
                         ], 
+                        "schemaIdentifier": "CesiumGlobeAnchorSchemaAPI", 
                         "schemaKind": "singleApplyAPI"
                     }, 
                     "CesiumIonRasterOverlay": {
@@ -54,6 +58,7 @@
                         "bases": [
                             "CesiumRasterOverlay"
                         ], 
+                        "schemaIdentifier": "CesiumIonRasterOverlayPrim", 
                         "schemaKind": "concreteTyped"
                     }, 
                     "CesiumIonServer": {
@@ -64,6 +69,7 @@
                         "bases": [
                             "UsdTyped"
                         ], 
+                        "schemaIdentifier": "CesiumIonServerPrim", 
                         "schemaKind": "concreteTyped"
                     }, 
                     "CesiumPolygonRasterOverlay": {
@@ -74,6 +80,7 @@
                         "bases": [
                             "CesiumRasterOverlay"
                         ], 
+                        "schemaIdentifier": "CesiumPolygonRasterOverlayPrim", 
                         "schemaKind": "concreteTyped"
                     }, 
                     "CesiumRasterOverlay": {
@@ -84,6 +91,7 @@
                         "bases": [
                             "UsdTyped"
                         ], 
+                        "schemaIdentifier": "CesiumRasterOverlayPrim", 
                         "schemaKind": "abstractTyped"
                     }, 
                     "CesiumTileMapServiceRasterOverlay": {
@@ -94,6 +102,7 @@
                         "bases": [
                             "CesiumRasterOverlay"
                         ], 
+                        "schemaIdentifier": "CesiumTileMapServiceRasterOverlayPrim", 
                         "schemaKind": "concreteTyped"
                     }, 
                     "CesiumTileset": {
@@ -104,6 +113,7 @@
                         "bases": [
                             "UsdGeomGprim"
                         ], 
+                        "schemaIdentifier": "CesiumTilesetPrim", 
                         "schemaKind": "concreteTyped"
                     }, 
                     "CesiumWebMapServiceRasterOverlay": {
@@ -114,6 +124,7 @@
                         "bases": [
                             "CesiumRasterOverlay"
                         ], 
+                        "schemaIdentifier": "CesiumWebMapServiceRasterOverlayPrim", 
                         "schemaKind": "concreteTyped"
                     }, 
                     "CesiumWebMapTileServiceRasterOverlay": {
@@ -124,6 +135,7 @@
                         "bases": [
                             "CesiumRasterOverlay"
                         ], 
+                        "schemaIdentifier": "CesiumWebMapTileServiceRasterOverlayPrim", 
                         "schemaKind": "concreteTyped"
                     }
                 }

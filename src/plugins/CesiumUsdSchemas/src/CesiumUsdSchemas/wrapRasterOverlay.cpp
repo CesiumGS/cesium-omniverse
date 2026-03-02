@@ -30,49 +30,49 @@ static UsdAttribute
 _CreateShowCreditsOnScreenAttr(CesiumRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateShowCreditsOnScreenAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Bool), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Bool), writeSparsely);
 }
         
 static UsdAttribute
 _CreateAlphaAttr(CesiumRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateAlphaAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Float), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Float), writeSparsely);
 }
         
 static UsdAttribute
 _CreateOverlayRenderMethodAttr(CesiumRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateOverlayRenderMethodAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Token), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Token), writeSparsely);
 }
         
 static UsdAttribute
 _CreateMaximumScreenSpaceErrorAttr(CesiumRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateMaximumScreenSpaceErrorAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Float), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Float), writeSparsely);
 }
         
 static UsdAttribute
 _CreateMaximumTextureSizeAttr(CesiumRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateMaximumTextureSizeAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Int), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int), writeSparsely);
 }
         
 static UsdAttribute
 _CreateMaximumSimultaneousTileLoadsAttr(CesiumRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateMaximumSimultaneousTileLoadsAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Int), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int), writeSparsely);
 }
         
 static UsdAttribute
 _CreateSubTileCacheBytesAttr(CesiumRasterOverlay &self,
                                       object defaultVal, bool writeSparsely) {
     return self.CreateSubTileCacheBytesAttr(
-        UsdPythonToSdfType(TfPyObjWrapper(defaultVal), SdfValueTypeNames->Int), writeSparsely);
+        UsdPythonToSdfType(defaultVal, SdfValueTypeNames->Int), writeSparsely);
 }
 
 static std::string
