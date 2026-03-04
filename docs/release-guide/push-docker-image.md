@@ -1,6 +1,6 @@
-# Pushing the Docker Image for AlmaLinux 8 builds.
+# Pushing the Docker Image for Ubuntu 22 builds.
 
-We use a docker image for our AlmaLinux 8 builds that contains all of our build dependencies, so we don't have to build the image from scratch on each build. This document outlines how to build and push this to Docker Hub.
+We use a docker image for our Ubuntu 22 builds that contains all of our build dependencies, so we don't have to build the image from scratch on each build. This document outlines how to build and push this to Docker Hub.
 
 ## Installing Docker
 
@@ -24,7 +24,7 @@ particular, `ssh` logins and `git` may not work anymore.
 
 ## Building the container
 
-Confirm that you have push access to the [container repo](https://hub.docker.com/r/cesiumgs/omniverse-almalinux8-build).
+Confirm that you have push access to the [container repo](https://hub.docker.com/r/cesiumgs/omniverse-ubuntu22-build).
 
 ### Log in
 
@@ -39,7 +39,7 @@ docker login
 After making your changes to the docker file, execute:
 
 ```shell
-docker build --tag cesiumgs/omniverse-almalinux8-build:$TAGNAME -f docker/AlmaLinux8.Dockerfile . --no-cache
+docker build --tag cesiumgs/omniverse-ubuntu22-build:$TAGNAME -f docker/Ubuntu22.Dockerfile . --no-cache
 ```
 
 You should replace `$TAGNAME` with the current date in `YYYY-MM-DD` format. So if it's the 29th of August, 2023, you would use `2023-08-29`.
@@ -49,11 +49,11 @@ You should replace `$TAGNAME` with the current date in `YYYY-MM-DD` format. So i
 The build will take some time. Once it is finished, execute the following to push the image to Docker Hub:
 
 ```shell
-docker push cesiumgs/omniverse-almalinux8-build:$TAGNAME
+docker push cesiumgs/omniverse-ubuntu22-build:$TAGNAME
 ```
 
 Again, you should replace `$TAGNAME` with the current date in `YYYY-MM-DD` format. So if it's the 29th of August, 2023, you would use `2023-08-29`.
 
 ### Update CI.Dockerfile
 
-The `docker/CI.Dockerfile` file is used as part of the AlmaLinux 8 build step in our GitHub actions. You will need to update the version of the Docker image used to the tagged version you just uploaded.
+The `docker/CI.Dockerfile` file is used as part of the Ubuntu 22 build step in our GitHub actions. You will need to update the version of the Docker image used to the tagged version you just uploaded.

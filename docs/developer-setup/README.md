@@ -247,14 +247,14 @@ Install [Docker Engine CE For Ubuntu](https://docs.docker.com/engine/install/ubu
 Enter the container:
 
 ```sh
-docker build --tag cesiumgs/cesium-omniverse:almalinux8 -f docker/AlmaLinux8.Dockerfile .
-docker run --rm --interactive --tty --volume $PWD:/var/app cesiumgs/cesium-omniverse:almalinux8
+docker build --tag cesiumgs/cesium-omniverse:ubuntu22 -f docker/Ubuntu22.Dockerfile .
+docker run --rm --interactive --tty --volume $PWD:/var/app cesiumgs/cesium-omniverse:ubuntu22
 ```
 
 Once inside the container, build like usual. Note that linters are turned off. It won't affect the build, it just means there won't be code formatting or linting. It will build fine with GCC.
 
 ```sh
-cmake -B build -D CESIUM_OMNI_ENABLE_LINTERS=OFF
+cmake -B build -D CESIUM_OMNI_ENABLE_LINTERS=OFF -D VCPKG_TRIPLET=x64-linux
 cmake --build build
 ```
 
@@ -460,14 +460,17 @@ cmake --build build --target clang-tidy
 
 ### Build Linux Package (Local)
 
-Linux packages are built in the AlmaLinux 8 Docker container. A Red Hat Enterprise Linux 8 compatible OS is the [minimum OS required by Omniverse](https://docs.omniverse.nvidia.com/app_view/common/technical-requirements.html#suggested-minimums-by-product) and uses glibc 2.18 which is compatible with nearly all modern Linux distributions.
+Linux packages are built in the Ubuntu 22 Docker container. Ubuntu 22 uses glibc 2.35 which is the minimum requirement fpr Kit 107.3 and above.
 
-It's recommended to build AlmaLinux 8 packages in a separate clone of cesium-omniverse since the Docker container will overwrite files in the `extern/nvidia/_build` and `exts` folders.
+https://docs.omniverse.nvidia.com/kit/docs/kit-manual/107.0.3/guide/migration.html
+
+
+It's recommended to build Ubuntu 22 packages in a separate clone of cesium-omniverse since the Docker container will overwrite files in the `extern/nvidia/_build` and `exts` folders.
 
 Run the following shell script from the root cesium-omniverse directory:
 
 ```sh
-./scripts/build_package_almalinux8.sh
+./scripts/build_package_ubuntu22.sh
 ```
 
 The resulting `.zip` file will be written to the `build-package` directory (e.g. `CesiumGS-cesium-omniverse-linux-x86_64-v0.0.0.zip`)
