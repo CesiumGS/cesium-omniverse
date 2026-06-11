@@ -207,6 +207,7 @@ set(KIT_SDK_ROOT "${NVIDIA_BUILD_DIR}/target-deps/kit-sdk")
 set(KIT_OMNI_UI_ROOT "${NVIDIA_BUILD_DIR}/target-deps/omni-ui")
 set(KIT_IMGUI_ROOT "${NVIDIA_BUILD_DIR}/target-deps/omni-kit-renderer-imgui")
 set(PYBIND11_ROOT "${NVIDIA_BUILD_DIR}/target-deps/pybind11")
+set(BOOST_PREPROCESSOR_ROOT "${NVIDIA_BUILD_DIR}/target-deps/boost_preprocessor")
 
 set(NVIDIA_USD_LIBRARIES
     usd_ar
@@ -215,7 +216,6 @@ set(NVIDIA_USD_LIBRARIES
     usd_gf
     usd_js
     usd_kind
-    usd_ndr
     usd_pcp
     usd_plug
     usd_python
@@ -365,6 +365,15 @@ add_prebuilt_project_header_only(
         "${PYBIND11_ROOT}"
     TARGET_NAME
         pybind11
+)
+# cmake-format: on
+
+# cmake-format: off
+add_prebuilt_project_header_only(
+    INCLUDE_DIR
+        "${BOOST_PREPROCESSOR_ROOT}"
+    TARGET_NAME
+        boost_preprocessor
 )
 # cmake-format: on
 

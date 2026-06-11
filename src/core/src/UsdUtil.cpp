@@ -30,6 +30,7 @@
 #include <CesiumUsdSchemas/tileset.h>
 #include <CesiumUsdSchemas/webMapServiceRasterOverlay.h>
 #include <CesiumUsdSchemas/webMapTileServiceRasterOverlay.h>
+#include <carb/Numeric.h>
 #include <fmt/format.h>
 #include <glm/gtc/matrix_access.hpp>
 #include <glm/gtc/matrix_inverse.hpp>

@@ -1,6 +1,6 @@
 <project toolsVersion="5.6">
   <dependency name="kit-kernel-debug" linkPath="../_build/target-deps/kit-sdk-debug/">
-    <package name="kit-kernel" version="109.0.3+production.263267.62477c11.gl.${platform}.release"/>
+    <package name="kit-kernel" version="110.1.1+production.${platform}.debug"/>
   </dependency>
   <!-- build-time dependencies -->
   <!-- the versions MUST correspond to the versions pulled in by kit-kernel during extension precaching-->

@@ -29,6 +29,7 @@
 #include <Cesium3DTilesSelection/Tileset.h>
 #include <CesiumAsync/AsyncSystem.h>
 #include <CesiumGltfContent/GltfUtilities.h>
+#include <carb/Numeric.h>
 #include <omni/fabric/FabricUSD.h>
 #include <omni/ui/ImageProvider/DynamicTextureProvider.h>
 

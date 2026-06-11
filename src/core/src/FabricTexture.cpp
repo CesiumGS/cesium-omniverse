@@ -7,6 +7,7 @@
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <CesiumGltf/ImageCesium.h>
+#include <carb/Numeric.h>
 #include <carb/Types.h>
 #include <omni/ui/ImageProvider/DynamicTextureProvider.h>
 

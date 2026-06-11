@@ -12,6 +12,7 @@
 #include "cesium/omniverse/UsdTokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
+#include <carb/Numeric.h>
 #include <glm/fwd.hpp>
 
 #ifdef CESIUM_OMNI_MSVC
