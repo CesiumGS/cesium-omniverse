@@ -1541,6 +1541,7 @@ export material cesium_internal_material(
     gltf_texture_lookup_value raster_overlay = gltf_texture_lookup_value(),
     gltf_texture_lookup_value alpha_clip = gltf_texture_lookup_value()
 ) [[ anno::hidden() ]] = let {
+    float alpha_clip_value = alpha_clip.valid ? alpha_clip.value.x : 0.0;
     auto base_color = compute_base_color(
         base_color_factor,
         base_alpha,
@@ -1548,7 +1549,7 @@ export material cesium_internal_material(
         base_color_texture.value,
         raster_overlay.valid ? raster_overlay.value : float4(0.0),
         tile_color,
-        alpha_clip.valid ? alpha_clip.value.x : 0.0
+        alpha_clip_value
     );
     material base = gltf_material(
         base_color_texture: gltf_texture_lookup_value(true, base_color),
@@ -1564,7 +1565,14 @@ export material cesium_internal_material(
     surface: base.surface,
     volume: base.volume,
     ior: base.ior,
-    geometry: base.geometry
+    // Kit 110 / Isaac Sim RTX does not honor the gltf mask cutout for clipped
+    // tiles (clipped fragments render opaque black instead of being discarded).
+    // Force a hard geometry cutout so clipped fragments are reliably removed.
+    geometry: material_geometry(
+        displacement: base.geometry.displacement,
+        cutout_opacity: alpha_clip_value > 0.5 ? 0.0 : base.geometry.cutout_opacity,
+        normal: base.geometry.normal
+    )
 );
 
 export gltf_texture_lookup_value cesium_internal_raster_overlay_resolver(
