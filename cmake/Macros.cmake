@@ -495,22 +495,6 @@ $<$<CONFIG:MinSizeRel>:${_RELEASE_INCLUDE_DIR}>")
                        IMPORTED_LOCATION_RELEASE "${${TARGET_NAME}_LIBRARY_RELEASE}"
                        IMPORTED_LOCATION_RELWITHDEBINFO "${${TARGET_NAME}_LIBRARY_RELEASE}"
                        IMPORTED_LOCATION_MINSIZEREL "${${TARGET_NAME}_LIBRARY_RELEASE}")
-
-        if(WIN32)
-            # Kit 110's oneTBB headers emit MSVC auto-link pragmas referencing the
-            # versioned lib name (e.g. `#pragma comment(lib, "tbb12.lib")`), which the
-            # linker resolves from /LIBPATH. Expose each prebuilt lib directory so those
-            # implicitly-referenced libs can be found.
-            set_property(
-                TARGET ${TARGET_NAME}
-                APPEND
-                PROPERTY INTERFACE_LINK_DIRECTORIES
-                         "\
-$<$<CONFIG:Debug>:${_DEBUG_LIBRARY_DIR}>\
-$<$<CONFIG:Release>:${_RELEASE_LIBRARY_DIR}>\
-$<$<CONFIG:RelWithDebInfo>:${_RELEASE_LIBRARY_DIR}>\
-$<$<CONFIG:MinSizeRel>:${_RELEASE_LIBRARY_DIR}>")
-        endif()
     endforeach()
 endfunction()
 
