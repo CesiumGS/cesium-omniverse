@@ -20,9 +20,9 @@ if not exist %vswhere_path% (
 
 echo vswhere.exe path: %vswhere_path%
 
-:: Find vsdevcmd.bat in the latest Visual Studio installation
+:: Find vsdevcmd.bat in the Visual Studio 17 2022 installation
 :: See https://github.com/microsoft/vswhere/wiki/Find-VC
-for /f "usebackq tokens=*" %%i in (`%vswhere_path% -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set vsdevcmd_path="%%i\Common7\Tools\vsdevcmd.bat"
+for /f "usebackq tokens=*" %%i in (`%vswhere_path% -version=[17.0^,18.0^) -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set vsdevcmd_path="%%i\Common7\Tools\vsdevcmd.bat"
 
 if not exist %vsdevcmd_path% (
     echo "Could not find vsdevcmd.bat"
