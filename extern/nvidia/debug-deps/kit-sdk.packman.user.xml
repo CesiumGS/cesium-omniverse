@@ -14,11 +14,11 @@
   [omni.kit.registry.nucleus] [tid: 140737352547200] downloading: 'http://d4i3qtqj3r0z5.cloudfront.net/omni.kit.renderer.imgui-61a6e663a4d57772.zip' -> '/tmp/tmpi1uqvpk1/omni.kit.renderer.imgui-1.0.2+d02c707b.lx64.r.cp310.zip'...
   -->
   <dependency name="omni-ui" linkPath="../_build/target-deps/omni-ui/">
-    <package name="omni.ui" version="0e529a493c7b9bf0" platforms="linux-x86_64 manylinux_2_35_x86_64"/>
-    <package name="omni.ui" version="43dca50bad80e39b" platforms="windows-x86_64"/>
+    <package name="omni.ui" version="5df11c6deaa3f809" platforms="linux-x86_64 manylinux_2_35_x86_64"/>
+    <package name="omni.ui" version="19feb74a05aa1a38" platforms="windows-x86_64"/>
   </dependency>
   <dependency name="omni-kit-renderer-imgui" linkPath="../_build/target-deps/omni-kit-renderer-imgui/">
-    <package name="omni.kit.renderer.imgui" version="a5613f69731afb88" platforms="linux-x86_64 manylinux_2_35_x86_64" />
-    <package name="omni.kit.renderer.imgui" version="a5caa90b87ca5c10" platforms="windows-x86_64" />
+    <package name="omni.kit.renderer.imgui" version="de82f3e2950efdf0" platforms="linux-x86_64 manylinux_2_35_x86_64" />
+    <package name="omni.kit.renderer.imgui" version="704f5472fcd3d688" platforms="windows-x86_64" />
   </dependency>
 </project>
