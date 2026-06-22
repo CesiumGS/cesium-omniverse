@@ -57,7 +57,7 @@ function(_get_msvc_ide_version result)
         set(${result} 16 PARENT_SCOPE)
     # Omniverse modification - 1940 was changed to 1945
     # This version of the conan-cmake script does not properly account for newer versions of MSVC
-    elseif(NOT MSVC_VERSION VERSION_LESS 1930 AND MSVC_VERSION VERSION_LESS 1945)
+    elseif(NOT MSVC_VERSION VERSION_LESS 1930 AND MSVC_VERSION VERSION_LESS 1950)
         set(${result} 17 PARENT_SCOPE)
     else()
         message(FATAL_ERROR "Conan: Unknown MSVC compiler version [${MSVC_VERSION}]")
