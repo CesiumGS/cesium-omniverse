@@ -8,6 +8,7 @@
 #include "cesium/omniverse/UsdTokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
+#include <carb/Numeric.h>
 #include <fmt/format.h>
 #include <omni/fabric/FabricUSD.h>
 #include <omni/fabric/SimStageWithHistory.h>

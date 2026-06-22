@@ -34,9 +34,9 @@
 See [Linux](#linux) or [Windows](#windows) for step-by-step installation instructions
 
 - Linux (Ubuntu 22.04+ or equivalent) or Windows
-- Clang 15+, GCC 9+, or Visual Studio 2022+
+- Clang 15+, GCC 9+, or Visual Studio 2022 (Visual Studio 2026 is not supported)
 - Python 3.10+ - For Conan and scripts
-- CMake 3.22+ - Build system generator
+- CMake 3.22+ (CMake 4 is not supported) - Build system generator
 - Make - Build system (Linux only)
 - Conan - Third party C++ library management
 - gcovr - Code coverage (Linux only)
@@ -107,7 +107,7 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
   - Use defaults
 - Install LLVM 15.0.7: https://llvm.org/builds
   - When prompted, select `Add LLVM to the system PATH for all users`
-- Install CMake: https://cmake.org/download
+- Install CMake (version 3.x): https://cmake.org/download
   - When prompted, select `Add CMake to the system PATH for all users`
 - Install Python (version 3.x): https://www.python.org/downloads
   - Select `Add Python 3.x to PATH`
@@ -156,7 +156,10 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
 
 - Install [Chocolatey](https://docs.chocolatey.org/en-us/choco/setup) and then install dependencies
   ```sh
-  choco install -y visualstudio2022professional visualstudio2022-workload-nativedesktop python cmake ninja git doxygen.install vswhere --installargs 'ADD_CMAKE_TO_PATH=System'
+  choco install -y visualstudio2022professional visualstudio2022-workload-nativedesktop python ninja git doxygen.install vswhere --installargs 'ADD_CMAKE_TO_PATH=System'
+  ```
+  ```sh
+  choco install -y cmake --version=3.31.0
   ```
   ```sh
   choco install -y llvm --version=15.0.7
@@ -228,17 +231,15 @@ Binaries will be written to `build/bin`. Shared libraries and static libraries w
 
 ```sh
 ## Release
-cmake -B build
+cmake -B build -G "Visual Studio 17 2022"
 cmake --build build --config Release --target install --parallel 8
 
 ## Debug
-cmake -B build
+cmake -B build -G "Visual Studio 17 2022"
 cmake --build build --config Debug --target install --parallel 8
 ```
 
 Binaries and shared libraries will be written to `build/bin/Release`. Static libraries and python modules will be written to `build/lib/Release`.
-
-CMake will select the most recent version of Visual Studio on your system unless overridden with a generator (e.g. `-G "Visual Studio 17 2022"`).
 
 ### Docker
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <carb/Numeric.h>
 #include <omni/fabric/FabricUSD.h>
 #include <pxr/base/tf/staticTokens.h>
 

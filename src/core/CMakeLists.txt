@@ -192,7 +192,6 @@ setup_lib(
         usd_gf
         usd_js
         usd_kind
-        usd_ndr
         usd_pcp
         usd_plug
         usd_python
@@ -215,6 +214,7 @@ setup_lib(
         omni_kit
         omni_ui
         pybind11
+        boost_preprocessor
         python312
     ADDITIONAL_LIBRARIES
         "${ADDITIONAL_LIBRARIES}"

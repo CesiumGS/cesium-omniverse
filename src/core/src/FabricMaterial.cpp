@@ -20,6 +20,7 @@
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <CesiumGltf/MeshPrimitive.h>
+#include <carb/Numeric.h>
 #include <fmt/format.h>
 #include <glm/gtc/random.hpp>
 #include <omni/fabric/FabricUSD.h>

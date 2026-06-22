@@ -207,6 +207,7 @@ set(KIT_SDK_ROOT "${NVIDIA_BUILD_DIR}/target-deps/kit-sdk")
 set(KIT_OMNI_UI_ROOT "${NVIDIA_BUILD_DIR}/target-deps/omni-ui")
 set(KIT_IMGUI_ROOT "${NVIDIA_BUILD_DIR}/target-deps/omni-kit-renderer-imgui")
 set(PYBIND11_ROOT "${NVIDIA_BUILD_DIR}/target-deps/pybind11")
+set(BOOST_PREPROCESSOR_ROOT "${NVIDIA_BUILD_DIR}/target-deps/boost_preprocessor")
 
 set(NVIDIA_USD_LIBRARIES
     usd_ar
@@ -215,7 +216,6 @@ set(NVIDIA_USD_LIBRARIES
     usd_gf
     usd_js
     usd_kind
-    usd_ndr
     usd_pcp
     usd_plug
     usd_python
@@ -241,11 +241,14 @@ set(NVIDIA_USD_DEBUG_LIBRARIES ${NVIDIA_USD_LIBRARIES})
 
 # Add TBB
 set(NVIDIA_USD_TARGET_NAMES ${NVIDIA_USD_TARGET_NAMES} tbb)
-set(NVIDIA_USD_RELEASE_LIBRARIES ${NVIDIA_USD_RELEASE_LIBRARIES} tbb)
 
 if(WIN32)
-    set(NVIDIA_USD_DEBUG_LIBRARIES ${NVIDIA_USD_DEBUG_LIBRARIES} tbb_debug)
+    # Kit 110 ships oneTBB as tbb12.lib / tbb12.dll (tbb.dll does not exist).
+    # The CMake target is still named `tbb`; only the underlying lib/DLL is versioned.
+    set(NVIDIA_USD_RELEASE_LIBRARIES ${NVIDIA_USD_RELEASE_LIBRARIES} tbb12)
+    set(NVIDIA_USD_DEBUG_LIBRARIES ${NVIDIA_USD_DEBUG_LIBRARIES} tbb12)
 else()
+    set(NVIDIA_USD_RELEASE_LIBRARIES ${NVIDIA_USD_RELEASE_LIBRARIES} tbb)
     set(NVIDIA_USD_DEBUG_LIBRARIES ${NVIDIA_USD_DEBUG_LIBRARIES} tbb)
 endif()
 
@@ -365,6 +368,15 @@ add_prebuilt_project_header_only(
         "${PYBIND11_ROOT}"
     TARGET_NAME
         pybind11
+)
+# cmake-format: on
+
+# cmake-format: off
+add_prebuilt_project_header_only(
+    INCLUDE_DIR
+        "${BOOST_PREPROCESSOR_ROOT}"
+    TARGET_NAME
+        boost_preprocessor
 )
 # cmake-format: on
 
