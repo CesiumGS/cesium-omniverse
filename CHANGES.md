@@ -3,6 +3,7 @@
 ### v0.29.0 - 2026-07-01
 
 * **Breaking change:** Cesium for Omniverse now requires Kit 110.0 or above (Isaac Sim 6.0.0-dev2 or above).
+* Fixed bug where polygon clipping was rendering black instead of discarding.
 
 ### v0.28.0 - 2026-03-04
 
