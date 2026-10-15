@@ -728,8 +728,7 @@ FabricFeaturesInfo getFeaturesInfo(const CesiumGltf::Model& model, const CesiumG
             featureIdStorage = std::monostate();
         }
 
-        // In C++ 20 this can be emplace_back without the {}
-        featuresInfo.featureIds.push_back({nullFeatureId, featureCount, featureIdStorage});
+        featuresInfo.featureIds.emplace_back(nullFeatureId, featureCount, featureIdStorage);
     }
 
     return featuresInfo;
@@ -781,13 +780,7 @@ getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::Mesh
         const auto fabricAttributeName = omni::fabric::Token::createImmortal(fabricAttributeNameStr.c_str());
         const auto fabricInterpolationName = omni::fabric::Token::createImmortal(fabricInterpolationNameStr.c_str());
 
-        // In C++ 20 this can be emplace without the {}
-        customVertexAttributes.insert(FabricVertexAttributeDescriptor{
-            type.value(),
-            fabricAttributeName,
-            fabricInterpolationName,
-            attributeName,
-        });
+        customVertexAttributes.emplace(type.value(), fabricAttributeName, fabricInterpolationName, attributeName);
     }
 
     return customVertexAttributes;

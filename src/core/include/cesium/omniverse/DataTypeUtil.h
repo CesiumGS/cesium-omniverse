@@ -1381,7 +1381,6 @@ constexpr auto MdlInternalPropertyTypeCount = static_cast<uint64_t>(MdlInternalP
 #define CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_DATA_TYPE(FUNCTION_NAME, TYPE, ...) \
     CppUtil::dispatch<detail::DataTypeCount>([](auto i) { return FUNCTION_NAME<i.value>; }, TYPE, __VA_ARGS__)
 
-// In C++ 20 we don't need this second define
 #define CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_DATA_TYPE_NO_ARGS(FUNCTION_NAME, TYPE) \
     CppUtil::dispatch<detail::DataTypeCount>(                                       \
         [](auto i) { return FUNCTION_NAME<i.value>; }, TYPE) // NOLINT(bugprone-macro-parentheses)

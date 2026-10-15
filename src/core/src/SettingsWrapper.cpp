@@ -8,11 +8,11 @@ namespace cesium::omniverse::Settings {
 
 namespace {
 const uint64_t MAX_SESSIONS = 10;
-const std::string_view SESSION_ION_SERVER_URL_BASE =
+constexpr std::string_view SESSION_ION_SERVER_URL_BASE =
     "/persistent/exts/cesium.omniverse/sessions/session{}/ionServerUrl";
-const std::string_view SESSION_USER_ACCESS_TOKEN_BASE =
+constexpr std::string_view SESSION_USER_ACCESS_TOKEN_BASE =
     "/persistent/exts/cesium.omniverse/sessions/session{}/userAccessToken";
-const char* MAX_CACHE_ITEMS_PATH = "/persistent/exts/cesium.omniverse/maxCacheItems";
+constexpr std::string_view MAX_CACHE_ITEMS_PATH = "/persistent/exts/cesium.omniverse/maxCacheItems";
 
 std::string getIonApiUrlSettingPath(const uint64_t index) {
     return fmt::format(SESSION_ION_SERVER_URL_BASE, index);
@@ -38,8 +38,7 @@ std::vector<AccessToken> getAccessTokens() {
         const auto accessTokenValue = iSettings->getStringBuffer(accessTokenKey.c_str());
 
         if (ionApiUrlValue && accessTokenValue) {
-            // In C++ 20 this can be emplace_back without the {}
-            accessTokens.push_back({ionApiUrlValue, accessTokenValue});
+            accessTokens.emplace_back(ionApiUrlValue, accessTokenValue);
         }
     }
 
@@ -117,8 +116,8 @@ void clearTokens() {
 uint64_t getMaxCacheItems() {
     const int64_t defaultMaxCacheItems = 4096;
     const auto iSettings = carb::getCachedInterface<carb::settings::ISettings>();
-    iSettings->setDefaultInt64(MAX_CACHE_ITEMS_PATH, defaultMaxCacheItems);
-    auto maxCacheItems = iSettings->getAsInt64(MAX_CACHE_ITEMS_PATH);
+    iSettings->setDefaultInt64(MAX_CACHE_ITEMS_PATH.data(), defaultMaxCacheItems);
+    auto maxCacheItems = iSettings->getAsInt64(MAX_CACHE_ITEMS_PATH.data());
     return static_cast<uint64_t>(maxCacheItems);
 }
 } // namespace cesium::omniverse::Settings

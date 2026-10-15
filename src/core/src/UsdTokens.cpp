@@ -56,7 +56,7 @@ PXR_NAMESPACE_CLOSE_SCOPE
         auto& token = tokens[index];
 
         if (token.isNull()) {
-            const auto tokenStr = fmt::format(pattern, index);
+            const auto tokenStr = fmt::format(fmt::runtime(pattern), index);
             token = omni::fabric::Token::createImmortal(tokenStr.c_str());
         }
 

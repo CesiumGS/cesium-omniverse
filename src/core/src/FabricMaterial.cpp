@@ -1714,7 +1714,7 @@ void FabricMaterial::createConnectionsToProperties() {
 
         if (index == properties.size()) {
             if (CppUtil::contains(unsupportedPropertyWarnings, propertyId)) {
-                _pContext->getLogger()->oneTimeWarning(unsupportedPropertyWarnings.at(propertyId));
+                _pContext->getLogger()->oneTimeWarning("{}", unsupportedPropertyWarnings.at(propertyId));
             } else {
                 _pContext->getLogger()->oneTimeWarning(
                     "Could not find property \"{}\" referenced by {}. A default value will be returned instead.",

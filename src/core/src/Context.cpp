@@ -53,7 +53,7 @@ std::shared_ptr<CesiumAsync::ICacheDatabase> makeCacheDatabase(const std::shared
         logger->oneTimeWarning("maxCacheItems set to 0, so disabling accessor cache");
         return {};
     } else if (auto dbName = getCacheDatabaseName(); !dbName.empty()) {
-        logger->oneTimeWarning(fmt::format("Cesium cache file: {}", dbName));
+        logger->oneTimeWarning("Cesium cache file: {}", dbName);
         return std::make_shared<CesiumAsync::SqliteCache>(logger, dbName, maxCacheItems);
     }
     logger->oneTimeWarning("could not get name for cache database");

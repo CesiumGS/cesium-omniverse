@@ -34,13 +34,12 @@ std::tuple<std::vector<FabricPropertyDescriptor>, std::map<std::string, std::str
             const auto& property) {
             constexpr auto type = std::decay_t<decltype(property)>::Type;
 
-            // In C++ 20 this can be emplace_back without the {}
-            properties.push_back({
+            properties.emplace_back(
                 FabricPropertyStorageType::ATTRIBUTE,
                 DataTypeUtil::getMdlInternalPropertyType<type>(),
                 propertyId,
-                0, // featureIdSetIndex not relevant for property attributes
-            });
+                0 // featureIdSetIndex not relevant for property attributes
+            );
         },
         unsupportedPropertyCallback);
 
@@ -54,13 +53,12 @@ std::tuple<std::vector<FabricPropertyDescriptor>, std::map<std::string, std::str
             const auto& property) {
             constexpr auto type = std::decay_t<decltype(property)>::Type;
 
-            // In C++ 20 this can be emplace_back without the {}
-            properties.push_back({
+            properties.emplace_back(
                 FabricPropertyStorageType::TEXTURE,
                 DataTypeUtil::getMdlInternalPropertyType<type>(),
                 propertyId,
-                0, // featureIdSetIndex not relevant for property textures
-            });
+                0 // featureIdSetIndex not relevant for property textures
+            );
         },
         unsupportedPropertyCallback);
 
@@ -74,13 +72,11 @@ std::tuple<std::vector<FabricPropertyDescriptor>, std::map<std::string, std::str
             const auto& property) {
             constexpr auto type = std::decay_t<decltype(property)>::Type;
 
-            // In C++ 20 this can be emplace_back without the {}
-            properties.push_back({
+            properties.emplace_back(
                 FabricPropertyStorageType::TABLE,
                 DataTypeUtil::getMdlInternalPropertyType<type>(),
                 propertyId,
-                property.featureIdSetIndex,
-            });
+                property.featureIdSetIndex);
         },
         unsupportedPropertyCallback);
 
@@ -201,13 +197,7 @@ std::vector<FabricTextureData> encodePropertyTables(
                 }
             }
 
-            // In C++ 20 this can be push_back without the {}
-            textures.push_back({
-                std::move(texelBytes),
-                width,
-                height,
-                textureFormat,
-            });
+            textures.emplace_back(std::move(texelBytes), width, height, textureFormat);
         },
         unsupportedPropertyCallbackNoop);
 

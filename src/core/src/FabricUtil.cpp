@@ -610,8 +610,7 @@ getConnections(omni::fabric::StageReaderWriter& fabricStage, const omni::fabric:
         if (type.baseType == omni::fabric::BaseDataType::eConnection) {
             const auto pConnection = fabricStage.getConnection(path, name);
             if (pConnection) {
-                // In C++ 20 this can be emplace_back without the {}
-                connections.push_back({pConnection, name});
+                connections.emplace_back(pConnection, name);
             }
         }
     }
@@ -680,8 +679,7 @@ getAttributesToCreate(omni::fabric::StageReaderWriter& fabricStage, const omni::
         const auto& type = types[i];
 
         if (isOutput(name) || isEmptyToken(fabricStage, path, name, type)) {
-            // In C++ 20 this can be emplace_back without the {}
-            attributeNames.push_back({name, type});
+            attributeNames.emplace_back(name, type);
         }
     }
 

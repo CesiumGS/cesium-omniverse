@@ -84,12 +84,7 @@ std::vector<LoadingMesh> getLoadingMeshes(const glm::dmat4& tileToEcefTransform,
             const auto gltfPrimitiveIndex = CppUtil::getIndexFromRef(mesh.primitives, primitive);
             const auto gltfLocalToEcefTransform =
                 tileToEcefTransform * gltfWorldToTileTransform * gltfLocalToWorldTransform;
-            // In C++ 20 this can be emplace_back without the {}
-            loadingMeshes.push_back({
-                gltfLocalToEcefTransform,
-                gltfMeshIndex,
-                gltfPrimitiveIndex,
-            });
+            loadingMeshes.emplace_back(gltfLocalToEcefTransform, gltfMeshIndex, gltfPrimitiveIndex);
         });
 
     return loadingMeshes;

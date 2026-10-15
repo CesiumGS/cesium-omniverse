@@ -89,7 +89,15 @@ class FabricResourceManager {
 
   private:
     struct SharedMaterial {
-        SharedMaterial() = default;
+        SharedMaterial(
+            const std::shared_ptr<FabricMaterial>& pMaterial_,
+            const FabricMaterialInfo& materialInfo_,
+            int64_t tilesetId_,
+            uint64_t referenceCount_)
+            : pMaterial(pMaterial_)
+            , materialInfo(materialInfo_)
+            , tilesetId(tilesetId_)
+            , referenceCount(referenceCount_) {}
         ~SharedMaterial() = default;
         SharedMaterial(const SharedMaterial&) = delete;
         SharedMaterial& operator=(const SharedMaterial&) = delete;
