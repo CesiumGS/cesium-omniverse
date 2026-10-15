@@ -297,8 +297,6 @@ void OmniWebMapTileServiceRasterOverlay::reload() {
 
     const auto& ellipsoid = getEllipsoid();
 
-    wmtsOptions.ellipsoid = ellipsoid;
-
     const auto useWebMercatorProjection = getUseWebMercatorProjection();
     if (useWebMercatorProjection) {
         wmtsOptions.projection = CesiumGeospatial::WebMercatorProjection(ellipsoid);

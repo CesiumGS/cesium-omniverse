@@ -9,13 +9,16 @@
 #include <set>
 
 namespace CesiumGltf {
-struct ImageCesium;
 struct Material;
 struct Model;
 struct MeshPrimitive;
 struct Texture;
 struct PropertyTextureProperty;
 } // namespace CesiumGltf
+
+namespace CesiumImage {
+struct ImageAsset;
+}
 
 namespace cesium::omniverse {
 struct FabricFeaturesInfo;
@@ -58,10 +61,10 @@ getVertexColors(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive&
 
 VertexIdsAccessor getVertexIds(const PositionsAccessor& positionsAccessor);
 
-const CesiumGltf::ImageCesium*
+const CesiumImage::ImageAsset*
 getBaseColorTextureImage(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
-const CesiumGltf::ImageCesium* getFeatureIdTextureImage(
+const CesiumImage::ImageAsset* getFeatureIdTextureImage(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     uint64_t featureIdSetIndex);
@@ -92,7 +95,7 @@ std::vector<uint64_t> getTexcoordSetIndexes(const CesiumGltf::Model& model, cons
 std::vector<uint64_t>
 getRasterOverlayTexcoordSetIndexes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
-CesiumGltf::Ktx2TranscodeTargets getKtx2TranscodeTargets();
+CesiumImage::Ktx2TranscodeTargets getKtx2TranscodeTargets();
 
 template <DataType T>
 VertexAttributeAccessor<T> getVertexAttributeValues(

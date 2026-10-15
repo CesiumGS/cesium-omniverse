@@ -86,11 +86,11 @@ std::tuple<std::vector<FabricPropertyDescriptor>, std::map<std::string, std::str
     return {std::move(properties), std::move(unsupportedPropertyWarnings)};
 }
 
-std::vector<const CesiumGltf::ImageCesium*> getPropertyTextureImages(
+std::vector<const CesiumImage::ImageAsset*> getPropertyTextureImages(
     const Context& context,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive) {
-    std::vector<const CesiumGltf::ImageCesium*> images;
+    std::vector<const CesiumImage::ImageAsset*> images;
 
     forEachStyleablePropertyTextureProperty(
         context,
@@ -117,7 +117,7 @@ std::unordered_map<uint64_t, uint64_t> getPropertyTextureIndexMapping(
     const Context& context,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive) {
-    std::vector<const CesiumGltf::ImageCesium*> images;
+    std::vector<const CesiumImage::ImageAsset*> images;
     std::unordered_map<uint64_t, uint64_t> propertyTextureIndexMapping;
 
     forEachStyleablePropertyTextureProperty(
@@ -181,7 +181,7 @@ std::vector<FabricTextureData> encodePropertyTables(
             const auto textureByteLength = width * height * texelByteLength;
 
             std::vector<std::byte> texelBytes(textureByteLength, std::byte(0));
-            gsl::span<TextureType> texelValues(
+            std::span<TextureType> texelValues(
                 reinterpret_cast<TextureType*>(texelBytes.data()), texelBytes.size() / texelByteLength);
 
             for (uint64_t i = 0; i < size; ++i) {
@@ -190,7 +190,7 @@ std::vector<FabricTextureData> encodePropertyTables(
 
                 if constexpr (DataTypeUtil::isVector<type>()) {
                     for (uint64_t j = 0; j < DataTypeUtil::getComponentCount<type>(); ++j) {
-                        texelValue[j] = static_cast<TextureComponentType>(rawValue[j]);
+                        texelValue[glm::length_t(j)] = static_cast<TextureComponentType>(rawValue[glm::length_t(j)]);
                     }
                 } else {
                     texelValue = static_cast<TextureType>(rawValue);

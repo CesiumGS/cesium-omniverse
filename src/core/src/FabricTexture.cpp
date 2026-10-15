@@ -6,7 +6,7 @@
 #include "cesium/omniverse/Logger.h"
 #include "cesium/omniverse/UsdUtil.h"
 
-#include <CesiumGltf/ImageCesium.h>
+#include <CesiumImage/ImageAsset.h>
 #include <carb/Numeric.h>
 #include <carb/Types.h>
 #include <omni/ui/ImageProvider/DynamicTextureProvider.h>
@@ -18,9 +18,9 @@ namespace cesium::omniverse {
 namespace {
 
 carb::Format
-getCompressedImageFormat(CesiumGltf::GpuCompressedPixelFormat pixelFormat, TransferFunction transferFunction) {
+getCompressedImageFormat(CesiumImage::GpuCompressedPixelFormat pixelFormat, TransferFunction transferFunction) {
     switch (pixelFormat) {
-        case CesiumGltf::GpuCompressedPixelFormat::BC1_RGB:
+        case CesiumImage::GpuCompressedPixelFormat::BC1_RGB:
             switch (transferFunction) {
                 case TransferFunction::LINEAR:
                     return carb::Format::eBC1_RGBA_UNORM;
@@ -28,7 +28,7 @@ getCompressedImageFormat(CesiumGltf::GpuCompressedPixelFormat pixelFormat, Trans
                     return carb::Format::eBC1_RGBA_SRGB;
             }
             return carb::Format::eUnknown;
-        case CesiumGltf::GpuCompressedPixelFormat::BC3_RGBA:
+        case CesiumImage::GpuCompressedPixelFormat::BC3_RGBA:
             switch (transferFunction) {
                 case TransferFunction::LINEAR:
                     return carb::Format::eBC3_RGBA_UNORM;
@@ -36,11 +36,11 @@ getCompressedImageFormat(CesiumGltf::GpuCompressedPixelFormat pixelFormat, Trans
                     return carb::Format::eBC3_RGBA_SRGB;
             }
             return carb::Format::eUnknown;
-        case CesiumGltf::GpuCompressedPixelFormat::BC4_R:
+        case CesiumImage::GpuCompressedPixelFormat::BC4_R:
             return carb::Format::eBC4_R_UNORM;
-        case CesiumGltf::GpuCompressedPixelFormat::BC5_RG:
+        case CesiumImage::GpuCompressedPixelFormat::BC5_RG:
             return carb::Format::eBC5_RG_UNORM;
-        case CesiumGltf::GpuCompressedPixelFormat::BC7_RGBA:
+        case CesiumImage::GpuCompressedPixelFormat::BC7_RGBA:
             switch (transferFunction) {
                 case TransferFunction::LINEAR:
                     return carb::Format::eBC7_RGBA_UNORM;
@@ -104,10 +104,10 @@ FabricTexture::FabricTexture(Context* pContext, const std::string& name, int64_t
 
 FabricTexture::~FabricTexture() = default;
 
-void FabricTexture::setImage(const CesiumGltf::ImageCesium& image, TransferFunction transferFunction) {
+void FabricTexture::setImage(const CesiumImage::ImageAsset& image, TransferFunction transferFunction) {
     carb::Format imageFormat;
 
-    const auto isCompressed = image.compressedPixelFormat != CesiumGltf::GpuCompressedPixelFormat::NONE;
+    const auto isCompressed = image.compressedPixelFormat != CesiumImage::GpuCompressedPixelFormat::NONE;
 
     if (isCompressed) {
         imageFormat = getCompressedImageFormat(image.compressedPixelFormat, transferFunction);

@@ -8,7 +8,7 @@ PositionsAccessor::PositionsAccessor(const CesiumGltf::AccessorView<glm::fvec3>&
     : _view(view)
     , _size(static_cast<uint64_t>(view.size())) {}
 
-void PositionsAccessor::fill(const gsl::span<glm::fvec3>& values) const {
+void PositionsAccessor::fill(const std::span<glm::fvec3>& values) const {
     for (uint64_t i = 0; i < _size; ++i) {
         values[i] = _view[static_cast<int64_t>(i)];
     }
@@ -88,7 +88,7 @@ template IndicesAccessor IndicesAccessor::FromTriangleFans<uint8_t>(const Cesium
 template IndicesAccessor IndicesAccessor::FromTriangleFans<uint16_t>(const CesiumGltf::AccessorView<uint16_t>& view);
 template IndicesAccessor IndicesAccessor::FromTriangleFans<uint32_t>(const CesiumGltf::AccessorView<uint32_t>& view);
 
-void IndicesAccessor::fill(const gsl::span<int>& values) const {
+void IndicesAccessor::fill(const std::span<int>& values) const {
     const auto size = values.size();
     assert(size == _size);
 
@@ -168,7 +168,7 @@ NormalsAccessor NormalsAccessor::GenerateSmooth(const PositionsAccessor& positio
     return accessor;
 }
 
-void NormalsAccessor::fill(const gsl::span<glm::fvec3>& values) const {
+void NormalsAccessor::fill(const std::span<glm::fvec3>& values) const {
     const auto size = values.size();
     assert(size == _size);
 
@@ -195,7 +195,7 @@ TexcoordsAccessor::TexcoordsAccessor(const CesiumGltf::AccessorView<glm::fvec2>&
     , _flipVertical(flipVertical)
     , _size(static_cast<uint64_t>(view.size())) {}
 
-void TexcoordsAccessor::fill(const gsl::span<glm::fvec2>& values) const {
+void TexcoordsAccessor::fill(const std::span<glm::fvec2>& values) const {
     const auto size = values.size();
     assert(size == _size);
 
@@ -241,7 +241,7 @@ VertexColorsAccessor::VertexColorsAccessor(const CesiumGltf::AccessorView<glm::f
     : _float32Vec4View(float32Vec4View)
     , _size(static_cast<uint64_t>(float32Vec4View.size())) {}
 
-void VertexColorsAccessor::fill(const gsl::span<glm::fvec4>& values, uint64_t repeat) const {
+void VertexColorsAccessor::fill(const std::span<glm::fvec4>& values, uint64_t repeat) const {
     constexpr auto MAX_UINT8 = static_cast<float>(std::numeric_limits<uint8_t>::max());
     constexpr auto MAX_UINT16 = static_cast<float>(std::numeric_limits<uint16_t>::max());
 
@@ -302,7 +302,7 @@ VertexIdsAccessor::VertexIdsAccessor()
 VertexIdsAccessor::VertexIdsAccessor(uint64_t size)
     : _size(size) {}
 
-void VertexIdsAccessor::fill(const gsl::span<float>& values, uint64_t repeat) const {
+void VertexIdsAccessor::fill(const std::span<float>& values, uint64_t repeat) const {
     const auto size = values.size();
     assert(size == _size * repeat);
 
@@ -322,7 +322,7 @@ FaceVertexCountsAccessor::FaceVertexCountsAccessor()
 FaceVertexCountsAccessor::FaceVertexCountsAccessor(uint64_t size)
     : _size(size) {}
 
-void FaceVertexCountsAccessor::fill(const gsl::span<int>& values) const {
+void FaceVertexCountsAccessor::fill(const std::span<int>& values) const {
     const auto size = values.size();
     assert(size == _size);
 

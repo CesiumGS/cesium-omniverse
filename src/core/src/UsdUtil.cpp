@@ -240,8 +240,7 @@ Cesium3DTilesSelection::ViewState computeViewState(
     const auto verticalFov = 2.0 * glm::atan(1.0 / projMatrix[1][1]);
     const auto horizontalFov = 2.0 * glm::atan(glm::tan(verticalFov * 0.5) * aspect);
 
-    return Cesium3DTilesSelection::ViewState::create(
-        cameraPosition, cameraFwd, cameraUp, glm::dvec2(width, height), horizontalFov, verticalFov, ellipsoid);
+    return {cameraPosition, cameraFwd, cameraUp, glm::dvec2(width, height), horizontalFov, verticalFov, ellipsoid};
 }
 
 bool primExists(const pxr::UsdStageWeakPtr& pStage, const pxr::SdfPath& path) {

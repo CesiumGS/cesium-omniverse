@@ -460,7 +460,7 @@ void FabricPrepareRenderResources::free(
 }
 
 void* FabricPrepareRenderResources::prepareRasterInLoadThread(
-    [[maybe_unused]] CesiumGltf::ImageCesium& image,
+    [[maybe_unused]] CesiumImage::ImageAsset& image,
     [[maybe_unused]] const std::any& rendererOptions) {
     return nullptr;
 }
@@ -475,7 +475,7 @@ void* FabricPrepareRenderResources::prepareRasterInMainThread(
     // Previously this was in prepareRasterInLoadThread, but as of Kit 106.5 it's not safe to set texture data off the main thread
     // See https://github.com/CesiumGS/cesium-omniverse/pull/721#issuecomment-2697969830
     const auto pTexture = _pContext->getFabricResourceManager().acquireTexture();
-    pTexture->setImage(rasterTile.getImage(), TransferFunction::SRGB);
+    pTexture->setImage(*rasterTile.getImage().get(), TransferFunction::SRGB);
     return new RasterOverlayRenderResources{pTexture};
 }
 

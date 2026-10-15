@@ -19,7 +19,7 @@
 #include <omni/fabric/IFabric.h>
 #include <omni/kit/IApp.h>
 
-#include <gsl/span>
+#include <span>
 
 namespace cesium::omniverse {
 
@@ -42,7 +42,7 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
     }
 
     void onUpdateFrame(const ViewportApi* viewports, uint64_t count, bool waitForLoadingTiles) noexcept override {
-        const auto span = gsl::span<const Viewport>(reinterpret_cast<const Viewport*>(viewports), count);
+        const auto span = std::span<const Viewport>(reinterpret_cast<const Viewport*>(viewports), count);
         _pContext->onUpdateFrame(span, waitForLoadingTiles);
     }
 
@@ -155,12 +155,12 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
     }
 
     bool creditsAvailable() noexcept override {
-        return _pContext->getCreditSystem()->getCreditsToShowThisFrame().size() > 0;
+        return _pContext->getCreditSystem()->getSnapshot().currentCredits.size() > 0;
     }
 
     std::vector<std::pair<std::string, bool>> getCredits() noexcept override {
         const auto& pCreditSystem = _pContext->getCreditSystem();
-        const auto& credits = pCreditSystem->getCreditsToShowThisFrame();
+        const auto& credits = pCreditSystem->getSnapshot().currentCredits;
 
         std::vector<std::pair<std::string, bool>> result;
         result.reserve(credits.size());
@@ -171,10 +171,6 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
         }
 
         return result;
-    }
-
-    void creditsStartNextFrame() noexcept override {
-        return _pContext->getCreditSystem()->startNextFrame();
     }
 
     bool isTracingEnabled() noexcept override {

@@ -372,7 +372,6 @@ set(CESIUM_OMNI_CXX_DEFINES
     ${CESIUM_OMNI_CXX_DEFINES}
     GLM_FORCE_XYZW_ONLY # Disable .rgba and .stpq to make it easier to view values from debugger
     GLM_FORCE_EXPLICIT_CTOR # Disallow implicit conversions between dvec3 <-> dvec4, dvec3 <-> fvec3, etc
-    GLM_FORCE_SIZE_T_LENGTH # Make vec.length() and vec[idx] use size_t instead of int
     GLM_ENABLE_EXPERIMENTAL
 )
 
@@ -449,6 +448,7 @@ find_package(doctest)
 find_package(stb)
 find_package(ZLIB)
 find_package(yaml-cpp)
+find_package(Microsoft.GSL)
 
 # So that the installed libraries can find shared libraries in the same directory
 set(CMAKE_INSTALL_RPATH $ORIGIN)

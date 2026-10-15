@@ -2,9 +2,8 @@
 
 #include <pxr/usd/usd/common.h>
 
+#include <span>
 #include <vector>
-
-#include <gsl/span>
 
 namespace cesium::omniverse {
 
@@ -49,7 +48,7 @@ class AssetRegistry {
     AssetRegistry(AssetRegistry&&) noexcept = delete;
     AssetRegistry& operator=(AssetRegistry&&) noexcept = delete;
 
-    void onUpdateFrame(const gsl::span<const Viewport>& viewports, bool waitForLoadingTiles);
+    void onUpdateFrame(const std::span<const Viewport>& viewports, bool waitForLoadingTiles);
 
     OmniData& addData(const pxr::SdfPath& path);
     void removeData(const pxr::SdfPath& path);

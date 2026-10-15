@@ -32,11 +32,15 @@ add_external_project(
         CesiumGltfReader
         CesiumGltfContent
         CesiumGltf
+        CesiumImage
         CesiumQuantizedMeshTerrain
         CesiumJsonReader
+        CesiumJsonWriter
         CesiumGeospatial
         CesiumGeometry
         CesiumIonClient
+        CesiumClientCommon
+        CesiumCurl
         CesiumAsync
         CesiumUtility
         async++
@@ -57,7 +61,6 @@ add_external_project(
         absl_random_internal_distribution_test_util
         absl_scoped_set_env
         absl_statusor
-        absl_bad_any_cast_impl
         absl_log_internal_check_op
         absl_leak_check
         absl_flags_usage
@@ -86,11 +89,9 @@ add_external_project(
         absl_raw_hash_set
         absl_hash
         absl_city
-        absl_low_level_hash
         absl_hashtablez_sampler
         absl_random_distributions
         absl_random_seed_sequences
-        absl_random_internal_pool_urbg
         absl_random_internal_randen
         absl_random_internal_randen_hwaes
         absl_random_internal_randen_hwaes_impl
@@ -116,23 +117,21 @@ add_external_project(
         absl_crc_internal
         absl_crc_cpu_detect
         absl_stacktrace
-        absl_bad_optional_access
         absl_str_format_internal
         absl_strerror
         absl_symbolize
         absl_strings
         absl_strings_internal
         absl_int128
-        absl_string_view
         absl_throw_delegate
         absl_debugging_internal
         absl_malloc_internal
         absl_demangle_internal
         absl_base
         absl_spinlock_wait
-        absl_bad_variant_access
         absl_raw_logging_internal
         absl_log_severity
+        ada
         ${SSL_LIBRARY_NAME}
         ${CRYPTO_LIBRARY_NAME}
         spdlog
@@ -140,7 +139,6 @@ add_external_project(
         sqlite3
         tinyxml2
         turbojpeg
-        uriparser
         ${WEBP_LIBRARY_NAME}
         ${WEBPDECODER_LIBRARY_NAME}
         ${WEBPDEMUX_LIBRARY_NAME}
@@ -149,6 +147,11 @@ add_external_project(
         ${SHARPYUV_LIBRARY_NAME}
         ${ZNG_LIBRARY_NAME}
         zstd
+    LIBRARIES_WITH_POSTFIX
+        spdlog
+        fmt
+    EXPECTED_DEBUG_POSTFIX
+        "d"
     OPTIONS
         CESIUM_TESTS_ENABLED=OFF
         CESIUM_COVERAGE_ENABLED=OFF

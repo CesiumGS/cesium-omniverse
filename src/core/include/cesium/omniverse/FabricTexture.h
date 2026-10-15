@@ -11,8 +11,8 @@ namespace omni::ui {
 class DynamicTextureProvider;
 }
 
-namespace CesiumGltf {
-struct ImageCesium;
+namespace CesiumImage {
+struct ImageAsset;
 }
 
 namespace cesium::omniverse {
@@ -33,7 +33,7 @@ class FabricTexture {
     FabricTexture(FabricTexture&&) noexcept = default;
     FabricTexture& operator=(FabricTexture&&) noexcept = default;
 
-    void setImage(const CesiumGltf::ImageCesium& image, TransferFunction transferFunction);
+    void setImage(const CesiumImage::ImageAsset& image, TransferFunction transferFunction);
     void setBytes(const std::vector<std::byte>& bytes, uint64_t width, uint64_t height, carb::Format format);
 
     void setActive(bool active);

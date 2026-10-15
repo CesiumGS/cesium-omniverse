@@ -5,9 +5,8 @@
 
 #include <filesystem>
 #include <memory>
+#include <span>
 #include <vector>
-
-#include <gsl/span>
 
 namespace omni::fabric {
 class StageReaderWriter;
@@ -66,7 +65,7 @@ class Context {
     void reloadStage();
     void clearAccessorCache();
 
-    void onUpdateFrame(const gsl::span<const Viewport>& viewports, bool waitForLoadingTiles);
+    void onUpdateFrame(const std::span<const Viewport>& viewports, bool waitForLoadingTiles);
     void onUsdStageChanged(int64_t stageId);
 
     [[nodiscard]] const pxr::UsdStageWeakPtr& getUsdStage() const;

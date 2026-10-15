@@ -10,10 +10,13 @@
 #include <vector>
 
 namespace CesiumGltf {
-struct ImageCesium;
 struct MeshPrimitive;
 struct Model;
 } // namespace CesiumGltf
+
+namespace CesiumImage {
+struct ImageAsset;
+}
 
 namespace omni::ui {
 class DynamicTextureProvider;

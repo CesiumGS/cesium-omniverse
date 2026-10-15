@@ -206,7 +206,8 @@ void Context::clearAccessorCache() {
     }
 }
 
-void Context::onUpdateFrame(const gsl::span<const Viewport>& viewports, bool waitForLoadingTiles) {
+void Context::onUpdateFrame(const std::span<const Viewport>& viewports, bool waitForLoadingTiles) {
+    _pAsyncSystem->dispatchMainThreadTasks();
     _pUsdNotificationHandler->onUpdateFrame();
     _pAssetRegistry->onUpdateFrame(viewports, waitForLoadingTiles);
     _pCesiumIonServerManager->onUpdateFrame();

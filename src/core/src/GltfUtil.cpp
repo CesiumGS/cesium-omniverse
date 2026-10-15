@@ -335,11 +335,11 @@ getFeatureIdTextureInfo(const CesiumGltf::Model& model, const CesiumGltf::Featur
     return textureInfo;
 }
 
-const CesiumGltf::ImageCesium* getImageCesium(const CesiumGltf::Model& model, const CesiumGltf::Texture& texture) {
+const CesiumImage::ImageAsset* getImageCesium(const CesiumGltf::Model& model, const CesiumGltf::Texture& texture) {
     const auto pImage = model.getSafe(&model.images, texture.source);
 
     if (pImage) {
-        return &pImage->cesium;
+        return pImage->pAsset.get();
     }
 
     return nullptr;
@@ -602,7 +602,7 @@ VertexIdsAccessor getVertexIds(const PositionsAccessor& positionsAccessor) {
     return {positionsAccessor.size()};
 }
 
-const CesiumGltf::ImageCesium*
+const CesiumImage::ImageAsset*
 getBaseColorTextureImage(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
     if (!hasMaterial(primitive)) {
         return nullptr;
@@ -626,7 +626,7 @@ getBaseColorTextureImage(const CesiumGltf::Model& model, const CesiumGltf::MeshP
     return nullptr;
 }
 
-const CesiumGltf::ImageCesium* getFeatureIdTextureImage(
+const CesiumImage::ImageAsset* getFeatureIdTextureImage(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     uint64_t featureIdSetIndex) {
@@ -882,8 +882,8 @@ getRasterOverlayTexcoordSetIndexes(const CesiumGltf::Model& model, const CesiumG
     return setIndexes;
 }
 
-CesiumGltf::Ktx2TranscodeTargets getKtx2TranscodeTargets() {
-    CesiumGltf::SupportedGpuCompressedPixelFormats supportedFormats;
+CesiumImage::Ktx2TranscodeTargets getKtx2TranscodeTargets() {
+    CesiumImage::SupportedGpuCompressedPixelFormats supportedFormats;
 
     // Only BCN compressed texture formats are supported in Omniverse
     supportedFormats.ETC1_RGB = false;

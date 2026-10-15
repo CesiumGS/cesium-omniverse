@@ -11,7 +11,8 @@ set(REQUIRES
     "zlib/1.2.13@#13c96f538b52e1600c40b88994de240f"
     "yaml-cpp/0.7.0@#85b409c274a53d226b71f1bdb9cb4f8b"
     "libcurl/8.2.1@#8f62ba7135f5445e5fe6c4bd85143b53"
-    "nasm/2.15.05@#058c93b2214a49ca1cfe9f8f26205568")
+    "nasm/2.15.05@#058c93b2214a49ca1cfe9f8f26205568"
+    "ms-gsl/4.1.0@#e2af591b5e8c3a3f6a570cf9cbcd7a87")
 
 if(WIN32)
     set(REQUIRES ${REQUIRES} "strawberryperl/5.32.1.1@#707032463aa0620fa17ec0d887f5fe41")

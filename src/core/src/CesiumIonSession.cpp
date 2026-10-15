@@ -74,19 +74,30 @@ void CesiumIonSession::connect() {
 
             if (this->_appData->needsOauthAuthentication()) {
                 return CesiumIonClient::Connection::authorize(
-                    this->_asyncSystem,
-                    this->_pAssetAccessor,
-                    "Cesium for Omniverse",
-                    _ionApplicationId,
-                    "/cesium-for-omniverse/oauth2/callback",
-                    {"assets:list", "assets:read", "profile:read", "tokens:read", "tokens:write", "geocode"},
-                    [this](const std::string& url) {
-                        // NOTE: We open the browser in the Python code. Check in the sign in widget's on_update_frame function.
-                        this->_authorizeUrl = url;
-                    },
-                    this->_appData.value(),
-                    _ionApiUrl,
-                    CesiumUtility::Uri::resolve(_ionServerUrl, "oauth"));
+                           this->_asyncSystem,
+                           this->_pAssetAccessor,
+                           "Cesium for Omniverse",
+                           _ionApplicationId,
+                           "/cesium-for-omniverse/oauth2/callback",
+                           {"assets:list", "assets:read", "profile:read", "tokens:read", "tokens:write", "geocode"},
+                           [this](const std::string& url) {
+                               // NOTE: We open the browser in the Python code. Check in the sign in widget's on_update_frame function.
+                               this->_authorizeUrl = url;
+                           },
+                           this->_appData.value(),
+                           _ionApiUrl,
+                           CesiumUtility::Uri::resolve(_ionServerUrl, "oauth"))
+                    .thenInMainThread([this](CesiumUtility::Result<Connection>&& result) {
+                        Promise<Connection> promise = this->_asyncSystem.createPromise<Connection>();
+                        if (!result.value) {
+                            promise.reject(
+                                std::runtime_error(result.errors.format("Errors connecting to Cesium ion:")));
+                        } else {
+                            promise.resolve(std::move(*result.value));
+                        }
+
+                        return promise.getFuture();
+                    });
             }
 
             return this->_asyncSystem.createResolvedFuture<CesiumIonClient::Connection>(CesiumIonClient::Connection(

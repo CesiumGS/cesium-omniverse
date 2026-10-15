@@ -11,7 +11,7 @@
 #include <CesiumGltf/AccessorView.h>
 #include <glm/fwd.hpp>
 
-#include <gsl/span>
+#include <span>
 
 namespace cesium::omniverse {
 
@@ -20,7 +20,7 @@ class PositionsAccessor {
     PositionsAccessor();
     PositionsAccessor(const CesiumGltf::AccessorView<glm::fvec3>& view);
 
-    void fill(const gsl::span<glm::fvec3>& values) const;
+    void fill(const std::span<glm::fvec3>& values) const;
     [[nodiscard]] const glm::fvec3& get(uint64_t index) const;
     [[nodiscard]] uint64_t size() const;
 
@@ -40,7 +40,7 @@ class IndicesAccessor {
     template <typename T> static IndicesAccessor FromTriangleStrips(const CesiumGltf::AccessorView<T>& view);
     template <typename T> static IndicesAccessor FromTriangleFans(const CesiumGltf::AccessorView<T>& view);
 
-    void fill(const gsl::span<int>& values) const;
+    void fill(const std::span<int>& values) const;
     [[nodiscard]] uint32_t get(uint64_t index) const;
     [[nodiscard]] uint64_t size() const;
 
@@ -59,7 +59,7 @@ class NormalsAccessor {
 
     static NormalsAccessor GenerateSmooth(const PositionsAccessor& positions, const IndicesAccessor& indices);
 
-    void fill(const gsl::span<glm::fvec3>& values) const;
+    void fill(const std::span<glm::fvec3>& values) const;
     [[nodiscard]] uint64_t size() const;
 
   private:
@@ -73,7 +73,7 @@ class TexcoordsAccessor {
     TexcoordsAccessor();
     TexcoordsAccessor(const CesiumGltf::AccessorView<glm::fvec2>& view, bool flipVertical);
 
-    void fill(const gsl::span<glm::fvec2>& values) const;
+    void fill(const std::span<glm::fvec2>& values) const;
     [[nodiscard]] uint64_t size() const;
 
   private:
@@ -98,7 +98,7 @@ class VertexColorsAccessor {
      * @param values The output values.
      * @param repeat Indicates how many times each value in the accessor should be repeated in the output. Typically repeat is 1, but for voxel point clouds repeat is 8.
      */
-    void fill(const gsl::span<glm::fvec4>& values, uint64_t repeat = 1) const;
+    void fill(const std::span<glm::fvec4>& values, uint64_t repeat = 1) const;
 
     [[nodiscard]] uint64_t size() const;
 
@@ -118,7 +118,7 @@ class VertexIdsAccessor {
     VertexIdsAccessor();
     VertexIdsAccessor(uint64_t size);
 
-    void fill(const gsl::span<float>& values, uint64_t repeat = 1) const;
+    void fill(const std::span<float>& values, uint64_t repeat = 1) const;
     [[nodiscard]] uint64_t size() const;
 
   private:
@@ -130,7 +130,7 @@ class FaceVertexCountsAccessor {
     FaceVertexCountsAccessor();
     FaceVertexCountsAccessor(uint64_t size);
 
-    void fill(const gsl::span<int>& values) const;
+    void fill(const std::span<int>& values) const;
     [[nodiscard]] uint64_t size() const;
 
   private:
@@ -146,7 +146,7 @@ template <DataType T> class VertexAttributeAccessor {
         , _size(static_cast<uint64_t>(view.size())) {}
 
     void fill(
-        const gsl::span<DataTypeUtil::GetNativeType<DataTypeUtil::getPrimvarType<T>()>>& values,
+        const std::span<DataTypeUtil::GetNativeType<DataTypeUtil::getPrimvarType<T>()>>& values,
         uint64_t repeat = 1) const {
         const auto size = values.size();
         assert(size == _size * repeat);

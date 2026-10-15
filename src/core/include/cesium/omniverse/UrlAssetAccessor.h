@@ -93,7 +93,7 @@ class UrlAssetAccessor final : public CesiumAsync::IAssetAccessor {
         const std::string& verb,
         const std::string& url,
         const std::vector<CesiumAsync::IAssetAccessor::THeader>& headers,
-        const gsl::span<const std::byte>& contentPayload) override;
+        const std::span<const std::byte>& contentPayload) override;
 
     void tick() noexcept override;
     friend class CurlHandle;

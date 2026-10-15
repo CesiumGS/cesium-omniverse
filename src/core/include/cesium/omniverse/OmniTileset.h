@@ -1,11 +1,11 @@
 #pragma once
 
+#include <Cesium3DTilesSelection/TilesetViewGroup.h>
 #include <glm/glm.hpp>
 #include <pxr/usd/sdf/path.h>
 
 #include <optional>
-
-#include <gsl/span>
+#include <span>
 
 namespace Cesium3DTilesSelection {
 class Tileset;
@@ -93,11 +93,11 @@ class OmniTileset {
     void updateDisplayColorAndOpacity();
     void addRasterOverlayIfExists(const OmniRasterOverlay* overlay);
 
-    void onUpdateFrame(const gsl::span<const Viewport>& viewports, bool waitForLoadingTiles);
+    void onUpdateFrame(const std::span<const Viewport>& viewports, bool waitForLoadingTiles);
 
   private:
     void updateTransform();
-    void updateView(const gsl::span<const Viewport>& viewports, bool waitForLoadingTiles);
+    void updateView(const std::span<const Viewport>& viewports, bool waitForLoadingTiles);
     [[nodiscard]] bool updateExtent();
     void updateLoadStatus();
 
@@ -112,6 +112,7 @@ class OmniTileset {
     int64_t _tilesetId;
     glm::dmat4 _ecefToPrimWorldTransform{};
     std::vector<Cesium3DTilesSelection::ViewState> _viewStates;
+    Cesium3DTilesSelection::TilesetViewGroup _viewGroup;
     bool _extentSet{false};
     bool _activeLoading{false};
 };
