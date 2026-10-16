@@ -146,6 +146,7 @@ add_external_project(
         ${WEBPMUX_LIBRARY_NAME}
         astcenc-avx2-static
         ${SHARPYUV_LIBRARY_NAME}
+        z
         ${ZNG_LIBRARY_NAME}
         zstd
     LIBRARIES_WITH_POSTFIX

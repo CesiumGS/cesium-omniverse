@@ -444,7 +444,6 @@ find_package(Threads) # System threading library
 
 # Conan libraries
 find_package(doctest)
-find_package(ZLIB)
 find_package(yaml-cpp)
 
 # So that the installed libraries can find shared libraries in the same directory

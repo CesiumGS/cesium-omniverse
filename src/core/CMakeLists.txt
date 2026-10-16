@@ -178,9 +178,9 @@ setup_lib(
         ${WEBPMUX_LIBRARY_NAME}
         astcenc-avx2-static
         ${SHARPYUV_LIBRARY_NAME}
+        z
         ${ZNG_LIBRARY_NAME}
         zstd
-        ZLIB::ZLIB
         fabric
         usd_ar
         usd_arch

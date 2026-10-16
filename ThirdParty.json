@@ -40,13 +40,5 @@
         ],
         "version": "0.7.0",
         "url": "https://github.com/jbeder/yaml-cpp"
-    },
-    {
-        "name": "zlib",
-        "license": [
-            "Zlib"
-        ],
-        "version": "1.2.13",
-        "url": "https://zlib.net"
     }
 ]
