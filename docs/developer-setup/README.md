@@ -35,10 +35,10 @@ See [Linux](#linux) or [Windows](#windows) for step-by-step installation instruc
 
 - Linux (Ubuntu 22.04+ or equivalent) or Windows
 - Clang 15+, GCC 9+, or Visual Studio 2022 (Visual Studio 2026 is not supported)
-- Python 3.10+ - For Conan and scripts
+- Python 3.10+ - For scripts
 - CMake 3.22+ (CMake 4 is not supported) - Build system generator
 - Make - Build system (Linux only)
-- Conan - Third party C++ library management
+- vcpkg - Third party C++ library management
 - gcovr - Code coverage (Linux only)
 - Doxygen - Documentation
 - clang-format - Code formatting
@@ -52,12 +52,19 @@ See [Linux](#linux) or [Windows](#windows) for step-by-step installation instruc
   ```
 - Install dependencies (for Ubuntu 22.04 - other Linux distributions should be similar)
   ```sh
-  sudo apt install -y gcc-9 g++-9 clang-15 python3 python3-pip cmake make git git-lfs doxygen clang-format-15 clang-tidy-15 clangd-15 gcovr
+  sudo apt install -y gcc-9 g++-9 clang-15 python3 python3-pip cmake make git git-lfs doxygen  clang-format-15 clang-tidy-15 clangd-15 gcovr autoconf autoconf-archive automake libtool
   ```
-- Install Conan with pip because Conan is not in Ubuntu's package manager
+- Install vcpkg from Github and bootstrap it. Ensure that `VCPKG_ROOT` is in your `PATH`
   ```sh
-  sudo pip3 install conan==1.63.0
+  git clone git@github.com:microsoft/vcpkg.git
+  cd vcpkg
+  ./bootstrap-vcpkg.sh
   ```
+  - Edit your `.bashrc`/`.zshrc`/etc depending your shell
+    ```sh
+    export VCPKG_ROOT=/path/to/vcpkg
+    export PATH="$VCPKG_ROOT:$PATH"
+    ```
 - Install `cmake-format`
   ```sh
   sudo pip3 install cmake-format
@@ -117,10 +124,17 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
     cd <first_path_in_list>
     mklink python3.exe python.exe
     ```
-- Install `requests` module for Python
+- Install vcpkg from Github and bootstrap it. Ensure `VCPKG_ROOT` is in your environment variables, and the path is in `Path`
   ```sh
-  pip3 install requests
+  git clone git@github.com:microsoft/vcpkg.git
+  cd vcpkg
+  ./bootstrap-vcpkg.bat
   ```
+  - Set `VCPKG_ROOT` and Path
+    ```sh
+    [Environment]::SetEnvironmentVariable("VCPKG_ROOT", "C:\tools\vcpkg", "Machine")
+    [Environment]::SetEnvironmentVariable("Path", $env:Path + ";" + $env:VCPKG_ROOT, "Machine")
+    ```
 - Install `cmake-format`
   ```sh
   pip3 install cmake-format
@@ -133,19 +147,10 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
   ```sh
   pip3 install colorama
   ```
-- Install Conan
-  ```sh
-  pip3 install conan==1.63.0
-  ```
 - Install Doxygen: https://www.doxygen.nl/download.html
   - After installation, add the install location to your `PATH`. Open PowerShell as administrator and enter:
     ```sh
     [Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\Program Files\doxygen\bin", "Machine")
-    ```
-- Enable Long Paths. This ensures that all Conan libraries are installed in `~/.conan`. Open PowerShell as administrator and enter:
-  ```sh
-  New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
-  ```
 - Then refresh PowerShell so that newly added dependencies are available in the path.
   ```sh
   refreshenv
@@ -164,9 +169,6 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
   ```sh
   choco install -y llvm --version=15.0.7
   ```
-  ```sh
-  choco install -y conan --version 1.63.0
-  ```
   > **Note:** If you see a warning like `Chocolatey detected you are not running from an elevated command shell`, reopen Command Prompt as administrator
 - Create a symbolic link called `python3.exe` that points to the actual `python` (version 3.x) executable. This is necessary for some of the scripts to run correctly when `#!/usr/bin/env python3` is at the top of the file.
   ```sh
@@ -174,10 +176,17 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
   cd <first_path_in_list>
   mklink python3.exe python.exe
   ```
-- Install `requests`
+- Install vcpkg from Github and bootstrap it. Ensure `VCPKG_ROOT` is in your environment variables, and the path is in `Path`
   ```sh
-  pip3 install requests
+  git clone git@github.com:microsoft/vcpkg.git
+  cd vcpkg
+  ./bootstrap-vcpkg.bat
   ```
+  - Set `VCPKG_ROOT` and Path
+    ```sh
+    [Environment]::SetEnvironmentVariable("VCPKG_ROOT", "C:\tools\vcpkg", "Machine")
+    [Environment]::SetEnvironmentVariable("Path", $env:Path + ";" + $env:VCPKG_ROOT, "Machine")
+    ```
 - Install `cmake-format`
   ```sh
   pip3 install cmake-format
@@ -189,10 +198,6 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
 - Install `colorama` to enable color diff support
   ```sh
   pip3 install colorama
-  ```
-- Enable Long Paths. This ensures that all Conan libraries are installed correctly. Open PowerShell as administrator and enter:
-  ```sh
-  New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
   ```
 - Then refresh PowerShell so that newly added dependencies are available in the path.
   ```sh
@@ -217,11 +222,11 @@ git submodule update --init --recursive
 
 ```sh
 ## Release
-cmake -B build
+cmake -B build --preset Linux-Release
 cmake --build build --target install --parallel 8
 
 ## Debug
-cmake -B build-debug -D CMAKE_BUILD_TYPE=Debug
+cmake -B build-debug --preset Linux-Debug
 cmake --build build-debug --target install --parallel 8
 ```
 
@@ -229,17 +234,22 @@ Binaries will be written to `build/bin`. Shared libraries and static libraries w
 
 ### Windows
 
+Due to issues with certain dependencies, multi-config builds are not supported (even though we use a multi-config generator), and separate buildtrees are required for release and debug builds. See [here](https://github.com/microsoft/vcpkg/issues/30577) for a brief discussion.
+
 ```sh
 ## Release
-cmake -B build -G "Visual Studio 17 2022"
+cmake -B build --preset Windows-Release
 cmake --build build --config Release --target install --parallel 8
 
 ## Debug
-cmake -B build -G "Visual Studio 17 2022"
-cmake --build build --config Debug --target install --parallel 8
+cmake -B build-debug --preset Windows-Debug
+cmake --build build-debug --config Debug --target install --parallel 8
 ```
 
-Binaries and shared libraries will be written to `build/bin/Release`. Static libraries and python modules will be written to `build/lib/Release`.
+Binaries and shared libraries will be written to `build-debug/bin/Debug` for debug builds and `build/bin/Release` for release builds. Static libraries will be written to `build-debug/lib/Debug` for debug builds and `build/lib/Release` for release builds.
+
+Current presets are using `Visual Studio 17 2022` as the generator.
+
 
 ### Docker
 
@@ -255,7 +265,7 @@ docker run --rm --interactive --tty --volume $PWD:/var/app cesiumgs/cesium-omniv
 Once inside the container, build like usual. Note that linters are turned off. It won't affect the build, it just means there won't be code formatting or linting. It will build fine with GCC.
 
 ```sh
-cmake -B build -D CESIUM_OMNI_ENABLE_LINTERS=OFF -D VCPKG_TRIPLET=x64-linux
+cmake -B build --preset Linux-Release -D CESIUM_OMNI_ENABLE_LINTERS=OFF
 cmake --build build
 ```
 
@@ -264,59 +274,30 @@ cmake --build build
 For faster builds, use the `--parallel` option
 
 ```sh
-cmake -B build
+cmake -B build --preset Linux-Release
 cmake --build build --parallel 8
 ```
 
 To use a specific C/C++ compiler, set `CMAKE_CXX_COMPILER` and `CMAKE_C_COMPILER`
 
 ```sh
-cmake -B build -D CMAKE_CXX_COMPILER=clang++-15 -D CMAKE_C_COMPILER=clang-15
+cmake -B build --preset Linux-Release -D CMAKE_CXX_COMPILER=clang++-15 -D CMAKE_C_COMPILER=clang-15
 cmake --build build
 ```
 
-Make sure to use a different build folder for each compiler, otherwise you may see an error from Conan like
-
-```
-Library [name] not found in package, might be system one.
-```
-
-This error can also be avoided by deleting `build/CMakeCache.txt` before switching compilers.
+Make sure to use a different build folder for each compiler.
 
 To view verbose output from the compiler, use the `--verbose` option
 
 ```sh
-cmake -B build
+cmake -B build --preset Linux-Release
 cmake --build build --verbose
 ```
-
-To change the build configuration, set `CMAKE_BUILD_TYPE` to one of the following values:
-
-- `Debug`: Required for coverage
-- `Release`: Used for production builds
-- `RelWithDebInfo`: Similar to `Release` but has debug symbols
-- `MinSizeRel`: Similar to `Release` but smaller compile size
-
-On Linux
-
-```sh
-cmake -B build-relwithdebinfo -D CMAKE_BUILD_TYPE=RelWithDebInfo
-cmake --build build-relwithdebinfo
-```
-
-On Windows
-
-```sh
-cmake -B build
-cmake --build build --config RelWithDebInfo
-```
-
-Note that Windows (MSVC) is a multi-configuration generator meaning all four build configurations are created during the configure step and the specific configuration is chosen during the build step. If using Visual Studio there will be a dropdown to select the build configuration.
 
 Ninja is also supported as an alternative to the MSVC generator. To build with Ninja locally open `x64 Native Tools Command Prompt for VS 2022` and run:
 
 ```
-cmake -B build -D CMAKE_C_COMPILER=cl -D CMAKE_CXX_COMPILER=cl -G "Ninja Multi-Config"
+cmake -B --preset Windows-Release build -D CMAKE_C_COMPILER=cl -D CMAKE_CXX_COMPILER=cl -G "Ninja Multi-Config"
 cmake --build build --config Release --parallel 8
 ```
 
@@ -329,7 +310,7 @@ Unit tests can be run by starting the Cesium Omniverse Tests extension inside Om
 It's a good idea to generate code coverage frequently to ensure that you're adequately testing new features. To do so run
 
 ```sh
-cmake -B build-debug -D CMAKE_BUILD_TYPE=Debug
+cmake -B build-debug --preset Linux-Debug
 cmake --build build-debug --target generate-coverage
 ```
 
@@ -343,7 +324,7 @@ Notes:
 ## Documentation
 
 ```sh
-cmake -B build
+cmake -B build --preset Linux-Release
 cmake --build build --target generate-documentation
 ```
 
@@ -354,7 +335,7 @@ Once finished, documentation will be located at `build/docs/html/index.html`.
 To install `CesiumOmniverse` into the Omniverse Kit extension run:
 
 ```sh
-cmake -B build
+cmake -B build --preset Linux-Release
 cmake --build build --target install
 ```
 
@@ -370,7 +351,7 @@ To install `CesiumOmniverse` onto the local system run:
 On Linux
 
 ```sh
-cmake -B build
+cmake -B build --preset Linux-Release
 cmake --build build
 cmake --install build --component library --prefix /path/to/install/location
 ```
@@ -378,7 +359,7 @@ cmake --install build --component library --prefix /path/to/install/location
 On Windows
 
 ```sh
-cmake -B build
+cmake -B build --preset Linux-Release
 cmake --build build --config Release
 cmake --install build --config Release --component library --prefix /path/to/install/location
 ```
@@ -388,7 +369,7 @@ cmake --install build --config Release --component library --prefix /path/to/ins
 To enable performance tracing set `CESIUM_OMNI_ENABLE_TRACING`:
 
 ```sh
-cmake -B build -D CESIUM_OMNI_ENABLE_TRACING=ON
+cmake -B build --preset Linux-Release -D CESIUM_OMNI_ENABLE_TRACING=ON
 cmake --build build
 ```
 
@@ -431,7 +412,7 @@ main.cpp:114:24: runtime error: store to address 0x7ffe16f44c44 with insufficien
 To format code based on the [`.clang-format`](./.clang-format) configuration file
 
 ```sh
-cmake -B build
+cmake -B build --preset Linux-Release
 cmake --build build --target clang-format-fix-all
 ```
 
@@ -453,7 +434,7 @@ We also generate CMake targets to run these tools manually
 Run `clang-tidy`:
 
 ```sh
-cmake -B build
+cmake -B build --preset Linux-Release
 cmake --build build --target clang-tidy
 ```
 
@@ -569,21 +550,20 @@ gsettings set org.gnome.mutter check-alive-timeout 30000
 - `src` - Source code for the CesiumOmniverse library
 - `include` - Include directory for the CesiumOmniverse library
 - `tests` - Unit tests
-- `extern` - Third-party dependencies that aren't on Conan
+- `extern` - Third-party dependencies that aren't on vcpkg
 - `cmake` - CMake helper files
 - `scripts` - Build scripts and Git hooks
 - `docker` - Docker files
 
 ## Third Party Libraries
 
-We use [Conan](https://conan.io/) as our C++ third party package manager for dependencies that are public and not changed often. Third party libraries are always built from source and are cached on the local system for subsequent builds.
+We use [vcpkg](https://vcpkg.io) as our C++ third party package manager for dependencies that are public and not changed often. Third party libraries are always built from source and are cached on the local system for subsequent builds.
 
-To add a new dependency to Conan
+To add a new dependency to vcpkg
 
-- Add it to [AddConanDependencies.cmake](./cmake/AddConanDependencies.cmake)
+- Add it to [vcpkg.json](../../vcpkg.json)
 - Call `find_package` in [CMakeLists.txt](./CMakeLists.txt)
-- Add the library to the `LIBRARIES` field in any relevant `setup_lib` or `setup_app` calls
 
 Some dependencies are pulled in as Git submodules instead. When adding a new git submodule add the license to [ThirdParty.extra.json](./ThirdParty.extra.json).
 
-[ThirdParty.json](./ThirdParty.json) is autogenerated and combines [ThirdParty.extra.json](./ThirdParty.extra.json) and Conan dependencies.
+[ThirdParty.json](./ThirdParty.json) is autogenerated and combines [ThirdParty.extra.json](./ThirdParty.extra.json) and vcpkg dependencies.

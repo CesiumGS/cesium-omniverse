@@ -4,10 +4,10 @@
 cd `dirname "${BASH_SOURCE[0]}"`/..
 
 echo "Building with coverage enabled"
-cmake -B build-debug -D CMAKE_BUILD_TYPE=Debug -D CESIUM_OMNI_ENABLE_COVERAGE=true
+cmake -B build-debug --preset Linux-Debug -D CESIUM_OMNI_ENABLE_COVERAGE=true
 cmake --build build-debug --target install --parallel 8
 # reset the debug build to have coverage disabled, otherwise future builds will still have it
-cmake -B build-debug -D CMAKE_BUILD_TYPE=Debug -D CESIUM_OMNI_ENABLE_COVERAGE=false
+cmake -B build-debug --preset Linux-Debug -D CESIUM_OMNI_ENABLE_COVERAGE=false
 
 echo "removing old coverage files"
 find . -name '*.gcda' -delete

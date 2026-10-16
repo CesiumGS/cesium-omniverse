@@ -67,19 +67,27 @@ def c_compiler_to_cpp_compiler(compiler_name: str):
 def get_cmake_configure_command(args: Args):
     cmd = ["cmake", "-B", args.build_folder]
 
-    # Release is the default build type, so no need to pass CMAKE_BUILD_TYPE
-    if args.build_type != "Release":
-        cmd.extend(("-D", "CMAKE_BUILD_TYPE={}".format(args.build_type)))
+    if is_windows():
+        cmd.extend(("-G", "Ninja Multi-Config", "-D", "CMAKE_C_COMPILER=cl", "-D", "CMAKE_CXX_COMPILER=cl"))
+
+        if args.build_type == "Debug":
+            cmd.extend(("--preset", "Windows-Debug"))
+        else:
+            cmd.extend(("--preset", "Windows-Release"))
+        return cmd
+
+    if is_linux():
+        if args.build_type == "Debug":
+            cmd.extend(("--preset", "Linux-Debug"))
+        else:
+            cmd.extend(("--preset", "Linux-Release"))
+        return cmd
 
     if args.tracing:
         cmd.extend(("-D", "CESIUM_OMNI_ENABLE_TRACING=ON"))
 
     if args.kit_debug:
         cmd.extend(("-D", "CESIUM_OMNI_USE_NVIDIA_DEBUG_LIBRARIES=ON"))
-
-    if is_windows():
-        cmd.extend(("-G", "Ninja Multi-Config", "-D", "CMAKE_C_COMPILER=cl", "-D", "CMAKE_CXX_COMPILER=cl"))
-        return cmd
 
     if args.compiler_name == "default":
         return cmd
@@ -188,17 +196,6 @@ def lint(args: Args):
 def lint_fix(args: Args):
     clang_tidy_cmd = get_cmake_build_command(args, "clang-tidy-fix")
     process(clang_tidy_cmd)
-
-
-def dependency_graph(args: Args):
-    configure_cmd = get_cmake_configure_command(args)
-    conan_packages_path = os.path.join(args.build_folder, "Conan_Packages")
-    dependency_html = os.path.join(args.build_folder, "dependency_graph.html")
-    dependency_cmd = ["conan", "info", args.build_folder, "-if", conan_packages_path, "--graph", dependency_html]
-
-    process(configure_cmd)
-    process(dependency_cmd)
-    open_browser(dependency_html)
 
 
 def get_build_folder_name(build_type: str, compiler_name: str):

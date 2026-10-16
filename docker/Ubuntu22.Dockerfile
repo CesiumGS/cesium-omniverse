@@ -30,7 +30,11 @@ RUN apt-get install -y \
     pkg-config \
     python3 \
     python3-pip \
-    cmake
+    cmake \
+    autoconf \
+    autoconf-archive \
+    automake \
+    libtool
 
 # Allow mounted repos owned by host user
 RUN git config --global --add safe.directory /var/app
@@ -40,7 +44,6 @@ RUN git lfs install
 
 # Python packages
 RUN pip3 install --no-cache-dir \
-    conan==1.63.0 \
     gcovr
 
 WORKDIR /var/app

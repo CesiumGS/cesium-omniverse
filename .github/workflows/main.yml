@@ -22,6 +22,7 @@ jobs:
               name: "Windows - MSVC",
               artifact: "windows-msvc.tar.xz",
               os: windows-2022,
+              preset: Windows-Release,
               cc: "cl",
               cxx: "cl",
               build-type: "Release",
@@ -34,6 +35,7 @@ jobs:
               name: "Ubuntu - GCC",
               artifact: "linux-gcc.tar.xz",
               os: ubuntu-24.04,
+              preset: Linux-Release,
               cc: "gcc-13",
               cxx: "g++-13",
               build-type: "Release",
@@ -46,6 +48,7 @@ jobs:
               name: "Ubuntu 22 - GCC",
               artifact: "linux-gcc.tar.xz",
               os: ubuntu-24.04,
+              preset: Linux-Release,
               cc: "gcc-13",
               cxx: "g++-13",
               build-type: "Release",
@@ -63,32 +66,6 @@ jobs:
       - uses: ilammy/msvc-dev-cmd@v1
       - uses: SimenB/github-actions-cpu-cores@v1
         id: cpu-cores
-
-      # Tell Conan to look for or create its build folder (.conan) in the repository's root directory
-      # This is partly done to make the directory easily accessible to Docker builds
-      - name: Conan Set build directory (Unix)
-        if: runner.os != 'Windows'
-        run: echo "CONAN_USER_HOME=$GITHUB_WORKSPACE" >> $GITHUB_ENV
-
-      # Disable short paths so that all packages are built in the same .conan directory
-      # This is safe to do since long paths are enabled on Windows Server 2022 in GitHub Actions
-      # See https://docs.conan.io/en/latest/reference/env_vars.html#conan-user-home-short
-      # See https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file#maximum-path-length-limitation
-      # See https://github.com/actions/runner-images/issues/1052#issuecomment-644212560
-      - name: Conan Set build directory (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          echo "CONAN_USER_HOME=$env:GITHUB_WORKSPACE" >> $env:GITHUB_ENV
-          echo "CONAN_USER_HOME_SHORT=None" >> $env:GITHUB_ENV
-
-      # The -v{num} is a cache key buster because we were starting to use the same cache keys from previous tests
-      # Unfortunately github actions doesn't let you delete old caches so we have to work around it like this
-      - name: Conan Check cache
-        id: conan-cache
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.CONAN_USER_HOME }}/.conan
-          key: conan-${{ matrix.config.name }}-${{ hashFiles('cmake/AddConanDependencies.cmake') }}-v5
 
       # Tell ezvcpkg to look for or create its build folder (.ezvcpkg) in the repository's root directory
       # This is partly done to make the directory easily accessible to Docker builds
@@ -123,15 +100,14 @@ jobs:
         uses: ./.github/actions
         if: matrix.config.name == 'Ubuntu 22 - GCC'
         with:
-          build-type: ${{ matrix.config.build-type }}
+          preset: ${{ matrix.config.preset }}
 
       # Change the ownership from root to user for all files created by Docker in
-      # the Conan build directory so that the files can be cached without permission
+      # the build directory so that the files can be cached without permission
       # denied errors
-      - name: Ubuntu 22 Change Conan, vcpkg, and Packman directory permissions
+      - name: Ubuntu 22 Change vcpkg and Packman directory permissions
         if: matrix.config.name == 'Ubuntu 22 - GCC'
         run: |
-          sudo chown -R $USER:$USER $CONAN_USER_HOME/.conan
           sudo chown -R $USER:$USER $PM_PACKAGES_ROOT
           sudo chown -R $USER:$USER $EZVCPKG_BASEDIR
 
@@ -139,10 +115,11 @@ jobs:
         if: ${{ runner.os == 'Linux' && matrix.config.name != 'Ubuntu 22 - GCC' }}
         run: |
           sudo apt update
-          sudo apt install -y doxygen clang-tidy-15 clang-format-15 gcovr
+          sudo apt install -y doxygen clang-tidy-15 clang-format-15 gcovr autoconf autoconf-archive automake libtool
           sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-15 100
           sudo update-alternatives --set clang-format /usr/bin/clang-format-15
-          sudo pip3 install conan==1.63.0 black==23.1.0 flake8==7.1.1 --ignore-installed
+          sudo pip3 install black==23.1.0 flake8==7.1.1 --ignore-installed
+          echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> $GITHUB_ENV #for some reason they define VCPKG_INSTALLATION_ROOT which isn't standard
 
       # Could not figure out how to add Chocolatey libraries to the PATH automatically with refreshenv, so
       # hardcoding their locations instead. Followed these instructions for adding to the PATH on PowerShell:
@@ -151,28 +128,14 @@ jobs:
       - name: Install Windows dependencies
         if: runner.os == 'Windows'
         run: |
-          choco install -y conan --version 1.63.0
           choco install -y llvm --version=15.0.7 --allow-downgrade
           echo "C:/Program Files/LLVM/bin" >> $env:GITHUB_PATH
           pip3 install black==23.1.0 flake8==7.1.1
-          echo "C:/Program Files/conan/conan" >> $env:GITHUB_PATH
 
-      # Note: CMAKE_BUILD_TYPE is only used by Linux. It is ignored for Windows.
-      # Note: CMAKE_CONFIGURATION_TYPES is used by Windows to generate a single configuration for Release since we don't need Debug, RelWithDebugInfo, and MinSizeRel on CI. It is ignored for Linux.
+      # Note: the presets handle the necessary CMAKE_BUILD_TYPE (Linux) and CMAKE_CONFIGURATION_TYPES (Windows) flags
       - name: Configure
         if: matrix.config.name != 'Ubuntu 22 - GCC'
-        run: cmake -B build -D Python3_EXECUTABLE=python3 -D CESIUM_OMNI_ENABLE_TESTS=OFF -D CESIUM_OMNI_ENABLE_COVERAGE=${{ matrix.config.coverage}} -D CMAKE_C_COMPILER=${{ matrix.config.cc }} -D CMAKE_CXX_COMPILER=${{ matrix.config.cxx }} -D CMAKE_BUILD_TYPE=${{ matrix.config.build-type }} -D CMAKE_CONFIGURATION_TYPES=${{ matrix.config.build-type }} -G "${{ matrix.config.generator }}"
-
-      # Change the ownership from root to user for all files in the Conan cache so
-      # that DLLs can be used without permission denied errors
-      - name: Windows Change Conan directory permissions
-        if: runner.os == 'Windows'
-        run: |
-          $Path = "${{ env.CONAN_USER_HOME }}/.conan"
-          $Username = "$env:UserName"
-          $Acl = Get-Acl -Path $Path
-          $Ar = New-Object System.Security.AccessControl.FileSystemAccessRule($Username, 'FullControl', 'ContainerInherit,ObjectInherit', 'None', 'Allow')
-          $Acl.SetAccessRule($Ar)
+        run: cmake -B build --preset=${{matrix.config.preset}} -D Python3_EXECUTABLE=python3 -D CESIUM_OMNI_ENABLE_TESTS=OFF -D CESIUM_OMNI_ENABLE_COVERAGE=${{ matrix.config.coverage}} -D CMAKE_C_COMPILER=${{ matrix.config.cc }} -D CMAKE_CXX_COMPILER=${{ matrix.config.cxx }} -G "${{ matrix.config.generator }}"
 
       - name: Check C/C++ Formatting
         if: matrix.config.name != 'Ubuntu 22 - GCC'

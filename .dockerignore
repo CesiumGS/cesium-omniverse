@@ -12,6 +12,7 @@
 !/ThirdParty.extra.json
 !/ThirdParty.json
 !/exts
+!/vcpkg.json
 
 # Ignore in nested directories
 **/.DS_Store

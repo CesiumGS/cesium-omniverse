@@ -1,0 +1,57 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "builtin-baseline": "56bb2411609227288b70117ead2c47585ba07713",
+  "dependencies": [
+    "asyncplusplus",
+    {
+      "name": "curl",
+      "platform": "!wasm32"
+    },
+    "doctest",
+    "expected-lite",
+    "glm",
+    "ms-gsl",
+    "rapidjson",
+    "spdlog",
+    "stb",
+    "ada-url",
+    "draco",
+    "ktx",
+    "modp-base64",
+    "meshoptimizer",
+    "openssl",
+    "s2geometry",
+    "libjpeg-turbo",
+    "sqlite3",
+    "tinyxml2",
+    "libwebp",
+    "zlib-ng",
+    "picosha2",
+    "earcut-hpp",
+    {
+      "name": "cpp-httplib",
+      "platform": "!wasm32"
+    },
+    "libmorton",
+    "zstd",
+    {
+      "name": "blend2d",
+      "default-features": false,
+      "features": [
+        {
+          "name": "jit",
+          "platform": "!ios&!wasm32"
+        }
+      ]
+    },
+    {
+      "name": "asmjit",
+      "platform": "!ios&!wasm32"
+    },
+    "spz",
+    "zlib",
+    "pybind11",
+    "yaml-cpp"
+  ]
+}
+
