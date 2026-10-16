@@ -26,36 +26,12 @@
         "notes": "A selection of test models from this generator are used for testing."
     },
     {
-        "name": "libcurl",
-        "license": [
-            "curl"
-        ],
-        "version": "8.2.1",
-        "url": "https://curl.se"
-    },
-    {
         "name": "ms-gsl",
         "license": [
             "MIT"
         ],
         "version": "4.1.0",
         "url": "https://github.com/microsoft/GSL"
-    },
-    {
-        "name": "nasm",
-        "license": [
-            "BSD-2-Clause"
-        ],
-        "version": "2.15.05",
-        "url": "http://www.nasm.us"
-    },
-    {
-        "name": "openssl",
-        "license": [
-            "OpenSSL"
-        ],
-        "version": "1.1.1w",
-        "url": "https://github.com/openssl/openssl"
     },
     {
         "name": "pybind11",
@@ -73,15 +49,6 @@
         ],
         "version": "cci.20220909",
         "url": "https://github.com/nothings/stb"
-    },
-    {
-        "name": "vsgCs",
-        "license": [
-            "MIT"
-        ],
-        "version": "0.4",
-        "url": "https://github.com/timoore/vsgCs",
-        "notes": "UrlAssetAccessor.{cpp,h} are taken from vsgCs."
     },
     {
         "name": "yaml-cpp",

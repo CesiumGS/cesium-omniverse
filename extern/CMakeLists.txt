@@ -132,6 +132,7 @@ add_external_project(
         absl_raw_logging_internal
         absl_log_severity
         ada
+        curl
         ${SSL_LIBRARY_NAME}
         ${CRYPTO_LIBRARY_NAME}
         spdlog
@@ -150,8 +151,11 @@ add_external_project(
     LIBRARIES_WITH_POSTFIX
         spdlog
         fmt
+        curl
     EXPECTED_DEBUG_POSTFIX
         "d"
+        "d"
+        "-d"
     OPTIONS
         CESIUM_TESTS_ENABLED=OFF
         CESIUM_COVERAGE_ENABLED=OFF

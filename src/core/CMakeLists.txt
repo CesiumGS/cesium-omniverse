@@ -164,9 +164,9 @@ setup_lib(
         absl_raw_logging_internal
         absl_log_severity
         ada
-        # Already linking OpenSSL from CURL (from Conan)
-        # ${SSL_LIBRARY_NAME}
-        # ${CRYPTO_LIBRARY_NAME}
+        curl
+        ${SSL_LIBRARY_NAME}
+        ${CRYPTO_LIBRARY_NAME}
         spdlog
         fmt
         sqlite3
@@ -180,7 +180,6 @@ setup_lib(
         ${SHARPYUV_LIBRARY_NAME}
         ${ZNG_LIBRARY_NAME}
         zstd
-        CURL::libcurl
         stb::stb
         ZLIB::ZLIB
         Microsoft.GSL::GSL

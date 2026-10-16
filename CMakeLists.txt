@@ -443,7 +443,6 @@ set(CMAKE_FIND_PACKAGE_PREFER_CONFIG TRUE)
 find_package(Threads) # System threading library
 
 # Conan libraries
-find_package(CURL)
 find_package(doctest)
 find_package(stb)
 find_package(ZLIB)
@@ -553,9 +552,6 @@ set(KIT_EXTENSION_TESTS_BINDINGS_PATH
 # This path doesn't exist, so in order to find python we need to explicility add it
 # to the search path. Unfortunately CMake will print a warning when python .so is
 # found this way.
-
-# Automatically fetch certificates used for any requests from the core Context class
-execute_process(COMMAND "${Python3_EXECUTABLE}" "${SCRIPTS_DIRECTORY}/update_certs.py" "${KIT_EXTENSION_CERTS_PATH}")
 
 get_property(INSTALL_SEARCH_PATHS GLOBAL PROPERTY NVIDIA_ADDITIONAL_SEARCH_PATHS_PROPERTY)
 

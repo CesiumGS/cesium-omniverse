@@ -279,34 +279,61 @@ function(add_external_project)
     cmake_parse_arguments(
         ""
         ""
-        "PROJECT_NAME;PROJECT_EXTERN_DIRECTORY;EXPECTED_DEBUG_POSTFIX;EXPECTED_RELEASE_POSTFIX;EXPECTED_RELWITHDEBINFO_POSTFIX;EXPECTED_MINSIZEREL_POSTFIX"
-        "LIBRARIES;LIBRARIES_WITH_POSTFIX;OPTIONS"
+        "PROJECT_NAME;PROJECT_EXTERN_DIRECTORY"
+        "LIBRARIES;LIBRARIES_WITH_POSTFIX;EXPECTED_DEBUG_POSTFIX;EXPECTED_RELEASE_POSTFIX;EXPECTED_RELWITHDEBINFO_POSTFIX;EXPECTED_MINSIZEREL_POSTFIX;OPTIONS"
         ${ARGN})
 
     include(ExternalProject) # built-in CMake include for ExternalProject_Add
-
-    # Expands to ${_EXPECTED_<CONFIG>_POSTFIX} at configuration time (usually 'd' or '')
-    set(BUILD_TIME_POSTFIX
-        "\
-$<$<CONFIG:Debug>:${_EXPECTED_DEBUG_POSTFIX}>\
-$<$<CONFIG:Release>:${_EXPECTED_RELEASE_POSTFIX}>\
-$<$<CONFIG:RelWithDebInfo>:${_EXPECTED_RELWITHDEBINFO_POSTFIX}>\
-$<$<CONFIG:MinSizeRel>:${_EXPECTED_MINSIZEREL_POSTFIX}>")
 
     set(LIBRARY_OUTPUT_PATHS "")
 
     if(DEFINED _LIBRARIES)
         foreach(lib IN LISTS _LIBRARIES)
-            if (lib IN_LIST _LIBRARIES_WITH_POSTFIX)
-                set(LIB_BUILD_TIME_POSTFIX ${BUILD_TIME_POSTFIX})
+            if(lib IN_LIST _LIBRARIES_WITH_POSTFIX)
+                list(
+                    FIND
+                    _LIBRARIES_WITH_POSTFIX
+                    "${lib}"
+                    ITEM_INDEX)
+                list(
+                    GET
+                    _EXPECTED_DEBUG_POSTFIX
+                    ${ITEM_INDEX}
+                    LIB_DEBUG_POSTFIX)
+                list(
+                    GET
+                    _EXPECTED_RELEASE_POSTFIX
+                    ${ITEM_INDEX}
+                    LIB_RELEASE_POSTFIX)
+                list(
+                    GET
+                    _EXPECTED_RELWITHDEBINFO_POSTFIX
+                    ${ITEM_INDEX}
+                    LIB_RELWITHDEBINFO_POSTFIX)
+                list(
+                    GET
+                    _EXPECTED_MINSIZEREL_POSTFIX
+                    ${ITEM_INDEX}
+                    LIB_MINSIZEREL_POSTFIX)
             else()
-                set(LIB_BUILD_TIME_POSTFIX "")
+                set(LIB_DEBUG_POSTFIX "")
+                set(LIB_RELEASE_POSTFIX "")
+                set(LIB_RELWITHDEBINFO_POSTFIX "")
+                set(LIB_MINSIZEREL_POSTFIX "")
             endif()
+
+            # Expands to ${_EXPECTED_<CONFIG>_POSTFIX} at configuration time (usually 'd' or '')
+            set(LIB_BUILD_TIME_POSTFIX
+                "\
+$<$<CONFIG:Debug>:${LIB_DEBUG_POSTFIX}>\
+$<$<CONFIG:Release>:${LIB_RELEASE_POSTFIX}>\
+$<$<CONFIG:RelWithDebInfo>:${LIB_RELWITHDEBINFO_POSTFIX}>\
+$<$<CONFIG:MinSizeRel>:${LIB_MINSIZEREL_POSTFIX}>")
 
             list(
                 APPEND
                 LIBRARY_OUTPUT_PATHS
-                "${PROJECT_BINARY_DIR}/${_PROJECT_NAME}/${CMAKE_INSTALL_LIBDIR}/$<CONFIG>/${CMAKE_STATIC_LIBRARY_PREFIX}${lib}${BUILD_TIME_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}"
+                "${PROJECT_BINARY_DIR}/${_PROJECT_NAME}/${CMAKE_INSTALL_LIBDIR}/$<CONFIG>/${CMAKE_STATIC_LIBRARY_PREFIX}${lib}${LIB_BUILD_TIME_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}"
             )
         endforeach()
     endif()
@@ -373,11 +400,32 @@ $<$<CONFIG:MinSizeRel>:${_EXPECTED_MINSIZEREL_POSTFIX}>")
                 GLOBAL)
             target_include_directories(${lib} INTERFACE "${PROJECT_INCLUDE_DIR}")
 
-            if (lib IN_LIST _LIBRARIES_WITH_POSTFIX)
-                set(LIB_DEBUG_POSTFIX "${_EXPECTED_DEBUG_POSTFIX}")
-                set(LIB_RELEASE_POSTFIX "${_EXPECTED_RELEASE_POSTFIX}")
-                set(LIB_RELWITHDEBINFO_POSTFIX "${_EXPECTED_RELWITHDEBINFO_POSTFIX}")
-                set(LIB_MINSIZEREL_POSTFIX "${_EXPECTED_MINSIZEREL_POSTFIX}")
+            if(lib IN_LIST _LIBRARIES_WITH_POSTFIX)
+                list(
+                    FIND
+                    _LIBRARIES_WITH_POSTFIX
+                    "${lib}"
+                    ITEM_INDEX)
+                list(
+                    GET
+                    _EXPECTED_DEBUG_POSTFIX
+                    ${ITEM_INDEX}
+                    LIB_DEBUG_POSTFIX)
+                list(
+                    GET
+                    _EXPECTED_RELEASE_POSTFIX
+                    ${ITEM_INDEX}
+                    LIB_RELEASE_POSTFIX)
+                list(
+                    GET
+                    _EXPECTED_RELWITHDEBINFO_POSTFIX
+                    ${ITEM_INDEX}
+                    LIB_RELWITHDEBINFO_POSTFIX)
+                list(
+                    GET
+                    _EXPECTED_MINSIZEREL_POSTFIX
+                    ${ITEM_INDEX}
+                    LIB_MINSIZEREL_POSTFIX)
             else()
                 set(LIB_DEBUG_POSTFIX "")
                 set(LIB_RELEASE_POSTFIX "")
