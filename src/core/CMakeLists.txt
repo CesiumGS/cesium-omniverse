@@ -180,7 +180,6 @@ setup_lib(
         ${SHARPYUV_LIBRARY_NAME}
         ${ZNG_LIBRARY_NAME}
         zstd
-        stb::stb
         ZLIB::ZLIB
         Microsoft.GSL::GSL
         fabric

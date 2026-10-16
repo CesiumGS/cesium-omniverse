@@ -42,15 +42,6 @@
         "url": "https://github.com/pybind/pybind11"
     },
     {
-        "name": "stb",
-        "license": [
-            "Unlicense",
-            "MIT"
-        ],
-        "version": "cci.20220909",
-        "url": "https://github.com/nothings/stb"
-    },
-    {
         "name": "yaml-cpp",
         "license": [
             "MIT"

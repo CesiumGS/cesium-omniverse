@@ -444,7 +444,6 @@ find_package(Threads) # System threading library
 
 # Conan libraries
 find_package(doctest)
-find_package(stb)
 find_package(ZLIB)
 find_package(yaml-cpp)
 find_package(Microsoft.GSL)
