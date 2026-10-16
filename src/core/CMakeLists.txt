@@ -181,7 +181,6 @@ setup_lib(
         ${ZNG_LIBRARY_NAME}
         zstd
         ZLIB::ZLIB
-        Microsoft.GSL::GSL
         fabric
         usd_ar
         usd_arch
@@ -212,6 +211,7 @@ setup_lib(
         omni_ui
         pybind11
         boost_preprocessor
+        gsl
         python312
     ADDITIONAL_LIBRARIES
         "${ADDITIONAL_LIBRARIES}"

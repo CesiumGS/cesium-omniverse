@@ -446,7 +446,6 @@ find_package(Threads) # System threading library
 find_package(doctest)
 find_package(ZLIB)
 find_package(yaml-cpp)
-find_package(Microsoft.GSL)
 
 # So that the installed libraries can find shared libraries in the same directory
 set(CMAKE_INSTALL_RPATH $ORIGIN)

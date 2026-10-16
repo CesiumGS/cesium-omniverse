@@ -6,6 +6,7 @@
     <filter include="carb_sdk_plugins"/>
     <filter include="pybind11"/>
     <filter include="boost_preprocessor"/>
+    <filter include="gsl"/>
   </import>
   <!-- Override the link paths to point to the correct locations. -->
   <dependency name="python" linkPath="../_build/target-deps/python"/>
@@ -13,4 +14,5 @@
   <dependency name="carb_sdk_plugins" linkPath="../_build/target-deps/carb_sdk_plugins"/>
   <dependency name="pybind11" linkPath="../_build/target-deps/pybind11/pybind11"/>
   <dependency name="boost_preprocessor" linkPath="../_build/target-deps/boost_preprocessor"/>
+  <dependency name="gsl" linkPath="../_build/target-deps/gsl"/>
 </project>

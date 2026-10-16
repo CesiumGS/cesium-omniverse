@@ -7,8 +7,11 @@
 #include <map>
 #include <optional>
 #include <set>
+#include <span>
 #include <unordered_set>
 #include <vector>
+
+#include <gsl/span>
 
 namespace cesium::omniverse::CppUtil {
 
@@ -102,6 +105,10 @@ template <typename T, typename F> constexpr auto hasMemberImpl(F&& f) -> decltyp
 
 template <typename> constexpr bool hasMemberImpl(...) {
     return false;
+}
+
+template <typename T> std::span<T> toSpan(const gsl::span<T>& gslSpan) {
+    return std::span(gslSpan.data(), gslSpan.size());
 }
 
 #define HAS_MEMBER(T, EXPR) CppUtil::hasMemberImpl<T>([](auto&& obj) -> decltype(obj.EXPR) {})

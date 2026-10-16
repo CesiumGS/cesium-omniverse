@@ -51,7 +51,7 @@ void setVertexAttributeValues(
     const auto fabricValues =
         fabricStage.getArrayAttributeWr<DataTypeUtil::GetNativeType<DataTypeUtil::getPrimvarType<T>()>>(
             path, attribute.fabricAttributeName);
-    accessor.fill(fabricValues, repeat);
+    accessor.fill(CppUtil::toSpan(fabricValues), repeat);
 }
 
 } // namespace
@@ -331,14 +331,14 @@ void FabricGeometry::setGeometry(
             fabricStage.setArrayAttributeSize(_path, FabricTokens::primvars_COLOR_0(), numVoxels * 8);
             const auto vertexColorsFabric =
                 fabricStage.getArrayAttributeWr<glm::fvec4>(_path, FabricTokens::primvars_COLOR_0());
-            vertexColors.fill(vertexColorsFabric, 8);
+            vertexColors.fill(CppUtil::toSpan(vertexColorsFabric), 8);
         }
 
         if (hasVertexIds) {
             fabricStage.setArrayAttributeSize(_path, FabricTokens::primvars_vertexId(), numVoxels * 8);
             const auto vertexIdsFabric =
                 fabricStage.getArrayAttributeWr<float>(_path, FabricTokens::primvars_vertexId());
-            vertexIds.fill(vertexIdsFabric, 8);
+            vertexIds.fill(CppUtil::toSpan(vertexIdsFabric), 8);
         }
 
         for (const auto& customVertexAttribute : customVertexAttributes) {
@@ -427,16 +427,16 @@ void FabricGeometry::setGeometry(
             fabricStage.getArrayAttributeWr<int>(_path, FabricTokens::faceVertexIndices());
         const auto pointsFabric = fabricStage.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::points());
 
-        faceVertexCounts.fill(faceVertexCountsFabric);
-        indices.fill(faceVertexIndicesFabric);
-        positions.fill(pointsFabric);
+        faceVertexCounts.fill(CppUtil::toSpan(faceVertexCountsFabric));
+        indices.fill(CppUtil::toSpan(faceVertexIndicesFabric));
+        positions.fill(CppUtil::toSpan(pointsFabric));
 
         const auto fillTexcoords = [this, &fabricStage](uint64_t texcoordIndex, const TexcoordsAccessor& texcoords) {
             assert(texcoordIndex < _geometryDescriptor.getTexcoordSetCount());
             const auto& primvarStToken = FabricTokens::primvars_st_n(texcoordIndex);
             fabricStage.setArrayAttributeSize(_path, primvarStToken, texcoords.size());
             const auto stFabric = fabricStage.getArrayAttributeWr<glm::fvec2>(_path, primvarStToken);
-            texcoords.fill(stFabric);
+            texcoords.fill(CppUtil::toSpan(stFabric));
         };
 
         for (const auto& [gltfSetIndex, primvarStIndex] : texcoordIndexMapping) {
@@ -454,7 +454,7 @@ void FabricGeometry::setGeometry(
 
             const auto normalsFabric = fabricStage.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::normals());
 
-            normals.fill(normalsFabric);
+            normals.fill(CppUtil::toSpan(normalsFabric));
         }
 
         if (hasVertexColors) {
@@ -463,7 +463,7 @@ void FabricGeometry::setGeometry(
             const auto vertexColorsFabric =
                 fabricStage.getArrayAttributeWr<glm::fvec4>(_path, FabricTokens::primvars_COLOR_0());
 
-            vertexColors.fill(vertexColorsFabric);
+            vertexColors.fill(CppUtil::toSpan(vertexColorsFabric));
         }
 
         if (hasVertexIds) {
@@ -472,7 +472,7 @@ void FabricGeometry::setGeometry(
             const auto vertexIdsFabric =
                 fabricStage.getArrayAttributeWr<float>(_path, FabricTokens::primvars_vertexId());
 
-            vertexIds.fill(vertexIdsFabric);
+            vertexIds.fill(CppUtil::toSpan(vertexIdsFabric));
         }
 
         for (const auto& customVertexAttribute : customVertexAttributes) {

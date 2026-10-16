@@ -26,14 +26,6 @@
         "notes": "A selection of test models from this generator are used for testing."
     },
     {
-        "name": "ms-gsl",
-        "license": [
-            "MIT"
-        ],
-        "version": "4.1.0",
-        "url": "https://github.com/microsoft/GSL"
-    },
-    {
         "name": "pybind11",
         "license": [
             "BSD-3-Clause"
