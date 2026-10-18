@@ -48,14 +48,6 @@
         "version": "1.2.0"
     },
     {
-        "name": "bzip2",
-        "license": [
-            "bzip2-1.0.6"
-        ],
-        "url": "https://sourceware.org/bzip2/",
-        "version": "1.0.8#6"
-    },
-    {
         "name": "cesium-native",
         "license": [
             "Apache-2.0"
@@ -94,14 +86,6 @@
         ],
         "url": "https://github.com/mapbox/earcut.hpp",
         "version": "2.2.4"
-    },
-    {
-        "name": "expat",
-        "license": [
-            "MIT"
-        ],
-        "url": "https://github.com/libexpat/libexpat",
-        "version": "2.8.0"
     },
     {
         "name": "expected-lite",
@@ -144,28 +128,12 @@
         "version": "4.4.2-plus-vcpkg-patches-2"
     },
     {
-        "name": "libffi",
-        "license": [
-            "MIT"
-        ],
-        "url": "https://github.com/libffi/libffi",
-        "version": "3.5.2"
-    },
-    {
         "name": "libjpeg-turbo",
         "license": [
             "BSD-3-Clause"
         ],
         "url": "https://libjpeg-turbo.org/",
         "version": "3.1.4.1"
-    },
-    {
-        "name": "liblzma",
-        "license": [
-            "LicenseRef-vcpkg-null"
-        ],
-        "url": "https://tukaani.org/xz/",
-        "version": "5.8.3"
     },
     {
         "name": "libmorton",
@@ -222,22 +190,6 @@
         ],
         "url": "https://github.com/okdshin/PicoSHA2",
         "version": "1.0.1"
-    },
-    {
-        "name": "pybind11",
-        "license": [
-            "BSD-3-Clause"
-        ],
-        "url": "https://github.com/pybind/pybind11",
-        "version": "3.0.1"
-    },
-    {
-        "name": "python3",
-        "license": [
-            "Python-2.0"
-        ],
-        "url": "https://github.com/python/cpython",
-        "version": "3.12.13#1"
     },
     {
         "name": "rapidjson",

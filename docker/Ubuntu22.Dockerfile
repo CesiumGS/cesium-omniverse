@@ -44,7 +44,7 @@ RUN git lfs install
 
 # Python packages
 RUN pip3 install --no-cache-dir \
-    gcovr
+    gcovr pybind11
 
 WORKDIR /var/app
 

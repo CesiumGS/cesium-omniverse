@@ -120,10 +120,17 @@ function(setup_python_module)
             REQUIRED)
     endif()
 
-    # We only use pybind11 from vcpkg for its cmake helpers
+    # We only use pybind11 from package manager its cmake helpers
     # Note that we don't link pybind11::headers, pybind11::module, or pybind11::embed
     # The code below is a simplified version of pybind11_add_module: https://github.com/pybind/pybind11/blob/master/tools/pybind11NewTools.cmake#L174
-    find_package(pybind11)
+    execute_process(
+        COMMAND "${Python3_EXECUTABLE}" -m pybind11 --cmakedir
+        OUTPUT_VARIABLE PYBIND11_CMAKE_DIR
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+    list(APPEND CMAKE_PREFIX_PATH "${PYBIND11_CMAKE_DIR}")
+
+    find_package(pybind11 CONFIG REQUIRED)
 
     pybind11_extension(${_TARGET_NAME})
 

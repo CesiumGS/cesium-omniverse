@@ -39,11 +39,45 @@
                 "VCPKG_TRIPLET": "x64-windows-omniverse",
                 "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_CONFIGURATION_TYPES": "Release"
+            },
+            "toolset": {
+                "value": "version=14.29"
             }
         },
         {
             "name": "Windows-Debug",
             "generator": "Visual Studio 17 2022",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+                "VCPKG_OVERLAY_PORTS": "${sourceDir}/vcpkg/ports/",
+                "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/vcpkg/triplets/",
+                "VCPKG_TARGET_TRIPLET": "x64-windows-omniverse",
+                "VCPKG_TRIPLET": "x64-windows-omniverse",
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_CONFIGURATION_TYPES": "Debug"
+            },
+            "toolset": {
+                "value": "version=14.29"
+            }
+        },
+        {
+            "name": "Windows-Ninja-Release",
+            "generator": "Ninja Multi-Config",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+                "VCPKG_OVERLAY_PORTS": "${sourceDir}/vcpkg/ports/",
+                "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/vcpkg/triplets/",
+                "VCPKG_TARGET_TRIPLET": "x64-windows-omniverse",
+                "VCPKG_TRIPLET": "x64-windows-omniverse",
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_CONFIGURATION_TYPES": "Release"
+            }
+        },
+        {
+            "name": "Windows-Ninja-Debug",
+            "generator": "Ninja Multi-Config",
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
                 "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",

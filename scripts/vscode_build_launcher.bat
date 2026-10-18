@@ -34,7 +34,7 @@ echo vsdevcmd.bat path: %vsdevcmd_path%
 set "SYSTEM_VCPKG_ROOT=%VCPKG_ROOT%"
 
 :: Call vsdevcmd.bat. This will start the developer command prompt and populate MSVC environment variables.
-call %vsdevcmd_path% -arch=x64 -host_arch=x64
+call %vsdevcmd_path% -arch=x64 -host_arch=x64 -vcvars_ver=14.29
 
 :: Override Visual Studio's VCPKG_ROOT with the actual VCPKG_ROOT
 set "VCPKG_ROOT=%SYSTEM_VCPKG_ROOT%"

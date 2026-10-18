@@ -34,7 +34,7 @@
 See [Linux](#linux) or [Windows](#windows) for step-by-step installation instructions
 
 - Linux (Ubuntu 22.04+ or equivalent) or Windows
-- Clang 15+, GCC 9+, or Visual Studio 2022 (Visual Studio 2026 is not supported)
+- Clang 15+, GCC 9+, or Visual Studio 2022 (with MSVC v142 installed)
 - Python 3.10+ - For scripts
 - CMake 3.22+ (CMake 4 is not supported) - Build system generator
 - Make - Build system (Linux only)
@@ -73,6 +73,10 @@ See [Linux](#linux) or [Windows](#windows) for step-by-step installation instruc
   ```sh
   pip3 install black==23.1.0 flake8==7.1.1
   ```
+- Install `pybind11`
+  ```sh
+  pip3 install pybind11
+  ```
 - Add symlinks the clang-15 tools so that the correct version is chosen when running `clang-format`, `clang-tidy`, etc
   ```sh
   sudo ln -s /usr/bin/clang-15 /usr/bin/clang
@@ -110,6 +114,7 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
 
 - Install Visual Studio 2022 Professional: https://visualstudio.microsoft.com/downloads/
   - Select `Desktop Development with C++` and use the default components
+  - Install MSVC v142 - VS 2019 C++ x64/x86 build tools (v14.29)
 - Install Git: https://git-scm.com/downloads
   - Use defaults
 - Install LLVM 15.0.7: https://llvm.org/builds
@@ -143,6 +148,10 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
   ```sh
   pip3 install black==23.1.0 flake8==7.1.1
   ```
+- Install `pybind11`
+  ```sh
+  pip3 install pybind11
+  ```
 - Install `colorama` to enable color diff support
   ```sh
   pip3 install colorama
@@ -161,7 +170,7 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
 
 - Install [Chocolatey](https://docs.chocolatey.org/en-us/choco/setup) and then install dependencies
   ```sh
-  choco install -y visualstudio2022professional visualstudio2022-workload-nativedesktop python ninja git doxygen.install vswhere --installargs 'ADD_CMAKE_TO_PATH=System'
+  choco install -y visualstudio2022professional visualstudio2022-workload-nativedesktop visualstudio2019buildtools python ninja git doxygen.install vswhere --installargs 'ADD_CMAKE_TO_PATH=System'
   ```
   ```sh
   choco install -y cmake --version=3.31.0
@@ -194,6 +203,10 @@ There are two ways to install prerequisites for Windows, [manually](#install-man
 - Install `black` and `flake8`
   ```sh
   pip3 install black==23.1.0 flake8==7.1.1
+  ```
+- Install `pybind11`
+  ```sh
+  pip3 install pybind11
   ```
 - Install `colorama` to enable color diff support
   ```sh
@@ -292,13 +305,6 @@ To view verbose output from the compiler, use the `--verbose` option
 ```sh
 cmake -B build --preset Linux-Release
 cmake --build build --verbose
-```
-
-Ninja is also supported as an alternative to the MSVC generator. To build with Ninja locally open `x64 Native Tools Command Prompt for VS 2022` and run:
-
-```
-cmake -B --preset Windows-Release build -D CMAKE_C_COMPILER=cl -D CMAKE_CXX_COMPILER=cl -G "Ninja Multi-Config"
-cmake --build build --config Release --parallel 8
 ```
 
 ## Unit Tests

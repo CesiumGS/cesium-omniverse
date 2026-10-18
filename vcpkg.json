@@ -50,7 +50,6 @@
     },
     "spz",
     "zlib",
-    "pybind11",
     "yaml-cpp"
   ]
 }

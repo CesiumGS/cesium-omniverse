@@ -35,15 +35,11 @@ endif()
 
 if(MSVC)
     if(${USE_NVIDIA_RELEASE_LIBRARIES})
+        # Kit SDK links against the release MSVC Runtime Library so we
+        # need to do the same, even for debug builds
         set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
         set(MSVC_RUNTIME_FLAG_DEBUG "/MD")
         set(MSVC_RUNTIME_FLAG_RELEASE "/MD")
-
-        # Disable run-time error checks. Otherwise boost will error with the message "Using the /RTC option without specifying a debug runtime will lead to linker errors"
-        # cmake-format: off
-        STRING(REGEX REPLACE "/RTC1" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
-        STRING(REGEX REPLACE "/RTC1" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
-        # cmake-format: on
     else()
         set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
         set(MSVC_RUNTIME_FLAG_DEBUG "/MDd")
@@ -194,9 +190,7 @@ if(MSVC)
         _UNICODE # tell Windows to use the unicode version of string functions, as opposed to ASCII (https://docs.microsoft.com/en-us/windows/win32/learnwin32/working-with-strings)
         WIN32_LEAN_AND_MEAN # ignore some unnecessary Windows APIs
         NOMINMAX # don't let Windows create macros for MIN and MAX
-        _SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING
-        _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR # See https://developercommunity.visualstudio.com/t/Visual-Studio-17100-Update-leads-to-Pr/10669759?sort=newest
-    )
+        _SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING)
 endif()
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
@@ -339,12 +333,6 @@ if(NOT ${USE_NVIDIA_RELEASE_LIBRARIES})
     set(CESIUM_OMNI_CXX_DEFINES_DEBUG ${CESIUM_OMNI_CXX_DEFINES_DEBUG} TBB_USE_DEBUG)
 endif()
 
-# Add this for cesium-native (TODO: should this go in src/CMakeLists?)
-set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} SPDLOG_COMPILED_LIB)
-
-# Add this for cesium-native (TODO: should this go in src/CMakeLists?)
-set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} LIBASYNC_STATIC)
-
 # Needed to include USD headers without errors
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} _GLIBCXX_PERMIT_BACKWARD_HASH)
@@ -369,12 +357,6 @@ set(CESIUM_OMNI_LINKER_FLAGS_DEBUG
     ${CESIUM_OMNI_LINKER_FLAGS_DEBUG}
     CACHE STRING "Linker flags to use in debug mode." FORCE)
 
-if(NOT EZVCPKG_BASEDIR)
-    if(DEFINED ENV{EZVCPKG_BASEDIR})
-        set(EZVCPKG_BASEDIR "$ENV{EZVCPKG_BASEDIR}")
-    endif()
-endif()
-
 # Third party dependencies not handled by vcpkg
 add_subdirectory(extern)
 
@@ -382,7 +364,6 @@ find_package(Threads) # System threading library
 
 # vcpkg libraries
 find_package(doctest CONFIG REQUIRED)
-find_package(pybind11 CONFIG REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
 
 # So that the installed libraries can find shared libraries in the same directory
@@ -474,7 +455,7 @@ set(KIT_EXTENSION_TESTS_BINDINGS_PATH
 #
 # This is because the USD libraries .so rpath points to a non-existent python path
 # E.g. `readelf -d libusd.so` will show `$ORIGIN/../../../_dependencies/python3/lib`
-# This path doesn't exist, so in order to find python we need to explicility add it
+# This path doesn't exist, so in order to find python we need to explicitly add it
 # to the search path. Unfortunately CMake will print a warning when python .so is
 # found this way.
 

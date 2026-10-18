@@ -68,12 +68,12 @@ def get_cmake_configure_command(args: Args):
     cmd = ["cmake", "-B", args.build_folder]
 
     if is_windows():
-        cmd.extend(("-G", "Ninja Multi-Config", "-D", "CMAKE_C_COMPILER=cl", "-D", "CMAKE_CXX_COMPILER=cl"))
+        cmd.extend(("-D", "CMAKE_C_COMPILER=cl", "-D", "CMAKE_CXX_COMPILER=cl"))
 
         if args.build_type == "Debug":
-            cmd.extend(("--preset", "Windows-Debug"))
+            cmd.extend(("--preset", "Windows-Ninja-Debug"))
         else:
-            cmd.extend(("--preset", "Windows-Release"))
+            cmd.extend(("--preset", "Windows-Ninja-Release"))
         return cmd
 
     if is_linux():
@@ -116,7 +116,7 @@ def get_cmake_build_command(args: Args, target: str):
     if args.parallel:
         # use every core except one so that computer doesn't go too slow
         cores = max(1, multiprocessing.cpu_count() - 1)
-        cmd.extend(("--parallel", str(cores)))
+        cmd.extend(("--parallel", str(1)))
 
     return cmd
 
@@ -201,9 +201,6 @@ def lint_fix(args: Args):
 def get_build_folder_name(build_type: str, compiler_name: str):
     folder_name = "build"
 
-    if is_windows():
-        return folder_name
-
     if build_type != "Release":
         folder_name += "-{}".format(build_type.lower())
 
@@ -255,9 +252,6 @@ def main(av: List[str]):
         lint(args)
     elif task == "lint-fix":
         lint_fix(args)
-    elif task == "dependency-graph":
-        dependency_graph(args)
-
 
 if __name__ == "__main__":
     try:

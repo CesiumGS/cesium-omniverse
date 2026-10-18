@@ -118,7 +118,7 @@ jobs:
           sudo apt install -y doxygen clang-tidy-15 clang-format-15 gcovr autoconf autoconf-archive automake libtool
           sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-15 100
           sudo update-alternatives --set clang-format /usr/bin/clang-format-15
-          sudo pip3 install black==23.1.0 flake8==7.1.1 --ignore-installed
+          sudo pip3 install black==23.1.0 flake8==7.1.1 pybind11 --ignore-installed
           echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> $GITHUB_ENV #for some reason they define VCPKG_INSTALLATION_ROOT which isn't standard
 
       # Could not figure out how to add Chocolatey libraries to the PATH automatically with refreshenv, so
@@ -130,7 +130,7 @@ jobs:
         run: |
           choco install -y llvm --version=15.0.7 --allow-downgrade
           echo "C:/Program Files/LLVM/bin" >> $env:GITHUB_PATH
-          pip3 install black==23.1.0 flake8==7.1.1
+          pip3 install black==23.1.0 flake8==7.1.1 pybind11
 
       # Note: the presets handle the necessary CMAKE_BUILD_TYPE (Linux) and CMAKE_CONFIGURATION_TYPES (Windows) flags
       - name: Configure
