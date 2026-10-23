@@ -50,7 +50,7 @@ set(CARB_ROOT "${NVIDIA_BUILD_DIR}/target-deps/carb_sdk_plugins")
 set(KIT_SDK_ROOT "${NVIDIA_BUILD_DIR}/target-deps/kit-sdk")
 set(KIT_OMNI_UI_ROOT "${NVIDIA_BUILD_DIR}/target-deps/omni-ui")
 set(KIT_IMGUI_ROOT "${NVIDIA_BUILD_DIR}/target-deps/omni-kit-renderer-imgui")
-set(PYBIND11_ROOT "${NVIDIA_BUILD_DIR}/target-deps/pybind11")
+set(PYBIND11_ROOT "${NVIDIA_BUILD_DIR}/target-deps/pybind11/include")
 set(BOOST_PREPROCESSOR_ROOT "${NVIDIA_BUILD_DIR}/target-deps/boost_preprocessor")
 set(GSL_ROOT "${NVIDIA_BUILD_DIR}/target-deps/gsl/include")
 

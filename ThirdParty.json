@@ -5,7 +5,7 @@
             "Apache-2.0"
         ],
         "url": "https://github.com/abseil/abseil-cpp",
-        "version": "20260107.1#2"
+        "version": "20260107.1-cesium-for-omniverse"
     },
     {
         "name": "ada-url",
