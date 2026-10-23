@@ -32,8 +32,18 @@
 #include <CesiumUtility/CreditSystem.h>
 #include <omni/fabric/SimStageWithHistory.h>
 #include <omni/kit/IApp.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4244 4305 4100 4201 4127 4251)
+#endif
+
 #include <pxr/usd/sdf/path.h>
 #include <pxr/usd/usdUtils/stageCache.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(pop)
+#endif
 
 #include <chrono>
 

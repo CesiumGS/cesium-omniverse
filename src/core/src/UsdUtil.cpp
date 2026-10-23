@@ -1,7 +1,5 @@
 #include "cesium/omniverse/UsdUtil.h"
 
-#include "CesiumUsdSchemas/webMapServiceRasterOverlay.h"
-
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/CppUtil.h"
@@ -19,6 +17,19 @@
 #include <CesiumGeospatial/GlobeAnchor.h>
 #include <CesiumGeospatial/GlobeTransforms.h>
 #include <CesiumGeospatial/LocalHorizontalCoordinateSystem.h>
+#include <carb/Numeric.h>
+#include <fmt/format.h>
+#include <glm/gtc/matrix_access.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <omni/ui/ImageProvider/DynamicTextureProvider.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4244 4305 4100 4201 4127 4251)
+#endif
+
 #include <CesiumUsdSchemas/data.h>
 #include <CesiumUsdSchemas/ellipsoid.h>
 #include <CesiumUsdSchemas/georeference.h>
@@ -30,13 +41,6 @@
 #include <CesiumUsdSchemas/tileset.h>
 #include <CesiumUsdSchemas/webMapServiceRasterOverlay.h>
 #include <CesiumUsdSchemas/webMapTileServiceRasterOverlay.h>
-#include <carb/Numeric.h>
-#include <fmt/format.h>
-#include <glm/gtc/matrix_access.hpp>
-#include <glm/gtc/matrix_inverse.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <omni/ui/ImageProvider/DynamicTextureProvider.h>
 #include <pxr/base/gf/rotation.h>
 #include <pxr/usd/sdf/primSpec.h>
 #include <pxr/usd/usd/prim.h>
@@ -47,6 +51,10 @@
 #include <pxr/usd/usdGeom/xformCommonAPI.h>
 #include <pxr/usd/usdShade/material.h>
 #include <pxr/usd/usdShade/shader.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(pop)
+#endif
 
 #include <cctype>
 

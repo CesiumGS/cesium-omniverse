@@ -116,7 +116,7 @@ def get_cmake_build_command(args: Args, target: str):
     if args.parallel:
         # use every core except one so that computer doesn't go too slow
         cores = max(1, multiprocessing.cpu_count() - 1)
-        cmd.extend(("--parallel", str(1)))
+        cmd.extend(("--parallel", str(cores)))
 
     return cmd
 

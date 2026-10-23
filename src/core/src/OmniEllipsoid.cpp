@@ -4,7 +4,17 @@
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <CesiumGeospatial/Ellipsoid.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4244 4305 4100 4201 4127 4251)
+#endif
+
 #include <CesiumUsdSchemas/ellipsoid.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(pop)
+#endif
 
 namespace cesium::omniverse {
 

@@ -178,8 +178,8 @@ set(CESIUM_OMNI_CXX_DEFINES_DEBUG ${CESIUM_OMNI_CXX_DEFINES_DEBUG} CESIUM_OMNI_D
 if(MSVC)
     set(CESIUM_OMNI_CXX_FLAGS
         ${CESIUM_OMNI_CXX_FLAGS}
-        #/W4 # enable all warnings
-        #/WX # error on warnings
+        /W4 # enable all warnings
+        /WX # error on warnings
         /Zc:__cplusplus # make __cplusplus defined correctly
         /bigobj
         /utf-8)

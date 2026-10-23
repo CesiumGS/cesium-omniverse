@@ -23,7 +23,17 @@
 #include <CesiumGltf/Model.h>
 #include <omni/fabric/FabricUSD.h>
 #include <omni/fabric/SimStageWithHistory.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4244 4305 4100 4201 4127 4251)
+#endif
+
 #include <pxr/base/gf/range3d.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(pop)
+#endif
 
 namespace cesium::omniverse {
 

@@ -5,17 +5,27 @@
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/UsdUtil.h"
 
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4244 4305 4100 4201 4127 4251)
+#endif
+
 #include <CesiumUsdSchemas/data.h>
 #include <CesiumUsdSchemas/georeference.h>
 #include <CesiumUsdSchemas/globeAnchorAPI.h>
 #include <CesiumUsdSchemas/ionRasterOverlay.h>
 #include <CesiumUsdSchemas/ionServer.h>
 #include <CesiumUsdSchemas/tileset.h>
-#include <doctest/doctest.h>
-#include <glm/ext/matrix_double4x4.hpp>
 #include <pxr/usd/usdGeom/cube.h>
 #include <pxr/usd/usdGeom/xformCommonAPI.h>
 #include <pxr/usd/usdGeom/xformable.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(pop)
+#endif
+
+#include <doctest/doctest.h>
+#include <glm/ext/matrix_double4x4.hpp>
 
 // define prim paths globally to cut down on repeated definitions
 // name the paths after the function to be tested so they can easily be paired up later

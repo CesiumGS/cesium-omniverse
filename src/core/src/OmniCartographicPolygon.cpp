@@ -7,9 +7,19 @@
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <CesiumGeospatial/Cartographic.h>
-#include <CesiumUsdSchemas/globeAnchorAPI.h>
 #include <glm/glm.hpp>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4244 4305 4100 4201 4127 4251)
+#endif
+
+#include <CesiumUsdSchemas/globeAnchorAPI.h>
 #include <pxr/usd/usdGeom/basisCurves.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(pop)
+#endif
 
 namespace cesium::omniverse {
 

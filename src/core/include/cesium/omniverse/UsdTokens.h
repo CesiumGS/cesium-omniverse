@@ -2,13 +2,24 @@
 
 #include <carb/Numeric.h>
 #include <omni/fabric/FabricUSD.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4244 4305 4100 4201 4127 4251)
+#endif
+
 #include <pxr/base/tf/staticTokens.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(pop)
+#endif
 
 // clang-format off
 PXR_NAMESPACE_OPEN_SCOPE
 
 #ifdef CESIUM_OMNI_MSVC
-__pragma(warning(push)) __pragma(warning(disable : 4003))
+#pragma warning(push)
+#pragma warning(disable : 4003)
 #endif
 
 // Note: variable names should match the USD token names as closely as possible, with special characters converted to underscores
@@ -223,7 +234,7 @@ TF_DECLARE_PUBLIC_TOKENS(UsdTokens3, USD_TOKENS_3);
 #define FABRIC_DECLARE_TOKENS(seq) TF_PP_SEQ_FOR_EACH(FABRIC_DECLARE_TOKEN, ~, seq)
 
 #ifdef CESIUM_OMNI_MSVC
-__pragma(warning(pop))
+#pragma warning(pop)
 #endif
 
 PXR_NAMESPACE_CLOSE_SCOPE

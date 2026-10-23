@@ -3,12 +3,22 @@
 
 #include <CesiumUtility/CreditSystem.h>
 #include <carb/BindingsPythonUtils.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4244 4305 4100 4201 4127)
+#endif
+
 #include <pxr/base/gf/matrix4d.h>
 #include <pxr/base/gf/vec4d.h>
 #include <pxr/usd/sdf/path.h>
 
 // Needs to go after carb
 #include "pyboost11.h"
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(pop)
+#endif
 
 namespace pybind11::detail {
 

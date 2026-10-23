@@ -13,6 +13,17 @@
 #include <CesiumGeospatial/Ellipsoid.h>
 #include <CesiumGeospatial/GlobeAnchor.h>
 #include <CesiumGeospatial/LocalHorizontalCoordinateSystem.h>
+#include <CesiumUtility/Math.h>
+#include <glm/ext/matrix_relational.hpp>
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/euler_angles.hpp>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4244 4305 4100 4201 4127 4251)
+#endif
+
 #include <CesiumUsdSchemas/data.h>
 #include <CesiumUsdSchemas/georeference.h>
 #include <CesiumUsdSchemas/globeAnchorAPI.h>
@@ -20,13 +31,12 @@
 #include <CesiumUsdSchemas/rasterOverlay.h>
 #include <CesiumUsdSchemas/tileset.h>
 #include <CesiumUsdSchemas/tokens.h>
-#include <CesiumUtility/Math.h>
-#include <glm/ext/matrix_relational.hpp>
-#include <glm/ext/matrix_transform.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/euler_angles.hpp>
 #include <pxr/usd/usdGeom/xform.h>
 #include <pxr/usd/usdGeom/xformCommonAPI.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(pop)
+#endif
 
 #include <tuple>
 #include <utility>

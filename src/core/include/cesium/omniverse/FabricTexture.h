@@ -2,7 +2,17 @@
 
 #include <carb/RenderingTypes.h>
 #include <omni/fabric/IToken.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4244 4305 4100 4201 4127 4251)
+#endif
+
 #include <pxr/base/tf/token.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(pop)
+#endif
 
 #include <memory>
 #include <string>
