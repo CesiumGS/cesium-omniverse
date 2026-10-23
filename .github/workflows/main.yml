@@ -28,8 +28,9 @@ jobs:
               build-type: "Release",
               build-code: "Windows",
               cache-type: "Windows",
-              generator: "Ninja Multi-Config",
               coverage: "false",
+              visual-studio-version: "2022",
+              visual-studio-components: "Microsoft.VisualStudio.Component.VC.14.29.16.11.x86.x64",
             }
           - {
               name: "Ubuntu - GCC",
@@ -41,7 +42,6 @@ jobs:
               build-type: "Release",
               build-code: "Ubuntu",
               cache-type: "Linux",
-              generator: "Unix Makefiles",
               coverage: "false",
             }
           - {
@@ -54,7 +54,6 @@ jobs:
               build-type: "Release",
               build-code: "Ubuntu22",
               cache-type: "Linux",
-              generator: "Unix Makefiles",
               coverage: "false",
             }
 
@@ -131,11 +130,19 @@ jobs:
           choco install -y llvm --version=15.0.7 --allow-downgrade
           echo "C:/Program Files/LLVM/bin" >> $env:GITHUB_PATH
           pip3 install black==23.1.0 flake8==7.1.1 pybind11
-
+      - name: Install Visual Studio components
+        if: ${{ matrix.config.visual-studio-version && matrix.config.visual-studio-components }}
+        run: |
+          $components = "${{ matrix.config.visual-studio-components }}" -split "," | foreach {"--add $_"}
+          if ($components.Length -gt 0)
+          {
+            $componentcmd = $components -join " "
+            Start-Process "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe" -ArgumentList "modify --installPath ""C:\Program Files\Microsoft Visual Studio\${{ matrix.config.visual-studio-version }}\Enterprise"" --quiet $componentcmd" -Wait -PassThru
+          }
       # Note: the presets handle the necessary CMAKE_BUILD_TYPE (Linux) and CMAKE_CONFIGURATION_TYPES (Windows) flags
       - name: Configure
         if: matrix.config.name != 'Ubuntu 22 - GCC'
-        run: cmake -B build --preset=${{matrix.config.preset}} -D Python3_EXECUTABLE=python3 -D CESIUM_OMNI_ENABLE_TESTS=OFF -D CESIUM_OMNI_ENABLE_COVERAGE=${{ matrix.config.coverage}} -D CMAKE_C_COMPILER=${{ matrix.config.cc }} -D CMAKE_CXX_COMPILER=${{ matrix.config.cxx }} -G "${{ matrix.config.generator }}"
+        run: cmake -B build --preset=${{matrix.config.preset}} -D Python3_EXECUTABLE=python3 -D CESIUM_OMNI_ENABLE_TESTS=OFF -D CESIUM_OMNI_ENABLE_COVERAGE=${{ matrix.config.coverage}} -D CMAKE_C_COMPILER=${{ matrix.config.cc }} -D CMAKE_CXX_COMPILER=${{ matrix.config.cxx }}
 
       - name: Check C/C++ Formatting
         if: matrix.config.name != 'Ubuntu 22 - GCC'
