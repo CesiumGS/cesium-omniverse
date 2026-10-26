@@ -8,6 +8,11 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get upgrade -y
 
+# Get access to GCC 13
+RUN apt install -y software-properties-common
+RUN add-apt-repository ppa:ubuntu-toolchain-r/test
+RUN apt-get update
+
 # Core build dependencies
 RUN apt-get install -y \
     git \
@@ -34,7 +39,15 @@ RUN apt-get install -y \
     autoconf \
     autoconf-archive \
     automake \
-    libtool
+    libtool \
+    gcc-13 \
+    g++-13
+
+# Use gcc-13 as default compiler
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100 && \
+    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100 && \
+    update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-13 100 && \
+    update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-13 100
 
 # Allow mounted repos owned by host user
 RUN git config --global --add safe.directory /var/app
@@ -45,6 +58,21 @@ RUN git lfs install
 # Python packages
 RUN pip3 install --no-cache-dir \
     gcovr pybind11
+
+# Install vcpkg
+WORKDIR /home
+RUN git clone https://github.com/microsoft/vcpkg.git
+COPY vcpkg.json /tmp/vcpkg.json
+
+WORKDIR /home/vcpkg
+RUN VCPKG_BASELINE="$(python3 -c 'import json; print(json.load(open("/tmp/vcpkg.json"))["builtin-baseline"])')" && \
+    git fetch origin "${VCPKG_BASELINE}" && \
+    git checkout "${VCPKG_BASELINE}" && \
+    ./bootstrap-vcpkg.sh
+
+# Set environment variables
+ENV VCPKG_ROOT="/home/vcpkg"
+ENV PATH="${VCPKG_ROOT}:${PATH}"
 
 WORKDIR /var/app
 
