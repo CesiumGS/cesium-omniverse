@@ -664,15 +664,7 @@ FabricMaterialInfo getMaterialInfo(const CesiumGltf::Model& model, const CesiumG
         return getDefaultMaterialInfo();
     }
 
-// Ignore uninitialized member warning from gcc 11.2.0. This warning is not reported in gcc 11.4.0
-#ifdef CESIUM_OMNI_GCC
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif
     auto materialInfo = getDefaultMaterialInfo();
-#ifdef CESIUM_OMNI_GCC
-#pragma GCC diagnostic pop
-#endif
 
     materialInfo.alphaCutoff = getAlphaCutoff(*pMaterial);
     materialInfo.alphaMode = getAlphaMode(*pMaterial);

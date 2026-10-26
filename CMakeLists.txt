@@ -211,6 +211,7 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
         -Wno-missing-field-initializers
         -Wno-return-local-addr
         -Wno-array-bounds # Ignore false positives in libstdc++ in GCC 13.1.1
+        -Wno-maybe-uninitialized # Ignore false positives in GCC 13.4.0
         -fstrict-aliasing
         -fstrict-enums)
 
