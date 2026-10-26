@@ -75,7 +75,7 @@ ENV VCPKG_ROOT="/home/vcpkg"
 ENV PATH="${VCPKG_ROOT}:${PATH}"
 
 RUN echo 'export PATH=$PATH:/home/vcpkg' >> ~/.bashrc && \
-    echo 'export VCPKG_ROOT=/home/vcpkg' >> ~/.bashrc &&
+    echo 'export VCPKG_ROOT=/home/vcpkg' >> ~/.bashrc
 
 WORKDIR /var/app
 
