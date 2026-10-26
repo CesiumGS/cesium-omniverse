@@ -9,7 +9,7 @@ runs:
   image: "../../docker/CI.Dockerfile"
   env:
     PM_PACKAGES_ROOT: $GITHUB_WORKSPACE/packman-repo
-    EZVCPKG_BASEDIR: $GITHUB_WORKSPACE/.ezvcpkg
+    VCPKG_DEFAULT_BINARY_CACHE: $GITHUB_WORKSPACE/vcpkg-cache
   args:
     # Tell bash to run a command
     - "-c"

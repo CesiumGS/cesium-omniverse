@@ -66,27 +66,27 @@ jobs:
       - uses: SimenB/github-actions-cpu-cores@v1
         id: cpu-cores
 
-      # Tell ezvcpkg to look for or create its build folder (.ezvcpkg) in the repository's root directory
+      # Tell vcpkg to look for or create its build folder in the repository's root directory
       # This is partly done to make the directory easily accessible to Docker builds
       # We only need a release build of vcpkg dependencies
       - name: vcpkg Set build directory (Unix)
         if: runner.os != 'Windows'
         run: |
-          echo "EZVCPKG_BASEDIR=$GITHUB_WORKSPACE/.ezvcpkg" >> $GITHUB_ENV
+          echo "VCPKG_CACHE=$GITHUB_WORKSPACE/vcpkg-cache" >> $GITHUB_ENV
           echo "CESIUM_VCPKG_RELEASE_ONLY=TRUE" >> $GITHUB_ENV
 
       - name: vcpkg Set build directory (Windows)
         if: runner.os == 'Windows'
         run: |
-          echo "EZVCPKG_BASEDIR=$env:GITHUB_WORKSPACE/.ezvcpkg" >> $env:GITHUB_ENV
+          echo "VCPKG_CACHE=$env:GITHUB_WORKSPACE/vcpkg-cache" >> $env:GITHUB_ENV
           echo "CESIUM_VCPKG_RELEASE_ONLY=TRUE" >> $env:GITHUB_ENV
 
       - name: vcpkg Check cache
         id: vcpkg-cache
         uses: actions/cache@v3
         with:
-          path: ${{ env.EZVCPKG_BASEDIR }}
-          key: vcpkg-${{ matrix.config.name }}-${{ hashFiles('vcpkg/ports/**/*', 'vcpkg/triplets/**/*') }}-${{ hashFiles('extern/cesium-native/CMakeLists.txt', 'CMakeLists.txt') }}-v1
+          path: ${{ env.VCPKG_CACHE }}
+          key: vcpkg-${{ matrix.config.name }}-${{ hashFiles('vcpkg/ports/**/*', 'vcpkg/triplets/**/*', 'vcpkg.json') }}-v1
 
       - name: Packman Check cache
         id: packman-cache
@@ -108,7 +108,7 @@ jobs:
         if: matrix.config.name == 'Ubuntu 22 - GCC'
         run: |
           sudo chown -R $USER:$USER $PM_PACKAGES_ROOT
-          sudo chown -R $USER:$USER $EZVCPKG_BASEDIR
+          sudo chown -R $USER:$USER $VCPKG_CACHE
 
       - name: Install Linux dependencies
         if: ${{ runner.os == 'Linux' && matrix.config.name != 'Ubuntu 22 - GCC' }}
