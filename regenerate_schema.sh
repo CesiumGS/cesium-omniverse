@@ -27,6 +27,10 @@ rm $SCHEMA_OUTPUT_PATH/*
 # Generate the new files.
 $NVIDIA_PYTHON_EXECUTABLE "$NVIDIA_USD_ROOT/bin/usdGenSchema" $SCHEMA_INPUT_PATH $SCHEMA_OUTPUT_PATH
 
+# Delete unused files
+rm $SCHEMA_OUTPUT_PATH/generatedSchema.classes.txt
+rm $SCHEMA_OUTPUT_PATH/generatedSchema.module.h
+
 # Move the generatedSchema.usda and plugInfo.json files up.
 mv "$SCHEMA_OUTPUT_PATH/generatedSchema.usda" "$SCHEMA_OUTPUT_PATH/../../generatedSchema.usda.in"
 mv "$SCHEMA_OUTPUT_PATH/plugInfo.json" "$SCHEMA_OUTPUT_PATH/../../plugInfo.json.in"

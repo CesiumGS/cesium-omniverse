@@ -253,6 +253,7 @@ def main(av: List[str]):
     elif task == "lint-fix":
         lint_fix(args)
 
+
 if __name__ == "__main__":
     try:
         main(sys.argv[1:])

@@ -14,8 +14,7 @@ runs:
     # Tell bash to run a command
     - "-c"
     # Parallel 2 because github action limited to two cores
-    # Linters are turned off because there is no pre-compiled C++20-capable LLVM toolset for CentOS 7. It won't affect the build, it just means there won't be code formatting or linting. It will build fine with GCC.
-    # Make sure to configure without sanitizers and any other development options
+    # Configure without sanitizers and any other development options
     - "git config --global --add safe.directory '*' &&
       cmake -B build --preset=${{ inputs.preset }} -D CESIUM_OMNI_ENABLE_TESTS=OFF -D CESIUM_OMNI_ENABLE_LINTERS=OFF -D CESIUM_OMNI_ENABLE_SANITIZERS=OFF &&
       cmake --build build --parallel 2 &&
