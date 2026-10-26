@@ -1,4 +1,4 @@
-FROM cesiumgs/omniverse-ubuntu22-build:2026-03-03
+FROM cesiumgs/omniverse-ubuntu22-build:2026-10-26
 
 WORKDIR /var/app
 
