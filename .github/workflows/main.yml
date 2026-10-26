@@ -72,12 +72,15 @@ jobs:
       - name: vcpkg Set build directory (Unix)
         if: runner.os != 'Windows'
         run: |
+          mkdir $GITHUB_WORKSPACE/vcpkg-cache
           echo "VCPKG_DEFAULT_BINARY_CACHE=$GITHUB_WORKSPACE/vcpkg-cache" >> $GITHUB_ENV
           echo "CESIUM_VCPKG_RELEASE_ONLY=TRUE" >> $GITHUB_ENV
 
       - name: vcpkg Set build directory (Windows)
         if: runner.os == 'Windows'
         run: |
+          New-Item -Path $env:GITHUB_WORKSPACE/vcpkg-cache -ItemType Directory
+          $GITHUB_WORKSPACE/vcpkg-cache
           echo "VCPKG_DEFAULT_BINARY_CACHE=$env:GITHUB_WORKSPACE/vcpkg-cache" >> $env:GITHUB_ENV
           echo "CESIUM_VCPKG_RELEASE_ONLY=TRUE" >> $env:GITHUB_ENV
 
