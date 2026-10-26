@@ -72,20 +72,20 @@ jobs:
       - name: vcpkg Set build directory (Unix)
         if: runner.os != 'Windows'
         run: |
-          echo "VCPKG_CACHE=$GITHUB_WORKSPACE/vcpkg-cache" >> $GITHUB_ENV
+          echo "VCPKG_DEFAULT_BINARY_CACHE=$GITHUB_WORKSPACE/vcpkg-cache" >> $GITHUB_ENV
           echo "CESIUM_VCPKG_RELEASE_ONLY=TRUE" >> $GITHUB_ENV
 
       - name: vcpkg Set build directory (Windows)
         if: runner.os == 'Windows'
         run: |
-          echo "VCPKG_CACHE=$env:GITHUB_WORKSPACE/vcpkg-cache" >> $env:GITHUB_ENV
+          echo "VCPKG_DEFAULT_BINARY_CACHE=$env:GITHUB_WORKSPACE/vcpkg-cache" >> $env:GITHUB_ENV
           echo "CESIUM_VCPKG_RELEASE_ONLY=TRUE" >> $env:GITHUB_ENV
 
       - name: vcpkg Check cache
         id: vcpkg-cache
         uses: actions/cache@v3
         with:
-          path: ${{ env.VCPKG_CACHE }}
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
           key: vcpkg-${{ matrix.config.name }}-${{ hashFiles('vcpkg/ports/**/*', 'vcpkg/triplets/**/*', 'vcpkg.json') }}-v1
 
       - name: Packman Check cache
@@ -108,7 +108,7 @@ jobs:
         if: matrix.config.name == 'Ubuntu 22 - GCC'
         run: |
           sudo chown -R $USER:$USER $PM_PACKAGES_ROOT
-          sudo chown -R $USER:$USER $VCPKG_CACHE
+          sudo chown -R $USER:$USER $VCPKG_DEFAULT_BINARY_CACHE
 
       - name: Install Linux dependencies
         if: ${{ runner.os == 'Linux' && matrix.config.name != 'Ubuntu 22 - GCC' }}
