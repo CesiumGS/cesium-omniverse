@@ -22,36 +22,38 @@ jobs:
               name: "Windows - MSVC",
               artifact: "windows-msvc.tar.xz",
               os: windows-2022,
+              preset: Windows-Release,
               cc: "cl",
               cxx: "cl",
               build-type: "Release",
               build-code: "Windows",
               cache-type: "Windows",
-              generator: "Ninja Multi-Config",
               coverage: "false",
+              visual-studio-version: "2022",
+              visual-studio-components: "Microsoft.VisualStudio.Component.VC.14.29.16.11.x86.x64",
             }
           - {
               name: "Ubuntu - GCC",
               artifact: "linux-gcc.tar.xz",
               os: ubuntu-24.04,
+              preset: Linux-Release,
               cc: "gcc-13",
               cxx: "g++-13",
               build-type: "Release",
               build-code: "Ubuntu",
               cache-type: "Linux",
-              generator: "Unix Makefiles",
               coverage: "false",
             }
           - {
               name: "Ubuntu 22 - GCC",
               artifact: "linux-gcc.tar.xz",
               os: ubuntu-24.04,
+              preset: Linux-Release,
               cc: "gcc-13",
               cxx: "g++-13",
               build-type: "Release",
               build-code: "Ubuntu22",
               cache-type: "Linux",
-              generator: "Unix Makefiles",
               coverage: "false",
             }
 
@@ -64,53 +66,29 @@ jobs:
       - uses: SimenB/github-actions-cpu-cores@v1
         id: cpu-cores
 
-      # Tell Conan to look for or create its build folder (.conan) in the repository's root directory
-      # This is partly done to make the directory easily accessible to Docker builds
-      - name: Conan Set build directory (Unix)
-        if: runner.os != 'Windows'
-        run: echo "CONAN_USER_HOME=$GITHUB_WORKSPACE" >> $GITHUB_ENV
-
-      # Disable short paths so that all packages are built in the same .conan directory
-      # This is safe to do since long paths are enabled on Windows Server 2022 in GitHub Actions
-      # See https://docs.conan.io/en/latest/reference/env_vars.html#conan-user-home-short
-      # See https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file#maximum-path-length-limitation
-      # See https://github.com/actions/runner-images/issues/1052#issuecomment-644212560
-      - name: Conan Set build directory (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          echo "CONAN_USER_HOME=$env:GITHUB_WORKSPACE" >> $env:GITHUB_ENV
-          echo "CONAN_USER_HOME_SHORT=None" >> $env:GITHUB_ENV
-
-      # The -v{num} is a cache key buster because we were starting to use the same cache keys from previous tests
-      # Unfortunately github actions doesn't let you delete old caches so we have to work around it like this
-      - name: Conan Check cache
-        id: conan-cache
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.CONAN_USER_HOME }}/.conan
-          key: conan-${{ matrix.config.name }}-${{ hashFiles('cmake/AddConanDependencies.cmake') }}-v5
-
-      # Tell ezvcpkg to look for or create its build folder (.ezvcpkg) in the repository's root directory
+      # Tell vcpkg to look for or create its build folder in the repository's root directory
       # This is partly done to make the directory easily accessible to Docker builds
       # We only need a release build of vcpkg dependencies
       - name: vcpkg Set build directory (Unix)
         if: runner.os != 'Windows'
         run: |
-          echo "EZVCPKG_BASEDIR=$GITHUB_WORKSPACE/.ezvcpkg" >> $GITHUB_ENV
+          mkdir $GITHUB_WORKSPACE/vcpkg-cache
+          echo "VCPKG_DEFAULT_BINARY_CACHE=$GITHUB_WORKSPACE/vcpkg-cache" >> $GITHUB_ENV
           echo "CESIUM_VCPKG_RELEASE_ONLY=TRUE" >> $GITHUB_ENV
 
       - name: vcpkg Set build directory (Windows)
         if: runner.os == 'Windows'
         run: |
-          echo "EZVCPKG_BASEDIR=$env:GITHUB_WORKSPACE/.ezvcpkg" >> $env:GITHUB_ENV
+          New-Item -Path $env:GITHUB_WORKSPACE/vcpkg-cache -ItemType Directory
+          echo "VCPKG_DEFAULT_BINARY_CACHE=$env:GITHUB_WORKSPACE/vcpkg-cache" >> $env:GITHUB_ENV
           echo "CESIUM_VCPKG_RELEASE_ONLY=TRUE" >> $env:GITHUB_ENV
 
       - name: vcpkg Check cache
         id: vcpkg-cache
         uses: actions/cache@v3
         with:
-          path: ${{ env.EZVCPKG_BASEDIR }}
-          key: vcpkg-${{ matrix.config.name }}-${{ hashFiles('vcpkg/ports/**/*', 'vcpkg/triplets/**/*') }}-${{ hashFiles('extern/cesium-native/CMakeLists.txt', 'CMakeLists.txt') }}-v1
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          key: vcpkg-${{ matrix.config.name }}-${{ hashFiles('vcpkg/ports/**/*', 'vcpkg/triplets/**/*', 'vcpkg.json') }}-v1
 
       - name: Packman Check cache
         id: packman-cache
@@ -123,57 +101,50 @@ jobs:
         uses: ./.github/actions
         if: matrix.config.name == 'Ubuntu 22 - GCC'
         with:
-          build-type: ${{ matrix.config.build-type }}
+          preset: ${{ matrix.config.preset }}
 
       # Change the ownership from root to user for all files created by Docker in
-      # the Conan build directory so that the files can be cached without permission
+      # the build directory so that the files can be cached without permission
       # denied errors
-      - name: Ubuntu 22 Change Conan, vcpkg, and Packman directory permissions
+      - name: Ubuntu 22 Change vcpkg and Packman directory permissions
         if: matrix.config.name == 'Ubuntu 22 - GCC'
         run: |
-          sudo chown -R $USER:$USER $CONAN_USER_HOME/.conan
           sudo chown -R $USER:$USER $PM_PACKAGES_ROOT
-          sudo chown -R $USER:$USER $EZVCPKG_BASEDIR
+          sudo chown -R $USER:$USER $VCPKG_DEFAULT_BINARY_CACHE
 
       - name: Install Linux dependencies
         if: ${{ runner.os == 'Linux' && matrix.config.name != 'Ubuntu 22 - GCC' }}
         run: |
           sudo apt update
-          sudo apt install -y doxygen clang-tidy-15 clang-format-15 gcovr
+          sudo apt install -y doxygen clang-tidy-15 clang-format-15 gcovr autoconf autoconf-archive automake libtool
           sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-15 100
           sudo update-alternatives --set clang-format /usr/bin/clang-format-15
-          sudo pip3 install conan==1.63.0 black==23.1.0 flake8==7.1.1 --ignore-installed
+          sudo pip3 install black==23.1.0 flake8==7.1.1 pybind11 --ignore-installed
+          echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> $GITHUB_ENV #for some reason they define VCPKG_INSTALLATION_ROOT which isn't standard
 
       # Could not figure out how to add Chocolatey libraries to the PATH automatically with refreshenv, so
       # hardcoding their locations instead. Followed these instructions for adding to the PATH on PowerShell:
       # https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#environment-files
       # Note that this is only a problem on CI, not with local builds
-      # Also requests is not installed by default on windows, but is expected by scripts/update_certs.py
       - name: Install Windows dependencies
         if: runner.os == 'Windows'
         run: |
-          choco install -y conan --version 1.63.0
           choco install -y llvm --version=15.0.7 --allow-downgrade
           echo "C:/Program Files/LLVM/bin" >> $env:GITHUB_PATH
-          pip3 install black==23.1.0 flake8==7.1.1 requests
-          echo "C:/Program Files/conan/conan" >> $env:GITHUB_PATH
-
-      # Note: CMAKE_BUILD_TYPE is only used by Linux. It is ignored for Windows.
-      # Note: CMAKE_CONFIGURATION_TYPES is used by Windows to generate a single configuration for Release since we don't need Debug, RelWithDebugInfo, and MinSizeRel on CI. It is ignored for Linux.
+          pip3 install black==23.1.0 flake8==7.1.1 pybind11
+      - name: Install Visual Studio components
+        if: ${{ matrix.config.visual-studio-version && matrix.config.visual-studio-components }}
+        run: |
+          $components = "${{ matrix.config.visual-studio-components }}" -split "," | foreach {"--add $_"}
+          if ($components.Length -gt 0)
+          {
+            $componentcmd = $components -join " "
+            Start-Process "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe" -ArgumentList "modify --installPath ""C:\Program Files\Microsoft Visual Studio\${{ matrix.config.visual-studio-version }}\Enterprise"" --quiet $componentcmd" -Wait -PassThru
+          }
+      # Note: the presets handle the necessary CMAKE_BUILD_TYPE (Linux) and CMAKE_CONFIGURATION_TYPES (Windows) flags
       - name: Configure
         if: matrix.config.name != 'Ubuntu 22 - GCC'
-        run: cmake -B build -D Python3_EXECUTABLE=python3 -D CESIUM_OMNI_ENABLE_TESTS=OFF -D CESIUM_OMNI_ENABLE_COVERAGE=${{ matrix.config.coverage}} -D CMAKE_C_COMPILER=${{ matrix.config.cc }} -D CMAKE_CXX_COMPILER=${{ matrix.config.cxx }} -D CMAKE_BUILD_TYPE=${{ matrix.config.build-type }} -D CMAKE_CONFIGURATION_TYPES=${{ matrix.config.build-type }} -G "${{ matrix.config.generator }}"
-
-      # Change the ownership from root to user for all files in the Conan cache so
-      # that DLLs can be used without permission denied errors
-      - name: Windows Change Conan directory permissions
-        if: runner.os == 'Windows'
-        run: |
-          $Path = "${{ env.CONAN_USER_HOME }}/.conan"
-          $Username = "$env:UserName"
-          $Acl = Get-Acl -Path $Path
-          $Ar = New-Object System.Security.AccessControl.FileSystemAccessRule($Username, 'FullControl', 'ContainerInherit,ObjectInherit', 'None', 'Allow')
-          $Acl.SetAccessRule($Ar)
+        run: cmake -B build --preset=${{matrix.config.preset}} -D Python3_EXECUTABLE=python3 -D CESIUM_OMNI_ENABLE_TESTS=OFF -D CESIUM_OMNI_ENABLE_COVERAGE=${{ matrix.config.coverage}} -D CMAKE_C_COMPILER=${{ matrix.config.cc }} -D CMAKE_CXX_COMPILER=${{ matrix.config.cxx }}
 
       - name: Check C/C++ Formatting
         if: matrix.config.name != 'Ubuntu 22 - GCC'

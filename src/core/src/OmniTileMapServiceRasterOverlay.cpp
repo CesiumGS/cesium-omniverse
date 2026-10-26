@@ -8,7 +8,17 @@
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <CesiumRasterOverlays/TileMapServiceRasterOverlay.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4244 4305 4100 4201 4127 4251)
+#endif
+
 #include <CesiumUsdSchemas/tileMapServiceRasterOverlay.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(pop)
+#endif
 
 namespace cesium::omniverse {
 
@@ -85,8 +95,6 @@ void OmniTileMapServiceRasterOverlay::reload() {
         tmsOptions.minimumLevel = getMinimumZoomLevel();
         tmsOptions.maximumLevel = getMaximumZoomLevel();
     }
-
-    tmsOptions.ellipsoid = getEllipsoid();
 
     _pTileMapServiceRasterOverlay = new CesiumRasterOverlays::TileMapServiceRasterOverlay(
         rasterOverlayName, getUrl(), std::vector<CesiumAsync::IAssetAccessor::THeader>(), tmsOptions, options);

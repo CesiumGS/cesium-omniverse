@@ -61,8 +61,6 @@ class CreditsViewportController:
                 self._parsed_credits = new_parsed_credits
                 self.broadcast_credits()
 
-        self._cesium_omniverse_interface.credits_start_next_frame()
-
     def broadcast_credits(self):
         my_payload = json.dumps(self._credits)
         self._message_bus.push(self._EVENT_CREDITS_CHANGED, payload={"credits": my_payload})

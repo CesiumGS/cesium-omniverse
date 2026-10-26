@@ -7,16 +7,26 @@
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/UsdUtil.h"
 
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4244 4305 4100 4201 4127 4251)
+#endif
+
 #include <CesiumUsdSchemas/tileset.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(pop)
+#endif
+
 #include <carb/dictionary/DictionaryUtils.h>
 #include <carb/events/IEvents.h>
 #include <doctest/doctest.h>
 
 // Suppress deprecation warning for getMessageBusEventStream until Events 2.0 migration is complete
-#ifdef _MSC_VER
+#ifdef CESIUM_OMNI_MSVC
 #pragma warning(push)
 #pragma warning(disable : 4996)
-#elif defined(__GNUC__)
+#elif defined(CESIUM_OMNI_GCC)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
@@ -78,8 +88,8 @@ TEST_SUITE("Tileset tests") {
     }
 }
 
-#ifdef _MSC_VER
+#ifdef CESIUM_OMNI_MSVC
 #pragma warning(pop)
-#elif defined(__GNUC__)
+#elif defined(CESIUM_OMNI_GCC)
 #pragma GCC diagnostic pop
 #endif

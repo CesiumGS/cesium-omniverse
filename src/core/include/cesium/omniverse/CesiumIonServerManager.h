@@ -4,7 +4,16 @@
 #include "cesium/omniverse/SetDefaultTokenResult.h"
 #include "cesium/omniverse/TokenTroubleshootingDetails.h"
 
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4244 4305 4100 4201 4127 4251)
+#endif
+
 #include <pxr/usd/sdf/path.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(pop)
+#endif
 
 #include <memory>
 

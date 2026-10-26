@@ -8,7 +8,17 @@
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <CesiumRasterOverlays/WebMapServiceRasterOverlay.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4244 4305 4100 4201 4127 4251)
+#endif
+
 #include <CesiumUsdSchemas/webMapServiceRasterOverlay.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(pop)
+#endif
 
 namespace cesium::omniverse {
 
@@ -114,7 +124,6 @@ void OmniWebMapServiceRasterOverlay::reload() {
     wmsOptions.layers = layers;
     wmsOptions.tileWidth = tileWidth;
     wmsOptions.tileHeight = tileHeight;
-    wmsOptions.ellipsoid = getEllipsoid();
 
     _pWebMapServiceRasterOverlay = new CesiumRasterOverlays::WebMapServiceRasterOverlay(
         rasterOverlayName, getBaseUrl(), std::vector<CesiumAsync::IAssetAccessor::THeader>(), wmsOptions, options);

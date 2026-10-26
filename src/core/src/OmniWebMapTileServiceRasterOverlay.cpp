@@ -8,7 +8,17 @@
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <CesiumRasterOverlays/WebMapTileServiceRasterOverlay.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4244 4305 4100 4201 4127 4251)
+#endif
+
 #include <CesiumUsdSchemas/webMapTileServiceRasterOverlay.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(pop)
+#endif
 
 #include <string>
 
@@ -296,8 +306,6 @@ void OmniWebMapTileServiceRasterOverlay::reload() {
     }
 
     const auto& ellipsoid = getEllipsoid();
-
-    wmtsOptions.ellipsoid = ellipsoid;
 
     const auto useWebMercatorProjection = getUseWebMercatorProjection();
     if (useWebMercatorProjection) {

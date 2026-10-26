@@ -76,7 +76,7 @@ void forEachPropertyAttributeProperty(
                 }
 
                 const auto& schema = pStructuralMetadataModel->schema;
-                if (!schema.has_value()) {
+                if (!schema) {
                     unsupportedCallback(
                         propertyId, fmt::format("No schema found. Property \"{}\" will be ignored.", propertyId));
                     return;
@@ -101,7 +101,7 @@ void forEachPropertyAttributeProperty(
 
                 callback(
                     propertyId,
-                    schema.value(),
+                    *schema.get(),
                     *pClassDefinition,
                     *pClassProperty,
                     *pPropertyAttribute,
@@ -165,7 +165,7 @@ void forEachPropertyTextureProperty(
                 }
 
                 const auto& schema = pStructuralMetadataModel->schema;
-                if (!schema.has_value()) {
+                if (!schema) {
                     unsupportedCallback(
                         propertyId, fmt::format("No schema found. Property \"{}\" will be ignored.", propertyId));
                     return;
@@ -196,7 +196,7 @@ void forEachPropertyTextureProperty(
 
                 callback(
                     propertyId,
-                    schema.value(),
+                    *schema.get(),
                     *pClassDefinition,
                     *pClassProperty,
                     *pPropertyTexture,
@@ -265,7 +265,7 @@ void forEachPropertyTableProperty(
                     }
 
                     const auto& schema = pStructuralMetadataModel->schema;
-                    if (!schema.has_value()) {
+                    if (!schema) {
                         unsupportedCallback(
                             propertyId, fmt::format("No schema found. Property \"{}\" will be ignored.", propertyId));
                         return;
@@ -290,7 +290,7 @@ void forEachPropertyTableProperty(
 
                     callback(
                         propertyId,
-                        schema.value(),
+                        *schema.get(),
                         *pClassDefinition,
                         *pClassProperty,
                         *pPropertyTable,
@@ -575,7 +575,7 @@ std::tuple<std::vector<FabricPropertyDescriptor>, std::map<std::string, std::str
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive);
 
-std::vector<const CesiumGltf::ImageCesium*> getPropertyTextureImages(
+std::vector<const CesiumImage::ImageAsset*> getPropertyTextureImages(
     const Context& context,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive);

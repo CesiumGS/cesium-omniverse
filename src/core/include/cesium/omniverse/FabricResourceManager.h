@@ -3,17 +3,30 @@
 #include "cesium/omniverse/FabricMaterialInfo.h"
 
 #include <omni/fabric/IToken.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4244 4305 4100 4201 4127 4251)
+#endif
+
 #include <pxr/usd/usd/common.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(pop)
+#endif
 
 #include <atomic>
 #include <mutex>
 #include <vector>
 
 namespace CesiumGltf {
-struct ImageCesium;
 struct MeshPrimitive;
 struct Model;
 } // namespace CesiumGltf
+
+namespace CesiumImage {
+struct ImageAsset;
+}
 
 namespace omni::ui {
 class DynamicTextureProvider;
@@ -89,7 +102,15 @@ class FabricResourceManager {
 
   private:
     struct SharedMaterial {
-        SharedMaterial() = default;
+        SharedMaterial(
+            const std::shared_ptr<FabricMaterial>& pMaterial_,
+            const FabricMaterialInfo& materialInfo_,
+            int64_t tilesetId_,
+            uint64_t referenceCount_)
+            : pMaterial(pMaterial_)
+            , materialInfo(materialInfo_)
+            , tilesetId(tilesetId_)
+            , referenceCount(referenceCount_) {}
         ~SharedMaterial() = default;
         SharedMaterial(const SharedMaterial&) = delete;
         SharedMaterial& operator=(const SharedMaterial&) = delete;

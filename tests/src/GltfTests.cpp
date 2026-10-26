@@ -16,11 +16,11 @@
 #include <fstream>
 #include <iostream>
 #include <optional>
+#include <span>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
-#include <gsl/span>
 #include <yaml-cpp/yaml.h>
 
 using namespace cesium::omniverse;
@@ -47,7 +47,7 @@ TEST_SUITE("Test GltfUtil") {
 
         CesiumGltfReader::GltfReader reader;
         auto gltf = reader.readGltf(
-            gsl::span(reinterpret_cast<const std::byte*>(gltfBuf.data()), static_cast<uint64_t>(gltfFileLength)));
+            std::span(reinterpret_cast<const std::byte*>(gltfBuf.data()), static_cast<uint64_t>(gltfFileLength)));
 
         if (!gltf.errors.empty()) {
             for (const auto& err : gltf.errors) {

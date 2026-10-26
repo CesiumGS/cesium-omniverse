@@ -26,7 +26,7 @@ echo "Ensuring mypy and black are installed"
 %NVIDIA_PYTHON_EXECUTABLE% -m pip install mypy==1.6.1 black==23.1.0
 
 echo "Building lib files flat in temp dir"
-cmake -B build-stubs
+cmake -B build-stubs --preset Windows-Release
 cmake --build build-stubs --config Release --parallel 8
 cmake --install build-stubs --config Release --component library --prefix %FLAT_LIBRARIES_DIR%
 

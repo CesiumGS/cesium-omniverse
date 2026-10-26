@@ -17,8 +17,18 @@
 #include <doctest/doctest.h>
 #include <omni/fabric/IFabric.h>
 #include <omni/kit/IApp.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4244 4305 4100 4201 4127 4251)
+#endif
+
 #include <pxr/usd/sdf/path.h>
 #include <pxr/usd/usd/stage.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(pop)
+#endif
 
 #include <iostream>
 

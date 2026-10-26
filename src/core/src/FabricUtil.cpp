@@ -12,11 +12,21 @@
 #include <fmt/format.h>
 #include <omni/fabric/FabricUSD.h>
 #include <omni/fabric/SimStageWithHistory.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4244 4305 4100 4201 4127 4251)
+#endif
+
 #include <pxr/base/gf/matrix4d.h>
 #include <pxr/base/gf/quatf.h>
 #include <pxr/base/gf/range3d.h>
 #include <pxr/base/gf/vec2f.h>
 #include <pxr/base/gf/vec3f.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(pop)
+#endif
 
 #include <sstream>
 
@@ -610,8 +620,7 @@ getConnections(omni::fabric::StageReaderWriter& fabricStage, const omni::fabric:
         if (type.baseType == omni::fabric::BaseDataType::eConnection) {
             const auto pConnection = fabricStage.getConnection(path, name);
             if (pConnection) {
-                // In C++ 20 this can be emplace_back without the {}
-                connections.push_back({pConnection, name});
+                connections.emplace_back(pConnection, name);
             }
         }
     }
@@ -680,8 +689,7 @@ getAttributesToCreate(omni::fabric::StageReaderWriter& fabricStage, const omni::
         const auto& type = types[i];
 
         if (isOutput(name) || isEmptyToken(fabricStage, path, name, type)) {
-            // In C++ 20 this can be emplace_back without the {}
-            attributeNames.push_back({name, type});
+            attributeNames.emplace_back(name, type);
         }
     }
 

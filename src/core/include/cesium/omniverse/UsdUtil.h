@@ -1,12 +1,21 @@
 #pragma once
 
-#include "CesiumUsdSchemas/rasterOverlay.h"
-
 #include <glm/fwd.hpp>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4244 4305 4100 4201 4127 4251)
+#endif
+
+#include <CesiumUsdSchemas/rasterOverlay.h>
 #include <pxr/base/gf/declare.h>
 #include <pxr/usd/usd/common.h>
 #include <pxr/usd/usdGeom/basisCurves.h>
 #include <pxr/usd/usdGeom/xformOp.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(pop)
+#endif
 
 PXR_NAMESPACE_OPEN_SCOPE
 class CesiumData;

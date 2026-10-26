@@ -335,11 +335,11 @@ getFeatureIdTextureInfo(const CesiumGltf::Model& model, const CesiumGltf::Featur
     return textureInfo;
 }
 
-const CesiumGltf::ImageCesium* getImageCesium(const CesiumGltf::Model& model, const CesiumGltf::Texture& texture) {
+const CesiumImage::ImageAsset* getImageCesium(const CesiumGltf::Model& model, const CesiumGltf::Texture& texture) {
     const auto pImage = model.getSafe(&model.images, texture.source);
 
     if (pImage) {
-        return &pImage->cesium;
+        return pImage->pAsset.get();
     }
 
     return nullptr;
@@ -602,7 +602,7 @@ VertexIdsAccessor getVertexIds(const PositionsAccessor& positionsAccessor) {
     return {positionsAccessor.size()};
 }
 
-const CesiumGltf::ImageCesium*
+const CesiumImage::ImageAsset*
 getBaseColorTextureImage(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
     if (!hasMaterial(primitive)) {
         return nullptr;
@@ -626,7 +626,7 @@ getBaseColorTextureImage(const CesiumGltf::Model& model, const CesiumGltf::MeshP
     return nullptr;
 }
 
-const CesiumGltf::ImageCesium* getFeatureIdTextureImage(
+const CesiumImage::ImageAsset* getFeatureIdTextureImage(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     uint64_t featureIdSetIndex) {
@@ -664,15 +664,7 @@ FabricMaterialInfo getMaterialInfo(const CesiumGltf::Model& model, const CesiumG
         return getDefaultMaterialInfo();
     }
 
-// Ignore uninitialized member warning from gcc 11.2.0. This warning is not reported in gcc 11.4.0
-#ifdef CESIUM_OMNI_GCC
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif
     auto materialInfo = getDefaultMaterialInfo();
-#ifdef CESIUM_OMNI_GCC
-#pragma GCC diagnostic pop
-#endif
 
     materialInfo.alphaCutoff = getAlphaCutoff(*pMaterial);
     materialInfo.alphaMode = getAlphaMode(*pMaterial);
@@ -728,8 +720,7 @@ FabricFeaturesInfo getFeaturesInfo(const CesiumGltf::Model& model, const CesiumG
             featureIdStorage = std::monostate();
         }
 
-        // In C++ 20 this can be emplace_back without the {}
-        featuresInfo.featureIds.push_back({nullFeatureId, featureCount, featureIdStorage});
+        featuresInfo.featureIds.emplace_back(nullFeatureId, featureCount, featureIdStorage);
     }
 
     return featuresInfo;
@@ -781,13 +772,7 @@ getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::Mesh
         const auto fabricAttributeName = omni::fabric::Token::createImmortal(fabricAttributeNameStr.c_str());
         const auto fabricInterpolationName = omni::fabric::Token::createImmortal(fabricInterpolationNameStr.c_str());
 
-        // In C++ 20 this can be emplace without the {}
-        customVertexAttributes.insert(FabricVertexAttributeDescriptor{
-            type.value(),
-            fabricAttributeName,
-            fabricInterpolationName,
-            attributeName,
-        });
+        customVertexAttributes.emplace(type.value(), fabricAttributeName, fabricInterpolationName, attributeName);
     }
 
     return customVertexAttributes;
@@ -889,8 +874,8 @@ getRasterOverlayTexcoordSetIndexes(const CesiumGltf::Model& model, const CesiumG
     return setIndexes;
 }
 
-CesiumGltf::Ktx2TranscodeTargets getKtx2TranscodeTargets() {
-    CesiumGltf::SupportedGpuCompressedPixelFormats supportedFormats;
+CesiumImage::Ktx2TranscodeTargets getKtx2TranscodeTargets() {
+    CesiumImage::SupportedGpuCompressedPixelFormats supportedFormats;
 
     // Only BCN compressed texture formats are supported in Omniverse
     supportedFormats.ETC1_RGB = false;

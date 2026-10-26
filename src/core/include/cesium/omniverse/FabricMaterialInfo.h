@@ -37,22 +37,7 @@ struct FabricMaterialInfo {
     bool hasVertexColors;
     std::optional<FabricTextureInfo> baseColorTexture;
 
-    // Make sure to update this function when adding new fields to the struct
-    // In C++ 20 we can use the default equality comparison (= default)
-    // clang-format off
-    bool operator==(const FabricMaterialInfo& other) const {
-        return alphaCutoff == other.alphaCutoff &&
-               alphaMode == other.alphaMode &&
-               baseAlpha == other.baseAlpha &&
-               baseColorFactor == other.baseColorFactor &&
-               emissiveFactor == other.emissiveFactor &&
-               metallicFactor == other.metallicFactor &&
-               roughnessFactor == other.roughnessFactor &&
-               doubleSided == other.doubleSided &&
-               hasVertexColors == other.hasVertexColors &&
-               baseColorTexture == other.baseColorTexture;
-    }
-    // clang-format on
+    bool operator==(const FabricMaterialInfo& other) const = default;
 };
 
 } // namespace cesium::omniverse

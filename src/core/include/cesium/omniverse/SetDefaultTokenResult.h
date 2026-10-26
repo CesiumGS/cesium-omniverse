@@ -12,10 +12,10 @@ enum SetDefaultTokenResultCode {
 };
 
 namespace SetDefaultTokenResultMessages {
-inline const std::string_view NOT_SET_IN_SESSION_MESSAGE = "Default token has not been set this session.";
-inline const std::string_view OK_MESSAGE = "OK";
-inline const std::string_view NOT_CONNECTED_TO_ION_MESSAGE = "Not connected to ion.";
-inline const std::string_view CREATE_FAILED_MESSAGE_BASE = "Create failed: {1} ({2})";
+inline constexpr std::string_view NOT_SET_IN_SESSION_MESSAGE = "Default token has not been set this session.";
+inline constexpr std::string_view OK_MESSAGE = "OK";
+inline constexpr std::string_view NOT_CONNECTED_TO_ION_MESSAGE = "Not connected to ion.";
+inline constexpr std::string_view CREATE_FAILED_MESSAGE_BASE = "Create failed: {} ({})";
 } // namespace SetDefaultTokenResultMessages
 
 /**

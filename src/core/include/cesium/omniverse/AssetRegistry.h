@@ -1,10 +1,18 @@
 #pragma once
 
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4244 4305 4100 4201 4127 4251)
+#endif
+
 #include <pxr/usd/usd/common.h>
 
-#include <vector>
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(pop)
+#endif
 
-#include <gsl/span>
+#include <span>
+#include <vector>
 
 namespace cesium::omniverse {
 
@@ -49,7 +57,7 @@ class AssetRegistry {
     AssetRegistry(AssetRegistry&&) noexcept = delete;
     AssetRegistry& operator=(AssetRegistry&&) noexcept = delete;
 
-    void onUpdateFrame(const gsl::span<const Viewport>& viewports, bool waitForLoadingTiles);
+    void onUpdateFrame(const std::span<const Viewport>& viewports, bool waitForLoadingTiles);
 
     OmniData& addData(const pxr::SdfPath& path);
     void removeData(const pxr::SdfPath& path);

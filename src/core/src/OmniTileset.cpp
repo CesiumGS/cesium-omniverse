@@ -32,6 +32,12 @@
 #include <Cesium3DTilesSelection/ViewState.h>
 #include <Cesium3DTilesSelection/ViewUpdateResult.h>
 #include <CesiumGeospatial/Ellipsoid.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4244 4305 4100 4201 4127 4251)
+#endif
+
 #include <CesiumUsdSchemas/rasterOverlay.h>
 #include <CesiumUsdSchemas/tileset.h>
 #include <pxr/usd/usd/prim.h>
@@ -39,14 +45,18 @@
 #include <pxr/usd/usdGeom/boundable.h>
 #include <pxr/usd/usdShade/materialBindingAPI.h>
 
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(pop)
+#endif
+
 namespace cesium::omniverse {
 
 namespace {
 
 void forEachFabricMaterial(
-    Cesium3DTilesSelection::Tileset* pTileset,
+    const Cesium3DTilesSelection::Tileset* pTileset,
     const std::function<void(FabricMaterial& fabricMaterial)>& callback) {
-    pTileset->forEachLoadedTile([&callback](Cesium3DTilesSelection::Tile& tile) {
+    pTileset->forEachLoadedTile([&callback](const Cesium3DTilesSelection::Tile& tile) {
         if (tile.getState() != Cesium3DTilesSelection::TileLoadState::Done) {
             return;
         }
@@ -674,7 +684,7 @@ void OmniTileset::updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::T
     });
 }
 
-void OmniTileset::onUpdateFrame(const gsl::span<const Viewport>& viewports, bool waitForLoadingTiles) {
+void OmniTileset::onUpdateFrame(const std::span<const Viewport>& viewports, bool waitForLoadingTiles) {
     if (!UsdUtil::primExists(_pContext->getUsdStage(), _path)) {
         // TfNotice can be slow, and sometimes we get a frame or two before we actually get a chance to react on it.
         // This guard prevents us from crashing if the prim no longer exists.
@@ -711,7 +721,7 @@ void OmniTileset::updateTransform() {
     }
 }
 
-void OmniTileset::updateView(const gsl::span<const Viewport>& viewports, bool waitForLoadingTiles) {
+void OmniTileset::updateView(const std::span<const Viewport>& viewports, bool waitForLoadingTiles) {
     const auto visible = UsdUtil::isPrimVisible(_pContext->getUsdStage(), _path);
 
     if (visible && !getSuspendUpdate()) {
@@ -725,10 +735,12 @@ void OmniTileset::updateView(const gsl::span<const Viewport>& viewports, bool wa
         }
 
         if (waitForLoadingTiles) {
-            _pViewUpdateResult = &_pTileset->updateViewOffline(_viewStates);
+            _pViewUpdateResult = &_pTileset->updateViewGroupOffline(_viewGroup, _viewStates);
         } else {
-            _pViewUpdateResult = &_pTileset->updateView(_viewStates);
+            _pViewUpdateResult = &_pTileset->updateViewGroup(_viewGroup, _viewStates);
         }
+
+        _pTileset->loadTiles();
     }
 
     if (!_pViewUpdateResult) {
@@ -737,7 +749,7 @@ void OmniTileset::updateView(const gsl::span<const Viewport>& viewports, bool wa
     }
 
     // Hide tiles that we no longer need
-    for (const auto pTile : _pViewUpdateResult->tilesFadingOut) {
+    for (const auto& pTile : _pViewUpdateResult->tilesFadingOut) {
         if (pTile->getState() == Cesium3DTilesSelection::TileLoadState::Done) {
             const auto pRenderContent = pTile->getContent().getRenderContent();
             if (pRenderContent) {
@@ -753,7 +765,7 @@ void OmniTileset::updateView(const gsl::span<const Viewport>& viewports, bool wa
     }
 
     // Update visibility for selected tiles
-    for (const auto pTile : _pViewUpdateResult->tilesToRenderThisFrame) {
+    for (const auto& pTile : _pViewUpdateResult->tilesToRenderThisFrame) {
         if (pTile->getState() == Cesium3DTilesSelection::TileLoadState::Done) {
             const auto pRenderContent = pTile->getContent().getRenderContent();
             if (pRenderContent) {

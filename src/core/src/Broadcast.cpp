@@ -1,16 +1,18 @@
 #include "cesium/omniverse/Broadcast.h"
 
 // Suppress deprecation warning for getMessageBusEventStream until Events 2.0 migration is complete
-#ifdef _MSC_VER
+#ifdef CESIUM_OMNI_MSVC
 #pragma warning(push)
 #pragma warning(disable : 4996)
-#elif defined(__GNUC__)
+#pragma warning(disable : 4244 4305 4100 4201 4127 4251)
+#elif defined(CESIUM_OMNI_GCC)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
 #include <omni/kit/IApp.h>
 #include <pxr/usd/sdf/path.h>
+
 namespace cesium::omniverse::Broadcast {
 
 namespace {
@@ -92,8 +94,8 @@ void sendMessageToBus(const std::string_view& eventKey) {
 
 } // namespace cesium::omniverse::Broadcast
 
-#ifdef _MSC_VER
+#ifdef CESIUM_OMNI_MSVC
 #pragma warning(pop)
-#elif defined(__GNUC__)
+#elif defined(CESIUM_OMNI_GCC)
 #pragma GCC diagnostic pop
 #endif

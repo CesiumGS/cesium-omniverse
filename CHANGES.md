@@ -1,5 +1,11 @@
 # Change Log
 
+### v0.30.0 - 2026-11-02
+
+* **Breaking change:** Cesium for Omniverse now requires a C++ 20 compiler. For Windows builds, MSVC 14.29 is required.
+* Updated to Cesium Native v0.65.0.
+* Cesium for Omniverse no longer provide its own certificates, instead it uses a list of common search paths for various OSs to locate certificates.
+
 ### v0.29.0 - 2026-07-01
 
 * **Breaking change:** Cesium for Omniverse now requires Kit 110.0 or above (Isaac Sim 6.0.0-dev2 or above).

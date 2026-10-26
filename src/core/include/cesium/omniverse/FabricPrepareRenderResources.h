@@ -32,7 +32,7 @@ class FabricPrepareRenderResources final : public Cesium3DTilesSelection::IPrepa
 
     void free(Cesium3DTilesSelection::Tile& tile, void* pLoadThreadResult, void* pMainThreadResult) noexcept override;
 
-    void* prepareRasterInLoadThread(CesiumGltf::ImageCesium& image, const std::any& rendererOptions) override;
+    void* prepareRasterInLoadThread(CesiumImage::ImageAsset& image, const std::any& rendererOptions) override;
 
     void*
     prepareRasterInMainThread(CesiumRasterOverlays::RasterOverlayTile& rasterTile, void* pLoadThreadResult) override;

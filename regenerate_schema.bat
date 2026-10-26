@@ -4,6 +4,7 @@ set PROJECT_ROOT=%~dp0
 
 set NVIDIA_USD_ROOT=%PROJECT_ROOT%\extern\nvidia\_build\target-deps\usd\release
 set NVIDIA_USD_LIBS=%NVIDIA_USD_ROOT%\lib
+set NVIDIA_USD_BIN=%NVIDIA_USD_ROOT%\bin
 set NVIDIA_USD_PYTHON_LIBS=%NVIDIA_USD_ROOT%\lib\python
 
 set NVIDIA_PYTHON_ROOT=%PROJECT_ROOT%\extern\nvidia\_build\target-deps\python
@@ -14,6 +15,7 @@ set SCHEMA_OUTPUT_PATH=%PROJECT_ROOT%\src\plugins\CesiumUsdSchemas\src\CesiumUsd
 
 set PYTHONPATH=%NVIDIA_USD_PYTHON_LIBS%;%PYTHONPATH%
 set PATH=%NVIDIA_USD_LIBS%;%PATH%
+set PATH=%NVIDIA_USD_BIN%;%PATH%
 
 %NVIDIA_PYTHON_EXECUTABLE% -m pip install jinja2
 
@@ -26,6 +28,10 @@ del /s /q %SCHEMA_OUTPUT_PATH%\*
 
 :: Generate the new files.
 %NVIDIA_PYTHON_EXECUTABLE% %NVIDIA_USD_ROOT%\bin\usdGenSchema %SCHEMA_INPUT_PATH% %SCHEMA_OUTPUT_PATH%
+
+:: Delete unused files
+del %SCHEMA_OUTPUT_PATH%\generatedSchema.classes.txt
+del %SCHEMA_OUTPUT_PATH%\generatedSchema.module.h
 
 :: Move the generatedSchema.usda and plugInfo.json files up.
 move %SCHEMA_OUTPUT_PATH%\generatedSchema.usda %SCHEMA_OUTPUT_PATH%\..\..\generatedSchema.usda.in

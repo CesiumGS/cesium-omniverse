@@ -1,6 +1,7 @@
 #include "cesium/omniverse/Context.h"
 
 #include "cesium/omniverse/AssetRegistry.h"
+#include "cesium/omniverse/CertificateAuthorityPaths.h"
 #include "cesium/omniverse/CesiumIonServerManager.h"
 #include "cesium/omniverse/CesiumIonSessionManager.h"
 #include "cesium/omniverse/FabricResourceManager.h"
@@ -15,9 +16,10 @@
 #include "cesium/omniverse/SettingsWrapper.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/TilesetStatistics.h"
-#include "cesium/omniverse/UrlAssetAccessor.h"
 #include "cesium/omniverse/UsdNotificationHandler.h"
 #include "cesium/omniverse/UsdUtil.h"
+
+#include <CesiumCurl/CurlAssetAccessor.h>
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
@@ -29,8 +31,19 @@
 #include <CesiumAsync/SqliteCache.h>
 #include <CesiumUtility/CreditSystem.h>
 #include <omni/fabric/SimStageWithHistory.h>
+#include <omni/kit/IApp.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4244 4305 4100 4201 4127 4251)
+#endif
+
 #include <pxr/usd/sdf/path.h>
 #include <pxr/usd/usdUtils/stageCache.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(pop)
+#endif
 
 #include <chrono>
 
@@ -53,7 +66,7 @@ std::shared_ptr<CesiumAsync::ICacheDatabase> makeCacheDatabase(const std::shared
         logger->oneTimeWarning("maxCacheItems set to 0, so disabling accessor cache");
         return {};
     } else if (auto dbName = getCacheDatabaseName(); !dbName.empty()) {
-        logger->oneTimeWarning(fmt::format("Cesium cache file: {}", dbName));
+        logger->oneTimeWarning("Cesium cache file: {}", dbName);
         return std::make_shared<CesiumAsync::SqliteCache>(logger, dbName, maxCacheItems);
     }
     logger->oneTimeWarning("could not get name for cache database");
@@ -66,6 +79,26 @@ uint64_t getSecondsSinceEpoch() {
     const auto timePoint = std::chrono::system_clock::now();
     return std::chrono::duration_cast<std::chrono::seconds>(timePoint.time_since_epoch()).count();
 }
+
+CesiumCurl::CurlAssetAccessorOptions createCurlAssetAccessorOptions() {
+    CesiumCurl::CurlAssetAccessorOptions options;
+
+    const auto app = carb::getCachedInterface<omni::kit::IApp>();
+    const auto& buildInfo = app->getBuildInfo();
+    const auto platformInfo = app->getPlatformInfo();
+
+    options.certificateFile = getCAFile();
+    options.certificatePath = getCAPath();
+    options.requestHeaders.emplace_back("X-Cesium-Client", "Cesium for Omniverse");
+    options.requestHeaders.emplace_back(
+        "X-Cesium-Client-Version", fmt::format("v{} {}", CESIUM_OMNI_VERSION, CESIUM_OMNI_GIT_HASH_ABBREVIATED));
+    options.requestHeaders.emplace_back(
+        "X-Cesium-Client-Engine", fmt::format("Kit SDK {}", buildInfo.kitVersion.c_str()));
+    options.requestHeaders.emplace_back("X-Cesium-Client-OS", platformInfo.platform);
+
+    return options;
+}
+
 } // namespace
 
 Context::Context(const std::filesystem::path& cesiumExtensionLocation)
@@ -86,10 +119,11 @@ Context::Context(const std::filesystem::path& cesiumExtensionLocation)
     , _contextId(static_cast<int64_t>(getSecondsSinceEpoch())) {
     if (_pCacheDatabase) {
         _pAssetAccessor = std::make_shared<CesiumAsync::CachingAssetAccessor>(
-            _pLogger, std::make_shared<UrlAssetAccessor>(_certificatePath), _pCacheDatabase);
-
+            _pLogger,
+            std::make_shared<CesiumCurl::CurlAssetAccessor>(createCurlAssetAccessorOptions()),
+            _pCacheDatabase);
     } else {
-        _pAssetAccessor = std::make_shared<UrlAssetAccessor>(_certificatePath);
+        _pAssetAccessor = std::make_shared<CesiumCurl::CurlAssetAccessor>(createCurlAssetAccessorOptions());
     }
     Cesium3DTilesContent::registerAllTileContentTypes();
 
@@ -206,7 +240,8 @@ void Context::clearAccessorCache() {
     }
 }
 
-void Context::onUpdateFrame(const gsl::span<const Viewport>& viewports, bool waitForLoadingTiles) {
+void Context::onUpdateFrame(const std::span<const Viewport>& viewports, bool waitForLoadingTiles) {
+    _pAsyncSystem->dispatchMainThreadTasks();
     _pUsdNotificationHandler->onUpdateFrame();
     _pAssetRegistry->onUpdateFrame(viewports, waitForLoadingTiles);
     _pCesiumIonServerManager->onUpdateFrame();

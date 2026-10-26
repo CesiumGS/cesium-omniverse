@@ -1,13 +1,22 @@
 #pragma once
 
 #include <omni/fabric/IToken.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4244 4305 4100 4201 4127 4251)
+#endif
+
 #include <pxr/usd/usd/common.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(pop)
+#endif
 
 #include <filesystem>
 #include <memory>
+#include <span>
 #include <vector>
-
-#include <gsl/span>
 
 namespace omni::fabric {
 class StageReaderWriter;
@@ -66,7 +75,7 @@ class Context {
     void reloadStage();
     void clearAccessorCache();
 
-    void onUpdateFrame(const gsl::span<const Viewport>& viewports, bool waitForLoadingTiles);
+    void onUpdateFrame(const std::span<const Viewport>& viewports, bool waitForLoadingTiles);
     void onUsdStageChanged(int64_t stageId);
 
     [[nodiscard]] const pxr::UsdStageWeakPtr& getUsdStage() const;

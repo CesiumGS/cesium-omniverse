@@ -12,16 +12,7 @@ struct FabricVertexAttributeDescriptor {
     omni::fabric::Token fabricInterpolationName;
     std::string gltfAttributeName;
 
-    // Make sure to update this function when adding new fields to the struct
-    // In C++ 20 we can use the default equality comparison (= default)
-    // clang-format off
-    bool operator==(const FabricVertexAttributeDescriptor& other) const {
-        return type == other.type &&
-               fabricAttributeName == other.fabricAttributeName &&
-               fabricInterpolationName == other.fabricInterpolationName &&
-               gltfAttributeName == other.gltfAttributeName;
-    }
-    // clang-format on
+    bool operator==(const FabricVertexAttributeDescriptor& other) const = default;
 
     // This is needed for std::set to be sorted
     bool operator<(const FabricVertexAttributeDescriptor& other) const {

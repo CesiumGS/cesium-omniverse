@@ -1,166 +1,10 @@
 include(Macros)
 
-if(MSVC)
-    set(SSL_LIBRARY_NAME "libssl")
-    set(CRYPTO_LIBRARY_NAME "libcrypto")
-    set(WEBP_LIBRARY_NAME "libwebp")
-    set(WEBPDECODER_LIBRARY_NAME "libwebpdecoder")
-    set(WEBPDEMUX_LIBRARY_NAME "libwebpdemux")
-    set(WEBPMUX_LIBRARY_NAME "libwebpmux")
-    set(SHARPYUV_LIBRARY_NAME "libsharpyuv")
-    set(ZNG_LIBRARY_NAME "zlibstatic-ng")
-else()
-    set(SSL_LIBRARY_NAME "ssl")
-    set(CRYPTO_LIBRARY_NAME "crypto")
-    set(WEBP_LIBRARY_NAME "webp")
-    set(WEBPDECODER_LIBRARY_NAME "webpdecoder")
-    set(WEBPDEMUX_LIBRARY_NAME "webpdemux")
-    set(WEBPMUX_LIBRARY_NAME "webpmux")
-    set(SHARPYUV_LIBRARY_NAME "sharpyuv")
-    set(ZNG_LIBRARY_NAME "z-ng")
-endif()
-
-# cmake-format: off
-add_external_project(
-    PROJECT_NAME
-        cesium-native
-    LIBRARIES
-        Cesium3DTilesSelection
-        Cesium3DTilesReader
-        Cesium3DTilesContent
-        CesiumRasterOverlays
-        CesiumGltfReader
-        CesiumGltfContent
-        CesiumGltf
-        CesiumQuantizedMeshTerrain
-        CesiumJsonReader
-        CesiumGeospatial
-        CesiumGeometry
-        CesiumIonClient
-        CesiumAsync
-        CesiumUtility
-        async++
-        draco
-        glm
-        jpeg
-        ktx
-        libmodpbase64
-        meshoptimizer
-        s2
-        absl_cordz_sample_token
-        absl_die_if_null
-        absl_failure_signal_handler
-        absl_flags_parse
-        absl_log_flags
-        absl_log_initialize
-        absl_periodic_sampler
-        absl_random_internal_distribution_test_util
-        absl_scoped_set_env
-        absl_statusor
-        absl_bad_any_cast_impl
-        absl_log_internal_check_op
-        absl_leak_check
-        absl_flags_usage
-        absl_flags_usage_internal
-        absl_flags_internal
-        absl_flags_reflection
-        absl_flags_config
-        absl_flags_program_name
-        absl_flags_private_handle_accessor
-        absl_flags_commandlineflag
-        absl_flags_commandlineflag_internal
-        absl_flags_marshalling
-        absl_log_internal_conditions
-        absl_log_internal_message
-        absl_examine_stack
-        absl_log_internal_nullguard
-        absl_log_internal_format
-        absl_log_internal_proto
-        absl_log_internal_log_sink_set
-        absl_log_globals
-        absl_vlog_config_internal
-        absl_log_internal_fnmatch
-        absl_log_internal_globals
-        absl_log_sink
-        absl_log_entry
-        absl_raw_hash_set
-        absl_hash
-        absl_city
-        absl_low_level_hash
-        absl_hashtablez_sampler
-        absl_random_distributions
-        absl_random_seed_sequences
-        absl_random_internal_pool_urbg
-        absl_random_internal_randen
-        absl_random_internal_randen_hwaes
-        absl_random_internal_randen_hwaes_impl
-        absl_random_internal_randen_slow
-        absl_random_internal_platform
-        absl_random_internal_seed_material
-        absl_random_seed_gen_exception
-        absl_status
-        absl_cord
-        absl_cordz_info
-        absl_cordz_handle
-        absl_cordz_functions
-        absl_exponential_biased
-        absl_synchronization
-        absl_graphcycles_internal
-        absl_kernel_timeout_internal
-        absl_time
-        absl_civil_time
-        absl_time_zone
-        absl_cord_internal
-        absl_crc_cord_state
-        absl_crc32c
-        absl_crc_internal
-        absl_crc_cpu_detect
-        absl_stacktrace
-        absl_bad_optional_access
-        absl_str_format_internal
-        absl_strerror
-        absl_symbolize
-        absl_strings
-        absl_strings_internal
-        absl_int128
-        absl_string_view
-        absl_throw_delegate
-        absl_debugging_internal
-        absl_malloc_internal
-        absl_demangle_internal
-        absl_base
-        absl_spinlock_wait
-        absl_bad_variant_access
-        absl_raw_logging_internal
-        absl_log_severity
-        ${SSL_LIBRARY_NAME}
-        ${CRYPTO_LIBRARY_NAME}
-        spdlog
-        fmt
-        sqlite3
-        tinyxml2
-        turbojpeg
-        uriparser
-        ${WEBP_LIBRARY_NAME}
-        ${WEBPDECODER_LIBRARY_NAME}
-        ${WEBPDEMUX_LIBRARY_NAME}
-        ${WEBPMUX_LIBRARY_NAME}
-        astcenc-avx2-static
-        ${SHARPYUV_LIBRARY_NAME}
-        ${ZNG_LIBRARY_NAME}
-        zstd
-    OPTIONS
-        CESIUM_TESTS_ENABLED=OFF
-        CESIUM_COVERAGE_ENABLED=OFF
-        CESIUM_TRACING_ENABLED=${CESIUM_OMNI_ENABLE_TRACING}
-        VCPKG_OVERLAY_PORTS=${VCPKG_OVERLAY_PORTS}
-        VCPKG_OVERLAY_TRIPLETS=${VCPKG_OVERLAY_TRIPLETS}
-        VCPKG_TRIPLET=${VCPKG_TRIPLET}
-        EZVCPKG_BASEDIR=${EZVCPKG_BASEDIR}
-    PROJECT_EXTERN_DIRECTORY
-        "${PROJECT_SOURCE_DIR}/extern"
-)
-# cmake-format: on
+set(CESIUM_ENABLE_CLANG_TIDY OFF)
+set(CESIUM_INSTALL_STATIC_LIBS OFF)
+set(CESIUM_INSTALL_HEADERS OFF)
+set(CESIUM_TESTS_ENABLED OFF)
+add_subdirectory(cesium-native EXCLUDE_FROM_ALL)
 
 if(NOT ${USE_NVIDIA_RELEASE_LIBRARIES})
     execute_process(COMMAND "${Python3_EXECUTABLE}" "${SCRIPTS_DIRECTORY}/copy_from_dir.py" "*.user.xml"
@@ -206,8 +50,9 @@ set(CARB_ROOT "${NVIDIA_BUILD_DIR}/target-deps/carb_sdk_plugins")
 set(KIT_SDK_ROOT "${NVIDIA_BUILD_DIR}/target-deps/kit-sdk")
 set(KIT_OMNI_UI_ROOT "${NVIDIA_BUILD_DIR}/target-deps/omni-ui")
 set(KIT_IMGUI_ROOT "${NVIDIA_BUILD_DIR}/target-deps/omni-kit-renderer-imgui")
-set(PYBIND11_ROOT "${NVIDIA_BUILD_DIR}/target-deps/pybind11")
+set(PYBIND11_ROOT "${NVIDIA_BUILD_DIR}/target-deps/pybind11/include")
 set(BOOST_PREPROCESSOR_ROOT "${NVIDIA_BUILD_DIR}/target-deps/boost_preprocessor")
+set(GSL_ROOT "${NVIDIA_BUILD_DIR}/target-deps/gsl/include")
 
 set(NVIDIA_USD_LIBRARIES
     usd_ar
@@ -377,6 +222,15 @@ add_prebuilt_project_header_only(
         "${BOOST_PREPROCESSOR_ROOT}"
     TARGET_NAME
         boost_preprocessor
+)
+# cmake-format: on
+
+# cmake-format: off
+add_prebuilt_project_header_only(
+    INCLUDE_DIR
+        "${GSL_ROOT}"
+    TARGET_NAME
+        gsl
 )
 # cmake-format: on
 

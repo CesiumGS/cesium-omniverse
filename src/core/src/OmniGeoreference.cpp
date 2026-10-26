@@ -7,9 +7,19 @@
 
 #include <CesiumGeospatial/Ellipsoid.h>
 #include <CesiumGeospatial/LocalHorizontalCoordinateSystem.h>
-#include <CesiumUsdSchemas/georeference.h>
 #include <glm/glm.hpp>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4244 4305 4100 4201 4127 4251)
+#endif
+
+#include <CesiumUsdSchemas/georeference.h>
 #include <pxr/usd/usdGeom/tokens.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(pop)
+#endif
 
 namespace cesium::omniverse {
 

@@ -1,38 +1,18 @@
 cmake_minimum_required(VERSION 3.22)
 
-if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.24.0")
-    # Tell CMake not to set CC and CXX flags. We'll do this ourselves
-    # https://cmake.org/cmake/help/latest/policy/CMP0132.html
-    cmake_policy(SET CMP0132 NEW)
-endif()
-
-# Both CXX and C need to be given otherwise Conan may ignore the CMAKE_C_COMPILER flag
 project(
     CesiumOmniverse
     VERSION 0.29.0
     DESCRIPTION "Cesium for Omniverse"
     LANGUAGES CXX C)
 
-# Set the CC and CXX environment variables explicitly so that conan picks them up
-set(ENV{CC} ${CMAKE_C_COMPILER})
-set(ENV{CXX} ${CMAKE_CXX_COMPILER})
-
-# Ensure that all packages are built in the same .conan directory
-# Windows Long Paths must be enabled. See instructions in README.
-if(WIN32)
-    set(ENV{CONAN_USER_HOME_SHORT} "None")
-endif()
-
-# Just in case we need to pin a revision in AddConanDependencies
-set(ENV{CONAN_REVISIONS_ENABLED} "1")
-
 # cxx version
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-if (NOT Python3_EXECUTABLE)
-    # Find Python for Conan and scripts
+if(NOT Python3_EXECUTABLE)
+    # Find Python for scripts
     find_package(
         Python3
         COMPONENTS Interpreter
@@ -55,30 +35,16 @@ endif()
 
 if(MSVC)
     if(${USE_NVIDIA_RELEASE_LIBRARIES})
+        # Kit SDK links against the release MSVC Runtime Library so we
+        # need to do the same, even for debug builds
         set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
         set(MSVC_RUNTIME_FLAG_DEBUG "/MD")
         set(MSVC_RUNTIME_FLAG_RELEASE "/MD")
-
-        # Disable run-time error checks. Otherwise boost will error with the message "Using the /RTC option without specifying a debug runtime will lead to linker errors"
-        # cmake-format: off
-        STRING(REGEX REPLACE "/RTC1" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
-        STRING(REGEX REPLACE "/RTC1" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
-        # cmake-format: on
     else()
         set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
         set(MSVC_RUNTIME_FLAG_DEBUG "/MDd")
         set(MSVC_RUNTIME_FLAG_RELEASE "/MD")
     endif()
-
-    # Explicitly set the C/CXX flags for conan
-    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${MSVC_RUNTIME_FLAG_DEBUG} /MP")
-    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${MSVC_RUNTIME_FLAG_RELEASE} /MP")
-    set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} ${MSVC_RUNTIME_FLAG_RELEASE} /MP")
-    set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} ${MSVC_RUNTIME_FLAG_RELEASE} /MP")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${MSVC_RUNTIME_FLAG_DEBUG} /MP")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${MSVC_RUNTIME_FLAG_RELEASE} /MP")
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${MSVC_RUNTIME_FLAG_RELEASE} /MP")
-    set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} ${MSVC_RUNTIME_FLAG_RELEASE} /MP")
 endif()
 
 # Tell CMake where to look for our CMake helper files when calling `include`
@@ -106,13 +72,6 @@ cmake_dependent_option(
     OFF
     CESIUM_OMNI_ENABLE_LINTERS
     OFF)
-
-# Change the default build type to Release
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-    set(CMAKE_BUILD_TYPE
-        Release
-        CACHE STRING "Type of build: Debug Release MinSizeRel RelWithDebInfo." FORCE)
-endif()
 
 # Generate compile_commands.json file for use by language servers such as clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -176,9 +135,6 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 # See https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html
 include(GNUInstallDirs)
 
-# Add conan third party libraries
-include(AddConanDependencies)
-
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
@@ -226,8 +182,7 @@ if(MSVC)
         /WX # error on warnings
         /Zc:__cplusplus # make __cplusplus defined correctly
         /bigobj
-        /utf-8
-    )
+        /utf-8)
     set(CESIUM_OMNI_CXX_DEFINES
         ${CESIUM_OMNI_CXX_DEFINES}
         _CRT_SECURE_NO_WARNINGS # Avoid erroring on strcpy
@@ -235,9 +190,7 @@ if(MSVC)
         _UNICODE # tell Windows to use the unicode version of string functions, as opposed to ASCII (https://docs.microsoft.com/en-us/windows/win32/learnwin32/working-with-strings)
         WIN32_LEAN_AND_MEAN # ignore some unnecessary Windows APIs
         NOMINMAX # don't let Windows create macros for MIN and MAX
-        _SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING
-        _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR # See https://developercommunity.visualstudio.com/t/Visual-Studio-17100-Update-leads-to-Pr/10669759?sort=newest
-    )
+        _SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING)
 endif()
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
@@ -258,11 +211,13 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
         -Wno-missing-field-initializers
         -Wno-return-local-addr
         -Wno-array-bounds # Ignore false positives in libstdc++ in GCC 13.1.1
+        -Wno-maybe-uninitialized # Ignore false positives in GCC 13.4.0
         -fstrict-aliasing
         -fstrict-enums)
 
     if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-        set(CESIUM_OMNI_CXX_FLAGS ${CESIUM_OMNI_CXX_FLAGS} -Wno-stringop-overflow) # Ignore false positives in libstdc++ in GCC 13.1.1
+        # Ignore false positives in libstdc++ in GCC 13.1.1
+        set(CESIUM_OMNI_CXX_FLAGS ${CESIUM_OMNI_CXX_FLAGS} -Wno-stringop-overflow)
     endif()
 
     if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
@@ -372,26 +327,17 @@ set(CESIUM_OMNI_CXX_DEFINES
     ${CESIUM_OMNI_CXX_DEFINES}
     GLM_FORCE_XYZW_ONLY # Disable .rgba and .stpq to make it easier to view values from debugger
     GLM_FORCE_EXPLICIT_CTOR # Disallow implicit conversions between dvec3 <-> dvec4, dvec3 <-> fvec3, etc
-    GLM_FORCE_SIZE_T_LENGTH # Make vec.length() and vec[idx] use size_t instead of int
-    GLM_ENABLE_EXPERIMENTAL
-)
+    GLM_ENABLE_EXPERIMENTAL)
 
 # TBB is a dependency of USD
 if(NOT ${USE_NVIDIA_RELEASE_LIBRARIES})
     set(CESIUM_OMNI_CXX_DEFINES_DEBUG ${CESIUM_OMNI_CXX_DEFINES_DEBUG} TBB_USE_DEBUG)
 endif()
 
-# Add this for cesium-native (TODO: should this go in src/CMakeLists?)
-set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} SPDLOG_COMPILED_LIB)
-
-# Add this for cesium-native (TODO: should this go in src/CMakeLists?)
-set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} LIBASYNC_STATIC)
-
 # Needed to include USD headers without errors
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     set(CESIUM_OMNI_CXX_DEFINES ${CESIUM_OMNI_CXX_DEFINES} _GLIBCXX_PERMIT_BACKWARD_HASH)
 endif()
-
 
 set(CESIUM_OMNI_CXX_FLAGS
     ${CESIUM_OMNI_CXX_FLAGS}
@@ -412,43 +358,14 @@ set(CESIUM_OMNI_LINKER_FLAGS_DEBUG
     ${CESIUM_OMNI_LINKER_FLAGS_DEBUG}
     CACHE STRING "Linker flags to use in debug mode." FORCE)
 
-# vcpkg setup
-set(VCPKG_OVERLAY_PORTS "${CMAKE_CURRENT_LIST_DIR}/vcpkg/ports")
-set(VCPKG_OVERLAY_TRIPLETS "${CMAKE_CURRENT_LIST_DIR}/vcpkg/triplets")
-
-include(${CMAKE_CURRENT_SOURCE_DIR}/extern/cesium-native/cmake/detect-vcpkg-triplet.cmake)
-
-if (NOT VCPKG_TRIPLET)
-    if (DEFINED ENV{VCPKG_TRIPLET})
-        set(VCPKG_TRIPLET "$ENV{VCPKG_TRIPLET}")
-    elseif(DETECTED_VCPKG_TRIPLET_ERROR)
-        message(FATAL_ERROR "${DETECTED_VCPKG_TRIPLET_ERROR}")
-    else()
-        set(VCPKG_TRIPLET "${DETECTED_VCPKG_TRIPLET}-omniverse")
-    endif()
-endif()
-
-if (NOT EZVCPKG_BASEDIR)
-    if (DEFINED ENV{EZVCPKG_BASEDIR})
-        set(EZVCPKG_BASEDIR "$ENV{EZVCPKG_BASEDIR}")
-    endif()
-endif()
-
-# Third party dependencies not handled by conan
+# Third party dependencies not handled by vcpkg
 add_subdirectory(extern)
-
-# Tell CMake to search for packages with the correct build type (i.e. Release or Debug) as generated
-# by ConfigureConan.cmake with the cmake_find_package_multi generator
-set(CMAKE_FIND_PACKAGE_PREFER_CONFIG TRUE)
 
 find_package(Threads) # System threading library
 
-# Conan libraries
-find_package(CURL)
-find_package(doctest)
-find_package(stb)
-find_package(ZLIB)
-find_package(yaml-cpp)
+# vcpkg libraries
+find_package(doctest CONFIG REQUIRED)
+find_package(yaml-cpp CONFIG REQUIRED)
 
 # So that the installed libraries can find shared libraries in the same directory
 set(CMAKE_INSTALL_RPATH $ORIGIN)
@@ -480,24 +397,13 @@ if("${CMAKE_GENERATOR}" MATCHES "Ninja"
 endif()
 
 # Generate ThirdParty.json
-execute_process(COMMAND "${Python3_EXECUTABLE}" "${SCRIPTS_DIRECTORY}/generate_third_party_license_json.py" --build-dir
-                        "${PROJECT_BINARY_DIR}" --project-dir "${PROJECT_SOURCE_DIR}" --skip "doctest,strawberryperl")
+execute_process(
+    COMMAND "${Python3_EXECUTABLE}" "${SCRIPTS_DIRECTORY}/generate_third_party_license_json.py" --build-dir
+            "${PROJECT_BINARY_DIR}" --skip "doctest" --triplet "${VCPKG_TARGET_TRIPLET}"
+    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
 
 # Copy docs and related resources to exts folder.
 execute_process(COMMAND "${Python3_EXECUTABLE}" "${SCRIPTS_DIRECTORY}/copy_to_exts.py")
-
-# When calling find_package with `CMAKE_FIND_PACKAGE_PREFER_CONFIG` it adds
-# a `<PACKAGE>_DIR` variable to the CMake cache, polluting the CMake GUI.
-# Use `mark_as_advanced` on all packages to hide them from the GUI.
-# Conan internally does `mark_as_advanced` for `cmake_find_package` generator, but not for
-# `cmake_find_package_multi`. Related: https://github.com/conan-io/conan/issues/6167
-get_cmake_property(PACKAGE_NAMES PACKAGES_FOUND)
-foreach(PACKAGE_NAME ${PACKAGE_NAMES})
-    mark_as_advanced(${PACKAGE_NAME}_DIR)
-endforeach()
-
-# Hide CONAN_CMD_PATH from CMake GUI
-mark_as_advanced(CONAN_CMD_PATH)
 
 # Configure plugInfo.json for CesiumUsdSchemas
 set(PLUG_INFO_RESOURCE_PATH "resources")
@@ -550,12 +456,9 @@ set(KIT_EXTENSION_TESTS_BINDINGS_PATH
 #
 # This is because the USD libraries .so rpath points to a non-existent python path
 # E.g. `readelf -d libusd.so` will show `$ORIGIN/../../../_dependencies/python3/lib`
-# This path doesn't exist, so in order to find python we need to explicility add it
+# This path doesn't exist, so in order to find python we need to explicitly add it
 # to the search path. Unfortunately CMake will print a warning when python .so is
 # found this way.
-
-# Automatically fetch certificates used for any requests from the core Context class
-execute_process(COMMAND "${Python3_EXECUTABLE}" "${SCRIPTS_DIRECTORY}/update_certs.py" "${KIT_EXTENSION_CERTS_PATH}")
 
 get_property(INSTALL_SEARCH_PATHS GLOBAL PROPERTY NVIDIA_ADDITIONAL_SEARCH_PATHS_PROPERTY)
 

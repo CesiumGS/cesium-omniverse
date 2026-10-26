@@ -104,6 +104,14 @@ function(setup_python_module)
     set_target_properties(${_TARGET_NAME} PROPERTIES RELWITHDEBINFO_POSTFIX "")
     set_target_properties(${_TARGET_NAME} PROPERTIES MINSIZEREL_POSTFIX "")
 
+    # We only use pybind11 from package manager for its cmake helpers
+    execute_process(
+        COMMAND "${Python3_EXECUTABLE}" -m pybind11 --cmakedir
+        OUTPUT_VARIABLE PYBIND11_CMAKE_DIR
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+    list(APPEND CMAKE_PREFIX_PATH "${PYBIND11_CMAKE_DIR}")
+
     if(_PYTHON_DIR)
         # Using a specific version of Python
         # Since we called find_package already in the root CMakeLists we have
@@ -120,10 +128,9 @@ function(setup_python_module)
             REQUIRED)
     endif()
 
-    # We only use pybind11 from conan for its cmake helpers
     # Note that we don't link pybind11::headers, pybind11::module, or pybind11::embed
     # The code below is a simplified version of pybind11_add_module: https://github.com/pybind/pybind11/blob/master/tools/pybind11NewTools.cmake#L174
-    find_package(pybind11)
+    find_package(pybind11 CONFIG REQUIRED)
 
     pybind11_extension(${_TARGET_NAME})
 
@@ -273,113 +280,6 @@ function(glob_files out_var_name regexes)
     set(${ARGV0}
         "${files}"
         PARENT_SCOPE)
-endfunction()
-
-function(add_external_project)
-    cmake_parse_arguments(
-        ""
-        ""
-        "PROJECT_NAME;PROJECT_EXTERN_DIRECTORY;EXPECTED_DEBUG_POSTFIX;EXPECTED_RELEASE_POSTFIX;EXPECTED_RELWITHDEBINFO_POSTFIX;EXPECTED_MINSIZEREL_POSTFIX"
-        "LIBRARIES;OPTIONS"
-        ${ARGN})
-
-    include(ExternalProject) # built-in CMake include for ExternalProject_Add
-
-    # Expands to ${_EXPECTED_<CONFIG>_POSTFIX} at configuration time (usually 'd' or '')
-    set(BUILD_TIME_POSTFIX
-        "\
-$<$<CONFIG:Debug>:${_EXPECTED_DEBUG_POSTFIX}>\
-$<$<CONFIG:Release>:${_EXPECTED_RELEASE_POSTFIX}>\
-$<$<CONFIG:RelWithDebInfo>:${_EXPECTED_RELWITHDEBINFO_POSTFIX}>\
-$<$<CONFIG:MinSizeRel>:${_EXPECTED_MINSIZEREL_POSTFIX}>")
-
-    set(LIBRARY_OUTPUT_PATHS "")
-
-    if(DEFINED _LIBRARIES)
-        foreach(lib IN LISTS _LIBRARIES)
-            list(
-                APPEND
-                LIBRARY_OUTPUT_PATHS
-                "${PROJECT_BINARY_DIR}/${_PROJECT_NAME}/${CMAKE_INSTALL_LIBDIR}/$<CONFIG>/${CMAKE_STATIC_LIBRARY_PREFIX}${lib}${BUILD_TIME_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}"
-            )
-        endforeach()
-    endif()
-
-    set(PROJECT_INCLUDE_DIR "${PROJECT_BINARY_DIR}/${_PROJECT_NAME}/${CMAKE_INSTALL_INCLUDEDIR}")
-
-    # Force include directory to exist
-    # See https://stackoverflow.com/questions/45516209/cmake-how-to-use-interface-include-directories-with-externalproject
-    file(MAKE_DIRECTORY ${PROJECT_INCLUDE_DIR})
-
-    set(EXTERN_CXX_FLAGS "")
-
-    if(MSVC)
-        # See https://learn.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-1-c4530?view=msvc-170
-        set(EXTERN_CXX_FLAGS ${EXTERN_CXX_FLAGS} "/EHsc")
-    endif()
-
-    # Prepend options with -D
-    list(TRANSFORM _OPTIONS PREPEND -D)
-
-    # CMAKE_ARGS doesn't escape ; characters properly so we need to do this hack for list args like CMAKE_CONFIGURATION_TYPES
-    # See https://public.kitware.com/Bug/view.php?id=16137
-    # cmake-format: off
-    string(REPLACE ";" "|" CMAKE_CONFIGURATION_TYPES_ALT_SEP "${CMAKE_CONFIGURATION_TYPES}")
-    # cmake-format: on
-
-    ExternalProject_Add(
-        ${_PROJECT_NAME}-external
-        SOURCE_DIR "${_PROJECT_EXTERN_DIRECTORY}/${_PROJECT_NAME}"
-        PREFIX ${_PROJECT_NAME}
-        BUILD_ALWAYS
-            1 # Set this to 0 to always skip the external project build step. Be sure to reset to 1 when modifying cesium-native as it's needed there.
-        LIST_SEPARATOR | # Use the alternate list separator
-        CMAKE_ARGS -DBUILD_SHARED_LIBS=OFF
-                   -DCMAKE_GENERATOR=${CMAKE_GENERATOR}
-                   -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-                   -DCMAKE_CONFIGURATION_TYPES=${CMAKE_CONFIGURATION_TYPES_ALT_SEP}
-                   -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-                   -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-                   -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
-                   -DCMAKE_INSTALL_PREFIX=${PROJECT_BINARY_DIR}/${_PROJECT_NAME}
-                   -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}/$<CONFIG>
-                   -DCMAKE_INSTALL_INCLUDEDIR=${CMAKE_INSTALL_INCLUDEDIR}
-                   -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-                   -DCMAKE_MSVC_RUNTIME_LIBRARY=${CMAKE_MSVC_RUNTIME_LIBRARY}
-                   -DCMAKE_CXX_FLAGS=${EXTERN_CXX_FLAGS}
-                   ${_OPTIONS}
-        BUILD_BYPRODUCTS ${LIBRARY_OUTPUT_PATHS})
-
-    if(NOT DEFINED _LIBRARIES)
-        # Header only
-        add_library(
-            ${_PROJECT_NAME}
-            INTERFACE
-            IMPORTED
-            GLOBAL)
-        target_include_directories(${_PROJECT_NAME} INTERFACE "${PROJECT_INCLUDE_DIR}")
-    else()
-        foreach(lib IN LISTS _LIBRARIES)
-            add_library(
-                ${lib}
-                STATIC
-                IMPORTED
-                GLOBAL)
-            target_include_directories(${lib} INTERFACE "${PROJECT_INCLUDE_DIR}")
-            set_target_properties(
-                ${lib}
-                PROPERTIES
-                    IMPORTED_LOCATION_DEBUG
-                    "${PROJECT_BINARY_DIR}/${_PROJECT_NAME}/${CMAKE_INSTALL_LIBDIR}/Debug/${CMAKE_STATIC_LIBRARY_PREFIX}${lib}${_EXPECTED_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}"
-                    IMPORTED_LOCATION_RELEASE
-                    "${PROJECT_BINARY_DIR}/${_PROJECT_NAME}/${CMAKE_INSTALL_LIBDIR}/Release/${CMAKE_STATIC_LIBRARY_PREFIX}${lib}${_EXPECTED_RELEASE_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}"
-                    IMPORTED_LOCATION_RELWITHDEBINFO
-                    "${PROJECT_BINARY_DIR}/${_PROJECT_NAME}/${CMAKE_INSTALL_LIBDIR}/RelWithDebInfo/${CMAKE_STATIC_LIBRARY_PREFIX}${lib}${_EXPECTED_RELWITHDEBINFO_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}"
-                    IMPORTED_LOCATION_MINSIZEREL
-                    "${PROJECT_BINARY_DIR}/${_PROJECT_NAME}/${CMAKE_INSTALL_LIBDIR}/MinSizeRel/${CMAKE_STATIC_LIBRARY_PREFIX}${lib}${_EXPECTED_MINSIZEREL_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}"
-            )
-        endforeach()
-    endif()
 endfunction()
 
 function(add_prebuilt_project)

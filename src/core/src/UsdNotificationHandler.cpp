@@ -20,9 +20,18 @@
 #include "cesium/omniverse/UsdTokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4244 4305 4100 4201 4127 4251)
+#endif
+
 #include <CesiumUsdSchemas/tokens.h>
 #include <pxr/usd/usd/primRange.h>
 #include <pxr/usd/usdShade/shader.h>
+
+#ifdef CESIUM_OMNI_MSVC
+#pragma warning(pop)
+#endif
 
 namespace cesium::omniverse {
 
@@ -1275,21 +1284,19 @@ void UsdNotificationHandler::onPropertyChanged(const pxr::SdfPath& propertyPath)
 }
 
 void UsdNotificationHandler::insertAddedPrim(const pxr::SdfPath& primPath, ChangedPrimType primType) {
-    // In C++ 20 this can be emplace_back without the {}
-    _changedPrims.push_back({primPath, {}, primType, ChangedType::PRIM_ADDED});
+    _changedPrims.emplace_back(primPath, std::vector<pxr::TfToken>{}, primType, ChangedType::PRIM_ADDED);
 }
 
 void UsdNotificationHandler::insertRemovedPrim(const pxr::SdfPath& primPath, ChangedPrimType primType) {
-    // In C++ 20 this can be emplace_back without the {}
-    _changedPrims.push_back({primPath, {}, primType, ChangedType::PRIM_REMOVED});
+    _changedPrims.emplace_back(primPath, std::vector<pxr::TfToken>{}, primType, ChangedType::PRIM_REMOVED);
 }
 
 void UsdNotificationHandler::insertPropertyChanged(
     const pxr::SdfPath& primPath,
     ChangedPrimType primType,
     const pxr::TfToken& propertyName) {
-    // In C++ 20 this can be emplace_back without the {}
-    _changedPrims.push_back({primPath, {propertyName}, primType, ChangedType::PROPERTY_CHANGED});
+    _changedPrims.emplace_back(
+        primPath, std::vector<pxr::TfToken>{propertyName}, primType, ChangedType::PROPERTY_CHANGED);
 }
 
 UsdNotificationHandler::ChangedPrimType UsdNotificationHandler::getTypeFromStage(const pxr::SdfPath& path) const {

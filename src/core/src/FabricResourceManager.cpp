@@ -271,13 +271,7 @@ std::shared_ptr<FabricMaterial> FabricResourceManager::acquireSharedMaterial(
 
     const auto material = createMaterial(materialDescriptor);
 
-    // In C++ 20 this can be emplace_back without the {}
-    _sharedMaterials.push_back({
-        material,
-        materialInfo,
-        tilesetId,
-        1,
-    });
+    _sharedMaterials.emplace_back(material, materialInfo, tilesetId, 1);
 
     return _sharedMaterials.back().pMaterial;
 }

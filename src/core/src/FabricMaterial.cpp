@@ -313,7 +313,7 @@ void setTextureValuesCommonChannels(
     auto channelCount = glm::min(textureInfo.channels.size(), uint64_t(4));
     auto channels = glm::u8vec4(0);
     for (uint64_t i = 0; i < channelCount; ++i) {
-        channels[i] = textureInfo.channels[i];
+        channels[glm::length_t(i)] = textureInfo.channels[i];
     }
     channelCount = glm::max(channelCount, uint64_t(1));
 
@@ -1714,7 +1714,7 @@ void FabricMaterial::createConnectionsToProperties() {
 
         if (index == properties.size()) {
             if (CppUtil::contains(unsupportedPropertyWarnings, propertyId)) {
-                _pContext->getLogger()->oneTimeWarning(unsupportedPropertyWarnings.at(propertyId));
+                _pContext->getLogger()->oneTimeWarning("{}", unsupportedPropertyWarnings.at(propertyId));
             } else {
                 _pContext->getLogger()->oneTimeWarning(
                     "Could not find property \"{}\" referenced by {}. A default value will be returned instead.",
