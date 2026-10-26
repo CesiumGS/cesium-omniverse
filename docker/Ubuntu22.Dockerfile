@@ -74,6 +74,9 @@ RUN VCPKG_BASELINE="$(python3 -c 'import json; print(json.load(open("/tmp/vcpkg.
 ENV VCPKG_ROOT="/home/vcpkg"
 ENV PATH="${VCPKG_ROOT}:${PATH}"
 
+RUN echo 'export PATH=$PATH:/home/vcpkg' >> ~/.bashrc && \
+    echo 'export VCPKG_ROOT=/home/vcpkg' >> ~/.bashrc &&
+
 WORKDIR /var/app
 
 ENTRYPOINT ["/bin/bash", "--login"]
