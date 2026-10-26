@@ -81,7 +81,7 @@ jobs:
         run: |
           New-Item -Path $env:GITHUB_WORKSPACE\vcpkg-cache -ItemType Directory
           $GITHUB_WORKSPACE/vcpkg-cache
-          echo "VCPKG_DEFAULT_BINARY_CACHE=$env:GITHUB_WORKSPACE/vcpkg-cache" >> $env:GITHUB_ENV
+          echo "VCPKG_DEFAULT_BINARY_CACHE=$env:GITHUB_WORKSPACE\vcpkg-cache" >> $env:GITHUB_ENV
           echo "CESIUM_VCPKG_RELEASE_ONLY=TRUE" >> $env:GITHUB_ENV
 
       - name: vcpkg Check cache
