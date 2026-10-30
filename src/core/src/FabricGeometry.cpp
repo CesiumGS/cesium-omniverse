@@ -173,6 +173,8 @@ void FabricGeometry::initialize() {
     // clang-format on
 
     if (_geometryDescriptor.isGaussianSplats()) {
+        const auto hasVertexColors = _geometryDescriptor.hasVertexColors();
+
         // clang-format off
         attributes.addAttribute(FabricTypes::projectionModeHint, FabricTokens::projectionModeHint());
         attributes.addAttribute(FabricTypes::sortingModeHint, FabricTokens::sortingModeHint());
@@ -182,8 +184,6 @@ void FabricGeometry::initialize() {
         attributes.addAttribute(FabricTypes::opacities, FabricTokens::opacities());
         attributes.addAttribute(FabricTypes::radiance_sphericalHarmonicsDegree, FabricTokens::radiance_sphericalHarmonicsDegree());
         attributes.addAttribute(FabricTypes::radiance_sphericalHarmonicsCoefficients, FabricTokens::radiance_sphericalHarmonicsCoefficients());
-        attributes.addAttribute(FabricTypes::primvars_displayColor, FabricTokens::primvars_displayColor());
-        attributes.addAttribute(FabricTypes::primvars_interpolation, FabricTokens::primvars_displayColor_interpolation());
         attributes.addAttribute(FabricTypes::ParticleField3DGaussianSplat, FabricTokens::ParticleField3DGaussianSplat());
         attributes.addAttribute(FabricTypes::ParticleField, FabricTokens::ParticleField());
         attributes.addAttribute(FabricTypes::ParticleFieldKernelBaseAPI, FabricTokens::ParticleFieldKernelBaseAPI());
@@ -196,6 +196,12 @@ void FabricGeometry::initialize() {
         attributes.addAttribute(FabricTypes::ParticleFieldScaleAttributeAPI, FabricTokens::ParticleFieldScaleAttributeAPI());
         attributes.addAttribute(FabricTypes::ParticleFieldSphericalHarmonicsAttributeAPI, FabricTokens::ParticleFieldSphericalHarmonicsAttributeAPI());
         // clang-format on
+
+        if (hasVertexColors) {
+            attributes.addAttribute(FabricTypes::primvars_displayColor, FabricTokens::primvars_displayColor());
+            attributes.addAttribute(
+                FabricTypes::primvars_interpolation, FabricTokens::primvars_displayColor_interpolation());
+        }
     } else {
         const auto hasNormals = _geometryDescriptor.hasNormals();
         const auto hasVertexColors = _geometryDescriptor.hasVertexColors();
@@ -250,15 +256,21 @@ void FabricGeometry::initialize() {
     // Set values for immutable attributes
     //--------------------------------------------------------------------------
     if (_geometryDescriptor.isGaussianSplats()) {
+        const auto hasVertexColors = _geometryDescriptor.hasVertexColors();
+
         // clang-format off
         const auto projectionModeHintFabric = fabricStage.getAttributeWr<omni::fabric::Token>(_path, FabricTokens::projectionModeHint());
         const auto sortingModeHintFabric = fabricStage.getAttributeWr<omni::fabric::Token>(_path, FabricTokens::sortingModeHint());
-        const auto primvarsDisplayColorInterpolationFabric = fabricStage.getAttributeWr<omni::fabric::Token>(_path, FabricTokens::primvars_displayColor_interpolation());
         // clang-format on
 
         *projectionModeHintFabric = FabricTokens::perspective();
         *sortingModeHintFabric = FabricTokens::cameraDistance();
-        *primvarsDisplayColorInterpolationFabric = FabricTokens::vertex();
+
+        if (hasVertexColors) {
+            const auto primvarsDisplayColorInterpolationFabric = fabricStage.getAttributeWr<omni::fabric::Token>(
+                _path, FabricTokens::primvars_displayColor_interpolation());
+            *primvarsDisplayColorInterpolationFabric = FabricTokens::vertex();
+        }
     } else {
         const auto hasNormals = _geometryDescriptor.hasNormals();
         const auto hasVertexColors = _geometryDescriptor.hasVertexColors();
@@ -324,6 +336,8 @@ void FabricGeometry::reset() {
     *tilesetIdFabric = FabricUtil::NO_TILESET_ID;
 
     if (_geometryDescriptor.isGaussianSplats()) {
+        const auto hasVertexColors = _geometryDescriptor.hasVertexColors();
+
         const auto radianceSphericalHarmonicsDegreeFabric =
             fabricStage.getAttributeWr<int>(_path, FabricTokens::radiance_sphericalHarmonicsDegree());
 
@@ -334,7 +348,10 @@ void FabricGeometry::reset() {
         fabricStage.setArrayAttributeSize(_path, FabricTokens::scales(), 0);
         fabricStage.setArrayAttributeSize(_path, FabricTokens::opacities(), 0);
         fabricStage.setArrayAttributeSize(_path, FabricTokens::radiance_sphericalHarmonicsCoefficients(), 0);
-        fabricStage.setArrayAttributeSize(_path, FabricTokens::primvars_displayColor(), 0);
+
+        if (hasVertexColors) {
+            fabricStage.setArrayAttributeSize(_path, FabricTokens::primvars_displayColor(), 0);
+        }
     } else {
         const auto hasNormals = _geometryDescriptor.hasNormals();
         const auto hasVertexColors = _geometryDescriptor.hasVertexColors();
@@ -431,6 +448,8 @@ void FabricGeometry::setGeometry(
     *tilesetIdFabric = tilesetId;
 
     if (_geometryDescriptor.isGaussianSplats()) {
+        const auto hasVertexColors = _geometryDescriptor.hasVertexColors();
+
         const auto rotations = GltfUtil::getGaussianSplatRotations(model, primitive);
         const auto scales = GltfUtil::getGaussianSplatScales(model, primitive);
         const auto opacities = GltfUtil::getGaussianSplatOpacities(model, primitive);
@@ -450,7 +469,6 @@ void FabricGeometry::setGeometry(
         fabricStage.setArrayAttributeSize(_path, FabricTokens::scales(), scales.size());
         fabricStage.setArrayAttributeSize(_path, FabricTokens::opacities(), opacities.size());
         fabricStage.setArrayAttributeSize(_path, FabricTokens::radiance_sphericalHarmonicsCoefficients(), sphericalHarmonicCoefficients.size());
-        fabricStage.setArrayAttributeSize(_path, FabricTokens::primvars_displayColor(), vertexColors.size());
         // clang-format on
 
         // clang-format off
@@ -459,7 +477,6 @@ void FabricGeometry::setGeometry(
         const auto scalesFabric = fabricStage.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::scales());
         const auto opacitiesFabric = fabricStage.getArrayAttributeWr<float>(_path, FabricTokens::opacities());
         const auto radianceSphericalHarmonicCoefficientsFabric = fabricStage.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::radiance_sphericalHarmonicsCoefficients());
-        const auto primvarsDisplayColorsFabric = fabricStage.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::primvars_displayColor());
         // clang-format on
 
         positions.fill(CppUtil::toSpan(positionsFabric));
@@ -467,7 +484,13 @@ void FabricGeometry::setGeometry(
         scales.fill(CppUtil::toSpan(scalesFabric));
         opacities.fill(CppUtil::toSpan(opacitiesFabric));
         sphericalHarmonicCoefficients.fill(CppUtil::toSpan(radianceSphericalHarmonicCoefficientsFabric));
-        vertexColors.fill(CppUtil::toSpan(primvarsDisplayColorsFabric));
+
+        if (hasVertexColors) {
+            const auto primvarsDisplayColorsFabric =
+                fabricStage.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::primvars_displayColor());
+            fabricStage.setArrayAttributeSize(_path, FabricTokens::primvars_displayColor(), vertexColors.size());
+            vertexColors.fill(CppUtil::toSpan(primvarsDisplayColorsFabric));
+        }
     } else {
         const auto hasNormals = _geometryDescriptor.hasNormals();
         const auto hasVertexColors = _geometryDescriptor.hasVertexColors();
