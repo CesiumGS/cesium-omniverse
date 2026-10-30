@@ -54,4 +54,6 @@ glm::dvec3 getCorner(const std::array<glm::dvec3, 2>& extent, uint64_t index);
 
 std::array<glm::dvec3, 2> transformExtent(const std::array<glm::dvec3, 2>& extent, const glm::dmat4& transform);
 
+double sigmoid(double x);
+
 } // namespace cesium::omniverse::MathUtil

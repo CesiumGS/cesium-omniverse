@@ -16,6 +16,8 @@
 #include <carb/Numeric.h>
 #include <glm/fwd.hpp>
 
+#include <limits>
+
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
 #undef OPAQUE
@@ -389,11 +391,26 @@ void FabricGeometry::setGeometry(
     const auto positions = GltfUtil::getPositions(model, primitive);
     const auto gltfLocalExtent = GltfUtil::getExtent(model, primitive);
     const auto gltfLocalToPrimWorldTransform = ecefToPrimWorldTransform * gltfLocalToEcefTransform;
-    const auto primWorldExtent = MathUtil::transformExtent(gltfLocalExtent.value(), gltfLocalToPrimWorldTransform);
 
     if (positions.size() == 0 || !gltfLocalExtent.has_value()) {
         return;
     }
+
+    std::array<glm::dvec3, 2> computedLocalExtent = *gltfLocalExtent;
+
+    if (computedLocalExtent[0] == glm::dvec3(-1.0) && computedLocalExtent[1] == glm::dvec3(1.0)) {
+        glm::dvec3 min(std::numeric_limits<double>::max());
+        glm::dvec3 max(std::numeric_limits<double>::lowest());
+
+        for (uint64_t i = 0; i < positions.size(); i++) {
+            min = glm::min(min, glm::dvec3(positions.get(i)));
+            max = glm::max(max, glm::dvec3(positions.get(i)));
+        }
+
+        computedLocalExtent = std::array<glm::dvec3, 2>{{min, max}};
+    }
+
+    const auto primWorldExtent = MathUtil::transformExtent(computedLocalExtent, gltfLocalToPrimWorldTransform);
 
     auto& fabricStage = _pContext->getFabricStage();
 
@@ -406,7 +423,7 @@ void FabricGeometry::setGeometry(
     const auto tilesetIdFabric = fabricStage.getAttributeWr<int64_t>(_path, FabricTokens::_cesium_tilesetId());
     // clang-format on
 
-    *extentFabric = UsdUtil::glmToUsdExtent(gltfLocalExtent.value());
+    *extentFabric = UsdUtil::glmToUsdExtent(computedLocalExtent);
     *worldExtentFabric = UsdUtil::glmToUsdExtent(primWorldExtent);
     *gltfLocalToEcefTransformFabric = UsdUtil::glmToUsdMatrix(gltfLocalToEcefTransform);
     *localMatrixFabric = UsdUtil::glmToUsdMatrix(gltfLocalToPrimWorldTransform);

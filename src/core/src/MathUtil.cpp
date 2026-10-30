@@ -167,4 +167,14 @@ std::array<glm::dvec3, 2> transformExtent(const std::array<glm::dvec3, 2>& exten
     return {{transformedMin, transformedMax}};
 }
 
+double sigmoid(double x) {
+    if (x >= 0) {
+        double z = std::exp(-x);
+        return 1.0 / (1.0 + z);
+    } else {
+        double z = std::exp(x);
+        return z / (1.0 + z);
+    }
+}
+
 } // namespace cesium::omniverse::MathUtil
