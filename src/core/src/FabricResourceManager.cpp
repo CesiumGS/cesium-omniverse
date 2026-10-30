@@ -67,6 +67,13 @@ bool FabricResourceManager::shouldAcquireMaterial(
         return false;
     }
 
+    if (GltfUtil::isGaussianSplats(primitive)) {
+        // Unless specified otherwise by additional Gaussian splats extensions,
+        // the glTF material referenced from the mesh primitive (if any) MUST be
+        // ignored for splat rendering.
+        return false;
+    }
+
     if (!tilesetMaterialPath.IsEmpty()) {
         return FabricUtil::materialHasCesiumNodes(
             _pContext->getFabricStage(), FabricUtil::toFabricPath(tilesetMaterialPath));

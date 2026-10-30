@@ -4,9 +4,8 @@
 #include "cesium/omniverse/FabricFeaturesInfo.h"
 #include "cesium/omniverse/FabricMaterialInfo.h"
 #include "cesium/omniverse/FabricTextureInfo.h"
+#include "cesium/omniverse/FabricVertexAttributeAccessors.h"
 #include "cesium/omniverse/FabricVertexAttributeDescriptor.h"
-
-#include <CesiumGltf/Material.h>
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
@@ -16,10 +15,12 @@
 #include <CesiumGltf/Accessor.h>
 #include <CesiumGltf/AccessorView.h>
 #include <CesiumGltf/ExtensionExtMeshFeatures.h>
+#include <CesiumGltf/ExtensionKhrGaussianSplatting.h>
 #include <CesiumGltf/ExtensionKhrMaterialsUnlit.h>
 #include <CesiumGltf/ExtensionKhrTextureTransform.h>
 #include <CesiumGltf/FeatureIdTexture.h>
 #include <CesiumGltf/FeatureIdTextureView.h>
+#include <CesiumGltf/Material.h>
 #include <CesiumGltf/Model.h>
 #include <CesiumGltf/PropertyTextureProperty.h>
 #include <CesiumGltf/TextureInfo.h>
@@ -136,6 +137,89 @@ getPositionsView(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive
     }
 
     return positionsView;
+}
+
+CesiumGltf::AccessorView<glm::fvec4>
+getGaussianSplatRotationsView(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+    const auto it = primitive.attributes.find("KHR_gaussian_splatting:ROTATION");
+    if (it == primitive.attributes.end()) {
+        return {};
+    }
+
+    const auto pRotationAccessor = model.getSafe(&model.accessors, it->second);
+    if (!pRotationAccessor) {
+        return {};
+    }
+
+    const auto rotationsView = CesiumGltf::AccessorView<glm::fvec4>(model, *pRotationAccessor);
+    if (rotationsView.status() != CesiumGltf::AccessorViewStatus::Valid) {
+        return {};
+    }
+
+    return rotationsView;
+}
+
+CesiumGltf::AccessorView<glm::fvec3>
+getGaussianSplatScalesView(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+    const auto it = primitive.attributes.find("KHR_gaussian_splatting:SCALE");
+    if (it == primitive.attributes.end()) {
+        return {};
+    }
+
+    const auto pScaleAccessor = model.getSafe(&model.accessors, it->second);
+    if (!pScaleAccessor) {
+        return {};
+    }
+
+    const auto scalesView = CesiumGltf::AccessorView<glm::fvec3>(model, *pScaleAccessor);
+    if (scalesView.status() != CesiumGltf::AccessorViewStatus::Valid) {
+        return {};
+    }
+
+    return scalesView;
+}
+
+CesiumGltf::AccessorView<float>
+getGaussianSplatOpacitiesView(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+    const auto it = primitive.attributes.find("KHR_gaussian_splatting:OPACITY");
+    if (it == primitive.attributes.end()) {
+        return {};
+    }
+
+    const auto pOpacityAccessor = model.getSafe(&model.accessors, it->second);
+    if (!pOpacityAccessor) {
+        return {};
+    }
+
+    const auto opacitiesView = CesiumGltf::AccessorView<float>(model, *pOpacityAccessor);
+    if (opacitiesView.status() != CesiumGltf::AccessorViewStatus::Valid) {
+        return {};
+    }
+
+    return opacitiesView;
+}
+
+CesiumGltf::AccessorView<glm::fvec3> getGaussianSplatSphericalHarmonicCoefficientsView(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive,
+    const std::string& attributeName) {
+    const auto it = primitive.attributes.find(attributeName);
+    if (it == primitive.attributes.end()) {
+        return {};
+    }
+
+    const auto pSphericalHarmonicCoefficientsAccessor = model.getSafe(&model.accessors, it->second);
+    if (!pSphericalHarmonicCoefficientsAccessor) {
+        return {};
+    }
+
+    const auto sphericalHarmonicCoefficientsView =
+        CesiumGltf::AccessorView<glm::fvec3>(model, *pSphericalHarmonicCoefficientsAccessor);
+    if (sphericalHarmonicCoefficientsView.status() != CesiumGltf::AccessorViewStatus::Valid) {
+        return {};
+    }
+
+    return sphericalHarmonicCoefficientsView;
 }
 
 TexcoordsAccessor getTexcoords(
@@ -598,6 +682,80 @@ getVertexColors(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive&
     return {};
 }
 
+RotationsAccessor
+getGaussianSplatRotations(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+    const auto rotationsView = getGaussianSplatRotationsView(model, primitive);
+
+    if (rotationsView.status() != CesiumGltf::AccessorViewStatus::Valid) {
+        return {};
+    }
+
+    return {rotationsView};
+}
+
+ScalesAccessor getGaussianSplatScales(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+    const auto scalesView = getGaussianSplatScalesView(model, primitive);
+
+    if (scalesView.status() != CesiumGltf::AccessorViewStatus::Valid) {
+        return {};
+    }
+
+    return {scalesView};
+}
+
+OpacitiesAccessor
+getGaussianSplatOpacities(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+    const auto opacitiesView = getGaussianSplatOpacitiesView(model, primitive);
+
+    if (opacitiesView.status() != CesiumGltf::AccessorViewStatus::Valid) {
+        return {};
+    }
+
+    return {opacitiesView};
+}
+
+SphericalHarmonicCoefficientsAccessor getGaussianSplatSphericalHarmonicCoefficients(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive) {
+    // clang-format off
+    const auto shDegree0Coef0View = getGaussianSplatSphericalHarmonicCoefficientsView(model, primitive, "KHR_gaussian_splatting:SH_DEGREE_0_COEF_0");
+    const auto shDegree1Coef0View = getGaussianSplatSphericalHarmonicCoefficientsView(model, primitive, "KHR_gaussian_splatting:SH_DEGREE_1_COEF_0");
+    const auto shDegree1Coef1View = getGaussianSplatSphericalHarmonicCoefficientsView(model, primitive, "KHR_gaussian_splatting:SH_DEGREE_1_COEF_1");
+    const auto shDegree1Coef2View = getGaussianSplatSphericalHarmonicCoefficientsView(model, primitive, "KHR_gaussian_splatting:SH_DEGREE_1_COEF_2");
+    const auto shDegree2Coef0View = getGaussianSplatSphericalHarmonicCoefficientsView(model, primitive, "KHR_gaussian_splatting:SH_DEGREE_2_COEF_0");
+    const auto shDegree2Coef1View = getGaussianSplatSphericalHarmonicCoefficientsView(model, primitive, "KHR_gaussian_splatting:SH_DEGREE_2_COEF_1");
+    const auto shDegree2Coef2View = getGaussianSplatSphericalHarmonicCoefficientsView(model, primitive, "KHR_gaussian_splatting:SH_DEGREE_2_COEF_2");
+    const auto shDegree2Coef3View = getGaussianSplatSphericalHarmonicCoefficientsView(model, primitive, "KHR_gaussian_splatting:SH_DEGREE_2_COEF_3");
+    const auto shDegree2Coef4View = getGaussianSplatSphericalHarmonicCoefficientsView(model, primitive, "KHR_gaussian_splatting:SH_DEGREE_2_COEF_4");
+    const auto shDegree3Coef0View = getGaussianSplatSphericalHarmonicCoefficientsView(model, primitive, "KHR_gaussian_splatting:SH_DEGREE_3_COEF_0");
+    const auto shDegree3Coef1View = getGaussianSplatSphericalHarmonicCoefficientsView(model, primitive, "KHR_gaussian_splatting:SH_DEGREE_3_COEF_1");
+    const auto shDegree3Coef2View = getGaussianSplatSphericalHarmonicCoefficientsView(model, primitive, "KHR_gaussian_splatting:SH_DEGREE_3_COEF_2");
+    const auto shDegree3Coef3View = getGaussianSplatSphericalHarmonicCoefficientsView(model, primitive, "KHR_gaussian_splatting:SH_DEGREE_3_COEF_3");
+    const auto shDegree3Coef4View = getGaussianSplatSphericalHarmonicCoefficientsView(model, primitive, "KHR_gaussian_splatting:SH_DEGREE_3_COEF_4");
+    const auto shDegree3Coef5View = getGaussianSplatSphericalHarmonicCoefficientsView(model, primitive, "KHR_gaussian_splatting:SH_DEGREE_3_COEF_5");
+    const auto shDegree3Coef6View = getGaussianSplatSphericalHarmonicCoefficientsView(model, primitive, "KHR_gaussian_splatting:SH_DEGREE_3_COEF_6");
+    // clang-format on
+
+    return {
+        shDegree0Coef0View,
+        shDegree1Coef0View,
+        shDegree1Coef1View,
+        shDegree1Coef2View,
+        shDegree2Coef0View,
+        shDegree2Coef1View,
+        shDegree2Coef2View,
+        shDegree2Coef3View,
+        shDegree2Coef4View,
+        shDegree3Coef0View,
+        shDegree3Coef1View,
+        shDegree3Coef2View,
+        shDegree3Coef3View,
+        shDegree3Coef4View,
+        shDegree3Coef5View,
+        shDegree3Coef6View,
+    };
+}
+
 VertexIdsAccessor getVertexIds(const PositionsAccessor& positionsAccessor) {
     return {positionsAccessor.size()};
 }
@@ -728,7 +886,7 @@ FabricFeaturesInfo getFeaturesInfo(const CesiumGltf::Model& model, const CesiumG
 
 std::set<FabricVertexAttributeDescriptor>
 getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
-    constexpr std::array<std::string_view, 8> knownSemantics = {{
+    constexpr std::array<std::string_view, 15> knownSemantics = {{
         "POSITION",
         "NORMAL",
         "TANGENT",
@@ -737,6 +895,13 @@ getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::Mesh
         "JOINTS",
         "WEIGHTS",
         "_CESIUMOVERLAY",
+        "KHR_gaussian_splatting:ROTATION",
+        "KHR_gaussian_splatting:SCALE",
+        "KHR_gaussian_splatting:OPACITY",
+        "KHR_gaussian_splatting:SH_DEGREE_0_COEF",
+        "KHR_gaussian_splatting:SH_DEGREE_1_COEF",
+        "KHR_gaussian_splatting:SH_DEGREE_2_COEF",
+        "KHR_gaussian_splatting:SH_DEGREE_3_COEF",
     }};
 
     std::set<FabricVertexAttributeDescriptor> customVertexAttributes;
@@ -816,6 +981,30 @@ FabricTextureInfo getPropertyTexturePropertyInfo(
     FabricTextureInfo textureInfo = getTextureInfo(model, propertyTextureProperty);
     textureInfo.channels = getChannels(propertyTextureProperty);
     return textureInfo;
+}
+
+bool isGaussianSplats(const CesiumGltf::MeshPrimitive& primitive) {
+    return primitive.hasExtension<CesiumGltf::ExtensionKhrGaussianSplatting>();
+}
+
+std::optional<uint64_t> getGaussianSplatSphericalHarmonicDegrees(const CesiumGltf::MeshPrimitive& primitive) {
+    int64_t maxDegrees = -1;
+
+    for (const auto& attribute : primitive.attributes) {
+        const auto& attributeName = attribute.first;
+        const auto [semantic, setIndex] = parseAttributeName(attributeName);
+        if (semantic == "KHR_gaussian_splatting:SH_DEGREE_0_COEF") {
+            maxDegrees = glm::max(maxDegrees, int64_t(0));
+        } else if (semantic == "KHR_gaussian_splatting:SH_DEGREE_1_COEF") {
+            maxDegrees = glm::max(maxDegrees, int64_t(1));
+        } else if (semantic == "KHR_gaussian_splatting:SH_DEGREE_2_COEF") {
+            maxDegrees = glm::max(maxDegrees, int64_t(2));
+        } else if (semantic == "KHR_gaussian_splatting:SH_DEGREE_3_COEF") {
+            maxDegrees = glm::max(maxDegrees, int64_t(3));
+        }
+    }
+
+    return maxDegrees == -1 ? std::nullopt : std::make_optional(uint64_t(maxDegrees));
 }
 
 bool hasNormals(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, bool smoothNormals) {

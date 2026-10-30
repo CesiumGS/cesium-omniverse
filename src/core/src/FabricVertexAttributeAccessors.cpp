@@ -292,7 +292,221 @@ void VertexColorsAccessor::fill(const std::span<glm::fvec4>& values, uint64_t re
     }
 }
 
+void VertexColorsAccessor::fill(const std::span<glm::fvec3>& values, uint64_t repeat) const {
+    constexpr auto MAX_UINT8 = static_cast<float>(std::numeric_limits<uint8_t>::max());
+    constexpr auto MAX_UINT16 = static_cast<float>(std::numeric_limits<uint16_t>::max());
+
+    const auto size = values.size();
+    assert(size == _size * repeat);
+
+    if (_uint8Vec3View.status() == CesiumGltf::AccessorViewStatus::Valid) {
+        for (uint64_t i = 0; i < size; ++i) {
+            values[i] = glm::fvec3(
+                static_cast<float>(_uint8Vec3View[static_cast<int64_t>(i / repeat)].x) / MAX_UINT8,
+                static_cast<float>(_uint8Vec3View[static_cast<int64_t>(i / repeat)].y) / MAX_UINT8,
+                static_cast<float>(_uint8Vec3View[static_cast<int64_t>(i / repeat)].z) / MAX_UINT8);
+        }
+    } else if (_uint8Vec4View.status() == CesiumGltf::AccessorViewStatus::Valid) {
+        for (uint64_t i = 0; i < size; ++i) {
+            values[i] = glm::fvec3(
+                static_cast<float>(_uint8Vec4View[static_cast<int64_t>(i / repeat)].x) / MAX_UINT8,
+                static_cast<float>(_uint8Vec4View[static_cast<int64_t>(i / repeat)].y) / MAX_UINT8,
+                static_cast<float>(_uint8Vec4View[static_cast<int64_t>(i / repeat)].z) / MAX_UINT8);
+        }
+    } else if (_uint16Vec3View.status() == CesiumGltf::AccessorViewStatus::Valid) {
+        for (uint64_t i = 0; i < size; ++i) {
+            values[i] = glm::fvec3(
+                static_cast<float>(_uint16Vec3View[static_cast<int64_t>(i / repeat)].x) / MAX_UINT16,
+                static_cast<float>(_uint16Vec3View[static_cast<int64_t>(i / repeat)].y) / MAX_UINT16,
+                static_cast<float>(_uint16Vec3View[static_cast<int64_t>(i / repeat)].z) / MAX_UINT16);
+        }
+    } else if (_uint16Vec4View.status() == CesiumGltf::AccessorViewStatus::Valid) {
+        for (uint64_t i = 0; i < size; ++i) {
+            values[i] = glm::fvec3(
+                static_cast<float>(_uint16Vec4View[static_cast<int64_t>(i / repeat)].x) / MAX_UINT16,
+                static_cast<float>(_uint16Vec4View[static_cast<int64_t>(i / repeat)].y) / MAX_UINT16,
+                static_cast<float>(_uint16Vec4View[static_cast<int64_t>(i / repeat)].z) / MAX_UINT16);
+        }
+    } else if (_float32Vec3View.status() == CesiumGltf::AccessorViewStatus::Valid) {
+        for (uint64_t i = 0; i < size; ++i) {
+            values[i] = _float32Vec3View[static_cast<int64_t>(i / repeat)];
+        }
+
+    } else if (_float32Vec4View.status() == CesiumGltf::AccessorViewStatus::Valid) {
+        for (uint64_t i = 0; i < size; ++i) {
+            values[i] = glm::fvec3(_float32Vec4View[static_cast<int64_t>(i / repeat)]);
+        }
+    }
+}
+
 uint64_t VertexColorsAccessor::size() const {
+    return _size;
+}
+
+RotationsAccessor::RotationsAccessor()
+    : _size(0) {}
+
+RotationsAccessor::RotationsAccessor(const CesiumGltf::AccessorView<glm::fvec4>& view)
+    : _view(view)
+    , _size(static_cast<uint64_t>(view.size())) {}
+
+void RotationsAccessor::fill(const std::span<glm::fvec4>& values) const {
+    for (uint64_t i = 0; i < _size; ++i) {
+        values[i] = _view[static_cast<int64_t>(i)];
+    }
+}
+
+uint64_t RotationsAccessor::size() const {
+    return _size;
+}
+
+ScalesAccessor::ScalesAccessor()
+    : _size(0) {}
+
+ScalesAccessor::ScalesAccessor(const CesiumGltf::AccessorView<glm::fvec3>& view)
+    : _view(view)
+    , _size(static_cast<uint64_t>(view.size())) {}
+
+void ScalesAccessor::fill(const std::span<glm::fvec3>& values) const {
+    for (uint64_t i = 0; i < _size; ++i) {
+        values[i] = _view[static_cast<int64_t>(i)];
+    }
+}
+
+uint64_t ScalesAccessor::size() const {
+    return _size;
+}
+
+OpacitiesAccessor::OpacitiesAccessor()
+    : _size(0) {}
+
+OpacitiesAccessor::OpacitiesAccessor(const CesiumGltf::AccessorView<float>& view)
+    : _view(view)
+    , _size(static_cast<uint64_t>(view.size())) {}
+
+void OpacitiesAccessor::fill(const std::span<float>& values) const {
+    for (uint64_t i = 0; i < _size; ++i) {
+        values[i] = _view[static_cast<int64_t>(i)];
+    }
+}
+
+uint64_t OpacitiesAccessor::size() const {
+    return _size;
+}
+
+SphericalHarmonicCoefficientsAccessor::SphericalHarmonicCoefficientsAccessor()
+    : _size(0) {}
+
+SphericalHarmonicCoefficientsAccessor::SphericalHarmonicCoefficientsAccessor(
+    const CesiumGltf::AccessorView<glm::fvec3>& shDegree0Coef0View,
+    const CesiumGltf::AccessorView<glm::fvec3>& shDegree1Coef0View,
+    const CesiumGltf::AccessorView<glm::fvec3>& shDegree1Coef1View,
+    const CesiumGltf::AccessorView<glm::fvec3>& shDegree1Coef2View,
+    const CesiumGltf::AccessorView<glm::fvec3>& shDegree2Coef0View,
+    const CesiumGltf::AccessorView<glm::fvec3>& shDegree2Coef1View,
+    const CesiumGltf::AccessorView<glm::fvec3>& shDegree2Coef2View,
+    const CesiumGltf::AccessorView<glm::fvec3>& shDegree2Coef3View,
+    const CesiumGltf::AccessorView<glm::fvec3>& shDegree2Coef4View,
+    const CesiumGltf::AccessorView<glm::fvec3>& shDegree3Coef0View,
+    const CesiumGltf::AccessorView<glm::fvec3>& shDegree3Coef1View,
+    const CesiumGltf::AccessorView<glm::fvec3>& shDegree3Coef2View,
+    const CesiumGltf::AccessorView<glm::fvec3>& shDegree3Coef3View,
+    const CesiumGltf::AccessorView<glm::fvec3>& shDegree3Coef4View,
+    const CesiumGltf::AccessorView<glm::fvec3>& shDegree3Coef5View,
+    const CesiumGltf::AccessorView<glm::fvec3>& shDegree3Coef6View)
+    : _shDegree0Coef0View(shDegree0Coef0View)
+    , _shDegree1Coef0View(shDegree1Coef0View)
+    , _shDegree1Coef1View(shDegree1Coef1View)
+    , _shDegree1Coef2View(shDegree1Coef2View)
+    , _shDegree2Coef0View(shDegree2Coef0View)
+    , _shDegree2Coef1View(shDegree2Coef1View)
+    , _shDegree2Coef2View(shDegree2Coef2View)
+    , _shDegree2Coef3View(shDegree2Coef3View)
+    , _shDegree2Coef4View(shDegree2Coef4View)
+    , _shDegree3Coef0View(shDegree3Coef0View)
+    , _shDegree3Coef1View(shDegree3Coef1View)
+    , _shDegree3Coef2View(shDegree3Coef2View)
+    , _shDegree3Coef3View(shDegree3Coef3View)
+    , _shDegree3Coef4View(shDegree3Coef4View)
+    , _shDegree3Coef5View(shDegree3Coef5View)
+    , _shDegree3Coef6View(shDegree3Coef6View)
+    , _size(static_cast<uint64_t>(
+          shDegree0Coef0View.size() + shDegree1Coef0View.size() + shDegree1Coef1View.size() +
+          shDegree1Coef2View.size() + shDegree2Coef0View.size() + shDegree2Coef1View.size() +
+          shDegree2Coef2View.size() + shDegree2Coef3View.size() + shDegree2Coef4View.size() +
+          shDegree3Coef0View.size() + shDegree3Coef1View.size() + shDegree3Coef2View.size() +
+          shDegree3Coef3View.size() + shDegree3Coef4View.size() + shDegree3Coef5View.size() +
+          shDegree3Coef6View.size())) {}
+
+void SphericalHarmonicCoefficientsAccessor::fill(const std::span<glm::fvec3>& values) const {
+    uint64_t count = 0;
+
+    for (uint64_t i = 0; i < uint64_t(_shDegree0Coef0View.size()); ++i) {
+        values[count++] = _shDegree0Coef0View[static_cast<int64_t>(i)];
+    }
+
+    for (uint64_t i = 0; i < uint64_t(_shDegree1Coef0View.size()); ++i) {
+        values[count++] = _shDegree1Coef0View[static_cast<int64_t>(i)];
+    }
+
+    for (uint64_t i = 0; i < uint64_t(_shDegree1Coef1View.size()); ++i) {
+        values[count++] = _shDegree1Coef1View[static_cast<int64_t>(i)];
+    }
+
+    for (uint64_t i = 0; i < uint64_t(_shDegree1Coef2View.size()); ++i) {
+        values[count++] = _shDegree1Coef2View[static_cast<int64_t>(i)];
+    }
+
+    for (uint64_t i = 0; i < uint64_t(_shDegree2Coef0View.size()); ++i) {
+        values[count++] = _shDegree2Coef0View[static_cast<int64_t>(i)];
+    }
+
+    for (uint64_t i = 0; i < uint64_t(_shDegree2Coef1View.size()); ++i) {
+        values[count++] = _shDegree2Coef1View[static_cast<int64_t>(i)];
+    }
+
+    for (uint64_t i = 0; i < uint64_t(_shDegree2Coef2View.size()); ++i) {
+        values[count++] = _shDegree2Coef2View[static_cast<int64_t>(i)];
+    }
+
+    for (uint64_t i = 0; i < uint64_t(_shDegree2Coef3View.size()); ++i) {
+        values[count++] = _shDegree2Coef3View[static_cast<int64_t>(i)];
+    }
+
+    for (uint64_t i = 0; i < uint64_t(_shDegree2Coef4View.size()); ++i) {
+        values[count++] = _shDegree2Coef4View[static_cast<int64_t>(i)];
+    }
+
+    for (uint64_t i = 0; i < uint64_t(_shDegree3Coef0View.size()); ++i) {
+        values[count++] = _shDegree3Coef0View[static_cast<int64_t>(i)];
+    }
+
+    for (uint64_t i = 0; i < uint64_t(_shDegree3Coef1View.size()); ++i) {
+        values[count++] = _shDegree3Coef1View[static_cast<int64_t>(i)];
+    }
+
+    for (uint64_t i = 0; i < uint64_t(_shDegree3Coef2View.size()); ++i) {
+        values[count++] = _shDegree3Coef2View[static_cast<int64_t>(i)];
+    }
+
+    for (uint64_t i = 0; i < uint64_t(_shDegree3Coef3View.size()); ++i) {
+        values[count++] = _shDegree3Coef3View[static_cast<int64_t>(i)];
+    }
+
+    for (uint64_t i = 0; i < uint64_t(_shDegree3Coef4View.size()); ++i) {
+        values[count++] = _shDegree3Coef4View[static_cast<int64_t>(i)];
+    }
+
+    for (uint64_t i = 0; i < uint64_t(_shDegree3Coef5View.size()); ++i) {
+        values[count++] = _shDegree3Coef5View[static_cast<int64_t>(i)];
+    }
+
+    for (uint64_t i = 0; i < uint64_t(_shDegree3Coef6View.size()); ++i) {
+        values[count++] = _shDegree3Coef6View[static_cast<int64_t>(i)];
+    }
+}
+
+uint64_t SphericalHarmonicCoefficientsAccessor::size() const {
     return _size;
 }
 

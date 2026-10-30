@@ -96,9 +96,10 @@ class VertexColorsAccessor {
      * @brief Copy accessor values to the given output values, including any data transformations.
      *
      * @param values The output values.
-     * @param repeat Indicates how many times each value in the accessor should be repeated in the output. Typically repeat is 1, but for voxel point clouds repeat is 8.
+     * @param repeat Indicates how many times each value in the accessor should be repeated in the output. Typically repeat is 1, but for box-ified point clouds repeat is 8.
      */
     void fill(const std::span<glm::fvec4>& values, uint64_t repeat = 1) const;
+    void fill(const std::span<glm::fvec3>& values, uint64_t repeat = 1) const;
 
     [[nodiscard]] uint64_t size() const;
 
@@ -109,6 +110,90 @@ class VertexColorsAccessor {
     CesiumGltf::AccessorView<glm::u16vec4> _uint16Vec4View;
     CesiumGltf::AccessorView<glm::fvec3> _float32Vec3View;
     CesiumGltf::AccessorView<glm::fvec4> _float32Vec4View;
+
+    uint64_t _size;
+};
+
+class RotationsAccessor {
+  public:
+    RotationsAccessor();
+    RotationsAccessor(const CesiumGltf::AccessorView<glm::fvec4>& view);
+
+    void fill(const std::span<glm::fvec4>& values) const;
+    [[nodiscard]] uint64_t size() const;
+
+  private:
+    CesiumGltf::AccessorView<glm::fvec4> _view;
+    uint64_t _size;
+};
+
+class ScalesAccessor {
+  public:
+    ScalesAccessor();
+    ScalesAccessor(const CesiumGltf::AccessorView<glm::fvec3>& view);
+
+    void fill(const std::span<glm::fvec3>& values) const;
+    [[nodiscard]] uint64_t size() const;
+
+  private:
+    CesiumGltf::AccessorView<glm::fvec3> _view;
+    uint64_t _size;
+};
+
+class OpacitiesAccessor {
+  public:
+    OpacitiesAccessor();
+    OpacitiesAccessor(const CesiumGltf::AccessorView<float>& view);
+
+    void fill(const std::span<float>& values) const;
+    [[nodiscard]] uint64_t size() const;
+
+  private:
+    CesiumGltf::AccessorView<float> _view;
+    uint64_t _size;
+};
+
+class SphericalHarmonicCoefficientsAccessor {
+  public:
+    SphericalHarmonicCoefficientsAccessor();
+    SphericalHarmonicCoefficientsAccessor(
+        const CesiumGltf::AccessorView<glm::fvec3>& shDegree0Coef0View,
+        const CesiumGltf::AccessorView<glm::fvec3>& shDegree1Coef0View,
+        const CesiumGltf::AccessorView<glm::fvec3>& shDegree1Coef1View,
+        const CesiumGltf::AccessorView<glm::fvec3>& shDegree1Coef2View,
+        const CesiumGltf::AccessorView<glm::fvec3>& shDegree2Coef0View,
+        const CesiumGltf::AccessorView<glm::fvec3>& shDegree2Coef1View,
+        const CesiumGltf::AccessorView<glm::fvec3>& shDegree2Coef2View,
+        const CesiumGltf::AccessorView<glm::fvec3>& shDegree2Coef3View,
+        const CesiumGltf::AccessorView<glm::fvec3>& shDegree2Coef4View,
+        const CesiumGltf::AccessorView<glm::fvec3>& shDegree3Coef0View,
+        const CesiumGltf::AccessorView<glm::fvec3>& shDegree3Coef1View,
+        const CesiumGltf::AccessorView<glm::fvec3>& shDegree3Coef2View,
+        const CesiumGltf::AccessorView<glm::fvec3>& shDegree3Coef3View,
+        const CesiumGltf::AccessorView<glm::fvec3>& shDegree3Coef4View,
+        const CesiumGltf::AccessorView<glm::fvec3>& shDegree3Coef5View,
+        const CesiumGltf::AccessorView<glm::fvec3>& shDegree3Coef6View);
+
+    void fill(const std::span<glm::fvec3>& values) const;
+    [[nodiscard]] uint64_t size() const;
+
+  private:
+    CesiumGltf::AccessorView<glm::fvec3> _shDegree0Coef0View;
+    CesiumGltf::AccessorView<glm::fvec3> _shDegree1Coef0View;
+    CesiumGltf::AccessorView<glm::fvec3> _shDegree1Coef1View;
+    CesiumGltf::AccessorView<glm::fvec3> _shDegree1Coef2View;
+    CesiumGltf::AccessorView<glm::fvec3> _shDegree2Coef0View;
+    CesiumGltf::AccessorView<glm::fvec3> _shDegree2Coef1View;
+    CesiumGltf::AccessorView<glm::fvec3> _shDegree2Coef2View;
+    CesiumGltf::AccessorView<glm::fvec3> _shDegree2Coef3View;
+    CesiumGltf::AccessorView<glm::fvec3> _shDegree2Coef4View;
+    CesiumGltf::AccessorView<glm::fvec3> _shDegree3Coef0View;
+    CesiumGltf::AccessorView<glm::fvec3> _shDegree3Coef1View;
+    CesiumGltf::AccessorView<glm::fvec3> _shDegree3Coef2View;
+    CesiumGltf::AccessorView<glm::fvec3> _shDegree3Coef3View;
+    CesiumGltf::AccessorView<glm::fvec3> _shDegree3Coef4View;
+    CesiumGltf::AccessorView<glm::fvec3> _shDegree3Coef5View;
+    CesiumGltf::AccessorView<glm::fvec3> _shDegree3Coef6View;
 
     uint64_t _size;
 };

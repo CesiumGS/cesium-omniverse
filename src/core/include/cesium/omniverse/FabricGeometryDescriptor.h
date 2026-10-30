@@ -31,15 +31,17 @@ class FabricGeometryDescriptor {
         const FabricFeaturesInfo& featuresInfo,
         bool smoothNormals);
 
+    [[nodiscard]] bool isGaussianSplats() const;
     [[nodiscard]] bool hasNormals() const;
     [[nodiscard]] bool hasVertexColors() const;
     [[nodiscard]] bool hasVertexIds() const;
     [[nodiscard]] uint64_t getTexcoordSetCount() const;
     [[nodiscard]] const std::set<FabricVertexAttributeDescriptor>& getCustomVertexAttributes() const;
 
-    bool operator==(const FabricGeometryDescriptor& other) const;
+    bool operator==(const FabricGeometryDescriptor& other) const = default;
 
   private:
+    bool _isGaussianSplats{false};
     bool _hasNormals{false};
     bool _hasVertexColors{false};
     bool _hasVertexIds{false};

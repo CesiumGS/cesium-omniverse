@@ -538,6 +538,7 @@ void OmniTileset::updateTilesetOptions() {
     options.culledScreenSpaceError = getCulledScreenSpaceError();
     options.mainThreadLoadingTimeLimit = getMainThreadLoadingTimeLimit();
     options.showCreditsOnScreen = getShowCreditsOnScreen();
+    options.contentOptions.spzDecoderOptions.forceFloatAccessors = true;
 }
 
 void OmniTileset::reload() {

@@ -27,6 +27,8 @@ PXR_NAMESPACE_OPEN_SCOPE
 
 #define USD_TOKENS_1 \
     (base_color_texture) \
+    (Boundable) \
+    (cameraDistance) \
     (cesium_base_color_texture_float4) \
     (cesium_feature_id_int) \
     (cesium_raster_overlay_float4) \
@@ -73,12 +75,12 @@ PXR_NAMESPACE_OPEN_SCOPE
     (cesium_property_float2) \
     (cesium_property_float3) \
     (cesium_property_float4) \
-    (cesium_property_int) \
-    (cesium_property_int2) \
-    (cesium_property_int3) \
-    (cesium_property_int4)
+    (cesium_property_int)
 
 #define USD_TOKENS_2 \
+    (cesium_property_int2) \
+    (cesium_property_int3) \
+    (cesium_property_int4) \
     (clipping_raster_overlay_resolver) \
     (doubleSided) \
     (extent) \
@@ -86,20 +88,48 @@ PXR_NAMESPACE_OPEN_SCOPE
     (faceVertexIndices) \
     (raster_overlay) \
     (raster_overlay_resolver) \
+    (Gprim) \
+    (Imageable) \
     (Material) \
+    (MaterialBindingAPI) \
     (Mesh) \
     (none) \
     (normals) \
+    (opacities) \
+    (orientations) \
+    (perspective) \
+    (ParticleField) \
+    (ParticleField3DGaussianSplat) \
+    (ParticleFieldKernelBaseAPI) \
+    (ParticleFieldKernelGaussianEllipsoidAPI) \
+    (ParticleFieldPositionAttributeAPI) \
+    (ParticleFieldPositionBaseAPI) \
+    (ParticleFieldOpacityAttributeAPI) \
+    (ParticleFieldOrientationAttributeAPI) \
+    (ParticleFieldRadianceBaseAPI) \
+    (ParticleFieldScaleAttributeAPI) \
+    (ParticleFieldSphericalHarmonicsAttributeAPI) \
+    (PointBased) \
     (points) \
+    (positions) \
+    (PrimvarsAPI) \
+    (projectionModeHint) \
+    (scales) \
+    (SchemaBase) \
     (Shader) \
+    (sortingModeHint) \
     (sourceAsset) \
     (subdivisionScheme) \
+    (Typed) \
     (vertex) \
     (vertexId) \
+    (Xformable) \
     (_cesium_gltfLocalToEcefTransform) \
     (_cesium_tilesetId) \
     (_deletedPrims) \
-    (_materialSource) \
+    (_materialSource)
+
+#define USD_TOKENS_3 \
     (_paramColorSpace) \
     (_sdrMetadata) \
     (_worldExtent) \
@@ -128,9 +158,7 @@ PXR_NAMESPACE_OPEN_SCOPE
     ((inputs_maximum_value, "inputs:maximum_value")) \
     ((inputs_metallic_factor, "inputs:metallic_factor")) \
     ((inputs_no_data, "inputs:no_data")) \
-    ((inputs_null_feature_id, "inputs:null_feature_id"))
-
-#define USD_TOKENS_3 \
+    ((inputs_null_feature_id, "inputs:null_feature_id")) \
     ((inputs_offset, "inputs:offset")) \
     ((inputs_primvar_name, "inputs:primvar_name")) \
     ((inputs_property_id, "inputs:property_id")) \
@@ -151,15 +179,21 @@ PXR_NAMESPACE_OPEN_SCOPE
     ((omni_fabric_localMatrix, "omni:fabric:localMatrix")) \
     ((omni_fabric_worldMatrix, "omni:fabric:worldMatrix")) \
     ((outputs_mdl_displacement, "outputs:mdl:displacement")) \
-    ((outputs_mdl_surface, "outputs:mdl:surface")) \
+    ((outputs_mdl_surface, "outputs:mdl:surface"))
+
+#define USD_TOKENS_4 \
     ((outputs_mdl_volume, "outputs:mdl:volume")) \
     ((outputs_out, "outputs:out")) \
     ((primvars_COLOR_0, "primvars:COLOR_0")) \
     ((primvars_COLOR_0_interpolation, "primvars:COLOR_0:interpolation")) \
     ((primvars_displayColor, "primvars:displayColor")) \
+    ((primvars_displayColor_interpolation, "primvars:displayColor:interpolation")) \
     ((primvars_displayOpacity, "primvars:displayOpacity")) \
     ((primvars_vertexId, "primvars:vertexId")) \
     ((primvars_vertexId_interpolation, "primvars:vertexId:interpolation")) \
+    ((radiance_sphericalHarmonicsDegree, "radiance:sphericalHarmonicsDegree")) \
+    ((radiance_sphericalHarmonicsCoefficients, "radiance:sphericalHarmonicsCoefficients")) \
+    ((TfType_Root, "TfType::_Root")) \
     ((xformOp_orient, "xformOp:orient")) \
     ((xformOp_rotateXYZ, "xformOp:rotateXYZ")) \
     ((xformOp_rotateXZY, "xformOp:rotateXZY")) \
@@ -179,6 +213,7 @@ PXR_NAMESPACE_OPEN_SCOPE
 TF_DECLARE_PUBLIC_TOKENS(UsdTokens1, USD_TOKENS_1);
 TF_DECLARE_PUBLIC_TOKENS(UsdTokens2, USD_TOKENS_2);
 TF_DECLARE_PUBLIC_TOKENS(UsdTokens3, USD_TOKENS_3);
+TF_DECLARE_PUBLIC_TOKENS(UsdTokens4, USD_TOKENS_4);
 
 #ifdef CESIUM_OMNI_CLANG
 #pragma clang diagnostic pop
@@ -205,6 +240,12 @@ TF_DECLARE_PUBLIC_TOKENS(UsdTokens3, USD_TOKENS_3);
         return token; \
     }
 
+#define FABRIC_DEFINE_TOKEN_ELEM_4(elem) \
+    const omni::fabric::Token& elem() { \
+        static omni::fabric::Token token = omni::fabric::Token::createImmortal(pxr::UsdTokens4->elem.GetText()); \
+        return token; \
+    }
+
 #define FABRIC_DEFINE_TOKEN_1(r, elem) \
     TF_PP_TUPLE_ELEM(0, _TF_PP_IFF(TF_PP_IS_TUPLE(elem), \
         (FABRIC_DEFINE_TOKEN_ELEM_1(TF_PP_TUPLE_ELEM(0, elem))), \
@@ -220,9 +261,15 @@ TF_DECLARE_PUBLIC_TOKENS(UsdTokens3, USD_TOKENS_3);
         (FABRIC_DEFINE_TOKEN_ELEM_3(TF_PP_TUPLE_ELEM(0, elem))), \
         (FABRIC_DEFINE_TOKEN_ELEM_3(elem))))
 
+#define FABRIC_DEFINE_TOKEN_4(r, elem) \
+    TF_PP_TUPLE_ELEM(0, _TF_PP_IFF(TF_PP_IS_TUPLE(elem), \
+        (FABRIC_DEFINE_TOKEN_ELEM_4(TF_PP_TUPLE_ELEM(0, elem))), \
+        (FABRIC_DEFINE_TOKEN_ELEM_4(elem))))
+
 #define FABRIC_DEFINE_TOKENS_1(seq) TF_PP_SEQ_FOR_EACH(FABRIC_DEFINE_TOKEN_1, ~, seq)
 #define FABRIC_DEFINE_TOKENS_2(seq) TF_PP_SEQ_FOR_EACH(FABRIC_DEFINE_TOKEN_2, ~, seq)
 #define FABRIC_DEFINE_TOKENS_3(seq) TF_PP_SEQ_FOR_EACH(FABRIC_DEFINE_TOKEN_3, ~, seq)
+#define FABRIC_DEFINE_TOKENS_4(seq) TF_PP_SEQ_FOR_EACH(FABRIC_DEFINE_TOKEN_4, ~, seq)
 
 #define FABRIC_DECLARE_TOKEN_ELEM(elem) const omni::fabric::Token& elem();
 
@@ -243,6 +290,7 @@ namespace cesium::omniverse::FabricTokens {
 FABRIC_DECLARE_TOKENS(USD_TOKENS_1);
 FABRIC_DECLARE_TOKENS(USD_TOKENS_2);
 FABRIC_DECLARE_TOKENS(USD_TOKENS_3);
+FABRIC_DECLARE_TOKENS(USD_TOKENS_4);
 
 const omni::fabric::Token feature_id_n(uint64_t index);
 const omni::fabric::Token raster_overlay_n(uint64_t index);
@@ -255,10 +303,13 @@ const omni::fabric::Token property_n(uint64_t index);
 
 namespace cesium::omniverse::FabricTypes {
 // Due to legacy support the eRelationship type is defined as a scalar value but is secretly an array
+const omni::fabric::Type Boundable(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::eAncestorPrimTypeName);
 const omni::fabric::Type doubleSided(omni::fabric::BaseDataType::eBool, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type extent(omni::fabric::BaseDataType::eDouble, 6, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type faceVertexCounts(omni::fabric::BaseDataType::eInt, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type faceVertexIndices(omni::fabric::BaseDataType::eInt, 1, 1, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type Gprim(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::eAncestorPrimTypeName);
+const omni::fabric::Type Imageable(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::eAncestorPrimTypeName);
 const omni::fabric::Type info_implementationSource(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type info_mdl_sourceAsset(omni::fabric::BaseDataType::eAsset, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type info_mdl_sourceAsset_subIdentifier(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
@@ -315,19 +366,46 @@ const omni::fabric::Type inputs_tile_color(omni::fabric::BaseDataType::eFloat, 4
 const omni::fabric::Type inputs_wrap_s(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type inputs_wrap_t(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type Material(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName);
+const omni::fabric::Type MaterialBindingAPI(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::eAppliedSchema);
 const omni::fabric::Type material_binding(omni::fabric::BaseDataType::eRelationship, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type Mesh(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName);
 const omni::fabric::Type normals(omni::fabric::BaseDataType::eFloat, 3, 1, omni::fabric::AttributeRole::eNormal);
 const omni::fabric::Type omni_fabric_localMatrix(omni::fabric::BaseDataType::eDouble, 16, 0, omni::fabric::AttributeRole::eMatrix);
 const omni::fabric::Type omni_fabric_worldMatrix(omni::fabric::BaseDataType::eDouble, 16, 0, omni::fabric::AttributeRole::eMatrix);
+const omni::fabric::Type opacities(omni::fabric::BaseDataType::eFloat, 1, 1, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type orientations(omni::fabric::BaseDataType::eFloat, 4, 1, omni::fabric::AttributeRole::eQuaternion);
 const omni::fabric::Type outputs_out(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type ParticleField(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::eAncestorPrimTypeName);
+const omni::fabric::Type ParticleField3DGaussianSplat(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName);
+const omni::fabric::Type ParticleFieldKernelBaseAPI(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::eAppliedSchema);
+const omni::fabric::Type ParticleFieldKernelGaussianEllipsoidAPI(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::eAppliedSchema);
+const omni::fabric::Type ParticleFieldPositionAttributeAPI(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::eAppliedSchema);
+const omni::fabric::Type ParticleFieldPositionBaseAPI(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::eAppliedSchema);
+const omni::fabric::Type ParticleFieldOpacityAttributeAPI(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::eAppliedSchema);
+const omni::fabric::Type ParticleFieldOrientationAttributeAPI(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::eAppliedSchema);
+const omni::fabric::Type ParticleFieldRadianceBaseAPI(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::eAppliedSchema);
+const omni::fabric::Type ParticleFieldScaleAttributeAPI(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::eAppliedSchema);
+const omni::fabric::Type ParticleFieldSphericalHarmonicsAttributeAPI(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::eAppliedSchema);
+const omni::fabric::Type PointBased(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::eAncestorPrimTypeName);
 const omni::fabric::Type points(omni::fabric::BaseDataType::eFloat, 3, 1, omni::fabric::AttributeRole::ePosition);
+const omni::fabric::Type positions(omni::fabric::BaseDataType::eFloat, 3, 1, omni::fabric::AttributeRole::ePosition);
+const omni::fabric::Type PrimvarsAPI(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::eAppliedSchema);
 const omni::fabric::Type primvars_COLOR_0(omni::fabric::BaseDataType::eFloat, 4, 1, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type primvars_displayColor(omni::fabric::BaseDataType::eFloat, 3, 1, omni::fabric::AttributeRole::eColor);
 const omni::fabric::Type primvars_interpolation(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type primvars_st(omni::fabric::BaseDataType::eFloat, 2, 1, omni::fabric::AttributeRole::eTexCoord);
 const omni::fabric::Type primvars_vertexId(omni::fabric::BaseDataType::eFloat, 1, 1, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type projectionModeHint(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type radiance_sphericalHarmonicsDegree(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type radiance_sphericalHarmonicsCoefficients(omni::fabric::BaseDataType::eFloat, 3, 1, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type scales(omni::fabric::BaseDataType::eFloat, 3, 1, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type SchemaBase(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::eAncestorPrimTypeName);
 const omni::fabric::Type Shader(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName);
+const omni::fabric::Type sortingModeHint(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type subdivisionScheme(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type TfType_Root(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::eAncestorPrimTypeName);
+const omni::fabric::Type Typed(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::eAncestorPrimTypeName);
+const omni::fabric::Type Xformable(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::eAncestorPrimTypeName);
 const omni::fabric::Type _cesium_gltfLocalToEcefTransform(omni::fabric::BaseDataType::eDouble, 16, 0, omni::fabric::AttributeRole::eMatrix);
 const omni::fabric::Type _cesium_tilesetId(omni::fabric::BaseDataType::eInt64, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type _materialSource(omni::fabric::BaseDataType::eRelationship, 1, 0, omni::fabric::AttributeRole::eNone);

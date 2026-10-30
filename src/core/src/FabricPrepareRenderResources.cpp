@@ -256,6 +256,8 @@ void setFabricMeshes(
         const auto pGeometry = fabricMesh.pGeometry;
         const auto pMaterial = fabricMesh.pMaterial;
 
+        const auto isGaussianSplats = pGeometry->getGeometryDescriptor().isGaussianSplats();
+
         pGeometry->setGeometry(
             tilesetId,
             ecefToPrimWorldTransform,
@@ -288,7 +290,7 @@ void setFabricMeshes(
                 fabricMesh.propertyTextureIndexMapping);
 
             pGeometry->setMaterial(pMaterial->getPath());
-        } else if (!tilesetMaterialPath.IsEmpty()) {
+        } else if (!tilesetMaterialPath.IsEmpty() && !isGaussianSplats) {
             pGeometry->setMaterial(FabricUtil::toFabricPath(tilesetMaterialPath));
         }
     }
