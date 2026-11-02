@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.22)
 
 project(
     CesiumOmniverse
-    VERSION 0.29.0
+    VERSION 0.30.0
     DESCRIPTION "Cesium for Omniverse"
     LANGUAGES CXX C)
 
