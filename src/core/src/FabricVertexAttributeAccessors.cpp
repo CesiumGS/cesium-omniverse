@@ -1,7 +1,5 @@
 #include "cesium/omniverse/FabricVertexAttributeAccessors.h"
 
-#include "cesium/omniverse/MathUtil.h"
-
 namespace cesium::omniverse {
 PositionsAccessor::PositionsAccessor()
     : _size(0) {}
@@ -371,7 +369,7 @@ ScalesAccessor::ScalesAccessor(const CesiumGltf::AccessorView<glm::fvec3>& view)
 
 void ScalesAccessor::fill(const std::span<glm::fvec3>& values) const {
     for (uint64_t i = 0; i < _size; ++i) {
-        values[i] = glm::exp(_view[static_cast<int64_t>(i)]);
+        values[i] = _view[static_cast<int64_t>(i)];
     }
 }
 
@@ -388,7 +386,7 @@ OpacitiesAccessor::OpacitiesAccessor(const CesiumGltf::AccessorView<float>& view
 
 void OpacitiesAccessor::fill(const std::span<float>& values) const {
     for (uint64_t i = 0; i < _size; ++i) {
-        values[i] = static_cast<float>(MathUtil::sigmoid(_view[static_cast<int64_t>(i)]));
+        values[i] = _view[static_cast<int64_t>(i)];
     }
 }
 
