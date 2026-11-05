@@ -168,6 +168,12 @@ void FabricGeometry::initialize() {
     attributes.addAttribute(FabricTypes::SchemaBase, FabricTokens::SchemaBase());
     attributes.addAttribute(FabricTypes::TfType_Root, FabricTokens::TfType_Root());
     attributes.addAttribute(FabricTypes::PrimvarsAPI, FabricTokens::PrimvarsAPI());
+    attributes.addAttribute(FabricTypes::MaterialBindingAPI, FabricTokens::MaterialBindingAPI());
+    attributes.addAttribute(FabricTypes::material_binding, FabricTokens::material_binding());
+    attributes.addAttribute(FabricTypes::purpose, FabricTokens::purpose());
+    attributes.addAttribute(FabricTypes::visibility, FabricTokens::visibility());
+    attributes.addAttribute(FabricTypes::omni_fabric_resetXformStack, FabricTokens::omni_fabric_resetXformStack());
+    attributes.addAttribute(FabricTypes::omni_rtx_skip, FabricTokens::omni_rtx_skip());
     // clang-format on
 
     if (_geometryDescriptor.isGaussianSplats()) {
@@ -193,6 +199,7 @@ void FabricGeometry::initialize() {
         attributes.addAttribute(FabricTypes::ParticleFieldRadianceBaseAPI, FabricTokens::ParticleFieldRadianceBaseAPI());
         attributes.addAttribute(FabricTypes::ParticleFieldScaleAttributeAPI, FabricTokens::ParticleFieldScaleAttributeAPI());
         attributes.addAttribute(FabricTypes::ParticleFieldSphericalHarmonicsAttributeAPI, FabricTokens::ParticleFieldSphericalHarmonicsAttributeAPI());
+        attributes.addAttribute(FabricTypes::timeVaryingAttributes, FabricTokens::timeVaryingAttributes());
         // clang-format on
 
         if (hasVertexColors) {
@@ -216,7 +223,6 @@ void FabricGeometry::initialize() {
         attributes.addAttribute(FabricTypes::material_binding, FabricTokens::material_binding());
         attributes.addAttribute(FabricTypes::Mesh, FabricTokens::Mesh());
         attributes.addAttribute(FabricTypes::PointBased, FabricTokens::PointBased());
-        attributes.addAttribute(FabricTypes::MaterialBindingAPI, FabricTokens::MaterialBindingAPI());
         // clang-format on
 
         for (uint64_t i = 0; i < texcoordSetCount; ++i) {
@@ -253,6 +259,19 @@ void FabricGeometry::initialize() {
     //--------------------------------------------------------------------------
     // Set values for immutable attributes
     //--------------------------------------------------------------------------
+
+    // clang-format off
+    const auto purposeFabric = fabricStage.getAttributeWr<omni::fabric::Token>(_path, FabricTokens::purpose());
+    const auto visibilityFabric = fabricStage.getAttributeWr<omni::fabric::Token>(_path, FabricTokens::visibility());
+    const auto omniResetXFormStackFabric = fabricStage.getAttributeWr<bool>(_path, FabricTokens::omni_fabric_resetXformStack());
+    const auto omniRtxSkipFabric = fabricStage.getAttributeWr<bool>(_path, FabricTokens::omni_rtx_skip());
+    // clang-format on
+
+    *purposeFabric = FabricTokens::geometry();
+    *visibilityFabric = FabricTokens::visibility();
+    *omniResetXFormStackFabric = false;
+    *omniRtxSkipFabric = false;
+
     if (_geometryDescriptor.isGaussianSplats()) {
         const auto hasVertexColors = _geometryDescriptor.hasVertexColors();
 
@@ -333,6 +352,8 @@ void FabricGeometry::reset() {
     *worldMatrixFabric = UsdUtil::glmToUsdMatrix(DEFAULT_MATRIX);
     *tilesetIdFabric = FabricUtil::NO_TILESET_ID;
 
+    fabricStage.setArrayAttributeSize(_path, FabricTokens::material_binding(), 0);
+
     if (_geometryDescriptor.isGaussianSplats()) {
         const auto hasVertexColors = _geometryDescriptor.hasVertexColors();
 
@@ -346,6 +367,7 @@ void FabricGeometry::reset() {
         fabricStage.setArrayAttributeSize(_path, FabricTokens::scales(), 0);
         fabricStage.setArrayAttributeSize(_path, FabricTokens::opacities(), 0);
         fabricStage.setArrayAttributeSize(_path, FabricTokens::radiance_sphericalHarmonicsCoefficients(), 0);
+        fabricStage.setArrayAttributeSize(_path, FabricTokens::timeVaryingAttributes(), 0);
 
         if (hasVertexColors) {
             fabricStage.setArrayAttributeSize(_path, FabricTokens::primvars_displayColor(), 0);
@@ -360,7 +382,6 @@ void FabricGeometry::reset() {
         const auto doubleSidedFabric = fabricStage.getAttributeWr<bool>(_path, FabricTokens::doubleSided());
         *doubleSidedFabric = DEFAULT_DOUBLE_SIDED;
 
-        fabricStage.setArrayAttributeSize(_path, FabricTokens::material_binding(), 0);
         fabricStage.setArrayAttributeSize(_path, FabricTokens::faceVertexCounts(), 0);
         fabricStage.setArrayAttributeSize(_path, FabricTokens::faceVertexIndices(), 0);
         fabricStage.setArrayAttributeSize(_path, FabricTokens::points(), 0);

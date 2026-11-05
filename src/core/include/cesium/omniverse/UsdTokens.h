@@ -84,12 +84,14 @@ PXR_NAMESPACE_OPEN_SCOPE
     (clipping_raster_overlay_resolver) \
     (doubleSided) \
     (extent) \
+    (geometry) \
     (faceVertexCounts) \
     (faceVertexIndices) \
     (raster_overlay) \
     (raster_overlay_resolver) \
     (Gprim) \
     (Imageable) \
+    (inherited) \
     (Material) \
     (MaterialBindingAPI) \
     (Mesh) \
@@ -114,15 +116,18 @@ PXR_NAMESPACE_OPEN_SCOPE
     (positions) \
     (PrimvarsAPI) \
     (projectionModeHint) \
+    (purpose) \
     (scales) \
     (SchemaBase) \
     (Shader) \
     (sortingModeHint) \
     (sourceAsset) \
     (subdivisionScheme) \
+    (timeVaryingAttributes) \
     (Typed) \
     (vertex) \
     (vertexId) \
+    (visibility) \
     (Xformable) \
     (_cesium_gltfLocalToEcefTransform) \
     (_cesium_tilesetId) \
@@ -177,7 +182,9 @@ PXR_NAMESPACE_OPEN_SCOPE
     ((material_binding, "material:binding")) \
     ((normals_interpolation, "normals:interpolation")) \
     ((omni_fabric_localMatrix, "omni:fabric:localMatrix")) \
+    ((omni_fabric_resetXformStack, "omni:fabric:resetXformStack")) \
     ((omni_fabric_worldMatrix, "omni:fabric:worldMatrix")) \
+    ((omni_rtx_skip, "omni:rtx:skip")) \
     ((outputs_mdl_displacement, "outputs:mdl:displacement")) \
     ((outputs_mdl_surface, "outputs:mdl:surface"))
 
@@ -371,7 +378,9 @@ const omni::fabric::Type material_binding(omni::fabric::BaseDataType::eRelations
 const omni::fabric::Type Mesh(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName);
 const omni::fabric::Type normals(omni::fabric::BaseDataType::eFloat, 3, 1, omni::fabric::AttributeRole::eNormal);
 const omni::fabric::Type omni_fabric_localMatrix(omni::fabric::BaseDataType::eDouble, 16, 0, omni::fabric::AttributeRole::eMatrix);
+const omni::fabric::Type omni_fabric_resetXformStack(omni::fabric::BaseDataType::eBool, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type omni_fabric_worldMatrix(omni::fabric::BaseDataType::eDouble, 16, 0, omni::fabric::AttributeRole::eMatrix);
+const omni::fabric::Type omni_rtx_skip(omni::fabric::BaseDataType::eBool, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type opacities(omni::fabric::BaseDataType::eFloat, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type orientations(omni::fabric::BaseDataType::eFloat, 4, 1, omni::fabric::AttributeRole::eQuaternion);
 const omni::fabric::Type outputs_out(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
@@ -396,6 +405,7 @@ const omni::fabric::Type primvars_interpolation(omni::fabric::BaseDataType::eTok
 const omni::fabric::Type primvars_st(omni::fabric::BaseDataType::eFloat, 2, 1, omni::fabric::AttributeRole::eTexCoord);
 const omni::fabric::Type primvars_vertexId(omni::fabric::BaseDataType::eFloat, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type projectionModeHint(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type purpose(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type radiance_sphericalHarmonicsDegree(omni::fabric::BaseDataType::eInt, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type radiance_sphericalHarmonicsCoefficients(omni::fabric::BaseDataType::eFloat, 3, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type scales(omni::fabric::BaseDataType::eFloat, 3, 1, omni::fabric::AttributeRole::eNone);
@@ -403,8 +413,10 @@ const omni::fabric::Type SchemaBase(omni::fabric::BaseDataType::eTag, 1, 0, omni
 const omni::fabric::Type Shader(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::ePrimTypeName);
 const omni::fabric::Type sortingModeHint(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type subdivisionScheme(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
+const omni::fabric::Type timeVaryingAttributes(omni::fabric::BaseDataType::eToken, 1, 1, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type TfType_Root(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::eAncestorPrimTypeName);
 const omni::fabric::Type Typed(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::eAncestorPrimTypeName);
+const omni::fabric::Type visibility(omni::fabric::BaseDataType::eToken, 1, 0, omni::fabric::AttributeRole::eNone);
 const omni::fabric::Type Xformable(omni::fabric::BaseDataType::eTag, 1, 0, omni::fabric::AttributeRole::eAncestorPrimTypeName);
 const omni::fabric::Type _cesium_gltfLocalToEcefTransform(omni::fabric::BaseDataType::eDouble, 16, 0, omni::fabric::AttributeRole::eMatrix);
 const omni::fabric::Type _cesium_tilesetId(omni::fabric::BaseDataType::eInt64, 1, 0, omni::fabric::AttributeRole::eNone);
