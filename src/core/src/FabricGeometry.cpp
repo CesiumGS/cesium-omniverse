@@ -469,9 +469,9 @@ void FabricGeometry::setGeometry(
         sphericalHarmonicCoefficients.fill(CppUtil::toSpan(radianceSphericalHarmonicCoefficientsFabric));
 
         if (hasVertexColors) {
+            fabricStage.setArrayAttributeSize(_path, FabricTokens::primvars_displayColor(), vertexColors.size());
             const auto primvarsDisplayColorsFabric =
                 fabricStage.getArrayAttributeWr<glm::fvec3>(_path, FabricTokens::primvars_displayColor());
-            fabricStage.setArrayAttributeSize(_path, FabricTokens::primvars_displayColor(), vertexColors.size());
             vertexColors.fill(CppUtil::toSpan(primvarsDisplayColorsFabric));
         }
     } else {
