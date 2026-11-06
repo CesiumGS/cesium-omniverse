@@ -439,70 +439,45 @@ SphericalHarmonicCoefficientsAccessor::SphericalHarmonicCoefficientsAccessor(
           shDegree3Coef6View.size())) {}
 
 void SphericalHarmonicCoefficientsAccessor::fill(const std::span<glm::fvec3>& values) const {
+    bool hasDegree0 = _shDegree0Coef0View.size() > 0;
+    bool hasDegree1 = _shDegree1Coef0View.size() > 0;
+    bool hasDegree2 = _shDegree2Coef0View.size() > 0;
+    bool hasDegree3 = _shDegree3Coef0View.size() > 0;
+
+    assert(hasDegree0);
+
+    auto numGaussians = uint64_t(_shDegree0Coef0View.size());
+
     uint64_t count = 0;
 
-    for (uint64_t i = 0; i < uint64_t(_shDegree0Coef0View.size()); ++i) {
-        values[count++] = _shDegree0Coef0View[static_cast<int64_t>(i)];
-    }
+    for (uint64_t i = 0; i < numGaussians; ++i) {
+        if (hasDegree0) {
+            values[count++] = _shDegree0Coef0View[static_cast<int64_t>(i)];
+        }
 
-    for (uint64_t i = 0; i < uint64_t(_shDegree1Coef0View.size()); ++i) {
-        values[count++] = _shDegree1Coef0View[static_cast<int64_t>(i)];
-    }
+        if (hasDegree1) {
+            values[count++] = _shDegree1Coef0View[static_cast<int64_t>(i)];
+            values[count++] = _shDegree1Coef1View[static_cast<int64_t>(i)];
+            values[count++] = _shDegree1Coef2View[static_cast<int64_t>(i)];
+        }
 
-    for (uint64_t i = 0; i < uint64_t(_shDegree1Coef1View.size()); ++i) {
-        values[count++] = _shDegree1Coef1View[static_cast<int64_t>(i)];
-    }
+        if (hasDegree2) {
+            values[count++] = _shDegree2Coef0View[static_cast<int64_t>(i)];
+            values[count++] = _shDegree2Coef1View[static_cast<int64_t>(i)];
+            values[count++] = _shDegree2Coef2View[static_cast<int64_t>(i)];
+            values[count++] = _shDegree2Coef3View[static_cast<int64_t>(i)];
+            values[count++] = _shDegree2Coef4View[static_cast<int64_t>(i)];
+        }
 
-    for (uint64_t i = 0; i < uint64_t(_shDegree1Coef2View.size()); ++i) {
-        values[count++] = _shDegree1Coef2View[static_cast<int64_t>(i)];
-    }
-
-    for (uint64_t i = 0; i < uint64_t(_shDegree2Coef0View.size()); ++i) {
-        values[count++] = _shDegree2Coef0View[static_cast<int64_t>(i)];
-    }
-
-    for (uint64_t i = 0; i < uint64_t(_shDegree2Coef1View.size()); ++i) {
-        values[count++] = _shDegree2Coef1View[static_cast<int64_t>(i)];
-    }
-
-    for (uint64_t i = 0; i < uint64_t(_shDegree2Coef2View.size()); ++i) {
-        values[count++] = _shDegree2Coef2View[static_cast<int64_t>(i)];
-    }
-
-    for (uint64_t i = 0; i < uint64_t(_shDegree2Coef3View.size()); ++i) {
-        values[count++] = _shDegree2Coef3View[static_cast<int64_t>(i)];
-    }
-
-    for (uint64_t i = 0; i < uint64_t(_shDegree2Coef4View.size()); ++i) {
-        values[count++] = _shDegree2Coef4View[static_cast<int64_t>(i)];
-    }
-
-    for (uint64_t i = 0; i < uint64_t(_shDegree3Coef0View.size()); ++i) {
-        values[count++] = _shDegree3Coef0View[static_cast<int64_t>(i)];
-    }
-
-    for (uint64_t i = 0; i < uint64_t(_shDegree3Coef1View.size()); ++i) {
-        values[count++] = _shDegree3Coef1View[static_cast<int64_t>(i)];
-    }
-
-    for (uint64_t i = 0; i < uint64_t(_shDegree3Coef2View.size()); ++i) {
-        values[count++] = _shDegree3Coef2View[static_cast<int64_t>(i)];
-    }
-
-    for (uint64_t i = 0; i < uint64_t(_shDegree3Coef3View.size()); ++i) {
-        values[count++] = _shDegree3Coef3View[static_cast<int64_t>(i)];
-    }
-
-    for (uint64_t i = 0; i < uint64_t(_shDegree3Coef4View.size()); ++i) {
-        values[count++] = _shDegree3Coef4View[static_cast<int64_t>(i)];
-    }
-
-    for (uint64_t i = 0; i < uint64_t(_shDegree3Coef5View.size()); ++i) {
-        values[count++] = _shDegree3Coef5View[static_cast<int64_t>(i)];
-    }
-
-    for (uint64_t i = 0; i < uint64_t(_shDegree3Coef6View.size()); ++i) {
-        values[count++] = _shDegree3Coef6View[static_cast<int64_t>(i)];
+        if (hasDegree3) {
+            values[count++] = _shDegree3Coef0View[static_cast<int64_t>(i)];
+            values[count++] = _shDegree3Coef1View[static_cast<int64_t>(i)];
+            values[count++] = _shDegree3Coef2View[static_cast<int64_t>(i)];
+            values[count++] = _shDegree3Coef3View[static_cast<int64_t>(i)];
+            values[count++] = _shDegree3Coef4View[static_cast<int64_t>(i)];
+            values[count++] = _shDegree3Coef5View[static_cast<int64_t>(i)];
+            values[count++] = _shDegree3Coef6View[static_cast<int64_t>(i)];
+        }
     }
 }
 
