@@ -1,11 +1,24 @@
 include(Macros)
 
+# Add Cesium Native
 set(CESIUM_ENABLE_CLANG_TIDY OFF)
 set(CESIUM_INSTALL_STATIC_LIBS OFF)
 set(CESIUM_INSTALL_HEADERS OFF)
 set(CESIUM_TESTS_ENABLED OFF)
 add_subdirectory(cesium-native EXCLUDE_FROM_ALL)
 
+
+# Add ovstage
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/ovstage/examples/c/cmake")
+include(ovstage)
+ovstage_fetch()
+
+# Add ovrtx
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/ovrtx/examples/c/cmake")
+include(ovrtx)
+ovrtx_fetch()
+
+# Add pacman libraries
 if(NOT ${USE_NVIDIA_RELEASE_LIBRARIES})
     execute_process(COMMAND "${Python3_EXECUTABLE}" "${SCRIPTS_DIRECTORY}/copy_from_dir.py" "*.user.xml"
                             "${PROJECT_SOURCE_DIR}/extern/nvidia/debug-deps" "${PROJECT_SOURCE_DIR}/extern/nvidia/deps")

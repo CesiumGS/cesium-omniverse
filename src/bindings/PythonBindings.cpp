@@ -1,5 +1,5 @@
 #include "cesium/omniverse/CesiumIonSession.h"
-#include "cesium/omniverse/CesiumOmniverse.h"
+#include "cesium/omniverse/CesiumOmniverseKit.h"
 
 #include <CesiumUtility/CreditSystem.h>
 #include <carb/BindingsPythonUtils.h>

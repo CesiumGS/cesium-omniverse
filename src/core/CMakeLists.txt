@@ -21,26 +21,6 @@ glob_files(SOURCES "${CMAKE_CURRENT_LIST_DIR}/src/*.cpp")
 get_property(ADDITIONAL_LIBRARIES GLOBAL PROPERTY NVIDIA_ADDITIONAL_LIBRARIES_PROPERTY)
 get_property(ADDITIONAL_LINK_DIRECTORIES GLOBAL PROPERTY NVIDIA_ADDITIONAL_LINK_DIRECTORIES_PROPERTY)
 
-if(MSVC)
-    set(SSL_LIBRARY_NAME "libssl")
-    set(CRYPTO_LIBRARY_NAME "libcrypto")
-    set(WEBP_LIBRARY_NAME "libwebp")
-    set(WEBPDECODER_LIBRARY_NAME "libwebpdecoder")
-    set(WEBPDEMUX_LIBRARY_NAME "libwebpdemux")
-    set(WEBPMUX_LIBRARY_NAME "libwebpmux")
-    set(SHARPYUV_LIBRARY_NAME "libsharpyuv")
-    set(ZNG_LIBRARY_NAME "zlibstatic-ng")
-else()
-    set(SSL_LIBRARY_NAME "ssl")
-    set(CRYPTO_LIBRARY_NAME "crypto")
-    set(WEBP_LIBRARY_NAME "webp")
-    set(WEBPDECODER_LIBRARY_NAME "webpdecoder")
-    set(WEBPDEMUX_LIBRARY_NAME "webpdemux")
-    set(WEBPMUX_LIBRARY_NAME "webpmux")
-    set(SHARPYUV_LIBRARY_NAME "sharpyuv")
-    set(ZNG_LIBRARY_NAME "z-ng")
-endif()
-
 # cmake-format: off
 setup_lib(
     TARGET_NAME

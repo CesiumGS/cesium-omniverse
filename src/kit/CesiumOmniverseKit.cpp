@@ -1,6 +1,6 @@
 #define CARB_EXPORTS
 
-#include "cesium/omniverse/CesiumOmniverse.h"
+#include "cesium/omniverse/CesiumOmniverseKit.h"
 
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/CesiumIonServerManager.h"

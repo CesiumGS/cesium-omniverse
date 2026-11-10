@@ -81,7 +81,8 @@ set(LINT_SOURCE_DIRECTORIES
     "${PROJECT_SOURCE_DIR}/include"
     "${PROJECT_SOURCE_DIR}/src/bindings"
     "${PROJECT_SOURCE_DIR}/src/core"
-    "${PROJECT_SOURCE_DIR}/src/public"
+    "${PROJECT_SOURCE_DIR}/src/kit"
+    "${PROJECT_SOURCE_DIR}/src/stage"
     "${PROJECT_SOURCE_DIR}/tests")
 
 # Source directories for coverage
@@ -468,9 +469,9 @@ set(INSTALL_POST_EXCLUDE_REGEXES "system32" "^\/lib")
 
 install(
     TARGETS CesiumUsdSchemas
-    ARCHIVE DESTINATION ${KIT_PLUGIN_EXTENSION_BIN_PATH} COMPONENT install
-    LIBRARY DESTINATION ${KIT_PLUGIN_EXTENSION_BIN_PATH} COMPONENT install
-    RUNTIME DESTINATION ${KIT_PLUGIN_EXTENSION_BIN_PATH} COMPONENT install)
+    ARCHIVE DESTINATION ${KIT_PLUGIN_EXTENSION_BIN_PATH} COMPONENT kit-ext
+    LIBRARY DESTINATION ${KIT_PLUGIN_EXTENSION_BIN_PATH} COMPONENT kit-ext
+    RUNTIME DESTINATION ${KIT_PLUGIN_EXTENSION_BIN_PATH} COMPONENT kit-ext)
 
 install(
     TARGETS CesiumUsdSchemas
@@ -482,13 +483,13 @@ install(
             POST_EXCLUDE_REGEXES
             ${INSTALL_POST_EXCLUDE_REGEXES}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT library
+            COMPONENT kit-lib
             EXCLUDE_FROM_ALL
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT library
+            COMPONENT kit-lib
             EXCLUDE_FROM_ALL
     RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT library
+            COMPONENT kit-lib
             EXCLUDE_FROM_ALL)
 
 install(
@@ -500,9 +501,9 @@ install(
             ".*"
             POST_EXCLUDE_REGEXES
             ${INSTALL_POST_EXCLUDE_REGEXES}
-    ARCHIVE DESTINATION ${KIT_EXTENSION_BIN_PATH} COMPONENT install
-    LIBRARY DESTINATION ${KIT_EXTENSION_BIN_PATH} COMPONENT install
-    RUNTIME DESTINATION ${KIT_EXTENSION_BIN_PATH} COMPONENT install)
+    ARCHIVE DESTINATION ${KIT_EXTENSION_BIN_PATH} COMPONENT kit-ext
+    LIBRARY DESTINATION ${KIT_EXTENSION_BIN_PATH} COMPONENT kit-ext
+    RUNTIME DESTINATION ${KIT_EXTENSION_BIN_PATH} COMPONENT kit-ext)
 
 # TODO: this is also installing the .lib. How to avoid that?
 install(
@@ -515,20 +516,39 @@ install(
             POST_EXCLUDE_REGEXES
             ${INSTALL_POST_EXCLUDE_REGEXES}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT library
+            COMPONENT kit-lib
             EXCLUDE_FROM_ALL
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT library
+            COMPONENT kit-lib
             EXCLUDE_FROM_ALL
     RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT library
+            COMPONENT kit-lib
+            EXCLUDE_FROM_ALL)
+
+install(
+    TARGETS CesiumOmniverseStage
+            RUNTIME_DEPENDENCIES
+            DIRECTORIES
+            ${INSTALL_SEARCH_PATHS}
+            PRE_EXCLUDE_REGEXES
+            ${INSTALL_PRE_EXCLUDE_REGEXES}
+            POST_EXCLUDE_REGEXES
+            ${INSTALL_POST_EXCLUDE_REGEXES}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            COMPONENT stage
+            EXCLUDE_FROM_ALL
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            COMPONENT stage
+            EXCLUDE_FROM_ALL
+    RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            COMPONENT stage
             EXCLUDE_FROM_ALL)
 
 install(
     TARGETS CesiumOmniversePythonBindings
-    ARCHIVE DESTINATION ${KIT_EXTENSION_BINDINGS_PATH} COMPONENT install
-    LIBRARY DESTINATION ${KIT_EXTENSION_BINDINGS_PATH} COMPONENT install
-    RUNTIME DESTINATION ${KIT_EXTENSION_BINDINGS_PATH} COMPONENT install)
+    ARCHIVE DESTINATION ${KIT_EXTENSION_BINDINGS_PATH} COMPONENT kit-ext
+    LIBRARY DESTINATION ${KIT_EXTENSION_BINDINGS_PATH} COMPONENT kit-ext
+    RUNTIME DESTINATION ${KIT_EXTENSION_BINDINGS_PATH} COMPONENT kit-ext)
 
 install(
     TARGETS CesiumOmniversePythonBindings
@@ -540,20 +560,20 @@ install(
             POST_EXCLUDE_REGEXES
             ${INSTALL_POST_EXCLUDE_REGEXES}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT library
+            COMPONENT kit-lib
             EXCLUDE_FROM_ALL
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT library
+            COMPONENT kit-lib
             EXCLUDE_FROM_ALL
     RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT library
+            COMPONENT kit-lib
             EXCLUDE_FROM_ALL)
 
 install(
     TARGETS _CesiumUsdSchemas
-    ARCHIVE DESTINATION "${KIT_PLUGIN_EXTENSION_BINDINGS_PATH}/CesiumUsdSchemas" COMPONENT install
-    LIBRARY DESTINATION "${KIT_PLUGIN_EXTENSION_BINDINGS_PATH}/CesiumUsdSchemas" COMPONENT install
-    RUNTIME DESTINATION "${KIT_PLUGIN_EXTENSION_BINDINGS_PATH}/CesiumUsdSchemas" COMPONENT install)
+    ARCHIVE DESTINATION "${KIT_PLUGIN_EXTENSION_BINDINGS_PATH}/CesiumUsdSchemas" COMPONENT kit-ext
+    LIBRARY DESTINATION "${KIT_PLUGIN_EXTENSION_BINDINGS_PATH}/CesiumUsdSchemas" COMPONENT kit-ext
+    RUNTIME DESTINATION "${KIT_PLUGIN_EXTENSION_BINDINGS_PATH}/CesiumUsdSchemas" COMPONENT kit-ext)
 
 install(
     TARGETS _CesiumUsdSchemas
@@ -565,21 +585,21 @@ install(
             POST_EXCLUDE_REGEXES
             ${INSTALL_POST_EXCLUDE_REGEXES}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT library
+            COMPONENT kit-lib
             EXCLUDE_FROM_ALL
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT library
+            COMPONENT kit-lib
             EXCLUDE_FROM_ALL
     RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT library
+            COMPONENT kit-lib
             EXCLUDE_FROM_ALL)
 
 if(CESIUM_OMNI_ENABLE_TESTS)
     install(
         TARGETS cesium.omniverse.cpp.tests.plugin
-        ARCHIVE DESTINATION ${KIT_EXTENSION_TESTS_BIN_PATH} COMPONENT install
-        LIBRARY DESTINATION ${KIT_EXTENSION_TESTS_BIN_PATH} COMPONENT install
-        RUNTIME DESTINATION ${KIT_EXTENSION_TESTS_BIN_PATH} COMPONENT install)
+        ARCHIVE DESTINATION ${KIT_EXTENSION_TESTS_BIN_PATH} COMPONENT kit-ext
+        LIBRARY DESTINATION ${KIT_EXTENSION_TESTS_BIN_PATH} COMPONENT kit-ext
+        RUNTIME DESTINATION ${KIT_EXTENSION_TESTS_BIN_PATH} COMPONENT kit-ext)
     install(
         TARGETS cesium.omniverse.cpp.tests.plugin
                 RUNTIME_DEPENDENCIES
@@ -590,20 +610,20 @@ if(CESIUM_OMNI_ENABLE_TESTS)
                 POST_EXCLUDE_REGEXES
                 ${INSTALL_POST_EXCLUDE_REGEXES}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-                COMPONENT library
+                COMPONENT kit-lib
                 EXCLUDE_FROM_ALL
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-                COMPONENT library
+                COMPONENT kit-lib
                 EXCLUDE_FROM_ALL
         RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
-                COMPONENT library
+                COMPONENT kit-lib
                 EXCLUDE_FROM_ALL)
 
     install(
         TARGETS CesiumOmniverseCppTestsPythonBindings
-        ARCHIVE DESTINATION ${KIT_EXTENSION_TESTS_BINDINGS_PATH} COMPONENT install
-        LIBRARY DESTINATION ${KIT_EXTENSION_TESTS_BINDINGS_PATH} COMPONENT install
-        RUNTIME DESTINATION ${KIT_EXTENSION_TESTS_BINDINGS_PATH} COMPONENT install)
+        ARCHIVE DESTINATION ${KIT_EXTENSION_TESTS_BINDINGS_PATH} COMPONENT kit-ext
+        LIBRARY DESTINATION ${KIT_EXTENSION_TESTS_BINDINGS_PATH} COMPONENT kit-ext
+        RUNTIME DESTINATION ${KIT_EXTENSION_TESTS_BINDINGS_PATH} COMPONENT kit-ext)
 
     install(
         TARGETS CesiumOmniverseCppTestsPythonBindings
@@ -615,46 +635,52 @@ if(CESIUM_OMNI_ENABLE_TESTS)
                 POST_EXCLUDE_REGEXES
                 ${INSTALL_POST_EXCLUDE_REGEXES}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-                COMPONENT library
+                COMPONENT kit-lib
                 EXCLUDE_FROM_ALL
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-                COMPONENT library
+                COMPONENT kit-lib
                 EXCLUDE_FROM_ALL
         RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
-                COMPONENT library
+                COMPONENT kit-lib
                 EXCLUDE_FROM_ALL)
 endif()
 
 install(
-    DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-    COMPONENT library
+    FILES "${PROJECT_SOURCE_DIR}/include/cesium/omniverse/CesiumOmniverseKit.h"
+    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/cesium/omniverse"
+    COMPONENT kit-lib
+    EXCLUDE_FROM_ALL)
+
+install(
+    FILES "${PROJECT_SOURCE_DIR}/include/cesium/omniverse/CesiumOmniverseStage.h"
+    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/cesium/omniverse"
+    COMPONENT stage
     EXCLUDE_FROM_ALL)
 
 install(
     FILES "${PROJECT_BINARY_DIR}/CesiumUsdSchemas.plugInfo.json.kit"
     DESTINATION "${KIT_EXTENSION_PLUGINS_PATH}/CesiumUsdSchemas/resources/"
     RENAME "plugInfo.json"
-    COMPONENT install)
+    COMPONENT kit-ext)
 
 install(
     FILES "${PROJECT_BINARY_DIR}/CesiumUsdSchemas.plugInfo.json.install"
     DESTINATION "plugins/CesiumUsdSchemas/resources/"
     RENAME "plugInfo.json"
-    COMPONENT library
+    COMPONENT kit-lib
     EXCLUDE_FROM_ALL)
 
 install(
     FILES "${PROJECT_BINARY_DIR}/CesiumUsdSchemas.generatedSchema.usda.kit"
     DESTINATION "${KIT_EXTENSION_PLUGINS_PATH}/CesiumUsdSchemas/resources/"
     RENAME "generatedSchema.usda"
-    COMPONENT install)
+    COMPONENT kit-ext)
 
 install(
     FILES "${PROJECT_BINARY_DIR}/CesiumUsdSchemas.generatedSchema.usda.install"
     DESTINATION "plugins/CesiumUsdSchemas/resources/"
     RENAME "generatedSchema.usda"
-    COMPONENT library
+    COMPONENT kit-lib
     EXCLUDE_FROM_ALL)
 
 install(

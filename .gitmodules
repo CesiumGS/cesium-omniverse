@@ -1,3 +1,9 @@
 [submodule "extern/cesium-native"]
 	path = extern/cesium-native
 	url = https://github.com/CesiumGS/cesium-native.git
+[submodule "extern/ovstage"]
+	path = extern/ovstage
+	url = git@github.com:NVIDIA-Omniverse/ovstage.git
+[submodule "extern/ovrtx"]
+	path = extern/ovrtx
+	url = git@github.com:NVIDIA-Omniverse/ovrtx.git

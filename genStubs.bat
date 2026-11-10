@@ -28,7 +28,7 @@ echo "Ensuring mypy and black are installed"
 echo "Building lib files flat in temp dir"
 cmake -B build-stubs --preset Windows-Release
 cmake --build build-stubs --config Release --parallel 8
-cmake --install build-stubs --config Release --component library --prefix %FLAT_LIBRARIES_DIR%
+cmake --install build-stubs --config Release --component kit-lib --prefix %FLAT_LIBRARIES_DIR%
 
 :: To find the imports mypy has to be run from the same dir as the object files
 cd %FLAT_LIBRARIES_DIR%\lib

@@ -359,7 +359,7 @@ On Linux
 ```sh
 cmake -B build --preset Linux-Release
 cmake --build build
-cmake --install build --component library --prefix /path/to/install/location
+cmake --install build --component kit-lib --prefix /path/to/install/location
 ```
 
 On Windows
@@ -367,7 +367,7 @@ On Windows
 ```sh
 cmake -B build --preset Linux-Release
 cmake --build build --config Release
-cmake --install build --config Release --component library --prefix /path/to/install/location
+cmake --install build --config Release --component kit-lib --prefix /path/to/install/location
 ```
 
 ## Tracing

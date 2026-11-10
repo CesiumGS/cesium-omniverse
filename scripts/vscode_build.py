@@ -121,8 +121,8 @@ def get_cmake_build_command(args: Args, target: str):
     return cmd
 
 
-def get_cmake_install_command(args: Args):
-    cmd = ["cmake", "--install", args.build_folder]
+def get_cmake_install_kit_ext_command(args: Args):
+    cmd = ["cmake", "--install", args.build_folder, "--component", "kit-ext"]
 
     if is_windows():
         cmd.extend(("--config", args.build_type))
@@ -137,7 +137,7 @@ def configure(args: Args):
 
 def build(args: Args):
     build_cmd = get_cmake_build_command(args, None)
-    install_kit_cmd = get_cmake_install_command(args)
+    install_kit_cmd = get_cmake_install_kit_ext_command(args)
 
     if not args.build_only:
         configure_cmd = get_cmake_configure_command(args)
