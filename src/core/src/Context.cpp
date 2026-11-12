@@ -245,6 +245,7 @@ void Context::onUpdateFrame(const std::span<const Viewport>& viewports, bool wai
     _pUsdNotificationHandler->onUpdateFrame();
     _pAssetRegistry->onUpdateFrame(viewports, waitForLoadingTiles);
     _pCesiumIonServerManager->onUpdateFrame();
+    _pFabricResourceManager->createInitialPool();
 }
 
 void Context::onUsdStageChanged(int64_t usdStageId) {

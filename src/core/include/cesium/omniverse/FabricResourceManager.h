@@ -55,6 +55,8 @@ class FabricResourceManager {
     FabricResourceManager(FabricResourceManager&&) noexcept = delete;
     FabricResourceManager& operator=(FabricResourceManager&&) noexcept = delete;
 
+    void createInitialPool();
+
     bool shouldAcquireMaterial(
         const CesiumGltf::MeshPrimitive& primitive,
         bool hasRasterOverlay,

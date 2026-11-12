@@ -6,6 +6,7 @@
 #include "cesium/omniverse/CesiumIonServerManager.h"
 #include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/OmniData.h"
 #include "cesium/omniverse/OmniIonServer.h"
@@ -147,6 +148,7 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
     }
 
     std::string printFabricStage() noexcept override {
+        _pContext->getFabricResourceManager().createInitialPool();
         return FabricUtil::printFabricStage(_pContext->getFabricStage());
     }
 

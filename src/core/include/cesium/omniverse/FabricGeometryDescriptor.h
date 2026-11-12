@@ -31,6 +31,13 @@ class FabricGeometryDescriptor {
         const FabricFeaturesInfo& featuresInfo,
         bool smoothNormals);
 
+    FabricGeometryDescriptor(
+        bool isGaussianSplats,
+        bool hasNormals,
+        bool hasVertexColors,
+        bool hasVertexIds,
+        uint64_t texcoordSetCount);
+
     [[nodiscard]] bool isGaussianSplats() const;
     [[nodiscard]] bool hasNormals() const;
     [[nodiscard]] bool hasVertexColors() const;

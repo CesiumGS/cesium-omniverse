@@ -120,6 +120,8 @@ std::vector<FabricMesh> acquireFabricMeshes(
         fabricMesh.pGeometry =
             fabricResourceManager.acquireGeometry(model, primitive, featuresInfo, tileset.getSmoothNormals());
 
+        context.getLogger()->warn(fabricMesh.pGeometry->getPath().getString());
+
         if (shouldAcquireMaterial) {
             fabricMesh.pMaterial = fabricResourceManager.acquireMaterial(
                 model,

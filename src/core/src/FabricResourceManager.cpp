@@ -53,11 +53,17 @@ FabricResourceManager::FabricResourceManager(Context* pContext)
     , _defaultWhiteTextureAssetPathToken(
           FabricUtil::getDynamicTextureProviderAssetPathToken(DEFAULT_WHITE_TEXTURE_NAME))
     , _defaultTransparentTextureAssetPathToken(
-          FabricUtil::getDynamicTextureProviderAssetPathToken(DEFAULT_TRANSPARENT_TEXTURE_NAME))
-
-{}
+          FabricUtil::getDynamicTextureProviderAssetPathToken(DEFAULT_TRANSPARENT_TEXTURE_NAME)) {}
 
 FabricResourceManager::~FabricResourceManager() = default;
+
+void FabricResourceManager::createInitialPool() {
+    if (_geometryPools.empty()) {
+        FabricGeometryDescriptor descriptor(true, false, true, false, 0);
+        auto pGeometryPool = std::make_unique<FabricGeometryPool>(_pContext, getNextGeometryPoolId(), descriptor, 2048);
+        _geometryPools.push_back(std::move(pGeometryPool));
+    }
+}
 
 bool FabricResourceManager::shouldAcquireMaterial(
     const CesiumGltf::MeshPrimitive& primitive,

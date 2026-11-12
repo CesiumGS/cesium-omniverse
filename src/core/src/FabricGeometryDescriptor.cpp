@@ -28,6 +28,18 @@ FabricGeometryDescriptor::FabricGeometryDescriptor(
           GltfUtil::getRasterOverlayTexcoordSetIndexes(model, primitive).size())
     , _customVertexAttributes(GltfUtil::getCustomVertexAttributes(model, primitive)) {}
 
+FabricGeometryDescriptor::FabricGeometryDescriptor(
+    bool isGaussianSplats,
+    bool hasNormals,
+    bool hasVertexColors,
+    bool hasVertexIds,
+    uint64_t texcoordSetCount)
+    : _isGaussianSplats(isGaussianSplats)
+    , _hasNormals(hasNormals)
+    , _hasVertexColors(hasVertexColors)
+    , _hasVertexIds(hasVertexIds)
+    , _texcoordSetCount(texcoordSetCount) {}
+
 bool FabricGeometryDescriptor::isGaussianSplats() const {
     return _isGaussianSplats;
 }
