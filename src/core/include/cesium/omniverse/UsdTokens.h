@@ -127,14 +127,14 @@ PXR_NAMESPACE_OPEN_SCOPE
     (Typed) \
     (vertex) \
     (vertexId) \
-    (visibility) \
+    (visibility)
+
+#define USD_TOKENS_3 \
     (Xformable) \
     (_cesium_gltfLocalToEcefTransform) \
     (_cesium_tilesetId) \
     (_deletedPrims) \
-    (_materialSource)
-
-#define USD_TOKENS_3 \
+    (_materialSource) \
     (_paramColorSpace) \
     (_sdrMetadata) \
     (_worldExtent) \
@@ -179,16 +179,16 @@ PXR_NAMESPACE_OPEN_SCOPE
     ((inputs_tile_color, "inputs:tile_color")) \
     ((inputs_wrap_s, "inputs:wrap_s")) \
     ((inputs_wrap_t, "inputs:wrap_t")) \
-    ((material_binding, "material:binding")) \
+    ((material_binding, "material:binding"))
+
+#define USD_TOKENS_4 \
     ((normals_interpolation, "normals:interpolation")) \
     ((omni_fabric_localMatrix, "omni:fabric:localMatrix")) \
     ((omni_fabric_resetXformStack, "omni:fabric:resetXformStack")) \
     ((omni_fabric_worldMatrix, "omni:fabric:worldMatrix")) \
     ((omni_rtx_skip, "omni:rtx:skip")) \
     ((outputs_mdl_displacement, "outputs:mdl:displacement")) \
-    ((outputs_mdl_surface, "outputs:mdl:surface"))
-
-#define USD_TOKENS_4 \
+    ((outputs_mdl_surface, "outputs:mdl:surface")) \
     ((outputs_mdl_volume, "outputs:mdl:volume")) \
     ((outputs_out, "outputs:out")) \
     ((primvars_COLOR_0, "primvars:COLOR_0")) \
