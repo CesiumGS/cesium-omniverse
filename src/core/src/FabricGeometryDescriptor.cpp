@@ -19,13 +19,18 @@ FabricGeometryDescriptor::FabricGeometryDescriptor(
     const CesiumGltf::MeshPrimitive& primitive,
     const FabricFeaturesInfo& featuresInfo,
     bool smoothNormals)
-    : _hasNormals(GltfUtil::hasNormals(model, primitive, smoothNormals))
+    : _isGaussianSplats(GltfUtil::isGaussianSplats(primitive))
+    , _hasNormals(GltfUtil::hasNormals(model, primitive, smoothNormals))
     , _hasVertexColors(GltfUtil::hasVertexColors(model, primitive, 0))
     , _hasVertexIds(FabricFeaturesUtil::hasFeatureIdType(featuresInfo, FabricFeatureIdType::INDEX))
     , _texcoordSetCount(
           GltfUtil::getTexcoordSetIndexes(model, primitive).size() +
           GltfUtil::getRasterOverlayTexcoordSetIndexes(model, primitive).size())
     , _customVertexAttributes(GltfUtil::getCustomVertexAttributes(model, primitive)) {}
+
+bool FabricGeometryDescriptor::isGaussianSplats() const {
+    return _isGaussianSplats;
+}
 
 bool FabricGeometryDescriptor::hasNormals() const {
     return _hasNormals;
@@ -45,12 +50,6 @@ uint64_t FabricGeometryDescriptor::getTexcoordSetCount() const {
 
 const std::set<FabricVertexAttributeDescriptor>& FabricGeometryDescriptor::getCustomVertexAttributes() const {
     return _customVertexAttributes;
-}
-
-bool FabricGeometryDescriptor::operator==(const FabricGeometryDescriptor& other) const {
-    return _hasNormals == other._hasNormals && _hasVertexColors == other._hasVertexColors &&
-           _hasVertexIds == other._hasVertexIds && _texcoordSetCount == other._texcoordSetCount &&
-           _customVertexAttributes == other._customVertexAttributes;
 }
 
 } // namespace cesium::omniverse

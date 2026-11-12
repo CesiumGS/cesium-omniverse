@@ -59,6 +59,13 @@ TexcoordsAccessor getRasterOverlayTexcoords(
 VertexColorsAccessor
 getVertexColors(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);
 
+RotationsAccessor getGaussianSplatRotations(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
+ScalesAccessor getGaussianSplatScales(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
+OpacitiesAccessor getGaussianSplatOpacities(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
+SphericalHarmonicCoefficientsAccessor getGaussianSplatSphericalHarmonicCoefficients(
+    const CesiumGltf::Model& model,
+    const CesiumGltf::MeshPrimitive& primitive);
+
 VertexIdsAccessor getVertexIds(const PositionsAccessor& positionsAccessor);
 
 const CesiumImage::ImageAsset*
@@ -81,6 +88,9 @@ const FabricTextureInfo& getDefaultTextureInfo();
 FabricTextureInfo getPropertyTexturePropertyInfo(
     const CesiumGltf::Model& model,
     const CesiumGltf::PropertyTextureProperty& propertyTextureProperty);
+
+bool isGaussianSplats(const CesiumGltf::MeshPrimitive& primitive);
+std::optional<uint64_t> getGaussianSplatSphericalHarmonicDegrees(const CesiumGltf::MeshPrimitive& primitive);
 
 bool hasNormals(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, bool smoothNormals);
 bool hasTexcoords(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive, uint64_t setIndex);

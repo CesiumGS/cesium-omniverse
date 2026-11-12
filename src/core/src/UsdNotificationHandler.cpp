@@ -235,15 +235,15 @@ void processCesiumGlobeAnchorChanged(
     // clang-format off
     for (const auto& property : properties) {
         if (detectTransformChanges &&
-            (property == pxr::UsdTokens3->xformOp_translate ||
-             property == pxr::UsdTokens3->xformOp_rotateXYZ ||
-             property == pxr::UsdTokens3->xformOp_rotateXZY ||
-             property == pxr::UsdTokens3->xformOp_rotateYXZ ||
-             property == pxr::UsdTokens3->xformOp_rotateYZX ||
-             property == pxr::UsdTokens3->xformOp_rotateZXY ||
-             property == pxr::UsdTokens3->xformOp_rotateZYX ||
-             property == pxr::UsdTokens3->xformOp_orient ||
-             property == pxr::UsdTokens3->xformOp_scale)) {
+            (property == pxr::UsdTokens4->xformOp_translate ||
+             property == pxr::UsdTokens4->xformOp_rotateXYZ ||
+             property == pxr::UsdTokens4->xformOp_rotateXZY ||
+             property == pxr::UsdTokens4->xformOp_rotateYXZ ||
+             property == pxr::UsdTokens4->xformOp_rotateYZX ||
+             property == pxr::UsdTokens4->xformOp_rotateZXY ||
+             property == pxr::UsdTokens4->xformOp_rotateZYX ||
+             property == pxr::UsdTokens4->xformOp_orient ||
+             property == pxr::UsdTokens4->xformOp_scale)) {
             updateByPrimLocalTransform = true;
             updateBindings = true;
         } else if (property == pxr::CesiumTokens->cesiumAnchorLongitude ||
@@ -335,8 +335,8 @@ void processCesiumTilesetChanged(
             property == pxr::CesiumTokens->cesiumMainThreadLoadingTimeLimit) {
             updateTilesetOptions = true;
         } else if (
-            property == pxr::UsdTokens3->primvars_displayColor ||
-            property == pxr::UsdTokens3->primvars_displayOpacity) {
+            property == pxr::UsdTokens4->primvars_displayColor ||
+            property == pxr::UsdTokens4->primvars_displayOpacity) {
             updateDisplayColorAndOpacity = true;
         }
     }
