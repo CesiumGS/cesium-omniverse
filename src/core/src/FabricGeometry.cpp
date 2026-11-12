@@ -268,7 +268,7 @@ void FabricGeometry::initialize() {
     // clang-format on
 
     *purposeFabric = FabricTokens::geometry();
-    *visibilityFabric = FabricTokens::visibility();
+    *visibilityFabric = FabricTokens::inherited();
     *omniResetXFormStackFabric = false;
     *omniRtxSkipFabric = false;
 
