@@ -17,33 +17,6 @@
 
 namespace cesium::omniverse::FilesystemUtil {
 
-std::filesystem::path getCesiumCacheDirectory() {
-    auto f = carb::getFramework();
-    auto* tokensInterface = f->tryAcquireInterface<carb::tokens::ITokens>();
-    std::string cacheDir;
-    if (tokensInterface) {
-        cacheDir = carb::tokens::resolveString(tokensInterface, "${omni_global_cache}");
-    }
-    if (!cacheDir.empty()) {
-        std::filesystem::path cacheDirPath(cacheDir);
-        if (exists(cacheDirPath)) {
-            return cacheDirPath;
-        }
-        // Should we create the directory if it doesn't exist? It's hard to believe that Omniverse
-        // won't have already created it.
-    }
-    auto homeDirPath = getUserHomeDirectory();
-    if (!homeDirPath.empty()) {
-        auto cacheDirPath = homeDirPath / ".nvidia-omniverse";
-        if (exists(cacheDirPath)) {
-            return cacheDirPath;
-        }
-    }
-    return {};
-}
-
-// Quite a lot of ceremony to get the home directory.
-
 std::filesystem::path getUserHomeDirectory() {
     std::string homeDir;
 #if defined(__linux__)
@@ -70,4 +43,5 @@ std::filesystem::path getUserHomeDirectory() {
 #endif
     return homeDir;
 }
+
 } // namespace cesium::omniverse::FilesystemUtil

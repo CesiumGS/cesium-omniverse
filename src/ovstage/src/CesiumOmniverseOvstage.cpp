@@ -1,6 +1,5 @@
-#include "cesium/omniverse/CesiumOmniverseStage.h"
-
 #include "cesium/omniverse/CesiumContext.h"
+#include "cesium/omniverse/CesiumOmniverseOvstage.h"
 
 #include <cassert>
 

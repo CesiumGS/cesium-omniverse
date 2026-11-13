@@ -11,6 +11,7 @@
 
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/Logger.h"
+#include "cesium/omniverse/getCesiumCacheDirectoryKit.h"
 
 #include <carb/PluginUtils.h>
 #include <cesium/omniverse/UsdUtil.h>
@@ -37,7 +38,10 @@ namespace cesium::omniverse::tests {
 class CesiumOmniverseCppTestsPlugin final : public ICesiumOmniverseCppTestsInterface {
   public:
     void onStartup(const char* cesiumExtensionLocation) noexcept override {
-        _pContext = std::make_unique<Context>(cesiumExtensionLocation);
+        std::filesystem::path cesiumMdlPath = std::filesystem::path(cesiumExtensionLocation) / "mdl" / "cesium.mdl";
+        std::filesystem::path cesiumCacheDirectory = getCesiumCacheDirectoryKit();
+
+        _pContext = std::make_unique<Context>(cesiumMdlPath, cesiumCacheDirectory);
     }
 
     void onShutdown() noexcept override {

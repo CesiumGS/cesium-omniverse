@@ -46,7 +46,7 @@ struct Viewport;
 
 class Context {
   public:
-    Context(const std::filesystem::path& cesiumExtensionLocation);
+    Context(const std::filesystem::path& cesiumMdlPath, const std::filesystem::path& cesiumCacheDirectory);
     ~Context();
     Context(const Context&) = delete;
     Context& operator=(const Context&) = delete;
@@ -88,8 +88,6 @@ class Context {
     [[nodiscard]] int64_t getContextId() const;
 
   private:
-    std::filesystem::path _cesiumExtensionLocation;
-    std::filesystem::path _certificatePath;
     omni::fabric::Token _cesiumMdlPathToken;
 
     std::shared_ptr<TaskProcessor> _pTaskProcessor;

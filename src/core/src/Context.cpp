@@ -51,33 +51,32 @@ namespace cesium::omniverse {
 
 namespace {
 
-std::string getCacheDatabaseName() {
-    auto cacheDirPath = FilesystemUtil::getCesiumCacheDirectory();
-    if (!cacheDirPath.empty()) {
-        auto cacheFilePath = cacheDirPath / "cesium-request-cache.sqlite";
+std::string getCacheDatabaseName(const std::filesystem::path& cesiumCacheDirectory) {
+    if (!cesiumCacheDirectory.empty()) {
+        auto cacheFilePath = cesiumCacheDirectory / "cesium-request-cache.sqlite";
         return cacheFilePath.generic_string();
     }
     return {};
 }
 
-std::shared_ptr<CesiumAsync::ICacheDatabase> makeCacheDatabase(const std::shared_ptr<Logger>& logger) {
+std::shared_ptr<CesiumAsync::ICacheDatabase>
+makeCacheDatabase(const std::filesystem::path& cesiumCacheDirectory, const std::shared_ptr<Logger>& logger) {
     uint64_t maxCacheItems = Settings::getMaxCacheItems();
     if (maxCacheItems == 0) {
         logger->oneTimeWarning("maxCacheItems set to 0, so disabling accessor cache");
         return {};
-    } else if (auto dbName = getCacheDatabaseName(); !dbName.empty()) {
+    } else if (auto dbName = getCacheDatabaseName(cesiumCacheDirectory); !dbName.empty()) {
         logger->oneTimeWarning("Cesium cache file: {}", dbName);
         return std::make_shared<CesiumAsync::SqliteCache>(logger, dbName, maxCacheItems);
     }
     logger->oneTimeWarning("could not get name for cache database");
     return {};
 }
-} // namespace
 
-namespace {
 uint64_t getSecondsSinceEpoch() {
     const auto timePoint = std::chrono::system_clock::now();
-    return std::chrono::duration_cast<std::chrono::seconds>(timePoint.time_since_epoch()).count();
+    return static_cast<uint64_t>(
+        std::chrono::duration_cast<std::chrono::seconds>(timePoint.time_since_epoch()).count());
 }
 
 CesiumCurl::CurlAssetAccessorOptions createCurlAssetAccessorOptions() {
@@ -101,15 +100,13 @@ CesiumCurl::CurlAssetAccessorOptions createCurlAssetAccessorOptions() {
 
 } // namespace
 
-Context::Context(const std::filesystem::path& cesiumExtensionLocation)
-    : _cesiumExtensionLocation(cesiumExtensionLocation.lexically_normal())
-    , _certificatePath(_cesiumExtensionLocation / "certs" / "cacert.pem")
-    , _cesiumMdlPathToken(omni::fabric::Token::createImmortal(
-          (_cesiumExtensionLocation / "mdl" / "cesium.mdl").generic_string().c_str()))
+Context::Context(const std::filesystem::path& cesiumMdlPath, const std::filesystem::path& cesiumCacheDirectory)
+    : _cesiumMdlPathToken(
+          omni::fabric::Token::createImmortal(cesiumMdlPath.lexically_normal().generic_string().c_str()))
     , _pTaskProcessor(std::make_shared<TaskProcessor>())
     , _pAsyncSystem(std::make_unique<CesiumAsync::AsyncSystem>(_pTaskProcessor))
     , _pLogger(std::make_shared<Logger>())
-    , _pCacheDatabase(makeCacheDatabase(_pLogger))
+    , _pCacheDatabase(makeCacheDatabase(cesiumCacheDirectory.lexically_normal(), _pLogger))
     , _pCreditSystem(std::make_shared<CesiumUtility::CreditSystem>())
     , _pAssetRegistry(std::make_unique<AssetRegistry>(this))
     , _pFabricResourceManager(std::make_unique<FabricResourceManager>(this))
@@ -140,11 +137,6 @@ Context::~Context() {
 
     CESIUM_TRACE_SHUTDOWN();
 }
-
-const std::filesystem::path& Context::getCesiumExtensionLocation() const {
-    return _cesiumExtensionLocation;
-}
-
 
 const omni::fabric::Token& Context::getCesiumMdlPathToken() const {
     return _cesiumMdlPathToken;
@@ -326,7 +318,7 @@ RenderStatistics Context::getRenderStatistics() const {
 
 int64_t Context::getContextId() const {
     // Creating a Fabric prim with the same path as a previously destroyed prim causes a crash.
-    // The contextId is randomly generated and ensures that Fabric prim paths are unique even across extension reloads.
+    // The contextId is time-tagged and ensures that Fabric prim paths are unique even across extension reloads.
     return _contextId;
 }
 

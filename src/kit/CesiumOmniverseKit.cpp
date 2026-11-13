@@ -7,15 +7,20 @@
 #include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/FabricUtil.h"
+#include "cesium/omniverse/KitSubsystem.h"
 #include "cesium/omniverse/OmniData.h"
 #include "cesium/omniverse/OmniIonServer.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/UsdUtil.h"
 #include "cesium/omniverse/Viewport.h"
+#include "cesium/omniverse/getCesiumCacheDirectoryKit.h"
 
 #include <CesiumGeospatial/Cartographic.h>
 #include <CesiumUtility/CreditSystem.h>
+#include <carb/Framework.h>
 #include <carb/PluginUtils.h>
+#include <carb/tokens/ITokens.h>
+#include <carb/tokens/TokensUtils.h>
 #include <omni/fabric/IFabric.h>
 #include <omni/kit/IApp.h>
 
@@ -23,10 +28,15 @@
 
 namespace cesium::omniverse {
 
+namespace {} // namespace
+
 class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
   protected:
     void onStartup(const char* cesiumExtensionLocation) noexcept override {
-        _pContext = std::make_unique<Context>(cesiumExtensionLocation);
+        std::filesystem::path cesiumMdlPath = std::filesystem::path(cesiumExtensionLocation) / "mdl" / "cesium.mdl";
+        std::filesystem::path cesiumCacheDirectory = getCesiumCacheDirectoryKit();
+
+        _pContext = std::make_unique<Context>(cesiumMdlPath, cesiumCacheDirectory);
     }
 
     void onShutdown() noexcept override {
