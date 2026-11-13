@@ -145,9 +145,6 @@ const std::filesystem::path& Context::getCesiumExtensionLocation() const {
     return _cesiumExtensionLocation;
 }
 
-const std::filesystem::path& Context::getCertificatePath() const {
-    return _certificatePath;
-}
 
 const omni::fabric::Token& Context::getCesiumMdlPathToken() const {
     return _cesiumMdlPathToken;
