@@ -10,6 +10,7 @@ namespace cesium::omniverse {
 
 FabricMaterialPool::FabricMaterialPool(
     Context* pContext,
+    KitSubsystem* pSubsystem,
     int64_t poolId,
     const FabricMaterialDescriptor& materialDescriptor,
     uint64_t initialCapacity,
@@ -18,6 +19,7 @@ FabricMaterialPool::FabricMaterialPool(
     bool debugRandomColors)
     : ObjectPool<FabricMaterial>()
     , _pContext(pContext)
+    , _pSubsystem(pSubsystem)
     , _poolId(poolId)
     , _materialDescriptor(materialDescriptor)
     , _defaultWhiteTextureAssetPathToken(defaultWhiteTextureAssetPathToken)
@@ -47,6 +49,7 @@ std::shared_ptr<FabricMaterial> FabricMaterialPool::createObject(uint64_t object
     const auto path = omni::fabric::Path::createImmortal(pathStr.c_str());
     return std::make_shared<FabricMaterial>(
         _pContext,
+        _pSubsystem,
         path,
         _materialDescriptor,
         _defaultWhiteTextureAssetPathToken,

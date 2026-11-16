@@ -21,6 +21,7 @@ class FabricMaterialPool final : public ObjectPool<FabricMaterial> {
   public:
     FabricMaterialPool(
         Context* pContext,
+        KitSubsystem* pSubsystem,
         int64_t poolId,
         const FabricMaterialDescriptor& materialDescriptor,
         uint64_t initialCapacity,
@@ -44,6 +45,7 @@ class FabricMaterialPool final : public ObjectPool<FabricMaterial> {
 
   private:
     Context* _pContext;
+    KitSubsystem* _pSubsystem;
     int64_t _poolId;
     FabricMaterialDescriptor _materialDescriptor;
     omni::fabric::Token _defaultWhiteTextureAssetPathToken;

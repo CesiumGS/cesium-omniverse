@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cesium/omniverse/SubsystemStatistics.h"
 #include <glm/fwd.hpp>
 
 #ifdef CESIUM_OMNI_MSVC
@@ -27,7 +28,7 @@ namespace cesium::omniverse {
 enum class DataType;
 enum class MdlExternalPropertyType;
 enum class MdlInternalPropertyType;
-struct FabricStatistics;
+struct SubsystemStatistics;
 
 } // namespace cesium::omniverse
 
@@ -37,7 +38,7 @@ namespace cesium::omniverse::FabricUtil {
 const int64_t NO_TILESET_ID{-1};
 
 std::string printFabricStage(omni::fabric::StageReaderWriter& fabricStage);
-FabricStatistics getStatistics(omni::fabric::StageReaderWriter& fabricStage);
+SubsystemStatistics getStatistics(omni::fabric::StageReaderWriter& fabricStage);
 void destroyPrim(omni::fabric::StageReaderWriter& fabricStage, const omni::fabric::Path& path);
 void setTilesetTransform(
     omni::fabric::StageReaderWriter& fabricStage,

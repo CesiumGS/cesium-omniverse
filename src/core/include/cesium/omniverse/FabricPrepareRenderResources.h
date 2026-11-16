@@ -5,17 +5,18 @@
 #undef OPAQUE
 #endif
 
-#include <Cesium3DTilesSelection/IPrepareRendererResources.h>
+#include "cesium/omniverse/SubsystemPrepareRendererResources.h"
 
 namespace cesium::omniverse {
 
 class Context;
+class KitSubsystem;
 struct FabricMesh;
 class OmniTileset;
 
-class FabricPrepareRenderResources final : public Cesium3DTilesSelection::IPrepareRendererResources {
+class FabricPrepareRenderResources final : public SubsystemPrepareRendererResources {
   public:
-    FabricPrepareRenderResources(Context* pContext, OmniTileset* pTileset);
+    FabricPrepareRenderResources(Context* pContext, KitSubsystem* pSubsystem, OmniTileset* pTileset);
     ~FabricPrepareRenderResources() override = default;
     FabricPrepareRenderResources(const FabricPrepareRenderResources&) = delete;
     FabricPrepareRenderResources& operator=(const FabricPrepareRenderResources&) = delete;
@@ -56,11 +57,9 @@ class FabricPrepareRenderResources final : public Cesium3DTilesSelection::IPrepa
         const CesiumRasterOverlays::RasterOverlayTile& rasterTile,
         void* pMainThreadRendererResources) noexcept override;
 
-    [[nodiscard]] bool tilesetExists() const;
-    void detachTileset();
-
   private:
     Context* _pContext;
+    KitSubsystem* _pSubsystem;
     OmniTileset* _pTileset;
 };
 

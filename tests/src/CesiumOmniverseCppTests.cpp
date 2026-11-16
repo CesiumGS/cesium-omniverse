@@ -9,14 +9,16 @@
 #include "testUtils.h"
 #include "tilesetTests.h"
 
-#include "cesium/omniverse/Context.h"
-#include "cesium/omniverse/Logger.h"
-#include "cesium/omniverse/getCesiumCacheDirectoryKit.h"
-
 #include <carb/PluginUtils.h>
+#include <cesium/omniverse/Context.h>
+#include <cesium/omniverse/FabricResourceManager.h>
+#include <cesium/omniverse/KitSubsystem.h>
+#include <cesium/omniverse/Logger.h>
 #include <cesium/omniverse/UsdUtil.h>
+#include <cesium/omniverse/getCesiumCacheDirectoryKit.h>
 #include <doctest/doctest.h>
 #include <omni/fabric/IFabric.h>
+#include <omni/fabric/stage/StageReaderWriter.h>
 #include <omni/kit/IApp.h>
 
 #ifdef CESIUM_OMNI_MSVC
@@ -41,7 +43,7 @@ class CesiumOmniverseCppTestsPlugin final : public ICesiumOmniverseCppTestsInter
         std::filesystem::path cesiumMdlPath = std::filesystem::path(cesiumExtensionLocation) / "mdl" / "cesium.mdl";
         std::filesystem::path cesiumCacheDirectory = getCesiumCacheDirectoryKit();
 
-        _pContext = std::make_unique<Context>(cesiumMdlPath, cesiumCacheDirectory);
+        _pContext = std::make_unique<Context>(std::make_unique<KitSubsystem>(cesiumMdlPath), cesiumCacheDirectory);
     }
 
     void onShutdown() noexcept override {

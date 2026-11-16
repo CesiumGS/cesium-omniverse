@@ -14,6 +14,7 @@
 #include "cesium/omniverse/FabricTextureInfo.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GltfUtil.h"
+#include "cesium/omniverse/KitSubsystem.h"
 #include "cesium/omniverse/Logger.h"
 #include "cesium/omniverse/MetadataUtil.h"
 #include "cesium/omniverse/UsdTokens.h"
@@ -226,7 +227,7 @@ constexpr DataTypeUtil::GetMdlInternalPropertyRawType<DataTypeUtil::getMdlIntern
 }
 
 void createAttributes(
-    const Context& context,
+    const KitSubsystem& subsystem,
     omni::fabric::StageReaderWriter& fabricStage,
     const omni::fabric::Path& path,
     FabricAttributesBuilder& attributes,
@@ -258,7 +259,7 @@ void createAttributes(
 
     *inputsExcludeFromWhiteModeFabric = false;
     *infoImplementationSourceFabric = FabricTokens::sourceAsset();
-    infoMdlSourceAssetFabric->assetPath = context.getCesiumMdlPathToken(),
+    infoMdlSourceAssetFabric->assetPath = subsystem.getCesiumMdlPathToken(),
     infoMdlSourceAssetFabric->resolvedPath = omni::fabric::Token();
     *infoMdlSourceAssetSubIdentifierFabric = subidentifier;
 }
@@ -501,6 +502,7 @@ void clearPropertyTableProperty(
 
 FabricMaterial::FabricMaterial(
     Context* pContext,
+    KitSubsystem* pSubsystem,
     const omni::fabric::Path& path,
     const FabricMaterialDescriptor& materialDescriptor,
     const omni::fabric::Token& defaultWhiteTextureAssetPathToken,
@@ -508,6 +510,7 @@ FabricMaterial::FabricMaterial(
     bool debugRandomColors,
     int64_t poolId)
     : _pContext(pContext)
+    , _pSubsystem(pSubsystem)
     , _materialPath(path)
     , _materialDescriptor(materialDescriptor)
     , _defaultWhiteTextureAssetPathToken(defaultWhiteTextureAssetPathToken)
@@ -538,7 +541,7 @@ FabricMaterial::~FabricMaterial() {
     }
 
     for (const auto& path : _allPaths) {
-        FabricUtil::destroyPrim(_pContext->getFabricStage(), path);
+        FabricUtil::destroyPrim(_pSubsystem->getFabricStage(), path);
     }
 }
 
@@ -565,7 +568,7 @@ int64_t FabricMaterial::getPoolId() const {
 }
 
 void FabricMaterial::initializeNodes() {
-    auto& fabricStage = _pContext->getFabricStage();
+    auto& fabricStage = _pSubsystem->getFabricStage();
 
     // Create base color texture
     const auto hasBaseColorTexture = _materialDescriptor.hasBaseColorTexture();
@@ -647,7 +650,7 @@ void FabricMaterial::initializeNodes() {
 }
 
 void FabricMaterial::initializeDefaultMaterial() {
-    auto& fabricStage = _pContext->getFabricStage();
+    auto& fabricStage = _pSubsystem->getFabricStage();
 
     const auto rasterOverlayIndices = getRasterOverlayIndices(*_pContext, _materialDescriptor);
     const auto hasBaseColorTexture = _materialDescriptor.hasBaseColorTexture();
@@ -738,7 +741,7 @@ void FabricMaterial::initializeDefaultMaterial() {
 }
 
 void FabricMaterial::initializeExistingMaterial(const omni::fabric::Path& path) {
-    auto& fabricStage = _pContext->getFabricStage();
+    auto& fabricStage = _pSubsystem->getFabricStage();
 
     const auto copiedPaths = FabricUtil::copyMaterial(fabricStage, path, _materialPath);
 
@@ -764,10 +767,10 @@ void FabricMaterial::initializeExistingMaterial(const omni::fabric::Path& path) 
 }
 
 void FabricMaterial::createMaterial(const omni::fabric::Path& path) {
-    auto& fabricStage = _pContext->getFabricStage();
+    auto& fabricStage = _pSubsystem->getFabricStage();
     fabricStage.createPrim(path);
 
-    FabricAttributesBuilder attributes(_pContext);
+    FabricAttributesBuilder attributes(_pSubsystem);
 
     attributes.addAttribute(FabricTypes::Material, FabricTokens::Material());
     attributes.addAttribute(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId());
@@ -776,11 +779,11 @@ void FabricMaterial::createMaterial(const omni::fabric::Path& path) {
 }
 
 void FabricMaterial::createShader(const omni::fabric::Path& path) {
-    auto& fabricStage = _pContext->getFabricStage();
+    auto& fabricStage = _pSubsystem->getFabricStage();
 
     fabricStage.createPrim(path);
 
-    FabricAttributesBuilder attributes(_pContext);
+    FabricAttributesBuilder attributes(_pSubsystem);
 
     attributes.addAttribute(FabricTypes::inputs_tile_color, FabricTokens::inputs_tile_color());
     attributes.addAttribute(FabricTypes::inputs_alpha_cutoff, FabricTokens::inputs_alpha_cutoff());
@@ -791,18 +794,18 @@ void FabricMaterial::createShader(const omni::fabric::Path& path) {
     attributes.addAttribute(FabricTypes::inputs_metallic_factor, FabricTokens::inputs_metallic_factor());
     attributes.addAttribute(FabricTypes::inputs_roughness_factor, FabricTokens::inputs_roughness_factor());
 
-    createAttributes(*_pContext, fabricStage, path, attributes, FabricTokens::cesium_internal_material());
+    createAttributes(*_pSubsystem, fabricStage, path, attributes, FabricTokens::cesium_internal_material());
 }
 
 void FabricMaterial::createTextureCommon(
     const omni::fabric::Path& path,
     const omni::fabric::Token& subIdentifier,
     const std::vector<std::pair<omni::fabric::Type, omni::fabric::Token>>& additionalAttributes) {
-    auto& fabricStage = _pContext->getFabricStage();
+    auto& fabricStage = _pSubsystem->getFabricStage();
 
     fabricStage.createPrim(path);
 
-    FabricAttributesBuilder attributes(_pContext);
+    FabricAttributesBuilder attributes(_pSubsystem);
 
     attributes.addAttribute(FabricTypes::inputs_tex_coord_offset, FabricTokens::inputs_tex_coord_offset());
     attributes.addAttribute(FabricTypes::inputs_tex_coord_rotation, FabricTokens::inputs_tex_coord_rotation());
@@ -816,7 +819,7 @@ void FabricMaterial::createTextureCommon(
         attributes.addAttribute(additionalAttribute.first, additionalAttribute.second);
     }
 
-    createAttributes(*_pContext, fabricStage, path, attributes, subIdentifier);
+    createAttributes(*_pSubsystem, fabricStage, path, attributes, subIdentifier);
 
     // _paramColorSpace is an array of pairs: [texture_parameter_token, color_space_enum], [texture_parameter_token, color_space_enum], ...
     fabricStage.setArrayAttributeSize(path, FabricTokens::_paramColorSpace(), 2);
@@ -841,15 +844,15 @@ void FabricMaterial::createRasterOverlayResolverCommon(
     const omni::fabric::Path& path,
     uint64_t rasterOverlayCount,
     const omni::fabric::Token& subidentifier) {
-    auto& fabricStage = _pContext->getFabricStage();
+    auto& fabricStage = _pSubsystem->getFabricStage();
 
     fabricStage.createPrim(path);
 
-    FabricAttributesBuilder attributes(_pContext);
+    FabricAttributesBuilder attributes(_pSubsystem);
 
     attributes.addAttribute(FabricTypes::inputs_raster_overlay_count, FabricTokens::inputs_raster_overlay_count());
 
-    createAttributes(*_pContext, fabricStage, path, attributes, subidentifier);
+    createAttributes(*_pSubsystem, fabricStage, path, attributes, subidentifier);
 
     const auto rasterOverlayCountFabric =
         fabricStage.getAttributeWr<int>(path, FabricTokens::inputs_raster_overlay_count());
@@ -873,17 +876,17 @@ void FabricMaterial::createFeatureIdIndex(const omni::fabric::Path& path) {
 }
 
 void FabricMaterial::createFeatureIdAttribute(const omni::fabric::Path& path) {
-    auto& fabricStage = _pContext->getFabricStage();
+    auto& fabricStage = _pSubsystem->getFabricStage();
 
     fabricStage.createPrim(path);
 
-    FabricAttributesBuilder attributes(_pContext);
+    FabricAttributesBuilder attributes(_pSubsystem);
 
     attributes.addAttribute(FabricTypes::inputs_primvar_name, FabricTokens::inputs_primvar_name());
     attributes.addAttribute(FabricTypes::inputs_null_feature_id, FabricTokens::inputs_null_feature_id());
 
     createAttributes(
-        *_pContext, fabricStage, path, attributes, FabricTokens::cesium_internal_feature_id_attribute_lookup());
+        *_pSubsystem, fabricStage, path, attributes, FabricTokens::cesium_internal_feature_id_attribute_lookup());
 }
 
 void FabricMaterial::createFeatureIdTexture(const omni::fabric::Path& path) {
@@ -901,14 +904,14 @@ void FabricMaterial::createPropertyAttributePropertyInt(
     const omni::fabric::Token& subidentifier,
     const omni::fabric::Type& noDataType,
     const omni::fabric::Type& defaultValueType) {
-    auto& fabricStage = _pContext->getFabricStage();
+    auto& fabricStage = _pSubsystem->getFabricStage();
     fabricStage.createPrim(path);
-    FabricAttributesBuilder attributes(_pContext);
+    FabricAttributesBuilder attributes(_pSubsystem);
     attributes.addAttribute(FabricTypes::inputs_primvar_name, FabricTokens::inputs_primvar_name());
     attributes.addAttribute(FabricTypes::inputs_has_no_data, FabricTokens::inputs_has_no_data());
     attributes.addAttribute(noDataType, FabricTokens::inputs_no_data());
     attributes.addAttribute(defaultValueType, FabricTokens::inputs_default_value());
-    createAttributes(*_pContext, fabricStage, path, attributes, subidentifier);
+    createAttributes(*_pSubsystem, fabricStage, path, attributes, subidentifier);
 }
 
 void FabricMaterial::createPropertyAttributePropertyNormalizedInt(
@@ -919,9 +922,9 @@ void FabricMaterial::createPropertyAttributePropertyNormalizedInt(
     const omni::fabric::Type& offsetType,
     const omni::fabric::Type& scaleType,
     const omni::fabric::Type& maximumValueType) {
-    auto& fabricStage = _pContext->getFabricStage();
+    auto& fabricStage = _pSubsystem->getFabricStage();
     fabricStage.createPrim(path);
-    FabricAttributesBuilder attributes(_pContext);
+    FabricAttributesBuilder attributes(_pSubsystem);
     attributes.addAttribute(FabricTypes::inputs_primvar_name, FabricTokens::inputs_primvar_name());
     attributes.addAttribute(FabricTypes::inputs_has_no_data, FabricTokens::inputs_has_no_data());
     attributes.addAttribute(noDataType, FabricTokens::inputs_no_data());
@@ -929,7 +932,7 @@ void FabricMaterial::createPropertyAttributePropertyNormalizedInt(
     attributes.addAttribute(offsetType, FabricTokens::inputs_offset());
     attributes.addAttribute(scaleType, FabricTokens::inputs_scale());
     attributes.addAttribute(maximumValueType, FabricTokens::inputs_maximum_value());
-    createAttributes(*_pContext, fabricStage, path, attributes, subidentifier);
+    createAttributes(*_pSubsystem, fabricStage, path, attributes, subidentifier);
 }
 
 void FabricMaterial::createPropertyAttributePropertyFloat(
@@ -939,16 +942,16 @@ void FabricMaterial::createPropertyAttributePropertyFloat(
     const omni::fabric::Type& defaultValueType,
     const omni::fabric::Type& offsetType,
     const omni::fabric::Type& scaleType) {
-    auto& fabricStage = _pContext->getFabricStage();
+    auto& fabricStage = _pSubsystem->getFabricStage();
     fabricStage.createPrim(path);
-    FabricAttributesBuilder attributes(_pContext);
+    FabricAttributesBuilder attributes(_pSubsystem);
     attributes.addAttribute(FabricTypes::inputs_primvar_name, FabricTokens::inputs_primvar_name());
     attributes.addAttribute(FabricTypes::inputs_has_no_data, FabricTokens::inputs_has_no_data());
     attributes.addAttribute(noDataType, FabricTokens::inputs_no_data());
     attributes.addAttribute(defaultValueType, FabricTokens::inputs_default_value());
     attributes.addAttribute(offsetType, FabricTokens::inputs_offset());
     attributes.addAttribute(scaleType, FabricTokens::inputs_scale());
-    createAttributes(*_pContext, fabricStage, path, attributes, subidentifier);
+    createAttributes(*_pSubsystem, fabricStage, path, attributes, subidentifier);
 }
 
 void FabricMaterial::createPropertyAttributeProperty(const omni::fabric::Path& path, MdlInternalPropertyType type) {
@@ -1197,14 +1200,14 @@ void FabricMaterial::createPropertyTablePropertyInt(
     const omni::fabric::Token& subidentifier,
     const omni::fabric::Type& noDataType,
     const omni::fabric::Type& defaultValueType) {
-    auto& fabricStage = _pContext->getFabricStage();
+    auto& fabricStage = _pSubsystem->getFabricStage();
     fabricStage.createPrim(path);
-    FabricAttributesBuilder attributes(_pContext);
+    FabricAttributesBuilder attributes(_pSubsystem);
     attributes.addAttribute(FabricTypes::inputs_property_table_texture, FabricTokens::inputs_property_table_texture());
     attributes.addAttribute(FabricTypes::inputs_has_no_data, FabricTokens::inputs_has_no_data());
     attributes.addAttribute(noDataType, FabricTokens::inputs_no_data());
     attributes.addAttribute(defaultValueType, FabricTokens::inputs_default_value());
-    createAttributes(*_pContext, fabricStage, path, attributes, subidentifier);
+    createAttributes(*_pSubsystem, fabricStage, path, attributes, subidentifier);
 }
 
 void FabricMaterial::createPropertyTablePropertyNormalizedInt(
@@ -1215,9 +1218,9 @@ void FabricMaterial::createPropertyTablePropertyNormalizedInt(
     const omni::fabric::Type& offsetType,
     const omni::fabric::Type& scaleType,
     const omni::fabric::Type& maximumValueType) {
-    auto& fabricStage = _pContext->getFabricStage();
+    auto& fabricStage = _pSubsystem->getFabricStage();
     fabricStage.createPrim(path);
-    FabricAttributesBuilder attributes(_pContext);
+    FabricAttributesBuilder attributes(_pSubsystem);
     attributes.addAttribute(FabricTypes::inputs_property_table_texture, FabricTokens::inputs_property_table_texture());
     attributes.addAttribute(FabricTypes::inputs_has_no_data, FabricTokens::inputs_has_no_data());
     attributes.addAttribute(noDataType, FabricTokens::inputs_no_data());
@@ -1225,7 +1228,7 @@ void FabricMaterial::createPropertyTablePropertyNormalizedInt(
     attributes.addAttribute(offsetType, FabricTokens::inputs_offset());
     attributes.addAttribute(scaleType, FabricTokens::inputs_scale());
     attributes.addAttribute(maximumValueType, FabricTokens::inputs_maximum_value());
-    createAttributes(*_pContext, fabricStage, path, attributes, subidentifier);
+    createAttributes(*_pSubsystem, fabricStage, path, attributes, subidentifier);
 }
 
 void FabricMaterial::createPropertyTablePropertyFloat(
@@ -1235,16 +1238,16 @@ void FabricMaterial::createPropertyTablePropertyFloat(
     const omni::fabric::Type& defaultValueType,
     const omni::fabric::Type& offsetType,
     const omni::fabric::Type& scaleType) {
-    auto& fabricStage = _pContext->getFabricStage();
+    auto& fabricStage = _pSubsystem->getFabricStage();
     fabricStage.createPrim(path);
-    FabricAttributesBuilder attributes(_pContext);
+    FabricAttributesBuilder attributes(_pSubsystem);
     attributes.addAttribute(FabricTypes::inputs_property_table_texture, FabricTokens::inputs_property_table_texture());
     attributes.addAttribute(FabricTypes::inputs_has_no_data, FabricTokens::inputs_has_no_data());
     attributes.addAttribute(noDataType, FabricTokens::inputs_no_data());
     attributes.addAttribute(defaultValueType, FabricTokens::inputs_default_value());
     attributes.addAttribute(offsetType, FabricTokens::inputs_offset());
     attributes.addAttribute(scaleType, FabricTokens::inputs_scale());
-    createAttributes(*_pContext, fabricStage, path, attributes, subidentifier);
+    createAttributes(*_pSubsystem, fabricStage, path, attributes, subidentifier);
 }
 
 void FabricMaterial::createPropertyTableProperty(const omni::fabric::Path& path, MdlInternalPropertyType type) {
@@ -1400,7 +1403,7 @@ void FabricMaterial::reset() {
     for (const auto& [type, paths] : _propertyAttributePropertyPaths) {
         for (const auto& path : paths) {
             CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_MDL_TYPE(
-                clearPropertyAttributeProperty, type, _pContext->getFabricStage(), path);
+                clearPropertyAttributeProperty, type, _pSubsystem->getFabricStage(), path);
         }
     }
 
@@ -1409,7 +1412,7 @@ void FabricMaterial::reset() {
             CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_MDL_TYPE(
                 clearPropertyTextureProperty,
                 type,
-                _pContext->getFabricStage(),
+                _pSubsystem->getFabricStage(),
                 path,
                 _defaultTransparentTextureAssetPathToken);
         }
@@ -1420,7 +1423,7 @@ void FabricMaterial::reset() {
             CALL_TEMPLATED_FUNCTION_WITH_RUNTIME_MDL_TYPE(
                 clearPropertyTableProperty,
                 type,
-                _pContext->getFabricStage(),
+                _pSubsystem->getFabricStage(),
                 path,
                 _defaultTransparentTextureAssetPathToken);
         }
@@ -1436,7 +1439,7 @@ void FabricMaterial::reset() {
     }
 
     for (const auto& path : _allPaths) {
-        auto& fabricStage = _pContext->getFabricStage();
+        auto& fabricStage = _pSubsystem->getFabricStage();
         const auto tilesetIdFabric = fabricStage.getAttributeWr<int64_t>(path, FabricTokens::_cesium_tilesetId());
         *tilesetIdFabric = FabricUtil::NO_TILESET_ID;
     }
@@ -1554,7 +1557,7 @@ void FabricMaterial::setMaterial(
                 constexpr auto maximumValue = getMaximumValue<type>();
 
                 setPropertyAttributePropertyValues<mdlType>(
-                    _pContext->getFabricStage(),
+                    _pSubsystem->getFabricStage(),
                     propertyPath,
                     primvarName,
                     offset,
@@ -1591,7 +1594,7 @@ void FabricMaterial::setMaterial(
                 constexpr auto maximumValue = getMaximumValue<type>();
 
                 setPropertyTexturePropertyValues<mdlType>(
-                    _pContext->getFabricStage(),
+                    _pSubsystem->getFabricStage(),
                     propertyPath,
                     textureAssetPath,
                     textureInfo,
@@ -1629,7 +1632,7 @@ void FabricMaterial::setMaterial(
                 constexpr auto maximumValue = getMaximumValue<type>();
 
                 setPropertyTablePropertyValues<mdlType>(
-                    _pContext->getFabricStage(),
+                    _pSubsystem->getFabricStage(),
                     propertyPath,
                     textureAssetPath,
                     offset,
@@ -1643,14 +1646,14 @@ void FabricMaterial::setMaterial(
     }
 
     for (const auto& path : _allPaths) {
-        auto& fabricStage = _pContext->getFabricStage();
+        auto& fabricStage = _pSubsystem->getFabricStage();
         const auto tilesetIdFabric = fabricStage.getAttributeWr<int64_t>(path, FabricTokens::_cesium_tilesetId());
         *tilesetIdFabric = tilesetId;
     }
 }
 
 void FabricMaterial::createConnectionsToCopiedPaths() {
-    auto& fabricStage = _pContext->getFabricStage();
+    auto& fabricStage = _pSubsystem->getFabricStage();
 
     const auto hasBaseColorTexture = _materialDescriptor.hasBaseColorTexture();
     const auto rasterOverlay = getRasterOverlayCount(_materialDescriptor);
@@ -1685,7 +1688,7 @@ void FabricMaterial::createConnectionsToCopiedPaths() {
 }
 
 void FabricMaterial::destroyConnectionsToCopiedPaths() {
-    auto& fabricStage = _pContext->getFabricStage();
+    auto& fabricStage = _pSubsystem->getFabricStage();
 
     for (const auto& copiedPath : _copiedBaseColorTexturePaths) {
         destroyConnection(fabricStage, copiedPath, FabricTokens::inputs_base_color_texture());
@@ -1701,7 +1704,7 @@ void FabricMaterial::destroyConnectionsToCopiedPaths() {
 }
 
 void FabricMaterial::createConnectionsToProperties() {
-    auto& fabricStage = _pContext->getFabricStage();
+    auto& fabricStage = _pSubsystem->getFabricStage();
     const auto& properties = _materialDescriptor.getStyleableProperties();
     const auto& unsupportedPropertyWarnings = _materialDescriptor.getUnsupportedPropertyWarnings();
 
@@ -1743,7 +1746,7 @@ void FabricMaterial::createConnectionsToProperties() {
 }
 
 void FabricMaterial::destroyConnectionsToProperties() {
-    auto& fabricStage = _pContext->getFabricStage();
+    auto& fabricStage = _pSubsystem->getFabricStage();
 
     for (const auto& copiedPath : _copiedPropertyPaths) {
         destroyConnection(fabricStage, copiedPath, FabricTokens::inputs_property_value());
@@ -1792,7 +1795,7 @@ void FabricMaterial::setDisplayColorAndOpacity(const glm::dvec3& displayColor, d
         return;
     }
 
-    auto& fabricStage = _pContext->getFabricStage();
+    auto& fabricStage = _pSubsystem->getFabricStage();
 
     const auto tileColorFabric = fabricStage.getAttributeWr<glm::fvec4>(_shaderPath, FabricTokens::inputs_tile_color());
     const auto alphaModeFabric = fabricStage.getAttributeWr<int>(_shaderPath, FabricTokens::inputs_alpha_mode());
@@ -1806,7 +1809,7 @@ void FabricMaterial::updateShaderInput(const omni::fabric::Path& path, const omn
         return;
     }
 
-    auto& fabricStage = _pContext->getFabricStage();
+    auto& fabricStage = _pSubsystem->getFabricStage();
     const auto iFabricStage = carb::getCachedInterface<omni::fabric::IStageReaderWriter>();
 
     const auto copiedShaderPath = FabricUtil::getCopiedShaderPath(_materialPath, path);
@@ -1857,7 +1860,7 @@ void FabricMaterial::setShaderValues(
     const FabricMaterialInfo& materialInfo,
     const glm::dvec3& displayColor,
     double displayOpacity) {
-    auto& fabricStage = _pContext->getFabricStage();
+    auto& fabricStage = _pSubsystem->getFabricStage();
 
     const auto tileColorFabric = fabricStage.getAttributeWr<pxr::GfVec4f>(path, FabricTokens::inputs_tile_color());
     const auto alphaCutoffFabric = fabricStage.getAttributeWr<float>(path, FabricTokens::inputs_alpha_cutoff());
@@ -1885,7 +1888,7 @@ void FabricMaterial::setTextureValues(
     const omni::fabric::Token& textureAssetPathToken,
     const FabricTextureInfo& textureInfo,
     uint64_t texcoordIndex) {
-    setTextureValuesCommon(_pContext->getFabricStage(), path, textureAssetPathToken, textureInfo, texcoordIndex);
+    setTextureValuesCommon(_pSubsystem->getFabricStage(), path, textureAssetPathToken, textureInfo, texcoordIndex);
 }
 
 void FabricMaterial::setRasterOverlayValues(
@@ -1894,12 +1897,12 @@ void FabricMaterial::setRasterOverlayValues(
     const FabricTextureInfo& textureInfo,
     uint64_t texcoordIndex,
     double alpha) {
-    setTextureValuesCommon(_pContext->getFabricStage(), path, textureAssetPathToken, textureInfo, texcoordIndex);
+    setTextureValuesCommon(_pSubsystem->getFabricStage(), path, textureAssetPathToken, textureInfo, texcoordIndex);
     setRasterOverlayAlphaValue(path, alpha);
 }
 
 void FabricMaterial::setRasterOverlayAlphaValue(const omni::fabric::Path& path, double alpha) {
-    const auto alphaFabric = _pContext->getFabricStage().getAttributeWr<float>(path, FabricTokens::inputs_alpha());
+    const auto alphaFabric = _pSubsystem->getFabricStage().getAttributeWr<float>(path, FabricTokens::inputs_alpha());
     *alphaFabric = static_cast<float>(alpha);
 }
 
@@ -1912,7 +1915,7 @@ void FabricMaterial::setFeatureIdAttributeValues(
     const std::string& primvarName,
     int nullFeatureId) {
 
-    auto& fabricStage = _pContext->getFabricStage();
+    auto& fabricStage = _pSubsystem->getFabricStage();
 
     setStringFabric(fabricStage, path, FabricTokens::inputs_primvar_name(), primvarName);
 
@@ -1927,7 +1930,7 @@ void FabricMaterial::setFeatureIdTextureValues(
     uint64_t texcoordIndex,
     int nullFeatureId) {
 
-    auto& fabricStage = _pContext->getFabricStage();
+    auto& fabricStage = _pSubsystem->getFabricStage();
 
     setTextureValuesCommonChannels(fabricStage, path, textureAssetPathToken, textureInfo, texcoordIndex);
 

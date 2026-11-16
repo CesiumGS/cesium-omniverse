@@ -4,9 +4,9 @@
 
 namespace cesium::omniverse {
 
-class KitSubsystem : public ISubsystem {
+class OvstageSubsystem final : public ISubsystem {
   public:
-    KitSubsystem() = default;
+    OvstageSubsystem() = default;
 };
 
 } // namespace cesium::omniverse

@@ -8,6 +8,7 @@
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/FabricVertexAttributeDescriptor.h"
 #include "cesium/omniverse/GltfUtil.h"
+#include "cesium/omniverse/KitSubsystem.h"
 #include "cesium/omniverse/MathUtil.h"
 #include "cesium/omniverse/UsdTokens.h"
 #include "cesium/omniverse/UsdUtil.h"
@@ -68,10 +69,12 @@ void setVertexAttributeValues(
 
 FabricGeometry::FabricGeometry(
     Context* pContext,
+    KitSubsystem* pSubsystem,
     const omni::fabric::Path& path,
     const FabricGeometryDescriptor& geometryDescriptor,
     int64_t poolId)
     : _pContext(pContext)
+    , _pSubsystem(pSubsystem)
     , _path(path)
     , _geometryDescriptor(geometryDescriptor)
     , _poolId(poolId)
@@ -89,7 +92,7 @@ FabricGeometry::~FabricGeometry() {
         return;
     }
 
-    FabricUtil::destroyPrim(_pContext->getFabricStage(), _path);
+    FabricUtil::destroyPrim(_pSubsystem->getFabricStage(), _path);
 }
 
 void FabricGeometry::setActive(bool active) {
@@ -107,7 +110,7 @@ void FabricGeometry::setVisibility(bool visible) {
         return;
     }
 
-    auto& fabricStage = _pContext->getFabricStage();
+    auto& fabricStage = _pSubsystem->getFabricStage();
 
     const auto worldVisibilityFabric = fabricStage.getAttributeWr<bool>(_path, FabricTokens::_worldVisibility());
     *worldVisibilityFabric = visible;
@@ -130,7 +133,7 @@ void FabricGeometry::setMaterial(const omni::fabric::Path& materialPath) {
         return;
     }
 
-    auto& fabricStage = _pContext->getFabricStage();
+    auto& fabricStage = _pSubsystem->getFabricStage();
     fabricStage.setArrayAttributeSize(_path, FabricTokens::material_binding(), 1);
     const auto materialBindingFabric =
         fabricStage.getArrayAttributeWr<omni::fabric::Path>(_path, FabricTokens::material_binding());
@@ -145,12 +148,12 @@ void FabricGeometry::initialize() {
     const auto customVertexAttributesCount = customVertexAttributes.size();
     const auto hasVertexIds = _geometryDescriptor.hasVertexIds();
 
-    auto& fabricStage = _pContext->getFabricStage();
+    auto& fabricStage = _pSubsystem->getFabricStage();
 
     fabricStage.createPrim(_path);
 
     // clang-format off
-    FabricAttributesBuilder attributes(_pContext);
+    FabricAttributesBuilder attributes(_pSubsystem);
     attributes.addAttribute(FabricTypes::faceVertexCounts, FabricTokens::faceVertexCounts());
     attributes.addAttribute(FabricTypes::faceVertexIndices, FabricTokens::faceVertexIndices());
     attributes.addAttribute(FabricTypes::points, FabricTokens::points());
@@ -238,7 +241,7 @@ void FabricGeometry::reset() {
     const auto& customVertexAttributes = _geometryDescriptor.getCustomVertexAttributes();
     const auto hasVertexIds = _geometryDescriptor.hasVertexIds();
 
-    auto& fabricStage = _pContext->getFabricStage();
+    auto& fabricStage = _pSubsystem->getFabricStage();
 
     // clang-format off
     const auto doubleSidedFabric = fabricStage.getAttributeWr<bool>(_path, FabricTokens::doubleSided());
@@ -306,7 +309,7 @@ void FabricGeometry::setGeometry(
     const auto& customVertexAttributes = _geometryDescriptor.getCustomVertexAttributes();
     const auto hasVertexIds = _geometryDescriptor.hasVertexIds();
 
-    auto& fabricStage = _pContext->getFabricStage();
+    auto& fabricStage = _pSubsystem->getFabricStage();
 
     const auto positions = GltfUtil::getPositions(model, primitive);
     const auto indices = GltfUtil::getIndices(model, primitive, positions);

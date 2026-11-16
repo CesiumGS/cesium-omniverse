@@ -3,8 +3,8 @@
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/DataType.h"
 #include "cesium/omniverse/DataTypeUtil.h"
-#include "cesium/omniverse/FabricStatistics.h"
 #include "cesium/omniverse/MathUtil.h"
+#include "cesium/omniverse/SubsystemStatistics.h"
 #include "cesium/omniverse/UsdTokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
@@ -466,8 +466,8 @@ std::string printFabricStage(omni::fabric::StageReaderWriter& fabricStage) {
     return stream.str();
 }
 
-FabricStatistics getStatistics(omni::fabric::StageReaderWriter& fabricStage) {
-    FabricStatistics statistics;
+SubsystemStatistics getStatistics(omni::fabric::StageReaderWriter& fabricStage) {
+    SubsystemStatistics statistics;
 
     const auto geometryBuckets = fabricStage.findPrims(
         {omni::fabric::AttrNameAndType(FabricTypes::_cesium_tilesetId, FabricTokens::_cesium_tilesetId())},

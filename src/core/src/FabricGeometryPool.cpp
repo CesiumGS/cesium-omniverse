@@ -10,11 +10,13 @@ namespace cesium::omniverse {
 
 FabricGeometryPool::FabricGeometryPool(
     Context* pContext,
+    KitSubsystem* pSubsystem,
     int64_t poolId,
     const FabricGeometryDescriptor& geometryDescriptor,
     uint64_t initialCapacity)
     : ObjectPool<FabricGeometry>()
     , _pContext(pContext)
+    , _pSubsystem(pSubsystem)
     , _poolId(poolId)
     , _geometryDescriptor(geometryDescriptor) {
     setCapacity(initialCapacity);
@@ -32,7 +34,7 @@ std::shared_ptr<FabricGeometry> FabricGeometryPool::createObject(uint64_t object
     const auto contextId = _pContext->getContextId();
     const auto pathStr = fmt::format("/cesium_geometry_pool_{}_object_{}_context_{}", _poolId, objectId, contextId);
     const auto path = omni::fabric::Path::createImmortal(pathStr.c_str());
-    return std::make_shared<FabricGeometry>(_pContext, path, _geometryDescriptor, _poolId);
+    return std::make_shared<FabricGeometry>(_pContext, _pSubsystem, path, _geometryDescriptor, _poolId);
 }
 
 void FabricGeometryPool::setActive(FabricGeometry* pGeometry, bool active) const {

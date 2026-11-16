@@ -2,7 +2,6 @@
 
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/Broadcast.h"
-#include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/FabricGeometry.h"
 #include "cesium/omniverse/FabricMaterial.h"
@@ -11,6 +10,7 @@
 #include "cesium/omniverse/FabricRenderResources.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GltfUtil.h"
+#include "cesium/omniverse/ISubsystem.h"
 #include "cesium/omniverse/Logger.h"
 #include "cesium/omniverse/OmniCartographicPolygon.h"
 #include "cesium/omniverse/OmniGeoreference.h"
@@ -18,7 +18,6 @@
 #include "cesium/omniverse/OmniIonServer.h"
 #include "cesium/omniverse/OmniPolygonRasterOverlay.h"
 #include "cesium/omniverse/OmniRasterOverlay.h"
-#include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/TilesetStatistics.h"
 #include "cesium/omniverse/UsdUtil.h"
 #include "cesium/omniverse/Viewport.h"
@@ -32,6 +31,7 @@
 #include <Cesium3DTilesSelection/ViewState.h>
 #include <Cesium3DTilesSelection/ViewUpdateResult.h>
 #include <CesiumGeospatial/Ellipsoid.h>
+#include <CesiumIonClient/Token.h>
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma warning(push)
@@ -543,10 +543,10 @@ void OmniTileset::updateTilesetOptions() {
 void OmniTileset::reload() {
     destroyNativeTileset();
 
-    _pRenderResourcesPreparer = std::make_shared<FabricPrepareRenderResources>(_pContext, this);
+    _pPrepareRendererResources = _pContext->getSubsystem().createPrepareRendererResources(_pContext, this);
     const auto externals = Cesium3DTilesSelection::TilesetExternals{
         _pContext->getAssetAccessor(),
-        _pRenderResourcesPreparer,
+        _pPrepareRendererResources,
         _pContext->getAsyncSystem(),
         _pContext->getCreditSystem(),
         _pContext->getLogger()};
@@ -716,7 +716,7 @@ void OmniTileset::updateTransform() {
     // Check for transform changes and update prims accordingly
     if (ecefToPrimWorldTransform != _ecefToPrimWorldTransform) {
         _ecefToPrimWorldTransform = ecefToPrimWorldTransform;
-        FabricUtil::setTilesetTransform(_pContext->getFabricStage(), _tilesetId, ecefToPrimWorldTransform);
+        _pContext->getSubsystem().setTilesetTransform(_tilesetId, ecefToPrimWorldTransform);
         _extentSet = updateExtent();
     }
 }
@@ -833,12 +833,12 @@ void OmniTileset::destroyNativeTileset() {
         }
     }
 
-    if (_pRenderResourcesPreparer) {
-        _pRenderResourcesPreparer->detachTileset();
+    if (_pPrepareRendererResources) {
+        _pPrepareRendererResources->detachTileset();
     }
 
     _pTileset = nullptr;
-    _pRenderResourcesPreparer = nullptr;
+    _pPrepareRendererResources = nullptr;
 }
 
 void OmniTileset::addRasterOverlayIfExists(const OmniRasterOverlay* pOmniRasterOverlay) {

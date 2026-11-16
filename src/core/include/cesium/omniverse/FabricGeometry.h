@@ -13,12 +13,14 @@ struct Model;
 namespace cesium::omniverse {
 
 class Context;
+class KitSubsystem;
 struct FabricMaterialInfo;
 
 class FabricGeometry {
   public:
     FabricGeometry(
         Context* pContext,
+        KitSubsystem* pSubsystem,
         const omni::fabric::Path& path,
         const FabricGeometryDescriptor& geometryDescriptor,
         int64_t poolId);
@@ -55,6 +57,7 @@ class FabricGeometry {
     bool stageDestroyed();
 
     Context* _pContext;
+    KitSubsystem* _pSubsystem;
     omni::fabric::Path _path;
     FabricGeometryDescriptor _geometryDescriptor;
     int64_t _poolId;

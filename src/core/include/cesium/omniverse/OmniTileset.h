@@ -42,8 +42,8 @@ struct Token;
 namespace cesium::omniverse {
 
 class Context;
-class FabricPrepareRenderResources;
 class OmniRasterOverlay;
+class SubsystemPrepareRendererResources;
 struct TilesetStatistics;
 struct Viewport;
 
@@ -114,7 +114,7 @@ class OmniTileset {
     void destroyNativeTileset();
 
     std::unique_ptr<Cesium3DTilesSelection::Tileset> _pTileset;
-    std::shared_ptr<FabricPrepareRenderResources> _pRenderResourcesPreparer;
+    std::shared_ptr<SubsystemPrepareRendererResources> _pPrepareRendererResources;
     const Cesium3DTilesSelection::ViewUpdateResult* _pViewUpdateResult;
 
     Context* _pContext;

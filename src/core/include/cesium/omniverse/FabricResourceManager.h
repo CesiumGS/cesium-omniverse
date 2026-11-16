@@ -43,24 +43,25 @@ class FabricGeometryDescriptor;
 class FabricMaterialDescriptor;
 class FabricTexture;
 class FabricTexturePool;
+class KitSubsystem;
 struct FabricFeaturesInfo;
 struct FabricRasterOverlaysInfo;
 
 class FabricResourceManager {
   public:
-    FabricResourceManager(Context* pContext);
+    FabricResourceManager(Context* pContext, KitSubsystem* pSubsystem);
     ~FabricResourceManager();
     FabricResourceManager(const FabricResourceManager&) = delete;
     FabricResourceManager& operator=(const FabricResourceManager&) = delete;
     FabricResourceManager(FabricResourceManager&&) noexcept = delete;
     FabricResourceManager& operator=(FabricResourceManager&&) noexcept = delete;
 
-    bool shouldAcquireMaterial(
+    [[nodiscard]] bool shouldAcquireMaterial(
         const CesiumGltf::MeshPrimitive& primitive,
         bool hasRasterOverlay,
         const pxr::SdfPath& tilesetMaterialPath) const;
 
-    bool getDisableTextures() const;
+    [[nodiscard]] bool getDisableTextures() const;
 
     std::shared_ptr<FabricGeometry> acquireGeometry(
         const CesiumGltf::Model& model,
@@ -130,15 +131,15 @@ class FabricResourceManager {
         const FabricMaterialDescriptor& materialDescriptor,
         int64_t tilesetId);
     void releaseSharedMaterial(const FabricMaterial& material);
-    bool isSharedMaterial(const FabricMaterial& material) const;
+    [[nodiscard]] bool isSharedMaterial(const FabricMaterial& material) const;
 
     std::shared_ptr<FabricGeometry> acquireGeometryFromPool(const FabricGeometryDescriptor& geometryDescriptor);
     std::shared_ptr<FabricMaterial> acquireMaterialFromPool(const FabricMaterialDescriptor& materialDescriptor);
     std::shared_ptr<FabricTexture> acquireTextureFromPool();
 
-    FabricGeometryPool* getGeometryPool(const FabricGeometry& geometry) const;
-    FabricMaterialPool* getMaterialPool(const FabricMaterial& material) const;
-    FabricTexturePool* getTexturePool(const FabricTexture& texture) const;
+    [[nodiscard]] FabricGeometryPool* getGeometryPool(const FabricGeometry& geometry) const;
+    [[nodiscard]] FabricMaterialPool* getMaterialPool(const FabricMaterial& material) const;
+    [[nodiscard]] FabricTexturePool* getTexturePool(const FabricTexture& texture) const;
 
     int64_t getNextGeometryId();
     int64_t getNextMaterialId();
@@ -173,6 +174,7 @@ class FabricResourceManager {
     std::mutex _poolMutex;
 
     Context* _pContext;
+    KitSubsystem* _pSubsystem;
     std::unique_ptr<omni::ui::DynamicTextureProvider> _defaultWhiteTexture;
     std::unique_ptr<omni::ui::DynamicTextureProvider> _defaultTransparentTexture;
     omni::fabric::Token _defaultWhiteTextureAssetPathToken;

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <omni/fabric/IToken.h>
-
 #ifdef CESIUM_OMNI_MSVC
 #pragma warning(push)
 #pragma warning(disable : 4244 4305 4100 4201 4127 4251)
@@ -16,11 +14,6 @@
 #include <filesystem>
 #include <memory>
 #include <span>
-#include <vector>
-
-namespace omni::fabric {
-class StageReaderWriter;
-}
 
 namespace CesiumUtility {
 class CreditSystem;
@@ -37,7 +30,7 @@ namespace cesium::omniverse {
 class AssetRegistry;
 class CesiumIonServerManager;
 class CesiumIonSessionManager;
-class FabricResourceManager;
+class ISubsystem;
 class Logger;
 class TaskProcessor;
 class UsdNotificationHandler;
@@ -46,16 +39,15 @@ struct Viewport;
 
 class Context {
   public:
-    Context(const std::filesystem::path& cesiumMdlPath, const std::filesystem::path& cesiumCacheDirectory);
+    Context(std::unique_ptr<ISubsystem>&& pSubsystem, const std::filesystem::path& cesiumCacheDirectory);
     ~Context();
     Context(const Context&) = delete;
     Context& operator=(const Context&) = delete;
     Context(Context&&) noexcept = delete;
     Context& operator=(Context&&) noexcept = delete;
 
-    [[nodiscard]] const std::filesystem::path& getCesiumExtensionLocation() const;
-    [[nodiscard]] const omni::fabric::Token& getCesiumMdlPathToken() const;
-
+    [[nodiscard]] const ISubsystem& getSubsystem() const;
+    [[nodiscard]] ISubsystem& getSubsystem();
     [[nodiscard]] std::shared_ptr<TaskProcessor> getTaskProcessor() const;
     [[nodiscard]] const CesiumAsync::AsyncSystem& getAsyncSystem() const;
     [[nodiscard]] std::shared_ptr<CesiumAsync::IAssetAccessor> getAssetAccessor() const;
@@ -63,8 +55,6 @@ class Context {
     [[nodiscard]] std::shared_ptr<Logger> getLogger() const;
     [[nodiscard]] const AssetRegistry& getAssetRegistry() const;
     [[nodiscard]] AssetRegistry& getAssetRegistry();
-    [[nodiscard]] const FabricResourceManager& getFabricResourceManager() const;
-    [[nodiscard]] FabricResourceManager& getFabricResourceManager();
     [[nodiscard]] const CesiumIonSessionManager& getCesiumIonSessionManager() const;
     [[nodiscard]] CesiumIonSessionManager& getCesiumIonSessionManager();
     [[nodiscard]] const CesiumIonServerManager& getCesiumIonServerManager() const;
@@ -81,15 +71,13 @@ class Context {
     [[nodiscard]] pxr::UsdStageWeakPtr& getUsdStage();
     [[nodiscard]] int64_t getUsdStageId() const;
     [[nodiscard]] bool hasUsdStage() const;
-    [[nodiscard]] omni::fabric::StageReaderWriter& getFabricStage() const;
 
     [[nodiscard]] RenderStatistics getRenderStatistics() const;
 
     [[nodiscard]] int64_t getContextId() const;
 
   private:
-    omni::fabric::Token _cesiumMdlPathToken;
-
+    std::shared_ptr<ISubsystem> _pSubsystem;
     std::shared_ptr<TaskProcessor> _pTaskProcessor;
     std::unique_ptr<CesiumAsync::AsyncSystem> _pAsyncSystem;
     std::shared_ptr<Logger> _pLogger;
@@ -97,7 +85,6 @@ class Context {
     std::shared_ptr<CesiumAsync::ICacheDatabase> _pCacheDatabase;
     std::shared_ptr<CesiumUtility::CreditSystem> _pCreditSystem;
     std::unique_ptr<AssetRegistry> _pAssetRegistry;
-    std::unique_ptr<FabricResourceManager> _pFabricResourceManager;
     std::unique_ptr<CesiumIonSessionManager> _pCesiumIonSessionManager;
     std::unique_ptr<CesiumIonServerManager> _pCesiumIonServerManager;
     std::unique_ptr<UsdNotificationHandler> _pUsdNotificationHandler;
@@ -105,7 +92,6 @@ class Context {
     int64_t _contextId;
 
     pxr::UsdStageWeakPtr _pUsdStage;
-    std::unique_ptr<omni::fabric::StageReaderWriter> _pFabricStage;
     int64_t _usdStageId{0};
 };
 

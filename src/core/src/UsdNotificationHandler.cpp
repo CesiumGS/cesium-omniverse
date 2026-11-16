@@ -5,6 +5,7 @@
 #include "cesium/omniverse/CppUtil.h"
 #include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricUtil.h"
+#include "cesium/omniverse/ISubsystem.h"
 #include "cesium/omniverse/OmniCartographicPolygon.h"
 #include "cesium/omniverse/OmniEllipsoid.h"
 #include "cesium/omniverse/OmniGeoreference.h"
@@ -682,9 +683,7 @@ void processUsdShaderChanged(
     const pxr::SdfPath& shaderPath,
     const std::vector<pxr::TfToken>& properties) {
     const auto usdShader = UsdUtil::getUsdShader(context.getUsdStage(), shaderPath);
-    const auto shaderPathFabric = FabricUtil::toFabricPath(shaderPath);
     const auto materialPath = shaderPath.GetParentPath();
-    const auto materialPathFabric = FabricUtil::toFabricPath(materialPath);
 
     if (!UsdUtil::isUsdMaterial(context.getUsdStage(), materialPath)) {
         // Skip if parent path is not a material
@@ -714,12 +713,12 @@ void processUsdShaderChanged(
             return;
         }
 
-        if (!FabricUtil::materialHasCesiumNodes(context.getFabricStage(), materialPathFabric)) {
+        if (!context.getSubsystem().materialHasCesiumNodes(materialPath)) {
             // Simple materials can be skipped. We only need to handle materials that have been copied to each tile.
             return;
         }
 
-        if (!FabricUtil::isShaderConnectedToMaterial(context.getFabricStage(), materialPathFabric, shaderPathFabric)) {
+        if (!context.getSubsystem().isShaderConnectedToMaterial(materialPath, shaderPath)) {
             // Skip if shader is not connected to the material
             return;
         }
@@ -731,7 +730,7 @@ void processUsdShaderChanged(
             }
         }
 
-        context.getFabricResourceManager().updateShaderInput(materialPath, shaderPath, property);
+        context.getSubsystem().updateShaderInput(materialPath, shaderPath, property);
     }
 }
 

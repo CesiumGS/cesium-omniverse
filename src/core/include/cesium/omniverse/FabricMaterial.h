@@ -19,6 +19,7 @@ class DynamicTextureProvider;
 namespace cesium::omniverse {
 
 class FabricTexture;
+class KitSubsystem;
 enum class MdlInternalPropertyType;
 struct FabricPropertyDescriptor;
 struct FabricTextureInfo;
@@ -27,6 +28,7 @@ class FabricMaterial {
   public:
     FabricMaterial(
         Context* pContext,
+        KitSubsystem* pSubsystem,
         const omni::fabric::Path& path,
         const FabricMaterialDescriptor& materialDescriptor,
         const omni::fabric::Token& defaultWhiteTextureAssetPathToken,
@@ -189,6 +191,7 @@ class FabricMaterial {
     bool stageDestroyed();
 
     Context* _pContext;
+    KitSubsystem* _pSubsystem;
     omni::fabric::Path _materialPath;
     FabricMaterialDescriptor _materialDescriptor;
     omni::fabric::Token _defaultWhiteTextureAssetPathToken;

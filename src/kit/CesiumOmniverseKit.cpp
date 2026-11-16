@@ -6,7 +6,9 @@
 #include "cesium/omniverse/CesiumIonServerManager.h"
 #include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricUtil.h"
+#include "cesium/omniverse/ISubsystem.h"
 #include "cesium/omniverse/KitSubsystem.h"
 #include "cesium/omniverse/OmniData.h"
 #include "cesium/omniverse/OmniIonServer.h"
@@ -22,6 +24,7 @@
 #include <carb/tokens/ITokens.h>
 #include <carb/tokens/TokensUtils.h>
 #include <omni/fabric/IFabric.h>
+#include <omni/fabric/stage/StageReaderWriter.h>
 #include <omni/kit/IApp.h>
 
 #include <span>
@@ -35,8 +38,7 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
     void onStartup(const char* cesiumExtensionLocation) noexcept override {
         std::filesystem::path cesiumMdlPath = std::filesystem::path(cesiumExtensionLocation) / "mdl" / "cesium.mdl";
         std::filesystem::path cesiumCacheDirectory = getCesiumCacheDirectoryKit();
-
-        _pContext = std::make_unique<Context>(cesiumMdlPath, cesiumCacheDirectory);
+        _pContext = std::make_unique<Context>(std::make_unique<KitSubsystem>(cesiumMdlPath), cesiumCacheDirectory);
     }
 
     void onShutdown() noexcept override {
@@ -157,7 +159,7 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
     }
 
     std::string printFabricStage() noexcept override {
-        return FabricUtil::printFabricStage(_pContext->getFabricStage());
+        return _pContext->getSubsystem().printStage();
     }
 
     RenderStatistics getRenderStatistics() noexcept override {

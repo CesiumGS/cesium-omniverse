@@ -4,7 +4,7 @@
 
 namespace cesium::omniverse {
 
-struct FabricStatistics {
+struct SubsystemStatistics {
     uint64_t materialsCapacity{0};
     uint64_t materialsLoaded{0};
     uint64_t geometriesCapacity{0};

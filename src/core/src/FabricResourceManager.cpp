@@ -13,6 +13,7 @@
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/FabricVertexAttributeDescriptor.h"
 #include "cesium/omniverse/GltfUtil.h"
+#include "cesium/omniverse/KitSubsystem.h"
 #include "cesium/omniverse/MetadataUtil.h"
 #include "cesium/omniverse/UsdUtil.h"
 
@@ -46,16 +47,15 @@ bool shouldAcquireSharedMaterial(const FabricMaterialDescriptor& materialDescrip
 
 } // namespace
 
-FabricResourceManager::FabricResourceManager(Context* pContext)
+FabricResourceManager::FabricResourceManager(Context* pContext, KitSubsystem* pSubsystem)
     : _pContext(pContext)
+    , _pSubsystem(pSubsystem)
     , _defaultWhiteTexture(createSinglePixelTexture(DEFAULT_WHITE_TEXTURE_NAME, {{255, 255, 255, 255}}))
     , _defaultTransparentTexture(createSinglePixelTexture(DEFAULT_TRANSPARENT_TEXTURE_NAME, {{0, 0, 0, 0}}))
     , _defaultWhiteTextureAssetPathToken(
           FabricUtil::getDynamicTextureProviderAssetPathToken(DEFAULT_WHITE_TEXTURE_NAME))
     , _defaultTransparentTextureAssetPathToken(
-          FabricUtil::getDynamicTextureProviderAssetPathToken(DEFAULT_TRANSPARENT_TEXTURE_NAME))
-
-{}
+          FabricUtil::getDynamicTextureProviderAssetPathToken(DEFAULT_TRANSPARENT_TEXTURE_NAME)) {}
 
 FabricResourceManager::~FabricResourceManager() = default;
 
@@ -69,7 +69,7 @@ bool FabricResourceManager::shouldAcquireMaterial(
 
     if (!tilesetMaterialPath.IsEmpty()) {
         return FabricUtil::materialHasCesiumNodes(
-            _pContext->getFabricStage(), FabricUtil::toFabricPath(tilesetMaterialPath));
+            _pSubsystem->getFabricStage(), FabricUtil::toFabricPath(tilesetMaterialPath));
     }
 
     return hasRasterOverlay || GltfUtil::hasMaterial(primitive);
@@ -91,7 +91,7 @@ std::shared_ptr<FabricGeometry> FabricResourceManager::acquireGeometry(
         const auto contextId = _pContext->getContextId();
         const auto pathStr = fmt::format("/cesium_geometry_{}_context_{}", getNextGeometryId(), contextId);
         const auto path = omni::fabric::Path::createImmortal(pathStr.c_str());
-        return std::make_shared<FabricGeometry>(_pContext, path, geometryDescriptor, -1);
+        return std::make_shared<FabricGeometry>(_pContext, _pSubsystem, path, geometryDescriptor, -1);
     }
 
     std::scoped_lock<std::mutex> lock(_poolMutex);
@@ -250,6 +250,7 @@ FabricResourceManager::createMaterial(const FabricMaterialDescriptor& materialDe
     const auto path = omni::fabric::Path::createImmortal(pathStr.c_str());
     return std::make_shared<FabricMaterial>(
         _pContext,
+        _pSubsystem,
         path,
         materialDescriptor,
         _defaultWhiteTextureAssetPathToken,
@@ -308,7 +309,7 @@ FabricResourceManager::acquireGeometryFromPool(const FabricGeometryDescriptor& g
     }
 
     auto pGeometryPool = std::make_unique<FabricGeometryPool>(
-        _pContext, getNextGeometryPoolId(), geometryDescriptor, _geometryPoolInitialCapacity);
+        _pContext, _pSubsystem, getNextGeometryPoolId(), geometryDescriptor, _geometryPoolInitialCapacity);
 
     _geometryPools.push_back(std::move(pGeometryPool));
 
@@ -326,6 +327,7 @@ FabricResourceManager::acquireMaterialFromPool(const FabricMaterialDescriptor& m
 
     auto pMaterialPool = std::make_unique<FabricMaterialPool>(
         _pContext,
+        _pSubsystem,
         getNextMaterialPoolId(),
         materialDescriptor,
         _materialPoolInitialCapacity,

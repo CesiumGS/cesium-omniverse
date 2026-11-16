@@ -2,6 +2,7 @@
 
 #include "cesium/omniverse/FabricGeometry.h"
 #include "cesium/omniverse/FabricGeometryDescriptor.h"
+#include "cesium/omniverse/KitSubsystem.h"
 #include "cesium/omniverse/ObjectPool.h"
 
 namespace cesium::omniverse {
@@ -10,6 +11,7 @@ class FabricGeometryPool final : public ObjectPool<FabricGeometry> {
   public:
     FabricGeometryPool(
         Context* pContext,
+        KitSubsystem* pSubsystem,
         int64_t poolId,
         const FabricGeometryDescriptor& geometryDescriptor,
         uint64_t initialCapacity);
@@ -28,6 +30,7 @@ class FabricGeometryPool final : public ObjectPool<FabricGeometry> {
 
   private:
     Context* _pContext;
+    KitSubsystem* _pSubsystem;
     int64_t _poolId;
     FabricGeometryDescriptor _geometryDescriptor;
 };

@@ -8,11 +8,11 @@ class StageReaderWriter;
 
 namespace cesium::omniverse {
 
-class Context;
+class KitSubsystem;
 
 class FabricAttributesBuilder {
   public:
-    FabricAttributesBuilder(Context* pContext);
+    FabricAttributesBuilder(KitSubsystem* pSubsystem);
     ~FabricAttributesBuilder() = default;
     FabricAttributesBuilder(const FabricAttributesBuilder&) = delete;
     FabricAttributesBuilder& operator=(const FabricAttributesBuilder&) = delete;
@@ -26,7 +26,7 @@ class FabricAttributesBuilder {
     static const uint64_t MAX_ATTRIBUTES{30};
     uint64_t _size{0};
     std::array<omni::fabric::AttrNameAndType, MAX_ATTRIBUTES> _attributes;
-    Context* _pContext;
+    KitSubsystem* _pSubsystem;
 };
 
 } // namespace cesium::omniverse

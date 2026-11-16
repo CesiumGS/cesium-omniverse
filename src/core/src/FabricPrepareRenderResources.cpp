@@ -15,9 +15,11 @@
 #include "cesium/omniverse/FabricTextureData.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GltfUtil.h"
+#include "cesium/omniverse/KitSubsystem.h"
 #include "cesium/omniverse/MetadataUtil.h"
 #include "cesium/omniverse/OmniRasterOverlay.h"
 #include "cesium/omniverse/OmniTileset.h"
+#include "cesium/omniverse/SubsystemPrepareRendererResources.h"
 #include "cesium/omniverse/UsdUtil.h"
 
 #ifdef CESIUM_OMNI_MSVC
@@ -92,6 +94,7 @@ std::vector<LoadingMesh> getLoadingMeshes(const glm::dmat4& tileToEcefTransform,
 
 std::vector<FabricMesh> acquireFabricMeshes(
     Context& context,
+    KitSubsystem& subsystem,
     const CesiumGltf::Model& model,
     const std::vector<LoadingMesh>& loadingMeshes,
     const FabricRasterOverlaysInfo& rasterOverlaysInfo,
@@ -100,7 +103,7 @@ std::vector<FabricMesh> acquireFabricMeshes(
     std::vector<FabricMesh> fabricMeshes;
     fabricMeshes.reserve(loadingMeshes.size());
 
-    auto& fabricResourceManager = context.getFabricResourceManager();
+    auto& fabricResourceManager = subsystem.getFabricResourceManager();
     const auto tilesetMaterialPath = tileset.getMaterialPath();
 
     for (const auto& loadingMesh : loadingMeshes) {
@@ -183,6 +186,7 @@ std::vector<FabricMesh> acquireFabricMeshes(
 
 void setFabricTextures(
     const Context& context,
+    const KitSubsystem& subsystem,
     const CesiumGltf::Model& model,
     const std::vector<LoadingMesh>& loadingMeshes,
     std::vector<FabricMesh>& fabricMeshes) {
@@ -194,7 +198,7 @@ void setFabricTextures(
 
         if (fabricMesh.pBaseColorTexture) {
             const auto pBaseColorTextureImage = GltfUtil::getBaseColorTextureImage(model, primitive);
-            if (!pBaseColorTextureImage || context.getFabricResourceManager().getDisableTextures()) {
+            if (!pBaseColorTextureImage || subsystem.getFabricResourceManager().getDisableTextures()) {
                 fabricMesh.pBaseColorTexture->setBytes(
                     {std::byte(255), std::byte(255), std::byte(255), std::byte(255)}, 1, 1, carb::Format::eRGBA8_SRGB);
             } else {
@@ -294,8 +298,8 @@ void setFabricMeshes(
     }
 }
 
-void freeFabricMeshes(Context& context, const std::vector<FabricMesh>& fabricMeshes) {
-    auto& fabricResourceManager = context.getFabricResourceManager();
+void freeFabricMeshes(KitSubsystem& subsystem, const std::vector<FabricMesh>& fabricMeshes) {
+    auto& fabricResourceManager = subsystem.getFabricResourceManager();
 
     for (const auto& fabricMesh : fabricMeshes) {
         if (fabricMesh.pGeometry) {
@@ -326,9 +330,12 @@ void freeFabricMeshes(Context& context, const std::vector<FabricMesh>& fabricMes
 
 } // namespace
 
-FabricPrepareRenderResources::FabricPrepareRenderResources(Context* pContext, OmniTileset* pTileset)
-    : _pContext(pContext)
-    , _pTileset(pTileset) {}
+FabricPrepareRenderResources::FabricPrepareRenderResources(
+    Context* pContext,
+    KitSubsystem* pSubsystem,
+    OmniTileset* pTileset)
+    : SubsystemPrepareRendererResources(pContext, pTileset)
+    , _pSubsystem(pSubsystem) {}
 
 CesiumAsync::Future<Cesium3DTilesSelection::TileLoadResultAndRenderResources>
 FabricPrepareRenderResources::prepareInLoadThread(
@@ -385,7 +392,8 @@ FabricPrepareRenderResources::prepareInLoadThread(
             }
 
             const auto pModel = std::get_if<CesiumGltf::Model>(&tileLoadResult.contentKind);
-            auto fabricMeshes = acquireFabricMeshes(*_pContext, *pModel, loadingMeshes, rasterOverlaysInfo, *_pTileset);
+            auto fabricMeshes =
+                acquireFabricMeshes(*_pContext, *_pSubsystem, *pModel, loadingMeshes, rasterOverlaysInfo, *_pTileset);
             return IntermediateLoadThreadResult{
                 std::move(tileLoadResult),
                 std::move(loadingMeshes),
@@ -401,7 +409,7 @@ FabricPrepareRenderResources::prepareInLoadThread(
             const auto pModel = std::get_if<CesiumGltf::Model>(&tileLoadResult.contentKind);
 
             if (tilesetExists()) {
-                setFabricTextures(*_pContext, *pModel, loadingMeshes, fabricMeshes);
+                setFabricTextures(*_pContext, *_pSubsystem, *pModel, loadingMeshes, fabricMeshes);
             }
 
             return Cesium3DTilesSelection::TileLoadResultAndRenderResources{
@@ -448,13 +456,13 @@ void FabricPrepareRenderResources::free(
     void* pMainThreadResult) noexcept {
     if (pLoadThreadResult) {
         const auto pTileLoadThreadResult = static_cast<TileLoadThreadResult*>(pLoadThreadResult);
-        freeFabricMeshes(*_pContext, pTileLoadThreadResult->fabricMeshes);
+        freeFabricMeshes(*_pSubsystem, pTileLoadThreadResult->fabricMeshes);
         delete pTileLoadThreadResult;
     }
 
     if (pMainThreadResult) {
         const auto pFabricRenderResources = static_cast<FabricRenderResources*>(pMainThreadResult);
-        freeFabricMeshes(*_pContext, pFabricRenderResources->fabricMeshes);
+        freeFabricMeshes(*_pSubsystem, pFabricRenderResources->fabricMeshes);
         delete pFabricRenderResources;
     }
 }
@@ -474,7 +482,7 @@ void* FabricPrepareRenderResources::prepareRasterInMainThread(
 
     // Previously this was in prepareRasterInLoadThread, but as of Kit 106.5 it's not safe to set texture data off the main thread
     // See https://github.com/CesiumGS/cesium-omniverse/pull/721#issuecomment-2697969830
-    const auto pTexture = _pContext->getFabricResourceManager().acquireTexture();
+    const auto pTexture = _pSubsystem->getFabricResourceManager().acquireTexture();
     pTexture->setImage(*rasterTile.getImage().get(), TransferFunction::SRGB);
     return new RasterOverlayRenderResources{pTexture};
 }
@@ -486,13 +494,13 @@ void FabricPrepareRenderResources::freeRaster(
 
     if (pLoadThreadResult) {
         const auto pRasterOverlayLoadThreadResult = static_cast<RasterOverlayLoadThreadResult*>(pLoadThreadResult);
-        _pContext->getFabricResourceManager().releaseTexture(pRasterOverlayLoadThreadResult->pTexture);
+        _pSubsystem->getFabricResourceManager().releaseTexture(pRasterOverlayLoadThreadResult->pTexture);
         delete pRasterOverlayLoadThreadResult;
     }
 
     if (pMainThreadResult) {
         const auto pRasterOverlayRenderResources = static_cast<RasterOverlayRenderResources*>(pMainThreadResult);
-        _pContext->getFabricResourceManager().releaseTexture(pRasterOverlayRenderResources->pTexture);
+        _pSubsystem->getFabricResourceManager().releaseTexture(pRasterOverlayRenderResources->pTexture);
         delete pRasterOverlayRenderResources;
     }
 }
@@ -608,16 +616,6 @@ void FabricPrepareRenderResources::detachRasterInMainThread(
             pMaterial->clearRasterOverlay(rasterOverlayIndex);
         }
     }
-}
-
-bool FabricPrepareRenderResources::tilesetExists() const {
-    // When a tileset is deleted there's a short period between the prim being deleted and TfNotice notifying us about the change.
-    // This function helps us know whether we should proceed with loading render resources.
-    return _pTileset && _pContext->hasUsdStage() && UsdUtil::primExists(_pContext->getUsdStage(), _pTileset->getPath());
-}
-
-void FabricPrepareRenderResources::detachTileset() {
-    _pTileset = nullptr;
 }
 
 } // namespace cesium::omniverse
