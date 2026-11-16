@@ -7,7 +7,7 @@ glob_files(SOURCES "${CMAKE_CURRENT_LIST_DIR}/src/*.cpp")
 # cmake-format: off
 setup_lib(
     TARGET_NAME
-        CesiumOmniverseStage
+        CesiumOmniverseOvstage
     SOURCES
         ${SOURCES}
     INCLUDE_DIRS

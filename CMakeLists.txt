@@ -526,7 +526,7 @@ install(
             EXCLUDE_FROM_ALL)
 
 install(
-    TARGETS CesiumOmniverseStage
+    TARGETS CesiumOmniverseOvstage
             RUNTIME_DEPENDENCIES
             DIRECTORIES
             ${INSTALL_SEARCH_PATHS}
@@ -652,8 +652,14 @@ install(
     EXCLUDE_FROM_ALL)
 
 install(
-    FILES "${PROJECT_SOURCE_DIR}/include/cesium/omniverse/CesiumOmniverseStage.h"
+    FILES "${PROJECT_SOURCE_DIR}/include/cesium/omniverse/CesiumOmniverseOvstage.h"
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/cesium/omniverse"
+    COMPONENT stage
+    EXCLUDE_FROM_ALL)
+
+install(
+    FILES "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse/mdl/cesium.mdl"
+    DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}"
     COMPONENT stage
     EXCLUDE_FROM_ALL)
 
