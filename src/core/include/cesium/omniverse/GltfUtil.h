@@ -25,7 +25,6 @@ namespace cesium::omniverse {
 struct FeaturesInfo;
 struct MaterialInfo;
 struct TextureInfo;
-struct FabricVertexAttributeDescriptor;
 } // namespace cesium::omniverse
 
 namespace cesium::omniverse::GltfUtil {

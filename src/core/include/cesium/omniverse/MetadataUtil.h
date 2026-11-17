@@ -17,7 +17,7 @@
 
 namespace cesium::omniverse {
 struct PropertyDescriptor;
-struct FabricTextureData;
+struct TextureData;
 } // namespace cesium::omniverse
 
 namespace cesium::omniverse::MetadataUtil {
@@ -580,7 +580,7 @@ std::unordered_map<uint64_t, uint64_t> getPropertyTextureIndexMapping(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive);
 
-std::vector<FabricTextureData> encodePropertyTables(
+std::vector<TextureData> encodePropertyTables(
     const Context& context,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive);

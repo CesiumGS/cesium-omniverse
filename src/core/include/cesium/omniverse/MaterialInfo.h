@@ -23,7 +23,7 @@ enum class AlphaMode : int {
 };
 
 /**
-* @brief Material values parsed from a glTF material passed to {@link FabricMaterial::setMaterial}.
+* @brief Material values parsed from a glTF material.
 */
 struct MaterialInfo {
     double alphaCutoff;

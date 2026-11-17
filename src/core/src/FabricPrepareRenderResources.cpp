@@ -3,13 +3,13 @@
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/CppUtil.h"
+#include "cesium/omniverse/FabricDataTypeUtil.h"
 #include "cesium/omniverse/FabricGeometry.h"
 #include "cesium/omniverse/FabricMaterial.h"
 #include "cesium/omniverse/FabricMesh.h"
 #include "cesium/omniverse/FabricRenderResources.h"
 #include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricTexture.h"
-#include "cesium/omniverse/FabricTextureData.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/FeaturesInfo.h"
 #include "cesium/omniverse/FeaturesUtil.h"
@@ -20,6 +20,7 @@
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/RasterOverlaysInfo.h"
 #include "cesium/omniverse/SubsystemPrepareRendererResources.h"
+#include "cesium/omniverse/TextureData.h"
 #include "cesium/omniverse/UsdUtil.h"
 
 #ifdef CESIUM_OMNI_MSVC
@@ -227,7 +228,8 @@ void setFabricTextures(
         const auto propertyTableTextureCount = fabricMesh.propertyTableTextures.size();
         for (uint64_t j = 0; j < propertyTableTextureCount; ++j) {
             const auto& texture = propertyTableTextures[j];
-            fabricMesh.propertyTableTextures[j]->setBytes(texture.bytes, texture.width, texture.height, texture.format);
+            fabricMesh.propertyTableTextures[j]->setBytes(
+                texture.bytes, texture.width, texture.height, FabricDataTypeUtil::getCarbFormat(texture.format));
         }
     }
 }

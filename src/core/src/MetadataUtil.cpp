@@ -2,8 +2,8 @@
 
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/DataType.h"
-#include "cesium/omniverse/FabricTextureData.h"
 #include "cesium/omniverse/PropertyDescriptor.h"
+#include "cesium/omniverse/TextureData.h"
 
 namespace cesium::omniverse::MetadataUtil {
 
@@ -144,11 +144,11 @@ std::unordered_map<uint64_t, uint64_t> getPropertyTextureIndexMapping(
     return propertyTextureIndexMapping;
 }
 
-std::vector<FabricTextureData> encodePropertyTables(
+std::vector<TextureData> encodePropertyTables(
     const Context& context,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive) {
-    std::vector<FabricTextureData> textures;
+    std::vector<TextureData> textures;
 
     forEachStyleablePropertyTableProperty(
         context,

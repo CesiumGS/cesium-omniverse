@@ -852,7 +852,7 @@ omni::fabric::Token getMdlIdentifier(omni::fabric::StageReaderWriter& fabricStag
 }
 
 omni::fabric::Type getPrimvarType(DataType type) {
-    const auto baseDataType = FabricDataTypeUtil::getPrimvarBaseDataType(type);
+    const auto baseDataType = FabricDataTypeUtil::getFabricBaseDataType(DataTypeUtil::getPrimvarType(type));
     const auto componentCount = DataTypeUtil::getComponentCount(type);
     return {baseDataType, static_cast<uint8_t>(componentCount), 1, omni::fabric::AttributeRole::eNone};
 }

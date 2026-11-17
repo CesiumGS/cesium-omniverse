@@ -1,16 +1,17 @@
 #pragma once
 
-#include <carb/RenderingTypes.h>
+#include "DataType.h"
 
+#include <cstdint>
 #include <vector>
 
 namespace cesium::omniverse {
 
-struct FabricTextureData {
+struct TextureData {
     std::vector<std::byte> bytes;
     uint64_t width;
     uint64_t height;
-    carb::Format format;
+    DataType format;
 };
 
 } // namespace cesium::omniverse
