@@ -1,5 +1,6 @@
 #include "cesium/omniverse/FabricGeometryDescriptor.h"
 
+#include "cesium/omniverse/FabricGltfUtil.h"
 #include "cesium/omniverse/FabricVertexAttributeDescriptor.h"
 #include "cesium/omniverse/FeaturesInfo.h"
 #include "cesium/omniverse/FeaturesUtil.h"
@@ -25,7 +26,7 @@ FabricGeometryDescriptor::FabricGeometryDescriptor(
     , _texcoordSetCount(
           GltfUtil::getTexcoordSetIndexes(model, primitive).size() +
           GltfUtil::getRasterOverlayTexcoordSetIndexes(model, primitive).size())
-    , _customVertexAttributes(GltfUtil::getCustomVertexAttributes(model, primitive)) {}
+    , _customVertexAttributes(FabricGltfUtil::getCustomVertexAttributes(model, primitive)) {}
 
 bool FabricGeometryDescriptor::hasNormals() const {
     return _hasNormals;

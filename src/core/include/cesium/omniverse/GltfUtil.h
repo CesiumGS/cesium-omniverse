@@ -30,6 +30,10 @@ struct FabricVertexAttributeDescriptor;
 
 namespace cesium::omniverse::GltfUtil {
 
+std::optional<DataType> getVertexAttributeTypeFromGltf(const CesiumGltf::Accessor& accessor);
+
+std::pair<std::string, uint64_t> parseAttributeName(const std::string& attributeName);
+
 PositionsAccessor getPositions(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
 std::optional<std::array<glm::dvec3, 2>>
@@ -73,9 +77,6 @@ const CesiumImage::ImageAsset* getFeatureIdTextureImage(
 MaterialInfo getMaterialInfo(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
 FeaturesInfo getFeaturesInfo(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
-
-std::set<FabricVertexAttributeDescriptor>
-getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
 const MaterialInfo& getDefaultMaterialInfo();
 const TextureInfo& getDefaultTextureInfo();

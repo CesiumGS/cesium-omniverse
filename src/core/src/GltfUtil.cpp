@@ -345,35 +345,7 @@ const CesiumImage::ImageAsset* getImageCesium(const CesiumGltf::Model& model, co
     return nullptr;
 }
 
-std::pair<std::string, uint64_t> parseAttributeName(const std::string& attributeName) {
-    auto searchPosition = static_cast<int>(attributeName.size()) - 1;
-    auto lastUnderscorePosition = -1;
-    while (searchPosition > 0) {
-        const auto character = attributeName[static_cast<uint64_t>(searchPosition)];
-        if (!isdigit(character)) {
-            if (character == '_') {
-                lastUnderscorePosition = searchPosition;
-            }
-
-            break;
-        }
-        --searchPosition;
-    }
-
-    std::string semantic;
-    uint64_t setIndexU64 = 0;
-    if (lastUnderscorePosition == -1) {
-        semantic = attributeName;
-    } else {
-        semantic = attributeName.substr(0, static_cast<uint64_t>(lastUnderscorePosition));
-        std::from_chars(
-            attributeName.data() + lastUnderscorePosition + 1,
-            attributeName.data() + attributeName.size(),
-            setIndexU64);
-    }
-
-    return std::make_pair(semantic, setIndexU64);
-}
+} // namespace
 
 std::optional<DataType> getVertexAttributeTypeFromGltf(const CesiumGltf::Accessor& accessor) {
     const auto& type = accessor.type;
@@ -469,7 +441,35 @@ std::optional<DataType> getVertexAttributeTypeFromGltf(const CesiumGltf::Accesso
     return std::nullopt;
 }
 
-} // namespace
+std::pair<std::string, uint64_t> parseAttributeName(const std::string& attributeName) {
+    auto searchPosition = static_cast<int>(attributeName.size()) - 1;
+    auto lastUnderscorePosition = -1;
+    while (searchPosition > 0) {
+        const auto character = attributeName[static_cast<uint64_t>(searchPosition)];
+        if (!isdigit(character)) {
+            if (character == '_') {
+                lastUnderscorePosition = searchPosition;
+            }
+
+            break;
+        }
+        --searchPosition;
+    }
+
+    std::string semantic;
+    uint64_t setIndexU64 = 0;
+    if (lastUnderscorePosition == -1) {
+        semantic = attributeName;
+    } else {
+        semantic = attributeName.substr(0, static_cast<uint64_t>(lastUnderscorePosition));
+        std::from_chars(
+            attributeName.data() + lastUnderscorePosition + 1,
+            attributeName.data() + attributeName.size(),
+            setIndexU64);
+    }
+
+    return std::make_pair(semantic, setIndexU64);
+}
 
 PositionsAccessor getPositions(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
     const auto positionsView = getPositionsView(model, primitive);
@@ -724,58 +724,6 @@ FeaturesInfo getFeaturesInfo(const CesiumGltf::Model& model, const CesiumGltf::M
     }
 
     return featuresInfo;
-}
-
-std::set<FabricVertexAttributeDescriptor>
-getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
-    constexpr std::array<std::string_view, 8> knownSemantics = {{
-        "POSITION",
-        "NORMAL",
-        "TANGENT",
-        "TEXCOORD",
-        "COLOR",
-        "JOINTS",
-        "WEIGHTS",
-        "_CESIUMOVERLAY",
-    }};
-
-    std::set<FabricVertexAttributeDescriptor> customVertexAttributes;
-
-    for (const auto& attribute : primitive.attributes) {
-        const auto& attributeName = attribute.first;
-        const auto [semantic, setIndex] = parseAttributeName(attributeName);
-        if (CppUtil::contains(knownSemantics, semantic)) {
-            continue;
-        }
-
-        auto pAccessor = model.getSafe(&model.accessors, static_cast<int32_t>(attribute.second));
-        if (!pAccessor) {
-            continue;
-        }
-
-        const auto valid = createAccessorView(model, *pAccessor, [](const auto& accessorView) {
-            return accessorView.status() == CesiumGltf::AccessorViewStatus::Valid;
-        });
-
-        if (!valid) {
-            continue;
-        }
-
-        const auto type = getVertexAttributeTypeFromGltf(*pAccessor);
-
-        if (!type.has_value()) {
-            continue;
-        }
-
-        const auto fabricAttributeNameStr = fmt::format("primvars:{}", attributeName);
-        const auto fabricInterpolationNameStr = fmt::format("primvars:{}:interpolation", attributeName);
-        const auto fabricAttributeName = omni::fabric::Token::createImmortal(fabricAttributeNameStr.c_str());
-        const auto fabricInterpolationName = omni::fabric::Token::createImmortal(fabricInterpolationNameStr.c_str());
-
-        customVertexAttributes.emplace(type.value(), fabricAttributeName, fabricInterpolationName, attributeName);
-    }
-
-    return customVertexAttributes;
 }
 
 const MaterialInfo& getDefaultMaterialInfo() {

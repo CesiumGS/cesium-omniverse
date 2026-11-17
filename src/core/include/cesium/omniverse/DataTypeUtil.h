@@ -6,7 +6,6 @@
 #include <CesiumGltf/PropertyTypeTraits.h>
 #include <carb/RenderingTypes.h>
 #include <glm/glm.hpp>
-#include <omni/fabric/Type.h>
 
 // GLM does not typedef all integer matrix types, so they are typedef'd here
 namespace glm {
