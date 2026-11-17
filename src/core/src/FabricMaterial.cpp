@@ -7,6 +7,7 @@
 #include "cesium/omniverse/FabricMaterialDescriptor.h"
 #include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricTexture.h"
+#include "cesium/omniverse/FabricTokens.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/FeaturesInfo.h"
 #include "cesium/omniverse/GltfUtil.h"
@@ -17,7 +18,6 @@
 #include "cesium/omniverse/PropertyDescriptor.h"
 #include "cesium/omniverse/RasterOverlaysInfo.h"
 #include "cesium/omniverse/TextureInfo.h"
-#include "cesium/omniverse/UsdTokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <CesiumGltf/MeshPrimitive.h>

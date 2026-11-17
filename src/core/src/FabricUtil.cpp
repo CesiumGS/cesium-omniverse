@@ -3,9 +3,9 @@
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/DataType.h"
 #include "cesium/omniverse/DataTypeUtil.h"
+#include "cesium/omniverse/FabricTokens.h"
 #include "cesium/omniverse/MathUtil.h"
 #include "cesium/omniverse/SubsystemStatistics.h"
-#include "cesium/omniverse/UsdTokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <carb/Numeric.h>

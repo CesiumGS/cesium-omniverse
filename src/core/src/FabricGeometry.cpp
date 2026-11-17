@@ -5,12 +5,12 @@
 #include "cesium/omniverse/FabricAttributesBuilder.h"
 #include "cesium/omniverse/FabricMaterial.h"
 #include "cesium/omniverse/FabricResourceManager.h"
+#include "cesium/omniverse/FabricTokens.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/FabricVertexAttributeDescriptor.h"
 #include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/KitSubsystem.h"
 #include "cesium/omniverse/MathUtil.h"
-#include "cesium/omniverse/UsdTokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <carb/Numeric.h>
