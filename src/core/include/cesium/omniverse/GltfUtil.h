@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cesium/omniverse/DataType.h"
+#include "cesium/omniverse/DataTypeUtil.h"
 #include "cesium/omniverse/FabricVertexAttributeAccessors.h"
 
 #include <CesiumGltf/Accessor.h>

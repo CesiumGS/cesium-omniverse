@@ -3,6 +3,7 @@
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/DataType.h"
 #include "cesium/omniverse/DataTypeUtil.h"
+#include "cesium/omniverse/FabricDataTypeUtil.h"
 #include "cesium/omniverse/FabricTokens.h"
 #include "cesium/omniverse/MathUtil.h"
 #include "cesium/omniverse/SubsystemStatistics.h"
@@ -851,7 +852,7 @@ omni::fabric::Token getMdlIdentifier(omni::fabric::StageReaderWriter& fabricStag
 }
 
 omni::fabric::Type getPrimvarType(DataType type) {
-    const auto baseDataType = DataTypeUtil::getPrimvarBaseDataType(type);
+    const auto baseDataType = FabricDataTypeUtil::getPrimvarBaseDataType(type);
     const auto componentCount = DataTypeUtil::getComponentCount(type);
     return {baseDataType, static_cast<uint8_t>(componentCount), 1, omni::fabric::AttributeRole::eNone};
 }
