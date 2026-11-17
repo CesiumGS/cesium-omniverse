@@ -10,7 +10,7 @@ struct Model;
 
 namespace cesium::omniverse {
 
-struct FabricFeaturesInfo;
+struct FeaturesInfo;
 struct FabricVertexAttributeDescriptor;
 
 /**
@@ -28,7 +28,7 @@ class FabricGeometryDescriptor {
     FabricGeometryDescriptor(
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
-        const FabricFeaturesInfo& featuresInfo,
+        const FeaturesInfo& featuresInfo,
         bool smoothNormals);
 
     [[nodiscard]] bool hasNormals() const;
@@ -37,7 +37,7 @@ class FabricGeometryDescriptor {
     [[nodiscard]] uint64_t getTexcoordSetCount() const;
     [[nodiscard]] const std::set<FabricVertexAttributeDescriptor>& getCustomVertexAttributes() const;
 
-    bool operator==(const FabricGeometryDescriptor& other) const;
+    bool operator==(const FabricGeometryDescriptor& other) const = default;
 
   private:
     bool _hasNormals{false};

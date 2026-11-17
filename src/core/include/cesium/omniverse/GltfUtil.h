@@ -21,9 +21,9 @@ struct ImageAsset;
 }
 
 namespace cesium::omniverse {
-struct FabricFeaturesInfo;
-struct FabricMaterialInfo;
-struct FabricTextureInfo;
+struct FeaturesInfo;
+struct MaterialInfo;
+struct TextureInfo;
 struct FabricVertexAttributeDescriptor;
 } // namespace cesium::omniverse
 
@@ -69,16 +69,16 @@ const CesiumImage::ImageAsset* getFeatureIdTextureImage(
     const CesiumGltf::MeshPrimitive& primitive,
     uint64_t featureIdSetIndex);
 
-FabricMaterialInfo getMaterialInfo(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
+MaterialInfo getMaterialInfo(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
-FabricFeaturesInfo getFeaturesInfo(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
+FeaturesInfo getFeaturesInfo(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
 std::set<FabricVertexAttributeDescriptor>
 getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive);
 
-const FabricMaterialInfo& getDefaultMaterialInfo();
-const FabricTextureInfo& getDefaultTextureInfo();
-FabricTextureInfo getPropertyTexturePropertyInfo(
+const MaterialInfo& getDefaultMaterialInfo();
+const TextureInfo& getDefaultTextureInfo();
+TextureInfo getPropertyTexturePropertyInfo(
     const CesiumGltf::Model& model,
     const CesiumGltf::PropertyTextureProperty& propertyTextureProperty);
 

@@ -14,7 +14,7 @@ namespace cesium::omniverse {
 
 class Context;
 class KitSubsystem;
-struct FabricMaterialInfo;
+struct MaterialInfo;
 
 class FabricGeometry {
   public:
@@ -36,7 +36,7 @@ class FabricGeometry {
         const glm::dmat4& gltfLocalToEcefTransform,
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
-        const FabricMaterialInfo& materialInfo,
+        const MaterialInfo& materialInfo,
         bool smoothNormals,
         double pointSize,
         const std::unordered_map<uint64_t, uint64_t>& texcoordIndexMapping,

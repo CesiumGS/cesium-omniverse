@@ -1,7 +1,7 @@
 #pragma once
 
-#include "cesium/omniverse/FabricFeaturesInfo.h"
-#include "cesium/omniverse/FabricMaterialInfo.h"
+#include "cesium/omniverse/FeaturesInfo.h"
+#include "cesium/omniverse/MaterialInfo.h"
 
 #include <memory>
 #include <unordered_map>
@@ -27,8 +27,8 @@ struct FabricMesh {
     std::vector<std::shared_ptr<FabricTexture>> featureIdTextures;
     std::vector<std::shared_ptr<FabricTexture>> propertyTextures;
     std::vector<std::shared_ptr<FabricTexture>> propertyTableTextures;
-    FabricMaterialInfo materialInfo;
-    FabricFeaturesInfo featuresInfo;
+    MaterialInfo materialInfo;
+    FeaturesInfo featuresInfo;
     std::unordered_map<uint64_t, uint64_t> texcoordIndexMapping;
     std::unordered_map<uint64_t, uint64_t> rasterOverlayTexcoordIndexMapping;
     std::vector<uint64_t> featureIdIndexSetIndexMapping;

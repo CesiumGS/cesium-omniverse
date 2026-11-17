@@ -1,9 +1,9 @@
 #include "cesium/omniverse/FabricTexture.h"
 
 #include "cesium/omniverse/Context.h"
-#include "cesium/omniverse/FabricTextureInfo.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/Logger.h"
+#include "cesium/omniverse/TextureInfo.h"
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <CesiumImage/ImageAsset.h>

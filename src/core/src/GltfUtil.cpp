@@ -1,10 +1,10 @@
 #include "cesium/omniverse/GltfUtil.h"
 
 #include "cesium/omniverse/DataType.h"
-#include "cesium/omniverse/FabricFeaturesInfo.h"
-#include "cesium/omniverse/FabricMaterialInfo.h"
-#include "cesium/omniverse/FabricTextureInfo.h"
 #include "cesium/omniverse/FabricVertexAttributeDescriptor.h"
+#include "cesium/omniverse/FeaturesInfo.h"
+#include "cesium/omniverse/MaterialInfo.h"
+#include "cesium/omniverse/TextureInfo.h"
 
 #include <CesiumGltf/Material.h>
 
@@ -167,16 +167,16 @@ double getAlphaCutoff(const CesiumGltf::Material& material) {
     return material.alphaCutoff;
 }
 
-FabricAlphaMode getAlphaMode(const CesiumGltf::Material& material) {
+AlphaMode getAlphaMode(const CesiumGltf::Material& material) {
     if (material.alphaMode == CesiumGltf::Material::AlphaMode::OPAQUE) {
-        return FabricAlphaMode::OPAQUE;
+        return AlphaMode::OPAQUE;
     } else if (material.alphaMode == CesiumGltf::Material::AlphaMode::MASK) {
-        return FabricAlphaMode::MASK;
+        return AlphaMode::MASK;
     } else if (material.alphaMode == CesiumGltf::Material::AlphaMode::BLEND) {
-        return FabricAlphaMode::BLEND;
+        return AlphaMode::BLEND;
     }
 
-    return FabricAlphaMode::OPAQUE;
+    return AlphaMode::OPAQUE;
 }
 
 double getBaseAlpha(const CesiumGltf::MaterialPBRMetallicRoughness& pbrMetallicRoughness) {
@@ -241,7 +241,7 @@ double getDefaultAlphaCutoff() {
     return getAlphaCutoff(defaultMaterial);
 }
 
-FabricAlphaMode getDefaultAlphaMode() {
+AlphaMode getDefaultAlphaMode() {
     return getAlphaMode(defaultMaterial);
 }
 
@@ -293,8 +293,8 @@ int32_t getDefaultWrapT() {
     return getWrapT(defaultSampler);
 }
 
-FabricTextureInfo getTextureInfo(const CesiumGltf::Model& model, const CesiumGltf::TextureInfo& textureInfoGltf) {
-    FabricTextureInfo textureInfo = getDefaultTextureInfo();
+TextureInfo getTextureInfo(const CesiumGltf::Model& model, const CesiumGltf::TextureInfo& textureInfoGltf) {
+    TextureInfo textureInfo = getDefaultTextureInfo();
 
     textureInfo.setIndex = static_cast<uint64_t>(textureInfoGltf.texCoord);
 
@@ -328,9 +328,9 @@ template <typename T> std::vector<uint8_t> getChannels(const T& textureInfoWithC
     return channels;
 }
 
-FabricTextureInfo
+TextureInfo
 getFeatureIdTextureInfo(const CesiumGltf::Model& model, const CesiumGltf::FeatureIdTexture& featureIdTexture) {
-    FabricTextureInfo textureInfo = getTextureInfo(model, featureIdTexture);
+    TextureInfo textureInfo = getTextureInfo(model, featureIdTexture);
     textureInfo.channels = getChannels(featureIdTexture);
     return textureInfo;
 }
@@ -654,7 +654,7 @@ const CesiumImage::ImageAsset* getFeatureIdTextureImage(
     return featureIdTextureView.getImage();
 }
 
-FabricMaterialInfo getMaterialInfo(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+MaterialInfo getMaterialInfo(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
     if (!hasMaterial(primitive)) {
         return getDefaultMaterialInfo();
     }
@@ -695,7 +695,7 @@ FabricMaterialInfo getMaterialInfo(const CesiumGltf::Model& model, const CesiumG
     return materialInfo;
 }
 
-FabricFeaturesInfo getFeaturesInfo(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
+FeaturesInfo getFeaturesInfo(const CesiumGltf::Model& model, const CesiumGltf::MeshPrimitive& primitive) {
     const auto& pMeshFeatures = primitive.getExtension<CesiumGltf::ExtensionExtMeshFeatures>();
     if (!pMeshFeatures) {
         return {};
@@ -703,14 +703,14 @@ FabricFeaturesInfo getFeaturesInfo(const CesiumGltf::Model& model, const CesiumG
 
     const auto& featureIds = pMeshFeatures->featureIds;
 
-    FabricFeaturesInfo featuresInfo;
+    FeaturesInfo featuresInfo;
     featuresInfo.featureIds.reserve(featureIds.size());
 
     for (const auto& featureId : featureIds) {
         const auto nullFeatureId = CppUtil::castOptional<uint64_t>(featureId.nullFeatureId);
         const auto featureCount = static_cast<uint64_t>(featureId.featureCount);
 
-        auto featureIdStorage = std::variant<std::monostate, uint64_t, FabricTextureInfo>();
+        auto featureIdStorage = std::variant<std::monostate, uint64_t, TextureInfo>();
 
         if (featureId.attribute.has_value()) {
             featureIdStorage = static_cast<uint64_t>(featureId.attribute.value());
@@ -778,8 +778,8 @@ getCustomVertexAttributes(const CesiumGltf::Model& model, const CesiumGltf::Mesh
     return customVertexAttributes;
 }
 
-const FabricMaterialInfo& getDefaultMaterialInfo() {
-    static const auto defaultInfo = FabricMaterialInfo{
+const MaterialInfo& getDefaultMaterialInfo() {
+    static const auto defaultInfo = MaterialInfo{
         getDefaultAlphaCutoff(),
         getDefaultAlphaMode(),
         getDefaultBaseAlpha(),
@@ -795,8 +795,8 @@ const FabricMaterialInfo& getDefaultMaterialInfo() {
     return defaultInfo;
 }
 
-const FabricTextureInfo& getDefaultTextureInfo() {
-    static const auto defaultInfo = FabricTextureInfo{
+const TextureInfo& getDefaultTextureInfo() {
+    static const auto defaultInfo = TextureInfo{
         getDefaultTexcoordOffset(),
         getDefaultTexcoordRotation(),
         getDefaultTexcoordScale(),
@@ -810,10 +810,10 @@ const FabricTextureInfo& getDefaultTextureInfo() {
     return defaultInfo;
 }
 
-FabricTextureInfo getPropertyTexturePropertyInfo(
+TextureInfo getPropertyTexturePropertyInfo(
     const CesiumGltf::Model& model,
     const CesiumGltf::PropertyTextureProperty& propertyTextureProperty) {
-    FabricTextureInfo textureInfo = getTextureInfo(model, propertyTextureProperty);
+    TextureInfo textureInfo = getTextureInfo(model, propertyTextureProperty);
     textureInfo.channels = getChannels(propertyTextureProperty);
     return textureInfo;
 }

@@ -6,7 +6,7 @@
 
 namespace cesium::omniverse {
 
-struct FabricTextureInfo {
+struct TextureInfo {
     glm::dvec2 offset;
     double rotation;
     glm::dvec2 scale;
@@ -16,7 +16,7 @@ struct FabricTextureInfo {
     bool flipVertical;
     std::vector<uint8_t> channels;
 
-    bool operator==(const FabricTextureInfo& other) const = default;
+    bool operator==(const TextureInfo& other) const = default;
 };
 
 } // namespace cesium::omniverse

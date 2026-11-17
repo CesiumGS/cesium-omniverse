@@ -1,8 +1,8 @@
 #include "cesium/omniverse/FabricMaterialPool.h"
 
-#include "cesium/omniverse/FabricPropertyDescriptor.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/MetadataUtil.h"
+#include "cesium/omniverse/PropertyDescriptor.h"
 
 #include <fmt/format.h>
 
@@ -44,6 +44,8 @@ void FabricMaterialPool::updateShaderInput(const pxr::SdfPath& shaderPath, const
 }
 
 std::shared_ptr<FabricMaterial> FabricMaterialPool::createObject(uint64_t objectId) const {
+    // Creating a Fabric prim with the same path as a previously destroyed prim causes a crash.
+    // The contextId is time-tagged and ensures that Fabric prim paths are unique even across extension reloads.
     const auto contextId = _pContext->getContextId();
     const auto pathStr = fmt::format("/cesium_material_pool_{}_object_{}_context_{}", _poolId, objectId, contextId);
     const auto path = omni::fabric::Path::createImmortal(pathStr.c_str());

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cesium/omniverse/FabricTextureInfo.h"
+#include "cesium/omniverse/TextureInfo.h"
 
 #include <glm/glm.hpp>
 
@@ -16,7 +16,7 @@ namespace cesium::omniverse {
 /**
 * @brief Matches gltf_alpha_mode in gltf/pbr.mdl.
 */
-enum class FabricAlphaMode : int {
+enum class AlphaMode : int {
     OPAQUE = 0,
     MASK = 1,
     BLEND = 2,
@@ -25,9 +25,9 @@ enum class FabricAlphaMode : int {
 /**
 * @brief Material values parsed from a glTF material passed to {@link FabricMaterial::setMaterial}.
 */
-struct FabricMaterialInfo {
+struct MaterialInfo {
     double alphaCutoff;
-    FabricAlphaMode alphaMode;
+    AlphaMode alphaMode;
     double baseAlpha;
     glm::dvec3 baseColorFactor;
     glm::dvec3 emissiveFactor;
@@ -35,9 +35,9 @@ struct FabricMaterialInfo {
     double roughnessFactor;
     bool doubleSided;
     bool hasVertexColors;
-    std::optional<FabricTextureInfo> baseColorTexture;
+    std::optional<TextureInfo> baseColorTexture;
 
-    bool operator==(const FabricMaterialInfo& other) const = default;
+    bool operator==(const MaterialInfo& other) const = default;
 };
 
 } // namespace cesium::omniverse

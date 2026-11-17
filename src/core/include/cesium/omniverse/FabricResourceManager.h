@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cesium/omniverse/FabricMaterialInfo.h"
+#include "cesium/omniverse/MaterialInfo.h"
 
 #include <omni/fabric/IToken.h>
 
@@ -44,8 +44,8 @@ class FabricMaterialDescriptor;
 class FabricTexture;
 class FabricTexturePool;
 class KitSubsystem;
-struct FabricFeaturesInfo;
-struct FabricRasterOverlaysInfo;
+struct FeaturesInfo;
+struct RasterOverlaysInfo;
 
 class FabricResourceManager {
   public:
@@ -66,15 +66,15 @@ class FabricResourceManager {
     std::shared_ptr<FabricGeometry> acquireGeometry(
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
-        const FabricFeaturesInfo& featuresInfo,
+        const FeaturesInfo& featuresInfo,
         bool smoothNormals);
 
     std::shared_ptr<FabricMaterial> acquireMaterial(
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
-        const FabricMaterialInfo& materialInfo,
-        const FabricFeaturesInfo& featuresInfo,
-        const FabricRasterOverlaysInfo& rasterOverlaysInfo,
+        const MaterialInfo& materialInfo,
+        const FeaturesInfo& featuresInfo,
+        const RasterOverlaysInfo& rasterOverlaysInfo,
         int64_t tilesetId,
         const pxr::SdfPath& tilesetMaterialPath);
 
@@ -105,7 +105,7 @@ class FabricResourceManager {
     struct SharedMaterial {
         SharedMaterial(
             const std::shared_ptr<FabricMaterial>& pMaterial_,
-            const FabricMaterialInfo& materialInfo_,
+            const MaterialInfo& materialInfo_,
             int64_t tilesetId_,
             uint64_t referenceCount_)
             : pMaterial(pMaterial_)
@@ -119,7 +119,7 @@ class FabricResourceManager {
         SharedMaterial& operator=(SharedMaterial&&) noexcept = default;
 
         std::shared_ptr<FabricMaterial> pMaterial;
-        FabricMaterialInfo materialInfo;
+        MaterialInfo materialInfo;
         int64_t tilesetId;
         uint64_t referenceCount;
     };
@@ -127,7 +127,7 @@ class FabricResourceManager {
     std::shared_ptr<FabricMaterial> createMaterial(const FabricMaterialDescriptor& materialDescriptor);
 
     std::shared_ptr<FabricMaterial> acquireSharedMaterial(
-        const FabricMaterialInfo& materialInfo,
+        const MaterialInfo& materialInfo,
         const FabricMaterialDescriptor& materialDescriptor,
         int64_t tilesetId);
     void releaseSharedMaterial(const FabricMaterial& material);

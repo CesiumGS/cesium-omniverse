@@ -2,11 +2,11 @@
 
 #include "cesium/omniverse/DataType.h"
 #include "cesium/omniverse/DataTypeUtil.h"
-#include "cesium/omniverse/FabricTextureInfo.h"
+#include "cesium/omniverse/TextureInfo.h"
 
 namespace cesium::omniverse {
 
-template <DataType T> struct FabricPropertyInfo {
+template <DataType T> struct PropertyInfo {
     std::optional<DataTypeUtil::GetNativeType<DataTypeUtil::getTransformedType<T>()>> offset;
     std::optional<DataTypeUtil::GetNativeType<DataTypeUtil::getTransformedType<T>()>> scale;
     std::optional<DataTypeUtil::GetNativeType<DataTypeUtil::getTransformedType<T>()>> min;
@@ -16,23 +16,23 @@ template <DataType T> struct FabricPropertyInfo {
     std::optional<DataTypeUtil::GetNativeType<DataTypeUtil::getTransformedType<T>()>> defaultValue;
 };
 
-template <DataType T> struct FabricPropertyAttributePropertyInfo {
+template <DataType T> struct PropertyAttributePropertyInfo {
     static constexpr auto Type = T;
     std::string attribute;
-    FabricPropertyInfo<T> propertyInfo;
+    PropertyInfo<T> propertyInfo;
 };
 
-template <DataType T> struct FabricPropertyTexturePropertyInfo {
+template <DataType T> struct PropertyTexturePropertyInfo {
     static constexpr auto Type = T;
-    FabricTextureInfo textureInfo;
+    TextureInfo textureInfo;
     uint64_t textureIndex;
-    FabricPropertyInfo<T> propertyInfo;
+    PropertyInfo<T> propertyInfo;
 };
 
-template <DataType T> struct FabricPropertyTablePropertyInfo {
+template <DataType T> struct PropertyTablePropertyInfo {
     static constexpr auto Type = T;
     uint64_t featureIdSetIndex;
-    FabricPropertyInfo<T> propertyInfo;
+    PropertyInfo<T> propertyInfo;
 };
 
 } // namespace cesium::omniverse

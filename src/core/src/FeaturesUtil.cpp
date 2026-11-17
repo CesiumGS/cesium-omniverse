@@ -1,25 +1,25 @@
-#include "cesium/omniverse/FabricFeaturesUtil.h"
+#include "cesium/omniverse/FeaturesUtil.h"
 
-#include "cesium/omniverse/FabricFeaturesInfo.h"
+#include "cesium/omniverse/FeaturesInfo.h"
 
-namespace cesium::omniverse::FabricFeaturesUtil {
+namespace cesium::omniverse::FeaturesUtil {
 
-FabricFeatureIdType getFeatureIdType(const FabricFeatureId& featureId) {
+FeatureIdType getFeatureIdType(const FeatureId& featureId) {
     if (std::holds_alternative<std::monostate>(featureId.featureIdStorage)) {
-        return FabricFeatureIdType::INDEX;
+        return FeatureIdType::INDEX;
     } else if (std::holds_alternative<uint64_t>(featureId.featureIdStorage)) {
-        return FabricFeatureIdType::ATTRIBUTE;
-    } else if (std::holds_alternative<FabricTextureInfo>(featureId.featureIdStorage)) {
-        return FabricFeatureIdType::TEXTURE;
+        return FeatureIdType::ATTRIBUTE;
+    } else if (std::holds_alternative<TextureInfo>(featureId.featureIdStorage)) {
+        return FeatureIdType::TEXTURE;
     }
 
-    return FabricFeatureIdType::INDEX;
+    return FeatureIdType::INDEX;
 }
 
-std::vector<FabricFeatureIdType> getFeatureIdTypes(const FabricFeaturesInfo& featuresInfo) {
+std::vector<FeatureIdType> getFeatureIdTypes(const FeaturesInfo& featuresInfo) {
     const auto& featureIds = featuresInfo.featureIds;
 
-    std::vector<FabricFeatureIdType> featureIdTypes;
+    std::vector<FeatureIdType> featureIdTypes;
     featureIdTypes.reserve(featureIds.size());
 
     for (const auto& featureId : featureIds) {
@@ -29,7 +29,7 @@ std::vector<FabricFeatureIdType> getFeatureIdTypes(const FabricFeaturesInfo& fea
     return featureIdTypes;
 }
 
-std::vector<uint64_t> getSetIndexMapping(const FabricFeaturesInfo& featuresInfo, FabricFeatureIdType type) {
+std::vector<uint64_t> getSetIndexMapping(const FeaturesInfo& featuresInfo, FeatureIdType type) {
     const auto& featureIds = featuresInfo.featureIds;
 
     std::vector<uint64_t> setIndexMapping;
@@ -44,7 +44,7 @@ std::vector<uint64_t> getSetIndexMapping(const FabricFeaturesInfo& featuresInfo,
     return setIndexMapping;
 }
 
-bool hasFeatureIdType(const FabricFeaturesInfo& featuresInfo, FabricFeatureIdType type) {
+bool hasFeatureIdType(const FeaturesInfo& featuresInfo, FeatureIdType type) {
     const auto& featureIds = featuresInfo.featureIds;
 
     for (const auto& featureId : featureIds) {
@@ -56,4 +56,4 @@ bool hasFeatureIdType(const FabricFeaturesInfo& featuresInfo, FabricFeatureIdTyp
     return false;
 }
 
-} // namespace cesium::omniverse::FabricFeaturesUtil
+} // namespace cesium::omniverse::FeaturesUtil

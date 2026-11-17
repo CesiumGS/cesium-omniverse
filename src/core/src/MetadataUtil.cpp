@@ -2,8 +2,8 @@
 
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/DataType.h"
-#include "cesium/omniverse/FabricPropertyDescriptor.h"
 #include "cesium/omniverse/FabricTextureData.h"
+#include "cesium/omniverse/PropertyDescriptor.h"
 
 namespace cesium::omniverse::MetadataUtil {
 
@@ -12,11 +12,11 @@ const auto unsupportedPropertyCallbackNoop = []([[maybe_unused]] const std::stri
                                                 [[maybe_unused]] const std::string& warning) {};
 }
 
-std::tuple<std::vector<FabricPropertyDescriptor>, std::map<std::string, std::string>> getStyleableProperties(
+std::tuple<std::vector<PropertyDescriptor>, std::map<std::string, std::string>> getStyleableProperties(
     const Context& context,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive) {
-    std::vector<FabricPropertyDescriptor> properties;
+    std::vector<PropertyDescriptor> properties;
     std::map<std::string, std::string> unsupportedPropertyWarnings;
 
     const auto unsupportedPropertyCallback =
@@ -35,7 +35,7 @@ std::tuple<std::vector<FabricPropertyDescriptor>, std::map<std::string, std::str
             constexpr auto type = std::decay_t<decltype(property)>::Type;
 
             properties.emplace_back(
-                FabricPropertyStorageType::ATTRIBUTE,
+                PropertyStorageType::ATTRIBUTE,
                 DataTypeUtil::getMdlInternalPropertyType<type>(),
                 propertyId,
                 0 // featureIdSetIndex not relevant for property attributes
@@ -54,7 +54,7 @@ std::tuple<std::vector<FabricPropertyDescriptor>, std::map<std::string, std::str
             constexpr auto type = std::decay_t<decltype(property)>::Type;
 
             properties.emplace_back(
-                FabricPropertyStorageType::TEXTURE,
+                PropertyStorageType::TEXTURE,
                 DataTypeUtil::getMdlInternalPropertyType<type>(),
                 propertyId,
                 0 // featureIdSetIndex not relevant for property textures
@@ -73,7 +73,7 @@ std::tuple<std::vector<FabricPropertyDescriptor>, std::map<std::string, std::str
             constexpr auto type = std::decay_t<decltype(property)>::Type;
 
             properties.emplace_back(
-                FabricPropertyStorageType::TABLE,
+                PropertyStorageType::TABLE,
                 DataTypeUtil::getMdlInternalPropertyType<type>(),
                 propertyId,
                 property.featureIdSetIndex);

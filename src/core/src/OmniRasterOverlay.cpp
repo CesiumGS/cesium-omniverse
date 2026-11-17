@@ -2,10 +2,10 @@
 
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/Context.h"
-#include "cesium/omniverse/FabricRasterOverlaysInfo.h"
 #include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/Logger.h"
 #include "cesium/omniverse/OmniIonServer.h"
+#include "cesium/omniverse/RasterOverlaysInfo.h"
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <CesiumGeospatial/Ellipsoid.h>
@@ -104,23 +104,23 @@ int OmniRasterOverlay::getSubTileCacheBytes() const {
     return static_cast<int>(value);
 }
 
-FabricOverlayRenderMethod OmniRasterOverlay::getOverlayRenderMethod() const {
+OverlayRenderMethod OmniRasterOverlay::getOverlayRenderMethod() const {
     const auto cesiumRasterOverlay = UsdUtil::getCesiumRasterOverlay(_pContext->getUsdStage(), _path);
     if (!UsdUtil::isSchemaValid(cesiumRasterOverlay)) {
-        return FabricOverlayRenderMethod::OVERLAY;
+        return OverlayRenderMethod::OVERLAY;
     }
 
     pxr::TfToken overlayRenderMethod;
     cesiumRasterOverlay.GetOverlayRenderMethodAttr().Get(&overlayRenderMethod);
 
     if (overlayRenderMethod == pxr::CesiumTokens->overlay) {
-        return FabricOverlayRenderMethod::OVERLAY;
+        return OverlayRenderMethod::OVERLAY;
     } else if (overlayRenderMethod == pxr::CesiumTokens->clip) {
-        return FabricOverlayRenderMethod::CLIPPING;
+        return OverlayRenderMethod::CLIPPING;
     }
 
     _pContext->getLogger()->warn("Invalid overlay render method encountered {}.", overlayRenderMethod.GetText());
-    return FabricOverlayRenderMethod::OVERLAY;
+    return OverlayRenderMethod::OVERLAY;
 }
 
 CesiumRasterOverlays::RasterOverlayOptions OmniRasterOverlay::createRasterOverlayOptions() const {

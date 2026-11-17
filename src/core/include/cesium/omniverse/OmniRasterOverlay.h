@@ -23,7 +23,7 @@ namespace cesium::omniverse {
 
 class Context;
 class OmniTileset;
-enum class FabricOverlayRenderMethod;
+enum class OverlayRenderMethod;
 
 class OmniRasterOverlay {
     friend void OmniTileset::addRasterOverlayIfExists(const OmniRasterOverlay* pOverlay);
@@ -41,7 +41,7 @@ class OmniRasterOverlay {
     [[nodiscard]] const pxr::SdfPath& getPath() const;
     [[nodiscard]] bool getShowCreditsOnScreen() const;
     [[nodiscard]] double getAlpha() const;
-    [[nodiscard]] FabricOverlayRenderMethod getOverlayRenderMethod() const;
+    [[nodiscard]] OverlayRenderMethod getOverlayRenderMethod() const;
     [[nodiscard]] float getMaximumScreenSpaceError() const;
     [[nodiscard]] int getMaximumTextureSize() const;
     [[nodiscard]] int getMaximumSimultaneousTileLoads() const;

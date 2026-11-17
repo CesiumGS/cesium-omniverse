@@ -1,8 +1,8 @@
 #include "cesium/omniverse/FabricGeometryDescriptor.h"
 
-#include "cesium/omniverse/FabricFeaturesInfo.h"
-#include "cesium/omniverse/FabricFeaturesUtil.h"
 #include "cesium/omniverse/FabricVertexAttributeDescriptor.h"
+#include "cesium/omniverse/FeaturesInfo.h"
+#include "cesium/omniverse/FeaturesUtil.h"
 #include "cesium/omniverse/GltfUtil.h"
 
 #ifdef CESIUM_OMNI_MSVC
@@ -17,11 +17,11 @@ namespace cesium::omniverse {
 FabricGeometryDescriptor::FabricGeometryDescriptor(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
-    const FabricFeaturesInfo& featuresInfo,
+    const FeaturesInfo& featuresInfo,
     bool smoothNormals)
     : _hasNormals(GltfUtil::hasNormals(model, primitive, smoothNormals))
     , _hasVertexColors(GltfUtil::hasVertexColors(model, primitive, 0))
-    , _hasVertexIds(FabricFeaturesUtil::hasFeatureIdType(featuresInfo, FabricFeatureIdType::INDEX))
+    , _hasVertexIds(FeaturesUtil::hasFeatureIdType(featuresInfo, FeatureIdType::INDEX))
     , _texcoordSetCount(
           GltfUtil::getTexcoordSetIndexes(model, primitive).size() +
           GltfUtil::getRasterOverlayTexcoordSetIndexes(model, primitive).size())
@@ -45,12 +45,6 @@ uint64_t FabricGeometryDescriptor::getTexcoordSetCount() const {
 
 const std::set<FabricVertexAttributeDescriptor>& FabricGeometryDescriptor::getCustomVertexAttributes() const {
     return _customVertexAttributes;
-}
-
-bool FabricGeometryDescriptor::operator==(const FabricGeometryDescriptor& other) const {
-    return _hasNormals == other._hasNormals && _hasVertexColors == other._hasVertexColors &&
-           _hasVertexIds == other._hasVertexIds && _texcoordSetCount == other._texcoordSetCount &&
-           _customVertexAttributes == other._customVertexAttributes;
 }
 
 } // namespace cesium::omniverse

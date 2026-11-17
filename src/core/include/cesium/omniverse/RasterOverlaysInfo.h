@@ -4,13 +4,13 @@
 
 namespace cesium::omniverse {
 
-enum class FabricOverlayRenderMethod {
+enum class OverlayRenderMethod {
     OVERLAY = 0,
     CLIPPING = 1,
 };
 
-struct FabricRasterOverlaysInfo {
-    std::vector<FabricOverlayRenderMethod> overlayRenderMethods;
+struct RasterOverlaysInfo {
+    std::vector<OverlayRenderMethod> overlayRenderMethods;
 };
 
 } // namespace cesium::omniverse

@@ -4,19 +4,19 @@
 #include "cesium/omniverse/CppUtil.h"
 #include "cesium/omniverse/DataType.h"
 #include "cesium/omniverse/FabricAttributesBuilder.h"
-#include "cesium/omniverse/FabricFeaturesInfo.h"
 #include "cesium/omniverse/FabricMaterialDescriptor.h"
-#include "cesium/omniverse/FabricMaterialInfo.h"
-#include "cesium/omniverse/FabricPropertyDescriptor.h"
-#include "cesium/omniverse/FabricRasterOverlaysInfo.h"
 #include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricTexture.h"
-#include "cesium/omniverse/FabricTextureInfo.h"
 #include "cesium/omniverse/FabricUtil.h"
+#include "cesium/omniverse/FeaturesInfo.h"
 #include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/KitSubsystem.h"
 #include "cesium/omniverse/Logger.h"
+#include "cesium/omniverse/MaterialInfo.h"
 #include "cesium/omniverse/MetadataUtil.h"
+#include "cesium/omniverse/PropertyDescriptor.h"
+#include "cesium/omniverse/RasterOverlaysInfo.h"
+#include "cesium/omniverse/TextureInfo.h"
 #include "cesium/omniverse/UsdTokens.h"
 #include "cesium/omniverse/UsdUtil.h"
 
@@ -64,13 +64,13 @@ FeatureIdCounts getFeatureIdCounts(const FabricMaterialDescriptor& materialDescr
     for (uint64_t i = 0; i < featureIdCount; ++i) {
         const auto featureIdType = featureIdTypes[i];
         switch (featureIdType) {
-            case FabricFeatureIdType::INDEX:
+            case FeatureIdType::INDEX:
                 ++indexCount;
                 break;
-            case FabricFeatureIdType::ATTRIBUTE:
+            case FeatureIdType::ATTRIBUTE:
                 ++attributeCount;
                 break;
-            case FabricFeatureIdType::TEXTURE:
+            case FeatureIdType::TEXTURE:
                 ++textureCount;
                 break;
         }
@@ -93,15 +93,15 @@ getRasterOverlayIndices(const Context& context, const FabricMaterialDescriptor& 
     std::vector<uint64_t> overlayRasterOverlayIndices;
     std::vector<uint64_t> clippingRasterOverlayIndices;
 
-    for (const auto& method : materialDescriptor.getRasterOverlayRenderMethods()) {
+    for (const auto& method : materialDescriptor.getOverlayRenderMethods()) {
         switch (method) {
-            case FabricOverlayRenderMethod::OVERLAY:
+            case OverlayRenderMethod::OVERLAY:
                 if (overlayRasterOverlayCount < MAX_RASTER_OVERLAY_COUNT) {
                     overlayRasterOverlayIndices.push_back(totalRasterOverlayCount);
                 }
                 ++overlayRasterOverlayCount;
                 break;
-            case FabricOverlayRenderMethod::CLIPPING:
+            case OverlayRenderMethod::CLIPPING:
                 if (clippingRasterOverlayCount < MAX_RASTER_OVERLAY_COUNT) {
                     clippingRasterOverlayIndices.push_back(totalRasterOverlayCount);
                 }
@@ -133,28 +133,27 @@ getRasterOverlayIndices(const Context& context, const FabricMaterialDescriptor& 
 }
 
 uint64_t getRasterOverlayCount(const FabricMaterialDescriptor& materialDescriptor) {
-    return materialDescriptor.getRasterOverlayRenderMethods().size();
+    return materialDescriptor.getOverlayRenderMethods().size();
 }
 
 bool isClippingEnabled(const FabricMaterialDescriptor& materialDescriptor) {
-    return CppUtil::contains(materialDescriptor.getRasterOverlayRenderMethods(), FabricOverlayRenderMethod::CLIPPING);
+    return CppUtil::contains(materialDescriptor.getOverlayRenderMethods(), OverlayRenderMethod::CLIPPING);
 }
 
-FabricAlphaMode
-getInitialAlphaMode(const FabricMaterialDescriptor& materialDescriptor, const FabricMaterialInfo& materialInfo) {
-    if (materialInfo.alphaMode == FabricAlphaMode::BLEND) {
+AlphaMode getInitialAlphaMode(const FabricMaterialDescriptor& materialDescriptor, const MaterialInfo& materialInfo) {
+    if (materialInfo.alphaMode == AlphaMode::BLEND) {
         return materialInfo.alphaMode;
     }
 
     if (isClippingEnabled(materialDescriptor)) {
-        return FabricAlphaMode::MASK;
+        return AlphaMode::MASK;
     }
 
     return materialInfo.alphaMode;
 }
 
-int getAlphaMode(FabricAlphaMode alphaMode, double displayOpacity) {
-    return static_cast<int>(displayOpacity < 1.0 ? FabricAlphaMode::BLEND : alphaMode);
+int getAlphaMode(AlphaMode alphaMode, double displayOpacity) {
+    return static_cast<int>(displayOpacity < 1.0 ? AlphaMode::BLEND : alphaMode);
 }
 
 glm::dvec4 getTileColor(const glm::dvec3& debugColor, const glm::dvec3& displayColor, double displayOpacity) {
@@ -179,7 +178,7 @@ void destroyConnection(
 
 template <DataType T>
 constexpr DataTypeUtil::GetMdlInternalPropertyTransformedType<DataTypeUtil::getMdlInternalPropertyType<T>()>
-getOffset(const FabricPropertyInfo<T>& info) {
+getOffset(const PropertyInfo<T>& info) {
     constexpr auto mdlType = DataTypeUtil::getMdlInternalPropertyType<T>();
     using TransformedType = DataTypeUtil::GetNativeType<DataTypeUtil::getTransformedType<T>()>;
     using MdlTransformedType = DataTypeUtil::GetMdlInternalPropertyTransformedType<mdlType>;
@@ -188,7 +187,7 @@ getOffset(const FabricPropertyInfo<T>& info) {
 
 template <DataType T>
 constexpr DataTypeUtil::GetMdlInternalPropertyTransformedType<DataTypeUtil::getMdlInternalPropertyType<T>()>
-getScale(const FabricPropertyInfo<T>& info) {
+getScale(const PropertyInfo<T>& info) {
     constexpr auto mdlType = DataTypeUtil::getMdlInternalPropertyType<T>();
     using TransformedType = DataTypeUtil::GetNativeType<DataTypeUtil::getTransformedType<T>()>;
     using MdlTransformedType = DataTypeUtil::GetMdlInternalPropertyTransformedType<mdlType>;
@@ -197,7 +196,7 @@ getScale(const FabricPropertyInfo<T>& info) {
 
 template <DataType T>
 constexpr DataTypeUtil::GetMdlInternalPropertyRawType<DataTypeUtil::getMdlInternalPropertyType<T>()>
-getNoData(const FabricPropertyInfo<T>& info) {
+getNoData(const PropertyInfo<T>& info) {
     constexpr auto mdlType = DataTypeUtil::getMdlInternalPropertyType<T>();
     using RawType = DataTypeUtil::GetNativeType<T>;
     using MdlRawType = DataTypeUtil::GetMdlInternalPropertyRawType<mdlType>;
@@ -206,7 +205,7 @@ getNoData(const FabricPropertyInfo<T>& info) {
 
 template <DataType T>
 constexpr DataTypeUtil::GetMdlInternalPropertyTransformedType<DataTypeUtil::getMdlInternalPropertyType<T>()>
-getDefaultValue(const FabricPropertyInfo<T>& info) {
+getDefaultValue(const PropertyInfo<T>& info) {
     constexpr auto mdlType = DataTypeUtil::getMdlInternalPropertyType<T>();
     using TransformedType = DataTypeUtil::GetNativeType<DataTypeUtil::getTransformedType<T>()>;
     using MdlTransformedType = DataTypeUtil::GetMdlInternalPropertyTransformedType<mdlType>;
@@ -268,7 +267,7 @@ void setTextureValuesCommon(
     omni::fabric::StageReaderWriter& fabricStage,
     const omni::fabric::Path& path,
     const omni::fabric::Token& textureAssetPathToken,
-    const FabricTextureInfo& textureInfo,
+    const TextureInfo& textureInfo,
     uint64_t texcoordIndex) {
 
     auto offset = textureInfo.offset;
@@ -306,7 +305,7 @@ void setTextureValuesCommonChannels(
     omni::fabric::StageReaderWriter& fabricStage,
     const omni::fabric::Path& path,
     const omni::fabric::Token& textureAssetPathToken,
-    const FabricTextureInfo& textureInfo,
+    const TextureInfo& textureInfo,
     uint64_t texcoordIndex) {
 
     setTextureValuesCommon(fabricStage, path, textureAssetPathToken, textureInfo, texcoordIndex);
@@ -406,7 +405,7 @@ void setPropertyTexturePropertyValues(
     omni::fabric::StageReaderWriter& fabricStage,
     const omni::fabric::Path& path,
     const omni::fabric::Token& textureAssetPathToken,
-    const FabricTextureInfo& textureInfo,
+    const TextureInfo& textureInfo,
     uint64_t texcoordIndex,
     const DataTypeUtil::GetMdlInternalPropertyTransformedType<T>& offset,
     const DataTypeUtil::GetMdlInternalPropertyTransformedType<T>& scale,
@@ -601,15 +600,15 @@ void FabricMaterial::initializeNodes() {
         const auto featureIdType = featureIdTypes[i];
         const auto featureIdPath = FabricUtil::joinPaths(_materialPath, FabricTokens::feature_id_n(i));
         switch (featureIdType) {
-            case FabricFeatureIdType::INDEX:
+            case FeatureIdType::INDEX:
                 createFeatureIdIndex(featureIdPath);
                 _featureIdIndexPaths.push_back(featureIdPath);
                 break;
-            case FabricFeatureIdType::ATTRIBUTE:
+            case FeatureIdType::ATTRIBUTE:
                 createFeatureIdAttribute(featureIdPath);
                 _featureIdAttributePaths.push_back(featureIdPath);
                 break;
-            case FabricFeatureIdType::TEXTURE:
+            case FeatureIdType::TEXTURE:
                 createFeatureIdTexture(featureIdPath);
                 _featureIdTexturePaths.push_back(featureIdPath);
                 break;
@@ -626,15 +625,15 @@ void FabricMaterial::initializeNodes() {
         const auto type = property.type;
         const auto& propertyPath = FabricUtil::joinPaths(_materialPath, FabricTokens::property_n(i));
         switch (storageType) {
-            case FabricPropertyStorageType::ATTRIBUTE:
+            case PropertyStorageType::ATTRIBUTE:
                 createPropertyAttributeProperty(propertyPath, type);
                 _propertyAttributePropertyPaths[type].push_back(propertyPath);
                 break;
-            case FabricPropertyStorageType::TEXTURE:
+            case PropertyStorageType::TEXTURE:
                 createPropertyTextureProperty(propertyPath, type);
                 _propertyTexturePropertyPaths[type].push_back(propertyPath);
                 break;
-            case FabricPropertyStorageType::TABLE:
+            case PropertyStorageType::TABLE:
                 createPropertyTableProperty(propertyPath, type);
                 _propertyTablePropertyPaths[type].push_back(propertyPath);
                 // Create connection from the feature id node to the property table property node
@@ -1449,8 +1448,8 @@ void FabricMaterial::setMaterial(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
     int64_t tilesetId,
-    const FabricMaterialInfo& materialInfo,
-    const FabricFeaturesInfo& featuresInfo,
+    const MaterialInfo& materialInfo,
+    const FeaturesInfo& featuresInfo,
     FabricTexture* pBaseColorTexture,
     const std::vector<std::shared_ptr<FabricTexture>>& featureIdTextures,
     const std::vector<std::shared_ptr<FabricTexture>>& propertyTextures,
@@ -1515,7 +1514,7 @@ void FabricMaterial::setMaterial(
     for (uint64_t i = 0; i < featureIdCounts.textureCount; ++i) {
         const auto featureIdSetIndex = featureIdTextureSetIndexMapping[i];
         const auto& featureId = featuresInfo.featureIds[featureIdSetIndex];
-        const auto& textureInfo = std::get<FabricTextureInfo>(featureId.featureIdStorage);
+        const auto& textureInfo = std::get<TextureInfo>(featureId.featureIdStorage);
         const auto& textureAssetPath = featureIdTextures[i]->getAssetPathToken();
         const auto texcoordIndex = texcoordIndexMapping.at(textureInfo.setIndex);
         const auto& featureIdPath = _featureIdPaths[featureIdSetIndex];
@@ -1528,7 +1527,7 @@ void FabricMaterial::setMaterial(
 
     if (!properties.empty()) {
         const auto getPropertyPath = [this, &properties](const std::string& propertyId) {
-            const auto index = CppUtil::indexOfByMember(properties, &FabricPropertyDescriptor::propertyId, propertyId);
+            const auto index = CppUtil::indexOfByMember(properties, &PropertyDescriptor::propertyId, propertyId);
             assert(index != properties.size());
             return _propertyPaths[index];
         };
@@ -1713,7 +1712,7 @@ void FabricMaterial::createConnectionsToProperties() {
         const auto mdlIdentifier = FabricUtil::getMdlIdentifier(fabricStage, propertyPathExternal);
         const auto propertyTypeExternal = FabricUtil::getMdlExternalPropertyType(mdlIdentifier);
 
-        const auto index = CppUtil::indexOfByMember(properties, &FabricPropertyDescriptor::propertyId, propertyId);
+        const auto index = CppUtil::indexOfByMember(properties, &PropertyDescriptor::propertyId, propertyId);
 
         if (index == properties.size()) {
             if (CppUtil::contains(unsupportedPropertyWarnings, propertyId)) {
@@ -1755,7 +1754,7 @@ void FabricMaterial::destroyConnectionsToProperties() {
 
 void FabricMaterial::setRasterOverlay(
     FabricTexture* pTexture,
-    const FabricTextureInfo& textureInfo,
+    const TextureInfo& textureInfo,
     uint64_t rasterOverlayIndex,
     double alpha,
     const std::unordered_map<uint64_t, uint64_t>& rasterOverlayTexcoordIndexMapping) {
@@ -1857,7 +1856,7 @@ void FabricMaterial::clearRasterOverlay(uint64_t rasterOverlayIndex) {
 
 void FabricMaterial::setShaderValues(
     const omni::fabric::Path& path,
-    const FabricMaterialInfo& materialInfo,
+    const MaterialInfo& materialInfo,
     const glm::dvec3& displayColor,
     double displayOpacity) {
     auto& fabricStage = _pSubsystem->getFabricStage();
@@ -1886,7 +1885,7 @@ void FabricMaterial::setShaderValues(
 void FabricMaterial::setTextureValues(
     const omni::fabric::Path& path,
     const omni::fabric::Token& textureAssetPathToken,
-    const FabricTextureInfo& textureInfo,
+    const TextureInfo& textureInfo,
     uint64_t texcoordIndex) {
     setTextureValuesCommon(_pSubsystem->getFabricStage(), path, textureAssetPathToken, textureInfo, texcoordIndex);
 }
@@ -1894,7 +1893,7 @@ void FabricMaterial::setTextureValues(
 void FabricMaterial::setRasterOverlayValues(
     const omni::fabric::Path& path,
     const omni::fabric::Token& textureAssetPathToken,
-    const FabricTextureInfo& textureInfo,
+    const TextureInfo& textureInfo,
     uint64_t texcoordIndex,
     double alpha) {
     setTextureValuesCommon(_pSubsystem->getFabricStage(), path, textureAssetPathToken, textureInfo, texcoordIndex);
@@ -1926,7 +1925,7 @@ void FabricMaterial::setFeatureIdAttributeValues(
 void FabricMaterial::setFeatureIdTextureValues(
     const omni::fabric::Path& path,
     const omni::fabric::Token& textureAssetPathToken,
-    const FabricTextureInfo& textureInfo,
+    const TextureInfo& textureInfo,
     uint64_t texcoordIndex,
     int nullFeatureId) {
 

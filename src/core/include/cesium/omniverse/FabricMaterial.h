@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cesium/omniverse/FabricMaterialDescriptor.h"
-#include "cesium/omniverse/FabricMaterialInfo.h"
+#include "cesium/omniverse/MaterialInfo.h"
 
 #include <glm/glm.hpp>
 #include <omni/fabric/IPath.h>
@@ -21,8 +21,8 @@ namespace cesium::omniverse {
 class FabricTexture;
 class KitSubsystem;
 enum class MdlInternalPropertyType;
-struct FabricPropertyDescriptor;
-struct FabricTextureInfo;
+struct PropertyDescriptor;
+struct TextureInfo;
 
 class FabricMaterial {
   public:
@@ -45,8 +45,8 @@ class FabricMaterial {
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
         int64_t tilesetId,
-        const FabricMaterialInfo& materialInfo,
-        const FabricFeaturesInfo& featuresInfo,
+        const MaterialInfo& materialInfo,
+        const FeaturesInfo& featuresInfo,
         FabricTexture* pBaseColorTexture,
         const std::vector<std::shared_ptr<FabricTexture>>& featureIdTextures,
         const std::vector<std::shared_ptr<FabricTexture>>& propertyTextures,
@@ -61,7 +61,7 @@ class FabricMaterial {
 
     void setRasterOverlay(
         FabricTexture* pTexture,
-        const FabricTextureInfo& textureInfo,
+        const TextureInfo& textureInfo,
         uint64_t rasterOverlayIndex,
         double alpha,
         const std::unordered_map<uint64_t, uint64_t>& rasterOverlayTexcoordIndexMapping);
@@ -159,18 +159,18 @@ class FabricMaterial {
 
     void setShaderValues(
         const omni::fabric::Path& path,
-        const FabricMaterialInfo& materialInfo,
+        const MaterialInfo& materialInfo,
         const glm::dvec3& displayColor,
         double displayOpacity);
     void setTextureValues(
         const omni::fabric::Path& path,
         const omni::fabric::Token& textureAssetPathToken,
-        const FabricTextureInfo& textureInfo,
+        const TextureInfo& textureInfo,
         uint64_t texcoordIndex);
     void setRasterOverlayValues(
         const omni::fabric::Path& path,
         const omni::fabric::Token& textureAssetPathToken,
-        const FabricTextureInfo& textureInfo,
+        const TextureInfo& textureInfo,
         uint64_t texcoordIndex,
         double alpha);
     void setRasterOverlayAlphaValue(const omni::fabric::Path& path, double alpha);
@@ -179,7 +179,7 @@ class FabricMaterial {
     void setFeatureIdTextureValues(
         const omni::fabric::Path& path,
         const omni::fabric::Token& textureAssetPathToken,
-        const FabricTextureInfo& textureInfo,
+        const TextureInfo& textureInfo,
         uint64_t texcoordIndex,
         int nullFeatureId);
 
@@ -201,7 +201,7 @@ class FabricMaterial {
     int64_t _stageId;
     bool _usesDefaultMaterial;
 
-    FabricAlphaMode _alphaMode{FabricAlphaMode::OPAQUE};
+    AlphaMode _alphaMode{AlphaMode::OPAQUE};
     glm::dvec3 _debugColor{1.0, 1.0, 1.0};
 
     omni::fabric::Path _shaderPath;

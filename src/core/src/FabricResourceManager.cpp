@@ -5,16 +5,16 @@
 #include "cesium/omniverse/FabricGeometryDescriptor.h"
 #include "cesium/omniverse/FabricGeometryPool.h"
 #include "cesium/omniverse/FabricMaterialDescriptor.h"
-#include "cesium/omniverse/FabricMaterialInfo.h"
 #include "cesium/omniverse/FabricMaterialPool.h"
-#include "cesium/omniverse/FabricPropertyDescriptor.h"
 #include "cesium/omniverse/FabricTexture.h"
 #include "cesium/omniverse/FabricTexturePool.h"
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/FabricVertexAttributeDescriptor.h"
 #include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/KitSubsystem.h"
+#include "cesium/omniverse/MaterialInfo.h"
 #include "cesium/omniverse/MetadataUtil.h"
+#include "cesium/omniverse/PropertyDescriptor.h"
 #include "cesium/omniverse/UsdUtil.h"
 
 #include <carb/Numeric.h>
@@ -37,7 +37,7 @@ createSinglePixelTexture(const std::string_view& name, const std::array<uint8_t,
 }
 
 bool shouldAcquireSharedMaterial(const FabricMaterialDescriptor& materialDescriptor) {
-    if (materialDescriptor.hasBaseColorTexture() || materialDescriptor.getRasterOverlayRenderMethods().size() > 0 ||
+    if (materialDescriptor.hasBaseColorTexture() || materialDescriptor.getOverlayRenderMethods().size() > 0 ||
         !materialDescriptor.getFeatureIdTypes().empty() || !materialDescriptor.getStyleableProperties().empty()) {
         return false;
     }
@@ -82,12 +82,14 @@ bool FabricResourceManager::getDisableTextures() const {
 std::shared_ptr<FabricGeometry> FabricResourceManager::acquireGeometry(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
-    const FabricFeaturesInfo& featuresInfo,
+    const FeaturesInfo& featuresInfo,
     bool smoothNormals) {
 
     FabricGeometryDescriptor geometryDescriptor(model, primitive, featuresInfo, smoothNormals);
 
     if (_disableGeometryPool) {
+        // Creating a Fabric prim with the same path as a previously destroyed prim causes a crash.
+        // The contextId is time-tagged and ensures that Fabric prim paths are unique even across extension reloads.
         const auto contextId = _pContext->getContextId();
         const auto pathStr = fmt::format("/cesium_geometry_{}_context_{}", getNextGeometryId(), contextId);
         const auto path = omni::fabric::Path::createImmortal(pathStr.c_str());
@@ -102,9 +104,9 @@ std::shared_ptr<FabricGeometry> FabricResourceManager::acquireGeometry(
 std::shared_ptr<FabricMaterial> FabricResourceManager::acquireMaterial(
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive,
-    const FabricMaterialInfo& materialInfo,
-    const FabricFeaturesInfo& featuresInfo,
-    const FabricRasterOverlaysInfo& rasterOverlaysInfo,
+    const MaterialInfo& materialInfo,
+    const FeaturesInfo& featuresInfo,
+    const RasterOverlaysInfo& rasterOverlaysInfo,
     int64_t tilesetId,
     const pxr::SdfPath& tilesetMaterialPath) {
     FabricMaterialDescriptor materialDescriptor(
@@ -125,6 +127,8 @@ std::shared_ptr<FabricMaterial> FabricResourceManager::acquireMaterial(
 
 std::shared_ptr<FabricTexture> FabricResourceManager::acquireTexture() {
     if (_disableTexturePool) {
+        // Creating a Fabric prim with the same path as a previously destroyed prim causes a crash.
+        // The contextId is time-tagged and ensures that Fabric prim paths are unique even across extension reloads.
         const auto contextId = _pContext->getContextId();
         const auto name = fmt::format("/cesium_texture_{}_context_{}", getNextTextureId(), contextId);
         return std::make_shared<FabricTexture>(_pContext, name, -1);
@@ -245,6 +249,8 @@ void FabricResourceManager::clear() {
 
 std::shared_ptr<FabricMaterial>
 FabricResourceManager::createMaterial(const FabricMaterialDescriptor& materialDescriptor) {
+    // Creating a Fabric prim with the same path as a previously destroyed prim causes a crash.
+    // The contextId is time-tagged and ensures that Fabric prim paths are unique even across extension reloads.
     const auto contextId = _pContext->getContextId();
     const auto pathStr = fmt::format("/cesium_material_{}_context_{}", getNextMaterialId(), contextId);
     const auto path = omni::fabric::Path::createImmortal(pathStr.c_str());
@@ -260,7 +266,7 @@ FabricResourceManager::createMaterial(const FabricMaterialDescriptor& materialDe
 }
 
 std::shared_ptr<FabricMaterial> FabricResourceManager::acquireSharedMaterial(
-    const FabricMaterialInfo& materialInfo,
+    const MaterialInfo& materialInfo,
     const FabricMaterialDescriptor& materialDescriptor,
     int64_t tilesetId) {
     for (auto& sharedMaterial : _sharedMaterials) {

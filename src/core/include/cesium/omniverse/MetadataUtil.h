@@ -2,9 +2,9 @@
 
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/DataType.h"
-#include "cesium/omniverse/FabricPropertyInfo.h"
 #include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/Logger.h"
+#include "cesium/omniverse/PropertyInfo.h"
 
 #include <CesiumGltf/ExtensionExtMeshFeatures.h>
 #include <CesiumGltf/ExtensionMeshPrimitiveExtStructuralMetadata.h>
@@ -16,7 +16,7 @@
 #include <CesiumGltf/PropertyTextureView.h>
 
 namespace cesium::omniverse {
-struct FabricPropertyDescriptor;
+struct PropertyDescriptor;
 struct FabricTextureData;
 } // namespace cesium::omniverse
 
@@ -337,7 +337,7 @@ void forEachStyleablePropertyAttributeProperty(
                 const auto& attribute = propertyAttributeProperty.attribute;
 
                 // For some reason the static cast is needed in MSVC
-                const auto propertyInfo = FabricPropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
+                const auto propertyInfo = PropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
                     propertyAttributePropertyView.offset(),
                     propertyAttributePropertyView.scale(),
                     propertyAttributePropertyView.min(),
@@ -347,11 +347,10 @@ void forEachStyleablePropertyAttributeProperty(
                     propertyAttributePropertyView.defaultValue(),
                 };
 
-                const auto property =
-                    FabricPropertyAttributePropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
-                        attribute,
-                        propertyInfo,
-                    };
+                const auto property = PropertyAttributePropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
+                    attribute,
+                    propertyInfo,
+                };
 
                 callback(propertyId, propertyAttributePropertyView, property);
             }
@@ -426,7 +425,7 @@ void forEachStyleablePropertyTextureProperty(
                         return;
                     }
 
-                    const auto propertyInfo = FabricPropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
+                    const auto propertyInfo = PropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
                         propertyTexturePropertyView.offset(),
                         propertyTexturePropertyView.scale(),
                         propertyTexturePropertyView.min(),
@@ -436,12 +435,11 @@ void forEachStyleablePropertyTextureProperty(
                         propertyTexturePropertyView.defaultValue(),
                     };
 
-                    const auto property =
-                        FabricPropertyTexturePropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
-                            textureInfo,
-                            static_cast<uint64_t>(propertyTextureProperty.index),
-                            propertyInfo,
-                        };
+                    const auto property = PropertyTexturePropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
+                        textureInfo,
+                        static_cast<uint64_t>(propertyTextureProperty.index),
+                        propertyInfo,
+                    };
 
                     callback(propertyId, propertyTexturePropertyView, property);
                 }
@@ -545,7 +543,7 @@ void forEachStyleablePropertyTableProperty(
                                 propertyId));
                     }
 
-                    const auto propertyInfo = FabricPropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
+                    const auto propertyInfo = PropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
                         propertyTablePropertyView.offset(),
                         propertyTablePropertyView.scale(),
                         propertyTablePropertyView.min(),
@@ -555,11 +553,10 @@ void forEachStyleablePropertyTableProperty(
                         propertyTablePropertyView.defaultValue(),
                     };
 
-                    const auto property =
-                        FabricPropertyTablePropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
-                            featureIdSetIndex,
-                            propertyInfo,
-                        };
+                    const auto property = PropertyTablePropertyInfo<static_cast<cesium::omniverse::DataType>(type)>{
+                        featureIdSetIndex,
+                        propertyInfo,
+                    };
 
                     callback(propertyId, propertyTablePropertyView, property);
                 }
@@ -568,7 +565,7 @@ void forEachStyleablePropertyTableProperty(
         unsupportedCallback);
 }
 
-std::tuple<std::vector<FabricPropertyDescriptor>, std::map<std::string, std::string>> getStyleableProperties(
+std::tuple<std::vector<PropertyDescriptor>, std::map<std::string, std::string>> getStyleableProperties(
     const Context& context,
     const CesiumGltf::Model& model,
     const CesiumGltf::MeshPrimitive& primitive);

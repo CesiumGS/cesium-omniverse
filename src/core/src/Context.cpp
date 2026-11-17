@@ -5,8 +5,6 @@
 #include "cesium/omniverse/CesiumIonServerManager.h"
 #include "cesium/omniverse/CesiumIonSessionManager.h"
 #include "cesium/omniverse/DebugSettings.h"
-#include "cesium/omniverse/FabricResourceManager.h"
-#include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/FilesystemUtil.h"
 #include "cesium/omniverse/ISubsystem.h"
 #include "cesium/omniverse/Logger.h"
@@ -32,7 +30,6 @@
 #include <CesiumAsync/CachingAssetAccessor.h>
 #include <CesiumAsync/SqliteCache.h>
 #include <CesiumUtility/CreditSystem.h>
-#include <omni/fabric/SimStageWithHistory.h>
 #include <omni/kit/IApp.h>
 
 #ifdef CESIUM_OMNI_MSVC
@@ -187,7 +184,7 @@ CesiumIonServerManager& Context::getCesiumIonServerManager() {
 }
 
 void Context::clearStage() {
-    // The order is important. Clear the asset registry first so that Fabric
+    // The order is important. Clear the asset registry first so that subsystem
     // resources are released back into the pool. Then clear the pools.
     _pAssetRegistry->clear();
     _pUsdNotificationHandler->clear();
@@ -306,8 +303,6 @@ RenderStatistics Context::getRenderStatistics() const {
 }
 
 int64_t Context::getContextId() const {
-    // Creating a Fabric prim with the same path as a previously destroyed prim causes a crash.
-    // The contextId is time-tagged and ensures that Fabric prim paths are unique even across extension reloads.
     return _contextId;
 }
 

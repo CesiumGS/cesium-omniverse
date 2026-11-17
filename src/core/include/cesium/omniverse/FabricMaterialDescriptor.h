@@ -19,18 +19,18 @@ struct MeshPrimitive;
 namespace cesium::omniverse {
 
 class Context;
-enum class FabricFeatureIdType;
-enum class FabricOverlayRenderMethod;
-struct FabricFeaturesInfo;
-struct FabricRasterOverlaysInfo;
-struct FabricMaterialInfo;
-struct FabricPropertyDescriptor;
+enum class FeatureIdType;
+enum class OverlayRenderMethod;
+struct FeaturesInfo;
+struct RasterOverlaysInfo;
+struct MaterialInfo;
+struct PropertyDescriptor;
 
 /**
 * @brief A descriptor used to initialize a {@link FabricMaterial} and {@link FabricMaterialPool}.
 *
 * The descriptor uniquely identifies the topology of a {@link FabricMaterial} i.e. what Fabric prims
-* need to be created and how they're connected. It is distinct from {@FabricMaterialInfo} which
+* need to be created and how they're connected. It is distinct from {@MaterialInfo} which
 * supplies the actual material values.
 *
 * Materials that have the same material descriptor will be assigned to the same material pool.
@@ -43,29 +43,29 @@ class FabricMaterialDescriptor {
         const Context& context,
         const CesiumGltf::Model& model,
         const CesiumGltf::MeshPrimitive& primitive,
-        const FabricMaterialInfo& materialInfo,
-        const FabricFeaturesInfo& featuresInfo,
-        const FabricRasterOverlaysInfo& rasterOverlaysInfo,
+        const MaterialInfo& materialInfo,
+        const FeaturesInfo& featuresInfo,
+        const RasterOverlaysInfo& rasterOverlaysInfo,
         const pxr::SdfPath& tilesetMaterialPath);
 
     [[nodiscard]] bool hasVertexColors() const;
     [[nodiscard]] bool hasBaseColorTexture() const;
-    [[nodiscard]] const std::vector<FabricFeatureIdType>& getFeatureIdTypes() const;
-    [[nodiscard]] const std::vector<FabricOverlayRenderMethod>& getRasterOverlayRenderMethods() const;
+    [[nodiscard]] const std::vector<FeatureIdType>& getFeatureIdTypes() const;
+    [[nodiscard]] const std::vector<OverlayRenderMethod>& getOverlayRenderMethods() const;
     [[nodiscard]] bool hasTilesetMaterial() const;
     [[nodiscard]] const pxr::SdfPath& getTilesetMaterialPath() const;
-    [[nodiscard]] const std::vector<FabricPropertyDescriptor>& getStyleableProperties() const;
+    [[nodiscard]] const std::vector<PropertyDescriptor>& getStyleableProperties() const;
     [[nodiscard]] const std::map<std::string, std::string>& getUnsupportedPropertyWarnings() const;
 
-    bool operator==(const FabricMaterialDescriptor& other) const;
+    bool operator==(const FabricMaterialDescriptor& other) const = default;
 
   private:
     bool _hasVertexColors;
     bool _hasBaseColorTexture;
-    std::vector<FabricFeatureIdType> _featureIdTypes;
-    std::vector<FabricOverlayRenderMethod> _rasterOverlayRenderMethods;
+    std::vector<FeatureIdType> _featureIdTypes;
+    std::vector<OverlayRenderMethod> _overlayRenderMethods;
     pxr::SdfPath _tilesetMaterialPath;
-    std::vector<FabricPropertyDescriptor> _styleableProperties;
+    std::vector<PropertyDescriptor> _styleableProperties;
     std::map<std::string, std::string> _unsupportedPropertyWarnings;
 };
 

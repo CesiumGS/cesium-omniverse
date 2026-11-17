@@ -18,6 +18,8 @@ int64_t FabricTexturePool::getPoolId() const {
 }
 
 std::shared_ptr<FabricTexture> FabricTexturePool::createObject(uint64_t objectId) const {
+    // Creating a Fabric prim with the same path as a previously destroyed prim causes a crash.
+    // The contextId is time-tagged and ensures that Fabric prim paths are unique even across extension reloads.
     const auto contextId = _pContext->getContextId();
     const auto name = fmt::format("/cesium_texture_pool_{}_object_{}_context_{}", _poolId, objectId, contextId);
     return std::make_shared<FabricTexture>(_pContext, name, _poolId);

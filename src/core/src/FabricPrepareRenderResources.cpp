@@ -3,22 +3,22 @@
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/CppUtil.h"
-#include "cesium/omniverse/FabricFeaturesInfo.h"
-#include "cesium/omniverse/FabricFeaturesUtil.h"
 #include "cesium/omniverse/FabricGeometry.h"
 #include "cesium/omniverse/FabricMaterial.h"
 #include "cesium/omniverse/FabricMesh.h"
-#include "cesium/omniverse/FabricRasterOverlaysInfo.h"
 #include "cesium/omniverse/FabricRenderResources.h"
 #include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricTexture.h"
 #include "cesium/omniverse/FabricTextureData.h"
 #include "cesium/omniverse/FabricUtil.h"
+#include "cesium/omniverse/FeaturesInfo.h"
+#include "cesium/omniverse/FeaturesUtil.h"
 #include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/KitSubsystem.h"
 #include "cesium/omniverse/MetadataUtil.h"
 #include "cesium/omniverse/OmniRasterOverlay.h"
 #include "cesium/omniverse/OmniTileset.h"
+#include "cesium/omniverse/RasterOverlaysInfo.h"
 #include "cesium/omniverse/SubsystemPrepareRendererResources.h"
 #include "cesium/omniverse/UsdUtil.h"
 
@@ -58,9 +58,9 @@ struct TileLoadThreadResult {
     std::vector<FabricMesh> fabricMeshes;
 };
 
-uint64_t getFeatureIdTextureCount(const FabricFeaturesInfo& fabricFeaturesInfo) {
-    return CppUtil::countIf(fabricFeaturesInfo.featureIds, [](const auto& featureId) {
-        return std::holds_alternative<FabricTextureInfo>(featureId.featureIdStorage);
+uint64_t getFeatureIdTextureCount(const FeaturesInfo& featuresInfo) {
+    return CppUtil::countIf(featuresInfo.featureIds, [](const auto& featureId) {
+        return std::holds_alternative<TextureInfo>(featureId.featureIdStorage);
     });
 }
 
@@ -97,7 +97,7 @@ std::vector<FabricMesh> acquireFabricMeshes(
     KitSubsystem& subsystem,
     const CesiumGltf::Model& model,
     const std::vector<LoadingMesh>& loadingMeshes,
-    const FabricRasterOverlaysInfo& rasterOverlaysInfo,
+    const RasterOverlaysInfo& rasterOverlaysInfo,
     const OmniTileset& tileset) {
     CESIUM_TRACE("FabricPrepareRenderResources::acquireFabricMeshes");
     std::vector<FabricMesh> fabricMeshes;
@@ -169,12 +169,11 @@ std::vector<FabricMesh> acquireFabricMeshes(
         }
 
         // Map feature id types to set indexes
-        fabricMesh.featureIdIndexSetIndexMapping =
-            FabricFeaturesUtil::getSetIndexMapping(featuresInfo, FabricFeatureIdType::INDEX);
+        fabricMesh.featureIdIndexSetIndexMapping = FeaturesUtil::getSetIndexMapping(featuresInfo, FeatureIdType::INDEX);
         fabricMesh.featureIdAttributeSetIndexMapping =
-            FabricFeaturesUtil::getSetIndexMapping(featuresInfo, FabricFeatureIdType::ATTRIBUTE);
+            FeaturesUtil::getSetIndexMapping(featuresInfo, FeatureIdType::ATTRIBUTE);
         fabricMesh.featureIdTextureSetIndexMapping =
-            FabricFeaturesUtil::getSetIndexMapping(featuresInfo, FabricFeatureIdType::TEXTURE);
+            FeaturesUtil::getSetIndexMapping(featuresInfo, FeatureIdType::TEXTURE);
 
         // Map glTF texture index to property texture (FabricTexture) index
         fabricMesh.propertyTextureIndexMapping =
@@ -359,13 +358,13 @@ FabricPrepareRenderResources::prepareInLoadThread(
     // blending still works.
     const auto overlapsRasterOverlay = tileLoadResult.rasterOverlayDetails.has_value();
 
-    FabricRasterOverlaysInfo rasterOverlaysInfo;
+    RasterOverlaysInfo rasterOverlaysInfo;
 
     if (overlapsRasterOverlay) {
         for (const auto& rasterOverlayPath : _pTileset->getRasterOverlayPaths()) {
             const auto& pRasterOverlay = _pContext->getAssetRegistry().getRasterOverlay(rasterOverlayPath);
             const auto overlayRenderMethod =
-                pRasterOverlay ? pRasterOverlay->getOverlayRenderMethod() : FabricOverlayRenderMethod::OVERLAY;
+                pRasterOverlay ? pRasterOverlay->getOverlayRenderMethod() : OverlayRenderMethod::OVERLAY;
             rasterOverlaysInfo.overlayRenderMethods.push_back(overlayRenderMethod);
         }
     }
@@ -560,7 +559,7 @@ void FabricPrepareRenderResources::attachRasterInMainThread(
         const auto pMaterial = fabricMesh.pMaterial;
         if (pMaterial) {
             const auto gltfSetIndex = static_cast<uint64_t>(overlayTextureCoordinateID);
-            const auto textureInfo = FabricTextureInfo{
+            const auto textureInfo = TextureInfo{
                 translation,
                 0.0,
                 scale,
