@@ -1,8 +1,8 @@
 #include "testUtils.h"
 
-#include "cesium/omniverse/FabricVertexAttributeAccessors.h"
 #include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/MaterialInfo.h"
+#include "cesium/omniverse/VertexAttributeAccessors.h"
 
 #include <CesiumGltf/Material.h>
 #include <CesiumGltf/MeshPrimitive.h>

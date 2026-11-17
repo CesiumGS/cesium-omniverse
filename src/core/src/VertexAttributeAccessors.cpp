@@ -1,4 +1,4 @@
-#include "cesium/omniverse/FabricVertexAttributeAccessors.h"
+#include "cesium/omniverse/VertexAttributeAccessors.h"
 
 namespace cesium::omniverse {
 PositionsAccessor::PositionsAccessor()

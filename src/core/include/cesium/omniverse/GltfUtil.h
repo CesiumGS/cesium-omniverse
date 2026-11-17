@@ -2,7 +2,7 @@
 
 #include "cesium/omniverse/DataType.h"
 #include "cesium/omniverse/DataTypeUtil.h"
-#include "cesium/omniverse/FabricVertexAttributeAccessors.h"
+#include "cesium/omniverse/VertexAttributeAccessors.h"
 
 #include <CesiumGltf/Accessor.h>
 #include <glm/fwd.hpp>
