@@ -17,13 +17,11 @@
 #include <CesiumGeospatial/GlobeAnchor.h>
 #include <CesiumGeospatial/GlobeTransforms.h>
 #include <CesiumGeospatial/LocalHorizontalCoordinateSystem.h>
-#include <carb/Numeric.h>
 #include <fmt/format.h>
 #include <glm/gtc/matrix_access.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include <omni/ui/ImageProvider/DynamicTextureProvider.h>
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma warning(push)

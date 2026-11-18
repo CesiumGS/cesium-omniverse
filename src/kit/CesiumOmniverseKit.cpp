@@ -10,12 +10,12 @@
 #include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/ISubsystem.h"
 #include "cesium/omniverse/KitSubsystem.h"
+#include "cesium/omniverse/KitUtil.h"
 #include "cesium/omniverse/OmniData.h"
 #include "cesium/omniverse/OmniIonServer.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/UsdUtil.h"
 #include "cesium/omniverse/Viewport.h"
-#include "cesium/omniverse/getCesiumCacheDirectoryKit.h"
 
 #include <CesiumGeospatial/Cartographic.h>
 #include <CesiumUtility/CreditSystem.h>
@@ -37,7 +37,7 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
   protected:
     void onStartup(const char* cesiumExtensionLocation) noexcept override {
         std::filesystem::path cesiumMdlPath = std::filesystem::path(cesiumExtensionLocation) / "mdl" / "cesium.mdl";
-        std::filesystem::path cesiumCacheDirectory = getCesiumCacheDirectoryKit();
+        std::filesystem::path cesiumCacheDirectory = KitUtil::getCesiumCacheDirectory();
 
         // Use placement new so that a KitSubsystem can be created with a
         // Context before being passed to the Context constructor

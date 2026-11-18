@@ -81,18 +81,19 @@ uint64_t getSecondsSinceEpoch() {
 CesiumCurl::CurlAssetAccessorOptions createCurlAssetAccessorOptions() {
     CesiumCurl::CurlAssetAccessorOptions options;
 
-    const auto app = carb::getCachedInterface<omni::kit::IApp>();
-    const auto& buildInfo = app->getBuildInfo();
-    const auto platformInfo = app->getPlatformInfo();
-
     options.certificateFile = getCAFile();
     options.certificatePath = getCAPath();
     options.requestHeaders.emplace_back("X-Cesium-Client", "Cesium for Omniverse");
     options.requestHeaders.emplace_back(
         "X-Cesium-Client-Version", fmt::format("v{} {}", CESIUM_OMNI_VERSION, CESIUM_OMNI_GIT_HASH_ABBREVIATED));
-    options.requestHeaders.emplace_back(
-        "X-Cesium-Client-Engine", fmt::format("Kit SDK {}", buildInfo.kitVersion.c_str()));
-    options.requestHeaders.emplace_back("X-Cesium-Client-OS", platformInfo.platform);
+
+#ifdef OMNI_OMNI_MSVC
+    std::string_view platformName = "windows";
+#else
+    std::string_view platformName = "linux";
+#endif
+
+    options.requestHeaders.emplace_back("X-Cesium-Client-OS", platformName);
 
     return options;
 }

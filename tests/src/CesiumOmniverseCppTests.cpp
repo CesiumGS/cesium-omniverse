@@ -14,8 +14,8 @@
 #include <cesium/omniverse/FabricResourceManager.h>
 #include <cesium/omniverse/ILogger.h>
 #include <cesium/omniverse/KitSubsystem.h>
+#include <cesium/omniverse/KitUtil.h>
 #include <cesium/omniverse/UsdUtil.h>
-#include <cesium/omniverse/getCesiumCacheDirectoryKit.h>
 #include <doctest/doctest.h>
 #include <omni/fabric/IFabric.h>
 #include <omni/fabric/stage/StageReaderWriter.h>
@@ -41,7 +41,7 @@ class CesiumOmniverseCppTestsPlugin final : public ICesiumOmniverseCppTestsInter
   public:
     void onStartup(const char* cesiumExtensionLocation) noexcept override {
         std::filesystem::path cesiumMdlPath = std::filesystem::path(cesiumExtensionLocation) / "mdl" / "cesium.mdl";
-        std::filesystem::path cesiumCacheDirectory = getCesiumCacheDirectoryKit();
+        std::filesystem::path cesiumCacheDirectory = KitUtil::getCesiumCacheDirectory();
 
         // Use placement new so that a KitSubsystem can be created with a
         // Context before being passed to the Context constructor

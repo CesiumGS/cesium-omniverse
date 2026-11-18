@@ -1,12 +1,14 @@
+#include "cesium/omniverse/KitUtil.h"
+
 #include "cesium/omniverse/FilesystemUtil.h"
 
 #include <carb/Framework.h>
 #include <carb/tokens/ITokens.h>
 #include <carb/tokens/TokensUtils.h>
 
-namespace cesium::omniverse {
+namespace cesium::omniverse::KitUtil {
 
-std::filesystem::path getCesiumCacheDirectoryKit() {
+std::filesystem::path getCesiumCacheDirectory() {
     auto f = carb::getFramework();
     auto* tokensInterface = f->tryAcquireInterface<carb::tokens::ITokens>();
     std::string cacheDir;
@@ -31,4 +33,4 @@ std::filesystem::path getCesiumCacheDirectoryKit() {
     return {};
 }
 
-} // namespace cesium::omniverse
+} // namespace cesium::omniverse::KitUtil
