@@ -3,7 +3,7 @@
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/DataType.h"
 #include "cesium/omniverse/GltfUtil.h"
-#include "cesium/omniverse/Logger.h"
+#include "cesium/omniverse/ILogger.h"
 #include "cesium/omniverse/PropertyInfo.h"
 
 #include <CesiumGltf/ExtensionExtMeshFeatures.h>

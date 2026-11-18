@@ -8,6 +8,8 @@
 #include "cesium/omniverse/FabricRenderResources.h"
 #include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricUtil.h"
+#include "cesium/omniverse/ILogger.h"
+#include "cesium/omniverse/KitLogger.h"
 #include "cesium/omniverse/SubsystemStatistics.h"
 
 #include <Cesium3DTilesSelection/Tileset.h>
@@ -41,9 +43,11 @@ void forEachFabricMaterial(
 }
 } // namespace
 
-KitSubsystem::KitSubsystem(const std::filesystem::path& cesiumMdlPath)
+KitSubsystem::KitSubsystem(Context* pContext, const std::filesystem::path& cesiumMdlPath)
     : _cesiumMdlPathToken(
-          omni::fabric::Token::createImmortal(cesiumMdlPath.lexically_normal().generic_string().c_str())) {}
+          omni::fabric::Token::createImmortal(cesiumMdlPath.lexically_normal().generic_string().c_str()))
+    , _pFabricResourceManager(std::make_unique<FabricResourceManager>(pContext, this))
+    , _pLogger(std::make_unique<KitLogger>()) {}
 
 void KitSubsystem::clear() {
     _pFabricResourceManager->clear();
@@ -141,6 +145,10 @@ void KitSubsystem::setContentVisiblity(void* pRenderResources, bool visible) con
     for (const auto& fabricMesh : fabricRenderResources.fabricMeshes) {
         fabricMesh.pGeometry->setVisibility(visible);
     }
+}
+
+std::shared_ptr<ILogger> KitSubsystem::getLogger() const {
+    return _pLogger;
 }
 
 const omni::fabric::Token& KitSubsystem::getCesiumMdlPathToken() const {

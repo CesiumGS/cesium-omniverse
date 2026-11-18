@@ -31,7 +31,7 @@ class AssetRegistry;
 class CesiumIonServerManager;
 class CesiumIonSessionManager;
 class ISubsystem;
-class Logger;
+class ILogger;
 class TaskProcessor;
 class UsdNotificationHandler;
 struct RenderStatistics;
@@ -52,7 +52,7 @@ class Context {
     [[nodiscard]] const CesiumAsync::AsyncSystem& getAsyncSystem() const;
     [[nodiscard]] std::shared_ptr<CesiumAsync::IAssetAccessor> getAssetAccessor() const;
     [[nodiscard]] std::shared_ptr<CesiumUtility::CreditSystem> getCreditSystem() const;
-    [[nodiscard]] std::shared_ptr<Logger> getLogger() const;
+    [[nodiscard]] std::shared_ptr<ILogger> getLogger() const;
     [[nodiscard]] const AssetRegistry& getAssetRegistry() const;
     [[nodiscard]] AssetRegistry& getAssetRegistry();
     [[nodiscard]] const CesiumIonSessionManager& getCesiumIonSessionManager() const;
@@ -80,7 +80,6 @@ class Context {
     std::shared_ptr<ISubsystem> _pSubsystem;
     std::shared_ptr<TaskProcessor> _pTaskProcessor;
     std::unique_ptr<CesiumAsync::AsyncSystem> _pAsyncSystem;
-    std::shared_ptr<Logger> _pLogger;
     std::shared_ptr<CesiumAsync::IAssetAccessor> _pAssetAccessor;
     std::shared_ptr<CesiumAsync::ICacheDatabase> _pCacheDatabase;
     std::shared_ptr<CesiumUtility::CreditSystem> _pCreditSystem;

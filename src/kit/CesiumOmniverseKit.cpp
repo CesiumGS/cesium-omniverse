@@ -38,7 +38,17 @@ class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
     void onStartup(const char* cesiumExtensionLocation) noexcept override {
         std::filesystem::path cesiumMdlPath = std::filesystem::path(cesiumExtensionLocation) / "mdl" / "cesium.mdl";
         std::filesystem::path cesiumCacheDirectory = getCesiumCacheDirectoryKit();
-        _pContext = std::make_unique<Context>(std::make_unique<KitSubsystem>(cesiumMdlPath), cesiumCacheDirectory);
+
+        // Use placement new so that a KitSubsystem can be created with a
+        // Context before being passed to the Context constructor
+        void* contextMemory = operator new(sizeof(Context));
+
+        std::unique_ptr<KitSubsystem> pSubsystem =
+            std::make_unique<KitSubsystem>(static_cast<Context*>(contextMemory), cesiumMdlPath);
+
+        auto* pContext = new (contextMemory) Context(std::move(pSubsystem), cesiumCacheDirectory);
+
+        _pContext = std::unique_ptr<Context>(pContext);
     }
 
     void onShutdown() noexcept override {

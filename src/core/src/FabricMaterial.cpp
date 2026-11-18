@@ -12,7 +12,7 @@
 #include "cesium/omniverse/FeaturesInfo.h"
 #include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/KitSubsystem.h"
-#include "cesium/omniverse/Logger.h"
+#include "cesium/omniverse/ILogger.h"
 #include "cesium/omniverse/MaterialInfo.h"
 #include "cesium/omniverse/MetadataUtil.h"
 #include "cesium/omniverse/PropertyDescriptor.h"

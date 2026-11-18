@@ -12,8 +12,8 @@
 #include <carb/PluginUtils.h>
 #include <cesium/omniverse/Context.h>
 #include <cesium/omniverse/FabricResourceManager.h>
+#include <cesium/omniverse/ILogger.h>
 #include <cesium/omniverse/KitSubsystem.h>
-#include <cesium/omniverse/Logger.h>
 #include <cesium/omniverse/UsdUtil.h>
 #include <cesium/omniverse/getCesiumCacheDirectoryKit.h>
 #include <doctest/doctest.h>
@@ -43,7 +43,16 @@ class CesiumOmniverseCppTestsPlugin final : public ICesiumOmniverseCppTestsInter
         std::filesystem::path cesiumMdlPath = std::filesystem::path(cesiumExtensionLocation) / "mdl" / "cesium.mdl";
         std::filesystem::path cesiumCacheDirectory = getCesiumCacheDirectoryKit();
 
-        _pContext = std::make_unique<Context>(std::make_unique<KitSubsystem>(cesiumMdlPath), cesiumCacheDirectory);
+        // Use placement new so that a KitSubsystem can be created with a
+        // Context before being passed to the Context constructor
+        void* contextMemory = operator new(sizeof(Context));
+
+        std::unique_ptr<KitSubsystem> pSubsystem =
+            std::make_unique<KitSubsystem>(static_cast<Context*>(contextMemory), cesiumMdlPath);
+
+        auto* pContext = new (contextMemory) Context(std::move(pSubsystem), cesiumCacheDirectory);
+
+        _pContext = std::unique_ptr<Context>(pContext);
     }
 
     void onShutdown() noexcept override {

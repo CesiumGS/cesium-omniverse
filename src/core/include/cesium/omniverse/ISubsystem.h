@@ -24,6 +24,7 @@ class Tileset;
 namespace cesium::omniverse {
 
 class Context;
+class ILogger;
 class OmniTileset;
 class SubsystemPrepareRendererResources;
 struct DebugSettings;
@@ -31,7 +32,7 @@ struct SubsystemStatistics;
 
 class ISubsystem {
   public:
-    virtual ~ISubsystem() = default;
+    virtual ~ISubsystem() = 0;
 
     virtual void clear() = 0;
     virtual void applyDebugSettings(const DebugSettings& debugSettings) = 0;
@@ -62,6 +63,7 @@ class ISubsystem {
         const pxr::SdfPath& shaderPath,
         const pxr::TfToken& attributeName) const = 0;
     virtual void setContentVisiblity(void* pRenderResources, bool visible) const = 0;
+    [[nodiscard]] virtual std::shared_ptr<ILogger> getLogger() const = 0;
 };
 
 } // namespace cesium::omniverse

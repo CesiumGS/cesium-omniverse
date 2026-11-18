@@ -15,11 +15,13 @@ namespace cesium::omniverse {
 
 class Context;
 class FabricResourceManager;
+class ILogger;
+class KitLogger;
 class SubsystemPrepareRendererResources;
 
 class KitSubsystem final : public ISubsystem {
   public:
-    KitSubsystem(const std::filesystem::path& cesiumMdlPath);
+    KitSubsystem(Context* pContext, const std::filesystem::path& cesiumMdlPath);
 
     void clear() override;
     void applyDebugSettings(const DebugSettings& debugSettings) override;
@@ -50,6 +52,7 @@ class KitSubsystem final : public ISubsystem {
         const pxr::SdfPath& shaderPath,
         const pxr::TfToken& attributeName) const override;
     void setContentVisiblity(void* pRenderResources, bool visible) const override;
+    [[nodiscard]] std::shared_ptr<ILogger> getLogger() const override;
 
     [[nodiscard]] const omni::fabric::Token& getCesiumMdlPathToken() const;
     [[nodiscard]] const FabricResourceManager& getFabricResourceManager() const;
@@ -59,6 +62,7 @@ class KitSubsystem final : public ISubsystem {
   private:
     omni::fabric::Token _cesiumMdlPathToken;
     std::unique_ptr<FabricResourceManager> _pFabricResourceManager;
+    std::shared_ptr<KitLogger> _pLogger;
     std::unique_ptr<omni::fabric::StageReaderWriter> _pFabricStage;
 };
 

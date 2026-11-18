@@ -6,8 +6,8 @@
 #include "cesium/omniverse/CesiumIonSessionManager.h"
 #include "cesium/omniverse/DebugSettings.h"
 #include "cesium/omniverse/FilesystemUtil.h"
+#include "cesium/omniverse/ILogger.h"
 #include "cesium/omniverse/ISubsystem.h"
-#include "cesium/omniverse/Logger.h"
 #include "cesium/omniverse/OmniData.h"
 #include "cesium/omniverse/OmniIonRasterOverlay.h"
 #include "cesium/omniverse/OmniTileset.h"
@@ -59,7 +59,7 @@ std::string getCacheDatabaseName(const std::filesystem::path& cesiumCacheDirecto
 }
 
 std::shared_ptr<CesiumAsync::ICacheDatabase>
-makeCacheDatabase(const std::filesystem::path& cesiumCacheDirectory, const std::shared_ptr<Logger>& logger) {
+makeCacheDatabase(const std::filesystem::path& cesiumCacheDirectory, const std::shared_ptr<ILogger>& logger) {
     uint64_t maxCacheItems = Settings::getMaxCacheItems();
     if (maxCacheItems == 0) {
         logger->oneTimeWarning("maxCacheItems set to 0, so disabling accessor cache");
@@ -103,8 +103,7 @@ Context::Context(std::unique_ptr<ISubsystem>&& pSubsystem, const std::filesystem
     : _pSubsystem(std::move(pSubsystem))
     , _pTaskProcessor(std::make_shared<TaskProcessor>())
     , _pAsyncSystem(std::make_unique<CesiumAsync::AsyncSystem>(_pTaskProcessor))
-    , _pLogger(std::make_shared<Logger>())
-    , _pCacheDatabase(makeCacheDatabase(cesiumCacheDirectory.lexically_normal(), _pLogger))
+    , _pCacheDatabase(makeCacheDatabase(cesiumCacheDirectory.lexically_normal(), getLogger()))
     , _pCreditSystem(std::make_shared<CesiumUtility::CreditSystem>())
     , _pAssetRegistry(std::make_unique<AssetRegistry>(this))
     , _pCesiumIonSessionManager(std::make_unique<CesiumIonSessionManager>(this))
@@ -113,7 +112,7 @@ Context::Context(std::unique_ptr<ISubsystem>&& pSubsystem, const std::filesystem
     , _contextId(static_cast<int64_t>(getSecondsSinceEpoch())) {
     if (_pCacheDatabase) {
         _pAssetAccessor = std::make_shared<CesiumAsync::CachingAssetAccessor>(
-            _pLogger,
+            getLogger(),
             std::make_shared<CesiumCurl::CurlAssetAccessor>(createCurlAssetAccessorOptions()),
             _pCacheDatabase);
     } else {
@@ -155,8 +154,8 @@ std::shared_ptr<CesiumUtility::CreditSystem> Context::getCreditSystem() const {
     return _pCreditSystem;
 }
 
-std::shared_ptr<Logger> Context::getLogger() const {
-    return _pLogger;
+std::shared_ptr<ILogger> Context::getLogger() const {
+    return _pSubsystem->getLogger();
 }
 
 const AssetRegistry& Context::getAssetRegistry() const {

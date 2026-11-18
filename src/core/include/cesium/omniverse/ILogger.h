@@ -8,9 +8,10 @@
 
 namespace cesium::omniverse {
 
-class Logger final : public spdlog::logger {
+class ILogger : public spdlog::logger {
   public:
-    Logger();
+    ILogger(std::string&& name, spdlog::sinks_init_list&& sinks);
+    ~ILogger() override = 0;
 
     template <typename T> void oneTimWarning(const T& warning) {
         if (CppUtil::contains(_oneTimeWarnings, warning)) {

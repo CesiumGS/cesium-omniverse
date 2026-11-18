@@ -2,7 +2,7 @@
 
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/FabricUtil.h"
-#include "cesium/omniverse/Logger.h"
+#include "cesium/omniverse/ILogger.h"
 #include "cesium/omniverse/TextureInfo.h"
 #include "cesium/omniverse/UsdUtil.h"
 

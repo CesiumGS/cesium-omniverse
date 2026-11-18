@@ -3,7 +3,7 @@
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/GltfUtil.h"
-#include "cesium/omniverse/Logger.h"
+#include "cesium/omniverse/ILogger.h"
 #include "cesium/omniverse/OmniIonServer.h"
 #include "cesium/omniverse/RasterOverlaysInfo.h"
 #include "cesium/omniverse/UsdUtil.h"

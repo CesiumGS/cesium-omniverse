@@ -3,7 +3,7 @@
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/CppUtil.h"
-#include "cesium/omniverse/Logger.h"
+#include "cesium/omniverse/ILogger.h"
 #include "cesium/omniverse/MathUtil.h"
 #include "cesium/omniverse/OmniGeoreference.h"
 #include "cesium/omniverse/UsdTokens.h"

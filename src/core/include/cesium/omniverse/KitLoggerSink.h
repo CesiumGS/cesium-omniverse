@@ -14,9 +14,9 @@
 
 namespace cesium::omniverse {
 
-class LoggerSink final : public spdlog::sinks::base_sink<spdlog::details::null_mutex> {
+class KitLoggerSink final : public spdlog::sinks::base_sink<spdlog::details::null_mutex> {
   public:
-    LoggerSink(omni::log::Level logLevel);
+    KitLoggerSink(omni::log::Level logLevel);
 
   protected:
     void sink_it_(const spdlog::details::log_msg& msg) override;

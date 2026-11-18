@@ -58,9 +58,7 @@ class FabricPrepareRenderResources final : public SubsystemPrepareRendererResour
         void* pMainThreadRendererResources) noexcept override;
 
   private:
-    Context* _pContext;
     KitSubsystem* _pSubsystem;
-    OmniTileset* _pTileset;
 };
 
 } // namespace cesium::omniverse
