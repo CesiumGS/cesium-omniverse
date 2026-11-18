@@ -1,7 +1,6 @@
 #include "cesium/omniverse/GltfUtil.h"
 
 #include "cesium/omniverse/DataType.h"
-#include "cesium/omniverse/FabricVertexAttributeDescriptor.h"
 #include "cesium/omniverse/FeaturesInfo.h"
 #include "cesium/omniverse/MaterialInfo.h"
 #include "cesium/omniverse/TextureInfo.h"

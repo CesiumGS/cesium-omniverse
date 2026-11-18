@@ -17,6 +17,10 @@
 #pragma warning(pop)
 #endif
 
+namespace Cesium3DTilesSelection {
+class Tileset;
+}
+
 namespace cesium::omniverse {
 
 class Context;
@@ -45,6 +49,19 @@ class ISubsystem {
         const pxr::SdfPath& materialPath,
         const pxr::SdfPath& shaderPath,
         const pxr::TfToken& property) const = 0;
+    virtual void updateRasterOverlayAlpha(
+        const Cesium3DTilesSelection::Tileset& tileset,
+        uint64_t rasterOverlayIndex,
+        double alpha) const = 0;
+    virtual void updateDisplayColorAndOpacity(
+        const Cesium3DTilesSelection::Tileset& tileset,
+        const glm::dvec3& displayColor,
+        double displayOpacity) const = 0;
+    virtual void updateShaderInput(
+        const Cesium3DTilesSelection::Tileset& tileset,
+        const pxr::SdfPath& shaderPath,
+        const pxr::TfToken& attributeName) const = 0;
+    virtual void setContentVisiblity(void* pRenderResources, bool visible) const = 0;
 };
 
 } // namespace cesium::omniverse

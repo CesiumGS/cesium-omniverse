@@ -3,12 +3,6 @@
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/Context.h"
-#include "cesium/omniverse/FabricGeometry.h"
-#include "cesium/omniverse/FabricMaterial.h"
-#include "cesium/omniverse/FabricMesh.h"
-#include "cesium/omniverse/FabricPrepareRenderResources.h"
-#include "cesium/omniverse/FabricRenderResources.h"
-#include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/GltfUtil.h"
 #include "cesium/omniverse/ISubsystem.h"
 #include "cesium/omniverse/Logger.h"
@@ -18,6 +12,7 @@
 #include "cesium/omniverse/OmniIonServer.h"
 #include "cesium/omniverse/OmniPolygonRasterOverlay.h"
 #include "cesium/omniverse/OmniRasterOverlay.h"
+#include "cesium/omniverse/SubsystemPrepareRendererResources.h"
 #include "cesium/omniverse/TilesetStatistics.h"
 #include "cesium/omniverse/UsdUtil.h"
 #include "cesium/omniverse/Viewport.h"
@@ -50,34 +45,6 @@
 #endif
 
 namespace cesium::omniverse {
-
-namespace {
-
-void forEachFabricMaterial(
-    const Cesium3DTilesSelection::Tileset* pTileset,
-    const std::function<void(FabricMaterial& fabricMaterial)>& callback) {
-    pTileset->forEachLoadedTile([&callback](const Cesium3DTilesSelection::Tile& tile) {
-        if (tile.getState() != Cesium3DTilesSelection::TileLoadState::Done) {
-            return;
-        }
-        const auto& content = tile.getContent();
-        const auto pRenderContent = content.getRenderContent();
-        if (!pRenderContent) {
-            return;
-        }
-        const auto pFabricRenderResources = static_cast<FabricRenderResources*>(pRenderContent->getRenderResources());
-        if (!pFabricRenderResources) {
-            return;
-        }
-        for (const auto& fabricMesh : pFabricRenderResources->fabricMeshes) {
-            if (fabricMesh.pMaterial) {
-                callback(*fabricMesh.pMaterial.get());
-            }
-        }
-    });
-}
-
-} // namespace
 
 OmniTileset::OmniTileset(Context* pContext, const pxr::SdfPath& path, int64_t tilesetId)
     : _pContext(pContext)
@@ -663,25 +630,18 @@ void OmniTileset::updateRasterOverlayAlpha(const pxr::SdfPath& rasterOverlayPath
 
     const auto alpha = glm::clamp(pRasterOverlay->getAlpha(), 0.0, 1.0);
 
-    forEachFabricMaterial(_pTileset.get(), [rasterOverlayIndex, alpha](FabricMaterial& fabricMaterial) {
-        fabricMaterial.setRasterOverlayAlpha(rasterOverlayIndex, alpha);
-    });
+    _pContext->getSubsystem().updateRasterOverlayAlpha(*_pTileset.get(), rasterOverlayIndex, alpha);
 }
 
 void OmniTileset::updateDisplayColorAndOpacity() {
     const auto displayColor = getDisplayColor();
     const auto displayOpacity = getDisplayOpacity();
 
-    forEachFabricMaterial(_pTileset.get(), [&displayColor, &displayOpacity](FabricMaterial& fabricMaterial) {
-        fabricMaterial.setDisplayColorAndOpacity(displayColor, displayOpacity);
-    });
+    _pContext->getSubsystem().updateDisplayColorAndOpacity(*_pTileset.get(), displayColor, displayOpacity);
 }
 
 void OmniTileset::updateShaderInput(const pxr::SdfPath& shaderPath, const pxr::TfToken& attributeName) {
-    forEachFabricMaterial(_pTileset.get(), [&shaderPath, &attributeName](FabricMaterial& fabricMaterial) {
-        fabricMaterial.updateShaderInput(
-            FabricUtil::toFabricPath(shaderPath), FabricUtil::toFabricToken(attributeName));
-    });
+    _pContext->getSubsystem().updateShaderInput(*_pTileset.get(), shaderPath, attributeName);
 }
 
 void OmniTileset::onUpdateFrame(const std::span<const Viewport>& viewports, bool waitForLoadingTiles) {
@@ -753,12 +713,9 @@ void OmniTileset::updateView(const std::span<const Viewport>& viewports, bool wa
         if (pTile->getState() == Cesium3DTilesSelection::TileLoadState::Done) {
             const auto pRenderContent = pTile->getContent().getRenderContent();
             if (pRenderContent) {
-                const auto pRenderResources =
-                    static_cast<const FabricRenderResources*>(pRenderContent->getRenderResources());
+                const auto pRenderResources = pRenderContent->getRenderResources();
                 if (pRenderResources) {
-                    for (const auto& fabricMesh : pRenderResources->fabricMeshes) {
-                        fabricMesh.pGeometry->setVisibility(false);
-                    }
+                    _pContext->getSubsystem().setContentVisiblity(pRenderResources, false);
                 }
             }
         }
@@ -769,12 +726,9 @@ void OmniTileset::updateView(const std::span<const Viewport>& viewports, bool wa
         if (pTile->getState() == Cesium3DTilesSelection::TileLoadState::Done) {
             const auto pRenderContent = pTile->getContent().getRenderContent();
             if (pRenderContent) {
-                const auto pRenderResources =
-                    static_cast<const FabricRenderResources*>(pRenderContent->getRenderResources());
+                const auto pRenderResources = pRenderContent->getRenderResources();
                 if (pRenderResources) {
-                    for (const auto& fabricMesh : pRenderResources->fabricMeshes) {
-                        fabricMesh.pGeometry->setVisibility(visible);
-                    }
+                    _pContext->getSubsystem().setContentVisiblity(pRenderResources, visible);
                 }
             }
         }

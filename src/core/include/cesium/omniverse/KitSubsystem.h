@@ -37,6 +37,19 @@ class KitSubsystem final : public ISubsystem {
         const pxr::SdfPath& materialPath,
         const pxr::SdfPath& shaderPath,
         const pxr::TfToken& property) const override;
+    void updateRasterOverlayAlpha(
+        const Cesium3DTilesSelection::Tileset& tileset,
+        uint64_t rasterOverlayIndex,
+        double alpha) const override;
+    void updateDisplayColorAndOpacity(
+        const Cesium3DTilesSelection::Tileset& tileset,
+        const glm::dvec3& displayColor,
+        double displayOpacity) const override;
+    void updateShaderInput(
+        const Cesium3DTilesSelection::Tileset& tileset,
+        const pxr::SdfPath& shaderPath,
+        const pxr::TfToken& attributeName) const override;
+    void setContentVisiblity(void* pRenderResources, bool visible) const override;
 
     [[nodiscard]] const omni::fabric::Token& getCesiumMdlPathToken() const;
     [[nodiscard]] const FabricResourceManager& getFabricResourceManager() const;

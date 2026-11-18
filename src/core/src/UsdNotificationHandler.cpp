@@ -3,8 +3,6 @@
 #include "cesium/omniverse/AssetRegistry.h"
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/CppUtil.h"
-#include "cesium/omniverse/FabricResourceManager.h"
-#include "cesium/omniverse/FabricUtil.h"
 #include "cesium/omniverse/ISubsystem.h"
 #include "cesium/omniverse/OmniCartographicPolygon.h"
 #include "cesium/omniverse/OmniEllipsoid.h"
