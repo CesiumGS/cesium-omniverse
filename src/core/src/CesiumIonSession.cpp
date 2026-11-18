@@ -3,7 +3,7 @@
 #include "cesium/omniverse/CesiumIonSession.h"
 
 #include "cesium/omniverse/Broadcast.h"
-#include "cesium/omniverse/SettingsWrapper.h"
+#include "cesium/omniverse/KitSettings.h"
 
 #include <CesiumAsync/SharedFuture.h>
 #include <CesiumUtility/Uri.h>
@@ -107,10 +107,10 @@ void CesiumIonSession::connect() {
             this->_isConnecting = false;
             this->_connection = std::move(connection);
 
-            Settings::AccessToken token;
+            KitSettings::AccessToken token;
             token.ionApiUrl = _ionApiUrl;
             token.accessToken = this->_connection.value().getAccessToken();
-            Settings::setAccessToken(token);
+            KitSettings::setAccessToken(token);
 
             Broadcast::connectionUpdated();
         })
@@ -127,7 +127,7 @@ void CesiumIonSession::resume() {
         return;
     }
 
-    auto tokens = Settings::getAccessTokens();
+    auto tokens = KitSettings::getAccessTokens();
 
     if (tokens.size() < 1) {
         // No existing session to resume.
@@ -195,7 +195,7 @@ void CesiumIonSession::disconnect() {
     this->_assets.reset();
     this->_tokens.reset();
 
-    Settings::removeAccessToken(_ionApiUrl);
+    KitSettings::removeAccessToken(_ionApiUrl);
 
     Broadcast::connectionUpdated();
     Broadcast::profileUpdated();

@@ -1,10 +1,10 @@
-#include "cesium/omniverse/SettingsWrapper.h"
+#include "cesium/omniverse/KitSettings.h"
 
 #include <carb/InterfaceUtils.h>
 #include <carb/settings/ISettings.h>
 #include <fmt/format.h>
 
-namespace cesium::omniverse::Settings {
+namespace cesium::omniverse::KitSettings {
 
 namespace {
 const uint64_t MAX_SESSIONS = 10;
@@ -120,4 +120,4 @@ uint64_t getMaxCacheItems() {
     auto maxCacheItems = iSettings->getAsInt64(MAX_CACHE_ITEMS_PATH.data());
     return static_cast<uint64_t>(maxCacheItems);
 }
-} // namespace cesium::omniverse::Settings
+} // namespace cesium::omniverse::KitSettings

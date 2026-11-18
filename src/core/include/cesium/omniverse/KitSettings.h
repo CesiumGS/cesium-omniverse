@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace cesium::omniverse::Settings {
+namespace cesium::omniverse::KitSettings {
 
 struct AccessToken {
     std::string ionApiUrl;
@@ -18,4 +18,4 @@ void clearTokens();
 
 uint64_t getMaxCacheItems();
 
-} // namespace cesium::omniverse::Settings
+} // namespace cesium::omniverse::KitSettings

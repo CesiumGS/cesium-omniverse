@@ -8,11 +8,11 @@
 #include "cesium/omniverse/FilesystemUtil.h"
 #include "cesium/omniverse/ILogger.h"
 #include "cesium/omniverse/ISubsystem.h"
+#include "cesium/omniverse/KitSettings.h"
 #include "cesium/omniverse/OmniData.h"
 #include "cesium/omniverse/OmniIonRasterOverlay.h"
 #include "cesium/omniverse/OmniTileset.h"
 #include "cesium/omniverse/RenderStatistics.h"
-#include "cesium/omniverse/SettingsWrapper.h"
 #include "cesium/omniverse/SubsystemStatistics.h"
 #include "cesium/omniverse/TaskProcessor.h"
 #include "cesium/omniverse/TilesetStatistics.h"
@@ -60,7 +60,7 @@ std::string getCacheDatabaseName(const std::filesystem::path& cesiumCacheDirecto
 
 std::shared_ptr<CesiumAsync::ICacheDatabase>
 makeCacheDatabase(const std::filesystem::path& cesiumCacheDirectory, const std::shared_ptr<ILogger>& logger) {
-    uint64_t maxCacheItems = Settings::getMaxCacheItems();
+    uint64_t maxCacheItems = KitSettings::getMaxCacheItems();
     if (maxCacheItems == 0) {
         logger->oneTimeWarning("maxCacheItems set to 0, so disabling accessor cache");
         return {};
