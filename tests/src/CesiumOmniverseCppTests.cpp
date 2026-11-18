@@ -13,6 +13,7 @@
 #include <cesium/omniverse/Context.h>
 #include <cesium/omniverse/FabricResourceManager.h>
 #include <cesium/omniverse/ILogger.h>
+#include <cesium/omniverse/KitSettings.h>
 #include <cesium/omniverse/KitSubsystem.h>
 #include <cesium/omniverse/KitUtil.h>
 #include <cesium/omniverse/UsdUtil.h>

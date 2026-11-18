@@ -17,6 +17,7 @@ class Context;
 class FabricResourceManager;
 class ILogger;
 class KitLogger;
+class KitSettings;
 class SubsystemPrepareRendererResources;
 
 class KitSubsystem final : public ISubsystem {
@@ -53,6 +54,7 @@ class KitSubsystem final : public ISubsystem {
         const pxr::TfToken& attributeName) const override;
     void setContentVisiblity(void* pRenderResources, bool visible) const override;
     [[nodiscard]] std::shared_ptr<ILogger> getLogger() const override;
+    [[nodiscard]] const ISettings& getSettings() const override;
 
     [[nodiscard]] const omni::fabric::Token& getCesiumMdlPathToken() const;
     [[nodiscard]] const FabricResourceManager& getFabricResourceManager() const;
@@ -63,6 +65,7 @@ class KitSubsystem final : public ISubsystem {
     omni::fabric::Token _cesiumMdlPathToken;
     std::unique_ptr<FabricResourceManager> _pFabricResourceManager;
     std::shared_ptr<KitLogger> _pLogger;
+    std::unique_ptr<KitSettings> _pSettings;
     std::unique_ptr<omni::fabric::StageReaderWriter> _pFabricStage;
 };
 

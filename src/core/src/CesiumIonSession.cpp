@@ -3,7 +3,9 @@
 #include "cesium/omniverse/CesiumIonSession.h"
 
 #include "cesium/omniverse/Broadcast.h"
-#include "cesium/omniverse/KitSettings.h"
+#include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/ISettings.h"
+#include "cesium/omniverse/ISubsystem.h"
 
 #include <CesiumAsync/SharedFuture.h>
 #include <CesiumUtility/Uri.h>
@@ -16,12 +18,14 @@ using namespace CesiumIonClient;
 using namespace cesium::omniverse;
 
 CesiumIonSession::CesiumIonSession(
+    Context* pContext,
     const CesiumAsync::AsyncSystem& asyncSystem,
     std::shared_ptr<CesiumAsync::IAssetAccessor> pAssetAccessor,
     std::string ionServerUrl,
     std::string ionApiUrl,
     int64_t ionApplicationId)
-    : _asyncSystem(asyncSystem)
+    : _pContext(pContext)
+    , _asyncSystem(asyncSystem)
     , _pAssetAccessor(std::move(pAssetAccessor))
     , _connection(std::nullopt)
     , _profile(std::nullopt)
@@ -107,10 +111,10 @@ void CesiumIonSession::connect() {
             this->_isConnecting = false;
             this->_connection = std::move(connection);
 
-            KitSettings::AccessToken token;
+            AccessToken token;
             token.ionApiUrl = _ionApiUrl;
             token.accessToken = this->_connection.value().getAccessToken();
-            KitSettings::setAccessToken(token);
+            _pContext->getSubsystem().getSettings().setAccessToken(token);
 
             Broadcast::connectionUpdated();
         })
@@ -127,7 +131,7 @@ void CesiumIonSession::resume() {
         return;
     }
 
-    auto tokens = KitSettings::getAccessTokens();
+    auto tokens = _pContext->getSubsystem().getSettings().getAccessTokens();
 
     if (tokens.size() < 1) {
         // No existing session to resume.
@@ -195,7 +199,7 @@ void CesiumIonSession::disconnect() {
     this->_assets.reset();
     this->_tokens.reset();
 
-    KitSettings::removeAccessToken(_ionApiUrl);
+    _pContext->getSubsystem().getSettings().removeAccessToken(_ionApiUrl);
 
     Broadcast::connectionUpdated();
     Broadcast::profileUpdated();

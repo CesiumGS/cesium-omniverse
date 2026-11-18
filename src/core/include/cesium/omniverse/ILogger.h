@@ -11,7 +11,8 @@ namespace cesium::omniverse {
 class ILogger : public spdlog::logger {
   public:
     ILogger(std::string&& name, spdlog::sinks_init_list&& sinks);
-    ~ILogger() override = 0;
+    // NOLINTNEXTLINE(modernize-use-override)
+    virtual ~ILogger() = 0;
 
     template <typename T> void oneTimWarning(const T& warning) {
         if (CppUtil::contains(_oneTimeWarnings, warning)) {

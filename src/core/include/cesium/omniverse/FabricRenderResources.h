@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FabricMesh.h"
+#include "cesium/omniverse/FabricMesh.h"
 
 #include <glm/glm.hpp>
 

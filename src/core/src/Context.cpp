@@ -8,7 +8,6 @@
 #include "cesium/omniverse/FilesystemUtil.h"
 #include "cesium/omniverse/ILogger.h"
 #include "cesium/omniverse/ISubsystem.h"
-#include "cesium/omniverse/KitSettings.h"
 #include "cesium/omniverse/OmniData.h"
 #include "cesium/omniverse/OmniIonRasterOverlay.h"
 #include "cesium/omniverse/OmniTileset.h"
@@ -58,9 +57,11 @@ std::string getCacheDatabaseName(const std::filesystem::path& cesiumCacheDirecto
     return {};
 }
 
-std::shared_ptr<CesiumAsync::ICacheDatabase>
-makeCacheDatabase(const std::filesystem::path& cesiumCacheDirectory, const std::shared_ptr<ILogger>& logger) {
-    uint64_t maxCacheItems = KitSettings::getMaxCacheItems();
+std::shared_ptr<CesiumAsync::ICacheDatabase> makeCacheDatabase(
+    const std::filesystem::path& cesiumCacheDirectory,
+    const std::shared_ptr<ILogger>& logger,
+    const ISettings& settings) {
+    uint64_t maxCacheItems = settings.getMaxCacheItems();
     if (maxCacheItems == 0) {
         logger->oneTimeWarning("maxCacheItems set to 0, so disabling accessor cache");
         return {};
@@ -104,7 +105,8 @@ Context::Context(std::unique_ptr<ISubsystem>&& pSubsystem, const std::filesystem
     : _pSubsystem(std::move(pSubsystem))
     , _pTaskProcessor(std::make_shared<TaskProcessor>())
     , _pAsyncSystem(std::make_unique<CesiumAsync::AsyncSystem>(_pTaskProcessor))
-    , _pCacheDatabase(makeCacheDatabase(cesiumCacheDirectory.lexically_normal(), getLogger()))
+    , _pCacheDatabase(
+          makeCacheDatabase(cesiumCacheDirectory.lexically_normal(), getLogger(), _pSubsystem->getSettings()))
     , _pCreditSystem(std::make_shared<CesiumUtility::CreditSystem>())
     , _pAssetRegistry(std::make_unique<AssetRegistry>(this))
     , _pCesiumIonSessionManager(std::make_unique<CesiumIonSessionManager>(this))

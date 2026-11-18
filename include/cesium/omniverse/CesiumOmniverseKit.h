@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cesium/omniverse/AssetTroubleshootingDetails.h"
+#include "cesium/omniverse/KitSettings.h"
 #include "cesium/omniverse/RenderStatistics.h"
 #include "cesium/omniverse/SetDefaultTokenResult.h"
 #include "cesium/omniverse/TokenTroubleshootingDetails.h"

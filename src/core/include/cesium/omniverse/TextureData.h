@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DataType.h"
+#include "cesium/omniverse/DataType.h"
 
 #include <cstdint>
 #include <vector>

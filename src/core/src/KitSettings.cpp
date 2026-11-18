@@ -4,7 +4,7 @@
 #include <carb/settings/ISettings.h>
 #include <fmt/format.h>
 
-namespace cesium::omniverse::KitSettings {
+namespace cesium::omniverse {
 
 namespace {
 const uint64_t MAX_SESSIONS = 10;
@@ -24,7 +24,7 @@ std::string getAccessTokenSettingPath(const uint64_t index) {
 
 } // namespace
 
-std::vector<AccessToken> getAccessTokens() {
+std::vector<AccessToken> KitSettings::getAccessTokens() const {
     const auto iSettings = carb::getCachedInterface<carb::settings::ISettings>();
 
     std::vector<AccessToken> accessTokens;
@@ -45,7 +45,7 @@ std::vector<AccessToken> getAccessTokens() {
     return accessTokens;
 }
 
-void setAccessToken(const AccessToken& accessToken) {
+void KitSettings::setAccessToken(const AccessToken& accessToken) const {
     const auto iSettings = carb::getCachedInterface<carb::settings::ISettings>();
 
     const auto oldAccessTokens = getAccessTokens();
@@ -74,7 +74,7 @@ void setAccessToken(const AccessToken& accessToken) {
     }
 }
 
-void removeAccessToken(const std::string& ionApiUrl) {
+void KitSettings::removeAccessToken(const std::string& ionApiUrl) const {
     const auto iSettings = carb::getCachedInterface<carb::settings::ISettings>();
 
     const auto oldAccessTokens = getAccessTokens();
@@ -101,7 +101,7 @@ void removeAccessToken(const std::string& ionApiUrl) {
     }
 }
 
-void clearTokens() {
+void KitSettings::clearTokens() const {
     const auto iSettings = carb::getCachedInterface<carb::settings::ISettings>();
 
     for (uint64_t i = 0; i < MAX_SESSIONS; ++i) {
@@ -113,11 +113,12 @@ void clearTokens() {
     }
 }
 
-uint64_t getMaxCacheItems() {
+uint64_t KitSettings::getMaxCacheItems() const {
     const int64_t defaultMaxCacheItems = 4096;
     const auto iSettings = carb::getCachedInterface<carb::settings::ISettings>();
     iSettings->setDefaultInt64(MAX_CACHE_ITEMS_PATH.data(), defaultMaxCacheItems);
     auto maxCacheItems = iSettings->getAsInt64(MAX_CACHE_ITEMS_PATH.data());
     return static_cast<uint64_t>(maxCacheItems);
 }
-} // namespace cesium::omniverse::KitSettings
+
+} // namespace cesium::omniverse

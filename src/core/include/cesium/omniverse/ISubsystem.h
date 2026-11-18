@@ -25,6 +25,7 @@ namespace cesium::omniverse {
 
 class Context;
 class ILogger;
+class ISettings;
 class OmniTileset;
 class SubsystemPrepareRendererResources;
 struct DebugSettings;
@@ -64,7 +65,7 @@ class ISubsystem {
         const pxr::TfToken& attributeName) const = 0;
     virtual void setContentVisiblity(void* pRenderResources, bool visible) const = 0;
     [[nodiscard]] virtual std::shared_ptr<ILogger> getLogger() const = 0;
-    
+    [[nodiscard]] virtual const ISettings& getSettings() const = 0;
 };
 
 } // namespace cesium::omniverse

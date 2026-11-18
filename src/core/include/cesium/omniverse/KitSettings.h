@@ -1,21 +1,16 @@
 #pragma once
 
-#include <cstdint>
-#include <string>
-#include <vector>
+#include "cesium/omniverse/ISettings.h"
 
-namespace cesium::omniverse::KitSettings {
+namespace cesium::omniverse {
 
-struct AccessToken {
-    std::string ionApiUrl;
-    std::string accessToken;
+class KitSettings : public ISettings {
+  public:
+    [[nodiscard]] std::vector<AccessToken> getAccessTokens() const override;
+    void setAccessToken(const AccessToken& accessToken) const override;
+    void removeAccessToken(const std::string& ionApiUrl) const override;
+    void clearTokens() const override;
+    [[nodiscard]] uint64_t getMaxCacheItems() const override;
 };
 
-std::vector<AccessToken> getAccessTokens();
-void setAccessToken(const AccessToken& accessToken);
-void removeAccessToken(const std::string& ionApiUrl);
-void clearTokens();
-
-uint64_t getMaxCacheItems();
-
-} // namespace cesium::omniverse::KitSettings
+} // namespace cesium::omniverse

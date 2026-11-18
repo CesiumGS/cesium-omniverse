@@ -19,7 +19,12 @@ std::shared_ptr<CesiumIonSession> CesiumIonSessionManager::getOrCreateSession(
     }
 
     auto pSession = std::make_shared<CesiumIonSession>(
-        _pContext->getAsyncSystem(), _pContext->getAssetAccessor(), ionServerUrl, ionServerApiUrl, applicationId);
+        _pContext,
+        _pContext->getAsyncSystem(),
+        _pContext->getAssetAccessor(),
+        ionServerUrl,
+        ionServerApiUrl,
+        applicationId);
 
     _sessions.emplace(key, pSession);
 

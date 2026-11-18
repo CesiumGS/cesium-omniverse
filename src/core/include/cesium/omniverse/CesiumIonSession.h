@@ -20,6 +20,7 @@ namespace cesium::omniverse {
 class CesiumIonSession {
   public:
     CesiumIonSession(
+        Context* pContext,
         const CesiumAsync::AsyncSystem& asyncSystem,
         std::shared_ptr<CesiumAsync::IAssetAccessor> pAssetAccessor,
         std::string ionServerUrl,
@@ -122,6 +123,7 @@ class CesiumIonSession {
     CesiumAsync::Future<bool> ensureAppDataLoaded();
 
   private:
+    Context* _pContext;
     CesiumAsync::AsyncSystem _asyncSystem;
     std::shared_ptr<CesiumAsync::IAssetAccessor> _pAssetAccessor;
 
