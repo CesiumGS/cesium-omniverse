@@ -13,7 +13,7 @@ struct AccessToken {
 
 class ISettings {
   public:
-    virtual ~ISettings();
+    virtual ~ISettings() = default;
 
     [[nodiscard]] virtual std::vector<AccessToken> getAccessTokens() const = 0;
     virtual void setAccessToken(const AccessToken& accessToken) const = 0;

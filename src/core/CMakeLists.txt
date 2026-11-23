@@ -1,25 +1,6 @@
-# On Linux you may see a warning like:
-#
-# Warning: Unused direct dependencies:
-#         cesium-omniverse/extern/nvidia/_build/target-deps/usd/release/lib/libarch.so
-#         cesium-omniverse/extern/nvidia/_build/target-deps/usd/release/lib/libjs.so
-#         cesium-omniverse/extern/nvidia/_build/target-deps/usd/release/lib/libkind.so
-#         cesium-omniverse/extern/nvidia/_build/target-deps/usd/release/lib/libndr.so
-#         cesium-omniverse/extern/nvidia/_build/target-deps/usd/release/lib/libpcp.so
-#         cesium-omniverse/extern/nvidia/_build/target-deps/usd/release/lib/libplug.so
-#         cesium-omniverse/extern/nvidia/_build/target-deps/usd/release/lib/libsdr.so
-#         cesium-omniverse/extern/nvidia/_build/target-deps/usd/release/lib/libtrace.so
-#
-# This is because some USD libraries are referenced by other USD libraries but are not direct depenencies of
-# Cesium Omniverse. The reason we include them in the list below is because on Windows this allows them to be
-# copied to the bin folder when TARGET_RUNTIME_DLLS is used.
-
 include(Macros)
 
 glob_files(SOURCES "${CMAKE_CURRENT_LIST_DIR}/src/*.cpp")
-
-get_property(ADDITIONAL_LIBRARIES GLOBAL PROPERTY NVIDIA_ADDITIONAL_LIBRARIES_PROPERTY)
-get_property(ADDITIONAL_LINK_DIRECTORIES GLOBAL PROPERTY NVIDIA_ADDITIONAL_LINK_DIRECTORIES_PROPERTY)
 
 # cmake-format: off
 setup_lib(
@@ -32,8 +13,6 @@ setup_lib(
     SOURCES
         ${SOURCES}
     INCLUDE_DIRS
-        # Stub headers for rtx_plugins (not publicly available)
-        "${CMAKE_CURRENT_LIST_DIR}/include/stubs"
         "${CMAKE_CURRENT_LIST_DIR}/include"
     LIBRARIES
         CesiumUsdSchemas
@@ -55,7 +34,6 @@ setup_lib(
         CesiumCurl
         CesiumAsync
         CesiumUtility
-        fabric
         usd_ar
         usd_arch
         usd_boost
@@ -80,13 +58,6 @@ setup_lib(
         usd_vt
         usd_work
         tbb
-        carb
-        omni_kit
-        omni_ui
-        pybind11
-        boost_preprocessor
-        gsl
-        python312
     ADDITIONAL_LIBRARIES
         "${ADDITIONAL_LIBRARIES}"
     ADDITIONAL_LINK_DIRECTORIES

@@ -34,7 +34,7 @@ struct SubsystemStatistics;
 
 class ISubsystem {
   public:
-    virtual ~ISubsystem() = 0;
+    virtual ~ISubsystem() = default;
 
     virtual void clear() = 0;
     virtual void applyDebugSettings(const DebugSettings& debugSettings) = 0;

@@ -15,7 +15,8 @@ class OmniTileset;
 class SubsystemPrepareRendererResources : public Cesium3DTilesSelection::IPrepareRendererResources {
   public:
     SubsystemPrepareRendererResources(Context* pContext, OmniTileset* pTileset);
-    ~SubsystemPrepareRendererResources() override = 0;
+    // NOLINTNEXTLINE(modernize-use-override)
+    virtual ~SubsystemPrepareRendererResources() = default;
 
     [[nodiscard]] bool tilesetExists() const;
     void detachTileset();

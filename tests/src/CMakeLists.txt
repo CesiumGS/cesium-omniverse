@@ -17,6 +17,7 @@ setup_lib(
         "${PROJECT_SOURCE_DIR}/tests/include"
     LIBRARIES
         CesiumOmniverseCore
+        cesium.omniverse.plugin
         doctest::doctest
         yaml-cpp::yaml-cpp
     ADDITIONAL_LIBRARIES

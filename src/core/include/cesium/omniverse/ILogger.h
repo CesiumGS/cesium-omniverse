@@ -12,7 +12,7 @@ class ILogger : public spdlog::logger {
   public:
     ILogger(std::string&& name, spdlog::sinks_init_list&& sinks);
     // NOLINTNEXTLINE(modernize-use-override)
-    virtual ~ILogger() = 0;
+    virtual ~ILogger() = default;
 
     template <typename T> void oneTimWarning(const T& warning) {
         if (CppUtil::contains(_oneTimeWarnings, warning)) {

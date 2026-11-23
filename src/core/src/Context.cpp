@@ -140,6 +140,10 @@ const ISubsystem& Context::getSubsystem() const {
     return *_pSubsystem.get();
 }
 
+ISubsystem& Context::getSubsystem() {
+    return *_pSubsystem.get();
+}
+
 std::shared_ptr<TaskProcessor> Context::getTaskProcessor() const {
     return _pTaskProcessor;
 }
