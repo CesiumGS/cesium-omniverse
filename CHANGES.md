@@ -1,6 +1,6 @@
 # Change Log
 
-### v0.31.0 - 2026-11-01
+### v0.31.0 - 2026-12-01
 
 * Added basic support for loading 3D Tiles 2.0 tilesets (i.e., glTF 2.1 models).
 
