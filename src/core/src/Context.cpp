@@ -26,7 +26,7 @@
 #undef OPAQUE
 #endif
 
-#include <Cesium3DTilesContent/registerAllTileContentTypes.h>
+#include <CesiumGltfConverters/registerAllConverterTypes.h>
 #include <CesiumAsync/CachingAssetAccessor.h>
 #include <CesiumAsync/SqliteCache.h>
 #include <CesiumUtility/CreditSystem.h>
@@ -125,7 +125,7 @@ Context::Context(const std::filesystem::path& cesiumExtensionLocation)
     } else {
         _pAssetAccessor = std::make_shared<CesiumCurl::CurlAssetAccessor>(createCurlAssetAccessorOptions());
     }
-    Cesium3DTilesContent::registerAllTileContentTypes();
+    CesiumGltfConverters::registerAllConverterTypes();
 
 #if CESIUM_TRACING_ENABLED
     const auto timeNow = std::chrono::time_point_cast<std::chrono::microseconds>(std::chrono::steady_clock::now());
