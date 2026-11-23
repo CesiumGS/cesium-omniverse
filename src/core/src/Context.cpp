@@ -7,6 +7,7 @@
 #include "cesium/omniverse/DebugSettings.h"
 #include "cesium/omniverse/FilesystemUtil.h"
 #include "cesium/omniverse/ILogger.h"
+#include "cesium/omniverse/ISettings.h"
 #include "cesium/omniverse/ISubsystem.h"
 #include "cesium/omniverse/OmniData.h"
 #include "cesium/omniverse/OmniIonRasterOverlay.h"
@@ -18,8 +19,6 @@
 #include "cesium/omniverse/UsdNotificationHandler.h"
 #include "cesium/omniverse/UsdUtil.h"
 
-#include <CesiumCurl/CurlAssetAccessor.h>
-
 #ifdef CESIUM_OMNI_MSVC
 #pragma push_macro("OPAQUE")
 #undef OPAQUE
@@ -28,8 +27,8 @@
 #include <Cesium3DTilesContent/registerAllTileContentTypes.h>
 #include <CesiumAsync/CachingAssetAccessor.h>
 #include <CesiumAsync/SqliteCache.h>
+#include <CesiumCurl/CurlAssetAccessor.h>
 #include <CesiumUtility/CreditSystem.h>
-#include <omni/kit/IApp.h>
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma warning(push)

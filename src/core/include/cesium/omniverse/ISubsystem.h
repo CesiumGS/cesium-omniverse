@@ -24,6 +24,7 @@ class Tileset;
 namespace cesium::omniverse {
 
 class Context;
+class IBroadcast;
 class ILogger;
 class ISettings;
 class OmniTileset;
@@ -66,6 +67,7 @@ class ISubsystem {
     virtual void setContentVisiblity(void* pRenderResources, bool visible) const = 0;
     [[nodiscard]] virtual std::shared_ptr<ILogger> getLogger() const = 0;
     [[nodiscard]] virtual const ISettings& getSettings() const = 0;
+    [[nodiscard]] virtual const IBroadcast& getBroadcast() const = 0;
 };
 
 } // namespace cesium::omniverse

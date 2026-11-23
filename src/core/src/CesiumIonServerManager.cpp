@@ -1,10 +1,11 @@
 #include "cesium/omniverse/CesiumIonServerManager.h"
 
 #include "cesium/omniverse/AssetRegistry.h"
-#include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/CesiumIonSession.h"
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/CppUtil.h"
+#include "cesium/omniverse/IBroadcast.h"
+#include "cesium/omniverse/ISubsystem.h"
 #include "cesium/omniverse/OmniData.h"
 #include "cesium/omniverse/OmniIonRasterOverlay.h"
 #include "cesium/omniverse/OmniIonServer.h"
@@ -76,13 +77,13 @@ void CesiumIonServerManager::updateTokenTroubleshootingDetails(
             return userConnection.value().tokens();
         })
         .thenInMainThread(
-            [pConnection, &details, eventId](CesiumIonClient::Response<CesiumIonClient::TokenList>&& tokens) {
+            [this, pConnection, &details, eventId](CesiumIonClient::Response<CesiumIonClient::TokenList>&& tokens) {
                 if (tokens.value.has_value()) {
                     details.associatedWithUserAccount = CppUtil::containsByMember(
                         tokens.value.value().items, &CesiumIonClient::Token::token, pConnection->getAccessToken());
                 }
 
-                Broadcast::sendMessageToBus(eventId);
+                _pContext->getSubsystem().getBroadcast().sendMessageToBus(eventId);
             });
 }
 void CesiumIonServerManager::updateAssetTroubleshootingDetails(
@@ -96,10 +97,9 @@ void CesiumIonServerManager::updateAssetTroubleshootingDetails(
 
     pSession->getConnection()
         ->asset(ionAssetId)
-        .thenInMainThread([eventId, &details](CesiumIonClient::Response<CesiumIonClient::Asset>&& asset) {
+        .thenInMainThread([this, eventId, &details](CesiumIonClient::Response<CesiumIonClient::Asset>&& asset) {
             details.assetExistsInUserAccount = asset.value.has_value();
-
-            Broadcast::sendMessageToBus(eventId);
+            _pContext->getSubsystem().getBroadcast().sendMessageToBus(eventId);
         });
 }
 
@@ -158,7 +158,7 @@ std::optional<CesiumIonClient::Token> CesiumIonServerManager::getDefaultToken() 
         return std::nullopt;
     }
 
-    const auto token = pCurrentIonServer->getToken();
+    auto token = pCurrentIonServer->getToken();
 
     if (token.token.empty()) {
         return std::nullopt;
@@ -211,7 +211,7 @@ void CesiumIonServerManager::createToken(const std::string& name) {
                 };
             }
 
-            Broadcast::setDefaultTokenComplete();
+            _pContext->getSubsystem().getBroadcast().setDefaultTokenComplete();
         });
 }
 void CesiumIonServerManager::selectToken(const CesiumIonClient::Token& token) {
@@ -237,7 +237,7 @@ void CesiumIonServerManager::selectToken(const CesiumIonClient::Token& token) {
         };
     }
 
-    Broadcast::setDefaultTokenComplete();
+    _pContext->getSubsystem().getBroadcast().setDefaultTokenComplete();
 }
 void CesiumIonServerManager::specifyToken(const std::string& token) {
     const auto pCurrentIonServer = getCurrentIonServer();
@@ -263,7 +263,7 @@ void CesiumIonServerManager::specifyToken(const std::string& token) {
                 std::string(SetDefaultTokenResultMessages::OK_MESSAGE),
             };
 
-            Broadcast::setDefaultTokenComplete();
+            _pContext->getSubsystem().getBroadcast().setDefaultTokenComplete();
         });
 }
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cesium/omniverse/ISubsystem.h"
+#include "cesium/omniverse/KitBroadcast.h"
 
 #include <omni/fabric/IToken.h>
 
@@ -55,6 +56,7 @@ class KitSubsystem final : public ISubsystem {
     void setContentVisiblity(void* pRenderResources, bool visible) const override;
     [[nodiscard]] std::shared_ptr<ILogger> getLogger() const override;
     [[nodiscard]] const ISettings& getSettings() const override;
+    [[nodiscard]] const IBroadcast& getBroadcast() const override;
 
     [[nodiscard]] const omni::fabric::Token& getCesiumMdlPathToken() const;
     [[nodiscard]] const FabricResourceManager& getFabricResourceManager() const;
@@ -66,6 +68,7 @@ class KitSubsystem final : public ISubsystem {
     std::unique_ptr<FabricResourceManager> _pFabricResourceManager;
     std::shared_ptr<KitLogger> _pLogger;
     std::unique_ptr<KitSettings> _pSettings;
+    std::unique_ptr<KitBroadcast> _pBroadcast;
     std::unique_ptr<omni::fabric::StageReaderWriter> _pFabricStage;
 };
 

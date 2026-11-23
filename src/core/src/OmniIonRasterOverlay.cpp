@@ -1,9 +1,10 @@
 #include "cesium/omniverse/OmniIonRasterOverlay.h"
 
 #include "cesium/omniverse/AssetRegistry.h"
-#include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/IBroadcast.h"
 #include "cesium/omniverse/ILogger.h"
+#include "cesium/omniverse/ISubsystem.h"
 #include "cesium/omniverse/OmniIonServer.h"
 #include "cesium/omniverse/UsdUtil.h"
 
@@ -139,7 +140,8 @@ void OmniIonRasterOverlay::reload() {
 
         if (error.type == CesiumRasterOverlays::RasterOverlayLoadType::CesiumIon &&
             (statusCode == 401 || statusCode == 404)) {
-            Broadcast::showTroubleshooter({}, 0, "", rasterOverlayIonAssetId, rasterOverlayName, error.message);
+            _pContext->getSubsystem().getBroadcast().showTroubleshooter(
+                {}, 0, "", rasterOverlayIonAssetId, rasterOverlayName, error.message);
         }
 
         _pContext->getLogger()->error(error.message);

@@ -1,4 +1,4 @@
-#include "cesium/omniverse/Broadcast.h"
+#include "cesium/omniverse/KitBroadcast.h"
 
 // Suppress deprecation warning for getMessageBusEventStream until Events 2.0 migration is complete
 #ifdef CESIUM_OMNI_MSVC
@@ -13,7 +13,7 @@
 #include <omni/kit/IApp.h>
 #include <pxr/usd/sdf/path.h>
 
-namespace cesium::omniverse::Broadcast {
+namespace cesium::omniverse {
 
 namespace {
 
@@ -40,29 +40,29 @@ void sendMessageToBusWithPayload(const std::string_view& eventKey, ValuesT&&... 
 
 } // namespace
 
-void assetsUpdated() {
+void KitBroadcast::assetsUpdated() const {
     sendMessageToBus(ASSETS_UPDATED_EVENT_KEY);
 }
 
-void connectionUpdated() {
+void KitBroadcast::connectionUpdated() const {
     sendMessageToBus(CONNECTION_UPDATED_EVENT_KEY);
 }
 
-void profileUpdated() {
+void KitBroadcast::profileUpdated() const {
     sendMessageToBus(PROFILE_UPDATED_EVENT_KEY);
 }
 
-void tokensUpdated() {
+void KitBroadcast::tokensUpdated() const {
     sendMessageToBus(TOKENS_UPDATED_EVENT_KEY);
 }
 
-void showTroubleshooter(
+void KitBroadcast::showTroubleshooter(
     const pxr::SdfPath& tilesetPath,
     int64_t tilesetIonAssetId,
     const std::string& tilesetName,
     int64_t rasterOverlayIonAssetId,
     const std::string& rasterOverlayName,
-    const std::string& message) {
+    const std::string& message) const {
     sendMessageToBusWithPayload(
         SHOW_TROUBLESHOOTER_EVENT_KEY,
         std::make_pair("tilesetPath", tilesetPath.GetText()),
@@ -73,26 +73,26 @@ void showTroubleshooter(
         std::make_pair("message", message.c_str()));
 }
 
-void setDefaultTokenComplete() {
+void KitBroadcast::setDefaultTokenComplete() const {
     sendMessageToBus(SET_DEFAULT_PROJECT_TOKEN_COMPLETE_KEY);
 }
 
-void tilesetLoaded(const pxr::SdfPath& tilesetPath) {
+void KitBroadcast::tilesetLoaded(const pxr::SdfPath& tilesetPath) const {
     sendMessageToBusWithPayload(TILESET_LOADED_KEY, std::make_pair("tilesetPath", tilesetPath.GetText()));
 }
 
-void sendMessageToBus(carb::events::EventType eventType) {
+void KitBroadcast::sendMessageToBus(carb::events::EventType eventType) const {
     const auto iApp = carb::getCachedInterface<omni::kit::IApp>();
     const auto bus = iApp->getMessageBusEventStream();
     bus->push(eventType);
 }
 
-void sendMessageToBus(const std::string_view& eventKey) {
+void KitBroadcast::sendMessageToBus(const std::string_view& eventKey) const {
     const auto eventType = carb::events::typeFromString(eventKey.data());
     sendMessageToBus(eventType);
 }
 
-} // namespace cesium::omniverse::Broadcast
+} // namespace cesium::omniverse
 
 #ifdef CESIUM_OMNI_MSVC
 #pragma warning(pop)

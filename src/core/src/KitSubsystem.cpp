@@ -8,6 +8,7 @@
 #include "cesium/omniverse/FabricRenderResources.h"
 #include "cesium/omniverse/FabricResourceManager.h"
 #include "cesium/omniverse/FabricUtil.h"
+#include "cesium/omniverse/IBroadcast.h"
 #include "cesium/omniverse/ILogger.h"
 #include "cesium/omniverse/KitLogger.h"
 #include "cesium/omniverse/KitSettings.h"
@@ -49,7 +50,8 @@ KitSubsystem::KitSubsystem(Context* pContext, const std::filesystem::path& cesiu
           omni::fabric::Token::createImmortal(cesiumMdlPath.lexically_normal().generic_string().c_str()))
     , _pFabricResourceManager(std::make_unique<FabricResourceManager>(pContext, this))
     , _pLogger(std::make_shared<KitLogger>())
-    , _pSettings(std::make_unique<KitSettings>()) {}
+    , _pSettings(std::make_unique<KitSettings>())
+    , _pBroadcast(std::make_unique<KitBroadcast>()) {}
 
 void KitSubsystem::clear() {
     _pFabricResourceManager->clear();
@@ -155,6 +157,10 @@ std::shared_ptr<ILogger> KitSubsystem::getLogger() const {
 
 const ISettings& KitSubsystem::getSettings() const {
     return *_pSettings;
+}
+
+const IBroadcast& KitSubsystem::getBroadcast() const {
+    return *_pBroadcast;
 }
 
 const omni::fabric::Token& KitSubsystem::getCesiumMdlPathToken() const {

@@ -2,8 +2,8 @@
 
 #include "cesium/omniverse/CesiumIonSession.h"
 
-#include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/Context.h"
+#include "cesium/omniverse/IBroadcast.h"
 #include "cesium/omniverse/ISettings.h"
 #include "cesium/omniverse/ISubsystem.h"
 
@@ -115,14 +115,12 @@ void CesiumIonSession::connect() {
             token.ionApiUrl = _ionApiUrl;
             token.accessToken = this->_connection.value().getAccessToken();
             _pContext->getSubsystem().getSettings().setAccessToken(token);
-
-            Broadcast::connectionUpdated();
+            _pContext->getSubsystem().getBroadcast().connectionUpdated();
         })
         .catchInMainThread([this]([[maybe_unused]] std::exception&& e) {
             this->_isConnecting = false;
             this->_connection = std::nullopt;
-
-            Broadcast::connectionUpdated();
+            _pContext->getSubsystem().getBroadcast().connectionUpdated();
         });
 }
 
@@ -179,7 +177,7 @@ void CesiumIonSession::resume() {
                         this->_connection.reset();
                     }
                     this->_isResuming = false;
-                    Broadcast::connectionUpdated();
+                    _pContext->getSubsystem().getBroadcast().connectionUpdated();
                     // logResponseErrors(response);
                     if (response.value.has_value()) {
                         this->_connection = std::move(*pConnection);
@@ -189,7 +187,7 @@ void CesiumIonSession::resume() {
         .catchInMainThread([this]([[maybe_unused]] std::exception&& e) {
             this->_isResuming = false;
             this->_connection.reset();
-            Broadcast::connectionUpdated();
+            _pContext->getSubsystem().getBroadcast().connectionUpdated();
         });
 }
 
@@ -201,10 +199,10 @@ void CesiumIonSession::disconnect() {
 
     _pContext->getSubsystem().getSettings().removeAccessToken(_ionApiUrl);
 
-    Broadcast::connectionUpdated();
-    Broadcast::profileUpdated();
-    Broadcast::assetsUpdated();
-    Broadcast::tokensUpdated();
+    _pContext->getSubsystem().getBroadcast().connectionUpdated();
+    _pContext->getSubsystem().getBroadcast().profileUpdated();
+    _pContext->getSubsystem().getBroadcast().assetsUpdated();
+    _pContext->getSubsystem().getBroadcast().tokensUpdated();
 }
 
 void CesiumIonSession::tick() {
@@ -224,13 +222,13 @@ void CesiumIonSession::refreshProfile() {
         .thenInMainThread([this](Response<Profile>&& profile) {
             this->_isLoadingProfile = false;
             this->_profile = std::move(profile.value);
-            Broadcast::profileUpdated();
+            _pContext->getSubsystem().getBroadcast().profileUpdated();
             this->refreshProfileIfNeeded();
         })
         .catchInMainThread([this]([[maybe_unused]] std::exception&& e) {
             this->_isLoadingProfile = false;
             this->_profile = std::nullopt;
-            Broadcast::profileUpdated();
+            _pContext->getSubsystem().getBroadcast().profileUpdated();
             this->refreshProfileIfNeeded();
         });
 }
@@ -247,13 +245,13 @@ void CesiumIonSession::refreshAssets() {
         .thenInMainThread([this](Response<Assets>&& assets) {
             this->_isLoadingAssets = false;
             this->_assets = std::move(assets.value);
-            Broadcast::assetsUpdated();
+            _pContext->getSubsystem().getBroadcast().assetsUpdated();
             this->refreshAssetsIfNeeded();
         })
         .catchInMainThread([this]([[maybe_unused]] std::exception&& e) {
             this->_isLoadingAssets = false;
             this->_assets = std::nullopt;
-            Broadcast::assetsUpdated();
+            _pContext->getSubsystem().getBroadcast().assetsUpdated();
             this->refreshAssetsIfNeeded();
         });
 }
@@ -270,13 +268,13 @@ void CesiumIonSession::refreshTokens() {
         .thenInMainThread([this](Response<TokenList>&& tokens) {
             this->_isLoadingTokens = false;
             this->_tokens = tokens.value ? std::make_optional(std::move(tokens.value.value().items)) : std::nullopt;
-            Broadcast::tokensUpdated();
+            _pContext->getSubsystem().getBroadcast().tokensUpdated();
             this->refreshTokensIfNeeded();
         })
         .catchInMainThread([this]([[maybe_unused]] std::exception&& e) {
             this->_isLoadingTokens = false;
             this->_tokens = std::nullopt;
-            Broadcast::tokensUpdated();
+            _pContext->getSubsystem().getBroadcast().tokensUpdated();
             this->refreshTokensIfNeeded();
         });
 }

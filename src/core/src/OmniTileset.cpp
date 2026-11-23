@@ -1,9 +1,9 @@
 #include "cesium/omniverse/OmniTileset.h"
 
 #include "cesium/omniverse/AssetRegistry.h"
-#include "cesium/omniverse/Broadcast.h"
 #include "cesium/omniverse/Context.h"
 #include "cesium/omniverse/GltfUtil.h"
+#include "cesium/omniverse/IBroadcast.h"
 #include "cesium/omniverse/ILogger.h"
 #include "cesium/omniverse/ISubsystem.h"
 #include "cesium/omniverse/OmniCartographicPolygon.h"
@@ -550,7 +550,8 @@ void OmniTileset::reload() {
             // when the token is valid but not authorized for the asset.
             if (error.type == Cesium3DTilesSelection::TilesetLoadType::CesiumIon &&
                 (error.statusCode == 401 || error.statusCode == 404)) {
-                Broadcast::showTroubleshooter(tilesetPath, ionAssetId, name, 0, "", error.message);
+                _pContext->getSubsystem().getBroadcast().showTroubleshooter(
+                    tilesetPath, ionAssetId, name, 0, "", error.message);
             }
 
             _pContext->getLogger()->error(error.message);
@@ -773,7 +774,7 @@ void OmniTileset::updateLoadStatus() {
     if (loadProgress < 100.0f) {
         _activeLoading = true;
     } else if (_activeLoading) {
-        Broadcast::tilesetLoaded(_path);
+        _pContext->getSubsystem().getBroadcast().tilesetLoaded(_path);
         _activeLoading = false;
     }
 }
