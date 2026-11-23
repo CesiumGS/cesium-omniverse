@@ -192,8 +192,8 @@ void Context::clearStage() {
     // The order is important. Clear the asset registry first so that subsystem
     // resources are released back into the pool. Then clear the pools.
     _pAssetRegistry->clear();
-    _pUsdNotificationHandler->clear();
     _pSubsystem->clear();
+    _pUsdNotificationHandler->clear();
 }
 
 void Context::reloadStage() {

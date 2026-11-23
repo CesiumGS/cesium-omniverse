@@ -31,8 +31,6 @@
 
 namespace cesium::omniverse {
 
-namespace {} // namespace
-
 class CesiumOmniversePlugin final : public ICesiumOmniverseInterface {
   protected:
     void onStartup(const char* cesiumExtensionLocation) noexcept override {

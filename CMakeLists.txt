@@ -82,7 +82,7 @@ set(LINT_SOURCE_DIRECTORIES
     "${PROJECT_SOURCE_DIR}/src/bindings"
     "${PROJECT_SOURCE_DIR}/src/core"
     "${PROJECT_SOURCE_DIR}/src/kit"
-    "${PROJECT_SOURCE_DIR}/src/stage"
+    "${PROJECT_SOURCE_DIR}/src/ovstage"
     "${PROJECT_SOURCE_DIR}/tests")
 
 # Source directories for coverage
@@ -535,13 +535,13 @@ install(
             POST_EXCLUDE_REGEXES
             ${INSTALL_POST_EXCLUDE_REGEXES}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT stage
+            COMPONENT ovstage
             EXCLUDE_FROM_ALL
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT stage
+            COMPONENT ovstage
             EXCLUDE_FROM_ALL
     RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT stage
+            COMPONENT ovstage
             EXCLUDE_FROM_ALL)
 
 install(
@@ -654,13 +654,13 @@ install(
 install(
     FILES "${PROJECT_SOURCE_DIR}/include/cesium/omniverse/CesiumOmniverseOvstage.h"
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/cesium/omniverse"
-    COMPONENT stage
+    COMPONENT ovstage
     EXCLUDE_FROM_ALL)
 
 install(
     FILES "${PROJECT_SOURCE_DIR}/exts/cesium.omniverse/mdl/cesium.mdl"
     DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}"
-    COMPONENT stage
+    COMPONENT ovstage
     EXCLUDE_FROM_ALL)
 
 install(

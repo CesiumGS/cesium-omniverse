@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cesium/omniverse/SubsystemStatistics.h"
+
 #include <glm/fwd.hpp>
 
 #ifdef CESIUM_OMNI_MSVC

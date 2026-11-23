@@ -179,9 +179,9 @@ jobs:
         if: matrix.config.name != 'Ubuntu 22 - GCC'
         run: cmake --install build --config ${{ matrix.config.build-type }} --prefix install-kit-lib --component kit-lib
 
-      - name: Install (Stage)
+      - name: Install (ovstage)
         if: matrix.config.name != 'Ubuntu 22 - GCC'
-        run: cmake --install build --config ${{ matrix.config.build-type }} --prefix install-stage --component stage
+        run: cmake --install build --config ${{ matrix.config.build-type }} --prefix install-ovstage --component ovstage
 
       - name: Package
         if: matrix.config.name != 'Ubuntu 22 - GCC'

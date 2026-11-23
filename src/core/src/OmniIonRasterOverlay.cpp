@@ -26,8 +26,6 @@
 
 namespace cesium::omniverse {
 
-namespace {} // namespace
-
 OmniIonRasterOverlay::OmniIonRasterOverlay(Context* pContext, const pxr::SdfPath& path)
     : OmniRasterOverlay(pContext, path) {
     reload();

@@ -14,24 +14,7 @@ setup_lib(
         "${PROJECT_SOURCE_DIR}/include"
         "${CMAKE_CURRENT_LIST_DIR}/include"
     LIBRARIES
-        Cesium3DTiles
-        Cesium3DTilesSelection
-        CesiumTilesetJsonReader
-        CesiumRasterOverlays
-        CesiumGltfReader
-        CesiumGltfContent
-        CesiumGltf
-        CesiumImage
-        CesiumQuantizedMeshTerrain
-        CesiumJsonReader
-        CesiumJsonWriter
-        CesiumGeospatial
-        CesiumGeometry
-        CesiumIonClient
-        CesiumClientCommon
-        CesiumCurl
-        CesiumAsync
-        CesiumUtility
+        CesiumOmniverseCore
         ovstage::ovstage
     CXX_FLAGS
         ${CESIUM_OMNI_CXX_FLAGS}
