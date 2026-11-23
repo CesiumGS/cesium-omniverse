@@ -1,5 +1,9 @@
 # Change Log
 
+### v0.31.0 - 2026-12-01
+
+* Added basic support for loading 3D Tiles 2.0 tilesets (i.e., glTF 2.1 models).
+
 ### v0.30.0 - 2026-11-02
 
 * **Breaking change:** Cesium for Omniverse now requires a C++ 20 compiler. For Windows builds, MSVC 14.29 is required.

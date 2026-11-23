@@ -749,8 +749,7 @@ bool OmniTileset::updateExtent() {
     }
 
     const auto& boundingVolume = pRootTile->getBoundingVolume();
-    const auto ecefObb =
-        Cesium3DTilesSelection::getOrientedBoundingBoxFromBoundingVolume(boundingVolume, getEllipsoid());
+    const auto ecefObb = Cesium3DTiles::getOrientedBoundingBoxFromBoundingVolume(boundingVolume, getEllipsoid());
     const auto georeferencePath = getResolvedGeoreferencePath();
     const auto ecefToStageTransform = UsdUtil::computeEcefToStageTransform(*_pContext, georeferencePath);
     const auto primObb = ecefObb.transform(ecefToStageTransform);
