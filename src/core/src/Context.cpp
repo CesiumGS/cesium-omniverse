@@ -26,9 +26,9 @@
 #undef OPAQUE
 #endif
 
-#include <CesiumGltfConverters/registerAllConverterTypes.h>
 #include <CesiumAsync/CachingAssetAccessor.h>
 #include <CesiumAsync/SqliteCache.h>
+#include <CesiumGltfConverters/registerAllConverterTypes.h>
 #include <CesiumUtility/CreditSystem.h>
 #include <omni/fabric/SimStageWithHistory.h>
 #include <omni/kit/IApp.h>
